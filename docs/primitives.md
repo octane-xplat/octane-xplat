@@ -156,6 +156,32 @@ adapter for granular native updates (`refresh()` re-fires every `itemLoading`
 — avoid). Web leaf: `@for` over `items` in a scroll div; virtualize via
 `@octanejs/tanstack-virtual` binding if DOM-free (verify).
 
+**Lab findings (iOS sim, experiment 1 — `packages/ui/src/List.native.tsrx`):**
+
+- ✅ Per-cell `createNativeScriptRoot` works: 5 visible cells → 5 roots,
+  reused across waves; `root.render` re-entry updates in place.
+- ⚠️ `itemLoading` refires on **every layout-affecting render** anywhere in
+  the tree, not just data changes. A stable `onItemLoading` identity did not
+  stop it — the trigger is native layout invalidation, not prop writes.
+- ⚠️ The host↔index assignment **rotates between waves** (pool alternates
+  order), so a per-host item dedup only saves the stable-center case; most
+  refires are real rebinds. Cell renders stay cheap (JS-only, universal diff
+  guards native writes).
+- ⚠️ `e.item` lags the `ObservableArray.splice` by one wave — app data must be
+  authoritative (`items[index]`), `e.item` is fallback.
+- ⚠️ `useRef`-held values are **unreliable inside stale event closures**:
+  `.current` resolves through draft-vs-committed hook records, so a wave
+  running a pre-commit closure reads old values. Keep itemLoading state in
+  module-scope maps keyed by the native objects (`ObservableArray`, host
+  view) — multi-instance safe, no hook semantics.
+- ⚠️ The splice's own wave is queued before the render commits, so a lone
+  data change can display stale cells until the next wave. Mitigation:
+  `setTimeout(() => lv.refresh(), 0)` after splice (ListView captured from
+  `e.object`).
+- Deeper fix belongs in the driver: `listview` should be a managed element
+  whose `items` diff drives `refresh()` natively instead of leaf-level
+  glue.
+
 `renderItem` as a function prop — NOT `children` + `@for` — because the native
 leaf can't feed reconciled children into `itemTemplate`. Shared code calls it
 as `<List items={msgs} renderItem={(m) => <MsgRow msg={m}/>}/>`; the function

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List, PlatformBadge } from '@xplat/ui';
 
 const INITIAL = [
 	{ id: 'a', label: 'Alpha' },
@@ -11,6 +11,10 @@ const INITIAL = [
 
 console.log('[harness] App module evaluated');
 
+// Identity-stable — an inline arrow would change every App render and force
+// every recycled cell root to re-render on each native itemLoading refire.
+const renderItem = (item: any) => <Text className="cell">{item.label}</Text>;
+
 export function App() @{
 	const [count, setCount] = useState(0);
 	const [dark, setDark] = useState(false);
@@ -20,10 +24,27 @@ export function App() @{
 
 	useEffect(() => {
 		console.log('[harness] App mounted');
+		// Self-driving probe sequence for lab experiments (no UI taps needed):
+		// t+1s shuffle (ListView rebind/recycle path), t+2s controlled input,
+		// t+3s dark toggle (class/token swap).
+		const t1 = setTimeout(() => {
+			console.log('[self] shuffle');
+			setItems([...items].reverse());
+		}, 1000);
+		const t2 = setTimeout(() => {
+			console.log('[self] setText');
+			setText('hello');
+		}, 2000);
+		const t3 = setTimeout(() => {
+			console.log('[self] dark on');
+			setDark(true);
+		}, 3000);
+		return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
 	}, []);
 
 	<View className={['vx-app', 'flex-1', 'gap-4', dark ? 'dark ns-dark' : '']}>
 		<Text className="text-xl font-bold">{'Count: ' + count}</Text>
+		<PlatformBadge className="badge" />
 
 		<Row className="gap-4">
 			<Pressable onPress={() => setCount(count + 1)} className="btn bg-primary">
@@ -65,7 +86,7 @@ export function App() @{
 		<List
 			items={items}
 			className="list flex-1"
-			renderItem={(item) => <Text className="cell">{item.label}</Text>}
+			renderItem={renderItem}
 		/>
 	</View>
 }

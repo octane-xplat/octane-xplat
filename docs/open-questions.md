@@ -22,14 +22,17 @@
    Absent: `Suspense`, `ErrorBoundary`, `Fragment` components (use
    `@try`/`@pending`/`@catch`), `createRoot`, `ViewTransition`, resource hints,
    DOM utilities. Full list: prior-art/octane.md → "universal export surface".
-3. 🔬 **NS ListView item templates vs Octane's reconciler.** — Mechanism
-   confirmed: ListView recycles via `itemLoading`/`itemTemplate` — imperative
-   view factories, no reconciler children possible (driver has no listview
-   special-casing). Design path: `List` native leaf = ListView + **per-cell
-   `createNativeScriptRoot` sub-roots**, recycling slots re-bound by
-   `itemLoading`; `items` fed as `ObservableArray` for granular updates.
-   Lab-confirms: per-cell root cost, templateSelector integration, `@for`-key →
-   recycled-slot mapping.
+3. ✅ **NS ListView item templates vs Octane's reconciler.** — Answered on
+   device (iOS sim): ListView recycles via `itemLoading`/`itemTemplate`; the
+   leaf hosts **per-cell `createNativeScriptRoot` sub-roots** re-bound by
+   `itemLoading`, `items` fed as `ObservableArray`. Confirmed: roots mount
+   and reuse correctly; item rebinds render right data. Surfaced seams:
+   itemLoading refires on any layout-affecting render; host↔index rotates
+   between waves; `e.item` lags splice; `useRef` reads go stale inside
+   pre-commit event closures — leaf works around all four (module-scope
+   maps + authoritative `items[index]` + post-splice `refresh()`). Open
+   follow-up: scroll-range recycling (only 5 visible cells tested), Android
+   parity, and whether the driver should own `items`-diff → `refresh()`.
 4. 🔬 **Controlled text inputs.** — Mechanism confirmed: every keystroke emits
    an `update` command → `view.text = value`. Risk: iOS `UITextField.text`
    assignment may reset cursor to end; IME composition on Android is a second
