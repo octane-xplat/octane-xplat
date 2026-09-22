@@ -68,11 +68,13 @@ interface PrimitiveProps {
 
 | Primitive | Web leaf | Native leaf | Notes / seams |
 |---|---|---|---|
-| `View` | `div` | `contentview` | default neutral container |
-| `Row` / `Column` | `div` flex | `stacklayout` (`orientation`) | most common layout |
-| `Stack` (z-order) | `div` grid/relative | `gridlayout` `*` cell overlay | children stack in one cell |
-| `Grid` | `div` grid | `gridlayout` rows/cols | shared prop shape `rows="*,auto"` — CSS grid template vs NS string; map deliberately |
-| `Absolute` | `div` + `position:absolute` | `absolutelayout` | **native has no `position` CSS** — must be a container element, matching anyway |
+| `View` | `div` + `vx-view` class (flex-column, stretch) | `flexboxlayout` `flexDirection=column` | RN-compatible default container — **column by default**, not web block flow. NOT `contentview` (single-child only) |
+| `Row` / `Column` | flex row / col | `flexboxlayout` (`flexDirection`) | `justify`/`align`/`gap`/`wrap` props — FlexboxLayout carries real flex semantics incl. `gap` (verified); StackLayout can't (no justify/align) |
+| `Stack` (z-order) | `display:grid`, children `grid-area:1/1` | `gridlayout` `rows="*" columns="*"` | children stack in one cell; z-order = mount order |
+| `Grid` | `display:grid` + parsed templates | `gridlayout` `rows`/`columns` spec strings | shared spec-string format `"*,auto,2*"` → leaf maps `*`→`1fr`, `auto`→`auto`, `42`→`42px` for web. Child attached props `row`/`col`/`rowSpan`/`colSpan`. **No `gap`** (GridLayout lacks it; use child margins) — leaf warns |
+| `Absolute` | `div` + `position:relative`; children `position:absolute` | `absolutelayout` | **native has no `position` CSS** — container element required anyway; child `left`/`top` attached props (dip→px) |
+| `Spacer` | `flex-grow:1` | `flexGrow` attached prop | convenience |
+
 | `Text` | `span`/`p` | `label` | children: text or `Text` only (nested → `formattedstring`/`span`); **never `View` inside `Text`** — adopt RN rule |
 | `RichText`? | inline markup | `formattedstring` + `span` leaves | possibly fold into `Text` nesting |
 | `Pressable` | `div`+pointer events | `contentview`+`tap`/`touch` | hover/pressed states → CSS vs manual touch tracking; use `button` leaf only where native button chrome wanted |
@@ -90,6 +92,13 @@ interface PrimitiveProps {
 | `WebView` | `iframe` | `webview` | probably web/native divergent enough to skip in v1 |
 | `Overlay`/`Popover`/`Toast` | anchored `div` (floating-ui) / portal | `RootLayout.open(view, {shadeCover, animation})` — imperative bridge, own sub-root per overlay | getRootLayout returns FIRST registered RootLayout — app root is `<rootlayout>`; give modal roots ids (`getRootLayoutById`). One shade cover; every open/close call returns a rejecting promise — always `.catch`. Portals absent on native driver → this is the path (decision #22) |
 
+**Child layout props are part of the shared surface** — `row`, `col`,
+`rowSpan`, `colSpan`, `dock`, `left`, `top`, `flexGrow`, `flexShrink`,
+`alignSelf`, `order` exist in the driver `CommonAttributes`; the web leaf maps
+each to the matching CSS (`grid-row`/`grid-column`, `order`, `flex-*`). Shared
+code writes `<Text row={1} col={2}/>` inside a `<Grid>` identically on both
+targets.
+
 ## The Modal seam (worst primitive leak, document early)
 
 Native modal = a separate window/sheet hosting **its own Octane root**
@@ -104,27 +113,139 @@ Native modal = a separate window/sheet hosting **its own Octane root**
   rather than "render my children in place" — treat children as a *screen
   component* rendered inside the modal root.
 
+```ts
+interface ModalProps {
+  open: boolean;
+  onClose?: (result?: unknown) => void;
+  presentation?: 'sheet' | 'fullscreen' | 'dialog';
+  component: ComponentType<any>;   // screen component, rendered in its own root
+  params?: unknown;                // serializable-ish; crosses the root boundary
+}
+<Modal open={show} onClose={close} presentation="sheet"
+       component={SettingsSheet} params={{ userId }} />
+```
+
+Plus an imperative service for flows that return a value:
+`const res = await modal.open(PickerSheet, params)` — native
+`showModal`'s closeCallback carries results; web resolves the same promise.
+
 Same applies, weaker, to `Drawer` (`mainContent`/`leftDrawer` via `hostSlot` —
-that's within one root, so context survives; model it as slot props).
+that's within one root, so context survives; model it as slot props
+`<Drawer main={…} drawer={…}>`).
+
+## The List contract
+
+```ts
+interface ListProps<T> {
+  items: readonly T[];
+  renderItem: (item: T, index: number) => unknown;  // a row template, not a child
+  keyFor?: (item: T) => string | number;
+  kindFor?: (item: T) => string;        // → itemTemplateSelector (v2)
+  estimatedItemHeight?: number;
+  onEndReached?: () => void;
+  className?: ClassValue; style?: StyleObject;
+}
+```
+
+Native leaf internals (decision #21): `<listview>` with an `itemTemplate` that
+vends a recycled container; **per-cell `createNativeScriptRoot`** mounts the
+row component into each slot; `itemLoading` rebinds by re-calling
+`root.render(Row, { item, index })` on the recycled slot's root (verify
+`render` re-entry updates rather than remounts — lab). `items`→`ObservableArray`
+adapter for granular native updates (`refresh()` re-fires every `itemLoading`
+— avoid). Web leaf: `@for` over `items` in a scroll div; virtualize via
+`@octanejs/tanstack-virtual` binding if DOM-free (verify).
+
+`renderItem` as a function prop — NOT `children` + `@for` — because the native
+leaf can't feed reconciled children into `itemTemplate`. Shared code calls it
+as `<List items={msgs} renderItem={(m) => <MsgRow msg={m}/>}/>`; the function
+body compiles normally.
+
+## The Overlay/Popover/Toast contract
+
+```ts
+<Overlay open={open} onDismiss={…} shadeCover?>…in-window overlay…</Overlay>
+<Popover anchor={ref} placement="top">…anchored…</Popover>
+```
+
+Native: `RootLayout.open(view, {shadeCover, animation})` — the leaf creates a
+container view imperatively, opens it, mounts overlay content via a dedicated
+`createNativeScriptRoot` per overlay. Same caveat as Modal: **context does not
+cross into overlay content**; pass props, not context. Web: portal into
+`document.body` + floating-ui-style positioning. `getRootLayout()` returns the
+FIRST registered RootLayout → the app shell root is `<rootlayout>` (element
+exists in the registry); overlays always route through it. Every `open`/`close`
+returns a rejecting promise — leaf must `.catch`.
+
+## Pressable & input conventions
+
+```ts
+interface PressableProps {
+  onPress?; onLongPress?; onDoublePress?; onPressIn?; onPressOut?;
+  disabled?; hitSlop?: number;
+  ignoreTouchAnimation?: boolean;   // opts out of TouchManager global press-scale
+  className?; style?;
+}
+interface TextInputProps {
+  value: string;
+  onChangeText?: (text: string) => void;   // NOT onChange(event) — RN convention
+  onSubmit?; onFocus?; onBlur?;
+  placeholder?; placeholderTextColor?; keyboardType?; returnKeyType?;
+  autocorrect?; secure?; editable?;
+  ref?: Ref<{ focus(): void; blur(): void }>;
+}
+```
+
+- `Pressable` native leaf: `contentview` + `tap`/`longPress`/`touch` events;
+  press feedback rides `TouchManager.enableGlobalTapAnimations` (ns-octane
+  enables it globally — scale 0.95/1.0 easeOut). Web leaf: `div` + pointer
+  events + `:pressed` class hook for styling.
+- `TextInput` native: `textfield`/`textview`; `value` ↔ `text`; `onChangeText`
+  ↔ `textChange`; `onSubmit` ↔ `returnPress`. Cursor/IME write-back risk is
+  the queued lab experiment.
+- Escape-hatch prop bags (`ios`/`android`/`web`) carry genuinely divergent
+  props; `hostSlot` stays leaf-internal — shared code expresses slots as props
+  (`<Drawer main={…}>`), never the mechanism name.
 
 ## Text details
 
 - Static text in shared code: `<Text>Hello {name}</Text>` — the native driver
-  folds `#text` into `text` prop automatically.
-- Formatting spans: `<Text>…<Text className="bold">x</Text></Text>` → nested
-  `span` in `formattedstring` on native. Keep nesting shallow (font/weight/
-  color only).
-- **Exclusive-text rule**: a text view with `formattedText` set ignores `text`
-  assignments (silent no-op). → A `Text` node takes EITHER text children OR
-  `Span` children, never both. Enforce in types.
+  folds `#text` into `text` prop automatically (TextBase parents only).
+- **Nested text = RN model.** `<Text>Hello <Text className="bold">world</Text></Text>`
+  works on both targets. Mechanism on native:
+  - `Text` leaf renders `<label>`; nested `Text` reads a `TextContext`
+    (universal `createContext`/`useContext` — verified available) and renders
+    `<span>` instead.
+  - NS rich text is **flat**: one `formattedstring` with sibling `span`s —
+    styled spans cannot nest as elements. The context carries accumulated
+    `className`/`style` so inner spans inherit outer text styling; deeper
+    nesting flattens into siblings (documented divergence from web, where
+    spans nest).
+- **Requires two driver extensions** (decision #25 — patch-package now,
+  upstream PR candidate):
+  1. `addViewChild`: `Span` under a `TextBase` parent auto-wraps into
+     `formattedText` (create `FormattedString` lazily, splice at index).
+  2. `syncText`/`attach`: `#text` under `formattedstring` folds into an
+     implicit `Span`; `#text` under `span` sets `span.text` (note: Span.text
+     collapses only the first `\n`/`\t` — acceptable).
+  Without these, `<label><span/></label>` throws (`cannot host a <span>
+  child`) and text under `formattedstring` drops silently.
+- **Exclusive-text rule**: `text` assignments are silent no-ops while
+  `formattedText` is set — never mix bare text children and `Span` children
+  under one `Text`… except via the accumulated-context path above, which
+  normalizes strings into spans when siblings are elements. The leaf
+  implements this normalization (children are inspectable renderable values);
+  shared code just writes natural JSX.
 - Span props: `color` (no `foregroundColor`), `fontSize`, `fontWeight`,
-  `fontStyle`, `textDecoration`, `backgroundColor`; `Span.text` collapses only
-  the FIRST `\n`/`\t`; a `linkTap` listener alone makes a span tappable.
-- `numberOfLines`, `selectable`, ellipsize — per-platform prop support differs;
-  escape hatches.
+  `fontStyle`, `textDecoration`, `backgroundColor`; `linkTap` listener alone
+  makes a span tappable → `onPress` on a nested `Text` maps to it.
+- `numberOfLines`, `selectable` (native: `textview editable=false` is the
+  closest analog — prop support differs), ellipsize — escape hatches.
 - `line-height` on NS means **additive inter-line spacing**, not web's total
   line box — typography tokens must express the NS value (gap) vs web value
   (box height) distinctly.
+- `Heading level={1-6}` primitive: `h1–h6` on web (semantic HTML matters —
+  decision #17); `label` + `className="h{n}"` + a11y role on native.
 
 ## Refs
 
