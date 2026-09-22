@@ -5,9 +5,44 @@
 > Shared code imports the interface only. Design rule from RNW: converge on the
 > *constrained* vocabulary — never the DOM's open one.
 >
-> **Owns:** #1 primitives contract · **Status:** mapped · **Blocks on:** Q3, Q4,
-> Q9, Q10 · **Decisions:** #3, #6, #9, #16 · **Validated by:** prototype —
+> **Owns:** #1 primitives contract · **Status:** mapped; driver mechanics
+> verified · **Blocks on:** lab — Q3 (listview), Q4 (controlled inputs) ·
+> **Decisions:** #3, #6, #9, #16, #21, #22, #24 · **Validated by:** prototype —
 > counter + `@for` list + controlled `TextInput` + `Pressable` on both targets.
+
+## Verified driver semantics (substrate pass — these constrain everything)
+
+- **Text folds into `text` prop only under `TextBase` parents.** A `<label>`
+  (or `<button>`, `formattedstring`) takes `#text` children; a `<stacklayout>`
+  with text children **silently drops them**. → Bare text lives only inside
+  text-hosting primitives (`Text`, `Button`, heading variants). Enforce at
+  compile time via renderer `validation.textHosts`/`textParents` (decision
+  #20) and at lint level.
+- **Prop = direct view property assignment** (`view[name] = value`) — NS view
+  properties, not DOM attributes. Type system derives props from the class
+  (`ViewProperties<T>`), so unsupported props are type errors; unknown ones at
+  runtime fail silently.
+- **`style` object → `Object.assign(view.style, v)`**: camelCase `Style` keys,
+  **dip units**. `style` string → `setInlineStyle` (CSS declarations).
+- **`className`/`class` arrive as composed strings** (clsx upstream). Trap:
+  NS className swap can leave stale backgrounds — workaround is
+  `view.className=''` before the new value; driver currently assigns directly.
+  Track whether we need a leaf-level or upstream fix.
+- **Events arrive as `event` commands**, not props; `onTap`/`onClick`/
+  `onPress`→`tap`, `onChange`→`textChange`, `onSubmit`→`returnPress`,
+  `onX`→`x` lowercase-first. All classified `'discrete'` — watch whether
+  continuous events (pan) need a priority lane.
+- **`hostSlot` prop** wires a child into a named parent property
+  (`mainContent`/`leftDrawer`) instead of `addChild` — our slot-prop pattern
+  for Drawer/ActionBar.
+- **Parenting throws** when a parent can't host a child type
+  (`cannot host a <x> child`) — a runtime error class shared code avoids by
+  staying inside the primitive vocabulary.
+- **No portals on the NS driver** (capability absent) — `Overlay`/`Popover`
+  get a `RootLayout.open()` imperative bridge (decision #22).
+- **`visibility` command** maps `hidden`→`collapse` (out of layout AND screen).
+- **Element re-registration recreates live instances in place** — plugin-view
+  modules hot-reload cleanly; keep `registerElement` modules self-accepting.
 
 ## Prop conventions (applies to every primitive)
 
@@ -42,7 +77,7 @@ interface PrimitiveProps {
 | `RichText`? | inline markup | `formattedstring` + `span` leaves | possibly fold into `Text` nesting |
 | `Pressable` | `div`+pointer events | `contentview`+`tap`/`touch` | hover/pressed states → CSS vs manual touch tracking; use `button` leaf only where native button chrome wanted |
 | `ScrollView` | `div` overflow | `scrollview` | `horizontal` prop both sides |
-| `List` | `@octanejs/tanstack-virtual` over `div` | `listview` (or collectionview plugin) | **the leak**: NS ListView uses item templates, not children — API must be `items`/`renderItem`, not `@for` children. Verify template mechanics (open-questions) |
+| `List` | `@octanejs/tanstack-virtual` over `div` | `listview` + **per-cell Octane sub-roots** | **the leak**: ListView recycles via `itemTemplate`/`itemLoading` (imperative view factories — no reconciler children). Design: each recycled slot hosts a `createNativeScriptRoot`; `itemLoading` rebinds `{item, index}` into a per-cell store the row component reads; `items` wrapped as `ObservableArray` for granular updates; `itemTemplateSelector` for heterogeneous rows. Lab: per-cell root cost, scroll perf (decision #21) |
 | `TextInput` / `TextArea` | `input`/`textarea` | `textfield`/`textview` | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ |
 | `Image` | `img` | `image` | `src`: URL/`res://`/`~/` — asset resolution differs; sizing via CSS both sides |
 | `Icon` | inline SVG (lucide-style) | `sf-icon` pattern — `image` + symbol config, font fallback on Android | name → per-platform glyph map |
@@ -53,7 +88,7 @@ interface PrimitiveProps {
 | `SafeArea` | CSS `env(safe-area-inset-*)` padding | root-level padding + `iosOverflowSafeArea` management | plus `useSafeAreaInsets()` hook |
 | `KeyboardAvoiding` | mostly unnecessary (visual viewport API) | scrollview + `input-accessory`/inset management | iOS vs Android differ internally — acceptable leaf complexity |
 | `WebView` | `iframe` | `webview` | probably web/native divergent enough to skip in v1 |
-| `Overlay`/`Popover` | anchored `div` (floating-ui) | `rootlayout` overlay / `showModal` | menus: `@nstudio/nativescript-menu` registers `menu`/`contextMenu` props — expose as `Menu` primitive |
+| `Overlay`/`Popover`/`Toast` | anchored `div` (floating-ui) / portal | `RootLayout.open(view, {shadeCover, animation})` — imperative bridge, own sub-root per overlay | getRootLayout returns FIRST registered RootLayout — app root is `<rootlayout>`; give modal roots ids (`getRootLayoutById`). One shade cover; every open/close call returns a rejecting promise — always `.catch`. Portals absent on native driver → this is the path (decision #22) |
 
 ## The Modal seam (worst primitive leak, document early)
 
@@ -79,8 +114,17 @@ that's within one root, so context survives; model it as slot props).
 - Formatting spans: `<Text>…<Text className="bold">x</Text></Text>` → nested
   `span` in `formattedstring` on native. Keep nesting shallow (font/weight/
   color only).
+- **Exclusive-text rule**: a text view with `formattedText` set ignores `text`
+  assignments (silent no-op). → A `Text` node takes EITHER text children OR
+  `Span` children, never both. Enforce in types.
+- Span props: `color` (no `foregroundColor`), `fontSize`, `fontWeight`,
+  `fontStyle`, `textDecoration`, `backgroundColor`; `Span.text` collapses only
+  the FIRST `\n`/`\t`; a `linkTap` listener alone makes a span tappable.
 - `numberOfLines`, `selectable`, ellipsize — per-platform prop support differs;
   escape hatches.
+- `line-height` on NS means **additive inter-line spacing**, not web's total
+  line box — typography tokens must express the NS value (gap) vs web value
+  (box height) distinctly.
 
 ## Refs
 

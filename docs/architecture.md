@@ -15,10 +15,24 @@ react-native. We never ship one compiled artifact to both.
 
 Octane ships `octane/universal/native`: a host-neutral runtime whose compiler
 emits a static `universalPlan` + slot table per component, applied at runtime as
-`create`/`update`/`insert`/`event`/`destroy` commands by a host driver.
-`@nativescript-community/octane` implements that driver over
-`@nativescript/core` views. The renderer problem is solved; what remains is an
-app-level architecture problem: vocabulary, styling, navigation, services.
+`create`/`update`/`insert`/`move`/`remove`/`destroy`/`event`/`visibility`
+commands by a host driver. `@nativescript-community/octane` implements that
+driver over `@nativescript/core` views. The renderer problem is solved; what
+remains is an app-level architecture problem: vocabulary, styling, navigation,
+services.
+
+Upstream machinery we now know exists (substrate pass, prior-art/octane.md):
+
+- **Renderer registry + ordered rules + `boundaries`** — first-match globs own
+  files; `boundaries` declare cross-renderer prop regions (renderer islands).
+  We stay two-build; the mechanism exists if ever needed.
+- **`renderers.*.validation`** — compile-time enforcement of
+  `forbiddenGlobals`/`forbiddenImports`/`textHosts`/`textParents`/`hostProps`
+  on owned files *and* on `.ts` helpers matched by a rule (validated, not
+  compiled). First enforcement layer — see [testing](testing.md).
+- **No SSR on universal targets** (`server: 'unsupported'` by contract) — SSR
+  is DOM-build output; shared files get DOM semantics on web and universal on
+  native, each correct for its build.
 
 ## The layering
 
@@ -60,9 +74,11 @@ spoken natively.
    `packages/platform`. (NS does have `fetch`, `WebSocket`, `crypto`, `btoa`,
    `matchMedia` — see `prior-art/nativescript-core.md`.)
 5. **No web-only Octane features in shared code.** SSR/streaming/`<Hydrate>`/
-   portals/`<style>` blocks are DOM-build features. Shared components restrict
-   themselves to the universal subset — the exact export delta is tracked in
-   [open-questions](open-questions.md).
+   `<Suspense>`/`<ErrorBoundary>` components/`<style>` blocks/portals are
+   DOM-build features. Shared components restrict themselves to the universal
+   subset — the verified allowlist is in prior-art/octane.md ("universal
+   export surface"); portable async boundaries are `@try`/`@pending`/`@catch`
+   (decision #19).
 6. **Static styles are CSS; dynamic values are style objects.** Shared styling
    is `className` + tokens → shared stylesheet compiled per-target
    ([styling](styling.md)). Object `style` lowers to `view.style` / DOM style.

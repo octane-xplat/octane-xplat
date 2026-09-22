@@ -1,76 +1,130 @@
 # @nativescript-community/octane (+ vite-octane)
 
-> Repo: `nativescript-community/octane` — very early (7 commits at time of
-> writing). Two packages. Reference app: `NathanWalker/ns-octane` (a ChatGPT-style
-> chat client — its README is effectively the port's design doc).
+> Repo: `nativescript-community/octane`. Two packages. Reference app:
+> `NathanWalker/ns-octane` (a ChatGPT-style chat client — its README is
+> effectively the port's design doc). Verified against source (2026-09 clone);
+> the whole driver is 553 lines — read `packages/octane/src/driver.ts`.
 
 ## Packages
 
 | Entry | Role |
 |---|---|
-| `@nativescript-community/octane` | `renderNativeScriptApp`, `createNativeScriptRoot`, `UniversalHostDriver` (host commands → `@nativescript/core` views), element registry |
-| `…/octane/config` | Serializable renderer metadata consumed by the Vite plugin |
-| `…/octane/intrinsics` | JSX element/attr types derived from core view classes |
-| `…/octane/jsx-runtime` | What `jsxImportSource` resolves to |
-| `@nativescript-community/vite-octane` | `octaneConfig()` helper for `@nativescript/vite`; scopes `@octanejs/vite-plugin` to the NS renderer; on-device HMR strategy |
+| `@nativescript-community/octane` | Root doubles as the renderer ABI: re-exports all of `octane/universal/native` plus `createNativeScriptRoot`, `nativeScriptDriver`, `renderNativeScriptApp`, `ELEMENTS`, `eventNameFor`, `onElementReplaced`, `registerElement` |
+| `…/octane/config` | `nativeScriptRenderers()` → the serializable `renderers` config for `@octanejs/vite-plugin` |
+| `…/octane/intrinsics` | JSX types derived from `@nativescript/core` class typings |
+| `…/octane/jsx-runtime` | Types-only module for `jsxImportSource` (Octane compiles JSX itself) |
+| `@nativescript-community/vite-octane` | `octaneConfig()` = `baseConfig({flavor:'octane'})` + `octane({renderers: nativeScriptRenderers(), …})`; on-device HMR strategy |
 
-## Element vocabulary
+## The driver (`driver.ts`) — verified contract
 
-Tags = lowercase `@nativescript/core` view class names:
-`absolutelayout actionbar actionitem activityindicator button contentview
-datepicker docklayout flexboxlayout formattedstring frame gridlayout htmlview
-image label liquidglass listpicker listview navigationbutton page placeholder
-progress proxyviewcontainer rootlayout scrollview searchbar segmentedbar
-segmentedbaritem slider span stacklayout switch tabview tabviewitem textfield
-textview timepicker webview wraplayout`
+**Commands handled**: `create`, `recreate`, `update`, `insert`, `move`,
+`remove`, `destroy`, `event`, `visibility`. No portal op — `resolveParent`
+treats a non-numeric parent as root (**portals not enabled**). Declared
+capabilities: `{ text: 'host' }` only.
 
-Unknown/camelCase tags = **type error**, not silent failure.
+**Prop application** (`setProp`):
+- `children`/`key`/`ref` skipped; `on[A-Z]*` skipped (arrive as `event`
+  commands).
+- `className`/`class` → `view.className = String(value)` — composition already
+  done compiler-side (clsx-style, see prior-art/octane.md).
+- `style`: string → `view.setInlineStyle(value)` (CSS declaration string);
+  object → `Object.assign(view.style, value)` — **NS `Style` semantics:
+  camelCase keys, dip units**.
+- Everything else → direct `view[name] = value`. Anything the class exposes is
+  a prop; wrong names fail silently at native level.
 
-- **Props are view properties** — assigned onto the instance. Anything the class
-  exposes (`row`, `colSpan`, `iosOverflowSafeArea`, …) is a prop.
-- `className` + string `style` → NativeScript CSS system. Object `style` →
-  assigned onto `view.style`.
-- Events: `on` + NS event name (`onLoaded`, `onItemTap`), web aliases:
-  `onTap`/`onClick`/`onPress` → `tap`, `onDoubleTap`, `onLongPress`,
-  `onChange` → `textChange`, `onSubmit` → `returnPress`.
-- **Text is a host node.** `<label>Hi {name}</label>` lowers to `#text`
-  children; the driver folds them into the parent's `text` prop. NS has no text
-  nodes. `formattedstring`/`span` exist for rich inline text.
-- `hostSlot="mainContent"` — parents that wire children through properties
-  (drawer's `mainContent`/`leftDrawer`) instead of `addChild`.
-- `registerElement('drawer', Drawer)` + module augmentation of
-  `NativeScriptElements` for plugin views. Re-registering a tag with a different
-  class **recreates live instances in place** (props/listeners/children carried)
-  — that's how element modules hot-reload. Keep registrations in modules that
-  self-accept: `import.meta.hot?.accept()`.
+**Text folding**: `#text` host nodes carry no view; `syncText` concatenates a
+text node's `#text` children into the parent's `text` prop — **but only when
+the parent view `instanceof TextBase`**. `#text` under a non-text view
+(e.g. `stacklayout`) is silently dropped. Rich inline text =
+`formattedstring`/`span` nesting (`TextBase` accepts a `FormattedString`
+child → `formattedText`; `FormattedString` accepts `Span` children via
+`spans.splice`).
 
-## Driver contract subtleties (each learned from a vanished subtree)
+**Parenting** (`addViewChild`, order matters): `hostSlot` property wiring
+first → `LayoutBase.insertChild` → `ContentView.content` →
+`FormattedString`+`Span` → `TextBase`+`FormattedString` →
+`ActionBar.titleView` → else **throw** (`cannot host a <x> child`).
 
-- `update` merges — it carries only the dynamic-prop snapshot; static props
-  arrived at `create`. Replacing instead of merging strips layout props on first
-  update.
-- Native events during a commit are deferred to a microtask — attaching a
-  subtree fires `loaded` synchronously, before the batch's listener is live.
-- Detach is defensive: `LayoutBase.removeChild` throws on unattached views.
-- `hidden` → `collapse` (removes from layout AND screen).
+**Events**: `event` commands → `view.on(type, handler)`; `EVENT_PROP` names map
+through `eventNameFor` (aliases below); during a commit batch, deliveries are
+deferred to a microtask (NS fires `loaded` synchronously mid-attach, before
+the listener is live); dispatch to a gone listener warn-drops.
+`events.classify` gives every event priority `'discrete'`.
 
-## App boot / windows
+**Element registry** (`elements.ts`): `ELEMENTS` map tag→constructor; 40+
+builtins incl. `liquidglass`. `registerElement` re-registration fires
+`onElementReplaced` → driver **recreates every live instance in place**
+(props/listeners/children carried) — that's how plugin-view modules hot-reload
+without remounting.
+
+**Roots**: `createNativeScriptRoot(host: ViewBase)` →
+`createUniversalRoot(container, nativeScriptDriver, { scheduleMicrotask })`.
+`renderNativeScriptApp(host, App, props)` = create + `root.render(component,
+props)`. Containers tracked in a `Set`; `unmount` releases.
+
+## Intrinsics (`intrinsics.ts`) — the type surface
+
+- `ViewProperties<T>` = non-function members of the NS class → all settable
+  view properties are JSX attrs, tracking `@nativescript/core` versions for
+  free.
+- `DerivedEvents` — `static <name>Event` declarations → `on<Name>` handlers
+  receiving `EventData & { object: T }`.
+- `CommonEvents` — gesture props on every view: `onTap`/`onClick`/`onPress`
+  (→`tap`), `onDoubleTap`, `onLongPress`, `onSwipe`, `onPan`, `onPinch`,
+  `onRotation`, `onTouch`; aliases `onChange`→`textChange`,
+  `onSubmit`→`returnPress`; `onFocus`/`onBlur`.
+- `CommonAttributes` — `className`/`class`, `style` (string | `Partial<Style>`),
+  `hostSlot`, and the attached layout props (`row`, `col`, `rowSpan`,
+  `colSpan`, `dock`, `left`, `top`, `flexGrow`, `flexShrink`, `flexWrapBefore`,
+  `alignSelf`, `order`).
+- `OctaneAttributes` — `key`, `ref` (callback | `{current}` | array),
+  `children`.
+- Extension = module augmentation: `declare module
+  '@nativescript-community/octane/intrinsics' { interface NativeScriptElements
+  { drawer: Attributes<typeof Drawer> } }` and `CommonAttributes` for
+  plugin-registered view-wide props.
+
+## Renderer config (`config.ts`)
+
+```ts
+nativeScriptRenderer = {
+  module: '@nativescript-community/octane',
+  target: 'universal',
+  server: 'unsupported',        // no server half of an NS app
+  intrinsics: '@nativescript-community/octane',  // pragma id that claims the renderer
+  text: 'host',
+}
+nativeScriptRenderers({ include = 'src/**/*.tsx' }) → { registry, rules }
+```
+
+Rules own `.tsx` (or whatever the glob covers — `.tsrx` works); plain `.ts`
+under the rule is *validated* not compiled (see prior-art/octane.md).
+
+## App boot / windows (ns-octane/src/index.ts)
 
 ```ts
 Application.setWindowContentResolver(({ window, isPrimary }) =>
-  isPrimary ? undefined : createWindowContent(window));
+  isPrimary ? undefined : createWindowContent(window));   // secondary windows
 Application.run({ create: () => createWindowContent(Application.primaryWindow) });
+// entry ends with import.meta.hot?.dispose(() => { …unmount all roots… })
 ```
 
-One root per `NativeWindow` (iPad scenes, CarPlay) sharing one component wrapper,
-so HMR hits all roots.
+One root per `NativeWindow` (iPad scenes, CarPlay), sharing one wrapped
+`App` so HMR hits all roots. `Page` per window; `page.androidOverflowEdge =
+'top,bottom'` for edge-to-edge; screens pad their own chrome from safe-area
+insets. Entry also installs: `@nativescript-community/gesturehandler`,
+`TouchManager.enableGlobalTapAnimations` (built-in press-scale on every
+tappable view — the free `Pressable` feedback).
 
-## HMR
+## HMR (vite-octane client strategy)
 
-`ns debug ios|android` → Vite dev server, app boots over HTTP ESM (NS 9.1+).
-Compiler wraps components in `hmrUniversalComponent` + emits `import.meta.hot.accept`.
-Three save outcomes: in-place component accept (hook state survives), propagation
-to nearest accepting importer, or full in-process re-import (vendor stays warm).
+Compiler makes every component module self-accepting; the client strategy
+sequences the registry: drain outgoing disposes → evict → re-import → fire the
+**first evaluation's** anchored accept callback (the live wrapper) with the
+fresh namespace. Non-accepting edits propagate up the reverse import graph to
+nearest accepting importer; entry/driver edits reload the module graph
+in-process (vendor stays warm).
 
 ## Lessons from ns-octane (the reference app)
 
@@ -84,6 +138,8 @@ to nearest accepting importer, or full in-process re-import (vendor stays warm).
   lives in the keyboard's own window → appearance changes don't reach it
   automatically (`systemAppearanceChanged` → manual `_onCssStateChange` walk).
 - `visibility` swapping over mount/unmount inside plugin-managed containers.
+- Drawer choreography via `translationFunction`/`animationFunction` — imperative
+  `Object.assign` onto views per frame (the gesture-linked animation seam).
 - CSS trap: `vertical-align`, not `vertical-alignment` — wrong property names
   are **dropped silently**.
 - `iosOverflowSafeArea="false"` on docked UI to keep core from smearing
@@ -92,5 +148,6 @@ to nearest accepting importer, or full in-process re-import (vendor stays warm).
 
 ## Peer versions
 
-`octane >= 0.1.51` (universal ABI unchanged through 0.2.2), compiled by
-`@octanejs/vite-plugin >= 0.1.51`; `@nativescript/core >= 9.1.0`.
+`octane >= 0.1.51` (universal ABI unchanged through 0.2.2; local clone reads
+0.4.0), compiled by `@octanejs/vite-plugin >= 0.1.51`; `@nativescript/core >=
+9.1.0`.

@@ -26,8 +26,16 @@
   both targets (verify in prototype — two vite instances on one watcher set).
 - Element registry modules self-accept (`import.meta.hot?.accept()`) so
   re-registration recreates live native instances without remount.
-- Named exports for route/component files (React-Refresh-style HMR lesson
-  from One; confirm Octane's accept semantics).
+- **HMR model verified**: every component module self-accepts via
+  `hmrUniversalComponent`; named and default exports both hot-swap; edits
+  propagate to the nearest accepting importer; entry edits reload the module
+  graph in-process. Named exports remain convention (hygiene), not a hard
+  requirement.
+- `.tsrx` everywhere for renderer-owned files (decision #23); `.ts` helpers
+  never call hooks (slotter emits `from 'octane'` — DOM runtime; under a
+  universal rule they're *validated* not compiled).
+- Typecheck via `tsrx-tsc --noEmit` per target config (`.tsrx` needs the
+  patched tsc).
 
 ## Version pinning matrix (hard requirement)
 

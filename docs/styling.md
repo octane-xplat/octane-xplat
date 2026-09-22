@@ -55,14 +55,31 @@ a `ThemeProvider` that sets the root class, falling back to the media query.
 3. Only use CSS properties inside the **intersection** of both engines —
    maintain `docs/css-support-matrix.md` once the prototype reveals the real
    subset. Known traps to encode early:
-   - `vertical-align` (not `-alignment`); unknown props **drop silently** — a
-     lint rule or property allowlist is worth building
+   - `vertical-align` (not `-alignment`); unknown props **drop silently** — and
+     NS recovers *per declaration*, so a rule can half-apply. A lint/property
+     allowlist is worth building
    - no `position` CSS natively → `Absolute`/`Grid` primitives instead
    - no `display:none` → `visibility: collapse` (removes from layout too)
+   - **no `transition` property** — animations are `@keyframes`/`animation-*`
+     only, and only ~12 properties animate (opacity, translate/scale/rotate,
+     width/height, background-color, perspective, transform). No
+     `animation-play-state`; `direction` accepts only `reverse`; unitless
+     `animation-delay` is seconds; no `fill-mode` → values snap back.
+     → state-transition animations need the JS facade or keyframe classes
    - `box-shadow`: web has it; native = iOS shadow props / Android `elevation`
      → wrap in a `shadow-{n}` utility class per platform
    - units: dip default on NS, px on web; `%` measures differently
    - `overflow`, `zIndex`, `gap`, flex shorthand parity — verify per property
+     (`gap` confirmed on FlexboxLayout; GridLayout needs it per-cell)
+   - selector traps: bare `[attr]` matches nothing; sibling combinators
+     unverified; `!important` unverified; typo'd selector chain kills a rule
+     silently
+   - **className swap can leave stale native backgrounds** — the
+     `''`-then-set workaround may belong in our driver patch or leaf
+   - `line-height` = additive spacing on NS, total line box on web — token
+     files carry both notions
+   - `corner-shape: squircle` iOS-only (Android ignores); `spring` curve in
+     keyframes = UIKit spring iOS vs BounceInterpolator Android
 4. Fonts: register in `App_Resources`/font plugin natively, `@font-face` on
    web; shared `font-family` tokens resolve per-platform.
 5. Icons: `Icon` primitive owns the SF Symbol ↔ font icon ↔ SVG mapping

@@ -14,22 +14,46 @@
 | Logic (`packages/core`, hook-free) | vitest, plain node | both — DOM-free by definition |
 | Hook-containing shared modules | vitest + octane runtime | must be run inside a renderer-owned test env — verify how tests satisfy the ownership rule (open-questions) |
 | Components | vitest + DOM renderer (web leaf impls) | web leaf = real test; shared-file behavior tests run through web impls |
-| Native driver correctness | vitest + mock host driver | the port's own `tests/` run this way — reuse the pattern for our leaf impls where feasible |
+| Native leaf correctness | vitest + **`createObjectDriver`/`createObjectContainer`** | universal-core ships a built-in object renderer — assert host-command streams (`create gridlayout`, `event tap`) with no device and no NS runtime. Stronger than a hand-rolled mock: same ABI the real driver implements |
 | On-device | `ns debug` + manual / Appium later | the real rendering ground truth |
 
 ## Enforcement tests (the cheap wins)
 
-The seam rules in architecture.md are lintable, and catching violations
-mechanically is worth more than most unit tests:
+Two layers — **compile-time first** (verified machinery), lint as backstop:
+
+**Layer 0 — the compiler's own `renderers.*.validation`** (decision #20).
+The renderer config accepts `forbiddenGlobals`, `forbiddenImports`,
+`textHosts`, `textParents`, `hostProps` — enforced at compile time on owned
+files AND on `.ts` helpers matched by the rule. Declare on the nativescript
+registry entry (or wrap `nativeScriptRenderers` in our own config helper):
+
+```ts
+validation: {
+  forbiddenGlobals: ['document', 'window', 'localStorage', 'navigator', 'fetch'],   // DOM/browser — except fetch? NS has fetch; keep list real
+  forbiddenImports: ['octane', 'octane/hydration', /^octane\/react/],               // DOM runtime + react compat
+  textHosts: ['label', 'button', 'formattedstring', 'span', 'textfield', 'textview'],
+  textParents: [/* same set — text only inside text hosts */],
+  hostProps: { /* allowlist per tag, if we want tighter than class-derived props */ },
+}
+```
+
+Then lint-level rules for what validation can't express:
 
 - **No DOM globals in shared files** — eslint `no-restricted-globals`
-  (`document`, `window`, `localStorage`, …) scoped to shared globs.
-- **No intrinsics in shared files** — custom rule or a simple codemod check:
-  lowercase JSX tags outside `*.web.*`/`*.native.*` leaf files are an error
-  (all shared JSX should be capitalized components).
-- **Hooks only in owned extensions** — `.ts` files calling `use*` flagged.
+  (`document`, `window`, `localStorage`, …) scoped to shared globs. (The
+  nativescript validation covers native-owned files; this covers shared +
+  web-owned.)
+- **No intrinsics in shared files** — custom rule or codemod check: lowercase
+  JSX tags outside `*.web.*`/`*.native.*` leaf files are an error (all shared
+  JSX should be capitalized components). Note: `hostProps`/`textHosts`
+  validation already constrains native-owned files — this rule targets the
+  shared set.
+- **Hooks only in owned extensions** — `.ts` files calling `use*` flagged
+  (doubly important on native: `.ts` hook slotting emits `from 'octane'` →
+  DOM runtime → dead dispatcher).
 - **CSS property allowlist** — warn on properties outside the NS∩web support
-  matrix (silent drops are the documented trap).
+  matrix (silent drops AND silent per-declaration partial application are the
+  documented traps).
 - Boundary lint: `packages/core` never imports `packages/ui`; UI leaf files
   are the only place `@nativescript/*` appears.
 

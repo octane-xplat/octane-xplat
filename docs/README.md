@@ -9,19 +9,23 @@ Two ways to read this tree: **by domain** (the files below) or **by ownership**
 ## The seven owned problems
 
 What we must design and maintain ourselves, ranked by cost-of-getting-it-wrong.
-Status vocabulary: `mapped` (design sketched) → `validated` (prototype proved
-the shape) → `building` → `built`. Everything is `mapped` until the first
-prototype answers the top of [open-questions](open-questions.md).
+Status vocabulary: `mapped` (design sketched) → `verified` (substrate/design
+confirmed at source level; mechanics known) → `validated` (prototype proved
+the shape) → `building` → `built`.
 
 | # | Owned problem | File | Status | Blocks on | Decisions |
 |---|---|---|---|---|---|
-| 1 | **Primitives contract** — prop surface, semantics, allowed leaks | [primitives](primitives.md) | mapped | Q3 listview templates · Q4 controlled inputs · Q9 className on native · Q10 style objects | #3, #6, #9, #16 |
-| 2 | **Navigation contract** — shared route table, per-platform shells, modal-as-root | [navigation](navigation.md) | mapped | Q6 Suspense on universal · Q14 HMR export shape | #8, #9, #13 |
-| 3 | **Resolution toolchain** — suffix resolver, plugin ordering, TS typing | [module-resolution](module-resolution.md) | mapped | Q1 `.tsrx` in glob · Q5 resolver ordering · Q13 multi-renderer | #2, #3 |
-| 4 | **Seam enforcement** — lint rules keeping invariants true | [testing](testing.md) | mapped | none — write the rules | #3, #4 (invariants) |
-| 5 | **Animation/gesture facade** — shared API, per-target drivers | [animation-gestures](animation-gestures.md) | mapped | Q8 CSS transitions · Q7 portals | #10 |
+| 1 | **Primitives contract** — prop surface, semantics, allowed leaks | [primitives](primitives.md) | mapped; driver mechanics verified | lab: Q3 listview cell roots · Q4 controlled inputs | #3, #6, #9, #16, #21, #22, #24 |
+| 2 | **Navigation contract** — shared route table, per-platform shells, modal-as-root | [navigation](navigation.md) | mapped; Q6/Q14 resolved (portable boundaries = `@try`; HMR = self-accepting modules) | none blocking | #8, #9, #13, #19 |
+| 3 | **Resolution toolchain** — suffix resolver, plugin ordering, TS typing | [module-resolution](module-resolution.md) | **verified** — `resolve.extensions` order + `moduleSuffixes`; rules own resolved filename | none — config details to prove in prototype | #2, #3, #18, #23 |
+| 4 | **Seam enforcement** — lint rules keeping invariants true | [testing](testing.md) | mapped; **upgraded** — compiler `validation` is a built-in enforcement layer | none — write the config + rules | #3, #4, #20, #24 |
+| 5 | **Animation/gesture facade** — shared API, per-target drivers | [animation-gestures](animation-gestures.md) | mapped; Q7/Q8 resolved (no portals; no CSS `transition` — keyframes-only, 12 props) | none blocking | #10, #22 |
 | 6 | **Platform services** — capability interfaces | [platform-services](platform-services.md) | surface enumerated | Q15 a11y parity · Q18 fonts · Q19 css-var timing | #11 |
-| 7 | **Version matrix & patches** — pinning, bumps, patch-package | [toolchain](toolchain.md) | matrix defined | Q12 two dev servers · Q17 treeshake | #15 |
+| 7 | **Version matrix & patches** — pinning, bumps, patch-package | [toolchain](toolchain.md) | matrix defined; HMR model verified | lab: Q12 two dev servers · Q17 treeshake | #15 |
+
+**Substrate verification (Phase 1) complete** — 12/20 questions answered at
+desk level; the rest are queued as lab experiments in Silo. New decisions from
+that pass: #18–#24.
 
 ## Supporting docs
 
