@@ -22,8 +22,12 @@
 ## Dev loop
 
 - `vite dev` (web) + `ns debug ios` / `ns debug android` — run concurrently;
-  both watch the same `src/`/`packages/` trees. One save should hot-update
-  both targets (verify in prototype — two vite instances on one watcher set).
+  both watch the same `src/`/`packages/` trees. **Verified**: two vite
+  instances coexist against the shared sources — web pinned to `:5200`
+  (`server.port` in `apps/web/vite.config.ts`); the ns server prefers
+  `:5173` and auto-bumps on collision (the device discovers the actual
+  port from synced app metadata, not a hardcoded value — measured: server
+  on `:5174`, device HMR still connects).
 - Element registry modules self-accept (`import.meta.hot?.accept()`) so
   re-registration recreates live native instances without remount.
 - **HMR model verified**: every component module self-accepts via
