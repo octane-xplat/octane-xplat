@@ -39,7 +39,10 @@
   (`cannot host a <x> child`) — a runtime error class shared code avoids by
   staying inside the primitive vocabulary.
 - **No portals on the NS driver** (capability absent) — `Overlay`/`Popover`
-  get a `RootLayout.open()` imperative bridge (decision #22).
+  get a `RootLayout.open()` imperative bridge (decision #22). **Verified in
+  lab (Exp 9)**: app root renders `<rootlayout>` via a `Screen` leaf,
+  `getRootLayout().open(ContentView)` + a dedicated `createNativeScriptRoot`
+  mounts shared-vocab overlay content cleanly.
 - **`visibility` command** maps `hidden`→`collapse` (out of layout AND screen).
 - **Element re-registration recreates live instances in place** — plugin-view
   modules hot-reload cleanly; keep `registerElement` modules self-accepting.

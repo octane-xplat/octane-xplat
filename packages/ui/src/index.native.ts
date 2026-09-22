@@ -5,4 +5,5 @@ export { Text } from './Text.native.tsrx';
 export { Pressable } from './Pressable.native.tsrx';
 export { TextInput } from './TextInput.native.tsrx';
 export { List } from './List.native.tsrx';
+export { Screen } from './Screen.native.tsrx';
 export { PlatformBadge } from "./PlatformBadge.native.tsrx";

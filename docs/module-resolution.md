@@ -17,6 +17,11 @@
 > **Typecheck caveat (measured)**: `tsrx-tsc` does NOT follow extensionless
 > imports to suffixed `.tsrx` despite `moduleSuffixes` — barrels must name
 > the suffix explicitly (`export { X } from './X.native.tsrx'`).
+> Suffixed `.ts` helpers DO resolve extensionless under `moduleSuffixes`
+> (`./platform/nav` → `nav.native.ts`/`nav.web.ts` typecheck fine). Second
+> caveat (Exp 9): a `.ts` file importing a `.tsrx` component gets
+> `() => Element`, not `UniversalComponent` — passing it to
+> `createNativeScriptRoot().render()` needs `as unknown as UniversalComponent`.
 
 ## Suffix convention
 

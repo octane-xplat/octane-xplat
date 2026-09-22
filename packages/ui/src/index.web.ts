@@ -5,4 +5,5 @@ export { Text } from './Text.web.tsrx';
 export { Pressable } from './Pressable.web.tsrx';
 export { TextInput } from './TextInput.web.tsrx';
 export { List } from './List.web.tsrx';
+export { Screen } from './Screen.web.tsrx';
 export { PlatformBadge } from "./PlatformBadge.web.tsrx";

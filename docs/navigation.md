@@ -9,7 +9,11 @@
 > (boundaries = `@try`; HMR = self-accepting modules, named exports stay
 > convention) · **Blocks on:** none blocking · **Decisions:** #8, #9, #13, #19
 > · **Validated by:** two shared screens + `Link` + `goBack` on both targets,
-> then a modal route as second native root.
+> then a modal route as second native root. **Lab (Exp 9, iOS):** Frame-root
+> entry + `frame.navigate({create})` pushes a second `Page` hosting its own
+> `createNativeScriptRoot` — per-page roots work. Shared code calls
+> `platform/nav` (`.native.ts`/`.web.ts` suffix seam). `backStack` readback
+> raced the animated push — transitions commit asynchronously.
 
 ## The contract
 

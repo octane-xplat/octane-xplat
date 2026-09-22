@@ -76,6 +76,16 @@ degenerate) — facade exposes `iterations: 'infinite'` explicitly.
 |---|---|---|
 | `onPress` | click/pointerup w/ press geometry | `tap` (already aliased by driver) |
 | `useGesture('pan')` | pointerdown/move/up + setPointerCapture | `touch`/`pan` events (`getX/getY` in dip — convert to same units) |
+
+**Lab (Exp 10, iOS):** `onPan`/`onSwipe` props on a `<flexboxlayout>` map
+through the driver's generic `onX` → event-name rule and deliver full
+payloads (`deltaX/deltaY/state`, `direction`) — one observer per gesture,
+verified via `getGestureObservers()`. **Seam:** gesture events are NOT on
+the plain event list — `view.on('tap')` routes to `GesturesObserver`, so
+`view.notify({eventName:'tap'})` never reaches handlers (unlike `textChange`
+which is a real event). Programmatic probing must call
+`observer.callback(args)`; real-recognizer delivery was verified manually
+(taps + typing). Web leaf accepts the props but pointer plumbing is pending.
 | long-press | timer over pointerdown | `longPress` |
 | `hover`/`focus` states | real CSS | N/A — omit or no-op; NS pseudo-states limited (`:highlighted` — verify) |
 

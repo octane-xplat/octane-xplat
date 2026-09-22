@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, PlatformBadge } from '@xplat/ui';
+import { Screen, View, Row, Text, Pressable, TextInput, List, PlatformBadge } from '@xplat/ui';
+import { openDetail } from './platform/nav';
+import { openOverlay } from './platform/overlay';
 
 const INITIAL = [
 	{ id: 'a', label: 'Alpha' },
@@ -52,7 +54,7 @@ export function App() @{
 		}
 	}, [dark]);
 
-	<View className={['vx-app', 'flex-1', 'gap-4', dark ? 'dark ns-dark' : '']}>
+	<Screen className={['vx-app', 'flex-1', 'gap-4', dark ? 'dark ns-dark' : '']}>
 		<Text className="text-xl font-bold">{'Count: ' + count}</Text>
 		<PlatformBadge className="badge" />
 
@@ -82,6 +84,32 @@ export function App() @{
 			</Pressable>
 		</Row>
 
+		{/* Navigation + overlay seams (Exp 9): platform modules resolve the
+		    imperative call per target. */}
+		<Row className="gap-4">
+			<Pressable id="detail-btn" onPress={openDetail} className="btn bg-primary">
+				<Text className="text-onprimary">Detail →</Text>
+			</Pressable>
+			<Pressable id="overlay-btn" onPress={openOverlay} className="btn bg-primary">
+				<Text className="text-onprimary">Overlay</Text>
+			</Pressable>
+		</Row>
+
+		{/* Gesture seam (Exp 10): onPan/onSwipe → NS gesture events on the
+		    flexboxlayout; web leaf accepts the props, pointer plumbing
+		    pending. */}
+		<View
+			id="pan-box"
+			className="panbox"
+			style={{ padding: 16 }}
+			onPan={(e) => console.log('[probe] pan d=' + e.deltaX + ',' + e.deltaY + ' state=' + e.state)}
+			onSwipe={(e) => console.log('[probe] swipe dir=' + e.direction)}
+		>
+			<Pressable onPress={openOverlay} className="btn bg-primary">
+				<Text className="text-onprimary">Pan / swipe box</Text>
+			</Pressable>
+		</View>
+
 		{/* @for keyed reorder on a plain layout parent — native driver
 		    insert/move path (experiment bc3f77c4). */}
 		<Row className="gap-2">
@@ -105,5 +133,5 @@ export function App() @{
 			className="list flex-1"
 			renderItem={renderItem}
 		/>
-	</View>
+	</Screen>
 }
