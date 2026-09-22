@@ -5,9 +5,11 @@
 > Design follows One (prior-art/one.md): **shared route table + shared screens,
 > per-platform shells.**
 >
-> **Owns:** #2 navigation contract · **Status:** mapped · **Blocks on:** Q6, Q14
-> · **Decisions:** #8, #9, #13 · **Validated by:** two shared screens + `Link`
-> + `goBack` on both targets, then a modal route as second native root.
+> **Owns:** #2 navigation contract · **Status:** mapped; Q6/Q14 resolved
+> (boundaries = `@try`; HMR = self-accepting modules, named exports stay
+> convention) · **Blocks on:** none blocking · **Decisions:** #8, #9, #13, #19
+> · **Validated by:** two shared screens + `Link` + `goBack` on both targets,
+> then a modal route as second native root.
 
 ## The contract
 
@@ -26,8 +28,9 @@ app/                          (shared route dir — concept, not yet implemented
   `frame`/`tabview`/`drawer` shells. Same file name, different vocabulary —
   `_layout.web.tsrx` / `_layout.native.tsrx` splits are expected and fine.
 - Render-mode suffixes (`page+ssr.tsrx`) are web semantics; ignored on native.
-- **Named exports preferred** for route files pending Octane HMR accept
-  boundary behavior (One learned this the hard way with React Refresh).
+- **Named exports preferred** for route files — HMR accept boundaries are
+  self-accepting modules either way (Q14 resolved); named exports stay as
+  convention for clarity of non-component exports.
 
 ## Mapping
 
@@ -62,7 +65,14 @@ app/                          (shared route dir — concept, not yet implemented
    once route files exist — params flow into `Link` and `useParams`.
 6. **Data**: optional `export loader` per route (Remix/One style). Web:
    SSR/prefetch on nav; native: prefetch during transition, render into
-   Suspense/`use()`. Fold this in only after basic routing works.
+   `@try`/`@pending` + `use()` (universal async boundaries — decision #19;
+   `<Suspense>` doesn't exist there). Fold this in only after basic routing
+   works.
+7. **Modal routes = `Modal` primitive** (decisions #9/#22): a route marked
+   modal renders through `showModal`→own root on native / portal+URL on web.
+   Params cross as `params`; context does not. Same contract as the
+   `ModalProps.component` API in primitives.md — the router treats
+   `component: ScreenComponent` + `params` uniformly.
 
 ## What we are NOT doing
 

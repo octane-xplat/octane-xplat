@@ -36,6 +36,30 @@
 | biometrics | WebAuthn | Keychain biometrics plugin | optional-capability |
 | deep links | URL is the link | `Application` openUrl/continuation | feeds navigation route table |
 
+## Interface shapes (the repeating contracts)
+
+```ts
+// Optional capability — never throws for absence
+interface Capability<T> {
+  supported: boolean;
+  ensure(): Promise<'granted' | 'denied' | 'unsupported'>;
+  impl: T | null;                     // usable iff supported && ensured
+}
+
+// App lifecycle — shared event vocabulary
+type AppState = 'active' | 'background' | 'inactive';
+function useAppState(): AppState;     // visibilitychange/pagehide/pageshow
+                                      // ↔ Application suspend/resume/exit
+// Hardware/software back → navigation layer feeds it, screens may intercept:
+function useBackHandler(fn: () => boolean /* handled? */): void;
+                                      // activityBackPressed / popstate
+
+// Theme
+function useColorScheme(): 'light' | 'dark';
+function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void;
+                                      // toggles .ns-dark / .dark root class
+```
+
 ## Rules
 
 - **No DOM globals at module scope in shared code.** Guards belong inside

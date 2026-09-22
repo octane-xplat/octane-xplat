@@ -57,11 +57,18 @@ x.spring(0, { damping: 14 });
 |---|---|---|
 | Tweened props | WAAPI `el.animate()` (compositor-friendly) or `@octanejs/motion` | `view.animate({…})` → UIView/ViewPropertyAnimator; `Animation` class for multi-view |
 | Per-frame/gesture-linked | `requestAnimationFrame` + direct style | `touch` handler + direct style — synchronous |
-| Declarative loops | CSS `@keyframes` | NS CSS `@keyframes` (exists — verify property coverage) |
-| Curves | easing strings/cubic-bezier | `curve` param incl. spring timing — normalize names |
+| Declarative loops | CSS `@keyframes` | NS CSS `@keyframes` — **verified set is ~12 props** (opacity, translate/scale/rotate, width/height, background-color, perspective, transform); unsupported props silently dropped |
+| Curves | easing strings/cubic-bezier | `curve` param — **normalize to named/cubic-bezier only**; `spring` maps to UIKit spring on iOS vs BounceInterpolator on Android (divergent — facade must implement springs itself or accept the divergence) |
 
 `@octanejs/motion` exists but is DOM-only — treat it as the web driver's
 implementation detail, not a shared dependency.
+
+**`view.animate` contract traps** (verified via ns-view-animations):
+transforms are **absolute destinations** (scale:0.5 then scale:1 is "to 1",
+not "double") — the facade must track current values itself; cancel resolves
+on Android but leaves the promise **pending forever on iOS** — never `await`
+a cancellable animation; `iterations: 0` diverges (iOS=none, Android
+degenerate) — facade exposes `iterations: 'infinite'` explicitly.
 
 ## Gesture normalization
 
@@ -90,7 +97,10 @@ Velocity is essential for interruptible gestures (drawer, swipe-to-dismiss).
 ## What we deliberately don't build (v1)
 
 - Shared-element transitions / hero animations — platform extras later.
-- A physics sim library — spring via each platform's own timing curves first;
-  add a JS integrator only if parity demands.
-- CSS `transition`-style implicit animation — verify NS support; if absent,
-  `useAnimation` covers it explicitly.
+- A physics sim library — `spring` semantics need JS anyway (native `spring`
+  curve diverges iOS/Android), so a small JS integrator for `x.spring()` is
+  the portable path; keyframe/`view.animate` springs stay platform quirks we
+  don't expose.
+- CSS `transition`-style implicit animation — **verified absent on NS**; the
+  facade owns state→state animation explicitly (`x.to(...)`) or via keyframe
+  classes.
