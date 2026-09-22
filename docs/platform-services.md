@@ -30,13 +30,29 @@
 | app lifecycle | `visibilitychange`, `beforeunload` | `Application` `suspend`/`resume`/`exit`, `activityBackPressed` | `useAppState()`; back button → navigation.md |
 | status/nav bars | N/A | `StatusBar` utils, Android nav bar color | native-only API; web impl no-op |
 | icons/fonts | inline SVG, `@font-face` | SF Symbols + font fallback, `App_Resources` fonts | `Icon` primitive owns mapping |
-| accessibility | ARIA attrs | `accessible`, `accessibilityLabel/Hint/Value/Role`, announce | shared prop names map near-1:1 — keep a11y props on primitives |
+| accessibility | ARIA attrs | `accessible`, `accessibilityLabel/Hint/Value/Role`, `accessibilityLiveRegion`, announce | shared prop names map near-1:1 — keep a11y props on primitives |
 | i18n/locale | `navigator.language`, Intl | `Device.language`, Intl | i18next binding is DOM-free — shared |
 | images/media | `<input type=file>`, canvas | imagepicker/camera plugins, `ImageSource` | |
 | biometrics | WebAuthn | Keychain biometrics plugin | optional-capability |
 | deep links | URL is the link | `Application` openUrl/continuation | feeds navigation route table |
 
 ## Interface shapes (the repeating contracts)
+
+### A11y prop map (shared prop → leaf attrs)
+
+| Shared prop | Web | Native |
+|---|---|---|
+| `accessible` | `aria-hidden={!v}` inverse | `accessible` (marks element as a11y node) |
+| `accessibilityLabel` | `aria-label` | `accessibilityLabel` |
+| `accessibilityHint` | `aria-description` | `accessibilityHint` |
+| `accessibilityValue` | `aria-valuetext`/`aria-valuenow` | `accessibilityValue` |
+| `accessibilityRole` | `role` (ARIA) | `accessibilityRole` — NS set: `button`,`link`,`search`,`image`,`header`,`adjustable`,`summary`,`text`,`none`,`progressbar`,`checkbox`,`switch`,`tab`,`keyboard_key`,`updates_frequently`,`increment`,`decrement` — map shared names onto this set + ARIA |
+| `accessibilityLiveRegion` | `aria-live` | `accessibilityLiveRegion` ('none'/'polite'/'assertive') |
+| `accessibilityState` | `aria-disabled`/`aria-selected`/`aria-checked`/`aria-expanded` | per-state NS props + events |
+
+NS roles are stringly-typed and narrower than ARIA — the shared `Role` union
+covers the intersection; leaf impls translate (e.g. shared `'heading'` → web
+`role="heading"` + native `accessibilityRole="header"`).
 
 ```ts
 // Optional capability — never throws for absence

@@ -1,7 +1,8 @@
 # docs/
 
 Our plan. [`prior-art/`](../prior-art/) documents other people's systems —
-nothing there is a commitment.
+nothing there is a commitment. **[spec](spec.md) is the one-page synthesis** —
+start there.
 
 Two ways to read this tree: **by domain** (the files below) or **by ownership**
 (the tracking table — what we're *forced to own* vs. what upstream gives us).
@@ -31,8 +32,10 @@ that pass: #18–#24.
 
 | File | Role |
 |---|---|
+| [spec](spec.md) | One-page framework spec — packages, conventions, rules, risks, build order |
 | [architecture](architecture.md) | The model + invariants everything else hangs off |
 | [styling](styling.md) | Cross-cuts 1/4/5 — shared CSS strategy |
+| [css-support-matrix](css-support-matrix.md) | NS∩web allowed grammar (seeded; verify per row in prototype) |
 | [decisions](decisions.md) | Ledger — decided / provisional / forced |
 | [open-questions](open-questions.md) | Unverified seams, ranked by blast radius |
 
