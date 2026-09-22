@@ -2,6 +2,10 @@
 
 > Three layers: logic, component, device. The asymmetry to accept early —
 > native component verification is the weak leg.
+>
+> **Owns:** #4 seam enforcement · **Status:** mapped · **Blocks on:** none —
+> rules are writable today · **Decisions:** #3, #4 (the invariants it enforces)
+> · **Validated by:** an intentionally-violating file failing lint/typecheck.
 
 ## Layers
 

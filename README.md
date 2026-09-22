@@ -21,6 +21,10 @@ and a headless platform-services layer.
 
 ## Reading order
 
+Start at [docs/README.md](docs/README.md) — it indexes the tree two ways: by
+domain, and by the seven problems we're forced to own (with per-problem status,
+blockers, and what would validate each design).
+
 1. [docs/architecture.md](docs/architecture.md) — the model, layering, invariants
 2. [docs/module-resolution.md](docs/module-resolution.md) — suffix convention, resolver, tsconfigs
 3. [docs/primitives.md](docs/primitives.md) — the component vocabulary + leaf map

@@ -4,6 +4,10 @@
 > streams). Implementation = per-platform drivers. The JS-on-UI-thread model of
 > NativeScript means this can be *simpler* than the RN equivalent — no worklet
 > boundary.
+>
+> **Owns:** #5 animation/gesture facade · **Status:** mapped · **Blocks on:**
+> Q8, Q7 · **Decisions:** #10 · **Validated by:** a `useGesture('pan')`-driven
+> draggable element on both targets, 60fps, no re-renders during the gesture.
 
 ## The load-bearing fact
 

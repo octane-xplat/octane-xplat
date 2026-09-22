@@ -3,6 +3,10 @@
 > How one source tree becomes two compilations. The resolver is the mechanism
 > everything else hangs off: leaf splits, platform services, route tables,
 > Platform.select.
+>
+> **Owns:** #3 resolution toolchain · **Status:** mapped · **Blocks on:** Q1,
+> Q5, Q13 · **Decisions:** #2, #3 · **Validated by:** a `.ios.tsrx` leaf that
+> resolves correctly in both builds and typechecks under both tsconfigs.
 
 ## Suffix convention
 

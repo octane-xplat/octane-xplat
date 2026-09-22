@@ -4,6 +4,10 @@
 > interface in a shared `.ts`, implementation resolved by suffix
 > (`*.web.ts` / `*.native.ts`, or `*.ios`/`.android` when they diverge).
 > Consumers `import { … } from 'platform/storage'` — never the impl file.
+>
+> **Owns:** #6 platform services surface · **Status:** surface enumerated ·
+> **Blocks on:** Q15, Q18, Q19 · **Decisions:** #11 · **Validated by:**
+> `useColorScheme` + `storage` + `useSafeAreaInsets` working on both targets.
 
 ## Capability map
 

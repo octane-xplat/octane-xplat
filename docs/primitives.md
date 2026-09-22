@@ -4,6 +4,10 @@
 > plus leaf impls (`.web.tsrx` / `.native.tsrx`, occasionally `.ios`/`.android`).
 > Shared code imports the interface only. Design rule from RNW: converge on the
 > *constrained* vocabulary — never the DOM's open one.
+>
+> **Owns:** #1 primitives contract · **Status:** mapped · **Blocks on:** Q3, Q4,
+> Q9, Q10 · **Decisions:** #3, #6, #9, #16 · **Validated by:** prototype —
+> counter + `@for` list + controlled `TextInput` + `Pressable` on both targets.
 
 ## Prop conventions (applies to every primitive)
 

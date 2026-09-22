@@ -4,6 +4,10 @@
 > `Frame`/`Page` stacks, `TabView`, drawers, modals-as-roots, multi-window.
 > Design follows One (prior-art/one.md): **shared route table + shared screens,
 > per-platform shells.**
+>
+> **Owns:** #2 navigation contract · **Status:** mapped · **Blocks on:** Q6, Q14
+> · **Decisions:** #8, #9, #13 · **Validated by:** two shared screens + `Link`
+> + `goBack` on both targets, then a modal route as second native root.
 
 ## The contract
 

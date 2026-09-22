@@ -2,6 +2,11 @@
 
 > Two builds, one tree. The dev loop should feel like one project even though
 > it is two pipelines.
+>
+> **Owns:** #7 version matrix & patches · **Status:** matrix defined ·
+> **Blocks on:** Q12, Q17 · **Decisions:** #15 (+ invariant #3, single octane
+> copy) · **Validated by:** web dev + `ns debug` running off one tree, both
+> hot-updating on one save.
 
 ## Build matrix
 
