@@ -32,16 +32,21 @@
    pre-commit event closures — leaf works around all four (module-scope
    maps + authoritative `items[index]` + post-splice `refresh()`). Open
    follow-up: scroll-range recycling (only 5 visible cells tested), Android
-   parity, and whether the driver should own `items`-diff → `refresh()`.
+   parity, and whether the driver should own `items`-diff → `refresh()`
+   ([nativescript-community/octane#1](https://github.com/nativescript-community/octane/issues/1)).
 4. ✅ **Controlled text inputs.** — Verified on device (iOS sim, synthetic
    `textChange` via `view.notify`): native→state (`textChange`→`onChange`)
    and state→native (`text` prop write) both work. Two real seams found:
    (a) **programmatic `text` writes echo back as `textChange`** → each write
    produced a spurious `onChange`; leaf now drops `e.value === props.value`.
+   Reported: [nativescript-community/octane#3](https://github.com/nativescript-community/octane/issues/3)
+   (driver should suppress echo on controlled `text` writes).
    (b) The driver's same-value guard (`view[name] === value → skip`) already
-   prevents redundant writes on the state→native path. Still untested: real
-   keystroke cursor behavior (UITextField.text assignment may reset cursor
-   to end) and Android IME composition — needs real typing, not `notify`.
+   prevents redundant writes on the state→native path. Still open: cursor
+   position on programmatic `text` writes mid-typing (UITextField.text
+   assignment may reset cursor to end) and Android IME composition. Basic
+   real typing verified manually on the iOS sim (keystrokes + taps
+   round-trip through `onChange`/`onPress` correctly).
 5. ✅ **Resolver ordering vs renderer scoping.** — Resolution and compilation
    are decoupled: the octane plugin compiles by **resolved filename** at
    transform time; its `resolveId` only claims virtual/adapter ids. Our suffix

@@ -180,7 +180,8 @@ adapter for granular native updates (`refresh()` re-fires every `itemLoading`
   `e.object`).
 - Deeper fix belongs in the driver: `listview` should be a managed element
   whose `items` diff drives `refresh()` natively instead of leaf-level
-  glue.
+  glue. **Reported upstream**:
+  [nativescript-community/octane#1](https://github.com/nativescript-community/octane/issues/1).
 
 `renderItem` as a function prop — NOT `children` + `@for` — because the native
 leaf can't feed reconciled children into `itemTemplate`. Shared code calls it

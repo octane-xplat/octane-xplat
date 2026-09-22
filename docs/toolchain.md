@@ -100,7 +100,8 @@ ship secrets into either bundle (native bundles are inspectable like web).
   the device. Wasteful but dev-only; the vendor collector resolves package
   roots so it can't be excluded per-module. `resolve.alias` maps bare
   `'octane'` → `'octane/universal/native'` in the native app config so any
-  uncompiled import lands on the lean entry.
+  uncompiled import lands on the lean entry. Reported:
+  [NativeScript/NativeScript#11440](https://github.com/NativeScript/NativeScript/issues/11440).
 
 ## CI shape
 

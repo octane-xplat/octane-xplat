@@ -79,7 +79,11 @@ spoken natively.
    (`renderer "nativescript" forbids unbound global`). **Gap**: validation
    runs only in the compile pipeline, so plain `.ts` helpers under a rule
    are unchecked — the typecheck layer (no DOM lib in the native tsconfig)
-   is the backstop for those.
+   is the backstop for those. Upstream asks filed:
+   [nativescript-community/octane#2](https://github.com/nativescript-community/octane/issues/2)
+   (ship default validation) and
+   [octanejs/octane#1254](https://github.com/octanejs/octane/issues/1254)
+   (stale `useRef` reads in pre-commit event closures).
 5. **No web-only Octane features in shared code.** SSR/streaming/`<Hydrate>`/
    `<Suspense>`/`<ErrorBoundary>` components/`<style>` blocks/portals are
    DOM-build features. Shared components restrict themselves to the universal
