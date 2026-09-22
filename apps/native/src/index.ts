@@ -36,6 +36,12 @@ setTimeout(() => {
   v?.notify({ eventName: 'textChange', object: v, value: 'typed!' } as any);
 }, 1500);
 
+// A11y readback: confirm the shared a11y props landed on the native view.
+setTimeout(() => {
+  const b = thePage?.getViewById?.('a11y-btn') as any;
+  console.log('[probe] a11y accessible=' + b?.accessible + ' label=' + b?.accessibilityLabel + ' role=' + b?.accessibilityRole);
+}, 1600);
+
 // A module-graph reload re-evaluates this entry and mounts fresh roots.
 // @ts-expect-error — vite hot types; add vite/client to tsconfig types if desired
 import.meta.hot?.dispose(() => {

@@ -32,5 +32,3 @@ export function Text(props: {
 		</label>
 	}
 }
-// bump 1790087044
-// hmr probe 1790087882

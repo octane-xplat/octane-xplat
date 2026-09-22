@@ -57,7 +57,14 @@ export function App() @{
 		<PlatformBadge className="badge" />
 
 		<Row className="gap-4">
-			<Pressable onPress={() => setCount(count + 1)} className="btn bg-primary">
+			<Pressable
+				id="a11y-btn"
+				accessible={true}
+				accessibilityLabel="Increment counter"
+				accessibilityRole="button"
+				onPress={() => setCount(count + 1)}
+				className="btn bg-primary"
+			>
 				<Text className="text-onprimary">Increment</Text>
 			</Pressable>
 			<Pressable onPress={() => setDark(!dark)} className="btn bg-primary">
