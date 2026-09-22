@@ -25,6 +25,13 @@ export default defineConfig(({ mode }) =>
     {
       resolve: {
         conditions: ['native'],
+        // The compiler retargets hook imports to @nativescript-community/
+        // octane, but the deps-bundle scanner sees source-level 'octane'
+        // first — without this it vendors octane/dist/index.js (the full
+        // DOM runtime, hydration + server-rpc included). Exact-match only:
+        // 'octane/universal/native' itself must not be rewritten.
+        alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }],
+        // Suffix chain: .ios/.android → .native → shared. NativeScript's own
         // ns-vite sets preserveSymlinks:true; under pnpm's isolated layout that
         // resolves a dep's imports from the symlink path instead of its real
         // .pnpm dir, so declared transitive deps (emoji-regex, @csstools/*,

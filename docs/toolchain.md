@@ -86,6 +86,22 @@ Per-target `import.meta.env` defines (`__PLATFORM__`, dev/prod). Keep the
 `.env` story boring: `.env` shared, `.env.web`/`.env.native` overrides; never
 ship secrets into either bundle (native bundles are inspectable like web).
 
+## Bundle contents (Exp 4 — verified iOS prod + dev)
+
+- **Production (`ns build ios`)**: `vendor.mjs` contains zero DOM octane
+  modules — no `dom-bindings`, `dom-stage`, `dom-tables`, `hydration/*`,
+  `server-rpc-*`, `runtime.js`. Compiled `.tsrx` references
+  `@nativescript-community/octane` → `octane/universal/native` only, so
+  tree-shaking works. The one `document.createElement` in vendor.mjs is a
+  `WKUserScript` string literal inside `@nativescript/core`'s WebView impl.
+- **Dev (`deps-bundle-ios-*.mjs`)**: eagerly vendors every `package.json`
+  dep root + the persisted boot closure → `octane/dist/index.js` (full DOM
+  graph: 86 modules incl. `runtime.js`, `dom-*`, `hydration/*`) ships to
+  the device. Wasteful but dev-only; the vendor collector resolves package
+  roots so it can't be excluded per-module. `resolve.alias` maps bare
+  `'octane'` → `'octane/universal/native'` in the native app config so any
+  uncompiled import lands on the lean entry.
+
 ## CI shape
 
 1. `tsc --noEmit -p tsconfig.web.json` + `-p tsconfig.native.json`
