@@ -4,6 +4,7 @@ import { octane } from '@octanejs/vite-plugin';
 export default defineConfig({
   plugins: [...octane()],
   resolve: {
+    conditions: ['web'],
     // Suffix chain (first match wins): .web → shared → fallback.
     extensions: [
       '.web.tsrx', '.tsrx',

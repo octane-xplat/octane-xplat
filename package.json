@@ -10,5 +10,8 @@
     "dev:ios": "ns debug ios --path apps/native",
     "typecheck:web": "tsrx-tsc --noEmit -p apps/web/tsconfig.json",
     "typecheck:native": "tsrx-tsc --noEmit -p apps/native/tsconfig.json"
+  },
+  "devDependencies": {
+    "@tsrx/typescript-plugin": "0.4.7"
   }
 }

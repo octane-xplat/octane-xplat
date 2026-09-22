@@ -3,8 +3,18 @@
   "compilerOptions": {
     "jsxImportSource": "octane",
     "moduleSuffixes": [".web", ""],
+    "customConditions": ["web"],
     "types": ["vite/client"],
     "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*", "../../packages/**/*"]
+  "include": ["src/**/*", "../../packages/**/*"],
+  "exclude": [
+    "../../packages/**/*.native.*",
+    "../../packages/**/*.ios.*",
+    "../../packages/**/*.android.*",
+    "**/*.native.*",
+    "**/*.ios.*",
+    "**/*.android.*",
+    "**/node_modules"
+  ]
 }

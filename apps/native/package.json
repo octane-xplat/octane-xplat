@@ -11,21 +11,21 @@
   },
   "dependencies": {
     "@nativescript-community/octane": "0.2.0",
-    "@nativescript/core": "~9.1.2",
-    "@valor/nativescript-websockets": "^2.0.3",
+    "@nativescript/core": "9.1.2",
+    "@valor/nativescript-websockets": "2.0.3",
     "@xplat/app": "workspace:*",
     "@xplat/ui": "workspace:*",
     "octane": "0.4.0"
   },
   "devDependencies": {
     "@nativescript-community/vite-octane": "0.2.0",
-    "@nativescript/android": "~9.1.0",
-    "@nativescript/ios": "~9.1.0",
-    "@nativescript/types": "~9.0.0",
-    "@nativescript/vite": "~8.0.4",
+    "@nativescript/android": "9.1.1",
+    "@nativescript/ios": "9.1.0",
+    "@nativescript/types": "9.0.0",
+    "@nativescript/vite": "8.0.10",
     "@octanejs/vite-plugin": "0.1.58",
-    "patch-package": "^8.0.1",
-    "typescript": "~5.9.3",
-    "vite": "^8.0.16"
+    "patch-package": "8.0.1",
+    "typescript": "5.9.3",
+    "vite": "8.3.0"
   }
 }

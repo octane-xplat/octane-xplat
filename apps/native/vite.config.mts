@@ -4,24 +4,33 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config';
 
 export default defineConfig(({ mode }) =>
   mergeConfig(
-    octaneConfig({
-      mode,
-      octane: {
-        renderers: {
-          registry: { nativescript: nativeScriptRenderer },
-          // First match wins. Owned files = every component file in the
-          // native graph (shared .tsrx + .native leaves); .web files never
-          // resolve on this target. Plain .ts under a rule is *validated*
-          // (forbiddenGlobals/imports) not compiled.
-          rules: [
-            { include: 'src/**/*.{ts,tsx,tsrx}', renderer: 'nativescript' },
-            { include: '**/packages/**/*.{ts,tsx,tsrx}', renderer: 'nativescript' },
-          ],
+    octaneConfig(
+      { mode },
+      {
+        octane: {
+          renderers: {
+            registry: { nativescript: nativeScriptRenderer },
+            // First match wins. Owned files = every component file in the
+            // native graph (shared .tsrx + .native leaves); .web files never
+            // resolve on this target. Plain .ts under a rule is *validated*
+            // (forbiddenGlobals/imports) not compiled.
+            rules: [
+              { include: 'src/**/*.{ts,tsx,tsrx}', renderer: 'nativescript' },
+              { include: '**/packages/**/*.{ts,tsx,tsrx}', renderer: 'nativescript' },
+            ],
+          },
         },
       },
-    }),
+    ),
     {
       resolve: {
+        conditions: ['native'],
+        // ns-vite sets preserveSymlinks:true; under pnpm's isolated layout that
+        // resolves a dep's imports from the symlink path instead of its real
+        // .pnpm dir, so declared transitive deps (emoji-regex, @csstools/*,
+        // devalue) can't be found. Realpathing restores correct resolution;
+        // the device transform already normalizes .pnpm-infixed ids.
+        preserveSymlinks: false,
         // Suffix chain: .ios/.android → .native → shared. NativeScript's own
         // file-qualifier suffixes (.land, .minWH600…) still apply to assets.
         extensions: [

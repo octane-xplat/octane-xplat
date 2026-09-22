@@ -4,11 +4,21 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "web": "./src/index.web.ts",
+      "native": "./src/index.native.ts",
+      "default": "./src/index.native.ts"
+    },
     "./*": "./src/*"
   },
+  "devDependencies": {
+    "@nativescript-community/octane": "0.2.0",
+    "@nativescript/core": "9.1.2",
+    "octane": "0.4.0"
+  },
   "peerDependencies": {
-    "octane": ">=0.1.51",
-    "@nativescript-community/octane": "*"
+    "octane": ">=0.1.51 <1",
+    "@nativescript-community/octane": ">=0.2.0 <1",
+    "@nativescript/core": ">=9.1.0 <10"
   }
 }

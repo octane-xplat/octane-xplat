@@ -5,10 +5,18 @@ import './app.css';
 
 const roots = new Set<ReturnType<typeof renderNativeScriptApp>>();
 
+console.log('[harness] entry evaluated, App=' + typeof App);
+
 function createWindowContent(): Page {
   const page = new Page();
   page.actionBarHidden = true;
-  roots.add(renderNativeScriptApp(page, App));
+  console.log('[harness] createWindowContent');
+  try {
+    roots.add(renderNativeScriptApp(page, App));
+    console.log('[harness] root mounted');
+  } catch (e) {
+    console.log('[harness] render threw: ' + ((e as Error)?.stack || e));
+  }
   return page;
 }
 

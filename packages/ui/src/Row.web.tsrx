@@ -1,7 +1,7 @@
 export function Row(props: {
-  className?: unknown;
-  style?: unknown;
-  children?: unknown;
+  className?: any;
+  style?: any;
+  children?: any;
 }) @{
 	<div className={['vx-row', props.className]} style={props.style}>
 		{props.children}

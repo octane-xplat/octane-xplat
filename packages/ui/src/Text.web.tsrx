@@ -1,7 +1,7 @@
 export function Text(props: {
-  className?: unknown;
-  style?: unknown;
-  children?: unknown;
+  className?: any;
+  style?: any;
+  children?: any;
 }) @{
 	<span className={props.className} style={props.style}>{props.children}</span>
 }

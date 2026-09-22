@@ -64,3 +64,45 @@
   padding-left: 20px;
   border-radius: 8px;
 }
+
+/* harness experiment styles */
+
+.vx-app {
+  padding: 24px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+.vx-app .text-xl,
+.vx-app Text,
+.vx-app label {
+  color: var(--color-text);
+}
+
+.input {
+  padding: 10px;
+  border-width: 1px;
+  border-color: #94a3b8;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.chip {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.cell {
+  padding: 12px;
+  border-bottom-width: 1px;
+  border-bottom-color: #e2e8f0;
+}
+
+.vx-list {
+  flex-grow: 1;
+}
+
+.gap-2 { gap: 8px; }

@@ -3,9 +3,14 @@
   "compilerOptions": {
     "jsxImportSource": "@nativescript-community/octane",
     "moduleSuffixes": [".ios", ".android", ".native", ""],
-    "lib": ["ESNext"]
+    "customConditions": ["native"],
+    "lib": ["ESNext"],
+    "paths": {
+      "@xplat/app": ["../../packages/app/src/index.ts"],
+      "@xplat/ui": ["../../packages/ui/src/index.native.ts"]
+    }
   },
   "include": ["src/**/*", "../../packages/**/*"],
-  "files": ["./references.d.ts"],
-  "exclude": ["node_modules", "platforms"]
+  "files": ["./references.d.ts", "./types/globals.d.ts"],
+  "exclude": ["node_modules", "platforms", "**/*.web.*", "../../packages/**/*.web.*"]
 }

@@ -1,9 +1,9 @@
 export function Pressable(props: {
-  className?: unknown;
-  style?: unknown;
+  className?: any;
+  style?: any;
   disabled?: boolean;
   onPress?: () => void;
-  children?: unknown;
+  children?: any;
 }) @{
 	<div
 		className={['vx-pressable', props.className]}

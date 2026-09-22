@@ -1,7 +1,8 @@
+/** @jsxImportSource @nativescript-community/octane */
 export function Row(props: {
-  className?: unknown;
-  style?: unknown;
-  children?: unknown;
+  className?: any;
+  style?: any;
+  children?: any;
 }) @{
 	<flexboxlayout flexDirection="row" className={props.className} style={props.style}>
 		{props.children}

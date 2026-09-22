@@ -1,12 +1,28 @@
 packages:
   - apps/*
   - packages/*
-nodeLinker: hoisted
+# isolated (pnpm default): each workspace package gets real dep symlinks in its
+# own node_modules. Required by @nativescript/vite — its vendor-manifest and
+# HMR code reads projectRoot/node_modules/<pkg>/package.json and fails
+# silently on hoisted layouts (deep-path vendor requires miss the registry).
+nodeLinker: isolated
+# @nativescript/core imports tslib at runtime; keep it reachable.
+publicHoistPattern:
+  - tslib
+# Pin chokidar to one version repo-wide. sass wants ^5 and vite-plugin-static-copy
+# wants ^3; the .pnpm public store then holds chokidar@5 + readdirp@3 — a broken
+# pairing that crashes vite's bundled-config eval under `ns run` (its externals
+# resolve through the store). sass only uses chokidar for `sass --watch`, which
+# nothing here invokes; chokidar3+readdirp3 is the coherent pair.
+overrides:
+  chokidar: ^3.6.0
+# Exact pins in package.json — no caret/tilde drift on fresh installs.
+saveExact: true
 minimumReleaseAgeExclude:
   - '@octanejs/app-core@0.0.54'
   - '@octanejs/vite-plugin@0.1.58'
   - octane@0.4.0
 allowBuilds:
-  '@nativescript/core': set this to true or false
-  '@parcel/watcher': set this to true or false
-  esbuild: set this to true or false
+  '@nativescript/core': true
+  '@parcel/watcher': true
+  esbuild: true

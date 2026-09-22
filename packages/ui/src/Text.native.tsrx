@@ -1,3 +1,4 @@
+/** @jsxImportSource @nativescript-community/octane */
 import { createContext, useContext } from 'octane';
 
 /**
@@ -6,19 +7,30 @@ import { createContext, useContext } from 'octane';
  * driver extension from docs/decisions.md #25 — bare-text-only usage is
  * safe today.
  */
-const InText = createContext(false);
+// The 'octane' import is compiler-retargeted to the universal runtime on
+// native; its DOM Context type signature (2-3 args) doesn't match the
+// universal 1-arg callable, so type the value loosely for this leaf.
+const InText: any = createContext(false);
+
+/** Function-component wrapper: context callables aren't JSX.ElementType under
+ *  the nativescript intrinsics, so provide through a component shape. */
+function TextScope(props: { children?: any }) {
+	return InText({ value: true, children: props.children });
+}
 
 export function Text(props: {
-  className?: unknown;
-  style?: unknown;
-  children?: unknown;
+  className?: any;
+  style?: any;
+  children?: any;
 }) @{
 	const inText = useContext(InText);
 	@if (inText) {
 		<span className={props.className} style={props.style}>{props.children}</span>
 	} @else {
 		<label className={props.className} style={props.style}>
-			<InText value={true}>{props.children}</InText>
+			<TextScope>{props.children}</TextScope>
 		</label>
 	}
 }
+// bump 1790087044
+// hmr probe 1790087882
