@@ -33,12 +33,15 @@
    maps + authoritative `items[index]` + post-splice `refresh()`). Open
    follow-up: scroll-range recycling (only 5 visible cells tested), Android
    parity, and whether the driver should own `items`-diff → `refresh()`.
-4. 🔬 **Controlled text inputs.** — Mechanism confirmed: every keystroke emits
-   an `update` command → `view.text = value`. Risk: iOS `UITextField.text`
-   assignment may reset cursor to end; IME composition on Android is a second
-   risk. Mitigation path exists (skip write when `view.text === value` is
-   already in effect — driver assigns unconditionally; may need leaf-level
-   guard or upstream patch). Lab-confirm on device.
+4. ✅ **Controlled text inputs.** — Verified on device (iOS sim, synthetic
+   `textChange` via `view.notify`): native→state (`textChange`→`onChange`)
+   and state→native (`text` prop write) both work. Two real seams found:
+   (a) **programmatic `text` writes echo back as `textChange`** → each write
+   produced a spurious `onChange`; leaf now drops `e.value === props.value`.
+   (b) The driver's same-value guard (`view[name] === value → skip`) already
+   prevents redundant writes on the state→native path. Still untested: real
+   keystroke cursor behavior (UITextField.text assignment may reset cursor
+   to end) and Android IME composition — needs real typing, not `notify`.
 5. ✅ **Resolver ordering vs renderer scoping.** — Resolution and compilation
    are decoupled: the octane plugin compiles by **resolved filename** at
    transform time; its `resolveId` only claims virtual/adapter ids. Our suffix

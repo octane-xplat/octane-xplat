@@ -75,7 +75,7 @@ export function App() @{
 
 		<TextInput
 			value={text}
-			onChange={setText}
+			onChange={(v) => { console.log('[probe] onChange ' + v); setText(v); }}
 			placeholder="Type here"
 			className="input"
 		/>
