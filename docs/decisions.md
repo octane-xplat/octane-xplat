@@ -22,3 +22,4 @@
 | 14 | Dark mode: `prefers-color-scheme` default + class override | Provisional | media queries exist on both targets | styling |
 | 15 | pin exact versions; patch-package accepted | **Forced-ish** | both upstreams moving; explicit version matrix required | toolchain |
 | 16 | No `FlatList`-style children API: lists take `items`+`renderItem` | Decided | NS ListView item templates can't take reconciled children | primitives |
+| 17 | Web target = Octane's real DOM renderer, NOT NS views emulated over DOM | Decided | No upstream DOM impl of `@nativescript/core` exists (NS "web" = code-sharing + browser-hosted tooling, Preview renders on device); emulation would also cost SSR, semantic HTML, a11y, real DOM events | architecture, prior-art/nativescript-core |

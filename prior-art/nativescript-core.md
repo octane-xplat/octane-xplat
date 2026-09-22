@@ -111,3 +111,27 @@ own pipeline so they don't fight (see `docs/module-resolution.md`).
 Views/plugins register as view classes (`ui-drawer`, `input-accessory`,
 `@nstudio/nativescript-menu`, `nstreamdown`, camera/geolocation/imagepicker/
 biometrics/purchases/etc.). For Octane: `registerElement` + intrinsic typing.
+
+## The "web target" claim — what it actually is
+
+The docs market "Web, iOS, Android and Vision Pro apps with a shared codebase",
+but **there is no DOM render target** — supported runtimes are
+`@nativescript/{android,ios,visionos}` only. "Web" decomposes into:
+
+- **Code sharing**: sharing non-UI TypeScript across apps via workspaces/Nx.
+  Their own guidance is explicit that sharing stops at the framework/view layer.
+- **NativeScript Preview + StackBlitz**: WebContainers run the *build* in a
+  browser tab; the app still renders on a real device via the Preview app (QR
+  pairing). The browser is tooling host, not render target.
+- **Community adapters** (e.g. transforming NS app code into Vue/Angular web
+  projects) — preview-grade, not a real target.
+
+Adjacent and worth knowing: **DOMiNATIVE** (nativescript-community) goes the
+*other* direction — a DOM-ish API layer inside the NS runtime for flavor
+authors (Solid's NS renderer builds on it). It produces native views, not web
+output.
+
+Implication for us: nothing upstream renders `@nativescript/core` views to DOM.
+If we ever wanted "NS vocabulary everywhere incl. web", we'd have to write a
+DOM implementation of the core view classes ourselves — rejected; see
+decisions.md #17. Web renders through Octane's real DOM renderer.
