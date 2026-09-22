@@ -17,11 +17,17 @@ Project: octane-xplat — exploring a single Octane codebase targeting web (DOM)
 - NS ≥8.8 supports CSS custom properties, `calc`, media-query L3 (`prefers-color-scheme`, `orientation`, `min-width`), `matchMedia()`, `@keyframes` — theming/responsive vocabulary is genuinely shareable (basis for CSS-first styling).
 - NativeScript has no web render target: "web" in NS docs = non-UI TS code sharing + StackBlitz/Preview (browser hosts the bundler; a device still renders). Runtimes exist only for android/ios/visionos. DOMiNATIVE is the opposite direction — DOM-ish API inside NS producing native views.
 
-## Design docs (written 2026-09-21, ~1,500 lines, 20 files)
+## Owned surface — "we own the contracts; upstream owns the engines"
+- Forced to own, ranked by blast radius: primitives contract → navigation contract → resolution toolchain → seam enforcement (lint/allowlists) → animation/gesture facade → platform-services surface → version matrix + patches.
+- Not owned: renderer/host driver/HMR (`@nativescript-community/octane`), styling engine (real CSS on both targets), worklet runtime (JS already on UI thread), nav containers, native bundler (`@nativescript/vite`).
+
+## Design docs (written 2026-09-21; tracking layer added 2026-09-22)
 - `README.md` — thesis, reading order, first-prototype slice.
 - `docs/` — our plan: architecture (6 invariants), module-resolution, primitives, styling, animation-gestures, navigation, platform-services, toolchain, testing, decisions (17-entry ledger), open-questions (20 ranked seams).
+- `docs/README.md` — dashboard indexing docs by domain and by the seven owned problems; each problem doc carries a status header (Owns/Status/Blocks on/Decisions/Validated by); status vocabulary `mapped → validated → building → built`; "Validated by" names the concrete proving experiment.
 - `prior-art/` — others' systems, deliberately separate per user request: octane, nativescript-octane, nativescript-core, one, tamagui, react-native-web, flutter.
 - User preference: map the entire design in markdown before any code; prior art stays in `prior-art/` so plan vs precedent never blur.
+- Rejected: `docs/problems/` subfolder — docs already map 1:1 to owned problems; a parallel tree would drift (tracking layer landed d51270e).
 - Decision #17 (rejected): emulating `@nativescript/core` views over DOM — costs SSR, semantic HTML, real a11y/DOM events on web, while Octane already ships a first-class DOM renderer.
 - Top open questions: `.tsrx` covered by the include glob, universal-vs-DOM export delta, ListView template mechanics.
 
@@ -32,6 +38,8 @@ Project: octane-xplat — exploring a single Octane codebase targeting web (DOM)
 ## Planned approach
 - Vite resolver picks the leaf file (`*.ios.tsrx` → `*.native.tsrx` → `*.tsrx`), then the Octane plugin's renderer scope applies.
 - Primitives layer (`View`/`Text`/`Row`/`Column`/`Stack`/`Grid`/`Absolute`) is the main design surface — the renderer problem is already solved.
+- User decision (2026-09-22): use Silo to track design-exploration progress; DB is greenfield (detached/absent). Proposed schema: topics/questions/decisions/experiments + saved queries.
+- Exploration ordering principles: blast-radius first, desk (source-reading) before lab (prototype), contracts before mechanics. Phase 1 = clone octanejs/octane, nativescript-community/octane, ns-octane into gitignored `research/` to close ~8 top open questions.
 
 ## Repo state
 - Git repo initialized 2026-09-22 (user-approved); doc tree under version control from day one.
