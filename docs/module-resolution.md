@@ -8,7 +8,15 @@
 > pass) · **Blocks on:** none — remaining risk is config-level (merge ordering,
 > `tsrx-tsc` honoring `moduleSuffixes`) · **Decisions:** #2, #3, #18, #23 ·
 > **Validated by:** a `.ios.tsrx` leaf that resolves correctly in both builds
-> and typechecks under both tsconfigs.
+> and typechecks under both tsconfigs. **Lab-verified on iOS sim (Exp 6)**:
+> `PlatformBadge.ios.tsrx` wins over `.native.tsrx` — `[badge] ios variant
+> evaluated` logged on device. `.android > .native` is the same
+> `resolve.extensions` ordering (`.android.tsrx` precedes `.native.tsrx` in
+> `apps/native/vite.config.mts`) — desk-verified, device-pending (no Android
+> SDK). `PlatformBadge.android.tsrx` exists as the probe for that run.
+> **Typecheck caveat (measured)**: `tsrx-tsc` does NOT follow extensionless
+> imports to suffixed `.tsrx` despite `moduleSuffixes` — barrels must name
+> the suffix explicitly (`export { X } from './X.native.tsrx'`).
 
 ## Suffix convention
 

@@ -46,6 +46,12 @@ system, works identically both sides); (b) class-driven (`.dark` / `ns-dark`
 root class, app-controllable). Recommend **(a) as default + (b) override** —
 a `ThemeProvider` that sets the root class, falling back to the media query.
 
+**Latency (Exp 5 — iOS sim)**: `setState` → post-commit `useEffect` (i.e.
+render + native prop application) ≈ **1ms** for a root `className` swap
+(`dark ns-dark` toggled on the app root view). The JS-side commit is
+synchronous; pixel-visible time then depends on the next native layout
+pass (not measured — needs visual confirmation).
+
 ## Rules for shared components
 
 1. Static styling = `className` only. No `<style>` blocks (web-only), no

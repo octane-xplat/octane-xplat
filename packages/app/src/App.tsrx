@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'octane';
+import { useState, useEffect, useRef } from 'octane';
 import { View, Row, Text, Pressable, TextInput, List, PlatformBadge } from '@xplat/ui';
 
 const INITIAL = [
@@ -18,6 +18,7 @@ const renderItem = (item: any) => <Text className="cell">{item.label}</Text>;
 export function App() @{
 	const [count, setCount] = useState(0);
 	const [dark, setDark] = useState(false);
+	const darkMark = useRef(0);
 	const [text, setText] = useState('');
 	const [items, setItems] = useState(INITIAL);
 	console.log('[harness] App render, items=' + items.length);
@@ -37,10 +38,19 @@ export function App() @{
 		}, 2000);
 		const t3 = setTimeout(() => {
 			console.log('[self] dark on');
+			darkMark.current = Date.now();
 			setDark(true);
 		}, 3000);
 		return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
 	}, []);
+
+	useEffect(() => {
+		// Runs post-commit: setState -> render -> native prop application ->
+		// effect. darkMark is the setState timestamp.
+		if (darkMark.current) {
+			console.log('[probe] dark setState->commit ' + (Date.now() - darkMark.current) + 'ms');
+		}
+	}, [dark]);
 
 	<View className={['vx-app', 'flex-1', 'gap-4', dark ? 'dark ns-dark' : '']}>
 		<Text className="text-xl font-bold">{'Count: ' + count}</Text>
