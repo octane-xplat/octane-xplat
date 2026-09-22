@@ -1,0 +1,16 @@
+{
+  "name": "@xplat/app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "@xplat/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "octane": ">=0.1.51"
+  }
+}

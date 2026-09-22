@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+nodeLinker: hoisted
+minimumReleaseAgeExclude:
+  - '@octanejs/app-core@0.0.54'
+  - '@octanejs/vite-plugin@0.1.58'
+  - octane@0.4.0
+allowBuilds:
+  '@nativescript/core': set this to true or false
+  '@parcel/watcher': set this to true or false
+  esbuild: set this to true or false

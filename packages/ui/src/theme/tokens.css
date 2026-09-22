@@ -1,0 +1,66 @@
+/* Design tokens — NS reads :root/.ns-root; web reads :root/.dark.
+   Numbers are dip (native) = px (web) by leaf convention. */
+
+:root,
+.ns-root {
+  --color-primary: #4f46e5;
+  --color-on-primary: #ffffff;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --space-4: 16px;
+}
+
+.ns-dark,
+.dark {
+  --color-surface: #0f172a;
+  --color-text: #f8fafc;
+}
+
+/* vocabulary base styles */
+
+.vx-view,
+.vx-row {
+  display: flex;
+}
+
+.vx-view {
+  flex-direction: column;
+}
+
+.vx-row {
+  flex-direction: row;
+}
+
+.vx-pressable {
+  user-select: none;
+}
+
+/* web press feedback */
+.vx-pressable:active {
+  opacity: 0.85;
+}
+/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
+.vx-pressable:pressed {
+  opacity: 0.85;
+}
+
+/* utilities (hand-written subset for the harness; Tailwind later) */
+
+.flex-1 { flex-grow: 1; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.gap-4 { gap: 16px; }
+
+.text-xl { font-size: 20px; }
+.font-bold { font-weight: bold; }
+
+.bg-primary { background-color: var(--color-primary); }
+.text-onprimary { color: var(--color-on-primary); }
+
+.btn {
+  padding-top: 12px;
+  padding-right: 20px;
+  padding-bottom: 12px;
+  padding-left: 20px;
+  border-radius: 8px;
+}

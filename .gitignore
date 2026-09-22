@@ -1,1 +1,6 @@
 research/
+node_modules/
+dist/
+.ns-vite-build/
+apps/native/platforms/
+.DS_Store

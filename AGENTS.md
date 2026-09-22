@@ -68,6 +68,25 @@ nothing to commit). Tables:
   `lab-experiment` (needs the running app).
 - `experiments.targets`: `web` | `native` | `both`.
 
+## Toolchain notes (prototype harness — verified)
+
+- **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
+  `nodeLinker: hoisted` — NativeScript's bundler needs a flat `node_modules`
+  (rolldown resolves transitive deps like `tslib` through the real tree, not
+  pnpm's symlinked `.pnpm` store). `minimumReleaseAgeExclude` there covers the
+  octane packages — they're newer than the supply-chain cutoff.
+- Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
+  from the registry → 404).
+- `apps/native` needs `@valor/nativescript-websockets` — the on-device HMR
+  transport that `virtual:entry-with-polyfills` imports in dev.
+- iOS native build needs the `xcodeproj` Ruby gem visible to the `ruby` on PATH
+  (`gem install --user-install xcodeproj`). `ns doctor` can report OK while the
+  hook still fails — verify with `ruby -e 'require "xcodeproj"'`.
+- Verified: `vite build` + dev transform on web; `ns build ios` + app boots on
+  iPhone 17 Pro sim (`running-active-Visible`, no JS errors).
+- `ns run ios` re-boots the sim even when already booted and errors — the
+  workaround is `xcrun simctl install/launch` against the existing `.app`.
+
 ## Invariants (the short list — full set in docs/architecture.md)
 
 1. One element vocabulary per file; platform divergence at file boundaries
