@@ -101,8 +101,12 @@
     self-accepting via `hmrUniversalComponent` wrapper; first-evaluation
     callback stays the anchor. Named-exports convention remains hygiene for
     non-component exports, not a hard requirement.
-15. ⏳ **A11y prop parity** — map `accessibilityRole/Label/Hint/Value` to ARIA
-    roles precisely; NS role names ≠ ARIA role names 1:1.
+15. ✅→🟡 **A11y prop parity** — `accessible`/`accessibilityLabel`/
+    `accessibilityRole` verified reaching the native view via generic
+    `setProp` (iOS sim readback). Web leaf maps the same shared props to
+    `role`/`aria-label`/`aria-hidden`. Still open: precise Role-union
+    mapping (NS role names ≠ ARIA 1:1 — `accessibilityHint/Value/State/
+    LiveRegion` unwired in leaves so far).
 16. 🔬 **`@for` keys → native identity.** — Reorder on `listview` delegates to
     recycling anyway (items are data, not views); for non-list parents,
     `insert`/`move` commands handle keyed reorder on real views. Lab-confirm

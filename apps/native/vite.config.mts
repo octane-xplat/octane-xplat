@@ -9,11 +9,32 @@ export default defineConfig(({ mode }) =>
       {
         octane: {
           renderers: {
-            registry: { nativescript: nativeScriptRenderer },
+            registry: {
+              nativescript: {
+                ...nativeScriptRenderer,
+                // The stock renderer ships no validation — DOM globals in
+                // native-targeted files would compile silently (Exp 8).
+                validation: {
+                  forbiddenGlobals: [
+                    'document', 'window', 'HTMLElement', 'Node',
+                    'localStorage', 'sessionStorage', 'DOMParser',
+                    'MutationObserver', 'ResizeObserver',
+                    'XMLHttpRequest', 'alert', 'confirm',
+                  ],
+                  forbiddenImports: [
+                    'octane/dom-bindings', 'octane/dom-binding-program',
+                    'octane/hydration', 'octane/hydration/streamed-signals',
+                    'react-dom', 'react-dom/client',
+                  ],
+                },
+              },
+            },
             // First match wins. Owned files = every component file in the
             // native graph (shared .tsrx + .native leaves); .web files never
-            // resolve on this target. Plain .ts under a rule is *validated*
-            // (forbiddenGlobals/imports) not compiled.
+            // resolve on this target. Caveat (Exp 8): validation lives in
+            // the compile pipeline — plain .ts helpers under a rule are NOT
+            // checked; a DOM global there would slip through. Only .tsrx/
+            // .tsx component files get forbiddenGlobals/imports enforced.
             rules: [
               { include: 'src/**/*.{ts,tsx,tsrx}', renderer: 'nativescript' },
               { include: '**/packages/**/*.{ts,tsx,tsrx}', renderer: 'nativescript' },
