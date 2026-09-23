@@ -103,6 +103,22 @@ ship secrets into either bundle (native bundles are inspectable like web).
   uncompiled import lands on the lean entry. Reported:
   [NativeScript/NativeScript#11440](https://github.com/NativeScript/NativeScript/issues/11440).
 
+## TSRX language spec
+
+The canonical syntax reference is `research/tsrx/website-tsrx/public/llms.txt`
+(local clone of github.com/tsrx-org/tsrx; the site is tsrx.dev). Notable rules
+that affect our leaves:
+
+- `@{…}` bodies: setup statements first, then **exactly one output node**
+  (element, fragment, or `@if`/`@for`/`@try` control flow). Text, bare
+  `{expr}` containers, and siblings all need a `<>` wrapper — a bare
+  `{expr}` tail silently renders nothing (no diagnostic).
+- `@for` supports `index i; key item.id` and an `@empty {}` fallback.
+- Octane dependency arrays are **compiler-inferred when omitted** —
+  `useEffect(() => {…})` needs no `[]`.
+- `module server {…}` blocks + `'server'` imports are DOM/SSR-only — never
+  in shared or native files.
+
 ## Driver patches (pnpm patch → fork PRs)
 
 `patches/@nativescript-community__octane.patch` carries three driver-level

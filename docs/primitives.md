@@ -46,7 +46,11 @@
 - **`@{ {expr} }` tails silently compile to no output** — a braced
   expression at the end of a component template is a *statement*, not
   output. `Cell` rendered empty for an entire session undetected (no
-  diagnostic). Tail must be an output node: `<>{expr}</>`.
+  diagnostic). This IS documented in the TSRX spec
+  (`research/tsrx/website-tsrx/public/llms.txt`: "the container must finish
+  with exactly one output node… expression containers need a wrapping
+  fragment") — the gap is a missing compile diagnostic, not semantics.
+  Tail must be an output node: `<>{expr}</>`.
   Reported: [octanejs/octane#1258](https://github.com/octanejs/octane/issues/1258).
 - **`<tabview>` can't parent `<tabviewitem>` children** — the driver's
   `addViewChild` throws for non-layout parents. The `Tabs` leaf uses the
