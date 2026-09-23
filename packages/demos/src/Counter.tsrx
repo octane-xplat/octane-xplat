@@ -7,7 +7,7 @@ export function Counter() @{
 	const [count, setCount] = useState(0);
 	console.log('[demo] Counter render count=' + count);
 	<View className="vx-app flex-1 gap-4 items-center">
-		<Text className="demo-clock">{'Count: ' + count}</Text>
+		<Text className="demo-clock">{'Demo count: ' + count}</Text>
 		<Row className="gap-4">
 			<Pressable id="counter-dec" onPress={() => { console.log('[probe] counter -'); setCount(count - 1); }} className="btn bg-primary">
 				<Text className="text-onprimary">-</Text>

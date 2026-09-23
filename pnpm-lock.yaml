@@ -97,6 +97,9 @@ importers:
 
   packages/app:
     dependencies:
+      '@xplat/demos':
+        specifier: workspace:*
+        version: link:../demos
       '@xplat/ui':
         specifier: workspace:*
         version: link:../ui

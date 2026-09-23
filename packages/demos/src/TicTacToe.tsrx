@@ -15,9 +15,11 @@ function winnerOf(b: string[]): string | null {
 }
 
 /** tic-tac-toe — deterministic game state, zero effects.
- *  Proves: @if/@else-if/@else branching, a 3×3 grid of identical Pressables
- *  via keyed @for over a wrap container, pure derived state (winner computed
- *  in render — no useMemo needed at this size). */
+ *  Proves: a 3×3 grid of identical Pressables via keyed @for over a wrap
+ *  container, pure derived state (winner + status computed in render — no
+ *  useMemo needed at this size). Status is a ternary-derived string: the
+ *  original @if/@else-if version hit a universal-codegen bug where @else-if
+ *  branches discard their output (docs/demos.md findings). */
 export function TicTacToe() @{
 	const [board, setBoard] = useState<string[]>(Array(9).fill(''));
 	const [xNext, setXNext] = useState(true);
@@ -33,14 +35,14 @@ export function TicTacToe() @{
 	};
 	const reset = () => { setBoard(Array(9).fill('')); setXNext(true); };
 
+	const status = winner === 'draw'
+		? 'Draw.'
+		: winner
+			? winner + ' wins.'
+			: (xNext ? 'X' : 'O') + ' to play';
+
 	<View className="vx-app flex-1 gap-4 items-center">
-		@if (winner === 'draw') {
-			<Text className="text-xl font-bold">Draw.</Text>
-		} @else if (winner) {
-			<Text className="text-xl font-bold">{winner + ' wins.'}</Text>
-		} @else {
-			<Text className="text-xl font-bold">{(xNext ? 'X' : 'O') + ' to play'}</Text>
-		}
+		<Text className="text-xl font-bold">{status}</Text>
 		<View className="ttt-grid">
 			@for (const cell of board; index i; key i) {
 				<Pressable id={'ttt-' + i} onPress={() => play(i)} className="ttt-cell">

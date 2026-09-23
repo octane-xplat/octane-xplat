@@ -8,6 +8,7 @@
     "./*": "./src/*"
   },
   "dependencies": {
+    "@xplat/demos": "workspace:*",
     "@xplat/ui": "workspace:*"
   },
   "devDependencies": {

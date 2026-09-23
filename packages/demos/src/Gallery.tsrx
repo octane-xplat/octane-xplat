@@ -24,12 +24,44 @@ const DEMOS = [
 	{ id: 'probe', title: 'Reactivity' },
 ];
 
-/** Demo launcher — chip menu + @if-chain dispatch.
+// Render fns are standalone arrows (same contract as TabSpec.render /
+// List.renderItem) — JSX inside a module-level object literal can't get
+// universal lowering. Dispatch is {RENDER[demo]()} in children position,
+// the same function-call shape Cell uses for renderItem.
+// NOTE: an @if/@else-if chain here compiled to an else callback that
+// discards branch results — @else-if lowers wrong in the universal
+// codegen (see docs/demos.md findings).
+const renderCounter = () => <Counter />;
+const renderWatch = () => <WatchFace />;
+const renderStopwatch = () => <Stopwatch />;
+const renderTodo = () => <Todo />;
+const renderTtt = () => <TicTacToe />;
+const renderDialer = () => <Dialer />;
+const renderVlist = () => <VirtualList />;
+const renderWeather = () => <Weather />;
+const renderAnim = () => <AnimShowcase />;
+const renderProbe = () => <ReactiveProbe />;
+
+const RENDER: Record<string, () => any> = {
+	counter: renderCounter,
+	watch: renderWatch,
+	stopwatch: renderStopwatch,
+	todo: renderTodo,
+	ttt: renderTtt,
+	dialer: renderDialer,
+	vlist: renderVlist,
+	weather: renderWeather,
+	anim: renderAnim,
+	probe: renderProbe,
+};
+
+/** Demo launcher — chip menu + render-map dispatch.
  *  Mount/unmount per selection is deliberate: leaving a demo must run its
  *  effect cleanup (watch/stopwatch timers die on switch — check the logs).
- *  Mount as the app root (`<Gallery />` instead of `<App />`) or as a tab. */
+ *  Mounted as the 'Demos' tab in App.tsrx. */
 export function Gallery() @{
 	const [demo, setDemo] = useState('counter');
+	console.log('[demo] Gallery render demo=' + demo);
 	<Screen className="vx-app flex-1 gap-4">
 		<Row className="demo-menu">
 			@for (const d of DEMOS; key d.id) {
@@ -43,27 +75,7 @@ export function Gallery() @{
 			}
 		</Row>
 		<View className="flex-1">
-			@if (demo === 'counter') {
-				<Counter />
-			} @else if (demo === 'watch') {
-				<WatchFace />
-			} @else if (demo === 'stopwatch') {
-				<Stopwatch />
-			} @else if (demo === 'todo') {
-				<Todo />
-			} @else if (demo === 'ttt') {
-				<TicTacToe />
-			} @else if (demo === 'dialer') {
-				<Dialer />
-			} @else if (demo === 'vlist') {
-				<VirtualList />
-			} @else if (demo === 'weather') {
-				<Weather />
-			} @else if (demo === 'anim') {
-				<AnimShowcase />
-			} @else {
-				<ReactiveProbe />
-			}
+			{RENDER[demo]()}
 		</View>
 	</Screen>
 }

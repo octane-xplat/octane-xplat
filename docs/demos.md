@@ -6,31 +6,35 @@ Where that catalog proves a framework across `web`/`esp32`/`geaos`/`ios`/`window
 targets, these prove ours across `web` + `native` — each demo is one shared
 `.tsrx` screen exercising a distinct seam.
 
-> **Status:** compile-verified on web (`vite build` + `tsrx-tsc` both targets).
-> Not yet run on-device — that's the lab step. Styles live in
-> `packages/demos/src/demo.css` (grammar kept inside the NS∩web matrix).
+> **Status:** verified on iOS sim — all 10 demos mount and render content via
+> the `demosweep` probe (see below). Web: `vite build` + dev-transform green,
+> plus `tsrx-tsc` clean both targets. Styles: `packages/demos/src/demo.css`
+> (grammar kept inside the NS∩web matrix).
 
 ## Mounting
 
-`Gallery` is a self-contained launcher: chip menu on top, selected demo below.
-Selection mounts fresh / unmounts on switch — deliberate, so timer cleanup is
-observable in the logs.
+`Gallery` is wired in as the **Demos tab** in `App.tsrx` (index 2 — existing
+probes at 0/1 unaffected). It's a self-contained launcher: chip menu on top,
+selected demo below. Selection mounts fresh / unmounts on switch — deliberate,
+so timer cleanup is observable (`Stopwatch unmounted — timer dead` fires on
+leaving it).
 
-```ts
-// apps/web/src/main.tsrx — swap App for Gallery:
-import { Gallery } from '@xplat/demos';
-import '@xplat/demos/demo.css';   // after tokens.css
-createRoot(document.getElementById('root')!).render(<Gallery />);
-```
+Web-only entry that doesn't touch the harness: `pnpm -C apps/web exec vite
+dev|build --config vite.democheck.ts` (serves `democheck.html` →
+`src/democheck.tsrx` mounting `Gallery` alone).
 
-Same two changes in `apps/native/src/index.ts` (`renderNativeScriptApp(page,
-Gallery)`), or add Gallery as a third tab in `App.tsrx`. `@xplat/demos` is
-already a declared dep of both apps.
+`@xplat/demos` is a declared dep of `apps/web`, `apps/native`, and
+`packages/app`. `demo.css` is imported by `apps/native/src/app.css` (`@import`)
+and `apps/web/src/main.tsrx`.
 
-Web-only shortcut that doesn't touch the harness entry:
-`apps/web/vite.democheck.ts` + `democheck.html` + `src/democheck.tsrx` mount
-Gallery under a separate config — `pnpm -C apps/web exec vite dev|build
---config vite.democheck.ts`.
+## Native sweep probe
+
+`packages/app/src/platform/demosweep.native.ts` (+ `.web.ts` no-op twin)
+drives the gallery on-device: switches to tab 2, taps each `menu-*` chip via
+the gesture-observer path (same technique as the entry probes), and asserts
+demo content in the view tree — `Loading…` before Weather's fake fetch
+resolves, `°` after, `500 rows` for the list, etc. It's a module side-effect
+import in `App.tsrx`, so it needs no changes to the harness entry.
 
 ## The demos
 
@@ -38,9 +42,9 @@ Gallery under a separate config — `pnpm -C apps/web exec vite dev|build
 |---|---|---|---|
 | Counter | `Counter.tsrx` | `counter-jsx`, `reactive-counter` | Smallest possible state→commit cycle. The null-hypothesis probe: when a bigger demo misbehaves, this isolates "is basic reactivity broken?" from everything else. Also the natural mount for measuring commit latency (the `darkMark` pattern from Home). |
 | Watch | `WatchFace.tsrx` | `watch`, `watch-date` | Sustained 1 Hz commits — ~3.6k renders/hour makes it a leak/staleness detector no other demo provides. Plus compact centered layout and `Date` formatting with zero DOM globals. |
-| Stopwatch | `Stopwatch.tsrx` | `stopwatch-jsx` | Effect lifecycle under load: `setInterval` commit stream + cleanup on gallery unmount (listen for `Stopwatch unmounted — timer dead`), and rapid-fire lap appends through `@for`. Only demo where effect teardown is directly observable. |
+| Stopwatch | `Stopwatch.tsrx` | `stopwatch-jsx` | Effect lifecycle under load: `setInterval` commit stream + cleanup on gallery unmount, and rapid-fire lap appends through `@for`. Only demo where effect teardown is directly observable. |
 | Todo | `Todo.tsrx` | `todo-jsx` | The canonical keyed-mutation stress: insert/remove/toggle through the `List` leaf exercises the managed-ObservableArray splice+refresh patch on native — the operations most likely to desync cells. Also controlled `TextInput` round-trip and `@if` empty-state. `renderItem` is deliberately a per-commit closure: the leaf reads it off the host at `itemLoading`, so this stays correct *and* tests that contract. |
-| Tic-Tac-Toe | `TicTacToe.tsrx` | `tic-tac-toe` | Pure derived state — winner computed in render, zero effects. Exercises `@if`/`@else if`/`@else` branching and a 3×3 grid of identical Pressables via `@for` over a wrap container. Deterministic: same tap sequence must always produce the same board on both targets. |
+| Tic-Tac-Toe | `TicTacToe.tsrx` | `tic-tac-toe` | Pure derived state — winner and status computed in render, zero effects. A 3×3 grid of identical Pressables via `@for` over a wrap container. Deterministic: same tap sequence must always produce the same board on both targets. |
 | Dialer | `Dialer.tsrx` | `dialer` | Tap-burst throughput — rapid `onPress`→state→commit round-trips, the input pattern most sensitive to event-dispatch latency. Fixed wrap grid of 12 identical keys; string append/backspace state. |
 | List ×500 | `VirtualList.tsrx` | `virtual-list` | Volume stress: 500 recycled cells on native ListView plus prepend/remove-first/reverse on `items` — hammers the driver patch's splice path and cell rebinding at a scale Todo can't reach. Module-level `renderItem` keeps identity stable per the leaf contract. |
 | Weather | `Weather.tsrx` | `weather` | Async→state→render seam without a network: simulated fetch (timer + setState) drives a loading→data transition shaped exactly like a real platform-services call, so the pattern is proven before the fetch seam exists. Icon glyphs (☀⛅☁☂❄) double as a live font-coverage check (Q18). |
@@ -60,12 +64,31 @@ Gallery under a separate config — `pnpm -C apps/web exec vite dev|build
 | Native experiments | — | whole category is renderer experiments, not shared demos |
 | Reactive experiments | ReactiveProbe | — |
 
-## Findings so far
+## Findings so far (lab, iOS sim)
 
-- **TSRX lexer rejects non-ASCII in raw JSX text.** `<Text>✕</Text>` fails at
-  parse (`Unexpected character '✕'`); `{'✕'}` string containers are fine.
-  Demos keep all glyphs in string expressions — worth an open-questions row if
-  it isn't a known upstream limitation.
-- `@if`/`@else if`/`@else` chains and `@for` with `index`/`key` compile clean
-  for both targets through the real plugin pipeline (105 modules, web build
-  green).
+- **`@else if` chains compile wrong for the universal target.** The else
+  callback evaluates each `@else if`/`@else` branch as a *statement* —
+  `universalValue(...)` results are discarded — then returns an empty plan.
+  Net effect: any 3+-branch conditional renders nothing once the first
+  condition fails. Present in emitted `bundle.mjs`; upstream-reportable
+  (octanejs/octane).
+- **`universalIf`'s else arm never mounts on native.** Even where the codegen
+  emits a correct else callback (binary `@if/@else`, e.g. Weather's
+  loading/list split), neither arm survives a condition change — the else
+  branch's subtree never reaches the view tree. Workaround used here: a
+  ternary in children position (`{cond ? <A/> : <B/>}`), which compiles to a
+  plain expression evaluated per render and swaps correctly. Single-arm
+  `@if` (Todo's empty state) mounts fine when true; toggling untested.
+- **`{expr}` calling a render function in children position works on both
+  targets** — `Gallery` dispatches `{RENDER[demo]()}` and `Cell` does
+  `{props.renderItem(item)}`. This is the portable conditional-mount pattern
+  until `universalIf`'s else arm is fixed.
+- **TSRX lexer rejects some non-ASCII in raw JSX text.** `<Text>✕</Text>`
+  fails at parse (`Unexpected character '✕'`); `{'✕'}` string containers are
+  fine (as is `…`/`°` raw — the rejected set isn't simply "non-ASCII").
+  Demos keep all glyphs in string expressions.
+- **`tsrx-tsc` covers `packages/**` for both targets** — `pnpm typecheck:web`
+  / `typecheck:native` are the fast desk check before any lab run.
+- Sweep also incidentally verified: effect cleanup on unmount (stopwatch
+  interval cleared), per-press state commits under the sweep's 1.4s cadence,
+  and `chip-off` class toggling on menu chips.

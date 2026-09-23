@@ -27,6 +27,7 @@ function fakeForecast(): Day[] {
 export function Weather() @{
 	const [days, setDays] = useState<Day[] | null>(null);
 	const [gen, setGen] = useState(0);
+	console.log('[demo] Weather render days=' + (days ? days.length : 'null'));
 
 	useEffect(() => {
 		setDays(null);
@@ -44,10 +45,11 @@ export function Weather() @{
 				<Text className="text-onprimary">Refresh</Text>
 			</Pressable>
 		</Row>
-		@if (days === null) {
-			<Text className="cell">Loading…</Text>
-		} @else {
-			<View className="gap-2">
+		{/* Ternary in children position — the @if/@else version mounted
+		    neither arm on native (docs/demos.md findings). */}
+		{days === null
+			? <Text className="cell">{'Loading…'}</Text>
+			: <View className="gap-2">
 				@for (const d of days; key d.id) {
 					<Row className="wx-card gap-4 items-center">
 						<Text className="wx-icon">{d.icon}</Text>
