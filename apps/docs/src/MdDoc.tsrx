@@ -73,6 +73,12 @@ function BlockView(props: { b: Block }) @{
 	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'li') return <Text className="li" style={{ paddingLeft: b.depth * 16 }}><Text className="dim">{'• '}</Text><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'quote') return <View className="quote"><Text className="dim"><Spans spans={b.spans} /></Text></View>;
+	if (b.kind === 'callout') {
+		return <View className={'callout callout-' + b.level}>
+			<View className="callout-tag"><Text className="callout-tagtext">{b.level}</Text></View>
+			{b.lines.map((ls) => <Text className="callout-line"><Spans spans={ls} /></Text>)}
+		</View>;
+	}
 	if (b.kind === 'code') return <CodeBlock code={b.text} lang={b.lang} />;
 	if (b.kind === 'hr') return <View className="hr" />;
 	if (b.kind === 'table') {

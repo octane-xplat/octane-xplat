@@ -7,6 +7,7 @@ export type Block =
 	| { kind: 'code'; text: string; lang: string }
 	| { kind: 'li'; spans: Span[]; depth: number }
 	| { kind: 'quote'; spans: Span[] }
+	| { kind: 'callout'; level: string; lines: Span[][] }
 	| { kind: 'table'; rows: string[][] }
 	| { kind: 'hr' };
 
@@ -34,6 +35,8 @@ export function inlineSpans(text: string): Span[] {
 	if (last < text.length) spans.push({ text: text.slice(last) });
 	return spans;
 }
+
+const CALLOUTS = new Set(['note', 'tip', 'important', 'warning', 'caution']);
 
 // A line that starts a block — must mirror the branch tests exactly: a
 // false positive here (e.g. `**bold**` at line start matching `[-*]`) starves
@@ -81,7 +84,16 @@ export function parseMd(md: string): Block[] {
 		if (/^\s*>\s?/.test(line)) {
 			const buf: string[] = [];
 			while (i < lines.length && /^\s*>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ''));
-			blocks.push({ kind: 'quote', spans: inlineSpans(buf.join(' ')) });
+			const cm = buf[0]?.match(/^\[!(\w+)\]\s*(.*)/);
+			if (cm && CALLOUTS.has(cm[1].toLowerCase())) {
+				const lines = [cm[2], ...buf.slice(1)]
+					.map((l) => l.trim())
+					.filter(Boolean)
+					.map(inlineSpans);
+				blocks.push({ kind: 'callout', level: cm[1].toLowerCase(), lines });
+			} else {
+				blocks.push({ kind: 'quote', spans: inlineSpans(buf.join(' ')) });
+			}
 			i++;
 			continue;
 		}

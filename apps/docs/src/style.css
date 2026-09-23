@@ -300,6 +300,57 @@ body {
 	opacity: 1;
 }
 
+/* callouts — [!note] [!tip] [!important] [!warning] [!caution] */
+.callout {
+	border-width: 4px;
+	border-color: var(--nb-ink);
+	border-style: solid;
+	box-shadow: var(--nb-sh-s);
+	background-color: var(--nb-panel);
+	margin-top: 16px;
+	padding: 12px 16px 14px;
+}
+
+.callout-tag {
+	align-self: flex-start;
+	border-width: 3px;
+	border-color: var(--nb-ink);
+	border-style: solid;
+	padding: 2px 10px;
+	margin-bottom: 8px;
+	transform: rotate(-1deg);
+}
+
+.callout-note .callout-tag,
+.callout-tip .callout-tag {
+	background-color: var(--nb-violet);
+}
+
+.callout-important .callout-tag {
+	background-color: var(--nb-yellow);
+}
+
+.callout-warning .callout-tag,
+.callout-caution .callout-tag {
+	background-color: var(--nb-red);
+}
+
+.callout-tagtext {
+	color: var(--nb-onblock);
+	font-size: 12px;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.15em;
+}
+
+.callout-line {
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.55;
+	margin-top: 4px;
+	flex-wrap: wrap;
+}
+
 .hr {
 	border-top-width: 8px;
 	border-top-color: var(--nb-ink);

@@ -56,5 +56,12 @@ bundler pipeline (`@nativescript/vite` HTTP ESM) · DOM renderer + SSR (octane).
   are the cross-cutting indexes.
 - "Validated by" names the experiment that would prove the design — usually a
   slice of the first prototype (see [../README.md](../README.md)).
+- Funnel each page: purpose quote → orientation → mechanics. Dense lab
+  evidence and verification detail belong in a trailing appendix (e.g.
+  navigation.md's `## Lab log`), not the intro.
+- Callouts flag intensity where it spikes: `> [!NOTE]` context,
+  `> [!TIP]` optional advice, `> [!IMPORTANT]` required reading,
+  `> [!WARNING]` traps that cost time, `> [!CAUTION]` destructive or
+  irreversible behavior. The docs app renders them as bordered blocks.
 - Facts about upstream systems belong in `prior-art/`, cited from plan docs —
   not restated inline.

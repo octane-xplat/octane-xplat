@@ -90,6 +90,18 @@ valuable CI signal for "the seams held."
 - HMR confidence is manual: the ns-octane workflow (edit while streaming,
   watch in-place accept) is the bar.
 
+> [!CAUTION]
+> `tsrx-tsc` rejects literal non-ASCII characters in JSX text (e.g. `•`) —
+> Vite tolerates them, typecheck doesn't. Emit them as expressions:
+> `<Text>{'• '}</Text>`.
+
+> [!NOTE]
+> Passive effects don't reliably drain after events dispatched outside
+> octane's batch — raw `<a>` clicks and `popstate` re-render but leave
+> `useEffect` unflushed (observed in the docs app: sidebar `Pressable` nav
+> flushed a slug-dep effect; an `<a>` nav did not). Assert post-nav state
+> imperatively, or trigger an octane-handled event first.
+
 ## CI ordering
 
 Lint seam-rules → typecheck both → vitest → web build → (gated) native builds.

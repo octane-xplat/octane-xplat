@@ -88,6 +88,10 @@ Entries: web `createRoot(el)`; native `Application.run({create})` +
 
 ## The load-bearing rules (invariants)
 
+> [!IMPORTANT]
+> These are enforced by compiler validation and lint, not by convention —
+> violations produce silent wrong-renderer bindings, not friendly errors.
+
 1. One element vocabulary per file — splits happen at `.web`/`.native`
    boundaries, never inline.
 2. Hooks only in `.tsrx`/`.tsx` under a renderer rule — `.ts` helpers get

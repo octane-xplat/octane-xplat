@@ -10,64 +10,6 @@
 > **Decisions:** #3, #6, #9, #16, #21, #22, #24 · **Validated by:** prototype —
 > counter + `@for` list + controlled `TextInput` + `Pressable` on both targets.
 
-## Verified driver semantics (substrate pass — these constrain everything)
-
-- **Text folds into `text` prop only under `TextBase` parents.** A `<label>`
-  (or `<button>`, `formattedstring`) takes `#text` children; a `<stacklayout>`
-  with text children **silently drops them**. → Bare text lives only inside
-  text-hosting primitives (`Text`, `Button`, heading variants). Enforce at
-  compile time via renderer `validation.textHosts`/`textParents` (decision
-  #20) and at lint level.
-- **Prop = direct view property assignment** (`view[name] = value`) — NS view
-  properties, not DOM attributes. Type system derives props from the class
-  (`ViewProperties<T>`), so unsupported props are type errors; unknown ones at
-  runtime fail silently.
-- **`style` object → `Object.assign(view.style, v)`**: camelCase `Style` keys,
-  **dip units**. `style` string → `setInlineStyle` (CSS declarations).
-- **`className`/`class` arrive as composed strings** (clsx upstream). Trap:
-  NS className swap can leave stale backgrounds — workaround is
-  `view.className=''` before the new value; driver currently assigns directly.
-  Track whether we need a leaf-level or upstream fix.
-- **Events arrive as `event` commands**, not props; `onTap`/`onClick`/
-  `onPress`→`tap`, `onChange`→`textChange`, `onSubmit`→`returnPress`,
-  `onX`→`x` lowercase-first. All classified `'discrete'` — watch whether
-  continuous events (pan) need a priority lane.
-- **`hostSlot` prop** wires a child into a named parent property
-  (`mainContent`/`leftDrawer`) instead of `addChild` — our slot-prop pattern
-  for Drawer/ActionBar.
-- **Parenting throws** when a parent can't host a child type
-  (`cannot host a <x> child`) — a runtime error class shared code avoids by
-  staying inside the primitive vocabulary.
-- **No portals on the NS driver** (capability absent) — `Overlay`/`Popover`
-  get a `RootLayout.open()` imperative bridge (decision #22). **Verified in
-  lab (Exp 9)**: app root renders `<rootlayout>` via a `Screen` leaf,
-  `getRootLayout().open(ContentView)` + a dedicated `createNativeScriptRoot`
-  mounts shared-vocab overlay content cleanly.
-- **`@{ {expr} }` tails silently compile to no output** — a braced
-  expression at the end of a component template is a *statement*, not
-  output. `Cell` rendered empty for an entire session undetected (no
-  diagnostic). This IS documented in the TSRX spec
-  (`research/tsrx/website-tsrx/public/llms.txt`: "the container must finish
-  with exactly one output node… expression containers need a wrapping
-  fragment") — the gap is a missing compile diagnostic, not semantics.
-  Tail must be an output node: `<>{expr}</>`.
-  Reported: [octanejs/octane#1258](https://github.com/octanejs/octane/issues/1258).
-- **`<tabview>` can't parent `<tabviewitem>` children** — the driver's
-  `addViewChild` throws for non-layout parents. The `Tabs` leaf uses the
-  List pattern: `items` prop of `TabViewItem[]` whose `.view` is a
-  `ContentView` hosting a per-pane `createNativeScriptRoot` (mounted on the
-  tabview's `loaded` event). `items` for TabView is NOT driver-managed
-  (ListView-only) — the leaf caches `TabViewItem[]` per tabs-array
-  reference. **Same "managed items" ask as listview** — fold into the
-  octane#1 upstream work.
-- **Prop-write echoes are generic** — `checked`→`checkedChange`,
-  `selectedIndex`→`selectedIndexChanged` echo just like `text`→`textChange`.
-  Fixed in the driver patch (pendingPropWrites drops a write's own echo);
-  leafs need no guards.
-- **`visibility` command** maps `hidden`→`collapse` (out of layout AND screen).
-- **Element re-registration recreates live instances in place** — plugin-view
-  modules hot-reload cleanly; keep `registerElement` modules self-accepting.
-
 ## Prop conventions (applies to every primitive)
 
 ```ts
@@ -127,23 +69,25 @@ targets.
 
 Native modal = a separate window/sheet hosting **its own Octane root**
 (`renderNativeScriptApp` into a new `Page`/`View`, `showModal`). **Lab (iOS):**
-the leaf drives `presenter.showModal(view, options)` — note the signature is
-`showModal(viewToShow, options)`, not an options bag (a `{view}` first arg
-silently hits the deprecated moduleName path). Children passed as elements
-render fine inside the modal root — elements are data, evaluated in whichever
-root renders them — so `<Modal open>{children}</Modal>` works; the
+the leaf drives `presenter.showModal(view, options)`. Children passed as
+elements render fine inside the modal root — elements are data, evaluated in
+whichever root renders them — so `<Modal open>{children}</Modal>` works; the
 `component`/`params` contract below still stands for value-returning flows.
 Readback: `presenter.modal` exposes the modal view for assertions.
-Consequences:
 
-- Context does not cross the boundary — modal content gets a fresh root's
-  context. Anything the modal needs must be passed as props/params or through
-  a shared store module (not React-style context).
-- CSS cascade doesn't cross either — `ns-modal` root class exists for styling
-  modal roots; tokens must be applied there too. **Lab-confirmed:** `ns-dark`
-  is absent from the modal tree while the app is dark (iOS sim) — modal
-  surfaces must re-apply the scheme class or subscribe to
-  `systemAppearanceChanged` themselves.
+> [!CAUTION]
+> The signature is `showModal(viewToShow, options)`, not an options bag — a
+> `{view}` first arg silently hits the deprecated moduleName path.
+
+> [!IMPORTANT]
+> Context does not cross the boundary — modal content gets a fresh root's
+> context. Anything the modal needs must be passed as props/params or through
+> a shared store module (not React-style context). CSS cascade doesn't cross
+> either — `ns-modal` root class exists for styling modal roots; tokens must
+> be applied there too. **Lab-confirmed:** `ns-dark` is absent from the modal
+> tree while the app is dark (iOS sim) — modal surfaces must re-apply the
+> scheme class or subscribe to `systemAppearanceChanged` themselves.
+
 - Portals don't cross. Design `Modal`'s API as `{ open, onClose, params }`
   rather than "render my children in place" — treat children as a *screen
   component* rendered inside the modal root.
@@ -227,6 +171,17 @@ adapter for granular native updates (`refresh()` re-fires every `itemLoading`
 leaf can't feed reconciled children into `itemTemplate`. Shared code calls it
 as `<List items={msgs} renderItem={(m) => <MsgRow msg={m}/>}/>`; the function
 body compiles normally.
+
+> [!WARNING]
+> TSRX trap inside the web leaf: a bare `{renderItem(item)}` call in an `@for`
+> body iterates but mounts nothing — items render as empty anchors. Wrap call
+> results in a fragment: `<>{renderItem(item)}</>`.
+
+> [!NOTE]
+> Implementation gaps vs. this contract: the web leaf keys `@for` on `item.id`
+> directly (`keyFor` is unwired — items need an `id` today), and on native
+> `renderItem` should be identity-stable — `MemoListView` compares `items`
+> only, so a fresh closure per render never reaches the cells.
 
 ## The Overlay/Popover/Toast contract
 
@@ -330,3 +285,64 @@ not touch this."
   beyond the `items`/`renderItem` contract.
 - No `<style>` blocks inside shared components — sibling-scoped style blocks
   are a web feature; keep styles in the shared stylesheet + `className`.
+
+## Appendix: verified driver semantics
+
+Substrate pass findings — the mechanics that constrain everything above.
+Kept at the end so the vocabulary reads first.
+
+- **Text folds into `text` prop only under `TextBase` parents.** A `<label>`
+  (or `<button>`, `formattedstring`) takes `#text` children; a `<stacklayout>`
+  with text children **silently drops them**. → Bare text lives only inside
+  text-hosting primitives (`Text`, `Button`, heading variants). Enforce at
+  compile time via renderer `validation.textHosts`/`textParents` (decision
+  #20) and at lint level.
+- **Prop = direct view property assignment** (`view[name] = value`) — NS view
+  properties, not DOM attributes. Type system derives props from the class
+  (`ViewProperties<T>`), so unsupported props are type errors; unknown ones at
+  runtime fail silently.
+- **`style` object → `Object.assign(view.style, v)`**: camelCase `Style` keys,
+  **dip units**. `style` string → `setInlineStyle` (CSS declarations).
+- **`className`/`class` arrive as composed strings** (clsx upstream). Trap:
+  NS className swap can leave stale backgrounds — workaround is
+  `view.className=''` before the new value; driver currently assigns directly.
+  Track whether we need a leaf-level or upstream fix.
+- **Events arrive as `event` commands**, not props; `onTap`/`onClick`/
+  `onPress`→`tap`, `onChange`→`textChange`, `onSubmit`→`returnPress`,
+  `onX`→`x` lowercase-first. All classified `'discrete'` — watch whether
+  continuous events (pan) need a priority lane.
+- **`hostSlot` prop** wires a child into a named parent property
+  (`mainContent`/`leftDrawer`) instead of `addChild` — our slot-prop pattern
+  for Drawer/ActionBar.
+- **Parenting throws** when a parent can't host a child type
+  (`cannot host a <x> child`) — a runtime error class shared code avoids by
+  staying inside the primitive vocabulary.
+- **No portals on the NS driver** (capability absent) — `Overlay`/`Popover`
+  get a `RootLayout.open()` imperative bridge (decision #22). **Verified in
+  lab (Exp 9)**: app root renders `<rootlayout>` via a `Screen` leaf,
+  `getRootLayout().open(ContentView)` + a dedicated `createNativeScriptRoot`
+  mounts shared-vocab overlay content cleanly.
+- **`@{ {expr} }` tails silently compile to no output** — a braced
+  expression at the end of a component template is a *statement*, not
+  output. `Cell` rendered empty for an entire session undetected (no
+  diagnostic). This IS documented in the TSRX spec
+  (`research/tsrx/website-tsrx/public/llms.txt`: "the container must finish
+  with exactly one output node… expression containers need a wrapping
+  fragment") — the gap is a missing compile diagnostic, not semantics.
+  Tail must be an output node: `<>{expr}</>`.
+  Reported: [octanejs/octane#1258](https://github.com/octanejs/octane/issues/1258).
+- **`<tabview>` can't parent `<tabviewitem>` children** — the driver's
+  `addViewChild` throws for non-layout parents. The `Tabs` leaf uses the
+  List pattern: `items` prop of `TabViewItem[]` whose `.view` is a
+  `ContentView` hosting a per-pane `createNativeScriptRoot` (mounted on the
+  tabview's `loaded` event). `items` for TabView is NOT driver-managed
+  (ListView-only) — the leaf caches `TabViewItem[]` per tabs-array
+  reference. **Same "managed items" ask as listview** — fold into the
+  octane#1 upstream work.
+- **Prop-write echoes are generic** — `checked`→`checkedChange`,
+  `selectedIndex`→`selectedIndexChanged` echo just like `text`→`textChange`.
+  Fixed in the driver patch (pendingPropWrites drops a write's own echo);
+  leafs need no guards.
+- **`visibility` command** maps `hidden`→`collapse` (out of layout AND screen).
+- **Element re-registration recreates live instances in place** — plugin-view
+  modules hot-reload cleanly; keep `registerElement` modules self-accepting.

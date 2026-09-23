@@ -93,9 +93,12 @@ function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void;
 
 ## Two typing gotchas
 
-- `references.d.ts`/`@nativescript/types` give native API typings
-  (objc/java-ish globals). Scope them to `*.native.*` files via the native
-  tsconfig only — never let UIKit types leak into shared typecheck.
-- `platform` interfaces should be defined in `.ts` (no hooks at the interface
-  layer); hook-shaped accessors (`useSafeAreaInsets`) live in `.tsx` wrappers
-  inside the renderer glob.
+> [!IMPORTANT]
+> `references.d.ts`/`@nativescript/types` give native API typings
+> (objc/java-ish globals). Scope them to `*.native.*` files via the native
+> tsconfig only — never let UIKit types leak into shared typecheck.
+
+> [!IMPORTANT]
+> `platform` interfaces should be defined in `.ts` (no hooks at the interface
+> layer); hook-shaped accessors (`useSafeAreaInsets`) live in `.tsx` wrappers
+> inside the renderer glob.

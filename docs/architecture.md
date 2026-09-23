@@ -59,6 +59,10 @@ spoken natively.
 
 ## Invariants (the rules that keep the seams from tearing)
 
+> [!IMPORTANT]
+> Violations fail *silently* — a second runtime binds, a DOM API reaches
+> native, a text node vanishes. Treat every rule as load-bearing.
+
 1. **A file speaks one element vocabulary.** Renderer ownership is per-file via
    the compiler's include glob. `<div>` and `<gridlayout>` can never appear in
    the same file — the split must happen at file boundaries (`.web.tsrx` /
