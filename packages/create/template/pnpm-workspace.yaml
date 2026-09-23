@@ -1,0 +1,7 @@
+# pnpm 11 settings live here, not in package.json.
+# esbuild needs its install script to place the platform binary.
+# @nativescript/core lands via optional peers — its scripts are native
+# toolchain prep the ns CLI does itself; skipping keeps installs clean.
+allowBuilds:
+  esbuild: true
+  '@nativescript/core': false

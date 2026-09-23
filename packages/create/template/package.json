@@ -1,0 +1,20 @@
+{
+  "name": "octane-xplat-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsrx-tsc --noEmit"
+  },
+  "dependencies": {
+    "@octane-xplat/ui": "^0.2.0",
+    "octane": "0.4.0"
+  },
+  "devDependencies": {
+    "@octanejs/vite-plugin": "0.1.58",
+    "@tsrx/typescript-plugin": "0.4.7",
+    "typescript": "5.9.3",
+    "vite": "8.3.0"
+  }
+}

@@ -1,0 +1,74 @@
+/* App chrome — everything here is inside the web∩native CSS grammar
+ * (see docs/css-support-matrix.md in the framework repo). Design tokens
+ * (--color-*) come from @octane-xplat/ui/theme/tokens.css; .dark re-themes
+ * the same vars — no JS color values anywhere. */
+
+body {
+	margin: 0;
+	font-family: system-ui, sans-serif;
+}
+
+.app {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+
+.app Text {
+	color: var(--color-text);
+}
+
+.title {
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.muted {
+	opacity: 0.65;
+}
+
+.counter {
+	align-items: center;
+	gap: 24px;
+}
+
+.count {
+	font-size: 32px;
+	font-weight: bold;
+	min-width: 48px;
+	text-align: center;
+}
+
+.btn {
+	background-color: var(--color-primary);
+	color: var(--color-on-primary);
+	padding: 10px 20px;
+	border-radius: 10px;
+	font-size: 20px;
+}
+
+.chip {
+	background-color: var(--color-primary);
+	color: var(--color-on-primary);
+	padding: 6px 14px;
+	border-radius: 14px;
+	font-size: 14px;
+}
+
+.vx-list {
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+	max-width: 420px;
+	flex-grow: 0;
+}
+
+.link {
+	opacity: 0.7;
+}

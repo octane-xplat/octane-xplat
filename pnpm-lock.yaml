@@ -120,6 +120,8 @@ importers:
         specifier: 0.4.0
         version: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
 
+  packages/create: {}
+
   packages/demos:
     dependencies:
       '@octane-xplat/ui':
