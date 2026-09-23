@@ -154,43 +154,51 @@ setTimeout(() => {
   fireGesture(d, 1, 'tap', {});
 }, 3500);
 
+// ScrollView probe: imperative scrollTo + offset readback.
+setTimeout(() => {
+  const sv = find('scroll-box');
+  console.log('[probe] scrollview=' + (sv ? sv.constructor.name : 'none'));
+  sv?.scrollToVerticalOffset?.(200, false);
+  console.log('[assert] scroll offset: ' + (sv?.verticalOffset > 0 ? 'OK' : 'FAIL') + ' (' + sv?.verticalOffset + ')');
+}, 5000);
+
 // List @empty probe: clear → 'No items' → restore → 'Alpha'.
 setTimeout(() => {
   fireGesture(find('clear-btn'), 1, 'tap', {});
-}, 5000);
+}, 5300);
 setTimeout(() => {
   assertHas('empty text', texts(thePage), 'No items');
   fireGesture(find('clear-btn'), 1, 'tap', {});
-}, 5400);
+}, 5700);
 setTimeout(() => {
   assertHas('cell text after restore', texts(thePage), 'Alpha');
-}, 5800);
+}, 6100);
 
 // Overlay probe: tap → RootLayout.open host mounts → content assert.
 setTimeout(() => {
   const o = find('overlay-btn');
   console.log('[probe] overlay-btn=' + (o ? o.constructor.name : 'none'));
   fireGesture(o, 1, 'tap', {});
-}, 6200);
+}, 6400);
 setTimeout(() => {
   const overlay = find('overlay-host');
   assertHas('overlay texts', texts(overlay), 'Overlay content');
-}, 6600);
+}, 6800);
 
 // Sheet probe (Exp 11): back to tab 1, then synthesized tap on sheet-btn.
 setTimeout(() => {
   const tv = find('app-tabs');
   tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any);
-}, 6900);
+}, 7100);
 setTimeout(() => {
   const b = find('sheet-btn');
   console.log('[probe] sheet-btn=' + (b ? b.constructor.name : 'none'));
   fireGesture(b, 1, 'tap', {});
-}, 7200);
+}, 7400);
 setTimeout(() => {
   const sheet = find('sheet-host');
   assertHas('sheet texts', texts(sheet), 'Sheet content');
-}, 7600);
+}, 7800);
 
 // A module-graph reload re-evaluates this entry and mounts fresh roots.
 // @ts-expect-error — vite hot types; add vite/client to tsconfig types if desired

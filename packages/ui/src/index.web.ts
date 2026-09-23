@@ -5,6 +5,7 @@ export { Text } from './Text.web.tsrx';
 export { Pressable } from './Pressable.web.tsrx';
 export { TextInput } from './TextInput.web.tsrx';
 export { List } from './List.web.tsrx';
+export { ScrollView } from './ScrollView.web.tsrx';
 export { Screen } from './Screen.web.tsrx';
 export { Tabs } from './Tabs.web.tsrx';
 export type { TabSpec } from './Tabs.web.tsrx';

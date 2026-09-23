@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, PlatformBadge } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List, ScrollView, PlatformBadge } from '@xplat/ui';
 import { openDetail } from './platform/nav';
 import { openOverlay } from './platform/overlay';
 
@@ -15,6 +15,7 @@ const INITIAL = [
 // every recycled cell root to re-render on each native itemLoading refire.
 const renderItem = (item: any) => <Text className="cell">{item.label}</Text>;
 const renderEmpty = () => <Text>No items</Text>;
+const ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 /** Home tab — the original harness surface (counter, list, input, probes). */
 export function Home() @{
@@ -121,6 +122,15 @@ export function Home() @{
 				<Text className="chip">{item.id}</Text>
 			}
 		</Row>
+
+		{/* ScrollView seam: NS <scrollview> hosts one child — the leaf wraps
+		    children in a column layout. Probe reads verticalOffset back.
+		    Universal @for needs an explicit key even for scalar ranges. */}
+		<ScrollView id="scroll-box" className="scrollbox" style={{ height: 96 }}>
+			@for (const n of ROWS; key n) {
+				<Text className="scrollrow">{'Row ' + n}</Text>
+			}
+		</ScrollView>
 
 		<TextInput
 			value={text}
