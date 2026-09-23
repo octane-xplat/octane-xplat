@@ -72,17 +72,19 @@ import in `App.tsrx`, so it needs no changes to the harness entry.
   Net effect: any 3+-branch conditional renders nothing once the first
   condition fails. Present in emitted `bundle.mjs`; upstream-reportable
   (octanejs/octane).
-- **`universalIf`'s else arm never mounts on native.** Even where the codegen
-  emits a correct else callback (binary `@if/@else`, e.g. Weather's
-  loading/list split), neither arm survives a condition change — the else
-  branch's subtree never reaches the view tree. Workaround used here: a
-  ternary in children position (`{cond ? <A/> : <B/>}`), which compiles to a
-  plain expression evaluated per render and swaps correctly. Single-arm
-  `@if` (Todo's empty state) mounts fine when true; toggling untested.
+- **Binary `@if`/`@else` works fully on native** — verified on-device via the
+  Counter `if-toggle` probe: else arm mounts when the condition starts false,
+  swaps to the then arm on flip, and swaps back (`if else mount` / `if then
+  swap` / `if else swap` all OK). An earlier version of this doc blamed the
+  runtime for a Weather miss that turned out to be probe timing — the sweep
+  asserted `°` after the next demo had already mounted.
+- **Children-position ternaries also work and swap correctly** — Weather's
+  `{days === null ? <Text/> : <View>@for…</View>}` mounts `Loading…` then
+  swaps in the forecast on `setDays` (verified). Prefer whichever reads
+  better; only `@else if` is off-limits on native today.
 - **`{expr}` calling a render function in children position works on both
   targets** — `Gallery` dispatches `{RENDER[demo]()}` and `Cell` does
-  `{props.renderItem(item)}`. This is the portable conditional-mount pattern
-  until `universalIf`'s else arm is fixed.
+  `{props.renderItem(item)}`. This is the portable dynamic-mount pattern.
 - **TSRX lexer rejects some non-ASCII in raw JSX text.** `<Text>✕</Text>`
   fails at parse (`Unexpected character '✕'`); `{'✕'}` string containers are
   fine (as is `…`/`°` raw — the rejected set isn't simply "non-ASCII").

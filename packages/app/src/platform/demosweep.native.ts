@@ -45,7 +45,18 @@ const find = (id: string) => Frame.topmost()?.currentPage?.getViewById?.(id);
 // Schedule: entry probes run to ~5.2s; the sweep starts at 6s. Each step taps
 // a menu chip, then the following step asserts the new demo's content.
 const STEPS: { id: string; checks: { at: number; run: () => void }[] }[] = [
-	{ id: 'counter', checks: [{ at: 900, run: () => assertHas('demo counter', 'Demo count: 0') }] },
+	{
+		id: 'counter',
+		checks: [
+			{ at: 250, run: () => assertHas('demo counter', 'Demo count: 0') },
+			// else arm at mount, then flip → then arm, then flip back → else arm.
+			{ at: 300, run: () => assertHas('if else mount', 'arm-B') },
+			{ at: 500, run: () => fireTap(find('if-toggle')) },
+			{ at: 900, run: () => assertHas('if then swap', 'arm-A') },
+			{ at: 1050, run: () => fireTap(find('if-toggle')) },
+			{ at: 1350, run: () => assertHas('if else swap', 'arm-B') },
+		],
+	},
 	{ id: 'watch', checks: [{ at: 900, run: () => assertMatch('demo watch', /\d{2}:\d{2}:\d{2}/) }] },
 	{ id: 'stopwatch', checks: [{ at: 900, run: () => assertHas('demo stopwatch', '0:00.0') }] },
 	{ id: 'todo', checks: [{ at: 900, run: () => assertHas('demo todo', 'Nothing yet — add one.') }] },

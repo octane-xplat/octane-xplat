@@ -10,10 +10,10 @@ export function ScrollView(props: {
 	<div
 		id={props.id}
 		className={['vx-scroll', props.className]}
-		style={[
-			props.horizontal ? { overflowX: 'auto' } : { overflowY: 'auto' },
-			props.style,
-		]}
+		style={{
+			...(props.horizontal ? { overflowX: 'auto' } : { overflowY: 'auto' }),
+			...props.style,
+		}}
 	>
 		{props.children}
 	</div>
