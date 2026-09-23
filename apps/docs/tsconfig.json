@@ -12,5 +12,5 @@
 		}
 	},
 	"include": ["src/**/*", "../../packages/ui/src/**/*"],
-	"exclude": ["node_modules", "**/*.test.*", "**/*.native.*", "**/*.ios.*", "**/*.android.*"]
+	"exclude": ["node_modules", "**/*.test.*", "../../packages/**/*.test.*", "**/*.native.*", "**/*.ios.*", "**/*.android.*"]
 }

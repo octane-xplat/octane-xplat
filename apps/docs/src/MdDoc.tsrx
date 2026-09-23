@@ -10,7 +10,7 @@ function BlockView(props: { b: Block }) @{
 	const b = props.b;
 	if (b.kind === 'h') return <Text className={`h${b.level}`}>{b.text}</Text>;
 	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} /></Text>;
-	if (b.kind === 'li') return <Text className="li" style={{ paddingLeft: b.depth * 16 }}><Text className="dim">• </Text><Spans spans={b.spans} /></Text>;
+	if (b.kind === 'li') return <Text className="li" style={{ paddingLeft: b.depth * 16 }}><Text className="dim">{'• '}</Text><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'quote') return <View className="quote"><Text className="dim"><Spans spans={b.spans} /></Text></View>;
 	if (b.kind === 'code') return <View className="code"><Text className="mono">{b.text}</Text></View>;
 	if (b.kind === 'hr') return <View className="hr" />;
