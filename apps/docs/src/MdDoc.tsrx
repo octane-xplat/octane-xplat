@@ -1,6 +1,39 @@
 import { useMemo } from 'octane';
 import { View, Text, pushRoute } from '@octane-xplat/ui';
+import { createHighlighterCoreSync } from 'shiki/core';
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
+import langTs from 'shiki/langs/typescript.mjs';
+import langTsx from 'shiki/langs/tsx.mjs';
+import langJsonc from 'shiki/langs/jsonc.mjs';
+import themeDark from 'shiki/themes/vitesse-dark.mjs';
+import themeLight from 'shiki/themes/vitesse-light.mjs';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
+
+// JS regex engine — no wasm fetch, fully sync. Code blocks stay inverted
+// (ink bg vs field), so dark mode takes light-theme tokens and vice versa.
+const hl = createHighlighterCoreSync({
+	langs: [langTs, langTsx, langJsonc],
+	themes: [themeDark, themeLight],
+	engine: createJavaScriptRegexEngine(),
+});
+const LANGS = new Set(['ts', 'typescript', 'tsx', 'jsonc', 'json']);
+
+function tokenStyle(t: { color?: string; fontStyle?: number }) {
+	return {
+		color: t.color,
+		fontStyle: t.fontStyle && t.fontStyle & 1 ? 'italic' : undefined,
+		fontWeight: t.fontStyle && t.fontStyle & 2 ? 'bold' : undefined,
+	};
+}
+
+function CodeBlock(props: { code: string; lang: string; dark: boolean }) @{
+	const lang = LANGS.has(props.lang) ? props.lang : 'text';
+	const theme = props.dark ? 'vitesse-light' : 'vitesse-dark';
+	const { tokens } = hl.codeToTokens(props.code, { lang, theme });
+	<View className="code"><Text className="mono">
+		{tokens.map((line) => <>{line.map((t) => <Text style={tokenStyle(t)}>{t.content}</Text>)}{'\n'}</>)}
+	</Text></View>
+}
 
 const REPO = 'https://github.com/aleclarson/octane-xplat';
 
@@ -35,13 +68,13 @@ function Spans(props: { spans: Span[] }) @{
 	<>{props.spans.map((s) => <SpanText s={s} />)}</>
 }
 
-function BlockView(props: { b: Block }) @{
+function BlockView(props: { b: Block; dark: boolean }) @{
 	const b = props.b;
 	if (b.kind === 'h') return <Text className={`h${b.level}`}>{b.text}</Text>;
 	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'li') return <Text className="li" style={{ paddingLeft: b.depth * 16 }}><Text className="dim">{'• '}</Text><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'quote') return <View className="quote"><Text className="dim"><Spans spans={b.spans} /></Text></View>;
-	if (b.kind === 'code') return <View className="code"><Text className="mono">{b.text}</Text></View>;
+	if (b.kind === 'code') return <CodeBlock code={b.text} lang={b.lang} dark={props.dark} />;
 	if (b.kind === 'hr') return <View className="hr" />;
 	if (b.kind === 'table') {
 		return <View className="table">
@@ -55,7 +88,7 @@ function BlockView(props: { b: Block }) @{
 	return <></>;
 }
 
-export function MdDoc(props: { md: string }) @{
+export function MdDoc(props: { md: string; dark: boolean }) @{
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
-	<View className="doc">{blocks.map((b) => <BlockView b={b} />)}</View>
+	<View className="doc">{blocks.map((b) => <BlockView b={b} dark={props.dark} />)}</View>
 }

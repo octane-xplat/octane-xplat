@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@octane-xplat/ui": "workspace:*",
-    "octane": "0.4.0"
+    "octane": "0.4.0",
+    "shiki": "4.4.3"
   },
   "devDependencies": {
     "@octanejs/vite-plugin": "0.1.58",

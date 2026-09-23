@@ -207,6 +207,7 @@ body {
 	padding: 18px 20px;
 	margin-top: 16px;
 	border-width: 0;
+	white-space: pre-wrap;
 }
 
 .code .mono,

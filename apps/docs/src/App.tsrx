@@ -33,7 +33,7 @@ export function App() @{
 				<List items={DOCS} renderItem={renderDoc} />
 			</View>
 			<ScrollView className="content">
-				<MdDoc md={doc.md} />
+				<MdDoc md={doc.md} dark={dark} />
 			</ScrollView>
 		</Row>
 	</View>

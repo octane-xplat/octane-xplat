@@ -4,7 +4,7 @@ export type Span = { text: string; mono?: boolean; bold?: boolean; href?: string
 export type Block =
 	| { kind: 'h'; level: number; text: string }
 	| { kind: 'p'; spans: Span[] }
-	| { kind: 'code'; text: string }
+	| { kind: 'code'; text: string; lang: string }
 	| { kind: 'li'; spans: Span[]; depth: number }
 	| { kind: 'quote'; spans: Span[] }
 	| { kind: 'table'; rows: string[][] }
@@ -48,10 +48,11 @@ export function parseMd(md: string): Block[] {
 		const line = lines[i];
 
 		if (line.trim().startsWith('```')) {
+			const lang = line.trim().slice(3).trim();
 			const buf: string[] = [];
 			while (++i < lines.length && !lines[i].trim().startsWith('```')) buf.push(lines[i]);
 			i++;
-			blocks.push({ kind: 'code', text: buf.join('\n').replace(/\n$/, '') });
+			blocks.push({ kind: 'code', text: buf.join('\n').replace(/\n$/, ''), lang });
 			continue;
 		}
 		if (/^#{1,4}\s/.test(line)) {
