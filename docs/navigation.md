@@ -16,6 +16,11 @@
 > `backStack=1`→`goBack`→pop cycle asserted: `Detail screen` text read from the
 > pushed page's own root. Transitions commit asynchronously — read `currentPage`
 > only after the `navigatedTo` event, never at a fixed delay.
+>
+> **Lab (Exp 14, iOS):** `navigate(name, params)` over a shared `screens`
+> registry — native resolves `screens[name]` inside `frame.navigate({create})`
+> and passes `params` as the pushed root's props; `from=home` arrived as
+> `props.from` on Detail. Web leaf serializes params into the hash URL.
 
 ## The contract
 

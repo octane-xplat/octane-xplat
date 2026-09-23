@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'octane';
 import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme } from '@xplat/ui';
-import { openDetail } from './platform/nav';
+import { navigate } from './platform/nav';
 import { openOverlay } from './platform/overlay';
 
 const INITIAL = [
@@ -101,7 +101,7 @@ export function Home() @{
 		{/* Navigation + overlay seams (Exp 9): platform modules resolve the
 		    imperative call per target. */}
 		<Row className="gap-4">
-			<Pressable id="detail-btn" onPress={openDetail} className="btn bg-primary">
+			<Pressable id="detail-btn" onPress={() => navigate('detail', { from: 'home' })} className="btn bg-primary">
 				<Text className="text-onprimary">Detail →</Text>
 			</Pressable>
 			<Pressable id="overlay-btn" onPress={openOverlay} className="btn bg-primary">
