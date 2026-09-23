@@ -30,8 +30,8 @@ export function App() @{
 				<Text className="brand">xplat</Text>
 			</View>
 			<View className="topbar-mid">
-				<View className="disc-chip"><Text className="disc-text">not affiliated with octane</Text></View>
 				<Text className="tagline">one codebase — web · ios · android</Text>
+				<View className="disc-chip"><Text className="disc-text">not affiliated with octane</Text></View>
 			</View>
 			<Pressable className="mode-block" onPress={() => setOverride(!dark)}>
 				<Text className="mode-text">{dark ? 'light' : 'dark'}</Text>
