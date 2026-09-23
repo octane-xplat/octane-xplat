@@ -2,6 +2,7 @@ import { Application, Frame, Page, Trace } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
 import { getColorScheme } from '@xplat/ui';
+import { storage } from '@xplat/app';
 import './app.css';
 
 // Trace the nav pipeline end-to-end: NAVIGATE → pushViewController → DID_show.
@@ -134,6 +135,10 @@ setTimeout(() => {
   console.log('[assert] dark class: ' + (hasDark ? 'OK' : 'FAIL'));
   const cs = getColorScheme();
   console.log('[assert] color scheme: ' + (/^(light|dark)$/.test(cs) ? 'OK' : 'FAIL') + ' (' + cs + ')');
+  // Storage seam (Exp 15): ApplicationSettings write/read round-trip.
+  storage.setString('probe-key', 'roundtrip');
+  console.log('[assert] storage roundtrip: ' + (storage.getString('probe-key') === 'roundtrip' ? 'OK' : 'FAIL'));
+  console.log('[assert] draft persisted: ' + (storage.getString('draft') === 'typed!' ? 'OK' : 'FAIL') + ' (' + storage.getString('draft') + ')');
 }, 4900);
 
 // Navigation probe (Exp 9) — event-driven: a pushed Page commits only when

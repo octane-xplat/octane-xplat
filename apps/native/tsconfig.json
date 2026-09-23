@@ -7,7 +7,9 @@
     "lib": ["ESNext"],
     "paths": {
       "@xplat/app": ["../../packages/app/src/index.ts"],
-      "@xplat/ui": ["../../packages/ui/src/index.native.ts"]
+      "@xplat/app/*": ["../../packages/app/src/*"],
+      "@xplat/ui": ["../../packages/ui/src/index.native.ts"],
+      "@xplat/ui/*": ["../../packages/ui/src/*"]
     }
   },
   "include": ["src/**/*", "../../packages/**/*"],

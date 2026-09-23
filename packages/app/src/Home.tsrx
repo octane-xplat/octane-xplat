@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'octane';
 import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme } from '@xplat/ui';
 import { navigate } from './platform/nav';
 import { openOverlay } from './platform/overlay';
+import { storage } from './platform/storage';
 
 const INITIAL = [
 	{ id: 'a', label: 'Alpha' },
@@ -173,7 +174,7 @@ export function Home() @{
 
 		<TextInput
 			value={text}
-			onChange={(v) => { console.log('[probe] onChange ' + v); setText(v); }}
+			onChange={(v) => { console.log('[probe] onChange ' + v); setText(v); storage.setString('draft', v); }}
 			placeholder="Type here"
 			className="input"
 		/>

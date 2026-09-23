@@ -150,6 +150,12 @@ Two program configs over a shared base:
 - Leaf files typecheck under their own target's config only.
 - Typecheck `.tsrx` with `tsrx-tsc --noEmit` (per octane repo rules), not plain
   `tsc`.
+- **`exports` wildcards don't extension-resolve** (lab, Exp 15): `"./\*":
+  "./src/*"` maps `@xplat/app/platform/storage` to a literal extensionless
+  path that neither tsc nor vite/rolldown can load. Deep platform imports must
+  go through a barrel (`@xplat/app` re-exporting `./platform/storage`) or a
+  `paths` pattern — the suffix chain runs on the barrel's internal relative
+  specifier, not on the exports target.
 
 ## Build-time defines
 

@@ -5,7 +5,13 @@
     "moduleSuffixes": [".web", ""],
     "customConditions": ["web"],
     "types": ["vite/client"],
-    "lib": ["ESNext", "DOM", "DOM.Iterable"]
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@xplat/app": ["../../packages/app/src/index.ts"],
+      "@xplat/app/*": ["../../packages/app/src/*"],
+      "@xplat/ui": ["../../packages/ui/src/index.web.ts"],
+      "@xplat/ui/*": ["../../packages/ui/src/*"]
+    }
   },
   "include": ["src/**/*", "../../packages/**/*"],
   "exclude": [
