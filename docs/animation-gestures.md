@@ -85,6 +85,11 @@ component elements) and writes `view.translateX` per rAF frame — no re-render.
 |---|---|---|
 | `onPress` | click/pointerup w/ press geometry | `tap` (already aliased by driver) |
 | `useGesture('pan')` | pointerdown/move/up + setPointerCapture | `touch`/`pan` events (`getX/getY` in dip — convert to same units) |
+| long-press | timer over pointerdown | `longPress` |
+| `hover`/`focus` states | real CSS | N/A — omit or no-op; NS pseudo-states limited (`:highlighted` — verify) |
+
+Normalize to: `{ x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled', target }`.
+Velocity is essential for interruptible gestures (drawer, swipe-to-dismiss).
 
 **Lab (Exp 10, iOS):** `onPan`/`onSwipe` props on a `<flexboxlayout>` map
 through the driver's generic `onX` → event-name rule and deliver full
@@ -104,11 +109,6 @@ delegated-event set**, so declarative `onPointerMove` props can't drive a
 drag; the leaf owns the listeners. Velocity: computed on web from pointer
 samples; native leaves it 0 (the recognizer's `velocityInView` is a later
 seam).
-| long-press | timer over pointerdown | `longPress` |
-| `hover`/`focus` states | real CSS | N/A — omit or no-op; NS pseudo-states limited (`:highlighted` — verify) |
-
-Normalize to: `{ x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled', target }`.
-Velocity is essential for interruptible gestures (drawer, swipe-to-dismiss).
 
 ## Choreography patterns proven in ns-octane
 
