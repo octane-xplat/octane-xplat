@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"outDir": "types"
+	},
+	"include": ["src/props.ts"]
+}

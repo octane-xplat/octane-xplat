@@ -1,14 +1,7 @@
 import { useRef } from 'octane';
 
-/** Same contract as anim.native.tsrx — structural typing, no cross-suffix
- *  import. */
-export interface AnimatedValue {
-	readonly value: number;
-	bind(el: any): void;
-	to(target: number, opts?: { duration?: number }): void;
-	spring(target: number, opts?: { damping?: number; stiffness?: number }): void;
-	stop(): void;
-}
+export type { AnimatedValue } from './props';
+import type { AnimatedValue } from './props';
 
 function createAnimated(initial: number, prop: string): AnimatedValue {
 	let el: HTMLElement | null = null;

@@ -1,8 +1,5 @@
-export function Row(props: {
-  className?: any;
-  style?: any;
-  children?: any;
-}) @{
+import type { RowProps } from "./props";
+export function Row(props: RowProps) @{
 	<div className={['vx-row', props.className]} style={props.style}>
 		{props.children}
 	</div>

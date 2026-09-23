@@ -27,7 +27,7 @@
     }
   },
   "scripts": {
-    "build": "vite build && vite build --mode native",
+    "build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
     "prepublishOnly": "pnpm build"
   },
   "devDependencies": {

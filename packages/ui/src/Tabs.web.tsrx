@@ -1,28 +1,14 @@
 import { useState } from 'octane';
+import type { TabSpec, TabsProps } from './props';
 
 import { useRoute } from './route.web';
 
-export interface TabSpec {
-	title: string;
-	render: () => any;
-	/** Named parallel stack — native hosts a Frame per such pane; on web the
-	 *  pane is the route outlet for `stack` (pushed screens render in place). */
-	stack?: string;
-}
+export type { TabSpec } from './props';
 
 /** Platform tab shell — web version: a button row + the active pane. The
  *  pane also acts as the route outlet for its `stack`; a route on the
  *  'root' stack covers the whole shell (native: root push covers tabs). */
-export function Tabs(props: {
-	className?: any;
-	style?: any;
-	id?: string;
-	tabs: readonly TabSpec[];
-	selectedIndex?: number;
-	onSelectedIndexChanged?: (index: number) => void;
-	/** Renders a pushed route's screen by name (the app owns the table). */
-	resolveScreen?: (name: string, params: Record<string, unknown>) => any;
-}) @{
+export function Tabs(props: TabsProps) @{
 	const [internal, setInternal] = useState(0);
 	const active = props.selectedIndex ?? internal;
 	const rootRoute = useRoute('root');

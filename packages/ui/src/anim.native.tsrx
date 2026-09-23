@@ -7,13 +7,8 @@ import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/
  * `bind` prop target: the leaf forwards it to the intrinsic's `ref`, and the
  * runtime hands us the NS view.
  */
-export interface AnimatedValue {
-	readonly value: number;
-	bind(el: any): void;
-	to(target: number, opts?: { duration?: number }): void;
-	spring(target: number, opts?: { damping?: number; stiffness?: number }): void;
-	stop(): void;
-}
+export type { AnimatedValue } from './props';
+import type { AnimatedValue } from './props';
 
 function createAnimated(initial: number, prop: string): AnimatedValue {
 	let view: any = null;

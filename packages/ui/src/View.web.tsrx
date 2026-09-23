@@ -1,19 +1,12 @@
 import { useEffect, useRef } from 'octane';
+import type { ViewProps } from './props';
 
 /** Neutral flex-column container — the RN-shaped default block.
  *  onPan is pointer plumbing: pointerdown/move/up on the element.
  *  pointermove isn't in octane's delegated-event set, so the leaf attaches
  *  raw listeners via a ref — that's why `bind` exists. Payloads normalize
  *  to the shared shape {x,y,dx,dy,vx,vy,state,target}. */
-export function View(props: {
-  className?: any;
-  style?: any;
-  children?: any;
-  id?: string;
-  bind?: (el: any) => void;
-  onPan?: (e: { x: number; y: number; dx: number; dy: number; vx: number; vy: number; state: string; target: any }) => void;
-  onSwipe?: (e: { direction: number }) => void;
-}) @{
+export function View(props: ViewProps) @{
 	const el = useRef<HTMLElement | null>(null);
 
 	useEffect(() => {

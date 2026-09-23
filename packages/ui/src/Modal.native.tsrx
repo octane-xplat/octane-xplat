@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane';
+import type { ModalProps } from "./props";
 import { ContentView, Frame } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
@@ -16,12 +17,7 @@ function Panel(props: { children?: any }) @{
  * Modal — declarative `open` drives imperative `showModal`. Renders nothing
  * inline; the content lives on the modal's own root above the whole tree.
  */
-export function Modal(props: {
-  open?: boolean;
-  onClose?: () => void;
-  fullscreen?: boolean;
-  children?: any;
-}) @{
+export function Modal(props: ModalProps) @{
 	const shown = useRef<{ host: ContentView; root: any } | null>(null);
 
 	useEffect(() => {

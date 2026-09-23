@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { createContext, useContext } from 'octane';
+import type { TextProps } from "./props";
 
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
@@ -18,11 +19,7 @@ function TextScope(props: { children?: any }) {
 	return InText({ value: true, children: props.children });
 }
 
-export function Text(props: {
-  className?: any;
-  style?: any;
-  children?: any;
-}) @{
+export function Text(props: TextProps) @{
 	const inText = useContext(InText);
 	@if (inText) {
 		<span className={props.className} style={props.style}>{props.children}</span>

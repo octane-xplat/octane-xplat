@@ -1,11 +1,6 @@
+import type { ImageProps } from "./props";
 /** Image — a plain <img>. `src` takes any URL or data: URI. */
-export function Image(props: {
-	className?: any;
-	style?: any;
-	id?: string;
-	src: string;
-	alt?: string;
-}) @{
+export function Image(props: ImageProps) @{
 	<img
 		id={props.id}
 		className={props.className}

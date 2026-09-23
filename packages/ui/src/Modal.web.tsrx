@@ -1,13 +1,9 @@
 import { useEffect, useRef } from 'octane';
+import type { ModalProps } from "./props";
 
 /** Modal — <dialog> driven by showModal()/close(). Renders in place; the
  *  browser puts it in the top layer above everything. */
-export function Modal(props: {
-	open?: boolean;
-	onClose?: () => void;
-	fullscreen?: boolean;
-	children?: any;
-}) @{
+export function Modal(props: ModalProps) @{
 	const el = useRef<HTMLDialogElement | null>(null);
 
 	useEffect(() => {

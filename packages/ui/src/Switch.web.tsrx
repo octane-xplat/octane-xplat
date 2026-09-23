@@ -1,10 +1,5 @@
-export function Switch(props: {
-	className?: any;
-	style?: any;
-	id?: string;
-	checked?: boolean;
-	onCheckedChange?: (checked: boolean) => void;
-}) @{
+import type { SwitchProps } from "./props";
+export function Switch(props: SwitchProps) @{
 	<input
 		id={props.id}
 		type="checkbox"

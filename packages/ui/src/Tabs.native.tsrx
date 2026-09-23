@@ -4,14 +4,9 @@ import { ContentView, Frame, Page, TabView, TabViewItem } from '@nativescript/co
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { registerStack } from './stacks.native';
+import type { TabSpec, TabsProps } from './props';
 
-export interface TabSpec {
-	title: string;
-	render: () => any;
-	/** Named parallel stack: the pane hosts its own Frame — pushes into it
-	 *  stay inside the tab (tab bar stays visible). navigate(..., {into}). */
-	stack?: string;
-}
+export type { TabSpec } from './props';
 
 // TabViewItem content is a plain native view — the driver can't parent
 // reconciled children into <tabviewitem>, so each pane is a ContentView
@@ -104,17 +99,7 @@ function TabsInner(props: {
 const MemoTabs = memo(TabsInner, (a, b) => a.tabs === b.tabs && a.selectedIndex === b.selectedIndex);
 
 /** Platform tab shell. `tabs` is identity-stable (module const preferred). */
-export function Tabs(props: {
-	className?: any;
-	style?: any;
-	id?: string;
-	tabs: readonly TabSpec[];
-	selectedIndex?: number;
-	onSelectedIndexChanged?: (index: number) => void;
-	/** Signature parity with the web leaf — native pushes render inside
-	 *  the pane's Frame instead; unused here. */
-	resolveScreen?: (name: string, params: Record<string, unknown>) => any;
-}) @{
+export function Tabs(props: TabsProps) @{
 	<MemoTabs
 		id={props.id}
 		className={props.className}

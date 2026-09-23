@@ -2,6 +2,7 @@
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo } from 'octane';
+import type { ListProps } from "./props";
 
 // Cell machinery is driver-owned since @nativescript-community/octane 0.2.1
 // (upstream #7, closes our issue #1): `renderItem` on <listview> makes
@@ -45,14 +46,7 @@ const MemoListView = memo(ListInner, (a, b) => a.items === b.items);
  * Cell identity = the recycled host view, not the item — keys must travel
  * inside the rendered cell, matching RN's recycling mental model.
  */
-export function List(props: {
-  className?: any;
-  style?: any;
-  id?: string;
-  items: any[];
-  renderItem: (item: any) => any;
-  renderEmpty?: () => any;
-}) @{
+export function List(props: ListProps) @{
 	// ListView has no empty state — swap to the empty view. Remount on
 	// repopulate loses scroll position; acceptable for v1 (RN parity: its
 	// ListEmptyComponent also renders instead of the list).

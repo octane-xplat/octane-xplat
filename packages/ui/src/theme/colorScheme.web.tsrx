@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'octane';
 
-export type ColorScheme = 'light' | 'dark';
+export type { ColorScheme } from '../props';
+import type { ColorScheme } from '../props';
 
 export function getColorScheme(): ColorScheme {
 	return typeof matchMedia === 'function'

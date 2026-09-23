@@ -7,11 +7,8 @@ import { useSyncExternalStore } from 'octane';
  *  Module-scope like every other store — the pane that owns `stack`
  *  subscribes with useRoute(stack) and swaps its content. */
 
-export interface Route {
-	stack: string;
-	name: string;
-	params: Record<string, unknown>;
-}
+export type { Route } from './props';
+import type { Route } from './props';
 
 const listeners = new Set<() => void>();
 let current: Route | null = parse();

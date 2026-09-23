@@ -1,16 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-export function Pressable(props: {
-  className?: any;
-  style?: any;
-  disabled?: boolean;
-  onPress?: () => void;
-  onLongPress?: () => void;
-  children?: any;
-  id?: string;
-  accessible?: boolean;
-  accessibilityLabel?: string;
-  accessibilityRole?: string;
-}) @{
+import type { PressableProps } from "./props";
+export function Pressable(props: PressableProps) @{
 	<contentview
 		id={props.id}
 		className={props.className}
