@@ -72,13 +72,17 @@ suffix chain resolved at build time, hooks retargeted to
 `exports` still point at `src` for workspace dev; `publishConfig` swaps
 them to `dist` only at publish. Verified via `pnpm pack` extraction.
 
-**Types gap (upstream-tracked):** no `.d.ts` ships — `tsrx-tsc` on TS 5.9
-has no declaration emit. The TS-7 native path emits, but as
-`Component.d.tsrx.ts` — consumers then need `allowArbitraryExtensions`.
-Tracked in [tsrx#136](https://github.com/tsrx-org/tsrx/issues/136) →
-microsoft/TypeScript#64120 + #64053. Consumers get runtime imports, no
-package-boundary types until that lands (or we hand-write a boundary
-`.d.ts`).
+**Types — hand-written boundary `.d.ts`:** `tsrx-tsc` on TS 5.9 has no
+declaration emit; the TS-7 native path emits `Component.d.tsrx.ts`,
+which needs `allowArbitraryExtensions` on the consumer (upstream:
+[tsrx#136](https://github.com/tsrx-org/tsrx/issues/136) →
+microsoft/TypeScript#64120 + #64053). Workaround shipped:
+`packages/ui/types/index.d.ts` covers the whole public surface — the API
+is platform-uniform by design, so one file serves both `web`/`native`
+conditions via a `types` condition in `publishConfig`. Verified against
+the packed tarball with a `customConditions:['web']` consumer tsconfig.
+Cost: drift risk vs the `.tsrx` prop types — the file sits next to the
+leaves; update it when props change.
 
 ## TS configs
 

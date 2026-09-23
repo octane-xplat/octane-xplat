@@ -4,6 +4,7 @@
   "type": "module",
   "files": [
     "dist",
+    "types",
     "src/theme/tokens.css"
   ],
   "exports": {
@@ -17,6 +18,7 @@
   "publishConfig": {
     "exports": {
       ".": {
+        "types": "./types/index.d.ts",
         "web": "./dist/web/ui.js",
         "native": "./dist/native/ui.js",
         "default": "./dist/native/ui.js"
