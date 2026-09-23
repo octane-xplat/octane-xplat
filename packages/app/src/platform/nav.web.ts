@@ -1,17 +1,17 @@
 import type { RouteName } from '../screens';
 
-// Web seam for the nav contract — hash change + history back stand in for a
-// real URL router (the route table lands when route files exist).
-// `into` (named parallel stack) is ignored: web has one linear URL stack —
-// parallel stacks map to nested routes, a router-level concern.
+import { pushRoute } from '@xplat/ui';
+
+// Web seam for the nav contract — real paths over history. `into` selects
+// the outlet: a named stack renders inside its tab pane (nested-route
+// semantics for parallel stacks), 'root' covers the whole shell.
 export function navigate(
 	name: RouteName,
 	params: Record<string, unknown> = {},
 	opts: { into?: string } = {},
 ) {
-	const q = new URLSearchParams(params as Record<string, string>).toString();
-	location.hash = '#/' + name + (q ? '?' + q : '');
-	console.log('[probe] nav web → #/' + name);
+	pushRoute({ stack: opts.into ?? 'root', name, params });
+	console.log('[probe] nav web → ' + location.pathname);
 }
 
 export function goBack(_opts: { into?: string } = {}) {

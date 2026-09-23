@@ -1,14 +1,18 @@
 import { useState } from 'octane';
 
+import { useRoute } from './route.web';
+
 export interface TabSpec {
 	title: string;
 	render: () => any;
-	/** Named parallel stack — native hosts a Frame per such pane; web has
-	 *  one linear URL stack (parallel stacks map to nested routes). Ignored. */
+	/** Named parallel stack — native hosts a Frame per such pane; on web the
+	 *  pane is the route outlet for `stack` (pushed screens render in place). */
 	stack?: string;
 }
 
-/** Platform tab shell — web version: a button row + the active pane. */
+/** Platform tab shell — web version: a button row + the active pane. The
+ *  pane also acts as the route outlet for its `stack`; a route on the
+ *  'root' stack covers the whole shell (native: root push covers tabs). */
 export function Tabs(props: {
 	className?: any;
 	style?: any;
@@ -16,9 +20,19 @@ export function Tabs(props: {
 	tabs: readonly TabSpec[];
 	selectedIndex?: number;
 	onSelectedIndexChanged?: (index: number) => void;
+	/** Renders a pushed route's screen by name (the app owns the table). */
+	resolveScreen?: (name: string, params: Record<string, unknown>) => any;
 }) @{
 	const [internal, setInternal] = useState(0);
 	const active = props.selectedIndex ?? internal;
+	const rootRoute = useRoute('root');
+	// Hooks must be unconditional — subscribe with the active pane's stack
+	// name ('' never matches a route).
+	const paneRoute = useRoute(props.tabs[active]?.stack ?? '');
+	@if (rootRoute && props.resolveScreen) {
+		<div className="vx-route">{props.resolveScreen(rootRoute.name, rootRoute.params)}</div>
+	}
+	@else {
 	<div id={props.id} className={['vx-tabs', props.className]} style={props.style}>
 		<div className="vx-tabbar">
 			@for (const t of props.tabs; key t.title) {
@@ -32,6 +46,11 @@ export function Tabs(props: {
 				>{t.title}</button>
 			}
 		</div>
-		<div className="vx-tabpane">{props.tabs[active]?.render()}</div>
+		<div className="vx-tabpane">
+			{paneRoute && props.resolveScreen
+				? props.resolveScreen(paneRoute.name, paneRoute.params)
+				: props.tabs[active]?.render()}
+		</div>
 	</div>
+	}
 }

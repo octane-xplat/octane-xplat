@@ -111,6 +111,9 @@ export function Tabs(props: {
 	tabs: readonly TabSpec[];
 	selectedIndex?: number;
 	onSelectedIndexChanged?: (index: number) => void;
+	/** Signature parity with the web leaf — native pushes render inside
+	 *  the pane's Frame instead; unused here. */
+	resolveScreen?: (name: string, params: Record<string, unknown>) => any;
 }) @{
 	<MemoTabs
 		id={props.id}

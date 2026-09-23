@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'octane';
-import { Screen, Tabs } from '@xplat/ui';
+import { Screen, Tabs, Text, currentRoute } from '@xplat/ui';
+import { screens } from './screens';
 import { Home } from './Home.tsrx';
 import { Settings } from './Settings.tsrx';
 import { Gallery } from '@xplat/demos';
@@ -28,7 +29,14 @@ console.log('[harness] App module evaluated');
 /** App shell — a real tab surface. Screen wraps content in the platform
  *  root (rootlayout on native, div on web). */
 export function App() @{
-	const [tab, setTab] = useState(0);
+	// Deep link: a URL like /demos/demo?id=counter boots into the Demos tab
+	// with the pushed screen already on its stack (web leaf; currentRoute is
+	// a no-op null on native).
+	const [tab, setTab] = useState(() => {
+		const r = currentRoute();
+		const i = r ? TABS.findIndex((t) => t.stack === r.stack) : -1;
+		return i >= 0 ? i : 0;
+	});
 	console.log('[harness] App render, tab=' + tab);
 
 	useEffect(() => {
@@ -42,6 +50,10 @@ export function App() @{
 			tabs={TABS}
 			selectedIndex={tab}
 			onSelectedIndexChanged={(i) => { console.log('[probe] tab -> ' + i); setTab(i); }}
+			resolveScreen={(name, params) => {
+				const C = screens[name as keyof typeof screens];
+				return C ? <C {...params} /> : <Text>404: {name}</Text>;
+			}}
 		/>
 	</Screen>
 }

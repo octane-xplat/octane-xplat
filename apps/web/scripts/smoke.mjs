@@ -49,11 +49,40 @@ try {
 	const chipCount = await page.locator('[role="button"]:has-text("Counter")').count();
 	ok('gallery chips render', chipCount >= 1, 'chips=' + chipCount);
 
-	// Chip click → navigate('demo',{id},{into}) → web leaf writes the hash.
+	// Chip click → navigate('demo',{id},{into:'demos'}) → real path +
+	// the pushed screen renders inside the Demos pane (tab bar stays).
 	await page.click('[role="button"]:has-text("Counter")');
-	await page.waitForFunction(() => location.hash.includes('demo'), null, { timeout: 3000 });
-	const hash = await page.evaluate(() => location.hash);
-	ok('chip → navigate writes hash route', hash.includes('demo') && hash.includes('counter'), hash);
+	await page.waitForFunction(() => location.pathname.includes('demo'), null, { timeout: 3000 });
+	const path = await page.evaluate(() => location.pathname + location.search);
+	ok('chip → pushRoute writes real path', path === '/demos/demo?id=counter', path);
+	await page.waitForSelector('text=Demo count: 0', { timeout: 3000 });
+	ok('pushed screen renders inside pane', true);
+	const tabbarVisible = await page.locator('.vx-tabbar').isVisible();
+	ok('tab bar stays visible (nested-route semantics)', tabbarVisible);
+	// goBack → history.back → URL + pane revert to gallery.
+	await page.click('text=← Back');
+	await page.waitForFunction(() => location.pathname === '/', null, { timeout: 3000 });
+	await page.waitForSelector('text=Counter', { timeout: 3000 });
+	ok('goBack → popstate → gallery restored', true);
+	// The gallery's Last opened shows the popped screen's store write —
+	// same-root swap on web vs cross-root write on native.
+	await page.waitForSelector('text=Last opened: counter', { timeout: 3000 });
+	ok('cross-route store write (lastDemo)', true);
+
+	// Root push (Detail →) covers the whole shell.
+	await page.click('button:text("Home")');
+	await page.click('text=Detail →');
+	await page.waitForFunction(() => location.pathname === '/detail', null, { timeout: 3000 });
+	const tabsCovered = (await page.locator('.vx-tabbar').count()) === 0;
+	ok('root route covers tab shell', tabsCovered);
+	await page.goBack();
+	await page.waitForSelector('.vx-tabbar', { timeout: 3000 });
+	ok('browser back → shell restored', true);
+
+	// Deep link: fresh page load at /demos/demo renders demo in Demos pane.
+	await page.goto(BASE + '/demos/demo?id=watch', { waitUntil: 'networkidle' });
+	await page.waitForSelector('text=/\\d{2}:\\d{2}:\\d{2}/', { timeout: 5000 });
+	ok('deep link → correct tab + pushed screen', true);
 
 	// Settings tab: sheet stub logs (the web leaf is a stub — assert the call path).
 	const logs = [];

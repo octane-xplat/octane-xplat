@@ -126,11 +126,17 @@ setTimeout(() => {
 	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any);
 }, 9600);
 
+// Poll for the frame's default page AND its first chip's views — pane
+// attach + first-navigation + native-attach latency can run seconds
+// past the CORE trace; pushing while appearance is still settling
+// stalls bookkeeping (setCurrent) and leaves chips without observers.
 setTimeout(() => {
-	galleryPage = demosPage();
-	console.log('[sweep] demos stack=' + (getStack('demos') ? 'registered' : 'MISSING') + ' gallery=' + (galleryPage ? galleryPage.constructor.name : 'none'));
-	runStep(0);
-}, 10300);
+	waitFor(() => demosPage() != null && find('menu-counter') != null, () => {
+		galleryPage = demosPage();
+		console.log('[sweep] demos stack=' + (getStack('demos') ? 'registered' : 'MISSING') + ' gallery=' + (galleryPage ? galleryPage.constructor.name : 'none'));
+		setTimeout(() => runStep(0), 400);
+	}, 60);
+}, 9600);
 
 function runStep(i: number) {
 	if (i >= STEPS.length) return;

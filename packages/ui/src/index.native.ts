@@ -19,3 +19,5 @@ export type { TabSpec } from './Tabs.native.tsrx';
 export { Switch } from './Switch.native.tsrx';
 export { PlatformBadge } from "./PlatformBadge.native.tsrx";
 export { registerStack, getStack } from './stacks.native';
+export { pushRoute, routeFor, currentRoute, useRoute } from './route.native';
+export type { Route } from './route.native';

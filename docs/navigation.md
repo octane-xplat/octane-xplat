@@ -20,7 +20,20 @@
 > **Lab (Exp 14, iOS):** `navigate(name, params)` over a shared `screens`
 > registry — native resolves `screens[name]` inside `frame.navigate({create})`
 > and passes `params` as the pushed root's props; `from=home` arrived as
-> `props.from` on Detail. Web leaf serializes params into the hash URL.
+> `props.from` on Detail. Web leaf serializes params into real paths.
+>
+> **Lab (web router):** `nav.web` now drives a real URL router — the
+> hash stub is gone. `route.web.ts` is a module-scope route store:
+> `navigate` → `pushState` (`/demos/demo?id=counter`; `into` names the
+> outlet), `goBack` → `history.back()`, `popstate` resyncs the store.
+> `Tabs.web` is the outlet: a stack-named pane renders the pushed screen
+> via the app's `resolveScreen` (tab bar stays — nested-route semantics
+> for parallel stacks); a `root`-stack route covers the whole shell
+> (root-push semantics). Deep links boot into the right tab + pushed
+> screen (`currentRoute` seeds the initial tab index). Verified 14/14 in
+> headless Chromium: real path write, pane render, popstate restore,
+> `lastDemo` visible after pop, deep-link boot. `route.native.ts` is a
+> no-op twin for import-surface parity.
 >
 > **Lab (app-surface, iOS):** the demo catalog now navigates like an app —
 > each of 10 demos pushes `demo` (own Page + Octane root) via

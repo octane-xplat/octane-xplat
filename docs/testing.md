@@ -77,10 +77,11 @@ valuable CI signal for "the seams held."
 
 - Web: Playwright is straightforward. **Lab (web smoke):** `pnpm smoke`
   in `apps/web` — builds dist, serves via `vite preview`, drives headless
-  Chromium: App mounts, `onClick`→state, tab switch, chip→hash-route
-  write, sheet-stub call, zero pageerrors. First runtime evidence for the
-  web target — until now it was only proven to compile. Selector note:
-  `Pressable` renders `div[role="button"]`.
+  Chromium: App mounts, `onClick`→state, tab switch, chip→real-path
+  route write, pane render, popstate restore, deep-link boot, sheet-stub
+  call, zero pageerrors — 14/14. Runtime evidence for the web target —
+  until now it was only proven to compile. Selector note: `Pressable`
+  renders `div[role="button"]`.
 - Native: weak ecosystem — Appium or `nativescript-dev-appium`-era tooling;
   plan manual smoke scripts + screenshot capture per release until this
   matures. Sameframe-style parity checking is web-only. The harness probe
