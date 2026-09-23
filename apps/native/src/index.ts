@@ -154,12 +154,15 @@ setTimeout(() => {
   fireGesture(d, 1, 'tap', {});
 }, 3500);
 
-// ScrollView probe: imperative scrollTo + offset readback.
+// ScrollView + Image probes: imperative scrollTo + offset readback; the
+// data: URI decodes synchronously → imageSource present.
 setTimeout(() => {
   const sv = find('scroll-box');
   console.log('[probe] scrollview=' + (sv ? sv.constructor.name : 'none'));
   sv?.scrollToVerticalOffset?.(200, false);
   console.log('[assert] scroll offset: ' + (sv?.verticalOffset > 0 ? 'OK' : 'FAIL') + ' (' + sv?.verticalOffset + ')');
+  const img = find('img');
+  console.log('[assert] image decoded: ' + (img?.imageSource ? 'OK' : 'FAIL'));
 }, 5000);
 
 // List @empty probe: clear → 'No items' → restore → 'Alpha'.

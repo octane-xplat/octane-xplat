@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, ScrollView, PlatformBadge } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, PlatformBadge } from '@xplat/ui';
 import { openDetail } from './platform/nav';
 import { openOverlay } from './platform/overlay';
 
@@ -16,6 +16,9 @@ const INITIAL = [
 const renderItem = (item: any) => <Text className="cell">{item.label}</Text>;
 const renderEmpty = () => <Text>No items</Text>;
 const ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+// 1×1 red PNG — deterministic, no network. data: URIs decode via
+// ImageSource.fromBase64 on native; the web leaf just hands it to <img>.
+const PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
 /** Home tab — the original harness surface (counter, list, input, probes). */
 export function Home() @{
@@ -131,6 +134,10 @@ export function Home() @{
 				<Text className="scrollrow">{'Row ' + n}</Text>
 			}
 		</ScrollView>
+
+		{/* Image seam: <image> native / <img> web; data: URI decodes
+		    synchronously via ImageSource.fromBase64Sync. */}
+		<Image id="img" src={PIXEL} alt="pixel" style={{ width: 24, height: 24 }} />
 
 		<TextInput
 			value={text}
