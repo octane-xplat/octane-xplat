@@ -12,8 +12,10 @@
 > then a modal route as second native root. **Lab (Exp 9, iOS):** Frame-root
 > entry + `frame.navigate({create})` pushes a second `Page` hosting its own
 > `createNativeScriptRoot` — per-page roots work. Shared code calls
-> `platform/nav` (`.native.ts`/`.web.ts` suffix seam). `backStack` readback
-> raced the animated push — transitions commit asynchronously.
+> `platform/nav` (`.native.ts`/`.web.ts` suffix seam). Full push→`navigatedTo`→
+> `backStack=1`→`goBack`→pop cycle asserted: `Detail screen` text read from the
+> pushed page's own root. Transitions commit asynchronously — read `currentPage`
+> only after the `navigatedTo` event, never at a fixed delay.
 
 ## The contract
 

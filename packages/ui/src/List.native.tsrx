@@ -58,10 +58,12 @@ function handleItemLoading(e: any) {
 function ListInner(props: {
   className?: any;
   style?: any;
+  id?: string;
   items: any[];
   renderItem: (item: any) => any;
 }) @{
 	<listview
+		id={props.id}
 		className={props.className}
 		style={props.style}
 		items={props.items}
@@ -96,10 +98,12 @@ const MemoListView = memo(ListInner, (a, b) => a.items === b.items);
 export function List(props: {
   className?: any;
   style?: any;
+  id?: string;
   items: any[];
   renderItem: (item: any) => any;
 }) @{
 	<MemoListView
+		id={props.id}
 		items={props.items}
 		className={props.className}
 		style={props.style}

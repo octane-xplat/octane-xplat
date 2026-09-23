@@ -1,7 +1,13 @@
-import { Application, Frame, Page } from '@nativescript/core';
+import { Application, Frame, Page, Trace } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
 import './app.css';
+
+// Trace the nav pipeline end-to-end: NAVIGATE → pushViewController → DID_show.
+Trace.enable();
+Trace.setCategories(
+  Trace.categories.Navigation + ',' + Trace.categories.NativeLifecycle
+);
 
 const roots = new Set<ReturnType<typeof renderNativeScriptApp>>();
 
@@ -32,21 +38,6 @@ Application.run({
   create: () => createWindowContent(),
 });
 
-// Controlled-input probe: fire textChange natively at +1.5s (between the
-// self-test's shuffle and setText) to exercise the native→state direction
-// without real keyboard input.
-setTimeout(() => {
-  const v = thePage?.getViewById?.('probe-input');
-  console.log('[probe] textfield=' + (v ? v.constructor.name : 'none'));
-  v?.notify({ eventName: 'textChange', object: v, value: 'typed!' } as any);
-}, 1500);
-
-// A11y readback: confirm the shared a11y props landed on the native view.
-setTimeout(() => {
-  const b = thePage?.getViewById?.('a11y-btn') as any;
-  console.log('[probe] a11y accessible=' + b?.accessible + ' label=' + b?.accessibilityLabel + ' role=' + b?.accessibilityRole);
-}, 1600);
-
 // NS gesture events (tap/pan/swipe/longPress) don't live on the plain event
 // list — view.on('tap') routes to GesturesObserver, so notify() can't reach
 // them. Invoke the observer's callback directly; that still exercises the
@@ -60,9 +51,44 @@ function fireGesture(view: any, type: number, name: string, args: any) {
   }
 }
 
+// --- content assertions (the empty-Cell lesson: lifecycle ≠ content) ---
+function assertEq(name: string, actual: any, expected: any) {
+  const ok = actual === expected;
+  console.log('[assert] ' + name + ': ' + (ok ? 'OK' : 'FAIL') + ' (got ' + JSON.stringify(actual) + ')');
+}
+function assertHas(name: string, haystack: any[], needle: any) {
+  console.log('[assert] ' + name + ': ' + (haystack.includes(needle) ? 'OK' : 'FAIL') + ' (' + JSON.stringify(needle) + ' in ' + JSON.stringify(haystack.slice(0, 8)) + ')');
+}
+function collect(view: any, out: any[] = []): any[] {
+  if (!view) return out;
+  out.push(view);
+  view.eachChildView?.((c: any) => { collect(c, out); return true; });
+  return out;
+}
+function texts(root: any): string[] {
+  return collect(root).filter((v) => typeof v?.text === 'string' && v.text.length > 0).map((v) => v.text);
+}
+const find = (id: string) => thePage?.getViewById?.(id) as any;
+
+// Controlled-input probe: fire textChange natively at +1.5s (between the
+// self-test's shuffle and setText) to exercise the native→state direction
+// without real keyboard input.
+setTimeout(() => {
+  const v = find('probe-input');
+  console.log('[probe] textfield=' + (v ? v.constructor.name : 'none'));
+  v?.notify({ eventName: 'textChange', object: v, value: 'typed!' } as any);
+}, 1500);
+
+// A11y + content readback.
+setTimeout(() => {
+  const b = find('a11y-btn');
+  console.log('[probe] a11y accessible=' + b?.accessible + ' label=' + b?.accessibilityLabel + ' role=' + b?.accessibilityRole);
+  assertEq('textfield.text', find('probe-input')?.text, 'typed!');
+}, 1600);
+
 // Gesture probe (Exp 10): synthesize pan + swipe on the pan-box.
 setTimeout(() => {
-  const v = thePage?.getViewById?.('pan-box') as any;
+  const v = find('pan-box');
   console.log('[probe] panbox=' + (v ? v.constructor.name : 'none'));
   fireGesture(v, 8, 'pan', { deltaX: 12, deltaY: -4, state: 2 });
   fireGesture(v, 16, 'swipe', { direction: 1 });
@@ -71,53 +97,88 @@ setTimeout(() => {
 // Tab probe (Exp 11): selectedIndexChanged is a real property event, so
 // notify() reaches it — switches to Settings, mounts its panes.
 setTimeout(() => {
-  const tv = thePage?.getViewById?.('app-tabs') as any;
+  const tv = find('app-tabs');
   console.log('[probe] tabview=' + (tv ? tv.constructor.name : 'none'));
   tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any);
 }, 1900);
-
-// Switch probe: checkedChange → state → driver writes `checked` — watch for
-// a write-back echo (patch only covers `text` on editable views).
 setTimeout(() => {
-  const sw = thePage?.getViewById?.('sw-notifications') as any;
+  assertHas('settings texts', texts(thePage), 'Notifications');
+}, 2100);
+
+// Switch probe: checkedChange → state → driver writes `checked` — the patch
+// suppresses the write-back echo (each onCheckedChange should fire once).
+setTimeout(() => {
+  const sw = find('sw-notifications');
   console.log('[probe] switch=' + (sw ? sw.constructor.name : 'none'));
   sw?.notify({ eventName: 'checkedChange', object: sw, value: false } as any);
 }, 2300);
-
-// Navigation + overlay probes (Exp 9): synthesized taps exercise the full
-// Pressable → shared handler → platform-module path.
 setTimeout(() => {
-  const d = thePage?.getViewById?.('detail-btn') as any;
+  assertEq('switch.checked', find('sw-notifications')?.checked, false);
+}, 2500);
+
+// Back to Home — assert list cells actually render item text (post-shuffle
+// order is e,d,c,b,a → labels Epsilon..Alpha).
+setTimeout(() => {
+  const tv = find('app-tabs');
+  tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 0 } as any);
+}, 2600);
+setTimeout(() => {
+  assertHas('cell text', texts(thePage), 'Epsilon');
+}, 2900);
+
+// Dark-mode commit: some view in the tree carries the class. Timers drift
+// under probe load — assert well after the +3.0s dark toggle.
+setTimeout(() => {
+  const hasDark = collect(thePage).some((v) => String(v?.className ?? '').split(/\s+/).includes('ns-dark'));
+  console.log('[assert] dark class: ' + (hasDark ? 'OK' : 'FAIL'));
+}, 4900);
+
+// Navigation probe (Exp 9) — event-driven: a pushed Page commits only when
+// the nav transition finishes (setCurrent on viewDidAppear). Fixed timers
+// race it; `navigatedTo` on the Frame is the real completion signal.
+setTimeout(() => {
+  const f = Frame.topmost() as any;
+  let pops = 0;
+  f?.on?.('navigatedTo', (e: any) => {
+    const top = f.currentPage;
+    if (top?.id === 'detail-page') {
+      assertHas('detail texts', texts(top), 'Detail screen');
+      assertEq('backStack after push', f.backStack.length, 1);
+      setTimeout(() => f.goBack(), 250);
+    } else if (top === thePage && ++pops === 1) {
+      console.log('[assert] pop to main: OK');
+    }
+  });
+  const d = find('detail-btn');
   console.log('[probe] detail-btn=' + (d ? d.constructor.name : 'none'));
   fireGesture(d, 1, 'tap', {});
 }, 3500);
+
+// Overlay probe: tap → RootLayout.open host mounts → content assert.
 setTimeout(() => {
-  const o = thePage?.getViewById?.('overlay-btn') as any;
+  const o = find('overlay-btn');
   console.log('[probe] overlay-btn=' + (o ? o.constructor.name : 'none'));
   fireGesture(o, 1, 'tap', {});
-}, 3600);
+}, 5600);
+setTimeout(() => {
+  const overlay = find('overlay-host');
+  assertHas('overlay texts', texts(overlay), 'Overlay content');
+}, 6000);
 
 // Sheet probe (Exp 11): back to tab 1, then synthesized tap on sheet-btn.
 setTimeout(() => {
-  const tv = thePage?.getViewById?.('app-tabs') as any;
+  const tv = find('app-tabs');
   tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any);
-}, 4200);
+}, 6300);
 setTimeout(() => {
-  const b = thePage?.getViewById?.('sheet-btn') as any;
+  const b = find('sheet-btn');
   console.log('[probe] sheet-btn=' + (b ? b.constructor.name : 'none'));
   fireGesture(b, 1, 'tap', {});
-}, 4500);
-
-// Readback: confirm the Frame actually pushed the Detail page (not just that
-// navigate() was called), then pop back.
+}, 6600);
 setTimeout(() => {
-  const f = Frame.topmost();
-  const top = f?.currentPage;
-  console.log('[probe] frame backStack=' + (f?.backStack?.length ?? 'n/a') +
-    ' currentPage=' + (top ? top.constructor.name : 'none') +
-    ' hasDetailRoot=' + (top?.content != null));
-  f?.goBack();
-}, 3700);
+  const sheet = find('sheet-host');
+  assertHas('sheet texts', texts(sheet), 'Sheet content');
+}, 7000);
 
 // A module-graph reload re-evaluates this entry and mounts fresh roots.
 // @ts-expect-error — vite hot types; add vite/client to tsconfig types if desired

@@ -4,3 +4,4 @@ dist/
 .ns-vite-build/
 apps/native/platforms/
 .DS_Store
+TASK.md

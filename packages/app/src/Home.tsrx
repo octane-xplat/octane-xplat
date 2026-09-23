@@ -123,6 +123,7 @@ export function Home() @{
 		<Text>{'Typed: ' + text}</Text>
 
 		<List
+			id="main-list"
 			items={items}
 			className="list flex-1"
 			renderItem={renderItem}
