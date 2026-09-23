@@ -232,6 +232,11 @@ body {
 	flex-wrap: wrap;
 }
 
+/* A list starting after a non-list block needs more than the 6px item gap. */
+.doc > :not(.li) + .li {
+	margin-top: 12px;
+}
+
 .dim {
 	opacity: 0.7;
 }
@@ -266,6 +271,7 @@ body {
 	background-color: #111111;
 	padding: 18px 20px;
 	margin-top: 16px;
+	margin-bottom: 12px;
 	border-width: 4px;
 	border-color: var(--nb-ink);
 	border-style: solid;
@@ -292,6 +298,7 @@ body {
 	box-shadow: var(--nb-sh-s);
 	padding: 12px 16px;
 	margin-top: 14px;
+	margin-bottom: 10px;
 }
 
 .quote Text,
@@ -308,6 +315,7 @@ body {
 	box-shadow: var(--nb-sh-s);
 	background-color: var(--nb-panel);
 	margin-top: 16px;
+	margin-bottom: 12px;
 	padding: 12px 16px 14px;
 }
 
@@ -356,6 +364,7 @@ body {
 	border-top-color: var(--nb-ink);
 	border-top-style: solid;
 	margin-top: 24px;
+	margin-bottom: 16px;
 }
 
 .table {
@@ -365,6 +374,7 @@ body {
 	box-shadow: var(--nb-sh-m);
 	background-color: var(--nb-panel);
 	margin-top: 16px;
+	margin-bottom: 12px;
 }
 
 .tr {
