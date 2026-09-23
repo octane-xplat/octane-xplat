@@ -10,6 +10,8 @@ export { Image } from './Image.native.tsrx';
 export { Modal } from './Modal.native.tsrx';
 export { useAnimation } from './anim.native.tsrx';
 export type { AnimatedValue } from './anim.native.tsrx';
+export { useColorScheme, getColorScheme } from './theme/colorScheme.native.tsrx';
+export type { ColorScheme } from './theme/colorScheme.native.tsrx';
 export { Screen } from './Screen.native.tsrx';
 export { Tabs } from './Tabs.native.tsrx';
 export type { TabSpec } from './Tabs.native.tsrx';

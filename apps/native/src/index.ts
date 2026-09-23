@@ -1,6 +1,7 @@
 import { Application, Frame, Page, Trace } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
+import { getColorScheme } from '@xplat/ui';
 import './app.css';
 
 // Trace the nav pipeline end-to-end: NAVIGATE → pushViewController → DID_show.
@@ -131,6 +132,8 @@ setTimeout(() => {
 setTimeout(() => {
   const hasDark = collect(thePage).some((v) => String(v?.className ?? '').split(/\s+/).includes('ns-dark'));
   console.log('[assert] dark class: ' + (hasDark ? 'OK' : 'FAIL'));
+  const cs = getColorScheme();
+  console.log('[assert] color scheme: ' + (/^(light|dark)$/.test(cs) ? 'OK' : 'FAIL') + ' (' + cs + ')');
 }, 4900);
 
 // Navigation probe (Exp 9) — event-driven: a pushed Page commits only when

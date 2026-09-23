@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme } from '@xplat/ui';
 import { openDetail } from './platform/nav';
 import { openOverlay } from './platform/overlay';
 
@@ -23,13 +23,17 @@ const PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcS
 /** Home tab — the original harness surface (counter, list, input, probes). */
 export function Home() @{
 	const [count, setCount] = useState(0);
-	const [dark, setDark] = useState(false);
+	// dark = manual override ?? system scheme (useColorScheme seam —
+	// systemAppearanceChanged on native, prefers-color-scheme on web).
+	const scheme = useColorScheme();
+	const [override, setOverride] = useState<string | null>(null);
+	const dark = (override ?? scheme) === 'dark';
 	const darkMark = useRef(0);
 	const [text, setText] = useState('');
 	const [items, setItems] = useState(INITIAL);
 	const [modal, setModal] = useState(false);
 	const x = useAnimation(0);
-	console.log('[harness] Home render, items=' + items.length);
+	console.log('[harness] Home render, items=' + items.length + ' scheme=' + scheme);
 
 	useEffect(() => {
 		console.log('[harness] Home mounted');
@@ -44,7 +48,7 @@ export function Home() @{
 		const t3 = setTimeout(() => {
 			console.log('[self] dark on');
 			darkMark.current = Date.now();
-			setDark(true);
+			setOverride('dark');
 		}, 3000);
 		return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
 	}, []);
@@ -72,7 +76,7 @@ export function Home() @{
 			>
 				<Text className="text-onprimary">Increment</Text>
 			</Pressable>
-			<Pressable onPress={() => setDark(!dark)} className="btn bg-primary">
+			<Pressable onPress={() => setOverride(dark ? 'light' : 'dark')} className="btn bg-primary">
 				<Text className="text-onprimary">{dark ? 'Light' : 'Dark'}</Text>
 			</Pressable>
 			<Pressable
