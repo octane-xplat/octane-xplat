@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsrx-tsc --noEmit",
-    "deploy": "wrangler pages deploy dist --project-name octane-xplat-docs"
+    "deploy": "wrangler pages deploy dist --project-name octane-xplat-docs",
+    "smoke": "vite build && node smoke.mjs"
   },
   "dependencies": {
     "@octane-xplat/ui": "workspace:*",
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@octanejs/vite-plugin": "0.1.58",
     "@tsrx/typescript-plugin": "0.4.7",
+    "jsdom": "30.1.1",
     "typescript": "5.9.3",
     "vite": "8.3.0",
     "wrangler": "^4.0.0"

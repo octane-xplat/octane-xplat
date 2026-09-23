@@ -3,6 +3,8 @@ const files = import.meta.glob('../../../docs/*.md', { query: '?raw', import: 'd
 
 export interface DocPage {
 	slug: string;
+	/** List keys on item.id — same value as slug. */
+	id: string;
 	title: string;
 	md: string;
 }
@@ -16,6 +18,6 @@ function titleOf(slug: string, md: string): string {
 export const DOCS: DocPage[] = Object.entries(files)
 	.map(([path, md]) => {
 		const slug = path.split('/').pop()!.replace(/\.md$/, '');
-		return { slug, title: titleOf(slug, md as string), md: md as string };
+		return { slug, id: slug, title: titleOf(slug, md as string), md: md as string };
 	})
 	.sort((a, b) => (a.slug === 'README' ? -1 : b.slug === 'README' ? 1 : a.slug.localeCompare(b.slug)));

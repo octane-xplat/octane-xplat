@@ -28,6 +28,11 @@ export function inlineSpans(text: string): Span[] {
 	return spans;
 }
 
+// A line that starts a block — must mirror the branch tests exactly: a
+// false positive here (e.g. `**bold**` at line start matching `[-*]`) starves
+// the paragraph collector and loops forever.
+const BLOCKSTART = /^#{1,4}\s|^\s*[-*]\s|^\s*\||^\s*>|^\s*```|^\s*(-{3,}|\*{3,})\s*$/;
+
 export function parseMd(md: string): Block[] {
 	const blocks: Block[] = [];
 	const lines = md.split('\n');
@@ -67,7 +72,7 @@ export function parseMd(md: string): Block[] {
 		}
 		if (/^\s*>\s?/.test(line)) {
 			const buf: string[] = [];
-			while (i < lines.length && /^\s*>\s?/.test(lines[i])) buf.push(lines[i].replace(/^\s*>\s?/, ''));
+			while (i < lines.length && /^\s*>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ''));
 			blocks.push({ kind: 'quote', spans: inlineSpans(buf.join(' ')) });
 			i++;
 			continue;
@@ -76,7 +81,7 @@ export function parseMd(md: string): Block[] {
 		if (line.trim() === '') { i++; continue; }
 
 		const buf: string[] = [];
-		while (i < lines.length && lines[i].trim() !== '' && !/^#{1,4}\s|^\s*[-*|>`]|```/.test(lines[i])) {
+		while (i < lines.length && lines[i].trim() !== '' && !BLOCKSTART.test(lines[i])) {
 			buf.push(lines[i]);
 			i++;
 		}

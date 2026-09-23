@@ -1,6 +1,6 @@
 import { useState } from 'octane';
 import { View, Row, Text, Pressable, List, ScrollView, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
-import { DOCS } from './docs';
+import { DOCS, type DocPage } from './docs';
 import { MdDoc } from './MdDoc.tsrx';
 
 export function App() @{
@@ -13,6 +13,11 @@ export function App() @{
 	const doc = DOCS.find((d) => d.slug === slug) ?? DOCS[0];
 
 	const open = (s: string) => pushRoute({ stack: 'root', name: 'doc', params: { page: s } });
+	const renderDoc = (d: DocPage) => (
+		<Pressable className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => open(d.slug)}>
+			<Text className="side-text">{d.title.toLowerCase()}</Text>
+		</Pressable>
+	);
 
 	// De Stijl shell: orthogonal grid, black rules, primary blocks.
 	<View className={['shell', dark ? 'dark' : 'light']}>
@@ -25,14 +30,7 @@ export function App() @{
 		</Row>
 		<Row className="body">
 			<View className="side">
-				<List
-					items={DOCS}
-					renderItem={(d) => (
-						<Pressable className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => open(d.slug)}>
-							<Text className="side-text">{d.title.toLowerCase()}</Text>
-						</Pressable>
-					)}
-				/>
+				<List items={DOCS} renderItem={renderDoc} />
 			</View>
 			<ScrollView className="content">
 				<MdDoc md={doc.md} />
