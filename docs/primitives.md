@@ -140,7 +140,10 @@ Consequences:
   context. Anything the modal needs must be passed as props/params or through
   a shared store module (not React-style context).
 - CSS cascade doesn't cross either — `ns-modal` root class exists for styling
-  modal roots; tokens must be applied there too.
+  modal roots; tokens must be applied there too. **Lab-confirmed:** `ns-dark`
+  is absent from the modal tree while the app is dark (iOS sim) — modal
+  surfaces must re-apply the scheme class or subscribe to
+  `systemAppearanceChanged` themselves.
 - Portals don't cross. Design `Modal`'s API as `{ open, onClose, params }`
   rather than "render my children in place" — treat children as a *screen
   component* rendered inside the modal root.

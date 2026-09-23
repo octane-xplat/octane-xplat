@@ -117,16 +117,19 @@
     correctly through `insert`/`move` commands — all five rows present in
     the tree post-shuffle with no anomalies. On `listview`, identity stays
     data-level (recycling).
-17. ⏳ **Bundle impact of platform modules** — verify `.native` files and NS
-    imports are fully eliminated from web output (and vice versa); treeshake
-    check, not assumption.
+17. ✅ **Bundle impact of platform modules** — Verified: the web bundle has
+    zero `nativescript`/intrinsic/`itemLoading` references (283 kB, gzip
+    83 kB); the native vendor carries no DOM runtime (`dom-bindings`/
+    `hydration`/`server-rpc` absent — the only `document.` hit is NS core's
+    own WKUserScript webview code).
 18. ⏳ **Fonts**: `font-family` token → registered font name on iOS vs Android
     vs web — a small but certain mapping table to own.
-19. 🟡 **`getCssVariable` timing** — `useColorScheme` verified end-to-end
-    (`systemAppearanceChanged` → re-render → `.ns-dark` class on the tree);
-    token reads at mount and theme propagation into modal/keyboard windows
-    still unmeasured (ns-octane hit this — composer re-walks styles on
-    appearance change).
+19. ✅ **`getCssVariable` timing + theme into modal windows** — Lab-verified
+    (iOS sim): `view.style.getCssVariable('--color-primary')` resolves
+    (`"#4f46e5"`), and the theme class boundary is confirmed —
+    **`ns-dark` does not cross the modal root** (second Octane root on a
+    separate ContentView host). Modal/sheet surfaces must apply the scheme
+    class themselves or subscribe to `systemAppearanceChanged`.
 20. ✅ **SSR DOM assumptions in shared output.** — Not an issue by
     construction: universal renderers are `server: 'unsupported'`; SSR only
     ever runs on DOM-compiled output (shared files compiled under `dom` for

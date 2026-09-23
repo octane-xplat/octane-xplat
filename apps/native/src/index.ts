@@ -231,6 +231,11 @@ setTimeout(() => {
   const m = f?.currentPage?.modal;
   console.log('[probe] modal=' + (m ? m.constructor.name : 'none'));
   assertHas('modal texts', texts(m), 'Modal content');
+  // Q19: theme + token propagation across the modal root boundary.
+  const modalDark = collect(m).some((v) => String(v?.className ?? '').split(/\s+/).includes('ns-dark'));
+  console.log('[probe] modal ns-dark: ' + (modalDark ? 'present — theme class crosses the modal root' : 'absent — theme class does not cross'));
+  const tok = (thePage as any)?.style?.getCssVariable?.('--color-primary');
+  console.log('[assert] getCssVariable: ' + (typeof tok === 'string' && tok.length > 0 ? 'OK' : 'FAIL') + ' (' + JSON.stringify(tok) + ')');
   const close = m?.getViewById?.('modal-close');
   fireGesture(close, 1, 'tap', {});
 }, 8600);
