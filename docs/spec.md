@@ -141,18 +141,31 @@ export function Home() {
 | Grid has no `gap`; NS `%` differs from web | per-cell margins; documented traps in css matrix |
 | `line-height` semantics differ (additive vs box) | token files carry both values |
 | `.ts` hooks bind DOM runtime on native | lint rule + validation; `.tsrx` for hooks |
+| Component factories can't use JSX/inline `@{ }` — universal elements need the compiler-stamped component mark | `defineUniversalComponent`+`universalComponent` in the leaf (Exp 16); blessed factory API = upstream candidate |
+| `ref` is runtime-reserved on component elements | leaves expose `bind` → forwarded to the intrinsic's `ref` (Exp 13) |
+| `pointermove` not delegated by the DOM renderer | gesture leaves attach raw listeners via `bind` (Exp 17) |
+| `exports` wildcards don't extension-resolve (tsc + vite both) | barrels are the deep-import contract (Exp 15) |
 
 ## Remaining risk register (lab-queued, Silo `experiments`)
 
 1. Per-cell-root ListView cost — could push to `collectionview` plugin or a
    pooled-root scheme.
-2. Controlled-input cursor/IME on both OSes.
-3. Two dev servers over one tree (watcher contention).
+2. Controlled-input cursor/IME on both OSes — echo suppression verified
+   (driver patch); real-IME cursor position still unmeasured.
+3. Two dev servers over one tree (watcher contention) — observed: concurrent
+   `ns build` invocations collide on the shared Xcode DerivedData
+   (`build.db` locked → exit 65); serialize or isolate DerivedData.
 4. Treeshake cleanliness of platform modules.
-5. `resolve.extensions` merge ordering vs octane plugin's own list.
-6. `tsrx-tsc` honoring `moduleSuffixes` for `.tsrx`.
-7. `getCssVariable` timing + theme propagation into modal/keyboard windows.
-8. A11y prop parity map (NS roles ↔ ARIA).
+5. ~~`resolve.extensions` merge ordering vs octane plugin's own list~~ —
+   resolved: explicit `extensions` array in app config is authoritative
+   (iOS sim runs green with the full suffix chain).
+6. ~~`tsrx-tsc` honoring `moduleSuffixes` for `.tsrx`~~ — resolved:
+   `moduleSuffixes` + `paths` typecheck suffix files under both programs.
+7. `getCssVariable` timing + theme propagation into modal/keyboard windows —
+   `useColorScheme` verified (`systemAppearanceChanged` → re-render); modal
+   window token inheritance still unmeasured.
+8. A11y prop parity map (NS roles ↔ ARIA) — `accessible`/`accessibilityLabel`/
+   `accessibilityRole` verified landing on native views.
 
 ## Build order (prototype → v1)
 
