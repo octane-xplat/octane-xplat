@@ -162,6 +162,15 @@ body {
 	min-height: 0;
 }
 
+.side-head {
+	font-size: 12px;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.25em;
+	padding: 18px 18px 8px;
+	color: var(--nb-ink);
+}
+
 .side {
 	width: 240px;
 	border-right-width: 4px;

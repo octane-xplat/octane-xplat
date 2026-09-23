@@ -3,14 +3,14 @@
 > The largest app-architecture seam. Web = URL-driven router; native =
 > `Frame`/`Page` stacks, `TabView`, drawers, modals-as-roots, multi-window.
 > Design follows One (prior-art/one.md): **shared route table + shared screens,
-> per-platform shells.**
+> per-platform shells.** Device evidence lives in the [lab log](#lab-log) at
+> the end.
 >
 > **Owns:** #2 navigation contract · **Status:** mapped; Q6/Q14 resolved
 > (boundaries = `@try`; HMR = self-accepting modules, named exports stay
 > convention) · **Blocks on:** none blocking · **Decisions:** #8, #9, #13, #19
 > · **Validated by:** two shared screens + `Link` + `goBack` on both targets,
-> then a modal route as second native root. Lab evidence lives in the
-> [lab log](#lab-log) at the end.
+> then a modal route as second native root.
 
 ## The contract
 

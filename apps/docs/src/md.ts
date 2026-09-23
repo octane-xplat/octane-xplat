@@ -38,6 +38,11 @@ export function inlineSpans(text: string): Span[] {
 
 const CALLOUTS = new Set(['note', 'tip', 'important', 'warning', 'caution']);
 
+// The first quote block of each owned-problem doc ends with a status paragraph
+// (`**Owns:** #n …`) for contributors. It's process tracking, not reader
+// content — the sidebar's notes group owns that layer — so we drop it here.
+const METAPARA = /^\*\*(Owns|Status):\*\*/;
+
 // A line that starts a block — must mirror the branch tests exactly: a
 // false positive here (e.g. `**bold**` at line start matching `[-*]`) starves
 // the paragraph collector and loops forever.
@@ -47,6 +52,7 @@ export function parseMd(md: string): Block[] {
 	const blocks: Block[] = [];
 	const lines = md.split('\n');
 	let i = 0;
+	let seenQuote = false;
 	while (i < lines.length) {
 		const line = lines[i];
 
@@ -92,8 +98,19 @@ export function parseMd(md: string): Block[] {
 					.map(inlineSpans);
 				blocks.push({ kind: 'callout', level: cm[1].toLowerCase(), lines });
 			} else {
-				blocks.push({ kind: 'quote', spans: inlineSpans(buf.join(' ')) });
+				let body = buf;
+				if (!seenQuote) {
+					// paragraphs split on blank `>` lines; drop status-metadata paras
+					const paras: string[][] = [[]];
+					for (const l of buf) {
+						if (l.trim() === '') paras.push([]);
+						else paras[paras.length - 1].push(l);
+					}
+					body = paras.filter((p) => p.length && !METAPARA.test(p[0].trim())).flat();
+				}
+				blocks.push({ kind: 'quote', spans: inlineSpans(body.join(' ')) });
 			}
+			seenQuote = true;
 			i++;
 			continue;
 		}

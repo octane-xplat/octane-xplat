@@ -47,6 +47,13 @@ Same order across `.tsrx`, `.tsx`, `.ts`, `.css`, `.json`, assets. Keep the
 chain short — the shared file is the norm; per-OS files are for genuinely
 divergent behavior (SF Symbols vs font icons, safe-area quirks).
 
+> [!NOTE]
+> Lab-verified on iOS sim (Exp 6): `PlatformBadge.ios.tsrx` wins over
+> `.native.tsrx` — `[badge] ios variant evaluated` logged on device.
+> `.android > .native` is the same `resolve.extensions` ordering in
+> `apps/native/vite.config.mts` — desk-verified; `PlatformBadge.android.tsrx`
+> exists as the probe for that run.
+
 ## Mechanism (verified against octane 0.4.0 + vite-octane source)
 
 Resolution and compilation are **decoupled phases**:
@@ -162,6 +169,13 @@ Two program configs over a shared base:
   imports bare get a same-name `.ts` shim per side (`Link.native.ts` →
   `export { Link } from './Link.native.tsrx'`) — the shim is suffix-
   resolvable, the component stays renderer-owned.
+
+> [!WARNING]
+> Suffixed `.ts` helpers DO resolve extensionless under `moduleSuffixes`
+> (`./platform/nav` → `nav.native.ts`/`nav.web.ts` typecheck fine), but a
+> `.ts` file importing a `.tsrx` component gets `() => Element`, not
+> `UniversalComponent` — passing it to `createNativeScriptRoot().render()`
+> needs `as unknown as UniversalComponent` (Exp 9).
 
 ## Build-time defines
 

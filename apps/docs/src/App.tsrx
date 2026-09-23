@@ -39,7 +39,10 @@ export function App() @{
 		</Row>
 		<Row className="body">
 			<View className="side">
-				<List items={DOCS} renderItem={renderDoc} />
+				<Text className="side-head">guides</Text>
+				<List items={DOCS.filter((d) => d.group === 'guides')} renderItem={renderDoc} />
+				<Text className="side-head">notes</Text>
+				<List items={DOCS.filter((d) => d.group === 'notes')} renderItem={renderDoc} />
 			</View>
 			<ScrollView id="doc-content" className="content">
 				<MdDoc md={doc.md} />

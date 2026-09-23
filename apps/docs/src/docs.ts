@@ -7,7 +7,12 @@ export interface DocPage {
 	id: string;
 	title: string;
 	md: string;
+	/** guides = reader-facing framework docs; notes = design record. */
+	group: 'guides' | 'notes';
 }
+
+// The design record: ledgers, open questions, lab journals, status tracking.
+const NOTES = new Set(['decisions', 'open-questions', 'demos', 'status']);
 
 function titleOf(slug: string, md: string): string {
 	const h = md.match(/^#\s+(.+)$/m);
@@ -18,6 +23,9 @@ function titleOf(slug: string, md: string): string {
 export const DOCS: DocPage[] = Object.entries(files)
 	.map(([path, md]) => {
 		const slug = path.split('/').pop()!.replace(/\.md$/, '');
-		return { slug, id: slug, title: titleOf(slug, md as string), md: md as string };
+		return {
+			slug, id: slug, title: titleOf(slug, md as string), md: md as string,
+			group: (NOTES.has(slug) ? 'notes' : 'guides') as DocPage['group'],
+		};
 	})
 	.sort((a, b) => (a.slug === 'README' ? -1 : b.slug === 'README' ? 1 : a.slug.localeCompare(b.slug)));
