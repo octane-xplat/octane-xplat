@@ -75,10 +75,17 @@ valuable CI signal for "the seams held."
 
 ## e2e reality check
 
-- Web: Playwright is straightforward.
+- Web: Playwright is straightforward. **Lab (web smoke):** `pnpm smoke`
+  in `apps/web` — builds dist, serves via `vite preview`, drives headless
+  Chromium: App mounts, `onClick`→state, tab switch, chip→hash-route
+  write, sheet-stub call, zero pageerrors. First runtime evidence for the
+  web target — until now it was only proven to compile. Selector note:
+  `Pressable` renders `div[role="button"]`.
 - Native: weak ecosystem — Appium or `nativescript-dev-appium`-era tooling;
   plan manual smoke scripts + screenshot capture per release until this
-  matures. Sameframe-style parity checking is web-only.
+  matures. Sameframe-style parity checking is web-only. The harness probe
+  timeline (tap synthesis via gesture observers + view-tree text reads)
+  covers this today on iOS.
 - HMR confidence is manual: the ns-octane workflow (edit while streaming,
   watch in-place accept) is the bar.
 

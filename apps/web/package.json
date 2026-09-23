@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "smoke": "vite build && node scripts/smoke.mjs"
   },
   "dependencies": {
     "@xplat/app": "workspace:*",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "@octanejs/vite-plugin": "0.1.58",
+    "playwright": "1.55.0",
     "typescript": "5.9.3",
     "vite": "8.3.0",
     "vitest": "5.0.1"
