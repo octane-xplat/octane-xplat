@@ -23,7 +23,7 @@
     "@nativescript/android": "9.1.1",
     "@nativescript/ios": "9.1.0",
     "@nativescript/types": "9.0.0",
-    "@nativescript/vite": "8.0.10",
+    "@nativescript/vite": "8.0.11",
     "@octanejs/vite-plugin": "0.1.58",
     "patch-package": "8.0.1",
     "typescript": "5.9.3",

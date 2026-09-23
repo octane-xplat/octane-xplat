@@ -44,7 +44,7 @@ importers:
     devDependencies:
       '@nativescript-community/vite-octane':
         specifier: 0.2.1
-        version: 0.2.1(@nativescript/core@9.1.2)(@nativescript/vite@8.0.10(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.58(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+        version: 0.2.1(@nativescript/core@9.1.2)(@nativescript/vite@8.0.11(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.58(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       '@nativescript/android':
         specifier: 9.1.1
         version: 9.1.1
@@ -55,8 +55,8 @@ importers:
         specifier: 9.0.0
         version: 9.0.0
       '@nativescript/vite':
-        specifier: 8.0.10
-        version: 8.0.10(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1)
+        specifier: 8.0.11
+        version: 8.0.11(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin':
         specifier: 0.1.58
         version: 0.1.58(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -666,8 +666,8 @@ packages:
   '@nativescript/types@9.0.0':
     resolution: {integrity: sha512-fR9ot7Si9L0StcsOZpAEThggeQb8cQxCL0BwRKuWHbm+SdlinuOWSl6lS3bKuIIcCzJem2cWP3UrzgweRnOe/A==}
 
-  '@nativescript/vite@8.0.10':
-    resolution: {integrity: sha512-+kkZkgJitlJ4cV849A1+0J0puvze/HoMz2sZhLMJTp+Zut1L+aun6nhmgnhQos/RSE2hB07FnrIfbOvvVWh0qA==}
+  '@nativescript/vite@8.0.11':
+    resolution: {integrity: sha512-5ov9WOXoDxpofRcssl42FKNuCueXsxXXDt/ledBgtceQwfwXTQZ3q+Np+PG9cF+rfruq1hJHLmIN+RxrB4iCSQ==}
     hasBin: true
     peerDependencies:
       '@analogjs/vite-plugin-angular': ^2.0.0
@@ -2558,10 +2558,10 @@ snapshots:
       '@nativescript/core': 9.1.2
       octane: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
 
-  '@nativescript-community/vite-octane@0.2.1(@nativescript/core@9.1.2)(@nativescript/vite@8.0.10(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.58(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
+  '@nativescript-community/vite-octane@0.2.1(@nativescript/core@9.1.2)(@nativescript/vite@8.0.11(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.58(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
     dependencies:
       '@nativescript-community/octane': 0.2.0(@nativescript/core@9.1.2)(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
-      '@nativescript/vite': 8.0.10(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1)
+      '@nativescript/vite': 8.0.11(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin': 0.1.58(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
     transitivePeerDependencies:
@@ -2599,7 +2599,7 @@ snapshots:
       '@nativescript/types-android': 9.0.0
       '@nativescript/types-ios': 9.0.0
 
-  '@nativescript/vite@8.0.10(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1)':
+  '@nativescript/vite@8.0.11(supports-color@7.2.0)(typescript@5.9.3)(yaml@2.9.1)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       '@babel/generator': 7.29.8

@@ -24,6 +24,7 @@ minimumReleaseAgeExclude:
   - octane@0.4.0
   - '@nativescript-community/octane@0.2.1'
   - '@nativescript-community/vite-octane@0.2.1'
+  - '@nativescript/vite@8.0.11'
 allowBuilds:
   '@nativescript/core': true
   '@parcel/watcher': true
