@@ -94,6 +94,10 @@ body {
 .body {
 	flex-grow: 1;
 	flex-direction: row;
+	/* Without min-height:0 the flex item grows with the doc instead of
+	   bounding the scroll container — content spills past the 100vh shell
+	   onto the body canvas (white even in dark mode). */
+	min-height: 0;
 }
 
 .side {
@@ -101,6 +105,7 @@ body {
 	border-right-width: 4px;
 	border-right-color: var(--m-ink);
 	border-right-style: solid;
+	overflow-y: auto;
 }
 
 .side-item {
@@ -122,6 +127,7 @@ body {
 
 .content {
 	flex-grow: 1;
+	min-height: 0;
 }
 
 /* ---------- doc typography — text in rectangular zones ---------- */
