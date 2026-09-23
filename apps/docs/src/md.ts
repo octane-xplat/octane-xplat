@@ -10,27 +10,28 @@ export type Block =
 	| { kind: 'table'; rows: string[][] }
 	| { kind: 'hr' };
 
+// One pass, earliest token wins: `code`, **bold**, [link](href). Recursing
+// into link text lets [`code`](x) render as a mono link; recursing into bold
+// lets **[link](x)** stay bold. Code wins at equal index so `[x](y)` inside
+// backticks stays literal.
 export function inlineSpans(text: string): Span[] {
 	const spans: Span[] = [];
-	for (const seg of text.split(/(`[^`]*`)/g)) {
-		if (!seg) continue;
-		if (seg.startsWith('`') && seg.endsWith('`')) {
-			spans.push({ text: seg.slice(1, -1), mono: true });
-			continue;
+	const re = /(`[^`]*`)|(\*\*[^*]+\*\*)|(\[[^\]]+\]\([^)\s]+\))/g;
+	let last = 0;
+	for (const m of text.matchAll(re)) {
+		if (m.index > last) spans.push({ text: text.slice(last, m.index) });
+		const tok = m[0];
+		if (tok.startsWith('`')) {
+			spans.push({ text: tok.slice(1, -1), mono: true });
+		} else if (tok.startsWith('**')) {
+			for (const s of inlineSpans(tok.slice(2, -2))) spans.push({ ...s, bold: true });
+		} else {
+			const lm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(tok)!;
+			for (const s of inlineSpans(lm[1])) spans.push({ ...s, href: lm[2] });
 		}
-		for (const sub of seg.split(/(\*\*[^*]+\*\*)/g)) {
-			if (!sub) continue;
-			const bold = sub.startsWith('**') && sub.endsWith('**');
-			const inner = bold ? sub.slice(2, -2) : sub;
-			let last = 0;
-			for (const m of inner.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) {
-				if (m.index > last) spans.push({ text: inner.slice(last, m.index), bold });
-				spans.push({ text: m[1], href: m[2], bold });
-				last = m.index + m[0].length;
-			}
-			if (last < inner.length) spans.push({ text: inner.slice(last), bold });
-		}
+		last = m.index + m[0].length;
 	}
+	if (last < text.length) spans.push({ text: text.slice(last) });
 	return spans;
 }
 
