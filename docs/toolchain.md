@@ -139,8 +139,13 @@ they'll land as PRs):
 ## CI shape
 
 1. `tsc --noEmit -p tsconfig.web.json` + `-p tsconfig.native.json`
-2. `vitest` shared/logic + web component tests
-3. `vite build` (web)
-4. `ns build ios|android` (macOS runner; can gate on label early on)
-5. Native unit tests (driver-level) via vitest mock driver; on-device smoke
+2. `pnpm check:no-dom` — static sweep: DOM globals banned in shared +
+   `*.native.*`/`*.ios.*`/`*.android.*` source (`scripts/check-no-dom.mjs`).
+   Catches leaks at lint time; the renderer's `forbiddenGlobals` is the
+   runtime backstop. NS-safe globals (setTimeout/fetch/console/rAF) are
+   deliberately not flagged.
+3. `vitest` shared/logic + web component tests
+4. `vite build` (web)
+5. `ns build ios|android` (macOS runner; can gate on label early on)
+6. Native unit tests (driver-level) via vitest mock driver; on-device smoke
    manual until e2e story exists (testing.md)
