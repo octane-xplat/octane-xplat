@@ -6,15 +6,14 @@ import langTs from 'shiki/langs/typescript.mjs';
 import langTsx from 'shiki/langs/tsx.mjs';
 import langJsonc from 'shiki/langs/jsonc.mjs';
 import themeDark from 'shiki/themes/vitesse-dark.mjs';
-import themeLight from 'shiki/themes/vitesse-light.mjs';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
 import { resetDocScroll } from './scroll';
 
-// JS regex engine — no wasm fetch, fully sync. Code blocks stay inverted
-// (ink bg vs field), so dark mode takes light-theme tokens and vice versa.
+// JS regex engine — no wasm fetch, fully sync. Code slabs are always black,
+// so vitesse-dark tokens work in both color modes.
 const hl = createHighlighterCoreSync({
 	langs: [langTs, langTsx, langJsonc],
-	themes: [themeDark, themeLight],
+	themes: [themeDark],
 	engine: createJavaScriptRegexEngine(),
 });
 const LANGS = new Set(['ts', 'typescript', 'tsx', 'jsonc', 'json']);
@@ -27,10 +26,9 @@ function tokenStyle(t: { color?: string; fontStyle?: number }) {
 	};
 }
 
-function CodeBlock(props: { code: string; lang: string; dark: boolean }) @{
+function CodeBlock(props: { code: string; lang: string }) @{
 	const lang = LANGS.has(props.lang) ? props.lang : 'text';
-	const theme = props.dark ? 'vitesse-light' : 'vitesse-dark';
-	const { tokens } = hl.codeToTokens(props.code, { lang, theme });
+	const { tokens } = hl.codeToTokens(props.code, { lang, theme: 'vitesse-dark' });
 	<View className="code"><Text className="mono">
 		{tokens.map((line) => <>{line.map((t) => <Text style={tokenStyle(t)}>{t.content}</Text>)}{'\n'}</>)}
 	</Text></View>
@@ -69,13 +67,13 @@ function Spans(props: { spans: Span[] }) @{
 	<>{props.spans.map((s) => <SpanText s={s} />)}</>
 }
 
-function BlockView(props: { b: Block; dark: boolean }) @{
+function BlockView(props: { b: Block }) @{
 	const b = props.b;
 	if (b.kind === 'h') return <Text className={`h${b.level}`}>{b.text}</Text>;
 	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'li') return <Text className="li" style={{ paddingLeft: b.depth * 16 }}><Text className="dim">{'• '}</Text><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'quote') return <View className="quote"><Text className="dim"><Spans spans={b.spans} /></Text></View>;
-	if (b.kind === 'code') return <CodeBlock code={b.text} lang={b.lang} dark={props.dark} />;
+	if (b.kind === 'code') return <CodeBlock code={b.text} lang={b.lang} />;
 	if (b.kind === 'hr') return <View className="hr" />;
 	if (b.kind === 'table') {
 		return <View className="table">
@@ -89,7 +87,7 @@ function BlockView(props: { b: Block; dark: boolean }) @{
 	return <></>;
 }
 
-export function MdDoc(props: { md: string; dark: boolean }) @{
+export function MdDoc(props: { md: string }) @{
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
-	<View className="doc">{blocks.map((b) => <BlockView b={b} dark={props.dark} />)}</View>
+	<View className="doc">{blocks.map((b) => <BlockView b={b} />)}</View>
 }
