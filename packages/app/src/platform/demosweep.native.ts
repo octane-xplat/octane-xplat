@@ -1,5 +1,5 @@
 import { Application, getRootLayout } from '@nativescript/core';
-import { getStack } from '@xplat/ui';
+import { getStack } from '@octane-xplat/ui';
 import { goBack } from './nav';
 
 // Nested stacks don't work on Android yet — a TabViewItem-hosted Frame

@@ -26,6 +26,9 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@valor/nativescript-websockets':
         specifier: 2.0.3
         version: 2.0.3
@@ -35,9 +38,6 @@ importers:
       '@xplat/demos':
         specifier: workspace:*
         version: link:../../packages/demos
-      '@xplat/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       octane:
         specifier: 0.4.0
         version: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -72,15 +72,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@xplat/app':
         specifier: workspace:*
         version: link:../../packages/app
       '@xplat/demos':
         specifier: workspace:*
         version: link:../../packages/demos
-      '@xplat/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       octane:
         specifier: 0.4.0
         version: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
@@ -103,12 +103,12 @@ importers:
 
   packages/app:
     dependencies:
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@xplat/demos':
         specifier: workspace:*
         version: link:../demos
-      '@xplat/ui':
-        specifier: workspace:*
-        version: link:../ui
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.1
@@ -122,7 +122,7 @@ importers:
 
   packages/demos:
     dependencies:
-      '@xplat/ui':
+      '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../ui
     devDependencies:
@@ -144,9 +144,15 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2
+      '@octanejs/vite-plugin':
+        specifier: 0.1.58
+        version: 0.1.58(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
       octane:
         specifier: 0.4.0
         version: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1)
 
 packages:
 

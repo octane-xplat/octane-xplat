@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Screen, View, Row, Text, Pressable } from '@xplat/ui';
+import { Screen, View, Row, Text, Pressable } from '@octane-xplat/ui';
 import { Counter } from './Counter.tsrx';
 import { Stopwatch } from './Stopwatch.tsrx';
 import { Todo } from './Todo.tsrx';

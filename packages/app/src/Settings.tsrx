@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Screen, View, Row, Text, Pressable, Switch } from '@xplat/ui';
+import { Screen, View, Row, Text, Pressable, Switch } from '@octane-xplat/ui';
 import { openSheet } from './platform/sheet';
 
 /** Settings tab — exercises Switch (checkedChange echo?) + the sheet seam. */

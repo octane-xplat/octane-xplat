@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@octane-xplat/ui';
 import { navigate } from './platform/nav';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';

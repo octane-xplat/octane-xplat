@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from '@xplat/ui';
+import { View, Text, Pressable } from '@octane-xplat/ui';
 import { closeSheet } from './platform/sheet';
 
 /** Bottom-sheet content — hosted in a ContentView by RootLayout.open. */

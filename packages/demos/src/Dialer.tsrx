@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable } from '@xplat/ui';
+import { View, Row, Text, Pressable } from '@octane-xplat/ui';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 const MAX = 15;

@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from '@xplat/ui';
+import { View, Text, Pressable } from '@octane-xplat/ui';
 import { closeOverlay } from './platform/overlay';
 
 /** Overlay content — rendered into a ContentView hosted by RootLayout.open. */

@@ -1,5 +1,5 @@
 import { useEffect } from 'octane';
-import { Screen, View, Row, Text, Pressable } from '@xplat/ui';
+import { Screen, View, Row, Text, Pressable } from '@octane-xplat/ui';
 import { DEMOS, RENDER, setLastDemo } from '@xplat/demos';
 import { goBack } from './platform/nav';
 import { openSheet } from './platform/sheet';

@@ -1,6 +1,6 @@
 import type { RouteName } from '../screens';
 
-import { pushRoute } from '@xplat/ui';
+import { pushRoute } from '@octane-xplat/ui';
 
 // Web seam for the nav contract — real paths over history. `into` selects
 // the outlet: a named stack renders inside its tab pane (nested-route

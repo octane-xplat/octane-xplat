@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable } from '@xplat/ui';
+import { View, Row, Text, Pressable } from '@octane-xplat/ui';
 
 const MODES = ['pulse', 'spin', 'slide'] as const;
 type Mode = (typeof MODES)[number];

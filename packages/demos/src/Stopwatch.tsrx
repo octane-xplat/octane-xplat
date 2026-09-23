@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable } from '@xplat/ui';
+import { View, Row, Text, Pressable } from '@octane-xplat/ui';
 
 type Lap = { id: number; ms: number };
 

@@ -1,4 +1,4 @@
-import { Screen, Text, Pressable } from '@xplat/ui';
+import { Screen, Text, Pressable } from '@octane-xplat/ui';
 import { goBack } from './platform/nav';
 
 /** Second screen — pushed via Frame.navigate on native, own Octane root.

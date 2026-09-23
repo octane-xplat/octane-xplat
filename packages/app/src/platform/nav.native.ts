@@ -1,7 +1,7 @@
 import { Application, Frame, Page } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
-import { getStack, stackEntries } from '@xplat/ui';
+import { getStack, stackEntries } from '@octane-xplat/ui';
 import { screens, type RouteName } from '../screens';
 
 /**

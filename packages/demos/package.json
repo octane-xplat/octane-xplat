@@ -8,7 +8,7 @@
     "./*": "./src/*"
   },
   "dependencies": {
-    "@xplat/ui": "workspace:*"
+    "@octane-xplat/ui": "workspace:*"
   },
   "devDependencies": {
     "@nativescript-community/octane": "0.2.1",

@@ -1,7 +1,7 @@
 import { Application, Frame, ListView, Page, Trace } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
-import { getColorScheme, registerStack } from '@xplat/ui';
+import { getColorScheme, registerStack } from '@octane-xplat/ui';
 import { storage, wireHardwareBack } from '@xplat/app';
 import './app.css';
 

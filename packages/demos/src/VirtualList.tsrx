@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable, List } from '@xplat/ui';
+import { View, Row, Text, Pressable, List } from '@octane-xplat/ui';
 
 type Row_ = { id: string; label: string };
 

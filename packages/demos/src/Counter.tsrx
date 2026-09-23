@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable } from '@xplat/ui';
+import { View, Row, Text, Pressable } from '@octane-xplat/ui';
 
 /** counter-jsx / reactive-counter — the smallest state→commit cycle.
  *  Baseline probe: if this breaks, everything above it is noise. */

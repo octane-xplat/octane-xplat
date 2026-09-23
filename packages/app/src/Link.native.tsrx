@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { Pressable } from '@xplat/ui';
+import { Pressable } from '@octane-xplat/ui';
 import { navigate } from './platform/nav';
 import type { RouteName } from './screens';
 

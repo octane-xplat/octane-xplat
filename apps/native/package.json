@@ -15,7 +15,7 @@
     "@valor/nativescript-websockets": "2.0.3",
     "@xplat/app": "workspace:*",
     "@xplat/demos": "workspace:*",
-    "@xplat/ui": "workspace:*",
+    "@octane-xplat/ui": "workspace:*",
     "octane": "0.4.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'octane';
-import { View, Row, Text, Pressable } from '@xplat/ui';
+import { View, Row, Text, Pressable } from '@octane-xplat/ui';
 
 type Day = { id: string; name: string; icon: string; lo: number; hi: number };
 

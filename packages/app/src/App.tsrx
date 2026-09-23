@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'octane';
-import { Screen, Tabs, Text, currentRoute } from '@xplat/ui';
+import { Screen, Tabs, Text, currentRoute } from '@octane-xplat/ui';
 import { screens } from './screens';
 import { Home } from './Home.tsrx';
 import { Settings } from './Settings.tsrx';
 import { Gallery } from '@xplat/demos';
 import { navigate } from './platform/nav';
-import type { TabSpec } from '@xplat/ui';
+import type { TabSpec } from '@octane-xplat/ui';
 // Probe-only module: schedules the demo-gallery sweep on native; no-op on web.
 import './platform/demosweep';
 

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List } from '@octane-xplat/ui';
 
 type Todo = { id: string; text: string; done: boolean };
 
