@@ -425,7 +425,11 @@ body {
 	margin-bottom: 16px;
 }
 
+/* real table layout — auto column sizing fits each column to its
+   widest cell across all rows (# hugs digits, prose columns stretch) */
 .table {
+	display: table;
+	width: 100%;
 	border-width: 4px;
 	border-color: var(--nb-ink);
 	border-style: solid;
@@ -436,16 +440,16 @@ body {
 }
 
 .tr {
-	flex-direction: row;
+	display: table-row;
 }
 
-.tr + .tr {
+.tr + .tr .td {
 	border-top-width: 2px;
 	border-top-color: var(--nb-ink);
 	border-top-style: solid;
 }
 
-.tr-head {
+.tr-head .td {
 	background-color: var(--nb-yellow);
 	border-bottom-width: 4px;
 	border-bottom-color: var(--nb-ink);
@@ -461,14 +465,11 @@ body {
 }
 
 .td {
+	display: table-cell;
 	padding: 10px 14px;
 	font-size: 14px;
 	font-weight: 500;
-	flex-grow: 1;
-	flex-basis: 0;
-	/* flex items default to min-width:auto — a long unbreakable code span
-	   would widen its column in that row only, breaking alignment. */
-	min-width: 0;
+	vertical-align: top;
 	overflow-wrap: break-word;
 }
 
@@ -518,10 +519,6 @@ body {
 	.code .mono, .code Text { font-size: 12px; }
 	.callout { padding: 10px 12px 12px; }
 	.td { padding: 8px 10px; font-size: 12px; }
-
-	/* wide tables scroll horizontally instead of squashing columns */
-	.table { overflow-x: auto; }
-	.tr { min-width: 460px; }
 }
 
 /* ——— narrow phones ——— */
