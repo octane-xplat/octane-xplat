@@ -467,3 +467,50 @@ body {
 	flex-basis: 0;
 	flex-wrap: wrap;
 }
+
+/* ——— mobile ——— */
+@media (max-width: 720px) {
+	/* topbar: brand shrinks, tagline yields to the chip */
+	.brand-block { padding: 10px 16px 10px 10px; gap: 10px; }
+	.logo-tile { width: 34px; height: 40px; border-width: 3px; }
+	.logo-flame { width: 17px; height: 23px; }
+	.brand { font-size: 18px; }
+	.tagline { display: none; }
+	.topbar-mid { padding: 10px 14px; }
+	.disc-chip { padding: 4px 8px; }
+	.disc-text { font-size: 9px; letter-spacing: 0.08em; }
+	.mode-block { padding: 10px 14px; }
+	.mode-text { font-size: 12px; }
+
+	/* sidebar → horizontal chip rail above the content */
+	.body { flex-direction: column; }
+	.side {
+		width: 100%;
+		flex-direction: row;
+		align-items: center;
+		overflow-x: auto;
+		overflow-y: hidden;
+		border-right-width: 0;
+		border-bottom-width: 4px;
+		flex-shrink: 0;
+	}
+	.side .vx-list { display: flex; flex-direction: row; flex-grow: 0; }
+	.side-head { padding: 10px 6px 10px 12px; font-size: 10px; flex-shrink: 0; }
+	.side-item {
+		flex-shrink: 0;
+		padding: 10px 14px;
+		border-bottom-width: 0;
+		border-right-width: 2px;
+	}
+
+	/* content: tighter canvas, smaller type scale */
+	.doc { padding: 24px 18px 72px; }
+	.h1 { font-size: 26px; }
+	.h2 { font-size: 19px; margin-top: 26px; }
+	.h3 { font-size: 16px; }
+	.p, .li, .callout-line { font-size: 14px; }
+	.code { padding: 12px 14px; }
+	.code .mono, .code Text { font-size: 12px; }
+	.callout { padding: 10px 12px 12px; }
+	.td { padding: 8px 10px; font-size: 12px; }
+}
