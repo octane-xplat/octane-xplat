@@ -1,6 +1,6 @@
 import { useMemo } from 'octane';
 import { View, Text } from '@octane-xplat/ui';
-import { parseMd, type Block, type Span } from './md';
+import { inlineSpans, parseMd, type Block, type Span } from './md';
 
 function Spans(props: { spans: Span[] }) @{
 	<>{props.spans.map((s) => <Text className={s.mono ? 'mono' : s.bold ? 'bold' : ''}>{s.text}</Text>)}</>
@@ -18,7 +18,7 @@ function BlockView(props: { b: Block }) @{
 		return <View className="table">
 			{b.rows.map((r, ri) => (
 				<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
-					{r.map((c) => <Text className="td">{c}</Text>)}
+					{r.map((c) => <Text className="td"><Spans spans={inlineSpans(c)} /></Text>)}
 				</View>
 			))}
 		</View>
