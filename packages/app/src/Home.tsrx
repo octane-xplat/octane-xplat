@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'octane';
 import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@xplat/ui';
 import { navigate } from './platform/nav';
+import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { storage } from './platform/storage';
 
@@ -116,6 +117,11 @@ export function Home() @{
 			<DangerBtn id="danger-btn" danger className="extra">
 				<Text className="text-onprimary">styled</Text>
 			</DangerBtn>
+			{/* Link seam: web renders a real anchor; native is a Pressable
+			    over navigate(). */}
+			<Link to="detail" params={{ from: 'link' }} className="chip">
+				<Text className="text-onprimary">Link →</Text>
+			</Link>
 		</Row>
 
 		{/* Modal seam: declarative open → native showModal on a second root;

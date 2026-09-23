@@ -156,6 +156,12 @@ Two program configs over a shared base:
   go through a barrel (`@xplat/app` re-exporting `./platform/storage`) or a
   `paths` pattern — the suffix chain runs on the barrel's internal relative
   specifier, not on the exports target.
+- **`moduleSuffixes` only covers `.ts`/`.tsx`** (lab, Exp 18): an
+  extensionless `./Link` won't resolve `Link.native.tsrx` — tsc's suffix
+  search doesn't include `.tsrx`. Convention: leaf pairs that shared code
+  imports bare get a same-name `.ts` shim per side (`Link.native.ts` →
+  `export { Link } from './Link.native.tsrx'`) — the shim is suffix-
+  resolvable, the component stays renderer-owned.
 
 ## Build-time defines
 

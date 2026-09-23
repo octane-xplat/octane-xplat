@@ -14,5 +14,5 @@
   },
   "include": ["src/**/*", "../../packages/**/*"],
   "files": ["./references.d.ts", "./types/globals.d.ts"],
-  "exclude": ["node_modules", "platforms", "**/*.web.*", "../../packages/**/*.web.*"]
+  "exclude": ["node_modules", "platforms", "**/*.web.*", "../../packages/**/*.web.*", "**/*.test.*", "../../packages/**/*.test.*"]
 }
