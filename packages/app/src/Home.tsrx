@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation } from '@xplat/ui';
 import { openDetail } from './platform/nav';
 import { openOverlay } from './platform/overlay';
 
@@ -28,6 +28,7 @@ export function Home() @{
 	const [text, setText] = useState('');
 	const [items, setItems] = useState(INITIAL);
 	const [modal, setModal] = useState(false);
+	const x = useAnimation(0);
 	console.log('[harness] Home render, items=' + items.length);
 
 	useEffect(() => {
@@ -153,6 +154,18 @@ export function Home() @{
 		{/* Image seam: <image> native / <img> web; data: URI decodes
 		    synchronously via ImageSource.fromBase64Sync. */}
 		<Image id="img" src={PIXEL} alt="pixel" style={{ width: 24, height: 24 }} />
+
+		{/* Animation seam (Exp 13): imperative controller writes the view's
+		    translateX per rAF frame — no re-render, no worklets. */}
+		<Row className="gap-4">
+			<View id="anim-box" bind={x.bind} style={{ width: 40, height: 40, backgroundColor: '#e91e63' }} />
+			<Pressable id="anim-btn" onPress={() => {
+				x.to(80, { duration: 300 });
+				setTimeout(() => x.spring(0), 700);
+			}} className="btn bg-primary">
+				<Text className="text-onprimary">Animate</Text>
+			</Pressable>
+		</Row>
 
 		<TextInput
 			value={text}

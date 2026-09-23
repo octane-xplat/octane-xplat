@@ -221,6 +221,20 @@ setTimeout(() => {
   console.log('[assert] modal closed: ' + (f?.currentPage?.modal == null ? 'OK' : 'FAIL'));
 }, 9200);
 
+// Animation probe (Exp 13): imperative to() writes translateX per frame;
+// spring() integrates back to 0. No re-render involved.
+setTimeout(() => {
+  fireGesture(find('anim-btn'), 1, 'tap', {});
+}, 9400);
+setTimeout(() => {
+  const v = find('anim-box');
+  console.log('[assert] anim moved: ' + (v?.translateX > 10 ? 'OK' : 'FAIL') + ' (' + v?.translateX + ')');
+}, 9750);
+setTimeout(() => {
+  const v = find('anim-box');
+  console.log('[assert] anim settled: ' + (Math.abs(v?.translateX ?? -1) < 5 ? 'OK' : 'FAIL') + ' (' + v?.translateX + ')');
+}, 10600);
+
 // A module-graph reload re-evaluates this entry and mounts fresh roots.
 // @ts-expect-error — vite hot types; add vite/client to tsconfig types if desired
 import.meta.hot?.dispose(() => {

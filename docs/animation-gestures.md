@@ -70,6 +70,15 @@ on Android but leaves the promise **pending forever on iOS** — never `await`
 a cancellable animation; `iterations: 0` diverges (iOS=none, Android
 degenerate) — facade exposes `iterations: 'infinite'` explicitly.
 
+**Lab (Exp 13, iOS):** `useAnimation()` → `{ value, to, spring, stop, bind }`
+works as a plain exported function in a `.tsrx` file — hooks called inside an
+active component render resolve via implicit slots
+(`implicit:${owner.implicitSlot++}`), so custom hooks don't need `@{ }`
+bodies; they just need stable call order. The value attaches through a `bind`
+prop on the leaf (→ intrinsic `ref`; `ref` itself is runtime-reserved on
+component elements) and writes `view.translateX` per rAF frame — no re-render.
+`to(80,{300ms})` hit exactly 80; JS spring integrator settled to |−1.4|.
+
 ## Gesture normalization
 
 | Shared | Web | Native |

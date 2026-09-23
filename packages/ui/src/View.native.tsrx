@@ -7,11 +7,15 @@ export function View(props: {
   style?: any;
   children?: any;
   id?: string;
+  /** Forwards to the intrinsic's `ref` — `ref` is runtime-reserved on
+   *  component elements, so leaves expose `bind` instead. */
+  bind?: (el: any) => void;
   onPan?: (e: { deltaX: number; deltaY: number; state: number }) => void;
   onSwipe?: (e: { direction: number }) => void;
 }) @{
 	<flexboxlayout
 		id={props.id}
+		ref={props.bind}
 		flexDirection="column"
 		className={props.className}
 		style={props.style}
