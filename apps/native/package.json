@@ -10,7 +10,7 @@
     "build:ios": "ns build ios"
   },
   "dependencies": {
-    "@nativescript-community/octane": "0.2.0",
+    "@nativescript-community/octane": "0.2.1",
     "@nativescript/core": "9.1.2",
     "@valor/nativescript-websockets": "2.0.3",
     "@xplat/app": "workspace:*",
@@ -19,7 +19,7 @@
     "octane": "0.4.0"
   },
   "devDependencies": {
-    "@nativescript-community/vite-octane": "0.2.0",
+    "@nativescript-community/vite-octane": "0.2.1",
     "@nativescript/android": "9.1.1",
     "@nativescript/ios": "9.1.0",
     "@nativescript/types": "9.0.0",

@@ -119,22 +119,30 @@ that affect our leaves:
 - `module server {…}` blocks + `'server'` imports are DOM/SSR-only — never
   in shared or native files.
 
-## Driver patches (pnpm patch → fork PRs)
+## Driver deltas — all upstreamed (0.2.1)
 
-`patches/@nativescript-community__octane.patch` carries three driver-level
-fixes (decision #26 — the fork `aleclarson/nativescript-octane` is where
-they'll land as PRs):
+All three driver fixes we reported upstream shipped in
+`@nativescript-community/octane@0.2.1`; the local `pnpm patch` is deleted:
 
-1. **Managed `items` on `listview`** — plain array → driver-owned
-   ObservableArray; identity change → splice + microtask `refresh()`.
-   (upstream: nativescript-community/octane#1)
-2. **Prop-write echo suppression (general)** — any driver prop write drops
-   its own `<prop>Change[d]` echo: `text`→`textChange`, `checked`→
-   `checkedChange`, `selectedIndex`→`selectedIndexChanged`. Verified on
-   TextField, Switch, and TabView (each produced double events before).
-   (upstream: nativescript-community/octane#3)
+1. **Managed listview cells** — `renderItem` on `<listview>` makes the driver
+   own `itemTemplate`/`itemLoading`: per-cell `ContentView` + universal root,
+   identity-skip rebinds, unmount on release (upstream #7 / our issue #1).
+   Upstream's shape is `renderItem`-driven (not our items-splice adapter) —
+   `list-view.ts` is the reference.
+2. **Prop-write echo suppression** — driver mutes `<prop>Change` during its
+   own write via a per-node `muted` set (upstream #5 / our issue #3).
 3. **Default renderer validation** — `forbiddenGlobals`/`forbiddenImports`
-   ship on `nativeScriptRenderer`. (upstream: octane#2)
+   ship on `nativeScriptRenderer`, mergeable via
+   `nativeScriptRenderers({validation})` (upstream #6).
+
+**New invariant — one driver copy per app.** Invariant 3 (one `octane`)
+applies equally to `@nativescript-community/octane`: the 0.2.0→0.2.1 bump
+left `packages/*` devDeps at 0.2.0, so the bundle embedded TWO drivers and
+whichever copy created a root owns its prop application — `renderItem`
+silently took the old driver's plain `view[name]=` path (no cells, no echo
+mute). Symptom: `lv.itemTemplate` undefined + `hasListeners('itemLoading')`
+false while `lv.renderItem` held the function. Keep all workspace pins on
+the same version; the peer range in `packages/ui` is the contract.
 
 ## CI shape
 

@@ -9,9 +9,9 @@ export default defineConfig(({ mode }) =>
       {
         octane: {
           renderers: {
-            // The patched renderer ships validation.forbiddenGlobals/Imports
-            // by default (pnpm patch — upstream ask: nativescript-community/
-            // octane#2), so a plain registry entry suffices.
+            // The stock renderer ships validation.forbiddenGlobals/Imports
+            // by default since 0.2.1 (upstream #6), so a plain registry
+            // entry suffices.
             registry: { nativescript: nativeScriptRenderer },
             // First match wins. Owned files = every component file in the
             // native graph (shared .tsrx + .native leaves); .web files never

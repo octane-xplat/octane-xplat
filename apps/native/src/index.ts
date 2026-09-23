@@ -1,4 +1,4 @@
-import { Application, Frame, Page, Trace } from '@nativescript/core';
+import { Application, Frame, ListView, Page, Trace } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
 import { getColorScheme } from '@xplat/ui';
@@ -129,6 +129,8 @@ setTimeout(() => {
   tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 0 } as any);
 }, 2600);
 setTimeout(() => {
+  const lv = collect(thePage).find((v) => v instanceof ListView);
+  console.log('[probe] listview=' + (lv ? `items=${(lv.items as any)?.length} template=${typeof lv.itemTemplate} listeners=${lv.hasListeners?.('itemLoading')}` : 'none'));
   assertHas('cell text', texts(thePage), 'Epsilon');
 }, 2900);
 

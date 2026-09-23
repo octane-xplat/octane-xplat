@@ -137,7 +137,7 @@ export function Home() {
 | `transition` property absent; keyframes animate 12 props | JS animation facade; keyframe classes for loops |
 | `view.animate` cancel hangs pending on iOS; absolute destinations | facade owns value tracking + cancel semantics |
 | Controlled input write-back may fight cursor/IME | lab experiment queued; leaf-level `text===value` guard |
-| `className` swap can leave stale native backgrounds | driver `''`-then-set patch (patch-package) |
+| `className` swap can leave stale native backgrounds | driver `''`-then-set — upstream candidate (no local patch since 0.2.1) |
 | Grid has no `gap`; NS `%` differs from web | per-cell margins; documented traps in css matrix |
 | `line-height` semantics differ (additive vs box) | token files carry both values |
 | `.ts` hooks bind DOM runtime on native | lint rule + validation; `.tsrx` for hooks |

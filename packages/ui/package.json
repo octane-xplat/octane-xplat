@@ -12,13 +12,13 @@
     "./*": "./src/*"
   },
   "devDependencies": {
-    "@nativescript-community/octane": "0.2.0",
+    "@nativescript-community/octane": "0.2.1",
     "@nativescript/core": "9.1.2",
     "octane": "0.4.0"
   },
   "peerDependencies": {
     "octane": ">=0.1.51 <1",
-    "@nativescript-community/octane": ">=0.2.0 <1",
+    "@nativescript-community/octane": ">=0.2.1 <1",
     "@nativescript/core": ">=9.1.0 <10"
   }
 }

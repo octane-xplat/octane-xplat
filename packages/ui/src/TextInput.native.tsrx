@@ -1,7 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
 
 /** Controlled single-line input. The driver suppresses the textChange echo
- *  of its own `text` writes (pnpm patch) — no leaf-side guard needed. */
+ *  of its own `text` writes (upstream #5, since 0.2.1) — no leaf-side
+ *  guard needed. */
 export function TextInput(props: {
   className?: any;
   style?: any;

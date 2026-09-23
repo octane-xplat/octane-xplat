@@ -1,60 +1,13 @@
 /** @jsxImportSource @nativescript-community/octane */
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
-// NOTE: '@nativescript-community/octane' is reserved for its OWN exports
-// (createNativeScriptRoot below): on-device, dev-mode vendor require() drops
-// its `export *` re-exports of the universal runtime — 'octane' is the only
-// working specifier for hooks in this channel.
 import { memo } from 'octane';
-import { ContentView, ListView, ObservableArray } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
 
-// Universal roots render components, not elements — the element-returning
-// `renderItem` is wrapped in a compiler-defined component so each recycled
-// cell gets a real universal root. NOTE: the tail must be an output node —
-// a bare `{expr}` compiles to a statement and silently renders nothing.
-function Cell(props: { item: any; renderItem: (item: any) => any }) @{
-	<>{props.renderItem(props.item)}</>
-}
-
-// Stable identity — an inline array literal would change every render and
-// make the driver refresh the whole ListView (measured: every parent
-// re-render refired itemLoading for all cells).
-const TEMPLATES = [{ key: 'cell', createView: () => new ContentView() }];
-const templateSelector = () => 'cell';
-
-// Module scope, keyed by the recycled host — deliberately not hooks:
-// itemLoading waves can run stale render closures, and universal useRef
-// resolves through draft-vs-committed records, so ref-held values returned
-// stale reads across waves (measured). Hosts are unique per list instance,
-// so module scope is multi-instance safe.
-const cellRoots = new WeakMap<ContentView, any>();
-const boundItems = new WeakMap<ContentView, any>();
-
-// Stable identity — a fresh onItemLoading closure every render is a prop
-// write, and prop writes refresh the ListView (measured: every unrelated
-// parent render refired itemLoading for all visible cells).
-function handleItemLoading(e: any) {
-	const host = e.view as ContentView;
-	let root = cellRoots.get(host);
-	if (root === undefined) {
-		root = createNativeScriptRoot(host);
-		cellRoots.set(host, root);
-	}
-	const lv = e.object as ListView;
-	// The driver's managed adapter is authoritative — e.item lags the splice
-	// on iOS (measured: the post-splice wave still reported old items).
-	const items = lv.items as ObservableArray<any>;
-	const item = items?.getItem?.(e.index) ?? e.item;
-	if (boundItems.get(host) === item) return;
-	boundItems.set(host, item);
-	// `renderItem` is written onto the view as a plain prop (the driver
-	// passes unknown names through) — always the committed value, no
-	// draft-commit lag.
-	const renderItem = (lv as any).renderItem;
-	if (renderItem) root.render(Cell, { item, renderItem });
-}
-
+// Cell machinery is driver-owned since @nativescript-community/octane 0.2.1
+// (upstream #7, closes our issue #1): `renderItem` on <listview> makes
+// itemTemplate vend a ContentView per recycled cell, each with its own
+// universal root; itemLoading binds items[index] and skips unchanged rows;
+// a changed renderItem re-binds live cells; discard unmounts the roots.
 function ListInner(props: {
   className?: any;
   style?: any;
@@ -68,9 +21,6 @@ function ListInner(props: {
 		style={props.style}
 		items={props.items}
 		renderItem={props.renderItem}
-		itemTemplates={TEMPLATES}
-		itemTemplateSelector={templateSelector}
-		onItemLoading={handleItemLoading}
 	/>
 }
 
@@ -88,12 +38,12 @@ function ListInner(props: {
 const MemoListView = memo(ListInner, (a, b) => a.items === b.items);
 
 /**
- * Recycling List: ListView + one Octane sub-root per recycled cell.
- * - `items` is a plain array — the driver adapts it to an ObservableArray,
- *   splices on identity change, and schedules refresh() itself.
- * - `itemLoading` rebinds the recycled ContentView's root with new props.
- * - Cell identity = the recycled host view, not the item — keys must travel
- *   inside the rendered cell, matching RN's recycling mental model.
+ * Recycling List: ListView + one Octane sub-root per recycled cell (driver
+ * internals). `items` is a plain array, ItemsSource, or ObservableArray —
+ * the driver binds `items[index]` into the recycled cell's root and skips
+ * rebinds whose row, item, and renderer are unchanged.
+ * Cell identity = the recycled host view, not the item — keys must travel
+ * inside the rendered cell, matching RN's recycling mental model.
  */
 export function List(props: {
   className?: any;

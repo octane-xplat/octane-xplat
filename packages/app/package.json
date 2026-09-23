@@ -12,7 +12,7 @@
     "@xplat/ui": "workspace:*"
   },
   "devDependencies": {
-    "@nativescript-community/octane": "0.2.0",
+    "@nativescript-community/octane": "0.2.1",
     "@nativescript/core": "9.1.2",
     "octane": "0.4.0"
   },
