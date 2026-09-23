@@ -1,7 +1,16 @@
 # pnpm 11 settings live here, not in package.json.
-# esbuild needs its install script to place the platform binary.
-# @nativescript/core lands via optional peers — its scripts are native
-# toolchain prep the ns CLI does itself; skipping keeps installs clean.
+#
+# nodeLinker hoisted: Node ESM resolves package imports relative to the
+# symlink path (node_modules/octane/...), not the realpath — so octane's
+# transitive deps (@tsrx/core etc.) must sit at top-level node_modules.
+# NativeScript's bundler wants a flat tree for the same reason.
+nodeLinker: hoisted
+#
+# esbuild + @parcel/watcher need install scripts to place binaries;
+# nativescript's postinstall sets up the local CLI. @nativescript/core's
+# scripts are native toolchain prep the ns CLI does itself.
 allowBuilds:
   esbuild: true
+  '@parcel/watcher': true
+  nativescript: true
   '@nativescript/core': false

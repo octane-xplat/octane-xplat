@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"jsx": "preserve",
+		"jsxImportSource": "@nativescript-community/octane",
+		"moduleSuffixes": [".ios", ".android", ".native", ""],
+		"customConditions": ["native"],
+		"lib": ["ESNext"],
+		"types": ["@nativescript/types"],
+		"noEmit": true,
+		"skipLibCheck": true
+	},
+	"include": ["src/**/*", "references.d.ts"],
+	"exclude": ["node_modules", "platforms", "**/*.web.*"]
+}
