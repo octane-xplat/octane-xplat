@@ -1,6 +1,6 @@
 // Minimal block-level markdown → render model. Paragraph-inline styling is
 // split into spans (mono/bold); block kinds map to our primitives in md.tsrx.
-export type Span = { text: string; mono?: boolean; bold?: boolean };
+export type Span = { text: string; mono?: boolean; bold?: boolean; href?: string };
 export type Block =
 	| { kind: 'h'; level: number; text: string }
 	| { kind: 'p'; spans: Span[] }
@@ -20,9 +20,15 @@ export function inlineSpans(text: string): Span[] {
 		}
 		for (const sub of seg.split(/(\*\*[^*]+\*\*)/g)) {
 			if (!sub) continue;
-			spans.push(sub.startsWith('**') && sub.endsWith('**')
-				? { text: sub.slice(2, -2), bold: true }
-				: { text: sub });
+			const bold = sub.startsWith('**') && sub.endsWith('**');
+			const inner = bold ? sub.slice(2, -2) : sub;
+			let last = 0;
+			for (const m of inner.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) {
+				if (m.index > last) spans.push({ text: inner.slice(last, m.index), bold });
+				spans.push({ text: m[1], href: m[2], bold });
+				last = m.index + m[0].length;
+			}
+			if (last < inner.length) spans.push({ text: inner.slice(last), bold });
 		}
 	}
 	return spans;

@@ -1,9 +1,38 @@
 import { useMemo } from 'octane';
-import { View, Text } from '@octane-xplat/ui';
+import { View, Text, pushRoute } from '@octane-xplat/ui';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
 
+const REPO = 'https://github.com/aleclarson/octane-xplat';
+
+// x.md / ./x.md / x.md#anchor → doc slug; anything else → null.
+function docSlug(href: string): string | null {
+	const m = href.replace(/^\.\//, '').match(/^([\w-]+)\.md(?:#.*)?$/);
+	return m ? m[1] : null;
+}
+
+// External URL: http(s) passes through; repo-relative paths (../prior-art/)
+// resolve against docs/ → github.com tree/blob links.
+function extUrl(href: string): string {
+	if (/^https?:/.test(href)) return href;
+	const path = href.replace(/^(\.\.\/)+/, '').replace(/^\.\//, '');
+	return `${REPO}/${path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'}/main/${path}`;
+}
+
+function SpanText(props: { s: Span }) @{
+	const s = props.s;
+	const cls = [s.mono && 'mono', s.bold && 'bold', s.href && 'link'].filter(Boolean).join(' ');
+	if (s.href) {
+		const slug = docSlug(s.href);
+		if (slug) {
+			return <a className={cls} href={'/doc?page=' + slug} onClick={(e: MouseEvent) => { e.preventDefault(); pushRoute({ stack: 'root', name: 'doc', params: { page: slug } }); }}>{s.text}</a>;
+		}
+		return <a className={cls} href={extUrl(s.href)} target="_blank" rel="noopener">{s.text}</a>;
+	}
+	return <Text className={cls}>{s.text}</Text>;
+}
+
 function Spans(props: { spans: Span[] }) @{
-	<>{props.spans.map((s) => <Text className={s.mono ? 'mono' : s.bold ? 'bold' : ''}>{s.text}</Text>)}</>
+	<>{props.spans.map((s) => <SpanText s={s} />)}</>
 }
 
 function BlockView(props: { b: Block }) @{
