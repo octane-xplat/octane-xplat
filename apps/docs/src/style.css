@@ -466,7 +466,10 @@ body {
 	font-weight: 500;
 	flex-grow: 1;
 	flex-basis: 0;
-	flex-wrap: wrap;
+	/* flex items default to min-width:auto — a long unbreakable code span
+	   would widen its column in that row only, breaking alignment. */
+	min-width: 0;
+	overflow-wrap: break-word;
 }
 
 /* ——— mobile ——— */
