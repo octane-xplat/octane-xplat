@@ -7,7 +7,7 @@ the universal-runtime driver over `@nativescript/core`).
 
 **Status: working prototype, published package.** The design docs under
 `docs/` are now backed by a running harness that exercises every seam on
-all three targets — and by [`@octane-xplat/ui@0.2.0`](https://www.npmjs.com/package/@octane-xplat/ui)
+all three targets — and by [`@octane-xplat/ui`](https://www.npmjs.com/package/@octane-xplat/ui)
 on npm (compiled per-target builds + shipped types).
 
 ## The model in one paragraph
