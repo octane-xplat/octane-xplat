@@ -1,7 +1,7 @@
-import { Frame, Page } from '@nativescript/core';
+import { Application, Frame, Page } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
-import { getStack } from '@xplat/ui';
+import { getStack, stackEntries } from '@xplat/ui';
 import { screens, type RouteName } from '../screens';
 
 /**
@@ -46,7 +46,8 @@ export function navigate(
 				return page;
 			},
 		});
-		console.log('[probe] nav pushed ' + name + ' into ' + (opts.into ?? 'root'));
+		lastNavStack = opts.into ?? 'root';
+		console.log('[probe] nav pushed ' + name + ' into ' + lastNavStack);
 	} catch (e) {
 		console.log('[probe] nav FAILED: ' + (e as Error).message);
 	}
@@ -55,4 +56,35 @@ export function navigate(
 export function goBack(opts: { into?: string } = {}) {
 	resolveStack(opts.into)?.goBack();
 	console.log('[probe] nav goBack ' + (opts.into ?? 'root'));
+}
+
+let lastNavStack = 'root';
+
+/** Android hardware back. NS's default pops `Frame.topmost()` — the
+ *  innermost frame — which is wrong when a root-pushed page covers the
+ *  screen, and broken for TabViewItem frames anyway (their backStack
+ *  bookkeeping stalls upstream). Pop order: the root stack when it has
+ *  a pushed page covering the shell, else the most recently targeted
+ *  named stack, else any named stack with entries. */
+export function wireHardwareBack() {
+	if (!Application.android) return;
+	Application.android.on('activityBackPressed', (e: any) => {
+		const root = getStack('root') as Frame | undefined;
+		if (root && root.backStack.length > 0) {
+			root.goBack();
+			e.cancel = true;
+			return;
+		}
+		const order = [lastNavStack, ...[...stackEntries()].map(([n]) => n).reverse()];
+		for (const name of order) {
+			if (name === 'root') continue;
+			const f = getStack(name) as Frame | undefined;
+			if (f && f.backStack.length > 0) {
+				f.goBack();
+				e.cancel = true;
+				return;
+			}
+		}
+	});
+	console.log('[probe] hardware back wired (android)');
 }

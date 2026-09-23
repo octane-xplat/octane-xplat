@@ -2,7 +2,7 @@ import { Application, Frame, ListView, Page, Trace } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
 import { getColorScheme, registerStack } from '@xplat/ui';
-import { storage } from '@xplat/app';
+import { storage, wireHardwareBack } from '@xplat/app';
 import './app.css';
 
 // Trace the nav pipeline end-to-end: NAVIGATE → pushViewController → DID_show.
@@ -36,6 +36,7 @@ function createWindowContent(): Frame {
   // The root frame is the default nav target — registered by name because
   // Frame.topmost() is ambiguous once nested per-tab stacks exist.
   registerStack('root', frame);
+  wireHardwareBack();
   return frame;
 }
 

@@ -20,10 +20,15 @@ export function openOverlay() {
 		host.id = 'overlay-host';
 		createNativeScriptRoot(host).render(OverlayPanel as unknown as UniversalComponent, {});
 	}
-	rl.open(host, {
+	// Same unhandled-rejection hazard as openSheet: rl.open rejects when
+	// the host is still attached — close first, always handle the promise.
+	if ((rl as any).hasChild?.(host)) (rl as any).close(host);
+	(rl.open(host, {
 		shadeCover: { opacity: 0.4, tapToClose: true },
-	});
-	console.log('[probe] overlay open');
+	}) as Promise<unknown>).then(
+		() => console.log('[probe] overlay open'),
+		(e: Error) => console.log('[probe] overlay open FAILED: ' + e.message),
+	);
 }
 
 export function closeOverlay() {

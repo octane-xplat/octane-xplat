@@ -17,3 +17,7 @@ export function navigate(
 export function goBack(_opts: { into?: string } = {}) {
 	history.back();
 }
+
+/** Hardware back is an Android concern — no-op on web (browser back is
+ *  already real history). */
+export function wireHardwareBack() {}

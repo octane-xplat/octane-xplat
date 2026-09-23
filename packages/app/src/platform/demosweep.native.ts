@@ -1,6 +1,14 @@
-import { getRootLayout } from '@nativescript/core';
+import { Application, getRootLayout } from '@nativescript/core';
 import { getStack } from '@xplat/ui';
 import { goBack } from './nav';
+
+// Nested stacks don't work on Android yet — a TabViewItem-hosted Frame
+// accepts pushes (fragment transaction commits) but setCurrent/bookkeeping
+// never runs, and a push raced against attach crashes the FragmentManager
+// (upstream issue NativeScript#11444). Skip the whole sweep there; the
+// base probes still run.
+const SKIP = Application.android != null;
+if (SKIP) console.log('[sweep] nested stacks skipped on android — upstream #11444');
 
 // Demo-catalog sweep probe (native only — web twin is a no-op). Lives outside
 // apps/native/src/index.ts so the harness probe timeline stays untouched.
@@ -118,7 +126,7 @@ function waitFor(cond: () => boolean, then: () => void, tries = 20) {
 
 let galleryPage: any = null;
 
-setTimeout(() => {
+if (!SKIP) setTimeout(() => {
 	// Frame.topmost() is unreliable once nested stacks exist — on Android it
 	// returns the innermost frame. The boot registers the app frame as 'root'.
 	const tv = getStack('root')?.currentPage?.getViewById?.('app-tabs');
@@ -130,7 +138,7 @@ setTimeout(() => {
 // attach + first-navigation + native-attach latency can run seconds
 // past the CORE trace; pushing while appearance is still settling
 // stalls bookkeeping (setCurrent) and leaves chips without observers.
-setTimeout(() => {
+if (!SKIP) setTimeout(() => {
 	waitFor(() => demosPage() != null && find('menu-counter') != null, () => {
 		galleryPage = demosPage();
 		console.log('[sweep] demos stack=' + (getStack('demos') ? 'registered' : 'MISSING') + ' gallery=' + (galleryPage ? galleryPage.constructor.name : 'none'));

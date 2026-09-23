@@ -13,3 +13,9 @@ export function registerStack(name: string, frame: Frame): void {
 export function getStack(name: string): Frame | undefined {
 	return stacks.get(name);
 }
+
+/** All registered stacks in registration order — for hardware-back
+ *  resolution (pop whichever stack is visibly on top). */
+export function stackEntries(): IterableIterator<[string, Frame]> {
+	return stacks.entries();
+}

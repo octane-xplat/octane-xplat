@@ -80,6 +80,24 @@
 > root-level reads must use the registered `'root'` stack. Smaller
 > divergences seen once, uncharacterized: `dark class` absent, list
 > cell-restore, `anim settled` timing, one `modal texts` flake.
+>
+> **Hardware back (Android):** `wireHardwareBack()` registers
+> `activityBackPressed` at boot. Pop order: root stack when a pushed
+> page covers the shell (NS's default `Frame.topmost()` resolves to the
+> *innermost* frame — wrong once nested stacks exist), then the most
+> recently targeted named stack, then any named stack with entries;
+> `e.cancel` suppresses the system fallback. Verified wired + clean
+> fallthrough on the emulator; the pop-while-pushed path needs a
+> persistent push to verify live (probe pushes auto-pop in ~500ms).
+>
+> **Release builds (all three):** iOS `--release` (Release-iphonesimulator)
+> and Android `--release` (signed debug keystore) build + run clean;
+> web production dist passes 14/14 smoke. Found one release-only fatal:
+> `RootLayout.open()` returns a Promise that rejects when the host view
+> is already attached — `openSheet`/`openOverlay` now close-before-open
+> and handle the promise (unhandled rejection = fatal on release).
+> Nested-stack pushes on Android crash the FragmentManager when raced
+> against attach — the demos sweep is skipped on Android pending #11444.
 
 ## The contract
 

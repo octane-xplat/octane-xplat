@@ -23,14 +23,21 @@ export function openSheet(Component: unknown = SheetPanel, props: Record<string,
 		hostRoot = createNativeScriptRoot(host);
 	}
 	hostRoot!.render(Component as UniversalComponent, props);
-	rl.open(host, {
+	// rl.open rejects when the host is still attached — a re-open while a
+	// previous sheet is up would crash as an unhandled rejection (seen as a
+	// fatal JS exception on the release build). Close before reopening and
+	// always handle the promise.
+	if ((rl as any).hasChild?.(host)) (rl as any).close(host);
+	(rl.open(host, {
 		shadeCover: { opacity: 0.4, tapToClose: true },
 		animation: {
 			enterFrom: { translateY: 400, duration: 250 },
 			exitTo: { translateY: 400, duration: 200 },
 		},
-	});
-	console.log('[probe] sheet open');
+	}) as Promise<unknown>).then(
+		() => console.log('[probe] sheet open'),
+		(e: Error) => console.log('[probe] sheet open FAILED: ' + e.message),
+	);
 }
 
 export function closeSheet() {
