@@ -103,6 +103,21 @@ ship secrets into either bundle (native bundles are inspectable like web).
   uncompiled import lands on the lean entry. Reported:
   [NativeScript/NativeScript#11440](https://github.com/NativeScript/NativeScript/issues/11440).
 
+## Driver patches (pnpm patch → fork PRs)
+
+`patches/@nativescript-community__octane.patch` carries three driver-level
+fixes (decision #26 — the fork `aleclarson/nativescript-octane` is where
+they'll land as PRs):
+
+1. **Managed `items` on `listview`** — plain array → driver-owned
+   ObservableArray; identity change → splice + microtask `refresh()`.
+   (upstream: nativescript-community/octane#1)
+2. **Controlled-input echo suppression** — `text` writes on
+   TextField/TextView/SearchBar suppress their own `textChange` echo.
+   (upstream: nativescript-community/octane#3)
+3. **Default renderer validation** — `forbiddenGlobals`/`forbiddenImports`
+   ship on `nativeScriptRenderer`. (upstream: octane#2)
+
 ## CI shape
 
 1. `tsc --noEmit -p tsconfig.web.json` + `-p tsconfig.native.json`

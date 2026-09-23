@@ -184,7 +184,11 @@ adapter for granular native updates (`refresh()` re-fires every `itemLoading`
 - Deeper fix belongs in the driver: `listview` should be a managed element
   whose `items` diff drives `refresh()` natively instead of leaf-level
   glue. **Reported upstream**:
-  [nativescript-community/octane#1](https://github.com/nativescript-community/octane/issues/1).
+  [nativescript-community/octane#1](https://github.com/nativescript-community/octane/issues/1)
+  — **and implemented locally via `pnpm patch`**: the driver now owns the
+  ObservableArray adapter + post-splice `refresh()`; the leaf passes a plain
+  array. `renderItem` reaches itemLoading as a pass-through view prop
+  (`lv.renderItem`), so the leaf dropped its splice/map machinery.
 
 `renderItem` as a function prop — NOT `children` + `@for` — because the native
 leaf can't feed reconciled children into `itemTemplate`. Shared code calls it

@@ -26,3 +26,5 @@ allowBuilds:
   '@nativescript/core': true
   '@parcel/watcher': true
   esbuild: true
+patchedDependencies:
+  '@nativescript-community/octane': patches/@nativescript-community__octane.patch

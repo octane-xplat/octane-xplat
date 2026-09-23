@@ -38,9 +38,10 @@
    `textChange` via `view.notify`): native→state (`textChange`→`onChange`)
    and state→native (`text` prop write) both work. Two real seams found:
    (a) **programmatic `text` writes echo back as `textChange`** → each write
-   produced a spurious `onChange`; leaf now drops `e.value === props.value`.
-   Reported: [nativescript-community/octane#3](https://github.com/nativescript-community/octane/issues/3)
-   (driver should suppress echo on controlled `text` writes).
+   produced a spurious `onChange`. **Fixed in the driver** via pnpm patch
+   (`text` writes on editable views suppress their own `textChange` echo) —
+   verified: one synthetic `textChange` → exactly one `onChange`. Reported:
+   [nativescript-community/octane#3](https://github.com/nativescript-community/octane/issues/3).
    (b) The driver's same-value guard (`view[name] === value → skip`) already
    prevents redundant writes on the state→native path. Still open: cursor
    position on programmatic `text` writes mid-typing (UITextField.text

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 
-/** Controlled single-line input. `text` write-back vs cursor/IME behavior is
- *  the experiment this leaf exists to probe. */
+/** Controlled single-line input. The driver suppresses the textChange echo
+ *  of its own `text` writes (pnpm patch) — no leaf-side guard needed. */
 export function TextInput(props: {
   className?: any;
   style?: any;
@@ -16,11 +16,6 @@ export function TextInput(props: {
 		style={props.style}
 		text={props.value}
 		hint={props.placeholder ?? props.hint}
-		onTextChange={(e: any) => {
-			// Programmatic `text` writes echo back as textChange (measured:
-			// one notify → two onChange calls — event + write-back echo).
-			// The echo's e.value equals the committed value — drop it.
-			if (e.value !== props.value) props.onChange?.(e.value);
-		}}
+		onTextChange={(e: any) => props.onChange?.(e.value)}
 	/>
 }

@@ -9,26 +9,10 @@ export default defineConfig(({ mode }) =>
       {
         octane: {
           renderers: {
-            registry: {
-              nativescript: {
-                ...nativeScriptRenderer,
-                // The stock renderer ships no validation — DOM globals in
-                // native-targeted files would compile silently (Exp 8).
-                validation: {
-                  forbiddenGlobals: [
-                    'document', 'window', 'HTMLElement', 'Node',
-                    'localStorage', 'sessionStorage', 'DOMParser',
-                    'MutationObserver', 'ResizeObserver',
-                    'XMLHttpRequest', 'alert', 'confirm',
-                  ],
-                  forbiddenImports: [
-                    'octane/dom-bindings', 'octane/dom-binding-program',
-                    'octane/hydration', 'octane/hydration/streamed-signals',
-                    'react-dom', 'react-dom/client',
-                  ],
-                },
-              },
-            },
+            // The patched renderer ships validation.forbiddenGlobals/Imports
+            // by default (pnpm patch — upstream ask: nativescript-community/
+            // octane#2), so a plain registry entry suffices.
+            registry: { nativescript: nativeScriptRenderer },
             // First match wins. Owned files = every component file in the
             // native graph (shared .tsrx + .native leaves); .web files never
             // resolve on this target. Caveat (Exp 8): validation lives in
