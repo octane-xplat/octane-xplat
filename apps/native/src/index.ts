@@ -68,6 +68,22 @@ setTimeout(() => {
   fireGesture(v, 16, 'swipe', { direction: 1 });
 }, 1700);
 
+// Tab probe (Exp 11): selectedIndexChanged is a real property event, so
+// notify() reaches it — switches to Settings, mounts its panes.
+setTimeout(() => {
+  const tv = thePage?.getViewById?.('app-tabs') as any;
+  console.log('[probe] tabview=' + (tv ? tv.constructor.name : 'none'));
+  tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any);
+}, 1900);
+
+// Switch probe: checkedChange → state → driver writes `checked` — watch for
+// a write-back echo (patch only covers `text` on editable views).
+setTimeout(() => {
+  const sw = thePage?.getViewById?.('sw-notifications') as any;
+  console.log('[probe] switch=' + (sw ? sw.constructor.name : 'none'));
+  sw?.notify({ eventName: 'checkedChange', object: sw, value: false } as any);
+}, 2300);
+
 // Navigation + overlay probes (Exp 9): synthesized taps exercise the full
 // Pressable → shared handler → platform-module path.
 setTimeout(() => {
@@ -80,6 +96,17 @@ setTimeout(() => {
   console.log('[probe] overlay-btn=' + (o ? o.constructor.name : 'none'));
   fireGesture(o, 1, 'tap', {});
 }, 3600);
+
+// Sheet probe (Exp 11): back to tab 1, then synthesized tap on sheet-btn.
+setTimeout(() => {
+  const tv = thePage?.getViewById?.('app-tabs') as any;
+  tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any);
+}, 4200);
+setTimeout(() => {
+  const b = thePage?.getViewById?.('sheet-btn') as any;
+  console.log('[probe] sheet-btn=' + (b ? b.constructor.name : 'none'));
+  fireGesture(b, 1, 'tap', {});
+}, 4500);
 
 // Readback: confirm the Frame actually pushed the Detail page (not just that
 // navigate() was called), then pop back.

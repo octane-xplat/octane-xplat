@@ -6,4 +6,7 @@ export { Pressable } from './Pressable.native.tsrx';
 export { TextInput } from './TextInput.native.tsrx';
 export { List } from './List.native.tsrx';
 export { Screen } from './Screen.native.tsrx';
+export { Tabs } from './Tabs.native.tsrx';
+export type { TabSpec } from './Tabs.native.tsrx';
+export { Switch } from './Switch.native.tsrx';
 export { PlatformBadge } from "./PlatformBadge.native.tsrx";

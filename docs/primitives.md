@@ -43,6 +43,23 @@
   lab (Exp 9)**: app root renders `<rootlayout>` via a `Screen` leaf,
   `getRootLayout().open(ContentView)` + a dedicated `createNativeScriptRoot`
   mounts shared-vocab overlay content cleanly.
+- **`@{ {expr} }` tails silently compile to no output** — a braced
+  expression at the end of a component template is a *statement*, not
+  output. `Cell` rendered empty for an entire session undetected (no
+  diagnostic). Tail must be an output node: `<>{expr}</>`.
+  Reported: [octanejs/octane#1258](https://github.com/octanejs/octane/issues/1258).
+- **`<tabview>` can't parent `<tabviewitem>` children** — the driver's
+  `addViewChild` throws for non-layout parents. The `Tabs` leaf uses the
+  List pattern: `items` prop of `TabViewItem[]` whose `.view` is a
+  `ContentView` hosting a per-pane `createNativeScriptRoot` (mounted on the
+  tabview's `loaded` event). `items` for TabView is NOT driver-managed
+  (ListView-only) — the leaf caches `TabViewItem[]` per tabs-array
+  reference. **Same "managed items" ask as listview** — fold into the
+  octane#1 upstream work.
+- **Prop-write echoes are generic** — `checked`→`checkedChange`,
+  `selectedIndex`→`selectedIndexChanged` echo just like `text`→`textChange`.
+  Fixed in the driver patch (pendingPropWrites drops a write's own echo);
+  leafs need no guards.
 - **`visibility` command** maps `hidden`→`collapse` (out of layout AND screen).
 - **Element re-registration recreates live instances in place** — plugin-view
   modules hot-reload cleanly; keep `registerElement` modules self-accepting.

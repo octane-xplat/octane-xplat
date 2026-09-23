@@ -50,12 +50,12 @@ index c94a76e6501ad85fc4f2ae57f52365747c8d07d2..6d9551d4fc47cbf68ac4e4aa40de7de3
  /**
   * The renderer registry `@octanejs/vite-plugin` reads. The renderer is scoped
 diff --git a/dist/driver.js b/dist/driver.js
-index 2aaac742c065660e0c195588a7553103e7f28ff1..1dd4af7d8c777a13e5b7ea302270c17fc5d4d1a5 100644
+index 2aaac742c065660e0c195588a7553103e7f28ff1..53bc8d9633db0058f4a603b828ba569df8799af8 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
-@@ -1,9 +1,48 @@
+@@ -1,9 +1,47 @@
 -import { ActionBar, ContentView, FormattedString, LayoutBase, Span, TextBase, View, unsetValue, } from '@nativescript/core';
-+import { ActionBar, ContentView, FormattedString, LayoutBase, ListView, ObservableArray, SearchBar, Span, TextBase, TextField, TextView, View, unsetValue, } from '@nativescript/core';
++import { ActionBar, ContentView, FormattedString, LayoutBase, ListView, ObservableArray, Span, TextBase, View, unsetValue, } from '@nativescript/core';
  import { createUniversalRoot, } from 'octane/universal/native';
  import { NATIVESCRIPT_RENDERER_ID } from './config.js';
  import { ELEMENTS, EVENT_PROP, eventNameFor, onElementReplaced, } from './elements.js';
@@ -69,11 +69,12 @@ index 2aaac742c065660e0c195588a7553103e7f28ff1..1dd4af7d8c777a13e5b7ea302270c17f
 + */
 +const managedListItems = new WeakMap();
 +/**
-+ * TextField/TextView/SearchBar fire `textChange` for programmatic `text`
-+ * writes too. A driver-initiated write suppresses its own echo so a
-+ * controlled input (`text={v} onTextChange`) doesn't round-trip.
++ * Any prop write can echo back as a `<prop>Change[d]` event — `text` →
++ * `textChange`, `checked` → `checkedChange`, `selectedIndex` →
++ * `selectedIndexChanged`. A driver-initiated write records the prop name per
++ * view and drops its own echo so controlled props don't round-trip.
 + */
-+const suppressTextEcho = new WeakSet();
++const pendingPropWrites = new WeakMap();
 +function setManagedItems(lv, value) {
 +    if (value instanceof ObservableArray) {
 +        managedListItems.delete(lv);
@@ -97,13 +98,11 @@ index 2aaac742c065660e0c195588a7553103e7f28ff1..1dd4af7d8c777a13e5b7ea302270c17f
 +    // data once the write has landed.
 +    Promise.resolve().then(() => lv.refresh());
 +}
-+function isEditableText(view) {
-+    return view instanceof TextField || view instanceof TextView || view instanceof SearchBar;
-+}
++
  function expect(container, id) {
      const node = container.nodes.get(id);
      if (node === undefined)
-@@ -71,6 +110,20 @@ function setProp(view, name, value) {
+@@ -71,7 +109,25 @@ function setProp(view, name, value) {
          applyStyle(view, value);
          return;
      }
@@ -111,24 +110,34 @@ index 2aaac742c065660e0c195588a7553103e7f28ff1..1dd4af7d8c777a13e5b7ea302270c17f
 +        setManagedItems(view, value);
 +        return;
 +    }
-+    if (name === 'text' && isEditableText(view)) {
-+        if (view.text === value)
-+            return;
-+        suppressTextEcho.add(view);
-+        view.text = value;
-+        Promise.resolve().then(() => suppressTextEcho.delete(view));
-+        return;
-+    }
 +    if (view[name] === value)
 +        return;
++    // Record the write so its `<name>Change[d]` echo is dropped.
++    let pending = pendingPropWrites.get(view);
++    if (pending === undefined)
++        pendingPropWrites.set(view, (pending = new Set()));
++    pending.add(name);
      view[name] = value;
++    // The echo fires synchronously on assignment on iOS; clear on a
++    // microtask so a same-tick user event isn't swallowed.
++    Promise.resolve().then(() => {
++        pending.delete(name);
++        if (pending.size === 0)
++            pendingPropWrites.delete(view);
++    });
  }
  function applyStyle(view, value) {
-@@ -238,6 +291,8 @@ function setEvent(container, node, type, listener) {
+     if (value == null || value === unsetValue)
+@@ -238,6 +294,13 @@ function setEvent(container, node, type, listener) {
          const root = container.root;
          if (root === null)
              return;
-+        if (type === 'textChange' && suppressTextEcho.has(view))
++        const echoProp = type.endsWith('Changed')
++            ? type.slice(0, -7)
++            : type.endsWith('Change')
++                ? type.slice(0, -6)
++                : null;
++        if (echoProp !== null && pendingPropWrites.get(view)?.has(echoProp))
 +            return;
          const fire = () => {
              try {

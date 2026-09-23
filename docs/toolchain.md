@@ -112,8 +112,10 @@ they'll land as PRs):
 1. **Managed `items` on `listview`** — plain array → driver-owned
    ObservableArray; identity change → splice + microtask `refresh()`.
    (upstream: nativescript-community/octane#1)
-2. **Controlled-input echo suppression** — `text` writes on
-   TextField/TextView/SearchBar suppress their own `textChange` echo.
+2. **Prop-write echo suppression (general)** — any driver prop write drops
+   its own `<prop>Change[d]` echo: `text`→`textChange`, `checked`→
+   `checkedChange`, `selectedIndex`→`selectedIndexChanged`. Verified on
+   TextField, Switch, and TabView (each produced double events before).
    (upstream: nativescript-community/octane#3)
 3. **Default renderer validation** — `forbiddenGlobals`/`forbiddenImports`
    ship on `nativeScriptRenderer`. (upstream: octane#2)

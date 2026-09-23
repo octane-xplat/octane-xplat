@@ -6,4 +6,7 @@ export { Pressable } from './Pressable.web.tsrx';
 export { TextInput } from './TextInput.web.tsrx';
 export { List } from './List.web.tsrx';
 export { Screen } from './Screen.web.tsrx';
+export { Tabs } from './Tabs.web.tsrx';
+export type { TabSpec } from './Tabs.web.tsrx';
+export { Switch } from './Switch.web.tsrx';
 export { PlatformBadge } from "./PlatformBadge.web.tsrx";

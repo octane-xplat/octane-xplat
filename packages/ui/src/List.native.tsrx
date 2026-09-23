@@ -11,9 +11,10 @@ import { createNativeScriptRoot } from '@nativescript-community/octane';
 
 // Universal roots render components, not elements — the element-returning
 // `renderItem` is wrapped in a compiler-defined component so each recycled
-// cell gets a real universal root.
+// cell gets a real universal root. NOTE: the tail must be an output node —
+// a bare `{expr}` compiles to a statement and silently renders nothing.
 function Cell(props: { item: any; renderItem: (item: any) => any }) @{
-	{props.renderItem(props.item)}
+	<>{props.renderItem(props.item)}</>
 }
 
 // Stable identity — an inline array literal would change every render and
