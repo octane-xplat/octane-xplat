@@ -4,9 +4,9 @@
 > does this hurt if wrong." Resolve by experiment or upstream reading, then move
 > to decisions.md or the relevant doc.
 >
-> **Status legend** — ✅ answered (source-verified, 2026-09 substrate pass,
-> evidence in prior-art/), 🔬 desk-answered pending lab confirmation,
-> ⏳ still open.
+> **Status legend** — ✅ answered (source- or lab-verified; evidence in
+> prior-art/ or the domain docs' `Lab` notes), 🟡 partially lab-observed,
+> 🔬 desk-answered pending lab confirmation, ⏳ still open.
 
 ## Blocking (answer before/while prototyping)
 
@@ -23,17 +23,15 @@
    `@try`/`@pending`/`@catch`), `createRoot`, `ViewTransition`, resource hints,
    DOM utilities. Full list: prior-art/octane.md → "universal export surface".
 3. ✅ **NS ListView item templates vs Octane's reconciler.** — Answered on
-   device (iOS sim): ListView recycles via `itemLoading`/`itemTemplate`; the
-   leaf hosts **per-cell `createNativeScriptRoot` sub-roots** re-bound by
-   `itemLoading`, `items` fed as `ObservableArray`. Confirmed: roots mount
-   and reuse correctly; item rebinds render right data. Surfaced seams:
-   itemLoading refires on any layout-affecting render; host↔index rotates
-   between waves; `e.item` lags splice; `useRef` reads go stale inside
-   pre-commit event closures — leaf works around all four (module-scope
-   maps + authoritative `items[index]` + post-splice `refresh()`). Open
-   follow-up: scroll-range recycling (only 5 visible cells tested), Android
-   parity, and whether the driver should own `items`-diff → `refresh()`
-   ([nativescript-community/octane#1](https://github.com/nativescript-community/octane/issues/1)).
+   device (iOS sim): ListView recycles via `itemLoading`/`itemTemplate`;
+   per-cell `ContentView` hosts each get an Octane root re-bound by
+   `itemLoading`. **Now driver-owned** — upstream shipped our issue #1 as
+   [#7](https://github.com/nativescript-community/octane/pull/8) in 0.2.1:
+   `renderItem` on `<listview>` vends hosts, binds `items[index]` with an
+   identity skip, re-binds live cells on `renderItem` change, unmounts on
+   release. The leaf's module-scope maps + template machinery are deleted;
+   only `renderEmpty` and the memo-on-`items` guard remain. Open follow-up:
+   scroll-range recycling (only ~5 visible cells tested), Android parity.
 4. ✅ **Controlled text inputs.** — Verified on device (iOS sim, synthetic
    `textChange` via `view.notify`): native→state (`textChange`→`onChange`)
    and state→native (`text` prop write) both work. Two real seams found:
@@ -89,10 +87,11 @@
     `!important`, `z-index`, sibling combinators. Traps: bare `[attr]` matches
     nothing; per-declaration error recovery hides broken values.
     (ns-css-selectors skill.)
-12. ⏳ **Two dev servers on one tree.** — Lab. Watcher contention and
-    `import.meta.hot` semantics per-server should be fine in principle (each
-    dev server holds its own module graph), but verify `ns debug` doesn't
-    fight `vite dev` over `.tsrx` writes mid-save.
+12. 🟡 **Two dev servers on one tree.** — Partially lab-observed: concurrent
+    `ns build ios` runs collide on the shared Xcode DerivedData
+    (`build.db` locked → exit 65) — serialize builds or isolate DerivedData
+    per invocation. `vite dev` vs `ns debug` watcher contention over `.tsrx`
+    writes remains unmeasured.
 13. ✅ **Multiple renderers in one config.** — Yes: `registry` map + ordered
     `rules` (first match) + `boundaries` (per-export cross-renderer props,
     e.g. `{ownerRenderer:'dom', childRenderer:'universal', prop:'children'}` —
@@ -113,18 +112,21 @@
     `role`/`aria-label`/`aria-hidden`. Still open: precise Role-union
     mapping (NS role names ≠ ARIA 1:1 — `accessibilityHint/Value/State/
     LiveRegion` unwired in leaves so far).
-16. 🔬 **`@for` keys → native identity.** — Reorder on `listview` delegates to
-    recycling anyway (items are data, not views); for non-list parents,
-    `insert`/`move` commands handle keyed reorder on real views. Lab-confirm
-    nothing pathological.
+16. ✅ **`@for` keys → native identity.** — Lab-verified (iOS sim): a keyed
+    `@for` over `{id,label}` items on a flexboxlayout renders and reorders
+    correctly through `insert`/`move` commands — all five rows present in
+    the tree post-shuffle with no anomalies. On `listview`, identity stays
+    data-level (recycling).
 17. ⏳ **Bundle impact of platform modules** — verify `.native` files and NS
     imports are fully eliminated from web output (and vice versa); treeshake
     check, not assumption.
 18. ⏳ **Fonts**: `font-family` token → registered font name on iOS vs Android
     vs web — a small but certain mapping table to own.
-19. 🔬 **`getCssVariable` timing** — reading tokens from JS at mount vs after
-    CSS applies; theme toggle propagation into modal/keyboard windows
-    (ns-octane hit this — composer re-walks styles on appearance change).
+19. 🟡 **`getCssVariable` timing** — `useColorScheme` verified end-to-end
+    (`systemAppearanceChanged` → re-render → `.ns-dark` class on the tree);
+    token reads at mount and theme propagation into modal/keyboard windows
+    still unmeasured (ns-octane hit this — composer re-walks styles on
+    appearance change).
 20. ✅ **SSR DOM assumptions in shared output.** — Not an issue by
     construction: universal renderers are `server: 'unsupported'`; SSR only
     ever runs on DOM-compiled output (shared files compiled under `dom` for
