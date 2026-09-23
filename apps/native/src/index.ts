@@ -154,6 +154,12 @@ setTimeout(() => {
   console.log('[assert] styled variant: ' + (cls.includes('bg-danger') && cls.includes('extra') ? 'OK' : 'FAIL') + ' (' + cls + ')');
 }, 4900);
 
+// Theme toggle first (deterministic dark — the scheme override button now
+// has an id), then the nav probe.
+setTimeout(() => {
+  fireGesture(find('scheme-toggle'), 1, 'tap', {});
+}, 3000);
+
 // Navigation probe (Exp 9) — event-driven: a pushed Page commits only when
 // the nav transition finishes (setCurrent on viewDidAppear). Fixed timers
 // race it; `navigatedTo` on the Frame is the real completion signal.
@@ -165,6 +171,14 @@ setTimeout(() => {
     if (top?.id === 'detail-page') {
       assertHas('detail texts', texts(top), 'Detail screen');
       assertEq('backStack after push', f.backStack.length, 1);
+      // Q-theme: does the ns-dark class / token resolution cross into a
+      // pushed root? The class lives on the main page's subtree — a pushed
+      // Page is a separate view tree entirely.
+      const pushDark = collect(top).some((v) => String(v?.className ?? '').split(/\s+/).includes('ns-dark'));
+      console.log('[probe] pushed-page ns-dark: ' + (pushDark ? 'present — theme class crosses' : 'absent — theme class does not cross'));
+      const pushTok = (top as any)?.style?.getCssVariable?.('--color-primary');
+      const rootTok = (thePage as any)?.style?.getCssVariable?.('--color-primary');
+      console.log('[probe] pushed token: ' + JSON.stringify(pushTok) + ' root token: ' + JSON.stringify(rootTok));
       setTimeout(() => f.goBack(), 250);
     } else if (top === thePage && ++pops === 1) {
       console.log('[assert] pop to main: OK');
@@ -222,6 +236,11 @@ setTimeout(() => {
 setTimeout(() => {
   const sheet = find('sheet-host');
   assertHas('sheet texts', texts(sheet), 'Sheet content');
+  // Q-theme: sheet root — does the theme class / token resolution cross?
+  const sheetDark = collect(sheet).some((v) => String(v?.className ?? '').split(/\s+/).includes('ns-dark'));
+  console.log('[probe] sheet ns-dark: ' + (sheetDark ? 'present — theme class crosses' : 'absent — theme class does not cross'));
+  const sheetTok = (sheet as any)?.style?.getCssVariable?.('--color-primary');
+  console.log('[probe] sheet token: ' + JSON.stringify(sheetTok));
 }, 7800);
 
 // Modal probe (Exp 12): declarative open → showModal on a second root.

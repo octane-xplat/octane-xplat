@@ -52,6 +52,17 @@ render + native prop application) ≈ **1ms** for a root `className` swap
 synchronous; pixel-visible time then depends on the next native layout
 pass (not measured — needs visual confirmation).
 
+**Lab (root boundaries, iOS):** `ns-dark` applied on the app root does
+**not** cross into pushed `Page` roots, the sheet root, or the modal
+root (each is a separate native view tree — verified absent in all
+three). Token *values* do cross: `getCssVariable('--color-primary')`
+returns the same `#4f46e5` inside every root — tokens live at the app
+stylesheet scope, not the class scope. Consequence for the
+`ThemeProvider` design: theme **state** must cross roots through a
+module-scope store (the same seam as `lastDemo`), and every root —
+each pushed `Page`, sheet, modal — applies `ns-dark` to *its own* root
+view. A class on one root can never reach another.
+
 ## Rules for shared components
 
 1. Static styling = `className` only. No `<style>` blocks (web-only), no

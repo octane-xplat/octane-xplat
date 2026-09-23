@@ -80,7 +80,7 @@ export function Home() @{
 			>
 				<Text className="text-onprimary">Increment</Text>
 			</Pressable>
-			<Pressable onPress={() => setOverride(dark ? 'light' : 'dark')} className="btn bg-primary">
+			<Pressable id="scheme-toggle" onPress={() => setOverride(dark ? 'light' : 'dark')} className="btn bg-primary">
 				<Text className="text-onprimary">{dark ? 'Light' : 'Dark'}</Text>
 			</Pressable>
 			<Pressable
