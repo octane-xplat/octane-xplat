@@ -1,6 +1,7 @@
 /* De Stijl — orthogonal grid, black rules, primary blocks.
    Palette is closed: red / blue / yellow / black / white.
-   Night inverts the field; the blocks don't move. */
+   Night swaps primaries for Day-Glo — xerox-flyer punk on black,
+   black type on the fluorescent blocks. */
 
 :root {
 	--m-red: #d6221f;
@@ -9,12 +10,21 @@
 	--m-ink: #0a0a0a;
 	--m-field: #ffffff;
 	--m-faint: #f2f2f0;
+	--m-onred: #ffffff;
+	--m-onblue: #ffffff;
+	--m-onyellow: #0a0a0a;
 }
 
 .dark {
 	--m-ink: #f5f5f2;
 	--m-field: #0a0a0a;
 	--m-faint: #161615;
+	--m-red: #ff2d78;
+	--m-blue: #39ff14;
+	--m-yellow: #ff6a00;
+	--m-onred: #0a0a0a;
+	--m-onblue: #0a0a0a;
+	--m-onyellow: #0a0a0a;
 }
 
 body {
@@ -49,7 +59,7 @@ body {
 }
 
 .brand {
-	color: #ffffff;
+	color: var(--m-onred);
 	font-size: 22px;
 	font-weight: bold;
 	letter-spacing: 1px;
@@ -76,6 +86,7 @@ body {
 }
 
 .mode-text {
+	color: var(--m-onyellow);
 	font-size: 14px;
 	font-weight: bold;
 }
@@ -105,7 +116,7 @@ body {
 
 .side-item.active .side-text,
 .side-item.active Text {
-	color: #ffffff;
+	color: var(--m-onblue);
 	font-weight: bold;
 }
 
@@ -232,6 +243,7 @@ body {
 
 .tr-head .td,
 .tr-head Text {
+	color: var(--m-onyellow);
 	font-weight: bold;
 }
 
