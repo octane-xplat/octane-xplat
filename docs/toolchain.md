@@ -63,6 +63,23 @@ sources + types, and each app's renderer include glob covers `packages/**`.
 No prebuild step for shared code; hook rule (invariant #2) applies inside
 packages too.
 
+**Lab (npm publish):** for `@octane-xplat/ui` we diverged — it ships
+**compiled** output, not source. `packages/ui/vite.config.ts` builds the
+package twice in lib mode (`vite build`, `vite build --mode native`) with
+`preserveModules`: `.tsrx` → per-module JS under `dist/web` + `dist/native`,
+suffix chain resolved at build time, hooks retargeted to
+`@nativescript-community/octane`, runtime deps external via peers.
+`exports` still point at `src` for workspace dev; `publishConfig` swaps
+them to `dist` only at publish. Verified via `pnpm pack` extraction.
+
+**Types gap (upstream-tracked):** no `.d.ts` ships — `tsrx-tsc` on TS 5.9
+has no declaration emit. The TS-7 native path emits, but as
+`Component.d.tsrx.ts` — consumers then need `allowArbitraryExtensions`.
+Tracked in [tsrx#136](https://github.com/tsrx-org/tsrx/issues/136) →
+microsoft/TypeScript#64120 + #64053. Consumers get runtime imports, no
+package-boundary types until that lands (or we hand-write a boundary
+`.d.ts`).
+
 ## TS configs
 
 `tsconfig.base.json` + `.web` / `.native` variants differing in
