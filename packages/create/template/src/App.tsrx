@@ -13,10 +13,12 @@ const FEATURES = [
  *  (.web.tsrx / .native.tsrx), never inside a component. */
 export function App() @{
 	const [count, setCount] = useState(0);
-	const [dark, setDark] = useState(false);
+	// null = follow the system; the toggle overrides it for this session.
+	const [override, setOverride] = useState<boolean | null>(null);
 	const scheme = useColorScheme();
+	const dark = override ?? scheme === 'dark';
 
-	<View className={['app', dark ? 'dark' : '']}>
+	<View className={['app', dark ? 'dark' : 'light']}>
 		<Text className="title">octane-xplat</Text>
 		<Text className="muted">one codebase — web · iOS · android</Text>
 
@@ -28,7 +30,7 @@ export function App() @{
 
 		<List items={FEATURES} renderItem={(f) => <Text className="chip">{f}</Text>} />
 
-		<Pressable className="link" onPress={() => setDark(!dark)}>
+		<Pressable className="link" onPress={() => setOverride(!dark)}>
 			<Text>{dark ? 'light' : 'dark'} mode (system: {scheme})</Text>
 		</Pressable>
 	</View>

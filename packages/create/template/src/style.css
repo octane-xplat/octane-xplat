@@ -6,6 +6,25 @@
 body {
 	margin: 0;
 	font-family: system-ui, sans-serif;
+	background-color: var(--color-surface);
+}
+
+/* System-dark before JS mounts — no white flash. Same values tokens.css
+ * sets under .dark; .app.light below is the manual override back. */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-surface: #0f172a;
+		--color-text: #f8fafc;
+	}
+	body {
+		background-color: var(--color-surface);
+	}
+}
+
+/* Manual light override when the system is dark (JS adds .light). */
+.app.light {
+	--color-surface: #ffffff;
+	--color-text: #111827;
 }
 
 .app {
