@@ -1,0 +1,16 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "octane",
+		"moduleSuffixes": [".web", ""],
+		"customConditions": ["web"],
+		"types": ["vite/client"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"paths": {
+			"@octane-xplat/ui": ["../../packages/ui/src/index.web.ts"],
+			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
+		}
+	},
+	"include": ["src/**/*", "../../packages/ui/src/**/*"],
+	"exclude": ["node_modules", "**/*.test.*", "**/*.native.*", "**/*.ios.*", "**/*.android.*"]
+}

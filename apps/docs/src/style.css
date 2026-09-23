@@ -1,0 +1,244 @@
+/* De Stijl — orthogonal grid, black rules, primary blocks.
+   Palette is closed: red / blue / yellow / black / white.
+   Night inverts the field; the blocks don't move. */
+
+:root {
+	--m-red: #d6221f;
+	--m-blue: #1b48a0;
+	--m-yellow: #f7cf00;
+	--m-ink: #0a0a0a;
+	--m-field: #ffffff;
+	--m-faint: #f2f2f0;
+}
+
+.dark {
+	--m-ink: #f5f5f2;
+	--m-field: #0a0a0a;
+	--m-faint: #161615;
+}
+
+body {
+	margin: 0;
+	font-family: system-ui, -apple-system, sans-serif;
+	background-color: var(--m-field);
+}
+
+/* ---------- the grid ---------- */
+
+.shell {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--m-field);
+	color: var(--m-ink);
+}
+
+.shell Text {
+	color: var(--m-ink);
+}
+
+.topbar {
+	border-bottom-width: 4px;
+	border-bottom-color: var(--m-ink);
+	border-bottom-style: solid;
+}
+
+.brand-block {
+	background-color: var(--m-red);
+	padding: 18px 28px;
+}
+
+.brand {
+	color: #ffffff;
+	font-size: 22px;
+	font-weight: bold;
+	letter-spacing: 1px;
+}
+
+.topbar-mid {
+	flex-grow: 1;
+	padding: 18px 24px;
+	justify-content: flex-end;
+}
+
+.tagline {
+	opacity: 0.6;
+	font-size: 14px;
+}
+
+.mode-block {
+	background-color: var(--m-yellow);
+	padding: 18px 24px;
+	border-left-width: 4px;
+	border-left-color: var(--m-ink);
+	border-left-style: solid;
+	justify-content: center;
+}
+
+.mode-text {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.body {
+	flex-grow: 1;
+	flex-direction: row;
+}
+
+.side {
+	width: 240px;
+	border-right-width: 4px;
+	border-right-color: var(--m-ink);
+	border-right-style: solid;
+}
+
+.side-item {
+	padding: 14px 20px;
+	border-bottom-width: 2px;
+	border-bottom-color: var(--m-ink);
+	border-bottom-style: solid;
+}
+
+.side-item.active {
+	background-color: var(--m-blue);
+}
+
+.side-item.active .side-text,
+.side-item.active Text {
+	color: #ffffff;
+	font-weight: bold;
+}
+
+.content {
+	flex-grow: 1;
+}
+
+/* ---------- doc typography — text in rectangular zones ---------- */
+
+.doc {
+	padding: 40px 56px;
+	max-width: 860px;
+}
+
+.h1 {
+	font-size: 34px;
+	font-weight: bold;
+	padding-bottom: 14px;
+	border-bottom-width: 4px;
+	border-bottom-color: var(--m-ink);
+	border-bottom-style: solid;
+	margin-bottom: 20px;
+}
+
+.h2 {
+	font-size: 22px;
+	font-weight: bold;
+	margin-top: 32px;
+	padding: 8px 14px;
+	background-color: var(--m-faint);
+	border-left-width: 8px;
+	border-left-color: var(--m-red);
+	border-left-style: solid;
+}
+
+.h3, .h4 {
+	font-size: 17px;
+	font-weight: bold;
+	margin-top: 24px;
+	padding-left: 14px;
+	border-left-width: 8px;
+	border-left-color: var(--m-ink);
+	border-left-style: solid;
+}
+
+.p {
+	font-size: 15px;
+	line-height: 1.6;
+	margin-top: 12px;
+	flex-wrap: wrap;
+}
+
+.li {
+	font-size: 15px;
+	line-height: 1.55;
+	margin-top: 6px;
+	flex-wrap: wrap;
+}
+
+.dim {
+	opacity: 0.65;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.mono {
+	font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+	font-size: 0.92em;
+	background-color: var(--m-faint);
+	padding: 0 4px;
+}
+
+.code {
+	background-color: var(--m-ink);
+	padding: 18px 20px;
+	margin-top: 16px;
+	border-width: 0;
+}
+
+.code .mono,
+.code Text {
+	color: var(--m-field);
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.quote {
+	border-left-width: 8px;
+	border-left-color: var(--m-yellow);
+	border-left-style: solid;
+	padding: 8px 16px;
+	margin-top: 14px;
+}
+
+.hr {
+	border-top-width: 4px;
+	border-top-color: var(--m-ink);
+	border-top-style: solid;
+	margin-top: 24px;
+}
+
+.table {
+	border-width: 3px;
+	border-color: var(--m-ink);
+	border-style: solid;
+	margin-top: 16px;
+}
+
+.tr {
+	flex-direction: row;
+}
+
+.tr + .tr {
+	border-top-width: 2px;
+	border-top-color: var(--m-ink);
+	border-top-style: solid;
+}
+
+.tr-head {
+	background-color: var(--m-yellow);
+}
+
+.tr-head .td,
+.tr-head Text {
+	font-weight: bold;
+}
+
+.td {
+	padding: 10px 14px;
+	font-size: 14px;
+	flex-grow: 1;
+	flex-basis: 0;
+	flex-wrap: wrap;
+}
