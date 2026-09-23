@@ -34,6 +34,21 @@
 > mid-transition). (b) `onPress={fn}` passes the tap event — a
 > parameterized entry like `openSheet(Component)` silently receives the
 > event; wrap in an arrow at callback call sites.
+>
+> **Lab (parallel stacks, iOS):** `TabSpec.stack` hosts a `Frame` inside
+> the pane — `navigate(name, params, {into})` pushes into it, the tab bar
+> stays visible, `goBack({into})` pops; `_stack` is injected into pushed
+> props so screens pop their own stack. Named frames register via
+> `registerStack`; the app boot registers `'root'` as the default target
+> (`Frame.topmost()` is ambiguous once nested frames exist). Verified:
+> push→content→pop across all 10 demos inside the Demos tab (48/48).
+> Findings: (a) `frame.navigate` before the frame is `loaded` leaves
+> `_executingContext` stuck — iOS's delegate never fires `didShow` — and
+> every later push queues forever: mount the pane's first page on
+> `loaded`, not eagerly. (b) `TabViewItem`-hosted frames report
+> `isLoaded=false` after tab-selection lifecycle churn (item views skip
+> the normal parent/load path), which defers the whole nav queue —
+> `navigate` re-arms with `callLoaded()` when the flag is stale.
 
 ## The contract
 

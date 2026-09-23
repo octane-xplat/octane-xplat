@@ -8,7 +8,7 @@ import { openSheet } from './platform/sheet';
  *  + Octane root on native (context doesn't cross; the store does).
  *  "In sheet" re-mounts the same component inside the RootLayout sheet
  *  root — same demo, third root. */
-export function DemoDetail(props: { id?: string }) @{
+export function DemoDetail(props: { id?: string; _stack?: string }) @{
 	const id = props.id ?? 'counter';
 	const title = DEMOS.find((d) => d.id === id)?.title ?? id;
 	const renderDemo = RENDER[id] ?? RENDER.counter;
@@ -17,7 +17,9 @@ export function DemoDetail(props: { id?: string }) @{
 
 	<Screen className="vx-app flex-1 gap-4">
 		<Row className="gap-4">
-			<Pressable id="demo-back" onPress={goBack} className="btn bg-primary">
+			{/* _stack is injected by navigate(...,{into}) — pop the stack that
+			    pushed this page (parallel stacks: several Frames alive). */}
+			<Pressable id="demo-back" onPress={() => goBack({ into: props._stack })} className="btn bg-primary">
 				<Text className="text-onprimary">← Back</Text>
 			</Pressable>
 			<Text className="text-xl font-bold">{title}</Text>

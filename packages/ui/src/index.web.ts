@@ -18,3 +18,4 @@ export { Tabs } from './Tabs.web.tsrx';
 export type { TabSpec } from './Tabs.web.tsrx';
 export { Switch } from './Switch.web.tsrx';
 export { PlatformBadge } from "./PlatformBadge.web.tsrx";
+export { registerStack, getStack } from './stacks.web';

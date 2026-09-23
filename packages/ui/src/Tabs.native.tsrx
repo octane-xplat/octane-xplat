@@ -1,12 +1,16 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { memo } from 'octane';
-import { ContentView, TabView, TabViewItem } from '@nativescript/core';
+import { ContentView, Frame, Page, TabView, TabViewItem } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
+import { registerStack } from './stacks.native';
 
 export interface TabSpec {
 	title: string;
 	render: () => any;
+	/** Named parallel stack: the pane hosts its own Frame — pushes into it
+	 *  stay inside the tab (tab bar stays visible). navigate(..., {into}). */
+	stack?: string;
 }
 
 // TabViewItem content is a plain native view — the driver can't parent
@@ -25,10 +29,34 @@ function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
 	let items = itemsCache.get(tabs);
 	if (items !== undefined) return items;
 	items = tabs.map((t) => {
-		const cv = new ContentView();
-		tabsByView.set(cv, t.render);
 		const item = new TabViewItem();
 		item.title = t.title;
+		if (t.stack) {
+			// Parallel-stack pane: the item's view IS a Frame whose default
+			// page hosts the pane's own Octane root. Pushes land inside the
+			// tab; the tab bar stays visible.
+			// Navigate on `loaded`, not eagerly: a navigate issued before the
+			// frame enters the window hierarchy leaves _executingContext
+			// stuck (iOS's delegate never sees didShow) and every later push
+			// queues forever.
+			const frame = new Frame();
+			frame.once('loaded', () => {
+				frame.navigate({
+					create: () => {
+						const page = new Page();
+						page.actionBarHidden = true;
+						createNativeScriptRoot(page).render(
+							TabPane as unknown as UniversalComponent, { render: t.render });
+						return page;
+					},
+				});
+			});
+			registerStack(t.stack, frame);
+			item.view = frame;
+			return item;
+		}
+		const cv = new ContentView();
+		tabsByView.set(cv, t.render);
 		item.view = cv;
 		return item;
 	});
@@ -42,7 +70,7 @@ function mountPanes(e: any) {
 	const tv = e.object as TabView;
 	for (const item of tv.items as TabViewItem[]) {
 		const cv = item.view as ContentView;
-		if (paneRoots.has(cv)) continue;
+		if (!(cv instanceof ContentView) || paneRoots.has(cv)) continue;
 		const render = tabsByView.get(cv);
 		if (!render) continue;
 		const root = createNativeScriptRoot(cv);

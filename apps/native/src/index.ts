@@ -1,7 +1,7 @@
 import { Application, Frame, ListView, Page, Trace } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
-import { getColorScheme } from '@xplat/ui';
+import { getColorScheme, registerStack } from '@xplat/ui';
 import { storage } from '@xplat/app';
 import './app.css';
 
@@ -33,6 +33,9 @@ function createWindowContent(): Frame {
     console.log('[harness] render threw: ' + ((e as Error)?.stack || e));
   }
   frame.navigate({ create: () => page });
+  // The root frame is the default nav target — registered by name because
+  // Frame.topmost() is ambiguous once nested per-tab stacks exist.
+  registerStack('root', frame);
   return frame;
 }
 

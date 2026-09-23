@@ -14,12 +14,13 @@ import './platform/demosweep';
 // get universal lowering (compile error) — a standalone arrow can.
 const renderHome = () => <Home />;
 const renderSettings = () => <Settings />;
-// Chips navigate — each demo runs on its own pushed Page/root.
-const renderDemos = () => <Gallery onOpen={(id) => navigate('demo', { id })} />;
+// Chips navigate inside the tab's own stack — the Demos pane is a Frame
+// (TabSpec.stack), so demo pushes stay under the tab bar.
+const renderDemos = () => <Gallery onOpen={(id) => navigate('demo', { id }, { into: 'demos' })} />;
 const TABS: TabSpec[] = [
 	{ title: 'Home', render: renderHome },
 	{ title: 'Settings', render: renderSettings },
-	{ title: 'Demos', render: renderDemos },
+	{ title: 'Demos', render: renderDemos, stack: 'demos' },
 ];
 
 console.log('[harness] App module evaluated');

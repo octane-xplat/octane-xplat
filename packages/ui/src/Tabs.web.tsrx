@@ -3,6 +3,9 @@ import { useState } from 'octane';
 export interface TabSpec {
 	title: string;
 	render: () => any;
+	/** Named parallel stack — native hosts a Frame per such pane; web has
+	 *  one linear URL stack (parallel stacks map to nested routes). Ignored. */
+	stack?: string;
 }
 
 /** Platform tab shell — web version: a button row + the active pane. */

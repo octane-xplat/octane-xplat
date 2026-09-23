@@ -1,10 +1,12 @@
 import { Frame, getRootLayout } from '@nativescript/core';
+import { getStack } from '@xplat/ui';
+import { goBack } from './nav';
 
 // Demo-catalog sweep probe (native only — web twin is a no-op). Lives outside
 // apps/native/src/index.ts so the harness probe timeline stays untouched.
-// The catalog navigates like an app: chips push a `demo` Page (own Octane
-// root), asserts read the pushed page via Frame.topmost(), then goBack and
-// the store-backed 'Last opened' text is asserted on the Gallery.
+// The catalog is a parallel stack: the Demos tab hosts its own Frame, so
+// pushes/pop happen inside the tab and never move Frame.topmost() — all
+// reads scope to getStack('demos').currentPage.
 // NS gestures aren't events, so tap synthesis invokes the view's
 // gesture-observer callback directly.
 function fireTap(view: any) {
@@ -22,35 +24,36 @@ function collect(view: any, out: any[] = []): any[] {
 	return out;
 }
 
-function pageTexts(): string[] {
-	const page = Frame.topmost()?.currentPage;
-	return collect(page).filter((v) => typeof v?.text === 'string' && v.text.length > 0).map((v) => v.text);
+function viewTexts(view: any): string[] {
+	return collect(view).filter((v) => typeof v?.text === 'string' && v.text.length > 0).map((v) => v.text);
 }
 
 function dump(hay: string[]): string {
 	return ' texts=' + JSON.stringify(hay.slice(-14));
 }
 
-function assertHas(name: string, needle: string) {
-	const hay = pageTexts();
+const demosPage = () => getStack('demos')?.currentPage;
+
+function assertHas(name: string, needle: string, view: any = demosPage()) {
+	const hay = viewTexts(view);
 	const ok = hay.includes(needle);
 	console.log('[assert] ' + name + ': ' + (ok ? 'OK' : 'FAIL') + ' (' + JSON.stringify(needle) + ')' + (ok ? '' : dump(hay)));
 }
 
-function assertMatch(name: string, re: RegExp) {
-	const hay = pageTexts();
+function assertMatch(name: string, re: RegExp, view: any = demosPage()) {
+	const hay = viewTexts(view);
 	const ok = hay.some((t) => re.test(t));
 	console.log('[assert] ' + name + ': ' + (ok ? 'OK' : 'FAIL') + ' (' + re + ')' + (ok ? '' : dump(hay)));
 }
 
-// Pushed-page chips (find via topmost page); sheet host sits on the app's
-// RootLayout, a sibling of every page — read it from there.
-const find = (id: string) => Frame.topmost()?.currentPage?.getViewById?.(id);
+// Chips live on the demos stack's current page; the sheet host sits on the
+// app's RootLayout, a sibling of every page — read it from there.
+const find = (id: string) => demosPage()?.getViewById?.(id);
 const findOnRoot = (id: string) => getRootLayout()?.getViewById?.(id);
 
 interface Step {
 	id: string;
-	/** ms to hold the pushed page before goBack. Default 1100. */
+	/** ms to hold the pushed page before goBack. Default 900. */
 	hold?: number;
 	checks: { at: number; run: () => void }[];
 }
@@ -84,8 +87,8 @@ const STEPS: Step[] = [
 	{ id: 'vlist', checks: [{ at: 800, run: () => assertHas('demo vlist', '500 rows') }] },
 	// Fake fetch resolves ~600ms post-mount. The 'Loading…' transient isn't
 	// asserted: nav-push settle polling eats it (page mounts at navigate()
-	// time, becomes topmost ~500ms later — the loading state can lapse
-	// mid-transition). Data arrival is the meaningful assert.
+	// time, becomes the frame's currentPage ~500ms later — the loading
+	// state can lapse mid-transition). Data arrival is the meaningful check.
 	{
 		id: 'weather',
 		checks: [{ at: 1000, run: () => assertMatch('demo weather data', /°/) }],
@@ -102,8 +105,9 @@ const STEPS: Step[] = [
 	},
 ];
 
-/** Poll until `cond` or give up (~2s), then continue. Push/pop transitions
- *  flip Frame.topmost() asynchronously — fixed offsets race them. */
+/** Poll until `cond` or give up (~2s), then continue. Nested-frame push/pop
+ *  transitions update frame.currentPage asynchronously — fixed offsets
+ *  race them. */
 function waitFor(cond: () => boolean, then: () => void, tries = 20) {
 	const tick = () => {
 		if (cond() || --tries <= 0) then();
@@ -115,14 +119,14 @@ function waitFor(cond: () => boolean, then: () => void, tries = 20) {
 let galleryPage: any = null;
 
 setTimeout(() => {
-	const tv = find('app-tabs');
+	const tv = Frame.topmost()?.currentPage?.getViewById?.('app-tabs');
 	console.log('[sweep] switching to Demos tab, tabview=' + (tv ? tv.constructor.name : 'none'));
 	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any);
 }, 9600);
 
 setTimeout(() => {
-	galleryPage = Frame.topmost()?.currentPage;
-	console.log('[sweep] gallery page=' + (galleryPage ? galleryPage.constructor.name : 'none'));
+	galleryPage = demosPage();
+	console.log('[sweep] demos stack=' + (getStack('demos') ? 'registered' : 'MISSING') + ' gallery=' + (galleryPage ? galleryPage.constructor.name : 'none'));
 	runStep(0);
 }, 10300);
 
@@ -131,12 +135,12 @@ function runStep(i: number) {
 	const step = STEPS[i];
 	const chip = find('menu-' + step.id);
 	console.log('[sweep] menu-' + step.id + ' tap observers=' + fireTap(chip));
-	waitFor(() => Frame.topmost()?.currentPage !== galleryPage, () => {
+	waitFor(() => demosPage() !== galleryPage, () => {
 		for (const c of step.checks) setTimeout(c.run, c.at);
 		setTimeout(() => {
 			console.log('[sweep] goBack ' + step.id);
-			Frame.topmost()?.goBack();
-			waitFor(() => Frame.topmost()?.currentPage === galleryPage, () => {
+			goBack({ into: 'demos' });
+			waitFor(() => demosPage() === galleryPage, () => {
 				assertHas('lastDemo ' + step.id, 'Last opened: ' + step.id);
 				setTimeout(() => runStep(i + 1), 150);
 			});
