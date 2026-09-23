@@ -33,6 +33,7 @@ body {
 
 .shell {
 	height: 100vh;
+	height: 100dvh; /* mobile browser chrome eats plain vh */
 	display: flex;
 	flex-direction: column;
 	background-color: var(--nb-bg);
@@ -494,13 +495,14 @@ body {
 		border-bottom-width: 4px;
 		flex-shrink: 0;
 	}
-	.side .vx-list { display: flex; flex-direction: row; flex-grow: 0; }
+	.side .vx-list { display: flex; flex-direction: row; flex-grow: 0; flex-shrink: 0; }
 	.side-head { padding: 10px 6px 10px 12px; font-size: 10px; flex-shrink: 0; }
 	.side-item {
 		flex-shrink: 0;
-		padding: 10px 14px;
+		padding: 14px 16px;
 		border-bottom-width: 0;
 		border-right-width: 2px;
+		white-space: nowrap;
 	}
 
 	/* content: tighter canvas, smaller type scale */
@@ -513,4 +515,28 @@ body {
 	.code .mono, .code Text { font-size: 12px; }
 	.callout { padding: 10px 12px 12px; }
 	.td { padding: 8px 10px; font-size: 12px; }
+
+	/* wide tables scroll horizontally instead of squashing columns */
+	.table { overflow-x: auto; }
+	.tr { min-width: 460px; }
+}
+
+/* ——— narrow phones ——— */
+@media (max-width: 400px) {
+	.brand { font-size: 15px; }
+	.logo-tile { width: 30px; height: 36px; }
+	.disc-chip { padding: 3px 7px; }
+	.disc-text { font-size: 8px; }
+	.topbar-mid { padding: 8px; gap: 10px; }
+	.mode-block { padding: 8px 10px; }
+}
+
+/* ——— tablet ——— */
+@media (min-width: 721px) and (max-width: 1100px) {
+	.side { width: 190px; }
+	.side-item { padding: 11px 16px; }
+	.doc { padding: 32px 36px; }
+	.h1 { font-size: 32px; }
+	.brand-block { padding: 14px 20px 14px 14px; }
+	.tagline { letter-spacing: 0.12em; }
 }
