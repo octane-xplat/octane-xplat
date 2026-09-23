@@ -51,24 +51,73 @@ body {
 
 .brand-block {
 	background-color: var(--nb-red);
-	padding: 18px 28px;
+	padding: 14px 28px 14px 14px;
 	border-right-width: 4px;
 	border-right-color: var(--nb-ink);
 	border-right-style: solid;
+	flex-direction: row;
+	align-items: center;
+	gap: 14px;
+}
+
+/* pixel flame — the logo mark; drawn as an SVG data-URI so pixels stay hard */
+.logo-tile {
+	width: 44px;
+	height: 50px;
+	background-color: var(--nb-panel);
+	border-width: 4px;
+	border-color: var(--nb-ink);
+	border-style: solid;
+	box-shadow: var(--nb-sh-s);
+	align-items: center;
+	justify-content: center;
+	transform: rotate(-2deg);
+}
+
+.logo-flame {
+	width: 22px;
+	height: 29px;
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 13' shape-rendering='crispEdges'><rect x='4' y='0' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='1' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='1' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='2' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='2' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='2' width='1' height='1' fill='%23FF6B6B'/><rect x='0' y='3' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='3' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='3' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='3' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='4' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='4' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='4' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='4' width='1' height='1' fill='%23FF6B6B'/><rect x='9' y='4' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='5' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='5' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='5' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='5' width='1' height='1' fill='%23FF6B6B'/><rect x='8' y='5' width='1' height='1' fill='%23FF6B6B'/><rect x='9' y='5' width='1' height='1' fill='%23FF6B6B'/><rect x='1' y='6' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='6' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='6' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='6' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='6' width='1' height='1' fill='%23FF6B6B'/><rect x='6' y='6' width='1' height='1' fill='%23FF6B6B'/><rect x='8' y='6' width='1' height='1' fill='%23FF6B6B'/><rect x='9' y='6' width='1' height='1' fill='%23FF6B6B'/><rect x='1' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='6' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='7' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='8' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='9' y='7' width='1' height='1' fill='%23FF6B6B'/><rect x='0' y='8' width='1' height='1' fill='%23FF6B6B'/><rect x='1' y='8' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='8' width='1' height='1' fill='%23FFD93D'/><rect x='3' y='8' width='1' height='1' fill='%23FFD93D'/><rect x='4' y='8' width='1' height='1' fill='%23FFD93D'/><rect x='5' y='8' width='1' height='1' fill='%23FFD93D'/><rect x='6' y='8' width='1' height='1' fill='%23FF6B6B'/><rect x='7' y='8' width='1' height='1' fill='%23FF6B6B'/><rect x='8' y='8' width='1' height='1' fill='%23FF6B6B'/><rect x='9' y='8' width='1' height='1' fill='%23FF6B6B'/><rect x='0' y='9' width='1' height='1' fill='%23FF6B6B'/><rect x='1' y='9' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='9' width='1' height='1' fill='%23FFD93D'/><rect x='3' y='9' width='1' height='1' fill='%23FFD93D'/><rect x='4' y='9' width='1' height='1' fill='%23FFD93D'/><rect x='5' y='9' width='1' height='1' fill='%23FFD93D'/><rect x='6' y='9' width='1' height='1' fill='%23FFD93D'/><rect x='7' y='9' width='1' height='1' fill='%23FF6B6B'/><rect x='8' y='9' width='1' height='1' fill='%23FF6B6B'/><rect x='9' y='9' width='1' height='1' fill='%23FF6B6B'/><rect x='0' y='10' width='1' height='1' fill='%23FF6B6B'/><rect x='1' y='10' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='10' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='10' width='1' height='1' fill='%23FFD93D'/><rect x='4' y='10' width='1' height='1' fill='%23FFD93D'/><rect x='5' y='10' width='1' height='1' fill='%23FFD93D'/><rect x='6' y='10' width='1' height='1' fill='%23FF6B6B'/><rect x='7' y='10' width='1' height='1' fill='%23FF6B6B'/><rect x='8' y='10' width='1' height='1' fill='%23FF6B6B'/><rect x='1' y='11' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='11' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='11' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='11' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='11' width='1' height='1' fill='%23FF6B6B'/><rect x='6' y='11' width='1' height='1' fill='%23FF6B6B'/><rect x='7' y='11' width='1' height='1' fill='%23FF6B6B'/><rect x='2' y='12' width='1' height='1' fill='%23FF6B6B'/><rect x='3' y='12' width='1' height='1' fill='%23FF6B6B'/><rect x='4' y='12' width='1' height='1' fill='%23FF6B6B'/><rect x='5' y='12' width='1' height='1' fill='%23FF6B6B'/><rect x='6' y='12' width='1' height='1' fill='%23FF6B6B'/></svg>");
+	background-size: contain;
+	background-repeat: no-repeat;
+	image-rendering: pixelated;
 }
 
 .brand {
 	color: var(--nb-onblock);
-	font-size: 22px;
-	font-weight: 900;
-	letter-spacing: 1px;
+	font-family: 'Silkscreen', monospace;
+	font-size: 24px;
+	font-weight: 700;
+	letter-spacing: 2px;
 	text-transform: uppercase;
 }
 
 .topbar-mid {
 	flex-grow: 1;
 	padding: 18px 24px;
+	flex-direction: row;
+	align-items: center;
 	justify-content: flex-end;
+	gap: 18px;
+}
+
+/* prominent, on-brand: a slapped-on sticker */
+.disc-chip {
+	background-color: var(--nb-violet);
+	border-width: 3px;
+	border-color: var(--nb-ink);
+	border-style: solid;
+	box-shadow: var(--nb-sh-s);
+	padding: 5px 10px;
+	transform: rotate(2deg);
+}
+
+.disc-text {
+	color: var(--nb-onblock);
+	font-size: 11px;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
 }
 
 .tagline {

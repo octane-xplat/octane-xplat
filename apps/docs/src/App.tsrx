@@ -25,8 +25,14 @@ export function App() @{
 	// De Stijl shell: orthogonal grid, black rules, primary blocks.
 	<View className={['shell', dark ? 'dark' : 'light']}>
 		<Row className="topbar">
-			<View className="brand-block"><Text className="brand">octane-xplat</Text></View>
-			<View className="topbar-mid"><Text className="tagline">one codebase — web · ios · android</Text></View>
+			<View className="brand-block">
+				<View className="logo-tile"><View className="logo-flame" /></View>
+				<Text className="brand">xplat</Text>
+			</View>
+			<View className="topbar-mid">
+				<View className="disc-chip"><Text className="disc-text">not affiliated with octane</Text></View>
+				<Text className="tagline">one codebase — web · ios · android</Text>
+			</View>
 			<Pressable className="mode-block" onPress={() => setOverride(!dark)}>
 				<Text className="mode-text">{dark ? 'light' : 'dark'}</Text>
 			</Pressable>
