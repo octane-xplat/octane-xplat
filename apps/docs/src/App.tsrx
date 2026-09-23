@@ -1,7 +1,8 @@
-import { useState } from 'octane';
+import { useState, useEffect } from 'octane';
 import { View, Row, Text, Pressable, List, ScrollView, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
 import { DOCS, type DocPage } from './docs';
 import { MdDoc } from './MdDoc.tsrx';
+import { resetDocScroll } from './scroll';
 
 export function App() @{
 	const [override, setOverride] = useState<boolean | null>(null);
@@ -12,7 +13,9 @@ export function App() @{
 	const slug = (route?.params?.page as string) || DOCS[0].slug;
 	const doc = DOCS.find((d) => d.slug === slug) ?? DOCS[0];
 
-	const open = (s: string) => pushRoute({ stack: 'root', name: 'doc', params: { page: s } });
+	const open = (s: string) => { pushRoute({ stack: 'root', name: 'doc', params: { page: s } }); resetDocScroll(); };
+	// Safety net for navs that flow through octane's commit path.
+	useEffect(() => { resetDocScroll(); }, [doc.slug]);
 	const renderDoc = (d: DocPage) => (
 		<Pressable className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => open(d.slug)}>
 			<Text className="side-text">{d.title.toLowerCase()}</Text>
@@ -32,7 +35,7 @@ export function App() @{
 			<View className="side">
 				<List items={DOCS} renderItem={renderDoc} />
 			</View>
-			<ScrollView className="content">
+			<ScrollView id="doc-content" className="content">
 				<MdDoc md={doc.md} dark={dark} />
 			</ScrollView>
 		</Row>

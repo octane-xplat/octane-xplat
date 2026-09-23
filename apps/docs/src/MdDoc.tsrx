@@ -8,6 +8,7 @@ import langJsonc from 'shiki/langs/jsonc.mjs';
 import themeDark from 'shiki/themes/vitesse-dark.mjs';
 import themeLight from 'shiki/themes/vitesse-light.mjs';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
+import { resetDocScroll } from './scroll';
 
 // JS regex engine — no wasm fetch, fully sync. Code blocks stay inverted
 // (ink bg vs field), so dark mode takes light-theme tokens and vice versa.
@@ -57,7 +58,7 @@ function SpanText(props: { s: Span }) @{
 	if (s.href) {
 		const slug = docSlug(s.href);
 		if (slug) {
-			return <a className={cls} href={'/doc?page=' + slug} onClick={(e: MouseEvent) => { e.preventDefault(); pushRoute({ stack: 'root', name: 'doc', params: { page: slug } }); }}>{s.text}</a>;
+			return <a className={cls} href={'/doc?page=' + slug} onClick={(e: MouseEvent) => { e.preventDefault(); pushRoute({ stack: 'root', name: 'doc', params: { page: slug } }); resetDocScroll(); }}>{s.text}</a>;
 		}
 		return <a className={cls} href={extUrl(s.href)} target="_blank" rel="noopener">{s.text}</a>;
 	}
