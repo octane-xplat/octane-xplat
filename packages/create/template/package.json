@@ -4,6 +4,7 @@
   "type": "module",
   "main": "src/native.ts",
   "scripts": {
+    "xplat": "xplat",
     "dev": "vite",
     "dev:ios": "ns run ios",
     "dev:android": "ns run android",
@@ -25,6 +26,7 @@
     "@nativescript/ios": "9.1.0",
     "@nativescript/types": "9.0.0",
     "@nativescript/vite": "8.0.11",
+    "@octane-xplat/cli": "^0.1.0",
     "@octanejs/vite-plugin": "0.1.58",
     "@tsrx/typescript-plugin": "0.4.7",
     "nativescript": "9.1.1",
