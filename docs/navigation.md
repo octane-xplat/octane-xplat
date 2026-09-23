@@ -49,6 +49,24 @@
 > `isLoaded=false` after tab-selection lifecycle churn (item views skip
 > the normal parent/load path), which defers the whole nav queue —
 > `navigate` re-arms with `callLoaded()` when the flag is stale.
+>
+> **Lab (parallel stacks, Android):** the app builds and runs on Android
+> (35 emulator, JDK 17, AGP self-provisioned) — root-frame navigation,
+> overlay/sheet/modal, gestures, and animation all pass. **Nested stacks
+> do not work yet:** `TabViewItem`-hosted Frame pushes execute
+> `NAVIGATE CORE` (the fragment transaction commits; the pushed page
+> mounts — its `useEffect`/store write proves it), but `setCurrent` never
+> runs — `TransitionListener.onTransitionEnd` doesn't propagate from the
+> child `FragmentManager` under a `TabViewItem`. `currentPage`/`backStack`
+> stay frozen, `goBack` no-ops (bare `GO BACK`, no CORE), and pages
+> accumulate natively. `animated:false` does not rescue — the completion
+> hook itself never fires, not merely the animation. Needs an upstream
+> fix or a different shell construction (swap-style tabs, or a single
+> frame with replace semantics). iOS remains green (48/48). Also on
+> Android `Frame.topmost()` returns the *innermost* frame — all
+> root-level reads must use the registered `'root'` stack. Smaller
+> divergences seen once, uncharacterized: `dark class` absent, list
+> cell-restore, `anim settled` timing, one `modal texts` flake.
 
 ## The contract
 

@@ -1,4 +1,4 @@
-import { Frame, getRootLayout } from '@nativescript/core';
+import { getRootLayout } from '@nativescript/core';
 import { getStack } from '@xplat/ui';
 import { goBack } from './nav';
 
@@ -119,7 +119,9 @@ function waitFor(cond: () => boolean, then: () => void, tries = 20) {
 let galleryPage: any = null;
 
 setTimeout(() => {
-	const tv = Frame.topmost()?.currentPage?.getViewById?.('app-tabs');
+	// Frame.topmost() is unreliable once nested stacks exist — on Android it
+	// returns the innermost frame. The boot registers the app frame as 'root'.
+	const tv = getStack('root')?.currentPage?.getViewById?.('app-tabs');
 	console.log('[sweep] switching to Demos tab, tabview=' + (tv ? tv.constructor.name : 'none'));
 	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any);
 }, 9600);
