@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, PlatformBadge } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge } from '@xplat/ui';
 import { openDetail } from './platform/nav';
 import { openOverlay } from './platform/overlay';
 
@@ -27,6 +27,7 @@ export function Home() @{
 	const darkMark = useRef(0);
 	const [text, setText] = useState('');
 	const [items, setItems] = useState(INITIAL);
+	const [modal, setModal] = useState(false);
 	console.log('[harness] Home render, items=' + items.length);
 
 	useEffect(() => {
@@ -101,7 +102,21 @@ export function Home() @{
 			<Pressable id="overlay-btn" onPress={openOverlay} className="btn bg-primary">
 				<Text className="text-onprimary">Overlay</Text>
 			</Pressable>
+			<Pressable id="modal-btn" onPress={() => setModal(true)} className="btn bg-primary">
+				<Text className="text-onprimary">Modal</Text>
+			</Pressable>
 		</Row>
+
+		{/* Modal seam: declarative open → native showModal on a second root;
+		    web <dialog>. Context doesn't cross — data goes through props. */}
+		<Modal open={modal} onClose={() => setModal(false)}>
+			<View className="modal-panel">
+				<Text>Modal content</Text>
+				<Pressable id="modal-close" onPress={() => setModal(false)} className="btn bg-primary">
+					<Text className="text-onprimary">Close modal</Text>
+				</Pressable>
+			</View>
+		</Modal>
 
 		{/* Gesture seam (Exp 10): onPan/onSwipe → NS gesture events on the
 		    flexboxlayout; web leaf accepts the props, pointer plumbing

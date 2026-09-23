@@ -7,6 +7,7 @@ export { TextInput } from './TextInput.web.tsrx';
 export { List } from './List.web.tsrx';
 export { ScrollView } from './ScrollView.web.tsrx';
 export { Image } from './Image.web.tsrx';
+export { Modal } from './Modal.web.tsrx';
 export { Screen } from './Screen.web.tsrx';
 export { Tabs } from './Tabs.web.tsrx';
 export type { TabSpec } from './Tabs.web.tsrx';

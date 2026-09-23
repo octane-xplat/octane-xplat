@@ -7,6 +7,7 @@ export { TextInput } from './TextInput.native.tsrx';
 export { List } from './List.native.tsrx';
 export { ScrollView } from './ScrollView.native.tsrx';
 export { Image } from './Image.native.tsrx';
+export { Modal } from './Modal.native.tsrx';
 export { Screen } from './Screen.native.tsrx';
 export { Tabs } from './Tabs.native.tsrx';
 export type { TabSpec } from './Tabs.native.tsrx';

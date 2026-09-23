@@ -126,7 +126,15 @@ targets.
 ## The Modal seam (worst primitive leak, document early)
 
 Native modal = a separate window/sheet hosting **its own Octane root**
-(`renderNativeScriptApp` into a new `Page`/`View`, `showModal`). Consequences:
+(`renderNativeScriptApp` into a new `Page`/`View`, `showModal`). **Lab (iOS):**
+the leaf drives `presenter.showModal(view, options)` — note the signature is
+`showModal(viewToShow, options)`, not an options bag (a `{view}` first arg
+silently hits the deprecated moduleName path). Children passed as elements
+render fine inside the modal root — elements are data, evaluated in whichever
+root renders them — so `<Modal open>{children}</Modal>` works; the
+`component`/`params` contract below still stands for value-returning flows.
+Readback: `presenter.modal` exposes the modal view for assertions.
+Consequences:
 
 - Context does not cross the boundary — modal content gets a fresh root's
   context. Anything the modal needs must be passed as props/params or through

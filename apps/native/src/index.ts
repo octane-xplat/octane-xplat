@@ -203,6 +203,24 @@ setTimeout(() => {
   assertHas('sheet texts', texts(sheet), 'Sheet content');
 }, 7800);
 
+// Modal probe (Exp 12): declarative open → showModal on a second root.
+// The modal isn't under thePage — read it via presenter.modal.
+setTimeout(() => {
+  fireGesture(find('modal-btn'), 1, 'tap', {});
+}, 8000);
+setTimeout(() => {
+  const f = Frame.topmost() as any;
+  const m = f?.currentPage?.modal;
+  console.log('[probe] modal=' + (m ? m.constructor.name : 'none'));
+  assertHas('modal texts', texts(m), 'Modal content');
+  const close = m?.getViewById?.('modal-close');
+  fireGesture(close, 1, 'tap', {});
+}, 8600);
+setTimeout(() => {
+  const f = Frame.topmost() as any;
+  console.log('[assert] modal closed: ' + (f?.currentPage?.modal == null ? 'OK' : 'FAIL'));
+}, 9200);
+
 // A module-graph reload re-evaluates this entry and mounts fresh roots.
 // @ts-expect-error — vite hot types; add vite/client to tsconfig types if desired
 import.meta.hot?.dispose(() => {
