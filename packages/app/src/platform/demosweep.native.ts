@@ -1,9 +1,12 @@
-import { Frame } from '@nativescript/core';
+import { Frame, getRootLayout } from '@nativescript/core';
 
-// Demo-gallery sweep probe (native only — web twin is a no-op). Lives outside
+// Demo-catalog sweep probe (native only — web twin is a no-op). Lives outside
 // apps/native/src/index.ts so the harness probe timeline stays untouched.
-// Same technique as the entry probes: NS gestures aren't events, so tap
-// synthesis invokes the view's gesture-observer callback directly.
+// The catalog navigates like an app: chips push a `demo` Page (own Octane
+// root), asserts read the pushed page via Frame.topmost(), then goBack and
+// the store-backed 'Last opened' text is asserted on the Gallery.
+// NS gestures aren't events, so tap synthesis invokes the view's
+// gesture-observer callback directly.
 function fireTap(view: any) {
 	const observers = view?.getGestureObservers?.(1) ?? [];
 	for (const o of observers) {
@@ -40,62 +43,103 @@ function assertMatch(name: string, re: RegExp) {
 	console.log('[assert] ' + name + ': ' + (ok ? 'OK' : 'FAIL') + ' (' + re + ')' + (ok ? '' : dump(hay)));
 }
 
+// Pushed-page chips (find via topmost page); sheet host sits on the app's
+// RootLayout, a sibling of every page — read it from there.
 const find = (id: string) => Frame.topmost()?.currentPage?.getViewById?.(id);
+const findOnRoot = (id: string) => getRootLayout()?.getViewById?.(id);
 
-// Schedule: entry probes run to ~5.2s; the sweep starts at 6s. Each step taps
-// a menu chip, then the following step asserts the new demo's content.
-const STEPS: { id: string; checks: { at: number; run: () => void }[] }[] = [
+interface Step {
+	id: string;
+	/** ms to hold the pushed page before goBack. Default 1100. */
+	hold?: number;
+	checks: { at: number; run: () => void }[];
+}
+
+const STEPS: Step[] = [
 	{
 		id: 'counter',
+		hold: 1900,
 		checks: [
-			{ at: 250, run: () => assertHas('demo counter', 'Demo count: 0') },
-			// else arm at mount, then flip → then arm, then flip back → else arm.
-			{ at: 300, run: () => assertHas('if else mount', 'arm-B') },
-			{ at: 500, run: () => fireTap(find('if-toggle')) },
-			{ at: 900, run: () => assertHas('if then swap', 'arm-A') },
-			{ at: 1050, run: () => fireTap(find('if-toggle')) },
-			{ at: 1350, run: () => assertHas('if else swap', 'arm-B') },
+			{ at: 350, run: () => assertHas('demo counter', 'Demo count: 0') },
+			{ at: 400, run: () => assertHas('if else mount', 'arm-B') },
+			{ at: 550, run: () => fireTap(find('if-toggle')) },
+			{ at: 800, run: () => assertHas('if then swap', 'arm-A') },
+			// Same component, third root: open this demo inside the sheet.
+			{ at: 900, run: () => fireTap(find('demo-sheet')) },
+			{
+				at: 1400,
+				run: () => {
+					const host = findOnRoot('sheet-host');
+					const ok = collect(host).some((v) => typeof v?.text === 'string' && v.text.includes('Demo count'));
+					console.log('[assert] sheet hosts demo: ' + (ok ? 'OK' : 'FAIL') + ' — same component in sheet root');
+				},
+			},
 		],
 	},
-	{ id: 'watch', checks: [{ at: 900, run: () => assertMatch('demo watch', /\d{2}:\d{2}:\d{2}/) }] },
-	{ id: 'stopwatch', checks: [{ at: 900, run: () => assertHas('demo stopwatch', '0:00.0') }] },
-	{ id: 'todo', checks: [{ at: 900, run: () => assertHas('demo todo', 'Nothing yet — add one.') }] },
-	{ id: 'ttt', checks: [{ at: 900, run: () => assertHas('demo ttt', 'X to play') }] },
-	{ id: 'dialer', checks: [{ at: 900, run: () => assertHas('demo dialer', 'Enter number') }] },
-	{ id: 'vlist', checks: [{ at: 900, run: () => assertHas('demo vlist', '500 rows') }] },
-	// Fake fetch resolves ~600ms post-mount: 'Loading…' before it, '°' after —
-	// both while still on this demo (next chip taps at +1400).
+	{ id: 'watch', checks: [{ at: 800, run: () => assertMatch('demo watch', /\d{2}:\d{2}:\d{2}/) }] },
+	{ id: 'stopwatch', checks: [{ at: 800, run: () => assertHas('demo stopwatch', '0:00.0') }] },
+	{ id: 'todo', checks: [{ at: 800, run: () => assertHas('demo todo', 'Nothing yet — add one.') }] },
+	{ id: 'ttt', checks: [{ at: 800, run: () => assertHas('demo ttt', 'X to play') }] },
+	{ id: 'dialer', checks: [{ at: 800, run: () => assertHas('demo dialer', 'Enter number') }] },
+	{ id: 'vlist', checks: [{ at: 800, run: () => assertHas('demo vlist', '500 rows') }] },
+	// Fake fetch resolves ~600ms post-mount. The 'Loading…' transient isn't
+	// asserted: nav-push settle polling eats it (page mounts at navigate()
+	// time, becomes topmost ~500ms later — the loading state can lapse
+	// mid-transition). Data arrival is the meaningful assert.
 	{
 		id: 'weather',
-		checks: [
-			{ at: 350, run: () => assertHas('demo weather loading', 'Loading…') },
-			{ at: 1250, run: () => assertMatch('demo weather data', /°/) },
-		],
+		checks: [{ at: 1000, run: () => assertMatch('demo weather data', /°/) }],
 	},
-	{ id: 'anim', checks: [{ at: 900, run: () => assertHas('demo anim', 'active: none') }] },
+	{ id: 'anim', checks: [{ at: 800, run: () => assertHas('demo anim', 'active: none') }] },
 	{
 		id: 'probe',
 		checks: [
-			{ at: 350, run: () => assertHas('demo probe mount', 'plain-a n=0 renders=1') },
-			{ at: 500, run: () => fireTap(find('rp-a')) },
+			{ at: 300, run: () => assertHas('demo probe mount', 'plain-a n=0 renders=1') },
+			{ at: 450, run: () => fireTap(find('rp-a')) },
 			// memo-b's props are unchanged by the A bump — renders must stay 1.
-			{ at: 1100, run: () => assertHas('probe memo-b skipped', 'memo-b n=0 renders=1') },
-			{ at: 1150, run: () => console.log('[sweep] probe tree ' + JSON.stringify(pageTexts())) },
+			{ at: 950, run: () => assertHas('probe memo-b skipped', 'memo-b n=0 renders=1') },
 		],
 	},
 ];
+
+/** Poll until `cond` or give up (~2s), then continue. Push/pop transitions
+ *  flip Frame.topmost() asynchronously — fixed offsets race them. */
+function waitFor(cond: () => boolean, then: () => void, tries = 20) {
+	const tick = () => {
+		if (cond() || --tries <= 0) then();
+		else setTimeout(tick, 100);
+	};
+	tick();
+}
+
+let galleryPage: any = null;
 
 setTimeout(() => {
 	const tv = find('app-tabs');
 	console.log('[sweep] switching to Demos tab, tabview=' + (tv ? tv.constructor.name : 'none'));
 	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any);
-}, 6000);
+}, 9600);
 
-STEPS.forEach((step, i) => {
-	const t0 = 7000 + i * 1400;
-	setTimeout(() => {
-		const chip = find('menu-' + step.id);
-		console.log('[sweep] menu-' + step.id + ' tap observers=' + fireTap(chip));
-	}, t0);
-	for (const c of step.checks) setTimeout(c.run, t0 + c.at);
-});
+setTimeout(() => {
+	galleryPage = Frame.topmost()?.currentPage;
+	console.log('[sweep] gallery page=' + (galleryPage ? galleryPage.constructor.name : 'none'));
+	runStep(0);
+}, 10300);
+
+function runStep(i: number) {
+	if (i >= STEPS.length) return;
+	const step = STEPS[i];
+	const chip = find('menu-' + step.id);
+	console.log('[sweep] menu-' + step.id + ' tap observers=' + fireTap(chip));
+	waitFor(() => Frame.topmost()?.currentPage !== galleryPage, () => {
+		for (const c of step.checks) setTimeout(c.run, c.at);
+		setTimeout(() => {
+			console.log('[sweep] goBack ' + step.id);
+			Frame.topmost()?.goBack();
+			waitFor(() => Frame.topmost()?.currentPage === galleryPage, () => {
+				assertHas('lastDemo ' + step.id, 'Last opened: ' + step.id);
+				setTimeout(() => runStep(i + 1), 150);
+			});
+		}, step.hold ?? 900);
+	});
+}

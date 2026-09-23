@@ -1,5 +1,5 @@
 // Web seam — harness stub; a real sheet is a fixed-position layer.
-export function openSheet() {
+export function openSheet(_Component?: unknown, _props?: Record<string, unknown>) {
 	console.log('[probe] sheet open (web stub)');
 }
 export function closeSheet() {

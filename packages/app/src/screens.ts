@@ -1,4 +1,5 @@
 import { Detail } from './Detail.tsrx';
+import { DemoDetail } from './DemoDetail.tsrx';
 
 /**
  * Shared route table (navigation.md: the *table* is shared; web assigns URLs,
@@ -6,6 +7,7 @@ import { Detail } from './Detail.tsrx';
  */
 export const screens = {
 	detail: Detail,
+	demo: DemoDetail,
 } as const;
 
 export type RouteName = keyof typeof screens;

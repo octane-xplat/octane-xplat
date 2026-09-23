@@ -4,9 +4,12 @@ import type { UniversalComponent } from 'octane/universal';
 import { SheetPanel } from '../SheetPanel.tsrx';
 
 let host: ContentView | null = null;
+let hostRoot: ReturnType<typeof createNativeScriptRoot> | null = null;
 
-/** Bottom-anchored sheet: RootLayout.open with a dedicated sub-root. */
-export function openSheet() {
+/** Bottom-anchored sheet: RootLayout.open with a dedicated sub-root.
+ *  Content is parameterized — callers pass any component (e.g. a demo
+ *  render fn); defaults to the SheetPanel probe panel. */
+export function openSheet(Component: unknown = SheetPanel, props: Record<string, unknown> = {}) {
 	const rl = getRootLayout();
 	if (!rl) {
 		console.log('[probe] sheet: no rootlayout found');
@@ -17,8 +20,9 @@ export function openSheet() {
 		host.id = 'sheet-host';
 		// Bottom-dock the sheet inside the RootLayout grid.
 		host.verticalAlignment = 'bottom';
-		createNativeScriptRoot(host).render(SheetPanel as unknown as UniversalComponent, {});
+		hostRoot = createNativeScriptRoot(host);
 	}
+	hostRoot!.render(Component as UniversalComponent, props);
 	rl.open(host, {
 		shadeCover: { opacity: 0.4, tapToClose: true },
 		animation: {

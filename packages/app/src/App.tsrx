@@ -3,6 +3,7 @@ import { Screen, Tabs } from '@xplat/ui';
 import { Home } from './Home.tsrx';
 import { Settings } from './Settings.tsrx';
 import { Gallery } from '@xplat/demos';
+import { navigate } from './platform/nav';
 import type { TabSpec } from '@xplat/ui';
 // Probe-only module: schedules the demo-gallery sweep on native; no-op on web.
 import './platform/demosweep';
@@ -13,7 +14,8 @@ import './platform/demosweep';
 // get universal lowering (compile error) — a standalone arrow can.
 const renderHome = () => <Home />;
 const renderSettings = () => <Settings />;
-const renderDemos = () => <Gallery />;
+// Chips navigate — each demo runs on its own pushed Page/root.
+const renderDemos = () => <Gallery onOpen={(id) => navigate('demo', { id })} />;
 const TABS: TabSpec[] = [
 	{ title: 'Home', render: renderHome },
 	{ title: 'Settings', render: renderSettings },

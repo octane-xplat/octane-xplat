@@ -24,7 +24,9 @@ export function Settings() @{
 				onCheckedChange={(v) => { console.log('[probe] switch analytics -> ' + v); setAnalytics(v); }}
 			/>
 		</Row>
-		<Pressable id="sheet-btn" onPress={openSheet} className="btn bg-primary">
+		{/* onPress passes the tap event — wrap; openSheet's first arg is the
+		    content component, not the event. */}
+		<Pressable id="sheet-btn" onPress={() => openSheet()} className="btn bg-primary">
 			<Text className="text-onprimary">Open sheet</Text>
 		</Pressable>
 	</Screen>

@@ -21,6 +21,19 @@
 > registry — native resolves `screens[name]` inside `frame.navigate({create})`
 > and passes `params` as the pushed root's props; `from=home` arrived as
 > `props.from` on Detail. Web leaf serializes params into the hash URL.
+>
+> **Lab (app-surface, iOS):** the demo catalog now navigates like an app —
+> each of 10 demos pushes `demo` (own Page + Octane root) via
+> `navigate('demo', {id})`, `goBack` pops, and a module-scope store
+> (`useSyncExternalStore`) proves state crosses roots reactively where
+> context cannot (`Last opened` updates on the Gallery after pop). Same
+> component mounts in a third root via `openSheet(renderFn)`. Findings:
+> (a) `Frame.topmost().currentPage` flips ~500ms after `navigate` —
+> transitions are async; probe/assert code must poll for settle, never
+> read at a fixed offset (a transient 'Loading…' state can lapse
+> mid-transition). (b) `onPress={fn}` passes the tap event — a
+> parameterized entry like `openSheet(Component)` silently receives the
+> event; wrap in an arrow at callback call sites.
 
 ## The contract
 

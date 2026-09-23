@@ -10,8 +10,9 @@ import { VirtualList } from './VirtualList.tsrx';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
+import { useLastDemo } from './store.tsrx';
 
-const DEMOS = [
+export const DEMOS = [
 	{ id: 'counter', title: 'Counter' },
 	{ id: 'watch', title: 'Watch' },
 	{ id: 'stopwatch', title: 'Stopwatch' },
@@ -42,7 +43,7 @@ const renderWeather = () => <Weather />;
 const renderAnim = () => <AnimShowcase />;
 const renderProbe = () => <ReactiveProbe />;
 
-const RENDER: Record<string, () => any> = {
+export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
 	watch: renderWatch,
 	stopwatch: renderStopwatch,
@@ -55,27 +56,36 @@ const RENDER: Record<string, () => any> = {
 	probe: renderProbe,
 };
 
-/** Demo launcher — chip menu + render-map dispatch.
- *  Mount/unmount per selection is deliberate: leaving a demo must run its
- *  effect cleanup (watch/stopwatch timers die on switch — check the logs).
- *  Mounted as the 'Demos' tab in App.tsrx. */
-export function Gallery() @{
+/** Demo launcher — chip menu. Two modes:
+ *  - `onOpen` provided (app shell): chips delegate — App navigates to the
+ *    `demo` route; each demo runs on its own pushed Page/root.
+ *  - `onOpen` absent (standalone catalog): chips swap an inline render map.
+ *  `Last opened` reads the module store — it updates after nav pops back,
+ *  proving module-scope state crosses roots (context never does). */
+export function Gallery(props: { onOpen?: (id: string) => void }) @{
 	const [demo, setDemo] = useState('counter');
-	console.log('[demo] Gallery render demo=' + demo);
+	const last = useLastDemo();
+	const open = (id: string) => {
+		console.log('[probe] demo -> ' + id);
+		if (props.onOpen) props.onOpen(id); else setDemo(id);
+	};
 	<Screen className="vx-app flex-1 gap-4">
+		<Text className="chip-off">{'Last opened: ' + (last ?? '—')}</Text>
 		<Row className="demo-menu">
 			@for (const d of DEMOS; key d.id) {
 				<Pressable
 					id={'menu-' + d.id}
-					onPress={() => { console.log('[probe] demo -> ' + d.id); setDemo(d.id); }}
-					className={['chip', demo === d.id ? '' : 'chip-off']}
+					onPress={() => open(d.id)}
+					className={['chip', !props.onOpen && demo === d.id ? '' : 'chip-off']}
 				>
 					<Text className="text-onprimary">{d.title}</Text>
 				</Pressable>
 			}
 		</Row>
-		<View className="flex-1">
-			{RENDER[demo]()}
-		</View>
+		@if (!props.onOpen) {
+			<View className="flex-1">
+				{RENDER[demo]()}
+			</View>
+		}
 	</Screen>
 }

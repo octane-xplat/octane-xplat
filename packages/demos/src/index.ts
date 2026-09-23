@@ -1,4 +1,3 @@
-export { Gallery } from './Gallery.tsrx';
 export { Counter } from './Counter.tsrx';
 export { Stopwatch } from './Stopwatch.tsrx';
 export { Todo } from './Todo.tsrx';
@@ -9,3 +8,5 @@ export { VirtualList } from './VirtualList.tsrx';
 export { Weather } from './Weather.tsrx';
 export { AnimShowcase } from './AnimShowcase.tsrx';
 export { ReactiveProbe } from './ReactiveProbe.tsrx';
+export { DEMOS, RENDER, Gallery } from './Gallery.tsrx';
+export { setLastDemo, useLastDemo } from './store.tsrx';
