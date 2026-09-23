@@ -40,7 +40,7 @@ and the published `.d.ts`.
 | `packages/demos` | 10 demo screens used as navigation/store payloads |
 | `apps/web`, `apps/native` | entry shells + their vite configs |
 | `docs/` | the design record — decisions ledger, domain specs, lab findings |
-| `.devin/skills/octane-xplat/` | agent skill — SKILL.md + `references/` distilled for use |
+| `.agents/skills/octane-xplat/` | agent skill — SKILL.md + `references/` distilled for use |
 
 ## Commands
 
@@ -66,7 +66,7 @@ styling, navigation, animation/gestures, platform services, toolchain,
 testing, decisions ledger, open questions. Findings carry confidence marks
 (`desk-source` vs `lab-experiment`).
 
-For agents: `.devin/skills/octane-xplat/SKILL.md` is the entry point —
+For agents: `.agents/skills/octane-xplat/SKILL.md` is the entry point —
 rules + a `references/` map to everything an agent needs (including
 `references/known-limits.md`, the honest gap list).
 
@@ -77,4 +77,4 @@ rules + a `references/` map to everything an agent needs (including
   `props.d.ts` + a thin hand-written shell instead.
 - Sheet is native-only (web stub); hardware-back pop-while-pushed is wired
   but verified only logically. Full list:
-  [known-limits](.devin/skills/octane-xplat/references/known-limits.md).
+  [known-limits](.agents/skills/octane-xplat/references/known-limits.md).
