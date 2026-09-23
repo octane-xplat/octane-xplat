@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme } from '@xplat/ui';
+import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@xplat/ui';
 import { navigate } from './platform/nav';
 import { openOverlay } from './platform/overlay';
 import { storage } from './platform/storage';
@@ -16,6 +16,8 @@ const INITIAL = [
 // every recycled cell root to re-render on each native itemLoading refire.
 const renderItem = (item: any) => <Text className="cell">{item.label}</Text>;
 const renderEmpty = () => <Text>No items</Text>;
+// styled() seam (Exp 16): variant prop → class composition, CSS-backed.
+const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-danger' } });
 const ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 // 1×1 red PNG — deterministic, no network. data: URIs decode via
 // ImageSource.fromBase64 on native; the web leaf just hands it to <img>.
@@ -111,6 +113,9 @@ export function Home() @{
 			<Pressable id="modal-btn" onPress={() => setModal(true)} className="btn bg-primary">
 				<Text className="text-onprimary">Modal</Text>
 			</Pressable>
+			<DangerBtn id="danger-btn" danger className="extra">
+				<Text className="text-onprimary">styled</Text>
+			</DangerBtn>
 		</Row>
 
 		{/* Modal seam: declarative open → native showModal on a second root;

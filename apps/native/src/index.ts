@@ -139,6 +139,10 @@ setTimeout(() => {
   storage.setString('probe-key', 'roundtrip');
   console.log('[assert] storage roundtrip: ' + (storage.getString('probe-key') === 'roundtrip' ? 'OK' : 'FAIL'));
   console.log('[assert] draft persisted: ' + (storage.getString('draft') === 'typed!' ? 'OK' : 'FAIL') + ' (' + storage.getString('draft') + ')');
+  // styled() probe (Exp 16): variant prop composes bg-danger into className.
+  const db = find('danger-btn');
+  const cls = String(db?.className ?? '');
+  console.log('[assert] styled variant: ' + (cls.includes('bg-danger') && cls.includes('extra') ? 'OK' : 'FAIL') + ' (' + cls + ')');
 }, 4900);
 
 // Navigation probe (Exp 9) — event-driven: a pushed Page commits only when

@@ -56,6 +56,8 @@
 
 .bg-primary { background-color: var(--color-primary); }
 .text-onprimary { color: var(--color-on-primary); }
+.bg-danger { background-color: #dc2626; }
+.shadow-2 { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
 
 .btn {
   padding-top: 12px;

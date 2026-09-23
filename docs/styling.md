@@ -107,6 +107,16 @@ const Card = styled(View, {
 - Dynamic variant→style escape: `style` prop still available.
 - Keeps TypeScript prop inference: `styled()` exports typed variant props.
 
+**Lab (Exp 16, iOS):** the component-factory shape hits a real universal
+constraint — component elements require the compiler-stamped
+`UNIVERSAL_COMPONENT` mark, and `@{ }`/JSX only lowers at module-level
+declarations, so `styled` can't author a component inline. The native leaf
+stamps the mark itself (`defineUniversalComponent` + `universalComponent`
+from `octane/universal` — both public); web is a plain nested `@{ }`
+component. If upstream blesses a factory path, this becomes a driver-level
+fix. Verified: `<DangerBtn danger className="extra">` →
+`btn,bg-danger,extra`; variant props are consumed, not leaked.
+
 ## Layout vocabulary honesty
 
 NS layout is a set of *classes* (stack/grid/flex/dock/absolute/wrap), not one
