@@ -1,0 +1,21 @@
+{
+  "name": "@xplat/demos",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "@xplat/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@nativescript-community/octane": "0.2.0",
+    "@nativescript/core": "9.1.2",
+    "octane": "0.4.0"
+  },
+  "peerDependencies": {
+    "octane": ">=0.1.51 <1"
+  }
+}

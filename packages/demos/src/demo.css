@@ -1,0 +1,150 @@
+/* Demo-only styles — import once in each app entry, after tokens.css:
+ *   import '@xplat/demos/demo.css';
+ * Grammar stays inside the NS∩web matrix (docs/css-support-matrix.md). */
+
+.demo-menu {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip-off {
+  opacity: 0.45;
+}
+
+.btn-dim {
+  background-color: #64748b;
+}
+
+.demo-clock {
+  font-size: 44px;
+  font-weight: bold;
+}
+
+.demo-watch-time {
+  font-size: 52px;
+  font-weight: bold;
+}
+
+.demo-watch-date {
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+.todo-check {
+  font-size: 20px;
+  width: 32px;
+  text-align: center;
+}
+
+.todo-done {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.ttt-grid {
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 264px;
+}
+
+.ttt-cell {
+  width: 88px;
+  height: 88px;
+  border-width: 1px;
+  border-color: #94a3b8;
+  align-items: center;
+  justify-content: center;
+}
+
+.ttt-mark {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.dialer-display {
+  font-size: 28px;
+  min-height: 40px;
+}
+
+.dialer-grid {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 248px;
+  gap: 8px;
+}
+
+.dialer-key {
+  width: 72px;
+  height: 72px;
+  border-radius: 36px;
+  background-color: var(--color-primary);
+  align-items: center;
+  justify-content: center;
+}
+
+.dialer-key-label {
+  color: var(--color-on-primary);
+  font-size: 24px;
+}
+
+.wx-card {
+  border-width: 1px;
+  border-color: #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.wx-icon {
+  font-size: 24px;
+  width: 40px;
+  text-align: center;
+}
+
+/* Keyframes — the only sanctioned animation path (decision #22). Props
+   limited to the verified NS set: opacity, transform (scale/rotate/
+   translate), background-color, width/height. No `animation-direction:
+   alternate` — NS supports `reverse` only, so pulses bounce via 0/50/100. */
+
+.demo-anim-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background-color: var(--color-primary);
+}
+
+@keyframes demo-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes demo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes demo-slide {
+  from { transform: translate(0px, 0px); }
+  to { transform: translate(160px, 0px); }
+}
+
+.anim-pulse {
+  animation-name: demo-pulse;
+  animation-duration: 1.2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.anim-spin {
+  animation-name: demo-spin;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.anim-slide {
+  animation-name: demo-slide;
+  animation-duration: 0.7s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+}

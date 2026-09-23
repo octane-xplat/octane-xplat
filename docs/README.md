@@ -38,6 +38,7 @@ that pass: #18–#24.
 | [css-support-matrix](css-support-matrix.md) | NS∩web allowed grammar (seeded; verify per row in prototype) |
 | [decisions](decisions.md) | Ledger — decided / provisional / forced |
 | [open-questions](open-questions.md) | Unverified seams, ranked by blast radius |
+| [demos](demos.md) | Demo suite in `packages/demos` — geastack-catalog-inspired screens, one seam each |
 
 ## What we do *not* own (upstream covers it)
 

@@ -14,6 +14,7 @@
     "@nativescript/core": "9.1.2",
     "@valor/nativescript-websockets": "2.0.3",
     "@xplat/app": "workspace:*",
+    "@xplat/demos": "workspace:*",
     "@xplat/ui": "workspace:*",
     "octane": "0.4.0"
   },

@@ -32,6 +32,9 @@ importers:
       '@xplat/app':
         specifier: workspace:*
         version: link:../../packages/app
+      '@xplat/demos':
+        specifier: workspace:*
+        version: link:../../packages/demos
       '@xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -72,6 +75,9 @@ importers:
       '@xplat/app':
         specifier: workspace:*
         version: link:../../packages/app
+      '@xplat/demos':
+        specifier: workspace:*
+        version: link:../../packages/demos
       '@xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -90,6 +96,22 @@ importers:
         version: 8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1)
 
   packages/app:
+    dependencies:
+      '@xplat/ui':
+        specifier: workspace:*
+        version: link:../ui
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.0
+        version: 0.2.0(patch_hash=06fe22259d57927e8f67d890aebdb54f0e9b2b5d4478b5f48b2d11cc4c5a29c2)(@nativescript/core@9.1.2)(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 9.1.2
+        version: 9.1.2
+      octane:
+        specifier: 0.4.0
+        version: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
+
+  packages/demos:
     dependencies:
       '@xplat/ui':
         specifier: workspace:*
