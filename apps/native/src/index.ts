@@ -94,6 +94,10 @@ setTimeout(() => {
   console.log('[probe] panbox=' + (v ? v.constructor.name : 'none'));
   fireGesture(v, 8, 'pan', { deltaX: 12, deltaY: -4, state: 2 });
   fireGesture(v, 16, 'swipe', { direction: 1 });
+  // Normalized payload lands on the view (state 2 → 'moved').
+  setTimeout(() => {
+    console.log('[assert] pan normalized: ' + ((v as any)?.lastPanState === 'moved' ? 'OK' : 'FAIL') + ' (' + (v as any)?.lastPanState + ')');
+  }, 100);
 }, 1700);
 
 // Tab probe (Exp 11): selectedIndexChanged is a real property event, so

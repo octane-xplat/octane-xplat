@@ -129,14 +129,18 @@ export function Home() @{
 			</View>
 		</Modal>
 
-		{/* Gesture seam (Exp 10): onPan/onSwipe → NS gesture events on the
-		    flexboxlayout; web leaf accepts the props, pointer plumbing
-		    pending. */}
+		{/* Gesture seam (Exp 10/17): onPan/onSwipe → NS gesture events on the
+		    flexboxlayout; payloads normalized to {dx,dy,state:'moved'|...}.
+		    Web leaf plumbs pointer events itself (pointermove isn't
+		    delegated by the DOM renderer). */}
 		<View
 			id="pan-box"
 			className="panbox"
 			style={{ padding: 16 }}
-			onPan={(e) => console.log('[probe] pan d=' + e.deltaX + ',' + e.deltaY + ' state=' + e.state)}
+			onPan={(e) => {
+				(e.target as any).lastPanState = e.state;
+				console.log('[probe] pan dx=' + e.dx + ' dy=' + e.dy + ' state=' + e.state);
+			}}
 			onSwipe={(e) => console.log('[probe] swipe dir=' + e.direction)}
 		>
 			<Pressable onPress={openOverlay} className="btn bg-primary">

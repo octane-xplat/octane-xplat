@@ -94,7 +94,16 @@ the plain event list — `view.on('tap')` routes to `GesturesObserver`, so
 `view.notify({eventName:'tap'})` never reaches handlers (unlike `textChange`
 which is a real event). Programmatic probing must call
 `observer.callback(args)`; real-recognizer delivery was verified manually
-(taps + typing). Web leaf accepts the props but pointer plumbing is pending.
+(taps + typing).
+
+**Lab (Exp 17):** payload normalization landed in the View leaf — NS
+`{deltaX,deltaY,state:int}` → `{x,y,dx,dy,vx,vy,state:'began'|...'}`; enum
+map is `cancelled=0,began=1,changed→moved=2,ended=3`. Web leaf attaches raw
+pointer listeners via the `bind` ref — **`pointermove` is not in octane's
+delegated-event set**, so declarative `onPointerMove` props can't drive a
+drag; the leaf owns the listeners. Velocity: computed on web from pointer
+samples; native leaves it 0 (the recognizer's `velocityInView` is a later
+seam).
 | long-press | timer over pointerdown | `longPress` |
 | `hover`/`focus` states | real CSS | N/A — omit or no-op; NS pseudo-states limited (`:highlighted` — verify) |
 
