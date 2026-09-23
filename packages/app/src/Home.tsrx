@@ -14,6 +14,7 @@ const INITIAL = [
 // Identity-stable — an inline arrow would change every Home render and force
 // every recycled cell root to re-render on each native itemLoading refire.
 const renderItem = (item: any) => <Text className="cell">{item.label}</Text>;
+const renderEmpty = () => <Text>No items</Text>;
 
 /** Home tab — the original harness surface (counter, list, input, probes). */
 export function Home() @{
@@ -78,6 +79,13 @@ export function Home() @{
 			>
 				<Text className="text-onprimary">Shuffle</Text>
 			</Pressable>
+			<Pressable
+				id="clear-btn"
+				onPress={() => setItems(items.length ? [] : [...INITIAL])}
+				className="btn bg-primary"
+			>
+				<Text className="text-onprimary">{items.length ? 'Clear' : 'Restore'}</Text>
+			</Pressable>
 		</Row>
 
 		{/* Navigation + overlay seams (Exp 9): platform modules resolve the
@@ -127,6 +135,7 @@ export function Home() @{
 			items={items}
 			className="list flex-1"
 			renderItem={renderItem}
+			renderEmpty={renderEmpty}
 		/>
 	</View>
 }

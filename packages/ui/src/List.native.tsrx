@@ -101,12 +101,20 @@ export function List(props: {
   id?: string;
   items: any[];
   renderItem: (item: any) => any;
+  renderEmpty?: () => any;
 }) @{
-	<MemoListView
-		id={props.id}
-		items={props.items}
-		className={props.className}
-		style={props.style}
-		renderItem={props.renderItem}
-	/>
+	// ListView has no empty state — swap to the empty view. Remount on
+	// repopulate loses scroll position; acceptable for v1 (RN parity: its
+	// ListEmptyComponent also renders instead of the list).
+	@if (props.items.length > 0) {
+		<MemoListView
+			id={props.id}
+			items={props.items}
+			className={props.className}
+			style={props.style}
+			renderItem={props.renderItem}
+		/>
+	} @else {
+		<>{props.renderEmpty?.()}</>
+	}
 }
