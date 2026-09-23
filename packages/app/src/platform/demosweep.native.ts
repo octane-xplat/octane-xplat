@@ -73,7 +73,16 @@ const STEPS: { id: string; checks: { at: number; run: () => void }[] }[] = [
 		],
 	},
 	{ id: 'anim', checks: [{ at: 900, run: () => assertHas('demo anim', 'active: none') }] },
-	{ id: 'probe', checks: [{ at: 900, run: () => assertHas('demo probe', 'Bump A') }] },
+	{
+		id: 'probe',
+		checks: [
+			{ at: 350, run: () => assertHas('demo probe mount', 'plain-a n=0 renders=1') },
+			{ at: 500, run: () => fireTap(find('rp-a')) },
+			// memo-b's props are unchanged by the A bump — renders must stay 1.
+			{ at: 1100, run: () => assertHas('probe memo-b skipped', 'memo-b n=0 renders=1') },
+			{ at: 1150, run: () => console.log('[sweep] probe tree ' + JSON.stringify(pageTexts())) },
+		],
+	},
 ];
 
 setTimeout(() => {

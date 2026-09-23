@@ -49,7 +49,7 @@ import in `App.tsrx`, so it needs no changes to the harness entry.
 | List ×500 | `VirtualList.tsrx` | `virtual-list` | Volume stress: 500 recycled cells on native ListView plus prepend/remove-first/reverse on `items` — hammers the driver patch's splice path and cell rebinding at a scale Todo can't reach. Module-level `renderItem` keeps identity stable per the leaf contract. |
 | Weather | `Weather.tsrx` | `weather` | Async→state→render seam without a network: simulated fetch (timer + setState) drives a loading→data transition shaped exactly like a real platform-services call, so the pattern is proven before the fetch seam exists. Icon glyphs (☀⛅☁☂❄) double as a live font-coverage check (Q18). |
 | Keyframes | `AnimShowcase.tsrx` | `css-animation-showcase` | The only sanctioned animation path (decision #22 — keyframes, ~12 animatable props, no transitions). Toggling `className` starts/stops `demo-pulse`/`demo-spin`/`demo-slide`; tests `animation-fill-mode: forwards` persistence and the no-`alternate` workaround (0/50/100 keyframes). First real content for `demo.css`. |
-| Reactivity | `ReactiveProbe.tsrx` | `reactive-*` probes | Reactivity granularity, read from console. Four children — plain-a/plain-b/memo-a/memo-b: bumping A should render parent + *-a children only. A `plain-b` render exposes missing granularity; a `memo-b` render means `memo()` compare is broken — and this is the first *user-level* `memo()` on either target (runtime uses it internally for List/Tabs). |
+| Reactivity | `ReactiveProbe.tsrx` | `reactive-*` probes | Reactivity granularity, read from the rendered tree (`renders=` counters). Verified on-device: bumping A re-renders parent + `plain-a`/`memo-a` only; `plain-b` is skipped **without memo** — the universal runtime prop-diffs children at commit time — and `memo-b` stays `renders=1`. First user-level `memo()` on either target. |
 
 ## Coverage map (catalog → here)
 
@@ -91,6 +91,11 @@ import in `App.tsrx`, so it needs no changes to the harness entry.
   Demos keep all glyphs in string expressions.
 - **`tsrx-tsc` covers `packages/**` for both targets** — `pnpm typecheck:web`
   / `typecheck:native` are the fast desk check before any lab run.
+- **The universal runtime prop-diffs child components at commit time** —
+  verified by ReactiveProbe's render ledger: after bumping A, `plain-b`
+  stayed at `renders=1` with no `memo()` wrapper, and `memo-b` likewise.
+  Children only re-run when props change; `memo` is an explicit-compare
+  override, not the skip mechanism.
 - Sweep also incidentally verified: effect cleanup on unmount (stopwatch
   interval cleared), per-press state commits under the sweep's 1.4s cadence,
   and `chip-off` class toggling on menu chips.
