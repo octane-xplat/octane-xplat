@@ -1,57 +1,80 @@
 # octane-xplat
 
-Design docs for a single [Octane](https://github.com/octanejs/octane) codebase
-targeting **web** (DOM renderer) and **iOS/Android** (via
+A single [Octane](https://github.com/octanejs/octane) codebase targeting
+**web** (DOM renderer) and **iOS/Android** (via
 [`@nativescript-community/octane`](https://github.com/nativescript-community/octane),
 the universal-runtime driver over `@nativescript/core`).
 
-**Status: pre-implementation.** No code yet — the point of this tree is to map
-every seam between the two realities before writing any.
+**Status: working prototype, published package.** The design docs under
+`docs/` are now backed by a running harness that exercises every seam on
+all three targets — and by [`@octane-xplat/ui@0.2.0`](https://www.npmjs.com/package/@octane-xplat/ui)
+on npm (compiled per-target builds + shipped types).
 
 ## The model in one paragraph
 
-One source tree, compiled once per target. Renderer ownership is decided per
-file at compile time, so a shared `.tsrx` component compiles under the DOM
-renderer in the web build and the NativeScript renderer in the native build.
-A file can speak only one element vocabulary, so platform divergence happens
-at file boundaries (`Foo.web.tsrx` / `Foo.native.tsrx` / `Foo.ios.tsrx`)
-resolved by a Vite plugin, plus a `Platform` module for value-level splits.
-Everything shared sits above a primitives layer (`View`/`Text`/`Pressable`…)
-and a headless platform-services layer.
+One source tree, compiled once per target. Renderer ownership is decided
+per file at compile time, so a shared `.tsrx` component compiles under the
+DOM renderer in the web build and the NativeScript renderer in the native
+build. A file speaks only one element vocabulary, so platform divergence
+happens at file boundaries (`Foo.web.tsrx` / `Foo.native.tsrx` /
+`Foo.ios.tsrx`) resolved by Vite. Everything shared sits above a
+primitives layer (`View`/`Text`/`Pressable`…) whose prop contract lives in
+`packages/ui/src/props.ts` — the single source for both platform leaves
+and the published `.d.ts`.
 
-## Reading order
+## What's proven
 
-Start at [docs/README.md](docs/README.md) — it indexes the tree two ways: by
-domain, and by the seven problems we're forced to own (with per-problem status,
-blockers, and what would validate each design).
+| Target | Evidence |
+|---|---|
+| **Web** | 14/14 Playwright asserts — mounts, state, tabs, real-path routes (`/demos/demo?id=counter`), pushed screens in pane outlets, browser back, deep-link boot |
+| **iOS** | 48/48 probe asserts — primitives, gestures, controlled inputs, real `ListView` cells, root + per-tab parallel stacks, modal/sheet/overlay roots, cross-root stores, theme boundaries |
+| **Android** | Builds + runs; root nav, overlays, gestures verified. **Nested `Frame` in `TabViewItem` is broken upstream** — [NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444) (named-stack pushes iOS-only for now) |
+| **Release** | iOS `--release`, Android signed `--release`, web production dist all verified |
 
-1. [docs/architecture.md](docs/architecture.md) — the model, layering, invariants
-2. [docs/module-resolution.md](docs/module-resolution.md) — suffix convention, resolver, tsconfigs
-3. [docs/primitives.md](docs/primitives.md) — the component vocabulary + leaf map
-4. [docs/styling.md](docs/styling.md) — shared CSS strategy, tokens, traps
-5. [docs/navigation.md](docs/navigation.md) — route table + per-platform shells
-6. [docs/animation-gestures.md](docs/animation-gestures.md) — animation facade, gesture normalization
-7. [docs/platform-services.md](docs/platform-services.md) — capability interfaces
-8. [docs/toolchain.md](docs/toolchain.md) — builds, HMR, version pinning, CI
-9. [docs/testing.md](docs/testing.md) — test layers + seam lint rules
-10. [docs/decisions.md](docs/decisions.md) — decision ledger
-11. [docs/open-questions.md](docs/open-questions.md) — unverified seams, ranked
+## Layout
 
-## prior-art/
+| Path | What |
+|---|---|
+| `packages/ui` | `@octane-xplat/ui` — the framework: primitives, `styled()`, stacks, routes, theme |
+| `packages/app` | harness app exercising every seam (nav, overlays, services, probes) |
+| `packages/demos` | 10 demo screens used as navigation/store payloads |
+| `apps/web`, `apps/native` | entry shells + their vite configs |
+| `docs/` | the design record — decisions ledger, domain specs, lab findings |
+| `.devin/skills/octane-xplat/` | agent skill — SKILL.md + `references/` distilled for use |
 
-Documentation of **other people's systems** — substrate (octane, the NS port,
-`@nativescript/core`) and precedents (One, Tamagui, react-native-web, Flutter).
-Nothing in there is our plan; see [prior-art/README.md](prior-art/README.md).
+## Commands
 
-## First prototype (when coding starts)
+```sh
+pnpm install                                             # pnpm only — never npm
 
-The smallest slice that exercises every load-bearing seam at once:
+pnpm test                                                # vitest
+node scripts/check-no-dom.mjs                            # seam lint
+pnpm exec tsrx-tsc --noEmit -p apps/web/tsconfig.json    # typecheck web
+pnpm exec tsrx-tsc --noEmit -p apps/native/tsconfig.json # typecheck native
 
-- `Platform` module + `View`/`Text`/`Pressable` primitives with `.web`/`.native`
-  leaves
-- one shared screen: `useState` counter + `@for` list + Tailwind classes
-- `vite dev` (web) and `ns debug ios` (native) running off the same source,
-  HMR working on both
+cd apps/web && pnpm dev                                  # web dev :5200
+cd apps/web && pnpm smoke                                # build + 14 browser asserts
+cd apps/native && pnpm exec ns build ios                 # native builds
+cd apps/native && pnpm exec ns build android
+```
 
-If that round-trips, the architecture holds and remaining work is surface area.
-The top five [open questions](docs/open-questions.md) get answered by it.
+## Reading the design
+
+Start at [docs/README.md](docs/README.md) — the tree indexes by domain and
+by the seven problems we own: architecture, module resolution, primitives,
+styling, navigation, animation/gestures, platform services, toolchain,
+testing, decisions ledger, open questions. Findings carry confidence marks
+(`desk-source` vs `lab-experiment`).
+
+For agents: `.devin/skills/octane-xplat/SKILL.md` is the entry point —
+rules + a `references/` map to everything an agent needs (including
+`references/known-limits.md`, the honest gap list).
+
+## Known limits
+
+- Android nested navigation stacks — upstream #11444.
+- `.d.ts` can't emit from `.tsrx` (upstream tsrx#136) — we ship emitted
+  `props.d.ts` + a thin hand-written shell instead.
+- Sheet is native-only (web stub); hardware-back pop-while-pushed is wired
+  but verified only logically. Full list:
+  [known-limits](.devin/skills/octane-xplat/references/known-limits.md).
