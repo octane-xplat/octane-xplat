@@ -1,23 +1,28 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { memo } from 'octane';
-import { ContentView, Frame, Page, TabView, TabViewItem } from '@nativescript/core';
+import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { registerStack } from './stacks.native';
+import { cx } from './cx';
 import type { TabSpec, TabsProps } from './props';
 
 export type { TabSpec } from './props';
 
 // TabViewItem content is a plain native view — the driver can't parent
-// reconciled children into <tabviewitem>, so each pane is a ContentView
-// hosting its own universal root (same shape as List cells).
+// reconciled children into <tabviewitem>, so each pane is a GridLayout
+// hosting its own universal root (same shape as List cells). GridLayout,
+// not ContentView: the host must be multi-child — a pane render producing
+// more than one root view would keep only the last under `.content`
+// assignment. Grid children all fill the cell, so single-child panes are
+// unaffected.
 type TabPaneProps = { render: () => any };
 function TabPane(props: TabPaneProps) @{
 	<>{props.render()}</>
 }
 
-const paneRoots = new WeakMap<ContentView, any>();
-const tabsByView = new WeakMap<ContentView, () => any>();
+const paneRoots = new WeakMap<GridLayout, any>();
+const tabsByView = new WeakMap<GridLayout, () => any>();
 const itemsCache = new WeakMap<readonly TabSpec[], TabViewItem[]>();
 
 function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
@@ -40,7 +45,11 @@ function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
 					create: () => {
 						const page = new Page();
 						page.actionBarHidden = true;
-						createNativeScriptRoot(page).render(
+						// Page is a ContentView — single-child. Root on a
+						// GridLayout child for the same multi-child guarantee.
+						const pane = new GridLayout();
+						page.content = pane;
+						createNativeScriptRoot(pane).render(
 							TabPane as unknown as UniversalComponent, { render: t.render });
 						return page;
 					},
@@ -50,7 +59,7 @@ function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
 			item.view = frame;
 			return item;
 		}
-		const cv = new ContentView();
+		const cv = new GridLayout();
 		tabsByView.set(cv, t.render);
 		item.view = cv;
 		return item;
@@ -59,13 +68,13 @@ function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
 	return items;
 }
 
-// Panes mount lazily: a ContentView that isn't loaded yet would render into
+// Panes mount lazily: a pane view that isn't loaded yet would render into
 // nothing — mount on the tabview's loaded event, all at once.
 function mountPanes(e: any) {
 	const tv = e.object as TabView;
 	for (const item of tv.items as TabViewItem[]) {
-		const cv = item.view as ContentView;
-		if (!(cv instanceof ContentView) || paneRoots.has(cv)) continue;
+		const cv = item.view as GridLayout;
+		if (!(cv instanceof GridLayout) || paneRoots.has(cv)) continue;
 		const render = tabsByView.get(cv);
 		if (!render) continue;
 		const root = createNativeScriptRoot(cv);
@@ -85,7 +94,7 @@ function TabsInner(props: {
 }) @{
 	<tabview
 		id={props.id}
-		className={props.className}
+		className={cx(props.className)}
 		style={props.style}
 		items={itemsFor(props.tabs)}
 		selectedIndex={props.selectedIndex}

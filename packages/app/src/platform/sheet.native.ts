@@ -1,9 +1,11 @@
-import { ContentView, getRootLayout } from '@nativescript/core';
+import { GridLayout, getRootLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { SheetPanel } from '../SheetPanel.tsrx';
 
-let host: ContentView | null = null;
+// GridLayout, not ContentView: the root host must be multi-child —
+// ContentView's `.content` assignment keeps only the last root view.
+let host: GridLayout | null = null;
 let hostRoot: ReturnType<typeof createNativeScriptRoot> | null = null;
 
 /** Bottom-anchored sheet: RootLayout.open with a dedicated sub-root.
@@ -16,7 +18,7 @@ export function openSheet(Component: unknown = SheetPanel, props: Record<string,
 		return;
 	}
 	if (!host) {
-		host = new ContentView();
+		host = new GridLayout();
 		host.id = 'sheet-host';
 		// Bottom-dock the sheet inside the RootLayout grid.
 		host.verticalAlignment = 'bottom';

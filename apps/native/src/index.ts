@@ -165,6 +165,22 @@ setTimeout(() => {
   console.log('[assert] styled variant: ' + (cls.includes('bg-danger') && cls.includes('extra') ? 'OK' : 'FAIL') + ' (' + cls + ')');
 }, 4900);
 
+// Multi-child Pressable regression: a ContentView host keeps only the last
+// child (`.content` assignment). The flexboxlayout host must hold both the
+// label and the conditional indicator (mounted after the ~3s scheme
+// override), and tap must still reach onPress.
+setTimeout(() => {
+	const mp = find('multi-pressable');
+	console.log('[probe] multi-pressable=' + (mp ? mp.constructor.name : 'none'));
+	assertHas('pressable child text', texts(mp), 'Multi');
+	console.log('[assert] pressable sibling view: ' + (mp?.getViewById?.('multi-sibling') ? 'OK' : 'FAIL'));
+	console.log('[assert] pressable conditional child: ' + (mp?.getViewById?.('multi-indicator') ? 'OK' : 'FAIL'));
+	fireGesture(mp, 1, 'tap', {});
+}, 4950);
+setTimeout(() => {
+	assertHas('pressable tap → count', texts(thePage), 'Count: 1');
+}, 5150);
+
 // Theme toggle first (deterministic dark — the scheme override button now
 // has an id), then the nav probe.
 setTimeout(() => {

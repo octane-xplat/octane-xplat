@@ -3,12 +3,15 @@
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo } from 'octane';
 import type { ListProps } from "./props";
+import { cx } from "./cx";
 
 // Cell machinery is driver-owned since @nativescript-community/octane 0.2.1
 // (upstream #7, closes our issue #1): `renderItem` on <listview> makes
 // itemTemplate vend a ContentView per recycled cell, each with its own
 // universal root; itemLoading binds items[index] and skips unchanged rows;
 // a changed renderItem re-binds live cells; discard unmounts the roots.
+// The cell ContentView is single-child — a renderItem returning multiple
+// roots would silently drop siblings — so output wraps in a gridlayout.
 function ListInner(props: {
   className?: any;
   style?: any;
@@ -18,10 +21,10 @@ function ListInner(props: {
 }) @{
 	<listview
 		id={props.id}
-		className={props.className}
+		className={cx(props.className)}
 		style={props.style}
 		items={props.items}
-		renderItem={props.renderItem}
+		renderItem={(item: any) => <gridlayout>{props.renderItem(item)}</gridlayout>}
 	/>
 }
 

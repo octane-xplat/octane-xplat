@@ -16,7 +16,7 @@ Three overlay mechanisms, all verified on both targets.
 
 ## `openSheet(Component, props)` / `closeSheet()`
 
-`platform/sheet.native.ts` — a `ContentView` bottom-docked in the
+`platform/sheet.native.ts` — a `GridLayout` bottom-docked in the
 `RootLayout`, `rl.open(host, { shadeCover, animation })`. Content is
 parameterized — any component renders in the sheet root (`openSheet(renderDemo)`
 shows a demo in a sheet — verified as "sheet hosts demo" sweep check).

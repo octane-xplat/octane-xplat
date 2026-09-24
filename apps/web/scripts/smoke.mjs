@@ -52,6 +52,12 @@ try {
 	const taH1 = await page.evaluate(() => document.getElementById('probe-textarea').offsetHeight);
 	ok('textarea autoGrow expands', taH1 > taH0, taH0 + '→' + taH1);
 
+	// Multi-child Pressable (native regression parity): label + sibling
+	// views all live inside the pressable element.
+	const mp = page.locator('#multi-pressable');
+	ok('pressable multi-child label', (await mp.locator('text=Multi').count()) === 1);
+	ok('pressable multi-child sibling', (await mp.locator('#multi-sibling').count()) === 1);
+
 	// Tab switch: web Tabs leaf renders a button row.
 	await page.click('button:text("Demos")');
 	await page.waitForSelector('text=Last opened:', { timeout: 3000 });

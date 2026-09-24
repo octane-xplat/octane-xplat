@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ScrollViewProps } from "./props";
+import { cx } from "./cx";
 /** Scroll container — NS <scrollview>. NS ScrollView hosts exactly one
  *  child view, so children are wrapped in a column flexboxlayout — the
  *  same content-container indirection RN's ScrollView does internally.
@@ -7,7 +8,7 @@ import type { ScrollViewProps } from "./props";
 export function ScrollView(props: ScrollViewProps) @{
 	<scrollview
 		id={props.id}
-		className={props.className}
+		className={cx(props.className)}
 		style={props.style}
 		orientation={props.horizontal ? 'horizontal' : 'vertical'}
 	>

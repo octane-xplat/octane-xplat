@@ -43,7 +43,7 @@ interface PrimitiveProps {
 
 | `Text` | `span`/`p` | `label` | children: text or `Text` only (nested → `formattedstring`/`span`); **never `View` inside `Text`** — adopt RN rule |
 | `RichText`? | inline markup | `formattedstring` + `span` leaves | possibly fold into `Text` nesting |
-| `Pressable` | `div`+pointer events | `contentview`+`tap`/`touch` | hover/pressed states → CSS vs manual touch tracking; use `button` leaf only where native button chrome wanted |
+| `Pressable` | `div`+pointer events | `flexboxlayout` `flexDirection=column` + `tap`/`longPress` | **multi-child** — `contentview` silently drops all but the last child (`.content` assignment); tap gestures attach to any view. Use `button` leaf only where native button chrome wanted |
 | `ScrollView` | `div` overflow | `scrollview` | `horizontal` prop both sides |
 | `List` | `@octanejs/tanstack-virtual` over `div` | `listview` + **per-cell Octane sub-roots** | **the leak**: ListView recycles via `itemTemplate`/`itemLoading` (imperative view factories — no reconciler children). Design: each recycled slot hosts a `createNativeScriptRoot`; `itemLoading` rebinds `{item, index}` into a per-cell store the row component reads; `items` wrapped as `ObservableArray` for granular updates; `itemTemplateSelector` for heterogeneous rows. Lab: per-cell root cost, scroll perf |
 | `TextInput` / `TextArea` | `input`/`textarea` | `textfield`/`textview` | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS) |
@@ -223,10 +223,23 @@ interface TextAreaProps extends TextInputProps {  // shipped (props.ts)
 }
 ```
 
-- `Pressable` native leaf: `contentview` + `tap`/`longPress`/`touch` events;
+- `Pressable` native leaf: `flexboxlayout` (column) + `tap`/`longPress`
+  gesture events — **not** `contentview` (single-child trap: the driver
+  assigns each child to `.content`, dropping all but the last sibling);
   press feedback rides `TouchManager.enableGlobalTapAnimations` (ns-octane
-  enables it globally — scale 0.95/1.0 easeOut). Web leaf: `div` + pointer
-  events + `:pressed` class hook for styling.
+  enables it globally — scale 0.95/1.0 easeOut) + the `vx-pressable`
+  `:pressed` pseudo. Web leaf: `div` + pointer events + `:pressed` class
+  hook for styling.
+- **Single-child hosts on native**: `ContentView`/`Page` (and `ScrollView`)
+  keep only the last reconciled child. Any imperative Octane root must host
+  on a `GridLayout` (children fill + stack — single-child layout identical
+  to ContentView) — or set `page.content = grid` and root on that where the
+  host must be a `Page`. Applies to Modal, Tabs panes, nav pushes, and
+  overlay/sheet hosts. List cells are driver-owned `ContentView`s, so the
+  `List` leaf wraps `renderItem` output in a `gridlayout`.
+- `className` on native must be a **space-joined string**: the driver
+  applies it via `String(value)`, so an array arrives comma-joined and
+  matches nothing. Leaves normalize with `cx()` (`packages/ui/src/cx.ts`).
 - `TextInput` native: `textfield`/`textview`; `value` ↔ `text`; `onChangeText`
   ↔ `textChange`; `onSubmit` ↔ `returnPress`. Cursor/IME write-back risk is
   the queued lab experiment.

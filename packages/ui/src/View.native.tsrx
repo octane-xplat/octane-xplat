@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback } from 'octane';
 import type { ViewProps } from './props';
+import { cx } from './cx';
 /** Neutral flex-column container — flexboxlayout on native.
  *  Gesture props map 1:1 to NS gesture events (onPan → 'pan', etc.) —
  *  the driver's onX → eventName rule covers them generically. Payloads
@@ -24,7 +25,7 @@ export function View(props: ViewProps) @{
 		id={props.id}
 		ref={props.bind}
 		flexDirection="column"
-		className={props.className}
+		className={cx(props.className)}
 		style={props.style}
 		onPan={props.onPan ? onPan : undefined}
 		onSwipe={props.onSwipe}

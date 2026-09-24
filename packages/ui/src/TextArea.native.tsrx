@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'octane';
 import { Utils } from '@nativescript/core';
 import type { TextAreaProps } from "./props";
+import { cx } from "./cx";
 
 /** Multiline input — <textview>. TextView measures to content natively, so
  *  `autoGrow` is its default; `rows`/`maxRows` have no NS equivalent, so the
@@ -37,7 +38,7 @@ export function TextArea(props: TextAreaProps) @{
 	<textview
 		id={props.id}
 		ref={(v: any) => { el.current = v; }}
-		className={props.className}
+		className={cx(props.className)}
 		style={props.style}
 		text={props.value}
 		hint={props.placeholder ?? props.hint}

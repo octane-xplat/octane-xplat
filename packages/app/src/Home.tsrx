@@ -123,6 +123,16 @@ export function Home() @{
 			<Link to="detail" params={{ from: 'link' }} className="chip">
 				<Text className="text-onprimary">Link →</Text>
 			</Link>
+			{/* Multi-child Pressable regression — the old contentview host
+			    kept only the last child. The conditional indicator also
+			    proves a child mounted post-commit lands inside the host. */}
+			<Pressable id="multi-pressable" onPress={() => setCount(count + 1)} className="btn bg-primary">
+				<Text className="text-onprimary">Multi</Text>
+				<View id="multi-sibling" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
+				@if (dark) {
+					<View id="multi-indicator" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
+				}
+			</Pressable>
 		</Row>
 
 		{/* Modal seam: declarative open → native showModal on a second root;

@@ -128,7 +128,8 @@ export function Home() {
 - Web: `Column`→flex-col `div`, `Text`→`span`, `Pressable`→`div`+pointer
   events; Tailwind classes live.
 - Native: `Column`→`flexboxlayout`, `Text`→`label` (text fold),
-  `Pressable`→`contentview`+`tap` (TouchManager gives the press-scale);
+  `Pressable`→`flexboxlayout`+`tap` (multi-child — `contentview` drops
+  siblings; TouchManager gives the press-scale);
   `@nativescript/tailwind` classes live.
 - One save → hot-updates web tab and device simultaneously.
 

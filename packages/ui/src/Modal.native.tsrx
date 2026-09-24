@@ -1,12 +1,15 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane';
 import type { ModalProps } from "./props";
-import { ContentView, Frame } from '@nativescript/core';
+import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 
-// The modal's content renders inside a separate Octane root on a ContentView
+// The modal's content renders inside a separate Octane root on a GridLayout
 // host — modals never share context with their presenter (decision #9).
+// GridLayout because the root host must be multi-child: ContentView assigns
+// each child to `.content`, so a fragment of siblings would keep only the
+// last; grid children all fill the cell (single-child layout unchanged).
 // Children arrive as an already-created element: element data evaluates in
 // whichever root renders it, so re-parenting through the second root is safe.
 function Panel(props: { children?: any }) @{
@@ -18,13 +21,13 @@ function Panel(props: { children?: any }) @{
  * inline; the content lives on the modal's own root above the whole tree.
  */
 export function Modal(props: ModalProps) @{
-	const shown = useRef<{ host: ContentView; root: any } | null>(null);
+	const shown = useRef<{ host: GridLayout; root: any } | null>(null);
 
 	useEffect(() => {
 		if (props.open && !shown.current) {
 			const presenter = (Frame.topmost()?.currentPage ?? Frame.topmost()) as any;
 			if (!presenter) return;
-			const host = new ContentView();
+			const host = new GridLayout();
 			const root = createNativeScriptRoot(host);
 			shown.current = { host, root };
 			root.render(Panel as unknown as UniversalComponent, { children: props.children });

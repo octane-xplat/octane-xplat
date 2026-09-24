@@ -11,9 +11,21 @@ import { useCallback } from 'octane';                     // universal hooks —
 import type { ViewProps } from './props';
 
 export function View(props: ViewProps) @{
-	<contentview id={props.id} ...>{props.children}</contentview>
+	<flexboxlayout id={props.id} ...>{props.children}</flexboxlayout>
 }
 ```
+
+- **Never host reconciled children on `contentview`** (or `Page`, a
+  ContentView): `addViewChild` assigns each child to `.content`, so every
+  sibling but the last is silently dropped. Multi-child leaves use
+  `flexboxlayout`; imperative `createNativeScriptRoot` hosts use a
+  `GridLayout` child (children fill + stack — single-child layout is
+  unchanged). List cells are driver-owned ContentViews — the leaf wraps
+  `renderItem` output in a `gridlayout`.
+- **`className` must reach intrinsics as a space-joined string** — the
+  driver applies it via `String(value)`, so a raw array arrives
+  comma-joined ("a,b") and matches nothing. `cx()` (`src/cx.ts`) flattens
+  and joins; every native leaf normalizes `props.className` through it.
 
 - The `@jsxImportSource` pragma MUST be line 1 — any import/comment before
   it demotes the file to DOM intrinsics and typecheck explodes.
@@ -64,5 +76,6 @@ Pinned by `packages/ui/src/store.native.test.ts` + `store.web.test.tsrx`.
 - `Page` = the nav unit. `page.actionBarHidden = true`, `page.id` set for
   probes.
 - `TabViewItem` content is a plain native view — the driver can't parent
-  reconciled children into `<tabviewitem>`; each pane is a `ContentView`
-  hosting its own root (or a `Frame` for stack panes).
+  reconciled children into `<tabviewitem>`; each pane is a `GridLayout`
+  hosting its own root (or a `Frame` whose page roots on a `GridLayout`
+  child for stack panes).

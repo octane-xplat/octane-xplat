@@ -15,7 +15,7 @@
  *  Every drop path warns loudly — silent no-ops are how apps ship a
  *  default route on native while working fine on web. */
 
-import { Application, Frame, Page } from '@nativescript/core';
+import { Application, Frame, GridLayout, Page } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { useSyncExternalStore } from 'octane';
@@ -116,9 +116,14 @@ export function pushRoute(r: Route): void {
 				page.id = r.name + '-page';
 				page.actionBarHidden = true;
 				pageRoutes.set(page, r);
+				// Page is a ContentView — single-child (`.content` assignment
+				// drops all but the last root view). Root on a GridLayout
+				// child so multi-root screens can't silently lose siblings.
+				const host = new GridLayout();
+				page.content = host;
 				// .ts → .tsrx component imports type as () => Element; cast to
 				// the universal component shape the root expects.
-				createNativeScriptRoot(page).render(
+				createNativeScriptRoot(host).render(
 					C as unknown as UniversalComponent, props);
 				return page;
 			},
