@@ -16,11 +16,22 @@
 		"nativescript-clipboard": "2.1.1"
 	},
 	"devDependencies": {
+		"@nativescript-community/octane": "0.2.1",
 		"@nativescript/core": "9.1.2",
 		"octane": "0.4.0"
 	},
 	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
 		"octane": ">=0.1.51 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		}
 	},
 	"description": "Headless platform capabilities for Octane xplat \u2014 web + NativeScript leaf pairs",
 	"files": [

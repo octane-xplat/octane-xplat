@@ -205,6 +205,9 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
     devDependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.1
+        version: 0.2.1(@nativescript/core@9.1.2)(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2
