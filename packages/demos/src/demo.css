@@ -202,3 +202,16 @@
   animation-fill-mode: forwards;
   animation-timing-function: ease-out;
 }
+
+.props-demo {
+  padding: 16px;
+}
+
+.props-hit-slop {
+  min-height: 44px;
+}
+
+.props-clamp {
+  width: 220px;
+  max-width: 100%;
+}

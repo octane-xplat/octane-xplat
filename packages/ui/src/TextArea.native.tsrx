@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'octane';
 import { Utils } from '@nativescript/core';
 import type { TextAreaProps } from "./props";
 import { cx } from "./cx";
+import { applyEscapeProps } from "./escape-props";
 
 /** Multiline input — <textview>. TextView measures to content natively, so
  *  `autoGrow` is its default; `rows`/`maxRows` have no NS equivalent, so the
@@ -37,12 +38,23 @@ export function TextArea(props: TextAreaProps) @{
 
 	<textview
 		id={props.id}
-		ref={(v: any) => { el.current = v; }}
+		ref={(v: any) => {
+			el.current = v;
+			if (!v) return;
+			applyEscapeProps(v, props);
+			props.bind?.({ focus: () => v.focus(), blur: () => v.dismissSoftInput?.() ?? v.blur(), native: v });
+		}}
 		className={cx(props.className)}
-		style={props.style}
+		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 		text={props.value}
 		hint={props.placeholder ?? props.hint}
+		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
+		returnKeyType={props.returnKeyType}
+		editable={props.editable}
 		onLoaded={(e: any) => fit(e.object)}
 		onTextChange={(e: any) => props.onChange?.(e.value)}
+		onReturnPress={props.onSubmit}
+		onFocus={props.onFocus}
+		onBlur={props.onBlur}
 	/>
 }

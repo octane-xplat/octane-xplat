@@ -22,11 +22,30 @@ export interface ViewProps {
 	bind?: (el: any) => void;
 	onPan?: (e: PanEvent) => void;
 	onSwipe?: (e: SwipeEvent) => void;
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
 }
 
-export interface RowProps { className?: any; style?: any; children?: any; }
+export interface RowProps {
+	className?: any; style?: any; children?: any;
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
+}
 
-export interface TextProps { className?: any; style?: any; children?: any; }
+export interface TextProps {
+	className?: any; style?: any; children?: any;
+	numberOfLines?: number;
+	/** Native Label does not expose text selection; implemented with CSS on web. */
+	selectable?: boolean;
+	ellipsize?: boolean;
+	accessibilityHint?: string;
+	accessibilityValue?: string;
+	/** NativeScript supports one state at a time (disabled/selected/checked); busy and expanded are web-only. */
+	accessibilityState?: { disabled?: boolean; selected?: boolean; checked?: boolean; busy?: boolean; expanded?: boolean };
+	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
+}
 
 export interface PressableProps {
 	className?: any; style?: any; children?: any; id?: string;
@@ -37,7 +56,22 @@ export interface PressableProps {
 	accessible?: boolean;
 	accessibilityLabel?: string;
 	accessibilityRole?: string;
+	onPressIn?: () => void;
+	onPressOut?: () => void;
+	onDoublePress?: () => void;
+	hitSlop?: number;
+	/** NativeScript supports a per-view TouchManager animation opt-out; web has no press scaling. */
+	ignoreTouchAnimation?: boolean;
+	accessibilityHint?: string;
+	accessibilityValue?: string;
+	/** NativeScript supports one state at a time (disabled/selected/checked); busy and expanded are web-only. */
+	accessibilityState?: { disabled?: boolean; selected?: boolean; checked?: boolean; busy?: boolean; expanded?: boolean };
+	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
 }
+
+export interface TextInputHandle { focus(): void; blur(): void; native: any; }
 
 export interface TextInputProps {
 	className?: any; style?: any; id?: string;
@@ -45,6 +79,17 @@ export interface TextInputProps {
 	/** NativeScript's term for placeholder — web maps hint → placeholder. */
 	hint?: string;
 	onChange?: (value: string) => void;
+	bind?: (h: TextInputHandle) => void;
+	secure?: boolean;
+	keyboardType?: 'default' | 'email' | 'number' | 'decimal' | 'phone' | 'url';
+	returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send';
+	onSubmit?: () => void;
+	onFocus?: () => void;
+	onBlur?: () => void;
+	editable?: boolean;
+	placeholderTextColor?: string;
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
 }
 
 export interface TextAreaProps extends TextInputProps {
@@ -86,14 +131,22 @@ export interface ListProps {
 export interface ScrollViewProps {
 	className?: any; style?: any; id?: string;
 	horizontal?: boolean; children?: any;
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
 }
 
 export interface ImageProps {
 	className?: any; style?: any; id?: string;
 	src: string; alt?: string;
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
 }
 
-export interface ScreenProps { className?: any; style?: any; children?: any; }
+export interface ScreenProps {
+	className?: any; style?: any; children?: any;
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
+}
 
 // ---------- device seams ----------
 
@@ -118,6 +171,8 @@ export interface SwitchProps {
 	className?: any; style?: any; id?: string;
 	checked?: boolean;
 	onCheckedChange?: (checked: boolean) => void;
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any; android?: any; web?: any;
 }
 
 export interface PlatformBadgeProps { className?: any; }

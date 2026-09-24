@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'octane';
 import type { ViewProps } from './props';
+import { applyEscapeProps } from './escape-props';
 
 /** Neutral flex-column container — the RN-shaped default block.
  *  onPan is pointer plumbing: pointerdown/move/up on the element.
@@ -40,7 +41,7 @@ export function View(props: ViewProps) @{
 
 	<div
 		id={props.id}
-		ref={(e: any) => { el.current = e; props.bind?.(e); }}
+		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); props.bind?.(e); } }}
 		className={['vx-view', props.className]}
 		style={props.style}
 	>

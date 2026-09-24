@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'octane';
 import type { TextAreaProps } from "./props";
+import { applyEscapeProps } from "./escape-props";
 
 /** Multiline input — <textarea>. `autoGrow` re-fits height to content after
  *  every commit via scrollHeight, capped by `maxRows` translated to a real
@@ -35,13 +36,24 @@ export function TextArea(props: TextAreaProps) @{
 	}, [props.value, props.rows, props.autoGrow, props.maxRows, props.className, props.style]);
 
 	<textarea
+		ref={(node: any) => {
+			el.current = node;
+			if (!node) return;
+			applyEscapeProps(node, props);
+			props.bind?.({ focus: () => node.focus(), blur: () => node.blur(), native: node });
+		}}
 		id={props.id}
-		ref={el}
 		className={['vx-textarea', props.className]}
-		style={props.style}
+		style={{ ...props.style, ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
 		value={props.value}
+		inputMode={props.keyboardType === 'number' ? 'numeric' : props.keyboardType === 'phone' ? 'tel' : props.keyboardType === 'default' ? 'text' : props.keyboardType}
+		enterKeyHint={props.returnKeyType}
+		readOnly={props.editable === false}
 		placeholder={props.placeholder ?? props.hint}
 		rows={props.rows ?? (props.autoGrow ? 1 : 3)}
 		onInput={(e: any) => props.onChange?.(e.target.value)}
+		onKeyDown={(e: any) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) props.onSubmit?.(); }}
+		onFocus={props.onFocus}
+		onBlur={props.onBlur}
 	/>
 }

@@ -1,8 +1,10 @@
 import type { ScrollViewProps } from "./props";
+import { applyEscapeProps } from "./escape-props";
 /** Scroll container — a div with overflow scrolling. Native wraps
  *  children in a column container; web divs already stack vertically. */
 export function ScrollView(props: ScrollViewProps) @{
 	<div
+		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		className={['vx-scroll', props.className]}
 		style={{

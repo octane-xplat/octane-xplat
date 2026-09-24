@@ -2,6 +2,7 @@
 import { useCallback } from 'octane';
 import type { ViewProps } from './props';
 import { cx } from './cx';
+import { applyEscapeProps } from './escape-props';
 /** Neutral flex-column container — flexboxlayout on native.
  *  Gesture props map 1:1 to NS gesture events (onPan → 'pan', etc.) —
  *  the driver's onX → eventName rule covers them generically. Payloads
@@ -23,7 +24,7 @@ export function View(props: ViewProps) @{
 
 	<flexboxlayout
 		id={props.id}
-		ref={props.bind}
+		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
 		flexDirection="column"
 		className={cx(props.className)}
 		style={props.style}

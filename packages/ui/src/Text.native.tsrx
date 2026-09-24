@@ -2,6 +2,7 @@
 import { createContext, useContext } from 'octane';
 import type { TextProps } from "./props";
 import { cx } from "./cx";
+import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
@@ -22,10 +23,28 @@ function TextScope(props: { children?: any }) {
 
 export function Text(props: TextProps) @{
 	const inText = useContext(InText);
+	// NativeScript Label/Span has no selectable property; selectable is web-only.
+	const textStyle = {
+		...props.style,
+		...(props.ellipsize ? { whiteSpace: 'nowrap', textOverflow: 'ellipsis' } : {}),
+	};
 	@if (inText) {
-		<span className={cx(props.className)} style={props.style}>{props.children}</span>
+		<span ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} style={textStyle}>
+			{props.children}
+		</span>
 	} @else {
-		<label className={cx(props.className)} style={props.style}>
+		<label
+			ref={(v: any) => applyEscapeProps(v, props)}
+			className={cx(props.className)}
+			style={textStyle}
+			maxLines={props.numberOfLines}
+			textOverflow={props.ellipsize ? 'ellipsis' : undefined}
+			whiteSpace={props.ellipsize ? 'nowrap' : undefined}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityValue={props.accessibilityValue}
+			accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+			accessibilityLiveRegion={props.accessibilityLiveRegion as any}
+		>
 			<TextScope>{props.children}</TextScope>
 		</label>
 	}

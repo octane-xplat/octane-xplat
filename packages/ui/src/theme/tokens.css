@@ -72,6 +72,9 @@
 .vx-pressable:active {
   opacity: 0.85;
 }
+.vx-pressable-no-feedback:active {
+  opacity: 1;
+}
 /* native press feedback (NS pseudo — dead rule on web, and vice versa) */
 .vx-pressable:pressed {
   opacity: 0.85;
@@ -121,6 +124,11 @@
   max-height: none;
   margin: 0;
   border-radius: 0;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder-color, currentColor);
 }
 
 /* utilities (hand-written subset for the harness; Tailwind later) */
