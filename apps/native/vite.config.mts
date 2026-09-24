@@ -16,7 +16,10 @@ function nsHmrClientWatchdog(): Plugin {
     configureServer(server) {
       let everConnected = false;
       let timer: ReturnType<typeof setTimeout> | undefined;
-      server.middlewares.use((req, _res, next) => {
+      // Hook the raw 'request' event — middlewares.use() appends after the
+      // ns plugin's session handler, which ends the response without next(),
+      // so a connect middleware never observes /__ns_dev__/session at all.
+      server.httpServer?.on('request', (req) => {
         if (!everConnected && req.url?.startsWith('/__ns_dev__/session')) {
           clearTimeout(timer);
           timer = setTimeout(() => {
@@ -31,7 +34,6 @@ function nsHmrClientWatchdog(): Plugin {
             }
           }, 15_000);
         }
-        next();
       });
       server.httpServer?.on('upgrade', (req) => {
         if (req.url?.startsWith('/ns-hmr')) {
@@ -70,6 +72,20 @@ export default defineConfig(({ mode }) =>
     ),
     {
       plugins: [nsHmrClientWatchdog()],
+      optimizeDeps: {
+        // Flattened optimizeDeps chunks get mangled by the /ns/m device
+        // transform (`import import "/ns/core/utils"`) and miss the vendor
+        // manifest — serve the @nativescript plugins per-module instead.
+        exclude: [
+          '@nativescript/biometrics',
+          '@nativescript/haptics',
+          '@nativescript/imagepicker',
+          '@nativescript/local-notifications',
+          '@nativescript/secure-storage',
+          '@nativescript/social-share',
+          'nativescript-clipboard',
+        ],
+      },
       resolve: {
         conditions: ['native'],
         // The compiler retargets hook imports to @nativescript-community/
