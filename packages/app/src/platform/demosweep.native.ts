@@ -149,20 +149,13 @@ const STEPS: Step[] = [
 	// --- primitives sprint demos ---
 	{
 		id: 'list-demo',
-		hold: 1900,
+		hold: 2100,
 		checks: [
 			{ at: 400, run: () => assertHas('demo list contract', 'Doors open') },
 			{ at: 500, run: () => fireTap(find('list-demo-reverse')) },
-			// keyFor-stable rebind: after reverse, 'Encore' outranks 'Doors open'.
-			{
-				at: 900,
-				run: () => {
-					const hay = viewTexts();
-					const ok = hay.indexOf('Encore') >= 0 && hay.indexOf('Encore') < hay.indexOf('Doors open');
-					console.log('[assert] list rebind order: ' + (ok ? 'OK' : 'FAIL') + dump(hay));
-				},
-			},
-			// onEndReached ← ListView loadMoreItems (a real event — notify reaches it).
+			// onEndReached ← ListView loadMoreItems (a real event — notify
+			// reaches it). NS auto-refires while the last item stays visible,
+			// so more than one batch may append.
 			{
 				at: 1100,
 				run: () => {
@@ -171,7 +164,20 @@ const STEPS: Step[] = [
 					lv?.notify({ eventName: 'loadMoreItems', object: lv } as any);
 				},
 			},
-			{ at: 1600, run: () => assertHas('list onEndReached', '11 rows · scroll to load more') },
+			// Single settled read — ListView rebuilds cells async around the
+			// reverse/append rebinds. 'Encore' before 'Water station' proves
+			// the keyFor-stable rebind applied the reversal; 'Added event'
+			// proves onEndReached appended.
+			{
+				at: 1800,
+				run: () => {
+					const hay = viewTexts(demosPage());
+					const enc = hay.indexOf('Encore');
+					const water = hay.indexOf('Water station: Available by the entrance.');
+					console.log('[assert] list rebind order: ' + (enc >= 0 && water >= 0 && enc < water ? 'OK' : 'FAIL') + dump(hay));
+					console.log('[assert] list onEndReached: ' + (hay.some((t) => t.startsWith('Added event')) ? 'OK' : 'FAIL'));
+				},
+			},
 		],
 	},
 	{
@@ -225,7 +231,7 @@ const STEPS: Step[] = [
 	{
 		id: 'controls',
 		checks: [
-			{ at: 400, run: () => assertMatch('demo controls', /Slider: /) },
+			{ at: 400, run: () => assertMatch('demo controls', /Slider:\s*\d+/) },
 			{ at: 400, run: () => assertHas('heading levels', 'Heading 6') },
 		],
 	},
@@ -247,7 +253,7 @@ const STEPS: Step[] = [
 	},
 	{
 		id: 'modal',
-		hold: 2800,
+		hold: 4000,
 		checks: [
 			// Presenter: nested 'demos' frame resolves its own page; fall back to
 			// the root frame's current page in case topmost() resolves outermost.
@@ -271,7 +277,9 @@ const STEPS: Step[] = [
 					if (ok) fireTap(tapTargetForText(m, 'Red'));
 				},
 			},
-			{ at: 2600, run: () => assertHas('modal result', 'Picked: Red') },
+			// openModal resolves in the modal's onClosed — after the dismiss
+			// transition (~300ms) + promise tick, so read well after the tap.
+			{ at: 3600, run: () => assertHas('modal result', 'Picked: Red') },
 		],
 	},
 	{

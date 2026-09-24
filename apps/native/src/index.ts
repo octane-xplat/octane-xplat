@@ -1,4 +1,4 @@
-import { Application, Frame, ListView, Page, Trace } from '@nativescript/core';
+import { Application, Frame, ListView, Page, Trace, getRootLayout } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
 import { probeSignal$ } from '@xplat/app/probe-state';
@@ -288,6 +288,9 @@ setTimeout(() => {
   console.log('[probe] sheet ns-dark: ' + (sheetDark ? 'present — theme class crosses' : 'absent — theme class does not cross'));
   const sheetTok = (sheet as any)?.style?.getCssVariable?.('--color-primary');
   console.log('[probe] sheet token: ' + JSON.stringify(sheetTok));
+  // Close it — a lingering RootLayout host makes later openSheet() calls
+  // reject with "already been added to the root layout".
+  if (sheet) getRootLayout()?.close(sheet);
 }, 7800);
 
 // Modal probe (Exp 12): declarative open → showModal on a second root.
