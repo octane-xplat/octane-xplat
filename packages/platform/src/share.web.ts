@@ -1,0 +1,26 @@
+// Share — web leaf. navigator.share where present (mobile Safari/Chrome);
+// desktop degrades to clipboard copy so the call still does something useful.
+export const share = {
+	async text(text: string, subject?: string): Promise<'shared' | 'copied' | 'unavailable'> {
+		if (typeof navigator !== 'undefined' && 'share' in navigator) {
+			await navigator.share({ text, title: subject });
+			return 'shared';
+		}
+		if (typeof navigator !== 'undefined' && navigator.clipboard) {
+			await navigator.clipboard.writeText(text);
+			return 'copied';
+		}
+		return 'unavailable';
+	},
+	async url(url: string, title?: string): Promise<'shared' | 'copied' | 'unavailable'> {
+		if (typeof navigator !== 'undefined' && 'share' in navigator) {
+			await navigator.share({ url, title });
+			return 'shared';
+		}
+		if (typeof navigator !== 'undefined' && navigator.clipboard) {
+			await navigator.clipboard.writeText(url);
+			return 'copied';
+		}
+		return 'unavailable';
+	},
+};
