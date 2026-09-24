@@ -1,0 +1,82 @@
+diff --git a/hmr/server/core-bundle.js b/hmr/server/core-bundle.js
+index 993097b..7a9b951 100644
+--- a/hmr/server/core-bundle.js
++++ b/hmr/server/core-bundle.js
+@@ -607,17 +607,32 @@ export function buildCoreMainShimCode() {
+  * class/function values. `exportNames` comes from the same disk-based export
+  * discovery the per-module bridge relies on (collectStaticExportNamesFromFile).
+  */
+-const RESERVED_EXPORT_NAMES = new Set(['default', 'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'delete', 'do', 'else', 'enum', 'export', 'extends', 'false', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'null', 'return', 'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with', 'let', 'static', 'yield', 'await', 'eval', 'arguments', '__ns_core_sub_ns__']);
++// `default` is emitted separately (below); `__ns_core_sub_ns__` is this shim's
++// own local — a module exporting that name can't collide with it.
++const NON_DECLARABLE_EXPORT_NAMES = new Set(['default', '__ns_core_sub_ns__']);
++// Reserved words can't be declaration bindings (`export const enum` is a
++// syntax error), but they ARE legal export names — the specifier position in
++// `export { x as name }` accepts any IdentifierName. Emit those through a
++// temp + alias so a reserved-word export (zod's `enum`/`catch`/… shapes this
++// same code path) still reaches the bridged namespace.
++const RESERVED_EXPORT_NAMES = new Set(['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'delete', 'do', 'else', 'enum', 'export', 'extends', 'false', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'null', 'return', 'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with', 'let', 'static', 'yield', 'await', 'eval', 'arguments']);
+ export function buildCoreSubShimCode(sub, exportNames, hasOwnDefaultExport = false) {
+     const canonical = normalizeCoreSub(sub);
+     const registryKey = `@nativescript/core/${canonical}`;
+-    const names = Array.from(new Set(exportNames)).filter((n) => /^[A-Za-z_$][\w$]*$/.test(n) && !RESERVED_EXPORT_NAMES.has(n));
++    const names = Array.from(new Set(exportNames)).filter((n) => /^[A-Za-z_$][\w$]*$/.test(n) && !NON_DECLARABLE_EXPORT_NAMES.has(n));
+     const lines = [];
+     lines.push(`/* @nativescript/core bridge (bundle mode) — sub: ${canonical} */`);
+     lines.push(`import ${JSON.stringify(CORE_BUNDLE_PATH)};`);
+     lines.push(`const __ns_core_sub_ns__ = (globalThis.__NS_CORE_MODULES__ || {})[${JSON.stringify(registryKey)}];`);
+     lines.push(`if (!__ns_core_sub_ns__) { throw new Error(${JSON.stringify(`[ns-core] core bundle registry missing '${registryKey}' — restart the dev server or set NS_CORE_PER_MODULE=1`)}); }`);
++    let aliasIdx = 0;
+     for (const name of names) {
++        if (RESERVED_EXPORT_NAMES.has(name)) {
++            const alias = `__ns_core_alias_${aliasIdx++}`;
++            lines.push(`const ${alias} = __ns_core_sub_ns__[${JSON.stringify(name)}];`);
++            lines.push(`export { ${alias} as ${name} };`);
++            continue;
++        }
+         lines.push(`export const ${name} = __ns_core_sub_ns__.${name};`);
+     }
+     // Deep-subpath contract (see isDeepCoreSubpath / per-module bridge): a sub
+diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
+index 50e5abd..15063b4 100644
+--- a/hmr/server/deps-bundle.js
++++ b/hmr/server/deps-bundle.js
+@@ -869,7 +869,15 @@ export function collectDepsModuleExportInfo(absPath, platform, seen = new Set())
+     names.delete('default');
+     return { names: Array.from(names).sort(), hasDefault: hasExistingDefaultExport(code) };
+ }
+-const RESERVED_EXPORT_NAMES = new Set(['default', 'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'delete', 'do', 'else', 'enum', 'export', 'extends', 'false', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'null', 'return', 'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with', 'let', 'static', 'yield', 'await', 'eval', 'arguments', '__ns_dep_ns__']);
++// `default` is emitted separately (below); `__ns_dep_ns__` is this shim's own
++// local — a package exporting that name can't collide with it.
++const NON_DECLARABLE_EXPORT_NAMES = new Set(['default', '__ns_dep_ns__']);
++// Reserved words can't be declaration bindings (`export const enum` is a
++// syntax error), but they ARE legal export names — the specifier position in
++// `export { x as name }` accepts any IdentifierName. Emit those through a
++// temp + alias so packages like zod (`enum`, `catch`, `function`, …) keep
++// their full surface on the bridged namespace.
++const RESERVED_EXPORT_NAMES = new Set(['break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', 'delete', 'do', 'else', 'enum', 'export', 'extends', 'false', 'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'new', 'null', 'return', 'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof', 'var', 'void', 'while', 'with', 'let', 'static', 'yield', 'await', 'eval', 'arguments']);
+ /**
+  * Shim served at `/ns/m/node_modules/...` for a bundled module. The static
+  * bundle import guarantees the registry is populated before the body reads it
+@@ -880,13 +888,20 @@ const RESERVED_EXPORT_NAMES = new Set(['default', 'break', 'case', 'catch', 'cla
+ export function buildDepsShimCode(key, exportNames, hasOwnDefaultExport) {
+     // JS_IDENTIFIER_RE (not ASCII \w): Angular exports `ɵɵdefineInjectable`-style
+     // names — dropping them here breaks every `import * as i0` consumer.
+-    const names = Array.from(new Set(exportNames)).filter((n) => JS_IDENTIFIER_RE.test(n) && !RESERVED_EXPORT_NAMES.has(n));
++    const names = Array.from(new Set(exportNames)).filter((n) => JS_IDENTIFIER_RE.test(n) && !NON_DECLARABLE_EXPORT_NAMES.has(n));
+     const lines = [];
+     lines.push(`/* ns-deps bridge (bundle mode) — ${key} */`);
+     lines.push(`import ${JSON.stringify(DEPS_BUNDLE_PATH)};`);
+     lines.push(`const __ns_dep_ns__ = (globalThis.__NS_DEPS_MODULES__ || {})[${JSON.stringify(key)}];`);
+     lines.push(`if (!__ns_dep_ns__) { throw new Error(${JSON.stringify(`[ns-deps] deps bundle registry missing '${key}' — restart the dev server or set NS_DEPS_PER_MODULE=1`)}); }`);
++    let aliasIdx = 0;
+     for (const name of names) {
++        if (RESERVED_EXPORT_NAMES.has(name)) {
++            const alias = `__ns_dep_alias_${aliasIdx++}`;
++            lines.push(`const ${alias} = __ns_dep_ns__[${JSON.stringify(name)}];`);
++            lines.push(`export { ${alias} as ${name} };`);
++            continue;
++        }
+         lines.push(`export const ${name} = __ns_dep_ns__.${name};`);
+     }
+     if (hasOwnDefaultExport) {

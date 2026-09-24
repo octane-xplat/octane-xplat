@@ -30,3 +30,13 @@ allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   workerd: true
+# Reserved-word export fix for the dev-session deps/core bundle shims:
+# buildDepsShimCode/buildCoreSubShimCode filtered names like `enum` out of the
+# generated export surface entirely (zod exports `enum`/`catch`/`function`/
+# `instanceof`/`null`/`void` → `z.enum is not a function` on device). The patch
+# emits them as temp+`export { t as name }` aliases — legal ES2015, since the
+# export-name position accepts any IdentifierName. Remove once upstream
+# (@nativescript/vite, packages/vite/hmr/server/deps-bundle.ts +
+# core-bundle.ts in NativeScript/NativeScript) ships the same fix.
+patchedDependencies:
+  '@nativescript/vite@8.0.11': patches/@nativescript__vite@8.0.11.patch
