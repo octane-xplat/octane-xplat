@@ -9,13 +9,20 @@ export function App() @{
 	const scheme = useColorScheme();
 	const dark = override ?? scheme === 'dark';
 
-	const route = useRoute('root');
-	const slug = (route?.params?.page as string) || DOCS[0].slug;
+	const route = useRoute('notes') ?? useRoute('root');
+	const slug = route?.name ?? DOCS[0].slug;
 	const doc = DOCS.find((d) => d.slug === slug) ?? DOCS[0];
 
-	const open = (s: string) => { pushRoute({ stack: 'root', name: 'doc', params: { page: s } }); resetDocScroll(); };
+	const open = (s: string) => {
+		const d = DOCS.find((x) => x.slug === s);
+		pushRoute({ stack: d?.group === 'notes' ? 'notes' : 'root', name: s });
+		resetDocScroll();
+	};
 	// Safety net for navs that flow through octane's commit path.
-	useEffect(() => { resetDocScroll(); }, [doc.slug]);
+	useEffect(() => {
+		resetDocScroll();
+		document.title = doc.title === 'xplat' ? 'xplat docs' : `${doc.title} — xplat`;
+	}, [doc.slug]);
 	const renderDoc = (d: DocPage) => (
 		<Pressable className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => open(d.slug)}>
 			<Text className="side-text">{d.title.toLowerCase()}</Text>
