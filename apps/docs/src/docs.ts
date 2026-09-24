@@ -11,8 +11,15 @@ export interface DocPage {
 	group: 'guides' | 'notes';
 }
 
-// The design record: ledgers, open questions, lab journals, status tracking.
-const NOTES = new Set(['decisions', 'open-questions', 'demos', 'status']);
+// Notes contain the design record and the implementation details that guides
+// deliberately keep out of the reader's first path.
+const NOTES = new Set([
+	'decisions', 'open-questions', 'demos', 'status',
+	'framework-notes', 'architecture-notes', 'primitive-notes',
+	'styling-notes', 'navigation-notes', 'module-resolution-notes',
+	'platform-notes', 'animation-notes', 'testing-notes', 'toolchain-notes',
+	'css-support-notes',
+]);
 
 // Curated reading order — funnel: orientation → contract → mechanics →
 // domain guides → enforcement. Anything not listed falls to the end
@@ -27,13 +34,23 @@ const ORDER = [
 	'animation-gestures',
 	'module-resolution',
 	'platform-services',
-	'css-support-matrix',
 	'testing',
 	'toolchain',
 	'status',
 	'decisions',
 	'open-questions',
 	'demos',
+	'framework-notes',
+	'architecture-notes',
+	'primitive-notes',
+	'styling-notes',
+	'navigation-notes',
+	'module-resolution-notes',
+	'platform-notes',
+	'animation-notes',
+	'testing-notes',
+	'toolchain-notes',
+	'css-support-notes',
 ];
 
 function titleOf(slug: string, md: string): string {

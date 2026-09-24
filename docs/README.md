@@ -3,34 +3,35 @@
 > One [Octane](https://github.com/octanejs/octane) codebase, three targets:
 > web via the DOM renderer, iOS and Android via NativeScript
 > ([`@nativescript-community/octane`](https://github.com/nativescript-community/octane)).
-> Guides are in the sidebar; the design record — decisions, open questions,
-> lab logs, status — lives under **notes**.
+
+The guides are for building an app. The notes are for understanding or changing
+the framework itself.
 
 ## Start here
 
-- [spec](spec.md) — the whole design on one page.
-- [architecture](architecture.md) — the model, and the invariants that keep
-  the seams from tearing.
-- Then the domain guides: [primitives](primitives.md),
-  [styling](styling.md), [module-resolution](module-resolution.md),
-  [navigation](navigation.md), [platform-services](platform-services.md),
-  [animation-gestures](animation-gestures.md), [testing](testing.md),
-  [toolchain](toolchain.md).
+1. [xplat at a glance](spec.md) — decide whether the model fits your app.
+2. [Building screens](primitives.md) — compose a first shared screen.
+3. [Styling screens](styling.md) — choose classes, tokens, and runtime styles.
+4. [Moving between screens](navigation.md) — keep URLs and native stacks useful.
+5. [Using device features](platform-services.md) — use storage, permissions,
+   and other capabilities safely.
+6. [Running and checking an app](toolchain.md) — develop, build, and test.
 
-## What we own vs. what upstream owns
+## What belongs in the notes
 
-Seven problems are ours — primitives, navigation, module resolution, seam
-enforcement, animation/gestures, platform services, toolchain. Each has a
-domain guide. Upstream covers: renderer + host driver + element registry +
-on-device HMR (`@nativescript-community/octane`), the styling engine (real
-CSS/vars/media queries/keyframes on both targets), the worklet/bridge
-runtime, nav containers (`frame`/`tabview`/`ui-drawer`/`showModal`), the
-native bundler pipeline (`@nativescript/vite`), and the DOM renderer + SSR
-(octane).
+The notes keep details that are useful when extending or debugging the
+framework but distracting when you are building an app: resolver order,
+renderer rules, native driver behavior, CSS support tables, version pins,
+compiler limits, lab evidence, decisions, and open questions.
 
 ## Notes
 
-The design record is kept separate so guides stay readable: [decisions](decisions.md)
-(commitment ledger), [open-questions](open-questions.md) (unverified seams),
-[demos](demos.md) (the demo-suite lab journal), [status](status.md) (the
-ownership/tracking dashboard, plus doc-writing conventions).
+Start with [status](status.md) for the current framework state. The original
+design record is in [decisions](decisions.md), [open questions](open-questions.md),
+and [demos](demos.md). Deep implementation references are grouped by topic:
+[framework](framework-notes.md), [architecture](architecture-notes.md),
+[primitives](primitive-notes.md), [styling](styling-notes.md),
+[navigation](navigation-notes.md), [platform](platform-notes.md), and
+[toolchain](toolchain-notes.md). There are also focused notes for [module
+resolution](module-resolution-notes.md), [animation](animation-notes.md),
+[testing](testing-notes.md), and [CSS support](css-support-notes.md).

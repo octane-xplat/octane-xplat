@@ -1,4 +1,4 @@
-# CSS support matrix (NS ∩ web)
+# CSS support notes
 
 > The shared stylesheet's allowed grammar. Statuses: ✅ both · ⚠️ divergent ·
 > ❌ native-missing (use a primitive/facade instead) · ? unverified (lab).

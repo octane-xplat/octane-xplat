@@ -29,10 +29,10 @@ that pass: #18–#24.
 
 | File | Role |
 |---|---|
-| [spec](spec.md) | One-page framework spec — packages, conventions, rules, risks, build order |
-| [architecture](architecture.md) | The model + invariants everything else hangs off |
+| [spec](spec.md) | Orientation — what xplat is and where to start |
+| [architecture](architecture.md) | Shared screens, UI components, and platform leaves |
 | [styling](styling.md) | Cross-cuts 1/4/5 — shared CSS strategy |
-| [css-support-matrix](css-support-matrix.md) | NS∩web allowed grammar (seeded; verify per row in prototype) |
+| [css-support-notes](css-support-notes.md) | NS∩web allowed grammar (seeded; verify per row in prototype) |
 | [decisions](decisions.md) | Ledger — decided / provisional / forced |
 | [open-questions](open-questions.md) | Unverified seams, ranked by blast radius |
 | [demos](demos.md) | Demo suite in `packages/demos` — geastack-catalog-inspired screens, one seam each |
