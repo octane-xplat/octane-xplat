@@ -364,6 +364,10 @@ body {
 	font-weight: 700;
 }
 
+.italic {
+	font-style: italic;
+}
+
 .link {
 	color: var(--nb-ink);
 	font-weight: 700;
