@@ -12,7 +12,6 @@ export function Pressable(props: PressableProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		{...layoutChildProps(props)}
-		flexDirection="column"
 		className={cx('vx-pressable', props.className)}
 		style={{ ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) }}
 		accessible={props.accessible}
