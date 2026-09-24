@@ -3,6 +3,7 @@ import { View, Row, Text, Pressable, TextInput, TextArea, List, ScrollView, Imag
 import { navigate } from './platform/nav';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
+import { probeSignal$ } from './probe-state';
 import { storage } from '@octane-xplat/platform';
 
 const INITIAL = [
@@ -68,6 +69,8 @@ export function Home() @{
 
 	<View className={['vx-app', 'flex-1', 'gap-4', dark ? 'dark ns-dark' : '']}>
 		<Text className="text-xl font-bold">{'Count: ' + count}</Text>
+		{/* Universal signal-read seam: ambient .set() must re-render this owner. */}
+		<Text>{probeSignal$.get() as string}</Text>
 		<PlatformBadge className="badge" />
 
 		<Row className="gap-4">

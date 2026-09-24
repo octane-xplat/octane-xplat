@@ -16,6 +16,11 @@ publicHoistPattern:
 # nothing here invokes; chokidar3+readdirp3 is the coherent pair.
 overrides:
   chokidar: ^3.6.0
+  # Packed octane built from the universal-signal-reads worktree — published
+  # octane ships dist/ (publishConfig), so a source link would typecheck DOM
+  # files under the app's no-DOM lib. Re-pack after upstream edits; revert to
+  # the 0.4.0 pin once a release carries universal native signal reads.
+  octane: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz
 # Exact pins in package.json — no caret/tilde drift on fresh installs.
 saveExact: true
 minimumReleaseAgeExclude:

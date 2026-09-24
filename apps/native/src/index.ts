@@ -1,6 +1,7 @@
 import { Application, Frame, ListView, Page, Trace } from '@nativescript/core';
 import { renderNativeScriptApp } from '@nativescript-community/octane';
 import { App } from '@xplat/app';
+import { probeSignal$ } from '@xplat/app/probe-state';
 import { getColorScheme, registerStack } from '@octane-xplat/ui';
 import { storage, wireHardwareBack } from '@xplat/app';
 import './app.css';
@@ -249,6 +250,17 @@ setTimeout(() => {
   const overlay = find('overlay-host');
   assertHas('overlay texts', texts(overlay), 'Overlay content');
 }, 6800);
+
+// Universal signal-read probe: an ambient .set() (no render in flight) must
+// schedule the reading component through the universal scheduler. Initial
+// render already asserted implicitly — 'sig-off' is read via .get() in Home.
+setTimeout(() => {
+	assertHas('signal probe initial', texts(thePage), 'sig-off');
+	probeSignal$.set('sig-on');
+}, 6600);
+setTimeout(() => {
+	assertHas('signal probe after ambient set', texts(thePage), 'sig-on');
+}, 7000);
 
 // Sheet probe (Exp 11): back to tab 1, then synthesized tap on sheet-btn.
 setTimeout(() => {
