@@ -15,6 +15,9 @@ import type {
 	KeyboardAvoidingProps,
 	ListProps,
 	ModalProps,
+	ModalOpenOptions,
+	ModalOpenResult,
+	OpenModal,
 	PlatformBadgeProps,
 	PressableProps,
 	ReadableStore,
@@ -44,6 +47,9 @@ export type {
 	KeyboardAvoidingProps,
 	ListProps,
 	ModalProps,
+	ModalOpenOptions,
+	ModalOpenResult,
+	OpenModal,
 	PanEvent,
 	PlatformBadgeProps,
 	PressableProps,
@@ -90,6 +96,7 @@ export declare const PlatformBadge: UniversalComponent<PlatformBadgeProps>;
 // ---------- overlays / shells ----------
 
 export declare const Modal: UniversalComponent<ModalProps>;
+export declare const openModal: OpenModal;
 export declare const Tabs: UniversalComponent<TabsProps>;
 
 // ---------- stacks (native registry; no-op on web) ----------

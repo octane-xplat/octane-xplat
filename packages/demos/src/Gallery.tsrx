@@ -12,6 +12,7 @@ import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
 import { ListDemo } from './ListDemo.tsrx';
 import { DeviceDemo } from './DeviceDemo.tsrx';
+import { ModalDemo } from './ModalDemo.tsrx';
 import { useLastDemo } from './store.tsrx';
 
 export const DEMOS = [
@@ -27,6 +28,7 @@ export const DEMOS = [
 	{ id: 'probe', title: 'Reactivity' },
 	{ id: 'list-demo', title: 'List contract' },
 	{ id: 'device', title: 'Device seams' },
+	{ id: 'modal', title: 'Modal' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -48,6 +50,7 @@ const renderAnim = () => <AnimShowcase />;
 const renderProbe = () => <ReactiveProbe />;
 const renderListDemo = () => <ListDemo />;
 const renderDevice = () => <DeviceDemo />;
+const renderModal = () => <ModalDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -62,6 +65,7 @@ export const RENDER: Record<string, () => any> = {
 	probe: renderProbe,
 	'list-demo': renderListDemo,
 	device: renderDevice,
+	modal: renderModal,
 };
 
 /** Demo launcher — chip menu. Two modes:

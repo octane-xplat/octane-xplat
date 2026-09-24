@@ -149,6 +149,12 @@
 .device-drawer-content { padding: 16px; background-color: #fef3c7; }
 .device-native-note { font-size: 12px; opacity: 0.65; }
 
+.demo-modal-card {
+  padding: 20px;
+  border-radius: 12px;
+  background-color: var(--color-surface);
+}
+
 /* Keyframes — the only sanctioned animation path (decision #22). Props
    limited to the verified NS set: opacity, transform (scale/rotate/
    translate), background-color, width/height. No `animation-direction:

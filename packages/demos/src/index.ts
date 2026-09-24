@@ -10,5 +10,6 @@ export { AnimShowcase } from './AnimShowcase.tsrx';
 export { ReactiveProbe } from './ReactiveProbe.tsrx';
 export { ListDemo } from './ListDemo.tsrx';
 export { DeviceDemo } from './DeviceDemo.tsrx';
+export { ModalDemo } from './ModalDemo.tsrx';
 export { DEMOS, RENDER, Gallery } from './Gallery.tsrx';
 export { setLastDemo, useLastDemo } from './store.tsrx';

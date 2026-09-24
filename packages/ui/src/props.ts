@@ -126,10 +126,38 @@ export interface PlatformBadgeProps { className?: any; }
 
 export interface ModalProps {
 	open?: boolean;
-	onClose?: () => void;
+	onClose?: (result?: ModalOpenResult) => void;
 	fullscreen?: boolean;
+	/** Native: sheet uses fullscreen=false (iOS form sheet; Android centered
+	 *  dialog), fullscreen uses fullscreen=true. Web: dialog is a centered
+	 *  card, sheet is bottom-anchored, fullscreen is the default dialog size. */
+	presentation?: 'sheet' | 'fullscreen' | 'dialog';
+	/** Component reference rendered inside the modal's separate root. When
+	 *  both component and children are set, component takes precedence. */
+	component?: any;
+	/** Props passed to component. Context and theme do not cross modal roots. */
+	params?: any;
 	children?: any;
 }
+
+/** Options for `openModal`. `fullscreen` is retained for callers using the
+ *  NativeScript option directly; `presentation` takes precedence when set.
+ *  Android's non-fullscreen modal is a centered dialog, not a bottom sheet. */
+export interface ModalOpenOptions {
+	presentation?: 'sheet' | 'fullscreen' | 'dialog';
+	fullscreen?: boolean;
+	animated?: boolean;
+}
+
+/** Value supplied to a modal close callback and returned by `openModal`. */
+export type ModalOpenResult = unknown;
+
+/** Public function shape of the imperative modal service. */
+export type OpenModal = (
+	component: any,
+	params?: any,
+	options?: ModalOpenOptions,
+) => Promise<ModalOpenResult>;
 
 // ---------- tabs / navigation shells ----------
 

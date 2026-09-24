@@ -30,12 +30,19 @@ export function Modal(props: ModalProps) @{
 			const host = new GridLayout();
 			const root = createNativeScriptRoot(host);
 			shown.current = { host, root };
-			root.render(Panel as unknown as UniversalComponent, { children: props.children });
+			if (props.component) {
+				root.render(props.component as UniversalComponent, props.params ?? {});
+			} else {
+				root.render(Panel as unknown as UniversalComponent, { children: props.children });
+			}
 			// Signature is showModal(viewToShow, options) — not an options bag.
+			const fullscreen = props.presentation
+				? props.presentation === 'fullscreen'
+				: props.fullscreen ?? true;
 			presenter.showModal(host, {
 				context: {},
-				closeCallback: () => { shown.current = null; props.onClose?.(); },
-				fullscreen: props.fullscreen ?? true,
+				closeCallback: (result?: unknown) => { shown.current = null; props.onClose?.(result); },
+				fullscreen,
 				animated: true,
 			});
 		} else if (!props.open && shown.current) {
