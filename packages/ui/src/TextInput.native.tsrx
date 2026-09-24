@@ -6,7 +6,7 @@ import type { TextInputProps } from "./props";
  *  guard needed. */
 export function TextInput(props: TextInputProps) @{
 	<textfield
-		id="probe-input"
+		id={props.id}
 		className={props.className}
 		style={props.style}
 		text={props.value}

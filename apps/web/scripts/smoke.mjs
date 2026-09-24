@@ -42,6 +42,16 @@ try {
 	await page.waitForSelector('text=Count: 1', { timeout: 3000 });
 	ok('pressable onClick → state update', true);
 
+	// TextArea leaf: real <textarea>, controlled round-trip, autoGrow re-fit.
+	await page.waitForSelector('#probe-textarea', { timeout: 5000 });
+	const taH0 = await page.evaluate(() => document.getElementById('probe-textarea').offsetHeight);
+	await page.fill('#probe-textarea', 'line one\nline two\nline three');
+	const taVal = await page.evaluate(() => document.getElementById('probe-textarea').value);
+	ok('textarea controlled input', taVal === 'line one\nline two\nline three');
+	await page.waitForTimeout(100);
+	const taH1 = await page.evaluate(() => document.getElementById('probe-textarea').offsetHeight);
+	ok('textarea autoGrow expands', taH1 > taH0, taH0 + '→' + taH1);
+
 	// Tab switch: web Tabs leaf renders a button row.
 	await page.click('button:text("Demos")');
 	await page.waitForSelector('text=Last opened:', { timeout: 3000 });

@@ -83,6 +83,9 @@ setTimeout(() => {
   const v = find('probe-input');
   console.log('[probe] textfield=' + (v ? v.constructor.name : 'none'));
   v?.notify({ eventName: 'textChange', object: v, value: 'typed!' } as any);
+  const ta = find('probe-textarea');
+  console.log('[probe] textview=' + (ta ? ta.constructor.name : 'none'));
+  ta?.notify({ eventName: 'textChange', object: ta, value: 'line one\nline two' } as any);
 }, 1500);
 
 // A11y + content readback.
@@ -90,6 +93,12 @@ setTimeout(() => {
   const b = find('a11y-btn');
   console.log('[probe] a11y accessible=' + b?.accessible + ' label=' + b?.accessibilityLabel + ' role=' + b?.accessibilityRole);
   assertEq('textfield.text', find('probe-input')?.text, 'typed!');
+  // TextArea leaf: multiline round-trip + rows/maxRows → dip heights.
+  const ta = find('probe-textarea');
+  assertEq('textview.text', ta?.text, 'line one\nline two');
+  const dip = (x: any) => (x && typeof x === 'object' ? x.value : x) ?? 0;
+  const taMin = dip(ta?.style?.minHeight), taMax = dip(ta?.style?.maxHeight);
+  console.log('[assert] textarea rows fit: ' + (taMin > 0 && taMax > taMin ? 'OK' : 'FAIL') + ' (min=' + taMin + ' max=' + taMax + ')');
 }, 1600);
 
 // Gesture probe (Exp 10): synthesize pan + swipe on the pan-box.

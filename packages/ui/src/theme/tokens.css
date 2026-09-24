@@ -44,6 +44,11 @@
   opacity: 0.85;
 }
 
+/* auto-grow owns height — the manual resize handle has no native analog */
+.vx-textarea {
+  resize: none;
+}
+
 /* utilities (hand-written subset for the harness; Tailwind later) */
 
 .flex-1 { flex-grow: 1; }

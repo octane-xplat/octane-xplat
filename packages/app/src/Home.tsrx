@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@octane-xplat/ui';
 import { navigate } from './platform/nav';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
@@ -34,6 +34,7 @@ export function Home() @{
 	const dark = (override ?? scheme) === 'dark';
 	const darkMark = useRef(0);
 	const [text, setText] = useState('');
+	const [bio, setBio] = useState('');
 	const [items, setItems] = useState(INITIAL);
 	const [modal, setModal] = useState(false);
 	const x = useAnimation(0);
@@ -189,12 +190,28 @@ export function Home() @{
 		</Row>
 
 		<TextInput
+			id="probe-input"
 			value={text}
 			onChange={(v) => { console.log('[probe] onChange ' + v); setText(v); storage.setString('draft', v); }}
 			placeholder="Type here"
 			className="input"
 		/>
 		<Text>{'Typed: ' + text}</Text>
+
+		{/* TextArea seam: <textarea>/<textview>; autoGrow re-fits height to
+		    content on web (scrollHeight, capped at maxRows) while native's
+		    TextView grows on its own — the leaf maps rows/maxRows to
+		    min/maxHeight dips at the widget's measured line height. */}
+		<TextArea
+			id="probe-textarea"
+			value={bio}
+			onChange={(v) => { console.log('[probe] textareaChange ' + JSON.stringify(v)); setBio(v); }}
+			placeholder="Multiline composer"
+			autoGrow
+			maxRows={4}
+			className="input"
+		/>
+		<Text>{'Bio: ' + bio}</Text>
 
 		<List
 			id="main-list"

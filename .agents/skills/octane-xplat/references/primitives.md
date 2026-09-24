@@ -16,7 +16,8 @@ there; leaf signatures are `props: XProps`.
 | `Row` | `className, style, children` | Flex-row. |
 | `Text` | `className, style, children` | `<span>` / `<label>`. |
 | `Pressable` | `className, style, children, id, disabled, onPress, onLongPress, accessible, accessibilityLabel, accessibilityRole` | `div[role=button]` / `<contentview>` + tap. Long-press: ~500ms hold (web: pointer timer). |
-| `TextInput` | `className, style, value, placeholder, hint, onChange(value)` | Controlled — driver handles write-back echo suppression. `hint` maps to `placeholder` on web. |
+| `TextInput` | `className, style, id, value, placeholder, hint, onChange(value)` | Controlled — driver handles write-back echo suppression. `hint` maps to `placeholder` on web. |
+| `TextArea` | `TextInputProps + rows, autoGrow, maxRows` | `textarea`/`textview`. `autoGrow` re-fits web height per commit (scrollHeight), capped by `maxRows`→`max-height` at computed line-height. Native TextView grows by default; `rows`/`maxRows` → `minHeight`/`maxHeight` dips at the widget's measured line height (`maxLines` is truncation-only on iOS — not a cap). Explicit `style.height` wins on native. |
 | `List` | `className, style, id, items, renderItem(item), renderEmpty` | Real `ListView` on native (virtualized cells); `@for` + empty block on web. Cells get platform-native recycling — keyed items. |
 | `ScrollView` | `className, style, id, horizontal, children` | One child (NS constraint matches DOM scroll container). |
 | `Image` | `className, style, id, src, alt` | `src` accepts URL or `data:` URI on both. |

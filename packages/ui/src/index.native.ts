@@ -4,6 +4,7 @@ export { Row } from './Row.native.tsrx';
 export { Text } from './Text.native.tsrx';
 export { Pressable } from './Pressable.native.tsrx';
 export { TextInput } from './TextInput.native.tsrx';
+export { TextArea } from './TextArea.native.tsrx';
 export { List } from './List.native.tsrx';
 export { ScrollView } from './ScrollView.native.tsrx';
 export { Image } from './Image.native.tsrx';

@@ -46,7 +46,7 @@ interface PrimitiveProps {
 | `Pressable` | `div`+pointer events | `contentview`+`tap`/`touch` | hover/pressed states → CSS vs manual touch tracking; use `button` leaf only where native button chrome wanted |
 | `ScrollView` | `div` overflow | `scrollview` | `horizontal` prop both sides |
 | `List` | `@octanejs/tanstack-virtual` over `div` | `listview` + **per-cell Octane sub-roots** | **the leak**: ListView recycles via `itemTemplate`/`itemLoading` (imperative view factories — no reconciler children). Design: each recycled slot hosts a `createNativeScriptRoot`; `itemLoading` rebinds `{item, index}` into a per-cell store the row component reads; `items` wrapped as `ObservableArray` for granular updates; `itemTemplateSelector` for heterogeneous rows. Lab: per-cell root cost, scroll perf |
-| `TextInput` / `TextArea` | `input`/`textarea` | `textfield`/`textview` | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ |
+| `TextInput` / `TextArea` | `input`/`textarea` | `textfield`/`textview` | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS) |
 | `Image` | `img` | `image` | `src`: URL/`res://`/`~/` — asset resolution differs; sizing via CSS both sides |
 | `Icon` | inline SVG (lucide-style) | `sf-icon` pattern — `image` + symbol config, font fallback on Android | name → per-platform glyph map |
 | `Switch` | `input[type=checkbox]` styled | `switch` | |
@@ -215,6 +215,11 @@ interface TextInputProps {
   placeholder?; placeholderTextColor?; keyboardType?; returnKeyType?;
   autocorrect?; secure?; editable?;
   ref?: Ref<{ focus(): void; blur(): void }>;
+}
+interface TextAreaProps extends TextInputProps {  // shipped (props.ts)
+  rows?: number;      // web `rows` attr / native minHeight (measured line height)
+  autoGrow?: boolean; // native default; web re-fits scrollHeight per commit
+  maxRows?: number;   // cap → max-height (web) / maxHeight dip (native)
 }
 ```
 

@@ -7,8 +7,8 @@
 | Typecheck | `tsrx-tsc --noEmit -p apps/{web,native}/tsconfig.json` | .tsrx typechecks per target |
 | Unit | `pnpm test` | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.native.test.*`, universal runtime via the object driver) |
 | Seam lint | `node scripts/check-no-dom.mjs` | no DOM globals in native/shared |
-| Web smoke | `cd apps/web && pnpm smoke` | build + Playwright, 14 asserts |
-| iOS | build + install + launch → read sim log | `[assert]` lines, 48/48 expected |
+| Web smoke | `cd apps/web && pnpm smoke` | build + Playwright, 16 asserts |
+| iOS | build + install + launch → read sim log | `[assert]` lines, 50/50 expected |
 | Android | build + install + launch → logcat `I JS` | probes minus gated sweep |
 
 ## The probe harness (`apps/native/src/index.ts`)

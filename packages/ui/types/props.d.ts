@@ -54,11 +54,26 @@ export interface PressableProps {
 export interface TextInputProps {
     className?: any;
     style?: any;
+    id?: string;
     value?: string;
     placeholder?: string;
     /** NativeScript's term for placeholder — web maps hint → placeholder. */
     hint?: string;
     onChange?: (value: string) => void;
+}
+export interface TextAreaProps extends TextInputProps {
+    /** Height in text rows. Web: the `rows` attr (fixed box); native:
+     *  minHeight at the widget's measured line height. With `autoGrow` it
+     *  becomes the starting height instead of a fixed one. */
+    rows?: number;
+    /** Grow to fit content, capped by `maxRows`. Native TextView grows by
+     *  default — this prop exists so web (<textarea> is fixed-rows) matches;
+     *  without it, native gets a fixed `rows`-high box like web. */
+    autoGrow?: boolean;
+    /** Growth cap in rows — past it the field scrolls internally. Native:
+     *  maxHeight at measured line height (TextView's own `maxLines` only
+     *  sets truncation on iOS — not a cap). */
+    maxRows?: number;
 }
 export interface ListProps {
     className?: any;

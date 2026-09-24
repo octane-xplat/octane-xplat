@@ -24,6 +24,7 @@ import type {
 	SwitchProps,
 	TabSpec,
 	TabsProps,
+	TextAreaProps,
 	TextInputProps,
 	TextProps,
 	ViewProps,
@@ -48,6 +49,7 @@ export type {
 	SwitchProps,
 	TabSpec,
 	TabsProps,
+	TextAreaProps,
 	TextInputProps,
 	TextProps,
 	ViewProps,
@@ -62,6 +64,7 @@ export declare const Row: UniversalComponent<RowProps>;
 export declare const Text: UniversalComponent<TextProps>;
 export declare const Pressable: UniversalComponent<PressableProps>;
 export declare const TextInput: UniversalComponent<TextInputProps>;
+export declare const TextArea: UniversalComponent<TextAreaProps>;
 export declare const List: UniversalComponent<ListProps>;
 export declare const ScrollView: UniversalComponent<ScrollViewProps>;
 export declare const Image: UniversalComponent<ImageProps>;

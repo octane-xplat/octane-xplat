@@ -4,6 +4,7 @@ export { Row } from './Row.web.tsrx';
 export { Text } from './Text.web.tsrx';
 export { Pressable } from './Pressable.web.tsrx';
 export { TextInput } from './TextInput.web.tsrx';
+export { TextArea } from './TextArea.web.tsrx';
 export { List } from './List.web.tsrx';
 export { ScrollView } from './ScrollView.web.tsrx';
 export { Image } from './Image.web.tsrx';

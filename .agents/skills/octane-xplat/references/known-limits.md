@@ -15,6 +15,15 @@ Read before promising behavior or building on a seam.
 
 ## Verified-with-boundaries
 
+- **tsrx infers effect deps from closure reads** — an effect that only
+  touches refs/DOM (never reads the driving prop) compiles to a deps array
+  that omits it, so it won't re-run when that prop changes. State deps
+  explicitly (`useLayoutEffect(fn, [props.value])`) — `TextArea.web`'s
+  auto-grow re-fit is the example (inferred `[maxRows, autoGrow]`, missed
+  `value`).
+- **`onInput`/`onChange` can dispatch repeatedly on web** — one Playwright
+  `fill` logged 5× `textareaChange`; the controlled-input repair machinery
+  replays events. Handlers must be idempotent.
 - **Hardware back (Android)** — `wireHardwareBack()` wired + fallthrough
   verified; the pop-while-pushed path is logically correct but unverified
   live (probe pushes auto-pop in ~500ms — needs a persistent route to test).
