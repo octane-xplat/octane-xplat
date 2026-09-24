@@ -1,4 +1,4 @@
-import type { RouteName } from '../screens';
+import type { RouteName } from '../routes';
 
 import { popRoute, pushRoute } from '@octane-xplat/ui';
 

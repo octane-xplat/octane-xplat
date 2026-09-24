@@ -15,7 +15,7 @@
 ## The contract
 
 ```
-app/                          (shared route dir — concept, not yet implemented)
+app/                          (shared route dir — implemented)
   _layout.tsrx                shell: Stack/Tabs/Drawer per platform
   index.tsrx                  screen component (shared)
   chat/[id].tsrx              dynamic param screen
@@ -32,6 +32,34 @@ app/                          (shared route dir — concept, not yet implemented
 - **Named exports preferred** for route files — HMR accept boundaries are
   self-accepting modules either way ; named exports stay as
   convention for clarity of non-component exports.
+
+### Mechanism (v1, implemented)
+
+The dir is scanned by `import.meta.glob` in per-platform manifest leaves —
+the *directory-level* form of the suffix seam (invariant 1):
+`route-manifest.web.ts` excludes `*.native/ios/android.*`, the native twin
+excludes `*.web.*` and prefers the running OS via `Device.os`.
+`deriveRouteManifest(files, prefer)` (`packages/ui/src/route-table.ts`)
+turns the module map into `{screens, routes, layouts}`:
+
+- `demo/[id].tsrx` → route name `demo/:id` (`[param]` → `:param`);
+  `foo/index.tsrx` → `foo`; trailing `index` drops.
+- Platform suffix dedupe by `prefer` rank: web `['web']`, native
+  `['ios'|'android','native']`; suffixes outside `prefer` are skipped.
+- `_layout` files catalog into `layouts[dir]` (`''` = root) — the entry
+  renders `routes.layouts['']` as the app shell; nested layouts are
+  cataloged but not yet wired to outlets.
+- Component pick rule: `default` export → `screen` export → a single
+  function export; anything else warns and skips.
+
+`registerRoutes(manifest)` (ui, both leaves) registers screens + URL
+patterns in one call — `packages/app/src/routes.ts` does it at module
+scope. Web: `pushRoute` substitutes `:param` segments into the path
+(`demo/:id` + `{id:'x'}` → `/demo/x`; leftover params → query) and
+`parse()` matches incoming paths back to `{stack, name, params}` — named
+stacks keep the `/<stack>/<path>` prefix. Native: unchanged — `route.name`
+resolves through `screens`, params land as props. `hrefFor(route)` is the
+canonical path builder (Link's href).
 
 ## Mapping
 
@@ -86,13 +114,27 @@ app/                          (shared route dir — concept, not yet implemented
 
 ## Build order (prototype path)
 
-1. `Link` + `useNavigate` + two hand-written route tables (no codegen).
-2. `Stack` (frame) + `Tabs` shells on native; URL router on web.
-3. Platform-suffixed route files via the resolver.
+1. ~~`Link` + `useNavigate` + two hand-written route tables (no codegen).~~
+   done — tables superseded by the `app/` manifest (Mechanism above).
+2. `Stack` (frame) + `Tabs` shells on native; URL router on web. — done.
+3. ~~Platform-suffixed route files via the resolver.~~ done — glob
+   manifests are the directory-level suffix seam.
 4. Modal route as second native root.
-5. Android back + deep link + typed routes codegen.
+5. Android back + deep link + typed routes codegen. — back + deep link
+   done; codegen (typed `RouteName`/params, `routes.d.ts`) remains.
 
 ## Lab log
+
+> **Lab (route dir, web, 2026-09-24):** `packages/app/src/app/` holds the
+> harness routes — `_layout.tsrx` (the Tabs shell, rendered via
+> `layouts['']`), `detail.tsrx`, `demo/[id].tsrx`. `import.meta.glob` +
+> `deriveRouteManifest` build the table; `registerRoutes` wires both
+> leaves. Verified end-to-end on web (18/18 smoke): chip →
+> `navigate('demo/:id',{id},{into:'demos'})` writes `/demos/demo/counter`
+> (path param, not query), pushed screen renders in the pane, deep link
+> `/demos/demo/watch` boots into the right tab + screen. `Link.web` now
+> emits real `hrefFor` paths (the `#/` hash stub is gone). Native:
+> typecheck clean; device run pending.
 
 > **Lab (Exp 9, iOS):** Frame-root entry + `frame.navigate({create})` pushes a
 > second `Page` hosting its own `createNativeScriptRoot` — per-page roots work.

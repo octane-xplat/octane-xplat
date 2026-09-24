@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'octane';
 import { Screen, Tabs, Text, currentRoute } from '@octane-xplat/ui';
-import { screens } from './screens';
-import { Home } from './Home.tsrx';
-import { Settings } from './Settings.tsrx';
+import { screens } from '../routes';
+import { Home } from '../Home.tsrx';
+import { Settings } from '../Settings.tsrx';
 import { Gallery } from '@xplat/demos';
-import { navigate } from './platform/nav';
+import { navigate } from '../platform/nav';
 import type { TabSpec } from '@octane-xplat/ui';
 // Probe-only module: schedules the demo-gallery sweep on native; no-op on web.
-import './platform/demosweep';
+import '../platform/demosweep';
 
 // Identity-stable tab specs — Tabs is memoized on the array reference, and
 // each spec carries a render function (same contract as List.renderItem).
@@ -17,7 +17,7 @@ const renderHome = () => <Home />;
 const renderSettings = () => <Settings />;
 // Chips navigate inside the tab's own stack — the Demos pane is a Frame
 // (TabSpec.stack), so demo pushes stay under the tab bar.
-const renderDemos = () => <Gallery onOpen={(id) => navigate('demo', { id }, { into: 'demos' })} />;
+const renderDemos = () => <Gallery onOpen={(id) => navigate('demo/:id', { id }, { into: 'demos' })} />;
 const TABS: TabSpec[] = [
 	{ title: 'Home', render: renderHome },
 	{ title: 'Settings', render: renderSettings },
@@ -26,10 +26,12 @@ const TABS: TabSpec[] = [
 
 console.log('[harness] App module evaluated');
 
-/** App shell — a real tab surface. Screen wraps content in the platform
- *  root (rootlayout on native, div on web). */
-export function App() @{
-	// Deep link: a URL like /demos/demo?id=counter boots into the Demos tab
+/** Root layout — the route dir's shell (app/_layout.tsrx → layouts[''] in
+ *  the manifest; the entry renders whatever file fills that slot). A real
+ *  tab surface: Screen wraps content in the platform root (rootlayout on
+ *  native, div on web). */
+export function RootLayout() @{
+	// Deep link: a URL like /demos/demo/counter boots into the Demos tab
 	// with the pushed screen already on its stack (web leaf; currentRoute is
 	// a no-op null on native).
 	const [tab, setTab] = useState(() => {
@@ -51,7 +53,7 @@ export function App() @{
 			selectedIndex={tab}
 			onSelectedIndexChanged={(i) => { console.log('[probe] tab -> ' + i); setTab(i); }}
 			resolveScreen={(name, params) => {
-				const C = screens[name as keyof typeof screens];
+				const C = screens[name];
 				return C ? <C {...params} /> : <Text>404: {name}</Text>;
 			}}
 		/>

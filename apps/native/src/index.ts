@@ -328,7 +328,6 @@ setTimeout(() => {
 }, 10600);
 
 // A module-graph reload re-evaluates this entry and mounts fresh roots.
-// @ts-expect-error — vite hot types; add vite/client to tsconfig types if desired
 import.meta.hot?.dispose(() => {
   for (const root of roots) root.unmount();
   roots.clear();

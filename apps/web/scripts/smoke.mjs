@@ -1,6 +1,6 @@
 // Real-browser smoke for the shared app — the web target's first runtime
 // evidence. Serves apps/web/dist via `vite preview`, drives headless
-// Chromium, asserts render + tab nav + chip→hash-route + interaction,
+// Chromium, asserts render + tab nav + chip→path-route + interaction,
 // and fails on any pageerror/console.error.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -65,12 +65,12 @@ try {
 	const chipCount = await page.locator('[role="button"]:has-text("Counter")').count();
 	ok('gallery chips render', chipCount >= 1, 'chips=' + chipCount);
 
-	// Chip click → navigate('demo',{id},{into:'demos'}) → real path +
+	// Chip click → navigate('demo/:id',{id},{into:'demos'}) → real path +
 	// the pushed screen renders inside the Demos pane (tab bar stays).
 	await page.click('[role="button"]:has-text("Counter")');
 	await page.waitForFunction(() => location.pathname.includes('demo'), null, { timeout: 3000 });
 	const path = await page.evaluate(() => location.pathname + location.search);
-	ok('chip → pushRoute writes real path', path === '/demos/demo?id=counter', path);
+	ok('chip → pushRoute writes real path', path === '/demos/demo/counter', path);
 	await page.waitForSelector('text=Demo count: 0', { timeout: 3000 });
 	ok('pushed screen renders inside pane', true);
 	const tabbarVisible = await page.locator('.vx-tabbar').isVisible();
@@ -96,7 +96,7 @@ try {
 	ok('browser back → shell restored', true);
 
 	// Deep link: fresh page load at /demos/demo renders demo in Demos pane.
-	await page.goto(BASE + '/demos/demo?id=watch', { waitUntil: 'networkidle' });
+	await page.goto(BASE + '/demos/demo/watch', { waitUntil: 'networkidle' });
 	await page.waitForSelector('text=/\\d{2}:\\d{2}:\\d{2}/', { timeout: 5000 });
 	ok('deep link → correct tab + pushed screen', true);
 

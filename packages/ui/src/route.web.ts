@@ -3,23 +3,41 @@ import { useSyncExternalStore } from 'octane';
 /** Web route store — the browser half of the nav contract. One linear URL
  *  stack; `stack` names the conceptual outlet ('root' covers the app, a
  *  named stack is the pane that owns it — parallel stacks map to nested
- *  routes). URL shape: /<stack>/<name>?params or /<name>?params for root.
- *  Module-scope like every other store — the pane that owns `stack`
- *  subscribes with useRoute(stack) and swaps its content. */
+ *  routes). URL shape: /<stack>/<path>?query or /<path>?query for root,
+ *  where <path> comes from the route-dir manifest — `app/demo/[id].tsrx`
+ *  pushes as /demo/<id-value>. Names not in the manifest keep the legacy
+ *  /<name>?params shape. Module-scope like every other store — the pane
+ *  that owns `stack` subscribes with useRoute(stack) and swaps content. */
 
 export type { Route } from './props';
-import type { Route, ScreenTable } from './props';
+import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props';
+import { buildRoutePath, matchRoute } from './route-table';
 
 // ---------- screen registry ----------
 
 let screens: ScreenTable = {};
+let routes: RouteMeta[] = [];
 
 /** Register the app's name → screen table. On web the table feeds
  *  `screenFor` — the fallback outlet resolution in Tabs when no
  *  `resolveScreen` prop is given; on native `pushRoute` resolves
- *  `route.name` through it. Call once from the shared screens module. */
-export function registerScreens(table: ScreenTable): void {
+ *  `route.name` through it. `manifest` (from deriveRouteManifest) enables
+ *  path-param matching — call once from the shared routes module. */
+export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): void {
 	screens = table;
+	routes = manifest ?? [];
+	// Registration can land after the first lazy parse (deep link read
+	// before the routes module ran) — re-parse with patterns present.
+	if (current !== undefined) {
+		current = parse();
+		emit();
+	}
+}
+
+/** One-call registration for route-dir apps — screens + URL patterns +
+ *  layouts all come from deriveRouteManifest. */
+export function registerRoutes(manifest: RouteManifest): void {
+	registerScreens(manifest.screens, manifest.routes);
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {
@@ -29,21 +47,36 @@ export function screenFor(name: string): ScreenTable[string] | undefined {
 // ---------- the store ----------
 
 const listeners = new Set<() => void>();
-let current: Route | null = parse();
+// Lazy — the manifest registers after this module evaluates, and parse()
+// needs its patterns for path params.
+let current: Route | null | undefined;
 
-function parse(): Route | null {
-	const parts = location.pathname.split('/').filter(Boolean);
-	if (!parts.length) return null;
-	const [name, stack] = parts.length === 1 ? [parts[0], 'root'] : [parts[1], parts[0]];
+function queryParams(): Record<string, unknown> {
 	const params: Record<string, unknown> = {};
 	new URLSearchParams(location.search).forEach((v, k) => (params[k] = v));
-	return { stack, name, params };
+	return params;
 }
 
-function build(r: Route): string {
-	const q = new URLSearchParams(r.params as Record<string, string>).toString();
-	const path = r.stack === 'root' ? '/' + r.name : '/' + r.stack + '/' + r.name;
-	return path + (q ? '?' + q : '');
+function parse(): Route | null {
+	const segs = location.pathname.split('/').filter(Boolean);
+	if (!segs.length) return null;
+	const query = queryParams();
+	// Whole path first — a root route wins over stack interpretation.
+	const root = matchRoute(routes, segs);
+	if (root) return { stack: 'root', name: root.meta.name, params: { ...query, ...root.params } };
+	if (segs.length > 1) {
+		// Named stack: first segment is the outlet, the rest is the route.
+		const named = matchRoute(routes, segs.slice(1));
+		if (named)
+			return { stack: segs[0], name: named.meta.name, params: { ...query, ...named.params } };
+		return { stack: segs[0], name: segs[1], params: query };
+	}
+	return { stack: 'root', name: segs[0], params: query };
+}
+
+function read(): Route | null {
+	if (current === undefined) current = parse();
+	return current;
 }
 
 function emit() {
@@ -51,7 +84,7 @@ function emit() {
 }
 
 export function pushRoute(r: Route): void {
-	history.pushState(null, '', build(r));
+	history.pushState(null, '', buildRoutePath(routes, r));
 	current = r;
 	emit();
 }
@@ -70,12 +103,18 @@ window.addEventListener('popstate', () => {
 
 /** Current route if it targets `stack`, else null. */
 export function routeFor(stack: string): Route | null {
-	return current && current.stack === stack ? current : null;
+	const c = read();
+	return c && c.stack === stack ? c : null;
 }
 
 /** The route active at boot — for deep-link tab selection. */
 export function currentRoute(): Route | null {
-	return current;
+	return read();
+}
+
+/** URL for a Route — Link's href and shareable-path helper. */
+export function hrefFor(r: Route): string {
+	return buildRoutePath(routes, r);
 }
 
 export function useRoute(stack: string): Route | null {

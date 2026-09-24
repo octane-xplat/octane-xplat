@@ -1,11 +1,11 @@
 import { Application, Frame } from '@nativescript/core';
 import { getStack, popRoute, pushRoute, stackEntries } from '@octane-xplat/ui';
-import type { RouteName } from '../screens';
+import type { RouteName } from '../routes';
 
 /**
  * Frame stack navigation. `navigate(name, params, {into})` delegates to
- * `@octane-xplat/ui`'s pushRoute — the screen table comes from the shared
- * `screens` registry (registerScreens in ../screens.ts), each pushed Page
+ * `@octane-xplat/ui`'s pushRoute — the screen table is derived from the
+ * app/ route dir (registerRoutes in ../routes.ts), each pushed Page
  * hosts its own Octane root (modals/pages never share context with their
  * presenter — decision #9). Params land as props; `_stack` is injected on
  * named-stack pushes so the pushed screen can goBack its own stack.

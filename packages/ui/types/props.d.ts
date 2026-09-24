@@ -147,6 +147,25 @@ export interface Route {
  *  web outlets fall back to it via `screenFor`. Values are component
  *  functions (`() => Element` / UniversalComponent shapes both fit). */
 export type ScreenTable = Record<string, any>;
+/** One route file's entry in the derived manifest. `name` is the file
+ *  path under the route dir with `[param]` segments normalized to
+ *  `:param` (`app/demo/[id].tsrx` → `demo/:id`); `segments` is the URL
+ *  pattern used for web path matching/substitution. */
+export interface RouteMeta {
+    name: string;
+    segments: string[];
+    params: string[];
+    /** Source file (glob key) — diagnostics only. */
+    file: string;
+}
+/** Output of `deriveRouteManifest` — `screens` feeds `registerScreens`
+ *  (native pushRoute + web outlet fallback), `routes` feeds web URL
+ *  matching, `layouts` catalogs `_layout` files by directory ('' = root). */
+export interface RouteManifest {
+    screens: ScreenTable;
+    routes: RouteMeta[];
+    layouts: Record<string, any>;
+}
 export interface AnimatedValue {
     readonly value: number;
     bind(el: any): void;

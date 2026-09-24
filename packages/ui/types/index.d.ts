@@ -17,6 +17,8 @@ import type {
 	PressableProps,
 	ReadableStore,
 	Route,
+	RouteManifest,
+	RouteMeta,
 	RowProps,
 	ScreenProps,
 	ScreenTable,
@@ -42,6 +44,8 @@ export type {
 	PressableProps,
 	ReadableStore,
 	Route,
+	RouteManifest,
+	RouteMeta,
 	RowProps,
 	ScreenProps,
 	ScreenTable,
@@ -93,9 +97,28 @@ export declare function routeFor(stack: string): Route | null;
 export declare function currentRoute(): Route | null;
 export declare function useRoute(stack: string): Route | null;
 /** name → screen table; native pushRoute resolves `route.name` through
- *  it, web outlets fall back to it via `screenFor`. Call once at boot. */
-export declare function registerScreens(table: ScreenTable): void;
+ *  it, web outlets fall back to it via `screenFor`. `manifest` (from
+ *  deriveRouteManifest) enables path-param URL matching on web. Call
+ *  once at boot. */
+export declare function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): void;
+/** One-call registration for route-dir apps — screens + URL patterns +
+ *  layouts all come from deriveRouteManifest. */
+export declare function registerRoutes(manifest: RouteManifest): void;
 export declare function screenFor(name: string): any;
+/** Canonical /<stack>/<path> for a Route — Link's href on web. */
+export declare function hrefFor(r: Route): string;
+
+// ---------- route dir (file → route manifest; docs/navigation-notes.md) ----------
+
+/** Turn an `import.meta.glob` module map of the route dir into
+ *  {screens, routes, layouts}: `demo/[id].tsrx` → 'demo/:id',
+ *  `_layout.tsrx` → layouts[''], platform suffixes deduped by `prefer`
+ *  rank (web: ['web']; native: ['ios'|'android','native']). */
+export declare function deriveRouteManifest(
+	files: Record<string, any>,
+	prefer: readonly string[],
+	dir?: string,
+): RouteManifest;
 
 // ---------- animation / theme ----------
 

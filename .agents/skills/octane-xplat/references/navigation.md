@@ -48,21 +48,35 @@ fine on web — that failure mode is gone.
 
 | Shape | Web | iOS | Android |
 |---|---|---|---|
-| `{stack:'root'}` push | ✓ `/<name>?params` covers shell | ✓ verified | ✓ verified |
-| named stack (`stack:'demos'`) | ✓ `/demos/<name>?params` in pane | ✓ 48/48 sweep | ✗ upstream #11444 — mounts but `backStack`/`goBack` dead; **loud warn on push** |
-| params | query-string scalars only — objects degrade (`[object Object]`) | real objects as props | real objects as props |
+| `{stack:'root'}` push | ✓ `/<path>?params` covers shell | ✓ verified | ✓ verified |
+| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane | ✓ 48/48 sweep | ✗ upstream #11444 — mounts but `backStack`/`goBack` dead; **loud warn on push** |
+| params | `[param]` segments → real path (`/demo/counter`); extras → query-string scalars — objects degrade (`[object Object]`) | real objects as props | real objects as props |
 | `useRoute`/`routeFor` | ✓ | ✓ stamped on pushed page | ✓ root; named-stack reads stay stale (same bug) |
 | `popRoute` | ✓ (`history.back`) | ✓ | ✓ root; named-stack `goBack` no-ops upstream |
 | deep link at boot | ✓ `currentRoute()` seeds tab | n/a | n/a |
 
 Keep params to scalars for parity — the web leaf serializes into the URL.
 
-## Screen registry
+## Screen registry — the `app/` route dir
 
-`packages/app/src/screens.ts` — name → component table shared by both
-targets, registered via `registerScreens(screens)`. Register a screen
-there; params arrive as props (native: pushed root's props; web: query
-params serialized into the URL).
+`packages/app/src/app/` — every `.tsrx`/`.tsx` file is a route, derived by
+`import.meta.glob` in platform manifest leaves (`route-manifest.web.ts`
+excludes `*.native/ios/android.*`; `route-manifest.native.ts` excludes
+`*.web.*` and prefers the running OS via `Device.os`).
+`deriveRouteManifest(files, prefer)` → `{screens, routes, layouts}`;
+`registerRoutes(manifest)` in `routes.ts` registers both.
+
+- `app/demo/[id].tsrx` → route `demo/:id` — `navigate('demo/:id', {id})`;
+  `[param]` → `:param`. `app/foo/index.tsrx` → `foo`.
+- `app/_layout.tsrx` → `layouts['']` — the shell the entry renders
+  (`export const App = routes.layouts['']` in `index.ts`). Not a route.
+- `app/settings.web.tsrx` → web-only route (skipped by the native glob).
+- Component pick: `default` → `screen` → single function export.
+- Params arrive as props (native: pushed root's props; web: path segments
+  + query). Route names are `string` — literal typing awaits routes.d.ts
+  codegen.
+
+Adding a route = adding a file; no table edits.
 
 ## Native model
 
@@ -82,8 +96,10 @@ params serialized into the URL).
 
 `route.web.ts` — module-scope route store over real history:
 
-- `pushRoute` → `pushState` — URLs like `/demos/demo?id=counter`
-  (`/<stack>/<name>?params`; `/<name>?params` for root).
+- `pushRoute` → `pushState` — manifest routes write real paths with
+  `:param` substitution (`/demos/demo/counter`); params not in the path
+  fall back to the query string (`/detail?from=home`). Names outside the
+  manifest keep `/<stack>/<name>?params`.
 - `popRoute` → `history.back()`; `popstate` resyncs the store.
 - `Tabs` is the outlet: `useRoute('root')` covers the shell when a root
   route is active; `useRoute(activeTab.stack)` renders a pushed screen in

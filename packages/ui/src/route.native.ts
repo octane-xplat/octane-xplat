@@ -20,20 +20,31 @@ import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { useSyncExternalStore } from 'octane';
 import { getStack, onStackRegistered, stackEntries } from './stacks.native';
-import type { Route, ScreenTable } from './props';
+import { buildRoutePath } from './route-table';
+import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props';
 
 export type { Route } from './props';
 
 // ---------- screen registry ----------
 
 let screens: ScreenTable = {};
+let routes: RouteMeta[] = [];
 
 /** Register the app's name → screen table (call once, from the shared
- *  screens module). Native `pushRoute` resolves `route.name` through it;
+ *  routes module). Native `pushRoute` resolves `route.name` through it;
  *  on web the table feeds `screenFor` for outlets without a
- *  `resolveScreen` prop. */
-export function registerScreens(table: ScreenTable): void {
+ *  `resolveScreen` prop. `manifest` (from deriveRouteManifest) is stored
+ *  for parity — the web leaf matches URLs through it; native navigation
+ *  is name+params and only needs the table. */
+export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): void {
 	screens = table;
+	routes = manifest ?? [];
+}
+
+/** One-call registration for route-dir apps — screens + URL patterns +
+ *  layouts all come from deriveRouteManifest. */
+export function registerRoutes(manifest: RouteManifest): void {
+	registerScreens(manifest.screens, manifest.routes);
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {
@@ -167,6 +178,13 @@ export function currentRoute(): Route | null {
 		if (r) return r;
 	}
 	return null;
+}
+
+/** Path-string parity for the web leaf's hrefFor — a canonical
+ *  /<stack>/<path> rendering of the route (deep-linking consumes it
+ *  there). Native navigation itself is name+params, not URLs. */
+export function hrefFor(r: Route): string {
+	return buildRoutePath(routes, r);
 }
 
 export function useRoute(stack: string): Route | null {

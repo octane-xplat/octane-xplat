@@ -1,13 +1,13 @@
 import { useEffect } from 'octane';
 import { Screen, View, Row, Text, Pressable } from '@octane-xplat/ui';
 import { DEMOS, RENDER, setLastDemo } from '@xplat/demos';
-import { goBack } from './platform/nav';
-import { openSheet } from './platform/sheet';
+import { goBack } from '../../platform/nav';
+import { openSheet } from '../../platform/sheet';
 
-/** Per-demo detail route — pushed via navigate('demo', {id}): a fresh Page
- *  + Octane root on native (context doesn't cross; the store does).
- *  "In sheet" re-mounts the same component inside the RootLayout sheet
- *  root — same demo, third root. */
+/** demo/:id route — pushed via navigate('demo/:id', {id}): a fresh Page +
+ *  Octane root on native (context doesn't cross; the store does); a real
+ *  /demos/demo/<id> path on web. "In sheet" re-mounts the same component
+ *  inside the RootLayout sheet root — same demo, third root. */
 export function DemoDetail(props: { id?: string; _stack?: string }) @{
 	const id = props.id ?? 'counter';
 	const title = DEMOS.find((d) => d.id === id)?.title ?? id;
