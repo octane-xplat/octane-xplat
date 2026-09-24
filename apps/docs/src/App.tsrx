@@ -16,7 +16,7 @@ export function App() @{
 	const open = (s: string) => {
 		const d = DOCS.find((x) => x.slug === s);
 		// The index doc lives at '/', not /README.
-		pushRoute({ stack: d?.group === 'notes' ? 'notes' : 'root', name: s === DOCS[0].slug ? '' : s });
+		pushRoute({ stack: d?.group === 'notes' ? 'notes' : 'root', name: s === DOCS[0].slug ? '' : s, params: {} });
 		resetDocScroll();
 	};
 	// Safety net for navs that flow through octane's commit path.
@@ -41,6 +41,15 @@ export function App() @{
 				<Text className="tagline">one codebase — web · ios · android</Text>
 				<View className="disc-chip"><Text className="disc-text">not affiliated with octane</Text></View>
 			</View>
+			<a
+				className="github-link"
+				href="https://github.com/aleclarson/octane-xplat"
+				target="_blank"
+				rel="noopener"
+				aria-label="Open octane-xplat on GitHub"
+			>
+				<Text className="github-label">github</Text>
+			</a>
 			<Pressable className="mode-block" onPress={() => setOverride(!dark)}>
 				<Text className="mode-text">{dark ? 'light' : 'dark'}</Text>
 			</Pressable>
