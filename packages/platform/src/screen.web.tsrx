@@ -1,11 +1,7 @@
 // Window size + orientation — web leaf.
 import { useEffect, useState } from 'octane';
+import type { WindowSize } from './types';
 
-export interface WindowSize {
-	width: number;
-	height: number;
-	orientation: 'portrait' | 'landscape';
-}
 
 function read(): WindowSize {
 	return {

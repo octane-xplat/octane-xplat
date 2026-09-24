@@ -1,6 +1,6 @@
 // Locale — Device.language/region on native.
 import { Device } from '@nativescript/core';
-import type { Locale } from './locale.web';
+import type { Locale } from './types';
 
 export const locale: Locale = {
 	tag: `${Device.language}-${Device.region}`,

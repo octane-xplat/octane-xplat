@@ -4,7 +4,8 @@ import { getTextSync, setTextSync } from 'nativescript-clipboard';
 
 export const clipboard = {
 	async write(text: string): Promise<boolean> {
-		return setTextSync(text);
+		setTextSync(text);
+		return true;
 	},
 	async read(): Promise<string | null> {
 		try {

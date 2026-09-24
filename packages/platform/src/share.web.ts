@@ -2,23 +2,25 @@
 // desktop degrades to clipboard copy so the call still does something useful.
 export const share = {
 	async text(text: string, subject?: string): Promise<'shared' | 'copied' | 'unavailable'> {
-		if (typeof navigator !== 'undefined' && 'share' in navigator) {
-			await navigator.share({ text, title: subject });
+		const nav = navigator as any;
+		if (nav.share) {
+			await nav.share({ text, title: subject });
 			return 'shared';
 		}
-		if (typeof navigator !== 'undefined' && navigator.clipboard) {
-			await navigator.clipboard.writeText(text);
+		if (nav.clipboard) {
+			await nav.clipboard.writeText(text);
 			return 'copied';
 		}
 		return 'unavailable';
 	},
 	async url(url: string, title?: string): Promise<'shared' | 'copied' | 'unavailable'> {
-		if (typeof navigator !== 'undefined' && 'share' in navigator) {
-			await navigator.share({ url, title });
+		const nav = navigator as any;
+		if (nav.share) {
+			await nav.share({ url, title });
 			return 'shared';
 		}
-		if (typeof navigator !== 'undefined' && navigator.clipboard) {
-			await navigator.clipboard.writeText(url);
+		if (nav.clipboard) {
+			await nav.clipboard.writeText(url);
 			return 'copied';
 		}
 		return 'unavailable';

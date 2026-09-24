@@ -1,10 +1,6 @@
 // Notifications — Web Notification API. ensure() maps permission state;
-// schedule() posts an immediate local notification (no push).
-import type { Capability } from './types';
-
-export interface NotificationsImpl {
-	notify(title: string, body?: string): void;
-}
+// notify() posts an immediate local notification (no push).
+import type { Capability, NotificationsImpl } from './types';
 
 export const notifications: Capability<NotificationsImpl> = {
 	supported: typeof Notification !== 'undefined',

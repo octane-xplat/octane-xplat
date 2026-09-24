@@ -1,7 +1,7 @@
 // Media picking — @nativescript/imagepicker presents the system picker and
 // yields ImageAssets; the FileRef uri is the asset's file path.
 import { create as createImagePicker } from '@nativescript/imagepicker';
-import type { FileRef } from './files.web';
+import type { FileRef } from './types';
 
 export const media = {
 	async pickImage(): Promise<FileRef | null> {

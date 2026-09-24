@@ -1,4 +1,4 @@
-import type { DeviceInfo } from './device';
+import type { DeviceInfo } from './types';
 
 const ua = navigator.userAgent;
 const osVersion = ua.match(/(?:Mac OS X|Windows NT|Android|OS) ([\d._]+)/)?.[1]?.replace(/_/g, '.') ?? '';

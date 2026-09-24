@@ -1,13 +1,7 @@
 // Secure storage — web has no equivalent trust boundary (IndexedDB is not
 // secure enclave storage). Declared unsupported per the Capability contract;
 // callers must branch on `supported` rather than catching.
-import type { Capability } from './types';
-
-export interface SecureStore {
-	get(key: string): Promise<string | null>;
-	set(key: string, value: string): Promise<boolean>;
-	remove(key: string): Promise<boolean>;
-}
+import type { Capability, SecureStore } from './types';
 
 export const secureStorage: Capability<SecureStore> = {
 	supported: false,

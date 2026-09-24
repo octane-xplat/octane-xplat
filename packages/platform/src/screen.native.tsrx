@@ -1,13 +1,9 @@
 // Window size + orientation — native leaf. Screen.mainScreen gives DIPs;
 // Application.orientationChangedEvent drives updates.
 import { useEffect, useState } from 'octane';
+import type { WindowSize } from './types';
 import { Application, Screen } from '@nativescript/core';
 
-export interface WindowSize {
-	width: number;
-	height: number;
-	orientation: 'portrait' | 'landscape';
-}
 
 function read(): WindowSize {
 	const s = Screen.mainScreen;

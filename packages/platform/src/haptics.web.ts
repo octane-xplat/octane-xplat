@@ -1,12 +1,6 @@
 // Haptics — web leaf. navigator.vibrate exists on Android Chrome only;
 // iOS Safari and desktop report unsupported via the Capability contract.
-import type { Capability } from './types';
-
-export interface HapticsImpl {
-	impact(style?: 'light' | 'medium' | 'heavy'): void;
-	notification(kind: 'success' | 'warning' | 'error'): void;
-	selection(): void;
-}
+import type { Capability, HapticsImpl } from './types';
 
 const vibrate = (ms: number | number[]) =>
 	typeof navigator !== 'undefined' && 'vibrate' in navigator && navigator.vibrate(ms);

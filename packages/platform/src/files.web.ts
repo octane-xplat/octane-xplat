@@ -1,10 +1,6 @@
 // Files — web leaf. Opaque FileRef: a blob/object URL plus a name; reads go
 // through FileReader/fetch on the ref's URL.
-export interface FileRef {
-	name: string;
-	/** blob:/object URL — opaque, do not persist or transport */
-	uri: string;
-}
+import type { FileRef } from './types';
 
 export const files = {
 	async pick(accept = '*/*'): Promise<FileRef | null> {

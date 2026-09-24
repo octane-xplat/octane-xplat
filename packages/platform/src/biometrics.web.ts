@@ -1,17 +1,14 @@
 // Biometrics — web leaf. Platform authenticator presence is the honest
-// signal; actual WebAuthn ceremony is an auth-flow concern, not this seam.
-import type { Capability } from './types';
+// signal; an actual WebAuthn ceremony is an auth-flow concern, not this seam.
+import type { BiometricsImpl, Capability } from './types';
 
-export interface BiometricsImpl {
-	/** Prompt the user to verify (WebAuthn platform authenticator). */
-	verify(reason: string): Promise<boolean>;
-}
+const pkc = () => (globalThis as any).PublicKeyCredential;
 
 export const biometrics: Capability<BiometricsImpl> = {
-	supported: typeof PublicKeyCredential !== 'undefined',
+	supported: typeof pkc() !== 'undefined',
 	async ensure() {
-		if (typeof PublicKeyCredential === 'undefined') return 'unsupported';
-		const ok = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+		if (!pkc()) return 'unsupported';
+		const ok = await pkc().isUserVerifyingPlatformAuthenticatorAvailable();
 		return ok ? 'granted' : 'unsupported';
 	},
 	impl: {

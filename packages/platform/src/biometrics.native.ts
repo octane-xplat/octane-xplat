@@ -1,7 +1,7 @@
 // Biometrics — FaceID/TouchID/fingerprint via @nativescript/biometrics.
 import { BiometricAuth } from '@nativescript/biometrics';
 import type { Capability } from './types';
-import type { BiometricsImpl } from './biometrics.web';
+import type { BiometricsImpl } from './types';
 
 const bio = new BiometricAuth();
 

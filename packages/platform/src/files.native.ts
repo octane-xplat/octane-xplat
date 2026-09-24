@@ -1,7 +1,7 @@
 // Files — native leaf. FileRef wraps a real filesystem path under the app's
 // documents folder; picking delegates to the imagepicker/file picker seam.
 import { File, knownFolders, path } from '@nativescript/core';
-import type { FileRef } from './files.web';
+import type { FileRef } from './types';
 
 const docs = () => knownFolders.documents();
 

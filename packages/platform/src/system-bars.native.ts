@@ -14,9 +14,9 @@ export const systemBars = {
 	setColor(color: string): void {
 		const c = new Color(color);
 		if (Application.android?.startActivity) {
-			const window = Application.android.startActivity.getWindow();
-			window.setStatusBarColor(c.android);
-			window.setNavigationBarColor(c.android);
+			const win = Application.android.startActivity.getWindow();
+			win.setStatusBarColor(c.android);
+			win.setNavigationBarColor(c.android);
 		}
 	},
 };

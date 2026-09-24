@@ -1,13 +1,8 @@
 // Safe-area insets — web leaf. env(safe-area-inset-*) only exists in CSS;
 // measure it once through a probe element.
 import { useEffect, useState } from 'octane';
+import type { Insets } from './types';
 
-export interface Insets {
-	top: number;
-	bottom: number;
-	left: number;
-	right: number;
-}
 
 function measure(): Insets {
 	const probe = document.createElement('div');

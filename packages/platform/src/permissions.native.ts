@@ -1,7 +1,7 @@
 // Runtime permissions — native leaf. Maps the shared kind union onto the
 // owning plugin's request call; add kinds as services land.
 import { LocalNotifications } from '@nativescript/local-notifications';
-import type { PermissionKind } from './permissions.web';
+import type { PermissionKind } from './types';
 
 export const permissions = {
 	async ensure(kind: PermissionKind): Promise<'granted' | 'denied' | 'unsupported'> {

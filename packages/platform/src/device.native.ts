@@ -1,5 +1,5 @@
 import { Device } from '@nativescript/core';
-import type { DeviceInfo } from './device';
+import type { DeviceInfo } from './types';
 
 export const device: DeviceInfo = {
 	os: Device.os.toLowerCase() === 'ios' ? 'ios' : 'android',

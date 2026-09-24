@@ -11,14 +11,16 @@ import { join, relative } from 'node:path';
 
 const ROOTS = ['packages', 'apps/native/src'];
 const EXT = /\.(ts|tsx|tsrx)$/;
+// (?<![.'"\w]) — skip member access (obj.window), quoted strings, and
+// identifier tails; bare globals still flag.
 const PATTERNS = [
-  /\bdocument\b/,
-  /\bwindow\b/,
-  /\bnavigator\b/,
-  /\blocation\b/,
-  /\bhistory\b/,
-  /\blocalStorage\b/,
-  /\bsessionStorage\b/,
+  /(?<![.'"\w])document\b/,
+  /(?<![.'"\w])window\b/,
+  /(?<![.'"\w])navigator\b/,
+  /(?<![.'"\w])location\b/,
+  /(?<![.'"\w])history\b/,
+  /(?<![.'"\w])localStorage\b/,
+  /(?<![.'"\w])sessionStorage\b/,
   /\bHTML[A-Z]\w*/,
   /\bgetComputedStyle\b/,
   /\bDOMParser\b/,

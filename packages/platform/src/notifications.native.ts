@@ -2,7 +2,7 @@
 // app-level concern, not this seam.
 import { LocalNotifications } from '@nativescript/local-notifications';
 import type { Capability } from './types';
-import type { NotificationsImpl } from './notifications.web';
+import type { NotificationsImpl } from './types';
 
 export const notifications: Capability<NotificationsImpl> = {
 	supported: true,
