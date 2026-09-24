@@ -31,7 +31,7 @@ export function DeviceDemo() @{
 				main={<View className="device-drawer-main"><Text>Drawer main content</Text></View>}
 				drawer={<View className="device-drawer-content"><Text>Drawer panel</Text></View>}
 			/>
-			<Text className="device-native-note">Native drawer is currently a main-content fallback.</Text>
+			<Text className="device-native-note">Native drawer rides @nativescript-community/ui-drawer (optional peer).</Text>
 		</SafeArea>
 	</Screen>
 }
