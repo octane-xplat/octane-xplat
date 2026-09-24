@@ -14,6 +14,13 @@ Read before promising behavior or building on a seam.
 - **`.d.ts` emit for .tsrx** — upstream tsrx#136 → TS#64120/#64053.
   Workaround shipped (emitted `props.d.ts` + hand shell) — consumers get
   types, but component shells are hand-maintained.
+- **Literal `@{` in JSX text** — `@{expr}` at child position parses as a
+  code block, not `@` + `{expr}`. On DOM the expression is evaluated and
+  discarded (renders nothing); on universal renderers it's a compile error
+  (`Not implemented: JSXCodeBlock` / `unsupported template node`). Write
+  `{'@'}{expr}` instead — e.g. `<Text>{'@'}{user.handle}</Text>` renders
+  `@handle`. Verified against octane 0.4.x on all targets; upstream fix
+  intentionally not pursued.
 
 ## Verified-with-boundaries
 
