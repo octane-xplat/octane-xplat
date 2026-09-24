@@ -83,7 +83,17 @@ export function parseMd(md: string): Block[] {
 		}
 		if (/^\s*[-*]\s/.test(line)) {
 			const m = line.match(/^(\s*)[-*]\s+(.*)/)!;
-			blocks.push({ kind: 'li', depth: Math.floor(m[1].length / 2), spans: inlineSpans(m[2]) });
+			const parts = [m[2]];
+			// Soft-wrapped continuation: indented lines that don't start a new
+			// block join the item (nested items have their own marker).
+			while (i + 1 < lines.length) {
+				const nx = lines[i + 1];
+				if (!/^\s{2,}\S/.test(nx)) break;
+				if (/^\s*[-*>#]|^\s*`{3}|^\s*\|/.test(nx)) break;
+				parts.push(nx.trim());
+				i++;
+			}
+			blocks.push({ kind: 'li', depth: Math.floor(m[1].length / 2), spans: inlineSpans(parts.join(' ')) });
 			i++;
 			continue;
 		}
