@@ -21,3 +21,6 @@ export { PlatformBadge } from "./PlatformBadge.web.tsrx";
 export { registerStack, getStack, stackEntries } from './stacks.web';
 export { pushRoute, routeFor, currentRoute, useRoute } from './route.web';
 export type { Route } from './route.web';
+export { createStore } from './store';
+export type { Store, ReadableStore } from './store';
+export { useStore } from './use-store.web.tsrx';

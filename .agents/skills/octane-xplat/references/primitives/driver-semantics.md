@@ -42,6 +42,23 @@ Page, modal, sheet host, tab-stack page, and List cell gets its own root.
 Roots share NOTHING (no context, no store) — cross-root state goes through
 module-scope stores, and each root applies its own theme class.
 
+## Child retention — the scheduler divergence to know
+
+On the **universal (native) renderer**, a re-rendering parent retains child
+component owners whose props are shallow-unchanged: their render functions
+do NOT re-run (upstream `universal-core` adopts the committed subtree —
+it powers scoped commits, and context changes DO defeat it correctly).
+The DOM renderer re-invokes children React-style; only `memo()` or a
+literally identical element bails.
+
+Consequence: a bare module-store read (`store.get()`) in a child refreshes
+on web but goes **stale on native**. The portable rule: **every component
+that reads shared state subscribes** — `useStore(store)` /
+`useStore(store, select)` from `@octane-xplat/ui` (over
+`useSyncExternalStore`; a subscriber is marked dirty and always re-runs).
+`createStore(initial)` makes a minimal `{get,set,subscribe}` store.
+Pinned by `packages/ui/src/store.native.test.ts` + `store.web.test.tsrx`.
+
 ## Frame/page containers
 
 - `Page` = the nav unit. `page.actionBarHidden = true`, `page.id` set for

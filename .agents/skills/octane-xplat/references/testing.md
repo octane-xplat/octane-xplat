@@ -5,7 +5,7 @@
 | Layer | Command | What it proves |
 |---|---|---|
 | Typecheck | `tsrx-tsc --noEmit -p apps/{web,native}/tsconfig.json` | .tsrx typechecks per target |
-| Unit | `pnpm test` | vitest — styled() etc. |
+| Unit | `pnpm test` | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.native.test.*`, universal runtime via the object driver) |
 | Seam lint | `node scripts/check-no-dom.mjs` | no DOM globals in native/shared |
 | Web smoke | `cd apps/web && pnpm smoke` | build + Playwright, 14 asserts |
 | iOS | build + install + launch → read sim log | `[assert]` lines, 48/48 expected |
@@ -50,6 +50,19 @@ Debug-only signals vanish in release (console.log doesn't reach NSLog on
 release iOS). Release verification = process alive + zero fatal exceptions
 in the platform log. The one release-only bug we caught:
 `RootLayout.open()` unhandled rejection — see overlays.md.
+
+## Universal-renderer unit tests (`vitest.native.config.mts`)
+
+`packages/ui/src/*.native.test.*` run the REAL compiled leaves against
+octane's host-neutral object driver (`createUniversalRoot` +
+`createObjectDriver` from `octane/universal/native`) — no
+`@nativescript/core`, no sim. The config compiles under the nativescript
+renderer + aliases `octane` AND `@nativescript-community/octane` to
+`octane/universal/native` (the driver index isn't node-loadable). Uses the
+raw `octane` plugin from `octane/compiler/vite` with `ssr: false` — vitest
+transforms through the SSR pipeline and the renderer is
+`server:'unsupported'`; the app-level plugin wrapper doesn't forward `ssr`.
+Scheduler/retention semantics get pinned there (see `store.native.test.ts`).
 
 ## Adding a probe
 

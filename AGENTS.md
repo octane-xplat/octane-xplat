@@ -96,6 +96,9 @@ nothing to commit). Tables:
 4. No DOM globals in shared code.
 5. Universal-runtime APIs only in shared code (allowlist produced by Phase 1).
 6. Static styles = CSS/`className`; dynamic = `style` objects.
+7. Shared-state reads subscribe via `useStore` — the universal renderer
+   retains unchanged-prop children on parent re-render, so bare module-scope
+   reads go stale on native (web re-invokes them; decision #27).
 
 ## Companion libraries (used by apps built on this stack)
 

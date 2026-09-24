@@ -15,10 +15,12 @@ import type {
 	ModalProps,
 	PlatformBadgeProps,
 	PressableProps,
+	ReadableStore,
 	Route,
 	RowProps,
 	ScreenProps,
 	ScrollViewProps,
+	Store,
 	SwitchProps,
 	TabSpec,
 	TabsProps,
@@ -36,10 +38,12 @@ export type {
 	PanEvent,
 	PlatformBadgeProps,
 	PressableProps,
+	ReadableStore,
 	Route,
 	RowProps,
 	ScreenProps,
 	ScrollViewProps,
+	Store,
 	SwipeEvent,
 	SwitchProps,
 	TabSpec,
@@ -95,3 +99,9 @@ export declare function styled<P extends { className?: any }, V extends Record<s
 	Base: (props: P) => any,
 	def: { base?: any; variants?: V },
 ): UniversalComponent<P & { [K in keyof V]?: boolean }>;
+
+// ---------- stores ----------
+
+export declare function createStore<T>(initial: T): Store<T>;
+export declare function useStore<T>(store: ReadableStore<T>): T;
+export declare function useStore<T, S>(store: ReadableStore<T>, select: (state: T) => S): S;

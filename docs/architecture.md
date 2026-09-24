@@ -95,6 +95,11 @@ spoken natively.
 6. **Static styles are CSS; dynamic values are style objects.** Shared styling
    is `className` + tokens → shared stylesheet compiled per-target
    ([styling](styling.md)). Object `style` lowers to `view.style` / DOM style.
+7. **Shared-state reads subscribe via `useStore`.** The universal renderer
+   retains unchanged-prop children when a parent re-renders — a bare
+   module-scope read in a child stays stale on native while web re-invokes
+   it. Every component that reads a module store calls `useStore(store)`
+   (or `useStore(store, select)`); changed context still propagates.
 
 ## Repo layout (provisional)
 

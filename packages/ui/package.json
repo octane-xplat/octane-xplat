@@ -28,14 +28,17 @@
   },
   "scripts": {
     "build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build",
+    "test:native": "vitest run --config vitest.native.config.mts"
   },
   "devDependencies": {
     "@nativescript-community/octane": "0.2.1",
     "@nativescript/core": "9.1.2",
     "@octanejs/vite-plugin": "0.1.58",
+    "jsdom": "30.1.1",
     "octane": "0.4.0",
-    "vite": "8.3.0"
+    "vite": "8.3.0",
+    "vitest": "5.0.1"
   },
   "peerDependencies": {
     "@nativescript-community/octane": ">=0.2.1 <1",

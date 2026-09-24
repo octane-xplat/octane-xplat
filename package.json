@@ -11,7 +11,7 @@
     "typecheck:web": "tsrx-tsc --noEmit -p apps/web/tsconfig.json",
     "typecheck:native": "tsrx-tsc --noEmit -p apps/native/tsconfig.json",
     "check:no-dom": "node scripts/check-no-dom.mjs",
-    "test": "pnpm --filter @xplat/web test"
+    "test": "pnpm --filter @xplat/web test && pnpm --filter @octane-xplat/ui test:native"
   },
   "devDependencies": {
     "@tsrx/typescript-plugin": "0.4.7",

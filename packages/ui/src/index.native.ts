@@ -21,3 +21,6 @@ export { PlatformBadge } from "./PlatformBadge.native.tsrx";
 export { registerStack, getStack, stackEntries } from './stacks.native';
 export { pushRoute, routeFor, currentRoute, useRoute } from './route.native';
 export type { Route } from './route.native';
+export { createStore } from './store';
+export type { Store, ReadableStore } from './store';
+export { useStore } from './use-store.native.tsrx';

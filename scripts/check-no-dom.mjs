@@ -44,7 +44,7 @@ function* walk(dir) {
     if (s.isDirectory()) {
       if (e === 'node_modules' || e === 'dist' || e === '.ns-vite-build') continue;
       yield* walk(p);
-    } else if (EXT.test(e) && !/\.web\.(ts|tsx|tsrx)$/.test(e)) {
+    } else if (EXT.test(e) && !/\.web(\.test)?\.(ts|tsx|tsrx)$/.test(e)) {
       yield p;
     }
   }

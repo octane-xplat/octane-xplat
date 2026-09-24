@@ -125,3 +125,15 @@ export interface AnimatedValue {
 // ---------- theme ----------
 
 export type ColorScheme = 'light' | 'dark';
+
+// ---------- stores ----------
+
+/** Minimal external-store contract `useStore` subscribes to. */
+export interface ReadableStore<T> {
+	get(): T;
+	subscribe(notify: () => void): () => void;
+}
+
+export interface Store<T> extends ReadableStore<T> {
+	set(next: T | ((prev: T) => T)): void;
+}
