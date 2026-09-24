@@ -34,24 +34,15 @@ export function Drawer(props: DrawerProps) @{
 		else if (!props.open && d.isOpened('left')) d.close('left').catch(() => {});
 	}, [props.open]);
 
-	// `main`/`drawer` are component props: JSX element props don't lower on
-	// the universal runtime (materializeValue rejects element descriptors),
-	// but component references lower through universalComponent — the same
-	// mechanism as Modal's `component` prop.
-	const Main = props.main;
-	const Panel = props.drawer;
-
 	<drawer
 		id={props.id}
 		ref={(d: any) => { host.current = d; if (d && platformProps) Object.assign(d, platformProps); }}
 		className={cx('vx-drawer', props.className)}
 		style={props.style}
 	>
-		@if (Main != null) {
-			<gridlayout hostSlot="mainContent"><Main /></gridlayout>
-		}
-		@if (Panel != null) {
-			<gridlayout hostSlot="leftDrawer"><Panel /></gridlayout>
+		<gridlayout hostSlot="mainContent">{props.main}</gridlayout>
+		@if (props.drawer != null) {
+			<gridlayout hostSlot="leftDrawer">{props.drawer}</gridlayout>
 		}
 	</drawer>
 }

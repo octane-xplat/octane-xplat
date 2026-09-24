@@ -4,16 +4,6 @@ import {
 	useSafeAreaInsets,
 } from '@octane-xplat/ui';
 
-// Drawer slot props take components (not elements) — the universal runtime
-// can't materialize element descriptors passed as prop values.
-function DrawerMain() @{
-	<View className="device-drawer-main"><Text>Drawer main content</Text></View>
-}
-
-function DrawerPanel() @{
-	<View className="device-drawer-content"><Text>Drawer panel</Text></View>
-}
-
 export function DeviceDemo() @{
 	const insets = useSafeAreaInsets();
 	const [value, setValue] = useState('');
@@ -39,8 +29,8 @@ export function DeviceDemo() @{
 			<Drawer
 				open={drawerOpen}
 				className="device-drawer"
-				main={DrawerMain}
-				drawer={DrawerPanel}
+				main={<View className="device-drawer-main"><Text>Drawer main content</Text></View>}
+				drawer={<View className="device-drawer-content"><Text>Drawer panel</Text></View>}
 			/>
 			<Text className="device-native-note">Native drawer rides @nativescript-community/ui-drawer (optional peer).</Text>
 		</SafeArea>
