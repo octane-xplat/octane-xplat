@@ -1,6 +1,6 @@
 {
   "name": "@octane-xplat/cli",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android from one codebase)",
   "bin": {
