@@ -21,6 +21,12 @@ overrides:
   # files under the app's no-DOM lib. Re-pack after upstream edits; revert to
   # the 0.4.0 pin once a release carries universal native signal reads.
   octane: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz
+  # vite 8's esbuild peer range admits 0.28.x; where octane/app-core peer
+  # contexts resolve it fresh they get 0.28.2 while vite's own tree carries
+  # 0.27.7 — the vendor bundler then crashes on the host/binary mismatch.
+  # Pin everything to vite's 0.27.7 except wrangler, which wants its own.
+  esbuild: 0.27.7
+  wrangler>esbuild: 0.28.1
 # Exact pins in package.json — no caret/tilde drift on fresh installs.
 saveExact: true
 minimumReleaseAgeExclude:

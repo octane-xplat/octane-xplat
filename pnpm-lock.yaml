@@ -7,6 +7,8 @@ settings:
 overrides:
   chokidar: ^3.6.0
   octane: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz
+  esbuild: 0.27.7
+  wrangler>esbuild: 0.28.1
 
 patchedDependencies:
   '@nativescript-community/vite-octane@0.2.1': 495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce
@@ -19,10 +21,10 @@ importers:
     devDependencies:
       '@tsrx/typescript-plugin':
         specifier: 0.4.7
-        version: 0.4.7(octane@0.4.0(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)))(typescript@5.9.3)
+        version: 0.4.7(octane@0.4.0(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(typescript@5.9.3)
       vitest:
         specifier: 5.0.1
-        version: 5.0.1(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1))
+        version: 5.0.1(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
   apps/docs:
     dependencies:
@@ -60,9 +62,27 @@ importers:
       '@nativescript-community/octane':
         specifier: 0.2.1
         version: 0.2.1(@nativescript/core@9.1.2)(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/biometrics':
+        specifier: 1.3.1
+        version: 1.3.1
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2
+      '@nativescript/haptics':
+        specifier: 3.1.0
+        version: 3.1.0
+      '@nativescript/imagepicker':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@nativescript/local-notifications':
+        specifier: 7.0.0
+        version: 7.0.0
+      '@nativescript/secure-storage':
+        specifier: 4.0.2
+        version: 4.0.2
+      '@nativescript/social-share':
+        specifier: 2.3.0
+        version: 2.3.0
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -75,6 +95,9 @@ importers:
       '@xplat/demos':
         specifier: workspace:*
         version: link:../../packages/demos
+      nativescript-clipboard:
+        specifier: 2.1.1
+        version: 2.1.1
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz
         version: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -151,11 +174,11 @@ importers:
         version: link:../demos
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz
-        version: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1))
+        version: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.1
-        version: 0.2.1(@nativescript/core@9.1.2)(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.1(@nativescript/core@9.1.2)(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2
@@ -178,11 +201,11 @@ importers:
         version: link:../ui
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz
-        version: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1))
+        version: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.1
-        version: 0.2.1(@nativescript/core@9.1.2)(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.1(@nativescript/core@9.1.2)(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2
@@ -212,11 +235,11 @@ importers:
         version: 2.1.1
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz
-        version: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1))
+        version: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.1
-        version: 0.2.1(@nativescript/core@9.1.2)(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.1(@nativescript/core@9.1.2)(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2
@@ -2808,7 +2831,7 @@ packages:
     peerDependencies:
       '@types/node': ^20.19.0 || >=22.12.0
       '@vitejs/devtools': ^0.7.1
-      esbuild: ^0.27.0 || ^0.28.0
+      esbuild: 0.27.7
       jiti: '>=1.21.0'
       less: ^4.0.0
       sass: ^1.70.0
@@ -3580,11 +3603,6 @@ snapshots:
       '@nativescript/core': 9.1.2
       octane: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
-  '@nativescript-community/octane@0.2.1(@nativescript/core@9.1.2)(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)))':
-    dependencies:
-      '@nativescript/core': 9.1.2
-      octane: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1))
-
   '@nativescript-community/perms@2.3.6': {}
 
   '@nativescript-community/perms@3.0.11': {}
@@ -3691,7 +3709,7 @@ snapshots:
   '@octanejs/app-core@0.0.54(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
     dependencies:
       '@ripple-ts/adapter': 0.4.6
-      esbuild: 0.28.1
+      esbuild: 0.27.7
       octane: file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
   '@octanejs/vite-plugin@0.1.58(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
@@ -4089,13 +4107,13 @@ snapshots:
 
   '@tsrx/runtime@0.2.2': {}
 
-  '@tsrx/typescript-plugin@0.4.7(octane@0.4.0(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)))(typescript@5.9.3)':
+  '@tsrx/typescript-plugin@0.4.7(octane@0.4.0(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(typescript@5.9.3)':
     dependencies:
       '@volar/language-core': 2.4.28
       '@volar/typescript': 2.4.28(typescript@5.9.3)
       typescript: 5.9.3
     optionalDependencies:
-      octane: 0.4.0(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1))
+      octane: 0.4.0(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
   '@tsrx/typescript-plugin@0.4.7(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(typescript@5.9.3)':
     dependencies:
@@ -4144,15 +4162,6 @@ snapshots:
       magic-string: 1.4.1
     optionalDependencies:
       vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
-
-  '@vitest/mocker@5.0.1(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1))':
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.31
-      '@vitest/spy': 5.0.1
-      estree-walker: 3.0.3
-      magic-string: 1.4.1
-    optionalDependencies:
-      vite: 8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)
 
   '@vitest/spy@5.0.1': {}
 
@@ -4757,7 +4766,7 @@ snapshots:
 
   obug@2.2.1: {}
 
-  octane@0.4.0(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)):
+  octane@0.4.0(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)):
     dependencies:
       '@tsrx/core': 0.2.4
       '@tsrx/oxc': 0.13.0
@@ -4772,7 +4781,7 @@ snapshots:
       esrap: 2.3.7
     optionalDependencies:
       typescript: 5.9.3
-      vite: 8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)
+      vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
     transitivePeerDependencies:
       - '@typescript-eslint/types'
       - svelte
@@ -4795,27 +4804,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
       vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
-    transitivePeerDependencies:
-      - '@typescript-eslint/types'
-      - svelte
-      - vite-plus
-
-  octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)):
-    dependencies:
-      '@tsrx/core': 0.2.4
-      '@tsrx/oxc': 0.13.0
-      '@types/react': 19.3.0
-      '@volar/language-core': 2.4.28
-      '@volar/typescript': 2.4.28(typescript@5.9.3)
-      alien-signals: 3.2.0
-      csstype: 3.2.3
-      devalue: 5.9.4
-      entities: 7.0.1
-      es-module-lexer: 1.7.0
-      esrap: 2.3.7
-    optionalDependencies:
-      typescript: 5.9.3
-      vite: 8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)
     transitivePeerDependencies:
       - '@typescript-eslint/types'
       - svelte
@@ -5231,19 +5219,6 @@ snapshots:
       sass: 1.104.1
       yaml: 2.9.1
 
-  vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1):
-    dependencies:
-      lightningcss: 1.33.0
-      picomatch: 4.0.7
-      postcss: 8.5.28
-      rolldown: 1.2.9
-      tinyglobby: 0.2.17
-    optionalDependencies:
-      esbuild: 0.28.1
-      fsevents: 2.3.3
-      sass: 1.104.1
-      yaml: 2.9.1
-
   vitest@5.0.1(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
@@ -5259,27 +5234,6 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      jsdom: 30.1.1(@noble/hashes@2.4.0)
-    transitivePeerDependencies:
-      - msw
-
-  vitest@5.0.1(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)):
-    dependencies:
-      '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.1(vite@8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1))
-      chai: 6.2.2
-      es-module-lexer: 2.3.2
-      expect-type: 1.4.0
-      magic-string: 1.4.1
-      obug: 2.2.1
-      picomatch: 4.0.7
-      std-env: 4.2.0
-      tinybench: 6.1.4
-      tinyexec: 1.3.0
-      tinyglobby: 0.2.17
-      vite: 8.3.0(esbuild@0.28.1)(sass@1.104.1)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       jsdom: 30.1.1(@noble/hashes@2.4.0)
