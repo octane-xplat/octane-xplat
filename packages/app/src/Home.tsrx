@@ -164,7 +164,8 @@ export function Home() @{
 
 		{/* ScrollView seam: NS <scrollview> hosts one child — the leaf wraps
 		    children in a column layout. Probe reads verticalOffset back.
-		    Universal @for needs an explicit key even for scalar ranges. */}
+		    Universal @for keys default to position when omitted (upstream
+		    branch universal-for-optional-key); `key n` kept for clarity. */}
 		<ScrollView id="scroll-box" className="scrollbox" style={{ height: 96 }}>
 			@for (const n of ROWS; key n) {
 				<Text className="scrollrow">{'Row ' + n}</Text>

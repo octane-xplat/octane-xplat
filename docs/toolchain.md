@@ -135,6 +135,11 @@ that affect our leaves:
   `{expr}` containers, and siblings all need a `<>` wrapper — a bare
   `{expr}` tail silently renders nothing (no diagnostic).
 - `@for` supports `index i; key item.id` and an `@empty {}` fallback.
+  `key` is optional upstream as of `universal-for-optional-key` (unreleased;
+  octane ≤0.4.0 still requires it on universal targets): the DOM renderer
+  falls back to `item.id ?? item` and universal targets fall back to a
+  positional key — fine for static lists, but reorderable stateful rows
+  should declare `key` so item state follows the item, not the slot.
 - Octane dependency arrays are **compiler-inferred when omitted** —
   `useEffect(() => {…})` needs no `[]`.
 - `module server {…}` blocks + `'server'` imports are DOM/SSR-only — never
