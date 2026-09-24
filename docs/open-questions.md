@@ -148,8 +148,9 @@ LiveRegion` unwired in leaves so far).
     between SVGKit (iOS) and androidsvg (Android) on gradients/filters/
     `<text>`, `stretch`/auto-sizing parity with `<image>`, and svg-as-`src`
     in `Icon` glyphs.
-23. ⏳ **JSX element props on universal targets** — `prop={<View/>}` compiles
-    to an element descriptor the universal runtime can't materialize
-    (decision #36). Upstream fix exists (octanejs/octane#1311); verify
-    whether the consumed build carries it and retire the component-prop
-    workaround if so.
+23. ✅ **JSX element props on universal targets** — Resolved: the consumed
+    pack carries the lowering (octane-universal-signals `eaa51b09`,
+    upstream octanejs/octane#1311) — prop JSX emits `universalValue`,
+    verified in the iOS bundle and via the drawer sweep assert. Published
+    octane@0.5.0 alone still rejects native signal reads, so the dist-pack
+    override stays until a release ships both.
