@@ -270,11 +270,18 @@ export interface OverlayProps {
 
 export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right';
 
+/** A platform-neutral ref to the host view or element that owns a popover. */
+export interface PopoverAnchorRef {
+	readonly current: unknown;
+}
+
 export interface PopoverProps {
-	/** Native view or web element, commonly a ref object populated by `bind`. */
-	anchor?: any;
+	/** Ref to a native view or web element, commonly populated by `bind`. */
+	anchor: PopoverAnchorRef;
 	open?: boolean;
 	placement?: PopoverPlacement;
+	dismissOnOutsideTap?: boolean;
+	onDismiss?: () => void;
 	className?: any; style?: any; children?: any;
 	ios?: Record<string, any>;
 	android?: Record<string, any>;

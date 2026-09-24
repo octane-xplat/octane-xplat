@@ -1,78 +1,107 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useRef } from 'octane';
-import { AbsoluteLayout, getRootLayout, GridLayout, isAndroid, isIOS } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
+import { createPortal, useEffect, useRef, useState } from 'octane';
 import type { PopoverProps } from './props';
+import { applyNativeProps } from './platformProps.native';
 import { cx } from './cx';
+import { positionPopover, type PopoverPosition } from './popover-position';
 import { getColorScheme } from './theme/colorScheme.native.tsrx';
 
-function PopoverBody(props: { children?: any; left: number; top: number; className?: any; style?: any }) @{
-	<absolutelayout>
-		<gridlayout left={props.left} top={props.top} className={cx('vx-popover', props.className)} style={props.style}>
+function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
+	const panelRef = useRef<any>(null);
+	const [position, setPosition] = useState<PopoverPosition | null>(null);
+	const [settled, setSettled] = useState(false);
+	const update = () => {
+		const anchor = props.anchorView;
+		const coordinateRoot = anchor?.page?.content;
+		if (!anchor?.getLocationRelativeTo || !coordinateRoot?.getActualSize) return;
+		const point = anchor.getLocationRelativeTo(coordinateRoot);
+		const anchorSize = anchor.getActualSize();
+		const panelSize = panelRef.current?.getActualSize?.();
+		if (!point || !anchorSize) return;
+		const next = positionPopover(
+			{
+				left: point.x,
+				top: point.y,
+				width: anchorSize.width,
+				height: anchorSize.height,
+			},
+			{ width: panelSize?.width ?? 0, height: panelSize?.height ?? 0 },
+			{
+				left: 0,
+				top: 0,
+				width: coordinateRoot.getActualSize().width,
+				height: coordinateRoot.getActualSize().height,
+			},
+			props.placement ?? 'bottom',
+		);
+		setPosition((current) =>
+			current?.left === next.left &&
+			current?.top === next.top &&
+			current?.placement === next.placement
+				? current
+				: next,
+		);
+		if (panelSize?.width > 0 && panelSize?.height > 0) setSettled(true);
+	};
+	useEffect(() => {
+		const anchor = props.anchorView;
+		if (!props.open || !anchor) return;
+		const listeners: { view: any; event: string; handler: () => void }[] = [];
+		let view = anchor;
+		while (view) {
+			for (const event of ['layoutChanged', 'scroll']) {
+				const handler = () => update();
+				view.on?.(event, handler);
+				listeners.push({ view, event, handler });
+			}
+			view = view.parent;
+		}
+		update();
+		return () => {
+			for (const listener of listeners) {
+				listener.view.off?.(listener.event, listener.handler);
+			}
+		};
+	}, [props.open, props.anchorView, props.placement, props.children, props.style]);
+	useEffect(() => {
+		applyNativeProps(panelRef.current, props);
+	}, [props.ios, props.android, settled]);
+	const dismiss = () => props.onDismiss?.();
+	<absolutelayout
+		width="100%"
+		height="100%"
+		className={cx('vx-popover-layer', getColorScheme() === 'dark' && 'ns-dark')}
+	>
+		{(props.dismissOnOutsideTap ?? true) && <gridlayout
+			width="100%"
+			height="100%"
+			backgroundColor="transparent"
+			className="vx-popover-backdrop"
+			onTap={dismiss}
+		/>}
+		<gridlayout
+			ref={panelRef}
+			left={position?.left ?? 0}
+			top={position?.top ?? 0}
+			opacity={settled ? 1 : 0}
+			className={cx('vx-popover', props.className)}
+			style={props.style}
+			onLoaded={update}
+			onLayoutChanged={update}
+		>
 			{props.children}
 		</gridlayout>
 	</absolutelayout>
 }
 
-type OpenPopover = { host: GridLayout; root: any; left: number; top: number };
-
-/** Anchors a separate RootLayout root to a NativeScript view in root-relative DIPs. */
+/** Positions popover content in a page-local native portal. */
 export function Popover(props: PopoverProps) @{
-	const shown = useRef<OpenPopover | null>(null);
-	const anchorRef = props.anchor?.current ?? props.anchor;
+	const [anchorView, setAnchorView] = useState<any>(props.anchor?.current ?? null);
 	useEffect(() => {
-		const current = shown.current;
-		if (!props.open) {
-			if (!current) return;
-			shown.current = null;
-			const rootLayout = getRootLayout();
-			if ((rootLayout as any)?.hasChild?.(current.host)) {
-				rootLayout.close(current.host).then(
-					() => current.root.unmount?.(),
-					(error) => { console.error('[Popover] close failed', error); current.root.unmount?.(); },
-				);
-			} else current.root.unmount?.();
-			return;
-		}
-		const rootLayout = getRootLayout();
-		if (!rootLayout || !anchorRef?.getLocationRelativeTo || !anchorRef?.getActualSize) return;
-		const anchorPoint = anchorRef.getLocationRelativeTo(rootLayout);
-		const size = anchorRef.getActualSize();
-		const gap = 8;
-		let left = anchorPoint.x;
-		let top = anchorPoint.y + size.height + gap;
-		if (props.placement === 'top') top = anchorPoint.y - 56;
-		if (props.placement === 'left') { left = anchorPoint.x - 168; top = anchorPoint.y; }
-		if (props.placement === 'right') { left = anchorPoint.x + size.width + gap; top = anchorPoint.y; }
-		if (current) {
-			current.left = left;
-			current.top = top;
-			current.root.render(PopoverBody as unknown as UniversalComponent, {
-				children: props.children, left, top, className: props.className, style: props.style,
-			});
-			return;
-		}
-
-		const host = new GridLayout();
-		host.className = cx('vx-popover-host', getColorScheme() === 'dark' && 'ns-dark');
-		host.horizontalAlignment = 'stretch';
-		host.verticalAlignment = 'stretch';
-		Object.assign(host, isIOS ? props.ios : isAndroid ? props.android : undefined);
-		const root = createNativeScriptRoot(host);
-		const opened = { host, root, left, top };
-		shown.current = opened;
-		root.render(PopoverBody as unknown as UniversalComponent, {
-			children: props.children, left, top, className: props.className, style: props.style,
-		});
-		const open = () => rootLayout.open(host).catch((error: unknown) => {
-			if (shown.current === opened) shown.current = null;
-			console.error('[Popover] open failed', error);
-			root.unmount?.();
-		});
-		if ((rootLayout as any).hasChild?.(host)) {
-			rootLayout.close(host).then(open, (error) => console.error('[Popover] stale host close failed', error));
-		} else open();
-	}, [props.open, props.anchor, props.placement, props.children, props.className, props.style, props.ios, props.android]);
-	<></>
+		const next = props.anchor?.current ?? null;
+		if (next !== anchorView) setAnchorView(next);
+	}, [props.anchor, props.open, anchorView]);
+	@if (props.open && anchorView) {
+		<>{createPortal(<PopoverLayer {...props} anchorView={anchorView} />, anchorView)}</>
+	}
 }

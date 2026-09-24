@@ -19,7 +19,7 @@ export { openModal } from './modal-service.web';
 export { Overlay } from './Overlay.web.tsrx';
 export { Popover } from './Popover.web.tsrx';
 export { showToast } from './toast.web.tsrx';
-export type { OverlayProps, PopoverProps, PopoverPlacement, ToastContent, ToastOptions, ToastPosition } from './props';
+export type { OverlayProps, PopoverAnchorRef, PopoverProps, PopoverPlacement, ToastContent, ToastOptions, ToastPosition } from './props';
 export { useAnimation } from './anim.web.tsrx';
 export type { AnimatedValue } from './anim.web.tsrx';
 export { useColorScheme, getColorScheme } from './theme/colorScheme.web.tsrx';
