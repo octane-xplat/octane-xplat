@@ -40,7 +40,6 @@ interface PrimitiveProps {
 | `Grid` | `display:grid` + parsed templates | `gridlayout` `rows`/`columns` spec strings | shared spec-string format `"*,auto,2*"` → leaf maps `*`→`1fr`, `auto`→`auto`, `42`→`42px` for web. Child attached props `row`/`col`/`rowSpan`/`colSpan`. **No `gap`** (GridLayout lacks it; use child margins) — leaf warns |
 | `Absolute` | `div` + `position:relative`; children `position:absolute` | `absolutelayout` | **native has no `position` CSS** — container element required anyway; child `left`/`top` attached props (dip→px) |
 | `Spacer` | `flex-grow:1` | `flexGrow` attached prop | convenience |
-
 | `Text` | `span`/`p` | `label` | children: text or `Text` only (nested → `formattedstring`/`span`); **never `View` inside `Text`** — adopt RN rule |
 | `RichText`? | inline markup | `formattedstring` + `span` leaves | possibly fold into `Text` nesting |
 | `Pressable` | `div`+pointer events | `flexboxlayout` `flexDirection=column` + `tap`/`longPress` | **multi-child** — `contentview` silently drops all but the last child (`.content` assignment); tap gestures attach to any view. Use `button` leaf only where native button chrome wanted |
