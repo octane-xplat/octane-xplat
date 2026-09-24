@@ -240,7 +240,7 @@ body {
 	border-bottom-width: 4px;
 	border-bottom-color: var(--nb-ink);
 	border-bottom-style: solid;
-	margin-bottom: 20px;
+	margin-bottom: 28px;
 	/* highlighter smear under the title */
 	background-image: linear-gradient(to top, var(--nb-yellow) 22%, transparent 22%);
 }
@@ -251,6 +251,7 @@ body {
 	text-transform: uppercase;
 	letter-spacing: 0.02em;
 	margin-top: 32px;
+	margin-bottom: 18px;
 	padding: 8px 14px;
 	background-color: var(--nb-violet);
 	color: #000000;
@@ -268,6 +269,7 @@ body {
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	margin-top: 24px;
+	margin-bottom: 12px;
 	padding-left: 14px;
 	border-left-width: 8px;
 	border-left-color: var(--nb-red);
