@@ -23,6 +23,7 @@ to a file in `docs/` (our commitment) or here (context that informed it).
 | [tamagui.md](tamagui.md)                   | Tamagui            | `styled()` + variants + token themes as a component API over primitives.                                                                               |
 | [react-native-web.md](react-native-web.md) | react-native-web   | Proof that converging on RN's constrained API surface and implementing it over DOM works. Event/accessibility normalization.                           |
 | [flutter.md](flutter.md)                   | Flutter            | Animation API shape (`AnimationController`/`Tween`/`Curve`), widget-composition idioms worth borrowing, Navigator 2.0 declarative routing.             |
+| [lynx.md](lynx.md)                         | Lynx (lynxjs.org)  | Same destination by a different road: lowercase element vocabulary → native views, dual-thread React. Thread tax validates JS-on-UI-thread; Snapshot IR confirms Octane's universalPlan ABI. |
 
 Related but folded into the files above: React Native itself (the API-surface
 lingua franca — see react-native-web.md), Expo Router (One is derived from it —
