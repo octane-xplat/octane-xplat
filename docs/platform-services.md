@@ -16,8 +16,8 @@ storage.setString('has-seen-welcome', 'true');
 const seen = storage.getString('has-seen-welcome');
 ```
 
-Other services cover permissions, clipboard, sharing, haptics, files,
-notifications, safe-area insets, screen size, and app lifecycle.
+Other services cover permissions, clipboard, sharing, haptics, files, media
+picking, notifications, safe-area insets, screen size, and app lifecycle.
 
 ## Optional capabilities
 

@@ -20,5 +20,11 @@ export const files = {
 		f.writeTextSync(text);
 		return { name, uri: p };
 	},
-	release(_ref: FileRef): void {},
+	release(ref: FileRef): void {
+		const cachePrefix = knownFolders.temp().path + '/';
+		if (!ref.uri.startsWith(cachePrefix)) return;
+		try {
+			File.fromPath(ref.uri).removeSync();
+		} catch {}
+	},
 };

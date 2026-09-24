@@ -32,7 +32,7 @@
 | icons/fonts | inline SVG, `@font-face` | SF Symbols + font fallback, `App_Resources` fonts | `Icon` primitive owns mapping |
 | accessibility | ARIA attrs | `accessible`, `accessibilityLabel/Hint/Value/Role`, `accessibilityLiveRegion`, announce | shared prop names map near-1:1 — keep a11y props on primitives |
 | i18n/locale | `navigator.language`, Intl | `Device.language`, Intl | i18next binding is DOM-free — shared |
-| images/media | `<input type=file>`, canvas | imagepicker/camera plugins, `ImageSource` | |
+| images/media | `<input type=file>`, canvas | imagepicker/camera plugins, `ImageSource` | `media.pickImage()` returns `PickedImage` (preview URI + data URL); call `files.release()` when done |
 | biometrics | WebAuthn | Keychain biometrics plugin | optional-capability |
 | deep links | URL is the link | `Application` openUrl/continuation | feeds navigation route table |
 

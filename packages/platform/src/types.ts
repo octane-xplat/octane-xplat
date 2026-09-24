@@ -40,6 +40,15 @@ export interface FileRef {
 	uri: string;
 }
 
+/**
+ * Result of `media.pickImage()`: a displayable URI and an upload data URL.
+ * Native URIs point to temporary JPEG files; call `files.release()` when the
+ * preview is no longer needed.
+ */
+export interface PickedImage extends FileRef {
+	dataUrl: string;
+}
+
 export interface Locale {
 	tag: string;
 	language: string;

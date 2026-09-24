@@ -3,9 +3,20 @@
 // Hook-bearing services live in .tsrx files with .ts shims so tsc's
 // moduleSuffixes can reach them (docs/module-resolution.md).
 export type {
-	AppState, BiometricsImpl, Capability, DeviceInfo, FileRef, HapticsImpl,
-	Insets, Locale, NotificationsImpl, PermissionKind, SecureStore,
-	ShareResult, WindowSize,
+	AppState,
+	BiometricsImpl,
+	Capability,
+	DeviceInfo,
+	FileRef,
+	HapticsImpl,
+	PickedImage,
+	Insets,
+	Locale,
+	NotificationsImpl,
+	PermissionKind,
+	SecureStore,
+	ShareResult,
+	WindowSize,
 } from './types';
 export { device } from './device';
 export { storage } from './storage';
