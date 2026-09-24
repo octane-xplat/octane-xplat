@@ -80,6 +80,42 @@
   opacity: 0.85;
 }
 
+.vx-overlay {
+  z-index: 1000;
+}
+
+.vx-overlay-shade {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+.vx-overlay-content {
+  position: relative;
+  z-index: 1;
+}
+
+.vx-popover {
+  z-index: 1001;
+}
+
+.vx-toast-host {
+  position: fixed;
+  z-index: 1002;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.vx-toast-top { top: 24px; }
+.vx-toast-bottom { bottom: 24px; }
+
+.vx-toast {
+  pointer-events: auto;
+}
+
 /* auto-grow owns height — the manual resize handle has no native analog */
 .vx-textarea {
   resize: none;

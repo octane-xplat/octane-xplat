@@ -179,6 +179,41 @@ export interface PlatformBadgeProps { className?: any; }
 
 // ---------- overlays ----------
 
+export interface OverlayProps {
+	open?: boolean;
+	onDismiss?: () => void;
+	/** Enables a RootLayout shade that dismisses when tapped. */
+	shadeCover?: boolean;
+	className?: any; style?: any; children?: any;
+	ios?: Record<string, any>;
+	android?: Record<string, any>;
+	web?: Record<string, any>;
+}
+
+export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right';
+
+export interface PopoverProps {
+	/** Native view or web element, commonly a ref object populated by `bind`. */
+	anchor?: any;
+	open?: boolean;
+	placement?: PopoverPlacement;
+	className?: any; style?: any; children?: any;
+	ios?: Record<string, any>;
+	android?: Record<string, any>;
+	web?: Record<string, any>;
+}
+
+export type ToastContent = string | (() => any);
+export type ToastPosition = 'top' | 'bottom';
+
+export interface ToastOptions {
+	duration?: number;
+	position?: ToastPosition;
+	ios?: Record<string, any>;
+	android?: Record<string, any>;
+	web?: Record<string, any>;
+}
+
 export interface ModalProps {
 	open?: boolean;
 	onClose?: (result?: ModalOpenResult) => void;

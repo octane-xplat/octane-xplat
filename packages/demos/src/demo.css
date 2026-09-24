@@ -2,6 +2,22 @@
  *   import '@xplat/demos/demo.css';
  * Grammar stays inside the NS∩web matrix (docs/css-support-matrix.md). */
 
+.overlay-demo-anchor { align-self: flex-start; }
+
+.overlay-demo-card {
+  padding: 20px;
+  border-radius: 12px;
+  background-color: var(--color-surface);
+  gap: 12px;
+}
+
+.overlay-demo-popover {
+  padding: 12px;
+  border-radius: 8px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
 .demo-menu {
   flex-wrap: wrap;
   gap: 8px;

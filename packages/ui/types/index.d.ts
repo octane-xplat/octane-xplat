@@ -18,6 +18,9 @@ import type {
 	ModalOpenOptions,
 	ModalOpenResult,
 	OpenModal,
+	OverlayProps,
+	PopoverPlacement,
+	PopoverProps,
 	PlatformBadgeProps,
 	PressableProps,
 	ReadableStore,
@@ -36,6 +39,9 @@ import type {
 	TextAreaProps,
 	TextInputProps,
 	TextProps,
+	ToastContent,
+	ToastOptions,
+	ToastPosition,
 	ViewProps,
 } from './props';
 
@@ -50,6 +56,9 @@ export type {
 	ModalOpenOptions,
 	ModalOpenResult,
 	OpenModal,
+	OverlayProps,
+	PopoverPlacement,
+	PopoverProps,
 	PanEvent,
 	PlatformBadgeProps,
 	PressableProps,
@@ -70,6 +79,9 @@ export type {
 	TextAreaProps,
 	TextInputProps,
 	TextProps,
+	ToastContent,
+	ToastOptions,
+	ToastPosition,
 	ViewProps,
 } from './props';
 
@@ -97,6 +109,9 @@ export declare const PlatformBadge: UniversalComponent<PlatformBadgeProps>;
 
 export declare const Modal: UniversalComponent<ModalProps>;
 export declare const openModal: OpenModal;
+export declare const Overlay: UniversalComponent<OverlayProps>;
+export declare const Popover: UniversalComponent<PopoverProps>;
+export declare function showToast(content: ToastContent, options?: ToastOptions): void;
 export declare const Tabs: UniversalComponent<TabsProps>;
 
 // ---------- stacks (native registry; no-op on web) ----------
