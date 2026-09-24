@@ -194,7 +194,9 @@ export interface KeyboardAvoidingProps {
 
 export interface DrawerProps {
 	className?: any; style?: any;
-	main?: any; drawer?: any; open?: boolean;
+	/** Slot components (not elements) — JSX prop values don't lower on the
+	 *  universal runtime; component references do (`<Drawer main={Main}>`). */
+	main?: () => any; drawer?: () => any; open?: boolean;
 	ios?: Record<string, any>; android?: Record<string, any>; web?: Record<string, any>;
 }
 
