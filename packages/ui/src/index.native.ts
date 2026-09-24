@@ -1,6 +1,10 @@
 export { View } from './View.native.tsrx';
 export { View as Column } from './View.native.tsrx';
 export { Row } from './Row.native.tsrx';
+export { Grid } from './Grid.native.tsrx';
+export { Stack } from './Stack.native.tsrx';
+export { Absolute } from './Absolute.native.tsrx';
+export { Spacer } from './Spacer.native.tsrx';
 export { Text } from './Text.native.tsrx';
 export { Pressable } from './Pressable.native.tsrx';
 export { TextInput } from './TextInput.native.tsrx';

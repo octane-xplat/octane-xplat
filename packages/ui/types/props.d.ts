@@ -17,7 +17,56 @@ export interface PanEvent {
 export interface SwipeEvent {
     direction: number;
 }
-export interface ViewProps {
+/** Metadata read by parent layouts. Native forwards NativeScript attached
+ *  attributes; web folds the CSS equivalents into the child's style. */
+export interface LayoutChildProps {
+    row?: number;
+    col?: number;
+    rowSpan?: number;
+    colSpan?: number;
+    dock?: 'left' | 'top' | 'right' | 'bottom';
+    left?: number;
+    top?: number;
+    flexGrow?: number;
+    flexShrink?: number;
+    alignSelf?: string;
+    order?: number;
+}
+export interface GridProps {
+    className?: any;
+    style?: any;
+    children?: any;
+    rows?: string;
+    columns?: string;
+    gap?: number | string;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+export interface StackProps {
+    className?: any;
+    style?: any;
+    children?: any;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+export interface AbsoluteProps {
+    className?: any;
+    style?: any;
+    children?: any;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+export interface SpacerProps {
+    className?: any;
+    style?: any;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+export interface ViewProps extends LayoutChildProps {
     className?: any;
     style?: any;
     children?: any;
@@ -27,18 +76,45 @@ export interface ViewProps {
     bind?: (el: any) => void;
     onPan?: (e: PanEvent) => void;
     onSwipe?: (e: SwipeEvent) => void;
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
 }
-export interface RowProps {
+export interface RowProps extends LayoutChildProps {
     className?: any;
     style?: any;
     children?: any;
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
 }
-export interface TextProps {
+export interface TextProps extends LayoutChildProps {
     className?: any;
     style?: any;
     children?: any;
+    numberOfLines?: number;
+    /** Native Label does not expose text selection; implemented with CSS on web. */
+    selectable?: boolean;
+    ellipsize?: boolean;
+    accessibilityHint?: string;
+    accessibilityValue?: string;
+    /** NativeScript supports one state at a time (disabled/selected/checked); busy and expanded are web-only. */
+    accessibilityState?: {
+        disabled?: boolean;
+        selected?: boolean;
+        checked?: boolean;
+        busy?: boolean;
+        expanded?: boolean;
+    };
+    accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
 }
-export interface PressableProps {
+export interface PressableProps extends LayoutChildProps {
     className?: any;
     style?: any;
     children?: any;
@@ -50,6 +126,32 @@ export interface PressableProps {
     accessible?: boolean;
     accessibilityLabel?: string;
     accessibilityRole?: string;
+    onPressIn?: () => void;
+    onPressOut?: () => void;
+    onDoublePress?: () => void;
+    hitSlop?: number;
+    /** NativeScript supports a per-view TouchManager animation opt-out; web has no press scaling. */
+    ignoreTouchAnimation?: boolean;
+    accessibilityHint?: string;
+    accessibilityValue?: string;
+    /** NativeScript supports one state at a time (disabled/selected/checked); busy and expanded are web-only. */
+    accessibilityState?: {
+        disabled?: boolean;
+        selected?: boolean;
+        checked?: boolean;
+        busy?: boolean;
+        expanded?: boolean;
+    };
+    accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+export interface TextInputHandle {
+    focus(): void;
+    blur(): void;
+    native: any;
 }
 export interface TextInputProps {
     className?: any;
@@ -60,6 +162,19 @@ export interface TextInputProps {
     /** NativeScript's term for placeholder — web maps hint → placeholder. */
     hint?: string;
     onChange?: (value: string) => void;
+    bind?: (h: TextInputHandle) => void;
+    secure?: boolean;
+    keyboardType?: 'default' | 'email' | 'number' | 'decimal' | 'phone' | 'url';
+    returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send';
+    onSubmit?: () => void;
+    onFocus?: () => void;
+    onBlur?: () => void;
+    editable?: boolean;
+    placeholderTextColor?: string;
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
 }
 export interface TextAreaProps extends TextInputProps {
     /** Height in text rows. Web: the `rows` attr (fixed box); native:
@@ -97,24 +212,36 @@ export interface ListProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-export interface ScrollViewProps {
+export interface ScrollViewProps extends LayoutChildProps {
     className?: any;
     style?: any;
     id?: string;
     horizontal?: boolean;
     children?: any;
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
 }
-export interface ImageProps {
+export interface ImageProps extends LayoutChildProps {
     className?: any;
     style?: any;
     id?: string;
     src: string;
     alt?: string;
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
 }
 export interface ScreenProps {
     className?: any;
     style?: any;
     children?: any;
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
 }
 export interface SafeAreaProps {
     className?: any;
@@ -149,6 +276,10 @@ export interface SwitchProps {
     id?: string;
     checked?: boolean;
     onCheckedChange?: (checked: boolean) => void;
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
 }
 export interface ActivityIndicatorProps {
     className?: any;

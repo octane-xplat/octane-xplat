@@ -9,14 +9,17 @@
 import type { UniversalComponent } from 'octane/universal';
 import type {
 	AnimatedValue,
+	AbsoluteProps,
 	ActivityIndicatorProps,
 	ColorScheme,
 	DrawerProps,
+	GridProps,
 	HeadingProps,
 	IconGlyph,
 	IconProps,
 	ImageProps,
 	KeyboardAvoidingProps,
+	LayoutChildProps,
 	ListProps,
 	ModalProps,
 	ModalOpenOptions,
@@ -38,6 +41,8 @@ import type {
 	ScrollViewProps,
 	SliderProps,
 	Store,
+	SpacerProps,
+	StackProps,
 	SwitchProps,
 	TabSpec,
 	TabsProps,
@@ -51,15 +56,18 @@ import type {
 } from './props';
 
 export type {
+	AbsoluteProps,
 	AnimatedValue,
 	ActivityIndicatorProps,
 	ColorScheme,
 	DrawerProps,
+	GridProps,
 	HeadingProps,
 	IconGlyph,
 	IconProps,
 	ImageProps,
 	KeyboardAvoidingProps,
+	LayoutChildProps,
 	ListProps,
 	ModalProps,
 	ModalOpenOptions,
@@ -82,6 +90,8 @@ export type {
 	ScrollViewProps,
 	SliderProps,
 	Store,
+	SpacerProps,
+	StackProps,
 	SwipeEvent,
 	SwitchProps,
 	TabSpec,
@@ -101,6 +111,10 @@ export declare const View: UniversalComponent<ViewProps>;
 /** Column-direction alias of View. */
 export declare const Column: UniversalComponent<ViewProps>;
 export declare const Row: UniversalComponent<RowProps>;
+export declare const Grid: UniversalComponent<GridProps>;
+export declare const Stack: UniversalComponent<StackProps>;
+export declare const Absolute: UniversalComponent<AbsoluteProps>;
+export declare const Spacer: UniversalComponent<SpacerProps>;
 export declare const Text: UniversalComponent<TextProps>;
 export declare const Pressable: UniversalComponent<PressableProps>;
 export declare const TextInput: UniversalComponent<TextInputProps>;

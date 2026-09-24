@@ -62,6 +62,27 @@
   flex-direction: row;
 }
 
+.vx-grid,
+.vx-stack {
+  display: grid;
+}
+
+.vx-stack > * {
+  grid-area: 1 / 1;
+}
+
+.vx-absolute {
+  position: relative;
+}
+
+.vx-absolute > * {
+  position: absolute;
+}
+
+.vx-spacer {
+  flex-grow: 1;
+}
+
 .vx-pressable {
   display: flex;
   flex-direction: column;

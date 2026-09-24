@@ -3,6 +3,7 @@ import { createContext, useContext } from 'octane';
 import type { TextProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
+import { layoutChildProps } from './layout-child.native';
 
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
@@ -29,12 +30,13 @@ export function Text(props: TextProps) @{
 		...(props.ellipsize ? { whiteSpace: 'nowrap', textOverflow: 'ellipsis' } : {}),
 	};
 	@if (inText) {
-		<span ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} style={textStyle}>
+		<span ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} style={textStyle} {...layoutChildProps(props)}>
 			{props.children}
 		</span>
 	} @else {
 		<label
 			ref={(v: any) => applyEscapeProps(v, props)}
+			{...layoutChildProps(props)}
 			className={cx(props.className)}
 			style={textStyle}
 			maxLines={props.numberOfLines}

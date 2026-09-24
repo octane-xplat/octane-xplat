@@ -16,6 +16,7 @@ import { ModalDemo } from './ModalDemo.tsrx';
 import { PropsDemo } from './PropsDemo.tsrx';
 import { OverlayDemo } from './OverlayDemo.tsrx';
 import { ControlsDemo } from './ControlsDemo.tsrx';
+import { LayoutDemo } from './LayoutDemo.tsrx';
 import { useLastDemo } from './store.tsrx';
 
 export const DEMOS = [
@@ -35,6 +36,7 @@ export const DEMOS = [
 	{ id: 'props', title: 'Props' },
 	{ id: 'overlay', title: 'Overlays' },
 	{ id: 'controls', title: 'Controls' },
+	{ id: 'layout', title: 'Layout' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -60,6 +62,7 @@ const renderModal = () => <ModalDemo />;
 const renderProps = () => <PropsDemo />;
 const renderOverlay = () => <OverlayDemo />;
 const renderControls = () => <ControlsDemo />;
+const renderLayout = () => <LayoutDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -78,6 +81,7 @@ export const RENDER: Record<string, () => any> = {
 	props: renderProps,
 	overlay: renderOverlay,
 	controls: renderControls,
+	layout: renderLayout,
 };
 
 /** Demo launcher — chip menu. Two modes:

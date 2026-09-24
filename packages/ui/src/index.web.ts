@@ -1,6 +1,10 @@
 export { View } from './View.web.tsrx';
 export { View as Column } from './View.web.tsrx';
 export { Row } from './Row.web.tsrx';
+export { Grid } from './Grid.web.tsrx';
+export { Stack } from './Stack.web.tsrx';
+export { Absolute } from './Absolute.web.tsrx';
+export { Spacer } from './Spacer.web.tsrx';
 export { Text } from './Text.web.tsrx';
 export { Pressable } from './Pressable.web.tsrx';
 export { TextInput } from './TextInput.web.tsrx';

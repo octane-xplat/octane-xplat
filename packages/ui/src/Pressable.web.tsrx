@@ -1,5 +1,6 @@
 import type { PressableProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
+import { layoutChildProps } from './layout-child.web';
 
 export function Pressable(props: PressableProps) @{
 	let timer: ReturnType<typeof setTimeout> | null = null;
@@ -17,7 +18,7 @@ export function Pressable(props: PressableProps) @{
 		ref={(el: any) => applyEscapeProps(el, props)}
 		id={props.id}
 		className={['vx-pressable', props.ignoreTouchAnimation ? 'vx-pressable-no-feedback' : '', props.className]}
-		style={{ ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) }}
+		{...layoutChildProps(props, { ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
 		role={props.accessibilityRole ?? 'button'}
 		aria-label={props.accessibilityLabel}
 		aria-description={props.accessibilityHint}

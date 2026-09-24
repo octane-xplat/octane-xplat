@@ -15,7 +15,38 @@ export interface SwipeEvent { direction: number; }
 
 // ---------- primitives ----------
 
-export interface ViewProps {
+/** Metadata read by parent layouts. Native forwards NativeScript attached
+ *  attributes; web folds the CSS equivalents into the child's style. */
+export interface LayoutChildProps {
+	row?: number; col?: number; rowSpan?: number; colSpan?: number;
+	dock?: 'left' | 'top' | 'right' | 'bottom';
+	left?: number; top?: number;
+	flexGrow?: number; flexShrink?: number;
+	alignSelf?: string; order?: number;
+}
+
+export interface GridProps {
+	className?: any; style?: any; children?: any;
+	rows?: string; columns?: string; gap?: number | string;
+	ios?: Record<string, any>; android?: Record<string, any>; web?: Record<string, any>;
+}
+
+export interface StackProps {
+	className?: any; style?: any; children?: any;
+	ios?: Record<string, any>; android?: Record<string, any>; web?: Record<string, any>;
+}
+
+export interface AbsoluteProps {
+	className?: any; style?: any; children?: any;
+	ios?: Record<string, any>; android?: Record<string, any>; web?: Record<string, any>;
+}
+
+export interface SpacerProps {
+	className?: any; style?: any;
+	ios?: Record<string, any>; android?: Record<string, any>; web?: Record<string, any>;
+}
+
+export interface ViewProps extends LayoutChildProps {
 	className?: any; style?: any; children?: any; id?: string;
 	/** `ref` is runtime-reserved on component elements — leaves expose
 	 *  `bind` to reach the native/DOM node. */
@@ -26,13 +57,13 @@ export interface ViewProps {
 	ios?: any; android?: any; web?: any;
 }
 
-export interface RowProps {
+export interface RowProps extends LayoutChildProps {
 	className?: any; style?: any; children?: any;
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any; android?: any; web?: any;
 }
 
-export interface TextProps {
+export interface TextProps extends LayoutChildProps {
 	className?: any; style?: any; children?: any;
 	numberOfLines?: number;
 	/** Native Label does not expose text selection; implemented with CSS on web. */
@@ -47,7 +78,7 @@ export interface TextProps {
 	ios?: any; android?: any; web?: any;
 }
 
-export interface PressableProps {
+export interface PressableProps extends LayoutChildProps {
 	className?: any; style?: any; children?: any; id?: string;
 	disabled?: boolean;
 	onPress?: () => void;
@@ -128,14 +159,14 @@ export interface ListProps {
 	web?: Record<string, any>;
 }
 
-export interface ScrollViewProps {
+export interface ScrollViewProps extends LayoutChildProps {
 	className?: any; style?: any; id?: string;
 	horizontal?: boolean; children?: any;
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any; android?: any; web?: any;
 }
 
-export interface ImageProps {
+export interface ImageProps extends LayoutChildProps {
 	className?: any; style?: any; id?: string;
 	src: string; alt?: string;
 	/** Platform-specific properties are applied after shared props. */

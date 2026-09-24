@@ -1,5 +1,6 @@
 import type { TextProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
+import { layoutChildProps } from './layout-child.web';
 export function Text(props: TextProps) @{
 	const textStyle = {
 		...props.style,
@@ -10,7 +11,7 @@ export function Text(props: TextProps) @{
 	<span
 		ref={(el: any) => applyEscapeProps(el, props)}
 		className={props.className}
-		style={textStyle}
+		{...layoutChildProps(props, textStyle)}
 		aria-description={props.accessibilityHint}
 		aria-valuetext={props.accessibilityValue}
 		aria-disabled={props.accessibilityState?.disabled}

@@ -14,5 +14,6 @@ export { ModalDemo } from './ModalDemo.tsrx';
 export { PropsDemo } from './PropsDemo.tsrx';
 export { OverlayDemo } from './OverlayDemo.tsrx';
 export { ControlsDemo } from './ControlsDemo.tsrx';
+export { LayoutDemo } from './LayoutDemo.tsrx';
 export { DEMOS, RENDER, Gallery } from './Gallery.tsrx';
 export { setLastDemo, useLastDemo } from './store.tsrx';

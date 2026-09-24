@@ -171,6 +171,76 @@
   background-color: var(--color-surface);
 }
 
+.layout-grid {
+  height: 148px;
+}
+
+.layout-cell {
+  align-items: center;
+  justify-content: center;
+  background-color: #dbeafe;
+  border-width: 1px;
+  border-color: #93c5fd;
+  margin: 3px;
+}
+
+.layout-span {
+  background-color: #bfdbfe;
+}
+
+.layout-absolute-card {
+  width: 220px;
+  height: 96px;
+  background-color: #f1f5f9;
+  border-width: 1px;
+  border-color: #cbd5e1;
+}
+
+.layout-absolute-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.layout-badge {
+  background-color: #dc2626;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+}
+
+.layout-stack {
+  height: 88px;
+}
+
+.layout-stack-back,
+.layout-stack-front {
+  width: 164px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.layout-stack-back {
+  background-color: #c4b5fd;
+}
+
+.layout-stack-front {
+  margin-left: 28px;
+  margin-top: 18px;
+  background-color: #ddd6fe;
+}
+
+.layout-footer-column {
+  flex-grow: 1;
+}
+
+.layout-footer {
+  padding: 8px;
+  background-color: #e2e8f0;
+}
+
 /* Keyframes — the only sanctioned animation path (decision #22). Props
    limited to the verified NS set: opacity, transform (scale/rotate/
    translate), background-color, width/height. No `animation-direction:
