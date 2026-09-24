@@ -20,10 +20,12 @@ import type {
 	ImageProps,
 	KeyboardAvoidingProps,
 	LayoutChildProps,
+	LinkProps,
 	ListProps,
 	ModalProps,
 	ModalOpenOptions,
 	ModalOpenResult,
+	NavLinkProps,
 	OpenModal,
 	OverlayProps,
 	PopoverPlacement,
@@ -68,10 +70,12 @@ export type {
 	ImageProps,
 	KeyboardAvoidingProps,
 	LayoutChildProps,
+	LinkProps,
 	ListProps,
 	ModalProps,
 	ModalOpenOptions,
 	ModalOpenResult,
+	NavLinkProps,
 	OpenModal,
 	OverlayProps,
 	PopoverPlacement,
@@ -117,6 +121,8 @@ export declare const Absolute: UniversalComponent<AbsoluteProps>;
 export declare const Spacer: UniversalComponent<SpacerProps>;
 export declare const Text: UniversalComponent<TextProps>;
 export declare const Pressable: UniversalComponent<PressableProps>;
+export declare const Link: UniversalComponent<LinkProps>;
+export declare const NavLink: UniversalComponent<NavLinkProps>;
 export declare const TextInput: UniversalComponent<TextInputProps>;
 export declare const TextArea: UniversalComponent<TextAreaProps>;
 export declare const List: UniversalComponent<ListProps>;

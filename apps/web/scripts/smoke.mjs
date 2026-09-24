@@ -87,8 +87,13 @@ try {
 
 	// Root push (Detail →) covers the whole shell.
 	await page.click('button:text("Home")');
+	const detailLink = page.getByRole('link', { name: 'Detail →' });
+	const detailHref = await detailLink.getAttribute('href');
+	const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+	ok('NavLink renders a real href', detailHref === '/detail?from=home', detailHref);
 	await page.click('text=Detail →');
 	await page.waitForFunction(() => location.pathname === '/detail', null, { timeout: 3000 });
+	ok('NavLink click uses SPA navigation', await page.evaluate((origin) => performance.timeOrigin === origin, timeOrigin));
 	const tabsCovered = (await page.locator('.vx-tabbar').count()) === 0;
 	ok('root route covers tab shell', tabsCovered);
 	await page.goBack();

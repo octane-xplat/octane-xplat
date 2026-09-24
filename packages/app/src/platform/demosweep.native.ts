@@ -1,5 +1,5 @@
 import { Application, getRootLayout } from '@nativescript/core';
-import { getStack } from '@octane-xplat/ui';
+import { getStack, popRoute, routeFor } from '@octane-xplat/ui';
 import { goBack } from './nav';
 
 // Nested stacks don't work on Android yet — a TabViewItem-hosted Frame
@@ -53,6 +53,40 @@ function assertMatch(name: string, re: RegExp, view: any = demosPage()) {
 	const ok = hay.some((t) => re.test(t));
 	console.log('[assert] ' + name + ': ' + (ok ? 'OK' : 'FAIL') + ' (' + re + ')' + (ok ? '' : dump(hay)));
 }
+
+function tapTargetForText(view: any, text: string, path: any[] = []): any {
+	if (!view) return null;
+	const nextPath = [...path, view];
+	if (view.text === text) {
+		return [...nextPath].reverse().find((v) => (v?.getGestureObservers?.(1)?.length ?? 0) > 0) ?? null;
+	}
+	let found: any = null;
+	view.eachChildView?.((child: any) => {
+		found = tapTargetForText(child, text, nextPath);
+		return !found;
+	});
+	return found;
+}
+
+function runNavLinkProbe() {
+	const rootPage = getStack('root')?.currentPage;
+	const target = tapTargetForText(rootPage, 'Detail →');
+	const observers = fireTap(target);
+	if (!observers) {
+		console.log('[assert] NavLink tap target: FAIL (Detail → has no tap observer)');
+		return;
+	}
+	waitFor(() => routeFor('root')?.name === 'detail', () => {
+		const route = routeFor('root');
+		const ok = route?.name === 'detail' && route.params.from === 'home';
+		console.log('[assert] NavLink pushes detail page: ' + (ok ? 'OK' : 'FAIL') + (ok ? '' : ' — ' + JSON.stringify(route)));
+		if (ok) popRoute('root');
+	});
+}
+
+// Exercise the Home page's declarative NavLink through its real native tap
+// observer, then return to the app shell before the nested-stack sweep.
+setTimeout(runNavLinkProbe, 5000);
 
 // Chips live on the demos stack's current page; the sheet host sits on the
 // app's RootLayout, a sibling of every page — read it from there.

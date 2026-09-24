@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@octane-xplat/ui';
-import { navigate } from './platform/nav';
+import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@octane-xplat/ui';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { probeSignal$ } from './probe-state';
@@ -109,9 +108,9 @@ export function Home() @{
 		{/* Navigation + overlay seams (Exp 9): platform modules resolve the
 		    imperative call per target. */}
 		<Row className="gap-4">
-			<Pressable id="detail-btn" onPress={() => navigate('detail', { from: 'home' })} className="btn bg-primary">
+			<NavLink route={{ stack: 'root', name: 'detail', params: { from: 'home' } }} className="btn bg-primary">
 				<Text className="text-onprimary">Detail →</Text>
-			</Pressable>
+			</NavLink>
 			<Pressable id="overlay-btn" onPress={openOverlay} className="btn bg-primary">
 				<Text className="text-onprimary">Overlay</Text>
 			</Pressable>
