@@ -14,3 +14,16 @@ allowBuilds:
   '@parcel/watcher': true
   nativescript: true
   '@nativescript/core': false
+#
+# vite-octane's octaneServerStrategy early-returns for `.tsrx` files (its
+# SCRIPT_FILE_RE only covers [jt]sx?), so component edits never emit the
+# deferred ns:hmr-delta broadcast — on-device HMR looks dead. The patch also
+# counts open /ns-hmr sockets so `recipients=N` in update logs is real.
+# Drop once a release carries the fix.
+patchedDependencies:
+  '@nativescript-community/vite-octane@0.2.1': patches/@nativescript-community__vite-octane@0.2.1.patch
+  # Dep/core shims dropped reserved-word named exports (zod's `enum`, `catch`,
+  # `function`, …) because `export const enum` is a syntax error — emit them
+  # via temp+alias so bridged namespaces keep their full surface. Without it,
+  # any app importing such a dep fails module eval on boot/graph-reload.
+  '@nativescript/vite@8.0.11': patches/@nativescript__vite@8.0.11.patch

@@ -1,6 +1,47 @@
-import { defineConfig, mergeConfig } from 'vite';
+import { defineConfig, mergeConfig, type Plugin } from 'vite';
 import { octaneConfig } from '@nativescript-community/vite-octane';
 import { nativeScriptRenderer } from '@nativescript-community/octane/config';
+
+/**
+ * On-device HMR needs the app's websocket client to attach to /ns-hmr after
+ * the HTTP boot. When it never does — the @valor/nativescript-websockets
+ * polyfill missing from the bundle, `adb reverse` not covering the vite port,
+ * or a boot error before the client import — every save logs `recipients=0`
+ * and the device silently stays stale. Warn once when a dev session was
+ * fetched but no client ever attached.
+ */
+function nsHmrClientWatchdog(): Plugin {
+  return {
+    name: 'ns-hmr-client-watchdog',
+    configureServer(server) {
+      let everConnected = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      server.middlewares.use((req, _res, next) => {
+        if (!everConnected && req.url?.startsWith('/__ns_dev__/session')) {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            if (!everConnected) {
+              console.warn(
+                '[ns-hmr-client-watchdog] the app fetched its dev session ' +
+                  'but no /ns-hmr websocket client connected — edits will not ' +
+                  'reach the device. Check that @valor/nativescript-websockets ' +
+                  'is installed, `adb reverse tcp:<port>` covers this vite port ' +
+                  '(physical Android), and the device log for hmr-client errors.',
+              );
+            }
+          }, 15_000);
+        }
+        next();
+      });
+      server.httpServer?.on('upgrade', (req) => {
+        if (req.url?.startsWith('/ns-hmr')) {
+          everConnected = true;
+          clearTimeout(timer);
+        }
+      });
+    },
+  };
+}
 
 export default defineConfig(({ mode }) =>
   mergeConfig(
@@ -28,6 +69,7 @@ export default defineConfig(({ mode }) =>
       },
     ),
     {
+      plugins: [nsHmrClientWatchdog()],
       resolve: {
         conditions: ['native'],
         // The compiler retargets hook imports to @nativescript-community/

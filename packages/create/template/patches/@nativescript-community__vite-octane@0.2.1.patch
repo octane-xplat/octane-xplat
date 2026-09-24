@@ -1,0 +1,41 @@
+diff --git a/dist/server/strategy.js b/dist/server/strategy.js
+index 7d84b37e2ed3a026da5b31c8a11027e0580877b2..f6594a913ba64837135e994cb183add13c6a0530 100644
+--- a/dist/server/strategy.js
++++ b/dist/server/strategy.js
+@@ -14,7 +14,9 @@ import { purgeTransformCachesForHotUpdate, runHotUpdatePrologue, typescriptServe
+  * otherwise the re-fetch can be served from the previous save's transform and
+  * the screen ends up one save behind.
+  */
+-const SCRIPT_FILE_RE = /\.(?:[mc]?[jt]sx?)$/i;
++// `.tsrx` is Octane's component extension — without it the deferred delta is
++// never emitted and component edits silently never reach the device.
++const SCRIPT_FILE_RE = /\.(?:[mc]?[jt]sx?|tsrx)$/i;
+ export const octaneServerStrategy = {
+     ...typescriptServerStrategy,
+     flavor: 'octane',
+@@ -24,7 +26,7 @@ export const octaneServerStrategy = {
+         if (!state)
+             return;
+         const { root, metrics, emitSummary } = state;
+-        const { moduleGraph, verbose, sharedTransformRequest } = deps;
++        const { moduleGraph, verbose, sharedTransformRequest, wss, isSocketClientOpen } = deps;
+         const { file, server } = ctx;
+         if (!SCRIPT_FILE_RE.test(file)) {
+             emitSummary();
+@@ -71,6 +73,16 @@ export const octaneServerStrategy = {
+             const gm = moduleGraph.get(normalizedId);
+             if (gm)
+                 moduleGraph.emitDelta([gm], []);
++            // The ns:hmr-delta broadcast IS the update delivery for this flavor —
++            // count open sockets so the always-on summary reflects reality
++            // instead of reporting recipients=0 for a delivered update.
++            try {
++                wss?.clients?.forEach((client) => {
++                    if (isSocketClientOpen?.(client))
++                        metrics.recipients += 1;
++                });
++            }
++            catch { }
+         }
+         catch (e) {
+             if (verbose)

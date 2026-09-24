@@ -42,9 +42,17 @@ function createWindowContent(): Frame {
   return frame;
 }
 
-Application.run({
-  create: () => createWindowContent(),
-});
+// Under the vite dev session the placeholder bootstrap has already run
+// Application.run(), and a module-graph reload re-evaluates this entry.
+// Android's run() throws "Application is already started" on re-entry
+// (iOS core handles the placeholder handoff internally); resetRootView is
+// the documented way to swap the root of a running app.
+const entry = { create: () => createWindowContent() };
+if (Application.started) {
+  Application.resetRootView(entry);
+} else {
+  Application.run(entry);
+}
 
 // NS gesture events (tap/pan/swipe/longPress) don't live on the plain event
 // list — view.on('tap') routes to GesturesObserver, so notify() can't reach

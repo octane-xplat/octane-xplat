@@ -6,7 +6,7 @@ import { App } from './App.tsrx';
 import '@octane-xplat/ui/theme/tokens.css';
 import './style.css';
 
-Application.run({
+const entry = {
 	create: () => {
 		// Root is a Frame so pushRoute() can push Pages later — a Frame
 		// window root doubles as the 'root' stack with no registration;
@@ -19,4 +19,15 @@ Application.run({
 		frame.navigate({ create: () => page });
 		return frame;
 	},
-});
+};
+
+// Under the vite dev session the placeholder bootstrap has already run
+// Application.run(), and a module-graph reload re-evaluates this entry.
+// Android's run() throws "Application is already started" on re-entry
+// (iOS core handles the placeholder handoff internally); resetRootView is
+// the documented way to swap the root of a running app.
+if (Application.started) {
+	Application.resetRootView(entry);
+} else {
+	Application.run(entry);
+}
