@@ -37,7 +37,7 @@ packages/ui/anim (shared API)
    motion               view.style per-frame in touch handlers
 ```
 
-### Shared API shape (Flutter-flavored — see prior-art/flutter.md)
+### Shared API shape (Flutter-flavored)
 
 ```ts
 const x = useAnimation(0);                    // animated value, ref-backed
@@ -70,7 +70,7 @@ on Android but leaves the promise **pending forever on iOS** — never `await`
 a cancellable animation; `iterations: 0` diverges (iOS=none, Android
 degenerate) — facade exposes `iterations: 'infinite'` explicitly.
 
-**Lab (Exp 13, iOS):** `useAnimation()` → `{ value, to, spring, stop, bind }`
+**Verified on iOS:** `useAnimation()` → `{ value, to, spring, stop, bind }`
 works as a plain exported function in a `.tsrx` file — hooks called inside an
 active component render resolve via implicit slots
 (`implicit:${owner.implicitSlot++}`), so custom hooks don't need `@{ }`
@@ -91,7 +91,7 @@ component elements) and writes `view.translateX` per rAF frame — no re-render.
 Normalize to: `{ x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled', target }`.
 Velocity is essential for interruptible gestures (drawer, swipe-to-dismiss).
 
-**Lab (Exp 10, iOS):** `onPan`/`onSwipe` props on a `<flexboxlayout>` map
+**Verified on iOS:** `onPan`/`onSwipe` props on a `<flexboxlayout>` map
 through the driver's generic `onX` → event-name rule and deliver full
 payloads (`deltaX/deltaY/state`, `direction`) — one observer per gesture,
 verified via `getGestureObservers()`. **Seam:** gesture events are NOT on
@@ -101,7 +101,7 @@ which is a real event). Programmatic probing must call
 `observer.callback(args)`; real-recognizer delivery was verified manually
 (taps + typing).
 
-**Lab (Exp 17):** payload normalization landed in the View leaf — NS
+**Verified:** payload normalization landed in the View leaf — NS
 `{deltaX,deltaY,state:int}` → `{x,y,dx,dy,vx,vy,state:'began'|...'}`; enum
 map is `cancelled=0,began=1,changed→moved=2,ended=3`. Web leaf attaches raw
 pointer listeners via the `bind` ref — **`pointermove` is not in octane's

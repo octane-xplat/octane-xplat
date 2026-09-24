@@ -21,7 +21,7 @@
 
 Two layers — **compile-time first** (verified machinery), lint as backstop:
 
-**Layer 0 — the compiler's own `renderers.*.validation`** (decision #20).
+**Layer 0 — the compiler's own `renderers.*.validation`**.
 The renderer config accepts `forbiddenGlobals`, `forbiddenImports`,
 `textHosts`, `textParents`, `hostProps` — enforced at compile time on owned
 files AND on `.ts` helpers matched by the rule. Declare on the nativescript
@@ -75,7 +75,7 @@ valuable CI signal for "the seams held."
 
 ## e2e reality check
 
-- Web: Playwright is straightforward. **Lab (web smoke):** `pnpm smoke`
+- Web: Playwright is straightforward. **Verified:** `pnpm smoke`
   in `apps/web` — builds dist, serves via `vite preview`, drives headless
   Chromium: App mounts, `onClick`→state, tab switch, chip→real-path
   route write, pane render, popstate restore, deep-link boot, sheet-stub

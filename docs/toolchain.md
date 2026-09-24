@@ -35,7 +35,7 @@
   propagate to the nearest accepting importer; entry edits reload the module
   graph in-process. Named exports remain convention (hygiene), not a hard
   requirement.
-- `.tsrx` everywhere for renderer-owned files (decision #23); `.ts` helpers
+- `.tsrx` everywhere for renderer-owned files; `.ts` helpers
   never call hooks (slotter emits `from 'octane'` — DOM runtime; under a
   universal rule they're *validated* not compiled).
 - Typecheck via `tsrx-tsc --noEmit` per target config (`.tsrx` needs the
@@ -63,7 +63,7 @@ sources + types, and each app's renderer include glob covers `packages/**`.
 No prebuild step for shared code; hook rule (invariant #2) applies inside
 packages too.
 
-**Lab (npm publish):** for `@octane-xplat/ui` we diverged — it ships
+**In practice:** for `@octane-xplat/ui` we diverged — it ships
 **compiled** output, not source. `packages/ui/vite.config.ts` builds the
 package twice in lib mode (`vite build`, `vite build --mode native`) with
 `preserveModules`: `.tsrx` → per-module JS under `dist/web` + `dist/native`,
@@ -107,7 +107,7 @@ Per-target `import.meta.env` defines (`__PLATFORM__`, dev/prod). Keep the
 `.env` story boring: `.env` shared, `.env.web`/`.env.native` overrides; never
 ship secrets into either bundle (native bundles are inspectable like web).
 
-## Bundle contents (Exp 4 — verified iOS prod + dev)
+## Bundle contents (verified on iOS prod + dev)
 
 - **Production (`ns build ios`)**: `vendor.mjs` contains zero DOM octane
   modules — no `dom-bindings`, `dom-stage`, `dom-tables`, `hydration/*`,
@@ -126,8 +126,8 @@ ship secrets into either bundle (native bundles are inspectable like web).
 
 ## TSRX language spec
 
-The canonical syntax reference is `research/tsrx/website-tsrx/public/llms.txt`
-(local clone of github.com/tsrx-org/tsrx; the site is tsrx.dev). Notable rules
+The canonical syntax reference is the tsrx spec
+([github.com/tsrx-org/tsrx](https://github.com/tsrx-org/tsrx); the site is tsrx.dev). Notable rules
 that affect our leaves:
 
 - `@{…}` bodies: setup statements first, then **exactly one output node**
@@ -147,14 +147,14 @@ All three driver fixes we reported upstream shipped in
 
 1. **Managed listview cells** — `renderItem` on `<listview>` makes the driver
    own `itemTemplate`/`itemLoading`: per-cell `ContentView` + universal root,
-   identity-skip rebinds, unmount on release (upstream #7 / our issue #1).
+   identity-skip rebinds, unmount on release (upstreamed in 0.2.1).
    Upstream's shape is `renderItem`-driven (not our items-splice adapter) —
    `list-view.ts` is the reference.
 2. **Prop-write echo suppression** — driver mutes `<prop>Change` during its
-   own write via a per-node `muted` set (upstream #5 / our issue #3).
+   own write via a per-node `muted` set (upstreamed in 0.2.1).
 3. **Default renderer validation** — `forbiddenGlobals`/`forbiddenImports`
    ship on `nativeScriptRenderer`, mergeable via
-   `nativeScriptRenderers({validation})` (upstream #6).
+   `nativeScriptRenderers({validation})` (upstreamed in 0.2.1).
 
 **New invariant — one driver copy per app.** Invariant 3 (one `octane`)
 applies equally to `@nativescript-community/octane`: the 0.2.0→0.2.1 bump

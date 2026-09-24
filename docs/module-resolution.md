@@ -48,11 +48,9 @@ chain short — the shared file is the norm; per-OS files are for genuinely
 divergent behavior (SF Symbols vs font icons, safe-area quirks).
 
 > [!NOTE]
-> Lab-verified on iOS sim (Exp 6): `PlatformBadge.ios.tsrx` wins over
-> `.native.tsrx` — `[badge] ios variant evaluated` logged on device.
-> `.android > .native` is the same `resolve.extensions` ordering in
-> `apps/native/vite.config.mts` — desk-verified; `PlatformBadge.android.tsrx`
-> exists as the probe for that run.
+> Verified on iOS sim: `PlatformBadge.ios.tsrx` wins over `.native.tsrx`
+> — `[badge] ios variant evaluated` logged on device. `.android > .native`
+> uses the same `resolve.extensions` ordering in `apps/native/vite.config.mts`.
 
 ## Mechanism (verified against octane 0.4.0 + vite-octane source)
 
@@ -109,15 +107,15 @@ resolution (orientation/size classes — `.land`, `.minWH600`) stay for assets.
   a registered renderer's `intrinsics` id — i.e.
   `/** @jsxImportSource @nativescript-community/octane */` claims a file for
   the NS renderer).
-- **Default dialect: `.tsrx` for all renderer-owned files** (decision #23) —
+- **Default dialect: `.tsrx` for all renderer-owned files** —
   shared, leaf, and route files. `.tsx` only for files that must not see
   directives. Non-component `.ts` helpers stay unowned (no hooks — the slotter
   emits `from 'octane'` literally, which resolves to the DOM runtime under
-  native; see prior-art/octane.md).
+  native).
 - **`renderers.rules` owns components; `validation` owns `.ts` helpers**:
   universal rules validate matched `.ts`/`.js` modules
   (`forbiddenGlobals`/`forbiddenImports`) without compiling them — the seam
-  enforcement layer (decision #20).
+  enforcement layer.
 - **Shared packages**: Octane's model is "ship authored source; the app
   compiles it." Renderer include globs must span `packages/**` sources; NS-side
   `include` covers suffixed files the same way.
@@ -157,13 +155,13 @@ Two program configs over a shared base:
 - Leaf files typecheck under their own target's config only.
 - Typecheck `.tsrx` with `tsrx-tsc --noEmit` (per octane repo rules), not plain
   `tsc`.
-- **`exports` wildcards don't extension-resolve** (lab, Exp 15): `"./\*":
+- **`exports` wildcards don't extension-resolve** (verified): `"./\*":
   "./src/*"` maps `@xplat/app/platform/storage` to a literal extensionless
   path that neither tsc nor vite/rolldown can load. Deep platform imports must
   go through a barrel (`@xplat/app` re-exporting `./platform/storage`) or a
   `paths` pattern — the suffix chain runs on the barrel's internal relative
   specifier, not on the exports target.
-- **`moduleSuffixes` only covers `.ts`/`.tsx`** (lab, Exp 18): an
+- **`moduleSuffixes` only covers `.ts`/`.tsx`** (verified): an
   extensionless `./Link` won't resolve `Link.native.tsrx` — tsc's suffix
   search doesn't include `.tsrx`. Convention: leaf pairs that shared code
   imports bare get a same-name `.ts` shim per side (`Link.native.ts` →
@@ -175,7 +173,7 @@ Two program configs over a shared base:
 > (`./platform/nav` → `nav.native.ts`/`nav.web.ts` typecheck fine), but a
 > `.ts` file importing a `.tsrx` component gets `() => Element`, not
 > `UniversalComponent` — passing it to `createNativeScriptRoot().render()`
-> needs `as unknown as UniversalComponent` (Exp 9).
+> needs `as unknown as UniversalComponent`.
 
 ## Build-time defines
 

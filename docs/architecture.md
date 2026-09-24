@@ -1,8 +1,7 @@
 # Architecture
 
 > The keystone doc. Everything else in `docs/` is a detail of what's stated here.
-> Facts about the substrate are sourced in `prior-art/octane.md` and
-> `prior-art/nativescript-octane.md` — this doc is about *our* shape.
+> Substrate facts are verified against upstream source; this doc is about *our* shape.
 
 ## The one-sentence model
 
@@ -21,7 +20,7 @@ driver over `@nativescript/core` views. The renderer problem is solved; what
 remains is an app-level architecture problem: vocabulary, styling, navigation,
 services.
 
-Upstream machinery we now know exists (substrate pass, prior-art/octane.md):
+Upstream machinery we rely on:
 
 - **Renderer registry + ordered rules + `boundaries`** — first-match globs own
   files; `boundaries` declare cross-renderer prop regions (renderer islands).
@@ -76,8 +75,8 @@ spoken natively.
 4. **No DOM globals in shared code** — no `document`, `window`, `localStorage`,
    `getComputedStyle`, DOM events. Anything platform reaches for goes through
    `packages/platform`. (NS does have `fetch`, `WebSocket`, `crypto`, `btoa`,
-   `matchMedia` — see `prior-art/nativescript-core.md`.)
-   **Enforced (Exp 8)**: the native app extends `nativeScriptRenderer` with a
+   `matchMedia`.)
+   **Enforced**: the native app extends `nativeScriptRenderer` with a
    `validation.forbiddenGlobals`/`forbiddenImports` list — a `document`
    reference in a `.tsrx` fails the transform with file+line
    (`renderer "nativescript" forbids unbound global`). **Gap**: validation
@@ -91,9 +90,8 @@ spoken natively.
 5. **No web-only Octane features in shared code.** SSR/streaming/`<Hydrate>`/
    `<Suspense>`/`<ErrorBoundary>` components/`<style>` blocks/portals are
    DOM-build features. Shared components restrict themselves to the universal
-   subset — the verified allowlist is in prior-art/octane.md ("universal
-   export surface"); portable async boundaries are `@try`/`@pending`/`@catch`
-   (decision #19).
+   subset — the universal export surface is the verified allowlist; portable
+   async boundaries are `@try`/`@pending`/`@catch`.
 6. **Static styles are CSS; dynamic values are style objects.** Shared styling
    is `className` + tokens → shared stylesheet compiled per-target
    ([styling](styling.md)). Object `style` lowers to `view.style` / DOM style.
@@ -124,8 +122,8 @@ they differ in `jsxImportSource` and which leaf files are in scope. Details in
 - Web: `createRoot(document.getElementById('root')!)` — `main.web.ts`.
 - Native: `Application.run({ create: () => page })` +
   `renderNativeScriptApp(page, App)`, plus `setWindowContentResolver` for
-  secondary windows — `main.native.ts`. See
-  [prior-art/nativescript-octane.md](../prior-art/nativescript-octane.md).
+  secondary windows — `main.native.ts`. See the
+  [upstream repo](https://github.com/nativescript-community/octane).
 
 ## Where the seams are (index)
 

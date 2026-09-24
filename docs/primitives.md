@@ -45,7 +45,7 @@ interface PrimitiveProps {
 | `RichText`? | inline markup | `formattedstring` + `span` leaves | possibly fold into `Text` nesting |
 | `Pressable` | `div`+pointer events | `contentview`+`tap`/`touch` | hover/pressed states → CSS vs manual touch tracking; use `button` leaf only where native button chrome wanted |
 | `ScrollView` | `div` overflow | `scrollview` | `horizontal` prop both sides |
-| `List` | `@octanejs/tanstack-virtual` over `div` | `listview` + **per-cell Octane sub-roots** | **the leak**: ListView recycles via `itemTemplate`/`itemLoading` (imperative view factories — no reconciler children). Design: each recycled slot hosts a `createNativeScriptRoot`; `itemLoading` rebinds `{item, index}` into a per-cell store the row component reads; `items` wrapped as `ObservableArray` for granular updates; `itemTemplateSelector` for heterogeneous rows. Lab: per-cell root cost, scroll perf (decision #21) |
+| `List` | `@octanejs/tanstack-virtual` over `div` | `listview` + **per-cell Octane sub-roots** | **the leak**: ListView recycles via `itemTemplate`/`itemLoading` (imperative view factories — no reconciler children). Design: each recycled slot hosts a `createNativeScriptRoot`; `itemLoading` rebinds `{item, index}` into a per-cell store the row component reads; `items` wrapped as `ObservableArray` for granular updates; `itemTemplateSelector` for heterogeneous rows. Lab: per-cell root cost, scroll perf |
 | `TextInput` / `TextArea` | `input`/`textarea` | `textfield`/`textview` | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ |
 | `Image` | `img` | `image` | `src`: URL/`res://`/`~/` — asset resolution differs; sizing via CSS both sides |
 | `Icon` | inline SVG (lucide-style) | `sf-icon` pattern — `image` + symbol config, font fallback on Android | name → per-platform glyph map |
@@ -56,7 +56,7 @@ interface PrimitiveProps {
 | `SafeArea` | CSS `env(safe-area-inset-*)` padding | root-level padding + `iosOverflowSafeArea` management | plus `useSafeAreaInsets()` hook |
 | `KeyboardAvoiding` | mostly unnecessary (visual viewport API) | scrollview + `input-accessory`/inset management | iOS vs Android differ internally — acceptable leaf complexity |
 | `WebView` | `iframe` | `webview` | probably web/native divergent enough to skip in v1 |
-| `Overlay`/`Popover`/`Toast` | anchored `div` (floating-ui) / portal | `RootLayout.open(view, {shadeCover, animation})` — imperative bridge, own sub-root per overlay | getRootLayout returns FIRST registered RootLayout — app root is `<rootlayout>`; give modal roots ids (`getRootLayoutById`). One shade cover; every open/close call returns a rejecting promise — always `.catch`. Portals absent on native driver → this is the path (decision #22) |
+| `Overlay`/`Popover`/`Toast` | anchored `div` (floating-ui) / portal | `RootLayout.open(view, {shadeCover, animation})` — imperative bridge, own sub-root per overlay | getRootLayout returns FIRST registered RootLayout — app root is `<rootlayout>`; give modal roots ids (`getRootLayoutById`). One shade cover; every open/close call returns a rejecting promise — always `.catch`. Portals absent on native driver → this is the path |
 
 **Child layout props are part of the shared surface** — `row`, `col`,
 `rowSpan`, `colSpan`, `dock`, `left`, `top`, `flexGrow`, `flexShrink`,
@@ -68,7 +68,7 @@ targets.
 ## The Modal seam (worst primitive leak, document early)
 
 Native modal = a separate window/sheet hosting **its own Octane root**
-(`renderNativeScriptApp` into a new `Page`/`View`, `showModal`). **Lab (iOS):**
+(`renderNativeScriptApp` into a new `Page`/`View`, `showModal`). **Verified on iOS:**
 the leaf drives `presenter.showModal(view, options)`. Children passed as
 elements render fine inside the modal root — elements are data, evaluated in
 whichever root renders them — so `<Modal open>{children}</Modal>` works; the
@@ -126,7 +126,7 @@ interface ListProps<T> {
 }
 ```
 
-Native leaf internals (decision #21): `<listview>` with an `itemTemplate` that
+Native leaf internals: `<listview>` with an `itemTemplate` that
 vends a recycled container; **per-cell `createNativeScriptRoot`** mounts the
 row component into each slot; `itemLoading` rebinds by re-calling
 `root.render(Row, { item, index })` on the recycled slot's root (verify
@@ -162,7 +162,7 @@ adapter for granular native updates (`refresh()` re-fires every `itemLoading`
   glue. **Reported upstream**:
   [nativescript-community/octane#1](https://github.com/nativescript-community/octane/issues/1)
   — **and shipped upstream in 0.2.1** ([#7](https://github.com/nativescript-community/octane/pull/8),
-  our issue #1): the driver owns `itemTemplate`/`itemLoading` — per-cell
+): the driver owns `itemTemplate`/`itemLoading` — per-cell
   ContentView + universal root, `items[index]` binding with identity-skip,
   unmount on release. Our leaf is now just `<listview items renderItem>`
   + the `renderEmpty` swap.
@@ -243,7 +243,7 @@ interface TextInputProps {
     `className`/`style` so inner spans inherit outer text styling; deeper
     nesting flattens into siblings (documented divergence from web, where
     spans nest).
-- **Requires two driver extensions** (decision #25 — patch-package now,
+- **Requires two driver extensions** (patch-package now,
   upstream PR candidate):
   1. `addViewChild`: `Span` under a `TextBase` parent auto-wraps into
      `formattedText` (create `FormattedString` lazily, splice at index).
@@ -267,7 +267,7 @@ interface TextInputProps {
   line box — typography tokens must express the NS value (gap) vs web value
   (box height) distinctly.
 - `Heading level={1-6}` primitive: `h1–h6` on web (semantic HTML matters —
-  decision #17); `label` + `className="h{n}"` + a11y role on native.
+); `label` + `className="h{n}"` + a11y role on native.
 
 ## Refs
 

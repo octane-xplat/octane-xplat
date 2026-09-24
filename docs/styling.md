@@ -46,13 +46,13 @@ system, works identically both sides); (b) class-driven (`.dark` / `ns-dark`
 root class, app-controllable). Recommend **(a) as default + (b) override** —
 a `ThemeProvider` that sets the root class, falling back to the media query.
 
-**Latency (Exp 5 — iOS sim)**: `setState` → post-commit `useEffect` (i.e.
+**Latency (iOS sim)**: `setState` → post-commit `useEffect` (i.e.
 render + native prop application) ≈ **1ms** for a root `className` swap
 (`dark ns-dark` toggled on the app root view). The JS-side commit is
 synchronous; pixel-visible time then depends on the next native layout
 pass (not measured — needs visual confirmation).
 
-**Lab (root boundaries, iOS):** `ns-dark` applied on the app root does
+**Verified (iOS):** `ns-dark` applied on the app root does
 **not** cross into pushed `Page` roots, the sheet root, or the modal
 root (each is a separate native view tree — verified absent in all
 three). Token *values* do cross: `getCssVariable('--color-primary')`
@@ -104,7 +104,7 @@ view. A class on one root can never reach another.
 
 ## The component API over it (`styled()`)
 
-Tamagui-shaped, CSS-backed — see `prior-art/tamagui.md`:
+Tamagui-shaped, CSS-backed:
 
 ```ts
 const Card = styled(View, {
@@ -118,7 +118,7 @@ const Card = styled(View, {
 - Dynamic variant→style escape: `style` prop still available.
 - Keeps TypeScript prop inference: `styled()` exports typed variant props.
 
-**Lab (Exp 16, iOS):** the component-factory shape hits a real universal
+**Verified on iOS:** the component-factory shape hits a real universal
 constraint — component elements require the compiler-stamped
 `UNIVERSAL_COMPONENT` mark, and `@{ }`/JSX only lowers at module-level
 declarations, so `styled` can't author a component inline. The native leaf

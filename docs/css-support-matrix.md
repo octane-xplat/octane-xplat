@@ -33,7 +33,7 @@
 | Property | NS | Web | Notes |
 |---|---|---|---|
 | `color`, `font-size`, `font-weight`, `font-style` | ✅ | ✅ | |
-| `font-family` | ⚠️ | ✅ | registered-name mapping per platform (Q18) |
+| `font-family` | ⚠️ | ✅ | registered-name mapping per platform |
 | `text-align`, `text-decoration`, `text-transform` | ✅ | ✅ | |
 | `line-height` | ⚠️ **additive gap** | ✅ total box | tokens carry both values |
 | `letter-spacing` | ⚠️ | ✅ | iOS vs Android differ; verify |
