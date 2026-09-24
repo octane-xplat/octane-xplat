@@ -6,6 +6,7 @@ import langTs from 'shiki/langs/typescript.mjs';
 import langTsx from 'shiki/langs/tsx.mjs';
 import langJsonc from 'shiki/langs/jsonc.mjs';
 import themeDark from 'shiki/themes/vitesse-dark.mjs';
+import { DOCS } from './docs';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
 import { resetDocScroll } from './scroll';
 
@@ -42,6 +43,21 @@ function docSlug(href: string): string | null {
 	return m ? m[1] : null;
 }
 
+function docPath(slug: string): string {
+	const doc = DOCS.find((d) => d.slug === slug);
+	if (doc?.group === 'notes') return `/notes/${slug}`;
+	return slug === DOCS[0].slug ? '/' : `/${slug}`;
+}
+
+function docRoute(slug: string) {
+	const doc = DOCS.find((d) => d.slug === slug);
+	return {
+		stack: doc?.group === 'notes' ? 'notes' : 'root',
+		name: slug === DOCS[0].slug ? '' : slug,
+		params: {},
+	};
+}
+
 // External URL: http(s) passes through; repo-relative paths (../prior-art/)
 // resolve against docs/ → github.com tree/blob links.
 function extUrl(href: string): string {
@@ -56,7 +72,7 @@ function SpanText(props: { s: Span }) @{
 	if (s.href) {
 		const slug = docSlug(s.href);
 		if (slug) {
-			return <a className={cls} href={'/doc?page=' + slug} onClick={(e: MouseEvent) => { e.preventDefault(); pushRoute({ stack: 'root', name: 'doc', params: { page: slug } }); resetDocScroll(); }}>{s.text}</a>;
+			return <a className={cls} href={docPath(slug)} onClick={(e: MouseEvent) => { e.preventDefault(); pushRoute(docRoute(slug)); resetDocScroll(); }}>{s.text}</a>;
 		}
 		return <a className={cls} href={extUrl(s.href)} target="_blank" rel="noopener">{s.text}</a>;
 	}
