@@ -1,6 +1,6 @@
 {
   "name": "@octane-xplat/ui",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "files": [
     "dist",
@@ -43,7 +43,11 @@
     "octane": ">=0.1.51 <1"
   },
   "peerDependenciesMeta": {
-    "@nativescript-community/octane": { "optional": true },
-    "@nativescript/core": { "optional": true }
+    "@nativescript-community/octane": {
+      "optional": true
+    },
+    "@nativescript/core": {
+      "optional": true
+    }
   }
 }
