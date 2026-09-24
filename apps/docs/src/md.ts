@@ -1,6 +1,6 @@
 // Minimal block-level markdown → render model. Paragraph-inline styling is
 // split into spans (mono/bold); block kinds map to our primitives in md.tsrx.
-export type Span = { text: string; mono?: boolean; bold?: boolean; italic?: boolean; href?: string };
+export type Span = { text: string; mono?: boolean; bold?: boolean; italic?: boolean; strike?: boolean; href?: string };
 export type Block =
 	| { kind: 'h'; level: number; text: string }
 	| { kind: 'p'; spans: Span[] }
@@ -11,17 +11,17 @@ export type Block =
 	| { kind: 'table'; rows: string[][] }
 	| { kind: 'hr' };
 
-// One pass, earliest token wins: `code`, **bold**, *italic*, [link](href).
-// Recursing into link text lets [`code`](x) render as a mono link; recursing
-// into bold lets **[link](x)** stay bold — and lets `**a *b* c**` nest
-// italic inside bold. Code wins at equal index so `[x](y)` inside backticks
-// stays literal. Bold's interior may carry lone `*` (`**x.*.y**`); italic
-// refuses `*` adjacency on both ends and can't start with whitespace, so
-// `* ` bullets, `2*` star-columns, and glob `*` followed by space stay
-// literal.
+// One pass, earliest token wins: `code`, **bold**, *italic*, ~~strike~~,
+// [link](href). Recursing into link text lets [`code`](x) render as a mono
+// link; recursing into bold lets **[link](x)** stay bold — and lets
+// `**a *b* c**` nest italic inside bold. Code wins at equal index so
+// `[x](y)` inside backticks stays literal. Bold's interior may carry lone
+// `*` (`**x.*.y**`); italic refuses `*` adjacency on both ends and can't
+// start with whitespace, so `* ` bullets, `2*` star-columns, and glob `*`
+// followed by space stay literal.
 export function inlineSpans(text: string): Span[] {
 	const spans: Span[] = [];
-	const re = /(`[^`]*`)|(\*\*(?:[^*]|\*[^*])+\*\*)|((?<!\*)\*(?!\*)[^*\s][^*]*\*(?!\*))|(\[[^\]]+\]\([^)\s]+\))/g;
+	const re = /(`[^`]*`)|(\*\*(?:[^*]|\*[^*])+\*\*)|((?<!\*)\*(?!\*)[^*\s][^*]*\*(?!\*))|(~~[^~\s][^~]*~~)|(\[[^\]]+\]\([^)\s]+\))/g;
 	let last = 0;
 	for (const m of text.matchAll(re)) {
 		if (m.index > last) spans.push({ text: text.slice(last, m.index) });
@@ -32,6 +32,8 @@ export function inlineSpans(text: string): Span[] {
 			for (const s of inlineSpans(tok.slice(2, -2))) spans.push({ ...s, bold: true });
 		} else if (tok.startsWith('*')) {
 			for (const s of inlineSpans(tok.slice(1, -1))) spans.push({ ...s, italic: true });
+		} else if (tok.startsWith('~~')) {
+			for (const s of inlineSpans(tok.slice(2, -2))) spans.push({ ...s, strike: true });
 		} else {
 			const lm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(tok)!;
 			for (const s of inlineSpans(lm[1])) spans.push({ ...s, href: lm[2] });

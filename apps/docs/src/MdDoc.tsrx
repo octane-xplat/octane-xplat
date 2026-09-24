@@ -68,7 +68,7 @@ function extUrl(href: string): string {
 
 function SpanText(props: { s: Span }) @{
 	const s = props.s;
-	const cls = [s.mono && 'mono', s.bold && 'bold', s.italic && 'italic', s.href && 'link'].filter(Boolean).join(' ');
+	const cls = [s.mono && 'mono', s.bold && 'bold', s.italic && 'italic', s.strike && 'strike', s.href && 'link'].filter(Boolean).join(' ');
 	if (s.href) {
 		const slug = docSlug(s.href);
 		if (slug) {

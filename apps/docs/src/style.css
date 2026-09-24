@@ -368,6 +368,14 @@ body {
 	font-style: italic;
 }
 
+.strike {
+	text-decoration: line-through;
+}
+
+.link.strike {
+	text-decoration: underline line-through;
+}
+
 .link {
 	color: var(--nb-ink);
 	font-weight: 700;
