@@ -10,7 +10,7 @@ export function Meter(props: MeterProps) @{
 	const trackColor = props.trackColor ?? '#e1ecf7';
 	const sweep = ratio * 360;
 	const ringStyle = {
-		position: 'absolute', inset: 0, borderRadius: '50%',
+		position: 'absolute' as const, inset: 0, borderRadius: '50%',
 		backgroundImage: `conic-gradient(${color} 0deg ${sweep}deg, ${trackColor} ${sweep}deg 360deg)`,
 		mask: `radial-gradient(circle, transparent calc(50% - ${strokeWidth}px), #000 calc(50% - ${strokeWidth}px + 0.5px))`,
 		WebkitMask: `radial-gradient(circle, transparent calc(50% - ${strokeWidth}px), #000 calc(50% - ${strokeWidth}px + 0.5px))`,

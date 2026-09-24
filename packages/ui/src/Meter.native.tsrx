@@ -10,7 +10,12 @@ import { meterRange } from './meter-math';
 
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
-		canvasview: Attributes<typeof CanvasView>;
+		canvasview: Attributes<typeof CanvasView> & {
+			/** ui-canvas's public typings expose `onDraw` as an instance method
+			 *  (no `static drawEvent` on CanvasView), so Attributes can't derive
+			 *  the event prop — declare it here. */
+			onDraw?: (event: any) => void;
+		};
 	}
 }
 
