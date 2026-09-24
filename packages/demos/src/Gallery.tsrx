@@ -11,6 +11,7 @@ import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
 import { ListDemo } from './ListDemo.tsrx';
+import { DeviceDemo } from './DeviceDemo.tsrx';
 import { useLastDemo } from './store.tsrx';
 
 export const DEMOS = [
@@ -25,6 +26,7 @@ export const DEMOS = [
 	{ id: 'anim', title: 'Keyframes' },
 	{ id: 'probe', title: 'Reactivity' },
 	{ id: 'list-demo', title: 'List contract' },
+	{ id: 'device', title: 'Device seams' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -45,6 +47,7 @@ const renderWeather = () => <Weather />;
 const renderAnim = () => <AnimShowcase />;
 const renderProbe = () => <ReactiveProbe />;
 const renderListDemo = () => <ListDemo />;
+const renderDevice = () => <DeviceDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -58,6 +61,7 @@ export const RENDER: Record<string, () => any> = {
 	anim: renderAnim,
 	probe: renderProbe,
 	'list-demo': renderListDemo,
+	device: renderDevice,
 };
 
 /** Demo launcher — chip menu. Two modes:

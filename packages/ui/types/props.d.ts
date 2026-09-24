@@ -116,6 +116,33 @@ export interface ScreenProps {
     style?: any;
     children?: any;
 }
+export interface SafeAreaProps {
+    className?: any;
+    style?: any;
+    children?: any;
+    /** NativeScript props applied to the host after shared props. */
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+export interface KeyboardAvoidingProps {
+    className?: any;
+    style?: any;
+    children?: any;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+export interface DrawerProps {
+    className?: any;
+    style?: any;
+    main?: any;
+    drawer?: any;
+    open?: boolean;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
 export interface SwitchProps {
     className?: any;
     style?: any;

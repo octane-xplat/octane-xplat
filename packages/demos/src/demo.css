@@ -139,6 +139,16 @@
   font-weight: bold;
 }
 
+.device-demo { padding: 16px; }
+.device-safe-sample { flex-grow: 1; justify-content: space-between; }
+.device-edge-top { background-color: #fb7185; padding: 8px; }
+.device-edge-bottom { background-color: #38bdf8; padding: 8px; }
+.device-keyboard { min-height: 120px; }
+.device-drawer { min-height: 120px; }
+.device-drawer-main { padding: 12px; background-color: #dbeafe; }
+.device-drawer-content { padding: 16px; background-color: #fef3c7; }
+.device-native-note { font-size: 12px; opacity: 0.65; }
+
 /* Keyframes — the only sanctioned animation path (decision #22). Props
    limited to the verified NS set: opacity, transform (scale/rotate/
    translate), background-color, width/height. No `animation-direction:

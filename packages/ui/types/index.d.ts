@@ -10,7 +10,9 @@ import type { UniversalComponent } from 'octane/universal';
 import type {
 	AnimatedValue,
 	ColorScheme,
+	DrawerProps,
 	ImageProps,
+	KeyboardAvoidingProps,
 	ListProps,
 	ModalProps,
 	PlatformBadgeProps,
@@ -21,6 +23,7 @@ import type {
 	RouteMeta,
 	RowProps,
 	ScreenProps,
+	SafeAreaProps,
 	ScreenTable,
 	ScrollViewProps,
 	Store,
@@ -36,7 +39,9 @@ import type {
 export type {
 	AnimatedValue,
 	ColorScheme,
+	DrawerProps,
 	ImageProps,
+	KeyboardAvoidingProps,
 	ListProps,
 	ModalProps,
 	PanEvent,
@@ -48,6 +53,7 @@ export type {
 	RouteMeta,
 	RowProps,
 	ScreenProps,
+	SafeAreaProps,
 	ScreenTable,
 	ScrollViewProps,
 	Store,
@@ -75,6 +81,9 @@ export declare const List: UniversalComponent<ListProps>;
 export declare const ScrollView: UniversalComponent<ScrollViewProps>;
 export declare const Image: UniversalComponent<ImageProps>;
 export declare const Screen: UniversalComponent<ScreenProps>;
+export declare const SafeArea: UniversalComponent<SafeAreaProps>;
+export declare const KeyboardAvoiding: UniversalComponent<KeyboardAvoidingProps>;
+export declare const Drawer: UniversalComponent<DrawerProps>;
 export declare const Switch: UniversalComponent<SwitchProps>;
 export declare const PlatformBadge: UniversalComponent<PlatformBadgeProps>;
 
@@ -125,6 +134,8 @@ export declare function deriveRouteManifest(
 export declare function useAnimation(initial?: number, prop?: string): AnimatedValue;
 export declare function getColorScheme(): ColorScheme;
 export declare function useColorScheme(): ColorScheme;
+export interface SafeAreaInsets { top: number; right: number; bottom: number; left: number; }
+export declare function useSafeAreaInsets(): SafeAreaInsets;
 
 // ---------- styled ----------
 
