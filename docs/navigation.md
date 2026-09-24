@@ -9,10 +9,10 @@ Routes have three pieces:
 
 ```ts
 pushRoute({
-  stack: 'root',
-  name: 'settings',
-  params: {},
-});
+	stack: 'root',
+	name: 'settings',
+	params: {},
+})
 ```
 
 The `name` identifies the screen. `params` carries the small amount of data

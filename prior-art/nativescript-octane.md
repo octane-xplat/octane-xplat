@@ -7,13 +7,13 @@
 
 ## Packages
 
-| Entry | Role |
-|---|---|
-| `@nativescript-community/octane` | Root doubles as the renderer ABI: re-exports all of `octane/universal/native` plus `createNativeScriptRoot`, `nativeScriptDriver`, `renderNativeScriptApp`, `ELEMENTS`, `eventNameFor`, `onElementReplaced`, `registerElement` |
-| `…/octane/config` | `nativeScriptRenderers()` → the serializable `renderers` config for `@octanejs/vite-plugin` |
-| `…/octane/intrinsics` | JSX types derived from `@nativescript/core` class typings |
-| `…/octane/jsx-runtime` | Types-only module for `jsxImportSource` (Octane compiles JSX itself) |
-| `@nativescript-community/vite-octane` | `octaneConfig()` = `baseConfig({flavor:'octane'})` + `octane({renderers: nativeScriptRenderers(), …})`; on-device HMR strategy |
+| Entry                                 | Role                                                                                                                                                                                                                           |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@nativescript-community/octane`      | Root doubles as the renderer ABI: re-exports all of `octane/universal/native` plus `createNativeScriptRoot`, `nativeScriptDriver`, `renderNativeScriptApp`, `ELEMENTS`, `eventNameFor`, `onElementReplaced`, `registerElement` |
+| `…/octane/config`                     | `nativeScriptRenderers()` → the serializable `renderers` config for `@octanejs/vite-plugin`                                                                                                                                    |
+| `…/octane/intrinsics`                 | JSX types derived from `@nativescript/core` class typings                                                                                                                                                                      |
+| `…/octane/jsx-runtime`                | Types-only module for `jsxImportSource` (Octane compiles JSX itself)                                                                                                                                                           |
+| `@nativescript-community/vite-octane` | `octaneConfig()` = `baseConfig({flavor:'octane'})` + `octane({renderers: nativeScriptRenderers(), …})`; on-device HMR strategy                                                                                                 |
 
 ## The driver (`driver.ts`) — verified contract
 
@@ -26,6 +26,7 @@ retained-Suspense visibility command, so the patch maps `visibility` to
 NativeScript's `visible`/`collapse` values.
 
 **Prop application** (`setProp`):
+
 - `children`/`key`/`ref` skipped; `on[A-Z]*` skipped (arrive as `event`
   commands).
 - `className`/`class` → `view.className = String(value)` — composition already
@@ -86,8 +87,8 @@ props)`. Containers tracked in a `Set`; `unmount` releases.
 - `OctaneAttributes` — `key`, `ref` (callback | `{current}` | array),
   `children`.
 - Extension = module augmentation: `declare module
-  '@nativescript-community/octane/intrinsics' { interface NativeScriptElements
-  { drawer: Attributes<typeof Drawer> } }` and `CommonAttributes` for
+'@nativescript-community/octane/intrinsics' { interface NativeScriptElements
+{ drawer: Attributes<typeof Drawer> } }` and `CommonAttributes` for
   plugin-registered view-wide props.
 
 ## Renderer config (`config.ts`)
@@ -104,14 +105,15 @@ nativeScriptRenderers({ include = 'src/**/*.tsx' }) → { registry, rules }
 ```
 
 Rules own `.tsx` (or whatever the glob covers — `.tsrx` works); plain `.ts`
-under the rule is *validated* not compiled (see prior-art/octane.md).
+under the rule is _validated_ not compiled (see prior-art/octane.md).
 
 ## App boot / windows (ns-octane/src/index.ts)
 
 ```ts
 Application.setWindowContentResolver(({ window, isPrimary }) =>
-  isPrimary ? undefined : createWindowContent(window));   // secondary windows
-Application.run({ create: () => createWindowContent(Application.primaryWindow) });
+	isPrimary ? undefined : createWindowContent(window),
+) // secondary windows
+Application.run({ create: () => createWindowContent(Application.primaryWindow) })
 // entry ends with import.meta.hot?.dispose(() => { …unmount all roots… })
 ```
 

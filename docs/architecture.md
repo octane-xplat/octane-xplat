@@ -53,17 +53,17 @@ Keep shared state in a `.ts` module using Octane signals
 (`octane/signals`):
 
 ```ts
-import { signal$, query$, skip } from 'octane/signals';
+import { signal$, query$, skip } from 'octane/signals'
 
-export const feedMode$ = signal$<'global' | 'following'>('global');
+export const feedMode$ = signal$<'global' | 'following'>('global')
 export const feed$ = query$(
-	() => feedMode$.get(),          // cache key — return `skip` for "no request"
+	() => feedMode$.get(), // cache key — return `skip` for "no request"
 	() => api.posts.list({ mode: feedMode$.get() }),
-);
+)
 ```
 
 A component that reads `feedMode$.get()` in render subscribes automatically —
-on web *and* on native. There is no platform leaf, no subscription hook, and
+on web _and_ on native. There is no platform leaf, no subscription hook, and
 no compiler flag. Name shared signals with a `$` suffix so the compiler
 preserves the reads through caches and props, and make sure the module imports
 `octane/signals` at runtime (a `import 'octane/signals'` side-effect import in

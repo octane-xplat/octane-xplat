@@ -1,37 +1,37 @@
 {
-  "name": "octane-xplat-app",
-  "private": true,
-  "type": "module",
-  "main": "src/native.ts",
-  "scripts": {
-    "xplat": "xplat",
-    "dev": "vite",
-    "dev:ios": "ns run ios",
-    "dev:android": "ns run android",
-    "build": "vite build",
-    "build:ios": "ns build ios",
-    "build:android": "ns build android",
-    "typecheck": "tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json"
-  },
-  "dependencies": {
-    "@nativescript-community/octane": "0.2.1",
-    "@nativescript-community/ui-canvas": "4.6.52",
-    "@nativescript/core": "9.1.2",
-    "@octane-xplat/ui": "^0.3.0",
-    "@valor/nativescript-websockets": "2.0.3",
-    "octane": "0.4.0"
-  },
-  "devDependencies": {
-    "@nativescript-community/vite-octane": "0.2.1",
-    "@nativescript/android": "9.1.1",
-    "@nativescript/ios": "9.1.0",
-    "@nativescript/types": "9.0.0",
-    "@nativescript/vite": "8.0.11",
-    "@octane-xplat/cli": "^0.3.0",
-    "@octanejs/vite-plugin": "0.1.58",
-    "@tsrx/typescript-plugin": "0.4.7",
-    "nativescript": "9.1.1",
-    "typescript": "5.9.3",
-    "vite": "8.3.0"
-  }
+	"name": "octane-xplat-app",
+	"private": true,
+	"type": "module",
+	"main": "src/native.ts",
+	"scripts": {
+		"xplat": "xplat",
+		"dev": "vite",
+		"dev:ios": "ns run ios",
+		"dev:android": "ns run android",
+		"build": "vite build",
+		"build:ios": "ns build ios",
+		"build:android": "ns build android",
+		"typecheck": "tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json"
+	},
+	"dependencies": {
+		"@nativescript-community/octane": "0.2.1",
+		"@nativescript-community/ui-canvas": "4.6.52",
+		"@nativescript/core": "9.1.2",
+		"@octane-xplat/ui": "^0.3.0",
+		"@valor/nativescript-websockets": "2.0.3",
+		"octane": "0.4.0"
+	},
+	"devDependencies": {
+		"@nativescript-community/vite-octane": "0.2.1",
+		"@nativescript/android": "9.1.1",
+		"@nativescript/ios": "9.1.0",
+		"@nativescript/types": "9.0.0",
+		"@nativescript/vite": "8.0.11",
+		"@octane-xplat/cli": "^0.3.0",
+		"@octanejs/vite-plugin": "0.1.58",
+		"@tsrx/typescript-plugin": "0.4.7",
+		"nativescript": "9.1.1",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	}
 }

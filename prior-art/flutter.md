@@ -1,6 +1,6 @@
 # Flutter
 
-> Not a codebase-sharing precedent — a *design vocabulary* precedent. Flutter
+> Not a codebase-sharing precedent — a _design vocabulary_ precedent. Flutter
 > solves cross-platform by owning the whole render stack; we solve it by
 > targeting two real platforms. What transfers is API shape.
 
@@ -46,14 +46,14 @@ concrete instance of the same idea — see `docs/navigation.md` and
 ### Explicit edge-insets / spacing values
 
 Flutter's `EdgeInsets` discipline (symmetric/only/all constructors) is a good
-shape for any *style-object* prop we keep — e.g. a `pad` prop that compiles to
+shape for any _style-object_ prop we keep — e.g. a `pad` prop that compiles to
 padding CSS on web and padding props on NS.
 
 ## What not to take
 
 - "Everything is a widget" granularity — we have real CSS on both targets;
   don't encode `Container(color:)` as a component when `className` does it.
-- Flutter's *layout constraint* system (constraints go down, sizes go up) as a
+- Flutter's _layout constraint_ system (constraints go down, sizes go up) as a
   mental model — NS layouts are discrete classes with per-parent props
   (`row`, `dock`, `orientation`); our primitives should expose the NS layout
   vocabulary honestly, wrapped in Row/Column/Grid sugar.

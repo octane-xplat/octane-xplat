@@ -1,9 +1,9 @@
 // Secure storage — Keychain (iOS) / Keystore (Android) via plugin.
-import { SecureStorage } from '@nativescript/secure-storage';
-import type { Capability } from './types';
-import type { SecureStore } from './types';
+import { SecureStorage } from '@nativescript/secure-storage'
+import type { Capability } from './types'
+import type { SecureStore } from './types'
 
-const store = new SecureStorage();
+const store = new SecureStorage()
 
 export const secureStorage: Capability<SecureStore> = {
 	supported: true,
@@ -14,4 +14,4 @@ export const secureStorage: Capability<SecureStore> = {
 		set: (key, value) => store.set({ key, value }),
 		remove: (key) => store.remove({ key }),
 	},
-};
+}

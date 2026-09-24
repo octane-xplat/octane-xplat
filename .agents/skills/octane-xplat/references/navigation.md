@@ -46,14 +46,14 @@ fine on web — that failure mode is gone.
 
 ## Route shapes — what actually pushes today
 
-| Shape | Web | iOS | Android |
-|---|---|---|---|
-| `{stack:'root'}` push | ✓ `/<path>?params` covers shell | ✓ verified | ✓ verified |
-| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane | ✓ 48/48 sweep | ✗ upstream #11444 — mounts but `backStack`/`goBack` dead; **loud warn on push** |
-| params | `[param]` segments → real path (`/demo/counter`); extras → query-string scalars — objects degrade (`[object Object]`) | real objects as props | real objects as props |
-| `useRoute`/`routeFor` | ✓ | ✓ stamped on pushed page | ✓ root; named-stack reads stay stale (same bug) |
-| `popRoute` | ✓ (`history.back`) | ✓ | ✓ root; named-stack `goBack` no-ops upstream |
-| deep link at boot | ✓ `currentRoute()` seeds tab | n/a | n/a |
+| Shape                         | Web                                                                                                                   | iOS                      | Android                                                                         |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------- |
+| `{stack:'root'}` push         | ✓ `/<path>?params` covers shell                                                                                       | ✓ verified               | ✓ verified                                                                      |
+| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane                                                                                             | ✓ 48/48 sweep            | ✗ upstream #11444 — mounts but `backStack`/`goBack` dead; **loud warn on push** |
+| params                        | `[param]` segments → real path (`/demo/counter`); extras → query-string scalars — objects degrade (`[object Object]`) | real objects as props    | real objects as props                                                           |
+| `useRoute`/`routeFor`         | ✓                                                                                                                     | ✓ stamped on pushed page | ✓ root; named-stack reads stay stale (same bug)                                 |
+| `popRoute`                    | ✓ (`history.back`)                                                                                                    | ✓                        | ✓ root; named-stack `goBack` no-ops upstream                                    |
+| deep link at boot             | ✓ `currentRoute()` seeds tab                                                                                          | n/a                      | n/a                                                                             |
 
 Keep params to scalars for parity — the web leaf serializes into the URL.
 
@@ -73,8 +73,8 @@ excludes `*.native/ios/android.*`; `route-manifest.native.ts` excludes
 - `app/settings.web.tsrx` → web-only route (skipped by the native glob).
 - Component pick: `default` → `screen` → single function export.
 - Params arrive as props (native: pushed root's props; web: path segments
-  + query). Route names are `string` — literal typing awaits routes.d.ts
-  codegen.
+  - query). Route names are `string` — literal typing awaits routes.d.ts
+    codegen.
 
 Adding a route = adding a file; no table edits.
 

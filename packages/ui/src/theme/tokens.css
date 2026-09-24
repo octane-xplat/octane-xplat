@@ -3,278 +3,340 @@
 
 :root,
 .ns-root {
-  --color-primary: #4f46e5;
-  --color-on-primary: #ffffff;
-  --color-surface: #ffffff;
-  --color-text: #111827;
-  --space-4: 16px;
+	--color-primary: #4f46e5;
+	--color-on-primary: #ffffff;
+	--color-surface: #ffffff;
+	--color-text: #111827;
+	--space-4: 16px;
 }
 
 .ns-dark,
 .dark {
-  --color-surface: #0f172a;
-  --color-text: #f8fafc;
+	--color-surface: #0f172a;
+	--color-text: #f8fafc;
 }
 
 /* vocabulary base styles */
 
 .vx-view,
 .vx-row {
-  display: flex;
+	display: flex;
 }
 
 .vx-view {
-  flex-direction: column;
+	flex-direction: column;
 }
 
 /* Safe-area values are zero when the viewport has no display cutout. */
 .vx-safe-area {
-  padding-top: constant(safe-area-inset-top);
-  padding-right: constant(safe-area-inset-right);
-  padding-bottom: constant(safe-area-inset-bottom);
-  padding-left: constant(safe-area-inset-left);
+	padding-top: constant(safe-area-inset-top);
+	padding-right: constant(safe-area-inset-right);
+	padding-bottom: constant(safe-area-inset-bottom);
+	padding-left: constant(safe-area-inset-left);
 }
 
 .vx-safe-area {
-  padding-top: env(safe-area-inset-top);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
+	padding-top: env(safe-area-inset-top);
+	padding-right: env(safe-area-inset-right);
+	padding-bottom: env(safe-area-inset-bottom);
+	padding-left: env(safe-area-inset-left);
 }
 
-.vx-keyboard-avoiding { display: flex; flex-direction: column; }
-.vx-drawer { display: flex; flex-direction: row; position: relative; overflow: hidden; }
-.vx-drawer-main { display: flex; flex: 1; min-width: 0; }
-.vx-drawer-backdrop { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.35); }
+.vx-keyboard-avoiding {
+	display: flex;
+	flex-direction: column;
+}
+.vx-drawer {
+	display: flex;
+	flex-direction: row;
+	position: relative;
+	overflow: hidden;
+}
+.vx-drawer-main {
+	display: flex;
+	flex: 1;
+	min-width: 0;
+}
+.vx-drawer-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.35);
+}
 .vx-drawer-panel {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 280px;
-  overflow: auto;
-  background: var(--color-surface);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 280px;
+	overflow: auto;
+	background: var(--color-surface);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .vx-row {
-  flex-direction: row;
+	flex-direction: row;
 }
 
 .vx-grid,
 .vx-stack {
-  display: grid;
+	display: grid;
 }
 
 .vx-stack > * {
-  grid-area: 1 / 1;
+	grid-area: 1 / 1;
 }
 
 .vx-absolute {
-  position: relative;
+	position: relative;
 }
 
 .vx-absolute > * {
-  position: absolute;
+	position: absolute;
 }
 
 .vx-spacer {
-  flex-grow: 1;
+	flex-grow: 1;
 }
 
 .vx-pressable {
-  display: flex;
-  flex-direction: column;
-  user-select: none;
+	display: flex;
+	flex-direction: column;
+	user-select: none;
 }
 
 /* web press feedback */
 .vx-pressable:active {
-  opacity: 0.85;
+	opacity: 0.85;
 }
 .vx-pressable-no-feedback:active {
-  opacity: 1;
+	opacity: 1;
 }
 /* native press feedback (NS pseudo — dead rule on web, and vice versa) */
 .vx-pressable:pressed {
-  opacity: 0.85;
+	opacity: 0.85;
 }
 
 .vx-overlay {
-  z-index: 1000;
+	z-index: 1000;
 }
 
 .vx-overlay-shade {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+	position: absolute;
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.45);
 }
 
 .vx-overlay-content {
-  position: relative;
-  z-index: 1;
+	position: relative;
+	z-index: 1;
 }
 
 .vx-popover {
-  z-index: 1001;
+	z-index: 1001;
 }
 
 .vx-popover-backdrop {
-  background-color: transparent;
+	background-color: transparent;
 }
 
 .vx-toast-host {
-  position: fixed;
-  z-index: 1002;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
+	position: fixed;
+	z-index: 1002;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	pointer-events: none;
 }
 
-.vx-toast-top { top: 24px; }
-.vx-toast-bottom { bottom: 24px; }
+.vx-toast-top {
+	top: 24px;
+}
+.vx-toast-bottom {
+	bottom: 24px;
+}
 
 .vx-toast {
-  pointer-events: auto;
+	pointer-events: auto;
 }
 
 /* auto-grow owns height — the manual resize handle has no native analog */
 .vx-textarea {
-  resize: none;
+	resize: none;
 }
 
 /* Modal is a real top-layer dialog on web. Presentation variants keep their
    sizing and anchoring in tokens so both the component and openModal share it. */
 .vx-modal {
-  width: 480px;
-  max-width: 90%;
-  max-height: 90%;
-  padding: 24px;
-  border: 0;
-  border-radius: 16px;
-  color: var(--color-text);
-  background-color: var(--color-surface);
+	width: 480px;
+	max-width: 90%;
+	max-height: 90%;
+	padding: 24px;
+	border: 0;
+	border-radius: 16px;
+	color: var(--color-text);
+	background-color: var(--color-surface);
 }
 
 .vx-modal::backdrop {
-  background: rgba(15, 23, 42, 0.45);
+	background: rgba(15, 23, 42, 0.45);
 }
 
 .vx-modal--dialog {
-  width: 480px;
-  max-width: 90%;
+	width: 480px;
+	max-width: 90%;
 }
 
 .vx-modal--sheet {
-  width: 100%;
-  max-width: none;
-  max-height: 85%;
-  position: fixed;
-  inset: auto 0 0;
-  margin: 0;
-  border-radius: 16px 16px 0 0;
+	width: 100%;
+	max-width: none;
+	max-height: 85%;
+	position: fixed;
+	inset: auto 0 0;
+	margin: 0;
+	border-radius: 16px 16px 0 0;
 }
 
 .vx-modal--fullscreen {
-  width: 100%;
-  max-width: none;
-  height: 100%;
-  max-height: none;
-  margin: 0;
-  border-radius: 0;
+	width: 100%;
+	max-width: none;
+	height: 100%;
+	max-height: none;
+	margin: 0;
+	border-radius: 0;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--placeholder-color, currentColor);
+	color: var(--placeholder-color, currentColor);
 }
 
 .vx-spinner {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  box-sizing: border-box;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: vx-spinner-turn 0.8s linear infinite;
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	box-sizing: border-box;
+	border: 2px solid currentColor;
+	border-right-color: transparent;
+	border-radius: 50%;
+	animation: vx-spinner-turn 0.8s linear infinite;
 }
 
 @keyframes vx-spinner-turn {
-  to { transform: rotate(360deg); }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
-.vx-h1 { font-size: 2em; font-weight: bold; }
-.vx-h2 { font-size: 1.5em; font-weight: bold; }
-.vx-h3 { font-size: 1.17em; font-weight: bold; }
-.vx-h4 { font-size: 1em; font-weight: bold; }
-.vx-h5 { font-size: 0.83em; font-weight: bold; }
-.vx-h6 { font-size: 0.67em; font-weight: bold; }
+.vx-h1 {
+	font-size: 2em;
+	font-weight: bold;
+}
+.vx-h2 {
+	font-size: 1.5em;
+	font-weight: bold;
+}
+.vx-h3 {
+	font-size: 1.17em;
+	font-weight: bold;
+}
+.vx-h4 {
+	font-size: 1em;
+	font-weight: bold;
+}
+.vx-h5 {
+	font-size: 0.83em;
+	font-weight: bold;
+}
+.vx-h6 {
+	font-size: 0.67em;
+	font-weight: bold;
+}
 
 /* utilities (hand-written subset for the harness; Tailwind later) */
 
-.flex-1 { flex-grow: 1; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.gap-4 { gap: 16px; }
+.flex-1 {
+	flex-grow: 1;
+}
+.items-center {
+	align-items: center;
+}
+.justify-center {
+	justify-content: center;
+}
+.gap-4 {
+	gap: 16px;
+}
 
-.text-xl { font-size: 20px; }
-.font-bold { font-weight: bold; }
+.text-xl {
+	font-size: 20px;
+}
+.font-bold {
+	font-weight: bold;
+}
 
-.bg-primary { background-color: var(--color-primary); }
-.text-onprimary { color: var(--color-on-primary); }
-.bg-danger { background-color: #dc2626; }
-.shadow-2 { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+.bg-primary {
+	background-color: var(--color-primary);
+}
+.text-onprimary {
+	color: var(--color-on-primary);
+}
+.bg-danger {
+	background-color: #dc2626;
+}
+.shadow-2 {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
 
 .btn {
-  padding-top: 12px;
-  padding-right: 20px;
-  padding-bottom: 12px;
-  padding-left: 20px;
-  border-radius: 8px;
+	padding-top: 12px;
+	padding-right: 20px;
+	padding-bottom: 12px;
+	padding-left: 20px;
+	border-radius: 8px;
 }
 
 /* harness experiment styles */
 
 .vx-app {
-  padding: 24px;
-  background-color: var(--color-surface);
-  color: var(--color-text);
+	padding: 24px;
+	background-color: var(--color-surface);
+	color: var(--color-text);
 }
 
 .vx-app .text-xl,
 .vx-app Text,
 .vx-app label {
-  color: var(--color-text);
+	color: var(--color-text);
 }
 
 .input {
-  padding: 10px;
-  border-width: 1px;
-  border-color: #94a3b8;
-  border-radius: 6px;
-  font-size: 16px;
+	padding: 10px;
+	border-width: 1px;
+	border-color: #94a3b8;
+	border-radius: 6px;
+	font-size: 16px;
 }
 
 .chip {
-  background-color: var(--color-primary);
-  color: var(--color-on-primary);
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 13px;
+	background-color: var(--color-primary);
+	color: var(--color-on-primary);
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 13px;
 }
 
 .cell {
-  padding: 12px;
-  border-bottom-width: 1px;
-  border-bottom-color: #e2e8f0;
+	padding: 12px;
+	border-bottom-width: 1px;
+	border-bottom-color: #e2e8f0;
 }
 
 .vx-list {
-  flex-grow: 1;
+	flex-grow: 1;
 }
 
-.gap-2 { gap: 8px; }
+.gap-2 {
+	gap: 8px;
+}

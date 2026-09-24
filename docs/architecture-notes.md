@@ -27,7 +27,7 @@ Upstream machinery we rely on:
   We stay two-build; the mechanism exists if ever needed.
 - **`renderers.*.validation`** — compile-time enforcement of
   `forbiddenGlobals`/`forbiddenImports`/`textHosts`/`textParents`/`hostProps`
-  on owned files *and* on `.ts` helpers matched by a rule (validated, not
+  on owned files _and_ on `.ts` helpers matched by a rule (validated, not
   compiled). First enforcement layer — see [testing](testing.md).
 - **No SSR on universal targets** (`server: 'unsupported'` by contract) — SSR
   is DOM-build output; shared files get DOM semantics on web and universal on
@@ -59,7 +59,7 @@ spoken natively.
 ## Invariants (the rules that keep the seams from tearing)
 
 > [!IMPORTANT]
-> Violations fail *silently* — a second runtime binds, a DOM API reaches
+> Violations fail _silently_ — a second runtime binds, a DOM API reaches
 > native, a text node vanishes. Treat every rule as load-bearing.
 
 1. **A file speaks one element vocabulary.** Renderer ownership is per-file via
@@ -101,7 +101,7 @@ spoken natively.
    it. Octane `signal$`/`query$` `.get()` reads are exempt — the universal
    signal-read machinery subscribes the reading owner directly (validated on
    iOS). Everything else calls `useStore(store)` (or `useStore(store,
-   select)`); changed context still propagates.
+select)`); changed context still propagates.
 
 ## Repo layout (provisional)
 
@@ -134,14 +134,14 @@ they differ in `jsxImportSource` and which leaf files are in scope. Details in
 
 ## Where the seams are (index)
 
-| Seam | Doc |
-|---|---|
-| File vocabulary split, resolver, tsconfig | [module-resolution](module-resolution.md) |
-| Element/component abstraction | [primitives](primitives.md) |
-| Shared styling language | [styling](styling.md) |
-| Animation + gesture normalization | [animation-gestures](animation-gestures.md) |
-| URL routing vs Frame/Page, modals-as-roots | [navigation](navigation.md) |
-| Storage, lifecycle, a11y, icons, safe area | [platform-services](platform-services.md) |
-| Build/HMR/CI/version pinning | [toolchain](toolchain.md) |
-| How we verify each target | [testing](testing.md) |
-| Unresolved seams | [open-questions](open-questions.md) |
+| Seam                                       | Doc                                         |
+| ------------------------------------------ | ------------------------------------------- |
+| File vocabulary split, resolver, tsconfig  | [module-resolution](module-resolution.md)   |
+| Element/component abstraction              | [primitives](primitives.md)                 |
+| Shared styling language                    | [styling](styling.md)                       |
+| Animation + gesture normalization          | [animation-gestures](animation-gestures.md) |
+| URL routing vs Frame/Page, modals-as-roots | [navigation](navigation.md)                 |
+| Storage, lifecycle, a11y, icons, safe area | [platform-services](platform-services.md)   |
+| Build/HMR/CI/version pinning               | [toolchain](toolchain.md)                   |
+| How we verify each target                  | [testing](testing.md)                       |
+| Unresolved seams                           | [open-questions](open-questions.md)         |

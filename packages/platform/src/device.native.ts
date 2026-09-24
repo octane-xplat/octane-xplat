@@ -1,5 +1,5 @@
-import { Device } from '@nativescript/core';
-import type { DeviceInfo } from './types';
+import { Device } from '@nativescript/core'
+import type { DeviceInfo } from './types'
 
 export const device: DeviceInfo = {
 	os: Device.os.toLowerCase() === 'ios' ? 'ios' : 'android',
@@ -8,4 +8,4 @@ export const device: DeviceInfo = {
 	manufacturer: Device.manufacturer,
 	language: Device.language.split('-')[0] ?? '',
 	region: Device.region,
-};
+}

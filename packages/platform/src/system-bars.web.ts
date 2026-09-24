@@ -3,13 +3,13 @@
 export const systemBars = {
 	setStatusBarStyle(_style: 'light' | 'dark'): void {},
 	setColor(color: string): void {
-		let meta = document.querySelector('meta[name="theme-color"]');
+		let meta = document.querySelector('meta[name="theme-color"]')
 		if (!meta) {
-			meta = document.createElement('meta');
-			meta.setAttribute('name', 'theme-color');
-			document.head.appendChild(meta);
+			meta = document.createElement('meta')
+			meta.setAttribute('name', 'theme-color')
+			document.head.appendChild(meta)
 		}
 
-		meta.setAttribute('content', color);
+		meta.setAttribute('content', color)
 	},
-};
+}

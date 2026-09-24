@@ -2,40 +2,18 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "octane",
-		"moduleSuffixes": [
-			".web",
-			""
-		],
-		"customConditions": [
-			"web"
-		],
-		"types": [
-			"vite/client"
-		],
-		"lib": [
-			"ESNext",
-			"DOM",
-			"DOM.Iterable"
-		],
+		"moduleSuffixes": [".web", ""],
+		"customConditions": ["web"],
+		"types": ["vite/client"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"paths": {
-			"@xplat/app": [
-				"../../packages/app/src/index.ts"
-			],
-			"@xplat/app/*": [
-				"../../packages/app/src/*"
-			],
-			"@octane-xplat/ui": [
-				"../../packages/ui/src/index.web.ts"
-			],
-			"@octane-xplat/ui/*": [
-				"../../packages/ui/src/*"
-			]
+			"@xplat/app": ["../../packages/app/src/index.ts"],
+			"@xplat/app/*": ["../../packages/app/src/*"],
+			"@octane-xplat/ui": ["../../packages/ui/src/index.web.ts"],
+			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
 		}
 	},
-	"include": [
-		"src/**/*",
-		"../../packages/**/*"
-	],
+	"include": ["src/**/*", "../../packages/**/*"],
 	"exclude": [
 		"**/*.test.*",
 		"../../packages/**/*.test.*",

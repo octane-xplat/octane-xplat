@@ -18,19 +18,19 @@ its `.agents/docs/` notes record which framework seams still leak.
 
 ## Layout
 
-| Path | What it is |
-|---|---|
-| `docs/` | Our plan + status. `docs/README.md` is the index; `docs/status.md` the dashboard — seven owned problems, each with a status header (Owns / Status / Blocks on / Decisions / Validated by). |
-| `packages/ui` | The framework — `@octane-xplat/ui` on npm. Primitives, styled(), stacks, routes, theme. Prop types in `src/props.ts`. |
-| `packages/cli` | `@octane-xplat/cli` — `xplat` dev/build/doctor/typecheck/clean commands. |
-| `packages/app`, `packages/demos` | Probe harness app + seam-by-seam demo screens. |
-| `apps/web`, `apps/native` | Entry shells + vite configs for the harness. |
-| `packages/create`, `packages/platform` | Project scaffolder; platform services seam. |
-| `prior-art/` | Other people's systems — substrate (`octane`, `nativescript-octane`, `nativescript-core`) and precedents (`one`, `tamagui`, `react-native-web`, `flutter`). Documents here are never commitments. |
-| `docs/decisions.md` | Decision ledger, `#`-numbered, statuses: forced / decided / provisional / rejected. Reversals get dated notes, not edits. |
-| `docs/open-questions.md` | Unverified seams, `Q`-numbered, ranked by blast radius. |
-| `research/` | Gitignored clones of upstream repos for source interrogation. Not shipped, not authoritative — cite upstream files in docs instead. |
-| Silo | Git-scoped SQLite tracking the exploration state (see below). |
+| Path                                   | What it is                                                                                                                                                                                        |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/`                                | Our plan + status. `docs/README.md` is the index; `docs/status.md` the dashboard — seven owned problems, each with a status header (Owns / Status / Blocks on / Decisions / Validated by).        |
+| `packages/ui`                          | The framework — `@octane-xplat/ui` on npm. Primitives, styled(), stacks, routes, theme. Prop types in `src/props.ts`.                                                                             |
+| `packages/cli`                         | `@octane-xplat/cli` — `xplat` dev/build/doctor/typecheck/clean commands.                                                                                                                          |
+| `packages/app`, `packages/demos`       | Probe harness app + seam-by-seam demo screens.                                                                                                                                                    |
+| `apps/web`, `apps/native`              | Entry shells + vite configs for the harness.                                                                                                                                                      |
+| `packages/create`, `packages/platform` | Project scaffolder; platform services seam.                                                                                                                                                       |
+| `prior-art/`                           | Other people's systems — substrate (`octane`, `nativescript-octane`, `nativescript-core`) and precedents (`one`, `tamagui`, `react-native-web`, `flutter`). Documents here are never commitments. |
+| `docs/decisions.md`                    | Decision ledger, `#`-numbered, statuses: forced / decided / provisional / rejected. Reversals get dated notes, not edits.                                                                         |
+| `docs/open-questions.md`               | Unverified seams, `Q`-numbered, ranked by blast radius.                                                                                                                                           |
+| `research/`                            | Gitignored clones of upstream repos for source interrogation. Not shipped, not authoritative — cite upstream files in docs instead.                                                               |
+| Silo                                   | Git-scoped SQLite tracking the exploration state (see below).                                                                                                                                     |
 
 ## The exploration loop
 
@@ -63,12 +63,12 @@ Rules of the road:
 Database is git-scoped to this workspace (stored under Silo's app-data dir;
 nothing to commit). Tables:
 
-| Table | One row = | Status values |
-|---|---|---|
-| `topics` | an area of interrogation | `queued` → `exploring` → `resolved` / `parked` |
-| `questions` | a specific unknown | `open` → `answered` / `parked` |
-| `decisions` | a commitment (mirrors decisions.md `#`s) | `forced` / `decided` / `provisional` / `rejected` |
-| `experiments` | a validation to run | `queued` → `running` → `passed` / `failed` / `parked` |
+| Table         | One row =                                | Status values                                         |
+| ------------- | ---------------------------------------- | ----------------------------------------------------- |
+| `topics`      | an area of interrogation                 | `queued` → `exploring` → `resolved` / `parked`        |
+| `questions`   | a specific unknown                       | `open` → `answered` / `parked`                        |
+| `decisions`   | a commitment (mirrors decisions.md `#`s) | `forced` / `decided` / `provisional` / `rejected`     |
+| `experiments` | a validation to run                      | `queued` → `running` → `passed` / `failed` / `parked` |
 
 - Natural keys: topic `slug`, decision `num`. Update rows in place; don't
   duplicate.
@@ -111,8 +111,8 @@ nothing to commit). Tables:
   workaround is `xcrun simctl install/launch` against the existing `.app`.
 - Physical-device HMR quirks: `ns run` sets `adb reverse tcp:<port>` itself,
   but the mapping dies if adbd restarts — re-run `adb reverse tcp:5173
-  tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
-  a manual `monkey`/`am start` boots the *inlined bundle* (no HTTP, no ws,
+tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
+  a manual `monkey`/`am start` boots the _inlined bundle_ (no HTTP, no ws,
   looks like a silent HMR failure but isn't). The `ns-hmr-client-watchdog`
   plugin in the native vite config warns when a session was fetched but no
   ws client attaches.
@@ -146,7 +146,7 @@ nothing to commit). Tables:
   reads through caches and props.
 - **Rouzer** (`rouzer`, `rouzer/http`) — shared route tree between server and
   client. `http.resource('posts/:id', { get: http.get({query, response:
-  $type<T>()}), like: http.post('like', {body, response: $type<T>()}) })` —
+$type<T>()}), like: http.post('like', {body, response: $type<T>()}) })` —
   resource children join paths (`POST /posts/:id/like`). Server:
   `createRouter({basePath:'api/'}).use(routes, handlers)` →
   `toFetchHandler(router, {host: () => ({env})})`; handlers read
@@ -156,13 +156,13 @@ nothing to commit). Tables:
 - **Qubu** (`qubu`, `qubu/sqlite`) — typed SQL builder; no driver coupling.
   `table('t', {col: text({nullable:true})})`, queries via
   `select({alias: t.col}, from(t), leftJoin(u, eq(...)), where(...),
-  groupBy(...), orderBy(desc(t.col)))`, mutations via
+groupBy(...), orderBy(desc(t.col)))`, mutations via
   `insertInto(t, values({...}))` / `update` / `deleteFrom`. Execute with
   `executeRows(query, adapter)`; the adapter is a `QueryAdapter` you own —
   for Cloudflare D1, ~10 lines: `dialect: sqliteDialect()`, `execute` calls
   `env.DB.prepare(text).bind(...params).all()` and returns
   `{rows: res.results, affectedRows: res.meta.changes, insertId:
-  res.meta.last_row_id}` (`.all()` works for mutations too). Product docs ship
+res.meta.last_row_id}` (`.all()` works for mutations too). Product docs ship
   inside the package under `node_modules/qubu/docs/` — read those, not the
   website.
 - Stack used in the test app (`~/dev/ns/text-coral-ns`): Worker entry wraps
@@ -171,6 +171,7 @@ nothing to commit). Tables:
   `migrations/` and apply via `wrangler d1 migrations apply --local`.
 
 <!-- graft:start -->
+
 ## Graft — repo context graph
 
 This repo is indexed in `graft/`: small linked markdown nodes that explain each

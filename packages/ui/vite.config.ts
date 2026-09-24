@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
-import { octane } from '@octanejs/vite-plugin';
-import { nativeScriptRenderer } from '@nativescript-community/octane/config';
+import { defineConfig } from 'vite'
+import { octane } from '@octanejs/vite-plugin'
+import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 
 // Library build — compiles .tsrx → JS per platform target so consumers
 // don't need the .tsrx toolchain. Two invocations: `vite build` (web) and
@@ -9,19 +9,41 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config';
 // .native). Runtime deps stay external via peerDependencies.
 
 const NATIVE_EXTS = [
-	'.ios.tsrx', '.android.tsrx', '.native.tsrx', '.tsrx',
-	'.ios.tsx', '.android.tsx', '.native.tsx', '.tsx',
-	'.ios.ts', '.android.ts', '.native.ts', '.mjs', '.mts', '.ts',
-	'.jsx', '.js', '.json',
-];
+	'.ios.tsrx',
+	'.android.tsrx',
+	'.native.tsrx',
+	'.tsrx',
+	'.ios.tsx',
+	'.android.tsx',
+	'.native.tsx',
+	'.tsx',
+	'.ios.ts',
+	'.android.ts',
+	'.native.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
+]
 
 const WEB_EXTS = [
-	'.web.tsrx', '.tsrx', '.web.tsx', '.tsx', '.web.ts', '.mjs', '.mts',
-	'.ts', '.jsx', '.js', '.json',
-];
+	'.web.tsrx',
+	'.tsrx',
+	'.web.tsx',
+	'.tsx',
+	'.web.ts',
+	'.mjs',
+	'.mts',
+	'.ts',
+	'.jsx',
+	'.js',
+	'.json',
+]
 
 export default defineConfig(({ mode }) => {
-	const native = mode === 'native';
+	const native = mode === 'native'
 	return {
 		plugins: octane({
 			renderers: native
@@ -49,5 +71,5 @@ export default defineConfig(({ mode }) => {
 			alias: native ? [{ find: /^octane$/, replacement: 'octane/universal/native' }] : [],
 			extensions: native ? NATIVE_EXTS : WEB_EXTS,
 		},
-	};
-});
+	}
+})

@@ -1,1 +1,1 @@
-export { useWindowSize } from './screen.native.tsrx';
+export { useWindowSize } from './screen.native.tsrx'

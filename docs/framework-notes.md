@@ -10,7 +10,7 @@ DOM renderer (`octane`) in the web build and by the NativeScript universal
 renderer (`@nativescript-community/octane`) in the iOS/Android build. Files
 diverge by suffix (`*.web`/`*.native`/`*.ios`/`*.android`), resolved by
 ordered `resolve.extensions` + `moduleSuffixes`; renderer ownership follows
-the *resolved* filename through first-match `renderers.rules` globs.
+the _resolved_ filename through first-match `renderers.rules` globs.
 
 ```
 app screens / features          shared .tsrx — primitives + services only
@@ -43,15 +43,15 @@ app screens / features          shared .tsrx — primitives + services only
 
 ## What we own (the seven problems)
 
-| # | Surface | One-line contract |
-|---|---|---|
-| 1 | [primitives](primitives.md) | RN-shaped vocabulary (`View`/`Text`/`Pressable`/`List`/`Modal`…); leaf files speak native intrinsics; prop conventions = `className`/`style`(dip)/refs/escape bags |
-| 2 | [navigation](navigation.md) | Shared route table + `Link`/`useNavigate`/`goBack`; shells split `_layout.web/.native`; modals = own roots (`component`+`params`) |
-| 3 | [module-resolution](module-resolution.md) | `resolve.extensions` ordering + TS `moduleSuffixes`; `.tsrx` default dialect; dual tsconfig typecheck |
-| 4 | [testing](testing.md) | Compiler `validation` first; lint backstops; `createObjectDriver` mock-host tests; dual `tsrx-tsc` matrix |
-| 5 | [animation-gestures](animation-gestures.md) | `useAnimation().to/spring` + `useGesture`; imperative writes per frame; JS spring integrator (native `spring` diverges) |
-| 6 | [platform-services](platform-services.md) | `Capability{supported,ensure,impl}`; `useAppState`/`useBackHandler`/`useColorScheme`; sync storage |
-| 7 | [toolchain](toolchain.md) | Two vite builds (`@octanejs/vite-plugin` / `@nativescript/vite`+`vite-octane`); pinned matrix; patch-package accepted |
+| #   | Surface                                     | One-line contract                                                                                                                                                  |
+| --- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | [primitives](primitives.md)                 | RN-shaped vocabulary (`View`/`Text`/`Pressable`/`List`/`Modal`…); leaf files speak native intrinsics; prop conventions = `className`/`style`(dip)/refs/escape bags |
+| 2   | [navigation](navigation.md)                 | Shared route table + `Link`/`useNavigate`/`goBack`; shells split `_layout.web/.native`; modals = own roots (`component`+`params`)                                  |
+| 3   | [module-resolution](module-resolution.md)   | `resolve.extensions` ordering + TS `moduleSuffixes`; `.tsrx` default dialect; dual tsconfig typecheck                                                              |
+| 4   | [testing](testing.md)                       | Compiler `validation` first; lint backstops; `createObjectDriver` mock-host tests; dual `tsrx-tsc` matrix                                                          |
+| 5   | [animation-gestures](animation-gestures.md) | `useAnimation().to/spring` + `useGesture`; imperative writes per frame; JS spring integrator (native `spring` diverges)                                            |
+| 6   | [platform-services](platform-services.md)   | `Capability{supported,ensure,impl}`; `useAppState`/`useBackHandler`/`useColorScheme`; sync storage                                                                 |
+| 7   | [toolchain](toolchain.md)                   | Two vite builds (`@octanejs/vite-plugin` / `@nativescript/vite`+`vite-octane`); pinned matrix; patch-package accepted                                              |
 
 ## File conventions
 
@@ -71,13 +71,13 @@ is the portable boundary). `.tsx` allowed for directive-free files.
 
 ```ts
 // apps/native/vite.config.ts
-import { octaneConfig } from '@nativescript-community/vite-octane';
+import { octaneConfig } from '@nativescript-community/vite-octane'
 export default octaneConfig({
-  // + our config helper asserting:
-  //   renderers.rules include: 'src/**/*.{tsx,tsrx}', 'packages/**/*.{tsx,tsrx}'
-  //   nativescript.validation: { forbiddenGlobals, forbiddenImports, textHosts, hostProps }
-  //   resolve.extensions: ['.ios.tsrx','.native.tsrx','.tsrx', …full chain…]
-});
+	// + our config helper asserting:
+	//   renderers.rules include: 'src/**/*.{tsx,tsrx}', 'packages/**/*.{tsx,tsrx}'
+	//   nativescript.validation: { forbiddenGlobals, forbiddenImports, textHosts, hostProps }
+	//   resolve.extensions: ['.ios.tsrx','.native.tsrx','.tsrx', …full chain…]
+})
 // apps/web/vite.config.ts — @octanejs/vite-plugin + '.web' chain
 ```
 
@@ -110,16 +110,15 @@ Entries: web `createRoot(el)`; native `Application.run({create})` +
 ```tsx
 // app/index.tsrx — shared screen
 export function Home() {
-  const [count, setCount] = useState(0);
-  return (
-    <Column className="flex-1 items-center justify-center gap-4">
-      <Text className="text-xl font-bold">Count: {count as string}</Text>
-      <Pressable onPress={() => setCount(count + 1)}
-                 className="bg-primary rounded-lg px-4 py-2">
-        <Text className="text-onprimary">Increment</Text>
-      </Pressable>
-    </Column>
-  );
+	const [count, setCount] = useState(0)
+	return (
+		<Column className="flex-1 items-center justify-center gap-4">
+			<Text className="text-xl font-bold">Count: {count as string}</Text>
+			<Pressable onPress={() => setCount(count + 1)} className="bg-primary rounded-lg px-4 py-2">
+				<Text className="text-onprimary">Increment</Text>
+			</Pressable>
+		</Column>
+	)
 }
 ```
 
@@ -133,22 +132,22 @@ export function Home() {
 
 ## Known leaks (the seams we consciously ship)
 
-| Leak | Mitigation |
-|---|---|
-| Context doesn't cross modal/overlay/list-cell roots | `component`+`params` contract; shared store modules |
-| NS rich text is flat (no nested styled spans) | `TextContext` accumulates classes; driver extension |
-| `transition` property absent; keyframes animate 12 props | JS animation facade; keyframe classes for loops |
-| `view.animate` cancel hangs pending on iOS; absolute destinations | facade owns value tracking + cancel semantics |
-| Controlled input write-back may fight cursor/IME | lab experiment queued; leaf-level `text===value` guard |
-| `className` swap can leave stale native backgrounds | driver `''`-then-set — upstream candidate (no local patch since 0.2.1) |
-| Grid has no `gap`; NS `%` differs from web | per-cell margins; documented traps in css matrix |
-| `line-height` semantics differ (additive vs box) | token files carry both values |
-| `.ts` hooks bind DOM runtime on native | lint rule + validation; `.tsrx` for hooks |
+| Leak                                                                                                                | Mitigation                                                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Context doesn't cross modal/overlay/list-cell roots                                                                 | `component`+`params` contract; shared store modules                                                                                                                                 |
+| NS rich text is flat (no nested styled spans)                                                                       | `TextContext` accumulates classes; driver extension                                                                                                                                 |
+| `transition` property absent; keyframes animate 12 props                                                            | JS animation facade; keyframe classes for loops                                                                                                                                     |
+| `view.animate` cancel hangs pending on iOS; absolute destinations                                                   | facade owns value tracking + cancel semantics                                                                                                                                       |
+| Controlled input write-back may fight cursor/IME                                                                    | lab experiment queued; leaf-level `text===value` guard                                                                                                                              |
+| `className` swap can leave stale native backgrounds                                                                 | driver `''`-then-set — upstream candidate (no local patch since 0.2.1)                                                                                                              |
+| Grid has no `gap`; NS `%` differs from web                                                                          | per-cell margins; documented traps in css matrix                                                                                                                                    |
+| `line-height` semantics differ (additive vs box)                                                                    | token files carry both values                                                                                                                                                       |
+| `.ts` hooks bind DOM runtime on native                                                                              | lint rule + validation; `.tsrx` for hooks                                                                                                                                           |
 | Native retains unchanged-prop children on parent re-render (universal auto-memo) — bare module-state reads go stale | `useStore` per reader for non-signal state (decision #27); `signal$`/`query$` `.get()` reads subscribe automatically — universal signal reads; DOM re-invokes, so web hides the bug |
-| Component factories can't use JSX/inline `@{ }` — universal elements need the compiler-stamped component mark | `defineUniversalComponent`+`universalComponent` in the leaf; blessed factory API = upstream candidate |
-| `ref` is runtime-reserved on component elements | leaves expose `bind` → forwarded to the intrinsic's `ref` |
-| `pointermove` not delegated by the DOM renderer | gesture leaves attach raw listeners via `bind` |
-| `exports` wildcards don't extension-resolve (tsc + vite both) | barrels are the deep-import contract |
+| Component factories can't use JSX/inline `@{ }` — universal elements need the compiler-stamped component mark       | `defineUniversalComponent`+`universalComponent` in the leaf; blessed factory API = upstream candidate                                                                               |
+| `ref` is runtime-reserved on component elements                                                                     | leaves expose `bind` → forwarded to the intrinsic's `ref`                                                                                                                           |
+| `pointermove` not delegated by the DOM renderer                                                                     | gesture leaves attach raw listeners via `bind`                                                                                                                                      |
+| `exports` wildcards don't extension-resolve (tsc + vite both)                                                       | barrels are the deep-import contract                                                                                                                                                |
 
 ## Remaining risk register
 

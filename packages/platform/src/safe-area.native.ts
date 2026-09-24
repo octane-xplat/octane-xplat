@@ -1,1 +1,1 @@
-export { useSafeAreaInsets } from './safe-area.native.tsrx';
+export { useSafeAreaInsets } from './safe-area.native.tsrx'

@@ -24,7 +24,7 @@ app/index.web.tsx   → "/" on web
 app/blog.web.tsx    → "/blog" on web; no native route at all
 ```
 
-This makes the suffix resolver a *route-table* mechanism: each platform can
+This makes the suffix resolver a _route-table_ mechanism: each platform can
 declare divergent navigation, not just divergent rendering. Big idea — adopted
 in `docs/navigation.md`.
 

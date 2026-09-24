@@ -28,7 +28,7 @@ A `Frame` inside a `TabViewItem` on Android:
 - but `setCurrent` never runs — `currentPage`/`backStack` stay stale;
 - `goBack` no-ops; `animated: false` doesn't help;
 - a push raced against attach crashes: `IllegalArgumentException: No view
-  found for id 0x3` (release-build fatal).
+found for id 0x3` (release-build fatal).
 
 Root cause (desk): `TransitionListener.onTransitionEnd` doesn't propagate
 from the child `FragmentManager` under `TabViewItem` — completion never

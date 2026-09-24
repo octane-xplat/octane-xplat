@@ -1,44 +1,44 @@
 {
-  "name": "@xplat/native",
-  "private": true,
-  "version": "0.0.0",
-  "main": "src/index.ts",
-  "scripts": {
-    "postinstall": "patch-package",
-    "ios": "ns run ios",
-    "android": "ns run android",
-    "debug:ios": "ns debug ios",
-    "build:ios": "ns build ios"
-  },
-  "dependencies": {
-    "@nativescript-community/octane": "0.2.1",
-    "@nativescript-community/perms": "3.0.11",
-    "@nativescript-community/ui-canvas": "4.6.52",
-    "@nativescript-community/ui-drawer": "0.1.32",
-    "@nativescript/biometrics": "1.3.1",
-    "@nativescript/core": "9.1.2",
-    "@nativescript/haptics": "3.1.0",
-    "@nativescript/imagepicker": "5.0.0",
-    "@nativescript/local-notifications": "7.0.0",
-    "@nativescript/secure-storage": "4.0.2",
-    "@nativescript/shared-notification-delegate": "1.0.2",
-    "@nativescript/social-share": "2.3.0",
-    "@octane-xplat/ui": "workspace:*",
-    "@valor/nativescript-websockets": "2.0.3",
-    "@xplat/app": "workspace:*",
-    "@xplat/demos": "workspace:*",
-    "nativescript-clipboard": "2.1.1",
-    "octane": "0.4.0"
-  },
-  "devDependencies": {
-    "@nativescript-community/vite-octane": "0.2.1",
-    "@nativescript/android": "9.1.1",
-    "@nativescript/ios": "9.1.0",
-    "@nativescript/types": "9.0.0",
-    "@nativescript/vite": "8.0.11",
-    "@octanejs/vite-plugin": "0.1.58",
-    "patch-package": "8.0.1",
-    "typescript": "5.9.3",
-    "vite": "8.3.0"
-  }
+	"name": "@xplat/native",
+	"version": "0.0.0",
+	"private": true,
+	"main": "src/index.ts",
+	"scripts": {
+		"postinstall": "patch-package",
+		"ios": "ns run ios",
+		"android": "ns run android",
+		"debug:ios": "ns debug ios",
+		"build:ios": "ns build ios"
+	},
+	"dependencies": {
+		"@nativescript-community/octane": "0.2.1",
+		"@nativescript-community/perms": "3.0.11",
+		"@nativescript-community/ui-canvas": "4.6.52",
+		"@nativescript-community/ui-drawer": "0.1.32",
+		"@nativescript/biometrics": "1.3.1",
+		"@nativescript/core": "9.1.2",
+		"@nativescript/haptics": "3.1.0",
+		"@nativescript/imagepicker": "5.0.0",
+		"@nativescript/local-notifications": "7.0.0",
+		"@nativescript/secure-storage": "4.0.2",
+		"@nativescript/shared-notification-delegate": "1.0.2",
+		"@nativescript/social-share": "2.3.0",
+		"@octane-xplat/ui": "workspace:*",
+		"@valor/nativescript-websockets": "2.0.3",
+		"@xplat/app": "workspace:*",
+		"@xplat/demos": "workspace:*",
+		"nativescript-clipboard": "2.1.1",
+		"octane": "0.4.0"
+	},
+	"devDependencies": {
+		"@nativescript-community/vite-octane": "0.2.1",
+		"@nativescript/android": "9.1.1",
+		"@nativescript/ios": "9.1.0",
+		"@nativescript/types": "9.0.0",
+		"@nativescript/vite": "8.0.11",
+		"@octanejs/vite-plugin": "0.1.58",
+		"patch-package": "8.0.1",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	}
 }

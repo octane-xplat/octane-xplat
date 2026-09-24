@@ -15,8 +15,8 @@ component layer; design tokens are CSS custom properties.
    `clsx`-style, falsy entries drop.
 4. **Utility classes are a shared vocabulary** (`flex-1`, `gap-4`, `btn`,
    `bg-primary`, `text-onprimary`...) — defined in `packages/app`'s css
-   + `tokens.css`, NOT Tailwind (a Tailwind subset we own; see
-   docs/css-support-matrix.md for what NS actually honors).
+   - `tokens.css`, NOT Tailwind (a Tailwind subset we own; see
+     docs/css-support-matrix.md for what NS actually honors).
 5. Per-platform selector hooks exist: `.ns-root`, `.ns-ios`, `.ns-android`,
    `.ns-dark`, `.ns-light`, `.ns-landscape`, `.ns-modal` on native ≈
    `:root`/`.dark` on web.

@@ -2,243 +2,269 @@
  *   import '@xplat/demos/demo.css';
  * Grammar stays inside the NS∩web matrix (docs/css-support-matrix.md). */
 
-.overlay-demo-anchor { align-self: flex-start; }
+.overlay-demo-anchor {
+	align-self: flex-start;
+}
 
 .overlay-demo-card {
-  padding: 20px;
-  border-radius: 12px;
-  background-color: var(--color-surface);
-  gap: 12px;
+	padding: 20px;
+	border-radius: 12px;
+	background-color: var(--color-surface);
+	gap: 12px;
 }
 
 .overlay-demo-popover {
-  padding: 12px;
-  border-radius: 8px;
-  background-color: var(--color-surface);
-  color: var(--color-text);
+	padding: 12px;
+	border-radius: 8px;
+	background-color: var(--color-surface);
+	color: var(--color-text);
 }
 
 .demo-menu {
-  flex-wrap: wrap;
-  gap: 8px;
+	flex-wrap: wrap;
+	gap: 8px;
 }
 
 .chip-off {
-  opacity: 0.45;
+	opacity: 0.45;
 }
 
 .btn-dim {
-  background-color: #64748b;
+	background-color: #64748b;
 }
 
 .demo-clock {
-  font-size: 44px;
-  font-weight: bold;
+	font-size: 44px;
+	font-weight: bold;
 }
 
 .demo-watch-time {
-  font-size: 52px;
-  font-weight: bold;
+	font-size: 52px;
+	font-weight: bold;
 }
 
 .demo-watch-date {
-  font-size: 18px;
-  opacity: 0.7;
+	font-size: 18px;
+	opacity: 0.7;
 }
 
 .todo-check {
-  font-size: 20px;
-  width: 32px;
-  text-align: center;
+	font-size: 20px;
+	width: 32px;
+	text-align: center;
 }
 
 .todo-done {
-  text-decoration: line-through;
-  opacity: 0.5;
+	text-decoration: line-through;
+	opacity: 0.5;
 }
 
 .ttt-grid {
-  flex-direction: row;
-  flex-wrap: wrap;
-  width: 264px;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 264px;
 }
 
 .ttt-cell {
-  width: 88px;
-  height: 88px;
-  border-width: 1px;
-  border-color: #94a3b8;
-  align-items: center;
-  justify-content: center;
+	width: 88px;
+	height: 88px;
+	border-width: 1px;
+	border-color: #94a3b8;
+	align-items: center;
+	justify-content: center;
 }
 
 .ttt-mark {
-  font-size: 36px;
-  font-weight: bold;
+	font-size: 36px;
+	font-weight: bold;
 }
 
 .dialer-display {
-  font-size: 28px;
-  min-height: 40px;
+	font-size: 28px;
+	min-height: 40px;
 }
 
 .dialer-grid {
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 248px;
-  gap: 8px;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+	width: 248px;
+	gap: 8px;
 }
 
 .dialer-key {
-  width: 72px;
-  height: 72px;
-  border-radius: 36px;
-  background-color: var(--color-primary);
-  align-items: center;
-  justify-content: center;
+	width: 72px;
+	height: 72px;
+	border-radius: 36px;
+	background-color: var(--color-primary);
+	align-items: center;
+	justify-content: center;
 }
 
 .dialer-key-label {
-  color: var(--color-on-primary);
-  font-size: 24px;
+	color: var(--color-on-primary);
+	font-size: 24px;
 }
 
 .wx-card {
-  border-width: 1px;
-  border-color: #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
+	border-width: 1px;
+	border-color: #e2e8f0;
+	border-radius: 8px;
+	padding: 12px;
 }
 
 .wx-icon {
-  font-size: 24px;
-  width: 40px;
-  text-align: center;
+	font-size: 24px;
+	width: 40px;
+	text-align: center;
 }
 
 .list-demo-toolbar {
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
 }
 
 .list-demo-row {
-  flex-direction: row;
-  width: 100%;
-  padding: 12px;
-  border-bottom-width: 1px;
-  border-bottom-color: #e2e8f0;
+	flex-direction: row;
+	width: 100%;
+	padding: 12px;
+	border-bottom-width: 1px;
+	border-bottom-color: #e2e8f0;
 }
 
 .list-demo-event {
-  background-color: #ffffff;
+	background-color: #ffffff;
 }
 
 .list-demo-notice {
-  background-color: #eff6ff;
-  align-items: center;
-  gap: 12px;
+	background-color: #eff6ff;
+	align-items: center;
+	gap: 12px;
 }
 
 .list-demo-badge {
-  font-weight: bold;
+	font-weight: bold;
 }
 
 .list-demo-copy {
-  flex-direction: column;
-  gap: 4px;
+	flex-direction: column;
+	gap: 4px;
 }
 
 .list-demo-title {
-  font-weight: bold;
+	font-weight: bold;
 }
 
-.device-demo { padding: 16px; }
-.device-safe-sample { flex-grow: 1; justify-content: space-between; }
-.device-edge-top { background-color: #fb7185; padding: 8px; }
-.device-edge-bottom { background-color: #38bdf8; padding: 8px; }
-.device-keyboard { min-height: 120px; }
-.device-drawer { min-height: 120px; }
-.device-drawer-main { padding: 12px; background-color: #dbeafe; }
-.device-drawer-content { padding: 16px; background-color: #fef3c7; }
-.device-native-note { font-size: 12px; opacity: 0.65; }
+.device-demo {
+	padding: 16px;
+}
+.device-safe-sample {
+	flex-grow: 1;
+	justify-content: space-between;
+}
+.device-edge-top {
+	background-color: #fb7185;
+	padding: 8px;
+}
+.device-edge-bottom {
+	background-color: #38bdf8;
+	padding: 8px;
+}
+.device-keyboard {
+	min-height: 120px;
+}
+.device-drawer {
+	min-height: 120px;
+}
+.device-drawer-main {
+	padding: 12px;
+	background-color: #dbeafe;
+}
+.device-drawer-content {
+	padding: 16px;
+	background-color: #fef3c7;
+}
+.device-native-note {
+	font-size: 12px;
+	opacity: 0.65;
+}
 
 .demo-modal-card {
-  padding: 20px;
-  border-radius: 12px;
-  background-color: var(--color-surface);
+	padding: 20px;
+	border-radius: 12px;
+	background-color: var(--color-surface);
 }
 
 .layout-grid {
-  height: 148px;
+	height: 148px;
 }
 
 .layout-cell {
-  align-items: center;
-  justify-content: center;
-  background-color: #dbeafe;
-  border-width: 1px;
-  border-color: #93c5fd;
-  margin: 3px;
+	align-items: center;
+	justify-content: center;
+	background-color: #dbeafe;
+	border-width: 1px;
+	border-color: #93c5fd;
+	margin: 3px;
 }
 
 .layout-span {
-  background-color: #bfdbfe;
+	background-color: #bfdbfe;
 }
 
 .layout-absolute-card {
-  width: 220px;
-  height: 96px;
-  background-color: #f1f5f9;
-  border-width: 1px;
-  border-color: #cbd5e1;
+	width: 220px;
+	height: 96px;
+	background-color: #f1f5f9;
+	border-width: 1px;
+	border-color: #cbd5e1;
 }
 
 .layout-absolute-title {
-  font-size: 16px;
-  font-weight: bold;
+	font-size: 16px;
+	font-weight: bold;
 }
 
 .layout-badge {
-  background-color: #dc2626;
-  color: #ffffff;
-  padding: 3px 8px;
-  border-radius: 8px;
-  font-size: 11px;
+	background-color: #dc2626;
+	color: #ffffff;
+	padding: 3px 8px;
+	border-radius: 8px;
+	font-size: 11px;
 }
 
 .layout-stack {
-  height: 88px;
+	height: 88px;
 }
 
 .layout-stack-back,
 .layout-stack-front {
-  width: 164px;
-  height: 64px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
+	width: 164px;
+	height: 64px;
+	align-items: center;
+	justify-content: center;
+	border-radius: 8px;
 }
 
 .layout-stack-back {
-  background-color: #c4b5fd;
+	background-color: #c4b5fd;
 }
 
 .layout-stack-front {
-  margin-left: 28px;
-  margin-top: 18px;
-  background-color: #ddd6fe;
+	margin-left: 28px;
+	margin-top: 18px;
+	background-color: #ddd6fe;
 }
 
 .layout-footer-column {
-  flex-grow: 1;
+	flex-grow: 1;
 }
 
 .layout-footer {
-  padding: 8px;
-  background-color: #e2e8f0;
+	padding: 8px;
+	background-color: #e2e8f0;
 }
 
 /* Keyframes — the only sanctioned animation path (decision #22). Props
@@ -247,79 +273,94 @@
    alternate` — NS supports `reverse` only, so pulses bounce via 0/50/100. */
 
 .demo-anim-box {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
-  background-color: var(--color-primary);
+	width: 80px;
+	height: 80px;
+	border-radius: 12px;
+	background-color: var(--color-primary);
 }
 
 @keyframes demo-pulse {
-  0%, 100% { opacity: 0.45; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.15); }
+	0%,
+	100% {
+		opacity: 0.45;
+		transform: scale(0.85);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.15);
+	}
 }
 
 @keyframes demo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 @keyframes demo-slide {
-  from { transform: translate(0px, 0px); }
-  to { transform: translate(160px, 0px); }
+	from {
+		transform: translate(0px, 0px);
+	}
+	to {
+		transform: translate(160px, 0px);
+	}
 }
 
 .anim-pulse {
-  animation-name: demo-pulse;
-  animation-duration: 1.2s;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
+	animation-name: demo-pulse;
+	animation-duration: 1.2s;
+	animation-iteration-count: infinite;
+	animation-timing-function: ease-in-out;
 }
 
 .anim-spin {
-  animation-name: demo-spin;
-  animation-duration: 1.5s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
+	animation-name: demo-spin;
+	animation-duration: 1.5s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
 }
 
 .anim-slide {
-  animation-name: demo-slide;
-  animation-duration: 0.7s;
-  animation-fill-mode: forwards;
-  animation-timing-function: ease-out;
+	animation-name: demo-slide;
+	animation-duration: 0.7s;
+	animation-fill-mode: forwards;
+	animation-timing-function: ease-out;
 }
 
 .props-demo {
-  padding: 16px;
+	padding: 16px;
 }
 
 .props-hit-slop {
-  min-height: 44px;
+	min-height: 44px;
 }
 
 .props-clamp {
-  width: 220px;
-  max-width: 100%;
+	width: 220px;
+	max-width: 100%;
 }
 
 .controls-demo {
-  padding: 12px;
+	padding: 12px;
 }
 
 .controls-section {
-  gap: 8px;
-  padding: 12px;
-  border-width: 1px;
-  border-color: #e2e8f0;
-  border-radius: 8px;
+	gap: 8px;
+	padding: 12px;
+	border-width: 1px;
+	border-color: #e2e8f0;
+	border-radius: 8px;
 }
 
 .controls-spinner {
-  width: 24px;
-  height: 24px;
-  color: var(--color-primary);
+	width: 24px;
+	height: 24px;
+	color: var(--color-primary);
 }
 
 .heading-samples {
-  gap: 4px;
+	gap: 4px;
 }

@@ -9,13 +9,13 @@
 
 ## Layers
 
-| Layer | Tool | Target |
-|---|---|---|
-| Logic (`packages/core`, hook-free) | vitest, plain node | both — DOM-free by definition |
-| Hook-containing shared modules | vitest + octane runtime | must be run inside a renderer-owned test env — verify how tests satisfy the ownership rule (open-questions) |
-| Components | vitest + DOM renderer (web leaf impls) | web leaf = real test; shared-file behavior tests run through web impls |
-| Native leaf correctness | vitest + **`createObjectDriver`/`createObjectContainer`** | universal-core ships a built-in object renderer — assert host-command streams (`create gridlayout`, `event tap`) with no device and no NS runtime. Stronger than a hand-rolled mock: same ABI the real driver implements |
-| On-device | `ns debug` + manual / Appium later | the real rendering ground truth |
+| Layer                              | Tool                                                      | Target                                                                                                                                                                                                                   |
+| ---------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Logic (`packages/core`, hook-free) | vitest, plain node                                        | both — DOM-free by definition                                                                                                                                                                                            |
+| Hook-containing shared modules     | vitest + octane runtime                                   | must be run inside a renderer-owned test env — verify how tests satisfy the ownership rule (open-questions)                                                                                                              |
+| Components                         | vitest + DOM renderer (web leaf impls)                    | web leaf = real test; shared-file behavior tests run through web impls                                                                                                                                                   |
+| Native leaf correctness            | vitest + **`createObjectDriver`/`createObjectContainer`** | universal-core ships a built-in object renderer — assert host-command streams (`create gridlayout`, `event tap`) with no device and no NS runtime. Stronger than a hand-rolled mock: same ABI the real driver implements |
+| On-device                          | `ns debug` + manual / Appium later                        | the real rendering ground truth                                                                                                                                                                                          |
 
 ## Enforcement tests (the cheap wins)
 

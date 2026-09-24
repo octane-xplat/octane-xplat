@@ -32,18 +32,18 @@ resolved by Vite — never inside shared logic.
 
 ## References — read what the task touches
 
-| Task | Read |
-|---|---|
-| Set up / run / build | `references/getting-started.md` |
-| Use or add a component | `references/primitives.md` (+ `primitives/driver-semantics.md` for how leaves bind) |
-| Platform file layout, suffixes, imports | `references/platform-leaves.md` |
-| Styles, tokens, dark mode | `references/styling.md` (+ `styling/tokens.md`, `styling/root-boundaries.md`) |
-| navigate/goBack, stacks, routes | `references/navigation.md` (+ `navigation/native-frames.md` for Frame internals) |
-| Modal / sheet / overlay | `references/overlays.md` |
-| storage, theme, animation, gestures | `references/services.md` |
-| Probe harness, sweeps, smoke | `references/testing.md` |
-| Builds, releases, npm publish | `references/toolchain.md` |
-| What's broken/unverified | `references/known-limits.md` — **read this before promising behavior** |
+| Task                                    | Read                                                                                |
+| --------------------------------------- | ----------------------------------------------------------------------------------- |
+| Set up / run / build                    | `references/getting-started.md`                                                     |
+| Use or add a component                  | `references/primitives.md` (+ `primitives/driver-semantics.md` for how leaves bind) |
+| Platform file layout, suffixes, imports | `references/platform-leaves.md`                                                     |
+| Styles, tokens, dark mode               | `references/styling.md` (+ `styling/tokens.md`, `styling/root-boundaries.md`)       |
+| navigate/goBack, stacks, routes         | `references/navigation.md` (+ `navigation/native-frames.md` for Frame internals)    |
+| Modal / sheet / overlay                 | `references/overlays.md`                                                            |
+| storage, theme, animation, gestures     | `references/services.md`                                                            |
+| Probe harness, sweeps, smoke            | `references/testing.md`                                                             |
+| Builds, releases, npm publish           | `references/toolchain.md`                                                           |
+| What's broken/unverified                | `references/known-limits.md` — **read this before promising behavior**              |
 
 ## Orientation
 

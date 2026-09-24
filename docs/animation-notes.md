@@ -2,7 +2,7 @@
 
 > Detailed record of the animation and gesture surface. Shared surface = intent-level API (`animateTo`, `spring`, gestures as event
 > streams). Implementation = per-platform drivers. The JS-on-UI-thread model of
-> NativeScript means this can be *simpler* than the RN equivalent — no worklet
+> NativeScript means this can be _simpler_ than the RN equivalent — no worklet
 > boundary.
 >
 > **Owns:** #5 animation/gesture facade · **Status:** mapped · **Blocks on:**
@@ -18,7 +18,7 @@ pointer events → DOM style is equally synchronous. So:
 
 - Gesture-driven, interruptible animation is achievable with **plain JS** on
   both targets — no worklet runtime, no "native driver" flag semantics.
-- The primitive contract is: animations and gestures write *imperatively* to
+- The primitive contract is: animations and gestures write _imperatively_ to
   the leaf view (via ref/style), while Octane state stays declarative. Rule:
   **animation writes imperative, app state writes declarative** — don't route
   per-frame values through `useState` (it's correct but wasteful; compiled
@@ -53,12 +53,12 @@ x.spring(0, { damping: 14 });
 
 ### Per-target drivers
 
-| | Web | Native |
-|---|---|---|
-| Tweened props | WAAPI `el.animate()` (compositor-friendly) or `@octanejs/motion` | `view.animate({…})` → UIView/ViewPropertyAnimator; `Animation` class for multi-view |
-| Per-frame/gesture-linked | `requestAnimationFrame` + direct style | `touch` handler + direct style — synchronous |
-| Declarative loops | CSS `@keyframes` | NS CSS `@keyframes` — **verified set is ~12 props** (opacity, translate/scale/rotate, width/height, background-color, perspective, transform); unsupported props silently dropped |
-| Curves | easing strings/cubic-bezier | `curve` param — **normalize to named/cubic-bezier only**; `spring` maps to UIKit spring on iOS vs BounceInterpolator on Android (divergent — facade must implement springs itself or accept the divergence) |
+|                          | Web                                                              | Native                                                                                                                                                                                                      |
+| ------------------------ | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tweened props            | WAAPI `el.animate()` (compositor-friendly) or `@octanejs/motion` | `view.animate({…})` → UIView/ViewPropertyAnimator; `Animation` class for multi-view                                                                                                                         |
+| Per-frame/gesture-linked | `requestAnimationFrame` + direct style                           | `touch` handler + direct style — synchronous                                                                                                                                                                |
+| Declarative loops        | CSS `@keyframes`                                                 | NS CSS `@keyframes` — **verified set is ~12 props** (opacity, translate/scale/rotate, width/height, background-color, perspective, transform); unsupported props silently dropped                           |
+| Curves                   | easing strings/cubic-bezier                                      | `curve` param — **normalize to named/cubic-bezier only**; `spring` maps to UIKit spring on iOS vs BounceInterpolator on Android (divergent — facade must implement springs itself or accept the divergence) |
 
 `@octanejs/motion` exists but is DOM-only — treat it as the web driver's
 implementation detail, not a shared dependency.
@@ -81,12 +81,12 @@ component elements) and writes `view.translateX` per rAF frame — no re-render.
 
 ## Gesture normalization
 
-| Shared | Web | Native |
-|---|---|---|
-| `onPress` | click/pointerup w/ press geometry | `tap` (already aliased by driver) |
-| `useGesture('pan')` | pointerdown/move/up + setPointerCapture | `touch`/`pan` events (`getX/getY` in dip — convert to same units) |
-| long-press | timer over pointerdown | `longPress` |
-| `hover`/`focus` states | real CSS | N/A — omit or no-op; NS pseudo-states limited (`:highlighted` — verify) |
+| Shared                 | Web                                     | Native                                                                  |
+| ---------------------- | --------------------------------------- | ----------------------------------------------------------------------- |
+| `onPress`              | click/pointerup w/ press geometry       | `tap` (already aliased by driver)                                       |
+| `useGesture('pan')`    | pointerdown/move/up + setPointerCapture | `touch`/`pan` events (`getX/getY` in dip — convert to same units)       |
+| long-press             | timer over pointerdown                  | `longPress`                                                             |
+| `hover`/`focus` states | real CSS                                | N/A — omit or no-op; NS pseudo-states limited (`:highlighted` — verify) |
 
 Normalize to: `{ x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled', target }`.
 Velocity is essential for interruptible gestures (drawer, swipe-to-dismiss).

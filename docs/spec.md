@@ -30,17 +30,17 @@ leaf when a platform service or visual behavior genuinely differs.
 ## A small screen
 
 ```tsx
-import { View, Text, Pressable } from '@octane-xplat/ui';
+import { View, Text, Pressable } from '@octane-xplat/ui'
 
 export function Welcome() {
-  return (
-    <View className="screen">
-      <Text className="title">Welcome</Text>
-      <Pressable className="button" onPress={() => console.log('hello')}>
-        <Text>Continue</Text>
-      </Pressable>
-    </View>
-  );
+	return (
+		<View className="screen">
+			<Text className="title">Welcome</Text>
+			<Pressable className="button" onPress={() => console.log('hello')}>
+				<Text>Continue</Text>
+			</Pressable>
+		</View>
+	)
 }
 ```
 

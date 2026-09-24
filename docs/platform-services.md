@@ -10,10 +10,10 @@ storage without knowing whether the value lives in browser storage or a native
 database:
 
 ```ts
-import { storage } from '@octane-xplat/platform';
+import { storage } from '@octane-xplat/platform'
 
-storage.setString('has-seen-welcome', 'true');
-const seen = storage.getString('has-seen-welcome');
+storage.setString('has-seen-welcome', 'true')
+const seen = storage.getString('has-seen-welcome')
 ```
 
 Other services cover permissions, clipboard, sharing, haptics, files, media
@@ -25,11 +25,11 @@ Some features are not available everywhere. Check support and ask for access
 before using the implementation:
 
 ```ts
-import { permissions } from '@octane-xplat/platform';
+import { permissions } from '@octane-xplat/platform'
 
-const result = await permissions.ensure('camera');
-if (result === 'granted') console.log('start camera');
-else console.log('camera unavailable');
+const result = await permissions.ensure('camera')
+if (result === 'granted') console.log('start camera')
+else console.log('camera unavailable')
 ```
 
 Your screen should show a useful fallback when a capability is unavailable or

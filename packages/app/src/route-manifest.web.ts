@@ -1,4 +1,4 @@
-import { deriveRouteManifest } from '@octane-xplat/ui';
+import { deriveRouteManifest } from '@octane-xplat/ui'
 
 /** Shared route dir (docs/navigation-notes.md): every component file under
  *  app/ becomes a route — name = file path with [param] → :param, so
@@ -14,6 +14,6 @@ const files = import.meta.glob(
 		'!./app/**/*.android.{tsrx,tsx}',
 	],
 	{ eager: true },
-);
+)
 
-export const routes = deriveRouteManifest(files, ['web']);
+export const routes = deriveRouteManifest(files, ['web'])

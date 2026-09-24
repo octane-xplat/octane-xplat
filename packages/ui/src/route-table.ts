@@ -26,29 +26,30 @@
  *  fallback (rank = prefer.length). Web callers pass ['web']; native
  *  callers pass the running OS first. */
 
-import type { Route, RouteManifest, RouteMeta } from './props';
+import type { Route, RouteManifest, RouteMeta } from './props'
 
-const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/;
-const SUFFIX = /\.(web|native|ios|android)$/;
-const PARAM = /^\[(.+)\]$/;
+const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
+const SUFFIX = /\.(web|native|ios|android)$/
+const PARAM = /^\[(.+)\]$/
 
 /** Component pick rule for route/layout modules: default export, then a
  *  `screen` named export, then a single function export. Route files use
  *  named exports (decision #13) — a lone component is unambiguous. */
 function pick(mod: any, file: string): any {
-	if (typeof mod?.default === 'function') return mod.default;
-	if (typeof mod?.screen === 'function') return mod.screen;
-	const fns = Object.keys(mod ?? {}).filter((k) => typeof mod[k] === 'function');
-	if (fns.length === 1) return mod[fns[0]];
+	if (typeof mod?.default === 'function') return mod.default
+	if (typeof mod?.screen === 'function') return mod.screen
+	const fns = Object.keys(mod ?? {}).filter((k) => typeof mod[k] === 'function')
+	if (fns.length === 1) return mod[fns[0]]
 	console.warn(
-		'[octane-xplat] route file ' + file +
-		(fns.length
-			? ` has ${fns.length} component-shaped exports (${fns.join(', ')}) — add a default or 'screen' export`
-			: ' has no component export') +
-		' — skipped',
-	);
+		'[octane-xplat] route file ' +
+			file +
+			(fns.length
+				? ` has ${fns.length} component-shaped exports (${fns.join(', ')}) — add a default or 'screen' export`
+				: ' has no component export') +
+			' — skipped',
+	)
 
-	return undefined;
+	return undefined
 }
 
 export function deriveRouteManifest(
@@ -56,74 +57,74 @@ export function deriveRouteManifest(
 	prefer: readonly string[],
 	dir = 'app',
 ): RouteManifest {
-	const prefix = dir.replace(/^\.?\/?/, '').replace(/\/+$/, '') + '/';
+	const prefix = dir.replace(/^\.?\/?/, '').replace(/\/+$/, '') + '/'
 	// name → best candidate so far (lowest rank wins; ties warn).
-	const seen = new Map<string, { rank: number; meta: RouteMeta; component: any }>();
-	const layoutRank = new Map<string, number>();
-	const layouts: Record<string, any> = {};
-	const warned = new Set<string>();
+	const seen = new Map<string, { rank: number; meta: RouteMeta; component: any }>()
+	const layoutRank = new Map<string, number>()
+	const layouts: Record<string, any> = {}
+	const warned = new Set<string>()
 
 	for (const key of Object.keys(files).sort()) {
-		let rel = key.replace(/^\.?\//, '');
-		if (rel.startsWith(prefix)) rel = rel.slice(prefix.length);
-		rel = rel.replace(EXT, '');
-		const parts = rel.split('/');
-		let base = parts[parts.length - 1];
-		const sm = SUFFIX.exec(base);
-		const suffix = sm?.[1];
-		if (sm) base = base.slice(0, base.length - sm[0].length);
-		if (suffix && !prefer.includes(suffix)) continue;
-		const rank = suffix ? prefer.indexOf(suffix) : prefer.length;
+		let rel = key.replace(/^\.?\//, '')
+		if (rel.startsWith(prefix)) rel = rel.slice(prefix.length)
+		rel = rel.replace(EXT, '')
+		const parts = rel.split('/')
+		let base = parts[parts.length - 1]
+		const sm = SUFFIX.exec(base)
+		const suffix = sm?.[1]
+		if (sm) base = base.slice(0, base.length - sm[0].length)
+		if (suffix && !prefer.includes(suffix)) continue
+		const rank = suffix ? prefer.indexOf(suffix) : prefer.length
 
 		if (base === '_layout') {
-			const d = parts.slice(0, -1).join('/');
-			const prev = layoutRank.get(d);
-			if (prev !== undefined && prev <= rank) continue;
-			const component = pick(files[key], key);
+			const d = parts.slice(0, -1).join('/')
+			const prev = layoutRank.get(d)
+			if (prev !== undefined && prev <= rank) continue
+			const component = pick(files[key], key)
 			if (component) {
-				layouts[d] = component;
-				layoutRank.set(d, rank);
+				layouts[d] = component
+				layoutRank.set(d, rank)
 			}
 
-			continue;
+			continue
 		}
 
-		const segs = parts.slice(0, -1).concat(base);
-		if (segs[segs.length - 1] === 'index') segs.pop();
+		const segs = parts.slice(0, -1).concat(base)
+		if (segs[segs.length - 1] === 'index') segs.pop()
 		const segments = segs.map((s) => {
-			const p = PARAM.exec(s);
-			return p ? ':' + p[1] : s;
-		});
+			const p = PARAM.exec(s)
+			return p ? ':' + p[1] : s
+		})
 
-		const name = segments.join('/') || 'index';
+		const name = segments.join('/') || 'index'
 		const meta: RouteMeta = {
 			name,
 			segments,
 			params: segments.filter((s) => s.startsWith(':')).map((s) => s.slice(1)),
 			file: key,
-		};
-
-		const prev = seen.get(name);
-		if (prev && prev.rank <= rank) {
-			if (prev.rank === rank && !warned.has(name)) {
-				warned.add(name);
-				console.warn(
-					`[octane-xplat] route '${name}' is defined by both ${prev.meta.file} and ${key} — keeping ${prev.meta.file}`,
-				);
-			}
-
-			continue;
 		}
 
-		const component = pick(files[key], key);
-		if (component) seen.set(name, { rank, meta, component });
+		const prev = seen.get(name)
+		if (prev && prev.rank <= rank) {
+			if (prev.rank === rank && !warned.has(name)) {
+				warned.add(name)
+				console.warn(
+					`[octane-xplat] route '${name}' is defined by both ${prev.meta.file} and ${key} — keeping ${prev.meta.file}`,
+				)
+			}
+
+			continue
+		}
+
+		const component = pick(files[key], key)
+		if (component) seen.set(name, { rank, meta, component })
 	}
 
-	const screens: RouteManifest['screens'] = {};
-	const routes: RouteMeta[] = [];
+	const screens: RouteManifest['screens'] = {}
+	const routes: RouteMeta[] = []
 	for (const { meta, component } of seen.values()) {
-		screens[meta.name] = component;
-		routes.push(meta);
+		screens[meta.name] = component
+		routes.push(meta)
 	}
 
 	// Most-specific patterns first — 'demo/new' must beat 'demo/:id'.
@@ -132,9 +133,9 @@ export function deriveRouteManifest(
 			b.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) -
 				a.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) ||
 			a.name.localeCompare(b.name),
-	);
+	)
 
-	return { screens, routes, layouts };
+	return { screens, routes, layouts }
 }
 
 /** Match URL path segments against a manifest — returns the winning meta
@@ -145,55 +146,52 @@ export function matchRoute(
 	segs: string[],
 ): { meta: RouteMeta; params: Record<string, unknown> } | null {
 	for (const meta of routes) {
-		if (meta.segments.length !== segs.length) continue;
-		const params: Record<string, unknown> = {};
-		let ok = true;
+		if (meta.segments.length !== segs.length) continue
+		const params: Record<string, unknown> = {}
+		let ok = true
 		for (let i = 0; i < segs.length; i++) {
-			const p = meta.segments[i];
-			if (p.startsWith(':')) params[p.slice(1)] = decodeURIComponent(segs[i]);
+			const p = meta.segments[i]
+			if (p.startsWith(':')) params[p.slice(1)] = decodeURIComponent(segs[i])
 			else if (p !== segs[i]) {
-				ok = false;
-				break;
+				ok = false
+				break
 			}
 		}
 
-		if (ok) return { meta, params };
+		if (ok) return { meta, params }
 	}
 
-	return null;
+	return null
 }
 
 /** Serialize a Route to a URL path (no origin): manifest routes substitute
  *  `:param` segments from params (leftover params → query string);
  *  non-manifest names keep the legacy `/<stack>/<name>?params` shape. */
 export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
-	const meta = routes.find((m) => m.name === r.name);
-	let segs: string[];
-	let rest: Record<string, unknown> = r.params;
+	const meta = routes.find((m) => m.name === r.name)
+	let segs: string[]
+	let rest: Record<string, unknown> = r.params
 	if (meta) {
 		segs = meta.segments.map((s) => {
-			if (!s.startsWith(':')) return s;
-			const v = r.params[s.slice(1)];
+			if (!s.startsWith(':')) return s
+			const v = r.params[s.slice(1)]
 			if (v === undefined)
-				console.warn(`[octane-xplat] route '${r.name}' pushed without path param ${s}`);
+				console.warn(`[octane-xplat] route '${r.name}' pushed without path param ${s}`)
 
-			return encodeURIComponent(String(v ?? ''));
-		});
+			return encodeURIComponent(String(v ?? ''))
+		})
 
-		rest = Object.fromEntries(
-			Object.entries(r.params).filter(([k]) => !meta.params.includes(k)),
-		);
+		rest = Object.fromEntries(Object.entries(r.params).filter(([k]) => !meta.params.includes(k)))
 	} else {
-		segs = [r.name];
+		segs = [r.name]
 	}
 
 	// No URLSearchParams — shared code carries no DOM globals (invariant 4).
 	const q = Object.entries(rest)
 		.map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
-		.join('&');
+		.join('&')
 
-	const path =
-		(r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/');
+	const path = (r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/')
 
-	return (path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '');
+	return (path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '')
 }

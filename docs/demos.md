@@ -38,31 +38,31 @@ import in `App.tsrx`, so it needs no changes to the harness entry.
 
 ## The demos
 
-| Demo | File | Catalog inspiration | Why it's uniquely valuable |
-|---|---|---|---|
-| Counter | `Counter.tsrx` | `counter-jsx`, `reactive-counter` | Smallest possible state→commit cycle. The null-hypothesis probe: when a bigger demo misbehaves, this isolates "is basic reactivity broken?" from everything else. Also the natural mount for measuring commit latency (the `darkMark` pattern from Home). |
-| Watch | `WatchFace.tsrx` | `watch`, `watch-date` | Sustained 1 Hz commits — ~3.6k renders/hour makes it a leak/staleness detector no other demo provides. Plus compact centered layout and `Date` formatting with zero DOM globals. |
-| Stopwatch | `Stopwatch.tsrx` | `stopwatch-jsx` | Effect lifecycle under load: `setInterval` commit stream + cleanup on gallery unmount, and rapid-fire lap appends through `@for`. Only demo where effect teardown is directly observable. |
-| Todo | `Todo.tsrx` | `todo-jsx` | The canonical keyed-mutation stress: insert/remove/toggle through the `List` leaf exercises the managed-ObservableArray splice+refresh patch on native — the operations most likely to desync cells. Also controlled `TextInput` round-trip and `@if` empty-state. `renderItem` is deliberately a per-commit closure: the leaf reads it off the host at `itemLoading`, so this stays correct *and* tests that contract. |
-| Tic-Tac-Toe | `TicTacToe.tsrx` | `tic-tac-toe` | Pure derived state — winner and status computed in render, zero effects. A 3×3 grid of identical Pressables via `@for` over a wrap container. Deterministic: same tap sequence must always produce the same board on both targets. |
-| Dialer | `Dialer.tsrx` | `dialer` | Tap-burst throughput — rapid `onPress`→state→commit round-trips, the input pattern most sensitive to event-dispatch latency. Fixed wrap grid of 12 identical keys; string append/backspace state. |
-| List ×500 | `VirtualList.tsrx` | `virtual-list` | Volume stress: 500 recycled cells on native ListView plus prepend/remove-first/reverse on `items` — hammers the driver patch's splice path and cell rebinding at a scale Todo can't reach. Module-level `renderItem` keeps identity stable per the leaf contract. |
-| Weather | `Weather.tsrx` | `weather` | Async→state→render seam without a network: simulated fetch (timer + setState) drives a loading→data transition shaped exactly like a real platform-services call, so the pattern is proven before the fetch seam exists. Icon glyphs (☀⛅☁☂❄) double as a live font-coverage check (Q18). |
-| Keyframes | `AnimShowcase.tsrx` | `css-animation-showcase` | The only sanctioned animation path (decision #22 — keyframes, ~12 animatable props, no transitions). Toggling `className` starts/stops `demo-pulse`/`demo-spin`/`demo-slide`; tests `animation-fill-mode: forwards` persistence and the no-`alternate` workaround (0/50/100 keyframes). First real content for `demo.css`. |
-| Reactivity | `ReactiveProbe.tsrx` | `reactive-*` probes | Reactivity granularity, read from the rendered tree (`renders=` counters). Verified on-device: bumping A re-renders parent + `plain-a`/`memo-a` only; `plain-b` is skipped **without memo** — the universal runtime prop-diffs children at commit time — and `memo-b` stays `renders=1`. First user-level `memo()` on either target. |
+| Demo        | File                 | Catalog inspiration               | Why it's uniquely valuable                                                                                                                                                                                                                                                                                                                                                                                              |
+| ----------- | -------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Counter     | `Counter.tsrx`       | `counter-jsx`, `reactive-counter` | Smallest possible state→commit cycle. The null-hypothesis probe: when a bigger demo misbehaves, this isolates "is basic reactivity broken?" from everything else. Also the natural mount for measuring commit latency (the `darkMark` pattern from Home).                                                                                                                                                               |
+| Watch       | `WatchFace.tsrx`     | `watch`, `watch-date`             | Sustained 1 Hz commits — ~3.6k renders/hour makes it a leak/staleness detector no other demo provides. Plus compact centered layout and `Date` formatting with zero DOM globals.                                                                                                                                                                                                                                        |
+| Stopwatch   | `Stopwatch.tsrx`     | `stopwatch-jsx`                   | Effect lifecycle under load: `setInterval` commit stream + cleanup on gallery unmount, and rapid-fire lap appends through `@for`. Only demo where effect teardown is directly observable.                                                                                                                                                                                                                               |
+| Todo        | `Todo.tsrx`          | `todo-jsx`                        | The canonical keyed-mutation stress: insert/remove/toggle through the `List` leaf exercises the managed-ObservableArray splice+refresh patch on native — the operations most likely to desync cells. Also controlled `TextInput` round-trip and `@if` empty-state. `renderItem` is deliberately a per-commit closure: the leaf reads it off the host at `itemLoading`, so this stays correct _and_ tests that contract. |
+| Tic-Tac-Toe | `TicTacToe.tsrx`     | `tic-tac-toe`                     | Pure derived state — winner and status computed in render, zero effects. A 3×3 grid of identical Pressables via `@for` over a wrap container. Deterministic: same tap sequence must always produce the same board on both targets.                                                                                                                                                                                      |
+| Dialer      | `Dialer.tsrx`        | `dialer`                          | Tap-burst throughput — rapid `onPress`→state→commit round-trips, the input pattern most sensitive to event-dispatch latency. Fixed wrap grid of 12 identical keys; string append/backspace state.                                                                                                                                                                                                                       |
+| List ×500   | `VirtualList.tsrx`   | `virtual-list`                    | Volume stress: 500 recycled cells on native ListView plus prepend/remove-first/reverse on `items` — hammers the driver patch's splice path and cell rebinding at a scale Todo can't reach. Module-level `renderItem` keeps identity stable per the leaf contract.                                                                                                                                                       |
+| Weather     | `Weather.tsrx`       | `weather`                         | Async→state→render seam without a network: simulated fetch (timer + setState) drives a loading→data transition shaped exactly like a real platform-services call, so the pattern is proven before the fetch seam exists. Icon glyphs (☀⛅☁☂❄) double as a live font-coverage check (Q18).                                                                                                                               |
+| Keyframes   | `AnimShowcase.tsrx`  | `css-animation-showcase`          | The only sanctioned animation path (decision #22 — keyframes, ~12 animatable props, no transitions). Toggling `className` starts/stops `demo-pulse`/`demo-spin`/`demo-slide`; tests `animation-fill-mode: forwards` persistence and the no-`alternate` workaround (0/50/100 keyframes). First real content for `demo.css`.                                                                                              |
+| Reactivity  | `ReactiveProbe.tsrx` | `reactive-*` probes               | Reactivity granularity, read from the rendered tree (`renders=` counters). Verified on-device: bumping A re-renders parent + `plain-a`/`memo-a` only; `plain-b` is skipped **without memo** — the universal runtime prop-diffs children at commit time — and `memo-b` stays `renders=1`. First user-level `memo()` on either target.                                                                                    |
 
 ## Coverage map (catalog → here)
 
-| Catalog category | Covered by | Deliberately skipped |
-|---|---|---|
-| Watch/wearable | WatchFace | analog faces (no canvas yet) |
-| Basic JSX apps | Counter, Todo, Stopwatch | `static-card` (subsumed) |
-| Canvas/animation | AnimShowcase | `canvas-3d`, `bouncing-balls` — no canvas primitive exists |
-| UI components | Dialer, VirtualList | `settings`/`typography` — already harness surfaces |
-| Games | TicTacToe | `sky-hop`, `tilt-breakout`, `button-tetris` — need frame loop / sensors / keyboard |
-| Device features | Weather (mocked) | camera/voice/hid/maps — need platform-services interfaces (problem #6) |
-| Native experiments | — | whole category is renderer experiments, not shared demos |
-| Reactive experiments | ReactiveProbe | — |
+| Catalog category     | Covered by               | Deliberately skipped                                                               |
+| -------------------- | ------------------------ | ---------------------------------------------------------------------------------- |
+| Watch/wearable       | WatchFace                | analog faces (no canvas yet)                                                       |
+| Basic JSX apps       | Counter, Todo, Stopwatch | `static-card` (subsumed)                                                           |
+| Canvas/animation     | AnimShowcase             | `canvas-3d`, `bouncing-balls` — no canvas primitive exists                         |
+| UI components        | Dialer, VirtualList      | `settings`/`typography` — already harness surfaces                                 |
+| Games                | TicTacToe                | `sky-hop`, `tilt-breakout`, `button-tetris` — need frame loop / sensors / keyboard |
+| Device features      | Weather (mocked)         | camera/voice/hid/maps — need platform-services interfaces (problem #6)             |
+| Native experiments   | —                        | whole category is renderer experiments, not shared demos                           |
+| Reactive experiments | ReactiveProbe            | —                                                                                  |
 
 ## Findings so far (lab, iOS sim)
 
@@ -82,7 +82,7 @@ import in `App.tsrx`, so it needs no changes to the harness entry.
 - **Binary `@if`/`@else` works fully on native** — verified on-device via the
   Counter `if-toggle` probe: else arm mounts when the condition starts false,
   swaps to the then arm on flip, and swaps back (`if else mount` / `if then
-  swap` / `if else swap` all OK). An earlier version of this doc blamed the
+swap` / `if else swap` all OK). An earlier version of this doc blamed the
   runtime for a Weather miss that turned out to be probe timing — the sweep
   asserted `°` after the next demo had already mounted.
 - **Children-position ternaries also work and swap correctly** — Weather's

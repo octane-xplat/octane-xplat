@@ -9,14 +9,14 @@ Use `useAnimation` for a value that changes over time. The value exposes a
 normal destination animation and a spring:
 
 ```tsx
-import { View, Text, Pressable, useAnimation } from '@octane-xplat/ui';
+import { View, Text, Pressable, useAnimation } from '@octane-xplat/ui'
 
-const x = useAnimation(0);
+const x = useAnimation(0)
 
-<View bind={(element) => x.bind(element)}>
-  <Pressable onPress={() => x.to(120, { duration: 180 })}>
-    <Text>Move</Text>
-  </Pressable>
+;<View bind={(element) => x.bind(element)}>
+	<Pressable onPress={() => x.to(120, { duration: 180 })}>
+		<Text>Move</Text>
+	</Pressable>
 </View>
 ```
 

@@ -4,28 +4,28 @@ This guide lists legacy TSRX syntax that changed or was removed in current TSRX.
 
 ## Quick map
 
-| Legacy | Current |
-| --- | --- |
-| `component Name(props) { ... }` | `function Name(props) @{ ... }` |
-| `const Name = component (...) => { ... }` | `const Name = (...) => @{ ... }` |
-| Statement-position JSX throughout templates | Standard JSX plus explicit `@` templates |
-| Multiple top-level JSX statements | One final JSX-producing statement, usually a fragment |
-| Local JS directly inside JSX children | `@{ ... }` statement containers or `@` control blocks |
-| Direct text child `"Text"` | Standard JSX text `Text` |
-| `<tsrx>...</tsrx>` expression island | `@{ ... }` expression template |
-| `<tsx>...</tsx>` expression island | Ordinary JSX or `<>...</>` |
-| Required `<>...</>` wrapper for expression-position UI | Ordinary JSX; fragments only for siblings |
-| `if` / `else if` / `else` | `@if` / `@else if` / `@else` |
-| `for (... of ...; index i; key id)` | `@for (... of ...; index i; key id)` |
-| Manual empty-list branch around loops | `@for (...) { ... } @empty { ... }` |
-| `switch` / `case` / `default` / `break` | `@switch` / `@case:` / `@default:` |
-| `try` / `pending` / `catch` | `@try` / `@pending` / `@catch` |
-| Guard fallback + bare `return;` | `return <Fallback />` or `return null` in top-level function `@{}` |
-| Conditional hook extraction | Hoist hooks or extract explicit child components |
-| `{text expr}` | Removed from TSRX |
-| `{html expr}` | Removed from TSRX |
-| `{style "className"}` | Removed from TSRX |
-| `{ref expr}` and named `ref` props | Removed from TSRX |
+| Legacy                                                 | Current                                                            |
+| ------------------------------------------------------ | ------------------------------------------------------------------ |
+| `component Name(props) { ... }`                        | `function Name(props) @{ ... }`                                    |
+| `const Name = component (...) => { ... }`              | `const Name = (...) => @{ ... }`                                   |
+| Statement-position JSX throughout templates            | Standard JSX plus explicit `@` templates                           |
+| Multiple top-level JSX statements                      | One final JSX-producing statement, usually a fragment              |
+| Local JS directly inside JSX children                  | `@{ ... }` statement containers or `@` control blocks              |
+| Direct text child `"Text"`                             | Standard JSX text `Text`                                           |
+| `<tsrx>...</tsrx>` expression island                   | `@{ ... }` expression template                                     |
+| `<tsx>...</tsx>` expression island                     | Ordinary JSX or `<>...</>`                                         |
+| Required `<>...</>` wrapper for expression-position UI | Ordinary JSX; fragments only for siblings                          |
+| `if` / `else if` / `else`                              | `@if` / `@else if` / `@else`                                       |
+| `for (... of ...; index i; key id)`                    | `@for (... of ...; index i; key id)`                               |
+| Manual empty-list branch around loops                  | `@for (...) { ... } @empty { ... }`                                |
+| `switch` / `case` / `default` / `break`                | `@switch` / `@case:` / `@default:`                                 |
+| `try` / `pending` / `catch`                            | `@try` / `@pending` / `@catch`                                     |
+| Guard fallback + bare `return;`                        | `return <Fallback />` or `return null` in top-level function `@{}` |
+| Conditional hook extraction                            | Hoist hooks or extract explicit child components                   |
+| `{text expr}`                                          | Removed from TSRX                                                  |
+| `{html expr}`                                          | Removed from TSRX                                                  |
+| `{style "className"}`                                  | Removed from TSRX                                                  |
+| `{ref expr}` and named `ref` props                     | Removed from TSRX                                                  |
 
 ## Components
 

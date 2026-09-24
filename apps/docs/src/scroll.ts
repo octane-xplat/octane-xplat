@@ -4,8 +4,8 @@
 // scrollTop before resetting — and popstate also races the browser's own
 // scrollRestoration. Imperative reset keeps it synchronous with the nav write.
 export function resetDocScroll() {
-	const el = document.getElementById('doc-content');
-	if (el) el.scrollTop = 0;
+	const el = document.getElementById('doc-content')
+	if (el) el.scrollTop = 0
 }
 
-window.addEventListener('popstate', resetDocScroll);
+window.addEventListener('popstate', resetDocScroll)

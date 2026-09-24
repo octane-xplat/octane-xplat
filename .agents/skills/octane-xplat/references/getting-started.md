@@ -2,15 +2,15 @@
 
 ## Layout
 
-| Path | What |
-|---|---|
-| `packages/ui` | The framework — primitives, styled(), stacks, routes, theme. Published as `@octane-xplat/ui`. |
-| `packages/app` | Harness app exercising every seam (screens, nav, overlays, probes). Not a product. |
+| Path             | What                                                                                                                                   |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/ui`    | The framework — primitives, styled(), stacks, routes, theme. Published as `@octane-xplat/ui`.                                          |
+| `packages/app`   | Harness app exercising every seam (screens, nav, overlays, probes). Not a product.                                                     |
 | `packages/demos` | 10 demo screens (Counter, Watch, Stopwatch, Todo, TicTacToe, Dialer, List, Weather, Keyframes, Reactivity) used as nav/store payloads. |
-| `apps/web` | Web entry — vite + `@octanejs/vite-plugin`, `resolve.conditions:['web']`, port 5200. |
-| `apps/native` | NativeScript entry — `ns build/run`, vite via `octaneConfig`, `resolve.conditions:['native']`. |
-| `docs/` | Design record: decisions ledger, per-domain specs, exploration notes. |
-| `scripts/` | `check-no-dom.mjs` (seam lint). |
+| `apps/web`       | Web entry — vite + `@octanejs/vite-plugin`, `resolve.conditions:['web']`, port 5200.                                                   |
+| `apps/native`    | NativeScript entry — `ns build/run`, vite via `octaneConfig`, `resolve.conditions:['native']`.                                         |
+| `docs/`          | Design record: decisions ledger, per-domain specs, exploration notes.                                                                  |
+| `scripts/`       | `check-no-dom.mjs` (seam lint).                                                                                                        |
 
 ## Commands
 

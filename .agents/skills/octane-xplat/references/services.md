@@ -9,12 +9,14 @@ the service-seam pattern (capability interface, two leaves).
 `localStorage`. Verified round-trip + draft persistence on both.
 
 ```ts
-storage.setString('k', v); storage.getString('k');
+storage.setString('k', v)
+storage.getString('k')
 ```
 
 ## Color scheme
 
 `getColorScheme()` / `useColorScheme()` — `ColorScheme = 'light'|'dark'`.
+
 - Web: `matchMedia('(prefers-color-scheme: dark)')` + change listener.
 - Native: `Application.systemAppearance()` (falls back during early boot —
   the primary window isn't guaranteed yet) + appearance-change events.

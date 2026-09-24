@@ -1,7 +1,7 @@
 # Tamagui
 
 > Universal UI kit for RN + web from the One team. The interesting parts for us
-> are its *API shapes*, not its implementation (which exists because RN has no
+> are its _API shapes_, not its implementation (which exists because RN has no
 > CSS — a constraint we don't have on the NS side).
 
 ## What it does
@@ -18,13 +18,13 @@
 
 ## What transfers to Octane+NS
 
-| Tamagui idea | Our adaptation |
-|---|---|
-| `styled()` + variants | Worth stealing as the component-authoring API over our primitives — `variant` props map to className composition (clsx already built into Octane) or style objects |
-| Token-driven theme | Keep tokens in **CSS custom properties** — NS supports `var()`/`--x` scoped per subtree (`.ns-root`, `.ns-dark`), so tokens can be one shared source feeding both pipelines |
-| Style props | Only as sugar that lowers to `className`/`style`; do NOT build a runtime style engine — we have real CSS on both targets |
-| `pressStyle`-style state props | Map to CSS states where they exist (`:active` web; `:highlighted`/TouchManager native) — verify NS pseudo coverage |
-| Media-query props | `matchMedia` exists on both — shared `useMedia()` hook is feasible |
+| Tamagui idea                   | Our adaptation                                                                                                                                                              |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `styled()` + variants          | Worth stealing as the component-authoring API over our primitives — `variant` props map to className composition (clsx already built into Octane) or style objects          |
+| Token-driven theme             | Keep tokens in **CSS custom properties** — NS supports `var()`/`--x` scoped per subtree (`.ns-root`, `.ns-dark`), so tokens can be one shared source feeding both pipelines |
+| Style props                    | Only as sugar that lowers to `className`/`style`; do NOT build a runtime style engine — we have real CSS on both targets                                                    |
+| `pressStyle`-style state props | Map to CSS states where they exist (`:active` web; `:highlighted`/TouchManager native) — verify NS pseudo coverage                                                          |
+| Media-query props              | `matchMedia` exists on both — shared `useMedia()` hook is feasible                                                                                                          |
 
 ## What doesn't transfer
 
@@ -34,7 +34,7 @@
   static props as plan constants.
 - Full CSS-in-JS expressiveness as the primary styling mode. NS CSS is a
   subset — any shared style-object system still has to lower to NS-compatible
-  properties. Keep objects for *dynamic* values only (Flutter-style), CSS for
+  properties. Keep objects for _dynamic_ values only (Flutter-style), CSS for
   everything static.
 
 ## Takeaway

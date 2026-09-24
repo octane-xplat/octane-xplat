@@ -3,7 +3,7 @@
 > Implementation record for the styling system. Strategy: **shared CSS-ish language first, style objects for dynamic values,
 > `styled()`-style variants as the component API.** NS has a real CSS engine —
 > unlike RN — so we don't need to invent a styling runtime. Flutter/Tamagui
-> inform the *authoring API*, not the implementation.
+> inform the _authoring API_, not the implementation.
 
 ## The shared pipeline
 
@@ -55,25 +55,25 @@ pass (not measured — needs visual confirmation).
 **Verified (iOS):** `ns-dark` applied on the app root does
 **not** cross into pushed `Page` roots, the sheet root, or the modal
 root (each is a separate native view tree — verified absent in all
-three). Token *values* do cross: `getCssVariable('--color-primary')`
+three). Token _values_ do cross: `getCssVariable('--color-primary')`
 returns the same `#4f46e5` inside every root — tokens live at the app
 stylesheet scope, not the class scope. Consequence for the
 `ThemeProvider` design: theme **state** must cross roots through a
 module-scope store (the same seam as `lastDemo`), and every root —
-each pushed `Page`, sheet, modal — applies `ns-dark` to *its own* root
+each pushed `Page`, sheet, modal — applies `ns-dark` to _its own_ root
 view. A class on one root can never reach another.
 
 ## Rules for shared components
 
 1. Static styling = `className` only. No `<style>` blocks (web-only), no
    inline `style` for static values.
-2. `style` objects reserved for *computed* values (animated, data-driven).
+2. `style` objects reserved for _computed_ values (animated, data-driven).
    Numbers = dip/px normalized in leaf; colors/units are strings.
 3. Only use CSS properties inside the **intersection** of both engines —
    maintain `docs/css-support-notes.md` once the prototype reveals the real
    subset. Known traps to encode early:
    - `vertical-align` (not `-alignment`); unknown props **drop silently** — and
-     NS recovers *per declaration*, so a rule can half-apply. A lint/property
+     NS recovers _per declaration_, so a rule can half-apply. A lint/property
      allowlist is worth building
    - no `position` CSS natively → `Absolute`/`Grid` primitives instead
    - no `display:none` → `visibility: collapse` (removes from layout too)
@@ -108,9 +108,9 @@ Tamagui-shaped, CSS-backed:
 
 ```ts
 const Card = styled(View, {
-  base: 'rounded-lg bg-surface p-4',
-  variants: { elevated: 'shadow-2', destructive: 'bg-danger' },
-});
+	base: 'rounded-lg bg-surface p-4',
+	variants: { elevated: 'shadow-2', destructive: 'bg-danger' },
+})
 ```
 
 - `base`/`variants` are class strings → clsx composition (Octane already does
@@ -130,7 +130,7 @@ fix. Verified: `<DangerBtn danger className="extra">` →
 
 ## Layout vocabulary honesty
 
-NS layout is a set of *classes* (stack/grid/flex/dock/absolute/wrap), not one
+NS layout is a set of _classes_ (stack/grid/flex/dock/absolute/wrap), not one
 box model. Our Row/Column/Grid/Stack primitives (primitives.md) deliberately
 mirror that. Do not try to make web flex/grid pretend to be NS layouts inside
 shared files — shared code composes primitives; leaf impls pick the right

@@ -1,6 +1,6 @@
 # Open questions
 
-> Seams we *expect* to tear but haven't verified. Ordered roughly by "how badly
+> Seams we _expect_ to tear but haven't verified. Ordered roughly by "how badly
 > does this hurt if wrong." Resolve by experiment or upstream reading, then move
 > to decisions.md or the relevant doc.
 >
@@ -14,7 +14,7 @@
    arbitrary filename globs matched by `resolveRendererForFile`; no extension
    check. `nativeScriptRenderers({ include: 'src/**/*.{tsx,tsrx}' })` covers
    both. (`octane/src/compiler/renderers.js`, `nativescript-octane/config.ts`.)
-   Bonus: `.tsrx` files are Octane-owned *by extension* — no pragma needed.
+   Bonus: `.tsrx` files are Octane-owned _by extension_ — no pragma needed.
 2. ✅ **Export delta `octane` vs `octane/universal/native`.** — Enumerated:
    universal-core exports the full hook set, `memo`, `lazy`, `use`, `useContext`,
    `createContext` (native variant), `createPortal` (capability-gated),
@@ -74,11 +74,11 @@
 9. ✅ **`className` clsx composition on native.** — Composition is upstream of
    the driver: compiler lowers analyzable class arrays to string concat;
    runtime composes the rest. Driver receives a string → `view.className =
-   String(value)`. Caveat: NS className-swap can leave stale backgrounds —
+String(value)`. Caveat: NS className-swap can leave stale backgrounds —
    our leaf/driver may need the `''`-then-set workaround (note in styling.md).
 10. ✅ **`style` object semantics.** — Verified in `setProp`: string →
     `setInlineStyle` (CSS declaration parse); object → `Object.assign(
-    view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
+view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     objects are therefore dip-denominated; web leaf maps dip→px 1:1.
 11. ✅ **CSS selector coverage.** — Supported: type (incl. `stack-layout`
     dashed forms), `.class`, `#id`, `>`/descendant, `:not`/`:is`/`:where`
@@ -111,7 +111,7 @@
     `setProp` (iOS sim readback). Web leaf maps the same shared props to
     `role`/`aria-label`/`aria-hidden`. Still open: precise Role-union
     mapping (NS role names ≠ ARIA 1:1 — `accessibilityHint/Value/State/
-    LiveRegion` unwired in leaves so far).
+LiveRegion` unwired in leaves so far).
 16. ✅ **`@for` keys → native identity.** — Lab-verified (iOS sim): a keyed
     `@for` over `{id,label}` items on a flexboxlayout renders and reorders
     correctly through `insert`/`move` commands — all five rows present in

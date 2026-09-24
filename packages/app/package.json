@@ -1,16 +1,16 @@
 {
 	"name": "@xplat/app",
-	"private": true,
 	"version": "0.0.0",
+	"private": true,
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
 		"./*": "./src/*"
 	},
 	"dependencies": {
-		"@xplat/demos": "workspace:*",
+		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
-		"@octane-xplat/platform": "workspace:*"
+		"@xplat/demos": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.1",

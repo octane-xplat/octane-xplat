@@ -17,23 +17,23 @@ export type {
 	SecureStore,
 	ShareResult,
 	WindowSize,
-} from './types';
+} from './types'
 
-export { device } from './device';
-export { storage } from './storage';
-export { clipboard } from './clipboard';
-export { share } from './share';
-export { haptics } from './haptics';
-export { secureStorage } from './secure-storage';
-export { files } from './files';
-export { notifications } from './notifications';
-export { permissions } from './permissions';
-export { systemBars } from './system-bars';
-export { announce } from './a11y';
-export { locale } from './locale';
-export { media } from './media';
-export { biometrics } from './biometrics';
-export { onDeepLink, consumeInitialUrl } from './deep-links';
-export { useAppState, useBackHandler } from './lifecycle';
-export { useSafeAreaInsets } from './safe-area';
-export { useWindowSize } from './screen';
+export { device } from './device'
+export { storage } from './storage'
+export { clipboard } from './clipboard'
+export { share } from './share'
+export { haptics } from './haptics'
+export { secureStorage } from './secure-storage'
+export { files } from './files'
+export { notifications } from './notifications'
+export { permissions } from './permissions'
+export { systemBars } from './system-bars'
+export { announce } from './a11y'
+export { locale } from './locale'
+export { media } from './media'
+export { biometrics } from './biometrics'
+export { onDeepLink, consumeInitialUrl } from './deep-links'
+export { useAppState, useBackHandler } from './lifecycle'
+export { useSafeAreaInsets } from './safe-area'
+export { useWindowSize } from './screen'

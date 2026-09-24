@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config';
-import { octane } from '@octanejs/vite-plugin';
+import { defineConfig } from 'vitest/config'
+import { octane } from '@octanejs/vite-plugin'
 
 // Component tests run through the same octane transform the web app uses —
 // web suffix chain so leaves resolve to their DOM implementations.
@@ -8,10 +8,17 @@ export default defineConfig({
 	resolve: {
 		conditions: ['web'],
 		extensions: [
-			'.web.tsrx', '.tsrx',
-			'.web.tsx', '.tsx',
-			'.web.ts', '.mjs', '.mts', '.ts',
-			'.jsx', '.js', '.json',
+			'.web.tsrx',
+			'.tsrx',
+			'.web.tsx',
+			'.tsx',
+			'.web.ts',
+			'.mjs',
+			'.mts',
+			'.ts',
+			'.jsx',
+			'.js',
+			'.json',
 		],
 	},
 	test: {
@@ -24,4 +31,4 @@ export default defineConfig({
 		// alias; here it would bind DOM hooks inside universal components.
 		exclude: ['**/*.native.test.*'],
 	},
-});
+})

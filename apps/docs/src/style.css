@@ -3,11 +3,11 @@
    rules go cream on black. If it doesn't have a border, it doesn't exist. */
 
 :root {
-	--nb-bg: #FFFDF5;
+	--nb-bg: #fffdf5;
 	--nb-ink: #000000;
-	--nb-red: #FF6B6B;
-	--nb-yellow: #FFD93D;
-	--nb-violet: #C4B5FD;
+	--nb-red: #ff6b6b;
+	--nb-yellow: #ffd93d;
+	--nb-violet: #c4b5fd;
 	--nb-panel: #ffffff;
 	--nb-gridline: rgba(0, 0, 0, 0.07);
 	--nb-onblock: #000000;
@@ -18,14 +18,18 @@
 
 .dark {
 	--nb-bg: #101010;
-	--nb-ink: #FFFDF5;
+	--nb-ink: #fffdf5;
 	--nb-panel: #1a1a1a;
 	--nb-gridline: rgba(255, 253, 245, 0.08);
 }
 
 body {
 	margin: 0;
-	font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+	font-family:
+		'Space Grotesk',
+		system-ui,
+		-apple-system,
+		sans-serif;
 	background-color: var(--nb-bg);
 }
 
@@ -147,7 +151,9 @@ body {
 	font-weight: 900;
 	text-transform: uppercase;
 	letter-spacing: 0.12em;
-	transition: transform 100ms linear, box-shadow 100ms linear;
+	transition:
+		transform 100ms linear,
+		box-shadow 100ms linear;
 }
 
 /* GitHub's mark, kept inline so the docs app has no icon-package dependency. */
@@ -184,7 +190,9 @@ body {
 	justify-content: center;
 	cursor: pointer;
 	user-select: none;
-	transition: transform 100ms linear, box-shadow 100ms linear;
+	transition:
+		transform 100ms linear,
+		box-shadow 100ms linear;
 }
 
 .mode-block:active {
@@ -264,7 +272,8 @@ body {
 	flex-grow: 1;
 	min-height: 0;
 	/* graph-paper field — texture, not whitespace */
-	background-image: linear-gradient(to right, var(--nb-gridline) 1px, transparent 1px),
+	background-image:
+		linear-gradient(to right, var(--nb-gridline) 1px, transparent 1px),
 		linear-gradient(to bottom, var(--nb-gridline) 1px, transparent 1px);
 	background-size: 40px 40px;
 }
@@ -309,7 +318,8 @@ body {
 	transform: rotate(-1deg);
 }
 
-.h3, .h4 {
+.h3,
+.h4 {
 	font-size: 17px;
 	font-weight: 900;
 	text-transform: uppercase;
@@ -549,22 +559,57 @@ body {
 /* ——— mobile ——— */
 @media (max-width: 720px) {
 	/* topbar: brand shrinks, tagline yields to the chip */
-	.brand-block { padding: 10px 16px 10px 10px; gap: 10px; }
-	.logo-tile { width: 34px; height: 40px; border-width: 3px; }
-	.logo-flame { width: 17px; height: 23px; }
-	.brand { font-size: 18px; }
-	.tagline { display: none; }
-	.topbar-mid { padding: 10px 14px; }
-	.disc-chip { padding: 4px 8px; }
-	.disc-text { font-size: 9px; letter-spacing: 0.08em; }
-	.github-link { min-height: 44px; padding: 0 12px; }
-	.github-label { display: none; }
-	.github-link::before { width: 19px; height: 19px; }
-	.mode-block { padding: 10px 14px; }
-	.mode-text { font-size: 12px; }
+	.brand-block {
+		padding: 10px 16px 10px 10px;
+		gap: 10px;
+	}
+	.logo-tile {
+		width: 34px;
+		height: 40px;
+		border-width: 3px;
+	}
+	.logo-flame {
+		width: 17px;
+		height: 23px;
+	}
+	.brand {
+		font-size: 18px;
+	}
+	.tagline {
+		display: none;
+	}
+	.topbar-mid {
+		padding: 10px 14px;
+	}
+	.disc-chip {
+		padding: 4px 8px;
+	}
+	.disc-text {
+		font-size: 9px;
+		letter-spacing: 0.08em;
+	}
+	.github-link {
+		min-height: 44px;
+		padding: 0 12px;
+	}
+	.github-label {
+		display: none;
+	}
+	.github-link::before {
+		width: 19px;
+		height: 19px;
+	}
+	.mode-block {
+		padding: 10px 14px;
+	}
+	.mode-text {
+		font-size: 12px;
+	}
 
 	/* sidebar → horizontal chip rail above the content */
-	.body { flex-direction: column; }
+	.body {
+		flex-direction: column;
+	}
 	.side {
 		width: 100%;
 		flex-direction: row;
@@ -575,8 +620,17 @@ body {
 		border-bottom-width: 4px;
 		flex-shrink: 0;
 	}
-	.side .vx-list { display: flex; flex-direction: row; flex-grow: 0; flex-shrink: 0; }
-	.side-head { padding: 10px 6px 10px 12px; font-size: 10px; flex-shrink: 0; }
+	.side .vx-list {
+		display: flex;
+		flex-direction: row;
+		flex-grow: 0;
+		flex-shrink: 0;
+	}
+	.side-head {
+		padding: 10px 6px 10px 12px;
+		font-size: 10px;
+		flex-shrink: 0;
+	}
 	.side-item {
 		flex-shrink: 0;
 		padding: 14px 16px;
@@ -586,34 +640,85 @@ body {
 	}
 
 	/* content: tighter canvas, smaller type scale */
-	.doc { padding: 24px 18px 72px; }
-	.h1 { font-size: 26px; }
-	.h2 { font-size: 19px; margin-top: 26px; }
-	.h3 { font-size: 16px; }
-	.p, .li, .callout-line { font-size: 14px; }
-	.code { padding: 12px 14px; }
-	.code .mono, .code Text { font-size: 12px; }
-	.callout { padding: 10px 12px 12px; }
-	.td { padding: 8px 10px; font-size: 12px; }
+	.doc {
+		padding: 24px 18px 72px;
+	}
+	.h1 {
+		font-size: 26px;
+	}
+	.h2 {
+		font-size: 19px;
+		margin-top: 26px;
+	}
+	.h3 {
+		font-size: 16px;
+	}
+	.p,
+	.li,
+	.callout-line {
+		font-size: 14px;
+	}
+	.code {
+		padding: 12px 14px;
+	}
+	.code .mono,
+	.code Text {
+		font-size: 12px;
+	}
+	.callout {
+		padding: 10px 12px 12px;
+	}
+	.td {
+		padding: 8px 10px;
+		font-size: 12px;
+	}
 }
 
 /* ——— narrow phones ——— */
 @media (max-width: 400px) {
-	.brand { font-size: 15px; }
-	.logo-tile { width: 30px; height: 36px; }
-	.disc-chip { padding: 3px 7px; }
-	.disc-text { font-size: 8px; }
-	.topbar-mid { padding: 8px; gap: 10px; }
-	.github-link { padding: 0 9px; }
-	.mode-block { padding: 8px 10px; }
+	.brand {
+		font-size: 15px;
+	}
+	.logo-tile {
+		width: 30px;
+		height: 36px;
+	}
+	.disc-chip {
+		padding: 3px 7px;
+	}
+	.disc-text {
+		font-size: 8px;
+	}
+	.topbar-mid {
+		padding: 8px;
+		gap: 10px;
+	}
+	.github-link {
+		padding: 0 9px;
+	}
+	.mode-block {
+		padding: 8px 10px;
+	}
 }
 
 /* ——— tablet ——— */
 @media (min-width: 721px) and (max-width: 1100px) {
-	.side { width: 190px; }
-	.side-item { padding: 11px 16px; }
-	.doc { padding: 32px 36px; }
-	.h1 { font-size: 32px; }
-	.brand-block { padding: 14px 20px 14px 14px; }
-	.tagline { letter-spacing: 0.12em; }
+	.side {
+		width: 190px;
+	}
+	.side-item {
+		padding: 11px 16px;
+	}
+	.doc {
+		padding: 32px 36px;
+	}
+	.h1 {
+		font-size: 32px;
+	}
+	.brand-block {
+		padding: 14px 20px 14px 14px;
+	}
+	.tagline {
+		letter-spacing: 0.12em;
+	}
 }

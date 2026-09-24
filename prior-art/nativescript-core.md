@@ -6,17 +6,17 @@
 
 ## Layout classes (distinct views, not one box model)
 
-| Class | Model |
-|---|---|
-| `StackLayout` | single axis, horizontal/vertical |
-| `GridLayout` | `rows`/`cols` string (`"*,auto,2*"`), children take `row`/`col`/`rowSpan`/`colSpan` — also the general overlay/positioning container |
-| `FlexboxLayout` | flexbox-ish (subset; not identical to web flex) |
-| `DockLayout` | dock children to edges, `stretchLastChild` |
-| `AbsoluteLayout` | explicit `left`/`top` in dip — **there is no CSS `position: absolute`**; this is the only free-positioning container |
-| `WrapLayout` | flow-wrap |
-| `RootLayout` | app-root overlay container (popups/overlays over everything) |
-| `ContentView` | single-child box — the generic "View" analog |
-| `ProxyViewContainer` | viewless proxy (can live inside `<proxyviewcontainer>` anywhere, renders at its position) |
+| Class                | Model                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `StackLayout`        | single axis, horizontal/vertical                                                                                                     |
+| `GridLayout`         | `rows`/`cols` string (`"*,auto,2*"`), children take `row`/`col`/`rowSpan`/`colSpan` — also the general overlay/positioning container |
+| `FlexboxLayout`      | flexbox-ish (subset; not identical to web flex)                                                                                      |
+| `DockLayout`         | dock children to edges, `stretchLastChild`                                                                                           |
+| `AbsoluteLayout`     | explicit `left`/`top` in dip — **there is no CSS `position: absolute`**; this is the only free-positioning container                 |
+| `WrapLayout`         | flow-wrap                                                                                                                            |
+| `RootLayout`         | app-root overlay container (popups/overlays over everything)                                                                         |
+| `ContentView`        | single-child box — the generic "View" analog                                                                                         |
+| `ProxyViewContainer` | viewless proxy (can live inside `<proxyviewcontainer>` anywhere, renders at its position)                                            |
 
 `FormattedString`+`Span` = rich inline text. `Page`/`Frame` = navigation units.
 `placeholder` = escape hatch for a raw native view.
@@ -120,14 +120,14 @@ but **there is no DOM render target** — supported runtimes are
 
 - **Code sharing**: sharing non-UI TypeScript across apps via workspaces/Nx.
   Their own guidance is explicit that sharing stops at the framework/view layer.
-- **NativeScript Preview + StackBlitz**: WebContainers run the *build* in a
+- **NativeScript Preview + StackBlitz**: WebContainers run the _build_ in a
   browser tab; the app still renders on a real device via the Preview app (QR
   pairing). The browser is tooling host, not render target.
 - **Community adapters** (e.g. transforming NS app code into Vue/Angular web
   projects) — preview-grade, not a real target.
 
 Adjacent and worth knowing: **DOMiNATIVE** (nativescript-community) goes the
-*other* direction — a DOM-ish API layer inside the NS runtime for flavor
+_other_ direction — a DOM-ish API layer inside the NS runtime for flavor
 authors (Solid's NS renderer builds on it). It produces native views, not web
 output.
 

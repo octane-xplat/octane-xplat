@@ -32,7 +32,7 @@ Ships **compiled** output, not .tsrx source:
 - `exports` point at `src` for workspace dev; `publishConfig` swaps to
   `dist` (+ `types` condition) only at publish — verified via `pnpm pack`.
 - **Types:** `src/props.ts` (pure .ts) → `tsc -p tsconfig.types.json
-  --emitDeclarationOnly` → `types/props.d.ts`; `types/index.d.ts` is a
+--emitDeclarationOnly` → `types/props.d.ts`; `types/index.d.ts` is a
   thin hand-written shell (`declare const X: UniversalComponent<XProps>`).
   tsrx can't emit d.ts itself (upstream tsrx#136).
 

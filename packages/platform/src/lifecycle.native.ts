@@ -1,1 +1,1 @@
-export { useAppState, useBackHandler } from './lifecycle.native.tsrx';
+export { useAppState, useBackHandler } from './lifecycle.native.tsrx'

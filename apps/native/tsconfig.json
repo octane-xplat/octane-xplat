@@ -2,41 +2,18 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "@nativescript-community/octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".native",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"lib": [
-			"ESNext"
-		],
+		"moduleSuffixes": [".ios", ".android", ".native", ""],
+		"customConditions": ["native"],
+		"lib": ["ESNext"],
 		"paths": {
-			"@xplat/app": [
-				"../../packages/app/src/index.ts"
-			],
-			"@xplat/app/*": [
-				"../../packages/app/src/*"
-			],
-			"@octane-xplat/ui": [
-				"../../packages/ui/src/index.native.ts"
-			],
-			"@octane-xplat/ui/*": [
-				"../../packages/ui/src/*"
-			]
+			"@xplat/app": ["../../packages/app/src/index.ts"],
+			"@xplat/app/*": ["../../packages/app/src/*"],
+			"@octane-xplat/ui": ["../../packages/ui/src/index.native.ts"],
+			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
 		}
 	},
-	"include": [
-		"src/**/*",
-		"../../packages/**/*"
-	],
-	"files": [
-		"./references.d.ts",
-		"./types/globals.d.ts"
-	],
+	"include": ["src/**/*", "../../packages/**/*"],
+	"files": ["./references.d.ts", "./types/globals.d.ts"],
 	"exclude": [
 		"node_modules",
 		"platforms",

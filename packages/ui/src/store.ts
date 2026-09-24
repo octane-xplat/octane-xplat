@@ -9,26 +9,26 @@
  * use-store.{web,native}.tsrx — hooks need renderer-owned files) is that
  * subscription; this file is the hook-free half, so plain `.ts` is correct.
  */
-import type { Store } from './props';
+import type { Store } from './props'
 
-export type { ReadableStore, Store } from './props';
+export type { ReadableStore, Store } from './props'
 
 export function createStore<T>(initial: T): Store<T> {
-	let value = initial;
-	const listeners = new Set<() => void>();
+	let value = initial
+	const listeners = new Set<() => void>()
 	return {
 		get: () => value,
 		set(next) {
-			const v = typeof next === 'function' ? (next as (p: T) => T)(value) : next;
-			if (Object.is(v, value)) return;
-			value = v;
-			for (const l of [...listeners]) l();
+			const v = typeof next === 'function' ? (next as (p: T) => T)(value) : next
+			if (Object.is(v, value)) return
+			value = v
+			for (const l of [...listeners]) l()
 		},
 		subscribe(notify) {
-			listeners.add(notify);
+			listeners.add(notify)
 			return () => {
-				listeners.delete(notify);
-			};
+				listeners.delete(notify)
+			}
 		},
-	};
+	}
 }

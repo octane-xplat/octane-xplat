@@ -3,7 +3,7 @@
 > The detailed cross-platform vocabulary. Every primitive is an interface (`.ts` types)
 > plus leaf impls (`.web.tsrx` / `.native.tsrx`, occasionally `.ios`/`.android`).
 > Shared code imports the interface only. Design rule from RNW: converge on the
-> *constrained* vocabulary — never the DOM's open one.
+> _constrained_ vocabulary — never the DOM's open one.
 >
 > **Owns:** #1 primitives contract · **Status:** mapped; driver mechanics
 > verified · **Blocks on:** lab — Q3 (listview), Q4 (controlled inputs) ·
@@ -14,12 +14,14 @@
 
 ```ts
 interface PrimitiveProps {
-  className?: ClassValue;                    // clsx-style — works both targets
-  style?: StyleObject;                       // dynamic values only
-  ref?: Ref<TypedHandle>;                    // typed imperative handle per primitive
-  children?: unknown;
-  // platform escape hatches — props, not files, for small divergences:
-  ios?: Partial<NativeProps>; android?: Partial<NativeProps>; web?: DOMProps;
+	className?: ClassValue // clsx-style — works both targets
+	style?: StyleObject // dynamic values only
+	ref?: Ref<TypedHandle> // typed imperative handle per primitive
+	children?: unknown
+	// platform escape hatches — props, not files, for small divergences:
+	ios?: Partial<NativeProps>
+	android?: Partial<NativeProps>
+	web?: DOMProps
 }
 ```
 
@@ -32,30 +34,30 @@ interface PrimitiveProps {
 
 ## Core inventory
 
-| Primitive | Web leaf | Native leaf | Notes / seams |
-|---|---|---|---|
-| `View` | `div` + `vx-view` class (flex-column, stretch) | `flexboxlayout` `flexDirection=column` | RN-compatible default container — **column by default**, not web block flow. NOT `contentview` (single-child only) |
-| `Row` / `Column` | flex row / col | `flexboxlayout` (`flexDirection`) | `justify`/`align`/`gap`/`wrap` props — FlexboxLayout carries real flex semantics incl. `gap` (verified); StackLayout can't (no justify/align) |
-| `Stack` (z-order) | `display:grid`, children `grid-area:1/1` | `gridlayout` `rows="*" columns="*"` | children stack in one cell; z-order = mount order |
-| `Grid` | `display:grid` + parsed templates | `gridlayout` `rows`/`columns` spec strings | shared spec-string format `"*,auto,2*"` → leaf maps `*`→`1fr`, `auto`→`auto`, `42`→`42px` for web. Child attached props `row`/`col`/`rowSpan`/`colSpan`. **No `gap`** (GridLayout lacks it; use child margins) — leaf warns |
-| `Absolute` | `div` + `position:relative`; children `position:absolute` | `absolutelayout` | **native has no `position` CSS** — container element required anyway; child `left`/`top` attached props (dip→px) |
-| `Spacer` | `flex-grow:1` | `flexGrow` attached prop | convenience |
-| `Text` | `span`/`p` | `label` | children: text or `Text` only (nested → `formattedstring`/`span`); **never `View` inside `Text`** — adopt RN rule |
-| `RichText`? | inline markup | `formattedstring` + `span` leaves | possibly fold into `Text` nesting |
-| `Pressable` | `div`+pointer events | `flexboxlayout` `flexDirection=column` + `tap`/`longPress` | **multi-child** — `contentview` silently drops all but the last child (`.content` assignment); tap gestures attach to any view. Use `button` leaf only where native button chrome wanted |
-| `ScrollView` | `div` overflow | `scrollview` | `horizontal` prop both sides |
-| `List` | `@octanejs/tanstack-virtual` over `div` | `listview` + **per-cell Octane sub-roots** | **the leak**: ListView recycles via `itemTemplate`/`itemLoading` (imperative view factories — no reconciler children). Design: each recycled slot hosts a `createNativeScriptRoot`; `itemLoading` rebinds `{item, index}` into a per-cell store the row component reads; `items` wrapped as `ObservableArray` for granular updates; `itemTemplateSelector` for heterogeneous rows. Lab: per-cell root cost, scroll perf |
-| `TextInput` / `TextArea` | `input`/`textarea` | `textfield`/`textview` | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS) |
-| `Image` | `img` | `image` | `src`: URL/`res://`/`~/` — asset resolution differs; sizing via CSS both sides |
-| `Icon` | inline SVG (lucide-style) | `sf-icon` pattern — `image` + symbol config, font fallback on Android | name → per-platform glyph map |
-| `Switch` | `input[type=checkbox]` styled | `switch` | |
-| `Slider` | `input[type=range]` | `slider` | |
-| `ActivityIndicator` | CSS spinner | `activityindicator` | |
-| `Modal` | portal into `document.body` | **`showModal` + a second Octane root** | ⚠ context does NOT cross roots — see below |
-| `SafeArea` | CSS `env(safe-area-inset-*)` padding | root-level padding + `iosOverflowSafeArea` management | plus `useSafeAreaInsets()` hook |
-| `KeyboardAvoiding` | mostly unnecessary (visual viewport API) | scrollview + `input-accessory`/inset management | iOS vs Android differ internally — acceptable leaf complexity |
-| `WebView` | `iframe` | `webview` | probably web/native divergent enough to skip in v1 |
-| `Overlay`/`Popover`/`Toast` | anchored `div` (floating-ui) / portal | `RootLayout.open(view, {shadeCover, animation})` — imperative bridge, own sub-root per overlay | getRootLayout returns FIRST registered RootLayout — app root is `<rootlayout>`; give modal roots ids (`getRootLayoutById`). One shade cover; every open/close call returns a rejecting promise — always `.catch`. Portals absent on native driver → this is the path |
+| Primitive                   | Web leaf                                                  | Native leaf                                                                                    | Notes / seams                                                                                                                                                                                                                                                                                                                                                                                                           |
+| --------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `View`                      | `div` + `vx-view` class (flex-column, stretch)            | `flexboxlayout` `flexDirection=column`                                                         | RN-compatible default container — **column by default**, not web block flow. NOT `contentview` (single-child only)                                                                                                                                                                                                                                                                                                      |
+| `Row` / `Column`            | flex row / col                                            | `flexboxlayout` (`flexDirection`)                                                              | `justify`/`align`/`gap`/`wrap` props — FlexboxLayout carries real flex semantics incl. `gap` (verified); StackLayout can't (no justify/align)                                                                                                                                                                                                                                                                           |
+| `Stack` (z-order)           | `display:grid`, children `grid-area:1/1`                  | `gridlayout` `rows="*" columns="*"`                                                            | children stack in one cell; z-order = mount order                                                                                                                                                                                                                                                                                                                                                                       |
+| `Grid`                      | `display:grid` + parsed templates                         | `gridlayout` `rows`/`columns` spec strings                                                     | shared spec-string format `"*,auto,2*"` → leaf maps `*`→`1fr`, `auto`→`auto`, `42`→`42px` for web. Child attached props `row`/`col`/`rowSpan`/`colSpan`. **No `gap`** (GridLayout lacks it; use child margins) — leaf warns                                                                                                                                                                                             |
+| `Absolute`                  | `div` + `position:relative`; children `position:absolute` | `absolutelayout`                                                                               | **native has no `position` CSS** — container element required anyway; child `left`/`top` attached props (dip→px)                                                                                                                                                                                                                                                                                                        |
+| `Spacer`                    | `flex-grow:1`                                             | `flexGrow` attached prop                                                                       | convenience                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `Text`                      | `span`/`p`                                                | `label`                                                                                        | children: text or `Text` only (nested → `formattedstring`/`span`); **never `View` inside `Text`** — adopt RN rule                                                                                                                                                                                                                                                                                                       |
+| `RichText`?                 | inline markup                                             | `formattedstring` + `span` leaves                                                              | possibly fold into `Text` nesting                                                                                                                                                                                                                                                                                                                                                                                       |
+| `Pressable`                 | `div`+pointer events                                      | `flexboxlayout` `flexDirection=column` + `tap`/`longPress`                                     | **multi-child** — `contentview` silently drops all but the last child (`.content` assignment); tap gestures attach to any view. Use `button` leaf only where native button chrome wanted                                                                                                                                                                                                                                |
+| `ScrollView`                | `div` overflow                                            | `scrollview`                                                                                   | `horizontal` prop both sides                                                                                                                                                                                                                                                                                                                                                                                            |
+| `List`                      | `@octanejs/tanstack-virtual` over `div`                   | `listview` + **per-cell Octane sub-roots**                                                     | **the leak**: ListView recycles via `itemTemplate`/`itemLoading` (imperative view factories — no reconciler children). Design: each recycled slot hosts a `createNativeScriptRoot`; `itemLoading` rebinds `{item, index}` into a per-cell store the row component reads; `items` wrapped as `ObservableArray` for granular updates; `itemTemplateSelector` for heterogeneous rows. Lab: per-cell root cost, scroll perf |
+| `TextInput` / `TextArea`    | `input`/`textarea`                                        | `textfield`/`textview`                                                                         | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS)                                          |
+| `Image`                     | `img`                                                     | `image`                                                                                        | `src`: URL/`res://`/`~/` — asset resolution differs; sizing via CSS both sides                                                                                                                                                                                                                                                                                                                                          |
+| `Icon`                      | inline SVG (lucide-style)                                 | `sf-icon` pattern — `image` + symbol config, font fallback on Android                          | name → per-platform glyph map                                                                                                                                                                                                                                                                                                                                                                                           |
+| `Switch`                    | `input[type=checkbox]` styled                             | `switch`                                                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `Slider`                    | `input[type=range]`                                       | `slider`                                                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `ActivityIndicator`         | CSS spinner                                               | `activityindicator`                                                                            |                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `Modal`                     | portal into `document.body`                               | **`showModal` + a second Octane root**                                                         | ⚠ context does NOT cross roots — see below                                                                                                                                                                                                                                                                                                                                                                              |
+| `SafeArea`                  | CSS `env(safe-area-inset-*)` padding                      | root-level padding + `iosOverflowSafeArea` management                                          | plus `useSafeAreaInsets()` hook                                                                                                                                                                                                                                                                                                                                                                                         |
+| `KeyboardAvoiding`          | mostly unnecessary (visual viewport API)                  | scrollview + `input-accessory`/inset management                                                | iOS vs Android differ internally — acceptable leaf complexity                                                                                                                                                                                                                                                                                                                                                           |
+| `WebView`                   | `iframe`                                                  | `webview`                                                                                      | probably web/native divergent enough to skip in v1                                                                                                                                                                                                                                                                                                                                                                      |
+| `Overlay`/`Popover`/`Toast` | anchored `div` (floating-ui) / portal                     | `RootLayout.open(view, {shadeCover, animation})` — imperative bridge, own sub-root per overlay | getRootLayout returns FIRST registered RootLayout — app root is `<rootlayout>`; give modal roots ids (`getRootLayoutById`). One shade cover; every open/close call returns a rejecting promise — always `.catch`. Portals absent on native driver → this is the path                                                                                                                                                    |
 
 **Child layout props are part of the shared surface** — `row`, `col`,
 `rowSpan`, `colSpan`, `dock`, `left`, `top`, `flexGrow`, `flexShrink`,
@@ -88,8 +90,8 @@ Readback: `presenter.modal` exposes the modal view for assertions.
 > scheme class or subscribe to `systemAppearanceChanged` themselves.
 
 - Portals don't cross. Design `Modal`'s API as `{ open, onClose, params }`
-  rather than "render my children in place" — treat children as a *screen
-  component* rendered inside the modal root.
+  rather than "render my children in place" — treat children as a _screen
+  component_ rendered inside the modal root.
 
 ```ts
 interface ModalProps {
@@ -115,13 +117,14 @@ that's within one root, so context survives; model it as slot props
 
 ```ts
 interface ListProps<T> {
-  items: readonly T[];
-  renderItem: (item: T, index: number) => unknown;  // a row template, not a child
-  keyFor?: (item: T) => string | number;
-  kindFor?: (item: T) => string;        // → itemTemplateSelector (v2)
-  estimatedItemHeight?: number;
-  onEndReached?: () => void;
-  className?: ClassValue; style?: StyleObject;
+	items: readonly T[]
+	renderItem: (item: T, index: number) => unknown // a row template, not a child
+	keyFor?: (item: T) => string | number
+	kindFor?: (item: T) => string // → itemTemplateSelector (v2)
+	estimatedItemHeight?: number
+	onEndReached?: () => void
+	className?: ClassValue
+	style?: StyleObject
 }
 ```
 
@@ -161,10 +164,10 @@ adapter for granular native updates (`refresh()` re-fires every `itemLoading`
   glue. **Reported upstream**:
   [nativescript-community/octane#1](https://github.com/nativescript-community/octane/issues/1)
   — **and shipped upstream in 0.2.1** ([#7](https://github.com/nativescript-community/octane/pull/8),
-): the driver owns `itemTemplate`/`itemLoading` — per-cell
+  ): the driver owns `itemTemplate`/`itemLoading` — per-cell
   ContentView + universal root, `items[index]` binding with identity-skip,
   unmount on release. Our leaf is now just `<listview items renderItem>`
-  + the `renderEmpty` swap.
+  - the `renderEmpty` swap.
 
 `renderItem` as a function prop — NOT `children` + `@for` — because the native
 leaf can't feed reconciled children into `itemTemplate`. Shared code calls it
@@ -202,23 +205,37 @@ returns a rejecting promise — leaf must `.catch`.
 
 ```ts
 interface PressableProps {
-  onPress?; onLongPress?; onDoublePress?; onPressIn?; onPressOut?;
-  disabled?; hitSlop?: number;
-  ignoreTouchAnimation?: boolean;   // opts out of TouchManager global press-scale
-  className?; style?;
+	onPress?
+	onLongPress?
+	onDoublePress?
+	onPressIn?
+	onPressOut?
+	disabled?
+	hitSlop?: number
+	ignoreTouchAnimation?: boolean // opts out of TouchManager global press-scale
+	className?
+	style?
 }
 interface TextInputProps {
-  value: string;
-  onChangeText?: (text: string) => void;   // NOT onChange(event) — RN convention
-  onSubmit?; onFocus?; onBlur?;
-  placeholder?; placeholderTextColor?; keyboardType?; returnKeyType?;
-  autocorrect?; secure?; editable?;
-  ref?: Ref<{ focus(): void; blur(): void }>;
+	value: string
+	onChangeText?: (text: string) => void // NOT onChange(event) — RN convention
+	onSubmit?
+	onFocus?
+	onBlur?
+	placeholder?
+	placeholderTextColor?
+	keyboardType?
+	returnKeyType?
+	autocorrect?
+	secure?
+	editable?
+	ref?: Ref<{ focus(): void; blur(): void }>
 }
-interface TextAreaProps extends TextInputProps {  // shipped (props.ts)
-  rows?: number;      // web `rows` attr / native minHeight (measured line height)
-  autoGrow?: boolean; // native default; web re-fits scrollHeight per commit
-  maxRows?: number;   // cap → max-height (web) / maxHeight dip (native)
+interface TextAreaProps extends TextInputProps {
+	// shipped (props.ts)
+	rows?: number // web `rows` attr / native minHeight (measured line height)
+	autoGrow?: boolean // native default; web re-fits scrollHeight per commit
+	maxRows?: number // cap → max-height (web) / maxHeight dip (native)
 }
 ```
 
@@ -267,8 +284,8 @@ interface TextAreaProps extends TextInputProps {  // shipped (props.ts)
   2. `syncText`/`attach`: `#text` under `formattedstring` folds into an
      implicit `Span`; `#text` under `span` sets `span.text` (note: Span.text
      collapses only the first `\n`/`\t` — acceptable).
-  Without these, `<label><span/></label>` throws (`cannot host a <span>
-  child`) and text under `formattedstring` drops silently.
+     Without these, `<label><span/></label>` throws (`cannot host a <span>
+child`) and text under `formattedstring` drops silently.
 - **Exclusive-text rule**: `text` assignments are silent no-ops while
   `formattedText` is set — never mix bare text children and `Span` children
   under one `Text`… except via the accumulated-context path above, which
@@ -284,11 +301,11 @@ interface TextAreaProps extends TextInputProps {  // shipped (props.ts)
   line box — typography tokens must express the NS value (gap) vs web value
   (box height) distinctly.
 - `Heading level={1-6}` primitive: `h1–h6` on web (semantic HTML matters —
-); `label` + `className="h{n}"` + a11y role on native.
+  ); `label` + `className="h{n}"` + a11y role on native.
 
 ## Refs
 
-Octane refs-as-props work on both, but the *ref value* differs (HTMLElement vs
+Octane refs-as-props work on both, but the _ref value_ differs (HTMLElement vs
 NS `View`). Public contract: each primitive exposes a typed handle —
 `TextInputRef { focus(); blur(); }` — implemented per platform. Raw native
 view access stays behind `ref.native` escape hatch, marked "shared code must
@@ -340,7 +357,7 @@ Kept at the end so the vocabulary reads first.
   `getRootLayout().open(ContentView)` + a dedicated `createNativeScriptRoot`
   mounts shared-vocab overlay content cleanly.
 - **`@{ {expr} }` tails silently compile to no output** — a braced
-  expression at the end of a component template is a *statement*, not
+  expression at the end of a component template is a _statement_, not
   output. `Cell` rendered empty for an entire session undetected (no
   diagnostic). This IS documented in the TSRX spec
   (`research/tsrx/website-tsrx/public/llms.txt`: "the container must finish

@@ -1,19 +1,19 @@
-export { Counter } from './Counter.tsrx';
-export { Stopwatch } from './Stopwatch.tsrx';
-export { Todo } from './Todo.tsrx';
-export { TicTacToe } from './TicTacToe.tsrx';
-export { WatchFace } from './WatchFace.tsrx';
-export { Dialer } from './Dialer.tsrx';
-export { VirtualList } from './VirtualList.tsrx';
-export { Weather } from './Weather.tsrx';
-export { AnimShowcase } from './AnimShowcase.tsrx';
-export { ReactiveProbe } from './ReactiveProbe.tsrx';
-export { ListDemo } from './ListDemo.tsrx';
-export { DeviceDemo } from './DeviceDemo.tsrx';
-export { ModalDemo } from './ModalDemo.tsrx';
-export { PropsDemo } from './PropsDemo.tsrx';
-export { OverlayDemo } from './OverlayDemo.tsrx';
-export { ControlsDemo } from './ControlsDemo.tsrx';
-export { LayoutDemo } from './LayoutDemo.tsrx';
-export { DEMOS, RENDER, Gallery } from './Gallery.tsrx';
-export { setLastDemo, useLastDemo } from './store.tsrx';
+export { Counter } from './Counter.tsrx'
+export { Stopwatch } from './Stopwatch.tsrx'
+export { Todo } from './Todo.tsrx'
+export { TicTacToe } from './TicTacToe.tsrx'
+export { WatchFace } from './WatchFace.tsrx'
+export { Dialer } from './Dialer.tsrx'
+export { VirtualList } from './VirtualList.tsrx'
+export { Weather } from './Weather.tsrx'
+export { AnimShowcase } from './AnimShowcase.tsrx'
+export { ReactiveProbe } from './ReactiveProbe.tsrx'
+export { ListDemo } from './ListDemo.tsrx'
+export { DeviceDemo } from './DeviceDemo.tsrx'
+export { ModalDemo } from './ModalDemo.tsrx'
+export { PropsDemo } from './PropsDemo.tsrx'
+export { OverlayDemo } from './OverlayDemo.tsrx'
+export { ControlsDemo } from './ControlsDemo.tsrx'
+export { LayoutDemo } from './LayoutDemo.tsrx'
+export { DEMOS, RENDER, Gallery } from './Gallery.tsrx'
+export { setLastDemo, useLastDemo } from './store.tsrx'

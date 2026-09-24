@@ -1,1 +1,1 @@
-export { Link } from './Link.web.tsrx';
+export { Link } from './Link.web.tsrx'

@@ -7,8 +7,8 @@
 
 ```tsx
 <View className="card">
-  <Text className="card-title">Profile</Text>
-  <View style={{ opacity: disabled ? 0.5 : 1 }} />
+	<Text className="card-title">Profile</Text>
+	<View style={{ opacity: disabled ? 0.5 : 1 }} />
 </View>
 ```
 
@@ -26,15 +26,15 @@ rewriting screens.
 
 ```css
 :root {
-  --color-surface: #fffdf5;
-  --color-ink: #000;
-  --space-4: 16px;
+	--color-surface: #fffdf5;
+	--color-ink: #000;
+	--space-4: 16px;
 }
 
 .card {
-  background: var(--color-surface);
-  color: var(--color-ink);
-  padding: var(--space-4);
+	background: var(--color-surface);
+	color: var(--color-ink);
+	padding: var(--space-4);
 }
 ```
 

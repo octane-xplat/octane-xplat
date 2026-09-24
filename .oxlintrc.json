@@ -1,7 +1,7 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "jsPlugins": ["./scripts/oxlint-plugin.mjs"],
-  "rules": {
-    "xplat/spacing": "error"
-  }
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"jsPlugins": ["./scripts/oxlint-plugin.mjs"],
+	"rules": {
+		"xplat/spacing": "error"
+	}
 }

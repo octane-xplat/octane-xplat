@@ -1,19 +1,19 @@
 {
-  "name": "@octane-xplat/cli",
-  "version": "0.3.0",
-  "type": "module",
-  "description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android from one codebase)",
-  "bin": {
-    "xplat": "./src/cli.mjs"
-  },
-  "files": [
-    "src"
-  ],
-  "dependencies": {
-    "@alloc/cmd-ts": "0.17.1",
-    "@clack/prompts": "1.8.1"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+	"name": "@octane-xplat/cli",
+	"version": "0.3.0",
+	"description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android from one codebase)",
+	"bin": {
+		"xplat": "./src/cli.mjs"
+	},
+	"files": [
+		"src"
+	],
+	"type": "module",
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@alloc/cmd-ts": "0.17.1",
+		"@clack/prompts": "1.8.1"
+	}
 }

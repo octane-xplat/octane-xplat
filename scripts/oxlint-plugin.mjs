@@ -1,4 +1,4 @@
-import { findSpacingViolations } from './spacing-rules.mjs';
+import { findSpacingViolations } from './spacing-rules.mjs'
 
 const spacing = {
 	meta: {
@@ -13,7 +13,7 @@ const spacing = {
 	create(context) {
 		return {
 			'Program:exit'(program) {
-				const source = context.sourceCode.text;
+				const source = context.sourceCode.text
 				for (const violation of findSpacingViolations(program, source)) {
 					context.report({
 						node: violation.node,
@@ -22,16 +22,16 @@ const spacing = {
 							return fixer.insertTextBeforeRange(
 								[violation.position, violation.position],
 								violation.text,
-							);
+							)
 						},
-					});
+					})
 				}
 			},
-		};
+		}
 	},
-};
+}
 
 export default {
 	meta: { name: 'xplat' },
 	rules: { spacing },
-};
+}

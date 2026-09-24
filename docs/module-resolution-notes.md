@@ -10,7 +10,7 @@
 > **Validated by:** a `.ios.tsrx` leaf that resolves correctly in both builds
 > and typechecks under both tsconfigs. **Lab-verified on iOS sim (Exp 6)**:
 > `PlatformBadge.ios.tsrx` wins over `.native.tsrx` — `[badge] ios variant
-> evaluated` logged on device. `.android > .native` is the same
+evaluated` logged on device. `.android > .native` is the same
 > `resolve.extensions` ordering (`.android.tsrx` precedes `.native.tsrx` in
 > `apps/native/vite.config.mts`) — desk-verified, device-pending (no Android
 > SDK). `PlatformBadge.android.tsrx` exists as the probe for that run.
@@ -37,10 +37,10 @@ Foo.tsrx          shared (compiles under BOTH renderers)
 
 Resolution order per build target (first match wins):
 
-| Build | Order |
-|---|---|
-| web | `.web` → (none) |
-| ios | `.ios` → `.native` → (none) |
+| Build   | Order                           |
+| ------- | ------------------------------- |
+| web     | `.web` → (none)                 |
+| ios     | `.ios` → `.native` → (none)     |
 | android | `.android` → `.native` → (none) |
 
 Same order across `.tsrx`, `.tsx`, `.ts`, `.css`, `.json`, assets. Keep the
@@ -126,9 +126,9 @@ For props/values (not JSX vocabulary), avoid file splits:
 
 ```ts
 // platform/index.ts — resolved per-target
-export const OS: 'web' | 'ios' | 'android';
-export const isNative: boolean;
-export function select<T>(s: { web?; native?; ios?; android?; default? }): T;
+export const OS: 'web' | 'ios' | 'android'
+export const isNative: boolean
+export function select<T>(s: { web?; native?; ios?; android?; default? }): T
 ```
 
 `platform.web.ts` / `platform.native.ts` (runtime OS check inside native impl).
@@ -156,7 +156,7 @@ Two program configs over a shared base:
 - Typecheck `.tsrx` with `tsrx-tsc --noEmit` (per octane repo rules), not plain
   `tsc`.
 - **`exports` wildcards don't extension-resolve** (verified): `"./\*":
-  "./src/*"` maps `@xplat/app/platform/storage` to a literal extensionless
+"./src/*"` maps `@xplat/app/platform/storage` to a literal extensionless
   path that neither tsc nor vite/rolldown can load. Deep platform imports must
   go through a barrel (`@xplat/app` re-exporting `./platform/storage`) or a
   `paths` pattern — the suffix chain runs on the barrel's internal relative

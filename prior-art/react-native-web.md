@@ -40,7 +40,7 @@ Every web leaf we write is doing the same job RNW does for react-dom.
   web. For us: **don't force the native primitive's semantics onto web when
   web has a better native answer** — e.g. our `List` can be honest virtualization
   (`@octanejs/tanstack-virtual`) on web while native uses `listview`; `Modal`
-  is a portal on web vs a second root on native. Match the *contract*, not the
+  is a portal on web vs a second root on native. Match the _contract_, not the
   implementation.
 - CSS escape hatches got messy (`dangerouslySetInnerHTML`-style bypasses).
   Our cleaner seam: platform prop bags (`ios={{ … }}`) + `.web/.native` leaf

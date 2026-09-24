@@ -1,26 +1,26 @@
 {
-  "name": "@xplat/web",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "smoke": "vite build && node scripts/smoke.mjs"
-  },
-  "dependencies": {
-    "@xplat/app": "workspace:*",
-    "@xplat/demos": "workspace:*",
-    "@octane-xplat/ui": "workspace:*",
-    "octane": "0.4.0"
-  },
-  "devDependencies": {
-    "@octanejs/vite-plugin": "0.1.58",
-    "playwright": "1.55.0",
-    "typescript": "5.9.3",
-    "vite": "8.3.0",
-    "vitest": "5.0.1"
-  }
+	"name": "@xplat/web",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"test": "vitest run",
+		"smoke": "vite build && node scripts/smoke.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/ui": "workspace:*",
+		"@xplat/app": "workspace:*",
+		"@xplat/demos": "workspace:*",
+		"octane": "0.4.0"
+	},
+	"devDependencies": {
+		"@octanejs/vite-plugin": "0.1.58",
+		"playwright": "1.55.0",
+		"typescript": "5.9.3",
+		"vite": "8.3.0",
+		"vitest": "5.0.1"
+	}
 }

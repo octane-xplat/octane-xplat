@@ -36,8 +36,8 @@ already attached (`hasChild`). An unhandled rejection = fatal JS exception
 on release builds. Both leaf fns now:
 
 ```ts
-if ((rl as any).hasChild?.(host)) (rl as any).close(host);
-(rl.open(host, opts) as Promise<unknown>).then(ok, err => log);
+if ((rl as any).hasChild?.(host)) (rl as any).close(host)
+;(rl.open(host, opts) as Promise<unknown>).then(ok, (err) => log)
 ```
 
 **Any new RootLayout.open caller must do the same** — close-before-open +

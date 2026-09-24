@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
-import { octane } from '@octanejs/vite-plugin';
+import { defineConfig } from 'vite'
+import { octane } from '@octanejs/vite-plugin'
 
 export default defineConfig({
 	plugins: [...octane()],
@@ -7,10 +7,17 @@ export default defineConfig({
 	resolve: {
 		conditions: ['web'],
 		extensions: [
-			'.web.tsrx', '.tsrx',
-			'.web.tsx', '.tsx',
-			'.web.ts', '.mjs', '.mts', '.ts',
-			'.jsx', '.js', '.json',
+			'.web.tsrx',
+			'.tsrx',
+			'.web.tsx',
+			'.tsx',
+			'.web.ts',
+			'.mjs',
+			'.mts',
+			'.ts',
+			'.jsx',
+			'.js',
+			'.json',
 		],
 	},
-});
+})

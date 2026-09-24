@@ -10,14 +10,14 @@
 
 ## Build matrix
 
-| | Web | iOS | Android |
-|---|---|---|---|
-| Bundler | vite + `@octanejs/vite-plugin` | `@nativescript/vite` + `vite-octane` | same |
-| Renderer scope | DOM renderer owns all component files | `nativeScriptRenderers` owns all component files | same |
-| Entry | `main.web.ts` → `createRoot` | `main.native.ts` → `Application.run` + `renderNativeScriptApp` | same |
-| Resolver | `.web` chain | `.ios`→`.native` chain | `.android`→`.native` chain |
-| HMR | vite dev server | on-device via HTTP ESM + `hmrUniversalComponent` | same |
-| Output | static site / SSR server | `.app`/`.ipa` | `.apk`/`.aab` |
+|                | Web                                   | iOS                                                            | Android                    |
+| -------------- | ------------------------------------- | -------------------------------------------------------------- | -------------------------- |
+| Bundler        | vite + `@octanejs/vite-plugin`        | `@nativescript/vite` + `vite-octane`                           | same                       |
+| Renderer scope | DOM renderer owns all component files | `nativeScriptRenderers` owns all component files               | same                       |
+| Entry          | `main.web.ts` → `createRoot`          | `main.native.ts` → `Application.run` + `renderNativeScriptApp` | same                       |
+| Resolver       | `.web` chain                          | `.ios`→`.native` chain                                         | `.android`→`.native` chain |
+| HMR            | vite dev server                       | on-device via HTTP ESM + `hmrUniversalComponent`               | same                       |
+| Output         | static site / SSR server              | `.app`/`.ipa`                                                  | `.apk`/`.aab`              |
 
 ## Dev loop
 
@@ -37,19 +37,19 @@
   requirement.
 - `.tsrx` everywhere for renderer-owned files; `.ts` helpers
   never call hooks (slotter emits `from 'octane'` — DOM runtime; under a
-  universal rule they're *validated* not compiled).
+  universal rule they're _validated_ not compiled).
 - Typecheck via `tsrx-tsc --noEmit` per target config (`.tsrx` needs the
   patched tsc).
 
 ## Version pinning matrix (hard requirement)
 
-| Pin | Constraint |
-|---|---|
-| `octane` | single copy per app — dedupe via package-manager `resolutions`/overrides |
-| `@octanejs/vite-plugin` | declares the `octane` range it compiles for (0.1.52 ↔ octane 0.2.x) — must bracket the app's octane |
-| `@nativescript-community/octane` | peer `octane >= 0.1.51`; `@nativescript/core >= 9.1` |
-| `@nativescript/core`, runtimes (`ios`/`android`), `@nativescript/vite` | NS 9.1+ for HTTP ESM dev boot |
-| Node | `>= 22.22.2` for published Octane packages |
+| Pin                                                                    | Constraint                                                                                          |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `octane`                                                               | single copy per app — dedupe via package-manager `resolutions`/overrides                            |
+| `@octanejs/vite-plugin`                                                | declares the `octane` range it compiles for (0.1.52 ↔ octane 0.2.x) — must bracket the app's octane |
+| `@nativescript-community/octane`                                       | peer `octane >= 0.1.51`; `@nativescript/core >= 9.1`                                                |
+| `@nativescript/core`, runtimes (`ios`/`android`), `@nativescript/vite` | NS 9.1+ for HTTP ESM dev boot                                                                       |
+| Node                                                                   | `>= 22.22.2` for published Octane packages                                                          |
 
 Expect churn: octane is beta, the NS port is days old. Pin exact versions, bump
 deliberately, keep `patches/` (patch-package) as an accepted escape hatch —

@@ -1,6 +1,6 @@
-import { defineConfig, mergeConfig, type Plugin } from 'vite';
-import { octaneConfig } from '@nativescript-community/vite-octane';
-import { nativeScriptRenderer } from '@nativescript-community/octane/config';
+import { defineConfig, mergeConfig, type Plugin } from 'vite'
+import { octaneConfig } from '@nativescript-community/vite-octane'
+import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 
 /**
  * On-device HMR needs the app's websocket client to attach to /ns-hmr after
@@ -14,14 +14,14 @@ function nsHmrClientWatchdog(): Plugin {
 	return {
 		name: 'ns-hmr-client-watchdog',
 		configureServer(server) {
-			let everConnected = false;
-			let timer: ReturnType<typeof setTimeout> | undefined;
+			let everConnected = false
+			let timer: ReturnType<typeof setTimeout> | undefined
 			// Hook the raw 'request' event — middlewares.use() appends after the
 			// ns plugin's session handler, which ends the response without next(),
 			// so a connect middleware never observes /__ns_dev__/session at all.
 			server.httpServer?.on('request', (req) => {
 				if (!everConnected && req.url?.startsWith('/__ns_dev__/session')) {
-					clearTimeout(timer);
+					clearTimeout(timer)
 					timer = setTimeout(() => {
 						if (!everConnected) {
 							console.warn(
@@ -30,20 +30,20 @@ function nsHmrClientWatchdog(): Plugin {
 									'reach the device. Check that @valor/nativescript-websockets ' +
 									'is installed, `adb reverse tcp:<port>` covers this vite port ' +
 									'(physical Android), and the device log for hmr-client errors.',
-							);
+							)
 						}
-					}, 15_000);
+					}, 15_000)
 				}
-			});
+			})
 
 			server.httpServer?.on('upgrade', (req) => {
 				if (req.url?.startsWith('/ns-hmr')) {
-					everConnected = true;
-					clearTimeout(timer);
+					everConnected = true
+					clearTimeout(timer)
 				}
-			});
+			})
 		},
-	};
+	}
 }
 
 // The native build (iOS/Android). @octane-xplat/ui resolves through the
@@ -57,9 +57,7 @@ export default defineConfig(({ mode }) =>
 				octane: {
 					renderers: {
 						registry: { nativescript: nativeScriptRenderer },
-						rules: [
-							{ include: 'src/**/*.{ts,tsx,tsrx}', renderer: 'nativescript' },
-						],
+						rules: [{ include: 'src/**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }],
 					},
 				},
 			},
@@ -75,12 +73,25 @@ export default defineConfig(({ mode }) =>
 				preserveSymlinks: false,
 				// Suffix chain (first match wins): .ios/.android → .native → shared.
 				extensions: [
-					'.ios.tsrx', '.android.tsrx', '.native.tsrx', '.tsrx',
-					'.ios.tsx', '.android.tsx', '.native.tsx', '.tsx',
-					'.ios.ts', '.android.ts', '.native.ts', '.mjs', '.mts', '.ts',
-					'.jsx', '.js', '.json',
+					'.ios.tsrx',
+					'.android.tsrx',
+					'.native.tsrx',
+					'.tsrx',
+					'.ios.tsx',
+					'.android.tsx',
+					'.native.tsx',
+					'.tsx',
+					'.ios.ts',
+					'.android.ts',
+					'.native.ts',
+					'.mjs',
+					'.mts',
+					'.ts',
+					'.jsx',
+					'.js',
+					'.json',
 				],
 			},
 		},
 	),
-);
+)

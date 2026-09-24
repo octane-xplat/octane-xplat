@@ -5,16 +5,16 @@
 
 ## The components you reach for first
 
-| Need | Component |
-| --- | --- |
-| Group content | `View` |
-| Put items in a row | `Row` |
-| Show text | `Text` |
-| Respond to a tap | `Pressable` |
-| Render repeated items | `List` |
-| Accept one or more lines | `TextInput`, `TextArea` |
-| Scroll content | `ScrollView` |
-| Show temporary content above a screen | `Modal` |
+| Need                                  | Component               |
+| ------------------------------------- | ----------------------- |
+| Group content                         | `View`                  |
+| Put items in a row                    | `Row`                   |
+| Show text                             | `Text`                  |
+| Respond to a tap                      | `Pressable`             |
+| Render repeated items                 | `List`                  |
+| Accept one or more lines              | `TextInput`, `TextArea` |
+| Scroll content                        | `ScrollView`            |
+| Show temporary content above a screen | `Modal`                 |
 
 Start with these components. They are deliberately smaller than the browser
 DOM or the full NativeScript view catalog, which makes a shared screen easier
@@ -23,17 +23,17 @@ to keep portable.
 ## A practical example
 
 ```tsx
-import { View, Text, Pressable } from '@octane-xplat/ui';
+import { View, Text, Pressable } from '@octane-xplat/ui'
 
 export function EmptyState() {
-  return (
-    <View className="empty-state">
-      <Text>No messages yet.</Text>
-      <Pressable onPress={() => console.log('create message')} className="button">
-        <Text>Write a message</Text>
-      </Pressable>
-    </View>
-  );
+	return (
+		<View className="empty-state">
+			<Text>No messages yet.</Text>
+			<Pressable onPress={() => console.log('create message')} className="button">
+				<Text>Write a message</Text>
+			</Pressable>
+		</View>
+	)
 }
 ```
 

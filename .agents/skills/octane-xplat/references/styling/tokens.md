@@ -8,14 +8,14 @@ consumers import the same path (export is exact-file, survives packaging).
 
 Core set (extend as needed, keep both themes):
 
-| Token | Used by |
-|---|---|
-| `--color-primary` | `bg-primary`, `text-primary` |
-| `--color-onprimary` | `text-onprimary` |
-| `--color-danger` | `bg-danger` |
-| `--color-surface` / `--color-onsurface` | panels, sheet/modal chrome |
-| `--color-muted` | secondary text |
-| spacing/radius scale | `gap-*`, `p-*`, `rounded-*` utilities |
+| Token                                   | Used by                               |
+| --------------------------------------- | ------------------------------------- |
+| `--color-primary`                       | `bg-primary`, `text-primary`          |
+| `--color-onprimary`                     | `text-onprimary`                      |
+| `--color-danger`                        | `bg-danger`                           |
+| `--color-surface` / `--color-onsurface` | panels, sheet/modal chrome            |
+| `--color-muted`                         | secondary text                        |
+| spacing/radius scale                    | `gap-*`, `p-*`, `rounded-*` utilities |
 
 Dark theme = the same tokens redefined under `.ns-dark`/`.dark` — that's why
 the theme class matters per-root on native (see root-boundaries.md).

@@ -36,7 +36,7 @@ app/                          (shared route dir — implemented)
 ### Mechanism (v1, implemented)
 
 The dir is scanned by `import.meta.glob` in per-platform manifest leaves —
-the *directory-level* form of the suffix seam (invariant 1):
+the _directory-level_ form of the suffix seam (invariant 1):
 `route-manifest.web.ts` excludes `*.native/ios/android.*`, the native twin
 excludes `*.web.*` and prefers the running OS via `Device.os`.
 `deriveRouteManifest(files, prefer)` (`packages/ui/src/route-table.ts`)
@@ -63,18 +63,18 @@ canonical path builder (Link's href).
 
 ## Mapping
 
-| Shared concept | Web | Native |
-|---|---|---|
-| route table | URL ↔ component (@octanejs/tanstack-router or thin file-router) | `Frame.navigate` stack, params passed as context |
-| `<Link to="/chat/3">` | `<a href>` | `frame.navigate()` + params |
-| `Stack` layout | history stack | `frame` pages (real nav transitions) |
-| `Tabs` layout | tab bar + outlet | `tabview`/`tabviewitem` |
-| `Drawer` layout | slide-over panel | `ui-drawer` w/ `hostSlot` mains/drawer |
-| `Modal` route | overlay route (URL preserved) | `showModal` → **separate Octane root** |
-| `useNavigate()`/`useParams()` | router hooks | facade over `Frame` API |
-| back | popstate | `frame.goBack()` + Android `activityBackPressed` |
-| deep link | URL load | `Application` lifecycle (openUrl/continueActivity) |
-| windows/scenes | N/A | `setWindowContentResolver` per `NativeWindow` |
+| Shared concept                | Web                                                             | Native                                             |
+| ----------------------------- | --------------------------------------------------------------- | -------------------------------------------------- |
+| route table                   | URL ↔ component (@octanejs/tanstack-router or thin file-router) | `Frame.navigate` stack, params passed as context   |
+| `<Link to="/chat/3">`         | `<a href>`                                                      | `frame.navigate()` + params                        |
+| `Stack` layout                | history stack                                                   | `frame` pages (real nav transitions)               |
+| `Tabs` layout                 | tab bar + outlet                                                | `tabview`/`tabviewitem`                            |
+| `Drawer` layout               | slide-over panel                                                | `ui-drawer` w/ `hostSlot` mains/drawer             |
+| `Modal` route                 | overlay route (URL preserved)                                   | `showModal` → **separate Octane root**             |
+| `useNavigate()`/`useParams()` | router hooks                                                    | facade over `Frame` API                            |
+| back                          | popstate                                                        | `frame.goBack()` + Android `activityBackPressed`   |
+| deep link                     | URL load                                                        | `Application` lifecycle (openUrl/continueActivity) |
+| windows/scenes                | N/A                                                             | `setWindowContentResolver` per `NativeWindow`      |
 
 ## Hard seams (decide consciously)
 
@@ -105,7 +105,7 @@ canonical path builder (Link's href).
 
 ## What we are NOT doing
 
-- Forcing URL semantics onto native. The route *table* is shared; web assigns
+- Forcing URL semantics onto native. The route _table_ is shared; web assigns
   paths, native assigns names+params. Deep links map onto the same table.
 - Porting React Navigation. `Frame` is the native navigator; our `Stack`/
   `Tabs`/`Drawer` shells wrap it. That also means nav transitions are
@@ -182,7 +182,7 @@ canonical path builder (Link's href).
 > screens pop their own stack. Named frames register via `registerStack`; the
 > app boot registers `'root'` as the default target (`Frame.topmost()` is
 > ambiguous once nested frames exist). Verified: push→content→pop across all
-> 10 demos inside the Demos tab (48/48). *Superseded 2026-09-23:* `'root'`
+> 10 demos inside the Demos tab (48/48). _Superseded 2026-09-23:_ `'root'`
 > registration is now optional — `getStack('root')` resolves the window's
 > root `Frame` (`Application.getRootView()`) when unregistered.
 
@@ -225,12 +225,12 @@ canonical path builder (Link's href).
 > semantics). iOS remains green (48/48).
 
 > [!IMPORTANT]
-> On Android `Frame.topmost()` returns the *innermost* frame — all root-level
+> On Android `Frame.topmost()` returns the _innermost_ frame — all root-level
 > reads must use the registered `'root'` stack.
 
 > **Hardware back (Android):** `wireHardwareBack()` registers
 > `activityBackPressed` at boot. Pop order: root stack when a pushed page
-> covers the shell (NS's default `Frame.topmost()` resolves to the *innermost*
+> covers the shell (NS's default `Frame.topmost()` resolves to the _innermost_
 > frame — wrong once nested stacks exist), then the most recently targeted
 > named stack, then any named stack with entries; `e.cancel` suppresses the
 > system fallback. Verified wired + clean fallthrough on the emulator; the

@@ -83,7 +83,7 @@ serializable config, normalized once and cached by signature:
   `exclude`; `..` forbidden). **No extension restriction** — a rule may match
   `.tsrx` as easily as `.tsx`.
 - **`boundaries`**: a module export (e.g. `Canvas`) declares that one prop
-  (e.g. `children`) is compiled for *another* renderer — the mechanism for
+  (e.g. `children`) is compiled for _another_ renderer — the mechanism for
   renderer islands (`@octanejs/three`'s canvas-in-DOM). `server: 'omit-child'`
   allowed when owner is `render` and child is `client-only`.
 - **`validation`** per renderer — **compile-time seam enforcement, built in**:
@@ -106,7 +106,7 @@ serializable config, normalized once and cached by signature:
 - Plain `.ts`/`.js` modules get **hook slotting** (not full compile) via
   `slotHooks` when pragma-marked / installed-package-owned: injected helper
   imports are emitted as `from 'octane'` **literally** — under a universal
-  renderer rule the file is *validated* (`validateRendererModuleSource` —
+  renderer rule the file is _validated_ (`validateRendererModuleSource` —
   forbidden globals/imports enforced) but its hook helpers still resolve to the
   `octane` module id, so without an `octane`→universal alias, `.ts` hooks bind
   the DOM runtime. Rule stands: **no hooks in `.ts` for native**, unless an
@@ -143,7 +143,7 @@ runtime composition. Either way the **driver receives a string**.
 Every compiled component module is **self-accepting**: exports are wrapped in
 `hmrUniversalComponent` and the module emits `import.meta.hot.accept` (Vite
 dialect; `webpackHot` for Rspack). The accept callback hands the fresh export
-to the wrapper held by the module's *first* evaluation, which swaps the render
+to the wrapper held by the module's _first_ evaluation, which swaps the render
 function and schedules live owners — hook state survives. Edits to
 non-accepting modules propagate up the reverse import graph to the nearest
 accepting importer; an edit nothing accepts (entry, driver) reloads the module
@@ -155,7 +155,7 @@ graph in-process. Components keyed by export name (`'default'` or the name) in
 - Standard JSX (`.tsx`) runs as-is.
 - `.tsrx` adds template directives — `@if`, `@for` (keyed, per-item hook state),
   `@switch`, `@try`/`@pending`/`@catch` — and `@{ … }` setup blocks; `function
-  f() @{ … }` shorthand; dynamic text needs `{expr as string}`.
+f() @{ … }` shorthand; dynamic text needs `{expr as string}`.
 - Hooks: React API, call-site slot tracked (no rules-of-hooks), compiler-derived
   dep arrays, `[state, update, getState]` triples.
 - `use()` starts provably-independent fetches together, suspends once per
