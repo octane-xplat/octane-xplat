@@ -178,6 +178,37 @@ importers:
         specifier: 0.4.0
         version: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
 
+  packages/platform:
+    dependencies:
+      '@nativescript/biometrics':
+        specifier: 1.3.1
+        version: 1.3.1
+      '@nativescript/haptics':
+        specifier: 3.1.0
+        version: 3.1.0
+      '@nativescript/imagepicker':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@nativescript/local-notifications':
+        specifier: 7.0.0
+        version: 7.0.0
+      '@nativescript/secure-storage':
+        specifier: 4.0.2
+        version: 4.0.2
+      '@nativescript/social-share':
+        specifier: 2.3.0
+        version: 2.3.0
+      nativescript-clipboard:
+        specifier: 2.1.1
+        version: 2.1.1
+    devDependencies:
+      '@nativescript/core':
+        specifier: 9.1.2
+        version: 9.1.2
+      octane:
+        specifier: 0.4.0
+        version: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
+
   packages/ui:
     devDependencies:
       '@nativescript-community/octane':
@@ -1144,6 +1175,12 @@ packages:
       '@nativescript/core': '>=9.1.0'
       octane: '>=0.1.51'
 
+  '@nativescript-community/perms@2.3.6':
+    resolution: {integrity: sha512-KtAyY2fCjKL19HQ3AslQKH4h+Sao0u4G4AgoF+SkRcAMGxqQd8covjpJ2hN3AFm8TDkqbSm3o0NDMR1dYVr/3A==}
+
+  '@nativescript-community/perms@3.0.11':
+    resolution: {integrity: sha512-Q2Fee9LoxE9GfOR+9nPoSHkCFU+uFIO3jMmsC3J/Z/XC6j9mT7PhgG6APhzCE9Oqo14GSUTxR0oDbv4us9zcdg==}
+
   '@nativescript-community/vite-octane@0.2.1':
     resolution: {integrity: sha512-195CCVbUiPgr4y17fGdfI8K6FAbAtTJIzLEJ090mYYK2h7LYWHRmK2mFqrBuSXAmzm/MlgndZdXHTGuXvYjh8Q==}
     peerDependencies:
@@ -1154,14 +1191,35 @@ packages:
   '@nativescript/android@9.1.1':
     resolution: {integrity: sha512-oDWfVnQtgQ0ctbfFWSugqGEZnYVjls82FqlO5UbA9HNwTNqdP4gqWwqHR80WKQngrbxlRHYDIuYv5S9kQfKhcw==}
 
+  '@nativescript/biometrics@1.3.1':
+    resolution: {integrity: sha512-PyrjeRI0AzVWbB5PhQqSKz5dZV5b23u7ztIMuA9m8jxcGWhZSyqMKcYUQCX1FPXEVHuN+zx7Ij54ppSl8ulhCw==}
+
   '@nativescript/core@9.1.2':
     resolution: {integrity: sha512-zL/dgfuLmcVu9nR47UEFOaPHXoaRKuWMBnDwiaMAwXmf4WKd6yr1gIXcNHheKgBNGrls06LgbBpkB841fI+HcA==}
+
+  '@nativescript/haptics@3.1.0':
+    resolution: {integrity: sha512-YS8x3mzP6wf7bTpuw5Xw4uNiL5bgvxoLjLPIcsYTwd/IXxslVEvBffzyHz8C+OcQtIgZx8VDDv5fzD5L8fEkEA==}
 
   '@nativescript/hook@3.0.5':
     resolution: {integrity: sha512-MzL7R/nPZU2qnvDWWuJ8RB7H3luEwANgFX/d/ILdg7bSYxl6uANCfzlueHnWgrQmBxu6dTkvPsFW2WNVUxlhUg==}
 
+  '@nativescript/imagepicker@5.0.0':
+    resolution: {integrity: sha512-/MxVxhuYTU3OMci0m8DzN6Z6FWypsHS4uH3r+F6lE1evMtQ/Hu5T0QH7TrwLFgltWF0PkZ+YAi2bAgrdU1YHdA==}
+
   '@nativescript/ios@9.1.0':
     resolution: {integrity: sha512-rdSmL+oOL+iyLYoSBM/cS0bOMAKzzOax6SpR4WmIHpmpa7TrFrrmzekuPSkwTZGeA7NTXnXD6K45rFvCHm6kOA==}
+
+  '@nativescript/local-notifications@7.0.0':
+    resolution: {integrity: sha512-LpxXqCxu3Nx04j7CKxicGpxWdXLP/M/r3zQNSI1hTn3LBsmGVpnX+1gr6/gLxQyIR3xzD/MxRWgO3qdSCCieeg==}
+
+  '@nativescript/secure-storage@4.0.2':
+    resolution: {integrity: sha512-4sWU4tmvGjh9ZfuApt0enwcT3tGN88dR5IeOuQsYqUSeUQbxK7Xo2JTF1dy7KIxnh0Fnxrs5O61x7hp9JBn/kw==}
+
+  '@nativescript/shared-notification-delegate@1.0.2':
+    resolution: {integrity: sha512-Wh6F1WH9Aj23K+nyolA5MrA6MXku/5rSPt9r20ekbyx2FkRpBr0stjg4uD6KSyUvWY8YT+KQ9WlOUzhq7g7Ycw==}
+
+  '@nativescript/social-share@2.3.0':
+    resolution: {integrity: sha512-9ldEOH6cnYJNEihQfk/2iOHfNlrvSCUl2bCrZsh8qauMHJEqqV/GPUzN3kh4sDgG4eCffonEF0ySlGSKOU8FmA==}
 
   '@nativescript/types-android@9.0.0':
     resolution: {integrity: sha512-Az64E1m6jd7CKX/QKOZi3uSxQEXZbPW5NlmMNP9VGCP9UobHLd5GgqpEIyeBB4Jep4rckA2Z4LEEpjbu/my63Q==}
@@ -2478,6 +2536,9 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nativescript-clipboard@2.1.1:
+    resolution: {integrity: sha512-C+hfgZKWG4apPedTHdw/ciuw8hdRsJ+oRNcXx2kMk8f+d30j7TBLUNv/6Kc+qTqkzzlroYHzM5K7DyVAK3x76w==}
+
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
@@ -3720,6 +3781,10 @@ snapshots:
       '@nativescript/core': 9.1.2
       octane: 0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.28.2)(sass@1.104.1)(yaml@2.9.1))
 
+  '@nativescript-community/perms@2.3.6': {}
+
+  '@nativescript-community/perms@3.0.11': {}
+
   '@nativescript-community/vite-octane@0.2.1(@nativescript/core@9.1.2)(@nativescript/vite@8.0.11(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.58(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
     dependencies:
       '@nativescript-community/octane': 0.2.0(@nativescript/core@9.1.2)(octane@0.4.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
@@ -3731,6 +3796,8 @@ snapshots:
       - octane
 
   '@nativescript/android@9.1.1': {}
+
+  '@nativescript/biometrics@1.3.1': {}
 
   '@nativescript/core@9.1.2':
     dependencies:
@@ -3748,9 +3815,26 @@ snapshots:
       source-map-js: 1.2.1
       tslib: 2.8.1
 
+  '@nativescript/haptics@3.1.0': {}
+
   '@nativescript/hook@3.0.5': {}
 
+  '@nativescript/imagepicker@5.0.0':
+    dependencies:
+      '@nativescript-community/perms': 2.3.6
+
   '@nativescript/ios@9.1.0': {}
+
+  '@nativescript/local-notifications@7.0.0':
+    dependencies:
+      '@nativescript-community/perms': 3.0.11
+      '@nativescript/shared-notification-delegate': 1.0.2
+
+  '@nativescript/secure-storage@4.0.2': {}
+
+  '@nativescript/shared-notification-delegate@1.0.2': {}
+
+  '@nativescript/social-share@2.3.0': {}
 
   '@nativescript/types-android@9.0.0': {}
 
@@ -4880,6 +4964,8 @@ snapshots:
   ms@2.1.3: {}
 
   nanoid@3.3.19: {}
+
+  nativescript-clipboard@2.1.1: {}
 
   node-addon-api@7.1.1:
     optional: true
