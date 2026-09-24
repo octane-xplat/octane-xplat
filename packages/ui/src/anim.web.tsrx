@@ -11,6 +11,7 @@ function createAnimated(initial: number, prop: string): AnimatedValue {
 		current = v;
 		if (el) el.style.transform = `translateX(${v}px)`;
 	};
+
 	const run = (step: (t: number) => number | null) => {
 		cancelAnimationFrame(raf);
 		const start = Date.now();
@@ -20,8 +21,10 @@ function createAnimated(initial: number, prop: string): AnimatedValue {
 			apply(v);
 			raf = requestAnimationFrame(tick);
 		};
+
 		raf = requestAnimationFrame(tick);
 	};
+
 	return {
 		get value() { return current; },
 		bind(e) { el = e as HTMLElement; if (el) el.style.transform = `translateX(${current}px)`; },

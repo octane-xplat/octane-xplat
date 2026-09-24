@@ -35,10 +35,12 @@ export function Modal(props: ModalProps) @{
 			} else {
 				root.render(Panel as unknown as UniversalComponent, { children: props.children });
 			}
+
 			// Signature is showModal(viewToShow, options) — not an options bag.
 			const fullscreen = props.presentation
 				? props.presentation === 'fullscreen'
 				: props.fullscreen ?? true;
+
 			presenter.showModal(host, {
 				context: {},
 				closeCallback: (result?: unknown) => { shown.current = null; props.onClose?.(result); },

@@ -99,22 +99,27 @@ export function pushRoute(r: Route): void {
 				? `pushRoute('${r.name}') dropped — no root Frame. Boot with a Frame as the app root (Application.run create() returning new Frame) or call registerStack('root', frame).`
 				: `pushRoute('${r.name}') dropped — no stack '${r.stack}' is registered. Named stacks come from TabSpec.stack on <Tabs> or registerStack('${r.stack}', frame).`,
 		);
+
 		return;
 	}
+
 	const C = screenFor(r.name);
 	if (!C) {
 		warnOnce(
 			'screen:' + r.name,
 			`pushRoute('${r.name}') dropped — '${r.name}' isn't in the screen table. Call registerScreens({ ${r.name}: ... }) at boot.`,
 		);
+
 		return;
 	}
+
 	if (Application.android && r.stack !== 'root') {
 		warnOnce(
 			'android:' + r.stack,
 			`pushRoute into named stack '${r.stack}' on Android — upstream #11444: the page mounts but currentPage/backStack/goBack never land (pages accumulate). Named-stack pushes are iOS-only until fixed.`,
 		);
 	}
+
 	// TabViewItem-hosted frames report isLoaded=false after tab-selection
 	// lifecycle churn; without this the nav queue defers forever (iOS
 	// strand of #11444). callLoaded is idempotent once the flag holds.
@@ -136,6 +141,7 @@ export function pushRoute(r: Route): void {
 				// the universal component shape the root expects.
 				createNativeScriptRoot(host).render(
 					C as unknown as UniversalComponent, props);
+
 				return page;
 			},
 		});
@@ -154,8 +160,10 @@ export function popRoute(stack = 'root'): void {
 			'pop:' + stack,
 			`popRoute('${stack}') dropped — no such stack is registered.`,
 		);
+
 		return;
 	}
+
 	frame.goBack();
 }
 
@@ -177,6 +185,7 @@ export function currentRoute(): Route | null {
 		const r = routeFor(name);
 		if (r) return r;
 	}
+
 	return null;
 }
 

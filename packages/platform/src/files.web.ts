@@ -12,6 +12,7 @@ export const files = {
 				const f = input.files?.[0];
 				resolve(f ? { name: f.name, uri: URL.createObjectURL(f) } : null);
 			};
+
 			input.oncancel = () => resolve(null);
 			input.click();
 		});

@@ -8,6 +8,7 @@ export function Icon(props: IconProps) @{
 	const glyph = getIcon(props.name);
 	if (!glyph) return null;
 	const size = props.size ?? 24;
+
 	@if (glyph.text) {
 		<label
 			id={props.id}

@@ -18,6 +18,7 @@ export function Image(props: ImageProps) @{
 		) {
 			return ImageSource.fromBase64Sync(props.src.slice(comma + 1));
 		}
+
 		return props.src;
 	}, [props.src]);
 

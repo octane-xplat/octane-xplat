@@ -22,6 +22,7 @@ function fireTap(view: any) {
 	for (const o of observers) {
 		o.callback.call(o.context, { eventName: 'tap', object: view });
 	}
+
 	return observers.length;
 }
 
@@ -60,11 +61,13 @@ function tapTargetForText(view: any, text: string, path: any[] = []): any {
 	if (view.text === text) {
 		return [...nextPath].reverse().find((v) => (v?.getGestureObservers?.(1)?.length ?? 0) > 0) ?? null;
 	}
+
 	let found: any = null;
 	view.eachChildView?.((child: any) => {
 		found = tapTargetForText(child, text, nextPath);
 		return !found;
 	});
+
 	return found;
 }
 
@@ -77,6 +80,7 @@ function runNavLinkProbe() {
 		console.log('[assert] NavLink tap target: FAIL (Detail → has no tap observer)');
 		return;
 	}
+
 	waitFor(() => routeFor('root')?.name === 'detail', () => {
 		const route = routeFor('root');
 		const ok = route?.name === 'detail' && route.params.from === 'home';
@@ -314,6 +318,7 @@ function waitFor(cond: () => boolean, then: () => void, tries = 20) {
 		if (cond() || --tries <= 0) then();
 		else setTimeout(tick, 100);
 	};
+
 	tick();
 }
 

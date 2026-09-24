@@ -15,6 +15,7 @@ export function Link(props: {
 		name: props.to,
 		params: props.params ?? {},
 	};
+
 	<a
 		href={hrefFor(route)}
 		className={props.className}

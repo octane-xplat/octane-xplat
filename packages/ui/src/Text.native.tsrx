@@ -29,6 +29,7 @@ export function Text(props: TextProps) @{
 		...props.style,
 		...(props.ellipsize ? { whiteSpace: 'nowrap', textOverflow: 'ellipsis' } : {}),
 	};
+
 	@if (inText) {
 		<span ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} style={textStyle} {...layoutChildProps(props)}>
 			{props.children}

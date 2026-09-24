@@ -72,4 +72,5 @@ if (hits) {
   console.error(`\ncheck-no-dom: ${hits} DOM reference(s) in shared/native source — move them behind a platform-suffixed leaf.`);
   process.exit(1);
 }
+
 console.log('check-no-dom: clean');

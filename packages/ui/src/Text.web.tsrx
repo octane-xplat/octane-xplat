@@ -8,6 +8,7 @@ export function Text(props: TextProps) @{
 		...(props.selectable === false ? { userSelect: 'none' } : props.selectable ? { userSelect: 'text' } : {}),
 		...(props.ellipsize ? { textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' } : {}),
 	};
+
 	<span
 		ref={(el: any) => applyEscapeProps(el, props)}
 		className={props.className}

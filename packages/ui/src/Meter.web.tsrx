@@ -15,6 +15,7 @@ export function Meter(props: MeterProps) @{
 		mask: `radial-gradient(circle, transparent calc(50% - ${strokeWidth}px), #000 calc(50% - ${strokeWidth}px + 0.5px))`,
 		WebkitMask: `radial-gradient(circle, transparent calc(50% - ${strokeWidth}px), #000 calc(50% - ${strokeWidth}px + 0.5px))`,
 	};
+
 	<div
 		id={props.id}
 		className={['vx-meter', props.className]}

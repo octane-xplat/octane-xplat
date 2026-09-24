@@ -38,8 +38,10 @@ export function inlineSpans(text: string): Span[] {
 			const lm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(tok)!;
 			for (const s of inlineSpans(lm[1])) spans.push({ ...s, href: lm[2] });
 		}
+
 		last = m.index + m[0].length;
 	}
+
 	if (last < text.length) spans.push({ text: text.slice(last) });
 	return spans;
 }
@@ -72,23 +74,28 @@ export function parseMd(md: string): Block[] {
 			blocks.push({ kind: 'code', text: buf.join('\n').replace(/\n$/, ''), lang });
 			continue;
 		}
+
 		if (/^#{1,4}\s/.test(line)) {
 			const m = line.match(/^(#+)\s+(.*)/)!;
 			blocks.push({ kind: 'h', level: m[1].length, text: m[2].replace(/[`*_]/g, '') });
 			i++;
 			continue;
 		}
+
 		if (/^\s*\|.*\|\s*$/.test(line)) {
 			const rows: string[][] = [];
 			while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
 				if (!/^\s*\|[\s:|-]+\|\s*$/.test(lines[i])) {
 					rows.push(lines[i].split('|').slice(1, -1).map((c) => c.trim()));
 				}
+
 				i++;
 			}
+
 			blocks.push({ kind: 'table', rows });
 			continue;
 		}
+
 		if (/^\s*(?:[-*]|\d+[.)])\s+/.test(line)) {
 			const m = line.match(/^(\s*)([-*]|\d+[.)])\s+(.*)/)!;
 			const parts = [m[3]];
@@ -101,15 +108,18 @@ export function parseMd(md: string): Block[] {
 				parts.push(nx.trim());
 				i++;
 			}
+
 			blocks.push({
 				kind: 'li',
 				depth: Math.floor(m[1].length / 2),
 				marker: /^\d/.test(m[2]) ? m[2] : '•',
 				spans: inlineSpans(parts.join(' ')),
 			});
+
 			i++;
 			continue;
 		}
+
 		if (/^\s*>\s?/.test(line)) {
 			const buf: string[] = [];
 			while (i < lines.length && /^\s*>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ''));
@@ -119,6 +129,7 @@ export function parseMd(md: string): Block[] {
 					.map((l) => l.trim())
 					.filter(Boolean)
 					.map(inlineSpans);
+
 				blocks.push({ kind: 'callout', level: cm[1].toLowerCase(), lines });
 			} else {
 				let body = buf;
@@ -129,14 +140,18 @@ export function parseMd(md: string): Block[] {
 						if (l.trim() === '') paras.push([]);
 						else paras[paras.length - 1].push(l);
 					}
+
 					body = paras.filter((p) => p.length && !METAPARA.test(p[0].trim())).flat();
 				}
+
 				blocks.push({ kind: 'quote', spans: inlineSpans(body.join(' ')) });
 			}
+
 			seenQuote = true;
 			i++;
 			continue;
 		}
+
 		if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) { blocks.push({ kind: 'hr' }); i++; continue; }
 		if (line.trim() === '') { i++; continue; }
 
@@ -145,7 +160,9 @@ export function parseMd(md: string): Block[] {
 			buf.push(lines[i]);
 			i++;
 		}
+
 		if (buf.length) blocks.push({ kind: 'p', spans: inlineSpans(buf.join(' ')) });
 	}
+
 	return blocks;
 }

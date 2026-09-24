@@ -35,6 +35,7 @@ export function Weather() @{
 			console.log('[probe] weather loaded gen=' + gen);
 			setDays(fakeForecast());
 		}, 600);
+
 		return () => clearTimeout(t);
 	}, [gen]);
 

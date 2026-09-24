@@ -14,6 +14,7 @@ registerIcons({
 export function ControlsDemo() @{
 	const [value, setValue] = useState(42);
 	const [busy, setBusy] = useState(true);
+
 	<View className="controls-demo gap-4">
 		<Heading level={2}>Controls</Heading>
 		<View className="controls-section">

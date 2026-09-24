@@ -26,6 +26,7 @@ export function VirtualList() @{
 	const shuffle = () => setItems([...items].reverse());
 	const prepend = () =>
 		setItems([{ id: 'new-' + Date.now(), label: 'Prepended ' + items.length }, ...items]);
+
 	const dropFirst = () => setItems(items.slice(1));
 
 	<View className="vx-app flex-1 gap-4">

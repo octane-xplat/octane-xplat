@@ -17,6 +17,7 @@ function wire() {
 			for (const h of handlers) h(url);
 		});
 	}
+
 	if (Application.android) {
 		Application.on(Application.resumeEvent, () => {
 			const intent = Application.android.foregroundActivity?.getIntent?.();

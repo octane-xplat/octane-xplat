@@ -11,6 +11,7 @@ export interface PanEvent {
 	x: number; y: number; dx: number; dy: number;
 	vx: number; vy: number; state: string; target: any;
 }
+
 export interface SwipeEvent { direction: number; }
 
 // ---------- primitives ----------

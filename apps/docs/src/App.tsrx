@@ -19,11 +19,13 @@ export function App() @{
 		pushRoute({ stack: d?.group === 'notes' ? 'notes' : 'root', name: s === DOCS[0].slug ? '' : s, params: {} });
 		resetDocScroll();
 	};
+
 	// Safety net for navs that flow through octane's commit path.
 	useEffect(() => {
 		resetDocScroll();
 		document.title = doc.title === 'xplat' ? 'xplat docs' : `${doc.title} — xplat`;
 	}, [doc.slug]);
+
 	const renderDoc = (d: DocPage) => (
 		<Pressable className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => open(d.slug)}>
 			<Text className="side-text">{d.title.toLowerCase()}</Text>

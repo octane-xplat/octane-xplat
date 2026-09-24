@@ -19,8 +19,10 @@ function useKeyboardInset() {
 				setInset(Math.max(0, screenHeight - frame.origin.y));
 			},
 		);
+
 		return () => center.removeObserver(token);
 	}, []);
+
 	return inset;
 }
 
@@ -40,6 +42,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	const keyboardInset = useKeyboardInset();
 	useAndroidResize();
 	const platformProps = Application.ios != null ? props.ios : props.android;
+
 	<scrollview
 		className={cx('vx-keyboard-avoiding', props.className)}
 		style={props.style}

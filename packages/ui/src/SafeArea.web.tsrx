@@ -11,6 +11,7 @@ function applyWebProps(node: any, bag?: Record<string, any>) {
 
 export function SafeArea(props: SafeAreaProps) @{
 	const insets = useSafeAreaInsets();
+
 	<div
 		ref={(node: any) => applyWebProps(node, props.web)}
 		className={['vx-safe-area', props.className]}

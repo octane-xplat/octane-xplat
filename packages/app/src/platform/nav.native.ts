@@ -43,6 +43,7 @@ export function wireHardwareBack() {
 			e.cancel = true;
 			return;
 		}
+
 		const order = [lastNavStack, ...[...stackEntries()].map(([n]) => n).reverse()];
 		for (const name of order) {
 			if (name === 'root') continue;
@@ -54,5 +55,6 @@ export function wireHardwareBack() {
 			}
 		}
 	});
+
 	console.log('[probe] hardware back wired (android)');
 }

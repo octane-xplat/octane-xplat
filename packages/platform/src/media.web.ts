@@ -17,10 +17,13 @@ export const media = {
 					if (typeof reader.result === 'string') resolve(reader.result);
 					else reject(new Error('Could not read the selected image'));
 				};
+
 				reader.onerror = () =>
 					reject(reader.error ?? new Error('Could not read the selected image'));
+
 				reader.readAsDataURL(blob);
 			});
+
 			return { ...file, dataUrl };
 		} catch (error) {
 			files.release(file);

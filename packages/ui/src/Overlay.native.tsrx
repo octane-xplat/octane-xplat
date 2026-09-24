@@ -32,6 +32,7 @@ export function Overlay(props: OverlayProps) @{
 					(error) => { console.error('[Overlay] close failed', error); current.root.unmount?.(); },
 				);
 			} else current.root.unmount?.();
+
 			return;
 		}
 
@@ -60,6 +61,7 @@ export function Overlay(props: OverlayProps) @{
 			root.unmount?.();
 			if (opened.dismissOnClose) dismiss.current?.();
 		});
+
 		const open = () => rootLayout.open(host, props.shadeCover ? {
 			shadeCover: { opacity: 0.45, color: '#000000', tapToClose: true },
 		} : {}).catch((error: unknown) => {
@@ -67,6 +69,7 @@ export function Overlay(props: OverlayProps) @{
 			console.error('[Overlay] open failed', error);
 			root.unmount?.();
 		});
+
 		if ((rootLayout as any).hasChild?.(host)) {
 			rootLayout.close(host).then(open, (error) => console.error('[Overlay] stale host close failed', error));
 		} else open();

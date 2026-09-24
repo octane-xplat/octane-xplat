@@ -10,6 +10,7 @@ export function Grid(props: GridProps) @{
 		warnedAboutGap = true;
 		console.warn('[Grid] gap is not supported; use child margins instead.');
 	}
+
 	<gridlayout
 		ref={(view: any) => applyEscapeProps(view, props)}
 		rows={props.rows}

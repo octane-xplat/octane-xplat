@@ -22,5 +22,6 @@ export function useSafeAreaInsets(): SafeAreaInsets {
 			Application.off(Application.orientationChangedEvent, update);
 		};
 	}, []);
+
 	return insets;
 }

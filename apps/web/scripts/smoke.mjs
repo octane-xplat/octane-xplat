@@ -15,6 +15,7 @@ const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', String(PORT)
 	cwd: webDir,
 	stdio: ['ignore', 'pipe', 'pipe'],
 });
+
 await new Promise((r) => preview.stdout.on('data', (d) => String(d).includes('Local') && r()));
 await new Promise((r) => setTimeout(r, 500));
 

@@ -97,6 +97,7 @@ export function Gallery(props: { onOpen?: (id: string) => void }) @{
 		console.log('[probe] demo -> ' + id);
 		if (props.onOpen) props.onOpen(id); else setDemo(id);
 	};
+
 	<Screen className="vx-app flex-1 gap-4">
 		<Text className="chip-off">{'Last opened: ' + (last ?? '—')}</Text>
 		<Row className="demo-menu">

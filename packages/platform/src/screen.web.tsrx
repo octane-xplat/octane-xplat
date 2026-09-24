@@ -22,5 +22,6 @@ export function useWindowSize(): WindowSize {
 			window.removeEventListener('orientationchange', update);
 		};
 	}, []);
+
 	return size;
 }

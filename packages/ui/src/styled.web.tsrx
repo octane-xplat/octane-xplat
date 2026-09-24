@@ -13,8 +13,11 @@ export function styled<P extends { className?: any }, V extends Record<string, a
 			if ((props as any)[k]) cls.push((def.variants as any)[k]);
 			delete rest[k];
 		}
+
 		if (props.className) cls.push(props.className);
+
 		<Base {...rest} className={cls} />
 	}
+
 	return Styled;
 }

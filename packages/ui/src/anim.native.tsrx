@@ -18,6 +18,7 @@ function createAnimated(initial: number, prop: string): AnimatedValue {
 		current = v;
 		if (view) view[prop] = v;
 	};
+
 	const run = (step: (t: number) => number | null) => {
 		cancelAnimationFrame(raf);
 		const start = Date.now();
@@ -27,8 +28,10 @@ function createAnimated(initial: number, prop: string): AnimatedValue {
 			apply(v);
 			raf = requestAnimationFrame(tick);
 		};
+
 		raf = requestAnimationFrame(tick);
 	};
+
 	return {
 		get value() { return current; },
 		bind(v) { view = v; if (view) view[prop] = current; },

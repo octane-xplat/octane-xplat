@@ -4,6 +4,7 @@ import { closeSheet } from './platform/sheet';
 /** Bottom-sheet content — hosted in a ContentView by RootLayout.open. */
 export function SheetPanel() @{
 	console.log('[probe] SheetPanel render');
+
 	<View
 		className="sheet-panel"
 		style={{ padding: 24, backgroundColor: '#222', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}

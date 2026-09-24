@@ -7,10 +7,12 @@ export const share = {
 			await nav.share({ text, title: subject });
 			return 'shared';
 		}
+
 		if (nav.clipboard) {
 			await nav.clipboard.writeText(text);
 			return 'copied';
 		}
+
 		return 'unavailable';
 	},
 	async url(url: string, title?: string): Promise<'shared' | 'copied' | 'unavailable'> {
@@ -19,10 +21,12 @@ export const share = {
 			await nav.share({ url, title });
 			return 'shared';
 		}
+
 		if (nav.clipboard) {
 			await nav.clipboard.writeText(url);
 			return 'copied';
 		}
+
 		return 'unavailable';
 	},
 };

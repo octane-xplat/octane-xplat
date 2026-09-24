@@ -33,6 +33,7 @@ export function iosTargets() {
 				});
 			}
 		}
+
 		// Booted first — that's almost always the one you mean.
 		return sims.sort((a, b) => (b.booted ? 1 : 0) - (a.booted ? 1 : 0));
 	} catch {
@@ -63,6 +64,7 @@ export function discoverTargets(cwd) {
 	if (hasNative(cwd)) {
 		targets.push(...iosTargets(), ...androidTargets());
 	}
+
 	return targets;
 }
 
@@ -74,5 +76,6 @@ export function buildTargets(cwd) {
 		if (iosTargets().length || run('xcrun', ['--version'])) t.push({ kind: 'ios', id: 'ios', name: 'iOS (ns build ios)' });
 		t.push({ kind: 'android', id: 'android', name: 'Android (ns build android)' });
 	}
+
 	return t;
 }

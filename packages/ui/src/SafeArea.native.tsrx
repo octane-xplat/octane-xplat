@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from './safeAreaInsets.native.tsrx';
 export function SafeArea(props: SafeAreaProps) @{
 	const insets = useSafeAreaInsets();
 	const platformProps = Application.ios != null ? props.ios : props.android;
+
 	<flexboxlayout
 		ref={(host: any) => { if (host && platformProps) Object.assign(host, platformProps); }}
 		className={cx('vx-safe-area', props.className)}

@@ -7,6 +7,7 @@ export function Counter() @{
 	const [count, setCount] = useState(0);
 	const [parity, setParity] = useState(false);
 	console.log('[demo] Counter render count=' + count);
+
 	<View className="vx-app flex-1 gap-4 items-center">
 		<Text className="demo-clock">{'Demo count: ' + count}</Text>
 		<Row className="gap-4">

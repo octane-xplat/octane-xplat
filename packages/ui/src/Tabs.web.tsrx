@@ -22,7 +22,9 @@ export function Tabs(props: TabsProps) @{
 		const C = screenFor(name);
 		return C ? <C {...params} /> : null;
 	};
+
 	const routed = rootRoute ? resolve(rootRoute.name, rootRoute.params) : null;
+
 	@if (routed) {
 		<div className="vx-route">{routed}</div>
 	}

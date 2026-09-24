@@ -7,6 +7,7 @@ export function announce(text: string): void {
 		UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, text);
 		return;
 	}
+
 	if (Application.android) {
 		const view = Application.android.foregroundActivity?.findViewById?.(16908290 /* android.R.id.content */);
 		view?.announceForAccessibility?.(text);

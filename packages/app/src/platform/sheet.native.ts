@@ -17,6 +17,7 @@ export function openSheet(Component: unknown = SheetPanel, props: Record<string,
 		console.log('[probe] sheet: no rootlayout found');
 		return;
 	}
+
 	if (!host) {
 		host = new GridLayout();
 		host.id = 'sheet-host';
@@ -24,6 +25,7 @@ export function openSheet(Component: unknown = SheetPanel, props: Record<string,
 		host.verticalAlignment = 'bottom';
 		hostRoot = createNativeScriptRoot(host);
 	}
+
 	hostRoot!.render(Component as UniversalComponent, props);
 	// rl.open rejects when the host is still attached — a re-open while a
 	// previous sheet is up would crash as an unhandled rejection (seen as a

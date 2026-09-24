@@ -14,9 +14,11 @@ export interface PanEvent {
     state: string;
     target: any;
 }
+
 export interface SwipeEvent {
     direction: number;
 }
+
 /** Metadata read by parent layouts. Native forwards NativeScript attached
  *  attributes; web folds the CSS equivalents into the child's style. */
 export interface LayoutChildProps {
@@ -32,6 +34,7 @@ export interface LayoutChildProps {
     alignSelf?: string;
     order?: number;
 }
+
 export interface GridProps {
     className?: any;
     style?: any;
@@ -43,6 +46,7 @@ export interface GridProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface StackProps {
     className?: any;
     style?: any;
@@ -51,6 +55,7 @@ export interface StackProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface AbsoluteProps {
     className?: any;
     style?: any;
@@ -59,6 +64,7 @@ export interface AbsoluteProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface SpacerProps {
     className?: any;
     style?: any;
@@ -66,6 +72,7 @@ export interface SpacerProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface ViewProps extends LayoutChildProps {
     className?: any;
     style?: any;
@@ -81,6 +88,7 @@ export interface ViewProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
+
 export interface RowProps extends LayoutChildProps {
     className?: any;
     style?: any;
@@ -90,6 +98,7 @@ export interface RowProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
+
 export interface TextProps extends LayoutChildProps {
     className?: any;
     style?: any;
@@ -114,6 +123,7 @@ export interface TextProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
+
 export interface PressableProps extends LayoutChildProps {
     className?: any;
     style?: any;
@@ -148,11 +158,13 @@ export interface PressableProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
+
 export interface TextInputHandle {
     focus(): void;
     blur(): void;
     native: any;
 }
+
 export interface TextInputProps {
     className?: any;
     style?: any;
@@ -176,6 +188,7 @@ export interface TextInputProps {
     android?: any;
     web?: any;
 }
+
 export interface TextAreaProps extends TextInputProps {
     /** Height in text rows. Web: the `rows` attr (fixed box); native:
      *  minHeight at the widget's measured line height. With `autoGrow` it
@@ -190,6 +203,7 @@ export interface TextAreaProps extends TextInputProps {
      *  sets truncation on iOS — not a cap). */
     maxRows?: number;
 }
+
 export interface ListProps {
     className?: any;
     style?: any;
@@ -212,6 +226,7 @@ export interface ListProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface ScrollViewProps extends LayoutChildProps {
     className?: any;
     style?: any;
@@ -223,6 +238,7 @@ export interface ScrollViewProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
+
 export interface ImageProps extends LayoutChildProps {
     className?: any;
     style?: any;
@@ -234,6 +250,7 @@ export interface ImageProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
+
 export interface ScreenProps {
     className?: any;
     style?: any;
@@ -243,6 +260,7 @@ export interface ScreenProps {
     android?: any;
     web?: any;
 }
+
 export interface SafeAreaProps {
     className?: any;
     style?: any;
@@ -252,6 +270,7 @@ export interface SafeAreaProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface KeyboardAvoidingProps {
     className?: any;
     style?: any;
@@ -260,6 +279,7 @@ export interface KeyboardAvoidingProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface DrawerProps {
     className?: any;
     style?: any;
@@ -270,6 +290,7 @@ export interface DrawerProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface SwitchProps {
     className?: any;
     style?: any;
@@ -281,6 +302,7 @@ export interface SwitchProps {
     android?: any;
     web?: any;
 }
+
 export interface ActivityIndicatorProps {
     className?: any;
     style?: any;
@@ -290,6 +312,7 @@ export interface ActivityIndicatorProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface MeterProps {
     className?: any;
     style?: any;
@@ -303,6 +326,7 @@ export interface MeterProps {
     trackColor?: string;
     accessibilityLabel?: string;
 }
+
 export interface SliderProps {
     className?: any;
     style?: any;
@@ -316,6 +340,7 @@ export interface SliderProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface IconProps {
     className?: any;
     id?: string;
@@ -326,6 +351,7 @@ export interface IconProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 /** One registered icon representation. `svg` contains path `d` data. */
 export interface IconGlyph {
     svg?: string;
@@ -335,6 +361,7 @@ export interface IconGlyph {
     };
     src?: string;
 }
+
 export interface HeadingProps {
     className?: any;
     style?: any;
@@ -345,9 +372,11 @@ export interface HeadingProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface PlatformBadgeProps {
     className?: any;
 }
+
 export interface OverlayProps {
     open?: boolean;
     onDismiss?: () => void;
@@ -360,11 +389,13 @@ export interface OverlayProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right';
 /** A platform-neutral ref to the host view or element that owns a popover. */
 export interface PopoverAnchorRef {
     readonly current: unknown;
 }
+
 export interface PopoverProps {
     /** Ref to a native view or web element, commonly populated by `bind`. */
     anchor: PopoverAnchorRef;
@@ -379,6 +410,7 @@ export interface PopoverProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export type ToastContent = string | (() => any);
 export type ToastPosition = 'top' | 'bottom';
 export interface ToastOptions {
@@ -388,6 +420,7 @@ export interface ToastOptions {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+
 export interface ModalProps {
     open?: boolean;
     onClose?: (result?: ModalOpenResult) => void;
@@ -403,6 +436,7 @@ export interface ModalProps {
     params?: any;
     children?: any;
 }
+
 /** Options for `openModal`. `fullscreen` is retained for callers using the
  *  NativeScript option directly; `presentation` takes precedence when set.
  *  Android's non-fullscreen modal is a centered dialog, not a bottom sheet. */
@@ -411,6 +445,7 @@ export interface ModalOpenOptions {
     fullscreen?: boolean;
     animated?: boolean;
 }
+
 /** Value supplied to a modal close callback and returned by `openModal`. */
 export type ModalOpenResult = unknown;
 /** Public function shape of the imperative modal service. */
@@ -423,6 +458,7 @@ export interface TabSpec {
      *  place). navigate(name, params, {into: spec.stack}) targets it. */
     stack?: string;
 }
+
 export interface TabsProps {
     className?: any;
     style?: any;
@@ -434,23 +470,27 @@ export interface TabsProps {
      *  Web: route outlet. Native: pushes render inside the pane's Frame. */
     resolveScreen?: (name: string, params: Record<string, unknown>) => any;
 }
+
 export interface Route {
     stack: string;
     name: string;
     params: Record<string, unknown>;
 }
+
 export interface LinkProps {
     href: string;
     target?: string;
     className?: any;
     children?: any;
 }
+
 export interface NavLinkProps {
     route: Route;
     activeClassName?: string;
     className?: any;
     children?: any;
 }
+
 /** name → screen component table for `registerScreens` — the app owns the
  *  route table; native `pushRoute` resolves `route.name` through it and
  *  web outlets fall back to it via `screenFor`. Values are component
@@ -467,6 +507,7 @@ export interface RouteMeta {
     /** Source file (glob key) — diagnostics only. */
     file: string;
 }
+
 /** Output of `deriveRouteManifest` — `screens` feeds `registerScreens`
  *  (native pushRoute + web outlet fallback), `routes` feeds web URL
  *  matching, `layouts` catalogs `_layout` files by directory ('' = root). */
@@ -475,6 +516,7 @@ export interface RouteManifest {
     routes: RouteMeta[];
     layouts: Record<string, any>;
 }
+
 export interface AnimatedValue {
     readonly value: number;
     bind(el: any): void;
@@ -487,12 +529,14 @@ export interface AnimatedValue {
     }): void;
     stop(): void;
 }
+
 export type ColorScheme = 'light' | 'dark';
 /** Minimal external-store contract `useStore` subscribes to. */
 export interface ReadableStore<T> {
     get(): T;
     subscribe(notify: () => void): () => void;
 }
+
 export interface Store<T> extends ReadableStore<T> {
     set(next: T | ((prev: T) => T)): void;
 }

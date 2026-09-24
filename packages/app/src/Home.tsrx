@@ -46,15 +46,18 @@ export function Home() @{
 			console.log('[self] shuffle');
 			setItems([...items].reverse());
 		}, 1000);
+
 		const t2 = setTimeout(() => {
 			console.log('[self] setText');
 			setText('hello');
 		}, 2000);
+
 		const t3 = setTimeout(() => {
 			console.log('[self] dark on');
 			darkMark.current = Date.now();
 			setOverride('dark');
 		}, 3000);
+
 		return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
 	}, []);
 

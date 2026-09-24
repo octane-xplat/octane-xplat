@@ -9,6 +9,7 @@ export function PropsDemo() @{
 	const [focusState, setFocusState] = useState('unfocused');
 	const [pressState, setPressState] = useState('Try the press callbacks');
 	const [submitState, setSubmitState] = useState('');
+
 	<View className="vx-app flex-1 gap-4 props-demo">
 		<Text className="text-xl font-bold">Primitive props</Text>
 		<TextInput className="input" value={secret} onChange={setSecret} secure placeholder="Password" returnKeyType="done" onSubmit={() => setSubmitState('Password submitted')} placeholderTextColor="#64748b" />

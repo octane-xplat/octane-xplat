@@ -32,6 +32,7 @@ export function Meter(props: MeterProps) @{
 	useEffect(() => {
 		canvasRef.current?.invalidate();
 	}, [value, rangeMax, strokeWidth, color, trackColor]);
+
 	const draw = (event: any) => {
 		const canvas = event.canvas;
 		const width = canvas.getWidth();
@@ -52,6 +53,7 @@ export function Meter(props: MeterProps) @{
 			canvas.drawArc(left, top, right, bottom, -90, ratio * 360, false, paint);
 		}
 	};
+
 	<canvasview
 		id={props.id}
 		ref={canvasRef}

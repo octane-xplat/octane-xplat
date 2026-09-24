@@ -16,11 +16,13 @@ export function openOverlay() {
 		console.log('[probe] overlay: no rootlayout found');
 		return;
 	}
+
 	if (!host) {
 		host = new GridLayout();
 		host.id = 'overlay-host';
 		createNativeScriptRoot(host).render(OverlayPanel as unknown as UniversalComponent, {});
 	}
+
 	// Same unhandled-rejection hazard as openSheet: rl.open rejects when
 	// the host is still attached — close first, always handle the promise.
 	if ((rl as any).hasChild?.(host)) (rl as any).close(host);

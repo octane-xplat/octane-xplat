@@ -11,6 +11,7 @@ function applyWebProps(node: any, bag?: Record<string, any>) {
 export function Drawer(props: DrawerProps) @{
 	const Main = props.main;
 	const Panel = props.drawer;
+
 	<div
 		ref={(node: any) => applyWebProps(node, props.web)}
 		className={['vx-drawer', props.className]}

@@ -33,6 +33,7 @@ function createWindowContent(): Frame {
   } catch (e) {
     console.log('[harness] render threw: ' + ((e as Error)?.stack || e));
   }
+
   frame.navigate({ create: () => page });
   // The root frame is the default nav target — registered by name because
   // Frame.topmost() is ambiguous once nested per-tab stacks exist.
@@ -72,18 +73,22 @@ function assertEq(name: string, actual: any, expected: any) {
   const ok = actual === expected;
   console.log('[assert] ' + name + ': ' + (ok ? 'OK' : 'FAIL') + ' (got ' + JSON.stringify(actual) + ')');
 }
+
 function assertHas(name: string, haystack: any[], needle: any) {
   console.log('[assert] ' + name + ': ' + (haystack.includes(needle) ? 'OK' : 'FAIL') + ' (' + JSON.stringify(needle) + ' in ' + JSON.stringify(haystack.slice(0, 8)) + ')');
 }
+
 function collect(view: any, out: any[] = []): any[] {
   if (!view) return out;
   out.push(view);
   view.eachChildView?.((c: any) => { collect(c, out); return true; });
   return out;
 }
+
 function texts(root: any): string[] {
   return collect(root).filter((v) => typeof v?.text === 'string' && v.text.length > 0).map((v) => v.text);
 }
+
 const find = (id: string) => thePage?.getViewById?.(id) as any;
 
 // Controlled-input probe: fire textChange natively at +1.5s (between the
@@ -130,6 +135,7 @@ setTimeout(() => {
   console.log('[probe] tabview=' + (tv ? tv.constructor.name : 'none'));
   tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any);
 }, 1900);
+
 setTimeout(() => {
   assertHas('settings texts', texts(thePage), 'Notifications');
 }, 2100);
@@ -141,6 +147,7 @@ setTimeout(() => {
   console.log('[probe] switch=' + (sw ? sw.constructor.name : 'none'));
   sw?.notify({ eventName: 'checkedChange', object: sw, value: false } as any);
 }, 2300);
+
 setTimeout(() => {
   assertEq('switch.checked', find('sw-notifications')?.checked, false);
 }, 2500);
@@ -151,6 +158,7 @@ setTimeout(() => {
   const tv = find('app-tabs');
   tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 0 } as any);
 }, 2600);
+
 setTimeout(() => {
   const lv = collect(thePage).find((v) => v instanceof ListView);
   console.log('[probe] listview=' + (lv ? `items=${(lv.items as any)?.length} template=${typeof lv.itemTemplate} listeners=${lv.hasListeners?.('itemLoading')}` : 'none'));
@@ -186,6 +194,7 @@ setTimeout(() => {
 	console.log('[assert] pressable conditional child: ' + (mp?.getViewById?.('multi-indicator') ? 'OK' : 'FAIL'));
 	fireGesture(mp, 1, 'tap', {});
 }, 4950);
+
 setTimeout(() => {
 	assertHas('pressable tap → count', texts(thePage), 'Count: 1');
 }, 5150);
@@ -220,6 +229,7 @@ setTimeout(() => {
       console.log('[assert] pop to main: OK');
     }
   });
+
   const d = find('detail-btn');
   console.log('[probe] detail-btn=' + (d ? d.constructor.name : 'none'));
   fireGesture(d, 1, 'tap', {});
@@ -240,10 +250,12 @@ setTimeout(() => {
 setTimeout(() => {
   fireGesture(find('clear-btn'), 1, 'tap', {});
 }, 5300);
+
 setTimeout(() => {
   assertHas('empty text', texts(thePage), 'No items');
   fireGesture(find('clear-btn'), 1, 'tap', {});
 }, 5700);
+
 setTimeout(() => {
   assertHas('cell text after restore', texts(thePage), 'Alpha');
 }, 6100);
@@ -254,6 +266,7 @@ setTimeout(() => {
   console.log('[probe] overlay-btn=' + (o ? o.constructor.name : 'none'));
   fireGesture(o, 1, 'tap', {});
 }, 6400);
+
 setTimeout(() => {
   const overlay = find('overlay-host');
   assertHas('overlay texts', texts(overlay), 'Overlay content');
@@ -266,6 +279,7 @@ setTimeout(() => {
 	assertHas('signal probe initial', texts(thePage), 'sig-off');
 	probeSignal$.set('sig-on');
 }, 6600);
+
 setTimeout(() => {
 	assertHas('signal probe after ambient set', texts(thePage), 'sig-on');
 }, 7000);
@@ -275,11 +289,13 @@ setTimeout(() => {
   const tv = find('app-tabs');
   tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any);
 }, 7100);
+
 setTimeout(() => {
   const b = find('sheet-btn');
   console.log('[probe] sheet-btn=' + (b ? b.constructor.name : 'none'));
   fireGesture(b, 1, 'tap', {});
 }, 7400);
+
 setTimeout(() => {
   const sheet = find('sheet-host');
   assertHas('sheet texts', texts(sheet), 'Sheet content');
@@ -298,6 +314,7 @@ setTimeout(() => {
 setTimeout(() => {
   fireGesture(find('modal-btn'), 1, 'tap', {});
 }, 8000);
+
 setTimeout(() => {
   const f = Frame.topmost() as any;
   const m = f?.currentPage?.modal;
@@ -311,6 +328,7 @@ setTimeout(() => {
   const close = m?.getViewById?.('modal-close');
   fireGesture(close, 1, 'tap', {});
 }, 8600);
+
 setTimeout(() => {
   const f = Frame.topmost() as any;
   console.log('[assert] modal closed: ' + (f?.currentPage?.modal == null ? 'OK' : 'FAIL'));
@@ -321,10 +339,12 @@ setTimeout(() => {
 setTimeout(() => {
   fireGesture(find('anim-btn'), 1, 'tap', {});
 }, 9400);
+
 setTimeout(() => {
   const v = find('anim-box');
   console.log('[assert] anim moved: ' + (v?.translateX > 10 ? 'OK' : 'FAIL') + ' (' + v?.translateX + ')');
 }, 9750);
+
 setTimeout(() => {
   const v = find('anim-box');
   console.log('[assert] anim settled: ' + (Math.abs(v?.translateX ?? -1) < 5 ? 'OK' : 'FAIL') + ' (' + v?.translateX + ')');

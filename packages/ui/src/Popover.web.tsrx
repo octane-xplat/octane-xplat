@@ -24,23 +24,27 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 			{ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight },
 			props.placement ?? 'bottom',
 		);
+
 		setPosition((current) =>
 			current?.left === placed.left && current?.top === placed.top
 				? current
 				: placed,
 		);
 	};
+
 	useEffect(() => {
 		if (!props.open || !props.anchorElement?.getBoundingClientRect) {
 			setPosition(null);
 			return;
 		}
+
 		update();
 		window.addEventListener('resize', update);
 		window.addEventListener('scroll', update, true);
 		const observer = typeof ResizeObserver === 'undefined' || !panelRef.current
 			? null
 			: new ResizeObserver(update);
+
 		if (observer && panelRef.current) observer.observe(panelRef.current);
 		return () => {
 			window.removeEventListener('resize', update);
@@ -48,12 +52,14 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 			observer?.disconnect();
 		};
 	}, [props.open, props.anchorElement, props.placement, props.children, position === null]);
+
 	const stopPointer = (event: PointerEvent) => event.stopPropagation();
 	const dismiss = (event: MouseEvent) => {
 		event.preventDefault();
 		event.stopPropagation();
 		props.onDismiss?.();
 	};
+
 	@if (props.open && position) {
 		<>{createPortal(
 		<div
@@ -94,6 +100,7 @@ export function Popover(props: PopoverProps) @{
 		const next = props.anchor?.current ?? null;
 		if (next !== anchorElement) setAnchorElement(next);
 	}, [props.anchor, props.open, anchorElement]);
+
 	@if (props.open && anchorElement) {
 		<PopoverLayer {...props} anchorElement={anchorElement} />
 	}

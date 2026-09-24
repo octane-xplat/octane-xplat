@@ -37,6 +37,7 @@ export const build = command({
 				initialValues: all.map((t) => t.id),
 				required: true,
 			});
+
 			if (p.isCancel(picked)) { p.cancel('Cancelled'); process.exit(0); }
 			chosen = all.filter((t) => picked.includes(t.id));
 		}
@@ -45,6 +46,7 @@ export const build = command({
 			const argv = t.kind === 'web'
 				? ['exec', 'vite', 'build']
 				: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])];
+
 			try {
 				await runTagged(t.kind, 'pnpm', argv, cwd);
 			} catch (e) {
@@ -52,6 +54,7 @@ export const build = command({
 				process.exit(1);
 			}
 		}
+
 		p.log.success('Build complete');
 	},
 });

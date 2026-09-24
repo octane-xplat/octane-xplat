@@ -47,6 +47,7 @@ function pick(mod: any, file: string): any {
 			: ' has no component export') +
 		' — skipped',
 	);
+
 	return undefined;
 }
 
@@ -83,6 +84,7 @@ export function deriveRouteManifest(
 				layouts[d] = component;
 				layoutRank.set(d, rank);
 			}
+
 			continue;
 		}
 
@@ -92,6 +94,7 @@ export function deriveRouteManifest(
 			const p = PARAM.exec(s);
 			return p ? ':' + p[1] : s;
 		});
+
 		const name = segments.join('/') || 'index';
 		const meta: RouteMeta = {
 			name,
@@ -99,6 +102,7 @@ export function deriveRouteManifest(
 			params: segments.filter((s) => s.startsWith(':')).map((s) => s.slice(1)),
 			file: key,
 		};
+
 		const prev = seen.get(name);
 		if (prev && prev.rank <= rank) {
 			if (prev.rank === rank && !warned.has(name)) {
@@ -107,8 +111,10 @@ export function deriveRouteManifest(
 					`[octane-xplat] route '${name}' is defined by both ${prev.meta.file} and ${key} — keeping ${prev.meta.file}`,
 				);
 			}
+
 			continue;
 		}
+
 		const component = pick(files[key], key);
 		if (component) seen.set(name, { rank, meta, component });
 	}
@@ -119,6 +125,7 @@ export function deriveRouteManifest(
 		screens[meta.name] = component;
 		routes.push(meta);
 	}
+
 	// Most-specific patterns first — 'demo/new' must beat 'demo/:id'.
 	routes.sort(
 		(a, b) =>
@@ -126,6 +133,7 @@ export function deriveRouteManifest(
 				a.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) ||
 			a.name.localeCompare(b.name),
 	);
+
 	return { screens, routes, layouts };
 }
 
@@ -148,8 +156,10 @@ export function matchRoute(
 				break;
 			}
 		}
+
 		if (ok) return { meta, params };
 	}
+
 	return null;
 }
 
@@ -166,19 +176,24 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 			const v = r.params[s.slice(1)];
 			if (v === undefined)
 				console.warn(`[octane-xplat] route '${r.name}' pushed without path param ${s}`);
+
 			return encodeURIComponent(String(v ?? ''));
 		});
+
 		rest = Object.fromEntries(
 			Object.entries(r.params).filter(([k]) => !meta.params.includes(k)),
 		);
 	} else {
 		segs = [r.name];
 	}
+
 	// No URLSearchParams — shared code carries no DOM globals (invariant 4).
 	const q = Object.entries(rest)
 		.map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
 		.join('&');
+
 	const path =
 		(r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/');
+
 	return (path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '');
 }

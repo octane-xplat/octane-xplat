@@ -17,8 +17,10 @@ export function WatchFace() @{
 		const t = setInterval(() => setNow(new Date()), 1000);
 		return () => clearInterval(t);
 	}, []);
+
 	const date = DAYS[now.getDay()] + ' ' + MONTHS[now.getMonth()] + ' ' + now.getDate();
 	const time = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+
 	<View className="vx-app flex-1 items-center justify-center gap-2">
 		<Text className="demo-watch-time">{time}</Text>
 		<Text className="demo-watch-date">{date}</Text>

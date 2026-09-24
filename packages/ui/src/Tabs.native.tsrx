@@ -51,19 +51,23 @@ function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
 						page.content = pane;
 						createNativeScriptRoot(pane).render(
 							TabPane as unknown as UniversalComponent, { render: t.render });
+
 						return page;
 					},
 				});
 			});
+
 			registerStack(t.stack, frame);
 			item.view = frame;
 			return item;
 		}
+
 		const cv = new GridLayout();
 		tabsByView.set(cv, t.render);
 		item.view = cv;
 		return item;
 	});
+
 	itemsCache.set(tabs, items);
 	return items;
 }
@@ -81,6 +85,7 @@ function mountPanes(e: any) {
 		paneRoots.set(cv, root);
 		root.render(TabPane as unknown as UniversalComponent, { render });
 	}
+
 	console.log('[probe] tabs mounted panes=' + (tv.items as TabViewItem[]).length);
 }
 

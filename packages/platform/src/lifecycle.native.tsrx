@@ -20,6 +20,7 @@ export function useAppState(): AppState {
 			Application.off(Application.exitEvent, onExit);
 		};
 	}, []);
+
 	return state;
 }
 
@@ -30,6 +31,7 @@ export function useBackHandler(fn: () => boolean): void {
 		const cb = (e: { cancel: boolean }) => {
 			if (fn()) e.cancel = true;
 		};
+
 		Application.android.on(Application.AndroidApplication.activityBackPressedEvent, cb);
 		return () => {
 			Application.android.off(Application.AndroidApplication.activityBackPressedEvent, cb);

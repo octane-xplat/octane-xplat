@@ -8,6 +8,7 @@ export function Modal(props: ModalProps) @{
 	const content = props.component
 		? createElement(props.component, props.params ?? {})
 		: props.children;
+
 	const presentation = props.presentation;
 	const className = presentation === 'sheet'
 		? 'vx-modal vx-modal--sheet'

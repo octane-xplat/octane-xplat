@@ -35,6 +35,7 @@ function nsHmrClientWatchdog(): Plugin {
 					}, 15_000);
 				}
 			});
+
 			server.httpServer?.on('upgrade', (req) => {
 				if (req.url?.startsWith('/ns-hmr')) {
 					everConnected = true;

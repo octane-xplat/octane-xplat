@@ -7,5 +7,6 @@ export function layoutChildProps(props: LayoutChildProps) {
 	for (const key of ['row', 'col', 'rowSpan', 'colSpan', 'dock', 'left', 'top', 'flexGrow', 'flexShrink', 'alignSelf', 'order'] as const) {
 		if (props[key] !== undefined) result[key] = props[key];
 	}
+
 	return result;
 }

@@ -9,6 +9,7 @@ export function NavLink(props: NavLinkProps) @{
 		&& Object.entries(props.route.params).every(
 			([key, value]) => String(current.params[key]) === String(value),
 		);
+
 	const href = hrefFor(props.route);
 	const navigate = (event: any) => {
 		if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

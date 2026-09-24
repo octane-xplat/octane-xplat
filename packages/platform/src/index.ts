@@ -18,6 +18,7 @@ export type {
 	ShareResult,
 	WindowSize,
 } from './types';
+
 export { device } from './device';
 export { storage } from './storage';
 export { clipboard } from './clipboard';

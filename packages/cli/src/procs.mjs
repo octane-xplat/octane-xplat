@@ -18,6 +18,7 @@ export function spawnTagged(tag, cmd, args, cwd) {
 			if (line.trim()) process.stdout.write(`[${tag}] ${line}\n`);
 		}
 	};
+
 	p.stdout.on('data', prefix);
 	p.stderr.on('data', prefix);
 	p.on('exit', () => children.delete(p));

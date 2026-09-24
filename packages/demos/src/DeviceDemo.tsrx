@@ -18,6 +18,7 @@ export function DeviceDemo() @{
 	const insets = useSafeAreaInsets();
 	const [value, setValue] = useState('');
 	const [drawerOpen, setDrawerOpen] = useState(false);
+
 	<Screen className="vx-app flex-1">
 		<SafeArea className="device-demo flex-1 gap-4">
 			<Text className="text-xl font-bold">Device seams</Text>

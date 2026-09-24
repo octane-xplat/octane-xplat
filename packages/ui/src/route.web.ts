@@ -69,8 +69,10 @@ function parse(): Route | null {
 		const named = matchRoute(routes, segs.slice(1));
 		if (named)
 			return { stack: segs[0], name: named.meta.name, params: { ...query, ...named.params } };
+
 		return { stack: segs[0], name: segs[1], params: query };
 	}
+
 	return { stack: 'root', name: segs[0], params: query };
 }
 

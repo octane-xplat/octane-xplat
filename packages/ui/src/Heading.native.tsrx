@@ -6,6 +6,7 @@ import { applyNativeProps } from './platformProps.native';
 
 export function Heading(props: HeadingProps) @{
 	const level = props.level ?? 2;
+
 	<label
 		id={props.id}
 		className={cx(`vx-h${level}`, props.className)}

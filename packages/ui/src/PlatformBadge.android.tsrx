@@ -6,5 +6,6 @@ import { cx } from "./cx";
 
 export function PlatformBadge(props: PlatformBadgeProps) @{
 	console.log('[badge] android variant evaluated');
+
 	<label className={cx(props.className)} text={"android"} />
 }

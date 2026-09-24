@@ -12,6 +12,7 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 				: options.presentation === 'fullscreen' || (!options.presentation && options.fullscreen)
 					? 'vx-modal vx-modal--fullscreen'
 					: 'vx-modal';
+
 		document.body.appendChild(dialog);
 		const root = createRoot(dialog);
 		let finished = false;
@@ -22,6 +23,7 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 			dialog.remove();
 			resolve(result);
 		};
+
 		const close = (result?: ModalOpenResult) => {
 			if (finished) return;
 			if (dialog.open) dialog.close();

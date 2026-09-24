@@ -5,6 +5,7 @@ import { applyNativeProps } from './platformProps.native';
 
 export function ActivityIndicator(props: ActivityIndicatorProps) @{
 	if (props.busy === false) return null;
+
 	<activityindicator
 		id={props.id}
 		className={cx(props.className)}

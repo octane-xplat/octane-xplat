@@ -14,6 +14,7 @@ const NATIVE_EXTS = [
 	'.ios.ts', '.android.ts', '.native.ts', '.mjs', '.mts', '.ts',
 	'.jsx', '.js', '.json',
 ];
+
 const WEB_EXTS = [
 	'.web.tsrx', '.tsrx', '.web.tsx', '.tsx', '.web.ts', '.mjs', '.mts',
 	'.ts', '.jsx', '.js', '.json',

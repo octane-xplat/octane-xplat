@@ -7,6 +7,7 @@ export function Settings() @{
 	const [notifications, setNotifications] = useState(true);
 	const [analytics, setAnalytics] = useState(false);
 	console.log('[probe] Settings render notif=' + notifications);
+
 	<Screen className="vx-app flex-1 gap-4">
 		<Text className="text-xl font-bold">Settings</Text>
 		<Row className="gap-4">

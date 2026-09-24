@@ -11,6 +11,7 @@ function winnerOf(b: string[]): string | null {
 	for (const [a, c, d] of WIN) {
 		if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
 	}
+
 	return b.every((c) => c) ? 'draw' : null;
 }
 
@@ -33,6 +34,7 @@ export function TicTacToe() @{
 		setBoard(next);
 		setXNext(!xNext);
 	};
+
 	const reset = () => { setBoard(Array(9).fill('')); setXNext(true); };
 
 	const status = winner === 'draw'

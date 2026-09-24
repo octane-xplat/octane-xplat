@@ -29,6 +29,7 @@ async function collectTsrxFiles(directory) {
 			files.push(resolve(directory, entry.name));
 		}
 	}
+
 	return files;
 }
 
@@ -37,6 +38,7 @@ function lineNumberAt(source, offset) {
 	for (let index = 0; index < offset; index++) {
 		if (source[index] === '\n') line++;
 	}
+
 	return line;
 }
 
@@ -51,6 +53,7 @@ for (const filename of await collectTsrxFiles(root)) {
 				source = applySpacingFixes(source, violations);
 				violations = findSpacingViolations(parseModule(source, filename), source);
 			}
+
 			if (violations.length) {
 				console.error(`${relative(root, filename)}: spacing fixes did not converge`);
 				failed = true;
@@ -63,6 +66,7 @@ for (const filename of await collectTsrxFiles(root)) {
 					`${relative(root, filename)}:${lineNumberAt(source, violation.node.start)}: ${violation.messageId}`,
 				);
 			}
+
 			failed = true;
 		}
 	} catch (error) {

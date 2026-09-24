@@ -34,6 +34,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 			},
 			props.placement ?? 'bottom',
 		);
+
 		setPosition((current) =>
 			current?.left === next.left &&
 			current?.top === next.top &&
@@ -41,8 +42,10 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 				? current
 				: next,
 		);
+
 		if (panelSize?.width > 0 && panelSize?.height > 0) setSettled(true);
 	};
+
 	useEffect(() => {
 		const anchor = props.anchorView;
 		if (!props.open || !anchor) return;
@@ -54,8 +57,10 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 				view.on?.(event, handler);
 				listeners.push({ view, event, handler });
 			}
+
 			view = view.parent;
 		}
+
 		update();
 		return () => {
 			for (const listener of listeners) {
@@ -63,10 +68,13 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 			}
 		};
 	}, [props.open, props.anchorView, props.placement, props.children, props.style]);
+
 	useEffect(() => {
 		applyNativeProps(panelRef.current, props);
 	}, [props.ios, props.android, settled]);
+
 	const dismiss = () => props.onDismiss?.();
+
 	<absolutelayout
 		width="100%"
 		height="100%"
@@ -101,6 +109,7 @@ export function Popover(props: PopoverProps) @{
 		const next = props.anchor?.current ?? null;
 		if (next !== anchorView) setAnchorView(next);
 	}, [props.anchor, props.open, anchorView]);
+
 	@if (props.open && anchorView) {
 		<>{createPortal(<PopoverLayer {...props} anchorView={anchorView} />, anchorView)}</>
 	}

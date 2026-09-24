@@ -17,6 +17,7 @@ export function Grid(props: GridProps) @{
 		warnedAboutGap = true;
 		console.warn('[Grid] gap is not supported; use child margins instead.');
 	}
+
 	<div
 		className={['vx-grid', props.className]}
 		style={{

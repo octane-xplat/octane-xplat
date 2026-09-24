@@ -17,6 +17,7 @@ const hl = createHighlighterCoreSync({
 	themes: [themeDark],
 	engine: createJavaScriptRegexEngine(),
 });
+
 const LANGS = new Set(['ts', 'typescript', 'tsx', 'jsonc', 'json']);
 
 function tokenStyle(t: { color?: string; fontStyle?: number }) {
@@ -30,6 +31,7 @@ function tokenStyle(t: { color?: string; fontStyle?: number }) {
 function CodeBlock(props: { code: string; lang: string }) @{
 	const lang = LANGS.has(props.lang) ? props.lang : 'text';
 	const { tokens } = hl.codeToTokens(props.code, { lang, theme: 'vitesse-dark' });
+
 	<View className="code"><Text className="mono">
 		{tokens.map((line) => <>{line.map((t) => <Text style={tokenStyle(t)}>{t.content}</Text>)}{'\n'}</>)}
 	</Text></View>
@@ -74,8 +76,10 @@ function SpanText(props: { s: Span }) @{
 		if (slug) {
 			return <a className={cls} href={docPath(slug)} onClick={(e: MouseEvent) => { e.preventDefault(); pushRoute(docRoute(slug)); resetDocScroll(); }}>{s.text}</a>;
 		}
+
 		return <a className={cls} href={extUrl(s.href)} target="_blank" rel="noopener">{s.text}</a>;
 	}
+
 	return <Text className={cls}>{s.text}</Text>;
 }
 
@@ -93,6 +97,7 @@ function BlockView(props: { b: Block }) @{
 			<Text className="li-text"><Spans spans={b.spans} /></Text>
 		</View>
 	);
+
 	if (b.kind === 'quote') return <View className="quote"><Text className="dim"><Spans spans={b.spans} /></Text></View>;
 	if (b.kind === 'callout') {
 		return <View className={'callout callout-' + b.level}>
@@ -100,6 +105,7 @@ function BlockView(props: { b: Block }) @{
 			{b.lines.map((ls) => <Text className="callout-line"><Spans spans={ls} /></Text>)}
 		</View>;
 	}
+
 	if (b.kind === 'code') return <CodeBlock code={b.text} lang={b.lang} />;
 	if (b.kind === 'hr') return <View className="hr" />;
 	if (b.kind === 'table') {
@@ -111,10 +117,12 @@ function BlockView(props: { b: Block }) @{
 			))}
 		</View>
 	}
+
 	return <></>;
 }
 
 export function MdDoc(props: { md: string }) @{
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
+
 	<View className="doc">{blocks.map((b) => <BlockView b={b} />)}</View>
 }

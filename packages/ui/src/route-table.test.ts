@@ -14,6 +14,7 @@ describe('deriveRouteManifest', () => {
 			'./app/demo/[id].tsrx': { DemoDetail: C('DemoDetail') },
 			'./app/chat/index.tsrx': { Chat: C('Chat') },
 		});
+
 		expect(Object.keys(m.screens).sort()).toEqual(['chat', 'demo/:id', 'detail']);
 		const demo = m.routes.find((r) => r.name === 'demo/:id')!;
 		expect(demo.segments).toEqual(['demo', ':id']);
@@ -26,6 +27,7 @@ describe('deriveRouteManifest', () => {
 			'./app/chat/_layout.tsrx': { ChatShell: C('ChatShell') },
 			'./app/detail.tsrx': { Detail: C('Detail') },
 		});
+
 		expect(Object.keys(m.screens)).toEqual(['detail']);
 		expect(m.layouts[''].displayName).toBe('Root');
 		expect(m.layouts['chat'].displayName).toBe('ChatShell');
@@ -38,6 +40,7 @@ describe('deriveRouteManifest', () => {
 			'./app/settings.native.tsrx': { S: C('native') },
 			'./app/only.tsrx': { O: C('only') },
 		};
+
 		const web = manifest(files, ['web']);
 		expect(web.screens.settings.displayName).toBe('web');
 		const nat = manifest(files, ['ios', 'native']);
@@ -55,6 +58,7 @@ describe('deriveRouteManifest', () => {
 			'./app/b.tsrx': { screen: C('s'), helper: () => 1 },
 			'./app/c.tsrx': { only: C('only') },
 		});
+
 		expect(m.screens.a.displayName).toBe('d');
 		expect(m.screens.b.displayName).toBe('s');
 		expect(m.screens.c.displayName).toBe('only');
@@ -82,6 +86,7 @@ describe('matchRoute + buildRoutePath', () => {
 		expect(
 			buildRoutePath(routes, { stack: 'demos', name: 'demo/:id', params: { id: 'counter', tab: '2' } }),
 		).toBe('/demos/demo/counter?tab=2');
+
 		expect(buildRoutePath(routes, { stack: 'root', name: 'detail', params: { from: 'home' } })).toBe(
 			'/detail?from=home',
 		);

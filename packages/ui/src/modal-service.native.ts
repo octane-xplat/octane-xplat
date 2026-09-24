@@ -22,12 +22,14 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 			host.removeChildren?.();
 			resolve(result);
 		};
+
 		const close = (result?: ModalOpenResult) => host.closeModal(result);
 		root.render(Component as UniversalComponent, { params, close });
 
 		const fullscreen = options.presentation
 			? options.presentation === 'fullscreen'
 			: options.fullscreen ?? true;
+
 		// showModal takes (viewToShow, options). On iOS fullscreen=false is a
 		// form sheet; on Android it is a centered dialog sized to its content.
 		presenter.showModal(host, {

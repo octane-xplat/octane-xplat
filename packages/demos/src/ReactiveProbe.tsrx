@@ -9,6 +9,7 @@ function ProbeChild(props: { name: string; n: number }) @{
 	const renders = (renderCounts.get(props.name) ?? 0) + 1;
 	renderCounts.set(props.name, renders);
 	console.log('[probe] child ' + props.name + ' render n=' + props.n + ' renders=' + renders);
+
 	<Row className="gap-2 items-center">
 		<Text className="chip">{props.name}</Text>
 		<Text>{props.name + ' n=' + props.n + ' renders=' + renders}</Text>
@@ -31,6 +32,7 @@ export function ReactiveProbe() @{
 	const [a, setA] = useState(0);
 	const [b, setB] = useState(0);
 	console.log('[probe] ReactiveProbe render a=' + a + ' b=' + b);
+
 	<View className="vx-app flex-1 gap-4">
 		<Row className="gap-4">
 			<Pressable id="rp-a" onPress={() => setA(a + 1)} className="btn bg-primary">

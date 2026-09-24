@@ -21,5 +21,6 @@ export function useWindowSize(): WindowSize {
 		Application.on(Application.orientationChangedEvent, update);
 		return () => Application.off(Application.orientationChangedEvent, update);
 	}, []);
+
 	return size;
 }

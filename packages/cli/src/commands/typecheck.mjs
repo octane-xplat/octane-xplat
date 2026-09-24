@@ -18,6 +18,7 @@ export const typecheck = command({
 				process.exit(1);
 			}
 		}
+
 		p.log.success('Typecheck clean');
 	},
 });

@@ -21,8 +21,10 @@ export function Todo() @{
 		setTodos([...todos, { id: 't' + ++nextId.current, text, done: false }]);
 		setDraft('');
 	};
+
 	const toggle = (id: string) =>
 		setTodos(todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+
 	const remove = (id: string) => setTodos(todos.filter((t) => t.id !== id));
 
 	const renderTodo = (t: Todo) => (

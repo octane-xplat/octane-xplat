@@ -9,6 +9,7 @@ export const systemBars = {
 			meta.setAttribute('name', 'theme-color');
 			document.head.appendChild(meta);
 		}
+
 		meta.setAttribute('content', color);
 	},
 };

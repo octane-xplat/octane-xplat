@@ -45,6 +45,7 @@ export const dev = command({
 				initialValues: all.map((t) => t.id),
 				required: true,
 			});
+
 			if (p.isCancel(picked)) { p.cancel('Cancelled'); process.exit(0); }
 			chosen = all.filter((t) => picked.includes(t.id));
 		}

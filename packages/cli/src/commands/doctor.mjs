@@ -24,10 +24,13 @@ export const doctor = command({
 		row('pnpm', check('pnpm', ['--version']).ok, check('pnpm', ['--version']).out);
 		row('ns CLI', check('pnpm', ['exec', 'ns', '--version']).ok, check('pnpm', ['exec', 'ns', '--version']).out,
 			'add the nativescript devDep (the starter ships it)');
+
 		row('xcodebuild', check('xcodebuild', ['-version']).ok, check('xcodebuild', ['-version']).out,
 			'iOS needs Xcode — App Store install + xcode-select');
+
 		row('xcodeproj gem', check('ruby', ['-e', 'require "xcodeproj"']).ok, '',
 			'gem install --user-install xcodeproj');
+
 		const sims = check('xcrun', ['simctl', 'list', 'devices', 'booted']);
 		row('iOS simulator', sims.ok, sims.out || 'none booted');
 		const adb = check('adb', ['devices']);
@@ -35,6 +38,7 @@ export const doctor = command({
 		row('adb', adb.ok, `${devices} device(s)`, 'Android SDK platform-tools on PATH');
 		row('ANDROID_HOME', !!process.env.ANDROID_HOME, process.env.ANDROID_HOME || 'unset',
 			'export ANDROID_HOME=$HOME/Library/Android/sdk');
+
 		row('JAVA_HOME', !!process.env.JAVA_HOME, process.env.JAVA_HOME || 'unset',
 			'JDK 17 (JDK 25 breaks the Android toolchain)');
 
@@ -43,6 +47,7 @@ export const doctor = command({
 			if (r.ok) p.log.success(`${r.name} — ${r.detail || 'ok'}`);
 			else { bad++; p.log.warn(`${r.name} — missing${r.hint ? ` (${r.hint})` : ''}`); }
 		}
+
 		p.outro(bad === 0 ? 'All checks pass' : `${bad} missing — web still works, native targets need the above`);
 	},
 });

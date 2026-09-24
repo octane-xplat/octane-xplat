@@ -24,6 +24,7 @@ export function View(props: ViewProps) @{
 			lx = e.clientX; last = e.clientY; t0 = now;
 			cb({ x: e.clientX - sx, y: e.clientY - sy, dx: e.clientX - sx, dy: e.clientY - sy, vx, vy, state, target: node });
 		};
+
 		const down = (e: PointerEvent) => { active = true; sx = e.clientX; sy = e.clientY; t0 = performance.now(); lx = sx; last = sy; node.setPointerCapture?.(e.pointerId); emit(e, 'began'); };
 		const move = (e: PointerEvent) => { if (active) emit(e, 'moved'); };
 		const up = (e: PointerEvent) => { if (active) { active = false; emit(e, 'ended'); } };

@@ -29,6 +29,7 @@ function ListInner(props: {
 		isIOS ? props.ios : {},
 		isAndroid ? props.android : {},
 	);
+
 	<listview
 		id={props.id}
 		className={cx(props.className)}

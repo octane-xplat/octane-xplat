@@ -17,16 +17,19 @@ function BareChild() @{
 
 function SubbedChild() @{
 	const v = useStore(store);
+
 	<span class="subbed">{String(v)}</span>
 }
 
 function SelectedChild() @{
 	const v = useStore(store, (s) => s * 10);
+
 	<span class="sel">{String(v)}</span>
 }
 
 function Parent() @{
 	useStore(store);
+
 	<>
 		<BareChild />
 		<SubbedChild />

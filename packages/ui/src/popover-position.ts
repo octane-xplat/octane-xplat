@@ -35,13 +35,16 @@ export function positionPopover(
 			case 'left': return { left: anchor.left - panel.width - gap, top: anchor.top };
 			case 'right': return { left: anchor.left + anchor.width + gap, top: anchor.top };
 		}
+
 		throw new Error(`Unknown popover placement: ${placement}`);
 	};
+
 	const fits = (position: { left: number; top: number }) =>
 		position.left >= viewport.left &&
 		position.top >= viewport.top &&
 		position.left + panel.width <= viewport.left + viewport.width &&
 		position.top + panel.height <= viewport.top + viewport.height;
+
 	const preferred = at(requested);
 	const placement = fits(preferred) ? requested : opposite[requested];
 	const raw = placement === requested ? preferred : at(placement);

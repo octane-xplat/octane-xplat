@@ -22,6 +22,7 @@ export function getStack(name: string): Frame | undefined {
 		const rv = Application.getRootView?.();
 		if (rv instanceof Frame) return rv;
 	}
+
 	return undefined;
 }
 

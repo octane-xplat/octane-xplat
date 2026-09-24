@@ -39,6 +39,7 @@ export function RootLayout() @{
 		const i = r ? TABS.findIndex((t) => t.stack === r.stack) : -1;
 		return i >= 0 ? i : 0;
 	});
+
 	console.log('[harness] App render, tab=' + tab);
 
 	useEffect(() => {

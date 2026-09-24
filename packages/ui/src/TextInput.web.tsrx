@@ -3,6 +3,7 @@ import { applyEscapeProps } from "./escape-props";
 export function TextInput(props: TextInputProps) @{
 	const keyboardType = props.keyboardType === 'phone' ? 'tel' : props.keyboardType === 'default' ? 'text' : props.keyboardType;
 	const inputMode = props.keyboardType === 'number' ? 'numeric' : props.keyboardType === 'phone' ? 'tel' : props.keyboardType === 'default' ? 'text' : props.keyboardType;
+
 	<input
 		ref={(el: any) => {
 			if (!el) return;

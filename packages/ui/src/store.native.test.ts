@@ -11,6 +11,7 @@ import {
 	universalValue,
 	useContext,
 } from 'octane/universal/native';
+
 import { createStore } from './store';
 import { useStore } from './use-store';
 
@@ -25,6 +26,7 @@ const labelPlan = universalPlan('object', {
 	type: 'label',
 	bindings: [['value', 0]],
 });
+
 const label = (value: string) => universalValue(labelPlan, [value]);
 const texts = (container: ReturnType<typeof createObjectContainer>) =>
 	container.children.map((c: any) => c.props.value);
@@ -42,6 +44,7 @@ describe('universal renderer — store reads under parent re-render', () => {
 			useStore(store);
 			return [universalComponent('object', Child, { stable: 'same' }), label('parent')];
 		});
+
 		const { container, root } = objectRoot();
 		root.render(Parent, {});
 		expect(texts(container)).toEqual(['child:0', 'parent']);
@@ -59,11 +62,13 @@ describe('universal renderer — store reads under parent re-render', () => {
 			renders.bare++;
 			return label(`bare:${store.get()}`);
 		});
+
 		// Control: a child whose PROPS change still re-renders normally.
 		const PropChild = defineUniversalComponent('object', (props: { tick: number }) => {
 			renders.propDriven++;
 			return label(`prop:${props.tick}`);
 		});
+
 		const Parent = defineUniversalComponent('object', (props: { tick: number }) => {
 			useStore(store);
 			return [
@@ -71,6 +76,7 @@ describe('universal renderer — store reads under parent re-render', () => {
 				universalComponent('object', PropChild, { tick: props.tick }),
 			];
 		});
+
 		const { container, root } = objectRoot();
 		root.render(Parent, { tick: 0 });
 		expect(texts(container)).toEqual(['bare:0', 'prop:0']);
@@ -96,10 +102,12 @@ describe('universal renderer — store reads under parent re-render', () => {
 			renders.ctx++;
 			return label(`ctx:${useContext(Theme)}`);
 		});
+
 		const PlainChild = defineUniversalComponent('object', () => {
 			renders.plain++;
 			return label('plain');
 		});
+
 		const Parent = defineUniversalComponent('object', (props: { theme: string }) => [
 			universalComponent('object', Theme, {
 				value: props.theme,
@@ -107,6 +115,7 @@ describe('universal renderer — store reads under parent re-render', () => {
 			}),
 			universalComponent('object', PlainChild, { stable: 'same' }),
 		]);
+
 		const { container, root } = objectRoot();
 		root.render(Parent, { theme: 'light' });
 		expect(texts(container)).toEqual(['ctx:light', 'plain']);
@@ -126,6 +135,7 @@ describe('universal renderer — store reads under parent re-render', () => {
 			renders.a++;
 			return label(`a:${useStore(store, (s) => s.a)}`);
 		});
+
 		const { container, root } = objectRoot();
 		root.render(Child, {});
 		expect(texts(container)).toEqual(['a:0']);

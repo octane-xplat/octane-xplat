@@ -17,6 +17,7 @@ export function useAppState(): AppState {
 			window.removeEventListener('pageshow', onVis);
 		};
 	}, []);
+
 	return state;
 }
 

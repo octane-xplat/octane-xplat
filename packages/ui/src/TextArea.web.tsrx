@@ -25,6 +25,7 @@ export function TextArea(props: TextAreaProps) @{
 		const cap = props.maxRows
 			? props.maxRows * line + (cs.boxSizing === 'border-box' ? pad + bord : 0)
 			: parseFloat(cs.maxHeight) || Infinity;
+
 		if (props.maxRows) t.style.maxHeight = Math.ceil(cap) + 'px';
 		if (props.autoGrow) {
 			t.style.height = 'auto';

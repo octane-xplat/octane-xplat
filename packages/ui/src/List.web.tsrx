@@ -28,9 +28,11 @@ export function List(props: ListProps) @{
 				props.onEndReached?.();
 			}
 		};
+
 		const onScroll = () => {
 			if (!frame) frame = requestAnimationFrame(checkEnd);
 		};
+
 		node.addEventListener('scroll', onScroll, { passive: true });
 		checkEnd();
 		return () => {

@@ -2,6 +2,7 @@
 export function openSheet(_Component?: unknown, _props?: Record<string, unknown>) {
 	console.log('[probe] sheet open (web stub)');
 }
+
 export function closeSheet() {
 	console.log('[probe] sheet close (web stub)');
 }

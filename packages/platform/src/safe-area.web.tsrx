@@ -10,6 +10,7 @@ function measure(): Insets {
 		'position:fixed;top:0;left:0;pointer-events:none;visibility:hidden;' +
 		'padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);' +
 		'padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);';
+
 	document.body.appendChild(probe);
 	const cs = getComputedStyle(probe);
 	const insets = {
@@ -18,6 +19,7 @@ function measure(): Insets {
 		left: parseFloat(cs.paddingLeft) || 0,
 		right: parseFloat(cs.paddingRight) || 0,
 	};
+
 	probe.remove();
 	return insets;
 }
@@ -30,5 +32,6 @@ export function useSafeAreaInsets(): Insets {
 		window.addEventListener('resize', update);
 		return () => window.removeEventListener('resize', update);
 	}, []);
+
 	return insets;
 }

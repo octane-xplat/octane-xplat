@@ -27,6 +27,7 @@ function insertBlankLine(source, end, nextStart) {
 		const eol = firstLineBreak(source)?.[0] ?? '\n';
 		return { position: end, text: `${eol}${eol}` };
 	}
+
 	return {
 		position: end + lineBreak.index + lineBreak[0].length,
 		text: lineBreak[0],
@@ -37,6 +38,7 @@ function isMultiline(node, source) {
 	if (node.loc?.start?.line && node.loc?.end?.line) {
 		return node.loc.start.line < node.loc.end.line;
 	}
+
 	return /\r\n|\n|\r/.test(source.slice(node.start, node.end));
 }
 
@@ -90,6 +92,7 @@ export function findSpacingViolations(program, source) {
 
 		for (const child of childNodes(node)) visit(child);
 	};
+
 	visit(program);
 	return violations;
 }
@@ -100,5 +103,6 @@ export function applySpacingFixes(source, violations) {
 	for (const fix of fixes) {
 		fixed = fixed.slice(0, fix.position) + fix.text + fixed.slice(fix.position);
 	}
+
 	return fixed;
 }

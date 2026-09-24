@@ -26,9 +26,11 @@ export function styled<P extends { className?: any }, V extends Record<string, a
 			if ((props as any)[k]) cls.push((def.variants as any)[k]);
 			delete rest[k]; // variant flags are consumed — don't leak to the leaf
 		}
+
 		if (props.className) cls.push(props.className);
 		rest.className = cls;
 		return universalComponent('nativescript', Base as any, rest);
 	}
+
 	return defineUniversalComponent('nativescript', Styled);
 }
