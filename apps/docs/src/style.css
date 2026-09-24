@@ -290,6 +290,7 @@ body {
 	line-height: 1.55;
 	margin-top: 6px;
 	flex-direction: row;
+	gap: 10px;
 }
 
 .li-text {

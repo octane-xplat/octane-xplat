@@ -73,7 +73,7 @@ function BlockView(props: { b: Block }) @{
 	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'li') return (
 		<View className="li" style={{ paddingLeft: b.depth * 16 }}>
-			<Text className="dim">{'• '}</Text>
+			<Text className="dim">{'•'}</Text>
 			<Text className="li-text"><Spans spans={b.spans} /></Text>
 		</View>
 	);
