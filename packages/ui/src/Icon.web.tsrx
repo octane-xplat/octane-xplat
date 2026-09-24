@@ -14,6 +14,7 @@ export function Icon(props: IconProps) @{
 			width={size}
 			height={size}
 			aria-hidden="true"
+			style={props.color ? { color: props.color } : undefined}
 			ref={(el: any) => {
 				if (el) el.innerHTML = glyph.markup;
 				applyWebProps(el, props.web);

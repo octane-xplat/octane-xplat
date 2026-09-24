@@ -75,7 +75,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 		{(props.dismissOnOutsideTap ?? true) && <gridlayout
 			width="100%"
 			height="100%"
-			backgroundColor="transparent"
+			backgroundColor={"transparent" as any}
 			className="vx-popover-backdrop"
 			onTap={dismiss}
 		/>}
