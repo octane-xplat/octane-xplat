@@ -32,6 +32,7 @@
     "test:native": "vitest run --config vitest.native.config.mts"
   },
   "devDependencies": {
+    "@nativescript-community/ui-canvas": "4.6.52",
     "@nativescript-community/octane": "0.2.1",
     "@nativescript/core": "9.1.2",
     "@octanejs/vite-plugin": "0.1.58",
@@ -42,6 +43,7 @@
   },
   "peerDependencies": {
     "@nativescript-community/octane": ">=0.2.1 <1",
+    "@nativescript-community/ui-canvas": ">=4.6.52 <5",
     "@nativescript/core": ">=9.1.0 <10",
     "octane": ">=0.1.51 <1"
   },

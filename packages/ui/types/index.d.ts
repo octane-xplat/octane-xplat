@@ -22,6 +22,7 @@ import type {
 	LayoutChildProps,
 	LinkProps,
 	ListProps,
+	MeterProps,
 	ModalProps,
 	ModalOpenOptions,
 	ModalOpenResult,
@@ -134,6 +135,7 @@ export declare const KeyboardAvoiding: UniversalComponent<KeyboardAvoidingProps>
 export declare const Drawer: UniversalComponent<DrawerProps>;
 export declare const Switch: UniversalComponent<SwitchProps>;
 export declare const ActivityIndicator: UniversalComponent<ActivityIndicatorProps>;
+export declare const Meter: UniversalComponent<MeterProps>;
 export declare const Slider: UniversalComponent<SliderProps>;
 export declare const Icon: UniversalComponent<IconProps>;
 export declare const Heading: UniversalComponent<HeadingProps>;

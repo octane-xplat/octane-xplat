@@ -290,6 +290,19 @@ export interface ActivityIndicatorProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+export interface MeterProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    children?: any;
+    value: number;
+    max?: number;
+    size?: number;
+    strokeWidth?: number;
+    color?: string;
+    trackColor?: string;
+    accessibilityLabel?: string;
+}
 export interface SliderProps {
     className?: any;
     style?: any;
