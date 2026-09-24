@@ -134,6 +134,9 @@ importers:
 
   packages/app:
     dependencies:
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../ui

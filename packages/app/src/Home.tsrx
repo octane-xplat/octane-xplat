@@ -3,7 +3,7 @@ import { View, Row, Text, Pressable, TextInput, List, ScrollView, Image, Modal, 
 import { navigate } from './platform/nav';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
-import { storage } from './platform/storage';
+import { storage } from '@octane-xplat/platform';
 
 const INITIAL = [
 	{ id: 'a', label: 'Alpha' },
