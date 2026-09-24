@@ -1,0 +1,13 @@
+diff --git a/dist/compiler/compile-universal.js b/dist/compiler/compile-universal.js
+index 7bc29b5e377bd8c7787462138af48579450519aa..48204c249770619847d24d5ccc1d95ac0e858471 100644
+--- a/dist/compiler/compile-universal.js
++++ b/dist/compiler/compile-universal.js
+@@ -3544,7 +3544,7 @@ function compileIfAst(node, context, state) {
+ 	let alternate = null;
+ 	if (node.alternate) {
+ 		alternate =
+-			node.alternate.type === 'JSXIfExpression'
++			node.alternate.type === 'JSXIfExpression' || node.alternate.type === 'IfStatement'
+ 				? generatedArrow([], compileIfValueAst(node.alternate, state), node.alternate)
+ 				: compileBlockValueAst(node.alternate?.body ?? [node.alternate], state, [], node.alternate);
+ 	}

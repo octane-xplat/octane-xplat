@@ -38,5 +38,9 @@ allowBuilds:
 # export-name position accepts any IdentifierName. Remove once upstream
 # (@nativescript/vite, packages/vite/hmr/server/deps-bundle.ts +
 # core-bundle.ts in NativeScript/NativeScript) ships the same fix.
+#
+# octane@0.4.0: universal compiler miscompiled `@else if` chains (else thunk
+# returned an empty range). Remove once a release carries octanejs/octane#1297.
 patchedDependencies:
   '@nativescript/vite@8.0.11': patches/@nativescript__vite@8.0.11.patch
+  octane@0.4.0: patches/octane@0.4.0.patch
