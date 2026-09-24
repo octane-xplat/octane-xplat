@@ -1,6 +1,6 @@
 {
 	"name": "create-octane-xplat",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "Scaffold a minimal @octane-xplat/ui app — one Octane codebase for web + iOS + Android",
 	"bin": {
 		"create-octane-xplat": "./index.mjs"
