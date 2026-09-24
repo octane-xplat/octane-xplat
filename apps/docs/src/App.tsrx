@@ -15,7 +15,8 @@ export function App() @{
 
 	const open = (s: string) => {
 		const d = DOCS.find((x) => x.slug === s);
-		pushRoute({ stack: d?.group === 'notes' ? 'notes' : 'root', name: s });
+		// The index doc lives at '/', not /README.
+		pushRoute({ stack: d?.group === 'notes' ? 'notes' : 'root', name: s === DOCS[0].slug ? '' : s });
 		resetDocScroll();
 	};
 	// Safety net for navs that flow through octane's commit path.
