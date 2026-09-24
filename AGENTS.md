@@ -4,20 +4,28 @@ Working agreements for this repo.
 
 ## What this is
 
-Pre-implementation design for a single [Octane](https://github.com/octanejs/octane)
-codebase targeting web (DOM renderer) + iOS/Android
+A single [Octane](https://github.com/octanejs/octane) codebase targeting web
+(DOM renderer) + iOS/Android
 ([`@nativescript-community/octane`](https://github.com/nativescript-community/octane),
 the universal-runtime driver over `@nativescript/core`).
 
-**There is no product code yet.** The deliverable is a fully-planned framework
-spec. Everything written so far is documentation; correctness claims should be
-verified against upstream source before being treated as load-bearing.
+The framework exists and is published: `packages/ui` ships as
+`@octane-xplat/ui` on npm, `packages/cli` as `@octane-xplat/cli` (dev/build/
+doctor/typecheck). `packages/app` + `apps/web` + `apps/native` are the probe
+harness; `packages/demos` the seam-by-seam demo screens. `docs/` remains the
+design record. The real-app proving ground is `~/dev/ns/text-coral-ns` —
+its `.agents/docs/` notes record which framework seams still leak.
 
 ## Layout
 
 | Path | What it is |
 |---|---|
-| `docs/` | Our plan. `docs/README.md` is the index/dashboard — seven owned problems, each with a status header (Owns / Status / Blocks on / Decisions / Validated by). |
+| `docs/` | Our plan + status. `docs/README.md` is the index; `docs/status.md` the dashboard — seven owned problems, each with a status header (Owns / Status / Blocks on / Decisions / Validated by). |
+| `packages/ui` | The framework — `@octane-xplat/ui` on npm. Primitives, styled(), stacks, routes, theme. Prop types in `src/props.ts`. |
+| `packages/cli` | `@octane-xplat/cli` — `xplat` dev/build/doctor/typecheck/clean commands. |
+| `packages/app`, `packages/demos` | Probe harness app + seam-by-seam demo screens. |
+| `apps/web`, `apps/native` | Entry shells + vite configs for the harness. |
+| `packages/create`, `packages/platform` | Project scaffolder; platform services seam. |
 | `prior-art/` | Other people's systems — substrate (`octane`, `nativescript-octane`, `nativescript-core`) and precedents (`one`, `tamagui`, `react-native-web`, `flutter`). Documents here are never commitments. |
 | `docs/decisions.md` | Decision ledger, `#`-numbered, statuses: forced / decided / provisional / rejected. Reversals get dated notes, not edits. |
 | `docs/open-questions.md` | Unverified seams, `Q`-numbered, ranked by blast radius. |
