@@ -47,5 +47,40 @@ They should not contain:
 If a screen needs one of those things, put the platform detail behind a shared
 component or service instead.
 
+## Shared state
+
+Keep shared state in a `.ts` module using Octane signals
+(`octane/signals`):
+
+```ts
+import { signal$, query$, skip } from 'octane/signals';
+
+export const feedMode$ = signal$<'global' | 'following'>('global');
+export const feed$ = query$(
+	() => feedMode$.get(),          // cache key — return `skip` for "no request"
+	() => api.posts.list({ mode: feedMode$.get() }),
+);
+```
+
+A component that reads `feedMode$.get()` in render subscribes automatically —
+on web *and* on native. There is no platform leaf, no subscription hook, and
+no compiler flag. Name shared signals with a `$` suffix so the compiler
+preserves the reads through caches and props, and make sure the module imports
+`octane/signals` at runtime (a `import 'octane/signals'` side-effect import in
+the entry is enough to cover files that only call `.get()`).
+
+Reads of async queries suspend: render them under `@try`/`@pending`/`@catch`.
+On native, a committed `@try` boundary must not suspend again — queries are
+stale-while-revalidate, so only suspend before first data.
+
+Two exceptions:
+
+- **Non-signal module state** (plain stores, mutable objects) does not
+  subscribe on native. Wrap those reads in `useStore(store)` per reading
+  component — the universal renderer retains unchanged-prop children, so a
+  bare read in a child goes stale. (Decision #27.)
+- **Reads outside render** (module init, event handlers) never subscribe —
+  same as web. Write with `.set()` and read imperatively there.
+
 For the compiler boundaries, file rules, and the full layer map, see the
 [architecture notes](architecture-notes.md).
