@@ -71,10 +71,18 @@ nothing to commit). Tables:
 ## Toolchain notes (prototype harness — verified)
 
 - **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
-  `nodeLinker: hoisted` — NativeScript's bundler needs a flat `node_modules`
-  (rolldown resolves transitive deps like `tslib` through the real tree, not
-  pnpm's symlinked `.pnpm` store). `minimumReleaseAgeExclude` there covers the
-  octane packages — they're newer than the supply-chain cutoff.
+  `nodeLinker: isolated` — `@nativescript/vite`'s vendor-manifest code needs it.
+  Consequence: every package must declare what it imports (no transitive-dep
+  leakage), and apps must declare the `@nativescript/*` plugins they ship —
+  `/ns/m` resolves node_modules specs under the app root only.
+  `minimumReleaseAgeExclude` covers the octane packages — they're newer than
+  the supply-chain cutoff.
+- `pnpm-workspace.yaml` `patchedDependencies` currently carries two live
+  patches: `@nativescript-community/vite-octane` (`.tsrx` hot updates +
+  real `recipients` count) and `@nativescript/vite` (reserved-word named
+  exports like zod's `enum` survive dep shims). Drop each when a release
+  carries the fix. esbuild is pinned to 0.27.7 — vite 8's peer range admits
+  0.28.x and the vendor bundler dies on the host/binary mismatch.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
   from the registry → 404).
 - `apps/native` needs `@valor/nativescript-websockets` — the on-device HMR
@@ -82,10 +90,24 @@ nothing to commit). Tables:
 - iOS native build needs the `xcodeproj` Ruby gem visible to the `ruby` on PATH
   (`gem install --user-install xcodeproj`). `ns doctor` can report OK while the
   hook still fails — verify with `ruby -e 'require "xcodeproj"'`.
+- Android build needs JDK ≤ 24 — gradle 8.14.3 fails on Java 25
+  (`Unsupported class file major version 69`). `brew install openjdk@17` and
+  `JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home`
+  works; Android Studio's JBR is 25 too.
 - Verified: `vite build` + dev transform on web; `ns build ios` + app boots on
-  iPhone 17 Pro sim (`running-active-Visible`, no JS errors).
+  iPhone 17 Pro sim (`running-active-Visible`, no JS errors); `ns run android`
+  on physical device — HTTP-ESM boot, `.tsrx` edits apply in place via
+  `/ns-hmr` ws, `.ts` entry edits trigger in-process full reload via
+  `Application.resetRootView` (same pid).
 - `ns run ios` re-boots the sim even when already booted and errors — the
   workaround is `xcrun simctl install/launch` against the existing `.app`.
+- Physical-device HMR quirks: `ns run` sets `adb reverse tcp:<port>` itself,
+  but the mapping dies if adbd restarts — re-run `adb reverse tcp:5173
+  tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
+  a manual `monkey`/`am start` boots the *inlined bundle* (no HTTP, no ws,
+  looks like a silent HMR failure but isn't). The `ns-hmr-client-watchdog`
+  plugin in the native vite config warns when a session was fetched but no
+  ws client attaches.
 
 ## Invariants (the short list — full set in docs/architecture.md)
 
