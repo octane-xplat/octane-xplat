@@ -20,7 +20,10 @@
 **Commands handled**: `create`, `recreate`, `update`, `insert`, `move`,
 `remove`, `destroy`, `event`, `visibility`. No portal op — `resolveParent`
 treats a non-numeric parent as root (**portals not enabled**). Declared
-capabilities: `{ text: 'host' }` only.
+capabilities: `{ text: 'host', visibility: true }` in this workspace's patch
+for 0.2.1. The upstream 0.2.1 package predates the universal runtime's
+retained-Suspense visibility command, so the patch maps `visibility` to
+NativeScript's `visible`/`collapse` values.
 
 **Prop application** (`setProp`):
 - `children`/`key`/`ref` skipped; `on[A-Z]*` skipped (arrive as `event`
@@ -49,7 +52,9 @@ first → `LayoutBase.insertChild` → `ContentView.content` →
 **Events**: `event` commands → `view.on(type, handler)`; `EVENT_PROP` names map
 through `eventNameFor` (aliases below); during a commit batch, deliveries are
 deferred to a microtask (NS fires `loaded` synchronously mid-attach, before
-the listener is live); dispatch to a gone listener warn-drops.
+the listener is live); dispatch failures go to the root's `onUncaughtError`
+callback (and are rethrown when no callback is registered), rather than being
+silently dropped.
 `events.classify` gives every event priority `'discrete'`.
 
 **Element registry** (`elements.ts`): `ELEMENTS` map tag→constructor; 40+

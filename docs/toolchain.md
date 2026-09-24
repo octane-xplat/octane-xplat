@@ -170,6 +170,17 @@ mute). Symptom: `lv.itemTemplate` undefined + `hasListeners('itemLoading')`
 false while `lv.renderItem` held the function. Keep all workspace pins on
 the same version; the peer range in `packages/ui` is the contract.
 
+### Retained Suspense compatibility patch
+
+`@nativescript-community/octane@0.2.1` predates the universal runtime's
+retained-`@try` visibility commands. The checked-in
+`patches/@nativescript-community__octane@0.2.1.patch` supplies the missing
+`visibility` capability and maps those commands to NativeScript's
+`View.visibility` (`visible`/`collapse`). It also threads `onUncaughtError`
+through root creation. Event dispatch failures are reported through that
+callback (or rethrown to the host) instead of being logged as “dropped”
+events. `apps/native` applies the patch via its `postinstall` hook.
+
 ## CI shape
 
 1. `tsc --noEmit -p tsconfig.web.json` + `-p tsconfig.native.json`

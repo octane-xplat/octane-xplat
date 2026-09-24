@@ -1,0 +1,90 @@
+diff --git a/dist/driver.d.ts b/dist/driver.d.ts
+index 20f465b31cde234173980cca25ccde5927753d9d..9c3d7f1cdf307e3e96618689a4c0f766ddf59499 100644
+--- a/dist/driver.d.ts
++++ b/dist/driver.d.ts
+@@ -1,5 +1,5 @@
+ import { type EventData, type ViewBase } from '@nativescript/core';
+-import { type UniversalHostDriver, type UniversalRoot } from 'octane/universal/native';
++import { type UniversalHostDriver, type UniversalRoot, type UniversalRootOptions } from 'octane/universal/native';
+ interface HostNode {
+     readonly id: number;
+     readonly type: string;
+@@ -20,6 +20,12 @@ export interface NativeScriptContainer {
+     readonly nodes: Map<number, HostNode>;
+     readonly children: HostNode[];
+     root: UniversalRoot | null;
++    /**
++     * The `onUncaughtError` the root was created with. Dispatch keeps its own
++     * copy because the runtime stores root options privately — a listener error
++     * that escapes `dispatchEvent` reports here rather than being eaten.
++     */
++    onUncaughtError?: (error: unknown) => void;
+ }
+ export declare const nativeScriptDriver: UniversalHostDriver<NativeScriptContainer, ViewBase | null>;
+ /**
+@@ -29,11 +35,11 @@ export declare const nativeScriptDriver: UniversalHostDriver<NativeScriptContainer, ViewBase | null>;
+  * components with `defineUniversalComponent`, but TypeScript still sees the
+  * authored function signature at the call site.
+  */
+-export declare function renderNativeScriptApp<P extends object>(host: ViewBase, component: (props: P) => unknown, props?: P): UniversalRoot;
++export declare function renderNativeScriptApp<P extends object>(host: ViewBase, component: (props: P) => unknown, props?: P, options?: UniversalRootOptions<NativeScriptContainer>): UniversalRoot;
+ /** A live container: element re-registration recreates its views until `releaseNativeScriptContainer`. */
+ export declare function createNativeScriptContainer(host: ViewBase): NativeScriptContainer;
+ export declare function releaseNativeScriptContainer(container: NativeScriptContainer): void;
+ /** Mount an Octane tree into an existing NativeScript view. */
+-export declare function createNativeScriptRoot(host: ViewBase): UniversalRoot;
++export declare function createNativeScriptRoot(host: ViewBase, options?: UniversalRootOptions<NativeScriptContainer>): UniversalRoot;
+ export {};
+ //# sourceMappingURL=driver.d.ts.map
+\ No newline at end of file
+diff --git a/dist/driver.js b/dist/driver.js
+index f485f992282c05c58fed810458303be3141f51c0..d506bf4b2c983fe482ed221bcd35ee4013bb2011 100644
+--- a/dist/driver.js
++++ b/dist/driver.js
+@@ -270,7 +270,13 @@ function setEvent(container, node, type, listener) {
+                 root.eventScope(listener.priority, () => root.dispatchEvent(listener.id, data));
+             }
+             catch (error) {
+-                console.warn(`NativeScript driver: dropped ${type} event:`, error);
++                // A dispatch failure must never quietly consume the event: report it
++                // through the root's uncaught-error channel, or let it reach the
++                // host's own uncaught-exception reporting when none is registered.
++                const report = container.onUncaughtError;
++                if (report === undefined)
++                    throw error;
++                report(error);
+             }
+         };
+         if (applyingDepth > 0)
+@@ -398,7 +404,7 @@ function applyCommand(container, command) {
+ }
+ export const nativeScriptDriver = {
+     id: NATIVESCRIPT_RENDERER_ID,
+-    capabilities: { text: 'host' },
++    capabilities: { text: 'host', visibility: true },
+     events: {
+@@ -436,8 +442,8 @@ export function renderNativeScriptApp(host, component, props = {}) {
+  * components with `defineUniversalComponent`, but TypeScript still sees the
+  * authored function signature at the call site.
+  */
+-export function renderNativeScriptApp(host, component, props = {}) {
+-    const root = createNativeScriptRoot(host);
++export function renderNativeScriptApp(host, component, props = {}, options = {}) {
++    const root = createNativeScriptRoot(host, options);
+     root.render(component, props);
+     return root;
+ }
+@@ -456,12 +462,14 @@ export function releaseNativeScriptContainer(container) {
+     containers.delete(container);
+ }
+ /** Mount an Octane tree into an existing NativeScript view. */
+-export function createNativeScriptRoot(host) {
++export function createNativeScriptRoot(host, options = {}) {
+     const container = createNativeScriptContainer(host);
++    container.onUncaughtError = options.onUncaughtError;
+     const root = createUniversalRoot(container, nativeScriptDriver, {
+         scheduleMicrotask: (callback) => {
+             Promise.resolve().then(callback);
+         },
++        ...options,
+     });

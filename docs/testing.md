@@ -73,6 +73,24 @@ valuable CI signal for "the seams held."
 - Snapshot discipline: assert behavior/a11y, not emitted markup — the two
   renderers emit different trees by design.
 
+### Retained-Suspense regression
+
+The native driver regression is covered at the universal object-driver seam
+and on the device probe. The scenario is intentionally event-driven:
+
+1. Commit a `@try` body.
+2. Tap a control whose handler causes the boundary's resource to suspend.
+3. Assert the committed arm remains mounted but hidden, and `@pending` is
+   visible; the tap handler must have run.
+4. Resolve the resource and assert the body is visible again.
+5. Make the handler throw once and assert `onUncaughtError` receives the error;
+   there must be no “dropped tap event” warning.
+
+The object-driver test should assert the `visibility` command stream so it
+does not depend on a device. The NativeScript iOS/Android smoke run repeats
+the same sequence through a real tap because event batching and native view
+visibility are driver responsibilities.
+
 ## e2e reality check
 
 - Web: Playwright is straightforward. **Verified:** `pnpm smoke`

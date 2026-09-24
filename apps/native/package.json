@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "main": "src/index.ts",
   "scripts": {
+    "postinstall": "patch-package",
     "ios": "ns run ios",
     "android": "ns run android",
     "debug:ios": "ns debug ios",
