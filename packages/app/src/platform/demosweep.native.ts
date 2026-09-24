@@ -1,4 +1,4 @@
-import { Application, getRootLayout } from '@nativescript/core';
+import { Application, Frame, ListView, getRootLayout } from '@nativescript/core';
 import { getStack, popRoute, routeFor } from '@octane-xplat/ui';
 import { goBack } from './nav';
 
@@ -144,6 +144,156 @@ const STEPS: Step[] = [
 			{ at: 450, run: () => fireTap(find('rp-a')) },
 			// memo-b's props are unchanged by the A bump — renders must stay 1.
 			{ at: 950, run: () => assertHas('probe memo-b skipped', 'memo-b n=0 renders=1') },
+		],
+	},
+	// --- primitives sprint demos ---
+	{
+		id: 'list-demo',
+		hold: 1900,
+		checks: [
+			{ at: 400, run: () => assertHas('demo list contract', 'Doors open') },
+			{ at: 500, run: () => fireTap(find('list-demo-reverse')) },
+			// keyFor-stable rebind: after reverse, 'Encore' outranks 'Doors open'.
+			{
+				at: 900,
+				run: () => {
+					const hay = viewTexts();
+					const ok = hay.indexOf('Encore') >= 0 && hay.indexOf('Encore') < hay.indexOf('Doors open');
+					console.log('[assert] list rebind order: ' + (ok ? 'OK' : 'FAIL') + dump(hay));
+				},
+			},
+			// onEndReached ← ListView loadMoreItems (a real event — notify reaches it).
+			{
+				at: 1100,
+				run: () => {
+					const lv = collect(demosPage()).find((v) => v instanceof ListView);
+					console.log('[probe] list-demo listview=' + (lv ? lv.constructor.name : 'none'));
+					lv?.notify({ eventName: 'loadMoreItems', object: lv } as any);
+				},
+			},
+			{ at: 1600, run: () => assertHas('list onEndReached', '11 rows · scroll to load more') },
+		],
+	},
+	{
+		id: 'layout',
+		checks: [
+			{ at: 400, run: () => assertHas('demo layout', 'Grid A') },
+			{ at: 400, run: () => assertHas('layout grid span', 'Spans two columns') },
+			// Attached-prop forwarding: the span cell must carry row/col/colSpan.
+			{
+				at: 450,
+				run: () => {
+					const span = collect(demosPage()).some((v) => v.row === 1 && v.col === 0 && v.colSpan === 2);
+					console.log('[assert] grid attached props: ' + (span ? 'OK' : 'FAIL'));
+				},
+			},
+			{ at: 450, run: () => assertHas('layout stack z-order', 'Later child is on top') },
+			{ at: 450, run: () => assertHas('layout spacer footer', 'Footer') },
+		],
+	},
+	{
+		id: 'overlay',
+		hold: 2600,
+		checks: [
+			// Overlay content mounts on the RootLayout — a sibling of the page.
+			{ at: 400, run: () => fireTap(tapTargetForText(demosPage(), 'Toggle anchored popover')) },
+			{
+				at: 900,
+				run: () => {
+					const ok = viewTexts(getRootLayout()).includes('Anchored to the button');
+					console.log('[assert] popover anchored: ' + (ok ? 'OK' : 'FAIL'));
+				},
+			},
+			{ at: 1100, run: () => fireTap(tapTargetForText(demosPage(), 'Show toast')) },
+			{
+				at: 1500,
+				run: () => {
+					const ok = viewTexts(getRootLayout()).includes('A toast from the demo');
+					console.log('[assert] toast shows: ' + (ok ? 'OK' : 'FAIL'));
+				},
+			},
+			{ at: 1700, run: () => fireTap(tapTargetForText(demosPage(), 'Open shade overlay')) },
+			{
+				at: 2200,
+				run: () => {
+					const ok = viewTexts(getRootLayout()).includes('Overlay is open');
+					console.log('[assert] overlay opens: ' + (ok ? 'OK' : 'FAIL'));
+				},
+			},
+		],
+	},
+	{
+		id: 'controls',
+		checks: [
+			{ at: 400, run: () => assertMatch('demo controls', /Slider: /) },
+			{ at: 400, run: () => assertHas('heading levels', 'Heading 6') },
+		],
+	},
+	{
+		id: 'device',
+		hold: 1800,
+		checks: [
+			{ at: 400, run: () => assertMatch('safe area insets', /Insets — top \d/) },
+			{ at: 400, run: () => assertHas('drawer main', 'Drawer main content') },
+			{ at: 500, run: () => fireTap(tapTargetForText(demosPage(), 'Open drawer')) },
+			{
+				at: 1200,
+				run: () => {
+					const d = collect(demosPage()).find((v) => typeof v.isOpened === 'function');
+					console.log('[assert] drawer opens: ' + (d?.isOpened?.('left') ? 'OK' : 'FAIL'));
+				},
+			},
+		],
+	},
+	{
+		id: 'modal',
+		hold: 2800,
+		checks: [
+			// Presenter: nested 'demos' frame resolves its own page; fall back to
+			// the root frame's current page in case topmost() resolves outermost.
+			{ at: 400, run: () => fireTap(tapTargetForText(demosPage(), 'Open children modal')) },
+			{
+				at: 1000,
+				run: () => {
+					const m = demosPage()?.modal ?? Frame.topmost()?.currentPage?.modal;
+					const ok = m && viewTexts(m).includes('Declarative children');
+					console.log('[assert] modal children: ' + (ok ? 'OK' : 'FAIL'));
+					if (ok) fireTap(tapTargetForText(m, 'Close modal'));
+				},
+			},
+			{ at: 1600, run: () => fireTap(tapTargetForText(demosPage(), 'Open imperative picker')) },
+			{
+				at: 2200,
+				run: () => {
+					const m = demosPage()?.modal ?? Frame.topmost()?.currentPage?.modal;
+					const ok = m && viewTexts(m).includes('Choose a color');
+					console.log('[assert] imperative modal: ' + (ok ? 'OK' : 'FAIL'));
+					if (ok) fireTap(tapTargetForText(m, 'Red'));
+				},
+			},
+			{ at: 2600, run: () => assertHas('modal result', 'Picked: Red') },
+		],
+	},
+	{
+		id: 'props',
+		checks: [
+			{ at: 400, run: () => assertHas('demo props', 'Input is editable') },
+			{
+				at: 450,
+				run: () => {
+					const sec = collect(demosPage()).some((v) => v.secure === true);
+					console.log('[assert] secure input: ' + (sec ? 'OK' : 'FAIL'));
+				},
+			},
+			{ at: 550, run: () => fireTap(tapTargetForText(demosPage(), 'Press, hold, or double tap')) },
+			{ at: 950, run: () => assertHas('press state', 'Pressed') },
+			{
+				at: 1000,
+				run: () => {
+					const b = collect(demosPage()).find((v) => v.accessibilityLabel === 'Save profile');
+					console.log('[assert] a11y hint+value: ' + (b?.accessibilityHint === 'Saves the current profile details' && b?.accessibilityValue === 'Ready to save' ? 'OK' : 'FAIL'));
+				},
+			},
 		],
 	},
 ];
