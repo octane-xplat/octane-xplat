@@ -37,9 +37,9 @@
 		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript-community/ui-svg": "0.2.24",
 		"@nativescript/core": "9.1.2",
-		"@octanejs/vite-plugin": "0.1.58",
+		"@octanejs/vite-plugin": "0.1.60",
 		"jsdom": "30.1.1",
-		"octane": "0.4.0",
+		"octane": "0.5.0",
 		"vite": "8.3.0",
 		"vitest": "5.0.1"
 	},

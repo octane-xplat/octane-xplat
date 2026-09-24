@@ -16,11 +16,12 @@ publicHoistPattern:
 # nothing here invokes; chokidar3+readdirp3 is the coherent pair.
 overrides:
   chokidar: ^3.6.0
-  # Packed octane built from the universal-signal-reads worktree — published
-  # octane ships dist/ (publishConfig), so a source link would typecheck DOM
-  # files under the app's no-DOM lib. Re-pack after upstream edits; revert to
-  # the 0.4.0 pin once a release carries universal native signal reads.
-  octane: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz
+  # Packed octane 0.5.0 + universal-signal-reads + JSX-prop lowering
+  # (built from the octane-universal-signals worktree, HEAD eaa51b09).
+  # Published 0.5.0 rejects native signal reads — drop this override once
+  # a release ships both features. Previous pack:
+  # research/dist-packs/octane-0.4.0-universal-signals.tgz.
+  octane: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
   # vite 8's esbuild peer range admits 0.28.x; where octane/app-core peer
   # contexts resolve it fresh they get 0.28.2 while vite's own tree carries
   # 0.27.7 — the vendor bundler then crashes on the host/binary mismatch.
@@ -30,12 +31,14 @@ overrides:
 # Exact pins in package.json — no caret/tilde drift on fresh installs.
 saveExact: true
 minimumReleaseAgeExclude:
-  - '@octanejs/app-core@0.0.54'
-  - '@octanejs/vite-plugin@0.1.58'
-  - octane@0.4.0
+  - '@octanejs/app-core@0.0.56'
+  - '@octanejs/vite-plugin@0.1.60'
+  - octane@0.5.0
   - '@nativescript-community/octane@0.2.1'
   - '@nativescript-community/vite-octane@0.2.1'
   - '@nativescript/vite@8.0.11'
+  - '@tsrx/core@0.3.2'
+  - '@tsrx/typescript-plugin@0.4.11'
 allowBuilds:
   '@nativescript/core': true
   '@parcel/watcher': true
@@ -60,4 +63,3 @@ allowBuilds:
 patchedDependencies:
   '@nativescript-community/vite-octane@0.2.1': patches/@nativescript-community__vite-octane@0.2.1.patch
   '@nativescript/vite@8.0.11': patches/@nativescript__vite@8.0.11.patch
-  octane@0.4.0: patches/octane@0.4.0.patch

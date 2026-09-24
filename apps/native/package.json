@@ -29,7 +29,7 @@
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
 		"nativescript-clipboard": "2.1.1",
-		"octane": "0.4.0"
+		"octane": "0.5.0"
 	},
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "0.2.1",
@@ -38,7 +38,7 @@
 		"@nativescript/types": "9.0.0",
 		"@nativescript/vite": "8.0.11",
 		"@octane-xplat/cli": "workspace:*",
-		"@octanejs/vite-plugin": "0.1.58",
+		"@octanejs/vite-plugin": "0.1.60",
 		"patch-package": "8.0.1",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"

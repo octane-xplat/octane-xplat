@@ -17,7 +17,7 @@
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",
-		"@tsrx/typescript-plugin": "0.4.7",
+		"@tsrx/typescript-plugin": "0.4.11",
 		"oxfmt": "0.70.0",
 		"oxlint": "1.74.0",
 		"vitest": "5.0.1"
