@@ -101,6 +101,44 @@
   text-align: center;
 }
 
+.list-demo-toolbar {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.list-demo-row {
+  flex-direction: row;
+  width: 100%;
+  padding: 12px;
+  border-bottom-width: 1px;
+  border-bottom-color: #e2e8f0;
+}
+
+.list-demo-event {
+  background-color: #ffffff;
+}
+
+.list-demo-notice {
+  background-color: #eff6ff;
+  align-items: center;
+  gap: 12px;
+}
+
+.list-demo-badge {
+  font-weight: bold;
+}
+
+.list-demo-copy {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.list-demo-title {
+  font-weight: bold;
+}
+
 /* Keyframes — the only sanctioned animation path (decision #22). Props
    limited to the verified NS set: opacity, transform (scale/rotate/
    translate), background-color, width/height. No `animation-direction:

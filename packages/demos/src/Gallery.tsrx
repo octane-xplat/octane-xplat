@@ -10,6 +10,7 @@ import { VirtualList } from './VirtualList.tsrx';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
+import { ListDemo } from './ListDemo.tsrx';
 import { useLastDemo } from './store.tsrx';
 
 export const DEMOS = [
@@ -23,6 +24,7 @@ export const DEMOS = [
 	{ id: 'weather', title: 'Weather' },
 	{ id: 'anim', title: 'Keyframes' },
 	{ id: 'probe', title: 'Reactivity' },
+	{ id: 'list-demo', title: 'List contract' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -42,6 +44,7 @@ const renderVlist = () => <VirtualList />;
 const renderWeather = () => <Weather />;
 const renderAnim = () => <AnimShowcase />;
 const renderProbe = () => <ReactiveProbe />;
+const renderListDemo = () => <ListDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -54,6 +57,7 @@ export const RENDER: Record<string, () => any> = {
 	weather: renderWeather,
 	anim: renderAnim,
 	probe: renderProbe,
+	'list-demo': renderListDemo,
 };
 
 /** Demo launcher — chip menu. Two modes:

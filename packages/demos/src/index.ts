@@ -8,5 +8,6 @@ export { VirtualList } from './VirtualList.tsrx';
 export { Weather } from './Weather.tsrx';
 export { AnimShowcase } from './AnimShowcase.tsrx';
 export { ReactiveProbe } from './ReactiveProbe.tsrx';
+export { ListDemo } from './ListDemo.tsrx';
 export { DEMOS, RENDER, Gallery } from './Gallery.tsrx';
 export { setLastDemo, useLastDemo } from './store.tsrx';
