@@ -1,4 +1,4 @@
-import { defineUniversalComponent, universalComponent } from 'octane/universal';
+import { defineUniversalComponent, universalComponent } from 'octane/universal/native';
 
 /**
  * styled() — decision #7, Tamagui-shaped but CSS-backed. base/variants are
