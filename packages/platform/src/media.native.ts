@@ -1,6 +1,8 @@
 // Media picking — store a temporary JPEG for NativeScript Image and return a
 // data URL for APIs that persist image payloads.
-import { create as createImagePicker, ImagePickerMediaType } from '@nativescript/imagepicker';
+import { create as createImagePicker } from '@nativescript/imagepicker';
+// Ambient const enum — verbatimModuleSyntax forbids value access; Image = 1.
+import type { ImagePickerMediaType } from '@nativescript/imagepicker';
 import { ImageSource, knownFolders, path } from '@nativescript/core';
 import { files } from './files';
 import type { PickedImage } from './types';
@@ -8,7 +10,7 @@ import type { PickedImage } from './types';
 export const media = {
 	/** Opens the native image picker; returns null when permission is denied or selection is canceled. */
 	async pickImage(): Promise<PickedImage | null> {
-		const picker = createImagePicker({ mode: 'single', mediaType: ImagePickerMediaType.Image });
+		const picker = createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType });
 		const permission = await picker.authorize();
 		if (!permission.authorized) return null;
 
