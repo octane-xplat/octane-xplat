@@ -96,3 +96,41 @@ nothing to commit). Tables:
 4. No DOM globals in shared code.
 5. Universal-runtime APIs only in shared code (allowlist produced by Phase 1).
 6. Static styles = CSS/`className`; dynamic = `style` objects.
+
+## Companion libraries (used by apps built on this stack)
+
+- **Octane signals** (`octane/signals`, `octane/signals/client`) — the
+  framework's reactive state engine. `signal$(initial)` for module-level
+  shared state (document-local on web), `useSignal$` for component-local,
+  `derived$` for computed values, `query$(select, load)` for async data
+  (return `skip` from the selector for "no request"; read via
+  `.snapshot()`/`.get()` under `@try`/`@pending`/`@catch`). Native `.get()`
+  reads in render subscribe automatically — no compiler flags needed. Every
+  consuming module needs a runtime import of `octane/signals` (or /client).
+  `$`-suffix naming (`count$`, `user$`) tells the compiler to preserve native
+  reads through caches and props.
+- **Rouzer** (`rouzer`, `rouzer/http`) — shared route tree between server and
+  client. `http.resource('posts/:id', { get: http.get({query, response:
+  $type<T>()}), like: http.post('like', {body, response: $type<T>()}) })` —
+  resource children join paths (`POST /posts/:id/like`). Server:
+  `createRouter({basePath:'api/'}).use(routes, handlers)` →
+  `toFetchHandler(router, {host: () => ({env})})`; handlers read
+  `ctx.path`/`ctx.query`/`ctx.body`/`ctx.host.env`. Client:
+  `createClient({baseURL, routes})` → flat input objects
+  (`client.post.like({id})`). GETs take query; mutations take body.
+- **Qubu** (`qubu`, `qubu/sqlite`) — typed SQL builder; no driver coupling.
+  `table('t', {col: text({nullable:true})})`, queries via
+  `select({alias: t.col}, from(t), leftJoin(u, eq(...)), where(...),
+  groupBy(...), orderBy(desc(t.col)))`, mutations via
+  `insertInto(t, values({...}))` / `update` / `deleteFrom`. Execute with
+  `executeRows(query, adapter)`; the adapter is a `QueryAdapter` you own —
+  for Cloudflare D1, ~10 lines: `dialect: sqliteDialect()`, `execute` calls
+  `env.DB.prepare(text).bind(...params).all()` and returns
+  `{rows: res.results, affectedRows: res.meta.changes, insertId:
+  res.meta.last_row_id}` (`.all()` works for mutations too). Product docs ship
+  inside the package under `node_modules/qubu/docs/` — read those, not the
+  website.
+- Stack used in the test app (`~/dev/ns/text-coral-ns`): Worker entry wraps
+  `toFetchHandler` per request so the CF `env` reaches `ctx.host.env`; vite
+  `server.proxy` maps `/api` → `wrangler dev` on :8787; D1 schema+seed live in
+  `migrations/` and apply via `wrangler d1 migrations apply --local`.
