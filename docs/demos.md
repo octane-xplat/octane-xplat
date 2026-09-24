@@ -66,12 +66,19 @@ import in `App.tsrx`, so it needs no changes to the harness entry.
 
 ## Findings so far (lab, iOS sim)
 
-- **`@else if` chains compile wrong for the universal target.** The else
-  callback evaluates each `@else if`/`@else` branch as a *statement* —
-  `universalValue(...)` results are discarded — then returns an empty plan.
-  Net effect: any 3+-branch conditional renders nothing once the first
-  condition fails. Present in emitted `bundle.mjs`; upstream-reportable
-  (octanejs/octane).
+- **`@else if` chains compiled wrong for the universal target — FIXED
+  upstream (2026-09-23).** Root cause: `@else if` parses to an `IfStatement`
+  alternate, which `compileIfAst` routed through block codegen — the chained
+  `universalValue(...)` results were emitted as setup statements and the else
+  thunk returned an empty range, so every arm but the first rendered nothing.
+  Fix: route `IfStatement` alternates through `compileIfValueAst` like
+  `JSXIfExpression`, so the else thunk returns the chained `universalIf` call.
+  Fix pending upstream as
+  [octanejs/octane#1297](https://github.com/octanejs/octane/pull/1297)
+  with compile+mount regression coverage for chains and nested chains. Until a
+  release carries it, `text-coral-ns` applies the same one-line fix via
+  `pnpm patch` (`patches/octane@0.4.0.patch`); the sequential-`@if` workaround
+  there can be dropped once octane ≥ the release lands.
 - **Binary `@if`/`@else` works fully on native** — verified on-device via the
   Counter `if-toggle` probe: else arm mounts when the condition starts false,
   swaps to the then arm on flip, and swaps back (`if else mount` / `if then
@@ -81,7 +88,8 @@ import in `App.tsrx`, so it needs no changes to the harness entry.
 - **Children-position ternaries also work and swap correctly** — Weather's
   `{days === null ? <Text/> : <View>@for…</View>}` mounts `Loading…` then
   swaps in the forecast on `setDays` (verified). Prefer whichever reads
-  better; only `@else if` is off-limits on native today.
+  better; `@else if` is off-limits on native only while octane stays on an
+  unpatched release (see above).
 - **`{expr}` calling a render function in children position works on both
   targets** — `Gallery` dispatches `{RENDER[demo]()}` and `Cell` does
   `{props.renderItem(item)}`. This is the portable dynamic-mount pattern.
