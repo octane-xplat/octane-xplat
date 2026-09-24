@@ -114,8 +114,8 @@ app/                          (shared route dir — concept, not yet implemented
 > route covers the whole shell (root-push semantics). Deep links boot into the
 > right tab + pushed screen (`currentRoute` seeds the initial tab index).
 > Verified 14/14 in headless Chromium: real path write, pane render, popstate
-> restore, `lastDemo` visible after pop, deep-link boot. `route.native.ts` is a
-> no-op twin for import-surface parity.
+> restore, `lastDemo` visible after pop, deep-link boot. ~~`route.native.ts` is
+> a no-op twin~~ — superseded 2026-09-23: see "route.native goes real" below.
 >
 > **Lab (app-surface, iOS):** the demo catalog now navigates like an app —
 > each of 10 demos pushes `demo` (own Page + Octane root) via
@@ -140,7 +140,20 @@ app/                          (shared route dir — concept, not yet implemented
 > screens pop their own stack. Named frames register via `registerStack`; the
 > app boot registers `'root'` as the default target (`Frame.topmost()` is
 > ambiguous once nested frames exist). Verified: push→content→pop across all
-> 10 demos inside the Demos tab (48/48).
+> 10 demos inside the Demos tab (48/48). *Superseded 2026-09-23:* `'root'`
+> registration is now optional — `getStack('root')` resolves the window's
+> root `Frame` (`Application.getRootView()`) when unregistered.
+
+> **Lab (route.native goes real, 2026-09-23):** the native twin is no longer
+> a no-op. `pushRoute` resolves the target stack (`'root'` = window root
+> Frame auto-resolved; named = `TabSpec.stack`/`registerStack`) and pushes a
+> `Page` hosting `registerScreens()`'d components — the seam that made
+> web-shaped apps silently render only their default route on native is
+> closed. `useRoute`/`routeFor` read the route stamped on `currentPage` via
+> `navigatedTo`; `popRoute` pops a stack. Every drop warns loudly
+> (`console.warn`, once per key): unregistered stack, unknown screen,
+> non-Frame root, Android named-stack push (#11444). `platform/nav` in the
+> harness is now a thin typed wrapper over the ui API.
 
 > [!WARNING]
 > `frame.navigate` before the frame is `loaded` leaves `_executingContext`

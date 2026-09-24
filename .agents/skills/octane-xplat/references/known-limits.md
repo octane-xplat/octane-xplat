@@ -7,8 +7,10 @@ Read before promising behavior or building on a seam.
 - **Android nested stacks** — `Frame` inside `TabViewItem`: pushes commit
   but bookkeeping (`currentPage`/`backStack`/`goBack`) never lands; raced
   pushes crash the FragmentManager. [NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444)
-  (also covers the iOS `isLoaded` strand we workaround). **Named-stack
-  pushes are iOS-only** until resolved or the shell changes shape.
+  (open, assigned — also covers the iOS `isLoaded` strand we workaround).
+  **Named-stack pushes are iOS-only** until resolved or the shell changes
+  shape; `pushRoute` into a named stack on Android warns loudly rather
+  than dropping silently.
 - **`.d.ts` emit for .tsrx** — upstream tsrx#136 → TS#64120/#64053.
   Workaround shipped (emitted `props.d.ts` + hand shell) — consumers get
   types, but component shells are hand-maintained.
@@ -47,6 +49,9 @@ Read before promising behavior or building on a seam.
 
 - Params serialize as query strings on web — object params don't survive
   (screen props are `Record<string, unknown>` on native, strings on web).
+  Keep params scalar for cross-target parity.
+- `popRoute(stack)` on web is `history.back()` regardless of `stack` —
+  one linear history can't pop a non-top route.
 - Deep imports don't extension-resolve — barrel imports only.
 - No unified `PLATFORM` constant by design — use leaves.
 - `.ts` helpers escape compiler-side forbiddenGlobals — `check:no-dom`

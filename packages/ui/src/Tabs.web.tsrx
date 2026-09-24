@@ -1,7 +1,7 @@
 import { useState } from 'octane';
 import type { TabSpec, TabsProps } from './props';
 
-import { useRoute } from './route.web';
+import { screenFor, useRoute } from './route.web';
 
 export type { TabSpec } from './props';
 
@@ -15,8 +15,16 @@ export function Tabs(props: TabsProps) @{
 	// Hooks must be unconditional — subscribe with the active pane's stack
 	// name ('' never matches a route).
 	const paneRoute = useRoute(props.tabs[active]?.stack ?? '');
-	@if (rootRoute && props.resolveScreen) {
-		<div className="vx-route">{props.resolveScreen(rootRoute.name, rootRoute.params)}</div>
+	// resolveScreen prop wins; the registerScreens table is the fallback —
+	// one registration serves both platforms' outlets.
+	const resolve = (name: string, params: Record<string, unknown>) => {
+		if (props.resolveScreen) return props.resolveScreen(name, params);
+		const C = screenFor(name);
+		return C ? <C {...params} /> : null;
+	};
+	const routed = rootRoute ? resolve(rootRoute.name, rootRoute.params) : null;
+	@if (routed) {
+		<div className="vx-route">{routed}</div>
 	}
 	@else {
 	<div id={props.id} className={['vx-tabs', props.className]} style={props.style}>
@@ -33,9 +41,8 @@ export function Tabs(props: TabsProps) @{
 			}
 		</div>
 		<div className="vx-tabpane">
-			{paneRoute && props.resolveScreen
-				? props.resolveScreen(paneRoute.name, paneRoute.params)
-				: props.tabs[active]?.render()}
+			{(paneRoute ? resolve(paneRoute.name, paneRoute.params) : null)
+				?? props.tabs[active]?.render()}
 		</div>
 	</div>
 	}

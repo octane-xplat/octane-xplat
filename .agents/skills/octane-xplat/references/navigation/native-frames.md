@@ -39,7 +39,8 @@ reaches `transitionOrAnimationCompleted → setCurrent`. Filed as
 **Containment:** the demos sweep is gated off Android; pushes into named
 stacks are iOS-only until upstream resolves or we adopt a different shell
 (swap-style tabs / single-frame-with-replace are the candidate
-alternatives — unproven).
+alternatives — unproven). `pushRoute` into a named stack on Android emits
+a loud `console.warn` (once per stack) rather than silently half-mounting.
 
 ## Fragment/page bookkeeping order
 

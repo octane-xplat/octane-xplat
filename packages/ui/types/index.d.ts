@@ -19,6 +19,7 @@ import type {
 	Route,
 	RowProps,
 	ScreenProps,
+	ScreenTable,
 	ScrollViewProps,
 	Store,
 	SwitchProps,
@@ -43,6 +44,7 @@ export type {
 	Route,
 	RowProps,
 	ScreenProps,
+	ScreenTable,
 	ScrollViewProps,
 	Store,
 	SwipeEvent,
@@ -83,12 +85,17 @@ export declare function registerStack(name: string, frame: any): void;
 export declare function getStack(name: string): any;
 export declare function stackEntries(): IterableIterator<[string, any]>;
 
-// ---------- routes (web store; no-op on native) ----------
+// ---------- routes (real on both: URL store on web, Frame stacks on native) ----------
 
 export declare function pushRoute(r: Route): void;
+export declare function popRoute(stack?: string): void;
 export declare function routeFor(stack: string): Route | null;
 export declare function currentRoute(): Route | null;
 export declare function useRoute(stack: string): Route | null;
+/** name → screen table; native pushRoute resolves `route.name` through
+ *  it, web outlets fall back to it via `screenFor`. Call once at boot. */
+export declare function registerScreens(table: ScreenTable): void;
+export declare function screenFor(name: string): any;
 
 // ---------- animation / theme ----------
 

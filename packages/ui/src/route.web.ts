@@ -8,7 +8,25 @@ import { useSyncExternalStore } from 'octane';
  *  subscribes with useRoute(stack) and swaps its content. */
 
 export type { Route } from './props';
-import type { Route } from './props';
+import type { Route, ScreenTable } from './props';
+
+// ---------- screen registry ----------
+
+let screens: ScreenTable = {};
+
+/** Register the app's name → screen table. On web the table feeds
+ *  `screenFor` — the fallback outlet resolution in Tabs when no
+ *  `resolveScreen` prop is given; on native `pushRoute` resolves
+ *  `route.name` through it. Call once from the shared screens module. */
+export function registerScreens(table: ScreenTable): void {
+	screens = table;
+}
+
+export function screenFor(name: string): ScreenTable[string] | undefined {
+	return screens[name];
+}
+
+// ---------- the store ----------
 
 const listeners = new Set<() => void>();
 let current: Route | null = parse();
@@ -36,6 +54,13 @@ export function pushRoute(r: Route): void {
 	history.pushState(null, '', build(r));
 	current = r;
 	emit();
+}
+
+/** Web history is one linear stack — back pops whatever route is current;
+ *  per-stack pops aren't expressible, so `stack` is accepted for parity
+ *  and ignored. */
+export function popRoute(_stack = 'root'): void {
+	history.back();
 }
 
 window.addEventListener('popstate', () => {

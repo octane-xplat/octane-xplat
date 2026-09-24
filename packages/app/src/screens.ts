@@ -1,3 +1,4 @@
+import { registerScreens } from '@octane-xplat/ui';
 import { Detail } from './Detail.tsrx';
 import { DemoDetail } from './DemoDetail.tsrx';
 
@@ -11,3 +12,7 @@ export const screens = {
 } as const;
 
 export type RouteName = keyof typeof screens;
+
+// Importing the table registers it — native pushRoute resolves route.name
+// through this, web outlets use it when Tabs has no resolveScreen prop.
+registerScreens(screens);

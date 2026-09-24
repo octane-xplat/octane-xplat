@@ -127,6 +127,12 @@ export interface Route {
 	params: Record<string, unknown>;
 }
 
+/** name → screen component table for `registerScreens` — the app owns the
+ *  route table; native `pushRoute` resolves `route.name` through it and
+ *  web outlets fall back to it via `screenFor`. Values are component
+ *  functions (`() => Element` / UniversalComponent shapes both fit). */
+export type ScreenTable = Record<string, any>;
+
 // ---------- animation ----------
 
 export interface AnimatedValue {

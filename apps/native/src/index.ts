@@ -35,6 +35,7 @@ function createWindowContent(): Frame {
   frame.navigate({ create: () => page });
   // The root frame is the default nav target — registered by name because
   // Frame.topmost() is ambiguous once nested per-tab stacks exist.
+  // (Optional: getStack('root') already resolves the window's root Frame.)
   registerStack('root', frame);
   wireHardwareBack();
   return frame;

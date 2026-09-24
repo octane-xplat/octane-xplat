@@ -8,8 +8,10 @@ import './style.css';
 
 Application.run({
 	create: () => {
-		// Root is a Frame so navigate() can push Pages later — registered
-		// stacks (@octane-xplat/ui registerStack) sit on top of this.
+		// Root is a Frame so pushRoute() can push Pages later — a Frame
+		// window root doubles as the 'root' stack with no registration;
+		// named stacks come from TabSpec.stack or registerStack. Route
+		// pushes also need registerScreens({name: Component}) at boot.
 		const frame = new Frame();
 		const page = new Page();
 		page.actionBarHidden = true;
