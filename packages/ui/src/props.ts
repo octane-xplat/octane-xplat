@@ -234,9 +234,15 @@ export interface IconProps {
 	ios?: Record<string, any>; android?: Record<string, any>; web?: Record<string, any>;
 }
 
-/** One registered icon representation. `svg` contains path `d` data. */
+/** One registered icon representation. `svg` contains path `d` data;
+ *  `markup` is full inner-SVG markup (groups, transforms, several paths)
+ *  rendered inside an `<svg viewBox>` shell on web. `text` is a unicode
+ *  fallback rendered as a tinted label on native. */
 export interface IconGlyph {
 	svg?: string;
+	markup?: string;
+	viewBox?: string;
+	text?: string;
 	font?: { family: string; glyph: string };
 	src?: string;
 }
