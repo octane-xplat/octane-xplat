@@ -19,10 +19,13 @@ await new Promise((r) => setTimeout(r, 400));
 
 const root = window.document.getElementById('root');
 const side = window.document.querySelectorAll('.side-item').length;
+const numbered = [...window.document.querySelectorAll('.li-marker')]
+	.some((el) => el.textContent?.trim() === '1.');
 const checks = [
 	['root mounted', root?.children.length > 0],
 	['sidebar items', side >= 10],
 	['doc content rendered', (root?.textContent || '').length > 500],
+	['numbered list markers', numbered],
 ];
 let fail = 0;
 for (const [name, ok] of checks) { console.log((ok ? 'PASS' : 'FAIL') + ' ' + name); if (!ok) fail++; }

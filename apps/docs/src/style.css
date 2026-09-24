@@ -339,6 +339,13 @@ body {
 	gap: 10px;
 }
 
+.li-marker {
+	flex-shrink: 0;
+	min-width: 1.5em;
+	text-align: right;
+	white-space: nowrap;
+}
+
 .li-text {
 	flex: 1;
 	min-width: 0;

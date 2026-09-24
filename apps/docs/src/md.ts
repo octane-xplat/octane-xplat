@@ -5,7 +5,7 @@ export type Block =
 	| { kind: 'h'; level: number; text: string }
 	| { kind: 'p'; spans: Span[] }
 	| { kind: 'code'; text: string; lang: string }
-	| { kind: 'li'; spans: Span[]; depth: number }
+	| { kind: 'li'; spans: Span[]; depth: number; marker: string }
 	| { kind: 'quote'; spans: Span[] }
 	| { kind: 'callout'; level: string; lines: Span[][] }
 	| { kind: 'table'; rows: string[][] }
@@ -44,9 +44,9 @@ const CALLOUTS = new Set(['note', 'tip', 'important', 'warning', 'caution']);
 const METAPARA = /^\*\*(Owns|Status):\*\*/;
 
 // A line that starts a block — must mirror the branch tests exactly: a
-// false positive here (e.g. `**bold**` at line start matching `[-*]`) starves
-// the paragraph collector and loops forever.
-const BLOCKSTART = /^#{1,4}\s|^\s*[-*]\s|^\s*\||^\s*>|^\s*```|^\s*(-{3,}|\*{3,})\s*$/;
+// false positive (e.g. `**bold**` at line start matching `[-*]`) starves the
+// paragraph collector and loops forever.
+const BLOCKSTART = /^#{1,4}\s|^\s*(?:[-*]|\d+[.)])\s|^\s*\||^\s*>|^\s*```|^\s*(-{3,}|\*{3,})\s*$/;
 
 export function parseMd(md: string): Block[] {
 	const blocks: Block[] = [];
@@ -81,19 +81,24 @@ export function parseMd(md: string): Block[] {
 			blocks.push({ kind: 'table', rows });
 			continue;
 		}
-		if (/^\s*[-*]\s/.test(line)) {
-			const m = line.match(/^(\s*)[-*]\s+(.*)/)!;
-			const parts = [m[2]];
+		if (/^\s*(?:[-*]|\d+[.)])\s+/.test(line)) {
+			const m = line.match(/^(\s*)([-*]|\d+[.)])\s+(.*)/)!;
+			const parts = [m[3]];
 			// Soft-wrapped continuation: indented lines that don't start a new
 			// block join the item (nested items have their own marker).
 			while (i + 1 < lines.length) {
 				const nx = lines[i + 1];
 				if (!/^\s{2,}\S/.test(nx)) break;
-				if (/^\s*[-*>#]|^\s*`{3}|^\s*\|/.test(nx)) break;
+				if (/^\s*(?:[-*]|\d+[.)])\s|^\s*[>#]\s|^\s*`{3}|^\s*\|/.test(nx)) break;
 				parts.push(nx.trim());
 				i++;
 			}
-			blocks.push({ kind: 'li', depth: Math.floor(m[1].length / 2), spans: inlineSpans(parts.join(' ')) });
+			blocks.push({
+				kind: 'li',
+				depth: Math.floor(m[1].length / 2),
+				marker: /^\d/.test(m[2]) ? m[2] : '•',
+				spans: inlineSpans(parts.join(' ')),
+			});
 			i++;
 			continue;
 		}
