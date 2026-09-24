@@ -148,3 +148,8 @@ LiveRegion` unwired in leaves so far).
     between SVGKit (iOS) and androidsvg (Android) on gradients/filters/
     `<text>`, `stretch`/auto-sizing parity with `<image>`, and svg-as-`src`
     in `Icon` glyphs.
+23. ⏳ **JSX element props on universal targets** — `prop={<View/>}` compiles
+    to an element descriptor the universal runtime can't materialize
+    (decision #36). Upstream fix exists (octanejs/octane#1311); verify
+    whether the consumed build carries it and retire the component-prop
+    workaround if so.
