@@ -44,6 +44,15 @@ Flex layouts are the safest common starting point. Prefer `Row`, `View`, and
 spacing classes over target-specific positioning. Check a screen at a narrow
 browser width and on a native device before adding a platform split.
 
+## Wrap text on native
+
+NativeScript uses `white-space: wrap` to let `Text`/`Label` content flow onto
+multiple lines. It rejects the web value `pre-wrap`. If web also needs
+`pre-wrap` to preserve whitespace, set the values in platform-specific styles:
+use `pre-wrap` on web and `wrap` on native. Native `wrap` enables line
+wrapping, but does not preserve repeated spaces and newlines like web
+`pre-wrap`.
+
 For theme propagation, supported CSS differences, and the cases where a
 platform leaf is necessary, see the [styling notes](styling-notes.md) and the
 [CSS support notes](css-support-notes.md).
