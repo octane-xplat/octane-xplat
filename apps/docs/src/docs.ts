@@ -14,6 +14,28 @@ export interface DocPage {
 // The design record: ledgers, open questions, lab journals, status tracking.
 const NOTES = new Set(['decisions', 'open-questions', 'demos', 'status']);
 
+// Curated reading order — funnel: orientation → contract → mechanics →
+// domain guides → enforcement. Anything not listed falls to the end
+// alphabetically, so new docs never vanish.
+const ORDER = [
+	'README',
+	'spec',
+	'architecture',
+	'primitives',
+	'navigation',
+	'styling',
+	'animation-gestures',
+	'module-resolution',
+	'platform-services',
+	'css-support-matrix',
+	'testing',
+	'toolchain',
+	'status',
+	'decisions',
+	'open-questions',
+	'demos',
+];
+
 function titleOf(slug: string, md: string): string {
 	const h = md.match(/^#\s+(.+)$/m);
 	if (h) return h[1].replace(/[`*_]/g, '').trim();
@@ -28,4 +50,9 @@ export const DOCS: DocPage[] = Object.entries(files)
 			group: (NOTES.has(slug) ? 'notes' : 'guides') as DocPage['group'],
 		};
 	})
-	.sort((a, b) => (a.slug === 'README' ? -1 : b.slug === 'README' ? 1 : a.slug.localeCompare(b.slug)));
+	.sort((a, b) => {
+		const ai = ORDER.indexOf(a.slug);
+		const bi = ORDER.indexOf(b.slug);
+		if (ai !== -1 || bi !== -1) return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+		return a.slug.localeCompare(b.slug);
+	});
