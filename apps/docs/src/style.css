@@ -289,7 +289,12 @@ body {
 	font-weight: 500;
 	line-height: 1.55;
 	margin-top: 6px;
-	flex-wrap: wrap;
+	flex-direction: row;
+}
+
+.li-text {
+	flex: 1;
+	min-width: 0;
 }
 
 /* A list starting after a non-list block needs more than the 6px item gap. */
