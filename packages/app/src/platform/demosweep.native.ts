@@ -69,8 +69,9 @@ function tapTargetForText(view: any, text: string, path: any[] = []): any {
 }
 
 function runNavLinkProbe() {
-	const rootPage = getStack('root')?.currentPage;
-	const target = tapTargetForText(rootPage, 'Detail →');
+	const tabView = getStack('root')?.currentPage?.getViewById?.('app-tabs');
+	const homeView = (tabView as any)?.items?.[0]?.view;
+	const target = tapTargetForText(homeView, 'Detail →');
 	const observers = fireTap(target);
 	if (!observers) {
 		console.log('[assert] NavLink tap target: FAIL (Detail → has no tap observer)');

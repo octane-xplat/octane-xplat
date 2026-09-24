@@ -19,17 +19,22 @@ const INITIAL_ROWS: DemoRow[] = [
 
 const keyForDemoRow = (item: DemoRow) => item.id;
 const kindForDemoRow = (item: DemoRow) => item.kind;
-const renderDemoRow = (item: DemoRow) => item.kind === 'notice'
-	? <Row className="list-demo-row list-demo-notice">
-		<Text className="list-demo-badge">Info</Text>
-		<Text>{item.title + ': ' + item.detail}</Text>
-	</Row>
-	: <Row className="list-demo-row list-demo-event">
-		<View className="list-demo-copy">
-			<Text className="list-demo-title">{item.title}</Text>
-			<Text>{item.detail}</Text>
-		</View>
-	</Row>;
+
+const renderDemoRow = (item: DemoRow) => @{
+	@if (item.kind === 'notice') {
+		<Row className="list-demo-row list-demo-notice">
+			<Text className="list-demo-badge">Info</Text>
+			<Text>{item.title + ': ' + item.detail}</Text>
+		</Row>
+	} @else {
+		<Row className="list-demo-row list-demo-event">
+			<View className="list-demo-copy">
+				<Text className="list-demo-title">{item.title}</Text>
+				<Text>{item.detail}</Text>
+			</View>
+		</Row>
+	}
+};
 
 export function ListDemo() @{
 	const [items, setItems] = useState<DemoRow[]>(INITIAL_ROWS);
