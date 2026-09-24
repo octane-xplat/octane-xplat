@@ -12,6 +12,7 @@
     "typecheck:native": "tsrx-tsc --noEmit -p apps/native/tsconfig.json",
     "lint": "node scripts/lint.mjs",
     "lint:fix": "node scripts/lint.mjs --fix",
+    "format": "oxlint --fix && oxfmt",
     "check:no-dom": "node scripts/check-no-dom.mjs",
     "test": "pnpm --filter @xplat/web test && pnpm --filter @octane-xplat/ui test:native"
   },
@@ -19,6 +20,7 @@
     "@tsrx/core": "0.2.4",
     "@tsrx/typescript-plugin": "0.4.7",
     "oxlint": "1.74.0",
+    "oxfmt": "0.70.0",
     "vitest": "5.0.1"
   }
 }
