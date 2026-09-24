@@ -144,7 +144,7 @@ export function Home() {
 | Grid has no `gap`; NS `%` differs from web | per-cell margins; documented traps in css matrix |
 | `line-height` semantics differ (additive vs box) | token files carry both values |
 | `.ts` hooks bind DOM runtime on native | lint rule + validation; `.tsrx` for hooks |
-| Native retains unchanged-prop children on parent re-render (universal auto-memo) — bare module-state reads go stale | `useStore` per reader (decision #27); DOM re-invokes, so web hides the bug |
+| Native retains unchanged-prop children on parent re-render (universal auto-memo) — bare module-state reads go stale | `useStore` per reader for non-signal state (decision #27); `signal$`/`query$` `.get()` reads subscribe automatically — universal signal reads; DOM re-invokes, so web hides the bug |
 | Component factories can't use JSX/inline `@{ }` — universal elements need the compiler-stamped component mark | `defineUniversalComponent`+`universalComponent` in the leaf; blessed factory API = upstream candidate |
 | `ref` is runtime-reserved on component elements | leaves expose `bind` → forwarded to the intrinsic's `ref` |
 | `pointermove` not delegated by the DOM renderer | gesture leaves attach raw listeners via `bind` |
