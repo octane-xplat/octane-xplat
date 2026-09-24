@@ -167,6 +167,28 @@ textarea::placeholder {
   color: var(--placeholder-color, currentColor);
 }
 
+.vx-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  box-sizing: border-box;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: vx-spinner-turn 0.8s linear infinite;
+}
+
+@keyframes vx-spinner-turn {
+  to { transform: rotate(360deg); }
+}
+
+.vx-h1 { font-size: 2em; font-weight: bold; }
+.vx-h2 { font-size: 1.5em; font-weight: bold; }
+.vx-h3 { font-size: 1.17em; font-weight: bold; }
+.vx-h4 { font-size: 1em; font-weight: bold; }
+.vx-h5 { font-size: 0.83em; font-weight: bold; }
+.vx-h6 { font-size: 0.67em; font-weight: bold; }
+
 /* utilities (hand-written subset for the harness; Tailwind later) */
 
 .flex-1 { flex-grow: 1; }

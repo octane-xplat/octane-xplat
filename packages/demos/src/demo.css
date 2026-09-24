@@ -231,3 +231,25 @@
   width: 220px;
   max-width: 100%;
 }
+
+.controls-demo {
+  padding: 12px;
+}
+
+.controls-section {
+  gap: 8px;
+  padding: 12px;
+  border-width: 1px;
+  border-color: #e2e8f0;
+  border-radius: 8px;
+}
+
+.controls-spinner {
+  width: 24px;
+  height: 24px;
+  color: var(--color-primary);
+}
+
+.heading-samples {
+  gap: 4px;
+}

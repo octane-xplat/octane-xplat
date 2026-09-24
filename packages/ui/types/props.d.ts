@@ -150,6 +150,57 @@ export interface SwitchProps {
     checked?: boolean;
     onCheckedChange?: (checked: boolean) => void;
 }
+export interface ActivityIndicatorProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    busy?: boolean;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+export interface SliderProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    value: number;
+    minValue?: number;
+    maxValue?: number;
+    disabled?: boolean;
+    onValueChange?: (value: number) => void;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+export interface IconProps {
+    className?: any;
+    id?: string;
+    name: string;
+    size?: number;
+    color?: string;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
+/** One registered icon representation. `svg` contains path `d` data. */
+export interface IconGlyph {
+    svg?: string;
+    font?: {
+        family: string;
+        glyph: string;
+    };
+    src?: string;
+}
+export interface HeadingProps {
+    className?: any;
+    style?: any;
+    children?: any;
+    id?: string;
+    level?: 1 | 2 | 3 | 4 | 5 | 6;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
 export interface PlatformBadgeProps {
     className?: any;
 }

@@ -9,8 +9,12 @@
 import type { UniversalComponent } from 'octane/universal';
 import type {
 	AnimatedValue,
+	ActivityIndicatorProps,
 	ColorScheme,
 	DrawerProps,
+	HeadingProps,
+	IconGlyph,
+	IconProps,
 	ImageProps,
 	KeyboardAvoidingProps,
 	ListProps,
@@ -32,6 +36,7 @@ import type {
 	SafeAreaProps,
 	ScreenTable,
 	ScrollViewProps,
+	SliderProps,
 	Store,
 	SwitchProps,
 	TabSpec,
@@ -47,8 +52,12 @@ import type {
 
 export type {
 	AnimatedValue,
+	ActivityIndicatorProps,
 	ColorScheme,
 	DrawerProps,
+	HeadingProps,
+	IconGlyph,
+	IconProps,
 	ImageProps,
 	KeyboardAvoidingProps,
 	ListProps,
@@ -71,6 +80,7 @@ export type {
 	SafeAreaProps,
 	ScreenTable,
 	ScrollViewProps,
+	SliderProps,
 	Store,
 	SwipeEvent,
 	SwitchProps,
@@ -103,7 +113,14 @@ export declare const SafeArea: UniversalComponent<SafeAreaProps>;
 export declare const KeyboardAvoiding: UniversalComponent<KeyboardAvoidingProps>;
 export declare const Drawer: UniversalComponent<DrawerProps>;
 export declare const Switch: UniversalComponent<SwitchProps>;
+export declare const ActivityIndicator: UniversalComponent<ActivityIndicatorProps>;
+export declare const Slider: UniversalComponent<SliderProps>;
+export declare const Icon: UniversalComponent<IconProps>;
+export declare const Heading: UniversalComponent<HeadingProps>;
 export declare const PlatformBadge: UniversalComponent<PlatformBadgeProps>;
+
+export declare function registerIcon(name: string, glyph: IconGlyph): void;
+export declare function registerIcons(record: Record<string, IconGlyph>): void;
 
 // ---------- overlays / shells ----------
 
