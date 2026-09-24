@@ -1,17 +1,30 @@
-// Clipboard — pasteboard via nativescript-clipboard (sync API wrapped async
-// to keep the shared contract awaitable on both sides).
-import { getTextSync, setTextSync } from 'nativescript-clipboard';
+// Core provides native clipboard writes. The plugin remains for reading text,
+// which Core does not expose.
+import { Utils } from '@nativescript/core';
+import { getTextSync } from 'nativescript-clipboard';
+
+async function writeText(text: string): Promise<boolean> {
+	try {
+		Utils.copyToClipboard(text);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+async function readText(): Promise<string | null> {
+	try {
+		return getTextSync();
+	} catch {
+		return null;
+	}
+}
 
 export const clipboard = {
-	async write(text: string): Promise<boolean> {
-		setTextSync(text);
-		return true;
-	},
-	async read(): Promise<string | null> {
-		try {
-			return getTextSync();
-		} catch {
-			return null;
-		}
-	},
+	canCopy: true,
+	writeText,
+	readText,
+	// Keep the original names available for existing consumers.
+	write: writeText,
+	read: readText,
 };
