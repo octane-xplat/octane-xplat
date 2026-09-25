@@ -23,8 +23,10 @@ export { Modal } from './Modal.web.tsrx'
 export { openModal } from './modal-service.web'
 export { Overlay } from './Overlay.web.tsrx'
 export { Popover } from './Popover.web.tsrx'
-export { showToast } from './toast.web.tsrx'
+export { Hoverable } from './Hoverable.web.tsrx'
+export { showToast } from './toast-anchor.web.tsrx'
 export type {
+	HoverableProps,
 	OverlayProps,
 	PopoverAnchorRef,
 	PopoverProps,
@@ -59,6 +61,8 @@ export { KeyboardAvoiding } from './KeyboardAvoiding.web.tsrx'
 export { Drawer } from './Drawer.web.tsrx'
 export { useSafeAreaInsets } from './safeAreaInsets.web.tsrx'
 export type { SafeAreaInsets } from './safeAreaInsets.web.tsrx'
+export { useMeasure } from './useMeasure.web.tsrx'
+export type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props'
 export { ActivityIndicator } from './ActivityIndicator.web.tsrx'
 export { Meter } from './Meter.web.tsrx'
 export { Slider } from './Slider.web.tsrx'

@@ -544,15 +544,53 @@ export interface PopoverProps {
 	web?: Record<string, any>
 }
 
+export interface HoverableProps {
+	/** Content shown after the pointer rests over the children on web. */
+	card: any
+	children?: any
+	openDelay?: number
+	closeDelay?: number
+	placement?: PopoverPlacement
+	className?: any
+	style?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
 export type ToastContent = string | (() => any)
-export type ToastPosition = 'top' | 'bottom'
+export type ToastPosition = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end'
 
 export interface ToastOptions {
 	duration?: number
 	position?: ToastPosition
+	/** When set, the toast is positioned by Popover relative to this view. */
+	anchor?: PopoverAnchorRef
+	/** Placement used with `anchor`; `position` supplies the top/bottom default. */
+	placement?: PopoverPlacement
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+}
+
+// ---------- measurement ----------
+
+export interface MeasureBounds {
+	x: number
+	y: number
+	width: number
+	height: number
+}
+
+export interface UseMeasureOptions {
+	/** Re-measure on layout, resize, scroll, and content-size changes. Defaults to true. */
+	observe?: boolean
+}
+
+export interface MeasureResult {
+	/** Pass to a View's `bind` prop. */
+	bind: (element: any) => void
+	bounds: MeasureBounds | null
 }
 
 export interface ModalProps {

@@ -17,6 +17,7 @@ import type {
 	DrawerProps,
 	GridProps,
 	HeadingProps,
+	HoverableProps,
 	IconGlyph,
 	IconProps,
 	ImageProps,
@@ -28,6 +29,8 @@ import type {
 	ModalProps,
 	ModalOpenOptions,
 	ModalOpenResult,
+	MeasureBounds,
+	MeasureResult,
 	NavLinkProps,
 	OpenModal,
 	OpenWindowOptions,
@@ -64,6 +67,7 @@ import type {
 	ToastContent,
 	ToastOptions,
 	ToastPosition,
+	UseMeasureOptions,
 	ViewProps,
 } from './props'
 
@@ -77,6 +81,7 @@ export type {
 	DrawerProps,
 	GridProps,
 	HeadingProps,
+	HoverableProps,
 	IconGlyph,
 	IconProps,
 	ImageProps,
@@ -87,6 +92,8 @@ export type {
 	ModalProps,
 	ModalOpenOptions,
 	ModalOpenResult,
+	MeasureBounds,
+	MeasureResult,
 	NavLinkProps,
 	OpenModal,
 	OpenWindowOptions,
@@ -125,6 +132,7 @@ export type {
 	ToastContent,
 	ToastOptions,
 	ToastPosition,
+	UseMeasureOptions,
 	ViewProps,
 } from './props'
 
@@ -175,6 +183,7 @@ export declare const openModal: OpenModal
 export declare function openWindow(options?: OpenWindowOptions): any
 export declare const Overlay: UniversalComponent<OverlayProps>
 export declare const Popover: UniversalComponent<PopoverProps>
+export declare const Hoverable: UniversalComponent<HoverableProps>
 export declare function showToast(content: ToastContent, options?: ToastOptions): void
 export declare const Tabs: UniversalComponent<TabsProps>
 
@@ -223,6 +232,7 @@ export declare function deriveRouteManifest(
 // ---------- animation / theme ----------
 
 export declare function useAnimation(initial?: number, prop?: string): AnimatedValue
+export declare function useMeasure(options?: UseMeasureOptions): MeasureResult
 export declare function getColorScheme(): ColorScheme
 export declare function useColorScheme(): ColorScheme
 export interface SafeAreaInsets {

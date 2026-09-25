@@ -60,6 +60,21 @@ owns scrolling there. `ScrollBox` does not provide an outer native scroll.
 
 Use `Modal` for a focused interruption, and pass the data it needs as props.
 
+Use `Hoverable` for a delayed hover card on web. On iOS and Android the same
+card opens from a long press because native has no hover state; the native
+driver's long-press recognizer supplies the intent threshold.
+
+Use `useMeasure()` when a screen needs live element bounds:
+`const { bind, bounds } = useMeasure()`, then pass `bind` to a primitive's
+`bind` prop. Bounds are observed by default and are `null` before the element
+has a usable layout. Web coordinates are viewport-relative; native coordinates
+are screen-relative device-independent pixels. Set `{ observe: false }` for a
+single read after binding.
+
+`showToast()` keeps top/bottom viewport placement and adds start/end alignment.
+Pass `anchor` plus an optional `placement` to position a toast from a view;
+that anchored form follows `Popover`'s platform-specific overlay behavior.
+
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)
 cover the less common components, accessibility details, and renderer limits.

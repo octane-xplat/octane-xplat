@@ -24,8 +24,10 @@ export { openModal } from './modal-service.native'
 export { rootLayoutFor, topRootLayout, findInRootLayouts } from './root-layout.native'
 export { Overlay } from './Overlay.native.tsrx'
 export { Popover } from './Popover.native.tsrx'
-export { showToast } from './toast.native.tsrx'
+export { Hoverable } from './Hoverable.native.tsrx'
+export { showToast } from './toast-anchor.native.tsrx'
 export type {
+	HoverableProps,
 	OverlayProps,
 	PopoverAnchorRef,
 	PopoverProps,
@@ -60,6 +62,8 @@ export { KeyboardAvoiding } from './KeyboardAvoiding.native.tsrx'
 export { Drawer } from './Drawer.native.tsrx'
 export { useSafeAreaInsets } from './safeAreaInsets.native.tsrx'
 export type { SafeAreaInsets } from './safeAreaInsets.native.tsrx'
+export { useMeasure } from './useMeasure.native.tsrx'
+export type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props'
 export { ActivityIndicator } from './ActivityIndicator.native.tsrx'
 export { Meter } from './Meter.native.tsrx'
 export { Slider } from './Slider.native.tsrx'
