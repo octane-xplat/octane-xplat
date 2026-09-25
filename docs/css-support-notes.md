@@ -9,7 +9,7 @@
 | Property                               | NS                 | Web                          | Notes                                            |
 | -------------------------------------- | ------------------ | ---------------------------- | ------------------------------------------------ |
 | flexbox (direction/justify/align/wrap) | ✅ FlexboxLayout   | ✅                           | `gap` works on FlexboxLayout only                |
-| `flex-grow` child min-size             | ⚠️ min-content     | ✅ can shrink to 0           | grow children never shrink below intrinsic — `min-w-0` util |
+| `flex-grow` child min-size             | ⚠️ min-content     | ⚠️ min-content (same)        | identical on both engines — `min-w-0` + `shrink-0` utils guard (lab: web+ios 2026-09-25) |
 | `margin-*: auto`                       | ❌ ignored         | ✅                           | → `Spacer` / `justify-content` (lab: 2026-09-25) |
 | `flex-basis`                           | ❌                 | ✅                           | use `width:0` + `min-w-0` for basis-0 (row axis) |
 | grid via `rows`/`columns` spec         | ✅ GridLayout      | ✅ via spec→template mapping | no `gap` on GridLayout; child `row`/`col` attach |
@@ -38,7 +38,7 @@
 | `color`, `font-size`, `font-weight`, `font-style` | ✅                               | ✅           |                                        |
 | `font-family`                                     | ⚠️                               | ✅           | registered-name mapping per platform   |
 | `text-align`, `text-decoration`, `text-transform` | ✅                               | ✅           |                                        |
-| `line-height`                                     | ⚠️ **additive gap**              | ✅ total box | additive spacing only — does NOT grow single-line Label height (lab: 2026-09-25) |
+| `line-height`                                     | ⚠️ **additive gap**              | ✅ total box | additive spacing only — does NOT grow single-line Label height (lab: 2026-09-25). Inline `style={{lineHeight: N}}` — number → `Npx` via `normStyle` (octane keeps React's unitless list; RN semantics is absolute) |
 | `letter-spacing`                                  | ⚠️                               | ✅           | iOS vs Android differ; verify          |
 | `vertical-align`                                  | ✅ (this name, not `-alignment`) | ✅           | exact spelling — silent drop otherwise |
 | `white-space`/`text-overflow`/`numberOfLines`     | ⚠️                               | ✅           | prop-level on native, CSS on web       |
