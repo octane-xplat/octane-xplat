@@ -9,6 +9,8 @@ import { navigate } from '../platform/nav';
 import type { TabSpec } from '@octane-xplat/ui';
 // Probe-only module: schedules the demo-gallery sweep on native; no-op on web.
 import '../platform/demosweep';
+// Registers the tab-strip icon glyphs (svg + sys:// pairs).
+import '../icons';
 
 // Identity-stable tab specs — Tabs is memoized on the array reference, and
 // each spec carries a render function (same contract as List.renderItem).
@@ -39,10 +41,10 @@ const resolveRoute = (name: string, params: Record<string, unknown>) => {
 };
 
 const TABS: TabSpec[] = [
-	{ title: 'Home', render: renderHome },
-	{ title: 'Settings', render: renderSettings },
-	{ title: 'Demos', render: renderDemos, stack: 'demos' },
-	{ title: 'Services', render: renderServices },
+	{ title: 'Home', icon: 'tab-home', render: renderHome },
+	{ title: 'Settings', icon: 'tab-settings', render: renderSettings },
+	{ title: 'Demos', icon: 'tab-demos', render: renderDemos, stack: 'demos' },
+	{ title: 'Services', icon: 'tab-services', render: renderServices },
 ];
 
 console.log('[harness] App module evaluated');
