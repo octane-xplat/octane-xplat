@@ -17,10 +17,16 @@
 
 import { Application, Frame, GridLayout, Page } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
-import type { UniversalComponent } from 'octane/universal'
+import type { UniversalComponent, UniversalRenderable } from 'octane/universal/native'
+import {
+	defineUniversalComponent,
+	universalChildren,
+	universalComponent,
+} from 'octane/universal/native'
+
 import { useSyncExternalStore } from 'octane'
 import { getStack, onStackRegistered, stackEntries } from './stacks.native'
-import { buildRoutePath, linkPath, matchUrl } from './route-table'
+import { buildRoutePath, layoutChain, linkPath, matchUrl } from './route-table'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
 
 export type { Route } from './props'
@@ -29,6 +35,7 @@ export type { Route } from './props'
 
 let screens: ScreenTable = {}
 let routes: RouteMeta[] = []
+let routeLayouts: Record<string, any> = {}
 
 /** Register the app's name → screen table (call once, from the shared
  *  routes module). Native `pushRoute` resolves `route.name` through it;
@@ -45,10 +52,30 @@ export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): voi
  *  layouts all come from deriveRouteManifest. */
 export function registerRoutes(manifest: RouteManifest): void {
 	registerScreens(manifest.screens, manifest.routes)
+	routeLayouts = manifest.layouts
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {
 	return screens[name]
+}
+
+/** Wrap a screen in its directory `_layout` chain (outermost →
+ *  innermost) as a single root component — pushed Pages and modal roots
+ *  render this, matching web's outlet wrapping. */
+function wrapInLayouts(
+	name: string,
+	props: Record<string, unknown>,
+	C: any,
+): UniversalComponent {
+	let inner: UniversalRenderable = universalComponent('nativescript', C, props)
+	for (const L of layoutChain(routeLayouts, name).reverse()) {
+		const child = inner
+		inner = universalComponent('nativescript', L, {
+			children: universalChildren('nativescript', () => child),
+		})
+	}
+
+	return defineUniversalComponent('nativescript', () => inner)
 }
 
 // ---------- stack resolution ----------
@@ -152,9 +179,9 @@ export function pushRoute(r: Route): void {
 				// child so multi-root screens can't silently lose siblings.
 				const host = new GridLayout()
 				page.content = host
-				// .ts → .tsrx component imports type as () => Element; cast to
-				// the universal component shape the root expects.
-				createNativeScriptRoot(host).render(C as unknown as UniversalComponent, props)
+				// .ts → .tsrx component imports type as () => Element; the
+				// layout chain wraps it into a stamped universal component.
+				createNativeScriptRoot(host).render(wrapInLayouts(r.name, props, C), {})
 				return page
 			},
 			transition: presentation === 'fade' ? { name: 'fade' } : undefined,
@@ -182,10 +209,10 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 	const presenter = (frame.currentPage ?? frame) as any
 	try {
 		modalHosts.push(entry)
-		root.render(C as UniversalComponent, {
-			...r.params,
-			close: () => (host as any).closeModal?.(),
-		})
+		root.render(
+			wrapInLayouts(r.name, { ...r.params, close: () => (host as any).closeModal?.() }, C),
+			{},
+		)
 
 		presenter.showModal(host, {
 			context: {},

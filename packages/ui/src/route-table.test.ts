@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { buildRoutePath, deriveRouteManifest, linkPath, matchRoute, matchUrl } from './route-table'
+import {
+	buildRoutePath,
+	deriveRouteManifest,
+	layoutChain,
+	linkPath,
+	matchRoute,
+	matchUrl,
+} from './route-table'
 
 const C = (n: string) => Object.assign(() => null, { displayName: n })
 
@@ -153,5 +160,20 @@ describe('matchUrl + linkPath', () => {
 		expect(linkPath('https://x.com/demo/9?a=1')).toBe('/demo/9?a=1')
 		expect(linkPath('textcoral://demo/9')).toBe('/demo/9')
 		expect(linkPath('/demo/9')).toBe('/demo/9')
+	})
+})
+
+describe('layoutChain', () => {
+	const m = manifest({
+		'./app/_layout.tsrx': { Root: C('Root') },
+		'./app/chat/_layout.tsrx': { ChatShell: C('ChatShell') },
+		'./app/chat/room.tsrx': { Room: C('Room') },
+		'./app/detail.tsrx': { D: C('D') },
+	})
+
+	it("chains ancestor dir layouts, outermost first, '' excluded", () => {
+		expect(layoutChain(m.layouts, 'chat/room').map((c) => c.displayName)).toEqual(['ChatShell'])
+		expect(layoutChain(m.layouts, 'detail')).toEqual([])
+		expect(layoutChain(m.layouts, 'chat')).toEqual([])
 	})
 })

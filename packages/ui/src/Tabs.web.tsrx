@@ -1,7 +1,7 @@
 import { useState } from 'octane';
 import type { TabSpec, TabsProps } from './props';
 
-import { popRoute, screenFor, useModalRoute, useRoute } from './route.web';
+import { layoutsFor, popRoute, screenFor, useModalRoute, useRoute } from './route.web';
 
 export type { TabSpec } from './props';
 
@@ -17,11 +17,16 @@ export function Tabs(props: TabsProps) @{
 	const paneRoute = useRoute(props.tabs[active]?.stack ?? '');
 	const modal = useModalRoute();
 	// resolveScreen prop wins; the registerScreens table is the fallback —
-	// one registration serves both platforms' outlets.
+	// one registration serves both platforms' outlets. Directory _layout
+	// files wrap the resolved element either way (outermost → innermost).
 	const resolve = (name: string, params: Record<string, unknown>) => {
-		if (props.resolveScreen) return props.resolveScreen(name, params);
 		const C = screenFor(name);
-		return C ? <C {...params} /> : null;
+		const el = props.resolveScreen
+			? props.resolveScreen(name, params)
+			: C
+				? <C {...params} />
+				: null;
+		return layoutsFor(name).reduceRight((child, L) => <L>{child}</L>, el);
 	};
 
 	const routed = rootRoute ? resolve(rootRoute.name, rootRoute.params) : null;

@@ -252,6 +252,7 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 
 	const root = matchRoute(routes, segs)
 	if (root) return finish('root', root, segs.join('/'))
+
 	if (segs.length > 1) {
 		const named = matchRoute(routes, segs.slice(1))
 		if (named) return finish(segs[0], named, segs[1])
@@ -259,4 +260,21 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 	}
 
 	return finish('root', null, segs[0])
+}
+
+/** Layout components wrapping a route name, outermost → innermost —
+ *  'chat/room' picks up `app/chat/_layout.tsrx`, 'a/b/c' chains 'a' then
+ *  'a/b'. The '' root layout is the app's own shell (entry renders it)
+ *  and never joins a chain. Leaves apply the chain at render: native
+ *  wraps each pushed Page's component, web wraps the outlet's resolved
+ *  element. */
+export function layoutChain(layouts: Record<string, any>, name: string): any[] {
+	const segs = name.split('/')
+	const chain: any[] = []
+	for (let i = 1; i < segs.length; i++) {
+		const L = layouts[segs.slice(0, i).join('/')]
+		if (L) chain.push(L)
+	}
+
+	return chain
 }

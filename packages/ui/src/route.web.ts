@@ -16,12 +16,13 @@ import { useSyncExternalStore } from 'octane'
 
 export type { Route } from './props'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
-import { buildRoutePath, linkPath, matchUrl } from './route-table'
+import { buildRoutePath, layoutChain, linkPath, matchUrl } from './route-table'
 
 // ---------- screen registry ----------
 
 let screens: ScreenTable = {}
 let routes: RouteMeta[] = []
+let routeLayouts: Record<string, any> = {}
 
 /** Register the app's name → screen table. On web the table feeds
  *  `screenFor` — the fallback outlet resolution in Tabs when no
@@ -43,10 +44,17 @@ export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): voi
  *  layouts all come from deriveRouteManifest. */
 export function registerRoutes(manifest: RouteManifest): void {
 	registerScreens(manifest.screens, manifest.routes)
+	routeLayouts = manifest.layouts
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {
 	return screens[name]
+}
+
+/** Directory layouts wrapping a route, outermost → innermost — outlets
+ *  wrap their resolved element with these (`_layout.tsrx` files). */
+export function layoutsFor(name: string): any[] {
+	return layoutChain(routeLayouts, name)
 }
 
 // ---------- the store ----------
