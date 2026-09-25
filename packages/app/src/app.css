@@ -116,11 +116,18 @@ body {
 	corner-shape: squircle;
 }
 
+/* Separator insets to the container radius: NS clip-path only affects a
+   view's own background — children can't be clipped to .scrollbox's
+   rounded corners on Android, so the separator stops 8px inside the edge
+   instead of drawing under the curve. padding 4 + margin 8 keeps row
+   text at the same 12px offset. */
 .scrollrow {
 	padding-top: 8px;
-	padding-right: 12px;
+	padding-right: 4px;
 	padding-bottom: 8px;
-	padding-left: 12px;
+	padding-left: 4px;
+	margin-right: 8px;
+	margin-left: 8px;
 	font-size: 13px;
 	border-bottom-width: 1px;
 	border-bottom-color: var(--color-border);
