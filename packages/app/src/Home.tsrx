@@ -114,6 +114,11 @@ export function Home() @{
 			<NavLink route={{ stack: 'root', name: 'detail', params: { from: 'home' } }} className="btn bg-primary">
 				<Text className="text-onprimary">Detail →</Text>
 			</NavLink>
+			{/* +modal route: manifest-declared presentation — NavLink pushes
+			    it like any route, the leaf presents it modally. */}
+			<NavLink route={{ stack: 'root', name: 'about', params: {} }} className="btn bg-primary">
+				<Text className="text-onprimary">About ⤴</Text>
+			</NavLink>
 			<Pressable id="overlay-btn" onPress={openOverlay} className="btn bg-primary">
 				<Text className="text-onprimary">Overlay</Text>
 			</Pressable>

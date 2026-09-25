@@ -1,5 +1,5 @@
 import { Application, Frame, ListView, getRootLayout } from '@nativescript/core'
-import { getStack, popRoute, routeFor } from '@octane-xplat/ui'
+import { currentModalRoute, getStack, popRoute, routeFor } from '@octane-xplat/ui'
 import { goBack } from './nav'
 
 // Nested stacks don't work on Android yet — a TabViewItem-hosted Frame
@@ -117,6 +117,47 @@ function runNavLinkProbe() {
 // Exercise the Home page's declarative NavLink through its real native tap
 // observer, then return to the app shell before the nested-stack sweep.
 setTimeout(runNavLinkProbe, 5000)
+
+// The +modal route: tap 'About ⤴' → manifest presentation:'modal' →
+// showModal root (currentPage untouched), popRoute dismisses it.
+function runModalRouteProbe() {
+	const tabView = getStack('root')?.currentPage?.getViewById?.('app-tabs')
+	const homeView = (tabView as any)?.items?.[0]?.view
+	const target = tapTargetForText(homeView, 'About ⤴')
+	const observers = fireTap(target)
+	if (!observers) {
+		console.log('[assert] modal route tap target: FAIL (About ⤴ has no tap observer)')
+		return
+	}
+
+	waitFor(
+		() => currentModalRoute()?.name === 'about',
+		() => {
+			const route = currentModalRoute()
+			const ok = route?.name === 'about'
+			console.log(
+				'[assert] +modal route opens showModal root: ' + (ok ? 'OK' : 'FAIL'),
+			)
+			const modalView = (getStack('root')?.currentPage as any)?.modal
+			const texts = modalView ? viewTexts(modalView) : []
+			console.log(
+				'[assert] modal route screen mounted: ' +
+					(texts.some((t) => t.includes('About (modal route)')) ? 'OK' : 'FAIL') +
+					(modalView ? '' : ' (no modal host on currentPage)'),
+			)
+			popRoute('root')
+			setTimeout(() => {
+				console.log(
+					'[assert] modal route dismissed by popRoute: ' +
+						(currentModalRoute() ? 'FAIL' : 'OK'),
+				)
+			}, 600)
+		},
+	)
+}
+
+// Root-stack modal — not a nested-stack push, so it runs on Android too.
+setTimeout(runModalRouteProbe, 6500)
 
 // Chips live on the demos stack's current page; the sheet host sits on the
 // app's RootLayout, a sibling of every page — read it from there.
