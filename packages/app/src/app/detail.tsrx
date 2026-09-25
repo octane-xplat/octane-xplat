@@ -3,8 +3,9 @@ import type { BeforeLoadArgs, RouteHead } from '@octane-xplat/ui';
 import { goBack } from '../platform/nav';
 
 /** Route guards run before the URL/Page commit; the returned context is
- * merged into the pushed screen's props on both targets. */
-export async function beforeLoad({ params }: BeforeLoadArgs) {
+ * merged into the pushed screen's props on both targets. Sync on purpose —
+ * the universal compiler rejects async functions in .tsrx. */
+export function beforeLoad({ params }: BeforeLoadArgs) {
 	return { loadedFrom: String(params.from ?? 'unknown') };
 }
 
