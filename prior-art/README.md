@@ -24,6 +24,7 @@ to a file in `docs/` (our commitment) or here (context that informed it).
 | [react-native-web.md](react-native-web.md) | react-native-web   | Proof that converging on RN's constrained API surface and implementing it over DOM works. Event/accessibility normalization.                                                                 |
 | [flutter.md](flutter.md)                   | Flutter            | Animation API shape (`AnimationController`/`Tween`/`Curve`), widget-composition idioms worth borrowing, Navigator 2.0 declarative routing.                                                   |
 | [lynx.md](lynx.md)                         | Lynx (lynxjs.org)  | Same destination by a different road: lowercase element vocabulary → native views, dual-thread React. Thread tax validates JS-on-UI-thread; Snapshot IR confirms Octane's universalPlan ABI. |
+| [tanstack-start.md](tanstack-start.md)     | TanStack Start     | "Route file = config surface" done thoroughly: `beforeLoad` guards + context, typed loaders→screens, `head`, param schemas, per-route render modes. Server layer not borrowed.               |
 
 Related but folded into the files above: React Native itself (the API-surface
 lingua franca — see react-native-web.md), Expo Router (One is derived from it —

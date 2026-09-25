@@ -138,6 +138,38 @@ already changed when popstate fires).
   platform-native by default — correct behavior, not a gap.
 - Sharing `_layout` internals across targets — they're expected split files.
 
+## Route config surface (deferred — post-core)
+
+> Desk-source (TanStack Start comparison, 2026-09-25 — upstream detail in
+> [prior-art/tanstack-start.md](../prior-art/tanstack-start.md)): the route
+> file is the config surface apps write against — **exports carry behavior,
+> `+suffixes` carry presentation/render mode, `RouteMeta` carries what
+> platforms read.**
+> Pin that vocabulary before apps accumulate route files; the features below
+> stay parked until the core settles. Silo topic: `route-config-surface`.
+
+| Route-file item       | Web semantics                                | Native semantics                            |
+| --------------------- | -------------------------------------------- | ------------------------------------------- |
+| `loader` (existing)   | client prefetch before nav                   | prefetch during transition                  |
+| `beforeLoad`          | guard awaited pre-commit; `throw redirect()` → `pushRoute` | same — resolves to `frame.navigate` |
+| `head`                | `<title>` + meta tags                        | `Page.title`; web-only keys inert           |
+| `params` schema       | typed `Link`/`useRoute` props                | same                                        |
+| `+ssr` / `+ssrdata`   | full / data-only prerender                   | ignored                                     |
+
+Largest gap vs Start: **route guards** — `pushRoute` has no interception
+seam for auth redirects, analytics, or feature gates. Second: `loader`
+returns stay void — typing `loader(params)→T` and surfacing it to the screen
+(`useLoaderData`-shape) upgrades prefetch to a client-side data seam; the
+codegen already emits `RouteParams`, so capturing return types reuses the
+same mechanism. `beforeLoad`'s returned context would merge into `useRoute`
+reads down the `_layout` chain.
+
+Explicitly not borrowed from Start: server functions, request middleware,
+RSC, ISR — the server layer stays app-owned (rouzer precedent in
+text-coral). Their "three cache layers" caveat (client loader cache ≠
+server result cache ≠ CDN HTML cache) applies verbatim if loaders gain
+staleness semantics.
+
 ## Build order (prototype path)
 
 1. ~~`Link` + `useNavigate` + two hand-written route tables (no codegen).~~

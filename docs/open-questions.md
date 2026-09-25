@@ -135,7 +135,13 @@ LiveRegion` unwired in leaves so far).
     ever runs on DOM-compiled output (shared files compiled under `dom` for
     web). The DOM build's SSR output is DOM-correct; the native build never
     sees it.
-21. ⏳ **SVG fidelity on native (`svgview` / ui-svg).** — Src grammar verified
+21. ⏳ **Route-file config vocabulary** — pin before apps accumulate route
+    files. Proposed (desk-sketched from the TanStack Start comparison):
+    exports carry behavior (`loader`, `beforeLoad`, `head`), `+suffixes`
+    carry presentation/render mode (`+modal`, `+fade`, `+ssr`), `RouteMeta`
+    fields carry what platforms read. Feature items parked in
+    navigation-notes.md → "Route config surface"; Silo `route-config-surface`.
+22. ⏳ **SVG fidelity on native (`svgview` / ui-svg).** — Src grammar verified
     at source: `res://`/`~/`/file paths, `File`/`ImageAsset`, inline markup
     strings, and promise srcs (remote `.svg` URLs fetch→markup). Unverified
     on device: `currentColor`/root-`color` tint resolution, divergence
