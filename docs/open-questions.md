@@ -173,3 +173,14 @@ LiveRegion` unwired in leaves so far).
     `setClipToOutline` (path outlines need API 33+ for child clipping).
     Parked: Android platform convention is round corners; revisit if a real
     app wants parity.
+25. ⏳ **Suffix-aware `.tsrx` leaf resolution under tsrx-tsc.** — Plain-tsc
+    never resolves a bare `./Leaf` import to `Leaf.web.tsrx`/`Leaf.native.tsrx`:
+    `moduleSuffixes` doesn't probe `.tsrx`, `paths` doesn't apply to relative
+    specifiers, and ambient `declare module` doesn't bind relative names
+    (verified by experiment in the proving app). Apps work around it with a
+    platform `leaves.web.ts`/`leaves.native.ts` barrel pair whose re-exports
+    name each leaf explicitly. The durable fix lives upstream: teach
+    `@tsrx/typescript-plugin`'s module resolution (or the volar layer) to
+    probe `Leaf<moduleSuffix>.tsrx` for bare relative specifiers so
+    `./Spinner` resolves `Spinner.web.tsrx` directly — in
+    research/tsrx (typescript-plugin package), a separate repo.
