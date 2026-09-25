@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'octane';
-import { Screen, Tabs, Text, currentRoute } from '@octane-xplat/ui';
+import { Screen, Tabs, Text, currentRoute, useThemeScheme } from '@octane-xplat/ui';
 import { routes, screens } from '../routes';
 import { Home } from '../Home.tsrx';
 import { Settings } from '../Settings.tsrx';
@@ -57,6 +57,10 @@ export function RootLayout() @{
 		const i = r ? TABS.findIndex((t) => t.stack === r.stack) : -1;
 		return i >= 0 ? i : 0;
 	});
+	// Effective scheme on the shell root: .dark/.ns-dark here re-themes the
+	// tab bar + every pane (tokens inherit); separate roots (pushed pages,
+	// overlays) get stamped by theme-scheme's host hooks instead.
+	const scheme = useThemeScheme();
 
 	console.log('[harness] App render, tab=' + tab);
 
@@ -64,7 +68,7 @@ export function RootLayout() @{
 		console.log('[harness] App mounted');
 	}, []);
 
-	<Screen className="vx-app flex-1">
+	<Screen className={['vx-app', 'vx-app-flush', 'flex-1', scheme === 'dark' ? 'dark ns-dark' : '']}>
 		<Tabs
 			id="app-tabs"
 			className="flex-1"

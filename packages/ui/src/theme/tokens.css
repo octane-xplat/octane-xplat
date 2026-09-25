@@ -3,10 +3,15 @@
 
 :root,
 .ns-root {
-	--color-primary: #4f46e5;
-	--color-on-primary: #ffffff;
+	--color-primary: #171717;
+	--color-on-primary: #fafafa;
 	--color-surface: #ffffff;
-	--color-text: #111827;
+	--color-surface-secondary: #fafafa;
+	--color-text: #0a0a0a;
+	--color-text-secondary: #666666;
+	--color-border: #eaeaea;
+	--color-border-strong: #d4d4d4;
+	--color-danger: #dc2626;
 	--space-4: 16px;
 	/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
 	   the default corner treatment: every class that consumes a token also
@@ -20,8 +25,14 @@
 
 .ns-dark,
 .dark {
-	--color-surface: #0f172a;
-	--color-text: #f8fafc;
+	--color-primary: #ededed;
+	--color-on-primary: #171717;
+	--color-surface: #0a0a0a;
+	--color-surface-secondary: #141414;
+	--color-text: #ededed;
+	--color-text-secondary: #a1a1a1;
+	--color-border: #2e2e2e;
+	--color-border-strong: #4a4a4a;
 }
 
 /* vocabulary base styles */
@@ -70,7 +81,7 @@
 .vx-drawer-backdrop {
 	position: absolute;
 	inset: 0;
-	background: rgba(15, 23, 42, 0.35);
+	background: rgba(0, 0, 0, 0.4);
 }
 .vx-drawer-panel {
 	position: absolute;
@@ -140,7 +151,7 @@
 .vx-overlay-shade {
 	position: absolute;
 	inset: 0;
-	background-color: rgba(0, 0, 0, 0.45);
+	background-color: rgba(0, 0, 0, 0.4);
 }
 
 .vx-overlay-content {
@@ -193,7 +204,7 @@
 	max-width: 90%;
 	max-height: 90%;
 	padding: 24px;
-	border: 0;
+	border: 1px solid var(--color-border);
 	border-radius: var(--radius-xl);
 	corner-shape: squircle;
 	color: var(--color-text);
@@ -201,7 +212,7 @@
 }
 
 .vx-modal::backdrop {
-	background: rgba(15, 23, 42, 0.45);
+	background: rgba(0, 0, 0, 0.4);
 }
 
 .vx-modal--dialog {
@@ -246,7 +257,7 @@
 	inset: 0;
 	border: 0;
 	padding: 0;
-	background: rgba(15, 23, 42, 0.45);
+	background: rgba(0, 0, 0, 0.4);
 	cursor: default;
 }
 
@@ -264,6 +275,29 @@
 input::placeholder,
 textarea::placeholder {
 	color: var(--placeholder-color, currentColor);
+}
+/* xplat-web-only:end */
+
+/* xplat-web-only:start — form controls don't inherit the body font in the
+   DOM (UA stylesheet wins); without this they render in the UA face. */
+input,
+textarea,
+select,
+button {
+	font-family: inherit;
+}
+/* xplat-web-only:end */
+
+/* xplat-web-only:start — NativeScript paints a border from width+color
+   alone; the DOM defaults to border-style:none, so width alone draws
+   nothing. Longhands stay portable; this supplies the missing style. */
+.vx-tabbar,
+.btn-secondary,
+.chip,
+.input,
+.cell,
+.vx-sheet {
+	border-style: solid;
 }
 /* xplat-web-only:end */
 
@@ -365,18 +399,48 @@ textarea::placeholder {
 .items-center {
 	align-items: center;
 }
+.items-baseline {
+	align-items: baseline;
+}
 .justify-center {
 	justify-content: center;
+}
+.justify-between {
+	justify-content: space-between;
+}
+.flex-wrap {
+	flex-wrap: wrap;
 }
 .gap-4 {
 	gap: 16px;
 }
+.gap-3 {
+	gap: 12px;
+}
+.gap-6 {
+	gap: 24px;
+}
 
+.text-2xl {
+	font-size: 28px;
+}
 .text-xl {
 	font-size: 20px;
 }
+.text-lg {
+	font-size: 18px;
+}
+.text-sm {
+	font-size: 13px;
+}
 .font-bold {
 	font-weight: bold;
+}
+.font-semibold {
+	font-weight: 600;
+}
+.text-muted {
+	color: var(--color-text-secondary);
 }
 
 /* Corner utilities — consume the --radius-* scale and carry the smooth
@@ -410,7 +474,7 @@ textarea::placeholder {
 	color: var(--color-on-primary);
 }
 .bg-danger {
-	background-color: #dc2626;
+	background-color: var(--color-danger);
 }
 /* xplat-web-only:start — box-shadow is inert on native (elevation is
    Android-only; no shared mapping yet) */
@@ -420,13 +484,86 @@ textarea::placeholder {
 /* xplat-web-only:end */
 
 .btn {
-	padding-top: 12px;
-	padding-right: 20px;
-	padding-bottom: 12px;
-	padding-left: 20px;
+	padding-top: 10px;
+	padding-right: 16px;
+	padding-bottom: 10px;
+	padding-left: 16px;
 	border-radius: var(--radius-md);
 	corner-shape: squircle;
+	font-size: 14px;
+	font-weight: 500;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	color: var(--color-text);
 }
+
+/* Secondary = the same control reading quiet: hairline border, surface
+   fill, body-text label. Reserve .bg-primary for the one decisive action
+   in a group. */
+.btn-secondary {
+	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border);
+	color: var(--color-text);
+}
+
+/* xplat-web-only:start — controls that render as real <a>/<button> need
+   inline layout and UA resets; the pressable/nav-link leaves are divs on
+   web and don't hit these rules. */
+a.btn {
+	display: inline-flex;
+}
+a.chip {
+	display: inline-flex;
+	align-items: center;
+}
+/* xplat-web-only:end */
+
+/* Tab shell — web divs/buttons + the Android SwapTabs fallback (iOS draws
+   its own UITabBar and never sees these). */
+.vx-tabbar {
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+	background-color: var(--color-surface);
+}
+.vx-tab {
+	align-items: center;
+	justify-content: center;
+	padding-top: 10px;
+	padding-right: 16px;
+	padding-bottom: 10px;
+	padding-left: 16px;
+	font-size: 14px;
+	color: var(--color-text-secondary);
+}
+.vx-tab.active {
+	color: var(--color-text);
+}
+
+/* xplat-web-only:start */
+.vx-tabs {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+}
+.vx-tabbar {
+	flex-direction: row;
+}
+.vx-tabpane {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+button.vx-tab {
+	background: none;
+	border: 0;
+	font: inherit;
+	cursor: pointer;
+}
+/* xplat-web-only:end */
 
 /* harness experiment styles */
 
@@ -442,28 +579,58 @@ textarea::placeholder {
 	color: var(--color-text);
 }
 
+/* `.vx-app label` above (descendant + type) outranks single-class text
+   colors inside the app root — roles that must win escalate here. */
+.vx-app .text-onprimary {
+	color: var(--color-on-primary);
+}
+.vx-app .text-muted {
+	color: var(--color-text-secondary);
+}
+.vx-app .vx-tab label {
+	color: var(--color-text-secondary);
+}
+.vx-app .vx-tab.active label {
+	color: var(--color-text);
+}
+/* Danger surfaces keep white text in both themes (on-primary flips). */
+.bg-danger .text-onprimary {
+	color: #ffffff;
+}
+
 .input {
-	padding: 10px;
+	padding-top: 10px;
+	padding-right: 12px;
+	padding-bottom: 10px;
+	padding-left: 12px;
 	border-width: 1px;
-	border-color: #94a3b8;
-	border-radius: var(--radius-sm);
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
 	corner-shape: squircle;
-	font-size: 16px;
+	font-size: 14px;
+	background-color: var(--color-surface);
+	color: var(--color-text);
 }
 
 .chip {
-	background-color: var(--color-primary);
-	color: var(--color-on-primary);
-	padding: 4px 10px;
-	border-radius: var(--radius-lg);
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	padding-top: 5px;
+	padding-right: 12px;
+	padding-bottom: 5px;
+	padding-left: 12px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
 	corner-shape: squircle;
 	font-size: 13px;
+	text-decoration: none;
 }
 
 .cell {
 	padding: 12px;
 	border-bottom-width: 1px;
-	border-bottom-color: #e2e8f0;
+	border-bottom-color: var(--color-border);
 }
 
 .vx-list {
@@ -486,7 +653,7 @@ textarea::placeholder {
 .vx-sheet-backdrop {
 	position: absolute;
 	inset: 0;
-	background: rgba(15, 23, 42, 0.45);
+	background: rgba(0, 0, 0, 0.4);
 	pointer-events: auto;
 }
 
@@ -498,6 +665,8 @@ textarea::placeholder {
 	max-height: 85%;
 	padding: 24px;
 	overflow: auto;
+	border-width: 1px;
+	border-color: var(--color-border);
 	border-top-left-radius: var(--radius-xl);
 	border-top-right-radius: var(--radius-xl);
 	corner-shape: squircle;

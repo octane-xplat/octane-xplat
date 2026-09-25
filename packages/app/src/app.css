@@ -1,0 +1,210 @@
+/* Kitchen-sink chrome — harness-only styles on top of tokens.css.
+ * Imported once per entry, after tokens.css and demo.css:
+ *   web:    import '@xplat/app/app.css'   (apps/web/src/main.tsrx)
+ *   native: @import '@xplat/app/app.css'  (apps/native/src/app.css)
+ * Grammar stays inside the NS∩web matrix (docs/css-support-matrix.md).
+ * Theme palette + shared vocabulary live in @octane-xplat/ui/theme/tokens.css;
+ * this file is screen dressing: sections, probe surfaces, and panel chrome. */
+
+:root {
+	/* Geist is loaded by the web entry's index.html; native keeps the
+	   platform face (SF/Roboto) — nothing references this var there. */
+	--font-sans: 'Geist', -apple-system, system-ui, 'Segoe UI', Roboto,
+		sans-serif;
+}
+
+/* xplat-web-only:start — document shell. The app owns the viewport; lists
+   and scroll boxes scroll inside it rather than the page scrolling. */
+html,
+body,
+#root {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: var(--font-sans);
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	-webkit-font-smoothing: antialiased;
+}
+
+#root {
+	display: flex;
+	flex-direction: column;
+}
+
+/* .vx-app divs are flex columns so flex-1 children resolve on web; native
+   screens are already flex containers and ignore these rules. When content
+   outgrows the pane the column scrolls — children must never be squashed
+   below their natural height (sections are flex-shrink: 0 below). */
+.vx-app {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow-y: auto;
+}
+
+/* Same border-style complement as tokens.css — NativeScript paints a
+   border from width+color; the DOM defaults to border-style:none. */
+.scrollrow {
+	display: block;
+}
+
+.setting-row,
+.panbox,
+.scrollbox,
+.scrollrow,
+.list,
+.overlay-panel,
+.demo-layout-banner {
+	border-style: solid;
+}
+/* xplat-web-only:end */
+
+/* The root Screen carries .vx-app for surface/text tokens but its padding
+   would double-pad every tab pane — the panes' own .vx-app pads instead. */
+.vx-app-flush {
+	padding: 0;
+}
+
+/* Section groups — spacing + a small muted label, no boxes. `.vx-app label`
+   in tokens.css outranks single-class colors, so muted roles stay scoped. */
+.sink-section {
+	gap: 8px;
+	min-height: 0;
+	flex-shrink: 0;
+}
+
+.vx-app .section-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--color-text-secondary);
+}
+
+.vx-app .badge {
+	font-size: 12px;
+	color: var(--color-text-secondary);
+}
+
+/* Settings rows — label left, control right, hairline separators. */
+.setting-row {
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding-top: 12px;
+	padding-bottom: 12px;
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+}
+
+/* Probe surfaces — a boundary is earned where interaction happens. */
+.panbox {
+	min-height: 96px;
+	padding: 16px;
+	gap: 12px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-lg);
+	corner-shape: squircle;
+	background-color: var(--color-surface-secondary);
+	justify-content: center;
+}
+
+.scrollbox {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+}
+
+.scrollrow {
+	padding-top: 8px;
+	padding-right: 12px;
+	padding-bottom: 8px;
+	padding-left: 12px;
+	font-size: 13px;
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+}
+
+.anim-box {
+	width: 40px;
+	height: 40px;
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-primary);
+}
+
+.list {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+}
+
+/* Sheet / overlay / modal content — separate roots on native (.vx-app is
+   not an ancestor), so each carries its own surface and text colors. */
+.sheet-panel {
+	padding: 24px;
+	gap: 12px;
+	border-top-left-radius: var(--radius-xl);
+	border-top-right-radius: var(--radius-xl);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+
+.sheet-panel label,
+.sheet-panel span {
+	color: var(--color-text);
+}
+
+.sheet-panel .text-onprimary {
+	color: var(--color-on-primary);
+}
+
+.overlay-panel {
+	padding: 24px;
+	margin: 40px;
+	gap: 12px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-xl);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+
+.overlay-panel label,
+.overlay-panel span {
+	color: var(--color-text);
+}
+
+.overlay-panel .text-onprimary {
+	color: var(--color-on-primary);
+}
+
+.modal-panel {
+	gap: 12px;
+}
+
+.modal-panel label,
+.modal-panel span {
+	color: var(--color-text);
+}
+
+.modal-panel .text-onprimary {
+	color: var(--color-on-primary);
+}
+
+/* Route-layout banner — marks the demo/* directory wrap (descendant +
+   class so it beats `.vx-app label` on native). */
+.demo-layout .demo-layout-banner {
+	font-size: 12px;
+	color: var(--color-text-secondary);
+	padding-top: 8px;
+	padding-bottom: 8px;
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+}

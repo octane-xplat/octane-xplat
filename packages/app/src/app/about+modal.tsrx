@@ -7,10 +7,10 @@ import { Pressable, Screen, Text } from '@octane-xplat/ui';
 export function About(props: { close?: () => void }) @{
 	console.log('[probe] About modal render');
 
-	<Screen className="vx-app about-modal">
-		<Text className="text-xl font-bold">About (modal route)</Text>
-		<Pressable onPress={() => props.close?.()} className="btn bg-primary">
-			<Text className="text-onprimary">Close</Text>
+	<Screen className="vx-app about-modal gap-3">
+		<Text className="text-2xl font-semibold">About (modal route)</Text>
+		<Pressable onPress={() => props.close?.()} className="btn btn-secondary">
+			<Text>Close</Text>
 		</Pressable>
 	</Screen>
 }

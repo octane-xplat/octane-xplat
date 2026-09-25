@@ -2,6 +2,18 @@
  *   import '@xplat/demos/demo.css';
  * Grammar stays inside the NS∩web matrix (docs/css-support-matrix.md). */
 
+/* xplat-web-only:start — NativeScript paints a border from width+color;
+   the DOM defaults to border-style:none, so width alone draws nothing. */
+.ttt-cell,
+.wx-card,
+.list-demo-row,
+.layout-cell,
+.layout-absolute-card,
+.controls-section {
+	border-style: solid;
+}
+/* xplat-web-only:end */
+
 .overlay-demo-anchor {
 	align-self: flex-start;
 }
@@ -41,7 +53,7 @@
 }
 
 .btn-dim {
-	background-color: #64748b;
+	background-color: var(--color-text-secondary);
 }
 
 .demo-clock {
@@ -80,7 +92,7 @@
 	width: 88px;
 	height: 88px;
 	border-width: 1px;
-	border-color: #94a3b8;
+	border-color: var(--color-border-strong);
 	align-items: center;
 	justify-content: center;
 }
@@ -119,7 +131,7 @@
 
 .wx-card {
 	border-width: 1px;
-	border-color: #e2e8f0;
+	border-color: var(--color-border);
 	border-radius: 8px;
 	corner-shape: squircle;
 	padding: 12px;
@@ -143,15 +155,15 @@
 	width: 100%;
 	padding: 12px;
 	border-bottom-width: 1px;
-	border-bottom-color: #e2e8f0;
+	border-bottom-color: var(--color-border);
 }
 
 .list-demo-event {
-	background-color: #ffffff;
+	background-color: var(--color-surface);
 }
 
 .list-demo-notice {
-	background-color: #eff6ff;
+	background-color: var(--color-surface-secondary);
 	align-items: center;
 	gap: 12px;
 }
@@ -230,9 +242,9 @@
 .layout-absolute-card {
 	width: 220px;
 	height: 96px;
-	background-color: #f1f5f9;
+	background-color: var(--color-surface-secondary);
 	border-width: 1px;
-	border-color: #cbd5e1;
+	border-color: var(--color-border-strong);
 }
 
 .layout-absolute-title {
@@ -279,7 +291,7 @@
 
 .layout-footer {
 	padding: 8px;
-	background-color: #e2e8f0;
+	background-color: var(--color-surface-secondary);
 }
 
 /* Keyframes — the only sanctioned animation path (decision #22). Props
@@ -367,7 +379,7 @@
 	gap: 8px;
 	padding: 12px;
 	border-width: 1px;
-	border-color: #e2e8f0;
+	border-color: var(--color-border);
 	border-radius: 8px;
 	corner-shape: squircle;
 }

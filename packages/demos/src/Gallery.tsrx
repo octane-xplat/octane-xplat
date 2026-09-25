@@ -114,16 +114,19 @@ export function Gallery(props: { onOpen?: (id: string) => void }) @{
 		if (props.onOpen) props.onOpen(id); else setDemo(id);
 	};
 
-	<Screen className="vx-app flex-1 gap-4">
-		<Text className="chip-off">{'Last opened: ' + (last ?? '—')}</Text>
+	<Screen className="vx-app flex-1 gap-6">
+		<Row className="justify-between items-baseline">
+			<Text className="text-2xl font-semibold">Demos</Text>
+			<Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
+		</Row>
 		<Row className="demo-menu">
 			@for (const d of DEMOS; key d.id) {
 				<Pressable
 					id={'menu-' + d.id}
 					onPress={() => open(d.id)}
-					className={['chip', !props.onOpen && demo === d.id ? '' : 'chip-off']}
+					className={['chip', props.onOpen || demo === d.id ? '' : 'chip-off']}
 				>
-					<Text className="text-onprimary">{d.title}</Text>
+					<Text>{d.title}</Text>
 				</Pressable>
 			}
 		</Row>

@@ -5,13 +5,10 @@ import { closeSheet } from './platform/sheet';
 export function SheetPanel() @{
 	console.log('[probe] SheetPanel render');
 
-	<View
-		className="sheet-panel"
-		style={{ padding: 24, backgroundColor: '#222', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
-	>
-		<Text className="text-xl font-bold">Sheet content</Text>
-		<Pressable onPress={closeSheet} className="btn bg-primary">
-			<Text className="text-onprimary">Dismiss</Text>
+	<View className="sheet-panel">
+		<Text className="text-xl font-semibold">Sheet content</Text>
+		<Pressable onPress={closeSheet} className="btn btn-secondary">
+			<Text>Dismiss</Text>
 		</Pressable>
 	</View>
 }

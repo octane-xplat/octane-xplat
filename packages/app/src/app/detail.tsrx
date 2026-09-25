@@ -20,13 +20,13 @@ export function Detail(props: { from?: string; loadedFrom?: string; _stack?: str
 	const back = useCanGoBack(stack);
 	console.log('[probe] Detail render from=' + props.from);
 
-	<Screen className="vx-app detail">
-		<Text className="text-xl font-bold">Detail screen</Text>
-		<Text>{'from: ' + (props.from ?? '—')}</Text>
-		<Text>{'guard: ' + (props.loadedFrom ?? '—')}</Text>
+	<Screen className="vx-app detail gap-3">
+		<Text className="text-2xl font-semibold">Detail screen</Text>
+		<Text className="text-sm text-muted">{'from: ' + (props.from ?? '—')}</Text>
+		<Text className="text-sm text-muted">{'guard: ' + (props.loadedFrom ?? '—')}</Text>
 		@if (back) {
-			<Pressable id="detail-back" onPress={goBack} className="btn bg-primary">
-				<Text className="text-onprimary">Back</Text>
+			<Pressable id="detail-back" onPress={goBack} className="btn btn-secondary">
+				<Text>Back</Text>
 			</Pressable>
 		}
 	</Screen>

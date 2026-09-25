@@ -8,23 +8,25 @@ export function Settings() @{
 	const [analytics, setAnalytics] = useState(false);
 	console.log('[probe] Settings render notif=' + notifications);
 
-	<Screen className="vx-app flex-1 gap-4">
-		<Text className="text-xl font-bold">Settings</Text>
-		<Row className="gap-4">
-			<Text>Notifications</Text>
-			<Switch
-				id="sw-notifications"
-				checked={notifications}
-				onCheckedChange={(v) => { console.log('[probe] switch notif -> ' + v); setNotifications(v); }}
-			/>
-		</Row>
-		<Row className="gap-4">
-			<Text>Analytics</Text>
-			<Switch
-				checked={analytics}
-				onCheckedChange={(v) => { console.log('[probe] switch analytics -> ' + v); setAnalytics(v); }}
-			/>
-		</Row>
+	<Screen className="vx-app flex-1 gap-6">
+		<Text className="text-2xl font-semibold">Settings</Text>
+		<View className="sink-section">
+			<Row className="setting-row">
+				<Text>Notifications</Text>
+				<Switch
+					id="sw-notifications"
+					checked={notifications}
+					onCheckedChange={(v) => { console.log('[probe] switch notif -> ' + v); setNotifications(v); }}
+				/>
+			</Row>
+			<Row className="setting-row">
+				<Text>Analytics</Text>
+				<Switch
+					checked={analytics}
+					onCheckedChange={(v) => { console.log('[probe] switch analytics -> ' + v); setAnalytics(v); }}
+				/>
+			</Row>
+		</View>
 		{/* onPress passes the tap event — wrap; openSheet's first arg is the
 		    content component, not the event. */}
 		<Pressable id="sheet-btn" onPress={() => openSheet()} className="btn bg-primary">

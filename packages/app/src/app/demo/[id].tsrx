@@ -15,20 +15,20 @@ export function DemoDetail(props: { id?: string; _stack?: string }) @{
 
 	useEffect(() => { setLastDemo(id); }, []);
 
-	<Screen className="vx-app flex-1 gap-4">
-		<Row className="gap-4">
+	<Screen className="vx-app flex-1 gap-6">
+		<Row className="gap-4 items-center">
 			{/* _stack is injected by navigate(...,{into}) — pop the stack that
 			    pushed this page (parallel stacks: several Frames alive). */}
-			<Pressable id="demo-back" onPress={() => goBack({ into: props._stack })} className="btn bg-primary">
-				<Text className="text-onprimary">← Back</Text>
+			<Pressable id="demo-back" onPress={() => goBack({ into: props._stack })} className="btn btn-secondary">
+				<Text>← Back</Text>
 			</Pressable>
-			<Text className="text-xl font-bold">{title}</Text>
+			<Text className="text-xl font-semibold flex-1">{title}</Text>
 			<Pressable
 				id="demo-sheet"
 				onPress={() => { openSheet(renderDemo); console.log('[probe] sheet demo=' + id); }}
-				className="btn bg-primary"
+				className="btn btn-secondary"
 			>
-				<Text className="text-onprimary">In sheet</Text>
+				<Text>In sheet</Text>
 			</Pressable>
 		</Row>
 		<View className="flex-1">

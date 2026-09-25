@@ -32,7 +32,7 @@ export function ModalDemo() @{
 			<Row className="demo-menu">
 				@for (const value of ['sheet', 'fullscreen', 'dialog'] as const; key value) {
 					<Pressable onPress={() => setPresentation(value)} className="chip">
-						<Text className="text-onprimary">{value}</Text>
+						<Text>{value}</Text>
 					</Pressable>
 				}
 			</Row>
