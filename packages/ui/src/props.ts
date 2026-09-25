@@ -22,6 +22,12 @@ export interface SwipeEvent {
 	direction: number
 }
 
+/** Public shape of `setTranslate` — the imperative translate write on a
+ *  bound view (a leaf's `bind` target). Web composes into the element's
+ *  `transform`; native sets the view's translateX/translateY props.
+ *  Both axes default to 0, so `setTranslate(el)` resets. */
+export type SetTranslate = (el: any, x?: number, y?: number) => void
+
 // ---------- primitives ----------
 
 /** Metadata read by parent layouts. Native forwards NativeScript attached
