@@ -1,6 +1,7 @@
 import { Application, Frame, ListView, getRootLayout } from '@nativescript/core'
-import { currentModalRoute, getStack, popRoute, routeFor } from '@octane-xplat/ui'
+import { currentModalRoute, findInRootLayouts, getStack, popRoute, routeFor } from '@octane-xplat/ui'
 import { goBack } from './nav'
+import { sheetHost } from './sheet'
 
 // Nested stacks don't work on Android yet — a TabViewItem-hosted Frame
 // accepts pushes (fragment transaction commits) but setCurrent/bookkeeping
@@ -166,7 +167,10 @@ setTimeout(runModalRouteProbe, 6500)
 // Chips live on the demos stack's current page; the sheet host sits on the
 // app's RootLayout, a sibling of every page — read it from there.
 const find = (id: string) => demosPage()?.getViewById?.(id)
-const findOnRoot = (id: string) => getRootLayout()?.getViewById?.(id)
+// Imperative hosts (sheet/overlay) mount on the CURRENT page's rootlayout —
+// search the demos page first, then the first-mounted rootlayout.
+const findOnRoot = (id: string) =>
+	demosPage()?.getViewById?.(id) ?? findInRootLayouts(id)
 
 interface Step {
 	id: string
@@ -187,9 +191,11 @@ const STEPS: Step[] = [
 			// Same component, third root: open this demo inside the sheet.
 			{ at: 900, run: () => fireTap(find('demo-sheet')) },
 			{
-				at: 1400,
+				at: 1900,
 				run: () => {
-					const host = findOnRoot('sheet-host')
+					// The host ref survives even when its owning rootlayout
+					// unloads (tab-pane shells churn) — assert on it directly.
+					const host = sheetHost() ?? findOnRoot('sheet-host')
 					const ok = collect(host).some(
 						(v) => typeof v?.text === 'string' && v.text.includes('Demo count'),
 					)
@@ -249,13 +255,21 @@ const STEPS: Step[] = [
 				},
 			},
 			// Single settled read — ListView rebuilds cells async around the
-			// reverse/append rebinds. 'Encore' before 'Water station' proves
-			// the keyFor-stable rebind applied the reversal; 'Added event'
-			// proves onEndReached appended.
+			// reverse/append rebinds. Cell tree order is NOT visual order for
+			// a recycled list — collect text views with their screen y and
+			// sort. 'Encore' before 'Water station' proves the reversal
+			// applied; 'Added event' proves onEndReached appended.
 			{
 				at: 1800,
 				run: () => {
-					const hay = viewTexts(demosPage())
+					const hay = collect(demosPage())
+						.filter((v) => typeof v?.text === 'string' && v.text.length > 0)
+						.map((v) => ({
+							text: v.text as string,
+							y: v.getLocationOnScreen?.()?.y ?? 9999,
+						}))
+						.sort((a, b) => a.y - b.y)
+						.map((v) => v.text)
 					const enc = hay.indexOf('Encore')
 					const water = hay.indexOf('Water station: Available by the entrance.')
 					console.log(
@@ -296,20 +310,33 @@ const STEPS: Step[] = [
 		id: 'overlay',
 		hold: 2600,
 		checks: [
-			// Overlay content mounts on the RootLayout — a sibling of the page.
-			{ at: 400, run: () => fireTap(tapTargetForText(demosPage(), 'Toggle anchored popover')) },
+			// Overlay content mounts on the demos page's RootLayout — a
+			// sibling inside the page tree.
+			{
+				at: 400,
+				run: () => {
+					const t = tapTargetForText(demosPage(), 'Toggle anchored popover')
+					console.log(
+						'[probe] popover tap target: ' + (t ? t.constructor.name : 'none'),
+					)
+					fireTap(t)
+				},
+			},
 			{
 				at: 900,
 				run: () => {
-					const ok = viewTexts(getRootLayout()).includes('Anchored to the button')
-					console.log('[assert] popover anchored: ' + (ok ? 'OK' : 'FAIL'))
+					const hay = viewTexts(demosPage())
+					const ok = hay.includes('Anchored to the button')
+					console.log(
+						'[assert] popover anchored: ' + (ok ? 'OK' : 'FAIL') + dump(hay),
+					)
 				},
 			},
 			{ at: 1100, run: () => fireTap(tapTargetForText(demosPage(), 'Show toast')) },
 			{
 				at: 1500,
 				run: () => {
-					const ok = viewTexts(getRootLayout()).includes('A toast from the demo')
+					const ok = viewTexts(demosPage()).includes('A toast from the demo')
 					console.log('[assert] toast shows: ' + (ok ? 'OK' : 'FAIL'))
 				},
 			},
@@ -317,8 +344,9 @@ const STEPS: Step[] = [
 			{
 				at: 2200,
 				run: () => {
-					const ok = viewTexts(getRootLayout()).includes('Overlay is open')
-					console.log('[assert] overlay opens: ' + (ok ? 'OK' : 'FAIL'))
+					const hay = viewTexts(demosPage())
+					const ok = hay.includes('Overlay is open')
+					console.log('[assert] overlay opens: ' + (ok ? 'OK' : 'FAIL') + dump(hay))
 				},
 			},
 		],

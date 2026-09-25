@@ -1,10 +1,14 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { createPortal, useEffect, useRef, useState } from 'octane';
+import { useEffect, useRef, useState } from 'octane';
+import { GridLayout } from '@nativescript/core';
+import { createNativeScriptRoot } from '@nativescript-community/octane';
+import type { UniversalComponent } from 'octane/universal';
 import type { PopoverProps } from './props';
 import { applyNativeProps } from './platformProps.native';
 import { cx } from './cx';
 import { positionPopover, type PopoverPosition } from './popover-position';
 import { getColorScheme } from './theme/colorScheme.native.tsrx';
+import { rootLayoutFor } from './root-layout.native';
 
 function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 	const panelRef = useRef<any>(null);
@@ -102,15 +106,50 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 	</absolutelayout>
 }
 
-/** Positions popover content in a page-local native portal. */
+/** Positions popover content in a layer on the current page's RootLayout —
+ *  the universal driver has no createPortal, so this is imperative like
+ *  Overlay: a transparent host opened on the RootLayout enclosing the
+ *  anchor, with PopoverLayer positioning itself over the anchor's rect. */
 export function Popover(props: PopoverProps) @{
-	const [anchorView, setAnchorView] = useState<any>(props.anchor?.current ?? null);
-	useEffect(() => {
-		const next = props.anchor?.current ?? null;
-		if (next !== anchorView) setAnchorView(next);
-	}, [props.anchor, props.open, anchorView]);
+	const shown = useRef<{ host: any; root: any } | null>(null);
 
-	@if (props.open && anchorView) {
-		<>{createPortal(<PopoverLayer {...props} anchorView={anchorView} />, anchorView)}</>
-	}
+	useEffect(() => {
+		const cur = shown.current;
+		if (!props.open) {
+			if (!cur) return;
+			shown.current = null;
+			const owner = cur.host.parent as any;
+			if (owner?.hasChild?.(cur.host)) {
+				owner.close(cur.host).then(
+					() => cur.root.unmount?.(),
+					(error: any) => { console.error('[Popover] close failed', error); cur.root.unmount?.(); },
+				);
+			} else cur.root.unmount?.();
+			return;
+		}
+
+		const anchor = props.anchor?.current;
+		const rl = rootLayoutFor(anchor);
+		if (!anchor || !rl) return;
+
+		if (cur) {
+			cur.root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });
+			return;
+		}
+
+		const host = new GridLayout();
+		host.className = cx('vx-popover-host', getColorScheme() === 'dark' && 'ns-dark', props.className);
+		host.horizontalAlignment = 'stretch';
+		host.verticalAlignment = 'stretch';
+		const root = createNativeScriptRoot(host);
+		shown.current = { host, root };
+		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });
+		rl.open(host).catch((error: unknown) => {
+			if (shown.current?.host === host) shown.current = null;
+			console.error('[Popover] open failed', error);
+			root.unmount?.();
+		});
+	}, [props.open, props.children, props.placement, props.className, props.style, props.dismissOnOutsideTap]);
+
+	<></>
 }

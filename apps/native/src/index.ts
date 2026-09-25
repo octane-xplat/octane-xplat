@@ -2,7 +2,9 @@ import { Application, Frame, ListView, Page, Trace, getRootLayout } from '@nativ
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { probeSignal$ } from '@xplat/app/probe-state'
-import { getColorScheme, registerStack } from '@octane-xplat/ui'
+import { sheetHost } from '@xplat/app/platform/sheet.native'
+import { getColorScheme, registerStack, topRootLayout, findInRootLayouts } from '@octane-xplat/ui'
+
 import { storage, wireHardwareBack } from '@xplat/app'
 import './app.css'
 
@@ -104,7 +106,10 @@ function texts(root: any): string[] {
 		.map((v) => v.text)
 }
 
-const find = (id: string) => thePage?.getViewById?.(id) as any
+// Some imperative hosts (sheet) mount on the CURRENT rootlayout — a
+// sibling under a pushed/tab page, not necessarily under thePage.
+const find = (id: string) =>
+	(thePage?.getViewById?.(id) ?? findInRootLayouts(id)) as any
 
 // Controlled-input probe: fire textChange natively at +1.5s (between the
 // self-test's shuffle and setText) to exercise the native→state direction
@@ -383,7 +388,10 @@ setTimeout(() => {
 }, 7400)
 
 setTimeout(() => {
-	const sheet = find('sheet-host')
+	// Host ref beats id-search: the sheet's owning rootlayout can unload
+	// (tab-pane shells churn) while the host stays attached to it.
+	const sheet = (sheetHost() ?? find('sheet-host')) as any
+
 	assertHas('sheet texts', texts(sheet), 'Sheet content')
 	// Q-theme: sheet root — does the theme class / token resolution cross?
 	const sheetDark = collect(sheet).some((v) =>
@@ -398,9 +406,10 @@ setTimeout(() => {
 	const sheetTok = (sheet as any)?.style?.getCssVariable?.('--color-primary')
 	console.log('[probe] sheet token: ' + JSON.stringify(sheetTok))
 	// Close it — a lingering RootLayout host makes later openSheet() calls
-	// reject with "already been added to the root layout".
-	if (sheet) getRootLayout()?.close(sheet)
-}, 7800)
+	// reject with "already been added to the root layout". Close via the
+	// owning rootlayout — sheet-host may live under a pushed page's shell.
+	if (sheet) (sheet as any).parent?.close?.(sheet)
+}, 8300)
 
 // Modal probe (Exp 12): declarative open → showModal on a second root.
 // The modal isn't under thePage — read it via presenter.modal.

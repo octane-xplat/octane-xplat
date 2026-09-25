@@ -1,11 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane';
-import { getRootLayout, GridLayout, isAndroid, isIOS } from '@nativescript/core';
+import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { OverlayProps } from './props';
 import { cx } from './cx';
 import { getColorScheme } from './theme/colorScheme.native.tsrx';
+import { rootLayoutFor } from './root-layout.native';
 
 function OverlayBody(props: { children?: any }) @{
 	<>{props.children}</>
@@ -16,8 +17,11 @@ type OpenOverlay = { host: GridLayout; root: any; dismissOnClose: boolean };
 /** Renders children in a separate RootLayout root above the current screen. */
 export function Overlay(props: OverlayProps) @{
 	const shown = useRef<OpenOverlay | null>(null);
+	const hostView = useRef<any>(null);
 	const dismiss = useRef(props.onDismiss);
 	dismiss.current = props.onDismiss;
+
+	const rootLayout = () => rootLayoutFor(hostView.current);
 
 	useEffect(() => {
 		const current = shown.current;
@@ -25,9 +29,9 @@ export function Overlay(props: OverlayProps) @{
 			if (!current) return;
 			current.dismissOnClose = false;
 			shown.current = null;
-			const rootLayout = getRootLayout();
-			if ((rootLayout as any)?.hasChild?.(current.host)) {
-				rootLayout.close(current.host).then(
+			const rl = rootLayout();
+			if (rl && (rl as any)?.hasChild?.(current.host)) {
+				rl.close(current.host).then(
 					() => current.root.unmount?.(),
 					(error) => { console.error('[Overlay] close failed', error); current.root.unmount?.(); },
 				);
@@ -44,8 +48,8 @@ export function Overlay(props: OverlayProps) @{
 			return;
 		}
 
-		const rootLayout = getRootLayout();
-		if (!rootLayout) return;
+		const rl = rootLayout();
+		if (!rl) return;
 		const host = new GridLayout();
 		host.className = cx('vx-overlay-host', getColorScheme() === 'dark' && 'ns-dark', props.className);
 		host.horizontalAlignment = 'stretch';
@@ -62,7 +66,7 @@ export function Overlay(props: OverlayProps) @{
 			if (opened.dismissOnClose) dismiss.current?.();
 		});
 
-		const open = () => rootLayout.open(host, props.shadeCover ? {
+		const open = () => rl.open(host, props.shadeCover ? {
 			shadeCover: { opacity: 0.45, color: '#000000', tapToClose: true },
 		} : {}).catch((error: unknown) => {
 			if (shown.current === opened) shown.current = null;
@@ -70,10 +74,10 @@ export function Overlay(props: OverlayProps) @{
 			root.unmount?.();
 		});
 
-		if ((rootLayout as any).hasChild?.(host)) {
-			rootLayout.close(host).then(open, (error) => console.error('[Overlay] stale host close failed', error));
+		if ((rl as any).hasChild?.(host)) {
+			rl.close(host).then(open, (error) => console.error('[Overlay] stale host close failed', error));
 		} else open();
 	}, [props.open, props.children, props.shadeCover, props.className, props.style, props.ios, props.android]);
 
-	<></>
+	<stacklayout ref={(v: any) => { hostView.current = v; }} style={{ width: 0, height: 0 }} />
 }

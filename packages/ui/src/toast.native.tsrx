@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { getRootLayout, GridLayout, isAndroid, isIOS } from '@nativescript/core';
+import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
+import { topRootLayout } from './root-layout.native';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { ToastContent, ToastOptions } from './props';
@@ -25,14 +26,14 @@ function finishToast(entry: ActiveToast) {
 	if (active !== entry) return;
 	if (entry.timer !== null) clearTimeout(entry.timer);
 	entry.timer = null;
-	const rootLayout = getRootLayout();
+	const rootLayout = topRootLayout();
 	const finish = () => {
 		entry.root.unmount?.();
 		if (active === entry) active = null;
 		showNext();
 	};
 
-	if ((rootLayout as any)?.hasChild?.(entry.host)) {
+	if (rootLayout && (rootLayout as any)?.hasChild?.(entry.host)) {
 		rootLayout.close(entry.host).then(finish, (error) => {
 			console.error('[Toast] close failed', error);
 			finish();
@@ -43,7 +44,7 @@ function finishToast(entry: ActiveToast) {
 function showNext() {
 	if (active || queue.length === 0) return;
 	const entry = queue.shift()!;
-	const rootLayout = getRootLayout();
+	const rootLayout = topRootLayout();
 	if (!rootLayout) {
 		console.warn('[Toast] RootLayout is not mounted; toast was skipped');
 		return;
