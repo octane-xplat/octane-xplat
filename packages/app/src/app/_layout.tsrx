@@ -2,9 +2,7 @@ import { useState, useEffect } from 'octane';
 import { Screen, Tabs, Text, currentRoute, useThemeScheme } from '@octane-xplat/ui';
 import { routes, screens } from '../routes';
 import { Home } from '../Home.tsrx';
-import { Settings } from '../Settings.tsrx';
-import { Services } from '../Services.tsrx';
-import { Probes } from '../Probes.tsrx';
+import { Test } from '../Test.tsrx';
 import { Gallery } from '@xplat/demos';
 import { navigate } from '../platform/nav';
 import type { TabSpec } from '@octane-xplat/ui';
@@ -18,12 +16,10 @@ import '../icons';
 // Render fns are hoisted: JSX inside a module-level object literal can't
 // get universal lowering (compile error) — a standalone arrow can.
 const renderHome = () => <Home />;
-const renderSettings = () => <Settings />;
-const renderServices = () => <Services />;
-const renderProbes = () => <Probes />;
+const renderTest = () => <Test />;
 // Chips navigate inside the tab's own stack — the Demos pane is a Frame
 // (TabSpec.stack), so demo pushes stay under the tab bar.
-const renderDemos = () => <Gallery onOpen={(id) => navigate('demo/:id', { id }, { into: 'demos' })} />;
+const renderApps = () => <Gallery onOpen={(id) => navigate('demo/:id', { id }, { into: 'demos' })} kind="app" title="Apps" />;
 const resolveRoute = (name: string, params: Record<string, unknown>) => {
 	const C = screens[name];
 	if (!C) return <Text>404: {name}</Text>;
@@ -44,12 +40,10 @@ const resolveRoute = (name: string, params: Record<string, unknown>) => {
 
 const TABS: TabSpec[] = [
 	{ title: 'Home', icon: 'tab-home', render: renderHome },
-	{ title: 'Settings', icon: 'tab-settings', render: renderSettings },
-	{ title: 'Demos', icon: 'tab-demos', render: renderDemos, stack: 'demos' },
-	{ title: 'Services', icon: 'tab-services', render: renderServices },
-	// Instrumentation surface — probe asserts live here, last so the
-	// familiar tabs stay the first thing a human sees.
-	{ title: 'Probes', icon: 'tab-test', render: renderProbes },
+	{ title: 'Apps', icon: 'tab-demos', render: renderApps, stack: 'demos' },
+	// Instrumentation + proofs — last so the familiar tabs stay the first
+	// thing a human sees. Its own stack keeps seam-proof pushes local.
+	{ title: 'Test', icon: 'tab-test', render: renderTest, stack: 'test' },
 ];
 
 console.log('[harness] App module evaluated');

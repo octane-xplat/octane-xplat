@@ -396,11 +396,11 @@ setTimeout(() => {
 }, 1700)
 
 // Tab probe (Exp 11): selectedIndexChanged is a real property event, so
-// notify() reaches it — switches to Settings, mounts its panes.
+// notify() reaches it — switches to the Test tab, mounts its panes.
 setTimeout(() => {
 	const tv = find('app-tabs')
 	console.log('[probe] tabview=' + (tv ? tv.constructor.name : 'none'))
-	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any)
+	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any)
 }, 1900)
 
 setTimeout(() => {
@@ -613,10 +613,10 @@ setTimeout(() => {
 	assertEq('signal probe after ambient set', find('sig-probe')?.text, 'sig-on')
 }, 7000)
 
-// Sheet probe (Exp 11): back to tab 1, then synthesized tap on sheet-btn.
+// Sheet probe (Exp 11): back to the Test tab, then synthesized tap on sheet-btn.
 setTimeout(() => {
 	const tv = find('app-tabs')
-	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 1 } as any)
+	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any)
 }, 7100)
 
 setTimeout(() => {

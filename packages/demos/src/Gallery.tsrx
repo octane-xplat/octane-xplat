@@ -24,29 +24,32 @@ import { GlassDemo } from './GlassDemo.tsrx';
 import { Reorder } from './Reorder.tsrx';
 import { useLastDemo } from './store.tsrx';
 
-export const DEMOS = [
-	{ id: 'counter', title: 'Counter' },
-	{ id: 'watch', title: 'Watch' },
-	{ id: 'stopwatch', title: 'Stopwatch' },
-	{ id: 'todo', title: 'Todo' },
-	{ id: 'ttt', title: 'Tic-Tac-Toe' },
-	{ id: 'dialer', title: 'Dialer' },
-	{ id: 'vlist', title: 'List ×500' },
-	{ id: 'weather', title: 'Weather' },
-	{ id: 'anim', title: 'Keyframes' },
-	{ id: 'probe', title: 'Reactivity' },
-	{ id: 'list-demo', title: 'Feed' },
-	{ id: 'scrollbox', title: 'ScrollBox + List' },
-	{ id: 'device', title: 'Device' },
-	{ id: 'modal', title: 'Modal' },
-	{ id: 'props', title: 'Props' },
-	{ id: 'overlay', title: 'Overlays' },
-	{ id: 'controls', title: 'Controls' },
-	{ id: 'layout', title: 'Layout' },
-	{ id: 'rich-text', title: 'Rich text' },
-	{ id: 'divergence', title: 'Layout edges' },
-	{ id: 'glass', title: 'Glass' },
-	{ id: 'reorder', title: 'Reorder' },
+// kind: 'app' = a self-contained mini-app a human pokes to build trust;
+// 'proof' = a seam demonstration (probes, proofs, boring stuff) — lives
+// under the harness's Test tab instead of the gallery.
+export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
+	{ id: 'counter', title: 'Counter', kind: 'app' },
+	{ id: 'watch', title: 'Watch', kind: 'app' },
+	{ id: 'stopwatch', title: 'Stopwatch', kind: 'app' },
+	{ id: 'todo', title: 'Todo', kind: 'app' },
+	{ id: 'ttt', title: 'Tic-Tac-Toe', kind: 'app' },
+	{ id: 'dialer', title: 'Dialer', kind: 'app' },
+	{ id: 'vlist', title: 'List ×500', kind: 'app' },
+	{ id: 'weather', title: 'Weather', kind: 'app' },
+	{ id: 'list-demo', title: 'Feed', kind: 'app' },
+	{ id: 'anim', title: 'Keyframes', kind: 'proof' },
+	{ id: 'probe', title: 'Reactivity', kind: 'proof' },
+	{ id: 'scrollbox', title: 'ScrollBox + List', kind: 'proof' },
+	{ id: 'device', title: 'Device', kind: 'proof' },
+	{ id: 'modal', title: 'Modal', kind: 'proof' },
+	{ id: 'props', title: 'Props', kind: 'proof' },
+	{ id: 'overlay', title: 'Overlays', kind: 'proof' },
+	{ id: 'controls', title: 'Controls', kind: 'proof' },
+	{ id: 'layout', title: 'Layout', kind: 'proof' },
+	{ id: 'rich-text', title: 'Rich text', kind: 'proof' },
+	{ id: 'divergence', title: 'Layout edges', kind: 'proof' },
+	{ id: 'glass', title: 'Glass', kind: 'proof' },
+	{ id: 'reorder', title: 'Reorder', kind: 'proof' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -110,9 +113,10 @@ export const RENDER: Record<string, () => any> = {
  *  - `onOpen` absent (standalone catalog): chips swap an inline render map.
  *  `Last opened` reads the module store — it updates after nav pops back,
  *  proving module-scope state crosses roots (context never does). */
-export function Gallery(props: { onOpen?: (id: string) => void }) @{
+export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | 'proof'; title?: string }) @{
 	const [demo, setDemo] = useState('counter');
 	const last = useLastDemo();
+	const shown = DEMOS.filter((d) => !props.kind || d.kind === props.kind);
 	const open = (id: string) => {
 		console.log('[probe] demo -> ' + id);
 		if (props.onOpen) props.onOpen(id); else setDemo(id);
@@ -120,11 +124,11 @@ export function Gallery(props: { onOpen?: (id: string) => void }) @{
 
 	<Screen className="vx-app flex-1 gap-6">
 		<Row className="justify-between items-baseline">
-			<Text className="text-2xl font-semibold">Demos</Text>
+			<Text className="text-2xl font-semibold">{props.title ?? 'Demos'}</Text>
 			<Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
 		</Row>
 		<Row className="demo-menu">
-			@for (const d of DEMOS; key d.id) {
+			@for (const d of shown; key d.id) {
 				<Pressable
 					id={'menu-' + d.id}
 					onPress={() => open(d.id)}

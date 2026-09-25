@@ -35,9 +35,7 @@ export function Services() @{
 		work().then((v) => say(key, v), (e: Error) => say(key, 'error: ' + e.message));
 	};
 
-	<View className="vx-app flex-1 gap-6">
-		<Text className="text-2xl font-semibold">Platform services</Text>
-
+	<View className="gap-6">
 		{/* Read-only state — live values, no actions. */}
 		<View className="sink-section">
 			<Text className="section-label">Device and environment</Text>

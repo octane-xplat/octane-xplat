@@ -6,7 +6,7 @@ import 'octane/signals';
 // styled() seam (Exp 16): variant prop → class composition, CSS-backed.
 const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-danger' } });
 
-/** Probes tab — regression instrumentation, kept off the familiar demo
+/** Probes section — regression instrumentation, kept off the familiar demo
  *  surface. Each row pokes one seam; the muted text is the live readout. */
 export function Probes() @{
 	const [count, setCount] = useState(0);
@@ -14,9 +14,7 @@ export function Probes() @{
 	// host — it mounts when the effective scheme flips dark.
 	const dark = useThemeScheme() === 'dark';
 
-	<View className="vx-app flex-1 gap-6">
-		<Text className="text-2xl font-semibold">Probes</Text>
-
+	<View className="gap-6">
 		<View className="sink-section">
 			<Text className="section-label">Multi-child host</Text>
 			{/* Multi-child Pressable regression — the old contentview host
