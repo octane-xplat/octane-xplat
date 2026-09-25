@@ -7,7 +7,7 @@
 		"dev": "vite",
 		"build": "vite build && node scripts/build-llms.mjs",
 		"typecheck": "tsrx-tsc --noEmit",
-		"deploy": "wrangler pages deploy dist --project-name octane-xplat-docs",
+		"deploy": "wrangler pages deploy dist --project-name octane-xplat-docs --branch=main",
 		"smoke": "pnpm run build && node smoke.mjs"
 	},
 	"dependencies": {
