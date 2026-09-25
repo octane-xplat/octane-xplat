@@ -44,7 +44,10 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
-			if (finished) return
+			if (finished) {
+				return
+			}
+
 			finished = true
 			active.delete(entry)
 			unbindTheme()
@@ -55,6 +58,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 					console.error('[openSheet] close failed', error)
 				})
 			}
+
 			resolve(result)
 		}
 
@@ -65,9 +69,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 		active.add(entry)
 
 		rl.open(host, {
-			...(options.shadeCover ?? true)
-				? { shadeCover: { opacity: 0.4, tapToClose: true } }
-				: {},
+			...((options.shadeCover ?? true) ? { shadeCover: { opacity: 0.4, tapToClose: true } } : {}),
 			animation: {
 				enterFrom: { translateY: 400, duration: 250 },
 				exitTo: { translateY: 400, duration: 200 },

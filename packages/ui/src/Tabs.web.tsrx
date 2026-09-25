@@ -35,6 +35,7 @@ export function Tabs(props: TabsProps) @{
 		...(Object.prototype.hasOwnProperty.call(route, 'loaderData') ? { data: route.loaderData } : {}),
 		...(Object.prototype.hasOwnProperty.call(route, 'loaderError') ? { error: route.loaderError } : {}),
 	});
+
 	const routed = rootRoute ? resolve(rootRoute.name, routeProps(rootRoute)) : null;
 	// A modal route overlays the shell without replacing it — the screen
 	// gets a `close` prop (popRoute parity with the native showModal root).

@@ -32,8 +32,10 @@ const resolveRoute = (name: string, params: Record<string, unknown>) => {
 			content = <Layout>{nested}</Layout>;
 		}
 	}
+
 	return content;
 };
+
 const TABS: TabSpec[] = [
 	{ title: 'Home', render: renderHome },
 	{ title: 'Settings', render: renderSettings },

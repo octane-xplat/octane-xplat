@@ -167,7 +167,9 @@ export function deriveRouteManifest(
 	for (const { meta, component } of seen.values()) {
 		screens[meta.name] = component
 		routes.push(meta)
-		if (meta.loader) loaders[meta.name] = meta.loader
+		if (meta.loader) {
+			loaders[meta.name] = meta.loader
+		}
 	}
 
 	// Most-specific patterns first — 'demo/new' must beat 'demo/:id'.

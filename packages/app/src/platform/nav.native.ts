@@ -1,5 +1,13 @@
 import { Application, Frame } from '@nativescript/core'
-import { currentModalRoute, getStack, popRoute, pushRoute, routeFor, routeStacks } from '@octane-xplat/ui'
+import {
+	currentModalRoute,
+	getStack,
+	popRoute,
+	pushRoute,
+	routeFor,
+	routeStacks,
+} from '@octane-xplat/ui'
+
 import type { NavigateArgs, RouteName } from '../routes'
 
 /**
@@ -12,7 +20,12 @@ import type { NavigateArgs, RouteName } from '../routes'
  * Default target: the 'root' stack (the app's root Frame).
  */
 export function navigate(...args: NavigateArgs) {
-	const [name, params, opts] = args as [RouteName, Record<string, unknown>?, { into?: string; presentation?: 'push' | 'modal' | 'fade' }?]
+	const [name, params, opts] = args as [
+		RouteName,
+		Record<string, unknown>?,
+		{ into?: string; presentation?: 'push' | 'modal' | 'fade' }?,
+	]
+
 	lastNavStack = opts?.into ?? 'root'
 	pushRoute({ stack: lastNavStack, name, params: params ?? {}, presentation: opts?.presentation })
 	console.log('[probe] nav pushed ' + name + ' into ' + lastNavStack)
@@ -42,6 +55,7 @@ export function wireHardwareBack() {
 			e.cancel = true
 			return
 		}
+
 		const root = getStack('root') as Frame | undefined
 		if (root && root.backStack.length > 0) {
 			root.goBack()
@@ -54,6 +68,7 @@ export function wireHardwareBack() {
 			if (name === 'root') {
 				continue
 			}
+
 			if (routeFor(name)) {
 				popRoute(name)
 				e.cancel = true

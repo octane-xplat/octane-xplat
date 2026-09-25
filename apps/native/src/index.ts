@@ -168,6 +168,7 @@ setTimeout(() => {
 	for (const value of ['a', 'ab', 'abc']) {
 		v?.notify({ eventName: 'textChange', object: v, value } as any)
 	}
+
 	assertEq('textfield rapid typing', v?.text, 'abc')
 	// Cursor: a programmatic text= write on a focused UITextField — read the
 	// selection to see whether it survives (needs focus, so probe not assert).
@@ -178,11 +179,13 @@ setTimeout(() => {
 				tf.beginningOfDocument,
 				tf.selectedTextRange.start,
 			)
+
 			console.log('[probe] cursor offset after write=' + end + ' (text len=3)')
 		}
 	} catch (e) {
 		console.log('[probe] cursor read failed: ' + (e as Error)?.message)
 	}
+
 	v?.notify({ eventName: 'textChange', object: v, value: 'typed!' } as any)
 }, 1650)
 

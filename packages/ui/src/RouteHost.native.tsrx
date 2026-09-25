@@ -14,5 +14,6 @@ export function RouteHost(props: RouteHostProps) @{
 		const nested = child;
 		child = <Layout>{nested}</Layout>;
 	}
+
 	<>{child}</>
 }

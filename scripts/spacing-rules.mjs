@@ -70,7 +70,10 @@ function guardInsertPos(source, semiPos) {
 	while (pos > 0) {
 		const prevEnd = pos - 1
 		const prevStart = source.lastIndexOf('\n', prevEnd - 1) + 1
-		if (!/^\s*\/\//.test(source.slice(prevStart, prevEnd))) break
+		if (!/^\s*\/\//.test(source.slice(prevStart, prevEnd))) {
+			break
+		}
+
 		pos = prevStart
 	}
 
@@ -79,9 +82,15 @@ function guardInsertPos(source, semiPos) {
 
 function handleAsiGuard(source, current, next, violations) {
 	const semi = next.start - 1
-	if (!/\r\n|\n|\r/.test(source.slice(current.start, semi))) return
+	if (!/\r\n|\n|\r/.test(source.slice(current.start, semi))) {
+		return
+	}
+
 	const pos = guardInsertPos(source, semi)
-	if (/\n[ \t]*\n[ \t]*$/.test(source.slice(0, pos))) return
+	if (/\n[ \t]*\n[ \t]*$/.test(source.slice(0, pos))) {
+		return
+	}
+
 	const eol = firstLineBreak(source)?.[0] ?? '\n'
 	violations.push({ node: current, messageId: 'afterMultiline', position: pos, text: eol })
 }

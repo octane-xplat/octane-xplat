@@ -33,7 +33,10 @@ const ignoredDirectories = new Set([
 const config = JSON.parse(await readFile(resolve(root, '.oxlintrc.json'), 'utf8'))
 const ruleConfig = (name) => {
 	const entry = config.rules?.[`xplat/${name}`]
-	if (entry === undefined) return undefined
+	if (entry === undefined) {
+		return undefined
+	}
+
 	const [severity, options] = Array.isArray(entry) ? entry : [entry, undefined]
 	return { severity, options }
 }
@@ -68,15 +71,23 @@ function disabledLines(source) {
 	const fileDisabled = source
 		.split('\n')
 		.slice(0, 3)
-		.some((l) => l.includes('xplat-disable') && !l.includes('xplat-disable-next-line') && !l.includes('xplat-disable-line'))
+		.some(
+			(l) =>
+				l.includes('xplat-disable') &&
+				!l.includes('xplat-disable-next-line') &&
+				!l.includes('xplat-disable-line'),
+		)
 
 	const lines = new Set()
 	const raw = source.split('\n')
 	for (let i = 0; i < raw.length; i++) {
 		// 1-based line numbers: xplat-disable-line suppresses its own line,
 		// xplat-disable-next-line the following one.
-		if (raw[i].includes('xplat-disable-next-line')) lines.add(i + 2)
-		else if (raw[i].includes('xplat-disable-line')) lines.add(i + 1)
+		if (raw[i].includes('xplat-disable-next-line')) {
+			lines.add(i + 2)
+		} else if (raw[i].includes('xplat-disable-line')) {
+			lines.add(i + 1)
+		}
 	}
 
 	return { fileDisabled, lines }
@@ -93,13 +104,22 @@ for (const filename of await collectTsrxFiles(root)) {
 		const { fileDisabled, lines: disabled } = disabledLines(source)
 		for (const [name, check] of Object.entries(XPLAT_CHECKS)) {
 			const cfg = ruleConfig(name)
-			if (!cfg || cfg.severity === 'off' || fileDisabled) continue
+			if (!cfg || cfg.severity === 'off' || fileDisabled) {
+				continue
+			}
+
 			for (const v of check(ast, source, filename, cfg.options)) {
 				const line = lineNumberAt(source, v.node?.start ?? 0)
-				if (disabled.has(line)) continue
+				if (disabled.has(line)) {
+					continue
+				}
+
 				const tag = cfg.severity === 'warn' ? 'warn' : 'error'
-				if (tag === 'warn') warnCount++
-				else failed = true
+				if (tag === 'warn') {
+					warnCount++
+				} else {
+					failed = true
+				}
 
 				console.error(`${rel}:${line}: ${tag} xplat/${name} — ${v.message}`)
 			}
@@ -121,7 +141,10 @@ for (const filename of await collectTsrxFiles(root)) {
 		} else if (violations.length && !fileDisabled) {
 			for (const violation of violations) {
 				const line = lineNumberAt(source, violation.node.start)
-				if (disabled.has(line)) continue
+				if (disabled.has(line)) {
+					continue
+				}
+
 				console.error(`${rel}:${line}: error xplat/spacing — ${violation.messageId}`)
 			}
 

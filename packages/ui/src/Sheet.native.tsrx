@@ -38,6 +38,7 @@ export function Sheet(props: SheetProps) @{
 					console.error('[Sheet] close failed', error);
 				});
 			}
+
 			return;
 		}
 

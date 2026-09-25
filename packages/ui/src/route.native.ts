@@ -136,17 +136,29 @@ export function pushRoute(r: Route): void {
 
 	const presentation = r.presentation ?? presentationFor(r.name)
 	const loader = routeLoaders[r.name]
-	if (loader && !Object.prototype.hasOwnProperty.call(r, 'loaderData') && !Object.prototype.hasOwnProperty.call(r, 'loaderError')) {
-		void Promise.resolve().then(() => loader(r.params)).then(
-			(loaderData) => pushRoute({ ...r, loaderData }),
-			(loaderError) => pushRoute({ ...r, loaderError }),
-		)
+	if (
+		loader &&
+		!Object.prototype.hasOwnProperty.call(r, 'loaderData') &&
+		!Object.prototype.hasOwnProperty.call(r, 'loaderError')
+	) {
+		void Promise.resolve()
+			.then(() => loader(r.params))
+			.then(
+				(loaderData) => pushRoute({ ...r, loaderData }),
+				(loaderError) => pushRoute({ ...r, loaderError }),
+			)
+
 		return
 	}
+
 	if (presentation === 'modal') {
 		const presenter = resolveStack(r.stack) ?? resolveStack('root')
-		if (presenter) pushModal(presenter, { ...r, presentation }, C)
-		else warnOnce('modal:' + r.name, `modal route '${r.name}' dropped — no loaded presenter Frame.`)
+		if (presenter) {
+			pushModal(presenter, { ...r, presentation }, C)
+		} else {
+			warnOnce('modal:' + r.name, `modal route '${r.name}' dropped — no loaded presenter Frame.`)
+		}
+
 		return
 	}
 
@@ -155,7 +167,10 @@ export function pushRoute(r: Route): void {
 		entries.push({ ...r, presentation })
 		swapTabRoutes.set(r.stack, entries)
 		const at = swapTabOrder.indexOf(r.stack)
-		if (at !== -1) swapTabOrder.splice(at, 1)
+		if (at !== -1) {
+			swapTabOrder.splice(at, 1)
+		}
+
 		swapTabOrder.push(r.stack)
 		emit()
 		return
@@ -169,6 +184,7 @@ export function pushRoute(r: Route): void {
 				? `pushRoute('${r.name}') dropped — no root Frame. Boot with a Frame as the app root (Application.run create() returning new Frame) or call registerStack('root', frame).`
 				: `pushRoute('${r.name}') dropped — no stack '${r.stack}' is registered. Named stacks come from TabSpec.stack on <Tabs> or registerStack('${r.stack}', frame).`,
 		)
+
 		return
 	}
 
@@ -179,9 +195,17 @@ export function pushRoute(r: Route): void {
 		;(frame as any).callLoaded?.()
 	}
 
-	const props: Record<string, unknown> = r.stack === 'root' ? { ...r.params } : { ...r.params, _stack: r.stack }
-	if (Object.prototype.hasOwnProperty.call(r, 'loaderData')) props.data = r.loaderData
-	if (Object.prototype.hasOwnProperty.call(r, 'loaderError')) props.error = r.loaderError
+	const props: Record<string, unknown> =
+		r.stack === 'root' ? { ...r.params } : { ...r.params, _stack: r.stack }
+
+	if (Object.prototype.hasOwnProperty.call(r, 'loaderData')) {
+		props.data = r.loaderData
+	}
+
+	if (Object.prototype.hasOwnProperty.call(r, 'loaderError')) {
+		props.error = r.loaderError
+	}
+
 	try {
 		frame.navigate({
 			create: () => {
@@ -196,11 +220,12 @@ export function pushRoute(r: Route): void {
 				page.content = host
 				// .ts → .tsrx component imports type as () => Element; the
 				// layout chain wraps it into a stamped universal component.
-		createNativeScriptRoot(host).render(RouteHost as unknown as UniversalComponent, {
-			screen: C,
-			layouts: layoutsForRoute(r.name),
-			params: props,
-		})
+				createNativeScriptRoot(host).render(RouteHost as unknown as UniversalComponent, {
+					screen: C,
+					layouts: layoutsForRoute(r.name),
+					params: props,
+				})
+
 				return page
 			},
 			transition: presentation === 'fade' ? { name: 'fade' } : undefined,
@@ -231,9 +256,19 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 	const presenter = (frame.currentPage ?? frame) as any
 	try {
 		modalHosts.push(entry)
-		const params: Record<string, unknown> = { ...r.params, close: () => (host as any).closeModal?.() }
-		if (Object.prototype.hasOwnProperty.call(r, 'loaderData')) params.data = r.loaderData
-		if (Object.prototype.hasOwnProperty.call(r, 'loaderError')) params.error = r.loaderError
+		const params: Record<string, unknown> = {
+			...r.params,
+			close: () => (host as any).closeModal?.(),
+		}
+
+		if (Object.prototype.hasOwnProperty.call(r, 'loaderData')) {
+			params.data = r.loaderData
+		}
+
+		if (Object.prototype.hasOwnProperty.call(r, 'loaderError')) {
+			params.error = r.loaderError
+		}
+
 		root.render(RouteHost as unknown as UniversalComponent, {
 			screen: C,
 			layouts: layoutsForRoute(r.name),
@@ -270,6 +305,7 @@ export function popRoute(stack = 'root'): void {
 		;(modal.host as any).closeModal?.()
 		return
 	}
+
 	if (Application.android && stack !== 'root') {
 		const entries = swapTabRoutes.get(stack)
 		if (entries?.length) {
@@ -277,10 +313,14 @@ export function popRoute(stack = 'root'): void {
 			if (!entries.length) {
 				swapTabRoutes.delete(stack)
 				const at = swapTabOrder.indexOf(stack)
-				if (at !== -1) swapTabOrder.splice(at, 1)
+				if (at !== -1) {
+					swapTabOrder.splice(at, 1)
+				}
 			}
+
 			emit()
 		}
+
 		return
 	}
 
@@ -297,8 +337,11 @@ export function popRoute(stack = 'root'): void {
 export function routeFor(stack: string): Route | null {
 	if (Application.android && stack !== 'root') {
 		const entries = swapTabRoutes.get(stack)
-		if (entries?.length) return entries[entries.length - 1]
+		if (entries?.length) {
+			return entries[entries.length - 1]
+		}
 	}
+
 	const page = resolveStack(stack)?.currentPage
 	return (page && pageRoutes.get(page)) ?? null
 }
@@ -312,9 +355,12 @@ export function currentRoute(): Route | null {
 	if (root) {
 		return root
 	}
+
 	for (const name of [...swapTabOrder].reverse()) {
 		const route = routeFor(name)
-		if (route) return route
+		if (route) {
+			return route
+		}
 	}
 
 	const named = [...stackEntries()].reverse()

@@ -10,9 +10,14 @@ let initial: string | null = null
 let lastUrl: string | null = null
 
 function dispatch(url: string | null | undefined) {
-	if (!url || url === lastUrl) return
+	if (!url || url === lastUrl) {
+		return
+	}
+
 	lastUrl = url
-	for (const handler of handlers) handler(url)
+	for (const handler of handlers) {
+		handler(url)
+	}
 }
 
 function wire() {
@@ -27,11 +32,13 @@ function wire() {
 		initial = androidUrl || iosUrl || initial
 		dispatch(initial)
 	})
+
 	if (Application.ios) {
 		Application.on('openUrl', (args: any) => {
 			const url = args.url?.absoluteString ?? String(args.url ?? '')
 			dispatch(url)
 		})
+
 		Application.on('continueActivity', (args: any) => {
 			dispatch(args.activity?.webpageURL?.absoluteString)
 		})

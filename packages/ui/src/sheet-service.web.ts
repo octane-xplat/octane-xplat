@@ -25,7 +25,10 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
-			if (finished) return
+			if (finished) {
+				return
+			}
+
 			finished = true
 			active.delete(entry)
 			unbindTheme()
@@ -41,6 +44,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 			backdrop.addEventListener('click', () => finish())
 			layer.appendChild(backdrop)
 		}
+
 		layer.appendChild(panel)
 		document.body.appendChild(layer)
 		const root = createRoot(panel)

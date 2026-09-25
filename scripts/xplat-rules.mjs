@@ -34,9 +34,14 @@ export function* walk(node, parent = null, seen = new Set()) {
 	seen.add(node)
 	yield [node, parent]
 	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent' || key === 'loc' || key === 'metadata' || key === 'range') continue
+		if (key === 'parent' || key === 'loc' || key === 'metadata' || key === 'range') {
+			continue
+		}
+
 		if (Array.isArray(value)) {
-			for (const child of value) yield* walk(child, node, seen)
+			for (const child of value) {
+				yield* walk(child, node, seen)
+			}
 		} else if (value && typeof value === 'object') {
 			yield* walk(value, node, seen)
 		}
@@ -70,8 +75,14 @@ function* jsxAttributeNodes(program) {
 // String literals inside a className-ish expression: 'a', `a`, ['a','b'],
 // {a: cond}, cond && 'a', cond ? 'a' : 'b'.
 const literalStrings = (expr, out = []) => {
-	if (!expr) return out
-	if (expr.type === 'Literal' && typeof expr.value === 'string') out.push(expr)
+	if (!expr) {
+		return out
+	}
+
+	if (expr.type === 'Literal' && typeof expr.value === 'string') {
+		out.push(expr)
+	}
+
 	if (expr.type === 'TemplateLiteral' && expr.expressions.length === 0) {
 		for (const q of expr.quasis) {
 			out.push({
@@ -83,9 +94,16 @@ const literalStrings = (expr, out = []) => {
 		}
 	}
 
-	if (expr.type === 'ArrayExpression') for (const el of expr.elements) literalStrings(el, out)
+	if (expr.type === 'ArrayExpression') {
+		for (const el of expr.elements) {
+			literalStrings(el, out)
+		}
+	}
+
 	if (expr.type === 'ObjectExpression') {
-		for (const p of expr.properties ?? []) literalStrings(p.key, out)
+		for (const p of expr.properties ?? []) {
+			literalStrings(p.key, out)
+		}
 	}
 
 	if (expr.type === 'ConditionalExpression') {
@@ -104,17 +122,47 @@ const literalStrings = (expr, out = []) => {
 // ---------- no-dom-globals (invariant #4; absorbs check-no-dom.mjs) ----------
 
 const DOM_GLOBALS = new Set([
-	'document', 'window', 'navigator', 'location', 'history',
-	'localStorage', 'sessionStorage', 'getComputedStyle', 'DOMParser',
-	'XMLSerializer', 'createElementNS', 'querySelector', 'querySelectorAll',
-	'innerHTML', 'outerHTML', 'classList', 'alert', 'confirm', 'prompt',
-	'MutationObserver', 'IntersectionObserver', 'ResizeObserver',
-	'DocumentFragment', 'ShadowRoot', 'Node', 'Element', 'NodeList',
+	'document',
+	'window',
+	'navigator',
+	'location',
+	'history',
+	'localStorage',
+	'sessionStorage',
+	'getComputedStyle',
+	'DOMParser',
+	'XMLSerializer',
+	'createElementNS',
+	'querySelector',
+	'querySelectorAll',
+	'innerHTML',
+	'outerHTML',
+	'classList',
+	'alert',
+	'confirm',
+	'prompt',
+	'MutationObserver',
+	'IntersectionObserver',
+	'ResizeObserver',
+	'DocumentFragment',
+	'ShadowRoot',
+	'Node',
+	'Element',
+	'NodeList',
 ])
 
 // SVGView (ui-svg plugin) is NOT a DOM name — only *Element classes and the
 // legacy DOM SVG interface set are.
-const DOM_SVG_NAMES = new Set(['SVGMatrix', 'SVGPoint', 'SVGRect', 'SVGAngle', 'SVGLength', 'SVGNumber', 'SVGTransform', 'SVGPreserveAspectRatio'])
+const DOM_SVG_NAMES = new Set([
+	'SVGMatrix',
+	'SVGPoint',
+	'SVGRect',
+	'SVGAngle',
+	'SVGLength',
+	'SVGNumber',
+	'SVGTransform',
+	'SVGPreserveAspectRatio',
+])
 
 const isDomGlobalName = (name) =>
 	DOM_GLOBALS.has(name) ||
@@ -125,7 +173,10 @@ const isDomGlobalName = (name) =>
 
 // Declarations, keys, and member names are not reads of the global.
 const isReference = (node, parent) => {
-	if (!parent) return true
+	if (!parent) {
+		return true
+	}
+
 	switch (parent.type) {
 		case 'MemberExpression':
 		case 'OptionalMemberExpression':
@@ -168,7 +219,10 @@ const isReference = (node, parent) => {
 }
 
 export function checkNoDomGlobals(program, _src, filename, options) {
-	if (isWebFile(filename) || fileExcluded(filename, options)) return []
+	if (isWebFile(filename) || fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [node, parent] of walk(program)) {
 		if (node.type === 'Identifier' && isDomGlobalName(node.name) && isReference(node, parent)) {
@@ -185,12 +239,22 @@ export function checkNoDomGlobals(program, _src, filename, options) {
 // ---------- no-web-only-api (invariant #5) ----------
 
 const WEB_ONLY_OCTANE = new Set([
-	'createPortal', 'Suspense', 'Hydrate', 'ErrorBoundary', 'createRoot',
-	'hydrate', 'hydrateRoot', 'renderToString', 'renderToStream',
+	'createPortal',
+	'Suspense',
+	'Hydrate',
+	'ErrorBoundary',
+	'createRoot',
+	'hydrate',
+	'hydrateRoot',
+	'renderToString',
+	'renderToStream',
 ])
 
 export function checkNoWebOnlyApi(program, _src, filename, options) {
-	if (isWebFile(filename) || fileExcluded(filename, options)) return []
+	if (isWebFile(filename) || fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [node, parent] of walk(program)) {
 		if (node.type === 'ImportDeclaration' && /^octane(\/|$)/.test(node.source.value ?? '')) {
@@ -228,40 +292,160 @@ export function checkNoWebOnlyApi(program, _src, filename, options) {
 // `label`, `span` (formatted text), `button`, `image`, `switch`, `slider`,
 // `progress` exist in both vocabularies and are not flagged either way.
 const HTML_ONLY_TAGS = new Set([
-	'div', 'p', 'a', 'img', 'input', 'form', 'fieldset', 'legend', 'ul', 'ol',
-	'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'thead', 'tbody',
-	'tfoot', 'tr', 'td', 'th', 'caption', 'colgroup', 'col', 'select',
-	'option', 'optgroup', 'datalist', 'textarea', 'video', 'audio', 'canvas',
-	'svg', 'path', 'iframe', 'nav', 'section', 'article', 'header', 'footer',
-	'main', 'aside', 'strong', 'em', 'code', 'pre', 'blockquote', 'hr', 'br',
-	'wbr', 'dialog', 'style', 'link', 'script', 'title', 'head', 'body',
-	'html', 'figure', 'figcaption', 'dl', 'dt', 'dd', 'mark', 'small', 'sub',
-	'sup', 'time', 'abbr', 'address', 'b', 'i', 'u', 's', 'cite', 'q', 'kbd',
-	'samp', 'var', 'output', 'details', 'summary', 'menu', 'picture',
-	'source', 'track', 'map', 'area', 'object', 'embed', 'param', 'meter',
-	'noscript', 'template', 'slot',
+	'div',
+	'p',
+	'a',
+	'img',
+	'input',
+	'form',
+	'fieldset',
+	'legend',
+	'ul',
+	'ol',
+	'li',
+	'h1',
+	'h2',
+	'h3',
+	'h4',
+	'h5',
+	'h6',
+	'table',
+	'thead',
+	'tbody',
+	'tfoot',
+	'tr',
+	'td',
+	'th',
+	'caption',
+	'colgroup',
+	'col',
+	'select',
+	'option',
+	'optgroup',
+	'datalist',
+	'textarea',
+	'video',
+	'audio',
+	'canvas',
+	'svg',
+	'path',
+	'iframe',
+	'nav',
+	'section',
+	'article',
+	'header',
+	'footer',
+	'main',
+	'aside',
+	'strong',
+	'em',
+	'code',
+	'pre',
+	'blockquote',
+	'hr',
+	'br',
+	'wbr',
+	'dialog',
+	'style',
+	'link',
+	'script',
+	'title',
+	'head',
+	'body',
+	'html',
+	'figure',
+	'figcaption',
+	'dl',
+	'dt',
+	'dd',
+	'mark',
+	'small',
+	'sub',
+	'sup',
+	'time',
+	'abbr',
+	'address',
+	'b',
+	'i',
+	'u',
+	's',
+	'cite',
+	'q',
+	'kbd',
+	'samp',
+	'var',
+	'output',
+	'details',
+	'summary',
+	'menu',
+	'picture',
+	'source',
+	'track',
+	'map',
+	'area',
+	'object',
+	'embed',
+	'param',
+	'meter',
+	'noscript',
+	'template',
+	'slot',
 ])
 
 // NativeScript views with no HTML counterpart — dead in .web.*.
 const NS_ONLY_TAGS = new Set([
-	'gridlayout', 'flexboxlayout', 'stacklayout', 'absolutelayout',
-	'docklayout', 'wraplayout', 'page', 'contentview', 'scrollview',
-	'actionbar', 'actionitem', 'navigationbutton', 'tabview', 'tabviewitem',
-	'listview', 'textfield', 'textview', 'segmentedbar', 'segmentedbaritem',
-	'datepicker', 'timepicker', 'listpicker', 'activityindicator', 'frame',
-	'searchbar', 'formattedstring', 'webview', 'htmlview', 'canvasview',
-	'svgview', 'drawer', 'placeholder',
+	'gridlayout',
+	'flexboxlayout',
+	'stacklayout',
+	'absolutelayout',
+	'docklayout',
+	'wraplayout',
+	'page',
+	'contentview',
+	'scrollview',
+	'actionbar',
+	'actionitem',
+	'navigationbutton',
+	'tabview',
+	'tabviewitem',
+	'listview',
+	'textfield',
+	'textview',
+	'segmentedbar',
+	'segmentedbaritem',
+	'datepicker',
+	'timepicker',
+	'listpicker',
+	'activityindicator',
+	'frame',
+	'searchbar',
+	'formattedstring',
+	'webview',
+	'htmlview',
+	'canvasview',
+	'svgview',
+	'drawer',
+	'placeholder',
 ])
 
 export function checkElementVocabulary(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	const web = isWebFile(filename)
 	const native = isNativeFile(filename)
 	const out = []
 	for (const [node] of walk(program)) {
-		if (node.type !== 'JSXOpeningElement') continue
+		if (node.type !== 'JSXOpeningElement') {
+			continue
+		}
+
 		const name = jsxName(node.name)
-		if (!name || name[0] !== name[0].toLowerCase() || name.includes('.')) continue
+		if (!name || name[0] !== name[0].toLowerCase() || name.includes('.')) {
+			continue
+		}
+
 		if (!web && !native) {
 			out.push({
 				node: node.name,
@@ -285,10 +469,14 @@ export function checkElementVocabulary(program, _src, filename, options) {
 
 // ---------- import boundary rules ----------
 
-const isConfigFile = (f) => /(^|\/)[\w.-]*config\.(m|c)?(ts|js)$/.test(norm(f)) || norm(f).endsWith('.d.ts')
+const isConfigFile = (f) =>
+	/(^|\/)[\w.-]*config\.(m|c)?(ts|js)$/.test(norm(f)) || norm(f).endsWith('.d.ts')
 
 export function checkNoNativescriptImport(program, _src, filename, options) {
-	if (isNativeFile(filename) || isConfigFile(filename) || fileExcluded(filename, options)) return []
+	if (isNativeFile(filename) || isConfigFile(filename) || fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [node] of walk(program)) {
 		if (
@@ -314,10 +502,16 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 // Deep @nativescript/core internals bundle as separate module instances —
 // shared state (e.g. rootLayoutStack) silently diverges. Applies everywhere.
 export function checkNoNsDeepImport(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [node] of walk(program)) {
-		if (node.type !== 'ImportDeclaration') continue
+		if (node.type !== 'ImportDeclaration') {
+			continue
+		}
+
 		const source = node.source?.value
 		if (typeof source === 'string' && source.startsWith('@nativescript/core/ui/')) {
 			out.push({
@@ -346,7 +540,10 @@ export function checkNoTsImportsTsrx(program, _src, filename, options) {
 
 	const out = []
 	for (const [node] of walk(program)) {
-		if (node.type !== 'ImportDeclaration') continue
+		if (node.type !== 'ImportDeclaration') {
+			continue
+		}
+
 		if (typeof node.source?.value === 'string' && node.source.value.endsWith('.tsrx')) {
 			out.push({
 				node: node.source,
@@ -362,9 +559,14 @@ export function checkNoTsImportsTsrx(program, _src, filename, options) {
 
 function* styleObjects(program) {
 	for (const [attr] of jsxAttributeNodes(program)) {
-		if (propName(attr.name) !== 'style') continue
+		if (propName(attr.name) !== 'style') {
+			continue
+		}
+
 		const expr = attr.value?.type === 'JSXExpressionContainer' ? attr.value.expression : attr.value
-		if (expr?.type === 'ObjectExpression') yield expr
+		if (expr?.type === 'ObjectExpression') {
+			yield expr
+		}
 	}
 }
 
@@ -379,11 +581,17 @@ const DEAD_STYLE_PROPS = {
 }
 
 export function checkNoNativeDeadStyle(program, _src, filename, options) {
-	if (isWebFile(filename) || fileExcluded(filename, options)) return []
+	if (isWebFile(filename) || fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const obj of styleObjects(program)) {
 		for (const prop of obj.properties ?? []) {
-			if (prop.type !== 'Property') continue
+			if (prop.type !== 'Property') {
+				continue
+			}
+
 			const key = propName(prop.key)
 			const val = prop.value
 			const strVal =
@@ -396,18 +604,33 @@ export function checkNoNativeDeadStyle(program, _src, filename, options) {
 						: 'overlays go through Overlay/Modal services, not positioning'
 
 				out.push({ node: prop, message: `position: '${strVal}' does not exist on native — ${alt}` })
-			} else if (/^margin(Left|Right|Top|Bottom)?$/.test(key ?? '') && /\bauto\b/.test(strVal ?? '')) {
-				out.push({ node: prop, message: `auto margins are ignored on native — use justifyContent, alignSelf, or <Spacer/>` })
+			} else if (
+				/^margin(Left|Right|Top|Bottom)?$/.test(key ?? '') &&
+				/\bauto\b/.test(strVal ?? '')
+			) {
+				out.push({
+					node: prop,
+					message: `auto margins are ignored on native — use justifyContent, alignSelf, or <Spacer/>`,
+				})
 			} else if (key === 'display' && strVal === 'none') {
-				out.push({ node: prop, message: `display: 'none' is not supported on native — use visibility: 'collapse' or an @if block` })
+				out.push({
+					node: prop,
+					message: `display: 'none' is not supported on native — use visibility: 'collapse' or an @if block`,
+				})
 			} else if (key === 'whiteSpace' && strVal === 'pre-wrap') {
-				out.push({ node: prop, message: `Label rejects whiteSpace: 'pre-wrap' — 'normal' is the native wrap value (no space/newline preservation)` })
+				out.push({
+					node: prop,
+					message: `Label rejects whiteSpace: 'pre-wrap' — 'normal' is the native wrap value (no space/newline preservation)`,
+				})
 			} else if (key && DEAD_STYLE_PROPS[key]) {
 				out.push({ node: prop, message: DEAD_STYLE_PROPS[key] })
 			}
 
 			if (strVal && /conic-gradient\(/.test(strVal)) {
-				out.push({ node: prop, message: `conic-gradient is unsupported on native — draw it with the canvas/svg primitives` })
+				out.push({
+					node: prop,
+					message: `conic-gradient is unsupported on native — draw it with the canvas/svg primitives`,
+				})
 			}
 		}
 	}
@@ -416,11 +639,17 @@ export function checkNoNativeDeadStyle(program, _src, filename, options) {
 }
 
 export function checkNoLineHeightUnitless(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const obj of styleObjects(program)) {
 		for (const prop of obj.properties ?? []) {
-			if (prop.type !== 'Property' || propName(prop.key) !== 'lineHeight') continue
+			if (prop.type !== 'Property' || propName(prop.key) !== 'lineHeight') {
+				continue
+			}
+
 			const val = prop.value
 			const num =
 				val?.type === 'Literal' && typeof val.value === 'number'
@@ -442,7 +671,10 @@ export function checkNoLineHeightUnitless(program, _src, filename, options) {
 }
 
 export function checkNoStyleString(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [attr] of jsxAttributeNodes(program)) {
 		if (
@@ -475,7 +707,10 @@ export function checkNoStyleString(program, _src, filename, options) {
 // safe (weakens the check); missing a real class is a false positive.
 let classCache
 function knownClasses(cwd) {
-	if (classCache) return classCache
+	if (classCache) {
+		return classCache
+	}
+
 	const names = new Set()
 	const scan = (dir) => {
 		let entries
@@ -488,16 +723,32 @@ function knownClasses(cwd) {
 		for (const e of entries) {
 			const p = join(dir, e.name)
 			if (e.isDirectory()) {
-				if (!['node_modules', 'dist', '.git', '.ns-vite-build', 'graft', 'prior-art', 'research'].includes(e.name)) scan(p)
+				if (
+					![
+						'node_modules',
+						'dist',
+						'.git',
+						'.ns-vite-build',
+						'graft',
+						'prior-art',
+						'research',
+					].includes(e.name)
+				) {
+					scan(p)
+				}
 			} else if (e.name.endsWith('.css')) {
-				for (const m of readFileSync(p, 'utf8').matchAll(/\.([a-zA-Z_][\w-]*)/g)) names.add(m[1])
+				for (const m of readFileSync(p, 'utf8').matchAll(/\.([a-zA-Z_][\w-]*)/g)) {
+					names.add(m[1])
+				}
 			}
 		}
 	}
 
 	for (const root of ['packages', 'apps']) {
 		const dir = join(cwd, root)
-		if (existsSync(dir)) scan(dir)
+		if (existsSync(dir)) {
+			scan(dir)
+		}
 	}
 
 	classCache = names
@@ -507,17 +758,25 @@ function knownClasses(cwd) {
 // Bounded edit distance — bail once past `max`. Unstyled hook classes are a
 // normal pattern; the goof worth flagging is a near-miss of a real class.
 const distance = (a, b, max = 2) => {
-	if (Math.abs(a.length - b.length) > max) return max + 1
+	if (Math.abs(a.length - b.length) > max) {
+		return max + 1
+	}
+
 	let prev = Array.from({ length: b.length + 1 }, (_, i) => i)
 	for (let i = 1; i <= a.length; i++) {
 		const cur = [i]
 		let rowMin = i
 		for (let j = 1; j <= b.length; j++) {
 			cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
-			if (cur[j] < rowMin) rowMin = cur[j]
+			if (cur[j] < rowMin) {
+				rowMin = cur[j]
+			}
 		}
 
-		if (rowMin > max) return max + 1
+		if (rowMin > max) {
+			return max + 1
+		}
+
 		prev = cur
 	}
 
@@ -525,7 +784,10 @@ const distance = (a, b, max = 2) => {
 }
 
 export function checkNoUnknownClass(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	const known = knownClasses(options?.cssRoot ?? process.cwd())
 	const extra = new Set(options?.allow ?? [])
 	const out = []
@@ -533,14 +795,22 @@ export function checkNoUnknownClass(program, _src, filename, options) {
 		for (const token of String(lit.value).split(/\s+/)) {
 			// Only longer tokens: short ones produce junk near-misses
 			// ('sel'/'shell', 'list'/'li').
-			if (token.length < 4 || known.has(token) || extra.has(token)) continue
+			if (token.length < 4 || known.has(token) || extra.has(token)) {
+				continue
+			}
+
 			let best
 			for (const k of known) {
 				// Require a shared 3-char prefix so unrelated tokens don't
 				// report junk suggestions.
-				if (k.length < 4 || token.slice(0, 3) !== k.slice(0, 3)) continue
+				if (k.length < 4 || token.slice(0, 3) !== k.slice(0, 3)) {
+					continue
+				}
+
 				const d = distance(token, k)
-				if (d < (best?.d ?? 3)) best = { k, d }
+				if (d < (best?.d ?? 3)) {
+					best = { k, d }
+				}
 			}
 
 			if (best && best.d <= 2) {
@@ -554,16 +824,28 @@ export function checkNoUnknownClass(program, _src, filename, options) {
 
 	for (const [attr] of jsxAttributeNodes(program)) {
 		const name = propName(attr.name)
-		if (name !== 'className' && name !== 'activeClassName' && name !== 'class') continue
+		if (name !== 'className' && name !== 'activeClassName' && name !== 'class') {
+			continue
+		}
+
 		const expr = attr.value?.type === 'JSXExpressionContainer' ? attr.value.expression : attr.value
-		for (const lit of literalStrings(expr)) checkValue(lit)
+		for (const lit of literalStrings(expr)) {
+			checkValue(lit)
+		}
 	}
 
 	for (const [node] of walk(program)) {
-		if (node.type !== 'CallExpression') continue
+		if (node.type !== 'CallExpression') {
+			continue
+		}
+
 		const callee = node.callee?.type === 'Identifier' ? node.callee.name : undefined
 		if (callee === 'cx') {
-			for (const arg of node.arguments) for (const lit of literalStrings(arg)) checkValue(lit)
+			for (const arg of node.arguments) {
+				for (const lit of literalStrings(arg)) {
+					checkValue(lit)
+				}
+			}
 		}
 
 		if (callee === 'styled') {
@@ -575,10 +857,14 @@ export function checkNoUnknownClass(program, _src, filename, options) {
 					const v = p.value
 					if (v?.type === 'ObjectExpression') {
 						for (const q of v.properties ?? []) {
-							for (const lit of literalStrings(q.value)) checkValue(lit)
+							for (const lit of literalStrings(q.value)) {
+								checkValue(lit)
+							}
 						}
 					} else {
-						for (const lit of literalStrings(v)) checkValue(lit)
+						for (const lit of literalStrings(v)) {
+							checkValue(lit)
+						}
 					}
 				}
 			}
@@ -593,10 +879,16 @@ export function checkNoUnknownClass(program, _src, filename, options) {
 const SIGNAL_FACTORIES = new Set(['signal$', 'query$', 'derived$'])
 
 export function checkSignalDollarSuffix(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [node] of walk(program)) {
-		if (node.type !== 'VariableDeclarator') continue
+		if (node.type !== 'VariableDeclarator') {
+			continue
+		}
+
 		const init = node.init
 		if (
 			init?.type === 'CallExpression' &&
@@ -618,13 +910,19 @@ export function checkSignalDollarSuffix(program, _src, filename, options) {
 const SIGNAL_READ_METHODS = new Set(['get', 'set', 'snapshot', 'subscribe', 'update'])
 
 export function checkRequireSignalsRuntime(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	let hasSignalsImport = false
 	const reads = []
 	for (const [node] of walk(program)) {
 		if (node.type === 'ImportDeclaration') {
 			const src = node.source?.value
-			if ((src === 'octane/signals' || src === 'octane/signals/client') && node.importKind !== 'type') {
+			if (
+				(src === 'octane/signals' || src === 'octane/signals/client') &&
+				node.importKind !== 'type'
+			) {
 				hasSignalsImport = true
 			}
 
@@ -642,7 +940,10 @@ export function checkRequireSignalsRuntime(program, _src, filename, options) {
 		}
 	}
 
-	if (hasSignalsImport || reads.length === 0) return []
+	if (hasSignalsImport || reads.length === 0) {
+		return []
+	}
+
 	return [
 		{
 			node: reads[0],
@@ -653,23 +954,60 @@ export function checkRequireSignalsRuntime(program, _src, filename, options) {
 
 // ---------- misc goofs ----------
 
-const PRESSABLE_ONLY_PROPS = new Set(['onPress', 'onPressIn', 'onPressOut', 'onLongPress', 'onDoublePress'])
+const PRESSABLE_ONLY_PROPS = new Set([
+	'onPress',
+	'onPressIn',
+	'onPressOut',
+	'onLongPress',
+	'onDoublePress',
+])
+
 // onLongPress and onDoubleTap are real NS view events — only the Octane-side
 // names are dead on raw native tags.
 const DEAD_ON_NATIVE_TAGS = new Set(['onPress', 'onPressIn', 'onPressOut', 'onDoublePress'])
 const NON_PRESSABLE_PRIMITIVES = new Set([
-	'View', 'Row', 'Text', 'Heading', 'Stack', 'Grid', 'Absolute', 'Spacer',
-	'Image', 'ScrollView', 'List', 'Screen', 'SafeArea', 'KeyboardAvoiding',
-	'Switch', 'Slider', 'Meter', 'ActivityIndicator', 'Icon', 'PlatformBadge',
-	'Overlay', 'Popover', 'Modal', 'Tabs', 'TextInput', 'TextArea', 'Drawer',
-	'Link', 'NavLink',
+	'View',
+	'Row',
+	'Text',
+	'Heading',
+	'Stack',
+	'Grid',
+	'Absolute',
+	'Spacer',
+	'Image',
+	'ScrollView',
+	'List',
+	'Screen',
+	'SafeArea',
+	'KeyboardAvoiding',
+	'Switch',
+	'Slider',
+	'Meter',
+	'ActivityIndicator',
+	'Icon',
+	'PlatformBadge',
+	'Overlay',
+	'Popover',
+	'Modal',
+	'Tabs',
+	'TextInput',
+	'TextArea',
+	'Drawer',
+	'Link',
+	'NavLink',
 ])
 
 export function checkNoViewOnPress(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [attr, tag] of jsxAttributeNodes(program)) {
-		if (!tag || tag === 'Pressable') continue
+		if (!tag || tag === 'Pressable') {
+			continue
+		}
+
 		const name = propName(attr.name) ?? ''
 		if (NON_PRESSABLE_PRIMITIVES.has(tag) && PRESSABLE_ONLY_PROPS.has(name)) {
 			out.push({
@@ -688,7 +1026,10 @@ export function checkNoViewOnPress(program, _src, filename, options) {
 }
 
 export function checkNoConsoleDebug(program, _src, filename, options) {
-	if (fileExcluded(filename, options)) return []
+	if (fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [node] of walk(program)) {
 		if (
@@ -697,7 +1038,10 @@ export function checkNoConsoleDebug(program, _src, filename, options) {
 			node.callee.object?.name === 'console' &&
 			node.callee.property?.name === 'debug'
 		) {
-			out.push({ node: node.callee, message: `console.debug does not exist on device — use console.log.` })
+			out.push({
+				node: node.callee,
+				message: `console.debug does not exist on device — use console.log.`,
+			})
 		}
 	}
 
@@ -715,14 +1059,23 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 
 	const out = []
 	const visit = (node, inHook, seen) => {
-		if (!node || typeof node !== 'object' || seen.has(node)) return
-		seen.add(node)
-		if (Array.isArray(node)) {
-			for (const child of node) visit(child, inHook, seen)
+		if (!node || typeof node !== 'object' || seen.has(node)) {
 			return
 		}
 
-		if (typeof node.type !== 'string') return
+		seen.add(node)
+		if (Array.isArray(node)) {
+			for (const child of node) {
+				visit(child, inHook, seen)
+			}
+
+			return
+		}
+
+		if (typeof node.type !== 'string') {
+			return
+		}
+
 		let now = inHook
 		if (
 			(node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') &&
@@ -731,7 +1084,10 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 			now = true
 		}
 
-		if (node.type === 'VariableDeclarator' && /^use[A-Z$]/.test(node.id?.name ?? '')) now = true
+		if (node.type === 'VariableDeclarator' && /^use[A-Z$]/.test(node.id?.name ?? '')) {
+			now = true
+		}
+
 		if (
 			!inHook &&
 			node.type === 'CallExpression' &&
@@ -745,7 +1101,10 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 		}
 
 		for (const [key, value] of Object.entries(node)) {
-			if (key === 'parent' || key === 'loc' || key === 'metadata' || key === 'range') continue
+			if (key === 'parent' || key === 'loc' || key === 'metadata' || key === 'range') {
+				continue
+			}
+
 			visit(value, now, seen)
 		}
 	}
@@ -766,7 +1125,10 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 		return []
 	}
 
-	if (source.startsWith(NATIVE_PRAGMA)) return []
+	if (source.startsWith(NATIVE_PRAGMA)) {
+		return []
+	}
+
 	for (const [node] of walk(program)) {
 		if (node.type === 'JSXOpeningElement') {
 			return [
@@ -784,12 +1146,18 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 const TSRX_TEXT_BREAKERS = /•/
 
 export function checkNoJsxTextBreakers(program, _src, filename, options) {
-	if (!filename.endsWith('.tsrx') || fileExcluded(filename, options)) return []
+	if (!filename.endsWith('.tsrx') || fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [node] of walk(program)) {
 		if (node.type === 'JSXText' && TSRX_TEXT_BREAKERS.test(node.value ?? '')) {
 			const text = (node.value ?? '').trim().slice(0, 40)
-			out.push({ node, message: `Literal '${text}' in JSX text breaks tsrx-tsc — wrap it in braces: {'…'}` })
+			out.push({
+				node,
+				message: `Literal '${text}' in JSX text breaks tsrx-tsc — wrap it in braces: {'…'}`,
+			})
 		}
 	}
 
@@ -802,17 +1170,25 @@ export function checkNoJsxTextBreakers(program, _src, filename, options) {
 // @if/@else.
 const containsJsx = (node) => {
 	for (const [n] of walk(node)) {
-		if (n.type === 'JSXElement' || n.type === 'JSXFragment') return true
+		if (n.type === 'JSXElement' || n.type === 'JSXFragment') {
+			return true
+		}
 	}
 
 	return false
 }
 
 export function checkNoRootLogicalRender(program, _src, filename, options) {
-	if (!filename.endsWith('.tsrx') || fileExcluded(filename, options)) return []
+	if (!filename.endsWith('.tsrx') || fileExcluded(filename, options)) {
+		return []
+	}
+
 	const out = []
 	for (const [node] of walk(program)) {
-		if (node.type !== 'JSXCodeBlock') continue
+		if (node.type !== 'JSXCodeBlock') {
+			continue
+		}
+
 		const render = node.render
 		if (render?.type === 'LogicalExpression' || render?.type === 'ConditionalExpression') {
 			out.push({

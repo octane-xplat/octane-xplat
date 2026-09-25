@@ -134,6 +134,7 @@ function SwapTabs(props: TabsProps) @{
 	const route = useRoute(tab?.stack ?? '');
 	const Screen = route ? screenFor(route.name) : undefined;
 	const columns = props.tabs.map(() => '*').join(',');
+
 	<gridlayout rows="auto,*" id={props.id} className={cx(props.className)} style={props.style}>
 		<gridlayout row={0} columns={columns} className="vx-tabbar">
 			@for (const t of props.tabs; index i; key t.title) {

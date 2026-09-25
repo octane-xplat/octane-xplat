@@ -12,7 +12,10 @@ export const typecheck = command({
 	handler: async () => {
 		const cwd = process.cwd()
 		const routeDir = ['app', 'src/app'].find((d) => existsSync(join(cwd, d)))
-		if (routeDir) generateRoutes(cwd, routeDir)
+		if (routeDir) {
+			generateRoutes(cwd, routeDir)
+		}
+
 		const configs = ['tsconfig.json', 'tsconfig.native.json'].filter((f) =>
 			existsSync(`${cwd}/${f}`),
 		)

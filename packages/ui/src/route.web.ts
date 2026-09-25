@@ -101,13 +101,21 @@ function emit() {
 export function pushRoute(r: Route): void {
 	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
 	const loader = routeLoaders[route.name] ?? routes.find((meta) => meta.name === route.name)?.loader
-	if (loader && !Object.prototype.hasOwnProperty.call(route, 'loaderData') && !Object.prototype.hasOwnProperty.call(route, 'loaderError')) {
-		void Promise.resolve().then(() => loader(route.params)).then(
-			(loaderData) => pushRoute({ ...route, loaderData }),
-			(loaderError) => pushRoute({ ...route, loaderError }),
-		)
+	if (
+		loader &&
+		!Object.prototype.hasOwnProperty.call(route, 'loaderData') &&
+		!Object.prototype.hasOwnProperty.call(route, 'loaderError')
+	) {
+		void Promise.resolve()
+			.then(() => loader(route.params))
+			.then(
+				(loaderData) => pushRoute({ ...route, loaderData }),
+				(loaderError) => pushRoute({ ...route, loaderError }),
+			)
+
 		return
 	}
+
 	saveScroll()
 	history.pushState(null, '', buildRoutePath(routes, route))
 	lastKey = scrollKey()

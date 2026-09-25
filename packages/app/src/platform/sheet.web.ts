@@ -9,5 +9,6 @@ export function openSheet(Component: unknown = SheetPanel, props: Record<string,
 		() => console.log('[probe] sheet close'),
 		(e: Error) => console.log('[probe] sheet FAILED: ' + e.message),
 	)
+
 	console.log('[probe] sheet open')
 }
