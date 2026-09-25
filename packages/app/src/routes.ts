@@ -10,7 +10,6 @@ registerRoutes(routes)
 export { routes }
 export const screens = routes.screens
 
-/** Route names come from the manifest ('detail', 'demo/:id'). Literal
- *  typing needs routes.d.ts codegen — build-order step 5 in
- *  docs/navigation-notes.md; string until then. */
-export type RouteName = string
+/** Route names come from the manifest ('detail', 'demo/:id') — generated
+ *  by `xplat routes` into routes.gen.ts. */
+export type { RouteName, RouteParams, RoutePresentations } from './routes.gen'
