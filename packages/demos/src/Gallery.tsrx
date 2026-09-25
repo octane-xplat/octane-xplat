@@ -21,6 +21,7 @@ import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
 import { GlassDemo } from './GlassDemo.tsrx';
+import { Reorder } from './Reorder.tsrx';
 import { useLastDemo } from './store.tsrx';
 
 export const DEMOS = [
@@ -45,6 +46,7 @@ export const DEMOS = [
 	{ id: 'rich-text', title: 'Rich text' },
 	{ id: 'divergence', title: 'Layout edges' },
 	{ id: 'glass', title: 'Glass' },
+	{ id: 'reorder', title: 'Reorder' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -75,6 +77,7 @@ const renderLayout = () => <LayoutDemo />;
 const renderRichText = () => <RichTextDemo />;
 const renderDivergence = () => <Divergence />;
 const renderGlass = () => <GlassDemo />;
+const renderReorder = () => <Reorder />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -98,6 +101,7 @@ export const RENDER: Record<string, () => any> = {
 	'rich-text': renderRichText,
 	divergence: renderDivergence,
 	glass: renderGlass,
+	reorder: renderReorder,
 };
 
 /** Demo launcher — chip menu. Two modes:

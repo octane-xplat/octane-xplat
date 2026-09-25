@@ -440,3 +440,45 @@
 	border-radius: 9999px;
 	background-color: var(--color-border-strong);
 }
+
+/* Reorder — the slot is the fixed pitch (row + gap baked in), the row is
+   the card. Drag writes translateY imperatively on the slot view. */
+.reorder-slot {
+	height: 60px;
+}
+
+.reorder-row {
+	height: 52px;
+	align-items: center;
+	gap: 12px;
+	padding-left: 12px;
+	padding-right: 12px;
+	background-color: var(--color-surface-secondary);
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+}
+
+.reorder-grip {
+	width: 20px;
+	font-size: 18px;
+	text-align: center;
+	color: var(--color-text-secondary);
+}
+
+.reorder-lifted {
+	background-color: var(--color-surface);
+	border-color: var(--color-border-strong);
+}
+
+/* xplat-web-only:start — pointer hygiene for the drag; NS ignores these. */
+.reorder-slot {
+	user-select: none;
+	touch-action: none;
+	cursor: grab;
+}
+.reorder-slot:active {
+	cursor: grabbing;
+}
+/* xplat-web-only:end */
