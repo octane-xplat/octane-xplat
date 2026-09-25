@@ -32,6 +32,13 @@ The web build checks the browser bundle. The iOS and Android builds catch
 problems in the native bundle and platform configuration. A typecheck should
 pass for both target configurations before you publish an app.
 
+Native plugin declarations belong to the app. If its source imports
+`@octane-xplat/ui`, declare the UI plugins used by the native entry in that
+app's `package.json`; platform service imports have the same rule. Run
+`pnpm xplat doctor` from the app root to get warning-only checks for missing
+direct declarations. The starter includes the common UI plugins; platform
+service plugins remain opt-in to the services an app imports.
+
 ## When a target is unavailable
 
 You can build and test shared logic without a connected device. Device builds

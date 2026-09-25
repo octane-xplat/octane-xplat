@@ -18,6 +18,7 @@
 	"dependencies": {
 		"@nativescript-community/octane": "0.2.1",
 		"@nativescript-community/ui-canvas": "4.6.52",
+		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript-community/ui-svg": "0.2.24",
 		"@nativescript/core": "9.1.2",
 		"@octane-xplat/ui": "^0.4.0",

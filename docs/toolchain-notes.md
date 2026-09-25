@@ -41,6 +41,40 @@
 - Typecheck via `tsrx-tsc --noEmit` per target config (`.tsrx` needs the
   patched tsc).
 
+### Native plugin declaration ownership
+
+NativeScript's module and plugin discovery happens from the app's own
+`package.json`; a plugin that exists only as a transitive dependency of
+`@octane-xplat/ui` or `@octane-xplat/platform` is not a supported app
+declaration. `xplat doctor` walks the app source and reachable local workspace
+packages, identifies framework imports, and compares the framework's native
+plugin metadata with the app's direct dependencies. Missing declarations are
+warnings, not a hard failure, because the web target does not need them and
+some native capabilities are optional.
+
+The starter declares the UI plugin set (`ui-canvas`, `ui-drawer`, and
+`ui-svg`). It does not seed every platform service plugin: apps should add the
+plugins for the services they import, and `doctor` names the missing package.
+`@nativescript-community/gesturehandler` is not reported because the current
+framework packages do not import it.
+The proving app may therefore carry plugins that a particular screen does not
+render; that is an app ownership concern, not evidence that the framework
+should make those plugins transitive.
+
+### Editor diagnostics and typecheck authority
+
+The repository's authoritative type lane is `tsrx-tsc --noEmit` under the web
+and native app configs. The `@tsrx/oxc` editor server is an OXC parser/linter
+lane, not a TypeScript semantic checker. Capturing diagnostics from the
+checked-in `@tsrx/oxc` 0.13 server for the two List leaves produced only
+`oxlint-tsrx` `curly` diagnostics in `List.web.tsrx` (the unbraced `if`/`else`
+statements) and no diagnostics in `List.native.tsrx`; it produced no TypeScript
+type errors. The server also reported one unmapped projected-plugin notice.
+Both `tsrx-tsc --noEmit -p apps/web/tsconfig.json` and the native equivalent
+pass, so there is no real List typing defect to patch. Treat an OXC editor
+lint finding as a lint/configuration issue and use the dual `tsrx-tsc` lane to
+decide whether a reported TypeScript error is real.
+
 ## Version pinning matrix (hard requirement)
 
 | Pin                                                                    | Constraint                                                                                          |
@@ -54,6 +88,16 @@
 Expect churn: octane is beta, the NS port is days old. Pin exact versions, bump
 deliberately, keep `patches/` (patch-package) as an accepted escape hatch —
 ns-octane already does this.
+
+When a workspace package's dependency declarations change, resync with
+`pnpm install --lockfile-only`; do not hand-edit the importer. The
+`packages/lint` importer is the canary for this rule because its `@tsrx/core`
+and `oxlint` entries must stay aligned with the published package. A resync in
+a linked worktree can rewrite the local octane tarball as a worktree-relative
+`file:` path. That is incidental checkout-local churn: restore it before
+committing, since the path is not valid from another checkout. Fresh worktrees
+without the local pack should bootstrap with `pnpm install --lockfile=false`,
+then resync once the pack is available.
 
 ## Shared packages publish model
 
