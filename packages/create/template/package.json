@@ -22,7 +22,7 @@
 		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript-community/ui-svg": "0.2.24",
 		"@nativescript/core": "9.1.2",
-		"@octane-xplat/ui": "^0.4.0",
+		"@octane-xplat/ui": "^0.5.0",
 		"@valor/nativescript-websockets": "2.0.3",
 		"octane": "0.4.0"
 	},
@@ -32,7 +32,7 @@
 		"@nativescript/ios": "9.1.0",
 		"@nativescript/types": "9.0.0",
 		"@nativescript/vite": "8.0.11",
-		"@octane-xplat/cli": "^0.4.0",
+		"@octane-xplat/cli": "^0.5.0",
 		"@octane-xplat/lint": "^0.1.0",
 		"@octanejs/vite-plugin": "0.1.58",
 		"@tsrx/typescript-plugin": "0.4.7",
