@@ -32,6 +32,11 @@ export function Divergence() @{
 			<Text id="dv-auto" className="dv-auto">trail</Text>
 		</Row>
 
+		<Row className="dv-row" justifyContent="space-between">
+			<Text>lead</Text>
+			<Text id="dv-auto-fix">trail via justify</Text>
+		</Row>
+
 		<Row className="dv-row">
 			<Text id="dv-wide" className="dv-wide">long intrinsic text that wants a lot of width on its own</Text>
 			<View id="dv-sib" className="dv-sib" />
@@ -40,6 +45,11 @@ export function Divergence() @{
 		<Row className="dv-row">
 			<Text id="dv-wide-fix" className="dv-wide min-w-0">long intrinsic text with min-w-0 guard</Text>
 			<View id="dv-sib-fix" className="dv-sib shrink-0" />
+		</Row>
+
+		<Row id="dv-collapse" className="dv-row">
+			<View className="grow"><Text id="dv-collapse-text">all-grow children, tall intrinsic text that should keep the row open at its own height</Text></View>
+			<View className="grow"><Text>second grow child</Text></View>
 		</Row>
 	</Screen>
 }

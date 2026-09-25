@@ -394,7 +394,7 @@ const STEPS: Step[] = [
 						return { w: Math.round(s.width ?? -1), h: Math.round(s.height ?? -1), x: Math.round(p.x ?? -1), y: Math.round(p.y ?? -1) }
 					}
 
-					for (const id of ['dv-grow', 'dv-grow-fill', 'dv-lh', 'dv-lh2', 'dv-auto', 'dv-wide', 'dv-sib', 'dv-wide-fix', 'dv-sib-fix']) {
+					for (const id of ['dv-grow', 'dv-grow-fill', 'dv-lh', 'dv-lh2', 'dv-auto', 'dv-auto-fix', 'dv-wide', 'dv-sib', 'dv-wide-fix', 'dv-sib-fix', 'dv-collapse', 'dv-collapse-text']) {
 						const r = m(id)
 						console.log(
 							'[probe] ' + id + ' ' + (r ? `${r.w}x${r.h}@${r.x},${r.y}` : 'MISSING'),
@@ -425,6 +425,15 @@ const STEPS: Step[] = [
 						'[assert] margin-left:auto pushes trail right: ' +
 							(auto && auto.x > 200 ? 'OK' : 'FAIL') +
 							(auto ? ` (x=${auto.x})` : ''),
+					)
+
+					// justifyContent prop is the portable path — it must push the
+					// trailing item right on native the same as web.
+					const autoFix = m('dv-auto-fix')
+					console.log(
+						'[assert] justifyContent=space-between pushes trail right: ' +
+							(autoFix && autoFix.x > 200 ? 'OK' : 'FAIL') +
+							(autoFix ? ` (x=${autoFix.x})` : ''),
 					)
 				},
 			},

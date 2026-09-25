@@ -40,6 +40,19 @@ export interface LayoutChildProps {
 	order?: number
 }
 
+/** Flex-container props shared by View/Row/Pressable — RN vocabulary, applied
+ *  to the host flexboxlayout natively and the element's style on web.
+ *  `gap` is a dip number (px on web); NS supports it on FlexboxLayout only
+ *  (GridLayout has no gap). */
+export interface FlexContainerProps {
+	justifyContent?: 'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'
+	alignItems?: 'start' | 'center' | 'end' | 'stretch' | 'baseline'
+	flexWrap?: boolean | 'wrap' | 'nowrap' | 'wrap-reverse'
+	gap?: number | string
+	rowGap?: number | string
+	columnGap?: number | string
+}
+
 export interface GridProps {
 	className?: any
 	style?: any
@@ -78,7 +91,7 @@ export interface SpacerProps {
 	web?: Record<string, any>
 }
 
-export interface ViewProps extends LayoutChildProps {
+export interface ViewProps extends LayoutChildProps, FlexContainerProps {
 	className?: any
 	style?: any
 	children?: any
@@ -94,7 +107,7 @@ export interface ViewProps extends LayoutChildProps {
 	web?: any
 }
 
-export interface RowProps extends LayoutChildProps {
+export interface RowProps extends LayoutChildProps, FlexContainerProps {
 	className?: any
 	style?: any
 	children?: any
@@ -131,7 +144,7 @@ export interface TextProps extends LayoutChildProps {
 	web?: any
 }
 
-export interface PressableProps extends LayoutChildProps {
+export interface PressableProps extends LayoutChildProps, FlexContainerProps {
 	className?: any
 	style?: any
 	children?: any

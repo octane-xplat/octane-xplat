@@ -1,4 +1,4 @@
-import type { LayoutChildProps } from './props'
+import type { LayoutChildProps, FlexContainerProps } from './props'
 
 /** The shared contract is "numbers are dips" (RN semantics), but octane's DOM
  *  renderer keeps React's unitless list — lineHeight is unitless there, so
@@ -12,11 +12,21 @@ export function normStyle(style: any) {
 	return style
 }
 
+// start/end shorthand → flex-start/flex-end (valid in both engines).
+const FLEX_JUSTIFY: Record<string, string> = {
+	start: 'flex-start',
+	end: 'flex-end',
+}
+const FLEX_ALIGN: Record<string, string> = {
+	start: 'flex-start',
+	end: 'flex-end',
+}
+
 /** Convert parent-layout metadata to CSS on the web leaf. Native's `dock`
  *  attribute has no CSS equivalent and is ignored on web. Grid indices are
  *  zero-based in the shared API, matching NativeScript. */
 export function layoutChildProps(
-	props: LayoutChildProps & { style?: any },
+	props: LayoutChildProps & Partial<FlexContainerProps> & { style?: any },
 	baseStyle = props.style,
 ) {
 	const style = { ...normStyle(baseStyle) }
@@ -32,6 +42,19 @@ export function layoutChildProps(
 	if (props.flexShrink !== undefined) style.flexShrink = props.flexShrink
 	if (props.alignSelf !== undefined) style.alignSelf = props.alignSelf
 	if (props.order !== undefined) style.order = props.order
+
+	// Flex-container props (View/Row/Pressable hosts) — RN vocabulary on the
+	// element style. Numbers become px via octane's style normalization.
+	if (props.justifyContent !== undefined)
+		style.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
+	if (props.alignItems !== undefined)
+		style.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
+	if (props.flexWrap !== undefined)
+		style.flexWrap =
+			props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
+	if (props.gap !== undefined) style.gap = props.gap
+	if (props.rowGap !== undefined) style.rowGap = props.rowGap
+	if (props.columnGap !== undefined) style.columnGap = props.columnGap
 
 	// The shared contract is "numbers are dips" (RN semantics), but octane's
 	// DOM renderer keeps React's unitless list — lineHeight is unitless there,
