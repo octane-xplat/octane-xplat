@@ -1,4 +1,5 @@
 import type { HeadingProps } from './props';
+import { normStyle } from './layout-child.web';
 import { applyWebProps } from './platformProps.web';
 
 export function Heading(props: HeadingProps) @{
@@ -8,7 +9,7 @@ export function Heading(props: HeadingProps) @{
 	<{tag}
 		id={props.id}
 		className={['vx-heading', `vx-h${level}`, props.className]}
-		style={props.style}
+		style={normStyle(props.style)}
 		ref={(el: any) => applyWebProps(el, props.web)}
 	>{props.children}</{tag}>
 }

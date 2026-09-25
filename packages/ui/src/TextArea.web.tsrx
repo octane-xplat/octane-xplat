@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from 'octane';
+import { normStyle } from './layout-child.web';
 import type { TextAreaProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 
@@ -45,7 +46,7 @@ export function TextArea(props: TextAreaProps) @{
 		}}
 		id={props.id}
 		className={['vx-textarea', props.className]}
-		style={{ ...props.style, ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
+		style={{ ...normStyle(props.style), ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
 		value={props.value}
 		inputMode={props.keyboardType === 'number' ? 'numeric' : props.keyboardType === 'phone' ? 'tel' : props.keyboardType === 'default' ? 'text' : props.keyboardType}
 		enterKeyHint={props.returnKeyType}

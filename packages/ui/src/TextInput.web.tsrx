@@ -1,3 +1,4 @@
+import { normStyle } from './layout-child.web';
 import type { TextInputProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 export function TextInput(props: TextInputProps) @{
@@ -12,7 +13,7 @@ export function TextInput(props: TextInputProps) @{
 		}}
 		id={props.id}
 		className={props.className}
-		style={{ ...props.style, ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
+		style={{ ...normStyle(props.style), ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
 		value={props.value}
 		type={props.secure ? 'password' : props.keyboardType === 'number' || props.keyboardType === 'decimal' ? 'number' : keyboardType}
 		inputMode={inputMode}
