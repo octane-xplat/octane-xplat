@@ -78,6 +78,9 @@ nothing to commit). Tables:
 
 ## Toolchain notes (prototype harness — verified)
 
+Drive-by improvements to `packages/lint/` are allowed when they improve the
+experience of agents writing Octane-xplat code effectively.
+
 - **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
   `nodeLinker: isolated` — `@nativescript/vite`'s vendor-manifest code needs it.
   Consequence: every package must declare what it imports (no transitive-dep
