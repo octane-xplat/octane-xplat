@@ -7,14 +7,26 @@ export const permissions = {
 	async ensure(kind: PermissionKind): Promise<'granted' | 'denied' | 'unsupported'> {
 		switch (kind) {
 			case 'notifications': {
-				if (typeof Notification === 'undefined') return 'unsupported'
-				if (Notification.permission === 'granted') return 'granted'
-				if (Notification.permission === 'denied') return 'denied'
+				if (typeof Notification === 'undefined') {
+					return 'unsupported'
+				}
+
+				if (Notification.permission === 'granted') {
+					return 'granted'
+				}
+
+				if (Notification.permission === 'denied') {
+					return 'denied'
+				}
+
 				return (await Notification.requestPermission()) === 'granted' ? 'granted' : 'denied'
 			}
 			case 'camera':
 			case 'photos': {
-				if (!navigator.mediaDevices?.getUserMedia) return 'unsupported'
+				if (!navigator.mediaDevices?.getUserMedia) {
+					return 'unsupported'
+				}
+
 				try {
 					const s = await navigator.mediaDevices.getUserMedia({ video: true })
 					s.getTracks().forEach((t) => t.stop())
@@ -24,7 +36,10 @@ export const permissions = {
 				}
 			}
 			case 'location': {
-				if (!('geolocation' in navigator)) return 'unsupported'
+				if (!('geolocation' in navigator)) {
+					return 'unsupported'
+				}
+
 				return new Promise((resolve) =>
 					navigator.geolocation.getCurrentPosition(
 						() => resolve('granted'),

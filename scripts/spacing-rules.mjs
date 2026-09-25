@@ -14,7 +14,10 @@ function firstLineBreak(text) {
 function hasBlankLineAfter(source, end, nextStart) {
 	const gap = source.slice(end, nextStart)
 	const lineBreak = firstLineBreak(gap)
-	if (!lineBreak) return false
+	if (!lineBreak) {
+		return false
+	}
+
 	const afterLine = gap.slice(lineBreak.index + lineBreak[0].length)
 	const nextLineBreak = firstLineBreak(afterLine)
 	return nextLineBreak !== null && afterLine.slice(0, nextLineBreak.index).trim() === ''
@@ -44,10 +47,15 @@ function isMultiline(node, source) {
 
 function* childNodes(node) {
 	for (const [key, value] of Object.entries(node)) {
-		if (key === 'parent' || key === 'loc' || key === 'range') continue
+		if (key === 'parent' || key === 'loc' || key === 'range') {
+			continue
+		}
+
 		if (Array.isArray(value)) {
 			for (const child of value) {
-				if (child && typeof child === 'object' && typeof child.type === 'string') yield child
+				if (child && typeof child === 'object' && typeof child.type === 'string') {
+					yield child
+				}
 			}
 		} else if (value && typeof value === 'object' && typeof value.type === 'string') {
 			yield value
@@ -60,17 +68,29 @@ export function findSpacingViolations(program, source) {
 	const violations = []
 	const visited = new Set()
 	const visit = (node) => {
-		if (!node || typeof node !== 'object' || visited.has(node)) return
+		if (!node || typeof node !== 'object' || visited.has(node)) {
+			return
+		}
+
 		visited.add(node)
 
 		for (const key of STATEMENT_LISTS[node.type] ?? []) {
 			const siblings = node[key]
-			if (!Array.isArray(siblings)) continue
+			if (!Array.isArray(siblings)) {
+				continue
+			}
+
 			for (let index = 0; index < siblings.length - 1; index++) {
 				const current = siblings[index]
 				const next = siblings[index + 1]
-				if (!current || !next || !isMultiline(current, source)) continue
-				if (hasBlankLineAfter(source, current.end, next.start)) continue
+				if (!current || !next || !isMultiline(current, source)) {
+					continue
+				}
+
+				if (hasBlankLineAfter(source, current.end, next.start)) {
+					continue
+				}
+
 				violations.push({
 					node: current,
 					messageId: 'afterMultiline',
@@ -90,7 +110,9 @@ export function findSpacingViolations(program, source) {
 			}
 		}
 
-		for (const child of childNodes(node)) visit(child)
+		for (const child of childNodes(node)) {
+			visit(child)
+		}
 	}
 
 	visit(program)

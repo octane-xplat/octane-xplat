@@ -51,15 +51,21 @@ export function openSheet(Component: unknown = SheetPanel, props: Record<string,
 		)
 
 	const owner = host!.parent as any
-	if (owner?.hasChild?.(host)) owner.close(host).then(open, open)
-	else open()
+	if (owner?.hasChild?.(host)) {
+		owner.close(host).then(open, open)
+	} else {
+		open()
+	}
 }
 
 export function closeSheet() {
 	// host may be parented to a rootlayout that isn't current — close via
 	// the owning parent.
 	const owner = host?.parent as any
-	if (host && owner?.hasChild?.(host)) owner.close(host)
+	if (host && owner?.hasChild?.(host)) {
+		owner.close(host)
+	}
+
 	console.log('[probe] sheet close')
 }
 

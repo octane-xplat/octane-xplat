@@ -12,10 +12,14 @@ export const media = {
 	async pickImage(): Promise<PickedImage | null> {
 		const picker = createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
 		const permission = await picker.authorize()
-		if (!permission.authorized) return null
+		if (!permission.authorized) {
+			return null
+		}
 
 		const [selection] = await picker.present()
-		if (!selection) return null
+		if (!selection) {
+			return null
+		}
 
 		const source = await ImageSource.fromAsset(selection.asset)
 		const filename = `octane-image-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
@@ -27,7 +31,9 @@ export const media = {
 
 		try {
 			const saved = await source.saveToFileAsync(uri, 'jpeg', 85)
-			if (!saved) throw new Error('Could not save the selected image to temporary storage')
+			if (!saved) {
+				throw new Error('Could not save the selected image to temporary storage')
+			}
 
 			const base64 = await source.toBase64StringAsync('jpeg', 85)
 			return { ...ref, dataUrl: `data:image/jpeg;base64,${base64}` }

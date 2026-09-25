@@ -126,6 +126,7 @@ export function Popover(props: PopoverProps) @{
 					(error: any) => { console.error('[Popover] close failed', error); cur.root.unmount?.(); },
 				);
 			} else cur.root.unmount?.();
+
 			return;
 		}
 

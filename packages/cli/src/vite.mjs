@@ -91,7 +91,10 @@ function pxToDip() {
 		// Per-file pass — covers dev serving where css is transformed
 		// per module (the /ns/m bridge path).
 		transform(code, id) {
-			if (!id.split('?')[0].endsWith('.css')) return
+			if (!id.split('?')[0].endsWith('.css')) {
+				return
+			}
+
 			return process(code, id, (m) => this.warn(m))
 		},
 		// Build pass — @nativescript/vite collects emitted .css assets in

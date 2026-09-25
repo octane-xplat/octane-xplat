@@ -6,6 +6,7 @@ import {
 	popRoute,
 	routeFor,
 } from '@octane-xplat/ui'
+
 import { goBack } from './nav'
 import { sheetHost } from './sheet'
 
@@ -15,7 +16,9 @@ import { sheetHost } from './sheet'
 // (upstream issue NativeScript#11444). Skip the whole sweep there; the
 // base probes still run.
 const SKIP = Application.android != null
-if (SKIP) console.log('[sweep] nested stacks skipped on android — upstream #11444')
+if (SKIP) {
+	console.log('[sweep] nested stacks skipped on android — upstream #11444')
+}
 
 // Demo-catalog sweep probe (native only — web twin is a no-op). Lives outside
 // apps/native/src/index.ts so the harness probe timeline stays untouched.
@@ -34,7 +37,10 @@ function fireTap(view: any) {
 }
 
 function collect(view: any, out: any[] = []): any[] {
-	if (!view) return out
+	if (!view) {
+		return out
+	}
+
 	out.push(view)
 	view.eachChildView?.((c: any) => {
 		collect(c, out)
@@ -80,7 +86,10 @@ function assertMatch(name: string, re: RegExp, view: any = demosPage()) {
 }
 
 function tapTargetForText(view: any, text: string, path: any[] = []): any {
-	if (!view) return null
+	if (!view) {
+		return null
+	}
+
 	const nextPath = [...path, view]
 	if (view.text === text) {
 		return (
@@ -118,7 +127,9 @@ function runNavLinkProbe() {
 					(ok ? '' : ' — ' + JSON.stringify(route)),
 			)
 
-			if (ok) popRoute('root')
+			if (ok) {
+				popRoute('root')
+			}
 		},
 	)
 }
@@ -387,7 +398,9 @@ const STEPS: Step[] = [
 					const m = demosPage()?.modal ?? Frame.topmost()?.currentPage?.modal
 					const ok = m && viewTexts(m).includes('Declarative children')
 					console.log('[assert] modal children: ' + (ok ? 'OK' : 'FAIL'))
-					if (ok) fireTap(tapTargetForText(m, 'Close modal'))
+					if (ok) {
+						fireTap(tapTargetForText(m, 'Close modal'))
+					}
 				},
 			},
 			{ at: 1600, run: () => fireTap(tapTargetForText(demosPage(), 'Open imperative picker')) },
@@ -397,7 +410,9 @@ const STEPS: Step[] = [
 					const m = demosPage()?.modal ?? Frame.topmost()?.currentPage?.modal
 					const ok = m && viewTexts(m).includes('Choose a color')
 					console.log('[assert] imperative modal: ' + (ok ? 'OK' : 'FAIL'))
-					if (ok) fireTap(tapTargetForText(m, 'Red'))
+					if (ok) {
+						fireTap(tapTargetForText(m, 'Red'))
+					}
 				},
 			},
 			// openModal resolves in the modal's onClosed — after the dismiss
@@ -416,7 +431,10 @@ const STEPS: Step[] = [
 				run: () => {
 					const m = (id: string) => {
 						const v = collect(demosPage()).find((x) => x.id === id)
-						if (!v) return null
+						if (!v) {
+							return null
+						}
+
 						const s = v.getActualSize?.() ?? {}
 						const p = v.getLocationOnScreen?.() ?? {}
 						return {
@@ -537,8 +555,11 @@ const STEPS: Step[] = [
  *  race them. */
 function waitFor(cond: () => boolean, then: () => void, tries = 20) {
 	const tick = () => {
-		if (cond() || --tries <= 0) then()
-		else setTimeout(tick, 100)
+		if (cond() || --tries <= 0) {
+			then()
+		} else {
+			setTimeout(tick, 100)
+		}
 	}
 
 	tick()
@@ -546,7 +567,7 @@ function waitFor(cond: () => boolean, then: () => void, tries = 20) {
 
 let galleryPage: any = null
 
-if (!SKIP)
+if (!SKIP) {
 	setTimeout(() => {
 		// Frame.topmost() is unreliable once nested stacks exist — on Android it
 		// returns the innermost frame. The boot registers the app frame as 'root'.
@@ -554,12 +575,13 @@ if (!SKIP)
 		console.log('[sweep] switching to Demos tab, tabview=' + (tv ? tv.constructor.name : 'none'))
 		tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any)
 	}, 9600)
+}
 
 // Poll for the frame's default page AND its first chip's views — pane
 // attach + first-navigation + native-attach latency can run seconds
 // past the CORE trace; pushing while appearance is still settling
 // stalls bookkeeping (setCurrent) and leaves chips without observers.
-if (!SKIP)
+if (!SKIP) {
 	setTimeout(() => {
 		waitFor(
 			() => demosPage() != null && find('menu-counter') != null,
@@ -577,16 +599,23 @@ if (!SKIP)
 			60,
 		)
 	}, 9600)
+}
 
 function runStep(i: number) {
-	if (i >= STEPS.length) return
+	if (i >= STEPS.length) {
+		return
+	}
+
 	const step = STEPS[i]
 	const chip = find('menu-' + step.id)
 	console.log('[sweep] menu-' + step.id + ' tap observers=' + fireTap(chip))
 	waitFor(
 		() => demosPage() !== galleryPage,
 		() => {
-			for (const c of step.checks) setTimeout(c.run, c.at)
+			for (const c of step.checks) {
+				setTimeout(c.run, c.at)
+			}
+
 			setTimeout(() => {
 				console.log('[sweep] goBack ' + step.id)
 				goBack({ into: 'demos' })

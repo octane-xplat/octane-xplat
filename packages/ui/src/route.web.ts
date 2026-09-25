@@ -75,7 +75,9 @@ const scrollKey = () => location.pathname + location.search
 const saveScroll = () => scrollPositions.set(lastKey, window.scrollY)
 const restoreScroll = () => {
 	const y = scrollPositions.get(scrollKey())
-	if (y !== undefined) requestAnimationFrame(() => window.scrollTo(0, y))
+	if (y !== undefined) {
+		requestAnimationFrame(() => window.scrollTo(0, y))
+	}
 }
 
 function parse(): Route | null {
@@ -83,7 +85,10 @@ function parse(): Route | null {
 }
 
 function read(): Route | null {
-	if (current === undefined) current = parse()
+	if (current === undefined) {
+		current = parse()
+	}
+
 	return current
 }
 
@@ -97,8 +102,9 @@ export function pushRoute(r: Route): void {
 	runLoader(routes, route)
 	history.pushState(null, '', buildRoutePath(routes, route))
 	lastKey = scrollKey()
-	if (route.presentation === 'modal') modalRoute = route
-	else {
+	if (route.presentation === 'modal') {
+		modalRoute = route
+	} else {
 		current = route
 		modalRoute = null
 	}

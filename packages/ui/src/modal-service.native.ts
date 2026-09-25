@@ -18,7 +18,10 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 		const root = createNativeScriptRoot(host) as any
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
-			if (finished) return
+			if (finished) {
+				return
+			}
+
 			finished = true
 			unbindTheme()
 			root.unmount?.()

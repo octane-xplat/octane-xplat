@@ -16,6 +16,8 @@ export function announce(text: string): void {
 	region.textContent = ''
 	// Two writes in one frame collapse — force the SR to see a change.
 	requestAnimationFrame(() => {
-		if (region) region.textContent = text
+		if (region) {
+			region.textContent = text
+		}
 	})
 }

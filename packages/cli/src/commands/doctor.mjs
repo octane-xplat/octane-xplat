@@ -79,8 +79,9 @@ export const doctor = command({
 
 		let bad = 0
 		for (const r of rows) {
-			if (r.ok) p.log.success(`${r.name} — ${r.detail || 'ok'}`)
-			else {
+			if (r.ok) {
+				p.log.success(`${r.name} — ${r.detail || 'ok'}`)
+			} else {
 				bad++
 				p.log.warn(`${r.name} — missing${r.hint ? ` (${r.hint})` : ''}`)
 			}

@@ -5,10 +5,15 @@ const handlers = new Set<LinkHandler>()
 let wired = false
 
 function wire() {
-	if (wired) return
+	if (wired) {
+		return
+	}
+
 	wired = true
 	window.addEventListener('popstate', () => {
-		for (const h of handlers) h(location.pathname + location.search)
+		for (const h of handlers) {
+			h(location.pathname + location.search)
+		}
 	})
 }
 

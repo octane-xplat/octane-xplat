@@ -9,12 +9,17 @@ let wired = false
 let initial: string | null = null
 
 function wire() {
-	if (wired) return
+	if (wired) {
+		return
+	}
+
 	wired = true
 	if (Application.ios) {
 		Application.on('openUrl', (args: any) => {
 			const url = args.url?.absoluteString ?? String(args.url ?? '')
-			for (const h of handlers) h(url)
+			for (const h of handlers) {
+				h(url)
+			}
 		})
 	}
 
@@ -22,7 +27,11 @@ function wire() {
 		Application.on(Application.resumeEvent, () => {
 			const intent = Application.android.foregroundActivity?.getIntent?.()
 			const url = intent?.getDataString?.()
-			if (url) for (const h of handlers) h(url)
+			if (url) {
+				for (const h of handlers) {
+					h(url)
+				}
+			}
 		})
 	}
 }

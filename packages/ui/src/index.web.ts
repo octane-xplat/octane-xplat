@@ -40,6 +40,7 @@ export {
 	onThemeSchemeChange,
 	applyThemeClasses,
 } from './theme/theme-scheme'
+
 export { useColorScheme, getColorScheme } from './theme/colorScheme.web'
 export type { ColorScheme } from './theme/colorScheme.web'
 export { styled } from './styled.web.tsrx'

@@ -8,7 +8,12 @@ export function applyNativeProps(
 		android?: Record<string, any>
 	},
 ): void {
-	if (!el) return
+	if (!el) {
+		return
+	}
+
 	const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
-	if (bag) Object.assign(el, bag)
+	if (bag) {
+		Object.assign(el, bag)
+	}
 }

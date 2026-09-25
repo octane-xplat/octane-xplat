@@ -23,13 +23,19 @@ export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
 /** iOS targets: booted sims first, then other available sims, then physical devices. */
 export function iosTargets() {
 	const out = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'])
-	if (!out) return []
+	if (!out) {
+		return []
+	}
+
 	try {
 		const j = JSON.parse(out)
 		const sims = []
 		for (const list of Object.values(j.devices ?? {})) {
 			for (const d of list) {
-				if (!d.isAvailable) continue
+				if (!d.isAvailable) {
+					continue
+				}
+
 				sims.push({
 					kind: 'ios',
 					id: d.udid,
@@ -50,7 +56,10 @@ export function iosTargets() {
 /** Android targets: emulators + physical devices from adb. */
 export function androidTargets() {
 	const out = run('adb', ['devices'])
-	if (!out) return []
+	if (!out) {
+		return []
+	}
+
 	return out
 		.split('\n')
 		.slice(1)
@@ -71,7 +80,10 @@ export function androidTargets() {
 /** Every launchable target for this project + machine. */
 export function discoverTargets(cwd) {
 	const targets = []
-	if (hasWeb(cwd)) targets.push({ kind: 'web', id: 'web', name: 'Web (vite :5200)' })
+	if (hasWeb(cwd)) {
+		targets.push({ kind: 'web', id: 'web', name: 'Web (vite :5200)' })
+	}
+
 	if (hasNative(cwd)) {
 		targets.push(...iosTargets(), ...androidTargets())
 	}
@@ -82,10 +94,14 @@ export function discoverTargets(cwd) {
 /** Distinct platform buckets for `build` — one entry per platform, no device picks. */
 export function buildTargets(cwd) {
 	const t = []
-	if (hasWeb(cwd)) t.push({ kind: 'web', id: 'web', name: 'Web (vite build)' })
+	if (hasWeb(cwd)) {
+		t.push({ kind: 'web', id: 'web', name: 'Web (vite build)' })
+	}
+
 	if (hasNative(cwd)) {
-		if (iosTargets().length || run('xcrun', ['--version']))
+		if (iosTargets().length || run('xcrun', ['--version'])) {
 			t.push({ kind: 'ios', id: 'ios', name: 'iOS (ns build ios)' })
+		}
 
 		t.push({ kind: 'android', id: 'android', name: 'Android (ns build android)' })
 	}

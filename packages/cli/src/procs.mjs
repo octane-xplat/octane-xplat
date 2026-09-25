@@ -5,7 +5,10 @@ import { spawn } from 'node:child_process'
 const children = new Set()
 
 process.on('SIGINT', () => {
-	for (const p of children) p.kill('SIGINT')
+	for (const p of children) {
+		p.kill('SIGINT')
+	}
+
 	process.exit(130)
 })
 
@@ -15,7 +18,9 @@ export function spawnTagged(tag, cmd, args, cwd) {
 	children.add(p)
 	const prefix = (chunk) => {
 		for (const line of chunk.toString().split('\n')) {
-			if (line.trim()) process.stdout.write(`[${tag}] ${line}\n`)
+			if (line.trim()) {
+				process.stdout.write(`[${tag}] ${line}\n`)
+			}
 		}
 	}
 

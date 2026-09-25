@@ -11,5 +11,6 @@ export const routes = deriveRouteManifest(
 	files,
 	Device.os === 'Android' ? ['android', 'native'] : ['ios', 'native'],
 )
+
 registerRoutes(routes)
 export const screens = routes.screens

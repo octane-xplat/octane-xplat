@@ -56,7 +56,9 @@ const checks = [
 let fail = 0
 for (const [name, ok] of checks) {
 	console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
-	if (!ok) fail++
+	if (!ok) {
+		fail++
+	}
 }
 
 process.exit(fail ? 1 : 0)

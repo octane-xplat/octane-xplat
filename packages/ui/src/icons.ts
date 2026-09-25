@@ -12,7 +12,9 @@ export function registerIcon(name: string, glyph: IconGlyph): void {
 }
 
 export function registerIcons(record: Record<string, IconGlyph>): void {
-	for (const [name, glyph] of Object.entries(record)) icons.set(name, glyph)
+	for (const [name, glyph] of Object.entries(record)) {
+		icons.set(name, glyph)
+	}
 }
 
 export function getIcon(name: string): IconGlyph | undefined {

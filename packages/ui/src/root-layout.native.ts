@@ -8,12 +8,16 @@ const registry: RootLayout[] = []
 
 /** Called by the Screen leaf's <rootlayout> onLoaded/onUnloaded. */
 export function registerRootLayout(rl: RootLayout | undefined | null) {
-	if (rl && !registry.includes(rl)) registry.push(rl)
+	if (rl && !registry.includes(rl)) {
+		registry.push(rl)
+	}
 }
 
 export function unregisterRootLayout(rl: RootLayout | undefined | null) {
 	const i = rl ? registry.indexOf(rl) : -1
-	if (i >= 0) registry.splice(i, 1)
+	if (i >= 0) {
+		registry.splice(i, 1)
+	}
 }
 
 /** The most recently mounted rootlayout — the top of the push stack. For
@@ -30,7 +34,9 @@ export function topRootLayout(): RootLayout | undefined {
  *  the top registry entry when the component renders outside any Screen. */
 export function rootLayoutFor(view: any): RootLayout | undefined {
 	for (let v = view?.parent; v; v = v.parent) {
-		if (v instanceof RootLayout) return v
+		if (v instanceof RootLayout) {
+			return v
+		}
 	}
 
 	return topRootLayout()
@@ -41,8 +47,14 @@ export function rootLayoutFor(view: any): RootLayout | undefined {
  *  mounted last. */
 export function findInRootLayouts(id: string): any {
 	const walk = (view: any): any => {
-		if (!view) return null
-		if (view.id === id) return view
+		if (!view) {
+			return null
+		}
+
+		if (view.id === id) {
+			return view
+		}
+
 		let hit: any = null
 		view.eachChildView?.((c: any) => {
 			const found = walk(c)
@@ -59,7 +71,9 @@ export function findInRootLayouts(id: string): any {
 
 	for (let i = registry.length - 1; i >= 0; i--) {
 		const hit = walk(registry[i])
-		if (hit) return hit
+		if (hit) {
+			return hit
+		}
 	}
 
 	const rl = getRootLayout() as any

@@ -7,7 +7,10 @@ const pkc = () => (globalThis as any).PublicKeyCredential
 export const biometrics: Capability<BiometricsImpl> = {
 	supported: typeof pkc() !== 'undefined',
 	async ensure() {
-		if (!pkc()) return 'unsupported'
+		if (!pkc()) {
+			return 'unsupported'
+		}
+
 		const ok = await pkc().isUserVerifyingPlatformAuthenticatorAvailable()
 		return ok ? 'granted' : 'unsupported'
 	},

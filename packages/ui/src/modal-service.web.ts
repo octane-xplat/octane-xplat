@@ -20,7 +20,10 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 		const root = createRoot(dialog)
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
-			if (finished) return
+			if (finished) {
+				return
+			}
+
 			finished = true
 			unbindTheme()
 			root.unmount()
@@ -29,8 +32,14 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 		}
 
 		const close = (result?: ModalOpenResult) => {
-			if (finished) return
-			if (dialog.open) dialog.close()
+			if (finished) {
+				return
+			}
+
+			if (dialog.open) {
+				dialog.close()
+			}
+
 			finish(result)
 		}
 

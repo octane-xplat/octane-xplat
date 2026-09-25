@@ -15,8 +15,11 @@ const PRESENT = /\+(modal|fade|push)$/
 function walk(dir, out = []) {
 	for (const name of readdirSync(dir).sort()) {
 		const full = join(dir, name)
-		if (statSync(full).isDirectory()) walk(full, out)
-		else if (EXT.test(name)) out.push(full)
+		if (statSync(full).isDirectory()) {
+			walk(full, out)
+		} else if (EXT.test(name)) {
+			out.push(full)
+		}
 	}
 
 	return out
@@ -27,13 +30,25 @@ function routeFor(rel) {
 	const parts = rel.split('/')
 	let base = parts[parts.length - 1]
 	const sm = SUFFIX.exec(base)
-	if (sm) base = base.slice(0, base.length - sm[0].length)
+	if (sm) {
+		base = base.slice(0, base.length - sm[0].length)
+	}
+
 	const pm = PRESENT.exec(base)
 	const presentation = pm ? pm[1] : undefined
-	if (pm) base = base.slice(0, base.length - pm[0].length)
-	if (base === '_layout') return null
+	if (pm) {
+		base = base.slice(0, base.length - pm[0].length)
+	}
+
+	if (base === '_layout') {
+		return null
+	}
+
 	const segs = parts.slice(0, -1).concat(base)
-	if (segs[segs.length - 1] === 'index') segs.pop()
+	if (segs[segs.length - 1] === 'index') {
+		segs.pop()
+	}
+
 	const segments = segs.map((s) => {
 		const m = PARAM.exec(s)
 		return m ? ':' + m[1] : s
@@ -50,7 +65,9 @@ function routeFor(rel) {
  *  Returns true when a dir was found and files written; false when no route
  *  dir exists (callers that run this implicitly — dev/build — stay quiet). */
 export function generateRoutes(cwd, dir, out) {
-	if (!dir) return false
+	if (!dir) {
+		return false
+	}
 
 	// `out` is the module basename — three files are emitted:
 	//   <out>.types.ts    shared types (RouteName/Params/Presentations)
@@ -64,8 +81,13 @@ export function generateRoutes(cwd, dir, out) {
 	const seen = new Map()
 	for (const file of walk(join(cwd, dir))) {
 		const r = routeFor(relative(join(cwd, dir), file))
-		if (!r) continue
-		if (!seen.has(r.name)) seen.set(r.name, r)
+		if (!r) {
+			continue
+		}
+
+		if (!seen.has(r.name)) {
+			seen.set(r.name, r)
+		}
 	}
 
 	const list = [...seen.values()].sort((a, b) => a.name.localeCompare(b.name))

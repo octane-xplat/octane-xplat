@@ -25,7 +25,9 @@ export function openOverlay() {
 
 	// Same unhandled-rejection hazard as openSheet: rl.open rejects when
 	// the host is still attached — close first, always handle the promise.
-	if ((rl as any).hasChild?.(host)) (rl as any).close(host)
+	if ((rl as any).hasChild?.(host)) {
+		;(rl as any).close(host)
+	}
 
 	;(
 		rl.open(host, {
@@ -39,6 +41,9 @@ export function openOverlay() {
 
 export function closeOverlay() {
 	const rl = getRootLayout()
-	if (rl && host) rl.close(host)
+	if (rl && host) {
+		rl.close(host)
+	}
+
 	console.log('[probe] overlay close')
 }

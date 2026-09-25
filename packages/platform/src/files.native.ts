@@ -22,7 +22,10 @@ export const files = {
 	},
 	release(ref: FileRef): void {
 		const cachePrefix = knownFolders.temp().path + '/'
-		if (!ref.uri.startsWith(cachePrefix)) return
+		if (!ref.uri.startsWith(cachePrefix)) {
+			return
+		}
+
 		try {
 			File.fromPath(ref.uri).removeSync()
 		} catch {}

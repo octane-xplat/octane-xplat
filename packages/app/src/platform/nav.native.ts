@@ -35,7 +35,10 @@ let lastNavStack = 'root'
  *  a pushed page covering the shell, else the most recently targeted
  *  named stack, else any named stack with entries. */
 export function wireHardwareBack() {
-	if (!Application.android) return
+	if (!Application.android) {
+		return
+	}
+
 	Application.android.on('activityBackPressed', (e: any) => {
 		const root = getStack('root') as Frame | undefined
 		if (root && root.backStack.length > 0) {
@@ -46,7 +49,10 @@ export function wireHardwareBack() {
 
 		const order = [lastNavStack, ...[...stackEntries()].map(([n]) => n).reverse()]
 		for (const name of order) {
-			if (name === 'root') continue
+			if (name === 'root') {
+				continue
+			}
+
 			const f = getStack(name) as Frame | undefined
 			if (f && f.backStack.length > 0) {
 				f.goBack()

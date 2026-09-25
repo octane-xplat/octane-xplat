@@ -26,6 +26,7 @@ export function Tabs(props: TabsProps) @{
 			: C
 				? <C {...params} />
 				: null;
+
 		return layoutsFor(name).reduceRight((child, L) => <L>{child}</L>, el);
 	};
 

@@ -69,7 +69,10 @@ const ORDER = [
 
 function titleOf(slug: string, md: string): string {
 	const h = md.match(/^#\s+(.+)$/m)
-	if (h) return h[1].replace(/[`*_]/g, '').trim()
+	if (h) {
+		return h[1].replace(/[`*_]/g, '').trim()
+	}
+
 	return slug.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
@@ -87,6 +90,9 @@ export const DOCS: DocPage[] = Object.entries(files)
 	.sort((a, b) => {
 		const ai = ORDER.indexOf(a.slug)
 		const bi = ORDER.indexOf(b.slug)
-		if (ai !== -1 || bi !== -1) return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
+		if (ai !== -1 || bi !== -1) {
+			return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
+		}
+
 		return a.slug.localeCompare(b.slug)
 	})

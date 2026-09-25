@@ -41,6 +41,7 @@ export {
 	onThemeSchemeChange,
 	applyThemeClasses,
 } from './theme/theme-scheme'
+
 export { useColorScheme, getColorScheme } from './theme/colorScheme.native'
 export type { ColorScheme } from './theme/colorScheme.native'
 export { styled } from './styled.native.tsrx'

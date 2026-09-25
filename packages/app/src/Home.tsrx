@@ -37,6 +37,7 @@ export function Home() @{
 	useEffect(() => {
 		setThemePreference((override ?? 'system') as 'light' | 'dark' | 'system');
 	}, [override]);
+
 	const darkMark = useRef(0);
 	const [text, setText] = useState('');
 	const [bio, setBio] = useState('');

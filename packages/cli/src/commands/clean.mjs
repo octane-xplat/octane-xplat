@@ -24,7 +24,10 @@ export const clean = command({
 			}
 		}
 
-		for (const d of found) rmSync(`${cwd}/${d}`, { recursive: true, force: true })
+		for (const d of found) {
+			rmSync(`${cwd}/${d}`, { recursive: true, force: true })
+		}
+
 		p.log.success(`Cleaned ${found.join(', ')}`)
 	},
 })

@@ -86,7 +86,10 @@ function emit() {
 }
 
 function warnOnce(key: string, msg: string): void {
-	if (warned.has(key)) return
+	if (warned.has(key)) {
+		return
+	}
+
 	warned.add(key)
 	console.warn('[octane-xplat] ' + msg)
 }
@@ -95,14 +98,20 @@ function warnOnce(key: string, msg: string): void {
  *  fires on push AND on pop (the revealed page re-fires it), so one
  *  listener keeps every useRoute snapshot honest. */
 function trackFrame(frame: Frame): void {
-	if (tracked.has(frame)) return
+	if (tracked.has(frame)) {
+		return
+	}
+
 	tracked.add(frame)
 	frame.on('navigatedTo', emit)
 }
 
 function resolveStack(stack: string): Frame | undefined {
 	const frame = getStack(stack)
-	if (frame) trackFrame(frame)
+	if (frame) {
+		trackFrame(frame)
+	}
+
 	return frame
 }
 
@@ -162,7 +171,10 @@ export function pushRoute(r: Route): void {
 	// TabViewItem-hosted frames report isLoaded=false after tab-selection
 	// lifecycle churn; without this the nav queue defers forever (iOS
 	// strand of #11444). callLoaded is idempotent once the flag holds.
-	if (!(frame as any).isLoaded) (frame as any).callLoaded?.()
+	if (!(frame as any).isLoaded) {
+		;(frame as any).callLoaded?.()
+	}
+
 	const props = r.stack === 'root' ? r.params : { ...r.params, _stack: r.stack }
 	try {
 		frame.navigate({
@@ -198,7 +210,10 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 	const entry = { host, route: r, dismiss: () => {} }
 	entry.dismiss = () => {
 		const i = modalHosts.indexOf(entry)
-		if (i === -1) return
+		if (i === -1) {
+			return
+		}
+
 		modalHosts.splice(i, 1)
 		emit()
 	}
@@ -238,7 +253,9 @@ export function popRoute(stack = 'root'): void {
 		// isn't guaranteed to run — the route store can't gate on it.
 		modal.dismiss()
 
-		;(modal.host as any).closeModal?.()
+		;
+
+(modal.host as any).closeModal?.()
 		return
 	}
 
@@ -263,11 +280,16 @@ export function routeFor(stack: string): Route | null {
  *  approximation of web's "current URL route", not a deep link. */
 export function currentRoute(): Route | null {
 	const root = routeFor('root')
-	if (root) return root
+	if (root) {
+		return root
+	}
+
 	const named = [...stackEntries()].reverse()
 	for (const [name] of named) {
 		const r = routeFor(name)
-		if (r) return r
+		if (r) {
+			return r
+		}
 	}
 
 	return null

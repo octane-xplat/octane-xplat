@@ -34,25 +34,39 @@ export function inlineSpans(text: string): Span[] {
 
 	let last = 0
 	for (const m of text.matchAll(re)) {
-		if (m.index > last) spans.push({ text: text.slice(last, m.index) })
+		if (m.index > last) {
+			spans.push({ text: text.slice(last, m.index) })
+		}
+
 		const tok = m[0]
 		if (tok.startsWith('`')) {
 			spans.push({ text: tok.slice(1, -1), mono: true })
 		} else if (tok.startsWith('**')) {
-			for (const s of inlineSpans(tok.slice(2, -2))) spans.push({ ...s, bold: true })
+			for (const s of inlineSpans(tok.slice(2, -2))) {
+				spans.push({ ...s, bold: true })
+			}
 		} else if (tok.startsWith('*')) {
-			for (const s of inlineSpans(tok.slice(1, -1))) spans.push({ ...s, italic: true })
+			for (const s of inlineSpans(tok.slice(1, -1))) {
+				spans.push({ ...s, italic: true })
+			}
 		} else if (tok.startsWith('~~')) {
-			for (const s of inlineSpans(tok.slice(2, -2))) spans.push({ ...s, strike: true })
+			for (const s of inlineSpans(tok.slice(2, -2))) {
+				spans.push({ ...s, strike: true })
+			}
 		} else {
 			const lm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(tok)!
-			for (const s of inlineSpans(lm[1])) spans.push({ ...s, href: lm[2] })
+			for (const s of inlineSpans(lm[1])) {
+				spans.push({ ...s, href: lm[2] })
+			}
 		}
 
 		last = m.index + m[0].length
 	}
 
-	if (last < text.length) spans.push({ text: text.slice(last) })
+	if (last < text.length) {
+		spans.push({ text: text.slice(last) })
+	}
+
 	return spans
 }
 
@@ -79,7 +93,10 @@ export function parseMd(md: string): Block[] {
 		if (line.trim().startsWith('```')) {
 			const lang = line.trim().slice(3).trim()
 			const buf: string[] = []
-			while (++i < lines.length && !lines[i].trim().startsWith('```')) buf.push(lines[i])
+			while (++i < lines.length && !lines[i].trim().startsWith('```')) {
+				buf.push(lines[i])
+			}
+
 			i++
 			blocks.push({ kind: 'code', text: buf.join('\n').replace(/\n$/, ''), lang })
 			continue
@@ -118,8 +135,14 @@ export function parseMd(md: string): Block[] {
 			// block join the item (nested items have their own marker).
 			while (i + 1 < lines.length) {
 				const nx = lines[i + 1]
-				if (!/^\s{2,}\S/.test(nx)) break
-				if (/^\s*(?:[-*]|\d+[.)])\s|^\s*[>#]\s|^\s*`{3}|^\s*\|/.test(nx)) break
+				if (!/^\s{2,}\S/.test(nx)) {
+					break
+				}
+
+				if (/^\s*(?:[-*]|\d+[.)])\s|^\s*[>#]\s|^\s*`{3}|^\s*\|/.test(nx)) {
+					break
+				}
+
 				parts.push(nx.trim())
 				i++
 			}
@@ -137,8 +160,9 @@ export function parseMd(md: string): Block[] {
 
 		if (/^\s*>\s?/.test(line)) {
 			const buf: string[] = []
-			while (i < lines.length && /^\s*>\s?/.test(lines[i]))
+			while (i < lines.length && /^\s*>\s?/.test(lines[i])) {
 				buf.push(lines[i++].replace(/^\s*>\s?/, ''))
+			}
 
 			const cm = buf[0]?.match(/^\[!(\w+)\]\s*(.*)/)
 			if (cm && CALLOUTS.has(cm[1].toLowerCase())) {
@@ -154,8 +178,11 @@ export function parseMd(md: string): Block[] {
 					// paragraphs split on blank `>` lines; drop status-metadata paras
 					const paras: string[][] = [[]]
 					for (const l of buf) {
-						if (l.trim() === '') paras.push([])
-						else paras[paras.length - 1].push(l)
+						if (l.trim() === '') {
+							paras.push([])
+						} else {
+							paras[paras.length - 1].push(l)
+						}
 					}
 
 					body = paras.filter((p) => p.length && !METAPARA.test(p[0].trim())).flat()
@@ -186,7 +213,9 @@ export function parseMd(md: string): Block[] {
 			i++
 		}
 
-		if (buf.length) blocks.push({ kind: 'p', spans: inlineSpans(buf.join(' ')) })
+		if (buf.length) {
+			blocks.push({ kind: 'p', spans: inlineSpans(buf.join(' ')) })
+		}
 	}
 
 	return blocks

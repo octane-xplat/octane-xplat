@@ -39,11 +39,20 @@ const PRESENT = /\+(modal|fade|push)$/
  *  named exports (decision #13) — a lone component is unambiguous.
  *  `loader` is reserved metadata (a prefetch hook), never the screen. */
 function pick(mod: any, file: string): any {
-	if (typeof mod?.default === 'function') return mod.default
-	if (typeof mod?.screen === 'function') return mod.screen
+	if (typeof mod?.default === 'function') {
+		return mod.default
+	}
+
+	if (typeof mod?.screen === 'function') {
+		return mod.screen
+	}
+
 	const fns = Object.keys(mod ?? {}).filter((k) => typeof mod[k] === 'function' && k !== 'loader')
 
-	if (fns.length === 1) return mod[fns[0]]
+	if (fns.length === 1) {
+		return mod[fns[0]]
+	}
+
 	console.warn(
 		'[octane-xplat] route file ' +
 			file +
@@ -70,23 +79,37 @@ export function deriveRouteManifest(
 
 	for (const key of Object.keys(files).sort()) {
 		let rel = key.replace(/^\.?\//, '')
-		if (rel.startsWith(prefix)) rel = rel.slice(prefix.length)
+		if (rel.startsWith(prefix)) {
+			rel = rel.slice(prefix.length)
+		}
+
 		rel = rel.replace(EXT, '')
 		const parts = rel.split('/')
 		let base = parts[parts.length - 1]
 		const sm = SUFFIX.exec(base)
 		const suffix = sm?.[1]
-		if (sm) base = base.slice(0, base.length - sm[0].length)
-		if (suffix && !prefer.includes(suffix)) continue
+		if (sm) {
+			base = base.slice(0, base.length - sm[0].length)
+		}
+
+		if (suffix && !prefer.includes(suffix)) {
+			continue
+		}
+
 		const rank = suffix ? prefer.indexOf(suffix) : prefer.length
 		const pm = PRESENT.exec(base)
 		const presentation = pm?.[1] as RouteMeta['presentation']
-		if (pm) base = base.slice(0, base.length - pm[0].length)
+		if (pm) {
+			base = base.slice(0, base.length - pm[0].length)
+		}
 
 		if (base === '_layout') {
 			const d = parts.slice(0, -1).join('/')
 			const prev = layoutRank.get(d)
-			if (prev !== undefined && prev <= rank) continue
+			if (prev !== undefined && prev <= rank) {
+				continue
+			}
+
 			const component = pick(files[key], key)
 			if (component) {
 				layouts[d] = component
@@ -97,7 +120,10 @@ export function deriveRouteManifest(
 		}
 
 		const segs = parts.slice(0, -1).concat(base)
-		if (segs[segs.length - 1] === 'index') segs.pop()
+		if (segs[segs.length - 1] === 'index') {
+			segs.pop()
+		}
+
 		const segments = segs.map((s) => {
 			const p = PARAM.exec(s)
 			return p ? ':' + p[1] : s
@@ -113,7 +139,9 @@ export function deriveRouteManifest(
 		}
 
 		const loader = files[key]?.loader
-		if (typeof loader === 'function') meta.loader = loader
+		if (typeof loader === 'function') {
+			meta.loader = loader
+		}
 
 		const prev = seen.get(name)
 		if (prev && prev.rank <= rank) {
@@ -128,7 +156,9 @@ export function deriveRouteManifest(
 		}
 
 		const component = pick(files[key], key)
-		if (component) seen.set(name, { rank, meta, component })
+		if (component) {
+			seen.set(name, { rank, meta, component })
+		}
 	}
 
 	const screens: RouteManifest['screens'] = {}
@@ -157,19 +187,25 @@ export function matchRoute(
 	segs: string[],
 ): { meta: RouteMeta; params: Record<string, unknown> } | null {
 	for (const meta of routes) {
-		if (meta.segments.length !== segs.length) continue
+		if (meta.segments.length !== segs.length) {
+			continue
+		}
+
 		const params: Record<string, unknown> = {}
 		let ok = true
 		for (let i = 0; i < segs.length; i++) {
 			const p = meta.segments[i]
-			if (p.startsWith(':')) params[p.slice(1)] = decodeURIComponent(segs[i])
-			else if (p !== segs[i]) {
+			if (p.startsWith(':')) {
+				params[p.slice(1)] = decodeURIComponent(segs[i])
+			} else if (p !== segs[i]) {
 				ok = false
 				break
 			}
 		}
 
-		if (ok) return { meta, params }
+		if (ok) {
+			return { meta, params }
+		}
 	}
 
 	return null
@@ -184,10 +220,14 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 	let rest: Record<string, unknown> = r.params
 	if (meta) {
 		segs = meta.segments.map((s) => {
-			if (!s.startsWith(':')) return s
+			if (!s.startsWith(':')) {
+				return s
+			}
+
 			const v = r.params[s.slice(1)]
-			if (v === undefined)
+			if (v === undefined) {
 				console.warn(`[octane-xplat] route '${r.name}' pushed without path param ${s}`)
+			}
 
 			return encodeURIComponent(String(v ?? ''))
 		})
@@ -210,9 +250,15 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
  *  (invariant 4: no DOM globals on the native path). */
 export function parseQueryString(qs: string | undefined): Record<string, unknown> {
 	const params: Record<string, unknown> = {}
-	if (!qs) return params
+	if (!qs) {
+		return params
+	}
+
 	for (const pair of qs.split('&')) {
-		if (!pair) continue
+		if (!pair) {
+			continue
+		}
+
 		const eq = pair.indexOf('=')
 		const k = eq === -1 ? pair : pair.slice(0, eq)
 		const v = eq === -1 ? '' : pair.slice(eq + 1)
@@ -230,7 +276,10 @@ export function linkPath(url: string): string {
 	let rest = m ? url.slice(m[0].length) : url
 	// http(s) URLs carry a real authority to strip; custom app schemes use
 	// the host slot as the first path segment (textcoral://post/5 → /post/5).
-	if (m?.[1] && /^https?:\/\//i.test(m[0])) rest = rest.replace(/^[^/?#]*/, '')
+	if (m?.[1] && /^https?:\/\//i.test(m[0])) {
+		rest = rest.replace(/^[^/?#]*/, '')
+	}
+
 	return '/' + rest.replace(/^\/+/, '')
 }
 
@@ -243,7 +292,10 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 	const [p, qs] = url.split('?')
 	const segs = p.split('/').filter(Boolean)
 	const query = parseQueryString(qs)
-	if (!segs.length) return null
+	if (!segs.length) {
+		return null
+	}
+
 	const finish = (
 		stack: string,
 		m: { meta: RouteMeta; params: Record<string, unknown> } | null,
@@ -256,11 +308,16 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 	})
 
 	const root = matchRoute(routes, segs)
-	if (root) return finish('root', root, segs.join('/'))
+	if (root) {
+		return finish('root', root, segs.join('/'))
+	}
 
 	if (segs.length > 1) {
 		const named = matchRoute(routes, segs.slice(1))
-		if (named) return finish(segs[0], named, segs[1])
+		if (named) {
+			return finish(segs[0], named, segs[1])
+		}
+
 		return finish(segs[0], null, segs[1])
 	}
 
@@ -273,7 +330,10 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
  *  than break navigation. */
 export function runLoader(routes: readonly RouteMeta[], r: Route): void {
 	const loader = routes.find((m) => m.name === r.name)?.loader
-	if (!loader) return
+	if (!loader) {
+		return
+	}
+
 	try {
 		const out = loader(r.params)
 		if (out && typeof (out as PromiseLike<unknown>).then === 'function') {
@@ -297,7 +357,9 @@ export function layoutChain(layouts: Record<string, any>, name: string): any[] {
 	const chain: any[] = []
 	for (let i = 1; i < segs.length; i++) {
 		const L = layouts[segs.slice(0, i).join('/')]
-		if (L) chain.push(L)
+		if (L) {
+			chain.push(L)
+		}
 	}
 
 	return chain

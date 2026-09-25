@@ -20,9 +20,14 @@ export function createStore<T>(initial: T): Store<T> {
 		get: () => value,
 		set(next) {
 			const v = typeof next === 'function' ? (next as (p: T) => T)(value) : next
-			if (Object.is(v, value)) return
+			if (Object.is(v, value)) {
+				return
+			}
+
 			value = v
-			for (const l of [...listeners]) l()
+			for (const l of [...listeners]) {
+				l()
+			}
 		},
 		subscribe(notify) {
 			listeners.add(notify)

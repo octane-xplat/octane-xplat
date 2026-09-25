@@ -47,7 +47,10 @@ function* walk(dir) {
 		const p = join(dir, e)
 		const s = statSync(p)
 		if (s.isDirectory()) {
-			if (e === 'node_modules' || e === 'dist' || e === '.ns-vite-build') continue
+			if (e === 'node_modules' || e === 'dist' || e === '.ns-vite-build') {
+				continue
+			}
+
 			yield* walk(p)
 		} else if (EXT.test(e) && !/\.web(\.test)?\.(ts|tsx|tsrx)$/.test(e)) {
 			yield p

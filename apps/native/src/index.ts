@@ -91,7 +91,10 @@ function assertHas(name: string, haystack: any[], needle: any) {
 }
 
 function collect(view: any, out: any[] = []): any[] {
-	if (!view) return out
+	if (!view) {
+		return out
+	}
+
 	out.push(view)
 	view.eachChildView?.((c: any) => {
 		collect(c, out)
@@ -421,7 +424,9 @@ setTimeout(() => {
 	// Close it — a lingering RootLayout host makes later openSheet() calls
 	// reject with "already been added to the root layout". Close via the
 	// owning rootlayout — sheet-host may live under a pushed page's shell.
-	if (sheet) (sheet as any).parent?.close?.(sheet)
+	if (sheet) {
+		;(sheet as any).parent?.close?.(sheet)
+	}
 }, 8300)
 
 // Modal probe (Exp 12): declarative open → showModal on a second root.
@@ -493,6 +498,9 @@ setTimeout(() => {
 
 // A module-graph reload re-evaluates this entry and mounts fresh roots.
 import.meta.hot?.dispose(() => {
-	for (const root of roots) root.unmount()
+	for (const root of roots) {
+		root.unmount()
+	}
+
 	roots.clear()
 })

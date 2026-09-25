@@ -7,15 +7,20 @@ export const media = {
 	/** Opens the browser image picker; returns null when selection is canceled. */
 	async pickImage(): Promise<PickedImage | null> {
 		const file = await files.pick('image/*')
-		if (!file) return null
+		if (!file) {
+			return null
+		}
 
 		try {
 			const blob = await (await fetch(file.uri)).blob()
 			const dataUrl = await new Promise<string>((resolve, reject) => {
 				const reader = new FileReader()
 				reader.onload = () => {
-					if (typeof reader.result === 'string') resolve(reader.result)
-					else reject(new Error('Could not read the selected image'))
+					if (typeof reader.result === 'string') {
+						resolve(reader.result)
+					} else {
+						reject(new Error('Could not read the selected image'))
+					}
 				}
 
 				reader.onerror = () =>

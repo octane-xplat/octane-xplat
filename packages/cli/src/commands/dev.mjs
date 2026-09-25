@@ -71,7 +71,10 @@ export const dev = command({
 			p.log.info(`routes.gen regenerated — ${n} route${n === 1 ? '' : 's'}`)
 		}
 
-		for (const t of chosen) spawnFor(t, cwd)
+		for (const t of chosen) {
+			spawnFor(t, cwd)
+		}
+
 		p.log.success(`${chosen.length} target(s) running — Ctrl+C stops all`)
 	},
 })

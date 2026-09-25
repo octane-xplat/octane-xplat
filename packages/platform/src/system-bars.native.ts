@@ -9,7 +9,9 @@ export const systemBars = {
 			// NS 9: per-page statusBarStyle is the preferred seam; fall back to
 			// the app-level setter on older systems.
 
-			;(app as any)?.setStatusBarStyle?.(style === 'light' ? 1 : 0)
+			;
+
+(app as any)?.setStatusBarStyle?.(style === 'light' ? 1 : 0)
 		}
 	},
 	setColor(color: string): void {

@@ -36,7 +36,9 @@ async function collectTsrxFiles(directory) {
 function lineNumberAt(source, offset) {
 	let line = 1
 	for (let index = 0; index < offset; index++) {
-		if (source[index] === '\n') line++
+		if (source[index] === '\n') {
+			line++
+		}
 	}
 
 	return line
@@ -75,4 +77,6 @@ for (const filename of await collectTsrxFiles(root)) {
 	}
 }
 
-if (failed) process.exitCode = 1
+if (failed) {
+	process.exitCode = 1
+}
