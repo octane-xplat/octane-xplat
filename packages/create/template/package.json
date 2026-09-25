@@ -16,6 +16,7 @@
 		"typecheck": "tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json"
 	},
 	"dependencies": {
+		"@nativescript-community/gesturehandler": "2.0.45",
 		"@nativescript-community/octane": "0.2.1",
 		"@nativescript-community/ui-canvas": "4.6.52",
 		"@nativescript-community/ui-drawer": "0.1.32",

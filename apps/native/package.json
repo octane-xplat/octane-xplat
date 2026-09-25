@@ -11,6 +11,7 @@
 		"build:ios": "pnpm --filter @xplat/app gen && ns build ios"
 	},
 	"dependencies": {
+		"@nativescript-community/gesturehandler": "2.0.45",
 		"@nativescript-community/octane": "0.2.1",
 		"@nativescript-community/perms": "3.0.11",
 		"@nativescript-community/ui-canvas": "4.6.52",

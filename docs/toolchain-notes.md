@@ -55,8 +55,13 @@ some native capabilities are optional.
 The starter declares the UI plugin set (`ui-canvas`, `ui-drawer`, and
 `ui-svg`). It does not seed every platform service plugin: apps should add the
 plugins for the services they import, and `doctor` names the missing package.
-`@nativescript-community/gesturehandler` is not reported because the current
-framework packages do not import it.
+`@nativescript-community/gesturehandler` is also required: `Drawer.native`
+eagerly imports `ui-drawer`, which eagerly imports gesturehandler, whose iOS
+code reads the `GestureHandlerDelegate` ObjC protocol at module load — a
+protocol that exists only when the plugin's `platforms/ios` sources are
+compiled in, which requires a top-level app declaration. The starter and
+`@octane-xplat/ui`'s optional peers both carry it, so `doctor` reports it
+when an app omits it.
 The proving app may therefore carry plugins that a particular screen does not
 render; that is an app ownership concern, not evidence that the framework
 should make those plugins transitive.

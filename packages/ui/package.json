@@ -44,6 +44,7 @@
 		"vitest": "5.0.1"
 	},
 	"peerDependencies": {
+		"@nativescript-community/gesturehandler": ">=2.0.8 <3",
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript-community/ui-canvas": ">=4.6.52 <5",
 		"@nativescript-community/ui-drawer": ">=0.1.32 <1",
@@ -52,6 +53,9 @@
 		"octane": ">=0.1.51 <1"
 	},
 	"peerDependenciesMeta": {
+		"@nativescript-community/gesturehandler": {
+			"optional": true
+		},
 		"@nativescript-community/octane": {
 			"optional": true
 		},

@@ -72,6 +72,9 @@ importers:
 
   apps/native:
     dependencies:
+      '@nativescript-community/gesturehandler':
+        specifier: 2.0.45
+        version: 2.0.45
       '@nativescript-community/octane':
         specifier: 0.2.1
         version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c))(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))

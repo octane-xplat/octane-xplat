@@ -6,6 +6,7 @@ import * as p from '@clack/prompts'
 
 const frameworkFallbacks = {
 	'@octane-xplat/ui': [
+		'@nativescript-community/gesturehandler',
 		'@nativescript-community/ui-canvas',
 		'@nativescript-community/ui-drawer',
 		'@nativescript-community/ui-svg',
