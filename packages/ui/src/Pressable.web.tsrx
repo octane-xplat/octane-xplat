@@ -1,5 +1,6 @@
 import type { PressableProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
+import { glassClassOf, glassStyleOf } from './glass';
 import { layoutChildProps } from './layout-child.web';
 
 export function Pressable(props: PressableProps) @{
@@ -17,8 +18,8 @@ export function Pressable(props: PressableProps) @{
 	<div
 		ref={(el: any) => applyEscapeProps(el, props)}
 		id={props.id}
-		className={['vx-pressable', props.ignoreTouchAnimation ? 'vx-pressable-no-feedback' : '', props.className]}
-		{...layoutChildProps(props, { ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
+		className={['vx-pressable', props.ignoreTouchAnimation ? 'vx-pressable-no-feedback' : '', glassClassOf(props.glass), props.className]}
+		{...layoutChildProps(props, { ...glassStyleOf(props.glass), ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
 		role={props.accessibilityRole ?? 'button'}
 		aria-label={props.accessibilityLabel}
 		aria-description={props.accessibilityHint}

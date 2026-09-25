@@ -2,6 +2,7 @@
 import type { PressableProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
+import { glassClassOf, glassConfigOf } from './glass';
 import { layoutChildProps } from './layout-child.native';
 /** flexboxlayout, not contentview — ContentView is single-child: the driver
  *  assigns each child to `.content`, so every sibling but the last was
@@ -12,7 +13,8 @@ export function Pressable(props: PressableProps) @{
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		{...layoutChildProps(props)}
-		className={cx('vx-pressable', props.className)}
+		className={cx('vx-pressable', glassClassOf(props.glass), props.className)}
+		iosGlassEffect={glassConfigOf(props.glass)}
 		style={{ ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) }}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}

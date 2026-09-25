@@ -548,6 +548,58 @@ const STEPS: Step[] = [
 			},
 		],
 	},
+	{
+		id: 'glass',
+		checks: [
+			{
+				at: 800,
+				run: () => {
+					// The LiquidGlass leaf's root IS a UIVisualEffectView —
+					// identity-check proves registerElement + host swap worked
+					// (the glass material itself is a visual, not assertable).
+					const EffectView = (globalThis as any).UIVisualEffectView
+					const lg = find('glass-regular')
+					const lgc = find('glass-container')
+
+					console.log(
+						'[assert] liquidglass root is UIVisualEffectView: ' +
+							(lg && EffectView && lg.nativeViewProtected instanceof EffectView ? 'OK' : 'FAIL'),
+					)
+
+					console.log(
+						'[assert] liquidglasscontainer root is UIVisualEffectView: ' +
+							(lgc && EffectView && lgc.nativeViewProtected instanceof EffectView ? 'OK' : 'FAIL'),
+					)
+
+					// iOS 26+: the effect objects themselves are live —
+					// UIGlassEffect on the layout, UIGlassContainerEffect on
+					// the merged region. On <26 these read plain UIVisualEffect.
+					console.log(
+						'[assert] liquidglass carries UIGlassEffect: ' +
+							(lg?.nativeViewProtected?.effect?.constructor?.name === 'UIGlassEffect'
+								? 'OK'
+								: 'FAIL (' + lg?.nativeViewProtected?.effect?.constructor?.name + ')'),
+					)
+
+					console.log(
+						'[assert] container carries UIGlassContainerEffect: ' +
+							(lgc?.nativeViewProtected?.effect?.constructor?.name === 'UIGlassContainerEffect'
+								? 'OK'
+								: 'FAIL (' + lgc?.nativeViewProtected?.effect?.constructor?.name + ')'),
+					)
+
+					// The `glass` prop writes iosGlassEffect on the host — config
+					// object round-trips through the Property setter.
+					const prop: any = find('glass-prop')
+
+					console.log(
+						'[assert] glass prop sets iosGlassEffect: ' +
+							(prop?.iosGlassEffect?.variant === 'regular' ? 'OK' : 'FAIL'),
+					)
+				},
+			},
+		],
+	},
 ]
 
 /** Poll until `cond` or give up (~2s), then continue. Nested-frame push/pop

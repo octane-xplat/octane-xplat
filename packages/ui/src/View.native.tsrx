@@ -3,6 +3,7 @@ import { useCallback } from 'octane';
 import type { ViewProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
+import { glassClassOf, glassConfigOf } from './glass';
 import { layoutChildProps } from './layout-child.native';
 /** Neutral flex-column container — flexboxlayout on native.
  *  Gesture props map 1:1 to NS gesture events (onPan → 'pan', etc.) —
@@ -28,8 +29,9 @@ export function View(props: ViewProps) @{
 		{...layoutChildProps(props)}
 		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
 		flexDirection="column"
-		className={cx(props.className)}
+		className={cx(glassClassOf(props.glass), props.className)}
 		style={props.style}
+		iosGlassEffect={glassConfigOf(props.glass)}
 		onPan={props.onPan ? onPan : undefined}
 		onSwipe={props.onSwipe}
 	>

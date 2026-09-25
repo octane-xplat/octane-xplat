@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'octane';
 import type { ViewProps } from './props';
 import { applyEscapeProps } from './escape-props';
+import { glassClassOf, glassStyleOf } from './glass';
 import { layoutChildProps } from './layout-child.web';
 
 /** Neutral flex-column container — the RN-shaped default block.
@@ -44,8 +45,8 @@ export function View(props: ViewProps) @{
 	<div
 		id={props.id}
 		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); props.bind?.(e); } }}
-		className={['vx-view', props.className]}
-		{...layoutChildProps(props)}
+		className={['vx-view', glassClassOf(props.glass), props.className]}
+		{...layoutChildProps(props, { ...glassStyleOf(props.glass), ...props.style })}
 	>
 		{props.children}
 	</div>

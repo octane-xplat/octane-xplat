@@ -53,7 +53,33 @@ export interface FlexContainerProps {
 	columnGap?: number | string
 }
 
-export interface GridProps {
+/** Liquid Glass material config. Native maps it to `iosGlassEffect`
+ *  (iOS 26+; inert on Android and older iOS), web to the `vx-glass`
+ *  backdrop-filter approximation. `variant:'clear'` is the faint,
+ *  mostly-transparent glass; `'regular'` is Apple's default. */
+export interface GlassConfig {
+	variant?: 'regular' | 'clear' | 'identity' | 'none'
+	/** Touch-tracking highlight — only meaningful on <LiquidGlass>; the
+	 *  per-view glass applied by `glass` never receives touches upstream. */
+	interactive?: boolean
+	tint?: string
+	/** (LiquidGlassContainer only) merge distance between glass siblings. */
+	spacing?: number
+	/** Effect-change animation in ms (default 300). */
+	animateChangeDuration?: number
+}
+
+/** `glass` surface prop value: `true`/string shorthand or a config object.
+ *  `'none'`/`'identity'`/`false` mean no glass. */
+export type GlassProp = boolean | 'regular' | 'clear' | 'identity' | 'none' | GlassConfig
+
+/** Static glass material on container primitives — background glass behind
+ *  the view's content. Interactive glass needs <LiquidGlass>. */
+export interface GlassSurfaceProps {
+	glass?: GlassProp
+}
+
+export interface GridProps extends GlassSurfaceProps {
 	className?: any
 	style?: any
 	children?: any
@@ -66,7 +92,7 @@ export interface GridProps {
 	id?: string
 }
 
-export interface StackProps {
+export interface StackProps extends GlassSurfaceProps {
 	className?: any
 	style?: any
 	children?: any
@@ -76,7 +102,7 @@ export interface StackProps {
 	id?: string
 }
 
-export interface AbsoluteProps {
+export interface AbsoluteProps extends GlassSurfaceProps {
 	className?: any
 	style?: any
 	children?: any
@@ -84,6 +110,38 @@ export interface AbsoluteProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
+}
+
+/** Interactive glass surface — the element root IS the platform's glass
+ *  effect view (NS `LiquidGlass`, a UIVisualEffectView hosting children).
+ *  Real material on iOS 26+; inert layout on Android and older iOS;
+ *  backdrop-filter approximation on web. */
+export interface LiquidGlassProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	children?: any
+	id?: string
+	variant?: 'regular' | 'clear'
+	interactive?: boolean
+	tint?: string
+	animateChangeDuration?: number
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** Merged-glass region — sibling glass elements inside morph together
+ *  across `spacing` dips (NS `LiquidGlassContainer`, an AbsoluteLayout:
+ *  children position via left/top). */
+export interface LiquidGlassContainerProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	children?: any
+	id?: string
+	spacing?: number
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
 }
 
 export interface SpacerProps {
@@ -95,7 +153,7 @@ export interface SpacerProps {
 	id?: string
 }
 
-export interface ViewProps extends LayoutChildProps, FlexContainerProps {
+export interface ViewProps extends LayoutChildProps, FlexContainerProps, GlassSurfaceProps {
 	className?: any
 	style?: any
 	children?: any
@@ -111,7 +169,7 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps {
 	web?: any
 }
 
-export interface RowProps extends LayoutChildProps, FlexContainerProps {
+export interface RowProps extends LayoutChildProps, FlexContainerProps, GlassSurfaceProps {
 	className?: any
 	style?: any
 	children?: any
@@ -148,7 +206,7 @@ export interface TextProps extends LayoutChildProps {
 	web?: any
 }
 
-export interface PressableProps extends LayoutChildProps, FlexContainerProps {
+export interface PressableProps extends LayoutChildProps, FlexContainerProps, GlassSurfaceProps {
 	className?: any
 	style?: any
 	children?: any
@@ -251,7 +309,7 @@ export interface ListProps {
 	web?: Record<string, any>
 }
 
-export interface ScrollViewProps extends LayoutChildProps {
+export interface ScrollViewProps extends LayoutChildProps, GlassSurfaceProps {
 	className?: any
 	style?: any
 	id?: string

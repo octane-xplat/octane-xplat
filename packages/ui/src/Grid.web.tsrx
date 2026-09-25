@@ -1,5 +1,6 @@
 import type { GridProps } from './props';
 import { applyEscapeProps } from './escape-props';
+import { glassClassOf, glassStyleOf } from './glass';
 
 function parseTracks(spec?: string) {
 	return spec?.split(',').map((part) => {
@@ -20,8 +21,9 @@ export function Grid(props: GridProps) @{
 
 	<div
 		id={props.id}
-		className={['vx-grid', props.className]}
+		className={['vx-grid', glassClassOf(props.glass), props.className]}
 		style={{
+			...glassStyleOf(props.glass),
 			...props.style,
 			...(props.rows ? { gridTemplateRows: parseTracks(props.rows) } : {}),
 			...(props.columns ? { gridTemplateColumns: parseTracks(props.columns) } : {}),

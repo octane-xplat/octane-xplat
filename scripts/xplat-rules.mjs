@@ -425,6 +425,8 @@ const NS_ONLY_TAGS = new Set([
 	'canvasview',
 	'svgview',
 	'drawer',
+	'liquidglass',
+	'liquidglasscontainer',
 	'placeholder',
 ])
 

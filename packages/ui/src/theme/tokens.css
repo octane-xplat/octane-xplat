@@ -300,6 +300,35 @@ textarea::placeholder {
 	font-weight: bold;
 }
 
+/* xplat-web-only:start — glass material is real on iOS 26+; web approximates
+   with backdrop-filter. The class also lands on native elements (inert) so
+   apps can style their own fallback — but these rules are DOM-only. */
+.vx-glass {
+	background-color: color-mix(in srgb, var(--color-surface) 30%, transparent);
+	border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.vx-glass {
+		background-color: color-mix(in srgb, var(--color-surface) 20%, transparent);
+		-webkit-backdrop-filter: blur(20px) saturate(1.6);
+		backdrop-filter: blur(20px) saturate(1.6);
+	}
+}
+
+.vx-glass--clear {
+	background-color: color-mix(in srgb, var(--color-surface) 12%, transparent);
+	border-color: rgba(255, 255, 255, 0.15);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+	.vx-glass--clear {
+		-webkit-backdrop-filter: blur(8px) saturate(1.3);
+		backdrop-filter: blur(8px) saturate(1.3);
+	}
+}
+/* xplat-web-only:end */
+
 /* utilities (hand-written subset for the harness; Tailwind later) */
 
 .flex-1 {
