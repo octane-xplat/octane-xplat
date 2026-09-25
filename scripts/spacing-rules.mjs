@@ -45,6 +45,47 @@ function isMultiline(node, source) {
 	return /\r\n|\n|\r/.test(source.slice(node.start, node.end))
 }
 
+// `;(x)` / `;[x]` ASI guards: the parser folds the `;` into the PREVIOUS
+// statement's range, so `current.end === next.start` and the `;` hides the
+// real boundary. The blank line belongs before the `;`'s line, above any
+// comment lines attached to it.
+const isAsiGuard = (source, current, next) => {
+	if (
+		current.end !== next.start ||
+		source[next.start - 1] !== ';' ||
+		(source[next.start] !== '(' && source[next.start] !== '[')
+	) {
+		return false
+	}
+
+	// The `;` must lead its own line — `foo();(x)` on one line isn't a guard.
+	const lineStart = source.lastIndexOf('\n', next.start - 2) + 1
+	return /^\s*$/.test(source.slice(lineStart, next.start - 1))
+}
+
+function guardInsertPos(source, semiPos) {
+	// Start of the `;`'s own line, then walk back over the comment lines
+	// attached above it — the blank goes above those too.
+	let pos = source.lastIndexOf('\n', semiPos - 1) + 1
+	while (pos > 0) {
+		const prevEnd = pos - 1
+		const prevStart = source.lastIndexOf('\n', prevEnd - 1) + 1
+		if (!/^\s*\/\//.test(source.slice(prevStart, prevEnd))) break
+		pos = prevStart
+	}
+
+	return pos
+}
+
+function handleAsiGuard(source, current, next, violations) {
+	const semi = next.start - 1
+	if (!/\r\n|\n|\r/.test(source.slice(current.start, semi))) return
+	const pos = guardInsertPos(source, semi)
+	if (/\n[ \t]*\n[ \t]*$/.test(source.slice(0, pos))) return
+	const eol = firstLineBreak(source)?.[0] ?? '\n'
+	violations.push({ node: current, messageId: 'afterMultiline', position: pos, text: eol })
+}
+
 function* childNodes(node) {
 	for (const [key, value] of Object.entries(node)) {
 		if (key === 'parent' || key === 'loc' || key === 'range') {
@@ -83,7 +124,16 @@ export function findSpacingViolations(program, source) {
 			for (let index = 0; index < siblings.length - 1; index++) {
 				const current = siblings[index]
 				const next = siblings[index + 1]
-				if (!current || !next || !isMultiline(current, source)) {
+				if (!current || !next) {
+					continue
+				}
+
+				if (isAsiGuard(source, current, next)) {
+					handleAsiGuard(source, current, next, violations)
+					continue
+				}
+
+				if (!isMultiline(current, source)) {
 					continue
 				}
 

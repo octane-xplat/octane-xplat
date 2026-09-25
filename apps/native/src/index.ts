@@ -6,6 +6,7 @@ import { sheetHost } from '@xplat/app/platform/sheet.native'
 import { getColorScheme, registerStack, topRootLayout, findInRootLayouts } from '@octane-xplat/ui'
 
 import { storage, wireHardwareBack } from '@xplat/app'
+import 'octane/signals'
 import './app.css'
 
 // Trace the nav pipeline end-to-end: NAVIGATE → pushViewController → DID_show.

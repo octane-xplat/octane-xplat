@@ -24,7 +24,7 @@ export function Divergence() @{
 
 		<Row className="dv-row items-center">
 			<Text id="dv-lh" className="dv-lh">LineHeight gyÊ</Text>
-			<Text id="dv-lh2" style={{ lineHeight: 40 }}>inline lh</Text>
+			<Text id="dv-lh2" style={{ lineHeight: 40 }}>inline lh</Text> {/* xplat-disable-line */}
 		</Row>
 
 		<Row className="dv-row">

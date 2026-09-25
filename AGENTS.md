@@ -116,6 +116,16 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   looks like a silent HMR failure but isn't). The `ns-hmr-client-watchdog`
   plugin in the native vite config warns when a session was fetched but no
   ws client attaches.
+- Lint: `pnpm lint` = oxlint (JS plugin in `scripts/oxlint-plugin.mjs`) + a
+  `@tsrx/core` companion pass for `.tsrx` (`scripts/lint-tsrx.mjs`) — oxlint
+  can't load custom parsers. Rule checks live once in
+  `scripts/xplat-rules.mjs` and run in both passes; severities/options come
+  from `.oxlintrc.json`. The `xplat/*` set enforces the platform-suffix
+  boundaries (DOM globals, web-only octane APIs, element vocabularies,
+  `@nativescript` imports, NS-dead `style` props, signal naming/runtime) —
+  the silent-failure half of the invariants. `check:no-dom` is the older
+  standalone regex sweep; `xplat/no-dom-globals` covers it at lint time.
+  tsrx suppressions: `xplat-disable[-line|-next-line]` comments.
 
 ## Invariants (the short list — full set in docs/architecture.md)
 

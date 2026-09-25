@@ -4,6 +4,7 @@ import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { probeSignal$ } from './probe-state';
 import { storage } from '@octane-xplat/platform';
+import 'octane/signals';
 
 const INITIAL = [
 	{ id: 'a', label: 'Alpha' },
