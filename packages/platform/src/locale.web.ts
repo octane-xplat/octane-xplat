@@ -1,9 +1,5 @@
 // Locale — navigator.language on web ("en-US" → tag + parts).
-export interface Locale {
-	tag: string
-	language: string
-	region: string
-}
+import type { Locale } from './types'
 
 export const locale: Locale = (() => {
 	const tag = navigator.language ?? ''

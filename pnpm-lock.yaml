@@ -78,6 +78,9 @@ importers:
       '@nativescript-community/ui-canvas':
         specifier: 4.6.52
         version: 4.6.52
+      '@nativescript-community/ui-document-picker':
+        specifier: 1.1.29
+        version: 1.1.29
       '@nativescript-community/ui-drawer':
         specifier: 0.1.32
         version: 0.1.32
@@ -252,6 +255,9 @@ importers:
 
   packages/platform:
     dependencies:
+      '@nativescript-community/ui-document-picker':
+        specifier: 1.1.29
+        version: 1.1.29
       '@nativescript/biometrics':
         specifier: 1.3.1
         version: 1.3.1
@@ -1129,6 +1135,9 @@ packages:
 
   '@nativescript-community/ui-canvas@4.6.52':
     resolution: {integrity: sha512-Jkr0eKu08+hsMvx+uASL/mSNnTawWSRkT/3nYS7k0X9tzgVQ46pxMTuQ9tWO94dz7o4Fv4c9D4jYk76xcJYBuA==}
+
+  '@nativescript-community/ui-document-picker@1.1.29':
+    resolution: {integrity: sha512-msmjSnDB76AG6xae6NCFIhVMDScbaj+U5guIaSBTYahwlFPKA/kC6aM42LE5Ucs6nLRllWPa66+tSwCFdNFhfA==}
 
   '@nativescript-community/ui-drawer@0.1.32':
     resolution: {integrity: sha512-SxvprjOAdyuDSqynIiy2s4cWvamolaSZrh4rXqMihA8IeOQ5FHZ1T/92BhJG1sTj1pl5aZ380RNzD98n7TykWA==}
@@ -3830,6 +3839,10 @@ snapshots:
   '@nativescript-community/ui-canvas@4.6.52':
     dependencies:
       '@nativescript-community/arraybuffers': 1.1.5
+
+  '@nativescript-community/ui-document-picker@1.1.29':
+    dependencies:
+      '@nativescript-community/perms': 2.3.6
 
   '@nativescript-community/ui-drawer@0.1.32':
     dependencies:

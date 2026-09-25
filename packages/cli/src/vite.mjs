@@ -242,6 +242,7 @@ export async function xplatNative(env, opts = {}) {
 					'@nativescript/haptics',
 					'@nativescript/imagepicker',
 					'@nativescript/local-notifications',
+					'@nativescript-community/ui-document-picker',
 					'@nativescript/secure-storage',
 					'@nativescript/social-share',
 					'@nativescript-community/ui-svg',

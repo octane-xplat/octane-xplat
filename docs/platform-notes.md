@@ -16,7 +16,7 @@
 | `Platform.OS`/`select` | `'web'`                                                 | `'ios'`/`'android'`                                                                     | value-level split, build-time eliminated                                                             |
 | kv storage             | `localStorage`                                          | `ApplicationSettings` / `@nativescript/preferences`                                     | sync API both sides — keep interface sync                                                            |
 | secure storage         | `crypto.subtle` + IndexedDB-ish (or just "unsupported") | Keychain/Keystore plugin                                                                | mark optional-capability                                                                             |
-| files                  | OPFS/download URLs                                      | `knownFolders`, `File`                                                                  | paths don't transfer; keep opaque `FileRef`                                                          |
+| files                  | OPFS/download URLs                                      | `knownFolders`, `File`, `@nativescript-community/ui-document-picker`                    | paths don't transfer; keep opaque `FileRef`; Android SAF reads `content://` through `ContentResolver` |
 | network                | `fetch`, `WebSocket`                                    | `fetch`, `WebSocket` (exist natively)                                                   | shared directly — no wrapper needed                                                                  |
 | haptics                | no-op (or `navigator.vibrate`)                          | `Haptics`/TapticEngine+`Vibrator`                                                       |                                                                                                      |
 | share                  | `navigator.share`/`clipboard`                           | native share sheet (`SocialShare` plugin)                                               |                                                                                                      |
@@ -28,12 +28,12 @@
 | safe area              | `env(safe-area-inset-*)`                                | `iosOverflowSafeArea`, system insets                                                    | `useSafeAreaInsets()` — also primitives/SafeArea                                                     |
 | appearance             | `prefers-color-scheme` + class toggle                   | `systemAppearanceChanged` + `ns-dark`                                                   | `useColorScheme()` shared                                                                            |
 | app lifecycle          | `visibilitychange`, `beforeunload`                      | `Application` `suspend`/`resume`/`exit`, `activityBackPressed`                          | `useAppState()`; back button → navigation.md                                                         |
-| status/nav bars        | N/A                                                     | `StatusBar` utils, Android nav bar color                                                | native-only API; web impl no-op                                                                      |
+| status/nav bars        | theme-color for color; status-bar style is unavailable | `StatusBar` utils, Android nav bar color                                                | native-only style API; web `setStatusBarStyle` intentionally no-ops                                  |
 | icons/fonts            | inline SVG, `@font-face`                                | `svgview` (ui-svg → SVGKit/androidsvg), font fallback, `App_Resources` fonts            | `Icon` owns mapping; `Image` routes svg srcs to `svgview`                                            |
 | accessibility          | ARIA attrs                                              | `accessible`, `accessibilityLabel/Hint/Value/Role`, `accessibilityLiveRegion`, announce | shared prop names map near-1:1 — keep a11y props on primitives                                       |
 | i18n/locale            | `navigator.language`, Intl                              | `Device.language`, Intl                                                                 | i18next binding is DOM-free — shared                                                                 |
 | images/media           | `<input type=file>`, canvas                             | imagepicker/camera plugins, `ImageSource`                                               | `media.pickImage()` returns `PickedImage` (preview URI + data URL); call `files.release()` when done |
-| biometrics             | WebAuthn                                                | Keychain biometrics plugin                                                              | optional-capability                                                                                  |
+| biometrics             | unsupported by this seam; WebAuthn needs an RP ceremony | Keychain biometrics plugin                                                              | optional-capability; use the app's WebAuthn auth flow directly on web                                |
 | deep links             | URL is the link                                         | `Application` openUrl/continuation                                                      | feeds navigation route table                                                                         |
 
 ## Interface shapes (the repeating contracts)
@@ -75,6 +75,31 @@ function useColorScheme(): 'light' | 'dark'
 function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void
 // toggles .ns-dark / .dark root class
 ```
+
+## 2026-09-25 gap decisions
+
+- **Files — desk-source.** `files.native.pick()` now uses
+  `@nativescript-community/ui-document-picker` 1.1.29. Its upstream iOS
+  implementation presents `UIDocumentPickerViewController`; its Android
+  implementation uses `ACTION_OPEN_DOCUMENT` and returns the selected
+  `content://` URI on current Android. The leaf keeps that URI opaque, gets
+  the display name from `ContentResolver`, and reads text through
+  `openInputStream`; app-document writes and temporary-file release retain
+  their existing path behavior. The picker and resolver path still need an
+  iOS and Android device pass (lab-experiment).
+- **Web biometrics — desk-source.** `PublicKeyCredential` availability is not
+  enough to implement `verify(reason)`: WebAuthn `create()`/`get()` require a
+  relying-party challenge and a registered credential, and the browser owns
+  the ceremony. Creating an ephemeral credential would change the contract
+  and could leave a passkey behind, so this capability reports
+  `supported: false`; product auth flows should call WebAuthn directly.
+- **Safe area — desk-source.** Android now reads system-bar insets from the
+  foreground activity's root `WindowInsets`, converts pixels through
+  `Screen.mainScreen.scale`, and listens for `onApplyWindowInsets` plus
+  orientation/resume changes. NativeScript exposes the activity through
+  `Application.android.foregroundActivity`; a device pass is still needed to
+  confirm gesture-navigation, cutout, rotation, and edge-to-edge values
+  (lab-experiment).
 
 ## Rules
 
