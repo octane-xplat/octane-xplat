@@ -239,6 +239,7 @@ export async function xplatNative(env, opts = {}) {
 				// manifest — serve @nativescript plugins per-module instead.
 				exclude: [
 					'@nativescript/biometrics',
+					'@nativescript/geolocation',
 					'@nativescript/haptics',
 					'@nativescript/imagepicker',
 					'@nativescript/local-notifications',

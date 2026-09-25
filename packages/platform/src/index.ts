@@ -4,22 +4,37 @@
 // moduleSuffixes can reach them (docs/module-resolution.md).
 export type {
 	AppState,
+	AppInfo,
 	BiometricsImpl,
 	Capability,
+	ConnectionType,
+	ConnectivityImpl,
+	ConnectivityState,
 	DeviceInfo,
 	FileRef,
+	GeolocationImpl,
+	GeolocationOptions,
+	GeolocationPosition,
 	HapticsImpl,
 	PickedImage,
 	Insets,
 	Locale,
+	MediaImpl,
+	MediaPermissionKind,
 	NotificationsImpl,
 	PermissionKind,
+	PermissionResult,
+	OpenSettingsImpl,
 	SecureStore,
 	ShareResult,
 	WindowSize,
 } from './types'
 
 export { device } from './device'
+export { geolocation } from './geolocation'
+export { connectivity } from './connectivity'
+export { appInfo } from './app-info'
+export { openUrl, openSettings } from './open-url'
 export { storage } from './storage'
 export { clipboard } from './clipboard'
 export { share } from './share'

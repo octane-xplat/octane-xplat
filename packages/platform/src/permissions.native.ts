@@ -1,20 +1,20 @@
-// Runtime permissions — native leaf. Maps the shared kind union onto the
-// owning plugin's request call; add kinds as services land.
-import { LocalNotifications } from '@nativescript/local-notifications'
+// Runtime permissions — native leaf. Delegate each kind to the service that
+// owns its plugin request, so this generic seam cannot drift from reality.
+import { geolocation } from './geolocation'
+import { media } from './media'
+import { notifications } from './notifications'
 import type { PermissionKind } from './types'
 
 export const permissions = {
 	async ensure(kind: PermissionKind): Promise<'granted' | 'denied' | 'unsupported'> {
 		switch (kind) {
 			case 'notifications':
-				return (await LocalNotifications.requestPermission()) ? 'granted' : 'denied'
-			// camera/photos/location have dedicated plugins — the owning
-			// service leaf (media, geolocation) owns its own ensure(); this
-			// generic seam reports them unsupported until wired.
+				return notifications.ensure()
 			case 'camera':
 			case 'photos':
+				return media.ensure(kind)
 			case 'location':
-				return 'unsupported'
+				return geolocation.ensure()
 		}
 	},
 }

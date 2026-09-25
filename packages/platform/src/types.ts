@@ -75,6 +75,66 @@ export interface BiometricsImpl {
 	verify(reason: string): Promise<boolean>
 }
 
+export type PermissionResult = 'granted' | 'denied' | 'unsupported'
+
 export type PermissionKind = 'notifications' | 'camera' | 'photos' | 'location'
+
+export type MediaPermissionKind = 'camera' | 'photos'
+
+export interface GeolocationOptions {
+	enableHighAccuracy?: boolean
+	timeout?: number
+	maximumAge?: number
+}
+
+export interface GeolocationPosition {
+	latitude: number
+	longitude: number
+	accuracy: number
+	altitude: number | null
+	heading: number | null
+	speed: number | null
+	timestamp: number
+}
+
+export interface GeolocationImpl {
+	getCurrentPosition(options?: GeolocationOptions): Promise<GeolocationPosition>
+}
+
+export type ConnectionType =
+	| 'none'
+	| 'wifi'
+	| 'mobile'
+	| 'ethernet'
+	| 'bluetooth'
+	| 'vpn'
+	| 'unknown'
+
+export interface ConnectivityState {
+	online: boolean
+	type: ConnectionType
+}
+
+export interface ConnectivityImpl {
+	getState(): ConnectivityState
+	subscribe(listener: (state: ConnectivityState) => void): () => void
+}
+
+export interface AppInfo {
+	supported: boolean
+	version: string | null
+	build: string | null
+	bundleId: string | null
+}
+
+export interface OpenSettingsImpl {
+	open(): boolean
+}
+
+export interface MediaImpl {
+	pickImage(): Promise<PickedImage | null>
+	pickImages(): Promise<PickedImage[]>
+	ensure(kind: MediaPermissionKind): Promise<PermissionResult>
+}
 
 export type ShareResult = 'shared' | 'copied' | 'unavailable'
