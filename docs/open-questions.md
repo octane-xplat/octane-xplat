@@ -135,3 +135,10 @@ LiveRegion` unwired in leaves so far).
     ever runs on DOM-compiled output (shared files compiled under `dom` for
     web). The DOM build's SSR output is DOM-correct; the native build never
     sees it.
+21. ⏳ **SVG fidelity on native (`svgview` / ui-svg).** — Src grammar verified
+    at source: `res://`/`~/`/file paths, `File`/`ImageAsset`, inline markup
+    strings, and promise srcs (remote `.svg` URLs fetch→markup). Unverified
+    on device: `currentColor`/root-`color` tint resolution, divergence
+    between SVGKit (iOS) and androidsvg (Android) on gradients/filters/
+    `<text>`, `stretch`/auto-sizing parity with `<image>`, and svg-as-`src`
+    in `Icon` glyphs.

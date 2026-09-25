@@ -363,8 +363,9 @@ export interface IconProps {
 
 /** One registered icon representation. `svg` contains path `d` data;
  *  `markup` is full inner-SVG markup (groups, transforms, several paths)
- *  rendered inside an `<svg viewBox>` shell on web. `text` is a unicode
- *  fallback rendered as a tinted label on native. */
+ *  rendered inside an `<svg viewBox>` shell on web and through `svgview`
+ *  (ui-svg) on native. `font`, `src`, and `text` are per-platform
+ *  fallbacks, in that order. */
 export interface IconGlyph {
 	svg?: string
 	markup?: string

@@ -80,6 +80,9 @@ importers:
       '@nativescript-community/ui-drawer':
         specifier: 0.1.32
         version: 0.1.32
+      '@nativescript-community/ui-svg':
+        specifier: 0.2.24
+        version: 0.2.24
       '@nativescript/biometrics':
         specifier: 1.3.1
         version: 1.3.1
@@ -280,6 +283,9 @@ importers:
       '@nativescript-community/ui-drawer':
         specifier: 0.1.32
         version: 0.1.32
+      '@nativescript-community/ui-svg':
+        specifier: 0.2.24
+        version: 0.2.24
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2
@@ -1110,6 +1116,9 @@ packages:
 
   '@nativescript-community/ui-drawer@0.1.32':
     resolution: {integrity: sha512-SxvprjOAdyuDSqynIiy2s4cWvamolaSZrh4rXqMihA8IeOQ5FHZ1T/92BhJG1sTj1pl5aZ380RNzD98n7TykWA==}
+
+  '@nativescript-community/ui-svg@0.2.24':
+    resolution: {integrity: sha512-5aeSeCtPDxuVW3udf1FjnBNkdhUET1E7nZKGB7tXcvMY3+/e75MqsnYF+vSnhTJ/MdqQ9hSQWcNmeCFidDomOw==}
 
   '@nativescript-community/vite-octane@0.2.1':
     resolution: {integrity: sha512-195CCVbUiPgr4y17fGdfI8K6FAbAtTJIzLEJ090mYYK2h7LYWHRmK2mFqrBuSXAmzm/MlgndZdXHTGuXvYjh8Q==}
@@ -3803,6 +3812,10 @@ snapshots:
   '@nativescript-community/ui-drawer@0.1.32':
     dependencies:
       '@nativescript-community/gesturehandler': 2.0.45
+
+  '@nativescript-community/ui-svg@0.2.24':
+    dependencies:
+      '@nativescript-community/ui-canvas': 4.6.52
 
   '@nativescript-community/vite-octane@0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@9.1.2)(@nativescript/vite@8.0.11(patch_hash=01e8ec507576adffb9bf35238e316e15807b64c167e5e03602756567c2e670f2)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.58(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
     dependencies:

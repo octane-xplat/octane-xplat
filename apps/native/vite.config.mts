@@ -84,6 +84,7 @@ export default defineConfig(({ mode }) =>
 					'@nativescript/local-notifications',
 					'@nativescript/secure-storage',
 					'@nativescript/social-share',
+					'@nativescript-community/ui-svg',
 					'nativescript-clipboard',
 				],
 			},
