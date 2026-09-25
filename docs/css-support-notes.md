@@ -41,7 +41,7 @@
 | `line-height`                                     | ⚠️ **additive gap**              | ✅ total box | additive spacing only — does NOT grow single-line Label height (lab: 2026-09-25). Inline `style={{lineHeight: N}}` — number → `Npx` via `normStyle` (octane keeps React's unitless list; RN semantics is absolute) |
 | `letter-spacing`                                  | ⚠️                               | ✅           | iOS vs Android differ; verify          |
 | `vertical-align`                                  | ✅ (this name, not `-alignment`) | ✅           | exact spelling — silent drop otherwise |
-| `white-space`/`text-overflow`/`numberOfLines`     | ⚠️                               | ✅           | prop-level on native, CSS on web       |
+| `white-space`/`text-overflow`/`numberOfLines`     | ⚠️                               | ✅           | `Text` leaf normalizes: wraps by default (`whiteSpace='normal'`, `maxLines=0` = unlimited); `ellipsize`/`numberOfLines` props override. NS's default is single-line truncating — without the leaf fix a shared `<Text>` never wraps on iOS (lab: 2026-09-25). Raw `<label>` in `.native` leaves still needs the prop |
 
 ## Interaction/state
 
