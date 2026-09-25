@@ -92,9 +92,13 @@ Readback: `presenter.modal` exposes the modal view for assertions.
 > context. Anything the modal needs must be passed as props/params or through
 > a shared store module (not React-style context). CSS cascade doesn't cross
 > either — `ns-modal` root class exists for styling modal roots; tokens must
-> be applied there too. **Lab-confirmed:** `ns-dark` is absent from the modal
-> tree while the app is dark (iOS sim) — modal surfaces must re-apply the
-> scheme class or subscribe to `systemAppearanceChanged` themselves.
+> be applied there too. **Resolved (decision #34):** the effective scheme now
+> lives in a module-level store (`theme/theme-scheme.ts`); imperative roots
+> stamp `ns-dark dark` via `applyThemeClasses(host, base)` at creation and
+> re-stamp live on override or OS scheme change. Apps drive it with
+> `setThemePreference('dark' | 'light' | 'system')`; components read
+> `useThemeScheme()`. Verified on iOS: the sheet host carries `ns-dark` under
+> an app-level override (`sheet theme class: OK`).
 
 - Portals don't cross. Design `Modal`'s API as `{ open, onClose, params }`
   rather than "render my children in place" — treat children as a _screen
