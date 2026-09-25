@@ -8,6 +8,7 @@ const dom = new JSDOM(readFileSync('dist/index.html', 'utf8'), {
 	url: 'https://x.test/',
 	runScripts: 'outside-only',
 })
+
 const { window } = dom
 for (const k of [
 	'document',
@@ -34,6 +35,7 @@ const watchdog = setTimeout(() => {
 	console.error('FAIL: bundle eval hung (boot loop)')
 	process.exit(1)
 }, 10000)
+
 window.eval(readFileSync(js, 'utf8'))
 clearTimeout(watchdog)
 await new Promise((r) => setTimeout(r, 400))
@@ -56,4 +58,5 @@ for (const [name, ok] of checks) {
 	console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
 	if (!ok) fail++
 }
+
 process.exit(fail ? 1 : 0)

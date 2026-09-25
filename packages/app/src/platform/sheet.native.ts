@@ -37,16 +37,19 @@ export function openSheet(Component: unknown = SheetPanel, props: Record<string,
 	// a DIFFERENT rootlayout than this open's (pushed page vs app root) —
 	// close through the actual parent, then open on the current root.
 	const open = () =>
-		(rl.open(host!, {
-			shadeCover: { opacity: 0.4, tapToClose: true },
-			animation: {
-				enterFrom: { translateY: 400, duration: 250 },
-				exitTo: { translateY: 400, duration: 200 },
-			},
-		}) as Promise<unknown>).then(
+		(
+			rl.open(host!, {
+				shadeCover: { opacity: 0.4, tapToClose: true },
+				animation: {
+					enterFrom: { translateY: 400, duration: 250 },
+					exitTo: { translateY: 400, duration: 200 },
+				},
+			}) as Promise<unknown>
+		).then(
 			() => console.log('[probe] sheet open'),
 			(e: Error) => console.log('[probe] sheet open FAILED: ' + e.message),
 		)
+
 	const owner = host!.parent as any
 	if (owner?.hasChild?.(host)) owner.close(host).then(open, open)
 	else open()

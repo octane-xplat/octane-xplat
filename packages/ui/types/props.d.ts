@@ -454,6 +454,7 @@ export type OpenModal = (
 	params?: any,
 	options?: ModalOpenOptions,
 ) => Promise<ModalOpenResult>
+
 export interface TabSpec {
 	title: string
 	render: () => any

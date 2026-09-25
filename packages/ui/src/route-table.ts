@@ -41,9 +41,7 @@ const PRESENT = /\+(modal|fade|push)$/
 function pick(mod: any, file: string): any {
 	if (typeof mod?.default === 'function') return mod.default
 	if (typeof mod?.screen === 'function') return mod.screen
-	const fns = Object.keys(mod ?? {}).filter(
-		(k) => typeof mod[k] === 'function' && k !== 'loader',
-	)
+	const fns = Object.keys(mod ?? {}).filter((k) => typeof mod[k] === 'function' && k !== 'loader')
 
 	if (fns.length === 1) return mod[fns[0]]
 	console.warn(

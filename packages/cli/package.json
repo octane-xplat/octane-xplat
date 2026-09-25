@@ -5,16 +5,16 @@
 	"bin": {
 		"xplat": "./src/cli.mjs"
 	},
+	"files": [
+		"src"
+	],
+	"type": "module",
 	"exports": {
 		"./vite": {
 			"types": "./src/vite.d.ts",
 			"default": "./src/vite.mjs"
 		}
 	},
-	"files": [
-		"src"
-	],
-	"type": "module",
 	"publishConfig": {
 		"access": "public"
 	},

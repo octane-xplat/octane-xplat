@@ -62,11 +62,7 @@ export function screenFor(name: string): ScreenTable[string] | undefined {
 /** Wrap a screen in its directory `_layout` chain (outermost →
  *  innermost) as a single root component — pushed Pages and modal roots
  *  render this, matching web's outlet wrapping. */
-function wrapInLayouts(
-	name: string,
-	props: Record<string, unknown>,
-	C: any,
-): UniversalComponent {
+function wrapInLayouts(name: string, props: Record<string, unknown>, C: any): UniversalComponent {
 	let inner: UniversalRenderable = universalComponent('nativescript', C, props)
 	for (const L of layoutChain(routeLayouts, name).reverse()) {
 		const child = inner
@@ -241,9 +237,8 @@ export function popRoute(stack = 'root'): void {
 		// that race a still-in-flight presentation, so the NS closeCallback
 		// isn't guaranteed to run — the route store can't gate on it.
 		modal.dismiss()
-		;
 
-(modal.host as any).closeModal?.()
+		;(modal.host as any).closeModal?.()
 		return
 	}
 

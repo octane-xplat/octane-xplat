@@ -32,6 +32,7 @@ export function rootLayoutFor(view: any): RootLayout | undefined {
 	for (let v = view?.parent; v; v = v.parent) {
 		if (v instanceof RootLayout) return v
 	}
+
 	return topRootLayout()
 }
 
@@ -49,14 +50,18 @@ export function findInRootLayouts(id: string): any {
 				hit = found
 				return false
 			}
+
 			return true
 		})
+
 		return hit
 	}
+
 	for (let i = registry.length - 1; i >= 0; i--) {
 		const hit = walk(registry[i])
 		if (hit) return hit
 	}
+
 	const rl = getRootLayout() as any
 	return rl ? walk(rl) : null
 }

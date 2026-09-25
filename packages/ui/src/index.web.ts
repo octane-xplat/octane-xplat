@@ -31,7 +31,15 @@ export type {
 
 export { useAnimation } from './anim.web.tsrx'
 export type { AnimatedValue } from './anim.web.tsrx'
-export { useThemeScheme, getThemeScheme, setThemePreference, getThemePreference, themeSchemeClasses, onThemeSchemeChange, applyThemeClasses } from './theme/theme-scheme'
+export {
+	useThemeScheme,
+	getThemeScheme,
+	setThemePreference,
+	getThemePreference,
+	themeSchemeClasses,
+	onThemeSchemeChange,
+	applyThemeClasses,
+} from './theme/theme-scheme'
 export { useColorScheme, getColorScheme } from './theme/colorScheme.web'
 export type { ColorScheme } from './theme/colorScheme.web'
 export { styled } from './styled.web.tsrx'

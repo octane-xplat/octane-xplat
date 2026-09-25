@@ -136,6 +136,7 @@ export const screens = routes.screens
 			`['web']`,
 		),
 	)
+
 	writeFileSync(
 		join(cwd, base + '.native.ts'),
 		shared(
@@ -172,7 +173,10 @@ export const routes = command({
 			p.log.error('No route dir found — expected ./app or ./src/app (or pass --dir).')
 			process.exit(1)
 		}
+
 		const count = generateRoutes(cwd, dir, args.out)
-		p.log.success(`Wrote routes.gen.{types,web,native}.ts — ${count} route${count === 1 ? '' : 's'}`)
+		p.log.success(
+			`Wrote routes.gen.{types,web,native}.ts — ${count} route${count === 1 ? '' : 's'}`,
+		)
 	},
 })

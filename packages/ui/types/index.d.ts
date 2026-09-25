@@ -203,6 +203,7 @@ export interface SafeAreaInsets {
 	bottom: number
 	left: number
 }
+
 export declare function useSafeAreaInsets(): SafeAreaInsets
 
 // ---------- styled ----------

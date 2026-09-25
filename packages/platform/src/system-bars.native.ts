@@ -8,6 +8,7 @@ export const systemBars = {
 			const app = Application.ios.nativeApp
 			// NS 9: per-page statusBarStyle is the preferred seam; fall back to
 			// the app-level setter on older systems.
+
 			;(app as any)?.setStatusBarStyle?.(style === 'light' ? 1 : 0)
 		}
 	},

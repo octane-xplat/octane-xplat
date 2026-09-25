@@ -1,5 +1,11 @@
 import { Application, Frame, ListView, getRootLayout } from '@nativescript/core'
-import { currentModalRoute, findInRootLayouts, getStack, popRoute, routeFor } from '@octane-xplat/ui'
+import {
+	currentModalRoute,
+	findInRootLayouts,
+	getStack,
+	popRoute,
+	routeFor,
+} from '@octane-xplat/ui'
 import { goBack } from './nav'
 import { sheetHost } from './sheet'
 
@@ -138,9 +144,7 @@ function runModalRouteProbe() {
 		() => {
 			const route = currentModalRoute()
 			const ok = route?.name === 'about'
-			console.log(
-				'[assert] +modal route opens showModal root: ' + (ok ? 'OK' : 'FAIL'),
-			)
+			console.log('[assert] +modal route opens showModal root: ' + (ok ? 'OK' : 'FAIL'))
 
 			const modalView = (getStack('root')?.currentPage as any)?.modal
 			const texts = modalView ? viewTexts(modalView) : []
@@ -153,8 +157,7 @@ function runModalRouteProbe() {
 			popRoute('root')
 			setTimeout(() => {
 				console.log(
-					'[assert] modal route dismissed by popRoute: ' +
-						(currentModalRoute() ? 'FAIL' : 'OK'),
+					'[assert] modal route dismissed by popRoute: ' + (currentModalRoute() ? 'FAIL' : 'OK'),
 				)
 			}, 600)
 		},
@@ -169,8 +172,7 @@ setTimeout(runModalRouteProbe, 6500)
 const find = (id: string) => demosPage()?.getViewById?.(id)
 // Imperative hosts (sheet/overlay) mount on the CURRENT page's rootlayout —
 // search the demos page first, then the first-mounted rootlayout.
-const findOnRoot = (id: string) =>
-	demosPage()?.getViewById?.(id) ?? findInRootLayouts(id)
+const findOnRoot = (id: string) => demosPage()?.getViewById?.(id) ?? findInRootLayouts(id)
 
 interface Step {
 	id: string
@@ -270,6 +272,7 @@ const STEPS: Step[] = [
 						}))
 						.sort((a, b) => a.y - b.y)
 						.map((v) => v.text)
+
 					const enc = hay.indexOf('Encore')
 					const water = hay.indexOf('Water station: Available by the entrance.')
 					console.log(
@@ -316,9 +319,8 @@ const STEPS: Step[] = [
 				at: 400,
 				run: () => {
 					const t = tapTargetForText(demosPage(), 'Toggle anchored popover')
-					console.log(
-						'[probe] popover tap target: ' + (t ? t.constructor.name : 'none'),
-					)
+					console.log('[probe] popover tap target: ' + (t ? t.constructor.name : 'none'))
+
 					fireTap(t)
 				},
 			},
@@ -327,9 +329,7 @@ const STEPS: Step[] = [
 				run: () => {
 					const hay = viewTexts(demosPage())
 					const ok = hay.includes('Anchored to the button')
-					console.log(
-						'[assert] popover anchored: ' + (ok ? 'OK' : 'FAIL') + dump(hay),
-					)
+					console.log('[assert] popover anchored: ' + (ok ? 'OK' : 'FAIL') + dump(hay))
 				},
 			},
 			{ at: 1100, run: () => fireTap(tapTargetForText(demosPage(), 'Show toast')) },
@@ -419,14 +419,35 @@ const STEPS: Step[] = [
 						if (!v) return null
 						const s = v.getActualSize?.() ?? {}
 						const p = v.getLocationOnScreen?.() ?? {}
-						return { w: Math.round(s.width ?? -1), h: Math.round(s.height ?? -1), x: Math.round(p.x ?? -1), y: Math.round(p.y ?? -1) }
+						return {
+							w: Math.round(s.width ?? -1),
+							h: Math.round(s.height ?? -1),
+							x: Math.round(p.x ?? -1),
+							y: Math.round(p.y ?? -1),
+						}
 					}
 
-					for (const id of ['dv-grow', 'dv-grow-fill', 'dv-lh', 'dv-lh2', 'dv-auto', 'dv-auto-fix', 'dv-wide', 'dv-sib', 'dv-wide-fix', 'dv-sib-fix', 'dv-collapse-row', 'dv-coll-avatar', 'dv-coll-body', 'dv-coll-text', 'dv-coll-actions', 'dv-collapse-allgrow', 'dv-ag-text']) {
+					for (const id of [
+						'dv-grow',
+						'dv-grow-fill',
+						'dv-lh',
+						'dv-lh2',
+						'dv-auto',
+						'dv-auto-fix',
+						'dv-wide',
+						'dv-sib',
+						'dv-wide-fix',
+						'dv-sib-fix',
+						'dv-collapse-row',
+						'dv-coll-avatar',
+						'dv-coll-body',
+						'dv-coll-text',
+						'dv-coll-actions',
+						'dv-collapse-allgrow',
+						'dv-ag-text',
+					]) {
 						const r = m(id)
-						console.log(
-							'[probe] ' + id + ' ' + (r ? `${r.w}x${r.h}@${r.x},${r.y}` : 'MISSING'),
-						)
+						console.log('[probe] ' + id + ' ' + (r ? `${r.w}x${r.h}@${r.x},${r.y}` : 'MISSING'))
 					}
 
 					const collText = m('dv-coll-text')
@@ -435,12 +456,14 @@ const STEPS: Step[] = [
 							(collText && collText.h >= 30 ? 'OK' : 'FAIL') +
 							(collText ? ` (${collText.h})` : ''),
 					)
+
 					const agRow = m('dv-collapse-allgrow')
 					console.log(
 						'[assert] auto-height grow row keeps content height: ' +
 							(agRow && agRow.h >= 40 ? 'OK' : 'FAIL') +
 							(agRow ? ` (${agRow.h})` : ''),
 					)
+
 					const grow = m('dv-grow-fill')
 					console.log(
 						'[assert] grow child keeps height: ' +

@@ -60,6 +60,7 @@ export function applyThemeClasses(view: any, base: string): () => void {
 	const apply = () => {
 		view.className = cx(base, themeSchemeClasses())
 	}
+
 	apply()
 	return onThemeSchemeChange(apply)
 }

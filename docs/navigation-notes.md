@@ -51,7 +51,7 @@ turns the module map into `{screens, routes, layouts}`:
 - Platform suffix dedupe by `prefer` rank: web `['web']`, native
   `['ios'|'android','native']`; suffixes outside `prefer` are skipped.
 - `settings+modal.tsrx` → route `settings` with `meta.presentation:
-  'modal'` — declarative default for modal presentation (`+fade` = push
+'modal'` — declarative default for modal presentation (`+fade` = push
   with fade transition); `Route.presentation` on the push overrides.
 - `_layout` files catalog into `layouts[dir]` (`''` = root). The entry
   renders `routes.layouts['']` as the app shell; nested layouts wrap
@@ -166,7 +166,7 @@ already changed when popstate fires).
 > `/demos/demo/counter` DOM) and native goes through the same
 > `wrapInLayouts` path (universalComponent + universalChildren). iOS
 > sweep 87 OK / 3 pre-existing FAIL (`list rebind order`, `popover
-> anchored`, `overlay opens` — identical before the change).
+anchored`, `overlay opens` — identical before the change).
 >
 > **Trap — modal dismiss bookkeeping:** iOS drops
 > `dismissViewControllerAnimated` completions that race a still-in-flight

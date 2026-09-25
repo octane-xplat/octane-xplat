@@ -32,7 +32,15 @@ export type {
 
 export { useAnimation } from './anim.native.tsrx'
 export type { AnimatedValue } from './anim.native.tsrx'
-export { useThemeScheme, getThemeScheme, setThemePreference, getThemePreference, themeSchemeClasses, onThemeSchemeChange, applyThemeClasses } from './theme/theme-scheme'
+export {
+	useThemeScheme,
+	getThemeScheme,
+	setThemePreference,
+	getThemePreference,
+	themeSchemeClasses,
+	onThemeSchemeChange,
+	applyThemeClasses,
+} from './theme/theme-scheme'
 export { useColorScheme, getColorScheme } from './theme/colorScheme.native'
 export type { ColorScheme } from './theme/colorScheme.native'
 export { styled } from './styled.native.tsrx'

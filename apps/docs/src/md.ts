@@ -8,6 +8,7 @@ export type Span = {
 	strike?: boolean
 	href?: string
 }
+
 export type Block =
 	| { kind: 'h'; level: number; text: string }
 	| { kind: 'p'; spans: Span[] }
@@ -30,6 +31,7 @@ export function inlineSpans(text: string): Span[] {
 	const spans: Span[] = []
 	const re =
 		/(`[^`]*`)|(\*\*(?:[^*]|\*[^*])+\*\*)|((?<!\*)\*(?!\*)[^*\s][^*]*\*(?!\*))|(~~[^~\s][^~]*~~)|(\[[^\]]+\]\([^)\s]+\))/g
+
 	let last = 0
 	for (const m of text.matchAll(re)) {
 		if (m.index > last) spans.push({ text: text.slice(last, m.index) })
@@ -137,6 +139,7 @@ export function parseMd(md: string): Block[] {
 			const buf: string[] = []
 			while (i < lines.length && /^\s*>\s?/.test(lines[i]))
 				buf.push(lines[i++].replace(/^\s*>\s?/, ''))
+
 			const cm = buf[0]?.match(/^\[!(\w+)\]\s*(.*)/)
 			if (cm && CALLOUTS.has(cm[1].toLowerCase())) {
 				const lines = [cm[2], ...buf.slice(1)]
@@ -171,6 +174,7 @@ export function parseMd(md: string): Block[] {
 			i++
 			continue
 		}
+
 		if (line.trim() === '') {
 			i++
 			continue

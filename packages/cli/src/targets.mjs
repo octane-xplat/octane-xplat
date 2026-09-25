@@ -17,6 +17,7 @@ const run = (cmd, args) => {
 
 export const hasWeb = (cwd) =>
 	existsSync(`${cwd}/vite.config.ts`) || existsSync(`${cwd}/vite.config.mts`)
+
 export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
 
 /** iOS targets: booted sims first, then other available sims, then physical devices. */
@@ -85,6 +86,7 @@ export function buildTargets(cwd) {
 	if (hasNative(cwd)) {
 		if (iosTargets().length || run('xcrun', ['--version']))
 			t.push({ kind: 'ios', id: 'ios', name: 'iOS (ns build ios)' })
+
 		t.push({ kind: 'android', id: 'android', name: 'Android (ns build android)' })
 	}
 

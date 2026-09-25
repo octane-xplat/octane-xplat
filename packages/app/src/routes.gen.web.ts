@@ -7,7 +7,7 @@ const files = import.meta.glob(
 		'./app/**/*.{tsrx,tsx}',
 		'!./app/**/*.native.{tsrx,tsx}',
 		'!./app/**/*.ios.{tsrx,tsx}',
-		'!./app/**/*.android.{tsrx,tsx}'
+		'!./app/**/*.android.{tsrx,tsx}',
 	],
 	{ eager: true },
 )

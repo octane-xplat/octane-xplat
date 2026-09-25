@@ -27,8 +27,7 @@ import { pathToFileURL } from 'node:url'
 // leaves its internal 'rolldown' bare-import stranded outside its .pnpm
 // peer dir.
 const req = createRequire(join(process.cwd(), 'package.json'))
-const importApp = (spec) =>
-	import(pathToFileURL(realpathSync(req.resolve(spec))).href)
+const importApp = (spec) => import(pathToFileURL(realpathSync(req.resolve(spec))).href)
 
 /** CSS that NS parses but silently ignores or misreads — the app looks
  *  identical in source but diverges at runtime. Warned at build time so the
@@ -43,10 +42,7 @@ const CSS_DIVERGENCES = [
 		/position\s*:\s*(fixed|sticky)\b/,
 		'position: fixed/sticky does not exist on native — overlays go through Overlay/Modal services, not positioning',
 	],
-	[
-		/\bz-index\s*:/,
-		'z-index is inert on native — paint order follows document order',
-	],
+	[/\bz-index\s*:/, 'z-index is inert on native — paint order follows document order'],
 	[/\bfloat\s*:/, 'float is unsupported on native — use flex rows'],
 	[
 		/\bbox-shadow\s*:/,
@@ -77,6 +73,7 @@ function pxToDip() {
 			/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g,
 			'',
 		)
+
 		for (const [re, hint] of CSS_DIVERGENCES) {
 			const key = id + '|' + hint
 			if (re.test(code) && !warned.has(key)) {
@@ -84,6 +81,7 @@ function pxToDip() {
 				warn(`${id}: ${hint}`)
 			}
 		}
+
 		return code.replace(/(-?\d+(?:\.\d+)?)px\b/g, '$1dip')
 	}
 
@@ -104,9 +102,8 @@ function pxToDip() {
 			for (const file of Object.values(bundle)) {
 				if (file.type === 'asset' && file.fileName.endsWith('.css')) {
 					const src =
-						typeof file.source === 'string'
-							? file.source
-							: new TextDecoder().decode(file.source)
+						typeof file.source === 'string' ? file.source : new TextDecoder().decode(file.source)
+
 					file.source = process(src, file.fileName, (m) => this.warn(m))
 				}
 			}
@@ -211,12 +208,11 @@ const nativeRules = [
  */
 export async function xplatNative(env, opts = {}) {
 	const mode = typeof env === 'string' ? env : env.mode
-	const [{ mergeConfig }, { octaneConfig }, { nativeScriptRenderer }] =
-		await Promise.all([
-			importApp('vite'),
-			importApp('@nativescript-community/vite-octane'),
-			importApp('@nativescript-community/octane/config'),
-		])
+	const [{ mergeConfig }, { octaneConfig }, { nativeScriptRenderer }] = await Promise.all([
+		importApp('vite'),
+		importApp('@nativescript-community/vite-octane'),
+		importApp('@nativescript-community/octane/config'),
+	])
 
 	return mergeConfig(
 		octaneConfig(

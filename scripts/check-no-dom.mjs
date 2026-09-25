@@ -42,6 +42,7 @@ function* walk(dir) {
 	} catch {
 		return
 	}
+
 	for (const e of entries) {
 		const p = join(dir, e)
 		const s = statSync(p)
@@ -76,6 +77,7 @@ if (hits) {
 	console.error(
 		`\ncheck-no-dom: ${hits} DOM reference(s) in shared/native source — move them behind a platform-suffixed leaf.`,
 	)
+
 	process.exit(1)
 }
 

@@ -29,6 +29,7 @@ export const dev = command({
 			p.log.error(
 				'No targets found — need vite.config.ts (web) or nativescript.config.ts (native).',
 			)
+
 			process.exit(1)
 		}
 
@@ -40,6 +41,7 @@ export const dev = command({
 				p.log.error(
 					`No targets matched "${args.targets}". Available: ${all.map((t) => t.kind).join(', ')}`,
 				)
+
 				process.exit(1)
 			}
 		} else if (!process.stdout.isTTY) {
@@ -57,6 +59,7 @@ export const dev = command({
 				p.cancel('Cancelled')
 				process.exit(0)
 			}
+
 			chosen = all.filter((t) => picked.includes(t.id))
 		}
 

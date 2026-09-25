@@ -61,6 +61,7 @@ export const doctor = command({
 					.slice(1)
 					.filter((l) => l.includes('\tdevice')).length
 			: 0
+
 		row('adb', adb.ok, `${devices} device(s)`, 'Android SDK platform-tools on PATH')
 		row(
 			'ANDROID_HOME',

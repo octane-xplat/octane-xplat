@@ -97,6 +97,7 @@ function collect(view: any, out: any[] = []): any[] {
 		collect(c, out)
 		return true
 	})
+
 	return out
 }
 
@@ -108,8 +109,7 @@ function texts(root: any): string[] {
 
 // Some imperative hosts (sheet) mount on the CURRENT rootlayout — a
 // sibling under a pushed/tab page, not necessarily under thePage.
-const find = (id: string) =>
-	(thePage?.getViewById?.(id) ?? findInRootLayouts(id)) as any
+const find = (id: string) => (thePage?.getViewById?.(id) ?? findInRootLayouts(id)) as any
 
 // Controlled-input probe: fire textChange natively at +1.5s (between the
 // self-test's shuffle and setText) to exercise the native→state direction
@@ -134,6 +134,7 @@ setTimeout(() => {
 			' role=' +
 			b?.accessibilityRole,
 	)
+
 	assertEq('textfield.text', find('probe-input')?.text, 'typed!')
 	// TextArea leaf: multiline round-trip + rows/maxRows → dip heights.
 	const ta = find('probe-textarea')
@@ -141,6 +142,7 @@ setTimeout(() => {
 	const dip = (x: any) => (x && typeof x === 'object' ? x.value : x) ?? 0
 	const taMin = dip(ta?.style?.minHeight),
 		taMax = dip(ta?.style?.maxHeight)
+
 	console.log(
 		'[assert] textarea rows fit: ' +
 			(taMin > 0 && taMax > taMin ? 'OK' : 'FAIL') +
@@ -209,6 +211,7 @@ setTimeout(() => {
 				? `items=${(lv.items as any)?.length} template=${typeof lv.itemTemplate} listeners=${lv.hasListeners?.('itemLoading')}`
 				: 'none'),
 	)
+
 	assertHas('cell text', texts(thePage), 'Epsilon')
 }, 2900)
 
@@ -220,17 +223,20 @@ setTimeout(() => {
 			.split(/\s+/)
 			.includes('ns-dark'),
 	)
+
 	console.log('[assert] dark class: ' + (hasDark ? 'OK' : 'FAIL'))
 	const cs = getColorScheme()
 	console.log(
 		'[assert] color scheme: ' + (/^(light|dark)$/.test(cs) ? 'OK' : 'FAIL') + ' (' + cs + ')',
 	)
+
 	// Storage seam (Exp 15): ApplicationSettings write/read round-trip.
 	storage.setString('probe-key', 'roundtrip')
 	console.log(
 		'[assert] storage roundtrip: ' +
 			(storage.getString('probe-key') === 'roundtrip' ? 'OK' : 'FAIL'),
 	)
+
 	console.log(
 		'[assert] draft persisted: ' +
 			(storage.getString('draft') === 'typed!' ? 'OK' : 'FAIL') +
@@ -238,6 +244,7 @@ setTimeout(() => {
 			storage.getString('draft') +
 			')',
 	)
+
 	// styled() probe (Exp 16): variant prop composes bg-danger into className.
 	const db = find('danger-btn')
 	const cls = String(db?.className ?? '')
@@ -261,10 +268,12 @@ setTimeout(() => {
 	console.log(
 		'[assert] pressable sibling view: ' + (mp?.getViewById?.('multi-sibling') ? 'OK' : 'FAIL'),
 	)
+
 	console.log(
 		'[assert] pressable conditional child: ' +
 			(mp?.getViewById?.('multi-indicator') ? 'OK' : 'FAIL'),
 	)
+
 	fireGesture(mp, 1, 'tap', {})
 }, 4950)
 
@@ -297,10 +306,12 @@ setTimeout(() => {
 					.split(/\s+/)
 					.includes('ns-dark'),
 			)
+
 			console.log(
 				'[probe] pushed-page ns-dark: ' +
 					(pushDark ? 'present — theme class crosses' : 'absent — theme class does not cross'),
 			)
+
 			const pushTok = (top as any)?.style?.getCssVariable?.('--color-primary')
 			const rootTok = (thePage as any)?.style?.getCssVariable?.('--color-primary')
 			console.log(
@@ -309,6 +320,7 @@ setTimeout(() => {
 					' root token: ' +
 					JSON.stringify(rootTok),
 			)
+
 			setTimeout(() => f.goBack(), 250)
 		} else if (top === thePage && ++pops === 1) {
 			console.log('[assert] pop to main: OK')
@@ -333,6 +345,7 @@ setTimeout(() => {
 			sv?.verticalOffset +
 			')',
 	)
+
 	const img = find('img')
 	console.log('[assert] image decoded: ' + (img?.imageSource ? 'OK' : 'FAIL'))
 }, 5000)
@@ -399,6 +412,7 @@ setTimeout(() => {
 			.split(/\s+/)
 			.includes('ns-dark'),
 	)
+
 	// The app syncs its override into the theme store (setThemePreference) —
 	// imperative roots must carry the scheme class on their host.
 	assertHas('sheet theme class', [sheetDark ? 'ns-dark' : 'absent'], 'ns-dark')
@@ -427,12 +441,14 @@ setTimeout(() => {
 			.split(/\s+/)
 			.includes('ns-dark'),
 	)
+
 	console.log(
 		'[probe] modal ns-dark: ' +
 			(modalDark
 				? 'present — theme class crosses the modal root'
 				: 'absent — theme class does not cross'),
 	)
+
 	const tok = (thePage as any)?.style?.getCssVariable?.('--color-primary')
 	console.log(
 		'[assert] getCssVariable: ' +
@@ -441,6 +457,7 @@ setTimeout(() => {
 			JSON.stringify(tok) +
 			')',
 	)
+
 	const close = m?.getViewById?.('modal-close')
 	fireGesture(close, 1, 'tap', {})
 }, 8600)

@@ -11,14 +11,14 @@
 - ~19 built-in lowercase elements (`view`, `text`, `image`, `scroll-view`,
   `list`, `viewpager`, `overlay`, `frame`, `page`, `input`, `svg`, `webview`…)
   that map to `UIView`/`ViewGroup`/custom elements on web. Extension seam is
-  *native code*: per-platform `LynxUI` impls behind one tag, or the XElement
+  _native code_: per-platform `LynxUI` impls behind one tag, or the XElement
   library. Divergence never happens in app TSX.
 - ReactLynx: stock React API (`import { useState } from '@lynx-js/react'`), JSX
   uses the lowercase tags directly, no `document`/`window` — a `lynx.*` global
   namespace (`createSelectorQuery`, `getElementById`, `accessibilityAnnounce`,
   `getJSModule`) replaces it. Same as our invariant #4.
 - Build: Rspeedy (Rspack) → `.lynx.bundle` containing the background-thread JS
-  *and* main-thread bytecode + styles. Same source also emits a `.web.bundle`
+  _and_ main-thread bytecode + styles. Same source also emits a `.web.bundle`
   (every doc example renders itself on the page — same dogfood trick as
   `apps/docs`).
 
@@ -47,8 +47,8 @@ The machinery this forces is the interesting part:
 **For us:** NS already runs JS on the UI thread, so everything MTS exists to
 recover — zero-latency gesture handlers, synchronous `view.animate` frames,
 sync measurement — is free in our stack. Lynx's tax documents exactly what our
-architecture saves. If there's a lesson to take, it's the *escape-hatch API
-shape*: an imperative element handle reachable from an event handler
+architecture saves. If there's a lesson to take, it's the _escape-hatch API
+shape_: an imperative element handle reachable from an event handler
 (`MainThread.Element`) is their `bind`-equivalent seam.
 
 ## Compiler-informed rendering ≈ Octane's universal plan
@@ -60,7 +60,7 @@ runtime never re-diffs static structure. This is the same architecture as
 commands. Two systems converging on "compiler extracts the static host tree,
 runtime diffs only slots" is independent validation of the Octane universal
 ABI. Their extra trick — running the same render on two threads and diffing the
-*results* — is what buys IFR; not portable to us.
+_results_ — is what buys IFR; not portable to us.
 
 ## Event model
 
@@ -86,7 +86,7 @@ nonstandard props (our equivalent is platform prop bags).
 
 ## Platform divergence: the opposite mechanism
 
-No file suffixes. `SystemInfo.platform` is a *runtime* value; the compile-time
+No file suffixes. `SystemInfo.platform` is a _runtime_ value; the compile-time
 macros (`__MAIN_THREAD__`, `__BACKGROUND__`, `__LEPUS__`, `__DEV__`) split by
 **thread/runtime**, not OS. Divergence is pushed into native code behind the
 element/NativeModule boundary — viable for them because leaves are
@@ -101,7 +101,7 @@ divergence behind the boundary.
   we hit with NS `itemLoading` refiring — instance lifecycle ≠ view lifecycle
   in recycled lists. Data-driven `items`+`renderItem` is the right contract.
 - No built-in router — recipes for react-router/tanstack-router only. Lynx is
-  an embedded *surface* (host owns navigation via `LynxView`); our nav layer is
+  an embedded _surface_ (host owns navigation via `LynxView`); our nav layer is
   more integrated than anything they ship.
 - `<scroll-view>` is explicit — no `overflow:scroll` on any element; scrolling
   is opt-in per element. Matches our `ScrollView` primitive honestly rather

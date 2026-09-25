@@ -48,6 +48,7 @@ export const build = command({
 				p.cancel('Cancelled')
 				process.exit(0)
 			}
+
 			chosen = all.filter((t) => picked.includes(t.id))
 		}
 

@@ -17,6 +17,7 @@ cpSync(template, dir, { recursive: true })
 try {
 	renameSync(join(dir, 'gitignore'), join(dir, '.gitignore'))
 } catch {}
+
 console.log(`\n✓ scaffolded ${dir}`)
 
 const install = spawnSync('pnpm', ['install'], { cwd: dir, stdio: 'inherit' })

@@ -26,6 +26,7 @@ export function openOverlay() {
 	// Same unhandled-rejection hazard as openSheet: rl.open rejects when
 	// the host is still attached — close first, always handle the promise.
 	if ((rl as any).hasChild?.(host)) (rl as any).close(host)
+
 	;(
 		rl.open(host, {
 			shadeCover: { opacity: 0.4, tapToClose: true },

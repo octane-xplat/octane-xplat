@@ -12,6 +12,7 @@ export const typecheck = command({
 		const configs = ['tsconfig.json', 'tsconfig.native.json'].filter((f) =>
 			existsSync(`${cwd}/${f}`),
 		)
+
 		for (const c of configs) {
 			try {
 				await runTagged('tsc', 'pnpm', ['exec', 'tsrx-tsc', '--noEmit', '-p', c], cwd)

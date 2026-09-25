@@ -98,6 +98,7 @@ try {
 		'NavLink click uses SPA navigation',
 		await page.evaluate((origin) => performance.timeOrigin === origin, timeOrigin),
 	)
+
 	const tabsCovered = (await page.locator('.vx-tabbar').count()) === 0
 	ok('root route covers tab shell', tabsCovered)
 	await page.goBack()

@@ -12,6 +12,7 @@ export function announce(text: string): void {
 		const view = Application.android.foregroundActivity?.findViewById?.(
 			16908290 /* android.R.id.content */,
 		)
+
 		view?.announceForAccessibility?.(text)
 	}
 }
