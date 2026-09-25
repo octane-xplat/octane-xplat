@@ -5,10 +5,10 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build",
+		"build": "vite build && node scripts/build-llms.mjs",
 		"typecheck": "tsrx-tsc --noEmit",
 		"deploy": "wrangler pages deploy dist --project-name octane-xplat-docs",
-		"smoke": "vite build && node smoke.mjs"
+		"smoke": "pnpm run build && node smoke.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

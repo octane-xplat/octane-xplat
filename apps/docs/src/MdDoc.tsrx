@@ -8,6 +8,7 @@ import langJsonc from 'shiki/langs/jsonc.mjs';
 import langSh from 'shiki/langs/shellscript.mjs';
 import langCss from 'shiki/langs/css.mjs';
 import { DOCS } from './docs';
+import { docPath } from './doc-meta';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
 import { resetDocScroll } from './scroll';
 import { nbDark } from './nb-theme';
@@ -57,12 +58,6 @@ const REPO = 'https://github.com/aleclarson/octane-xplat';
 function docSlug(href: string): string | null {
 	const m = href.replace(/^\.\//, '').match(/^([\w-]+)\.md(?:#.*)?$/);
 	return m ? m[1] : null;
-}
-
-function docPath(slug: string): string {
-	const doc = DOCS.find((d) => d.slug === slug);
-	if (doc?.group === 'notes') return `/notes/${slug}`;
-	return slug === DOCS[0].slug ? '/' : `/${slug}`;
 }
 
 function docRoute(slug: string) {
