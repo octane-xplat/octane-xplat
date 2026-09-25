@@ -73,8 +73,10 @@ view. A class on one root can never reach another.
    maintain `docs/css-support-notes.md` once the prototype reveals the real
    subset. Known traps to encode early:
    - `vertical-align` (not `-alignment`); unknown props **drop silently** — and
-     NS recovers _per declaration_, so a rule can half-apply. A lint/property
-     allowlist is worth building
+     NS recovers _per declaration_, so a rule can half-apply. The preset's css
+     pass now warns on the confirmed-silent set (margin-auto, z-index,
+     position fixed/sticky, float, box-shadow, pre-wrap); a fuller
+     property allowlist stays open
    - no `position` CSS natively → `Absolute`/`Grid` primitives instead
    - no `display:none` → `visibility: collapse` (removes from layout too)
    - **no `transition` property** — animations are `@keyframes`/`animation-*`
@@ -85,7 +87,10 @@ view. A class on one root can never reach another.
      → state-transition animations need the JS facade or keyframe classes
    - `box-shadow`: web has it; native = iOS shadow props / Android `elevation`
      → wrap in a `shadow-{n}` utility class per platform
-   - units: dip default on NS, px on web; `%` measures differently
+   - units: stylesheet `px` is rewritten to `dip` by the preset's css
+     transform (NS `px` = device pixels, ~1/3 on a 3x device — silent
+     miniaturization without it); inline `style` numbers are already dips;
+     `%` measures differently
    - `overflow`, `zIndex`, `gap`, flex shorthand parity — verify per property
      (`gap` confirmed on FlexboxLayout; GridLayout needs it per-cell)
    - selector traps: bare `[attr]` matches nothing; sibling combinators
@@ -134,4 +139,5 @@ NS layout is a set of _classes_ (stack/grid/flex/dock/absolute/wrap), not one
 box model. Our Row/Column/Grid/Stack primitives (primitives.md) deliberately
 mirror that. Do not try to make web flex/grid pretend to be NS layouts inside
 shared files — shared code composes primitives; leaf impls pick the right
-layout class per platform. `gap` support on NS flexbox/stack: verify.
+layout class per platform. `gap` is supported on FlexboxLayout (NS 9: gap/
+rowGap/columnGap — the `.gap-*` utilities work); GridLayout has no gap.
