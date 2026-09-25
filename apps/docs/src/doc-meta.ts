@@ -37,6 +37,7 @@ export const ORDER = [
 	'platform-services',
 	'testing',
 	'toolchain',
+	'known-limits',
 	'status',
 	'decisions',
 	'open-questions',

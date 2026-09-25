@@ -69,6 +69,8 @@ below prevent that; `pnpm lint` enforces most of them.
 - `references/styling.md` — tokens, the portable CSS subset, dark mode.
 - `references/navigation.md` — route table, links, params, stacks.
 - `references/platform.md` — device services and writing your own leaf.
+- Current limits and platform boundaries:
+  https://octane-xplat.goddardai.org/known-limits
 - Full framework docs, one file:
   https://octane-xplat.goddardai.org/llms-full.txt (index:
   https://octane-xplat.goddardai.org/llms.txt). The `/notes/*` design

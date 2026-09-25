@@ -153,6 +153,15 @@ not maintained incrementally.
 - **Exclude repo-internal work:** docs site, harness apps
   (`packages/app`, `packages/demos`, `apps/*`), repo tooling that doesn't
   ship in a package.
+- **The docs sweep rides the same pass.** Before a version ships:
+  re-verify `docs/known-limits.md` entries stamped older than the
+  releasing version and fix what moved, then `pnpm -C apps/docs build`
+  (regenerates `llms.txt`/`llms-full.txt` from the guides).
+- **Doc examples stay tiny.** Reserve code fences for conventions types
+  can't express (file suffixes, `.tsrx` imports, specifiers like
+  `theme/tokens.css`); the `create-octane-xplat` template is the
+  canonical large example — point at its real files instead of
+  duplicating snippets.
 
 ## Invariants (the short list — full set in docs/architecture.md)
 
