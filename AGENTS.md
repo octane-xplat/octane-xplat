@@ -127,6 +127,30 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   standalone regex sweep; `xplat/no-dom-globals` covers it at lint time.
   tsrx suppressions: `xplat-disable[-line|-next-line]` comments.
 
+## Changelog
+
+`CHANGELOG.md` is generated in one pass before a version ships — it is
+not maintained incrementally.
+
+- **Do not edit it as part of feature/fix work.** Only touch
+  `CHANGELOG.md` when the task explicitly says to. Many agents appending
+  to one file is a merge-conflict farm; a single generation pass before
+  release avoids that.
+- **Range:** everything since the last *published* release — check
+  `npm view @octane-xplat/ui versions` and the
+  `chore(release): align packages at X.Y.Z` commits; git tags lag the
+  registry.
+- **Audience:** app developers, not framework maintainers. What they can
+  now do, what behavior changed, what to watch for when upgrading. Verify
+  the public surface from `index.*.ts` export diffs, not commit messages.
+  Plain language — explain or drop internals.
+- **Shape:** group by theme (navigation, components, layout, toolchain,
+  state), then a Fixed list, then Upgrading — new peer deps, behavior
+  changes that could surprise, opt-ins.
+- **Exclude repo-internal work:** docs site, harness apps
+  (`packages/app`, `packages/demos`, `apps/*`), repo tooling that doesn't
+  ship in a package.
+
 ## Invariants (the short list — full set in docs/architecture.md)
 
 1. One element vocabulary per file; platform divergence at file boundaries
