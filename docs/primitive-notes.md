@@ -58,6 +58,8 @@ interface PrimitiveProps {
 | `KeyboardAvoiding`          | mostly unnecessary (visual viewport API)                  | scrollview + `input-accessory`/inset management                                                | iOS vs Android differ internally — acceptable leaf complexity                                                                                                                                                                                                                                                                                                                                                           |
 | `WebView`                   | `iframe`                                                  | `webview`                                                                                      | probably web/native divergent enough to skip in v1                                                                                                                                                                                                                                                                                                                                                                      |
 | `Overlay`/`Popover`/`Toast` | anchored `div` (floating-ui) / portal                     | `RootLayout.open(view, {shadeCover, animation})` — imperative bridge, own sub-root per overlay | getRootLayout returns FIRST registered RootLayout — app root is `<rootlayout>`; give modal roots ids (`getRootLayoutById`). One shade cover; every open/close call returns a rejecting promise — always `.catch`. Portals absent on native driver → this is the path                                                                                                                                                    |
+| `LiquidGlass`               | `div` + `vx-glass` (backdrop-filter approximation)        | `liquidglass` (registered) — root IS an interactive `UIVisualEffectView`+`UIGlassEffect`       | real material on iOS 26+ only; inert layout on Android / iOS <26. See the Liquid Glass section                                                                                                                                                                                                                                                                                                                      |
+| `LiquidGlassContainer`      | `div` + `vx-absolute`                                     | `liquidglasscontainer` (registered) — `UIGlassContainerEffect` on AbsoluteLayout               | merged-glass region — glass siblings morph together across `spacing` dips; children position via `left`/`top`                                                                                                                                                                                                                                                         |
 
 **Child layout props are part of the shared surface** — `row`, `col`,
 `rowSpan`, `colSpan`, `dock`, `left`, `top`, `flexGrow`, `flexShrink`,
@@ -250,6 +252,42 @@ Declarative form resolves its root via the `rootLayoutFor` sentinel walk
 theme classes via `applyThemeClasses`; `closeSheet()` / `sheetHost()`
 support imperative dismiss + harness asserts. iOS-verified through the
 existing sheet sweep asserts.
+
+## Liquid Glass (decision #37)
+
+`@nativescript/core` ≥ 9.1 ships three seams the primitives wrap; all are
+`supportsGlass()`-gated — `__APPLE__ && SDK_VERSION >= 26` — so everything
+degrades to inert layouts on Android and iOS < 26:
+
+| Surface                    | Wraps                         | Behavior                                                                                                                                                                                                      |
+| -------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LiquidGlass`              | `liquidglass` layout          | Element root IS the glass — interactive, touch-tracking `UIGlassEffect`. Props `variant` (`'regular'`/`'clear'`, default `'regular'`), `interactive` (default `true`), `tint`, `animateChangeDuration`            |
+| `LiquidGlassContainer`     | `liquidglasscontainer` layout | `UIGlassContainerEffect` region — sibling glass views morph together across `spacing` (default 8). AbsoluteLayout host: children position via `left`/`top`, or nest layout primitives inside                    |
+| `glass` prop on containers | `iosGlassEffect` View prop    | `View`/`Stack`/`Grid`/`Row`/`Absolute`/`Pressable`/`ScrollView` take `glass={true \| 'regular' \| 'clear' \| GlassConfig}` — background glass inserted behind the view's content. **Never interactive upstream** |
+
+Caveats found reading the 9.1.2 implementation:
+
+- **Always pass `iosGlassEffect` a config object.** The string shorthand
+  (`'regular'`) rebuilds the `UIGlassEffect` with `interactive` unset —
+  `LiquidGlass` loses its touch-tracking on prop updates. The leafs
+  normalize through `glass.ts` so shared code never hits this.
+- The generic-view glass (`glass` prop) inserts a non-interactive
+  `UIVisualEffectView` at index 0 and sizes it a `setTimeout` after mount —
+  real interactive glass requires the `LiquidGlass` layout, not the prop.
+- `spacing`/`interactive`/`animateChangeDuration` read only from a config
+  object, and `spacing` applies only on the container's `effectType`.
+- Verification needs an **Xcode ≥ 26 build** — NS metadata for
+  `UIGlassEffect`/`UIGlassContainerEffect` is generated from the SDK at
+  build time; `supportsGlass()` checks only the runtime version.
+- Web is an approximation: `vx-glass` = `backdrop-filter` + translucent
+  surface behind `@supports`; `tint` becomes the surface color; no
+  merging or touch-tracking. The class is also stamped on native so apps
+  can CSS their own fallback for non-glass OSes.
+
+**Verified (iOS 26.5 sim, Xcode 26.6):** `liquidglass`/`liquidglasscontainer`
+mount with `UIVisualEffectView` roots carrying live `UIGlassEffect` /
+`UIGlassContainerEffect`; `glass` prop round-trips `iosGlassEffect` on the
+host view — all sweep asserts green.
 
 ## Pressable & input conventions
 

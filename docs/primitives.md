@@ -15,6 +15,7 @@
 | Accept one or more lines              | `TextInput`, `TextArea` |
 | Scroll content                        | `ScrollView`            |
 | Show temporary content above a screen | `Modal`                 |
+| Float a glass surface (iOS 26+)       | `LiquidGlass`           |
 
 Start with these components. They are deliberately smaller than the browser
 DOM or the full NativeScript view catalog, which makes a shared screen easier
