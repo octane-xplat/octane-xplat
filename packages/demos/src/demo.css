@@ -115,7 +115,7 @@
 }
 
 .dialer-key-label {
-	color: var(--color-on-primary);
+	color: var(--color-onprimary);
 	font-size: 24px;
 }
 
@@ -243,7 +243,7 @@
 }
 
 .layout-badge {
-	background-color: #dc2626;
+	background-color: var(--color-danger);
 	color: #ffffff;
 	padding: 3px 8px;
 	border-radius: 8px;

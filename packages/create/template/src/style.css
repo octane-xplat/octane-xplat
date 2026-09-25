@@ -65,7 +65,7 @@ body {
 
 .btn {
 	background-color: var(--color-primary);
-	color: var(--color-on-primary);
+	color: var(--color-onprimary);
 	padding: 10px 20px;
 	border-radius: 10px;
 	corner-shape: squircle;
@@ -74,7 +74,7 @@ body {
 
 .chip {
 	background-color: var(--color-primary);
-	color: var(--color-on-primary);
+	color: var(--color-onprimary);
 	padding: 6px 14px;
 	border-radius: 14px;
 	corner-shape: squircle;

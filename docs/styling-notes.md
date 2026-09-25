@@ -30,6 +30,38 @@ plugin doesn't map to core's `transform`. Until those land, the curated
 utility subset in `tokens.css` is the supported vocabulary — it keeps every
 class inside the NS-supported CSS intersection.
 
+### Tailwind-replaceability audit (2026-09-25)
+
+The curated subset is kept **drop-in replaceable** by Tailwind v4 so adoption
+later is a toolchain swap, not a refactor. Audited every Tailwind-vocabulary
+class we ship/use against v4's emission:
+
+- **Aligned already:** `grow`, `shrink-0`, `min-w-0`, `min-h-0`,
+  `items-center`, `justify-center`, `gap-2`/`gap-4` (values match v4's
+  `--spacing` math), `font-bold` (`bold`≡`700`), `bg-primary` (v4 resolves
+  `--color-primary`), `rounded-full` (9999px ≈ `calc(infinity*1px)`),
+  `rounded-*` (consume `--radius-*` — same var names v4 uses; our scale
+  becomes `@theme` overrides), `vx-*`/`btn`/`chip`/`input` (custom, unaffected).
+- **Fixed in the audit:** `.flex-1` now emits `flex: 1 1 0%` (v4's exact
+  declaration — web identical, NS parses grow/shrink from the shorthand and
+  ignores the basis token); added missing `.items-start` (was a dead class in
+  Divergence.tsrx); `--color-on-primary`→`--color-onprimary` (v4 maps
+  `text-onprimary`→`--color-onprimary` — token and class names must share
+  segments); `--color-danger` token added, `.bg-danger`/`.layout-badge`
+  consume it.
+- **Residual deltas to handle at adoption time:** `text-*` — v4 also emits
+  `line-height` (additive on NS; plan `--text-*--line-height: normal` in
+  `@theme` or keep own `text-*` classes); `rounded-*` carry our
+  `corner-shape: squircle` (not expressible in Tailwind — keep the classes or
+  accept round corners); `--space-*` vs v4's single `--spacing` base unit;
+  `shadow-2`/`btn`/`chip` are custom names that simply coexist.
+
+**Authoring rule going forward:** a Tailwind-vocabulary class must match
+v4's semantics exactly, and a `--color-<key>` token must be named after the
+class segment that consumes it (`bg-onprimary`↔`--color-onprimary`). If a
+needed utility can't match v4 semantics inside the NS intersection, give it
+a non-Tailwind name (`vx-*` or descriptive) instead.
+
 ### Why CSS vars carry the theme
 
 - NS supports `--x`, `var(--x, fallback)`, nested fallbacks, scoped and

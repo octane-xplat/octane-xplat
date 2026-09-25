@@ -4,7 +4,10 @@
 :root,
 .ns-root {
 	--color-primary: #171717;
-	--color-on-primary: #fafafa;
+	/* Token names double as the future Tailwind theme keys: text-onprimary
+	   resolves --color-onprimary, bg-danger resolves --color-danger. Keep
+	   class-name segments and var-name segments identical. */
+	--color-onprimary: #fafafa;
 	--color-surface: #ffffff;
 	--color-surface-secondary: #fafafa;
 	--color-text: #0a0a0a;
@@ -26,7 +29,7 @@
 .ns-dark,
 .dark {
 	--color-primary: #ededed;
-	--color-on-primary: #171717;
+	--color-onprimary: #171717;
 	--color-surface: #0a0a0a;
 	--color-surface-secondary: #141414;
 	--color-text: #ededed;
@@ -404,8 +407,11 @@ button {
    NativeScript/tailwind#226 is resolved; the plugin strips core-supported
    props incl. gap, drops all @media, and rewrites invisible→collapse) */
 
+/* flex-1 keeps Tailwind v4's exact emission (`flex: 1 1 0%`) — web gets
+   identical semantics, NS parses grow/shrink out of the shorthand and
+   ignores the basis token it can't model. */
 .flex-1 {
-	flex-grow: 1;
+	flex: 1 1 0%;
 }
 /* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
  * shrinkability: grow children never shrink below intrinsic width, fixed
@@ -429,6 +435,9 @@ button {
 }
 .items-baseline {
 	align-items: baseline;
+}
+.items-start {
+	align-items: flex-start;
 }
 .justify-center {
 	justify-content: center;
@@ -499,7 +508,7 @@ button {
 	background-color: var(--color-primary);
 }
 .text-onprimary {
-	color: var(--color-on-primary);
+	color: var(--color-onprimary);
 }
 .bg-danger {
 	background-color: var(--color-danger);
@@ -612,7 +621,7 @@ button.vx-tab {
 /* `.vx-app label` above (descendant + type) outranks single-class text
    colors inside the app root — roles that must win escalate here. */
 .vx-app .text-onprimary {
-	color: var(--color-on-primary);
+	color: var(--color-onprimary);
 }
 .vx-app .text-muted {
 	color: var(--color-text-secondary);

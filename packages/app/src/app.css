@@ -159,7 +159,7 @@ body {
 }
 
 .sheet-panel .text-onprimary {
-	color: var(--color-on-primary);
+	color: var(--color-onprimary);
 }
 
 .overlay-panel {
@@ -180,7 +180,7 @@ body {
 }
 
 .overlay-panel .text-onprimary {
-	color: var(--color-on-primary);
+	color: var(--color-onprimary);
 }
 
 .modal-panel {
@@ -193,7 +193,7 @@ body {
 }
 
 .modal-panel .text-onprimary {
-	color: var(--color-on-primary);
+	color: var(--color-onprimary);
 }
 
 /* Route-layout banner — marks the demo/* directory wrap (descendant +
