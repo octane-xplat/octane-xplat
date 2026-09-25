@@ -37,8 +37,10 @@ app/chat/_layout.tsrx  → wraps every 'chat/*' route
 
 `deriveRouteManifest` turns the glob into the table and `registerRoutes`
 registers it once at boot — there is no per-screen wiring to maintain.
-`xplat routes` regenerates `routes.gen.ts` so route names and params stay
-typed.
+`xplat routes` (run automatically by `xplat dev`/`xplat build`, or by the
+`gen` script) emits `routes.gen.types.ts` + `routes.gen.web.ts` /
+`routes.gen.native.ts` — the typed names and the platform-specific globs +
+registration all live in generated code; `routes.ts` just re-exports.
 
 ## Present a route modally
 

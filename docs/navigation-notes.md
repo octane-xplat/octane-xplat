@@ -37,10 +37,12 @@ app/                          (shared route dir — implemented)
 
 ### Mechanism (v1, implemented)
 
-The dir is scanned by `import.meta.glob` in per-platform manifest leaves —
-the _directory-level_ form of the suffix seam (invariant 1):
-`route-manifest.web.ts` excludes `*.native/ios/android.*`, the native twin
-excludes `*.web.*` and prefers the running OS via `Device.os`.
+The dir is scanned by `import.meta.glob` in generated platform leaves —
+`xplat routes` emits `routes.gen.web.ts` (excludes `*.native/ios/android.*`)
+and `routes.gen.native.ts` (excludes `*.web.*`, prefers the running OS via
+`Device.os`) next to `routes.gen.types.ts`. `xplat dev`/`xplat build`
+regenerate them automatically when a route dir exists — there is no
+hand-written manifest file or manual `registerRoutes` call in app code.
 `deriveRouteManifest(files, prefer)` (`packages/ui/src/route-table.ts`)
 turns the module map into `{screens, routes, layouts}`:
 
