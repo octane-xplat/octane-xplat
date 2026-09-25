@@ -141,6 +141,9 @@ importers:
       '@nativescript/vite':
         specifier: 8.0.11
         version: 8.0.11(patch_hash=01e8ec507576adffb9bf35238e316e15807b64c167e5e03602756567c2e670f2)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@octanejs/vite-plugin':
         specifier: 0.1.58
         version: 0.1.58(octane@file:research/dist-packs/octane-0.4.0-universal-signals.tgz(patch_hash=d43757871a21b35b6d504bd53e30ca75afcbac48ea6d56437f0cd3f1b37306f4)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))

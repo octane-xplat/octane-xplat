@@ -5,6 +5,12 @@
 	"bin": {
 		"xplat": "./src/cli.mjs"
 	},
+	"exports": {
+		"./vite": {
+			"types": "./src/vite.d.ts",
+			"default": "./src/vite.mjs"
+		}
+	},
 	"files": [
 		"src"
 	],
