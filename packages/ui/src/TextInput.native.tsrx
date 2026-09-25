@@ -5,7 +5,9 @@ import { applyEscapeProps } from "./escape-props";
 
 /** Controlled single-line input. The driver suppresses the textChange echo
  *  of its own `text` writes (upstream #5, since 0.2.1) — no leaf-side
- *  guard needed. */
+ *  guard needed. `editable` defaults true at the leaf too: an undefined
+ *  write coerces ios.userInteractionEnabled to NO (dead field) — the
+ *  driver's skip-undefined patch covers it, the ?? stays as documentation. */
 export function TextInput(props: TextInputProps) @{
 	<textfield
 		ref={(v: any) => {
@@ -21,7 +23,7 @@ export function TextInput(props: TextInputProps) @{
 		secure={props.secure}
 		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 		returnKeyType={props.returnKeyType}
-		editable={props.editable}
+		editable={props.editable ?? true}
 		onTextChange={(e: any) => props.onChange?.(e.value)}
 		onReturnPress={props.onSubmit}
 		onFocus={props.onFocus}

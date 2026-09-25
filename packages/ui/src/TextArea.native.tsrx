@@ -50,7 +50,7 @@ export function TextArea(props: TextAreaProps) @{
 		hint={props.placeholder ?? props.hint}
 		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 		returnKeyType={props.returnKeyType}
-		editable={props.editable}
+		editable={props.editable ?? true}
 		onLoaded={(e: any) => fit(e.object)}
 		onTextChange={(e: any) => props.onChange?.(e.value)}
 		onReturnPress={props.onSubmit}

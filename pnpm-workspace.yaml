@@ -61,5 +61,6 @@ allowBuilds:
 # sockets so the update summary stops reporting recipients=0 for delivered
 # updates. Drop once a release carries the fix.
 patchedDependencies:
+  '@nativescript-community/octane@0.2.1': patches/@nativescript-community__octane@0.2.1.patch
   '@nativescript-community/vite-octane@0.2.1': patches/@nativescript-community__vite-octane@0.2.1.patch
   '@nativescript/vite@8.0.11': patches/@nativescript__vite@8.0.11.patch
