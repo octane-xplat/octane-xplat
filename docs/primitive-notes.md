@@ -232,6 +232,25 @@ Caveats learned in the sweep:
   rather than id-search the tree — the owning shell may be unloaded by the
   time the assert reads.
 
+### Sheet — two semantics, two APIs (decision #35)
+
+`Modal presentation='sheet'` is a *system* modal — separate window root,
+native sheet on iOS. The `Sheet` primitive is the **in-window** bottom
+sheet — content stays inside the app window on the declaring page's
+RootLayout (native) or a `document.body` portal layer (web):
+
+```ts
+<Sheet open={open} onDismiss={…} shadeCover?>…bottom panel…</Sheet>
+openSheet(Component, params) → Promise<result>   // openModal-shaped service
+```
+
+Declarative form resolves its root via the `rootLayoutFor` sentinel walk
+(same as `Overlay`); the imperative service uses `topRootLayout()` and a
+**fresh host + root per open** — no stale-parent reopen dance. Host carries
+theme classes via `applyThemeClasses`; `closeSheet()` / `sheetHost()`
+support imperative dismiss + harness asserts. iOS-verified through the
+existing sheet sweep asserts.
+
 ## Pressable & input conventions
 
 ```ts
