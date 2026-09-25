@@ -8,9 +8,11 @@
 >
 > **Owns:** #2 navigation contract · **Status:** mapped; Q6/Q14 resolved
 > (boundaries = `@try`; HMR = self-accepting modules, named exports stay
-> convention) · **Blocks on:** none blocking · **Decisions:** #8, #9, #13, #19
-> · **Validated by:** two shared screens + `Link` + `goBack` on both targets,
-> then a modal route as second native root.
+> convention) · **Blocks on:** Android named stacks (#11444 upstream) ·
+> **Decisions:** #8, #9, #13, #19, #30 · **Validated by:** route-dir
+> manifest on both leaves — pushes, named-stack panes, `+modal` showModal
+> root, nested `_layout` wrap, `loader` prefetch, deep links, web scroll
+> restore, `xplat routes` codegen. iOS sweep green.
 
 ## The contract
 
@@ -46,20 +48,42 @@ turns the module map into `{screens, routes, layouts}`:
   `foo/index.tsrx` → `foo`; trailing `index` drops.
 - Platform suffix dedupe by `prefer` rank: web `['web']`, native
   `['ios'|'android','native']`; suffixes outside `prefer` are skipped.
-- `_layout` files catalog into `layouts[dir]` (`''` = root) — the entry
-  renders `routes.layouts['']` as the app shell; nested layouts are
-  cataloged but not yet wired to outlets.
+- `settings+modal.tsrx` → route `settings` with `meta.presentation:
+  'modal'` — declarative default for modal presentation (`+fade` = push
+  with fade transition); `Route.presentation` on the push overrides.
+- `_layout` files catalog into `layouts[dir]` (`''` = root). The entry
+  renders `routes.layouts['']` as the app shell; nested layouts wrap
+  descendant routes — `layoutChain(name)` resolves the ancestor-dir
+  chain, native wraps the pushed Page's root component
+  (`universalComponent` + `universalChildren`), web outlets wrap the
+  resolved element.
+- A `loader` named export lands on `RouteMeta.loader` — prefetch, not a
+  data layer: both leaves' `pushRoute` fire it before navigating so the
+  screen's `query$` reads mount against a warm cache. `loader` is
+  excluded from the single-function screen pick.
 - Component pick rule: `default` export → `screen` export → a single
   function export; anything else warns and skips.
 
 `registerRoutes(manifest)` (ui, both leaves) registers screens + URL
-patterns in one call — `packages/app/src/routes.ts` does it at module
-scope. Web: `pushRoute` substitutes `:param` segments into the path
-(`demo/:id` + `{id:'x'}` → `/demo/x`; leftover params → query) and
+patterns + layouts in one call — `packages/app/src/routes.ts` does it at
+module scope. Web: `pushRoute` substitutes `:param` segments into the
+path (`demo/:id` + `{id:'x'}` → `/demo/x`; leftover params → query) and
 `parse()` matches incoming paths back to `{stack, name, params}` — named
-stacks keep the `/<stack>/<path>` prefix. Native: unchanged — `route.name`
-resolves through `screens`, params land as props. `hrefFor(route)` is the
+stacks keep the `/<stack>/<path>` prefix. Native: `route.name` resolves
+through `screens`, params land as props. `hrefFor(route)` is the
 canonical path builder (Link's href).
+
+Modal routes: native presents via `showModal` on the current page — a
+tracked root, so `popRoute` dismisses the newest modal before touching
+the stack and `currentModalRoute`/`useModalRoute` read it (the screen
+gets a `close` prop). Web pushes the URL but overlays the modal over the
+shell (`vx-modalroute` pane in `Tabs`), preserving the underlying route;
+back dismisses it. `pushDeepLink(url)` on both leaves normalizes
+http(s)/app-scheme URLs (`linkPath`) and matches the manifest
+(`matchUrl`) — apps wire `onDeepLink(pushDeepLink)` +
+`consumeInitialUrl()` at boot. Web scroll positions save per URL key and
+restore on popstate (the `lastKey` tracker matters — `location` has
+already changed when popstate fires).
 
 ## Mapping
 
@@ -119,11 +143,38 @@ canonical path builder (Link's href).
 2. `Stack` (frame) + `Tabs` shells on native; URL router on web. — done.
 3. ~~Platform-suffixed route files via the resolver.~~ done — glob
    manifests are the directory-level suffix seam.
-4. Modal route as second native root.
-5. Android back + deep link + typed routes codegen. — back + deep link
-   done; codegen (typed `RouteName`/params, `routes.d.ts`) remains.
+4. ~~Modal route as second native root.~~ done — `+modal` manifest suffix
+   or `Route.presentation:'modal'`; native `showModal` root, web overlay
+   preserving the underlying URL. iOS verified (sweep asserts green).
+5. ~~Android back + deep link + typed routes codegen.~~ done — back +
+   `pushDeepLink` (`matchUrl`/`linkPath` shared) wired; `xplat routes`
+   emits `routes.gen.ts` (`RouteName`/`RouteParams`/`RoutePresentations`).
+6. Nested `_layout` chains wrap descendant routes — done (iOS + web).
+   Web scroll restoration per URL — done. Remaining: Android nested
+   stacks (#11444), named transitions beyond fade, multi-window seam.
 
 ## Lab log
+
+> **Lab (presentations + nested layouts, iOS + web, 2026-09-24):**
+> `about+modal.tsrx` lands `presentation:'modal'` on the manifest — a
+> Home `NavLink` taps through to a real `showModal` root (presenter
+> `currentPage` untouched), the screen mounts inside the modal host, and
+> `popRoute` dismisses it; all three sweep asserts green on iOS.
+> `demo/_layout.tsrx` wraps `demo/:id` — web verified (banner renders in
+> `/demos/demo/counter` DOM) and native goes through the same
+> `wrapInLayouts` path (universalComponent + universalChildren). iOS
+> sweep 87 OK / 3 pre-existing FAIL (`list rebind order`, `popover
+> anchored`, `overlay opens` — identical before the change).
+>
+> **Trap — modal dismiss bookkeeping:** iOS drops
+> `dismissViewControllerAnimated` completions that race a still-in-flight
+> presentation, so `showModal`'s `closeCallback` isn't guaranteed to run.
+> `popRoute` splices `modalHosts` eagerly and lets `closeModal` drive only
+> the visual dismiss — never gate route state on the completion.
+>
+> **Web scroll restore:** scroll positions save per URL under a `lastKey`
+> tracker — `popstate` fires after `location` changes, so keying the
+> outgoing save off `location` writes it under the incoming URL.
 
 > **Lab (route dir, web, 2026-09-24):** `packages/app/src/app/` holds the
 > harness routes — `_layout.tsrx` (the Tabs shell, rendered via
