@@ -230,13 +230,20 @@ body {
 
 .side {
 	width: 240px;
+	min-height: 0;
 	border-right-width: 4px;
 	border-right-color: var(--nb-ink);
 	border-right-style: solid;
 	overflow-y: auto;
 }
 
+.side .vx-list {
+	flex-grow: 0;
+	flex-shrink: 0;
+}
+
 .side-item {
+	flex-shrink: 0;
 	padding: 14px 20px;
 	border-bottom-width: 2px;
 	border-bottom-color: var(--nb-ink);
