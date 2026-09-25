@@ -5,20 +5,34 @@ import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
 import langTs from 'shiki/langs/typescript.mjs';
 import langTsx from 'shiki/langs/tsx.mjs';
 import langJsonc from 'shiki/langs/jsonc.mjs';
-import themeDark from 'shiki/themes/vitesse-dark.mjs';
+import langSh from 'shiki/langs/shellscript.mjs';
+import langCss from 'shiki/langs/css.mjs';
 import { DOCS } from './docs';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
 import { resetDocScroll } from './scroll';
+import { nbDark } from './nb-theme';
 
 // JS regex engine — no wasm fetch, fully sync. Code slabs are always black,
-// so vitesse-dark tokens work in both color modes.
+// so the one nb-dark theme works in both color modes.
 const hl = createHighlighterCoreSync({
-	langs: [langTs, langTsx, langJsonc],
-	themes: [themeDark],
+	langs: [langTs, langTsx, langJsonc, langSh, langCss],
+	themes: [nbDark],
 	engine: createJavaScriptRegexEngine(),
 });
 
-const LANGS = new Set(['ts', 'typescript', 'tsx', 'jsonc', 'json']);
+// fence label → loaded grammar (unlisted fences render as plain text)
+const LANGS: Record<string, string> = {
+	ts: 'typescript',
+	typescript: 'typescript',
+	tsx: 'tsx',
+	json: 'jsonc',
+	jsonc: 'jsonc',
+	sh: 'shellscript',
+	bash: 'shellscript',
+	shell: 'shellscript',
+	zsh: 'shellscript',
+	css: 'css',
+};
 
 function tokenStyle(t: { color?: string; fontStyle?: number }) {
 	return {
@@ -29,8 +43,8 @@ function tokenStyle(t: { color?: string; fontStyle?: number }) {
 }
 
 function CodeBlock(props: { code: string; lang: string }) @{
-	const lang = LANGS.has(props.lang) ? props.lang : 'text';
-	const { tokens } = hl.codeToTokens(props.code, { lang, theme: 'vitesse-dark' });
+	const lang = LANGS[props.lang] ?? 'text';
+	const { tokens } = hl.codeToTokens(props.code, { lang, theme: 'nb' });
 
 	<View className="code"><Text className="mono">
 		{tokens.map((line) => <>{line.map((t) => <Text style={tokenStyle(t)}>{t.content}</Text>)}{'\n'}</>)}
