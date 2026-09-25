@@ -102,6 +102,13 @@ Everything added, changed, and fixed since 0.3.0.
   `box-shadow`, auto margins, and friends) and suggests the portable
   alternative. Blocks marked web-only are stripped from the native
   bundle.
+- **`@octane-xplat/lint`.** A new lint package (run with `xplat-lint`)
+  that catches cross-platform mistakes at lint time instead of letting
+  them fail silently on device — DOM globals in shared files, web-only
+  APIs, NativeScript imports in shared code, style properties native
+  ignores, unitless `lineHeight`, hooks in plain `.ts` files, and more.
+  It lints `.tsrx` files too, and `--fix` applies supported fixes. New
+  projects created with `create-octane-xplat` get it preconfigured.
 
 ### State and reactivity
 
@@ -143,3 +150,6 @@ Everything added, changed, and fixed since 0.3.0.
 - If your app uses pnpm, declare `cli.packageManager = 'pnpm'` in
   `nativescript.config.ts` — otherwise `ns build` can fail to resolve
   symlinked packages.
+- Existing apps can opt into the lint rules with
+  `pnpm add -D @octane-xplat/lint oxlint` — setup steps are in the
+  package README.
