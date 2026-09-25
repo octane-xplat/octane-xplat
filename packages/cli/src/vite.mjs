@@ -30,20 +30,86 @@ const req = createRequire(join(process.cwd(), 'package.json'))
 const importApp = (spec) =>
 	import(pathToFileURL(realpathSync(req.resolve(spec))).href)
 
+/** CSS that NS parses but silently ignores or misreads — the app looks
+ *  identical in source but diverges at runtime. Warned at build time so the
+ *  divergence is loud instead of invisible. Each entry: pattern + the
+ *  portable alternative. */
+const CSS_DIVERGENCES = [
+	[
+		/margin-(?:left|right|top|bottom)\s*:\s*auto|margin\s*:[^;{}]*\bauto\b/,
+		'auto margins are ignored on native — use justify-content, alignSelf, or a <Spacer/>',
+	],
+	[
+		/position\s*:\s*(fixed|sticky)\b/,
+		'position: fixed/sticky does not exist on native — overlays go through Overlay/Modal services, not positioning',
+	],
+	[
+		/\bz-index\s*:/,
+		'z-index is inert on native — paint order follows document order',
+	],
+	[/\bfloat\s*:/, 'float is unsupported on native — use flex rows'],
+	[
+		/\bbox-shadow\s*:/,
+		'box-shadow is inert on native — Android elevation and iOS shadows do not map to it (framework mapping is a TODO)',
+	],
+	[
+		/white-space\s*:\s*pre-wrap\b/,
+		'Label rejects white-space:pre-wrap — "wrap" is the native wrap value (no space/newline preservation)',
+	],
+]
+
 /**
- * Shared stylesheets are authored in web units: `px` means the web pixel,
- * which maps to a device-independent unit. NativeScript CSS reads `px` as
- * _device_ pixels — `width:88px` measures 29 dips on a 3x device — so the
- * native bundle rewrites px lengths to `dip`. Inline `style` props are
- * already dips and are untouched.
+ * Shared stylesheets are authored in web units and web semantics. For the
+ * native bundle this transform (a) rewrites `px` lengths to `dip` — NS CSS
+ * reads `px` as _device_ pixels, not dips (`width:88px` measures 29 dips on
+ * a 3x device); inline `style` props are already dips and untouched — and
+ * (b) warns once per file on declarations NS silently ignores, so the
+ * divergence is loud at build time.
  */
 function pxToDip() {
+	const warned = new Set()
+	const process = (code, id, warn) => {
+		// Framework authors mark web-only rule blocks — overlays, popovers,
+		// dialog modals render through RootLayout/showModal natively, so
+		// their CSS is dead weight (and would trip the divergence warnings).
+		// Stripped before the warn pass.
+		code = code.replace(
+			/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g,
+			'',
+		)
+		for (const [re, hint] of CSS_DIVERGENCES) {
+			const key = id + '|' + hint
+			if (re.test(code) && !warned.has(key)) {
+				warned.add(key)
+				warn(`${id}: ${hint}`)
+			}
+		}
+		return code.replace(/(-?\d+(?:\.\d+)?)px\b/g, '$1dip')
+	}
+
 	return {
-		name: 'xplat-px-to-dip',
+		name: 'xplat-native-css',
 		enforce: 'pre',
+		// Per-file pass — covers dev serving where css is transformed
+		// per module (the /ns/m bridge path).
 		transform(code, id) {
-			if (id.split('?')[0].endsWith('.css'))
-				return code.replace(/(-?\d+(?:\.\d+)?)px\b/g, '$1dip')
+			if (!id.split('?')[0].endsWith('.css')) return
+			return process(code, id, (m) => this.warn(m))
+		},
+		// Build pass — @nativescript/vite collects emitted .css assets in
+		// generateBundle and serializes them via addTaggedAdditionalCSS;
+		// @import inlining bypasses the transform hook, so the asset text
+		// must be rewritten here. 'pre' ordering lands us before it.
+		generateBundle(_opts, bundle) {
+			for (const file of Object.values(bundle)) {
+				if (file.type === 'asset' && file.fileName.endsWith('.css')) {
+					const src =
+						typeof file.source === 'string'
+							? file.source
+							: new TextDecoder().decode(file.source)
+					file.source = process(src, file.fileName, (m) => this.warn(m))
+				}
+			}
 		},
 	}
 }
