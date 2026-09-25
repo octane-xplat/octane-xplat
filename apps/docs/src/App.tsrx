@@ -62,6 +62,9 @@ export function App() @{
 				<List items={DOCS.filter((d) => d.group === 'guides')} renderItem={renderDoc} />
 				<Text className="side-head">notes</Text>
 				<List items={DOCS.filter((d) => d.group === 'notes')} renderItem={renderDoc} />
+				<a className="side-foot" href="/llms.txt" target="_blank" rel="noopener">
+					<Text className="side-foot-text">llms.txt — agent entry</Text>
+				</a>
 			</View>
 			<ScrollView id="doc-content" className="content">
 				<MdDoc md={doc.md} />

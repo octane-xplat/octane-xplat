@@ -23,3 +23,8 @@ pnpm typecheck      # web + native tsconfigs
 ```
 
 Docs: [Running and checking an app](https://octane-xplat.goddardai.org/toolchain)
+
+The scaffolded app ships `.agents/skills/xplat/` — a skill with the
+invariants agents need before writing code (element vocabulary, DOM-global
+rules, signal naming, compiler surprises) plus per-domain references.
+Agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs.

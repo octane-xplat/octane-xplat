@@ -36,6 +36,9 @@ Docs:
 - [Building screens](https://octane-xplat.goddardai.org/primitives) — the element vocabulary
 - [Styling screens](https://octane-xplat.goddardai.org/styling) — classes, tokens, runtime styles
 - [Moving between screens](https://octane-xplat.goddardai.org/navigation) — routes and links
+- [Known limits](https://octane-xplat.goddardai.org/known-limits) — broken/platform-bound seams, version-stamped
+
+For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs; `llms-full.txt` inlines every guide.
 
 Rules for consumers:
 

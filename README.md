@@ -28,6 +28,11 @@ Platform divergence happens at file boundaries — `Foo.web.tsrx`,
 guides for primitives, styling, navigation, overlays, and platform
 services, plus the design notes behind the framework.
 
+For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)
+indexes the docs; `llms-full.txt` inlines every guide in one file. The
+starter ships a `.agents/skills/xplat/` skill with the invariants agents
+need before writing code.
+
 Packages: [`@octane-xplat/ui`](https://www.npmjs.com/package/@octane-xplat/ui)
 (the framework) and `create-octane-xplat` / `@octane-xplat/cli` on npm.
 

@@ -33,3 +33,4 @@ export default defineConfig(({ mode }) => xplatNative(mode))
 ```
 
 Docs: [Running and checking an app](https://octane-xplat.goddardai.org/toolchain)
+— agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)

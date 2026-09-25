@@ -277,6 +277,28 @@ body {
 	font-weight: 900;
 }
 
+.side-foot {
+	display: block;
+	flex-shrink: 0;
+	padding: 14px 20px;
+	border-top-width: 2px;
+	border-top-color: var(--nb-ink);
+	border-top-style: solid;
+	text-decoration: none;
+}
+
+.side-foot:hover {
+	background-color: var(--nb-violet);
+}
+
+.side-foot-text {
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--nb-ink);
+}
+
 .content {
 	flex-grow: 1;
 	min-height: 0;
@@ -649,6 +671,9 @@ body {
 		border-bottom-width: 0;
 		border-right-width: 2px;
 		white-space: nowrap;
+	}
+	.side-foot {
+		display: none;
 	}
 
 	/* content: tighter canvas, smaller type scale */

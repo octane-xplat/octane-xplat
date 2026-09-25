@@ -28,6 +28,8 @@ links, and more. The full capability map lives in the docs:
 - [Using device features](https://octane-xplat.goddardai.org/platform-services) — guide
 - [Platform-service notes](https://octane-xplat.goddardai.org/notes/platform-notes) — per-capability impl map
 
+For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs; `llms-full.txt` inlines every guide.
+
 Rules for consumers:
 
 - Import from the package (`'@octane-xplat/platform'` or a submodule like

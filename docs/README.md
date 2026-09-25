@@ -16,6 +16,15 @@ the framework itself.
 5. [Using device features](platform-services.md) — use storage, permissions,
    and other capabilities safely.
 6. [Running and checking an app](toolchain.md) — develop, build, and test.
+7. [Known limits](known-limits.md) — what's broken or platform-bound in the
+   current release.
+
+## Machine-readable
+
+[llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes these docs
+for agents; `llms-full.txt` inlines every guide in one file. Apps
+scaffolded by `create-octane-xplat` carry an `xplat` agent skill with the
+invariants.
 
 ## What belongs in the notes
 
