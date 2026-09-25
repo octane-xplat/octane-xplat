@@ -27,6 +27,15 @@
 	gap: 8px;
 }
 
+.rich-text-sample {
+	font-size: 18px;
+}
+
+.rich-text-link {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
 .chip-off {
 	opacity: 0.45;
 }

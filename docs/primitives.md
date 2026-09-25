@@ -10,6 +10,7 @@
 | Group content                         | `View`                  |
 | Put items in a row                    | `Row`                   |
 | Show text                             | `Text`                  |
+| Compose styled or tappable inline text | `RichText` + `RichTextSpan` |
 | Respond to a tap                      | `Pressable`             |
 | Render repeated items                 | `List`                  |
 | Accept one or more lines              | `TextInput`, `TextArea` |
@@ -40,6 +41,11 @@ export function EmptyState() {
 
 Use `className` for reusable visual styles, `style` for values that change at
 runtime, and shared event names such as `onPress` and `onChange`.
+
+For mixed formatting or inline links, compose `RichText` with
+`RichTextSpan` children. Each span can carry its own `className`, `style`, and
+`onPress`; the native leaf maps the runs to NativeScript `FormattedString`
+spans and uses the span's `text` prop for driver compatibility.
 
 ## When a screen needs more
 

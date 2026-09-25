@@ -143,6 +143,33 @@ export interface TextProps extends LayoutChildProps {
 	web?: any
 }
 
+/** Inline rich text container. Children should be RichTextSpan components so
+ * the native leaf can preserve each run as a NativeScript Span. */
+export interface RichTextProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	children?: any
+	id?: string
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** One styled or tappable inline run inside RichText. `text` is an explicit
+ * native-safe escape hatch; a single string child is also accepted. */
+export interface RichTextSpanProps {
+	className?: any
+	style?: any
+	children?: any
+	text?: string
+	onPress?: () => void
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
 export interface PressableProps extends LayoutChildProps, FlexContainerProps {
 	className?: any
 	style?: any

@@ -39,6 +39,8 @@ import type {
 	Route,
 	RouteManifest,
 	RouteMeta,
+	RichTextProps,
+	RichTextSpanProps,
 	RowProps,
 	ScreenProps,
 	SafeAreaProps,
@@ -92,6 +94,8 @@ export type {
 	Route,
 	RouteManifest,
 	RouteMeta,
+	RichTextProps,
+	RichTextSpanProps,
 	RowProps,
 	ScreenProps,
 	SafeAreaProps,
@@ -128,6 +132,8 @@ export declare const Stack: UniversalComponent<StackProps>
 export declare const Absolute: UniversalComponent<AbsoluteProps>
 export declare const Spacer: UniversalComponent<SpacerProps>
 export declare const Text: UniversalComponent<TextProps>
+export declare const RichText: UniversalComponent<RichTextProps>
+export declare const RichTextSpan: UniversalComponent<RichTextSpanProps>
 export declare const Pressable: UniversalComponent<PressableProps>
 export declare const Link: UniversalComponent<LinkProps>
 export declare const NavLink: UniversalComponent<NavLinkProps>

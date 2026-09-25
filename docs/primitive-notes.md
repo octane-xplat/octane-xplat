@@ -43,7 +43,7 @@ interface PrimitiveProps {
 | `Absolute`                  | `div` + `position:relative`; children `position:absolute` | `absolutelayout`                                                                               | **native has no `position` CSS** — container element required anyway; child `left`/`top` attached props (dip→px)                                                                                                                                                                                                                                                                                                        |
 | `Spacer`                    | `flex-grow:1`                                             | `flexGrow` attached prop                                                                       | convenience                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `Text`                      | `span`/`p`                                                | `label`                                                                                        | children: text or `Text` only (nested → `formattedstring`/`span`); **never `View` inside `Text`** — adopt RN rule                                                                                                                                                                                                                                                                                                       |
-| `RichText`?                 | inline markup                                             | `formattedstring` + `span` leaves                                                              | possibly fold into `Text` nesting                                                                                                                                                                                                                                                                                                                                                                                       |
+| `RichText`                  | inline `<span>` composition                              | `formattedstring` + `span` leaves                                                              | nested `RichTextSpan` children; each span may be styled and tappable                                                                                                                                                                                                                                                                                                                                                   |
 | `Pressable`                 | `div`+pointer events                                      | `flexboxlayout` `flexDirection=column` + `tap`/`longPress`                                     | **multi-child** — `contentview` silently drops all but the last child (`.content` assignment); tap gestures attach to any view. Use `button` leaf only where native button chrome wanted                                                                                                                                                                                                                                |
 | `ScrollView`                | `div` overflow                                            | `scrollview`                                                                                   | Native `ScrollView` measures a vertical child with an unspecified height; do not nest a recycling `List` inside it.                                                                                                                                                                                                                                                                                                                                                               |
 | `ScrollBox`                 | `ScrollView`                                               | inline `View`                                                                                  | Use around shared content that may contain a `List`: web keeps the outer scroll, native lets the `ListView` own scrolling. The native shell is deliberately non-scrolling and non-recycling.                                                                                                                                                                                                                                                                                    |
@@ -385,6 +385,30 @@ interface TextAreaProps extends TextInputProps {
   (`<Drawer main={…}>`), never the mechanism name.
 
 ## Text details
+
+### RichText
+
+`RichText` is the portable primitive for mixed inline formatting and tappable
+runs:
+
+```tsx
+<RichText>
+	<RichTextSpan text="Read " />
+	<RichTextSpan className="link" onPress={openProfile} text="@alec" />
+	<RichTextSpan text="'s post." />
+</RichText>
+```
+
+The web leaf composes inline DOM spans. The native leaf renders one `label`
+with a `formattedstring` child; `RichTextSpan` becomes a NativeScript `span`
+with explicit `text` and `onLinkTap`. The explicit text assignment matters:
+the current driver parents `FormattedString` → `Span`, but folding bare text
+children into `Span.text` is part of provisional decision #25. A single string
+child is accepted as a convenience and is normalized by the native leaf.
+
+Use `className` for static run styles, `style` for dynamic values, and
+`onPress` for a run-level tap. The root accepts only inline run children — do
+not place `View` or other layout primitives inside it.
 
 - Static text in shared code: `<Text>Hello {name}</Text>` — the native driver
   folds `#text` into `text` prop automatically (TextBase parents only).

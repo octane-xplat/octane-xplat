@@ -18,6 +18,7 @@ import { PropsDemo } from './PropsDemo.tsrx';
 import { OverlayDemo } from './OverlayDemo.tsrx';
 import { ControlsDemo } from './ControlsDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
+import { RichTextDemo } from './RichTextDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
 import { GlassDemo } from './GlassDemo.tsrx';
 import { useLastDemo } from './store.tsrx';
@@ -41,6 +42,7 @@ export const DEMOS = [
 	{ id: 'overlay', title: 'Overlays' },
 	{ id: 'controls', title: 'Controls' },
 	{ id: 'layout', title: 'Layout' },
+	{ id: 'rich-text', title: 'Rich text' },
 	{ id: 'divergence', title: 'Divergence' },
 	{ id: 'glass', title: 'Glass' },
 ];
@@ -70,6 +72,7 @@ const renderProps = () => <PropsDemo />;
 const renderOverlay = () => <OverlayDemo />;
 const renderControls = () => <ControlsDemo />;
 const renderLayout = () => <LayoutDemo />;
+const renderRichText = () => <RichTextDemo />;
 const renderDivergence = () => <Divergence />;
 const renderGlass = () => <GlassDemo />;
 
@@ -92,6 +95,7 @@ export const RENDER: Record<string, () => any> = {
 	overlay: renderOverlay,
 	controls: renderControls,
 	layout: renderLayout,
+	'rich-text': renderRichText,
 	divergence: renderDivergence,
 	glass: renderGlass,
 };
