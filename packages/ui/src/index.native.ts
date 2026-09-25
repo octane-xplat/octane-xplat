@@ -51,6 +51,9 @@ export {
 
 export { useColorScheme, getColorScheme } from './theme/colorScheme.native'
 export type { ColorScheme } from './theme/colorScheme.native'
+// Side effect: keeps the window status-bar icon appearance synced to the
+// effective theme scheme (dark → light icons). Web has no equivalent.
+import './theme/status-bar-scheme.native'
 export { styled } from './styled.native.tsrx'
 export { openWindow } from './windows.native'
 export { Screen } from './Screen.native.tsrx'
