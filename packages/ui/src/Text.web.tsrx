@@ -10,6 +10,7 @@ export function Text(props: TextProps) @{
 	};
 
 	<span
+		id={props.id}
 		ref={(el: any) => applyEscapeProps(el, props)}
 		className={props.className}
 		{...layoutChildProps(props, textStyle)}

@@ -87,6 +87,8 @@
 	grid-area: 1 / 1;
 }
 
+/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
+   positioning is web-only (children position via left/top props) */
 .vx-absolute {
 	position: relative;
 }
@@ -94,6 +96,7 @@
 .vx-absolute > * {
 	position: absolute;
 }
+/* xplat-web-only:end */
 
 .vx-spacer {
 	flex-grow: 1;
@@ -117,6 +120,8 @@
 	opacity: 0.85;
 }
 
+/* xplat-web-only:start — overlays/toasts/popovers render through RootLayout
+   or showModal on native; these portal/positioning rules are web-only */
 .vx-overlay {
 	z-index: 1000;
 }
@@ -160,14 +165,18 @@
 .vx-toast {
 	pointer-events: auto;
 }
+/* xplat-web-only:end */
 
 /* auto-grow owns height — the manual resize handle has no native analog */
+/* xplat-web-only:start */
 .vx-textarea {
 	resize: none;
 }
+/* xplat-web-only:end */
 
 /* Modal is a real top-layer dialog on web. Presentation variants keep their
    sizing and anchoring in tokens so both the component and openModal share it. */
+/* xplat-web-only:start */
 .vx-modal {
 	width: 480px;
 	max-width: 90%;
@@ -235,12 +244,16 @@
 	color: var(--color-text);
 	background-color: var(--color-surface);
 }
+/* xplat-web-only:end */
 
+/* xplat-web-only:start — placeholder pseudos are DOM-only */
 input::placeholder,
 textarea::placeholder {
 	color: var(--placeholder-color, currentColor);
 }
+/* xplat-web-only:end */
 
+/* xplat-web-only:start — native ActivityIndicator is the NS widget */
 .vx-spinner {
 	display: inline-block;
 	width: 1em;
@@ -257,6 +270,7 @@ textarea::placeholder {
 		transform: rotate(360deg);
 	}
 }
+/* xplat-web-only:end */
 
 .vx-h1 {
 	font-size: 2em;
@@ -288,6 +302,23 @@ textarea::placeholder {
 .flex-1 {
 	flex-grow: 1;
 }
+/* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
+ * shrinkability: grow children never shrink below intrinsic width, fixed
+ * children get crushed, and auto-height rows re-measure grow children at
+ * zero height. min-w-0/min-h-0 let a grow child shrink; shrink-0 protects
+ * a fixed-size child. All three are plain CSS on web. */
+.min-w-0 {
+	min-width: 0;
+}
+.min-h-0 {
+	min-height: 0;
+}
+.shrink-0 {
+	flex-shrink: 0;
+}
+.grow {
+	flex-grow: 1;
+}
 .items-center {
 	align-items: center;
 }
@@ -314,9 +345,12 @@ textarea::placeholder {
 .bg-danger {
 	background-color: #dc2626;
 }
+/* xplat-web-only:start — box-shadow is inert on native (elevation is
+   Android-only; no shared mapping yet) */
 .shadow-2 {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
+/* xplat-web-only:end */
 
 .btn {
 	padding-top: 12px;

@@ -98,6 +98,7 @@ export interface RowProps extends LayoutChildProps {
 	className?: any
 	style?: any
 	children?: any
+	id?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any
@@ -108,6 +109,7 @@ export interface TextProps extends LayoutChildProps {
 	className?: any
 	style?: any
 	children?: any
+	id?: string
 	numberOfLines?: number
 	/** Native Label does not expose text selection; implemented with CSS on web. */
 	selectable?: boolean
