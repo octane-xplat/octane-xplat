@@ -74,6 +74,18 @@ Everything added, changed, and fixed since 0.3.0.
 - **Automatic px→dip.** Pixels in shared stylesheets convert to
   device-independent units in the native build, so one stylesheet sizes
   correctly on both platforms.
+- **Smooth (squircle) corners.** `corner-shape: squircle` is the default
+  corner treatment — the `.rounded-sm/md/lg/xl` utilities and the shipped
+  component classes (modals, sheets, inputs, chips) declare it, and a
+  `--radius-*` token scale backs them. iOS uses the system's continuous
+  corner curve; web needs Chrome ≥139, other browsers fall back to round.
+  `.rounded-full` stays a real circle; opt out per element with
+  `corner-shape: round`.
+- **`<ScrollBox>`** — wraps content that may contain a `<List>`. On web it
+  scrolls like `ScrollView`; on native it's a plain inline view so the
+  `ListView` owns scrolling. (A `List` nested inside a native `ScrollView`
+  can't measure its cells — it now throws a named error instead of
+  crashing inside UIKit.)
 
 ### Theming
 
@@ -135,6 +147,12 @@ Everything added, changed, and fixed since 0.3.0.
   a `flex-direction: row` class was previously ignored.
 - `Icon` artwork set via `markup` respects the `color` prop, and the
   popover backdrop color renders correctly.
+- Omitted optional props no longer reach native views as `undefined` —
+  a `TextInput` without `editable` could previously come out
+  non-interactive (tappable-looking field that could never take focus).
+- Native `Screen` children can no longer silently overlap and eat each
+  other's taps — sibling views used to share the screen's full bounds,
+  so an invisible covering area could make buttons look dead.
 - Type fixes so consumer apps typecheck cleanly (`Meter`'s `onDraw`,
   the media picker).
 
@@ -150,6 +168,13 @@ Everything added, changed, and fixed since 0.3.0.
 - If your app uses pnpm, declare `cli.packageManager = 'pnpm'` in
   `nativescript.config.ts` — otherwise `ns build` can fail to resolve
   symlinked packages.
+- `List`'s `kindFor` prop is removed — branch on the item inside
+  `renderItem` when row markup differs.
+- Move any `List` nested in `ScrollView` over to `ScrollBox` — native
+  now throws on that shape (see above).
+- Corners look subtly smoother where you use the shipped radius classes;
+  elements that must keep circular corners can opt out with
+  `corner-shape: round`.
 - Existing apps can opt into the lint rules with
   `pnpm add -D @octane-xplat/lint oxlint` — setup steps are in the
   package README.
