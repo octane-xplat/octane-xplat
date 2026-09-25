@@ -20,6 +20,7 @@
 		"@tsrx/typescript-plugin": "0.4.11",
 		"oxfmt": "0.70.0",
 		"oxlint": "1.74.0",
+		"typescript": "5.9.3",
 		"vitest": "5.0.1"
 	},
 	"packageManager": "pnpm@11.24.0"
