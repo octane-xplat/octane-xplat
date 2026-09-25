@@ -580,7 +580,9 @@ const STEPS: Step[] = [
 
 					console.log(
 						'[assert] drag lifts z-index: ' +
-							(row?.style?.zIndex === 1 ? 'OK' : 'FAIL (' + row?.style?.zIndex + ')'),
+							(row?.style?.zIndex === 1 ? 'OK' : 'FAIL (' + row?.style?.zIndex + ')') +
+							' layer.zPosition=' +
+							row?.nativeViewProtected?.layer?.zPosition,
 					)
 
 					// Pitch is row height (52) + gap (8) = 60 dips; dy=90 → hover=2,
@@ -619,7 +621,7 @@ const STEPS: Step[] = [
 					const row: any = find('reorder-a')
 					console.log(
 						'[assert] shifts cleared on drop: ' +
-							(row?.translateY === 0 && row?.style?.zIndex === 0 ? 'OK' : 'FAIL'),
+							(row?.translateY === 0 && row?.style?.zIndex !== 1 ? 'OK' : 'FAIL'),
 					)
 				},
 			},

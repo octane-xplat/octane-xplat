@@ -573,7 +573,6 @@ function* styleObjects(program) {
 }
 
 const DEAD_STYLE_PROPS = {
-	zIndex: `zIndex is inert on native — paint order follows document order`,
 	float: `float is unsupported on native — use flex rows`,
 	boxShadow: `boxShadow is inert on native — use the shadow-{n} utility class`,
 	transition: `CSS transitions don't exist on native — use the animation facade or @keyframes classes`,

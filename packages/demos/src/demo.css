@@ -465,6 +465,7 @@
 }
 
 .reorder-lifted {
+	z-index: 1;
 	background-color: var(--color-surface);
 	border-color: var(--color-border-strong);
 }

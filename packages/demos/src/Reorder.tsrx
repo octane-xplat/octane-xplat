@@ -16,18 +16,6 @@ const TRACKS: Track[] = [
 
 const ROW_GAP = 8; // .reorder-row margin-bottom (demo.css)
 
-/** Lift the dragged row above its siblings. z-index is real on native
- *  (NS 9: iOS layer.zPosition, Android ViewHelper.setZIndex) — the repo's
- *  "inert on native" warn lists predate that and are stale. */
-const setLift = (el: any, on: boolean) => {
-	if (!el) return;
-	if ('nativeViewProtected' in el) {
-		el.style.zIndex = on ? 1 : 0;
-	} else {
-		el.style.zIndex = on ? '1' : '';
-	}
-};
-
 /** Post-layout height of a bound view: NS reports dips via getActualSize,
  *  DOM reports px via bounding rect — same number, matching units. */
 const rowHeight = (el: any) =>
@@ -62,7 +50,6 @@ export function Reorder() @{
 			if (!d.active) {
 				d.active = true;
 				setLifted(item.id);
-				setLift(el, true);
 			}
 
 			const last = items.length - 1;
@@ -83,7 +70,6 @@ export function Reorder() @{
 
 		drag.current = null;
 		setLifted(null);
-		setLift(el, false);
 		if (e.state === 'ended' && d.hover !== d.from) {
 			const next = items.slice();
 			next.splice(d.from, 1);

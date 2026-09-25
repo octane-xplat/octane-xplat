@@ -16,7 +16,7 @@
 | `position: absolute`                   | ❌                 | ✅                           | → `Absolute` primitive / `absolutelayout`                                                |
 | `display: none`                        | ❌                 | ✅                           | → `visibility: collapse`                                                                 |
 | `visibility`                           | ✅ hidden/collapse | ✅                           | `collapse` removes from layout                                                           |
-| `zIndex`                               | ❌ inert           | ✅                           | paint order = document order (lab: 2026-09-25)                                           |
+| `zIndex`                               | ✅                 | ✅                           | NS 9 `zIndexProperty` → iOS `layer.zPosition` verified on sim; Android `setZIndex` desk-source. Unset reads `undefined` (lab: ios-sim 2026-09-25) |
 | `overflow`                             | ⚠️                 | ✅                           | verify per-axis + hidden semantics                                                       |
 | `%` sizing                             | ⚠️                 | ✅                           | measures differently — prefer flex/tokens                                                |
 
@@ -88,6 +88,6 @@ they run per-module in dev and on the emitted `.css` asset in build
    the native bundle — web-only machinery (portals, dialog modals, spinners)
    shouldn't ship dead rules or trip the warnings.
 3. **Divergence warnings.** Once per file, loud `this.warn` on declarations
-   NS silently ignores: `margin-*:auto`, `position:fixed|sticky`, `z-index`,
+   NS silently ignores: `margin-*:auto`, `position:fixed|sticky`,
    `float`, `box-shadow`, `white-space:pre-wrap` — each message names the
    portable alternative.

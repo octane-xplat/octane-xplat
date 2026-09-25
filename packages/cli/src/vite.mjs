@@ -42,7 +42,6 @@ const CSS_DIVERGENCES = [
 		/position\s*:\s*(fixed|sticky)\b/,
 		'position: fixed/sticky does not exist on native — overlays go through Overlay/Modal services, not positioning',
 	],
-	[/\bz-index\s*:/, 'z-index is inert on native — paint order follows document order'],
 	[/\bfloat\s*:/, 'float is unsupported on native — use flex rows'],
 	[
 		/\bbox-shadow\s*:/,

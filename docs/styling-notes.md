@@ -121,7 +121,7 @@ view. A class on one root can never reach another.
    subset. Known traps to encode early:
    - `vertical-align` (not `-alignment`); unknown props **drop silently** — and
      NS recovers _per declaration_, so a rule can half-apply. The preset's css
-     pass now warns on the confirmed-silent set (margin-auto, z-index,
+     pass now warns on the confirmed-silent set (margin-auto,
      position fixed/sticky, float, box-shadow, pre-wrap); a fuller
      property allowlist stays open
    - no `position` CSS natively → `Absolute`/`Grid` primitives instead
@@ -138,8 +138,9 @@ view. A class on one root can never reach another.
      transform (NS `px` = device pixels, ~1/3 on a 3x device — silent
      miniaturization without it); inline `style` numbers are already dips;
      `%` measures differently
-   - `overflow`, `zIndex`, `gap`, flex shorthand parity — verify per property
-     (`gap` confirmed on FlexboxLayout; GridLayout needs it per-cell)
+   - `overflow`, `gap`, flex shorthand parity — verify per property
+     (`gap` confirmed on FlexboxLayout; GridLayout needs it per-cell);
+     `zIndex` verified working on NS 9 (iOS `layer.zPosition`)
    - selector traps: bare `[attr]` matches nothing; sibling combinators
      unverified; `!important` unverified; typo'd selector chain kills a rule
      silently
