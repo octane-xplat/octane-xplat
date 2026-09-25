@@ -2,6 +2,9 @@
 
 > Scaffolds an Octane xplat app — one codebase targeting web, iOS, and
 > Android via NativeScript.
+>
+> Status: `0.x` — the API surface is still moving. iOS/Android targets need
+> the NativeScript toolchain (Xcode/JDK + `ns`).
 
 ```sh
 pnpm create octane-xplat my-app

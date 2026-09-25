@@ -2,6 +2,16 @@
 
 > Cross-platform primitives for Octane xplat — one element vocabulary that
 > renders to the DOM on web and NativeScript views on iOS/Android.
+>
+> Status: `0.x` — the API surface is still moving. iOS/Android targets need
+> the NativeScript toolchain (Xcode/JDK + `ns`).
+
+```sh
+pnpm add @octane-xplat/ui octane
+```
+
+`octane` is a required peer; the `@nativescript/*` peers are optional and
+only needed for native targets.
 
 ```tsx
 import { Row, Text, Pressable } from '@octane-xplat/ui'

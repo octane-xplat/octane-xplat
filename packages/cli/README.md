@@ -2,6 +2,13 @@
 
 > `xplat` — the dev/build toolchain for Octane xplat apps (one Octane
 > codebase → web + iOS + Android).
+>
+> Status: `0.x` — the API surface is still moving. iOS/Android targets need
+> the NativeScript toolchain (Xcode/JDK + `ns`).
+
+```sh
+pnpm add -D @octane-xplat/cli
+```
 
 ```sh
 pnpm xplat dev          # pick targets (web, ios, android) or --targets web,ios
