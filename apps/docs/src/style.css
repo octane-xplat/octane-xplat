@@ -49,6 +49,8 @@ body {
 }
 
 .topbar {
+	flex-wrap: nowrap;
+	flex-shrink: 0;
 	border-bottom-width: 4px;
 	border-bottom-color: var(--nb-ink);
 	border-bottom-style: solid;
@@ -612,6 +614,8 @@ body {
 	}
 	.side {
 		width: 100%;
+		height: 58px;
+		flex-wrap: nowrap;
 		flex-direction: row;
 		align-items: center;
 		overflow-x: auto;
@@ -625,6 +629,7 @@ body {
 		flex-direction: row;
 		flex-grow: 0;
 		flex-shrink: 0;
+		flex-wrap: nowrap;
 	}
 	.side-head {
 		padding: 10px 6px 10px 12px;
@@ -719,6 +724,6 @@ body {
 		padding: 14px 20px 14px 14px;
 	}
 	.tagline {
-		letter-spacing: 0.12em;
+		display: none;
 	}
 }
