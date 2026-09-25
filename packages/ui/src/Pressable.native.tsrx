@@ -4,13 +4,14 @@ import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { glassClassOf, glassConfigOf } from './glass';
 import { layoutChildProps } from './layout-child.native';
+import { usePan } from './pan.native.tsrx';
 /** flexboxlayout, not contentview — ContentView is single-child: the driver
  *  assigns each child to `.content`, so every sibling but the last was
  *  silently dropped. Column flex matches View's shape (and the web div);
  *  tap/longPress are gesture events, they attach to any view. */
 export function Pressable(props: PressableProps) @{
 	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
+		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
 		id={props.id}
 		{...layoutChildProps(props)}
 		className={cx('vx-pressable', glassClassOf(props.glass), props.className)}
@@ -24,6 +25,8 @@ export function Pressable(props: PressableProps) @{
 		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
 		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
 		ignoreTouchAnimation={props.ignoreTouchAnimation}
+		onPan={usePan(props.disabled ? undefined : props.onPan)}
+		onSwipe={props.disabled ? undefined : props.onSwipe}
 		onTap={props.disabled ? undefined : props.onPress}
 		onLongPress={props.disabled ? undefined : props.onLongPress}
 		onDoubleTap={props.disabled ? undefined : props.onDoublePress}

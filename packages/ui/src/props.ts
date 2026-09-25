@@ -180,6 +180,11 @@ export interface RowProps extends LayoutChildProps, FlexContainerProps, GlassSur
 	style?: any
 	children?: any
 	id?: string
+	/** `ref` is runtime-reserved on component elements — leaves expose
+	 *  `bind` to reach the native/DOM node. */
+	bind?: (el: any) => void
+	onPan?: (e: PanEvent) => void
+	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any
@@ -267,6 +272,11 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Gl
 	children?: any
 	id?: string
 	disabled?: boolean
+	/** `ref` is runtime-reserved on component elements — leaves expose
+	 *  `bind` to reach the native/DOM node. */
+	bind?: (el: any) => void
+	onPan?: (e: PanEvent) => void
+	onSwipe?: (e: SwipeEvent) => void
 	onPress?: () => void
 	/** ~500ms press-and-hold (web: timer over pointerdown/up). */
 	onLongPress?: () => void

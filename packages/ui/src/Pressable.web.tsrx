@@ -1,10 +1,15 @@
+import { useRef } from 'octane';
 import type { PressableProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { glassClassOf, glassStyleOf } from './glass';
 import { layoutChildProps } from './layout-child.web';
+import { usePan } from './pan.web.tsrx';
 
 export function Pressable(props: PressableProps) @{
+	const el = useRef<HTMLElement | null>(null);
 	let timer: ReturnType<typeof setTimeout> | null = null;
+
+	usePan(el, props.disabled ? undefined : props.onPan);
 
 	const cancel = () => { if (timer !== null) { clearTimeout(timer); timer = null; } };
 
@@ -16,7 +21,7 @@ export function Pressable(props: PressableProps) @{
 	};
 
 	<div
-		ref={(el: any) => applyEscapeProps(el, props)}
+		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); props.bind?.(e); } }}
 		id={props.id}
 		className={['vx-pressable', props.ignoreTouchAnimation ? 'vx-pressable-no-feedback' : '', glassClassOf(props.glass), props.className]}
 		{...layoutChildProps(props, { ...glassStyleOf(props.glass), ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}

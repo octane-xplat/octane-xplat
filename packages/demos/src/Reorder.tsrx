@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Row, Text, View } from '@octane-xplat/ui';
+import { Row, Text, View, setTranslate } from '@octane-xplat/ui';
 import type { PanEvent } from '@octane-xplat/ui';
 
 type Track = { id: string; title: string; artist: string };
@@ -14,17 +14,7 @@ const TRACKS: Track[] = [
 	{ id: 'g', title: 'Last Train Home', artist: 'Junction' },
 ];
 
-/** Imperative gesture writes — DOM element takes style.transform, the NS
- *  view takes its translateY property. Bound views are the only handle both
- *  platforms share (leaf `bind` → div vs flexboxlayout). */
-const setShift = (el: any, dy: number) => {
-	if (!el) return;
-	if ('nativeViewProtected' in el) {
-		el.translateY = dy;
-	} else {
-		el.style.transform = dy ? `translateY(${dy}px)` : '';
-	}
-};
+const ROW_GAP = 8; // .reorder-row margin-bottom (demo.css)
 
 /** Lift the dragged row above its siblings. z-index is real on native
  *  (NS 9: iOS layer.zPosition, Android ViewHelper.setZIndex) — the repo's
@@ -40,28 +30,28 @@ const setLift = (el: any, on: boolean) => {
 
 /** Post-layout height of a bound view: NS reports dips via getActualSize,
  *  DOM reports px via bounding rect — same number, matching units. */
-const slotHeight = (el: any) =>
+const rowHeight = (el: any) =>
 	'nativeViewProtected' in el ? el.getActualSize().height : el.getBoundingClientRect().height;
 
 /** drag-to-reorder — the pan/imperative-write seam (docs/animation-gestures.md).
  *  Proves: onPan payload parity (began/moved/ended/cancelled, cumulative dy),
- *  per-frame writes through `bind` without re-rendering, z-index lift on
- *  native, and one declarative commit at drop. Drag activates on first move
- *  so plain taps never lift a row. */
+ *  per-frame setTranslate writes through `bind` without re-rendering, z-index
+ *  lift on native, and one declarative commit at drop. Drag activates on
+ *  first move so plain taps never lift a row. */
 export function Reorder() @{
 	const [items, setItems] = useState(TRACKS);
 	const [lifted, setLifted] = useState<string | null>(null);
 	const views = useRef(new Map<string, any>());
 	const drag = useRef<{ id: string; from: number; hover: number; pitch: number; active: boolean } | null>(null);
 
-	const clearShifts = () => items.forEach((t) => setShift(views.current.get(t.id), 0));
+	const clearShifts = () => items.forEach((t) => setTranslate(views.current.get(t.id)));
 
 	const pan = (item: Track, e: PanEvent) => {
 		const el = views.current.get(item.id);
 
 		if (e.state === 'began') {
 			const from = items.indexOf(item);
-			drag.current = { id: item.id, from, hover: from, pitch: slotHeight(el) || 1, active: false };
+			drag.current = { id: item.id, from, hover: from, pitch: rowHeight(el) + ROW_GAP || 1, active: false };
 			return;
 		}
 
@@ -77,7 +67,7 @@ export function Reorder() @{
 
 			const last = items.length - 1;
 			d.hover = Math.min(last, Math.max(0, d.from + Math.round(e.dy / d.pitch)));
-			setShift(el, e.dy);
+			setTranslate(el, 0, e.dy);
 			items.forEach((sib, i) => {
 				if (sib.id === d.id) return;
 				const dir =
@@ -85,7 +75,7 @@ export function Reorder() @{
 					: d.hover < d.from && i >= d.hover && i < d.from ? 1
 					: 0;
 
-				setShift(views.current.get(sib.id), dir * d.pitch);
+				setTranslate(views.current.get(sib.id), 0, dir * d.pitch);
 			});
 
 			return;
@@ -106,23 +96,21 @@ export function Reorder() @{
 
 	<View className="vx-app flex-1 gap-4">
 		<Text className="text-xl font-semibold">Playlist</Text>
-		<View className="reorder-stack">
+		<View>
 			@for (const t of items; index i; key t.id) {
-				<View
+				<Row
 					id={'reorder-' + t.id}
-					className="reorder-slot"
+					className={['reorder-row', lifted === t.id ? 'reorder-lifted' : '']}
 					bind={(el: any) => el && views.current.set(t.id, el)}
 					onPan={(e) => pan(t, e)}
 				>
-					<Row className={['reorder-row', lifted === t.id ? 'reorder-lifted' : '']}>
-						<Text className="reorder-grip">{'≡'}</Text>
-						<View className="flex-1">
-							<Text className="font-semibold">{t.title}</Text>
-							<Text className="text-sm text-muted">{t.artist}</Text>
-						</View>
-						<Text className="text-sm text-muted">{i + 1}</Text>
-					</Row>
-				</View>
+					<Text className="reorder-grip">{'≡'}</Text>
+					<View className="flex-1">
+						<Text className="font-semibold">{t.title}</Text>
+						<Text className="text-sm text-muted">{t.artist}</Text>
+					</View>
+					<Text className="text-sm text-muted">{i + 1}</Text>
+				</Row>
 			}
 		</View>
 	</View>

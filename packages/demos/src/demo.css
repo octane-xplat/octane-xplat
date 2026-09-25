@@ -441,14 +441,11 @@
 	background-color: var(--color-border-strong);
 }
 
-/* Reorder — the slot is the fixed pitch (row + gap baked in), the row is
-   the card. Drag writes translateY imperatively on the slot view. */
-.reorder-slot {
-	height: 60px;
-}
-
+/* Reorder — the row is the card; the margin is the inter-card gap. Drag
+   writes translateY imperatively on the row's bound view. */
 .reorder-row {
 	height: 52px;
+	margin-bottom: 8px;
 	align-items: center;
 	gap: 12px;
 	padding-left: 12px;
@@ -473,12 +470,12 @@
 }
 
 /* xplat-web-only:start — pointer hygiene for the drag; NS ignores these. */
-.reorder-slot {
+.reorder-row {
 	user-select: none;
 	touch-action: none;
 	cursor: grab;
 }
-.reorder-slot:active {
+.reorder-row:active {
 	cursor: grabbing;
 }
 /* xplat-web-only:end */

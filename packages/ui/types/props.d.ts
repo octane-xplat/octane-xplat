@@ -17,6 +17,11 @@ export interface PanEvent {
 export interface SwipeEvent {
     direction: number;
 }
+/** Public shape of `setTranslate` — the imperative translate write on a
+ *  bound view (a leaf's `bind` target). Web composes into the element's
+ *  `transform`; native sets the view's translateX/translateY props.
+ *  Both axes default to 0, so `setTranslate(el)` resets. */
+export type SetTranslate = (el: any, x?: number, y?: number) => void;
 /** Metadata read by parent layouts. Native forwards NativeScript attached
  *  attributes; web folds the CSS equivalents into the child's style. */
 export interface LayoutChildProps {
@@ -155,6 +160,11 @@ export interface RowProps extends LayoutChildProps, FlexContainerProps, GlassSur
     style?: any;
     children?: any;
     id?: string;
+    /** `ref` is runtime-reserved on component elements — leaves expose
+     *  `bind` to reach the native/DOM node. */
+    bind?: (el: any) => void;
+    onPan?: (e: PanEvent) => void;
+    onSwipe?: (e: SwipeEvent) => void;
     /** Platform-specific properties are applied after shared props. */
     ios?: any;
     android?: any;
@@ -222,6 +232,11 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Gl
     children?: any;
     id?: string;
     disabled?: boolean;
+    /** `ref` is runtime-reserved on component elements — leaves expose
+     *  `bind` to reach the native/DOM node. */
+    bind?: (el: any) => void;
+    onPan?: (e: PanEvent) => void;
+    onSwipe?: (e: SwipeEvent) => void;
     onPress?: () => void;
     /** ~500ms press-and-hold (web: timer over pointerdown/up). */
     onLongPress?: () => void;
