@@ -394,7 +394,7 @@ const STEPS: Step[] = [
 						return { w: Math.round(s.width ?? -1), h: Math.round(s.height ?? -1), x: Math.round(p.x ?? -1), y: Math.round(p.y ?? -1) }
 					}
 
-					for (const id of ['dv-grow', 'dv-grow-fill', 'dv-lh', 'dv-lh2', 'dv-auto', 'dv-wide', 'dv-sib']) {
+					for (const id of ['dv-grow', 'dv-grow-fill', 'dv-lh', 'dv-lh2', 'dv-auto', 'dv-wide', 'dv-sib', 'dv-wide-fix', 'dv-sib-fix']) {
 						const r = m(id)
 						console.log(
 							'[probe] ' + id + ' ' + (r ? `${r.w}x${r.h}@${r.x},${r.y}` : 'MISSING'),
@@ -408,14 +408,18 @@ const STEPS: Step[] = [
 							(grow ? ` (${grow.h})` : ''),
 					)
 
-					const sib = m('dv-sib')
-					const wide = m('dv-wide')
+					// Unguarded grow crushes the fixed sibling on BOTH engines
+					// (min-width:auto = min-content everywhere) — the guard
+					// utilities are what must work.
+					const sibFix = m('dv-sib-fix')
 					console.log(
-						'[assert] fixed sibling survives grow: ' +
-							(sib && sib.w >= 88 && wide && sib.x > wide.x ? 'OK' : 'FAIL') +
-							(sib ? ` (${sib.w}@${sib.x})` : ''),
+						'[assert] shrink-0 sibling survives grow: ' +
+							(sibFix && sibFix.w >= 88 ? 'OK' : 'FAIL') +
+							(sibFix ? ` (${sibFix.w}@${sibFix.x})` : ''),
 					)
 
+					// Real divergence: auto margins are ignored on native — the
+					// build warns; this stays FAIL until a shim exists.
 					const auto = m('dv-auto')
 					console.log(
 						'[assert] margin-left:auto pushes trail right: ' +

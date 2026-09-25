@@ -9,9 +9,10 @@ import { Row, Screen, Text, View } from '@octane-xplat/ui';
  *  dv-lh:    line-height on a Label — iOS text can clip or mis-measure.
  *  dv-auto:  margin-left:auto trailing — unsupported on NS; web pushes the
  *            trailing item to the row's right edge.
- *  dv-basis: flex-grow without basis — NS won't shrink below intrinsic
- *            (min-content) width; the fixed sibling can be crushed or
- *            pushed off-screen. Web needs width/min-width: 0 to match. */
+ *  dv-basis: flex-grow without guards — measured IDENTICAL on web: the
+ *            fixed sibling shrinks below its declared width (flex items
+ *            default to min-width:auto = min-content on both engines).
+ *            The dv-fix row shows the shrink-0 + min-w-0 utilities. */
 export function Divergence() @{
 	<Screen className="vx-app flex-1 gap-4">
 		<Text className="text-xl font-bold">Divergence probes</Text>
@@ -34,6 +35,11 @@ export function Divergence() @{
 		<Row className="dv-row">
 			<Text id="dv-wide" className="dv-wide">long intrinsic text that wants a lot of width on its own</Text>
 			<View id="dv-sib" className="dv-sib" />
+		</Row>
+
+		<Row className="dv-row">
+			<Text id="dv-wide-fix" className="dv-wide min-w-0">long intrinsic text with min-w-0 guard</Text>
+			<View id="dv-sib-fix" className="dv-sib shrink-0" />
 		</Row>
 	</Screen>
 }
