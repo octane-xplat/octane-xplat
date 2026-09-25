@@ -462,17 +462,25 @@ button {
 	gap: 24px;
 }
 
+/* line-height is REQUIRED on native: without it a Label's measured height
+   misses the font's line metrics, and Android clips the descenders/bottom
+   of the glyphs (observed: section-labels 21–29px bounds for 12sp text at
+   3.25x). Tailwind pairs every text-* size with a leading, same here. */
 .text-2xl {
 	font-size: 28px;
+	line-height: 36px;
 }
 .text-xl {
 	font-size: 20px;
+	line-height: 28px;
 }
 .text-lg {
 	font-size: 18px;
+	line-height: 28px;
 }
 .text-sm {
 	font-size: 13px;
+	line-height: 20px;
 }
 .font-bold {
 	font-weight: bold;

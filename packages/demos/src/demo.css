@@ -172,6 +172,7 @@
 
 .list-demo-badge {
 	font-size: 12px;
+	line-height: 16px;
 	font-weight: 500;
 	color: var(--color-text-secondary);
 }

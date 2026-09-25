@@ -76,12 +76,14 @@ body {
 
 .vx-app .section-label {
 	font-size: 12px;
+	line-height: 16px;
 	font-weight: 500;
 	color: var(--color-text-secondary);
 }
 
 .vx-app .badge {
 	font-size: 12px;
+	line-height: 16px;
 	color: var(--color-text-secondary);
 }
 
@@ -207,6 +209,7 @@ body {
    class so it beats `.vx-app label` on native). */
 .demo-layout .demo-layout-banner {
 	font-size: 12px;
+	line-height: 16px;
 	color: var(--color-text-secondary);
 	padding-top: 8px;
 	padding-bottom: 8px;
