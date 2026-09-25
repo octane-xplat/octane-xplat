@@ -46,6 +46,8 @@
 	display: flex;
 	flex-direction: column;
 }
+/* xplat-web-only:start — the native Drawer leaf is the ui-drawer widget;
+   these rules style the web DOM drawer overlay */
 .vx-drawer {
 	display: flex;
 	flex-direction: row;
@@ -73,6 +75,7 @@
 	background: var(--color-surface);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
+/* xplat-web-only:end */
 
 .vx-row {
 	flex-direction: row;
