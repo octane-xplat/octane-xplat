@@ -17,6 +17,12 @@ component layer; design tokens are CSS custom properties.
    `bg-primary`, `text-onprimary`...) — defined in `packages/app`'s css
    - `tokens.css`, NOT Tailwind (a Tailwind subset we own; see
      docs/css-support-matrix.md for what NS actually honors).
+   - **Do not add Tailwind** (web `@tailwindcss/vite` or native
+     `@nativescript/tailwind`): blocked on
+     [NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226) —
+     its stale allowlist strips core-supported props incl. `gap`, deletes all
+     `@media`, and rewrites `invisible`→`collapse`, so the same class
+     silently diverges across targets.
 5. Per-platform selector hooks exist: `.ns-root`, `.ns-ios`, `.ns-android`,
    `.ns-dark`, `.ns-light`, `.ns-landscape`, `.ns-modal` on native ≈
    `:root`/`.dark` on web.

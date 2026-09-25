@@ -11,12 +11,24 @@
 packages/ui/theme/
   tokens.css        — :root / .ns-root CSS vars (colors, spacing, radii, type)
   base.css          — element-type defaults per vocabulary (Label vs span…)
-  utilities         — Tailwind v4 (web) / @nativescript/tailwind (native)
+  utilities         — hand-curated subset today; Tailwind v4 later (blocked)
 apps/*/app.css      — per-app layer importing the shared sheets
 ```
 
-One PostCSS/Tailwind toolchain, two output targets. ns-octane proves
-`@nativescript/tailwind` v4 works today (auto PostCSS, **skip preflight**).
+**Do not adopt Tailwind yet.** The plan was one PostCSS/Tailwind toolchain,
+two output targets (Tailwind v4 on web, `@nativescript/tailwind` on native —
+ns-octane proves it runs, auto PostCSS, **skip preflight**). But auditing the
+plugin against `@nativescript/core` 9.x found parity gaps we consider
+blocking, tracked upstream as
+[NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226):
+a stale property allowlist silently strips utilities core supports (all
+`gap-*`, `whitespace-*`, `max-w-*`…, applied to _all_ app CSS, not just
+Tailwind output), every `@media` rule is deleted (no `sm:`–`2xl:`, no
+media-`dark:`), `invisible` is rewritten to `collapse` so it removes from
+layout unlike the web, and `translate-*`/`scale-*` die on a shorthand the
+plugin doesn't map to core's `transform`. Until those land, the curated
+utility subset in `tokens.css` is the supported vocabulary — it keeps every
+class inside the NS-supported CSS intersection.
 
 ### Why CSS vars carry the theme
 

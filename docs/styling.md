@@ -53,6 +53,15 @@ use `pre-wrap` on web and `wrap` on native. Native `wrap` enables line
 wrapping, but does not preserve repeated spaces and newlines like web
 `pre-wrap`.
 
+## No Tailwind yet
+
+Do not add `tailwindcss`/`@nativescript/tailwind` to an app. The native
+plugin currently diverges from web Tailwind in ways that fail silently
+(blocked upstream:
+[NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226)).
+Write the same vocabulary yourself as plain classes, like the token example
+above — `className` keeps working identically on both targets.
+
 For theme propagation, supported CSS differences, and the cases where a
 platform leaf is necessary, see the [styling notes](styling-notes.md) and the
 [CSS support notes](css-support-notes.md).

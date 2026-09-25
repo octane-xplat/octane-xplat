@@ -400,7 +400,9 @@ button {
 }
 /* xplat-web-only:end */
 
-/* utilities (hand-written subset for the harness; Tailwind later) */
+/* utilities (hand-written subset — do NOT adopt Tailwind until
+   NativeScript/tailwind#226 is resolved; the plugin strips core-supported
+   props incl. gap, drops all @media, and rewrites invisible→collapse) */
 
 .flex-1 {
 	flex-grow: 1;

@@ -123,11 +123,12 @@ export function Home() {
 ```
 
 - Web: `Column`→flex-col `div`, `Text`→`span`, `Pressable`→`div`+pointer
-  events; Tailwind classes live.
+  events; shared utility classes (`flex-1`, `gap-4`, `bg-primary`…) live.
 - Native: `Column`→`flexboxlayout`, `Text`→`label` (text fold),
   `Pressable`→`flexboxlayout`+`tap` (multi-child — `contentview` drops
-  siblings; TouchManager gives the press-scale);
-  `@nativescript/tailwind` classes live.
+  siblings; TouchManager gives the press-scale); same utility classes live.
+  (Real Tailwind is blocked upstream — NativeScript/tailwind#226; we ship a
+  curated subset instead.)
 - One save → hot-updates web tab and device simultaneously.
 
 ## Known leaks (the seams we consciously ship)
