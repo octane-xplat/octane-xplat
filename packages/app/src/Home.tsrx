@@ -79,19 +79,18 @@ export function Home() @{
 	<View className={['vx-app', 'flex-1', 'gap-6', dark ? 'dark ns-dark' : '']}>
 		<Row className="justify-between items-baseline">
 			<Text className="text-2xl font-semibold">Kitchen sink</Text>
-			<PlatformBadge className="badge" />
+			<Row className="gap-3 items-center">
+				<PlatformBadge className="badge" />
+				<Pressable id="scheme-toggle" onPress={() => setOverride(dark ? 'light' : 'dark')} className="btn btn-secondary">
+					<Text>{dark ? 'Light' : 'Dark'}</Text>
+				</Pressable>
+			</Row>
 		</Row>
 
 		<View className="sink-section">
 			<Text className="section-label">Reactivity</Text>
 			<Text className="text-xl font-bold">{'Count: ' + count}</Text>
-			{/* Universal signal-read seam: ambient .set() must re-render this owner. */}
-			<Text className="text-sm text-muted">{probeSignal$.get() as string}</Text>
-		</View>
-
-		<View className="sink-section">
-			<Text className="section-label">Controls</Text>
-			<Row className="gap-3 flex-wrap">
+			<Row className="gap-3 flex-wrap items-center">
 				<Pressable
 					id="a11y-btn"
 					accessible={true}
@@ -102,27 +101,19 @@ export function Home() @{
 				>
 					<Text className="text-onprimary">Increment</Text>
 				</Pressable>
-				<Pressable id="scheme-toggle" onPress={() => setOverride(dark ? 'light' : 'dark')} className="btn btn-secondary">
-					<Text>{dark ? 'Light' : 'Dark'}</Text>
-				</Pressable>
-				<Pressable
-					onPress={() => {
-						const next = [...items].reverse();
-						console.log('[harness] shuffle -> ' + next.map((i) => i.id).join(','));
-						setItems(next);
-					}}
-					className="btn btn-secondary"
-				>
-					<Text>Shuffle</Text>
-				</Pressable>
-				<Pressable
-					id="clear-btn"
-					onPress={() => setItems(items.length ? [] : [...INITIAL])}
-					className="btn btn-secondary"
-				>
-					<Text>{items.length ? 'Clear' : 'Restore'}</Text>
+				{/* Multi-child Pressable regression — the old contentview host
+				    kept only the last child. The conditional indicator also
+				    proves a child mounted post-commit lands inside the host. */}
+				<Pressable id="multi-pressable" onPress={() => setCount(count + 1)} className="btn btn-secondary">
+					<Text>Multi</Text>
+					<View id="multi-sibling" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
+					@if (dark) {
+						<View id="multi-indicator" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
+					}
 				</Pressable>
 			</Row>
+			{/* Universal signal-read seam: ambient .set() must re-render this owner. */}
+			<Text className="text-sm text-muted">{probeSignal$.get() as string}</Text>
 		</View>
 
 		{/* Navigation + overlay seams (Exp 9): platform modules resolve the
@@ -152,16 +143,6 @@ export function Home() @{
 				<Link to="detail" params={{ from: 'link' }} className="chip">
 					<Text>Link →</Text>
 				</Link>
-				{/* Multi-child Pressable regression — the old contentview host
-				    kept only the last child. The conditional indicator also
-				    proves a child mounted post-commit lands inside the host. */}
-				<Pressable id="multi-pressable" onPress={() => setCount(count + 1)} className="btn btn-secondary">
-					<Text>Multi</Text>
-					<View id="multi-sibling" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
-					@if (dark) {
-						<View id="multi-indicator" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
-					}
-				</Pressable>
 			</Row>
 		</View>
 
@@ -221,6 +202,25 @@ export function Home() @{
 				@for (const item of items; key item.id) {
 					<Text className="chip">{item.id}</Text>
 				}
+			</Row>
+			<Row className="gap-3 flex-wrap">
+				<Pressable
+					onPress={() => {
+						const next = [...items].reverse();
+						console.log('[harness] shuffle -> ' + next.map((i) => i.id).join(','));
+						setItems(next);
+					}}
+					className="btn btn-secondary"
+				>
+					<Text>Shuffle</Text>
+				</Pressable>
+				<Pressable
+					id="clear-btn"
+					onPress={() => setItems(items.length ? [] : [...INITIAL])}
+					className="btn btn-secondary"
+				>
+					<Text>{items.length ? 'Clear' : 'Restore'}</Text>
+				</Pressable>
 			</Row>
 			{/* ScrollView seam: NS <scrollview> hosts one child — the leaf wraps
 			    children in a column layout. Probe reads verticalOffset back.
