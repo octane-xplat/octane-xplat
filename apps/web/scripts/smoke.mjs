@@ -131,6 +131,11 @@ try {
 	await page.click('.vx-sheet-backdrop')
 	ok('sheet backdrop dismisses', (await page.locator('.vx-sheet-layer').count()) === 0)
 
+	// Services tab: platform services catalog mounts with live read-outs.
+	await page.click('button:text("Services")')
+	await page.waitForSelector('text=Platform services', { timeout: 3000 })
+	ok('services catalog renders', (await page.locator('text=/web · browser/').count()) === 1)
+
 	// Home tab: imperative overlay seam mounts a portal layer under body.
 	await page.click('button:text("Home")')
 	await page.click('#overlay-btn')
