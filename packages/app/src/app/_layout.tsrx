@@ -4,6 +4,7 @@ import { routes, screens } from '../routes';
 import { Home } from '../Home.tsrx';
 import { Settings } from '../Settings.tsrx';
 import { Services } from '../Services.tsrx';
+import { Probes } from '../Probes.tsrx';
 import { Gallery } from '@xplat/demos';
 import { navigate } from '../platform/nav';
 import type { TabSpec } from '@octane-xplat/ui';
@@ -19,6 +20,7 @@ import '../icons';
 const renderHome = () => <Home />;
 const renderSettings = () => <Settings />;
 const renderServices = () => <Services />;
+const renderProbes = () => <Probes />;
 // Chips navigate inside the tab's own stack — the Demos pane is a Frame
 // (TabSpec.stack), so demo pushes stay under the tab bar.
 const renderDemos = () => <Gallery onOpen={(id) => navigate('demo/:id', { id }, { into: 'demos' })} />;
@@ -45,6 +47,9 @@ const TABS: TabSpec[] = [
 	{ title: 'Settings', icon: 'tab-settings', render: renderSettings },
 	{ title: 'Demos', icon: 'tab-demos', render: renderDemos, stack: 'demos' },
 	{ title: 'Services', icon: 'tab-services', render: renderServices },
+	// Instrumentation surface — probe asserts live here, last so the
+	// familiar tabs stay the first thing a human sees.
+	{ title: 'Probes', icon: 'tab-test', render: renderProbes },
 ];
 
 console.log('[harness] App module evaluated');

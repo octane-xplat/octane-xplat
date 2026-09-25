@@ -501,7 +501,8 @@ setTimeout(() => {
 }, 4950)
 
 setTimeout(() => {
-	assertHas('pressable tap → count', texts(thePage), 'Count: 1')
+	// Multi lives on the Probes tab now — its own counter label echoes.
+	assertEq('pressable tap → count', find('probe-count')?.text, 'Count: 1')
 }, 5150)
 
 // Theme toggle first (deterministic dark — the scheme override button now
@@ -600,15 +601,16 @@ setTimeout(() => {
 }, 6800)
 
 // Universal signal-read probe: an ambient .set() (no render in flight) must
-// schedule the reading component through the universal scheduler. Initial
-// render already asserted implicitly — 'sig-off' is read via .get() in Home.
+// schedule the reading component through the universal scheduler. The label
+// lives on the Probes tab — pane views are all mounted, so getViewById
+// reaches it without switching tabs.
 setTimeout(() => {
-	assertHas('signal probe initial', texts(thePage), 'sig-off')
+	assertEq('signal probe initial', find('sig-probe')?.text, 'sig-off')
 	probeSignal$.set('sig-on')
 }, 6600)
 
 setTimeout(() => {
-	assertHas('signal probe after ambient set', texts(thePage), 'sig-on')
+	assertEq('signal probe after ambient set', find('sig-probe')?.text, 'sig-on')
 }, 7000)
 
 // Sheet probe (Exp 11): back to tab 1, then synthesized tap on sheet-btn.

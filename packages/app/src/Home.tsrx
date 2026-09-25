@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, setThemePreference, styled } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { SELF_DRIVE } from './platform/selfdrive';
-import { probeSignal$ } from './probe-state';
 import { storage } from '@octane-xplat/platform';
-import 'octane/signals';
 
 const INITIAL = [
 	{ id: 'a', label: 'Alpha' },
@@ -19,8 +17,6 @@ const INITIAL = [
 // every recycled cell root to re-render on each native itemLoading refire.
 const renderItem = (item: any) => <Text className="cell">{item.label}</Text>;
 const renderEmpty = () => <Text>No items</Text>;
-// styled() seam (Exp 16): variant prop → class composition, CSS-backed.
-const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-danger' } });
 const ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 // 1×1 red PNG — deterministic, no network. data: URIs decode via
 // ImageSource.fromBase64 on native; the web leaf just hands it to <img>.
@@ -107,21 +103,7 @@ export function Home() @{
 				>
 					<Text className="text-onprimary">Increment</Text>
 				</Pressable>
-				{/* Multi-child Pressable regression — the old contentview host
-				    kept only the last child. The conditional indicator also
-				    proves a child mounted post-commit lands inside the host. */}
-				<Pressable id="multi-pressable" onPress={() => setCount(count + 1)} className="btn btn-secondary">
-					<Row className="gap-2 items-center">
-						<Text>Multi</Text>
-						<View id="multi-sibling" className="rounded-full" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
-						@if (dark) {
-							<View id="multi-indicator" className="rounded-full" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
-						}
-					</Row>
-				</Pressable>
 			</Row>
-			{/* Universal signal-read seam: ambient .set() must re-render this owner. */}
-			<Text className="text-sm text-muted">{probeSignal$.get() as string}</Text>
 		</View>
 
 		{/* Navigation + overlay seams (Exp 9): platform modules resolve the
@@ -143,9 +125,6 @@ export function Home() @{
 				<Pressable id="modal-btn" onPress={() => setModal(true)} className="btn btn-secondary">
 					<Text>Modal</Text>
 				</Pressable>
-				<DangerBtn id="danger-btn" danger className="extra">
-					<Text className="text-onprimary">styled</Text>
-				</DangerBtn>
 				{/* Link seam: web renders a real anchor; native is a Pressable
 				    over navigate(). */}
 				<Link to="detail" params={{ from: 'link' }} className="chip">

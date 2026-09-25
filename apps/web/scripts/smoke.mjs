@@ -53,8 +53,10 @@ try {
 	const taH1 = await page.evaluate(() => document.getElementById('probe-textarea').offsetHeight)
 	ok('textarea autoGrow expands', taH1 > taH0, taH0 + '→' + taH1)
 
-	// Multi-child Pressable (native regression parity): label + sibling
-	// views all live inside the pressable element.
+	// Multi-child Pressable (native regression parity) — lives on the
+	// Probes tab: label + sibling views inside the pressable element.
+	await page.click('button:text("Probes")')
+	await page.waitForSelector('#multi-pressable', { timeout: 3000 })
 	const mp = page.locator('#multi-pressable')
 	ok('pressable multi-child label', (await mp.locator('text=Multi').count()) === 1)
 	ok('pressable multi-child sibling', (await mp.locator('#multi-sibling').count()) === 1)
