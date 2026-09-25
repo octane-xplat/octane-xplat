@@ -1,5 +1,99 @@
 # Changelog
 
+## 0.5.0
+
+Everything added, changed, and fixed since 0.4.0.
+
+### New components and hooks
+
+- **`<Hoverable>`** — a delayed hover card anchored to its child. On
+  iOS/Android the same card opens from a long press (native has no
+  hover), using the driver's long-press recognizer for intent. On web
+  the card stays alive while the pointer crosses from the anchor onto
+  the card itself.
+- **`useMeasure()`** — live element bounds:
+  `const { bind, bounds } = useMeasure()`, then pass `bind` to any
+  primitive's `bind` prop. Bounds are observed by default (`null` until
+  first layout); `{ observe: false }` for a one-shot read. Web
+  coordinates are viewport-relative; native are screen-relative dips.
+- **Anchored toasts.** `showToast()` accepts `anchor` + `placement` to
+  position a toast from a view, in addition to the existing
+  top/bottom + start/end viewport placements.
+- **`cardClassName`/`cardStyle`** on `Hoverable` (and card internals)
+  style the overlay wrapper directly — no more compensating CSS on the
+  card content.
+- **`PanEvent`/`SwipeEvent` types** are now exported from the package
+  entry points (previously declared but unreachable).
+
+### Theming and styling
+
+- **DOM normalization in `tokens.css`.** `box-sizing: border-box` and
+  `border-width: 0; border-style: solid` defaults bring web in line with
+  NativeScript's box model — a lone `border-width` now paints the same
+  way on both platforms instead of needing a paired `border-style`.
+- **Utility fixes.** `.flex-1` emits `flex: 1 1 0%`; `items-start` is
+  available; `--color-onprimary` replaces `--color-on-primary` (the
+  rename keeps the utilities drop-in compatible with Tailwind v4's
+  token-key rule).
+- **Status-bar icons follow the theme.** Switching to dark mode flips
+  status-bar icon appearance on iOS and Android from first paint —
+  previously Android kept its launch-time appearance.
+- `openUrl`-style anchors and inputs pick up muted placeholder text and
+  consistent focus styling on web.
+
+### Icons
+
+- `Icon` documents and enforces a clear fallback order —
+  SVG (`markup`/`svg`/`src`) → `font` glyph → `text` — and preserves
+  `viewBox` for multi-path SVG artwork on web.
+
+### Toolchain
+
+- **`xplat doctor` warns on undeclared native plugins.** If a shipped
+  plugin (like the gesture handler `Drawer` eager-loads) isn't in your
+  app's `package.json`, you get a warning at dev time instead of a boot
+  crash on device.
+- **`xplatNative()` fixes.** The preset seeds `alien-signals` into the
+  deps bundle (fixes 504s when dev-serving) and teaches rolldown that
+  `.tsrx` files contain JSX (fixes dev/HMR transforms).
+- **Starter updates.** `create-octane-xplat` now declares
+  `cli.packageManager: 'pnpm'` (required for symlinked installs to
+  resolve under `ns build`) and ships a `.agents/skills/xplat` skill +
+  `AGENTS.md` so coding agents get the platform rules on demand.
+
+### Fixed
+
+- **Android cold-launch crash** in `appInfo` — reading the app context
+  at module load crashed inlined-bundle boots; it now reads lazily.
+- **Accessibility props wired on native.** `accessible`, label, hint,
+  value, role, state, and live-region props on `Pressable`/`Text` reach
+  the platform accessibility APIs (role names are translated, e.g.
+  `heading` → `header`).
+- **Pan velocity on native.** `PanEvent` velocity is now reported in
+  dips/second on iOS (`velocityInView`) and Android (`VelocityTracker`).
+- **`TextArea` submit.** `onSubmit` on native fires only for
+  `returnKeyType="done"`/`"send"` — it no longer fires on every newline.
+- **`useAnimation` honors `prop` on web** — it no longer always writes
+  `translateX` regardless of the requested property.
+- **Overscroll containment** on web — nested scroll containers no longer
+  chain into the app column or the browser's pull-to-refresh.
+- Web multiline input echo preserves newlines; `<Text>` placeholders
+  render in the muted text color.
+
+### Upgrading
+
+- **New peer dependency for `<Drawer>`:** declare
+  `@nativescript-community/gesturehandler` in your app's `package.json`
+  if you use `Drawer` — the drawer eager-loads it and NativeScript only
+  compiles plugins that are top-level declarations. `xplat doctor`
+  flags this if it's missing.
+- **`--color-on-primary` is now `--color-onprimary`** — rename the
+  variable in app stylesheets if you referenced it directly.
+- Web borders on shared components now paint from `border-width` alone
+  (the DOM normalization above); if your app relied on the old
+  no-border-unless-`border-style` behavior, audit shared rules that set
+  a bare `border-width`.
+
 ## 0.4.0
 
 Everything added, changed, and fixed since 0.3.0.
