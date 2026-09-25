@@ -57,6 +57,7 @@ export function RootLayout() @{
 		const i = r ? TABS.findIndex((t) => t.stack === r.stack) : -1;
 		return i >= 0 ? i : 0;
 	});
+
 	// Effective scheme on the shell root: .dark/.ns-dark here re-themes the
 	// tab bar + every pane (tokens inherit); separate roots (pushed pages,
 	// overlays) get stamped by theme-scheme's host hooks instead.
