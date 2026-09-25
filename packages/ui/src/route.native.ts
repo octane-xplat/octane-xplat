@@ -533,7 +533,8 @@ export function canGoBack(stack = 'root'): boolean {
 		return !!swapTabRoutes.get(stack)?.length
 	}
 
-	return !!resolveStack(stack)?.canGoBack?.()
+	const frame = resolveStack(stack)
+	return !!frame?.backStack?.length
 }
 
 export function useCanGoBack(stack = 'root'): boolean {

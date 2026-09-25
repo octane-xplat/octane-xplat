@@ -9,6 +9,10 @@ function value(value: unknown): string | null {
 function read(): AppInfo {
 	if (Application.android) {
 		const context = Application.android.context
+		if (!context) {
+			return { supported: true, version: null, build: null, bundleId: null }
+		}
+
 		const packageId = context.getPackageName()
 		const packageInfo = context.getPackageManager().getPackageInfo(packageId, 0)
 		return {
@@ -35,22 +39,17 @@ function read(): AppInfo {
 // `Application.android.context` doesn't exist while the bundled entry is
 // being evaluated (Application.onCreate), so read() must not run at module
 // scope. Defer until first property access.
-let cached: AppInfo | undefined
-function info(): AppInfo {
-	return (cached ??= read())
-}
-
 export const appInfo: AppInfo = {
 	get supported() {
-		return info().supported
+		return read().supported
 	},
 	get version() {
-		return info().version
+		return read().version
 	},
 	get build() {
-		return info().build
+		return read().build
 	},
 	get bundleId() {
-		return info().bundleId
+		return read().bundleId
 	},
 }

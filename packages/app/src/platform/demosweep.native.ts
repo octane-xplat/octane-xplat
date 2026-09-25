@@ -376,6 +376,71 @@ const STEPS: Step[] = [
 		],
 	},
 	{
+		id: 'scrollbox',
+		checks: [
+			{ at: 500, run: () => assertHas('scrollbox inline content', 'ScrollBox row 1') },
+			{
+				at: 650,
+				run: () => {
+					const list = collect(demosPage()).find((v) => v instanceof ListView)
+					let parent = list?.parent
+					let nested = false
+					while (parent) {
+						nested ||= parent.constructor?.name === 'ScrollView'
+						parent = parent.parent
+					}
+
+					console.log(
+						'[assert] ScrollBox keeps List out of ScrollView: ' +
+						(!nested && list ? 'OK' : 'FAIL') +
+						' (list=' +
+							(list?.constructor?.name ?? 'none') +
+							' nested=' +
+							nested +
+							')',
+					)
+				},
+			},
+		],
+	},
+	{
+		id: 'rich-text',
+		hold: 1700,
+		checks: [
+			{ at: 500, run: () => assertHas('rich text mount', 'Last tapped: Nothing tapped yet') },
+			{
+				at: 650,
+				run: () => {
+					const label = find('rich-text-sample') as any
+					const spans = label?.formattedText?.spans ?? []
+					const link = spans.find((span: any) => span.text === '@octane')
+					const style = link?.style
+					const styled =
+						style?.color != null &&
+						style?.fontWeight === 'bold' &&
+						style?.textDecoration === 'underline'
+
+					console.log(
+						'[assert] rich text formatted spans: ' +
+						(spans.length === 5 && styled ? 'OK' : 'FAIL') +
+						' (count=' +
+						spans.length +
+						' styled=' +
+						styled +
+						' color=' +
+						String(style?.color) +
+						' weight=' +
+						String(style?.fontWeight) +
+							')',
+					)
+
+					link?.notify?.({ eventName: 'linkTap', object: link } as any)
+				},
+			},
+			{ at: 1000, run: () => assertHas('rich text span tap', 'Last tapped: @octane') },
+		],
+	},
+	{
 		id: 'layout',
 		checks: [
 			{ at: 400, run: () => assertHas('demo layout', 'Layout primitives') },

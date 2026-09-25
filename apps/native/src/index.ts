@@ -66,6 +66,8 @@ if (Application.started) {
 	Application.run(entry)
 }
 
+startNativeLab()
+
 // NS gesture events (tap/pan/swipe/longPress) don't live on the plain event
 // list — view.on('tap') routes to GesturesObserver, so notify() can't reach
 // them. Invoke the observer's callback directly; that still exercises the

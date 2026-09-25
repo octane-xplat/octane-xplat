@@ -34,7 +34,7 @@ export function RichTextSpan(props: RichTextSpanProps) @{
 	<span
 		text={runText(props)}
 		className={cx(props.className)}
-		{...props.style}
+		style={props.style}
 		onLinkTap={props.onPress}
 	/>
 }

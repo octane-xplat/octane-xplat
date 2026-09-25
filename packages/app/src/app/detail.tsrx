@@ -1,4 +1,4 @@
-import { Screen, Text, Pressable, useCanGoBack } from '@octane-xplat/ui';
+import { Screen, Text, Pressable, redirect, useCanGoBack } from '@octane-xplat/ui';
 import type { BeforeLoadArgs, RouteHead } from '@octane-xplat/ui';
 import { goBack } from '../platform/nav';
 
@@ -25,6 +25,8 @@ export function Detail(props: { from?: string; loadedFrom?: string; _stack?: str
 		<Text className="text-2xl font-semibold">Detail screen</Text>
 		<Text className="text-sm text-muted">{'from: ' + (props.from ?? '—')}</Text>
 		<Text className="text-sm text-muted">{'guard: ' + (props.loadedFrom ?? '—')}</Text>
+		<Text className="text-sm text-muted">{'pushed: ' + String(props._pushed === true)}</Text>
+		<Text className="text-sm text-muted">{'can go back: ' + String(back)}</Text>
 		@if (back) {
 			<Pressable id="detail-back" onPress={goBack} className="btn btn-secondary">
 				<Text>Back</Text>
