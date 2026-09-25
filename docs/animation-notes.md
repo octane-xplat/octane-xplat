@@ -106,9 +106,10 @@ which is a real event). Programmatic probing must call
 map is `cancelled=0,began=1,changed→moved=2,ended=3`. Web leaf attaches raw
 pointer listeners via the `bind` ref — **`pointermove` is not in octane's
 delegated-event set**, so declarative `onPointerMove` props can't drive a
-drag; the leaf owns the listeners. Velocity: computed on web from pointer
-samples; native leaves it 0 (the recognizer's `velocityInView` is a later
-seam).
+drag; the leaf owns the listeners. Velocity is computed from web pointer
+samples; native iOS reads `velocityInView`, and native Android uses
+`VelocityTracker` over the MotionEvents and converts px/sec to dip/sec. Device
+verification remains a separate sweep.
 
 ## Choreography patterns proven in ns-octane
 

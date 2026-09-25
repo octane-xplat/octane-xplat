@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { PressableProps } from "./props";
 import { cx } from "./cx";
-import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { glassClassOf, glassConfigOf } from './glass';
 import { layoutChildProps } from './layout-child.native';
 /** flexboxlayout, not contentview — ContentView is single-child: the driver
@@ -18,7 +18,7 @@ export function Pressable(props: PressableProps) @{
 		style={{ ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) }}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={props.accessibilityRole as any}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
 		accessibilityHint={props.accessibilityHint}
 		accessibilityValue={props.accessibilityValue}
 		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}

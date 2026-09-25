@@ -180,6 +180,25 @@ export interface RowProps extends LayoutChildProps, FlexContainerProps, GlassSur
 	web?: any
 }
 
+/** Shared accessibility roles. The native leaf maps the ARIA spellings that
+ * NativeScript names differently (for example `heading` → `header`). */
+export type Role =
+	| 'button'
+	| 'link'
+	| 'search'
+	| 'image'
+	| 'heading'
+	| 'adjustable'
+	| 'summary'
+	| 'text'
+	| 'none'
+	| 'progressbar'
+	| 'checkbox'
+	| 'switch'
+	| 'radio'
+	| 'spinbutton'
+	| 'tab'
+
 export interface TextProps extends LayoutChildProps {
 	className?: any
 	style?: any
@@ -189,6 +208,9 @@ export interface TextProps extends LayoutChildProps {
 	/** Native Label does not expose text selection; implemented with CSS on web. */
 	selectable?: boolean
 	ellipsize?: boolean
+	accessible?: boolean
+	accessibilityLabel?: string
+	accessibilityRole?: Role
 	accessibilityHint?: string
 	accessibilityValue?: string
 	/** NativeScript supports one state at a time (disabled/selected/checked); busy and expanded are web-only. */
@@ -244,7 +266,7 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Gl
 	onLongPress?: () => void
 	accessible?: boolean
 	accessibilityLabel?: string
-	accessibilityRole?: string
+	accessibilityRole?: Role
 	onPressIn?: () => void
 	onPressOut?: () => void
 	onDoublePress?: () => void
@@ -299,6 +321,9 @@ export interface TextInputProps {
 }
 
 export interface TextAreaProps extends TextInputProps {
+	/** Submit on native only when `returnKeyType` is `done` or `send`; other
+	 * returns insert newlines because TextView emits returnPress per newline.
+	 * Web submits on Cmd/Ctrl+Enter. */
 	/** Height in text rows. Web: the `rows` attr (fixed box); native:
 	 *  minHeight at the widget's measured line height. With `autoGrow` it
 	 *  becomes the starting height instead of a fixed one. */

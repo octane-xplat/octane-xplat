@@ -14,6 +14,9 @@ export function Text(props: TextProps) @{
 		ref={(el: any) => applyEscapeProps(el, props)}
 		className={props.className}
 		{...layoutChildProps(props, textStyle)}
+		role={props.accessibilityRole}
+		aria-label={props.accessibilityLabel}
+		aria-hidden={props.accessible === false ? true : undefined}
 		aria-description={props.accessibilityHint}
 		aria-valuetext={props.accessibilityValue}
 		aria-disabled={props.accessibilityState?.disabled}

@@ -13,6 +13,7 @@ import { applyEscapeProps } from "./escape-props";
  *  text→textChange echo suppression applies here unchanged. */
 export function TextArea(props: TextAreaProps) @{
 	const el = useRef<any>(null);
+	const submitOnReturn = props.returnKeyType === 'done' || props.returnKeyType === 'send';
 
 	const lineDip = (v: any): number => {
 		const ios = v?.ios?.font?.lineHeight;
@@ -53,7 +54,9 @@ export function TextArea(props: TextAreaProps) @{
 		editable={props.editable ?? true}
 		onLoaded={(e: any) => fit(e.object)}
 		onTextChange={(e: any) => props.onChange?.(e.value)}
-		onReturnPress={props.onSubmit}
+		// TextView emits returnPress for every newline. Only an explicit action
+		// key opts into the submit semantic; ordinary Return remains a newline.
+		onReturnPress={submitOnReturn ? props.onSubmit : undefined}
 		onFocus={props.onFocus}
 		onBlur={props.onBlur}
 	/>

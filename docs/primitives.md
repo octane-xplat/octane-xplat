@@ -42,6 +42,16 @@ export function EmptyState() {
 Use `className` for reusable visual styles, `style` for values that change at
 runtime, and shared event names such as `onPress` and `onChange`.
 
+`TextArea` keeps Return as a newline. On web, `onSubmit` fires for
+Cmd/Ctrl+Enter. On native, `onSubmit` is enabled only when
+`returnKeyType="done"` or `returnKeyType="send"`; NativeScript's TextView
+otherwise reports every newline as `returnPress`.
+
+`Pressable` and `Text` share the accessibility props in the platform map,
+including `accessible`, label, hint, value, role, state, and live region. Role
+names stay portable; the native leaf translates names such as `heading` to
+NativeScript's `header`.
+
 For mixed formatting or inline links, compose `RichText` with
 `RichTextSpan` children. Each span can carry its own `className`, `style`, and
 `onPress`; the native leaf maps the runs to NativeScript `FormattedString`

@@ -2,7 +2,7 @@
 import { createContext, useContext } from 'octane';
 import type { TextProps } from "./props";
 import { cx } from "./cx";
-import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child.native';
 
 /**
@@ -46,6 +46,9 @@ export function Text(props: TextProps) @{
 			// web text wraps freely — 'normal' matches web (0 = unlimited lines).
 			whiteSpace={props.ellipsize ? 'nowrap' : 'normal'}
 			textOverflow={props.ellipsize ? 'ellipsis' : undefined}
+			accessible={props.accessible}
+			accessibilityLabel={props.accessibilityLabel}
+			accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
 			accessibilityHint={props.accessibilityHint}
 			accessibilityValue={props.accessibilityValue}
 			accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}

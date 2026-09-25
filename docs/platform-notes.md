@@ -46,13 +46,14 @@
 | `accessibilityLabel`      | `aria-label`                                                   | `accessibilityLabel`                                                                                                                                                                                                                                     |
 | `accessibilityHint`       | `aria-description`                                             | `accessibilityHint`                                                                                                                                                                                                                                      |
 | `accessibilityValue`      | `aria-valuetext`/`aria-valuenow`                               | `accessibilityValue`                                                                                                                                                                                                                                     |
-| `accessibilityRole`       | `role` (ARIA)                                                  | `accessibilityRole` — NS set: `button`,`link`,`search`,`image`,`header`,`adjustable`,`summary`,`text`,`none`,`progressbar`,`checkbox`,`switch`,`tab`,`keyboard_key`,`updates_frequently`,`increment`,`decrement` — map shared names onto this set + ARIA |
+| `accessibilityRole`       | `role` (ARIA)                                                  | `accessibilityRole` — shared roles map to NS values: `heading`→`header`, `progressbar`→`progressBar`, `radio`→`radioButton`, `spinbutton`→`spinButton`, `tab`→`button` + selected state; other shared names keep their NS spelling |
 | `accessibilityLiveRegion` | `aria-live`                                                    | `accessibilityLiveRegion` ('none'/'polite'/'assertive')                                                                                                                                                                                                  |
-| `accessibilityState`      | `aria-disabled`/`aria-selected`/`aria-checked`/`aria-expanded` | per-state NS props + events                                                                                                                                                                                                                              |
+| `accessibilityState`      | `aria-disabled`/`aria-selected`/`aria-checked`/`aria-expanded` | NativeScript accepts one state enum; the leaf priority is disabled → selected → checked/unchecked. `busy` and `expanded` are web-only.                                                                                                                                 |
 
-NS roles are stringly-typed and narrower than ARIA — the shared `Role` union
-covers the intersection; leaf impls translate (e.g. shared `'heading'` → web
-`role="heading"` + native `accessibilityRole="header"`).
+NS roles are stringly-typed and narrower than ARIA. The shared `Role` union is
+the portable set; web keeps the ARIA spelling while native translates the
+exceptions above (for example shared `'heading'` → web `role="heading"` +
+native `accessibilityRole="header"`).
 
 ```ts
 // Optional capability — never throws for absence

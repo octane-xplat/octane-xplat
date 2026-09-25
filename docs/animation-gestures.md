@@ -33,5 +33,10 @@ Use shared gesture props such as `onPan` and `onSwipe`. The web and native
 leaves normalize their event payloads so the screen can respond to movement,
 velocity, and direction without knowing the input system.
 
+Native velocity is normalized to dip per second: iOS reads the
+`UIPanGestureRecognizer`'s `velocityInView`, while Android feeds NativeScript's
+pan `MotionEvent`s to `VelocityTracker`. This wiring is desk-source in this
+batch; device verification remains part of the separate native sweep.
+
 For the timing model, supported gesture payloads, and target-specific limits,
 see the [animation notes](animation-notes.md).
