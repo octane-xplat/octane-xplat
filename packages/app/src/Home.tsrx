@@ -256,7 +256,7 @@ export function Home() @{
 				maxRows={4}
 				className="input"
 			/>
-			<Text className="text-sm text-muted">{'Bio: ' + bio}</Text>
+			<Text className="text-sm text-muted multiline-echo">{'Bio: ' + bio}</Text>
 		</View>
 
 		<View className="sink-section flex-1">

@@ -47,6 +47,13 @@ body {
 .scrollrow {
 	display: block;
 }
+
+/* Echoing multiline input verbatim: \n collapses inside <span> on web
+   (Label preserves it on native). pre-wrap is unsupported on native, so
+   this lives in the web-only block. */
+.multiline-echo {
+	white-space: pre-wrap;
+}
 /* xplat-web-only:end */
 
 /* The root Screen carries .vx-app for surface/text tokens but its padding
