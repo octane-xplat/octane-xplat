@@ -76,7 +76,7 @@ active component render resolve via implicit slots
 (`implicit:${owner.implicitSlot++}`), so custom hooks don't need `@{ }`
 bodies; they just need stable call order. The value attaches through a `bind`
 prop on the leaf (→ intrinsic `ref`; `ref` itself is runtime-reserved on
-component elements) and writes `view.translateX` per rAF frame — no re-render.
+component elements) and writes `view[prop]` per rAF frame — no re-render.
 `to(80,{300ms})` hit exactly 80; JS spring integrator settled to |−1.4|.
 
 ## Gesture normalization
@@ -101,15 +101,18 @@ which is a real event). Programmatic probing must call
 `observer.callback(args)`; real-recognizer delivery was verified manually
 (taps + typing).
 
-**Verified:** payload normalization landed in the View leaf — NS
-`{deltaX,deltaY,state:int}` → `{x,y,dx,dy,vx,vy,state:'began'|...'}`; enum
-map is `cancelled=0,began=1,changed→moved=2,ended=3`. Web leaf attaches raw
+**Verified:** payload normalization landed in the shared pan plumbing
+(`pan.native`/`pan.web`) — View, Row, and Pressable all take
+`onPan`/`onSwipe`/`bind`. NS `{deltaX,deltaY,state:int}` →
+`{x,y,dx,dy,vx,vy,state:'began'|...'}`; enum map is
+`cancelled=0,began=1,changed→moved=2,ended=3`. Web leaves attach raw
 pointer listeners via the `bind` ref — **`pointermove` is not in octane's
 delegated-event set**, so declarative `onPointerMove` props can't drive a
 drag; the leaf owns the listeners. Velocity is computed from web pointer
 samples; native iOS reads `velocityInView`, and native Android uses
-`VelocityTracker` over the MotionEvents and converts px/sec to dip/sec. Device
-verification remains a separate sweep.
+`VelocityTracker` over the MotionEvents and converts px/sec to dip/sec.
+The demosweep exercises pan programmatically (observer callbacks on iOS
+sim — the Reorder step); real-recognizer delivery stays manual.
 
 ## Choreography patterns proven in ns-octane
 

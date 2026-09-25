@@ -29,9 +29,16 @@ Gesture callbacks should update the visual value during the gesture and keep
 product state for the final result. Do not make every pointer or touch move a
 full screen state update.
 
-Use shared gesture props such as `onPan` and `onSwipe`. The web and native
-leaves normalize their event payloads so the screen can respond to movement,
-velocity, and direction without knowing the input system.
+Use shared gesture props such as `onPan` and `onSwipe` — `View`, `Row`,
+and `Pressable` all accept them, plus `bind` to reach the host view. The
+web and native leaves normalize their event payloads so the screen can
+respond to movement, velocity, and direction without knowing the input
+system.
+
+Write per-frame movement imperatively through `setTranslate(boundView, x,
+y)` — or an `useAnimation` value when the move also needs a tween — and
+commit the state change once, at gesture end. The Reorder demo
+(`packages/demos/src/Reorder.tsrx`) is the reference shape.
 
 Native velocity is normalized to dip per second: iOS reads the
 `UIPanGestureRecognizer`'s `velocityInView`, while Android feeds NativeScript's

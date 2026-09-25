@@ -88,7 +88,7 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     dashed forms), `.class`, `#id`, `>`/descendant, `:not`/`:is`/`:where`
     (zero-specificity), `:pressed`, `:hovered`, nestable `@media`, attribute
     selectors (all operators, matching arbitrary view props). Unverified:
-    `!important`, `z-index`, sibling combinators. Traps: bare `[attr]` matches
+    `!important`, sibling combinators. Traps: bare `[attr]` matches
     nothing; per-declaration error recovery hides broken values.
     (ns-css-selectors skill.)
 12. 🟡 **Two dev servers on one tree.** — Partially lab-observed: concurrent
