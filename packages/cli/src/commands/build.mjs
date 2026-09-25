@@ -1,7 +1,10 @@
 import { command, flag, option, optional, string } from '@alloc/cmd-ts'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import * as p from '@clack/prompts'
 import { buildTargets } from '../targets.mjs'
 import { runTagged } from '../procs.mjs'
+import { generateRoutes } from './routes.mjs'
 
 export const build = command({
 	name: 'build',
@@ -46,6 +49,14 @@ export const build = command({
 				process.exit(0)
 			}
 			chosen = all.filter((t) => picked.includes(t.id))
+		}
+
+		// Route codegen is automatic when a route dir exists — the generated
+		// manifest is committed like a lockfile; a stale one is a silent bug.
+		const routeDir = ['app', 'src/app'].find((d) => existsSync(join(cwd, d)))
+		if (routeDir) {
+			const n = generateRoutes(cwd, routeDir)
+			p.log.info(`routes.gen regenerated — ${n} route${n === 1 ? '' : 's'}`)
 		}
 
 		for (const t of chosen) {

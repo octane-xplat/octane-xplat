@@ -4,11 +4,11 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
-		"build": "vite build",
+		"dev": "pnpm --filter @xplat/app gen && vite",
+		"build": "pnpm --filter @xplat/app gen && vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
-		"smoke": "vite build && node scripts/smoke.mjs"
+		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

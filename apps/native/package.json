@@ -5,10 +5,10 @@
 	"main": "src/index.ts",
 	"scripts": {
 		"postinstall": "patch-package",
-		"ios": "ns run ios",
-		"android": "ns run android",
-		"debug:ios": "ns debug ios",
-		"build:ios": "ns build ios"
+		"ios": "pnpm --filter @xplat/app gen && ns run ios",
+		"android": "pnpm --filter @xplat/app gen && ns run android",
+		"debug:ios": "pnpm --filter @xplat/app gen && ns debug ios",
+		"build:ios": "pnpm --filter @xplat/app gen && ns build ios"
 	},
 	"dependencies": {
 		"@nativescript-community/octane": "0.2.1",
