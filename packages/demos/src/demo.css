@@ -364,3 +364,32 @@
 .heading-samples {
 	gap: 4px;
 }
+
+.dv-row {
+	flex-direction: row;
+}
+
+.dv-grow-fill {
+	flex-grow: 1;
+	height: 40px;
+	background-color: #22c55e;
+}
+
+.dv-lh {
+	font-size: 20px;
+	line-height: 40px;
+}
+
+.dv-auto {
+	margin-left: auto;
+}
+
+.dv-wide {
+	flex-grow: 1;
+}
+
+.dv-sib {
+	width: 88px;
+	height: 32px;
+	background-color: #6366f1;
+}

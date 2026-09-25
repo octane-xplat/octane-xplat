@@ -33,6 +33,7 @@ function collect(view: any, out: any[] = []): any[] {
 		collect(c, out)
 		return true
 	})
+
 	return out
 }
 
@@ -109,6 +110,7 @@ function runNavLinkProbe() {
 					(ok ? 'OK' : 'FAIL') +
 					(ok ? '' : ' — ' + JSON.stringify(route)),
 			)
+
 			if (ok) popRoute('root')
 		},
 	)
@@ -138,6 +140,7 @@ function runModalRouteProbe() {
 			console.log(
 				'[assert] +modal route opens showModal root: ' + (ok ? 'OK' : 'FAIL'),
 			)
+
 			const modalView = (getStack('root')?.currentPage as any)?.modal
 			const texts = modalView ? viewTexts(modalView) : []
 			console.log(
@@ -145,6 +148,7 @@ function runModalRouteProbe() {
 					(texts.some((t) => t.includes('About (modal route)')) ? 'OK' : 'FAIL') +
 					(modalView ? '' : ' (no modal host on currentPage)'),
 			)
+
 			popRoute('root')
 			setTimeout(() => {
 				console.log(
@@ -189,6 +193,7 @@ const STEPS: Step[] = [
 					const ok = collect(host).some(
 						(v) => typeof v?.text === 'string' && v.text.includes('Demo count'),
 					)
+
 					console.log(
 						'[assert] sheet hosts demo: ' +
 							(ok ? 'OK' : 'FAIL') +
@@ -258,6 +263,7 @@ const STEPS: Step[] = [
 							(enc >= 0 && water >= 0 && enc < water ? 'OK' : 'FAIL') +
 							dump(hay),
 					)
+
 					console.log(
 						'[assert] list onEndReached: ' +
 							(hay.some((t) => t.startsWith('Added event')) ? 'OK' : 'FAIL'),
@@ -278,6 +284,7 @@ const STEPS: Step[] = [
 					const span = collect(demosPage()).some(
 						(v) => v.row === 1 && v.col === 0 && v.colSpan === 2,
 					)
+
 					console.log('[assert] grid attached props: ' + (span ? 'OK' : 'FAIL'))
 				},
 			},
@@ -371,6 +378,55 @@ const STEPS: Step[] = [
 		],
 	},
 	{
+		// Flex/text divergence probes — measured, not text-matched. The goal
+		// is documented, comparable numbers for web↔native reasoning; FAILs
+		// here mark real divergences the framework should absorb.
+		id: 'divergence',
+		checks: [
+			{
+				at: 900,
+				run: () => {
+					const m = (id: string) => {
+						const v = collect(demosPage()).find((x) => x.id === id)
+						if (!v) return null
+						const s = v.getActualSize?.() ?? {}
+						const p = v.getLocationOnScreen?.() ?? {}
+						return { w: Math.round(s.width ?? -1), h: Math.round(s.height ?? -1), x: Math.round(p.x ?? -1), y: Math.round(p.y ?? -1) }
+					}
+
+					for (const id of ['dv-grow', 'dv-grow-fill', 'dv-lh', 'dv-lh2', 'dv-auto', 'dv-wide', 'dv-sib']) {
+						const r = m(id)
+						console.log(
+							'[probe] ' + id + ' ' + (r ? `${r.w}x${r.h}@${r.x},${r.y}` : 'MISSING'),
+						)
+					}
+
+					const grow = m('dv-grow-fill')
+					console.log(
+						'[assert] grow child keeps height: ' +
+							(grow && grow.h >= 40 ? 'OK' : 'FAIL') +
+							(grow ? ` (${grow.h})` : ''),
+					)
+
+					const sib = m('dv-sib')
+					const wide = m('dv-wide')
+					console.log(
+						'[assert] fixed sibling survives grow: ' +
+							(sib && sib.w >= 88 && wide && sib.x > wide.x ? 'OK' : 'FAIL') +
+							(sib ? ` (${sib.w}@${sib.x})` : ''),
+					)
+
+					const auto = m('dv-auto')
+					console.log(
+						'[assert] margin-left:auto pushes trail right: ' +
+							(auto && auto.x > 200 ? 'OK' : 'FAIL') +
+							(auto ? ` (x=${auto.x})` : ''),
+					)
+				},
+			},
+		],
+	},
+	{
 		id: 'props',
 		checks: [
 			{ at: 400, run: () => assertHas('demo props', 'Input is editable') },
@@ -439,6 +495,7 @@ if (!SKIP)
 						' gallery=' +
 						(galleryPage ? galleryPage.constructor.name : 'none'),
 				)
+
 				setTimeout(() => runStep(0), 400)
 			},
 			60,

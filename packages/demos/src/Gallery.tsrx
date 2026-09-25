@@ -17,6 +17,7 @@ import { PropsDemo } from './PropsDemo.tsrx';
 import { OverlayDemo } from './OverlayDemo.tsrx';
 import { ControlsDemo } from './ControlsDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
+import { Divergence } from './Divergence.tsrx';
 import { useLastDemo } from './store.tsrx';
 
 export const DEMOS = [
@@ -37,6 +38,7 @@ export const DEMOS = [
 	{ id: 'overlay', title: 'Overlays' },
 	{ id: 'controls', title: 'Controls' },
 	{ id: 'layout', title: 'Layout' },
+	{ id: 'divergence', title: 'Divergence' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -63,6 +65,7 @@ const renderProps = () => <PropsDemo />;
 const renderOverlay = () => <OverlayDemo />;
 const renderControls = () => <ControlsDemo />;
 const renderLayout = () => <LayoutDemo />;
+const renderDivergence = () => <Divergence />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -82,6 +85,7 @@ export const RENDER: Record<string, () => any> = {
 	overlay: renderOverlay,
 	controls: renderControls,
 	layout: renderLayout,
+	divergence: renderDivergence,
 };
 
 /** Demo launcher — chip menu. Two modes:
