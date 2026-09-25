@@ -15,8 +15,8 @@ import { useSyncExternalStore } from 'octane'
  *  Back (popstate or popRoute) dismisses it. */
 
 export type { Route } from './props'
-import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
-import { buildRoutePath, layoutChain, linkPath, matchUrl } from './route-table'
+import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable } from './props'
+import { buildRoutePath, layoutChain, linkPath, matchUrl, RouteRedirect } from './route-table'
 
 // ---------- screen registry ----------
 
@@ -47,6 +47,7 @@ export function registerRoutes(manifest: RouteManifest): void {
 	registerScreens(manifest.screens, manifest.routes)
 	routeLayouts = manifest.layouts
 	routeLoaders = manifest.loaders ?? {}
+	applyHead(read())
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {
@@ -66,6 +67,9 @@ const listeners = new Set<() => void>()
 // needs its patterns for path params.
 let current: Route | null | undefined
 let modalRoute: Route | null = null
+let historyDepth = history.state?.__octaneXplatDepth ?? 0
+
+const ROUTE_HEAD_ATTR = 'data-octane-xplat-route-head'
 
 // Scroll positions keyed by URL — restored on popstate (native keeps
 // stack pages alive, so only the web leaf needs this). `lastKey` is the
@@ -98,7 +102,87 @@ function emit() {
 	listeners.forEach((l) => l())
 }
 
+function metaFor(name: string): RouteMeta | undefined {
+	return routes.find((meta) => meta.name === name)
+}
+
+function headFor(r: Route | null): RouteHead | undefined {
+	const head = r ? metaFor(r.name)?.head : undefined
+	return typeof head === 'function' ? head(r?.params ?? {}) : head
+}
+
+function applyHead(r: Route | null): void {
+	if (typeof document === 'undefined') {
+		return
+	}
+
+	const head = headFor(r)
+	if (!head) {
+		document.querySelectorAll(`meta[${ROUTE_HEAD_ATTR}]`).forEach((node) => node.remove())
+		return
+	}
+
+	if (head.title !== undefined) {
+		document.title = head.title
+	}
+
+	document.querySelectorAll(`meta[${ROUTE_HEAD_ATTR}]`).forEach((node) => node.remove())
+	for (const [name, content] of Object.entries(head.meta ?? {})) {
+		const tag = document.createElement('meta')
+		tag.setAttribute('name', name)
+		tag.setAttribute('content', content)
+		tag.setAttribute(ROUTE_HEAD_ATTR, '')
+		document.head.appendChild(tag)
+	}
+}
+
+function contextFor(r: Route): Record<string, unknown> {
+	return r.context ?? {}
+}
+
+async function prepareRoute(r: Route, redirects = 0): Promise<void> {
+	const beforeLoad = metaFor(r.name)?.beforeLoad
+	if (!beforeLoad) {
+		commitRoute(r)
+		return
+	}
+
+	if (redirects > 16) {
+		console.warn(`[octane-xplat] beforeLoad redirect loop for '${r.name}'`)
+		return
+	}
+
+	try {
+		const returned = await beforeLoad({ params: r.params, context: contextFor(r) })
+		const context = returned ? { ...contextFor(r), ...returned } : contextFor(r)
+		commitRoute({
+			...r,
+			context,
+		})
+	} catch (e) {
+		if (e instanceof RouteRedirect) {
+			await prepareRoute(e.route, redirects + 1)
+			return
+		}
+
+		console.warn(`[octane-xplat] beforeLoad('${r.name}') rejected: ${(e as Error)?.message ?? e}`)
+	}
+}
+
+export function redirect(r: Route): never {
+	throw new RouteRedirect(r)
+}
+
 export function pushRoute(r: Route): void {
+	if (metaFor(r.name)?.beforeLoad) {
+		void prepareRoute(r)
+		return
+	}
+
+	commitRoute(r)
+}
+
+function commitRoute(r: Route): void {
 	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
 	const loader = routeLoaders[route.name] ?? routes.find((meta) => meta.name === route.name)?.loader
 	if (
@@ -109,15 +193,16 @@ export function pushRoute(r: Route): void {
 		void Promise.resolve()
 			.then(() => loader(route.params))
 			.then(
-				(loaderData) => pushRoute({ ...route, loaderData }),
-				(loaderError) => pushRoute({ ...route, loaderError }),
+				(loaderData) => commitRoute({ ...route, loaderData }),
+				(loaderError) => commitRoute({ ...route, loaderError }),
 			)
 
 		return
 	}
 
 	saveScroll()
-	history.pushState(null, '', buildRoutePath(routes, route))
+	historyDepth += 1
+	history.pushState({ __octaneXplatDepth: historyDepth }, '', buildRoutePath(routes, route))
 	lastKey = scrollKey()
 	if (route.presentation === 'modal') {
 		modalRoute = route
@@ -126,6 +211,7 @@ export function pushRoute(r: Route): void {
 		modalRoute = null
 	}
 
+	applyHead(modalRoute ?? current ?? null)
 	emit()
 }
 
@@ -142,9 +228,11 @@ export function popRoute(_stack = 'root'): void {
 
 window.addEventListener('popstate', () => {
 	saveScroll()
+	historyDepth = history.state?.__octaneXplatDepth ?? 0
 	lastKey = scrollKey()
 	modalRoute = null
 	current = parse()
+	applyHead(current)
 	restoreScroll()
 	emit()
 })
@@ -197,6 +285,23 @@ export function useRoute(stack: string): Route | null {
 			return () => listeners.delete(cb)
 		},
 		() => routeFor(stack),
+	)
+}
+
+/** Whether the selected conceptual stack has an in-app route to pop. A
+ * browser's pre-app history is intentionally not counted. */
+export function canGoBack(stack = 'root'): boolean {
+	const route = read()
+	return historyDepth > 0 && route?.stack === stack
+}
+
+export function useCanGoBack(stack = 'root'): boolean {
+	return useSyncExternalStore(
+		(cb) => {
+			listeners.add(cb)
+			return () => listeners.delete(cb)
+		},
+		() => canGoBack(stack),
 	)
 }
 

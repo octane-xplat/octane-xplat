@@ -578,7 +578,30 @@ export interface Route {
 	loaderData?: unknown
 	/** Loader rejection supplied to the route screen as `error`. */
 	loaderError?: unknown
+	/** Context returned by the route's `beforeLoad` export. It is merged into
+	 * screen props and remains available from `useRoute`. */
+	context?: RouteContext
 }
+
+/** Values shared by a route guard and the screen it admits. */
+export type RouteContext = Record<string, unknown>
+
+export interface BeforeLoadArgs {
+	params: Record<string, unknown>
+	context: RouteContext
+}
+
+export type BeforeLoad =
+	(args: BeforeLoadArgs) => RouteContext | void | Promise<RouteContext | void>
+
+/** The deliberately small cross-platform head surface. `meta` keys become
+ * web `<meta name="..." content="...">` tags; native consumes `title`. */
+export interface RouteHead {
+	title?: string
+	meta?: Record<string, string>
+}
+
+export type RouteHeadExport = RouteHead | ((params: Record<string, unknown>) => RouteHead)
 
 export interface LinkProps {
 	href: string
@@ -617,6 +640,11 @@ export interface RouteMeta {
 	 *  screen's `query$` reads hit a warm cache; boot/deep-link routes
 	 *  skip it (the screen mounts in the same tick anyway). */
 	loader?: (params: Record<string, unknown>) => unknown
+	/** Optional guard awaited before a push commits. A thrown `redirect(...)`
+	 * short-circuits the attempted route. */
+	beforeLoad?: BeforeLoad
+	/** Optional route title/meta declaration, or a params-only function. */
+	head?: RouteHeadExport
 }
 
 /** Output of `deriveRouteManifest` — `screens` feeds `registerScreens`

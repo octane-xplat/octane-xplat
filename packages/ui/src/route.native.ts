@@ -21,7 +21,7 @@ import type { UniversalComponent } from 'octane/universal/native'
 
 import { useSyncExternalStore } from 'octane'
 import { getStack, onStackRegistered, stackEntries } from './stacks.native'
-import { buildRoutePath, layoutChain, linkPath, matchUrl } from './route-table'
+import { buildRoutePath, layoutChain, linkPath, matchUrl, RouteRedirect } from './route-table'
 import { RouteHost } from './RouteHost.native'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
 
@@ -123,7 +123,64 @@ function presentationFor(name: string): Route['presentation'] {
 	return routes.find((m) => m.name === name)?.presentation
 }
 
+function metaFor(name: string): RouteMeta | undefined {
+	return routes.find((meta) => meta.name === name)
+}
+
+function headFor(r: Route): { title?: string; meta?: Record<string, string> } | undefined {
+	const head = metaFor(r.name)?.head
+	return (typeof head === 'function' ? head(r.params) : head) as
+		| { title?: string; meta?: Record<string, string> }
+		| undefined
+}
+
+function contextFor(r: Route): Record<string, unknown> {
+	return r.context ?? {}
+}
+
+async function prepareRoute(r: Route, redirects = 0): Promise<void> {
+	const beforeLoad = metaFor(r.name)?.beforeLoad
+	if (!beforeLoad) {
+		commitRoute(r)
+		return
+	}
+
+	if (redirects > 16) {
+		console.warn(`[octane-xplat] beforeLoad redirect loop for '${r.name}'`)
+		return
+	}
+
+	try {
+		const returned = await beforeLoad({ params: r.params, context: contextFor(r) })
+		const context = returned ? { ...contextFor(r), ...returned } : contextFor(r)
+		commitRoute({
+			...r,
+			context,
+		})
+	} catch (e) {
+		if (e instanceof RouteRedirect) {
+			await prepareRoute(e.route, redirects + 1)
+			return
+		}
+
+		console.warn(`[octane-xplat] beforeLoad('${r.name}') rejected: ${(e as Error)?.message ?? e}`)
+	}
+}
+
+export function redirect(r: Route): never {
+	throw new RouteRedirect(r)
+}
+
 export function pushRoute(r: Route): void {
+	if (metaFor(r.name)?.beforeLoad) {
+		void prepareRoute(r)
+		return
+	}
+
+	commitRoute(r)
+}
+
+function commitRoute(r: Route): void {
 	const C = screenFor(r.name)
 	if (!C) {
 		warnOnce(
@@ -144,8 +201,8 @@ export function pushRoute(r: Route): void {
 		void Promise.resolve()
 			.then(() => loader(r.params))
 			.then(
-				(loaderData) => pushRoute({ ...r, loaderData }),
-				(loaderError) => pushRoute({ ...r, loaderError }),
+				(loaderData) => commitRoute({ ...r, loaderData }),
+				(loaderError) => commitRoute({ ...r, loaderError }),
 			)
 
 		return
@@ -172,6 +229,11 @@ export function pushRoute(r: Route): void {
 		}
 
 		swapTabOrder.push(r.stack)
+		const title = headFor(r)?.title
+		const page = resolveStack(r.stack)?.currentPage
+		if (title !== undefined && page) {
+			page.actionBar.title = title
+		}
 		emit()
 		return
 	}
@@ -195,8 +257,12 @@ export function pushRoute(r: Route): void {
 		;(frame as any).callLoaded?.()
 	}
 
-	const props: Record<string, unknown> =
-		r.stack === 'root' ? { ...r.params } : { ...r.params, _stack: r.stack }
+	const props: Record<string, unknown> = {
+		...r.params,
+		...contextFor(r),
+		...(r.stack === 'root' ? {} : { _stack: r.stack }),
+		_pushed: true,
+	}
 
 	if (Object.prototype.hasOwnProperty.call(r, 'loaderData')) {
 		props.data = r.loaderData
@@ -212,7 +278,12 @@ export function pushRoute(r: Route): void {
 				const page = new Page()
 				page.id = r.name + '-page'
 				page.actionBarHidden = true
-				pageRoutes.set(page, r)
+				const head = headFor(r)
+					if (head?.title !== undefined) {
+						page.actionBar.title = head.title
+					}
+
+					pageRoutes.set(page, r)
 				// Page is a ContentView — single-child (`.content` assignment
 				// drops all but the last root view). Root on a GridLayout
 				// child so multi-root screens can't silently lose siblings.
@@ -258,6 +329,8 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 		modalHosts.push(entry)
 		const params: Record<string, unknown> = {
 			...r.params,
+			...contextFor(r),
+			_pushed: true,
 			close: () => (host as any).closeModal?.(),
 		}
 
@@ -414,6 +487,31 @@ export function useRoute(stack: string): Route | null {
 			return () => listeners.delete(cb)
 		},
 		() => routeFor(stack),
+	)
+}
+
+/** Whether the selected native stack has a page (or route-owned Android swap
+ * entry) that can be popped. The modal root is also a back affordance. */
+export function canGoBack(stack = 'root'): boolean {
+	const modal = modalHosts[modalHosts.length - 1]
+	if (modal?.route.stack === stack) {
+		return true
+	}
+
+	if (Application.android && stack !== 'root') {
+		return !!swapTabRoutes.get(stack)?.length
+	}
+
+	return !!resolveStack(stack)?.canGoBack?.()
+}
+
+export function useCanGoBack(stack = 'root'): boolean {
+	return useSyncExternalStore(
+		(cb) => {
+			listeners.add(cb)
+			return () => listeners.delete(cb)
+		},
+		() => canGoBack(stack),
 	)
 }
 

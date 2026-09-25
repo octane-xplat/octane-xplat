@@ -11,6 +11,8 @@ import type {
 	AnimatedValue,
 	AbsoluteProps,
 	ActivityIndicatorProps,
+	BeforeLoad,
+	BeforeLoadArgs,
 	ColorScheme,
 	DrawerProps,
 	GridProps,
@@ -37,6 +39,9 @@ import type {
 	PressableProps,
 	ReadableStore,
 	Route,
+	RouteContext,
+	RouteHead,
+	RouteHeadExport,
 	RouteManifest,
 	RouteMeta,
 	RichTextProps,
@@ -66,6 +71,8 @@ export type {
 	AbsoluteProps,
 	AnimatedValue,
 	ActivityIndicatorProps,
+	BeforeLoad,
+	BeforeLoadArgs,
 	ColorScheme,
 	DrawerProps,
 	GridProps,
@@ -92,6 +99,9 @@ export type {
 	PressableProps,
 	ReadableStore,
 	Route,
+	RouteContext,
+	RouteHead,
+	RouteHeadExport,
 	RouteManifest,
 	RouteMeta,
 	RichTextProps,
@@ -182,6 +192,9 @@ export declare function routeStacks(): string[]
 export declare function layoutsForRoute(name: string): any[]
 export declare function routeFor(stack: string): Route | null
 export declare function currentRoute(): Route | null
+export declare function canGoBack(stack?: string): boolean
+export declare function useCanGoBack(stack?: string): boolean
+export declare function redirect(route: Route): never
 export declare function useRoute(stack: string): Route | null
 /** name → screen table; native pushRoute resolves `route.name` through
  *  it, web outlets fall back to it via `screenFor`. `manifest` (from

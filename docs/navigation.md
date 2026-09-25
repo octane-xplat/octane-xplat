@@ -53,6 +53,59 @@ A route file can also export `loader(params)` — it runs when the route is
 pushed so the screen's queries start early. It is a prefetch, not a data
 source: the screen still reads its own `query$`.
 
+## Guard and document a route
+
+Route files can export behavior alongside their screen:
+
+```ts
+export async function beforeLoad({ params, context }) {
+	if (!context.user) {
+		redirect({ stack: 'root', name: 'login', params: {} })
+	}
+
+	return { accountId: params.id }
+}
+
+export const head = (params) => ({
+	title: `Account ${params.id}`,
+	meta: { description: 'Account details' },
+})
+```
+
+`beforeLoad` is awaited before an imperative `pushRoute`, `NavLink`, or the
+generated route `Link` commits. Its returned object merges into the route's
+`context`, `useRoute()` value, and screen props. Use the exported
+`redirect(route)` helper to short-circuit the attempted destination; the
+target guard still runs. Web commits the redirect through history; native
+commits it through the target `Frame.navigate` path rather than recursively
+calling the public `pushRoute` API. A rejected guard logs and leaves the
+current destination unchanged.
+
+The framework `Link` and `NavLink` components therefore run guards on both
+platforms. A plain browser anchor, refresh, or browser back/forward is URL
+navigation and does not pass through `pushRoute`; apps that need a boot-time
+policy should apply it in their deep-link/bootstrap layer.
+
+`head` is either a static object or a synchronous function of route params.
+Web sets `document.title` and creates `meta[name]` tags. Native applies the
+title to a pushed `Page`'s action bar; meta entries are inert there. Native
+modal roots do not expose a `Page` action-bar surface, so modal meta is inert
+on native.
+
+Screens can use `useCanGoBack(stack?)` to render a back affordance. The
+framework also supplies `_pushed` on route screen props (and `_stack` for
+named native stacks) for code that needs a prop-level seam. On web this is
+based on in-app history depth, not the browser's unrelated history entries.
+
+Web history is one linear stack. `popRoute(stack)` accepts `stack` for API
+symmetry but always pops the browser's current entry; it cannot remove a
+non-top named-stack entry without rewriting browser history.
+
+Generated `RouteParams` keeps normal route APIs scalar (`string`) for stable
+URLs. The low-level `Route` type remains open for compatibility: if an object
+or array is passed directly, web JSON-encodes it with a warning and decodes it
+again on matching. Prefer the generated scalar API for shareable routes.
+
 ## Handle incoming links
 
 `pushDeepLink(url)` turns an incoming URL — `https://…` or an app scheme like

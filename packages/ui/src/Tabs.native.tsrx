@@ -121,7 +121,7 @@ const MemoTabs = memo(TabsInner, (a, b) => a.tabs === b.tabs && a.selectedIndex 
 // and the active route screen is swapped in a single pane. Route history is
 // held by route.native.ts; switching tabs keeps each stack's entries.
 function screenParams(route: NonNullable<ReturnType<typeof useRoute>>) {
-	const params: Record<string, unknown> = { ...route.params, _stack: route.stack };
+	const params: Record<string, unknown> = { ...route.params, ...(route.context ?? {}), _stack: route.stack, _pushed: true };
 	if (Object.prototype.hasOwnProperty.call(route, 'loaderData')) params.data = route.loaderData;
 	if (Object.prototype.hasOwnProperty.call(route, 'loaderError')) params.error = route.loaderError;
 	return params;

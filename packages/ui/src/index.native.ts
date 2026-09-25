@@ -86,8 +86,11 @@ export {
 	routeFor,
 	currentRoute,
 	currentModalRoute,
+	canGoBack,
+	useCanGoBack,
 	useRoute,
 	useModalRoute,
+	redirect,
 	registerScreens,
 	registerRoutes,
 	screenFor,
@@ -96,9 +99,14 @@ export {
 
 export { deriveRouteManifest } from './route-table'
 export type {
+	BeforeLoad,
+	BeforeLoadArgs,
 	LinkProps,
 	NavLinkProps,
 	Route,
+	RouteContext,
+	RouteHead,
+	RouteHeadExport,
 	RouteMeta,
 	RouteManifest,
 	ScreenTable,

@@ -34,10 +34,20 @@ const PARAM = /^\[(.+)\]$/
 // `settings+modal.tsrx` → route 'settings' presented modally by default.
 const PRESENT = /\+(modal|fade|push)$/
 
+/** Internal error carrier used by the public `redirect()` helper. Keeping
+ * this in the shared route table gives both platform leaves the same guard
+ * behavior without importing a platform runtime. */
+export class RouteRedirect extends Error {
+	constructor(readonly route: Route) {
+		super('route redirect')
+		this.name = 'RouteRedirect'
+	}
+}
+
 /** Component pick rule for route/layout modules: default export, then a
  *  `screen` named export, then a single function export. Route files use
  *  named exports (decision #13) — a lone component is unambiguous.
- *  `loader` is reserved metadata (a prefetch hook), never the screen. */
+ *  route-config exports are reserved metadata, never the screen. */
 function pick(mod: any, file: string): any {
 	if (typeof mod?.default === 'function') {
 		return mod.default
@@ -47,7 +57,9 @@ function pick(mod: any, file: string): any {
 		return mod.screen
 	}
 
-	const fns = Object.keys(mod ?? {}).filter((k) => typeof mod[k] === 'function' && k !== 'loader')
+	const fns = Object.keys(mod ?? {}).filter(
+		(k) => typeof mod[k] === 'function' && !['loader', 'beforeLoad', 'head'].includes(k),
+	)
 
 	if (fns.length === 1) {
 		return mod[fns[0]]
@@ -144,6 +156,15 @@ export function deriveRouteManifest(
 			meta.loader = loader
 		}
 
+		const beforeLoad = files[key]?.beforeLoad
+		if (typeof beforeLoad === 'function') {
+			meta.beforeLoad = beforeLoad
+		}
+
+		if (files[key]?.head && (typeof files[key].head === 'object' || typeof files[key].head === 'function')) {
+			meta.head = files[key].head
+		}
+
 		const prev = seen.get(name)
 		if (prev && prev.rank <= rank) {
 			if (prev.rank === rank && !warned.has(name)) {
@@ -200,7 +221,7 @@ export function matchRoute(
 		for (let i = 0; i < segs.length; i++) {
 			const p = meta.segments[i]
 			if (p.startsWith(':')) {
-				params[p.slice(1)] = decodeURIComponent(segs[i])
+				params[p.slice(1)] = decodeRouteParam(decodeURIComponent(segs[i]))
 			} else if (p !== segs[i]) {
 				ok = false
 				break
@@ -233,7 +254,7 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 				console.warn(`[octane-xplat] route '${r.name}' pushed without path param ${s}`)
 			}
 
-			return encodeURIComponent(String(v ?? ''))
+			return encodeURIComponent(encodeRouteParam(v, r.name, s.slice(1)))
 		})
 
 		rest = Object.fromEntries(Object.entries(r.params).filter(([k]) => !meta.params.includes(k)))
@@ -243,11 +264,43 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 
 	// No URLSearchParams — shared code carries no DOM globals (invariant 4).
 	const q = Object.entries(rest)
-		.map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(String(v)))
+		.map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(encodeRouteParam(v, r.name, k)))
 		.join('&')
 
 	const path = (r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/')
 	return (path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '')
+}
+
+const JSON_PARAM_PREFIX = 'json:'
+
+/** Route codegen exposes string params, but the low-level Route shape remains
+ * open for compatibility. Preserve accidental object params on web instead
+ * of silently turning them into `[object Object]`; generated APIs still keep
+ * callers on scalar strings. */
+function encodeRouteParam(value: unknown, routeName: string, key: string): string {
+	if (value === undefined || value === null || ['string', 'number', 'boolean'].includes(typeof value)) {
+		return String(value ?? '')
+	}
+
+	console.warn(`[octane-xplat] route '${routeName}' param '${key}' is non-scalar; JSON-encoding it for the URL`)
+	try {
+		return JSON_PARAM_PREFIX + JSON.stringify(value)
+	} catch {
+		console.warn(`[octane-xplat] route '${routeName}' param '${key}' could not be JSON-encoded; using an empty value`)
+		return ''
+	}
+}
+
+function decodeRouteParam(value: string): unknown {
+	if (!value.startsWith(JSON_PARAM_PREFIX)) {
+		return value
+	}
+
+	try {
+		return JSON.parse(value.slice(JSON_PARAM_PREFIX.length))
+	} catch {
+		return value
+	}
 }
 
 /** `?a=1&b=2` → params — shared code carries no URLSearchParams
@@ -266,7 +319,7 @@ export function parseQueryString(qs: string | undefined): Record<string, unknown
 		const eq = pair.indexOf('=')
 		const k = eq === -1 ? pair : pair.slice(0, eq)
 		const v = eq === -1 ? '' : pair.slice(eq + 1)
-		params[decodeURIComponent(k)] = decodeURIComponent(v)
+		params[decodeURIComponent(k)] = decodeRouteParam(decodeURIComponent(v))
 	}
 
 	return params

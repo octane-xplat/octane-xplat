@@ -98,6 +98,14 @@ try {
 		'NavLink click uses SPA navigation',
 		await page.evaluate((origin) => performance.timeOrigin === origin, timeOrigin),
 	)
+	await page.waitForSelector('text=guard: home', { timeout: 3000 })
+	ok('beforeLoad context reaches screen props', true)
+	ok('head export updates title', (await page.title()) === 'Detail · Octane Xplat')
+	ok(
+		'head export updates meta',
+		(await page.locator('meta[name="description"]').getAttribute('content')) === 'Detail opened from home',
+	)
+	ok('useCanGoBack renders the back affordance', (await page.locator('#detail-back').count()) === 1)
 
 	const tabsCovered = (await page.locator('.vx-tabbar').count()) === 0
 	ok('root route covers tab shell', tabsCovered)

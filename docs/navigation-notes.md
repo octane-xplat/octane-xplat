@@ -7,10 +7,11 @@
 > the end.
 >
 > **Owns:** #2 navigation contract · **Status:** implementation underway; route
-> manifest and APIs typecheck, iOS navigation and demo sweeps pass, Android
-> swap-pane route validation pending
+> manifest, `beforeLoad`/`head`/back-state APIs typecheck, web behavior is
+> verified, iOS navigation and demo sweeps pass, Android swap-pane route
+> validation pending
 > (boundaries = `@try`; HMR = self-accepting modules, named exports stay
-> convention) · **Blocks on:** Android swap-pane runtime validation · **Decisions:** #8, #9, #13, #19
+> convention) · **Blocks on:** Android swap-pane runtime validation · **Decisions:** #8, #9, #13, #19, #38
 > · **Validated by:** web/native typecheck, UI web/native package builds, and
 > iOS simulator navigation + demo sweeps. New modal routes and Android swap
 > tabs still need runtime validation.
@@ -57,8 +58,17 @@ turns the module map into `{screens, routes, layouts, loaders}`:
 - A route may export `loader(params)`. Its result reaches the screen as
   `data`; a rejected loader reaches it as `error`. Loaders run on navigation
   and do not provide prefetch or a suspense boundary.
+- A route may export `beforeLoad({params, context})`. The guard is awaited
+  before an imperative or framework-Link navigation commits; its returned
+  object merges into `Route.context` and screen props. `redirect(route)` is a
+  short-circuit that runs the target guard, then commits via browser history
+  or the native target `Frame.navigate` path. Plain browser URL entry and
+  back/forward remain URL-owned and do not call `pushRoute`.
+- A route may export `head` as a static `{title, meta}` object or a synchronous
+  params function. Web owns title/meta DOM writes; native consumes `title` on
+  pushed `Page`s and treats `meta` as inert.
 - Component pick rule: `default` export → `screen` export → one remaining
-  function export (the `loader` export is excluded); anything else warns
+  function export (route config exports are excluded); anything else warns
   and skips.
 
 `registerRoutes(manifest)` (ui, both leaves) registers screens + URL
@@ -72,6 +82,23 @@ is the canonical path builder (Link's href). `xplat build` and
 `xplat typecheck` refresh the generated route files from `app/`; generated
 `RouteName` and `RouteParams` types constrain `navigate`, `Link`, and
 `useParams<Name>()`.
+
+### Route config surface (implemented)
+
+Exports carry behavior; `+modal`/`+fade` suffixes carry presentation; manifest
+fields carry platform reads. This keeps the route file as the declaration
+point without putting DOM or NativeScript vocabulary in shared route files.
+
+`useCanGoBack(stack?)` is the shared back-affordance hook. It observes browser
+in-app history depth on web, `Frame.canGoBack()` on native, and the router-owned
+Android named-stack entries in the swap-pane shell. Route screens also receive
+`_pushed: true` when they were admitted by a push and `_stack` for named native
+stacks.
+
+The low-level route object remains open for compatibility. Generated route
+params are scalar strings; direct object/array params are JSON-encoded with a
+warning in web URLs and decoded when matched. This preserves old callers while
+making the generated API's scalar contract explicit.
 
 ## Mapping
 
@@ -111,8 +138,9 @@ is the canonical path builder (Link's href). `xplat build` and
    is the basic route-data seam; prefetch and async boundary integration
    remain open.
 7. **Modal routes**: `+modal` or `presentation: 'modal'` opens a separate
-   native root / web overlay while retaining the prior history entry. Params
-   and loader values cross as props; context does not. `+fade` or
+   native root / web overlay while retaining the prior history entry. Params,
+   loader values, and route-owned `beforeLoad` context cross as props; the
+   presenter's component context does not. `+fade` or
    `presentation: 'fade'` selects a fade transition; push remains the
    default.
 8. **Windows**: `openWindow({data})` is the minimal cross-platform seam.
@@ -160,6 +188,13 @@ is the canonical path builder (Link's href). `xplat build` and
 > `/demos/demo/watch` boots into the right tab + screen. `Link.web` now
 > emits real `hrefFor` paths (the `#/` hash stub is gone). Native:
 > typecheck clean; device run pending.
+
+> **Lab (route config, web, 2026-09-25):** the 24/24 browser smoke covers the
+> generated `detail` route's awaited `beforeLoad` context, dynamic `head`
+> title/meta, and `useCanGoBack` back affordance, alongside the existing push,
+> pop, and deep-link checks. The native leaf typechecks and builds, but the new
+> guard/head/back behavior has not received a new on-device run; existing iOS
+> navigation sweeps remain valid for the underlying Frame route seam.
 
 > **Lab (Exp 9, iOS):** Frame-root entry + `frame.navigate({create})` pushes a
 > second `Page` hosting its own `createNativeScriptRoot` — per-page roots work.

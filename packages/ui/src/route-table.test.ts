@@ -109,6 +109,19 @@ describe('matchRoute + buildRoutePath', () => {
 		)
 	})
 
+	it('JSON-encodes non-scalar params and restores them on match', () => {
+		const path = buildRoutePath(routes, {
+			stack: 'root',
+			name: 'detail',
+			params: { filter: { unread: true } },
+		})
+
+		const matched = matchUrl(routes, path)!
+
+		expect(path).toContain('json%3A%7B%22unread%22%3Atrue%7D')
+		expect(matched.params.filter).toEqual({ unread: true })
+	})
+
 	it('strips a +presentation suffix into meta.presentation', () => {
 		const m = manifest({
 			'./app/settings+modal.tsrx': { S: C('S') },
@@ -143,6 +156,20 @@ describe('matchRoute + buildRoutePath', () => {
 
 		expect(m.routes.find((r) => r.name === 'detail')!.loader).toBe(loader)
 		expect(m.screens.data).toBeUndefined()
+	})
+
+	it('records beforeLoad and head exports without mistaking them for screens', () => {
+		const beforeLoad = () => ({ role: 'member' })
+		const head = (params: Record<string, unknown>) => ({ title: String(params.id) })
+		const m = manifest({
+			'./app/detail.tsrx': { Detail: C('D'), beforeLoad, head },
+		})
+
+		const detail = m.routes[0]
+
+		expect(detail.beforeLoad).toBe(beforeLoad)
+		expect(detail.head).toBe(head)
+		expect(m.screens.detail.displayName).toBe('D')
 	})
 })
 

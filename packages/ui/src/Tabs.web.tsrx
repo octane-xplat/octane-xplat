@@ -1,7 +1,7 @@
 import { useState } from 'octane';
 import type { TabSpec, TabsProps } from './props';
 
-import { layoutsFor, popRoute, screenFor, useModalRoute, useRoute } from './route.web';
+import { canGoBack, layoutsFor, popRoute, screenFor, useModalRoute, useRoute } from './route.web';
 
 export type { TabSpec } from './props';
 
@@ -30,8 +30,10 @@ export function Tabs(props: TabsProps) @{
 		return layoutsFor(name).reduceRight((child, L) => <L>{child}</L>, el);
 	};
 
-	const routeProps = (route: NonNullable<typeof rootRoute>) => ({
+	const routeProps = (route: NonNullable<typeof rootRoute> | NonNullable<typeof paneRoute>) => ({
 		...route.params,
+		...(route.context ?? {}),
+		_pushed: canGoBack(route.stack),
 		...(Object.prototype.hasOwnProperty.call(route, 'loaderData') ? { data: route.loaderData } : {}),
 		...(Object.prototype.hasOwnProperty.call(route, 'loaderError') ? { error: route.loaderError } : {}),
 	});
@@ -62,7 +64,7 @@ export function Tabs(props: TabsProps) @{
 			}
 		</div>
 		<div className="vx-tabpane">
-			{(paneRoute ? resolve(paneRoute.name, paneRoute.params) : null)
+			{(paneRoute ? resolve(paneRoute.name, routeProps(paneRoute)) : null)
 				?? props.tabs[active]?.render()}
 		</div>
 	</div>
