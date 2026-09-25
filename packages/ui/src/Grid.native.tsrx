@@ -12,6 +12,7 @@ export function Grid(props: GridProps) @{
 	}
 
 	<gridlayout
+		id={props.id}
 		ref={(view: any) => applyEscapeProps(view, props)}
 		rows={props.rows}
 		columns={props.columns}

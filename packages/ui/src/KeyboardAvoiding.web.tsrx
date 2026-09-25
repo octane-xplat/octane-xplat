@@ -10,6 +10,7 @@ function applyWebProps(node: any, bag?: Record<string, any>) {
 
 export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	<div
+		id={props.id}
 		ref={(node: any) => applyWebProps(node, props.web)}
 		className={['vx-keyboard-avoiding', props.className]}
 		style={props.style}

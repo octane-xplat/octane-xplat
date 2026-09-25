@@ -28,11 +28,14 @@ export function layoutChildProps(props: LayoutChildProps & Partial<FlexContainer
 
 	if (props.justifyContent !== undefined)
 		result.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
+
 	if (props.alignItems !== undefined)
 		result.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
+
 	if (props.flexWrap !== undefined)
 		result.flexWrap =
 			props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
+
 	if (props.gap !== undefined) result.gap = props.gap
 	if (props.rowGap !== undefined) result.rowGap = props.rowGap
 	if (props.columnGap !== undefined) result.columnGap = props.columnGap

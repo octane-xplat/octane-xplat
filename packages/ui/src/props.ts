@@ -63,6 +63,7 @@ export interface GridProps {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+	id?: string
 }
 
 export interface StackProps {
@@ -72,6 +73,7 @@ export interface StackProps {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+	id?: string
 }
 
 export interface AbsoluteProps {
@@ -81,6 +83,7 @@ export interface AbsoluteProps {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+	id?: string
 }
 
 export interface SpacerProps {
@@ -89,6 +92,7 @@ export interface SpacerProps {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+	id?: string
 }
 
 export interface ViewProps extends LayoutChildProps, FlexContainerProps {
@@ -279,6 +283,7 @@ export interface ScreenProps {
 	ios?: any
 	android?: any
 	web?: any
+	id?: string
 }
 
 // ---------- device seams ----------
@@ -291,6 +296,7 @@ export interface SafeAreaProps {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+	id?: string
 }
 
 export interface KeyboardAvoidingProps {
@@ -300,11 +306,13 @@ export interface KeyboardAvoidingProps {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+	id?: string
 }
 
 export interface DrawerProps {
 	className?: any
 	style?: any
+	id?: string
 	/** Slot components (not elements) — JSX prop values don't lower on the
 	 *  universal runtime; component references do (`<Drawer main={Main}>`). */
 	main?: () => any

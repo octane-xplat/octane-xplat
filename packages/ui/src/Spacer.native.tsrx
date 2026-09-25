@@ -4,5 +4,5 @@ import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
 
 export function Spacer(props: SpacerProps) @{
-	<stacklayout ref={(view: any) => applyEscapeProps(view, props)} flexGrow={1} className={cx('vx-spacer', props.className)} style={props.style} />
+	<stacklayout id={props.id} ref={(view: any) => applyEscapeProps(view, props)} flexGrow={1} className={cx('vx-spacer', props.className)} style={props.style} />
 }

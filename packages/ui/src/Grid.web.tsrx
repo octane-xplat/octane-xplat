@@ -19,6 +19,7 @@ export function Grid(props: GridProps) @{
 	}
 
 	<div
+		id={props.id}
 		className={['vx-grid', props.className]}
 		style={{
 			...props.style,

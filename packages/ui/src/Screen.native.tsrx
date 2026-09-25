@@ -5,7 +5,7 @@ import { applyEscapeProps } from "./escape-props";
 // The screen shell is a RootLayout so getRootLayout().open() can layer
 // overlays over it (decision #22).
 export function Screen(props: ScreenProps) @{
-	<rootlayout ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} style={props.style}>
+	<rootlayout id={props.id} ref={(v: any) => applyEscapeProps(v, props)} className={cx(props.className)} style={props.style}>
 		{props.children}
 	</rootlayout>
 }

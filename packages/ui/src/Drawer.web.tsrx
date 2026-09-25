@@ -13,6 +13,7 @@ export function Drawer(props: DrawerProps) @{
 	const Panel = props.drawer;
 
 	<div
+		id={props.id}
 		ref={(node: any) => applyWebProps(node, props.web)}
 		className={['vx-drawer', props.className]}
 		style={props.style}

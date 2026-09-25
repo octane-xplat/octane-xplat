@@ -42,6 +42,7 @@ export function Drawer(props: DrawerProps) @{
 	const Panel = props.drawer;
 
 	<drawer
+		id={props.id}
 		ref={(d: any) => { host.current = d; if (d && platformProps) Object.assign(d, platformProps); }}
 		className={cx('vx-drawer', props.className)}
 		style={props.style}

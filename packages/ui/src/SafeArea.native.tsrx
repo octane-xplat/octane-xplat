@@ -9,6 +9,7 @@ export function SafeArea(props: SafeAreaProps) @{
 	const platformProps = Application.ios != null ? props.ios : props.android;
 
 	<flexboxlayout
+		id={props.id}
 		ref={(host: any) => { if (host && platformProps) Object.assign(host, platformProps); }}
 		className={cx('vx-safe-area', props.className)}
 		style={{ ...props.style, paddingTop: insets.top, paddingRight: insets.right, paddingBottom: insets.bottom, paddingLeft: insets.left }}

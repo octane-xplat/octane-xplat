@@ -13,6 +13,7 @@ export function SafeArea(props: SafeAreaProps) @{
 	const insets = useSafeAreaInsets();
 
 	<div
+		id={props.id}
 		ref={(node: any) => applyWebProps(node, props.web)}
 		className={['vx-safe-area', props.className]}
 		style={{ ...props.style, paddingTop: insets.top, paddingRight: insets.right, paddingBottom: insets.bottom, paddingLeft: insets.left }}

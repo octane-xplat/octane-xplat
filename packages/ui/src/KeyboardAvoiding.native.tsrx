@@ -44,6 +44,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps) @{
 	const platformProps = Application.ios != null ? props.ios : props.android;
 
 	<scrollview
+		id={props.id}
 		className={cx('vx-keyboard-avoiding', props.className)}
 		style={props.style}
 		ref={(host: any) => { if (host && platformProps) Object.assign(host, platformProps); }}

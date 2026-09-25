@@ -9,6 +9,7 @@ export function normStyle(style: any) {
 	if (style && typeof style.lineHeight === 'number') {
 		return { ...style, lineHeight: style.lineHeight + 'px' }
 	}
+
 	return style
 }
 
@@ -17,6 +18,7 @@ const FLEX_JUSTIFY: Record<string, string> = {
 	start: 'flex-start',
 	end: 'flex-end',
 }
+
 const FLEX_ALIGN: Record<string, string> = {
 	start: 'flex-start',
 	end: 'flex-end',
@@ -47,11 +49,14 @@ export function layoutChildProps(
 	// element style. Numbers become px via octane's style normalization.
 	if (props.justifyContent !== undefined)
 		style.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
+
 	if (props.alignItems !== undefined)
 		style.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
+
 	if (props.flexWrap !== undefined)
 		style.flexWrap =
 			props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
+
 	if (props.gap !== undefined) style.gap = props.gap
 	if (props.rowGap !== undefined) style.rowGap = props.rowGap
 	if (props.columnGap !== undefined) style.columnGap = props.columnGap
