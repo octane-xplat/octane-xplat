@@ -623,6 +623,13 @@ export interface SheetOpenOptions {
 export type OpenSheet = (component: any, params?: any, options?: SheetOpenOptions) => Promise<ModalOpenResult>;
 export interface TabSpec {
     title: string;
+    /** Registered icon name (see `registerIcons`). Web and the Android tab
+     *  strip render the glyph through `Icon`. iOS can't rasterize into a
+     *  UITabBarItem, so it consumes the glyph's `src` (a NativeScript
+     *  iconSource URI — `sys://` SF Symbol, `res://`, `font://`, file
+     *  path) or its `font`/`text` representation; `svg`/`markup`-only
+     *  glyphs log a warning and render title-only. */
+    icon?: string;
     render: () => any;
     /** Named parallel stack — native hosts a Frame per such pane; on web
      *  the pane is the route outlet for `stack` (pushed screens render in

@@ -5,6 +5,8 @@ import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { registerStack } from './stacks.native';
 import { cx } from './cx';
+import { getIcon } from './icons';
+import { Icon } from './Icon.native.tsrx';
 import { Pressable } from './Pressable.native.tsrx';
 import { Text } from './Text.native.tsrx';
 import { layoutsForRoute, screenFor, useRoute } from './route.native';
@@ -28,6 +30,40 @@ function TabPane(props: TabPaneProps) @{
 const paneRoots = new WeakMap<GridLayout, any>();
 const tabsByView = new WeakMap<GridLayout, () => any>();
 const itemsCache = new WeakMap<readonly TabSpec[], TabViewItem[]>();
+const iconWarned = new Set<string>();
+
+// Registered glyph → UITabBarItem image. `src` passes to iconSource
+// verbatim (sys:// = SF Symbol, res://, font://, file path); `font` and
+// `text` glyphs draw through font://. svg/markup can't become a UIImage
+// synchronously — warn once, render title-only.
+function applyIcon(item: TabViewItem, name: string): void {
+	const glyph = getIcon(name);
+	if (!glyph) {
+		warnIconOnce(name, `tab icon '${name}' isn't registered — call registerIcons() at boot.`);
+		return;
+	}
+
+	if (glyph.src) {
+		item.iconSource = glyph.src;
+	} else if (glyph.font) {
+		item.iconSource = 'font://' + glyph.font.glyph;
+		item.iconFontFamily = glyph.font.family;
+	} else if (glyph.text) {
+		// font:// with no iconFontFamily draws through the default font.
+		item.iconSource = 'font://' + glyph.text;
+	} else {
+		warnIconOnce(
+			name,
+			`tab icon '${name}' has no src/font/text representation — UITabBarItem can't render svg/markup glyphs.`,
+		);
+	}
+}
+
+function warnIconOnce(name: string, msg: string): void {
+	if (iconWarned.has(name)) return;
+	iconWarned.add(name);
+	console.warn('[octane-xplat] ' + msg);
+}
 
 function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
 	let items = itemsCache.get(tabs);
@@ -35,6 +71,7 @@ function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
 	items = tabs.map((t) => {
 		const item = new TabViewItem();
 		item.title = t.title;
+		if (t.icon) applyIcon(item, t.icon);
 		if (t.stack) {
 			// Parallel-stack pane: the item's view IS a Frame whose default
 			// page hosts the pane's own Octane root. Pushes land inside the
@@ -90,7 +127,13 @@ function mountPanes(e: any) {
 		root.render(TabPane as unknown as UniversalComponent, { render });
 	}
 
-	console.log('[probe] tabs mounted panes=' + (tv.items as TabViewItem[]).length);
+	const items = tv.items as TabViewItem[];
+	console.log(
+		'[probe] tabs mounted panes=' +
+			items.length +
+			' icons=' +
+			items.filter((i) => !!i.iconSource).length,
+	);
 }
 
 function TabsInner(props: {
@@ -143,6 +186,9 @@ function SwapTabs(props: TabsProps) @{
 					className={cx('vx-tab', active === i ? 'active' : '')}
 					onPress={() => { setInternal(i); props.onSelectedIndexChanged?.(i); }}
 				>
+					@if (t.icon) {
+						<Icon name={t.icon} className="vx-tabicon" size={18} />
+					}
 					<Text>{t.title}</Text>
 				</Pressable>
 			}

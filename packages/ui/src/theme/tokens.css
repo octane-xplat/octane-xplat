@@ -581,6 +581,9 @@ a.chip {
 .vx-tab.active {
 	color: var(--color-text);
 }
+.vx-tabicon {
+	margin-right: 6px;
+}
 
 /* xplat-web-only:start — DOM defaults are display:block (div) and
    inline-block (button); every flex-bearing vx- class needs an explicit

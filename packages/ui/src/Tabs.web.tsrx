@@ -1,5 +1,6 @@
 import { useState } from 'octane';
 import type { TabSpec, TabsProps } from './props';
+import { Icon } from './Icon.web.tsrx';
 
 import { canGoBack, layoutsFor, popRoute, screenFor, useModalRoute, useRoute } from './route.web';
 
@@ -60,7 +61,10 @@ export function Tabs(props: TabsProps) @{
 						setInternal(i);
 						props.onSelectedIndexChanged?.(i);
 					}}
-				>{t.title}</button>
+				>
+					{t.icon ? <Icon name={t.icon} className="vx-tabicon" size={16} /> : null}
+					{t.title}
+				</button>
 			}
 		</div>
 		<div className="vx-tabpane">
