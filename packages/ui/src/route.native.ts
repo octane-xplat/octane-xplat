@@ -120,7 +120,7 @@ onStackRegistered((_name, frame) => {
 // Open modal hosts, in open order — popRoute dismisses the newest first.
 // showModal isn't a frame push: the underlying stack's currentPage never
 // changes, so the route store emits through the modal's own bookkeeping.
-const modalHosts: { host: GridLayout; route: Route }[] = []
+const modalHosts: { host: GridLayout; route: Route; dismiss: () => void }[] = []
 
 function presentationFor(name: string): Route['presentation'] {
 	return routes.find((m) => m.name === name)?.presentation
@@ -199,8 +199,8 @@ export function pushRoute(r: Route): void {
 function pushModal(frame: Frame, r: Route, C: any): void {
 	const host = new GridLayout()
 	const root = createNativeScriptRoot(host) as any
-	const entry = { host, route: r }
-	const dismiss = () => {
+	const entry = { host, route: r, dismiss: () => {} }
+	entry.dismiss = () => {
 		const i = modalHosts.indexOf(entry)
 		if (i === -1) return
 		modalHosts.splice(i, 1)
@@ -217,14 +217,14 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 
 		presenter.showModal(host, {
 			context: {},
-			closeCallback: dismiss,
+			closeCallback: entry.dismiss,
 			fullscreen: true,
 			animated: true,
 		})
 
 		emit()
 	} catch (e) {
-		dismiss()
+		entry.dismiss()
 		root.unmount?.()
 		console.warn('[octane-xplat] modal pushRoute(' + r.name + ') threw: ' + (e as Error)?.message)
 	}
@@ -237,7 +237,13 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 export function popRoute(stack = 'root'): void {
 	const modal = modalHosts[modalHosts.length - 1]
 	if (modal) {
-		;(modal.host as any).closeModal?.()
+		// Bookkeeping first: iOS drops dismissViewController completions
+		// that race a still-in-flight presentation, so the NS closeCallback
+		// isn't guaranteed to run — the route store can't gate on it.
+		modal.dismiss()
+		;
+
+(modal.host as any).closeModal?.()
 		return
 	}
 
