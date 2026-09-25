@@ -32,7 +32,6 @@
 		"@valor/nativescript-websockets": "2.0.3",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
-		"nativescript-clipboard": "2.1.1",
 		"octane": "0.5.0"
 	},
 	"devDependencies": {

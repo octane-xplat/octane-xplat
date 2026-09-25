@@ -261,7 +261,6 @@ export async function xplatNative(env, opts = {}) {
 					'@nativescript/secure-storage',
 					'@nativescript/social-share',
 					'@nativescript-community/ui-svg',
-					'nativescript-clipboard',
 					...(opts.deps ?? []),
 				],
 			},

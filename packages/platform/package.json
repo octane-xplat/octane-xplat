@@ -21,8 +21,7 @@
 		"@nativescript/local-notifications": "7.0.0",
 		"@nativescript-community/ui-document-picker": "1.1.29",
 		"@nativescript/secure-storage": "4.0.2",
-		"@nativescript/social-share": "2.3.0",
-		"nativescript-clipboard": "2.1.1"
+		"@nativescript/social-share": "2.3.0"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.1",

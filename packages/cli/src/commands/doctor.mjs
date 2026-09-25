@@ -20,7 +20,6 @@ const frameworkFallbacks = {
 		'@nativescript/local-notifications',
 		'@nativescript/secure-storage',
 		'@nativescript/social-share',
-		'nativescript-clipboard',
 	],
 }
 
