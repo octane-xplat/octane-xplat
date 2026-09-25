@@ -57,6 +57,8 @@ names in the platform-specific family list. NativeScript's `ns fonts` command
 can print the CSS names for a font directory. Keep the token name (`--font-sans`)
 stable in shared components; only the registered family value changes per
 target. See the [NativeScript fonts guide](https://beta.docs.nativescript.org/project-structure/src/fonts).
+*Token defaults verified on both targets; bundled-font registration pending
+an on-device check.*
 
 ## Keep layouts honest
 

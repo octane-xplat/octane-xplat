@@ -35,8 +35,8 @@ velocity, and direction without knowing the input system.
 
 Native velocity is normalized to dip per second: iOS reads the
 `UIPanGestureRecognizer`'s `velocityInView`, while Android feeds NativeScript's
-pan `MotionEvent`s to `VelocityTracker`. This wiring is desk-source in this
-batch; device verification remains part of the separate native sweep.
+pan `MotionEvent`s to `VelocityTracker`. *Exercised through programmatic
+gesture events on iOS; real-finger velocity pending a live check.*
 
 For the timing model, supported gesture payloads, and target-specific limits,
 see the [animation notes](animation-notes.md).

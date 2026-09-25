@@ -30,7 +30,9 @@ pnpm typecheck
 
 The web build checks the browser bundle. The iOS and Android builds catch
 problems in the native bundle and platform configuration. A typecheck should
-pass for both target configurations before you publish an app.
+pass for both target configurations before you publish an app. *Every command
+on this page is exercised regularly in the harness, including `ns` builds on
+an iOS simulator and a physical Android device.*
 
 Native plugin declarations belong to the app. If its source imports
 `@octane-xplat/ui`, declare the UI plugins used by the native entry in that

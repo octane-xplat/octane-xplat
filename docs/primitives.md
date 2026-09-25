@@ -46,16 +46,18 @@ runtime, and shared event names such as `onPress` and `onChange`.
 Cmd/Ctrl+Enter. On native, `onSubmit` is enabled only when
 `returnKeyType="done"` or `returnKeyType="send"`; NativeScript's TextView
 otherwise reports every newline as `returnPress`.
+*Verified with real keyboard input on the iOS simulator.*
 
 `Pressable` and `Text` share the accessibility props in the platform map,
 including `accessible`, label, hint, value, role, state, and live region. Role
 names stay portable; the native leaf translates names such as `heading` to
-NativeScript's `header`.
+NativeScript's `header`. *Wired on both targets; on-device reading pending.*
 
 For mixed formatting or inline links, compose `RichText` with
 `RichTextSpan` children. Each span can carry its own `className`, `style`, and
 `onPress`; the native leaf maps the runs to NativeScript `FormattedString`
 spans and uses the span's `text` prop for driver compatibility.
+*Span taps verified on the iOS simulator.*
 
 ## When a screen needs more
 
@@ -67,6 +69,7 @@ path; the native leaf also throws a named error when it detects this nesting.
 Use `ScrollBox` when a shared screen needs a scroll shell around a `List`:
 it is a real `ScrollView` on web and an inline `View` on native, so the `List`
 owns scrolling there. `ScrollBox` does not provide an outer native scroll.
+*Verified on the iOS simulator.*
 
 Use `Modal` for a focused interruption, and pass the data it needs as props.
 

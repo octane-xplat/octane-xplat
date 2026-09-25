@@ -23,13 +23,13 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 
 | Service              | Shared shape                                          | Web leaf                                                                                                        | Native leaf                                                                                 | Evidence                                       |
 | -------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| `geolocation`        | `Capability<GeolocationImpl>`; `getCurrentPosition()` | `navigator.geolocation`                                                                                         | `@nativescript/geolocation`: `enableLocationRequest()` + `getCurrentLocation()`             | desk-source; prompt/device behavior unverified |
-| `connectivity`       | `getState()` + `subscribe(listener)`                  | `navigator.onLine` and `online`/`offline` events; connection information when `navigator.connection` exposes it | NativeScript core `Connectivity` (`getConnectionType`, `startMonitoring`, `stopMonitoring`) | desk-source                                    |
-| `appInfo`            | `{ supported, version, build, bundleId }`             | unsupported; browser bundles have no trustworthy app identity                                                   | Android package metadata; iOS `NSBundle` metadata                                           | desk-source                                    |
-| `openUrl(url)`       | returns whether an outbound link was opened           | `window.open`                                                                                                   | `Utils.openUrl`                                                                             | desk-source                                    |
-| `openSettings`       | `Capability<OpenSettingsImpl>`                        | unsupported                                                                                                     | per-app iOS Settings URL or Android application-details intent                              | desk-source; device intent unverified          |
-| `media.pickImage()`  | existing single-image contract                        | image file input                                                                                                | `@nativescript/imagepicker` single mode                                                     | desk-source                                    |
-| `media.pickImages()` | `Promise<PickedImage[]>`                              | image file input with `multiple`                                                                                | `@nativescript/imagepicker` multiple mode                                                   | desk-source                                    |
+| `geolocation`        | `Capability<GeolocationImpl>`; `getCurrentPosition()` | `navigator.geolocation`                                                                                         | `@nativescript/geolocation`: `enableLocationRequest()` + `getCurrentLocation()`             | iOS sim verified; Android timed out (device env) |
+| `connectivity`       | `getState()` + `subscribe(listener)`                  | `navigator.onLine` and `online`/`offline` events; connection information when `navigator.connection` exposes it | NativeScript core `Connectivity` (`getConnectionType`, `startMonitoring`, `stopMonitoring`) | iOS sim + Android device                                    |
+| `appInfo`            | `{ supported, version, build, bundleId }`             | unsupported; browser bundles have no trustworthy app identity                                                   | Android package metadata; iOS `NSBundle` metadata                                           | Android cold-launch verified                                |
+| `openUrl(url)`       | returns whether an outbound link was opened           | `window.open`                                                                                                   | `Utils.openUrl`                                                                             | Android device; iOS pending                                 |
+| `openSettings`       | `Capability<OpenSettingsImpl>`                        | unsupported                                                                                                     | per-app iOS Settings URL or Android application-details intent                              | Android device; iOS pending                                 |
+| `media.pickImage()`  | existing single-image contract                        | image file input                                                                                                | `@nativescript/imagepicker` single mode                                                     | Android device; iOS pending                                 |
+| `media.pickImages()` | `Promise<PickedImage[]>`                              | image file input with `multiple`                                                                                | `@nativescript/imagepicker` multiple mode                                                   | desk-source                                                 |
 
 `media` owns the `camera` and `photos` permission requests. The web leaf can
 request camera access with `getUserMedia`; photo-library selection needs no
@@ -101,9 +101,10 @@ interface MediaImpl {
 
 `appInfo` uses nullable fields with `supported: false` on web instead of
 inventing a version from the browser bundle. `openSettings` is a capability so
-web consumers can check support without a thrown error. Native access to
-location prompts, connectivity callbacks, and settings intents still needs
-device-level validation.
+web consumers can check support without a thrown error. Verified on device:
+connectivity and direct file reads on both targets, settings and URL intents
+on Android, location on iOS. OS-mediated UI — pickers, permission prompts,
+share sheets — still needs live validation.
 
 ## Keep platform code at the edge
 
