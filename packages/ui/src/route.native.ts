@@ -253,9 +253,7 @@ export function popRoute(stack = 'root'): void {
 		// isn't guaranteed to run — the route store can't gate on it.
 		modal.dismiss()
 
-		;
-
-(modal.host as any).closeModal?.()
+		;(modal.host as any).closeModal?.()
 		return
 	}
 
