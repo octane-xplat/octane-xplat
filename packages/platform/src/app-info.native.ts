@@ -32,4 +32,25 @@ function read(): AppInfo {
 	return { supported: false, version: null, build: null, bundleId: null }
 }
 
-export const appInfo = read()
+// `Application.android.context` doesn't exist while the bundled entry is
+// being evaluated (Application.onCreate), so read() must not run at module
+// scope. Defer until first property access.
+let cached: AppInfo | undefined
+function info(): AppInfo {
+	return (cached ??= read())
+}
+
+export const appInfo: AppInfo = {
+	get supported() {
+		return info().supported
+	},
+	get version() {
+		return info().version
+	},
+	get build() {
+		return info().build
+	},
+	get bundleId() {
+		return info().bundleId
+	},
+}
