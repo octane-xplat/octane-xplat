@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "xcode": {
+      "command": ".devin/mcpbridge-wrapper.sh",
+      "transport": "stdio"
+    }
+  }
+}
