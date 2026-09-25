@@ -42,6 +42,10 @@ body {
 .vx-app {
 	min-height: 0;
 	overflow-y: auto;
+	/* The app column is the page scroll boundary — chaining past it would
+	   hit the browser's overscroll (pull-to-refresh); nothing exists
+	   above the page on native either. */
+	overscroll-behavior: contain;
 }
 
 .scrollrow {

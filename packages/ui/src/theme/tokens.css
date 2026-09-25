@@ -63,6 +63,13 @@ img {
 	display: flex;
 	flex-direction: column;
 }
+/* Native has no scroll chaining — a ScrollView/ListView just bounces
+   inside itself because the parent is never a scroller. contain is the
+   DOM equivalent: scroll stays in the leaf it started in. */
+.vx-scroll,
+.vx-list {
+	overscroll-behavior: contain;
+}
 /* xplat-web-only:end */
 
 /* vocabulary base styles */
