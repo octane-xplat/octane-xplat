@@ -26,7 +26,7 @@ import {
 
 import { useSyncExternalStore } from 'octane'
 import { getStack, onStackRegistered, stackEntries } from './stacks.native'
-import { buildRoutePath, layoutChain, linkPath, matchUrl } from './route-table'
+import { buildRoutePath, layoutChain, linkPath, matchUrl, runLoader } from './route-table'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
 
 export type { Route } from './props'
@@ -150,6 +150,7 @@ export function pushRoute(r: Route): void {
 	}
 
 	const presentation = r.presentation ?? presentationFor(r.name)
+	runLoader(routes, r)
 	if (presentation === 'modal') {
 		pushModal(frame, { ...r, presentation }, C)
 		return

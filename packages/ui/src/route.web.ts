@@ -16,7 +16,7 @@ import { useSyncExternalStore } from 'octane'
 
 export type { Route } from './props'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
-import { buildRoutePath, layoutChain, linkPath, matchUrl } from './route-table'
+import { buildRoutePath, layoutChain, linkPath, matchUrl, runLoader } from './route-table'
 
 // ---------- screen registry ----------
 
@@ -94,6 +94,7 @@ function emit() {
 export function pushRoute(r: Route): void {
 	saveScroll()
 	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
+	runLoader(routes, route)
 	history.pushState(null, '', buildRoutePath(routes, route))
 	lastKey = scrollKey()
 	if (route.presentation === 'modal') modalRoute = route

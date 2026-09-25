@@ -542,6 +542,11 @@ export interface RouteMeta {
 	/** Declared default presentation — set by a `+modal`/`+fade` filename
 	 *  suffix (`app/settings+modal.tsrx` → route 'settings', modal). */
 	presentation?: 'push' | 'modal' | 'fade'
+	/** Optional `loader` named export — a prefetch hook, not a data layer.
+	 *  pushRoute fires it (fire-and-forget) before navigating so the
+	 *  screen's `query$` reads hit a warm cache; boot/deep-link routes
+	 *  skip it (the screen mounts in the same tick anyway). */
+	loader?: (params: Record<string, unknown>) => unknown
 }
 
 /** Output of `deriveRouteManifest` — `screens` feeds `registerScreens`

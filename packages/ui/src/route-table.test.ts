@@ -133,6 +133,17 @@ describe('matchRoute + buildRoutePath', () => {
 		expect(m.routes[0].name).toBe('sheet')
 		expect(m.routes[0].presentation).toBe('modal')
 	})
+
+	it('picks up a loader export; loader-only files have no screen', () => {
+		const loader = (p: Record<string, unknown>) => p
+		const m = manifest({
+			'./app/detail.tsrx': { screen: C('D'), loader },
+			'./app/data.tsrx': { loader },
+		})
+
+		expect(m.routes.find((r) => r.name === 'detail')!.loader).toBe(loader)
+		expect(m.screens.data).toBeUndefined()
+	})
 })
 
 describe('matchUrl + linkPath', () => {

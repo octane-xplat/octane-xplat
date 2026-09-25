@@ -36,11 +36,15 @@ const PRESENT = /\+(modal|fade|push)$/
 
 /** Component pick rule for route/layout modules: default export, then a
  *  `screen` named export, then a single function export. Route files use
- *  named exports (decision #13) — a lone component is unambiguous. */
+ *  named exports (decision #13) — a lone component is unambiguous.
+ *  `loader` is reserved metadata (a prefetch hook), never the screen. */
 function pick(mod: any, file: string): any {
 	if (typeof mod?.default === 'function') return mod.default
 	if (typeof mod?.screen === 'function') return mod.screen
-	const fns = Object.keys(mod ?? {}).filter((k) => typeof mod[k] === 'function')
+	const fns = Object.keys(mod ?? {}).filter(
+		(k) => typeof mod[k] === 'function' && k !== 'loader',
+	)
+
 	if (fns.length === 1) return mod[fns[0]]
 	console.warn(
 		'[octane-xplat] route file ' +
@@ -109,6 +113,9 @@ export function deriveRouteManifest(
 			file: key,
 			presentation,
 		}
+
+		const loader = files[key]?.loader
+		if (typeof loader === 'function') meta.loader = loader
 
 		const prev = seen.get(name)
 		if (prev && prev.rank <= rank) {
@@ -260,6 +267,25 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 	}
 
 	return finish('root', null, segs[0])
+}
+
+/** Fire a route's `loader` export — prefetch, not a data layer: the
+ *  screen's own `query$` reads still own the data, this just warms the
+ *  cache before mount. Sync throws and async rejections warn rather
+ *  than break navigation. */
+export function runLoader(routes: readonly RouteMeta[], r: Route): void {
+	const loader = routes.find((m) => m.name === r.name)?.loader
+	if (!loader) return
+	try {
+		const out = loader(r.params)
+		if (out && typeof (out as PromiseLike<unknown>).then === 'function') {
+			;(out as PromiseLike<unknown>).then(undefined, (e) =>
+				console.warn(`[octane-xplat] loader('${r.name}') rejected: ${e}`),
+			)
+		}
+	} catch (e) {
+		console.warn(`[octane-xplat] loader('${r.name}') threw: ${(e as Error)?.message}`)
+	}
 }
 
 /** Layout components wrapping a route name, outermost → innermost —
