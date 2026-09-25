@@ -549,6 +549,111 @@ const STEPS: Step[] = [
 		],
 	},
 	{
+		// Pan isn't a notify()-able event — drive the pan observer's callback
+		// directly (fireTap's idiom for GestureTypes.pan=8), with the payload
+		// shape the leaf's usePan consumes: {state:int, deltaX, deltaY, view}.
+		// GestureStateTypes: cancelled=0, began=1, changed=2, ended=3.
+		id: 'reorder',
+		hold: 2600,
+		checks: [
+			{ at: 400, run: () => assertHas('demo reorder', 'Neon Coastline') },
+			{
+				at: 600,
+				run: () => {
+					const row: any = find('reorder-a')
+					const obs = row?.getGestureObservers?.(8) ?? []
+					console.log('[probe] reorder-a pan observers=' + obs.length)
+					for (const o of obs) {
+						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 1, deltaX: 0, deltaY: 0 })
+						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 2, deltaX: 0, deltaY: 90 })
+					}
+				},
+			},
+			{
+				at: 900,
+				run: () => {
+					const row: any = find('reorder-a')
+					console.log(
+						'[assert] pan translates row: ' +
+							(row?.translateY === 90 ? 'OK' : 'FAIL (' + row?.translateY + ')'),
+					)
+
+					console.log(
+						'[assert] drag lifts z-index: ' +
+							(row?.style?.zIndex === 1 ? 'OK' : 'FAIL (' + row?.style?.zIndex + ')'),
+					)
+
+					// Pitch is row height (52) + gap (8) = 60 dips; dy=90 → hover=2,
+					// so the two rows the drag crossed each shift up one slot.
+					const b: any = find('reorder-b')
+					console.log(
+						'[assert] sibling makes room: ' +
+							(b?.translateY === -60 ? 'OK' : 'FAIL (' + b?.translateY + ')'),
+					)
+				},
+			},
+			{
+				at: 950,
+				run: () => {
+					const row: any = find('reorder-a')
+					const obs = row?.getGestureObservers?.(8) ?? []
+					for (const o of obs) {
+						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 3, deltaX: 0, deltaY: 90 })
+					}
+				},
+			},
+			{
+				at: 1500,
+				run: () => {
+					const order = collect(demosPage())
+						.filter((v) => typeof v?.id === 'string' && v.id.startsWith('reorder-'))
+						.map((v) => v.id)
+
+					console.log(
+						'[assert] drop commits reorder: ' +
+							(order[0] === 'reorder-b' && order[2] === 'reorder-a'
+								? 'OK'
+								: 'FAIL (' + JSON.stringify(order) + ')'),
+					)
+
+					const row: any = find('reorder-a')
+					console.log(
+						'[assert] shifts cleared on drop: ' +
+							(row?.translateY === 0 && row?.style?.zIndex === 0 ? 'OK' : 'FAIL'),
+					)
+				},
+			},
+			// Cancelled gesture: began+moved then state:0 — no commit, shifts
+			// restore.
+			{
+				at: 1700,
+				run: () => {
+					const row: any = find('reorder-b')
+					const obs = row?.getGestureObservers?.(8) ?? []
+					for (const o of obs) {
+						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 1, deltaX: 0, deltaY: 0 })
+						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 2, deltaX: 0, deltaY: -80 })
+						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 0, deltaX: 0, deltaY: -80 })
+					}
+				},
+			},
+			{
+				at: 2200,
+				run: () => {
+					const order = collect(demosPage())
+						.filter((v) => typeof v?.id === 'string' && v.id.startsWith('reorder-'))
+						.map((v) => v.id)
+
+					const row: any = find('reorder-b')
+					console.log(
+						'[assert] cancelled pan restores order+shifts: ' +
+							(order[0] === 'reorder-b' && row?.translateY === 0 ? 'OK' : 'FAIL'),
+					)
+				},
+			},
+		],
+	},
+	{
 		id: 'glass',
 		checks: [
 			{
