@@ -34,31 +34,18 @@ body {
 	flex-direction: column;
 }
 
-/* .vx-app divs are flex columns so flex-1 children resolve on web; native
-   screens are already flex containers and ignore these rules. When content
-   outgrows the pane the column scrolls — children must never be squashed
-   below their natural height (sections are flex-shrink: 0 below). */
+/* Harness scroll policy on top of the tokens.css normalization (.vx-app
+   is already a flex column): the app column scrolls when content outgrows
+   the pane — children must never be squashed below their natural height
+   (sections are flex-shrink: 0 below). Text renders <span>, so .scrollrow
+   needs a block display to paint row borders/padding. */
 .vx-app {
-	display: flex;
-	flex-direction: column;
 	min-height: 0;
 	overflow-y: auto;
 }
 
-/* Same border-style complement as tokens.css — NativeScript paints a
-   border from width+color; the DOM defaults to border-style:none. */
 .scrollrow {
 	display: block;
-}
-
-.setting-row,
-.panbox,
-.scrollbox,
-.scrollrow,
-.list,
-.overlay-panel,
-.demo-layout-banner {
-	border-style: solid;
 }
 /* xplat-web-only:end */
 

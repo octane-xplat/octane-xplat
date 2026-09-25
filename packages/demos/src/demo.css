@@ -1,18 +1,8 @@
 /* Demo-only styles — import once in each app entry, after tokens.css:
  *   import '@xplat/demos/demo.css';
- * Grammar stays inside the NS∩web matrix (docs/css-support-matrix.md). */
-
-/* xplat-web-only:start — NativeScript paints a border from width+color;
-   the DOM defaults to border-style:none, so width alone draws nothing. */
-.ttt-cell,
-.wx-card,
-.list-demo-row,
-.layout-cell,
-.layout-absolute-card,
-.controls-section {
-	border-style: solid;
-}
-/* xplat-web-only:end */
+ * Grammar stays inside the NS∩web matrix (docs/css-support-matrix.md).
+ * No border-style complements needed — tokens.css normalizes the DOM so
+ * width+color alone paints, same as native. */
 
 .overlay-demo-anchor {
 	align-self: flex-start;

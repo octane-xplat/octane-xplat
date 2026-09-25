@@ -35,6 +35,36 @@
 	--color-border-strong: #4a4a4a;
 }
 
+/* xplat-web-only:start — DOM normalization. NativeScript is the reference
+   box model: dip sizes are outer boxes, and a border paints from
+   width+color alone. The DOM's UA stylesheet diverges on both counts, so
+   normalize the deltas once instead of patching individual rules:
+   - border-box keeps padding/borders inside declared sizes (a 40dip box
+     is 40px, not 40px + padding + border).
+   - border-width 0 + border-style solid makes the DOM behave like native:
+     any shared border-*-width declaration paints on both targets — the
+     DOM's initial border-width is `medium`, so style alone would draw
+     phantom ~3px edges wherever a rule sets only one side's width.
+   - <img> is a leaf, not inline text (no baseline descender gap).
+   - .vx-app columns are flex like their native screen containers. */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+* {
+	border-width: 0;
+	border-style: solid;
+}
+img {
+	display: block;
+}
+.vx-app {
+	display: flex;
+	flex-direction: column;
+}
+/* xplat-web-only:end */
+
 /* vocabulary base styles */
 
 .vx-view,
@@ -288,19 +318,6 @@ button {
 }
 /* xplat-web-only:end */
 
-/* xplat-web-only:start — NativeScript paints a border from width+color
-   alone; the DOM defaults to border-style:none, so width alone draws
-   nothing. Longhands stay portable; this supplies the missing style. */
-.vx-tabbar,
-.btn-secondary,
-.chip,
-.input,
-.cell,
-.vx-sheet {
-	border-style: solid;
-}
-/* xplat-web-only:end */
-
 /* xplat-web-only:start — native ActivityIndicator is the NS widget */
 .vx-spinner {
 	display: inline-block;
@@ -541,7 +558,9 @@ a.chip {
 	color: var(--color-text);
 }
 
-/* xplat-web-only:start */
+/* xplat-web-only:start — DOM defaults are display:block (div) and
+   inline-block (button); every flex-bearing vx- class needs an explicit
+   display or flex-direction/align-items/justify-content are inert. */
 .vx-tabs {
 	display: flex;
 	flex-direction: column;
@@ -549,6 +568,7 @@ a.chip {
 	min-height: 0;
 }
 .vx-tabbar {
+	display: flex;
 	flex-direction: row;
 }
 .vx-tabpane {
@@ -558,9 +578,8 @@ a.chip {
 	flex-direction: column;
 }
 button.vx-tab {
+	display: flex;
 	background: none;
-	border: 0;
-	font: inherit;
 	cursor: pointer;
 }
 /* xplat-web-only:end */
