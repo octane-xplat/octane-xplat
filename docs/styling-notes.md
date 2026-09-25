@@ -28,7 +28,10 @@ media-`dark:`), `invisible` is rewritten to `collapse` so it removes from
 layout unlike the web, and `translate-*`/`scale-*` die on a shorthand the
 plugin doesn't map to core's `transform`. Until those land, the curated
 utility subset in `tokens.css` is the supported vocabulary — it keeps every
-class inside the NS-supported CSS intersection.
+class inside the NS-supported CSS intersection. The fixes are pending
+upstream in [NativeScript/tailwind#227](https://github.com/NativeScript/tailwind/pull/227)
+(our fork `aleclarson/tailwind`, branch `fix/tw-parity-gaps`); revisit
+adoption when it merges or if we decide to consume the fork directly.
 
 ### Tailwind-replaceability audit (2026-09-25)
 
