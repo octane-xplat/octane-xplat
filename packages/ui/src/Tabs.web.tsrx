@@ -1,7 +1,7 @@
 import { useState } from 'octane';
 import type { TabSpec, TabsProps } from './props';
 
-import { screenFor, useRoute } from './route.web';
+import { popRoute, screenFor, useModalRoute, useRoute } from './route.web';
 
 export type { TabSpec } from './props';
 
@@ -15,6 +15,7 @@ export function Tabs(props: TabsProps) @{
 	// Hooks must be unconditional — subscribe with the active pane's stack
 	// name ('' never matches a route).
 	const paneRoute = useRoute(props.tabs[active]?.stack ?? '');
+	const modal = useModalRoute();
 	// resolveScreen prop wins; the registerScreens table is the fallback —
 	// one registration serves both platforms' outlets.
 	const resolve = (name: string, params: Record<string, unknown>) => {
@@ -24,7 +25,13 @@ export function Tabs(props: TabsProps) @{
 	};
 
 	const routed = rootRoute ? resolve(rootRoute.name, rootRoute.params) : null;
+	// A modal route overlays the shell without replacing it — the screen
+	// gets a `close` prop (popRoute parity with the native showModal root).
+	const modalContent = modal
+		? resolve(modal.name, { ...modal.params, close: () => popRoute() })
+		: null;
 
+	<div className="vx-tabsroot" style={{ display: 'contents' }}>
 	@if (routed) {
 		<div className="vx-route">{routed}</div>
 	}
@@ -48,4 +55,11 @@ export function Tabs(props: TabsProps) @{
 		</div>
 	</div>
 	}
+	@if (modalContent) {
+		<div className="vx-modalroute">
+			<button className="vx-modalroute-shade" aria-label="Dismiss" onClick={() => popRoute()} />
+			<div className="vx-modalroute-body">{modalContent}</div>
+		</div>
+	}
+	</div>
 }

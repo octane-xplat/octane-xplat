@@ -20,7 +20,7 @@ import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
 import { useSyncExternalStore } from 'octane'
 import { getStack, onStackRegistered, stackEntries } from './stacks.native'
-import { buildRoutePath } from './route-table'
+import { buildRoutePath, linkPath, matchUrl } from './route-table'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
 
 export type { Route } from './props'
@@ -90,6 +90,15 @@ onStackRegistered((_name, frame) => {
 
 // ---------- the contract ----------
 
+// Open modal hosts, in open order — popRoute dismisses the newest first.
+// showModal isn't a frame push: the underlying stack's currentPage never
+// changes, so the route store emits through the modal's own bookkeeping.
+const modalHosts: { host: GridLayout; route: Route }[] = []
+
+function presentationFor(name: string): Route['presentation'] {
+	return routes.find((m) => m.name === name)?.presentation
+}
+
 export function pushRoute(r: Route): void {
 	const frame = resolveStack(r.stack)
 	if (!frame) {
@@ -110,6 +119,12 @@ export function pushRoute(r: Route): void {
 			`pushRoute('${r.name}') dropped — '${r.name}' isn't in the screen table. Call registerScreens({ ${r.name}: ... }) at boot.`,
 		)
 
+		return
+	}
+
+	const presentation = r.presentation ?? presentationFor(r.name)
+	if (presentation === 'modal') {
+		pushModal(frame, { ...r, presentation }, C)
 		return
 	}
 
@@ -140,23 +155,67 @@ export function pushRoute(r: Route): void {
 				// .ts → .tsrx component imports type as () => Element; cast to
 				// the universal component shape the root expects.
 				createNativeScriptRoot(host).render(C as unknown as UniversalComponent, props)
-
 				return page
 			},
+			transition: presentation === 'fade' ? { name: 'fade' } : undefined,
 		})
 	} catch (e) {
 		console.warn('[octane-xplat] pushRoute(' + r.name + ') threw: ' + (e as Error)?.message)
 	}
 }
 
-/** Pop the top page of a stack ('root' default). Quiet no-op at the base
- *  page — matching web, where back at the app root is a no-op; loud only
- *  when the stack itself doesn't exist. */
+/** A modal route is its own Octane root on a `showModal` host — the same
+ *  shape as openModal in modal-service, but tracked as a Route so
+ *  popRoute/currentModalRoute stay honest. The screen receives `close`
+ *  alongside its params and calls it (or popRoute) to dismiss. */
+function pushModal(frame: Frame, r: Route, C: any): void {
+	const host = new GridLayout()
+	const root = createNativeScriptRoot(host) as any
+	const entry = { host, route: r }
+	const dismiss = () => {
+		const i = modalHosts.indexOf(entry)
+		if (i === -1) return
+		modalHosts.splice(i, 1)
+		emit()
+	}
+
+	const presenter = (frame.currentPage ?? frame) as any
+	try {
+		modalHosts.push(entry)
+		root.render(C as UniversalComponent, {
+			...r.params,
+			close: () => (host as any).closeModal?.(),
+		})
+
+		presenter.showModal(host, {
+			context: {},
+			closeCallback: dismiss,
+			fullscreen: true,
+			animated: true,
+		})
+
+		emit()
+	} catch (e) {
+		dismiss()
+		root.unmount?.()
+		console.warn('[octane-xplat] modal pushRoute(' + r.name + ') threw: ' + (e as Error)?.message)
+	}
+}
+
+/** Pop the top page of a stack ('root' default) — or dismiss the top
+ *  modal if one is open. Quiet no-op at the base page — matching web,
+ *  where back at the app root is a no-op; loud only when the stack
+ *  itself doesn't exist. */
 export function popRoute(stack = 'root'): void {
+	const modal = modalHosts[modalHosts.length - 1]
+	if (modal) {
+		;(modal.host as any).closeModal?.()
+		return
+	}
+
 	const frame = resolveStack(stack)
 	if (!frame) {
 		warnOnce('pop:' + stack, `popRoute('${stack}') dropped — no such stack is registered.`)
-
 		return
 	}
 
@@ -185,6 +244,25 @@ export function currentRoute(): Route | null {
 	return null
 }
 
+/** The modal route currently open, if any — parity with the web leaf. */
+export function currentModalRoute(): Route | null {
+	return modalHosts[modalHosts.length - 1]?.route ?? null
+}
+
+/** Deep-link entry: normalize a URL (http(s) or app-scheme) to a path,
+ *  match it against the manifest, push the route. Wire it at boot:
+ *  `onDeepLink(pushDeepLink)` plus one `consumeInitialUrl()` call. */
+export function pushDeepLink(url: string): boolean {
+	const r = matchUrl(routes, linkPath(url))
+	if (!r) {
+		warnOnce('link:' + url, `pushDeepLink('${url}') dropped — no route matches.`)
+		return false
+	}
+
+	pushRoute(r)
+	return true
+}
+
 /** Path-string parity for the web leaf's hrefFor — a canonical
  *  /<stack>/<path> rendering of the route (deep-linking consumes it
  *  there). Native navigation itself is name+params, not URLs. */
@@ -199,5 +277,16 @@ export function useRoute(stack: string): Route | null {
 			return () => listeners.delete(cb)
 		},
 		() => routeFor(stack),
+	)
+}
+
+/** The modal route overlaying the shell — parity with the web leaf. */
+export function useModalRoute(): Route | null {
+	return useSyncExternalStore(
+		(cb) => {
+			listeners.add(cb)
+			return () => listeners.delete(cb)
+		},
+		() => currentModalRoute(),
 	)
 }

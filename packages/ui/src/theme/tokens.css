@@ -207,6 +207,35 @@
 	border-radius: 0;
 }
 
+/* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
+   so the overlay is a fixed layer over the shell rather than a dialog. */
+.vx-modalroute {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: flex;
+	align-items: stretch;
+	justify-content: stretch;
+}
+
+.vx-modalroute-shade {
+	position: absolute;
+	inset: 0;
+	border: 0;
+	padding: 0;
+	background: rgba(15, 23, 42, 0.45);
+	cursor: default;
+}
+
+.vx-modalroute-body {
+	position: relative;
+	flex: 1;
+	min-width: 0;
+	overflow: auto;
+	color: var(--color-text);
+	background-color: var(--color-surface);
+}
+
 input::placeholder,
 textarea::placeholder {
 	color: var(--placeholder-color, currentColor);

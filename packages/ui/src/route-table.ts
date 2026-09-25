@@ -31,6 +31,8 @@ import type { Route, RouteManifest, RouteMeta } from './props'
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
 const SUFFIX = /\.(web|native|ios|android)$/
 const PARAM = /^\[(.+)\]$/
+// `settings+modal.tsrx` → route 'settings' presented modally by default.
+const PRESENT = /\+(modal|fade|push)$/
 
 /** Component pick rule for route/layout modules: default export, then a
  *  `screen` named export, then a single function export. Route files use
@@ -75,6 +77,9 @@ export function deriveRouteManifest(
 		if (sm) base = base.slice(0, base.length - sm[0].length)
 		if (suffix && !prefer.includes(suffix)) continue
 		const rank = suffix ? prefer.indexOf(suffix) : prefer.length
+		const pm = PRESENT.exec(base)
+		const presentation = pm?.[1] as RouteMeta['presentation']
+		if (pm) base = base.slice(0, base.length - pm[0].length)
 
 		if (base === '_layout') {
 			const d = parts.slice(0, -1).join('/')
@@ -102,6 +107,7 @@ export function deriveRouteManifest(
 			segments,
 			params: segments.filter((s) => s.startsWith(':')).map((s) => s.slice(1)),
 			file: key,
+			presentation,
 		}
 
 		const prev = seen.get(name)
@@ -192,6 +198,65 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 		.join('&')
 
 	const path = (r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/')
-
 	return (path.replace(/\/+$/, '') || '/') + (q ? '?' + q : '')
+}
+
+/** `?a=1&b=2` → params — shared code carries no URLSearchParams
+ *  (invariant 4: no DOM globals on the native path). */
+export function parseQueryString(qs: string | undefined): Record<string, unknown> {
+	const params: Record<string, unknown> = {}
+	if (!qs) return params
+	for (const pair of qs.split('&')) {
+		if (!pair) continue
+		const eq = pair.indexOf('=')
+		const k = eq === -1 ? pair : pair.slice(0, eq)
+		const v = eq === -1 ? '' : pair.slice(eq + 1)
+		params[decodeURIComponent(k)] = decodeURIComponent(v)
+	}
+
+	return params
+}
+
+/** Full URL or path → canonical path for matching. `https://x/a/b?y` →
+ *  `/a/b?y`; custom-scheme links keep their host as the first segment —
+ *  `textcoral://post/5` → `/post/5` (the common app-scheme convention). */
+export function linkPath(url: string): string {
+	const m = /^[a-z][a-z0-9+.-]*:(\/\/)?/i.exec(url)
+	let rest = m ? url.slice(m[0].length) : url
+	// http(s) URLs carry a real authority to strip; custom app schemes use
+	// the host slot as the first path segment (textcoral://post/5 → /post/5).
+	if (m?.[1] && /^https?:\/\//i.test(m[0])) rest = rest.replace(/^[^/?#]*/, '')
+	return '/' + rest.replace(/^\/+/, '')
+}
+
+/** Match a URL path+query against the manifest into a Route — the shared
+ *  half of web's URL parse and native's deep-link handling. Whole-path
+ *  match wins ('/demo/x' → root 'demo/:id'); a non-matching first segment
+ *  is the stack prefix ('/demos/demo/x' → stack 'demos'). Unmatched names
+ *  fall through as literal routes for pre-manifest callers. */
+export function matchUrl(routes: readonly RouteMeta[], url: string): Route | null {
+	const [p, qs] = url.split('?')
+	const segs = p.split('/').filter(Boolean)
+	const query = parseQueryString(qs)
+	if (!segs.length) return null
+	const finish = (
+		stack: string,
+		m: { meta: RouteMeta; params: Record<string, unknown> } | null,
+		fallbackName: string,
+	): Route => ({
+		stack,
+		name: m ? m.meta.name : fallbackName,
+		params: { ...query, ...m?.params },
+		presentation: m?.meta.presentation,
+	})
+
+	const root = matchRoute(routes, segs)
+	if (root) return finish('root', root, segs.join('/'))
+	if (segs.length > 1) {
+		const named = matchRoute(routes, segs.slice(1))
+		if (named) return finish(segs[0], named, segs[1])
+		return finish(segs[0], null, segs[1])
+	}
+
+	return finish('root', null, segs[0])
 }

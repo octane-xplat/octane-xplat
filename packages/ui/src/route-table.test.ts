@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildRoutePath, deriveRouteManifest, matchRoute } from './route-table'
+import { buildRoutePath, deriveRouteManifest, linkPath, matchRoute, matchUrl } from './route-table'
 
 const C = (n: string) => Object.assign(() => null, { displayName: n })
 
@@ -100,5 +100,58 @@ describe('matchRoute + buildRoutePath', () => {
 		expect(buildRoutePath(routes, { stack: 'root', name: 'other', params: { a: '1' } })).toBe(
 			'/other?a=1',
 		)
+	})
+
+	it('strips a +presentation suffix into meta.presentation', () => {
+		const m = manifest({
+			'./app/settings+modal.tsrx': { S: C('S') },
+			'./app/fade+fade.tsrx': { F: C('F') },
+		})
+
+		expect(m.screens.settings.displayName).toBe('S')
+		expect(m.routes.find((r) => r.name === 'settings')!.presentation).toBe('modal')
+		expect(m.routes.find((r) => r.name === 'fade')!.presentation).toBe('fade')
+	})
+
+	it('presentation suffix composes with platform suffixes', () => {
+		const m = manifest(
+			{
+				'./app/sheet+modal.tsrx': { S: C('shared') },
+				'./app/sheet+modal.native.tsrx': { S: C('native') },
+			},
+			['ios', 'native'],
+		)
+
+		expect(m.screens.sheet.displayName).toBe('native')
+		expect(m.routes[0].name).toBe('sheet')
+		expect(m.routes[0].presentation).toBe('modal')
+	})
+})
+
+describe('matchUrl + linkPath', () => {
+	const { routes } = manifest({
+		'./app/detail.tsrx': { D: C('D') },
+		'./app/demo/[id].tsrx': { DD: C('DD') },
+		'./app/settings+modal.tsrx': { S: C('S') },
+	})
+
+	it('root path wins over stack interpretation', () => {
+		expect(matchUrl(routes, '/demo/x')).toMatchObject({ stack: 'root', name: 'demo/:id' })
+	})
+
+	it('first segment is the stack when the whole path misses', () => {
+		const r = matchUrl(routes, '/demos/demo/x?tab=2')!
+		expect(r).toMatchObject({ stack: 'demos', name: 'demo/:id' })
+		expect(r.params).toEqual({ id: 'x', tab: '2' })
+	})
+
+	it('carries meta.presentation into the route', () => {
+		expect(matchUrl(routes, '/settings')!.presentation).toBe('modal')
+	})
+
+	it('normalizes http(s) and app-scheme URLs', () => {
+		expect(linkPath('https://x.com/demo/9?a=1')).toBe('/demo/9?a=1')
+		expect(linkPath('textcoral://demo/9')).toBe('/demo/9')
+		expect(linkPath('/demo/9')).toBe('/demo/9')
 	})
 })

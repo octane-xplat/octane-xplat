@@ -28,6 +28,7 @@ export type {
 	ToastOptions,
 	ToastPosition,
 } from './props'
+
 export { useAnimation } from './anim.native.tsrx'
 export type { AnimatedValue } from './anim.native.tsrx'
 export { useColorScheme, getColorScheme } from './theme/colorScheme.native.tsrx'
@@ -56,19 +57,24 @@ export type {
 	MeterProps,
 	SliderProps,
 } from './props'
+
 export { PlatformBadge } from './PlatformBadge.native.tsrx'
 export { registerStack, getStack, stackEntries } from './stacks.native'
 export {
 	pushRoute,
 	popRoute,
+	pushDeepLink,
 	routeFor,
 	currentRoute,
+	currentModalRoute,
 	useRoute,
+	useModalRoute,
 	registerScreens,
 	registerRoutes,
 	screenFor,
 	hrefFor,
 } from './route.native'
+
 export { deriveRouteManifest } from './route-table'
 export type {
 	LinkProps,
@@ -82,6 +88,7 @@ export type {
 	ModalOpenResult,
 	OpenModal,
 } from './props'
+
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './use-store.native.tsrx'

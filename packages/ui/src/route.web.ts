@@ -7,11 +7,16 @@ import { useSyncExternalStore } from 'octane'
  *  where <path> comes from the route-dir manifest — `app/demo/[id].tsrx`
  *  pushes as /demo/<id-value>. Names not in the manifest keep the legacy
  *  /<name>?params shape. Module-scope like every other store — the pane
- *  that owns `stack` subscribes with useRoute(stack) and swaps content. */
+ *  that owns `stack` subscribes with useRoute(stack) and swaps content.
+ *
+ *  Modal routes (presentation 'modal' — `+modal` route files or a
+ *  pushRoute override) push a real URL but overlay instead of replacing:
+ *  `current` keeps the underlying route, `modalRoute` carries the modal.
+ *  Back (popstate or popRoute) dismisses it. */
 
 export type { Route } from './props'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
-import { buildRoutePath, matchRoute } from './route-table'
+import { buildRoutePath, linkPath, matchUrl } from './route-table'
 
 // ---------- screen registry ----------
 
@@ -50,30 +55,23 @@ const listeners = new Set<() => void>()
 // Lazy — the manifest registers after this module evaluates, and parse()
 // needs its patterns for path params.
 let current: Route | null | undefined
+let modalRoute: Route | null = null
 
-function queryParams(): Record<string, unknown> {
-	const params: Record<string, unknown> = {}
-	new URLSearchParams(location.search).forEach((v, k) => (params[k] = v))
-	return params
+// Scroll positions keyed by URL — restored on popstate (native keeps
+// stack pages alive, so only the web leaf needs this). `lastKey` is the
+// outgoing URL: popstate fires after location already changed, so the
+// saved position must be written under the URL we just left.
+const scrollPositions = new Map<string, number>()
+let lastKey = location.pathname + location.search
+const scrollKey = () => location.pathname + location.search
+const saveScroll = () => scrollPositions.set(lastKey, window.scrollY)
+const restoreScroll = () => {
+	const y = scrollPositions.get(scrollKey())
+	if (y !== undefined) requestAnimationFrame(() => window.scrollTo(0, y))
 }
 
 function parse(): Route | null {
-	const segs = location.pathname.split('/').filter(Boolean)
-	if (!segs.length) return null
-	const query = queryParams()
-	// Whole path first — a root route wins over stack interpretation.
-	const root = matchRoute(routes, segs)
-	if (root) return { stack: 'root', name: root.meta.name, params: { ...query, ...root.params } }
-	if (segs.length > 1) {
-		// Named stack: first segment is the outlet, the rest is the route.
-		const named = matchRoute(routes, segs.slice(1))
-		if (named)
-			return { stack: segs[0], name: named.meta.name, params: { ...query, ...named.params } }
-
-		return { stack: segs[0], name: segs[1], params: query }
-	}
-
-	return { stack: 'root', name: segs[0], params: query }
+	return matchUrl(routes, location.pathname + location.search)
 }
 
 function read(): Route | null {
@@ -86,20 +84,36 @@ function emit() {
 }
 
 export function pushRoute(r: Route): void {
-	history.pushState(null, '', buildRoutePath(routes, r))
-	current = r
+	saveScroll()
+	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
+	history.pushState(null, '', buildRoutePath(routes, route))
+	lastKey = scrollKey()
+	if (route.presentation === 'modal') modalRoute = route
+	else {
+		current = route
+		modalRoute = null
+	}
+
 	emit()
+}
+
+function presentationFor(name: string): Route['presentation'] {
+	return routes.find((m) => m.name === name)?.presentation
 }
 
 /** Web history is one linear stack — back pops whatever route is current;
  *  per-stack pops aren't expressible, so `stack` is accepted for parity
- *  and ignored. */
+ *  and ignored. A pushed modal is the top entry, so back dismisses it. */
 export function popRoute(_stack = 'root'): void {
 	history.back()
 }
 
 window.addEventListener('popstate', () => {
+	saveScroll()
+	lastKey = scrollKey()
+	modalRoute = null
 	current = parse()
+	restoreScroll()
 	emit()
 })
 
@@ -114,6 +128,25 @@ export function currentRoute(): Route | null {
 	return read()
 }
 
+/** The modal route overlaying the current one, if any. */
+export function currentModalRoute(): Route | null {
+	return modalRoute
+}
+
+/** Deep-link entry, web half — the URL *is* the route state, so this is a
+ *  plain pushRoute of the matched path (parity with the native leaf, where
+ *  apps wire `onDeepLink(pushDeepLink)`). */
+export function pushDeepLink(url: string): boolean {
+	const r = matchUrl(routes, linkPath(url))
+	if (!r) {
+		console.warn(`[octane-xplat] pushDeepLink('${url}') dropped — no route matches.`)
+		return false
+	}
+
+	pushRoute(r)
+	return true
+}
+
 /** URL for a Route — Link's href and shareable-path helper. */
 export function hrefFor(r: Route): string {
 	return buildRoutePath(routes, r)
@@ -126,5 +159,17 @@ export function useRoute(stack: string): Route | null {
 			return () => listeners.delete(cb)
 		},
 		() => routeFor(stack),
+	)
+}
+
+/** The modal route overlaying the shell — outlets render it above their
+ *  normal content (URL preserved underneath). */
+export function useModalRoute(): Route | null {
+	return useSyncExternalStore(
+		(cb) => {
+			listeners.add(cb)
+			return () => listeners.delete(cb)
+		},
+		() => modalRoute,
 	)
 }

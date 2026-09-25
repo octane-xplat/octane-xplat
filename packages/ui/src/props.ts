@@ -502,6 +502,11 @@ export interface Route {
 	stack: string
 	name: string
 	params: Record<string, unknown>
+	/** 'push' (default) pushes onto the stack · 'modal' opens its own root
+	 *  (native: `showModal`; web: overlay pane, URL preserved) · 'fade' is a
+	 *  push with a fade transition. A `+modal`/`+fade` filename suffix in
+	 *  the route dir sets the manifest default; this field overrides it. */
+	presentation?: 'push' | 'modal' | 'fade'
 }
 
 export interface LinkProps {
@@ -534,6 +539,9 @@ export interface RouteMeta {
 	params: string[]
 	/** Source file (glob key) — diagnostics only. */
 	file: string
+	/** Declared default presentation — set by a `+modal`/`+fade` filename
+	 *  suffix (`app/settings+modal.tsrx` → route 'settings', modal). */
+	presentation?: 'push' | 'modal' | 'fade'
 }
 
 /** Output of `deriveRouteManifest` — `screens` feeds `registerScreens`
