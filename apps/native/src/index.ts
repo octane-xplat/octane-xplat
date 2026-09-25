@@ -1,4 +1,4 @@
-import { Application, Frame, ListView, Page, Trace } from '@nativescript/core'
+import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { probeSignal$ } from '@xplat/app/probe-state'
@@ -157,6 +157,65 @@ setTimeout(() => {
 			')',
 	)
 }, 1600)
+
+// Smooth corners (decision #38): uniform-radius classes take the
+// CALayer.cornerCurve path; non-uniform (sheet-style) radii go through the
+// patched superellipse mask path. Numeric checks only — no screenshots.
+let cornersProbe: GridLayout | null = null
+setTimeout(() => {
+	const chip = collect(thePage).find(
+		(v: any) => typeof v?.className === 'string' && v.className.split(' ').includes('chip'),
+	) as any
+	const curve = chip?.ios?.layer?.cornerCurve
+	console.log(
+		'[assert] uniform squircle cornerCurve: ' +
+			(String(curve) === 'continuous' && (chip?.ios?.layer?.cornerRadius ?? 0) > 0
+				? 'OK'
+				: 'FAIL') +
+			' (curve=' +
+			curve +
+			' shape=' +
+			chip?.style?.cornerShape +
+			')',
+	)
+
+	// Non-uniform synthetic view — top corners rounded, bottom square.
+	cornersProbe = new GridLayout()
+	cornersProbe.width = 100
+	cornersProbe.height = 100
+	cornersProbe.horizontalAlignment = 'left'
+	cornersProbe.verticalAlignment = 'top'
+	cornersProbe.style.backgroundColor = new Color('#4f46e5')
+	cornersProbe.style.borderTopLeftRadius = 20
+	cornersProbe.style.borderTopRightRadius = 20
+	cornersProbe.style.cornerShape = 'squircle'
+	;((thePage as any)?.content as any)?.addChild?.(cornersProbe)
+}, 1700)
+
+// (96,4) in the top-right corner box sits INSIDE a squircle but OUTSIDE a
+// circular arc of the same radius — containsPoint discriminates the curve.
+setTimeout(() => {
+	const layer = cornersProbe?.ios?.layer
+	const path = (layer?.mask as any)?.path
+	const bpath = path ? UIBezierPath.bezierPathWithCGPath(path) : null
+	const ox = layer?.bounds?.origin?.x ?? 0
+	const oy = layer?.bounds?.origin?.y ?? 0
+	const insideSquircle = bpath?.containsPoint?.(CGPointMake(ox + 96, oy + 4))
+	const nearVertex = bpath?.containsPoint?.(CGPointMake(ox + 96, oy + 2))
+	console.log(
+		'[assert] non-uniform squircle mask: ' +
+			(insideSquircle === true && nearVertex === false ? 'OK' : 'FAIL') +
+			' (mask=' +
+			(layer?.mask ? layer.mask.constructor?.name : 'none') +
+			' in(96,4)=' +
+			insideSquircle +
+			' out(96,2)=' +
+			nearVertex +
+			')',
+	)
+	;(thePage as any)?.content?.removeChild?.(cornersProbe)
+	cornersProbe = null
+}, 2600)
 
 // Controlled-input race (Q4): rapid successive textChange notifications —
 // each passes through onChange → setText → text= write. The final state

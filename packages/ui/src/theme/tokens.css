@@ -8,6 +8,14 @@
 	--color-surface: #ffffff;
 	--color-text: #111827;
 	--space-4: 16px;
+	/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
+	   the default corner treatment: every class that consumes a token also
+	   declares `corner-shape: squircle`. Full-radius circles opt out —
+	   `corner-shape` would reshape them into squircle disks on iOS/Chromium. */
+	--radius-sm: 6px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
 }
 
 .ns-dark,
@@ -186,7 +194,8 @@
 	max-height: 90%;
 	padding: 24px;
 	border: 0;
-	border-radius: 16px;
+	border-radius: var(--radius-xl);
+	corner-shape: squircle;
 	color: var(--color-text);
 	background-color: var(--color-surface);
 }
@@ -207,7 +216,9 @@
 	position: fixed;
 	inset: auto 0 0;
 	margin: 0;
-	border-radius: 16px 16px 0 0;
+	border-top-left-radius: var(--radius-xl);
+	border-top-right-radius: var(--radius-xl);
+	corner-shape: squircle;
 }
 
 .vx-modal--fullscreen {
@@ -368,6 +379,30 @@ textarea::placeholder {
 	font-weight: bold;
 }
 
+/* Corner utilities — consume the --radius-* scale and carry the smooth
+   (squircle) corner treatment. Circles stay circular: .rounded-full omits
+   corner-shape deliberately (squircle at full radius = a squircle disk,
+   not a circle). Opt out per element with `corner-shape: round`. */
+.rounded-sm {
+	border-radius: var(--radius-sm);
+	corner-shape: squircle;
+}
+.rounded-md {
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+}
+.rounded-lg {
+	border-radius: var(--radius-lg);
+	corner-shape: squircle;
+}
+.rounded-xl {
+	border-radius: var(--radius-xl);
+	corner-shape: squircle;
+}
+.rounded-full {
+	border-radius: 9999px;
+}
+
 .bg-primary {
 	background-color: var(--color-primary);
 }
@@ -389,7 +424,8 @@ textarea::placeholder {
 	padding-right: 20px;
 	padding-bottom: 12px;
 	padding-left: 20px;
-	border-radius: 8px;
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
 }
 
 /* harness experiment styles */
@@ -410,7 +446,8 @@ textarea::placeholder {
 	padding: 10px;
 	border-width: 1px;
 	border-color: #94a3b8;
-	border-radius: 6px;
+	border-radius: var(--radius-sm);
+	corner-shape: squircle;
 	font-size: 16px;
 }
 
@@ -418,7 +455,8 @@ textarea::placeholder {
 	background-color: var(--color-primary);
 	color: var(--color-on-primary);
 	padding: 4px 10px;
-	border-radius: 12px;
+	border-radius: var(--radius-lg);
+	corner-shape: squircle;
 	font-size: 13px;
 }
 
@@ -460,7 +498,9 @@ textarea::placeholder {
 	max-height: 85%;
 	padding: 24px;
 	overflow: auto;
-	border-radius: 16px 16px 0 0;
+	border-top-left-radius: var(--radius-xl);
+	border-top-right-radius: var(--radius-xl);
+	corner-shape: squircle;
 	background-color: var(--color-surface);
 	color: var(--color-text);
 	pointer-events: auto;

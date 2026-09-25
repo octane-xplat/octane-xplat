@@ -9,6 +9,7 @@
 .overlay-demo-card {
 	padding: 20px;
 	border-radius: 12px;
+	corner-shape: squircle;
 	background-color: var(--color-surface);
 	gap: 12px;
 }
@@ -16,6 +17,7 @@
 .overlay-demo-popover {
 	padding: 12px;
 	border-radius: 8px;
+	corner-shape: squircle;
 	background-color: var(--color-surface);
 	color: var(--color-text);
 }
@@ -110,6 +112,7 @@
 	border-width: 1px;
 	border-color: #e2e8f0;
 	border-radius: 8px;
+	corner-shape: squircle;
 	padding: 12px;
 }
 
@@ -194,6 +197,7 @@
 .demo-modal-card {
 	padding: 20px;
 	border-radius: 12px;
+	corner-shape: squircle;
 	background-color: var(--color-surface);
 }
 
@@ -232,6 +236,7 @@
 	color: #ffffff;
 	padding: 3px 8px;
 	border-radius: 8px;
+	corner-shape: squircle;
 	font-size: 11px;
 }
 
@@ -246,6 +251,7 @@
 	align-items: center;
 	justify-content: center;
 	border-radius: 8px;
+	corner-shape: squircle;
 }
 
 .layout-stack-back {
@@ -276,6 +282,7 @@
 	width: 80px;
 	height: 80px;
 	border-radius: 12px;
+	corner-shape: squircle;
 	background-color: var(--color-primary);
 }
 
@@ -353,6 +360,7 @@
 	border-width: 1px;
 	border-color: #e2e8f0;
 	border-radius: 8px;
+	corner-shape: squircle;
 }
 
 .controls-spinner {

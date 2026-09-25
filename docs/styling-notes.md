@@ -100,8 +100,12 @@ view. A class on one root can never reach another.
      `''`-then-set workaround may belong in our driver patch or leaf
    - `line-height` = additive spacing on NS, total line box on web — token
      files carry both notions
-   - `corner-shape: squircle` iOS-only (Android ignores); `spring` curve in
-     keyframes = UIKit spring iOS vs BounceInterpolator Android
+   - `corner-shape: squircle` is the default corner treatment on the radius
+     scale (decision #38): iOS uniform via `CALayer.cornerCurve`, iOS
+     non-uniform via a core patch (superellipse paths); Android ignores,
+     non-Chromium web degrades to round. Circles (`border-radius` ≥ 50%)
+     stay `round` — squircle at full radius is a squircle disk, not a circle
+   - `spring` curve in keyframes = UIKit spring iOS vs BounceInterpolator Android
 4. Fonts: register in `App_Resources`/font plugin natively, `@font-face` on
    web; shared `font-family` tokens resolve per-platform.
 5. Icons: `Icon` primitive owns the SF Symbol ↔ font icon ↔ SVG mapping

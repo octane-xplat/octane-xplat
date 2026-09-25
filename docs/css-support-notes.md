@@ -26,7 +26,7 @@
 | ------------------------------------- | ----------- | --- | ------------------------------------------------------------- |
 | `margin`/`padding` (+ sides)          | ✅          | ✅  | px → dip rewritten by the preset's css transform (see below)  |
 | `border-*` (width/color/radius/style) | ✅          | ✅  |                                                               |
-| `corner-shape: squircle`              | ⚠️ iOS only | ⚠️  | Android ignores; keep to `border-radius`                      |
+| `corner-shape: squircle`              | ⚠️ iOS      | ⚠️  | Default corner treatment on the `--radius-*` scale (decision #38). iOS: uniform radii → `cornerCurve` (9.1 ships it), non-uniform → patched superellipse paths. Android ignores; web = Chrome ≥139, other browsers degrade to round |
 | `background-color`/image/gradient     | ✅          | ✅  |                                                               |
 | `box-shadow`                          | ⚠️          | ✅  | iOS shadow props / Android `elevation` — `shadow-{n}` utility |
 | `opacity`                             | ✅          | ✅  | animatable                                                    |
