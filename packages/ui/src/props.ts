@@ -818,6 +818,13 @@ export interface OpenWindowOptions {
 
 // ---------- animation ----------
 
+/**
+ * Value returned by `useAnimation(initial, prop)`. On web, `prop` supports
+ * translateX/translateY/translateZ, scale/scaleX/scaleY, rotate/rotateX/
+ * rotateY, and skewX/skewY as CSS transforms, plus `opacity` and other CSS
+ * style properties. On NativeScript, `prop` is the name of a NativeScript
+ * view property (for example, `translateX` or `opacity`).
+ */
 export interface AnimatedValue {
 	readonly value: number
 	bind(el: any): void
