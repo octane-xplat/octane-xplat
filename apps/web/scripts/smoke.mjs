@@ -146,6 +146,13 @@ try {
 	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
 	ok('back → test tab restored', true)
 
+	// beforeLoad redirect seam: 'private' never commits — lands on detail.
+	await page.click('#guarded-btn')
+	await page.waitForSelector('text=guard: private', { timeout: 3000 })
+	ok('guard redirect → detail', true)
+	await page.goBack()
+	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
+
 	// Home tab: imperative overlay seam mounts a portal layer under body.
 	await page.click('button:text("Home")')
 	await page.click('#overlay-btn')

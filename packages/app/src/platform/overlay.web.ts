@@ -10,7 +10,9 @@ let root: Root | null = null
 let unscheme: (() => void) | null = null
 
 export function openOverlay() {
-	if (layer) return // already open
+	if (layer) {
+		return // already open
+	}
 
 	layer = document.createElement('div')
 	Object.assign(layer.style, { position: 'fixed', inset: '0px' })

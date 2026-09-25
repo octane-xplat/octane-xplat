@@ -1,6 +1,7 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable, styled, useThemeScheme } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, styled, useThemeScheme, Meter, Hoverable, useMeasure, useModalRoute, openWindow } from '@octane-xplat/ui';
 import { probeSignal$ } from './probe-state';
+import { navigate } from './platform/nav';
 import 'octane/signals';
 
 // styled() seam (Exp 16): variant prop → class composition, CSS-backed.
@@ -13,6 +14,8 @@ export function Probes() @{
 	// multi-indicator proves a child mounted post-commit lands inside the
 	// host — it mounts when the effective scheme flips dark.
 	const dark = useThemeScheme() === 'dark';
+	const bounds = useMeasure();
+	const modalRoute = useModalRoute();
 
 	<View className="gap-6">
 		<View className="sink-section">
@@ -44,6 +47,48 @@ export function Probes() @{
 			<DangerBtn id="danger-btn" danger className="extra">
 				<Text className="text-onprimary">styled</Text>
 			</DangerBtn>
+		</View>
+
+		<View className="sink-section">
+			<Text className="section-label">Feedback</Text>
+			<Row className="gap-4 items-center">
+				{/* Meter ring tracks the probe count (wraps at max). */}
+				<Meter id="meter" value={count % 6} max={5} size={40} />
+				{/* Hoverable: delayed hover-intent card (web); renders inline
+				    children on native. */}
+				<Hoverable
+					card={<View className="overlay-demo-card"><Text className="text-sm">Hover card</Text></View>}
+					placement="top"
+				>
+					<Text className="text-sm">Hover me</Text>
+				</Hoverable>
+			</Row>
+		</View>
+
+		{/* useMeasure seam: bind reports live bounds (ResizeObserver on web,
+		    layout listener on native). */}
+		<View className="sink-section">
+			<Text className="section-label">Measure</Text>
+			<View bind={bounds.bind} className="panbox" style={{ padding: 12 }}>
+				<Text className="text-sm text-muted">
+					{bounds.bounds ? Math.round(bounds.bounds.width) + '×' + Math.round(bounds.bounds.height) : 'unmeasured'}
+				</Text>
+			</View>
+		</View>
+
+		<View className="sink-section">
+			<Text className="section-label">Routing</Text>
+			<Row className="gap-3 flex-wrap items-center">
+				<Pressable id="guarded-btn" className="btn btn-secondary" onPress={() => navigate('private')}>
+					<Text>Guarded →</Text>
+				</Pressable>
+				<Pressable id="window-btn" className="btn btn-secondary" onPress={() => {
+					try { openWindow(); } catch (e) { console.log('[probe] openWindow: ' + e); }
+				}}>
+					<Text>Open window</Text>
+				</Pressable>
+			</Row>
+			<Text id="modal-route" className="text-sm text-muted">{'modal route: ' + (modalRoute?.name ?? 'none')}</Text>
 		</View>
 	</View>
 }

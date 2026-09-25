@@ -4,11 +4,13 @@ export type RouteName =
 	| 'about'
 	| 'demo/:id'
 	| 'detail'
+	| 'private'
 
 export interface RouteParams {
 	'about': {  }
 	'demo/:id': { id: string }
 	'detail': {  }
+	'private': {  }
 }
 
 export interface RoutePresentations {
