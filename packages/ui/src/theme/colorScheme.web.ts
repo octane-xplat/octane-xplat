@@ -9,12 +9,12 @@ export function getColorScheme(): ColorScheme {
 		? 'dark' : 'light';
 }
 
-function subscribe(cb: () => void): () => void {
+export function subscribeSystemScheme(cb: () => void): () => void {
 	const mq = matchMedia('(prefers-color-scheme: dark)');
 	mq.addEventListener('change', cb);
 	return () => mq.removeEventListener('change', cb);
 }
 
 export function useColorScheme(): ColorScheme {
-	return useSyncExternalStore(subscribe, getColorScheme);
+	return useSyncExternalStore(subscribeSystemScheme, getColorScheme);
 }

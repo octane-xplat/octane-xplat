@@ -1,6 +1,7 @@
 import { createRoot } from 'octane';
 import type { ToastContent, ToastOptions } from './props';
 import { cx } from './cx';
+import { applyThemeClasses } from './theme/theme-scheme';
 
 type ToastEntry = { content: ToastContent; options: ToastOptions };
 const queue: ToastEntry[] = [];
@@ -28,12 +29,13 @@ function showNext() {
 	active = true;
 	const entry = queue.shift()!;
 	const host = document.createElement('div');
-	host.className = cx('vx-toast-host', entry.options.position === 'top' ? 'vx-toast-top' : 'vx-toast-bottom');
+	const unbindTheme = applyThemeClasses(host, cx('vx-toast-host', entry.options.position === 'top' ? 'vx-toast-top' : 'vx-toast-bottom'));
 	applyWebProps(host, entry.options.web);
 	document.body.appendChild(host);
 	const root = createRoot(host);
 	root.render(ToastBody, { content: entry.content });
 	setTimeout(() => {
+		unbindTheme();
 		root.unmount();
 		host.remove();
 		active = false;

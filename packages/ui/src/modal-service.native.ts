@@ -2,6 +2,7 @@ import { Frame, GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
 import type { ModalOpenOptions, ModalOpenResult, OpenModal } from './props'
+import { applyThemeClasses } from './theme/theme-scheme'
 
 /** Open a component in its own NativeScript modal root and resolve on close. */
 export const openModal: OpenModal = (Component, params, options = {}) =>
@@ -13,11 +14,13 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 		}
 
 		const host = new GridLayout()
+		const unbindTheme = applyThemeClasses(host, 'vx-modal-host')
 		const root = createNativeScriptRoot(host) as any
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
 			if (finished) return
 			finished = true
+			unbindTheme()
 			root.unmount?.()
 			host.removeChildren?.()
 			resolve(result)

@@ -1,4 +1,5 @@
 import { createRoot } from 'octane'
+import { applyThemeClasses } from './theme/theme-scheme'
 import type { ModalOpenOptions, ModalOpenResult, OpenModal } from './props'
 
 /** Open a component in a document-level dialog and resolve with close(value). */
@@ -14,12 +15,14 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 						? 'vx-modal vx-modal--fullscreen'
 						: 'vx-modal'
 
+		const unbindTheme = applyThemeClasses(dialog, dialog.className)
 		document.body.appendChild(dialog)
 		const root = createRoot(dialog)
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
 			if (finished) return
 			finished = true
+			unbindTheme()
 			root.unmount()
 			dialog.remove()
 			resolve(result)

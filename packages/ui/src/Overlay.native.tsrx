@@ -5,14 +5,14 @@ import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { OverlayProps } from './props';
 import { cx } from './cx';
-import { getColorScheme } from './theme/colorScheme.native.tsrx';
+import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout.native';
 
 function OverlayBody(props: { children?: any }) @{
 	<>{props.children}</>
 }
 
-type OpenOverlay = { host: GridLayout; root: any; dismissOnClose: boolean };
+type OpenOverlay = { host: GridLayout; root: any; dismissOnClose: boolean; unbindTheme?: () => void };
 
 /** Renders children in a separate RootLayout root above the current screen. */
 export function Overlay(props: OverlayProps) @{
@@ -42,7 +42,7 @@ export function Overlay(props: OverlayProps) @{
 
 		if (current) {
 			current.root.render(OverlayBody as unknown as UniversalComponent, { children: props.children });
-			current.host.className = cx('vx-overlay-host', getColorScheme() === 'dark' && 'ns-dark', props.className);
+			current.unbindTheme = applyThemeClasses(current.host, cx('vx-overlay-host', props.className));
 			if (props.style) Object.assign(current.host.style, props.style);
 			Object.assign(current.host, isIOS ? props.ios : isAndroid ? props.android : undefined);
 			return;
@@ -51,17 +51,18 @@ export function Overlay(props: OverlayProps) @{
 		const rl = rootLayout();
 		if (!rl) return;
 		const host = new GridLayout();
-		host.className = cx('vx-overlay-host', getColorScheme() === 'dark' && 'ns-dark', props.className);
+		const unbindTheme = applyThemeClasses(host, cx('vx-overlay-host', props.className));
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
 		if (props.style) Object.assign(host.style, props.style);
 		Object.assign(host, isIOS ? props.ios : isAndroid ? props.android : undefined);
 		const root = createNativeScriptRoot(host);
-		const opened = { host, root, dismissOnClose: true };
+		const opened = { host, root, dismissOnClose: true, unbindTheme };
 		shown.current = opened;
 		root.render(OverlayBody as unknown as UniversalComponent, { children: props.children });
 		host.on('closed', () => {
 			if (shown.current === opened) shown.current = null;
+			opened.unbindTheme?.();
 			root.unmount?.();
 			if (opened.dismissOnClose) dismiss.current?.();
 		});

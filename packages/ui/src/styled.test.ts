@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { styled } from './styled.native.tsrx'
-import { getColorScheme } from './theme/colorScheme.web.tsrx'
+import { getColorScheme } from './theme/colorScheme.web'
 
 // styled.native.tsrx builds elements via universalComponent() — a plain
 // {$$kind, component, props:{props,key,hasKey,hasChildren}} object — so

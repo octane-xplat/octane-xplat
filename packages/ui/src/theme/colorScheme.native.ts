@@ -12,7 +12,7 @@ export function getColorScheme(): ColorScheme {
 		?? 'light';
 }
 
-function subscribe(cb: () => void): () => void {
+export function subscribeSystemScheme(cb: () => void): () => void {
 	const h = () => cb();
 	Application.on('systemAppearanceChanged', h);
 	return () => Application.off('systemAppearanceChanged', h);
@@ -20,5 +20,5 @@ function subscribe(cb: () => void): () => void {
 
 /** Reactive system appearance — 'light' | 'dark', re-renders on OS change. */
 export function useColorScheme(): ColorScheme {
-	return useSyncExternalStore(subscribe, getColorScheme);
+	return useSyncExternalStore(subscribeSystemScheme, getColorScheme);
 }

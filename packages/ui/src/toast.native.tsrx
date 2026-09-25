@@ -1,14 +1,15 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
 import { topRootLayout } from './root-layout.native';
+import { applyThemeClasses } from './theme/theme-scheme';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { ToastContent, ToastOptions } from './props';
 import { cx } from './cx';
-import { getColorScheme } from './theme/colorScheme.native.tsrx';
+
 
 type ToastEntry = { content: ToastContent; options: ToastOptions };
-type ActiveToast = ToastEntry & { host: GridLayout; root: any; timer: ReturnType<typeof setTimeout> | null };
+type ActiveToast = ToastEntry & { host: GridLayout; root: any; timer: ReturnType<typeof setTimeout> | null; unbindTheme?: () => void };
 
 const queue: ToastEntry[] = [];
 let active: ActiveToast | null = null;
@@ -28,6 +29,7 @@ function finishToast(entry: ActiveToast) {
 	entry.timer = null;
 	const rootLayout = topRootLayout();
 	const finish = () => {
+		entry.unbindTheme?.();
 		entry.root.unmount?.();
 		if (active === entry) active = null;
 		showNext();
@@ -51,14 +53,14 @@ function showNext() {
 	}
 
 	const host = new GridLayout();
-	host.className = cx('vx-toast-host', getColorScheme() === 'dark' && 'ns-dark');
+	const unbindTheme = applyThemeClasses(host, 'vx-toast-host');
 	host.horizontalAlignment = 'stretch';
 	host.verticalAlignment = entry.options.position === 'top' ? 'top' : 'bottom';
 	host.marginTop = entry.options.position === 'top' ? 24 : 0;
 	host.marginBottom = entry.options.position === 'top' ? 0 : 24;
 	Object.assign(host, isIOS ? entry.options.ios : isAndroid ? entry.options.android : undefined);
 	const root = createNativeScriptRoot(host);
-	const current: ActiveToast = { ...entry, host, root, timer: null };
+	const current: ActiveToast = { ...entry, host, root, timer: null, unbindTheme };
 	active = current;
 	root.render(ToastBody as unknown as UniversalComponent, { content: entry.content });
 	const open = () => {

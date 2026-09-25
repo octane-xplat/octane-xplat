@@ -1,4 +1,5 @@
 import { createPortal, useEffect, useRef, useState } from 'octane';
+import { useThemeScheme } from './theme/theme-scheme';
 import type { PopoverProps } from './props';
 import { cx } from './cx';
 import { positionPopover } from './popover-position';
@@ -6,6 +7,7 @@ import { positionPopover } from './popover-position';
 type Position = { left: number; top: number };
 
 function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
+	const dark = useThemeScheme() === 'dark';
 	const panelRef = useRef<any>(null);
 	const [position, setPosition] = useState<Position | null>(null);
 	const update = () => {
@@ -63,7 +65,7 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 	@if (props.open && position) {
 		<>{createPortal(
 		<div
-			className="vx-popover-layer"
+			className={cx('vx-popover-layer', dark && 'dark')}
 			style={{ position: 'fixed', inset: 0, zIndex: 1000, pointerEvents: 'none' }}
 		>
 			{(props.dismissOnOutsideTap ?? true) && <div

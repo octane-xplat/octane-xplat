@@ -31,8 +31,9 @@ export type {
 
 export { useAnimation } from './anim.web.tsrx'
 export type { AnimatedValue } from './anim.web.tsrx'
-export { useColorScheme, getColorScheme } from './theme/colorScheme.web.tsrx'
-export type { ColorScheme } from './theme/colorScheme.web.tsrx'
+export { useThemeScheme, getThemeScheme, setThemePreference, getThemePreference, themeSchemeClasses, onThemeSchemeChange, applyThemeClasses } from './theme/theme-scheme'
+export { useColorScheme, getColorScheme } from './theme/colorScheme.web'
+export type { ColorScheme } from './theme/colorScheme.web'
 export { styled } from './styled.web.tsrx'
 export { Screen } from './Screen.web.tsrx'
 export { Tabs } from './Tabs.web.tsrx'

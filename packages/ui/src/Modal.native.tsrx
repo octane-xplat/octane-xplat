@@ -4,6 +4,7 @@ import type { ModalProps } from "./props";
 import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
+import { applyThemeClasses } from './theme/theme-scheme';
 
 // The modal's content renders inside a separate Octane root on a GridLayout
 // host — modals never share context with their presenter (decision #9).
@@ -21,15 +22,16 @@ function Panel(props: { children?: any }) @{
  * inline; the content lives on the modal's own root above the whole tree.
  */
 export function Modal(props: ModalProps) @{
-	const shown = useRef<{ host: GridLayout; root: any } | null>(null);
+	const shown = useRef<{ host: GridLayout; root: any; unbindTheme?: () => void } | null>(null);
 
 	useEffect(() => {
 		if (props.open && !shown.current) {
 			const presenter = (Frame.topmost()?.currentPage ?? Frame.topmost()) as any;
 			if (!presenter) return;
 			const host = new GridLayout();
+			const unbindTheme = applyThemeClasses(host, 'vx-modal-host');
 			const root = createNativeScriptRoot(host);
-			shown.current = { host, root };
+			shown.current = { host, root, unbindTheme };
 			if (props.component) {
 				root.render(props.component as UniversalComponent, props.params ?? {});
 			} else {
@@ -43,7 +45,7 @@ export function Modal(props: ModalProps) @{
 
 			presenter.showModal(host, {
 				context: {},
-				closeCallback: (result?: unknown) => { shown.current = null; props.onClose?.(result); },
+				closeCallback: (result?: unknown) => { shown.current?.unbindTheme?.(); shown.current = null; props.onClose?.(result); },
 				fullscreen,
 				animated: true,
 			});

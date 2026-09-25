@@ -399,10 +399,9 @@ setTimeout(() => {
 			.split(/\s+/)
 			.includes('ns-dark'),
 	)
-	console.log(
-		'[probe] sheet ns-dark: ' +
-			(sheetDark ? 'present — theme class crosses' : 'absent — theme class does not cross'),
-	)
+	// The app syncs its override into the theme store (setThemePreference) —
+	// imperative roots must carry the scheme class on their host.
+	assertHas('sheet theme class', [sheetDark ? 'ns-dark' : 'absent'], 'ns-dark')
 	const sheetTok = (sheet as any)?.style?.getCssVariable?.('--color-primary')
 	console.log('[probe] sheet token: ' + JSON.stringify(sheetTok))
 	// Close it — a lingering RootLayout host makes later openSheet() calls

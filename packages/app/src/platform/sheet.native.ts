@@ -1,5 +1,5 @@
 import { GridLayout } from '@nativescript/core'
-import { topRootLayout } from '@octane-xplat/ui'
+import { topRootLayout, applyThemeClasses } from '@octane-xplat/ui'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
 import { SheetPanel } from '../SheetPanel.tsrx'
@@ -22,6 +22,9 @@ export function openSheet(Component: unknown = SheetPanel, props: Record<string,
 	if (!host) {
 		host = new GridLayout()
 		host.id = 'sheet-host'
+		// Theme classes don't cross imperative roots — stamp the current
+		// scheme on the host so the sheet matches the app theme.
+		applyThemeClasses(host, 'vx-sheet-host')
 		// Bottom-dock the sheet inside the RootLayout grid.
 		host.verticalAlignment = 'bottom'
 		hostRoot = createNativeScriptRoot(host)

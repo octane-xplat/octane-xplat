@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, styled } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, setThemePreference, styled } from '@octane-xplat/ui';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { probeSignal$ } from './probe-state';
@@ -32,6 +32,11 @@ export function Home() @{
 	const scheme = useColorScheme();
 	const [override, setOverride] = useState<string | null>(null);
 	const dark = (override ?? scheme) === 'dark';
+	// Push the app-level override into the theme store so imperative roots
+	// (overlay/popover/toast/sheet/modal) render with the same scheme.
+	useEffect(() => {
+		setThemePreference((override ?? 'system') as 'light' | 'dark' | 'system');
+	}, [override]);
 	const darkMark = useRef(0);
 	const [text, setText] = useState('');
 	const [bio, setBio] = useState('');
