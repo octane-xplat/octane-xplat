@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'octane';
 import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, setThemePreference, styled } from '@octane-xplat/ui';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
+import { SELF_DRIVE } from './platform/selfdrive';
 import { probeSignal$ } from './probe-state';
 import { storage } from '@octane-xplat/platform';
 import 'octane/signals';
@@ -47,7 +48,12 @@ export function Home() @{
 	const x = useAnimation(0);
 	console.log('[harness] Home render, items=' + items.length + ' scheme=' + scheme);
 
+	// [self] timers drive the sink on a clock (shuffle → type → dark flip)
+	// so commit seams exercise without taps. Web gates them behind
+	// ?selfdrive — presenting the sink defaults to a quiet screen; native
+	// keeps them always-on (demosweep/theme probes rely on the sequence).
 	useEffect(() => {
+		if (!SELF_DRIVE) return;
 		console.log('[harness] Home mounted');
 		const t1 = setTimeout(() => {
 			console.log('[self] shuffle');
