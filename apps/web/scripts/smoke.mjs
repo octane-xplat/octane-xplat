@@ -118,16 +118,25 @@ try {
 	await page.waitForSelector('text=/\\d{2}:\\d{2}:\\d{2}/', { timeout: 5000 })
 	ok('deep link → correct tab + pushed screen', true)
 
-	// Settings tab: sheet stub logs (the web leaf is a stub — assert the call path).
+	// Settings tab: sheet seam mounts a real portal layer; backdrop dismisses.
 	const logs = []
 	page.on('console', (m) => logs.push(m.text()))
 	await page.click('button:text("Settings")')
 	await page.click('text=Open sheet')
-	await page.waitForTimeout(300)
+	await page.waitForSelector('.vx-sheet-layer .sheet-panel', { timeout: 3000 })
 	ok(
-		'sheet stub invoked',
+		'sheet opens + logs probe',
 		logs.some((l) => l.includes('sheet open')),
 	)
+	await page.click('.vx-sheet-backdrop')
+	ok('sheet backdrop dismisses', (await page.locator('.vx-sheet-layer').count()) === 0)
+
+	// Home tab: imperative overlay seam mounts a portal layer under body.
+	await page.click('button:text("Home")')
+	await page.click('#overlay-btn')
+	await page.waitForSelector('.vx-overlay .overlay-panel', { timeout: 3000 })
+	await page.click('.vx-overlay-shade')
+	ok('imperative overlay open + shade dismiss', (await page.locator('.vx-overlay').count()) === 0)
 
 	// No leaked platform failures.
 	ok('zero pageerrors/console.error', errors.length === 0, errors[0] ?? '')
