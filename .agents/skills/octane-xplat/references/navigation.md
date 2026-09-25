@@ -2,7 +2,8 @@
 
 The framework owns the API; each platform provides the mechanism.
 `pushRoute`/`popRoute`/`useRoute` are real on **both** targets — web is a
-URL store over history, native drives `Frame`/`Page` stacks.
+URL store over history; iOS uses `Frame`/`Page` stacks and Android swaps
+router-owned named-route history into the active tab pane.
 
 ```ts
 import { pushRoute, popRoute, useRoute, registerScreens } from '@octane-xplat/ui';
@@ -13,14 +14,14 @@ goBack({ into?: 'demos' });
 
 - `pushRoute({ stack, name, params })` — `'root'` is a full-screen push
   covering the tab shell on both targets. A named stack is a parallel
-  stack: native pushes inside the pane's own `Frame` (tab bar stays),
-  web renders the screen in the pane's route outlet.
-- `popRoute(stack?)` — native pops that frame's top page (quiet no-op at
-  the base page). Web is one linear history → `history.back()`; the
-  `stack` arg is accepted for parity and ignored.
+  stack: iOS pushes inside the pane's `Frame`, Android swaps the pane while
+  keeping a per-tab route array, and web renders the route outlet.
+- `popRoute(stack?)` — native pops the selected Frame or Android route
+  array (quiet no-op at the base). Web is one linear history →
+  `history.back()`; the `stack` arg is accepted for parity and ignored.
 - `useRoute(stack)` — the current route for a stack, `null` at its base.
-  Native reads the route stamped on the frame's `currentPage` and updates
-  on push AND pop (`navigatedTo`); web reads the URL store.
+  Native reads the frame's `currentPage` on iOS and router state on Android;
+  web reads the URL store.
 - Pushed screens get `_stack` injected into props on named-stack pushes —
   call `popRoute(props._stack)` / `goBack({ into: props._stack })` to pop
   the stack that pushed you. Not injected on web (params = query string).
@@ -36,24 +37,24 @@ goBack({ into?: 'demos' });
    `Application.getRootView()`. `registerStack('root', frame)` remains as
    an override. A non-Frame root can't host pushes — the push warns and
    drops.
-3. **Named stacks** — `TabSpec.stack` on `<Tabs>` registers the pane's
-   Frame automatically. Custom shells call `registerStack(name, frame)`.
+3. **Named stacks** — iOS `TabSpec.stack` on `<Tabs>` registers the pane's
+   Frame automatically. Android uses router-owned route arrays and swaps
+   the active screen in a fixed-row tab shell; custom Android outlets can
+   subscribe with `useRoute(stack)`.
 
-Every drop warns loudly (once per key, dev and release): unregistered
-stack, unknown screen name, non-Frame root, Android named-stack push.
-Silent no-ops are how apps ship a default route on native while working
-fine on web — that failure mode is gone.
+Invalid targets warn loudly (once per key, dev and release): unregistered
+root stack, unknown screen name, or non-Frame root.
 
 ## Route shapes — what actually pushes today
 
-| Shape                         | Web                                                                                                                   | iOS                      | Android                                                                         |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------- |
-| `{stack:'root'}` push         | ✓ `/<path>?params` covers shell                                                                                       | ✓ verified               | ✓ verified                                                                      |
-| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane                                                                                             | ✓ 48/48 sweep            | ✗ upstream #11444 — mounts but `backStack`/`goBack` dead; **loud warn on push** |
-| params                        | `[param]` segments → real path (`/demo/counter`); extras → query-string scalars — objects degrade (`[object Object]`) | real objects as props    | real objects as props                                                           |
-| `useRoute`/`routeFor`         | ✓                                                                                                                     | ✓ stamped on pushed page | ✓ root; named-stack reads stay stale (same bug)                                 |
-| `popRoute`                    | ✓ (`history.back`)                                                                                                    | ✓                        | ✓ root; named-stack `goBack` no-ops upstream                                    |
-| deep link at boot             | ✓ `currentRoute()` seeds tab                                                                                          | n/a                      | n/a                                                                             |
+| Shape | Web | iOS | Android |
+|---|---|---|---|
+| `{stack:'root'}` push | ✓ `/<path>?params` covers shell | ✓ verified | ✓ verified |
+| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane | ✓ 48/48 sweep | fixed tab row + router-owned swapped pane; runtime validation pending |
+| params | `[param]` segments → real path (`/demo/counter`); extras → query-string scalars — objects degrade (`[object Object]`) | real objects as props | real objects as props |
+| `useRoute`/`routeFor` | ✓ | ✓ stamped on pushed page | ✓ root; named tabs subscribe to router state |
+| `popRoute` | ✓ (`history.back`) | ✓ | ✓ root + router-owned named-stack pop |
+| deep link at boot | ✓ `currentRoute()` seeds tab | n/a | n/a |
 
 Keep params to scalars for parity — the web leaf serializes into the URL.
 
@@ -73,8 +74,8 @@ excludes `*.native/ios/android.*`; `route-manifest.native.ts` excludes
 - `app/settings.web.tsrx` → web-only route (skipped by the native glob).
 - Component pick: `default` → `screen` → single function export.
 - Params arrive as props (native: pushed root's props; web: path segments
-  - query). Route names are `string` — literal typing awaits routes.d.ts
-    codegen.
+  + query). Route names are `string` — literal typing awaits routes.d.ts
+  codegen.
 
 Adding a route = adding a file; no table edits.
 
@@ -114,7 +115,12 @@ Adding a route = adding a file; no table edits.
 `props.tabs[active]?.stack ?? ''` rather than conditionally (conditional
 hook calls break the compiler's slotting).
 
-## Modal/sheet roots
+## Modal routes and modal primitives
 
-Modals and sheets are NOT routes — separate roots via `Modal` component /
-`openSheet(Component, props)` / `openOverlay()`. See `overlays.md`.
+Route files may use `+modal` or `pushRoute({ presentation: 'modal', ... })`.
+Native presents a separate root and web overlays the previous history entry.
+These routes pass data as props because context does not cross roots.
+
+The `Modal`, `openSheet(Component, props)`, and `openOverlay()` primitives
+remain separate from route navigation; use them for transient UI without a
+shareable destination. See `overlays.md`.

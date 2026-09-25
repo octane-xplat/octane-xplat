@@ -36,11 +36,12 @@ reaches `transitionOrAnimationCompleted → setCurrent`. Filed as
 [NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444)
 (covers the iOS `isLoaded` strand too).
 
-**Containment:** the demos sweep is gated off Android; pushes into named
-stacks are iOS-only until upstream resolves or we adopt a different shell
-(swap-style tabs / single-frame-with-replace are the candidate
-alternatives — unproven). `pushRoute` into a named stack on Android emits
-a loud `console.warn` (once per stack) rather than silently half-mounting.
+**Containment:** the framework's Android `Tabs` shell avoids this structure:
+it uses a fixed tab row and router-owned per-tab route arrays, then swaps the
+active pane. Tab screen-local state resets when switching tabs. Apps that
+directly host a `Frame` in a `TabViewItem` still encounter this issue. The
+current `demosweep.native.ts` probe remains gated on Android because it reads
+native `Page` objects; it has not been adapted to the router-owned pane.
 
 ## Fragment/page bookkeeping order
 

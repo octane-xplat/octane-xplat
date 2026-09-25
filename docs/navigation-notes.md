@@ -6,13 +6,14 @@
 > per-platform shells.** Device evidence lives in the [lab log](#lab-log) at
 > the end.
 >
-> **Owns:** #2 navigation contract · **Status:** mapped; Q6/Q14 resolved
+> **Owns:** #2 navigation contract · **Status:** implementation underway; route
+> manifest and APIs typecheck, iOS navigation and demo sweeps pass, Android
+> swap-pane route validation pending
 > (boundaries = `@try`; HMR = self-accepting modules, named exports stay
-> convention) · **Blocks on:** Android named stacks (#11444 upstream) ·
-> **Decisions:** #8, #9, #13, #19, #30 · **Validated by:** route-dir
-> manifest on both leaves — pushes, named-stack panes, `+modal` showModal
-> root, nested `_layout` wrap, `loader` prefetch, deep links, web scroll
-> restore, `xplat routes` codegen. iOS sweep green.
+> convention) · **Blocks on:** Android swap-pane runtime validation · **Decisions:** #8, #9, #13, #19
+> · **Validated by:** web/native typecheck, UI web/native package builds, and
+> iOS simulator navigation + demo sweeps. New modal routes and Android swap
+> tabs still need runtime validation.
 
 ## The contract
 
@@ -38,69 +39,54 @@ app/                          (shared route dir — implemented)
 ### Mechanism (v1, implemented)
 
 The dir is scanned by `import.meta.glob` in generated platform leaves —
-`xplat routes` emits `routes.gen.web.ts` (excludes `*.native/ios/android.*`)
-and `routes.gen.native.ts` (excludes `*.web.*`, prefers the running OS via
-`Device.os`) next to `routes.gen.types.ts`. `xplat dev`/`xplat build`
-regenerate them automatically when a route dir exists — there is no
-hand-written manifest file or manual `registerRoutes` call in app code.
+`xplat routes` emits `routes.gen.web.ts` (excluding native-only files) and
+`routes.gen.native.ts` (excluding web-only files and preferring the running
+OS via `Device.os`), alongside `routes.gen.types.ts`.
 `deriveRouteManifest(files, prefer)` (`packages/ui/src/route-table.ts`)
-turns the module map into `{screens, routes, layouts}`:
+turns the module map into `{screens, routes, layouts, loaders}`:
 
 - `demo/[id].tsrx` → route name `demo/:id` (`[param]` → `:param`);
   `foo/index.tsrx` → `foo`; trailing `index` drops.
 - Platform suffix dedupe by `prefer` rank: web `['web']`, native
   `['ios'|'android','native']`; suffixes outside `prefer` are skipped.
-- `settings+modal.tsrx` → route `settings` with `meta.presentation:
-'modal'` — declarative default for modal presentation (`+fade` = push
-  with fade transition); `Route.presentation` on the push overrides.
-- `_layout` files catalog into `layouts[dir]` (`''` = root). The entry
-  renders `routes.layouts['']` as the app shell; nested layouts wrap
-  descendant routes — `layoutChain(name)` resolves the ancestor-dir
-  chain, native wraps the pushed Page's root component
-  (`universalComponent` + `universalChildren`), web outlets wrap the
-  resolved element.
-- A `loader` named export lands on `RouteMeta.loader` — prefetch, not a
-  data layer: both leaves' `pushRoute` fire it before navigating so the
-  screen's `query$` reads mount against a warm cache. `loader` is
-  excluded from the single-function screen pick.
-- Component pick rule: `default` export → `screen` export → a single
-  function export; anything else warns and skips.
+- `_layout` files catalog into `layouts[dir]` (`''` = root) — the entry
+  renders `routes.layouts['']` as the app shell; matching nested layouts
+  wrap screens from outer directory to inner directory on both targets.
+- `+modal` and `+fade` suffixes set a route's default presentation;
+  `Route.presentation` overrides it for a particular navigation.
+- A route may export `loader(params)`. Its result reaches the screen as
+  `data`; a rejected loader reaches it as `error`. Loaders run on navigation
+  and do not provide prefetch or a suspense boundary.
+- Component pick rule: `default` export → `screen` export → one remaining
+  function export (the `loader` export is excluded); anything else warns
+  and skips.
 
 `registerRoutes(manifest)` (ui, both leaves) registers screens + URL
-patterns + layouts in one call — `packages/app/src/routes.ts` does it at
-module scope. Web: `pushRoute` substitutes `:param` segments into the
-path (`demo/:id` + `{id:'x'}` → `/demo/x`; leftover params → query) and
+patterns in one call — `packages/app/src/routes.ts` does it at module
+scope. Web: `pushRoute` substitutes `:param` segments into the path
+(`demo/:id` + `{id:'x'}` → `/demo/x`; leftover params → query) and
 `parse()` matches incoming paths back to `{stack, name, params}` — named
 stacks keep the `/<stack>/<path>` prefix. Native: `route.name` resolves
-through `screens`, params land as props. `hrefFor(route)` is the
-canonical path builder (Link's href).
-
-Modal routes: native presents via `showModal` on the current page — a
-tracked root, so `popRoute` dismisses the newest modal before touching
-the stack and `currentModalRoute`/`useModalRoute` read it (the screen
-gets a `close` prop). Web pushes the URL but overlays the modal over the
-shell (`vx-modalroute` pane in `Tabs`), preserving the underlying route;
-back dismisses it. `pushDeepLink(url)` on both leaves normalizes
-http(s)/app-scheme URLs (`linkPath`) and matches the manifest
-(`matchUrl`) — apps wire `onDeepLink(pushDeepLink)` +
-`consumeInitialUrl()` at boot. Web scroll positions save per URL key and
-restore on popstate (the `lastKey` tracker matters — `location` has
-already changed when popstate fires).
+through `screens`, params and loader values land as props. `hrefFor(route)`
+is the canonical path builder (Link's href). `xplat build` and
+`xplat typecheck` refresh the generated route files from `app/`; generated
+`RouteName` and `RouteParams` types constrain `navigate`, `Link`, and
+`useParams<Name>()`.
 
 ## Mapping
 
-| Shared concept                | Web                                                             | Native                                             |
-| ----------------------------- | --------------------------------------------------------------- | -------------------------------------------------- |
-| route table                   | URL ↔ component (@octanejs/tanstack-router or thin file-router) | `Frame.navigate` stack, params passed as context   |
-| `<Link to="/chat/3">`         | `<a href>`                                                      | `frame.navigate()` + params                        |
-| `Stack` layout                | history stack                                                   | `frame` pages (real nav transitions)               |
-| `Tabs` layout                 | tab bar + outlet                                                | `tabview`/`tabviewitem`                            |
-| `Drawer` layout               | slide-over panel                                                | `ui-drawer` w/ `hostSlot` mains/drawer             |
-| `Modal` route                 | overlay route (URL preserved)                                   | `showModal` → **separate Octane root**             |
-| `useNavigate()`/`useParams()` | router hooks                                                    | facade over `Frame` API                            |
-| back                          | popstate                                                        | `frame.goBack()` + Android `activityBackPressed`   |
-| deep link                     | URL load                                                        | `Application` lifecycle (openUrl/continueActivity) |
-| windows/scenes                | N/A                                                             | `setWindowContentResolver` per `NativeWindow`      |
+| Shared concept | Web | Native |
+|---|---|---|
+| route table | URL ↔ component (@octanejs/tanstack-router or thin file-router) | `Frame.navigate` stack, params passed as context |
+| `<Link to="/chat/3">` | `<a href>` | `frame.navigate()` + params |
+| `Stack` layout | history stack | `frame` pages (real nav transitions) |
+| `Tabs` layout | tab bar + outlet | iOS `TabView`; Android fixed tab row + swapped pane |
+| `Drawer` layout | slide-over panel | `ui-drawer` w/ `hostSlot` mains/drawer |
+| `Modal` route | overlay route (URL preserved) | `showModal` → **separate Octane root** |
+| `useNavigate()`/`useParams()` | router hooks | facade over `Frame` API |
+| back | popstate | `frame.goBack()` + Android `activityBackPressed` |
+| deep link | URL load | `Application` lifecycle (openUrl/continueActivity) |
+| windows/scenes | `window.open()` | `openWindow({data})`; app supplies NativeScript's window content resolver |
 
 ## Hard seams (decide consciously)
 
@@ -114,61 +100,33 @@ already changed when popstate fires).
    are push/pop with per-entry transitions. Keep the shared API at
    `navigate(pathOrName, params)` + `goBack()`; don't try to share transition
    config beyond a small named set (`'push'|'modal'|'fade'`).
-4. **Scroll/memory parity**: NS keeps pages' native views alive in the stack;
-   web re-renders on pop. Scroll-restoration is per-platform.
-5. **Typed routes**: codegen `routes.d.ts` from the `app/` dir (One precedent)
-   once route files exist — params flow into `Link` and `useParams`.
-6. **Data**: optional `export loader` per route (Remix/One style). Web:
-   SSR/prefetch on nav; native: prefetch during transition, render into
-   `@try`/`@pending` + `use()` (universal async boundaries;
-   `<Suspense>` doesn't exist there). Fold this in only after basic routing
-   works.
-7. **Modal routes = `Modal` primitive**: a route marked
-   modal renders through `showModal`→own root on native / portal+URL on web.
-   Params cross as `params`; context does not. Same contract as the
-   `ModalProps.component` API in primitives.md — the router treats
-   `component: ScreenComponent` + `params` uniformly.
+4. **Scroll/memory parity**: Native keeps page views alive in its stack.
+   Web stores scroll offsets by history URL and restores them on back/forward;
+   no native scroll work is needed while pages remain mounted.
+5. **Typed routes**: `xplat routes` generates route names, params, and
+   presentation types. `xplat build` and `xplat typecheck` refresh them too.
+   Add a route file, then rerun one of those commands.
+6. **Data**: a route `loader(params)` may return a value or promise. The
+   screen receives `data` after resolution or `error` after rejection. This
+   is the basic route-data seam; prefetch and async boundary integration
+   remain open.
+7. **Modal routes**: `+modal` or `presentation: 'modal'` opens a separate
+   native root / web overlay while retaining the prior history entry. Params
+   and loader values cross as props; context does not. `+fade` or
+   `presentation: 'fade'` selects a fade transition; push remains the
+   default.
+8. **Windows**: `openWindow({data})` is the minimal cross-platform seam.
+   Native app code must install `Application.setWindowContentResolver()` to
+   render content for each new window; the framework does not own app roots.
 
 ## What we are NOT doing
 
-- Forcing URL semantics onto native. The route _table_ is shared; web assigns
+- Forcing URL semantics onto native. The route *table* is shared; web assigns
   paths, native assigns names+params. Deep links map onto the same table.
 - Porting React Navigation. `Frame` is the native navigator; our `Stack`/
   `Tabs`/`Drawer` shells wrap it. That also means nav transitions are
   platform-native by default — correct behavior, not a gap.
 - Sharing `_layout` internals across targets — they're expected split files.
-
-## Route config surface (deferred — post-core)
-
-> Desk-source (TanStack Start comparison, 2026-09-25 — upstream detail in
-> [prior-art/tanstack-start.md](../prior-art/tanstack-start.md)): the route
-> file is the config surface apps write against — **exports carry behavior,
-> `+suffixes` carry presentation/render mode, `RouteMeta` carries what
-> platforms read.**
-> Pin that vocabulary before apps accumulate route files; the features below
-> stay parked until the core settles. Silo topic: `route-config-surface`.
-
-| Route-file item       | Web semantics                                | Native semantics                            |
-| --------------------- | -------------------------------------------- | ------------------------------------------- |
-| `loader` (existing)   | client prefetch before nav                   | prefetch during transition                  |
-| `beforeLoad`          | guard awaited pre-commit; `throw redirect()` → `pushRoute` | same — resolves to `frame.navigate` |
-| `head`                | `<title>` + meta tags                        | `Page.title`; web-only keys inert           |
-| `params` schema       | typed `Link`/`useRoute` props                | same                                        |
-| `+ssr` / `+ssrdata`   | full / data-only prerender                   | ignored                                     |
-
-Largest gap vs Start: **route guards** — `pushRoute` has no interception
-seam for auth redirects, analytics, or feature gates. Second: `loader`
-returns stay void — typing `loader(params)→T` and surfacing it to the screen
-(`useLoaderData`-shape) upgrades prefetch to a client-side data seam; the
-codegen already emits `RouteParams`, so capturing return types reuses the
-same mechanism. `beforeLoad`'s returned context would merge into `useRoute`
-reads down the `_layout` chain.
-
-Explicitly not borrowed from Start: server functions, request middleware,
-RSC, ISR — the server layer stays app-owned (rouzer precedent in
-text-coral). Their "three cache layers" caveat (client loader cache ≠
-server result cache ≠ CDN HTML cache) applies verbatim if loaders gain
-staleness semantics.
 
 ## Build order (prototype path)
 
@@ -177,38 +135,20 @@ staleness semantics.
 2. `Stack` (frame) + `Tabs` shells on native; URL router on web. — done.
 3. ~~Platform-suffixed route files via the resolver.~~ done — glob
    manifests are the directory-level suffix seam.
-4. ~~Modal route as second native root.~~ done — `+modal` manifest suffix
-   or `Route.presentation:'modal'`; native `showModal` root, web overlay
-   preserving the underlying URL. iOS verified (sweep asserts green).
-5. ~~Android back + deep link + typed routes codegen.~~ done — back +
-   `pushDeepLink` (`matchUrl`/`linkPath` shared) wired; `xplat routes`
-   emits `routes.gen.ts` (`RouteName`/`RouteParams`/`RoutePresentations`).
-6. Nested `_layout` chains wrap descendant routes — done (iOS + web).
-   Web scroll restoration per URL — done. Remaining: Android nested
-   stacks (#11444), named transitions beyond fade, multi-window seam.
+4. Modal route as second native root — implemented; iOS simulator route sweep
+   passed, additional target validation remains.
+5. Android back + deep link + typed route codegen — wired. Deep-link behavior
+   still needs target validation.
+6. Nested layouts, basic loaders, fade transitions, web scroll restoration,
+   and the minimal window-opening seam — implemented; loader boundary and
+   multi-window resolver composition remain app-owned.
+7. Android nested tab stacks — swap-style fallback implemented. Android
+   stores named-stack routes in the router and swaps the active screen under
+   a fixed tab row (no swipe gesture); tab screen-local state resets when
+   switching away. NativeScript #11444 remains open for apps that use
+   `Frame` inside `TabViewItem`. Runtime validation is pending.
 
 ## Lab log
-
-> **Lab (presentations + nested layouts, iOS + web, 2026-09-24):**
-> `about+modal.tsrx` lands `presentation:'modal'` on the manifest — a
-> Home `NavLink` taps through to a real `showModal` root (presenter
-> `currentPage` untouched), the screen mounts inside the modal host, and
-> `popRoute` dismisses it; all three sweep asserts green on iOS.
-> `demo/_layout.tsrx` wraps `demo/:id` — web verified (banner renders in
-> `/demos/demo/counter` DOM) and native goes through the same
-> `wrapInLayouts` path (universalComponent + universalChildren). iOS
-> sweep 87 OK / 3 pre-existing FAIL (`list rebind order`, `popover
-anchored`, `overlay opens` — identical before the change).
->
-> **Trap — modal dismiss bookkeeping:** iOS drops
-> `dismissViewControllerAnimated` completions that race a still-in-flight
-> presentation, so `showModal`'s `closeCallback` isn't guaranteed to run.
-> `popRoute` splices `modalHosts` eagerly and lets `closeModal` drive only
-> the visual dismiss — never gate route state on the completion.
->
-> **Web scroll restore:** scroll positions save per URL under a `lastKey`
-> tracker — `popstate` fires after `location` changes, so keying the
-> outgoing save off `location` writes it under the incoming URL.
 
 > **Lab (route dir, web, 2026-09-24):** `packages/app/src/app/` holds the
 > harness routes — `_layout.tsrx` (the Tabs shell, rendered via
@@ -267,7 +207,7 @@ anchored`, `overlay opens` — identical before the change).
 > screens pop their own stack. Named frames register via `registerStack`; the
 > app boot registers `'root'` as the default target (`Frame.topmost()` is
 > ambiguous once nested frames exist). Verified: push→content→pop across all
-> 10 demos inside the Demos tab (48/48). _Superseded 2026-09-23:_ `'root'`
+> 10 demos inside the Demos tab (48/48). *Superseded 2026-09-23:* `'root'`
 > registration is now optional — `getStack('root')` resolves the window's
 > root `Frame` (`Application.getRootView()`) when unregistered.
 
@@ -277,9 +217,10 @@ anchored`, `overlay opens` — identical before the change).
 > `Page` hosting `registerScreens()`'d components — the seam that made
 > web-shaped apps silently render only their default route on native is
 > closed. `useRoute`/`routeFor` read the route stamped on `currentPage` via
-> `navigatedTo`; `popRoute` pops a stack. Every drop warns loudly
-> (`console.warn`, once per key): unregistered stack, unknown screen,
-> non-Frame root, Android named-stack push (#11444). `platform/nav` in the
+> `navigatedTo`; `popRoute` pops a stack. Invalid targets warn loudly
+> (`console.warn`, once per key): unregistered stack, unknown screen, or
+> non-Frame root. Android named routes use the swap-pane fallback below.
+> `platform/nav` in the
 > harness is now a thin typed wrapper over the ui API.
 
 > [!WARNING]
@@ -298,7 +239,7 @@ anchored`, `overlay opens` — identical before the change).
 > `anim settled` timing, one `modal texts` flake.
 
 > [!WARNING]
-> **Nested stacks do not work yet on Android:** `TabViewItem`-hosted Frame
+> **NativeScript nested Frames do not work on Android:** `TabViewItem`-hosted Frame
 > pushes execute `NAVIGATE CORE` (the fragment transaction commits; the pushed
 > page mounts — its `useEffect`/store write proves it), but `setCurrent` never
 > runs — `TransitionListener.onTransitionEnd` doesn't propagate from the child
@@ -306,16 +247,27 @@ anchored`, `overlay opens` — identical before the change).
 > frozen, `goBack` no-ops (bare `GO BACK`, no CORE), and pages accumulate
 > natively. `animated:false` does not rescue — the completion hook itself
 > never fires, not merely the animation. Needs an upstream fix or a different
-> shell construction (swap-style tabs, or a single frame with replace
-> semantics). iOS remains green (48/48).
+> shell construction. The harness now uses swap-style tab outlets on Android;
+> app-defined `Frame`-inside-`TabViewItem` stacks still have this limitation.
+> iOS remains on the native swipeable `TabView` path.
+
+> [!NOTE]
+> **Android tab fallback (2026-09-25):** `Tabs.native` renders a fixed button
+> row and one active pane. `route.native` keeps each named tab's pushed route
+> history in module state; hardware back pops the root Frame first, then the
+> most recently used tab route. Tab switches recreate the inactive screen,
+> so component-local state does not persist. This avoids the broken nested
+> FragmentManager completion path while retaining tab-specific back stacks.
+> The app launched with the populated tab pane on Android; route pushes through
+> the swap pane still need a focused runtime check. iOS simulator sweeps passed.
 
 > [!IMPORTANT]
-> On Android `Frame.topmost()` returns the _innermost_ frame — all root-level
+> On Android `Frame.topmost()` returns the *innermost* frame — all root-level
 > reads must use the registered `'root'` stack.
 
 > **Hardware back (Android):** `wireHardwareBack()` registers
 > `activityBackPressed` at boot. Pop order: root stack when a pushed page
-> covers the shell (NS's default `Frame.topmost()` resolves to the _innermost_
+> covers the shell (NS's default `Frame.topmost()` resolves to the *innermost*
 > frame — wrong once nested stacks exist), then the most recently targeted
 > named stack, then any named stack with entries; `e.cancel` suppresses the
 > system fallback. Verified wired + clean fallthrough on the emulator; the
@@ -330,5 +282,6 @@ anchored`, `overlay opens` — identical before the change).
 > Release-only fatal: `RootLayout.open()` returns a Promise that rejects when
 > the host view is already attached — `openSheet`/`openOverlay` now
 > close-before-open and handle the promise (unhandled rejection = fatal on
-> release). Nested-stack pushes on Android crash the FragmentManager when
-> raced against attach — the demos sweep is skipped on Android pending #11444.
+> release). `demosweep.native.ts` still skips Android because its probe reads
+> `Page` instances from a nested `Frame`; it has not been adapted to the
+> router-owned swap-pane history yet.

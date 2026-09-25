@@ -79,11 +79,38 @@ For a component that must observe the current destination, use `useRoute` on
 the stack it owns. A tab can therefore keep its own history without taking
 over the whole app.
 
+## Add a file route
+
+Route files under `app/` build the shared screen table. Bracketed filenames
+declare path params:
+
+```text
+app/settings.tsrx       → settings
+app/demo/[id].tsrx       → demo/:id
+app/settings+modal.tsrx  → settings, presented as a modal
+```
+
+`xplat build` and `xplat typecheck` generate `src/routes.generated.d.ts`.
+The app's `navigate`, `Link`, and `useParams<'demo/:id'>()` APIs use those
+names and param shapes. A route may export `loader(params)`; its value is
+passed to the screen as `data`, and a rejected loader as `error`.
+
+Use `presentation: 'fade'` to select a fade push, or `presentation: 'modal'`
+to present a modal at a call site. `+modal` and `+fade` set route-file
+defaults. Browser history keeps the previous route beneath a web modal;
+native presents a separate root, so pass values through params or a shared
+store rather than component context.
+
 ## Choose a stack
 
 Use the root stack for the main app flow. Use a named stack for independent
 flows such as tabs, where each tab should remember its own screen. Keep modal
 content separate from ordinary back-stack navigation.
 
+Native deep links resolve against the same route manifest. `openWindow({data})`
+opens another NativeScript window; the app provides
+`Application.setWindowContentResolver()` to render that window's root.
+
 The [navigation notes](navigation-notes.md) explain native containers, modal
-roots, deep links, and the platform-specific tradeoffs.
+roots, deep links, Android tab-stack limits, and the platform-specific
+tradeoffs.
