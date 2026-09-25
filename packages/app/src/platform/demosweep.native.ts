@@ -422,13 +422,25 @@ const STEPS: Step[] = [
 						return { w: Math.round(s.width ?? -1), h: Math.round(s.height ?? -1), x: Math.round(p.x ?? -1), y: Math.round(p.y ?? -1) }
 					}
 
-					for (const id of ['dv-grow', 'dv-grow-fill', 'dv-lh', 'dv-lh2', 'dv-auto', 'dv-auto-fix', 'dv-wide', 'dv-sib', 'dv-wide-fix', 'dv-sib-fix', 'dv-collapse', 'dv-collapse-text']) {
+					for (const id of ['dv-grow', 'dv-grow-fill', 'dv-lh', 'dv-lh2', 'dv-auto', 'dv-auto-fix', 'dv-wide', 'dv-sib', 'dv-wide-fix', 'dv-sib-fix', 'dv-collapse-row', 'dv-coll-avatar', 'dv-coll-body', 'dv-coll-text', 'dv-coll-actions', 'dv-collapse-allgrow', 'dv-ag-text']) {
 						const r = m(id)
 						console.log(
 							'[probe] ' + id + ' ' + (r ? `${r.w}x${r.h}@${r.x},${r.y}` : 'MISSING'),
 						)
 					}
 
+					const collText = m('dv-coll-text')
+					console.log(
+						'[assert] Text wraps by default: ' +
+							(collText && collText.h >= 30 ? 'OK' : 'FAIL') +
+							(collText ? ` (${collText.h})` : ''),
+					)
+					const agRow = m('dv-collapse-allgrow')
+					console.log(
+						'[assert] auto-height grow row keeps content height: ' +
+							(agRow && agRow.h >= 40 ? 'OK' : 'FAIL') +
+							(agRow ? ` (${agRow.h})` : ''),
+					)
 					const grow = m('dv-grow-fill')
 					console.log(
 						'[assert] grow child keeps height: ' +

@@ -41,9 +41,11 @@ export function Text(props: TextProps) @{
 			{...layoutChildProps(props)}
 			className={cx(props.className)}
 			style={textStyle}
-			maxLines={props.numberOfLines}
+			maxLines={props.numberOfLines ?? 0}
+			// NS Label renders single-line unless whiteSpace asks to wrap;
+			// web text wraps freely — 'normal' matches web (0 = unlimited lines).
+			whiteSpace={props.ellipsize ? 'nowrap' : 'normal'}
 			textOverflow={props.ellipsize ? 'ellipsis' : undefined}
-			whiteSpace={props.ellipsize ? 'nowrap' : undefined}
 			accessibilityHint={props.accessibilityHint}
 			accessibilityValue={props.accessibilityValue}
 			accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}

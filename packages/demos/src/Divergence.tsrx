@@ -47,9 +47,22 @@ export function Divergence() @{
 			<View id="dv-sib-fix" className="dv-sib shrink-0" />
 		</Row>
 
-		<Row id="dv-collapse" className="dv-row">
-			<View className="grow"><Text id="dv-collapse-text">all-grow children, tall intrinsic text that should keep the row open at its own height</Text></View>
-			<View className="grow"><Text>second grow child</Text></View>
-		</Row>
+		{/* The collapse needs a CONTENT-SIZED row — a direct Screen child
+		    fills the rootlayout cell, so wrap in a column. Composer shape:
+		    fixed avatar + grow body with intrinsic-height content. */}
+		<View id="dv-collapse" className="gap-4">
+			<Row id="dv-collapse-row" className="items-start shrink-0">
+				<View id="dv-coll-avatar" style={{ width: 46, height: 46 }} />
+				<View id="dv-coll-body" className="grow min-w-0" style={{ width: 0, marginLeft: 12 }}>
+					<Text id="dv-coll-text">tall intrinsic text that should keep the row open at its own measured height and wraps across lines</Text>
+					<Row id="dv-coll-actions"><Text>actions</Text></Row>
+				</View>
+			</Row>
+			{/* Same shape, all-grow children — the text-coral regression. */}
+			<Row id="dv-collapse-allgrow" className="shrink-0">
+				<View className="grow"><Text id="dv-ag-text">all-grow children, tall intrinsic text that should keep the row open at its own height</Text></View>
+				<View className="grow"><Text>second grow child</Text></View>
+			</Row>
+		</View>
 	</Screen>
 }
