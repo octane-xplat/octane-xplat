@@ -233,7 +233,22 @@ export async function xplatNative(env, opts = {}) {
 		),
 		{
 			plugins: [pxToDip(), nsHmrClientWatchdog()],
+			build: {
+				rolldownOptions: {
+					// Dev/HMR universal emit retains JSX in expression props
+					// (e.g. `renderItem={(item) => <gridlayout>…}`) for the file's
+					// own @jsxImportSource pragma to lower. Rolldown only parses
+					// JSX in script-lang modules, so mark .tsrx transform
+					// output tsx.
+					moduleTypes: { '.tsrx': 'tsx' },
+				},
+			},
 			optimizeDeps: {
+				// vite-octane excludes `octane` from the deps bundle, so the
+				// optimizeDeps graph walk never descends into it — alien-signals
+				// (the signal impl imported by octane/universal/native) is missed
+				// and the device fetch 504s. Seed it directly.
+				include: ['alien-signals', 'alien-signals/system'],
 				// Flattened optimizeDeps chunks get mangled by the /ns/m device
 				// transform (`import import "/ns/core/utils"`) and miss the vendor
 				// manifest — serve @nativescript plugins per-module instead.
