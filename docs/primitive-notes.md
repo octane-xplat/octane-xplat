@@ -345,8 +345,27 @@ interface TextAreaProps extends TextInputProps {
   applies it via `String(value)`, so an array arrives comma-joined and
   matches nothing. Leaves normalize with `cx()` (`packages/ui/src/cx.ts`).
 - `TextInput` native: `textfield`/`textview`; `value` ↔ `text`; `onChangeText`
-  ↔ `textChange`; `onSubmit` ↔ `returnPress`. Cursor/IME write-back risk is
-  the queued lab experiment.
+  ↔ `textChange`; `onSubmit` ↔ `returnPress`. Controlled write-back verified
+  with **real keyboard input** (idb `ui text`): per-keystroke `textChange`
+  accumulates correctly through `onChange → set → text=` and the selection
+  survives the controlled writes. IME marked-text composition remains
+  untested; Android still the higher-risk platform for setText cursor reset.
+- **`Screen` children flow inside one inner flex column** (decision #39).
+  RootLayout gives every direct child the full root bounds — siblings stack
+  in document order and a later sibling's invisible area eats taps meant for
+  earlier ones (pushed-page header Row measured at the full root height,
+  dead under the content View's overlap). The leaf renders one flexbox
+  wrapper; app children are never direct rootlayout children.
+- **Omitted props must not write `undefined`** (decision #40): the driver's
+  `setProp` returns early on `undefined`. NS coerces `undefined` through
+  native setters — `editable={undefined}` became `userInteractionEnabled=NO`:
+  the field rendered with listeners but could never become first responder
+  (real taps and `becomeFirstResponder()` both failed while AX tree looked
+  normal). Leaves still default `editable ?? true` as documentation.
+- **Verify interaction with real input, not `notify()`**: `view.notify({tap})`
+  delivers events without hit-testing — taps "worked" on views that were dead
+  (stale JS node, `loaded=false`, no recognizers) or physically unreachable.
+  idb/`ios-simulator-mcp` real UITouch + AX tree is the honest check.
 - Escape-hatch prop bags (`ios`/`android`/`web`) carry genuinely divergent
   props; `hostSlot` stays leaf-internal — shared code expresses slots as props
   (`<Drawer main={…}>`), never the mechanism name.

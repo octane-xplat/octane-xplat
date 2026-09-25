@@ -1,9 +1,9 @@
-import { Application, Frame, ListView, Page, Trace, getRootLayout } from '@nativescript/core'
+import { Application, Frame, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { probeSignal$ } from '@xplat/app/probe-state'
 import { sheetHost } from '@xplat/app/platform/sheet.native'
-import { getColorScheme, registerStack, getStack, topRootLayout, findInRootLayouts } from '@octane-xplat/ui'
+import { getColorScheme, registerStack, getStack, findInRootLayouts } from '@octane-xplat/ui'
 
 import { storage, wireHardwareBack } from '@xplat/app'
 import 'octane/signals'
@@ -196,31 +196,38 @@ setTimeout(() => {
 	// Chips live on the demos stack's page — a frame subtree thePage's
 	// getViewById doesn't reach into (same scope as demosweep's find()).
 	const demosFrame = getStack('demos') as any
+
 	// The gallery sits wherever the sweep left it — current or a backstack page.
 	const pages = [
 		demosFrame?.currentPage,
 		...(demosFrame?.backStack ?? []).map((b: any) => b.resolvedPage ?? b.page),
 	]
+
 	const v = pages
 		.map((p: any) => p?.getViewById?.('menu-counter'))
 		.find((c: any) => c != null) as any
+
 	if (!v) {
 		console.log('[probe] chip interaction: no view (pages=' + pages.length + ')')
 		return
 	}
+
 	// Frame bounds chain — real taps on the pushed demo page's header Row
 	// (demo-back / demo-sheet) never fire while content Pressables do:
 	// suspected parent-bounds clipping from a collapsed Row.
 	const probe = pages
 		.map((p: any) => p?.getViewById?.('demo-back'))
 		.find((c: any) => c != null) as any
+
 	const bounds = (w: any) => {
 		const f = w?.ios?.frame
 		return f ? `(${f.origin.x},${f.origin.y} ${f.size.width}×${f.size.height})` : 'no-ios'
 	}
+
 	if (probe) {
 		let chain: string[] = []
 		let cur = probe
+
 		while (cur && chain.length < 9) {
 			chain.push(
 				cur.constructor.name +
@@ -229,16 +236,20 @@ setTimeout(() => {
 					(cur.ios ? cur.ios.clipsToBounds : '?') +
 					(cur.hasGestureObservers?.() ? ' +gest' : ''),
 			)
+
 			cur = cur.parent
 		}
+
 		console.log('[probe] demo-back chain: ' + chain.join(' < '))
 	} else {
 		console.log('[probe] demo-back: no view')
 	}
+
 	// getViewById returns the first id match — if the reconciler left a stale
 	// sibling in-tree, taps could target a different JS instance than the one
 	// holding the observer. Count all demo-back candidates.
 	const all = pages.flatMap((p: any) => collect(p)).filter((w: any) => w?.id === 'demo-back')
+
 	for (const w of all) {
 		console.log(
 			'[probe] demo-back candidate loaded=' +
@@ -253,12 +264,14 @@ setTimeout(() => {
 				bounds(w),
 		)
 	}
+
 	// Same read on a WORKING pressable (counter-inc: real taps fire it) —
 	// the comparison isolates whether observers lack recognizers on the
 	// dead elements or the dead elements lack both.
 	const inc = pages
 		.flatMap((p: any) => collect(p))
 		.find((w: any) => w?.id === 'counter-inc') as any
+
 	if (inc) {
 		console.log(
 			'[probe] counter-inc tapObs=' +
@@ -269,6 +282,7 @@ setTimeout(() => {
 				bounds(inc),
 		)
 	}
+
 	console.log(
 		'[probe] chip recognizers=' +
 			(v.ios?.gestureRecognizers?.count ?? 0) +
@@ -297,6 +311,7 @@ setTimeout(() => {
 			' isFirstResponder(before)=' +
 			(tf?.isFirstResponder ?? '?'),
 	)
+
 	tf?.becomeFirstResponder?.()
 	setTimeout(() => {
 		console.log('[probe] input isFirstResponder(after)=' + tf?.isFirstResponder)
@@ -442,7 +457,7 @@ setTimeout(() => {
 setTimeout(() => {
 	const f = Frame.topmost() as any
 	let pops = 0
-	f?.on?.('navigatedTo', (e: any) => {
+	f?.on?.('navigatedTo', () => {
 		const top = f.currentPage
 		if (top?.id === 'detail-page') {
 			assertHas('detail texts', texts(top), 'Detail screen')

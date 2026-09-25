@@ -1,4 +1,4 @@
-import { Application, Frame, ListView, getRootLayout } from '@nativescript/core'
+import { Application, Frame, ListView } from '@nativescript/core'
 import {
 	currentModalRoute,
 	findInRootLayouts,

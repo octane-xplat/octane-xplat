@@ -32,20 +32,24 @@
    release. The leaf's module-scope maps + template machinery are deleted;
    only `renderEmpty` and the memo-on-`items` guard remain. Open follow-up:
    scroll-range recycling (only ~5 visible cells tested), Android parity.
-4. ✅ **Controlled text inputs.** — Verified on device (iOS sim, synthetic
-   `textChange` via `view.notify`): native→state (`textChange`→`onChange`)
-   and state→native (`text` prop write) both work. Two real seams found:
+4. ✅ **Controlled text inputs.** — Verified with **real keyboard input** on
+   the iOS sim (idb `ui text` through the actual RTI input session):
+   per-keystroke `textChange` → `onChange` → `set` → controlled `text=`
+   write accumulates correctly (`helloa` → `helloab` → `helloabc`) and the
+   selection survives each write-back — no reversion, no cursor reset to
+   start. Earlier synthetic coverage (`view.notify` textChange) plus:
    (a) **programmatic `text` writes echo back as `textChange`** → each write
    produced a spurious `onChange`. **Fixed in the driver** — our report became
    upstream #5, shipped in 0.2.1 (per-node `muted` set during the driver's own
    prop write). Verified: one synthetic `textChange` → exactly one `onChange`,
    and the self-test's `setText('hello')` no longer echoes.
    (b) The driver's same-value guard (`view[name] === value → skip`) already
-   prevents redundant writes on the state→native path. Still open: cursor
-   position on programmatic `text` writes mid-typing (UITextField.text
-   assignment may reset cursor to end) and Android IME composition. Basic
-   real typing verified manually on the iOS sim (keystrokes + taps
-   round-trip through `onChange`/`onPress` correctly).
+   prevents redundant writes on the state→native path.
+   (c) **`undefined` prop writes coerced native defaults** — omitted
+   `editable` became `userInteractionEnabled=NO`, a dead field that rendered
+   normally in the AX tree. Driver `setProp` now skips `undefined` (decision
+   #40). Still open: IME marked-text composition (only ASCII typed) and
+   Android parity — the higher-risk platform for setText cursor reset.
 5. ✅ **Resolver ordering vs renderer scoping.** — Resolution and compilation
    are decoupled: the octane plugin compiles by **resolved filename** at
    transform time; its `resolveId` only claims virtual/adapter ids. Our suffix
@@ -154,3 +158,11 @@ LiveRegion` unwired in leaves so far).
     verified in the iOS bundle and via the drawer sweep assert. Published
     octane@0.5.0 alone still rejects native signal reads, so the dist-pack
     override stays until a release ships both.
+24. ⏳ **Squircle corners on Android.** — `cornerShape` is parsed but the
+    Android background path (`org.nativescript.widgets.BorderDrawable`,
+    `Path.addRoundRect`) ignores it. Real support needs either a superellipse
+    path in ui-mobile-base's Java drawable (AAR rebuild — heavy) or a
+    TS-level `android.graphics.drawable.Drawable` subclass plus
+    `setClipToOutline` (path outlines need API 33+ for child clipping).
+    Parked: Android platform convention is round corners; revisit if a real
+    app wants parity.

@@ -13,7 +13,7 @@ the shape) → `building` → `built`.
 
 | # | Owned problem | File | Status | Blocks on | Decisions |
 |---|---|---|---|---|---|
-| 1 | **Primitives contract** — prop surface, semantics, allowed leaks | [primitives](primitives.md) | mapped; driver mechanics verified | lab: Q3 listview cell roots · Q4 controlled inputs | #3, #6, #9, #16, #21, #22, #24, #33 |
+| 1 | **Primitives contract** — prop surface, semantics, allowed leaks | [primitives](primitives.md) | mapped; driver mechanics verified — Q4 controlled inputs now verified with real keyboard (idb): textChange accumulates through controlled writes, selection survives; residual IME marked-text + Android | lab: Q3 listview cell roots · stale getViewById views | #3, #6, #9, #16, #21, #22, #24, #33, #39, #40 |
 | 2 | **Navigation contract** — shared route table, per-platform shells, modal-as-root | [navigation](navigation.md) | building — nested layouts, typed route generation, loaders, modal/fade routes, web scroll restore, deep-link wiring, and `openWindow`; Android swap-tab fallback implemented | Android swap-pane route validation; upstream #11444 remains open for Frame-in-TabViewItem apps | #8, #9, #13, #19 |
 | 3 | **Resolution toolchain** — suffix resolver, plugin ordering, TS typing | [module-resolution](module-resolution.md) | **verified** — `resolve.extensions` order + `moduleSuffixes`; rules own resolved filename | none — config details to prove in prototype | #2, #3, #18, #23 |
 | 4 | **Seam enforcement** — lint rules keeping invariants true | [testing](testing.md) | mapped; **upgraded** — compiler `validation` is a built-in enforcement layer | none — write the config + rules | #3, #4, #20, #24 |
