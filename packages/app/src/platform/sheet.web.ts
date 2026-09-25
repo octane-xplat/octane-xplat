@@ -1,8 +1,13 @@
-// Web seam — harness stub; a real sheet is a fixed-position layer.
-export function openSheet(_Component?: unknown, _props?: Record<string, unknown>) {
-	console.log('[probe] sheet open (web stub)')
-}
+import { openSheet as openSheetUI } from '@octane-xplat/ui'
+import { SheetPanel } from '../SheetPanel.tsrx'
 
-export function closeSheet() {
-	console.log('[probe] sheet close (web stub)')
+export { closeSheet } from '@octane-xplat/ui'
+
+/** Bottom-anchored sheet — the real ui service (portal layer, own root). */
+export function openSheet(Component: unknown = SheetPanel, props: Record<string, unknown> = {}) {
+	openSheetUI(Component as any, props).then(
+		() => console.log('[probe] sheet close'),
+		(e: Error) => console.log('[probe] sheet FAILED: ' + e.message),
+	)
+	console.log('[probe] sheet open')
 }

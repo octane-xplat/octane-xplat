@@ -102,3 +102,6 @@ export type {
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './use-store.web.tsrx'
+export { Sheet } from './Sheet.web.tsrx'
+export { openSheet, closeSheet } from './sheet-service.web'
+export type { SheetProps, SheetOpenOptions, OpenSheet } from './props'

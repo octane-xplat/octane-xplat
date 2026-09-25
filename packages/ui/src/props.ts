@@ -496,6 +496,41 @@ export type OpenModal = (
 	options?: ModalOpenOptions,
 ) => Promise<ModalOpenResult>
 
+// ---------- sheet (in-window bottom panel) ----------
+
+/** Declarative in-window sheet: bottom-anchored panel on the enclosing
+ *  screen's RootLayout (native) or a document-body portal layer (web).
+ *  Unlike `Modal presentation='sheet'` (system modal), content stays
+ *  inside the app window — same window region as the declaring page. */
+export interface SheetProps {
+	open?: boolean
+	/** Called when the shade is tapped or the sheet is dismissed by the
+	 *  platform — not on programmatic `open`→`false` transitions. */
+	onDismiss?: () => void
+	/** Dim backdrop + tap-to-dismiss (default true). */
+	shadeCover?: boolean
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** Options for the imperative `openSheet` service. */
+export interface SheetOpenOptions {
+	shadeCover?: boolean
+}
+
+/** Imperative sheet: mounts `component` on a dedicated root in a bottom
+ *  sheet and resolves with the value passed to `close(result)`. The
+ *  component receives `{ params, close }`. */
+export type OpenSheet = (
+	component: any,
+	params?: any,
+	options?: SheetOpenOptions,
+) => Promise<ModalOpenResult>
+
 // ---------- tabs / navigation shells ----------
 
 export interface TabSpec {

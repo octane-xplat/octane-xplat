@@ -103,3 +103,6 @@ export type {
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './use-store.native.tsrx'
+export { Sheet } from './Sheet.native.tsrx'
+export { openSheet, closeSheet, sheetHost } from './sheet-service.native'
+export type { SheetProps, SheetOpenOptions, OpenSheet } from './props'

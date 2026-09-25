@@ -406,3 +406,33 @@ textarea::placeholder {
 .gap-2 {
 	gap: 8px;
 }
+
+/* In-window sheet — bottom-anchored panel (matches the native RootLayout
+   sheet). Layer is pointer-events:none; backdrop + panel re-enable. */
+.vx-sheet-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 1100;
+	pointer-events: none;
+}
+
+.vx-sheet-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.45);
+	pointer-events: auto;
+}
+
+.vx-sheet {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	max-height: 85%;
+	padding: 24px;
+	overflow: auto;
+	border-radius: 16px 16px 0 0;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	pointer-events: auto;
+}
