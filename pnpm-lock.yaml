@@ -304,6 +304,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@nativescript-community/gesturehandler':
+        specifier: '>=2.0.8 <3'
+        version: 2.0.45
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
         version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
