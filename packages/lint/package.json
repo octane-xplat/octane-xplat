@@ -1,0 +1,16 @@
+{
+	"name": "@octane-xplat/lint",
+	"version": "0.1.0",
+	"description": "Oxlint and TSRX lint rules for octane-xplat apps",
+	"type": "module",
+	"files": ["src", "bin"],
+	"exports": {
+		"./oxlint-plugin": "./src/oxlint-plugin.mjs"
+	},
+	"bin": {
+		"xplat-lint": "./bin/lint.mjs"
+	},
+	"publishConfig": { "access": "public" },
+	"dependencies": { "@tsrx/core": "^0.2.4" },
+	"peerDependencies": { "oxlint": ">=1.74.0" }
+}
