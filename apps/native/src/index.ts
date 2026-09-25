@@ -3,7 +3,7 @@ import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { probeSignal$ } from '@xplat/app/probe-state'
 import { sheetHost } from '@xplat/app/platform/sheet.native'
-import { getColorScheme, registerStack, topRootLayout, findInRootLayouts } from '@octane-xplat/ui'
+import { getColorScheme, registerStack, getStack, topRootLayout, findInRootLayouts } from '@octane-xplat/ui'
 
 import { storage, wireHardwareBack } from '@xplat/app'
 import 'octane/signals'
@@ -188,6 +188,120 @@ setTimeout(() => {
 
 	v?.notify({ eventName: 'textChange', object: v, value: 'typed!' } as any)
 }, 1650)
+
+// Real-touch audit (idb ui tap found chips don't navigate): read the chip's
+// iOS interaction flags + gesture recognizer state — notify()-fired taps
+// bypass UITapGestureRecognizer entirely, so this is the first real check.
+setTimeout(() => {
+	// Chips live on the demos stack's page — a frame subtree thePage's
+	// getViewById doesn't reach into (same scope as demosweep's find()).
+	const demosFrame = getStack('demos') as any
+	// The gallery sits wherever the sweep left it — current or a backstack page.
+	const pages = [
+		demosFrame?.currentPage,
+		...(demosFrame?.backStack ?? []).map((b: any) => b.resolvedPage ?? b.page),
+	]
+	const v = pages
+		.map((p: any) => p?.getViewById?.('menu-counter'))
+		.find((c: any) => c != null) as any
+	if (!v) {
+		console.log('[probe] chip interaction: no view (pages=' + pages.length + ')')
+		return
+	}
+	// Frame bounds chain — real taps on the pushed demo page's header Row
+	// (demo-back / demo-sheet) never fire while content Pressables do:
+	// suspected parent-bounds clipping from a collapsed Row.
+	const probe = pages
+		.map((p: any) => p?.getViewById?.('demo-back'))
+		.find((c: any) => c != null) as any
+	const bounds = (w: any) => {
+		const f = w?.ios?.frame
+		return f ? `(${f.origin.x},${f.origin.y} ${f.size.width}×${f.size.height})` : 'no-ios'
+	}
+	if (probe) {
+		let chain: string[] = []
+		let cur = probe
+		while (cur && chain.length < 9) {
+			chain.push(
+				cur.constructor.name +
+					bounds(cur) +
+					' clips=' +
+					(cur.ios ? cur.ios.clipsToBounds : '?') +
+					(cur.hasGestureObservers?.() ? ' +gest' : ''),
+			)
+			cur = cur.parent
+		}
+		console.log('[probe] demo-back chain: ' + chain.join(' < '))
+	} else {
+		console.log('[probe] demo-back: no view')
+	}
+	// getViewById returns the first id match — if the reconciler left a stale
+	// sibling in-tree, taps could target a different JS instance than the one
+	// holding the observer. Count all demo-back candidates.
+	const all = pages.flatMap((p: any) => collect(p)).filter((w: any) => w?.id === 'demo-back')
+	for (const w of all) {
+		console.log(
+			'[probe] demo-back candidate loaded=' +
+				w.isLoaded +
+				' ios=' +
+				(w.ios ? 'yes' : 'no') +
+				' tapObs=' +
+				(w.getGestureObservers?.(1)?.length ?? '?') +
+				' recog=' +
+				(w.ios?.gestureRecognizers?.count ?? '?') +
+				' frame=' +
+				bounds(w),
+		)
+	}
+	// Same read on a WORKING pressable (counter-inc: real taps fire it) —
+	// the comparison isolates whether observers lack recognizers on the
+	// dead elements or the dead elements lack both.
+	const inc = pages
+		.flatMap((p: any) => collect(p))
+		.find((w: any) => w?.id === 'counter-inc') as any
+	if (inc) {
+		console.log(
+			'[probe] counter-inc tapObs=' +
+				(inc.getGestureObservers?.(1)?.length ?? '?') +
+				' recog=' +
+				(inc.ios?.gestureRecognizers?.count ?? '?') +
+				' frame=' +
+				bounds(inc),
+		)
+	}
+	console.log(
+		'[probe] chip recognizers=' +
+			(v.ios?.gestureRecognizers?.count ?? 0) +
+			' loaded=' +
+			v.isLoaded,
+	)
+}, 11500)
+
+// Real-keyboard verification (idb ui type): focus probe-input programmatically
+// at a fixed late slot so an external `idb ui tap`/`type` sequence has a
+// first responder. Keeps hit-test-vs-type-path diagnosis separable — if
+// typing lands after becomeFirstResponder but not after a real tap, the tap
+// isn't reaching the UITextField (covering sibling), not the type path.
+setTimeout(() => {
+	const inp = find('probe-input') as any
+	const tf = inp?.ios
+	console.log(
+		'[probe] input focus: ios=' +
+			(tf ? tf.constructor?.name : 'none') +
+			' editable=' +
+			JSON.stringify(inp?.editable) +
+			' uie=' +
+			(tf?.isUserInteractionEnabled ?? '?') +
+			' enabled=' +
+			(tf?.isEnabled ?? '?') +
+			' isFirstResponder(before)=' +
+			(tf?.isFirstResponder ?? '?'),
+	)
+	tf?.becomeFirstResponder?.()
+	setTimeout(() => {
+		console.log('[probe] input isFirstResponder(after)=' + tf?.isFirstResponder)
+	}, 300)
+}, 13000)
 
 // Gesture probe (Exp 10): synthesize pan + swipe on the pan-box.
 setTimeout(() => {
