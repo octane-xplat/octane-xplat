@@ -301,10 +301,12 @@ img {
 }
 /* xplat-web-only:end */
 
-/* xplat-web-only:start — placeholder pseudos are DOM-only */
+/* xplat-web-only:start — placeholder pseudos are DOM-only. Muted like
+   real placeholder text, not currentColor (a full-opacity hint reads as
+   a typed value); --placeholder-color is the per-field prop escape. */
 input::placeholder,
 textarea::placeholder {
-	color: var(--placeholder-color, currentColor);
+	color: var(--placeholder-color, var(--color-text-secondary));
 }
 /* xplat-web-only:end */
 
@@ -629,6 +631,9 @@ button.vx-tab {
 	font-size: 14px;
 	background-color: var(--color-surface);
 	color: var(--color-text);
+	/* NS TextField/TextView placeholder color (ignored on web — the
+	   ::placeholder pseudo above covers it there). */
+	placeholder-color: var(--color-text-secondary);
 }
 
 .chip {
