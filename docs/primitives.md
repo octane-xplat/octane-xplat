@@ -13,7 +13,7 @@
 | Respond to a tap                      | `Pressable`             |
 | Render repeated items                 | `List`                  |
 | Accept one or more lines              | `TextInput`, `TextArea` |
-| Scroll content                        | `ScrollView`            |
+| Scroll content                        | `ScrollView`, `ScrollBox` |
 | Show temporary content above a screen | `Modal`                 |
 | Float a glass surface (iOS 26+)       | `LiquidGlass`           |
 
@@ -44,8 +44,15 @@ runtime, and shared event names such as `onPress` and `onChange`.
 ## When a screen needs more
 
 Use `List` for repeated content instead of rendering a large hand-written
-sequence. Use `Modal` for a focused interruption, and pass the data it needs
-as props.
+sequence. On native, `List` is a recycling `ListView`; do not put it inside
+`ScrollView`. NativeScript measures a vertical `ScrollView` child without a
+bounded height, which makes the nested list prepare cells through an unsupported
+path; the native leaf also throws a named error when it detects this nesting.
+Use `ScrollBox` when a shared screen needs a scroll shell around a `List`:
+it is a real `ScrollView` on web and an inline `View` on native, so the `List`
+owns scrolling there. `ScrollBox` does not provide an outer native scroll.
+
+Use `Modal` for a focused interruption, and pass the data it needs as props.
 
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)

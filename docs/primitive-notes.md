@@ -45,8 +45,9 @@ interface PrimitiveProps {
 | `Text`                      | `span`/`p`                                                | `label`                                                                                        | children: text or `Text` only (nested → `formattedstring`/`span`); **never `View` inside `Text`** — adopt RN rule                                                                                                                                                                                                                                                                                                       |
 | `RichText`?                 | inline markup                                             | `formattedstring` + `span` leaves                                                              | possibly fold into `Text` nesting                                                                                                                                                                                                                                                                                                                                                                                       |
 | `Pressable`                 | `div`+pointer events                                      | `flexboxlayout` `flexDirection=column` + `tap`/`longPress`                                     | **multi-child** — `contentview` silently drops all but the last child (`.content` assignment); tap gestures attach to any view. Use `button` leaf only where native button chrome wanted                                                                                                                                                                                                                                |
-| `ScrollView`                | `div` overflow                                            | `scrollview`                                                                                   | `horizontal` prop both sides                                                                                                                                                                                                                                                                                                                                                                                            |
-| `List`                      | `@octanejs/tanstack-virtual` over `div`                   | `listview` + **per-cell Octane sub-roots**                                                     | **the leak**: ListView recycles via `itemTemplate`/`itemLoading` (imperative view factories — no reconciler children). Design: each recycled slot hosts a `createNativeScriptRoot`; `itemLoading` rebinds `{item, index}` into a per-cell store the row component reads; `items` wrapped as `ObservableArray` for granular updates; `itemTemplateSelector` for heterogeneous rows. Lab: per-cell root cost, scroll perf |
+| `ScrollView`                | `div` overflow                                            | `scrollview`                                                                                   | Native `ScrollView` measures a vertical child with an unspecified height; do not nest a recycling `List` inside it.                                                                                                                                                                                                                                                                                                                                                               |
+| `ScrollBox`                 | `ScrollView`                                               | inline `View`                                                                                  | Use around shared content that may contain a `List`: web keeps the outer scroll, native lets the `ListView` own scrolling. The native shell is deliberately non-scrolling and non-recycling.                                                                                                                                                                                                                                                                                    |
+| `List`                      | `@for` over a scroll `div`                                | `listview` + **per-cell Octane sub-roots**                                                     | The driver owns one `itemTemplate` and `itemLoading` callback: each recycled slot gets a `ContentView` and Octane root. It exposes only `renderItem`, so `kindFor` is removed; branch on the item inside `renderItem` when row markup differs. Never place `List` inside native `ScrollView`; the native leaf throws a named error and `ScrollBox` is the replacement.                                                                                                                                                       |
 | `TextInput` / `TextArea`    | `input`/`textarea`                                        | `textfield`/`textview`                                                                         | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS)                                          |
 | `Image`                     | `img`                                                     | `image`; svg srcs → `svgview` (ui-svg)                                                         | `src`: URL/`res://`/`~/`/data: URI plus inline `<svg>` markup, svg data URIs, `.svg` paths/URLs; remote `.svg` fetches→markup (SVGView awaits promise srcs)                                                                                                                                                                                                                                                             |
 | `Icon`                      | inline SVG (lucide-style)                                 | `svgview` (ui-svg → SVGKit/androidsvg) for `svg`/`markup`                                      | name → per-platform glyph map; precedence `markup`/`svg` > `font` > `src` > `text`                                                                                                                                                                                                                                                                                                                                      |
@@ -133,7 +134,6 @@ interface ListProps<T> {
 	items: readonly T[]
 	renderItem: (item: T, index: number) => unknown // a row template, not a child
 	keyFor?: (item: T) => string | number
-	kindFor?: (item: T) => string // → itemTemplateSelector (v2)
 	estimatedItemHeight?: number
 	onEndReached?: () => void
 	className?: ClassValue
@@ -141,14 +141,28 @@ interface ListProps<T> {
 }
 ```
 
-Native leaf internals: `<listview>` with an `itemTemplate` that
-vends a recycled container; **per-cell `createNativeScriptRoot`** mounts the
-row component into each slot; `itemLoading` rebinds by re-calling
-`root.render(Row, { item, index })` on the recycled slot's root (verify
-`render` re-entry updates rather than remounts — lab). `items`→`ObservableArray`
-adapter for granular native updates (`refresh()` re-fires every `itemLoading`
-— avoid). Web leaf: `@for` over `items` in a scroll div; virtualize via
-`@octanejs/tanstack-virtual` binding if DOM-free (verify).
+Native leaf internals: `<listview>` with a driver-owned `itemTemplate` and
+`itemLoading`; **per-cell `createNativeScriptRoot`** mounts the row component
+into each recycled slot. The driver rebinds the root with the current
+`items[index]` and skips unchanged `{renderItem, item, index}` triples. The
+driver's public `ListViewAttributes` exposes `renderItem`, not NativeScript's
+`itemTemplates`/`itemTemplateSelector`, so a `kindFor` prop could not select
+native templates honestly. Web renders `@for` rows in a scroll div.
+
+**Desk evidence for the nesting limit:** NativeScript's iOS `ScrollView` calls
+`View.measureChild` with an `UNSPECIFIED` height for vertical content. The
+NativeScript iOS `ListView` then prepares each cell and measures it through its
+UITableView delegate path; the Octane driver supplies those cells as recycled
+`ContentView` hosts from `itemLoading`. A `ListView` under that unbounded
+`ScrollView` child path reaches UIKit's `_createPreparedCellForGlobalRow`
+assertion. This is a driver/platform measurement constraint, not a row-render
+bug. The native leaf now rejects the mounted parent shape with an explicit
+`[List] cannot be nested inside native ScrollView` error. The proving app's
+`ScrollBox.native.tsrx` is the corresponding inline `View` escape hatch.
+
+This change adds the same escape hatch to `@octane-xplat/ui`. The demo covers
+the shared `ScrollBox` + `List` shape; native device verification remains lab
+work, so this conclusion is marked desk-source rather than lab-verified.
 
 **Lab findings (iOS sim, experiment 1 — `packages/ui/src/List.native.tsrx`):**
 

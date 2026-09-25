@@ -296,9 +296,6 @@ export interface ListProps {
 	/** Stable item key for web reconciliation. Falls back to `item.id`; native
 	 *  ListView recycles by index and does not consume keys. */
 	keyFor?: (item: any) => string | number
-	/** Metadata hint only in v1. Switch heterogeneous row markup in renderItem;
-	 *  the current renderers do not consume this value. */
-	kindFor?: (item: any) => string
 	/** Native iOS row-height estimate. Web virtualization is not enabled in v1. */
 	estimatedItemHeight?: number
 	/** Called when the list approaches its end. */
@@ -316,6 +313,20 @@ export interface ScrollViewProps extends LayoutChildProps, GlassSurfaceProps {
 	horizontal?: boolean
 	children?: any
 	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Scrollable ordinary content on web. Native is an inline flex container so
+ * a child ListView can own the scrolling without nesting recycling views in a
+ * native ScrollView. */
+export interface ScrollBoxProps extends LayoutChildProps, GlassSurfaceProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** Platform-specific properties are applied after the shared props. */
 	ios?: any
 	android?: any
 	web?: any

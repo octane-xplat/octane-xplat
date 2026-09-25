@@ -11,6 +11,7 @@ import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
 import { ListDemo } from './ListDemo.tsrx';
+import { ScrollBoxDemo } from './ScrollBoxDemo.tsrx';
 import { DeviceDemo } from './DeviceDemo.tsrx';
 import { ModalDemo } from './ModalDemo.tsrx';
 import { PropsDemo } from './PropsDemo.tsrx';
@@ -33,6 +34,7 @@ export const DEMOS = [
 	{ id: 'anim', title: 'Keyframes' },
 	{ id: 'probe', title: 'Reactivity' },
 	{ id: 'list-demo', title: 'List contract' },
+	{ id: 'scrollbox', title: 'ScrollBox + List' },
 	{ id: 'device', title: 'Device seams' },
 	{ id: 'modal', title: 'Modal' },
 	{ id: 'props', title: 'Props' },
@@ -61,6 +63,7 @@ const renderWeather = () => <Weather />;
 const renderAnim = () => <AnimShowcase />;
 const renderProbe = () => <ReactiveProbe />;
 const renderListDemo = () => <ListDemo />;
+const renderScrollBox = () => <ScrollBoxDemo />;
 const renderDevice = () => <DeviceDemo />;
 const renderModal = () => <ModalDemo />;
 const renderProps = () => <PropsDemo />;
@@ -82,6 +85,7 @@ export const RENDER: Record<string, () => any> = {
 	anim: renderAnim,
 	probe: renderProbe,
 	'list-demo': renderListDemo,
+	scrollbox: renderScrollBox,
 	device: renderDevice,
 	modal: renderModal,
 	props: renderProps,

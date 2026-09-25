@@ -18,7 +18,6 @@ const INITIAL_ROWS: DemoRow[] = [
 ];
 
 const keyForDemoRow = (item: DemoRow) => item.id;
-const kindForDemoRow = (item: DemoRow) => item.kind;
 
 const renderDemoRow = (item: DemoRow) => @{
 	@if (item.kind === 'notice') {
@@ -64,7 +63,6 @@ export function ListDemo() @{
 			className="list flex-1"
 			items={items}
 			keyFor={keyForDemoRow}
-			kindFor={kindForDemoRow}
 			estimatedItemHeight={64}
 			onEndReached={appendRows}
 			renderItem={renderDemoRow}

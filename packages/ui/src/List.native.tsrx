@@ -2,9 +2,20 @@
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo } from 'octane';
-import { isAndroid, isIOS } from '@nativescript/core';
+import { isAndroid, isIOS, ScrollView } from '@nativescript/core';
 import type { ListProps } from "./props";
 import { cx } from "./cx";
+
+function rejectNestedScrollView(event: any) {
+	let parent = event.object?.parent;
+	while (parent) {
+		if (parent instanceof ScrollView) {
+			throw new Error('[List] cannot be nested inside native ScrollView. Use ScrollBox so the ListView owns scrolling.');
+		}
+
+		parent = parent.parent;
+	}
+}
 
 // Cell machinery is driver-owned since @nativescript-community/octane 0.2.1
 // (upstream #7, closes our issue #1): `renderItem` on <listview> makes
@@ -37,6 +48,7 @@ function ListInner(props: {
 		items={props.items}
 		iosEstimatedRowHeight={isIOS ? props.estimatedItemHeight : undefined}
 		onLoadMoreItems={props.onEndReached}
+		onLoaded={rejectNestedScrollView}
 		renderItem={(item: any, index: number) => <gridlayout>{props.renderItem(item, index)}</gridlayout>}
 		{...platformProps}
 	/>

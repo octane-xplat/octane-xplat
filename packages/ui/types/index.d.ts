@@ -114,6 +114,9 @@ export type {
 	ViewProps,
 } from './props'
 
+/** ScrollBox shares ScrollView's public shell props; native renders it inline. */
+export type ScrollBoxProps = ScrollViewProps
+
 // ---------- primitives ----------
 
 export declare const View: UniversalComponent<ViewProps>
@@ -131,6 +134,7 @@ export declare const NavLink: UniversalComponent<NavLinkProps>
 export declare const TextInput: UniversalComponent<TextInputProps>
 export declare const TextArea: UniversalComponent<TextAreaProps>
 export declare const List: UniversalComponent<ListProps>
+export declare const ScrollBox: UniversalComponent<ScrollBoxProps>
 export declare const ScrollView: UniversalComponent<ScrollViewProps>
 export declare const Image: UniversalComponent<ImageProps>
 export declare const Screen: UniversalComponent<ScreenProps>

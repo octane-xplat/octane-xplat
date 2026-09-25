@@ -233,9 +233,6 @@ export interface ListProps {
 	/** Stable item key for web reconciliation. Falls back to `item.id`; native
 	 *  ListView recycles by index and does not consume keys. */
 	keyFor?: (item: any) => string | number
-	/** Metadata hint only in v1. Switch heterogeneous row markup in renderItem;
-	 *  the current renderers do not consume this value. */
-	kindFor?: (item: any) => string
 	/** Native iOS row-height estimate. Web virtualization is not enabled in v1. */
 	estimatedItemHeight?: number
 	/** Called when the list approaches its end. */
