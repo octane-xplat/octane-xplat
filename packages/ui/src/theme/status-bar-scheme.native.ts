@@ -1,14 +1,24 @@
-// Status-bar scheme sync — native leaf. Keeps the window status bar's icon
-// appearance aligned with the effective theme scheme (override-aware) via
-// the root view's public `statusBarStyle` property; NS core maps 'light' →
-// light icons on both platforms (Android: APPEARANCE_LIGHT_STATUS_BARS /
-// SYSTEM_UI_FLAG_LIGHT_STATUS_BAR; iOS: per-controller appearance
-// invalidation). Subscribed for preference + system-appearance changes;
-// 'displayed' covers module init before the root view exists.
-import { Application } from '@nativescript/core'
+// Status-bar scheme sync — native leaf. Keeps the system bars' icon
+// appearance aligned with the effective theme scheme (override-aware).
+// Android: NS 9 enables edge-to-edge per activity with icon appearance
+// derived from the SYSTEM uiMode — a dark-mode handler substitutes our
+// scheme, consulted on every (re)application so config changes can't
+// stomp an active override (covers status + nav bars). iOS: the public
+// `statusBarStyle` view property routes to per-controller appearance
+// invalidation, with the app-level setter as fallback.
+import { Application, Utils } from '@nativescript/core'
 import { getThemeScheme, onThemeSchemeChange } from './theme-scheme'
 
 function applyStatusBarScheme(): void {
+	if (Application.android) {
+		// setDarkModeHandler stores the handler once per activity, then
+		// re-runs enableEdgeToEdge every call — one call installs + refreshes.
+		// 'light'/'dark' icon names invert: dark scheme → light icons.
+		// (Android-only Utils member — absent from the shared Utils typings.)
+		;(Utils as any).setDarkModeHandler?.({ handler: () => getThemeScheme() === 'dark' })
+		return
+	}
+
 	const style = getThemeScheme() === 'dark' ? 'light' : 'dark'
 	const root = Application.getRootView()
 	if (root) {
@@ -23,5 +33,6 @@ function applyStatusBarScheme(): void {
 }
 
 onThemeSchemeChange(applyStatusBarScheme)
+// 'displayed' covers module init before the activity/root view exists.
 Application.on('displayed', applyStatusBarScheme)
 applyStatusBarScheme()
