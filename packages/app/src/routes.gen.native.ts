@@ -3,14 +3,14 @@ import { Device } from '@nativescript/core'
 import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
 export type { RouteName, RouteParams, RoutePresentations } from './routes.gen.types'
 
-const files = import.meta.glob(['./app/**/*.{tsrx,tsx}', '!./app/**/*.web.{tsrx,tsx}'], {
-	eager: true,
-})
-
-export const routes = deriveRouteManifest(
-	files,
-	Device.os === 'Android' ? ['android', 'native'] : ['ios', 'native'],
+const files = import.meta.glob(
+	[
+		'./app/**/*.{tsrx,tsx}',
+		'!./app/**/*.web.{tsrx,tsx}'
+	],
+	{ eager: true },
 )
 
+export const routes = deriveRouteManifest(files, Device.os === 'Android' ? ['android', 'native'] : ['ios', 'native'])
 registerRoutes(routes)
 export const screens = routes.screens

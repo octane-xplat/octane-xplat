@@ -1,19 +1,14 @@
 import { hrefFor, pushRoute } from '@octane-xplat/ui';
-import type { RouteName } from './routes';
+import type { RouteLinkProps } from './routes';
 
 /** Link — web side: a real anchor (keyboard-navigable, href-shareable)
  *  whose click pushes the route in place instead of reloading. */
-export function Link(props: {
-	to: RouteName;
-	params?: Record<string, unknown>;
-	into?: string;
-	className?: any;
-	children?: any;
-}) @{
+export function Link(props: RouteLinkProps) @{
 	const route = {
 		stack: props.into ?? 'root',
 		name: props.to,
 		params: props.params ?? {},
+		presentation: props.presentation,
 	};
 
 	<a

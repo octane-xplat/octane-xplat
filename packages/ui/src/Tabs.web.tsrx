@@ -30,11 +30,16 @@ export function Tabs(props: TabsProps) @{
 		return layoutsFor(name).reduceRight((child, L) => <L>{child}</L>, el);
 	};
 
-	const routed = rootRoute ? resolve(rootRoute.name, rootRoute.params) : null;
+	const routeProps = (route: NonNullable<typeof rootRoute>) => ({
+		...route.params,
+		...(Object.prototype.hasOwnProperty.call(route, 'loaderData') ? { data: route.loaderData } : {}),
+		...(Object.prototype.hasOwnProperty.call(route, 'loaderError') ? { error: route.loaderError } : {}),
+	});
+	const routed = rootRoute ? resolve(rootRoute.name, routeProps(rootRoute)) : null;
 	// A modal route overlays the shell without replacing it — the screen
 	// gets a `close` prop (popRoute parity with the native showModal root).
 	const modalContent = modal
-		? resolve(modal.name, { ...modal.params, close: () => popRoute() })
+		? resolve(modal.name, { ...routeProps(modal), close: () => popRoute() })
 		: null;
 
 	<div className="vx-tabsroot" style={{ display: 'contents' }}>

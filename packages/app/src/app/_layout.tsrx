@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'octane';
 import { Screen, Tabs, Text, currentRoute } from '@octane-xplat/ui';
-import { screens } from '../routes';
+import { routes, screens } from '../routes';
 import { Home } from '../Home.tsrx';
 import { Settings } from '../Settings.tsrx';
 import { Gallery } from '@xplat/demos';
@@ -18,6 +18,22 @@ const renderSettings = () => <Settings />;
 // Chips navigate inside the tab's own stack — the Demos pane is a Frame
 // (TabSpec.stack), so demo pushes stay under the tab bar.
 const renderDemos = () => <Gallery onOpen={(id) => navigate('demo/:id', { id }, { into: 'demos' })} />;
+const resolveRoute = (name: string, params: Record<string, unknown>) => {
+	const C = screens[name];
+	if (!C) return <Text>404: {name}</Text>;
+	let content = <C {...params} />;
+	const meta = routes.routes.find((entry) => entry.name === name);
+	const relative = meta?.file.replace(/^.*?app\//, '');
+	const dirs = relative ? relative.split('/').slice(0, -1) : [];
+	for (let depth = dirs.length; depth > 0; depth--) {
+		const Layout = routes.layouts[dirs.slice(0, depth).join('/')];
+		if (Layout) {
+			const nested = content;
+			content = <Layout>{nested}</Layout>;
+		}
+	}
+	return content;
+};
 const TABS: TabSpec[] = [
 	{ title: 'Home', render: renderHome },
 	{ title: 'Settings', render: renderSettings },
@@ -53,10 +69,7 @@ export function RootLayout() @{
 			tabs={TABS}
 			selectedIndex={tab}
 			onSelectedIndexChanged={(i) => { console.log('[probe] tab -> ' + i); setTab(i); }}
-			resolveScreen={(name, params) => {
-				const C = screens[name];
-				return C ? <C {...params} /> : <Text>404: {name}</Text>;
-			}}
+			resolveScreen={resolveRoute}
 		/>
 	</Screen>
 }

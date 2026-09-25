@@ -16,13 +16,14 @@ import { useSyncExternalStore } from 'octane'
 
 export type { Route } from './props'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
-import { buildRoutePath, layoutChain, linkPath, matchUrl, runLoader } from './route-table'
+import { buildRoutePath, layoutChain, linkPath, matchUrl } from './route-table'
 
 // ---------- screen registry ----------
 
 let screens: ScreenTable = {}
 let routes: RouteMeta[] = []
 let routeLayouts: Record<string, any> = {}
+let routeLoaders: NonNullable<RouteManifest['loaders']> = {}
 
 /** Register the app's name → screen table. On web the table feeds
  *  `screenFor` — the fallback outlet resolution in Tabs when no
@@ -45,6 +46,7 @@ export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): voi
 export function registerRoutes(manifest: RouteManifest): void {
 	registerScreens(manifest.screens, manifest.routes)
 	routeLayouts = manifest.layouts
+	routeLoaders = manifest.loaders ?? {}
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {
@@ -97,9 +99,16 @@ function emit() {
 }
 
 export function pushRoute(r: Route): void {
-	saveScroll()
 	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
-	runLoader(routes, route)
+	const loader = routeLoaders[route.name] ?? routes.find((meta) => meta.name === route.name)?.loader
+	if (loader && !Object.prototype.hasOwnProperty.call(route, 'loaderData') && !Object.prototype.hasOwnProperty.call(route, 'loaderError')) {
+		void Promise.resolve().then(() => loader(route.params)).then(
+			(loaderData) => pushRoute({ ...route, loaderData }),
+			(loaderError) => pushRoute({ ...route, loaderError }),
+		)
+		return
+	}
+	saveScroll()
 	history.pushState(null, '', buildRoutePath(routes, route))
 	lastKey = scrollKey()
 	if (route.presentation === 'modal') {
@@ -136,6 +145,12 @@ window.addEventListener('popstate', () => {
 export function routeFor(stack: string): Route | null {
 	const c = read()
 	return c && c.stack === stack ? c : null
+}
+
+/** Web has one linear browser history; expose its active route stack for parity. */
+export function routeStacks(): string[] {
+	const route = read()
+	return route ? [route.stack] : []
 }
 
 /** The route active at boot — for deep-link tab selection. */

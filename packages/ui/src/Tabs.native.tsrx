@@ -1,10 +1,14 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { memo } from 'octane';
-import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
+import { memo, useState } from 'octane';
+import { Application, Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { registerStack } from './stacks.native';
 import { cx } from './cx';
+import { Pressable } from './Pressable.native.tsrx';
+import { Text } from './Text.native.tsrx';
+import { layoutsForRoute, screenFor, useRoute } from './route.native';
+import { RouteHost } from './RouteHost.native';
 import type { TabSpec, TabsProps } from './props';
 
 export type { TabSpec } from './props';
@@ -112,14 +116,62 @@ function TabsInner(props: {
 // structure, and the driver re-applies props every render.
 const MemoTabs = memo(TabsInner, (a, b) => a.tabs === b.tabs && a.selectedIndex === b.selectedIndex);
 
+// Android fallback for NativeScript #11444. A Frame inside TabViewItem does
+// not commit currentPage/backStack reliably, so the tabs become a fixed row
+// and the active route screen is swapped in a single pane. Route history is
+// held by route.native.ts; switching tabs keeps each stack's entries.
+function screenParams(route: NonNullable<ReturnType<typeof useRoute>>) {
+	const params: Record<string, unknown> = { ...route.params, _stack: route.stack };
+	if (Object.prototype.hasOwnProperty.call(route, 'loaderData')) params.data = route.loaderData;
+	if (Object.prototype.hasOwnProperty.call(route, 'loaderError')) params.error = route.loaderError;
+	return params;
+}
+
+function SwapTabs(props: TabsProps) @{
+	const [internal, setInternal] = useState(0);
+	const active = props.selectedIndex ?? internal;
+	const tab = props.tabs[active];
+	const route = useRoute(tab?.stack ?? '');
+	const Screen = route ? screenFor(route.name) : undefined;
+	const columns = props.tabs.map(() => '*').join(',');
+	<gridlayout rows="auto,*" id={props.id} className={cx(props.className)} style={props.style}>
+		<gridlayout row={0} columns={columns} className="vx-tabbar">
+			@for (const t of props.tabs; index i; key t.title) {
+				<Pressable
+					col={i}
+					className={cx('vx-tab', active === i ? 'active' : '')}
+					onPress={() => { setInternal(i); props.onSelectedIndexChanged?.(i); }}
+				>
+					<Text>{t.title}</Text>
+				</Pressable>
+			}
+		</gridlayout>
+		<gridlayout row={1} className={cx('vx-tabpane', route?.presentation === 'fade' ? 'vx-route--fade' : '')}>
+			@if (route && Screen) {
+				<RouteHost
+					screen={Screen}
+					layouts={layoutsForRoute(route.name)}
+					params={screenParams(route)}
+				/>
+			} @else {
+				<>{tab?.render()}</>
+			}
+		</gridlayout>
+	</gridlayout>
+}
+
 /** Platform tab shell. `tabs` is identity-stable (module const preferred). */
 export function Tabs(props: TabsProps) @{
-	<MemoTabs
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		tabs={props.tabs}
-		selectedIndex={props.selectedIndex}
-		onSelectedIndexChanged={props.onSelectedIndexChanged}
-	/>
+	@if (Application.android) {
+		<SwapTabs {...props} />
+	} @else {
+		<MemoTabs
+			id={props.id}
+			className={props.className}
+			style={props.style}
+			tabs={props.tabs}
+			selectedIndex={props.selectedIndex}
+			onSelectedIndexChanged={props.onSelectedIndexChanged}
+		/>
+	}
 }

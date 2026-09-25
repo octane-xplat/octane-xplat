@@ -1,6 +1,6 @@
 import { Application, Frame } from '@nativescript/core'
-import { getStack, popRoute, pushRoute, stackEntries } from '@octane-xplat/ui'
-import type { RouteName } from '../routes'
+import { currentModalRoute, getStack, popRoute, pushRoute, routeFor, routeStacks } from '@octane-xplat/ui'
+import type { NavigateArgs, RouteName } from '../routes'
 
 /**
  * Frame stack navigation. `navigate(name, params, {into})` delegates to
@@ -11,13 +11,10 @@ import type { RouteName } from '../routes'
  * named-stack pushes so the pushed screen can goBack its own stack.
  * Default target: the 'root' stack (the app's root Frame).
  */
-export function navigate(
-	name: RouteName,
-	params: Record<string, unknown> = {},
-	opts: { into?: string } = {},
-) {
-	lastNavStack = opts.into ?? 'root'
-	pushRoute({ stack: lastNavStack, name, params })
+export function navigate(...args: NavigateArgs) {
+	const [name, params, opts] = args as [RouteName, Record<string, unknown>?, { into?: string; presentation?: 'push' | 'modal' | 'fade' }?]
+	lastNavStack = opts?.into ?? 'root'
+	pushRoute({ stack: lastNavStack, name, params: params ?? {}, presentation: opts?.presentation })
 	console.log('[probe] nav pushed ' + name + ' into ' + lastNavStack)
 }
 
@@ -40,6 +37,11 @@ export function wireHardwareBack() {
 	}
 
 	Application.android.on('activityBackPressed', (e: any) => {
+		if (currentModalRoute()) {
+			popRoute()
+			e.cancel = true
+			return
+		}
 		const root = getStack('root') as Frame | undefined
 		if (root && root.backStack.length > 0) {
 			root.goBack()
@@ -47,15 +49,13 @@ export function wireHardwareBack() {
 			return
 		}
 
-		const order = [lastNavStack, ...[...stackEntries()].map(([n]) => n).reverse()]
+		const order = [lastNavStack, ...routeStacks().reverse()]
 		for (const name of order) {
 			if (name === 'root') {
 				continue
 			}
-
-			const f = getStack(name) as Frame | undefined
-			if (f && f.backStack.length > 0) {
-				f.goBack()
+			if (routeFor(name)) {
+				popRoute(name)
 				e.cancel = true
 				return
 			}

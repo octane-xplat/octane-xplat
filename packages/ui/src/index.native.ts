@@ -45,6 +45,7 @@ export {
 export { useColorScheme, getColorScheme } from './theme/colorScheme.native'
 export type { ColorScheme } from './theme/colorScheme.native'
 export { styled } from './styled.native.tsrx'
+export { openWindow } from './windows.native'
 export { Screen } from './Screen.native.tsrx'
 export { Tabs } from './Tabs.native.tsrx'
 export type { TabSpec } from './Tabs.native.tsrx'
@@ -74,6 +75,8 @@ export { registerStack, getStack, stackEntries } from './stacks.native'
 export {
 	pushRoute,
 	popRoute,
+	routeStacks,
+	layoutsForRoute,
 	pushDeepLink,
 	routeFor,
 	currentRoute,
@@ -98,6 +101,7 @@ export type {
 	ModalOpenOptions,
 	ModalOpenResult,
 	OpenModal,
+	OpenWindowOptions,
 } from './props'
 
 export { createStore } from './store'

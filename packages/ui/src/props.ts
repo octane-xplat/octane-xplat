@@ -563,6 +563,10 @@ export interface Route {
 	 *  push with a fade transition. A `+modal`/`+fade` filename suffix in
 	 *  the route dir sets the manifest default; this field overrides it. */
 	presentation?: 'push' | 'modal' | 'fade'
+	/** Loader result supplied to the route screen as `data`. */
+	loaderData?: unknown
+	/** Loader rejection supplied to the route screen as `error`. */
+	loaderError?: unknown
 }
 
 export interface LinkProps {
@@ -612,6 +616,14 @@ export interface RouteManifest {
 	screens: ScreenTable
 	routes: RouteMeta[]
 	layouts: Record<string, any>
+	loaders?: Record<string, (params: Record<string, unknown>) => unknown | Promise<unknown>>
+}
+
+export interface OpenWindowOptions {
+	/** Data made available to the native window content resolver. */
+	data?: Record<string, unknown>
+	/** Optional URL used by the web window. */
+	url?: string
 }
 
 // ---------- animation ----------

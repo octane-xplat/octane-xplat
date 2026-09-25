@@ -44,6 +44,7 @@ export {
 export { useColorScheme, getColorScheme } from './theme/colorScheme.web'
 export type { ColorScheme } from './theme/colorScheme.web'
 export { styled } from './styled.web.tsrx'
+export { openWindow } from './windows.web'
 export { Screen } from './Screen.web.tsrx'
 export { Tabs } from './Tabs.web.tsrx'
 export type { TabSpec } from './Tabs.web.tsrx'
@@ -73,6 +74,7 @@ export { registerStack, getStack, stackEntries } from './stacks.web'
 export {
 	pushRoute,
 	popRoute,
+	routeStacks,
 	pushDeepLink,
 	routeFor,
 	currentRoute,
@@ -97,6 +99,7 @@ export type {
 	ModalOpenOptions,
 	ModalOpenResult,
 	OpenModal,
+	OpenWindowOptions,
 } from './props'
 
 export { createStore } from './store'

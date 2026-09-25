@@ -28,6 +28,7 @@ import type {
 	ModalOpenResult,
 	NavLinkProps,
 	OpenModal,
+	OpenWindowOptions,
 	OverlayProps,
 	PopoverAnchorRef,
 	PopoverPlacement,
@@ -79,6 +80,7 @@ export type {
 	ModalOpenResult,
 	NavLinkProps,
 	OpenModal,
+	OpenWindowOptions,
 	OverlayProps,
 	PopoverAnchorRef,
 	PopoverPlacement,
@@ -150,6 +152,7 @@ export declare function registerIcons(record: Record<string, IconGlyph>): void
 
 export declare const Modal: UniversalComponent<ModalProps>
 export declare const openModal: OpenModal
+export declare function openWindow(options?: OpenWindowOptions): any
 export declare const Overlay: UniversalComponent<OverlayProps>
 export declare const Popover: UniversalComponent<PopoverProps>
 export declare function showToast(content: ToastContent, options?: ToastOptions): void
@@ -165,6 +168,8 @@ export declare function stackEntries(): IterableIterator<[string, any]>
 
 export declare function pushRoute(r: Route): void
 export declare function popRoute(stack?: string): void
+export declare function routeStacks(): string[]
+export declare function layoutsForRoute(name: string): any[]
 export declare function routeFor(stack: string): Route | null
 export declare function currentRoute(): Route | null
 export declare function useRoute(stack: string): Route | null

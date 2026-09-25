@@ -75,6 +75,7 @@ export function deriveRouteManifest(
 	const seen = new Map<string, { rank: number; meta: RouteMeta; component: any }>()
 	const layoutRank = new Map<string, number>()
 	const layouts: Record<string, any> = {}
+	const loaders: RouteManifest['loaders'] = {}
 	const warned = new Set<string>()
 
 	for (const key of Object.keys(files).sort()) {
@@ -166,6 +167,7 @@ export function deriveRouteManifest(
 	for (const { meta, component } of seen.values()) {
 		screens[meta.name] = component
 		routes.push(meta)
+		if (meta.loader) loaders[meta.name] = meta.loader
 	}
 
 	// Most-specific patterns first — 'demo/new' must beat 'demo/:id'.
@@ -176,7 +178,7 @@ export function deriveRouteManifest(
 			a.name.localeCompare(b.name),
 	)
 
-	return { screens, routes, layouts }
+	return { screens, routes, layouts, loaders }
 }
 
 /** Match URL path segments against a manifest — returns the winning meta

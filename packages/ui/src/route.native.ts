@@ -17,16 +17,12 @@
 
 import { Application, Frame, GridLayout, Page } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
-import type { UniversalComponent, UniversalRenderable } from 'octane/universal/native'
-import {
-	defineUniversalComponent,
-	universalChildren,
-	universalComponent,
-} from 'octane/universal/native'
+import type { UniversalComponent } from 'octane/universal/native'
 
 import { useSyncExternalStore } from 'octane'
 import { getStack, onStackRegistered, stackEntries } from './stacks.native'
-import { buildRoutePath, layoutChain, linkPath, matchUrl, runLoader } from './route-table'
+import { buildRoutePath, layoutChain, linkPath, matchUrl } from './route-table'
+import { RouteHost } from './RouteHost.native'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
 
 export type { Route } from './props'
@@ -36,6 +32,7 @@ export type { Route } from './props'
 let screens: ScreenTable = {}
 let routes: RouteMeta[] = []
 let routeLayouts: Record<string, any> = {}
+let routeLoaders: NonNullable<RouteManifest['loaders']> = {}
 
 /** Register the app's name → screen table (call once, from the shared
  *  routes module). Native `pushRoute` resolves `route.name` through it;
@@ -52,7 +49,12 @@ export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): voi
  *  layouts all come from deriveRouteManifest. */
 export function registerRoutes(manifest: RouteManifest): void {
 	registerScreens(manifest.screens, manifest.routes)
-	routeLayouts = manifest.layouts
+	routeLayouts = manifest.layouts ?? {}
+	routeLoaders = manifest.loaders ?? {}
+}
+
+export function layoutsForRoute(name: string): any[] {
+	return layoutChain(routeLayouts, name)
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {
@@ -62,18 +64,6 @@ export function screenFor(name: string): ScreenTable[string] | undefined {
 /** Wrap a screen in its directory `_layout` chain (outermost →
  *  innermost) as a single root component — pushed Pages and modal roots
  *  render this, matching web's outlet wrapping. */
-function wrapInLayouts(name: string, props: Record<string, unknown>, C: any): UniversalComponent {
-	let inner: UniversalRenderable = universalComponent('nativescript', C, props)
-	for (const L of layoutChain(routeLayouts, name).reverse()) {
-		const child = inner
-		inner = universalComponent('nativescript', L, {
-			children: universalChildren('nativescript', () => child),
-		})
-	}
-
-	return defineUniversalComponent('nativescript', () => inner)
-}
-
 // ---------- stack resolution ----------
 
 const tracked = new WeakSet<Frame>()
@@ -126,24 +116,14 @@ onStackRegistered((_name, frame) => {
 // showModal isn't a frame push: the underlying stack's currentPage never
 // changes, so the route store emits through the modal's own bookkeeping.
 const modalHosts: { host: GridLayout; route: Route; dismiss: () => void }[] = []
+const swapTabRoutes = new Map<string, Route[]>()
+const swapTabOrder: string[] = []
 
 function presentationFor(name: string): Route['presentation'] {
 	return routes.find((m) => m.name === name)?.presentation
 }
 
 export function pushRoute(r: Route): void {
-	const frame = resolveStack(r.stack)
-	if (!frame) {
-		warnOnce(
-			'stack:' + r.stack,
-			r.stack === 'root'
-				? `pushRoute('${r.name}') dropped — no root Frame. Boot with a Frame as the app root (Application.run create() returning new Frame) or call registerStack('root', frame).`
-				: `pushRoute('${r.name}') dropped — no stack '${r.stack}' is registered. Named stacks come from TabSpec.stack on <Tabs> or registerStack('${r.stack}', frame).`,
-		)
-
-		return
-	}
-
 	const C = screenFor(r.name)
 	if (!C) {
 		warnOnce(
@@ -155,17 +135,41 @@ export function pushRoute(r: Route): void {
 	}
 
 	const presentation = r.presentation ?? presentationFor(r.name)
-	runLoader(routes, r)
+	const loader = routeLoaders[r.name]
+	if (loader && !Object.prototype.hasOwnProperty.call(r, 'loaderData') && !Object.prototype.hasOwnProperty.call(r, 'loaderError')) {
+		void Promise.resolve().then(() => loader(r.params)).then(
+			(loaderData) => pushRoute({ ...r, loaderData }),
+			(loaderError) => pushRoute({ ...r, loaderError }),
+		)
+		return
+	}
 	if (presentation === 'modal') {
-		pushModal(frame, { ...r, presentation }, C)
+		const presenter = resolveStack(r.stack) ?? resolveStack('root')
+		if (presenter) pushModal(presenter, { ...r, presentation }, C)
+		else warnOnce('modal:' + r.name, `modal route '${r.name}' dropped — no loaded presenter Frame.`)
 		return
 	}
 
 	if (Application.android && r.stack !== 'root') {
+		const entries = swapTabRoutes.get(r.stack) ?? []
+		entries.push({ ...r, presentation })
+		swapTabRoutes.set(r.stack, entries)
+		const at = swapTabOrder.indexOf(r.stack)
+		if (at !== -1) swapTabOrder.splice(at, 1)
+		swapTabOrder.push(r.stack)
+		emit()
+		return
+	}
+
+	const frame = resolveStack(r.stack)
+	if (!frame) {
 		warnOnce(
-			'android:' + r.stack,
-			`pushRoute into named stack '${r.stack}' on Android — upstream #11444: the page mounts but currentPage/backStack/goBack never land (pages accumulate). Named-stack pushes are iOS-only until fixed.`,
+			'stack:' + r.stack,
+			r.stack === 'root'
+				? `pushRoute('${r.name}') dropped — no root Frame. Boot with a Frame as the app root (Application.run create() returning new Frame) or call registerStack('root', frame).`
+				: `pushRoute('${r.name}') dropped — no stack '${r.stack}' is registered. Named stacks come from TabSpec.stack on <Tabs> or registerStack('${r.stack}', frame).`,
 		)
+		return
 	}
 
 	// TabViewItem-hosted frames report isLoaded=false after tab-selection
@@ -175,7 +179,9 @@ export function pushRoute(r: Route): void {
 		;(frame as any).callLoaded?.()
 	}
 
-	const props = r.stack === 'root' ? r.params : { ...r.params, _stack: r.stack }
+	const props: Record<string, unknown> = r.stack === 'root' ? { ...r.params } : { ...r.params, _stack: r.stack }
+	if (Object.prototype.hasOwnProperty.call(r, 'loaderData')) props.data = r.loaderData
+	if (Object.prototype.hasOwnProperty.call(r, 'loaderError')) props.error = r.loaderError
 	try {
 		frame.navigate({
 			create: () => {
@@ -190,7 +196,11 @@ export function pushRoute(r: Route): void {
 				page.content = host
 				// .ts → .tsrx component imports type as () => Element; the
 				// layout chain wraps it into a stamped universal component.
-				createNativeScriptRoot(host).render(wrapInLayouts(r.name, props, C), {})
+		createNativeScriptRoot(host).render(RouteHost as unknown as UniversalComponent, {
+			screen: C,
+			layouts: layoutsForRoute(r.name),
+			params: props,
+		})
 				return page
 			},
 			transition: presentation === 'fade' ? { name: 'fade' } : undefined,
@@ -221,10 +231,14 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 	const presenter = (frame.currentPage ?? frame) as any
 	try {
 		modalHosts.push(entry)
-		root.render(
-			wrapInLayouts(r.name, { ...r.params, close: () => (host as any).closeModal?.() }, C),
-			{},
-		)
+		const params: Record<string, unknown> = { ...r.params, close: () => (host as any).closeModal?.() }
+		if (Object.prototype.hasOwnProperty.call(r, 'loaderData')) params.data = r.loaderData
+		if (Object.prototype.hasOwnProperty.call(r, 'loaderError')) params.error = r.loaderError
+		root.render(RouteHost as unknown as UniversalComponent, {
+			screen: C,
+			layouts: layoutsForRoute(r.name),
+			params,
+		})
 
 		presenter.showModal(host, {
 			context: {},
@@ -256,6 +270,19 @@ export function popRoute(stack = 'root'): void {
 		;(modal.host as any).closeModal?.()
 		return
 	}
+	if (Application.android && stack !== 'root') {
+		const entries = swapTabRoutes.get(stack)
+		if (entries?.length) {
+			entries.pop()
+			if (!entries.length) {
+				swapTabRoutes.delete(stack)
+				const at = swapTabOrder.indexOf(stack)
+				if (at !== -1) swapTabOrder.splice(at, 1)
+			}
+			emit()
+		}
+		return
+	}
 
 	const frame = resolveStack(stack)
 	if (!frame) {
@@ -268,6 +295,10 @@ export function popRoute(stack = 'root'): void {
 
 /** Route stamped on a stack's current page, or null at its base page. */
 export function routeFor(stack: string): Route | null {
+	if (Application.android && stack !== 'root') {
+		const entries = swapTabRoutes.get(stack)
+		if (entries?.length) return entries[entries.length - 1]
+	}
 	const page = resolveStack(stack)?.currentPage
 	return (page && pageRoutes.get(page)) ?? null
 }
@@ -281,6 +312,10 @@ export function currentRoute(): Route | null {
 	if (root) {
 		return root
 	}
+	for (const name of [...swapTabOrder].reverse()) {
+		const route = routeFor(name)
+		if (route) return route
+	}
 
 	const named = [...stackEntries()].reverse()
 	for (const [name] of named) {
@@ -291,6 +326,13 @@ export function currentRoute(): Route | null {
 	}
 
 	return null
+}
+
+/** Named stacks containing routes, including Android's swap-pane stacks. */
+export function routeStacks(): string[] {
+	return Application.android
+		? [...new Set([...swapTabOrder, ...[...stackEntries()].map(([name]) => name)])]
+		: [...stackEntries()].map(([name]) => name)
 }
 
 /** The modal route currently open, if any — parity with the web leaf. */
