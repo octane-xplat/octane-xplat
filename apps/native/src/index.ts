@@ -157,6 +157,34 @@ setTimeout(() => {
 	)
 }, 1600)
 
+// Controlled-input race (Q4): rapid successive textChange notifications —
+// each passes through onChange → setText → text= write. The final state
+// must not revert to an intermediate keystroke (the classic async-write
+// fight on controlled native inputs). Ends by restoring 'typed!' for the
+// draft-persistence assert.
+setTimeout(() => {
+	const v = find('probe-input')
+	for (const value of ['a', 'ab', 'abc']) {
+		v?.notify({ eventName: 'textChange', object: v, value } as any)
+	}
+	assertEq('textfield rapid typing', v?.text, 'abc')
+	// Cursor: a programmatic text= write on a focused UITextField — read the
+	// selection to see whether it survives (needs focus, so probe not assert).
+	const tf = (v as any)?.ios
+	try {
+		if (tf?.selectedTextRange) {
+			const end = tf.offsetFromPositionToPosition(
+				tf.beginningOfDocument,
+				tf.selectedTextRange.start,
+			)
+			console.log('[probe] cursor offset after write=' + end + ' (text len=3)')
+		}
+	} catch (e) {
+		console.log('[probe] cursor read failed: ' + (e as Error)?.message)
+	}
+	v?.notify({ eventName: 'textChange', object: v, value: 'typed!' } as any)
+}, 1650)
+
 // Gesture probe (Exp 10): synthesize pan + swipe on the pan-box.
 setTimeout(() => {
 	const v = find('pan-box')
