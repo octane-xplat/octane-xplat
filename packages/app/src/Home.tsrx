@@ -105,11 +105,13 @@ export function Home() @{
 				    kept only the last child. The conditional indicator also
 				    proves a child mounted post-commit lands inside the host. */}
 				<Pressable id="multi-pressable" onPress={() => setCount(count + 1)} className="btn btn-secondary">
-					<Text>Multi</Text>
-					<View id="multi-sibling" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
-					@if (dark) {
-						<View id="multi-indicator" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
-					}
+					<Row className="gap-2 items-center">
+						<Text>Multi</Text>
+						<View id="multi-sibling" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
+						@if (dark) {
+							<View id="multi-indicator" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
+						}
+					</Row>
 				</Pressable>
 			</Row>
 			{/* Universal signal-read seam: ambient .set() must re-render this owner. */}
