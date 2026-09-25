@@ -15,6 +15,10 @@
 	--color-border: #eaeaea;
 	--color-border-strong: #d4d4d4;
 	--color-danger: #dc2626;
+	/* Family lists are deliberately generic. Apps override these with their
+	   web @font-face family and the platform's registered native name. */
+	--font-sans: system-ui, sans-serif;
+	--font-mono: ui-monospace, monospace;
 	--space-4: 16px;
 	/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
 	   the default corner treatment: every class that consumes a token also

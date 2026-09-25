@@ -38,6 +38,26 @@ rewriting screens.
 }
 ```
 
+## Font-family tokens
+
+`packages/ui/src/theme/tokens.css` provides `--font-sans` and `--font-mono`
+as portable fallback lists. The framework cannot derive one family name from a
+font file: the web face name, the iOS name, and the Android name are different
+identifiers. Apps own the registration and override the token at the stylesheet
+boundary:
+
+| Target | Register the font | Token value |
+| --- | --- | --- |
+| Web | `@font-face { font-family: 'Acme Sans'; src: ... }`, or use an installed family | `'Acme Sans', system-ui, sans-serif` |
+| iOS | Ship the file in the app fonts directory; use its internal/PostScript font name | `'AcmeSans-Regular', sans-serif` |
+| Android | Ship the file in the app fonts directory; use the filename without `.ttf`/`.otf` | `'acme-sans-regular', sans-serif` |
+
+For a bundled face with different file and internal names, put both native
+names in the platform-specific family list. NativeScript's `ns fonts` command
+can print the CSS names for a font directory. Keep the token name (`--font-sans`)
+stable in shared components; only the registered family value changes per
+target. See the [NativeScript fonts guide](https://beta.docs.nativescript.org/project-structure/src/fonts).
+
 ## Keep layouts honest
 
 Flex layouts are the safest common starting point. Prefer `Row`, `View`, and

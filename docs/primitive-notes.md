@@ -50,7 +50,7 @@ interface PrimitiveProps {
 | `List`                      | `@for` over a scroll `div`                                | `listview` + **per-cell Octane sub-roots**                                                     | The driver owns one `itemTemplate` and `itemLoading` callback: each recycled slot gets a `ContentView` and Octane root. It exposes only `renderItem`, so `kindFor` is removed; branch on the item inside `renderItem` when row markup differs. Never place `List` inside native `ScrollView`; the native leaf throws a named error and `ScrollBox` is the replacement.                                                                                                                                                       |
 | `TextInput` / `TextArea`    | `input`/`textarea`                                        | `textfield`/`textview`                                                                         | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS)                                          |
 | `Image`                     | `img`                                                     | `image`; svg srcs → `svgview` (ui-svg)                                                         | `src`: URL/`res://`/`~/`/data: URI plus inline `<svg>` markup, svg data URIs, `.svg` paths/URLs; remote `.svg` fetches→markup (SVGView awaits promise srcs)                                                                                                                                                                                                                                                             |
-| `Icon`                      | inline SVG (lucide-style)                                 | `svgview` (ui-svg → SVGKit/androidsvg) for `svg`/`markup`                                      | name → per-platform glyph map; precedence `markup`/`svg` > `font` > `src` > `text`                                                                                                                                                                                                                                                                                                                                      |
+| `Icon`                      | inline SVG (lucide-style)                                 | `svgview` (ui-svg → SVGKit/androidsvg) for `svg`/`markup`                                      | name → glyph map; precedence `markup`/`svg` > `font` > `src` > `text`; `viewBox` is preserved on both leaves                                                                                                                                                                                                                                                                                                              |
 | `Switch`                    | `input[type=checkbox]` styled                             | `switch`                                                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `Slider`                    | `input[type=range]`                                       | `slider`                                                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `ActivityIndicator`         | CSS spinner                                               | `activityindicator`                                                                            |                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -71,12 +71,32 @@ each to the matching CSS (`grid-row`/`grid-column`, `order`, `flex-*`). Shared
 code writes `<Text row={1} col={2}/>` inside a `<Grid>` identically on both
 targets.
 
-**Native SVG** (`svgview`, `@nativescript-community/ui-svg`, required peer):
-`Icon` SVG/markup glyphs and SVG-shaped `Image` sources use SVGView —
-androidsvg on Android and SVGKit on iOS. Path glyphs synthesize an SVG path;
-markup glyphs are wrapped in an SVG root. `Image` recognizes inline markup,
-SVG data URIs, and `.svg` paths/URLs; remote URLs fetch to markup because
-SVGView has no fetch of its own. Native fidelity remains open in Q21.
+**Native SVG** (`svgview`, `@nativescript-community/ui-svg`, required peer;
+desk-source, device fidelity still unverified): `Icon` SVG/markup glyphs and
+SVG-shaped `Image` sources use SVGView. The pinned `ui-svg` source accepts
+inline markup, `File`/`ImageAsset`, `res://`, `~/`, absolute file paths, and
+promise/function sources. Its native leaves parse strings directly; the
+framework fetches remote `.svg` URLs first because SVGView itself has no URL
+fetcher. SVG data URIs are decoded before they reach the view. `IconGlyph.src`
+therefore supports inline SVG, SVG data URIs, and `.svg` paths/URLs; opaque
+resource names whose format is not inferable stay on the image path.
+
+The two native parsers do not form a full-fidelity contract:
+
+| Feature | Android (`androidsvg` 1.4) | iOS (`SVGKit` 3.x) | Framework contract |
+| --- | --- | --- | --- |
+| Gradients | Linear gradients are supported; radial `fx`/`fy` and patterned strokes have limits | Broader gradient support, but SVGKit's release notes still describe text/gradient handling as implementation-specific | Use simple gradients when parity matters; verify complex artwork on both targets |
+| Filters | SVG filter effects are not supported | SVGKit has no matching guarantee in the `ui-svg` adapter | Filters are not portable Icon artwork |
+| `<text>` | Supported with limits on multi-value positioning and some text features; font resolution goes through AndroidTypeface | Supported, but SVGKit documents text handling as imperfect and depends on iOS font names | Convert icon text to paths, or use the explicit `font` fallback with registered names |
+| `currentColor` | Parser supports `currentColor`; `ui-svg` has no native tint prop | SVGKit parses a root `color`, but the adapter offers no separate tint prop | Inline `markup` injects the requested root `color`/`fill`; device color readback remains a sweep item |
+
+The supported fallback contract is: `markup`/`svg` are vector-first; `font`
+requires an app-registered icon font; `src` is an image or inferable SVG
+source; `text` is the last plain-label fallback. These fallbacks preserve
+availability, not SVG geometry or color fidelity. Sources: [ui-svg's pinned
+implementation](https://github.com/nativescript-community/ui-canvas/tree/master/src/ui-svg),
+[AndroidSVG feature matrix](https://bigbadaboom.github.io/androidsvg/), and
+[SVGKit's 3.x release notes](https://github.com/SVGKit/SVGKit/releases).
 
 ## The Modal seam (worst primitive leak, document early)
 

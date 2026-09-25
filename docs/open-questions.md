@@ -126,8 +126,12 @@ LiveRegion` unwired in leaves so far).
     83 kB); the native vendor carries no DOM runtime (`dom-bindings`/
     `hydration`/`server-rpc` absent — the only `document.` hit is NS core's
     own WKUserScript webview code).
-18. ⏳ **Fonts**: `font-family` token → registered font name on iOS vs Android
-    vs web — a small but certain mapping table to own.
+18. ✅ **Fonts**: `font-family` tokens are stable semantic names; apps map
+    them to web `@font-face`/installed families, the iOS internal/PostScript
+    name, or the Android filename without extension. The framework ships
+    generic `--font-sans`/`--font-mono` fallbacks; app stylesheets own custom
+    registration and platform overrides. Desk-source: NativeScript [fonts
+    folder guidance](https://beta.docs.nativescript.org/project-structure/src/fonts).
 19. ✅ **`getCssVariable` timing + theme into modal windows** — Lab-verified
     (iOS sim): `view.style.getCssVariable('--color-primary')` resolves
     (`"#4f46e5"`), and the theme class boundary is confirmed —
@@ -145,13 +149,16 @@ LiveRegion` unwired in leaves so far).
     carry presentation/render mode (`+modal`, `+fade`, `+ssr`), `RouteMeta`
     fields carry what platforms read. Feature items parked in
     navigation-notes.md → "Route config surface"; Silo `route-config-surface`.
-22. ⏳ **SVG fidelity on native (`svgview` / ui-svg).** — Src grammar verified
-    at source: `res://`/`~/`/file paths, `File`/`ImageAsset`, inline markup
-    strings, and promise srcs (remote `.svg` URLs fetch→markup). Unverified
-    on device: `currentColor`/root-`color` tint resolution, divergence
-    between SVGKit (iOS) and androidsvg (Android) on gradients/filters/
-    `<text>`, `stretch`/auto-sizing parity with `<image>`, and svg-as-`src`
-    in `Icon` glyphs.
+22. ✅ **SVG fidelity on native (`svgview` / ui-svg).** — Desk-source closes
+    the source contract: `res://`/`~/`/file paths, `File`/`ImageAsset`, inline
+    markup strings, and promise/function sources are accepted; the framework
+    normalizes remote `.svg` URLs and data URIs before passing them to SVGView.
+    `IconGlyph.src` supports inferable SVG sources (`<svg>`, SVG data URIs,
+    and `.svg` paths/URLs), while opaque resource names remain raster-ambiguous.
+    AndroidSVG 1.4 has no filter effects and limits some radial gradients and
+    text; SVGKit 3.x has broader but not identical gradient/text behavior.
+    Device-only follow-up remains for `currentColor` tint, stretch/auto-size,
+    and exact iOS/Android pixels. Evidence: desk-source; see the native sweep.
 23. ✅ **JSX element props on universal targets** — Resolved: the consumed
     pack carries the lowering (octane-universal-signals `eaa51b09`,
     upstream octanejs/octane#1311) — prop JSX emits `universalValue`,

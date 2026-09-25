@@ -448,8 +448,11 @@ export interface IconProps {
 /** One registered icon representation. `svg` contains path `d` data;
  *  `markup` is full inner-SVG markup (groups, transforms, several paths)
  *  rendered inside an `<svg viewBox>` shell on web and through `svgview`
- *  (ui-svg) on native. `font`, `src`, and `text` are per-platform
- *  fallbacks, in that order. */
+ *  (ui-svg) on native. `font`, `src`, and `text` are fallback
+ *  representations, in that order after SVG. `src` may be a raster source or
+ *  an SVG source; SVG is auto-detected for inline markup, SVG data URIs, and
+ *  `.svg` paths/URLs. Opaque resource names need `markup`/`svg` when their
+ *  format cannot be inferred from the string. */
 export interface IconGlyph {
     svg?: string;
     markup?: string;

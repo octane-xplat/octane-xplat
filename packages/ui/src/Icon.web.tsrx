@@ -26,7 +26,7 @@ export function Icon(props: IconProps) @{
 			<svg
 				id={props.id}
 				className={['vx-icon', props.className]}
-				viewBox="0 0 24 24"
+				viewBox={glyph.viewBox ?? '0 0 24 24'}
 				width={size}
 				height={size}
 				aria-hidden="true"
@@ -35,16 +35,40 @@ export function Icon(props: IconProps) @{
 				<path d={glyph.svg} fill={props.color ?? 'currentColor'} />
 			</svg>
 		} @else {
-			@if (glyph.src) {
-				<img
+			@if (glyph.font) {
+				<span
 					id={props.id}
 					className={['vx-icon', props.className]}
-					src={glyph.src}
-					width={size}
-					height={size}
-					alt={props.name}
+					aria-hidden="true"
+					style={{ fontFamily: glyph.font.family, fontSize: size, color: props.color }}
 					ref={(el: any) => applyWebProps(el, props.web)}
-				/>
+				>
+					{glyph.font.glyph}
+				</span>
+			} @else {
+				@if (glyph.src) {
+					<img
+						id={props.id}
+						className={['vx-icon', props.className]}
+						src={glyph.src}
+						width={size}
+						height={size}
+						alt={props.name}
+						ref={(el: any) => applyWebProps(el, props.web)}
+					/>
+				} @else {
+					@if (glyph.text) {
+						<span
+							id={props.id}
+							className={['vx-icon', props.className]}
+							aria-hidden="true"
+							style={{ fontSize: size, color: props.color }}
+							ref={(el: any) => applyWebProps(el, props.web)}
+						>
+							{glyph.text}
+						</span>
+					}
+				}
 			}
 		}
 	}
