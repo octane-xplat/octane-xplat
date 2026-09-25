@@ -203,10 +203,30 @@ Native: `RootLayout.open(view, {shadeCover, animation})` — the leaf creates a
 container view imperatively, opens it, mounts overlay content via a dedicated
 `createNativeScriptRoot` per overlay. Same caveat as Modal: **context does not
 cross into overlay content**; pass props, not context. Web: portal into
-`document.body` + floating-ui-style positioning. `getRootLayout()` returns the
-FIRST registered RootLayout → the app shell root is `<rootlayout>` (element
-exists in the registry); overlays always route through it. Every `open`/`close`
+`document.body` + floating-ui-style positioning. Every `open`/`close`
 returns a rejecting promise — leaf must `.catch`.
+
+Root selection (verified on iOS, commit `af5f492`): `getRootLayout()` returns
+the FIRST mounted rootlayout — wrong root after a push (overlay would land on
+the home screen, invisible under the pushed page). `rootLayoutFor(view)` in
+`src/root-layout.native.ts` walks `view.parent` to the enclosing `RootLayout`
+— the Screen shell of the page that declared the overlay. Imperative services
+with no declaring view (toast, app-level sheets) use `topRootLayout()` — the
+most recently mounted shell from a ui-owned registry; `Screen` self-registers
+on `loaded`/`unloaded`. (NS's internal `rootLayoutStack` can't be relied on —
+deep imports can land in separate bundled module instances, so its
+`getRootLayout()`/stack copy isn't the same array other packages read.)
+`createPortal` is not enabled in the universal driver at all — `Popover`
+opens an anchored layer via `rl.open` the same way `Overlay` does.
+
+Caveats learned in the sweep:
+
+- **Tab-pane shells churn.** `TabView` pane `Screen`s load/unload as panes
+  switch; an imperative host attached to a pane shell can unload with it.
+  Services should re-resolve per call rather than cache the rootlayout.
+- **Harness asserts should hold the host view ref** (`sheetHost()`-style)
+  rather than id-search the tree — the owning shell may be unloaded by the
+  time the assert reads.
 
 ## Pressable & input conventions
 
@@ -358,11 +378,13 @@ Kept at the end so the vocabulary reads first.
 - **Parenting throws** when a parent can't host a child type
   (`cannot host a <x> child`) — a runtime error class shared code avoids by
   staying inside the primitive vocabulary.
-- **No portals on the NS driver** (capability absent) — `Overlay`/`Popover`
-  get a `RootLayout.open()` imperative bridge (decision #22). **Verified in
-  lab (Exp 9)**: app root renders `<rootlayout>` via a `Screen` leaf,
-  `getRootLayout().open(ContentView)` + a dedicated `createNativeScriptRoot`
-  mounts shared-vocab overlay content cleanly.
+- **No portals on the NS driver** (capability absent — `createPortal` is a
+  no-op) — `Overlay`/`Popover` open on `RootLayout.open()` with a dedicated
+  `createNativeScriptRoot` per overlay (decisions #22, #33). The owning root
+  is the declaring component's enclosing `Screen` shell via
+  `rootLayoutFor(view)`, not `getRootLayout()` (which is the first-mounted
+  root — wrong page after a push). **Verified in lab (Exp 9 + sweep)**:
+  popover anchored + shade overlay on a pushed page assert OK on iOS.
 - **`@{ {expr} }` tails silently compile to no output** — a braced
   expression at the end of a component template is a _statement_, not
   output. `Cell` rendered empty for an entire session undetected (no
