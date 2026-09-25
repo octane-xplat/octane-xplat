@@ -107,9 +107,9 @@ export function Home() @{
 				<Pressable id="multi-pressable" onPress={() => setCount(count + 1)} className="btn btn-secondary">
 					<Row className="gap-2 items-center">
 						<Text>Multi</Text>
-						<View id="multi-sibling" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
+						<View id="multi-sibling" className="rounded-full" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
 						@if (dark) {
-							<View id="multi-indicator" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
+							<View id="multi-indicator" className="rounded-full" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
 						}
 					</Row>
 				</Pressable>
