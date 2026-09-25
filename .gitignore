@@ -1,6 +1,7 @@
 research/
 node_modules/
 dist/
+dist-democheck/
 .ns-vite-build/
 apps/native/platforms/
 .DS_Store
