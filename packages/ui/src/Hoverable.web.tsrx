@@ -89,7 +89,7 @@ export function Hoverable(props: HoverableProps) @{
 			placement={props.placement ?? 'bottom'}
 			dismissOnOutsideTap={false}
 		>
-			<View bind={bindCard}>{props.card}</View>
+			<View bind={bindCard} className={props.cardClassName} style={props.cardStyle}>{props.card}</View>
 		</Popover>
 	</View>
 }

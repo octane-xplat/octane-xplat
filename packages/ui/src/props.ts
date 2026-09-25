@@ -575,6 +575,10 @@ export interface PopoverProps {
 export interface HoverableProps {
 	/** Content shown after the pointer rests over the children on web. */
 	card: any
+	/** Styling for the card's wrapper view inside the popover — e.g. a
+	 *  pointer bridge covering the anchor↔card gap or a positional offset. */
+	cardClassName?: any
+	cardStyle?: any
 	children?: any
 	openDelay?: number
 	closeDelay?: number

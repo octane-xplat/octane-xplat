@@ -32,7 +32,7 @@ export function Hoverable(props: HoverableProps) @{
 			dismissOnOutsideTap
 			onDismiss={() => setOpen(false)}
 		>
-			<View>{props.card}</View>
+			<View className={props.cardClassName} style={props.cardStyle}>{props.card}</View>
 		</Popover>
 	</View>
 }
