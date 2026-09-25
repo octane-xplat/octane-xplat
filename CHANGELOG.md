@@ -30,6 +30,16 @@ Everything added, changed, and fixed since 0.3.0.
   page to its previous scroll position.
 - **`openWindow()`** opens a second window — a browser window on web, an
   extra app window on native.
+- **Route guards.** Export `beforeLoad({params, context})` from a route
+  file and it runs before a push commits. Return an object and it merges
+  into the screen's props and route context; `redirect(route)` short-
+  circuits to another route.
+- **Route `head`.** Export `head` as `{title, meta}` (or a synchronous
+  params function). Web writes `<title>`/meta tags; native uses `title`
+  for the pushed page's action bar.
+- **Back-state hooks.** `useCanGoBack(stack?)` tracks in-app history depth
+  on web and `Frame.canGoBack()` on native; pushed screens also get
+  `_pushed`/`_stack` props.
 - New exports: `currentModalRoute`, `useModalRoute`, `routeStacks`,
   `pushDeepLink`.
 
@@ -47,6 +57,10 @@ Everything added, changed, and fixed since 0.3.0.
 - **`<Drawer>`** — a real slide-out drawer on native (powered by
   `@nativescript-community/ui-drawer`), matching the web drawer. Pass
   content as elements: `<Drawer main={<Home />} drawer={<Menu />}>`.
+- **`<RichText>` + `<RichTextSpan>`** — mixed inline formatting and
+  tappable runs: `<RichText><RichTextSpan text="Read " />
+  <RichTextSpan className="link" onPress={...} text="@alec" /></RichText>`.
+  Inline spans on web; one label with styled/tappable spans on native.
 - **`<Popover>` now works on native.** It opens an overlay anchored to
   its trigger. Previously it rendered nothing off-web.
 - **Richer `<Icon>`** — registered icons can carry full SVG artwork
@@ -100,8 +114,20 @@ Everything added, changed, and fixed since 0.3.0.
 - `media` image picking returns a `PickedImage` with a `previewUri` and
   `dataUrl` that persist and render on both platforms; the native
   `<Image>` component accepts base64 data URIs.
+- `geolocation.getCurrentPosition()` returns the platform-neutral
+  position shape (`latitude`, `longitude`, `accuracy`, …) on both
+  platforms.
+- `connectivity.getState()` / `connectivity.subscribe()` report online
+  status and connection type, with change events on both platforms.
+- `appInfo` (`version`, `build`, `bundleId`) on native; reports
+  `supported: false` on web where no trustworthy values exist.
+- `openUrl(url)` opens a link in the system browser (or a new tab on
+  web); `openSettings` jumps to the app's native settings page.
 - Deep links on native are more reliable: links that launched the app
   are delivered, and duplicate deliveries are dropped.
+- `SafeArea` on Android now reads system-bar and display-cutout insets
+  and keeps them updated; web `biometrics` reports `unsupported`
+  honestly instead of pretending WebAuthn works.
 
 ### Toolchain (`@octane-xplat/cli`)
 
