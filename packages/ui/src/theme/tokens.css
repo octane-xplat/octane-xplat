@@ -632,6 +632,9 @@ button.vx-tab {
 .vx-app .vx-tab.active label {
 	color: var(--color-text);
 }
+.vx-app .chip-on label {
+	color: var(--color-onprimary);
+}
 /* Danger surfaces keep white text in both themes (on-primary flips). */
 .bg-danger .text-onprimary {
 	color: #ffffff;
@@ -667,6 +670,13 @@ button.vx-tab {
 	corner-shape: squircle;
 	font-size: 13px;
 	text-decoration: none;
+}
+
+/* Selected chip — the one filled element in a group of bordered peers. */
+.chip-on {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-onprimary);
 }
 
 .cell {

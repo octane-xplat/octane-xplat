@@ -8,7 +8,7 @@ import { Row, Screen, Text, View, Pressable, Stack, LiquidGlass, LiquidGlassCont
  *  UIVisualEffectView roots. */
 export function GlassDemo() @{
 	<Screen className="vx-app flex-1 gap-4">
-		<Text className="text-xl font-bold">Liquid Glass</Text>
+		<Text className="text-xl font-semibold">Liquid Glass</Text>
 
 		{/* Interactive glass — the element root IS the effect view. */}
 		<Stack style={{ height: 140 }}>

@@ -10,41 +10,53 @@ export function PropsDemo() @{
 	const [pressState, setPressState] = useState('Try the press callbacks');
 	const [submitState, setSubmitState] = useState('');
 
-	<View className="vx-app flex-1 gap-4 props-demo">
-		<Text className="text-xl font-bold">Primitive props</Text>
-		<TextInput className="input" value={secret} onChange={setSecret} secure placeholder="Password" returnKeyType="done" onSubmit={() => setSubmitState('Password submitted')} placeholderTextColor="#64748b" />
-		<TextInput className="input" value={value} onChange={setValue} keyboardType="email" editable={editable} placeholder="Email address" onFocus={() => setFocusState('focused')} onBlur={() => setFocusState('blurred')} onSubmit={() => setSubmitState('Email submitted')} />
-		<Row className="gap-2 items-center">
-			<Pressable className="btn bg-primary" onPress={() => setEditable(!editable)}>
-				<Text className="text-onprimary">{editable ? 'Disable input' : 'Enable input'}</Text>
+	<View className="vx-app flex-1 gap-6 props-demo">
+		<Text className="text-xl font-semibold">Primitive props</Text>
+		<View className="sink-section">
+			<Text className="section-label">Fields</Text>
+			<TextInput className="input" value={secret} onChange={setSecret} secure placeholder="Password" returnKeyType="done" onSubmit={() => setSubmitState('Password submitted')} placeholderTextColor="#64748b" />
+			<TextInput className="input" value={value} onChange={setValue} keyboardType="email" editable={editable} placeholder="Email address" onFocus={() => setFocusState('focused')} onBlur={() => setFocusState('blurred')} onSubmit={() => setSubmitState('Email submitted')} />
+			<Row className="gap-3 items-center">
+				<Pressable className="btn btn-secondary" onPress={() => setEditable(!editable)}>
+					<Text>{editable ? 'Disable input' : 'Enable input'}</Text>
+				</Pressable>
+				<Text className="text-sm text-muted">{'Input is ' + (editable ? 'editable' : 'read only')}</Text>
+			</Row>
+			<Text className="text-sm text-muted">{'Focus: ' + focusState + (submitState ? ' · ' + submitState : '')}</Text>
+		</View>
+		<View className="sink-section">
+			<Text className="section-label">Press callbacks</Text>
+			<Pressable
+				className="btn btn-secondary props-hit-slop"
+				hitSlop={12}
+				onPress={() => setPressState('Pressed')}
+				onPressIn={() => setPressState('Press in')}
+				onPressOut={() => setPressState('Press out')}
+				onDoublePress={() => setPressState('Double pressed')}
+			>
+				<Text>Press, hold, or double tap</Text>
 			</Pressable>
-			<Text>{'Input is ' + (editable ? 'editable' : 'read only')}</Text>
-		</Row>
-		<Text>{'Focus: ' + focusState + (submitState ? ' · ' + submitState : '')}</Text>
-		<Pressable
-			className="btn bg-primary props-hit-slop"
-			hitSlop={12}
-			onPress={() => setPressState('Pressed')}
-			onPressIn={() => setPressState('Press in')}
-			onPressOut={() => setPressState('Press out')}
-			onDoublePress={() => setPressState('Double pressed')}
-		>
-			<Text className="text-onprimary">Press, hold, or double tap</Text>
-		</Pressable>
-		<Text>{pressState}</Text>
-		<Text className="props-clamp" numberOfLines={2} selectable ellipsize>
-			This longer sample exercises line clamping, selectable text, and single-line ellipsis behavior across the platform leaves.
-		</Text>
-		<Pressable
-			className="btn bg-primary"
-			accessibilityLabel="Save profile"
-			accessibilityHint="Saves the current profile details"
-			accessibilityValue="Ready to save"
-			accessibilityState={{ selected: true, busy: false, expanded: false }}
-			accessibilityLiveRegion="polite"
-			onPress={() => setSubmitState('Profile saved')}
-		>
-			<Text className="text-onprimary">Accessible save action</Text>
-		</Pressable>
+			<Text className="text-sm text-muted">{pressState}</Text>
+		</View>
+		<View className="sink-section">
+			<Text className="section-label">Text clamping</Text>
+			<Text className="props-clamp" numberOfLines={2} selectable ellipsize>
+				This longer sample exercises line clamping, selectable text, and single-line ellipsis behavior across the platform leaves.
+			</Text>
+		</View>
+		<View className="sink-section">
+			<Text className="section-label">Accessibility</Text>
+			<Pressable
+				className="btn btn-secondary"
+				accessibilityLabel="Save profile"
+				accessibilityHint="Saves the current profile details"
+				accessibilityValue="Ready to save"
+				accessibilityState={{ selected: true, busy: false, expanded: false }}
+				accessibilityLiveRegion="polite"
+				onPress={() => setSubmitState('Profile saved')}
+			>
+				<Text>Accessible save action</Text>
+			</Pressable>
+		</View>
 	</View>
 }

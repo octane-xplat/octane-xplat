@@ -44,11 +44,11 @@ export function Stopwatch() @{
 			<Pressable id="sw-toggle" onPress={toggle} className="btn bg-primary">
 				<Text className="text-onprimary">{running ? 'Stop' : 'Start'}</Text>
 			</Pressable>
-			<Pressable id="sw-lap" onPress={() => setLaps([{ id: ++lapId.current, ms: elapsed }, ...laps])} className="btn bg-primary">
-				<Text className="text-onprimary">Lap</Text>
+			<Pressable id="sw-lap" onPress={() => setLaps([{ id: ++lapId.current, ms: elapsed }, ...laps])} className="btn btn-secondary">
+				<Text>Lap</Text>
 			</Pressable>
-			<Pressable id="sw-reset" onPress={() => { setRunning(false); acc.current = 0; setElapsed(0); setLaps([]); }} className="btn bg-primary">
-				<Text className="text-onprimary">Reset</Text>
+			<Pressable id="sw-reset" onPress={() => { setRunning(false); acc.current = 0; setElapsed(0); setLaps([]); }} className="btn btn-secondary">
+				<Text>Reset</Text>
 			</Pressable>
 		</Row>
 		<View className="gap-2">

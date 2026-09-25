@@ -13,10 +13,8 @@ const renderRow = (item: Row_) => <Text className="cell">{item.label}</Text>;
  * scrolling ScrollView; native uses an inline View so ListView owns scrolling. */
 export function ScrollBoxDemo() @{
 	<View className="vx-app flex-1 gap-4">
-		<Text>ScrollBox keeps a nested List portable.</Text>
 		<ScrollBox id="scrollbox-demo" className="flex-1">
 			<View className="gap-2">
-				<Text>Scroll the list below.</Text>
 				<List id="scrollbox-demo-list" className="flex-1" items={ITEMS} renderItem={renderRow} />
 			</View>
 		</ScrollBox>

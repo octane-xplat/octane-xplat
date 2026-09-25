@@ -31,17 +31,17 @@ export function VirtualList() @{
 
 	<View className="vx-app flex-1 gap-4">
 		<Row className="gap-4">
-			<Pressable id="vl-prepend" onPress={prepend} className="btn bg-primary">
-				<Text className="text-onprimary">Prepend</Text>
+			<Pressable id="vl-prepend" onPress={prepend} className="btn btn-secondary">
+				<Text>Prepend</Text>
 			</Pressable>
-			<Pressable id="vl-drop" onPress={dropFirst} className="btn bg-primary">
-				<Text className="text-onprimary">Drop first</Text>
+			<Pressable id="vl-drop" onPress={dropFirst} className="btn btn-secondary">
+				<Text>Drop first</Text>
 			</Pressable>
-			<Pressable id="vl-shuffle" onPress={shuffle} className="btn bg-primary">
-				<Text className="text-onprimary">Reverse</Text>
+			<Pressable id="vl-shuffle" onPress={shuffle} className="btn btn-secondary">
+				<Text>Reverse</Text>
 			</Pressable>
 		</Row>
-		<Text>{items.length + ' rows'}</Text>
+		<Text className="text-sm text-muted">{items.length + ' rows'}</Text>
 		<List id="vlist" className="list flex-1" items={items} renderItem={renderRow} />
 	</View>
 }

@@ -13,7 +13,19 @@
 	border-radius: 12px;
 	corner-shape: squircle;
 	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border);
+	color: var(--color-text);
 	gap: 12px;
+}
+.overlay-demo-card label,
+.overlay-demo-card span {
+	color: var(--color-text);
+}
+.overlay-demo-card .text-onprimary,
+.overlay-demo-card .text-onprimary label,
+.overlay-demo-card .text-onprimary span {
+	color: var(--color-onprimary);
 }
 
 .overlay-demo-popover {
@@ -21,6 +33,8 @@
 	border-radius: 8px;
 	corner-shape: squircle;
 	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border);
 	color: var(--color-text);
 }
 
@@ -40,10 +54,6 @@
 
 .chip-off {
 	opacity: 0.45;
-}
-
-.btn-dim {
-	background-color: var(--color-text-secondary);
 }
 
 .demo-clock {
@@ -109,13 +119,15 @@
 	width: 72px;
 	height: 72px;
 	border-radius: 36px;
-	background-color: var(--color-primary);
+	background-color: var(--color-surface-secondary);
+	border-width: 1px;
+	border-color: var(--color-border);
 	align-items: center;
 	justify-content: center;
 }
 
 .dialer-key-label {
-	color: var(--color-onprimary);
+	color: var(--color-text);
 	font-size: 24px;
 }
 
@@ -159,7 +171,9 @@
 }
 
 .list-demo-badge {
-	font-weight: bold;
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--color-text-secondary);
 }
 
 .list-demo-copy {
@@ -171,9 +185,6 @@
 	font-weight: bold;
 }
 
-.device-demo {
-	padding: 16px;
-}
 .device-safe-sample {
 	flex-grow: 1;
 	justify-content: space-between;
@@ -194,15 +205,13 @@
 }
 .device-drawer-main {
 	padding: 12px;
-	background-color: #dbeafe;
+	background-color: var(--color-surface-secondary);
 }
 .device-drawer-content {
 	padding: 16px;
-	background-color: #fef3c7;
-}
-.device-native-note {
-	font-size: 12px;
-	opacity: 0.65;
+	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border-strong);
 }
 
 .demo-modal-card {
@@ -210,6 +219,20 @@
 	border-radius: 12px;
 	corner-shape: squircle;
 	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border);
+	color: var(--color-text);
+}
+/* Native showModal mounts a separate root — body-text descendants need
+   the color explicitly (same ladder as the app.css surface panels). */
+.demo-modal-card label,
+.demo-modal-card span {
+	color: var(--color-text);
+}
+.demo-modal-card .text-onprimary,
+.demo-modal-card .text-onprimary label,
+.demo-modal-card .text-onprimary span {
+	color: var(--color-onprimary);
 }
 
 .layout-grid {
@@ -219,14 +242,14 @@
 .layout-cell {
 	align-items: center;
 	justify-content: center;
-	background-color: #dbeafe;
+	background-color: var(--color-surface);
 	border-width: 1px;
-	border-color: #93c5fd;
+	border-color: var(--color-border-strong);
 	margin: 3px;
 }
 
 .layout-span {
-	background-color: #bfdbfe;
+	background-color: var(--color-surface-secondary);
 }
 
 .layout-absolute-card {
@@ -266,13 +289,15 @@
 }
 
 .layout-stack-back {
-	background-color: #c4b5fd;
+	background-color: var(--color-border-strong);
 }
 
 .layout-stack-front {
 	margin-left: 28px;
 	margin-top: 18px;
-	background-color: #ddd6fe;
+	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border-strong);
 }
 
 .layout-footer-column {
@@ -348,10 +373,6 @@
 	animation-timing-function: ease-out;
 }
 
-.props-demo {
-	padding: 16px;
-}
-
 .props-hit-slop {
 	min-height: 44px;
 }
@@ -391,7 +412,7 @@
 .dv-grow-fill {
 	flex-grow: 1;
 	height: 40px;
-	background-color: #22c55e;
+	background-color: var(--color-border-strong);
 }
 
 .dv-lh {
@@ -410,5 +431,12 @@
 .dv-sib {
 	width: 88px;
 	height: 32px;
-	background-color: #6366f1;
+	background-color: var(--color-border-strong);
+}
+
+.dv-avatar {
+	width: 46px;
+	height: 46px;
+	border-radius: 9999px;
+	background-color: var(--color-border-strong);
 }

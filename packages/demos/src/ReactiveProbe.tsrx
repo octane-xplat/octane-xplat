@@ -46,6 +46,5 @@ export function ReactiveProbe() @{
 		<ProbeChild name="plain-b" n={b} />
 		<MemoChild name="memo-a" n={a} />
 		<MemoChild name="memo-b" n={b} />
-		<Text className="cell">renders= counters say who re-ran per bump — see logs.</Text>
 	</View>
 }

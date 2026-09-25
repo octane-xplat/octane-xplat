@@ -18,13 +18,13 @@ export function AnimShowcase() @{
 				<Pressable
 					id={'anim-' + m}
 					onPress={() => setActive(active === m ? '' : m)}
-					className={['btn', active === m ? 'bg-primary' : 'btn-dim']}
+					className={['btn', active === m ? 'bg-primary' : 'btn-secondary']}
 				>
-					<Text className="text-onprimary">{m}</Text>
+					<Text className={active === m ? 'text-onprimary' : ''}>{m}</Text>
 				</Pressable>
 			}
 		</Row>
 		<View className={['demo-anim-box', active ? 'anim-' + active : '']} />
-		<Text>{'active: ' + (active || 'none')}</Text>
+		<Text className="text-sm text-muted">{'active: ' + (active || 'none')}</Text>
 	</View>
 }

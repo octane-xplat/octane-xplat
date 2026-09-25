@@ -22,16 +22,22 @@ export function ModalDemo() @{
 		setPicked(result as string | undefined);
 	};
 
-	<Screen className="vx-app flex-1 gap-4">
-		<Text className="text-xl font-bold">Modal</Text>
-		<Pressable onPress={() => setDeclarativeOpen(true)} className="btn bg-primary">
-			<Text className="text-onprimary">Open children modal</Text>
-		</Pressable>
-		<View className="demo-modal-card gap-2">
-			<Text>Presentation: {presentation}</Text>
+	<Screen className="vx-app flex-1 gap-6">
+		<Text className="text-xl font-semibold">Modal</Text>
+		<View className="sink-section">
+			<Text className="section-label">Declarative</Text>
+			<Pressable onPress={() => setDeclarativeOpen(true)} className="btn btn-secondary">
+				<Text>Open children modal</Text>
+			</Pressable>
+		</View>
+		<View className="sink-section">
+			<Text className="section-label">Imperative picker</Text>
 			<Row className="demo-menu">
 				@for (const value of ['sheet', 'fullscreen', 'dialog'] as const; key value) {
-					<Pressable onPress={() => setPresentation(value)} className="chip">
+					<Pressable
+						onPress={() => setPresentation(value)}
+						className={['chip', presentation === value ? 'chip-on' : '']}
+					>
 						<Text>{value}</Text>
 					</Pressable>
 				}
@@ -39,7 +45,7 @@ export function ModalDemo() @{
 			<Pressable onPress={pick} className="btn bg-primary">
 				<Text className="text-onprimary">Open imperative picker</Text>
 			</Pressable>
-			<Text>{'Picked: ' + (picked ?? '—')}</Text>
+			<Text className="text-sm text-muted">{'Picked: ' + (picked ?? '—')}</Text>
 		</View>
 		<Modal
 			open={declarativeOpen}

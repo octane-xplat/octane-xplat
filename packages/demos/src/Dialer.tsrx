@@ -29,9 +29,9 @@ export function Dialer() @{
 			<Pressable
 				id="dial-back"
 				onPress={() => setDigits(digits.slice(0, -1))}
-				className="btn bg-primary"
+				className="btn btn-secondary"
 			>
-				<Text className="text-onprimary">{'⌫'}</Text>
+				<Text>{'⌫'}</Text>
 			</Pressable>
 			<Pressable
 				id="dial-call"

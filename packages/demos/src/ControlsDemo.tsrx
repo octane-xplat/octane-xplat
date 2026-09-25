@@ -31,7 +31,7 @@ export function ControlsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Icons</Text>
 			<Row className="items-center gap-4">
-				<Icon name="controls-check" size={28} color="#4f46e5" />
+				<Icon name="controls-check" size={28} color="#666666" />
 				<Icon name="controls-star" size={28} />
 			</Row>
 		</View>
