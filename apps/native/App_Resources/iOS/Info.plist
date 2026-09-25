@@ -48,5 +48,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>The probe app captures photos to exercise media.capturePhoto().</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>The probe app saves captured photos to exercise the saveToGallery option.</string>
 </dict>
 </plist>

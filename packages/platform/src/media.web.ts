@@ -1,13 +1,23 @@
 // Media picking — web leaf. Keep an object URL for previews and a data URL for
 // APIs that persist image payloads. The file input supports multiple photos.
-import type { MediaImpl, MediaPermissionKind, PermissionResult, PickedImage } from './types'
+import type {
+	CapturePhotoOptions,
+	MediaImpl,
+	MediaPermissionKind,
+	PermissionResult,
+	PickedImage,
+} from './types'
 
-function selectFiles(multiple: boolean): Promise<File[]> {
+function selectFiles(multiple: boolean, capture?: 'user' | 'environment'): Promise<File[]> {
 	return new Promise((resolve) => {
 		const input = document.createElement('input')
 		input.type = 'file'
 		input.accept = 'image/*'
 		input.multiple = multiple
+		if (capture) {
+			input.capture = capture
+		}
+
 		input.onchange = () => resolve(Array.from(input.files ?? []))
 		input.oncancel = () => resolve([])
 		input.click()
@@ -51,6 +61,22 @@ export const media: MediaImpl = {
 	/** Opens the browser image picker with multiple selection enabled. */
 	pickImages() {
 		return pickFiles(true)
+	},
+	/**
+	 * Requests a camera shot via `<input type="file" capture>`. Mobile browsers
+	 * open the camera UI; desktop browsers fall back to the file picker —
+	 * there is no headless still-capture API without a rendered viewfinder.
+	 * `width`/`height`/`keepAspectRatio`/`saveToGallery` have no web meaning
+	 * and are ignored.
+	 */
+	async capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null> {
+		const facing = options?.cameraFacing === 'front' ? 'user' : 'environment'
+		const [file] = await selectFiles(false, facing)
+		if (!file) {
+			return null
+		}
+
+		return { name: file.name, uri: URL.createObjectURL(file), dataUrl: await readDataUrl(file) }
 	},
 	async ensure(kind: MediaPermissionKind): Promise<PermissionResult> {
 		if (kind === 'photos') {

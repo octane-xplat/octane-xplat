@@ -7,6 +7,7 @@ export type {
 	AppInfo,
 	BiometricsImpl,
 	Capability,
+	CapturePhotoOptions,
 	ConnectionType,
 	ConnectivityImpl,
 	ConnectivityState,

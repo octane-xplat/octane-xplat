@@ -14,6 +14,7 @@ const frameworkFallbacks = {
 	'@octane-xplat/platform': [
 		'@nativescript-community/ui-document-picker',
 		'@nativescript/biometrics',
+		'@nativescript/camera',
 		'@nativescript/geolocation',
 		'@nativescript/haptics',
 		'@nativescript/imagepicker',

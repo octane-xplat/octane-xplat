@@ -49,6 +49,22 @@ export interface PickedImage extends FileRef {
 	dataUrl: string
 }
 
+/**
+ * Options for `media.capturePhoto()`. Sizes are device-independent pixels;
+ * the delivered image may be larger on high-density screens and may differ
+ * from the request when `keepAspectRatio` applies.
+ */
+export interface CapturePhotoOptions {
+	width?: number
+	height?: number
+	/** Preserve the sensor aspect ratio when resizing to width/height. Default true. */
+	keepAspectRatio?: boolean
+	/** Also write the shot to the OS photo library. Default false. */
+	saveToGallery?: boolean
+	/** Preferred lens. Default 'rear'; Android devices may ignore the hint. */
+	cameraFacing?: 'front' | 'rear'
+}
+
 export interface Locale {
 	tag: string
 	language: string
@@ -134,6 +150,13 @@ export interface OpenSettingsImpl {
 export interface MediaImpl {
 	pickImage(): Promise<PickedImage | null>
 	pickImages(): Promise<PickedImage[]>
+	/**
+	 * Still-image capture through the OS camera UI. Resolves null when the
+	 * shot is canceled, permission is denied, or no camera exists — call
+	 * `ensure('camera')` first to tell those apart. Video capture is not part
+	 * of the contract: no maintained NativeScript substrate exists.
+	 */
+	capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null>
 	ensure(kind: MediaPermissionKind): Promise<PermissionResult>
 }
 

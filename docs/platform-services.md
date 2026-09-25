@@ -30,13 +30,24 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 | `openSettings`       | `Capability<OpenSettingsImpl>`                        | unsupported                                                                                                     | per-app iOS Settings URL or Android application-details intent                              | Android device; iOS pending                                 |
 | `media.pickImage()`  | existing single-image contract                        | image file input                                                                                                | `@nativescript/imagepicker` single mode                                                     | Android device; iOS pending                                 |
 | `media.pickImages()` | `Promise<PickedImage[]>`                              | image file input with `multiple`                                                                                | `@nativescript/imagepicker` multiple mode                                                   | desk-source                                                 |
+| `media.capturePhoto()` | `Promise<PickedImage \| null>`                     | `<input type="file" capture>` — mobile browsers open the camera UI, desktop falls back to the file picker       | `@nativescript/camera`: `takePicture()` (UIImagePickerController on iOS, `ACTION_IMAGE_CAPTURE` on Android) | desk-source |
 
-`media` owns the `camera` and `photos` permission requests. The web leaf can
-request camera access with `getUserMedia`; photo-library selection needs no
-separate browser prompt. The native imagepicker owns photo-library access;
-camera remains `unsupported` on native until a camera-capture plugin is added.
+`media` owns the `camera` and `photos` permission requests. On native,
+`ensure('camera')` checks hardware with `isAvailable()` (`unsupported` on the
+iOS simulator) and requests access with `requestCameraPermissions()`; on web
+it probes `getUserMedia`. Photo-library selection needs no separate browser
+prompt, and the native imagepicker owns photo-library access.
 `permissions.ensure(kind)` delegates to the owning service for notifications,
 media, and location rather than maintaining a second set of probes.
+
+Camera capture is stills-only — no maintained NativeScript video-capture
+plugin exists, so the contract has no `captureVideo`. On web,
+`capturePhoto`'s `capture` attribute asks the browser for the camera, which
+is a real camera flow on phones but a file-picker fallback on desktops;
+`width`/`height`/`keepAspectRatio`/`saveToGallery` are native-only options.
+Apps calling `capturePhoto` must declare `@nativescript/camera` (doctor flags
+it) and set `NSCameraUsageDescription` — plus `NSPhotoLibraryAddUsageDescription`
+when using `saveToGallery` — in their iOS `Info.plist`.
 
 NativeScript plugins must be declared by the app that ships them as well as by
 this package. In particular, add `@nativescript/geolocation` to the native
@@ -95,6 +106,7 @@ interface OpenSettingsImpl {
 interface MediaImpl {
 	pickImage(): Promise<PickedImage | null>
 	pickImages(): Promise<PickedImage[]>
+	capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null>
 	ensure(kind: 'camera' | 'photos'): Promise<'granted' | 'denied' | 'unsupported'>
 }
 ```
