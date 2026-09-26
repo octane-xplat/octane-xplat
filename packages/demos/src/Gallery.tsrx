@@ -20,6 +20,7 @@ import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
 import { Reorder } from './Reorder.tsrx';
+import { ComponentsDemo } from './ComponentsDemo.tsrx';
 import { useLastDemo } from './store.tsrx';
 
 // kind: 'app' = a self-contained mini-app a human pokes to build trust;
@@ -48,6 +49,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'divergence', title: 'Layout edges', kind: 'proof' },
 	{ id: 'glass', title: 'Glass', kind: 'proof' },
 	{ id: 'reorder', title: 'Reorder', kind: 'proof' },
+	{ id: 'components', title: 'Components', kind: 'proof' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -79,6 +81,7 @@ const renderRichText = () => <RichTextDemo />;
 const renderDivergence = () => <Divergence />;
 const renderGlass = () => <GlassDemo />;
 const renderReorder = () => <Reorder />;
+const renderComponents = () => <ComponentsDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -103,6 +106,7 @@ export const RENDER: Record<string, () => any> = {
 	divergence: renderDivergence,
 	glass: renderGlass,
 	reorder: renderReorder,
+	components: renderComponents,
 };
 
 /** Demo launcher — chip menu. Two modes:

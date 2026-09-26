@@ -841,6 +841,214 @@ export interface AnimatedValue {
 	stop(): void
 }
 
+// ---------- self-drawn components (Phase 1) ----------
+
+/** Button composes Pressable — same-props/same-pixels, self-drawn. `loading`
+ *  shows the spinner and blocks presses. */
+export interface ButtonProps extends PressableProps {
+	loading?: boolean
+	/** Content rendered before children (e.g. an Icon). */
+	leading?: any
+	/** Content rendered after children. */
+	trailing?: any
+}
+
+/** Collapsible shows/hides `children` behind a `trigger`. Controlled via
+ *  `open`/`onOpenChange` or uncontrolled via `defaultOpen`. */
+export interface CollapsibleProps {
+	className?: any
+	style?: any
+	id?: string
+	trigger?: any
+	children?: any
+	open?: boolean
+	defaultOpen?: boolean
+	disabled?: boolean
+	onOpenChange?: (open: boolean) => void
+	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface AccordionItemSpec {
+	key: string
+	header?: any
+	content?: any
+	disabled?: boolean
+}
+
+/** Accordion — a list of Collapsibles. `open` is the open key (or keys with
+ *  `multiple`); omit it for uncontrolled via `defaultOpen`. */
+export interface AccordionProps {
+	className?: any
+	style?: any
+	id?: string
+	items: AccordionItemSpec[]
+	multiple?: boolean
+	open?: string | string[]
+	defaultOpen?: string | string[]
+	onOpenChange?: (open: string | string[]) => void
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Self-drawn checkbox — box + check mark, identical pixels across targets. */
+export interface CheckboxProps {
+	className?: any
+	style?: any
+	id?: string
+	checked?: boolean
+	disabled?: boolean
+	onCheckedChange?: (checked: boolean) => void
+	label?: string
+	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface RadioOption {
+	value: string
+	label?: string
+	disabled?: boolean
+}
+
+/** Self-drawn radio group — dot options in a column/row. */
+export interface RadioGroupProps {
+	className?: any
+	style?: any
+	id?: string
+	options: RadioOption[]
+	value?: string
+	disabled?: boolean
+	horizontal?: boolean
+	onValueChange?: (value: string) => void
+	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface MenuItem {
+	key: string
+	label?: string
+	icon?: string
+	disabled?: boolean
+	onSelect?: () => void
+}
+
+/** DropdownMenu — `trigger` anchored to a self-drawn item list via Popover.
+ *  Same anchored listbox on every target (decision #48). */
+export interface DropdownMenuProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Anchor content — rendered inside the trigger Pressable. */
+	trigger?: any
+	items: MenuItem[]
+	open?: boolean
+	defaultOpen?: boolean
+	onOpenChange?: (open: boolean) => void
+	placement?: PopoverPlacement
+	disabled?: boolean
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** ContextMenu — same anchored list as DropdownMenu, opened by right-click
+ *  on web and long-press on native. */
+export interface ContextMenuProps {
+	className?: any
+	style?: any
+	id?: string
+	items: MenuItem[]
+	open?: boolean
+	defaultOpen?: boolean
+	onOpenChange?: (open: boolean) => void
+	children?: any
+	disabled?: boolean
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Badge — inline label chip. Pure composition, unstyled beyond layout. */
+export interface BadgeProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Separator — hairline rule between content. */
+export interface SeparatorProps {
+	className?: any
+	style?: any
+	id?: string
+	orientation?: 'horizontal' | 'vertical'
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Skeleton — placeholder block shown while content loads. */
+export interface SkeletonProps {
+	className?: any
+	style?: any
+	id?: string
+	width?: number
+	height?: number
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Avatar — circular image with a text fallback. */
+export interface AvatarProps {
+	className?: any
+	style?: any
+	id?: string
+	src?: string
+	alt?: string
+	/** Fallback text (initials) shown when `src` is missing/fails. */
+	fallback?: string
+	size?: number
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** AvatarGroup — overlapping row of avatars with an optional `+N` overflow. */
+export interface AvatarGroupProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** Max avatars rendered; the rest collapse into a `+N` avatar. */
+	max?: number
+	size?: number
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
 // ---------- theme ----------
 
 export type ColorScheme = 'light' | 'dark'

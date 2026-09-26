@@ -423,6 +423,193 @@ button {
 }
 /* xplat-web-only:end */
 
+/* Phase-1 self-drawn components — functional geometry + token chrome only;
+   visual design is the app's job. */
+
+/* Button — row-direction pressable (vx-pressable already supplies display
+   and press feedback). */
+.vx-button {
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Collapsible/Accordion — column stacks. */
+.vx-collapsible,
+.vx-collapsible-content,
+.vx-accordion,
+.vx-accordion-item {
+	flex-direction: column;
+}
+
+/* Checkbox — 20px box + check glyph; --on fills with primary. */
+.vx-checkbox-row {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-checkbox {
+	width: 20px;
+	height: 20px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+	align-items: center;
+	justify-content: center;
+}
+.vx-checkbox--on .vx-checkbox {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+}
+.vx-checkbox-check {
+	font-size: 14px;
+	line-height: 20px;
+	color: var(--color-onprimary);
+}
+.vx-checkbox-label {
+	margin-left: 8px;
+}
+.vx-checkbox--disabled {
+	opacity: 0.5;
+}
+
+/* Radio group — column/row of dot options. */
+.vx-radio-group {
+	flex-direction: column;
+}
+.vx-radio-group--row {
+	flex-direction: row;
+}
+.vx-radio-row {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-radio {
+	width: 18px;
+	height: 18px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: 50%;
+	align-items: center;
+	justify-content: center;
+}
+.vx-radio--on .vx-radio {
+	border-color: var(--color-primary);
+}
+.vx-radio-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: var(--color-primary);
+}
+.vx-radio-label {
+	margin-left: 8px;
+}
+.vx-radio--disabled {
+	opacity: 0.5;
+}
+
+/* Anchored menus — panel + item rows (the Popover leaf positions it). */
+.vx-menu {
+	min-width: 140px;
+	padding: 4px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+.vx-menu-list {
+	flex-direction: column;
+}
+.vx-menu-item {
+	flex-direction: row;
+	align-items: center;
+	padding: 6px 10px;
+	border-radius: var(--radius-sm);
+}
+.vx-menu-item--disabled {
+	opacity: 0.5;
+}
+/* xplat-web-only:start — hover affordance and cursor are DOM-only */
+.vx-menu-item {
+	cursor: pointer;
+}
+.vx-menu-item:hover {
+	background-color: var(--color-border);
+}
+/* xplat-web-only:end */
+
+/* Badge — inline chip row. */
+.vx-badge {
+	flex-direction: row;
+	align-items: center;
+	border-radius: var(--radius-sm);
+	padding: 1px 6px;
+	font-size: 12px;
+	line-height: 16px;
+}
+/* xplat-web-only:start — span is inline by default; needs inline-flex */
+.vx-badge {
+	display: inline-flex;
+}
+/* xplat-web-only:end */
+
+/* Separator — hairline rule; --h spans width, --v spans height. */
+.vx-separator--h {
+	height: 1px;
+	background-color: var(--color-border);
+}
+.vx-separator--v {
+	width: 1px;
+	align-self: stretch;
+	background-color: var(--color-border);
+}
+
+/* Skeleton — placeholder block. */
+.vx-skeleton {
+	background-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+}
+
+/* Avatar — centered fallback inside the circle. */
+.vx-avatar {
+	align-items: center;
+	justify-content: center;
+	background-color: var(--color-border);
+}
+.vx-avatar-group {
+	flex-direction: row;
+	align-items: center;
+}
+/* xplat-web-only:start — display:flex for the div-based flex classes */
+.vx-collapsible,
+.vx-collapsible-content,
+.vx-accordion,
+.vx-accordion-item,
+.vx-checkbox-row,
+.vx-checkbox,
+.vx-radio-group,
+.vx-radio-row,
+.vx-radio,
+.vx-menu-list,
+.vx-menu-item,
+.vx-contextmenu,
+.vx-avatar,
+.vx-avatar-group,
+.vx-avatar-group-item {
+	display: flex;
+}
+.vx-checkbox-row,
+.vx-radio-row {
+	cursor: pointer;
+}
+.vx-checkbox-check {
+	display: block;
+}
+/* xplat-web-only:end */
+
 .vx-h1 {
 	font-size: 2em;
 	font-weight: bold;
