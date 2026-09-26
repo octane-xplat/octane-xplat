@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Screen, View, Row, Text, Pressable, Switch } from '@octane-xplat/ui';
+import { Screen, ScrollView, View, Row, Text, Pressable, Switch } from '@octane-xplat/ui';
 import { DEMOS } from '@xplat/demos';
 // './probes-host' is extensionless on purpose: moduleSuffixes resolves the
 // .web.ts/.native.ts twin, which re-exports the right Probes leaf
@@ -18,6 +18,7 @@ export function Test() @{
 	const proofs = DEMOS.filter((d) => d.kind === 'proof');
 
 	<Screen className="vx-app flex-1 gap-6">
+		<ScrollView id="test-scroll" className="flex-1">
 		<Text className="text-2xl font-semibold">Test</Text>
 
 		<Probes />
@@ -59,5 +60,6 @@ export function Test() @{
 				<Text className="text-onprimary">Open sheet</Text>
 			</Pressable>
 		</View>
+		</ScrollView>
 	</Screen>
 }

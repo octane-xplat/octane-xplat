@@ -153,12 +153,22 @@ export function Services() @{
 				})}>
 					<Text>Pick image</Text>
 				</Pressable>
+				<Pressable className="btn btn-secondary" onPress={() => run('capture', async () => {
+					const permission = await media.ensure('camera')
+					if (permission !== 'granted') return 'camera permission: ' + permission;
+					const img = await media.capturePhoto({ saveToGallery: false });
+					if (!img) return 'capture returned null (camera permission granted)';
+					setPicked({ name: img.name, dataUrl: img.dataUrl });
+					return 'captured ' + img.name + ' (' + img.dataUrl.length + ' chars)';
+				})}>
+					<Text>Capture photo</Text>
+				</Pressable>
 				@for (const kind of PERMISSION_KINDS; key kind) {
 					<Pressable className="chip" onPress={() => run('perm-' + kind, async () => kind + ': ' + (await permissions.ensure(kind)))}>
 						<Text>{kind}</Text>
 					</Pressable>
 				}
-				<Text className="text-sm text-muted">{(echo.img ?? PERMISSION_KINDS.map((k) => echo['perm-' + k]).filter(Boolean).join(' · ')) || '—'}</Text>
+				<Text className="text-sm text-muted">{(echo.capture ?? echo.img ?? PERMISSION_KINDS.map((k) => echo['perm-' + k]).filter(Boolean).join(' · ')) || '—'}</Text>
 			</Row>
 			<Row className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('file', async () => {

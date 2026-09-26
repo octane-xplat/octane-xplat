@@ -15,14 +15,20 @@ export function RichTextDemo() @{
 				text="@octane"
 				className="rich-text-link"
 				style={{ color: '#2563eb', fontWeight: 'bold', textDecoration: 'underline' }}
-				onPress={() => setLastRun('@octane')}
+				onPress={() => {
+					console.log('[probe] RichText coordinate callback: @octane')
+					setLastRun('@octane')
+				}}
 			/>
 			<RichTextSpan text=" updates, then tap " />
 			<RichTextSpan
 				text="the docs"
 				className="rich-text-link"
 				style={{ color: '#2563eb', fontWeight: 'bold', textDecoration: 'underline' }}
-				onPress={() => setLastRun('the docs')}
+				onPress={() => {
+					console.log('[probe] RichText coordinate callback: the docs')
+					setLastRun('the docs')
+				}}
 			/>
 			<RichTextSpan text=" for more." />
 		</RichText>
