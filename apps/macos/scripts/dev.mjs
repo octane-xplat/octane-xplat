@@ -5,7 +5,8 @@ import { createMacOSRoot } from '../src/renderer/index.mjs'
 
 const configFile = new URL('../vite.config.mjs', import.meta.url).pathname
 const bundleFile = new URL('../dist/app.js', import.meta.url).pathname
-const { app, window, contentView, closed } = createAppKitWindow()
+const appKit = createAppKitWindow()
+const { app, window, contentView, closed } = appKit
 const root = createMacOSRoot(contentView)
 let watcher
 
@@ -46,9 +47,11 @@ try {
 	await watcher.close()
 	root.unmount()
 	window.close()
+	appKit.delegate = null
 } catch (error) {
 	await watcher?.close()
 	root.unmount()
 	window.close()
+	appKit.delegate = null
 	throw error
 }

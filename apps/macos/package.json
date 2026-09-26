@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "node ./scripts/dev.mjs",
-		"build": "vite build"
+		"build": "vite build",
+		"package": "node ./scripts/package.mjs"
 	},
 	"exports": {
 		"./renderer": {

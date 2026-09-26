@@ -5,6 +5,7 @@ let resolveClosed
 const closed = new Promise((resolve) => {
 	resolveClosed = resolve
 })
+let running = true
 
 class AppDelegate extends NSObject {
 	static ObjCProtocols = [NSApplicationDelegate, NSWindowDelegate]
@@ -12,8 +13,6 @@ class AppDelegate extends NSObject {
 	static {
 		NativeClass(this)
 	}
-
-	running = true
 
 	applicationDidFinishLaunching() {
 		app.activateIgnoringOtherApps(true)
@@ -30,7 +29,7 @@ class AppDelegate extends NSObject {
 	}
 
 	applicationWillTerminate() {
-		this.running = false
+		running = false
 		resolveClosed()
 	}
 
@@ -42,7 +41,7 @@ class AppDelegate extends NSObject {
 			true,
 		)
 		if (event !== null) app.sendEvent(event)
-		if (this.running) setTimeout(() => this.pumpEvents(), 10)
+		if (running) setTimeout(() => this.pumpEvents(), 10)
 	}
 }
 
@@ -72,5 +71,5 @@ export function createAppKitWindow() {
 	window.contentView = contentView
 	window.makeKeyAndOrderFront(app)
 
-	return { app, window, contentView, closed }
+	return { app, window, contentView, closed, delegate }
 }
