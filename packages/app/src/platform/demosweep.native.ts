@@ -89,7 +89,12 @@ function dump(hay: string[]): string {
 let stepStack = 'demos'
 const stackFor = (id: string) =>
 	DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos'
-const demosPage = () => getStack(stepStack)?.currentPage
+// Self-drawn Tabs panes hold no Frame — their content lives inside the
+// root Page's subtree, so fall back to it for text/probe reads.
+const demosPage = () => getStack(stepStack)?.currentPage ?? getStack('root')?.currentPage
+// Frame stacks detect pushes via currentPage changes; swap-pane stacks
+// keep the same Page — the route store is the honest signal for both.
+const pushedRoute = () => routeFor(stepStack)
 
 // Captured across checks — sheetHost() empties the moment closeSheet's
 // finish() runs, so the detach assert needs the pre-close reference.
@@ -160,8 +165,9 @@ function gestureTargetForText(view: any, text: string, type: number): any {
 }
 
 function runNavLinkProbe() {
-	const tabView = getStack('root')?.currentPage?.getViewById?.('app-tabs')
-	const homeView = (tabView as any)?.items?.[0]?.view
+	// Self-drawn Tabs has no `items`/per-item views — the Home pane lives
+	// inside the root Page's subtree.
+	const homeView = getStack('root')?.currentPage
 	const target = tapTargetForText(homeView, 'Detail →')
 	const observers = fireTap(target)
 	if (!observers) {
@@ -194,8 +200,7 @@ setTimeout(runNavLinkProbe, 5000)
 // The +modal route: tap 'About ⤴' → manifest presentation:'modal' →
 // showModal root (currentPage untouched), popRoute dismisses it.
 function runModalRouteProbe() {
-	const tabView = getStack('root')?.currentPage?.getViewById?.('app-tabs')
-	const homeView = (tabView as any)?.items?.[0]?.view
+	const homeView = getStack('root')?.currentPage
 	const target = tapTargetForText(homeView, 'About ⤴')
 	const observers = fireTap(target)
 	if (!observers) {
@@ -474,10 +479,11 @@ const STEPS: Step[] = [
 		],
 	},
 	{
-		id: 'controls',
+		id: 'components',
 		checks: [
-			{ at: 400, run: () => assertMatch('demo controls', /Slider:\s*\d+/) },
-			{ at: 400, run: () => assertHas('heading levels', 'Heading 6') },
+			{ at: 500, run: () => assertHas('demo components', 'Button') },
+			{ at: 500, run: () => assertHas('components wayfinding', 'Wayfinding') },
+			{ at: 500, run: () => assertHas('components data display', 'Data display') },
 		],
 	},
 	{
@@ -860,6 +866,16 @@ const STEPS: Step[] = [
 			},
 		],
 	},
+	// Controls last: pushing it currently wedges the JS loop (infinite
+	// microtask drain — under investigation), so it sits at the end where
+	// it can't starve the rest of the sweep.
+	{
+		id: 'controls',
+		checks: [
+			{ at: 400, run: () => assertMatch('demo controls', /Slider:\s*\d+/) },
+			{ at: 400, run: () => assertHas('heading levels', 'Heading 6') },
+		],
+	},
 ]
 
 /** Poll until `cond` or give up (~2s), then continue. Nested-frame push/pop
@@ -879,13 +895,24 @@ function waitFor(cond: () => boolean, then: () => void, tries = 20) {
 
 let galleryPage: any = null
 
+// Shared Tabs is self-drawn (decision #44) — tab switching is a Pressable
+// tap, not a `selectedIndexChanged` notify, and the non-active pane is
+// unmounted. `selectTab` taps the tab chip so the stack's page exists
+// before its chips are probed.
+const TAB_LABEL: Record<string, string> = { demos: 'Apps', test: 'Test' }
+function selectTab(stack: string) {
+	const root = getStack('root')?.currentPage
+	const target = tapTargetForText(root, TAB_LABEL[stack])
+	if (!target) {
+		console.log('[sweep] selectTab ' + stack + ' — no tap target for "' + TAB_LABEL[stack] + '"')
+		return
+	}
+	fireTap(target)
+}
+
 if (!SKIP) {
 	setTimeout(() => {
-		// Frame.topmost() is unreliable once nested stacks exist — on Android it
-		// returns the innermost frame. The boot registers the app frame as 'root'.
-		const tv = getStack('root')?.currentPage?.getViewById?.('app-tabs')
-		console.log('[sweep] switching to Demos tab, tabview=' + (tv ? tv.constructor.name : 'none'))
-		tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any)
+		selectTab('demos')
 	}, 9600)
 }
 
@@ -906,7 +933,7 @@ if (!SKIP) {
 				galleryPage = demosPage()
 				console.log(
 					'[sweep] demos stack=' +
-						(getStack('demos') ? 'registered' : 'MISSING') +
+						(getStack('demos') ? 'frame' : 'swap-pane') +
 						' gallery=' +
 						(galleryPage ? galleryPage.constructor.name : 'none'),
 				)
@@ -925,7 +952,21 @@ function runStep(i: number) {
 
 	const step = STEPS[i]
 	stepStack = stackFor(step.id)
-	const gal = demosPage()
+
+	// The swap-pane Tabs unmounts the non-active stack's page — select the
+	// tab for this step's stack and poll until its gallery + chip are live.
+	selectTab(stepStack)
+	waitFor(
+		() => {
+			const chip = find('menu-' + step.id)
+			return demosPage() != null && chip != null && chip.isLoaded !== false
+		},
+		() => runStepBody(step, i),
+		30,
+	)
+}
+
+function runStepBody(step: Step, i: number) {
 	const chip = find('menu-' + step.id)
 	// Hit-area probe: a view drawn outside its parent's bounds still renders
 	// (iOS doesn't clip by default) but hitTest never reaches it — the
@@ -957,8 +998,9 @@ function runStep(i: number) {
 			chipInfo,
 	)
 	waitFor(
-		() => demosPage() !== gal,
+		() => pushedRoute() != null,
 		() => {
+			console.log('[sweep] pushed ' + step.id + ' — ' + JSON.stringify(pushedRoute()?.params))
 			for (const c of step.checks) {
 				setTimeout(c.run, c.at)
 			}
@@ -967,16 +1009,21 @@ function runStep(i: number) {
 				console.log('[sweep] goBack ' + step.id)
 				goBack({ into: stepStack })
 				waitFor(
-					() => demosPage() === gal,
+					() => pushedRoute() == null,
 					() => {
-						// 'Last opened' echo lives on the Apps Gallery only —
-						// proof steps land on the Test pane's proof row instead.
-						assertHas(
-							'lastDemo ' + step.id,
-							stepStack === 'test' ? 'Seam proofs' : 'Last opened: ' + step.id,
-						)
+						// The route store pops before the pane subtree detaches —
+						// read the gallery a beat later or its texts still show
+						// the outgoing demo.
+						setTimeout(() => {
+							// 'Last opened' echo lives on the Apps Gallery only —
+							// proof steps land on the Test pane's proof row instead.
+							assertHas(
+								'lastDemo ' + step.id,
+								stepStack === 'test' ? 'Seam proofs' : 'Last opened: ' + step.id,
+							)
+						}, 250)
 
-						setTimeout(() => runStep(i + 1), 150)
+						setTimeout(() => runStep(i + 1), 400)
 					},
 				)
 			}, step.hold ?? 900)

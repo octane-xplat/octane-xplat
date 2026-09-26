@@ -125,6 +125,25 @@ function texts(root: any): string[] {
 // sibling under a pushed/tab page, not necessarily under thePage.
 const find = (id: string) => (thePage?.getViewById?.(id) ?? findInRootLayouts(id)) as any
 
+// Self-drawn Tabs (decision #44): tab switching is a Pressable tap on the
+// tab chip — `selectedIndexChanged` notify is dead API.
+function tapTab(label: string) {
+	const hit = collect(thePage).find((v: any) => v?.text === label)
+	let cur = hit
+	while (cur && !(cur.getGestureObservers?.(1)?.length ?? 0)) {
+		cur = cur.parent
+	}
+
+	if (!cur) {
+		console.log('[probe] tab chip tap target: none (' + label + ')')
+		return
+	}
+
+	for (const o of cur.getGestureObservers(1)) {
+		o.callback.call(o.context, { eventName: 'tap', object: cur })
+	}
+}
+
 // Controlled-input probe: fire textChange natively at +1.5s (between the
 // self-test's shuffle and setText) to exercise the native→state direction
 // without real keyboard input.
@@ -405,12 +424,10 @@ setTimeout(() => {
 	}, 100)
 }, 1700)
 
-// Tab probe (Exp 11): selectedIndexChanged is a real property event, so
-// notify() reaches it — switches to the Test tab, mounts its panes.
+// Tab probe: the tab bar is a Pressable row — tap the Test chip to mount
+// its pane.
 setTimeout(() => {
-	const tv = find('app-tabs')
-	console.log('[probe] tabview=' + (tv ? tv.constructor.name : 'none'))
-	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any)
+	tapTab('Test')
 }, 1900)
 
 setTimeout(() => {
@@ -432,8 +449,7 @@ setTimeout(() => {
 // Back to Home — assert list cells actually render item text (post-shuffle
 // order is e,d,c,b,a → labels Epsilon..Alpha).
 setTimeout(() => {
-	const tv = find('app-tabs')
-	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 0 } as any)
+	tapTab('Home')
 }, 2600)
 
 setTimeout(() => {
@@ -623,10 +639,9 @@ setTimeout(() => {
 	assertEq('signal probe after ambient set', find('sig-probe')?.text, 'sig-on')
 }, 7000)
 
-// Sheet probe (Exp 11): back to the Test tab, then synthesized tap on sheet-btn.
+// Sheet probe: back to the Test tab, then synthesized tap on sheet-btn.
 setTimeout(() => {
-	const tv = find('app-tabs')
-	tv?.notify({ eventName: 'selectedIndexChanged', object: tv, value: 2 } as any)
+	tapTab('Test')
 }, 7100)
 
 setTimeout(() => {
