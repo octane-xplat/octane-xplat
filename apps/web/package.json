@@ -8,7 +8,8 @@
 		"build": "pnpm --filter @xplat/app gen && vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
-		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs"
+		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs",
+		"parity": "vite build && node scripts/parity.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

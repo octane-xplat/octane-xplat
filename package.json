@@ -13,6 +13,7 @@
 		"lint:fix": "node scripts/lint.mjs --fix",
 		"format": "oxlint --fix && oxfmt",
 		"check:no-dom": "node scripts/check-no-dom.mjs",
+		"parity": "node scripts/parity-check.mjs",
 		"test": "pnpm --filter @xplat/web test && pnpm --filter @octane-xplat/ui test:native"
 	},
 	"devDependencies": {

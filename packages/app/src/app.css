@@ -65,6 +65,23 @@ body {
 	padding: 0;
 }
 
+/* Parity stage — fixed boxes make fixture geometry comparable across
+   targets (the `* {flex-shrink:0}` default already guards against the
+   native no-floor compression). */
+.parity-stage {
+	gap: 12px;
+}
+
+.parity-box {
+	width: 220px;
+	height: 64px;
+}
+
+.parity-label {
+	font-size: 10px;
+	color: var(--color-text-secondary);
+}
+
 /* Section groups — spacing + a small muted label, no boxes. `.vx-app label`
    in tokens.css outranks single-class colors, so muted roles stay scoped.
    No shrink guards needed: the tokens.css `* {flex-shrink:0}` normalization

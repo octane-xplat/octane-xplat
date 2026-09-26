@@ -4,6 +4,7 @@ dist/
 apps/macos/artifacts/
 dist-democheck/
 .ns-vite-build/
+parity-report/
 apps/native/platforms/
 .DS_Store
 TASK.md
