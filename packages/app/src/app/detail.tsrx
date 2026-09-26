@@ -6,6 +6,10 @@ import { goBack } from '../platform/nav';
  * merged into the pushed screen's props on both targets. Sync on purpose —
  * the universal compiler rejects async functions in .tsrx. */
 export function beforeLoad({ params }: BeforeLoadArgs) {
+	if (params.from === 'redirect') {
+		redirect({ stack: 'root', name: 'detail', params: { from: 'redirect-target' } });
+	}
+
 	return { loadedFrom: String(params.from ?? 'unknown') };
 }
 
