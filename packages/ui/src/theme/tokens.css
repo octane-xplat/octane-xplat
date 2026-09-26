@@ -569,6 +569,64 @@ button {
 	opacity: 0.5;
 }
 
+/* SegmentedControl — equal-width segments in a rounded track; `--on`
+   raises the selected one. flex-basis is dead on NS (the shorthand parser
+   drops it and the standalone property isn't registered), so width:0 +
+   flex-grow:1 is what distributes segments equally on both engines. */
+.vx-segmented {
+	flex-direction: row;
+	padding: 3px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+.vx-segment {
+	flex-grow: 1;
+	width: 0;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: var(--radius-sm);
+}
+.vx-segment--on {
+	background-color: var(--color-surface);
+}
+.vx-segment-label {
+	font-size: 13px;
+	color: var(--color-text-secondary);
+}
+.vx-segment--on .vx-segment-label {
+	color: var(--color-text);
+	font-weight: 600;
+}
+.vx-segmented--disabled,
+.vx-segment--disabled {
+	opacity: 0.5;
+}
+/* xplat-web-only:start — the DOM hosts are divs; flex + cursor live here */
+.vx-segmented {
+	display: flex;
+}
+.vx-segment {
+	display: flex;
+	cursor: pointer;
+	user-select: none;
+}
+.vx-segment:focus {
+	outline: 1px solid var(--color-primary);
+	outline-offset: -1px;
+}
+.vx-segment--disabled {
+	cursor: default;
+}
+/* xplat-web-only:end */
 /* Anchored menus — panel + item rows (the Popover leaf positions it). */
 .vx-menu {
 	min-width: 140px;

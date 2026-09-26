@@ -17,6 +17,7 @@ import { ReactiveProbe } from './ReactiveProbe.tsrx';
 import { PropsDemo } from './PropsDemo.tsrx';
 import { ControlsDemo } from './ControlsDemo.tsrx';
 import { PagerDemo } from './PagerDemo.tsrx';
+import { SegmentedDemo } from './SegmentedDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
@@ -53,6 +54,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'components', title: 'Components', kind: 'proof' },
 	{ id: 'webview', title: 'WebView', kind: 'proof' },
 	{ id: 'pager', title: 'Pager', kind: 'proof' },
+	{ id: 'segmented', title: 'Segmented control', kind: 'proof' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -87,6 +89,7 @@ const renderReorder = () => <Reorder />;
 const renderComponents = () => <ComponentsDemo />;
 const renderWebView = () => <WebViewDemo />;
 const renderPager = () => <PagerDemo />;
+const renderSegmented = () => <SegmentedDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -114,6 +117,7 @@ export const RENDER: Record<string, () => any> = {
 	components: renderComponents,
 	webview: renderWebView,
 	pager: renderPager,
+	segmented: renderSegmented,
 };
 
 /** Demo launcher — chip menu. Two modes:

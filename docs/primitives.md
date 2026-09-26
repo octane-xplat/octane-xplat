@@ -17,6 +17,7 @@
 | Scroll content                         | `ScrollView`, `ScrollBox`       |
 | Show a web page or inline HTML         | `WebView`                       |
 | Swipe through full pages               | `Pager`                         |
+| Pick one of a few options inline       | `SegmentedControl`              |
 | Show temporary content above a screen  | `Sheet`, `Overlay`              |
 
 Start with these components. They are deliberately smaller than the browser
@@ -98,6 +99,11 @@ peer — a native app that ships `Pager` must declare it (`/ns/m` resolves
 plugins under the app root only). The web leaf is a scroll-snap row;
 `onPageChange` fires after the snap settles.
 
+`SegmentedControl` is a self-drawn row of equal-width segments — the
+normalized shape of UISegmentedControl / Material segmented buttons, with
+no OS chrome. It takes `options` (the `RadioOption` shape), `value` +
+`onValueChange` for controlled use or `defaultValue` for uncontrolled, and
+`disabled` per-option or on the group.
 Use `Sheet` for a focused interruption, or `openSheet`/`showToast`/`Overlay`
 imperatively, and pass the data it needs as props. The platform's own
 modal presentation is `UIModal`/`MaterialDialog` + `openModal` in the

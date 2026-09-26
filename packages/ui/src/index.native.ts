@@ -36,6 +36,7 @@ export type {
 	MenuItem,
 	RadioGroupProps,
 	RadioOption,
+	SegmentedControlProps,
 	SeparatorProps,
 	SkeletonProps,
 } from './props'
@@ -109,6 +110,7 @@ export { Link } from './Link.native.tsrx'
 export { NavLink } from './NavLink.native.tsrx'
 export { TextInput } from './TextInput.native.tsrx'
 export { TextArea } from './TextArea.native.tsrx'
+export { SegmentedControl } from './SegmentedControl.native.tsrx'
 export { ScrollBox } from './ScrollBox.native.tsrx'
 export { ScrollView } from './ScrollView.native.tsrx'
 export { Pager } from './Pager.native.tsrx'

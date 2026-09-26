@@ -1066,6 +1066,26 @@ export interface RadioGroupProps {
 	web?: any
 }
 
+/** Self-drawn segmented control — a row of equal-width segments in a track,
+ *  one selected (UISegmentedControl / Material segmented-button shape, no OS
+ *  chrome). `value`/`onValueChange` for controlled, `defaultValue` for
+ *  uncontrolled; `disabled` on the group or per-option. Sizes come from
+ *  className, matching the Button family. */
+export interface SegmentedControlProps {
+	className?: any
+	style?: any
+	id?: string
+	options: RadioOption[]
+	value?: string
+	defaultValue?: string
+	onValueChange?: (value: string) => void
+	disabled?: boolean
+	accessibilityLabel?: string
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
 export interface MenuItem {
 	key: string
 	label?: string

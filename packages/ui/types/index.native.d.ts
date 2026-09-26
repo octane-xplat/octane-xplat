@@ -50,6 +50,7 @@ import type {
 	SafeAreaProps,
 	ScreenTable,
 	ScrollViewProps,
+	SegmentedControlProps,
 	SliderProps,
 	Store,
 	SpacerProps,
@@ -112,6 +113,7 @@ export type {
 	SafeAreaProps,
 	ScreenTable,
 	ScrollViewProps,
+	SegmentedControlProps,
 	SliderProps,
 	Store,
 	SpacerProps,
@@ -164,6 +166,7 @@ export declare const SafeArea: UniversalComponent<SafeAreaProps>
 export declare const KeyboardAvoiding: UniversalComponent<KeyboardAvoidingProps>
 export declare const Drawer: UniversalComponent<DrawerProps>
 export declare const Switch: UniversalComponent<SwitchProps>
+export declare const SegmentedControl: UniversalComponent<SegmentedControlProps>
 export declare const ActivityIndicator: UniversalComponent<ActivityIndicatorProps>
 export declare const Meter: UniversalComponent<MeterProps>
 export declare const Slider: UniversalComponent<SliderProps>
