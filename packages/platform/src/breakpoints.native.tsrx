@@ -38,7 +38,7 @@ function sameMatches(a: Record<string, boolean>, b: Record<string, boolean>): bo
 	return true
 }
 
-export function useBreakpoints<T extends BreakpointMap>(breakpoints: T): BreakpointMatches<T> {
+export function useBreakpoints$<T extends BreakpointMap>(breakpoints: T): BreakpointMatches<T> {
 	const matches$ = useSignal$<BreakpointMatches<T>>(matchesAt(Screen.mainScreen.widthDIPs, breakpoints))
 	useEffect(() => {
 		const update = () => {
