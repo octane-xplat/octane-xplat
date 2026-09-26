@@ -14,8 +14,9 @@ function applyStatusBarScheme(): void {
 		// setDarkModeHandler stores the handler once per activity, then
 		// re-runs enableEdgeToEdge every call — one call installs + refreshes.
 		// 'light'/'dark' icon names invert: dark scheme → light icons.
-		// (Android-only Utils member — absent from the shared Utils typings.)
-		;(Utils as any).setDarkModeHandler?.({ handler: () => getThemeScheme() === 'dark' })
+		// Lives on Utils.android — a bare Utils.setDarkModeHandler is
+		// undefined and would no-op silently.
+		Utils.android.setDarkModeHandler?.({ handler: () => getThemeScheme() === 'dark' })
 		return
 	}
 
