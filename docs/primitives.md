@@ -115,9 +115,11 @@ TextInput; `defaultValue` makes it uncontrolled. The leading glyph is an
 framework-provided one any app can override by registering the same name).
 
 Use `Sheet` for a focused interruption, or `openSheet`/`showToast`/`Overlay`
-imperatively, and pass the data it needs as props. The platform's own
-modal presentation is `UIModal`/`MaterialDialog` + `openModal` in the
-subpaths — there is no shared `Modal`.
+imperatively, and pass the data it needs as props. `detents` (viewport-height
+fractions like `[0.25, 0.5, 1]`) turns the sheet into a snap-point panel —
+it opens at the smallest detent and drags between them via a self-drawn
+grabber. The platform's own modal presentation is `UIModal`/`MaterialDialog`
++ `openModal` in the subpaths — there is no shared `Modal`.
 
 `ScrollView` and the platform lists (`UITableView`, `RecyclerView`) accept
 `refreshing`, `onRefresh`, and `refreshThreshold` for pull-to-refresh.

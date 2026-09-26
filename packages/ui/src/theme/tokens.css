@@ -1792,3 +1792,35 @@ button.vx-tab {
 	color: var(--color-text);
 	pointer-events: auto;
 }
+
+.vx-sheet-grabber {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 28px;
+}
+
+.vx-sheet-grip {
+	width: 36px;
+	height: 4px;
+	border-radius: 999px;
+	background-color: var(--color-text-secondary);
+	opacity: 0.4;
+}
+
+/* xplat-web-only:start — detents size the panel to the largest fraction
+   (overriding the 85% cap) and overlay the grabber; native stacks it as a
+   top-aligned grid child. touch-action keeps drags off native scroll. */
+.vx-sheet-detents {
+	max-height: none;
+}
+.vx-sheet-detents > .vx-sheet-grabber {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	cursor: grab;
+	touch-action: none;
+}
+/* xplat-web-only:end */

@@ -18,11 +18,21 @@ function Picker(props: { params: { choices: string[] }; close: (value?: string) 
  *  surfaces are the self-drawn in-window `Sheet` and `Overlay`. */
 export function ModalDemo() @{
 	const [declarativeOpen, setDeclarativeOpen] = useState(false);
+	const [detentOpen, setDetentOpen] = useState(false);
 	const [picked, setPicked] = useState<string | undefined>();
+	const [detentPicked, setDetentPicked] = useState<string | undefined>();
 
 	const pick = async () => {
 		const result = await openSheet(Picker, { choices: ['Red', 'Green', 'Blue'] });
 		setPicked(result as string | undefined);
+	};
+
+	const pickDetent = async () => {
+		const result = await openSheet(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
+			detents: [0.25, 0.5, 0.9],
+		});
+
+		setDetentPicked(result as string | undefined);
 	};
 
 	<Screen className="vx-app flex-1 gap-6">
@@ -44,10 +54,36 @@ export function ModalDemo() @{
 			</Pressable>
 			<Text className="text-sm text-muted">{'Picked: ' + (picked ?? '—')}</Text>
 		</View>
+		<View className="sink-section">
+			<Text className="section-label">Detents</Text>
+			<Text className="text-sm text-muted">
+				Snap heights as viewport fractions — drag the grabber between
+				detents, past the lowest to dismiss. Self-drawn; no OS sheet.
+			</Text>
+			<Pressable onPress={() => setDetentOpen(true)} className="btn btn-secondary">
+				<Text>Open detent sheet</Text>
+			</Pressable>
+			<Pressable onPress={pickDetent} className="btn btn-secondary">
+				<Text>Open detent picker</Text>
+			</Pressable>
+			<Text className="text-sm text-muted">{'Picked: ' + (detentPicked ?? '—')}</Text>
+		</View>
 		<Sheet open={declarativeOpen} onDismiss={() => setDeclarativeOpen(false)}>
 			<View className="demo-modal-card gap-4">
 				<Text className="font-bold">Declarative children</Text>
 				<Pressable onPress={() => setDeclarativeOpen(false)} className="btn bg-primary">
+					<Text className="text-onprimary">Close</Text>
+				</Pressable>
+			</View>
+		</Sheet>
+		<Sheet open={detentOpen} detents={[0.25, 0.5, 0.9]} onDismiss={() => setDetentOpen(false)}>
+			<View className="demo-modal-card gap-4">
+				<Text className="font-bold">Detent sheet</Text>
+				<Text className="text-sm text-muted">
+					Snaps at 25%, 50%, 90% of the viewport height. Drag the grabber
+					or tap the shade to dismiss.
+				</Text>
+				<Pressable onPress={() => setDetentOpen(false)} className="btn bg-primary">
 					<Text className="text-onprimary">Close</Text>
 				</Pressable>
 			</View>

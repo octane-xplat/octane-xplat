@@ -7,6 +7,7 @@ import type { SheetProps } from './props';
 import { cx } from './cx';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout.native';
+import { attachSheetDetents } from './sheet-detents.native';
 
 function SheetBody(props: { children?: any }) @{
 	<>{props.children}</>
@@ -22,6 +23,7 @@ export function Sheet(props: SheetProps) @{
 		root: any;
 		unbindTheme?: () => void;
 		programmatic?: boolean;
+		detach?: () => void;
 	} | null>(null);
 
 	useEffect(() => {
@@ -57,15 +59,28 @@ export function Sheet(props: SheetProps) @{
 		if (props.style) Object.assign(host.style, props.style);
 		Object.assign(host, isIOS ? props.ios : isAndroid ? props.android : undefined);
 		const root = createNativeScriptRoot(host);
-		const opened = { host, root, unbindTheme, programmatic: false };
+		// Detents: the controller owns enter/slide-out — RootLayout's open
+		// animation always lands translateY at 0, which would fight the
+		// detent offsets, so it's skipped while detents are attached.
+		const detents = props.detents?.length
+			? attachSheetDetents(host, props.detents, () => {
+					const owner = host.parent as any;
+					owner?.close?.(host)?.catch?.((error: unknown) => {
+						console.error('[Sheet] close failed', error);
+					});
+				})
+			: null;
+
+		const opened = { host, root, unbindTheme, programmatic: false, detach: detents?.detach };
 		shown.current = opened;
 		root.render(SheetBody as unknown as UniversalComponent, { children: props.children });
 		host.on('closed', () => {
 			if (shown.current === opened) shown.current = null;
+			opened.detach?.();
 			opened.unbindTheme?.();
 			opened.root.unmount?.();
 			// 'closed' fires for programmatic closes too — onDismiss only when
-			// the platform dismissed it (shade tap).
+			// the platform dismissed it (shade tap or detent drag-out).
 			if (!opened.programmatic) props.onDismiss?.();
 		});
 
@@ -73,16 +88,22 @@ export function Sheet(props: SheetProps) @{
 			...(props.shadeCover ?? true)
 				? { shadeCover: { opacity: 0.4, tapToClose: true } }
 				: {},
-			animation: {
-				enterFrom: { translateY: 400, duration: 250 },
-				exitTo: { translateY: 400, duration: 200 },
-			},
-		}).catch((error: unknown) => {
-			if (shown.current === opened) shown.current = null;
-			opened.unbindTheme?.();
-			opened.root.unmount?.();
-			console.error('[Sheet] open failed', error);
-		});
+			...(detents
+				? {}
+				: {
+						animation: {
+							enterFrom: { translateY: 400, duration: 250 },
+							exitTo: { translateY: 400, duration: 200 },
+						},
+					}),
+		})
+			.then(() => detents?.enter())
+			.catch((error: unknown) => {
+				if (shown.current === opened) shown.current = null;
+				opened.unbindTheme?.();
+				opened.root.unmount?.();
+				console.error('[Sheet] open failed', error);
+			});
 	}, [props.open, props.children, props.className, props.style, props.shadeCover, props.ios, props.android]);
 
 	// Zero-size sentinel — the sheet resolves its owning RootLayout from the

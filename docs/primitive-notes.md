@@ -100,6 +100,24 @@ inside the clipped wrapper and `OVER_SCROLL_NEVER` kills the edge glow.
 `onRefresh` fires but `refreshing` never turns true, the dock collapses
 after a 350ms grace window. Desk-verified; on-device pending.
 
+**Sheet detents** (`detents` on `Sheet`/`openSheet`, e.g.
+`[0.25, 0.5, 0.9]`) — one contract, one code path on every target: the
+panel is sized to the largest detent and parked at a `translateY` offset
+for the current one, so snapping is a transform write, not a layout
+change. The self-drawn grabber strip (`vx-sheet-grabber`/`vx-sheet-grip`)
+is the only drag target, so it never fights inner scrolling. Release
+snaps to the nearest detent; a flick (>500 px/s or dip/s) snaps one
+detent in its direction; releasing below half of the smallest dismisses —
+drag-dismiss reports through the same `onDismiss`/`finish` path as a
+shade tap. The OS detent presentations are deliberately unused:
+UISheetPresentationController requires a UIViewController presentation
+and BottomSheetBehavior a CoordinatorLayout/BottomSheetDialog window —
+both are modal presentations (`UIModal`/`MaterialDialog` territory), not
+in-window RootLayout children. With detents active the RootLayout
+enter/exit animation is skipped (it hardcodes a translateY→0 target that
+would fight the offsets); the leaf drives its own slide-in/out.
+Desk-verified; on-device pending.
+
 **Child layout props are part of the shared surface** — `row`, `col`,
 `rowSpan`, `colSpan`, `dock`, `left`, `top`, `flexGrow`, `flexShrink`,
 `alignSelf`, `order` exist in the driver `CommonAttributes`; the web leaf maps

@@ -1,6 +1,7 @@
 import { createRoot } from 'octane'
 import type { ModalOpenResult, OpenSheet } from './props'
 import { applyThemeClasses } from './theme/theme-scheme'
+import { attachSheetDetents } from './sheet-detents.web'
 
 interface ActiveSheet {
 	layer: HTMLElement
@@ -22,6 +23,9 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 		const unbindTheme = applyThemeClasses(layer, 'vx-sheet-layer')
 		const panel = document.createElement('div')
 		panel.className = 'vx-sheet'
+		if (options.detents?.length) {
+			panel.classList.add('vx-sheet-detents')
+		}
 
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
@@ -32,6 +36,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 			finished = true
 			active.delete(entry)
 			unbindTheme()
+			detents?.detach()
 			root.unmount()
 			layer.remove()
 			resolve(result)
@@ -47,6 +52,12 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 
 		layer.appendChild(panel)
 		document.body.appendChild(layer)
+		// Attached after the layer is in the document — the panel sizes
+		// against the viewport and slides in to the smallest detent.
+		const detents = options.detents?.length
+			? attachSheetDetents(panel, options.detents, () => finish())
+			: null
+
 		const root = createRoot(panel)
 		root.render(Component, { params, close: finish })
 		active.add(entry)

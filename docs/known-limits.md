@@ -60,6 +60,7 @@ web builds. `ui/native` is plumbing (root-layout helpers), not components.
 | `WebView` `sandbox`      | typed prop, default token list applied           | unsupported — no-op (WKWebView is already isolated)          | same as iOS         | `unsupported` | 0.5.0·desk |
 | `WebView` JS bridge      | unsupported — no `injectedJavaScript`/`postMessage`; use the `web:` bag | unsupported — use the `ios:` bag | unsupported — use the `android:` bag | `unsupported` | 0.5.0·desk |
 | Pull-to-refresh          | pointer/touch drag translates scroller in clipped wrapper | UIScrollView bounce + `contentInset` dock; pan observer rides alongside scroll pan | damped drag translates scroller; edge glow off | `different` | 0.5.0·desk |
+| Sheet `detents`          | drag-to-snap via grabber strip; px offsets, no OS sheet   | same in-window path — RootLayout host + translateY offsets (UISheetPresentationController can't host in-window panels) | same — no BottomSheetBehavior (needs dialog window/CoordinatorLayout) | `different` | 0.5.0·desk |
 
 Overlay roots (`Sheet`/`openSheet`, `UIModal`, `MaterialDialog`) mount a
 separate Octane root on every platform — `useContext` does not cross into

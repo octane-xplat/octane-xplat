@@ -4,6 +4,7 @@ import type { UniversalComponent } from 'octane/universal'
 import type { ModalOpenResult, OpenSheet } from './props'
 import { topRootLayout } from './root-layout.native'
 import { applyThemeClasses } from './theme/theme-scheme'
+import { attachSheetDetents } from './sheet-detents.native'
 
 interface ActiveSheet {
 	host: GridLayout
@@ -41,6 +42,11 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 		host.horizontalAlignment = 'stretch'
 		host.verticalAlignment = 'bottom'
 		const root = createNativeScriptRoot(host)
+		// Detents own enter/slide-out — the RootLayout animation always
+		// lands translateY at 0, so it's skipped while detents attach.
+		const detents = options.detents?.length
+			? attachSheetDetents(host, options.detents, () => finish())
+			: null
 
 		let finished = false
 		// RootLayout notifies 'closed' from inside its own close(), before the
@@ -59,6 +65,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 			finished = true
 			active.delete(entry)
 			unbindTheme()
+			detents?.detach()
 			root.unmount?.()
 			const owner = host.parent as any
 			if (owner?.hasChild?.(host) && !closing) {
@@ -90,12 +97,18 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 
 		rl.open(host, {
 			...((options.shadeCover ?? true) ? { shadeCover: { opacity: 0.4, tapToClose: true } } : {}),
-			animation: {
-				enterFrom: { translateY: 400, duration: 250 },
-				exitTo: { translateY: 400, duration: 200 },
-			},
-		}).catch((error: unknown) => {
-			console.error('[openSheet] open failed', error)
-			finish()
+			...(detents
+				? {}
+				: {
+						animation: {
+							enterFrom: { translateY: 400, duration: 250 },
+							exitTo: { translateY: 400, duration: 200 },
+						},
+					}),
 		})
+			.then(() => detents?.enter())
+			.catch((error: unknown) => {
+				console.error('[openSheet] open failed', error)
+				finish()
+			})
 	})

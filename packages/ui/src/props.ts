@@ -851,6 +851,14 @@ export interface SheetProps {
 	onDismiss?: () => void
 	/** Dim backdrop + tap-to-dismiss (default true). */
 	shadeCover?: boolean
+	/** Snap heights as viewport-height fractions, e.g. `[0.25, 0.5, 1]` —
+	 *  sorted ascending; the sheet opens at the smallest and drags between
+	 *  detents via the grabber strip, releasing below half of the smallest
+	 *  dismisses (same dismissal as a shade tap — `onDismiss` / resolve).
+	 *  Absent → the panel keeps its content-sized height. In-window on
+	 *  every target; OS sheet presentations stay in the platform
+	 *  subpaths. */
+	detents?: number[]
 	className?: any
 	style?: any
 	children?: any
@@ -862,6 +870,8 @@ export interface SheetProps {
 /** Options for the imperative `openSheet` service. */
 export interface SheetOpenOptions {
 	shadeCover?: boolean
+	/** Same contract as `SheetProps.detents`. */
+	detents?: number[]
 }
 
 /** Imperative sheet: mounts `component` on a dedicated root in a bottom
