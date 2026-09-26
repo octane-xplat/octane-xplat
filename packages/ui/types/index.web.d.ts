@@ -64,6 +64,9 @@ import type {
 	ToastPosition,
 	UseMeasureOptions,
 	ViewProps,
+	WebViewHandle,
+	WebViewLoadEvent,
+	WebViewProps,
 } from './props'
 
 export type {
@@ -123,6 +126,9 @@ export type {
 	ToastPosition,
 	UseMeasureOptions,
 	ViewProps,
+	WebViewHandle,
+	WebViewLoadEvent,
+	WebViewProps,
 } from './props'
 
 /** ScrollBox shares ScrollView's public shell props; native renders it inline. */
@@ -149,6 +155,7 @@ export declare const TextArea: UniversalComponent<TextAreaProps>
 export declare const ScrollBox: UniversalComponent<ScrollBoxProps>
 export declare const ScrollView: UniversalComponent<ScrollViewProps>
 export declare const Image: UniversalComponent<ImageProps>
+export declare const WebView: UniversalComponent<WebViewProps>
 export declare const Screen: UniversalComponent<ScreenProps>
 export declare const SafeArea: UniversalComponent<SafeAreaProps>
 export declare const Drawer: UniversalComponent<DrawerProps>

@@ -15,6 +15,7 @@
 | Render repeated items                  | `ScrollView` + `items.map(...)` |
 | Accept one or more lines               | `TextInput`, `TextArea`         |
 | Scroll content                         | `ScrollView`, `ScrollBox`       |
+| Show a web page or inline HTML         | `WebView`                       |
 | Show temporary content above a screen  | `Sheet`, `Overlay`              |
 
 Start with these components. They are deliberately smaller than the browser
@@ -104,6 +105,16 @@ single read after binding.
 `showToast()` keeps top/bottom viewport placement and adds start/end alignment.
 Pass `anchor` plus an optional `placement` to position a toast from a view;
 that anchored form follows `Popover`'s platform-specific overlay behavior.
+
+`WebView` embeds a web document — `src` for a URL, `html` for an inline
+document — with `onLoad`/`onError`, `scrollEnabled`, and a `bind` handle for
+`reload`/`goBack`/`goForward`. On web it is a sandboxed `<iframe>`
+(default `allow-scripts allow-same-origin allow-forms allow-modals`, tunable
+via the `sandbox` prop); on native it is the OS web view. The document itself
+renders in each platform's engine, so parity applies to the frame's chrome,
+not the page's pixels. There is deliberately no script-injection or
+`postMessage` bridge — the three engines expose different page-side APIs, so
+use the `ios:`/`android:`/`web:` escape bags for that.
 
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)

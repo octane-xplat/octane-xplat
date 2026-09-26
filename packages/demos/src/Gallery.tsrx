@@ -9,7 +9,7 @@ import { Dialer } from './Dialer.tsrx';
 // './variant-demos' is extensionless on purpose: moduleSuffixes +
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
-import { VirtualList, ListDemo, ScrollBoxDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo } from './variant-demos';
+import { VirtualList, ListDemo, ScrollBoxDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo } from './variant-demos';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
@@ -50,6 +50,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'glass', title: 'Glass', kind: 'proof' },
 	{ id: 'reorder', title: 'Reorder', kind: 'proof' },
 	{ id: 'components', title: 'Components', kind: 'proof' },
+	{ id: 'webview', title: 'WebView', kind: 'proof' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -82,6 +83,7 @@ const renderDivergence = () => <Divergence />;
 const renderGlass = () => <GlassDemo />;
 const renderReorder = () => <Reorder />;
 const renderComponents = () => <ComponentsDemo />;
+const renderWebView = () => <WebViewDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -107,6 +109,7 @@ export const RENDER: Record<string, () => any> = {
 	glass: renderGlass,
 	reorder: renderReorder,
 	components: renderComponents,
+	webview: renderWebView,
 };
 
 /** Demo launcher — chip menu. Two modes:

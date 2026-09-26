@@ -391,6 +391,73 @@ export interface ScrollBoxProps extends LayoutChildProps, AccessibilityProps {
 	web?: any
 }
 
+export interface WebViewHandle {
+	/** Re-request the current document. */
+	reload(): void
+	/** Frame-local history navigation. */
+	goBack(): void
+	goForward(): void
+	stopLoading(): void
+	/** The platform view (`HTMLIFrameElement` / NS `WebView`). */
+	native: any
+}
+
+export interface WebViewLoadEvent {
+	/** The loaded document URL when the platform reports one — absent for
+	 *  `html` documents. */
+	url?: string
+	/** Failure description; present only on the `onError` path. */
+	error?: string
+}
+
+/** Embedded web document — chrome-reset bucket: web renders a sandboxed
+ *  `<iframe>`, native renders the OS web view (`webview` → WKWebView /
+ *  android.webkit.WebView). The *frame* is normalized; the document's
+ *  pixels belong to each platform's engine, same as TextInput's IME.
+ *  No JS bridge: iframe `postMessage`, WKScriptMessageHandler, and
+ *  `addJavascriptInterface` have different page-side contracts, so a
+ *  shared one would be fake parity — reach it through the escape bags. */
+export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Remote document URL. Native also accepts `~/` bundle paths and
+	 *  absolute file paths (NS `src` grammar). */
+	src?: string
+	/** Inline HTML document — web `srcdoc`; native loads it through the
+	 *  `src` property's data path (`loadHTMLString`/`loadDataWithBaseURL`).
+	 *  Takes precedence over `src` when both are set. Treated as trusted
+	 *  content — the default web sandbox keeps `allow-same-origin`, so a
+	 *  srcdoc document can reach the embedding page. */
+	html?: string
+	/** After each successful document load (web `load`; native
+	 *  `loadFinished` without an error). */
+	onLoad?: (e: WebViewLoadEvent) => void
+	/** On load failure. Native reports the NS `loadFinished` error string;
+	 *  web maps the iframe `error` event, which does not fire reliably
+	 *  cross-browser — treat as best-effort there. */
+	onError?: (e: WebViewLoadEvent) => void
+	/** Default true. `false` freezes inner scrolling: web writes
+	 *  `scrolling="no"`, iOS clears the WKWebView scrollView's
+	 *  `scrollEnabled`, Android eats move touch events on the view (link
+	 *  taps still pass; drag text selection inside the frame is lost). */
+	scrollEnabled?: boolean
+	/** Web only — the iframe `sandbox` token list. Defaults to
+	 *  `'allow-scripts allow-same-origin allow-forms allow-modals'`: the
+	 *  capabilities NS WebView content already has, while top navigation,
+	 *  popups, and downloads stay contained. Pass a token list to tighten,
+	 *  `false` for no sandbox attribute. Ignored on native — the OS web
+	 *  views are already isolated processes. */
+	sandbox?: string | false
+	/** Imperative handle — reload/back/forward/stop plus `native` for
+	 *  anything the shared props don't cover. */
+	bind?: (h: WebViewHandle) => void
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
 export interface ImageProps extends LayoutChildProps {
 	className?: any
 	style?: any

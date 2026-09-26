@@ -52,6 +52,13 @@
 	text-decoration: underline;
 }
 
+.webview-demo-frame {
+	min-height: 240px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: 8px;
+}
+
 .chip-off {
 	opacity: 0.45;
 }

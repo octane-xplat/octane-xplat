@@ -287,6 +287,16 @@ img {
 }
 /* xplat-web-only:end */
 
+/* WebView chrome reset — the web leaf is a real <iframe>: strip the UA's
+   inset border and the inline-element baseline gap. WKWebView and
+   android.webkit.WebView ship chrome-free, so there is no native reset. */
+/* xplat-web-only:start */
+.vx-webview {
+	display: block;
+	border-width: 0;
+}
+/* xplat-web-only:end */
+
 /* xplat-web-only:start */
 /* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
    so the overlay is a fixed layer over the shell rather than a dialog. */

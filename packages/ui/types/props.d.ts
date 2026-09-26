@@ -64,7 +64,7 @@ export interface GlassConfig {
     /** Effect-change animation in ms (default 300). */
     animateChangeDuration?: number;
 }
-export interface GridProps {
+export interface GridProps extends AccessibilityProps {
     className?: any;
     style?: any;
     children?: any;
@@ -75,7 +75,7 @@ export interface GridProps {
     web?: Record<string, any>;
     id?: string;
 }
-export interface StackProps {
+export interface StackProps extends AccessibilityProps {
     className?: any;
     style?: any;
     children?: any;
@@ -84,7 +84,7 @@ export interface StackProps {
     web?: Record<string, any>;
     id?: string;
 }
-export interface AbsoluteProps {
+export interface AbsoluteProps extends AccessibilityProps {
     className?: any;
     style?: any;
     children?: any;
@@ -131,7 +131,23 @@ export interface SpacerProps {
     web?: Record<string, any>;
     id?: string;
 }
-export interface ViewProps extends LayoutChildProps, FlexContainerProps {
+/** The shared accessibility prop set — `Role` and friends are declared
+ *  below; containers and leaf components carry the same names so ARIA on
+ *  web and NativeScript's accessibility properties stay aligned. */
+export interface AccessibilityProps {
+    accessible?: boolean;
+    accessibilityLabel?: string;
+    accessibilityRole?: Role;
+    accessibilityHint?: string;
+    accessibilityValue?: string;
+    accessibilityState?: {
+        disabled?: boolean;
+        selected?: boolean;
+        checked?: boolean;
+    };
+    accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
+}
+export interface ViewProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps {
     className?: any;
     style?: any;
     children?: any;
@@ -146,7 +162,7 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps {
     android?: any;
     web?: any;
 }
-export interface RowProps extends LayoutChildProps, FlexContainerProps {
+export interface RowProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps {
     className?: any;
     style?: any;
     children?: any;
@@ -305,7 +321,7 @@ export interface ListProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-export interface ScrollViewProps extends LayoutChildProps {
+export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps {
     className?: any;
     style?: any;
     id?: string;
@@ -319,12 +335,76 @@ export interface ScrollViewProps extends LayoutChildProps {
 /** Scrollable ordinary content on web. Native is an inline flex container so
  * a child ListView can own the scrolling without nesting recycling views in a
  * native ScrollView. */
-export interface ScrollBoxProps extends LayoutChildProps {
+export interface ScrollBoxProps extends LayoutChildProps, AccessibilityProps {
     className?: any;
     style?: any;
     id?: string;
     children?: any;
     /** Platform-specific properties are applied after the shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+export interface WebViewHandle {
+    /** Re-request the current document. */
+    reload(): void;
+    /** Frame-local history navigation. */
+    goBack(): void;
+    goForward(): void;
+    stopLoading(): void;
+    /** The platform view (`HTMLIFrameElement` / NS `WebView`). */
+    native: any;
+}
+export interface WebViewLoadEvent {
+    /** The loaded document URL when the platform reports one — absent for
+     *  `html` documents. */
+    url?: string;
+    /** Failure description; present only on the `onError` path. */
+    error?: string;
+}
+/** Embedded web document — chrome-reset bucket: web renders a sandboxed
+ *  `<iframe>`, native renders the OS web view (`webview` → WKWebView /
+ *  android.webkit.WebView). The *frame* is normalized; the document's
+ *  pixels belong to each platform's engine, same as TextInput's IME.
+ *  No JS bridge: iframe `postMessage`, WKScriptMessageHandler, and
+ *  `addJavascriptInterface` have different page-side contracts, so a
+ *  shared one would be fake parity — reach it through the escape bags. */
+export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    /** Remote document URL. Native also accepts `~/` bundle paths and
+     *  absolute file paths (NS `src` grammar). */
+    src?: string;
+    /** Inline HTML document — web `srcdoc`; native loads it through the
+     *  `src` property's data path (`loadHTMLString`/`loadDataWithBaseURL`).
+     *  Takes precedence over `src` when both are set. Treated as trusted
+     *  content — the default web sandbox keeps `allow-same-origin`, so a
+     *  srcdoc document can reach the embedding page. */
+    html?: string;
+    /** After each successful document load (web `load`; native
+     *  `loadFinished` without an error). */
+    onLoad?: (e: WebViewLoadEvent) => void;
+    /** On load failure. Native reports the NS `loadFinished` error string;
+     *  web maps the iframe `error` event, which does not fire reliably
+     *  cross-browser — treat as best-effort there. */
+    onError?: (e: WebViewLoadEvent) => void;
+    /** Default true. `false` freezes inner scrolling: web writes
+     *  `scrolling="no"`, iOS clears the WKWebView scrollView's
+     *  `scrollEnabled`, Android eats move touch events on the view (link
+     *  taps still pass; drag text selection inside the frame is lost). */
+    scrollEnabled?: boolean;
+    /** Web only — the iframe `sandbox` token list. Defaults to
+     *  `'allow-scripts allow-same-origin allow-forms allow-modals'`: the
+     *  capabilities NS WebView content already has, while top navigation,
+     *  popups, and downloads stay contained. Pass a token list to tighten,
+     *  `false` for no sandbox attribute. Ignored on native — the OS web
+     *  views are already isolated processes. */
+    sandbox?: string | false;
+    /** Imperative handle — reload/back/forward/stop plus `native` for
+     *  anything the shared props don't cover. */
+    bind?: (h: WebViewHandle) => void;
+    /** Platform-specific properties are applied after shared props. */
     ios?: any;
     android?: any;
     web?: any;

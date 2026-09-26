@@ -51,6 +51,11 @@ web builds. `ui/native` is plumbing (root-layout helpers), not components.
 | `accessibilityRole`      | full ARIA spellings                              | narrower NS enum (`tab`→`button`, `heading`→`header`, …)     | same as iOS         | `different` | 0.5.0      |
 | `Icon`/`Image` SVG       | DOM `<svg>`                                      | SVGKit                                                       | AndroidSVG — no SVG filters, limited text/radial gradients | `degraded` | 0.5.0·desk |
 | `Table`/`Select`/menus   | bounded, unvirtualized                           | bounded, unvirtualized — large data → `UITableView`          | → `RecyclerView`    | `degraded`  | 0.5.0      |
+| `WebView` document pixels | Chromium iframe                                 | WKWebView                                                  | android.webkit.WebView — page content renders in each engine; only the frame chrome is normalized | `different` | 0.5.0·desk |
+| `WebView` `onError`      | iframe `error` event does not fire reliably cross-browser | `loadFinished` carries the error string             | same as iOS         | `degraded`  | 0.5.0·desk |
+| `WebView` `scrollEnabled={false}` | `scrolling="no"` (deprecated attr, still honored) | `scrollView.scrollEnabled`                       | touch-move interception — drag text selection inside the frame is lost | `degraded`  | 0.5.0·desk |
+| `WebView` `sandbox`      | typed prop, default token list applied           | unsupported — no-op (WKWebView is already isolated)          | same as iOS         | `unsupported` | 0.5.0·desk |
+| `WebView` JS bridge      | unsupported — no `injectedJavaScript`/`postMessage`; use the `web:` bag | unsupported — use the `ios:` bag | unsupported — use the `android:` bag | `unsupported` | 0.5.0·desk |
 
 Overlay roots (`Sheet`/`openSheet`, `UIModal`, `MaterialDialog`) mount a
 separate Octane root on every platform — `useContext` does not cross into
