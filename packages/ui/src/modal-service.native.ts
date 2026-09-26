@@ -3,13 +3,18 @@ import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
 import type { ModalOpenOptions, ModalOpenResult, OpenModal } from './props'
 import { applyThemeClasses } from './theme/theme-scheme'
+import { modalPresenter } from './modal-presenter.native'
 
 /** Open a component in its own NativeScript modal root and resolve on close. */
 export const openModal: OpenModal = (Component, params, options = {}) =>
 	new Promise<ModalOpenResult>((resolve, reject) => {
-		const presenter = (Frame.topmost()?.currentPage ?? Frame.topmost()) as any
+		const presenter = modalPresenter(Frame.topmost())
 		if (!presenter) {
-			reject(new Error('Cannot open modal before a NativeScript page is active'))
+			reject(
+				new Error(
+					'openModal dropped — no live presenter. The topmost frame has no loaded currentPage (a page mid-navigation), or no frame is active yet.',
+				),
+			)
 			return
 		}
 

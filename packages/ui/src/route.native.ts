@@ -23,6 +23,7 @@ import { useSyncExternalStore } from 'octane'
 import { getStack, onStackRegistered, stackEntries } from './stacks.native'
 import { buildRoutePath, layoutChain, linkPath, matchUrl, RouteRedirect } from './route-table'
 import { RouteHost } from './RouteHost.native'
+import { modalPresenter } from './modal-presenter.native'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
 
 export type { Route } from './props'
@@ -93,7 +94,21 @@ function trackFrame(frame: Frame): void {
 	}
 
 	tracked.add(frame)
-	frame.on('navigatedTo', emit)
+	frame.on('navigatedTo', () => {
+		// A page re-shown by pop can stay unloaded when the frame's nav
+		// bookkeeping stalls mid-transition (the iOS strand of #11444 — the
+		// same hole the isLoaded/callLoaded workaround in commitRoute covers
+		// for the frame itself). Views render but their gesture recognizers
+		// detached on unload never re-attach: real taps die while notify()
+		// probes still dispatch. onLoaded() early-returns when the flag is
+		// already set, so forcing the load pass is free on the normal path.
+		const page = frame.currentPage as any
+		if (page && page.isLoaded === false) {
+			page.callLoaded?.()
+		}
+
+		emit()
+	})
 }
 
 function resolveStack(stack: string): Frame | undefined {
@@ -234,6 +249,7 @@ function commitRoute(r: Route): void {
 		if (title !== undefined && page) {
 			page.actionBar.title = title
 		}
+
 		emit()
 		return
 	}
@@ -324,7 +340,18 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 		emit()
 	}
 
-	const presenter = (frame.currentPage ?? frame) as any
+	const presenter = modalPresenter(frame)
+	if (!presenter) {
+		warnOnce(
+			'modal-presenter:' + r.name,
+			`modal route '${r.name}' dropped — no live presenter. The stack's currentPage is mid-navigation; retry once the transition settles.`,
+		)
+
+		entry.dismiss()
+		root.unmount?.()
+		return
+	}
+
 	try {
 		modalHosts.push(entry)
 		const params: Record<string, unknown> = {

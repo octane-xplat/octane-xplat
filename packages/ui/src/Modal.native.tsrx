@@ -5,6 +5,7 @@ import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { applyThemeClasses } from './theme/theme-scheme';
+import { modalPresenter } from './modal-presenter.native';
 
 // The modal's content renders inside a separate Octane root on a GridLayout
 // host — modals never share context with their presenter (decision #9).
@@ -26,8 +27,14 @@ export function Modal(props: ModalProps) @{
 
 	useEffect(() => {
 		if (props.open && !shown.current) {
-			const presenter = (Frame.topmost()?.currentPage ?? Frame.topmost()) as any;
-			if (!presenter) return;
+			const presenter = modalPresenter(Frame.topmost());
+			if (!presenter) {
+				// Dropped, not deferred: the effect only re-runs when props
+				// change, so warn loudly instead of silently swallowing open.
+				console.warn('[Modal] open dropped — no live presenter (currentPage mid-navigation or no active frame).');
+				return;
+			}
+
 			const host = new GridLayout();
 			const unbindTheme = applyThemeClasses(host, 'vx-modal-host');
 			const root = createNativeScriptRoot(host);
