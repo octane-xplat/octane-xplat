@@ -71,7 +71,7 @@
 - **`useMeasure` coordinate frames differ** — web `x`/`y` are
   viewport-relative; native `x`/`y` are screen-relative dips. —
   verified at 0.5.0.
-- **The self-drawn component set is web-smoke-verified only** —
+- **The self-drawn component set is smoke-verified on web and iOS** —
   `Button`, `Collapsible`, `Accordion`, `Checkbox`, `CheckboxGroup`,
   `RadioGroup`, `DropdownMenu`, `ContextMenu`, `Select`/`SelectMenu`/
   `Combobox`/`InputMenu`, `Badge`, `Separator`, `Skeleton`, `Avatar`,
@@ -79,9 +79,11 @@
   `InputTags`, `InputRating`, `Breadcrumb`, `Pagination`, `Stepper`,
   `NavigationMenu`, `CommandPalette`, `Table`, `Timeline`, `Tree`,
   `Alert`, `Card`, `Chip`, `Kbd`, `Empty`, `Banner`, `User`,
-  `ProgressGroup` compile and render on both leaves but have not run the
-  on-device sweep. `Table`/`Select`/menus are bounded and unvirtualized
-  by design (large data → `UITableView`/`RecyclerView`).
+  `ProgressGroup` compile on both leaves, pass the web smoke suite, and
+  render via the harness `components` sweep step on iOS (swap-pane
+  stacks; Android nested-stack sweeps remain skipped on #11444).
+  `Table`/`Select`/menus are bounded and unvirtualized by design (large
+  data → `UITableView`/`RecyclerView`).
 - **`ContextMenu` triggers differ by design** — right-click on web,
   long-press on native; the same anchored list renders afterward.
 - **`PinInput`/`InputTags` keyboard conveniences are asymmetric** —
