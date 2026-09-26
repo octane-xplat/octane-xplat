@@ -8,6 +8,10 @@
 		"paths": {
 			"@xplat/app": ["../../packages/app/src/index.ts"],
 			"@xplat/app/*": ["../../packages/app/src/*"],
+			"@xplat/demos": ["../../packages/demos/src/index.ts"],
+			"@xplat/demos/*": ["../../packages/demos/src/*"],
+			"@octane-xplat/platform": ["../../packages/platform/src/index.ts"],
+			"@octane-xplat/platform/*": ["../../packages/platform/src/*"],
 			"@octane-xplat/ui": ["../../packages/ui/src/index.native.ts"],
 			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
 		}
