@@ -20,16 +20,54 @@ NativeScript view.
 
 ## Shared code and platform code
 
-The rule for the shared surface is stricter than "feels similar": a shared
-component must deliver the same pixels for the same props on every target,
-with no platform-specific props. `@octane-xplat/ui` therefore owns its
-rendering (`Switch`, `Slider`, `ActivityIndicator`, `Tabs`, `Drawer` are
-self-drawn) or wraps an unavoidable platform control behind a native chrome
-reset (`TextInput`, `TextArea`). Real OS widgets — UISwitch, RecyclerView,
-modals, Liquid Glass — live in `@octane-xplat/ui/ios`,
-`@octane-xplat/ui/android`, and `@octane-xplat/ui/web` under their official
-names; those subpaths resolve only on their platform, so reaching for them
-is always a conscious platform choice.
+Start from the job an app needs, not the name of an OS widget. A common
+concept can have a useful shared intersection even when the platform widgets
+that implement its richer forms are different. Keep the shared contract only
+as broad as every target can honor: same props and actions must mean the same
+observable behavior, and each class must meet its stated pixel-parity claim.
+A shared baseline and platform-authentic variants can coexist.
+
+Choose how to deliver the shared contract, or keep the richer widget
+platform-authentic:
+
+| Approach | Use it when | Examples |
+| --- | --- | --- |
+| Self-drawn | The framework can own the visuals and behavior on every target. | `Switch`, `Slider`, `ActivityIndicator`, `Tabs`, `Drawer` |
+| Chrome-reset | A host control supplies behavior that would be costly to replace, and its chrome can be removed. | `TextInput`, `TextArea` |
+| Hosted | An OS or engine supplies interior content while the framework owns the frame or draws shared chrome. | `WebView`, `Video`, `CameraView` |
+| Platform-authentic | The OS surface or behavior is the point, so normalizing it would change the contract. Keep it in a platform subpath under its OS name. | `UITableView`, `RecyclerView`, `UIModal`, `LiquidGlass` |
+
+Use these checks when shaping a new primitive:
+
+1. Define the common task and its smallest useful props, events, and state
+   before choosing a host widget. Commonness is a reason to look for an
+   intersection, not permission to promise behavior some targets lack.
+2. Separate that baseline from richer platform capabilities. A shared API
+   must not silently ignore a prop or substitute a different gesture or
+   presentation on one target. Keep platform extensions available under
+   explicit subpaths.
+3. Put unavoidable translation in platform leaves. Keep platform conditionals
+   and native names out of shared component logic; make the import path or
+   file suffix show where a developer crosses the boundary.
+4. Size the escape hatch to the divergence: a small platform detail can use
+   an explicit prop bag, implementation differences belong in separate
+   leaves, and a genuinely different widget belongs in a platform subpath.
+   Avoid inert shared props and whole-file forks for a one-prop difference.
+5. Give silent-failure cases a mechanical guard, such as a lint rule, named
+   error, or structural check.
+6. Verify the claim on each target. For visuals, compare bounds and selected
+   resolved styles in a controlled stage; for behavior, assert the same
+   events and state transitions. Record whether evidence is source-read or
+   device-verified.
+
+Lists show why the shared contract and host widget must be considered
+separately. A small, unvirtualized list is a common shared job: `ScrollView`
+plus `items.map(...)` gives it ordered rows and ordinary scrolling. The shared
+`VirtualList` adds bounded vertical windowing and measured-height anchoring;
+off-window rows unmount rather than recycle. Native cell recycling remains in
+`UITableView` and `RecyclerView` under the platform subpaths. A shared API
+must name the behavior it actually provides and must not imply native cell
+reuse.
 
 ### Normalization classes
 

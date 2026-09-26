@@ -80,15 +80,22 @@ spans and uses the span's `text` prop for driver compatibility.
 
 ## When a screen needs more
 
-For repeated content in shared code, render `items.map(...)` inside a
-`ScrollView` — the shared surface has no recycled list. Recycling is
-platform-authentic: `UITableView` (`ui/ios`) and `RecyclerView`
-(`ui/android`) carry it. On native, a platform list must not sit inside a
-`ScrollView` — NativeScript measures a vertical `ScrollView` child without
-a bounded height, which makes the nested list prepare cells through an
-unsupported path; the list leaf throws a named error on that nesting. Wrap
-the list in `ScrollBox` (a real `ScrollView` on web, an inline `View` on
-native) so the list owns scrolling.
+For a small or bounded list in shared code, render `items.map(...)` inside a
+`ScrollView`. This is the portable list shape: ordered rows and ordinary
+scrolling, without cell recycling. For larger vertical data sets that need
+bounded rendering, use the shared `VirtualList`. It measures variable row
+heights and renders a bounded window; off-window rows unmount, so durable row
+state must live outside the row and be keyed by item identity. This shared
+primitive does not promise cell recycling. For native cell recycling or
+platform-authentic list behavior, use `UITableView` (`ui/ios`) or
+`RecyclerView` (`ui/android`). On native, keep a platform list outside a
+`ScrollView`: NativeScript measures a vertical `ScrollView` child without a
+bounded height, which makes the nested list prepare cells through an
+unsupported path; the list leaf throws a named error on that nesting. Wrap the list in
+`ScrollBox` (a real `ScrollView` on web, an inline `View` on native) so the
+list owns scrolling.
+_VirtualList anchor correction and slots verified on web, iOS simulator, and
+Android emulator; native nested-list guard verified on iOS._
 
 `Pager` gives paged horizontal swiping — onboarding flows, media galleries.
 It takes `items` + `renderItem` (the same contract as the platform lists),
