@@ -1,111 +1,119 @@
 # Known limits
 
 > What is broken upstream, platform-bound, or deliberately asymmetric in the
-> current release — read before promising behavior on a seam. Each entry is
-> stamped with the version it was last verified against; the list is
-> re-checked in the pre-release docs sweep.
+> current release — read before promising behavior on a seam.
 
-## Broken upstream (filed; tracked, not worked around)
+Each row names a seam and what each target actually does. **Kind**:
 
-- **Pushing into a named stack is iOS-only.** `Frame` inside `TabViewItem`
-  commits pushes but loses bookkeeping, and raced pushes can crash
-  Android's fragment manager. `pushRoute` into a named stack warns loudly
-  on Android instead of dropping silently. Root-stack navigation works on
-  both platforms. [NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444)
-  — verified at 0.5.0.
+- `unsupported` — absent on that target, by capability or by design
+- `degraded` — present, but with reduced fidelity or behavior
+- `different` — present everywhere, semantics differ
+- `broken-upstream` — filed upstream; tracked, not worked around
+
+**Verified** is the version the row was last checked against; the tables are
+re-checked in the pre-release docs sweep. Rows marked `desk` are verified
+against source only — on-device behavior is still pending.
+
+## Where the real OS widgets live
+
+The shared barrel ships only what can be equal everywhere — self-drawn
+controls (`Switch`, `Slider`, `ActivityIndicator`, `Tabs`, `Drawer`,
+`Sheet`) and OS-backed controls with a chrome reset (`TextInput`,
+`TextArea`). The platform-authentic widgets are opt-in subpath imports, and
+a shared `.tsrx` importing them fails the other platform's build on purpose:
+
+| Need                              | Web                                            | iOS                                                             | Android                                                                     |
+| --------------------------------- | ---------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Recycled list                     | `ScrollView` + `@for`                          | `UITableView` (`ui/ios`)                                        | `RecyclerView` (`ui/android`)                                               |
+| Modal dialog                      | `Sheet` / `openSheet`                          | `UIModal` / `openModal` (`ui/ios`)                              | `MaterialDialog` / `openModal` (`ui/android`)                               |
+| Edge-swipe drawer                 | `Drawer` (self-drawn, no edge swipe)           | `SideDrawer` (`ui/ios`)                                         | `DrawerLayout` (`ui/android`)                                               |
+| OS switch / slider / spinner / tab bar | shared self-drawn set                      | `UISwitch` / `UISlider` / `UIActivityIndicatorView` / `UITabBar` | `MaterialSwitch` / `SeekBar` / `CircularProgressIndicator` / `BottomNavigationView` |
+| Hover interactions                | `Hoverable` (`ui/web`)                         | —                                                               | —                                                                           |
+| Liquid glass                      | —                                              | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)               | —                                                                           |
+
+`ui/ios` and `ui/android` resolve only in native builds; `ui/web` only in
+web builds. `ui/native` is plumbing (root-layout helpers), not components.
+
+## Primitives
+
+| Seam                     | Web                                              | iOS                                                          | Android             | Kind       | Verified    |
+| ------------------------ | ------------------------------------------------ | ------------------------------------------------------------ | ------------------- | ---------- | ----------- |
+| `ScrollBox`              | scrolls (aliases `ScrollView`)                   | plain inline container — use `ScrollView` to scroll          | same as iOS         | `different` | 0.5.0      |
+| `ContextMenu` trigger    | right-click                                      | long-press                                                   | long-press          | `different` | 0.5.0      |
+| `PinInput` / `InputTags` | backspace-removes tag via the `web` escape bag   | chip ✕ remove only; no paste-to-fill                         | same as iOS         | `degraded`  | 0.5.0      |
+| `TextArea` `onSubmit`    | fires on Cmd/Ctrl+Enter                          | fires only when `returnKeyType` is `done`/`send`             | same as iOS         | `different` | 0.5.0      |
+| Nested `Text`/`RichText` | spans nest                                       | flat sibling spans — context carries inherited styles        | same as iOS         | `different` | 0.5.0      |
+| `line-height`            | total line box                                   | additive inter-line spacing                                  | same as iOS         | `different` | 0.5.0      |
+| `useMeasure` `x`/`y`     | viewport-relative                                | screen-relative dips                                         | same as iOS         | `different` | 0.5.0      |
+| `ref` value              | `HTMLElement`                                    | NativeScript `View`                                          | NativeScript `View` | `different` | 0.5.0      |
+| `onInput`/`onChange`     | can re-dispatch — keep handlers idempotent       | once per edit                                                | same as iOS         | `degraded`  | 0.5.0      |
+| `accessibilityState`     | independent ARIA booleans                        | single enum, strongest wins (disabled→selected→checked)      | same as iOS         | `degraded`  | 0.5.0      |
+| `accessibilityRole`      | full ARIA spellings                              | narrower NS enum (`tab`→`button`, `heading`→`header`, …)     | same as iOS         | `different` | 0.5.0      |
+| `Icon`/`Image` SVG       | DOM `<svg>`                                      | SVGKit                                                       | AndroidSVG — no SVG filters, limited text/radial gradients | `degraded` | 0.5.0·desk |
+| `Table`/`Select`/menus   | bounded, unvirtualized                           | bounded, unvirtualized — large data → `UITableView`          | → `RecyclerView`    | `degraded`  | 0.5.0      |
+
+Overlay roots (`Sheet`/`openSheet`, `UIModal`, `MaterialDialog`) mount a
+separate Octane root on every platform — `useContext` does not cross into
+them. Theme classes are forwarded; read context inside the overlay or pass
+values down.
+
+The self-drawn set compiles on both leaves, passes the web smoke suite, and
+renders in the harness `components` sweep on iOS; Android nested-stack
+sweeps remain skipped on #11444.
+
+## Navigation
+
+| Seam                    | Web                                          | iOS                                             | Android                                    | Kind             | Verified |
+| ----------------------- | -------------------------------------------- | ----------------------------------------------- | ------------------------------------------ | ---------------- | -------- |
+| Push into a named stack | nested-outlet URL push                       | commits but loses bookkeeping ([NS#11444](https://github.com/NativeScript/NativeScript/issues/11444)) | warns loudly and drops — raced pushes can crash the fragment manager | `broken-upstream` | 0.5.0    |
+| Hardware back           | browser back → `popstate`                    | — (no hardware back)                            | wired; pop-while-pushed not yet verified live | `different`     | 0.5.0    |
+| Route params            | serialize to query string — objects dropped  | objects survive                                 | objects survive                            | `degraded`       | 0.5.0    |
+| `popRoute(stack)`       | `history.back()` regardless of `stack`       | pops that stack                                 | pops that stack                            | `different`      | 0.5.0    |
+
+## Platform services
+
+| Seam                          | Web                                                              | iOS                  | Android                       | Kind          | Verified    |
+| ----------------------------- | ---------------------------------------------------------------- | -------------------- | ----------------------------- | ------------- | ----------- |
+| `appInfo`                     | unsupported — no trustworthy bundle identity                     | `NSBundle` metadata  | package metadata              | `unsupported` | 0.5.0       |
+| `openSettings`                | unsupported                                                      | app Settings URL     | app-details intent            | `unsupported` | 0.5.0·desk  |
+| `biometrics`                  | unsupported — WebAuthn needs an RP ceremony; call it directly    | FaceID/TouchID       | Keystore biometric            | `unsupported` | 0.5.0·desk  |
+| `secureStorage`               | unsupported — no enclave                                         | Keychain             | Keystore                      | `unsupported` | 0.5.0       |
+| `haptics`                     | `navigator.vibrate` — Android Chrome only; unsupported elsewhere | Taptic Engine        | Vibrator                      | `degraded`    | 0.5.0       |
+| `share`                       | `navigator.share`, else clipboard copy (`'copied'`)              | share sheet          | share sheet                   | `degraded`    | 0.5.0       |
+| `systemBars.setStatusBarStyle` | no-op — `setColor` writes `theme-color` meta instead            | works                | works                         | `unsupported` | 0.5.0       |
+| `notifications`               | local `Notification` only                                        | local + push (APNs)  | local + push (FCM)            | `degraded`    | 0.5.0·desk  |
+| `media.ensure('camera')`      | `getUserMedia`                                                   | unsupported — no capture plugin yet | unsupported      | `unsupported` | 0.5.0·desk  |
+| `files`                       | `pick` → blob URL; `writeText` triggers a download               | real file paths      | real paths; SAF `content://` reads | `different` | 0.5.0·desk  |
+
+## Same edge on every target
+
 - **`.tsrx` files don't emit `.d.ts`.** Upstream tsrx#136 → TS#64120/#64053.
   `@octane-xplat/ui` ships a generated `props.d.ts` plus hand-maintained
-  shells, so consumers still get full types. — verified at 0.5.0.
-- **Literal `@{` in JSX text** parses as a code block: evaluated and
-  discarded on web, a compile error on native. Write `{'@'}{expr}` —
-  `<Text>{'@'}{user.handle}</Text>` renders `@handle`. Upstream fix
-  intentionally not pursued. — verified at 0.5.0 on all targets.
-
-## Boundaries (works, with an edge)
-
+  shells, so consumers still get full types. — 0.5.0.
 - **`.tsrx` infers effect deps from closure reads.** An effect that only
   writes (refs, DOM) and never reads its driving prop compiles to a deps
   array that omits it — declare deps explicitly:
-  `useLayoutEffect(fn, [props.value])`. — verified at 0.5.0.
-- **`onInput`/`onChange` can dispatch repeatedly on web** — the
-  controlled-input machinery replays events. Keep handlers idempotent.
-  — verified at 0.5.0.
-- **Hardware back (Android)** is wired and its fallthrough is verified;
-  the pop-while-pushed path is logically correct but not yet verified
-  live. — verified at 0.5.0.
-- **`ScrollBox` is not a scroller on native** — it is a plain inline
-  container so a nested `List` can own scrolling (the name is a footgun;
-  use `ScrollView` when you want actual scrolling). — verified at 0.5.0.
-- **`List` is not virtualized on web**, and on native it throws inside a
-  `ScrollView`. `keyFor` is web-only. — verified at 0.5.0.
-- **`Modal` on Android**: a non-fullscreen modal shows a centered dialog,
-  not a bottom sheet. Context and theme do not cross overlay roots — read
-  them inside the overlay or pass values down. — verified at 0.5.0.
-- **`Drawer` has no edge-swipe gesture on web** — give the app a visible
-  toggle. — verified at 0.5.0.
-- **`TextArea` `onSubmit` on native** fires only when `returnKeyType` is
-  `done` or `send`; otherwise every newline reports as a submit. On web it
-  fires on Cmd/Ctrl+Enter. — verified at 0.5.0.
-- **`Grid` `gap` was removed** — use child margins. The leaves keep a
-  one-time console warning as a migration hint for one release.
-- **`console.debug` doesn't exist on device** — use `console.log`. The
-  lint ruleset flags it. — verified at 0.5.0.
-- **`Hoverable` is web-only** — moved to `@octane-xplat/ui/web`; touch
-  platforms have no hover semantic and the long-press stand-in was
-  dropped as fake parity.
-- **Shared `List`/`Modal` removed** — no shared recycled list or
-  `showModal` wrapper. `UITableView`/`RecyclerView` and
-  `UIModal`/`MaterialDialog` (with `openModal`) live in
-  `@octane-xplat/ui/ios` and `@octane-xplat/ui/android`; on web compose
-  `ScrollView` + map and `Sheet`.
-- **Shared `Switch`/`Slider`/`ActivityIndicator`/`Tabs`/`Drawer` are
-  self-drawn** — same pixels everywhere, but they are not the OS widget:
-  no native drag/tap affordances the platform chrome would add, `Drawer`
-  has no edge swipe (use a visible toggle, or `DrawerLayout`/`SideDrawer`
-  in the subpaths), `Tabs` renders a plain bar not a `TabView`/`UITabBar`.
-- **Text controls stay OS-backed** — `TextInput`/`TextArea` are the real
-  widgets with a chrome reset (no border/padding/platform underline,
-  normalized font/placeholder/focus). Caret, selection UI, IME,
-  autocorrect toolbars, secure entry, and keyboard types remain
-  platform-native by design.
-- **`useMeasure` coordinate frames differ** — web `x`/`y` are
-  viewport-relative; native `x`/`y` are screen-relative dips. —
-  verified at 0.5.0.
-- **The self-drawn component set is smoke-verified on web and iOS** —
-  `Button`, `Collapsible`, `Accordion`, `Checkbox`, `CheckboxGroup`,
-  `RadioGroup`, `DropdownMenu`, `ContextMenu`, `Select`/`SelectMenu`/
-  `Combobox`/`InputMenu`, `Badge`, `Separator`, `Skeleton`, `Avatar`,
-  `AvatarGroup`, `FormField`, `FieldGroup`, `InputNumber`, `PinInput`,
-  `InputTags`, `InputRating`, `Breadcrumb`, `Pagination`, `Stepper`,
-  `NavigationMenu`, `CommandPalette`, `Table`, `Timeline`, `Tree`,
-  `Alert`, `Card`, `Chip`, `Kbd`, `Empty`, `Banner`, `User`,
-  `ProgressGroup` compile on both leaves, pass the web smoke suite, and
-  render via the harness `components` sweep step on iOS (swap-pane
-  stacks; Android nested-stack sweeps remain skipped on #11444).
-  `Table`/`Select`/menus are bounded and unvirtualized by design (large
-  data → `UITableView`/`RecyclerView`).
-- **`ContextMenu` triggers differ by design** — right-click on web,
-  long-press on native; the same anchored list renders afterward.
-- **`PinInput`/`InputTags` keyboard conveniences are asymmetric** —
-  backspace-to-remove (tags) is web-only via the `web` escape bag; chip
-  ✕ remove works on both. `PinInput` has no paste-to-fill support.
-
-## Design debts (documented, not bugs)
-
-- **Route params are scalar.** They serialize as query strings on web —
-  objects survive on native and are silently dropped on web. Keep params
-  to strings and numbers. — 0.5.0.
-- **`popRoute(stack)` on web is `history.back()` regardless of stack** —
-  one linear history cannot pop a non-top route. — 0.5.0.
-- **Deep imports don't extension-resolve** — barrel imports only. — 0.5.0.
-- **No `PLATFORM` constant** — platform divergence goes through leaf
-  files, by design. — 0.5.0.
-- **Plain `.ts` files escape the compiler's DOM-global checks** — `pnpm
-lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
-  leaves where possible. — 0.5.0.
-- **Deep imports under `@nativescript/core/ui/*`** bundle as a second
-  module instance — import from `@nativescript/core` only. Lint-enforced.
-  — 0.5.0.
+  `useLayoutEffect(fn, [props.value])`. — 0.5.0.
+- **Literal `@{` in JSX text** parses as a code block: evaluated and
+  discarded on web, a compile error on native. Write `{'@'}{expr}` —
+  `<Text>{'@'}{user.handle}</Text>` renders `@handle`. Upstream fix
+  intentionally not pursued. — 0.5.0.
 - **`.tsrx` files reject `async` top-level functions** — the compiler
   treats them as async components, and an `async` function that never
   awaits still breaks `ns build`. Drop the keyword. — 0.5.0.
+- **`Grid` `gap` was removed** — use child margins. The leaves keep a
+  one-time console warning as a migration hint for one release. — 0.5.0.
+- **`console.debug` doesn't exist on device** — use `console.log`. The
+  lint ruleset flags it. — 0.5.0.
+- **Deep imports don't extension-resolve** — barrel imports only. — 0.5.0.
+- **Deep imports under `@nativescript/core/ui/*`** bundle as a second
+  module instance — import from `@nativescript/core` only. Lint-enforced.
+  — 0.5.0.
+- **Plain `.ts` files escape the compiler's DOM-global checks** — `pnpm
+  lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
+  leaves where possible. — 0.5.0.
+- **No `PLATFORM` constant** — platform divergence goes through leaf
+  files, by design. — 0.5.0.
+- **Text controls stay OS-backed** — caret, selection UI, IME, autocorrect
+  toolbars, secure entry, and keyboard types remain platform-native by
+  design. — 0.5.0.
