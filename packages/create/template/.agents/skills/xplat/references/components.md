@@ -10,18 +10,18 @@ import them inside `.ios.tsrx`/`.android.tsrx`/`.native.tsrx` leaves.
 
 ## Shared — `@octane-xplat/ui` (self-drawn, same pixels everywhere)
 
-| Need | Component(s) |
-| --- | --- |
-| Layout | `View` (aliased `Column`), `Row`, `Grid`, `Stack`, `Absolute`, `Spacer`, `SafeArea` |
-| Text | `Text`, `Heading`, `RichText` + `RichTextSpan` |
-| Tap | `Pressable`, `Link`, `NavLink` |
-| Input | `TextInput`, `TextArea`, `Switch`, `Slider` |
-| Scrolling | `ScrollView`, `ScrollBox` |
-| Media | `Image`, `Icon` (`registerIcon`/`registerIcons` for glyphs) |
-| Feedback | `ActivityIndicator`, `Meter`, `showToast` |
-| Overlays | `Sheet`/`openSheet`/`closeSheet`, `Overlay`, `Popover`, `Drawer`, `openWindow` |
-| Shells | `Screen`, `Tabs` (+ `TabSpec`) |
-| Animation | `useAnimation` → `AnimatedValue` |
+| Need          | Component(s)                                                                                    |
+| ------------- | ----------------------------------------------------------------------------------------------- |
+| Layout        | `View` (aliased `Column`), `Row`, `Grid`, `Stack`, `Absolute`, `Spacer`, `SafeArea`             |
+| Text          | `Text`, `Heading`, `RichText` + `RichTextSpan`                                                  |
+| Tap           | `Pressable`, `Link`, `NavLink`                                                                  |
+| Input         | `TextInput`, `TextArea`, `Switch`, `Slider`                                                     |
+| Scrolling     | `ScrollView`, `ScrollBox`                                                                       |
+| Media         | `Image`, `Icon` (`registerIcon`/`registerIcons` for glyphs)                                     |
+| Feedback      | `ActivityIndicator`, `Meter`, `showToast`                                                       |
+| Overlays      | `Sheet`/`openSheet`/`closeSheet`, `Overlay`, `Popover`, `Drawer`, `openWindow`                  |
+| Shells        | `Screen`, `Tabs` (+ `TabSpec`)                                                                  |
+| Animation     | `useAnimation` → `AnimatedValue`                                                                |
 | Theme/measure | `useColorScheme`/`getColorScheme`, `useSafeAreaInsets`, `useMeasure`, `styled()`, `createStore` |
 
 `Switch`, `Slider`, `ActivityIndicator`, `Tabs`, and `Drawer` are drawn by

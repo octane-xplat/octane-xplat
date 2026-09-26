@@ -14,9 +14,7 @@ function pickerTypes(accept: string): { extensions: string[]; mimeTypes: string[
 		.filter(Boolean)
 
 	return {
-		extensions: values
-			.filter((value) => value.startsWith('.'))
-			.map((value) => value.slice(1)),
+		extensions: values.filter((value) => value.startsWith('.')).map((value) => value.slice(1)),
 		// `*/*` is the default, not a useful iOS UTType MIME value. Leaving it
 		// out lets the upstream picker use its public.data fallback.
 		mimeTypes: values.filter((value) => value.includes('/') && value !== '*/*'),

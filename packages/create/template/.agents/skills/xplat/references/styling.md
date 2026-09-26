@@ -1,6 +1,6 @@
 # Styling
 
-Two channels, chosen by *when the value is known*:
+Two channels, chosen by _when the value is known_:
 
 - `className` → CSS classes and design tokens. Use for anything static.
 - `style={{ ... }}` → inline object for runtime values: animated offsets,

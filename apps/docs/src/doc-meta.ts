@@ -75,19 +75,24 @@ export function purposeOf(md: string): string {
 	const quote: string[] = []
 	for (let i = h1 + 1; i < lines.length; i++) {
 		const l = lines[i]
-		if (/^>/.test(l)) {
+		if (l.startsWith('>')) {
 			quote.push(l.replace(/^>\s?/, ''))
 		} else if (l.trim() === '') {
-			if (quote.length) break
+			if (quote.length) {
+				break
+			}
 		} else {
 			break
 		}
 	}
+
 	return quote.join(' ').replace(/\s+/g, ' ').trim()
 }
 
 // Site path for a doc slug — mirrors MdDoc's link mapping.
 export function docPath(slug: string): string {
-	if (NOTES.has(slug)) return `/notes/${slug}`
+	if (NOTES.has(slug)) {
+		return `/notes/${slug}`
+	}
 	return slug === INDEX_SLUG ? '/' : `/${slug}`
 }

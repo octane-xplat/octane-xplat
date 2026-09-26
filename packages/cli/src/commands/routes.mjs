@@ -94,8 +94,9 @@ export function generateRoutes(cwd, dir, out) {
 
 	const union = list.length ? list.map((r) => `\n\t| '${r.name}'`).join('') : 'never'
 
-	const params = list
-		.map((r) => `\t'${r.name}': { ${r.params.map((k) => `${k}: string`).join('; ')} }`)
+	const params = list.map(
+		(r) => `\t'${r.name}': { ${r.params.map((k) => `${k}: string`).join('; ')} }`,
+	)
 
 	const presents = list
 		.filter((r) => r.presentation)

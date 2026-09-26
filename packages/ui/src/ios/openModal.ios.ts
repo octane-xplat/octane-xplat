@@ -15,6 +15,7 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 					'openModal dropped — no live presenter. The topmost frame has no loaded currentPage (a page mid-navigation), or no frame is active yet.',
 				),
 			)
+
 			return
 		}
 

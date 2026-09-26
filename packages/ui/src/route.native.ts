@@ -295,11 +295,11 @@ function commitRoute(r: Route): void {
 				page.id = r.name + '-page'
 				page.actionBarHidden = true
 				const head = headFor(r)
-					if (head?.title !== undefined) {
-						page.actionBar.title = head.title
-					}
+				if (head?.title !== undefined) {
+					page.actionBar.title = head.title
+				}
 
-					pageRoutes.set(page, r)
+				pageRoutes.set(page, r)
 				// Page is a ContentView — single-child (`.content` assignment
 				// drops all but the last root view). Root on a GridLayout
 				// child so multi-root screens can't silently lose siblings.

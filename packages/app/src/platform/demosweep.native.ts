@@ -86,7 +86,8 @@ function dump(hay: string[]): string {
 // push into 'test' (Test pane). Steps resolve their stack from the
 // catalog kind — the current step's stack drives every page lookup.
 let stepStack = 'demos'
-const stackFor = (id: string) => (DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos')
+const stackFor = (id: string) =>
+	DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos'
 const demosPage = () => getStack(stepStack)?.currentPage
 
 // Captured across checks — sheetHost() empties the moment closeSheet's
@@ -439,7 +440,11 @@ const STEPS: Step[] = [
 				at: 2200,
 				run: () => {
 					const ok = viewTexts(demosPage()).includes('Hint card text')
-					console.log('[assert] hoverable card on long-press: ' + (ok ? 'OK' : 'FAIL') + dump(viewTexts(demosPage())))
+					console.log(
+						'[assert] hoverable card on long-press: ' +
+							(ok ? 'OK' : 'FAIL') +
+							dump(viewTexts(demosPage())),
+					)
 				},
 			},
 			{ at: 2600, run: () => fireTap(tapTargetForText(demosPage(), 'Open shade overlay')) },
@@ -669,8 +674,22 @@ const STEPS: Step[] = [
 					const obs = row?.getGestureObservers?.(8) ?? []
 					console.log('[probe] reorder-a pan observers=' + obs.length)
 					for (const o of obs) {
-						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 1, deltaX: 0, deltaY: 0 })
-						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 2, deltaX: 0, deltaY: 90 })
+						o.callback.call(o.context, {
+							eventName: 'pan',
+							object: row,
+							view: row,
+							state: 1,
+							deltaX: 0,
+							deltaY: 0,
+						})
+						o.callback.call(o.context, {
+							eventName: 'pan',
+							object: row,
+							view: row,
+							state: 2,
+							deltaX: 0,
+							deltaY: 90,
+						})
 					}
 				},
 			},
@@ -705,7 +724,14 @@ const STEPS: Step[] = [
 					const row: any = find('reorder-a')
 					const obs = row?.getGestureObservers?.(8) ?? []
 					for (const o of obs) {
-						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 3, deltaX: 0, deltaY: 90 })
+						o.callback.call(o.context, {
+							eventName: 'pan',
+							object: row,
+							view: row,
+							state: 3,
+							deltaX: 0,
+							deltaY: 90,
+						})
 					}
 				},
 			},
@@ -738,9 +764,30 @@ const STEPS: Step[] = [
 					const row: any = find('reorder-b')
 					const obs = row?.getGestureObservers?.(8) ?? []
 					for (const o of obs) {
-						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 1, deltaX: 0, deltaY: 0 })
-						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 2, deltaX: 0, deltaY: -80 })
-						o.callback.call(o.context, { eventName: 'pan', object: row, view: row, state: 0, deltaX: 0, deltaY: -80 })
+						o.callback.call(o.context, {
+							eventName: 'pan',
+							object: row,
+							view: row,
+							state: 1,
+							deltaX: 0,
+							deltaY: 0,
+						})
+						o.callback.call(o.context, {
+							eventName: 'pan',
+							object: row,
+							view: row,
+							state: 2,
+							deltaX: 0,
+							deltaY: -80,
+						})
+						o.callback.call(o.context, {
+							eventName: 'pan',
+							object: row,
+							view: row,
+							state: 0,
+							deltaX: 0,
+							deltaY: -80,
+						})
 					}
 				},
 			},
@@ -890,13 +937,24 @@ function runStep(i: number) {
 		const rel = (chip as any).getLocationRelativeTo?.(chip.parent)
 		const outOfParent =
 			rel && pSize && cSize
-				? rel.x < -1 || rel.y < -1 || rel.x + cSize.width > pSize.width + 1 || rel.y + cSize.height > pSize.height + 1
+				? rel.x < -1 ||
+					rel.y < -1 ||
+					rel.x + cSize.width > pSize.width + 1 ||
+					rel.y + cSize.height > pSize.height + 1
 				: 'n/a'
 
 		chipInfo = ' loaded=' + chip.isLoaded + ' outOfParent=' + outOfParent
 	}
 
-	console.log('[sweep] menu-' + step.id + ' stack=' + stepStack + ' tap observers=' + fireTap(chip) + chipInfo)
+	console.log(
+		'[sweep] menu-' +
+			step.id +
+			' stack=' +
+			stepStack +
+			' tap observers=' +
+			fireTap(chip) +
+			chipInfo,
+	)
 	waitFor(
 		() => demosPage() !== gal,
 		() => {
@@ -916,6 +974,7 @@ function runStep(i: number) {
 							'lastDemo ' + step.id,
 							stepStack === 'test' ? 'Seam proofs' : 'Last opened: ' + step.id,
 						)
+
 						setTimeout(() => runStep(i + 1), 150)
 					},
 				)

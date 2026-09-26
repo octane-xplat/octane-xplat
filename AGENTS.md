@@ -139,7 +139,7 @@ not maintained incrementally.
   `CHANGELOG.md` when the task explicitly says to. Many agents appending
   to one file is a merge-conflict farm; a single generation pass before
   release avoids that.
-- **Range:** everything since the last *published* release — check
+- **Range:** everything since the last _published_ release — check
   `npm view @octane-xplat/ui versions` and the
   `chore(release): align packages at X.Y.Z` commits; git tags lag the
   registry.

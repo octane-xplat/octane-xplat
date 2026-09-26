@@ -42,8 +42,8 @@ commit the state change once, at gesture end. The Reorder demo
 
 Native velocity is normalized to dip per second: iOS reads the
 `UIPanGestureRecognizer`'s `velocityInView`, while Android feeds NativeScript's
-pan `MotionEvent`s to `VelocityTracker`. *Exercised through programmatic
-gesture events on iOS; real-finger velocity pending a live check.*
+pan `MotionEvent`s to `VelocityTracker`. _Exercised through programmatic
+gesture events on iOS; real-finger velocity pending a live check._
 
 For the timing model, supported gesture payloads, and target-specific limits,
 see the [animation notes](animation-notes.md).

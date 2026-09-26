@@ -36,8 +36,8 @@
 		"@octane-xplat/lint": "^0.1.0",
 		"@octanejs/vite-plugin": "0.1.58",
 		"@tsrx/typescript-plugin": "0.4.7",
-		"oxlint": "^1.74.0",
 		"nativescript": "9.1.1",
+		"oxlint": "^1.74.0",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"
 	}

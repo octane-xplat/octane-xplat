@@ -1,1 +1,1 @@
-export { RouteHost } from './RouteHost.native.tsrx';
+export { RouteHost } from './RouteHost.native.tsrx'

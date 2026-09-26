@@ -19,15 +19,15 @@ if (Application.ios) {
 			)
 
 			if (f) {
-
 				const text = await files.readText(f)
 				console.log(
 					'[assert] files.readText picked file: ' +
-						(text === 'octane-xplat file service' ? 'OK' : 'FAIL ' + JSON.stringify(text.slice(0, 60))),
+						(text === 'octane-xplat file service'
+							? 'OK'
+							: 'FAIL ' + JSON.stringify(text.slice(0, 60))),
 				)
 
 				files.release(f)
-
 			}
 		} catch (e) {
 			console.log('[assert] files.pick: FAIL ' + (e as Error).message)

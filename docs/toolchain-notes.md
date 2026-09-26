@@ -39,7 +39,7 @@
   `@nativescript/vite`): the app source dir + the roots named in the app's
   tsconfig `compilerOptions.paths`. A workspace package that is imported but
   absent from `paths` builds and serves fine, but edits to it never reach
-  `handleHotUpdate` — the save is dropped *silently*, no log line. Harness
+  `handleHotUpdate` — the save is dropped _silently_, no log line. Harness
   fix: `apps/native/tsconfig.json` maps `@xplat/app`, `@xplat/demos`,
   `@octane-xplat/ui`, and `@octane-xplat/platform`. `xplat doctor` warns when
   an imported workspace package is missing from `paths`.
@@ -50,7 +50,7 @@
   `xcrun simctl launch` still boots dev-session modules (HTTP ESM works —
   `[probe]`/`[demo]` logs flow) but no ws client attaches, so subsequent
   saves report `recipients=0`. Android is stricter: a manual `am start`
-  boots the *inlined bundle* with no HTTP boot at all. Restore HMR by
+  boots the _inlined bundle_ with no HTTP boot at all. Restore HMR by
   relaunching through `ns run`.
 - Element registry modules self-accept (`import.meta.hot?.accept()`) so
   re-registration recreates live native instances without remount.
@@ -71,15 +71,16 @@
 
 ### Dev-loop troubleshooting
 
-| Symptom                                                         | Cause                                                            | Fix                                                                                |
-| --------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Save logs no `[hmr-ws][update]` at all                          | File outside HMR scope — not in app src or tsconfig `paths`      | Map the package in the native app's tsconfig `paths` (`xplat doctor` flags it)     |
-| Update logs `recipients=0`, device stays stale                  | No `/ns-hmr` ws client attached                                  | Relaunch via `ns run` (manual `simctl`/`am start` doesn't reattach); see below     |
-| `recipients=0` right after a manual device relaunch             | ws attach requires the livesync-driven launch                    | `ns run ios` / `ns run android` again                                              |
-| `recipients=0` on physical Android                                | `adb reverse` mapping died (adbd restart) or missing ws plugin   | `adb reverse tcp:<vite-port> tcp:<vite-port>`; declare `@valor/nativescript-websockets` |
-| Web changes its port unexpectedly                                 | Native dev server prefers `:5173`; whichever starts second bumps | Pin the web `server.port` (harness uses `5200`); device always self-discovers      |
-| `HTTP import failed … %5B` in device boot log                   | `/ns/m` doesn't decode bracketed route filenames                 | Patched locally + filed as NativeScript#11455; drop the patch when a release carries the fix |
-| Two checkouts' `ns run` sessions interfere                      | Sim install + `bundle.mjs` injection are shared mutable state    | Serialize `ns run` per simulator; concurrent runs clobber each other's bundle      |
+| Symptom                                             | Cause                                                            | Fix                                                                                          |
+| --------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Save logs no `[hmr-ws][update]` at all              | File outside HMR scope — not in app src or tsconfig `paths`      | Map the package in the native app's tsconfig `paths` (`xplat doctor` flags it)               |
+| Update logs `recipients=0`, device stays stale      | No `/ns-hmr` ws client attached                                  | Relaunch via `ns run` (manual `simctl`/`am start` doesn't reattach); see below               |
+| `recipients=0` right after a manual device relaunch | ws attach requires the livesync-driven launch                    | `ns run ios` / `ns run android` again                                                        |
+| `recipients=0` on physical Android                  | `adb reverse` mapping died (adbd restart) or missing ws plugin   | `adb reverse tcp:<vite-port> tcp:<vite-port>`; declare `@valor/nativescript-websockets`      |
+| Web changes its port unexpectedly                   | Native dev server prefers `:5173`; whichever starts second bumps | Pin the web `server.port` (harness uses `5200`); device always self-discovers                |
+| `HTTP import failed … %5B` in device boot log       | `/ns/m` doesn't decode bracketed route filenames                 | Patched locally + filed as NativeScript#11455; drop the patch when a release carries the fix |
+| Two checkouts' `ns run` sessions interfere          | Sim install + `bundle.mjs` injection are shared mutable state    | Serialize `ns run` per simulator; concurrent runs clobber each other's bundle                |
+
 - `.tsrx` everywhere for renderer-owned files; `.ts` helpers
   never call hooks (slotter emits `from 'octane'` — DOM runtime; under a
   universal rule they're _validated_ not compiled).

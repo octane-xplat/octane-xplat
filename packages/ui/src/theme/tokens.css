@@ -448,8 +448,6 @@ button {
 	font-weight: bold;
 }
 
-
-
 /* utilities (hand-written subset — do NOT adopt Tailwind until
    NativeScript/tailwind#226 is resolved; the plugin strips core-supported
    props incl. gap, drops all @media, and rewrites invisible→collapse) */

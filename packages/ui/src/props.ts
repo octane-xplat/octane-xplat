@@ -580,7 +580,13 @@ export interface HoverableProps {
 }
 
 export type ToastContent = string | (() => any)
-export type ToastPosition = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end'
+export type ToastPosition =
+	| 'top'
+	| 'top-start'
+	| 'top-end'
+	| 'bottom'
+	| 'bottom-start'
+	| 'bottom-end'
 
 export interface ToastOptions {
 	duration?: number
@@ -743,8 +749,9 @@ export interface BeforeLoadArgs {
 	context: RouteContext
 }
 
-export type BeforeLoad =
-	(args: BeforeLoadArgs) => RouteContext | void | Promise<RouteContext | void>
+export type BeforeLoad = (
+	args: BeforeLoadArgs,
+) => RouteContext | void | Promise<RouteContext | void>
 
 /** The deliberately small cross-platform head surface. `meta` keys become
  * web `<meta name="..." content="...">` tags; native consumes `title`. */

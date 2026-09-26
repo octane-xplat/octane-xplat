@@ -161,7 +161,10 @@ export function deriveRouteManifest(
 			meta.beforeLoad = beforeLoad
 		}
 
-		if (files[key]?.head && (typeof files[key].head === 'object' || typeof files[key].head === 'function')) {
+		if (
+			files[key]?.head &&
+			(typeof files[key].head === 'object' || typeof files[key].head === 'function')
+		) {
 			meta.head = files[key].head
 		}
 
@@ -264,7 +267,9 @@ export function buildRoutePath(routes: readonly RouteMeta[], r: Route): string {
 
 	// No URLSearchParams — shared code carries no DOM globals (invariant 4).
 	const q = Object.entries(rest)
-		.map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(encodeRouteParam(v, r.name, k)))
+		.map(
+			([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(encodeRouteParam(v, r.name, k)),
+		)
 		.join('&')
 
 	const path = (r.stack === 'root' ? '' : '/' + r.stack) + '/' + segs.join('/')
@@ -278,15 +283,23 @@ const JSON_PARAM_PREFIX = 'json:'
  * of silently turning them into `[object Object]`; generated APIs still keep
  * callers on scalar strings. */
 function encodeRouteParam(value: unknown, routeName: string, key: string): string {
-	if (value === undefined || value === null || ['string', 'number', 'boolean'].includes(typeof value)) {
+	if (
+		value === undefined ||
+		value === null ||
+		['string', 'number', 'boolean'].includes(typeof value)
+	) {
 		return String(value ?? '')
 	}
 
-	console.warn(`[octane-xplat] route '${routeName}' param '${key}' is non-scalar; JSON-encoding it for the URL`)
+	console.warn(
+		`[octane-xplat] route '${routeName}' param '${key}' is non-scalar; JSON-encoding it for the URL`,
+	)
 	try {
 		return JSON_PARAM_PREFIX + JSON.stringify(value)
 	} catch {
-		console.warn(`[octane-xplat] route '${routeName}' param '${key}' could not be JSON-encoded; using an empty value`)
+		console.warn(
+			`[octane-xplat] route '${routeName}' param '${key}' could not be JSON-encoded; using an empty value`,
+		)
 		return ''
 	}
 }

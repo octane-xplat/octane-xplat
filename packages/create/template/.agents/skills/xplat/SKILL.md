@@ -17,7 +17,7 @@ below prevent that; `pnpm lint` enforces most of them.
    — `Foo.web.tsrx`, `Foo.native.tsrx`, `Foo.ios.tsrx`, `Foo.android.tsrx` —
    chosen by the bundler when something imports `./Foo`. Never branch on
    platform inside JSX (`Platform.OS`, conditional imports, `typeof
-   document` checks). Platform-authentic widgets live behind
+document` checks). Platform-authentic widgets live behind
    `@octane-xplat/ui/ios`, `/android`, and `/web` — importing a subpath
    outside a matching suffix file fails the other platform's build (the
    `xplat/platform-subpath-import` lint enforces it).
@@ -58,12 +58,12 @@ below prevent that; `pnpm lint` enforces most of them.
 
 ## Verify
 
-| Command | Catches |
-| --- | --- |
-| `pnpm lint` | vocabulary / DOM-global / style violations — its output is authoritative |
-| `pnpm typecheck` | both web and native TS configs |
-| `pnpm dev` | web behavior |
-| `pnpm dev:ios` / `pnpm dev:android` | the platform where behavior actually differs |
+| Command                             | Catches                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------------ |
+| `pnpm lint`                         | vocabulary / DOM-global / style violations — its output is authoritative |
+| `pnpm typecheck`                    | both web and native TS configs                                           |
+| `pnpm dev`                          | web behavior                                                             |
+| `pnpm dev:ios` / `pnpm dev:android` | the platform where behavior actually differs                             |
 
 ## Read next (only when needed)
 
@@ -77,4 +77,4 @@ below prevent that; `pnpm lint` enforces most of them.
 - Full framework docs, one file:
   https://octane-xplat.goddardai.org/llms-full.txt (index:
   https://octane-xplat.goddardai.org/llms.txt). The `/notes/*` design
-  record explains *why* a constraint exists — rarely needed for app work.
+  record explains _why_ a constraint exists — rarely needed for app work.

@@ -153,7 +153,7 @@ Everything added, changed, and fixed since 0.3.0.
   content as elements: `<Drawer main={<Home />} drawer={<Menu />}>`.
 - **`<RichText>` + `<RichTextSpan>`** — mixed inline formatting and
   tappable runs: `<RichText><RichTextSpan text="Read " />
-  <RichTextSpan className="link" onPress={...} text="@alec" /></RichText>`.
+<RichTextSpan className="link" onPress={...} text="@alec" /></RichText>`.
   Inline spans on web; one label with styled/tappable spans on native.
 - **`<Popover>` now works on native.** It opens an overlay anchored to
   its trigger. Previously it rendered nothing off-web.
@@ -198,7 +198,7 @@ Everything added, changed, and fixed since 0.3.0.
 ### Theming
 
 - **App-wide light/dark control.** `setThemePreference('light' | 'dark'
-  | 'system')` and `useThemeScheme()` manage the theme. Overlays,
+| 'system')` and `useThemeScheme()` manage the theme. Overlays,
   popovers, toasts, sheets, modals, and web portals now follow it —
   previously only the app root did.
 

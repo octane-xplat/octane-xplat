@@ -1,1 +1,1 @@
-export { useParams } from './useParams.tsrx';
+export { useParams } from './useParams.tsrx'

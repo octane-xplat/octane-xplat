@@ -4,7 +4,15 @@ import { App } from '@xplat/app'
 import { probeSignal$ } from '@xplat/app/probe-state'
 import { sheetHost } from '@xplat/app/platform/sheet.native'
 import '@xplat/app/platform/filepick.native'
-import { getColorScheme, registerStack, getStack, findInRootLayouts, routeFor, popRoute, setThemePreference } from '@octane-xplat/ui'
+import {
+	getColorScheme,
+	registerStack,
+	getStack,
+	findInRootLayouts,
+	routeFor,
+	popRoute,
+	setThemePreference,
+} from '@octane-xplat/ui'
 
 import { storage, wireHardwareBack, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
@@ -194,7 +202,6 @@ setTimeout(() => {
 	cornersProbe.style.cornerShape = 'squircle'
 
 	;((thePage as any)?.content as any)?.addChild?.(cornersProbe)
-
 }, 1700)
 
 // (96,4) in the top-right corner box sits INSIDE a squircle but OUTSIDE a
@@ -334,9 +341,7 @@ setTimeout(() => {
 	// Same read on a WORKING pressable (counter-inc: real taps fire it) —
 	// the comparison isolates whether observers lack recognizers on the
 	// dead elements or the dead elements lack both.
-	const inc = pages
-		.flatMap((p: any) => collect(p))
-		.find((w: any) => w?.id === 'counter-inc') as any
+	const inc = pages.flatMap((p: any) => collect(p)).find((w: any) => w?.id === 'counter-inc') as any
 
 	if (inc) {
 		console.log(
@@ -350,10 +355,7 @@ setTimeout(() => {
 	}
 
 	console.log(
-		'[probe] chip recognizers=' +
-			(v.ios?.gestureRecognizers?.count ?? 0) +
-			' loaded=' +
-			v.isLoaded,
+		'[probe] chip recognizers=' + (v.ios?.gestureRecognizers?.count ?? 0) + ' loaded=' + v.isLoaded,
 	)
 }, 11500)
 
@@ -813,7 +815,6 @@ if (Application.android) {
 		// Drive explicitly — self-drive may have already flipped dark.
 		setThemePreference('light')
 		setTimeout(() => {
-
 			const light = statusBarLightIcons()
 			console.log(
 				'[assert] statusbar icons light scheme: ' +
@@ -825,7 +826,6 @@ if (Application.android) {
 				const dark = statusBarLightIcons()
 				console.log(
 					'[assert] statusbar icons dark scheme: ' +
-
 						(dark === false ? 'OK' : 'FAIL (' + JSON.stringify(dark) + ')'),
 				)
 
@@ -833,7 +833,6 @@ if (Application.android) {
 				setTimeout(() => {
 					const pushed = statusBarLightIcons()
 					console.log(
-
 						'[assert] statusbar icons survive push: ' +
 							(pushed === false ? 'OK' : 'FAIL (' + JSON.stringify(pushed) + ')'),
 					)
@@ -843,7 +842,6 @@ if (Application.android) {
 						const popped = statusBarLightIcons()
 						console.log(
 							'[assert] statusbar icons survive pop: ' +
-
 								(popped === false ? 'OK' : 'FAIL (' + JSON.stringify(popped) + ')'),
 						)
 
@@ -919,7 +917,6 @@ if (Application.android) {
 									waitFor(
 										() =>
 											routeFor('demos')?.params?.id === 'counter' &&
-
 											paneTexts().includes('Demo count: 0'),
 										() => {
 											const backOk = paneTexts().includes('Demo count: 0')
@@ -934,13 +931,10 @@ if (Application.android) {
 													collect(tabView()).some((v) => v.id === 'menu-counter'),
 
 												() => {
-													const galOk = collect(tabView()).some(
-														(v) => v.id === 'menu-counter',
-													)
+													const galOk = collect(tabView()).some((v) => v.id === 'menu-counter')
 
 													console.log(
-														'[assert] swap-pane pop restores gallery: ' +
-															(galOk ? 'OK' : 'FAIL'),
+														'[assert] swap-pane pop restores gallery: ' + (galOk ? 'OK' : 'FAIL'),
 													)
 
 													// Safe-area read: the Test tab's Services
@@ -948,16 +942,12 @@ if (Application.android) {
 													const svc = gestureTarget(tabView(), 'Test')
 													fireGesture(svc, 1, 'tap', {})
 													setTimeout(() => {
-														const m = paneTexts()
-															.find((t) => t.startsWith('insets '))
+														const m = paneTexts().find((t) => t.startsWith('insets '))
 
 														const top = m ? Number(m.split(' ')[1]?.split('/')[0]) : NaN
 														console.log(
 															'[assert] safe-area insets nonzero: ' +
-
-																(Number.isFinite(top) && top > 0
-																	? 'OK'
-																	: 'FAIL') +
+																(Number.isFinite(top) && top > 0 ? 'OK' : 'FAIL') +
 																' (' +
 																JSON.stringify(m ?? paneTexts().slice(0, 12)) +
 																')',

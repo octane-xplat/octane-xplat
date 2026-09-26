@@ -21,7 +21,7 @@ call sites drive both.
 
 ## Known gap
 
-Pushing into a *named* stack is iOS-only until
+Pushing into a _named_ stack is iOS-only until
 [NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444)
 lands — `pushRoute` there warns loudly on Android instead of dropping
 silently. Root-stack navigation works on both platforms.

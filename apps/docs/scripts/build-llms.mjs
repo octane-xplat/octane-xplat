@@ -16,9 +16,13 @@ const REPO = 'https://github.com/aleclarson/octane-xplat'
 // resolve against the repo on GitHub — same mapping as MdDoc's renderer.
 function rewriteLinks(md) {
 	return md.replace(/\]\(([^)\s]+)\)/g, (m, href) => {
-		if (/^(https?:|#|mailto:)/.test(href)) return m
+		if (/^(https?:|#|mailto:)/.test(href)) {
+			return m
+		}
 		const doc = href.replace(/^\.\//, '').match(/^([\w-]+)\.md(#.*)?$/)
-		if (doc) return `](${BASE}${docPath(doc[1])}${doc[2] ?? ''})`
+		if (doc) {
+			return `](${BASE}${docPath(doc[1])}${doc[2] ?? ''})`
+		}
 		const path = href.replace(/^(\.\.\/)+/, '').replace(/^\.\//, '')
 		const kind = path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'
 		return `](${REPO}/${kind}/main/${path})`
@@ -27,15 +31,20 @@ function rewriteLinks(md) {
 
 const docs = []
 for (const name of await readdir(docsDir)) {
-	if (!name.endsWith('.md')) continue
+	if (!name.endsWith('.md')) {
+		continue
+	}
 	const md = await readFile(join(docsDir, name), 'utf8')
 	const slug = name.replace(/\.md$/, '')
 	docs.push({ slug, title: titleOf(slug, md), purpose: purposeOf(md), guide: !NOTES.has(slug), md })
 }
+
 docs.sort((a, b) => {
 	const ai = ORDER.indexOf(a.slug)
 	const bi = ORDER.indexOf(b.slug)
-	return ai !== -1 || bi !== -1 ? (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi) : a.slug.localeCompare(b.slug)
+	return ai !== -1 || bi !== -1
+		? (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
+		: a.slug.localeCompare(b.slug)
 })
 
 const HEADER = `# xplat docs
@@ -82,4 +91,6 @@ ${body}
 await mkdir(outDir, { recursive: true })
 await writeFile(join(outDir, 'llms.txt'), llms)
 await writeFile(join(outDir, 'llms-full.txt'), full)
-console.log(`llms.txt + llms-full.txt → ${outDir} (${docs.filter((d) => d.guide).length} guides, ${docs.filter((d) => !d.guide).length} notes linked only)`)
+console.log(
+	`llms.txt + llms-full.txt → ${outDir} (${docs.filter((d) => d.guide).length} guides, ${docs.filter((d) => !d.guide).length} notes linked only)`,
+)

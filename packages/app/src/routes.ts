@@ -12,14 +12,26 @@ wireRouteLinks()
 
 export type NavigateArgs = {
 	[Name in RouteName]: keyof RouteParams[Name] extends never
-		? [name: Name, params?: RouteParams[Name], opts?: { into?: string; presentation?: 'push' | 'modal' | 'fade' }]
-		: [name: Name, params: RouteParams[Name], opts?: { into?: string; presentation?: 'push' | 'modal' | 'fade' }]
+		? [
+				name: Name,
+				params?: RouteParams[Name],
+				opts?: { into?: string; presentation?: 'push' | 'modal' | 'fade' },
+			]
+		: [
+				name: Name,
+				params: RouteParams[Name],
+				opts?: { into?: string; presentation?: 'push' | 'modal' | 'fade' },
+			]
 }[RouteName]
 
 export type RouteLinkProps = {
 	[Name in RouteName]: (keyof RouteParams[Name] extends never
 		? { params?: RouteParams[Name] }
 		: { params: RouteParams[Name] }) & {
-			to: Name; into?: string; presentation?: 'push' | 'modal' | 'fade'; className?: any; children?: any
-		}
+		to: Name
+		into?: string
+		presentation?: 'push' | 'modal' | 'fade'
+		className?: any
+		children?: any
+	}
 }[RouteName]

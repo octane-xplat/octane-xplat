@@ -32,7 +32,7 @@ shared.
 
 Leaf rules:
 
-- Inside a leaf, platform APIs are *expected*: DOM globals in `.web.*`,
+- Inside a leaf, platform APIs are _expected_: DOM globals in `.web.*`,
   `@nativescript/*` imports in `.native.*`. The lint rules key off the
   suffix — don't fight them with suppressions.
 - Never read app-level NativeScript globals (`Application.android.*`)

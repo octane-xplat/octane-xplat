@@ -21,8 +21,8 @@ as a tab's inner navigation.
 
 On the web, the route becomes a real URL, so refresh, back, bookmarks, and
 shared links keep working. On native, the same route pushes a screen into the
-matching navigation stack. *Verified on the iOS simulator; Android
-re-verification pending after the swap-pane fix.*
+matching navigation stack. _Verified on the iOS simulator; Android
+re-verification pending after the swap-pane fix._
 
 ## Let the route dir name your routes
 

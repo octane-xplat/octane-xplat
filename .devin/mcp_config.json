@@ -1,13 +1,13 @@
 {
-  "mcpServers": {
-    "xcode": {
-      "command": ".devin/mcpbridge-wrapper.sh",
-      "transport": "stdio"
-    },
-    "ios-sim": {
-      "command": "bunx",
-      "args": ["ios-simulator-mcp"],
-      "transport": "stdio"
-    }
-  }
+	"mcpServers": {
+		"xcode": {
+			"command": ".devin/mcpbridge-wrapper.sh",
+			"transport": "stdio"
+		},
+		"ios-sim": {
+			"command": "bunx",
+			"args": ["ios-simulator-mcp"],
+			"transport": "stdio"
+		}
+	}
 }

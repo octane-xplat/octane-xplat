@@ -40,7 +40,9 @@ const readJson = (file) => {
 }
 
 const packageName = (specifier) => {
-	if (!specifier.startsWith('@') && !specifier.includes('/')) {return specifier}
+	if (!specifier.startsWith('@') && !specifier.includes('/')) {
+		return specifier
+	}
 	const parts = specifier.split('/')
 	return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]
 }
@@ -52,21 +54,30 @@ const importSpecifiers = (source) => {
 		/\bimport\s*['"]([^'"]+)['"]/g,
 		/\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
 	]) {
-		for (const match of source.matchAll(pattern)) {specs.add(match[1])}
+		for (const match of source.matchAll(pattern)) {
+			specs.add(match[1])
+		}
 	}
 
 	return specs
 }
 
 const sourceFiles = (root) => {
-	if (!existsSync(root)) {return []}
+	if (!existsSync(root)) {
+		return []
+	}
 	const out = []
 	const visit = (dir) => {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
-			if (entry.name === 'node_modules' || entry.name.startsWith('.')) {continue}
+			if (entry.name === 'node_modules' || entry.name.startsWith('.')) {
+				continue
+			}
 			const file = join(dir, entry.name)
-			if (entry.isDirectory()) {visit(file)}
-			else if (/\.(?:m?[jt]sx?|tsrx)$/.test(entry.name)) {out.push(file)}
+			if (entry.isDirectory()) {
+				visit(file)
+			} else if (/\.(?:m?[jt]sx?|tsrx)$/.test(entry.name)) {
+				out.push(file)
+			}
 		}
 	}
 
@@ -80,16 +91,22 @@ const workspacePackages = (cwd) => {
 	while (true) {
 		for (const group of ['apps', 'packages']) {
 			const parent = join(dir, group)
-			if (!existsSync(parent)) {continue}
+			if (!existsSync(parent)) {
+				continue
+			}
 			for (const name of readdirSync(parent)) {
 				const root = join(parent, name)
 				const manifest = readJson(join(root, 'package.json'))
-				if (manifest?.name) {found.set(manifest.name, root)}
+				if (manifest?.name) {
+					found.set(manifest.name, root)
+				}
 			}
 		}
 
 		const next = dirname(dir)
-		if (next === dir) {break}
+		if (next === dir) {
+			break
+		}
 		dir = next
 	}
 
@@ -98,7 +115,9 @@ const workspacePackages = (cwd) => {
 
 const packageRoot = (cwd, name, workspaces) => {
 	const direct = join(cwd, 'node_modules', ...name.split('/'))
-	if (existsSync(join(direct, 'package.json'))) {return direct}
+	if (existsSync(join(direct, 'package.json'))) {
+		return direct
+	}
 	return workspaces.get(name)
 }
 
@@ -110,7 +129,7 @@ const frameworkPlugins = (cwd, name, workspaces) => {
 		...Object.keys(manifest?.peerDependencies ?? {}),
 	].filter(nativePlugin)
 
-	return declared.length ? declared : frameworkFallbacks[name] ?? []
+	return declared.length ? declared : (frameworkFallbacks[name] ?? [])
 }
 
 /**
@@ -130,13 +149,17 @@ export function findMissingPluginDeclarations(cwd) {
 
 	const workspaces = workspacePackages(cwd)
 	const pending = sourceFiles(join(cwd, 'src'))
-	for (const dir of ['app', 'src/app']) {pending.push(...sourceFiles(join(cwd, dir)))}
+	for (const dir of ['app', 'src/app']) {
+		pending.push(...sourceFiles(join(cwd, dir)))
+	}
 	const visited = new Set()
 	const frameworks = new Map()
 
 	while (pending.length) {
 		const file = pending.pop()
-		if (visited.has(file)) {continue}
+		if (visited.has(file)) {
+			continue
+		}
 		visited.add(file)
 		let source
 		try {
@@ -148,13 +171,17 @@ export function findMissingPluginDeclarations(cwd) {
 		for (const specifier of importSpecifiers(source)) {
 			const name = packageName(specifier)
 			if (frameworkFallbacks[name]) {
-				if (!frameworks.has(name)) {frameworks.set(name, new Set())}
+				if (!frameworks.has(name)) {
+					frameworks.set(name, new Set())
+				}
 				frameworks.get(name).add(relative(cwd, file) || parse(file).base)
 				continue
 			}
 
 			const root = packageRoot(cwd, name, workspaces)
-			if (root && workspaces.has(name)) {pending.push(...sourceFiles(root))}
+			if (root && workspaces.has(name)) {
+				pending.push(...sourceFiles(root))
+			}
 		}
 	}
 
@@ -162,7 +189,9 @@ export function findMissingPluginDeclarations(cwd) {
 	for (const [framework] of frameworks) {
 		for (const plugin of frameworkPlugins(cwd, framework, workspaces)) {
 			if (!owned.has(plugin)) {
-				if (!missing.has(plugin)) {missing.set(plugin, new Set())}
+				if (!missing.has(plugin)) {
+					missing.set(plugin, new Set())
+				}
 				missing.get(plugin).add(framework)
 			}
 		}
@@ -180,23 +209,26 @@ export function findMissingPluginDeclarations(cwd) {
  * and the save is dropped silently. Warn when that gap exists.
  */
 export function findHmrScopeGaps(cwd) {
-	if (!existsSync(join(cwd, 'nativescript.config.ts'))) {return []}
+	if (!existsSync(join(cwd, 'nativescript.config.ts'))) {
+		return []
+	}
 	const tsconfig = readJson(join(cwd, 'tsconfig.json'))
 	let paths = tsconfig?.compilerOptions?.paths
 	if (!paths && typeof tsconfig?.extends === 'string') {
-		paths =
-			readJson(join(cwd, tsconfig.extends))?.compilerOptions?.paths ?? undefined
+		paths = readJson(join(cwd, tsconfig.extends))?.compilerOptions?.paths ?? undefined
 	}
 
-	if (!paths) {return []}
+	if (!paths) {
+		return []
+	}
 
 	const workspaces = workspacePackages(cwd)
-	if (workspaces.size === 0) {return []}
+	if (workspaces.size === 0) {
+		return []
+	}
 
 	// '@scope/pkg' and '@scope/pkg/*' both cover the package.
-	const covered = new Set(
-		Object.keys(paths).map((k) => k.replace(/\/?\*$/, '')),
-	)
+	const covered = new Set(Object.keys(paths).map((k) => k.replace(/\/?\*$/, '')))
 
 	const pending = [
 		...sourceFiles(join(cwd, 'src')),
@@ -208,7 +240,9 @@ export function findHmrScopeGaps(cwd) {
 	const gaps = new Set()
 	while (pending.length) {
 		const file = pending.pop()
-		if (visited.has(file)) {continue}
+		if (visited.has(file)) {
+			continue
+		}
 		visited.add(file)
 		let source
 		try {
@@ -220,8 +254,12 @@ export function findHmrScopeGaps(cwd) {
 		for (const specifier of importSpecifiers(source)) {
 			const name = packageName(specifier)
 			const root = workspaces.get(name)
-			if (!root) {continue}
-			if (!covered.has(name)) {gaps.add(name)}
+			if (!root) {
+				continue
+			}
+			if (!covered.has(name)) {
+				gaps.add(name)
+			}
 			pending.push(...sourceFiles(root))
 		}
 	}

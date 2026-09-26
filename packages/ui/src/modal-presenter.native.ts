@@ -8,7 +8,9 @@
  *  Returns null when nothing live can present — callers must surface that
  *  rather than presenting blind. `frame` is structural: `Frame.topmost()`
  *  types as FrameBase while stack registration hands over Frame. */
-export function modalPresenter(frame: { currentPage?: any; isLoaded?: boolean } | undefined | null): any {
+export function modalPresenter(
+	frame: { currentPage?: any; isLoaded?: boolean } | undefined | null,
+): any {
 	if (!frame) {
 		return null
 	}
