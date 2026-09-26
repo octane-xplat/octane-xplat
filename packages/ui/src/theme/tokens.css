@@ -777,6 +777,171 @@ button {
 }
 /* xplat-web-only:end */
 
+/* Phase-3 navigation & wayfinding. */
+
+/* Breadcrumb — inline trail. */
+.vx-breadcrumb {
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: wrap;
+}
+.vx-breadcrumb-item {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-breadcrumb-sep {
+	margin-left: 6px;
+	margin-right: 6px;
+	color: var(--color-text-secondary);
+}
+.vx-breadcrumb-link {
+	color: var(--color-primary);
+}
+
+/* Pagination — windowed page buttons. */
+.vx-pagination {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-page-btn {
+	min-width: 28px;
+	height: 28px;
+	padding: 0 6px;
+	margin-right: 4px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+	align-items: center;
+	justify-content: center;
+}
+.vx-page-btn--on {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+.vx-page-ellipsis {
+	margin-right: 4px;
+	color: var(--color-text-secondary);
+}
+.vx-pagination--disabled {
+	opacity: 0.5;
+}
+
+/* Stepper — dot + label cells joined by a hairline. */
+.vx-stepper {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-stepper-cell {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-stepper-line {
+	width: 24px;
+	height: 1px;
+	background-color: var(--color-border);
+}
+.vx-stepper-line--done {
+	background-color: var(--color-primary);
+}
+.vx-step {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-step-dot {
+	width: 24px;
+	height: 24px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: 50%;
+	text-align: center;
+	font-size: 12px;
+	line-height: 22px;
+	color: var(--color-text-secondary);
+}
+.vx-step--on .vx-step-dot {
+	border-color: var(--color-primary);
+	color: var(--color-primary);
+}
+.vx-step--done .vx-step-dot {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+.vx-step-label {
+	margin-left: 6px;
+}
+.vx-step--disabled {
+	opacity: 0.5;
+}
+
+/* NavigationMenu — row/column of nav items. */
+.vx-navmenu,
+.vx-navmenu--row {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-navmenu--col {
+	flex-direction: column;
+	align-items: flex-start;
+}
+.vx-navmenu-item {
+	flex-direction: row;
+	align-items: center;
+	padding: 6px 10px;
+	border-radius: var(--radius-sm);
+}
+.vx-navmenu-item--on {
+	background-color: var(--color-border);
+}
+.vx-navmenu-item--disabled {
+	opacity: 0.5;
+}
+.vx-navmenu-label {
+	margin-left: 4px;
+}
+
+/* CommandPalette — panel centered by the overlay layer. */
+.vx-commandpalette {
+	width: 360px;
+	max-width: 90%;
+	padding: 8px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+.vx-cmdk-search {
+	margin-bottom: 4px;
+}
+/* xplat-web-only:start — display, centering, and cursor are DOM-only */
+.vx-breadcrumb,
+.vx-breadcrumb-item,
+.vx-pagination,
+.vx-page-btn,
+.vx-stepper,
+.vx-stepper-cell,
+.vx-step,
+.vx-navmenu,
+.vx-navmenu-item {
+	display: flex;
+}
+.vx-cmdk-layer .vx-overlay-content {
+	position: absolute;
+	top: 15%;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.vx-page-btn,
+.vx-breadcrumb-link,
+.vx-step,
+.vx-navmenu-item {
+	cursor: pointer;
+}
+/* xplat-web-only:end */
+
 .vx-h1 {
 	font-size: 2em;
 	font-weight: bold;

@@ -16,6 +16,7 @@ export function Select(props: SelectProps) @{
 
 	const norm = (v: string | string[] | undefined) =>
 		v === undefined ? [] : Array.isArray(v) ? v : [v];
+
 	const [internalValue, setInternalValue] = useState<string[]>(norm(props.defaultValue));
 	const valueControlled = props.value !== undefined;
 	const selected = valueControlled ? norm(props.value) : internalValue;

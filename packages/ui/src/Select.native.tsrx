@@ -51,9 +51,11 @@ export function Select(props: SelectProps) @{
 
 	const labelFor = (v: string) =>
 		props.options.find((o) => o.value === v)?.label ?? v;
+
 	const triggerText = selected.length
 		? selected.map(labelFor).join(', ')
 		: props.placeholder ?? '';
+
 	const shown = props.searchable && query
 		? props.options.filter((o) => (o.label ?? o.value).toLowerCase().includes(query.toLowerCase()))
 		: props.options;

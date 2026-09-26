@@ -1,9 +1,10 @@
 import { useState } from 'octane';
 import {
-	Accordion, Avatar, AvatarGroup, Badge, Button, Checkbox, CheckboxGroup,
-	Collapsible, ContextMenu, DropdownMenu, FieldGroup, FormField, Heading,
-	InputNumber, InputRating, InputTags, PinInput, RadioGroup, Row, Select,
-	Separator, Skeleton, Text, View, registerIcons,
+	Accordion, Avatar, AvatarGroup, Badge, Breadcrumb, Button, Checkbox,
+	CheckboxGroup, Collapsible, CommandPalette, ContextMenu, DropdownMenu,
+	FieldGroup, FormField, Heading, InputNumber, InputRating, InputTags,
+	NavigationMenu, Pagination, PinInput, RadioGroup, Row, Select,
+	Separator, Skeleton, Stepper, Text, View, registerIcons,
 } from '@octane-xplat/ui';
 
 registerIcons({
@@ -22,6 +23,10 @@ export function ComponentsDemo() @{
 	const [tags, setTags] = useState<string[]>(['one']);
 	const [rating, setRating] = useState(3);
 	const [checks, setChecks] = useState<string[]>(['x']);
+	const [page, setPage] = useState(4);
+	const [step, setStep] = useState(1);
+	const [nav, setNav] = useState('home');
+	const [cmdk, setCmdk] = useState(false);
 
 	const menuItems = [
 		{ key: 'edit', label: 'Edit', onSelect: () => setLastMenu('edit') },
@@ -118,6 +123,26 @@ export function ComponentsDemo() @{
 				value={checks}
 				onValueChange={setChecks}
 			/>
+		</View>
+
+		<View className="controls-section">
+			<Text className="font-bold">Wayfinding</Text>
+			<Breadcrumb items={[{ label: 'Home', onSelect: () => setNav('home') }, { label: 'Library', onSelect: () => setNav('lib') }, { label: 'Book' }]} />
+			<Pagination page={page} pageCount={12} onPageChange={setPage} />
+			<Stepper
+				steps={[{ key: 'cart', label: 'Cart' }, { key: 'ship', label: 'Ship' }, { key: 'pay', label: 'Pay' }]}
+				current={step}
+				onStepChange={setStep}
+			/>
+			<NavigationMenu
+				items={[
+					{ key: 'home', label: 'Home', active: nav === 'home', onSelect: () => setNav('home') },
+					{ key: 'lib', label: 'Library', active: nav === 'lib', onSelect: () => setNav('lib') },
+					{ key: 'off', label: 'Off', disabled: true },
+				]}
+			/>
+			<Button className="btn btn-secondary" onPress={() => setCmdk(true)}><Text>Command palette</Text></Button>
+			<CommandPalette open={cmdk} onOpenChange={setCmdk} items={menuItems} />
 		</View>
 
 		<View className="controls-section">

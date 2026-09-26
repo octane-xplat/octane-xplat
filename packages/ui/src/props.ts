@@ -1199,6 +1199,104 @@ export interface CheckboxGroupProps {
 	web?: any
 }
 
+// ---------- navigation & wayfinding (Phase 3) ----------
+
+export interface BreadcrumbItem {
+	label: string
+	onSelect?: () => void
+}
+
+/** Breadcrumb — ancestor trail. Items render as pressable links separated
+ *  by `separator` (default /). */
+export interface BreadcrumbProps {
+	className?: any
+	style?: any
+	id?: string
+	items: BreadcrumbItem[]
+	separator?: string
+	accessibilityLabel?: string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Pagination — prev/next + a windowed run of page buttons around `page`. */
+export interface PaginationProps {
+	className?: any
+	style?: any
+	id?: string
+	page: number
+	pageCount: number
+	/** Pages shown to each side of `page` (default 1). */
+	siblingCount?: number
+	onPageChange?: (page: number) => void
+	disabled?: boolean
+	accessibilityLabel?: string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface StepperStep {
+	key: string
+	label?: string
+	icon?: string
+	disabled?: boolean
+}
+
+/** Stepper — numbered step row. Steps before `current` show a done mark;
+ *  tapping a non-disabled step calls `onStepChange`. */
+export interface StepperProps {
+	className?: any
+	style?: any
+	id?: string
+	steps: StepperStep[]
+	current?: number
+	onStepChange?: (index: number) => void
+	accessibilityLabel?: string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface NavigationMenuItem {
+	key: string
+	label?: string
+	icon?: string
+	active?: boolean
+	disabled?: boolean
+	onSelect?: () => void
+}
+
+/** NavigationMenu — row (or column) of nav items; mostly a desktop/web
+ *  idiom — the mobile equivalent is Tabs/Drawer. */
+export interface NavigationMenuProps {
+	className?: any
+	style?: any
+	id?: string
+	items: NavigationMenuItem[]
+	horizontal?: boolean
+	accessibilityLabel?: string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** CommandPalette — overlay with a search field over a filtered action
+ *  list. Esc/outside dismisses, Enter selects the highlighted match. */
+export interface CommandPaletteProps {
+	className?: any
+	style?: any
+	id?: string
+	open?: boolean
+	onOpenChange?: (open: boolean) => void
+	items: MenuItem[]
+	placeholder?: string
+	ios?: any
+	android?: any
+	web?: any
+}
+
 // ---------- theme ----------
 
 export type ColorScheme = 'light' | 'dark'

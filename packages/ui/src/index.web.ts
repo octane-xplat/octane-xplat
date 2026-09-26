@@ -61,6 +61,22 @@ export type {
 	SelectProps,
 } from './props'
 
+export { Breadcrumb } from './Breadcrumb.web.tsrx'
+export { Pagination } from './Pagination.web.tsrx'
+export { Stepper } from './Stepper.web.tsrx'
+export { NavigationMenu } from './NavigationMenu.web.tsrx'
+export { CommandPalette } from './CommandPalette.web.tsrx'
+export type {
+	BreadcrumbItem,
+	BreadcrumbProps,
+	CommandPaletteProps,
+	NavigationMenuItem,
+	NavigationMenuProps,
+	PaginationProps,
+	StepperProps,
+	StepperStep,
+} from './props'
+
 export { Link } from './Link.web.tsrx'
 export { NavLink } from './NavLink.web.tsrx'
 export { TextInput } from './TextInput.web.tsrx'
