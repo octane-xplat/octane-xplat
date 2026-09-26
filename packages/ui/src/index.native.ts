@@ -170,6 +170,7 @@ export type {
 	SliderProps,
 } from './props'
 
+export { isNative } from './platform.native'
 export { registerStack, getStack, stackEntries } from './stacks.native'
 export {
 	pushRoute,

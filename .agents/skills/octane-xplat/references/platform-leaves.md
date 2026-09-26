@@ -60,5 +60,8 @@ No `import.meta.env.PLATFORM`. On native, `__ANDROID__`/`__IOS__`/`__DEV__`
 are compile-time literals (ns-vite `define`); declare them in
 `apps/native/types/globals.d.ts` before use. `Application.android != null`
 is the equivalent runtime check (what we currently use). Web has only
-stock `import.meta.env`. Don't add a unified PLATFORM constant — inline
-platform branches in shared files violate the boundary rule; use a leaf.
+stock `import.meta.env`. Inline platform branches in shared files violate
+the boundary rule — but a leaf-resolved flag is fine: `@octane-xplat/ui`
+exports `isNative` (`true` on iOS/Android, `false` on web) for render-time
+conditional JSX/props; OS-level divergence still belongs in `.ios`/
+`.android` leaves, not `isAndroid` branches in shared files.
