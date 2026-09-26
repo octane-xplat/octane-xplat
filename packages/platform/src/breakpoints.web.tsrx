@@ -49,7 +49,9 @@ export function useBreakpoints<T extends BreakpointMap>(breakpoints: T): Breakpo
 			const next = matchesAt(window.innerWidth, breakpoints)
 			if (!sameMatches(matches$.get(), next)) matches$.set(next)
 		}
-		return subscribe(update)
+		const unsubscribe = subscribe(update)
+		update()
+		return unsubscribe
 	}, [breakpoints])
 	return matches$.get()
 }
