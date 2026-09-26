@@ -166,6 +166,17 @@ try {
 	await page.hover('text=Hoverable trigger')
 	await page.waitForSelector('text=Hint card text', { timeout: 3000 })
 	ok('hoverable opens card on hover intent', true)
+	await page.hover('text=Tooltip trigger')
+	await page.waitForSelector('[role="tooltip"]:has-text("Saved automatically")', { timeout: 3000 })
+	const described = page.locator('[aria-describedby]')
+	const tipId = await page.locator('[role="tooltip"]').getAttribute('id')
+	ok(
+		'tooltip opens on hover intent + aria-describedby wiring',
+		(await described.count()) === 1 && (await described.getAttribute('aria-describedby')) === tipId,
+	)
+	await page.keyboard.press('Escape')
+	await page.waitForSelector('[role="tooltip"]', { state: 'detached', timeout: 3000 })
+	ok('tooltip dismisses on Escape', true)
 	await page.click('text=Toast top')
 	await page.waitForSelector('text=Top toast', { timeout: 3000 })
 	ok('toast position=top renders', true)

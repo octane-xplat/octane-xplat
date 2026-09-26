@@ -4,5 +4,6 @@
 // the native build on purpose.
 
 export { Hoverable } from './Hoverable.web.tsrx'
+export { Tooltip } from './Tooltip.web.tsrx'
 
-export type { HoverableProps } from '../props'
+export type { HoverableProps, TooltipProps } from '../props'

@@ -95,6 +95,13 @@ subpaths — there is no shared `Modal`.
 Touch platforms have no hover semantic; the old native long-press
 stand-in was fake parity and is gone.
 
+`Tooltip` is web-only at `@octane-xplat/ui/web` (decision #47). It takes
+`trigger` + `content` slots, opens on hover after `openDelay` and
+immediately on keyboard focus, wires `aria-describedby` onto the focusable
+trigger, and dismisses on Escape, blur, or scroll. Positioning rides the
+shared `Popover` machinery (`placement`, default `top`). On native, compose
+`Pressable` + `Popover`/`Sheet` for tap-to-reveal hints.
+
 Use `useMeasure()` when a screen needs live element bounds:
 `const { bind, bounds } = useMeasure()`, then pass `bind` to a primitive's
 `bind` prop. Bounds are observed by default and are `null` before the element
