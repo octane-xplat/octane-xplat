@@ -382,7 +382,7 @@ const STEPS: Step[] = [
 			{
 				at: 650,
 				run: () => {
-					const list = collect(demosPage()).find((v) => v instanceof ListView)
+					const list = collect(demosPage()).find((v) => v.id === 'scrollbox-demo-list')
 					let parent = list?.parent
 					let nested = false
 					while (parent) {
