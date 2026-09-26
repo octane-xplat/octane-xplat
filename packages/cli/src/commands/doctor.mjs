@@ -173,6 +173,62 @@ export function findMissingPluginDeclarations(cwd) {
 		.map(([plugin, frameworks]) => ({ plugin, frameworks: [...frameworks].sort() }))
 }
 
+/**
+ * @nativescript/vite scopes HMR to the app source dir plus the roots named in
+ * the app's tsconfig `paths` — a workspace package imported but absent from
+ * `paths` still builds and serves, but edits to it never reach `handleHotUpdate`
+ * and the save is dropped silently. Warn when that gap exists.
+ */
+export function findHmrScopeGaps(cwd) {
+	if (!existsSync(join(cwd, 'nativescript.config.ts'))) {return []}
+	const tsconfig = readJson(join(cwd, 'tsconfig.json'))
+	let paths = tsconfig?.compilerOptions?.paths
+	if (!paths && typeof tsconfig?.extends === 'string') {
+		paths =
+			readJson(join(cwd, tsconfig.extends))?.compilerOptions?.paths ?? undefined
+	}
+
+	if (!paths) {return []}
+
+	const workspaces = workspacePackages(cwd)
+	if (workspaces.size === 0) {return []}
+
+	// '@scope/pkg' and '@scope/pkg/*' both cover the package.
+	const covered = new Set(
+		Object.keys(paths).map((k) => k.replace(/\/?\*$/, '')),
+	)
+
+	const pending = [
+		...sourceFiles(join(cwd, 'src')),
+		...sourceFiles(join(cwd, 'app')),
+		...sourceFiles(join(cwd, 'src/app')),
+	]
+
+	const visited = new Set()
+	const gaps = new Set()
+	while (pending.length) {
+		const file = pending.pop()
+		if (visited.has(file)) {continue}
+		visited.add(file)
+		let source
+		try {
+			source = readFileSync(file, 'utf8')
+		} catch {
+			continue
+		}
+
+		for (const specifier of importSpecifiers(source)) {
+			const name = packageName(specifier)
+			const root = workspaces.get(name)
+			if (!root) {continue}
+			if (!covered.has(name)) {gaps.add(name)}
+			pending.push(...sourceFiles(root))
+		}
+	}
+
+	return [...gaps].sort()
+}
+
 const check = (cmd, args) => {
 	try {
 		return {
@@ -253,6 +309,13 @@ export const doctor = command({
 		for (const { plugin, frameworks } of pluginWarnings) {
 			p.log.warn(
 				`native plugin declaration — ${plugin} is required by ${frameworks.join(', ')}; add it to this app's package.json`,
+			)
+		}
+
+		const scopeGaps = findHmrScopeGaps(cwd)
+		for (const name of scopeGaps) {
+			p.log.warn(
+				`HMR scope — ${name} is imported but missing from tsconfig paths; native hot updates silently skip its files`,
 			)
 		}
 
