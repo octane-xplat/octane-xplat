@@ -985,6 +985,222 @@ if (Application.android) {
 	}, 16500)
 }
 
+// Route-config verification runs after the earlier Android navigation probes.
+// beforeLoad stamps the route already committed at invocation time; redirect
+// must commit only its destination rather than the intermediate route.
+if (Application.android) {
+	setTimeout(() => {
+		const frame = getStack('root') as any
+		const poll = (condition: () => boolean, done: () => void, tries = 80) => {
+			const tick = () => {
+				if (condition() || --tries <= 0) {done()}
+				else {setTimeout(tick, 100)}
+			}
+
+			tick()
+		}
+
+		// The earlier status-bar probe also pushes and pops detail. Wait for
+		// it to return to the base page before measuring this independent run.
+		poll(
+			() => routeFor('root') == null,
+			() => {
+				const startRoute = routeFor('root')?.name ?? 'none'
+				navigate('detail', { from: 'android-route-probe' })
+
+				poll(
+					() =>
+						frame?.currentPage?.id === 'detail-page' &&
+						texts(frame.currentPage).includes('guard: android-route-probe'),
+					() => {
+						const page = frame?.currentPage as any
+						const pageTexts = texts(page)
+						const route = routeFor('root')
+						const depth = frame?.backStack?.length ?? 0
+						const beforeLoadOk =
+							route?.name === 'detail' && pageTexts.includes('guard saw route: ' + startRoute)
+
+						console.log(
+							'[assert] android beforeLoad pre-commit: ' +
+								(beforeLoadOk ? 'OK' : 'FAIL') +
+								' (' +
+								JSON.stringify(pageTexts.slice(0, 10)) +
+								')',
+						)
+
+						console.log(
+							'[assert] android route head actionBar.title: ' +
+								(page?.actionBar?.title === 'Detail · Octane Xplat'
+									? 'OK'
+									: 'FAIL (' + JSON.stringify(page?.actionBar?.title) + ')'),
+						)
+
+						console.log(
+							'[assert] android route pushed/back state: ' +
+								(pageTexts.includes('pushed: true') && pageTexts.includes('can go back: true')
+									? 'OK'
+									: 'FAIL (' + JSON.stringify({ pageTexts: pageTexts.slice(0, 10), depth }) + ')'),
+						)
+
+						const beforeRedirectDepth = depth
+						navigate('detail', { from: 'redirect' })
+						poll(
+							() => routeFor('root')?.params?.from === 'redirect-target',
+							() => {
+								const redirected = routeFor('root')
+								const redirectedDepth = frame?.backStack?.length ?? 0
+								const redirectPage = frame?.currentPage as any
+								const redirectTexts = texts(redirectPage)
+								const redirectOk =
+									redirected?.name === 'detail' &&
+									redirectedDepth === beforeRedirectDepth + 1 &&
+									redirectTexts.includes('guard: redirect-target')
+
+								console.log(
+									'[assert] android redirect skips intermediate push: ' +
+										(redirectOk ? 'OK' : 'FAIL') +
+										' (' +
+										JSON.stringify({
+											route: redirected,
+											beforeRedirectDepth,
+											redirectedDepth,
+											redirectTexts: redirectTexts.slice(0, 8),
+										}) +
+										')',
+								)
+
+								navigate('demo/:id', { id: 'scrollbox' })
+								poll(
+									() => frame?.currentPage?.id === 'demo/:id-page',
+									() => {
+										const page = frame?.currentPage as any
+										const scrollBox = page?.getViewById?.('scrollbox-demo')
+										const list = page?.getViewById?.('scrollbox-demo-list')
+										const pageTexts = texts(page)
+										const inlineOk = !!scrollBox && !!list && pageTexts.includes('ScrollBox row 1')
+										console.log(
+											'[assert] Android ScrollBox inline list: ' +
+												(inlineOk ? 'OK' : 'FAIL') +
+												' (' +
+												JSON.stringify({
+													scrollBox: !!scrollBox,
+													list: !!list,
+													firstRow: pageTexts.find((text) => text.startsWith('ScrollBox row ')),
+												}) +
+												')',
+										)
+
+										goBack()
+										setTimeout(() => {
+											let finished = false
+											const originalWarn = console.warn
+											console.warn = (...args: any[]) => {
+												const message = args.map(String).join(' ')
+												if (
+													message.includes(
+														'[RecyclerView] cannot be nested inside native ScrollView.',
+													)
+												) {
+													finished = true
+													console.warn = originalWarn
+													console.log(
+														'[assert] Android nested RecyclerView named error: OK (' +
+															message +
+															')',
+													)
+
+													setTimeout(() => {
+														goBack()
+														setTimeout(() => {
+															navigate('demo/:id', { id: 'rich-text' })
+															poll(
+																() => frame?.currentPage?.id === 'demo/:id-page',
+																() => {
+																	const page = frame?.currentPage as any
+																	const label = page?.getViewById?.('rich-text-sample') as any
+																	const spans = label?.formattedText?.spans ?? []
+																	const links = spans.filter(
+																		(span: any) =>
+																			span.text === '@octane' || span.text === 'the docs',
+																	)
+
+																	const styleOk =
+																		links.length === 2 &&
+																		links.every(
+																			(span: any) =>
+																				span.style?.fontWeight === 'bold' &&
+																				span.style?.textDecoration === 'underline' &&
+																				span.style?.color != null,
+																		)
+
+																	console.log(
+																		'[assert] Android RichText styled spans: ' +
+																			(spans.length === 5 && styleOk ? 'OK' : 'FAIL') +
+																			' (count=' +
+																			spans.length +
+																			' links=' +
+																			links.length +
+																			')',
+																	)
+
+																	const nativeText = label?.android?.getText?.()
+																	const nativeLinks =
+																		nativeText?.getSpans(
+																			0,
+																			nativeText.length(),
+																			android.text.style.ClickableSpan.class,
+																		) ?? []
+
+																	nativeLinks[0]?.onClick(label.android)
+																	nativeLinks[1]?.onClick(label.android)
+																	setTimeout(() => {
+																		const status = page?.getViewById?.('rich-text-status')?.text
+																		console.log(
+																			'[assert] Android RichText per-span taps: ' +
+																				(nativeLinks.length === 2 &&
+																				status === 'Last tapped: the docs'
+																					? 'OK'
+																					: 'FAIL (' +
+																						JSON.stringify({
+																							nativeLinks: nativeLinks.length,
+																							status,
+																						}) +
+																						')'),
+																		)
+																	}, 500)
+																},
+															)
+														}, 500)
+													}, 400)
+												} else {
+													originalWarn.apply(console, args)
+												}
+											}
+
+											navigate('list-nested-probe' as any, {})
+											setTimeout(() => {
+												if (!finished) {
+													console.warn = originalWarn
+													console.log(
+														'[assert] Android nested RecyclerView named error: FAIL (warning not observed)',
+													)
+
+													goBack()
+												}
+											}, 3000)
+										}, 600)
+									},
+								)
+							},
+						)
+					},
+				)
+			},
+			160,
+		)
+	}, 40000)
+}
+
 // iOS side of lifecycle-appearance-model: the theme leaf writes
 // rootView.statusBarStyle ('light' icons under dark scheme) on scheme
 // change + 'displayed'. Self-drive flips dark at ~4s; read it after.

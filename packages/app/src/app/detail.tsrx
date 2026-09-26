@@ -1,4 +1,4 @@
-import { Screen, Text, Pressable, redirect, useCanGoBack } from '@octane-xplat/ui';
+import { Screen, Text, Pressable, redirect, routeFor, useCanGoBack } from '@octane-xplat/ui';
 import type { BeforeLoadArgs, RouteHead } from '@octane-xplat/ui';
 import { goBack } from '../platform/nav';
 
@@ -10,7 +10,10 @@ export function beforeLoad({ params }: BeforeLoadArgs) {
 		redirect({ stack: 'root', name: 'detail', params: { from: 'redirect-target' } });
 	}
 
-	return { loadedFrom: String(params.from ?? 'unknown') };
+	return {
+		loadedFrom: String(params.from ?? 'unknown'),
+		guardSawRoute: routeFor('root')?.name ?? 'none',
+	};
 }
 
 export const head = (params: Record<string, unknown>): RouteHead => ({
@@ -20,7 +23,13 @@ export const head = (params: Record<string, unknown>): RouteHead => ({
 
 /** detail route — pushed via Frame.navigate on native, own Octane root.
  *  Route params land as props (navigate('detail', {from}) → props.from). */
-export function Detail(props: { from?: string; loadedFrom?: string; _stack?: string; _pushed?: boolean }) @{
+export function Detail(props: {
+	from?: string;
+	loadedFrom?: string;
+	guardSawRoute?: string;
+	_stack?: string;
+	_pushed?: boolean;
+}) @{
 	const stack = props._stack ?? 'root';
 	const back = useCanGoBack(stack);
 	console.log('[probe] Detail render from=' + props.from);
@@ -29,6 +38,7 @@ export function Detail(props: { from?: string; loadedFrom?: string; _stack?: str
 		<Text className="text-2xl font-semibold">Detail screen</Text>
 		<Text className="text-sm text-muted">{'from: ' + (props.from ?? '—')}</Text>
 		<Text className="text-sm text-muted">{'guard: ' + (props.loadedFrom ?? '—')}</Text>
+		<Text className="text-sm text-muted">{'guard saw route: ' + (props.guardSawRoute ?? '—')}</Text>
 		<Text className="text-sm text-muted">{'pushed: ' + String(props._pushed === true)}</Text>
 		<Text className="text-sm text-muted">{'can go back: ' + String(back)}</Text>
 		@if (back) {
