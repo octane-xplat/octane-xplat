@@ -9,7 +9,7 @@ import {
 
 import { DEMOS } from '@xplat/demos'
 import { goBack } from './nav'
-import { sheetHost } from './sheet'
+import { closeSheet, sheetHost } from './sheet'
 
 // Nested stacks don't work on Android yet — a TabViewItem-hosted Frame
 // accepts pushes (fragment transaction commits) but setCurrent/bookkeeping
@@ -30,6 +30,17 @@ if (SKIP) {
 // gesture-observer callback directly.
 function fireTap(view: any) {
 	const observers = view?.getGestureObservers?.(1) ?? []
+	if (view && view.isLoaded === false) {
+		// Unloaded views keep their JS observers but lose their native
+		// recognizers — the dispatch works while a real tap would die.
+		// Mark it so probe results can't silently pass against a dead twin.
+		console.log(
+			'[sweep] tap target ' +
+				(view.id ?? view.constructor.name) +
+				' isLoaded=false — dead view, JS dispatch only',
+		)
+	}
+
 	for (const o of observers) {
 		o.callback.call(o.context, { eventName: 'tap', object: view })
 	}
@@ -78,6 +89,10 @@ let stepStack = 'demos'
 const stackFor = (id: string) => (DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos')
 const demosPage = () => getStack(stepStack)?.currentPage
 
+// Captured across checks — sheetHost() empties the moment closeSheet's
+// finish() runs, so the detach assert needs the pre-close reference.
+let lastSheetHost: any = null
+
 function assertHas(name: string, needle: string, view: any = demosPage()) {
 	const hay = viewTexts(view)
 	const ok = hay.includes(needle)
@@ -108,8 +123,14 @@ function tapTargetForText(view: any, text: string, path: any[] = []): any {
 
 	const nextPath = [...path, view]
 	if (view.text === text) {
+		// Prefer loaded ancestors: an unloaded view still lists its JS
+		// gesture observers (they only splice on removeEventListener), so an
+		// unloaded match is a dead target whose real taps can't fire.
 		return (
-			[...nextPath].reverse().find((v) => (v?.getGestureObservers?.(1)?.length ?? 0) > 0) ?? null
+			[...nextPath]
+				.reverse()
+				.find((v) => v?.isLoaded !== false && (v?.getGestureObservers?.(1)?.length ?? 0) > 0) ??
+			null
 		)
 	}
 
@@ -225,7 +246,7 @@ interface Step {
 const STEPS: Step[] = [
 	{
 		id: 'counter',
-		hold: 1900,
+		hold: 3200,
 		checks: [
 			{ at: 350, run: () => assertHas('demo counter', 'Demo count: 0') },
 			{ at: 400, run: () => assertHas('if else mount', 'arm-B') },
@@ -238,8 +259,8 @@ const STEPS: Step[] = [
 				run: () => {
 					// The host ref survives even when its owning rootlayout
 					// unloads (tab-pane shells churn) — assert on it directly.
-					const host = sheetHost() ?? findOnRoot('sheet-host')
-					const ok = collect(host).some(
+					lastSheetHost = sheetHost() ?? findOnRoot('sheet-host')
+					const ok = collect(lastSheetHost).some(
 						(v) => typeof v?.text === 'string' && v.text.includes('Demo count'),
 					)
 
@@ -247,6 +268,23 @@ const STEPS: Step[] = [
 						'[assert] sheet hosts demo: ' +
 							(ok ? 'OK' : 'FAIL') +
 							' — same component in sheet root',
+					)
+
+					// Regression probe for the re-entrant RootLayout.close: the
+					// 'closed' notify fires before removeChild, so a close()
+					// issued from inside it double-removes and throws 'View not
+					// added to this instance'. Programmatic close is the safe
+					// path — the detach assert below catches leftovers.
+					closeSheet()
+				},
+			},
+			{
+				at: 2700,
+				run: () => {
+					const ok = lastSheetHost != null && lastSheetHost.parent == null
+					console.log(
+						'[assert] sheet close detaches host: ' +
+							(ok ? 'OK' : 'FAIL (parent=' + lastSheetHost?.parent?.constructor?.name + ')'),
 					)
 				},
 			},
@@ -810,7 +848,12 @@ if (!SKIP) {
 if (!SKIP) {
 	setTimeout(() => {
 		waitFor(
-			() => demosPage() != null && find('menu-counter') != null,
+			() => {
+				const chip = find('menu-counter')
+				// A dead gallery twin (unloaded subtree) satisfies getViewById
+				// but can never take a real tap — wait for the live one.
+				return demosPage() != null && chip != null && chip.isLoaded !== false
+			},
 			() => {
 				galleryPage = demosPage()
 				console.log(
@@ -836,7 +879,24 @@ function runStep(i: number) {
 	stepStack = stackFor(step.id)
 	const gal = demosPage()
 	const chip = find('menu-' + step.id)
-	console.log('[sweep] menu-' + step.id + ' stack=' + stepStack + ' tap observers=' + fireTap(chip))
+	// Hit-area probe: a view drawn outside its parent's bounds still renders
+	// (iOS doesn't clip by default) but hitTest never reaches it — the
+	// candidate mechanism for chips that highlight yet never fire onPress.
+	// loaded=false marks the JS view as dead (recognizers detached).
+	let chipInfo = ''
+	if (chip) {
+		const cSize = (chip as any).getActualSize?.()
+		const pSize = (chip.parent as any)?.getActualSize?.()
+		const rel = (chip as any).getLocationRelativeTo?.(chip.parent)
+		const outOfParent =
+			rel && pSize && cSize
+				? rel.x < -1 || rel.y < -1 || rel.x + cSize.width > pSize.width + 1 || rel.y + cSize.height > pSize.height + 1
+				: 'n/a'
+
+		chipInfo = ' loaded=' + chip.isLoaded + ' outOfParent=' + outOfParent
+	}
+
+	console.log('[sweep] menu-' + step.id + ' stack=' + stepStack + ' tap observers=' + fireTap(chip) + chipInfo)
 	waitFor(
 		() => demosPage() !== gal,
 		() => {
