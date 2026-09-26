@@ -1,10 +1,18 @@
 # macOS experiment
 
-This app-local spike uses `@nativescript/macos-node-api` to open an AppKit
-window and an Octane universal host driver to mount one native text view.
-Vite rebuilds the component on edits; the running Node process imports the new
-component and re-renders the existing root. This uses Vite's bundle watcher,
-not NativeScript's `/ns-hmr` transport.
+This app-local spike uses `@nativescript/macos-node-api` to open AppKit windows
+and an Octane universal host driver to mount native labels, a stateful button,
+and a second-window action. The button updates Octane state; the second window
+shows the count at the time it opens.
+
+In development, Vite rebuilds edited components and the running Node process
+passes the replacement through Octane's universal HMR wrapper. This preserves
+component state across successful edits. A compile error reports the failure
+and leaves the last good component mounted; a later valid edit recovers without
+restarting the process. This uses Vite's bundle watcher and Octane's component
+HMR API, not NativeScript's `/ns-hmr` transport. That transport also depends on
+NativeScript's HTTP-ESM bootstrap and runtime loader, which this AppKit host does
+not use.
 
 The stable `@nativescript/macos-node-api@0.4.0` loader points at an architecture
 path missing from that published artifact, so this spike pins the matching

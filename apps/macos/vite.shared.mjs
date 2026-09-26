@@ -1,13 +1,19 @@
 import { octane } from '@octanejs/vite-plugin'
 import { defineConfig } from 'vite'
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-export function createMacOSConfig({ packaged = false } = {}) {
+const appRoot = dirname(fileURLToPath(import.meta.url))
+
+export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 	const rendererId = 'macos'
 	const nativeRuntime = '@nativescript/macos-node-api'
 
 	return defineConfig({
+		root: appRoot,
 		plugins: [
 			octane({
+				hmr,
 				renderers: {
 					registry: {
 						[rendererId]: {
@@ -31,7 +37,7 @@ export function createMacOSConfig({ packaged = false } = {}) {
 			rollupOptions: {
 				external: packaged
 					? [nativeRuntime]
-					: [nativeRuntime, '@xplat/macos/renderer', 'octane'],
+					: [nativeRuntime, '@xplat/macos/renderer', /^octane(?:\/|$)/],
 			},
 		},
 	})

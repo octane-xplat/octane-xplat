@@ -1,6 +1,8 @@
 import '@nativescript/macos-node-api'
 
 const app = NSApplication.sharedApplication
+let detailsWindow
+let detailsLabel
 let resolveClosed
 const closed = new Promise((resolve) => {
 	resolveClosed = resolve
@@ -72,4 +74,41 @@ export function createAppKitWindow() {
 	window.makeKeyAndOrderFront(app)
 
 	return { app, window, contentView, closed, delegate }
+}
+
+export function showDetailsWindow(count) {
+	if (!detailsWindow) {
+		detailsWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+			{ origin: { x: 0, y: 0 }, size: { width: 360, height: 180 } },
+			NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Miniaturizable,
+			2,
+			false,
+		)
+		detailsWindow.title = 'Octane Details'
+		detailsWindow.releasedWhenClosed = false
+		detailsWindow.center()
+
+		const contentView = NSView.alloc().initWithFrame({
+			origin: { x: 0, y: 0 },
+			size: { width: 360, height: 180 },
+		})
+		detailsLabel = NSTextField.alloc().initWithFrame({
+			origin: { x: 0, y: 0 },
+			size: { width: 300, height: 40 },
+		})
+		detailsLabel.bezeled = false
+		detailsLabel.drawsBackground = false
+		detailsLabel.editable = false
+		detailsLabel.selectable = false
+		detailsLabel.alignment = NSTextAlignment.Center
+		detailsLabel.translatesAutoresizingMaskIntoConstraints = false
+		contentView.addSubview(detailsLabel)
+		detailsLabel.centerXAnchor.constraintEqualToAnchor(contentView.centerXAnchor).active = true
+		detailsLabel.centerYAnchor.constraintEqualToAnchor(contentView.centerYAnchor).active = true
+		detailsWindow.contentView = contentView
+	}
+
+	detailsLabel.stringValue = 'Count when opened: ' + count
+	detailsWindow.makeKeyAndOrderFront(app)
+	app.activateIgnoringOtherApps(true)
 }

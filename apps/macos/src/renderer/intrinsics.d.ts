@@ -6,8 +6,18 @@ export namespace JSX {
 	}
 
 	export interface IntrinsicElements {
+		stack: {
+			children?: unknown
+			spacing?: number
+		}
 		label: {
 			text?: string | number
+			fontSize?: number
+		}
+		button: {
+			title?: string
+			enabled?: boolean
+			onPress?: () => void
 		}
 	}
 }
