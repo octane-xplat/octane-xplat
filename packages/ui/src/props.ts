@@ -75,7 +75,7 @@ export interface GlassConfig {
 	animateChangeDuration?: number
 }
 
-export interface GridProps {
+export interface GridProps extends AccessibilityProps {
 	className?: any
 	style?: any
 	children?: any
@@ -87,7 +87,7 @@ export interface GridProps {
 	id?: string
 }
 
-export interface StackProps {
+export interface StackProps extends AccessibilityProps {
 	className?: any
 	style?: any
 	children?: any
@@ -97,7 +97,7 @@ export interface StackProps {
 	id?: string
 }
 
-export interface AbsoluteProps {
+export interface AbsoluteProps extends AccessibilityProps {
 	className?: any
 	style?: any
 	children?: any
@@ -148,7 +148,24 @@ export interface SpacerProps {
 	id?: string
 }
 
-export interface ViewProps extends LayoutChildProps, FlexContainerProps {
+/** The shared accessibility prop set — `Role` and friends are declared
+ *  below; containers and leaf components carry the same names so ARIA on
+ *  web and NativeScript's accessibility properties stay aligned. */
+export interface AccessibilityProps {
+	accessible?: boolean
+	accessibilityLabel?: string
+	accessibilityRole?: Role
+	accessibilityHint?: string
+	accessibilityValue?: string
+	accessibilityState?: {
+		disabled?: boolean
+		selected?: boolean
+		checked?: boolean
+	}
+	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
+}
+
+export interface ViewProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps {
 	className?: any
 	style?: any
 	children?: any
@@ -164,7 +181,7 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps {
 	web?: any
 }
 
-export interface RowProps extends LayoutChildProps, FlexContainerProps {
+export interface RowProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps {
 	className?: any
 	style?: any
 	children?: any
@@ -348,7 +365,7 @@ export interface ListProps {
 	web?: Record<string, any>
 }
 
-export interface ScrollViewProps extends LayoutChildProps {
+export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps {
 	className?: any
 	style?: any
 	id?: string
@@ -363,7 +380,7 @@ export interface ScrollViewProps extends LayoutChildProps {
 /** Scrollable ordinary content on web. Native is an inline flex container so
  * a child ListView can own the scrolling without nesting recycling views in a
  * native ScrollView. */
-export interface ScrollBoxProps extends LayoutChildProps {
+export interface ScrollBoxProps extends LayoutChildProps, AccessibilityProps {
 	className?: any
 	style?: any
 	id?: string

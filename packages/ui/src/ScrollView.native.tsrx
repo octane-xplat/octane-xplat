@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ScrollViewProps } from "./props";
 import { cx } from "./cx";
-import { applyEscapeProps } from "./escape-props";
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child.native';
 /** Scroll container — NS <scrollview>. NS ScrollView hosts exactly one
  *  child view, so children are wrapped in a column flexboxlayout — the
@@ -15,6 +15,13 @@ export function ScrollView(props: ScrollViewProps) @{
 		className={cx(props.className)}
 		style={props.style}
 		orientation={props.horizontal ? 'horizontal' : 'vertical'}
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
 	>
 		<flexboxlayout flexDirection={props.horizontal ? 'row' : 'column'}>
 			{props.children}

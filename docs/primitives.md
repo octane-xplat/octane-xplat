@@ -58,8 +58,11 @@ Cmd/Ctrl+Enter. On native, `onSubmit` is enabled only when
 otherwise reports every newline as `returnPress`.
 _Verified with real keyboard input on the iOS simulator._
 
-`Pressable` and `Text` share the accessibility props in the platform map,
-including `accessible`, label, hint, value, role, state, and live region. Role
+`Pressable`, `Text`, and the containers (`View`/`Row`/`Stack`/`Absolute`/
+`Grid`/`ScrollView`/`ScrollBox`) share the accessibility props in the
+platform map, including `accessible`, label, hint, value, role, state, and
+live region — a container can carry `accessibilityRole`/live-region for
+grouped announcements without reaching for the `web` escape bag. Role
 names stay portable; the native leaf translates names such as `heading` to
 NativeScript's `header`. _Wired on both targets; on-device reading pending._
 

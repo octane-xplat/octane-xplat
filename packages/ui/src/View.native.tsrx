@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ViewProps } from './props';
 import { cx } from './cx';
-import { applyEscapeProps } from './escape-props';
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { layoutChildProps } from './layout-child.native';
 import { usePan } from './pan.native.tsrx';
 /** Neutral flex-column container — flexboxlayout on native.
@@ -17,6 +17,13 @@ export function View(props: ViewProps) @{
 		flexDirection="column"
 		className={cx(props.className)}
 		style={props.style}
+		accessible={props.accessible}
+		accessibilityLabel={props.accessibilityLabel}
+		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
 		onPan={usePan(props.onPan)}
 		onSwipe={props.onSwipe}
 	>
