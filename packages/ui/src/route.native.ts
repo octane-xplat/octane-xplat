@@ -234,7 +234,13 @@ function commitRoute(r: Route): void {
 		return
 	}
 
-	if (Application.android && r.stack !== 'root') {
+	// Swap-pane stacks live in the route store: on Android always (nested
+	// Frames inside tabs are unsafe — upstream #11444), and on any native
+	// target when no Frame registered the name — the self-drawn Tabs' panes
+	// (decision #44) render pushed routes through RouteHost, no Frame at
+	// all. A registered Frame still wins (platform UITabBar /
+	// BottomNavigationView panes navigate natively on iOS).
+	if (r.stack !== 'root' && (Application.android || !resolveStack(r.stack))) {
 		const entries = swapTabRoutes.get(r.stack) ?? []
 		entries.push({ ...r, presentation })
 		swapTabRoutes.set(r.stack, entries)
@@ -406,7 +412,7 @@ export function popRoute(stack = 'root'): void {
 		return
 	}
 
-	if (Application.android && stack !== 'root') {
+	if (stack !== 'root' && (Application.android || !resolveStack(stack))) {
 		const entries = swapTabRoutes.get(stack)
 		if (entries?.length) {
 			entries.pop()
@@ -435,7 +441,7 @@ export function popRoute(stack = 'root'): void {
 
 /** Route stamped on a stack's current page, or null at its base page. */
 export function routeFor(stack: string): Route | null {
-	if (Application.android && stack !== 'root') {
+	if (stack !== 'root' && (Application.android || !resolveStack(stack))) {
 		const entries = swapTabRoutes.get(stack)
 		if (entries?.length) {
 			return entries[entries.length - 1]
@@ -476,9 +482,7 @@ export function currentRoute(): Route | null {
 
 /** Named stacks containing routes, including Android's swap-pane stacks. */
 export function routeStacks(): string[] {
-	return Application.android
-		? [...new Set([...swapTabOrder, ...[...stackEntries()].map(([name]) => name)])]
-		: [...stackEntries()].map(([name]) => name)
+	return [...new Set([...swapTabOrder, ...[...stackEntries()].map(([name]) => name)])]
 }
 
 /** The modal route currently open, if any — parity with the web leaf. */
@@ -525,7 +529,7 @@ export function canGoBack(stack = 'root'): boolean {
 		return true
 	}
 
-	if (Application.android && stack !== 'root') {
+	if (stack !== 'root' && (Application.android || !resolveStack(stack))) {
 		return !!swapTabRoutes.get(stack)?.length
 	}
 

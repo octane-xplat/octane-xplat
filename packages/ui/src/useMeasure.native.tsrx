@@ -26,7 +26,15 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 
 		const update = () => {
 			const next = readBounds(view);
-			if (next) setBounds(next);
+			// Fresh object each read — skip the setState when nothing moved
+			// or the re-render → layoutChanged → update loop never ends.
+			setBounds((prev: MeasureBounds | null) =>
+				prev && next &&
+				prev.x === next.x && prev.y === next.y &&
+				prev.width === next.width && prev.height === next.height
+					? prev
+					: next,
+			);
 		};
 
 		const onLoaded = update;

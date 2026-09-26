@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useRef, useState } from 'octane';
+import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { PanEvent, SliderProps } from './props';
 import { cx } from './cx';
 import { useMeasure } from './useMeasure.native.tsrx';
@@ -21,6 +21,18 @@ export function Slider(props: SliderProps) @{
 	const value = dragValue ?? props.value ?? min;
 	const ratio = Math.min(1, Math.max(0, (value - min) / (max - min)));
 	const width = measure.bounds?.width ?? 0;
+
+	// Stable ref identity — an inline ref closure re-fires ref(null)/ref(el)
+	// per render, which bounces useMeasure's setView and loops forever.
+	const host = useRef<any>(null);
+	const bindHost = useCallback((el: any) => {
+		host.current = el;
+		measure.bind(el);
+	}, []);
+
+	useEffect(() => {
+		applyNativeProps(host.current, props);
+	});
 
 	const onPan = usePan((e: PanEvent) => {
 		if (props.disabled) return;
@@ -46,10 +58,7 @@ export function Slider(props: SliderProps) @{
 		style={props.style}
 		accessibilityRole={nativeAccessibilityRole('adjustable') as any}
 		onPan={onPan}
-		ref={(el: any) => {
-			measure.bind(el);
-			applyNativeProps(el, props);
-		}}
+		ref={bindHost}
 	>
 		<flexboxlayout className="vx-slider-track" />
 		<flexboxlayout className="vx-slider-fill" horizontalAlignment="left" style={{ width: ratio * width }} />
