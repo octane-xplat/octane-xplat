@@ -8,11 +8,12 @@ import {
 	getColorScheme,
 	registerStack,
 	getStack,
-	findInRootLayouts,
 	routeFor,
 	popRoute,
 	setThemePreference,
 } from '@octane-xplat/ui'
+
+import { findInRootLayouts } from '@octane-xplat/ui/native'
 
 import { storage, wireHardwareBack, navigate, goBack } from '@xplat/app'
 import 'octane/signals'

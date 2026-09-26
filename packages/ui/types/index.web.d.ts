@@ -181,7 +181,6 @@ export declare function stackEntries(): IterableIterator<[string, any]>
 export declare function pushRoute(r: Route): void
 export declare function popRoute(stack?: string): void
 export declare function routeStacks(): string[]
-export declare function layoutsForRoute(name: string): any[]
 export declare function routeFor(stack: string): Route | null
 export declare function currentRoute(): Route | null
 export declare function canGoBack(stack?: string): boolean

@@ -60,6 +60,7 @@ export default defineConfig(({ mode }) => {
 							ui: 'src/index.native.ts',
 							'ios/index': 'src/ios/index.ts',
 							'android/index': 'src/android/index.ts',
+							'native/index': 'src/native/index.ts',
 						}
 					: {
 							ui: 'src/index.web.ts',

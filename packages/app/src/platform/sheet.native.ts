@@ -4,7 +4,8 @@ import { SheetPanel } from '../SheetPanel.tsrx'
 // thin harness wrapper — the in-window sheet service lives in
 // @octane-xplat/ui (sheet-service.native.ts); this keeps the probe's
 // SheetPanel default and [probe] logging for the sweep timeline.
-export { closeSheet, sheetHost } from '@octane-xplat/ui'
+export { closeSheet } from '@octane-xplat/ui'
+export { sheetHost } from '@octane-xplat/ui/native'
 
 /** Bottom-anchored sheet: dedicated sub-root on the current RootLayout.
  *  Content is parameterized — callers pass any component (e.g. a demo

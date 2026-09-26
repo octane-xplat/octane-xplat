@@ -528,11 +528,11 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
 
 // @octane-xplat/ui subpaths gate platform-authentic components: /ios and
 // /android resolve only under the `native` export condition, /web only
-// under `web`. Importing one from a shared (or wrong-platform) file fails
-// the other platform's build on purpose — the import must live in a
-// suffixed leaf. `.native` files may import ui/ios + ui/android, but only
-// for specifiers that load safely on both platforms; module-top
-// platform-only APIs belong in .ios/.android leaves.
+// under `web`. `/native` is for NativeScript integration plumbing. Importing
+// one from a shared (or wrong-platform) file fails the other platform's build
+// on purpose — the import must live in a suffixed leaf. `.native` files may
+// import ui/ios + ui/android, but only for specifiers that load safely on both
+// platforms; module-top platform-only APIs belong in .ios/.android leaves.
 const PLATFORM_SUBPATHS = [
 	{
 		spec: '@octane-xplat/ui/ios',
@@ -543,6 +543,11 @@ const PLATFORM_SUBPATHS = [
 		spec: '@octane-xplat/ui/android',
 		ok: (f) => /\.(android|native)\./.test(f),
 		leaf: '.android.* or .native.*',
+	},
+	{
+		spec: '@octane-xplat/ui/native',
+		ok: (f) => /\.native\./.test(f) || f.endsWith('/apps/native/src/index.ts'),
+		leaf: '.native.* or the native app entry point',
 	},
 	{
 		spec: '@octane-xplat/ui/web',

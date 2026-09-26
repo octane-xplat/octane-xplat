@@ -17,7 +17,6 @@ export { TextArea } from './TextArea.native.tsrx'
 export { ScrollBox } from './ScrollBox.native.tsrx'
 export { ScrollView } from './ScrollView.native.tsrx'
 export { Image } from './Image.native.tsrx'
-export { rootLayoutFor, topRootLayout, findInRootLayouts } from './root-layout.native'
 export { Overlay } from './Overlay.native.tsrx'
 export { Popover } from './Popover.native.tsrx'
 export { showToast } from './toast-anchor.native.tsrx'
@@ -81,7 +80,6 @@ export {
 	pushRoute,
 	popRoute,
 	routeStacks,
-	layoutsForRoute,
 	pushDeepLink,
 	routeFor,
 	currentRoute,
@@ -118,5 +116,5 @@ export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './use-store.native.tsrx'
 export { Sheet } from './Sheet.native.tsrx'
-export { openSheet, closeSheet, sheetHost } from './sheet-service.native'
+export { openSheet, closeSheet } from './sheet-service.native'
 export type { SheetProps, SheetOpenOptions, OpenSheet } from './props'

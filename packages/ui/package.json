@@ -19,6 +19,9 @@
 		"./android": {
 			"native": "./src/android/index.ts"
 		},
+		"./native": {
+			"native": "./src/native/index.ts"
+		},
 		"./web": {
 			"web": "./src/web/index.ts"
 		},
@@ -45,6 +48,10 @@
 			"./android": {
 				"types": "./types/android.d.ts",
 				"native": "./dist/native/android/index.js"
+			},
+			"./native": {
+				"types": "./types/native.d.ts",
+				"native": "./dist/native/native/index.js"
 			},
 			"./web": {
 				"types": "./types/web.d.ts",

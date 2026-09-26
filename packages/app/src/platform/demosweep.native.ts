@@ -1,11 +1,12 @@
 import { Application, Frame, ListView } from '@nativescript/core'
 import {
 	currentModalRoute,
-	findInRootLayouts,
 	getStack,
 	popRoute,
 	routeFor,
 } from '@octane-xplat/ui'
+
+import { findInRootLayouts } from '@octane-xplat/ui/native'
 
 import { DEMOS } from '@xplat/demos'
 import { goBack } from './nav'
