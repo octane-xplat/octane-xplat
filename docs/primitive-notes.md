@@ -62,7 +62,7 @@ interface PrimitiveProps {
 | `ScrollView`                      | `div` overflow                                            | `scrollview`                                                                                        | Native `ScrollView` measures a vertical child with an unspecified height; do not nest a recycling `List` inside it.                                                                                                                                                                                                                                                                                                                               |
 | `ScrollBox`                       | `ScrollView`                                              | inline `View`                                                                                       | Use around shared content that may contain a `List`: web keeps the outer scroll, native lets the `ListView` own scrolling. The native shell is deliberately non-scrolling and non-recycling.                                                                                                                                                                                                                                                      |
 | `List` [platform]                 | — _(removed from shared)_                                 | `listview` + **per-cell Octane sub-roots** — now `UITableView`/`RecyclerView` in the subpaths       | The driver owns one `itemTemplate` and `itemLoading` callback: each recycled slot gets a `ContentView` and Octane root. It exposes only `renderItem`, so `kindFor` is removed; branch on the item inside `renderItem` when row markup differs. Never place a platform list inside native `ScrollView`; the leaf throws a named error and `ScrollBox` is the replacement. Shared code composes `ScrollView` + `items.map`.                         |
-| `TextInput` / `TextArea`          | `input`/`textarea`                                        | `textfield`/`textview`                                                                              | controlled `value` ↔ `text`; check cursor/IME fights (open-questions); `returnKeyType`, `autocorrect`, keyboard types all differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS)                                                                    |
+| `TextInput` / `TextArea`          | `input`/`textarea`                                        | `textfield`/`textview`                                                                              | controlled `value` ↔ `text` is written imperatively through `writeText` (`text-write.native.ts`) — Android `EditText.setText` resets selection to 0, so the leaf parks and restores `setSelection(min(pos, len))` around the write; iOS `UITextField` preserves the range itself. No-ops when the value already matches, so the user's own `textChange` echo never bounces. `returnKeyType`, `autocorrect`, keyboard types still differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS) |
 | `Image`                           | `img`                                                     | `image`; svg srcs → `svgview` (ui-svg)                                                              | `src`: URL/`res://`/`~/`/data: URI plus inline `<svg>` markup, svg data URIs, `.svg` paths/URLs; remote `.svg` fetches→markup (SVGView awaits promise srcs)                                                                                                                                                                                                                                                                                       |
 | `Icon`                            | inline SVG (lucide-style)                                 | `svgview` (ui-svg → SVGKit/androidsvg) for `svg`/`markup`                                           | name → glyph map; precedence `markup`/`svg` > `font` > `src` > `text`; `viewBox` is preserved on both leaves                                                                                                                                                                                                                                                                                                                                      |
 | `Switch`                          | self-drawn `div` track+thumb (`vx-switch`)                | self-drawn `flexboxlayout` track+thumb (same classes)                                               | not an OS checkbox/switch — tap toggles on both; keyboard Space/Enter on web. `UISwitch`/`MaterialSwitch` in subpaths for OS chrome                                                                                                                                                                                                                                                                                                               |
@@ -86,7 +86,9 @@ code writes `<Text row={1} col={2}/>` inside a `<Grid>` identically on both
 targets.
 
 **Native SVG** (`svgview`, `@nativescript-community/ui-svg`, required peer;
-desk-source, device fidelity still unverified): `Icon` SVG/markup glyphs and
+lab-verified 2026-09-26 — `icon svgview glyphs` sweep assert finds every
+`Icon` mounted as a sized SVGView on iOS sim and Android device): `Icon`
+SVG/markup glyphs and
 SVG-shaped `Image` sources use SVGView. The pinned `ui-svg` source accepts
 inline markup, `File`/`ImageAsset`, `res://`, `~/`, absolute file paths, and
 promise/function sources. Its native leaves parse strings directly; the
@@ -299,6 +301,12 @@ Caveats learned in the sweep:
   recognizers gone). `findInRootLayouts` skips `isLoaded === false`
   branches; interaction probes must assert `isLoaded` before concluding
   a view is tappable — `notify()`/observer dispatch works on dead views.
+- **The `files.pick` document browser swallows every real touch** while it
+  is presented (a hosted `DocumentManagerUICore` scene owns event delivery —
+  gestures, hit-tests, and view state all look correct underneath it). The
+  harness opens it at +90s, so unattended `idb ui tap` sessions must either
+  run before it appears or tap `harness.txt` to dismiss it first; a leftover
+  shade cover (e.g. an un-closed overlay probe) blocks taps the same way.
 - **A re-shown page can stay unloaded** when the frame's nav bookkeeping
   stalls mid-transition (#11444 strand). `route.native` re-arms the load
   pass on `navigatedTo` (`currentPage.callLoaded()` — idempotent) so
@@ -320,8 +328,10 @@ Declarative form resolves its root via the `rootLayoutFor` sentinel walk
 (same as `Overlay`); the imperative service uses `topRootLayout()` and a
 **fresh host + root per open** — no stale-parent reopen dance. Host carries
 theme classes via `applyThemeClasses`; `closeSheet()` / `sheetHost()`
-support imperative dismiss + harness asserts. iOS-verified through the
-existing sheet sweep asserts.
+support imperative dismiss + harness asserts. Verified on iOS and Android:
+the sheet host registers as a tracked RootLayout popup child
+(`getPopupIndex(host) >= 0` — `[assert] sheet host registered`), so shade
+covers, `bringToFront`, and `closeAll` all see it.
 
 ## Liquid Glass (decision #37)
 

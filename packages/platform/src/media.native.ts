@@ -4,14 +4,13 @@
 // (UIImagePickerController on iOS, ACTION_IMAGE_CAPTURE on Android).
 import {
 	isAvailable as isCameraAvailable,
-	requestCameraPermissions,
 	takePicture,
 } from '@nativescript/camera'
 
 import { create as createImagePicker } from '@nativescript/imagepicker'
 // Ambient const enum — verbatimModuleSyntax forbids value access; Image = 1.
 import type { ImagePickerMediaType } from '@nativescript/imagepicker'
-import { ImageSource, knownFolders, path } from '@nativescript/core'
+import { Application, ImageSource, knownFolders, path } from '@nativescript/core'
 import { files } from './files'
 import type {
 	CapturePhotoOptions,
@@ -33,15 +32,75 @@ async function ensurePhotos(): Promise<PermissionResult> {
 	}
 }
 
+let cameraRequestCode = 7717
+
+// Request camera access through the platform primitives directly rather than
+// @nativescript/camera's requestCameraPermissions(): it delegates to
+// @nativescript-community/perms, and the bundler may resolve a perms major
+// whose return shape the plugin's status mapper can't read (3.x Status
+// string vs the 2.x `[status, bool]` array) — a granted permission then maps
+// to 'denied'. The direct paths can't drift with that dependency.
 async function ensureCamera(): Promise<PermissionResult> {
 	try {
 		if (!isCameraAvailable()) {
 			return 'unsupported'
 		}
 
-		const result = await requestCameraPermissions()
-		return result?.Success ? 'granted' : 'denied'
-	} catch {
+		if (Application.ios) {
+			const av = (globalThis as any).AVCaptureDevice
+			const video = (globalThis as any).AVMediaTypeVideo
+			// 0=notDetermined 1=restricted 2=denied 3=authorized
+			const status = av?.authorizationStatusForMediaType?.(video)
+			if (status === 3) {
+				return 'granted'
+			}
+			if (status === 1 || status === 2) {
+				return 'denied'
+			}
+			return await new Promise<PermissionResult>((resolve) => {
+				av.requestAccessForMediaTypeCompletionHandler(video, (granted: boolean) =>
+					resolve(granted ? 'granted' : 'denied'),
+				)
+			})
+		}
+
+		const perm = 'android.permission.CAMERA'
+		const activity =
+			Application.android.foregroundActivity ?? Application.android.startActivity
+
+		if (activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED) {
+			return 'granted'
+		}
+		if (!activity) {
+			return 'denied'
+		}
+
+		return await new Promise<PermissionResult>((resolve) => {
+			const requestCode = cameraRequestCode++
+			const onResult = (args: any) => {
+				if (args.requestCode !== requestCode) {
+					return
+				}
+
+				Application.android.off(
+					Application.android.activityRequestPermissionsEvent,
+					onResult,
+				)
+				resolve(
+					args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
+						? 'granted'
+						: 'denied',
+				)
+			}
+
+			Application.android.on(
+				Application.android.activityRequestPermissionsEvent,
+				onResult,
+			)
+			activity.requestPermissions([perm], requestCode)
+		})
+	} catch (e) {
+		console.log('[media] ensureCamera error: ' + (e as Error)?.message)
 		return 'denied'
 	}
 }

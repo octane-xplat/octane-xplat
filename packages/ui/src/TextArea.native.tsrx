@@ -4,6 +4,7 @@ import { Utils } from '@nativescript/core';
 import type { TextAreaProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
+import { writeText } from './text-write.native';
 
 /** Multiline input — <textview>. TextView measures to content natively, so
  *  `autoGrow` is its default; `rows`/`maxRows` have no NS equivalent, so the
@@ -36,6 +37,8 @@ export function TextArea(props: TextAreaProps) @{
 	// Explicit deps — tsrx infers effect deps from closure reads, and `fit`
 	//  hides the prop reads one level down.
 	useEffect(() => fit(el.current), [props.rows, props.autoGrow, props.maxRows, props.style]);
+	// Imperative controlled write — Android setText resets selection to 0.
+	useEffect(() => writeText(el.current, props.value), [props.value]);
 
 	<textview
 		id={props.id}
@@ -47,7 +50,6 @@ export function TextArea(props: TextAreaProps) @{
 		}}
 		className={cx('vx-textarea', props.className)}
 		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
-		text={props.value}
 		hint={props.placeholder}
 		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 		returnKeyType={props.returnKeyType}

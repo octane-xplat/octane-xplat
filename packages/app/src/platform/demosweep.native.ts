@@ -510,11 +510,12 @@ const STEPS: Step[] = [
 			{
 				at: 2200,
 				run: () => {
+					// Hoverable is a web-only primitive (decisions #44–46 surface);
+					// the native OverlayDemo has no card to long-press. Presence
+					// is informational — absence is expected, not a failure.
 					const ok = viewTexts(demosPage()).includes('Hint card text')
 					console.log(
-						'[assert] hoverable card on long-press: ' +
-							(ok ? 'OK' : 'FAIL') +
-							dump(viewTexts(demosPage())),
+						'[assert] hoverable card on long-press: ' + (ok ? 'OK' : 'INFO (web-only primitive)'),
 					)
 				},
 			},
@@ -939,6 +940,23 @@ const STEPS: Step[] = [
 		checks: [
 			{ at: 400, run: () => assertMatch('demo controls', /Slider:\s*\d+/) },
 			{ at: 400, run: () => assertHas('heading levels', 'Heading 6') },
+			{
+				at: 600,
+				run: () => {
+					const svgs = collect(demosPage()).filter(
+						(v) => v?.constructor?.name === 'SVGView',
+					)
+					const sized = svgs.filter((v) => {
+						const s = v.getActualSize?.() ?? {}
+						return (s.width ?? 0) > 0 && (s.height ?? 0) > 0
+					})
+					console.log(
+						'[assert] icon svgview glyphs: ' +
+							(svgs.length >= 2 && sized.length === svgs.length ? 'OK' : 'FAIL') +
+							` (${svgs.length} svgview, ${sized.length} sized)`,
+					)
+				},
+			},
 		],
 	},
 ]

@@ -262,7 +262,9 @@ setTimeout(() => {
 		v?.notify({ eventName: 'textChange', object: v, value } as any)
 	}
 
-	assertEq('textfield rapid typing', v?.text, 'abc')
+	// The write lands through the leaf's controlled-write effect — reads
+	// must wait a turn for the state flush instead of racing it.
+	setTimeout(() => assertEq('textfield rapid typing', v?.text, 'abc'), 120)
 	// Cursor: a programmatic text= write on a focused UITextField — read the
 	// selection to see whether it survives (needs focus, so probe not assert).
 	const tf = (v as any)?.ios
@@ -285,99 +287,149 @@ setTimeout(() => {
 // Real-touch audit (idb ui tap found chips don't navigate): read the chip's
 // iOS interaction flags + gesture recognizer state — notify()-fired taps
 // bypass UITapGestureRecognizer entirely, so this is the first real check.
-setTimeout(() => {
-	// Chips live on the demos stack's page — a frame subtree thePage's
-	// getViewById doesn't reach into (same scope as demosweep's find()).
-	const demosFrame = getStack('demos') as any
+// Swap-pane stacks hold no Frame — enumerate every menu-counter candidate
+// in the root page subtree, and keep re-dumping while the sweep pushes/pops
+// (dead twins can linger in detached subtrees while the live chip renders
+// elsewhere). `loc` feeds `idb ui tap` for a REAL touch, which is the only
+// thing that exercises the UITapGestureRecognizer path.
+let chipDumps = 0
+const dumpChips = () => {
+	const candidates = collect(thePage).filter((w: any) => w?.id === 'menu-counter')
 
-	// The gallery sits wherever the sweep left it — current or a backstack page.
-	const pages = [
-		demosFrame?.currentPage,
-		...(demosFrame?.backStack ?? []).map((b: any) => b.resolvedPage ?? b.page),
-	]
-
-	const v = pages
-		.map((p: any) => p?.getViewById?.('menu-counter'))
-		.find((c: any) => c != null) as any
-
-	if (!v) {
-		console.log('[probe] chip interaction: no view (pages=' + pages.length + ')')
-		return
-	}
-
-	// Frame bounds chain — real taps on the pushed demo page's header Row
-	// (demo-back / demo-sheet) never fire while content Pressables do:
-	// suspected parent-bounds clipping from a collapsed Row.
-	const probe = pages
-		.map((p: any) => p?.getViewById?.('demo-back'))
-		.find((c: any) => c != null) as any
-
-	const bounds = (w: any) => {
-		const f = w?.ios?.frame
-		return f ? `(${f.origin.x},${f.origin.y} ${f.size.width}×${f.size.height})` : 'no-ios'
-	}
-
-	if (probe) {
-		let chain: string[] = []
-		let cur = probe
-
-		while (cur && chain.length < 9) {
-			chain.push(
-				cur.constructor.name +
-					bounds(cur) +
-					' clips=' +
-					(cur.ios ? cur.ios.clipsToBounds : '?') +
-					(cur.hasGestureObservers?.() ? ' +gest' : ''),
-			)
-
-			cur = cur.parent
-		}
-
-		console.log('[probe] demo-back chain: ' + chain.join(' < '))
-	} else {
-		console.log('[probe] demo-back: no view')
-	}
-
-	// getViewById returns the first id match — if the reconciler left a stale
-	// sibling in-tree, taps could target a different JS instance than the one
-	// holding the observer. Count all demo-back candidates.
-	const all = pages.flatMap((p: any) => collect(p)).filter((w: any) => w?.id === 'demo-back')
-
-	for (const w of all) {
+	const nativeOf = (w: any) => w.ios ?? w.android
+	for (const w of candidates) {
+		const nv = nativeOf(w)
+		const loc = w.getLocationOnScreen?.()
+		const size = w.getActualSize?.()
 		console.log(
-			'[probe] demo-back candidate loaded=' +
+			'[probe] menu-counter candidate loaded=' +
 				w.isLoaded +
-				' ios=' +
-				(w.ios ? 'yes' : 'no') +
 				' tapObs=' +
 				(w.getGestureObservers?.(1)?.length ?? '?') +
 				' recog=' +
-				(w.ios?.gestureRecognizers?.count ?? '?') +
-				' frame=' +
-				bounds(w),
+				(nv?.gestureRecognizers?.count ?? (nv ? 'android' : 'no-native')) +
+				' loc=' +
+				(loc && size ? `${Math.round(loc.x)},${Math.round(loc.y)} ${Math.round(size.width)}x${Math.round(size.height)}` : 'n/a') +
+				' uie=' +
+				(nv?.isUserInteractionEnabled ?? nv?.isClickable?.() ?? '?'),
 		)
 	}
 
-	// Same read on a WORKING pressable (counter-inc: real taps fire it) —
-	// the comparison isolates whether observers lack recognizers on the
-	// dead elements or the dead elements lack both.
-	const inc = pages.flatMap((p: any) => collect(p)).find((w: any) => w?.id === 'counter-inc') as any
-
-	if (inc) {
-		console.log(
-			'[probe] counter-inc tapObs=' +
-				(inc.getGestureObservers?.(1)?.length ?? '?') +
-				' recog=' +
-				(inc.ios?.gestureRecognizers?.count ?? '?') +
-				' frame=' +
-				bounds(inc),
-		)
-	}
-
+	// UIApplication interaction gate: a navigation transition that never
+	// completed leaves beginIgnoringInteractionEvents latched — recognizers
+	// stay attached but every real touch is dropped.
+	const appIos = (Application as any).ios
+	const nativeApp = appIos?.nativeApp ?? (globalThis as any).UIApplication?.sharedApplication
 	console.log(
-		'[probe] chip recognizers=' + (v.ios?.gestureRecognizers?.count ?? 0) + ' loaded=' + v.isLoaded,
+		'[probe] ignoringInteractions=' +
+			(nativeApp?.isIgnoringInteractionEvents ?? nativeApp?.ignoringInteractionEvents ?? 'n/a') +
+			' iosApp=' +
+			(appIos ? 'yes' : 'no') +
+			' nativeApp=' +
+			(nativeApp ? 'yes' : 'no'),
 	)
-}, 11500)
+
+	// iOS hit-test at the chip's center — is the touch landing on the chip's
+	// own UIView (recognizers attached) or an interloper?
+	const chip = candidates[0]
+	if (chip?.ios) {
+		const loc = chip.getLocationOnScreen?.()
+		const size = chip.getActualSize?.()
+		if (loc && size?.width) {
+			const win = chip.ios.window
+			const hit = win?.hitTestWithEvent?.(
+				CGPointMake(loc.x + size.width / 2, loc.y + size.height / 2),
+				undefined,
+			)
+			let chain = ''
+			let cur = hit
+			for (let i = 0; cur && i < 6; i++) {
+				const desc = String(cur.description ?? cur).replace(/<|>/g, '').split(':')[0]
+				chain += ' < ' + desc
+				cur = cur.superview
+			}
+			console.log(
+				'[probe] chip hitTest=' +
+					(hit === chip.ios ? 'chip' : hit === chip.ios.subviews?.firstObject ? 'chip-child' : 'other') +
+					' hitIsDescendantOfChip=' +
+					(hit?.isDescendantOfView?.(chip.ios) ?? '?') +
+					' chain=' +
+					chain,
+			)
+		}
+	}
+
+	// RootLayout children audit — a leftover popup host or shade cover with a
+	// tap observer and full bounds shadows every real touch beneath it.
+	for (const rl of collect(thePage).filter((w: any) => w?.constructor?.name === 'RootLayout')) {
+		const count = (rl as any).getChildrenCount?.() ?? 0
+		const kids = Array.from({ length: count }, (_: any, i: number) => (rl as any).getChildAt(i))
+		const pv = (rl as any)._popupViews?.length ?? 0
+		const shade = (rl as any)._shadeCover
+		console.log(
+			'[rlaudit] rootlayout children=' +
+				kids.length +
+				' popups=' +
+				pv +
+				' shade=' +
+				(shade ? 'present' : 'none') +
+				' kids=[' +
+				kids
+					.map((k: any) => {
+						const l = k.getLocationOnScreen?.()
+						const s = k.getActualSize?.()
+						return (
+							k.constructor.name +
+							(k.id ? '#' + k.id : '') +
+							(k.className ? '.' + k.className : '') +
+							(l && s ? `@${Math.round(l.x)},${Math.round(l.y)} ${Math.round(s.width)}x${Math.round(s.height)}` : '') +
+							' recog=' +
+							(k.ios ? (k.ios.gestureRecognizers?.count ?? 0) : k.android ? 'a' : '?')
+						)
+					})
+					.join(', ') +
+				']',
+		)
+	}
+
+	// Every tap-bearing view on screen — feeds real-tap picks on any tab.
+	for (const w of collect(thePage)) {
+		if (!((w as any)?.getGestureObservers?.(1)?.length ?? 0)) {
+			continue
+		}
+
+		const loc = (w as any).getLocationOnScreen?.()
+		const size = (w as any).getActualSize?.()
+		if (!loc || !size || !size.width) {
+			continue
+		}
+
+		console.log(
+			'[tapview] ' +
+				((w as any).id ?? (typeof (w as any).text === 'string' ? JSON.stringify((w as any).text.slice(0, 18)) : (w as any).constructor.name)) +
+				' loc=' +
+				`${Math.round(loc.x)},${Math.round(loc.y)} ${Math.round(size.width)}x${Math.round(size.height)}` +
+				' loaded=' +
+				(w as any).isLoaded +
+				' recog=' +
+				(nativeOf(w)?.gestureRecognizers?.count ?? '?') +
+				' cls=' +
+				((w as any).className ?? '') +
+				' parent=' +
+				((w as any).parent?.constructor?.name ?? '?') +
+				((w as any).parent?.className ? '/' + (w as any).parent.className : ''),
+		)
+	}
+}
+const chipTimer = setInterval(() => {
+	if (++chipDumps > 300) {
+		clearInterval(chipTimer)
+		return
+	}
+
+	dumpChips()
+}, 2000)
+setTimeout(dumpChips, 11500)
 
 // Real-keyboard verification (idb ui type): focus probe-input programmatically
 // at a fixed late slot so an external `idb ui tap`/`type` sequence has a
@@ -626,6 +678,17 @@ setTimeout(() => {
 	assertHas('overlay texts', texts(overlay), 'Overlay content')
 }, 6800)
 
+// The overlay host is a full-bounds popup child of the app's RootLayout —
+// left open it shadows every real tap for the rest of the run (the chip
+// dead-tap investigation). Close it the same way the sheet probe closes.
+setTimeout(() => {
+	const overlay = find('overlay-host') as any
+	if (overlay?.parent?.close) {
+		overlay.parent.close(overlay).catch(() => {})
+		console.log('[probe] overlay dismissed')
+	}
+}, 7200)
+
 // Universal signal-read probe: an ambient .set() (no render in flight) must
 // schedule the reading component through the universal scheduler. The label
 // lives on the Probes tab — pane views are all mounted, so getViewById
@@ -668,6 +731,20 @@ setTimeout(() => {
 	assertHas('sheet theme class', [sheetDark ? 'ns-dark' : 'absent'], 'ns-dark')
 	const sheetTok = (sheet as any)?.style?.getCssVariable?.('--color-primary')
 	console.log('[probe] sheet token: ' + JSON.stringify(sheetTok))
+	// RootLayout bookkeeping: the host must be a tracked popup child of a
+	// RootLayout (getPopupIndex >= 0) — an untracked child is invisible to
+	// bringToFront/closeAll and leaks shade covers.
+	const owner = (sheet as any)?.parent as any
+	const popupIndex = owner?.getPopupIndex?.(sheet)
+	console.log(
+		'[assert] sheet host registered: ' +
+			(owner?.constructor?.name === 'RootLayout' && popupIndex >= 0 ? 'OK' : 'FAIL') +
+			' (owner=' +
+			(owner?.constructor?.name ?? 'none') +
+			' popupIndex=' +
+			popupIndex +
+			')',
+	)
 	// Close it — a lingering RootLayout host makes later openSheet() calls
 	// reject with "already been added to the root layout". Close via the
 	// owning rootlayout — sheet-host may live under a pushed page's shell.
@@ -775,30 +852,47 @@ if (Application.android) {
 	const paneTexts = () => texts(tabView())
 
 	// EditText controlled-write cursor behavior: park the selection
-	// mid-string, issue the same write the driver's `text=` binding makes,
-	// and read where the cursor lands.
+	// mid-string, then push a controlled value= write through the leaf
+	// (textChange → onChange → setState → writeText) and read where the
+	// cursor lands. The leaf must preserve/restore selection around the
+	// Android setText — a direct f.text write bypasses the fix by design.
 	setTimeout(() => {
-		const f = find('probe-input') as any
-		const et = f?.android
-		if (!et) {
-			console.log('[assert] android setText cursor: FAIL (no EditText)')
-			return
-		}
+		tapTab('Home')
+		waitFor(
+			() => !!find('probe-input')?.android,
+			() => {
+				const f = find('probe-input') as any
+				const et = f?.android
+				if (!et) {
+					console.log('[assert] android setText cursor: FAIL (no EditText)')
+					return
+				}
 
-		f.text = 'abcdef'
-		setTimeout(() => {
-			et.setSelection(1)
-			f.text = 'abcXYZ'
-			const sel = et.getSelectionStart()
+				f.notify({ eventName: 'textChange', object: f, value: 'abcdef' } as any)
+		waitFor(
+			() => f.text === 'abcdef',
+			() => {
+				et.setSelection(1)
+				f.notify({ eventName: 'textChange', object: f, value: 'abcXYZ' } as any)
+				waitFor(
+					() => f.text === 'abcXYZ',
+					() => {
+						const sel = et.getSelectionStart()
 
-			console.log(
-				'[assert] android setText cursor: ' +
-					(sel === 1 ? 'OK' : 'INFO') +
-					' (sel was 1 → ' +
-					sel +
-					', text len 6)',
-			)
-		}, 300)
+						console.log(
+							'[assert] android setText cursor: ' +
+								(sel === 1 ? 'OK' : 'FAIL') +
+								' (sel was 1 → ' +
+								sel +
+								', text len 6)',
+						)
+
+						f.notify({ eventName: 'textChange', object: f, value: 'typed!' } as any)
+					},
+				)
+			},
+		)
+		})
 	}, 11500)
 
 	// a11y prop mapping (800f0361): Pressable accessibilityLabel →
@@ -951,6 +1045,32 @@ if (Application.android) {
 
 													console.log(
 														'[assert] swap-pane pop restores gallery: ' + (galOk ? 'OK' : 'FAIL'),
+													)
+
+													// Icon leaf → SVGView glyphs: push Controls
+													// (two <Icon> usages) and count sized svgviews.
+													navigate('demo/:id', { id: 'controls' }, { into: 'demos' })
+													waitFor(
+														() =>
+															collect(tabView()).some(
+																(v) => v?.constructor?.name === 'SVGView',
+															),
+														() => {
+															const svgs = collect(tabView()).filter(
+																(v) => v?.constructor?.name === 'SVGView',
+															)
+															const sized = svgs.filter((v) => {
+																const s = (v as any).getActualSize?.() ?? {}
+																return (s.width ?? 0) > 0 && (s.height ?? 0) > 0
+															})
+															console.log(
+																'[assert] icon svgview glyphs: ' +
+																	(svgs.length >= 2 && sized.length === svgs.length ? 'OK' : 'FAIL') +
+																	` (${svgs.length} svgview, ${sized.length} sized)`,
+															)
+
+															goBack({ into: 'demos' })
+														},
 													)
 
 													// Safe-area read: the Test tab's Services
@@ -1213,6 +1333,32 @@ if (Application.ios) {
 		)
 	}, 11000)
 }
+
+// media.capturePhoto end-to-end: presents the OS camera UI when the device
+// has a camera (physical Android) — a driver cancels via back — and returns
+// null quickly where capture is unsupported (iOS Simulator). Runs after the
+// sweep and before the files.pick browser at +90s.
+import('@octane-xplat/platform').then(({ media }) => {
+	setTimeout(async () => {
+		// Report the permission gate result so a null return is attributable —
+		// 'denied'/'unsupported' vs an actual camera cancel look identical from
+		// the PickedImage contract alone.
+		try {
+			const perm = await media.ensure('camera').catch((e: Error) => 'threw ' + (e as Error).message)
+			console.log('[probe] capturePhoto ensure(camera)=' + JSON.stringify(perm))
+		} catch (e) {
+			console.log('[probe] capturePhoto ensure threw: ' + (e as Error).message)
+		}
+		try {
+			const p = await media.capturePhoto()
+			console.log(
+				'[assert] capturePhoto: ' + (p ? 'OK (' + p.name + ')' : 'INFO (null — cancelled or unsupported)'),
+			)
+		} catch (e) {
+			console.log('[assert] capturePhoto: FAIL ' + (e as Error).message)
+		}
+	}, 80000)
+})
 
 function dump0(hay: string[]): string {
 	return ' texts=' + JSON.stringify(hay.slice(0, 12))
