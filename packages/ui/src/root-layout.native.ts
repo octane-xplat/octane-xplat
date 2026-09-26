@@ -44,7 +44,11 @@ export function rootLayoutFor(view: any): RootLayout | undefined {
 
 /** Search every registered rootlayout for a view by id — overlays/sheets/
  *  toasts land on different rootlayouts depending on which screen's shell
- *  mounted last. */
+ *  mounted last. Unloaded subtrees are skipped: a covered page unloads its
+ *  views (NativeScript detaches their native recognizers while the JS views
+ *  stay parented), so an unloaded match is a dead twin that can swallow
+ *  interaction probes — the live view either doesn't exist here yet or sits
+ *  under a loaded branch. */
 export function findInRootLayouts(id: string): any {
 	const walk = (view: any): any => {
 		if (!view) {
@@ -57,6 +61,10 @@ export function findInRootLayouts(id: string): any {
 
 		let hit: any = null
 		view.eachChildView?.((c: any) => {
+			if (c?.isLoaded === false) {
+				return true
+			}
+
 			const found = walk(c)
 			if (found) {
 				hit = found
