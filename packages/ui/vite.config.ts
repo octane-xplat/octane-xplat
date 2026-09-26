@@ -55,7 +55,16 @@ export default defineConfig(({ mode }) => {
 		}),
 		build: {
 			lib: {
-				entry: native ? 'src/index.native.ts' : 'src/index.web.ts',
+				entry: (native
+					? {
+							ui: 'src/index.native.ts',
+							'ios/index': 'src/ios/index.ts',
+							'android/index': 'src/android/index.ts',
+						}
+					: {
+							ui: 'src/index.web.ts',
+							'web/index': 'src/web/index.ts',
+						}) as Record<string, string>,
 				formats: ['es'],
 			},
 			outDir: native ? 'dist/native' : 'dist/web',

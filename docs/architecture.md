@@ -20,8 +20,18 @@ NativeScript view.
 
 ## Shared code and platform code
 
-Keep a component shared when the user experience is the same on every target.
-Split it when the platform needs a different implementation:
+The rule for the shared surface is stricter than "feels similar": a shared
+component must deliver the same pixels for the same props on every target,
+with no platform-specific props. `@octane-xplat/ui` therefore owns its
+rendering (`Switch`, `Slider`, `ActivityIndicator`, `Tabs`, `Drawer` are
+self-drawn) or wraps an unavoidable platform control behind a native chrome
+reset (`TextInput`, `TextArea`). Real OS widgets — UISwitch, RecyclerView,
+modals, Liquid Glass — live in `@octane-xplat/ui/ios`,
+`@octane-xplat/ui/android`, and `@octane-xplat/ui/web` under their official
+names; those subpaths resolve only on their platform, so reaching for them
+is always a conscious platform choice.
+
+Split a component when the platform needs a different implementation:
 
 ```text
 ShareButton.tsrx          shared behavior and props

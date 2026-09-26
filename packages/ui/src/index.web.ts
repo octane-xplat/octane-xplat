@@ -4,9 +4,6 @@ export { Row } from './Row.web.tsrx'
 export { Grid } from './Grid.web.tsrx'
 export { Stack } from './Stack.web.tsrx'
 export { Absolute } from './Absolute.web.tsrx'
-export { LiquidGlass } from './LiquidGlass.web.tsrx'
-export { LiquidGlassContainer } from './LiquidGlassContainer.web.tsrx'
-export type { GlassConfig, GlassProp, LiquidGlassProps, LiquidGlassContainerProps } from './props'
 export type { PanEvent, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate.web'
 export { Spacer } from './Spacer.web.tsrx'
@@ -17,18 +14,13 @@ export { Link } from './Link.web.tsrx'
 export { NavLink } from './NavLink.web.tsrx'
 export { TextInput } from './TextInput.web.tsrx'
 export { TextArea } from './TextArea.web.tsrx'
-export { List } from './List.web.tsrx'
 export { ScrollBox } from './ScrollBox.web.tsrx'
 export { ScrollView } from './ScrollView.web.tsrx'
 export { Image } from './Image.web.tsrx'
-export { Modal } from './Modal.web.tsrx'
-export { openModal } from './modal-service.web'
 export { Overlay } from './Overlay.web.tsrx'
 export { Popover } from './Popover.web.tsrx'
-export { Hoverable } from './Hoverable.web.tsrx'
 export { showToast } from './toast-anchor.web.tsrx'
 export type {
-	HoverableProps,
 	OverlayProps,
 	PopoverAnchorRef,
 	PopoverProps,
@@ -59,7 +51,6 @@ export { Tabs } from './Tabs.web.tsrx'
 export type { TabSpec } from './Tabs.web.tsrx'
 export { Switch } from './Switch.web.tsrx'
 export { SafeArea } from './SafeArea.web.tsrx'
-export { KeyboardAvoiding } from './KeyboardAvoiding.web.tsrx'
 export { Drawer } from './Drawer.web.tsrx'
 export { useSafeAreaInsets } from './safeAreaInsets.web.tsrx'
 export type { SafeAreaInsets } from './safeAreaInsets.web.tsrx'
@@ -80,7 +71,6 @@ export type {
 	SliderProps,
 } from './props'
 
-export { PlatformBadge } from './PlatformBadge.web.tsrx'
 export { registerStack, getStack, stackEntries } from './stacks.web'
 export {
 	pushRoute,
@@ -114,10 +104,7 @@ export type {
 	RouteMeta,
 	RouteManifest,
 	ScreenTable,
-	ModalProps,
-	ModalOpenOptions,
 	ModalOpenResult,
-	OpenModal,
 	OpenWindowOptions,
 } from './props'
 

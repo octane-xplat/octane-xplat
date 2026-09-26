@@ -1,7 +1,6 @@
 import { useRef } from 'octane';
 import type { ViewProps } from './props';
 import { applyEscapeProps } from './escape-props';
-import { glassClassOf, glassStyleOf } from './glass';
 import { layoutChildProps } from './layout-child.web';
 import { usePan } from './pan.web.tsrx';
 
@@ -17,8 +16,8 @@ export function View(props: ViewProps) @{
 	<div
 		id={props.id}
 		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); props.bind?.(e); } }}
-		className={['vx-view', glassClassOf(props.glass), props.className]}
-		{...layoutChildProps(props, { ...glassStyleOf(props.glass), ...props.style })}
+		className={['vx-view', props.className]}
+		{...layoutChildProps(props, props.style)}
 	>
 		{props.children}
 	</div>

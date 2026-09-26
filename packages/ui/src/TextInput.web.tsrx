@@ -12,14 +12,14 @@ export function TextInput(props: TextInputProps) @{
 			props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el });
 		}}
 		id={props.id}
-		className={props.className}
+		className={['vx-input', props.className]}
 		style={{ ...normStyle(props.style), ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
 		value={props.value}
 		type={props.secure ? 'password' : props.keyboardType === 'number' || props.keyboardType === 'decimal' ? 'number' : keyboardType}
 		inputMode={inputMode}
 		enterKeyHint={props.returnKeyType}
 		readOnly={props.editable === false}
-		placeholder={props.placeholder ?? props.hint}
+		placeholder={props.placeholder}
 		onInput={(e: any) => props.onChange?.(e.target.value)}
 		onKeyDown={(e: any) => { if (e.key === 'Enter' && !e.shiftKey) props.onSubmit?.(); }}
 		onFocus={props.onFocus}

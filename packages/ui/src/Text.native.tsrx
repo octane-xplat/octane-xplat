@@ -24,7 +24,6 @@ function TextScope(props: { children?: any }) {
 
 export function Text(props: TextProps) @{
 	const inText = useContext(InText);
-	// NativeScript Label/Span has no selectable property; selectable is web-only.
 	const textStyle = {
 		...props.style,
 		...(props.ellipsize ? { whiteSpace: 'nowrap', textOverflow: 'ellipsis' } : {}),

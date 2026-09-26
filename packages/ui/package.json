@@ -13,15 +13,42 @@
 			"native": "./src/index.native.ts",
 			"default": "./src/index.native.ts"
 		},
+		"./ios": {
+			"native": "./src/ios/index.ts"
+		},
+		"./android": {
+			"native": "./src/android/index.ts"
+		},
+		"./web": {
+			"web": "./src/web/index.ts"
+		},
 		"./theme/*": "./src/theme/*"
 	},
 	"publishConfig": {
 		"exports": {
 			".": {
 				"types": "./types/index.d.ts",
-				"web": "./dist/web/ui.js",
-				"native": "./dist/native/ui.js",
+				"web": {
+					"types": "./types/index.web.d.ts",
+					"default": "./dist/web/ui.js"
+				},
+				"native": {
+					"types": "./types/index.native.d.ts",
+					"default": "./dist/native/ui.js"
+				},
 				"default": "./dist/native/ui.js"
+			},
+			"./ios": {
+				"types": "./types/ios.d.ts",
+				"native": "./dist/native/ios/index.js"
+			},
+			"./android": {
+				"types": "./types/android.d.ts",
+				"native": "./dist/native/android/index.js"
+			},
+			"./web": {
+				"types": "./types/web.d.ts",
+				"web": "./dist/web/web/index.js"
 			},
 			"./theme/tokens.css": "./src/theme/tokens.css"
 		}

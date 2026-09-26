@@ -1,28 +1,25 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef } from 'octane';
-import type { ModalProps } from "./props";
+import type { ModalProps } from "../props";
 import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
-import { applyThemeClasses } from './theme/theme-scheme';
-import { modalPresenter } from './modal-presenter.native';
+import { applyThemeClasses } from '../theme/theme-scheme';
+import { modalPresenter } from '../modal-presenter.native';
 
 // The modal's content renders inside a separate Octane root on a GridLayout
 // host — modals never share context with their presenter (decision #9).
-// GridLayout because the root host must be multi-child: ContentView assigns
-// each child to `.content`, so a fragment of siblings would keep only the
-// last; grid children all fill the cell (single-child layout unchanged).
-// Children arrive as an already-created element: element data evaluates in
-// whichever root renders it, so re-parenting through the second root is safe.
 function Panel(props: { children?: any }) @{
 	<>{props.children}</>
 }
 
-/**
- * Modal — declarative `open` drives imperative `showModal`. Renders nothing
- * inline; the content lives on the modal's own root above the whole tree.
- */
-export function Modal(props: ModalProps) @{
+/** MaterialDialog — declarative `open` drives the platform modal
+ *  presentation (`showModal`; fullscreen=false is a centered dialog sized
+ *  to its content, not a bottom sheet). Renders nothing inline; the
+ *  content lives on the modal's own root above the whole tree. The shared
+ *  `ui` surface has no Modal — `Overlay`/`Sheet` are the self-drawn
+ *  in-window versions. */
+export function MaterialDialog(props: ModalProps) @{
 	const shown = useRef<{ host: GridLayout; root: any; unbindTheme?: () => void } | null>(null);
 
 	useEffect(() => {
@@ -34,7 +31,6 @@ export function Modal(props: ModalProps) @{
 				console.warn('[Modal] open dropped — no live presenter (currentPage mid-navigation or no active frame).');
 				return;
 			}
-
 			const host = new GridLayout();
 			const unbindTheme = applyThemeClasses(host, 'vx-modal-host');
 			const root = createNativeScriptRoot(host);
@@ -45,7 +41,6 @@ export function Modal(props: ModalProps) @{
 				root.render(Panel as unknown as UniversalComponent, { children: props.children });
 			}
 
-			// Signature is showModal(viewToShow, options) — not an options bag.
 			const fullscreen = props.presentation
 				? props.presentation === 'fullscreen'
 				: props.fullscreen ?? true;

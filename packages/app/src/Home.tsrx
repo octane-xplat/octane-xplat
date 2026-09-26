@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, List, ScrollView, Image, Modal, PlatformBadge, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, ScrollView, Image, Sheet, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { SELF_DRIVE } from './platform/selfdrive';
@@ -82,7 +82,6 @@ export function Home() @{
 		<Row className="justify-between items-baseline shrink-0">
 			<Text className="text-2xl font-semibold">Kitchen sink</Text>
 			<Row className="gap-3 items-center">
-				<PlatformBadge className="badge" />
 				<Pressable id="scheme-toggle" onPress={() => setOverride(dark ? 'light' : 'dark')} className="btn btn-secondary">
 					<Text>{dark ? 'Light' : 'Dark'}</Text>
 				</Pressable>
@@ -138,16 +137,17 @@ export function Home() @{
 					</Row>
 				</View>
 
-				{/* Modal seam: declarative open → native showModal on a second root;
-				    web <dialog>. Context doesn't cross — data goes through props. */}
-				<Modal open={modal} onClose={() => setModal(false)}>
+				{/* Sheet seam (the shared in-window modal surface — the platform
+				    showModal widgets moved to ui/ios + ui/android): declarative
+				    open → shade + panel on this same root. */}
+				<Sheet open={modal} onDismiss={() => setModal(false)}>
 					<View className="modal-panel">
 						<Text>Modal content</Text>
 						<Pressable id="modal-close" onPress={() => setModal(false)} className="btn btn-secondary">
 							<Text>Close modal</Text>
 						</Pressable>
 					</View>
-				</Modal>
+				</Sheet>
 
 				<View className="sink-section">
 					<Text className="section-label">Gestures and animation</Text>
@@ -255,13 +255,11 @@ export function Home() @{
 
 		<View className="sink-section flex-1">
 			<Text className="section-label">Items</Text>
-			<List
-				id="main-list"
-				items={items}
-				className="list flex-1"
-				renderItem={renderItem}
-				renderEmpty={renderEmpty}
-			/>
+			{/* Shared surface has no List — compose ScrollView + map here;
+			    the recycling platform widgets live in ui/ios + ui/android. */}
+			<ScrollView id="main-list" className="list flex-1">
+				{items.length > 0 ? items.map(renderItem) : renderEmpty()}
+			</ScrollView>
 		</View>
 	</View>
 }

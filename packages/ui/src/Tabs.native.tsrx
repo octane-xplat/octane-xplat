@@ -1,11 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { memo, useState } from 'octane';
-import { Application, Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
-import { createNativeScriptRoot } from '@nativescript-community/octane';
-import type { UniversalComponent } from 'octane/universal';
-import { registerStack } from './stacks.native';
+import { useState } from 'octane';
 import { cx } from './cx';
-import { getIcon } from './icons';
 import { Icon } from './Icon.native.tsrx';
 import { Pressable } from './Pressable.native.tsrx';
 import { Text } from './Text.native.tsrx';
@@ -15,154 +10,6 @@ import type { TabSpec, TabsProps } from './props';
 
 export type { TabSpec } from './props';
 
-// TabViewItem content is a plain native view — the driver can't parent
-// reconciled children into <tabviewitem>, so each pane is a GridLayout
-// hosting its own universal root (same shape as List cells). GridLayout,
-// not ContentView: the host must be multi-child — a pane render producing
-// more than one root view would keep only the last under `.content`
-// assignment. Grid children all fill the cell, so single-child panes are
-// unaffected.
-type TabPaneProps = { render: () => any };
-function TabPane(props: TabPaneProps) @{
-	<>{props.render()}</>
-}
-
-const paneRoots = new WeakMap<GridLayout, any>();
-const tabsByView = new WeakMap<GridLayout, () => any>();
-const itemsCache = new WeakMap<readonly TabSpec[], TabViewItem[]>();
-const iconWarned = new Set<string>();
-
-// Registered glyph → UITabBarItem image. `src` passes to iconSource
-// verbatim (sys:// = SF Symbol, res://, font://, file path); `font` and
-// `text` glyphs draw through font://. svg/markup can't become a UIImage
-// synchronously — warn once, render title-only.
-function applyIcon(item: TabViewItem, name: string): void {
-	const glyph = getIcon(name);
-	if (!glyph) {
-		warnIconOnce(name, `tab icon '${name}' isn't registered — call registerIcons() at boot.`);
-		return;
-	}
-
-	if (glyph.src) {
-		item.iconSource = glyph.src;
-	} else if (glyph.font) {
-		item.iconSource = 'font://' + glyph.font.glyph;
-		item.iconFontFamily = glyph.font.family;
-	} else if (glyph.text) {
-		// font:// with no iconFontFamily draws through the default font.
-		item.iconSource = 'font://' + glyph.text;
-	} else {
-		warnIconOnce(
-			name,
-			`tab icon '${name}' has no src/font/text representation — UITabBarItem can't render svg/markup glyphs.`,
-		);
-	}
-}
-
-function warnIconOnce(name: string, msg: string): void {
-	if (iconWarned.has(name)) return;
-	iconWarned.add(name);
-	console.warn('[octane-xplat] ' + msg);
-}
-
-function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
-	let items = itemsCache.get(tabs);
-	if (items !== undefined) return items;
-	items = tabs.map((t) => {
-		const item = new TabViewItem();
-		item.title = t.title;
-		if (t.icon) applyIcon(item, t.icon);
-		if (t.stack) {
-			// Parallel-stack pane: the item's view IS a Frame whose default
-			// page hosts the pane's own Octane root. Pushes land inside the
-			// tab; the tab bar stays visible.
-			// Navigate on `loaded`, not eagerly: a navigate issued before the
-			// frame enters the window hierarchy leaves _executingContext
-			// stuck (iOS's delegate never sees didShow) and every later push
-			// queues forever.
-			const frame = new Frame();
-			frame.once('loaded', () => {
-				frame.navigate({
-					create: () => {
-						const page = new Page();
-						page.actionBarHidden = true;
-						// Page is a ContentView — single-child. Root on a
-						// GridLayout child for the same multi-child guarantee.
-						const pane = new GridLayout();
-						page.content = pane;
-						createNativeScriptRoot(pane).render(
-							TabPane as unknown as UniversalComponent, { render: t.render });
-
-						return page;
-					},
-				});
-			});
-
-			registerStack(t.stack, frame);
-			item.view = frame;
-			return item;
-		}
-
-		const cv = new GridLayout();
-		tabsByView.set(cv, t.render);
-		item.view = cv;
-		return item;
-	});
-
-	itemsCache.set(tabs, items);
-	return items;
-}
-
-// Panes mount lazily: a pane view that isn't loaded yet would render into
-// nothing — mount on the tabview's loaded event, all at once.
-function mountPanes(e: any) {
-	const tv = e.object as TabView;
-	for (const item of tv.items as TabViewItem[]) {
-		const cv = item.view as GridLayout;
-		if (!(cv instanceof GridLayout) || paneRoots.has(cv)) continue;
-		const render = tabsByView.get(cv);
-		if (!render) continue;
-		const root = createNativeScriptRoot(cv);
-		paneRoots.set(cv, root);
-		root.render(TabPane as unknown as UniversalComponent, { render });
-	}
-
-	const items = tv.items as TabViewItem[];
-	console.log(
-		'[probe] tabs mounted panes=' +
-			items.length +
-			' icons=' +
-			items.filter((i) => !!i.iconSource).length,
-	);
-}
-
-function TabsInner(props: {
-	className?: any;
-	style?: any;
-	id?: string;
-	tabs: readonly TabSpec[];
-	selectedIndex?: number;
-	onSelectedIndexChanged?: (index: number) => void;
-}) @{
-	<tabview
-		id={props.id}
-		className={cx(props.className)}
-		style={props.style}
-		items={itemsFor(props.tabs)}
-		selectedIndex={props.selectedIndex}
-		onSelectedIndexChanged={(e: any) => props.onSelectedIndexChanged?.(e.value)}
-		onLoaded={mountPanes}
-	/>
-}
-
-// Memoized on the tabs array — TabView.item writes rebuild the native
-// structure, and the driver re-applies props every render.
-const MemoTabs = memo(TabsInner, (a, b) => a.tabs === b.tabs && a.selectedIndex === b.selectedIndex);
-
-// Android fallback for NativeScript #11444. A Frame inside TabViewItem does
-// not commit currentPage/backStack reliably, so the tabs become a fixed row
-// and the active route screen is swapped in a single pane. Route history is
-// held by route.native.ts; switching tabs keeps each stack's entries.
 function screenParams(route: NonNullable<ReturnType<typeof useRoute>>) {
 	const params: Record<string, unknown> = { ...route.params, ...(route.context ?? {}), _stack: route.stack, _pushed: true };
 	if (Object.prototype.hasOwnProperty.call(route, 'loaderData')) params.data = route.loaderData;
@@ -170,7 +17,14 @@ function screenParams(route: NonNullable<ReturnType<typeof useRoute>>) {
 	return params;
 }
 
-function SwapTabs(props: TabsProps) @{
+/** Self-drawn tab shell — a fixed Pressable row plus a single swapped pane,
+ *  identical on every target (the same shape as the web leaf). Route
+ *  history for `stack` panes lives in the route store, so switching tabs
+ *  keeps each stack's entries; pushed screens render through RouteHost.
+ *  The platform tab bar (UITabBar/BottomNavigationView — real UITabBarItem
+ *  chrome, per-pane Frames) lives in `ui/ios` + `ui/android`.
+ *  `tabs` is identity-stable (module const preferred). */
+export function Tabs(props: TabsProps) @{
 	const [internal, setInternal] = useState(0);
 	const active = props.selectedIndex ?? internal;
 	const tab = props.tabs[active];
@@ -205,20 +59,4 @@ function SwapTabs(props: TabsProps) @{
 			}
 		</gridlayout>
 	</gridlayout>
-}
-
-/** Platform tab shell. `tabs` is identity-stable (module const preferred). */
-export function Tabs(props: TabsProps) @{
-	@if (Application.android) {
-		<SwapTabs {...props} />
-	} @else {
-		<MemoTabs
-			id={props.id}
-			className={props.className}
-			style={props.style}
-			tabs={props.tabs}
-			selectedIndex={props.selectedIndex}
-			onSelectedIndexChanged={props.onSelectedIndexChanged}
-		/>
-	}
 }

@@ -1,9 +1,9 @@
 import { Frame, GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
-import type { ModalOpenOptions, ModalOpenResult, OpenModal } from './props'
-import { applyThemeClasses } from './theme/theme-scheme'
-import { modalPresenter } from './modal-presenter.native'
+import type { ModalOpenOptions, ModalOpenResult, OpenModal } from '../props'
+import { applyThemeClasses } from '../theme/theme-scheme'
+import { modalPresenter } from '../modal-presenter.native'
 
 /** Open a component in its own NativeScript modal root and resolve on close. */
 export const openModal: OpenModal = (Component, params, options = {}) =>
@@ -42,7 +42,7 @@ export const openModal: OpenModal = (Component, params, options = {}) =>
 			: (options.fullscreen ?? true)
 
 		// showModal takes (viewToShow, options). On iOS fullscreen=false is a
-		// form sheet; on Android it is a centered dialog sized to its content.
+		// form sheet.
 		presenter.showModal(host, {
 			context: {},
 			closeCallback: finish,

@@ -1,7 +1,10 @@
 import { useState } from 'octane';
 import { Screen, View, Row, Text, Pressable, Switch } from '@octane-xplat/ui';
 import { DEMOS } from '@xplat/demos';
-import { Probes } from './Probes.tsrx';
+// './probes-host' is extensionless on purpose: moduleSuffixes resolves the
+// .web.ts/.native.ts twin, which re-exports the right Probes leaf
+// (Hoverable is web-only, so the probe lives in Probes.web.tsrx).
+import { Probes } from './probes-host';
 import { Services } from './Services.tsrx';
 import { openSheet } from './platform/sheet';
 import { navigate } from './platform/nav';

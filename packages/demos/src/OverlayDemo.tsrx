@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Hoverable, Overlay, Popover, Pressable, Row, Screen, Text, View, showToast, useMeasure } from '@octane-xplat/ui';
+import { Overlay, Popover, Pressable, Row, Screen, Text, View, showToast, useMeasure } from '@octane-xplat/ui';
 
 export function OverlayDemo() @{
 	const [overlayOpen, setOverlayOpen] = useState(false);
@@ -19,11 +19,6 @@ export function OverlayDemo() @{
 						<Text>Toggle anchored popover</Text>
 					</Pressable>
 				</View>
-				<Hoverable card={<Text>Hint card text</Text>}>
-					<Pressable className="btn btn-secondary" onPress={() => {}}>
-						<Text>Hoverable trigger</Text>
-					</Pressable>
-				</Hoverable>
 				<Pressable className="btn btn-secondary" onPress={() => showToast('A toast from the demo', { duration: 2500, position: 'bottom' })}>
 					<Text>Show toast</Text>
 				</Pressable>

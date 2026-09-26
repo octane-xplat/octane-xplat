@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { List, Pressable, Row, Text, View } from '@octane-xplat/ui';
+import { Pressable, Row, ScrollView, Text, View } from '@octane-xplat/ui';
 
 type DemoRow = {
 	id: string;
@@ -17,8 +17,6 @@ const INITIAL_ROWS: DemoRow[] = [
 	{ id: 'event-4', kind: 'event', title: 'Encore', detail: '9:30 PM' },
 ];
 
-const keyForDemoRow = (item: DemoRow) => item.id;
-
 const renderDemoRow = (item: DemoRow) => @{
 	@if (item.kind === 'notice') {
 		<Row className="list-demo-row list-demo-notice">
@@ -35,6 +33,9 @@ const renderDemoRow = (item: DemoRow) => @{
 	}
 };
 
+/** Shared fallback — the shared surface has no recycled List (UITableView /
+ *  RecyclerView live in the ios + android subpaths). The honest shared
+ *  composition is ScrollView + mapped children. */
 export function ListDemo() @{
 	const [items, setItems] = useState<DemoRow[]>(INITIAL_ROWS);
 	const reverseRows = () => setItems([...items].reverse());
@@ -46,7 +47,7 @@ export function ListDemo() @{
 				id: 'event-' + number,
 				kind: number % 3 === 0 ? 'notice' as const : 'event' as const,
 				title: number % 3 === 0 ? 'New notice ' + number : 'Added event ' + number,
-				detail: number % 3 === 0 ? 'Loaded as the list neared its end.' : 'More content loaded near the end.',
+				detail: number % 3 === 0 ? 'Loaded via the append button.' : 'More content loaded.',
 			};
 		}),
 	]);
@@ -56,16 +57,13 @@ export function ListDemo() @{
 			<Pressable id="list-demo-reverse" className="btn bg-primary" onPress={reverseRows}>
 				<Text className="text-onprimary">Reverse rows</Text>
 			</Pressable>
-			<Text>{items.length + ' rows · scroll to load more'}</Text>
+			<Pressable className="btn btn-secondary" onPress={appendRows}>
+				<Text>Append 5</Text>
+			</Pressable>
+			<Text>{items.length + ' rows'}</Text>
 		</Row>
-		<List
-			id="list-demo-list"
-			className="list flex-1"
-			items={items}
-			keyFor={keyForDemoRow}
-			estimatedItemHeight={64}
-			onEndReached={appendRows}
-			renderItem={renderDemoRow}
-		/>
+		<ScrollView id="list-demo-list" className="list flex-1">
+			{items.map(renderDemoRow)}
+		</ScrollView>
 	</View>
 }

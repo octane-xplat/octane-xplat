@@ -1,12 +1,13 @@
 import { useState } from 'octane';
 import {
-	Drawer, KeyboardAvoiding, Pressable, Row, SafeArea, Screen, Text, TextInput, View,
+	Drawer, Pressable, Row, SafeArea, Screen, Text, View,
 	useSafeAreaInsets,
 } from '@octane-xplat/ui';
 
+/** Shared fallback (web) — KeyboardAvoiding is native-only now, so the
+ *  keyboard section lives in the `.native.tsrx` sibling. */
 export function DeviceDemo() @{
 	const insets = useSafeAreaInsets();
-	const [value, setValue] = useState('');
 	const [drawerOpen, setDrawerOpen] = useState(false);
 
 	<Screen className="vx-app flex-1">
@@ -21,12 +22,6 @@ export function DeviceDemo() @{
 				</View>
 			</View>
 			<View className="sink-section">
-				<Text className="section-label">Keyboard avoiding</Text>
-				<KeyboardAvoiding className="device-keyboard">
-					<TextInput className="input" value={value} placeholder="Type here" onChange={setValue} />
-				</KeyboardAvoiding>
-			</View>
-			<View className="sink-section">
 				<Text className="section-label">Drawer</Text>
 				<Row>
 					<Pressable className="btn btn-secondary" onPress={() => setDrawerOpen(!drawerOpen)}>
@@ -35,6 +30,7 @@ export function DeviceDemo() @{
 				</Row>
 				<Drawer
 					open={drawerOpen}
+					onDismiss={() => setDrawerOpen(false)}
 					className="device-drawer"
 					main={<View className="device-drawer-main"><Text>Main content</Text></View>}
 					drawer={<View className="device-drawer-content"><Text>Drawer panel</Text></View>}

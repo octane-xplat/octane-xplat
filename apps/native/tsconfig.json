@@ -23,6 +23,7 @@
 		"platforms",
 		"**/*.web.*",
 		"../../packages/**/*.web.*",
+		"../../packages/ui/src/web/**/*",
 		"**/*.test.*",
 		"../../packages/**/*.test.*",
 		"../../packages/create/template"

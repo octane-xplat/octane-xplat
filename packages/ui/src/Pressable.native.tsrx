@@ -2,7 +2,6 @@
 import type { PressableProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
-import { glassClassOf, glassConfigOf } from './glass';
 import { layoutChildProps } from './layout-child.native';
 import { usePan } from './pan.native.tsrx';
 /** flexboxlayout, not contentview — ContentView is single-child: the driver
@@ -14,8 +13,7 @@ export function Pressable(props: PressableProps) @{
 		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
 		id={props.id}
 		{...layoutChildProps(props)}
-		className={cx('vx-pressable', glassClassOf(props.glass), props.className)}
-		iosGlassEffect={glassConfigOf(props.glass)}
+		className={cx('vx-pressable', props.className)}
 		style={{ ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) }}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}
@@ -24,7 +22,6 @@ export function Pressable(props: PressableProps) @{
 		accessibilityValue={props.accessibilityValue}
 		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
 		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-		ignoreTouchAnimation={props.ignoreTouchAnimation}
 		onPan={usePan(props.disabled ? undefined : props.onPan)}
 		onSwipe={props.disabled ? undefined : props.onSwipe}
 		onTap={props.disabled ? undefined : props.onPress}

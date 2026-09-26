@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable, List } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, ScrollView } from '@octane-xplat/ui';
 
 type Row_ = { id: string; label: string };
 
@@ -9,17 +9,14 @@ function makeItems(n: number): Row_[] {
 	return out;
 }
 
-// Module-level: identity-stable across renders, per the List leaf contract
-// (the memoized listview subtree compares `items` only — a fresh renderItem
-// closure each commit would silently never reach recycled cells' props).
 const renderRow = (item: Row_) => <Text className="cell">{item.label}</Text>;
 
 const INITIAL = makeItems(500);
 
-/** virtual-list — volume stress on the recycling List.
- *  Proves: 500-row ListView cell recycling + the managed-items splice/refresh
- *  patch under prepend/remove/shuffle; on web, long-scroll rendering of the
- *  same leaf contract. This is the demo that hurts if identity semantics slip. */
+/** Shared fallback — 500 rows rendered through ScrollView + map (no
+ *  recycling in the shared surface; the platform siblings render
+ *  UITableView/RecyclerView). Long-list mutation still exercises keyed
+ *  reconciliation. */
 export function VirtualList() @{
 	const [items, setItems] = useState<Row_[]>(INITIAL);
 
@@ -41,7 +38,9 @@ export function VirtualList() @{
 				<Text>Reverse</Text>
 			</Pressable>
 		</Row>
-		<Text className="text-sm text-muted">{items.length + ' rows'}</Text>
-		<List id="vlist" className="list flex-1" items={items} renderItem={renderRow} />
+		<Text className="text-sm text-muted">{items.length + ' rows · shared (no recycling)'}</Text>
+		<ScrollView id="vlist" className="list flex-1">
+			{items.map(renderRow)}
+		</ScrollView>
 	</View>
 }

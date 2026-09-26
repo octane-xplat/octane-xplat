@@ -40,8 +40,8 @@ export function PropsDemo() @{
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Text clamping</Text>
-			<Text className="props-clamp" numberOfLines={2} selectable ellipsize>
-				This longer sample exercises line clamping, selectable text, and single-line ellipsis behavior across the platform leaves.
+			<Text className="props-clamp" numberOfLines={2} ellipsize>
+				This longer sample exercises line clamping and single-line ellipsis behavior across the platform leaves.
 			</Text>
 		</View>
 		<View className="sink-section">
@@ -51,7 +51,7 @@ export function PropsDemo() @{
 				accessibilityLabel="Save profile"
 				accessibilityHint="Saves the current profile details"
 				accessibilityValue="Ready to save"
-				accessibilityState={{ selected: true, busy: false, expanded: false }}
+				accessibilityState={{ selected: true }}
 				accessibilityLiveRegion="polite"
 				onPress={() => setSubmitState('Profile saved')}
 			>

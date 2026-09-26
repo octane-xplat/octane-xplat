@@ -50,9 +50,24 @@
   use child margins. — verified at 0.5.0.
 - **`console.debug` doesn't exist on device** — use `console.log`. The
   lint ruleset flags it. — verified at 0.5.0.
-- **`Hoverable` has no hover on native** — the card opens on long press
-  instead, and `openDelay`/`closeDelay` are ignored (the recognizer's
-  intent threshold applies). — verified at 0.5.0.
+- **`Hoverable` is web-only** — moved to `@octane-xplat/ui/web`; touch
+  platforms have no hover semantic and the long-press stand-in was
+  dropped as fake parity.
+- **Shared `List`/`Modal` removed** — no shared recycled list or
+  `showModal` wrapper. `UITableView`/`RecyclerView` and
+  `UIModal`/`MaterialDialog` (with `openModal`) live in
+  `@octane-xplat/ui/ios` and `@octane-xplat/ui/android`; on web compose
+  `ScrollView` + map and `Sheet`.
+- **Shared `Switch`/`Slider`/`ActivityIndicator`/`Tabs`/`Drawer` are
+  self-drawn** — same pixels everywhere, but they are not the OS widget:
+  no native drag/tap affordances the platform chrome would add, `Drawer`
+  has no edge swipe (use a visible toggle, or `DrawerLayout`/`SideDrawer`
+  in the subpaths), `Tabs` renders a plain bar not a `TabView`/`UITabBar`.
+- **Text controls stay OS-backed** — `TextInput`/`TextArea` are the real
+  widgets with a chrome reset (no border/padding/platform underline,
+  normalized font/placeholder/focus). Caret, selection UI, IME,
+  autocorrect toolbars, secure entry, and keyboard types remain
+  platform-native by design.
 - **`useMeasure` coordinate frames differ** — web `x`/`y` are
   viewport-relative; native `x`/`y` are screen-relative dips. —
   verified at 0.5.0.

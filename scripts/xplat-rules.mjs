@@ -526,6 +526,66 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
 	return out
 }
 
+// @octane-xplat/ui subpaths gate platform-authentic components: /ios and
+// /android resolve only under the `native` export condition, /web only
+// under `web`. Importing one from a shared (or wrong-platform) file fails
+// the other platform's build on purpose — the import must live in a
+// suffixed leaf. `.native` files may import ui/ios + ui/android, but only
+// for specifiers that load safely on both platforms; module-top
+// platform-only APIs belong in .ios/.android leaves.
+const PLATFORM_SUBPATHS = [
+	{
+		spec: '@octane-xplat/ui/ios',
+		ok: (f) => /\.(ios|native)\./.test(f),
+		leaf: '.ios.* or .native.*',
+	},
+	{
+		spec: '@octane-xplat/ui/android',
+		ok: (f) => /\.(android|native)\./.test(f),
+		leaf: '.android.* or .native.*',
+	},
+	{
+		spec: '@octane-xplat/ui/web',
+		ok: (f) => isWebFile(f),
+		leaf: '.web.*',
+	},
+]
+
+export function checkPlatformSubpathImport(program, _src, filename, options) {
+	if (isConfigFile(filename) || fileExcluded(filename, options)) {
+		return []
+	}
+
+	const f = norm(filename)
+	const out = []
+	for (const [node] of walk(program)) {
+		if (
+			node.type !== 'ImportDeclaration' &&
+			node.type !== 'ExportNamedDeclaration' &&
+			node.type !== 'ExportAllDeclaration'
+		) {
+			continue
+		}
+
+		const source = node.source?.value
+		if (typeof source !== 'string') {
+			continue
+		}
+
+		const base = source.split('?')[0].replace(/\/+$/, '')
+		for (const rule of PLATFORM_SUBPATHS) {
+			if (base === rule.spec && !rule.ok(f)) {
+				out.push({
+					node: node.source,
+					message: `'${source}' resolves only on its own platform — importing it here fails the other platform's build. Move the import into a ${rule.leaf} leaf.`,
+				})
+			}
+		}
+	}
+
+	return out
+}
+
 // Only shared .ts files are flagged: platform leaves (.native.ts/.web.ts)
 // importing .tsrx is the normal leaf pattern — the bundler owns both.
 export function checkNoTsImportsTsrx(program, _src, filename, options) {
@@ -1220,6 +1280,7 @@ export const XPLAT_CHECKS = {
 	'element-vocabulary': checkElementVocabulary,
 	'no-nativescript-import': checkNoNativescriptImport,
 	'no-ns-deep-import': checkNoNsDeepImport,
+	'platform-subpath-import': checkPlatformSubpathImport,
 	'no-native-dead-style': checkNoNativeDeadStyle,
 	'no-line-height-unitless': checkNoLineHeightUnitless,
 	'no-style-string': checkNoStyleString,

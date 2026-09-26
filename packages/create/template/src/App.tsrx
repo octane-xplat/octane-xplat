@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable, List, useColorScheme } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, ScrollView, useColorScheme } from '@octane-xplat/ui';
 
 const FEATURES = [
 	'shared components',
@@ -28,7 +28,9 @@ export function App() @{
 			<Pressable className="btn" onPress={() => setCount(count + 1)}><Text>+</Text></Pressable>
 		</Row>
 
-		<List items={FEATURES} renderItem={(f) => <Text className="chip">{f}</Text>} />
+		<ScrollView>
+			{FEATURES.map((f) => <Text className="chip">{f}</Text>)}
+		</ScrollView>
 
 		<Pressable className="link" onPress={() => setOverride(!dark)}>
 			<Text>{dark ? 'light' : 'dark'} mode (system: {scheme})</Text>

@@ -12,15 +12,25 @@
 | Show text                             | `Text`                  |
 | Compose styled or tappable inline text | `RichText` + `RichTextSpan` |
 | Respond to a tap                      | `Pressable`             |
-| Render repeated items                 | `List`                  |
+| Render repeated items                 | `ScrollView` + `items.map(...)` |
 | Accept one or more lines              | `TextInput`, `TextArea` |
 | Scroll content                        | `ScrollView`, `ScrollBox` |
-| Show temporary content above a screen | `Modal`                 |
-| Float a glass surface (iOS 26+)       | `LiquidGlass`           |
+| Show temporary content above a screen | `Sheet`, `Overlay`      |
 
 Start with these components. They are deliberately smaller than the browser
 DOM or the full NativeScript view catalog, which makes a shared screen easier
-to keep portable.
+to keep portable — and they are self-drawn or chrome-reset, so the same props
+produce the same pixels on every target.
+
+Platform-authentic widgets (real OS chrome, no parity promised) live behind
+`@octane-xplat/ui/ios`, `@octane-xplat/ui/android`, and `@octane-xplat/ui/web`
+under their OS names — `UITableView`, `RecyclerView`, `UIModal`,
+`MaterialDialog`, `UITabBar`, `BottomNavigationView`, `SideDrawer`,
+`DrawerLayout`, `UISwitch`, `MaterialSwitch`, `UISlider`, `SeekBar`,
+`UIActivityIndicatorView`, `CircularProgressIndicator`, `LiquidGlass` +
+`LiquidGlassContainer` (iOS-only), and `Hoverable` (web-only). Import them
+only from `.ios.*`/`.android.*`/`.web.*` files — a shared `.tsrx` importing a
+platform subpath fails the other platform's build, which is the point.
 
 ## A practical example
 
@@ -61,21 +71,25 @@ spans and uses the span's `text` prop for driver compatibility.
 
 ## When a screen needs more
 
-Use `List` for repeated content instead of rendering a large hand-written
-sequence. On native, `List` is a recycling `ListView`; do not put it inside
-`ScrollView`. NativeScript measures a vertical `ScrollView` child without a
-bounded height, which makes the nested list prepare cells through an unsupported
-path; the native leaf also throws a named error when it detects this nesting.
-Use `ScrollBox` when a shared screen needs a scroll shell around a `List`:
-it is a real `ScrollView` on web and an inline `View` on native, so the `List`
-owns scrolling there. `ScrollBox` does not provide an outer native scroll.
+For repeated content in shared code, render `items.map(...)` inside a
+`ScrollView` — the shared surface has no recycled list. Recycling is
+platform-authentic: `UITableView` (`ui/ios`) and `RecyclerView`
+(`ui/android`) carry it. On native, a platform list must not sit inside a
+`ScrollView` — NativeScript measures a vertical `ScrollView` child without
+a bounded height, which makes the nested list prepare cells through an
+unsupported path; the list leaf throws a named error on that nesting. Wrap
+the list in `ScrollBox` (a real `ScrollView` on web, an inline `View` on
+native) so the list owns scrolling.
 *Verified on the iOS simulator.*
 
-Use `Modal` for a focused interruption, and pass the data it needs as props.
+Use `Sheet` for a focused interruption, or `openSheet`/`showToast`/`Overlay`
+imperatively, and pass the data it needs as props. The platform's own
+modal presentation is `UIModal`/`MaterialDialog` + `openModal` in the
+subpaths — there is no shared `Modal`.
 
-Use `Hoverable` for a delayed hover card on web. On iOS and Android the same
-card opens from a long press because native has no hover state; the native
-driver's long-press recognizer supplies the intent threshold.
+`Hoverable` (delayed hover card) is web-only at `@octane-xplat/ui/web`.
+Touch platforms have no hover semantic; the old native long-press
+stand-in was fake parity and is gone.
 
 Use `useMeasure()` when a screen needs live element bounds:
 `const { bind, bounds } = useMeasure()`, then pass `bind` to a primitive's

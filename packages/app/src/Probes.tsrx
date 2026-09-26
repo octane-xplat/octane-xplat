@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable, styled, useThemeScheme, Meter, Hoverable, useMeasure, useModalRoute, openWindow } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, styled, useThemeScheme, Meter, useMeasure, useModalRoute, openWindow } from '@octane-xplat/ui';
 import { probeSignal$ } from './probe-state';
 import { navigate } from './platform/nav';
 import 'octane/signals';
@@ -8,7 +8,9 @@ import 'octane/signals';
 const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-danger' } });
 
 /** Probes section — regression instrumentation, kept off the familiar demo
- *  surface. Each row pokes one seam; the muted text is the live readout. */
+ *  surface. Each row pokes one seam; the muted text is the live readout.
+ *  Shared/native leaf — the Hoverable probe is web-only and lives in
+ *  `Probes.web.tsrx` (dispatched via `probes-host`). */
 export function Probes() @{
 	const [count, setCount] = useState(0);
 	// multi-indicator proves a child mounted post-commit lands inside the
@@ -54,14 +56,6 @@ export function Probes() @{
 			<Row className="gap-4 items-center">
 				{/* Meter ring tracks the probe count (wraps at max). */}
 				<Meter id="meter" value={count % 6} max={5} size={40} />
-				{/* Hoverable: delayed hover-intent card (web); renders inline
-				    children on native. */}
-				<Hoverable
-					card={<View className="overlay-demo-card"><Text className="text-sm">Hover card</Text></View>}
-					placement="top"
-				>
-					<Text className="text-sm">Hover me</Text>
-				</Hoverable>
 			</Row>
 		</View>
 

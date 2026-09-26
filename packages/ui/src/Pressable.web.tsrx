@@ -1,7 +1,6 @@
 import { useRef } from 'octane';
 import type { PressableProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
-import { glassClassOf, glassStyleOf } from './glass';
 import { layoutChildProps } from './layout-child.web';
 import { usePan } from './pan.web.tsrx';
 
@@ -23,8 +22,8 @@ export function Pressable(props: PressableProps) @{
 	<div
 		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); props.bind?.(e); } }}
 		id={props.id}
-		className={['vx-pressable', props.ignoreTouchAnimation ? 'vx-pressable-no-feedback' : '', glassClassOf(props.glass), props.className]}
-		{...layoutChildProps(props, { ...glassStyleOf(props.glass), ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
+		className={['vx-pressable', props.className]}
+		{...layoutChildProps(props, { ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}
 		role={props.accessibilityRole ?? 'button'}
 		aria-label={props.accessibilityLabel}
 		aria-description={props.accessibilityHint}
@@ -32,8 +31,6 @@ export function Pressable(props: PressableProps) @{
 		aria-disabled={props.accessibilityState?.disabled ?? props.disabled ?? undefined}
 		aria-selected={props.accessibilityState?.selected}
 		aria-checked={props.accessibilityState?.checked}
-		aria-busy={props.accessibilityState?.busy}
-		aria-expanded={props.accessibilityState?.expanded}
 		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
 		aria-hidden={props.accessible === false ? true : undefined}
 		onClick={props.disabled ? undefined : props.onPress}

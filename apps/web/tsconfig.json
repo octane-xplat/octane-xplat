@@ -23,6 +23,8 @@
 		"**/*.native.*",
 		"**/*.ios.*",
 		"**/*.android.*",
+		"../../packages/ui/src/ios/**/*",
+		"../../packages/ui/src/android/**/*",
 		"**/node_modules",
 		"../../packages/create/template"
 	]

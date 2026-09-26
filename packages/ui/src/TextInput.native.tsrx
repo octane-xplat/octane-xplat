@@ -16,10 +16,10 @@ export function TextInput(props: TextInputProps) @{
 			props.bind?.({ focus: () => v.focus(), blur: () => v.dismissSoftInput?.() ?? v.blur(), native: v });
 		}}
 		id={props.id}
-		className={cx(props.className)}
+		className={cx('vx-input', props.className)}
 		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 		text={props.value}
-		hint={props.placeholder ?? props.hint}
+		hint={props.placeholder}
 		secure={props.secure}
 		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 		returnKeyType={props.returnKeyType}

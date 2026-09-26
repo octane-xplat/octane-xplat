@@ -51,7 +51,7 @@ export function TextArea(props: TextAreaProps) @{
 		inputMode={props.keyboardType === 'number' ? 'numeric' : props.keyboardType === 'phone' ? 'tel' : props.keyboardType === 'default' ? 'text' : props.keyboardType}
 		enterKeyHint={props.returnKeyType}
 		readOnly={props.editable === false}
-		placeholder={props.placeholder ?? props.hint}
+		placeholder={props.placeholder}
 		rows={props.rows ?? (props.autoGrow ? 1 : 3)}
 		onInput={(e: any) => props.onChange?.(e.target.value)}
 		onKeyDown={(e: any) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) props.onSubmit?.(); }}

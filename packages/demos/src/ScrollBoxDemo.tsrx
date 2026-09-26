@@ -1,4 +1,4 @@
-import { List, ScrollBox, Text, View } from '@octane-xplat/ui';
+import { ScrollView, Text, View } from '@octane-xplat/ui';
 
 type Row_ = { id: string; label: string };
 
@@ -9,14 +9,15 @@ const ITEMS: Row_[] = Array.from({ length: 24 }, (_, index) => ({
 
 const renderRow = (item: Row_) => <Text className="cell">{item.label}</Text>;
 
-/** Proves the supported replacement for List inside ScrollView. Web uses a
- * scrolling ScrollView; native uses an inline View so ListView owns scrolling. */
+/** Shared fallback — the shared surface has no recycled List, so the
+ *  composed version is ScrollView + mapped rows. Native siblings render
+ *  ScrollBox + the platform list owning its own scroll. */
 export function ScrollBoxDemo() @{
 	<View className="vx-app flex-1 gap-4">
-		<ScrollBox id="scrollbox-demo" className="flex-1">
+		<ScrollView id="scrollbox-demo" className="flex-1">
 			<View className="gap-2">
-				<List id="scrollbox-demo-list" className="flex-1" items={ITEMS} renderItem={renderRow} />
+				{ITEMS.map(renderRow)}
 			</View>
-		</ScrollBox>
+		</ScrollView>
 	</View>
 }

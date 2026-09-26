@@ -45,10 +45,10 @@ export function TextArea(props: TextAreaProps) @{
 			applyEscapeProps(v, props);
 			props.bind?.({ focus: () => v.focus(), blur: () => v.dismissSoftInput?.() ?? v.blur(), native: v });
 		}}
-		className={cx(props.className)}
+		className={cx('vx-textarea', props.className)}
 		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 		text={props.value}
-		hint={props.placeholder ?? props.hint}
+		hint={props.placeholder}
 		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 		returnKeyType={props.returnKeyType}
 		editable={props.editable ?? true}

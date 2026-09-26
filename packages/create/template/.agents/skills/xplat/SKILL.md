@@ -17,7 +17,10 @@ below prevent that; `pnpm lint` enforces most of them.
    — `Foo.web.tsrx`, `Foo.native.tsrx`, `Foo.ios.tsrx`, `Foo.android.tsrx` —
    chosen by the bundler when something imports `./Foo`. Never branch on
    platform inside JSX (`Platform.OS`, conditional imports, `typeof
-   document` checks).
+   document` checks). Platform-authentic widgets live behind
+   `@octane-xplat/ui/ios`, `/android`, and `/web` — importing a subpath
+   outside a matching suffix file fails the other platform's build (the
+   `xplat/platform-subpath-import` lint enforces it).
 2. **No DOM globals in shared code.** `document`, `window`, `localStorage`,
    DOM events — all web-only. Device capabilities (clipboard, storage,
    permissions, connectivity, geolocation, …) come from

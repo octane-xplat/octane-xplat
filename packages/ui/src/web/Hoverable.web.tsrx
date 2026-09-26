@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'octane';
-import { Popover } from './Popover.web.tsrx';
-import { View } from './View.web.tsrx';
-import type { HoverableProps } from './props';
+import { Popover } from '../Popover.web.tsrx';
+import { View } from '../View.web.tsrx';
+import type { HoverableProps } from '../props';
 
 type Binding = { node: HTMLElement; enter: () => void; leave: () => void };
 
@@ -9,6 +9,9 @@ type Binding = { node: HTMLElement; enter: () => void; leave: () => void };
  * Delayed hover intent with a card that remains open while the pointer moves
  * through the body portal to the card. `bind` is used instead of delegated
  * events so the anchor and portaled card can be tracked independently.
+ *
+ * Web-only (the `ui/web` subpath) — hover has no touch-platform semantic and
+ * the old native leaf's long-press→popover stand-in was fake parity.
  */
 export function Hoverable(props: HoverableProps) @{
 	const [open, setOpen] = useState(false);

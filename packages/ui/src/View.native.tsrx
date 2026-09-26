@@ -2,7 +2,6 @@
 import type { ViewProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { glassClassOf, glassConfigOf } from './glass';
 import { layoutChildProps } from './layout-child.native';
 import { usePan } from './pan.native.tsrx';
 /** Neutral flex-column container — flexboxlayout on native.
@@ -16,9 +15,8 @@ export function View(props: ViewProps) @{
 		{...layoutChildProps(props)}
 		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
 		flexDirection="column"
-		className={cx(glassClassOf(props.glass), props.className)}
+		className={cx(props.className)}
 		style={props.style}
-		iosGlassEffect={glassConfigOf(props.glass)}
 		onPan={usePan(props.onPan)}
 		onSwipe={props.onSwipe}
 	>

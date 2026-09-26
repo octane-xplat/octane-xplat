@@ -2,10 +2,10 @@
 import { LiquidGlass as NSLiquidGlass } from '@nativescript/core';
 import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
-import type { LiquidGlassProps } from './props';
-import { cx } from './cx';
-import { applyEscapeProps } from './escape-props';
-import { layoutChildProps } from './layout-child.native';
+import type { LiquidGlassProps } from '../props';
+import { cx } from '../cx';
+import { applyEscapeProps } from '../escape-props';
+import { layoutChildProps } from '../layout-child.native';
 
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
@@ -19,9 +19,9 @@ declare module '@nativescript-community/octane/intrinsics' {
 registerElement('liquidglass', NSLiquidGlass);
 
 /** LiquidGlass — the element root is the glass surface itself: touch-tracking
- *  UIGlassEffect on iOS 26+, inert GridLayout on Android / iOS < 26. The
- *  effect is always applied as a config object: the upstream string
- *  shorthand rebuilds the effect without `interactive` on prop updates. */
+ *  UIGlassEffect on iOS 26+, inert GridLayout on older iOS. The effect is
+ *  always applied as a config object: the upstream string shorthand rebuilds
+ *  the effect without `interactive` on prop updates. */
 export function LiquidGlass(props: LiquidGlassProps) @{
 	<liquidglass
 		id={props.id}

@@ -6,21 +6,19 @@ import { Todo } from './Todo.tsrx';
 import { TicTacToe } from './TicTacToe.tsrx';
 import { WatchFace } from './WatchFace.tsrx';
 import { Dialer } from './Dialer.tsrx';
-import { VirtualList } from './VirtualList.tsrx';
+// './variant-demos' is extensionless on purpose: moduleSuffixes +
+// resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
+// re-exports the platform-authentic demo leaf (or the shared fallback).
+import { VirtualList, ListDemo, ScrollBoxDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo } from './variant-demos';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
-import { ListDemo } from './ListDemo.tsrx';
-import { ScrollBoxDemo } from './ScrollBoxDemo.tsrx';
-import { DeviceDemo } from './DeviceDemo.tsrx';
-import { ModalDemo } from './ModalDemo.tsrx';
+
 import { PropsDemo } from './PropsDemo.tsrx';
-import { OverlayDemo } from './OverlayDemo.tsrx';
 import { ControlsDemo } from './ControlsDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
-import { GlassDemo } from './GlassDemo.tsrx';
 import { Reorder } from './Reorder.tsrx';
 import { useLastDemo } from './store.tsrx';
 

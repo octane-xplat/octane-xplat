@@ -75,17 +75,7 @@ export interface GlassConfig {
 	animateChangeDuration?: number
 }
 
-/** `glass` surface prop value: `true`/string shorthand or a config object.
- *  `'none'`/`'identity'`/`false` mean no glass. */
-export type GlassProp = boolean | 'regular' | 'clear' | 'identity' | 'none' | GlassConfig
-
-/** Static glass material on container primitives — background glass behind
- *  the view's content. Interactive glass needs <LiquidGlass>. */
-export interface GlassSurfaceProps {
-	glass?: GlassProp
-}
-
-export interface GridProps extends GlassSurfaceProps {
+export interface GridProps {
 	className?: any
 	style?: any
 	children?: any
@@ -98,7 +88,7 @@ export interface GridProps extends GlassSurfaceProps {
 	id?: string
 }
 
-export interface StackProps extends GlassSurfaceProps {
+export interface StackProps {
 	className?: any
 	style?: any
 	children?: any
@@ -108,7 +98,7 @@ export interface StackProps extends GlassSurfaceProps {
 	id?: string
 }
 
-export interface AbsoluteProps extends GlassSurfaceProps {
+export interface AbsoluteProps {
 	className?: any
 	style?: any
 	children?: any
@@ -159,7 +149,7 @@ export interface SpacerProps {
 	id?: string
 }
 
-export interface ViewProps extends LayoutChildProps, FlexContainerProps, GlassSurfaceProps {
+export interface ViewProps extends LayoutChildProps, FlexContainerProps {
 	className?: any
 	style?: any
 	children?: any
@@ -175,7 +165,7 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps, GlassSu
 	web?: any
 }
 
-export interface RowProps extends LayoutChildProps, FlexContainerProps, GlassSurfaceProps {
+export interface RowProps extends LayoutChildProps, FlexContainerProps {
 	className?: any
 	style?: any
 	children?: any
@@ -216,21 +206,16 @@ export interface TextProps extends LayoutChildProps {
 	children?: any
 	id?: string
 	numberOfLines?: number
-	/** Native Label does not expose text selection; implemented with CSS on web. */
-	selectable?: boolean
 	ellipsize?: boolean
 	accessible?: boolean
 	accessibilityLabel?: string
 	accessibilityRole?: Role
 	accessibilityHint?: string
 	accessibilityValue?: string
-	/** NativeScript supports one state at a time (disabled/selected/checked); busy and expanded are web-only. */
 	accessibilityState?: {
 		disabled?: boolean
 		selected?: boolean
 		checked?: boolean
-		busy?: boolean
-		expanded?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
@@ -266,7 +251,7 @@ export interface RichTextSpanProps {
 	web?: any
 }
 
-export interface PressableProps extends LayoutChildProps, FlexContainerProps, GlassSurfaceProps {
+export interface PressableProps extends LayoutChildProps, FlexContainerProps {
 	className?: any
 	style?: any
 	children?: any
@@ -287,17 +272,12 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Gl
 	onPressOut?: () => void
 	onDoublePress?: () => void
 	hitSlop?: number
-	/** NativeScript supports a per-view TouchManager animation opt-out; web has no press scaling. */
-	ignoreTouchAnimation?: boolean
 	accessibilityHint?: string
 	accessibilityValue?: string
-	/** NativeScript supports one state at a time (disabled/selected/checked); busy and expanded are web-only. */
 	accessibilityState?: {
 		disabled?: boolean
 		selected?: boolean
 		checked?: boolean
-		busy?: boolean
-		expanded?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
@@ -318,8 +298,6 @@ export interface TextInputProps {
 	id?: string
 	value?: string
 	placeholder?: string
-	/** NativeScript's term for placeholder — web maps hint → placeholder. */
-	hint?: string
 	onChange?: (value: string) => void
 	bind?: (h: TextInputHandle) => void
 	secure?: boolean
@@ -361,10 +339,7 @@ export interface ListProps {
 	items: any[]
 	renderItem: (item: any, index: number) => any
 	renderEmpty?: () => any
-	/** Stable item key for web reconciliation. Falls back to `item.id`; native
-	 *  ListView recycles by index and does not consume keys. */
-	keyFor?: (item: any) => string | number
-	/** Native iOS row-height estimate. Web virtualization is not enabled in v1. */
+	/** iOS row-height estimate (UITableView only). */
 	estimatedItemHeight?: number
 	/** Called when the list approaches its end. */
 	onEndReached?: () => void
@@ -374,7 +349,7 @@ export interface ListProps {
 	web?: Record<string, any>
 }
 
-export interface ScrollViewProps extends LayoutChildProps, GlassSurfaceProps {
+export interface ScrollViewProps extends LayoutChildProps {
 	className?: any
 	style?: any
 	id?: string
@@ -389,7 +364,7 @@ export interface ScrollViewProps extends LayoutChildProps, GlassSurfaceProps {
 /** Scrollable ordinary content on web. Native is an inline flex container so
  * a child ListView can own the scrolling without nesting recycling views in a
  * native ScrollView. */
-export interface ScrollBoxProps extends LayoutChildProps, GlassSurfaceProps {
+export interface ScrollBoxProps extends LayoutChildProps {
 	className?: any
 	style?: any
 	id?: string
@@ -453,6 +428,8 @@ export interface DrawerProps {
 	main?: any
 	drawer?: any
 	open?: boolean
+	/** Backdrop tap — the self-drawn leaf fires it on both platforms. */
+	onDismiss?: () => void
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
@@ -545,10 +522,6 @@ export interface HeadingProps {
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
-}
-
-export interface PlatformBadgeProps {
-	className?: any
 }
 
 // ---------- overlays ----------
@@ -715,17 +688,18 @@ export type OpenSheet = (
 
 export interface TabSpec {
 	title: string
-	/** Registered icon name (see `registerIcons`). Web and the Android tab
-	 *  strip render the glyph through `Icon`. iOS can't rasterize into a
-	 *  UITabBarItem, so it consumes the glyph's `src` (a NativeScript
+	/** Registered icon name (see `registerIcons`). The shared self-drawn
+	 *  `Tabs` renders the glyph through `Icon` on every platform. The
+	 *  platform tab bars (`UITabBar`/`BottomNavigationView` in the ios/
+	 *  android subpaths) consume the glyph's `src` (a NativeScript
 	 *  iconSource URI — `sys://` SF Symbol, `res://`, `font://`, file
-	 *  path) or its `font`/`text` representation; `svg`/`markup`-only
-	 *  glyphs log a warning and render title-only. */
+	 *  path) or `font`/`text` representation; `svg`/`markup`-only glyphs
+	 *  warn and render title-only there. */
 	icon?: string
 	render: () => any
-	/** Named parallel stack — native hosts a Frame per such pane; on web
-	 *  the pane is the route outlet for `stack` (pushed screens render in
-	 *  place). navigate(name, params, {into: spec.stack}) targets it. */
+	/** Named parallel stack — the pane is the route outlet for `stack`
+	 *  (pushed screens render in place). The platform tab bars host a real
+	 *  Frame per such pane. */
 	stack?: string
 }
 

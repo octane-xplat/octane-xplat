@@ -1,14 +1,13 @@
 import { useState, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, List } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, TextInput, ScrollView } from '@octane-xplat/ui';
 
 type Todo = { id: string; text: string; done: boolean };
 
 /** todo-jsx — the canonical keyed-mutation stress.
- *  Proves: List leaf under insert/remove/toggle (exercises the driver's
- *  managed-ObservableArray splice+refresh patch on native), controlled
- *  TextInput round-trip, @if empty-state. renderItem is a fresh closure
- *  per commit — safe because the leaf reads it off the host view at
- *  itemLoading time and every mutation changes `items` identity. */
+ *  Proves: mapped-row reconciliation under insert/remove/toggle in a
+ *  ScrollView (the shared surface has no recycled List — platform lists
+ *  live in ui/ios + ui/android), controlled TextInput round-trip,
+ *  @if empty-state. */
 export function Todo() @{
 	const [todos, setTodos] = useState<Todo[]>([]);
 	const [draft, setDraft] = useState('');
@@ -54,6 +53,8 @@ export function Todo() @{
 		@if (todos.length === 0) {
 			<Text className="cell">Nothing yet — add one.</Text>
 		}
-		<List id="todo-list" className="list flex-1" items={todos} renderItem={renderTodo} />
+		<ScrollView id="todo-list" className="list flex-1">
+			{todos.map(renderTodo)}
+		</ScrollView>
 	</View>
 }
