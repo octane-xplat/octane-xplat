@@ -177,6 +177,18 @@ not maintained incrementally.
    Non-signal module state still needs `useStore` per reader — the universal
    renderer retains unchanged-prop children on parent re-render, so bare
    reads go stale on native (web re-invokes them; decision #27).
+8. Shared `@octane-xplat/ui` delivers same props → same pixels: components
+   are self-drawn (`Switch`, `Slider`, `ActivityIndicator`, `Tabs`,
+   `Drawer`), chrome-reset OS controls (`TextInput`, `TextArea`,
+   `ScrollView`), or not shared at all. Platform-authentic widgets live
+   behind `@octane-xplat/ui/{ios,android,web}` under OS names
+   (`UISwitch`, `MaterialSwitch`, `UITableView`, `RecyclerView`, `UIModal`,
+   `MaterialDialog`, `UITabBar`, `BottomNavigationView`, `SideDrawer`,
+   `DrawerLayout`, `LiquidGlass`, `Hoverable`) — each subpath resolves only
+   on its platform, and `xplat/platform-subpath-import` requires a matching
+   file suffix. There is no shared `List`, `Modal`, `openModal`,
+   `PlatformBadge`, or `glass` prop; `KeyboardAvoiding` is native-only.
+   (decisions #44–46)
 
 ## Companion libraries (used by apps built on this stack)
 
