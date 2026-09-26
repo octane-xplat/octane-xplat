@@ -9,7 +9,7 @@ import { Dialer } from './Dialer.tsrx';
 // './variant-demos' is extensionless on purpose: moduleSuffixes +
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
-import { VirtualList, ListDemo, ScrollBoxDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo } from './variant-demos';
+import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo } from './variant-demos';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
@@ -42,6 +42,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'anim', title: 'Keyframes', kind: 'proof' },
 	{ id: 'probe', title: 'Reactivity', kind: 'proof' },
 	{ id: 'scrollbox', title: 'ScrollBox + List', kind: 'proof' },
+	{ id: 'pull-refresh', title: 'Pull to refresh', kind: 'proof' },
 	{ id: 'device', title: 'Device', kind: 'proof' },
 	{ id: 'modal', title: 'Modal', kind: 'proof' },
 	{ id: 'props', title: 'Props', kind: 'proof' },
@@ -78,6 +79,7 @@ const renderAnim = () => <AnimShowcase />;
 const renderProbe = () => <ReactiveProbe />;
 const renderListDemo = () => <ListDemo />;
 const renderScrollBox = () => <ScrollBoxDemo />;
+const renderPullRefresh = () => <PullRefreshDemo />;
 const renderDevice = () => <DeviceDemo />;
 const renderModal = () => <ModalDemo />;
 const renderProps = () => <PropsDemo />;
@@ -107,6 +109,7 @@ export const RENDER: Record<string, () => any> = {
 	probe: renderProbe,
 	'list-demo': renderListDemo,
 	scrollbox: renderScrollBox,
+	'pull-refresh': renderPullRefresh,
 	device: renderDevice,
 	modal: renderModal,
 	props: renderProps,

@@ -19,6 +19,7 @@
 | Swipe through full pages               | `Pager`                         |
 | Pick one of a few options inline       | `SegmentedControl`              |
 | Search or filter                       | `SearchInput`                   |
+| Pull to refresh a scroller or list     | `refreshing` + `onRefresh` props |
 | Show temporary content above a screen  | `Sheet`, `Overlay`              |
 
 Start with these components. They are deliberately smaller than the browser
@@ -117,6 +118,13 @@ Use `Sheet` for a focused interruption, or `openSheet`/`showToast`/`Overlay`
 imperatively, and pass the data it needs as props. The platform's own
 modal presentation is `UIModal`/`MaterialDialog` + `openModal` in the
 subpaths — there is no shared `Modal`.
+
+`ScrollView` and the platform lists (`UITableView`, `RecyclerView`) accept
+`refreshing`, `onRefresh`, and `refreshThreshold` for pull-to-refresh.
+`onRefresh` enables the gesture; `refreshing` is controlled — set it while
+reloading and the self-drawn `ActivityIndicator` strip stays docked above
+the content. There is no OS spinner anywhere in the path.
+_Desk-verified; on-device pending._
 
 `Hoverable` (delayed hover card) is web-only at `@octane-xplat/ui/web`.
 Touch platforms have no hover semantic; the old native long-press

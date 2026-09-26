@@ -1,10 +1,14 @@
 /** @jsxImportSource @nativescript-community/octane */
 // Universal hooks import from 'octane' — the compiler retargets them to the
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
-import { memo } from 'octane';
+import { memo, useEffect, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
 import type { ListProps } from "../props";
+import type { RefreshConfig, RefreshController } from '../refresh.native';
 import { cx } from "../cx";
+import { ActivityIndicator } from '../ActivityIndicator.native.tsrx';
+import { REFRESH_HEADER_HEIGHT } from '../refresh-metrics';
+import { createPullToRefresh } from '../refresh.native';
 
 function rejectNestedScrollView(event: any) {
 	let parent = event.object?.parent;
@@ -15,6 +19,15 @@ function rejectNestedScrollView(event: any) {
 
 		parent = parent.parent;
 	}
+}
+
+/** Stable ref bag across the memo boundary — refresh callbacks are fresh
+ *  closures each parent render, so the props live behind refs and the
+ *  memo compare just sees the same bag. */
+interface RefreshBag {
+	cfg: { current: RefreshConfig };
+	indicator: { current: any };
+	ctl: { current: RefreshController | null };
 }
 
 // Cell machinery is driver-owned since @nativescript-community/octane 0.2.1
@@ -33,8 +46,29 @@ function UITableViewInner(props: {
 	estimatedItemHeight?: number;
 	onEndReached?: () => void;
 	ios?: Record<string, any>;
+	refresh?: RefreshBag;
 }) @{
+	const lv = useRef<any>(null);
+	useEffect(() => {
+		const bag = props.refresh;
+		if (!bag || !lv.current) return;
+		bag.ctl.current = createPullToRefresh({
+			scroller: lv.current,
+			indicator: bag.indicator.current,
+			isAtTop: () => true, // iOS reads contentOffset directly — unused
+			cfg: bag.cfg,
+		});
+
+		return () => {
+			bag.ctl.current?.detach();
+			bag.ctl.current = null;
+		};
+	}, []);
+
 	<listview
+		ref={(v: any) => {
+			lv.current = v;
+		}}
 		id={props.id}
 		className={cx(props.className)}
 		style={props.style}
@@ -63,7 +97,8 @@ const MemoListView = memo(UITableViewInner, (a, b) =>
 	a.id === b.id &&
 	a.estimatedItemHeight === b.estimatedItemHeight &&
 	a.onEndReached === b.onEndReached &&
-	a.ios === b.ios
+	a.ios === b.ios &&
+	a.refresh === b.refresh
 );
 
 /** UITableView — the platform recycling list (UIKit UITableView via
@@ -72,19 +107,73 @@ const MemoListView = memo(UITableViewInner, (a, b) =>
  *  cell's root and skips rebinds whose row, item, and renderer are
  *  unchanged. Cell identity = the recycled host view, not the item.
  *  The shared `ui` export has no List — compose ScrollView + mapped
- *  children there. */
+ *  children there.
+ *
+ *  `refreshing`/`onRefresh`/`refreshThreshold` enable pull-to-refresh:
+ *  the indicator is self-drawn (vx-spinner), the pull rides UITableView's
+ *  own bounce, and the docked phase holds via contentInset — the same
+ *  mechanics UIRefreshControl uses, without its OS spinner. */
 export function UITableView(props: ListProps) @{
+	const refreshCapable = props.onRefresh != null || props.refreshing != null;
+	const cfg = useRef<RefreshConfig>({});
+	cfg.current = {
+		onRefresh: props.onRefresh,
+		refreshing: props.refreshing,
+		threshold: props.refreshThreshold,
+	};
+
+	const indicator = useRef<any>(null);
+	const ctl = useRef<RefreshController | null>(null);
+	const refresh = useRef<RefreshBag>({ cfg, indicator, ctl });
+
+	useEffect(() => {
+		ctl.current?.sync();
+	}, [props.refreshing]);
+
 	@if (props.items.length > 0) {
-		<MemoListView
-			id={props.id}
-			items={props.items}
-			className={props.className}
-			style={props.style}
-			renderItem={props.renderItem}
-			estimatedItemHeight={props.estimatedItemHeight}
-			onEndReached={props.onEndReached}
-			ios={props.ios}
-		/>
+		@if (refreshCapable) {
+			<gridlayout
+				ref={(v: any) => {
+					// iOS doesn't clip children — the resting indicator sits
+					// translated above the wrapper's top edge without it.
+					if (v?.ios) v.ios.clipsToBounds = true;
+				}}
+				className={cx('vx-refresh-wrap', props.className)}
+				style={props.style}
+			>
+				<MemoListView
+					id={props.id}
+					items={props.items}
+					renderItem={props.renderItem}
+					estimatedItemHeight={props.estimatedItemHeight}
+					onEndReached={props.onEndReached}
+					ios={props.ios}
+					refresh={refresh.current}
+				/>
+				<flexboxlayout
+					ref={(v: any) => {
+						indicator.current = v;
+					}}
+					className="vx-refresh"
+					verticalAlignment="top"
+					height={REFRESH_HEADER_HEIGHT}
+					translateY={-REFRESH_HEADER_HEIGHT}
+				>
+					<ActivityIndicator />
+				</flexboxlayout>
+			</gridlayout>
+		} @else {
+			<MemoListView
+				id={props.id}
+				items={props.items}
+				className={props.className}
+				style={props.style}
+				renderItem={props.renderItem}
+				estimatedItemHeight={props.estimatedItemHeight}
+				onEndReached={props.onEndReached}
+				ios={props.ios}
+			/>
+		}
 	} @else {
 		<>{props.renderEmpty?.()}</>
 	}

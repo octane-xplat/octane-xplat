@@ -337,7 +337,25 @@ export interface SearchInputProps {
     android?: any;
     web?: any;
 }
-export interface ListProps {
+/** Pull-to-refresh contract — shared by `ScrollView` and the platform
+ *  lists (`UITableView`/`RecyclerView`). The indicator is self-drawn (the
+ *  `vx-spinner` ring), not the OS spinner, so the affordance is the same
+ *  pixels on every target. The pull gesture is enabled by `onRefresh`;
+ *  `refreshing` is controlled — set it true while reloading to keep the
+ *  indicator docked, false to collapse it. */
+export interface RefreshProps {
+    /** True while a refresh is in flight — docks the indicator strip above
+     *  the content. Read-only after the initial pull: the app owns it. */
+    refreshing?: boolean;
+    /** Enables the pull gesture; fires when the user pulls past
+     *  `refreshThreshold` and releases. */
+    onRefresh?: () => void;
+    /** Pull distance past the top edge (px on web, dip on native) whose
+     *  release fires `onRefresh`. Defaults to the indicator strip height
+     *  (64). */
+    refreshThreshold?: number;
+}
+export interface ListProps extends RefreshProps {
     className?: any;
     style?: any;
     id?: string;
@@ -379,7 +397,7 @@ export interface PagerProps extends LayoutChildProps, AccessibilityProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps {
+export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps, RefreshProps {
     className?: any;
     style?: any;
     id?: string;

@@ -5,6 +5,7 @@
 // order. Keep names identical across variant-demos.{ios,android,web}.ts.
 export { ListDemo } from './ListDemo.ios.tsrx'
 export { ScrollBoxDemo } from './ScrollBoxDemo.ios.tsrx'
+export { PullRefreshDemo } from './PullRefreshDemo.ios.tsrx'
 export { VirtualList } from './VirtualList.ios.tsrx'
 export { ModalDemo } from './ModalDemo.ios.tsrx'
 export { GlassDemo } from './GlassDemo.ios.tsrx'

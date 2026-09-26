@@ -174,6 +174,7 @@ export type {
 	IconProps,
 	MeterProps,
 	PagerProps,
+	RefreshProps,
 	SearchInputProps,
 	SliderProps,
 } from './props'

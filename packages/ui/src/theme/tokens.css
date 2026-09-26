@@ -369,6 +369,36 @@ button {
 	border-right-color: transparent;
 	border-radius: 50%;
 }
+/* Pull-to-refresh — the overlay strip hosting the spinner. Its height is
+   the default `refreshThreshold` (64px web / 64dip native); the leaf
+   translates it in/out — reveal math lives in refresh.*.ts. */
+.vx-refresh {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 64px;
+}
+/* xplat-web-only:start — the DOM leaf needs explicit clipping plus the
+   absolute overlay; native clips via the wrapper grid
+   (clipsToBounds/ViewGroup) and stacks children in one cell. */
+.vx-refresh-wrap {
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+.vx-refresh-wrap > .vx-scroll {
+	flex: 1;
+	min-height: 0;
+}
+.vx-refresh {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+/* xplat-web-only:end */
 /* xplat-web-only:start — DOM needs an inline-block box + CSS animation;
    the native leaf drives view.animate instead */
 .vx-spinner {
