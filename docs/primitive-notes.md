@@ -115,6 +115,23 @@ implementation](https://github.com/nativescript-community/ui-canvas/tree/master/
 [AndroidSVG feature matrix](https://bigbadaboom.github.io/androidsvg/), and
 [SVGKit's 3.x release notes](https://github.com/SVGKit/SVGKit/releases).
 
+**Prior art** (desk-survey 2026-09-26 — reinforces decision #29's
+platform-delegation choice; no framework in the field renders the full spec
+uniformly):
+
+| Framework | Native SVG strategy | What it confirms |
+| --------- | ------------------- | ---------------- |
+| react-native-svg (Software Mansion) | Reimplements the spec per platform (CGContext / Canvas) as real components — every element is a shadow node, no draw caching, iOS memory leaks | SWM's own guidance: for static artwork prefer platform-lib delegation (Expo Image → Glide / SDWebImage) — same architecture class as `svgview` |
+| Flutter | `vector_graphics_compiler` precompiles `.svg` → binary `.vec` at build time; **the compiler defines the supported subset** — unsupported features fail the build | Subset enforcement at compile time is the principled version of a lint gate |
+| Lynx (XElement `svg`) | Serval SVG — **one C++ engine shipped as a native binary on both platforms** (`ServalSVG` pod / `libserval_svg.so`), deliberately scoped to 17 tags / ~40 attrs, rasterized off-main-thread into a single view, explicit `current-color` prop | Uniformity = one engine; achievable as a library (currently alpha, known ABI gaps) rather than by owning the renderer — the escape hatch if androidsvg/SVGKit divergence ever bites |
+| react-native-vector-image / icon fonts | Build-time `svg` → VectorDrawable (Android) / PDF asset (iOS), or → font glyphs | The only design that makes SVG art consumable by `UITabBarItem`/`BottomNavigationView` — a codegen step would close the platform tab-bar gap if needed |
+
+**Follow-up (unimplemented):** an `xplat/` lint rule restricting `Icon`
+`markup`/`svg` to the androidsvg ∩ SVGKit-verified subset (paths/basic
+shapes, `fill`/`stroke`/`transform`/`viewBox`; reject `filter`, `<text>`,
+`<image>`, radial `fx`/`fy`, `mask`, `pattern`) — the fidelity matrix above
+is currently unguarded author discipline.
+
 ## The Modal seam (worst primitive leak, document early)
 
 Native modal = a separate window/sheet hosting **its own Octane root**
