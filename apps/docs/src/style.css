@@ -100,7 +100,7 @@ body {
 }
 
 .topbar-mid {
-	flex-grow: 1;
+	flex: 1;
 	padding: 18px 24px;
 	flex-direction: row;
 	align-items: center;
@@ -211,7 +211,7 @@ body {
 }
 
 .body {
-	flex-grow: 1;
+	flex: 1;
 	flex-direction: row;
 	/* Without min-height:0 the flex item grows with the doc instead of
 	   bounding the scroll container — content spills past the 100vh shell
@@ -300,7 +300,7 @@ body {
 }
 
 .content {
-	flex-grow: 1;
+	flex: 1;
 	min-height: 0;
 	/* graph-paper field — texture, not whitespace */
 	background-image:

@@ -672,14 +672,45 @@ const STEPS: Step[] = [
 							(grow ? ` (${grow.h})` : ''),
 					)
 
-					// Unguarded grow crushes the fixed sibling on BOTH engines
-					// (min-width:auto = min-content everywhere) — the guard
-					// utilities are what must work.
+					// The shared `* {flex-shrink:0}` normalization (RN semantics)
+					// keeps the fixed sibling at 88 in BOTH rows — the `shrink` +
+					// `min-w-0` opt-in on the fix row is what lets the wide text
+					// compress instead of overflowing.
+					const sib = m('dv-sib')
+					console.log(
+						'[assert] default shrink-0 keeps fixed sibling: ' +
+							(sib && sib.w >= 88 ? 'OK' : 'FAIL') +
+							(sib ? ` (${sib.w}@${sib.x})` : ''),
+					)
+
 					const sibFix = m('dv-sib-fix')
 					console.log(
-						'[assert] shrink-0 sibling survives grow: ' +
+						'[assert] shrink+min-w-0 row keeps fixed sibling: ' +
 							(sibFix && sibFix.w >= 88 ? 'OK' : 'FAIL') +
 							(sibFix ? ` (${sibFix.w}@${sibFix.x})` : ''),
+					)
+
+					const wide = m('dv-wide')
+					const wideFix = m('dv-wide-fix')
+					// iOS quirk: the shrink pass re-measures the child at the
+					// compressed spec (the text re-wraps taller) but the laid-out
+					// frame keeps the natural width — the height delta is the
+					// observable signal that shrink engaged.
+					console.log(
+						'[assert] shrink opt-in compresses grow child: ' +
+							(wide && wideFix && wideFix.h > wide.h ? 'OK' : 'FAIL') +
+							(wide && wideFix ? ` (h ${wideFix.h} vs ${wide.h})` : ''),
+					)
+
+					// Diagnostic — read the computed flexShrink off the views to
+					// tell a missing class application apart from a measure bug.
+					const fs = (id: string) => {
+						const v = collect(demosPage()).find((x) => x.id === id)
+						return v ? String(v.flexShrink ?? v.style?.flexShrink) : 'MISSING'
+					}
+
+					console.log(
+						`[probe] flexShrink dv-wide=${fs('dv-wide')} dv-wide-fix=${fs('dv-wide-fix')} dv-sib=${fs('dv-sib')} grow-fill=${fs('dv-grow-fill')}`,
 					)
 
 					// Real divergence: auto margins are ignored on native — the

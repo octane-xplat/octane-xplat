@@ -9,10 +9,10 @@ import { Row, Screen, Text, View } from '@octane-xplat/ui';
  *  dv-lh:    line-height on a Label — iOS text can clip or mis-measure.
  *  dv-auto:  margin-left:auto trailing — unsupported on NS; web pushes the
  *            trailing item to the row's right edge.
- *  dv-basis: flex-grow without guards — measured IDENTICAL on web: the
- *            fixed sibling shrinks below its declared width (flex items
- *            default to min-width:auto = min-content on both engines).
- *            The dv-fix row shows the shrink-0 + min-w-0 utilities. */
+ *  dv-basis: flex-grow without guards — under the shared `* {flex-shrink:0}`
+ *            normalization (RN semantics) the wide text can't shrink, so the
+ *            row overflows on both engines. The dv-fix row shows the shrink +
+ *            min-w-0 opt-in that lets the grow child compress again. */
 export function Divergence() @{
 	<Screen className="vx-app flex-1 gap-6">
 		<Text className="text-xl font-semibold">Layout edge cases</Text>
@@ -46,14 +46,20 @@ export function Divergence() @{
 		</View>
 
 		<View className="sink-section">
-			<Text className="section-label">min-content squeeze vs min-w-0 + shrink-0</Text>
-			<Row className="dv-row">
+			<Text className="section-label">overflow squeeze vs shrink + min-w-0</Text>
+			<Row className="dv-row dv-row-tight">
 				<Text id="dv-wide" className="dv-wide">long intrinsic text that wants a lot of width on its own</Text>
 				<View id="dv-sib" className="dv-sib" />
 			</Row>
-			<Row className="dv-row">
-				<Text id="dv-wide-fix" className="dv-wide min-w-0">long intrinsic text that wants a lot of width on its own</Text>
-				<View id="dv-sib-fix" className="dv-sib shrink-0" />
+			<Row className="dv-row dv-row-tight">
+				{/* shrink goes on a container, not the Label — iOS re-measures
+				    a shrunk label at the compressed spec (it wraps taller) but
+				    still reports intrinsic frame width. A View reports the
+				    shrunk size, which is what the sweep can assert on. */}
+				<View id="dv-wide-fix" className="grow shrink min-w-0">
+					<Text>long intrinsic text that wants a lot of width on its own</Text>
+				</View>
+				<View id="dv-sib-fix" className="dv-sib" />
 			</Row>
 		</View>
 

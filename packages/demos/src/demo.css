@@ -410,6 +410,13 @@
 	flex-direction: row;
 }
 
+/* Explicit width forces an EXACTLY measure spec — NS's shrink pass only
+   runs against an exact main size (AT_MOST parents size the line to its
+   content and nothing ever shrinks). */
+.dv-row-tight {
+	width: 300px;
+}
+
 .dv-grow-fill {
 	flex-grow: 1;
 	height: 40px;

@@ -78,6 +78,18 @@ img {
 }
 /* xplat-web-only:end */
 
+/* Shared normalization — NS FlexboxLayout defaults flex children to
+   shrink:1 with NO min-content floor (its shrink pass clamps at
+   effectiveMinWidth/Height = the explicit min-* prop, default 0), so an
+   overflowing column crushes intrinsic children toward zero where the
+   web stops at min-content. RN's Yoga defaults flexShrink:0 for the same
+   reason — do the same on both engines. `*` is zero-specificity: flex-1
+   (the shorthand sets shrink:1) and .shrink still opt back in, and
+   truncation patterns pair them with min-w-0/min-h-0. */
+* {
+	flex-shrink: 0;
+}
+
 /* vocabulary base styles */
 
 .vx-view,
@@ -1253,13 +1265,18 @@ button {
 /* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
  * shrinkability: grow children never shrink below intrinsic width, fixed
  * children get crushed, and auto-height rows re-measure grow children at
- * zero height. min-w-0/min-h-0 let a grow child shrink; shrink-0 protects
- * a fixed-size child. All three are plain CSS on web. */
+ * zero height. The shared `* { flex-shrink: 0 }` default (RN semantics)
+ * makes .shrink the opt-in for a shrinkable child; min-w-0/min-h-0 lower
+ * the min-content floor so it can actually shrink, and shrink-0 remains
+ * for local overrides. All four are plain CSS on web. */
 .min-w-0 {
 	min-width: 0;
 }
 .min-h-0 {
 	min-height: 0;
+}
+.shrink {
+	flex-shrink: 1;
 }
 .shrink-0 {
 	flex-shrink: 0;

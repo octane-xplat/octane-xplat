@@ -5,6 +5,9 @@ export function Text(props: TextProps) @{
 	const textStyle = {
 		...props.style,
 		...(props.numberOfLines ? { display: '-webkit-box', WebkitLineClamp: props.numberOfLines, WebkitBoxOrient: 'vertical', overflow: 'hidden' } : {}),
+		// Clamped text must be allowed to shrink — the shared shrink:0 default
+		// would let it overflow its row instead of truncating.
+		...(props.ellipsize || props.numberOfLines ? { flexShrink: 1 } : {}),
 		...(props.ellipsize ? { textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' } : {}),
 	};
 

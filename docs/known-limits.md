@@ -117,3 +117,10 @@ sweeps remain skipped on #11444.
 - **Text controls stay OS-backed** — caret, selection UI, IME, autocorrect
   toolbars, secure entry, and keyboard types remain platform-native by
   design. — 0.5.0.
+- **`flex-shrink` defaults to 0, not CSS's 1** — NativeScript's shrink
+  pass has no min-content floor (it clamps at the explicit `min-*`
+  property), so tokens.css normalizes to React Native semantics on all
+  targets. Overflow regions opt in with `flex-1`/`shrink` +
+  `min-h-0`/`min-w-0`; `ellipsize`/`numberOfLines` text re-enables shrink
+  itself. iOS row-axis shrink re-measures the child but keeps natural
+  frame width. — post-0.5.0, verified ios-sim 2026-09-26.

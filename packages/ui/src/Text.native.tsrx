@@ -26,6 +26,9 @@ export function Text(props: TextProps) @{
 	const inText = useContext(InText);
 	const textStyle = {
 		...props.style,
+		// Clamped text must be allowed to shrink — the shared shrink:0 default
+		// would let the label overflow its row instead of truncating.
+		...(props.ellipsize || props.numberOfLines ? { flexShrink: 1 } : {}),
 		...(props.ellipsize ? { whiteSpace: 'nowrap', textOverflow: 'ellipsis' } : {}),
 	};
 

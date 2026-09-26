@@ -39,7 +39,7 @@ The curated subset is kept **drop-in replaceable** by Tailwind v4 so adoption
 later is a toolchain swap, not a refactor. Audited every Tailwind-vocabulary
 class we ship/use against v4's emission:
 
-- **Aligned already:** `grow`, `shrink-0`, `min-w-0`, `min-h-0`,
+- **Aligned already:** `grow`, `shrink`, `shrink-0`, `min-w-0`, `min-h-0`,
   `items-center`, `justify-center`, `gap-2`/`gap-4` (values match v4's
   `--spacing` math), `font-bold` (`bold`≡`700`), `bg-primary` (v4 resolves
   `--color-primary`), `rounded-full` (9999px ≈ `calc(infinity*1px)`),

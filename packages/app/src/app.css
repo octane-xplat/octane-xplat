@@ -35,8 +35,8 @@ body {
 
 /* Harness scroll policy on top of the tokens.css normalization (.vx-app
    is already a flex column): the app column scrolls when content outgrows
-   the pane — children must never be squashed below their natural height
-   (sections are flex-shrink: 0 below). Text renders <span>, so .scrollrow
+   the pane — children never squash below their natural height under the
+   shared `* {flex-shrink:0}` default. Text renders <span>, so .scrollrow
    needs a block display to paint row borders/padding. */
 .vx-app {
 	min-height: 0;
@@ -66,29 +66,13 @@ body {
 }
 
 /* Section groups — spacing + a small muted label, no boxes. `.vx-app label`
-   in tokens.css outranks single-class colors, so muted roles stay scoped. */
+   in tokens.css outranks single-class colors, so muted roles stay scoped.
+   No shrink guards needed: the tokens.css `* {flex-shrink:0}` normalization
+   keeps intrinsic children at natural height, and a .flex-1 member (the
+   Home list) stays shrinkable via the shorthand's own shrink:1. */
 .sink-section {
 	gap: 8px;
 	min-height: 0;
-	flex-shrink: 0;
-}
-
-/* Section contents are intrinsic controls — they never compress either.
-   NativeScript defaults every flex child to shrink:1 with no min-content
-   floor, so a section re-measured below its natural height would crush its
-   labels/inputs toward zero (web clamps at min-content; native doesn't).
-   The one exception: a .flex-1 member of a flexing section stays
-   shrinkable so it can absorb overflow — the Home list is that member. */
-.sink-section > * {
-	flex-shrink: 0;
-}
-
-.sink-section.flex-1 {
-	flex-shrink: 1;
-}
-
-.sink-section > .flex-1 {
-	flex-shrink: 1;
 }
 
 .vx-app .section-label {
