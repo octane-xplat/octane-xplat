@@ -43,6 +43,14 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 		const root = createNativeScriptRoot(host)
 
 		let finished = false
+		// RootLayout notifies 'closed' from inside its own close(), before the
+		// removal lands — hasChild still answers true there. Re-entering
+		// close() from that notification schedules a second removeChild and
+		// throws 'View not added to this instance' once the first removal
+		// clears the parent. While a close is in flight the host is already
+		// spliced out of _popupViews, so getPopupIndex < 0 marks the two cases
+		// where we must not close() again: mid-close (RootLayout owns the
+		// detach) and raced-close leftovers (plain removeChild instead).
 		const finish = (result?: ModalOpenResult) => {
 			if (finished) {
 				return
@@ -53,18 +61,30 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 			unbindTheme()
 			root.unmount?.()
 			const owner = host.parent as any
-			if (owner?.hasChild?.(host)) {
-				owner.close(host).catch((error: unknown) => {
-					console.error('[openSheet] close failed', error)
-				})
+			if (owner?.hasChild?.(host) && !closing) {
+				if (owner.getPopupIndex?.(host) === -1) {
+					owner.removeChild?.(host)
+				} else {
+					;(owner.close?.(host) as Promise<unknown> | undefined)?.catch((error: unknown) => {
+						console.error('[openSheet] close failed', error)
+					})
+				}
 			}
 
 			resolve(result)
 		}
 
+		let closing = false
+
 		const entry: ActiveSheet = { host, root, finish }
-		// 'closed' covers tap-to-dismiss — finish through the same path.
-		host.on('closed', () => finish())
+		// 'closed' covers tap-to-dismiss — finish through the same path, but
+		// mark the close as already in flight so finish doesn't re-enter
+		// RootLayout.close (see above).
+		host.on('closed', () => {
+			closing = true
+			finish()
+		})
+
 		root.render(Component as UniversalComponent, { params, close: finish })
 		active.add(entry)
 
