@@ -70,6 +70,25 @@ importers:
         specifier: ^4.0.0
         version: 4.136.3
 
+  apps/macos:
+    dependencies:
+      '@nativescript/macos-node-api':
+        specifier: 0.4.4-next.2026-08-09-31292056208
+        version: 0.4.4-next.2026-08-09-31292056208
+      octane:
+        specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
+        version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@octanejs/vite-plugin':
+        specifier: 0.1.60
+        version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
+
   apps/native:
     dependencies:
       '@nativescript-community/gesturehandler':
@@ -1200,6 +1219,12 @@ packages:
 
   '@nativescript/local-notifications@7.0.0':
     resolution: {integrity: sha512-LpxXqCxu3Nx04j7CKxicGpxWdXLP/M/r3zQNSI1hTn3LBsmGVpnX+1gr6/gLxQyIR3xzD/MxRWgO3qdSCCieeg==}
+
+  '@nativescript/macos-node-api@0.4.4-next.2026-08-09-31292056208':
+    resolution: {integrity: sha512-BiZiitKtqijvy9G/QbPMVnv2IrzoSH1CzjIpAxV5RmWDX/2lgoNHKWVg07jHRieFMksRg/R99eM5tF3Hj0qymg==}
+
+  '@nativescript/objc-node-api@1.0.0-alpha.7':
+    resolution: {integrity: sha512-HCkKX46wmc/Oe+Td958HeRmlqKCKmzeeIm0Kofb8aU+6WqjslLK8xGj6HLQT1SyzLWNQdr3dYp7PLFixMjBymw==}
 
   '@nativescript/secure-storage@4.0.2':
     resolution: {integrity: sha512-4sWU4tmvGjh9ZfuApt0enwcT3tGN88dR5IeOuQsYqUSeUQbxK7Xo2JTF1dy7KIxnh0Fnxrs5O61x7hp9JBn/kw==}
@@ -3925,6 +3950,12 @@ snapshots:
     dependencies:
       '@nativescript-community/perms': 3.0.11
       '@nativescript/shared-notification-delegate': 1.0.2
+
+  '@nativescript/macos-node-api@0.4.4-next.2026-08-09-31292056208':
+    dependencies:
+      '@nativescript/objc-node-api': 1.0.0-alpha.7
+
+  '@nativescript/objc-node-api@1.0.0-alpha.7': {}
 
   '@nativescript/secure-storage@4.0.2': {}
 
