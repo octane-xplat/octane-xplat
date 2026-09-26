@@ -71,6 +71,22 @@
 - **`useMeasure` coordinate frames differ** — web `x`/`y` are
   viewport-relative; native `x`/`y` are screen-relative dips. —
   verified at 0.5.0.
+- **The self-drawn component set is web-smoke-verified only** —
+  `Button`, `Collapsible`, `Accordion`, `Checkbox`, `CheckboxGroup`,
+  `RadioGroup`, `DropdownMenu`, `ContextMenu`, `Select`/`SelectMenu`/
+  `Combobox`/`InputMenu`, `Badge`, `Separator`, `Skeleton`, `Avatar`,
+  `AvatarGroup`, `FormField`, `FieldGroup`, `InputNumber`, `PinInput`,
+  `InputTags`, `InputRating`, `Breadcrumb`, `Pagination`, `Stepper`,
+  `NavigationMenu`, `CommandPalette`, `Table`, `Timeline`, `Tree`,
+  `Alert`, `Card`, `Chip`, `Kbd`, `Empty`, `Banner`, `User`,
+  `ProgressGroup` compile and render on both leaves but have not run the
+  on-device sweep. `Table`/`Select`/menus are bounded and unvirtualized
+  by design (large data → `UITableView`/`RecyclerView`).
+- **`ContextMenu` triggers differ by design** — right-click on web,
+  long-press on native; the same anchored list renders afterward.
+- **`PinInput`/`InputTags` keyboard conveniences are asymmetric** —
+  backspace-to-remove (tags) is web-only via the `web` escape bag; chip
+  ✕ remove works on both. `PinInput` has no paste-to-fill support.
 
 ## Design debts (documented, not bugs)
 
