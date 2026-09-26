@@ -33,6 +33,7 @@ import type {
 	PopoverAnchorRef,
 	PopoverPlacement,
 	PopoverProps,
+	PagerProps,
 	PlatformBadgeProps,
 	PressableProps,
 	ReadableStore,
@@ -94,6 +95,7 @@ export type {
 	PopoverAnchorRef,
 	PopoverPlacement,
 	PopoverProps,
+	PagerProps,
 	PanEvent,
 	PressableProps,
 	ReadableStore,
@@ -154,6 +156,7 @@ export declare const TextInput: UniversalComponent<TextInputProps>
 export declare const TextArea: UniversalComponent<TextAreaProps>
 export declare const ScrollBox: UniversalComponent<ScrollBoxProps>
 export declare const ScrollView: UniversalComponent<ScrollViewProps>
+export declare const Pager: UniversalComponent<PagerProps>
 export declare const Image: UniversalComponent<ImageProps>
 export declare const WebView: UniversalComponent<WebViewProps>
 export declare const Screen: UniversalComponent<ScreenProps>

@@ -111,6 +111,7 @@ export { TextInput } from './TextInput.web.tsrx'
 export { TextArea } from './TextArea.web.tsrx'
 export { ScrollBox } from './ScrollBox.web.tsrx'
 export { ScrollView } from './ScrollView.web.tsrx'
+export { Pager } from './Pager.web.tsrx'
 export { Image } from './Image.web.tsrx'
 export { WebView } from './WebView.web.tsrx'
 export type { WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
@@ -165,6 +166,7 @@ export type {
 	HeadingProps,
 	IconProps,
 	MeterProps,
+	PagerProps,
 	SliderProps,
 } from './props'
 

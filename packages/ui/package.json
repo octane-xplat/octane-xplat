@@ -82,6 +82,7 @@
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript-community/ui-canvas": ">=4.6.52 <5",
 		"@nativescript-community/ui-drawer": ">=0.1.32 <1",
+		"@nativescript-community/ui-pager": ">=14.1.42 <15",
 		"@nativescript-community/ui-svg": ">=0.2.24 <1",
 		"@nativescript/core": ">=9.1.0 <10",
 		"octane": ">=0.1.51 <1"

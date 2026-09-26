@@ -112,6 +112,9 @@ importers:
       '@nativescript-community/ui-drawer':
         specifier: 0.1.32
         version: 0.1.32
+      '@nativescript-community/ui-pager':
+        specifier: 14.1.42
+        version: 14.1.42
       '@nativescript-community/ui-svg':
         specifier: 0.2.24
         version: 0.2.24
@@ -329,6 +332,9 @@ importers:
       '@nativescript-community/gesturehandler':
         specifier: '>=2.0.8 <3'
         version: 2.0.45
+      '@nativescript-community/ui-pager':
+        specifier: '>=14.1.42 <15'
+        version: 14.1.42
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
         version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -1178,6 +1184,9 @@ packages:
 
   '@nativescript-community/ui-drawer@0.1.32':
     resolution: {integrity: sha512-SxvprjOAdyuDSqynIiy2s4cWvamolaSZrh4rXqMihA8IeOQ5FHZ1T/92BhJG1sTj1pl5aZ380RNzD98n7TykWA==}
+
+  '@nativescript-community/ui-pager@14.1.42':
+    resolution: {integrity: sha512-WFSJgdlKNf/VcYn6u2Bt21pScusXoUXXksf2EIKc1cl5BRS3siUKX/tsvItK0lsQNy0CrzgnMKuKxUuI/0GETQ==}
 
   '@nativescript-community/ui-svg@0.2.24':
     resolution: {integrity: sha512-5aeSeCtPDxuVW3udf1FjnBNkdhUET1E7nZKGB7tXcvMY3+/e75MqsnYF+vSnhTJ/MdqQ9hSQWcNmeCFidDomOw==}
@@ -3893,6 +3902,8 @@ snapshots:
   '@nativescript-community/ui-drawer@0.1.32':
     dependencies:
       '@nativescript-community/gesturehandler': 2.0.45
+
+  '@nativescript-community/ui-pager@14.1.42': {}
 
   '@nativescript-community/ui-svg@0.2.24':
     dependencies:

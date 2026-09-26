@@ -495,3 +495,59 @@
 	cursor: grabbing;
 }
 /* xplat-web-only:end */
+
+/* Pager — the demo's indicator is composed (Row + Pressable dots), matching
+   the component's contract: Pager itself ships no chrome. */
+.pager-demo-pager {
+	height: 240px;
+}
+
+.pager-page {
+	flex-grow: 1;
+	border-radius: 12px;
+	corner-shape: squircle;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	gap: 12px;
+}
+
+.pager-page-title {
+	font-size: 24px;
+	font-weight: bold;
+	color: #ffffff;
+}
+
+.pager-page-body {
+	font-size: 14px;
+	text-align: center;
+	color: #ffffff;
+	opacity: 0.85;
+}
+
+.pager-dots {
+	justify-content: center;
+	gap: 8px;
+}
+
+.pager-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 9999px;
+	background-color: var(--color-border-strong);
+}
+
+.pager-dot-on {
+	background-color: var(--color-primary);
+}
+
+.pager-controls {
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+}
+
+.pager-page-index {
+	color: var(--color-text-secondary);
+	font-size: 13px;
+}

@@ -457,6 +457,33 @@ button {
 }
 /* xplat-web-only:end */
 
+/* xplat-web-only:start — Pager's web leaf is a mandatory scroll-snap row:
+   one page per item at 100% host width so scrollLeft / clientWidth is a
+   clean page index. Native pages are sized by the widget itself, so the
+   whole block is DOM-only. Scrollbar hidden (native has none); contain
+   keeps the swipe from chaining to a parent scroller, matching .vx-scroll. */
+.vx-pager {
+	display: flex;
+	flex-direction: row;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scroll-snap-type: x mandatory;
+	overscroll-behavior-x: contain;
+	scrollbar-width: none;
+	touch-action: pan-x;
+}
+.vx-pager::-webkit-scrollbar {
+	display: none;
+}
+.vx-pager-page {
+	flex: 0 0 100%;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	scroll-snap-align: start;
+}
+/* xplat-web-only:end */
+
 /* Phase-1 self-drawn components — functional geometry + token chrome only;
    visual design is the app's job. */
 

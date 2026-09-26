@@ -16,6 +16,7 @@
 | Accept one or more lines               | `TextInput`, `TextArea`         |
 | Scroll content                         | `ScrollView`, `ScrollBox`       |
 | Show a web page or inline HTML         | `WebView`                       |
+| Swipe through full pages               | `Pager`                         |
 | Show temporary content above a screen  | `Sheet`, `Overlay`              |
 
 Start with these components. They are deliberately smaller than the browser
@@ -85,6 +86,17 @@ unsupported path; the list leaf throws a named error on that nesting. Wrap
 the list in `ScrollBox` (a real `ScrollView` on web, an inline `View` on
 native) so the list owns scrolling.
 _Verified on the iOS simulator._
+
+`Pager` gives paged horizontal swiping — onboarding flows, media galleries.
+It takes `items` + `renderItem` (the same contract as the platform lists),
+`page`/`onPageChange` for controlled use, `defaultPage` for uncontrolled.
+Native pages are recycled OS cells, so pages need no fixed height of their
+own — each fills the pager. There is no built-in page indicator; compose
+dots from `Row` + `Pressable` driven by the page index (see the `pager`
+demo). The native leaf uses `@nativescript-community/ui-pager`, a required
+peer — a native app that ships `Pager` must declare it (`/ns/m` resolves
+plugins under the app root only). The web leaf is a scroll-snap row;
+`onPageChange` fires after the snap settles.
 
 Use `Sheet` for a focused interruption, or `openSheet`/`showToast`/`Overlay`
 imperatively, and pass the data it needs as props. The platform's own

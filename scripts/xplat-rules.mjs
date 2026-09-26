@@ -427,6 +427,7 @@ const NS_ONLY_TAGS = new Set([
 	'drawer',
 	'liquidglass',
 	'liquidglasscontainer',
+	'pager',
 	'placeholder',
 ])
 
