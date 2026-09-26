@@ -942,6 +942,279 @@ button {
 }
 /* xplat-web-only:end */
 
+/* Phase-4 data display. */
+
+/* Table — header + bounded rows (unvirtualized by design). */
+.vx-table {
+	flex-direction: column;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+}
+.vx-table-head,
+.vx-table-row {
+	flex-direction: row;
+}
+.vx-table-th {
+	font-weight: 600;
+}
+.vx-table-cell {
+	padding: 8px 12px;
+}
+.vx-table-head {
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+}
+.vx-table-empty {
+	padding: 16px;
+	align-items: center;
+}
+
+/* Timeline — dot + connector rail beside content. */
+.vx-timeline {
+	flex-direction: column;
+}
+.vx-timeline-item {
+	flex-direction: row;
+}
+.vx-timeline-rail {
+	flex-direction: column;
+	align-items: center;
+	width: 20px;
+}
+.vx-timeline-dot {
+	width: 10px;
+	height: 10px;
+	margin-top: 5px;
+	border-radius: 50%;
+	background-color: var(--color-primary);
+	align-items: center;
+	justify-content: center;
+}
+.vx-timeline-line {
+	width: 1px;
+	flex: 1;
+	background-color: var(--color-border);
+}
+.vx-timeline-body {
+	flex-direction: column;
+	padding-left: 10px;
+	padding-bottom: 16px;
+}
+.vx-timeline-time {
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--color-text-secondary);
+}
+.vx-timeline-title {
+	font-weight: 600;
+}
+.vx-timeline-desc {
+	color: var(--color-text-secondary);
+}
+
+/* Tree — indented collapsible rows. */
+.vx-tree {
+	flex-direction: column;
+}
+.vx-tree-node {
+	flex-direction: column;
+}
+.vx-tree-row {
+	flex-direction: row;
+	align-items: center;
+	padding: 4px 0;
+}
+.vx-tree-row--disabled {
+	opacity: 0.5;
+}
+.vx-tree-caret {
+	width: 14px;
+	margin-left: 4px;
+}
+
+/* Alert — icon + body callout; tone picks border/text colors. */
+.vx-alert {
+	flex-direction: row;
+	padding: 10px 12px;
+	border-width: 1px;
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	border-color: var(--color-border);
+}
+.vx-alert-body {
+	flex-direction: column;
+	flex: 1;
+	margin-left: 8px;
+}
+.vx-alert-title {
+	font-weight: 600;
+}
+.vx-alert--error {
+	border-color: var(--color-danger);
+}
+.vx-alert--warning {
+	border-color: var(--color-warning, #d9a400);
+}
+.vx-alert--success {
+	border-color: var(--color-success, #2e9e5b);
+}
+.vx-alert--info {
+	border-color: var(--color-primary);
+}
+
+/* Card — sectioned container. */
+.vx-card {
+	flex-direction: column;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+}
+.vx-card-header {
+	padding: 12px;
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+}
+.vx-card-body {
+	padding: 12px;
+	flex-direction: column;
+}
+.vx-card-footer {
+	padding: 12px;
+	border-top-width: 1px;
+	border-top-color: var(--color-border);
+}
+
+/* Chip — pressable pill with selected + remove states. */
+.vx-chip {
+	flex-direction: row;
+	align-items: center;
+	padding: 3px 10px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	font-size: 13px;
+}
+.vx-chip--on {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+.vx-chip--disabled {
+	opacity: 0.5;
+}
+.vx-chip-remove {
+	margin-left: 6px;
+}
+
+/* Kbd — keycap glyph. */
+.vx-kbd {
+	padding: 1px 5px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-bottom-width: 2px;
+	border-radius: var(--radius-sm);
+	font-size: 12px;
+}
+
+/* Empty — centered placeholder. */
+.vx-empty {
+	flex-direction: column;
+	align-items: center;
+	padding: 24px;
+}
+.vx-empty-title {
+	font-weight: 600;
+	margin-top: 8px;
+}
+.vx-empty-desc {
+	color: var(--color-text-secondary);
+	margin-top: 2px;
+}
+
+/* Banner — notice strip. */
+.vx-banner {
+	flex-direction: row;
+	align-items: center;
+	padding: 8px 12px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	background-color: var(--color-surface);
+}
+.vx-banner-body {
+	flex-direction: column;
+	flex: 1;
+	margin-left: 8px;
+}
+.vx-banner-dismiss {
+	margin-left: 8px;
+}
+
+/* User — avatar + text column. */
+.vx-user {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-user-body {
+	flex-direction: column;
+	margin-left: 10px;
+}
+.vx-user-name {
+	font-weight: 600;
+}
+.vx-user-desc {
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--color-text-secondary);
+}
+
+/* ProgressGroup — stacked labeled meters. */
+.vx-progressgroup {
+	flex-direction: column;
+}
+.vx-progressgroup-row {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-progressgroup-label {
+	margin-left: 8px;
+}
+/* xplat-web-only:start — display:flex for the div-based flex classes */
+.vx-table,
+.vx-table-head,
+.vx-table-row,
+.vx-timeline,
+.vx-timeline-item,
+.vx-timeline-rail,
+.vx-timeline-body,
+.vx-tree,
+.vx-tree-node,
+.vx-tree-row,
+.vx-alert,
+.vx-alert-body,
+.vx-card,
+.vx-card-body,
+.vx-banner,
+.vx-banner-body,
+.vx-user,
+.vx-user-body,
+.vx-progressgroup,
+.vx-progressgroup-row {
+	display: flex;
+}
+.vx-table-row--pressable,
+.vx-tree-row,
+.vx-user--pressable,
+.vx-banner-dismiss,
+.vx-chip-remove {
+	cursor: pointer;
+}
+/* xplat-web-only:end */
+
 .vx-h1 {
 	font-size: 2em;
 	font-weight: bold;

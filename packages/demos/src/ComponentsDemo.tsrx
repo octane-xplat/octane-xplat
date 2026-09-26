@@ -1,10 +1,11 @@
 import { useState } from 'octane';
 import {
-	Accordion, Avatar, AvatarGroup, Badge, Breadcrumb, Button, Checkbox,
-	CheckboxGroup, Collapsible, CommandPalette, ContextMenu, DropdownMenu,
-	FieldGroup, FormField, Heading, InputNumber, InputRating, InputTags,
-	NavigationMenu, Pagination, PinInput, RadioGroup, Row, Select,
-	Separator, Skeleton, Stepper, Text, View, registerIcons,
+	Accordion, Alert, Avatar, AvatarGroup, Badge, Banner, Breadcrumb, Button,
+	Card, Checkbox, CheckboxGroup, Chip, Collapsible, CommandPalette,
+	ContextMenu, DropdownMenu, Empty, FieldGroup, FormField, Heading,
+	InputNumber, InputRating, InputTags, Kbd, NavigationMenu, Pagination,
+	PinInput, ProgressGroup, RadioGroup, Row, Select, Separator, Skeleton,
+	Stepper, Table, Text, Timeline, Tree, User, View, registerIcons,
 } from '@octane-xplat/ui';
 
 registerIcons({
@@ -143,6 +144,46 @@ export function ComponentsDemo() @{
 			/>
 			<Button className="btn btn-secondary" onPress={() => setCmdk(true)}><Text>Command palette</Text></Button>
 			<CommandPalette open={cmdk} onOpenChange={setCmdk} items={menuItems} />
+		</View>
+
+		<View className="controls-section">
+			<Text className="font-bold">Data display</Text>
+			<Table
+				columns={[{ key: 'name', label: 'Name' }, { key: 'qty', label: 'Qty', width: 50, align: 'right' }]}
+				rows={[{ name: 'Apples', qty: 4 }, { name: 'Pears', qty: 2 }, { name: 'Figs', qty: 9 }]}
+			/>
+			<Timeline items={[
+				{ key: 'a', title: 'Ordered', time: '09:12' },
+				{ key: 'b', title: 'Shipped', time: '11:40' },
+				{ key: 'c', title: 'Delivered', time: '15:03' },
+			]} />
+			<Tree
+				nodes={[
+					{ key: 'src', label: 'src', children: [{ key: 'app', label: 'App.tsrx' }, { key: 'ui', label: 'ui', children: [{ key: 'btn', label: 'Button.tsrx' }] }] },
+					{ key: 'docs', label: 'docs' },
+				]}
+				defaultExpanded={['src']}
+			/>
+		</View>
+
+		<View className="controls-section">
+			<Text className="font-bold">Callouts</Text>
+			<Alert tone="info" title="Heads up"><Text>Something worth knowing.</Text></Alert>
+			<Alert tone="error" title="Failed"><Text>Could not save.</Text></Alert>
+			<Banner onDismiss={() => setNav('dismissed')}><Text>Dismissible banner (last: {nav})</Text></Banner>
+			<Card header={<Text className="font-bold">Card header</Text>} footer={<Text className="text-sm text-muted">footer</Text>}>
+				<Text>Card body.</Text>
+			</Card>
+			<Row className="items-center gap-4">
+				<Chip selected={checked} onSelect={() => setChecked(!checked)}><Text>Chip</Text></Chip>
+				<Chip onRemove={() => setNav('chip-removed')}><Text>Removable</Text></Chip>
+				<Kbd><Text>⌘K</Text></Kbd>
+			</Row>
+			<Empty title="Nothing here" description="Try adding an item">
+				<Button className="btn btn-secondary"><Text>Add item</Text></Button>
+			</Empty>
+			<User name="Alec Larson" description="Framework author" fallback="AL" />
+			<ProgressGroup items={[{ key: 'a', label: 'Build', value: 70 }, { key: 'b', label: 'Test', value: 35 }]} />
 		</View>
 
 		<View className="controls-section">

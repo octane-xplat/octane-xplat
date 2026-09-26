@@ -1148,6 +1148,176 @@ export interface CommandPaletteProps {
     android?: any;
     web?: any;
 }
+export interface TableColumn {
+    key: string;
+    label?: string;
+    /** Column width in dips; omit to share the remaining space evenly. */
+    width?: number;
+    align?: 'left' | 'center' | 'right';
+}
+/** Table — self-drawn grid via rows + cells. Bounded and unvirtualized:
+ *  large datasets belong to the platform UITableView/RecyclerView
+ *  subpaths, not this component. */
+export interface TableProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    columns: TableColumn[];
+    rows: Record<string, any>[];
+    /** Cell override — default renders row[col.key] as text. */
+    renderCell?: (row: Record<string, any>, column: TableColumn, rowIndex: number) => any;
+    /** Row key; defaults to the row index. */
+    keyFor?: (row: Record<string, any>, rowIndex: number) => string;
+    onRowPress?: (row: Record<string, any>, rowIndex: number) => void;
+    empty?: any;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+export interface TimelineItem {
+    key: string;
+    title?: string;
+    description?: string;
+    time?: string;
+    icon?: string;
+}
+/** Timeline — vertical list of events with dot + connector. */
+export interface TimelineProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    items: TimelineItem[];
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+export interface TreeNode {
+    key: string;
+    label?: string;
+    children?: TreeNode[];
+    disabled?: boolean;
+}
+/** Tree — recursive indent + collapse. `defaultExpanded` seeds the open
+ *  set; `onToggle` reports changes. */
+export interface TreeProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    nodes: TreeNode[];
+    defaultExpanded?: string[];
+    onToggle?: (key: string, open: boolean) => void;
+    onSelect?: (node: TreeNode) => void;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** Alert — status callout. `tone` maps to a class modifier; error tone
+ *  gets role=alert on web, others role=status. */
+export interface AlertProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    tone?: 'info' | 'success' | 'warning' | 'error';
+    icon?: string;
+    title?: string;
+    children?: any;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** Card — container with optional header/footer slots. */
+export interface CardProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    header?: any;
+    footer?: any;
+    children?: any;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** Chip — small action/filter element: pressable, optional selected state,
+ *  optional ✕ remove affordance. */
+export interface ChipProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    children?: any;
+    selected?: boolean;
+    disabled?: boolean;
+    onSelect?: () => void;
+    onRemove?: () => void;
+    accessibilityLabel?: string;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** Kbd — keyboard key glyph (⌘K styling hook). */
+export interface KbdProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    children?: any;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** Empty — empty-state block: icon + title + description + actions. */
+export interface EmptyProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    icon?: string;
+    title?: string;
+    description?: string;
+    children?: any;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** Banner — inline notice strip with optional dismiss. */
+export interface BannerProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    icon?: string;
+    children?: any;
+    onDismiss?: () => void;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** User — avatar + name/description row. */
+export interface UserProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    name?: string;
+    description?: string;
+    src?: string;
+    fallback?: string;
+    size?: number;
+    onSelect?: () => void;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** ProgressGroup — stacked labeled Meter rows. */
+export interface ProgressGroupProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    items: {
+        key: string;
+        label?: string;
+        value: number;
+        max?: number;
+    }[];
+    ios?: any;
+    android?: any;
+    web?: any;
+}
 export type ColorScheme = 'light' | 'dark';
 /** Minimal external-store contract `useStore` subscribes to. */
 export interface ReadableStore<T> {

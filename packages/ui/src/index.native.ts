@@ -77,6 +77,34 @@ export type {
 	StepperStep,
 } from './props'
 
+export { Table } from './Table.native.tsrx'
+export { Timeline } from './Timeline.native.tsrx'
+export { Tree } from './Tree.native.tsrx'
+export { Alert } from './Alert.native.tsrx'
+export { Card } from './Card.native.tsrx'
+export { Chip } from './Chip.native.tsrx'
+export { Kbd } from './Kbd.native.tsrx'
+export { Empty } from './Empty.native.tsrx'
+export { Banner } from './Banner.native.tsrx'
+export { User } from './User.native.tsrx'
+export { ProgressGroup } from './ProgressGroup.native.tsrx'
+export type {
+	AlertProps,
+	BannerProps,
+	CardProps,
+	ChipProps,
+	EmptyProps,
+	KbdProps,
+	ProgressGroupProps,
+	TableColumn,
+	TableProps,
+	TimelineItem,
+	TimelineProps,
+	TreeNode,
+	TreeProps,
+	UserProps,
+} from './props'
+
 export { Link } from './Link.native.tsrx'
 export { NavLink } from './NavLink.native.tsrx'
 export { TextInput } from './TextInput.native.tsrx'
