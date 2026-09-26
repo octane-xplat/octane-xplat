@@ -269,6 +269,25 @@ Caveats learned in the sweep:
 - **Harness asserts should hold the host view ref** (`sheetHost()`-style)
   rather than id-search the tree — the owning shell may be unloaded by the
   time the assert reads.
+- **`'closed'` fires inside `RootLayout.close()`, before `removeChild`.**
+  Calling `close()` (or any cleanup that re-issues it) from a `closed`
+  listener re-enters: the host is already spliced out of `_popupViews` but
+  still parented, so the second close's deferred cleanup hits a detached
+  view and throws `View not added to this instance` (desk-verified
+  2026-09-25 — `root-layout-common.js` `cleanupAndFinish` notifies before
+  removing). Cleanup hooks must be idempotent and must not re-call
+  `close()` while a close is in flight; a childed-but-untracked host is a
+  raced-close leftover — detach it with `removeChild`, not `close()`.
+- **Unloaded subtrees hold dead JS views.** A covered page unloads its
+  views — native recognizers detach but the JS objects stay parented, so
+  `getViewById` still finds them (`loaded=false`, observers present,
+  recognizers gone). `findInRootLayouts` skips `isLoaded === false`
+  branches; interaction probes must assert `isLoaded` before concluding
+  a view is tappable — `notify()`/observer dispatch works on dead views.
+- **A re-shown page can stay unloaded** when the frame's nav bookkeeping
+  stalls mid-transition (#11444 strand). `route.native` re-arms the load
+  pass on `navigatedTo` (`currentPage.callLoaded()` — idempotent) so
+  recognizers re-attach; without it, real taps on a visible page die.
 
 ### Sheet — two semantics, two APIs (decision #35)
 
