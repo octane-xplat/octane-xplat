@@ -610,6 +610,173 @@ button {
 }
 /* xplat-web-only:end */
 
+/* Phase-2 form field layer. */
+
+/* FormField — label / control / message column. */
+.vx-field {
+	flex-direction: column;
+}
+.vx-field-label {
+	font-size: 13px;
+	line-height: 20px;
+	font-weight: 500;
+	margin-bottom: 4px;
+}
+.vx-field-required {
+	color: var(--color-danger);
+}
+.vx-field-msg {
+	font-size: 12px;
+	line-height: 16px;
+	margin-top: 4px;
+	color: var(--color-text-secondary);
+}
+.vx-field-msg--error {
+	color: var(--color-danger);
+}
+.vx-fieldgroup {
+	flex-direction: column;
+}
+.vx-fieldgroup-label {
+	font-size: 13px;
+	line-height: 20px;
+	font-weight: 600;
+	margin-bottom: 8px;
+}
+
+/* InputNumber — steppers flanking a centered field. */
+.vx-inputnumber {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-inputnumber-step {
+	padding: 4px 10px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+	align-items: center;
+	justify-content: center;
+}
+.vx-inputnumber-field {
+	width: 64px;
+	margin-left: 8px;
+	margin-right: 8px;
+	text-align: center;
+}
+.vx-inputnumber--disabled {
+	opacity: 0.5;
+}
+
+/* PinInput — row of single cells. */
+.vx-pininput {
+	flex-direction: row;
+}
+.vx-pininput-cell {
+	width: 40px;
+	margin-right: 8px;
+	text-align: center;
+}
+.vx-pininput--disabled {
+	opacity: 0.5;
+}
+
+/* Select — trigger row + check column inside the anchored listbox. */
+.vx-select-trigger {
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 10px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+}
+.vx-select--disabled {
+	opacity: 0.5;
+}
+.vx-select-placeholder {
+	color: var(--color-text-secondary);
+}
+.vx-select-caret {
+	margin-left: 8px;
+}
+.vx-select-check {
+	width: 16px;
+}
+.vx-select-search {
+	margin-bottom: 4px;
+}
+
+/* InputTags — wrapped chip row + trailing field. */
+.vx-inputtags {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+}
+.vx-inputtags-tag {
+	flex-direction: row;
+	align-items: center;
+	padding: 1px 6px;
+	margin-right: 4px;
+	margin-bottom: 4px;
+	border-radius: var(--radius-sm);
+	background-color: var(--color-border);
+}
+.vx-inputtags-remove {
+	margin-left: 4px;
+}
+.vx-inputtags-field {
+	flex: 1;
+	min-width: 80px;
+}
+.vx-inputtags--disabled {
+	opacity: 0.5;
+}
+
+/* InputRating — glyph row; --on lights the cell. */
+.vx-rating {
+	flex-direction: row;
+}
+.vx-rating-cell {
+	padding: 2px;
+}
+.vx-rating-glyph {
+	font-size: 20px;
+	line-height: 24px;
+	color: var(--color-border);
+}
+.vx-rating-cell--on .vx-rating-glyph {
+	color: var(--color-primary);
+}
+.vx-rating--disabled {
+	opacity: 0.5;
+}
+
+/* CheckboxGroup — column/row of checkboxes. */
+.vx-checkbox-group {
+	flex-direction: column;
+}
+.vx-checkbox-group--row {
+	flex-direction: row;
+}
+/* xplat-web-only:start — display:flex for the div/span flex classes */
+.vx-field,
+.vx-fieldgroup,
+.vx-inputnumber,
+.vx-inputnumber-step,
+.vx-select-trigger,
+.vx-select-list,
+.vx-inputtags,
+.vx-inputtags-tag,
+.vx-rating,
+.vx-rating-cell,
+.vx-checkbox-group {
+	display: flex;
+}
+.vx-rating-cell {
+	cursor: pointer;
+}
+/* xplat-web-only:end */
+
 .vx-h1 {
 	font-size: 2em;
 	font-weight: bold;

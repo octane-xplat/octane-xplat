@@ -921,6 +921,145 @@ export interface AvatarGroupProps {
     android?: any;
     web?: any;
 }
+/** FormField wraps a control with a label, hint, and error text. The error
+ *  replaces the hint when present. Children is the control element. */
+export interface FormFieldProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    label?: string;
+    hint?: string;
+    error?: string;
+    required?: boolean;
+    children?: any;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** FieldGroup — labeled group of related fields (role=group). */
+export interface FieldGroupProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    label?: string;
+    children?: any;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** InputNumber — normalized TextInput (number keyboard) flanked by −/+
+ *  steppers. `value`/`onValueChange` for controlled, `defaultValue` for
+ *  uncontrolled. `step` defaults to 1; `min`/`max` clamp. */
+export interface InputNumberProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    value?: number;
+    defaultValue?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+    disabled?: boolean;
+    placeholder?: string;
+    onValueChange?: (value: number) => void;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** PinInput — a row of single-character cells that auto-advance on entry.
+ *  `onComplete` fires when all `length` cells are filled. */
+export interface PinInputProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    length?: number;
+    value?: string;
+    onValueChange?: (value: string) => void;
+    onComplete?: (value: string) => void;
+    secure?: boolean;
+    disabled?: boolean;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+export interface SelectOption {
+    value: string;
+    label?: string;
+    disabled?: boolean;
+}
+/** Select — anchored self-drawn listbox on every target (decision #48).
+ *  `multiple` keeps the listbox open and reports string[]; `searchable`
+ *  puts a normalized TextInput filter at the top of the listbox. */
+export interface SelectProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    options: SelectOption[];
+    value?: string | string[];
+    defaultValue?: string | string[];
+    multiple?: boolean;
+    searchable?: boolean;
+    placeholder?: string;
+    open?: boolean;
+    defaultOpen?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    onValueChange?: (value: string | string[]) => void;
+    disabled?: boolean;
+    placement?: PopoverPlacement;
+    accessibilityLabel?: string;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** InputTags — chip list + trailing normalized TextInput. Enter commits a
+ *  tag, Backspace on an empty field removes the last tag. */
+export interface InputTagsProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    value?: string[];
+    defaultValue?: string[];
+    onValueChange?: (tags: string[]) => void;
+    placeholder?: string;
+    max?: number;
+    disabled?: boolean;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** InputRating — row of tappable glyphs reporting a 1..max score. */
+export interface InputRatingProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    value?: number;
+    defaultValue?: number;
+    max?: number;
+    /** Glyph per cell — a Text character (default ★) or a registered Icon name. */
+    icon?: string;
+    onValueChange?: (value: number) => void;
+    disabled?: boolean;
+    accessibilityLabel?: string;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
+/** CheckboxGroup — multi-select list of self-drawn checkboxes. */
+export interface CheckboxGroupProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    options: RadioOption[];
+    value?: string[];
+    defaultValue?: string[];
+    onValueChange?: (values: string[]) => void;
+    disabled?: boolean;
+    horizontal?: boolean;
+    accessibilityLabel?: string;
+    ios?: any;
+    android?: any;
+    web?: any;
+}
 export type ColorScheme = 'light' | 'dark';
 /** Minimal external-store contract `useStore` subscribes to. */
 export interface ReadableStore<T> {

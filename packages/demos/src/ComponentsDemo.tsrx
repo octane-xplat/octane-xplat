@@ -1,8 +1,9 @@
 import { useState } from 'octane';
 import {
-	Accordion, Avatar, AvatarGroup, Badge, Button, Checkbox, Collapsible,
-	ContextMenu, DropdownMenu, Heading, RadioGroup, Row, Separator,
-	Skeleton, Text, View, registerIcons,
+	Accordion, Avatar, AvatarGroup, Badge, Button, Checkbox, CheckboxGroup,
+	Collapsible, ContextMenu, DropdownMenu, FieldGroup, FormField, Heading,
+	InputNumber, InputRating, InputTags, PinInput, RadioGroup, Row, Select,
+	Separator, Skeleton, Text, View, registerIcons,
 } from '@octane-xplat/ui';
 
 registerIcons({
@@ -15,6 +16,12 @@ export function ComponentsDemo() @{
 	const [radio, setRadio] = useState('a');
 	const [lastMenu, setLastMenu] = useState('—');
 	const [lastCtx, setLastCtx] = useState('—');
+	const [num, setNum] = useState(2);
+	const [pin, setPin] = useState('');
+	const [fruit, setFruit] = useState<string | string[]>('apple');
+	const [tags, setTags] = useState<string[]>(['one']);
+	const [rating, setRating] = useState(3);
+	const [checks, setChecks] = useState<string[]>(['x']);
 
 	const menuItems = [
 		{ key: 'edit', label: 'Edit', onSelect: () => setLastMenu('edit') },
@@ -79,6 +86,38 @@ export function ComponentsDemo() @{
 			<Separator />
 			<Skeleton width={160} height={16} />
 			<Skeleton width={220} height={16} />
+		</View>
+
+		<View className="controls-section">
+			<Text className="font-bold">Fields</Text>
+			<FieldGroup label="Sign up">
+				<FormField label="Name" hint="As it appears on your badge">
+					<InputTags value={tags} onValueChange={setTags} placeholder="Add tag…" />
+				</FormField>
+				<FormField label="Quantity" error={num > 5 ? 'Too many' : undefined}>
+					<InputNumber value={num} onValueChange={setNum} min={0} max={9} />
+				</FormField>
+				<FormField label="PIN">
+					<PinInput length={4} value={pin} onValueChange={setPin} />
+				</FormField>
+			</FieldGroup>
+		</View>
+
+		<View className="controls-section">
+			<Text className="font-bold">Select / Rating / CheckboxGroup</Text>
+			<Select
+				options={[{ value: 'apple', label: 'Apple' }, { value: 'banana', label: 'Banana' }, { value: 'cherry', label: 'Cherry', disabled: true }]}
+				value={fruit}
+				onValueChange={setFruit}
+				placeholder="Pick a fruit"
+				searchable={true}
+			/>
+			<InputRating value={rating} onValueChange={setRating} />
+			<CheckboxGroup
+				options={[{ value: 'x', label: 'X' }, { value: 'y', label: 'Y' }]}
+				value={checks}
+				onValueChange={setChecks}
+			/>
 		</View>
 
 		<View className="controls-section">

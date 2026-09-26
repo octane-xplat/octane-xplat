@@ -40,6 +40,27 @@ export type {
 	SkeletonProps,
 } from './props'
 
+export { FormField } from './FormField.web.tsrx'
+export { FieldGroup } from './FieldGroup.web.tsrx'
+export { InputNumber } from './InputNumber.web.tsrx'
+export { PinInput } from './PinInput.web.tsrx'
+export { Select } from './Select.web.tsrx'
+export { SelectMenu, Combobox, InputMenu } from './aliases.web.tsrx'
+export { InputTags } from './InputTags.web.tsrx'
+export { InputRating } from './InputRating.web.tsrx'
+export { CheckboxGroup } from './CheckboxGroup.web.tsrx'
+export type {
+	CheckboxGroupProps,
+	FieldGroupProps,
+	FormFieldProps,
+	InputNumberProps,
+	InputRatingProps,
+	InputTagsProps,
+	PinInputProps,
+	SelectOption,
+	SelectProps,
+} from './props'
+
 export { Link } from './Link.web.tsrx'
 export { NavLink } from './NavLink.web.tsrx'
 export { TextInput } from './TextInput.web.tsrx'
