@@ -50,6 +50,7 @@ import type {
 	SafeAreaProps,
 	ScreenTable,
 	ScrollViewProps,
+	SearchInputProps,
 	SegmentedControlProps,
 	SliderProps,
 	Store,
@@ -113,6 +114,7 @@ export type {
 	SafeAreaProps,
 	ScreenTable,
 	ScrollViewProps,
+	SearchInputProps,
 	SegmentedControlProps,
 	SliderProps,
 	Store,
@@ -156,6 +158,7 @@ export declare const Link: UniversalComponent<LinkProps>
 export declare const NavLink: UniversalComponent<NavLinkProps>
 export declare const TextInput: UniversalComponent<TextInputProps>
 export declare const TextArea: UniversalComponent<TextAreaProps>
+export declare const SearchInput: UniversalComponent<SearchInputProps>
 export declare const ScrollBox: UniversalComponent<ScrollBoxProps>
 export declare const ScrollView: UniversalComponent<ScrollViewProps>
 export declare const Pager: UniversalComponent<PagerProps>

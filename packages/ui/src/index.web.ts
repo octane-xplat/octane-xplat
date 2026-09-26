@@ -110,6 +110,7 @@ export { Link } from './Link.web.tsrx'
 export { NavLink } from './NavLink.web.tsrx'
 export { TextInput } from './TextInput.web.tsrx'
 export { TextArea } from './TextArea.web.tsrx'
+export { SearchInput } from './SearchInput.web.tsrx'
 export { SegmentedControl } from './SegmentedControl.web.tsrx'
 export { ScrollBox } from './ScrollBox.web.tsrx'
 export { ScrollView } from './ScrollView.web.tsrx'
@@ -169,6 +170,7 @@ export type {
 	IconProps,
 	MeterProps,
 	PagerProps,
+	SearchInputProps,
 	SliderProps,
 } from './props'
 

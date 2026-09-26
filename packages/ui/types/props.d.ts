@@ -305,6 +305,38 @@ export interface TextAreaProps extends TextInputProps {
      *  sets truncation on iOS — not a cap). */
     maxRows?: number;
 }
+/** Chrome-reset search field — TextInput with a leading glyph and a clear
+ *  affordance, normalized: the web leaf is `<input type="search">` with the
+ *  engine's own clear button hidden (the leaf draws the same one native
+ *  gets), the native leaf is a styled TextField with `returnKeyType`
+ *  `'search'`. Not UISearchBar — OS search chrome is deliberately absent. */
+export interface SearchInputProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    /** Controlled text — pair with `onChange`. */
+    value?: string;
+    /** Initial text for uncontrolled use. */
+    defaultValue?: string;
+    onChange?: (value: string) => void;
+    /** Enter on web, the keyboard's `search` return key on native. */
+    onSubmit?: () => void;
+    /** The clear button tapped — fires after `onChange('')`. */
+    onClear?: () => void;
+    onFocus?: () => void;
+    onBlur?: () => void;
+    placeholder?: string;
+    editable?: boolean;
+    /** Leading glyph — a registered icon name. Defaults to the built-in
+     *  `'xplat-search'` glyph; `false` renders no glyph. */
+    icon?: string | false;
+    bind?: (h: TextInputHandle) => void;
+    accessibilityLabel?: string;
+    /** Platform-specific properties are applied after shared props. */
+    ios?: any;
+    android?: any;
+    web?: any;
+}
 export interface ListProps {
     className?: any;
     style?: any;
@@ -939,6 +971,7 @@ export interface SegmentedControlProps {
     ios?: any;
     android?: any;
     web?: any;
+}
 export interface MenuItem {
     key: string;
     label?: string;

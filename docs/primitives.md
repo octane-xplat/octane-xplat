@@ -18,6 +18,7 @@
 | Show a web page or inline HTML         | `WebView`                       |
 | Swipe through full pages               | `Pager`                         |
 | Pick one of a few options inline       | `SegmentedControl`              |
+| Search or filter                       | `SearchInput`                   |
 | Show temporary content above a screen  | `Sheet`, `Overlay`              |
 
 Start with these components. They are deliberately smaller than the browser
@@ -104,6 +105,14 @@ normalized shape of UISegmentedControl / Material segmented buttons, with
 no OS chrome. It takes `options` (the `RadioOption` shape), `value` +
 `onValueChange` for controlled use or `defaultValue` for uncontrolled, and
 `disabled` per-option or on the group.
+
+`SearchInput` is a chrome-reset search field — TextInput with a leading
+glyph and a clear button, styled the same on every target (not
+UISearchBar). `value`/`onChange`/`onSubmit`/`onClear` are controlled like
+TextInput; `defaultValue` makes it uncontrolled. The leading glyph is an
+`Icon` — `icon` names a registered glyph (default `'xplat-search'`, a
+framework-provided one any app can override by registering the same name).
+
 Use `Sheet` for a focused interruption, or `openSheet`/`showToast`/`Overlay`
 imperatively, and pass the data it needs as props. The platform's own
 modal presentation is `UIModal`/`MaterialDialog` + `openModal` in the

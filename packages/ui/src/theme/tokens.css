@@ -627,6 +627,74 @@ button {
 	cursor: default;
 }
 /* xplat-web-only:end */
+
+/* SearchInput — chrome-reset field: bordered shell, leading glyph, the
+   field owns the remaining width, self-drawn clear. The web leaf hides the
+   engine's own search-cancel button so native's (hand-drawn) matches. */
+.vx-search {
+	flex-direction: row;
+	align-items: center;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	padding-left: 10px;
+	padding-right: 6px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+.vx-search-icon {
+	color: var(--color-text-secondary);
+}
+.vx-search-field {
+	flex-grow: 1;
+	padding-left: 8px;
+	padding-right: 8px;
+	font-size: 14px;
+	color: var(--color-text);
+}
+.vx-search-clear {
+	width: 24px;
+	height: 24px;
+	border-radius: 9999px;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text-secondary);
+}
+.vx-search--disabled {
+	opacity: 0.5;
+}
+/* xplat-web-only:start — the DOM host/field/buttons need display + the UA
+   reset; native's flexbox children carry these from the class already. */
+.vx-search {
+	display: flex;
+}
+.vx-search-icon {
+	display: inline-flex;
+	flex: none;
+}
+.vx-search-field {
+	min-width: 0;
+	border: 0;
+	background: none;
+	outline: none;
+	appearance: none;
+	-webkit-appearance: none;
+}
+input.vx-search-field::-webkit-search-cancel-button {
+	display: none;
+}
+.vx-search-clear {
+	display: inline-flex;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+}
+/* xplat-web-only:end */
+
 /* Anchored menus — panel + item rows (the Popover leaf positions it). */
 .vx-menu {
 	min-width: 140px;
