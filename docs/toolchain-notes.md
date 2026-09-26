@@ -65,7 +65,9 @@
   `[`/`]` as `%5B%5D`, and the `/ns/m` handler doesn't decode, so the
   prefetch 404s. The session still boots and HMR works; the lazy route
   payload itself is what fails to load. `@nativescript/vite` decode gap —
-  filed as NativeScript/NativeScript#11455.
+  filed as NativeScript/NativeScript#11455 and patched locally
+  (`decodeURIComponent` on the `/ns/m` spec in
+  `patches/@nativescript__vite@8.0.11.patch`).
 
 ### Dev-loop troubleshooting
 
@@ -76,7 +78,7 @@
 | `recipients=0` right after a manual device relaunch             | ws attach requires the livesync-driven launch                    | `ns run ios` / `ns run android` again                                              |
 | `recipients=0` on physical Android                                | `adb reverse` mapping died (adbd restart) or missing ws plugin   | `adb reverse tcp:<vite-port> tcp:<vite-port>`; declare `@valor/nativescript-websockets` |
 | Web changes its port unexpectedly                                 | Native dev server prefers `:5173`; whichever starts second bumps | Pin the web `server.port` (harness uses `5200`); device always self-discovers      |
-| `HTTP import failed … %5B` in device boot log                   | `/ns/m` doesn't decode bracketed route filenames                 | Upstream bug (NativeScript#11455); session still boots — ignore unless the lazy route is needed |
+| `HTTP import failed … %5B` in device boot log                   | `/ns/m` doesn't decode bracketed route filenames                 | Patched locally + filed as NativeScript#11455; drop the patch when a release carries the fix |
 | Two checkouts' `ns run` sessions interfere                      | Sim install + `bundle.mjs` injection are shared mutable state    | Serialize `ns run` per simulator; concurrent runs clobber each other's bundle      |
 - `.tsrx` everywhere for renderer-owned files; `.ts` helpers
   never call hooks (slotter emits `from 'octane'` — DOM runtime; under a
