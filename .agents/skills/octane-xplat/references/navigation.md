@@ -93,9 +93,14 @@ Adding a route = adding a file; no table edits.
 - **`Frame.topmost()` is unreliable once nested frames exist** (Android:
   innermost). `getStack('root')` resolves the window root Frame — never
   `topmost()`.
-- `wireHardwareBack()` at boot maps Android hardware back → ordered pop:
-  root stack first (a pushed page covers the shell), then the most
-  recently targeted named stack, then any named stack with entries.
+- Android hardware back is framework-owned: `route.native` installs the
+  `activityBackPressed` listener when screens or stacks register — no app
+  wiring. Ordered pop: newest modal, then the root stack (a pushed page
+  covers the shell), then the most recently used named stack, then any
+  named stack that can pop. `useBackInterceptor(fn)` /
+  `addBackInterceptor(fn)` run most-recent-first before the default pop;
+  return true to consume. Web twin is a warned no-op (browser back is URL
+  history).
 - Frame lifecycle traps + the nested-stack bug: `navigation/native-frames.md`.
 
 ## Web model

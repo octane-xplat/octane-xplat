@@ -67,9 +67,12 @@ interface Capability<T> {
 type AppState = 'active' | 'background' | 'inactive'
 function useAppState(): AppState // visibilitychange/pagehide/pageshow
 // ↔ Application suspend/resume/exit
-// Hardware/software back → navigation layer feeds it, screens may intercept:
+// Hardware back → owned by ui's route layer, which auto-installs
+// activityBackPressed at screen/stack registration and pops the visible
+// stack. This hook is the raw seam (fires after ui's listener — use
+// ui's useBackInterceptor/addBackInterceptor to run before the pop):
 function useBackHandler(fn: () => boolean /* handled? */): void
-// activityBackPressed / popstate
+// activityBackPressed; no-op on web (browser back is URL history)
 
 // Theme
 function useColorScheme(): 'light' | 'dark'

@@ -226,6 +226,23 @@ export function popRoute(_stack = 'root'): void {
 	history.back()
 }
 
+let backInterceptorWarned = false
+
+/** No-op twin of the native leaf. Browser back is already real history —
+ *  there is no hardware-back event to intercept on web, so registered
+ *  interceptors never fire. Warns once so a mistaken call site isn't
+ *  silently absent. */
+export function addBackInterceptor(_fn: () => boolean): () => void {
+	if (!backInterceptorWarned) {
+		backInterceptorWarned = true
+		console.warn(
+			'[octane-xplat] addBackInterceptor is a no-op on web — browser back is URL history, not an interceptable event.',
+		)
+	}
+
+	return () => {}
+}
+
 window.addEventListener('popstate', () => {
 	saveScroll()
 	historyDepth = history.state?.__octaneXplatDepth ?? 0

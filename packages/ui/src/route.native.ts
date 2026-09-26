@@ -44,6 +44,7 @@ let routeLoaders: NonNullable<RouteManifest['loaders']> = {}
 export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): void {
 	screens = table
 	routes = manifest ?? []
+	ensureBackWired()
 }
 
 /** One-call registration for route-dir apps — screens + URL patterns +
@@ -122,6 +123,7 @@ function resolveStack(stack: string): Frame | undefined {
 
 onStackRegistered((_name, frame) => {
 	trackFrame(frame)
+	ensureBackWired()
 	emit()
 })
 
@@ -133,6 +135,108 @@ onStackRegistered((_name, frame) => {
 const modalHosts: { host: GridLayout; route: Route; dismiss: () => void }[] = []
 const swapTabRoutes = new Map<string, Route[]>()
 const swapTabOrder: string[] = []
+
+// ---------- hardware back ----------
+
+/** App-supplied interceptors, consulted most-recent-first before the
+ *  framework's default stack pop. Return true to consume the press. */
+const backInterceptors: (() => boolean)[] = []
+let backWired = false
+
+/** Register an Android hardware-back interceptor. Interceptors run
+ *  most-recent-first (so the topmost mounted screen wins) before the
+ *  framework's default pop; returning true consumes the press. Returns
+ *  an unsubscribe. iOS has no hardware back — interceptors simply never
+ *  fire there. */
+export function addBackInterceptor(fn: () => boolean): () => void {
+	backInterceptors.push(fn)
+	return () => {
+		const i = backInterceptors.indexOf(fn)
+		if (i !== -1) {
+			backInterceptors.splice(i, 1)
+		}
+	}
+}
+
+/** Framework-owned default: the newest open modal, then the root stack's
+ *  pushed page (a root push covers the shell), then the most recently
+ *  used swap-pane stack, then any registered named stack that can pop.
+ *  Returns false at the base of everything — the press falls through to
+ *  the system (app exit). NS's own default pops `Frame.topmost()` — the
+ *  innermost frame — which is wrong once nested stacks exist, so this
+ *  ordering is deliberate. */
+function defaultBackPress(): boolean {
+	const modal = modalHosts[modalHosts.length - 1]
+	if (modal) {
+		popRoute(modal.route.stack)
+		return true
+	}
+
+	if (canGoBack('root')) {
+		popRoute('root')
+		return true
+	}
+
+	for (const name of [...swapTabOrder].reverse()) {
+		if (canGoBack(name)) {
+			popRoute(name)
+			return true
+		}
+	}
+
+	for (const [name] of [...stackEntries()].reverse()) {
+		if (name === 'root') {
+			continue
+		}
+
+		if (canGoBack(name)) {
+			popRoute(name)
+			return true
+		}
+	}
+
+	return false
+}
+
+/** Install the Android activityBackPressed listener once. Called from
+ *  registerScreens and from stack registration, so any app shape that
+ *  can navigate (screens or stacks registered) is covered without a
+ *  module-import-time read of Application.android. The subscription is
+ *  singletoned on the Application object: under vite HMR this module's
+ *  state resets but the listener must not duplicate — the press handler
+ *  delegates through a slot so a reloaded module graph swaps in its fresh
+ *  closures instead of double-popping. */
+function ensureBackWired(): void {
+	if (backWired || !Application.android) {
+		return
+	}
+
+	backWired = true
+	const app = Application as any
+	app.__octaneXplatBackPress = (e: { cancel: boolean }) => {
+		for (let i = backInterceptors.length - 1; i >= 0; i--) {
+			if (backInterceptors[i]()) {
+				e.cancel = true
+				return
+			}
+		}
+
+		if (defaultBackPress()) {
+			e.cancel = true
+		}
+	}
+
+	if (app.__octaneXplatBackWired) {
+		return
+	}
+
+	app.__octaneXplatBackWired = true
+	Application.android.on(Application.AndroidApplication.activityBackPressedEvent, (e: {
+		cancel: boolean
+	}) => {
+		app.__octaneXplatBackPress?.(e)
+	})
+}
 
 function presentationFor(name: string): Route['presentation'] {
 	return routes.find((m) => m.name === name)?.presentation

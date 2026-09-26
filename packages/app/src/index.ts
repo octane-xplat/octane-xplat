@@ -9,6 +9,6 @@ export { routes }
 // exports-map wildcards don't extension-resolve, so deep imports like
 // '@xplat/app/platform/storage' fail; the barrel is the contract.
 export { storage } from '@octane-xplat/platform'
-export { navigate, goBack, wireHardwareBack } from './platform/nav'
+export { navigate, goBack } from './platform/nav'
 export type { RouteName, RouteParams, NavigateArgs, RouteLinkProps } from './routes'
 export { useParams } from './useParams'

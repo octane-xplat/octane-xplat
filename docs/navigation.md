@@ -98,6 +98,17 @@ framework also supplies `_pushed` on route screen props (and `_stack` for
 named native stacks) for code that needs a prop-level seam. On web this is
 based on in-app history depth, not the browser's unrelated history entries.
 
+Android hardware back is framework-owned — nothing to wire. Once screens or
+stacks register, the press dismisses the newest open modal, then pops the
+root stack when a pushed page covers the shell, then the most recently used
+named stack; at the base of everything the press falls through to the
+system. Apps that need first dibs (close a drawer, confirm a discard) call
+`useBackInterceptor(fn)` inside a screen or `addBackInterceptor(fn)` at
+module scope — interceptors run most-recent-first and returning `true`
+consumes the press before the stack pop. On web there is nothing to
+intercept: browser back is URL history, so `addBackInterceptor` is a no-op
+that warns once.
+
 Web history is one linear stack. `popRoute(stack)` accepts `stack` for API
 symmetry but always pops the browser's current entry; it cannot remove a
 non-top named-stack entry without rewriting browser history.

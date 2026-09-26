@@ -185,11 +185,14 @@ export {
 	useRoute,
 	useModalRoute,
 	redirect,
+	addBackInterceptor,
 	registerScreens,
 	registerRoutes,
 	screenFor,
 	hrefFor,
 } from './route.native'
+
+export { useBackInterceptor } from './use-back.native.tsrx'
 
 export { deriveRouteManifest } from './route-table'
 export type {

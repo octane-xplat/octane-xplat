@@ -15,7 +15,7 @@ import {
 
 import { findInRootLayouts } from '@octane-xplat/ui/native'
 
-import { storage, wireHardwareBack, navigate, goBack } from '@xplat/app'
+import { storage, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
 import './app.css'
 
@@ -50,7 +50,6 @@ function createWindowContent(): Frame {
 	// Frame.topmost() is ambiguous once nested per-tab stacks exist.
 	// (Optional: getStack('root') already resolves the window's root Frame.)
 	registerStack('root', frame)
-	wireHardwareBack()
 	return frame
 }
 

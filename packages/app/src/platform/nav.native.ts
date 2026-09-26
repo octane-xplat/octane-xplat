@@ -1,12 +1,4 @@
-import { Application, Frame } from '@nativescript/core'
-import {
-	currentModalRoute,
-	getStack,
-	popRoute,
-	pushRoute,
-	routeFor,
-	routeStacks,
-} from '@octane-xplat/ui'
+import { popRoute, pushRoute } from '@octane-xplat/ui'
 
 import type { NavigateArgs, RouteName } from '../routes'
 
@@ -38,44 +30,8 @@ export function goBack(opts: { into?: string } = {}) {
 
 let lastNavStack = 'root'
 
-/** Android hardware back. NS's default pops `Frame.topmost()` — the
- *  innermost frame — which is wrong when a root-pushed page covers the
- *  screen, and broken for TabViewItem frames anyway (their backStack
- *  bookkeeping stalls upstream). Pop order: the root stack when it has
- *  a pushed page covering the shell, else the most recently targeted
- *  named stack, else any named stack with entries. */
-export function wireHardwareBack() {
-	if (!Application.android) {
-		return
-	}
-
-	Application.android.on('activityBackPressed', (e: any) => {
-		if (currentModalRoute()) {
-			popRoute()
-			e.cancel = true
-			return
-		}
-
-		const root = getStack('root') as Frame | undefined
-		if (root && root.backStack.length > 0) {
-			root.goBack()
-			e.cancel = true
-			return
-		}
-
-		const order = [lastNavStack, ...routeStacks().reverse()]
-		for (const name of order) {
-			if (name === 'root') {
-				continue
-			}
-
-			if (routeFor(name)) {
-				popRoute(name)
-				e.cancel = true
-				return
-			}
-		}
-	})
-
-	console.log('[probe] hardware back wired (android)')
-}
+/** Android hardware back is framework-owned: `route.native` installs the
+ *  `activityBackPressed` listener at screen/stack registration and pops
+ *  the visible stack (modal → root → most-recently-used named stack).
+ *  Apps needing first dibs register `useBackInterceptor`/`addBackInterceptor`
+ *  from `@octane-xplat/ui`. */

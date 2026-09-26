@@ -300,14 +300,19 @@ making the generated API's scalar contract explicit.
 > On Android `Frame.topmost()` returns the _innermost_ frame — all root-level
 > reads must use the registered `'root'` stack.
 
-> **Hardware back (Android):** `wireHardwareBack()` registers
-> `activityBackPressed` at boot. Pop order: root stack when a pushed page
-> covers the shell (NS's default `Frame.topmost()` resolves to the _innermost_
-> frame — wrong once nested stacks exist), then the most recently targeted
-> named stack, then any named stack with entries; `e.cancel` suppresses the
-> system fallback. Verified wired + clean fallthrough on the emulator; the
-> pop-while-pushed path needs a persistent push to verify live (probe pushes
-> auto-pop in ~500ms).
+> **Hardware back (Android):** framework-owned since the back-interceptor
+> completion — `route.native` installs one `activityBackPressed` listener
+> when screens or stacks register (`registerScreens`/`registerStack`); apps
+> no longer wire it. `addBackInterceptor`/`useBackInterceptor` handlers run
+> most-recent-first before the default pop; returning true consumes the
+> press. Default pop order: newest modal, then the root stack when a pushed
+> page covers the shell (NS's default `Frame.topmost()` resolves to the
+> _innermost_ frame — wrong once nested stacks exist), then the most
+> recently used swap-pane stack, then any registered named stack;
+> `e.cancel` suppresses the system fallback. The earlier app-side
+> `wireHardwareBack()` was verified wired + clean fallthrough on the
+> emulator; the framework-owned listener desk-verifies against the same
+> ordering but still needs a device pass (pop-while-pushed in particular).
 >
 > **Release builds (all three):** iOS `--release` (Release-iphonesimulator) and
 > Android `--release` (signed debug keystore) build + run clean; web production

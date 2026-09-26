@@ -181,11 +181,14 @@ export {
 	useRoute,
 	useModalRoute,
 	redirect,
+	addBackInterceptor,
 	registerScreens,
 	registerRoutes,
 	screenFor,
 	hrefFor,
 } from './route.web'
+
+export { useBackInterceptor } from './use-back.web.tsrx'
 
 export { deriveRouteManifest } from './route-table'
 export type {
