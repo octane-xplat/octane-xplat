@@ -83,16 +83,20 @@ export const media: MediaImpl = {
 			return typeof document !== 'undefined' ? 'granted' : 'unsupported'
 		}
 
-		if (!navigator.mediaDevices?.getUserMedia) {
+		if (!navigator.permissions?.query) {
 			return 'unsupported'
 		}
 
 		try {
-			const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-			stream.getTracks().forEach((track) => track.stop())
-			return 'granted'
+			const status = await navigator.permissions.query({ name: 'camera' as PermissionName })
+			if (status.state === 'granted') {
+				return 'granted'
+			}
+
+			return status.state === 'denied' ? 'denied' : 'unsupported'
 		} catch {
-			return 'denied'
+			// Some browsers expose Permissions API but reject the camera descriptor.
+			return 'unsupported'
 		}
 	},
 }

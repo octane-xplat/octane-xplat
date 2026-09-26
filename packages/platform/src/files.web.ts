@@ -20,7 +20,7 @@ export const files = {
 	async readText(ref: FileRef): Promise<string> {
 		return (await fetch(ref.uri)).text()
 	},
-	/** "Write" on web = a download. Returns the object URL. */
+	/** Starts a browser download; web does not write the text to a local path. */
 	async writeText(name: string, text: string): Promise<FileRef> {
 		const uri = URL.createObjectURL(new Blob([text], { type: 'text/plain' }))
 		const a = document.createElement('a')

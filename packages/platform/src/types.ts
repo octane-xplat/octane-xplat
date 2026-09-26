@@ -36,7 +36,10 @@ export interface WindowSize {
 
 export interface FileRef {
 	name: string
-	/** blob:/object URL on web, filesystem path on native — opaque */
+	/**
+	 * Opaque reference: blob/object URL on web, filesystem path on native.
+	 * `files.writeText()` downloads on web and writes a file on native.
+	 */
 	uri: string
 }
 

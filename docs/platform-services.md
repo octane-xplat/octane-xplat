@@ -35,10 +35,18 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 `media` owns the `camera` and `photos` permission requests. On native,
 `ensure('camera')` checks hardware with `isAvailable()` (`unsupported` on the
 iOS simulator) and requests access with `requestCameraPermissions()`; on web
-it probes `getUserMedia`. Photo-library selection needs no separate browser
-prompt, and the native imagepicker owns photo-library access.
+it reads the camera permission with `navigator.permissions.query()` and never
+opens a permission prompt. Browsers without a supported camera permission
+descriptor (including a `prompt` state that would require asking the user)
+return `unsupported`; a `denied` state remains `denied`. Photo-library
+selection needs no separate browser prompt, and the native imagepicker owns
+photo-library access.
 `permissions.ensure(kind)` delegates to the owning service for notifications,
 media, and location rather than maintaining a second set of probes.
+
+`files.writeText(name, text)` writes a file on native. On web, it starts a
+browser download with the requested name and returns a `FileRef` for the
+download's object URL; it does not write to a local filesystem path.
 
 Camera capture is stills-only — no maintained NativeScript video-capture
 plugin exists, so the contract has no `captureVideo`. On web,
