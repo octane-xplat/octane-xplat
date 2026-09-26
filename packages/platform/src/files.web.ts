@@ -3,7 +3,7 @@
 import type { FileRef } from './types'
 
 export const files = {
-	async pick(accept = '*/*'): Promise<FileRef | null> {
+	async pick(accept = '*/*', _opts?: { startingFolder?: string }): Promise<FileRef | null> {
 		return new Promise((resolve) => {
 			const input = document.createElement('input')
 			input.type = 'file'

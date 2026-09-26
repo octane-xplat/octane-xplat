@@ -86,13 +86,14 @@ async function readContentUri(uri: string): Promise<string> {
 
 export const files = {
 	/** Opens the platform document picker and returns its opaque native URI. */
-	async pick(accept = '*/*'): Promise<FileRef | null> {
+	async pick(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef | null> {
 		const { extensions, mimeTypes } = pickerTypes(accept)
 		const result = await openFilePicker({
 			extensions,
 			mimeTypes,
 			multipleSelection: false,
 			permissions: { read: true, persistable: true },
+			startingFolder: opts?.startingFolder,
 		})
 
 		const uri = result.files?.[0]
