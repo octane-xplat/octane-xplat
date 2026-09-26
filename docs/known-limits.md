@@ -46,8 +46,8 @@
 - **`TextArea` `onSubmit` on native** fires only when `returnKeyType` is
   `done` or `send`; otherwise every newline reports as a submit. On web it
   fires on Cmd/Ctrl+Enter. — verified at 0.5.0.
-- **`Grid` `gap`** is accepted but warns and no-ops on both platforms —
-  use child margins. — verified at 0.5.0.
+- **`Grid` `gap` was removed** — use child margins. The leaves keep a
+  one-time console warning as a migration hint for one release.
 - **`console.debug` doesn't exist on device** — use `console.log`. The
   lint ruleset flags it. — verified at 0.5.0.
 - **`Hoverable` is web-only** — moved to `@octane-xplat/ui/web`; touch

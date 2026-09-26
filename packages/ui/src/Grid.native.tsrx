@@ -6,9 +6,10 @@ import { applyEscapeProps } from './escape-props';
 let warnedAboutGap = false;
 
 export function Grid(props: GridProps) @{
-	if (props.gap != null && !warnedAboutGap) {
+	const deprecatedGap = (props as GridProps & { gap?: number | string }).gap;
+	if (deprecatedGap != null && !warnedAboutGap) {
 		warnedAboutGap = true;
-		console.warn('[Grid] gap is not supported; use child margins instead.');
+		console.warn('[Grid] gap was removed; use child margins');
 	}
 
 	<gridlayout

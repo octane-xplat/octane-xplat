@@ -81,7 +81,6 @@ export interface GridProps {
 	children?: any
 	rows?: string
 	columns?: string
-	gap?: number | string
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
