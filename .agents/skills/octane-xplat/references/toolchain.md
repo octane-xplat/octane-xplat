@@ -17,9 +17,8 @@ cd apps/native && pnpm exec ns build android --release \
   --key-store-alias <alias> --key-store-alias-password <pw>
 ```
 
-All three release paths verified: iOS Release-iphonesimulator runs clean,
-Android signed release runs clean, web dist passes 14/14 smoke. Minified
-bundle ≈74kB app + ~1.2-1.3MB vendor per target.
+The web production build is covered by the smoke script (34 assertions at
+this revision).
 
 ## The publish model (`@octane-xplat/ui`)
 
@@ -32,9 +31,10 @@ Ships **compiled** output, not .tsrx source:
 - `exports` point at `src` for workspace dev; `publishConfig` swaps to
   `dist` (+ `types` condition) only at publish — verified via `pnpm pack`.
 - **Types:** `src/props.ts` (pure .ts) → `tsc -p tsconfig.types.json
---emitDeclarationOnly` → `types/props.d.ts`; `types/index.d.ts` is a
-  thin hand-written shell (`declare const X: UniversalComponent<XProps>`).
-  tsrx can't emit d.ts itself (upstream tsrx#136).
+  --emitDeclarationOnly` → `types/props.d.ts`; the web, native, and
+  platform-subpath declaration files are thin shells around those props.
+  Published root types are split by web/native export condition. tsrx cannot
+  emit declarations for `.tsrx` files itself (upstream tsrx#136).
 
 ## Publish procedure
 
@@ -50,14 +50,16 @@ OTP/2FA — run it manually, not through an agent.
 
 ## Version pins (deliberate)
 
-octane 0.4.0, @nativescript-community/octane 0.2.1, @nativescript/core
-9.1.2, vite 8.3.0, @octanejs/vite-plugin 0.1.58, tsrx toolchain pinned.
+octane 0.5.0, @nativescript-community/octane 0.2.1, @nativescript/core
+9.1.2, vite 8.3.0, @octanejs/vite-plugin 0.1.60, tsrx toolchain pinned.
 Beta/fast-moving deps stay exact-pinned — bump deliberately.
 
 ## pnpm workspace specifics
 
-- `nodeLinker: hoisted` in pnpm-workspace.yaml — NS bundler needs flat
-  node_modules.
+- `nodeLinker: isolated` in pnpm-workspace.yaml — NativeScript's vendor
+  manifest and HMR code read package manifests from the app root, so every
+  package and app must declare its imports (including NativeScript plugins
+  shipped by an app).
 - `minimumReleaseAgeExclude` covers the octane packages (newer than the
   supply-chain cutoff).
 - `pnpm install` auto-fetches peers — workspace deps must say

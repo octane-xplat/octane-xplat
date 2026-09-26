@@ -13,10 +13,11 @@ component layer; design tokens are CSS custom properties.
    element's `style` on both targets.
 3. `className` arrays compose (`['vx-pressable', props.className]`) —
    `clsx`-style, falsy entries drop.
-4. **Utility classes are a shared vocabulary** (`flex-1`, `gap-4`, `btn`,
-   `bg-primary`, `text-onprimary`...) — defined in `packages/app`'s css
-   - `tokens.css`, NOT Tailwind (a Tailwind subset we own; see
-     docs/css-support-matrix.md for what NS actually honors).
+4. **Utility classes are a shared vocabulary** (`flex-1`, `gap-4`,
+   `bg-primary`, `text-onprimary`...) — the curated shared set lives in
+   `packages/ui/src/theme/tokens.css`; app-only selectors live in
+   `packages/app/src/app.css`. See docs/css-support-matrix.md for what
+   NativeScript actually honors.
    - **Do not add Tailwind** (web `@tailwindcss/vite` or native
      `@nativescript/tailwind`): blocked on
      [NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226) —

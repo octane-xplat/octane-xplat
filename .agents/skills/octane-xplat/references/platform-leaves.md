@@ -26,8 +26,18 @@ Configured in each app's `vite.config` `resolve.extensions` + `resolve.condition
    call hooks.
 4. **Twin files for import parity.** `foo.native.ts` needs `foo.web.ts`
    (real impl or no-op) so unsuffixed imports resolve on every target.
-5. `.ios`/`.android` overrides sit ON TOP of `.native` — only split when
-   the behavior genuinely differs (e.g. `PlatformBadge`).
+5. `.ios`/`.android` overrides sit ON TOP of `.native` — split only when
+   behavior genuinely differs.
+
+## Platform-authentic package subpaths
+
+`@octane-xplat/ui/ios` and `/android` expose OS-widget-backed components;
+`/web` exposes web-only components such as `Hoverable`. The package export
+map omits these paths on other targets, so importing one from a shared file
+fails at resolution. Keep the import in its matching `.ios`, `.android`, or
+`.web` file; `xplat/platform-subpath-import` checks that suffix. A shared
+`.native` file may branch on OS when needed, but an iOS module with top-level
+APIs must remain in `.ios` so Android can load it safely.
 
 ## The barrel rule
 

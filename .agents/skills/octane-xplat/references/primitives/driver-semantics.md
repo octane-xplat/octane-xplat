@@ -20,8 +20,8 @@ export function View(props: ViewProps) @{
   sibling but the last is silently dropped. Multi-child leaves use
   `flexboxlayout`; imperative `createNativeScriptRoot` hosts use a
   `GridLayout` child (children fill + stack — single-child layout is
-  unchanged). List cells are driver-owned ContentViews — the leaf wraps
-  `renderItem` output in a `gridlayout`.
+  unchanged). `UITableView`/`RecyclerView` cells are driver-owned ContentViews
+  — each platform subpath leaf wraps `renderItem` output in a `gridlayout`.
 - **`className` must reach intrinsics as a space-joined string** — the
   driver applies it via `String(value)`, so a raw array arrives
   comma-joined ("a,b") and matches nothing. `cx()` (`src/cx.ts`) flattens
@@ -38,7 +38,8 @@ export function View(props: ViewProps) @{
 
 ## Driver-owned machinery (upstream, since ns-octane 0.2.1)
 
-- `renderItem` on `<listview>` → real ListView cells with recycling.
+- `renderItem` on `<listview>` → real recycling cells used by the
+  `UITableView`/`RecyclerView` platform subpath components.
 - `onX` props → `addEventListener('x')` generically — gesture props map 1:1.
 - `checked`/`text` writes are echo-suppressed (driver skips the write-back
   when the change originated natively).
@@ -50,7 +51,8 @@ export function View(props: ViewProps) @{
 ## Root creation
 
 `createNativeScriptRoot(hostView).render(Component, props)` — each pushed
-Page, modal, sheet host, tab-stack page, and List cell gets its own root.
+Page, modal, sheet host, tab-stack page, and native platform-list cell gets
+its own root.
 Roots share NOTHING (no context, no store) — cross-root state goes through
 module-scope stores, and each root applies its own theme class.
 

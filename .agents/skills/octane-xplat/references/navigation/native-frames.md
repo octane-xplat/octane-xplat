@@ -3,6 +3,10 @@
 Niche detail for debugging native nav; not needed for app-level
 `navigate`/`goBack` use.
 
+These traps concern native `Frame` stacks inside `TabViewItem`s, such as the
+iOS-authentic `UITabBar` path. The shared `Tabs` component is self-drawn and
+uses a swapped pane rather than a `TabView`.
+
 ## Lifecycle ordering (iOS — solved, still load-bearing)
 
 - A `frame.navigate()` issued **before the frame is `loaded`** leaves
@@ -36,7 +40,7 @@ reaches `transitionOrAnimationCompleted → setCurrent`. Filed as
 [NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444)
 (covers the iOS `isLoaded` strand too).
 
-**Containment:** the framework's Android `Tabs` shell avoids this structure:
+**Containment:** the framework's shared `Tabs` shell avoids this structure:
 it uses a fixed tab row and router-owned per-tab route arrays, then swaps the
 active pane. Tab screen-local state resets when switching tabs. Apps that
 directly host a `Frame` in a `TabViewItem` still encounter this issue. The

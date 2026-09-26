@@ -13,8 +13,6 @@ keeps only lab/probe state that shouldn't be reader-facing.
   probes can silently pass against stale nodes
 - gallery chips receive taps but `onPress` never fires — long-press also
   fails; hit-area mismatch suspected
-- iOS sheet demo close path throws `View not added to this instance` in
-  modal cleanup — filed under Silo `modal-overlay-boundary`
 
 When a flake is root-caused it either gets fixed or graduates into
 `docs/known-limits.md` — don't copy entries the other direction.

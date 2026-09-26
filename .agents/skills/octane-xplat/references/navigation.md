@@ -2,8 +2,9 @@
 
 The framework owns the API; each platform provides the mechanism.
 `pushRoute`/`popRoute`/`useRoute` are real on **both** targets — web is a
-URL store over history; iOS uses `Frame`/`Page` stacks and Android swaps
-router-owned named-route history into the active tab pane.
+URL store over history; native root routes use `Frame`/`Page` stacks. The
+shared `Tabs` is a self-drawn row and one swapped pane. Platform-authentic
+`UITabBar`/`BottomNavigationView` components live in the native subpaths.
 
 ```ts
 import { pushRoute, popRoute, useRoute, registerScreens } from '@octane-xplat/ui';
@@ -13,18 +14,20 @@ goBack({ into?: 'demos' });
 ```
 
 - `pushRoute({ stack, name, params })` — `'root'` is a full-screen push
-  covering the tab shell on both targets. A named stack is a parallel
-  stack: iOS pushes inside the pane's `Frame`, Android swaps the pane while
-  keeping a per-tab route array, and web renders the route outlet.
-- `popRoute(stack?)` — native pops the selected Frame or Android route
-  array (quiet no-op at the base). Web is one linear history →
+  covering the tab shell on both targets. Web renders named routes in the
+  tab outlet. iOS uses a named `Frame` only when one is registered (the
+  platform `UITabBar` does this; shared `Tabs` does not). Android has a
+  router-owned swap-pane implementation, but consult the canonical limit
+  before relying on it (NativeScript#11444).
+- `popRoute(stack?)` — native pops the selected registered `Frame` or
+  Android route array (quiet no-op at the base). Web is one linear history →
   `history.back()`; the `stack` arg is accepted for parity and ignored.
 - `useRoute(stack)` — the current route for a stack, `null` at its base.
-  Native reads the frame's `currentPage` on iOS and router state on Android;
+  Native reads the registered frame's `currentPage` on iOS and router state on Android;
   web reads the URL store.
-- Pushed screens get `_stack` injected into props on named-stack pushes —
-  call `popRoute(props._stack)` / `goBack({ into: props._stack })` to pop
-  the stack that pushed you. Not injected on web (params = query string).
+- Pushed native screens get `_stack` injected into props on named-stack
+  pushes — call `popRoute(props._stack)` / `goBack({ into: props._stack })`
+  to pop the stack that pushed you. Web route params are URL-backed.
 
 ## What must be registered
 
@@ -37,10 +40,11 @@ goBack({ into?: 'demos' });
    `Application.getRootView()`. `registerStack('root', frame)` remains as
    an override. A non-Frame root can't host pushes — the push warns and
    drops.
-3. **Named stacks** — iOS `TabSpec.stack` on `<Tabs>` registers the pane's
-   Frame automatically. Android uses router-owned route arrays and swaps
-   the active screen in a fixed-row tab shell; custom Android outlets can
-   subscribe with `useRoute(stack)`.
+3. **Named stacks** — `UITabBar` from `@octane-xplat/ui/ios` registers a
+   `Frame` for each stacked tab. The shared `Tabs` does not register Frames;
+   Android stores named routes in router-owned arrays and swaps the active
+   pane. Android support remains unverified per the canonical known-limits
+   guide.
 
 Invalid targets warn loudly (once per key, dev and release): unregistered
 root stack, unknown screen name, or non-Frame root.
@@ -50,7 +54,7 @@ root stack, unknown screen name, or non-Frame root.
 | Shape                         | Web                                                                                                                   | iOS                      | Android                                                               |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------- |
 | `{stack:'root'}` push         | ✓ `/<path>?params` covers shell                                                                                       | ✓ verified               | ✓ verified                                                            |
-| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane                                                                                             | ✓ 48/48 sweep            | fixed tab row + router-owned swapped pane; runtime validation pending |
+| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane                                                                                             | registered `UITabBar` Frame; shared `Tabs` unverified | swap-pane code exists; unverified per known-limits |
 | params                        | `[param]` segments → real path (`/demo/counter`); extras → query-string scalars — objects degrade (`[object Object]`) | real objects as props    | real objects as props                                                 |
 | `useRoute`/`routeFor`         | ✓                                                                                                                     | ✓ stamped on pushed page | ✓ root; named tabs subscribe to router state                          |
 | `popRoute`                    | ✓ (`history.back`)                                                                                                    | ✓                        | ✓ root + router-owned named-stack pop                                 |
@@ -81,8 +85,9 @@ Adding a route = adding a file; no table edits.
 
 ## Native model
 
-- A `TabSpec` with `stack: 'demos'` hosts a `Frame` inside that tab —
-  pushes into `'demos'` render inside the pane (tab bar visible).
+- Shared `Tabs` renders a fixed tab row and swaps one pane; it does not host
+  a Frame. `UITabBar` from the iOS subpath uses NativeScript `TabView` and
+  registers a `Frame` for each `TabSpec` with a stack.
 - Pushed `Page`s host their own Octane root — never shared context with
   the presenter (decision #9).
 - **`Frame.topmost()` is unreliable once nested frames exist** (Android:
@@ -121,6 +126,7 @@ Route files may use `+modal` or `pushRoute({ presentation: 'modal', ... })`.
 Native presents a separate root and web overlays the previous history entry.
 These routes pass data as props because context does not cross roots.
 
-The `Modal`, `openSheet(Component, props)`, and `openOverlay()` primitives
-remain separate from route navigation; use them for transient UI without a
-shareable destination. See `overlays.md`.
+The shared `Sheet`, `Overlay`, `Popover`, and `openSheet(Component, props)`
+APIs remain separate from route navigation; use them for transient UI without
+a shareable destination. For OS-authentic modal widgets, import
+`UIModal`/`MaterialDialog` from the matching UI subpath. See `overlays.md`.

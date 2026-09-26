@@ -8,14 +8,13 @@ consumers import the same path (export is exact-file, survives packaging).
 
 Core set (extend as needed, keep both themes):
 
-| Token                                   | Used by                               |
-| --------------------------------------- | ------------------------------------- |
-| `--color-primary`                       | `bg-primary`, `text-primary`          |
-| `--color-onprimary`                     | `text-onprimary`                      |
-| `--color-danger`                        | `bg-danger`                           |
-| `--color-surface` / `--color-onsurface` | panels, sheet/modal chrome            |
-| `--color-muted`                         | secondary text                        |
-| spacing/radius scale                    | `gap-*`, `p-*`, `rounded-*` utilities |
+| Token | Used by |
+| --- | --- |
+| `--color-primary`, `--color-onprimary`, `--color-danger` | `bg-primary`, `text-primary`, `text-onprimary`, `bg-danger` |
+| `--color-surface`, `--color-surface-secondary` | panels and sheet surfaces |
+| `--color-text`, `--color-text-secondary` | foreground and secondary text (`.text-muted`) |
+| `--color-border`, `--color-border-strong` | shared border styles |
+| `--space-4`, `--radius-sm` through `--radius-xl` | spacing and rounded-corner utilities |
 
 Dark theme = the same tokens redefined under `.ns-dark`/`.dark` — that's why
 the theme class matters per-root on native (see root-boundaries.md).
@@ -32,8 +31,8 @@ the theme class matters per-root on native (see root-boundaries.md).
 
 ## Adding a token
 
-- Define in `tokens.css` under `:root` AND the `.ns-dark`/`.dark` block if
+- Define the value in `tokens.css` under `:root` and `.ns-dark`/`.dark` if
   it should theme.
-- Add the consuming utility class in the app's css (not in tokens.css —
-  tokens are values, utilities are usage).
+- Add a shared consuming utility beside the other utilities in
+  `tokens.css`; keep app-only selectors in `packages/app/src/app.css`.
 - No JS/TS changes needed — vars are runtime-resolved on both targets.

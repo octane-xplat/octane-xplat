@@ -1,48 +1,39 @@
-# Overlays — Modal, sheet, RootLayout
+# Overlays — Sheet, Overlay, and platform modals
 
-Three overlay mechanisms, all verified on both targets.
+The shared root package exports self-drawn `Sheet`, `Overlay`, and
+`Popover` components plus `openSheet`/`closeSheet`. Modal widgets with OS
+chrome are platform-authentic subpath exports.
 
-## `Modal` component
+## Platform modal widgets
 
-```tsrx
-<Modal open={open} onClose={...} fullscreen>...children...</Modal>
-```
-
-- Web: `<dialog>` + `showModal()` — browser top-layer.
-- Native: `showModal` on a second root — children mount their own Octane
-  root (no shared context with presenter; store state crosses via module
-  stores). Verified: declarative open/close, text assertions in the modal
-  tree, theme class absent (see styling/root-boundaries.md).
+`UIModal` + `openModal` are exported from `@octane-xplat/ui/ios`;
+`MaterialDialog` + `openModal` are exported from
+`@octane-xplat/ui/android`. There is no shared `Modal` or `openModal` export.
+Both native APIs mount content in a separate root, so context and theme
+classes do not cross from the presenter (see styling/root-boundaries.md).
+For a shared in-window surface, compose `Sheet`, `Overlay`, or `Popover`.
 
 ## `openSheet(Component, props)` / `closeSheet()`
 
-`platform/sheet.native.ts` — a `GridLayout` bottom-docked in the
-`RootLayout`, `rl.open(host, { shadeCover, animation })`. Content is
-parameterized — any component renders in the sheet root (`openSheet(renderDemo)`
-shows a demo in a sheet — verified as "sheet hosts demo" sweep check).
-Web twin: stub + console.log (sheet is unimplemented on web — a real web
-sheet needs design work; the seam exists).
+`openSheet(Component, props)` is a real implementation on both targets.
+Native mounts a bottom-docked host in `RootLayout`; web creates a portal
+layer under `document.body` and renders the component in its own Octane root.
+The web backdrop dismisses the sheet, and the returned promise resolves when
+it closes. Content is parameterized, so any component can render in the sheet.
 
 ## `openOverlay()` / `closeOverlay()`
 
-`platform/overlay.native.ts` — RootLayout.open with a dedicated host view
-for z-order overlay + `shadeCover`. Same shape as sheet, different
-semantics (floating vs bottom-anchored).
+The app harness's `openOverlay()` service uses a dedicated `RootLayout` host
+on native and a portal layer on web. It provides a floating overlay with a
+shade; `Sheet` is bottom-anchored. The shared component exports are
+`Overlay` and `Popover`.
 
-## The `rl.open()` promise rule (release-only fatal, now fixed)
+## `RootLayout.open()` promises
 
-`RootLayout.open()` returns a **Promise that rejects** when the view is
-already attached (`hasChild`). An unhandled rejection = fatal JS exception
-on release builds. Both leaf fns now:
-
-```ts
-if ((rl as any).hasChild?.(host)) (rl as any).close(host)
-;(rl.open(host, opts) as Promise<unknown>).then(ok, (err) => log)
-```
-
-**Any new RootLayout.open caller must do the same** — close-before-open +
-handle the promise. This was the one release-only crash the release sweep
-caught.
+`RootLayout.open()` returns a Promise. Handle its rejection so an open failure
+does not become an unhandled exception. When reusing a host that may still be
+attached, close or detach it before opening again; newly created sheet hosts
+do not need that reuse check.
 
 ## getRootLayout()
 

@@ -1,12 +1,13 @@
 # Platform services
 
-Per-platform `.ts`/`.tsrx` twins under `packages/app/src/platform/` —
-the service-seam pattern (capability interface, two leaves).
+Shared platform capabilities live in `packages/platform/src/` as paired
+`.native`/`.web` leaves behind a package barrel. App-specific navigation,
+sheet, overlay, and demosweep seams live in `packages/app/src/platform/`.
 
 ## `storage` — key/value
 
-`storage.native.ts` → `ApplicationSettings`; `storage.web.ts` →
-`localStorage`. Verified round-trip + draft persistence on both.
+`packages/platform/src/storage.native.ts` → `ApplicationSettings`;
+`storage.web.ts` → `localStorage`. Import through `@octane-xplat/platform`.
 
 ```ts
 storage.setString('k', v)
@@ -37,22 +38,24 @@ spring(target,{damping,stiffness}), stop() }`.
 
 ## Gestures
 
-Normalized payloads (primitives.md). Pan on web = raw pointer listeners
-(`pointermove` isn't delegated — that's why `bind` exists); on native =
-NS `pan` recognizer mapped to `{deltaX/deltaY → x,y,dx,dy, state enum →
-began/moved/ended/cancelled}` — velocity is 0 on native until recognizer
-velocity wiring lands.
+Normalized payloads (primitives.md). Pan on web uses raw pointer listeners
+(`pointermove` isn't delegated — that's why `bind` exists); native uses the
+NS `pan` recognizer. Both map to `{x,y,dx,dy,vx,vy,state,target}`. Native
+velocity comes from iOS `velocityInView` or Android `VelocityTracker`, in
+dips per second.
 
 ## nav / sheet / overlay / route / stacks twins
 
-Covered in navigation.md + overlays.md. The twin list that must stay
-parity-complete: `nav`, `sheet`, `overlay`, `storage`, `demosweep` (probe),
-and in `packages/ui`: `stacks`, `route`, `anim`, `colorScheme`, every
-component leaf.
+Covered in navigation.md + overlays.md. App-owned twins include `nav`,
+`sheet`, `overlay`, and `demosweep` (probe) under `packages/app`; capability
+twins such as `storage`, connectivity, files, and system bars live under
+`packages/platform`. In `packages/ui`, keep `stacks`, `route`, `anim`,
+`colorScheme`, and component leaves aligned across targets.
 
 ## Adding a service
 
-1. `platform/foo.native.ts` (real impl) + `platform/foo.web.ts` (impl or
+1. `packages/platform/src/foo.native.ts` (real impl) +
+   `foo.web.ts` (implementation or
    explicit no-op stub + log) — same export names.
 2. Export through the package barrel (deep specifiers don't
    extension-resolve).

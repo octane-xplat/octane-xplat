@@ -7,9 +7,9 @@
 | Typecheck | `tsrx-tsc --noEmit -p apps/{web,native}/tsconfig.json` | .tsrx typechecks per target                                                                                                                                             |
 | Unit      | `pnpm test`                                            | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.native.test.*`, universal runtime via the object driver) |
 | Seam lint | `node scripts/check-no-dom.mjs`                        | no DOM globals in native/shared                                                                                                                                         |
-| Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright, 16 asserts                                                                                                                                          |
-| iOS       | build + install + launch → read sim log                | `[assert]` lines, 50/50 expected                                                                                                                                        |
-| Android   | build + install + launch → logcat `I JS`               | probes minus gated sweep                                                                                                                                                |
+| Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright, 34 assertions in the current script                                                                                                                |
+| iOS       | build + install + launch → read sim log                | Check the named `[assert]` results emitted by the current harness sweep                                                                                               |
+| Android   | build + install + launch → logcat `I JS`               | Base probes; the nested-Frame sweep is gated                                                                                                                            |
 
 ## The probe harness (`apps/native/src/index.ts`)
 
@@ -29,17 +29,19 @@ bigger timeouts (see the demosweep's `waitFor`).
 
 ## The demos sweep (`platform/demosweep.native.ts`)
 
-Drives the demo catalog like a user: switches to Demos tab → per demo:
-tap chip → assert pushed page → `goBack` → pop verify → sheet-hosts-demo +
-lastDemo store checks. **Gated off Android** (nested-stack pushes crash —
-#11444). Web twin is a no-op.
+Drives the app and proof catalogs: switches to Apps or Test, opens each
+entry in its stack, checks rendered content, then goes back. The sweep also
+covers a sheet-hosted demo, overlay/popover/toast behavior, controls, and
+other primitive seams. The nested-Frame sweep remains gated off Android
+(NativeScript#11444); the web twin is a no-op.
 
 ## Web smoke (`apps/web/scripts/smoke.mjs`)
 
 `pnpm smoke` = `vite build && node scripts/smoke.mjs` — serves dist via
-`vite preview`, drives headless Chromium (Playwright 1.55). 14 asserts:
-mount, state, tab switch, real-path routes, pane render, popstate, deep
-link, root-cover, store-across-route, sheet stub, zero pageerrors.
+`vite preview` and drives headless Chromium. The current script has 34
+assertions covering mount/state, routes and tabs, sheet and overlay portals,
+services, proof-stack navigation, and browser errors. The sheet check
+asserts the real panel mounts and the backdrop dismisses it.
 
 **Selectors:** `Pressable` renders `div[role="button"]` — use
 `[role="button"]:has-text("X")`, not `button`.
