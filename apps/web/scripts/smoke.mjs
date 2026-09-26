@@ -153,6 +153,22 @@ try {
 	await page.goBack()
 	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
 
+	// Overlay demo: useMeasure readout, Hoverable card on hover-intent,
+	// positional + anchored toasts.
+	await page.goto(BASE + '/test/demo/overlay', { waitUntil: 'networkidle' })
+	await page.waitForSelector('text=Overlay primitives', { timeout: 5000 })
+	const echo = await page.locator('#measure-echo').innerText()
+	ok('useMeasure reports bounds', /^Bounds \d+×\d+ @ \d+,\d+$/.test(echo), echo)
+	await page.hover('text=Hoverable trigger')
+	await page.waitForSelector('text=Hint card text', { timeout: 3000 })
+	ok('hoverable opens card on hover intent', true)
+	await page.click('text=Toast top')
+	await page.waitForSelector('text=Top toast', { timeout: 3000 })
+	ok('toast position=top renders', true)
+	await page.click('text=Toast anchored')
+	await page.waitForSelector('text=Anchored toast', { timeout: 3000 })
+	ok('toast anchored renders', true)
+
 	// Home tab: imperative overlay seam mounts a portal layer under body.
 	await page.click('button:text("Home")')
 	await page.click('#overlay-btn')

@@ -163,7 +163,9 @@ export function Services() @{
 			<Row className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('file', async () => {
 					const f = await files.pick();
-					return f ? 'picked ' + f.name : 'cancelled';
+					if (!f) return 'cancelled';
+					const text = await files.readText(f);
+					return 'picked ' + f.name + ' read=' + JSON.stringify(text.slice(0, 40));
 				})}>
 					<Text>Pick file</Text>
 				</Pressable>

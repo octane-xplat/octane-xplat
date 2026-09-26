@@ -7,6 +7,7 @@ import {
 	routeFor,
 } from '@octane-xplat/ui'
 
+import { DEMOS } from '@xplat/demos'
 import { goBack } from './nav'
 import { sheetHost } from './sheet'
 
@@ -36,6 +37,16 @@ function fireTap(view: any) {
 	return observers.length
 }
 
+// GestureTypes.longPress = 64 — the native Hoverable trigger.
+function fireLongPress(view: any) {
+	const observers = view?.getGestureObservers?.(64) ?? []
+	for (const o of observers) {
+		o.callback.call(o.context, { eventName: 'longPress', object: view, state: 3 })
+	}
+
+	return observers.length
+}
+
 function collect(view: any, out: any[] = []): any[] {
 	if (!view) {
 		return out
@@ -60,7 +71,12 @@ function dump(hay: string[]): string {
 	return ' texts=' + JSON.stringify(hay.slice(-14))
 }
 
-const demosPage = () => getStack('demos')?.currentPage
+// App demos push into the 'demos' stack (Apps pane); seam-proof demos
+// push into 'test' (Test pane). Steps resolve their stack from the
+// catalog kind — the current step's stack drives every page lookup.
+let stepStack = 'demos'
+const stackFor = (id: string) => (DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos')
+const demosPage = () => getStack(stepStack)?.currentPage
 
 function assertHas(name: string, needle: string, view: any = demosPage()) {
 	const hay = viewTexts(view)
@@ -104,6 +120,20 @@ function tapTargetForText(view: any, text: string, path: any[] = []): any {
 	})
 
 	return found
+}
+
+// Same climb as tapTargetForText but matches a specific gesture type —
+// e.g. Hoverable's long-press observer sits on an outer Pressable while
+// the tap observer is on a nested child.
+function gestureTargetForText(view: any, text: string, type: number): any {
+	const all = collect(view)
+	const hit = all.find((v) => v?.text === text)
+	let cur = hit
+	while (cur && !(cur.getGestureObservers?.(type)?.length ?? 0)) {
+		cur = cur.parent
+	}
+
+	return cur ?? null
 }
 
 function runNavLinkProbe() {
@@ -303,8 +333,8 @@ const STEPS: Step[] = [
 	{
 		id: 'layout',
 		checks: [
-			{ at: 400, run: () => assertHas('demo layout', 'Grid A') },
-			{ at: 400, run: () => assertHas('layout grid span', 'Spans two columns') },
+			{ at: 400, run: () => assertHas('demo layout', 'Layout primitives') },
+			{ at: 400, run: () => assertHas('layout grid span', 'Sidebar') },
 			// Attached-prop forwarding: the span cell must carry row/col/colSpan.
 			{
 				at: 450,
@@ -316,13 +346,13 @@ const STEPS: Step[] = [
 					console.log('[assert] grid attached props: ' + (span ? 'OK' : 'FAIL'))
 				},
 			},
-			{ at: 450, run: () => assertHas('layout stack z-order', 'Later child is on top') },
+			{ at: 450, run: () => assertHas('layout stack z-order', 'Top layer') },
 			{ at: 450, run: () => assertHas('layout spacer footer', 'Footer') },
 		],
 	},
 	{
 		id: 'overlay',
-		hold: 2600,
+		hold: 6800,
 		checks: [
 			// Overlay content mounts on the demos page's RootLayout — a
 			// sibling inside the page tree.
@@ -336,6 +366,10 @@ const STEPS: Step[] = [
 				},
 			},
 			{
+				at: 500,
+				run: () => assertMatch('useMeasure bounds', /Bounds \d+×\d+ @ \d+,\d+/),
+			},
+			{
 				at: 900,
 				run: () => {
 					const hay = viewTexts(demosPage())
@@ -343,21 +377,54 @@ const STEPS: Step[] = [
 					console.log('[assert] popover anchored: ' + (ok ? 'OK' : 'FAIL') + dump(hay))
 				},
 			},
+			// Toasts queue FIFO: bottom (2500ms) → top → anchored (1200ms).
 			{ at: 1100, run: () => fireTap(tapTargetForText(demosPage(), 'Show toast')) },
+			{ at: 1200, run: () => fireTap(tapTargetForText(demosPage(), 'Toast top')) },
+			{ at: 1300, run: () => fireTap(tapTargetForText(demosPage(), 'Toast anchored')) },
+			// Hoverable's native contract is long-press → anchored Popover.
 			{
-				at: 1500,
+				at: 1400,
+				run: () => {
+					const t = gestureTargetForText(demosPage(), 'Hoverable trigger', 64)
+					const n = t ? fireLongPress(t) : 0
+					console.log('[probe] hoverable longPress observers=' + n)
+				},
+			},
+			{
+				at: 1600,
 				run: () => {
 					const ok = viewTexts(demosPage()).includes('A toast from the demo')
 					console.log('[assert] toast shows: ' + (ok ? 'OK' : 'FAIL'))
 				},
 			},
-			{ at: 1700, run: () => fireTap(tapTargetForText(demosPage(), 'Open shade overlay')) },
 			{
 				at: 2200,
+				run: () => {
+					const ok = viewTexts(demosPage()).includes('Hint card text')
+					console.log('[assert] hoverable card on long-press: ' + (ok ? 'OK' : 'FAIL') + dump(viewTexts(demosPage())))
+				},
+			},
+			{ at: 2600, run: () => fireTap(tapTargetForText(demosPage(), 'Open shade overlay')) },
+			{
+				at: 3200,
 				run: () => {
 					const hay = viewTexts(demosPage())
 					const ok = hay.includes('Overlay is open')
 					console.log('[assert] overlay opens: ' + (ok ? 'OK' : 'FAIL') + dump(hay))
+				},
+			},
+			{
+				at: 4300,
+				run: () => {
+					const ok = viewTexts(demosPage()).includes('Top toast')
+					console.log('[assert] toast position=top: ' + (ok ? 'OK' : 'FAIL'))
+				},
+			},
+			{
+				at: 5600,
+				run: () => {
+					const ok = viewTexts(demosPage()).includes('Anchored toast')
+					console.log('[assert] toast anchored: ' + (ok ? 'OK' : 'FAIL'))
 				},
 			},
 		],
@@ -373,8 +440,8 @@ const STEPS: Step[] = [
 		id: 'device',
 		hold: 1800,
 		checks: [
-			{ at: 400, run: () => assertMatch('safe area insets', /Insets — top \d/) },
-			{ at: 400, run: () => assertHas('drawer main', 'Drawer main content') },
+			{ at: 400, run: () => assertMatch('safe area insets', /top \d+ ·/) },
+			{ at: 400, run: () => assertHas('drawer main', 'Main content') },
 			{ at: 500, run: () => fireTap(tapTargetForText(demosPage(), 'Open drawer')) },
 			{
 				at: 1200,
@@ -766,10 +833,12 @@ function runStep(i: number) {
 	}
 
 	const step = STEPS[i]
+	stepStack = stackFor(step.id)
+	const gal = demosPage()
 	const chip = find('menu-' + step.id)
-	console.log('[sweep] menu-' + step.id + ' tap observers=' + fireTap(chip))
+	console.log('[sweep] menu-' + step.id + ' stack=' + stepStack + ' tap observers=' + fireTap(chip))
 	waitFor(
-		() => demosPage() !== galleryPage,
+		() => demosPage() !== gal,
 		() => {
 			for (const c of step.checks) {
 				setTimeout(c.run, c.at)
@@ -777,11 +846,16 @@ function runStep(i: number) {
 
 			setTimeout(() => {
 				console.log('[sweep] goBack ' + step.id)
-				goBack({ into: 'demos' })
+				goBack({ into: stepStack })
 				waitFor(
-					() => demosPage() === galleryPage,
+					() => demosPage() === gal,
 					() => {
-						assertHas('lastDemo ' + step.id, 'Last opened: ' + step.id)
+						// 'Last opened' echo lives on the Apps Gallery only —
+						// proof steps land on the Test pane's proof row instead.
+						assertHas(
+							'lastDemo ' + step.id,
+							stepStack === 'test' ? 'Seam proofs' : 'Last opened: ' + step.id,
+						)
 						setTimeout(() => runStep(i + 1), 150)
 					},
 				)

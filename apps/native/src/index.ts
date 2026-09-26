@@ -3,9 +3,10 @@ import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { probeSignal$ } from '@xplat/app/probe-state'
 import { sheetHost } from '@xplat/app/platform/sheet.native'
-import { getColorScheme, registerStack, getStack, findInRootLayouts } from '@octane-xplat/ui'
+import '@xplat/app/platform/filepick.native'
+import { getColorScheme, registerStack, getStack, findInRootLayouts, routeFor, popRoute, setThemePreference } from '@octane-xplat/ui'
 
-import { storage, wireHardwareBack } from '@xplat/app'
+import { storage, wireHardwareBack, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
 import './app.css'
 
@@ -166,7 +167,9 @@ setTimeout(() => {
 	const chip = collect(thePage).find(
 		(v: any) => typeof v?.className === 'string' && v.className.split(' ').includes('chip'),
 	) as any
+
 	const curve = chip?.ios?.layer?.cornerCurve
+
 	console.log(
 		'[assert] uniform squircle cornerCurve: ' +
 			(String(curve) === 'continuous' && (chip?.ios?.layer?.cornerRadius ?? 0) > 0
@@ -189,7 +192,9 @@ setTimeout(() => {
 	cornersProbe.style.borderTopLeftRadius = 20
 	cornersProbe.style.borderTopRightRadius = 20
 	cornersProbe.style.cornerShape = 'squircle'
+
 	;((thePage as any)?.content as any)?.addChild?.(cornersProbe)
+
 }, 1700)
 
 // (96,4) in the top-right corner box sits INSIDE a squircle but OUTSIDE a
@@ -213,7 +218,9 @@ setTimeout(() => {
 			nearVertex +
 			')',
 	)
+
 	;(thePage as any)?.content?.removeChild?.(cornersProbe)
+
 	cornersProbe = null
 }, 2600)
 
@@ -717,6 +724,277 @@ setTimeout(() => {
 			')',
 	)
 }, 10600)
+
+// ---------------------------------------------------------------------------
+// Android-only probes. The iOS demosweep is skipped on Android (upstream
+// #11444 nested-Frame bug); SwapTabs is the Android path under test —
+// tab switching is a Pressable tap, not selectedIndexChanged.
+if (Application.android) {
+	const waitFor = (cond: () => boolean, then: () => void, tries = 40) => {
+		const tick = () => {
+			if (cond() || --tries <= 0) {
+				then()
+			} else {
+				setTimeout(tick, 100)
+			}
+		}
+
+		tick()
+	}
+
+	// Nearest ancestor (or self) of the text view carrying a gesture
+	// observer of `type` — SwapTabs tabs are Pressables wrapping Text.
+	const gestureTarget = (root: any, text: string, type = 1) => {
+		let cur = collect(root).find((v) => v?.text === text)
+		while (cur && !(cur.getGestureObservers?.(type)?.length ?? 0)) {
+			cur = cur.parent
+		}
+
+		return cur ?? null
+	}
+
+	const tabView = () => find('app-tabs')
+	const paneTexts = () => texts(tabView())
+
+	// EditText controlled-write cursor behavior: park the selection
+	// mid-string, issue the same write the driver's `text=` binding makes,
+	// and read where the cursor lands.
+	setTimeout(() => {
+		const f = find('probe-input') as any
+		const et = f?.android
+		if (!et) {
+			console.log('[assert] android setText cursor: FAIL (no EditText)')
+			return
+		}
+
+		f.text = 'abcdef'
+		setTimeout(() => {
+			et.setSelection(1)
+			f.text = 'abcXYZ'
+			const sel = et.getSelectionStart()
+
+			console.log(
+				'[assert] android setText cursor: ' +
+					(sel === 1 ? 'OK' : 'INFO') +
+					' (sel was 1 → ' +
+					sel +
+					', text len 6)',
+			)
+		}, 300)
+	}, 11500)
+
+	// a11y prop mapping (800f0361): Pressable accessibilityLabel →
+	// View.contentDescription. Behavioral TalkBack walk isn't scriptable
+	// here — this verifies the mapped value lands on the native node.
+	setTimeout(() => {
+		const b = find('a11y-btn') as any
+		const cd = b?.android?.getContentDescription?.()
+		const role = b?.accessibilityRole
+		console.log(
+			'[assert] android contentDescription: ' +
+				(String(cd) === 'Increment counter' ? 'OK' : 'FAIL (' + JSON.stringify(cd) + ')') +
+				' role=' +
+				JSON.stringify(role),
+		)
+	}, 11400)
+
+	// Status-bar icon sync (436b515/6975aac): Utils.setDarkModeHandler
+	// answers getThemeScheme(), so the edge-to-edge reapplication must
+	// follow our override — isAppearanceLightStatusBars flips with scheme
+	// and must not revert after a root-stack push.
+	const statusBarLightIcons = () => {
+		const win = Application.android.foregroundActivity?.getWindow?.()
+		const wc = (globalThis as any).androidx?.core?.view?.WindowCompat
+		const ctrl = win && wc ? wc.getInsetsController(win, win.getDecorView()) : null
+		return ctrl ? ctrl.isAppearanceLightStatusBars() : 'no-controller'
+	}
+
+	setTimeout(() => {
+		// Drive explicitly — self-drive may have already flipped dark.
+		setThemePreference('light')
+		setTimeout(() => {
+
+			const light = statusBarLightIcons()
+			console.log(
+				'[assert] statusbar icons light scheme: ' +
+					(light === true ? 'OK' : 'FAIL (' + JSON.stringify(light) + ')'),
+			)
+
+			setThemePreference('dark')
+			setTimeout(() => {
+				const dark = statusBarLightIcons()
+				console.log(
+					'[assert] statusbar icons dark scheme: ' +
+
+						(dark === false ? 'OK' : 'FAIL (' + JSON.stringify(dark) + ')'),
+				)
+
+				navigate('detail', { from: 'bar-probe' })
+				setTimeout(() => {
+					const pushed = statusBarLightIcons()
+					console.log(
+
+						'[assert] statusbar icons survive push: ' +
+							(pushed === false ? 'OK' : 'FAIL (' + JSON.stringify(pushed) + ')'),
+					)
+
+					goBack()
+					setTimeout(() => {
+						const popped = statusBarLightIcons()
+						console.log(
+							'[assert] statusbar icons survive pop: ' +
+
+								(popped === false ? 'OK' : 'FAIL (' + JSON.stringify(popped) + ')'),
+						)
+
+						setThemePreference('system')
+					}, 900)
+				}, 1500)
+			}, 600)
+		}, 400)
+	}, 12300)
+
+	// Swap-pane verification (post-a00eef6): select Demos via the
+
+	// Pressable tab, push into the 'demos' named stack, assert the pushed
+	// screen renders inside the pane, push a second route for depth, then
+	// pop back to the gallery. A second named stack ('extras') exercises
+	// the bookkeeping path — no pane renders it on Android.
+	setTimeout(() => {
+		const t = gestureTarget(tabView(), 'Apps')
+		console.log('[probe] android demos tab=' + (t ? t.constructor.name : 'none'))
+		fireGesture(t, 1, 'tap', {})
+	}, 15500)
+
+	setTimeout(() => {
+		waitFor(
+			() => collect(tabView()).some((v) => v.id === 'menu-counter'),
+			() => {
+				console.log(
+					'[assert] demos pane mounts gallery: ' +
+						(collect(tabView()).some((v) => v.id === 'menu-counter') ? 'OK' : 'FAIL'),
+				)
+
+				navigate('demo/:id', { id: 'counter' }, { into: 'demos' })
+				// The store→pane re-render flushes asynchronously (emit →
+
+				// useSyncExternalStore → scheduled render) — poll for the
+				// pushed text, not just the route bookkeeping.
+				waitFor(
+					() => paneTexts().includes('Demo count: 0'),
+					() => {
+						const ok = paneTexts().includes('Demo count: 0')
+						console.log(
+							'[assert] swap-pane push renders screen: ' +
+								(ok ? 'OK' : 'FAIL') +
+								(ok ? '' : dump0(paneTexts())),
+						)
+
+						// Depth 2 on the same named stack.
+						navigate('demo/:id', { id: 'watch' }, { into: 'demos' })
+						waitFor(
+							() => paneTexts().some((t) => /^\d{2}:\d{2}:\d{2}/.test(t)),
+
+							() => {
+								const watchOk = paneTexts().some((t) => /^\d{2}:\d{2}:\d{2}/.test(t))
+								console.log(
+									'[assert] swap-pane second push renders: ' +
+										(watchOk ? 'OK' : 'FAIL') +
+										(watchOk ? '' : dump0(paneTexts())),
+								)
+
+								// A second named stack — bookkeeping only (no
+								// pane renders non-tab stacks on Android).
+								navigate('detail', { from: 'extras' }, { into: 'extras' })
+
+								setTimeout(() => {
+									const other = routeFor('extras')
+									console.log(
+										'[assert] second stack bookkeeping: ' +
+											(other?.name === 'detail' ? 'OK' : 'FAIL (' + JSON.stringify(other) + ')'),
+									)
+
+									popRoute('extras')
+									goBack({ into: 'demos' })
+									waitFor(
+										() =>
+											routeFor('demos')?.params?.id === 'counter' &&
+
+											paneTexts().includes('Demo count: 0'),
+										() => {
+											const backOk = paneTexts().includes('Demo count: 0')
+											console.log(
+												'[assert] swap-pane pop restores prior: ' + (backOk ? 'OK' : 'FAIL'),
+											)
+
+											goBack({ into: 'demos' })
+											waitFor(
+												() =>
+													routeFor('demos') == null &&
+													collect(tabView()).some((v) => v.id === 'menu-counter'),
+
+												() => {
+													const galOk = collect(tabView()).some(
+														(v) => v.id === 'menu-counter',
+													)
+
+													console.log(
+														'[assert] swap-pane pop restores gallery: ' +
+															(galOk ? 'OK' : 'FAIL'),
+													)
+
+													// Safe-area read: the Test tab's Services
+													// section echoes useSafeAreaInsets — 'insets T/R/B/L'.
+													const svc = gestureTarget(tabView(), 'Test')
+													fireGesture(svc, 1, 'tap', {})
+													setTimeout(() => {
+														const m = paneTexts()
+															.find((t) => t.startsWith('insets '))
+
+														const top = m ? Number(m.split(' ')[1]?.split('/')[0]) : NaN
+														console.log(
+															'[assert] safe-area insets nonzero: ' +
+
+																(Number.isFinite(top) && top > 0
+																	? 'OK'
+																	: 'FAIL') +
+																' (' +
+																JSON.stringify(m ?? paneTexts().slice(0, 12)) +
+																')',
+														)
+													}, 1200)
+												},
+											)
+										},
+									)
+								}, 900)
+							},
+						)
+					},
+					60,
+				)
+			},
+			50,
+		)
+	}, 16500)
+}
+
+// iOS side of lifecycle-appearance-model: the theme leaf writes
+// rootView.statusBarStyle ('light' icons under dark scheme) on scheme
+// change + 'displayed'. Self-drive flips dark at ~4s; read it after.
+if (Application.ios) {
+	setTimeout(() => {
+		const style = (Application.getRootView() as any)?.statusBarStyle
+		console.log(
+			'[assert] ios statusBarStyle under dark scheme: ' +
+				(style === 'light' ? 'OK' : 'INFO (' + JSON.stringify(style) + ')'),
+		)
+	}, 11000)
+}
+
+function dump0(hay: string[]): string {
+	return ' texts=' + JSON.stringify(hay.slice(0, 12))
+}
 
 // A module-graph reload re-evaluates this entry and mounts fresh roots.
 import.meta.hot?.dispose(() => {
