@@ -4,9 +4,10 @@
 > it is two pipelines.
 >
 > **Owns:** #7 version matrix & patches · **Status:** matrix defined ·
-> **Blocks on:** Q12, Q17 · **Decisions:** #15 (+ invariant #3, single octane
-> copy) · **Validated by:** web dev + `ns debug` running off one tree, both
-> hot-updating on one save.
+> **Blocks on:** Q17 · **Decisions:** #15 (+ invariant #3, single octane
+> copy) · **Validated by:** web `vite` + `ns run ios` running concurrently off
+> one tree, one `.tsrx` save broadcasting to both (lab-experiment, iPhone 17
+> Pro sim, 2026-09-25).
 
 ## Build matrix
 
@@ -21,13 +22,36 @@
 
 ## Dev loop
 
-- `vite dev` (web) + `ns debug ios` / `ns debug android` — run concurrently;
-  both watch the same `src/`/`packages/` trees. **Verified**: two vite
-  instances coexist against the shared sources — web pinned to `:5200`
-  (`server.port` in `apps/web/vite.config.ts`); the ns server prefers
-  `:5173` and auto-bumps on collision (the device discovers the actual
-  port from synced app metadata, not a hardcoded value — measured: server
-  on `:5174`, device HMR still connects).
+- `vite dev` (web) + `ns run ios` / `ns run android` run concurrently against
+  the same tree — **verified** (lab-experiment, iOS sim): three vite
+  processes coexist — web on `:5200` (pinned in `apps/web/vite.config.ts`)
+  plus, per native target, `vite serve` (the device-facing dev server) and a
+  `vite build --watch` bundle emitter. The ns server prefers `:5173` and
+  auto-bumps on collision (the device discovers the actual port from synced
+  app metadata, not a hardcoded value — measured: server on `:5174`, device
+  HMR still connects). No watcher contention: each vite keeps its own
+  chokidar watch on the shared `src/`/`packages/` trees; the duplicated fs
+  watch is the only cost.
+- One save hot-updates every running target independently — verified: a
+  `packages/demos` `.tsrx` edit broadcast `[hmr-ws][update] … recipients=1`
+  to the device while the web server transformed the same module.
+- **Native HMR scope is an allowlist** (upstream `getHmrSourceRoots` in
+  `@nativescript/vite`): the app source dir + the roots named in the app's
+  tsconfig `compilerOptions.paths`. A workspace package that is imported but
+  absent from `paths` builds and serves fine, but edits to it never reach
+  `handleHotUpdate` — the save is dropped *silently*, no log line. Harness
+  fix: `apps/native/tsconfig.json` maps `@xplat/app`, `@xplat/demos`,
+  `@octane-xplat/ui`, and `@octane-xplat/platform`. `xplat doctor` warns when
+  an imported workspace package is missing from `paths`.
+- `recipients=N` in `[hmr-ws][update]` counts attached `/ns-hmr` websocket
+  clients (real count via the `vite-octane` patch). `recipients=0` means the
+  broadcast reached nobody — the device stays stale with no error.
+- The ws client attaches only on the `ns run`-initiated launch. A manual
+  `xcrun simctl launch` still boots dev-session modules (HTTP ESM works —
+  `[probe]`/`[demo]` logs flow) but no ws client attaches, so subsequent
+  saves report `recipients=0`. Android is stricter: a manual `am start`
+  boots the *inlined bundle* with no HTTP boot at all. Restore HMR by
+  relaunching through `ns run`.
 - Element registry modules self-accept (`import.meta.hot?.accept()`) so
   re-registration recreates live native instances without remount.
 - **HMR model verified**: every component module self-accepts via
@@ -35,6 +59,25 @@
   propagate to the nearest accepting importer; entry edits reload the module
   graph in-process. Named exports remain convention (hygiene), not a hard
   requirement.
+- Known upstream wart: a dynamic route file with `[param]` brackets
+  (`app/demo/[id].tsrx`) logs a bootstrap failure at device boot — the
+  module-graph walk misses it, the blocking fallback fetch encodes
+  `[`/`]` as `%5B%5D`, and the `/ns/m` handler doesn't decode, so the
+  prefetch 404s. The session still boots and HMR works; the lazy route
+  payload itself is what fails to load. `@nativescript/vite` decode gap —
+  filed as NativeScript/NativeScript#11455.
+
+### Dev-loop troubleshooting
+
+| Symptom                                                         | Cause                                                            | Fix                                                                                |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Save logs no `[hmr-ws][update]` at all                          | File outside HMR scope — not in app src or tsconfig `paths`      | Map the package in the native app's tsconfig `paths` (`xplat doctor` flags it)     |
+| Update logs `recipients=0`, device stays stale                  | No `/ns-hmr` ws client attached                                  | Relaunch via `ns run` (manual `simctl`/`am start` doesn't reattach); see below     |
+| `recipients=0` right after a manual device relaunch             | ws attach requires the livesync-driven launch                    | `ns run ios` / `ns run android` again                                              |
+| `recipients=0` on physical Android                                | `adb reverse` mapping died (adbd restart) or missing ws plugin   | `adb reverse tcp:<vite-port> tcp:<vite-port>`; declare `@valor/nativescript-websockets` |
+| Web changes its port unexpectedly                                 | Native dev server prefers `:5173`; whichever starts second bumps | Pin the web `server.port` (harness uses `5200`); device always self-discovers      |
+| `HTTP import failed … %5B` in device boot log                   | `/ns/m` doesn't decode bracketed route filenames                 | Upstream bug (NativeScript#11455); session still boots — ignore unless the lazy route is needed |
+| Two checkouts' `ns run` sessions interfere                      | Sim install + `bundle.mjs` injection are shared mutable state    | Serialize `ns run` per simulator; concurrent runs clobber each other's bundle      |
 - `.tsrx` everywhere for renderer-owned files; `.ts` helpers
   never call hooks (slotter emits `from 'octane'` — DOM runtime; under a
   universal rule they're _validated_ not compiled).

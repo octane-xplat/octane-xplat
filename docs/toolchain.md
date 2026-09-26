@@ -19,6 +19,20 @@ pnpm dev:ios
 pnpm dev:android
 ```
 
+Run web and a native target together by keeping the two commands in separate
+terminals, or let `xplat dev` spawn them side by side — it discovers the web
+server plus booted simulators and connected devices:
+
+```sh
+pnpm xplat dev                # pick targets from a prompt
+pnpm xplat dev -t web,ios     # skip the prompt
+```
+
+The dev servers are independent processes watching the same source tree —
+one save hot-updates every running target. Each picks its own port (the
+native server auto-bumps past `:5173` on collision and the device
+self-discovers the port), so they never conflict.
+
 ## Build and check
 
 ```sh
