@@ -9,8 +9,7 @@
 :root {
 	/* Geist is loaded by the web entry's index.html; native keeps the
 	   platform face (SF/Roboto) — nothing references this var there. */
-	--font-sans: 'Geist', -apple-system, system-ui, 'Segoe UI', Roboto,
-		sans-serif;
+	--font-sans: 'Geist', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* xplat-web-only:start — document shell. The app owns the viewport; lists
@@ -72,6 +71,24 @@ body {
 	gap: 8px;
 	min-height: 0;
 	flex-shrink: 0;
+}
+
+/* Section contents are intrinsic controls — they never compress either.
+   NativeScript defaults every flex child to shrink:1 with no min-content
+   floor, so a section re-measured below its natural height would crush its
+   labels/inputs toward zero (web clamps at min-content; native doesn't).
+   The one exception: a .flex-1 member of a flexing section stays
+   shrinkable so it can absorb overflow — the Home list is that member. */
+.sink-section > * {
+	flex-shrink: 0;
+}
+
+.sink-section.flex-1 {
+	flex-shrink: 1;
+}
+
+.sink-section > .flex-1 {
+	flex-shrink: 1;
 }
 
 .vx-app .section-label {

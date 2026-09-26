@@ -6,16 +6,17 @@
 
 ## Layout
 
-| Property                               | NS                 | Web                          | Notes                                                                                    |
-| -------------------------------------- | ------------------ | ---------------------------- | ---------------------------------------------------------------------------------------- |
-| flexbox (direction/justify/align/wrap) | ✅ FlexboxLayout   | ✅                           | `gap` works on FlexboxLayout only                                                        |
-| `flex-grow` child min-size             | ⚠️ min-content     | ⚠️ min-content (same)        | identical on both engines — `min-w-0` + `shrink-0` utils guard (lab: web+ios 2026-09-25) |
-| `margin-*: auto`                       | ❌ ignored         | ✅                           | → `Spacer` / `justify-content` (lab: 2026-09-25)                                         |
-| `flex-basis`                           | ❌                 | ✅                           | use `width:0` + `min-w-0` for basis-0 (row axis)                                         |
-| grid via `rows`/`columns` spec         | ✅ GridLayout      | ✅ via spec→template mapping | no `gap` on GridLayout; child `row`/`col` attach                                         |
-| `position: absolute`                   | ❌                 | ✅                           | → `Absolute` primitive / `absolutelayout`                                                |
-| `display: none`                        | ❌                 | ✅                           | → `visibility: collapse`                                                                 |
-| `visibility`                           | ✅ hidden/collapse | ✅                           | `collapse` removes from layout                                                           |
+| Property                               | NS                 | Web                          | Notes                                                                                                                                             |
+| -------------------------------------- | ------------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| flexbox (direction/justify/align/wrap) | ✅ FlexboxLayout   | ✅                           | `gap` works on FlexboxLayout only                                                                                                                 |
+| `flex-grow` child min-size             | ⚠️ min-content     | ⚠️ min-content (same)        | identical on both engines — `min-w-0` + `shrink-0` utils guard (lab: web+ios 2026-09-25)                                                          |
+| `flex-shrink` on the column axis       | ⚠️ **no min floor** | ✅ min-content floor         | NS shrinks children to 0 when a column overflows (`min-height:auto` doesn't exist natively). Intrinsic sections need `flex-shrink:0`; overflow should live in a `ScrollView`/`List`, not be distributed across controls (lab: ios 2026-09-25) |
+| `margin-*: auto`                       | ❌ ignored         | ✅                           | → `Spacer` / `justify-content` (lab: 2026-09-25)                                                                                                  |
+| `flex-basis`                           | ❌                 | ✅                           | use `width:0` + `min-w-0` for basis-0 (row axis)                                                                                                  |
+| grid via `rows`/`columns` spec         | ✅ GridLayout      | ✅ via spec→template mapping | no `gap` on GridLayout; child `row`/`col` attach                                                                                                  |
+| `position: absolute`                   | ❌                 | ✅                           | → `Absolute` primitive / `absolutelayout`                                                                                                         |
+| `display: none`                        | ❌                 | ✅                           | → `visibility: collapse`                                                                                                                          |
+| `visibility`                           | ✅ hidden/collapse | ✅                           | `collapse` removes from layout                                                                                                                    |
 | `zIndex`                               | ✅                 | ✅                           | NS 9 `zIndexProperty` → iOS `layer.zPosition` verified on sim; Android `setZIndex` desk-source. Unset reads `undefined` (lab: ios-sim 2026-09-25) |
 | `overflow`                             | ⚠️                 | ✅                           | verify per-axis + hidden semantics                                                       |
 | `%` sizing                             | ⚠️                 | ✅                           | measures differently — prefer flex/tokens                                                |
