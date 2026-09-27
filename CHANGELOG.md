@@ -12,6 +12,8 @@ Everything added, changed, and fixed since 0.5.0.
   related primitives.
 - `Pager`, `SegmentedControl`, and `SearchInput` provide shared controls for
   paging, choosing among options, and searching.
+- Web apps can use the accessible `Tooltip` component from
+  `@octane-xplat/ui/web`.
 - `ScrollView` supports pull-to-refresh with `refreshing` and `onRefresh`.
   Sheets accept detents for snap-point layouts.
 - `WebView`, `Video`, and `CameraView` provide hosted web, playback, and live

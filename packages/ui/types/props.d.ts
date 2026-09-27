@@ -671,6 +671,26 @@ export interface HoverableProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
+/** Web-only tooltip (`@octane-xplat/ui/web`, decision #47) — `trigger` is
+ *  the anchor content, `content` the tooltip body. Hover-intent delay plus
+ *  keyboard focus; wires `aria-describedby` onto the focusable trigger and
+ *  dismisses on Escape, blur, or scroll. */
+export interface TooltipProps {
+    trigger: any;
+    content: any;
+    /** Styling for the tooltip panel inside the popover. */
+    contentClassName?: any;
+    contentStyle?: any;
+    openDelay?: number;
+    closeDelay?: number;
+    placement?: PopoverPlacement;
+    disabled?: boolean;
+    className?: any;
+    style?: any;
+    ios?: Record<string, any>;
+    android?: Record<string, any>;
+    web?: Record<string, any>;
+}
 export type ToastContent = string | (() => any);
 export type ToastPosition = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 export interface ToastOptions {
@@ -1600,6 +1620,7 @@ export interface CameraViewProps extends LayoutChildProps, AccessibilityProps {
     ios?: Record<string, any>;
     android?: Record<string, any>;
     web?: Record<string, any>;
+}
 export type ColorScheme = 'light' | 'dark';
 /** Minimal external-store contract `useStore` subscribes to. */
 export interface ReadableStore<T> {
