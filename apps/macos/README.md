@@ -36,11 +36,19 @@ The stable `@nativescript/macos-node-api@0.4.0` loader points at an architecture
 path missing from that published artifact, so this spike pins the matching
 `0.4.4-next` preview.
 
-Run `pnpm --filter @xplat/macos dev` to launch it, or
-`pnpm --filter @xplat/macos build` to compile the component bundle. With
-`OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
-`tap <accessibility label>` on stdin. This is an experiment only; it does not
-add a macOS target to `@octane-xplat/cli`.
+Run `pnpm xplat dev --targets macos` to launch it, or
+`pnpm xplat build --targets macos` to create the `.app` and `.dmg`. The app's
+`package.json` opts in with `xplat.targets.macos.runtime: "appkit-node-api"`;
+the CLI forwards dev to the existing `dev` script and build to `package`.
+Direct `pnpm dev`, `pnpm build`, and `pnpm package` scripts remain available.
+`xplat doctor` checks the AppKit host, Apple Silicon architecture, declared
+runtime dependency, and packaging tools without requiring the NativeScript CLI,
+iOS simulator, or Android SDK. This target is experimental and Apple Silicon
+only.
+
+With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
+`tap <accessibility label>` on stdin. This CLI target does not add macOS to the
+`create-octane-xplat` starter or the supported web/iOS/Android release contract.
 
 ## Packaging proof
 

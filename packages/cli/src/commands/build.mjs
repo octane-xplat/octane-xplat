@@ -8,24 +8,25 @@ import { generateRoutes } from './routes.mjs'
 
 export const build = command({
 	name: 'build',
-	description: 'Build for web, iOS, Android',
+	description: 'Build web and NativeScript targets, plus experimental macOS AppKit',
 	args: {
 		release: flag({
 			long: 'release',
-			description: 'Native release builds (signed where configured)',
+			description:
+				'NativeScript release builds (signed where configured); macOS signing uses environment variables',
 		}),
 		targets: option({
 			long: 'targets',
 			short: 't',
 			type: optional(string),
-			description: 'Comma list (web,ios,android) — skips the prompt',
+			description: 'Comma list (web,ios,android,macos) — skips the prompt',
 		}),
 	},
 	handler: async (args) => {
 		const cwd = process.cwd()
 		const all = buildTargets(cwd)
 		if (all.length === 0) {
-			p.log.error('Nothing to build — no vite.config.ts or nativescript.config.ts found.')
+			p.log.error('Nothing to build — no web, NativeScript, or AppKit Node-API target is declared.')
 			process.exit(1)
 		}
 
@@ -33,6 +34,13 @@ export const build = command({
 		if (args.targets) {
 			const kinds = args.targets.split(',').map((s) => s.trim())
 			chosen = all.filter((t) => kinds.includes(t.kind))
+			if (chosen.length === 0) {
+				p.log.error(
+					`No targets matched "${args.targets}". Available: ${all.map((t) => t.kind).join(', ')}`,
+				)
+
+				process.exit(1)
+			}
 		} else if (!process.stdout.isTTY) {
 			chosen = all
 		} else {
@@ -64,7 +72,9 @@ export const build = command({
 			const argv =
 				t.kind === 'web'
 					? ['exec', 'vite', 'build']
-					: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
+					: t.kind === 'macos'
+						? ['run', 'package']
+						: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
 
 			try {
 				await runTagged(t.kind, 'pnpm', argv, cwd)

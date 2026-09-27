@@ -82,6 +82,9 @@ importers:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
         version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
     devDependencies:
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@octanejs/vite-plugin':
         specifier: 0.1.60
         version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))

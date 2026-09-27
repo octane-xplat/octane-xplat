@@ -1,6 +1,6 @@
 // Target + device discovery. Everything degrades quietly — a missing
 // toolchain means the target is absent from prompts, not an error.
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 
 const run = (cmd, args) => {
@@ -15,10 +15,22 @@ const run = (cmd, args) => {
 	}
 }
 
+const readJson = (file) => {
+	try {
+		return JSON.parse(readFileSync(file, 'utf8'))
+	} catch {
+		return null
+	}
+}
+
 export const hasWeb = (cwd) =>
 	existsSync(`${cwd}/vite.config.ts`) || existsSync(`${cwd}/vite.config.mts`)
 
 export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
+
+/** The opt-in AppKit Node-API target currently used by apps/macos. */
+export const hasMacOS = (cwd) =>
+	readJson(`${cwd}/package.json`)?.xplat?.targets?.macos?.runtime === 'appkit-node-api'
 
 /** iOS targets: booted sims first, then other available sims, then physical devices. */
 export function iosTargets() {
@@ -87,6 +99,13 @@ export function discoverTargets(cwd) {
 	if (hasNative(cwd)) {
 		targets.push(...iosTargets(), ...androidTargets())
 	}
+	if (hasMacOS(cwd)) {
+		targets.push({
+			kind: 'macos',
+			id: 'macos',
+			name: 'macOS (experimental AppKit Node-API)',
+		})
+	}
 
 	return targets
 }
@@ -104,6 +123,13 @@ export function buildTargets(cwd) {
 		}
 
 		t.push({ kind: 'android', id: 'android', name: 'Android (ns build android)' })
+	}
+	if (hasMacOS(cwd)) {
+		t.push({
+			kind: 'macos',
+			id: 'macos',
+			name: 'macOS (experimental AppKit Node-API)',
+		})
 	}
 
 	return t

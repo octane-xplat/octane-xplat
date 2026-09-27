@@ -9,7 +9,7 @@ import { routes } from './commands/routes.mjs'
 
 const cli = subcommands({
 	name: 'xplat',
-	description: 'One Octane codebase → web + iOS + Android',
+	description: 'One Octane codebase → web + iOS + Android + experimental macOS AppKit',
 	cmds: { dev, build, typecheck, doctor, clean, routes },
 })
 
