@@ -39,6 +39,7 @@ minimumReleaseAgeExclude:
   - '@nativescript/vite@8.0.11'
   - '@tsrx/core@0.3.2'
   - '@tsrx/typescript-plugin@0.4.11'
+  - '@nativescript/canvas@3.0.0-alpha.15'
 allowBuilds:
   '@nativescript/core': true
   '@parcel/watcher': true

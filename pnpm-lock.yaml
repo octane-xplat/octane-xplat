@@ -130,9 +130,15 @@ importers:
       '@nativescript/camera':
         specifier: 7.0.0
         version: 7.0.0
+      '@nativescript/canvas':
+        specifier: 3.0.0-alpha.15
+        version: 3.0.0-alpha.15
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76)
+      '@nativescript/font-manager':
+        specifier: 1.0.18
+        version: 1.0.18
       '@nativescript/geolocation':
         specifier: 9.0.0
         version: 9.0.0
@@ -328,8 +334,8 @@ importers:
   packages/canvas:
     dependencies:
       '@nativescript/canvas':
-        specifier: 2.1.18
-        version: 2.1.18
+        specifier: 3.0.0-alpha.15
+        version: 3.0.0-alpha.15
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
         version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -1447,8 +1453,8 @@ packages:
   '@nativescript/camera@7.0.0':
     resolution: {integrity: sha512-QyKvRqLnchWPV1T+s1Qx0rscnj03G7AK0kSLWW8dwDKXzFdc/EJUmp3nVaLuTxnphiaoUxqWp+o1FCV1TW64vQ==}
 
-  '@nativescript/canvas@2.1.18':
-    resolution: {integrity: sha512-wj4gbG+YW6GXTAc5zKW6D7CBjIywLKBryWIbhERjSI7+9reFdnyWjtof4Bp7J1uieQn+6e7IlQdJUuO0ZJt0jA==}
+  '@nativescript/canvas@3.0.0-alpha.15':
+    resolution: {integrity: sha512-4N1+i7VERZQH/R6TgNkKFCzpxEaFuv4MtWkBy/ur5ADpq780zzXj8JBgqW8utgIN8NW8a2w+s1am1iZ0wFoAww==}
 
   '@nativescript/core@9.1.2':
     resolution: {integrity: sha512-zL/dgfuLmcVu9nR47UEFOaPHXoaRKuWMBnDwiaMAwXmf4WKd6yr1gIXcNHheKgBNGrls06LgbBpkB841fI+HcA==}
@@ -4186,7 +4192,7 @@ snapshots:
     dependencies:
       '@nativescript-community/perms': 2.3.6
 
-  '@nativescript/canvas@2.1.18':
+  '@nativescript/canvas@3.0.0-alpha.15':
     dependencies:
       '@nativescript/font-manager': 1.0.18
 

@@ -31,7 +31,7 @@
 		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
-		"@nativescript/canvas": "2.1.18"
+		"@nativescript/canvas": "3.0.0-alpha.15"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.1",

@@ -112,12 +112,11 @@ experience of agents writing Octane-xplat code effectively.
   (decision #51).
   `minimumReleaseAgeExclude` covers the octane packages — they're newer than
   the supply-chain cutoff.
-- `pnpm-workspace.yaml` `patchedDependencies` currently carries two live
-  patches: `@nativescript-community/vite-octane` (`.tsrx` hot updates +
-  real `recipients` count) and `@nativescript/vite` (reserved-word named
-  exports like zod's `enum` survive dep shims; unvendored plugin-patterned
-  deps fall back to per-module HTTP serving instead of a stub). Drop each
-  when a release carries the fix. esbuild is pinned to 0.27.7 — vite 8's
+- `pnpm-workspace.yaml` `patchedDependencies` currently patches
+  `@nativescript-community/octane`, `@nativescript-community/vite-octane`,
+  `@nativescript/core`, and `@nativescript/vite`.
+  Each patch is pinned to an exact version; remove it when upstream ships its
+  fix. esbuild is pinned to 0.27.7 — vite 8's
   peer range admits 0.28.x and the vendor bundler dies on the host/binary
   mismatch.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
