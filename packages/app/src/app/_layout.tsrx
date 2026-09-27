@@ -55,7 +55,7 @@ console.log('[harness] App module evaluated');
  *  the manifest; the entry renders whatever file fills that slot). A real
  *  tab surface: Screen wraps content in the platform root (rootlayout on
  *  native, div on web). */
-export function RootLayout() @{
+export function RootLayout(props: { children?: any }) @{
 	// Deep link: a URL like /demos/demo/counter boots into the Demos tab
 	// with the pushed screen already on its stack (web leaf; currentRoute is
 	// a no-op null on native).
@@ -75,6 +75,13 @@ export function RootLayout() @{
 	useEffect(() => {
 		console.log('[harness] App mounted');
 	}, []);
+
+	// Pushed root routes are wrapped in this layout by the native route host.
+	// Let their screen fill the page; the initial app render has no child and
+	// uses the tab shell below.
+	if (props.children != null) {
+		return <>{props.children}</>;
+	}
 
 	<Screen className={['vx-app', 'vx-app-flush', 'flex-1', scheme === 'dark' ? 'dark ns-dark' : '']}>
 		<Tabs
