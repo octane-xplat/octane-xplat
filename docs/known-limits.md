@@ -14,13 +14,22 @@ Each row names a seam and what each target actually does. **Kind**:
 re-checked in the pre-release docs sweep. Rows marked `desk` are verified
 against source only — on-device behavior is still pending.
 
+Each component also carries a normalization class — `self-drawn`,
+`chrome-reset`, `hosted`, or `platform-authentic` (see
+[architecture](architecture.md#normalization-classes)). A row is only
+meaningful relative to its class's claim: `hosted` components (`WebView`,
+`Video`, `CameraView`) claim the frame plus whatever chrome we draw, so
+`different` interior pixels are expected, not a regression.
+
 ## Where the real OS widgets live
 
 The shared barrel ships only what can be equal everywhere — self-drawn
 controls (`Switch`, `Slider`, `ActivityIndicator`, `Tabs`, `Drawer`,
-`Sheet`) and OS-backed controls with a chrome reset (`TextInput`,
-`TextArea`). The platform-authentic widgets are opt-in subpath imports, and
-a shared `.tsrx` importing them fails the other platform's build on purpose:
+`Sheet`), chrome-reset OS controls (`TextInput`, `TextArea`,
+`SearchInput`), and hosted surfaces (`WebView`, `Video`, `CameraView`)
+whose parity claim stops at the frame plus self-drawn chrome. The
+platform-authentic widgets are opt-in subpath imports, and a shared `.tsrx`
+importing them fails the other platform's build on purpose:
 
 | Need                              | Web                                            | iOS                                                             | Android                                                                     |
 | --------------------------------- | ---------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------- |

@@ -26,8 +26,9 @@
 
 Start with these components. They are deliberately smaller than the browser
 DOM or the full NativeScript view catalog, which makes a shared screen easier
-to keep portable — and they are self-drawn or chrome-reset, so the same props
-produce the same pixels on every target.
+to keep portable — and they are self-drawn, chrome-reset, or hosted (see the
+normalization classes in [architecture](architecture.md#normalization-classes)),
+so the same props produce the same pixels on every target.
 
 Platform-authentic widgets (real OS chrome, no parity promised) live behind
 `@octane-xplat/ui/ios`, `@octane-xplat/ui/android`, and `@octane-xplat/ui/web`

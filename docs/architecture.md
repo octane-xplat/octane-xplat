@@ -31,6 +31,41 @@ modals, Liquid Glass — live in `@octane-xplat/ui/ios`,
 names; those subpaths resolve only on their platform, so reaching for them
 is always a conscious platform choice.
 
+### Normalization classes
+
+Every shared component carries one of four classes. The class says what the
+parity claim covers — divergence inside a claim is a bug, divergence outside
+it is the design:
+
+| Class                | Interior                | Chrome          | Parity claim                          | Examples                                                  |
+| -------------------- | ----------------------- | --------------- | ------------------------------------- | --------------------------------------------------------- |
+| `self-drawn`         | us                      | all ours        | every pixel                           | `Switch`, `Tabs`, `SegmentedControl`                      |
+| `chrome-reset`       | the OS widget's behavior | stripped        | every pixel                           | `TextInput`, `TextArea`, `SearchInput`                    |
+| `hosted`             | an OS/engine surface    | ours, or none   | the frame + whatever chrome we draw   | `Video`, `CameraView` (chrome ours); `WebView` (none)     |
+| `platform-authentic` | the OS                  | the OS          | none — OS chrome is the point         | `UISwitch`, `MaterialDialog`, the subpath catalogs        |
+
+Classify a new component with an ordered test — first match wins:
+
+1. Can we draw it identically ourselves? → `self-drawn` (preferred — no OS
+   surface to fight).
+2. Is the value a behavior the OS owns, with chrome we can strip? →
+   `chrome-reset`. Text editing, scrolling, and image decode qualify; a
+   picker wheel does not — stripping its chrome destroys the widget.
+3. Is it an OS-rendered surface we can host in a normalized frame? →
+   `hosted`. If we draw controls over it (`Video`'s transport), parity
+   covers them; if the interior is someone else's content (`WebView`), the
+   claim stops at frame + props + events — engine pixels are `different`
+   by design.
+4. Is the OS chrome itself the value — date-picker wheel, map tiles,
+   system menus? → `platform-authentic`: subpath or don't ship.
+
+An idiom may ship in two classes at once — as two components, never as a
+mode prop. The shared `refreshing`/`onRefresh` on `ScrollView` (self-drawn
+indicator) and a future `UIRefreshControl`/`SwipeRefreshLayout` in the
+subpaths coexist; the shared `Sheet` detents are self-drawn precisely
+because the OS sheets are modal presentations, so an OS detent sheet would
+be a separate subpath widget, not a flag on `Sheet`.
+
 Split a component when the platform needs a different implementation:
 
 ```text
