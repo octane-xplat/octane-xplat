@@ -1,0 +1,68 @@
+{
+	"name": "@octane-xplat/effects",
+	"version": "0.1.0",
+	"description": "Platform view-effect shaders for Octane xplat — iOS stitchable Metal via @nativescript/swift-ui, Android AGSL RuntimeShader",
+	"files": [
+		"dist",
+		"types",
+		"src",
+		"platforms"
+	],
+	"type": "module",
+	"nativescript": {
+		"platforms": {
+			"ios": "7.0.0",
+			"android": "7.0.0"
+		}
+	},
+	"exports": {
+		"./ios": {
+			"native": "./src/ios/index.ts"
+		},
+		"./android": {
+			"native": "./src/android/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			"./ios": {
+				"types": "./types/ios.d.ts",
+				"native": "./dist/native/ios/index.js"
+			},
+			"./android": {
+				"types": "./types/android.d.ts",
+				"native": "./dist/native/android/index.js"
+			}
+		}
+	},
+	"scripts": {
+		"build": "vite build --mode native",
+		"check-types": "tsc -p tsconfig.types.json",
+		"prepublishOnly": "pnpm build"
+	},
+	"dependencies": {
+		"@nativescript/swift-ui": "4.0.2"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.1",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.60",
+		"octane": "0.5.0",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.1.51 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		}
+	}
+}

@@ -22,6 +22,7 @@
 		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript-community/ui-svg": "0.2.24",
 		"@nativescript/core": "9.1.2",
+		"@octane-xplat/effects": "^0.1.0",
 		"@octane-xplat/ui": "^0.5.0",
 		"@valor/nativescript-websockets": "2.0.3",
 		"octane": "0.4.0"

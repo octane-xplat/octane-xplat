@@ -9,6 +9,7 @@
 	},
 	"dependencies": {
 		"@octane-xplat/canvas": "workspace:*",
+		"@octane-xplat/effects": "workspace:*",
 		"@octane-xplat/gif": "workspace:*",
 		"@octane-xplat/ui": "workspace:*"
 	},

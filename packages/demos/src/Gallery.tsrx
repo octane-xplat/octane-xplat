@@ -9,7 +9,7 @@ import { Dialer } from './Dialer.tsrx';
 // './variant-demos' is extensionless on purpose: moduleSuffixes +
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
-import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo } from './variant-demos';
+import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo } from './variant-demos';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
@@ -66,6 +66,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'camera', title: 'Camera', kind: 'proof' },
 	{ id: 'animated-image', title: 'Animated image', kind: 'proof' },
 	{ id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
+	{ id: 'effects', title: 'Shader effects', kind: 'proof' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -107,6 +108,7 @@ const renderVideo = () => <VideoDemo />;
 const renderCamera = () => <CameraDemo />;
 const renderAnimatedImage = () => <AnimatedImageDemo />;
 const renderCanvas = () => <CanvasDemo />;
+const renderEffects = () => <EffectsDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -141,6 +143,7 @@ export const RENDER: Record<string, () => any> = {
 	camera: renderCamera,
 	'animated-image': renderAnimatedImage,
 	canvas: renderCanvas,
+	effects: renderEffects,
 };
 
 /** Demo launcher — chip menu. Two modes:
