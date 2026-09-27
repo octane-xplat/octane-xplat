@@ -482,6 +482,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 		return []
 	}
 
+	const isMacOSAppFile = /(^|\/)apps\/macos\//.test(norm(filename))
 	const out = []
 	for (const [node] of walk(program)) {
 		if (
@@ -493,7 +494,12 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 		}
 
 		const source = node.source?.value
-		if (typeof source === 'string' && /^@(nativescript|nativescript-community)\//.test(source)) {
+		const isMacOSRuntimeImport = isMacOSAppFile && source === '@nativescript/macos-node-api'
+		if (
+			typeof source === 'string' &&
+			/^@(nativescript|nativescript-community)\//.test(source) &&
+			!isMacOSRuntimeImport
+		) {
 			out.push({
 				node: node.source,
 				message: `Shared files can't import '${source}' — it only exists on native. Put it behind a .native.* leaf.`,
