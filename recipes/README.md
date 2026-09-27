@@ -89,8 +89,8 @@ New commits or changed recipe blobs require reassessment of affected criteria;
 old rows remain historical evidence, not a current green status. Insert a new
 assessment for a new revision; use Silo's optimistic revision when correcting
 an existing row. Never claim a roll-up is complete with missing applicable target rows.
-The current Silo `recipe_audit.target` constraint accepts only `web`, `ios`,
-and `android`; macOS recipe rows remain pending until that schema can be
-extended without rebuilding the existing audit table. If Silo is unavailable,
-report the unrecorded findings at handoff and leave the audit pending rather
-than claiming completion.
+The Silo `recipe_audit.target` constraint accepts `web`, `ios`, `android`, and
+`macos`. Extend it before inserting rows for a new target, preserving existing
+assessments during the schema migration. If Silo is unavailable, report the
+unrecorded findings at handoff and leave the audit pending rather than
+claiming completion.
