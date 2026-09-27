@@ -78,7 +78,9 @@ function pxToDip() {
 		// xplat-web-only rules (they land as real native props, e.g.
 		// translate(-50%,-50%) → translateY:-50dip). Import css files as JS
 		// modules instead — each then passes through this transform.
-		if (/@import\s+['"]/.test(code) && !warned.has(id + '|@import')) {
+		// Strip comments first so `@import` inside a comment doesn't warn.
+		const uncommented = code.replace(/\/\*[\s\S]*?\*\//g, '')
+		if (/@import\s+['"]/.test(uncommented) && !warned.has(id + '|@import')) {
 			warned.add(id + '|@import')
 			warn(
 				`${id}: @import inlining bypasses the px→dip rewrite and the ` +
