@@ -607,24 +607,33 @@ measurement and correction of unknown row sizes.
 | --- | --- | --- |
 | Web window over a scroll div | 500 items; 9 rows mounted initially and 13 at index 200; variable row bounds matched; indexed jump made `r200` visible; prepending a 68 px row kept `r200` at the same screen offset and its keyed local state | Pass for this probe |
 | Octane window over NativeScript `ScrollView` on Android | 9 rows mounted initially; variable row bounds and indexed jump passed; prepending a 68 dip row kept `r200` at the same screen y (`282 → 282`) | Pass for this probe |
-| Octane window over NativeScript `ScrollView` on iOS | 9 rows mounted initially; variable row bounds and indexed jump passed; prepend moved `r200` by `-36` dip. Applying a second correction from its measured y oscillated to `+36` dip | Fails the anchor gate; why the native offset and rendered window disagree remains open (Q28) |
+| Octane window over NativeScript `ScrollView` on iOS | 9 rows mounted initially; variable row bounds and indexed jump passed. The original split update shifted `r200` by `-36` dip; the retry committed items and logical offset together, then wrote the native offset after layout. `r200` stayed at y=343 (`0` dip drift) after prepending 68 dip | Passes the known-size prepend anchor gate; the successful update sequence is recorded in Q28 |
 | Existing `UITableView` / `RecyclerView` leaves | 10 iOS / 11 Android rows mounted for the initial viewport; indexed jump, visible-item query, and no cross-row state leak passed; prepend moved the target by `+72` / `+73` dip | Native recycling works, but these leaves do not yet meet the shared prepend-anchor behavior |
 
-Stage 1 does not select a production engine. The iOS anchor result is a core
-behavior failure, and the probe does not cover dynamic row measurement,
-measurement-cache correction, viewability callbacks, heterogeneous item
-types, grid/masonry, sticky rows, load thresholds, or the performance of long
-scroll sessions. Keep small arrays on `ScrollView` + `items.map(...)`; use the
-OS subpaths when an app wants native list behavior. Do not document a shipped
-`VirtualList` API until Q28 is resolved and the remaining capability gaps are
-scoped.
+The Stage 1 gate now passes for this known-size probe on web, iOS, and Android.
+Only the previously failing iOS anchor leg was rerun for this update; the web
+and Android probes were unchanged, so their Stage 1 passes are retained.
+Decision #58 selects an **Octane-owned window** as the Stage 2 implementation
+direction: DOM scrolling on web and NativeScript `ScrollView` on iOS and
+Android. Keep `UITableView`/`RecyclerView` in the platform subpaths for apps
+that want their native list behavior. This is a provisional engine direction,
+not a shipped `VirtualList` guarantee.
+
+The probe supplied row heights, so it does not establish FlashList v2's
+automatic measurement and correction of unknown row sizes. Recycling-safe
+reuse under fast scroll, viewability callbacks, heterogeneous item types,
+grid/masonry, sticky rows, load thresholds, and long-session performance also
+remain untested. Q29 tracks post-layout height changes and anchor correction.
+Keep small arrays on `ScrollView` + `items.map(...)` until the virtualized
+contract is shipped.
 
 Capability references: [FlashList v2 usage](https://shopify.github.io/flash-list/docs/usage/)
 for dynamic sizing, recycling-safe state, viewability, and visible-position
 maintenance; [Lynx `list`](https://lynxjs.org/next/api/elements/built-in/list.html)
 for a purpose-built virtualized list with a bounded viewport; and [Expo
-Universal List](https://docs.expo.dev/versions/v57.0.0/sdk/ui/universal/list/),
-which documents that JS-side lazy rendering is not currently provided there.
+Universal List](https://docs.expo.dev/versions/v58.0.0/sdk/ui/universal/list/),
+which says React still creates all rows up front and recommends FlashList or
+Legend List for large data.
 
 ## Appendix: verified driver semantics
 

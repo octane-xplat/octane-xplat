@@ -198,15 +198,17 @@ LiveRegion` unwired in leaves so far).
     with UI sounds was implemented in this spike. Validate these against the
     eventual player package on physical devices. See `platform-notes.md` →
     “Haptics, UI sounds, and media playback.”
-28. ⏳ **Exact visible-anchor preservation for an Octane-owned native
-    `VirtualList`.** — Stage 1's bounded, variable-height window over
-    NativeScript `ScrollView` indexed to row 200 on iOS and Android. Android
-    kept the row's screen y after prepending a 68 dip row; iOS shifted it by
-    36 dip, and a second correction based on the measured row position
-    overshot by 36 dip in the other direction. Determine whether the cause is
-    NativeScript's iOS scroll offset/layout timing or the window/spacer
-    strategy, and identify a post-layout correction that holds a keyed
-    visible row through prepend and measurement changes. **Gate:** do not
-    select a production engine or begin implementation until the iOS probe
-    preserves the anchor within 2 dip. Evidence: lab experiment, see
+28. ✅ **Preserve the visible anchor through a known-size prepend.** — On the
+    iOS simulator, committing the prepended items and logical scroll target
+    together, then writing `scrollToVerticalOffset` after layout, kept keyed
+    row `r200` at y=343 before and after a 68 dip prepend (0 dip drift). The
+    earlier split update drifted by 36 dip. This clears the Stage 1 engine
+    gate for known-size rows; it does not prove correction after an unknown
+    row height changes. Evidence: lab experiment, see
     [primitive-notes](primitive-notes.md#virtuallist-feasibility-stage-1-2026-09-26).
+29. ⏳ **Preserve the visible anchor through measured-height changes.** — Can
+    the Octane-owned `VirtualList` keep a keyed visible row within 2 dip when
+    an item above it changes height after layout, while updating its
+    measurement cache and scroll offset on web, iOS, and Android? Validate the
+    measured bounds, visible range, and absence of blank or duplicate rows.
+    Evidence: queued lab experiment in Silo.
