@@ -3,8 +3,13 @@
 This app-local spike uses `@nativescript/macos-node-api` to open AppKit windows
 and an Octane universal host driver to mount the shared `View`, `Text`, and
 `Pressable` implementations. `Add one` updates Octane state; `Open details
-window` opens a second AppKit window with the current count. Both actions were
-verified through AppKit accessibility actions.
+window` calls `openWindow({kind:'dialog', data})`, which presents a sheet on the
+key window and mounts a second Octane root inside it — the app-installed
+`setWindowContentResolver` maps `data` to a component that receives `{data,
+controller}` as props. The sheet's `Close details` pressable calls
+`controller.close()`. Open, render, interaction, and teardown were all verified
+through AppKit accessibility actions. `kind:'regular'` and `kind:'popup'`
+mappings exist but only the dialog path is exercised.
 
 The proof covers vertical `View` layout with `gap`, a small inline `style`
 subset (`padding`, `fontSize`, `color`, `backgroundColor`, `borderRadius`), text

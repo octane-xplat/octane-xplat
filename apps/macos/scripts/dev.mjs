@@ -2,7 +2,7 @@ import { build } from 'vite'
 import { createInterface } from 'node:readline'
 import { pathToFileURL } from 'node:url'
 import { hmrUniversalComponent, UNIVERSAL_HMR } from 'octane/universal/native'
-import { createAppKitWindow } from '../src/appkit.mjs'
+import { createAppKitWindow, debugWindows } from '../src/appkit.mjs'
 import { createMacOSRoot } from '../src/renderer/index.mjs'
 
 const configFile = new URL('../vite.dev.config.mjs', import.meta.url).pathname
@@ -24,13 +24,33 @@ try {
 			try {
 				if (command.startsWith('press ')) {root.__macosDebug.pressButton(command.slice(6))}
 				else if (command.startsWith('tap ')) {
-					root.__macosDebug.pressAccessibilityLabel(command.slice(4))
+					const label = command.slice(4)
+					const targets = [root.__macosDebug, ...debugWindows().map((w) => w.debug)]
+					let handled = false
+					for (const target of targets) {
+						if (!target) continue
+						try {
+							target.pressAccessibilityLabel(label)
+							handled = true
+							break
+						} catch {}
+					}
+					if (!handled) throw new Error('No AppKit pressable labeled ' + label)
 				} else if (command !== 'snapshot') {
 					throw new Error('Use tap <accessibility label>, press <button title>, or snapshot')
 				}
 
 				setTimeout(() => {
-					console.log('[macos-automation] ' + JSON.stringify(root.__macosDebug.snapshot()))
+					console.log(
+						'[macos-automation] ' +
+							JSON.stringify({
+								main: root.__macosDebug.snapshot(),
+								windows: debugWindows().map((w) => ({
+									title: w.title,
+									...(w.debug?.snapshot() ?? {}),
+								})),
+							}),
+					)
 				}, 0)
 			} catch (error) {
 				console.error('[macos-automation] command failed', error)

@@ -1,7 +1,27 @@
 /** @jsxImportSource @xplat/macos/renderer */
 import { Pressable, Text, View } from '@octane-xplat/ui'
 import { useState } from 'octane/universal/native'
-import { showDetailsWindow } from './appkit.mjs'
+import { openWindow, setWindowContentResolver } from './appkit.mjs'
+
+setWindowContentResolver((data) => (data?.view === 'details' ? DetailsView : null))
+
+function DetailsView(props: { data: { count: number }; controller: { close(): void } }) {
+	return (
+		<View gap={12} style={{ padding: 24 }}>
+			<Text style={{ fontSize: 16, color: '#334155' }}>
+				Count when opened: {String(props.data.count)}
+			</Text>
+			<Pressable
+				accessibilityRole="button"
+				accessibilityLabel="Close details"
+				onPress={() => props.controller.close()}
+				style={{ padding: 10, backgroundColor: '#e2e8f0', borderRadius: 8 }}
+			>
+				<Text style={{ fontSize: 14, color: '#172554' }}>Close details</Text>
+			</Pressable>
+		</View>
+	)
+}
 
 export default function App() {
 	const [count, setCount] = useState(0)
@@ -21,7 +41,13 @@ export default function App() {
 			<Pressable
 				accessibilityRole="button"
 				accessibilityLabel="Open details window"
-				onPress={() => showDetailsWindow(count)}
+				onPress={() =>
+					openWindow({
+						kind: 'dialog',
+						title: 'Details',
+						data: { view: 'details', count },
+					})
+				}
 				style={{ padding: 10, backgroundColor: '#e2e8f0', borderRadius: 8 }}
 			>
 				<Text style={{ fontSize: 14, color: '#172554' }}>Open details window</Text>
