@@ -586,10 +586,45 @@ not touch this."
 - `useMeasure` observes by default. Use `{ observe: false }` when a single
   post-bind read is enough; native still listens for the initial `loaded` event
   so an early ref bind can settle after layout.
-- No attempt to unify `listview` recycling with DOM virtualization semantics
-  beyond the `items`/`renderItem` contract.
+- `UITableView`/`RecyclerView` keep their platform-authentic recycling
+  semantics. A shared virtualized list is a separate `VirtualList` candidate,
+  not a shared wrapper over those widgets; Stage 1 evidence and the iOS anchor
+  blocker are recorded below.
 - No `<style>` blocks inside shared components — sibling-scoped style blocks
   are a web feature; keep styles in the shared stylesheet + `className`.
+
+## VirtualList feasibility (Stage 1; 2026-09-26)
+
+The goal is a shared virtualized-list primitive with a useful common contract,
+separate from the platform-authentic `UITableView`/`RecyclerView` exports. The
+prototype compared a web-owned window and an Octane-owned window over native
+`ScrollView` against the existing native recyclers. Heights came from item
+data (`36`, `48`, `60`, `72` dip/px); native row bounds were measured after
+layout. This proves windowing with known sizes, not FlashList v2's dynamic
+measurement and correction of unknown row sizes.
+
+| Candidate | Evidence | Result |
+| --- | --- | --- |
+| Web window over a scroll div | 500 items; 9 rows mounted initially and 13 at index 200; variable row bounds matched; indexed jump made `r200` visible; prepending a 68 px row kept `r200` at the same screen offset and its keyed local state | Pass for this probe |
+| Octane window over NativeScript `ScrollView` on Android | 9 rows mounted initially; variable row bounds and indexed jump passed; prepending a 68 dip row kept `r200` at the same screen y (`282 → 282`) | Pass for this probe |
+| Octane window over NativeScript `ScrollView` on iOS | 9 rows mounted initially; variable row bounds and indexed jump passed; prepend moved `r200` by `-36` dip. Applying a second correction from its measured y oscillated to `+36` dip | Fails the anchor gate; why the native offset and rendered window disagree remains open (Q28) |
+| Existing `UITableView` / `RecyclerView` leaves | 10 iOS / 11 Android rows mounted for the initial viewport; indexed jump, visible-item query, and no cross-row state leak passed; prepend moved the target by `+72` / `+73` dip | Native recycling works, but these leaves do not yet meet the shared prepend-anchor behavior |
+
+Stage 1 does not select a production engine. The iOS anchor result is a core
+behavior failure, and the probe does not cover dynamic row measurement,
+measurement-cache correction, viewability callbacks, heterogeneous item
+types, grid/masonry, sticky rows, load thresholds, or the performance of long
+scroll sessions. Keep small arrays on `ScrollView` + `items.map(...)`; use the
+OS subpaths when an app wants native list behavior. Do not document a shipped
+`VirtualList` API until Q28 is resolved and the remaining capability gaps are
+scoped.
+
+Capability references: [FlashList v2 usage](https://shopify.github.io/flash-list/docs/usage/)
+for dynamic sizing, recycling-safe state, viewability, and visible-position
+maintenance; [Lynx `list`](https://lynxjs.org/next/api/elements/built-in/list.html)
+for a purpose-built virtualized list with a bounded viewport; and [Expo
+Universal List](https://docs.expo.dev/versions/v57.0.0/sdk/ui/universal/list/),
+which documents that JS-side lazy rendering is not currently provided there.
 
 ## Appendix: verified driver semantics
 

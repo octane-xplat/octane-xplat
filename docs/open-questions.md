@@ -198,3 +198,15 @@ LiveRegion` unwired in leaves so far).
     with UI sounds was implemented in this spike. Validate these against the
     eventual player package on physical devices. See `platform-notes.md` →
     “Haptics, UI sounds, and media playback.”
+28. ⏳ **Exact visible-anchor preservation for an Octane-owned native
+    `VirtualList`.** — Stage 1's bounded, variable-height window over
+    NativeScript `ScrollView` indexed to row 200 on iOS and Android. Android
+    kept the row's screen y after prepending a 68 dip row; iOS shifted it by
+    36 dip, and a second correction based on the measured row position
+    overshot by 36 dip in the other direction. Determine whether the cause is
+    NativeScript's iOS scroll offset/layout timing or the window/spacer
+    strategy, and identify a post-layout correction that holds a keyed
+    visible row through prepend and measurement changes. **Gate:** do not
+    select a production engine or begin implementation until the iOS probe
+    preserves the anchor within 2 dip. Evidence: lab experiment, see
+    [primitive-notes](primitive-notes.md#virtuallist-feasibility-stage-1-2026-09-26).
