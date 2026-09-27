@@ -18,6 +18,7 @@
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
+		"@octane-xplat/ui": "workspace:*",
 		"octane": "0.5.0"
 	},
 	"devDependencies": {

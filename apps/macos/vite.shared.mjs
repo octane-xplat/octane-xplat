@@ -1,6 +1,6 @@
 import { octane } from '@octanejs/vite-plugin'
 import { defineConfig } from 'vite'
-import { dirname } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const appRoot = dirname(fileURLToPath(import.meta.url))
@@ -20,10 +20,14 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 							module: '@xplat/macos/renderer',
 							target: 'universal',
 							server: 'unsupported',
+							text: 'host',
 							intrinsics: '@xplat/macos/renderer/intrinsics',
 						},
 					},
-					rules: [{ include: 'src/**/*.{tsx,tsrx}', renderer: rendererId }],
+					rules: [
+						{ include: 'src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/ui/src/**/*.{tsx,tsrx}', renderer: rendererId },
+					],
 				},
 			}),
 		],
@@ -39,6 +43,45 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 					? [nativeRuntime]
 					: [nativeRuntime, '@xplat/macos/renderer', /^octane(?:\/|$)/],
 			},
+		},
+		resolve: {
+			conditions: ['native'],
+			alias: [
+				// The native root barrel re-exports the full NativeScript surface.
+				// Keep this spike on the three public leaf implementations it proves.
+				{
+					find: '@octane-xplat/ui',
+					replacement: resolve(appRoot, 'src/renderer/shared-ui.ts'),
+				},
+				{ find: /^octane$/, replacement: 'octane/universal/native' },
+				{
+					find: './escape-props',
+					replacement: resolve(appRoot, 'src/renderer/native-escape-props.mjs'),
+				},
+				{
+					find: '@nativescript/core',
+					replacement: resolve(appRoot, 'src/renderer/native-core-shim.mjs'),
+				},
+			],
+			extensions: [
+				'.ios.tsrx',
+				'.android.tsrx',
+				'.native.tsrx',
+				'.tsrx',
+				'.ios.tsx',
+				'.android.tsx',
+				'.native.tsx',
+				'.tsx',
+				'.ios.ts',
+				'.android.ts',
+				'.native.ts',
+				'.mjs',
+				'.mts',
+				'.ts',
+				'.jsx',
+				'.js',
+				'.json',
+			],
 		},
 	})
 }

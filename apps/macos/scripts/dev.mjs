@@ -23,7 +23,11 @@ try {
 			const command = line.trim()
 			try {
 				if (command.startsWith('press ')) root.__macosDebug.pressButton(command.slice(6))
-				else if (command !== 'snapshot') throw new Error('Use press <button title> or snapshot')
+				else if (command.startsWith('tap ')) {
+					root.__macosDebug.pressAccessibilityLabel(command.slice(4))
+				} else if (command !== 'snapshot') {
+					throw new Error('Use tap <accessibility label>, press <button title>, or snapshot')
+				}
 				setTimeout(() => {
 					console.log('[macos-automation] ' + JSON.stringify(root.__macosDebug.snapshot()))
 				}, 0)

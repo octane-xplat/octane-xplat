@@ -1,9 +1,27 @@
 # macOS experiment
 
 This app-local spike uses `@nativescript/macos-node-api` to open AppKit windows
-and an Octane universal host driver to mount native labels, a stateful button,
-and a second-window action. The button updates Octane state; the second window
-shows the count at the time it opens.
+and an Octane universal host driver to mount the shared `View`, `Text`, and
+`Pressable` implementations. `Add one` updates Octane state; `Open details
+window` opens a second AppKit window with the current count. Both actions were
+verified through AppKit accessibility actions.
+
+The proof covers vertical `View` layout with `gap`, a small inline `style`
+subset (`padding`, `fontSize`, `color`, `backgroundColor`, `borderRadius`), text
+children, and `Pressable.onPress`. It does not implement NativeScript CSS or
+`className`, flexbox layout generally, or the other `Pressable` gestures and
+press-in/press-out callbacks.
+
+`App.tsx` imports from `@octane-xplat/ui`, but Vite redirects that specifier to
+`src/renderer/shared-ui.ts`, which re-exports the same `View`, `Text`, and
+`Pressable` native leaf implementations exposed by the package's native index.
+The full native root barrel also re-exports unrelated NativeScript components;
+bundling it pulls in `@nativescript/core` platform imports that have no macOS
+resolver. App-local shims replace the leaves' iOS/Android escape-prop helper
+and the eagerly imported NativeScript pan utility. This proves those component
+implementations with the AppKit host, but it does not prove direct loading of
+the package root entry. A production macOS target still needs an explicit
+package-resolution boundary.
 
 In development, Vite rebuilds edited components and the running Node process
 passes the replacement through Octane's universal HMR wrapper. This preserves
@@ -19,8 +37,10 @@ path missing from that published artifact, so this spike pins the matching
 `0.4.4-next` preview.
 
 Run `pnpm --filter @xplat/macos dev` to launch it, or
-`pnpm --filter @xplat/macos build` to compile the component bundle. This is an
-experiment only; it does not add a macOS target to `@octane-xplat/cli`.
+`pnpm --filter @xplat/macos build` to compile the component bundle. With
+`OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
+`tap <accessibility label>` on stdin. This is an experiment only; it does not
+add a macOS target to `@octane-xplat/cli`.
 
 ## Packaging proof
 

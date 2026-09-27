@@ -75,6 +75,9 @@ importers:
       '@nativescript/macos-node-api':
         specifier: 0.4.4-next.2026-08-09-31292056208
         version: 0.4.4-next.2026-08-09-31292056208
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
         version: file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
