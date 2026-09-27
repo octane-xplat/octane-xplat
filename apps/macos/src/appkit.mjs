@@ -13,7 +13,6 @@ const closed = new Promise((resolve) => {
 // registered by one copy see windows created by the other.
 const shared = (globalThis.__xplatMacosWindowing ??= {
 	resolver: null,
-	mainWindow: null,
 	appDelegate: null,
 	byNative: new Map(),
 })
@@ -25,11 +24,6 @@ function controllerFor(window) {
 		if (native.isEqual?.(window)) return controller
 	}
 	return null
-}
-
-function isMainWindow(window) {
-	const main = shared.mainWindow
-	return window === main || (main != null && main.isEqual?.(window) === true)
 }
 
 class AppDelegate extends NSObject {
@@ -55,11 +49,12 @@ class AppDelegate extends NSObject {
 		return true
 	}
 
+	// A regular secondary window may outlive the main window. AppKit's
+	// last-window policy handles application termination.
 	windowWillClose(notification) {
 		const window = notification.object
 		const controller = controllerFor(window)
 		if (controller) controller.__didClose()
-		else if (isMainWindow(window)) app.terminate(this)
 	}
 
 	applicationWillTerminate() {
@@ -108,7 +103,6 @@ export function createAppKitWindow() {
 	window.center()
 	window.delegate = appDelegate()
 	app.delegate = shared.appDelegate
-	shared.mainWindow = window
 
 	const contentView = makeContentView({ width: 640, height: 420 })
 	window.contentView = contentView
