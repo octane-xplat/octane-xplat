@@ -14,6 +14,7 @@ const shared = (globalThis.__xplatMacosWindowing ??= {
 })
 
 shared.windowCloseHandlers ??= new Map()
+shared.parentWindows ??= new Map()
 shared.running ??= true
 shared.eventPumpErrorReported ??= false
 shared.applicationClosed ??= new Promise((resolve) => {
@@ -29,12 +30,40 @@ function controllerFor(nativeWindow) {
 	}
 
 	for (const [native, controller] of shared.byNative) {
-		if (native.isEqual?.(nativeWindow)) {
+		if (sameNativeWindow(native, nativeWindow)) {
 			return controller
 		}
 	}
 
 	return null
+}
+
+function sameNativeWindow(left, right) {
+	return left === right || Boolean(left?.isEqual?.(right)) || Boolean(right?.isEqual?.(left))
+}
+
+function closeOwnedWindows(parentWindow) {
+	const children = [...shared.byNative.entries()]
+		.filter(([nativeWindow]) => {
+			const ownerWindow = shared.parentWindows.get(nativeWindow)
+			return ownerWindow && sameNativeWindow(ownerWindow, parentWindow)
+		})
+		.map(([, controller]) => controller)
+
+	for (const child of children) {
+		try {
+			child.close()
+		} catch (error) {
+			console.error('[macos] failed to close an owned window while closing its parent', error)
+			try {
+				child.window.close()
+			} catch (closeError) {
+				console.error('[macos] failed to close an owned AppKit window', closeError)
+			}
+
+			child.__didClose()
+		}
+	}
 }
 
 function takeNativeWindowValue(map, nativeWindow) {
@@ -45,7 +74,7 @@ function takeNativeWindowValue(map, nativeWindow) {
 	}
 
 	for (const [native, value] of map) {
-		if (native.isEqual?.(nativeWindow)) {
+		if (sameNativeWindow(native, nativeWindow)) {
 			map.delete(native)
 			return value
 		}
@@ -74,7 +103,12 @@ class AppDelegate extends NSObject {
 	windowShouldClose(nativeWindow) {
 		const controller = controllerFor(nativeWindow)
 		try {
-			return controller?.onCloseRequested?.() !== false
+			const shouldClose = controller?.onCloseRequested?.() !== false
+			if (shouldClose) {
+				closeOwnedWindows(nativeWindow)
+			}
+
+			return shouldClose
 		} catch (error) {
 			console.error('[macos] window close request handler failed', error)
 			return false
@@ -88,6 +122,8 @@ class AppDelegate extends NSObject {
 		const controller = controllerFor(nativeWindow)
 		if (controller) {
 			controller.__didClose()
+		} else {
+			closeOwnedWindows(nativeWindow)
 		}
 
 		const closeHandler = takeNativeWindowValue(shared.windowCloseHandlers, nativeWindow)
@@ -314,6 +350,7 @@ export function openWindow(options = {}) {
 			nativeWindow.setContentSize(normalizeWindowSize(next, 'setSize'))
 		},
 		close() {
+			closeOwnedWindows(nativeWindow)
 			if (kind === 'dialog' && parentWindow) {
 				parentWindow.endSheet(nativeWindow)
 			} else {
@@ -328,7 +365,9 @@ export function openWindow(options = {}) {
 			}
 
 			controller.isClosed = true
+			closeOwnedWindows(nativeWindow)
 			shared.byNative.delete(nativeWindow)
+			shared.parentWindows.delete(nativeWindow)
 			const root = controller.root
 			controller.root = null
 			try {
@@ -342,6 +381,9 @@ export function openWindow(options = {}) {
 	}
 
 	shared.byNative.set(nativeWindow, controller)
+	if (kind !== 'regular') {
+		shared.parentWindows.set(nativeWindow, parentWindow)
+	}
 
 	try {
 		if (typeof shared.resolver !== 'function') {
