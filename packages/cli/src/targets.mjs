@@ -99,6 +99,7 @@ export function discoverTargets(cwd) {
 	if (hasNative(cwd)) {
 		targets.push(...iosTargets(), ...androidTargets())
 	}
+
 	if (hasMacOS(cwd)) {
 		targets.push({
 			kind: 'macos',
@@ -124,6 +125,7 @@ export function buildTargets(cwd) {
 
 		t.push({ kind: 'android', id: 'android', name: 'Android (ns build android)' })
 	}
+
 	if (hasMacOS(cwd)) {
 		t.push({
 			kind: 'macos',

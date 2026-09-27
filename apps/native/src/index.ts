@@ -346,6 +346,7 @@ const dumpChips = () => {
 				CGPointMake(loc.x + size.width / 2, loc.y + size.height / 2),
 				undefined,
 			)
+
 			let chain = ''
 			let cur = hit
 			for (let i = 0; cur && i < 6; i++) {
@@ -353,6 +354,7 @@ const dumpChips = () => {
 				chain += ' < ' + desc
 				cur = cur.superview
 			}
+
 			console.log(
 				'[probe] chip hitTest=' +
 					(hit === chip.ios ? 'chip' : hit === chip.ios.subviews?.firstObject ? 'chip-child' : 'other') +
@@ -426,6 +428,7 @@ const dumpChips = () => {
 		)
 	}
 }
+
 const chipTimer = setInterval(() => {
 	if (++chipDumps > 300) {
 		clearInterval(chipTimer)
@@ -434,6 +437,7 @@ const chipTimer = setInterval(() => {
 
 	dumpChips()
 }, 2000)
+
 setTimeout(dumpChips, 11500)
 
 // Real-keyboard verification (idb ui type): focus probe-input programmatically
@@ -750,6 +754,7 @@ setTimeout(() => {
 			popupIndex +
 			')',
 	)
+
 	// Close it — a lingering RootLayout host makes later openSheet() calls
 	// reject with "already been added to the root layout". Close via the
 	// owning rootlayout — sheet-host may live under a pushed page's shell.
@@ -1064,10 +1069,12 @@ if (Application.android) {
 															const svgs = collect(tabView()).filter(
 																(v) => v?.constructor?.name === 'SVGView',
 															)
+
 															const sized = svgs.filter((v) => {
 																const s = (v as any).getActualSize?.() ?? {}
 																return (s.width ?? 0) > 0 && (s.height ?? 0) > 0
 															})
+
 															console.log(
 																'[assert] icon svgview glyphs: ' +
 																	(svgs.length >= 2 && sized.length === svgs.length ? 'OK' : 'FAIL') +
@@ -1354,6 +1361,7 @@ import('@octane-xplat/platform').then(({ media }) => {
 		} catch (e) {
 			console.log('[probe] capturePhoto ensure threw: ' + (e as Error).message)
 		}
+
 		try {
 			const p = await media.capturePhoto()
 			console.log(

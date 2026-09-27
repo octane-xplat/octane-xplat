@@ -174,6 +174,7 @@ try {
 		'tooltip opens on hover intent + aria-describedby wiring',
 		(await described.count()) === 1 && (await described.getAttribute('aria-describedby')) === tipId,
 	)
+
 	await page.keyboard.press('Escape')
 	await page.waitForSelector('[role="tooltip"]', { state: 'detached', timeout: 3000 })
 	ok('tooltip dismisses on Escape', true)

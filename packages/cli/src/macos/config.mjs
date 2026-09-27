@@ -23,10 +23,12 @@ function resolveProjectPath(root, value, label, issues, { mustExist = false } = 
 		issues.push(`${label} must stay inside the app root`)
 		return null
 	}
+
 	if (mustExist && !existsSync(path)) {
 		issues.push(`${label} does not exist: ${value}`)
 		return null
 	}
+
 	return path
 }
 
@@ -34,7 +36,7 @@ function resolveProjectPath(root, value, label, issues, { mustExist = false } = 
 export function inspectMacOSPackageConfig(appRoot, value) {
 	const issues = []
 	const settings = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
-	if (settings !== value) issues.push('xplat.targets.macos.package must be an object')
+	if (settings !== value) {issues.push('xplat.targets.macos.package must be an object')}
 
 	for (const key of requiredFields) {
 		if (typeof settings[key] !== 'string' || !settings[key].trim()) {
@@ -45,18 +47,22 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 	if (settings.bundleIdentifier && !/^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/.test(settings.bundleIdentifier)) {
 		issues.push(`invalid macOS bundle identifier: ${settings.bundleIdentifier}`)
 	}
+
 	if (settings.executableName && !/^[A-Za-z0-9][A-Za-z0-9._ -]*$/.test(settings.executableName)) {
 		issues.push(`invalid macOS executable name: ${settings.executableName}`)
 	}
+
 	if (settings.version && !/^\d+(?:\.\d+){1,2}$/.test(settings.version)) {
 		issues.push(`invalid macOS bundle version: ${settings.version}`)
 	}
+
 	if (
 		settings.minimumSystemVersion &&
 		!/^\d+(?:\.\d+){1,2}$/.test(settings.minimumSystemVersion)
 	) {
 		issues.push(`invalid macOS minimum system version: ${settings.minimumSystemVersion}`)
 	}
+
 	if (
 		typeof settings.bundleFile === 'string' &&
 		settings.bundleFile &&
@@ -68,9 +74,11 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 	const viteConfig = settings.viteConfig
 		? resolveProjectPath(appRoot, settings.viteConfig, 'macOS viteConfig', issues, { mustExist: true })
 		: null
+
 	const bundleFile = settings.bundleFile
 		? resolveProjectPath(appRoot, settings.bundleFile, 'macOS bundleFile', issues)
 		: null
+
 	const entitlementsPath =
 		settings.entitlements === undefined
 			? null

@@ -30,7 +30,7 @@ function readPackageConfig(appRoot) {
 	}
 
 	const config = inspectMacOSPackageConfig(appRoot, target.package)
-	if (config.issues.length) throw new Error(config.issues.join('; '))
+	if (config.issues.length) {throw new Error(config.issues.join('; '))}
 	return config
 }
 
@@ -45,7 +45,7 @@ async function exists(path) {
 
 async function fetchOk(url) {
 	const response = await fetch(url)
-	if (!response.ok) throw new Error(`Download failed (${response.status}): ${url}`)
+	if (!response.ok) {throw new Error(`Download failed (${response.status}): ${url}`)}
 	return response
 }
 
@@ -58,9 +58,11 @@ async function ensureNodeRuntime() {
 		const runtime = execFileSync(nodeExecutable, ['-p', '`${process.version} ${process.arch}`'], {
 			encoding: 'utf8',
 		}).trim()
+
 		if (runtime !== `v${nodeVersion} arm64`) {
 			throw new Error(`Unexpected cached Node runtime: ${runtime}`)
 		}
+
 		return { executable: nodeExecutable, distribution: nodeDistribution }
 	}
 
@@ -69,11 +71,11 @@ async function ensureNodeRuntime() {
 	const checksums = await (await fetchOk(`${baseUrl}/SHASUMS256.txt`)).text()
 	const checksumLine = checksums.split(/\r?\n/).find((line) => line.endsWith(`  ${nodeArchive}`))
 	const expectedHash = checksumLine?.split(/\s+/)[0]
-	if (!expectedHash) throw new Error(`Node ${nodeVersion} has no checksum for ${nodeArchive}`)
+	if (!expectedHash) {throw new Error(`Node ${nodeVersion} has no checksum for ${nodeArchive}`)}
 
 	const archive = Buffer.from(await (await fetchOk(`${baseUrl}/${nodeArchive}`)).arrayBuffer())
 	const actualHash = createHash('sha256').update(archive).digest('hex')
-	if (actualHash !== expectedHash) throw new Error(`Node archive checksum mismatch: ${actualHash}`)
+	if (actualHash !== expectedHash) {throw new Error(`Node archive checksum mismatch: ${actualHash}`)}
 
 	const archivePath = join(cacheRoot, nodeArchive)
 	await writeFile(archivePath, archive)
@@ -81,6 +83,7 @@ async function ensureNodeRuntime() {
 	if (!(await exists(nodeExecutable))) {
 		throw new Error(`Node ${nodeVersion} did not extract to ${nodeExecutable}`)
 	}
+
 	return { executable: nodeExecutable, distribution: nodeDistribution }
 }
 
@@ -133,6 +136,7 @@ function signApp({ signingIdentity, entitlementsPath, nativeRuntimeBinary, mainE
 		'--timestamp',
 		nativeRuntimeBinary,
 	])
+
 	run('codesign', ['--verify', '--strict', '--verbose=2', nativeRuntimeBinary])
 	run('codesign', [
 		'--force',
@@ -145,13 +149,14 @@ function signApp({ signingIdentity, entitlementsPath, nativeRuntimeBinary, mainE
 		entitlementsPath,
 		appPath,
 	])
+
 	run('codesign', ['--verify', '--deep', '--strict', '--verbose=2', appPath])
 	console.log('[macos-package] app signed with Developer ID')
 	return true
 }
 
 function signDiskImage(signingIdentity, bundleIdentifier, dmgPath) {
-	if (!signingIdentity) return
+	if (!signingIdentity) {return}
 	run('codesign', [
 		'--force',
 		'--sign',
@@ -161,12 +166,13 @@ function signDiskImage(signingIdentity, bundleIdentifier, dmgPath) {
 		bundleIdentifier,
 		dmgPath,
 	])
+
 	run('codesign', ['--verify', '--strict', '--verbose=2', dmgPath])
 	console.log('[macos-package] disk image signed with Developer ID')
 }
 
 function notarize(notaryProfile, dmgPath) {
-	if (!notaryProfile) return
+	if (!notaryProfile) {return}
 	run('xcrun', ['notarytool', 'submit', dmgPath, '--keychain-profile', notaryProfile, '--wait'])
 	run('xcrun', ['stapler', 'staple', dmgPath])
 	run('xcrun', ['stapler', 'validate', dmgPath])
@@ -185,13 +191,14 @@ export async function packageMacOS(appRoot) {
 	if (notaryProfile && !signingIdentity) {
 		throw new Error('MACOS_NOTARY_PROFILE requires MACOS_SIGNING_IDENTITY.')
 	}
+
 	if (signingIdentity && !entitlementsPath) {
 		throw new Error('Set xplat.targets.macos.package.entitlements before using MACOS_SIGNING_IDENTITY.')
 	}
 
 	console.log('[macos-package] building production Octane bundle')
 	run('pnpm', ['exec', 'vite', 'build', '--config', viteConfig], { cwd: appRoot })
-	if (!existsSync(bundleFile)) throw new Error(`Packaged JS bundle not found: ${bundleFile}`)
+	if (!existsSync(bundleFile)) {throw new Error(`Packaged JS bundle not found: ${bundleFile}`)}
 
 	let nativeRuntimePackage
 	try {
@@ -199,6 +206,7 @@ export async function packageMacOS(appRoot) {
 	} catch {
 		throw new Error(`Cannot resolve ${nativeRuntimePackageName} from the app. Declare it in dependencies.`)
 	}
+
 	const nativeRuntimeSource = join(nativeRuntimePackage, runtimeFrameworkRelativePath)
 	const nativeRuntimeBinary = join(
 		nativeRuntimeSource,
@@ -206,6 +214,7 @@ export async function packageMacOS(appRoot) {
 		'A',
 		'NativeScript',
 	)
+
 	if (!(await exists(nativeRuntimeBinary))) {
 		throw new Error(`NativeScript runtime binary missing: ${nativeRuntimeBinary}`)
 	}
@@ -238,11 +247,13 @@ export async function packageMacOS(appRoot) {
 			'@nativescript',
 			'macos-node-api',
 		)
+
 		const runtimeFrameworkPath = join(nativeRuntimePath, runtimeFrameworkRelativePath)
 		await mkdir(dirname(runtimeFrameworkPath), { recursive: true })
 		for (const file of ['index.cjs', 'index.mjs', 'index.d.ts', 'package.json', 'LICENSE']) {
 			await cp(join(nativeRuntimePackage, file), join(nativeRuntimePath, file))
 		}
+
 		await cp(nativeRuntimeSource, runtimeFrameworkPath, { recursive: true })
 
 		await writeFile(
@@ -253,6 +264,7 @@ export async function packageMacOS(appRoot) {
 				`${nativeRuntimePackageName}\n${nativeLicense}`,
 			].join('\n\n'),
 		)
+
 		await writeFile(join(contentsPath, 'Info.plist'), writeInfoPlist(settings))
 
 		const packageBuildRoot = dirname(bundleFile)
@@ -268,6 +280,7 @@ export async function packageMacOS(appRoot) {
 				'createRequire(entry)(entry)',
 			].join('\n'),
 		)
+
 		await writeFile(seaConfigPath, JSON.stringify({ main: bootstrapPath, output: mainExecutable }, null, 2))
 		console.log(`[macos-package] embedding Node ${nodeVersion} arm64 runtime`)
 		run(nodeRuntime.executable, ['--build-sea', seaConfigPath])
@@ -285,6 +298,7 @@ export async function packageMacOS(appRoot) {
 			mainExecutable,
 			appPath,
 		})
+
 		if (notaryProfile && !signed) {
 			throw new Error('Notarization requested for an unsigned bundle.')
 		}
@@ -301,6 +315,7 @@ export async function packageMacOS(appRoot) {
 			'UDZO',
 			dmgPath,
 		])
+
 		signDiskImage(signingIdentity, settings.bundleIdentifier, dmgPath)
 		notarize(notaryProfile, dmgPath)
 

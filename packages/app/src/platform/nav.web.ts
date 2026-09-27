@@ -11,12 +11,14 @@ export function navigate(...args: NavigateArgs) {
 		Record<string, unknown>?,
 		{ into?: string; presentation?: 'push' | 'modal' | 'fade' }?,
 	]
+
 	pushRoute({
 		stack: opts?.into ?? 'root',
 		name,
 		params: params ?? {},
 		presentation: opts?.presentation,
 	})
+
 	console.log('[probe] nav web → ' + location.pathname)
 }
 

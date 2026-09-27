@@ -19,6 +19,7 @@ import { globSync } from 'node:fs'
 const registry = JSON.parse(
 	readFileSync(new URL('./ns-css-registry.json', import.meta.url), 'utf8'),
 )
+
 const SUPPORTED = new Set(registry.properties)
 
 // Props NS drops that we still write for web — each entry must carry the
@@ -46,6 +47,7 @@ const WEB_ONLY_BLOCK = /\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xp
 const corePkg = createRequire(join(process.cwd(), 'apps/native/package.json')).resolve(
 	'@nativescript/core/package.json',
 )
+
 const cssTree = createRequire(corePkg)('css-tree')
 
 const FILES = globSync('{packages/*/src,packages/create/template/src}/**/*.css', { cwd: process.cwd() })
@@ -61,6 +63,7 @@ for (const file of FILES) {
 		WEB_ONLY_BLOCK,
 		(m) => m.replace(/[^\n]/g, ' '),
 	)
+
 	const ast = cssTree.parse(stripped, { positions: true, filename: rel })
 
 	cssTree.walk(ast, (node) => {
@@ -73,6 +76,7 @@ for (const file of FILES) {
 		if (isCustomProp(prop) || SUPPORTED.has(prop)) {
 			return
 		}
+
 		if (isVendorPrefix(prop) || DROPPED_INTENTIONAL.has(prop)) {
 			console.log(`${loc}  ${prop}  — dropped on native (${DROPPED_INTENTIONAL.get(prop) ?? 'vendor prefix'})`)
 			warned++

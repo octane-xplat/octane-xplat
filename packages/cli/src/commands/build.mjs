@@ -78,6 +78,7 @@ export const build = command({
 						t.kind === 'web'
 							? ['exec', 'vite', 'build']
 							: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
+
 					await runTagged(t.kind, 'pnpm', argv, cwd)
 				}
 			} catch (e) {

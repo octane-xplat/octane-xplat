@@ -9,7 +9,7 @@ let nextActionId = 1
 
 function invokeAction(actionId) {
 	const action = actionHandlers.get(actionId)
-	if (action) action()
+	if (action) {action()}
 }
 
 class ButtonActionTarget extends NSObject {
@@ -47,7 +47,7 @@ class AccessibleStackView extends NSStackView {
 
 	accessibilityPerformPress() {
 		const actionId = actionIdsByView.get(this)
-		if (actionId === undefined || !actionHandlers.has(actionId)) return false
+		if (actionId === undefined || !actionHandlers.has(actionId)) {return false}
 		invokeAction(actionId)
 		return true
 	}
@@ -70,9 +70,11 @@ function makeStack(props, StackClass = NSStackView) {
 		origin: { x: 0, y: 0 },
 		size: { width: 480, height: 320 },
 	})
+
 	stack.orientation = props.flexDirection === 'row'
 		? NSUserInterfaceLayoutOrientation.Horizontal
 		: NSUserInterfaceLayoutOrientation.Vertical
+
 	stack.alignment = NSLayoutAttribute.CenterX
 	stack.distribution = NSStackViewDistribution.Fill
 	stack.spacing = Number(props.gap ?? props.spacing ?? 14)
@@ -86,6 +88,7 @@ function makeFlexbox(props) {
 		typeof props.onTap === 'function' || props.accessibilityRole === 'button'
 			? nextActionId++
 			: undefined
+
 	if (actionId !== undefined) {
 		actionIdsByView.set(stack, actionId)
 		actionHandlers.set(actionId, null)
@@ -93,6 +96,7 @@ function makeFlexbox(props) {
 			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed'),
 		)
 	}
+
 	return { view: stack, actionId }
 }
 
@@ -101,6 +105,7 @@ function makeLabel() {
 		origin: { x: 0, y: 0 },
 		size: { width: 400, height: 32 },
 	})
+
 	label.bezeled = false
 	label.drawsBackground = false
 	label.editable = false
@@ -117,6 +122,7 @@ function makeButton(props) {
 		buttonActionTarget,
 		'buttonPressed',
 	)
+
 	button.bezelStyle = NSBezelStyle.Rounded
 	button.setButtonType(NSButtonType.MomentaryLight)
 	button.translatesAutoresizingMaskIntoConstraints = false
@@ -154,6 +160,7 @@ function makeNode(container, id, type, props) {
 		default:
 			throw new Error('AppKit spike does not support <' + type + '>')
 	}
+
 	const node = { id, type, view, props: {}, parent: null, children: [], container, actionId, text: '' }
 	applyProps(node, props)
 	return node
@@ -161,7 +168,7 @@ function makeNode(container, id, type, props) {
 
 function nativeColor(value) {
 	const match = /^#([\da-f]{6})$/i.exec(String(value))
-	if (!match) throw new Error('AppKit spike expects #rrggbb colors, received ' + value)
+	if (!match) {throw new Error('AppKit spike expects #rrggbb colors, received ' + value)}
 	const hex = match[1]
 	return NSColor.colorWithRedGreenBlueAlpha(
 		parseInt(hex.slice(0, 2), 16) / 255,
@@ -172,10 +179,10 @@ function nativeColor(value) {
 }
 
 function applyStyle(node, style) {
-	if (style == null) return
-	if (typeof style !== 'object') throw new Error('AppKit spike expects style to be an object')
+	if (style == null) {return}
+	if (typeof style !== 'object') {throw new Error('AppKit spike expects style to be an object')}
 	for (const [name, value] of Object.entries(style)) {
-		if (value == null) continue
+		if (value == null) {continue}
 		if (name === 'fontSize' && node.type === 'label') {
 			node.view.font = NSFont.systemFontOfSize(Number(value))
 		} else if (name === 'color' && node.type === 'label') {
@@ -197,7 +204,7 @@ function applyStyle(node, style) {
 }
 
 function syncText(parent) {
-	if (parent?.type !== 'label') return
+	if (parent?.type !== 'label') {return}
 	parent.view.stringValue = parent.children
 		.filter((child) => child.view === null)
 		.map((child) => child.text)
@@ -213,6 +220,7 @@ function setAction(node, value) {
 			NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed'),
 		)
 	}
+
 	actionHandlers.set(
 		node.actionId,
 		typeof value === 'function'
@@ -229,9 +237,10 @@ function setAction(node, value) {
 
 function applyAccessibility(node, name, value) {
 	if (node.type === 'flexboxlayout' && node.actionId !== undefined) {
-		if (name === 'accessibilityLabel') accessibilityLabels.set(node.actionId, String(value ?? ''))
-		if (name === 'accessibilityRole') accessibilityRoles.set(node.actionId, String(value ?? ''))
+		if (name === 'accessibilityLabel') {accessibilityLabels.set(node.actionId, String(value ?? ''))}
+		if (name === 'accessibilityRole') {accessibilityRoles.set(node.actionId, String(value ?? ''))}
 	}
+
 	if (node.type === 'label' && name === 'accessibilityLabel') {
 		node.view.setAccessibilityLabel?.(String(value ?? ''))
 	}
@@ -240,30 +249,32 @@ function applyAccessibility(node, name, value) {
 function applyProps(node, props) {
 	node.props = { ...node.props, ...props }
 	if (node.type === '#text') {
-		if ('value' in props) node.text = String(props.value ?? '')
+		if ('value' in props) {node.text = String(props.value ?? '')}
 		syncText(node.parent)
 		return
 	}
+
 	for (const [name, value] of Object.entries(props)) {
 		switch (node.type) {
 			case 'stack':
-				if (name === 'spacing') node.view.spacing = Number(value ?? 0)
-				else if (name === 'style') applyStyle(node, value)
-				else if (name === 'className' || name === 'id') continue
-				else throw new Error('AppKit <stack> does not support the ' + name + ' prop')
+				if (name === 'spacing') {node.view.spacing = Number(value ?? 0)}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id') {continue}
+				else {throw new Error('AppKit <stack> does not support the ' + name + ' prop')}
+
 				break
 			case 'flexboxlayout':
-				if (name === 'gap') node.view.spacing = Number(value ?? 0)
-				else if (name === 'spacing') node.view.spacing = Number(value ?? 0)
+				if (name === 'gap') {node.view.spacing = Number(value ?? 0)}
+				else if (name === 'spacing') {node.view.spacing = Number(value ?? 0)}
 				else if (name === 'flexDirection') {
 					node.view.orientation = value === 'row'
 						? NSUserInterfaceLayoutOrientation.Horizontal
 						: NSUserInterfaceLayoutOrientation.Vertical
-				} else if (name === 'style') applyStyle(node, value)
-				else if (name === 'className' || name === 'id') continue
-				else if (name === 'onTap') setAction(node, value)
-				else if (name === 'onTouch') continue
-				else if (name.startsWith('on') && value == null) continue
+				} else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id') {continue}
+				else if (name === 'onTap') {setAction(node, value)}
+				else if (name === 'onTouch') {continue}
+				else if (name.startsWith('on') && value == null) {continue}
 				else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
 				} else if (
@@ -282,26 +293,28 @@ function applyProps(node, props) {
 						'alignSelf',
 						'order',
 					].includes(name)
-				) continue
-				else throw new Error('AppKit <flexboxlayout> does not support the ' + name + ' prop')
+				) {continue}
+				else {throw new Error('AppKit <flexboxlayout> does not support the ' + name + ' prop')}
+
 				break
 			case 'label':
 				if (name === 'text') {
 					node.view.stringValue = String(value ?? '')
 				} else if (name === 'fontSize') {
 					node.view.font = NSFont.systemFontOfSize(Number(value ?? 16))
-				} else if (name === 'style') applyStyle(node, value)
-				else if (name === 'className' || name === 'id') continue
-				else if (['maxLines', 'whiteSpace', 'textOverflow', 'accessible'].includes(name)) continue
-				else if (name.startsWith('accessibility')) applyAccessibility(node, name, value)
-				else if (name.startsWith('on') && value == null) continue
+				} else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id') {continue}
+				else if (['maxLines', 'whiteSpace', 'textOverflow', 'accessible'].includes(name)) {continue}
+				else if (name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
+				else if (name.startsWith('on') && value == null) {continue}
 				else {
 					throw new Error('AppKit <label> does not support the ' + name + ' prop')
 				}
+
 				break
 			case 'button':
-				if (name === 'title') node.view.title = String(value ?? '')
-				else if (name === 'enabled') node.view.enabled = value !== false
+				if (name === 'title') {node.view.title = String(value ?? '')}
+				else if (name === 'enabled') {node.view.enabled = value !== false}
 				else if (name === 'onPress') {
 					actionHandlers.set(
 						node.actionId,
@@ -315,9 +328,10 @@ function applyProps(node, props) {
 							}
 							: null,
 					)
-				} else if (name === 'style') applyStyle(node, value)
-				else if (name === 'className' || name === 'id') continue
-				else throw new Error('AppKit <button> does not support the ' + name + ' prop')
+				} else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id') {continue}
+				else {throw new Error('AppKit <button> does not support the ' + name + ' prop')}
+
 				break
 		}
 	}
@@ -326,13 +340,15 @@ function applyProps(node, props) {
 function detach(container, node) {
 	const siblings = node.parent?.children ?? container.children
 	const index = siblings.indexOf(node)
-	if (index >= 0) siblings.splice(index, 1)
+	if (index >= 0) {siblings.splice(index, 1)}
 	if (node.view) {
 		if (node.parent?.type === 'stack' || node.parent?.type === 'flexboxlayout') {
 			node.parent.view.removeArrangedSubview(node.view)
 		}
+
 		node.view.removeFromSuperview()
 	}
+
 	syncText(node.parent)
 	node.parent = null
 }
@@ -340,10 +356,11 @@ function detach(container, node) {
 function insert(container, parentId, node, beforeId) {
 	detach(container, node)
 	const parent = parentId === null ? null : container.nodes.get(parentId)
-	if (parentId !== null && !parent) throw new Error('Unknown AppKit parent ' + parentId)
+	if (parentId !== null && !parent) {throw new Error('Unknown AppKit parent ' + parentId)}
 	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout') {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
+
 	const siblings = parent ? parent.children : container.children
 	const beforeIndex = beforeId === null ? -1 : siblings.findIndex((child) => child.id === beforeId)
 	const index = beforeIndex < 0 ? siblings.length : beforeIndex
@@ -351,7 +368,7 @@ function insert(container, parentId, node, beforeId) {
 	node.parent = parent
 	if (node.view) {
 		const parentView = parent?.view ?? container.hostView
-		if (!parentView) throw new Error('AppKit host has no parent view for node ' + node.id)
+		if (!parentView) {throw new Error('AppKit host has no parent view for node ' + node.id)}
 		if (parent) {
 			parentView.addViewInGravity(node.view, NSStackViewGravity.Center)
 		} else {
@@ -366,16 +383,18 @@ function insert(container, parentId, node, beforeId) {
 
 function remove(container, parentId, node) {
 	const expectedParent = parentId === null ? null : container.nodes.get(parentId)
-	if (node.parent !== expectedParent) return
+	if (node.parent !== expectedParent) {return}
 	const siblings = expectedParent ? expectedParent.children : container.children
 	const index = siblings.indexOf(node)
-	if (index >= 0) siblings.splice(index, 1)
+	if (index >= 0) {siblings.splice(index, 1)}
 	if (node.view) {
 		if (expectedParent?.type === 'stack' || expectedParent?.type === 'flexboxlayout') {
 			expectedParent.view.removeArrangedSubview(node.view)
 		}
+
 		node.view.removeFromSuperview()
 	}
+
 	node.parent = null
 	syncText(expectedParent)
 }
@@ -395,38 +414,38 @@ function applyCommand(container, command) {
 			return
 		case 'update': {
 			const node = container.nodes.get(command.id)
-			if (!node) throw new Error('Unknown AppKit node ' + command.id)
+			if (!node) {throw new Error('Unknown AppKit node ' + command.id)}
 			applyProps(node, command.props)
 			return
 		}
 		case 'insert':
 		case 'move': {
 			const node = container.nodes.get(command.id)
-			if (!node) throw new Error('Unknown AppKit node ' + command.id)
+			if (!node) {throw new Error('Unknown AppKit node ' + command.id)}
 			insert(container, command.parent, node, command.before)
 			return
 		}
 		case 'remove': {
 			const node = container.nodes.get(command.id)
-			if (node) remove(container, command.parent, node)
+			if (node) {remove(container, command.parent, node)}
 			return
 		}
 		case 'destroy': {
 			const node = container.nodes.get(command.id)
-			if (node) destroy(node)
+			if (node) {destroy(node)}
 			container.nodes.delete(command.id)
 			return
 		}
 		case 'visibility': {
 			const node = container.nodes.get(command.id)
-			if (node?.view) node.view.hidden = command.state === 'hidden'
+			if (node?.view) {node.view.hidden = command.state === 'hidden'}
 			return
 		}
 		case 'ensure-public-instance':
 			return
 		case 'recreate': {
 			const node = container.nodes.get(command.id)
-			if (!node) throw new Error('Unknown AppKit node ' + command.id)
+			if (!node) {throw new Error('Unknown AppKit node ' + command.id)}
 			const replacement = makeNode(container, command.id, command.type, command.props)
 			const parent = node.parent
 			const siblings = parent ? parent.children : container.children
@@ -449,7 +468,7 @@ const macOSDriver = {
 	prepareBatch(container, batch) {
 		return {
 			apply() {
-				for (const command of batch.commands) applyCommand(container, command)
+				for (const command of batch.commands) {applyCommand(container, command)}
 			},
 			abort() {},
 		}
@@ -465,6 +484,7 @@ export function createMacOSRoot(hostView) {
 		scheduleMicrotask: (callback) => queueMicrotask(callback),
 		onUncaughtError: (error) => console.error('[macos-runtime] uncaught render error', error),
 	})
+
 	container.root = root
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 		Object.defineProperty(root, '__macosDebug', {
@@ -494,7 +514,8 @@ export function createMacOSRoot(hostView) {
 							candidate.actionId !== undefined &&
 							accessibilityLabels.get(candidate.actionId) === label,
 					)
-					if (!node) throw new Error('No AppKit pressable labeled ' + label)
+
+					if (!node) {throw new Error('No AppKit pressable labeled ' + label)}
 					if (!node.view.accessibilityPerformPress()) {
 						throw new Error('AppKit pressable has no action for ' + label)
 					}
@@ -503,12 +524,14 @@ export function createMacOSRoot(hostView) {
 					const node = [...container.nodes.values()].find(
 						(candidate) => candidate.type === 'button' && candidate.view.title === title,
 					)
-					if (!node) throw new Error('No AppKit button titled ' + title)
+
+					if (!node) {throw new Error('No AppKit button titled ' + title)}
 					node.view.performClick(null)
 				},
 			},
 		})
 	}
+
 	return root
 }
 

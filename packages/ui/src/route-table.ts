@@ -294,12 +294,14 @@ function encodeRouteParam(value: unknown, routeName: string, key: string): strin
 	console.warn(
 		`[octane-xplat] route '${routeName}' param '${key}' is non-scalar; JSON-encoding it for the URL`,
 	)
+
 	try {
 		return JSON_PARAM_PREFIX + JSON.stringify(value)
 	} catch {
 		console.warn(
 			`[octane-xplat] route '${routeName}' param '${key}' could not be JSON-encoded; using an empty value`,
 		)
+
 		return ''
 	}
 }

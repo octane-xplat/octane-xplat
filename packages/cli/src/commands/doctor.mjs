@@ -45,6 +45,7 @@ const packageName = (specifier) => {
 	if (!specifier.startsWith('@') && !specifier.includes('/')) {
 		return specifier
 	}
+
 	const parts = specifier.split('/')
 	return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]
 }
@@ -68,12 +69,14 @@ const sourceFiles = (root) => {
 	if (!existsSync(root)) {
 		return []
 	}
+
 	const out = []
 	const visit = (dir) => {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			if (entry.name === 'node_modules' || entry.name.startsWith('.')) {
 				continue
 			}
+
 			const file = join(dir, entry.name)
 			if (entry.isDirectory()) {
 				visit(file)
@@ -96,6 +99,7 @@ const workspacePackages = (cwd) => {
 			if (!existsSync(parent)) {
 				continue
 			}
+
 			for (const name of readdirSync(parent)) {
 				const root = join(parent, name)
 				const manifest = readJson(join(root, 'package.json'))
@@ -109,6 +113,7 @@ const workspacePackages = (cwd) => {
 		if (next === dir) {
 			break
 		}
+
 		dir = next
 	}
 
@@ -120,6 +125,7 @@ const packageRoot = (cwd, name, workspaces) => {
 	if (existsSync(join(direct, 'package.json'))) {
 		return direct
 	}
+
 	return workspaces.get(name)
 }
 
@@ -154,6 +160,7 @@ export function findMissingPluginDeclarations(cwd) {
 	for (const dir of ['app', 'src/app']) {
 		pending.push(...sourceFiles(join(cwd, dir)))
 	}
+
 	const visited = new Set()
 	const frameworks = new Map()
 
@@ -162,6 +169,7 @@ export function findMissingPluginDeclarations(cwd) {
 		if (visited.has(file)) {
 			continue
 		}
+
 		visited.add(file)
 		let source
 		try {
@@ -176,6 +184,7 @@ export function findMissingPluginDeclarations(cwd) {
 				if (!frameworks.has(name)) {
 					frameworks.set(name, new Set())
 				}
+
 				frameworks.get(name).add(relative(cwd, file) || parse(file).base)
 				continue
 			}
@@ -194,6 +203,7 @@ export function findMissingPluginDeclarations(cwd) {
 				if (!missing.has(plugin)) {
 					missing.set(plugin, new Set())
 				}
+
 				missing.get(plugin).add(framework)
 			}
 		}
@@ -214,6 +224,7 @@ export function findHmrScopeGaps(cwd) {
 	if (!existsSync(join(cwd, 'nativescript.config.ts'))) {
 		return []
 	}
+
 	const tsconfig = readJson(join(cwd, 'tsconfig.json'))
 	let paths = tsconfig?.compilerOptions?.paths
 	if (!paths && typeof tsconfig?.extends === 'string') {
@@ -245,6 +256,7 @@ export function findHmrScopeGaps(cwd) {
 		if (visited.has(file)) {
 			continue
 		}
+
 		visited.add(file)
 		let source
 		try {
@@ -259,9 +271,11 @@ export function findHmrScopeGaps(cwd) {
 			if (!root) {
 				continue
 			}
+
 			if (!covered.has(name)) {
 				gaps.add(name)
 			}
+
 			pending.push(...sourceFiles(root))
 		}
 	}
@@ -356,6 +370,7 @@ export const doctor = command({
 			const runtimeVersion =
 				manifest.dependencies?.['@nativescript/macos-node-api'] ??
 				manifest.devDependencies?.['@nativescript/macos-node-api']
+
 			const scripts = manifest.scripts ?? {}
 			const macHost = process.platform === 'darwin'
 			const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
@@ -372,24 +387,28 @@ export const doctor = command({
 				process.platform,
 				'run AppKit Node-API development and packaging on macOS',
 			)
+
 			row(
 				'macOS architecture',
 				process.arch === 'arm64',
 				process.arch,
 				'the current packaged runtime targets Apple Silicon (arm64)',
 			)
+
 			row(
 				'macOS dev script',
 				typeof scripts.dev === 'string',
 				scripts.dev ? 'present' : 'missing',
 				'define scripts.dev in package.json to start the AppKit host',
 			)
+
 			row(
 				'macOS package config',
 				packageIssues.length === 0,
 				packageIssues.length ? packageIssues.join('; ') : packageConfig.bundleIdentifier,
 				'declare xplat.targets.macos.package metadata and valid Vite/entitlements paths',
 			)
+
 			row(
 				'macOS Node-API runtime',
 				typeof runtimeVersion === 'string',
@@ -406,6 +425,7 @@ export const doctor = command({
 					codesign.out || 'available',
 					'ensure /usr/bin/codesign is available',
 				)
+
 				row(
 					'hdiutil',
 					hdiutil.ok,
@@ -422,6 +442,7 @@ export const doctor = command({
 					signingIdentity ? 'Developer ID configured' : 'not configured',
 					'set MACOS_SIGNING_IDENTITY when MACOS_NOTARY_PROFILE is set',
 				)
+
 				row(
 					'xcrun notarytool',
 					notarytool.ok,

@@ -139,16 +139,20 @@ function property(object, key) {
 	if (!ts.isObjectLiteralExpression(object)) {
 		return undefined
 	}
+
 	for (const item of object.properties) {
 		if (!ts.isPropertyAssignment(item)) {
 			continue
 		}
+
 		const name =
 			ts.isIdentifier(item.name) || ts.isStringLiteral(item.name) ? item.name.text : undefined
+
 		if (name === key) {
 			return item.initializer
 		}
 	}
+
 	return undefined
 }
 
@@ -158,15 +162,18 @@ function arrayDeclaration(path, name, kind) {
 		if (!ts.isVariableStatement(statement)) {
 			continue
 		}
+
 		for (const declaration of statement.declarationList.declarations) {
 			if (ts.isIdentifier(declaration.name) && declaration.name.text === name) {
 				if (!declaration.initializer || !ts.isArrayLiteralExpression(declaration.initializer)) {
 					throw new Error(`${path}: ${name} must be a literal array`)
 				}
+
 				return declaration.initializer.elements
 			}
 		}
 	}
+
 	throw new Error(`${path}: could not find ${name}`)
 }
 
@@ -177,23 +184,28 @@ function exportNames(path) {
 		if (ts.isExportAssignment(statement)) {
 			throw new Error(`${path}: parity coverage needs named exports`)
 		}
+
 		if (ts.isExportDeclaration(statement)) {
 			if (statement.isTypeOnly) {
 				continue
 			}
+
 			if (!statement.exportClause || !ts.isNamedExports(statement.exportClause)) {
 				throw new Error(`${path}: parity coverage needs explicit named exports`)
 			}
+
 			for (const item of statement.exportClause.elements) {
 				const fromRenderer = /\.(?:tsx|tsrx|jsx)$/.test(
 					statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier)
 						? statement.moduleSpecifier.text
 						: '',
 				)
+
 				if (!item.isTypeOnly && (fromRenderer || /^[A-Z]/.test(item.name.text))) {
 					names.add(item.name.text)
 				}
 			}
+
 			continue
 		}
 
@@ -206,9 +218,11 @@ function exportNames(path) {
 		) {
 			continue
 		}
+
 		if (ts.getModifiers(statement)?.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword)) {
 			throw new Error(`${path}: parity coverage needs named exports`)
 		}
+
 		if (
 			(ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) &&
 			statement.name &&
@@ -216,6 +230,7 @@ function exportNames(path) {
 		) {
 			names.add(statement.name.text)
 		}
+
 		if (ts.isVariableStatement(statement)) {
 			for (const declaration of statement.declarationList.declarations) {
 				if (ts.isIdentifier(declaration.name) && /^[A-Z]/.test(declaration.name.text)) {
@@ -224,6 +239,7 @@ function exportNames(path) {
 			}
 		}
 	}
+
 	return names
 }
 
@@ -234,10 +250,12 @@ for (const [name, reason] of NON_RENDERABLE) {
 	if (!reason.trim()) {
 		errors.push(`${name}: non-renderable exports need a reason`)
 	}
+
 	if (!sharedRendererExports.has(name)) {
 		errors.push(`${name}: stale non-renderable export reason`)
 	}
 }
+
 const sharedComponents = new Set(
 	[...sharedRendererExports].filter((name) => !NON_RENDERABLE.has(name)),
 )
@@ -251,6 +269,7 @@ for (const element of arrayDeclaration(fixturePath, 'FIXTURES', ts.ScriptKind.TS
 		errors.push(`${fixturePath}: each fixture needs literal name and component fields`)
 		continue
 	}
+
 	fixtures.push({ name, component })
 }
 
@@ -269,10 +288,12 @@ for (const fixture of fixtures) {
 	if (fixtureNames.has(fixture.name)) {
 		errors.push(`duplicate fixture name: ${fixture.name}`)
 	}
+
 	fixtureNames.add(fixture.name)
 	if (!sharedComponents.has(fixture.component)) {
 		errors.push(`${fixture.name}: ${fixture.component} is not a shared PascalCase export`)
 	}
+
 	coveredComponents.add(fixture.component)
 	if (!checkFixtures.has(fixture.name)) {
 		errors.push(`${fixture.name}: no measured assertion is registered in ${checksPath}`)
@@ -290,10 +311,12 @@ for (const group of DEFERRED_GROUPS) {
 	if (!group.reason.trim()) {
 		errors.push('deferred coverage groups need a reason')
 	}
+
 	for (const component of group.components) {
 		if (deferredComponents.has(component)) {
 			errors.push(`${component}: appears in more than one deferred coverage group`)
 		}
+
 		deferredComponents.add(component)
 	}
 }
@@ -321,6 +344,7 @@ if (errors.length) {
 	for (const error of errors) {
 		console.error(`  - ${error}`)
 	}
+
 	process.exitCode = 1
 } else {
 	console.log(

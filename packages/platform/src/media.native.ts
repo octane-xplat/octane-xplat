@@ -54,9 +54,11 @@ async function ensureCamera(): Promise<PermissionResult> {
 			if (status === 3) {
 				return 'granted'
 			}
+
 			if (status === 1 || status === 2) {
 				return 'denied'
 			}
+
 			return await new Promise<PermissionResult>((resolve) => {
 				av.requestAccessForMediaTypeCompletionHandler(video, (granted: boolean) =>
 					resolve(granted ? 'granted' : 'denied'),
@@ -71,6 +73,7 @@ async function ensureCamera(): Promise<PermissionResult> {
 		if (activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED) {
 			return 'granted'
 		}
+
 		if (!activity) {
 			return 'denied'
 		}
@@ -86,6 +89,7 @@ async function ensureCamera(): Promise<PermissionResult> {
 					Application.android.activityRequestPermissionsEvent,
 					onResult,
 				)
+
 				resolve(
 					args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
 						? 'granted'
@@ -97,6 +101,7 @@ async function ensureCamera(): Promise<PermissionResult> {
 				Application.android.activityRequestPermissionsEvent,
 				onResult,
 			)
+
 			activity.requestPermissions([perm], requestCode)
 		})
 	} catch (e) {

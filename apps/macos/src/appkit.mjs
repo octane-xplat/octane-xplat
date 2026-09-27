@@ -7,6 +7,7 @@ let resolveClosed
 const closed = new Promise((resolve) => {
 	resolveClosed = resolve
 })
+
 let running = true
 
 class AppDelegate extends NSObject {
@@ -42,8 +43,9 @@ class AppDelegate extends NSObject {
 			'kCFRunLoopDefaultMode',
 			true,
 		)
-		if (event !== null) app.sendEvent(event)
-		if (running) setTimeout(() => this.pumpEvents(), 10)
+
+		if (event !== null) {app.sendEvent(event)}
+		if (running) {setTimeout(() => this.pumpEvents(), 10)}
 	}
 }
 
@@ -59,6 +61,7 @@ export function createAppKitWindow() {
 		2,
 		false,
 	)
+
 	window.title = 'Octane macOS spike'
 	window.releasedWhenClosed = false
 	window.center()
@@ -70,6 +73,7 @@ export function createAppKitWindow() {
 		origin: { x: 0, y: 0 },
 		size: { width: 640, height: 420 },
 	})
+
 	window.contentView = contentView
 	window.makeKeyAndOrderFront(app)
 
@@ -84,6 +88,7 @@ export function showDetailsWindow(count) {
 			2,
 			false,
 		)
+
 		detailsWindow.title = 'Octane Details'
 		detailsWindow.releasedWhenClosed = false
 		detailsWindow.center()
@@ -92,10 +97,12 @@ export function showDetailsWindow(count) {
 			origin: { x: 0, y: 0 },
 			size: { width: 360, height: 180 },
 		})
+
 		detailsLabel = NSTextField.alloc().initWithFrame({
 			origin: { x: 0, y: 0 },
 			size: { width: 300, height: 40 },
 		})
+
 		detailsLabel.bezeled = false
 		detailsLabel.drawsBackground = false
 		detailsLabel.editable = false

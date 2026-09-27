@@ -89,6 +89,7 @@ function dump(hay: string[]): string {
 let stepStack = 'demos'
 const stackFor = (id: string) =>
 	DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos'
+
 // Self-drawn Tabs panes hold no Frame — their content lives inside the
 // root Page's subtree, so fall back to it for text/probe reads.
 const demosPage = () => getStack(stepStack)?.currentPage ?? getStack('root')?.currentPage
@@ -786,6 +787,7 @@ const STEPS: Step[] = [
 							deltaX: 0,
 							deltaY: 0,
 						})
+
 						o.callback.call(o.context, {
 							eventName: 'pan',
 							object: row,
@@ -876,6 +878,7 @@ const STEPS: Step[] = [
 							deltaX: 0,
 							deltaY: 0,
 						})
+
 						o.callback.call(o.context, {
 							eventName: 'pan',
 							object: row,
@@ -884,6 +887,7 @@ const STEPS: Step[] = [
 							deltaX: 0,
 							deltaY: -80,
 						})
+
 						o.callback.call(o.context, {
 							eventName: 'pan',
 							object: row,
@@ -977,10 +981,12 @@ const STEPS: Step[] = [
 					const svgs = collect(demosPage()).filter(
 						(v) => v?.constructor?.name === 'SVGView',
 					)
+
 					const sized = svgs.filter((v) => {
 						const s = v.getActualSize?.() ?? {}
 						return (s.width ?? 0) > 0 && (s.height ?? 0) > 0
 					})
+
 					console.log(
 						'[assert] icon svgview glyphs: ' +
 							(svgs.length >= 2 && sized.length === svgs.length ? 'OK' : 'FAIL') +
@@ -1021,6 +1027,7 @@ function selectTab(stack: string) {
 		console.log('[sweep] selectTab ' + stack + ' — no tap target for "' + TAB_LABEL[stack] + '"')
 		return
 	}
+
 	fireTap(target)
 }
 
@@ -1062,6 +1069,7 @@ if (!SKIP) {
 function runStep(i: number) {
 	if (i >= STEPS.length) {
 		console.log('[sweep] done')
+
 		// Parity step waits on this — a root push mid-sweep corrupts the
 		// sweep's page lookups. The paritysweep module registers the slot.
 		;(globalThis as any).__xplatSweepDone?.()
@@ -1116,6 +1124,7 @@ function runStepBody(step: Step, i: number) {
 			fireTap(chip) +
 			chipInfo,
 	)
+
 	waitFor(
 		() => pushedRoute() != null,
 		() => {

@@ -94,5 +94,6 @@ export function docPath(slug: string): string {
 	if (NOTES.has(slug)) {
 		return `/notes/${slug}`
 	}
+
 	return slug === INDEX_SLUG ? '/' : `/${slug}`
 }

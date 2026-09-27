@@ -7,8 +7,8 @@ import { spawnTagged } from '../procs.mjs'
 import { generateRoutes } from './routes.mjs'
 
 const spawnFor = (t, cwd) => {
-	if (t.kind === 'web') return spawnTagged('web', 'pnpm', ['exec', 'vite'], cwd)
-	if (t.kind === 'macos') return spawnTagged('macos', 'pnpm', ['run', 'dev'], cwd)
+	if (t.kind === 'web') {return spawnTagged('web', 'pnpm', ['exec', 'vite'], cwd)}
+	if (t.kind === 'macos') {return spawnTagged('macos', 'pnpm', ['run', 'dev'], cwd)}
 	return spawnTagged(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
 }
 

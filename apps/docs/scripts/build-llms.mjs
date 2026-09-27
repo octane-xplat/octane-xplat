@@ -19,10 +19,12 @@ function rewriteLinks(md) {
 		if (/^(https?:|#|mailto:)/.test(href)) {
 			return m
 		}
+
 		const doc = href.replace(/^\.\//, '').match(/^([\w-]+)\.md(#.*)?$/)
 		if (doc) {
 			return `](${BASE}${docPath(doc[1])}${doc[2] ?? ''})`
 		}
+
 		const path = href.replace(/^(\.\.\/)+/, '').replace(/^\.\//, '')
 		const kind = path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'
 		return `](${REPO}/${kind}/main/${path})`
@@ -34,6 +36,7 @@ for (const name of await readdir(docsDir)) {
 	if (!name.endsWith('.md')) {
 		continue
 	}
+
 	const md = await readFile(join(docsDir, name), 'utf8')
 	const slug = name.replace(/\.md$/, '')
 	docs.push({ slug, title: titleOf(slug, md), purpose: purposeOf(md), guide: !NOTES.has(slug), md })

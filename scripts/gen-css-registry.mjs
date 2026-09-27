@@ -29,6 +29,7 @@ function scan(dir) {
 		}
 	}
 }
+
 scan(join(coreDir, 'ui'))
 
 // Parsed by CssAnimationParser (css-animation-parser.js), not registered
@@ -55,4 +56,5 @@ writeFileSync(
 	new URL('./ns-css-registry.json', import.meta.url),
 	JSON.stringify(registry, null, '\t') + '\n',
 )
+
 console.log(`[css-registry] ${registry.properties.length} properties from ${registry.generatedFrom}`)

@@ -13,4 +13,5 @@ void closed.then(() => {
 	window.close()
 	appKit.delegate = null
 })
+
 app.run()

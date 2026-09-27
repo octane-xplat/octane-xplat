@@ -35,9 +35,11 @@ export async function ensureCameraPermission(): Promise<boolean> {
 			if (status === 3) {
 				return true
 			}
+
 			if (status === 1 || status === 2) {
 				return false
 			}
+
 			return await new Promise<boolean>((resolve) => {
 				av.requestAccessForMediaTypeCompletionHandler(video, (granted: boolean) =>
 					resolve(granted),
@@ -56,9 +58,11 @@ export async function ensureCameraPermission(): Promise<boolean> {
 			) {
 				return true
 			}
+
 			if (!activity) {
 				return false
 			}
+
 			return await new Promise<boolean>((resolve) => {
 				const requestCode = cameraRequestCode++
 				const onResult = (args: any) => {
@@ -70,6 +74,7 @@ export async function ensureCameraPermission(): Promise<boolean> {
 						Application.android.activityRequestPermissionsEvent,
 						onResult,
 					)
+
 					resolve(
 						args.grantResults?.[0] ===
 							android.content.pm.PackageManager.PERMISSION_GRANTED,
@@ -80,6 +85,7 @@ export async function ensureCameraPermission(): Promise<boolean> {
 					Application.android.activityRequestPermissionsEvent,
 					onResult,
 				)
+
 				activity.requestPermissions([perm], requestCode)
 			})
 		}
