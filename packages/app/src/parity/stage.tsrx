@@ -16,7 +16,7 @@ export function ParityStage() @{
 		@for (const f of FIXTURES; key f.name) {
 			<View id={'cell-' + f.name} className="parity-cell">
 				<Text className="parity-label">{f.name}</Text>
-				<View className="parity-box">{f.render()}</View>
+				<View className={f.wide ? 'parity-box parity-box--fill' : 'parity-box'}>{f.render()}</View>
 			</View>
 		}
 	</View>

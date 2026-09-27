@@ -1,3 +1,4 @@
+import { Application } from '@nativescript/core'
 import { getStack } from '@octane-xplat/ui'
 import { STYLE_FACETS } from './style-facets'
 
@@ -76,12 +77,14 @@ export function measureTree(stageView: any) {
 		cells[name] = [box, ...childrenOf(box)].map((c) => nodeFor(c, box, boxLoc))
 	}
 
-	return { target: 'native', cells }
+	return { target: Application.android ? 'android' : 'ios', cells }
 }
 
 /** Same seam as the web leaf — the sweep calls __xplatParity() once the
  *  parity route is pushed on the root stack. */
 export function installParityDump() {
+	;(globalThis as any).__xplatParityPage = () => getStack('root')?.currentPage
+
 	;(globalThis as any).__xplatParity = () => {
 		const page = getStack('root')?.currentPage as any
 		const stage = page?.getViewById?.('parity-stage')

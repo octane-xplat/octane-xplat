@@ -72,6 +72,20 @@ body {
 	gap: 12px;
 }
 
+/* flex-start, not the stretch default: NS FlexboxLayout's cross-axis
+   stretch re-measures a child EXACTLY to the line — it clobbers the
+   child's explicit width where web stretch respects it. Fixtures assert
+   intrinsic size unless marked `wide` (fill context), so the cell and the
+   box both start flex-start; --fill restores the app-default stretch. */
+.parity-cell,
+.parity-box {
+	align-items: flex-start;
+}
+
+.parity-box--fill {
+	align-items: stretch;
+}
+
 .parity-box {
 	width: 220px;
 	height: 64px;
@@ -80,6 +94,20 @@ body {
 .parity-label {
 	font-size: 10px;
 	color: var(--color-text-secondary);
+}
+
+/* Raw gridplacement probe — fixed size, fixed cell, no alignments. */
+.probe-grid {
+	width: 220px;
+	height: 28px;
+}
+
+.probe-grid-cell {
+	width: 20px;
+	height: 20px;
+	background-color: var(--color-primary);
+	vertical-align: middle;
+	border-radius: 50%;
 }
 
 /* Section groups — spacing + a small muted label, no boxes. `.vx-app label`

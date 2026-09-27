@@ -36,6 +36,12 @@ const normValue = (v) => {
 		return v
 	}
 
+	// '6', '6px', '6dip' — same length across engines (native reports dips
+	// bare, web reports px).
+	if (/^-?\d+(\.\d+)?(px|dip)?$/.test(v.trim())) {
+		return parseFloat(v)
+	}
+
 	const m = v.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/)
 	if (m) {
 		return '#' + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')
@@ -53,6 +59,9 @@ const resolve = (dump, fixture, elements) => (name) => {
 
 	return node
 }
+
+// check(m, target) — target is the dump file's name ('web', 'ios', ...)
+// so checks can encode intentional divergences explicitly.
 
 const facetOf = (node, path) => {
 	const parts = path.split('.')
@@ -94,7 +103,7 @@ for (const def of CHECKS) {
 
 		let rows
 		try {
-			rows = def.check(m)
+			rows = def.check(m, target)
 		} catch (e) {
 			report(false, `${def.fixture} · ${target} · check`, e.message)
 			continue

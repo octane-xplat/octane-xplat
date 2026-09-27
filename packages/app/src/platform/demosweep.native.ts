@@ -1061,6 +1061,11 @@ if (!SKIP) {
 
 function runStep(i: number) {
 	if (i >= STEPS.length) {
+		console.log('[sweep] done')
+		// Parity step waits on this — a root push mid-sweep corrupts the
+		// sweep's page lookups. The paritysweep module registers the slot.
+		;(globalThis as any).__xplatSweepDone?.()
+
 		return
 	}
 

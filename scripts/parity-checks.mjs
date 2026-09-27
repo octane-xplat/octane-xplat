@@ -75,7 +75,7 @@ export const CHECKS = [
 			'fill.style.backgroundColor',
 			'thumb.style.backgroundColor',
 		],
-		check: (m) => {
+		check: (m, target) => {
 			const host = m('host')
 			const track = m('track')
 			const fill = m('fill')
@@ -85,7 +85,14 @@ export const CHECKS = [
 				dims(track, 220, 4, 1),
 				dims(thumb, 20, 20),
 				['empty fill', near(fill.box.w, 0, 1), fill.box.w],
-				['thumb centered at 0', near(thumb.box.x + thumb.box.w / 2 - track.box.x, 0, 1)],
+				// Intentional divergence: web centers the thumb ON the track
+				// edge (translate(-50%) → overhang -10), native clamps flush
+				// inside the track — same clamp semantic as UISlider.
+				[
+					'thumb at min edge (web overhangs −10, native clamps flush)',
+					near(thumb.box.x - track.box.x, target === 'web' ? -10 : 0, 1),
+					thumb.box.x - track.box.x,
+				],
 			]
 		},
 	},
@@ -108,6 +115,38 @@ export const CHECKS = [
 				['thumb centered at 50%', near(thumb.box.x + thumb.box.w / 2 - track.box.x, 110, 1)],
 			]
 		},
+	},
+	{
+		// Regression for the @import/css-strip leak: children of a bare
+		// gridlayout must place inside their cell — leaked web-only
+		// position/transform rules previously offset them by −50 dips.
+		fixture: 'grid-probe',
+		elements: { cell: 'probe-grid-cell', thumb: 'vx-slider-thumb' },
+		equal: [],
+		check: (m, target) => [
+			dims(m('cell'), 20, 20),
+			// Intentional divergence: a fixed-size grid child resolves
+			// stretch→start on web but centers in the NS cell. Also,
+			// vx-slider-thumb carries web-only absolute+translate css —
+			// -10/-10-ish on web, middle-of-cell on native.
+			[
+				'cell placement (web start 0,0 / native center 100,4)',
+				target === 'web'
+					? near(m('cell').box.x, 0, 1) && near(m('cell').box.y, 0, 1)
+					: near(m('cell').box.x, 100, 1) && near(m('cell').box.y, 4, 1),
+			],
+			// native-only: if web-only css leaks, the thumb gets a −50dip
+			// translate. On web it's abs-positioned relative to a
+			// non-positioned ancestor — a meaningless number, so no assert.
+			...(target === 'web'
+				? []
+				: [
+						[
+							'thumb centers in cell (no leaked translate)',
+							near(m('thumb').box.x, 100, 1) && near(m('thumb').box.y, 4, 1),
+						],
+					]),
+		],
 	},
 	{
 		fixture: 'checkbox-off',
@@ -142,10 +181,7 @@ export const CHECKS = [
 			return [
 				['button fills the stage box', near(btn.box.w, 220, 1), btn.box.w],
 				['label child renders', label.text === 'Go', JSON.stringify(label.text)],
-				[
-					'label centered in button',
-					near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1),
-				],
+				['label centered in button', near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1)],
 			]
 		},
 	},

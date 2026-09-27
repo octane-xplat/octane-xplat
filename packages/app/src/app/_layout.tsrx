@@ -8,6 +8,9 @@ import { navigate } from '../platform/nav';
 import type { TabSpec } from '@octane-xplat/ui';
 // Probe-only module: schedules the demo-gallery sweep on native; no-op on web.
 import '../platform/demosweep';
+// Parity dump step — runs after the sweep via the __xplatSweepDone slot;
+// no-op on web (Playwright dumps /parity directly).
+import '../platform/paritysweep';
 // Registers the tab-strip icon glyphs (svg + sys:// pairs).
 import '../icons';
 

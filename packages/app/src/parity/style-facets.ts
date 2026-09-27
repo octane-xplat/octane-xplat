@@ -10,6 +10,8 @@ export const STYLE_FACETS = [
 	'fontSize',
 	'fontWeight',
 	'opacity',
+	'marginLeft',
+	'marginTop',
 	'display',
 	'flexDirection',
 	'justifyContent',
