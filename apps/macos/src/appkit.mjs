@@ -154,7 +154,7 @@ function makeContentView(size) {
 
 const WINDOW_KINDS = new Set(['regular', 'dialog', 'popup'])
 
-function normalizeWindowSize(size) {
+function normalizeWindowSize(size, source = 'openWindow') {
 	if (
 		!size ||
 		typeof size !== 'object' ||
@@ -163,7 +163,7 @@ function normalizeWindowSize(size) {
 		size.width <= 0 ||
 		size.height <= 0
 	) {
-		throw new TypeError('openWindow size must have positive finite width and height')
+		throw new TypeError(`${source} size must have positive finite width and height`)
 	}
 
 	return { width: size.width, height: size.height }
@@ -311,7 +311,7 @@ export function openWindow(options = {}) {
 			nativeWindow.title = String(title)
 		},
 		setSize(next) {
-			nativeWindow.setContentSize(next)
+			nativeWindow.setContentSize(normalizeWindowSize(next, 'setSize'))
 		},
 		close() {
 			if (kind === 'dialog' && parentWindow) {
