@@ -4,11 +4,24 @@
 	"files": [
 		"dist",
 		"types",
+		"src/index.macos.ts",
+		"src/View.native.tsrx",
+		"src/Text.native.tsrx",
+		"src/Pressable.native.tsrx",
+		"src/cx.ts",
+		"src/layout-child.native.ts",
+		"src/pan.native.tsrx",
+		"src/props.ts",
+		"src/escape-props.native.ts",
 		"src/theme/tokens.css"
 	],
 	"type": "module",
 	"exports": {
 		".": {
+			"macos": {
+				"types": "./types/index.macos.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"web": "./src/index.web.ts",
 			"native": "./src/index.native.ts",
 			"default": "./src/index.native.ts"
@@ -30,6 +43,10 @@
 	"publishConfig": {
 		"exports": {
 			".": {
+				"macos": {
+					"types": "./types/index.macos.d.ts",
+					"default": "./src/index.macos.ts"
+				},
 				"web": {
 					"types": "./types/index.web.d.ts",
 					"default": "./dist/web/ui.js"

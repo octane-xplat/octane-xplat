@@ -22,17 +22,16 @@ children, and `Pressable.onPress`. It does not implement NativeScript CSS or
 `className`, flexbox layout generally, or the other `Pressable` gestures and
 press-in/press-out callbacks.
 
-`App.tsx` imports from `@octane-xplat/ui`, but Vite redirects that specifier to
-`src/renderer/shared-ui.ts`, which re-exports the same `View`, `Text`, and
-`Pressable` native leaf implementations exposed by the package's native index.
-The full native root barrel also re-exports unrelated NativeScript components;
-bundling it pulls in `@nativescript/core` platform imports that have no macOS
-resolver. App-local shims replace the leaves' iOS/Android escape-prop helper
-and the eagerly imported NativeScript pan utility. This proves those component
-implementations with the AppKit host, but it does not prove direct loading of
-the package root entry. Both dev and packaged builds depend on this app-local
-Vite boundary; a reusable macOS integration still needs an intentional package
-export and resolver boundary.
+`App.tsx` imports `View`, `Text`, and `Pressable` directly from
+`@octane-xplat/ui`. The package's `macos` root condition selects
+`src/index.macos.ts` and its narrow declaration file. That entry exposes only
+these three components, reusing their native leaves; it does not imply that the
+full NativeScript root barrel works on macOS. The AppKit Vite config compiles
+those leaves with its renderer and still supplies app-local shims for the
+NativeScript core and escape-prop helpers they import. The UI package includes
+those leaf sources and their local helper files so the AppKit Vite build can
+compile this bounded root surface. `tsconfig.json` sets the `macos` custom
+condition so TypeScript selects the matching declarations.
 
 In development, Vite rebuilds edited components and the running Node process
 passes the replacement through Octane's universal HMR wrapper. This preserves

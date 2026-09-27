@@ -3,11 +3,31 @@
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
+	"exports": {
+		"./renderer": {
+			"types": "./src/renderer/index.d.ts",
+			"import": "./src/renderer/index.mjs"
+		},
+		"./renderer/intrinsics": "./src/renderer/intrinsics.d.ts",
+		"./renderer/jsx-runtime": "./src/renderer/jsx-runtime.d.ts"
+	},
 	"scripts": {
 		"xplat": "xplat",
 		"dev": "node ./scripts/dev.mjs",
 		"build": "vite build",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"package": "xplat build --targets macos"
+	},
+	"dependencies": {
+		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
+		"@octane-xplat/ui": "workspace:*",
+		"octane": "0.5.0"
+	},
+	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"@octanejs/vite-plugin": "0.1.60",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
 	},
 	"xplat": {
 		"targets": {
@@ -25,24 +45,5 @@
 				}
 			}
 		}
-	},
-	"exports": {
-		"./renderer": {
-			"types": "./src/renderer/index.d.ts",
-			"import": "./src/renderer/index.mjs"
-		},
-		"./renderer/intrinsics": "./src/renderer/intrinsics.d.ts",
-		"./renderer/jsx-runtime": "./src/renderer/jsx-runtime.d.ts"
-	},
-	"dependencies": {
-		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
-		"@octane-xplat/ui": "workspace:*",
-		"octane": "0.5.0"
-	},
-	"devDependencies": {
-		"@octane-xplat/cli": "workspace:*",
-		"@octanejs/vite-plugin": "0.1.60",
-		"typescript": "5.9.3",
-		"vite": "8.3.0"
 	}
 }

@@ -27,6 +27,10 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 					rules: [
 						{ include: 'src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/ui/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{
+							include: '**/node_modules/@octane-xplat/ui/src/**/*.{tsx,tsrx}',
+							renderer: rendererId,
+						},
 					],
 				},
 			}),
@@ -45,7 +49,7 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 			},
 		},
 		resolve: {
-			conditions: ['native'],
+			conditions: ['macos', 'native'],
 			alias: [
 				...(packaged
 					? [
@@ -55,12 +59,6 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 							},
 						]
 					: []),
-				// The native root barrel re-exports the full NativeScript surface.
-				// Keep this spike on the three public leaf implementations it proves.
-				{
-					find: '@octane-xplat/ui',
-					replacement: resolve(appRoot, 'src/renderer/shared-ui.ts'),
-				},
 				{ find: /^octane$/, replacement: 'octane/universal/native' },
 				{
 					find: './escape-props',

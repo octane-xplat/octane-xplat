@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "@xplat/macos/renderer",
+		"customConditions": ["macos"],
+		"lib": ["ESNext"],
+		"allowJs": true,
+		"checkJs": false
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist", "artifacts"]
+}
