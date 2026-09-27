@@ -13,7 +13,8 @@
 	"dependencies": {
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
-		"@xplat/demos": "workspace:*"
+		"@xplat/demos": "workspace:*",
+		"@xplat/media-probe": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.1",

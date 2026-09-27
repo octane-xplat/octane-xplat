@@ -14,6 +14,22 @@ export default {
 		v8Flags: '--expose_gc',
 		markingMode: 'none',
 	},
+	ios: {
+		SPMPackages: [
+			{
+				name: 'Pulsar',
+				libs: ['Pulsar'],
+				repositoryURL: 'https://github.com/software-mansion-labs/pulsar-ios',
+				version: '1.4.0',
+			},
+		],
+		NativeSource: [
+			{
+				name: 'XplatMediaProbe',
+				path: '../../packages/media-probe/platforms/ios/src/**/*.swift',
+			},
+		],
+	},
 	bundler: 'vite',
 	bundlerConfigPath: 'vite.config.mts',
 } as NativeScriptConfig
