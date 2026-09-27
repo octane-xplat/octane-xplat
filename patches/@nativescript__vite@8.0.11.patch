@@ -1,3 +1,85 @@
+diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
+index 54b8fba2def7ed0128e8e1dd4b2549d25559de82..fd276ae860d0805533be0bff4399247b38ebac01 100644
+--- a/hmr/server/websocket-module-bindings.js
++++ b/hmr/server/websocket-module-bindings.js
+@@ -7,6 +7,7 @@ import { getProjectRootPath } from '../../helpers/project.js';
+ import { extractRootPackageName } from '../shared/package-classifier.js';
+ import { isEsmFrameworkPackageSpecifier, isLikelyNativeScriptPluginSpecifier, isLikelyNativeScriptRuntimePluginSpecifier, normalizeNodeModulesSpecifier, resolveInternalRuntimePluginBareSpecifier, resolveNodeModulesPackageBoundary, resolveVendorFromCandidate, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
+ import { MODULE_IMPORT_ANALYSIS_PLUGINS } from './websocket-served-module-helpers.js';
++import { getVendorManifest, resolveVendorSpecifier } from '../shared/vendor/registry.js';
+ const sourceImportIntentCache = new Map();
+ const EXPLICIT_RUNTIME_PLUGIN_SCRIPT_EXT_RE = /(?:\.(?:ios|android|visionos))?\.(?:ts|tsx|js|jsx|mjs|mts|cts)$/i;
+ function hasExplicitRuntimePluginScriptExtension(segment) {
+@@ -109,6 +110,9 @@ export function ensureNativeScriptModuleBindings(code, options) {
+             }
+             const runtimePluginBareSpecifier = resolveInternalRuntimePluginBareSpecifier(specifier, getProjectRootPath());
+             let canonical = runtimePluginBareSpecifier || resolveVendorFromCandidate(specifier);
++            if (canonical && getVendorManifest() && !resolveVendorSpecifier(canonical)) {
++                canonical = null;
++            }
+             const runtimePluginSpecifier = isLikelyNativeScriptRuntimePluginSpecifier(canonical || specifier, getProjectRootPath());
+             // Preserving a bare vendor id is only correct where the IMPORT MAP
+             // exists to route it (main realm). Worker realms have no import map —
+@@ -120,7 +124,7 @@ export function ensureNativeScriptModuleBindings(code, options) {
+                 preservedImports.push(original);
+                 continue;
+             }
+-            if (!canonical && isLikelyNativeScriptPluginSpecifier(specifier, getProjectRootPath())) {
++            if (!canonical && isLikelyNativeScriptPluginSpecifier(specifier, getProjectRootPath()) && (!getVendorManifest() || resolveVendorSpecifier(specifier))) {
+                 canonical = specifier;
+             }
+             if (canonical && /^@nativescript\/core(\b|\/)/i.test(canonical)) {
+@@ -163,6 +167,9 @@ export function ensureNativeScriptModuleBindings(code, options) {
+         }
+         const runtimePluginBareSpecifier = resolveInternalRuntimePluginBareSpecifier(specifier, getProjectRootPath());
+         let canonical = runtimePluginBareSpecifier || resolveVendorFromCandidate(specifier);
++        if (canonical && getVendorManifest() && !resolveVendorSpecifier(canonical)) {
++            canonical = null;
++        }
+         const runtimePluginSpecifier = isLikelyNativeScriptRuntimePluginSpecifier(canonical || specifier, getProjectRootPath());
+         // See the side-effect branch above: bare preservation relies on the main
+         // realm's import map; in a worker serve (vendorImportsAsHttp) it must not
+@@ -171,7 +178,7 @@ export function ensureNativeScriptModuleBindings(code, options) {
+             preservedImports.push(original);
+             continue;
+         }
+-        if (!canonical && isLikelyNativeScriptPluginSpecifier(specifier, getProjectRootPath())) {
++        if (!canonical && isLikelyNativeScriptPluginSpecifier(specifier, getProjectRootPath()) && (!getVendorManifest() || resolveVendorSpecifier(specifier))) {
+             canonical = specifier;
+         }
+         if (canonical && /^@nativescript\/core(\b|\/)/i.test(canonical)) {
+diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
+index 2f1dd5d5d688076c5fc0ec8c5c888f9e834e7831..543bb17951813d47d34b6650b74c6663e8c38213 100644
+--- a/hmr/server/websocket-module-specifiers.js
++++ b/hmr/server/websocket-module-specifiers.js
+@@ -794,16 +794,24 @@ export function resolveVendorRouting(nodeModulesSpec, projectRoot) {
+     if (rootPackageName && pkgName !== rootPackageName) {
+         return { route: 'http' };
+     }
+-    if (isLikelyNativeScriptRuntimePluginSpecifier(pkgName, projectRoot) && (!subpath || isRootLevelMainEntry)) {
++    // A plugin-patterned package absent from an active vendor manifest (a
++    // transitive dep under pnpm's isolated linker, an NS_VENDOR_EXCLUDE/
++    // flavor-excluded package) must not take the vendor route — the registry
++    // has no entry and the sync require resolves to the missing-module stub.
++    // Fall through to null so callers emit the per-module /ns/m HTTP form,
++    // which resolves transitive deps through Vite's importer-aware resolution.
++    // A null manifest (early boot) keeps the legacy behavior.
++    const manifest = getVendorManifest();
++    const pluginVendored = !manifest || !!manifest.modules?.[pkgName];
++    if (isLikelyNativeScriptRuntimePluginSpecifier(pkgName, projectRoot) && pluginVendored && (!subpath || isRootLevelMainEntry)) {
+         return { route: 'vendor', bareSpec: pkgName };
+     }
+-    if (isLikelyNativeScriptRuntimePluginSpecifier(pkgName, projectRoot) && subpath.includes('/')) {
++    if (isLikelyNativeScriptRuntimePluginSpecifier(pkgName, projectRoot) && pluginVendored && subpath.includes('/')) {
+         const exactBareSpecifier = resolveInternalRuntimePluginBareSpecifier(nodeModulesSpec, projectRoot);
+         if (exactBareSpecifier) {
+             return { route: 'vendor', bareSpec: exactBareSpecifier };
+         }
+     }
+-    const manifest = getVendorManifest();
+     if (!manifest?.modules?.[pkgName]) {
+         return null;
+     }
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
 index b54aefcc839e95906d76d02e522c052a706ca76f..f743ffd852e2915acbbd42a0f7d80964e86718a4 100644
 --- a/hmr/server/websocket-ns-m-request.js
