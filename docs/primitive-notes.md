@@ -610,23 +610,53 @@ measurement and correction of unknown row sizes.
 | Octane window over NativeScript `ScrollView` on iOS | 9 rows mounted initially; variable row bounds and indexed jump passed. The original split update shifted `r200` by `-36` dip; the retry committed items and logical offset together, then wrote the native offset after layout. `r200` stayed at y=343 (`0` dip drift) after prepending 68 dip | Passes the known-size prepend anchor gate; the successful update sequence is recorded in Q28 |
 | Existing `UITableView` / `RecyclerView` leaves | 10 iOS / 11 Android rows mounted for the initial viewport; indexed jump, visible-item query, and no cross-row state leak passed; prepend moved the target by `+72` / `+73` dip | Native recycling works, but these leaves do not yet meet the shared prepend-anchor behavior |
 
-The Stage 1 gate now passes for this known-size probe on web, iOS, and Android.
-Only the previously failing iOS anchor leg was rerun for this update; the web
-and Android probes were unchanged, so their Stage 1 passes are retained.
-Decision #58 selects an **Octane-owned window** as the Stage 2 implementation
-direction: DOM scrolling on web and NativeScript `ScrollView` on iOS and
-Android. Keep `UITableView`/`RecyclerView` in the platform subpaths for apps
-that want their native list behavior. This is a provisional engine direction,
-not a shipped `VirtualList` guarantee.
+The Stage 1 gate passes for the known-size probe on web, iOS, and Android.
+Only the previously failing iOS anchor leg was rerun for that update; the web
+and Android probes were unchanged. Decision #58 selects an **Octane-owned
+window**: DOM scrolling on web and NativeScript `ScrollView` on iOS and
+Android. Stage 2 validates this engine boundary for the vertical foundation.
+Keep `UITableView`/`RecyclerView` in the platform subpaths for apps that
+want their platform-authentic list behavior.
 
-The probe supplied row heights, so it does not establish FlashList v2's
-automatic measurement and correction of unknown row sizes. Recycling-safe
-reuse under fast scroll, viewability callbacks, heterogeneous item types,
-grid/masonry, sticky rows, load thresholds, and long-session performance also
-remain untested. Q29 tracks post-layout height changes and anchor correction.
-Keep small arrays on `ScrollView` + `items.map(...)` until the virtualized
-contract is shipped.
+Stage 1 supplied row heights. Stage 2 verifies post-layout correction after a
+measured row changes height (Q29). Recycling-safe reuse under fast scroll,
+viewability callbacks, heterogeneous item types, grid/masonry, sticky rows,
+load thresholds, and long-session performance remain untested; Q30 tracks the
+fast-scroll and performance boundary. Small arrays remain `ScrollView` +
+`items.map(...)`.
 
+## VirtualList vertical foundation (Stage 2; 2026-09-27)
+
+The shared `VirtualList` contract is implemented in the root UI barrel. It
+accepts `items`, a stable unique `keyExtractor`, optional `getItemType`,
+and `renderItem`, with optional `renderEmpty`, `renderHeader`,
+`renderFooter`, and `renderSeparator` slots. Rows use measured variable
+heights and a bounded window with one viewport of overscan. The window is
+Octane-owned on every target: a DOM scroll container on web and NativeScript
+`ScrollView` on iOS and Android. Native `UITableView`/`RecyclerView` remain
+available for their platform-authentic behavior.
+
+Rows outside the window unmount; this implementation does not recycle cell
+instances. State local to an unmounted row is lost, so durable row state must
+be kept outside the row and keyed by item identity. `getItemType` participates
+in row identity but does not enable a recycled-cell pool. Feed/chat callbacks,
+scroll handles, fast-scroll performance budgets, and advanced layouts remain
+outside this stage.
+
+The post-layout measurement gate changed row `r15` from 72 to 96 units while
+keeping a keyed visible row within the 2-unit tolerance on all targets:
+
+| Target | Anchor drift | Window after correction |
+| --- | ---: | ---: |
+| Web | 0.28 px | 18 mounted rows |
+| iOS simulator | 0.00 dip | 9 visible / 24 mounted |
+| Android emulator | 1.14 dip | 10 visible / 28 mounted |
+
+Header, footer, separator, empty, and restore behavior also passed on web, iOS,
+and Android. This validates measured-height correction and bounded windowing;
+it does not establish FlashList v2 performance or feature parity. Decision #58
+records the chosen engine boundary. Q30 tracks the remaining fast-scroll and
+performance validation.
 Capability references: [FlashList v2 usage](https://shopify.github.io/flash-list/docs/usage/)
 for dynamic sizing, recycling-safe state, viewability, and visible-position
 maintenance; [Lynx `list`](https://lynxjs.org/next/api/elements/built-in/list.html)

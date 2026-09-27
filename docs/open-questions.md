@@ -206,9 +206,17 @@ LiveRegion` unwired in leaves so far).
     gate for known-size rows; it does not prove correction after an unknown
     row height changes. Evidence: lab experiment, see
     [primitive-notes](primitive-notes.md#virtuallist-feasibility-stage-1-2026-09-26).
-29. ⏳ **Preserve the visible anchor through measured-height changes.** — Can
-    the Octane-owned `VirtualList` keep a keyed visible row within 2 dip when
-    an item above it changes height after layout, while updating its
-    measurement cache and scroll offset on web, iOS, and Android? Validate the
-    measured bounds, visible range, and absence of blank or duplicate rows.
+29. ✅ **Preserve the visible anchor through measured-height changes.** — A
+    measured row above the anchor grew from 72 to 96 units after layout. The
+    keyed visible row stayed within 2 screen units on all targets: 0.28 px on
+    web, 0.00 dip on iOS, and 1.14 dip on Android. The measurement cache and
+    bounded nonblank window updated on each target; the probe also verified
+    headers, footers, separators, empty state, and restoring rows. Evidence:
+    passed lab experiment in Silo; see
+    [primitive-notes](primitive-notes.md#virtuallist-vertical-foundation-stage-2-2026-09-27).
+30. ⏳ **Set the VirtualList fast-scroll and performance boundary.** — Does the
+    current bounded, unmounting window stay blank-free and meet an acceptable
+    performance budget under sustained fast scrolling and long sessions on
+    web, iOS, and Android? Profile before deciding whether cell recycling is
+    needed. Off-window rows currently unmount and lose local component state.
     Evidence: queued lab experiment in Silo.
