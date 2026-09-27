@@ -93,7 +93,7 @@ sweeps remain skipped on #11444.
 | Seam                    | Web                                          | iOS                                             | Android                                    | Kind             | Verified |
 | ----------------------- | -------------------------------------------- | ----------------------------------------------- | ------------------------------------------ | ---------------- | -------- |
 | Push into a named stack | nested-outlet URL push                       | commits but loses bookkeeping ([NS#11444](https://github.com/NativeScript/NativeScript/issues/11444)) | warns loudly and drops — raced pushes can crash the fragment manager | `broken-upstream` | 0.5.0    |
-| Hardware back           | browser back → `popstate`                    | — (no hardware back)                            | wired; pop-while-pushed not yet verified live | `different`     | 0.5.0    |
+| Hardware back           | browser back → `popstate`                    | — (no hardware back)                            | wired; `useBackInterceptor()` can handle back before route pop; pop-while-pushed not yet verified live | `different`     | 0.6.0·desk |
 | Route params            | serialize to query string — objects dropped  | objects survive                                 | objects survive                            | `degraded`       | 0.5.0    |
 | `popRoute(stack)`       | `history.back()` regardless of `stack`       | pops that stack                                 | pops that stack                            | `different`      | 0.5.0    |
 
@@ -109,7 +109,7 @@ sweeps remain skipped on #11444.
 | `share`                       | `navigator.share`, else clipboard copy (`'copied'`)              | share sheet          | share sheet                   | `degraded`    | 0.5.0       |
 | `systemBars.setStatusBarStyle` | no-op — `setColor` writes `theme-color` meta instead            | works                | works                         | `unsupported` | 0.5.0       |
 | `notifications`               | local `Notification` only                                        | local + push (APNs)  | local + push (FCM)            | `degraded`    | 0.5.0·desk  |
-| `media.ensure('camera')`      | `getUserMedia`                                                   | unsupported — no capture plugin yet | unsupported      | `unsupported` | 0.5.0·desk  |
+| `media.ensure('camera')` / `capturePhoto()` | Permissions API query may report `unsupported`; `capturePhoto()` uses `<input capture>` (mobile camera UI, desktop file picker) | native camera permission request + still capture in OS camera UI | same as iOS | `different` | 0.6.0·desk |
 | `files`                       | `pick` → blob URL; `writeText` triggers a download               | real file paths      | real paths; SAF `content://` reads | `different` | 0.5.0·desk  |
 
 ## Same edge on every target
