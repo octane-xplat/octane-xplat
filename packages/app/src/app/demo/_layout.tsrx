@@ -4,7 +4,7 @@ import { Text, View } from '@octane-xplat/ui';
  *  (demo/:id here): web outlets wrap the resolved element, native wraps
  *  the pushed Page's root component. The banner proves the wrap. */
 export function DemoLayout(props: { children?: any }) @{
-	<View className="demo-layout">
+	<View className="demo-layout flex-1 min-h-0">
 		<Text className="demo-layout-banner">demo layout</Text>
 		{props.children}
 	</View>

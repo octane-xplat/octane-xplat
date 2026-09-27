@@ -178,7 +178,7 @@ export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | '
 			}
 		</Row>
 		@if (!props.onOpen) {
-			<View className="flex-1">
+			<View className="flex-1 min-h-0">
 				{RENDER[demo]()}
 			</View>
 		}

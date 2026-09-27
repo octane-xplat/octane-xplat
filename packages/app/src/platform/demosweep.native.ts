@@ -9,14 +9,14 @@ import {
 import { findInRootLayouts } from '@octane-xplat/ui/native'
 
 import { DEMOS } from '@xplat/demos'
-import { goBack } from './nav'
+import { goBack, navigate } from './nav'
 import { closeSheet, sheetHost } from './sheet'
 
 // Nested stacks don't work on Android yet — a TabViewItem-hosted Frame
 // accepts pushes (fragment transaction commits) but setCurrent/bookkeeping
 // never runs, and a push raced against attach crashes the FragmentManager
-// (upstream issue NativeScript#11444). Skip the whole sweep there; the
-// base probes still run.
+// (upstream issue NativeScript#11444). Skip the catalog sweep there; the
+// focused VirtualList check below uses the Android-safe swap-pane route.
 const SKIP = Application.android != null
 if (SKIP) {
 	console.log('[sweep] nested stacks skipped on android — upstream #11444')
@@ -92,7 +92,10 @@ const stackFor = (id: string) =>
 
 // Self-drawn Tabs panes hold no Frame — their content lives inside the
 // root Page's subtree, so fall back to it for text/probe reads.
-const demosPage = () => getStack(stepStack)?.currentPage ?? getStack('root')?.currentPage
+const demosPage = () =>
+	Application.android != null
+		? getStack('root')?.currentPage
+		: (getStack(stepStack)?.currentPage ?? getStack('root')?.currentPage)
 // Frame stacks detect pushes via currentPage changes; swap-pane stacks
 // keep the same Page — the route store is the honest signal for both.
 const pushedRoute = () => routeFor(stepStack)
@@ -244,6 +247,468 @@ const find = (id: string) => demosPage()?.getViewById?.(id)
 // search the demos page first, then the first-mounted rootlayout.
 const findOnRoot = (id: string) => demosPage()?.getViewById?.(id) ?? findInRootLayouts(id)
 
+function virtualListRowMetrics(list: any) {
+	return collect(list)
+		.filter((view) => /^row-r\d+$/.test(String(view.id ?? '')))
+		.map((view) => {
+			const size = view.getActualSize?.() ?? {}
+			const screenPoint = view.getLocationOnScreen?.() ?? {}
+			return {
+				id: String(view.id),
+				y: Number(screenPoint.y),
+				height: Number(size.height),
+			}
+		})
+}
+
+function visibleVirtualListRows(list: any) {
+	const listY = Number(list?.getLocationOnScreen?.()?.y)
+	const listHeight = Number(list?.getActualSize?.()?.height)
+	if (!Number.isFinite(listY) || !Number.isFinite(listHeight) || listHeight <= 0) {
+		return []
+	}
+
+	return virtualListRowMetrics(list).filter(
+		(row) =>
+			Number.isFinite(row.y) &&
+			row.height > 0 &&
+			row.y + row.height > listY &&
+			row.y < listY + listHeight,
+	)
+}
+
+function runVirtualListHeightProbe() {
+	const list: any = find('vlist')
+	setVirtualListOffset(list, 960)
+	const heightAnchorReady = () => {
+		const offset = Number(list?.verticalOffset)
+		const listY = Number(list?.getLocationOnScreen?.()?.y)
+		const row15 = virtualListRowMetrics(list).find((row) => row.id === 'row-r15')
+		const anchor = visibleVirtualListRows(list).find((row) => Number(row.id.slice(5)) > 15)
+		return (
+			row15 != null &&
+			Number.isFinite(offset) &&
+			offset >= 900 &&
+			offset < 1300 &&
+			Number.isFinite(listY) &&
+			row15.y + row15.height <= listY &&
+			anchor != null
+		)
+	}
+	waitFor(
+		heightAnchorReady,
+		() => {
+			if (!heightAnchorReady()) {
+				console.log('[assert] VirtualList height anchor setup: FAIL')
+				return
+			}
+
+			const before = visibleVirtualListRows(list).find((row) => Number(row.id.slice(5)) > 15)
+			const row15: any = find('row-r15')
+			const oldHeight = Number(row15?.getActualSize?.().height ?? 0)
+			const rowMetrics = virtualListRowMetrics(list)
+			const variableHeights = new Set(rowMetrics.map((row) => row.height)).size > 1
+
+			console.log(
+				'[assert] VirtualList measures variable row heights: ' + (variableHeights ? 'OK' : 'FAIL'),
+			)
+
+			if (!before || oldHeight <= 0) {
+				console.log('[assert] VirtualList height anchor captured: FAIL')
+				return
+			}
+
+			console.log('[assert] VirtualList height anchor captured: OK (' + before.id + ')')
+			fireTap(tapTargetForText(demosPage(), 'Grow r15'))
+			let previousAnchorY = Number.NaN
+			let stableAnchorSamples = 0
+			const heightAnchorSettled = () => {
+				const newHeight = Number((find('row-r15') as any)?.getActualSize?.().height ?? 0)
+				const after = virtualListRowMetrics(list).find((row) => row.id === before.id)
+				if (newHeight < oldHeight + 23 || !after) {
+					stableAnchorSamples = 0
+					return false
+				}
+
+				if (Math.abs(after.y - before.y) > 2) {
+					stableAnchorSamples = 0
+				} else if (Math.abs(after.y - previousAnchorY) <= 0.5) {
+					stableAnchorSamples += 1
+				} else {
+					stableAnchorSamples = 0
+				}
+
+				previousAnchorY = after.y
+				return stableAnchorSamples >= 2
+			}
+			waitFor(
+				heightAnchorSettled,
+				() => {
+					const after = virtualListRowMetrics(list).find((row) => row.id === before.id)
+					const newHeight = Number((find('row-r15') as any)?.getActualSize?.().height ?? 0)
+					const visible = visibleVirtualListRows(list)
+					const mounted = collect(list).filter((view) =>
+						String(view.className ?? '')
+							.split(/\s+/)
+							.includes('vx-virtual-list-row'),
+					)
+
+					const drift = after ? Math.abs(after.y - before.y) : Number.POSITIVE_INFINITY
+
+					console.log(
+						'[assert] VirtualList records the changed row height: ' +
+							(newHeight >= oldHeight + 23 ? 'OK' : 'FAIL') +
+							' (' +
+							oldHeight +
+							' → ' +
+							newHeight +
+							' dip)',
+					)
+
+					console.log(
+						'[assert] VirtualList corrects a measured row above the anchor within 2 dip: ' +
+							(drift <= 2 ? 'OK' : 'FAIL') +
+							' (' +
+							(Number.isFinite(drift) ? drift.toFixed(2) : 'missing') +
+							' dip)',
+					)
+
+					console.log(
+						'[assert] VirtualList height update keeps a bounded nonblank window: ' +
+							(visible.length > 0 && mounted.length < 40 ? 'OK' : 'FAIL') +
+							' (' +
+							visible.length +
+							' visible, ' +
+							mounted.length +
+							' mounted)',
+					)
+
+					const slotTexts = viewTexts(list)
+					const separators = collect(list).filter((view) =>
+						String(view.className ?? '')
+							.split(/\s+/)
+							.includes('vx-virtual-list-separator'),
+					)
+					const hasSeparatorContent = separators.some((separator) => collect(separator).length > 1)
+					const hasSlots =
+						slotTexts.includes('Variable-height rows · tap rows, then reverse') &&
+						slotTexts.includes('End of 500 rows') &&
+						hasSeparatorContent
+					console.log(
+						'[assert] VirtualList renders header, footer, and separators: ' +
+							(hasSlots ? 'OK' : 'FAIL'),
+					)
+
+					const emptyTarget = tapTargetForText(demosPage(), 'Empty')
+					if (!emptyTarget) {
+						console.log('[assert] VirtualList renders its empty state: FAIL (button missing)')
+						return
+					}
+
+					fireTap(emptyTarget)
+					waitFor(
+						() => viewTexts(find('vlist')).includes('No rows'),
+						() => {
+							const emptyRendered = viewTexts(find('vlist')).includes('No rows')
+							console.log(
+								'[assert] VirtualList renders its empty state: ' + (emptyRendered ? 'OK' : 'FAIL'),
+							)
+
+							const restoreTarget = tapTargetForText(demosPage(), 'Restore')
+							if (!restoreTarget) {
+								console.log(
+									'[assert] VirtualList restores rows after the empty state: FAIL (button missing)',
+								)
+								return
+							}
+
+							fireTap(restoreTarget)
+							waitFor(
+								() =>
+									viewTexts(demosPage()).some((text) => text.startsWith('500 rows ·')) &&
+									collect(find('vlist')).some((view) =>
+										String(view.className ?? '')
+											.split(/\s+/)
+											.includes('vx-virtual-list-row'),
+									),
+								() => {
+									const restored =
+										viewTexts(demosPage()).some((text) => text.startsWith('500 rows ·')) &&
+										collect(find('vlist')).some((view) =>
+											String(view.className ?? '')
+												.split(/\s+/)
+												.includes('vx-virtual-list-row'),
+										)
+									console.log(
+										'[assert] VirtualList restores rows after the empty state: ' +
+											(restored ? 'OK' : 'FAIL'),
+									)
+								},
+								40,
+							)
+						},
+						40,
+					)
+				},
+				40,
+			)
+		},
+		40,
+	)
+}
+
+function setVirtualListOffset(list: any, offset: number) {
+	const nativeView = list?.nativeViewProtected
+	const makePoint = (globalThis as any).CGPointMake
+	if (
+		typeof nativeView?.setContentOffsetAnimated === 'function' &&
+		typeof makePoint === 'function'
+	) {
+		const current = nativeView.contentOffset
+		nativeView.setContentOffsetAnimated(makePoint(current.x, offset), false)
+	} else {
+		list?.scrollToVerticalOffset?.(offset, false)
+	}
+}
+
+function waitForVirtualListDeepRowVisible(
+	list: any,
+	minIndex: number,
+	then: (target: any, rowId: string, rowText: string) => void,
+) {
+	let previousSignature = ''
+	let positionSamples: number[] = []
+	let lastCandidate: { id: string; y: number; height: number } | null = null
+	let lastOffset = Number.NaN
+	let lastListY = Number.NaN
+	let lastListHeight = Number.NaN
+	let lastVisibleSignature = ''
+	let lastSampleSpread = Number.NaN
+	const readVisibleWindow = () => {
+		const listY = Number(list?.getLocationOnScreen?.()?.y)
+		const listHeight = Number(list?.getActualSize?.()?.height)
+		if (!Number.isFinite(listY) || !Number.isFinite(listHeight) || listHeight <= 0) return null
+
+		const rows = virtualListRowMetrics(list).filter(
+			(row) =>
+				Number.isFinite(row.y) &&
+				row.height > 0 &&
+				row.y + row.height > listY &&
+				row.y < listY + listHeight,
+		)
+		const fullyVisible = rows.filter(
+			(row) => row.y >= listY && row.y + row.height <= listY + listHeight,
+		)
+		const candidate = fullyVisible.find((row) => Number(row.id.slice(5)) >= minIndex)
+		return { listY, listHeight, rows, candidate }
+	}
+	const visibleWindowIsStable = () => {
+		const current = readVisibleWindow()
+		if (!current?.candidate) {
+			previousSignature = ''
+			positionSamples = []
+			lastCandidate = current?.candidate ?? null
+			return false
+		}
+
+		const signature = current.rows.map((row) => row.id).join(',')
+		if (signature !== previousSignature) {
+			previousSignature = signature
+			positionSamples = []
+		}
+		positionSamples.push(current.candidate.y)
+		if (positionSamples.length > 20) positionSamples.shift()
+		lastSampleSpread = Math.max(...positionSamples) - Math.min(...positionSamples)
+		lastCandidate = current.candidate
+		lastOffset = Number(list?.verticalOffset ?? 0)
+		lastListY = current.listY
+		lastListHeight = current.listHeight
+		lastVisibleSignature = signature
+		return positionSamples.length === 20 && lastSampleSpread <= 2
+	}
+
+	waitFor(
+		visibleWindowIsStable,
+		() => {
+			if (!visibleWindowIsStable() || !lastCandidate) {
+				console.log(
+					'[assert] VirtualList stable deep visible row: FAIL (offset=' +
+						lastOffset +
+						', candidate=' +
+						(lastCandidate?.id ?? 'missing') +
+						', y=' +
+						(lastCandidate?.y ?? Number.NaN) +
+						', listY=' +
+						lastListY +
+						', listHeight=' +
+						lastListHeight +
+						', window=' +
+						lastVisibleSignature +
+						', sampleSpread=' +
+						lastSampleSpread +
+						')',
+				)
+				return
+			}
+
+			const rowView = find(lastCandidate.id)
+			const rowText = viewTexts(rowView).find((value) => /^Row \d+ · \d+$/.test(value))
+			const target = rowText ? tapTargetForText(list, rowText) : null
+			if (!rowText || !target) {
+				console.log(
+					'[assert] VirtualList stable deep visible row: FAIL (' +
+						lastCandidate.id +
+						', text=' +
+						rowText +
+						')',
+				)
+				return
+			}
+
+			console.log('[assert] VirtualList stable deep visible row: OK (' + lastCandidate.id + ')')
+			then(target, lastCandidate.id, rowText)
+		},
+		160,
+	)
+}
+
+function runVirtualListStateProbe() {
+	let list: any
+	const hasViewport = () => {
+		list = find('vlist')
+		return list?.isLoaded !== false && Number(list?.getActualSize?.()?.height ?? 0) > 0
+	}
+	waitFor(
+		hasViewport,
+		() => {
+			if (!hasViewport()) {
+				const size = list?.getActualSize?.()
+				console.log(
+					'[assert] VirtualList lays out a nonzero viewport: FAIL (' +
+						'loaded=' +
+						String(list?.isLoaded) +
+						' size=' +
+						Number(size?.width ?? 0) +
+						'x' +
+						Number(size?.height ?? 0) +
+						')',
+				)
+				return
+			}
+
+			list?.scrollToVerticalOffset?.(10800, false)
+			const rowMountedAtTarget = () => {
+				const row: any = find('row-r200')
+				return (
+					Number(list?.verticalOffset ?? 0) >= 9000 &&
+					row?.isLoaded !== false &&
+					Number(row?.getActualSize?.()?.height ?? 0) > 0 &&
+					tapTargetForText(list, 'Row 200 · 0') != null
+				)
+			}
+			waitFor(
+				rowMountedAtTarget,
+				() => {
+					if (!rowMountedAtTarget()) {
+						console.log('[assert] VirtualList row 200 mounts at a deep programmatic offset: FAIL')
+						return
+					}
+
+					console.log('[assert] VirtualList row 200 mounts at a deep programmatic offset: OK')
+					waitForVirtualListDeepRowVisible(list, 100, (rowTarget, rowId, rowText) => {
+						const rowIndex = Number(rowId.slice(5))
+						const rowLabel = rowText.slice(0, rowText.lastIndexOf(' · '))
+						const priorPressCount = Number(rowText.slice(rowText.lastIndexOf(' · ') + 3))
+						const pressedText = rowLabel + ' · ' + (priorPressCount + 1)
+						fireTap(rowTarget)
+						waitFor(
+							() => viewTexts(demosPage()).includes(pressedText),
+							() => {
+								const rowPressed = viewTexts(demosPage()).includes(pressedText)
+								console.log(
+									'[assert] VirtualList row-r' +
+										rowIndex +
+										' press updates local state: ' +
+										(rowPressed ? 'OK' : 'FAIL'),
+								)
+								const anchorBefore = visibleVirtualListRows(list)[0]
+								const prependTarget = tapTargetForText(demosPage(), 'Prepend')
+								fireTap(prependTarget)
+								let previousAnchorY = Number.NaN
+								let stableAnchorSamples = 0
+								const prependAnchorStable = () => {
+									const prepended = viewTexts(demosPage()).some((text) =>
+										text.startsWith('501 rows ·'),
+									)
+									const stayed = viewTexts(demosPage()).includes(pressedText)
+									const after = virtualListRowMetrics(list).find(
+										(row) => row.id === anchorBefore?.id,
+									)
+									if (!prepended || !stayed || !anchorBefore || !after) {
+										stableAnchorSamples = 0
+										return false
+									}
+
+									if (Math.abs(after.y - anchorBefore.y) > 2) {
+										stableAnchorSamples = 0
+									} else if (Math.abs(after.y - previousAnchorY) <= 0.5) {
+										stableAnchorSamples += 1
+									} else {
+										stableAnchorSamples = 0
+									}
+
+									previousAnchorY = after.y
+									return stableAnchorSamples >= 2
+								}
+								waitFor(
+									prependAnchorStable,
+									() => {
+										const prepended = viewTexts(demosPage()).some((text) =>
+											text.startsWith('501 rows ·'),
+										)
+										console.log(
+											'[assert] VirtualList prepend updates the rendered item count: ' +
+												(prepended ? 'OK' : 'FAIL'),
+										)
+										const rowTextsAfterPrepend = viewTexts(demosPage()).filter((text) =>
+											text.startsWith(rowLabel + ' · '),
+										)
+										const stayed = rowTextsAfterPrepend.includes(pressedText)
+										console.log(
+											'[assert] VirtualList keyed row state survives prepend: ' +
+												(stayed ? 'OK' : 'FAIL (' + JSON.stringify(rowTextsAfterPrepend) + ')'),
+										)
+										const anchorAfter = virtualListRowMetrics(list).find(
+											(row) => row.id === anchorBefore?.id,
+										)
+										const anchorDrift =
+											anchorBefore && anchorAfter
+												? Math.abs(anchorAfter.y - anchorBefore.y)
+												: Number.POSITIVE_INFINITY
+										console.log(
+											'[assert] VirtualList preserves the visible row across prepend within 2 dip: ' +
+												(anchorDrift <= 2 ? 'OK' : 'FAIL') +
+												' (' +
+												(Number.isFinite(anchorDrift) ? anchorDrift.toFixed(2) : 'missing') +
+												' dip)',
+										)
+
+										runVirtualListHeightProbe()
+									},
+									60,
+								)
+							},
+							40,
+						)
+					})
+				},
+				80,
+			)
+		},
+		60,
+	)
+}
+
 interface Step {
 	id: string
 	/** ms to hold the pushed page before goBack. Default 900. */
@@ -306,7 +771,34 @@ const STEPS: Step[] = [
 	},
 	{ id: 'ttt', checks: [{ at: 800, run: () => assertHas('demo ttt', 'X to play') }] },
 	{ id: 'dialer', checks: [{ at: 800, run: () => assertHas('demo dialer', 'Enter number') }] },
-	{ id: 'vlist', checks: [{ at: 800, run: () => assertHas('demo vlist', '500 rows') }] },
+	{
+		id: 'vlist',
+		hold: 45000,
+		checks: [
+			{
+				at: 500,
+				run: () => {
+					const list: any = find('vlist')
+					const rows = collect(list).filter((view) =>
+						String(view.className ?? '')
+							.split(/\s+/)
+							.includes('vx-virtual-list-row'),
+					)
+
+					const bounded = rows.length > 0 && rows.length < 40
+					console.log(
+						'[assert] VirtualList bounds mounted rows: ' +
+							(bounded ? 'OK' : 'FAIL') +
+							' (' +
+							rows.length +
+							'/500)',
+					)
+
+					runVirtualListStateProbe()
+				},
+			},
+		],
+	},
 	// Fake fetch resolves ~600ms post-mount. The 'Loading…' transient isn't
 	// asserted: nav-push settle polling eats it (page mounts at navigate()
 	// time, becomes the frame's currentPage ~500ms later — the loading
@@ -1066,6 +1558,77 @@ if (!SKIP) {
 	}, 9600)
 }
 
+if (SKIP) {
+	setTimeout(() => {
+		// The Android route probe intentionally finishes on a root-level demo.
+		// Return to the tab shell before opening the Apps pane's swap-pane route.
+		if (routeFor('root') != null) {
+			goBack()
+		}
+
+		waitFor(
+			() => routeFor('root') == null,
+			() => {
+				if (routeFor('root') != null) {
+					console.log('[assert] Android VirtualList returned to tab shell: FAIL')
+					return
+				}
+
+				console.log('[assert] Android VirtualList returned to tab shell: OK')
+				selectTab('demos')
+				waitFor(
+					() => {
+						const chip = findInRootLayouts('menu-vlist')
+						return chip != null && chip.isLoaded !== false
+					},
+					() => {
+						stepStack = 'demos'
+						const chip = findInRootLayouts('menu-vlist')
+						if (!chip || chip.isLoaded === false) {
+							console.log('[assert] Android VirtualList gallery chip: FAIL')
+							return
+						}
+
+						navigate('demo/:id', { id: 'vlist' }, { into: 'demos' })
+						waitFor(
+							() => routeFor('demos')?.params?.id === 'vlist' && find('vlist') != null,
+							() => {
+								const routeOk = routeFor('demos')?.params?.id === 'vlist'
+								const list: any = find('vlist')
+								const mounted = list
+									? collect(list).filter((view) =>
+											String(view.className ?? '')
+												.split(/\s+/)
+												.includes('vx-virtual-list-row'),
+										)
+									: []
+
+								console.log(
+									'[assert] Android VirtualList route renders: ' + (routeOk ? 'OK' : 'FAIL'),
+								)
+								console.log(
+									'[assert] VirtualList bounds mounted rows: ' +
+										(mounted.length > 0 && mounted.length < 40 ? 'OK' : 'FAIL') +
+										' (' +
+										mounted.length +
+										'/500)',
+								)
+
+								if (list) {
+									runVirtualListStateProbe()
+								}
+							},
+							80,
+						)
+					},
+					80,
+				)
+			},
+			100,
+		)
+	}, 60000)
+}
+
 function runStep(i: number) {
 	if (i >= STEPS.length) {
 		console.log('[sweep] done')
@@ -1156,5 +1719,6 @@ function runStepBody(step: Step, i: number) {
 				)
 			}, step.hold ?? 900)
 		},
+		Application.android != null ? 100 : 20,
 	)
 }

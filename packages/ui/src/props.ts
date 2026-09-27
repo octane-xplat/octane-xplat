@@ -456,6 +456,27 @@ export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps, R
 	web?: any
 }
 
+/** Shared virtualized vertical list. Item keys must be unique and stable
+ *  across inserts and reorders. Rows outside the rendered window unmount;
+ *  keep durable row state keyed by item identity outside the row component. */
+export interface VirtualListProps<T = any> extends LayoutChildProps, AccessibilityProps {
+	className?: any
+	style?: any
+	id?: string
+	items: readonly T[]
+	keyExtractor: (item: T, index: number) => string | number
+	getItemType?: (item: T, index: number) => string | number
+	renderItem: (item: T, index: number) => any
+	renderEmpty?: () => any
+	renderHeader?: () => any
+	renderFooter?: () => any
+	renderSeparator?: () => any
+	/** Platform-specific properties are applied after shared props. */
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
 /** Scrollable ordinary content on web. Native is an inline flex container so
  * a child ListView can own the scrolling without nesting recycling views in a
  * native ScrollView. */

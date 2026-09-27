@@ -31,7 +31,7 @@ export function DemoDetail(props: { id?: string; _stack?: string }) @{
 				<Text>In sheet</Text>
 			</Pressable>
 		</Row>
-		<View className="flex-1">
+		<View className="flex-1 min-h-0">
 			{renderDemo()}
 		</View>
 	</Screen>
