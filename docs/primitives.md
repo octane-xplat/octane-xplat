@@ -62,9 +62,8 @@ runtime, and shared event names such as `onPress` and `onChange`.
 
 `TextArea` keeps Return as a newline. On web, `onSubmit` fires for
 Cmd/Ctrl+Enter. On native, `onSubmit` is enabled only when
-`returnKeyType="done"` or `returnKeyType="send"`; NativeScript's TextView
-otherwise reports every newline as `returnPress`.
-_Verified with real keyboard input on the iOS simulator._
+`returnKeyType="done"` or `returnKeyType="send"`; other return keys insert
+a newline instead.
 
 `Pressable`, `Text`, and the containers (`View`/`Row`/`Stack`/`Absolute`/
 `Grid`/`ScrollView`/`ScrollBox`) share the accessibility props in the
@@ -72,13 +71,12 @@ platform map, including `accessible`, label, hint, value, role, state, and
 live region — a container can carry `accessibilityRole`/live-region for
 grouped announcements without reaching for the `web` escape bag. Role
 names stay portable; the native leaf translates names such as `heading` to
-NativeScript's `header`. _Wired on both targets; on-device reading pending._
+NativeScript's `header`.
 
 For mixed formatting or inline links, compose `RichText` with
 `RichTextSpan` children. Each span can carry its own `className`, `style`, and
 `onPress`; the native leaf maps the runs to NativeScript `FormattedString`
 spans and uses the span's `text` prop for driver compatibility.
-_Span taps verified on the iOS simulator._
 
 ## When a screen needs more
 
@@ -91,7 +89,6 @@ a bounded height, which makes the nested list prepare cells through an
 unsupported path; the list leaf throws a named error on that nesting. Wrap
 the list in `ScrollBox` (a real `ScrollView` on web, an inline `View` on
 native) so the list owns scrolling.
-_Verified on the iOS simulator._
 
 `Pager` gives paged horizontal swiping — onboarding flows, media galleries.
 It takes `items` + `renderItem` (the same contract as the platform lists),
@@ -99,10 +96,10 @@ It takes `items` + `renderItem` (the same contract as the platform lists),
 Native pages are recycled OS cells, so pages need no fixed height of their
 own — each fills the pager. There is no built-in page indicator; compose
 dots from `Row` + `Pressable` driven by the page index (see the `pager`
-demo). The native leaf uses `@nativescript-community/ui-pager`, a required
-peer — a native app that ships `Pager` must declare it (`/ns/m` resolves
-plugins under the app root only). The web leaf is a scroll-snap row;
-`onPageChange` fires after the snap settles.
+demo). Native apps that ship `Pager` must declare the
+`@nativescript-community/ui-pager` plugin in their own `package.json`.
+The web leaf is a scroll-snap row; `onPageChange` fires after the snap
+settles.
 
 `SegmentedControl` is a self-drawn row of equal-width segments — the
 normalized shape of UISegmentedControl / Material segmented buttons, with
@@ -129,7 +126,6 @@ grabber. The platform's own modal presentation is `UIModal`/`MaterialDialog`
 `onRefresh` enables the gesture; `refreshing` is controlled — set it while
 reloading and the self-drawn `ActivityIndicator` strip stays docked above
 the content. There is no OS spinner anywhere in the path.
-_Desk-verified; on-device pending._
 
 `Hoverable` (delayed hover card) is web-only at `@octane-xplat/ui/web`.
 Touch platforms have no hover semantic; the old native long-press
@@ -168,22 +164,19 @@ use the `ios:`/`android:`/`web:` escape bags for that.
 (`contain`/`cover`/`fill`), and a `bind` handle for `play`/`pause`/
 `seekTo`/`currentTime`/`duration`. All transport chrome is self-drawn —
 tap the frame to show/hide it — so the controls are identical on every
-target while the video pixels stay in each platform's player engine. The
-native leaf uses `@nstudio/nativescript-exoplayer`, a required peer — a
-native app that ships `Video` must declare it (`/ns/m` resolves plugins
-under the app root only); its Android build pulls
-`com.google.android.exoplayer:exoplayer:2.17.1`, its iOS build the
-`ASBPlayerSubtitling` pod. Times are milliseconds everywhere, including
-`onReady`'s duration.
+target while the video pixels stay in each platform's player engine.
+Native apps that ship `Video` must declare the
+`@nstudio/nativescript-exoplayer` plugin in their own `package.json`.
+Times are milliseconds everywhere, including `onReady`'s duration.
 
 `CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),
 `active` to start/stop, `onReady`/`onError`, and a `bind` handle for the
 platform view. The leaf owns the camera-permission request on every target
 (the app still needs `NSCameraUsageDescription` / `android.permission.CAMERA`
 declared). Stills deliberately go through `media.capturePhoto` in
-`@octane-xplat/platform`, not this widget. Native uses
-`@nstudio/nativescript-camera-plus` (required peer — its iOS pods are
-git-sourced: SwiftyCam `v6` branch, QBImagePicker pinned commit).
+`@octane-xplat/platform`, not this widget. Native apps that ship
+`CameraView` must declare the `@nstudio/nativescript-camera-plus` plugin
+in their own `package.json`.
 
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)

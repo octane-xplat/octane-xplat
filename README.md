@@ -25,8 +25,8 @@ Platform divergence happens at file boundaries — `Foo.web.tsrx`,
 ## Docs
 
 **[octane-xplat.goddardai.org](https://octane-xplat.goddardai.org)** —
-guides for primitives, styling, navigation, overlays, and platform
-services, plus the design notes behind the framework.
+guides for primitives, styling, navigation, platform services, and the
+toolchain, plus the design notes behind the framework.
 
 For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)
 indexes the docs; `llms-full.txt` inlines every guide in one file. The

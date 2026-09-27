@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'octane';
-import { View, Row, Text, Pressable, List, ScrollView, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, ScrollView, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
 import { DOCS, type DocPage } from './docs';
 import { MdDoc } from './MdDoc.tsrx';
 import { resetDocScroll } from './scroll';
@@ -59,9 +59,9 @@ export function App() @{
 		<Row className="body">
 			<View className="side">
 				<Text className="side-head">guides</Text>
-				<List items={DOCS.filter((d) => d.group === 'guides')} renderItem={renderDoc} />
+				{DOCS.filter((d) => d.group === 'guides').map(renderDoc)}
 				<Text className="side-head">notes</Text>
-				<List items={DOCS.filter((d) => d.group === 'notes')} renderItem={renderDoc} />
+				{DOCS.filter((d) => d.group === 'notes').map(renderDoc)}
 				<a className="side-foot" href="/llms.txt" target="_blank" rel="noopener">
 					<Text className="side-foot-text">llms.txt — agent entry</Text>
 				</a>

@@ -15,7 +15,6 @@ Card.android.tsrx  Android-only implementation
 
 Import `Card` without writing a platform condition. The web build chooses the
 web file; the native build chooses the most specific native file available.
-_Verified — every app build exercises this chain on both targets._
 
 ## What belongs in each file
 

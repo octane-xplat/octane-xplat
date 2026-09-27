@@ -21,8 +21,7 @@ as a tab's inner navigation.
 
 On the web, the route becomes a real URL, so refresh, back, bookmarks, and
 shared links keep working. On native, the same route pushes a screen into the
-matching navigation stack. _Verified on the iOS simulator; Android
-re-verification pending after the swap-pane fix._
+matching navigation stack.
 
 ## Let the route dir name your routes
 
@@ -38,27 +37,34 @@ app/chat/_layout.tsrx  → wraps every 'chat/*' route
 
 `deriveRouteManifest` turns the glob into the table and `registerRoutes`
 registers it once at boot — there is no per-screen wiring to maintain.
-`xplat routes` (run automatically by `xplat dev`/`xplat build`, or by the
-`gen` script) emits `routes.gen.types.ts` + `routes.gen.web.ts` /
-`routes.gen.native.ts` — the typed names and the platform-specific globs +
-registration all live in generated code; `routes.ts` just re-exports.
+`xplat routes` (run automatically by `xplat dev`, `xplat build`, and
+`xplat typecheck`) emits `routes.gen.types.ts` +
+`routes.gen.web.ts` / `routes.gen.native.ts` — the typed names and the
+platform-specific globs + registration all live in generated code;
+`routes.ts` just re-exports. The generated `RouteName` and `RouteParams`
+types describe every route name and its param shape, so a typed wrapper
+around `pushRoute`/`Link` can name-check destinations.
 
 ## Present a route modally
 
 Suffix the file with `+modal`, or pass `presentation: 'modal'` on the push.
 Native shows it as its own modal root over the current page; web overlays it
 while keeping the URL underneath. Back — or the `close` prop the screen
-receives — dismisses it. `+fade` pushes with a fade transition.
+receives — dismisses it. `+fade` pushes with a fade transition. A modal
+screen mounts its own root, so component context does not reach it — pass
+values through params or a shared store.
 
 A route file can also export `loader(params)` — it runs when the route is
-pushed so the screen's queries start early. It is a prefetch, not a data
-source: the screen still reads its own `query$`.
+pushed, before the screen commits. Its awaited result lands on the screen as
+a `data` prop; a rejected loader lands as `error`.
 
 ## Guard and document a route
 
 Route files can export behavior alongside their screen:
 
 ```ts
+import { redirect } from '@octane-xplat/ui'
+
 export async function beforeLoad({ params, context }) {
 	if (!context.user) {
 		redirect({ stack: 'root', name: 'login', params: {} })
@@ -73,19 +79,19 @@ export const head = (params) => ({
 })
 ```
 
-`beforeLoad` is awaited before an imperative `pushRoute`, `NavLink`, or the
-generated route `Link` commits. Its returned object merges into the route's
-`context`, `useRoute()` value, and screen props. Use the exported
+`beforeLoad` is awaited before a `pushRoute` or `NavLink` commits. Its
+returned object merges into the route's `context`, `useRoute()` value, and
+screen props. Use the exported
 `redirect(route)` helper to short-circuit the attempted destination; the
 target guard still runs. Web commits the redirect through history; native
 commits it through the target `Frame.navigate` path rather than recursively
 calling the public `pushRoute` API. A rejected guard logs and leaves the
 current destination unchanged.
 
-The framework `Link` and `NavLink` components therefore run guards on both
-platforms. A plain browser anchor, refresh, or browser back/forward is URL
-navigation and does not pass through `pushRoute`; apps that need a boot-time
-policy should apply it in their deep-link/bootstrap layer.
+`NavLink` therefore runs guards on both platforms. `Link`, plain browser
+anchors, refresh, and browser back/forward are URL navigation that does not
+pass through `pushRoute`; apps that need a boot-time policy should apply it
+in their deep-link/bootstrap layer.
 
 `head` is either a static object or a synchronous function of route params.
 Web sets `document.title` and creates `meta[name]` tags. Native applies the
@@ -125,6 +131,9 @@ again on matching. Prefer the generated scalar API for shareable routes.
 Wire the platform listeners once at boot:
 
 ```ts
+import { pushDeepLink } from '@octane-xplat/ui'
+import { onDeepLink, consumeInitialUrl } from '@octane-xplat/platform'
+
 onDeepLink(pushDeepLink)
 const boot = consumeInitialUrl() // the URL that launched the app
 if (boot) pushDeepLink(boot)
@@ -132,39 +141,31 @@ if (boot) pushDeepLink(boot)
 
 ## Keep browser links real
 
-Use an anchor when the user is following a document or destination that should
-be copyable and openable in a new tab. Use `pushRoute` for an in-app action
-that is not naturally an anchor.
+Use `NavLink` for an in-app destination the user might copy or open in a new
+tab — on web it renders a real `<a href>` whose plain click drives
+`pushRoute` while modified clicks keep native browser behavior; on native it
+navigates the same route. Use `Link` for an outbound URL — a real anchor on
+web, the OS opener on native. Use `pushRoute` for an in-app action that is
+not naturally a link.
 
 ```tsx
-<a href="/settings">Settings</a>
+import { Link, NavLink, Row } from '@octane-xplat/ui'
+
+export function Footer() {
+	return (
+		<Row>
+			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>
+				Settings
+			</NavLink>
+			<Link href="https://example.com">Website</Link>
+		</Row>
+	)
+}
 ```
 
 For a component that must observe the current destination, use `useRoute` on
 the stack it owns. A tab can therefore keep its own history without taking
 over the whole app.
-
-## Add a file route
-
-Route files under `app/` build the shared screen table. Bracketed filenames
-declare path params:
-
-```text
-app/settings.tsrx       → settings
-app/demo/[id].tsrx       → demo/:id
-app/settings+modal.tsrx  → settings, presented as a modal
-```
-
-`xplat build` and `xplat typecheck` generate `src/routes.generated.d.ts`.
-The app's `navigate`, `Link`, and `useParams<'demo/:id'>()` APIs use those
-names and param shapes. A route may export `loader(params)`; its value is
-passed to the screen as `data`, and a rejected loader as `error`.
-
-Use `presentation: 'fade'` to select a fade push, or `presentation: 'modal'`
-to present a modal at a call site. `+modal` and `+fade` set route-file
-defaults. Browser history keeps the previous route beneath a web modal;
-native presents a separate root, so pass values through params or a shared
-store rather than component context.
 
 ## Choose a stack
 

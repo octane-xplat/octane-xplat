@@ -6,10 +6,14 @@
 ## The everyday rule
 
 ```tsx
-<View className="card">
-	<Text className="card-title">Profile</Text>
-	<View style={{ opacity: disabled ? 0.5 : 1 }} />
-</View>
+function Card(props: { title: string; disabled?: boolean }) {
+	return (
+		<View className="card">
+			<Text className="card-title">{props.title}</Text>
+			<View style={{ opacity: props.disabled ? 0.5 : 1 }} />
+		</View>
+	)
+}
 ```
 
 - `className` is for layout, colors, typography, borders, and other stable
@@ -57,8 +61,6 @@ names in the platform-specific family list. NativeScript's `ns fonts` command
 can print the CSS names for a font directory. Keep the token name (`--font-sans`)
 stable in shared components; only the registered family value changes per
 target. See the [NativeScript fonts guide](https://beta.docs.nativescript.org/project-structure/src/fonts).
-_Token defaults verified on both targets; bundled-font registration pending
-an on-device check._
 
 ## Keep layouts honest
 

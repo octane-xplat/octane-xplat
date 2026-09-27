@@ -56,6 +56,34 @@ components and platform interfaces — never renderer intrinsics, never DOM
 globals.** Leaf files (the `.web`/`.native` impls) are where each vocabulary is
 spoken natively.
 
+## Normalization classes (how a shared component gets classified)
+
+The class table lives in [architecture](architecture.md#normalization-classes)
+— it is part of the reader-facing parity contract. This section holds the
+authoring side: how a candidate component earns a class.
+
+Classify a new component with an ordered test — first match wins:
+
+1. Can we draw it identically ourselves? → `self-drawn` (preferred — no OS
+   surface to fight).
+2. Is the value a behavior the OS owns, with chrome we can strip? →
+   `chrome-reset`. Text editing, scrolling, and image decode qualify; a
+   picker wheel does not — stripping its chrome destroys the widget.
+3. Is it an OS-rendered surface we can host in a normalized frame? →
+   `hosted`. If we draw controls over it (`Video`'s transport), parity
+   covers them; if the interior is someone else's content (`WebView`), the
+   claim stops at frame + props + events — engine pixels are `different`
+   by design.
+4. Is the OS chrome itself the value — date-picker wheel, map tiles,
+   system menus? → `platform-authentic`: subpath or don't ship.
+
+An idiom may ship in two classes at once — as two components, never as a
+mode prop. The shared `refreshing`/`onRefresh` on `ScrollView` (self-drawn
+indicator) and a future `UIRefreshControl`/`SwipeRefreshLayout` in the
+subpaths coexist; the shared `Sheet` detents are self-drawn precisely
+because the OS sheets are modal presentations, so an OS detent sheet would
+be a separate subpath widget, not a flag on `Sheet`.
+
 ## Invariants (the rules that keep the seams from tearing)
 
 > [!IMPORTANT]

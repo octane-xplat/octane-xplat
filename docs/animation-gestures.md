@@ -11,17 +11,22 @@ normal destination animation and a spring:
 ```tsx
 import { View, Text, Pressable, useAnimation } from '@octane-xplat/ui'
 
-const x = useAnimation(0)
+export function Mover() {
+	const x = useAnimation(0)
 
-;<View bind={(element) => x.bind(element)}>
-	<Pressable onPress={() => x.to(120, { duration: 180 })}>
-		<Text>Move</Text>
-	</Pressable>
-</View>
+	return (
+		<View bind={(element) => x.bind(element)}>
+			<Pressable onPress={() => x.to(120, { duration: 180 })}>
+				<Text>Move</Text>
+			</Pressable>
+		</View>
+	)
+}
 ```
 
-Use a spring when the motion should settle naturally. Stop or replace an
-animation when the screen is leaving so old work cannot update a removed view.
+Use a spring (`x.spring(target, { damping, stiffness })`) when the motion
+should settle naturally. Stop or replace an animation when the screen is
+leaving so old work cannot update a removed view.
 
 ## Handle gestures as events
 
@@ -40,10 +45,7 @@ y)` — or an `useAnimation` value when the move also needs a tween — and
 commit the state change once, at gesture end. The Reorder demo
 (`packages/demos/src/Reorder.tsrx`) is the reference shape.
 
-Native velocity is normalized to dip per second: iOS reads the
-`UIPanGestureRecognizer`'s `velocityInView`, while Android feeds NativeScript's
-pan `MotionEvent`s to `VelocityTracker`. _Exercised through programmatic
-gesture events on iOS; real-finger velocity pending a live check._
+Native gesture velocity is normalized to dip per second on both platforms.
 
 For the timing model, supported gesture payloads, and target-specific limits,
 see the [animation notes](animation-notes.md).

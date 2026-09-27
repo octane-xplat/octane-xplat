@@ -20,7 +20,7 @@ Think in three layers:
 
 1. **Screens** describe what the user sees and does.
 2. **UI components** provide the shared vocabulary: `View`, `Text`, `Row`,
-   `Pressable`, `List`, inputs, overlays, and navigation shells.
+   `Pressable`, `ScrollView`, inputs, overlays, and navigation shells.
 3. **Platform services** handle things that differ, such as storage,
    permissions, haptics, and the app lifecycle.
 
