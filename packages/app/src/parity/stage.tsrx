@@ -12,7 +12,11 @@ export function ParityStage() @{
 		installParityDump();
 	}, []);
 
-	<View id="parity-stage" className="parity-stage">
+	<View
+		id="parity-stage"
+		className="parity-stage"
+		ios={{ iosOverflowSafeAreaEnabled: false }}
+	>
 		@for (const f of FIXTURES; key f.name) {
 			<View id={'cell-' + f.name} className="parity-cell">
 				<Text className="parity-label">{f.name}</Text>

@@ -27,7 +27,7 @@ const renderGridProbe = () => (
 );
 
 const renderViewLayout = () => (
-	<View className="parity-view-root" style={{ width: 96, height: 48 }} gap={6} alignItems="start">
+	<View className="parity-view-root" style={{ width: 96, height: 48 }} gap={6}>
 		<View className="parity-view-first" style={{ width: 20, height: 10 }} />
 		<View className="parity-view-second" style={{ width: 20, height: 10 }} />
 	</View>
@@ -41,7 +41,7 @@ const renderColumnLayout = () => (
 );
 
 const renderRowLayout = () => (
-	<Row className="parity-row-root" style={{ width: 96, height: 32 }} gap={8} alignItems="center">
+	<Row className="parity-row-root" style={{ width: 96, height: 32 }} gap={8}>
 		<View className="parity-row-first" style={{ width: 20, height: 10 }} />
 		<View className="parity-row-second" style={{ width: 12, height: 10 }} />
 	</Row>
@@ -49,7 +49,7 @@ const renderRowLayout = () => (
 
 const renderScrollViewLayout = () => (
 	<ScrollView className="parity-scroll-root" style={{ width: 96, height: 32 }}>
-		<Column className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={4} alignItems="start">
+		<Column className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={4}>
 			<View className="parity-scroll-first" style={{ width: 24, height: 12 }} />
 			<View className="parity-scroll-second" style={{ width: 24, height: 12 }} />
 		</Column>

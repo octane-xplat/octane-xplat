@@ -1,3 +1,94 @@
+diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
+index 54a037138b909446c71da47eb1cd682d5286fb18..2e1eafc92ff54e4c952b99dfd89816b222981aa3 100644
+--- a/ui/layouts/flexbox-layout/flexbox-layout-common.js
++++ b/ui/layouts/flexbox-layout/flexbox-layout-common.js
+@@ -193,7 +193,21 @@ let FlexboxLayoutBase = class FlexboxLayoutBase extends LayoutBase {
+         validateArgs(view).style.alignSelf = align;
+     }
+     static getAlignSelf(view) {
+-        return validateArgs(view).style.alignSelf;
++        const style = validateArgs(view).style;
++        const alignSelf = style.alignSelf;
++        if (alignSelf !== 'auto' && alignSelf !== 'stretch') {
++            return alignSelf;
++        }
++        const parent = view.parent;
++        if (!(parent instanceof FlexboxLayoutBase)) {
++            return alignSelf;
++        }
++        if (alignSelf === 'auto' && parent.alignItems !== 'stretch') {
++            return alignSelf;
++        }
++        const isRow = parent.flexDirection === 'row' || parent.flexDirection === 'row-reverse';
++        const crossSize = isRow ? style.height : style.width;
++        return crossSize == null || crossSize === 'auto' ? alignSelf : 'flex-start';
+     }
+     static setFlexWrapBefore(view, wrap) {
+         validateArgs(view).style.flexWrapBefore = wrap;
+diff --git a/ui/layouts/flexbox-layout/index.android.js b/ui/layouts/flexbox-layout/index.android.js
+index ed354fddfe1caf982e73b603798cb8f5bf0d3501..58dfc04a6a4549c8fe52f04022fff82b321b0301 100644
+--- a/ui/layouts/flexbox-layout/index.android.js
++++ b/ui/layouts/flexbox-layout/index.android.js
+@@ -1,7 +1,7 @@
+ import { FlexDirection, FlexWrap, JustifyContent, AlignItems, AlignContent, FlexboxLayoutBase, orderProperty, flexGrowProperty, flexShrinkProperty, flexWrapBeforeProperty, alignSelfProperty, AlignSelf, flexDirectionProperty, flexWrapProperty, justifyContentProperty, alignItemsProperty, alignContentProperty } from './flexbox-layout-common';
+ import { View } from '../../core/view';
+ import { Length } from '../../styling/length-shared';
+-import { columnGapProperty, rowGapProperty } from '../../styling/style-properties';
++import { columnGapProperty, rowGapProperty, widthProperty, heightProperty } from '../../styling/style-properties';
+ export * from './flexbox-layout-common';
+ let widgetFlexboxLayout;
+ let widgetLayoutParams;
+@@ -27,6 +27,25 @@ View.prototype[flexGrowProperty.setNative] = makeNativeSetter((lp, value) => (lp
+ View.prototype[flexShrinkProperty.setNative] = makeNativeSetter((lp, value) => (lp.flexShrink = value));
+ View.prototype[flexWrapBeforeProperty.setNative] = makeNativeSetter((lp, value) => (lp.wrapBefore = value));
+ View.prototype[alignSelfProperty.setNative] = makeNativeSetter((lp, value) => (lp.alignSelf = alignSelfMap[value]));
++function refreshFlexboxParent(child) {
++    const parent = child.parent;
++    if (parent instanceof FlexboxLayoutBase) {
++        parent._updateNativeLayoutParams(child);
++    }
++}
++function wrapChildLayoutProperty(property) {
++    const setter = View.prototype[property.setNative];
++    if (typeof setter !== 'function') {
++        return;
++    }
++    View.prototype[property.setNative] = function (value) {
++        setter.call(this, value);
++        refreshFlexboxParent(this);
++    };
++}
++wrapChildLayoutProperty(widthProperty);
++wrapChildLayoutProperty(heightProperty);
++wrapChildLayoutProperty(alignSelfProperty);
+ const flexDirectionMap = {
+     [FlexDirection.ROW]: 0, //FlexboxLayoutWidget.FLEX_DIRECTION_ROW,
+     [FlexDirection.ROW_REVERSE]: 1, //FlexboxLayoutWidget.FLEX_DIRECTION_ROW_REVERSE,
+@@ -85,6 +104,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+     }
+     [flexDirectionProperty.setNative](flexDirection) {
+         this.nativeViewProtected.setFlexDirection(flexDirectionMap[flexDirection]);
++        this.eachLayoutChild((child) => this._updateNativeLayoutParams(child));
+     }
+     [flexWrapProperty.getDefault]() {
+         return flexWrapProperty.defaultValue;
+@@ -103,6 +123,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+     }
+     [alignItemsProperty.setNative](alignItems) {
+         this.nativeViewProtected.setAlignItems(alignItemsMap[alignItems]);
++        this.eachLayoutChild((child) => this._updateNativeLayoutParams(child));
+     }
+     [alignContentProperty.getDefault]() {
+         return alignContentProperty.defaultValue;
+@@ -136,7 +157,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+         lp.flexGrow = style.flexGrow;
+         lp.flexShrink = style.flexShrink;
+         lp.wrapBefore = style.flexWrapBefore;
+-        lp.alignSelf = alignSelfMap[style.alignSelf];
++        lp.alignSelf = alignSelfMap[FlexboxLayoutBase.getAlignSelf(child)];
+         child.nativeViewProtected.setLayoutParams(lp);
+     }
+     _setChildMinWidthNative(child, value) {
 diff --git a/ui/styling/background.ios.js b/ui/styling/background.ios.js
 index ed4b6883680229ffd1aa92a7bbcba2d36f1efebc..3882cad9a8d17fb5b8a80a4795b0161bc2f82e28 100644
 --- a/ui/styling/background.ios.js

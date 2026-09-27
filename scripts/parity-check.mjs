@@ -31,9 +31,12 @@ if (targets.length === 0) {
 
 // rgb()/rgba()/hex → canonical '#rrggbb' so 'rgb(59, 130, 246)' and
 // '#3b82f6' compare equal across engines.
-const normValue = (v) => {
+const normValue = (v, facet) => {
 	if (typeof v !== 'string') {
 		return v
+	}
+	if (facet.endsWith('.style.alignItems') && v === 'normal') {
+		return 'stretch'
 	}
 
 	// '6', '6px', '6dip' — same length across engines (native reports dips
@@ -124,7 +127,7 @@ for (const def of CHECKS) {
 					n.classes?.includes(def.elements[el]),
 				)
 
-				return [t, node ? normValue(facetOf(node, facet)) : undefined]
+				return [t, node ? normValue(facetOf(node, facet), facet) : undefined]
 			})
 
 			const [first, ...rest] = values

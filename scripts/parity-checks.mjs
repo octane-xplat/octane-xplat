@@ -254,8 +254,8 @@ export const CHECKS = [
 				dims(root, 96, 32),
 				dims(first, 20, 10),
 				dims(second, 12, 10),
-				['first child centered vertically', near(first.box.y - root.box.y, 11, 1)],
-				['second child centered vertically', near(second.box.y - root.box.y, 11, 1)],
+				['first child starts at the row cross-axis origin', near(first.box.y - root.box.y, 0, 1)],
+				['second child starts at the row cross-axis origin', near(second.box.y - root.box.y, 0, 1)],
 				[
 					'second child follows with an 8-dip gap',
 					near(second.box.x - first.box.x - first.box.w, 8, 1),
