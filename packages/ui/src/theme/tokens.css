@@ -1838,27 +1838,16 @@ button.vx-tab {
 /* In-window sheet — bottom-anchored panel (matches the native RootLayout
    sheet). Layer is pointer-events:none; backdrop + panel re-enable. */
 .vx-sheet-layer {
-	position: fixed;
-	inset: 0;
 	z-index: 1100;
-	pointer-events: none;
 }
 
 .vx-sheet-backdrop {
-	position: absolute;
-	inset: 0;
 	background: rgba(0, 0, 0, 0.4);
-	pointer-events: auto;
 }
 
 .vx-sheet {
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 0;
 	max-height: 85%;
 	padding: 24px;
-	overflow: auto;
 	border-width: 1px;
 	border-color: var(--color-border);
 	border-top-left-radius: var(--radius-xl);
@@ -1866,8 +1855,29 @@ button.vx-tab {
 	corner-shape: squircle;
 	background-color: var(--color-surface);
 	color: var(--color-text);
+}
+
+/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
+   The native leaf renders on RootLayout with its own geometry. */
+.vx-sheet-layer {
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+}
+
+.vx-sheet-backdrop,
+.vx-sheet {
+	position: absolute;
+	inset: 0;
 	pointer-events: auto;
 }
+
+.vx-sheet {
+	top: auto;
+	bottom: 0;
+	overflow: auto;
+}
+/* xplat-web-only:end */
 
 .vx-sheet-grabber {
 	display: flex;

@@ -103,3 +103,21 @@ view offset; measured in the parity lane 2026-09-26). Entry files must
 import css as JS modules — `import '@pkg/file.css'`, one per file, like
 `apps/web/src/main.tsrx`. The transform warns when a `.css` source contains
 `@import`.
+
+## Author-time audit (`pnpm check:css`)
+
+`scripts/check-css.mjs` runs as part of `pnpm lint`: it parses every shared
+stylesheet (`packages/*/src/**/*.css`, `packages/create/template/src`) and
+errors on any declaration whose property isn't in
+`scripts/ns-css-registry.json` — the `cssName` list extracted from the
+installed `@nativescript/core` (`pnpm gen:css-registry` to refresh on core
+upgrades). Dropped-but-intentional props (`display`, `grid-area`,
+`border-style`, `user-select`, `-webkit-*`) live in the script's
+`DROPPED_INTENTIONAL` map with a reason each; `xplat-web-only` blocks are
+stripped before auditing since they never reach native.
+
+This catches the silent-drop class — a typo'd prop name or a prop NS simply
+doesn't read (`position`, `overflow`, `cursor`...) half-applies a rule with
+zero diagnostics. What it can't catch: registered props with divergent
+*semantics* (`transform` percents parse as dips, stretch clobbering width) —
+that's what the measured parity lane is for.

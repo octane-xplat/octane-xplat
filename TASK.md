@@ -82,14 +82,30 @@ in the divergence table.
 
 ## Changes — Phase C: lint-layer CSS enforcement (independent, parallel-ok)
 
-- Declaration audit: parse shared `.css` through NS's own parser, check
-  every declaration against a registry snapshot generated from
-  `style-properties.ts` → error on unsupported. Regenerate on NS upgrades.
-- Selector-grammar restriction: shared stylesheets limited to the
-  verified-common selector subset (flat classes, descendants, verified
-  pseudos) — a restriction rule, not an equivalence check.
-- Dead-rule check (NS-side): every shared-CSS selector matches ≥1
-  node/declaration.
+### Phase C landed slimmed (2026-09-26)
+
+- `scripts/gen-css-registry.mjs` — extracts every `cssName` registration
+  (+ CssAnimationParser longhands) from the installed `@nativescript/core`
+  JS into `scripts/ns-css-registry.json` (117 props @ 9.1.2). Re-run on
+  core upgrades via `pnpm gen:css-registry`.
+- `scripts/check-css.mjs` — parses shared css with `css-tree` (resolved
+  through `@nativescript/core`'s own dep tree — no new root dep), strips
+  `xplat-web-only` blocks (line-preserving), and errors on declarations
+  NS silently drops. `pnpm check:css`, wired into `pnpm lint`.
+- `DROPPED_INTENTIONAL` — the allowlist-with-reasons (`display`,
+  `grid-area`, `border-style`, `aspect-ratio`, `user-select`, vendor
+  prefixes). 9 intentional drops documented; 0 unsupported remain.
+- First audit run found real latent issues: `position`/`inset`/
+  `pointer-events`/`overflow` declarations in `.vx-sheet-*` were silently
+  dropped on native — moved into `xplat-web-only` where they belong;
+  `overflow: hidden` on demo video/camera frames likewise.
+- Dropped from scope: selector-grammar restriction (we already write flat
+  classes; a restrictor is a rule we'd then maintain) and the dead-rule
+  check (needs a live view tree; static approximation is
+  false-positive-prone — defer until a real bug justifies it).
+- Known blind spot: registered props with divergent *semantics* (percent
+  `translate`, stretch-vs-explicit-size, grid child defaults) pass the
+  audit — that's what the measured lane (Phases A+B) catches.
 
 ## Changes — Phase D: coverage + docs
 

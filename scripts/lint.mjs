@@ -9,6 +9,9 @@ if (shouldFix) {
 }
 
 const tsrx = spawnSync(process.execPath, tsrxArgs, { stdio: 'inherit' })
+const css = spawnSync('node', [fileURLToPath(new URL('./check-css.mjs', import.meta.url))], {
+	stdio: 'inherit',
+})
 
 if (oxlint.error) {
 	console.error(oxlint.error.message)
@@ -18,6 +21,10 @@ if (tsrx.error) {
 	console.error(tsrx.error.message)
 }
 
-if (oxlint.status !== 0 || tsrx.status !== 0) {
+if (css.error) {
+	console.error(css.error.message)
+}
+
+if (oxlint.status !== 0 || tsrx.status !== 0 || css.status !== 0) {
 	process.exitCode = 1
 }

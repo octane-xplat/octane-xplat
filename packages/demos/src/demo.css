@@ -558,7 +558,6 @@
 	height: 220px;
 	border-radius: 8px;
 	corner-shape: squircle;
-	overflow: hidden;
 }
 
 /* CameraView — same fixed frame; the preview fills it. */
@@ -566,5 +565,13 @@
 	height: 260px;
 	border-radius: 8px;
 	corner-shape: squircle;
+}
+
+/* xplat-web-only:start — clip the embedded video/camera element to the
+   frame's corners. Native views don't read overflow; corner clipping is
+   the leaf's own corner-radius path. */
+.video-demo-player,
+.camera-demo-preview {
 	overflow: hidden;
 }
+/* xplat-web-only:end */
