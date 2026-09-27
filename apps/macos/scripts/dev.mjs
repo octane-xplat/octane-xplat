@@ -11,31 +11,55 @@ let appKit
 let root
 let liveComponent
 let watcher
+let mainWindowClosed = false
+let mainRootUnmounted = false
+
+function unmountMainRoot() {
+	mainWindowClosed = true
+	if (!root || mainRootUnmounted) {
+		return
+	}
+
+	mainRootUnmounted = true
+	try {
+		root.unmount()
+	} catch (error) {
+		console.error('[macos] main window root unmount failed', error)
+	}
+}
 
 try {
 	await build({ configFile, mode: 'development' })
 	appKit = createAppKitWindow()
-	const { app, window, contentView, closed } = appKit
+	const { app, window, contentView, applicationClosed, windowClosed } = appKit
 	root = createMacOSRoot(contentView)
+	void windowClosed.then(unmountMainRoot)
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 		const input = createInterface({ input: process.stdin })
 		input.on('line', (line) => {
 			const command = line.trim()
 			try {
-				if (command.startsWith('press ')) {root.__macosDebug.pressButton(command.slice(6))}
-				else if (command.startsWith('tap ')) {
+				if (command.startsWith('press ')) {
+					root.__macosDebug.pressButton(command.slice(6))
+				} else if (command.startsWith('tap ')) {
 					const label = command.slice(4)
 					const targets = [root.__macosDebug, ...debugWindows().map((w) => w.debug)]
 					let handled = false
 					for (const target of targets) {
-						if (!target) continue
+						if (!target) {
+							continue
+						}
+
 						try {
 							target.pressAccessibilityLabel(label)
 							handled = true
 							break
 						} catch {}
 					}
-					if (!handled) throw new Error('No AppKit pressable labeled ' + label)
+
+					if (!handled) {
+						throw new Error('No AppKit pressable labeled ' + label)
+					}
 				} else if (command !== 'snapshot') {
 					throw new Error('Use tap <accessibility label>, press <button title>, or snapshot')
 				}
@@ -47,7 +71,7 @@ try {
 								main: root.__macosDebug.snapshot(),
 								windows: debugWindows().map((w) => ({
 									title: w.title,
-									...(w.debug?.snapshot() ?? {}),
+									...w.debug?.snapshot(),
 								})),
 							}),
 					)
@@ -59,7 +83,15 @@ try {
 	}
 
 	const renderApp = async (afterEdit = false) => {
+		if (mainWindowClosed) {
+			return
+		}
+
 		const module = await import(`${pathToFileURL(bundleFile).href}?v=${Date.now()}`)
+		if (mainWindowClosed) {
+			return
+		}
+
 		if (!liveComponent) {
 			liveComponent = hmrUniversalComponent('macos', module.default)
 			root.render(liveComponent, {})
@@ -100,14 +132,16 @@ try {
 	await watcherReady
 	console.log('[macos] AppKit window ready; Octane HMR is watching src/App.tsx')
 	app.run()
-	await closed
+	await applicationClosed
 	await watcher.close()
-	root.unmount()
+	unmountMainRoot()
+	window.delegate = null
 	window.close()
+	app.delegate = null
 	appKit.delegate = null
 } catch (error) {
 	await watcher?.close()
-	root?.unmount()
+	unmountMainRoot()
 	if (appKit) {
 		appKit.window.delegate = null
 		appKit.app.delegate = null

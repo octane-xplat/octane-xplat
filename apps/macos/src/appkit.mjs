@@ -3,26 +3,52 @@ import { createMacOSRoot } from '@xplat/macos/renderer'
 
 const app = NSApplication.sharedApplication
 let running = true
-let resolveClosed
-const closed = new Promise((resolve) => {
-	resolveClosed = resolve
+let resolveApplicationClosed
+const applicationClosed = new Promise((resolve) => {
+	resolveApplicationClosed = resolve
 })
 
 // The dev harness and the bundled app import this module as separate
 // instances; windowing state is shared through globalThis so delegates
 // registered by one copy see windows created by the other.
+
 const shared = (globalThis.__xplatMacosWindowing ??= {
 	resolver: null,
 	appDelegate: null,
 	byNative: new Map(),
 })
 
-function controllerFor(window) {
-	const direct = shared.byNative.get(window)
-	if (direct) return direct
-	for (const [native, controller] of shared.byNative) {
-		if (native.isEqual?.(window)) return controller
+shared.windowCloseHandlers ??= new Map()
+
+function controllerFor(nativeWindow) {
+	const direct = shared.byNative.get(nativeWindow)
+	if (direct) {
+		return direct
 	}
+
+	for (const [native, controller] of shared.byNative) {
+		if (native.isEqual?.(nativeWindow)) {
+			return controller
+		}
+	}
+
+	return null
+}
+
+function takeNativeWindowValue(map, nativeWindow) {
+	const direct = map.get(nativeWindow)
+	if (direct) {
+		map.delete(nativeWindow)
+		return direct
+	}
+
+	for (const [native, value] of map) {
+		if (native.isEqual?.(nativeWindow)) {
+			map.delete(native)
+			return value
+		}
+	}
+
 	return null
 }
 
@@ -43,8 +69,8 @@ class AppDelegate extends NSObject {
 		return true
 	}
 
-	windowShouldClose(window) {
-		const controller = controllerFor(window)
+	windowShouldClose(nativeWindow) {
+		const controller = controllerFor(nativeWindow)
 		try {
 			return controller?.onCloseRequested?.() !== false
 		} catch (error) {
@@ -56,14 +82,24 @@ class AppDelegate extends NSObject {
 	// A regular secondary window may outlive the main window. AppKit's
 	// last-window policy handles application termination.
 	windowWillClose(notification) {
-		const window = notification.object
-		const controller = controllerFor(window)
-		if (controller) controller.__didClose()
+		const nativeWindow = notification.object
+		const controller = controllerFor(nativeWindow)
+		if (controller) {
+			controller.__didClose()
+		}
+
+		const closeHandler = takeNativeWindowValue(shared.windowCloseHandlers, nativeWindow)
+		closeHandler?.()
 	}
 
 	applicationWillTerminate() {
 		running = false
-		resolveClosed()
+		for (const closeHandler of shared.windowCloseHandlers.values()) {
+			closeHandler()
+		}
+
+		shared.windowCloseHandlers.clear()
+		resolveApplicationClosed()
 	}
 
 	pumpEvents() {
@@ -73,13 +109,22 @@ class AppDelegate extends NSObject {
 			'kCFRunLoopDefaultMode',
 			true,
 		)
-		if (event !== null) app.sendEvent(event)
-		if (running) setTimeout(() => this.pumpEvents(), 10)
+
+		if (event !== null) {
+			app.sendEvent(event)
+		}
+
+		if (running) {
+			setTimeout(() => this.pumpEvents(), 10)
+		}
 	}
 }
 
 function appDelegate() {
-	if (!shared.appDelegate) shared.appDelegate = AppDelegate.new()
+	if (!shared.appDelegate) {
+		shared.appDelegate = AppDelegate.new()
+	}
+
 	return shared.appDelegate
 }
 
@@ -118,23 +163,27 @@ function resolveParentWindow(parentOption, kind) {
 	) {
 		throw new TypeError('openWindow parent must be an AppKit window or window controller')
 	}
+
 	if (parentOption?.isClosed) {
 		throw new Error('openWindow cannot use a closed parent window')
 	}
 
 	const explicitParent =
 		parentOption && 'window' in parentOption ? parentOption.window : parentOption
+
 	const parentWindow = explicitParent ?? (kind === 'regular' ? null : app.keyWindow)
 
 	if (kind !== 'regular' && !parentWindow) {
 		throw new Error(`openWindow kind "${kind}" requires a parent window`)
 	}
+
 	if (
 		kind === 'dialog' &&
 		typeof (parentWindow?.beginSheetCompletionHandler ?? parentWindow?.beginSheet) !== 'function'
 	) {
 		throw new TypeError('openWindow dialog parent must support AppKit sheets')
 	}
+
 	if (kind === 'popup' && typeof parentWindow?.addChildWindowOrdered !== 'function') {
 		throw new TypeError('openWindow popup parent must support AppKit child windows')
 	}
@@ -145,23 +194,37 @@ function resolveParentWindow(parentOption, kind) {
 export function createAppKitWindow() {
 	app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
 
-	const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+	const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 		{ origin: { x: 0, y: 0 }, size: { width: 640, height: 420 } },
 		REGULAR_STYLE,
 		2,
 		false,
 	)
-	window.title = 'Octane macOS spike'
-	window.releasedWhenClosed = false
-	window.center()
-	window.delegate = appDelegate()
+
+	nativeWindow.title = 'Octane macOS spike'
+	nativeWindow.releasedWhenClosed = false
+	nativeWindow.center()
+	nativeWindow.delegate = appDelegate()
 	app.delegate = shared.appDelegate
 
 	const contentView = makeContentView({ width: 640, height: 420 })
-	window.contentView = contentView
-	window.makeKeyAndOrderFront(app)
+	nativeWindow.contentView = contentView
+	let resolveWindowClosed
+	const windowClosed = new Promise((resolve) => {
+		resolveWindowClosed = resolve
+	})
 
-	return { app, window, contentView, closed, delegate: shared.appDelegate }
+	shared.windowCloseHandlers.set(nativeWindow, resolveWindowClosed)
+	nativeWindow.makeKeyAndOrderFront(app)
+
+	return {
+		app,
+		window: nativeWindow,
+		contentView,
+		applicationClosed,
+		windowClosed,
+		delegate: shared.appDelegate,
+	}
 }
 
 /** Install the app-owned resolver that maps openWindow data to a component. */
@@ -169,6 +232,7 @@ export function setWindowContentResolver(resolve) {
 	if (resolve !== null && typeof resolve !== 'function') {
 		throw new TypeError('setWindowContentResolver expects a function or null')
 	}
+
 	shared.resolver = resolve
 }
 
@@ -188,9 +252,11 @@ export function openWindow(options = {}) {
 	if (!WINDOW_KINDS.has(kind)) {
 		throw new RangeError(`Unsupported macOS window kind: ${String(kind)}`)
 	}
+
 	const parentWindow = resolveParentWindow(parentOption, kind)
 	const defaultSize =
 		kind === 'regular' ? { width: 480, height: 320 } : { width: 360, height: 200 }
+
 	const size = normalizeWindowSize(options.size ?? defaultSize)
 
 	const styleMask =
@@ -202,7 +268,7 @@ export function openWindow(options = {}) {
 					NSWindowStyleMask.Closable
 				: NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
 
-	const window = (kind === 'popup' ? NSPanel : NSWindow)
+	const nativeWindow = (kind === 'popup' ? NSPanel : NSWindow)
 		.alloc()
 		.initWithContentRectStyleMaskBackingDefer(
 			{ origin: { x: 0, y: 0 }, size },
@@ -210,15 +276,16 @@ export function openWindow(options = {}) {
 			2,
 			false,
 		)
-	window.title = String(options.title ?? 'Octane window')
-	window.releasedWhenClosed = false
-	window.delegate = appDelegate()
-	window.contentView = makeContentView(size)
+
+	nativeWindow.title = String(options.title ?? 'Octane window')
+	nativeWindow.releasedWhenClosed = false
+	nativeWindow.delegate = appDelegate()
+	nativeWindow.contentView = makeContentView(size)
 
 	let resolveWindowClosed
 	const controller = {
 		kind,
-		window,
+		window: nativeWindow,
 		data: options.data ?? null,
 		root: null,
 		isClosed: false,
@@ -227,20 +294,27 @@ export function openWindow(options = {}) {
 		}),
 		onCloseRequested: null,
 		setTitle(title) {
-			window.title = String(title)
+			nativeWindow.title = String(title)
 		},
 		setSize(next) {
-			window.setContentSize(next)
+			nativeWindow.setContentSize(next)
 		},
 		close() {
-			if (kind === 'dialog' && parentWindow) parentWindow.endSheet(window)
-			else window.close()
+			if (kind === 'dialog' && parentWindow) {
+				parentWindow.endSheet(nativeWindow)
+			} else {
+				nativeWindow.close()
+			}
+
 			controller.__didClose()
 		},
 		__didClose() {
-			if (controller.isClosed) return
+			if (controller.isClosed) {
+				return
+			}
+
 			controller.isClosed = true
-			shared.byNative.delete(window)
+			shared.byNative.delete(nativeWindow)
 			const root = controller.root
 			controller.root = null
 			try {
@@ -252,7 +326,8 @@ export function openWindow(options = {}) {
 			}
 		},
 	}
-	shared.byNative.set(window, controller)
+
+	shared.byNative.set(nativeWindow, controller)
 
 	try {
 		if (typeof shared.resolver !== 'function') {
@@ -264,35 +339,37 @@ export function openWindow(options = {}) {
 			throw new Error('The window content resolver did not return a component')
 		}
 
-		controller.root = createMacOSRoot(window.contentView)
+		controller.root = createMacOSRoot(nativeWindow.contentView)
 		controller.root.render(component, { data: controller.data, controller })
 
 		if (kind === 'dialog') {
 			const beginSheet = parentWindow.beginSheetCompletionHandler ?? parentWindow.beginSheet
-			beginSheet.call(parentWindow, window, null)
+			beginSheet.call(parentWindow, nativeWindow, null)
 		} else if (kind === 'popup') {
-			parentWindow.addChildWindowOrdered(window, NSWindowOrderingMode?.Above ?? 1)
-			window.orderFront(null)
+			parentWindow.addChildWindowOrdered(nativeWindow, NSWindowOrderingMode?.Above ?? 1)
+			nativeWindow.orderFront(null)
 		} else {
-			window.center()
-			window.makeKeyAndOrderFront(app)
+			nativeWindow.center()
+			nativeWindow.makeKeyAndOrderFront(app)
 		}
 	} catch (error) {
 		controller.__didClose()
 		try {
-			window.close()
+			nativeWindow.close()
 		} catch (closeError) {
 			console.error('[macos] failed to close a window after setup failed', closeError)
 		}
+
 		throw error
 	}
+
 	return controller
 }
 
 /** Snapshot/press handles for every secondary window, used by dev automation. */
 export function debugWindows() {
-	return [...shared.byNative.entries()].map(([window, controller]) => ({
-		title: String(window.title ?? ''),
+	return [...shared.byNative.entries()].map(([nativeWindow, controller]) => ({
+		title: String(nativeWindow.title ?? ''),
 		debug: controller.root?.__macosDebug ?? null,
 	}))
 }
