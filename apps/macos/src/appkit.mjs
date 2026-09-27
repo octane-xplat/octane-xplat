@@ -3,6 +3,7 @@ import { createMacOSRoot } from '@xplat/macos/renderer'
 
 const app = NSApplication.sharedApplication
 let running = true
+let eventPumpErrorReported = false
 let resolveApplicationClosed
 const applicationClosed = new Promise((resolve) => {
 	resolveApplicationClosed = resolve
@@ -103,19 +104,31 @@ class AppDelegate extends NSObject {
 	}
 
 	pumpEvents() {
-		const event = app.nextEventMatchingMaskUntilDateInModeDequeue(
-			NSEventMask.Any,
-			null,
-			'kCFRunLoopDefaultMode',
-			true,
-		)
+		let delay = 10
+		try {
+			const event = app.nextEventMatchingMaskUntilDateInModeDequeue(
+				NSEventMask.Any,
+				null,
+				'kCFRunLoopDefaultMode',
+				true,
+			)
 
-		if (event !== null) {
-			app.sendEvent(event)
+			if (event !== null) {
+				app.sendEvent(event)
+			}
+
+			eventPumpErrorReported = false
+		} catch (error) {
+			if (!eventPumpErrorReported) {
+				console.error('[macos] AppKit event pump failed; retrying', error)
+				eventPumpErrorReported = true
+			}
+
+			delay = 100
 		}
 
 		if (running) {
-			setTimeout(() => this.pumpEvents(), 10)
+			setTimeout(() => this.pumpEvents(), delay)
 		}
 	}
 }
