@@ -154,12 +154,12 @@ importers:
       '@nativescript/social-share':
         specifier: 2.3.0
         version: 2.3.0
-      '@nstudio/nativescript-camera-plus':
-        specifier: 6.0.1
-        version: 6.0.1
       '@nstudio/nativescript-exoplayer':
         specifier: 6.2.0
         version: 6.2.0
+      '@octane-xplat/camera':
+        specifier: workspace:*
+        version: link:../../packages/camera
       '@octane-xplat/canvas':
         specifier: workspace:*
         version: link:../../packages/canvas
@@ -272,6 +272,28 @@ importers:
         specifier: workspace:*
         version: link:../cli
 
+  packages/camera:
+    dependencies:
+      octane:
+        specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
+        version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.1
+        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c))(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 9.1.2
+        version: 9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c)
+      '@octanejs/vite-plugin':
+        specifier: 0.1.60
+        version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
+
   packages/canvas:
     dependencies:
       '@nativescript/canvas':
@@ -279,17 +301,17 @@ importers:
         version: 2.1.18
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
-        version: file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+        version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.1
-        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c))(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c)
       '@octanejs/vite-plugin':
         specifier: 0.1.60
-        version: 0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+        version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -310,6 +332,9 @@ importers:
 
   packages/demos:
     dependencies:
+      '@octane-xplat/camera':
+        specifier: workspace:*
+        version: link:../camera
       '@octane-xplat/canvas':
         specifier: workspace:*
         version: link:../canvas
@@ -340,17 +365,17 @@ importers:
         version: 4.0.2
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
-        version: file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+        version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.1
-        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c))(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c)
       '@octanejs/vite-plugin':
         specifier: 0.1.60
-        version: 0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+        version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -459,9 +484,6 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c)
-      '@nstudio/nativescript-camera-plus':
-        specifier: 6.0.1
-        version: 6.0.1
       '@nstudio/nativescript-exoplayer':
         specifier: 6.2.0
         version: 6.2.0
@@ -1281,9 +1303,6 @@ packages:
       '@nativescript/core': '>=9.1.0'
       octane: '>=0.1.51'
 
-  '@nativescript-community/perms@2.3.3':
-    resolution: {integrity: sha512-N2AbsUneAAOaz8NnJIlETgE3xsiZe5gIQs0HtjqEdMPmWnyfsHRAMMvUHaEcJMf1z3ngMjvNyCTULj66kTrh1A==}
-
   '@nativescript-community/perms@2.3.6':
     resolution: {integrity: sha512-KtAyY2fCjKL19HQ3AslQKH4h+Sao0u4G4AgoF+SkRcAMGxqQd8covjpJ2hN3AFm8TDkqbSm3o0NDMR1dYVr/3A==}
 
@@ -1415,9 +1434,6 @@ packages:
   '@noble/hashes@2.4.0':
     resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
     engines: {node: '>= 20.19.0'}
-
-  '@nstudio/nativescript-camera-plus@6.0.1':
-    resolution: {integrity: sha512-wfpTaV2xPzIdu92K/rDlWgp1hdAzKf40bInsSLdoqCVWB7VOVpTdDOPMvhi1sgjFLA9FOKmwvnQZADkKcxoKyQ==}
 
   '@nstudio/nativescript-exoplayer@6.2.0':
     resolution: {integrity: sha512-drZ1YHJciuCtkaWutHGYpzEdP6H1d7OrZusKH7sd1yJyTqx/7boFE49pjbEMS+5q2D4TVcbdBfW2k3tEv1CuUw==}
@@ -4019,8 +4035,6 @@ snapshots:
       '@nativescript/core': 9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c)
       octane: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
-  '@nativescript-community/perms@2.3.3': {}
-
   '@nativescript-community/perms@2.3.6': {}
 
   '@nativescript-community/perms@3.0.11': {}
@@ -4165,10 +4179,6 @@ snapshots:
       - yaml
 
   '@noble/hashes@2.4.0': {}
-
-  '@nstudio/nativescript-camera-plus@6.0.1':
-    dependencies:
-      '@nativescript-community/perms': 2.3.3
 
   '@nstudio/nativescript-exoplayer@6.2.0': {}
 

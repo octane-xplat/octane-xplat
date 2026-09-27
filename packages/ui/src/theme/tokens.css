@@ -370,21 +370,6 @@ img {
 
 /* xplat-web-only:end */
 
-/* CameraView — surface-hosted: the preview fills the frame; web shows it
-   through an object-fit:cover <video>. */
-.vx-cameraview {
-	background-color: #000;
-}
-
-/* xplat-web-only:start */
-.vx-cameraview-surface {
-	display: block;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-/* xplat-web-only:end */
-
 /* xplat-web-only:start */
 /* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
    so the overlay is a fixed layer over the shell rather than a dialog. */

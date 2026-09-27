@@ -71,7 +71,6 @@
 		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript-community/ui-svg": "0.2.24",
 		"@nativescript/core": "9.1.2",
-		"@nstudio/nativescript-camera-plus": "6.0.1",
 		"@nstudio/nativescript-exoplayer": "6.2.0",
 		"@octanejs/vite-plugin": "0.1.60",
 		"jsdom": "30.1.1",
@@ -87,7 +86,6 @@
 		"@nativescript-community/ui-pager": ">=14.1.42 <15",
 		"@nativescript-community/ui-svg": ">=0.2.24 <1",
 		"@nativescript/core": ">=9.1.0 <10",
-		"@nstudio/nativescript-camera-plus": ">=6.0.1 <7",
 		"@nstudio/nativescript-exoplayer": ">=6.2.0 <7",
 		"octane": ">=0.1.51 <1"
 	},

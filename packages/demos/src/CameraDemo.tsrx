@@ -1,5 +1,6 @@
 import { useState } from 'octane';
-import { Button, CameraView, Heading, Row, SegmentedControl, Text, View } from '@octane-xplat/ui';
+import { Button, Heading, Row, SegmentedControl, Text, View } from '@octane-xplat/ui';
+import { CameraView } from '@octane-xplat/camera';
 
 /** Shared `CameraView` demo — live preview only. `facing` flips the lens,
  *  `active` tears the stream/session down. Stills deliberately go through

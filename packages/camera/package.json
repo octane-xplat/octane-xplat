@@ -1,0 +1,53 @@
+{
+	"name": "@octane-xplat/camera",
+	"version": "0.1.0",
+	"description": "Live camera preview leaf for Octane xplat",
+	"files": ["dist", "types", "src", "platforms"],
+	"type": "module",
+	"nativescript": {
+		"platforms": {
+			"ios": "7.0.0",
+			"android": "7.0.0"
+		}
+	},
+	"exports": {
+		".": {
+			"web": "./src/index.web.ts",
+			"native": "./src/index.native.ts",
+			"default": "./src/index.native.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"types": "./types/index.d.ts",
+				"web": "./dist/web/index.js",
+				"native": "./dist/native/index.js",
+				"default": "./dist/native/index.js"
+			}
+		}
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
+		"prepublishOnly": "pnpm build"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.1",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.60",
+		"octane": "0.5.0",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.1.51 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": { "optional": true },
+		"@nativescript/core": { "optional": true },
+		"octane": { "optional": true }
+	}
+}

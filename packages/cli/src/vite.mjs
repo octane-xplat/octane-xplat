@@ -246,6 +246,9 @@ export const nativeExtensions = [
 	'.ios.ts',
 	'.android.ts',
 	'.native.ts',
+	'.ios.js',
+	'.android.js',
+	'.native.js',
 	'.mjs',
 	'.mts',
 	'.ts',
@@ -253,6 +256,53 @@ export const nativeExtensions = [
 	'.js',
 	'.json',
 ]
+
+function nativePlatformExtensions() {
+	let platform
+	try {
+		const env = JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
+		platform = env.platform ?? (env.android ? 'android' : env.ios || env.visionos ? 'ios' : undefined)
+	} catch {}
+
+	const args = process.argv.slice(2)
+	if (!platform) {
+		if (args.some((arg) => arg === '--android' || arg === '--env.android' || arg.startsWith('--env.android='))) {
+			platform = 'android'
+		} else if (
+			args.some((arg) => arg === '--ios' || arg === '--env.ios' || arg.startsWith('--env.ios=') || arg === '--visionos')
+		) {
+			platform = 'ios'
+		} else {
+			const platformIndex = args.indexOf('--platform')
+			const value = args.find((arg) => arg.startsWith('--platform='))?.slice('--platform='.length)
+			platform = value ?? (platformIndex >= 0 ? args[platformIndex + 1] : undefined)
+		}
+	}
+
+	if (platform !== 'android' && platform !== 'ios' && platform !== 'visionos') {
+		return nativeExtensions
+	}
+
+	const target = platform === 'android' ? '.android' : '.ios'
+	return [
+		`${target}.tsrx`,
+		'.native.tsrx',
+		'.tsrx',
+		`${target}.tsx`,
+		'.native.tsx',
+		'.tsx',
+		`${target}.ts`,
+		'.native.ts',
+		'.ts',
+		`${target}.js`,
+		'.native.js',
+		'.mjs',
+		'.mts',
+		'.jsx',
+		'.js',
+		'.json',
+	]
+}
 
 /** Default renderer rules: every component file the native graph can reach —
  *  src plus linked package source — compiles under the nativescript
@@ -340,7 +390,7 @@ export async function xplatNative(env, opts = {}) {
 				// that resolves a dep's imports from the symlink path instead of
 				// its real .pnpm dir, so declared transitive deps can't be found.
 				preserveSymlinks: false,
-				extensions: nativeExtensions,
+				extensions: nativePlatformExtensions(),
 			},
 		},
 		opts.extra ?? {},
