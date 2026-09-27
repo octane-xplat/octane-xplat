@@ -1,4 +1,4 @@
-import { knownFolders } from '@nativescript/core'
+import { Application, knownFolders } from '@nativescript/core'
 
 import { navigate, goBack } from './nav'
 
@@ -77,4 +77,6 @@ export function runParity() {
 
 const g = globalThis as any
 g.__xplatSweepDone = runParity
-setTimeout(runParity, 120000)
+if (Application.android != null) {
+	setTimeout(runParity, 120000)
+}
