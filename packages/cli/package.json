@@ -1,12 +1,7 @@
 {
 	"name": "@octane-xplat/cli",
-<<<<<<< HEAD
 	"version": "0.6.0",
-	"description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android from one codebase)",
-=======
-	"version": "0.5.0",
-	"description": "xplat — web + iOS/Android tooling with an experimental AppKit Node-API target",
->>>>>>> f46fbc3 (feat(cli): add experimental macOS AppKit target)
+	"description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android + experimental macOS)",
 	"bin": {
 		"xplat": "./src/cli.mjs"
 	},
