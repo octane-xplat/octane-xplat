@@ -45,8 +45,12 @@ class AppDelegate extends NSObject {
 
 	windowShouldClose(window) {
 		const controller = controllerFor(window)
-		if (controller?.onCloseRequested?.() === false) return false
-		return true
+		try {
+			return controller?.onCloseRequested?.() !== false
+		} catch (error) {
+			console.error('[macos] window close request handler failed', error)
+			return false
+		}
 	}
 
 	// A regular secondary window may outlive the main window. AppKit's
@@ -89,6 +93,55 @@ function makeContentView(size) {
 	return NSView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size })
 }
 
+const WINDOW_KINDS = new Set(['regular', 'dialog', 'popup'])
+
+function normalizeWindowSize(size) {
+	if (
+		!size ||
+		typeof size !== 'object' ||
+		!Number.isFinite(size.width) ||
+		!Number.isFinite(size.height) ||
+		size.width <= 0 ||
+		size.height <= 0
+	) {
+		throw new TypeError('openWindow size must have positive finite width and height')
+	}
+
+	return { width: size.width, height: size.height }
+}
+
+function resolveParentWindow(parentOption, kind) {
+	if (
+		parentOption !== null &&
+		typeof parentOption !== 'object' &&
+		typeof parentOption !== 'function'
+	) {
+		throw new TypeError('openWindow parent must be an AppKit window or window controller')
+	}
+	if (parentOption?.isClosed) {
+		throw new Error('openWindow cannot use a closed parent window')
+	}
+
+	const explicitParent =
+		parentOption && 'window' in parentOption ? parentOption.window : parentOption
+	const parentWindow = explicitParent ?? (kind === 'regular' ? null : app.keyWindow)
+
+	if (kind !== 'regular' && !parentWindow) {
+		throw new Error(`openWindow kind "${kind}" requires a parent window`)
+	}
+	if (
+		kind === 'dialog' &&
+		typeof (parentWindow?.beginSheetCompletionHandler ?? parentWindow?.beginSheet) !== 'function'
+	) {
+		throw new TypeError('openWindow dialog parent must support AppKit sheets')
+	}
+	if (kind === 'popup' && typeof parentWindow?.addChildWindowOrdered !== 'function') {
+		throw new TypeError('openWindow popup parent must support AppKit child windows')
+	}
+
+	return parentWindow
+}
+
 export function createAppKitWindow() {
 	app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
 
@@ -113,6 +166,9 @@ export function createAppKitWindow() {
 
 /** Install the app-owned resolver that maps openWindow data to a component. */
 export function setWindowContentResolver(resolve) {
+	if (resolve !== null && typeof resolve !== 'function') {
+		throw new TypeError('setWindowContentResolver expects a function or null')
+	}
 	shared.resolver = resolve
 }
 
@@ -123,13 +179,19 @@ export function setWindowContentResolver(resolve) {
  * child panel. Requested size and title are hints.
  */
 export function openWindow(options = {}) {
+	if (options === null || typeof options !== 'object' || Array.isArray(options)) {
+		throw new TypeError('openWindow options must be an object')
+	}
+
 	const kind = options.kind ?? 'regular'
 	const parentOption = options.parent ?? null
-	const parentWindow =
-		(parentOption && 'window' in parentOption ? parentOption.window : parentOption) ??
-		(kind === 'regular' ? null : app.keyWindow)
-	const size =
-		options.size ?? (kind === 'regular' ? { width: 480, height: 320 } : { width: 360, height: 200 })
+	if (!WINDOW_KINDS.has(kind)) {
+		throw new RangeError(`Unsupported macOS window kind: ${String(kind)}`)
+	}
+	const parentWindow = resolveParentWindow(parentOption, kind)
+	const defaultSize =
+		kind === 'regular' ? { width: 480, height: 320 } : { width: 360, height: 200 }
+	const size = normalizeWindowSize(options.size ?? defaultSize)
 
 	const styleMask =
 		kind === 'regular'
@@ -179,33 +241,50 @@ export function openWindow(options = {}) {
 			if (controller.isClosed) return
 			controller.isClosed = true
 			shared.byNative.delete(window)
-			controller.root?.unmount()
-			resolveWindowClosed()
+			const root = controller.root
+			controller.root = null
+			try {
+				root?.unmount()
+			} catch (error) {
+				console.error('[macos] window root unmount failed', error)
+			} finally {
+				resolveWindowClosed()
+			}
 		},
 	}
 	shared.byNative.set(window, controller)
 
-	const component = shared.resolver?.(controller.data, controller)
-	if (typeof component === 'function') {
-		controller.root = createMacOSRoot(window.contentView)
-		try {
-			controller.root.render(component, { data: controller.data, controller })
-		} catch (error) {
-			console.error('[macos] window content render failed', error)
+	try {
+		if (typeof shared.resolver !== 'function') {
+			throw new Error('Install setWindowContentResolver() before calling openWindow()')
 		}
-	} else {
-		console.warn('[macos] openWindow: content resolver returned no component')
-	}
 
-	if (kind === 'dialog' && parentWindow) {
-		const beginSheet = parentWindow.beginSheetCompletionHandler ?? parentWindow.beginSheet
-		beginSheet.call(parentWindow, window, null)
-	} else if (kind === 'popup' && parentWindow) {
-		parentWindow.addChildWindowOrdered(window, NSWindowOrderingMode?.Above ?? 1)
-		window.orderFront(null)
-	} else {
-		window.center()
-		window.makeKeyAndOrderFront(app)
+		const component = shared.resolver(controller.data, controller)
+		if (typeof component !== 'function') {
+			throw new Error('The window content resolver did not return a component')
+		}
+
+		controller.root = createMacOSRoot(window.contentView)
+		controller.root.render(component, { data: controller.data, controller })
+
+		if (kind === 'dialog') {
+			const beginSheet = parentWindow.beginSheetCompletionHandler ?? parentWindow.beginSheet
+			beginSheet.call(parentWindow, window, null)
+		} else if (kind === 'popup') {
+			parentWindow.addChildWindowOrdered(window, NSWindowOrderingMode?.Above ?? 1)
+			window.orderFront(null)
+		} else {
+			window.center()
+			window.makeKeyAndOrderFront(app)
+		}
+	} catch (error) {
+		controller.__didClose()
+		try {
+			window.close()
+		} catch (closeError) {
+			console.error('[macos] failed to close a window after setup failed', closeError)
+		}
+		throw error
 	}
 	return controller
 }

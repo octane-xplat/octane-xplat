@@ -9,7 +9,10 @@ key window and mounts a second Octane root inside it — the app-installed
 controller}` as props. The sheet's `Close details` pressable calls
 `controller.close()`. Open, render, interaction, and teardown were all verified
 through AppKit accessibility actions. `kind:'regular'` and `kind:'popup'`
-mappings exist but only the dialog path is exercised.
+mappings exist but only the dialog path is exercised. Every window must resolve
+to a component. Invalid kinds, missing parents, and synchronous resolver/render
+setup errors now throw to the caller; failed setup removes the window registry
+entry and closes the new window.
 
 The proof covers vertical `View` layout with `gap`, a small inline `style`
 subset (`padding`, `fontSize`, `color`, `backgroundColor`, `borderRadius`), text
