@@ -73,6 +73,20 @@ function pxToDip() {
 			'',
 		)
 
+		// `@import` inlining reads the target file's raw text — it never
+		// reaches this hook, so inlined css ships px units AND un-stripped
+		// xplat-web-only rules (they land as real native props, e.g.
+		// translate(-50%,-50%) → translateY:-50dip). Import css files as JS
+		// modules instead — each then passes through this transform.
+		if (/@import\s+['"]/.test(code) && !warned.has(id + '|@import')) {
+			warned.add(id + '|@import')
+			warn(
+				`${id}: @import inlining bypasses the px→dip rewrite and the ` +
+					`xplat-web-only strip — import css files as JS modules instead ` +
+					`(import 'pkg/file.css')`,
+			)
+		}
+
 		for (const [re, hint] of CSS_DIVERGENCES) {
 			const key = id + '|' + hint
 			if (re.test(code) && !warned.has(key)) {

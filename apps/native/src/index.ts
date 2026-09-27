@@ -17,7 +17,13 @@ import { findInRootLayouts } from '@octane-xplat/ui/native'
 
 import { storage, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
-import './app.css'
+// Per-file css module imports — same shape as apps/web/src/main.tsrx. Each
+// module passes the xplat-native-css transform (px→dip + xplat-web-only
+// strip); an @import'd chain inlines raw text and bypasses it — that's how
+// the slider's web-only translate() leaked onto native views.
+import '@octane-xplat/ui/theme/tokens.css'
+import '@xplat/demos/demo.css'
+import '@xplat/app/app.css'
 
 // Trace the nav pipeline end-to-end: NAVIGATE → pushViewController → DID_show.
 Trace.enable()
