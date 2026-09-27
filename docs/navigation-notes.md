@@ -113,7 +113,7 @@ making the generated API's scalar contract explicit.
 | `useNavigate()`/`useParams()` | router hooks                                                    | facade over `Frame` API                                                   |
 | back                          | popstate                                                        | `frame.goBack()` + Android `activityBackPressed`                          |
 | deep link                     | URL load                                                        | `Application` lifecycle (openUrl/continueActivity)                        |
-| windows/scenes                | `window.open()`                                                 | `openWindow({data})`; app supplies NativeScript's window content resolver |
+| windows/scenes                | `window.open()`                                                 | `openWindow({data,kind,parent})`; app installs the window content resolver |
 
 ## Hard seams (decide consciously)
 
@@ -143,9 +143,20 @@ making the generated API's scalar contract explicit.
    presenter's component context does not. `+fade` or
    `presentation: 'fade'` selects a fade transition; push remains the
    default.
-8. **Windows**: `openWindow({data})` is the minimal cross-platform seam.
-   Native app code must install `Application.setWindowContentResolver()` to
-   render content for each new window; the framework does not own app roots.
+8. **Windows**: `openWindow({data, kind, parent})` is the cross-platform
+   seam and returns a controller (`setTitle`/`setSize`/`close`/`closed`/
+   `onCloseRequested`). `kind` (`'regular' | 'dialog' | 'popup'`) is a
+   behavior contract, not an OS-window promise: macOS maps it to NSWindow
+   styles, child windows, and `beginSheet`, while web and mobile fall back
+   to `window.open` or overlay behavior. Requested size and position are
+   hints the platform may clamp. Each window renders through an
+   app-installed content resolver (`data` → component):
+   `Application.setWindowContentResolver()` on native scenes, a per-window
+   `createMacOSRoot` host on macOS. The framework does not own app roots,
+   and context does not cross windows — shared state goes through
+   module-scope stores. Desktop-only satellite/dockable window types are
+   excluded from the shared spec; overlay-to-window promotion for
+   `Sheet`/`Popover` on desktop is deferred, not rejected. (Decision #59.)
 
 ## What we are NOT doing
 
