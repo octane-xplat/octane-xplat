@@ -32,6 +32,7 @@
 		"@nativescript/social-share": "2.3.0",
 		"@nstudio/nativescript-camera-plus": "6.0.1",
 		"@nstudio/nativescript-exoplayer": "6.2.0",
+		"@octane-xplat/canvas": "workspace:*",
 		"@octane-xplat/gif": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@valor/nativescript-websockets": "2.0.3",

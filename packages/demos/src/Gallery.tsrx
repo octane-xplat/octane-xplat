@@ -22,6 +22,7 @@ import { SearchDemo } from './SearchDemo.tsrx';
 import { VideoDemo } from './VideoDemo.tsrx';
 import { CameraDemo } from './CameraDemo.tsrx';
 import { AnimatedImageDemo } from './AnimatedImageDemo.tsrx';
+import { CanvasDemo } from './CanvasDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
@@ -64,6 +65,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'video', title: 'Video', kind: 'proof' },
 	{ id: 'camera', title: 'Camera', kind: 'proof' },
 	{ id: 'animated-image', title: 'Animated image', kind: 'proof' },
+	{ id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -104,6 +106,7 @@ const renderSearch = () => <SearchDemo />;
 const renderVideo = () => <VideoDemo />;
 const renderCamera = () => <CameraDemo />;
 const renderAnimatedImage = () => <AnimatedImageDemo />;
+const renderCanvas = () => <CanvasDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -137,6 +140,7 @@ export const RENDER: Record<string, () => any> = {
 	video: renderVideo,
 	camera: renderCamera,
 	'animated-image': renderAnimatedImage,
+	canvas: renderCanvas,
 };
 
 /** Demo launcher — chip menu. Two modes:

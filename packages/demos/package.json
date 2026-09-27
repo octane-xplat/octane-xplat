@@ -8,6 +8,7 @@
 		"./*": "./src/*"
 	},
 	"dependencies": {
+		"@octane-xplat/canvas": "workspace:*",
 		"@octane-xplat/gif": "workspace:*",
 		"@octane-xplat/ui": "workspace:*"
 	},

@@ -12,6 +12,8 @@
 			"@xplat/demos/*": ["../../packages/demos/src/*"],
 			"@octane-xplat/platform": ["../../packages/platform/src/index.ts"],
 			"@octane-xplat/platform/*": ["../../packages/platform/src/*"],
+			"@octane-xplat/canvas": ["../../packages/canvas/src/index.native.ts"],
+			"@octane-xplat/canvas/*": ["../../packages/canvas/src/*"],
 			"@octane-xplat/gif": ["../../packages/gif/src/index.native.ts"],
 			"@octane-xplat/gif/*": ["../../packages/gif/src/*"],
 			"@octane-xplat/ui": ["../../packages/ui/src/index.native.ts"],
