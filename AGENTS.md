@@ -84,16 +84,21 @@ experience of agents writing Octane-xplat code effectively.
 - **pnpm, not npm** (user preference). `pnpm-workspace.yaml` carries
   `nodeLinker: isolated` — `@nativescript/vite`'s vendor-manifest code needs it.
   Consequence: every package must declare what it imports (no transitive-dep
-  leakage), and apps must declare the `@nativescript/*` plugins they ship —
-  `/ns/m` resolves node_modules specs under the app root only.
+  leakage). Apps declare the `@nativescript/*` plugins they import directly;
+  plugins that a leaf package owns (e.g. `@octane-xplat/gif`'s
+  `ui-image`) travel as that package's real `dependency` — `ns prepare` BFSes
+  transitive deps, and a patched `/ns/m` routing serves them per-module in dev
+  (decision #51).
   `minimumReleaseAgeExclude` covers the octane packages — they're newer than
   the supply-chain cutoff.
 - `pnpm-workspace.yaml` `patchedDependencies` currently carries two live
   patches: `@nativescript-community/vite-octane` (`.tsrx` hot updates +
   real `recipients` count) and `@nativescript/vite` (reserved-word named
-  exports like zod's `enum` survive dep shims). Drop each when a release
-  carries the fix. esbuild is pinned to 0.27.7 — vite 8's peer range admits
-  0.28.x and the vendor bundler dies on the host/binary mismatch.
+  exports like zod's `enum` survive dep shims; unvendored plugin-patterned
+  deps fall back to per-module HTTP serving instead of a stub). Drop each
+  when a release carries the fix. esbuild is pinned to 0.27.7 — vite 8's
+  peer range admits 0.28.x and the vendor bundler dies on the host/binary
+  mismatch.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
   from the registry → 404).
 - `apps/native` needs `@valor/nativescript-websockets` — the on-device HMR
