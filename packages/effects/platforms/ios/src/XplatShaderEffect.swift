@@ -67,9 +67,7 @@ struct XplatShaderEffectView: View {
 
 	@ViewBuilder
 	private func shaderApplied<V: View>(to base: V, time: TimeInterval, size: CGSize) -> some View {
-		var merged = model.args
-		merged["time"] = time
-		merged["size"] = size
+		let merged = shaderArguments(time: time, size: size)
 		if let entry = XplatShaderEffectRegistry.factories[model.effect] {
 			let shader = entry.factory(merged)
 			switch entry.kind {
@@ -83,6 +81,13 @@ struct XplatShaderEffectView: View {
 		} else {
 			base
 		}
+	}
+
+	private func shaderArguments(time: TimeInterval, size: CGSize) -> [String: Any] {
+		var merged = model.args
+		merged["time"] = time
+		merged["size"] = size
+		return merged
 	}
 }
 

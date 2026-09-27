@@ -19,8 +19,8 @@ public final class XplatPulsarBridge: NSObject {
 		let points = pattern.points
 		let amplitude = points.map { ValuePoint(time: $0.at, value: Float(max(0, min(1, $0.intensity)))) }
 		let frequency = points.map { ValuePoint(time: $0.at, value: Float(max(0, min(1, $0.sharpness ?? 0.5)))) }
-		let data = PatternData(continuousPattern: ContinuousPattern(amplitude: amplitude, frequency: frequency), discretePattern: [])
-		pulsar.getPatternComposer().playPattern(hapticsData: data)
+		let patternData = PatternData(continuousPattern: ContinuousPattern(amplitude: amplitude, frequency: frequency), discretePattern: [])
+		pulsar.getPatternComposer().playPattern(hapticsData: patternData)
 	}
 
 	public func startRealtime(_ intensity: Float, sharpness: Float) { realtime.set(amplitude: intensity, frequency: sharpness) }
