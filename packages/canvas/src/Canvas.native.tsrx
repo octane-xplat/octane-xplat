@@ -32,8 +32,8 @@ export function Canvas(props: CanvasProps) @{
 		id={props.id}
 		className={props.className}
 		style={props.style}
-		width={props.width}
-		height={props.height}
+		width={props.width as any}
+		height={props.height as any}
 		onReady={ready}
 	/>;
 }
