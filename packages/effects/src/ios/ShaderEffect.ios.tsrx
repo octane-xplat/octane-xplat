@@ -8,6 +8,7 @@ import { useEffect, useRef } from 'octane';
 // Compiled into the app target from this package's platforms/ios/src —
 // the runtime exposes the @objc class by name.
 declare const XplatShaderEffectProvider: any;
+declare const NativeScriptViewFactory: { shared?: any; initShared(): void };
 
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
@@ -26,6 +27,12 @@ registerSwiftUI('xplat-shader-effect', (owner: any) => new UIDataDriver(new Xpla
 // layout tree, and generateNativeView sets it up as a root view when the
 // SwiftUI representable asks for it.
 const contentById = new Map<string, ContentView>();
+// The harness uses NativeScript's Obj-C bootstrap, which leaves this SwiftUI
+// view factory uninitialized. SwiftUIManager installs its lifecycle hooks on
+// the singleton, so initialize it before the module-level registration.
+if (!NativeScriptViewFactory.shared) {
+	NativeScriptViewFactory.initShared();
+}
 SwiftUIManager.registerNativeScriptViews({ xplatshader: true } as any, {
 	create: (id: string) => contentById.get(id) ?? new ContentView(),
 	destroy: (id: string) => contentById.delete(id),
