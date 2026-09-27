@@ -26,6 +26,7 @@ its `.agents/docs/` notes record which framework seams still leak.
 | `packages/app`, `packages/demos`       | Probe harness app + seam-by-seam demo screens.                                                                                                                                                    |
 | `apps/web`, `apps/native`              | Entry shells + vite configs for the harness.                                                                                                                                                      |
 | `packages/create`, `packages/platform` | Project scaffolder; platform services seam.                                                                                                                                                       |
+| `packages/gif`, `packages/canvas`, `packages/effects` | Leaf packages — features that need a NativeScript plugin ship here, declaring the plugin as a real `dependency` (decision #51).                                        |
 | `prior-art/`                           | Other people's systems — substrate (`octane`, `nativescript-octane`, `nativescript-core`) and precedents (`one`, `tamagui`, `react-native-web`, `flutter`). Documents here are never commitments. |
 | `docs/decisions.md`                    | Decision ledger, `#`-numbered, statuses: forced / decided / provisional / rejected. Reversals get dated notes, not edits.                                                                         |
 | `docs/open-questions.md`               | Unverified seams, `Q`-numbered, ranked by blast radius.                                                                                                                                           |
@@ -46,6 +47,11 @@ Record criterion coverage and verification evidence separately in Silo's
 At handoff, identify affected recipes and remaining gaps, or briefly explain
 why no recipe is affected. A public workflow change is not finished until its
 recipe and documentation are reconciled and any remaining gap is explicit.
+
+`packages/ui` takes **no new dependencies and no new peers** — a feature
+needing a NativeScript plugin ships as its own leaf package instead
+(decision #53). Its existing peers are grandfathered, not a pattern to
+extend.
 
 ## The exploration loop
 
