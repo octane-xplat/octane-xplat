@@ -78,8 +78,8 @@ web builds. `ui/native` is plumbing (root-layout helpers), not components.
 | `Video` `onError`       | maps `MEDIA_ERR_*` codes                            | unsupported — the plugin logs player errors, emits no event | same as iOS  | `unsupported` | post-0.5.0·desk |
 | `Video` `onEnded`       | suppressed under `loop` (`ended` never fires)       | suppressed under `loop` to match — the plugin still emits `finished` | same as iOS | `different` | post-0.5.0·desk |
 | `Video` seeking         | `currentTime` write while scrubbing                 | `seekToTime` per drag event — no debounce | same as iOS | `degraded` | post-0.5.0·desk |
-| `CameraView`            | `getUserMedia` → `<video>` (leaf-owned prompt)      | `cameraplus` via `@nstudio/nativescript-camera-plus` (required peer; SwiftyCam v6 branch pod is git-sourced) — `unsupported` on the simulator | CameraX FancyCamera via the same plugin | `different` | post-0.5.0·desk |
-| `CameraView` `onReady`  | stream `playing` event                              | view `loaded` — the sensor may still be warming | same as iOS | `degraded` | post-0.5.0·desk |
+| `CameraView`            | `getUserMedia` → muted/autoplay `<video>`           | `AVCaptureSession` + `AVCaptureVideoPreviewLayer`; simulator availability unverified | CameraX `PreviewView`, lifecycle-bound by the leaf | `different` | post-0.6.0·desk |
+| `CameraView` `onReady`  | video `playing` event                               | after `AVCaptureSession.startRunning()` returns; does not confirm a rendered frame | after CameraX binds the preview use case; does not confirm a rendered frame | `degraded` | post-0.6.0·desk |
 
 Overlay roots (`Sheet`/`openSheet`, `UIModal`, `MaterialDialog`) mount a
 separate Octane root on every platform — `useContext` does not cross into

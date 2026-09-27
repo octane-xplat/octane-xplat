@@ -31,12 +31,14 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 | `media.pickImage()`, `pickImages()` | pick existing image(s) | native needs `@nativescript/imagepicker` |
 | `media.capturePhoto()` | still capture through the OS camera UI | web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops; native needs `@nativescript/camera` |
 
-`media` owns the `camera` and `photos` permission requests, and
-`permissions.ensure(kind)` delegates to the owning service for
-notifications, media, and location rather than maintaining a second set of
-probes. On web, `ensure('camera')` reads the permission without ever opening
-a prompt — a state that would require asking the user reports
-`unsupported`, and `denied` stays `denied`.
+`media` owns the `camera` and `photos` permission requests for still capture
+and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
+which requests it when `CameraView` starts. `permissions.ensure(kind)`
+delegates to the owning service for notifications, media, and location rather
+than maintaining a second set of probes. On web, `ensure('camera')` reads the
+permission without ever opening a prompt — a state that would require asking
+the user reports `unsupported`, and `denied` stays `denied`; starting
+`CameraView` instead uses `getUserMedia` to request access for the preview.
 
 `files.writeText(name, text)` writes a file on native. On web, it starts a
 browser download with the requested name and returns a `FileRef` for the

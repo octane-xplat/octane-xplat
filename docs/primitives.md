@@ -171,12 +171,13 @@ Times are milliseconds everywhere, including `onReady`'s duration.
 
 `CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),
 `active` to start/stop, `onReady`/`onError`, and a `bind` handle for the
-platform view. The leaf owns the camera-permission request on every target
-(the app still needs `NSCameraUsageDescription` / `android.permission.CAMERA`
-declared). Stills deliberately go through `media.capturePhoto` in
-`@octane-xplat/platform`, not this widget. Native apps that ship
-`CameraView` must declare the `@nstudio/nativescript-camera-plus` plugin
-in their own `package.json`.
+platform view. Add `@octane-xplat/camera` to the app with
+`pnpm add @octane-xplat/camera` and import `CameraView` from that package. The
+leaf requests permission when the preview starts and includes the iOS camera
+usage description and Android camera permission in its platform files; no
+separate camera plugin is needed. Setting `active` to `false` stops the
+preview. Stills deliberately go through `media.capturePhoto` in
+`@octane-xplat/platform`, not this widget.
 
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)
