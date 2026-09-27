@@ -2,12 +2,6 @@ import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@xplat/macos/renderer'
 
 const app = NSApplication.sharedApplication
-let running = true
-let eventPumpErrorReported = false
-let resolveApplicationClosed
-const applicationClosed = new Promise((resolve) => {
-	resolveApplicationClosed = resolve
-})
 
 // The dev harness and the bundled app import this module as separate
 // instances; windowing state is shared through globalThis so delegates
@@ -20,6 +14,13 @@ const shared = (globalThis.__xplatMacosWindowing ??= {
 })
 
 shared.windowCloseHandlers ??= new Map()
+shared.running ??= true
+shared.eventPumpErrorReported ??= false
+shared.applicationClosed ??= new Promise((resolve) => {
+	shared.resolveApplicationClosed = resolve
+})
+
+const applicationClosed = shared.applicationClosed
 
 function controllerFor(nativeWindow) {
 	const direct = shared.byNative.get(nativeWindow)
@@ -94,13 +95,13 @@ class AppDelegate extends NSObject {
 	}
 
 	applicationWillTerminate() {
-		running = false
+		shared.running = false
 		for (const closeHandler of shared.windowCloseHandlers.values()) {
 			closeHandler()
 		}
 
 		shared.windowCloseHandlers.clear()
-		resolveApplicationClosed()
+		shared.resolveApplicationClosed?.()
 	}
 
 	pumpEvents() {
@@ -117,17 +118,17 @@ class AppDelegate extends NSObject {
 				app.sendEvent(event)
 			}
 
-			eventPumpErrorReported = false
+			shared.eventPumpErrorReported = false
 		} catch (error) {
-			if (!eventPumpErrorReported) {
+			if (!shared.eventPumpErrorReported) {
 				console.error('[macos] AppKit event pump failed; retrying', error)
-				eventPumpErrorReported = true
+				shared.eventPumpErrorReported = true
 			}
 
 			delay = 100
 		}
 
-		if (running) {
+		if (shared.running) {
 			setTimeout(() => this.pumpEvents(), delay)
 		}
 	}
