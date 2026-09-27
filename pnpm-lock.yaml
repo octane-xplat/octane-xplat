@@ -249,18 +249,24 @@ importers:
 
   packages/app:
     dependencies:
+      '@octane-xplat/audio':
+        specifier: workspace:*
+        version: link:../audio
+      '@octane-xplat/haptics':
+        specifier: workspace:*
+        version: link:../haptics
       '@octane-xplat/platform':
         specifier: workspace:*
         version: link:../platform
+      '@octane-xplat/sounds':
+        specifier: workspace:*
+        version: link:../sounds
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../ui
       '@xplat/demos':
         specifier: workspace:*
         version: link:../demos
-      '@xplat/media-probe':
-        specifier: workspace:*
-        version: link:../media-probe
       octane:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
         version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -274,6 +280,28 @@ importers:
       '@octane-xplat/cli':
         specifier: workspace:*
         version: link:../cli
+
+  packages/audio:
+    dependencies:
+      octane:
+        specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
+        version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.1
+        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76))(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 9.1.2
+        version: 9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76)
+      '@octanejs/vite-plugin':
+        specifier: 0.1.60
+        version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
 
   packages/camera:
     dependencies:
@@ -411,6 +439,28 @@ importers:
         specifier: 8.3.0
         version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
 
+  packages/haptics:
+    dependencies:
+      octane:
+        specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
+        version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.1
+        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76))(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 9.1.2
+        version: 9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76)
+      '@octanejs/vite-plugin':
+        specifier: 0.1.60
+        version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
+
   packages/lint:
     dependencies:
       '@tsrx/core':
@@ -478,6 +528,31 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76)
+
+  packages/sounds:
+    dependencies:
+      '@nativescript/audio-context':
+        specifier: 1.3.3
+        version: 1.3.3
+      octane:
+        specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
+        version: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.1
+        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76))(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 9.1.2
+        version: 9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76)
+      '@octanejs/vite-plugin':
+        specifier: 0.1.60
+        version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
 
   packages/ui:
     dependencies:

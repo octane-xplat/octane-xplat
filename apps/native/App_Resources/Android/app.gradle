@@ -4,8 +4,8 @@ dependencies {
 }
 
 android {
-  compileSdkVersion 35
-  buildToolsVersion "35"
+  compileSdkVersion 36
+  buildToolsVersion "36"
   // ndkVersion ""
 
   defaultConfig {

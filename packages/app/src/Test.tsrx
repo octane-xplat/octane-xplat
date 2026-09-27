@@ -8,7 +8,7 @@ import { Probes } from './probes-host';
 import { Services } from './Services.tsrx';
 import { openSheet } from './platform/sheet';
 import { navigate } from './platform/nav';
-import { MediaProbe } from './MediaProbe.tsrx';
+import { MediaServices } from './MediaServices.tsrx';
 
 /** Test tab — everything that isn't the familiar poke surface: probe
  *  instrumentation, the platform-services catalog, harness seams (switch,
@@ -23,7 +23,7 @@ export function Test() @{
 		<Text className="text-2xl font-semibold">Test</Text>
 
 		<Probes />
-		<MediaProbe />
+		<MediaServices />
 
 		<Text className="section-label">Platform services</Text>
 		<Services />

@@ -11,10 +11,12 @@
 		"gen": "xplat routes --dir src/app"
 	},
 	"dependencies": {
+		"@octane-xplat/audio": "workspace:*",
+		"@octane-xplat/haptics": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/sounds": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
-		"@xplat/demos": "workspace:*",
-		"@xplat/media-probe": "workspace:*"
+		"@xplat/demos": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.1",

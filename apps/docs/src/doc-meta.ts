@@ -35,6 +35,7 @@ export const ORDER = [
 	'animation-gestures',
 	'module-resolution',
 	'platform-services',
+	'media-services',
 	'testing',
 	'toolchain',
 	'known-limits',

@@ -25,8 +25,8 @@ export default {
 		],
 		NativeSource: [
 			{
-				name: 'XplatMediaProbe',
-				path: '../../packages/media-probe/platforms/ios/src/**/*.swift',
+				name: 'XplatPulsarBridge',
+				path: '../../packages/haptics/platforms/ios/src/**/*.swift',
 			},
 		],
 	},

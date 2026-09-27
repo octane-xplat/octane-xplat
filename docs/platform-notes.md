@@ -124,71 +124,42 @@ function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void
 
 These are separate optional capabilities, not additions to `@octane-xplat/ui`
 or the existing basic haptics service. Keep the basic impact/notification/
-selection wrapper stable. The spike lives in `packages/media-probe`; none of
-its experimental APIs are shipped.
+selection wrapper stable. The leaf APIs live in `packages/haptics`,
+`packages/sounds`, and `packages/audio`.
 
 | Capability | Web evidence | iOS evidence | Android evidence |
 | --- | --- | --- | --- |
-| Advanced haptics | Browser leaf builds with `navigator.vibrate`; this API is unavailable in iOS Safari and remains best-effort elsewhere. Pulsar's web package was not resolvable from its installed npm distribution (no JS entry files). | Pulsar 1.4.0 Swift package and a NativeScript `NativeSource` bridge were configured, but `ns build ios` stopped in CocoaPods on conflicting `QBImagePickerController` pod sources before Pulsar could compile. | Pulsar 1.3.0 advertises presets, pattern composition, and realtime control; app builds with compile SDK 36, but NativeScript produced an empty probe AAR for the Kotlin bridge. Runtime calls therefore fail. No physical device was available to verify actuation. |
-| UI sounds | Web Audio oscillator probe builds; playback still requires a user gesture on autoplay-restricted browsers. | Not run: native preparation is blocked by the existing pod-source conflict. | `@nativescript/audio-context` 1.3.3 is discovered transitively and the harness APK builds at compile SDK 36 (the app's current value is 35). API calls and overlap were exercised, but audio output was not independently observable in this headless emulator. Package size is 8.06 MB unpacked. |
-| Full player | Browser `Audio` probe builds; queue/background/system controls are not implemented. | `@nativescript-community/audio` 6.4.11 advertises AVAudioPlayer-based foreground controls; the native app build was blocked before runtime validation. | The same package advertises MediaPlayer-based foreground controls. The remote-source probe stayed in loading and Android logged `MediaPlayer Error (-38, 0)`; no queue, MediaSession/lock-screen controls, or background service were verified. |
+| Advanced haptics | `navigator.vibrate` is used when available; iOS Safari does not expose Web Vibration. | Pulsar 1.4.0 and NativeScript Swift-source configuration are present, but iOS preparation stops at conflicting `QBImagePickerController` pod sources before Pulsar compiles. | Pulsar 1.3.0 capability lookup, preset, pattern, and realtime start/stop calls ran on the xplat emulator without runtime exceptions. Compile SDK 36, target SDK 35; physical tactile output remains unverified. |
+| UI sounds | The package builds with preloaded HTML audio; browser autoplay can require a user gesture. | Native preparation is blocked at CocoaPods before runtime validation. | Stable AudioContext 1.3.3 builds into the SDK 36 APK. UI sound and overlap actions ran without runtime exceptions while the Media3 session remained active. The emulator has audio output disabled, so audible overlap and route coexistence are unverified. |
+| Full player | The package builds an `HTMLAudioElement` player with optional Media Session actions; background parity is not claimed. | AVPlayer, Now Playing metadata, remote commands, interruption observation, and audio background mode are implemented, but preparation is blocked at conflicting CocoaPods declarations. Runtime behavior is unverified. | Media3 `MediaSessionService`, queue transport, system controls, background service declarations, and audio-focus handling are implemented. Emulator playback reached `playing`/`ended`, pause and seek updated the session, and metadata was present. Background continuation and notification/headset controls remain unverified. |
 
-**Recommendation — provisional.** Keep three optional leaf packages:
-`@octane-xplat/haptics`, `@octane-xplat/sounds`, and `@octane-xplat/audio`.
-This isolates native dependencies and their build costs from `ui`. The haptics
-package should own a Pulsar adapter if a maintained NativeScript integration
-cannot match its presets, timed patterns, realtime control, cancellation, and
-capability reporting. The UI-sound leaf can wrap Web Audio on web and
-`@nativescript/audio-context` on native, subject to accepting or removing the
-compile-SDK-36 requirement. Keep audio simulation opt-in.
+**Package split — decided.** Keep the three services in optional leaf packages
+so their native dependencies and build costs stay out of `ui` and the basic
+`platform.haptics` service remains unchanged. Pulsar provides advanced native
+haptics; Android apps compile with SDK 36 while targeting 35 and supporting
+Android 24+.
 
-The full-player package needs an owned plugin implementation around Android
-Media3 `MediaSessionService` and iOS AVPlayer plus Now Playing/remote commands.
-`@nativescript-community/audio` is a possible foreground backend, but does not
-meet the requested background queue and lock-screen contract. Do not model a
-full player as a thin wrapper over that package until those system integrations
-exist.
+`@octane-xplat/sounds` uses `@nativescript/audio-context` 1.3.3 on native and
+preloaded HTML audio on web. Its native implementation decodes each effect
+once and routes overlapping sources through per-voice gain nodes. Android
+sound/overlap calls ran without exceptions while the player session remained
+active, but emulator audio output is disabled, so audible mixing and route
+preservation still need a physical device.
 
-Pulsar currently ships iOS as a Swift package and Android as a Maven artifact;
-the NativeScript spike needed app-level SPM/Swift-source configuration for iOS
-and could not package its Kotlin source into the plugin AAR. A production leaf
-must make those dependencies arrive through the package's NativeScript
-integration or an install-time config hook, so apps do not maintain a second,
-manual native dependency list. Pulsar's Android API uses API 24+ generally;
-its documented envelope/frequency support is API 36+, so capability reporting
-must describe device support instead of promising the same effect everywhere.
+`@octane-xplat/audio` uses a package-owned Media3 session service on Android,
+AVPlayer and remote commands on iOS, and `HTMLAudioElement` plus optional
+Media Session actions on web. Android player state and session metadata were
+exercised on the emulator. Background continuation, notification/headset
+controls, and physical audio remain unverified. iOS preparation is blocked
+before its adapter compiles by duplicate QBImagePicker pod declarations.
 
-Proposed contracts stay capability-oriented and asynchronous:
-
-- `haptics.capabilities()`, `playPreset(name)`, `playPattern(pattern)`,
-  `startRealtime()`, `updateRealtime({ intensity, sharpness })`, and `stop()`.
-  Reports describe support; they do not promise identical tactile output.
-- `sounds.preload(id, source)`, `play(id, { volume })`, and `stop(id?)`.
-  Bound concurrent voices and release decoded/native resources on dispose.
-- `audio.createPlayer({ source, queue?, metadata? })` returns a player with
-  play/pause/seek/next, observable state/progress, and dispose. Background
-  mode and system controls are explicit capabilities, not assumed on web.
-
-The audio package owns focus/session policy for long-form playback. Short UI
-effects use a transient mix/duck policy and must not change the media route,
-replace its session, or stop it. Web sound playback must expose its
-user-gesture unlock state. Remaining ship gates are a NativeScript-compatible
-Pulsar bridge on both mobile platforms, physical-device haptic evidence, local
-and remote media tests, queue/background/lock-screen/interruption tests, and
-sound/media coexistence tests. This spike does not complete those gates.
-
-The existing [video-playback recipe](../recipes/video-playback.md) covers
-hosted video only. When an audio player becomes public, add a separate audio
-playback recipe for source loading, controls, background behavior, and system
-media controls; keep sound-effect and advanced-haptics workflows separate if
-they become supported app-facing tasks.
-
-Candidate references: [Pulsar Android](https://docs.swmansion.com/pulsar/sdk/android/),
-[Pulsar iOS](https://docs.swmansion.com/pulsar/sdk/ios/),
-[`@nativescript/audio-context`](https://github.com/NativeScript/audio-context),
-[`@nativescript-community/audio`](https://github.com/nativescript-community/audio),
-[Android background playback](https://developer.android.com/media/media3/session/background-playback),
-and [AVPlayer](https://developer.apple.com/documentation/avfoundation/avplayer).
+Decision #54 assigns audio session/focus policy to the full audio service.
+Effects remain bounded and must not take focus, interrupt long-form playback,
+or change its route. Android effect/player session coexistence is confirmed at
+the API/session level; audible mixing and route preservation remain a
+physical-device test requirement. See [media services](media-services.md) for
+the public API and current evidence. Separate recipes cover advanced haptics,
+UI effects, and audio playback.
 
 ## Two typing gotchas
 
