@@ -220,3 +220,18 @@ LiveRegion` unwired in leaves so far).
     web, iOS, and Android? Profile before deciding whether cell recycling is
     needed. Off-window rows currently unmount and lose local component state.
     Evidence: queued lab experiment in Silo.
+31. ⏳ **How should shared `openWindow()` expose mobile availability and
+    readiness?** — In `@nativescript/core` 9.1.2, `Application.openWindow()`
+    returns `void`; the app-installed `WindowContentResolver` receives the
+    resulting window and its data later. Returning `null` leaves content setup
+    to the app. Multi-window support is device- and configuration-dependent:
+    iPadOS supports scenes, iPhone exposes one window, and Android window
+    opening is experimental and depends on manifest `launchMode`. Decide how
+    the shared API types readiness and capability, correlates a caller's
+    request with the later resolver callback, and reports closure or creation
+    errors. The AppKit prototype's immediate controller proves only its
+    app-local macOS path; `@octane-xplat/ui` still exposes `{data?, url?}` and
+    its emitted return type is `any`. Sources: [NativeScript multi-window
+    guide](https://docs.nativescript.org/guide/multi-window),
+    [WindowContentResolver API](https://beta.docs.nativescript.org/api/type-aliases/WindowContentResolver),
+    [AndroidApplication API](https://docs.nativescript.org/api/classes/AndroidApplication).

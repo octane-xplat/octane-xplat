@@ -65,3 +65,15 @@
 | 57  | Shared primitives expose a useful cross-platform intersection; richer platform behavior remains explicit | Decided | Common use cases justify a shared baseline only when each target can honor the same contract. `ScrollView` + mapped rows covers ordinary lists; `VirtualList` owns bounded windowing, while native cell recycling remains in `UITableView`/`RecyclerView`. A shared API must not imply capabilities it does not provide | architecture, primitives |
 | 58  | A shared `VirtualList` owns windowing and anchor semantics over DOM scrolling on web and NativeScript `ScrollView` on iOS/Android; native table/recycler widgets remain platform-authentic | Decided | Stage 2 passes bounded variable-height rows, stable keyed identity, slot behavior, and post-layout anchor correction on all three targets (0.28 px web, 0.00 dip iOS, 1.14 dip Android). Off-window rows unmount rather than recycle; fast-scroll performance and feed/chat APIs remain open | primitive-notes |
 | 59  | `openWindow` gains `kind` (`'regular' \| 'dialog' \| 'popup'`) and `parent`, and returns a controller (`setTitle`/`setSize`/`close`/`closed`/`onCloseRequested`); each macOS window hosts its own Octane root via an app-installed content resolver; satellite/dockable window types stay out of the shared spec | Provisional | Desk-source: Flutter's desktop windowing API (Canonical/Google) demonstrates window types plus explicit parent hierarchy as a cross-platform contract. Kinds are behavior semantics, not an OS-window promise — web and mobile fall back to overlays/scenes since mobile has no real windows. Partially lab-verified 2026-09-27: the AppKit spike opens a `dialog` window via `beginSheet` hosting a second Octane root through the resolver; `regular`/`popup` kinds and the shared props surface remain unexercised | navigation-notes |
+
+> **#59 implementation note (2026-09-27):** The candidate is not yet the
+> `@octane-xplat/ui` API. NativeScript 9.1.2's iOS and Android
+> `Application.openWindow()` calls return `void`, and the app resolver receives
+> a later window request; `OpenWindowOptions` still contains only `data` and
+> web-only `url`. The synchronous controller lives only in the app-local
+> AppKit prototype. Define its readiness and request-correlation behavior
+> before publishing it; see Q31 in `open-questions.md`. Correction: the earlier
+> rationale that mobile has no real windows is too broad. NativeScript supports
+> scenes on iPadOS and activity/task windows on Android in supported
+> configurations; iPhone remains single-window. See the [NativeScript
+> multi-window guide](https://docs.nativescript.org/guide/multi-window).

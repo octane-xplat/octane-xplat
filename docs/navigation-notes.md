@@ -143,20 +143,31 @@ making the generated API's scalar contract explicit.
    presenter's component context does not. `+fade` or
    `presentation: 'fade'` selects a fade transition; push remains the
    default.
-8. **Windows**: `openWindow({data, kind, parent})` is the cross-platform
-   seam and returns a controller (`setTitle`/`setSize`/`close`/`closed`/
-   `onCloseRequested`). `kind` (`'regular' | 'dialog' | 'popup'`) is a
-   behavior contract, not an OS-window promise: macOS maps it to NSWindow
-   styles, child windows, and `beginSheet`, while web and mobile fall back
-   to `window.open` or overlay behavior. Requested size and position are
-   hints the platform may clamp. Each window renders through an
-   app-installed content resolver (`data` → component):
-   `Application.setWindowContentResolver()` on native scenes, a per-window
-   `createMacOSRoot` host on macOS. The framework does not own app roots,
-   and context does not cross windows — shared state goes through
-   module-scope stores. Desktop-only satellite/dockable window types are
-   excluded from the shared spec; overlay-to-window promotion for
-   `Sheet`/`Popover` on desktop is deferred, not rejected. (Decision #59.)
+8. **Windows (provisional; decision #59)**: The candidate shared seam is
+   `openWindow({data, kind, parent})`, returning a controller
+   (`setTitle`/`setSize`/`close`/`closed`/`onCloseRequested`). `kind`
+   (`'regular' | 'dialog' | 'popup'`) describes behavior, not a promise that
+   every target creates an OS window. Requested size and position are hints
+   the platform may clamp.
+
+   This richer shape is not yet the `@octane-xplat/ui` API. The package does
+   export a basic `openWindow`: its `OpenWindowOptions` contains only `data`
+   and web-only `url`; native forwards to `Application.openWindow()` and
+   returns `void`, while web returns `Window | null`. The emitted package
+   declarations currently widen that return to `any`. NativeScript's
+   app-installed resolver receives the resulting window and its data later.
+   Multi-window availability also varies by device and configuration: iPadOS
+   supports scenes, iPhone exposes one window, and Android window opening is
+   experimental and depends on `launchMode`. The richer shared contract still
+   needs typed readiness, request correlation, and creation-error behavior
+   (Q31).
+
+   The app-local AppKit prototype has its own resolver and returns a
+   synchronous controller; its `dialog` path has been lab-verified, while
+   `regular` and `popup` remain untested. Each prototype window renders in a
+   separate Octane root. The framework does not own app roots, and context
+   does not cross windows — shared state goes through module-scope stores.
+   Overlay-to-window promotion for `Sheet`/`Popover` on desktop remains open.
 
 ## What we are NOT doing
 
