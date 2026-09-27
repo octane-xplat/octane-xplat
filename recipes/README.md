@@ -18,13 +18,14 @@ Initial workflows:
 - [Use platform-specific implementations from shared code](platform-leaves.md)
 - [Open a screen from an incoming link](incoming-links.md)
 - [Ship video playback on web and native](video-playback.md)
+- [Package an experimental AppKit app](macos-appkit-package.md)
 
 ## Authoring contract
 
 Use one Markdown file per outcome, with these fields and sections:
 
 - `ID: kebab-case-name` — stable across title and filename changes.
-- `Targets: web, ios, android` — only the applicable targets.
+- `Targets: web, ios, android, macos` — only the applicable targets.
 - `Related APIs: ...` — literal public symbols, packages, or configuration names
   to make discovery possible from a code change.
 - `## Starting point` — reader knowledge, app setup, and the scope boundary.
@@ -71,7 +72,8 @@ The existing `docs_audit` table remains the page-level audit; `recipe_audit`
 records one criterion assessment per recipe, target, and reviewed revision.
 Requirements live only in these Git files. Audit rows carry:
 
-- `recipe_id`, `criterion_id`, and `target` (`web`, `ios`, or `android`).
+- `recipe_id`, `criterion_id`, and `target` (`web`, `ios`, `android`, or
+  `macos`).
 - `reviewed_commit` and `recipe_blob` — the exact code/docs revision and recipe
   Git blob assessed; obtain them with `git rev-parse HEAD` and
   `git rev-parse HEAD:recipes/<file>.md` after committing.
@@ -87,5 +89,8 @@ New commits or changed recipe blobs require reassessment of affected criteria;
 old rows remain historical evidence, not a current green status. Insert a new
 assessment for a new revision; use Silo's optimistic revision when correcting
 an existing row. Never claim a roll-up is complete with missing applicable target rows.
-If Silo is unavailable, report the unrecorded findings at handoff and leave the
-audit pending rather than claiming completion.
+The current Silo `recipe_audit.target` constraint accepts only `web`, `ios`,
+and `android`; macOS recipe rows remain pending until that schema can be
+extended without rebuilding the existing audit table. If Silo is unavailable,
+report the unrecorded findings at handoff and leave the audit pending rather
+than claiming completion.

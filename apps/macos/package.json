@@ -7,12 +7,22 @@
 		"xplat": "xplat",
 		"dev": "node ./scripts/dev.mjs",
 		"build": "vite build",
-		"package": "node ./scripts/package.mjs"
+		"package": "xplat build --targets macos"
 	},
 	"xplat": {
 		"targets": {
 			"macos": {
-				"runtime": "appkit-node-api"
+				"runtime": "appkit-node-api",
+				"package": {
+					"productName": "Octane macOS spike",
+					"bundleIdentifier": "org.octane.xplat.macos-spike",
+					"executableName": "Octane",
+					"version": "0.1.0",
+					"minimumSystemVersion": "13.5",
+					"viteConfig": "vite.package.config.mjs",
+					"bundleFile": "dist/package-build/main.cjs",
+					"entitlements": "entitlements.plist"
+				}
 			}
 		}
 	},

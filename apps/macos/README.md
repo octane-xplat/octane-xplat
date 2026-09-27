@@ -38,13 +38,15 @@ path missing from that published artifact, so this spike pins the matching
 
 Run `pnpm xplat dev --targets macos` to launch it, or
 `pnpm xplat build --targets macos` to create the `.app` and `.dmg`. The app's
-`package.json` opts in with `xplat.targets.macos.runtime: "appkit-node-api"`;
-the CLI forwards dev to the existing `dev` script and build to `package`.
-Direct `pnpm dev`, `pnpm build`, and `pnpm package` scripts remain available.
-`xplat doctor` checks the AppKit host, Apple Silicon architecture, declared
-runtime dependency, and packaging tools without requiring the NativeScript CLI,
-iOS simulator, or Android SDK. This target is experimental and Apple Silicon
-only.
+`package.json` opts in with `xplat.targets.macos.runtime: "appkit-node-api"`
+and supplies product/package metadata under `xplat.targets.macos.package`.
+The CLI forwards dev to this app's `dev` script; `xplat build` owns the shared
+`.app`/`.dmg` packaging, signing, and optional notarization flow. The local
+`package` script is only an alias for `xplat build --targets macos`.
+`xplat doctor` checks the AppKit host, Apple Silicon architecture, package
+metadata, declared runtime dependency, and packaging tools without requiring
+the NativeScript CLI, iOS simulator, or Android SDK. This target is experimental
+and Apple Silicon only.
 
 With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
 `tap <accessibility label>` on stdin. This CLI target does not add macOS to the
@@ -52,20 +54,20 @@ With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
 
 ## Packaging proof
 
-`pnpm --filter @xplat/macos package` builds an Apple Silicon `.app` and
-compressed `.dmg`. It embeds Node 26.7.0 from the official arm64 distribution,
-verifies the published SHA-256, and includes the NativeScript Node-API runtime
-and bundled Octane component. The bundle targets macOS 13.5 or later. Artifacts
-are written under `apps/macos/artifacts/macos-arm64/` so dev builds do not clean
-them.
+`pnpm --filter @xplat/macos package` delegates to the CLI to build an Apple
+Silicon `.app` and compressed `.dmg`. The packager embeds Node 26.7.0 from the
+official arm64 distribution, verifies the published SHA-256, and includes the
+NativeScript Node-API runtime and bundled Octane component. The bundle targets
+macOS 13.5 or later. Artifacts are written under
+`apps/macos/artifacts/macos-arm64/` so dev builds do not clean them.
 
 Without signing configuration, the app is ad-hoc signed for local use. Set
 `MACOS_SIGNING_IDENTITY` to a Developer ID Application identity to sign the app
 and disk image for distribution. The Node host is signed with the Hardened
 Runtime JIT entitlement required for its JavaScript engine. For notarization,
 first save a credential profile with `xcrun notarytool store-credentials`,
-then set `MACOS_NOTARY_PROFILE` to that profile name. The package script submits
-and staples the disk image when that variable is set.
+then set `MACOS_NOTARY_PROFILE` to that profile name. The CLI packager submits,
+staples, and validates the disk image when that variable is set.
 
 The bundle builder uses Node's Single Executable Applications feature to make
 Node the app's executable. Node currently marks this feature as active

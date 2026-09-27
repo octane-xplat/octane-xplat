@@ -62,3 +62,16 @@ writing a shared screen.
 
 For the two bundler pipelines, version pins, package publishing, native
 plumbing, and compiler-specific details, see the [toolchain notes](toolchain-notes.md).
+
+## Experimental AppKit target
+
+The CLI can also run the in-repository experimental macOS AppKit Node-API app
+with `pnpm xplat dev --targets macos` and package it with
+`pnpm xplat build --targets macos`. This target is Apple Silicon only and is
+not part of the scaffolded starter or the supported web/iOS/Android release
+contract. `xplat.targets.macos.package` in the app manifest supplies the app
+name, bundle identifier, executable name, version, minimum macOS version, Vite
+config, and production bundle path. `entitlements` is also required when
+`MACOS_SIGNING_IDENTITY` is set. `xplat doctor` checks that configuration and
+the local packaging tools. See the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
+for signing and notarization setup.

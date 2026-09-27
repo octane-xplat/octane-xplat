@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import * as p from '@clack/prompts'
 import { buildTargets } from '../targets.mjs'
+import { packageMacOS } from '../macos/package.mjs'
 import { runTagged } from '../procs.mjs'
 import { generateRoutes } from './routes.mjs'
 
@@ -69,15 +70,16 @@ export const build = command({
 		}
 
 		for (const t of chosen) {
-			const argv =
-				t.kind === 'web'
-					? ['exec', 'vite', 'build']
-					: t.kind === 'macos'
-						? ['run', 'package']
-						: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
-
 			try {
-				await runTagged(t.kind, 'pnpm', argv, cwd)
+				if (t.kind === 'macos') {
+					await packageMacOS(cwd)
+				} else {
+					const argv =
+						t.kind === 'web'
+							? ['exec', 'vite', 'build']
+							: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
+					await runTagged(t.kind, 'pnpm', argv, cwd)
+				}
 			} catch (e) {
 				p.log.error(String(e))
 				process.exit(1)

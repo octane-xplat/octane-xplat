@@ -4,6 +4,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, parse, relative, resolve } from 'node:path'
 import * as p from '@clack/prompts'
 import { hasMacOS, hasNative } from '../targets.mjs'
+import { inspectMacOSPackageConfig } from '../macos/config.mjs'
 
 const frameworkFallbacks = {
 	'@octane-xplat/ui': [
@@ -350,6 +351,8 @@ export const doctor = command({
 		}
 
 		if (macos) {
+			const target = manifest.xplat?.targets?.macos ?? {}
+			const packageConfig = target.package ?? {}
 			const runtimeVersion =
 				manifest.dependencies?.['@nativescript/macos-node-api'] ??
 				manifest.devDependencies?.['@nativescript/macos-node-api']
@@ -357,6 +360,11 @@ export const doctor = command({
 			const macHost = process.platform === 'darwin'
 			const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
 			const notaryProfile = process.env.MACOS_NOTARY_PROFILE
+			const packageInspection = inspectMacOSPackageConfig(cwd, target.package)
+			const packageIssues = [...packageInspection.issues]
+			if (signingIdentity && !packageInspection.entitlementsPath) {
+				packageIssues.push('set xplat.targets.macos.package.entitlements when signing')
+			}
 
 			row(
 				'macOS host',
@@ -371,10 +379,16 @@ export const doctor = command({
 				'the current packaged runtime targets Apple Silicon (arm64)',
 			)
 			row(
-				'macOS package scripts',
-				typeof scripts.dev === 'string' && typeof scripts.package === 'string',
-				`dev: ${scripts.dev ? 'present' : 'missing'}, package: ${scripts.package ? 'present' : 'missing'}`,
-				'define scripts.dev and scripts.package in package.json',
+				'macOS dev script',
+				typeof scripts.dev === 'string',
+				scripts.dev ? 'present' : 'missing',
+				'define scripts.dev in package.json to start the AppKit host',
+			)
+			row(
+				'macOS package config',
+				packageIssues.length === 0,
+				packageIssues.length ? packageIssues.join('; ') : packageConfig.bundleIdentifier,
+				'declare xplat.targets.macos.package metadata and valid Vite/entitlements paths',
 			)
 			row(
 				'macOS Node-API runtime',
