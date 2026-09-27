@@ -28,6 +28,8 @@ const renderGridProbe = () => (
 
 export interface ParityFixture {
 	name: string;
+	/** The shared component this fixture measures; child helpers are not counted. */
+	component: string;
 	/** Fill context: the stage box keeps align-items:stretch so the
 	 *  fixture measures as it would inside a default column. Intrinsic
 	 *  fixtures (fixed-width roots like Switch) get align-items:flex-start
@@ -37,12 +39,12 @@ export interface ParityFixture {
 }
 
 export const FIXTURES: ParityFixture[] = [
-	{ name: 'switch-off', render: renderSwitchOff },
-	{ name: 'switch-on', render: renderSwitchOn },
-	{ name: 'slider-0', render: renderSlider0, wide: true },
-	{ name: 'slider-50', render: renderSlider50, wide: true },
-	{ name: 'checkbox-off', render: renderCheckboxOff },
-	{ name: 'checkbox-on', render: renderCheckboxOn },
-	{ name: 'button-basic', render: renderButtonBasic, wide: true },
-	{ name: 'grid-probe', render: renderGridProbe, wide: true },
+	{ name: 'switch-off', component: 'Switch', render: renderSwitchOff },
+	{ name: 'switch-on', component: 'Switch', render: renderSwitchOn },
+	{ name: 'slider-0', component: 'Slider', render: renderSlider0, wide: true },
+	{ name: 'slider-50', component: 'Slider', render: renderSlider50, wide: true },
+	{ name: 'checkbox-off', component: 'Checkbox', render: renderCheckboxOff },
+	{ name: 'checkbox-on', component: 'Checkbox', render: renderCheckboxOn },
+	{ name: 'button-basic', component: 'Button', render: renderButtonBasic, wide: true },
+	{ name: 'grid-probe', component: 'Grid', render: renderGridProbe, wide: true },
 ];
