@@ -181,7 +181,117 @@ export const CHECKS = [
 			return [
 				['button fills the stage box', near(btn.box.w, 220, 1), btn.box.w],
 				['label child renders', label.text === 'Go', JSON.stringify(label.text)],
-				['label centered in button', near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1)],
+				[
+					'label centered in button',
+					near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1),
+				],
+			]
+		},
+	},
+	{
+		fixture: 'view-layout',
+		elements: {
+			root: 'parity-view-root',
+			first: 'parity-view-first',
+			second: 'parity-view-second',
+		},
+		equal: ['root.style.flexDirection', 'root.style.alignItems'],
+		check: (m) => {
+			const root = m('root')
+			const first = m('first')
+			const second = m('second')
+			return [
+				dims(root, 96, 48),
+				dims(first, 20, 10),
+				dims(second, 20, 10),
+				[
+					'first child starts at root origin',
+					near(first.box.x - root.box.x, 0, 1) && near(first.box.y - root.box.y, 0, 1),
+				],
+				[
+					'second child follows with a 6-dip gap',
+					near(second.box.y - first.box.y - first.box.h, 6, 1),
+					second.box.y - first.box.y - first.box.h,
+				],
+			]
+		},
+	},
+	{
+		fixture: 'column-layout',
+		elements: {
+			root: 'parity-column-root',
+			first: 'parity-column-first',
+			second: 'parity-column-second',
+		},
+		equal: ['root.style.flexDirection', 'root.style.alignItems'],
+		check: (m) => {
+			const root = m('root')
+			const first = m('first')
+			const second = m('second')
+			return [
+				dims(root, 96, 48),
+				dims(first, 16, 8),
+				dims(second, 20, 12),
+				['first child centered horizontally', near(first.box.x - root.box.x, 40, 1)],
+				['second child centered horizontally', near(second.box.x - root.box.x, 38, 1)],
+				[
+					'second child follows with a 4-dip gap',
+					near(second.box.y - first.box.y - first.box.h, 4, 1),
+					second.box.y - first.box.y - first.box.h,
+				],
+			]
+		},
+	},
+	{
+		fixture: 'row-layout',
+		elements: { root: 'parity-row-root', first: 'parity-row-first', second: 'parity-row-second' },
+		equal: ['root.style.flexDirection', 'root.style.alignItems'],
+		check: (m) => {
+			const root = m('root')
+			const first = m('first')
+			const second = m('second')
+			return [
+				dims(root, 96, 32),
+				dims(first, 20, 10),
+				dims(second, 12, 10),
+				['first child centered vertically', near(first.box.y - root.box.y, 11, 1)],
+				['second child centered vertically', near(second.box.y - root.box.y, 11, 1)],
+				[
+					'second child follows with an 8-dip gap',
+					near(second.box.x - first.box.x - first.box.w, 8, 1),
+					second.box.x - first.box.x - first.box.w,
+				],
+			]
+		},
+	},
+	{
+		fixture: 'scroll-view-layout',
+		elements: {
+			scroll: 'parity-scroll-root',
+			content: 'parity-scroll-content',
+			first: 'parity-scroll-first',
+			second: 'parity-scroll-second',
+		},
+		equal: ['content.style.flexDirection', 'content.style.alignItems'],
+		check: (m) => {
+			const scroll = m('scroll')
+			const content = m('content')
+			const first = m('first')
+			const second = m('second')
+			return [
+				dims(scroll, 96, 32),
+				dims(content, 96, 64),
+				dims(first, 24, 12),
+				dims(second, 24, 12),
+				[
+					'first content child starts at content origin',
+					near(first.box.x - content.box.x, 0, 1) && near(first.box.y - content.box.y, 0, 1),
+				],
+				[
+					'second content child follows with a 4-dip gap',
+					near(second.box.y - first.box.y - first.box.h, 4, 1),
+					second.box.y - first.box.y - first.box.h,
+				],
 			]
 		},
 	},

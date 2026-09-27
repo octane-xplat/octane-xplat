@@ -26,16 +26,12 @@ const NON_RENDERABLE = new Map([
 const DEFERRED_GROUPS = [
 	{
 		reason:
-			'Layout and overlay geometry needs parent, scrolling, or root-host scenarios; the current fixtures measure isolated controls.',
+			'Remaining layout and overlay components need positioning, root-host, or overlay-host scenarios beyond the measured containers.',
 		components: [
-			'View',
-			'Column',
-			'Row',
 			'Stack',
 			'Absolute',
 			'Spacer',
 			'ScrollBox',
-			'ScrollView',
 			'Screen',
 			'SafeArea',
 			'Overlay',

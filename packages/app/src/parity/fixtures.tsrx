@@ -1,4 +1,4 @@
-import { Switch, Slider, Checkbox, Button, Text, Grid, View } from '@octane-xplat/ui';
+import { Switch, Slider, Checkbox, Button, Text, Grid, View, Column, Row, ScrollView } from '@octane-xplat/ui';
 
 // Parity fixtures — one render per prop combo worth measuring. Picked for
 // font-free, fixed geometry: text metrics are the main legitimate
@@ -26,6 +26,36 @@ const renderGridProbe = () => (
 	</Grid>
 );
 
+const renderViewLayout = () => (
+	<View className="parity-view-root" style={{ width: 96, height: 48 }} gap={6} alignItems="start">
+		<View className="parity-view-first" style={{ width: 20, height: 10 }} />
+		<View className="parity-view-second" style={{ width: 20, height: 10 }} />
+	</View>
+);
+
+const renderColumnLayout = () => (
+	<Column className="parity-column-root" style={{ width: 96, height: 48 }} gap={4} alignItems="center">
+		<View className="parity-column-first" style={{ width: 16, height: 8 }} />
+		<View className="parity-column-second" style={{ width: 20, height: 12 }} />
+	</Column>
+);
+
+const renderRowLayout = () => (
+	<Row className="parity-row-root" style={{ width: 96, height: 32 }} gap={8} alignItems="center">
+		<View className="parity-row-first" style={{ width: 20, height: 10 }} />
+		<View className="parity-row-second" style={{ width: 12, height: 10 }} />
+	</Row>
+);
+
+const renderScrollViewLayout = () => (
+	<ScrollView className="parity-scroll-root" style={{ width: 96, height: 32 }}>
+		<Column className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={4} alignItems="start">
+			<View className="parity-scroll-first" style={{ width: 24, height: 12 }} />
+			<View className="parity-scroll-second" style={{ width: 24, height: 12 }} />
+		</Column>
+	</ScrollView>
+);
+
 export interface ParityFixture {
 	name: string;
 	/** The shared component this fixture measures; child helpers are not counted. */
@@ -47,4 +77,8 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'checkbox-on', component: 'Checkbox', render: renderCheckboxOn },
 	{ name: 'button-basic', component: 'Button', render: renderButtonBasic, wide: true },
 	{ name: 'grid-probe', component: 'Grid', render: renderGridProbe, wide: true },
+	{ name: 'view-layout', component: 'View', render: renderViewLayout },
+	{ name: 'column-layout', component: 'Column', render: renderColumnLayout },
+	{ name: 'row-layout', component: 'Row', render: renderRowLayout },
+	{ name: 'scroll-view-layout', component: 'ScrollView', render: renderScrollViewLayout },
 ];
