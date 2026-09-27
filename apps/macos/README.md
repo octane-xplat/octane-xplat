@@ -66,9 +66,23 @@ Without signing configuration, the app is ad-hoc signed for local use. Set
 `MACOS_SIGNING_IDENTITY` to a Developer ID Application identity to sign the app
 and disk image for distribution. The Node host is signed with the Hardened
 Runtime JIT entitlement required for its JavaScript engine. For notarization,
-first save a credential profile with `xcrun notarytool store-credentials`,
-then set `MACOS_NOTARY_PROFILE` to that profile name. The CLI packager submits,
-staples, and validates the disk image when that variable is set.
+save a credential profile in Keychain. Replace the sample Apple ID, Team ID,
+and signing identity with your own; `notarytool` prompts for the app-specific
+password:
+
+```sh
+APPLE_ID="you@example.com"
+TEAM_ID="ABCDE12345"
+xcrun notarytool store-credentials octane-notary --apple-id "$APPLE_ID" --team-id "$TEAM_ID"
+unset APPLE_ID TEAM_ID
+export MACOS_SIGNING_IDENTITY="Developer ID Application: Example Company (ABCDE12345)"
+export MACOS_NOTARY_PROFILE=octane-notary
+pnpm xplat build --targets macos
+```
+
+Run the build from `apps/macos`; the CLI signs and verifies the app and disk
+image, submits the image, staples the ticket, and validates it. See
+[Apple's notarytool credential guidance](https://developer.apple.com/documentation/technotes/tn3147-migrating-to-the-latest-notarization-tool).
 
 The bundle builder uses Node's Single Executable Applications feature to make
 Node the app's executable. Node currently marks this feature as active
