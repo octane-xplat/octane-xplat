@@ -20,8 +20,9 @@ bundling it pulls in `@nativescript/core` platform imports that have no macOS
 resolver. App-local shims replace the leaves' iOS/Android escape-prop helper
 and the eagerly imported NativeScript pan utility. This proves those component
 implementations with the AppKit host, but it does not prove direct loading of
-the package root entry. A production macOS target still needs an explicit
-package-resolution boundary.
+the package root entry. Both dev and packaged builds depend on this app-local
+Vite boundary; a reusable macOS integration still needs an intentional package
+export and resolver boundary.
 
 In development, Vite rebuilds edited components and the running Node process
 passes the replacement through Octane's universal HMR wrapper. This preserves
