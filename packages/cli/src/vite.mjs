@@ -14,8 +14,8 @@
 // app-specific extras via the `extra` option or a vite mergeConfig wrapper.
 
 import { createRequire } from 'node:module'
-import { realpathSync } from 'node:fs'
-import { join } from 'node:path'
+import { readFileSync, realpathSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 // The toolchain modules (vite, vite-octane, the nativescript renderer)
@@ -28,6 +28,63 @@ import { pathToFileURL } from 'node:url'
 // peer dir.
 const req = createRequire(join(process.cwd(), 'package.json'))
 const importApp = (spec) => import(pathToFileURL(realpathSync(req.resolve(spec))).href)
+
+// The toolchain/runtime realms have their own serving paths (`/ns/core`,
+// dev tooling) — never exclude them into the per-module path.
+const NS_REALM = new Set(['@nativescript/core', '@nativescript/vite'])
+
+/**
+ * Every installed package carrying a `nativescript` key in package.json,
+ * reachable from the app's dependency graph — the same BFS the `ns` CLI
+ * runs at `ns prepare` time (deps of deps, resolved from each package's
+ * real .pnpm dir, so plugin-bearing leaf packages like @octane-xplat/gif
+ * surface their native plugins here too). The app doesn't have to declare
+ * each plugin by hand.
+ */
+const collectNsPluginDeps = (rootDir) => {
+	const out = new Set()
+	const visited = new Set()
+	const queue = [rootDir]
+	while (queue.length) {
+		const dir = queue.shift()
+
+		let pkg
+		try {
+			pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+		} catch {
+			continue
+		}
+
+		for (const name of Object.keys(pkg.dependencies ?? {})) {
+			if (visited.has(name)) {
+				continue
+			}
+
+			visited.add(name)
+
+			const pkgJsonPath = join(dir, 'node_modules', name, 'package.json')
+			let depDir
+			try {
+				depDir = dirname(realpathSync(pkgJsonPath))
+			} catch {
+				try {
+					depDir = dirname(req.resolve(`${name}/package.json`, { paths: [dir] }))
+				} catch {
+					continue
+				}
+			}
+
+			const depPkg = JSON.parse(readFileSync(join(depDir, 'package.json'), 'utf8'))
+			if (depPkg.nativescript && !NS_REALM.has(name)) {
+				out.add(name)
+			}
+
+			queue.push(depDir)
+		}
+	}
+
+	return out
+}
 
 /** CSS that NS parses but silently ignores or misreads — the app looks
  *  identical in source but diverges at runtime. Warned at build time so the
@@ -221,7 +278,9 @@ const nativeRules = [
  * optimizeDeps, server options).
  *
  * opts:
- *   - deps: extra optimizeDeps.exclude entries (app-shipped NS plugins)
+ *   - deps: extra optimizeDeps.exclude entries — nativescript-keyed deps are
+ *     already collected automatically; use this for anything else that must
+ *     stay per-module in dev (e.g. a plugin missed by the scan)
  *   - rules: renderer rules override (defaults cover src + packages source)
  */
 export async function xplatNative(env, opts = {}) {
@@ -267,18 +326,7 @@ export async function xplatNative(env, opts = {}) {
 				// Flattened optimizeDeps chunks get mangled by the /ns/m device
 				// transform (`import import "/ns/core/utils"`) and miss the vendor
 				// manifest — serve @nativescript plugins per-module instead.
-				exclude: [
-					'@nativescript/biometrics',
-					'@nativescript/geolocation',
-					'@nativescript/haptics',
-					'@nativescript/imagepicker',
-					'@nativescript/local-notifications',
-					'@nativescript-community/ui-document-picker',
-					'@nativescript/secure-storage',
-					'@nativescript/social-share',
-					'@nativescript-community/ui-svg',
-					...(opts.deps ?? []),
-				],
+				exclude: [...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
 			},
 			resolve: {
 				conditions: ['native'],
