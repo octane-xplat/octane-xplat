@@ -78,7 +78,13 @@ in the divergence table.
   `docs/css-support-notes.md`.
 - One intentional leaf divergence: slider thumb overhangs the track edge
   at min/max on web (−10), clamps flush on native (UISlider semantic).
-- Result: `pnpm parity` → 65/65 (web+ios).
+- Result: `pnpm parity` → 65/65 (web+ios). **Android lane added
+  2026-09-26:** same paritysweep path — `ns build android` needs
+  `JAVA_HOME=…/openjdk@17` (gradle 8.14.3 fails on Java 25), `adb install`
+  + `am start`, report lands in `/data/user/0/…/files/parity-report.json`,
+  pulled via `run-as`. `pnpm parity` → 91/91 (web+ios+android).
+  Note: `@nativescript/core` parity-report pull needs a debuggable build
+  (debug APK is).
 
 ## Changes — Phase C: lint-layer CSS enforcement (independent, parallel-ok)
 
