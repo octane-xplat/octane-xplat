@@ -61,6 +61,10 @@ web builds. `ui/native` is plumbing (root-layout helpers), not components.
 | `WebView` JS bridge      | unsupported — no `injectedJavaScript`/`postMessage`; use the `web:` bag | unsupported — use the `ios:` bag | unsupported — use the `android:` bag | `unsupported` | 0.5.0·desk |
 | Pull-to-refresh          | pointer/touch drag translates scroller in clipped wrapper | UIScrollView bounce + `contentInset` dock; pan observer rides alongside scroll pan | damped drag translates scroller; edge glow off | `different` | 0.5.0·desk |
 | Sheet `detents`          | drag-to-snap via grabber strip; px offsets, no OS sheet   | same in-window path — RootLayout host + translateY offsets (UISheetPresentationController can't host in-window panels) | same — no BottomSheetBehavior (needs dialog window/CoordinatorLayout) | `different` | 0.5.0·desk |
+| `Video` surface pixels  | `<video>` (engine-owned) — `controls=false`; transport is self-drawn and identical  | `xplatvideo` via `@nstudio/nativescript-exoplayer` (required peer — the app must declare it; pulls the `ASBPlayerSubtitling` pod) — AVPlayerViewController | ExoPlayer2 (`com.google.android.exoplayer:exoplayer:2.17.1` gradle dep) via the same plugin | `different` | post-0.5.0·desk |
+| `Video` `onError`       | maps `MEDIA_ERR_*` codes                            | unsupported — the plugin logs player errors, emits no event | same as iOS  | `unsupported` | post-0.5.0·desk |
+| `Video` `onEnded`       | suppressed under `loop` (`ended` never fires)       | suppressed under `loop` to match — the plugin still emits `finished` | same as iOS | `different` | post-0.5.0·desk |
+| `Video` seeking         | `currentTime` write while scrubbing                 | `seekToTime` per drag event — no debounce | same as iOS | `degraded` | post-0.5.0·desk |
 
 Overlay roots (`Sheet`/`openSheet`, `UIModal`, `MaterialDialog`) mount a
 separate Octane root on every platform — `useContext` does not cross into

@@ -16,6 +16,7 @@
 | Accept one or more lines               | `TextInput`, `TextArea`         |
 | Scroll content                         | `ScrollView`, `ScrollBox`       |
 | Show a web page or inline HTML         | `WebView`                       |
+| Play video                             | `Video`                         |
 | Swipe through full pages               | `Pager`                         |
 | Pick one of a few options inline       | `SegmentedControl`              |
 | Search or filter                       | `SearchInput`                   |
@@ -159,6 +160,19 @@ renders in each platform's engine, so parity applies to the frame's chrome,
 not the page's pixels. There is deliberately no script-injection or
 `postMessage` bridge — the three engines expose different page-side APIs, so
 use the `ios:`/`android:`/`web:` escape bags for that.
+
+`Video` plays a clip — `src`, `poster`, `playing`/`onPlayingChange` (or
+`autoPlay` for uncontrolled start), `muted`, `loop`, `fit`
+(`contain`/`cover`/`fill`), and a `bind` handle for `play`/`pause`/
+`seekTo`/`currentTime`/`duration`. All transport chrome is self-drawn —
+tap the frame to show/hide it — so the controls are identical on every
+target while the video pixels stay in each platform's player engine. The
+native leaf uses `@nstudio/nativescript-exoplayer`, a required peer — a
+native app that ships `Video` must declare it (`/ns/m` resolves plugins
+under the app root only); its Android build pulls
+`com.google.android.exoplayer:exoplayer:2.17.1`, its iOS build the
+`ASBPlayerSubtitling` pod. Times are milliseconds everywhere, including
+`onReady`'s duration.
 
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)

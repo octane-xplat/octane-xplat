@@ -429,6 +429,7 @@ const NS_ONLY_TAGS = new Set([
 	'liquidglasscontainer',
 	'pager',
 	'placeholder',
+	'xplatvideo',
 ])
 
 export function checkElementVocabulary(program, _src, filename, options) {

@@ -73,7 +73,7 @@ export default defineConfig(({ mode }) => {
 			minify: false,
 			rollupOptions: {
 				output: { preserveModules: true },
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//],
+				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//, /^@nstudio\//],
 			},
 		},
 		resolve: {

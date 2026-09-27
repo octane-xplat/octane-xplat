@@ -67,6 +67,10 @@ import type {
 	ToastOptions,
 	ToastPosition,
 	UseMeasureOptions,
+	VideoEvent,
+	VideoFit,
+	VideoHandle,
+	VideoProps,
 	ViewProps,
 	WebViewHandle,
 	WebViewLoadEvent,
@@ -133,6 +137,10 @@ export type {
 	ToastOptions,
 	ToastPosition,
 	UseMeasureOptions,
+	VideoEvent,
+	VideoFit,
+	VideoHandle,
+	VideoProps,
 	ViewProps,
 	WebViewHandle,
 	WebViewLoadEvent,
@@ -166,6 +174,7 @@ export declare const ScrollView: UniversalComponent<ScrollViewProps>
 export declare const Pager: UniversalComponent<PagerProps>
 export declare const Image: UniversalComponent<ImageProps>
 export declare const WebView: UniversalComponent<WebViewProps>
+export declare const Video: UniversalComponent<VideoProps>
 export declare const Screen: UniversalComponent<ScreenProps>
 export declare const SafeArea: UniversalComponent<SafeAreaProps>
 export declare const KeyboardAvoiding: UniversalComponent<KeyboardAvoidingProps>

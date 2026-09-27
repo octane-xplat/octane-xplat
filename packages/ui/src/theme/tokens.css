@@ -309,6 +309,66 @@ img {
 }
 /* xplat-web-only:end */
 
+/* Video — surface-hosted leaf: the engine surface fills the frame and the
+   self-drawn transport layers stack on top in the same grid cell
+   (vx-stack). NS-side rules only — DOM resets sit in the web block. */
+.vx-video {
+	background-color: #000;
+}
+
+.vx-video-centerbtn {
+	width: 56px;
+	height: 56px;
+	border-radius: 28px;
+	background-color: rgba(0, 0, 0, 0.55);
+	align-items: center;
+	justify-content: center;
+}
+
+.vx-video-bar {
+	background-color: rgba(0, 0, 0, 0.45);
+	padding: 4px 8px;
+}
+
+.vx-video-btn {
+	padding: 4px;
+}
+
+/* Full-frame tap layer — hit target only, never paints. */
+.vx-video-tap {
+	background-color: transparent;
+}
+
+.vx-video-time {
+	color: #fff;
+	font-size: 11px;
+	min-width: 34px;
+	text-align: center;
+}
+
+/* xplat-web-only:start — the <video> element is inline and overlays would
+   otherwise swallow pointer events; native layers are hit-transparent by
+   default, so none of this exists on NS. */
+.vx-video-surface {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.vx-video-poster,
+.vx-video-barwrap {
+	pointer-events: none;
+}
+
+.vx-video-barwrap > * {
+	pointer-events: auto;
+}
+
+.vx-video-poster {
+	object-fit: cover;
+}
+
+/* xplat-web-only:end */
 /* xplat-web-only:start */
 /* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
    so the overlay is a fixed layer over the shell rather than a dialog. */

@@ -148,6 +148,9 @@ importers:
       '@nativescript/social-share':
         specifier: 2.3.0
         version: 2.3.0
+      '@nstudio/nativescript-exoplayer':
+        specifier: 6.2.0
+        version: 6.2.0
       '@octane-xplat/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -354,6 +357,9 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c)
+      '@nstudio/nativescript-exoplayer':
+        specifier: 6.2.0
+        version: 6.2.0
       '@octanejs/vite-plugin':
         specifier: 0.1.60
         version: 0.1.60(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -1290,6 +1296,8 @@ packages:
     resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
     engines: {node: '>= 20.19.0'}
 
+  '@nstudio/nativescript-exoplayer@6.2.0':
+    resolution: {integrity: sha512-drZ1YHJciuCtkaWutHGYpzEdP6H1d7OrZusKH7sd1yJyTqx/7boFE49pjbEMS+5q2D4TVcbdBfW2k3tEv1CuUw==}
   '@octanejs/app-core@0.0.56':
     resolution: {integrity: sha512-gzcL+tyaxaufJ8Vyy/REC9EawIxXfLMUNBkSL7UYGyomcYnHVf5AyQ2dB1ALDaxt1SsfPb0+sj1R978vzASGew==}
     version: 0.0.56
@@ -4022,6 +4030,7 @@ snapshots:
 
   '@noble/hashes@2.4.0': {}
 
+  '@nstudio/nativescript-exoplayer@6.2.0': {}
   '@octanejs/app-core@0.0.56(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
     dependencies:
       '@ripple-ts/adapter': 0.4.6

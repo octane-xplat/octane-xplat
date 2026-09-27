@@ -551,3 +551,12 @@
 	color: var(--color-text-secondary);
 	font-size: 13px;
 }
+/* Video — fixed frame height; the surface fills, chrome is the
+   component's own. */
+.video-demo-player {
+	height: 220px;
+	border-radius: 8px;
+	corner-shape: squircle;
+	overflow: hidden;
+}
+

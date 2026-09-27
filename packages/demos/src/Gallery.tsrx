@@ -19,6 +19,7 @@ import { ControlsDemo } from './ControlsDemo.tsrx';
 import { PagerDemo } from './PagerDemo.tsrx';
 import { SegmentedDemo } from './SegmentedDemo.tsrx';
 import { SearchDemo } from './SearchDemo.tsrx';
+import { VideoDemo } from './VideoDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
@@ -58,6 +59,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'pager', title: 'Pager', kind: 'proof' },
 	{ id: 'segmented', title: 'Segmented control', kind: 'proof' },
 	{ id: 'search', title: 'Search input', kind: 'proof' },
+	{ id: 'video', title: 'Video', kind: 'proof' },
 ];
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -95,6 +97,7 @@ const renderWebView = () => <WebViewDemo />;
 const renderPager = () => <PagerDemo />;
 const renderSegmented = () => <SegmentedDemo />;
 const renderSearch = () => <SearchDemo />;
+const renderVideo = () => <VideoDemo />;
 
 export const RENDER: Record<string, () => any> = {
 	counter: renderCounter,
@@ -125,6 +128,7 @@ export const RENDER: Record<string, () => any> = {
 	pager: renderPager,
 	segmented: renderSegmented,
 	search: renderSearch,
+	video: renderVideo,
 };
 
 /** Demo launcher — chip menu. Two modes:

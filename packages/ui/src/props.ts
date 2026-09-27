@@ -1692,6 +1692,75 @@ export interface ProgressGroupProps {
 	web?: any
 }
 
+// ---------- media ----------
+
+export type VideoFit = 'contain' | 'cover' | 'fill'
+
+export interface VideoEvent {
+	/** Playback position in milliseconds. */
+	position?: number
+	/** Clip duration in milliseconds, once known (0 before then). */
+	duration?: number
+	/** Failure description. */
+	message?: string
+}
+
+export interface VideoHandle {
+	play(): void
+	pause(): void
+	/** Seek to a position in milliseconds. */
+	seekTo(ms: number): void
+	/** Current playback position in ms (0 before metadata loads). */
+	currentTime(): number
+	/** Clip duration in ms (0 before metadata loads). */
+	duration(): number
+	/** The platform surface (`HTMLVideoElement` / plugin `Video`). */
+	native: any
+}
+
+/** Embedded video — surface-hosted bucket: the OS engine owns the pixels
+ *  (web `<video>` / `@nstudio/nativescript-exoplayer` → AVPlayerViewController
+ *  + ExoPlayer2), all chrome is self-drawn so `controls` looks identical on
+ *  every target. Times are milliseconds on every platform. */
+export interface VideoProps extends LayoutChildProps, AccessibilityProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Remote URL; native also accepts `~/` bundle paths and absolute files. */
+	src: string
+	/** Frame shown until playback starts. */
+	poster?: string
+	/** Controlled playback — pair with `onPlayingChange`. Leave unset for
+	 *  uncontrolled playback (the transport and `bind` handle still work). */
+	playing?: boolean
+	/** Uncontrolled start-playing shorthand. Browsers block unmuted
+	 *  autoplay — pair with `muted` when `autoPlay` matters on web. */
+	autoPlay?: boolean
+	muted?: boolean
+	loop?: boolean
+	/** Self-drawn transport overlay (play/pause, scrubber, time, mute) —
+	 *  tap the surface to show/hide. Default true. */
+	controls?: boolean
+	/** Content fitting inside the frame: `contain` (letterbox, default),
+	 *  `cover` (crop to fill), `fill` (stretch). */
+	fit?: VideoFit
+	/** Playback metadata is loaded; `e.duration` is the clip length in ms. */
+	onReady?: (e: VideoEvent) => void
+	onEnded?: () => void
+	/** Fires on user toggles and controlled `playing` writes. */
+	onPlayingChange?: (playing: boolean) => void
+	/** Fires when the transport's mute button toggles. */
+	onMutedChange?: (muted: boolean) => void
+	/** Web only — the plugin players surface no error event on native. */
+	onError?: (e: VideoEvent) => void
+	/** Imperative handle — play/pause/seek/time plus `native` for anything
+	 *  the shared props don't cover. */
+	bind?: (h: VideoHandle) => void
+	/** Platform escape hatches, applied after the shared props. */
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
 // ---------- theme ----------
 
 export type ColorScheme = 'light' | 'dark'
