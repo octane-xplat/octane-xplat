@@ -30,7 +30,6 @@
 	"publishConfig": {
 		"exports": {
 			".": {
-				"types": "./types/index.d.ts",
 				"web": {
 					"types": "./types/index.web.d.ts",
 					"default": "./dist/web/ui.js"
@@ -39,6 +38,7 @@
 					"types": "./types/index.native.d.ts",
 					"default": "./dist/native/ui.js"
 				},
+				"types": "./types/index.d.ts",
 				"default": "./dist/native/ui.js"
 			},
 			"./ios": {

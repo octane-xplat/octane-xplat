@@ -230,8 +230,7 @@ LiveRegion` unwired in leaves so far).
     the shared API types readiness and capability, correlates a caller's
     request with the later resolver callback, and reports closure or creation
     errors. The AppKit prototype's immediate controller proves only its
-    app-local macOS path; `@octane-xplat/ui` still exposes `{data?, url?}` and
-    its emitted return type is `any`. Sources: [NativeScript multi-window
+    app-local macOS path; `@octane-xplat/ui` still exposes only `{data?, url?}`
+    for options. Sources: [NativeScript multi-window
     guide](https://docs.nativescript.org/guide/multi-window),
-    [WindowContentResolver API](https://beta.docs.nativescript.org/api/type-aliases/WindowContentResolver),
     [AndroidApplication API](https://docs.nativescript.org/api/classes/AndroidApplication).

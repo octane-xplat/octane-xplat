@@ -154,7 +154,8 @@ making the generated API's scalar contract explicit.
    export a basic `openWindow`: its `OpenWindowOptions` contains only `data`
    and web-only `url`; native forwards to `Application.openWindow()` and
    returns `void`, while web returns `Window | null`. The emitted package
-   declarations currently widen that return to `any`. NativeScript's
+   declarations now reflect those target-specific results; the generic
+   fallback exposes only `close()` on a returned handle. NativeScript's
    app-installed resolver receives the resulting window and its data later.
    Multi-window availability also varies by device and configuration: iPadOS
    supports scenes, iPhone exposes one window, and Android window opening is

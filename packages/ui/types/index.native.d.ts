@@ -192,7 +192,7 @@ export declare function registerIcons(record: Record<string, IconGlyph>): void
 
 // ---------- overlays / shells ----------
 
-export declare function openWindow(options?: OpenWindowOptions): any
+export declare function openWindow(options?: OpenWindowOptions): void
 export declare const Overlay: UniversalComponent<OverlayProps>
 export declare const Popover: UniversalComponent<PopoverProps>
 export declare function showToast(content: ToastContent, options?: ToastOptions): void
