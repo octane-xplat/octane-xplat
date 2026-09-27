@@ -1,5 +1,48 @@
 # Changelog
 
+## 0.6.0
+
+Everything added, changed, and fixed since 0.5.0.
+
+### Components and interaction
+
+- New shared components for forms, menus, navigation, and data display:
+  `Button`, `Accordion`, `Checkbox`, `Select`, `InputTags`, `InputRating`,
+  `Breadcrumb`, `Pagination`, `Stepper`, `Table`, `Timeline`, `Tree`, and
+  related primitives.
+- `Pager`, `SegmentedControl`, and `SearchInput` provide shared controls for
+  paging, choosing among options, and searching.
+- `ScrollView` supports pull-to-refresh with `refreshing` and `onRefresh`.
+  Sheets accept detents for snap-point layouts.
+- `WebView`, `Video`, and `CameraView` provide hosted web, playback, and live
+  camera surfaces. `@octane-xplat/gif` adds `AnimatedImage` for animated GIF
+  and WebP files.
+- `setTranslate()` applies an imperative translation consistently across
+  targets. `useBackInterceptor()` lets a screen handle native hardware back.
+
+### Platform services and toolchain
+
+- `@octane-xplat/platform` adds reactive `useBreakpoints$()` and camera capture
+  through `media.capturePhoto()`.
+- The CLI improves NativeScript dependency discovery, CSS unit conversion and
+  web-only CSS handling, and native plugin diagnostics. `xplatNative()` and
+  route generation also receive fixes.
+- The starter template now includes an agent skill with the cross-platform
+  rules and component guidance.
+
+### Upgrading
+
+- The shared UI surface now favors components with matching behavior across
+  platforms. `List`, `Modal`, `Hoverable`, and Liquid Glass are no longer root
+  exports; platform-authentic widgets are available from `@octane-xplat/ui/ios`
+  or `@octane-xplat/ui/android` where supported. Check the platform subpath
+  guide when migrating those imports.
+- Apps using `<Video>` or `<CameraView>` must declare their corresponding
+  NativeScript plugin dependencies: `@nstudio/nativescript-exoplayer` and
+  `@nstudio/nativescript-camera-plus`.
+- `useBreakpoints` was renamed to `useBreakpoints$` to identify its reactive
+  return value.
+
 ## 0.5.0
 
 Everything added, changed, and fixed since 0.4.0.
