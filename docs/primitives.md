@@ -17,6 +17,7 @@
 | Scroll content                         | `ScrollView`, `ScrollBox`       |
 | Show a web page or inline HTML         | `WebView`                       |
 | Play video                             | `Video`                         |
+| Show a live camera preview             | `CameraView`                    |
 | Swipe through full pages               | `Pager`                         |
 | Pick one of a few options inline       | `SegmentedControl`              |
 | Search or filter                       | `SearchInput`                   |
@@ -173,6 +174,15 @@ under the app root only); its Android build pulls
 `com.google.android.exoplayer:exoplayer:2.17.1`, its iOS build the
 `ASBPlayerSubtitling` pod. Times are milliseconds everywhere, including
 `onReady`'s duration.
+
+`CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),
+`active` to start/stop, `onReady`/`onError`, and a `bind` handle for the
+platform view. The leaf owns the camera-permission request on every target
+(the app still needs `NSCameraUsageDescription` / `android.permission.CAMERA`
+declared). Stills deliberately go through `media.capturePhoto` in
+`@octane-xplat/platform`, not this widget. Native uses
+`@nstudio/nativescript-camera-plus` (required peer — its iOS pods are
+git-sourced: SwiftyCam `v6` branch, QBImagePicker pinned commit).
 
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)

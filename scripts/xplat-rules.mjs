@@ -430,6 +430,7 @@ const NS_ONLY_TAGS = new Set([
 	'pager',
 	'placeholder',
 	'xplatvideo',
+	'cameraplus',
 ])
 
 export function checkElementVocabulary(program, _src, filename, options) {

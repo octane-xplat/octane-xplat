@@ -148,6 +148,9 @@ importers:
       '@nativescript/social-share':
         specifier: 2.3.0
         version: 2.3.0
+      '@nstudio/nativescript-camera-plus':
+        specifier: 6.0.1
+        version: 6.0.1
       '@nstudio/nativescript-exoplayer':
         specifier: 6.2.0
         version: 6.2.0
@@ -357,6 +360,9 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c)
+      '@nstudio/nativescript-camera-plus':
+        specifier: 6.0.1
+        version: 6.0.1
       '@nstudio/nativescript-exoplayer':
         specifier: 6.2.0
         version: 6.2.0
@@ -1176,6 +1182,9 @@ packages:
       '@nativescript/core': '>=9.1.0'
       octane: '>=0.1.51'
 
+  '@nativescript-community/perms@2.3.3':
+    resolution: {integrity: sha512-N2AbsUneAAOaz8NnJIlETgE3xsiZe5gIQs0HtjqEdMPmWnyfsHRAMMvUHaEcJMf1z3ngMjvNyCTULj66kTrh1A==}
+
   '@nativescript-community/perms@2.3.6':
     resolution: {integrity: sha512-KtAyY2fCjKL19HQ3AslQKH4h+Sao0u4G4AgoF+SkRcAMGxqQd8covjpJ2hN3AFm8TDkqbSm3o0NDMR1dYVr/3A==}
 
@@ -1296,8 +1305,12 @@ packages:
     resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
     engines: {node: '>= 20.19.0'}
 
+  '@nstudio/nativescript-camera-plus@6.0.1':
+    resolution: {integrity: sha512-wfpTaV2xPzIdu92K/rDlWgp1hdAzKf40bInsSLdoqCVWB7VOVpTdDOPMvhi1sgjFLA9FOKmwvnQZADkKcxoKyQ==}
+
   '@nstudio/nativescript-exoplayer@6.2.0':
     resolution: {integrity: sha512-drZ1YHJciuCtkaWutHGYpzEdP6H1d7OrZusKH7sd1yJyTqx/7boFE49pjbEMS+5q2D4TVcbdBfW2k3tEv1CuUw==}
+
   '@octanejs/app-core@0.0.56':
     resolution: {integrity: sha512-gzcL+tyaxaufJ8Vyy/REC9EawIxXfLMUNBkSL7UYGyomcYnHVf5AyQ2dB1ALDaxt1SsfPb0+sj1R978vzASGew==}
     version: 0.0.56
@@ -3895,6 +3908,8 @@ snapshots:
       '@nativescript/core': 9.1.2(patch_hash=4e13adec36c056d94e2153d3ed2698df3a59459aeed17352086948e75be0133c)
       octane: file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
+  '@nativescript-community/perms@2.3.3': {}
+
   '@nativescript-community/perms@2.3.6': {}
 
   '@nativescript-community/perms@3.0.11': {}
@@ -4030,7 +4045,12 @@ snapshots:
 
   '@noble/hashes@2.4.0': {}
 
+  '@nstudio/nativescript-camera-plus@6.0.1':
+    dependencies:
+      '@nativescript-community/perms': 2.3.3
+
   '@nstudio/nativescript-exoplayer@6.2.0': {}
+
   '@octanejs/app-core@0.0.56(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
     dependencies:
       '@ripple-ts/adapter': 0.4.6

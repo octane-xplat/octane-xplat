@@ -551,6 +551,7 @@
 	color: var(--color-text-secondary);
 	font-size: 13px;
 }
+
 /* Video — fixed frame height; the surface fills, chrome is the
    component's own. */
 .video-demo-player {
@@ -560,3 +561,10 @@
 	overflow: hidden;
 }
 
+/* CameraView — same fixed frame; the preview fills it. */
+.camera-demo-preview {
+	height: 260px;
+	border-radius: 8px;
+	corner-shape: squircle;
+	overflow: hidden;
+}

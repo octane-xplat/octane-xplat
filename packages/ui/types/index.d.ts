@@ -13,6 +13,8 @@ import type {
 	ActivityIndicatorProps,
 	BeforeLoad,
 	BeforeLoadArgs,
+	CameraViewHandle,
+	CameraViewProps,
 	ColorScheme,
 	DrawerProps,
 	GridProps,
@@ -83,6 +85,8 @@ export type {
 	ActivityIndicatorProps,
 	BeforeLoad,
 	BeforeLoadArgs,
+	CameraViewHandle,
+	CameraViewProps,
 	ColorScheme,
 	DrawerProps,
 	GridProps,
@@ -175,6 +179,7 @@ export declare const Pager: UniversalComponent<PagerProps>
 export declare const Image: UniversalComponent<ImageProps>
 export declare const WebView: UniversalComponent<WebViewProps>
 export declare const Video: UniversalComponent<VideoProps>
+export declare const CameraView: UniversalComponent<CameraViewProps>
 export declare const Screen: UniversalComponent<ScreenProps>
 export declare const SafeArea: UniversalComponent<SafeAreaProps>
 export declare const KeyboardAvoiding: UniversalComponent<KeyboardAvoidingProps>

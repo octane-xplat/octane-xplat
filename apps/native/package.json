@@ -30,6 +30,7 @@
 		"@nativescript/secure-storage": "4.0.2",
 		"@nativescript/shared-notification-delegate": "1.0.2",
 		"@nativescript/social-share": "2.3.0",
+		"@nstudio/nativescript-camera-plus": "6.0.1",
 		"@nstudio/nativescript-exoplayer": "6.2.0",
 		"@octane-xplat/ui": "workspace:*",
 		"@valor/nativescript-websockets": "2.0.3",

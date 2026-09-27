@@ -120,6 +120,8 @@ export { WebView } from './WebView.native.tsrx'
 export type { WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
 export { Video } from './Video.native.tsrx'
 export type { VideoEvent, VideoFit, VideoHandle, VideoProps } from './props'
+export { CameraView } from './CameraView.native.tsrx'
+export type { CameraViewHandle, CameraViewProps } from './props'
 
 export { Overlay } from './Overlay.native.tsrx'
 export { Popover } from './Popover.native.tsrx'

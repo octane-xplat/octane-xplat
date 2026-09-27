@@ -1761,6 +1761,41 @@ export interface VideoProps extends LayoutChildProps, AccessibilityProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 }
+
+export interface CameraViewHandle {
+	/** The platform view (`HTMLVideoElement` / plugin `CameraPlus`). */
+	native: any
+}
+
+/** Live camera preview — surface-hosted: web runs `getUserMedia` into a
+ *  `<video>`, native embeds `CameraPlus` (@nstudio/nativescript-camera-plus;
+ *  AVCaptureSession preview / CameraX FancyCamera) with its built-in
+ *  buttons switched off. Still capture is deliberately not on the handle —
+ *  `media.capturePhoto` in `@octane-xplat/platform` owns that; reach the
+ *  preview's own capture (e.g. `CameraPlus.takePicture`) through `bind`'s
+ *  `native` when the intent UI won't do. The leaf owns the permission
+ *  request on both platforms. */
+export interface CameraViewProps extends LayoutChildProps, AccessibilityProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Lens — default `'back'`. */
+	facing?: 'front' | 'back'
+	/** Default true. `false` tears down the preview stream/session. */
+	active?: boolean
+	/** The preview surface is live (web: first frame; native: view loaded
+	 *  after permission — the sensor may still be warming). */
+	onReady?: () => void
+	onError?: (e: { message?: string }) => void
+	/** Imperative handle — `native` for anything the shared props don't
+	 *  cover (torch, zoom, preview-frame capture). */
+	bind?: (h: CameraViewHandle) => void
+	/** Platform escape hatches, applied after the shared props. */
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
 // ---------- theme ----------
 
 export type ColorScheme = 'light' | 'dark'
