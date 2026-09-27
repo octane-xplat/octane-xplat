@@ -47,6 +47,14 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 		resolve: {
 			conditions: ['native'],
 			alias: [
+				...(packaged
+					? [
+							{
+								find: '@xplat/macos/renderer',
+								replacement: resolve(appRoot, 'src/renderer/index.mjs'),
+							},
+						]
+					: []),
 				// The native root barrel re-exports the full NativeScript surface.
 				// Keep this spike on the three public leaf implementations it proves.
 				{
