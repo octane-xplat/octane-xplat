@@ -398,13 +398,13 @@ export const doctor = command({
 			)
 
 			if (macHost) {
-				const codesign = check('codesign', ['--version'])
+				const codesign = check('codesign', ['--verify', '/usr/bin/codesign'])
 				const hdiutil = check('hdiutil', ['help'])
 				row(
 					'codesign',
 					codesign.ok,
 					codesign.out || 'available',
-					'install Xcode Command Line Tools',
+					'ensure /usr/bin/codesign is available',
 				)
 				row(
 					'hdiutil',
