@@ -184,3 +184,17 @@ LiveRegion` unwired in leaves so far).
     probe `Leaf<moduleSuffix>.tsrx` for bare relative specifiers so
     `./Spinner` resolves `Spinner.web.tsrx` directly — in
     research/tsrx (typescript-plugin package), a separate repo.
+26. 🟡 **Can Pulsar ship as an optional NativeScript leaf on both mobile
+    targets?** — Pulsar's APIs match presets, patterns, realtime control, and
+    capability reporting, but the Android Kotlin source was not packaged into
+    the generated probe AAR, and iOS preparation stopped on a pre-existing
+    duplicate CocoaPods source for `QBImagePickerController`. Confirm a
+    supported bridge/build path and physical-device output before selecting
+    it for release. See `platform-notes.md` → “Haptics, UI sounds, and media
+    playback.”
+27. ⏳ **Can the full audio contract survive backgrounding and interruptions
+    on both mobile platforms?** — No Media3 session service, iOS Now Playing /
+    remote commands, queue advancement, interruption/resumption, or coexistence
+    with UI sounds was implemented in this spike. Validate these against the
+    eventual player package on physical devices. See `platform-notes.md` →
+    “Haptics, UI sounds, and media playback.”
