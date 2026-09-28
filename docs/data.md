@@ -23,7 +23,10 @@ export const feed$ = query$(
 
 - **The selector is reactive.** It re-runs when the signals it reads
   change; a new selection refetches. Return `skip` for "no request right
-  now" — a missing id, a logged-out session.
+  now" — a missing id, a logged-out session. The selection is compared by
+  encoded value, not identity — a fresh object literal with the same
+  contents is the same request (keep field order stable; encoding is
+  positional).
 - **The loader** receives the selection and a `QueryContext`
   (`signal: AbortSignal` for cancellation, `previous` for the last
   delivered value). It may return a value, a promise, or an
@@ -73,6 +76,46 @@ signal in a writable projection, and `action$` wraps a handler so writes
 inside it are confirmed on success and rolled back on rejection —
 `isActionUncertain` covers transports that can't tell whether the request
 landed. See the octane signals docs for the full action semantics.
+
+## Module scope vs screen scope
+
+Where a `query$` is declared decides who shares its selection:
+
+- **Module level** (`export const feed$ = query$(...)`) gets document
+  scope: one selection for the whole app. On native the module is shared by
+  every root — every stacked page, modal, and sheet reads the same
+  selection. Right for app-global data: the feed filter, the current user,
+  the notifications list.
+- **Inside a component** (`const profile$ = query$(...)` in the component
+  body) gets instance scope: each mounted screen owns its selection and the
+  request retires when the screen unmounts. Right for data keyed by route
+  params — detail pages, profiles, follower lists — where several instances
+  can be alive in the navigation stack at once:
+
+```tsrx
+export function Profile(props: { id: string }) @{
+	const profile$ = query$(
+		() => props.id,
+		(id) => api.user.get({ id }),
+	)
+	@try {
+		const user = profile$.get()
+		...
+	} @pending { <Spinner /> }
+}
+```
+
+The anti-pattern this replaces: copying route params into a shared selector
+signal during render (`openUserId$.set(props.id)` at the top of a screen).
+On native, pushing a second profile page rewrites the selection the page
+underneath is reading — the covered page silently re-keys to the pushed
+page's params. On web it depends on render order. Reads in render, never
+writes.
+
+Two honest costs of screen-owned queries: they don't dedupe across
+instances (two screens showing the same user fetch twice — there is no
+global keyed cache), and a mutation can't refetch "the" profile query from
+outside — refetch from the owning screen or fan out invalidation yourself.
 
 ## Rules that bite on native
 

@@ -29,7 +29,9 @@ Files under `app/` become routes automatically — the file path is the name:
 
 ```
 app/detail.tsrx        → 'detail'
-app/demo/[id].tsrx     → 'demo/:id'      (params land as screen props)
+app/demo/[id].tsrx     → 'demo/:id'      (params land as screen props —
+                                         feed them to a screen-scoped query;
+                                         see [data](data.md#module-scope-vs-screen-scope))
 app/settings.web.tsrx  → 'settings'      (web only — suffixes still apply)
 app/about+modal.tsrx   → 'about'         (modal presentation)
 app/chat/_layout.tsrx  → wraps every 'chat/*' route

@@ -39,7 +39,9 @@ document` checks). Platform-authentic widgets live behind
    native. Every module that reads or writes signals needs a runtime
    `import 'octane/signals'` (or `octane/signals/client`). `query$` reads
    suspend — put `.get()` under `@try`/`@pending`/`@catch`, or use
-   `.snapshot()`/`.latest()` for non-suspending reads.
+   `.snapshot()`/`.latest()` for non-suspending reads. Never write to a
+   shared signal during render — screen-scoped data keyed by route params
+   gets a component-local `query$`, not a shared selector signal.
 6. **One `octane` per app.** Don't add a second renderer or duplicate the
    package — two copies break the reconciler without a helpful error.
 
