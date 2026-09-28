@@ -340,7 +340,7 @@ export async function packageMacOS(appRoot) {
 			[
 				`Node.js ${nodeVersion}\n${nodeLicense}`,
 				`Octane\n${octaneLicense}`,
-				`${nativeRuntimePackageName}\n${nativeLicense}`,
+				`${macOSRuntimePackageName}\n${nativeLicense}`,
 			].join('\n\n'),
 		)
 
