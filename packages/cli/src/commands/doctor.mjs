@@ -1,10 +1,11 @@
 import { command } from '@alloc/cmd-ts'
 import { execFileSync } from 'node:child_process'
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, parse, relative, resolve } from 'node:path'
 import * as p from '@clack/prompts'
 import { hasMacOS, hasNative } from '../targets.mjs'
 import { inspectMacOSPackageConfig } from '../macos/config.mjs'
+import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from '../macos/runtime-package.mjs'
 
 const frameworkFallbacks = {
 	'@octane-xplat/ui': [
@@ -368,48 +369,18 @@ export const doctor = command({
 			const target = manifest.xplat?.targets?.macos ?? {}
 			const packageConfig = target.package ?? {}
 			const runtimeVersion =
-				manifest.dependencies?.['@nativescript/macos-node-api'] ??
-				manifest.devDependencies?.['@nativescript/macos-node-api']
+				manifest.dependencies?.[macOSRuntimePackageName] ??
+				manifest.devDependencies?.[macOSRuntimePackageName]
 
-			const runtimePackageRoot = join(cwd, 'node_modules', '@nativescript', 'macos-node-api')
-			const runtimePackageValue = readJson(join(runtimePackageRoot, 'package.json'))
-			const runtimePackage =
-				runtimePackageValue && typeof runtimePackageValue === 'object' && !Array.isArray(runtimePackageValue)
-					? runtimePackageValue
-					: null
-
-			const requiredRuntimePaths = [
-				'index.cjs',
-				'index.mjs',
-				'index.d.ts',
-				'LICENSE',
-				join(
-					'build',
-					'RelWithDebInfo',
-					'NativeScript.apple.node',
-					'macos-arm64',
-					'NativeScript.framework',
-					'Versions',
-					'A',
-					'NativeScript',
-				),
-			]
-
-			const missingRuntimePaths = requiredRuntimePaths.filter((path) => {
-				try {
-					return !statSync(join(runtimePackageRoot, path)).isFile()
-				} catch {
-					return true
-				}
-			})
+			const runtimeInspection = inspectMacOSRuntimePackage(cwd)
 
 			let runtimeHint
 			if (typeof runtimeVersion !== 'string') {
-				runtimeHint = 'declare @nativescript/macos-node-api in dependencies'
-			} else if (!runtimePackage) {
+				runtimeHint = `declare ${macOSRuntimePackageName} in dependencies`
+			} else if (!runtimeInspection.packageManifest) {
 				runtimeHint = `declared ${runtimeVersion}, but its installed package.json is missing or unreadable; run pnpm install`
-			} else if (missingRuntimePaths.length) {
-				runtimeHint = `installed ${runtimePackage.version ?? runtimeVersion} is missing required files: ${missingRuntimePaths.join(', ')}; install a compatible @nativescript/macos-node-api release`
+			} else if (runtimeInspection.missingPaths.length) {
+				runtimeHint = `installed ${runtimeInspection.packageManifest.version ?? runtimeVersion} is missing required files: ${runtimeInspection.missingPaths.join(', ')}; install a compatible ${macOSRuntimePackageName} release`
 			}
 
 			const scripts = manifest.scripts ?? {}
@@ -453,7 +424,7 @@ export const doctor = command({
 			row(
 				'macOS Node-API runtime',
 				runtimeHint === undefined,
-				runtimePackage?.version ?? runtimeVersion ?? 'not declared',
+				runtimeInspection.packageManifest?.version ?? runtimeVersion ?? 'not declared',
 				runtimeHint,
 			)
 

@@ -19,18 +19,16 @@ import { arch, homedir, platform } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { inspectMacOSPackageConfig } from './config.mjs'
+import {
+	inspectMacOSRuntimePackage,
+	macOSRuntimeFrameworkRelativePath,
+	macOSRuntimePackageName,
+} from './runtime-package.mjs'
+
 import { bundledNodeRuntime } from './runtime.mjs'
 
-const nativeRuntimePackageName = '@nativescript/macos-node-api'
 const nodeVersion = bundledNodeRuntime.version
 const nodeArchive = `node-v${nodeVersion}-darwin-arm64.tar.xz`
-const runtimeFrameworkRelativePath = join(
-	'build',
-	'RelWithDebInfo',
-	'NativeScript.apple.node',
-	'macos-arm64',
-	'NativeScript.framework',
-)
 
 function run(command, args, options = {}) {
 	execFileSync(command, args, { stdio: 'inherit', ...options })
@@ -235,28 +233,29 @@ export async function packageMacOS(appRoot) {
 		throw new Error('Set xplat.targets.macos.package.entitlements before using MACOS_SIGNING_IDENTITY.')
 	}
 
-	console.log('[macos-package] building production Octane bundle')
-	run('pnpm', ['exec', 'vite', 'build', '--config', viteConfig], { cwd: appRoot })
-	if (!existsSync(bundleFile)) {throw new Error(`Packaged JS bundle not found: ${bundleFile}`)}
+	const runtimeInspection = inspectMacOSRuntimePackage(appRoot)
+	if (!runtimeInspection.packageManifest) {
+		throw new Error(`Cannot resolve ${macOSRuntimePackageName} from the app. Declare it in dependencies.`)
+	}
+
+	if (runtimeInspection.missingPaths.length) {
+		const version = runtimeInspection.packageManifest.version
+		const installed = typeof version === 'string' ? `${macOSRuntimePackageName}@${version}` : macOSRuntimePackageName
+		throw new Error(`Installed ${installed} is missing required files: ${runtimeInspection.missingPaths.join(', ')}`)
+	}
 
 	let nativeRuntimePackage
 	try {
-		nativeRuntimePackage = await realpath(join(appRoot, 'node_modules', '@nativescript', 'macos-node-api'))
+		nativeRuntimePackage = await realpath(runtimeInspection.packageRoot)
 	} catch {
-		throw new Error(`Cannot resolve ${nativeRuntimePackageName} from the app. Declare it in dependencies.`)
+		throw new Error(`Cannot resolve ${macOSRuntimePackageName} from the app. Declare it in dependencies.`)
 	}
 
-	const nativeRuntimeSource = join(nativeRuntimePackage, runtimeFrameworkRelativePath)
-	const nativeRuntimeBinary = join(
-		nativeRuntimeSource,
-		'Versions',
-		'A',
-		'NativeScript',
-	)
+	const nativeRuntimeSource = join(nativeRuntimePackage, macOSRuntimeFrameworkRelativePath)
 
-	if (!(await exists(nativeRuntimeBinary))) {
-		throw new Error(`NativeScript runtime binary missing: ${nativeRuntimeBinary}`)
-	}
+	console.log('[macos-package] building production Octane bundle')
+	run('pnpm', ['exec', 'vite', 'build', '--config', viteConfig], { cwd: appRoot })
+	if (!existsSync(bundleFile)) {throw new Error(`Packaged JS bundle not found: ${bundleFile}`)}
 
 	const octaneRoot = await realpath(join(appRoot, 'node_modules', 'octane'))
 	const octaneLicense = await readFile(join(octaneRoot, 'LICENSE'), 'utf8')
@@ -292,7 +291,7 @@ export async function packageMacOS(appRoot) {
 			'macos-node-api',
 		)
 
-		const runtimeFrameworkPath = join(nativeRuntimePath, runtimeFrameworkRelativePath)
+		const runtimeFrameworkPath = join(nativeRuntimePath, macOSRuntimeFrameworkRelativePath)
 		const packagedFrameworkPath = join(contentsPath, 'Frameworks', 'NativeScript.framework')
 		await mkdir(nativeRuntimePath, { recursive: true })
 		await mkdir(dirname(runtimeFrameworkPath), { recursive: true })

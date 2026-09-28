@@ -31,7 +31,8 @@ production Vite config that emits its CommonJS host bundle.
   macOS version, referenced Vite config, and local macOS packaging tools,
   including `clang`, `codesign`, and `hdiutil`.
 - AC2: `xplat dev --targets macos` runs the app host, and
-  `xplat build --targets macos` produces the configured `.app` and `.dmg`.
+  `xplat build --targets macos` validates the runtime package before the Vite
+  build, then produces the configured `.app` and `.dmg`.
 - AC3: Local packaging is ad-hoc signed; configured Developer ID credentials
   sign and verify the app and disk image, and a notary profile submits,
   staples, and validates the disk image.
