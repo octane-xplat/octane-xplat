@@ -1757,39 +1757,40 @@ function measureTextLineAdvances(value, font) {
 	})
 }
 
+function parityBoxInHost(view, rect, boxView) {
+	const converted = view.superview
+		? view.superview.convertRectToView(rect, boxView)
+		: view.convertRectToView(view.bounds, boxView)
+	const boxHeight = Number(boxView.bounds.size.height)
+	return {
+		x: round(Number(converted.origin.x)),
+		y: round(boxHeight - Number(converted.origin.y) - Number(converted.size.height)),
+		w: round(Number(converted.size.width)),
+		h: round(Number(converted.size.height)),
+	}
+}
+
 function parityNode(node, boxNode, facets) {
 	const view = node.view
 	let box = null
+	let frameBox = null
 	if (view && boxNode.view) {
 		try {
+			frameBox = parityBoxInHost(view, view.frame, boxNode.view)
 			const alignedRect = view.alignmentRectForFrame?.(view.frame)
-			const rect = alignedRect && view.superview
-				? view.superview.convertRectToView(alignedRect, boxNode.view)
-				: view.convertRectToView(view.bounds, boxNode.view)
-			const boxHeight = Number(boxNode.view.bounds.size.height)
-			box = {
-				x: round(Number(rect.origin.x)),
-				y: round(boxHeight - Number(rect.origin.y) - Number(rect.size.height)),
-				w: round(Number(rect.size.width)),
-				h: round(Number(rect.size.height)),
-			}
+			box = alignedRect ? parityBoxInHost(view, alignedRect, boxNode.view) : frameBox
 		} catch {}
 	}
 	let placeholderBox = null
+	let placeholderFrameBox = null
 	if (node.placeholderView && boxNode.view) {
 		try {
 			const placeholderView = node.placeholderView
+			placeholderFrameBox = parityBoxInHost(placeholderView, placeholderView.frame, boxNode.view)
 			const alignedRect = placeholderView.alignmentRectForFrame?.(placeholderView.frame)
-			const rect = alignedRect && placeholderView.superview
-				? placeholderView.superview.convertRectToView(alignedRect, boxNode.view)
-				: placeholderView.convertRectToView(placeholderView.bounds, boxNode.view)
-			const boxHeight = Number(boxNode.view.bounds.size.height)
-			placeholderBox = {
-				x: round(Number(rect.origin.x)),
-				y: round(boxHeight - Number(rect.origin.y) - Number(rect.size.height)),
-				w: round(Number(rect.size.width)),
-				h: round(Number(rect.size.height)),
-			}
+			placeholderBox = alignedRect
+				? parityBoxInHost(placeholderView, alignedRect, boxNode.view)
+				: placeholderFrameBox
 		} catch {}
 	}
 
@@ -1840,7 +1841,9 @@ function parityNode(node, boxNode, facets) {
 		id: node.props?.id || undefined,
 		classes: nodeClasses(node),
 		box,
+		frameBox,
 		placeholderBox,
+		placeholderFrameBox,
 		style: parityStyle(node, facets),
 		text: text || undefined,
 		textLineAdvances,

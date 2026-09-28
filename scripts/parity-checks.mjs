@@ -6,7 +6,10 @@
 //   fixture  — matches the cell name from fixtures.tsrx
 //   elements — logical name → vx-* class inside the fixture cell
 //   check(m) — per-target invariants; m('track') → {box:{x,y,w,h}, style, text}
-//              with box measured relative to the fixture's .parity-box.
+//              with box measured relative to the fixture's .parity-box. The
+//              macOS dump also includes frameBox (the raw NSView allocation);
+//              box uses AppKit's alignment rect to exclude internal control
+//              cell padding from the shared content geometry.
 //              Return rows [name, ok, detail?].
 //   equal    — 'el.box.<f>' | 'el.style.<f>' | 'el.text' paths that must
 //              agree across applicable targets (skipped with one dump).
