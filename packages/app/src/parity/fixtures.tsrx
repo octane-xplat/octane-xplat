@@ -3,6 +3,8 @@ import {
 	Switch,
 	Slider,
 	Checkbox,
+	RadioGroup,
+	SegmentedControl,
 	Button,
 	Pressable,
 	Text,
@@ -21,6 +23,17 @@ import {
 	Popover,
 	Sheet,
 	Drawer,
+	FormField,
+	FieldGroup,
+	InputNumber,
+	PinInput,
+	Select,
+	SelectMenu,
+	Combobox,
+	InputMenu,
+	InputTags,
+	InputRating,
+	CheckboxGroup,
 	Screen,
 	SafeArea,
 } from '@octane-xplat/ui';
@@ -258,6 +271,119 @@ function SheetLayoutFixture(props: { marker: string }) @{
 	</Sheet>
 }
 
+function FormFieldFixture() @{
+	<FormField className="parity-formfield-root" label="Email" required style={{ width: 180, height: 64, backgroundColor: '#f5f5f5' }}>
+		<TextInput placeholder="Email" style={{ width: 160, height: 32 }} />
+	</FormField>
+}
+
+function FieldGroupFixture() @{
+	<FieldGroup className="parity-fieldgroup-root" label="Contact" style={{ width: 180, height: 64, backgroundColor: '#f5f5f5' }}>
+		<TextInput placeholder="Email" style={{ width: 160, height: 32 }} />
+	</FieldGroup>
+}
+
+function InputNumberFixture() @{
+	<InputNumber
+		className="parity-inputnumber-root"
+		value={2}
+		min={0}
+		max={5}
+		step={1}
+		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function PinInputFixture() @{
+	<PinInput
+		className="parity-pininput-root"
+		length={4}
+		value="2648"
+		style={{ width: 200, height: 44, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function SelectFixture() @{
+	<Select
+		className="parity-select-root"
+		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
+		value="small"
+		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function SelectMenuFixture() @{
+	<SelectMenu
+		className="parity-selectmenu-root"
+		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
+		value={['small']}
+		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function ComboboxFixture() @{
+	<Combobox
+		className="parity-combobox-root"
+		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
+		value="small"
+		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function InputMenuFixture() @{
+	<InputMenu
+		className="parity-inputmenu-root"
+		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
+		value="small"
+		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function InputTagsFixture() @{
+	<InputTags
+		className="parity-inputtags-root"
+		value={['north', 'south']}
+		placeholder="Add a tag"
+		style={{ width: 220, height: 44, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function InputRatingFixture() @{
+	<InputRating
+		className="parity-rating-root"
+		value={3}
+		max={5}
+		style={{ width: 200, height: 32, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function CheckboxGroupFixture() @{
+	<CheckboxGroup
+		className="parity-checkboxgroup-root"
+		options={[{ value: 'email', label: 'Email' }, { value: 'sms', label: 'SMS' }]}
+		value={['email']}
+		style={{ width: 180, height: 56, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function RadioGroupFixture() @{
+	<RadioGroup
+		className="parity-radiogroup-root"
+		options={[{ value: 'low', label: 'Low' }, { value: 'high', label: 'High' }]}
+		value="low"
+		style={{ width: 180, height: 56, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function SegmentedControlFixture() @{
+	<SegmentedControl
+		className="parity-segmented-root"
+		options={[{ value: 'day', label: 'Day' }, { value: 'week', label: 'Week' }]}
+		value="day"
+		style={{ width: 180, height: 40, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
 function ScreenLayoutFixture() @{
 	<Screen className="parity-screen-root" style={{ width: '100%', height: '100%' }}>
 		<View className="parity-screen-child" style={{ width: 20, height: 10 }} />
@@ -365,6 +491,19 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'overlay-fixed-frame', component: 'Overlay', renderer: OverlayLayoutFixture, props: { marker: 'parity-portal--overlay-fixed-frame' } },
 	{ name: 'popover-bottom-frame', component: 'Popover', renderer: PopoverLayoutFixture, props: { marker: 'parity-portal--popover-bottom-frame' } },
 	{ name: 'sheet-fixed-frame', component: 'Sheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' } },
+	{ name: 'form-field-basic', component: 'FormField', renderer: FormFieldFixture, props: {} },
+	{ name: 'field-group-basic', component: 'FieldGroup', renderer: FieldGroupFixture, props: {} },
+	{ name: 'input-number-value', component: 'InputNumber', renderer: InputNumberFixture, props: {} },
+	{ name: 'pin-input-filled', component: 'PinInput', renderer: PinInputFixture, props: {} },
+	{ name: 'select-value', component: 'Select', renderer: SelectFixture, props: {} },
+	{ name: 'select-menu-value', component: 'SelectMenu', renderer: SelectMenuFixture, props: {} },
+	{ name: 'combobox-value', component: 'Combobox', renderer: ComboboxFixture, props: {} },
+	{ name: 'input-menu-value', component: 'InputMenu', renderer: InputMenuFixture, props: {} },
+	{ name: 'input-tags-values', component: 'InputTags', renderer: InputTagsFixture, props: {}, wide: true },
+	{ name: 'input-rating-selected', component: 'InputRating', renderer: InputRatingFixture, props: {} },
+	{ name: 'checkbox-group-selected', component: 'CheckboxGroup', renderer: CheckboxGroupFixture, props: {} },
+	{ name: 'radio-group-selected', component: 'RadioGroup', renderer: RadioGroupFixture, props: {} },
+	{ name: 'segmented-control-selected', component: 'SegmentedControl', renderer: SegmentedControlFixture, props: {} },
 	{ name: 'screen-layout', component: 'Screen', renderer: ScreenLayoutFixture, props: {} },
 	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
 	{ name: 'safe-area-layout', component: 'SafeArea', renderer: SafeAreaLayoutFixture, props: {}, height: 168 },

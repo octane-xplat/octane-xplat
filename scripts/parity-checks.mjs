@@ -158,6 +158,14 @@ const inputEqual = [
 	'field.style.color',
 ]
 
+const controlEqual = [
+	'control.box.w',
+	'control.box.h',
+	'control.style.backgroundColor',
+]
+
+const controlRows = (m, width, height) => [dims(m('control'), width, height, 1)]
+
 function inputRows(m) {
 	const field = m('field')
 	const rows = [
@@ -985,6 +993,118 @@ export const CHECKS = [
 		elements: { frame: 'parity-portal--sheet-fixed-frame' },
 		equal: ['frame.box.w', 'frame.box.h', 'frame.style.backgroundColor'],
 		check: (m) => [dims(m('frame'), 96, 48)],
+	},
+	{
+		fixture: 'form-field-basic',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-formfield-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 180, 64),
+	},
+	{
+		fixture: 'field-group-basic',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-fieldgroup-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 180, 64),
+	},
+	{
+		fixture: 'input-number-value',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-inputnumber-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 160, 40),
+	},
+	{
+		fixture: 'pin-input-filled',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-pininput-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 200, 44),
+	},
+	{
+		fixture: 'select-value',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-select-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 160, 40),
+	},
+	{
+		fixture: 'select-menu-value',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-selectmenu-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 160, 40),
+	},
+	{
+		fixture: 'combobox-value',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-combobox-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 160, 40),
+	},
+	{
+		fixture: 'input-menu-value',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-inputmenu-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 160, 40),
+	},
+	{
+		fixture: 'input-tags-values',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-inputtags-root' },
+		equal: controlEqual,
+		check: (m) => controlRows(m, 220, 44),
+	},
+	{
+		fixture: 'input-rating-selected',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-rating-root', selected: 'vx-rating-cell--on' },
+		equal: [...controlEqual, 'selected.box.w', 'selected.box.h'],
+		check: (m) => {
+			const selected = m('selected')
+			return [
+				...controlRows(m, 200, 32),
+				['selected rating cell has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
+			]
+		},
+	},
+	{
+		fixture: 'checkbox-group-selected',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-checkboxgroup-root', selected: 'vx-checkbox' },
+		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
+		check: (m) => [
+			...controlRows(m, 180, 56),
+			dims(m('selected'), 20, 20),
+		],
+	},
+	{
+		fixture: 'radio-group-selected',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-radiogroup-root', selected: 'vx-radio-dot' },
+		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
+		check: (m) => {
+			const selected = m('selected')
+			return [
+				...controlRows(m, 180, 56),
+				['selected radio dot has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
+			]
+		},
+	},
+	{
+		fixture: 'segmented-control-selected',
+		targets: ['web', 'ios', 'android'],
+		elements: { control: 'parity-segmented-root', selected: 'vx-segment--on' },
+		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
+		check: (m) => {
+			const selected = m('selected')
+			return [
+				...controlRows(m, 180, 40),
+				['selected segment has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
+			]
+		},
 	},
 	{
 		fixture: 'screen-layout',
