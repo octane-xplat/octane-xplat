@@ -66,3 +66,4 @@ patchedDependencies:
   '@nativescript-community/vite-octane@0.2.1': patches/@nativescript-community__vite-octane@0.2.1.patch
   '@nativescript/core@9.1.2': patches/@nativescript__core@9.1.2.patch
   '@nativescript/vite@8.0.11': patches/@nativescript__vite@8.0.11.patch
+  'css@3.0.0': patches/css@3.0.0.patch
