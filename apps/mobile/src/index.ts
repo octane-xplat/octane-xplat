@@ -1,6 +1,8 @@
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
+import { installParityDump } from '@xplat/app/parity/measure.native'
+import '@xplat/app/platform/paritysweep.native'
 import { probeSignal$ } from '@xplat/app/probe-state'
 import { sheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick'
@@ -17,6 +19,7 @@ import { findInRootLayouts } from '@octane-xplat/ui/native'
 
 import { storage, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
+installParityDump()
 // Per-file css module imports — same shape as apps/web/src/main.tsrx. Each
 // module passes the xplat-native-css transform (px→dip + xplat-web-only
 // strip); an @import'd chain inlines raw text and bypasses it — that's how
