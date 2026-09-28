@@ -209,7 +209,6 @@ async function completeFrameworkSymlinks(frameworkPath) {
 		['Versions/Current/Resources', join(frameworkPath, 'Resources')],
 		['Versions/Current/NativeScript', join(frameworkPath, 'NativeScript')],
 	]
-
 	for (const [target, path] of aliases) {
 		try {
 			await symlink(target, path)
@@ -334,7 +333,6 @@ export async function packageMacOS(appRoot) {
 			// Keep framework-relative symlinks resolving within the copied bundle.
 			verbatimSymlinks: true,
 		})
-
 		await completeFrameworkSymlinks(packagedFrameworkPath)
 		await symlink(
 			relative(dirname(runtimeFrameworkPath), packagedFrameworkPath),
