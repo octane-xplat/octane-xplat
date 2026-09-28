@@ -55,6 +55,12 @@ ShareButton.web.tsrx    browser share API
 ShareButton.mobile.tsrx shared mobile share sheet
 ```
 
+The caller keeps one unqualified import:
+
+```ts
+import { ShareButton } from './ShareButton'
+```
+
 If a module uses NativeScript APIs and web imports it, provide a `.web` sibling
 even when that browser implementation is just a small adapter. Platform
 services are another way to keep device APIs out of screens.
