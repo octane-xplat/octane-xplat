@@ -7,6 +7,9 @@ export type { RouteName, RouteParams, RoutePresentations } from './routes.gen'
 
 import { wireRouteLinks } from './route-links'
 import type { RouteName, RouteParams } from './routes.gen'
+// Programmatic routes — layered over the file manifest via addRoutes at
+// module scope (survives routes.gen re-registration under HMR).
+import './guides.tsrx'
 
 wireRouteLinks()
 

@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
 	buildRoutePath,
+	defineRoutes,
 	deriveRouteManifest,
 	layoutChain,
 	linkPath,
 	matchRoute,
 	matchUrl,
+	mergeRouteManifests,
 } from './route-table'
 
 const C = (n: string) => Object.assign(() => null, { displayName: n })
@@ -213,5 +215,131 @@ describe('layoutChain', () => {
 		expect(layoutChain(m.layouts, 'chat/room').map((c) => c.displayName)).toEqual(['ChatShell'])
 		expect(layoutChain(m.layouts, 'detail')).toEqual([])
 		expect(layoutChain(m.layouts, 'chat')).toEqual([])
+	})
+})
+
+describe('defineRoutes', () => {
+	it('turns path specs into metas + screens, sorted by specificity', () => {
+		const m = defineRoutes({
+			routes: [
+				{ path: 'guides/:slug', screen: C('Guide') },
+				{ path: 'guides', screen: C('GuideIndex') },
+				{ path: 'guides/new', screen: C('NewGuide') },
+			],
+		})
+
+		expect(Object.keys(m.screens).sort()).toEqual(['guides', 'guides/:slug', 'guides/new'])
+		expect(m.routes.map((r) => r.name)).toEqual(['guides/new', 'guides/:slug', 'guides'])
+		const guide = m.routes.find((r) => r.name === 'guides/:slug')!
+		expect(guide.segments).toEqual(['guides', ':slug'])
+		expect(guide.params).toEqual(['slug'])
+	})
+
+	it('accepts [param] syntax, a bare array, and index/empty paths', () => {
+		const m = defineRoutes([
+			{ path: 'docs/[slug]', screen: C('Doc') },
+			{ path: 'docs/index', screen: C('DocIndex') },
+			{ path: '', screen: C('Root') },
+		])
+
+		expect(m.screens['docs/:slug'].displayName).toBe('Doc')
+		expect(m.screens.docs.displayName).toBe('DocIndex')
+		expect(m.screens.index.displayName).toBe('Root')
+	})
+
+	it('carries presentation, loader, beforeLoad, and head onto the meta', () => {
+		const loader = (p: Record<string, unknown>) => p
+		const beforeLoad = () => ({ ok: true })
+		const head = { title: 'Doc' }
+		const m = defineRoutes([
+			{
+				path: 'doc',
+				screen: C('Doc'),
+				presentation: 'modal',
+				loader,
+				beforeLoad,
+				head,
+			},
+		])
+
+		const meta = m.routes[0]
+		expect(meta.presentation).toBe('modal')
+		expect(meta.loader).toBe(loader)
+		expect(meta.beforeLoad).toBe(beforeLoad)
+		expect(meta.head).toBe(head)
+		expect(m.loaders!.doc).toBe(loader)
+	})
+
+	it('collects path-keyed layouts like _layout files', () => {
+		const m = defineRoutes({
+			routes: [{ path: 'guides/:slug', screen: C('Guide') }],
+			layouts: { guides: C('GuideShell'), '': C('RootShell') },
+		})
+
+		expect(m.layouts.guides.displayName).toBe('GuideShell')
+		expect(m.layouts[''].displayName).toBe('RootShell')
+		expect(layoutChain(m.layouts, 'guides/:slug').map((c) => c.displayName)).toEqual([
+			'GuideShell',
+		])
+	})
+
+	it('warns and skips a non-component screen', () => {
+		const m = defineRoutes([{ path: 'bad', screen: { default: C('B') } as any }])
+		expect(m.screens.bad).toBeUndefined()
+	})
+})
+
+describe('mergeRouteManifests', () => {
+	const files = manifest({
+		'./app/detail.tsrx': { D: C('FileDetail') },
+		'./app/demo/[id].tsrx': { DD: C('FileDemo') },
+		'./app/guides/_layout.tsrx': { L: C('FileLayout') },
+	})
+
+	it('merges screens, metas, and layouts without touching disjoint names', () => {
+		const dynamic = defineRoutes({
+			routes: [{ path: 'guides/:slug', screen: C('Guide') }],
+			layouts: { docs: C('DocsShell') },
+		})
+		const merged = mergeRouteManifests(files, dynamic)
+
+		expect(Object.keys(merged.screens).sort()).toEqual([
+			'demo/:id',
+			'detail',
+			'guides/:slug',
+		])
+		expect(merged.layouts.guides.displayName).toBe('FileLayout')
+		expect(merged.layouts.docs.displayName).toBe('DocsShell')
+		// Sort order is rebuilt — 'demo/:id' still loses to nothing, but a
+		// static dynamic route must outrank a file param route.
+		expect(matchRoute(merged.routes, ['demo', 'x'])!.meta.name).toBe('demo/:id')
+	})
+
+	it('later manifests win same-name routes — meta and config together', () => {
+		const fileLoader = () => 'file'
+		const file = manifest({
+			'./app/detail.tsrx': { D: C('FileDetail'), loader: fileLoader },
+		})
+		const dynamic = defineRoutes([{ path: 'detail', screen: C('DynDetail') }])
+		const merged = mergeRouteManifests(file, dynamic)
+
+		expect(merged.screens.detail.displayName).toBe('DynDetail')
+		const meta = merged.routes.find((r) => r.name === 'detail')!
+		expect(meta.loader).toBeUndefined()
+		expect(merged.loaders!.detail).toBeUndefined()
+	})
+
+	it('file manifest wins when merged after the dynamic one', () => {
+		const dynamic = defineRoutes([{ path: 'detail', screen: C('DynDetail') }])
+		const merged = mergeRouteManifests(dynamic, files)
+
+		expect(merged.screens.detail.displayName).toBe('FileDetail')
+	})
+
+	it('a static dynamic route outranks a file param route in match order', () => {
+		const dynamic = defineRoutes([{ path: 'demo/new', screen: C('NewDemo') }])
+		const merged = mergeRouteManifests(files, dynamic)
+
+		expect(matchRoute(merged.routes, ['demo', 'new'])!.meta.name).toBe('demo/new')
 	})
 })

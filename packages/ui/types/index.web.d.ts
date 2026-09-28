@@ -44,6 +44,8 @@ import type {
 	RouteHeadExport,
 	RouteManifest,
 	RouteMeta,
+	RouteSpec,
+	RouteSpecSet,
 	RichTextProps,
 	RichTextSpanProps,
 	RowProps,
@@ -113,6 +115,8 @@ export type {
 	RouteHeadExport,
 	RouteManifest,
 	RouteMeta,
+	RouteSpec,
+	RouteSpecSet,
 	RichTextProps,
 	RichTextSpanProps,
 	RowProps,
@@ -222,9 +226,16 @@ export declare function registerScreens(table: ScreenTable, manifest?: RouteMeta
 /** One-call registration for route-dir apps — screens + URL patterns +
  *  layouts all come from deriveRouteManifest. */
 export declare function registerRoutes(manifest: RouteManifest): void
+/** Layer a programmatic manifest (from `defineRoutes`) over the registered
+ *  routes — same-name entries win over the base with a warn. Registered
+ *  layers survive later registerRoutes re-registration (routes.gen HMR). */
+export declare function addRoutes(manifest: RouteManifest): void
 export declare function screenFor(name: string): any
 /** Canonical /<stack>/<path> for a Route — Link's href on web. */
 export declare function hrefFor(r: Route): string
+/** Layout components wrapping a route name, outermost → innermost —
+ *  `_layout` files plus programmatic `layouts` entries. */
+export declare function layoutsForRoute(name: string): any[]
 
 // ---------- route dir (file → route manifest; docs/navigation-notes.md) ----------
 
@@ -237,6 +248,15 @@ export declare function deriveRouteManifest(
 	prefer: readonly string[],
 	dir?: string,
 ): RouteManifest
+/** Build a manifest from specs instead of the route dir (decision #67) —
+ *  `path` uses route-dir vocabulary ('docs/:slug' or 'docs/[slug]', a
+ *  trailing 'index' or '' is the root route); `layouts` keys are path
+ *  prefixes playing the `_layout` role. Accepts a bare RouteSpec[] too. */
+export declare function defineRoutes(input: readonly RouteSpec[] | RouteSpecSet): RouteManifest
+/** Compose manifests — later arguments win same-name routes with a warn.
+ *  Use to merge a programmatic manifest with the file-derived one before
+ *  registerRoutes, or register it post-boot with addRoutes. */
+export declare function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifest
 
 // ---------- animation / theme ----------
 

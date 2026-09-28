@@ -1,7 +1,17 @@
 import { useSyncExternalStore } from 'octane'
 import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable } from './props'
-import { buildRoutePath, layoutChain, matchUrl, RouteRedirect } from './route-table'
+import {
+	buildRoutePath,
+	layoutChain,
+	matchUrl,
+	mergeRouteManifests,
+	RouteRedirect,
+} from './route-table'
 
+// Effective tables = the file-derived base manifest merged under every
+// addRoutes layer, matching the web/native leaves' registry split.
+let baseManifest: RouteManifest = { screens: {}, routes: [], layouts: {} }
+const dynamicManifests: RouteManifest[] = []
 let screens: ScreenTable = {}
 let routes: RouteMeta[] = []
 let routeLayouts: Record<string, any> = {}
@@ -17,15 +27,31 @@ const subscribe = (listener: () => void) => {
 	return () => listeners.delete(listener)
 }
 
+function rebuildRegistry(): void {
+	const merged = mergeRouteManifests(baseManifest, ...dynamicManifests)
+	screens = merged.screens
+	routes = merged.routes
+	routeLayouts = merged.layouts
+	routeLoaders = merged.loaders ?? {}
+	emit()
+}
+
 export function registerScreens(table: ScreenTable, manifest: RouteMeta[] = []): void {
-	screens = table
-	routes = manifest
+	baseManifest = { ...baseManifest, screens: table, routes: manifest }
+	rebuildRegistry()
 }
 
 export function registerRoutes(manifest: RouteManifest): void {
-	registerScreens(manifest.screens, manifest.routes)
-	routeLayouts = manifest.layouts
-	routeLoaders = manifest.loaders ?? {}
+	baseManifest = manifest
+	rebuildRegistry()
+}
+
+/** Layer a programmatic manifest (from `defineRoutes`) over the registered
+ *  routes — same-name entries win over the base with a warn. Registered
+ *  layers survive later registerRoutes re-registration. */
+export function addRoutes(manifest: RouteManifest): void {
+	dynamicManifests.push(manifest)
+	rebuildRegistry()
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {

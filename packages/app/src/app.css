@@ -268,8 +268,10 @@ body {
 }
 
 /* Route-layout banner — marks the demo/* directory wrap (descendant +
-   class so it beats `.vx-app label` on native). */
-.demo-layout .demo-layout-banner {
+   class so it beats `.vx-app label` on native). The guide-layout twin marks
+   the programmatic `layouts` map wrap (guides.tsrx). */
+.demo-layout .demo-layout-banner,
+.guide-layout .guide-layout-banner {
 	font-size: 12px;
 	line-height: 16px;
 	color: var(--color-text-secondary);

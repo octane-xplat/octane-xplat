@@ -16,7 +16,7 @@
 > verified, iOS navigation and demo sweeps pass, Android swap-pane route
 > validation pending
 > (boundaries = `@try`; HMR = self-accepting modules, named exports stay
-> convention) · **Blocks on:** Android swap-pane runtime validation · **Decisions:** #8, #9, #13, #19, #38
+> convention) · **Blocks on:** Android swap-pane runtime validation · **Decisions:** #8, #9, #13, #19, #38, #67
 > · **Validated by:** web/native typecheck, UI web/native package builds, and
 > iOS simulator navigation + demo sweeps. New modal routes and Android swap
 > tabs still need runtime validation.
@@ -87,6 +87,22 @@ is the canonical path builder (Link's href). `xplat build` and
 `xplat typecheck` refresh the generated route files from `app/`; generated
 `RouteName` and `RouteParams` types constrain `navigate`, `Link`, and
 `useParams<Name>()`.
+
+- **Programmatic routes (decision #67):** `defineRoutes({routes: RouteSpec[],
+  layouts})` builds a `RouteManifest` from data instead of files —
+  `RouteSpec.path` uses the route-dir vocabulary (`'docs/:slug'` or
+  `'docs/[slug]'`, trailing `index` drops), `screen` is the component, and
+  `loader`/`beforeLoad`/`head`/`presentation` map onto `RouteMeta`. Each
+  leaf's registry is layered: `registerRoutes`/`registerScreens` own the
+  base manifest while `addRoutes(manifest)` pushes an overlay layer that
+  survives later re-registration (routes.gen HMR). On a same-name collision
+  the later manifest wins and warns once — `mergeRouteManifests(a, b)` is
+  the pre-registration equivalent, with `b` winning. Both leaves rebuild
+  the merged tables (`screens`/`routes`/`layouts`/`loaders`) and web
+  re-parses the current URL so a newly matching path resolves. Generated
+  `RouteName`/`RouteParams`/`routes.screens` stay file-route-only — dynamic
+  names navigate via the low-level `Route` shape and screens resolve
+  through `screenFor(name)`.
 
 ### Route config surface (implemented)
 
@@ -217,6 +233,19 @@ making the generated API's scalar contract explicit.
 > emits real `hrefFor` paths (the `#/` hash stub is gone). Native:
 > typecheck clean; device run pending.
 
+> **Lab (programmatic routes, web, 2026-09-28):** `packages/app/src/
+> guides.tsrx` builds a manifest from a 3-record data array
+> (`defineRoutes` + `addRoutes`, one route per record, path-keyed
+> `guides` layout). Web smoke covers the seam end-to-end: NavLink push
+> writes `/test/guides`, the index renders inside the named-stack outlet,
+> `guides/routes` renders under the programmatic `GuideShell`, popstate
+> restores, and a fresh boot at `/test/guides/deploy` deep-links into the
+> data-derived screen. The harness `resolveRoute` now reads `screenFor` +
+> `layoutsForRoute` — the live merged registry — since `routes.screens`
+> stays a file-route snapshot. **Native: desk-source only** — same registry
+> contract, but `addRoutes` push/pop/deep-link on Frame stacks and the
+> Android swap-pane path are unverified on device (Silo experiment queued).
+>
 > **Lab (route config, web, 2026-09-25):** the 24/24 browser smoke covers the
 > generated `detail` route's awaited `beforeLoad` context, dynamic `head`
 > title/meta, and `useCanGoBack` back affordance, alongside the existing push,

@@ -127,10 +127,15 @@ export declare function redirect(route: P.Route): never
 export declare function addBackInterceptor(fn: () => boolean): () => void
 export declare function registerScreens(table: P.ScreenTable, routes?: P.RouteMeta[]): void
 export declare function registerRoutes(manifest: P.RouteManifest): void
+/** Layer a programmatic manifest (from `defineRoutes`) over the registered
+ *  routes — same-name entries win over the base with a warn. */
+export declare function addRoutes(manifest: P.RouteManifest): void
 export declare function screenFor(name: string): P.ScreenTable[string] | undefined
 export declare function hrefFor(route: P.Route): string
 export declare function layoutsForRoute(name: string): any[]
 export declare function deriveRouteManifest(files: Record<string, any>, prefer: readonly string[], dir?: string): P.RouteManifest
+export declare function defineRoutes(input: readonly P.RouteSpec[] | P.RouteSpecSet): P.RouteManifest
+export declare function mergeRouteManifests(...manifests: P.RouteManifest[]): P.RouteManifest
 export declare function createStore<T>(initial: T): P.Store<T>
 export declare function useStore<T>(store: P.ReadableStore<T>): T
 export declare const openSheet: P.OpenSheet

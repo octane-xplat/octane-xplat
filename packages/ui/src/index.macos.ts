@@ -92,11 +92,12 @@ export {
 	addBackInterceptor,
 	registerScreens,
 	registerRoutes,
+	addRoutes,
 	screenFor,
 	hrefFor,
 	layoutsFor as layoutsForRoute,
 } from './route.macos'
-export { deriveRouteManifest } from './route-table'
+export { deriveRouteManifest, defineRoutes, mergeRouteManifests } from './route-table'
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './useStore.macos.tsrx'

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'octane';
-import { Screen, Tabs, Text, currentRoute, useThemeScheme } from '@octane-xplat/ui';
-import { routes, screens } from '../routes';
+import { Screen, Tabs, Text, currentRoute, layoutsForRoute, screenFor, useThemeScheme } from '@octane-xplat/ui';
 import { Home } from '../Home.tsrx';
 import { Test } from '../Test.tsrx';
 import { Gallery } from '@xplat/demos';
@@ -23,19 +22,19 @@ const renderTest = () => <Test />;
 // Chips navigate inside the tab's own stack — the Demos pane is a Frame
 // (TabSpec.stack), so demo pushes stay under the tab bar.
 const renderApps = () => <Gallery onOpen={(id) => navigate('demo/:id', { id }, { into: 'demos' })} kind="app" title="Apps" />;
+// Layouts resolve by route-name prefix — the same layoutChain walk the
+// native RouteHost and web fallback outlet use — and screens resolve through
+// the live registry (screenFor), so programmatic routes added via addRoutes
+// reach the outlet the same way file routes do.
 const resolveRoute = (name: string, params: Record<string, unknown>) => {
-	const C = screens[name];
+	const C = screenFor(name);
 	if (!C) return <Text>404: {name}</Text>;
 	let content = <C {...params} />;
-	const meta = routes.routes.find((entry) => entry.name === name);
-	const relative = meta?.file.replace(/^.*?app\//, '');
-	const dirs = relative ? relative.split('/').slice(0, -1) : [];
-	for (let depth = dirs.length; depth > 0; depth--) {
-		const Layout = routes.layouts[dirs.slice(0, depth).join('/')];
-		if (Layout) {
-			const nested = content;
-			content = <Layout>{nested}</Layout>;
-		}
+	const chain = layoutsForRoute(name);
+	for (let i = chain.length - 1; i >= 0; i--) {
+		const Layout = chain[i];
+		const nested = content;
+		content = <Layout>{nested}</Layout>;
 	}
 
 	return content;

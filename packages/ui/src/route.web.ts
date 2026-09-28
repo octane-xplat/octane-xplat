@@ -16,23 +16,33 @@ import { useSyncExternalStore } from 'octane'
 
 export type { Route } from './props'
 import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable } from './props'
-import { buildRoutePath, layoutChain, linkPath, matchUrl, RouteRedirect } from './route-table'
+import {
+	buildRoutePath,
+	layoutChain,
+	linkPath,
+	matchUrl,
+	mergeRouteManifests,
+	RouteRedirect,
+} from './route-table'
 
 // ---------- screen registry ----------
 
+// Effective tables = the file-derived base manifest merged under every
+// addRoutes layer. Keeping the split means an HMR re-run of routes.gen.*
+// (registerRoutes again) can't wipe routes an app added at runtime.
+let baseManifest: RouteManifest = { screens: {}, routes: [], layouts: {} }
+const dynamicManifests: RouteManifest[] = []
 let screens: ScreenTable = {}
 let routes: RouteMeta[] = []
 let routeLayouts: Record<string, any> = {}
 let routeLoaders: NonNullable<RouteManifest['loaders']> = {}
 
-/** Register the app's name → screen table. On web the table feeds
- *  `screenFor` — the fallback outlet resolution in Tabs when no
- *  `resolveScreen` prop is given; on native `pushRoute` resolves
- *  `route.name` through it. `manifest` (from deriveRouteManifest) enables
- *  path-param matching — call once from the shared routes module. */
-export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): void {
-	screens = table
-	routes = manifest ?? []
+function rebuildRegistry(): void {
+	const merged = mergeRouteManifests(baseManifest, ...dynamicManifests)
+	screens = merged.screens
+	routes = merged.routes
+	routeLayouts = merged.layouts
+	routeLoaders = merged.loaders ?? {}
 	// Registration can land after the first lazy parse (deep link read
 	// before the routes module ran) — re-parse with patterns present.
 	if (current !== undefined) {
@@ -41,12 +51,31 @@ export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): voi
 	}
 }
 
+/** Register the app's name → screen table. On web the table feeds
+ *  `screenFor` — the fallback outlet resolution in Tabs when no
+ *  `resolveScreen` prop is given; on native `pushRoute` resolves
+ *  `route.name` through it. `manifest` (from deriveRouteManifest) enables
+ *  path-param matching — call once from the shared routes module. */
+export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): void {
+	baseManifest = { ...baseManifest, screens: table, routes: manifest ?? [] }
+	rebuildRegistry()
+}
+
 /** One-call registration for route-dir apps — screens + URL patterns +
  *  layouts all come from deriveRouteManifest. */
 export function registerRoutes(manifest: RouteManifest): void {
-	registerScreens(manifest.screens, manifest.routes)
-	routeLayouts = manifest.layouts
-	routeLoaders = manifest.loaders ?? {}
+	baseManifest = manifest
+	rebuildRegistry()
+	applyHead(read())
+}
+
+/** Layer a programmatic manifest (from `defineRoutes`) over the registered
+ *  routes — same-name entries win over the base with a warn, so a host
+ *  framework can override a file route deliberately. Registered layers
+ *  survive later registerRoutes re-registration (e.g. routes.gen HMR). */
+export function addRoutes(manifest: RouteManifest): void {
+	dynamicManifests.push(manifest)
+	rebuildRegistry()
 	applyHead(read())
 }
 

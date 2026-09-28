@@ -21,7 +21,14 @@ import type { UniversalComponent } from 'octane/universal/native'
 
 import { useSyncExternalStore } from 'octane'
 import { getStack, onStackRegistered, stackEntries } from './stacks'
-import { buildRoutePath, layoutChain, linkPath, matchUrl, RouteRedirect } from './route-table'
+import {
+	buildRoutePath,
+	layoutChain,
+	linkPath,
+	matchUrl,
+	mergeRouteManifests,
+	RouteRedirect,
+} from './route-table'
 import { RouteHost } from './RouteHost.mobile'
 import { modalPresenter } from './modal-presenter.mobile'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
@@ -30,10 +37,24 @@ export type { Route } from './props'
 
 // ---------- screen registry ----------
 
+// Effective tables = the file-derived base manifest merged under every
+// addRoutes layer. Keeping the split means an HMR re-run of routes.gen.*
+// (registerRoutes again) can't wipe routes an app added at runtime.
+let baseManifest: RouteManifest = { screens: {}, routes: [], layouts: {} }
+const dynamicManifests: RouteManifest[] = []
 let screens: ScreenTable = {}
 let routes: RouteMeta[] = []
 let routeLayouts: Record<string, any> = {}
 let routeLoaders: NonNullable<RouteManifest['loaders']> = {}
+
+function rebuildRegistry(): void {
+	const merged = mergeRouteManifests(baseManifest, ...dynamicManifests)
+	screens = merged.screens
+	routes = merged.routes
+	routeLayouts = merged.layouts
+	routeLoaders = merged.loaders ?? {}
+	emit()
+}
 
 /** Register the app's name → screen table (call once, from the shared
  *  routes module). Native `pushRoute` resolves `route.name` through it;
@@ -42,17 +63,26 @@ let routeLoaders: NonNullable<RouteManifest['loaders']> = {}
  *  for parity — the web leaf matches URLs through it; native navigation
  *  is name+params and only needs the table. */
 export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): void {
-	screens = table
-	routes = manifest ?? []
+	baseManifest = { ...baseManifest, screens: table, routes: manifest ?? [] }
+	rebuildRegistry()
 	ensureBackWired()
 }
 
 /** One-call registration for route-dir apps — screens + URL patterns +
  *  layouts all come from deriveRouteManifest. */
 export function registerRoutes(manifest: RouteManifest): void {
-	registerScreens(manifest.screens, manifest.routes)
-	routeLayouts = manifest.layouts ?? {}
-	routeLoaders = manifest.loaders ?? {}
+	baseManifest = manifest
+	rebuildRegistry()
+	ensureBackWired()
+}
+
+/** Layer a programmatic manifest (from `defineRoutes`) over the registered
+ *  routes — same-name entries win over the base with a warn, so a host
+ *  framework can override a file route deliberately. Registered layers
+ *  survive later registerRoutes re-registration (e.g. routes.gen HMR). */
+export function addRoutes(manifest: RouteManifest): void {
+	dynamicManifests.push(manifest)
+	rebuildRegistry()
 }
 
 export function layoutsForRoute(name: string): any[] {

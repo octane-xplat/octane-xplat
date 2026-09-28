@@ -193,13 +193,15 @@ export {
 	addBackInterceptor,
 	registerScreens,
 	registerRoutes,
+	addRoutes,
 	screenFor,
 	hrefFor,
+	layoutsFor as layoutsForRoute,
 } from './route.web'
 
 export { useBackInterceptor } from './use-back.web.tsrx'
 
-export { deriveRouteManifest } from './route-table'
+export { deriveRouteManifest, defineRoutes, mergeRouteManifests } from './route-table'
 export type {
 	BeforeLoad,
 	BeforeLoadArgs,
@@ -211,6 +213,8 @@ export type {
 	RouteHeadExport,
 	RouteMeta,
 	RouteManifest,
+	RouteSpec,
+	RouteSpecSet,
 	ScreenTable,
 	ModalOpenResult,
 	OpenWindowOptions,

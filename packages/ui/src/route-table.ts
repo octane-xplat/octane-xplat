@@ -30,7 +30,7 @@
  *  fallback (rank = prefer.length). Web callers pass ['web']; mobile
  *  callers pass the running OS first. */
 
-import type { Route, RouteManifest, RouteMeta } from './props'
+import type { Route, RouteManifest, RouteMeta, RouteSpec, RouteSpecSet } from './props'
 
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
 const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
@@ -201,12 +201,155 @@ export function deriveRouteManifest(
 	}
 
 	// Most-specific patterns first — 'demo/new' must beat 'demo/:id'.
-	routes.sort(
-		(a, b) =>
-			b.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) -
-				a.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) ||
-			a.name.localeCompare(b.name),
+	routes.sort(bySpecificity)
+
+	return { screens, routes, layouts, loaders }
+}
+
+/** Match-order comparator: static segments (2) outrank params (1), ties
+ *  break alphabetically so ordering is total and stable across merges. */
+function bySpecificity(a: RouteMeta, b: RouteMeta): number {
+	return (
+		b.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) -
+			a.segments.reduce((n, s) => n + (s.startsWith(':') ? 1 : 2), 0) ||
+		a.name.localeCompare(b.name)
 	)
+}
+
+/** Normalize a programmatic `path` into manifest segments using the
+ *  route-dir vocabulary: `'docs/[slug]'` and `'docs/:slug'` are the same
+ *  pattern, a trailing `index` drops, `''`/`'index'` name the root route. */
+function specSegments(path: string): string[] {
+	const segs = path
+		.split('/')
+		.filter(Boolean)
+		.map((s) => {
+			const p = PARAM.exec(s)
+			return p ? ':' + p[1] : s
+		})
+
+	if (segs[segs.length - 1] === 'index') {
+		segs.pop()
+	}
+
+	return segs
+}
+
+const mergeWarned = new Set<string>()
+
+/** Build a manifest from app data rather than the route dir — the
+ *  programmatic half of the route contract (host frameworks derive specs
+ *  from their own sources, e.g. `readdirSync` over a content dir). Each
+ *  spec's `path` uses the route-dir vocabulary; `layouts` keys are path
+ *  prefixes playing the `_layout` role. Same-name duplicates inside the
+ *  set keep the later entry with a warn, matching merge precedence. */
+export function defineRoutes(input: readonly RouteSpec[] | RouteSpecSet): RouteManifest {
+	const set = (Array.isArray(input) ? { routes: input } : input) as RouteSpecSet
+	const specs = set.routes
+	const extra = set.layouts
+
+	const screens: RouteManifest['screens'] = {}
+	const layouts: RouteManifest['layouts'] = {}
+	const metas = new Map<string, RouteMeta>()
+	const warned = new Set<string>()
+
+	for (const [key, layout] of Object.entries(extra ?? {})) {
+		const dir = key.replace(/^\/+|\/+$/g, '')
+		if (dir !== key) {
+			console.warn(`[octane-xplat] layout key '${key}' normalized to '${dir}'`)
+		}
+
+		layouts[dir] = layout
+	}
+
+	for (const spec of specs) {
+		const segments = specSegments(spec.path)
+		const name = segments.join('/') || 'index'
+		const meta: RouteMeta = {
+			name,
+			segments,
+			params: segments.filter((s) => s.startsWith(':')).map((s) => s.slice(1)),
+			file: spec.source ?? `programmatic:${spec.path}`,
+			presentation: spec.presentation,
+		}
+
+		if (spec.loader) {
+			meta.loader = spec.loader
+		}
+
+		if (spec.beforeLoad) {
+			meta.beforeLoad = spec.beforeLoad
+		}
+
+		if (spec.head) {
+			meta.head = spec.head
+		}
+
+		if (metas.has(name) && !warned.has(name)) {
+			warned.add(name)
+			console.warn(
+				`[octane-xplat] route '${name}' is defined twice — keeping the later spec (${meta.file})`,
+			)
+		}
+
+		if (typeof spec.screen !== 'function') {
+			console.warn(
+				`[octane-xplat] route '${name}' has no component — 'screen' must be a component function, not a module`,
+			)
+			continue
+		}
+
+		metas.set(name, meta)
+		screens[name] = spec.screen
+	}
+
+	const routes = [...metas.values()].sort(bySpecificity)
+	const loaders: RouteManifest['loaders'] = {}
+	for (const meta of routes) {
+		if (meta.loader) {
+			loaders[meta.name] = meta.loader
+		}
+	}
+
+	return { screens, routes, layouts, loaders }
+}
+
+/** Compose manifests into one — file-derived base plus any number of
+ *  programmatic sets (`registerRoutes(mergeRouteManifests(fromDir, dynamic))`).
+ *  Registration order is precedence: on a same-name collision the later
+ *  manifest's route wins and the loser's loader/beforeLoad/head go with it —
+ *  a warn fires once per colliding name. `layouts` merge key-wise the same
+ *  way. `matchRoute` order is rebuilt by specificity after the merge. */
+export function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifest {
+	const screens: RouteManifest['screens'] = {}
+	const layouts: RouteManifest['layouts'] = {}
+	const winners = new Map<string, RouteMeta>()
+
+	for (const m of manifests) {
+		Object.assign(layouts, m.layouts)
+		// Screen-table entries without a RouteMeta still register — a screen
+		// is pushable by name even without a URL pattern.
+		Object.assign(screens, m.screens)
+		for (const meta of m.routes) {
+			const prev = winners.get(meta.name)
+			if (prev && !mergeWarned.has(meta.name)) {
+				mergeWarned.add(meta.name)
+				console.warn(
+					`[octane-xplat] route '${meta.name}' is defined by both ${prev.file} and ${meta.file} — keeping ${meta.file}`,
+				)
+			}
+
+			winners.set(meta.name, meta)
+		}
+	}
+
+	const routes = [...winners.values()].sort(bySpecificity)
+	const loaders: RouteManifest['loaders'] = {}
+	for (const meta of routes) {
+		if (meta.loader) {
+			loaders[meta.name] = meta.loader
+		}
+	}
 
 	return { screens, routes, layouts, loaders }
 }

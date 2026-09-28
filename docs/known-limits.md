@@ -98,6 +98,7 @@ sweeps remain skipped on #11444.
 | Hardware back           | browser back → `popstate`                    | — (no hardware back)                            | wired; `useBackInterceptor()` can handle back before route pop; pop-while-pushed not yet verified live | `different`     | 0.6.0·desk |
 | Route params            | serialize to query string — objects dropped  | objects survive                                 | objects survive                            | `degraded`       | 0.5.0    |
 | `popRoute(stack)`       | `history.back()` regardless of `stack`       | pops that stack                                 | pops that stack                            | `different`      | 0.5.0    |
+| Programmatic routes (`defineRoutes`/`addRoutes`) | registered names absent from generated `RouteName`/`RouteParams`/`routes.screens` — use the `Route` shape and `screenFor` | same boundary (codegen is file-only) | same boundary | `different` | post-0.6.0·desk |
 
 ## Platform services
 

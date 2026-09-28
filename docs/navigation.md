@@ -47,6 +47,58 @@ platform-specific globs + registration all live in generated code;
 types describe every route name and its param shape, so a typed wrapper
 around `pushRoute`/`Link` can name-check destinations.
 
+## Register routes from data
+
+The file tree can't express routes derived from runtime data — a docs app
+that maps a content directory, or a host framework generating its route
+table. `defineRoutes` builds the same manifest from specs instead of files
+(decision #67):
+
+```ts
+import { addRoutes, defineRoutes } from '@octane-xplat/ui'
+
+addRoutes(
+	defineRoutes({
+		routes: [
+			{ path: 'guides', screen: GuideIndex, head: { title: 'Guides' } },
+			...docs.map((doc) => ({
+				path: `guides/${doc.slug}`,
+				screen: guideScreen(doc), // a component closing over the record
+				head: { title: doc.title },
+			})),
+		],
+		layouts: { guides: GuideShell }, // like guides/_layout.tsrx
+	}),
+)
+```
+
+A `RouteSpec.path` uses the route-dir vocabulary — `'docs/:slug'` (or
+`'docs/[slug]'`) declares a param, a trailing `index` or `''` names the
+root, and `presentation` replaces the `+modal`/`+fade` suffix. `screen` is
+the component itself, not a module; `loader`, `beforeLoad`, and `head` work
+exactly like the route-file exports. `layouts` keys are path prefixes that
+wrap every route beneath them, the same job `_layout.tsrx` does.
+
+Registered routes are indistinguishable from file routes — they push into
+named stacks, resolve through `screenFor` outlets, match deep links, and
+substitute params into web URLs. `addRoutes` layers its manifest over the
+file-derived one at any point (it survives `routes.gen` re-registration
+under HMR); to compose before registration instead, pass
+`registerRoutes(mergeRouteManifests(routes, dynamic))`.
+
+**Precedence is registration order.** On a same-name collision the later
+manifest wins and a console warning names both sources — deliberate
+overrides layer on top, accidental ones are loud. Merge the dynamic
+manifest first (`mergeRouteManifests(dynamic, routes)`) if file routes
+should win.
+
+Programmatic names are not in the generated `RouteName`/`RouteParams`
+types — codegen can't see runtime data. Navigate them with the low-level
+`Route` shape (`pushRoute({stack, name, params})`, `NavLink route={...}`),
+or union your own names into an app-side wrapper. The generated
+`routes.screens` snapshot likewise covers file routes only — resolve
+screens through `screenFor(name)`, which reads the merged registry.
+
 ## Present a route modally
 
 Suffix the file with `+modal`, or pass `presentation: 'modal'` on the push.

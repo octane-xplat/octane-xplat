@@ -1004,6 +1004,30 @@ export interface RouteManifest {
 	loaders?: Record<string, (params: Record<string, unknown>) => unknown | Promise<unknown>>
 }
 
+/** One programmatic route entry for `defineRoutes` — the manifest fields a
+ *  route file would have produced, supplied directly. `path` uses the
+ *  route-dir vocabulary: `'docs/:slug'` (or `'docs/[slug]'`), `'index'`/`''`
+ *  for the root route. `screen` is the component itself — not a module. */
+export interface RouteSpec {
+	path: string
+	screen: any
+	/** Default presentation, like a `+modal`/`+fade` filename suffix. */
+	presentation?: 'push' | 'modal' | 'fade'
+	loader?: RouteMeta['loader']
+	beforeLoad?: BeforeLoad
+	head?: RouteHeadExport
+	/** Diagnostics label recorded on `RouteMeta.file` (warn strings). */
+	source?: string
+}
+
+/** Input to `defineRoutes`: the route list plus optional path-keyed layouts
+ *  — `layouts: { docs: Shell }` plays the `_layout.tsrx` role for every
+ *  route under `docs/*`. */
+export interface RouteSpecSet {
+	routes: readonly RouteSpec[]
+	layouts?: Record<string, any>
+}
+
 export interface OpenWindowOptions {
 	/** Data made available to the native window content resolver. */
 	data?: Record<string, unknown>

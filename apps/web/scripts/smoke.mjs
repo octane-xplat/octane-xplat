@@ -295,6 +295,25 @@ try {
 	await page.goBack()
 	await page.waitForSelector('text=Seam proofs', { timeout: 3000 })
 
+	// Programmatic routes (guides.tsrx — addRoutes over a data array):
+	// NavLink in the Test pane pushes /test/guides, per-doc routes render
+	// under the programmatic layout, and the URL is real + deep-linkable.
+	await page.click('a:has-text("Guides →")')
+	await page.waitForFunction(() => location.pathname === '/test/guides', { timeout: 3000 })
+	ok('dynamic route → test-stack push', true)
+	await page.waitForSelector('text=Registered from a 3-record data array', { timeout: 3000 })
+	ok('dynamic index screen renders', true)
+	await page.click('a:has-text("Routes from data")')
+	await page.waitForFunction(() => location.pathname === '/test/guides/routes', { timeout: 3000 })
+	await page.waitForSelector('.guide-layout-banner', { timeout: 3000 })
+	ok('dynamic child route + programmatic layout wrap', true)
+	await page.goBack()
+	await page.waitForFunction(() => location.pathname === '/test/guides', { timeout: 3000 })
+	// Deep link straight into a data-derived route.
+	await page.goto(BASE + '/test/guides/deploy', { waitUntil: 'networkidle' })
+	await page.waitForSelector('.guide-layout-banner', { timeout: 5000 })
+	ok('deep link → dynamic route', true)
+
 	// Overlay demo: useMeasure readout, Hoverable card on hover-intent,
 	// positional + anchored toasts.
 	await page.goto(BASE + '/test/demo/overlay', { waitUntil: 'networkidle' })

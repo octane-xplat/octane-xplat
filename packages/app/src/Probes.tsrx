@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable, styled, useThemeScheme, Meter, useMeasure, useModalRoute, openWindow } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, NavLink, styled, useThemeScheme, Meter, useMeasure, useModalRoute, openWindow } from '@octane-xplat/ui';
 import { probeSignal$ } from './probe-state';
 import { navigate } from './platform/nav';
 import 'octane/signals';
@@ -76,6 +76,12 @@ export function Probes() @{
 				<Pressable id="guarded-btn" className="btn btn-secondary" onPress={() => navigate('private')}>
 					<Text>Guarded →</Text>
 				</Pressable>
+				{/* Programmatic routes — 'guides' isn't a file route or a generated
+				    RouteName; it was registered from a data array via addRoutes
+				    (guides.tsrx). NavLink takes the untyped Route shape directly. */}
+				<NavLink route={{ stack: 'test', name: 'guides', params: {} }} className="btn btn-secondary">
+					<Text>Guides →</Text>
+				</NavLink>
 				<Pressable id="window-btn" className="btn btn-secondary" onPress={() => {
 					try { openWindow(); } catch (e) { console.log('[probe] openWindow: ' + e); }
 				}}>
