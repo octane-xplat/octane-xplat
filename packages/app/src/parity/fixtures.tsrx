@@ -1,4 +1,5 @@
 import {
+	Absolute,
 	Switch,
 	Slider,
 	Checkbox,
@@ -15,10 +16,16 @@ import {
 	Column,
 	Row,
 	ScrollView,
+	ScrollBox,
+	Overlay,
+	Popover,
+	Sheet,
+	Drawer,
 	Screen,
 	SafeArea,
 } from '@octane-xplat/ui';
 
+import { useRef } from 'octane';
 import { useSafeAreaInsets } from '@octane-xplat/platform';
 
 // Parity fixtures — one render per prop combo worth measuring. Fixed boxes
@@ -182,6 +189,75 @@ function ScrollViewLayoutFixture() @{
 	</ScrollView>
 }
 
+function AbsoluteLayoutFixture() @{
+	<Absolute className="parity-absolute-root" style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}>
+		<View className="parity-absolute-first" left={8} top={6} style={{ width: 20, height: 10 }} />
+		<View className="parity-absolute-second" left={40} top={24} style={{ width: 12, height: 8 }} />
+	</Absolute>
+}
+
+function ScrollBoxLayoutFixture() @{
+	<ScrollBox className="parity-scrollbox-root" style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}>
+		<Column className="parity-scrollbox-content" style={{ width: 96, height: 64 }} gap={4}>
+			<View className="parity-scrollbox-first" style={{ width: 24, height: 12 }} />
+			<View className="parity-scrollbox-second" style={{ width: 24, height: 12 }} />
+		</Column>
+	</ScrollBox>
+}
+
+function DrawerLayoutFixture() @{
+	<Drawer
+		className="parity-drawer-root"
+		open
+		style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}
+		main={<View className="parity-drawer-main-content" style={{ width: 96, height: 48 }} />}
+		drawer={<View className="parity-drawer-panel-content" style={{ width: 40, height: 48 }} />}
+	/>
+}
+
+function OverlayLayoutFixture(props: { marker: string }) @{
+	<Overlay
+		open
+		shadeCover={false}
+		className={props.marker}
+		style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}
+	>
+		<View style={{ width: 96, height: 48 }} />
+	</Overlay>
+}
+
+function PopoverLayoutFixture(props: { marker: string }) @{
+	const anchor = useRef<any>(null);
+
+	<>
+		<View
+			className="parity-popover-anchor"
+			ref={(view: any) => { anchor.current = view; }}
+			style={{ width: 24, height: 20 }}
+		/>
+		<Popover
+			anchor={anchor}
+			open
+			placement="bottom"
+			className={props.marker}
+			style={{ width: 48, height: 32, backgroundColor: '#f5f5f5' }}
+		>
+			<View style={{ width: 48, height: 32 }} />
+		</Popover>
+	</>
+}
+
+function SheetLayoutFixture(props: { marker: string }) @{
+	<Sheet
+		open
+		shadeCover={false}
+		className={props.marker}
+		style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}
+	>
+		<View style={{ width: 96, height: 48 }} />
+	</Sheet>
+}
+
 function ScreenLayoutFixture() @{
 	<Screen className="parity-screen-root" style={{ width: '100%', height: '100%' }}>
 		<View className="parity-screen-child" style={{ width: 20, height: 10 }} />
@@ -283,6 +359,12 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'row-layout', component: 'Row', renderer: RowLayoutFixture, props: {} },
 	{ name: 'spacer-layout', component: 'Spacer', renderer: SpacerLayoutFixture, props: {} },
 	{ name: 'scroll-view-layout', component: 'ScrollView', renderer: ScrollViewLayoutFixture, props: {} },
+	{ name: 'absolute-layout', component: 'Absolute', renderer: AbsoluteLayoutFixture, props: {} },
+	{ name: 'scroll-box-layout', component: 'ScrollBox', renderer: ScrollBoxLayoutFixture, props: {} },
+	{ name: 'drawer-open-frame', component: 'Drawer', renderer: DrawerLayoutFixture, props: {} },
+	{ name: 'overlay-fixed-frame', component: 'Overlay', renderer: OverlayLayoutFixture, props: { marker: 'parity-portal--overlay-fixed-frame' } },
+	{ name: 'popover-bottom-frame', component: 'Popover', renderer: PopoverLayoutFixture, props: { marker: 'parity-portal--popover-bottom-frame' } },
+	{ name: 'sheet-fixed-frame', component: 'Sheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' } },
 	{ name: 'screen-layout', component: 'Screen', renderer: ScreenLayoutFixture, props: {} },
 	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
 	{ name: 'safe-area-layout', component: 'SafeArea', renderer: SafeAreaLayoutFixture, props: {}, height: 168 },

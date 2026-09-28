@@ -106,7 +106,10 @@ export function measureTree(stageEl: any) {
 	for (const cell of stageEl.querySelectorAll('.parity-cell')) {
 		const name = String(cell.id ?? '').replace(/^cell-/, '')
 		const box = cell.querySelector('.parity-box') ?? cell
-		cells[name] = [box, ...box.querySelectorAll('*')].map((el) => nodeFor(el, box))
+		const marker = `.parity-portal--${name}`
+		const portal = document.querySelector(marker)
+		const portalNodes = portal ? [portal, ...portal.querySelectorAll('*')] : []
+		cells[name] = [box, ...box.querySelectorAll('*'), ...portalNodes].map((el) => nodeFor(el, box))
 	}
 
 	return { target: 'web', cells }

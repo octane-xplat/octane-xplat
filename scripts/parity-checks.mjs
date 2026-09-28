@@ -841,6 +841,152 @@ export const CHECKS = [
 		},
 	},
 	{
+		fixture: 'absolute-layout',
+		elements: {
+			root: 'parity-absolute-root',
+			first: 'parity-absolute-first',
+			second: 'parity-absolute-second',
+		},
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'first.box.x',
+			'first.box.y',
+			'first.box.w',
+			'first.box.h',
+			'second.box.x',
+			'second.box.y',
+			'second.box.w',
+			'second.box.h',
+		],
+		check: (m) => {
+			const root = m('root')
+			const first = m('first')
+			const second = m('second')
+			return [
+				dims(root, 96, 48),
+				dims(first, 20, 10),
+				dims(second, 12, 8),
+				[
+					'first child uses its left/top offsets',
+					near(first.box.x - root.box.x, 8) && near(first.box.y - root.box.y, 6),
+				],
+				[
+					'second child uses its left/top offsets',
+					near(second.box.x - root.box.x, 40) && near(second.box.y - root.box.y, 24),
+				],
+			]
+		},
+	},
+	{
+		fixture: 'scroll-box-layout',
+		elements: {
+			root: 'parity-scrollbox-root',
+			content: 'parity-scrollbox-content',
+			first: 'parity-scrollbox-first',
+			second: 'parity-scrollbox-second',
+		},
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'content.box.w',
+			'content.box.h',
+			'first.box.w',
+			'first.box.h',
+			'second.box.w',
+			'second.box.h',
+		],
+		check: (m) => {
+			const root = m('root')
+			const content = m('content')
+			const first = m('first')
+			const second = m('second')
+			return [
+				dims(root, 96, 48),
+				dims(content, 96, 64),
+				dims(first, 24, 12),
+				dims(second, 24, 12),
+				['content extends below the viewport', content.box.h > root.box.h],
+				[
+					'second child follows with a 4-dip gap',
+					near(second.box.y - first.box.y - first.box.h, 4, 1),
+				],
+			]
+		},
+	},
+	{
+		fixture: 'drawer-open-frame',
+		targets: ['web', 'ios', 'android'],
+		elements: {
+			root: 'parity-drawer-root',
+			main: 'vx-drawer-main',
+			backdrop: 'vx-drawer-backdrop',
+			panel: 'vx-drawer-panel',
+		},
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'main.box.w',
+			'main.box.h',
+			'backdrop.box.w',
+			'backdrop.box.h',
+			'panel.box.x',
+			'panel.box.y',
+			'panel.box.w',
+			'panel.box.h',
+		],
+		check: (m) => {
+			const root = m('root')
+			const main = m('main')
+			const backdrop = m('backdrop')
+			const panel = m('panel')
+			return [
+				dims(root, 96, 48),
+				dims(main, 96, 48),
+				dims(backdrop, 96, 48),
+				['drawer panel is 280 dip wide', near(panel.box.w, 280, 1), panel.box.w],
+				[
+					'drawer panel starts at the root origin',
+					near(panel.box.x - root.box.x, 0, 1) && near(panel.box.y - root.box.y, 0, 1),
+				],
+			]
+		},
+	},
+	{
+		fixture: 'overlay-fixed-frame',
+		elements: { frame: 'parity-portal--overlay-fixed-frame' },
+		equal: ['frame.box.w', 'frame.box.h', 'frame.style.backgroundColor'],
+		check: (m) => [dims(m('frame'), 96, 48)],
+	},
+	{
+		fixture: 'popover-bottom-frame',
+		targets: ['web', 'ios', 'android'],
+		elements: { anchor: 'parity-popover-anchor', panel: 'vx-popover' },
+		equal: ['panel.box.w', 'panel.box.h'],
+		check: (m) => {
+			const anchor = m('anchor')
+			const panel = m('panel')
+			return [
+				dims(anchor, 24, 20),
+				dims(panel, 48, 32),
+				['panel aligns with anchor left edge', near(panel.box.x, anchor.box.x, 1)],
+				[
+					'panel follows anchor with an 8-dip gap',
+					near(panel.box.y - anchor.box.y - anchor.box.h, 8, 1),
+				],
+			]
+		},
+	},
+	{
+		fixture: 'sheet-fixed-frame',
+		elements: { frame: 'parity-portal--sheet-fixed-frame' },
+		equal: ['frame.box.w', 'frame.box.h', 'frame.style.backgroundColor'],
+		check: (m) => [dims(m('frame'), 96, 48)],
+	},
+	{
 		fixture: 'screen-layout',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-screen-root', child: 'parity-screen-child' },

@@ -28,18 +28,6 @@ const NON_RENDERABLE = new Map([
 const DEFERRED_GROUPS = [
 	{
 		reason:
-			'Remaining layout and overlay components need positioning, root-host, or overlay-host scenarios beyond the measured containers.',
-		components: [
-			'Absolute',
-			'ScrollBox',
-			'Overlay',
-			'Popover',
-			'Sheet',
-			'Drawer',
-		],
-	},
-	{
-		reason:
 			'Text, glyph, or font metrics need box-only assertions that avoid comparing platform font rendering.',
 		components: [
 			'RichText',

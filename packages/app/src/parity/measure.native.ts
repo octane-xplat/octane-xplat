@@ -1,4 +1,4 @@
-import { Application } from '@nativescript/core'
+import { Application, getRootLayout } from '@nativescript/core'
 import { getStack } from '@octane-xplat/ui'
 import { STYLE_FACETS } from './style-facets'
 
@@ -62,6 +62,7 @@ function hasClass(view: any, cls: string) {
 
 export function measureTree(stageView: any) {
 	const cells: Record<string, any[]> = {}
+	const rootNodes = childrenOf(getRootLayout())
 	for (const v of childrenOf(stageView)) {
 		if (!hasClass(v, 'parity-cell')) {
 			continue
@@ -74,7 +75,10 @@ export function measureTree(stageView: any) {
 			continue
 		}
 
-		cells[name] = [box, ...childrenOf(box)].map((c) => nodeFor(c, box, boxLoc))
+		const marker = `parity-portal--${name}`
+		const portalRoot = rootNodes.find((c) => hasClass(c, marker))
+		const portalNodes = portalRoot ? [portalRoot, ...childrenOf(portalRoot)] : []
+		cells[name] = [box, ...childrenOf(box), ...portalNodes].map((c) => nodeFor(c, box, boxLoc))
 	}
 
 	return { target: Application.android ? 'android' : 'ios', cells }
