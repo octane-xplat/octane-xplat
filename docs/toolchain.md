@@ -85,3 +85,12 @@ Command Line Tools on the Apple Silicon build host. See
 the [macOS experiment
 notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for signing, notarization, and icon setup.
+
+The in-repository app runs the shared `@xplat/app` harness through
+`@octane-xplat/ui`'s `macos` package condition; its Vite config does not alias
+the UI package root. An adapted sweep covers the Home shell, Apps gallery,
+nine demos, and Test/probe surface. The AppKit renderer implements a bounded
+set of components and style tokens, while missing host services report
+`unsupported` or `unavailable`. This verifies the in-repository harness, not
+general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
+for the measured boundary.

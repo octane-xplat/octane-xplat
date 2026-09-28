@@ -40,9 +40,12 @@ production Vite config that emits its CommonJS host bundle.
   and the packaged app includes its matching `Info.plist` icon entry.
 - AC6: The packager verifies a downloaded Node 24.21.0 arm64 archive against a
   checksum pinned to that release and fails if it differs.
-- AC7: `apps/macos` typechecks and builds through the package-root macOS
-  condition without a Vite alias for `@octane-xplat/ui`; the AppKit pressable
-  updates Octane state.
+- AC7: `apps/macos` loads the shared `@xplat/app` harness through
+  `@octane-xplat/ui`'s macOS package-root condition without a Vite alias; the
+  adapted sweep mounts Home, Apps, Test/probes, and all nine app-gallery demos,
+  checks representative interactions including the 500-row list update, and
+  exposes missing AppKit services as unsupported or unavailable. The AppKit
+  list fallback mounts all rows and does not validate virtualization or scale.
 
 ## Documentation
 

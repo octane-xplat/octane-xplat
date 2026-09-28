@@ -1,37 +1,28 @@
 # macOS experiment
 
-This app-local spike uses `@nativescript/macos-node-api` to open AppKit windows
-and an Octane universal host driver to mount the shared `View`, `Text`, and
-`Pressable` implementations. `Add one` updates Octane state; `Open details
-window` calls `openWindow({kind:'dialog', data})`, which presents a sheet on the
-key window and mounts a second Octane root inside it — the app-installed
-`setWindowContentResolver` maps `data` to a component that receives `{data,
-controller}` as props. The sheet's `Close details` pressable calls
-`controller.close()`. Open, render, interaction, and teardown were all verified
-through AppKit accessibility actions. `kind:'regular'` and `kind:'popup'`
-mappings exist but only the dialog path is exercised. Every window must resolve
-to a component. Invalid kinds, missing parents, and synchronous resolver/render
-setup errors now throw to the caller; failed setup removes the window registry
-entry and closes the new window. The main window's `windowClosed` signal is
-separate from `applicationClosed`, so its Octane root can unmount while a
-secondary window keeps the app running.
+This experimental AppKit host runs the shared `@xplat/app` harness: its Home
+shell, Apps gallery, all nine shared demos, and the Test tab with probes and
+services. The adapted sweep drives the Home counter, routes into each demo,
+checks representative state changes, and visits the Test surface.
 
-The proof covers vertical `View` layout with `gap`, a small inline `style`
-subset (`padding`, `fontSize`, `color`, `backgroundColor`, `borderRadius`), text
-children, and `Pressable.onPress`. It does not implement NativeScript CSS or
-`className`, flexbox layout generally, or the other `Pressable` gestures and
-press-in/press-out callbacks.
+`apps/macos` imports `App` from `@xplat/app`, and the app imports UI components
+from `@octane-xplat/ui` without a Vite alias for the package root. The package's
+`macos` condition selects `src/index.macos.ts` and matching declarations. This
+is an explicit experimental AppKit surface: components without a host
+implementation use visible unsupported leaves, and platform services without
+an AppKit implementation report `unsupported` or `unavailable` rather than
+simulating success. The renderer maps a curated set of `className` tokens to
+AppKit views; it does not load CSS stylesheets or promise general NativeScript
+or web style parity. In particular, this harness does not validate every
+exported component or every service. AppKit's shared `VirtualList` fallback
+keeps keyed rows and scrolling but mounts every row at once; the 500-row demo
+checks rendering and updates, not virtualization or large-list performance.
 
-`App.tsx` imports `View`, `Text`, and `Pressable` directly from
-`@octane-xplat/ui`. The package's `macos` root condition selects
-`src/index.macos.ts` and its narrow declaration file. That entry exposes only
-these three components, reusing their native leaves; it does not imply that the
-full NativeScript root barrel works on macOS. The AppKit Vite config compiles
-those leaves with its renderer and still supplies app-local shims for the
-NativeScript core and escape-prop helpers they import. The UI package includes
-those leaf sources and their local helper files so the AppKit Vite build can
-compile this bounded root surface. `tsconfig.json` sets the `macos` custom
-condition so TypeScript selects the matching declarations.
+The AppKit Vite config compiles the UI package's macOS leaves with its renderer
+and still supplies app-local shims for NativeScript core and escape-prop
+helpers. The UI package includes the leaf sources and local helpers needed by
+the bounded root surface. `tsconfig.json` sets the `macos` custom condition so
+TypeScript selects the matching declarations.
 
 In development, Vite rebuilds edited components and the running Node process
 passes the replacement through Octane's universal HMR wrapper. This preserves
@@ -59,9 +50,11 @@ the NativeScript CLI, iOS simulator, or Android SDK. This target is experimental
 and Apple Silicon only. Packaging compiles a small Mach-O launcher, so the host
 also needs `clang` from Xcode Command Line Tools; `xplat doctor` checks for it.
 
-With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
-`tap <accessibility label>` on stdin. This CLI target does not add macOS to the
-`create-octane-xplat` starter or the supported web/iOS/Android release contract.
+With `OCTANE_MACOS_AUTOMATION=1`, the dev host runs the adapted macOS harness
+sweep through the AppKit renderer's debug interface. It reports route and
+interaction assertions in the process log; it does not accept stdin commands.
+This CLI target does not add macOS to the `create-octane-xplat` starter or the
+supported web/iOS/Android release contract.
 
 ## Packaging proof
 
