@@ -20,7 +20,7 @@ function unmountMainRoot() {
 	}
 }
 
-root.render(App, {})
+root.render(App, { parentWindow: mainWindow })
 console.log('[macos-bundle] component rendered')
 
 void windowClosed.then(unmountMainRoot)

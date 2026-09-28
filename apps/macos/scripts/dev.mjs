@@ -94,7 +94,7 @@ try {
 
 		if (!liveComponent) {
 			liveComponent = hmrUniversalComponent('macos', module.default)
-			root.render(liveComponent, {})
+			root.render(liveComponent, { parentWindow: appKit.window })
 		} else {
 			liveComponent[UNIVERSAL_HMR].update(module.default)
 			await new Promise((resolve) => setTimeout(resolve, 0))

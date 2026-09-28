@@ -23,7 +23,7 @@ function DetailsView(props: { data: { count: number }; controller: { close(): vo
 	)
 }
 
-export default function App() {
+export default function App(props: { parentWindow: object }) {
 	const [count, setCount] = useState(0)
 
 	return (
@@ -44,6 +44,7 @@ export default function App() {
 				onPress={() =>
 					openWindow({
 						kind: 'dialog',
+						parent: props.parentWindow,
 						title: 'Details',
 						data: { view: 'details', count },
 					})
