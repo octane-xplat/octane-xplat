@@ -192,6 +192,19 @@ setTimeout(() => {
 	)
 }, 1600)
 
+// Cascade layers: @layer rules must reach native views. `layer-probe` is
+// contested by #layer-probe in the earlier layer vs .xplat-layer-probe in the
+// later one — layer order beats specificity, so 0.35 wins. The unlayered
+// class rule beats the layered id selector on layer-unlayered-probe.
+setTimeout(() => {
+	const hex = (c: any) => (c && typeof c === 'object' ? (c.hex ?? String(c)) : String(c))?.toLowerCase?.()
+	const lp = find('layer-probe')
+	const up = find('layer-unlayered-probe')
+	console.log('[probe] layer-probe=' + (lp ? lp.constructor.name : 'none') + ' opacity=' + lp?.opacity)
+	assertEq('layer order beats specificity', lp?.opacity, 0.35)
+	assertEq('unlayered beats layered', hex(up?.style?.backgroundColor ?? up?.backgroundColor), '#22c55e')
+}, 1650)
+
 // Smooth corners (decision #38): uniform-radius classes take the
 // CALayer.cornerCurve path; non-uniform (sheet-style) radii go through the
 // patched superellipse mask path. Numeric checks only — no screenshots.

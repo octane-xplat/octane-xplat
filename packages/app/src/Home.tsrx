@@ -249,6 +249,10 @@ export function Home() @{
 						className="input"
 					/>
 					<Text className="text-sm text-muted multiline-echo">{'Bio: ' + bio}</Text>
+					{/* Cascade-layer probe — app.css contests these two views across
+					    layers; the harness asserts which rule actually applied. */}
+					<Text id="layer-probe" className="xplat-layer-probe">{'Layer order'}</Text>
+					<View id="layer-unlayered-probe" className="xplat-layer-unlayered" style={{ width: 8, height: 8 }} />
 				</View>
 			</View>
 		</ScrollView>

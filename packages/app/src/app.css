@@ -262,3 +262,31 @@ body {
 	border-bottom-width: 1px;
 	border-bottom-color: var(--color-border);
 }
+
+/* Cascade-layer probe — exercises the patched NS @layer support. The class
+   rule in the later layer must beat the id selector in the earlier one
+   (layer order dominates specificity), and the unlayered rule must beat
+   every layered rule regardless of specificity. */
+@layer xprobe-low, xprobe-high;
+
+@layer xprobe-low {
+	#layer-probe {
+		opacity: 0.21;
+	}
+}
+
+@layer xprobe-high {
+	.xplat-layer-probe {
+		opacity: 0.35;
+	}
+}
+
+@layer xprobe-box {
+	#layer-unlayered-probe {
+		background-color: #ef4444;
+	}
+}
+
+.xplat-layer-unlayered {
+	background-color: #22c55e;
+}
