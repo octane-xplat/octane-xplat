@@ -4,8 +4,8 @@ import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import { Video as NSVideo, VideoFill } from '@nstudio/nativescript-exoplayer';
 import type { VideoHandle, VideoProps } from './props';
-import { cx } from './cx';
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
+import { cx } from './cx.native';
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props.native';
 import { layoutChildProps } from './layout-child.native';
 import { VideoChrome } from './video-chrome.native.tsrx';
 

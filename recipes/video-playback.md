@@ -2,7 +2,7 @@
 
 ID: video-playback
 Targets: web, ios, android
-Related APIs: Video, @nstudio/nativescript-exoplayer
+Related APIs: @octane-xplat/video (Video), @nstudio/nativescript-exoplayer
 
 ## Starting point
 

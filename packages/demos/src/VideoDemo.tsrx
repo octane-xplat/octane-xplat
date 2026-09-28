@@ -1,6 +1,7 @@
 import { useRef, useState } from 'octane';
-import { Button, Heading, Row, Text, Video, View } from '@octane-xplat/ui';
-import type { VideoHandle } from '@octane-xplat/ui';
+import { Button, Heading, Row, Text, View } from '@octane-xplat/ui';
+import { Video } from '@octane-xplat/video';
+import type { VideoHandle } from '@octane-xplat/video';
 
 const SRC = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 const POSTER = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.png';

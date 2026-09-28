@@ -175,8 +175,10 @@ use the `ios:`/`android:`/`web:` escape bags for that.
 `seekTo`/`currentTime`/`duration`. All transport chrome is self-drawn —
 tap the frame to show/hide it — so the controls are identical on every
 target while the video pixels stay in each platform's player engine.
-Native apps that ship `Video` must declare the
-`@nstudio/nativescript-exoplayer` plugin in their own `package.json`.
+`Video` ships as the `@octane-xplat/video` leaf — `pnpm add
+@octane-xplat/video` and import `Video` from that package; the
+`@nstudio/nativescript-exoplayer` plugin travels as the leaf's own
+dependency, so apps declare nothing extra.
 Times are milliseconds everywhere, including `onReady`'s duration.
 
 `CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),

@@ -50,8 +50,9 @@ recipe and documentation are reconciled and any remaining gap is explicit.
 
 `packages/ui` takes **no new dependencies and no new peers** — a feature
 needing a NativeScript plugin ships as its own leaf package instead
-(decision #53). Its existing peers are grandfathered, not a pattern to
-extend.
+(decision #53). `octane` is the only required peer; the remaining peers
+are optional, and `ui-svg` is the one grandfathered `dependency`
+(`Icon`/`Image` can't be gated — #53 narrowed 2026-09-28).
 
 ## The exploration loop
 

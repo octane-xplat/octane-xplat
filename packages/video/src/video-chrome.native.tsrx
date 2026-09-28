@@ -1,16 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useState } from 'octane';
-import { Icon } from './Icon.native.tsrx';
-import { Image } from './Image.native.tsrx';
-import { Pressable } from './Pressable.native.tsrx';
-import { Row } from './Row.native.tsrx';
-import { Slider } from './Slider.native.tsrx';
-import { Text } from './Text.native.tsrx';
-import { View } from './View.native.tsrx';
+import { Icon, Image, Pressable, Row, Slider, Text, View } from '@octane-xplat/ui';
 
 /** Self-drawn video transport — the chrome half of the surface-hosted
  *  `Video` component. Identical structure to the native twin (only the
- *  pragma and leaf imports differ): every layer composes xplat primitives,
+ *  pragma differs): every layer composes xplat primitives,
  *  so the transport draws the same pixels on every target — the leaf only
  *  supplies the surface. The layers stack inside the leaf's `vx-stack`
  *  grid (later = on top), so this fragment's children are each a

@@ -1,15 +1,9 @@
 import { useEffect, useState } from 'octane';
-import { Icon } from './Icon.web.tsrx';
-import { Image } from './Image.web.tsrx';
-import { Pressable } from './Pressable.web.tsrx';
-import { Row } from './Row.web.tsrx';
-import { Slider } from './Slider.web.tsrx';
-import { Text } from './Text.web.tsrx';
-import { View } from './View.web.tsrx';
+import { Icon, Image, Pressable, Row, Slider, Text, View } from '@octane-xplat/ui';
 
 /** Self-drawn video transport — the chrome half of the surface-hosted
  *  `Video` component. Identical structure to the native twin (only the
- *  pragma and leaf imports differ): every layer composes xplat primitives,
+ *  pragma differs): every layer composes xplat primitives,
  *  so the transport draws the same pixels on every target — the leaf only
  *  supplies the surface. The layers stack inside the leaf's `vx-stack`
  *  grid (later = on top), so this fragment's children are each a

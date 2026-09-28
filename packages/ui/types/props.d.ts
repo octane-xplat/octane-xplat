@@ -14,11 +14,9 @@ export interface PanEvent {
     state: string;
     target: any;
 }
-
 export interface SwipeEvent {
     direction: number;
 }
-
 /** Public shape of `setTranslate` — the imperative translate write on a
  *  bound view (a leaf's `bind` target). Web composes into the element's
  *  `transform`; native sets the view's translateX/translateY props.
@@ -39,7 +37,6 @@ export interface LayoutChildProps {
     alignSelf?: string;
     order?: number;
 }
-
 /** Flex-container props shared by View/Row/Pressable — RN vocabulary, applied
  *  to the host flexboxlayout natively and the element's style on web.
  *  `gap` is a dip number (px on web); NS supports it on FlexboxLayout only
@@ -52,7 +49,6 @@ export interface FlexContainerProps {
     rowGap?: number | string;
     columnGap?: number | string;
 }
-
 /** Liquid Glass material config. Native maps it to `iosGlassEffect`
  *  (iOS 26+; inert on Android and older iOS), web to the `vx-glass`
  *  backdrop-filter approximation. `variant:'clear'` is the faint,
@@ -68,7 +64,6 @@ export interface GlassConfig {
     /** Effect-change animation in ms (default 300). */
     animateChangeDuration?: number;
 }
-
 export interface GridProps extends AccessibilityProps {
     className?: any;
     style?: any;
@@ -80,7 +75,6 @@ export interface GridProps extends AccessibilityProps {
     web?: Record<string, any>;
     id?: string;
 }
-
 export interface StackProps extends AccessibilityProps {
     className?: any;
     style?: any;
@@ -90,7 +84,6 @@ export interface StackProps extends AccessibilityProps {
     web?: Record<string, any>;
     id?: string;
 }
-
 export interface AbsoluteProps extends AccessibilityProps {
     className?: any;
     style?: any;
@@ -100,7 +93,6 @@ export interface AbsoluteProps extends AccessibilityProps {
     web?: Record<string, any>;
     id?: string;
 }
-
 /** Interactive glass surface — the element root IS the platform's glass
  *  effect view (NS `LiquidGlass`, a UIVisualEffectView hosting children).
  *  Real material on iOS 26+; inert layout on Android and older iOS;
@@ -118,7 +110,6 @@ export interface LiquidGlassProps extends LayoutChildProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 /** Merged-glass region — sibling glass elements inside morph together
  *  across `spacing` dips (NS `LiquidGlassContainer`, an AbsoluteLayout:
  *  children position via left/top). */
@@ -132,7 +123,6 @@ export interface LiquidGlassContainerProps extends LayoutChildProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export interface SpacerProps {
     className?: any;
     style?: any;
@@ -141,7 +131,6 @@ export interface SpacerProps {
     web?: Record<string, any>;
     id?: string;
 }
-
 /** The shared accessibility prop set — `Role` and friends are declared
  *  below; containers and leaf components carry the same names so ARIA on
  *  web and NativeScript's accessibility properties stay aligned. */
@@ -158,7 +147,6 @@ export interface AccessibilityProps {
     };
     accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
 }
-
 export interface ViewProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps {
     className?: any;
     style?: any;
@@ -174,7 +162,6 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps, Accessi
     android?: any;
     web?: any;
 }
-
 export interface RowProps extends LayoutChildProps, FlexContainerProps, AccessibilityProps {
     className?: any;
     style?: any;
@@ -190,7 +177,6 @@ export interface RowProps extends LayoutChildProps, FlexContainerProps, Accessib
     android?: any;
     web?: any;
 }
-
 /** Shared accessibility roles. The native leaf maps the ARIA spellings that
  * NativeScript names differently (for example `heading` → `header`). */
 export type Role = 'button' | 'link' | 'search' | 'image' | 'heading' | 'adjustable' | 'summary' | 'text' | 'none' | 'progressbar' | 'checkbox' | 'switch' | 'radio' | 'spinbutton' | 'tab';
@@ -217,7 +203,6 @@ export interface TextProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
-
 /** Inline rich text container. Children should be RichTextSpan components so
  * the native leaf can preserve each run as a NativeScript Span. */
 export interface RichTextProps extends LayoutChildProps {
@@ -230,7 +215,6 @@ export interface RichTextProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
-
 /** One styled or tappable inline run inside RichText. `text` is an explicit
  * native-safe escape hatch; a single string child is also accepted. */
 export interface RichTextSpanProps {
@@ -244,7 +228,6 @@ export interface RichTextSpanProps {
     android?: any;
     web?: any;
 }
-
 export interface PressableProps extends LayoutChildProps, FlexContainerProps {
     className?: any;
     style?: any;
@@ -279,13 +262,11 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps {
     android?: any;
     web?: any;
 }
-
 export interface TextInputHandle {
     focus(): void;
     blur(): void;
     native: any;
 }
-
 export interface TextInputProps {
     className?: any;
     style?: any;
@@ -307,7 +288,6 @@ export interface TextInputProps {
     android?: any;
     web?: any;
 }
-
 export interface TextAreaProps extends TextInputProps {
     /** Submit on native only when `returnKeyType` is `done` or `send`; other
      * returns insert newlines because TextView emits returnPress per newline.
@@ -325,7 +305,6 @@ export interface TextAreaProps extends TextInputProps {
      *  sets truncation on iOS — not a cap). */
     maxRows?: number;
 }
-
 /** Chrome-reset search field — TextInput with a leading glyph and a clear
  *  affordance, normalized: the web leaf is `<input type="search">` with the
  *  engine's own clear button hidden (the leaf draws the same one native
@@ -358,7 +337,6 @@ export interface SearchInputProps {
     android?: any;
     web?: any;
 }
-
 /** Pull-to-refresh contract — shared by `ScrollView` and the platform
  *  lists (`UITableView`/`RecyclerView`). The indicator is self-drawn (the
  *  `vx-spinner` ring), not the OS spinner, so the affordance is the same
@@ -377,7 +355,6 @@ export interface RefreshProps {
      *  (64). */
     refreshThreshold?: number;
 }
-
 export interface ListProps extends RefreshProps {
     className?: any;
     style?: any;
@@ -394,34 +371,6 @@ export interface ListProps extends RefreshProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
-/** Paged horizontal swipe container — onboarding flows, media galleries.
- *  Chrome-reset OS paging on native (ViewPager2 / UICollectionView paging via
- *  @nativescript-community/ui-pager), a scroll-snap scroller on web. Follows
- *  the platform-list contract: `items` + `renderItem`, no children — each
- *  page is a full-host-size cell. No indicator is built in; compose dots
- *  from `Row` + `View` driven by `page`/`onPageChange`. */
-export interface PagerProps extends LayoutChildProps, AccessibilityProps {
-    className?: any;
-    style?: any;
-    id?: string;
-    items: any[];
-    renderItem: (item: any, index: number) => any;
-    renderEmpty?: () => any;
-    /** Controlled page index — pass with `onPageChange` to own the page.
-     *  Writes scroll/settle to the page; user swipes call `onPageChange`. */
-    page?: number;
-    /** Starting page for uncontrolled use (default 0). */
-    defaultPage?: number;
-    /** Fires when the settled page changes — a completed swipe on both
-     *  targets. Programmatic `page` writes do not echo back through it. */
-    onPageChange?: (index: number) => void;
-    /** Platform escape hatches, applied after the shared props. */
-    ios?: Record<string, any>;
-    android?: Record<string, any>;
-    web?: Record<string, any>;
-}
-
 export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps, RefreshProps {
     className?: any;
     style?: any;
@@ -433,7 +382,6 @@ export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps, R
     android?: any;
     web?: any;
 }
-
 /** Shared virtualized vertical list. Item keys must be unique and stable
  *  across inserts and reorders. Rows outside the rendered window unmount;
  *  keep durable row state keyed by item identity outside the row component. */
@@ -467,7 +415,6 @@ export interface ScrollBoxProps extends LayoutChildProps, AccessibilityProps {
     android?: any;
     web?: any;
 }
-
 export interface WebViewHandle {
     /** Re-request the current document. */
     reload(): void;
@@ -478,7 +425,6 @@ export interface WebViewHandle {
     /** The platform view (`HTMLIFrameElement` / NS `WebView`). */
     native: any;
 }
-
 export interface WebViewLoadEvent {
     /** The loaded document URL when the platform reports one — absent for
      *  `html` documents. */
@@ -486,7 +432,6 @@ export interface WebViewLoadEvent {
     /** Failure description; present only on the `onError` path. */
     error?: string;
 }
-
 /** Embedded web document — chrome-reset bucket: web renders a sandboxed
  *  `<iframe>`, native renders the OS web view (`webview` → WKWebView /
  *  android.webkit.WebView). The *frame* is normalized; the document's
@@ -534,7 +479,6 @@ export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
     android?: any;
     web?: any;
 }
-
 export interface ImageProps extends LayoutChildProps {
     className?: any;
     style?: any;
@@ -546,7 +490,6 @@ export interface ImageProps extends LayoutChildProps {
     android?: any;
     web?: any;
 }
-
 export interface ScreenProps {
     className?: any;
     style?: any;
@@ -557,7 +500,6 @@ export interface ScreenProps {
     web?: any;
     id?: string;
 }
-
 export interface SafeAreaProps {
     className?: any;
     style?: any;
@@ -568,7 +510,6 @@ export interface SafeAreaProps {
     web?: Record<string, any>;
     id?: string;
 }
-
 export interface KeyboardAvoidingProps {
     className?: any;
     style?: any;
@@ -578,7 +519,6 @@ export interface KeyboardAvoidingProps {
     web?: Record<string, any>;
     id?: string;
 }
-
 export interface DrawerProps {
     className?: any;
     style?: any;
@@ -592,7 +532,6 @@ export interface DrawerProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export interface SwitchProps {
     className?: any;
     style?: any;
@@ -604,7 +543,6 @@ export interface SwitchProps {
     android?: any;
     web?: any;
 }
-
 export interface ActivityIndicatorProps {
     className?: any;
     style?: any;
@@ -614,7 +552,6 @@ export interface ActivityIndicatorProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export interface MeterProps {
     className?: any;
     style?: any;
@@ -628,7 +565,6 @@ export interface MeterProps {
     trackColor?: string;
     accessibilityLabel?: string;
 }
-
 export interface SliderProps {
     className?: any;
     style?: any;
@@ -642,7 +578,6 @@ export interface SliderProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export interface IconProps {
     className?: any;
     id?: string;
@@ -653,7 +588,6 @@ export interface IconProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 /** One registered icon representation. `svg` contains path `d` data;
  *  `markup` is full inner-SVG markup (groups, transforms, several paths)
  *  rendered inside an `<svg viewBox>` shell on web and through `svgview`
@@ -673,7 +607,6 @@ export interface IconGlyph {
     };
     src?: string;
 }
-
 export interface HeadingProps {
     className?: any;
     style?: any;
@@ -684,7 +617,6 @@ export interface HeadingProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export interface OverlayProps {
     open?: boolean;
     onDismiss?: () => void;
@@ -697,13 +629,11 @@ export interface OverlayProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right';
 /** A platform-neutral ref to the host view or element that owns a popover. */
 export interface PopoverAnchorRef {
     readonly current: unknown;
 }
-
 export interface PopoverProps {
     /** Ref to a native view or web element, commonly populated by `bind`. */
     anchor: PopoverAnchorRef;
@@ -718,7 +648,6 @@ export interface PopoverProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export interface HoverableProps {
     /** Content shown after the pointer rests over the children on web. */
     card: any;
@@ -736,7 +665,6 @@ export interface HoverableProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 /** Web-only tooltip (`@octane-xplat/ui/web`, decision #47) — `trigger` is
  *  the anchor content, `content` the tooltip body. Hover-intent delay plus
  *  keyboard focus; wires `aria-describedby` onto the focusable trigger and
@@ -757,7 +685,6 @@ export interface TooltipProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export type ToastContent = string | (() => any);
 export type ToastPosition = 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end';
 export interface ToastOptions {
@@ -771,25 +698,21 @@ export interface ToastOptions {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 export interface MeasureBounds {
     x: number;
     y: number;
     width: number;
     height: number;
 }
-
 export interface UseMeasureOptions {
     /** Re-measure on layout, resize, scroll, and content-size changes. Defaults to true. */
     observe?: boolean;
 }
-
 export interface MeasureResult {
     /** Pass to a View's `bind` prop. */
     bind: (element: any) => void;
     bounds: MeasureBounds | null;
 }
-
 export interface ModalProps {
     open?: boolean;
     onClose?: (result?: ModalOpenResult) => void;
@@ -805,7 +728,6 @@ export interface ModalProps {
     params?: any;
     children?: any;
 }
-
 /** Options for `openModal`. `fullscreen` is retained for callers using the
  *  NativeScript option directly; `presentation` takes precedence when set.
  *  Android's non-fullscreen modal is a centered dialog, not a bottom sheet. */
@@ -814,7 +736,6 @@ export interface ModalOpenOptions {
     fullscreen?: boolean;
     animated?: boolean;
 }
-
 /** Value supplied to a modal close callback and returned by `openModal`. */
 export type ModalOpenResult = unknown;
 /** Public function shape of the imperative modal service. */
@@ -845,14 +766,12 @@ export interface SheetProps {
     android?: Record<string, any>;
     web?: Record<string, any>;
 }
-
 /** Options for the imperative `openSheet` service. */
 export interface SheetOpenOptions {
     shadeCover?: boolean;
     /** Same contract as `SheetProps.detents`. */
     detents?: number[];
 }
-
 /** Imperative sheet: mounts `component` on a dedicated root in a bottom
  *  sheet and resolves with the value passed to `close(result)`. The
  *  component receives `{ params, close }`. */
@@ -873,7 +792,6 @@ export interface TabSpec {
      *  Frame per such pane. */
     stack?: string;
 }
-
 export interface TabsProps {
     className?: any;
     style?: any;
@@ -885,7 +803,6 @@ export interface TabsProps {
      *  Web: route outlet. Native: pushes render inside the pane's Frame. */
     resolveScreen?: (name: string, params: Record<string, unknown>) => any;
 }
-
 export interface Route {
     stack: string;
     name: string;
@@ -903,14 +820,12 @@ export interface Route {
      * screen props and remains available from `useRoute`. */
     context?: RouteContext;
 }
-
 /** Values shared by a route guard and the screen it admits. */
 export type RouteContext = Record<string, unknown>;
 export interface BeforeLoadArgs {
     params: Record<string, unknown>;
     context: RouteContext;
 }
-
 export type BeforeLoad = (args: BeforeLoadArgs) => RouteContext | void | Promise<RouteContext | void>;
 /** The deliberately small cross-platform head surface. `meta` keys become
  * web `<meta name="..." content="...">` tags; native consumes `title`. */
@@ -918,7 +833,6 @@ export interface RouteHead {
     title?: string;
     meta?: Record<string, string>;
 }
-
 export type RouteHeadExport = RouteHead | ((params: Record<string, unknown>) => RouteHead);
 export interface LinkProps {
     href: string;
@@ -926,14 +840,12 @@ export interface LinkProps {
     className?: any;
     children?: any;
 }
-
 export interface NavLinkProps {
     route: Route;
     activeClassName?: string;
     className?: any;
     children?: any;
 }
-
 /** name → screen component table for `registerScreens` — the app owns the
  *  route table; native `pushRoute` resolves `route.name` through it and
  *  web outlets fall back to it via `screenFor`. Values are component
@@ -963,7 +875,6 @@ export interface RouteMeta {
     /** Optional route title/meta declaration, or a params-only function. */
     head?: RouteHeadExport;
 }
-
 /** Output of `deriveRouteManifest` — `screens` feeds `registerScreens`
  *  (native pushRoute + web outlet fallback), `routes` feeds web URL
  *  matching, `layouts` catalogs `_layout` files by directory ('' = root). */
@@ -973,14 +884,12 @@ export interface RouteManifest {
     layouts: Record<string, any>;
     loaders?: Record<string, (params: Record<string, unknown>) => unknown | Promise<unknown>>;
 }
-
 export interface OpenWindowOptions {
     /** Data made available to the native window content resolver. */
     data?: Record<string, unknown>;
     /** Optional URL used by the web window. */
     url?: string;
 }
-
 /**
  * Value returned by `useAnimation(initial, prop)`. On web, `prop` supports
  * translateX/translateY/translateZ, scale/scaleX/scaleY, rotate/rotateX/
@@ -1000,7 +909,6 @@ export interface AnimatedValue {
     }): void;
     stop(): void;
 }
-
 /** Button composes Pressable — same-props/same-pixels, self-drawn. `loading`
  *  shows the spinner and blocks presses. */
 export interface ButtonProps extends PressableProps {
@@ -1010,7 +918,6 @@ export interface ButtonProps extends PressableProps {
     /** Content rendered after children. */
     trailing?: any;
 }
-
 /** Collapsible shows/hides `children` behind a `trigger`. Controlled via
  *  `open`/`onOpenChange` or uncontrolled via `defaultOpen`. */
 export interface CollapsibleProps {
@@ -1029,14 +936,12 @@ export interface CollapsibleProps {
     android?: any;
     web?: any;
 }
-
 export interface AccordionItemSpec {
     key: string;
     header?: any;
     content?: any;
     disabled?: boolean;
 }
-
 /** Accordion — a list of Collapsibles. `open` is the open key (or keys with
  *  `multiple`); omit it for uncontrolled via `defaultOpen`. */
 export interface AccordionProps {
@@ -1053,7 +958,6 @@ export interface AccordionProps {
     android?: any;
     web?: any;
 }
-
 /** Self-drawn checkbox — box + check mark, identical pixels across targets. */
 export interface CheckboxProps {
     className?: any;
@@ -1069,13 +973,11 @@ export interface CheckboxProps {
     android?: any;
     web?: any;
 }
-
 export interface RadioOption {
     value: string;
     label?: string;
     disabled?: boolean;
 }
-
 /** Self-drawn radio group — dot options in a column/row. */
 export interface RadioGroupProps {
     className?: any;
@@ -1092,7 +994,6 @@ export interface RadioGroupProps {
     android?: any;
     web?: any;
 }
-
 /** Self-drawn segmented control — a row of equal-width segments in a track,
  *  one selected (UISegmentedControl / Material segmented-button shape, no OS
  *  chrome). `value`/`onValueChange` for controlled, `defaultValue` for
@@ -1113,7 +1014,6 @@ export interface SegmentedControlProps {
     android?: any;
     web?: any;
 }
-
 export interface MenuItem {
     key: string;
     label?: string;
@@ -1121,7 +1021,6 @@ export interface MenuItem {
     disabled?: boolean;
     onSelect?: () => void;
 }
-
 /** DropdownMenu — `trigger` anchored to a self-drawn item list via Popover.
  *  Same anchored listbox on every target (decision #48). */
 export interface DropdownMenuProps {
@@ -1141,7 +1040,6 @@ export interface DropdownMenuProps {
     android?: any;
     web?: any;
 }
-
 /** ContextMenu — same anchored list as DropdownMenu, opened by right-click
  *  on web and long-press on native. */
 export interface ContextMenuProps {
@@ -1159,7 +1057,6 @@ export interface ContextMenuProps {
     android?: any;
     web?: any;
 }
-
 /** Badge — inline label chip. Pure composition, unstyled beyond layout. */
 export interface BadgeProps {
     className?: any;
@@ -1171,7 +1068,6 @@ export interface BadgeProps {
     android?: any;
     web?: any;
 }
-
 /** Separator — hairline rule between content. */
 export interface SeparatorProps {
     className?: any;
@@ -1183,7 +1079,6 @@ export interface SeparatorProps {
     android?: any;
     web?: any;
 }
-
 /** Skeleton — placeholder block shown while content loads. */
 export interface SkeletonProps {
     className?: any;
@@ -1196,7 +1091,6 @@ export interface SkeletonProps {
     android?: any;
     web?: any;
 }
-
 /** Avatar — circular image with a text fallback. */
 export interface AvatarProps {
     className?: any;
@@ -1212,7 +1106,6 @@ export interface AvatarProps {
     android?: any;
     web?: any;
 }
-
 /** AvatarGroup — overlapping row of avatars with an optional `+N` overflow. */
 export interface AvatarGroupProps {
     className?: any;
@@ -1227,7 +1120,6 @@ export interface AvatarGroupProps {
     android?: any;
     web?: any;
 }
-
 /** FormField wraps a control with a label, hint, and error text. The error
  *  replaces the hint when present. Children is the control element. */
 export interface FormFieldProps {
@@ -1243,7 +1135,6 @@ export interface FormFieldProps {
     android?: any;
     web?: any;
 }
-
 /** FieldGroup — labeled group of related fields (role=group). */
 export interface FieldGroupProps {
     className?: any;
@@ -1255,7 +1146,6 @@ export interface FieldGroupProps {
     android?: any;
     web?: any;
 }
-
 /** InputNumber — normalized TextInput (number keyboard) flanked by −/+
  *  steppers. `value`/`onValueChange` for controlled, `defaultValue` for
  *  uncontrolled. `step` defaults to 1; `min`/`max` clamp. */
@@ -1275,7 +1165,6 @@ export interface InputNumberProps {
     android?: any;
     web?: any;
 }
-
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when all `length` cells are filled. */
 export interface PinInputProps {
@@ -1292,13 +1181,11 @@ export interface PinInputProps {
     android?: any;
     web?: any;
 }
-
 export interface SelectOption {
     value: string;
     label?: string;
     disabled?: boolean;
 }
-
 /** Select — anchored self-drawn listbox on every target (decision #48).
  *  `multiple` keeps the listbox open and reports string[]; `searchable`
  *  puts a normalized TextInput filter at the top of the listbox. */
@@ -1323,7 +1210,6 @@ export interface SelectProps {
     android?: any;
     web?: any;
 }
-
 /** InputTags — chip list + trailing normalized TextInput. Enter commits a
  *  tag, Backspace on an empty field removes the last tag. */
 export interface InputTagsProps {
@@ -1340,7 +1226,6 @@ export interface InputTagsProps {
     android?: any;
     web?: any;
 }
-
 /** InputRating — row of tappable glyphs reporting a 1..max score. */
 export interface InputRatingProps {
     className?: any;
@@ -1358,7 +1243,6 @@ export interface InputRatingProps {
     android?: any;
     web?: any;
 }
-
 /** CheckboxGroup — multi-select list of self-drawn checkboxes. */
 export interface CheckboxGroupProps {
     className?: any;
@@ -1375,12 +1259,10 @@ export interface CheckboxGroupProps {
     android?: any;
     web?: any;
 }
-
 export interface BreadcrumbItem {
     label: string;
     onSelect?: () => void;
 }
-
 /** Breadcrumb — ancestor trail. Items render as pressable links separated
  *  by `separator` (default /). */
 export interface BreadcrumbProps {
@@ -1394,7 +1276,6 @@ export interface BreadcrumbProps {
     android?: any;
     web?: any;
 }
-
 /** Pagination — prev/next + a windowed run of page buttons around `page`. */
 export interface PaginationProps {
     className?: any;
@@ -1411,14 +1292,12 @@ export interface PaginationProps {
     android?: any;
     web?: any;
 }
-
 export interface StepperStep {
     key: string;
     label?: string;
     icon?: string;
     disabled?: boolean;
 }
-
 /** Stepper — numbered step row. Steps before `current` show a done mark;
  *  tapping a non-disabled step calls `onStepChange`. */
 export interface StepperProps {
@@ -1433,7 +1312,6 @@ export interface StepperProps {
     android?: any;
     web?: any;
 }
-
 export interface NavigationMenuItem {
     key: string;
     label?: string;
@@ -1442,7 +1320,6 @@ export interface NavigationMenuItem {
     disabled?: boolean;
     onSelect?: () => void;
 }
-
 /** NavigationMenu — row (or column) of nav items; mostly a desktop/web
  *  idiom — the mobile equivalent is Tabs/Drawer. */
 export interface NavigationMenuProps {
@@ -1456,7 +1333,6 @@ export interface NavigationMenuProps {
     android?: any;
     web?: any;
 }
-
 /** CommandPalette — overlay with a search field over a filtered action
  *  list. Esc/outside dismisses, Enter selects the highlighted match. */
 export interface CommandPaletteProps {
@@ -1471,7 +1347,6 @@ export interface CommandPaletteProps {
     android?: any;
     web?: any;
 }
-
 export interface TableColumn {
     key: string;
     label?: string;
@@ -1479,7 +1354,6 @@ export interface TableColumn {
     width?: number;
     align?: 'left' | 'center' | 'right';
 }
-
 /** Table — self-drawn grid via rows + cells. Bounded and unvirtualized:
  *  large datasets belong to the platform UITableView/RecyclerView
  *  subpaths, not this component. */
@@ -1499,7 +1373,6 @@ export interface TableProps {
     android?: any;
     web?: any;
 }
-
 export interface TimelineItem {
     key: string;
     title?: string;
@@ -1507,7 +1380,6 @@ export interface TimelineItem {
     time?: string;
     icon?: string;
 }
-
 /** Timeline — vertical list of events with dot + connector. */
 export interface TimelineProps {
     className?: any;
@@ -1518,14 +1390,12 @@ export interface TimelineProps {
     android?: any;
     web?: any;
 }
-
 export interface TreeNode {
     key: string;
     label?: string;
     children?: TreeNode[];
     disabled?: boolean;
 }
-
 /** Tree — recursive indent + collapse. `defaultExpanded` seeds the open
  *  set; `onToggle` reports changes. */
 export interface TreeProps {
@@ -1540,7 +1410,6 @@ export interface TreeProps {
     android?: any;
     web?: any;
 }
-
 /** Alert — status callout. `tone` maps to a class modifier; error tone
  *  gets role=alert on web, others role=status. */
 export interface AlertProps {
@@ -1555,7 +1424,6 @@ export interface AlertProps {
     android?: any;
     web?: any;
 }
-
 /** Card — container with optional header/footer slots. */
 export interface CardProps {
     className?: any;
@@ -1568,7 +1436,6 @@ export interface CardProps {
     android?: any;
     web?: any;
 }
-
 /** Chip — small action/filter element: pressable, optional selected state,
  *  optional ✕ remove affordance. */
 export interface ChipProps {
@@ -1585,7 +1452,6 @@ export interface ChipProps {
     android?: any;
     web?: any;
 }
-
 /** Kbd — keyboard key glyph (⌘K styling hook). */
 export interface KbdProps {
     className?: any;
@@ -1596,7 +1462,6 @@ export interface KbdProps {
     android?: any;
     web?: any;
 }
-
 /** Empty — empty-state block: icon + title + description + actions. */
 export interface EmptyProps {
     className?: any;
@@ -1610,7 +1475,6 @@ export interface EmptyProps {
     android?: any;
     web?: any;
 }
-
 /** Banner — inline notice strip with optional dismiss. */
 export interface BannerProps {
     className?: any;
@@ -1623,7 +1487,6 @@ export interface BannerProps {
     android?: any;
     web?: any;
 }
-
 /** User — avatar + name/description row. */
 export interface UserProps {
     className?: any;
@@ -1639,7 +1502,6 @@ export interface UserProps {
     android?: any;
     web?: any;
 }
-
 /** ProgressGroup — stacked labeled Meter rows. */
 export interface ProgressGroupProps {
     className?: any;
@@ -1655,81 +1517,12 @@ export interface ProgressGroupProps {
     android?: any;
     web?: any;
 }
-
-export type VideoFit = 'contain' | 'cover' | 'fill';
-export interface VideoEvent {
-    /** Playback position in milliseconds. */
-    position?: number;
-    /** Clip duration in milliseconds, once known (0 before then). */
-    duration?: number;
-    /** Failure description. */
-    message?: string;
-}
-
-export interface VideoHandle {
-    play(): void;
-    pause(): void;
-    /** Seek to a position in milliseconds. */
-    seekTo(ms: number): void;
-    /** Current playback position in ms (0 before metadata loads). */
-    currentTime(): number;
-    /** Clip duration in ms (0 before metadata loads). */
-    duration(): number;
-    /** The platform surface (`HTMLVideoElement` / plugin `Video`). */
-    native: any;
-}
-
-/** Embedded video — surface-hosted bucket: the OS engine owns the pixels
- *  (web `<video>` / `@nstudio/nativescript-exoplayer` → AVPlayerViewController
- *  + ExoPlayer2), all chrome is self-drawn so `controls` looks identical on
- *  every target. Times are milliseconds on every platform. */
-export interface VideoProps extends LayoutChildProps, AccessibilityProps {
-    className?: any;
-    style?: any;
-    id?: string;
-    /** Remote URL; native also accepts `~/` bundle paths and absolute files. */
-    src: string;
-    /** Frame shown until playback starts. */
-    poster?: string;
-    /** Controlled playback — pair with `onPlayingChange`. Leave unset for
-     *  uncontrolled playback (the transport and `bind` handle still work). */
-    playing?: boolean;
-    /** Uncontrolled start-playing shorthand. Browsers block unmuted
-     *  autoplay — pair with `muted` when `autoPlay` matters on web. */
-    autoPlay?: boolean;
-    muted?: boolean;
-    loop?: boolean;
-    /** Self-drawn transport overlay (play/pause, scrubber, time, mute) —
-     *  tap the surface to show/hide. Default true. */
-    controls?: boolean;
-    /** Content fitting inside the frame: `contain` (letterbox, default),
-     *  `cover` (crop to fill), `fill` (stretch). */
-    fit?: VideoFit;
-    /** Playback metadata is loaded; `e.duration` is the clip length in ms. */
-    onReady?: (e: VideoEvent) => void;
-    onEnded?: () => void;
-    /** Fires on user toggles and controlled `playing` writes. */
-    onPlayingChange?: (playing: boolean) => void;
-    /** Fires when the transport's mute button toggles. */
-    onMutedChange?: (muted: boolean) => void;
-    /** Web only — the plugin players surface no error event on native. */
-    onError?: (e: VideoEvent) => void;
-    /** Imperative handle — play/pause/seek/time plus `native` for anything
-     *  the shared props don't cover. */
-    bind?: (h: VideoHandle) => void;
-    /** Platform escape hatches, applied after the shared props. */
-    ios?: Record<string, any>;
-    android?: Record<string, any>;
-    web?: Record<string, any>;
-}
-
 export type ColorScheme = 'light' | 'dark';
 /** Minimal external-store contract `useStore` subscribes to. */
 export interface ReadableStore<T> {
     get(): T;
     subscribe(notify: () => void): () => void;
 }
-
 export interface Store<T> extends ReadableStore<T> {
     set(next: T | ((prev: T) => T)): void;
 }
