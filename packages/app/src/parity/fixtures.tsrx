@@ -8,6 +8,7 @@ import {
 	TextArea,
 	View,
 	Grid,
+	Stack,
 	Column,
 	Row,
 	ScrollView,
@@ -92,6 +93,13 @@ function GridLayoutFixture() @{
 		<View className="parity-grid-col-span" row={1} col={1} colSpan={2} style={{ width: 66, height: 10 }} />
 		<View className="parity-grid-row-span" row={2} col={0} rowSpan={2} style={{ width: 30, height: 26 }} />
 	</Grid>
+}
+
+function StackLayoutFixture() @{
+	<Stack className="parity-stack-root" style={{ width: 96, height: 48 }}>
+		<View className="parity-stack-base" style={{ width: 48, height: 32 }} />
+		<View className="parity-stack-overlay" style={{ width: 20, height: 10 }} />
+	</Stack>
 }
 
 function ColumnLayoutFixture() @{
@@ -197,6 +205,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'view-layout', component: 'View', renderer: ViewLayoutFixture, props: {} },
 	{ name: 'view-padding-layout', component: 'View', renderer: ViewPaddingLayoutFixture, props: {} },
 	{ name: 'grid-layout', component: 'Grid', renderer: GridLayoutFixture, props: {} },
+	{ name: 'stack-overlay-layout', component: 'Stack', renderer: StackLayoutFixture, props: {} },
 	{ name: 'column-layout', component: 'Column', renderer: ColumnLayoutFixture, props: {} },
 	{ name: 'row-layout', component: 'Row', renderer: RowLayoutFixture, props: {} },
 	{ name: 'scroll-view-layout', component: 'ScrollView', renderer: ScrollViewLayoutFixture, props: {} },

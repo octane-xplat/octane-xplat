@@ -683,14 +683,15 @@ function layoutGridChildren(parent) {
 	if (!parent?.view) {return}
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
+	const overlayChildren = parent.props.overlayChildren === true
 	const placements = parent.children
 		.filter((child) => child.view)
 		.map((child) => ({
 			child,
-			row: child.props.row == null ? null : gridIndex(child.props.row),
-			col: child.props.col == null ? null : gridIndex(child.props.col),
-			rowSpan: gridSpan(child.props.rowSpan),
-			colSpan: gridSpan(child.props.colSpan),
+			row: overlayChildren ? 0 : child.props.row == null ? null : gridIndex(child.props.row),
+			col: overlayChildren ? 0 : child.props.col == null ? null : gridIndex(child.props.col),
+			rowSpan: overlayChildren ? 1 : gridSpan(child.props.rowSpan),
+			colSpan: overlayChildren ? 1 : gridSpan(child.props.colSpan),
 		}))
 	const hasTracks = Boolean(
 		String(parent.props.rows ?? '').trim() || String(parent.props.columns ?? '').trim(),
@@ -702,11 +703,12 @@ function layoutGridChildren(parent) {
 		colSpan !== 1,
 	)
 
-	// Preserve the overlay grid used by Slider. Explicit tracks or non-default
-	// cell placement opt into track layout. Configured grids auto-place children
-	// with no row or column using the web renderer's default row flow.
+	// Preserve overlay behavior for Slider and Stack. Explicit tracks or
+	// non-default cell placement opt into track layout. Configured grids
+	// auto-place children with no row or column using the web renderer's default
+	// row flow, unless the host explicitly requests overlay behavior.
 	if (hasTracks || hasPlacement) {
-		autoPlaceGridChildren(parent, placements)
+		if (!overlayChildren) {autoPlaceGridChildren(parent, placements)}
 		const columns = gridAxisTracks(parent.props.columns, placements, 'columns')
 		const rows = gridAxisTracks(parent.props.rows, placements, 'rows')
 		const columnSizes = resolveGridTrackSizes(columns, placements, 'columns', width)
@@ -1340,6 +1342,7 @@ function applyProps(node, props) {
 			case 'gridlayout':
 				if (name === 'style') {applyStyle(node, value)}
 				else if (name === 'className' || name === 'id') {continue}
+				else if (name === 'overlayChildren') {continue}
 				else if (name === 'disabled') {continue}
 				else if (name === 'onPan') {setPanAction(node, value)}
 				else if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {continue}
