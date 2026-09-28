@@ -59,7 +59,6 @@ const DEFERRED_GROUPS = [
 		reason:
 			'These controls need representative prop, value, or interaction states beyond the current basic control fixtures.',
 		components: [
-			'Pressable',
 			'Collapsible',
 			'Accordion',
 			'RadioGroup',
@@ -372,9 +371,11 @@ if (errors.length) {
 	console.log(
 		`[parity-coverage] ${coveredComponents.size}/${sharedComponents.size} shared renderable exports have measured checks; web+macOS checks cover ${goalPairComponents.size}; ${deferredComponents.size} deferred; ${NON_RENDERABLE.size} renderer helpers excluded`,
 	)
+
 	const targetLimited = [...coveredComponents]
 		.filter((component) => !goalPairComponents.has(component))
 		.sort((a, b) => a.localeCompare(b))
+
 	if (targetLimited.length) {
 		console.log(`[parity-coverage] no web+macOS check: ${targetLimited.join(', ')}`)
 	}

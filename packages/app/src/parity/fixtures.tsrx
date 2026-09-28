@@ -3,6 +3,7 @@ import {
 	Slider,
 	Checkbox,
 	Button,
+	Pressable,
 	Text,
 	Heading,
 	TextInput,
@@ -73,6 +74,26 @@ function ButtonNaturalFixture(props: { label: string }) @{
 	<Button className="parity-button-natural">
 		<Text className="parity-txt">{props.label}</Text>
 	</Button>
+}
+
+function PressableFixture(props: { width: number; height: number; label: string }) @{
+	<Pressable
+		className="parity-pressable"
+		onPress={() => {}}
+		alignItems="center"
+		justifyContent="center"
+		style={{
+			width: props.width,
+			height: props.height,
+			padding: 4,
+			backgroundColor: '#f5f5f5',
+			borderWidth: 1,
+			borderColor: '#666666',
+			borderRadius: 4,
+		}}
+	>
+		<Text className="parity-txt">{props.label}</Text>
+	</Pressable>
 }
 
 function TextInputFixture(props: { value?: string }) @{
@@ -237,6 +258,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'button-compact', component: 'Button', renderer: ButtonFixture, props: { width: 96, height: 28, label: 'Save' }, wide: true },
 	{ name: 'button-long-label', component: 'Button', renderer: ButtonFixture, props: { width: 160, height: 36, label: 'Continue' }, wide: true },
 	{ name: 'button-natural', component: 'Button', renderer: ButtonNaturalFixture, props: { label: 'Go' }, width: 220 },
+	{ name: 'pressable-basic', component: 'Pressable', renderer: PressableFixture, props: { width: 220, height: 32, label: 'Go' }, wide: true },
 	{ name: 'text-input', component: 'TextInput', renderer: TextInputFixture, props: {} },
 	{ name: 'text-input-filled', component: 'TextInput', renderer: TextInputFixture, props: { value: 'alec@example.com' } },
 	{ name: 'text-input-natural', component: 'TextInput', renderer: TextInputNaturalFixture, props: { value: 'alec@example.com' }, width: 520, wide: true },

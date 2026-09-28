@@ -181,11 +181,13 @@ function inputRows(m, value) {
 	const rows = [
 		dims(field, 180, 32, 1),
 		['input content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
-		['placeholder is set', field.placeholder === 'Name', field.placeholder],
+			['placeholder is set', field.placeholder === 'Name', field.placeholder],
 	]
+
 	if (value !== undefined) {
 		rows.push(['input value matches', field.text === value, JSON.stringify(field.text)])
 	}
+
 	return rows
 }
 
@@ -204,11 +206,13 @@ function textAreaRows(m, target, value) {
 	const rows = [
 		dims(field, 180, 48, 1),
 		['textarea content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
-		['placeholder is set', field.placeholder === 'Notes', field.placeholder],
+			['placeholder is set', field.placeholder === 'Notes', field.placeholder],
 	]
+
 	if (value !== undefined) {
 		rows.push(['textarea value matches', field.text === value, JSON.stringify(field.text)])
 	}
+
 	if (target === 'macos') {
 		rows.push([
 			'placeholder aligns to the textarea content origin',
@@ -217,6 +221,7 @@ function textAreaRows(m, target, value) {
 			JSON.stringify(field.placeholderBox),
 		])
 	}
+
 	return rows
 }
 
@@ -226,8 +231,9 @@ function textAreaRowsIntrinsic(m, target, value, height) {
 		dims(field, 180, height, 1),
 		['textarea content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
 		['placeholder is set', field.placeholder === 'Notes', field.placeholder],
-		['textarea value matches', field.text === value, JSON.stringify(field.text)],
+			['textarea value matches', field.text === value, JSON.stringify(field.text)],
 	]
+
 	if (target === 'macos') {
 		rows.push([
 			'placeholder aligns to the textarea content origin',
@@ -235,6 +241,7 @@ function textAreaRowsIntrinsic(m, target, value, height) {
 			JSON.stringify(field.placeholderBox),
 		])
 	}
+
 	return rows
 }
 
@@ -516,6 +523,12 @@ export const CHECKS = [
 	{
 		fixture: 'button-basic',
 		elements: { btn: 'vx-button', label: 'parity-txt' },
+		equal: buttonEqual,
+		check: (m) => buttonRows(m, 220, 32, 'Go'),
+	},
+	{
+		fixture: 'pressable-basic',
+		elements: { btn: 'parity-pressable', label: 'parity-txt' },
 		equal: buttonEqual,
 		check: (m) => buttonRows(m, 220, 32, 'Go'),
 	},
