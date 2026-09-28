@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 
 const requiredFields = [
@@ -79,6 +79,25 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 		? resolveProjectPath(appRoot, settings.bundleFile, 'macOS bundleFile', issues)
 		: null
 
+	const iconPath =
+		settings.icon === undefined
+			? null
+			: resolveProjectPath(appRoot, settings.icon, 'macOS icon', issues, { mustExist: true })
+
+	if (iconPath) {
+		try {
+			if (!statSync(iconPath).isFile()) {
+				issues.push('macOS icon must point to a file')
+			}
+		} catch {
+			issues.push('macOS icon could not be inspected')
+		}
+	}
+
+	if (typeof settings.icon === 'string' && settings.icon && !settings.icon.toLowerCase().endsWith('.icns')) {
+		issues.push('macOS icon must point to an .icns file')
+	}
+
 	const entitlementsPath =
 		settings.entitlements === undefined
 			? null
@@ -86,5 +105,5 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 					mustExist: true,
 				})
 
-	return { settings, viteConfig, bundleFile, entitlementsPath, issues }
+	return { settings, viteConfig, bundleFile, iconPath, entitlementsPath, issues }
 }

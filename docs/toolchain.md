@@ -71,7 +71,9 @@ with `pnpm xplat dev --targets macos` and package it with
 not part of the scaffolded starter or the supported web/iOS/Android release
 contract. `xplat.targets.macos.package` in the app manifest supplies the app
 name, bundle identifier, executable name, version, minimum macOS version, Vite
-config, and production bundle path. `entitlements` is also required when
-`MACOS_SIGNING_IDENTITY` is set. `xplat doctor` checks that configuration and
-the local packaging tools. See the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
-for signing and notarization setup.
+config, and production bundle path. An optional `icon` path selects an `.icns`
+file inside the app project for the packaged app icon. `entitlements` is also
+required when `MACOS_SIGNING_IDENTITY` is set. `xplat doctor` checks that
+configuration and the local packaging tools. See the [macOS experiment
+notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
+for signing, notarization, and icon setup.

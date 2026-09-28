@@ -91,12 +91,16 @@ function xmlEscape(value) {
 	return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 }
 
-function writeInfoPlist(settings) {
+function writeInfoPlist(settings, iconFile = null) {
 	const productName = xmlEscape(settings.productName)
 	const executableName = xmlEscape(settings.executableName)
 	const bundleIdentifier = xmlEscape(settings.bundleIdentifier)
 	const version = xmlEscape(settings.version)
 	const minimumSystemVersion = xmlEscape(settings.minimumSystemVersion)
+	const iconEntry = iconFile
+		? `  <key>CFBundleIconFile</key><string>${xmlEscape(iconFile)}</string>\n`
+		: ''
+
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -104,7 +108,7 @@ function writeInfoPlist(settings) {
   <key>CFBundleDevelopmentRegion</key><string>en</string>
   <key>CFBundleExecutable</key><string>${executableName}</string>
   <key>CFBundleIdentifier</key><string>${bundleIdentifier}</string>
-  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+${iconEntry}  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
   <key>CFBundleName</key><string>${productName}</string>
   <key>CFBundleDisplayName</key><string>${productName}</string>
   <key>CFBundlePackageType</key><string>APPL</string>
@@ -185,7 +189,7 @@ export async function packageMacOS(appRoot) {
 		throw new Error('The first macOS package target is Apple Silicon; build it on an arm64 Mac.')
 	}
 
-	const { settings, viteConfig, bundleFile, entitlementsPath } = readPackageConfig(appRoot)
+	const { settings, viteConfig, bundleFile, iconPath, entitlementsPath } = readPackageConfig(appRoot)
 	const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
 	const notaryProfile = process.env.MACOS_NOTARY_PROFILE
 	if (notaryProfile && !signingIdentity) {
@@ -255,6 +259,9 @@ export async function packageMacOS(appRoot) {
 		}
 
 		await cp(nativeRuntimeSource, runtimeFrameworkPath, { recursive: true })
+		if (iconPath) {
+			await cp(iconPath, join(resourcesPath, 'AppIcon.icns'))
+		}
 
 		await writeFile(
 			join(resourcesPath, 'licenses', 'THIRD-PARTY-NOTICES.txt'),
@@ -265,7 +272,10 @@ export async function packageMacOS(appRoot) {
 			].join('\n\n'),
 		)
 
-		await writeFile(join(contentsPath, 'Info.plist'), writeInfoPlist(settings))
+		await writeFile(
+			join(contentsPath, 'Info.plist'),
+			writeInfoPlist(settings, iconPath ? 'AppIcon.icns' : null),
+		)
 
 		const packageBuildRoot = dirname(bundleFile)
 		const bootstrapPath = join(packageBuildRoot, 'sea-bootstrap.cjs')

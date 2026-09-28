@@ -13,6 +13,8 @@ production Vite config that emits its CommonJS host bundle.
 
 - Declare the AppKit Node-API runtime and the app's bundle metadata in
   `package.json`.
+- Optionally include a custom macOS app icon from an `.icns` file in the app
+  project.
 - Run and diagnose the app through the `xplat` CLI without an iOS or Android
   NativeScript toolchain.
 - Produce a local `.app` and `.dmg`, with optional Developer ID signing and
@@ -27,6 +29,8 @@ production Vite config that emits its CommonJS host bundle.
 - AC3: Local packaging is ad-hoc signed; configured Developer ID credentials
   sign and verify the app and disk image, and a notary profile submits,
   staples, and validates the disk image.
+- AC5: When an icon is configured, `xplat doctor` validates the `.icns` path
+  and the packaged app includes its matching `Info.plist` icon entry.
 
 ## Documentation
 
@@ -35,3 +39,5 @@ production Vite config that emits its CommonJS host bundle.
 - AC2: [Experimental AppKit target](../docs/toolchain.md#experimental-appkit-target)
   and [macOS experiment notes](../apps/macos/README.md).
 - AC3: [macOS signing and notarization notes](../apps/macos/README.md#packaging-proof).
+- AC5: [App icon packaging](../apps/macos/README.md#packaging-proof) and
+  [experimental AppKit target](../docs/toolchain.md#experimental-appkit-target).

@@ -72,6 +72,10 @@ NativeScript Node-API runtime and bundled Octane component. The bundle targets
 macOS 13.5 or later. Artifacts are written under
 `apps/macos/artifacts/macos-arm64/` so dev builds do not clean them.
 
+Set the optional `icon` package field to an app-root-relative `.icns` file to
+include a custom app icon. The CLI validates the path, copies it to
+`Contents/Resources/AppIcon.icns`, and sets `CFBundleIconFile` in `Info.plist`.
+
 Without signing configuration, the app is ad-hoc signed for local use. Set
 `MACOS_SIGNING_IDENTITY` to a Developer ID Application identity to sign the app
 and disk image for distribution. The Node host is signed with the Hardened
