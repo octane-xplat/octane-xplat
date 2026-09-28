@@ -39,7 +39,19 @@ function TextFixture(props: { size: number; weight: number; lineHeight: number; 
 }
 
 function ButtonFixture(props: { width: number; height: number; label: string }) @{
-	<Button style={{ width: props.width, height: props.height }}><Text className="parity-txt">{props.label}</Text></Button>
+	<Button
+		style={{
+			width: props.width,
+			height: props.height,
+			padding: 4,
+			backgroundColor: '#f5f5f5',
+			borderWidth: 1,
+			borderColor: '#666666',
+			borderRadius: 4,
+		}}
+	>
+		<Text className="parity-txt">{props.label}</Text>
+	</Button>
 }
 
 function TextInputFixture(props: { value?: string }) @{
@@ -54,6 +66,13 @@ function ViewLayoutFixture() @{
 	<View className="parity-view-root" style={{ width: 96, height: 48 }} gap={6}>
 		<View className="parity-view-first" style={{ width: 20, height: 10 }} />
 		<View className="parity-view-second" style={{ width: 20, height: 10 }} />
+	</View>
+}
+
+function ViewPaddingLayoutFixture() @{
+	<View className="parity-padded-view-root" style={{ width: 96, height: 48, padding: 8 }} gap={6}>
+		<View className="parity-padded-view-first" style={{ width: 20, height: 10 }} />
+		<View className="parity-padded-view-second" style={{ width: 20, height: 10 }} />
 	</View>
 }
 
@@ -158,6 +177,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'text-area', component: 'TextArea', renderer: TextAreaFixture, props: {} },
 	{ name: 'text-area-filled', component: 'TextArea', renderer: TextAreaFixture, props: { value: 'First line\nSecond line' } },
 	{ name: 'view-layout', component: 'View', renderer: ViewLayoutFixture, props: {} },
+	{ name: 'view-padding-layout', component: 'View', renderer: ViewPaddingLayoutFixture, props: {} },
 	{ name: 'column-layout', component: 'Column', renderer: ColumnLayoutFixture, props: {} },
 	{ name: 'row-layout', component: 'Row', renderer: RowLayoutFixture, props: {} },
 	{ name: 'scroll-view-layout', component: 'ScrollView', renderer: ScrollViewLayoutFixture, props: {} },

@@ -10,6 +10,8 @@ import ts from 'typescript'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const errors = []
+const ALL_TARGETS = ['web', 'ios', 'android', 'macos']
+const GOAL_TARGETS = ['web', 'macos']
 
 // These renderer-file exports are helpers, not component roots. Every other
 // runtime export from a renderer file needs fixture coverage or a deferral.
@@ -115,13 +117,7 @@ const DEFERRED_GROUPS = [
 	{
 		reason:
 			'OS- or engine-backed content needs target fixtures for the shared frame and any project-drawn chrome.',
-		components: [
-			'SearchInput',
-			'Pager',
-			'Image',
-			'WebView',
-			'Video',
-		],
+		components: ['SearchInput', 'Pager', 'Image', 'WebView', 'Video'],
 	},
 ]
 
@@ -133,6 +129,15 @@ function stringValue(node) {
 	return ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)
 		? node.text
 		: undefined
+}
+
+function stringArrayValue(node) {
+	if (!ts.isArrayLiteralExpression(node)) {
+		return undefined
+	}
+
+	const values = node.elements.map(stringValue)
+	return values.every((value) => value !== undefined) ? values : undefined
 }
 
 function property(object, key) {
@@ -275,15 +280,33 @@ for (const element of arrayDeclaration(fixturePath, 'FIXTURES', ts.ScriptKind.TS
 
 const checksPath = join(root, 'scripts/parity-checks.mjs')
 const checkFixtures = new Set()
+const checkTargetsByFixture = new Map()
 for (const element of arrayDeclaration(checksPath, 'CHECKS', ts.ScriptKind.JS)) {
 	const fixture = stringValue(property(element, 'fixture'))
 	if (fixture) {
+		if (checkFixtures.has(fixture)) {
+			errors.push(`${fixture}: duplicate measured assertion`)
+		}
+
 		checkFixtures.add(fixture)
+		const targetsNode = property(element, 'targets')
+		const targets = targetsNode === undefined ? ALL_TARGETS : stringArrayValue(targetsNode)
+		if (
+			!targets ||
+			targets.length === 0 ||
+			targets.some((target) => !ALL_TARGETS.includes(target))
+		) {
+			errors.push(`${fixture}: targets must be a non-empty list of supported targets`)
+			continue
+		}
+
+		checkTargetsByFixture.set(fixture, new Set(targets))
 	}
 }
 
 const fixtureNames = new Set()
 const coveredComponents = new Set()
+const goalPairComponents = new Set()
 for (const fixture of fixtures) {
 	if (fixtureNames.has(fixture.name)) {
 		errors.push(`duplicate fixture name: ${fixture.name}`)
@@ -297,6 +320,12 @@ for (const fixture of fixtures) {
 	coveredComponents.add(fixture.component)
 	if (!checkFixtures.has(fixture.name)) {
 		errors.push(`${fixture.name}: no measured assertion is registered in ${checksPath}`)
+		continue
+	}
+
+	const checkTargets = checkTargetsByFixture.get(fixture.name)
+	if (GOAL_TARGETS.every((target) => checkTargets?.has(target))) {
+		goalPairComponents.add(fixture.component)
 	}
 }
 
@@ -348,6 +377,12 @@ if (errors.length) {
 	process.exitCode = 1
 } else {
 	console.log(
-		`[parity-coverage] ${coveredComponents.size}/${sharedComponents.size} shared renderable exports measured; ${deferredComponents.size} deferred; ${NON_RENDERABLE.size} renderer helpers excluded`,
+		`[parity-coverage] ${coveredComponents.size}/${sharedComponents.size} shared renderable exports have measured checks; web+macOS checks cover ${goalPairComponents.size}; ${deferredComponents.size} deferred; ${NON_RENDERABLE.size} renderer helpers excluded`,
 	)
+	const targetLimited = [...coveredComponents]
+		.filter((component) => !goalPairComponents.has(component))
+		.sort((a, b) => a.localeCompare(b))
+	if (targetLimited.length) {
+		console.log(`[parity-coverage] no web+macOS check: ${targetLimited.join(', ')}`)
+	}
 }

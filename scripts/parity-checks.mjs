@@ -46,12 +46,23 @@ function textRows(m, content, height, width) {
 const buttonEqual = [
 	'btn.style.justifyContent',
 	'btn.style.alignItems',
+	'btn.style.backgroundColor',
+	'btn.style.borderTopWidth',
+	'btn.style.borderTopColor',
+	'btn.style.borderTopLeftRadius',
+	'btn.style.paddingTop',
+	'btn.style.paddingRight',
+	'btn.style.paddingBottom',
+	'btn.style.paddingLeft',
 	'label.box.x',
 	'label.box.y',
 	'label.box.w',
 	'label.box.h',
+	'label.style.fontSize',
 	'label.style.fontFamily',
 	'label.style.fontPostScriptName',
+	'label.style.fontWeight',
+	'label.style.color',
 	'label.textLineAdvances',
 ]
 
@@ -83,12 +94,16 @@ const inputEqual = [
 	'field.style.fontSize',
 	'field.style.fontFamily',
 	'field.style.fontPostScriptName',
+	'field.style.fontWeight',
 	'field.style.color',
 ]
 
 function inputRows(m, value) {
 	const field = m('field')
-	const rows = [dims(field, 180, 32, 1), ['placeholder is set', field.placeholder === 'Name', field.placeholder]]
+	const rows = [
+		dims(field, 180, 32, 1),
+		['placeholder is set', field.placeholder === 'Name', field.placeholder],
+	]
 	if (value !== undefined) {
 		rows.push(['input value matches', field.text === value, JSON.stringify(field.text)])
 	}
@@ -97,14 +112,18 @@ function inputRows(m, value) {
 
 function textAreaRows(m, target, value) {
 	const field = m('field')
-	const rows = [dims(field, 180, 48, 1), ['placeholder is set', field.placeholder === 'Notes', field.placeholder]]
+	const rows = [
+		dims(field, 180, 48, 1),
+		['placeholder is set', field.placeholder === 'Notes', field.placeholder],
+	]
 	if (value !== undefined) {
 		rows.push(['textarea value matches', field.text === value, JSON.stringify(field.text)])
 	}
 	if (target === 'macos') {
 		rows.push([
 			'placeholder aligns to the textarea content origin',
-			near(field.placeholderBox?.x, field.box.x, 1) && near(field.placeholderBox?.y, field.box.y, 1),
+			near(field.placeholderBox?.x, field.box.x, 1) &&
+				near(field.placeholderBox?.y, field.box.y, 1),
 			JSON.stringify(field.placeholderBox),
 		])
 	}
@@ -334,7 +353,9 @@ export const CHECKS = [
 		// CDP doesn't expose the active font face inside a populated textarea;
 		// the empty textarea case checks family and PostScript name.
 		equal: inputEqual
-			.filter((facet) => !['field.style.fontFamily', 'field.style.fontPostScriptName'].includes(facet))
+			.filter(
+				(facet) => !['field.style.fontFamily', 'field.style.fontPostScriptName'].includes(facet),
+			)
 			.concat('field.text', 'field.textLineAdvances'),
 		check: (m, target) => textAreaRows(m, target, 'First line\nSecond line'),
 	},
@@ -357,6 +378,41 @@ export const CHECKS = [
 				[
 					'first child starts at root origin',
 					near(first.box.x - root.box.x, 0, 1) && near(first.box.y - root.box.y, 0, 1),
+				],
+				[
+					'second child follows with a 6-dip gap',
+					near(second.box.y - first.box.y - first.box.h, 6, 1),
+					second.box.y - first.box.y - first.box.h,
+				],
+			]
+		},
+	},
+	{
+		fixture: 'view-padding-layout',
+		elements: {
+			root: 'parity-padded-view-root',
+			first: 'parity-padded-view-first',
+			second: 'parity-padded-view-second',
+		},
+		equal: [
+			'root.style.flexDirection',
+			'root.style.alignItems',
+			'root.style.paddingTop',
+			'root.style.paddingRight',
+			'root.style.paddingBottom',
+			'root.style.paddingLeft',
+		],
+		check: (m) => {
+			const root = m('root')
+			const first = m('first')
+			const second = m('second')
+			return [
+				dims(root, 96, 48),
+				dims(first, 20, 10),
+				dims(second, 20, 10),
+				[
+					'first child follows 8-dip top and left padding',
+					near(first.box.x - root.box.x, 8, 1) && near(first.box.y - root.box.y, 8, 1),
 				],
 				[
 					'second child follows with a 6-dip gap',

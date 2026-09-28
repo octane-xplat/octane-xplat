@@ -312,6 +312,7 @@ function makeLabel() {
 	label.cell.usesSingleLineMode = false
 	label.translatesAutoresizingMaskIntoConstraints = false
 	label.font = fontForStyle(16)
+	label.textColor = nativeColor('#0a0a0a')
 	return label
 }
 
@@ -1236,6 +1237,10 @@ function parityStyle(node, facets) {
 	const out = {}
 	for (const facet of facets) {
 		let value = supplied[facet]
+		if (facet === 'paddingTop' && view?.edgeInsets?.top != null) {value = view.edgeInsets.top}
+		if (facet === 'paddingRight' && view?.edgeInsets?.right != null) {value = view.edgeInsets.right}
+		if (facet === 'paddingBottom' && view?.edgeInsets?.bottom != null) {value = view.edgeInsets.bottom}
+		if (facet === 'paddingLeft' && view?.edgeInsets?.left != null) {value = view.edgeInsets.left}
 		if (facet === 'fontSize' && font?.pointSize != null) {value = font.pointSize}
 		if (facet === 'fontFamily' && font?.familyName) {value = font.familyName}
 		if (facet === 'fontWeight' && font?.fontDescriptor?.symbolicTraits != null) {
