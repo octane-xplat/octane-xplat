@@ -68,9 +68,10 @@ With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
 
 `pnpm --filter @xplat/macos package` delegates to the CLI to build an Apple
 Silicon `.app` and compressed `.dmg`. When it downloads Node 24.21.0 LTS, the
-packager verifies the official arm64 archive against a SHA-256 value pinned
-with the runtime version. Later builds reuse the extracted runtime cache. The
-app also includes the NativeScript Node-API runtime and bundled Octane
+packager verifies the official arm64 archive against a pinned SHA-256 value.
+Before embedding Node, every build checks the executable checksum and its
+version and architecture, including when it reuses the extracted runtime cache.
+The app also includes the NativeScript Node-API runtime and bundled Octane
 component. Its Mach-O launcher lives in
 `Contents/MacOS`; it starts Node from `Contents/Helpers` with
 `Resources/app/main.cjs` as its entry script. The NativeScript framework lives

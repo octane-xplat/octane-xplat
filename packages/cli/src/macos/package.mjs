@@ -67,14 +67,7 @@ async function ensureNodeRuntime() {
 	const nodeExecutable = join(nodeDistribution, 'bin', 'node')
 
 	if (await exists(nodeExecutable)) {
-		const runtime = execFileSync(nodeExecutable, ['-p', '`${process.version} ${process.arch}`'], {
-			encoding: 'utf8',
-		}).trim()
-
-		if (runtime !== `v${nodeVersion} arm64`) {
-			throw new Error(`Unexpected cached Node runtime: ${runtime}`)
-		}
-
+		await verifyNodeExecutable(nodeExecutable)
 		return { executable: nodeExecutable, distribution: nodeDistribution }
 	}
 
@@ -95,7 +88,25 @@ async function ensureNodeRuntime() {
 		throw new Error(`Node ${nodeVersion} did not extract to ${nodeExecutable}`)
 	}
 
+	await verifyNodeExecutable(nodeExecutable)
 	return { executable: nodeExecutable, distribution: nodeDistribution }
+}
+
+async function verifyNodeExecutable(nodeExecutable) {
+	const actualHash = createHash('sha256').update(await readFile(nodeExecutable)).digest('hex')
+	if (actualHash !== bundledNodeRuntime.executableSha256) {
+		throw new Error(
+			`Node executable checksum mismatch (expected ${bundledNodeRuntime.executableSha256}, got ${actualHash})`,
+		)
+	}
+
+	const runtime = execFileSync(nodeExecutable, ['-p', '`${process.version} ${process.arch}`'], {
+		encoding: 'utf8',
+	}).trim()
+
+	if (runtime !== `v${nodeVersion} arm64`) {
+		throw new Error(`Unexpected Node runtime: ${runtime}`)
+	}
 }
 
 function xmlEscape(value) {

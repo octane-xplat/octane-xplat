@@ -79,8 +79,9 @@ values and checks the configuration and local packaging tools, including
 `clang`, `codesign`, and `hdiutil`. It also checks the installed
 `@nativescript/macos-node-api` entry points, type declarations, license, and
 ARM64 framework binary; missing paths appear in the runtime check. Packaging
-performs the same layout check before running Vite, then compiles a small Mach-O
-launcher. Install Xcode Command Line Tools on the Apple Silicon build host. See
+performs the same layout check before running Vite, pins the Node archive and
+executable checksums, then compiles a small Mach-O launcher. Install Xcode
+Command Line Tools on the Apple Silicon build host. See
 the [macOS experiment
 notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for signing, notarization, and icon setup.
