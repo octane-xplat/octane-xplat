@@ -541,6 +541,82 @@ function gridSpan(value) {
 	return Number.isFinite(span) ? Math.max(1, Math.floor(span)) : 1
 }
 
+function gridAreaIsFree(occupied, row, col, rowSpan, colSpan) {
+	for (let currentRow = row; currentRow < row + rowSpan; currentRow++) {
+		for (let currentCol = col; currentCol < col + colSpan; currentCol++) {
+			if (occupied.has(currentRow + ':' + currentCol)) {return false}
+		}
+	}
+	return true
+}
+
+function occupyGridArea(occupied, row, col, rowSpan, colSpan) {
+	for (let currentRow = row; currentRow < row + rowSpan; currentRow++) {
+		for (let currentCol = col; currentCol < col + colSpan; currentCol++) {
+			occupied.add(currentRow + ':' + currentCol)
+		}
+	}
+}
+
+function autoPlaceGridChildren(parent, placements) {
+	const explicitColumns = parseGridTracks(parent.props.columns).length
+	const placedColumnCount = Math.max(0, ...placements
+		.filter((placement) => placement.col != null)
+		.map((placement) => placement.col + placement.colSpan),
+	)
+	const columnCount = Math.max(
+		1,
+		explicitColumns,
+		placedColumnCount,
+		...placements.map((placement) => placement.colSpan),
+	)
+	const occupied = new Set()
+	for (const placement of placements) {
+		if (placement.row != null && placement.col != null) {
+			occupyGridArea(occupied, placement.row, placement.col, placement.rowSpan, placement.colSpan)
+		}
+	}
+
+	for (const placement of placements) {
+		if (placement.row == null || placement.col != null) {continue}
+		let col = 0
+		while (!gridAreaIsFree(occupied, placement.row, col, placement.rowSpan, placement.colSpan)) {col++}
+		placement.col = col
+		occupyGridArea(occupied, placement.row, col, placement.rowSpan, placement.colSpan)
+	}
+	for (const placement of placements) {
+		if (placement.col == null || placement.row != null) {continue}
+		let row = 0
+		while (!gridAreaIsFree(occupied, row, placement.col, placement.rowSpan, placement.colSpan)) {row++}
+		placement.row = row
+		occupyGridArea(occupied, row, placement.col, placement.rowSpan, placement.colSpan)
+	}
+
+	let cursorRow = 0
+	let cursorCol = 0
+	for (const placement of placements) {
+		if (placement.row != null && placement.col != null) {continue}
+		while (true) {
+			const availableColumns = Math.max(columnCount, placement.colSpan)
+			if (cursorCol + placement.colSpan > availableColumns) {
+				cursorRow++
+				cursorCol = 0
+				continue
+			}
+			if (gridAreaIsFree(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)) {break}
+			cursorCol++
+		}
+		placement.row = cursorRow
+		placement.col = cursorCol
+		occupyGridArea(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)
+		cursorCol += placement.colSpan
+		if (cursorCol >= columnCount) {
+			cursorRow++
+			cursorCol = 0
+		}
+	}
+}
+
 function gridAxisTracks(spec, placements, axis) {
 	const indexKey = axis === 'columns' ? 'col' : 'row'
 	const spanKey = axis === 'columns' ? 'colSpan' : 'rowSpan'
@@ -611,8 +687,8 @@ function layoutGridChildren(parent) {
 		.filter((child) => child.view)
 		.map((child) => ({
 			child,
-			row: gridIndex(child.props.row),
-			col: gridIndex(child.props.col),
+			row: child.props.row == null ? null : gridIndex(child.props.row),
+			col: child.props.col == null ? null : gridIndex(child.props.col),
 			rowSpan: gridSpan(child.props.rowSpan),
 			colSpan: gridSpan(child.props.colSpan),
 		}))
@@ -627,8 +703,10 @@ function layoutGridChildren(parent) {
 	)
 
 	// Preserve the overlay grid used by Slider. Explicit tracks or non-default
-	// cell placement opt into track layout.
+	// cell placement opt into track layout. Configured grids auto-place children
+	// with no row or column using the web renderer's default row flow.
 	if (hasTracks || hasPlacement) {
+		autoPlaceGridChildren(parent, placements)
 		const columns = gridAxisTracks(parent.props.columns, placements, 'columns')
 		const rows = gridAxisTracks(parent.props.rows, placements, 'rows')
 		const columnSizes = resolveGridTrackSizes(columns, placements, 'columns', width)

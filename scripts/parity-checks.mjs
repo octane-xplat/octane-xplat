@@ -456,6 +456,9 @@ export const CHECKS = [
 			weighted: 'parity-grid-weighted',
 			auto: 'parity-grid-auto',
 			fill: 'parity-grid-fill',
+			automatic: 'parity-grid-automatic',
+			colSpan: 'parity-grid-col-span',
+			rowSpan: 'parity-grid-row-span',
 		},
 		equal: [
 			'root.box.w',
@@ -476,6 +479,18 @@ export const CHECKS = [
 			'fill.box.y',
 			'fill.box.w',
 			'fill.box.h',
+			'automatic.box.x',
+			'automatic.box.y',
+			'automatic.box.w',
+			'automatic.box.h',
+			'colSpan.box.x',
+			'colSpan.box.y',
+			'colSpan.box.w',
+			'colSpan.box.h',
+			'rowSpan.box.x',
+			'rowSpan.box.y',
+			'rowSpan.box.w',
+			'rowSpan.box.h',
 		],
 		check: (m) => {
 			const root = m('root')
@@ -483,6 +498,9 @@ export const CHECKS = [
 			const weighted = m('weighted')
 			const auto = m('auto')
 			const fill = m('fill')
+			const automatic = m('automatic')
+			const colSpan = m('colSpan')
+			const rowSpan = m('rowSpan')
 			return [
 				dims(root, 96, 48, 1),
 				dims(fixed, 30, 12, 1),
@@ -491,9 +509,15 @@ export const CHECKS = [
 				['weighted column starts after the fixed 30-dip column', near(weighted.box.x, 30, 1)],
 				dims(auto, 30, 10, 1),
 				['auto row follows the fixed 12-dip row', near(auto.box.y, 12, 1)],
-				dims(fill, 22, 26, 1),
-				['fraction row follows the 10-dip auto row', near(fill.box.y, 22, 1)],
+				dims(fill, 22, 13, 1),
+				['second fraction row follows the first', near(fill.box.y, 35, 1)],
 				['fill cell starts at the final column', near(fill.box.x, 74, 1)],
+				dims(automatic, 22, 12, 1),
+				['unplaced child flows to the first free cell', near(automatic.box.x, 74, 1) && near(automatic.box.y, 0, 1)],
+				dims(colSpan, 66, 10, 1),
+				['column span starts at the weighted columns', near(colSpan.box.x, 30, 1) && near(colSpan.box.y, 12, 1)],
+				dims(rowSpan, 30, 26, 1),
+				['row span covers both fraction rows', near(rowSpan.box.y, 22, 1)],
 			]
 		},
 	},
