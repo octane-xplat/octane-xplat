@@ -419,6 +419,7 @@ export const doctor = command({
 			if (macHost) {
 				const codesign = check('codesign', ['--verify', '/usr/bin/codesign'])
 				const hdiutil = check('hdiutil', ['help'])
+				const clang = check('clang', ['--version'])
 				row(
 					'codesign',
 					codesign.ok,
@@ -431,6 +432,13 @@ export const doctor = command({
 					hdiutil.ok,
 					hdiutil.out || 'available',
 					'install macOS command-line tools',
+				)
+
+				row(
+					'clang',
+					clang.ok,
+					clang.out || 'unavailable',
+					'install Xcode Command Line Tools with xcode-select --install',
 				)
 			}
 

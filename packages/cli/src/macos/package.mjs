@@ -17,6 +17,7 @@ import {
 import { existsSync, readFileSync } from 'node:fs'
 import { arch, homedir, platform } from 'node:os'
 import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { inspectMacOSPackageConfig } from './config.mjs'
 
 const nativeRuntimePackageName = '@nativescript/macos-node-api'
@@ -135,9 +136,18 @@ ${iconEntry}  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
 `
 }
 
-function signApp({ signingIdentity, entitlementsPath, nativeRuntimeFramework, mainExecutable, appPath }) {
+function signApp({
+	signingIdentity,
+	entitlementsPath,
+	nativeRuntimeFramework,
+	nodeExecutable,
+	nodeIdentifier,
+	mainExecutable,
+	appPath,
+}) {
 	if (!signingIdentity) {
 		run('codesign', ['--force', '--sign', '-', nativeRuntimeFramework])
+		run('codesign', ['--force', '--sign', '-', nodeExecutable])
 		run('codesign', ['--force', '--sign', '-', mainExecutable])
 		run('codesign', ['--force', '--sign', '-', appPath])
 		run('codesign', ['--verify', '--deep', '--strict', '--verbose=2', appPath])
@@ -158,11 +168,24 @@ function signApp({ signingIdentity, entitlementsPath, nativeRuntimeFramework, ma
 		'--force',
 		'--sign',
 		signingIdentity,
+		'--identifier',
+		nodeIdentifier,
 		'--options',
 		'runtime',
 		'--timestamp',
 		'--entitlements',
 		entitlementsPath,
+		nodeExecutable,
+	])
+
+	run('codesign', ['--verify', '--strict', '--verbose=2', nodeExecutable])
+	run('codesign', [
+		'--force',
+		'--sign',
+		signingIdentity,
+		'--options',
+		'runtime',
+		'--timestamp',
 		appPath,
 	])
 
@@ -249,14 +272,18 @@ export async function packageMacOS(appRoot) {
 	const resourcesPath = join(contentsPath, 'Resources')
 	const packagedAppPath = join(resourcesPath, 'app')
 	const mainExecutable = join(contentsPath, 'MacOS', settings.executableName)
+	const nodeExecutable = join(contentsPath, 'Helpers', 'octane-node')
 	const dmgPath = join(stagingRoot, `${settings.executableName}-macos-arm64.dmg`)
 
 	let preserveStagingRoot = false
 	try {
 		await mkdir(dirname(mainExecutable), { recursive: true })
+		await mkdir(dirname(nodeExecutable), { recursive: true })
 		await mkdir(join(resourcesPath, 'licenses'), { recursive: true })
 		await mkdir(packagedAppPath, { recursive: true })
 		await cp(bundleFile, join(packagedAppPath, 'main.cjs'))
+		await cp(nodeRuntime.executable, nodeExecutable)
+		run('chmod', ['755', nodeExecutable])
 
 		const nativeRuntimePath = join(
 			packagedAppPath,
@@ -299,29 +326,30 @@ export async function packageMacOS(appRoot) {
 			writeInfoPlist(settings, iconPath ? 'AppIcon.icns' : null),
 		)
 
-		const packageBuildRoot = dirname(bundleFile)
-		const bootstrapPath = join(packageBuildRoot, 'sea-bootstrap.cjs')
-		const seaConfigPath = join(packageBuildRoot, 'sea-config.json')
-		await writeFile(
-			bootstrapPath,
-			[
-				"'use strict'",
-				"const path = require('node:path')",
-				"const { createRequire } = require('node:module')",
-				"const entry = path.resolve(path.dirname(process.execPath), '..', 'Resources', 'app', 'main.cjs')",
-				'createRequire(entry)(entry)',
-			].join('\n'),
-		)
+		const launcherSource = fileURLToPath(new URL('./launcher.c', import.meta.url))
+		console.log(`[macos-package] compiling app launcher and embedding Node ${nodeVersion} arm64 runtime`)
+		run('clang', [
+			'-arch',
+			'arm64',
+			`-mmacosx-version-min=${settings.minimumSystemVersion}`,
+			'-O2',
+			'-std=c11',
+			'-Wall',
+			'-Wextra',
+			'-Werror',
+			'-o',
+			mainExecutable,
+			launcherSource,
+		])
 
-		await writeFile(seaConfigPath, JSON.stringify({ main: bootstrapPath, output: mainExecutable }, null, 2))
-		console.log(`[macos-package] embedding Node ${nodeVersion} arm64 runtime`)
-		run(nodeRuntime.executable, ['--build-sea', seaConfigPath])
 		run('chmod', ['755', mainExecutable])
 
 		const signed = signApp({
 			signingIdentity,
 			entitlementsPath,
 			nativeRuntimeFramework: packagedFrameworkPath,
+			nodeExecutable,
+			nodeIdentifier: `${settings.bundleIdentifier}.node`,
 			mainExecutable,
 			appPath,
 		})

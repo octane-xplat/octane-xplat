@@ -57,7 +57,8 @@ The CLI forwards dev to this app's `dev` script; `xplat build` owns the shared
 `xplat doctor` checks the AppKit host, Apple Silicon architecture, package
 metadata, declared runtime dependency, and packaging tools without requiring
 the NativeScript CLI, iOS simulator, or Android SDK. This target is experimental
-and Apple Silicon only.
+and Apple Silicon only. Packaging compiles a small Mach-O launcher, so the host
+also needs `clang` from Xcode Command Line Tools; `xplat doctor` checks for it.
 
 With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
 `tap <accessibility label>` on stdin. This CLI target does not add macOS to the
@@ -68,8 +69,11 @@ With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
 `pnpm --filter @xplat/macos package` delegates to the CLI to build an Apple
 Silicon `.app` and compressed `.dmg`. The packager embeds Node 26.7.0 from the
 official arm64 distribution, verifies the published SHA-256, and includes the
-NativeScript Node-API runtime and bundled Octane component. The bundle targets
-macOS 13.5 or later. Artifacts are written under
+NativeScript Node-API runtime and bundled Octane component. The app's Mach-O
+launcher lives in `Contents/MacOS`; it starts Node from `Contents/Helpers` with
+`Resources/app/main.cjs` as its entry script. The NativeScript framework lives in
+`Contents/Frameworks` and is linked from its package-relative loader path. The
+bundle targets macOS 13.5 or later. Artifacts are written under
 `apps/macos/artifacts/macos-arm64/` so dev builds do not clean them.
 
 Set the optional `icon` package field to an app-root-relative `.icns` file to
@@ -98,7 +102,8 @@ Run the build from `apps/macos`; the CLI signs and verifies the app and disk
 image, submits the image, staples the ticket, and validates it. See
 [Apple's notarytool credential guidance](https://developer.apple.com/documentation/technotes/tn3147-migrating-to-the-latest-notarization-tool).
 
-The bundle builder uses Node's Single Executable Applications feature to make
-Node the app's executable. Node currently marks this feature as active
-development, so this is a packaging experiment rather than a settled release
-contract.
+Node's Single Executable Applications feature is still marked as active
+development in Node 26.7.0, so the packager launches a separate Node runtime
+instead. The AppKit target remains an experiment pending validation across
+supported macOS versions and notarized distribution. See [Node's SEA
+documentation](https://nodejs.org/download/release/v26.7.0/docs/api/single-executable-applications.html).
