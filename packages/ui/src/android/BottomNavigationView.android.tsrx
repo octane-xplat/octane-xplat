@@ -10,14 +10,30 @@ import { Icon } from '../Icon.tsrx';
 import { Pressable } from '../Pressable.tsrx';
 import { Text } from '../Text.tsrx';
 import { layoutsForRoute, screenFor, useRoute } from '../route';
-import { RouteHost } from '../RouteHost.mobile';
+import { RouteHost, screenParamsFor } from '../RouteHost.mobile';
 import type { TabSpec, TabsProps } from '../props';
 
 export type { TabSpec } from '../props';
 
-type TabPaneProps = { render: () => any };
+// Android named stacks never navigate a Frame (upstream #11444 makes
+// TabViewItem frames unsafe) — pushes live in the route store instead, and a
+// stack pane renders the current route here, same shape as the self-drawn
+// Tabs. The bottom bar's OS chrome stays platform-authentic; only the pane
+// content swaps.
+type TabPaneProps = { render: () => any; stack?: string };
 function TabPane(props: TabPaneProps) @{
-	<>{props.render()}</>
+	const route = useRoute(props.stack ?? '');
+	const Screen = route ? screenFor(route.name) : undefined;
+
+	@if (route && Screen) {
+		<RouteHost
+			screen={Screen}
+			layouts={layoutsForRoute(route.name)}
+			params={screenParamsFor(route)}
+		/>
+	} @else {
+		<>{props.render()}</>
+	}
 }
 
 const paneRoots = new WeakMap<GridLayout, any>();
@@ -70,7 +86,7 @@ function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
 						const pane = new GridLayout();
 						page.content = pane;
 						createNativeScriptRoot(pane).render(
-							TabPane as unknown as UniversalComponent, { render: t.render });
+							TabPane as unknown as UniversalComponent, { render: t.render, stack: t.stack });
 
 						return page;
 					},
@@ -129,11 +145,11 @@ function NavInner(props: {
 const MemoNav = memo(NavInner, (a, b) => a.tabs === b.tabs && a.selectedIndex === b.selectedIndex);
 
 /** BottomNavigationView — the platform tab bar (Android bottom navigation
- *  via NativeScript TabView). Caveat (upstream NativeScript#11444): a Frame
- *  inside TabViewItem does not commit currentPage/backStack reliably on
- *  Android, so `stack` panes may not take pushes — the shared `Tabs` (the
- *  self-drawn root export) keeps per-stack history in the route store and
- *  is the reliable path there. `tabs` is identity-stable. */
+ *  via NativeScript TabView). Each `stack` pane hosts a Frame for the tab's
+ *  chrome, but pushes stay in the route store and render through RouteHost —
+ *  TabViewItem-hosted Frames lose navigation bookkeeping upstream
+ *  (NativeScript#11444; the #11446 fix ships in the xplat core patch).
+ *  `tabs` is identity-stable. */
 export function BottomNavigationView(props: TabsProps) @{
 	<MemoNav
 		id={props.id}

@@ -41,10 +41,11 @@ export declare const SeekBar: UniversalComponent<SliderProps>
 export declare const CircularProgressIndicator: UniversalComponent<ActivityIndicatorProps>
 /** Android RecyclerView via NativeScript `listview` — recycled platform list. */
 export declare const RecyclerView: UniversalComponent<ListProps>
-/** Android bottom navigation via NativeScript TabView. Caveat: `stack`
- *  panes rely on Frame-in-TabViewItem, which is unreliable upstream
- *  (NativeScript#11444) — the shared `Tabs` keeps stack history in the
- *  route store and is the reliable path on Android. */
+/** Android bottom navigation via NativeScript TabView. `stack` panes host
+ *  a Frame for chrome, but pushes stay in the route store and render
+ *  through RouteHost — Frame-in-TabViewItem bookkeeping is unreliable
+ *  upstream (NativeScript#11444; the #11446 fix ships in the xplat core
+ *  patch). Same push/pop/`useRoute` contract as the shared `Tabs`. */
 export declare const BottomNavigationView: UniversalComponent<TabsProps>
 /** Platform modal presentation (`showModal`; fullscreen=false → dialog). */
 export declare const MaterialDialog: UniversalComponent<ModalProps>

@@ -5,17 +5,10 @@ import { Icon } from './Icon.tsrx';
 import { Pressable } from './Pressable.tsrx';
 import { Text } from './Text.tsrx';
 import { layoutsForRoute, screenFor, useRoute } from './route';
-import { RouteHost } from './RouteHost.mobile';
+import { RouteHost, screenParamsFor } from './RouteHost.mobile';
 import type { TabSpec, TabsProps } from './props';
 
 export type { TabSpec } from './props';
-
-function screenParams(route: NonNullable<ReturnType<typeof useRoute>>) {
-	const params: Record<string, unknown> = { ...route.params, ...(route.context ?? {}), _stack: route.stack, _pushed: true };
-	if (Object.prototype.hasOwnProperty.call(route, 'loaderData')) params.data = route.loaderData;
-	if (Object.prototype.hasOwnProperty.call(route, 'loaderError')) params.error = route.loaderError;
-	return params;
-}
 
 /** Self-drawn tab shell — a fixed Pressable row plus a single swapped pane,
  *  identical on every target (the same shape as the web leaf). Route
@@ -52,7 +45,7 @@ export function Tabs(props: TabsProps) @{
 				<RouteHost
 					screen={Screen}
 					layouts={layoutsForRoute(route.name)}
-					params={screenParams(route)}
+					params={screenParamsFor(route)}
 				/>
 			} @else {
 				<>{tab?.render()}</>

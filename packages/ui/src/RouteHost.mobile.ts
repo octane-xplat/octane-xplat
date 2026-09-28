@@ -1,1 +1,1 @@
-export { RouteHost } from './RouteHost.mobile.tsrx'
+export { RouteHost, screenParamsFor } from './RouteHost.mobile.tsrx'

@@ -151,6 +151,17 @@ function resolveStack(stack: string): Frame | undefined {
 	return frame
 }
 
+/** TabViewItem-hosted frames report isLoaded=false after tab-selection
+ *  lifecycle churn; without re-arming, the nav queue defers pushes AND pops
+ *  forever (iOS strand of #11444 — goBack also gates on isLoaded via
+ *  _processNextNavigationEntry). callLoaded is idempotent once the flag
+ *  holds, so run it before every navigate/goBack on a registered frame. */
+function rearmFrameLoaded(frame: Frame): void {
+	if (!(frame as any).isLoaded) {
+		;(frame as any).callLoaded?.()
+	}
+}
+
 onStackRegistered((_name, frame) => {
 	trackFrame(frame)
 	ensureBackWired()
@@ -406,12 +417,7 @@ function commitRoute(r: Route): void {
 		return
 	}
 
-	// TabViewItem-hosted frames report isLoaded=false after tab-selection
-	// lifecycle churn; without this the nav queue defers forever (iOS
-	// strand of #11444). callLoaded is idempotent once the flag holds.
-	if (!(frame as any).isLoaded) {
-		;(frame as any).callLoaded?.()
-	}
+	rearmFrameLoaded(frame)
 
 	const props: Record<string, unknown> = {
 		...r.params,
@@ -570,6 +576,9 @@ export function popRoute(stack = 'root'): void {
 		return
 	}
 
+	// Same stall as pushes: a queued goBack defers forever while isLoaded is
+	// stale, and nothing else re-arms the frame before the pop.
+	rearmFrameLoaded(frame)
 	frame.goBack()
 }
 
