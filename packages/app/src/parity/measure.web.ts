@@ -19,11 +19,23 @@ function ownText(el: any): string | undefined {
 	return t || undefined
 }
 
+function measureTextLineAdvances(value: string, font: string): number[] | undefined {
+	if (!value || !font) {return undefined}
+	const context = document.createElement('canvas').getContext('2d')
+	if (!context) {return undefined}
+	context.font = font
+	return value.split(/\r\n|\r|\n/).map((line) => round(context.measureText(line).width))
+}
+
 function nodeFor(el: any, boxEl: any) {
 	const box = boxEl.getBoundingClientRect()
 	const r = el.getBoundingClientRect()
 	const cs = getComputedStyle(el)
-	const text = typeof el.value === 'string' ? el.value.trim() : ownText(el)
+	const value = typeof el.value === 'string' ? el.value : undefined
+	const text = value !== undefined ? value.trim() : ownText(el)
+	const textLineAdvances = value !== undefined ? measureTextLineAdvances(value, cs.font) : undefined
+	const placeholder = typeof el.placeholder === 'string' ? el.placeholder || undefined : undefined
+	const placeholderCss = placeholder ? getComputedStyle(el, '::placeholder') : undefined
 	const style: Record<string, string> = {}
 	for (const f of STYLE_FACETS) {
 		const v = (cs as any)[f]
@@ -44,7 +56,11 @@ function nodeFor(el: any, boxEl: any) {
 		},
 		style,
 		text,
-		placeholder: typeof el.placeholder === 'string' ? el.placeholder || undefined : undefined,
+		textLineAdvances,
+		placeholder,
+		placeholderStyle: placeholderCss
+			? { color: String(placeholderCss.color), opacity: String(placeholderCss.opacity) }
+			: undefined,
 	}
 }
 

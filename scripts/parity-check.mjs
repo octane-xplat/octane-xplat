@@ -13,6 +13,7 @@ import { CHECKS } from './parity-checks.mjs'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dir = join(root, 'parity-report')
 const NEAR = 0.51
+const OPACITY_NEAR = 0.01
 
 const dumps = new Map()
 if (existsSync(dir)) {
@@ -67,6 +68,18 @@ const normValue = (v, facet) => {
 	}
 
 	return v.toLowerCase()
+}
+
+function equalValue(a, b, tolerance = NEAR) {
+	if (typeof a === 'number' && typeof b === 'number') {
+		return Math.abs(a - b) <= tolerance
+	}
+
+	if (Array.isArray(a) && Array.isArray(b)) {
+		return a.length === b.length && a.every((value, index) => equalValue(value, b[index], tolerance))
+	}
+
+	return a === b
 }
 
 const resolve = (dump, fixture, elements) => (name) => {
@@ -148,13 +161,8 @@ for (const def of CHECKS) {
 			})
 
 			const [first, ...rest] = values
-			const ok = rest.every(([, v]) => {
-				if (typeof first[1] === 'number' && typeof v === 'number') {
-					return Math.abs(v - first[1]) <= NEAR
-				}
-
-				return v === first[1]
-			})
+			const tolerance = facet.endsWith('opacity') ? OPACITY_NEAR : NEAR
+			const ok = rest.every(([, v]) => equalValue(first[1], v, tolerance))
 
 			report(ok, `${def.fixture} · equal ${facet}`, values.map(([t, v]) => `${t}=${v}`).join(' '))
 		}

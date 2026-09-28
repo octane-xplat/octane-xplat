@@ -76,6 +76,8 @@ const inputEqual = [
 	'field.box.w',
 	'field.box.h',
 	'field.placeholder',
+	'field.placeholderStyle.color',
+	'field.placeholderStyle.opacity',
 	'field.style.fontSize',
 	'field.style.fontFamily',
 	'field.style.fontPostScriptName',
@@ -313,7 +315,7 @@ export const CHECKS = [
 		fixture: 'text-input-filled',
 		targets: ['web', 'macos'],
 		elements: { field: 'parity-textinput' },
-		equal: [...inputEqual, 'field.text'],
+		equal: [...inputEqual, 'field.text', 'field.textLineAdvances'],
 		check: (m) => inputRows(m, 'alec@example.com'),
 	},
 	{
@@ -331,7 +333,7 @@ export const CHECKS = [
 		// the empty textarea case checks family and PostScript name.
 		equal: inputEqual
 			.filter((facet) => !['field.style.fontFamily', 'field.style.fontPostScriptName'].includes(facet))
-			.concat('field.text'),
+			.concat('field.text', 'field.textLineAdvances'),
 		check: (m, target) => textAreaRows(m, target, 'First line\nSecond line'),
 	},
 	{

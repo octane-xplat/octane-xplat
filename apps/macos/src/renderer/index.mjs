@@ -346,6 +346,21 @@ function makeScrollView() {
 	return { view: scroll, childHost: content }
 }
 
+function setTextFieldPlaceholder(field, props) {
+	const placeholder = String(props.placeholder ?? '')
+	if (!placeholder) {
+		field.placeholderAttributedString = null
+		field.placeholderString = placeholder
+		return
+	}
+
+	field.placeholderString = placeholder
+	field.placeholderAttributedString = NSAttributedString.alloc().initWithStringAttributes(placeholder, {
+		[NSFontAttributeName]: field.font,
+		[NSForegroundColorAttributeName]: nativeColor(String(props.placeholderTextColor ?? '#666666')),
+	})
+}
+
 function makeTextField(props, multiline = false) {
 	const field = multiline
 		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
@@ -359,7 +374,7 @@ function makeTextField(props, multiline = false) {
 		field.editable = true
 		field.selectable = true
 		field.sendsActionOnEndEditing = false
-		field.placeholderString = String(props.placeholder ?? '')
+		setTextFieldPlaceholder(field, props)
 	} else {
 		field.editable = true
 		field.selectable = true
@@ -941,12 +956,13 @@ function applyProps(node, props) {
 					else {node.view.stringValue = String(value ?? '')}
 				}
 				else if (name === 'placeholder') {
-					if (node.type === 'textfield') {node.view.placeholderString = String(value ?? '')}
+					if (node.type === 'textfield') {continue}
 					else if (node.placeholderView) {
 						node.placeholderView.stringValue = String(value ?? '')
 						syncTextViewPlaceholder(node)
 					}
 				}
+				else if (name === 'placeholderTextColor' && node.type === 'textfield') {continue}
 				else if (name === 'onTextChange') {
 					setControlAction(node, value, () => String(node.type === 'textview' ? node.view.string : node.view.stringValue ?? ''))
 				}
@@ -999,6 +1015,8 @@ function applyProps(node, props) {
 				break
 		}
 	}
+
+	if (node.type === 'textfield') {setTextFieldPlaceholder(node.view, node.props)}
 
 	if (node.type === 'label') {
 		const style = node.props.style ?? {}
@@ -1179,16 +1197,29 @@ function descendants(node, out = []) {
 	return out
 }
 
-function colorValue(color) {
+function withDrawingAppearance(appearance, read) {
+	let value
+	const readValue = () => {value = read()}
+	if (typeof appearance?.performAsCurrentDrawingAppearance === 'function') {
+		appearance.performAsCurrentDrawingAppearance(readValue)
+	} else {
+		readValue()
+	}
+	return value
+}
+
+function colorValue(color, appearance) {
 	if (!color) {return undefined}
 	try {
-		const rgb = color.usingColorSpace?.(NSColorSpace.sRGBColorSpace) ?? color
-		return (
-			'#' +
-			[rgb.redComponent, rgb.greenComponent, rgb.blueComponent]
-				.map((component) => Math.round(Number(component) * 255).toString(16).padStart(2, '0'))
-				.join('')
-		)
+		return withDrawingAppearance(appearance, () => {
+			const rgb = color.colorUsingColorSpace?.(NSColorSpace.sRGBColorSpace) ?? color
+			return (
+				'#' +
+				[rgb.redComponent, rgb.greenComponent, rgb.blueComponent]
+					.map((component) => Math.round(Number(component) * 255).toString(16).padStart(2, '0'))
+					.join('')
+			)
+		})
 	} catch {
 		return undefined
 	}
@@ -1239,6 +1270,16 @@ function parityStyle(node, facets) {
 	return out
 }
 
+function measureTextLineAdvances(value, font) {
+	if (!value || !font) {return undefined}
+	return String(value).split(/\r\n|\r|\n/).map((line) => {
+		const attributed = NSAttributedString.alloc().initWithStringAttributes(line, {
+			[NSFontAttributeName]: font,
+		})
+		return round(Number(attributed.size().width))
+	})
+}
+
 function parityNode(node, boxNode, facets) {
 	const view = node.view
 	let box = null
@@ -1276,15 +1317,38 @@ function parityNode(node, boxNode, facets) {
 	}
 
 	let text
+	let textLineAdvances
 	if (node.type === 'label') {text = String(view?.stringValue ?? '').trim()}
 	else if (node.type === 'button') {text = String(view?.title ?? '').trim()}
-	else if (node.type === 'textfield') {text = String(view?.stringValue ?? '').trim()}
-	else if (node.type === 'textview') {text = String(view?.string ?? '').trim()}
+	else if (node.type === 'textfield') {
+		const value = String(view?.stringValue ?? '')
+		text = value.trim()
+		textLineAdvances = measureTextLineAdvances(value, view?.font)
+	}
+	else if (node.type === 'textview') {
+		const value = String(view?.string ?? '')
+		text = value.trim()
+		textLineAdvances = measureTextLineAdvances(value, view?.font)
+	}
+	const placeholderAttributedString = node.type === 'textfield' ? view?.placeholderAttributedString : null
 	const placeholder = node.type === 'textfield'
-		? String(view?.placeholderString ?? '').trim()
+		? String(placeholderAttributedString?.string ?? view?.placeholderString ?? '').trim()
 		: node.type === 'textview'
 			? String(node.placeholderView?.stringValue ?? '').trim()
 			: ''
+	const placeholderColor = node.type === 'textfield'
+		? placeholderAttributedString?.attributeAtIndexEffectiveRange?.(NSForegroundColorAttributeName, 0, null)
+			?? NSColor.placeholderTextColor
+		: node.type === 'textview'
+			? node.placeholderView?.textColor
+			: null
+	const appearance = view?.effectiveAppearance ?? view?.window?.effectiveAppearance
+	const placeholderStyle = placeholderColor
+		? {
+				color: colorValue(placeholderColor, appearance),
+				opacity: round(Number(withDrawingAppearance(appearance, () => placeholderColor.alphaComponent))),
+			}
+		: undefined
 
 	return {
 		tag: String(node.type ?? 'view').toLowerCase(),
@@ -1294,7 +1358,9 @@ function parityNode(node, boxNode, facets) {
 		placeholderBox,
 		style: parityStyle(node, facets),
 		text: text || undefined,
+		textLineAdvances,
 		placeholder: placeholder || undefined,
+		placeholderStyle,
 	}
 }
 
