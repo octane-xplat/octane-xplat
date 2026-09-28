@@ -540,6 +540,16 @@ function fontForStyle(size, weight = 400) {
 	return geistFont
 }
 
+function fontForFamilyStyle(size, weight = 400, family) {
+	const firstFamily = String(family ?? '').split(',')[0].trim().replace(/^['"]|['"]$/g, '')
+	if (firstFamily === 'system-ui' || firstFamily === '-apple-system') {
+		const systemFont = NSFont.systemFontOfSize(Number(size))
+		if (!systemFont) {throw new Error('Failed to create the AppKit system font face')}
+		return systemFont
+	}
+	return fontForStyle(size, weight)
+}
+
 function setSizeConstraint(node, name, value) {
 	const spec = sizeConstraintSpec(value)
 	const specs = (node.sizeConstraintSpecs ??= {})
@@ -628,7 +638,12 @@ function applyStyle(node, style) {
 		if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
 			node.appliedFontWeight = String(weight)
-			node.view.font = fontForStyle(value, weight)
+			node.view.font = fontForFamilyStyle(value, weight, style.fontFamily ?? node.appliedFontFamily)
+		} else if (name === 'fontFamily' && ['label', 'textfield', 'textview'].includes(node.type)) {
+			node.appliedFontFamily = String(value)
+			const size = style.fontSize ?? node.view.font.pointSize
+			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
+			node.view.font = fontForFamilyStyle(size, weight, value)
 		} else if (name === 'color' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			node.view.textColor = nativeColor(value)
 		} else if (name === 'lineHeight' && node.type === 'label') {
@@ -650,7 +665,7 @@ function applyStyle(node, style) {
 			node.view.alphaValue = Number(value)
 		} else if (name === 'fontWeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			node.appliedFontWeight = String(value)
-			node.view.font = fontForStyle(node.view.font.pointSize, value)
+			node.view.font = fontForFamilyStyle(node.view.font.pointSize, value, style.fontFamily ?? node.appliedFontFamily)
 		} else if (name === 'textAlign' && node.type === 'label') {
 			node.view.alignment = value === 'left' ? NSTextAlignment.Left : value === 'right' ? NSTextAlignment.Right : NSTextAlignment.Center
 		} else if (name === 'borderWidth' && node.view) {
@@ -670,14 +685,14 @@ function applyClassName(node, value) {
 	if (node.type === 'label') {
 		const sizes = { 'text-xs': 12, 'text-sm': 14, 'text-base': 16, 'text-lg': 18, 'text-xl': 20, 'text-2xl': 24 }
 		for (const name of classes) {
-			if (sizes[name]) {node.view.font = fontForStyle(sizes[name], node.appliedFontWeight ?? 400)}
+			if (sizes[name]) {node.view.font = fontForFamilyStyle(sizes[name], node.appliedFontWeight ?? 400, node.appliedFontFamily)}
 			if (name === 'font-semibold') {
 				node.appliedFontWeight = '600'
-				node.view.font = fontForStyle(node.view.font.pointSize, 600)
+				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 600, node.appliedFontFamily)
 			}
 			if (name === 'font-bold') {
 				node.appliedFontWeight = '700'
-				node.view.font = fontForStyle(node.view.font.pointSize, 700)
+				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 700, node.appliedFontFamily)
 			}
 			if (name === 'text-muted') {node.view.textColor = nativeColor('#71717a')}
 			if (name === 'text-onprimary') {node.view.textColor = nativeColor('#ffffff')}

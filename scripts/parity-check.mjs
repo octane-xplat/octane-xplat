@@ -120,6 +120,9 @@ const report = (ok, label, detail = '') => {
 
 for (const def of CHECKS) {
 	const applicableTargets = def.targets ? targets.filter((target) => def.targets.includes(target)) : targets
+	const equalityTargets = def.equalTargets
+		? applicableTargets.filter((target) => def.equalTargets.includes(target))
+		: applicableTargets
 	for (const target of applicableTargets) {
 		const dump = dumps.get(target)
 		if (!dump.cells?.[def.fixture]) {
@@ -149,10 +152,10 @@ for (const def of CHECKS) {
 	}
 
 	// Cross-target equality — only meaningful with ≥2 dumps.
-	if (applicableTargets.length > 1) {
+	if (equalityTargets.length > 1) {
 		for (const facet of def.equal ?? []) {
 			const [el] = facet.split('.')
-			const values = applicableTargets.map((t) => {
+			const values = equalityTargets.map((t) => {
 				const dump = dumps.get(t)
 				const node = (dump.cells?.[def.fixture] ?? []).find((n) =>
 					n.classes?.includes(def.elements[el]),

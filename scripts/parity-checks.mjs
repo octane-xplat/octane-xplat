@@ -9,14 +9,24 @@
 //              with box measured relative to the fixture's .parity-box.
 //              Return rows [name, ok, detail?].
 //   equal    — 'el.box.<f>' | 'el.style.<f>' | 'el.text' paths that must
-//              agree across every dumped target (skipped with one dump).
+//              agree across applicable targets (skipped with one dump).
 //   targets  — optional target allowlist; omitted checks run against every dump.
+//   equalTargets — optional allowlist for cross-target equality; defaults to targets.
 const near = (a, b, tol = 0.51) => a != null && b != null && Math.abs(a - b) <= tol
 const dims = (el, w, h, tol) => [
 	`${w}×${h}`,
 	near(el.box?.w, w, tol) && near(el.box?.h, h, tol),
 	`${el.box?.w}×${el.box?.h}`,
 ]
+const circular = (el) => {
+	const radius = String(el.style?.borderTopLeftRadius ?? '')
+	const width = el.box?.w
+	const height = el.box?.h
+	const round = radius.endsWith('%')
+		? near(Number.parseFloat(radius), 50) && near(width, height)
+		: near(Number.parseFloat(radius), width / 2) && near(width, height)
+	return ['thumb corners form a circle', round, `${radius} on ${width}×${height}`]
+}
 
 const textEqual = [
 	'text.box.w',
@@ -182,7 +192,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'switch-off',
-		targets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { track: 'vx-switch', thumb: 'vx-switch-thumb' },
 		equal: [
 			'track.style.backgroundColor',
@@ -195,6 +205,7 @@ export const CHECKS = [
 			return [
 				dims(track, 48, 28),
 				dims(thumb, 22, 22),
+				circular(thumb),
 				[
 					'thumb parked left (3 pad)',
 					near(thumb.box.x - track.box.x, 3),
@@ -210,7 +221,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'switch-on',
-		targets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { track: 'vx-switch', thumb: 'vx-switch-thumb' },
 		equal: ['track.style.backgroundColor', 'thumb.style.backgroundColor'],
 		check: (m) => {
@@ -219,6 +230,7 @@ export const CHECKS = [
 			return [
 				dims(track, 48, 28),
 				dims(thumb, 22, 22),
+				circular(thumb),
 				[
 					'thumb parked right (3 pad)',
 					near(track.box.w - (thumb.box.x - track.box.x) - thumb.box.w, 3),
@@ -228,7 +240,8 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'slider-0',
-		targets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
+		equalTargets: ['web', 'ios', 'android'],
 		elements: {
 			host: 'vx-slider',
 			track: 'vx-slider-track',
@@ -242,6 +255,11 @@ export const CHECKS = [
 		],
 		check: (m, target) => {
 			const host = m('host')
+			if (target === 'macos') {
+				// NSSlider exposes only its host bounds, not the shared drawn parts.
+				return [dims(host, 220, 28, 1)]
+			}
+
 			const track = m('track')
 			const fill = m('fill')
 			const thumb = m('thumb')
@@ -263,7 +281,8 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'slider-50',
-		targets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
+		equalTargets: ['web', 'ios', 'android'],
 		elements: {
 			host: 'vx-slider',
 			track: 'vx-slider-track',
@@ -271,7 +290,13 @@ export const CHECKS = [
 			thumb: 'vx-slider-thumb',
 		},
 		equal: ['fill.style.backgroundColor'],
-		check: (m) => {
+		check: (m, target) => {
+			const host = m('host')
+			if (target === 'macos') {
+				// NSSlider exposes only its host bounds, not the shared drawn parts.
+				return [dims(host, 220, 28, 1)]
+			}
+
 			const track = m('track')
 			const fill = m('fill')
 			const thumb = m('thumb')
@@ -284,7 +309,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'checkbox-off',
-		targets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { row: 'vx-checkbox-row', box: 'vx-checkbox' },
 		equal: ['box.style.borderTopColor', 'box.style.borderTopLeftRadius'],
 		check: (m) => {
@@ -294,9 +319,16 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'checkbox-on',
-		targets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { row: 'vx-checkbox-row', box: 'vx-checkbox', glyph: 'vx-checkbox-check' },
-		equal: ['box.style.backgroundColor'],
+		equal: [
+			'box.style.backgroundColor',
+			'glyph.box.w',
+			'glyph.style.fontSize',
+			'glyph.style.lineHeight',
+			'glyph.style.color',
+			'glyph.textLineAdvances',
+		],
 		check: (m) => {
 			const box = m('box')
 			const glyph = m('glyph')
