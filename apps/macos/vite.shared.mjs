@@ -19,6 +19,8 @@ function bundledFontDefines() {
 export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 	const rendererId = 'macos'
 	const nativeRuntime = '@nativescript/macos-node-api'
+	const virtualListBench = hmr && process.env.OCTANE_MACOS_VLIST_BENCH === '1'
+	const virtualListBenchMode = process.env.OCTANE_MACOS_VLIST_MODE === 'windowed'
 
 	return defineConfig({
 		root: appRoot,
@@ -54,7 +56,13 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 		build: {
 			outDir: packaged ? 'dist/package-build' : 'dist',
 			lib: {
-				entry: packaged ? 'src/main.mjs' : 'src/App.tsx',
+				entry: packaged
+				? 'src/main.mjs'
+				: virtualListBench
+						? virtualListBenchMode
+							? 'src/VirtualListWindowedBench.tsx'
+							: 'src/VirtualListBench.tsx'
+						: 'src/App.tsx',
 				formats: packaged ? ['cjs'] : ['es'],
 				fileName: packaged ? 'main' : 'app',
 			},

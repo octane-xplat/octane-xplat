@@ -18,8 +18,9 @@ simulating success. The renderer maps a curated set of `className` tokens to
 AppKit views; it does not load CSS stylesheets or promise general NativeScript
 or web style parity. In particular, this harness does not validate every
 exported component or every service. AppKit's shared `VirtualList` fallback
-keeps keyed rows and scrolling but mounts every row at once; the 500-row demo
-checks rendering and updates, not virtualization or large-list performance.
+mounts every row at once. The `List ×500` sweep checks that all 500 row
+components mount and that dropping one removes a row; it does not prove
+virtualization or large-list performance.
 
 The AppKit Vite config compiles the UI package's macOS leaves with its renderer
 and still supplies app-local shims for NativeScript core and escape-prop
@@ -58,6 +59,40 @@ sweep through the AppKit renderer's debug interface. It reports route and
 interaction assertions in the process log; it does not accept stdin commands.
 This CLI target does not add macOS to the `create-octane-xplat` starter or the
 supported web/iOS/Android release contract.
+
+`pnpm --filter @xplat/macos bench:virtual-list` compares the all-rows fallback
+with an AppKit-only fixed-height windowing prototype at 500, 2,000, and 5,000
+items. The prototype slices the array around the scroll position and inserts
+spacer views. It uses an internal AppKit scroll callback; it does not change the
+shared `VirtualList` API. The probe jumps to the end of the list and checks that
+the mounted and mapped row counts stay within 32 and that the correct final row
+is mounted. Set `OCTANE_MACOS_VLIST_SIZES` to choose other sizes (up to 10,000)
+or `OCTANE_MACOS_VLIST_MODES=windowed` to run only the windowing probe.
+
+For example, run just the windowed probe at 500 and 1,000 items:
+
+```sh
+OCTANE_MACOS_VLIST_SIZES=500,1000 OCTANE_MACOS_VLIST_MODES=windowed pnpm --filter @xplat/macos bench:virtual-list
+```
+
+Results from one Apple Silicon run:
+
+| Mode | Items | Initial render | RSS increase | Mounted rows |
+| --- | ---: | ---: | ---: | ---: |
+| All rows | 500 | 137 ms | 18.7 MiB | 500 |
+| All rows | 2,000 | 1,133 ms | 135.6 MiB | 2,000 |
+| All rows | 5,000 | Process killed before metrics | — | — |
+| Windowed | 500 | 17 ms | 2.2 MiB | 24 → 18 (rows 482–499 at end) |
+| Windowed | 2,000 | 17 ms | 2.4 MiB | 24 → 18 (rows 1982–1999 at end) |
+| Windowed | 5,000 | 17 ms | 2.2 MiB | 24 → 18 (rows 4982–4999 at end) |
+
+Render timing covers bundle import and the initial Octane render/commit, but not
+the bundle build or later AppKit layout. RSS increase is sampled around initial
+render. The end-of-list check uses a programmatic AppKit scroll, not a sustained
+trackpad or wheel fling; it does not measure frame time, variable-height rows,
+or long-session behavior. The results show that bounded AppKit mounting is
+feasible for fixed-height rows, but do not establish production `VirtualList`
+behavior.
 
 ## Packaging proof
 

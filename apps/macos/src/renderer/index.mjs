@@ -12,6 +12,7 @@ const panHandlersByView = new WeakMap()
 const gridLayoutNodesByView = new WeakMap()
 const accessibilityLabels = new Map()
 const accessibilityRoles = new Map()
+const scrollHandlers = new WeakMap()
 let nextActionId = 1
 const DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16
 const injectedGeistFontBase64 = typeof __XPLAT_GEIST_FONT_BASE64__ === 'string'
@@ -119,6 +120,7 @@ class ButtonActionTarget extends NSObject {
 		viewPanned: { params: [NSPanGestureRecognizer], returns: interop.types.void },
 		controlChanged: { params: [NSObject], returns: interop.types.void },
 		textDidChange: { params: [NSNotification], returns: interop.types.void },
+		scrollViewDidScroll: { params: [NSNotification], returns: interop.types.void },
 	}
 
 	static {
@@ -160,6 +162,10 @@ class ButtonActionTarget extends NSObject {
 		const node = textNodesByView.get(notification.object)
 		syncTextViewPlaceholder(node)
 		invokeAction(actionIdsByView.get(notification.object))
+	}
+
+	scrollViewDidScroll(notification) {
+		scrollHandlers.get(notification.object)?.()
 	}
 }
 
@@ -455,6 +461,40 @@ function makeScrollView() {
 	scroll.documentView = content
 	content.widthAnchor.constraintEqualToAnchor(scroll.contentView.widthAnchor).active = true
 	return { view: scroll, childHost: content }
+}
+
+function setScrollAction(node, handler) {
+	const clipView = node.view.contentView
+	if (typeof handler !== 'function') {
+		scrollHandlers.delete(clipView)
+		return
+	}
+
+	if (!node.scrollObserverInstalled) {
+		clipView.postsBoundsChangedNotifications = true
+		NSNotificationCenter.defaultCenter.addObserverSelectorNameObject(
+			buttonActionTarget,
+			'scrollViewDidScroll',
+			NSViewBoundsDidChangeNotification,
+			clipView,
+		)
+		node.scrollObserverInstalled = true
+	}
+
+	scrollHandlers.set(clipView, () => {
+		const bounds = clipView.bounds
+		const contentHeight = Number(node.view.documentView?.frame?.size?.height ?? 0)
+		const event = {
+			verticalOffset: Number(bounds.origin.y ?? 0),
+			viewportHeight: Number(bounds.size.height ?? 0),
+			contentHeight,
+		}
+		try {
+			node.container.root.eventScope('discrete', () => handler(event))
+		} catch (error) {
+			console.error('[macos-event] scroll handler failed', error)
+		}
+	})
 }
 
 function setTextFieldPlaceholder(field, props) {
@@ -915,7 +955,19 @@ function makeNode(container, id, type, props) {
 			}
 	}
 
-	const node = { id, type, view, childHost, props: {}, parent: null, children: [], container, actionId, text: '' }
+	const node = {
+		id,
+		type,
+		view,
+		childHost,
+		props: {},
+		parent: null,
+		children: [],
+		container,
+		actionId,
+		scrollObserverInstalled: false,
+		text: '',
+	}
 	if (type === 'gridlayout') {
 		gridLayoutNodesByView.set(view, node)
 	}
@@ -1455,6 +1507,7 @@ function applyProps(node, props) {
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'accessibilityLabel') {node.view.setAccessibilityLabel?.(String(value ?? ''))}
 				else if (name === 'id' || name === 'horizontal' || name === 'showsVerticalScrollIndicator') {continue}
+				else if (name === 'onScroll') {setScrollAction(node, value)}
 				else if (name.startsWith('on')) {
 					if (typeof value === 'function') {console.warn('[macos-host] ' + name + ' is unsupported on ScrollView')}
 				}
@@ -1651,6 +1704,17 @@ function remove(container, parentId, node) {
 }
 
 function destroy(node) {
+	if (node.type === 'scrollview' && node.scrollObserverInstalled) {
+		const clipView = node.view.contentView
+		scrollHandlers.delete(clipView)
+		NSNotificationCenter.defaultCenter.removeObserverNameObject(
+			buttonActionTarget,
+			NSViewBoundsDidChangeNotification,
+			clipView,
+		)
+		node.scrollObserverInstalled = false
+	}
+
 	if (node.actionId !== undefined) {
 		actionHandlers.delete(node.actionId)
 		accessibilityLabels.delete(node.actionId)
@@ -2021,6 +2085,59 @@ export function createMacOSRoot(hostView) {
 			fontLicenses: { Geist: geistLicenseText },
 			measureParity(facets) {
 				return measureParity(container, facets)
+			},
+			metrics() {
+				const nodeTypes = {}
+				let nativeViewCount = 0
+				let mountedRowCount = 0
+				let mappedRowCount = 0
+				let parentedRowCount = 0
+				let nativeAttachedRowCount = 0
+				let firstMountedRow = Number.POSITIVE_INFINITY
+				let lastMountedRow = -1
+				let firstMappedRow = Number.POSITIVE_INFINITY
+				let lastMappedRow = -1
+				for (const node of container.nodes.values()) {
+					nodeTypes[node.type] = (nodeTypes[node.type] ?? 0) + 1
+					if (node.view) {nativeViewCount += 1}
+					const match = /^(?:row-r|bench-row-)(\d+)$/.exec(String(node.props.id ?? ''))
+					if (!match) {continue}
+
+					mappedRowCount += 1
+					const index = Number(match[1])
+					firstMappedRow = Math.min(firstMappedRow, index)
+					lastMappedRow = Math.max(lastMappedRow, index)
+					if (node.parent !== null) {parentedRowCount += 1}
+					if (node.view?.superview != null) {nativeAttachedRowCount += 1}
+					if (node.parent !== null && node.view?.superview != null) {
+						mountedRowCount += 1
+						firstMountedRow = Math.min(firstMountedRow, index)
+						lastMountedRow = Math.max(lastMountedRow, index)
+					}
+				}
+				return {
+					nodeCount: container.nodes.size,
+					nativeViewCount,
+					mountedRowCount,
+					mappedRowCount,
+					parentedRowCount,
+					nativeAttachedRowCount,
+					firstMountedRow: Number.isFinite(firstMountedRow) ? firstMountedRow : null,
+					lastMountedRow: lastMountedRow >= 0 ? lastMountedRow : null,
+					firstMappedRow: Number.isFinite(firstMappedRow) ? firstMappedRow : null,
+					lastMappedRow: lastMappedRow >= 0 ? lastMappedRow : null,
+					nodeTypes,
+				}
+			},
+			scrollToId(id, offset) {
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
+				)
+				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
+				const clipView = node.view.contentView
+				clipView.scrollToPoint({ x: 0, y: Math.max(0, Number(offset) || 0) })
+				node.view.reflectScrolledClipView(clipView)
+				return Number(clipView.bounds.origin.y ?? 0)
 			},
 			snapshot() {
 						return {

@@ -2,6 +2,7 @@ import { routeFor, screenFor } from '@octane-xplat/ui'
 
 type MacOSDebug = {
 	snapshot(): { labels: string[]; buttons: string[]; pressables: (string | undefined)[] }
+	metrics(): { mountedRowCount: number }
 	pressId(id: string): void
 	setText(idOrPlaceholder: string, value: string): void
 }
@@ -100,8 +101,16 @@ async function run(): Promise<void> {
 				assert('Dialer accumulates a digit', await waitFor(() => has('1') && !has('Enter number')))
 			}
 			if (mounted && demo.id === 'vlist') {
+				const mountedRows = debug.metrics().mountedRowCount
+				assert(
+					'AppKit VirtualList mounts all 500 row components (' + mountedRows + ')',
+					mountedRows === 500,
+				)
 				debug.pressId('vl-drop')
-				assert('shared List updates its row count', await waitFor(() => has('499 rows')))
+				assert(
+					'shared List removes a dropped row',
+					await waitFor(() => has('499 rows') && debug.metrics().mountedRowCount === 499),
+				)
 			}
 			assert(demo.title + ' route returns to the gallery', await backToApps())
 		}

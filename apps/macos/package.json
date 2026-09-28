@@ -17,6 +17,7 @@
 		"build": "vite build",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"parity": "node ./scripts/parity.mjs",
+		"bench:virtual-list": "node ./scripts/bench-virtual-list.mjs",
 		"package": "xplat build --targets macos"
 	},
 	"dependencies": {

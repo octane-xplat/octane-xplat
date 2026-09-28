@@ -13,6 +13,19 @@ let liveComponent
 let watcher
 let mainWindowClosed = false
 let mainRootUnmounted = false
+let initialRenderMs = null
+let initialRenderCpuMs = null
+let initialRenderRssDeltaMiB = null
+let initialRenderHeapDeltaMiB = null
+const listBench = process.env.OCTANE_MACOS_VLIST_BENCH === '1'
+const listBenchMode = process.env.OCTANE_MACOS_VLIST_MODE === 'windowed' ? 'windowed' : 'all'
+const listBenchCount = Number(process.env.OCTANE_MACOS_VLIST_COUNT)
+
+if (listBench) {
+	globalThis.__xplatMacOSVirtualListCount = Number.isSafeInteger(listBenchCount) && listBenchCount > 0
+		? listBenchCount
+		: 500
+}
 
 function unmountMainRoot() {
 	mainWindowClosed = true
@@ -87,6 +100,9 @@ try {
 			return
 		}
 
+		const renderStartedAt = performance.now()
+		const renderMemoryBefore = listBench && !afterEdit ? process.memoryUsage() : null
+		const renderCpuBefore = listBench && !afterEdit ? process.cpuUsage() : null
 		const module = await import(`${pathToFileURL(bundleFile).href}?v=${Date.now()}`)
 		if (mainWindowClosed) {
 			return
@@ -99,11 +115,56 @@ try {
 			liveComponent[UNIVERSAL_HMR].update(module.default)
 			await new Promise((resolve) => setTimeout(resolve, 0))
 		}
+		if (listBench && !afterEdit) {await new Promise((resolve) => setTimeout(resolve, 0))}
+		if (listBench && !afterEdit) {
+			const renderMemoryAfter = process.memoryUsage()
+			const renderCpu = process.cpuUsage(renderCpuBefore)
+			initialRenderMs = performance.now() - renderStartedAt
+			initialRenderCpuMs = (renderCpu.user + renderCpu.system) / 1000
+			initialRenderRssDeltaMiB = (renderMemoryAfter.rss - renderMemoryBefore.rss) / 1024 / 1024
+			initialRenderHeapDeltaMiB = (renderMemoryAfter.heapUsed - renderMemoryBefore.heapUsed) / 1024 / 1024
+		}
 
 		console.log('[macos] component rendered' + (afterEdit ? ' after hot edit' : ''))
 	}
 
 	await renderApp()
+	if (listBench) {
+		setTimeout(() => {
+			void (async () => {
+				try {
+					const initial = root.__macosDebug.metrics()
+					let requestedScrollOffset = null
+					let actualScrollOffset = null
+					let afterScroll = null
+					if (listBenchMode === 'windowed') {
+						requestedScrollOffset = Math.max(0, (globalThis.__xplatMacOSVirtualListCount - 10) * 44)
+						actualScrollOffset = root.__macosDebug.scrollToId('vlist-bench', requestedScrollOffset)
+						await new Promise((resolve) => setTimeout(resolve, 150))
+						afterScroll = root.__macosDebug.metrics()
+					}
+					console.log('[macos-vlist-bench] ' + JSON.stringify({
+						mode: listBenchMode,
+						items: globalThis.__xplatMacOSVirtualListCount,
+						initialRenderMs: Number(initialRenderMs?.toFixed(1) ?? 0),
+						initialRenderCpuMs: Number(initialRenderCpuMs?.toFixed(1) ?? 0),
+						initialRenderRssDeltaMiB: Number(initialRenderRssDeltaMiB?.toFixed(1) ?? 0),
+						initialRenderHeapDeltaMiB: Number(initialRenderHeapDeltaMiB?.toFixed(1) ?? 0),
+						rssMiB: Number((process.memoryUsage().rss / 1024 / 1024).toFixed(1)),
+						heapUsedMiB: Number((process.memoryUsage().heapUsed / 1024 / 1024).toFixed(1)),
+						requestedScrollOffset,
+						actualScrollOffset,
+						initial,
+						afterScroll,
+					}))
+				} catch (error) {
+					console.error('[macos-vlist-bench] failed', error)
+				} finally {
+					appKit.app.terminate(null)
+				}
+			})()
+		}, 500)
+	}
 
 	watcher = await build({ configFile, mode: 'development', build: { watch: {} } })
 	let firstBundle = true
