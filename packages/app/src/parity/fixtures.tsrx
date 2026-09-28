@@ -31,22 +31,22 @@ function CheckboxFixture(props: { checked: boolean }) @{
 	<Checkbox checked={props.checked} />
 }
 
-function TextFixture(props: { weight: number }) @{
-	<Text className="parity-text" style={{ fontSize: 14, fontWeight: props.weight, lineHeight: 20, color: '#0a0a0a' }}>
-		Shared label
+function TextFixture(props: { size: number; weight: number; lineHeight: number; content: string }) @{
+	<Text className="parity-text" style={{ fontSize: props.size, fontWeight: props.weight, lineHeight: props.lineHeight, color: '#0a0a0a' }}>
+		{props.content}
 	</Text>
 }
 
-function ButtonFixture() @{
-	<Button style={{ width: 220, height: 32 }}><Text className="parity-txt">Go</Text></Button>
+function ButtonFixture(props: { width: number; height: number; label: string }) @{
+	<Button style={{ width: props.width, height: props.height }}><Text className="parity-txt">{props.label}</Text></Button>
 }
 
-function TextInputFixture() @{
-	<TextInput className="parity-textinput" placeholder="Name" style={{ width: 180, height: 32 }} />
+function TextInputFixture(props: { value?: string }) @{
+	<TextInput className="parity-textinput" value={props.value} placeholder="Name" style={{ width: 180, height: 32 }} />
 }
 
-function TextAreaFixture() @{
-	<TextArea className="parity-textarea" placeholder="Notes" rows={2} style={{ width: 180, height: 48 }} />
+function TextAreaFixture(props: { value?: string }) @{
+	<TextArea className="parity-textarea" value={props.value} placeholder="Notes" rows={2} style={{ width: 180, height: 48 }} />
 }
 
 function ViewLayoutFixture() @{
@@ -136,11 +136,19 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'slider-50', component: 'Slider', renderer: SliderFixture, props: { id: 'probe-slider-50', value: 50 }, wide: true },
 	{ name: 'checkbox-off', component: 'Checkbox', renderer: CheckboxFixture, props: { checked: false } },
 	{ name: 'checkbox-on', component: 'Checkbox', renderer: CheckboxFixture, props: { checked: true } },
-	{ name: 'text-basic', component: 'Text', renderer: TextFixture, props: { weight: 600 } },
-	{ name: 'text-bold', component: 'Text', renderer: TextFixture, props: { weight: 700 } },
-	{ name: 'button-basic', component: 'Button', renderer: ButtonFixture, props: {}, wide: true },
+	{ name: 'text-basic', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 600, lineHeight: 20, content: 'Shared label' } },
+	{ name: 'text-bold', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 700, lineHeight: 20, content: 'Shared label' } },
+	{ name: 'text-regular', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 400, lineHeight: 20, content: 'Shared label' } },
+	{ name: 'text-small', component: 'Text', renderer: TextFixture, props: { size: 12, weight: 400, lineHeight: 16, content: 'Shared label' } },
+	{ name: 'text-display', component: 'Text', renderer: TextFixture, props: { size: 18, weight: 700, lineHeight: 24, content: 'Shared label' } },
+	{ name: 'text-long', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 400, lineHeight: 20, content: 'Shared typography should render the same glyph advances' } },
+	{ name: 'button-basic', component: 'Button', renderer: ButtonFixture, props: { width: 220, height: 32, label: 'Go' }, wide: true },
+	{ name: 'button-compact', component: 'Button', renderer: ButtonFixture, props: { width: 96, height: 28, label: 'Save' }, wide: true },
+	{ name: 'button-long-label', component: 'Button', renderer: ButtonFixture, props: { width: 160, height: 36, label: 'Continue' }, wide: true },
 	{ name: 'text-input', component: 'TextInput', renderer: TextInputFixture, props: {} },
+	{ name: 'text-input-filled', component: 'TextInput', renderer: TextInputFixture, props: { value: 'alec@example.com' } },
 	{ name: 'text-area', component: 'TextArea', renderer: TextAreaFixture, props: {} },
+	{ name: 'text-area-filled', component: 'TextArea', renderer: TextAreaFixture, props: { value: 'First line\nSecond line' } },
 	{ name: 'view-layout', component: 'View', renderer: ViewLayoutFixture, props: {} },
 	{ name: 'column-layout', component: 'Column', renderer: ColumnLayoutFixture, props: {} },
 	{ name: 'row-layout', component: 'Row', renderer: RowLayoutFixture, props: {} },

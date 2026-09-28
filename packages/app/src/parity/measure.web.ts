@@ -23,6 +23,7 @@ function nodeFor(el: any, boxEl: any) {
 	const box = boxEl.getBoundingClientRect()
 	const r = el.getBoundingClientRect()
 	const cs = getComputedStyle(el)
+	const text = typeof el.value === 'string' ? el.value.trim() : ownText(el)
 	const style: Record<string, string> = {}
 	for (const f of STYLE_FACETS) {
 		const v = (cs as any)[f]
@@ -42,7 +43,7 @@ function nodeFor(el: any, boxEl: any) {
 			h: round(r.height),
 		},
 		style,
-		text: ownText(el),
+		text,
 		placeholder: typeof el.placeholder === 'string' ? el.placeholder || undefined : undefined,
 	}
 }

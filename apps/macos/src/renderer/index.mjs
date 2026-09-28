@@ -308,6 +308,8 @@ function makeLabel() {
 	label.editable = false
 	label.selectable = false
 	label.alignment = NSTextAlignment.Left
+	label.cell.wraps = true
+	label.cell.usesSingleLineMode = false
 	label.translatesAutoresizingMaskIntoConstraints = false
 	label.font = fontForStyle(16)
 	return label
@@ -542,8 +544,9 @@ function applyStyle(node, style) {
 			node.view.font = fontForStyle(value, weight)
 		} else if (name === 'color' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			node.view.textColor = nativeColor(value)
-		} else if (name === 'lineHeight' && node.type === 'label' && style.height == null) {
-			setSizeConstraint(node, 'height', value)
+		} else if (name === 'lineHeight' && node.type === 'label') {
+			// syncText applies this to each paragraph; it is not the label's fixed height.
+			continue
 		} else if (name === 'padding' && node.type === 'flexboxlayout') {
 			const padding = Number(value)
 			node.view.edgeInsets = { top: padding, left: padding, bottom: padding, right: padding }
@@ -655,9 +658,26 @@ function textContent(node) {
 	return node.children.map(textContent).join('')
 }
 
+function setLabelText(node, text) {
+	const lineHeight = Number(node.props?.style?.lineHeight)
+	if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+		node.view.stringValue = text
+		return
+	}
+
+	const paragraphStyle = NSMutableParagraphStyle.alloc().init()
+	paragraphStyle.minimumLineHeight = lineHeight
+	paragraphStyle.maximumLineHeight = lineHeight
+	node.view.attributedStringValue = NSAttributedString.alloc().initWithStringAttributes(text, {
+		[NSParagraphStyleAttributeName]: paragraphStyle,
+		[NSFontAttributeName]: node.view.font,
+		[NSForegroundColorAttributeName]: node.view.textColor,
+	})
+}
+
 function syncText(parent) {
 	if (parent?.type !== 'label') {return}
-	parent.view.stringValue = parent.children.map(textContent).join('')
+	setLabelText(parent, parent.children.map(textContent).join(''))
 }
 
 function syncTextViewPlaceholder(node) {
@@ -789,12 +809,15 @@ function applyProps(node, props) {
 				else {console.warn('[macos-host] ignored flexboxlayout prop ' + name)}
 
 				break
-			case 'label':
+		case 'label':
 				if (name === 'text') {
-					node.view.stringValue = String(value ?? '')
+					setLabelText(node, String(value ?? ''))
 				} else if (name === 'fontSize') {
 					node.view.font = fontForStyle(Number(value ?? 16), node.appliedFontWeight ?? 400)
-				} else if (name === 'style') {applyStyle(node, value)}
+				} else if (name === 'style') {
+					applyStyle(node, value)
+					syncText(node)
+				}
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'id') {continue}
 				else if (['maxLines', 'whiteSpace', 'textOverflow', 'accessible'].includes(name)) {continue}

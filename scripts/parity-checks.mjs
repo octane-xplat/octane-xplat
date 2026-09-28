@@ -18,52 +18,137 @@ const dims = (el, w, h, tol) => [
 	`${el.box?.w}×${el.box?.h}`,
 ]
 
+const textEqual = [
+	'text.box.w',
+	'text.box.h',
+	'text.style.fontSize',
+	'text.style.fontFamily',
+	'text.style.fontPostScriptName',
+	'text.style.fontWeight',
+	'text.style.lineHeight',
+	'text.style.color',
+]
+
+function textRows(m, content, height, width) {
+	const text = m('text')
+	const rows = [
+		[`text height is ${height}px`, near(text.box?.h, height, 1), text.box?.h],
+		['text content matches', text.text === content, JSON.stringify(text.text)],
+		['text is inside the fixture box', text.box?.x >= 0 && text.box?.y >= 0],
+	]
+	if (width !== undefined) {
+		rows.unshift([`text width is ${width}px`, near(text.box?.w, width, 1), text.box?.w])
+	}
+	return rows
+}
+
+const buttonEqual = [
+	'btn.style.justifyContent',
+	'btn.style.alignItems',
+	'label.box.x',
+	'label.box.y',
+	'label.box.w',
+	'label.box.h',
+	'label.style.fontFamily',
+	'label.style.fontPostScriptName',
+]
+
+function buttonRows(m, width, height, labelText) {
+	const btn = m('btn')
+	const label = m('label')
+	return [
+		dims(btn, width, height, 1),
+		['label child renders', label.text === labelText, JSON.stringify(label.text)],
+		[
+			'label centered horizontally',
+			near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1),
+		],
+		[
+			'label centered vertically',
+			near(label.box.y + label.box.h / 2 - btn.box.y, btn.box.h / 2, 1),
+		],
+	]
+}
+
+const inputEqual = [
+	'field.box.x',
+	'field.box.y',
+	'field.box.w',
+	'field.box.h',
+	'field.placeholder',
+	'field.style.fontSize',
+	'field.style.fontFamily',
+	'field.style.fontPostScriptName',
+	'field.style.color',
+]
+
+function inputRows(m, value) {
+	const field = m('field')
+	const rows = [dims(field, 180, 32, 1), ['placeholder is set', field.placeholder === 'Name', field.placeholder]]
+	if (value !== undefined) {
+		rows.push(['input value matches', field.text === value, JSON.stringify(field.text)])
+	}
+	return rows
+}
+
+function textAreaRows(m, target, value) {
+	const field = m('field')
+	const rows = [dims(field, 180, 48, 1), ['placeholder is set', field.placeholder === 'Notes', field.placeholder]]
+	if (value !== undefined) {
+		rows.push(['textarea value matches', field.text === value, JSON.stringify(field.text)])
+	}
+	if (target === 'macos') {
+		rows.push([
+			'placeholder aligns to the textarea content origin',
+			near(field.placeholderBox?.x, field.box.x, 1) && near(field.placeholderBox?.y, field.box.y, 1),
+			JSON.stringify(field.placeholderBox),
+		])
+	}
+	return rows
+}
+
 export const CHECKS = [
 	{
 		fixture: 'text-basic',
 		targets: ['web', 'macos'],
 		elements: { text: 'parity-text' },
-		equal: [
-			'text.box.w',
-			'text.box.h',
-			'text.style.fontSize',
-			'text.style.fontFamily',
-			'text.style.fontPostScriptName',
-			'text.style.fontWeight',
-			'text.style.lineHeight',
-			'text.style.color',
-		],
-		check: (m) => {
-			const text = m('text')
-			return [
-				dims(text, 84.17, 20, 1),
-				['text content matches', text.text === 'Shared label', JSON.stringify(text.text)],
-				['text is inside the fixture box', text.box?.x >= 0 && text.box?.y >= 0],
-			]
-		},
+		equal: textEqual,
+		check: (m) => textRows(m, 'Shared label', 20, 84.17),
 	},
 	{
 		fixture: 'text-bold',
 		targets: ['web', 'macos'],
 		elements: { text: 'parity-text' },
-		equal: [
-			'text.box.w',
-			'text.box.h',
-			'text.style.fontSize',
-			'text.style.fontFamily',
-			'text.style.fontPostScriptName',
-			'text.style.fontWeight',
-			'text.style.lineHeight',
-			'text.style.color',
-		],
-		check: (m) => {
-			const text = m('text')
-			return [
-				['text height is 20px', near(text.box?.h, 20, 1), text.box?.h],
-				['text content matches', text.text === 'Shared label', JSON.stringify(text.text)],
-				['text is inside the fixture box', text.box?.x >= 0 && text.box?.y >= 0],
-			]
-		},
+		equal: textEqual,
+		check: (m) => textRows(m, 'Shared label', 20),
+	},
+	{
+		fixture: 'text-regular',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: textEqual,
+		check: (m) => textRows(m, 'Shared label', 20),
+	},
+	{
+		fixture: 'text-small',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: textEqual,
+		check: (m) => textRows(m, 'Shared label', 16),
+	},
+	{
+		fixture: 'text-display',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: textEqual,
+		check: (m) => textRows(m, 'Shared label', 24),
+	},
+	{
+		fixture: 'text-long',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: textEqual,
+		check: (m) => textRows(m, 'Shared typography should render the same glyph advances', 40),
 	},
 	{
 		fixture: 'switch-off',
@@ -195,82 +280,52 @@ export const CHECKS = [
 	{
 		fixture: 'button-basic',
 		elements: { btn: 'vx-button', label: 'parity-txt' },
-		equal: [
-			'btn.style.justifyContent',
-			'btn.style.alignItems',
-			'label.box.x',
-			'label.box.y',
-			'label.box.w',
-			'label.box.h',
-			'label.style.fontFamily',
-			'label.style.fontPostScriptName',
-		],
-		check: (m) => {
-			const btn = m('btn')
-			const label = m('label')
-			return [
-				dims(btn, 220, 32, 1),
-				['label child renders', label.text === 'Go', JSON.stringify(label.text)],
-				[
-					'label centered in button',
-					near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1),
-				],
-			]
-		},
+		equal: buttonEqual,
+		check: (m) => buttonRows(m, 220, 32, 'Go'),
+	},
+	{
+		fixture: 'button-compact',
+		elements: { btn: 'vx-button', label: 'parity-txt' },
+		equal: buttonEqual,
+		check: (m) => buttonRows(m, 96, 28, 'Save'),
+	},
+	{
+		fixture: 'button-long-label',
+		elements: { btn: 'vx-button', label: 'parity-txt' },
+		equal: buttonEqual,
+		check: (m) => buttonRows(m, 160, 36, 'Continue'),
 	},
 	{
 		fixture: 'text-input',
 		targets: ['web', 'macos'],
 		elements: { field: 'parity-textinput' },
-		equal: [
-			'field.box.x',
-			'field.box.y',
-			'field.box.w',
-			'field.box.h',
-			'field.placeholder',
-			'field.style.fontSize',
-			'field.style.fontFamily',
-			'field.style.fontPostScriptName',
-			'field.style.color',
-		],
-		check: (m) => {
-			const field = m('field')
-			return [
-				dims(field, 180, 32, 1),
-				['placeholder is set', field.placeholder === 'Name', field.placeholder],
-			]
-		},
+		equal: inputEqual,
+		check: (m) => inputRows(m),
+	},
+	{
+		fixture: 'text-input-filled',
+		targets: ['web', 'macos'],
+		elements: { field: 'parity-textinput' },
+		equal: [...inputEqual, 'field.text'],
+		check: (m) => inputRows(m, 'alec@example.com'),
 	},
 	{
 		fixture: 'text-area',
 		targets: ['web', 'macos'],
 		elements: { field: 'parity-textarea' },
-		equal: [
-			'field.box.x',
-			'field.box.y',
-			'field.box.w',
-			'field.box.h',
-			'field.placeholder',
-			'field.style.fontSize',
-			'field.style.fontFamily',
-			'field.style.fontPostScriptName',
-			'field.style.color',
-		],
-		check: (m, target) => {
-			const field = m('field')
-			const rows = [
-				dims(field, 180, 48, 1),
-				['placeholder is set', field.placeholder === 'Notes', field.placeholder],
-			]
-			if (target === 'macos') {
-				rows.push([
-					'placeholder aligns to the textarea content origin',
-					near(field.placeholderBox?.x, field.box.x, 1) && near(field.placeholderBox?.y, field.box.y, 1),
-					JSON.stringify(field.placeholderBox),
-				])
-			}
-			return rows
-		},
+		equal: inputEqual,
+		check: (m, target) => textAreaRows(m, target),
+	},
+	{
+		fixture: 'text-area-filled',
+		targets: ['web', 'macos'],
+		elements: { field: 'parity-textarea' },
+		// CDP doesn't expose the active font face inside a populated textarea;
+		// the empty textarea case checks family and PostScript name.
+		equal: inputEqual
+			.filter((facet) => !['field.style.fontFamily', 'field.style.fontPostScriptName'].includes(facet))
+			.concat('field.text'),
+		check: (m, target) => textAreaRows(m, target, 'First line\nSecond line'),
 	},
 	{
 		fixture: 'view-layout',
