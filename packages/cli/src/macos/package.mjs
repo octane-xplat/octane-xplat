@@ -239,6 +239,7 @@ export async function packageMacOS(appRoot) {
 	const mainExecutable = join(contentsPath, 'MacOS', settings.executableName)
 	const dmgPath = join(stagingRoot, `${settings.executableName}-macos-arm64.dmg`)
 
+	let preserveStagingRoot = false
 	try {
 		await mkdir(dirname(mainExecutable), { recursive: true })
 		await mkdir(join(resourcesPath, 'licenses'), { recursive: true })
@@ -331,13 +332,63 @@ export async function packageMacOS(appRoot) {
 
 		const finalAppPath = join(releaseRoot, `${settings.executableName}.app`)
 		const finalDmgPath = join(releaseRoot, `${settings.executableName}-macos-arm64.dmg`)
-		await rm(finalAppPath, { recursive: true, force: true })
-		await rm(finalDmgPath, { force: true })
-		await rename(appPath, finalAppPath)
-		await rename(dmgPath, finalDmgPath)
+		const previousAppPath = join(stagingRoot, `${settings.executableName}.previous.app`)
+		let previousAppMoved = false
+		let appPublished = false
+		try {
+			if (await exists(finalAppPath)) {
+				await rename(finalAppPath, previousAppPath)
+				previousAppMoved = true
+			}
+
+			await rename(appPath, finalAppPath)
+			appPublished = true
+			await rename(dmgPath, finalDmgPath)
+		} catch (error) {
+			const rollbackErrors = []
+			if (appPublished) {
+				try {
+					await rm(finalAppPath, { recursive: true, force: true })
+				} catch (rollbackError) {
+					rollbackErrors.push(rollbackError)
+				}
+			}
+
+			if (previousAppMoved) {
+				try {
+					await rename(previousAppPath, finalAppPath)
+				} catch (rollbackError) {
+					rollbackErrors.push(rollbackError)
+				}
+			}
+
+			if (rollbackErrors.length > 0) {
+				preserveStagingRoot = true
+				throw new AggregateError(
+					[error, ...rollbackErrors],
+					`Failed to publish macOS artifacts and roll back; recovery files remain in ${stagingRoot}`,
+				)
+			}
+
+			throw error
+		}
+
+		if (previousAppMoved) {
+			try {
+				await rm(previousAppPath, { recursive: true, force: true })
+			} catch (error) {
+				preserveStagingRoot = true
+				console.error(`[macos-package] previous app backup remains at ${previousAppPath}`, error)
+			}
+		}
+
 		console.log(`[macos-package] app: ${finalAppPath}`)
 		console.log(`[macos-package] dmg: ${finalDmgPath}`)
 	} finally {
-		await rm(stagingRoot, { recursive: true, force: true })
+		if (preserveStagingRoot) {
+			console.error(`[macos-package] staging directory retained for recovery: ${stagingRoot}`)
+		} else {
+			await rm(stagingRoot, { recursive: true, force: true })
+		}
 	}
 }
