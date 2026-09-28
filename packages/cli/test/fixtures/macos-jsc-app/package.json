@@ -1,0 +1,28 @@
+{
+  "name": "xplat-macos-jsc-fixture",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
+    "octane": "0.5.0"
+  },
+  "devDependencies": {
+    "vite": "8.3.0"
+  },
+  "xplat": {
+    "targets": {
+      "macos": {
+        "runtime": "appkit-node-api",
+        "package": {
+          "productName": "JSC Fixture",
+          "bundleIdentifier": "org.octane.xplat.jsc-fixture",
+          "executableName": "JSCFixture",
+          "version": "0.1.0",
+          "minimumSystemVersion": "13.5",
+          "viteConfig": "vite.config.mjs",
+          "bundleFile": "dist/main.cjs"
+        }
+      }
+    }
+  }
+}

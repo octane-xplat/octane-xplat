@@ -38,8 +38,9 @@ NativeScript's HTTP-ESM bootstrap and runtime loader, which this AppKit host doe
 not use.
 
 The stable `@nativescript/macos-node-api@0.4.0` loader points at an architecture
-path missing from that published artifact, so this spike pins the matching
-`0.4.4-next` preview.
+path missing from that published artifact, so Node-based development pins the
+matching `0.4.4-next` preview. Packaged apps use the CLI's separately rebuilt
+NativeScript framework.
 
 Run `pnpm xplat dev --targets macos` to launch it, or
 `pnpm xplat build --targets macos` to create the `.app` and `.dmg`. The app's
@@ -51,8 +52,8 @@ The CLI forwards dev to this app's `dev` script; `xplat build` owns the shared
 `xplat doctor` checks the AppKit host, Apple Silicon architecture, package
 metadata, declared runtime dependency, and packaging tools without requiring
 the NativeScript CLI, iOS simulator, or Android SDK. This target is experimental
-and Apple Silicon only. Packaging compiles a small Mach-O launcher, so the host
-also needs `clang` from Xcode Command Line Tools; `xplat doctor` checks for it.
+and Apple Silicon only. Packaging uses a pinned, statically linked Mach-O host
+and system JavaScriptCore; it does not download or bundle Node.
 
 With `OCTANE_MACOS_AUTOMATION=1`, the dev host runs the adapted macOS harness
 sweep through the AppKit renderer's debug interface. It reports route and
@@ -128,18 +129,44 @@ API.
 ## Packaging proof
 
 `pnpm --filter @xplat/macos package` delegates to the CLI to build an Apple
-Silicon `.app` and compressed `.dmg`. When it downloads Node 24.21.0 LTS, the
-packager verifies the official arm64 archive against a pinned SHA-256 value.
-Before embedding Node, every build checks the executable checksum and its
-version and architecture, including when it reuses the extracted runtime cache.
-The app also includes the NativeScript Node-API runtime and bundled Octane
-component. Its Mach-O launcher lives in
-`Contents/MacOS`; it starts Node from `Contents/Helpers` with
-`Resources/app/main.cjs` as its entry script. The NativeScript framework lives
-in `Contents/Frameworks` and is linked from its package-relative loader path.
-The bundle targets macOS 13.5 or later, matching the minimum OS required by the
-bundled Node runtime. Artifacts are written under
+Silicon `.app` and compressed `.dmg`. Every build verifies SHA-256 checksums
+of the pinned host, NativeScript framework, and metadata before running Vite.
+The statically linked host lives in `Contents/MacOS`, loads system
+JavaScriptCore, initializes the compatible Node-API addon from
+`Contents/Frameworks`, then evaluates `Resources/app/main.cjs`. Metadata and
+the JavaScript host shim live in `Contents/Resources`. No Node executable or
+JavaScript engine binary is bundled. The bundle targets macOS 13.5 or later.
+Artifacts are written under
 `apps/macos/artifacts/macos-arm64/` so dev builds do not clean them.
+
+The host accepts one bundled CommonJS entry. Vite must bundle ordinary
+dependencies. Set `build.rollupOptions.external` to
+`['@nativescript/macos-node-api', /^node:/]`, as in the
+[independent fixture](../../packages/cli/test/fixtures/macos-jsc-app/vite.config.mjs).
+External imports are limited to `@nativescript/macos-node-api` and
+`node:crypto`, `node:fs`, `node:os`, and `node:path`; packaging rejects
+other `require()` imports and dynamic `require()`. The supported Node subset is
+`crypto.createHash('sha256').update(data).digest('hex')`, synchronous `fs`
+`mkdirSync`/`existsSync`/`readFileSync`/`writeFileSync`, `os.homedir()`, and
+`path.join`/`path.resolve`. Globals include `console`, `process.env` reads,
+`process.cwd()`, `Buffer.from(base64, 'base64')`, timers, and
+`queueMicrotask`. Unsupported members throw `Unsupported macOS host API` at
+runtime. Use the AppKit ObjC bridge for native UI and services; general Node
+modules are outside this host contract.
+
+The native inputs and source revisions are recorded in
+`packages/cli/src/macos/jsc-host/prebuilt/manifest.json`. The adjacent
+`build-runtime.sh` rebuilds the statically linked host and compatible
+framework from pinned upstream revisions, the checked-in metadata snapshot,
+and the reviewed source patches. Run it on Apple Silicon with Xcode, CMake,
+pnpm, Node headers, and Homebrew development headers; `--install` updates the
+CLI's prebuilt files and checksums. Its scratch clones and outputs stay under
+gitignored `research/`.
+
+From the repository root, run `node packages/cli/test/verify-macos-jsc.mjs`
+to build an independent unsigned fixture app, boot its packaged executable,
+and check the unsupported-import diagnostic. The script leaves its artifacts
+under gitignored `research/` for inspection.
 
 Set the optional `icon` package field to an app-root-relative `.icns` file to
 include a custom app icon. The CLI validates the path, copies it to
@@ -147,8 +174,8 @@ include a custom app icon. The CLI validates the path, copies it to
 
 Without signing configuration, the app is ad-hoc signed for local use. Set
 `MACOS_SIGNING_IDENTITY` to a Developer ID Application identity to sign the app
-and disk image for distribution. The Node host is signed with the Hardened
-Runtime JIT entitlement required for its JavaScript engine. For notarization,
+and disk image for distribution. The app host and framework use the same
+packaging signing flow. For notarization,
 save a credential profile in Keychain. Replace the sample Apple ID, Team ID,
 and signing identity with your own; `notarytool` prompts for the app-specific
 password:
@@ -167,8 +194,9 @@ Run the build from `apps/macos`; the CLI signs and verifies the app and disk
 image, submits the image, staples the ticket, and validates it. See
 [Apple's notarytool credential guidance](https://developer.apple.com/documentation/technotes/tn3147-migrating-to-the-latest-notarization-tool).
 
-The packager runs its JavaScript bundle with a separate Node runtime instead of
-embedding it with Node's Single Executable Applications feature, which remains
-in active development. The AppKit target remains an experiment pending
-validation across supported macOS versions and notarized distribution. See
-[Node's SEA documentation](https://nodejs.org/api/single-executable-applications.html).
+The AppKit target remains experimental pending validation across supported
+macOS versions and notarized distribution. Signing and notarization remain
+available in the CLI but were not exercised in this JavaScriptCore change.
+The packaged host's AppKit event
+loop, window close, and runtime error behavior should be checked in each app;
+the in-repository sweep covers its shared harness, not every AppKit API.

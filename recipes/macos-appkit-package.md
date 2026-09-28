@@ -7,7 +7,7 @@ Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package,
 ## Starting point
 
 An AppKit Node-API app running on an Apple Silicon Mac. The app already has a
-production Vite config that emits its CommonJS host bundle.
+production Vite config that emits one CommonJS host bundle.
 
 ## Requirements
 
@@ -15,10 +15,11 @@ production Vite config that emits its CommonJS host bundle.
   `package.json`.
 - Optionally include a custom macOS app icon from an `.icns` file in the app
   project.
-- Build on an Apple Silicon Mac with Xcode Command Line Tools (`clang`); the
-  package also uses the macOS `codesign` and `hdiutil` tools.
-- Set the package's minimum macOS version to 13.5 or later for the bundled Node
-  runtime.
+- Build on an Apple Silicon Mac with the macOS `codesign` and `hdiutil` tools.
+- Set the package's minimum macOS version to 13.5 or later for the
+  JavaScriptCore host.
+- Bundle dependencies into the CommonJS entry and use only the documented
+  AppKit host API. Unsupported external imports fail the build.
 - Run and diagnose the app through the `xplat` CLI without an iOS or Android
   NativeScript toolchain.
 - Produce a local `.app` and `.dmg`, with optional Developer ID signing and
@@ -26,10 +27,10 @@ production Vite config that emits its CommonJS host bundle.
 
 ## Acceptance criteria
 
-- AC1: `xplat doctor` validates the AppKit runtime declaration, installed JS
-  entry points and ARM64 framework binary, required package metadata, minimum
-  macOS version, referenced Vite config, and local macOS packaging tools,
-  including `clang`, `codesign`, and `hdiutil`.
+- AC1: `xplat doctor` validates the AppKit runtime declaration, installed dev
+  runtime, pinned JavaScriptCore host and compatible addon, required package
+  metadata, minimum macOS version, referenced Vite config, and local
+  `codesign` and `hdiutil` tools.
 - AC2: `xplat dev --targets macos` runs the app host, and
   `xplat build --targets macos` validates the runtime package before the Vite
   build, then produces the configured `.app` and `.dmg`.
@@ -38,14 +39,20 @@ production Vite config that emits its CommonJS host bundle.
   staples, and validates the disk image.
 - AC5: When an icon is configured, `xplat doctor` validates the `.icns` path
   and the packaged app includes its matching `Info.plist` icon entry.
-- AC6: The packager verifies a downloaded Node 24.21.0 arm64 archive against a
-  checksum pinned to that release and fails if it differs.
+- AC6: The packager verifies checksums of the pinned arm64 host, compatible
+  NativeScript framework, and metadata before the Vite build. The resulting
+  app bundles no Node executable or JavaScript engine binary; it loads system
+  JavaScriptCore and rejects unsupported external imports with a diagnostic.
 - AC7: `apps/macos` loads the shared `@xplat/app` harness through
   `@octane-xplat/ui`'s macOS package-root condition without a Vite alias; the
   adapted sweep mounts Home, Apps, Test/probes, and all nine app-gallery demos,
   checks representative interactions including the 500-row list update, and
   exposes missing AppKit services as unsupported or unavailable. The AppKit
   list fallback mounts all rows and does not validate virtualization or scale.
+- AC8: An independent app using the public macOS package contract opens an
+  AppKit window, uses the supported host API, and exits successfully from the
+  packaged executable. An unsupported `node:` import fails packaging with a
+  diagnostic naming that import.
 
 ## Documentation
 
@@ -58,3 +65,5 @@ production Vite config that emits its CommonJS host bundle.
   [experimental AppKit target](../docs/toolchain.md#experimental-appkit-target).
 - AC6: [macOS packaging proof](../apps/macos/README.md#packaging-proof).
 - AC7: [macOS package-root boundary](../apps/macos/README.md#macos-experiment).
+- AC8: [Packaged host API](../apps/macos/README.md#packaging-proof) and the
+  [independent fixture check](../packages/cli/test/verify-macos-jsc.mjs).

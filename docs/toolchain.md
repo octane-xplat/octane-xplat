@@ -74,14 +74,15 @@ name, bundle identifier, executable name, version, minimum macOS version, Vite
 config, and production bundle path. An optional `icon` path selects an `.icns`
 file inside the app project for the packaged app icon. `entitlements` is also
 required when `MACOS_SIGNING_IDENTITY` is set. The minimum macOS version must be
-13.5 or later to match the bundled Node runtime. `xplat doctor` rejects lower
+13.5 or later for the JavaScriptCore host. `xplat doctor` rejects lower
 values and checks the configuration and local packaging tools, including
-`clang`, `codesign`, and `hdiutil`. It also checks the installed
+`codesign` and `hdiutil`. It also checks the installed
 `@nativescript/macos-node-api` entry points, type declarations, license, and
-ARM64 framework binary; missing paths appear in the runtime check. Packaging
-performs the same layout check before running Vite, pins the Node archive and
-executable checksums, then compiles a small Mach-O launcher. Install Xcode
-Command Line Tools on the Apple Silicon build host. See
+ARM64 framework binary for Node-based development, plus the pinned packaged
+host and compatible addon. Packaging verifies host artifact checksums before
+running Vite, then rejects external imports outside its documented host API.
+The `.app` uses system JavaScriptCore and bundles no Node executable or JS
+engine binary; `xplat dev` still uses Node for the Vite watcher. See
 the [macOS experiment
 notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for signing, notarization, and icon setup.
