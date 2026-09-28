@@ -1,5 +1,5 @@
 diff --git a/src/js.c b/src/js.c
-index ed8f016..3516c79 100644
+index ed8f016..f85cf85 100644
 --- a/src/js.c
 +++ b/src/js.c
 @@ -1374,13 +1374,15 @@ js_define_class(js_env_t *env, const char *name, size_t len, js_function_cb cons
@@ -81,7 +81,20 @@ index ed8f016..3516c79 100644
      } else if (property->method) {
        js_value_t *fn;
        err = js_create_function(env, "fn", -1, property->method, property->data, &fn);
-@@ -1640,27 +1676,19 @@ js_unwrap(js_env_t *env, js_value_t *object, void **result) {
+@@ -1573,11 +1609,7 @@ js_wrap(js_env_t *env, js_value_t *object, void *data, js_finalize_cb finalize_c
+ 
+   if (JSValueIsObjectOfClass(env->context, wrapped, env->classes.wrap) && js__is_own_property(env, (JSObjectRef) object, ref, wrapped) && JSObjectGetPrivate((JSObjectRef) wrapped) != NULL) {
+     JSStringRelease(ref);
+-
+-    err = js_throw_errorf(env, NULL, "Object is already wrapped");
+-    assert(err == 0);
+-
+-    return js__error(env);
++    return 1;
+   }
+ 
+   js_finalizer_t *finalizer = malloc(sizeof(js_finalizer_t));
+@@ -1640,27 +1672,19 @@ js_unwrap(js_env_t *env, js_value_t *object, void **result) {
      return js__propagate_exception(env);
    }
  
@@ -111,3 +124,47 @@ index ed8f016..3516c79 100644
    }
  
    *result = finalizer->data;
+@@ -1682,27 +1706,19 @@ js_remove_wrap(js_env_t *env, js_value_t *object, void **result) {
+     return js__propagate_exception(env);
+   }
+ 
+-  int err;
+-
+   bool wrapped = JSValueIsObjectOfClass(env->context, external, env->classes.wrap) &&
+                  js__is_own_property(env, (JSObjectRef) object, ref, external);
+ 
+   JSStringRelease(ref);
+ 
+   if (!wrapped) {
+-    err = js_throw_type_error(env, NULL, "Object is not wrapped");
+-    assert(err == 0);
+-
+-    return js__error(env);
++    return 1;
+   }
+ 
+   js_finalizer_t *finalizer = (js_finalizer_t *) JSObjectGetPrivate((JSObjectRef) external);
+ 
+   if (finalizer == NULL) {
+-    err = js_throw_type_error(env, NULL, "Object is not wrapped");
+-    assert(err == 0);
+-
+-    return js__error(env);
++    return 1;
+   }
+ 
+   if (result) *result = finalizer->data;
+@@ -4944,6 +4960,13 @@ int
+ js_get_filtered_property_names(js_env_t *env, js_value_t *object, js_key_collection_mode_t mode, js_property_filter_t property_filter, js_index_filter_t index_filter, js_key_conversion_mode_t key_conversion, js_value_t **result) {
+   if (env->exception) return js__error(env);
+ 
++  if (mode == js_key_own_only &&
++      property_filter == js_property_skip_symbols &&
++      index_filter == js_index_include_indices &&
++      key_conversion == js_key_convert_to_string) {
++    return js_get_property_names(env, object, result);
++  }
++
+   int err;
+ 
+   err = js_throw_error(env, NULL, "Unsupported operation");

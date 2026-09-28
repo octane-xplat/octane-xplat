@@ -10,6 +10,17 @@
 typedef napi_value (*register_module_fn)(napi_env, napi_value);
 typedef void (*native_init_fn)(void *, const char *, const void *);
 
+typedef struct host_timer {
+  int32_t id;
+  js_env_t *env;
+  js_ref_t *callback;
+  CFRunLoopTimerRef timer;
+  struct host_timer *next;
+} host_timer;
+
+static host_timer *host_timers;
+static int32_t next_timer_id = 1;
+
 static void print_value(js_env_t *env, js_value_t *value) {
   js_value_t *string = NULL;
   if (js_coerce_to_string(env, value, &string) != 0) return;
@@ -23,14 +34,131 @@ static int check(js_env_t *env, int status, const char *step) {
   if (status == 0) return 0;
   fprintf(stderr, "%s failed: %d\n", step, status);
   js_value_t *exception = NULL;
-  if (js_get_and_clear_last_exception(env, &exception) == 0 && exception)
+  if (js_get_and_clear_last_exception(env, &exception) == 0 && exception) {
     print_value(env, exception);
+    js_value_t *stack = NULL;
+    if (js_get_named_property(env, exception, "stack", &stack) == 0 && stack)
+      print_value(env, stack);
+  }
   return -1;
 }
 
+static js_value_t *host_log(js_env_t *env, js_callback_info_t *info) {
+  size_t argc = 8;
+  js_value_t *argv[8];
+  if (js_get_callback_info(env, info, &argc, argv, NULL, NULL) != 0) return NULL;
+  for (size_t i = 0; i < argc; i++) {
+    if (i) fputc(' ', stderr);
+    print_value(env, argv[i]);
+  }
+  return NULL;
+}
+
+static void on_timer(CFRunLoopTimerRef timer_ref, void *context) {
+  host_timer *timer = context;
+  if (!timer->callback) return;
+  js_value_t *callback = NULL;
+  js_value_t *global = NULL;
+  if (js_get_reference_value(timer->env, timer->callback, &callback) == 0 && callback &&
+      js_get_global(timer->env, &global) == 0)
+    check(timer->env, js_call_function(timer->env, global, callback, 0, NULL, NULL), "timer callback");
+  if (!CFRunLoopTimerIsValid(timer_ref)) return;
+  if (CFRunLoopTimerGetInterval(timer_ref) == 0) {
+    CFRunLoopTimerInvalidate(timer_ref);
+    js_delete_reference(timer->env, timer->callback);
+    timer->callback = NULL;
+  }
+}
+
+static js_value_t *host_timer_start(js_env_t *env, js_callback_info_t *info) {
+  size_t argc = 2;
+  js_value_t *args[2] = {NULL, NULL};
+  void *data = NULL;
+  if (js_get_callback_info(env, info, &argc, args, NULL, &data) != 0 || argc < 1) return NULL;
+  double delay = 0;
+  if (argc > 1 && js_get_value_double(env, args[1], &delay) != 0) return NULL;
+  host_timer *timer = calloc(1, sizeof *timer);
+  timer->id = next_timer_id++;
+  timer->env = env;
+  if (js_create_reference(env, args[0], 1, &timer->callback) != 0) return NULL;
+  double seconds = delay > 0 ? delay / 1000.0 : 0.001;
+  CFRunLoopTimerContext context = {0, timer, NULL, NULL, NULL};
+  timer->timer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent() + seconds,
+                                      data ? seconds : 0, 0, 0, on_timer, &context);
+  timer->next = host_timers;
+  host_timers = timer;
+  CFRunLoopAddTimer(CFRunLoopGetMain(), timer->timer, kCFRunLoopDefaultMode);
+  js_value_t *id = NULL;
+  js_create_int32(env, timer->id, &id);
+  return id;
+}
+
+static js_value_t *host_timer_clear(js_env_t *env, js_callback_info_t *info) {
+  size_t argc = 1;
+  js_value_t *arg = NULL;
+  if (js_get_callback_info(env, info, &argc, &arg, NULL, NULL) != 0 || argc < 1) return NULL;
+  int32_t id;
+  if (js_get_value_int32(env, arg, &id) != 0) return NULL;
+  for (host_timer *timer = host_timers; timer; timer = timer->next) {
+    if (timer->id != id) continue;
+    CFRunLoopTimerInvalidate(timer->timer);
+    if (timer->callback) {
+      js_delete_reference(env, timer->callback);
+      timer->callback = NULL;
+    }
+    break;
+  }
+  return NULL;
+}
+
+static int run_file(js_env_t *env, const char *path, int cjs) {
+  FILE *file = fopen(path, "rb");
+  if (!file) { perror(path); return -1; }
+  fseek(file, 0, SEEK_END);
+  long size = ftell(file);
+  rewind(file);
+  const char *prefix = cjs ? "(function(exports, require, module, __filename, __dirname) {\n" : "";
+  const char *suffix = cjs ? "\n})" : "";
+  size_t prefix_length = strlen(prefix);
+  size_t suffix_length = strlen(suffix);
+  size_t source_length = prefix_length + (size_t)size + suffix_length;
+  char *source = malloc(source_length + 1);
+  memcpy(source, prefix, prefix_length);
+  if (fread(source + prefix_length, 1, (size_t)size, file) != (size_t)size) return -1;
+  fclose(file);
+  memcpy(source + prefix_length + size, suffix, suffix_length);
+  source[source_length] = 0;
+  js_value_t *script = NULL;
+  js_value_t *result = NULL;
+  int status = check(env, js_create_string_utf8(env, (const utf8_t *)source, source_length, &script), "source") ||
+               check(env, js_run_script(env, path, strlen(path), 0, script, &result), "run script");
+  free(source);
+  if (status) return -1;
+  if (cjs) {
+    js_value_t *global = NULL;
+    js_value_t *require = NULL;
+    js_value_t *exports = NULL;
+    js_value_t *module = NULL;
+    js_value_t *filename = NULL;
+    js_value_t *dirname = NULL;
+    if (check(env, js_get_global(env, &global), "CJS global") ||
+        check(env, js_get_named_property(env, global, "require", &require), "CJS require") ||
+        check(env, js_create_object(env, &exports), "CJS exports") ||
+        check(env, js_create_object(env, &module), "CJS module") ||
+        check(env, js_set_named_property(env, module, "exports", exports), "CJS module.exports") ||
+        check(env, js_create_string_utf8(env, (const utf8_t *)path, strlen(path), &filename), "CJS filename") ||
+        check(env, js_create_string_utf8(env, (const utf8_t *)".", 1, &dirname), "CJS dirname")) return -1;
+    js_value_t *args[] = { exports, require, module, filename, dirname };
+    if (check(env, js_call_function(env, global, result, 5, args, &result), "CJS entry")) return -1;
+  }
+  fprintf(stderr, "script result: ");
+  print_value(env, result);
+  return 0;
+}
+
 int main(int argc, char **argv) {
-  if (argc != 3 && argc != 4) {
-    fprintf(stderr, "usage: minimal-host <framework binary> <script> [metadata.nsmd]\n");
+  if (argc < 3 || argc > 5) {
+    fprintf(stderr, "usage: minimal-host <framework binary> <script> [metadata.nsmd] [bootstrap.js]\n");
     return 2;
   }
 
@@ -66,7 +194,7 @@ int main(int argc, char **argv) {
   exports = (js_value_t *)register_module((napi_env)env, (napi_value)exports);
   if (!exports) return check(env, -1, "module register"), 1;
   if (check(env, js_get_named_property(env, exports, "init", &init), "init lookup")) return 1;
-  if (argc == 4) {
+  if (argc >= 4) {
     native_init_fn native_init = (native_init_fn)dlsym(library, "nativescript_init");
     if (!native_init) { fprintf(stderr, "missing nativescript_init\n"); return 1; }
     native_init(env, argv[3], NULL);
@@ -77,23 +205,32 @@ int main(int argc, char **argv) {
   fprintf(stderr, "objc global: ");
   print_value(env, objc);
 
-  FILE *file = fopen(argv[2], "rb");
-  if (!file) { perror("script"); return 1; }
-  fseek(file, 0, SEEK_END);
-  long size = ftell(file);
-  rewind(file);
-  char *source = malloc((size_t)size + 1);
-  if (fread(source, 1, (size_t)size, file) != (size_t)size) return 1;
-  fclose(file);
-  source[size] = 0;
-  js_value_t *script = NULL;
-  js_value_t *result = NULL;
-  if (check(env, js_create_string_utf8(env, (const utf8_t *)source, (size_t)size, &script), "source") ||
-      check(env, js_run_script(env, argv[2], strlen(argv[2]), 0, script, &result), "run script"))
-    return 1;
-  fprintf(stderr, "script result: ");
-  print_value(env, result);
+  if (argc == 5) {
+    js_value_t *log = NULL;
+    js_value_t *timer = NULL;
+    js_value_t *interval = NULL;
+    js_value_t *clear = NULL;
+    if (check(env, js_create_function(env, "hostLog", 7, host_log, NULL, &log), "host log") ||
+        check(env, js_set_named_property(env, global, "__hostLog", log), "host log global") ||
+        check(env, js_create_function(env, "setTimeout", 10, host_timer_start, NULL, &timer), "setTimeout") ||
+        check(env, js_create_function(env, "setInterval", 11, host_timer_start, (void *)1, &interval), "setInterval") ||
+        check(env, js_create_function(env, "clearTimer", 10, host_timer_clear, NULL, &clear), "clearTimer") ||
+        check(env, js_set_named_property(env, global, "__setTimeout", timer), "setTimeout global") ||
+        check(env, js_set_named_property(env, global, "__setInterval", interval), "setInterval global") ||
+        check(env, js_set_named_property(env, global, "__clearTimer", clear), "clearTimer global")) return 1;
+    if (check(env, js_set_named_property(env, global, "__nativeExports", exports), "exports global")) return 1;
+    if (run_file(env, argv[4], 0)) return 1;
+  }
+  if (run_file(env, argv[2], argc == 5)) return 1;
   CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
+  for (host_timer *timer = host_timers; timer;) {
+    host_timer *next = timer->next;
+    CFRunLoopTimerInvalidate(timer->timer);
+    CFRelease(timer->timer);
+    if (timer->callback) js_delete_reference(env, timer->callback);
+    free(timer);
+    timer = next;
+  }
   js_close_handle_scope(env, scope);
   js_destroy_env(env);
   js_destroy_platform(platform);
