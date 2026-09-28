@@ -98,8 +98,10 @@ plugin metadata with the app's direct dependencies. Missing declarations are
 warnings, not a hard failure, because the web target does not need them and
 some native capabilities are optional.
 
-The starter declares the UI plugin set (`ui-canvas`, `ui-drawer`, and
-`ui-svg`). It does not seed every platform service plugin: apps should add the
+The starter declares only the optional UI plugins (`ui-drawer`, plus
+`gesturehandler` — see below); `ui-svg` travels transitively as a real
+dependency of `@octane-xplat/ui`. It does not seed every platform service
+plugin: apps should add the
 plugins for the services they import, and `doctor` names the missing package.
 `@nativescript-community/gesturehandler` is also required: `Drawer.native`
 eagerly imports `ui-drawer`, which eagerly imports gesturehandler, whose iOS

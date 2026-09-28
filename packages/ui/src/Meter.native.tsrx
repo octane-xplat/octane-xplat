@@ -1,25 +1,24 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { AccessibilityRole } from '@nativescript/core';
-import { registerElement } from '@nativescript-community/octane';
-import { CanvasView, Cap, Paint, Style } from '@nativescript-community/ui-canvas';
-import type { Attributes } from '@nativescript-community/octane/intrinsics';
-import { useEffect, useRef } from 'octane';
 import type { MeterProps } from './props';
 import { cx } from './cx';
 import { meterRange } from './meter-math';
+import './svg.native';
 
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		canvasview: Attributes<typeof CanvasView> & {
-			/** ui-canvas's public typings expose `onDraw` as an instance method
-			 *  (no `static drawEvent` on CanvasView), so Attributes can't derive
-			 *  the event prop — declare it here. */
-			onDraw?: (event: any) => void;
-		};
-	}
+/** Ring markup matching the web leaf's conic-gradient: a track circle plus a
+ *  dash-array arc rotated to start at 12 o'clock, drawn by `svgview`
+ *  (androidsvg on Android, SVGKit on iOS). The module-level import above is
+ *  the side effect that registers the element. */
+function ringSvg(size: number, strokeWidth: number, ratio: number, color: string, trackColor: string): string {
+	const c = size / 2;
+	const r = Math.max(0, (size - strokeWidth) / 2);
+	const circumference = 2 * Math.PI * r;
+	const track = `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${trackColor}" stroke-width="${strokeWidth}"/>`;
+	const arc = ratio > 0 && r > 0
+		? `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-dasharray="${ratio * circumference} ${circumference}" transform="rotate(-90 ${c} ${c})"/>`
+		: '';
+	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">${track}${arc}</svg>`;
 }
-
-registerElement('canvasview', CanvasView);
 
 export function Meter(props: MeterProps) @{
 	const max = props.max ?? 100;
@@ -28,45 +27,19 @@ export function Meter(props: MeterProps) @{
 	const strokeWidth = Math.max(0, Math.min(props.strokeWidth ?? 3, size));
 	const color = props.color ?? '#3376cc';
 	const trackColor = props.trackColor ?? '#e1ecf7';
-	const canvasRef = useRef<any>(null);
-	useEffect(() => {
-		canvasRef.current?.invalidate();
-	}, [value, rangeMax, strokeWidth, color, trackColor]);
 
-	const draw = (event: any) => {
-		const canvas = event.canvas;
-		const width = canvas.getWidth();
-		const height = canvas.getHeight();
-		const diameter = Math.max(0, Math.min(width, height) - strokeWidth);
-		const left = (width - diameter) / 2;
-		const top = (height - diameter) / 2;
-		const right = left + diameter;
-		const bottom = top + diameter;
-		const paint = new Paint();
-		paint.style = Style.STROKE;
-		paint.strokeCap = Cap.ROUND;
-		paint.strokeWidth = strokeWidth;
-		paint.setColor(trackColor);
-		canvas.drawArc(left, top, right, bottom, -90, 360, false, paint);
-		if (ratio > 0) {
-			paint.setColor(color);
-			canvas.drawArc(left, top, right, bottom, -90, ratio * 360, false, paint);
-		}
-	};
-
-	<canvasview
+	<gridlayout
 		id={props.id}
-		ref={canvasRef}
 		className={cx('vx-meter', props.className)}
 		style={{ width: size, height: size, ...props.style }}
-		onDraw={draw}
 		accessible={true}
 		accessibilityRole={AccessibilityRole.ProgressBar}
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityValue={`${value} of ${rangeMax}`}
 	>
+		<svgview src={ringSvg(size, strokeWidth, ratio, color, trackColor)} stretch="aspectFit" style={{ width: size, height: size }} />
 		<gridlayout horizontalAlignment="center" verticalAlignment="middle">
 			{props.children}
 		</gridlayout>
-	</canvasview>
+	</gridlayout>
 }

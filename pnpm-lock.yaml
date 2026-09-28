@@ -118,9 +118,6 @@ importers:
       '@nativescript-community/perms':
         specifier: 3.0.11
         version: 3.0.11
-      '@nativescript-community/ui-canvas':
-        specifier: 4.6.52
-        version: 4.6.52
       '@nativescript-community/ui-document-picker':
         specifier: 1.1.29
         version: 1.1.29
@@ -584,9 +581,6 @@ importers:
       '@nativescript-community/octane':
         specifier: 0.2.1
         version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=d9fd84259967bec9e6162ea12d9eda76f61890accf66c67610c6953e95135f76))(octane@file:research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
-      '@nativescript-community/ui-canvas':
-        specifier: 4.6.52
-        version: 4.6.52
       '@nativescript-community/ui-drawer':
         specifier: 0.1.32
         version: 0.1.32
