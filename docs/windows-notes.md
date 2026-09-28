@@ -5,7 +5,8 @@
 > is desk-source as of 2026-09-28 — no Windows machine has run any of it.
 >
 > **Owns:** Windows target seam (new platform, not one of the seven owned
-> problems) · **Status:** mapped at source level · **Blocks on:** Q32–Q35 ·
+> problems) · **Status:** Path A scaffolded; bundle emits on macOS, unrun on
+> Windows · **Blocks on:** Q32–Q35 ·
 > **Decisions:** #65 · **Validated by:** queued Silo experiments (WinUI3 host
 > boot under pkg.pr.new builds; WinUI3-from-Node via `windows-napi`).
 
@@ -19,7 +20,7 @@ Two structurally different integrations are possible:
   websocket HMR contract the windows runtime reimplements) and an open
   `nativescript-cli#6065`. `@nativescript-community/octane`'s driver imports
   core view classes with no platform branching, so on this path Windows is
-  "`.native` that also runs on desktop" — zero renderer code from us.
+  "the native default that also runs on desktop" — zero renderer code from us.
 - **Path B — Node-API host (the macOS pattern).** A `node` process loads
   `@nativescript/windows-napi` and we write a driver for the universal-root
   contract, like `apps/macos/src/renderer`. Headless UI is proven only for
@@ -29,7 +30,7 @@ Two structurally different integrations are possible:
   also not yet published — building it needs Rust + MSVC.
 
 Path A is the plan (#65, provisional): it inherits real WinUI 3 controls, the
-existing vite dev pipeline, and the `.native` leaf set. Path B stays warm as
+existing vite dev pipeline, and the unsuffixed native leaf set. Path B stays warm as
 the fallback and doubles as the bring-up spike — its cheapest experiment
 ("does `Microsoft.UI.Xaml` activate under `node` + `windows-napi`?") also
 derisks how much of A we could self-host if upstream stalls.
@@ -38,9 +39,9 @@ derisks how much of A we could self-host if upstream stalls.
 
 | Layer | Change |
 | --- | --- |
-| Suffix lattice | `.windows.*` joins the extension chain ahead of `.native.*` in `packages/cli/src/vite.mjs` (`xplatNative` gains a `windows` platform branch); `windows` export condition + `./windows` subpath on `@octane-xplat/ui`; `customConditions`/`moduleSuffixes` in app tsconfigs |
+| Suffix lattice | `.windows.*` joins the extension chain ahead of the unsuffixed native default in `packages/cli/src/vite.mjs` (`xplatNative` gains a `windows` platform branch — `.mobile` stays ios/android-only); `./windows` subpath on `@octane-xplat/ui`; `moduleSuffixes` in app tsconfigs |
 | App shell | `@nativescript/windows` devDep + `windows` block in `nativescript.config.ts`; `App_Resources/Windows` scaffold (Package.appxmanifest, assets, `app.csproj` — upstream ships the template) |
-| Leaves | `.native` files compile for Windows by default; `.windows` overrides only where behavior diverges. NS plugins we depend on have no windows impl — leaf packages need `.windows` `Unsupported` fallbacks, same pattern as `.macos` |
+| Leaves | Unsuffixed (native-default) files compile for Windows by default; `.windows` overrides only where behavior diverges. NS plugins we depend on have no windows impl — leaf packages need `.windows` `Unsupported` fallbacks, same pattern as `.macos` |
 | CLI | `targets.mjs`: `windows` kind — `ns run windows` already works on the dev-tag CLI (`nativescript@9.1.2-dev.*`, proven by upstream's starter); released CLI waits on cli#6065. `doctor`: `win32` host, Windows 10 1809+, .NET 10 SDK, Developer Mode enabled, `@nativescript/windows` exact pin — mirroring `ns doctor windows` |
 | Lint | `isNativeFile` learns `windows`; platform-subpath rules gain `./windows` |
 | Packaging | MSIX via `makeappx`/`signtool` (self-signed for dev), or unpackaged exe + WASDK bootstrapper; `app.nsbundle` for source protection. CI: `windows-latest` runners — no cross-compile |
@@ -63,13 +64,28 @@ derisks how much of A we could self-host if upstream stalls.
   pattern) needs a Windows driver-side twin; geometry baselines will differ
   from both web and mobile.
 
-## Sequencing
+## Spike state (2026-09-28, macOS-side only)
 
-1. Lab: boot the harness under `ns run windows` on the dev-tag CLI with
-   pkg.pr.new `@11468` builds — the same commands the starter template runs
-   (Q32). Windows-arm64 VM works — the runtime ships arm64 dlls.
-2. Path-agnostic plumbing meanwhile: suffix/condition/lint additions, the
-   `xplat.targets.windows` manifest block + doctor checks.
-3. `.windows` leaves lazily — only where `.native` diverges; services report
-   `unsupported`/`unavailable` like the `.macos` set.
-4. Path B spike only if A stalls or to self-host the renderer (Q33).
+Landed and verified on the macOS host — nothing has run under Windows yet:
+
+- `apps/windows` scaffold: nativescript.config, `xplatNative` vite config with
+  `resolve.dedupe` on `@nativescript/core` (workspace packages' 9.1.2 devDeps
+  otherwise resolve a second core copy from inside `packages/*`), tsconfig
+  `paths` pinning the app core for the same reason, the harness entry from
+  `apps/native`, and `App_Resources/Windows` from upstream's starter.
+- `@nativescript/core` + `@nativescript/vite` pinned to pkg.pr.new `@11468`
+  builds; `@nativescript/windows` exact `0.1.0-alpha.144`; dev-tag CLI
+  `nativescript@9.1.2-dev.2026-09-24-*`. Workspace `patchedDependencies`
+  (core@9.1.2, vite@8.0.11) do not apply to these versions.
+- `xplatNative` extension chain + flag detection gained `windows`;
+  `xplat routes` emits `routes.gen.windows.ts` (prefer `['windows','native']`);
+  `xplat dev`/`build`/`doctor` discover the target via the declared
+  `@nativescript/windows` devDep.
+- `vite build` for windows succeeds on macOS: `.ns-vite-build/bundle.mjs` +
+  `vendor.mjs` emitted, zero new typecheck failures (the residual ~36 are
+  the known package typecheck class — unsuffixed native files referencing
+  `android.*`/`com.*`/iOS globals, which will need `.windows` fallback leaves
+  wherever they're reached at runtime).
+
+Still needed on a win32 host: `dotnet build`/`ns run windows` end-to-end
+(Q32), the sweep, and per-seam `.windows` leaves where the native default diverges.

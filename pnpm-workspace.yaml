@@ -40,8 +40,14 @@ minimumReleaseAgeExclude:
   - '@tsrx/core@0.3.2'
   - '@tsrx/typescript-plugin@0.4.11'
   - '@nativescript/canvas@3.0.0-alpha.15'
+  # Windows spike: prerelease runtime + dev-tag CLI carrying the unreleased
+  # windows platform (cli#6065). Exact pins in apps/windows/package.json.
+  - '@nativescript/windows@0.1.0-alpha.144'
+  - nativescript@9.1.2-dev.2026-09-24-36031892256
 allowBuilds:
   '@nativescript/core': true
+  nativescript: true
+  '@nativescript/core@https://pkg.pr.new/@nativescript/core@11468': true
   '@parcel/watcher': true
   esbuild: true
   workerd: true

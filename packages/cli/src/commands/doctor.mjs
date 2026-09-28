@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, parse, relative, resolve } from 'node:path'
 import * as p from '@clack/prompts'
-import { hasMacOS, hasNative } from '../targets.mjs'
+import { hasMacOS, hasNative, hasWindows } from '../targets.mjs'
 import { inspectPatches, patchStateDetail } from '../patches.mjs'
 import { inspectMacOSPackageConfig } from '../macos/config.mjs'
 import { inspectJscHost } from '../macos/jsc-host/runtime.mjs'
@@ -482,6 +482,50 @@ export const doctor = command({
 					? 'run `pnpm install`'
 					: 'run `xplat patches apply`',
 			)
+		}
+
+		const windows = hasWindows(cwd)
+		if (windows) {
+			const winHost = process.platform === 'win32'
+			row(
+				'Windows host',
+				winHost,
+				process.platform,
+				'the WinUI 3 target builds and runs only on Windows 10 1809+',
+			)
+
+			const windowsRuntimeVersion =
+				manifest.devDependencies?.['@nativescript/windows'] ??
+				manifest.dependencies?.['@nativescript/windows']
+			row(
+				'@nativescript/windows',
+				typeof windowsRuntimeVersion === 'string' && !/[\^~]/.test(windowsRuntimeVersion),
+				windowsRuntimeVersion ?? 'not declared',
+				'pin an exact version — ranges match incompatible older prereleases',
+			)
+
+			if (winHost) {
+				const dotnet = check('dotnet', ['--version'])
+				const dotnetMajor = parseInt(dotnet.out ?? '', 10)
+				row(
+					'.NET SDK',
+					dotnet.ok && dotnetMajor >= 10,
+					dotnet.out || 'not found',
+					'install the .NET 10 SDK — the WinUI 3 host builds with dotnet build',
+				)
+
+				const devMode = check('powershell', [
+					'-NoProfile',
+					'-Command',
+					'(Get-ItemProperty "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock" -Name AllowDevelopmentWithoutDevLicense -ErrorAction SilentlyContinue).AllowDevelopmentWithoutDevLicense',
+				])
+				row(
+					'Developer Mode',
+					devMode.ok && devMode.out?.trim() === '1',
+					devMode.ok ? `AllowDevelopmentWithoutDevLicense=${devMode.out?.trim() || 'unset'}` : 'unverified',
+					'enable Settings → For developers → Developer Mode, or signed MSIX packaging',
+				)
+			}
 		}
 
 		const pluginWarnings = native ? findMissingPluginDeclarations(cwd) : []

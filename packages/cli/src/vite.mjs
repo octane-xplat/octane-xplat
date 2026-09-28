@@ -232,8 +232,9 @@ function nsHmrClientWatchdog() {
 }
 
 /** The full extension chain, most-specific first: .ios/.android → .mobile →
- *  the unsuffixed native default. NS's own file qualifiers (.land,
- *  .minWH600…) still apply to assets on top of this. */
+ *  the unsuffixed native default (windows joins per-platform at build time —
+ *  its qualifier must never shadow `.mobile` on ios/android builds). NS's
+ *  own file qualifiers (.land, .minWH600…) still apply to assets on top. */
 export const nativeExtensions = [
 	'.ios.tsrx',
 	'.android.tsrx',
@@ -272,6 +273,10 @@ function nativePlatformExtensions() {
 			args.some((arg) => arg === '--ios' || arg === '--env.ios' || arg.startsWith('--env.ios=') || arg === '--visionos')
 		) {
 			platform = 'ios'
+		} else if (
+			args.some((arg) => arg === '--windows' || arg === '--env.windows' || arg.startsWith('--env.windows='))
+		) {
+			platform = 'windows'
 		} else {
 			const platformIndex = args.indexOf('--platform')
 			const value = args.find((arg) => arg.startsWith('--platform='))?.slice('--platform='.length)
@@ -279,11 +284,21 @@ function nativePlatformExtensions() {
 		}
 	}
 
-	if (platform !== 'android' && platform !== 'ios' && platform !== 'visionos') {
+	if (platform !== 'android' && platform !== 'ios' && platform !== 'visionos' && platform !== 'windows') {
 		return nativeExtensions
 	}
 
-	const target = platform === 'android' ? '.android' : '.ios'
+	const target = platform === 'android' ? '.android' : platform === 'windows' ? '.windows' : '.ios'
+	// `.mobile` is ios+android shared divergence — windows doesn't inherit it;
+	// its chain is .windows → the unsuffixed native default.
+	if (platform === 'windows') {
+		return [
+			'.windows.tsrx', '.tsrx',
+			'.windows.tsx', '.tsx',
+			'.windows.ts', '.ts',
+			'.windows.js', '.mjs', '.mts', '.jsx', '.js', '.json',
+		]
+	}
 	return [
 		`${target}.tsrx`,
 		'.mobile.tsrx',

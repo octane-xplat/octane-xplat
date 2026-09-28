@@ -37,7 +37,7 @@ const isNativeDefaultFile = (f) => {
 }
 export const isNativeFile = (f) =>
 	!isWebFile(f) &&
-	(/\.(mobile|ios|android)\./.test(norm(f)) ||
+	(/\.(mobile|ios|android|windows)\./.test(norm(f)) ||
 		/(^|\/)apps\/mobile\//.test(norm(f)) ||
 		/(^|\/)packages\/create\/template\//.test(norm(f)) ||
 		isNativeDefaultFile(f))
@@ -575,6 +575,11 @@ const PLATFORM_SUBPATHS = [
 		spec: '@octane-xplat/ui/android',
 		ok: (f) => /\.(android|mobile)\./.test(f),
 		leaf: '.android.* or .mobile.*',
+	},
+	{
+		spec: '@octane-xplat/ui/windows',
+		ok: (f) => /\.windows\./.test(f),
+		leaf: '.windows.*',
 	},
 	{
 		spec: '@octane-xplat/ui/native',

@@ -74,6 +74,7 @@ export function generateRoutes(cwd, dir, out) {
 	//   <out>.web.ts      web glob + registerRoutes
 	//   <out>.mobile.ts  mobile glob + registerRoutes (Device.os prefer)
 	//   <out>.macos.ts   AppKit glob + registerRoutes (macos prefer)
+	//   <out>.windows.ts Windows glob + registerRoutes (windows prefer)
 	// Importing '<out>' resolves the platform leaf automatically.
 	const base = (out ?? join(dir, '..', 'routes.gen')).replace(/\.ts$/, '')
 
@@ -222,6 +223,23 @@ export const screens = routes.screens
 		),
 	)
 
+	writeFileSync(
+		join(cwd, base + '.windows.ts'),
+		shared(
+			'',
+			[
+				`\t\t'!${globDir}/**/*.web.{tsrx,tsx}'`,
+				`\t\t'!${globDir}/**/*.ios.{tsrx,tsx}'`,
+				`\t\t'!${globDir}/**/*.android.{tsrx,tsx}'`,
+				`\t\t'!${globDir}/**/*.mobile.{tsrx,tsx}'`,
+				`\t\t'!${globDir}/**/*.macos.{tsrx,tsx}'`,
+				`\t\t'!${globDir}/**/*.linux.{tsrx,tsx}'`,
+				...exactExclusions('windows'),
+			].join(',\n'),
+			`['windows']`,
+		),
+	)
+
 	return list.length
 }
 
@@ -252,7 +270,7 @@ export const routes = command({
 
 		const count = generateRoutes(cwd, dir, args.out)
 		p.log.success(
-			`Wrote routes.gen.{types,web,mobile,macos}.ts — ${count} route${count === 1 ? '' : 's'}`,
+			`Wrote routes.gen.{types,web,mobile,macos,windows}.ts — ${count} route${count === 1 ? '' : 's'}`,
 		)
 	},
 })

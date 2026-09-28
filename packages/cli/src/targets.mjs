@@ -36,6 +36,20 @@ export const hasMacOS = (cwd) =>
 export const hasLinux = (cwd) =>
 	readJson(`${cwd}/package.json`)?.xplat?.targets?.linux?.runtime === 'webkitgtk'
 
+/** NativeScript platforms the app declares via its runtime devDeps —
+ *  `@nativescript/ios`/`@nativescript/android`/`@nativescript/windows`.
+ *  `nativescript.config.ts` alone doesn't say which platforms an app targets. */
+export function nsPlatforms(cwd) {
+	const manifest = readJson(`${cwd}/package.json`) ?? {}
+	const declared = { ...manifest.dependencies, ...manifest.devDependencies }
+	return ['ios', 'android', 'windows'].filter(
+		(platform) => typeof declared[`@nativescript/${platform}`] === 'string',
+	)
+}
+
+/** Windows desktop target — the WinUI 3 host driven by `ns run windows`. */
+export const hasWindows = (cwd) => hasNative(cwd) && nsPlatforms(cwd).includes('windows')
+
 /** iOS targets: booted sims first, then other available sims, then physical devices. */
 export function iosTargets() {
 	const out = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'])
@@ -101,7 +115,16 @@ export function discoverTargets(cwd) {
 	}
 
 	if (hasNative(cwd)) {
-		targets.push(...iosTargets(), ...androidTargets())
+		const platforms = nsPlatforms(cwd)
+		if (platforms.includes('ios')) {
+			targets.push(...iosTargets())
+		}
+		if (platforms.includes('android')) {
+			targets.push(...androidTargets())
+		}
+		if (hasWindows(cwd)) {
+			targets.push({ kind: 'windows', id: 'windows', name: 'Windows (ns run windows)' })
+		}
 	}
 
 	if (hasMacOS(cwd)) {
@@ -131,11 +154,18 @@ export function buildTargets(cwd) {
 	}
 
 	if (hasNative(cwd)) {
-		if (iosTargets().length || run('xcrun', ['--version'])) {
+		const platforms = nsPlatforms(cwd)
+		if (platforms.includes('ios') && (iosTargets().length || run('xcrun', ['--version']))) {
 			t.push({ kind: 'ios', id: 'ios', name: 'iOS (ns build ios)' })
 		}
 
-		t.push({ kind: 'android', id: 'android', name: 'Android (ns build android)' })
+		if (platforms.includes('android')) {
+			t.push({ kind: 'android', id: 'android', name: 'Android (ns build android)' })
+		}
+
+		if (platforms.includes('windows')) {
+			t.push({ kind: 'windows', id: 'windows', name: 'Windows (ns build windows)' })
+		}
 	}
 
 	if (hasMacOS(cwd)) {

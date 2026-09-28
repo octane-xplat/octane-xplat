@@ -31,7 +31,7 @@ const isNativeDefaultFile = (f) => {
 }
 export const isNativeFile = (f) =>
 	!isWebFile(f) &&
-	(/\.(mobile|ios|android)\./.test(norm(f)) ||
+	(/\.(mobile|ios|android|windows)\./.test(norm(f)) ||
 		/(^|\/)apps\/mobile\//.test(norm(f)) ||
 		/(^|\/)packages\/create\/template\//.test(norm(f)) ||
 		isNativeDefaultFile(f))

@@ -35,7 +35,8 @@
 				"exclude": [
 					"apps/web/",
 					"apps/docs/",
-					"apps/mobile/"
+					"apps/mobile/",
+					"apps/windows/"
 				]
 			}
 		],
@@ -43,7 +44,8 @@
 			"error",
 			{
 				"exclude": [
-					"apps/mobile/"
+					"apps/mobile/",
+					"apps/windows/"
 				]
 			}
 		],

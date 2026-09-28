@@ -10,6 +10,7 @@ const spawnFor = (t, cwd) => {
 	if (t.kind === 'web') {return spawnTagged('web', 'pnpm', ['exec', 'vite'], cwd)}
 	if (t.kind === 'macos') {return spawnTagged('macos', 'pnpm', ['run', 'dev'], cwd)}
 	if (t.kind === 'linux') {return spawnTagged('linux', 'pnpm', ['run', 'dev'], cwd)}
+	if (t.kind === 'windows') {return spawnTagged('windows', 'pnpm', ['exec', 'ns', 'run', 'windows'], cwd)}
 	return spawnTagged(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
 }
 
