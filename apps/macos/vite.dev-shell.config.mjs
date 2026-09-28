@@ -1,12 +1,12 @@
 import { createMacOSConfig } from './vite.shared.mjs'
 
-const config = createMacOSConfig({ hmr: true })
+const config = createMacOSConfig({ packaged: true })
 export default {
 	...config,
 	build: {
 		...config.build,
 		outDir: 'dist/dev',
 		emptyOutDir: false,
-		lib: { ...config.build.lib, formats: ['cjs'], fileName: 'app' },
+		lib: { entry: 'src/dev-shell.mjs', formats: ['cjs'], fileName: 'shell' },
 	},
 }

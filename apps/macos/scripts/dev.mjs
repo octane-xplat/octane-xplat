@@ -1,343 +1,73 @@
 import { build } from 'vite'
+import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { pathToFileURL } from 'node:url'
-import { hmrUniversalComponent, UNIVERSAL_HMR } from 'octane/universal/native'
-import { createAppKitWindow, debugWindows } from '../src/appkit.mjs'
-import { createMacOSRoot } from '../src/renderer/index.mjs'
+import { join, resolve } from 'node:path'
+import { hostBundle, hostRoot, inspectJscHost } from '../../../packages/cli/src/macos/jsc-host/runtime.mjs'
 
-if (process.env.OCTANE_MACOS_PARITY_ONLY === '1') {
-	globalThis.__xplatMacOSParityOnly = true
-}
+const appRoot = resolve(import.meta.dirname, '..')
+const appConfig = join(appRoot, 'vite.dev.config.mjs')
+const shellConfig = join(appRoot, 'vite.dev-shell.config.mjs')
+const appBundle = join(appRoot, 'dist/dev/app.cjs')
+const shellBundle = join(appRoot, 'dist/dev/shell.cjs')
+const inspection = inspectJscHost()
+if (inspection.issues.length) throw Error(`JavaScriptCore host is unavailable: ${inspection.issues.join('; ')}`)
 
-const configFile = new URL('../vite.dev.config.mjs', import.meta.url).pathname
-const bundleFile = new URL('../dist/app.js', import.meta.url).pathname
-let appKit
-let root
-let liveComponent
-let watcher
-let mainWindowClosed = false
-let mainRootUnmounted = false
-let initialRenderMs = null
-let initialRenderCpuMs = null
-let initialRenderRssDeltaMiB = null
-let initialRenderHeapDeltaMiB = null
-const listBench = process.env.OCTANE_MACOS_VLIST_BENCH === '1'
-const listBenchMode = ['windowed', 'variable'].includes(process.env.OCTANE_MACOS_VLIST_MODE)
-	? process.env.OCTANE_MACOS_VLIST_MODE
-	: 'all'
-const listBenchCount = Number(process.env.OCTANE_MACOS_VLIST_COUNT)
-const interactiveListBench = process.env.OCTANE_MACOS_VLIST_INTERACTIVE === '1'
-let heartbeatTimer
-let heartbeatStartedAt = 0
-const heartbeatTimes = []
-
-function summarize(values) {
-	if (values.length === 0) {return { samples: 0, p50Ms: null, p95Ms: null, p99Ms: null, maxMs: null }}
-	const sorted = values.slice().sort((a, b) => a - b)
-	const percentile = (fraction) => sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * fraction) - 1)]
-	const round = (value) => Number(value.toFixed(2))
-	return {
-		samples: sorted.length,
-		p50Ms: round(percentile(0.5)),
-		p95Ms: round(percentile(0.95)),
-		p99Ms: round(percentile(0.99)),
-		maxMs: round(sorted.at(-1)),
+await build({ configFile: shellConfig, mode: 'development' })
+const watcher = await build({ configFile: appConfig, mode: 'development', build: { watch: {} } })
+let host
+let input
+let stop
+let stopping = false
+let firstBundle = true
+let settleReady
+const ready = new Promise((resolve, reject) => { settleReady = { resolve, reject } })
+watcher.on('event', (event) => {
+	if (event.code === 'BUNDLE_END') {
+		if (firstBundle) { firstBundle = false; settleReady.resolve() }
+		else if (host?.stdin.writable) host.stdin.write('reload\n')
+	} else if (event.code === 'ERROR') {
+		console.error('[macos] rebuild failed; the last good component is still mounted', event.error)
+		if (firstBundle) settleReady.reject(event.error)
 	}
-}
-
-function interactiveListBenchResult() {
-	const metrics = root.__macosDebug.metrics()
-	const scrollEvents = root.__macosDebug.scrollStats('vlist-bench').events ?? []
-	const offsetDeltas = scrollEvents.slice(1).map(
-		(event, index) => event.verticalOffset - scrollEvents[index].verticalOffset,
-	)
-	const heartbeatIntervals = heartbeatTimes.slice(1).map(
-		(time, index) => time - heartbeatTimes[index],
-	)
-	return {
-		mode: 'variable-windowed',
-		items: globalThis.__xplatMacOSVirtualListCount,
-		input: process.env.OCTANE_MACOS_VLIST_INPUT ?? 'unspecified',
-		expectedContentHeight: globalThis.__xplatMacOSVirtualListScrollProbe?.totalContentHeight ?? null,
-		initialRenderMs: Number(initialRenderMs?.toFixed(1) ?? 0),
-		initialRenderRssDeltaMiB: Number(initialRenderRssDeltaMiB?.toFixed(1) ?? 0),
-		elapsedMs: Number((performance.now() - heartbeatStartedAt).toFixed(1)),
-		current: metrics,
-		scrollEvents: {
-			count: scrollEvents.length,
-			offsetStart: scrollEvents[0]?.verticalOffset ?? null,
-			offsetEnd: scrollEvents.at(-1)?.verticalOffset ?? null,
-			maxOffset: scrollEvents.reduce((max, event) => Math.max(max, event.verticalOffset), 0),
-			callbackMs: summarize(scrollEvents.map((event) => event.callbackMs)),
-			afterEventMs: summarize(scrollEvents.map((event) => event.afterEventMs).filter(Number.isFinite)),
-			rowWindow: {
-				peak: scrollEvents.reduce((max, event) => Math.max(max, event.mountedRows ?? 0), 0),
-				final: scrollEvents.at(-1)?.mountedRows ?? null,
-			},
-			absoluteOffsetDeltaPt: Math.round(
-				offsetDeltas.reduce((sum, delta) => sum + Math.abs(delta), 0),
-			),
-		},
-		rangeCommitMs: summarize(
-			globalThis.__xplatMacOSVirtualListScrollProbe?.rangeCommitMs ?? [],
-		),
-		mainLoopHeartbeatMs: {
-			...summarize(heartbeatIntervals),
-			intervalsOver16_7ms: heartbeatIntervals.filter((value) => value > 16.7).length,
-			intervalsOver33_3ms: heartbeatIntervals.filter((value) => value > 33.3).length,
-		},
-	}
-}
-
-if (listBench) {
-	globalThis.__xplatMacOSVirtualListCount = Number.isSafeInteger(listBenchCount) && listBenchCount > 0
-		? listBenchCount
-		: 500
-}
-
-function unmountMainRoot() {
-	mainWindowClosed = true
-	if (!root || mainRootUnmounted) {
-		return
-	}
-
-	mainRootUnmounted = true
-	try {
-		root.unmount()
-	} catch (error) {
-		console.error('[macos] main window root unmount failed', error)
-	}
-}
+})
 
 try {
-	await build({ configFile, mode: 'development' })
-	appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
-	const { app, window, contentView, applicationClosed, windowClosed } = appKit
-	root = createMacOSRoot(contentView)
-	void windowClosed.then(unmountMainRoot)
+	await ready
+	host = spawn(join(hostBundle, 'host'), [
+		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+		shellBundle,
+		join(hostBundle, 'metadata.nsmd'),
+		join(hostRoot, 'shim.js'),
+	], {
+		cwd: appRoot,
+		env: { ...process.env, NODE_ENV: 'development', OCTANE_MACOS_EXTERNAL_RUNLOOP: '1', OCTANE_MACOS_DEV_BUNDLE: appBundle },
+		stdio: ['pipe', 'pipe', 'pipe'],
+	})
+	host.stdout.pipe(process.stdout)
+	host.stderr.pipe(process.stdout)
+	host.stdin.on('error', (error) => {
+		if (error.code !== 'EPIPE') console.error('[macos] host input failed', error)
+	})
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
-		const input = createInterface({ input: process.stdin })
+		input = createInterface({ input: process.stdin })
 		input.on('line', (line) => {
-			const command = line.trim()
-			try {
-				if (interactiveListBench && command === 'scroll-stream') {
-					void (async () => {
-						try {
-							const count = Number(process.env.OCTANE_MACOS_VLIST_EVENTS ?? 180)
-							const scrollView = root.__macosDebug.metrics().scrollViews.find(
-								(view) => view.id === 'vlist-bench',
-							)
-							const contentHeight = Number(
-								scrollView?.contentHeight ??
-								globalThis.__xplatMacOSVirtualListScrollProbe?.totalContentHeight ?? 0,
-							)
-							const maxOffset = Math.max(0, contentHeight - (scrollView?.viewportHeight ?? 0))
-							for (let index = 1; index <= count; index += 1) {
-								root.__macosDebug.scrollToId('vlist-bench', Math.min(index * 8, maxOffset))
-								await new Promise((resolve) => setTimeout(resolve, 16))
-							}
-							root.__macosDebug.scrollToId('vlist-bench', maxOffset / 2)
-							await new Promise((resolve) => setTimeout(resolve, 100))
-							root.__macosDebug.scrollToId('vlist-bench', maxOffset)
-							await new Promise((resolve) => setTimeout(resolve, 250))
-							console.log('[macos-vlist-result] ' + JSON.stringify(interactiveListBenchResult()))
-						} catch (error) {
-							console.error('[macos-vlist-bench] scroll stream failed', error)
-						} finally {
-						clearInterval(heartbeatTimer)
-						appKit.app.terminate(null)
-					}
-					})()
-					return
-				}
-				if (interactiveListBench && (command === 'metrics' || command === 'finish')) {
-					setTimeout(() => {
-						console.log('[macos-vlist-result] ' + JSON.stringify(interactiveListBenchResult()))
-						if (command === 'finish') {
-							clearInterval(heartbeatTimer)
-							appKit.app.terminate(null)
-						}
-					}, 100)
-					return
-				}
-				if (command.startsWith('press ')) {
-					root.__macosDebug.pressButton(command.slice(6))
-				} else if (command.startsWith('tap ')) {
-					const label = command.slice(4)
-					const targets = [root.__macosDebug, ...debugWindows().map((w) => w.debug)]
-					let handled = false
-					for (const target of targets) {
-						if (!target) {
-							continue
-						}
-
-						try {
-							target.pressAccessibilityLabel(label)
-							handled = true
-							break
-						} catch {}
-					}
-
-					if (!handled) {
-						throw new Error('No AppKit pressable labeled ' + label)
-					}
-				} else if (command === 'parity') {
-					const runParity = globalThis.__xplatMacOSRunParity
-					if (typeof runParity !== 'function') {
-						throw new Error('The AppKit parity sweep is unavailable')
-					}
-					runParity()
-				} else if (command !== 'snapshot') {
-					throw new Error('Use tap <accessibility label>, press <button title>, parity, or snapshot')
-				}
-
-				setTimeout(() => {
-					console.log(
-						'[macos-automation] ' +
-							JSON.stringify({
-								main: root.__macosDebug.snapshot(),
-								windows: debugWindows().map((w) => ({
-									title: w.title,
-									...w.debug?.snapshot(),
-								})),
-							}),
-					)
-				}, 0)
-			} catch (error) {
-				console.error('[macos-automation] command failed', error)
-			}
+			if (host.stdin.writable) host.stdin.write(`${line}\n`)
 		})
 	}
-
-	const renderApp = async (afterEdit = false) => {
-		if (mainWindowClosed) {
-			return
-		}
-
-		const renderStartedAt = performance.now()
-		const renderMemoryBefore = listBench && !afterEdit ? process.memoryUsage() : null
-		const renderCpuBefore = listBench && !afterEdit ? process.cpuUsage() : null
-		const module = await import(`${pathToFileURL(bundleFile).href}?v=${Date.now()}`)
-		if (mainWindowClosed) {
-			return
-		}
-
-		if (!liveComponent) {
-			liveComponent = hmrUniversalComponent('macos', module.default)
-			root.render(liveComponent, { parentWindow: appKit.window })
-		} else {
-			liveComponent[UNIVERSAL_HMR].update(module.default)
-			await new Promise((resolve) => setTimeout(resolve, 0))
-		}
-		if (listBench && !afterEdit) {await new Promise((resolve) => setTimeout(resolve, 0))}
-		if (listBench && !afterEdit) {
-			const renderMemoryAfter = process.memoryUsage()
-			const renderCpu = process.cpuUsage(renderCpuBefore)
-			initialRenderMs = performance.now() - renderStartedAt
-			initialRenderCpuMs = (renderCpu.user + renderCpu.system) / 1000
-			initialRenderRssDeltaMiB = (renderMemoryAfter.rss - renderMemoryBefore.rss) / 1024 / 1024
-			initialRenderHeapDeltaMiB = (renderMemoryAfter.heapUsed - renderMemoryBefore.heapUsed) / 1024 / 1024
-		}
-
-		console.log('[macos] component rendered' + (afterEdit ? ' after hot edit' : ''))
-	}
-
-	await renderApp()
-	if (listBench && interactiveListBench) {
-		setTimeout(() => {
-			heartbeatStartedAt = performance.now()
-			heartbeatTimes.push(heartbeatStartedAt)
-			heartbeatTimer = setInterval(() => heartbeatTimes.push(performance.now()), 16)
-			console.log('[macos-vlist-ready] ' + JSON.stringify({
-				mode: 'variable-windowed',
-				items: globalThis.__xplatMacOSVirtualListCount,
-				initial: root.__macosDebug.metrics(),
-			}))
-		}, 500)
-	} else if (listBench) {
-		setTimeout(() => {
-			void (async () => {
-				try {
-					const initial = root.__macosDebug.metrics()
-					let requestedScrollOffset = null
-					let actualScrollOffset = null
-					let afterScroll = null
-					if (listBenchMode === 'windowed') {
-						const scrollView = initial.scrollViews.find((view) => view.id === 'vlist-bench')
-						requestedScrollOffset = Math.max(
-							0,
-							scrollView.contentHeight - scrollView.viewportHeight,
-						)
-						actualScrollOffset = root.__macosDebug.scrollToId('vlist-bench', requestedScrollOffset)
-						await new Promise((resolve) => setTimeout(resolve, 150))
-						afterScroll = root.__macosDebug.metrics()
-					}
-					console.log('[macos-vlist-bench] ' + JSON.stringify({
-						mode: listBenchMode,
-						items: globalThis.__xplatMacOSVirtualListCount,
-						initialRenderMs: Number(initialRenderMs?.toFixed(1) ?? 0),
-						initialRenderCpuMs: Number(initialRenderCpuMs?.toFixed(1) ?? 0),
-						initialRenderRssDeltaMiB: Number(initialRenderRssDeltaMiB?.toFixed(1) ?? 0),
-						initialRenderHeapDeltaMiB: Number(initialRenderHeapDeltaMiB?.toFixed(1) ?? 0),
-						rssMiB: Number((process.memoryUsage().rss / 1024 / 1024).toFixed(1)),
-						heapUsedMiB: Number((process.memoryUsage().heapUsed / 1024 / 1024).toFixed(1)),
-						requestedScrollOffset,
-						actualScrollOffset,
-						initial,
-						afterScroll,
-					}))
-				} catch (error) {
-					console.error('[macos-vlist-bench] failed', error)
-				} finally {
-					appKit.app.terminate(null)
-				}
-			})()
-		}, 500)
-	}
-
-	watcher = await build({ configFile, mode: 'development', build: { watch: {} } })
-	let firstBundle = true
-	let resolveWatcherReady
-	let rejectWatcherReady
-	const watcherReady = new Promise((resolve, reject) => {
-		resolveWatcherReady = resolve
-		rejectWatcherReady = reject
+	stop = () => { stopping = true; host.kill('SIGTERM') }
+	process.on('SIGINT', stop)
+	process.on('SIGTERM', stop)
+	const result = await new Promise((resolve, reject) => {
+		host.once('error', reject)
+		host.once('close', (code, signal) => resolve({ code, signal }))
 	})
-
-	watcher.on('event', (event) => {
-		if (event.code === 'BUNDLE_END') {
-			if (firstBundle) {
-				firstBundle = false
-				resolveWatcherReady()
-				return
-			}
-
-			void renderApp(true).catch((error) => console.error('[macos] hot update failed', error))
-		} else if (event.code === 'ERROR') {
-			console.error('[macos] rebuild failed; the last good component is still mounted', event.error)
-			if (firstBundle) {rejectWatcherReady(event.error)}
-		}
-	})
-
-	await watcherReady
-	console.log('[macos] AppKit window ready; Octane HMR is watching src/App.tsx')
-	app.run()
-	await applicationClosed
+	if (result.code && result.code !== 0) process.exitCode = result.code
+	else if (result.signal && !stopping) process.exitCode = 1
+	console.log('[macos] JavaScriptCore host exited')
+} finally {
+	if (stop) { process.off('SIGINT', stop); process.off('SIGTERM', stop) }
+	input?.close()
+	process.stdin.pause()
 	await watcher.close()
-	unmountMainRoot()
-	window.delegate = null
-	window.close()
-	app.delegate = null
-	appKit.delegate = null
-} catch (error) {
-	await watcher?.close()
-	unmountMainRoot()
-	if (appKit) {
-		appKit.window.delegate = null
-		appKit.app.delegate = null
-		appKit.delegate = null
-		appKit.window.close()
-	}
-
-	throw error
+	if (host && host.exitCode === null && host.signalCode === null) host.kill('SIGTERM')
 }

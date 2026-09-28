@@ -77,12 +77,13 @@ required when `MACOS_SIGNING_IDENTITY` is set. The minimum macOS version must be
 13.5 or later for the JavaScriptCore host. `xplat doctor` rejects lower
 values and checks the configuration and local packaging tools, including
 `codesign` and `hdiutil`. It also checks the installed
-`@nativescript/macos-node-api` entry points, type declarations, license, and
-ARM64 framework binary for Node-based development, plus the pinned packaged
-host and compatible addon. Packaging verifies host artifact checksums before
-running Vite, then rejects external imports outside its documented host API.
+`@nativescript/macos-node-api` type declarations and license, plus the pinned
+JavaScriptCore host and compatible addon used in development and packaging.
+Packaging verifies host artifact checksums before running Vite, then rejects
+external imports outside its documented host API.
 The `.app` uses system JavaScriptCore and bundles no Node executable or JS
-engine binary; `xplat dev` still uses Node for the Vite watcher. See
+engine binary; `xplat dev` runs the Vite watcher in Node while the AppKit app
+and Octane HMR run in the JavaScriptCore host. See
 the [macOS experiment
 notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for signing, notarization, and icon setup.

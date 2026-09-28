@@ -28,19 +28,17 @@ helpers. The UI package includes the leaf sources and local helpers needed by
 the bounded root surface. `tsconfig.json` sets the `macos` custom condition so
 TypeScript selects the matching declarations.
 
-In development, Vite rebuilds edited components and the running Node process
-passes the replacement through Octane's universal HMR wrapper. This preserves
-component state across successful edits. A compile error reports the failure
-and leaves the last good component mounted; a later valid edit recovers without
-restarting the process. This uses Vite's bundle watcher and Octane's component
-HMR API, not NativeScript's `/ns-hmr` transport. That transport also depends on
-NativeScript's HTTP-ESM bootstrap and runtime loader, which this AppKit host does
-not use.
-
-The stable `@nativescript/macos-node-api@0.4.0` loader points at an architecture
-path missing from that published artifact, so Node-based development pins the
-matching `0.4.4-next` preview. Packaged apps use the CLI's separately rebuilt
-NativeScript framework.
+In development, Node runs Vite's bundle watcher and launches the same
+JavaScriptCore host used for packaging. A stable CommonJS shell owns the AppKit
+window, renderer, and Octane runtime. Vite rebuilds a separate component bundle;
+after each successful build, the host evaluates it in the existing JavaScriptCore
+environment and passes it to Octane's universal HMR wrapper. Component state
+survives successful edits. A compile error leaves the last good component
+mounted; a later valid edit can recover without restarting the host. The dev
+host uses the CLI's rebuilt NativeScript framework, not the package's Node
+addon. The package supplies TypeScript declarations and its license. This uses
+Vite's bundle watcher and Octane's component HMR API; it does not use
+NativeScript's `/ns-hmr` HTTP-ESM transport.
 
 Run `pnpm xplat dev --targets macos` to launch it, or
 `pnpm xplat build --targets macos` to create the `.app` and `.dmg`. The app's
@@ -64,6 +62,8 @@ measurements to `parity-report/macos.json`. From the workspace root,
 `pnpm parity:macos` rebuilds the web and macOS measurements and compares their
 shared fixtures. The sweep compares geometry and selected style values; it
 does not capture screenshots or verify pixels.
+For a focused HMR check, run `node apps/macos/scripts/verify-hmr.mjs` from the
+repository root.
 This CLI target does not add macOS to the `create-octane-xplat` starter or the
 supported web/iOS/Android release contract.
 
@@ -82,9 +82,12 @@ For example, run just the windowed probe at 500 and 1,000 items:
 OCTANE_MACOS_VLIST_SIZES=500,1000 OCTANE_MACOS_VLIST_MODES=windowed pnpm --filter @xplat/macos bench:virtual-list
 ```
 
-All-rows figures are from the original baseline. The fixed-height windowed
-figures are from the latest Apple Silicon rerun after correcting for AppKit's
-default 14pt vertical stack gap:
+These figures were collected before the JavaScriptCore dev-host migration and
+are historical Node-host measurements. New benchmark runs measure the
+JavaScriptCore host's RSS and CPU; JavaScriptCore heap usage is reported
+as `null` because the host does not expose it. The fixed-height windowed
+figures are from the Apple Silicon rerun after correcting for AppKit's default
+14pt vertical stack gap:
 
 | Mode | Items | Initial render | RSS increase | Mounted rows |
 | --- | ---: | ---: | ---: | ---: |
@@ -115,6 +118,14 @@ the window mounted at most 24 rows, and all three row heights were present at
 the end. Across 182 `onScroll` notifications, range commits were 6.61ms at p95
 (17.92ms max); the 16ms main-loop heartbeat was 21.13ms at p95 (32.95ms max,
 zero intervals above 33.3ms).
+Those scroll figures were also collected with the former Node dev host; they
+have not been remeasured under JavaScriptCore.
+
+The JavaScriptCore dev host currently fails the fixed-height benchmark's
+document-height assertion at 500 rows (28,650pt initially and 28,678pt after
+scrolling, versus 28,986pt expected). The expanded AppKit geometry parity
+route also did not produce a dump within 120 seconds in this rebase check.
+The historical Node-host measurements above are not JavaScriptCore results.
 
 This drives the clip view with `scrollToPoint`, so it measures the bounds-change
 and Octane range-update path under sustained offset changes. It is not a

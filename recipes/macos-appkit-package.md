@@ -27,13 +27,16 @@ production Vite config that emits one CommonJS host bundle.
 
 ## Acceptance criteria
 
-- AC1: `xplat doctor` validates the AppKit runtime declaration, installed dev
-  runtime, pinned JavaScriptCore host and compatible addon, required package
-  metadata, minimum macOS version, referenced Vite config, and local
+- AC1: `xplat doctor` validates the AppKit runtime declaration, installed
+  NativeScript declarations, pinned JavaScriptCore host and compatible addon,
+  required package metadata, minimum macOS version, referenced Vite config, and local
   `codesign` and `hdiutil` tools.
-- AC2: `xplat dev --targets macos` runs the app host, and
-  `xplat build --targets macos` validates the runtime package before the Vite
-  build, then produces the configured `.app` and `.dmg`.
+- AC2: `xplat dev --targets macos` runs Vite's watcher in Node and the AppKit
+  window in the JavaScriptCore host. A valid component edit hot updates the
+  mounted root in that process without remounting it; a failed build leaves the
+  last good component mounted. `xplat build --targets macos` validates the
+  runtime package before the Vite build, then produces the configured `.app`
+  and `.dmg`.
 - AC3: Local packaging is ad-hoc signed; configured Developer ID credentials
   sign and verify the app and disk image, and a notary profile submits,
   staples, and validates the disk image.

@@ -422,7 +422,7 @@ export const doctor = command({
 			)
 
 			row(
-				'macOS NativeScript dev runtime',
+				'macOS NativeScript declarations',
 				runtimeHint === undefined,
 				runtimeInspection.packageManifest?.version ?? runtimeVersion ?? 'not declared',
 				runtimeHint,

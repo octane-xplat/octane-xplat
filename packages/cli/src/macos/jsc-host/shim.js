@@ -84,6 +84,7 @@ for (const [name, methods] of Object.entries(nodeModules)) {
 }
 globalThis.require = (name) => {
   if (name === '@nativescript/macos-node-api') return __nativeExports;
+  if (Object.hasOwn(globalThis.__xplatDevModules ?? {}, name)) return globalThis.__xplatDevModules[name];
   if (name in nodeModules) return nodeModules[name];
   throw Error(`unsupported require: ${name}`);
 };
@@ -92,3 +93,4 @@ globalThis.clearTimeout = __clearTimer;
 globalThis.setInterval = __setInterval;
 globalThis.clearInterval = __clearTimer;
 globalThis.queueMicrotask = (callback) => Promise.resolve().then(callback);
+globalThis.performance = { now: () => __hostNow() };

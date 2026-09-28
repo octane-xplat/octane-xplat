@@ -120,7 +120,6 @@ class ButtonActionTarget extends NSObject {
 		viewPanned: { params: [NSPanGestureRecognizer], returns: interop.types.void },
 		controlChanged: { params: [NSObject], returns: interop.types.void },
 		textDidChange: { params: [NSNotification], returns: interop.types.void },
-		scrollViewDidScroll: { params: [NSNotification], returns: interop.types.void },
 	}
 
 	static {
@@ -164,9 +163,6 @@ class ButtonActionTarget extends NSObject {
 		invokeAction(actionIdsByView.get(notification.object))
 	}
 
-	scrollViewDidScroll(notification) {
-		scrollHandlers.get(notification.object)?.()
-	}
 }
 
 const buttonActionTarget = ButtonActionTarget.new()
@@ -472,11 +468,11 @@ function setScrollAction(node, handler) {
 
 	if (!node.scrollObserverInstalled) {
 		clipView.postsBoundsChangedNotifications = true
-		NSNotificationCenter.defaultCenter.addObserverSelectorNameObject(
-			buttonActionTarget,
-			'scrollViewDidScroll',
+		node.scrollObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 			NSViewBoundsDidChangeNotification,
 			clipView,
+			null,
+			() => scrollHandlers.get(clipView)?.(),
 		)
 		node.scrollObserverInstalled = true
 	}
@@ -1728,11 +1724,8 @@ function destroy(node) {
 	if (node.type === 'scrollview' && node.scrollObserverInstalled) {
 		const clipView = node.view.contentView
 		scrollHandlers.delete(clipView)
-		NSNotificationCenter.defaultCenter.removeObserverNameObject(
-			buttonActionTarget,
-			NSViewBoundsDidChangeNotification,
-			clipView,
-		)
+		NSNotificationCenter.defaultCenter.removeObserver(node.scrollObserver)
+		node.scrollObserver = null
 		node.scrollObserverInstalled = false
 	}
 
