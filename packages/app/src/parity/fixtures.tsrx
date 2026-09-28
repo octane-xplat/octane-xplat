@@ -1,4 +1,19 @@
-import { Switch, Slider, Checkbox, Button, Text, Grid, View, Column, Row, ScrollView } from '@octane-xplat/ui';
+import {
+	Switch,
+	Slider,
+	Checkbox,
+	Button,
+	Text,
+	Grid,
+	View,
+	Column,
+	Row,
+	ScrollView,
+	Screen,
+	SafeArea,
+} from '@octane-xplat/ui';
+
+import { useSafeAreaInsets } from '@octane-xplat/platform';
 
 // Parity fixtures — one render per prop combo worth measuring. Picked for
 // font-free, fixed geometry: text metrics are the main legitimate
@@ -56,6 +71,42 @@ const renderScrollViewLayout = () => (
 	</ScrollView>
 );
 
+const renderScreenLayout = () => (
+	<Screen className="parity-screen-root" style={{ width: '100%', height: '100%' }}>
+		<View className="parity-screen-child" style={{ width: 20, height: 10 }} />
+	</Screen>
+);
+
+const SafeAreaLayoutFixture = () => {
+	const insets = useSafeAreaInsets();
+	const width = 96;
+	const height = 160;
+	const contentWidth = width - insets.left - insets.right;
+	const contentHeight = height - insets.top - insets.bottom;
+
+	return (
+		<Row className="parity-safe-area-fixture" style={{ width: 200, height }} gap={8}>
+			<SafeArea className="parity-safe-area-root" style={{ width, height }}>
+				<View
+					className="parity-safe-area-content"
+					style={{ width: contentWidth, height: contentHeight }}
+				/>
+			</SafeArea>
+			<View className="parity-safe-area-reference" style={{ width, height }}>
+				<View
+					className="parity-safe-area-expected"
+					style={{
+						width: contentWidth,
+						height: contentHeight,
+						marginLeft: insets.left,
+						marginTop: insets.top,
+					}}
+				/>
+			</View>
+		</Row>
+	);
+};
+
 export interface ParityFixture {
 	name: string;
 	/** The shared component this fixture measures; child helpers are not counted. */
@@ -65,6 +116,8 @@ export interface ParityFixture {
 	 *  fixtures (fixed-width roots like Switch) get align-items:flex-start
 	 *  instead — NS stretch clobbers explicit width where web doesn't. */
 	wide?: boolean;
+	/** Override the default 64-dip fixture box height. */
+	height?: number;
 	render: () => any;
 }
 
@@ -81,4 +134,6 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'column-layout', component: 'Column', render: renderColumnLayout },
 	{ name: 'row-layout', component: 'Row', render: renderRowLayout },
 	{ name: 'scroll-view-layout', component: 'ScrollView', render: renderScrollViewLayout },
+	{ name: 'screen-layout', component: 'Screen', render: renderScreenLayout },
+	{ name: 'safe-area-layout', component: 'SafeArea', render: SafeAreaLayoutFixture, height: 168 },
 ];

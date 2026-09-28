@@ -32,8 +32,6 @@ const DEFERRED_GROUPS = [
 			'Absolute',
 			'Spacer',
 			'ScrollBox',
-			'Screen',
-			'SafeArea',
 			'Overlay',
 			'Popover',
 			'Sheet',
@@ -113,15 +111,7 @@ const DEFERRED_GROUPS = [
 	{
 		reason:
 			'OS- or engine-backed content needs target fixtures for the shared frame and any project-drawn chrome.',
-		components: [
-			'TextInput',
-			'TextArea',
-			'SearchInput',
-			'Pager',
-			'Image',
-			'WebView',
-			'Video',
-		],
+		components: ['TextInput', 'TextArea', 'SearchInput', 'Pager', 'Image', 'WebView', 'Video'],
 	},
 ]
 
