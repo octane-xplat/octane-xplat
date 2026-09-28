@@ -11,7 +11,10 @@ const shared = (globalThis.__xplatMacosWindowing ??= {
 	resolver: null,
 	appDelegate: null,
 	byNative: new Map(),
+	terminateAfterLastWindowClosed: false,
 })
+
+shared.terminateAfterLastWindowClosed ??= false
 
 shared.windowCloseHandlers ??= new Map()
 shared.parentWindows ??= new Map()
@@ -101,7 +104,7 @@ class AppDelegate extends NSObject {
 	}
 
 	applicationShouldTerminateAfterLastWindowClosed() {
-		return true
+		return shared.terminateAfterLastWindowClosed
 	}
 
 	windowShouldClose(nativeWindow) {
@@ -245,7 +248,17 @@ function resolveParentWindow(parentOption, kind) {
 	return parentWindow
 }
 
-export function createAppKitWindow() {
+export function createAppKitWindow(options = {}) {
+	if (options === null || typeof options !== 'object' || Array.isArray(options)) {
+		throw new TypeError('createAppKitWindow options must be an object')
+	}
+
+	const terminateAfterLastWindowClosed = options.terminateAfterLastWindowClosed ?? false
+	if (typeof terminateAfterLastWindowClosed !== 'boolean') {
+		throw new TypeError('createAppKitWindow terminateAfterLastWindowClosed must be a boolean')
+	}
+
+	shared.terminateAfterLastWindowClosed = terminateAfterLastWindowClosed
 	app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
 
 	const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(

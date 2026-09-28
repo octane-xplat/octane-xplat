@@ -30,7 +30,7 @@ function unmountMainRoot() {
 
 try {
 	await build({ configFile, mode: 'development' })
-	appKit = createAppKitWindow()
+	appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
 	const { app, window, contentView, applicationClosed, windowClosed } = appKit
 	root = createMacOSRoot(contentView)
 	void windowClosed.then(unmountMainRoot)

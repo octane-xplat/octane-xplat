@@ -4,6 +4,9 @@ This experimental AppKit host runs the shared `@xplat/app` harness: its Home
 shell, Apps gallery, all nine shared demos, and the Test tab with probes and
 services. The adapted sweep drives the Home counter, routes into each demo,
 checks representative state changes, and visits the Test surface.
+The host exposes a `terminateAfterLastWindowClosed` option. The dev and
+packaged app set it to `true`; `createAppKitWindow` defaults to AppKit's
+keep-running behavior.
 
 `apps/macos` imports `App` from `@xplat/app`, and the app imports UI components
 from `@octane-xplat/ui` without a Vite alias for the package root. The package's
