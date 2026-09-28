@@ -108,7 +108,8 @@ improves on the DOM API (`packages/platform/src/*.linux.ts`).
 OS access crosses a single `webkit.messageHandlers.xplat` channel — the same
 API shape on WKWebView and WebKitGTK. `apps/linux/host/WKHost.swift` is a
 macOS dev stand-in that runs the real contract (`run.sh --self-test` does a
-round-trip check); `gjs-host.js` is the desk-written GJS/WebKitGTK host for
-the container pass. Host-side services are D-Bus/Gio-shaped (freedesktop
+round-trip check); `gjs-host.js` is the real GJS/WebKitGTK host, verified in
+an OrbStack container (`host/Dockerfile` + `container-smoke.sh`) against real
+D-Bus services. Host-side services are D-Bus/Gio-shaped (freedesktop
 notifications, portals, libsecret) — no JS↔native binding layer. See
 `apps/linux/host/README.md` and decision #61.

@@ -26,7 +26,8 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 		_: WKUserContentController, didReceive message: WKScriptMessage
 	) {
 		guard message.name == "xplat",
-			let req = message.body as? [String: Any],
+			let body = message.body as? String,
+			let req = (try? JSONSerialization.jsonObject(with: Data(body.utf8))) as? [String: Any],
 			let id = req["id"] as? Int,
 			let service = req["service"] as? String,
 			let method = req["method"] as? String
@@ -133,51 +134,17 @@ window.contentView!.addSubview(webView)
 bridge.webView = webView
 
 final class NavDelegate: NSObject, WKNavigationDelegate {
+	let selftestJS = // cwd is host/ — run.sh cds here
+		(try? String(contentsOfFile: "bridge-selftest.linux.js", encoding: .utf8))
+		?? "webkit.messageHandlers.xplatLog.postMessage('SELFTEST missing bridge-selftest.linux.js')"
+
 	func webView(_ webView: WKWebView, didFinish _: WKNavigation!) {
 		guard selfTest else { return }
-		// Poll until the app's bridge.linux.ts install is visible, then run a
-		// round-trip per service and report via the xplatLog channel.
-		let probe = """
-			(() => {
-			  if (!window.__xplatBridge) { setTimeout(() => {}, 50); return 'waiting'; }
-			  window.__xplatSelfTest = async () => {
-			    const log = m => webkit.messageHandlers.xplatLog.postMessage(m)
-			    const call = (service, method, args) => new Promise((res, rej) => {
-			      const id = 90000 + Math.floor(Math.random() * 9000)
-			      const orig = window.__xplatBridge.resolve.bind(window.__xplatBridge)
-			      const origRej = window.__xplatBridge.reject.bind(window.__xplatBridge)
-			      window.__xplatBridge.resolve = (i, v) => {
-			        window.__xplatBridge.resolve = orig; i === id ? res(v) : orig(i, v)
-			      }
-			      window.__xplatBridge.reject = (i, m) => {
-			        window.__xplatBridge.reject = origRej; i === id ? rej(new Error(m)) : origRej(i, m)
-			      }
-			      webkit.messageHandlers.xplat.postMessage({ id, service, method, args })
-			    })
-			    const out = []
-			    const run = async (name, fn) => {
-			      try { out.push(name + '=' + JSON.stringify(await fn())) }
-			      catch (e) { out.push(name + '!=>' + e.message) }
-			    }
-			    await run('clipboard.write', () => call('clipboard', 'write', ['harness-ok']))
-			    await run('clipboard.read', () => call('clipboard', 'read', []))
-			    await run('secureStorage.set', () => call('secureStorage', 'set', ['k', 'v']))
-			    await run('secureStorage.get', () => call('secureStorage', 'get', ['k']))
-			    await run('notifications.ensure', () => call('notifications', 'ensure', []))
-			    await run('notifications.notify', () => call('notifications', 'notify', ['title', 'body']))
-			    await run('missing.method', () => call('nope', 'nope', []))
-			    log('SELFTEST ' + out.join(' | '))
-			    const d = document.createElement('pre')
-			    d.id = 'bridge-selftest'
-			    d.textContent = out.join('\\n')
-			    document.body.prepend(d)
-			  }
-			  return 'ready'
-			})()
-			"""
-		webView.evaluateJavaScript(probe) { result, _ in
-			if result as? String == "ready" {
-				webView.evaluateJavaScript("__xplatSelfTest()", completionHandler: nil)
+		// Poll until the app's bridge.linux.ts install is visible, then run
+		// bridge-selftest.linux.js — the same file gjs-host.js evaluates on Linux.
+		webView.evaluateJavaScript("typeof __xplatBridge === 'object'") { result, _ in
+			if result as? Bool == true {
+				webView.evaluateJavaScript(self.selftestJS, completionHandler: nil)
 				DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
 					bridge.emit("deep-links", "open", "xplat://self-test/deep-link")
 				}

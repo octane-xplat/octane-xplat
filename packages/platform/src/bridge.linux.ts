@@ -3,7 +3,10 @@
 // (the real host) and WKWebView (the dev harness) expose under the same API.
 //
 // Wire contract:
-//   webview → host:  postMessage({ id, service, method, args })
+//   webview → host:  postMessage(JSON.stringify({ id, service, method, args }))
+//                    — a string, not an object: WebKitGTK 6.0 delivers a bare
+//                    JSCValue to the host, and parsing one string beats
+//                    walking JSCValue properties on the GI side.
 //   host → webview reply:  evaluate __xplatBridge.resolve(id, value)
 //                          or __xplatBridge.reject(id, message)
 //   host → webview event:  evaluate __xplatBridge.emit(service, event, payload)
@@ -55,7 +58,7 @@ export function call<T>(service: string, method: string, ...args: unknown[]): Pr
 	}
 
 	const id = ++seq
-	h.postMessage({ id, service, method, args })
+	h.postMessage(JSON.stringify({ id, service, method, args }))
 	return new Promise<T>((resolve, reject) =>
 		pending.set(id, { resolve: (v) => resolve(v as T), reject }),
 	)
