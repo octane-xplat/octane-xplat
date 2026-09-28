@@ -10,9 +10,7 @@ import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from '../macos/ru
 const frameworkFallbacks = {
 	'@octane-xplat/ui': [
 		'@nativescript-community/gesturehandler',
-		'@nativescript-community/ui-canvas',
 		'@nativescript-community/ui-drawer',
-		'@nativescript-community/ui-svg',
 	],
 	'@octane-xplat/platform': [
 		'@nativescript-community/ui-document-picker',
@@ -133,10 +131,10 @@ const packageRoot = (cwd, name, workspaces) => {
 const frameworkPlugins = (cwd, name, workspaces) => {
 	const root = packageRoot(cwd, name, workspaces)
 	const manifest = root && readJson(join(root, 'package.json'))
-	const declared = [
-		...Object.keys(manifest?.dependencies ?? {}),
-		...Object.keys(manifest?.peerDependencies ?? {}),
-	].filter(nativePlugin)
+	// Only peers are app-declared contracts — real `dependencies` travel
+	// transitively and merge through `ns prepare`'s BFS without the app
+	// redeclaring them (decision #51).
+	const declared = Object.keys(manifest?.peerDependencies ?? {}).filter(nativePlugin)
 
 	return declared.length ? declared : (frameworkFallbacks[name] ?? [])
 }
