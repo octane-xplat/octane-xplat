@@ -368,10 +368,18 @@ export async function xplatNative(env, opts = {}) {
 				},
 			},
 			optimizeDeps: {
-				// vite-octane excludes `octane` from the deps bundle, so the
-				// optimizeDeps graph walk never descends into it — alien-signals
-				// (the signal impl imported by octane/universal/native) is missed
-				// and the device fetch 504s. Seed it directly.
+				// A dep discovered mid-boot re-commits the optimizer's
+				// browserHash, staling every `?v=` stamp already served —
+				// vite expects the client to reload, the NS http-loader has
+				// none, and the stale fetch 504s the boot. Upstream disables
+				// discovery under HMR for angular/solid/react for exactly this;
+				// linked packages are discovery-eligible because their realpath
+				// sits outside node_modules. Freeze the dep set per session.
+				noDiscovery: true,
+				// Keep alien-signals (octane/signals' reactive impl) optimized:
+				// with the dep set frozen its `?v` stamp is stable for the
+				// session, and any path that still emits a .vite/deps URL gets
+				// a live artifact instead of a per-module miss.
 				include: ['alien-signals', 'alien-signals/system'],
 				// Flattened optimizeDeps chunks get mangled by the /ns/m device
 				// transform (`import import "/ns/core/utils"`) and miss the vendor
