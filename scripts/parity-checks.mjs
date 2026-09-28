@@ -162,6 +162,10 @@ const inputEqual = [
 	'field.box.y',
 	'field.box.w',
 	'field.box.h',
+	'field.contentBox.x',
+	'field.contentBox.y',
+	'field.contentBox.w',
+	'field.contentBox.h',
 	'field.placeholder',
 	'field.placeholderStyle.color',
 	'field.placeholderStyle.opacity',
@@ -176,6 +180,7 @@ function inputRows(m, value) {
 	const field = m('field')
 	const rows = [
 		dims(field, 180, 32, 1),
+		['input content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
 		['placeholder is set', field.placeholder === 'Name', field.placeholder],
 	]
 	if (value !== undefined) {
@@ -188,6 +193,7 @@ function inputNaturalRows(m, value) {
 	const field = m('field')
 	return [
 		['input has positive intrinsic dimensions', field.box?.w > 0 && field.box?.h > 0, `${field.box?.w}×${field.box?.h}`],
+		['input content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
 		['placeholder is set', field.placeholder === 'Name', field.placeholder],
 		['input value matches', field.text === value, JSON.stringify(field.text)],
 	]
@@ -197,6 +203,7 @@ function textAreaRows(m, target, value) {
 	const field = m('field')
 	const rows = [
 		dims(field, 180, 48, 1),
+		['textarea content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
 		['placeholder is set', field.placeholder === 'Notes', field.placeholder],
 	]
 	if (value !== undefined) {
@@ -217,6 +224,7 @@ function textAreaRowsIntrinsic(m, target, value, height) {
 	const field = m('field')
 	const rows = [
 		dims(field, 180, height, 1),
+		['textarea content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
 		['placeholder is set', field.placeholder === 'Notes', field.placeholder],
 		['textarea value matches', field.text === value, JSON.stringify(field.text)],
 	]
@@ -347,8 +355,14 @@ export const CHECKS = [
 		fixture: 'text-long',
 		targets: ['web', 'macos'],
 		elements: { text: 'parity-text' },
-		equal: textEqual,
-		check: (m) => textRows(m, 'Shared typography should render the same glyph advances', 40),
+		equal: [...textEqual, 'text.textLineCount'],
+		check: (m) => {
+			const text = m('text')
+			return [
+				...textRows(m, 'Shared typography should render the same glyph advances', 40),
+				['text wraps across two lines', text.textLineCount === 2, text.textLineCount],
+			]
+		},
 	},
 	{
 		fixture: 'text-advance',

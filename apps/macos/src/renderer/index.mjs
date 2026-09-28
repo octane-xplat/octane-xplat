@@ -165,6 +165,18 @@ class ButtonActionTarget extends NSObject {
 
 const buttonActionTarget = ButtonActionTarget.new()
 
+class ContentAlignedTextField extends NSTextField {
+	static {
+		NativeClass(this)
+	}
+
+	// These controls have no bezel or background, so the text area and layout
+	// frame should share the same edges.
+	alignmentRectInsets() {
+		return { top: 0, left: 0, bottom: 0, right: 0 }
+	}
+}
+
 class AccessibleStackView extends NSStackView {
 	static ObjCExposedMethods = {
 		accessibilityPerformPress: { params: [], returns: interop.types.bool },
@@ -448,7 +460,7 @@ function setTextFieldPlaceholder(field, props) {
 function makeTextField(props, multiline = false) {
 	const field = multiline
 		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
-		: NSTextField.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 28 } })
+		: ContentAlignedTextField.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 28 } })
 	field.translatesAutoresizingMaskIntoConstraints = false
 	field.font = fontForStyle(14)
 	field.textColor = nativeColor('#0a0a0a')
@@ -1799,6 +1811,27 @@ function measureTextLineAdvances(value, font) {
 	})
 }
 
+function measureTextLineCount(node) {
+	if (node.type !== 'label') {return undefined}
+	const view = node.view
+	const cell = view?.cell
+	if (typeof cell?.cellSizeForBounds !== 'function') {return undefined}
+	const bounds = view.bounds
+	const fit = cell.cellSizeForBounds({
+		origin: { x: 0, y: 0 },
+		size: { width: Number(bounds.size.width), height: 100000 },
+	})
+	const height = Number(fit?.height)
+	const styleLineHeight = Number(parityStyle(node, []).lineHeight)
+	const font = view.font
+	const fontLineHeight = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
+	const lineHeight = styleLineHeight > 0 ? styleLineHeight : fontLineHeight
+	if (!Number.isFinite(height) || height <= 0 || !Number.isFinite(lineHeight) || lineHeight <= 0) {
+		return undefined
+	}
+	return Math.max(1, Math.round(height / lineHeight))
+}
+
 function parityBoxInHost(view, rect, boxView) {
 	const converted = view.superview
 		? view.superview.convertRectToView(rect, boxView)
@@ -1810,6 +1843,36 @@ function parityBoxInHost(view, rect, boxView) {
 		w: round(Number(converted.size.width)),
 		h: round(Number(converted.size.height)),
 	}
+}
+
+function parityLocalBoxInHost(view, rect, boxView) {
+	const frameOrigin = view.frame.origin
+	return parityBoxInHost(view, {
+		origin: {
+			x: Number(frameOrigin.x) + Number(rect.origin.x),
+			y: Number(frameOrigin.y) + Number(rect.origin.y),
+		},
+		size: rect.size,
+	}, boxView)
+}
+
+function textContentBox(node, boxNode) {
+	const view = node.view
+	if (!view || !boxNode.view) {return null}
+	if (node.type === 'textfield' && typeof view.cell?.titleRectForBounds === 'function') {
+		return parityLocalBoxInHost(view, view.cell.titleRectForBounds(view.bounds), boxNode.view)
+	}
+	if (node.type === 'textview') {
+		const inset = view.textContainerInset ?? { width: 0, height: 0 }
+		const padding = Number(view.textContainer?.lineFragmentPadding ?? 0)
+		const width = Number(view.bounds.size.width) - 2 * Number(inset.width) - 2 * padding
+		const height = Number(view.bounds.size.height) - 2 * Number(inset.height)
+		return parityLocalBoxInHost(view, {
+			origin: { x: Number(inset.width) + padding, y: Number(inset.height) },
+			size: { width: Math.max(0, width), height: Math.max(0, height) },
+		}, boxNode.view)
+	}
+	return null
 }
 
 function parityNode(node, boxNode, facets) {
@@ -1877,6 +1940,8 @@ function parityNode(node, boxNode, facets) {
 				opacity: round(Number(withDrawingAppearance(appearance, () => placeholderColor.alphaComponent))),
 			}
 		: undefined
+	const contentBox = textContentBox(node, boxNode)
+	const textLineCount = measureTextLineCount(node)
 
 	return {
 		tag: String(node.type ?? 'view').toLowerCase(),
@@ -1891,6 +1956,8 @@ function parityNode(node, boxNode, facets) {
 		textLineAdvances,
 		placeholder: placeholder || undefined,
 		placeholderStyle,
+		contentBox,
+		textLineCount,
 	}
 }
 
