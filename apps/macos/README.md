@@ -67,13 +67,14 @@ With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
 ## Packaging proof
 
 `pnpm --filter @xplat/macos package` delegates to the CLI to build an Apple
-Silicon `.app` and compressed `.dmg`. The packager embeds Node 26.7.0 from the
-official arm64 distribution, verifies the published SHA-256, and includes the
-NativeScript Node-API runtime and bundled Octane component. The app's Mach-O
+Silicon `.app` and compressed `.dmg`. The packager embeds Node 24.21.0 LTS from
+the official arm64 distribution, verifies the published SHA-256, and includes
+the NativeScript Node-API runtime and bundled Octane component. The app's Mach-O
 launcher lives in `Contents/MacOS`; it starts Node from `Contents/Helpers` with
-`Resources/app/main.cjs` as its entry script. The NativeScript framework lives in
-`Contents/Frameworks` and is linked from its package-relative loader path. The
-bundle targets macOS 13.5 or later. Artifacts are written under
+`Resources/app/main.cjs` as its entry script. The NativeScript framework lives
+in `Contents/Frameworks` and is linked from its package-relative loader path.
+The bundle targets macOS 13.5 or later, matching the minimum OS required by the
+bundled Node runtime. Artifacts are written under
 `apps/macos/artifacts/macos-arm64/` so dev builds do not clean them.
 
 Set the optional `icon` package field to an app-root-relative `.icns` file to
@@ -102,8 +103,8 @@ Run the build from `apps/macos`; the CLI signs and verifies the app and disk
 image, submits the image, staples the ticket, and validates it. See
 [Apple's notarytool credential guidance](https://developer.apple.com/documentation/technotes/tn3147-migrating-to-the-latest-notarization-tool).
 
-Node's Single Executable Applications feature is still marked as active
-development in Node 26.7.0, so the packager launches a separate Node runtime
-instead. The AppKit target remains an experiment pending validation across
-supported macOS versions and notarized distribution. See [Node's SEA
-documentation](https://nodejs.org/download/release/v26.7.0/docs/api/single-executable-applications.html).
+The packager runs its JavaScript bundle with a separate Node runtime instead of
+embedding it with Node's Single Executable Applications feature, which remains
+in active development. The AppKit target remains an experiment pending
+validation across supported macOS versions and notarized distribution. See
+[Node's SEA documentation](https://nodejs.org/api/single-executable-applications.html).

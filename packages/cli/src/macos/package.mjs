@@ -19,9 +19,10 @@ import { arch, homedir, platform } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { inspectMacOSPackageConfig } from './config.mjs'
+import { bundledNodeRuntime } from './runtime.mjs'
 
 const nativeRuntimePackageName = '@nativescript/macos-node-api'
-const nodeVersion = '26.7.0'
+const nodeVersion = bundledNodeRuntime.version
 const nodeArchive = `node-v${nodeVersion}-darwin-arm64.tar.xz`
 const runtimeFrameworkRelativePath = join(
 	'build',

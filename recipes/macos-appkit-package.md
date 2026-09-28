@@ -17,6 +17,8 @@ production Vite config that emits its CommonJS host bundle.
   project.
 - Build on an Apple Silicon Mac with Xcode Command Line Tools (`clang`); the
   package also uses the macOS `codesign` and `hdiutil` tools.
+- Set the package's minimum macOS version to 13.5 or later for the bundled Node
+  runtime.
 - Run and diagnose the app through the `xplat` CLI without an iOS or Android
   NativeScript toolchain.
 - Produce a local `.app` and `.dmg`, with optional Developer ID signing and
@@ -25,8 +27,8 @@ production Vite config that emits its CommonJS host bundle.
 ## Acceptance criteria
 
 - AC1: `xplat doctor` validates the AppKit runtime declaration, required package
-  metadata, referenced Vite config, and local macOS packaging tools, including
-  `clang`, `codesign`, and `hdiutil`.
+  metadata, minimum macOS version, referenced Vite config, and local macOS
+  packaging tools, including `clang`, `codesign`, and `hdiutil`.
 - AC2: `xplat dev --targets macos` runs the app host, and
   `xplat build --targets macos` produces the configured `.app` and `.dmg`.
 - AC3: Local packaging is ad-hoc signed; configured Developer ID credentials
