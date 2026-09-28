@@ -2,23 +2,32 @@
 globalThis.console = {
   log: (...args) => __hostLog(...args),
   warn: (...args) => __hostLog(...args),
-  error: (...args) => __hostLog(...args),
+  error: (...args) => __hostLog(...args.map((value) => value instanceof Error ? value.stack : value)),
 };
-globalThis.process = { env: { NODE_ENV: 'production', OCTANE_MACOS_AUTOMATION: '1' } };
+globalThis.process = { env: { NODE_ENV: 'production', OCTANE_MACOS_AUTOMATION: '1', OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } };
 Object.defineProperty(globalThis, 'Buffer', { configurable: true, value: { from(value, encoding) {
   if (encoding !== 'base64') throw Error(`unsupported Buffer encoding: ${encoding}`);
   return NSData.alloc().initWithBase64EncodedStringOptions(value, 0);
 } } });
-// Probe past a CoreText bridge crash; this deliberately disables font matching.
-Object.defineProperty(globalThis, 'CTFontDescriptorCopyAttribute', { configurable: true, value: () => ({ path: globalThis.__fontPath }) });
 const fileManager = NSFileManager.defaultManager;
 const nodeModules = {
-  'node:crypto': { createHash() { return { update() { return this; }, digest() { return 'bare-spike'; } }; } },
+  'node:crypto': { createHash(algorithm) {
+    if (algorithm !== 'sha256') throw Error(`unsupported hash: ${algorithm}`);
+    let bytes;
+    return {
+      update(data) { bytes = new Uint8Array(interop.bufferFromData(data)); return this; },
+      digest(encoding) {
+        if (encoding !== 'hex' || !bytes) throw Error(`unsupported digest: ${encoding}`);
+        const output = new Uint8Array(32);
+        CC_SHA256(bytes, bytes.length, output);
+        return Array.from(output, (value) => value.toString(16).padStart(2, '0')).join('');
+      },
+    };
+  } },
   'node:fs': {
     mkdirSync(path) { fileManager.createDirectoryAtPathWithIntermediateDirectoriesAttributesError(path, true, null, null); },
-    existsSync(path) { if (path.endsWith('.ttf')) globalThis.__fontPath = path; return fileManager.fileExistsAtPath(path); },
+    existsSync(path) { return fileManager.fileExistsAtPath(path); },
     writeFileSync(path, value) {
-      if (path.endsWith('.ttf')) globalThis.__fontPath = path;
       const bytes = typeof value === 'string' ? NSString.stringWithString(value).dataUsingEncoding(4) : value;
       if (!bytes.writeToFileAtomically(path, true)) throw Error(`write failed: ${path}`);
     },

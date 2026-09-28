@@ -1,0 +1,29 @@
+[assert] macOS harness Home mounted: OK
+[assert] macOS Home counter updates: OK
+[assert] macOS Apps tab mounted shared gallery: OK
+[assert] macOS shared Counter demo mounted through route: OK
+[assert] macOS shared Counter demo responds: OK
+[assert] macOS Counter route returns to the gallery: OK
+[assert] macOS shared Watch demo mounts with its nested layout: OK
+[assert] macOS Watch route returns to the gallery: OK
+[assert] macOS shared Stopwatch demo mounts with its nested layout: OK
+[assert] macOS Stopwatch starts: OK
+[assert] macOS Stopwatch route returns to the gallery: OK
+[assert] macOS shared Todo demo mounts with its nested layout: OK
+[assert] macOS Todo adds typed text: OK
+[assert] macOS Todo route returns to the gallery: OK
+[assert] macOS shared Tic-Tac-Toe demo mounts with its nested layout: OK
+[assert] macOS Tic-Tac-Toe updates after a move: OK
+[assert] macOS Tic-Tac-Toe route returns to the gallery: OK
+[assert] macOS shared Dialer demo mounts with its nested layout: OK
+[assert] macOS Dialer accumulates a digit: OK
+[assert] macOS Dialer route returns to the gallery: OK
+[assert] macOS shared List ×500 demo mounts with its nested layout: OK
+[assert] macOS shared List updates its row count: OK
+[assert] macOS List ×500 route returns to the gallery: OK
+[assert] macOS shared Weather demo mounts with its nested layout: OK
+[assert] macOS Weather route returns to the gallery: OK
+[assert] macOS shared Feed demo mounts with its nested layout: OK
+[assert] macOS Feed route returns to the gallery: OK
+[assert] macOS Test tab mounted probes and services: OK
+[assert] macOS shared probe responds: OK

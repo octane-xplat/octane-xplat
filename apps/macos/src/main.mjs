@@ -30,6 +30,12 @@ void applicationClosed.then(() => {
 	mainWindow.close()
 	app.delegate = null
 	appKit.delegate = null
+	globalThis.__xplatStopHost?.()
 })
 
-app.run()
+if (process.env.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1') {
+	app.finishLaunching()
+	app.activateIgnoringOtherApps(true)
+} else {
+	app.run()
+}

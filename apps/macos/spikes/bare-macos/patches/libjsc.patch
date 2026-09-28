@@ -1,8 +1,21 @@
 diff --git a/src/js.c b/src/js.c
-index ed8f016..f85cf85 100644
+index ed8f016..39c4e6b 100644
 --- a/src/js.c
 +++ b/src/js.c
-@@ -1374,13 +1374,15 @@ js_define_class(js_env_t *env, const char *name, size_t len, js_function_cb cons
+@@ -1321,7 +1321,11 @@ js__on_constructor_call(JSContextRef context, JSObjectRef new_target, size_t arg
+ 
+   JSObjectRef receiver = JSObjectMake(context, NULL, NULL);
+ 
+-  JSObjectSetPrototype(context, receiver, JSObjectGetPrototype(context, new_target));
++  JSStringRef prototype_key = JSStringCreateWithUTF8CString("prototype");
++  JSValueRef prototype = JSObjectGetProperty(context, new_target, prototype_key, exception);
++  JSStringRelease(prototype_key);
++  if (*exception) return NULL;
++  JSObjectSetPrototype(context, receiver, prototype);
+ 
+   JSStringRef ref = JSStringCreateWithUTF8CString("__native_constructor");
+ 
+@@ -1374,13 +1378,15 @@ js_define_class(js_env_t *env, const char *name, size_t len, js_function_cb cons
  
    JSStringRef ref;
  
@@ -24,7 +37,7 @@ index ed8f016..f85cf85 100644
  
    ref = JSStringCreateWithUTF8CString("constructor");
  
-@@ -1500,19 +1502,53 @@ js_define_properties(js_env_t *env, js_value_t *object, js_property_descriptor_t
+@@ -1500,19 +1506,53 @@ js_define_properties(js_env_t *env, js_value_t *object, js_property_descriptor_t
      JSValueRef value;
  
      if (property->getter || property->setter) {
@@ -81,7 +94,7 @@ index ed8f016..f85cf85 100644
      } else if (property->method) {
        js_value_t *fn;
        err = js_create_function(env, "fn", -1, property->method, property->data, &fn);
-@@ -1573,11 +1609,7 @@ js_wrap(js_env_t *env, js_value_t *object, void *data, js_finalize_cb finalize_c
+@@ -1573,11 +1613,7 @@ js_wrap(js_env_t *env, js_value_t *object, void *data, js_finalize_cb finalize_c
  
    if (JSValueIsObjectOfClass(env->context, wrapped, env->classes.wrap) && js__is_own_property(env, (JSObjectRef) object, ref, wrapped) && JSObjectGetPrivate((JSObjectRef) wrapped) != NULL) {
      JSStringRelease(ref);
@@ -94,7 +107,7 @@ index ed8f016..f85cf85 100644
    }
  
    js_finalizer_t *finalizer = malloc(sizeof(js_finalizer_t));
-@@ -1640,27 +1672,19 @@ js_unwrap(js_env_t *env, js_value_t *object, void **result) {
+@@ -1640,27 +1676,19 @@ js_unwrap(js_env_t *env, js_value_t *object, void **result) {
      return js__propagate_exception(env);
    }
  
@@ -124,7 +137,7 @@ index ed8f016..f85cf85 100644
    }
  
    *result = finalizer->data;
-@@ -1682,27 +1706,19 @@ js_remove_wrap(js_env_t *env, js_value_t *object, void **result) {
+@@ -1682,27 +1710,19 @@ js_remove_wrap(js_env_t *env, js_value_t *object, void **result) {
      return js__propagate_exception(env);
    }
  
@@ -154,7 +167,7 @@ index ed8f016..f85cf85 100644
    }
  
    if (result) *result = finalizer->data;
-@@ -4944,6 +4960,13 @@ int
+@@ -4944,6 +4964,13 @@ int
  js_get_filtered_property_names(js_env_t *env, js_value_t *object, js_key_collection_mode_t mode, js_property_filter_t property_filter, js_index_filter_t index_filter, js_key_conversion_mode_t key_conversion, js_value_t **result) {
    if (env->exception) return js__error(env);
  

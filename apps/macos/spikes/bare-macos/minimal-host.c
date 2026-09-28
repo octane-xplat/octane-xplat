@@ -61,7 +61,7 @@ static void on_timer(CFRunLoopTimerRef timer_ref, void *context) {
   js_value_t *global = NULL;
   if (js_get_reference_value(timer->env, timer->callback, &callback) == 0 && callback &&
       js_get_global(timer->env, &global) == 0)
-    check(timer->env, js_call_function(timer->env, global, callback, 0, NULL, NULL), "timer callback");
+    check(timer->env, js_call_function_with_checkpoint(timer->env, global, callback, 0, NULL, NULL), "timer callback");
   if (!CFRunLoopTimerIsValid(timer_ref)) return;
   if (CFRunLoopTimerGetInterval(timer_ref) == 0) {
     CFRunLoopTimerInvalidate(timer_ref);
@@ -87,7 +87,7 @@ static js_value_t *host_timer_start(js_env_t *env, js_callback_info_t *info) {
                                       data ? seconds : 0, 0, 0, on_timer, &context);
   timer->next = host_timers;
   host_timers = timer;
-  CFRunLoopAddTimer(CFRunLoopGetMain(), timer->timer, kCFRunLoopDefaultMode);
+  CFRunLoopAddTimer(CFRunLoopGetMain(), timer->timer, kCFRunLoopCommonModes);
   js_value_t *id = NULL;
   js_create_int32(env, timer->id, &id);
   return id;
@@ -108,6 +108,13 @@ static js_value_t *host_timer_clear(js_env_t *env, js_callback_info_t *info) {
     }
     break;
   }
+  return NULL;
+}
+
+static js_value_t *host_stop(js_env_t *env, js_callback_info_t *info) {
+  (void)env;
+  (void)info;
+  CFRunLoopStop(CFRunLoopGetMain());
   return NULL;
 }
 
@@ -210,19 +217,24 @@ int main(int argc, char **argv) {
     js_value_t *timer = NULL;
     js_value_t *interval = NULL;
     js_value_t *clear = NULL;
+    js_value_t *stop = NULL;
     if (check(env, js_create_function(env, "hostLog", 7, host_log, NULL, &log), "host log") ||
         check(env, js_set_named_property(env, global, "__hostLog", log), "host log global") ||
         check(env, js_create_function(env, "setTimeout", 10, host_timer_start, NULL, &timer), "setTimeout") ||
         check(env, js_create_function(env, "setInterval", 11, host_timer_start, (void *)1, &interval), "setInterval") ||
         check(env, js_create_function(env, "clearTimer", 10, host_timer_clear, NULL, &clear), "clearTimer") ||
+        check(env, js_create_function(env, "stopHost", 8, host_stop, NULL, &stop), "stopHost") ||
         check(env, js_set_named_property(env, global, "__setTimeout", timer), "setTimeout global") ||
         check(env, js_set_named_property(env, global, "__setInterval", interval), "setInterval global") ||
-        check(env, js_set_named_property(env, global, "__clearTimer", clear), "clearTimer global")) return 1;
+        check(env, js_set_named_property(env, global, "__clearTimer", clear), "clearTimer global") ||
+        check(env, js_set_named_property(env, global, "__xplatStopHost", stop), "stopHost global")) return 1;
     if (check(env, js_set_named_property(env, global, "__nativeExports", exports), "exports global")) return 1;
     if (run_file(env, argv[4], 0)) return 1;
   }
   if (run_file(env, argv[2], argc == 5)) return 1;
-  CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
+  if (argc == 5) CFRunLoopRun();
+  else CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0, false);
+  fprintf(stderr, "host run loop returned\n");
   for (host_timer *timer = host_timers; timer;) {
     host_timer *next = timer->next;
     CFRunLoopTimerInvalidate(timer->timer);
