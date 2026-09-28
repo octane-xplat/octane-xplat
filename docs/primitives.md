@@ -100,15 +100,16 @@ _VirtualList anchor correction and slots verified on web, iOS simulator, and
 Android emulator; native nested-list guard verified on iOS._
 
 `Pager` gives paged horizontal swiping — onboarding flows, media galleries.
-It takes `items` + `renderItem` (the same contract as the platform lists),
+It ships as the `@octane-xplat/pager` leaf — `pnpm add @octane-xplat/pager`
+and import `Pager` from that package; the `ui-pager` plugin travels as the
+leaf's own dependency, so apps declare nothing extra. It takes `items` +
+`renderItem` (the same contract as the platform lists),
 `page`/`onPageChange` for controlled use, `defaultPage` for uncontrolled.
 Native pages are recycled OS cells, so pages need no fixed height of their
 own — each fills the pager. There is no built-in page indicator; compose
 dots from `Row` + `Pressable` driven by the page index (see the `pager`
-demo). Native apps that ship `Pager` must declare the
-`@nativescript-community/ui-pager` plugin in their own `package.json`.
-The web leaf is a scroll-snap row; `onPageChange` fires after the snap
-settles.
+demo). The web leaf is a scroll-snap row; `onPageChange` fires after the
+snap settles.
 
 `SegmentedControl` is a self-drawn row of equal-width segments — the
 normalized shape of UISegmentedControl / Material segmented buttons, with

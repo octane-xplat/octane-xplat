@@ -114,7 +114,6 @@ export { SearchInput } from './SearchInput.native.tsrx'
 export { SegmentedControl } from './SegmentedControl.native.tsrx'
 export { ScrollBox } from './ScrollBox.native.tsrx'
 export { ScrollView } from './ScrollView.native.tsrx'
-export { Pager } from './Pager.native.tsrx'
 export { VirtualList } from './VirtualList.native.tsrx'
 export type { VirtualListProps } from './props'
 export { Image } from './Image.native.tsrx'
@@ -177,7 +176,6 @@ export type {
 	HeadingProps,
 	IconProps,
 	MeterProps,
-	PagerProps,
 	RefreshProps,
 	SearchInputProps,
 	SliderProps,

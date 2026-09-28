@@ -1,5 +1,5 @@
 /** @jsxImportSource @xplat/macos/renderer */
-import type { CameraViewProps, PagerProps, VideoProps, WebViewProps } from './props'
+import type { CameraViewProps, VideoProps, WebViewProps } from './props'
 
 export function WebView(_props: WebViewProps) @{
 	<label className="vx-unsupported">WebView is unsupported by the AppKit host</label>
@@ -9,7 +9,4 @@ export function Video(_props: VideoProps) @{
 }
 export function CameraView(_props: CameraViewProps) @{
 	<label className="vx-unsupported">Camera capture is unsupported by the AppKit host</label>
-}
-export function Pager(_props: PagerProps) @{
-	<label className="vx-unsupported">Pager is unsupported by the AppKit host</label>
 }

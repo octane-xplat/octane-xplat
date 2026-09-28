@@ -417,33 +417,6 @@ export interface ListProps extends RefreshProps {
 	web?: Record<string, any>
 }
 
-/** Paged horizontal swipe container — onboarding flows, media galleries.
- *  Chrome-reset OS paging on native (ViewPager2 / UICollectionView paging via
- *  @nativescript-community/ui-pager), a scroll-snap scroller on web. Follows
- *  the platform-list contract: `items` + `renderItem`, no children — each
- *  page is a full-host-size cell. No indicator is built in; compose dots
- *  from `Row` + `View` driven by `page`/`onPageChange`. */
-export interface PagerProps extends LayoutChildProps, AccessibilityProps {
-	className?: any
-	style?: any
-	id?: string
-	items: any[]
-	renderItem: (item: any, index: number) => any
-	renderEmpty?: () => any
-	/** Controlled page index — pass with `onPageChange` to own the page.
-	 *  Writes scroll/settle to the page; user swipes call `onPageChange`. */
-	page?: number
-	/** Starting page for uncontrolled use (default 0). */
-	defaultPage?: number
-	/** Fires when the settled page changes — a completed swipe on both
-	 *  targets. Programmatic `page` writes do not echo back through it. */
-	onPageChange?: (index: number) => void
-	/** Platform escape hatches, applied after the shared props. */
-	ios?: Record<string, any>
-	android?: Record<string, any>
-	web?: Record<string, any>
-}
-
 export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps, RefreshProps {
 	className?: any
 	style?: any

@@ -12,8 +12,8 @@ import type { UniversalRoot } from '@nativescript-community/octane';
 import { Pager as NSPager } from '@nativescript-community/ui-pager';
 import { GridLayout } from '@nativescript/core';
 import type { PagerProps } from './props';
-import { cx } from './cx';
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
+import { cx } from './cx.native';
+import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props.native';
 import { layoutChildProps } from './layout-child.native';
 
 declare module '@nativescript-community/octane/intrinsics' {

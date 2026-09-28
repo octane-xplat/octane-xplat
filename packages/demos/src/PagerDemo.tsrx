@@ -1,5 +1,6 @@
 import { useState } from 'octane';
-import { Button, Heading, Pager, Pressable, Row, Text, View } from '@octane-xplat/ui';
+import { Pager } from '@octane-xplat/pager';
+import { Button, Heading, Pressable, Row, Text, View } from '@octane-xplat/ui';
 
 const PAGES = [
 	{
