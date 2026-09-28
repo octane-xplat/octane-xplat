@@ -18,6 +18,7 @@
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"parity": "node ./scripts/parity.mjs",
 		"bench:virtual-list": "node ./scripts/bench-virtual-list.mjs",
+		"bench:virtual-list-scroll": "node ./scripts/bench-virtual-list-scroll.mjs",
 		"package": "xplat build --targets macos"
 	},
 	"dependencies": {

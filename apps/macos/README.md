@@ -75,16 +75,22 @@ For example, run just the windowed probe at 500 and 1,000 items:
 OCTANE_MACOS_VLIST_SIZES=500,1000 OCTANE_MACOS_VLIST_MODES=windowed pnpm --filter @xplat/macos bench:virtual-list
 ```
 
-Results from one Apple Silicon run:
+All-rows figures are from the original baseline. The fixed-height windowed
+figures are from the latest Apple Silicon rerun after correcting for AppKit's
+default 14pt vertical stack gap:
 
 | Mode | Items | Initial render | RSS increase | Mounted rows |
 | --- | ---: | ---: | ---: | ---: |
 | All rows | 500 | 137 ms | 18.7 MiB | 500 |
 | All rows | 2,000 | 1,133 ms | 135.6 MiB | 2,000 |
 | All rows | 5,000 | Process killed before metrics | — | — |
-| Windowed | 500 | 17 ms | 2.2 MiB | 24 → 18 (rows 482–499 at end) |
-| Windowed | 2,000 | 17 ms | 2.4 MiB | 24 → 18 (rows 1982–1999 at end) |
-| Windowed | 5,000 | 17 ms | 2.2 MiB | 24 → 18 (rows 4982–4999 at end) |
+| Windowed | 500 | 17.7 ms | 2.3 MiB | 24 → 16 (rows 484–499 at end) |
+| Windowed | 2,000 | 16.2 ms | 2.2 MiB | 24 → 16 (rows 1984–1999 at end) |
+| Windowed | 5,000 | 16.6 ms | 2.1 MiB | 24 → 16 (rows 4984–4999 at end) |
+
+Both AppKit windowing prototypes now include the stack gap in their spacer
+heights. The fixed-height benchmark also asserts that the total document height
+is unchanged between the initial and end-of-list windows.
 
 Render timing covers bundle import and the initial Octane render/commit, but not
 the bundle build or later AppKit layout. RSS increase is sampled around initial
@@ -93,6 +99,25 @@ trackpad or wheel fling; it does not measure frame time, variable-height rows,
 or long-session behavior. The results show that bounded AppKit mounting is
 feasible for fixed-height rows, but do not establish production `VirtualList`
 behavior.
+
+`pnpm --filter @xplat/macos bench:virtual-list-scroll` adds a 5,000-row
+variable-height probe (32/48/64pt rows) with 180 programmatic 8pt offset
+updates at about 16ms intervals, followed by midpoint and end seeks. In the
+latest Apple Silicon run, the document stayed at its expected 309,970pt height,
+the window mounted at most 24 rows, and all three row heights were present at
+the end. Across 182 `onScroll` notifications, range commits were 6.61ms at p95
+(17.92ms max); the 16ms main-loop heartbeat was 21.13ms at p95 (32.95ms max,
+zero intervals above 33.3ms).
+
+This drives the clip view with `scrollToPoint`, so it measures the bounds-change
+and Octane range-update path under sustained offset changes. It is not a
+`scrollWheel:` or physical trackpad test. A synthetic Quartz wheel stream
+produced zero AppKit scroll notifications: `loginwindow` remained the
+frontmost app and the Node host could not activate, so the events did not reach
+the test window. The heartbeat is a responsiveness proxy, not display frame
+pacing; real wheel/trackpad behavior and actual frame times remain unproven.
+This remains an app-local prototype, not a change to the shared `VirtualList`
+API.
 
 ## Packaging proof
 

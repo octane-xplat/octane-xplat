@@ -7,6 +7,9 @@ type BenchItem = { id: string; label: string }
 type ScrollMetrics = { verticalOffset: number; viewportHeight: number }
 
 const ROW_HEIGHT = 44
+// `makeStack` in the AppKit renderer defaults vertical stack spacing to 14pt.
+const STACK_GAP = 14
+const ROW_STEP = ROW_HEIGHT + STACK_GAP
 const OVERSCAN_ROWS = 8
 const count = (globalThis as any).__xplatMacOSVirtualListCount as number
 const items: BenchItem[] = Array.from({ length: count }, (_, index) => ({
@@ -34,16 +37,23 @@ const renderItem = (item: BenchItem) => <BenchRow item={item} />
 export default function VirtualListWindowedBench() {
 	const [range, setRange] = useState({ start: 0, end: 24 })
 	const onScroll = ({ verticalOffset, viewportHeight }: ScrollMetrics) => {
-		const firstVisible = Math.floor(Math.max(0, verticalOffset) / ROW_HEIGHT)
-		const visibleCount = Math.max(1, Math.ceil(viewportHeight / ROW_HEIGHT))
+		const firstVisible = Math.floor(Math.max(0, verticalOffset) / ROW_STEP)
+		const visibleCount = Math.max(1, Math.ceil(viewportHeight / ROW_STEP) + 2)
 		const start = Math.max(0, firstVisible - OVERSCAN_ROWS)
 		const end = Math.min(items.length, firstVisible + visibleCount + OVERSCAN_ROWS)
 		setRange((current) =>
 			current.start === start && current.end === end ? current : { start, end },
 		)
 	}
-	const renderHeader = () => <View style={{ height: range.start * ROW_HEIGHT }} />
-	const renderFooter = () => <View style={{ height: (items.length - range.end) * ROW_HEIGHT }} />
+	const renderHeader = () => <View style={{ height: range.start * ROW_STEP - STACK_GAP }} />
+	const renderFooter = () => {
+		const remaining = items.length - range.end
+		return (
+			<View
+				style={{ height: remaining * ROW_HEIGHT + Math.max(0, remaining - 1) * STACK_GAP }}
+			/>
+		)
+	}
 
 	return (
 		<AppKitVirtualList
@@ -52,8 +62,8 @@ export default function VirtualListWindowedBench() {
 			items={items.slice(range.start, range.end)}
 			keyExtractor={keyExtractor}
 			renderItem={renderItem}
-			renderHeader={renderHeader}
-			renderFooter={renderFooter}
+			renderHeader={range.start > 0 ? renderHeader : undefined}
+			renderFooter={range.end < items.length ? renderFooter : undefined}
 			onScroll={onScroll}
 		/>
 	)

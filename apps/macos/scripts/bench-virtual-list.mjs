@@ -116,6 +116,17 @@ function assertSample(result, size, mode) {
 	if (result.initial.firstMountedRow !== 0 || result.initial.lastMountedRow >= maxMountedRows) {
 		throw new Error(`The initial window did not start at row 0: ${JSON.stringify(result.initial)}`)
 	}
+	const expectedContentHeight = size * 58 - 14
+	const initialScrollView = result.initial.scrollViews?.find((view) => view.id === 'vlist-bench')
+	const finalScrollView = result.afterScroll.scrollViews?.find((view) => view.id === 'vlist-bench')
+	if (
+		!initialScrollView ||
+		!finalScrollView ||
+		Math.abs(initialScrollView.contentHeight - expectedContentHeight) > 1 ||
+		Math.abs(finalScrollView.contentHeight - expectedContentHeight) > 1
+	) {
+		throw new Error(`The fixed-height spacer changed the total document height: ${JSON.stringify({ initialScrollView, finalScrollView, expectedContentHeight })}`)
+	}
 	if (
 		result.actualScrollOffset !== result.requestedScrollOffset ||
 		result.afterScroll.lastMountedRow !== size - 1 ||

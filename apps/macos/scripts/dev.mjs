@@ -18,8 +18,72 @@ let initialRenderCpuMs = null
 let initialRenderRssDeltaMiB = null
 let initialRenderHeapDeltaMiB = null
 const listBench = process.env.OCTANE_MACOS_VLIST_BENCH === '1'
-const listBenchMode = process.env.OCTANE_MACOS_VLIST_MODE === 'windowed' ? 'windowed' : 'all'
+const listBenchMode = ['windowed', 'variable'].includes(process.env.OCTANE_MACOS_VLIST_MODE)
+	? process.env.OCTANE_MACOS_VLIST_MODE
+	: 'all'
 const listBenchCount = Number(process.env.OCTANE_MACOS_VLIST_COUNT)
+const interactiveListBench = process.env.OCTANE_MACOS_VLIST_INTERACTIVE === '1'
+let heartbeatTimer
+let heartbeatStartedAt = 0
+const heartbeatTimes = []
+
+function summarize(values) {
+	if (values.length === 0) {return { samples: 0, p50Ms: null, p95Ms: null, p99Ms: null, maxMs: null }}
+	const sorted = values.slice().sort((a, b) => a - b)
+	const percentile = (fraction) => sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * fraction) - 1)]
+	const round = (value) => Number(value.toFixed(2))
+	return {
+		samples: sorted.length,
+		p50Ms: round(percentile(0.5)),
+		p95Ms: round(percentile(0.95)),
+		p99Ms: round(percentile(0.99)),
+		maxMs: round(sorted.at(-1)),
+	}
+}
+
+function interactiveListBenchResult() {
+	const metrics = root.__macosDebug.metrics()
+	const scrollEvents = root.__macosDebug.scrollStats('vlist-bench').events ?? []
+	const offsetDeltas = scrollEvents.slice(1).map(
+		(event, index) => event.verticalOffset - scrollEvents[index].verticalOffset,
+	)
+	const heartbeatIntervals = heartbeatTimes.slice(1).map(
+		(time, index) => time - heartbeatTimes[index],
+	)
+	return {
+		mode: 'variable-windowed',
+		items: globalThis.__xplatMacOSVirtualListCount,
+		input: process.env.OCTANE_MACOS_VLIST_INPUT ?? 'unspecified',
+		expectedContentHeight: globalThis.__xplatMacOSVirtualListScrollProbe?.totalContentHeight ?? null,
+		initialRenderMs: Number(initialRenderMs?.toFixed(1) ?? 0),
+		initialRenderRssDeltaMiB: Number(initialRenderRssDeltaMiB?.toFixed(1) ?? 0),
+		elapsedMs: Number((performance.now() - heartbeatStartedAt).toFixed(1)),
+		current: metrics,
+		scrollEvents: {
+			count: scrollEvents.length,
+			offsetStart: scrollEvents[0]?.verticalOffset ?? null,
+			offsetEnd: scrollEvents.at(-1)?.verticalOffset ?? null,
+			maxOffset: scrollEvents.reduce((max, event) => Math.max(max, event.verticalOffset), 0),
+			callbackMs: summarize(scrollEvents.map((event) => event.callbackMs)),
+			afterEventMs: summarize(scrollEvents.map((event) => event.afterEventMs).filter(Number.isFinite)),
+			rowWindow: {
+				peak: scrollEvents.reduce((max, event) => Math.max(max, event.mountedRows ?? 0), 0),
+				final: scrollEvents.at(-1)?.mountedRows ?? null,
+			},
+			absoluteOffsetDeltaPt: Math.round(
+				offsetDeltas.reduce((sum, delta) => sum + Math.abs(delta), 0),
+			),
+		},
+		rangeCommitMs: summarize(
+			globalThis.__xplatMacOSVirtualListScrollProbe?.rangeCommitMs ?? [],
+		),
+		mainLoopHeartbeatMs: {
+			...summarize(heartbeatIntervals),
+			intervalsOver16_7ms: heartbeatIntervals.filter((value) => value > 16.7).length,
+			intervalsOver33_3ms: heartbeatIntervals.filter((value) => value > 33.3).length,
+		},
+	}
+}
 
 if (listBench) {
 	globalThis.__xplatMacOSVirtualListCount = Number.isSafeInteger(listBenchCount) && listBenchCount > 0
@@ -52,6 +116,46 @@ try {
 		input.on('line', (line) => {
 			const command = line.trim()
 			try {
+				if (interactiveListBench && command === 'scroll-stream') {
+					void (async () => {
+						try {
+							const count = Number(process.env.OCTANE_MACOS_VLIST_EVENTS ?? 180)
+							const scrollView = root.__macosDebug.metrics().scrollViews.find(
+								(view) => view.id === 'vlist-bench',
+							)
+							const contentHeight = Number(
+								scrollView?.contentHeight ??
+								globalThis.__xplatMacOSVirtualListScrollProbe?.totalContentHeight ?? 0,
+							)
+							const maxOffset = Math.max(0, contentHeight - (scrollView?.viewportHeight ?? 0))
+							for (let index = 1; index <= count; index += 1) {
+								root.__macosDebug.scrollToId('vlist-bench', Math.min(index * 8, maxOffset))
+								await new Promise((resolve) => setTimeout(resolve, 16))
+							}
+							root.__macosDebug.scrollToId('vlist-bench', maxOffset / 2)
+							await new Promise((resolve) => setTimeout(resolve, 100))
+							root.__macosDebug.scrollToId('vlist-bench', maxOffset)
+							await new Promise((resolve) => setTimeout(resolve, 250))
+							console.log('[macos-vlist-result] ' + JSON.stringify(interactiveListBenchResult()))
+						} catch (error) {
+							console.error('[macos-vlist-bench] scroll stream failed', error)
+						} finally {
+						clearInterval(heartbeatTimer)
+						appKit.app.terminate(null)
+					}
+					})()
+					return
+				}
+				if (interactiveListBench && (command === 'metrics' || command === 'finish')) {
+					setTimeout(() => {
+						console.log('[macos-vlist-result] ' + JSON.stringify(interactiveListBenchResult()))
+						if (command === 'finish') {
+							clearInterval(heartbeatTimer)
+							appKit.app.terminate(null)
+						}
+					}, 100)
+					return
+				}
 				if (command.startsWith('press ')) {
 					root.__macosDebug.pressButton(command.slice(6))
 				} else if (command.startsWith('tap ')) {
@@ -129,7 +233,18 @@ try {
 	}
 
 	await renderApp()
-	if (listBench) {
+	if (listBench && interactiveListBench) {
+		setTimeout(() => {
+			heartbeatStartedAt = performance.now()
+			heartbeatTimes.push(heartbeatStartedAt)
+			heartbeatTimer = setInterval(() => heartbeatTimes.push(performance.now()), 16)
+			console.log('[macos-vlist-ready] ' + JSON.stringify({
+				mode: 'variable-windowed',
+				items: globalThis.__xplatMacOSVirtualListCount,
+				initial: root.__macosDebug.metrics(),
+			}))
+		}, 500)
+	} else if (listBench) {
 		setTimeout(() => {
 			void (async () => {
 				try {
@@ -138,7 +253,11 @@ try {
 					let actualScrollOffset = null
 					let afterScroll = null
 					if (listBenchMode === 'windowed') {
-						requestedScrollOffset = Math.max(0, (globalThis.__xplatMacOSVirtualListCount - 10) * 44)
+						const scrollView = initial.scrollViews.find((view) => view.id === 'vlist-bench')
+						requestedScrollOffset = Math.max(
+							0,
+							scrollView.contentHeight - scrollView.viewportHeight,
+						)
 						actualScrollOffset = root.__macosDebug.scrollToId('vlist-bench', requestedScrollOffset)
 						await new Promise((resolve) => setTimeout(resolve, 150))
 						afterScroll = root.__macosDebug.metrics()

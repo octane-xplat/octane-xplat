@@ -482,6 +482,7 @@ function setScrollAction(node, handler) {
 	}
 
 	scrollHandlers.set(clipView, () => {
+		const startedAt = performance.now()
 		const bounds = clipView.bounds
 		const contentHeight = Number(node.view.documentView?.frame?.size?.height ?? 0)
 		const event = {
@@ -493,6 +494,26 @@ function setScrollAction(node, handler) {
 			node.container.root.eventScope('discrete', () => handler(event))
 		} catch (error) {
 			console.error('[macos-event] scroll handler failed', error)
+		}
+		if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
+			node.scrollMetrics ??= { events: [] }
+			const sample = {
+				verticalOffset: event.verticalOffset,
+				callbackMs: performance.now() - startedAt,
+				mountedRows: null,
+				afterEventMs: null,
+			}
+			node.scrollMetrics.events.push(sample)
+			if (node.scrollMetrics.events.length > 2000) {node.scrollMetrics.events.shift()}
+			setTimeout(() => {
+				sample.afterEventMs = performance.now() - startedAt
+				sample.mountedRows = [...node.container.nodes.values()].filter(
+					(candidate) =>
+						/^(?:row-r|bench-row-)\d+$/.test(String(candidate.props.id ?? '')) &&
+						candidate.parent !== null &&
+						candidate.view?.superview != null,
+				).length
+			}, 0)
 		}
 	})
 }
@@ -2097,9 +2118,20 @@ export function createMacOSRoot(hostView) {
 				let lastMountedRow = -1
 				let firstMappedRow = Number.POSITIVE_INFINITY
 				let lastMappedRow = -1
+				const mountedRows = []
+				const scrollViews = []
 				for (const node of container.nodes.values()) {
 					nodeTypes[node.type] = (nodeTypes[node.type] ?? 0) + 1
 					if (node.view) {nativeViewCount += 1}
+					if (node.type === 'scrollview' && node.view) {
+						const bounds = node.view.contentView.bounds
+						scrollViews.push({
+							id: node.props.id ?? null,
+							verticalOffset: Number(bounds.origin.y ?? 0),
+							viewportHeight: Number(bounds.size.height ?? 0),
+							contentHeight: Number(node.view.documentView?.frame?.size?.height ?? 0),
+						})
+					}
 					const match = /^(?:row-r|bench-row-)(\d+)$/.exec(String(node.props.id ?? ''))
 					if (!match) {continue}
 
@@ -2113,6 +2145,10 @@ export function createMacOSRoot(hostView) {
 						mountedRowCount += 1
 						firstMountedRow = Math.min(firstMountedRow, index)
 						lastMountedRow = Math.max(lastMountedRow, index)
+						mountedRows.push({
+							index,
+							height: Number(node.view.frame?.size?.height ?? 0),
+						})
 					}
 				}
 				return {
@@ -2126,6 +2162,8 @@ export function createMacOSRoot(hostView) {
 					lastMountedRow: lastMountedRow >= 0 ? lastMountedRow : null,
 					firstMappedRow: Number.isFinite(firstMappedRow) ? firstMappedRow : null,
 					lastMappedRow: lastMappedRow >= 0 ? lastMappedRow : null,
+					mountedRows,
+					scrollViews,
 					nodeTypes,
 				}
 			},
@@ -2138,6 +2176,13 @@ export function createMacOSRoot(hostView) {
 				clipView.scrollToPoint({ x: 0, y: Math.max(0, Number(offset) || 0) })
 				node.view.reflectScrolledClipView(clipView)
 				return Number(clipView.bounds.origin.y ?? 0)
+			},
+			scrollStats(id) {
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
+				)
+				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
+				return { ...(node.scrollMetrics ?? { events: [] }) }
 			},
 			snapshot() {
 						return {

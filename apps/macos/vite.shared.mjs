@@ -21,6 +21,7 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 	const nativeRuntime = '@nativescript/macos-node-api'
 	const virtualListBench = hmr && process.env.OCTANE_MACOS_VLIST_BENCH === '1'
 	const virtualListBenchMode = process.env.OCTANE_MACOS_VLIST_MODE === 'windowed'
+	const variableWindowedBench = process.env.OCTANE_MACOS_VLIST_MODE === 'variable'
 
 	return defineConfig({
 		root: appRoot,
@@ -59,9 +60,11 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 				entry: packaged
 				? 'src/main.mjs'
 				: virtualListBench
-						? virtualListBenchMode
-							? 'src/VirtualListWindowedBench.tsx'
-							: 'src/VirtualListBench.tsx'
+						? variableWindowedBench
+							? 'src/VirtualListVariableWindowedBench.tsx'
+							: virtualListBenchMode
+								? 'src/VirtualListWindowedBench.tsx'
+								: 'src/VirtualListBench.tsx'
 						: 'src/App.tsx',
 				formats: packaged ? ['cjs'] : ['es'],
 				fileName: packaged ? 'main' : 'app',
