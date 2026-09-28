@@ -68,12 +68,22 @@ import {
 	Chip,
 	Banner,
 	ProgressGroup,
+	SearchInput,
+	Image,
+	WebView,
 	Screen,
 	SafeArea,
 } from '@octane-xplat/ui';
+import { Pager } from '@octane-xplat/pager';
+import { Video } from '@octane-xplat/video';
 
 import { useRef } from 'octane';
 import { useSafeAreaInsets } from '@octane-xplat/platform';
+
+// Inline raster keeps Image and Video fixtures independent of file/network loading.
+const PARITY_IMAGE_SRC =
+	'data:image/png;base64,' +
+	'iVBORw0KGgoAAAANSUhEUgAAABAAAAAMCAYAAABr5z2BAAAAF0lEQVR4nGO4e/fuf0oww6gBowYMDwMA/TSwn5QGNeIAAAAASUVORK5CYII=';
 
 // Parity fixtures — one render per prop combo worth measuring. Fixed boxes
 // make spacing and layout comparable; text fixtures also record the actual
@@ -789,6 +799,55 @@ function ProgressGroupFixture() @{
 	/>
 }
 
+function SearchInputFixture() @{
+	<SearchInput
+		className="parity-search-input-root"
+		style={{ width: 220, height: 40 }}
+		placeholder="Search projects"
+		accessibilityLabel="Search projects"
+	/>
+}
+
+function ImageFixture() @{
+	<Image
+		className="parity-image-root"
+		style={{ width: 80, height: 48 }}
+		src={PARITY_IMAGE_SRC}
+		alt="Parity fixture"
+	/>
+}
+
+function WebViewFixture() @{
+	<WebView
+		className="parity-webview-root"
+		style={{ width: 220, height: 120, backgroundColor: '#f5f5f5' }}
+		html="<html><body></body></html>"
+		scrollEnabled={false}
+		accessibilityLabel="Parity document"
+	/>
+}
+
+function PagerFixture() @{
+	<Pager
+		className="parity-pager-root"
+		style={{ width: 220, height: 96, backgroundColor: '#f5f5f5' }}
+		items={[{ key: 'first' }, { key: 'second' }]}
+		renderItem={() => <View className="parity-pager-page" style={{ width: 220, height: 96 }} />}
+	/>
+}
+
+function VideoFixture() @{
+	// Only the shared host frame and self-drawn chrome are under test here.
+	<Video
+		className="parity-video-root"
+		style={{ width: 220, height: 124, backgroundColor: '#000000' }}
+		src="about:blank"
+		poster={PARITY_IMAGE_SRC}
+		muted={true}
+		controls={true}
+	/>
+}
+
 function ScreenLayoutFixture() @{
 	<Screen className="parity-screen-root" style={{ width: '100%', height: '100%' }}>
 		<View className="parity-screen-child" style={{ width: 20, height: 10 }} />
@@ -942,6 +1001,11 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'chip-selected', component: 'Chip', renderer: ChipFixture, props: {} },
 	{ name: 'banner-dismissible', component: 'Banner', renderer: BannerFixture, props: {} },
 	{ name: 'progress-group-two-items', component: 'ProgressGroup', renderer: ProgressGroupFixture, props: {}, height: 104 },
+	{ name: 'search-input-basic', component: 'SearchInput', renderer: SearchInputFixture, props: {} },
+	{ name: 'image-inline-data', component: 'Image', renderer: ImageFixture, props: {} },
+	{ name: 'webview-inline-document', component: 'WebView', renderer: WebViewFixture, props: {}, height: 136 },
+	{ name: 'pager-two-pages', component: 'Pager', renderer: PagerFixture, props: {} },
+	{ name: 'video-hosted-frame', component: 'Video', renderer: VideoFixture, props: {}, height: 164 },
 	{ name: 'screen-layout', component: 'Screen', renderer: ScreenLayoutFixture, props: {} },
 	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
 	{ name: 'safe-area-layout', component: 'SafeArea', renderer: SafeAreaLayoutFixture, props: {}, height: 168 },

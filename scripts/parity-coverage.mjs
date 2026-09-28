@@ -31,16 +31,6 @@ const DEFERRED_GROUPS = [
 			'RichTextSpan is an inline FormattedString run, not an independent view. The NativeScript bounds/style dump exposes only its containing RichText label, so there is no comparable per-run frame or resolved style.',
 		components: ['RichTextSpan'],
 	},
-	{
-		reason:
-			'OS- or engine-backed content needs target fixtures for the shared frame and any project-drawn chrome.',
-		components: ['SearchInput', 'Image', 'WebView'],
-	},
-	{
-		reason:
-			'Pager and Video need leaf-package fixtures for their native engine-backed frames and project-drawn chrome.',
-		components: ['Pager', 'Video'],
-	},
 ]
 
 function parse(path, kind = ts.ScriptKind.TS) {
