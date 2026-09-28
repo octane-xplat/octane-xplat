@@ -30,6 +30,8 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 | `openSettings` | capability; `open()` | unsupported on web |
 | `media.pickImage()`, `pickImages()` | pick existing image(s) | native needs `@nativescript/imagepicker` |
 | `media.capturePhoto()` | still capture through the OS camera UI | web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops; native needs `@nativescript/camera` |
+| `webAuthn` | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession` |
+| `authSession` | `open(url, { callbackScheme })` — hosted web ceremony in a system browser | native only; iOS ASWebAuthenticationSession, Android Custom Tab + deep-link return |
 
 `media` owns the `camera` and `photos` permission requests for still capture
 and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
@@ -50,6 +52,35 @@ plugin exists, so the contract has no `captureVideo`.
 `capturePhoto` options. Apps calling `capturePhoto` must set
 `NSCameraUsageDescription` — plus `NSPhotoLibraryAddUsageDescription` when
 using `saveToGallery` — in their iOS `Info.plist`.
+
+## Passkeys and auth ceremonies
+
+Two services cover sign-in (decision #66). On web, `webAuthn` runs the
+WebAuthn ceremony in-page: pass the relying party's JSON options
+(better-auth/SimpleWebAuthn shape, base64url fields) to `create()` or `get()`
+and post the returned JSON credential back. On native, `webAuthn` is
+unsupported — a raw platform-authenticator ceremony would require the RP to
+host apple-app-site-association/assetlinks.json, so instead `authSession`
+runs the whole flow on the app's real HTTPS origin inside a system browser:
+
+```ts
+if (webAuthn.supported) {
+	const credential = await webAuthn.impl?.get(options)
+	// post credential to the RP's verify endpoint
+} else if (authSession.supported) {
+	const result = await authSession.impl?.open(signInUrl, { callbackScheme: 'myapp' })
+	if (result?.type === 'success') {
+		// result.url carries the session token back from the hosted page
+	}
+}
+```
+
+`authSession` needs no iOS configuration — the session intercepts
+`callbackScheme` itself. On Android the app must declare the scheme's
+intent-filter on its main activity, the same registration any incoming deep
+link uses; `androidx.browser` (Custom Tabs) arrives transitively with
+`@octane-xplat/platform`, no app-side declaration. `prefersEphemeralSession`
+keeps the iOS session from sharing Safari cookies.
 
 A NativeScript plugin must be declared by the app that ships it, not only by
 `@octane-xplat/platform` — a transitive dependency is not enough. Run

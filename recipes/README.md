@@ -18,6 +18,7 @@ Initial workflows:
 - [Show a live camera preview](camera-preview.md)
 - [Use platform-specific implementations from shared code](platform-leaves.md)
 - [Open a screen from an incoming link](incoming-links.md)
+- [Sign in with a passkey or hosted auth ceremony](passkey-sign-in.md)
 - [Ship video playback on web and native](video-playback.md)
 - [Package an experimental AppKit app](macos-appkit-package.md)
 

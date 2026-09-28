@@ -105,7 +105,9 @@ sweeps remain skipped on #11444.
 | ----------------------------- | ---------------------------------------------------------------- | -------------------- | ----------------------------- | ------------- | ----------- |
 | `appInfo`                     | unsupported — no trustworthy bundle identity                     | `NSBundle` metadata  | package metadata              | `unsupported` | 0.5.0       |
 | `openSettings`                | unsupported                                                      | app Settings URL     | app-details intent            | `unsupported` | 0.5.0·desk  |
-| `biometrics`                  | unsupported — WebAuthn needs an RP ceremony; call it directly    | FaceID/TouchID       | Keystore biometric            | `unsupported` | 0.5.0·desk  |
+| `biometrics`                  | unsupported — local-presence only; auth ceremonies use `webAuthn`/`authSession` | FaceID/TouchID | Keystore biometric | `unsupported` | 0.6.0·desk  |
+| `webAuthn`                    | `navigator.credentials` over the RP's JSON options             | unsupported — hosted ceremony via `authSession` (native passkey sheet needs associated domains) | same as iOS | `unsupported` | 0.6.0·desk  |
+| `authSession`                 | unsupported — plain navigation; use `webAuthn`/routes directly | ASWebAuthenticationSession (intercepted callback scheme, no URL-type needed) | Chrome Custom Tab + deep-link return — the app must declare `callbackScheme`'s intent-filter like any incoming link | `unsupported` | 0.6.0·desk  |
 | `secureStorage`               | unsupported — no enclave                                         | Keychain             | Keystore                      | `unsupported` | 0.5.0       |
 | `haptics`                     | `navigator.vibrate` — Android Chrome only; unsupported elsewhere | Taptic Engine        | Vibrator                      | `degraded`    | 0.5.0       |
 | `share`                       | `navigator.share`, else clipboard copy (`'copied'`)              | share sheet          | share sheet                   | `degraded`    | 0.5.0       |

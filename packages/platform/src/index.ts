@@ -5,6 +5,9 @@
 export type {
 	AppState,
 	AppInfo,
+	AuthSessionImpl,
+	AuthSessionOptions,
+	AuthSessionResult,
 	BiometricsImpl,
 	Capability,
 	CapturePhotoOptions,
@@ -28,6 +31,11 @@ export type {
 	OpenSettingsImpl,
 	SecureStore,
 	ShareResult,
+	WebAuthnAssertionJSON,
+	WebAuthnCreateOptionsJSON,
+	WebAuthnGetOptionsJSON,
+	WebAuthnImpl,
+	WebAuthnRegistrationJSON,
 	WindowSize,
 } from './types'
 
@@ -49,6 +57,8 @@ export { announce } from './a11y'
 export { locale } from './locale'
 export { media } from './media'
 export { biometrics } from './biometrics'
+export { webAuthn } from './webauthn'
+export { authSession } from './auth-session'
 export { onDeepLink, consumeInitialUrl } from './deep-links'
 export { useAppState, useBackHandler } from './lifecycle'
 export { useSafeAreaInsets } from './safe-area'

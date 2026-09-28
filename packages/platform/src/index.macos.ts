@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'octane'
 import type {
 	AppInfo,
 	AppState,
+	AuthSessionImpl,
 	BiometricsImpl,
 	Capability,
 	ConnectivityImpl,
@@ -19,12 +20,16 @@ import type {
 	PermissionResult,
 	SecureStore,
 	ShareResult,
+	WebAuthnImpl,
 	WindowSize,
 } from './types'
 
 export type {
 	AppState,
 	AppInfo,
+	AuthSessionImpl,
+	AuthSessionOptions,
+	AuthSessionResult,
 	BiometricsImpl,
 	Capability,
 	CapturePhotoOptions,
@@ -48,8 +53,14 @@ export type {
 	OpenSettingsImpl,
 	SecureStore,
 	ShareResult,
+	WebAuthnAssertionJSON,
+	WebAuthnCreateOptionsJSON,
+	WebAuthnGetOptionsJSON,
+	WebAuthnImpl,
+	WebAuthnRegistrationJSON,
 	WindowSize,
 } from './types'
+
 export type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
 
 type AppKitHost = {
@@ -110,6 +121,7 @@ export const storage = {
 		hostStorage.delete(key)
 	},
 }
+
 const hostStorage = new Map<string, string>()
 
 export const clipboard = {
@@ -125,9 +137,12 @@ export const secureStorage: Capability<SecureStore> = {
 	ensure: unsupported,
 	impl: null,
 }
+
 export const haptics: Capability<HapticsImpl> = { supported: false, ensure: unsupported, impl: null }
 export const notifications: Capability<NotificationsImpl> = { supported: false, ensure: unsupported, impl: null }
 export const biometrics: Capability<BiometricsImpl> = { supported: false, ensure: unsupported, impl: null }
+export const webAuthn: Capability<WebAuthnImpl> = { supported: false, ensure: unsupported, impl: null }
+export const authSession: Capability<AuthSessionImpl> = { supported: false, ensure: unsupported, impl: null }
 export const openSettings: Capability<OpenSettingsImpl> = { supported: false, ensure: unsupported, impl: null }
 export const geolocation: Capability<GeolocationImpl> = { supported: false, ensure: unsupported, impl: null }
 

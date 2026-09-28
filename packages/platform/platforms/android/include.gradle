@@ -1,0 +1,9 @@
+repositories {
+	google()
+	mavenCentral()
+}
+
+dependencies {
+	// Chrome Custom Tabs for authSession (decision #66)
+	implementation 'androidx.browser:browser:1.8.0'
+}

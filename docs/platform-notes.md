@@ -34,7 +34,8 @@
 | accessibility          | ARIA attrs                                              | `accessible`, `accessibilityLabel/Hint/Value/Role`, `accessibilityLiveRegion`, announce | shared prop names map near-1:1 — keep a11y props on primitives                                                                    |
 | i18n/locale            | `navigator.language`, Intl                              | `Device.language`, Intl                                                                 | i18next binding is DOM-free — shared                                                                                              |
 | images/media           | `<input type=file>`, canvas                             | imagepicker/camera plugins, `ImageSource`                                               | `media.pickImage()`/`capturePhoto()` return `PickedImage` (preview URI + data URL); call `files.release()` when done              |
-| biometrics             | unsupported by this seam; WebAuthn needs an RP ceremony | Keychain biometrics plugin                                                              | optional-capability; use the app's WebAuthn auth flow directly on web                                                             |
+| biometrics             | unsupported by this seam; local-presence only          | Keychain biometrics plugin                                                              | optional-capability; RP ceremonies go through `webAuthn` (web) / `authSession` (native)                                            |
+| passkeys/auth          | `navigator.credentials` create/get                      | ASWebAuthenticationSession hosted ceremony; Android: Custom Tab + deep-link return      | `webAuthn` for raw ceremonies on web, `authSession` for the hosted ceremony on native (decision #66)                               |
 | deep links             | URL is the link                                         | `Application` openUrl/continuation                                                      | feeds navigation route table                                                                                                      |
 
 ## Interface shapes (the repeating contracts)
@@ -97,7 +98,21 @@ function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void
   relying-party challenge and a registered credential, and the browser owns
   the ceremony. Creating an ephemeral credential would change the contract
   and could leave a passkey behind, so this capability reports
-  `supported: false`; product auth flows should call WebAuthn directly.
+  `supported: false`; product auth flows use `webAuthn` (web) or
+  `authSession` (native).
+- **Passkey/auth ceremonies — desk-source (decision #66).** The native side
+  runs the ceremony on the app's real HTTPS origin in a hosted browser
+  session rather than implementing ASAuthorizationController / Credential
+  Manager natively: no `apple-app-site-association`/`assetlinks.json` hosting
+  on the RP, and the web auth flow ships unchanged — the better-auth Expo
+  `openAuthSessionAsync` precedent. `nativescript-inappbrowser` 3.3.0 and the
+  community ASWebAuthenticationSession snippet show both APIs are reachable
+  from TS without a plugin; core fires `activityNewIntent` with `setIntent()`
+  applied, so the Android return path is `activityNewIntent` +
+  `resumeEvent`→`getIntent()`. `androidx.browser` arrives via the platform
+  package's `platforms/android/include.gradle`. Open: raw native ceremonies
+  (the platform-authenticator leaf) for apps willing to host the
+  association files; device pass pending (queued experiment).
 - **Safe area — desk-source.** Android now reads system-bar insets from the
   foreground activity's root `WindowInsets`, converts pixels through
   `Screen.mainScreen.scale`, and listens for `onApplyWindowInsets` plus

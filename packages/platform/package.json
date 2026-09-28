@@ -3,7 +3,8 @@
 	"version": "0.6.0",
 	"description": "Headless platform capabilities for Octane xplat — web + NativeScript leaf pairs",
 	"files": [
-		"src"
+		"src",
+		"platforms"
 	],
 	"type": "module",
 	"exports": {
@@ -43,6 +44,12 @@
 		},
 		"@nativescript/core": {
 			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
 		}
 	}
 }
