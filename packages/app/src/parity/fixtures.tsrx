@@ -127,6 +127,8 @@ export interface ParityFixture {
 	wide?: boolean;
 	/** Override the default 64-dip fixture box height. */
 	height?: number;
+	/** Override the default box width for long, unwrapped text measurements. */
+	width?: number;
 }
 
 export const FIXTURES: ParityFixture[] = [
@@ -142,6 +144,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'text-small', component: 'Text', renderer: TextFixture, props: { size: 12, weight: 400, lineHeight: 16, content: 'Shared label' } },
 	{ name: 'text-display', component: 'Text', renderer: TextFixture, props: { size: 18, weight: 700, lineHeight: 24, content: 'Shared label' } },
 	{ name: 'text-long', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 400, lineHeight: 20, content: 'Shared typography should render the same glyph advances' } },
+	{ name: 'text-advance', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 400, lineHeight: 20, content: 'The same type should use the same width across targets.' }, width: 520 },
 	{ name: 'button-basic', component: 'Button', renderer: ButtonFixture, props: { width: 220, height: 32, label: 'Go' }, wide: true },
 	{ name: 'button-compact', component: 'Button', renderer: ButtonFixture, props: { width: 96, height: 28, label: 'Save' }, wide: true },
 	{ name: 'button-long-label', component: 'Button', renderer: ButtonFixture, props: { width: 160, height: 36, label: 'Continue' }, wide: true },

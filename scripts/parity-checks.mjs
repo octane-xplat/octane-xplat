@@ -151,6 +151,13 @@ export const CHECKS = [
 		check: (m) => textRows(m, 'Shared typography should render the same glyph advances', 40),
 	},
 	{
+		fixture: 'text-advance',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: textEqual,
+		check: (m) => textRows(m, 'The same type should use the same width across targets.', 20),
+	},
+	{
 		fixture: 'switch-off',
 		targets: ['web', 'ios', 'android'],
 		elements: { track: 'vx-switch', thumb: 'vx-switch-thumb' },

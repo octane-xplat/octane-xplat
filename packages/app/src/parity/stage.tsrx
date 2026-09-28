@@ -26,7 +26,7 @@ export function ParityStage() @{
 				<Text className="parity-label">{f.name}</Text>
 				<View
 					className={f.wide ? 'parity-box parity-box--fill' : 'parity-box'}
-					style={f.height ? { ...PARITY_BOX_STYLE, height: f.height } : PARITY_BOX_STYLE}
+					style={{ width: f.width ?? PARITY_BOX_STYLE.width, height: f.height ?? PARITY_BOX_STYLE.height }}
 					alignItems={f.wide ? 'stretch' : 'start'}
 				>
 					<{f.renderer} {...f.props} />
