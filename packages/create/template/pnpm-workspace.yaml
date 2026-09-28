@@ -23,7 +23,13 @@ patchedDependencies:
   # children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for
   # iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer
   # nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered
-  # last — sans !important).
+  # last — sans !important). Ports the runtime half of NativeScript PR #11446 (fixes
+  # #11444): TabView onItemsChanged keeps retained items attached instead of
+  # unloading/re-adding them (the churn that left TabViewItem-hosted Frames isLoaded=false
+  # on iOS and detached from their tab fragment on Android), iOS items writes load the
+  # selected item's view once controllers exist, and Frame._pushInFrameStack only promotes
+  # frames whose ancestors present them (Frame.topmost stops returning hidden preloaded tab
+  # frames).
   "@nativescript/core@9.1.2": patches/@nativescript__core@9.1.2.patch
   # @nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0,
   # which mis-parses @layer into garbage selectors — rules die before reaching

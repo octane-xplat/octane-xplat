@@ -517,3 +517,203 @@ index e75c7c8..7cf9244 100644
  function isRule(node) {
      return node.type === 'rule';
  }
+diff --git a/ui/core/view-base/index.d.ts b/ui/core/view-base/index.d.ts
+index e60308a..1aee75a 100644
+--- a/ui/core/view-base/index.d.ts
++++ b/ui/core/view-base/index.d.ts
+@@ -497,6 +497,12 @@ export declare abstract class ViewBase extends Observable {
+      * @param view to unload.
+      */
+     unloadView(view: ViewBase): void;
++    /**
++     * Whether a child is the one currently shown. Containers that keep several children
++     * alive but show one at a time (a TabView's items) override it for the hidden ones.
++     * @param child A direct child of this view.
++     */
++    _isChildPresented(child: ViewBase): boolean;
+     /**
+      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
+      */
+diff --git a/ui/core/view-base/index.js b/ui/core/view-base/index.js
+index 0c25671..524dfd7 100644
+--- a/ui/core/view-base/index.js
++++ b/ui/core/view-base/index.js
+@@ -633,6 +633,14 @@ export class ViewBase extends Observable {
+             view.callUnloaded();
+         }
+     }
++    /**
++     * Whether a child is the one currently shown. Containers that keep several children
++     * alive but show one at a time (a TabView's items) override it for the hidden ones.
++     * @param child A direct child of this view.
++     */
++    _isChildPresented(child) {
++        return true;
++    }
+     /**
+      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
+      */
+diff --git a/ui/frame/frame-common.js b/ui/frame/frame-common.js
+index f678538..28b261e 100644
+--- a/ui/frame/frame-common.js
++++ b/ui/frame/frame-common.js
+@@ -3,7 +3,7 @@ import { NavigationType } from './frame-interfaces';
+ import { CustomLayoutView, CSSType } from '../core/view';
+ import { Property } from '../core/properties';
+ import { Trace } from '../../trace';
+-import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
++import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _insertAtFrameStackBottom, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
+ import { viewMatchesModuleContext } from '../core/view/view-common';
+ import { getAncestor } from '../core/view-base';
+ import { Builder } from '../builder';
+@@ -12,6 +12,19 @@ import { profile } from '../../profiling';
+ import { FRAME_SYMBOL } from './frame-helpers';
+ import { SharedTransition } from '../transition/shared-transition';
+ export { NavigationType } from './frame-interfaces';
++/**
++ * A view is presented while every ancestor shows the child leading to it; a frame in an
++ * unselected tab is loaded on Android but must never outrank the tab that is shown.
++ */
++function isPresented(view) {
++    while (view.parent) {
++        if (!view.parent._isChildPresented(view)) {
++            return false;
++        }
++        view = view.parent;
++    }
++    return true;
++}
+ function buildEntryFromArgs(arg) {
+     let entry;
+     if (typeof arg === 'string') {
+@@ -466,7 +479,12 @@ let FrameBase = FrameBase_1 = class FrameBase extends CustomLayoutView {
+         return _isFrameStackEmpty();
+     }
+     _pushInFrameStack() {
+-        _pushInFrameStack(this);
++        if (isPresented(this)) {
++            _pushInFrameStack(this);
++        }
++        else {
++            _insertAtFrameStackBottom(this);
++        }
+     }
+     _popFromFrameStack() {
+         _popFromFrameStack(this);
+diff --git a/ui/frame/frame-stack.d.ts b/ui/frame/frame-stack.d.ts
+index 8387e62..0c87416 100644
+--- a/ui/frame/frame-stack.d.ts
++++ b/ui/frame/frame-stack.d.ts
+@@ -19,5 +19,6 @@ export declare function topmostForWindow(window: WindowBase): FrameBase | undefi
+ export declare function topmost(window?: WindowBase): FrameBase;
+ export declare function _isFrameStackEmpty(): boolean;
+ export declare function _pushInFrameStack(frame: FrameBase): void;
++export declare function _insertAtFrameStackBottom(frame: FrameBase): void;
+ export declare function _popFromFrameStack(frame: FrameBase): void;
+ export declare function _removeFromFrameStack(frame: FrameBase): void;
+diff --git a/ui/frame/frame-stack.js b/ui/frame/frame-stack.js
+index 9ded225..9a9f5d5 100644
+--- a/ui/frame/frame-stack.js
++++ b/ui/frame/frame-stack.js
+@@ -46,6 +46,17 @@ export function _pushInFrameStack(frame) {
+     frameStack.push(frame);
+     frame._isInFrameStack = true;
+ }
++/**
++ * Keeps a frame in the stack without making it topmost: the frame stays findable by id,
++ * while every frame that is actually shown outranks it.
++ */
++export function _insertAtFrameStackBottom(frame) {
++    if (frame._isInFrameStack) {
++        return;
++    }
++    frameStack.unshift(frame);
++    frame._isInFrameStack = true;
++}
+ export function _popFromFrameStack(frame) {
+     if (!frame._isInFrameStack) {
+         return;
+diff --git a/ui/tab-view/index.android.js b/ui/tab-view/index.android.js
+index e195b75..7df6fcb 100644
+--- a/ui/tab-view/index.android.js
++++ b/ui/tab-view/index.android.js
+@@ -368,7 +368,10 @@ export class TabView extends TabViewBase {
+     onItemsChanged(oldItems, newItems) {
+         super.onItemsChanged(oldItems, newItems);
+         if (oldItems) {
+-            oldItems.forEach((item, i, arr) => {
++            oldItems.forEach((item) => {
++                if (newItems && newItems.indexOf(item) >= 0) {
++                    return;
++                }
+                 item.index = 0;
+                 item.tabItemSpec = null;
+                 item.setNativeView(null);
+diff --git a/ui/tab-view/index.ios.js b/ui/tab-view/index.ios.js
+index c25ff0c..e162b5d 100644
+--- a/ui/tab-view/index.ios.js
++++ b/ui/tab-view/index.ios.js
+@@ -622,6 +622,11 @@ export class TabView extends TabViewBase {
+     [itemsProperty.setNative](value) {
+         this.setViewControllers(value);
+         selectedIndexProperty.coerce(this);
++        // Items added to a loaded TabView were loaded before their controllers existed.
++        const selectedItem = value === null || value === void 0 ? void 0 : value[this.selectedIndex];
++        if (selectedItem) {
++            selectedItem.loadView(selectedItem.view);
++        }
+     }
+     [tabTextFontSizeProperty.getDefault]() {
+         return null;
+diff --git a/ui/tab-view/tab-view-common.d.ts b/ui/tab-view/tab-view-common.d.ts
+index 35d1ba1..e96b308 100644
+--- a/ui/tab-view/tab-view-common.d.ts
++++ b/ui/tab-view/tab-view-common.d.ts
+@@ -66,6 +66,7 @@ export declare class TabViewBase extends View implements TabViewDefinition, AddC
+     eachChild(callback: (child: ViewBase) => boolean): void;
+     eachChildView(callback: (child: View) => boolean): void;
+     onItemsChanged(oldItems: TabViewItemDefinition[], newItems: TabViewItemDefinition[]): void;
++    _isChildPresented(child: ViewBase): boolean;
+     onSelectedIndexChanged(oldIndex: number, newIndex: number): void;
+ }
+ export interface TabViewBase {
+diff --git a/ui/tab-view/tab-view-common.js b/ui/tab-view/tab-view-common.js
+index 66672f1..1eb3676 100644
+--- a/ui/tab-view/tab-view-common.js
++++ b/ui/tab-view/tab-view-common.js
+@@ -144,21 +144,33 @@ let TabViewBase = TabViewBase_1 = class TabViewBase extends View {
+     }
+     onItemsChanged(oldItems, newItems) {
+         if (oldItems) {
+-            oldItems.forEach((item) => this._removeView(item));
++            oldItems.forEach((item) => {
++                if (!newItems || newItems.indexOf(item) < 0) {
++                    this._removeView(item);
++                }
++            });
+         }
+         if (newItems) {
+             newItems.forEach((item) => {
+                 if (!item.view) {
+                     throw new Error(`TabViewItem must have a view.`);
+                 }
++                // An item kept across the change stays loaded; tearing it down would unload its view.
++                if (item.parent === this) {
++                    return;
++                }
+                 // A view can only have one parent, and _addView throws if it already has one.
+-                if (item.parent && item.parent !== this) {
++                if (item.parent) {
+                     item.parent._removeView(item);
+                 }
+                 this._addView(item);
+             });
+         }
+     }
++    _isChildPresented(child) {
++        const items = this.items;
++        return !items || items[this.selectedIndex] === child;
++    }
+     onSelectedIndexChanged(oldIndex, newIndex) {
+         // to be overridden in platform specific files
+         this.notify({
