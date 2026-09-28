@@ -28,24 +28,8 @@ const NON_RENDERABLE = new Map([
 const DEFERRED_GROUPS = [
 	{
 		reason:
-			'Text, glyph, or font metrics need box-only assertions that avoid comparing platform font rendering.',
-		components: [
-			'RichText',
-			'RichTextSpan',
-			'Badge',
-			'Avatar',
-			'AvatarGroup',
-			'User',
-			'Kbd',
-			'Link',
-			'NavLink',
-			'Icon',
-		],
-	},
-	{
-		reason:
-			'These simple presentation components have no focused size or style assertion in the initial measured sample.',
-		components: ['Separator', 'Skeleton', 'Empty'],
+			'RichTextSpan is an inline FormattedString run, not an independent view. The NativeScript bounds/style dump exposes only its containing RichText label, so there is no comparable per-run frame or resolved style.',
+		components: ['RichTextSpan'],
 	},
 	{
 		reason:

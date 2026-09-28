@@ -91,6 +91,22 @@ body {
 	height: 64px;
 }
 
+.parity-link-root,
+.parity-navlink-root {
+	width: 160px;
+	height: 32px;
+	background-color: #f5f5f5;
+}
+
+/* RichText renders as an inline span on web; allow the fixture's fixed frame. */
+/* xplat-web-only:start */
+.parity-rich-text-root,
+.parity-link-root,
+.parity-navlink-root {
+	display: inline-block;
+}
+/* xplat-web-only:end */
+
 .parity-label {
 	font-size: 10px;
 	color: var(--color-text-secondary);

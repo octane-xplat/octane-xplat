@@ -44,6 +44,19 @@ import {
 	Tabs,
 	Meter,
 	ActivityIndicator,
+	RichText,
+	RichTextSpan,
+	Badge,
+	Avatar,
+	AvatarGroup,
+	User,
+	Kbd,
+	Link,
+	NavLink,
+	Icon,
+	Separator,
+	Skeleton,
+	Empty,
 	Screen,
 	SafeArea,
 } from '@octane-xplat/ui';
@@ -514,6 +527,123 @@ function ActivityIndicatorFixture() @{
 	/>
 }
 
+function RichTextFixture() @{
+	<RichText
+		className="parity-rich-text-root"
+		style={{
+			width: 220,
+			height: 32,
+			fontSize: 14,
+			fontWeight: 500,
+			lineHeight: 20,
+			color: '#0a0a0a',
+			backgroundColor: '#f5f5f5',
+		}}
+	>
+		<RichTextSpan text="Shared text " />
+		<RichTextSpan text="formatted run" style={{ fontWeight: 700 }} />
+	</RichText>
+}
+
+function BadgeFixture() @{
+	<Badge
+		className="parity-badge-root"
+		style={{ width: 120, height: 32, backgroundColor: '#dbeafe' }}
+	>
+		<Text>Preview</Text>
+	</Badge>
+}
+
+function AvatarFixture() @{
+	<Avatar
+		className="parity-avatar-root"
+		fallback="AB"
+		alt="Alex Brown"
+		size={40}
+		style={{ backgroundColor: '#dbeafe' }}
+	/>
+}
+
+function AvatarGroupFixture() @{
+	<AvatarGroup
+		className="parity-avatar-group-root"
+		max={2}
+		size={32}
+		style={{ width: 96, height: 40 }}
+	>
+		<Avatar className="parity-avatar-group-member" fallback="AB" size={32} />
+		<Avatar fallback="CD" size={32} />
+		<Avatar fallback="EF" size={32} />
+	</AvatarGroup>
+}
+
+function UserFixture() @{
+	<User
+		className="parity-user-root"
+		name="Alex Brown"
+		description="Design lead"
+		fallback="AB"
+		size={40}
+		style={{ width: 220, height: 56, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function KbdFixture() @{
+	<Kbd
+		className="parity-kbd-root"
+		style={{ width: 52, height: 32, backgroundColor: '#f5f5f5' }}
+	>
+		<Text>⌘K</Text>
+	</Kbd>
+}
+
+function LinkFixture() @{
+	<Link className="parity-link-root" href="/parity">
+		<Text>Open parity</Text>
+	</Link>
+}
+
+function NavLinkFixture() @{
+	<NavLink
+		className="parity-navlink-root"
+		activeClassName="parity-navlink-active"
+		route={{ stack: 'root', name: 'parity', params: {} }}
+	>
+		<Text>Parity</Text>
+	</NavLink>
+}
+
+function IconFixture() @{
+	<Icon className="parity-icon-root" name="tab-home" size={24} color="#1f6feb" />
+}
+
+function SeparatorFixture() @{
+	<Separator
+		className="parity-separator-root"
+		orientation="horizontal"
+		style={{ width: 160, height: 2, backgroundColor: '#737373' }}
+	/>
+}
+
+function SkeletonFixture() @{
+	<Skeleton
+		className="parity-skeleton-root"
+		width={140}
+		height={18}
+		style={{ backgroundColor: '#dbeafe' }}
+	/>
+}
+
+function EmptyFixture() @{
+	<Empty
+		className="parity-empty-root"
+		icon="tab-home"
+		title="No results"
+		description="Try another search."
+		style={{ width: 220, height: 120, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
 function ScreenLayoutFixture() @{
 	<Screen className="parity-screen-root" style={{ width: '100%', height: '100%' }}>
 		<View className="parity-screen-child" style={{ width: 20, height: 10 }} />
@@ -644,6 +774,18 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'tabs-second-selected', component: 'Tabs', renderer: TabsFixture, props: {}, height: 120 },
 	{ name: 'meter-progress', component: 'Meter', renderer: MeterFixture, props: {} },
 	{ name: 'activity-indicator-busy', component: 'ActivityIndicator', renderer: ActivityIndicatorFixture, props: {} },
+	{ name: 'rich-text-fixed-run', component: 'RichText', renderer: RichTextFixture, props: {}, height: 48 },
+	{ name: 'badge-basic', component: 'Badge', renderer: BadgeFixture, props: {} },
+	{ name: 'avatar-fallback', component: 'Avatar', renderer: AvatarFixture, props: {} },
+	{ name: 'avatar-group-overflow', component: 'AvatarGroup', renderer: AvatarGroupFixture, props: {} },
+	{ name: 'user-row', component: 'User', renderer: UserFixture, props: {} },
+	{ name: 'kbd-shortcut', component: 'Kbd', renderer: KbdFixture, props: {} },
+	{ name: 'link-fixed-target', component: 'Link', renderer: LinkFixture, props: {} },
+	{ name: 'nav-link-active', component: 'NavLink', renderer: NavLinkFixture, props: {} },
+	{ name: 'icon-registered-glyph', component: 'Icon', renderer: IconFixture, props: {} },
+	{ name: 'separator-horizontal', component: 'Separator', renderer: SeparatorFixture, props: {} },
+	{ name: 'skeleton-basic', component: 'Skeleton', renderer: SkeletonFixture, props: {} },
+	{ name: 'empty-state', component: 'Empty', renderer: EmptyFixture, props: {}, height: 136 },
 	{ name: 'screen-layout', component: 'Screen', renderer: ScreenLayoutFixture, props: {} },
 	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
 	{ name: 'safe-area-layout', component: 'SafeArea', renderer: SafeAreaLayoutFixture, props: {}, height: 168 },
