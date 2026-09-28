@@ -443,9 +443,9 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'screen-layout',
-		targets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-screen-root', child: 'parity-screen-child' },
-		equal: [],
+		equal: ['root.box.w', 'root.box.h', 'child.box.x', 'child.box.y', 'child.box.w', 'child.box.h'],
 		check: (m) => {
 			const root = m('root')
 			const child = m('child')
@@ -458,6 +458,13 @@ export const CHECKS = [
 				],
 			]
 		},
+	},
+	{
+		fixture: 'percent-size-layout',
+		targets: ['web', 'macos'],
+		elements: { root: 'parity-percent-root' },
+		equal: ['root.box.x', 'root.box.y', 'root.box.w', 'root.box.h'],
+		check: (m) => [dims(m('root'), 110, 32, 1)],
 	},
 	{
 		fixture: 'safe-area-layout',

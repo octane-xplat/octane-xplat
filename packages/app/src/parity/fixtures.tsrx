@@ -13,6 +13,7 @@ import {
 	Screen,
 	SafeArea,
 } from '@octane-xplat/ui';
+
 import { useSafeAreaInsets } from '@octane-xplat/platform';
 
 // Parity fixtures — one render per prop combo worth measuring. Fixed boxes
@@ -83,6 +84,10 @@ function ScreenLayoutFixture() @{
 	<Screen className="parity-screen-root" style={{ width: '100%', height: '100%' }}>
 		<View className="parity-screen-child" style={{ width: 20, height: 10 }} />
 	</Screen>
+}
+
+function PercentSizeLayoutFixture() @{
+	<View className="parity-percent-root" style={{ width: '50%', height: '50%' }} />
 }
 
 function SafeAreaLayoutFixture() @{
@@ -157,5 +162,6 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'row-layout', component: 'Row', renderer: RowLayoutFixture, props: {} },
 	{ name: 'scroll-view-layout', component: 'ScrollView', renderer: ScrollViewLayoutFixture, props: {} },
 	{ name: 'screen-layout', component: 'Screen', renderer: ScreenLayoutFixture, props: {} },
+	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
 	{ name: 'safe-area-layout', component: 'SafeArea', renderer: SafeAreaLayoutFixture, props: {}, height: 168 },
 ];

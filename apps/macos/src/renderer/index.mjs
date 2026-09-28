@@ -226,7 +226,7 @@ function updateCrossAxisConstraints(parent) {
 	for (const child of parent.children) {
 		if (child.crossAxisConstraint) {child.crossAxisConstraint.active = false}
 		child.crossAxisConstraint = null
-		if (alignItems !== 'stretch' || !child.view || child.sizeConstraints?.[dimension]) {continue}
+		if (alignItems !== 'stretch' || !child.view || child.sizeConstraintSpecs?.[dimension]) {continue}
 		child.crossAxisConstraint = horizontal
 			? child.view.heightAnchor.constraintEqualToAnchor(stack.heightAnchor)
 			: child.view.widthAnchor.constraintEqualToAnchor(stack.widthAnchor)
@@ -525,12 +525,83 @@ function fontForStyle(size, weight = 400) {
 }
 
 function setSizeConstraint(node, name, value) {
+	const spec = sizeConstraintSpec(value)
+	const specs = (node.sizeConstraintSpecs ??= {})
+	if (!spec) {
+		delete specs[name]
+		console.warn('[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value))
+	} else {
+		specs[name] = spec
+	}
+
+	applySizeConstraint(node, name)
+	if (node.parent) {updateCrossAxisConstraints(node.parent)}
+}
+
+function sizeConstraintSpec(value) {
+	if (typeof value === 'string') {
+		const text = value.trim()
+		const percent = text.match(/^([+-]?(?:\d+\.?\d*|\.\d+))%$/)
+		if (percent) {
+			const multiplier = Number(percent[1]) / 100
+			return Number.isFinite(multiplier) && multiplier >= 0 ? { kind: 'percent', multiplier } : null
+		}
+
+		const px = text.match(/^([+-]?(?:\d+\.?\d*|\.\d+))px$/i)
+		if (px) {
+			const points = Number(px[1])
+			return Number.isFinite(points) && points >= 0 ? { kind: 'points', points } : null
+		}
+	}
+
+	const points = typeof value === 'number' ? value : Number(value)
+	return Number.isFinite(points) && points >= 0 ? { kind: 'points', points } : null
+}
+
+function sizeConstraintParentView(node) {
+	if (node.parent) {return node.parent.childHost ?? node.parent.view}
+	return node.container.children.includes(node) ? node.container.hostView : null
+}
+
+function applySizeConstraint(node, name) {
 	const constraints = (node.sizeConstraints ??= {})
-	if (constraints[name]) {constraints[name].active = false}
-	constraints[name] = name === 'width'
-		? node.view.widthAnchor.constraintEqualToConstant(Number(value))
-		: node.view.heightAnchor.constraintEqualToConstant(Number(value))
-	constraints[name].active = true
+	if (constraints[name]) {
+		constraints[name].active = false
+		delete constraints[name]
+	}
+
+	const spec = node.sizeConstraintSpecs?.[name]
+	if (!spec || !node.view) {return}
+
+	let constraint
+	if (spec.kind === 'percent') {
+		const parentView = sizeConstraintParentView(node)
+		if (!parentView) {return}
+		const anchor = name === 'width' ? node.view.widthAnchor : node.view.heightAnchor
+		const parentAnchor = name === 'width' ? parentView.widthAnchor : parentView.heightAnchor
+		constraint = anchor.constraintEqualToAnchorMultiplier(parentAnchor, spec.multiplier)
+	} else {
+		constraint = name === 'width'
+			? node.view.widthAnchor.constraintEqualToConstant(spec.points)
+			: node.view.heightAnchor.constraintEqualToConstant(spec.points)
+	}
+
+	constraints[name] = constraint
+	constraint.active = true
+}
+
+function applySizeConstraints(node) {
+	for (const name of ['width', 'height']) {applySizeConstraint(node, name)}
+}
+
+function deactivateSizeConstraints(node) {
+	for (const name of ['width', 'height']) {
+		const constraint = node.sizeConstraints?.[name]
+		if (constraint) {
+			constraint.active = false
+			delete node.sizeConstraints[name]
+		}
+	}
 }
 
 function applyStyle(node, style) {
@@ -944,6 +1015,7 @@ function detach(container, node) {
 	if (index >= 0) {siblings.splice(index, 1)}
 	if (node.crossAxisConstraint) {node.crossAxisConstraint.active = false}
 	node.crossAxisConstraint = null
+	deactivateSizeConstraints(node)
 	if (node.view) {
 		const parentView = node.parent?.childHost ?? node.parent?.view
 		if (parentView?.removeArrangedSubview) {
@@ -975,6 +1047,7 @@ function insert(container, parentId, node, beforeId) {
 		if (!parentView) {throw new Error('AppKit host has no parent view for node ' + node.id)}
 		if (parent) {
 			parentView.addViewInGravity(node.view, stackGravity(parent, node))
+			applySizeConstraints(node)
 			setStackChildPriorities(parent, node)
 			updateCrossAxisConstraints(parent)
 		} else {
@@ -983,6 +1056,7 @@ function insert(container, parentId, node, beforeId) {
 			node.view.trailingAnchor.constraintEqualToAnchor(parentView.trailingAnchor).active = true
 			node.view.topAnchor.constraintEqualToAnchor(parentView.topAnchor).active = true
 			node.view.bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
+			applySizeConstraints(node)
 		}
 	} else {
 		syncText(parent)
@@ -997,6 +1071,7 @@ function remove(container, parentId, node) {
 	if (index >= 0) {siblings.splice(index, 1)}
 	if (node.crossAxisConstraint) {node.crossAxisConstraint.active = false}
 	node.crossAxisConstraint = null
+	deactivateSizeConstraints(node)
 	if (node.view) {
 		const parentView = expectedParent?.childHost ?? expectedParent?.view
 		if (parentView?.removeArrangedSubview) {
