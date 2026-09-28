@@ -1,3 +1,59 @@
+diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
+index 9364ce9942b84fffd0e3a6eb6700d8253fa66e7e..0ae5a89f0359afc3c700b43b2c80b176536100a6 100644
+--- a/hmr/server/device-transform-helpers.js
++++ b/hmr/server/device-transform-helpers.js
+@@ -89,7 +89,11 @@ function bareSpecifierFromFlatDepPath(depPath) {
+     return bareSpecifier;
+ }
+ function rewriteVitePrebundleImportsForDevice(code, preserveVendorImports) {
+-    const imports = collectTopLevelImportRecords(code);
++    // Re-export statements (`export { x } from`/`export * from`) carry specifiers
++    // too — vite's importAnalysis rewrites them to `.vite/deps?v=` URLs the same
++    // as `import` declarations, so they need the same decode. Barrel modules
++    // (e.g. a linked framework package's index) are nothing but re-exports.
++    const imports = collectTopLevelImportRecords(code, true);
+     if (!imports.length) {
+         return code;
+     }
+diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
+index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..dc70055007e26117b76fbb9d2f4f17fabfd8db00 100644
+--- a/hmr/server/rewrite-imports.js
++++ b/hmr/server/rewrite-imports.js
+@@ -253,11 +253,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+                 }
+                 return `${prefix}${rewritten}${suffix}`;
+             }
+-            // Path resolves outside both roots — leave Vite's URL alone as a
+-            // last resort. The original behaviour was to fall through here
+-            // and let downstream branches (e.g. `normalizeNodeModulesSpecifier`)
+-            // handle paths whose abs form happens to contain `/node_modules/`,
+-            // so preserve that for the unrewritable case below.
++            // Path resolves outside both roots — the `link:`/`workspace:` case,
++            // where a package's realpath lives in another checkout entirely.
++            // A raw /@fs URL makes the device fetch vite's standard middleware
++            // response, bypassing the device transform: optimizer
++            // `.vite/deps?v=` specifiers inside reach the runtime unrewritten
++            // and 504 once the optimizer re-commits its browserHash. The /ns/m
++            // route already resolves an absolute `/@fs` spec through the full
++            // device pipeline, so route it there. Paths whose realpath still
++            // contains /node_modules/ keep falling through to the bare-package
++            // branch below (upstream behavior).
++            if (!spec.includes('/node_modules/')) {
++                const out = `/ns/m${spec}`;
++                if (httpOriginSafe) {
++                    return `${prefix}${httpOriginSafe}${out}${suffix}`;
++                }
++                return `${prefix}${out}${suffix}`;
++            }
++            // Path resolves outside both roots but still names a node_modules
++            // file — leave Vite's URL alone as a last resort. The original
++            // behaviour was to fall through here and let downstream branches
++            // (e.g. `normalizeNodeModulesSpecifier`) handle paths whose abs
++            // form happens to contain `/node_modules/`, so preserve that for
++            // the unrewritable case below.
+         }
+         // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
+         // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
 diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
 index 54b8fba2def7ed0128e8e1dd4b2549d25559de82..fd276ae860d0805533be0bff4399247b38ebac01 100644
 --- a/hmr/server/websocket-module-bindings.js
@@ -99,3 +155,27 @@ index b54aefcc839e95906d76d02e522c052a706ca76f..f743ffd852e2915acbbd42a0f7d80964
          const decorated = collapseLegacyNsMTags(spec, 'inbound-request-spec');
          spec = decorated.cleanedSpec;
          bootTaggedRequest = decorated.bootTaggedRequest;
+diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
+index e65b1abaaf223cca4b11b65b8428c85c484f125d..4cbf72b0aebf54f362634a10e051c48c219f6c8b 100644
+--- a/hmr/server/websocket-served-module-helpers.js
++++ b/hmr/server/websocket-served-module-helpers.js
+@@ -105,8 +105,8 @@ export function classifyServedRequest(spec, resolvedId) {
+     return classifyServedModule(spec);
+ }
+ export const MODULE_IMPORT_ANALYSIS_PLUGINS = ['typescript', 'jsx', 'importMeta', 'topLevelAwait', 'classProperties', 'classPrivateProperties', 'classPrivateMethods', 'decorators-legacy'];
+-export function collectTopLevelImportRecords(code) {
+-    if (!code || typeof code !== 'string' || !/\bimport\b/.test(code)) {
++export function collectTopLevelImportRecords(code, includeReExports = false) {
++    if (!code || typeof code !== 'string' || !(includeReExports ? /\b(?:import|export)\b/ : /\bimport\b/).test(code)) {
+         return [];
+     }
+     try {
+@@ -119,7 +119,7 @@ export function collectTopLevelImportRecords(code) {
+             return [];
+         }
+         return body
+-            .filter((node) => t.isImportDeclaration(node) && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
++            .filter((node) => (t.isImportDeclaration(node) || (includeReExports && (t.isExportNamedDeclaration(node) || t.isExportAllDeclaration(node)))) && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
+             .map((node) => ({
+             start: node.start,
+             end: node.end,

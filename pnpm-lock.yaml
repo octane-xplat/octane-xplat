@@ -14,7 +14,7 @@ patchedDependencies:
   '@nativescript-community/octane@0.2.1': 0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1
   '@nativescript-community/vite-octane@0.2.1': 495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce
   '@nativescript/core@9.1.2': c5b5af9b1cc9ba60fe7a35b09e14503b8f3970564e398ee46e571ca6dc621e1e
-  '@nativescript/vite@8.0.11': 66b4d586ea4ee92bae7217d6cc7a0e3eec06987906b9bbd56bff14041756c39c
+  '@nativescript/vite@8.0.11': 49f7478cd4ca5f986f9516141aad66487ac3bafdc2076b7501a26530c7da8f34
   css@3.0.0: f850496626b52d1bf5ca127576a655d5e46c02def5de9905d568490d4b71959b
 
 importers:
@@ -225,7 +225,7 @@ importers:
     devDependencies:
       '@nativescript-community/vite-octane':
         specifier: 0.2.1
-        version: 0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@9.1.2(patch_hash=c5b5af9b1cc9ba60fe7a35b09e14503b8f3970564e398ee46e571ca6dc621e1e))(@nativescript/vite@8.0.11(patch_hash=66b4d586ea4ee92bae7217d6cc7a0e3eec06987906b9bbd56bff14041756c39c)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+        version: 0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@9.1.2(patch_hash=c5b5af9b1cc9ba60fe7a35b09e14503b8f3970564e398ee46e571ca6dc621e1e))(@nativescript/vite@8.0.11(patch_hash=49f7478cd4ca5f986f9516141aad66487ac3bafdc2076b7501a26530c7da8f34)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       '@nativescript/android':
         specifier: 9.1.1
         version: 9.1.1
@@ -237,7 +237,7 @@ importers:
         version: 9.0.0
       '@nativescript/vite':
         specifier: 8.0.11
-        version: 8.0.11(patch_hash=66b4d586ea4ee92bae7217d6cc7a0e3eec06987906b9bbd56bff14041756c39c)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
+        version: 8.0.11(patch_hash=49f7478cd4ca5f986f9516141aad66487ac3bafdc2076b7501a26530c7da8f34)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octane-xplat/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -4054,10 +4054,10 @@ snapshots:
 
   '@nativescript-community/ui-pager@14.1.42': {}
 
-  '@nativescript-community/vite-octane@0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@9.1.2(patch_hash=c5b5af9b1cc9ba60fe7a35b09e14503b8f3970564e398ee46e571ca6dc621e1e))(@nativescript/vite@8.0.11(patch_hash=66b4d586ea4ee92bae7217d6cc7a0e3eec06987906b9bbd56bff14041756c39c)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
+  '@nativescript-community/vite-octane@0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@9.1.2(patch_hash=c5b5af9b1cc9ba60fe7a35b09e14503b8f3970564e398ee46e571ca6dc621e1e))(@nativescript/vite@8.0.11(patch_hash=49f7478cd4ca5f986f9516141aad66487ac3bafdc2076b7501a26530c7da8f34)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
     dependencies:
       '@nativescript-community/octane': 0.2.0(@nativescript/core@9.1.2(patch_hash=c5b5af9b1cc9ba60fe7a35b09e14503b8f3970564e398ee46e571ca6dc621e1e))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
-      '@nativescript/vite': 8.0.11(patch_hash=66b4d586ea4ee92bae7217d6cc7a0e3eec06987906b9bbd56bff14041756c39c)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
+      '@nativescript/vite': 8.0.11(patch_hash=49f7478cd4ca5f986f9516141aad66487ac3bafdc2076b7501a26530c7da8f34)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin': 0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
     transitivePeerDependencies:
@@ -4138,7 +4138,7 @@ snapshots:
       '@nativescript/types-android': 9.0.0
       '@nativescript/types-ios': 9.0.0
 
-  '@nativescript/vite@8.0.11(patch_hash=66b4d586ea4ee92bae7217d6cc7a0e3eec06987906b9bbd56bff14041756c39c)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)':
+  '@nativescript/vite@8.0.11(patch_hash=49f7478cd4ca5f986f9516141aad66487ac3bafdc2076b7501a26530c7da8f34)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/generator': 7.29.8
