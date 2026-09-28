@@ -14,7 +14,7 @@ const BASE = `http://localhost:${PORT}`
 
 // detached: the preview is pnpm→vite — kill the whole process group or the
 // vite child outlives the script and orphans the port.
-const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', String(PORT)], {
+const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', String(PORT), '--strictPort'], {
 	cwd: webDir,
 	stdio: ['ignore', 'pipe', 'pipe'],
 	detached: true,
