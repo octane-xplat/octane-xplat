@@ -44,22 +44,6 @@ const DEFERRED_GROUPS = [
 	},
 	{
 		reason:
-			'These controls need representative prop, value, or interaction states beyond the current basic control fixtures.',
-		components: [
-			'Collapsible',
-			'Accordion',
-			'DropdownMenu',
-			'ContextMenu',
-			'Stepper',
-			'NavigationMenu',
-			'CommandPalette',
-			'Tabs',
-			'Meter',
-			'ActivityIndicator',
-		],
-	},
-	{
-		reason:
 			'These simple presentation components have no focused size or style assertion in the initial measured sample.',
 		components: ['Separator', 'Skeleton', 'Empty'],
 	},

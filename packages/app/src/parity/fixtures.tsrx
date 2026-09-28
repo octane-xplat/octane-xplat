@@ -34,6 +34,16 @@ import {
 	InputTags,
 	InputRating,
 	CheckboxGroup,
+	Collapsible,
+	Accordion,
+	DropdownMenu,
+	ContextMenu,
+	Stepper,
+	NavigationMenu,
+	CommandPalette,
+	Tabs,
+	Meter,
+	ActivityIndicator,
 	Screen,
 	SafeArea,
 } from '@octane-xplat/ui';
@@ -384,6 +394,126 @@ function SegmentedControlFixture() @{
 	/>
 }
 
+function CollapsibleFixture() @{
+	<Collapsible
+		className="parity-collapsible-root"
+		style={{ width: 180, height: 72, backgroundColor: '#f5f5f5' }}
+		trigger={<Text>Details</Text>}
+		open={true}
+	>
+		<View className="parity-collapsible-content" style={{ width: 160, height: 24 }} />
+	</Collapsible>
+}
+
+function AccordionFixture() @{
+	<Accordion
+		className="parity-accordion-root"
+		style={{ width: 180, height: 88, backgroundColor: '#f5f5f5' }}
+		open="profile"
+		items={[
+			{
+				key: 'profile',
+				header: 'Profile',
+				content: <View className="parity-accordion-content" style={{ width: 160, height: 28 }} />,
+			},
+			{
+				key: 'security',
+				header: 'Security',
+				content: <View style={{ width: 160, height: 28 }} />,
+			},
+		]}
+	/>
+}
+
+function DropdownMenuFixture() @{
+	<DropdownMenu
+		className="parity-dropdown-trigger"
+		style={{ width: 160, height: 32, backgroundColor: '#f5f5f5' }}
+		trigger={<Text>Actions</Text>}
+		items={[{ key: 'edit', label: 'Edit' }, { key: 'delete', label: 'Delete' }]}
+	/>
+}
+
+function ContextMenuFixture() @{
+	<ContextMenu
+		className="parity-contextmenu-root"
+		style={{ width: 180, height: 56, backgroundColor: '#f5f5f5' }}
+		items={[{ key: 'copy', label: 'Copy' }]}
+	>
+		<View className="parity-contextmenu-target" style={{ width: 144, height: 28 }} />
+	</ContextMenu>
+}
+
+function StepperFixture() @{
+	<Stepper
+		className="parity-stepper-root"
+		style={{ width: 220, height: 40, backgroundColor: '#f5f5f5' }}
+		steps={[
+			{ key: 'account', label: 'Account' },
+			{ key: 'profile', label: 'Profile' },
+			{ key: 'review', label: 'Review' },
+		]}
+		current={1}
+	/>
+}
+
+function NavigationMenuFixture() @{
+	<NavigationMenu
+		className="parity-navmenu-root"
+		style={{ width: 220, height: 40, backgroundColor: '#f5f5f5' }}
+		items={[
+			{ key: 'home', label: 'Home' },
+			{ key: 'settings', label: 'Settings', active: true },
+		]}
+	/>
+}
+
+function CommandPaletteFixture() @{
+	<CommandPalette
+		className="parity-portal--command-palette-open"
+		style={{ width: 200, height: 96, backgroundColor: '#f5f5f5' }}
+		open={true}
+		placeholder="Search actions"
+		items={[{ key: 'create', label: 'Create project' }]}
+	/>
+}
+
+function TabsFixture() @{
+	<Tabs
+		className="parity-tabs-root"
+		style={{ width: 200, height: 104, backgroundColor: '#f5f5f5' }}
+		selectedIndex={1}
+		tabs={[
+			{ title: 'Overview', render: () => <View style={{ width: 200, height: 48 }} /> },
+			{
+				title: 'Activity',
+				render: () => <View className="parity-tabs-pane-child" style={{ width: 200, height: 48 }} />,
+			},
+		]}
+	/>
+}
+
+function MeterFixture() @{
+	<Meter
+		className="parity-meter-root"
+		value={65}
+		max={100}
+		size={48}
+		strokeWidth={6}
+		color="#1f6feb"
+		trackColor="#dbeafe"
+		style={{ width: 48, height: 48, backgroundColor: '#f5f5f5' }}
+	/>
+}
+
+function ActivityIndicatorFixture() @{
+	<ActivityIndicator
+		className="parity-activity-indicator-root"
+		busy={true}
+		style={{ width: 24, height: 24 }}
+	/>
+}
+
 function ScreenLayoutFixture() @{
 	<Screen className="parity-screen-root" style={{ width: '100%', height: '100%' }}>
 		<View className="parity-screen-child" style={{ width: 20, height: 10 }} />
@@ -504,6 +634,16 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'checkbox-group-selected', component: 'CheckboxGroup', renderer: CheckboxGroupFixture, props: {} },
 	{ name: 'radio-group-selected', component: 'RadioGroup', renderer: RadioGroupFixture, props: {} },
 	{ name: 'segmented-control-selected', component: 'SegmentedControl', renderer: SegmentedControlFixture, props: {} },
+	{ name: 'collapsible-open', component: 'Collapsible', renderer: CollapsibleFixture, props: {} },
+	{ name: 'accordion-one-open', component: 'Accordion', renderer: AccordionFixture, props: {} },
+	{ name: 'dropdown-menu-trigger', component: 'DropdownMenu', renderer: DropdownMenuFixture, props: {} },
+	{ name: 'context-menu-target', component: 'ContextMenu', renderer: ContextMenuFixture, props: {} },
+	{ name: 'stepper-middle-active', component: 'Stepper', renderer: StepperFixture, props: {} },
+	{ name: 'navigation-menu-active', component: 'NavigationMenu', renderer: NavigationMenuFixture, props: {} },
+	{ name: 'command-palette-open', component: 'CommandPalette', renderer: CommandPaletteFixture, props: {}, height: 112 },
+	{ name: 'tabs-second-selected', component: 'Tabs', renderer: TabsFixture, props: {}, height: 120 },
+	{ name: 'meter-progress', component: 'Meter', renderer: MeterFixture, props: {} },
+	{ name: 'activity-indicator-busy', component: 'ActivityIndicator', renderer: ActivityIndicatorFixture, props: {} },
 	{ name: 'screen-layout', component: 'Screen', renderer: ScreenLayoutFixture, props: {} },
 	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
 	{ name: 'safe-area-layout', component: 'SafeArea', renderer: SafeAreaLayoutFixture, props: {}, height: 168 },

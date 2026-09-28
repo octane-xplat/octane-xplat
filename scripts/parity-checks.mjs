@@ -1107,6 +1107,110 @@ export const CHECKS = [
 		},
 	},
 	{
+		fixture: 'collapsible-open',
+		targets: ['web', 'ios', 'android'],
+		elements: { root: 'parity-collapsible-root', content: 'parity-collapsible-content' },
+		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'content.box.w', 'content.box.h'],
+		check: (m) => [dims(m('root'), 180, 72), dims(m('content'), 160, 24)],
+	},
+	{
+		fixture: 'accordion-one-open',
+		targets: ['web', 'ios', 'android'],
+		elements: { root: 'parity-accordion-root', content: 'parity-accordion-content' },
+		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'content.box.w', 'content.box.h'],
+		check: (m) => [dims(m('root'), 180, 88), dims(m('content'), 160, 28)],
+	},
+	{
+		fixture: 'dropdown-menu-trigger',
+		targets: ['web', 'ios', 'android'],
+		elements: { trigger: 'parity-dropdown-trigger' },
+		equal: ['trigger.box.w', 'trigger.box.h', 'trigger.style.backgroundColor'],
+		check: (m) => [dims(m('trigger'), 160, 32)],
+	},
+	{
+		fixture: 'context-menu-target',
+		targets: ['web', 'ios', 'android'],
+		elements: { root: 'parity-contextmenu-root', target: 'parity-contextmenu-target' },
+		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'target.box.w', 'target.box.h'],
+		check: (m) => [dims(m('root'), 180, 56), dims(m('target'), 144, 28)],
+	},
+	{
+		fixture: 'stepper-middle-active',
+		targets: ['web', 'ios', 'android'],
+		elements: { root: 'parity-stepper-root', active: 'vx-step--on' },
+		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'active.box.w', 'active.box.h'],
+		check: (m) => {
+			const active = m('active')
+			return [dims(m('root'), 220, 40), ['active step has a visible frame', active.box.w > 0 && active.box.h > 0]]
+		},
+	},
+	{
+		fixture: 'navigation-menu-active',
+		targets: ['web', 'ios', 'android'],
+		elements: { root: 'parity-navmenu-root', active: 'vx-navmenu-item--on' },
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'active.box.w',
+			'active.box.h',
+			'active.style.backgroundColor',
+		],
+		check: (m) => {
+			const active = m('active')
+			return [dims(m('root'), 220, 40), ['active item has a visible frame', active.box.w > 0 && active.box.h > 0]]
+		},
+	},
+	{
+		fixture: 'command-palette-open',
+		targets: ['web', 'ios', 'android'],
+		elements: { panel: 'parity-portal--command-palette-open', list: 'vx-cmdk-list' },
+		equal: ['panel.box.w', 'panel.box.h', 'panel.style.backgroundColor', 'list.box.w'],
+		check: (m) => [
+			dims(m('panel'), 200, 96),
+			['command list has a visible frame', m('list').box.w > 0 && m('list').box.h > 0],
+		],
+	},
+	{
+		fixture: 'tabs-second-selected',
+		targets: ['web', 'ios', 'android'],
+		elements: {
+			root: 'parity-tabs-root',
+			tabbar: 'vx-tabbar',
+			pane: 'vx-tabpane',
+			content: 'parity-tabs-pane-child',
+		},
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'root.style.backgroundColor',
+			'tabbar.box.w',
+			'pane.box.w',
+			'content.box.w',
+			'content.box.h',
+		],
+		check: (m) => [dims(m('root'), 200, 104), dims(m('content'), 200, 48)],
+	},
+	{
+		fixture: 'meter-progress',
+		targets: ['web', 'ios', 'android'],
+		elements: { meter: 'parity-meter-root' },
+		equal: ['meter.box.w', 'meter.box.h', 'meter.style.backgroundColor'],
+		check: (m) => [dims(m('meter'), 48, 48)],
+	},
+	{
+		fixture: 'activity-indicator-busy',
+		targets: ['web', 'ios', 'android'],
+		elements: { spinner: 'parity-activity-indicator-root' },
+		equal: [
+			'spinner.box.w',
+			'spinner.box.h',
+			'spinner.style.borderTopWidth',
+			'spinner.style.borderTopColor',
+		],
+		check: (m) => [dims(m('spinner'), 24, 24)],
+	},
+	{
 		fixture: 'screen-layout',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-screen-root', child: 'parity-screen-child' },
