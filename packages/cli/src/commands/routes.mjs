@@ -8,7 +8,7 @@ import * as p from '@clack/prompts'
 // here. Keep the two in sync: same suffix strip order, same index/_layout
 // rules. All platform variants count — the union is cross-platform.
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
-const SUFFIX = /\.(web|native|ios|android)$/
+const SUFFIX = /\.(web|native|ios|android|macos)$/
 const PARAM = /^\[(.+)\]$/
 const PRESENT = /\+(modal|fade|push)$/
 
@@ -69,10 +69,11 @@ export function generateRoutes(cwd, dir, out) {
 		return false
 	}
 
-	// `out` is the module basename — three files are emitted:
+	// `out` is the module basename — shared types and target manifests are emitted:
 	//   <out>.types.ts    shared types (RouteName/Params/Presentations)
 	//   <out>.web.ts      web glob + registerRoutes
 	//   <out>.native.ts   native glob + registerRoutes (Device.os prefer)
+	//   <out>.macos.ts   AppKit glob + registerRoutes (macos/native prefer)
 	// Importing '<out>' resolves the platform leaf automatically.
 	const base = (out ?? join(dir, '..', 'routes.gen')).replace(/\.ts$/, '')
 
@@ -168,6 +169,19 @@ export const screens = routes.screens
 		),
 	)
 
+	writeFileSync(
+		join(cwd, base + '.macos.ts'),
+		shared(
+			'',
+			[
+				`\t\t'!${globDir}/**/*.web.{tsrx,tsx}'`,
+				`\t\t'!${globDir}/**/*.ios.{tsrx,tsx}'`,
+				`\t\t'!${globDir}/**/*.android.{tsrx,tsx}'`,
+			].join(',\n'),
+			`['macos', 'native']`,
+		),
+	)
+
 	return list.length
 }
 
@@ -198,7 +212,7 @@ export const routes = command({
 
 		const count = generateRoutes(cwd, dir, args.out)
 		p.log.success(
-			`Wrote routes.gen.{types,web,native}.ts — ${count} route${count === 1 ? '' : 's'}`,
+			`Wrote routes.gen.{types,web,native,macos}.ts — ${count} route${count === 1 ? '' : 's'}`,
 		)
 	},
 })

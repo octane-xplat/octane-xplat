@@ -3,9 +3,18 @@
 	"compilerOptions": {
 		"jsxImportSource": "@xplat/macos/renderer",
 		"customConditions": ["macos"],
+		"moduleSuffixes": [".macos", ".native", ""],
 		"lib": ["ESNext"],
 		"allowJs": true,
-		"checkJs": false
+		"checkJs": false,
+		"paths": {
+			"@xplat/app": ["../../packages/app/src/index.ts"],
+			"@xplat/app/*": ["../../packages/app/src/*"],
+			"@xplat/demos": ["../../packages/demos/src/index.ts"],
+			"@xplat/demos/*": ["../../packages/demos/src/*"],
+		"@octane-xplat/platform": ["../../packages/platform/src/index.macos.ts"],
+			"@octane-xplat/platform/*": ["../../packages/platform/src/*"]
+		}
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist", "artifacts"]

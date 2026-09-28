@@ -13,9 +13,13 @@ function invokeAction(actionId) {
 }
 
 class ButtonActionTarget extends NSObject {
+	static ObjCProtocols = [NSTextViewDelegate]
+
 	static ObjCExposedMethods = {
 		buttonPressed: { params: [NSButton], returns: interop.types.void },
 		viewPressed: { params: [NSObject], returns: interop.types.void },
+		controlChanged: { params: [NSObject], returns: interop.types.void },
+		textDidChange: { params: [NSNotification], returns: interop.types.void },
 	}
 
 	static {
@@ -28,6 +32,14 @@ class ButtonActionTarget extends NSObject {
 
 	viewPressed(sender) {
 		invokeAction(actionIdsByView.get(sender.view))
+	}
+
+	controlChanged(sender) {
+		invokeAction(sender.tag ?? actionIdsByView.get(sender))
+	}
+
+	textDidChange(notification) {
+		invokeAction(actionIdsByView.get(notification.object))
 	}
 }
 
@@ -132,9 +144,83 @@ function makeButton(props) {
 	return { view: button, actionId }
 }
 
+function makeScrollView() {
+	const scroll = NSScrollView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 480, height: 320 },
+	})
+	const content = makeStack({ flexDirection: 'column' })
+	scroll.hasVerticalScroller = true
+	scroll.drawsBackground = false
+	scroll.borderType = NSBorderType.NoBorder
+	scroll.translatesAutoresizingMaskIntoConstraints = false
+	scroll.documentView = content
+	content.widthAnchor.constraintEqualToAnchor(scroll.contentView.widthAnchor).active = true
+	return { view: scroll, childHost: content }
+}
+
+function makeTextField(props, multiline = false) {
+	const field = multiline
+		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
+		: NSTextField.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 28 } })
+	field.translatesAutoresizingMaskIntoConstraints = false
+	if (!multiline) {
+		field.bezeled = true
+		field.drawsBackground = true
+		field.editable = true
+		field.selectable = true
+		field.sendsActionOnEndEditing = false
+		field.placeholderString = String(props.placeholder ?? '')
+	} else {
+		field.editable = true
+		field.selectable = true
+		field.drawsBackground = true
+	}
+	if (multiline) {field.string = String(props.value ?? '')}
+	else {field.stringValue = String(props.value ?? '')}
+	return field
+}
+
+function makeSwitch(props) {
+	const button = NSButton.buttonWithTitleTargetAction('', buttonActionTarget, 'controlChanged')
+	button.setButtonType(NSButtonType.Switch)
+	button.state = props.checked ? 1 : 0
+	button.translatesAutoresizingMaskIntoConstraints = false
+	const actionId = nextActionId++
+	button.tag = actionId
+	actionHandlers.set(actionId, null)
+	return { view: button, actionId }
+}
+
+function makeSlider(props) {
+	const slider = NSSlider.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 140, height: 24 } })
+	slider.minValue = Number(props.minValue ?? 0)
+	slider.maxValue = Number(props.maxValue ?? 1)
+	slider.doubleValue = Number(props.value ?? 0)
+	slider.target = buttonActionTarget
+	slider.action = 'controlChanged'
+	slider.translatesAutoresizingMaskIntoConstraints = false
+	const actionId = nextActionId++
+	slider.tag = actionId
+	actionHandlers.set(actionId, null)
+	return { view: slider, actionId }
+}
+
+function makeImageView(props) {
+	const image = NSImageView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 24, height: 24 } })
+	image.translatesAutoresizingMaskIntoConstraints = false
+	const match = /^data:[^,]*;base64,(.+)$/s.exec(String(props.src ?? ''))
+	if (match) {
+		const data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
+		image.image = NSImage.alloc().initWithData(data)
+	}
+	return image
+}
+
 function makeNode(container, id, type, props) {
 	let view
 	let actionId
+	let childHost
 	switch (type) {
 		case 'stack':
 			view = makeStack(props)
@@ -157,11 +243,54 @@ function makeNode(container, id, type, props) {
 			actionId = button.actionId
 			break
 		}
+		case 'scrollview': {
+			const scroll = makeScrollView()
+			view = scroll.view
+			childHost = scroll.childHost
+			break
+		}
+		case 'textfield':
+			view = makeTextField(props)
+			break
+		case 'textview':
+			view = makeTextField(props, true)
+			break
+		case 'switch': {
+			const control = makeSwitch(props)
+			view = control.view
+			actionId = control.actionId
+			break
+		}
+		case 'slider': {
+			const control = makeSlider(props)
+			view = control.view
+			actionId = control.actionId
+			break
+		}
+		case 'image':
+			view = makeImageView(props)
+			break
+		case 'span':
+			view = null
+			break
 		default:
 			throw new Error('AppKit spike does not support <' + type + '>')
 	}
 
-	const node = { id, type, view, props: {}, parent: null, children: [], container, actionId, text: '' }
+	if (type === 'textfield' || type === 'textview') {
+		actionId = nextActionId++
+		actionIdsByView.set(view, actionId)
+		actionHandlers.set(actionId, null)
+		if (type === 'textfield') {
+			view.tag = actionId
+			view.target = buttonActionTarget
+			view.action = 'controlChanged'
+		} else {
+			view.delegate = buttonActionTarget
+			}
+	}
+
+	const node = { id, type, view, childHost, props: {}, parent: null, children: [], container, actionId, text: '' }
 	applyProps(node, props)
 	return node
 }
@@ -190,25 +319,101 @@ function applyStyle(node, style) {
 		} else if (name === 'padding' && node.type === 'flexboxlayout') {
 			const padding = Number(value)
 			node.view.edgeInsets = { top: padding, left: padding, bottom: padding, right: padding }
-		} else if (name === 'backgroundColor' && node.type === 'flexboxlayout') {
+		} else if (name === 'backgroundColor' && node.view) {
 			node.view.wantsLayer = true
 			node.view.layer.backgroundColor = nativeColor(value).CGColor
-		} else if (name === 'borderRadius' && node.type === 'flexboxlayout') {
+		} else if (name === 'borderRadius' && node.view) {
 			node.view.wantsLayer = true
 			node.view.layer.cornerRadius = Number(value)
 			node.view.layer.masksToBounds = true
+		} else if ((name === 'width' || name === 'height') && node.view) {
+			const constraints = (node.sizeConstraints ??= {})
+			constraints[name]?.setActive(false)
+			constraints[name] = name === 'width'
+				? node.view.widthAnchor.constraintEqualToConstant(Number(value))
+				: node.view.heightAnchor.constraintEqualToConstant(Number(value))
+			constraints[name].active = true
+		} else if (name === 'opacity' && node.view) {
+			node.view.alphaValue = Number(value)
+		} else if (name === 'fontWeight' && node.type === 'label') {
+			node.view.font = NSFont.boldSystemFontOfSize(node.view.font.pointSize)
+		} else if (name === 'textAlign' && node.type === 'label') {
+			node.view.alignment = value === 'left' ? NSTextAlignment.Left : value === 'right' ? NSTextAlignment.Right : NSTextAlignment.Center
+		} else if (name === 'borderWidth' && node.view) {
+			node.view.wantsLayer = true
+			node.view.layer.borderWidth = Number(value)
+		} else if (name === 'borderColor' && node.view) {
+			node.view.wantsLayer = true
+			node.view.layer.borderColor = nativeColor(value).CGColor
 		} else {
-			throw new Error('AppKit spike does not map style.' + name + ' on <' + node.type + '>')
+			console.warn('[macos-style] ignored unsupported style.' + name + ' on <' + node.type + '>')
 		}
 	}
 }
 
+function applyClassName(node, value) {
+	const classes = String(value ?? '').split(/\s+/).filter(Boolean)
+	if (node.type === 'label') {
+		const sizes = { 'text-xs': 12, 'text-sm': 14, 'text-base': 16, 'text-lg': 18, 'text-xl': 20, 'text-2xl': 24 }
+		for (const name of classes) {
+			if (sizes[name]) {node.view.font = NSFont.systemFontOfSize(sizes[name])}
+			if (name === 'font-semibold' || name === 'font-bold') {node.view.font = NSFont.boldSystemFontOfSize(node.view.font.pointSize)}
+			if (name === 'text-muted') {node.view.textColor = nativeColor('#71717a')}
+			if (name === 'text-onprimary') {node.view.textColor = nativeColor('#ffffff')}
+		}
+	}
+
+	if (node.type === 'flexboxlayout' || node.type === 'stack' || node.type === 'scrollview') {
+		const gaps = { 'gap-1': 4, 'gap-2': 8, 'gap-3': 12, 'gap-4': 16, 'gap-6': 24 }
+		for (const name of classes) {
+			if (gaps[name] !== undefined) {node.view.spacing = gaps[name]}
+			if (name === 'flex-row') {node.view.orientation = NSUserInterfaceLayoutOrientation.Horizontal}
+			if (name === 'flex-col') {node.view.orientation = NSUserInterfaceLayoutOrientation.Vertical}
+			if (name === 'items-center') {
+				node.view.alignment = node.view.orientation === NSUserInterfaceLayoutOrientation.Horizontal
+					? NSLayoutAttribute.CenterY
+					: NSLayoutAttribute.CenterX
+			}
+			if (name === 'justify-between') {node.view.distribution = NSStackViewDistribution.EqualSpacing}
+			if (name === 'flex-1') {
+				node.view.setContentHuggingPriorityForOrientation(1, NSUserInterfaceLayoutOrientation.Vertical)
+				node.view.setContentCompressionResistancePriorityForOrientation(1, NSUserInterfaceLayoutOrientation.Vertical)
+			}
+			if (name === 'shrink-0') {
+				node.view.setContentHuggingPriorityForOrientation(750, NSUserInterfaceLayoutOrientation.Vertical)
+			}
+			if (name === 'rounded-full' || name.startsWith('rounded-')) {
+				node.view.wantsLayer = true
+				node.view.layer.cornerRadius = name === 'rounded-full' ? 12 : 8
+				node.view.layer.masksToBounds = true
+			}
+			if (name === 'bg-primary' || name === 'btn') {
+				node.view.wantsLayer = true
+				node.view.layer.backgroundColor = nativeColor('#2563eb').CGColor
+				node.view.edgeInsets = { top: 6, left: 10, bottom: 6, right: 10 }
+			}
+			if (name === 'bg-danger') {
+				node.view.wantsLayer = true
+				node.view.layer.backgroundColor = nativeColor('#dc2626').CGColor
+			}
+			if (name === 'btn-secondary' || name === 'chip' || name === 'chip-off') {
+				node.view.wantsLayer = true
+				node.view.layer.backgroundColor = nativeColor('#3f3f46').CGColor
+				node.view.edgeInsets = { top: 4, left: 8, bottom: 4, right: 8 }
+			}
+		}
+	}
+}
+
+function textContent(node) {
+	if (node.type === '#text') {return node.text}
+	if (node.type === 'label') {return node.view.stringValue}
+	return node.children.map(textContent).join('')
+}
+
 function syncText(parent) {
 	if (parent?.type !== 'label') {return}
-	parent.view.stringValue = parent.children
-		.filter((child) => child.view === null)
-		.map((child) => child.text)
-		.join('')
+	parent.view.stringValue = parent.children.map(textContent).join('')
 }
 
 function setAction(node, value) {
@@ -235,6 +440,22 @@ function setAction(node, value) {
 	)
 }
 
+function setControlAction(node, value, readValue) {
+	if (node.actionId === undefined) {return}
+	actionHandlers.set(
+		node.actionId,
+		typeof value === 'function'
+			? () => {
+				try {
+					node.container.root.eventScope('discrete', () => value(readValue()))
+				} catch (error) {
+					console.error('[macos-event] control handler failed', error)
+				}
+			}
+			: null,
+	)
+}
+
 function applyAccessibility(node, name, value) {
 	if (node.type === 'flexboxlayout' && node.actionId !== undefined) {
 		if (name === 'accessibilityLabel') {accessibilityLabels.set(node.actionId, String(value ?? ''))}
@@ -253,14 +474,16 @@ function applyProps(node, props) {
 		syncText(node.parent)
 		return
 	}
+	if (node.type === 'span') {return}
 
 	for (const [name, value] of Object.entries(props)) {
 		switch (node.type) {
 			case 'stack':
 				if (name === 'spacing') {node.view.spacing = Number(value ?? 0)}
 				else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id') {continue}
-				else {throw new Error('AppKit <stack> does not support the ' + name + ' prop')}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'id') {continue}
+				else {console.warn('[macos-host] ignored stack prop ' + name)}
 
 				break
 			case 'flexboxlayout':
@@ -271,9 +494,15 @@ function applyProps(node, props) {
 						? NSUserInterfaceLayoutOrientation.Horizontal
 						: NSUserInterfaceLayoutOrientation.Vertical
 				} else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id') {continue}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'id') {continue}
 				else if (name === 'onTap') {setAction(node, value)}
 				else if (name === 'onTouch') {continue}
+				else if (name === 'onPan' || name === 'onSwipe') {
+					if (typeof value === 'function') {
+						console.warn('[macos-host] ' + name + ' is unsupported by the AppKit renderer')
+					}
+				}
 				else if (name.startsWith('on') && value == null) {continue}
 				else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
@@ -294,7 +523,7 @@ function applyProps(node, props) {
 						'order',
 					].includes(name)
 				) {continue}
-				else {throw new Error('AppKit <flexboxlayout> does not support the ' + name + ' prop')}
+				else {console.warn('[macos-host] ignored flexboxlayout prop ' + name)}
 
 				break
 			case 'label':
@@ -303,12 +532,13 @@ function applyProps(node, props) {
 				} else if (name === 'fontSize') {
 					node.view.font = NSFont.systemFontOfSize(Number(value ?? 16))
 				} else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className' || name === 'id') {continue}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'id') {continue}
 				else if (['maxLines', 'whiteSpace', 'textOverflow', 'accessible'].includes(name)) {continue}
 				else if (name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
 				else {
-					throw new Error('AppKit <label> does not support the ' + name + ' prop')
+					console.warn('[macos-host] ignored label prop ' + name)
 				}
 
 				break
@@ -330,7 +560,77 @@ function applyProps(node, props) {
 					)
 				} else if (name === 'style') {applyStyle(node, value)}
 				else if (name === 'className' || name === 'id') {continue}
-				else {throw new Error('AppKit <button> does not support the ' + name + ' prop')}
+				else {console.warn('[macos-host] ignored button prop ' + name)}
+
+				break
+			case 'scrollview':
+				if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'accessibilityLabel') {node.view.setAccessibilityLabel?.(String(value ?? ''))}
+				else if (name === 'id' || name === 'horizontal' || name === 'showsVerticalScrollIndicator') {continue}
+				else if (name.startsWith('on')) {
+					if (typeof value === 'function') {console.warn('[macos-host] ' + name + ' is unsupported on ScrollView')}
+				}
+				else {console.warn('[macos-host] ignored scrollview prop ' + name)}
+
+				break
+			case 'textfield':
+			case 'textview':
+				if (name === 'value') {
+					if (node.type === 'textview') {node.view.string = String(value ?? '')}
+					else {node.view.stringValue = String(value ?? '')}
+				}
+				else if (name === 'placeholder') {
+					if (node.type === 'textfield') {node.view.placeholderString = String(value ?? '')}
+				}
+				else if (name === 'onTextChange') {
+					setControlAction(node, value, () => String(node.type === 'textview' ? node.view.string : node.view.stringValue ?? ''))
+				}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'id') {continue}
+				else if (name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
+				else if (name.startsWith('on') && value == null) {continue}
+				else if (['editable', 'enabled', 'secure', 'keyboardType', 'returnKeyType', 'autoGrow', 'maxRows'].includes(name)) {continue}
+				else {console.warn('[macos-host] ignored text control prop ' + name)}
+
+				break
+			case 'switch':
+				if (name === 'checked') {node.view.state = value ? 1 : 0}
+				else if (name === 'onCheckedChange') {
+					setControlAction(node, value, () => node.view.state === 1)
+				}
+				else if (name === 'disabled') {node.view.enabled = value !== true}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id') {continue}
+				else {console.warn('[macos-host] ignored switch prop ' + name)}
+
+				break
+			case 'slider':
+				if (name === 'value') {node.view.doubleValue = Number(value ?? 0)}
+				else if (name === 'minValue') {node.view.minValue = Number(value ?? 0)}
+				else if (name === 'maxValue') {node.view.maxValue = Number(value ?? 1)}
+				else if (name === 'onValueChange') {
+					setControlAction(node, value, () => Number(node.view.doubleValue))
+				}
+				else if (name === 'disabled') {node.view.enabled = value !== true}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id') {continue}
+				else {console.warn('[macos-host] ignored slider prop ' + name)}
+
+				break
+			case 'image':
+				if (name === 'src') {
+					const match = /^data:[^,]*;base64,(.+)$/s.exec(String(value ?? ''))
+					if (match) {
+						const data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
+						node.view.image = NSImage.alloc().initWithData(data)
+					}
+				}
+				else if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id' || name === 'alt') {continue}
+				else if (name === 'accessibilityLabel') {node.view.setAccessibilityLabel?.(String(value ?? ''))}
+				else {console.warn('[macos-host] ignored image prop ' + name)}
 
 				break
 		}
@@ -342,8 +642,9 @@ function detach(container, node) {
 	const index = siblings.indexOf(node)
 	if (index >= 0) {siblings.splice(index, 1)}
 	if (node.view) {
-		if (node.parent?.type === 'stack' || node.parent?.type === 'flexboxlayout') {
-			node.parent.view.removeArrangedSubview(node.view)
+		const parentView = node.parent?.childHost ?? node.parent?.view
+		if (parentView?.removeArrangedSubview) {
+			parentView.removeArrangedSubview(node.view)
 		}
 
 		node.view.removeFromSuperview()
@@ -357,7 +658,7 @@ function insert(container, parentId, node, beforeId) {
 	detach(container, node)
 	const parent = parentId === null ? null : container.nodes.get(parentId)
 	if (parentId !== null && !parent) {throw new Error('Unknown AppKit parent ' + parentId)}
-	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout') {
+	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout' && parent.type !== 'scrollview') {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
 
@@ -367,14 +668,16 @@ function insert(container, parentId, node, beforeId) {
 	siblings.splice(index, 0, node)
 	node.parent = parent
 	if (node.view) {
-		const parentView = parent?.view ?? container.hostView
+		const parentView = parent?.childHost ?? parent?.view ?? container.hostView
 		if (!parentView) {throw new Error('AppKit host has no parent view for node ' + node.id)}
 		if (parent) {
 			parentView.addViewInGravity(node.view, NSStackViewGravity.Center)
 		} else {
 			parentView.addSubview(node.view)
-			node.view.centerXAnchor.constraintEqualToAnchor(parentView.centerXAnchor).active = true
-			node.view.centerYAnchor.constraintEqualToAnchor(parentView.centerYAnchor).active = true
+			node.view.leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active = true
+			node.view.trailingAnchor.constraintEqualToAnchor(parentView.trailingAnchor).active = true
+			node.view.topAnchor.constraintEqualToAnchor(parentView.topAnchor).active = true
+			node.view.bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
 		}
 	} else {
 		syncText(parent)
@@ -388,8 +691,9 @@ function remove(container, parentId, node) {
 	const index = siblings.indexOf(node)
 	if (index >= 0) {siblings.splice(index, 1)}
 	if (node.view) {
-		if (expectedParent?.type === 'stack' || expectedParent?.type === 'flexboxlayout') {
-			expectedParent.view.removeArrangedSubview(node.view)
+		const parentView = expectedParent?.childHost ?? expectedParent?.view
+		if (parentView?.removeArrangedSubview) {
+			parentView.removeArrangedSubview(node.view)
 		}
 
 		node.view.removeFromSuperview()
@@ -487,8 +791,7 @@ export function createMacOSRoot(hostView) {
 
 	container.root = root
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
-		Object.defineProperty(root, '__macosDebug', {
-			value: {
+		const debug = {
 					snapshot() {
 						return {
 							labels: [...container.nodes.values()]
@@ -505,6 +808,30 @@ export function createMacOSRoot(hostView) {
 										accessibilityRoles.get(node.actionId) === 'button',
 								)
 								.map((node) => accessibilityLabels.get(node.actionId)),
+						}
+					},
+					pressId(id) {
+						const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)
+						if (!node || node.actionId === undefined) {
+							throw new Error('No AppKit pressable with id ' + id)
+						}
+						invokeAction(node.actionId)
+					},
+					setText(idOrPlaceholder, value) {
+						const node = [...container.nodes.values()].find(
+							(candidate) =>
+								(candidate.type === 'textfield' || candidate.type === 'textview') &&
+								(candidate.props.id === idOrPlaceholder || candidate.props.placeholder === idOrPlaceholder),
+						)
+						if (!node || node.actionId === undefined) {
+							throw new Error('No AppKit text input with id or placeholder ' + idOrPlaceholder)
+						}
+						if (node.type === 'textview') {
+							node.view.string = String(value)
+							buttonActionTarget.textDidChange({ object: node.view })
+						} else {
+							node.view.stringValue = String(value)
+							buttonActionTarget.controlChanged(node.view)
 						}
 					},
 				pressAccessibilityLabel(label) {
@@ -528,8 +855,9 @@ export function createMacOSRoot(hostView) {
 					if (!node) {throw new Error('No AppKit button titled ' + title)}
 					node.view.performClick(null)
 				},
-			},
-		})
+			}
+		Object.defineProperty(root, '__macosDebug', { value: debug })
+		Object.defineProperty(globalThis, '__xplatMacOSDebug', { value: debug, configurable: true })
 	}
 
 	return root

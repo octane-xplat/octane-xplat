@@ -27,6 +27,10 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 					rules: [
 						{ include: 'src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/ui/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/app/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/demos/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/gif/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/platform/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{
 							include: '**/node_modules/@octane-xplat/ui/src/**/*.{tsx,tsrx}',
 							renderer: rendererId,
@@ -45,7 +49,7 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 			rollupOptions: {
 				external: packaged
 					? [nativeRuntime]
-					: [nativeRuntime, '@xplat/macos/renderer', /^octane(?:\/|$)/],
+					: [nativeRuntime, '@xplat/macos/renderer', /^octane\//],
 			},
 		},
 		resolve: {
@@ -61,25 +65,26 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 					: []),
 				{ find: /^octane$/, replacement: 'octane/universal/native' },
 				{
+					find: /^@nativescript-community\/octane$/,
+					replacement: '@xplat/macos/renderer',
+				},
+				{
 					find: './escape-props',
 					replacement: resolve(appRoot, 'src/renderer/native-escape-props.mjs'),
 				},
 				{
-					find: '@nativescript/core',
+					find: /^@nativescript\/core$/,
 					replacement: resolve(appRoot, 'src/renderer/native-core-shim.mjs'),
 				},
 			],
 			extensions: [
-				'.ios.tsrx',
-				'.android.tsrx',
+				'.macos.tsrx',
 				'.native.tsrx',
 				'.tsrx',
-				'.ios.tsx',
-				'.android.tsx',
+				'.macos.tsx',
 				'.native.tsx',
 				'.tsx',
-				'.ios.ts',
-				'.android.ts',
+				'.macos.ts',
 				'.native.ts',
 				'.mjs',
 				'.mts',
