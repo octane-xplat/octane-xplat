@@ -1307,6 +1307,128 @@ export const CHECKS = [
 		check: (m) => [dims(m('empty'), 220, 120), dims(m('icon'), 24, 24)],
 	},
 	{
+		fixture: 'breadcrumb-trail',
+		targets: ['web', 'ios', 'android'],
+		elements: { trail: 'parity-breadcrumb-root' },
+		equal: ['trail.box.w', 'trail.box.h', 'trail.style.backgroundColor'],
+		check: (m) => [dims(m('trail'), 220, 36)],
+	},
+	{
+		fixture: 'pagination-window',
+		targets: ['web', 'ios', 'android'],
+		elements: { pages: 'parity-pagination-root', active: 'vx-page-btn--on' },
+		equal: [
+			'pages.box.w',
+			'pages.box.h',
+			'pages.style.backgroundColor',
+			'active.box.w',
+			'active.box.h',
+		],
+		check: (m) => {
+			const active = m('active')
+			return [
+				dims(m('pages'), 220, 36),
+				['active page has a visible frame', active.box.w > 0 && active.box.h > 0],
+			]
+		},
+	},
+	{
+		fixture: 'table-two-rows',
+		targets: ['web', 'ios', 'android'],
+		elements: { table: 'parity-table-root', cell: 'parity-table-cell-content' },
+		equal: ['table.box.w', 'table.box.h', 'table.style.backgroundColor', 'cell.box.w', 'cell.box.h'],
+		check: (m) => [dims(m('table'), 220, 96), dims(m('cell'), 64, 24)],
+	},
+	{
+		fixture: 'virtual-list-viewport',
+		targets: ['web', 'ios', 'android', 'macos'],
+		elements: { list: 'parity-virtual-list-root', item: 'parity-virtual-list-item-content' },
+		equal: ['list.box.w', 'list.box.h', 'item.box.w', 'item.box.h'],
+		check: (m) => [dims(m('list'), 220, 64), dims(m('item'), 200, 24)],
+	},
+	{
+		fixture: 'timeline-two-events',
+		targets: ['web', 'ios', 'android'],
+		elements: { timeline: 'parity-timeline-root', dot: 'vx-timeline-dot' },
+		equal: [
+			'timeline.box.w',
+			'timeline.box.h',
+			'timeline.style.backgroundColor',
+			'dot.box.w',
+			'dot.box.h',
+		],
+		check: (m) => [dims(m('timeline'), 200, 112), dims(m('dot'), 10, 10)],
+	},
+	{
+		fixture: 'tree-expanded',
+		targets: ['web', 'ios', 'android'],
+		elements: { tree: 'parity-tree-root', child: 'vx-tree-row--disabled' },
+		equal: ['tree.box.w', 'tree.box.h', 'tree.style.backgroundColor', 'child.style.opacity'],
+		check: (m) => {
+			const child = m('child')
+			return [
+				dims(m('tree'), 180, 96),
+				['expanded child has a visible frame', child.box.w > 0 && child.box.h > 0],
+			]
+		},
+	},
+	{
+		fixture: 'alert-warning',
+		targets: ['web', 'ios', 'android'],
+		elements: { alert: 'parity-alert-root', icon: 'vx-alert-icon' },
+		equal: [
+			'alert.box.w',
+			'alert.box.h',
+			'alert.style.backgroundColor',
+			'alert.style.borderTopColor',
+			'icon.box.w',
+			'icon.box.h',
+		],
+		check: (m) => [dims(m('alert'), 220, 64), dims(m('icon'), 24, 24)],
+	},
+	{
+		fixture: 'card-with-slots',
+		targets: ['web', 'ios', 'android'],
+		elements: { card: 'parity-card-root', body: 'parity-card-body' },
+		equal: ['card.box.w', 'card.box.h', 'card.style.backgroundColor', 'body.box.w', 'body.box.h'],
+		check: (m) => [dims(m('card'), 220, 104), dims(m('body'), 180, 32)],
+	},
+	{
+		fixture: 'chip-selected',
+		targets: ['web', 'ios', 'android'],
+		elements: { chip: 'parity-chip-root', selected: 'vx-chip--on' },
+		equal: ['chip.box.w', 'chip.box.h', 'selected.style.backgroundColor', 'selected.style.color'],
+		check: (m) => [dims(m('chip'), 96, 32)],
+	},
+	{
+		fixture: 'banner-dismissible',
+		targets: ['web', 'ios', 'android'],
+		elements: { banner: 'parity-banner-root', icon: 'vx-banner-icon', dismiss: 'vx-banner-dismiss' },
+		equal: [
+			'banner.box.w',
+			'banner.box.h',
+			'banner.style.backgroundColor',
+			'icon.box.w',
+			'icon.box.h',
+			'dismiss.style.marginLeft',
+		],
+		check: (m) => {
+			const dismiss = m('dismiss')
+			return [
+				dims(m('banner'), 220, 48),
+				dims(m('icon'), 24, 24),
+				['dismiss affordance has a visible frame', dismiss.box.w > 0 && dismiss.box.h > 0],
+			]
+		},
+	},
+	{
+		fixture: 'progress-group-two-items',
+		targets: ['web', 'ios', 'android'],
+		elements: { group: 'parity-progress-group-root', meter: 'vx-meter' },
+		equal: ['group.box.w', 'group.box.h', 'group.style.backgroundColor', 'meter.box.w', 'meter.box.h'],
+		check: (m) => [dims(m('group'), 220, 88), dims(m('meter'), 24, 24)],
+	},
+	{
 		fixture: 'screen-layout',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-screen-root', child: 'parity-screen-child' },

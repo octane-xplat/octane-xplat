@@ -57,6 +57,17 @@ import {
 	Separator,
 	Skeleton,
 	Empty,
+	Breadcrumb,
+	Pagination,
+	Table,
+	VirtualList,
+	Timeline,
+	Tree,
+	Alert,
+	Card,
+	Chip,
+	Banner,
+	ProgressGroup,
 	Screen,
 	SafeArea,
 } from '@octane-xplat/ui';
@@ -644,6 +655,140 @@ function EmptyFixture() @{
 	/>
 }
 
+function BreadcrumbFixture() @{
+	<Breadcrumb
+		className="parity-breadcrumb-root"
+		style={{ width: 220, height: 36, backgroundColor: '#f5f5f5' }}
+		items={[
+			{ label: 'Home', onSelect: () => {} },
+			{ label: 'Settings' },
+			{ label: 'Profile' },
+		]}
+	/>
+}
+
+function PaginationFixture() @{
+	<Pagination
+		className="parity-pagination-root"
+		style={{ width: 220, height: 36, backgroundColor: '#f5f5f5' }}
+		page={4}
+		pageCount={8}
+		siblingCount={0}
+	/>
+}
+
+function TableFixture() @{
+	<Table
+		className="parity-table-root"
+		style={{ width: 220, height: 96, backgroundColor: '#f5f5f5' }}
+		columns={[
+			{ key: 'name', label: '', width: 100 },
+			{ key: 'status', label: '', width: 100 },
+		]}
+		rows={[{ name: 'Profile', status: 'Ready' }, { name: 'Security', status: 'Pending' }]}
+		renderCell={() => <View className="parity-table-cell-content" style={{ width: 64, height: 24 }} />}
+	/>
+}
+
+function VirtualListFixture() @{
+	<VirtualList
+		className="parity-virtual-list-root"
+		style={{ width: 220, height: 64 }}
+		items={[
+			{ key: 'alpha' },
+			{ key: 'beta' },
+			{ key: 'gamma' },
+			{ key: 'delta' },
+			{ key: 'epsilon' },
+			{ key: 'zeta' },
+		]}
+		keyExtractor={(item: any) => item.key}
+		renderItem={() => <View className="parity-virtual-list-item-content" style={{ width: 200, height: 24 }} />}
+	/>
+}
+
+function TimelineFixture() @{
+	<Timeline
+		className="parity-timeline-root"
+		style={{ width: 200, height: 112, backgroundColor: '#f5f5f5' }}
+		items={[
+			{ key: 'created', title: 'Created', description: 'Project started' },
+			{ key: 'reviewed', title: 'Reviewed', description: 'Changes approved' },
+		]}
+	/>
+}
+
+function TreeFixture() @{
+	<Tree
+		className="parity-tree-root"
+		style={{ width: 180, height: 96, backgroundColor: '#f5f5f5' }}
+		nodes={[
+			{
+				key: 'root',
+				label: 'Workspace',
+				children: [{ key: 'leaf', label: 'Project', disabled: true }],
+			},
+		]}
+		defaultExpanded={['root']}
+	/>
+}
+
+function AlertFixture() @{
+	<Alert
+		className="parity-alert-root"
+		style={{ width: 220, height: 64, backgroundColor: '#f5f5f5' }}
+		tone="warning"
+		icon="tab-home"
+		title="Review needed"
+	>
+		<Text>Check the pending changes.</Text>
+	</Alert>
+}
+
+function CardFixture() @{
+	<Card
+		className="parity-card-root"
+		style={{ width: 220, height: 104, backgroundColor: '#f5f5f5' }}
+		header={<Text>Workspace</Text>}
+		footer={<Text>View details</Text>}
+	>
+		<View className="parity-card-body" style={{ width: 180, height: 32 }} />
+	</Card>
+}
+
+function ChipFixture() @{
+	<Chip
+		className="parity-chip-root"
+		style={{ width: 96, height: 32 }}
+		selected={true}
+		accessibilityLabel="Active filter"
+	>
+		<Text>Active</Text>
+	</Chip>
+}
+
+function BannerFixture() @{
+	<Banner
+		className="parity-banner-root"
+		style={{ width: 220, height: 48, backgroundColor: '#f5f5f5' }}
+		icon="tab-home"
+		onDismiss={() => {}}
+	>
+		<Text>Saved successfully.</Text>
+	</Banner>
+}
+
+function ProgressGroupFixture() @{
+	<ProgressGroup
+		className="parity-progress-group-root"
+		style={{ width: 220, height: 88, backgroundColor: '#f5f5f5' }}
+		items={[
+			{ key: 'complete', label: 'Completed', value: 65, max: 100 },
+			{ key: 'pending', label: 'Pending', value: 25, max: 100 },
+		]}
+	/>
+}
+
 function ScreenLayoutFixture() @{
 	<Screen className="parity-screen-root" style={{ width: '100%', height: '100%' }}>
 		<View className="parity-screen-child" style={{ width: 20, height: 10 }} />
@@ -786,6 +931,17 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'separator-horizontal', component: 'Separator', renderer: SeparatorFixture, props: {} },
 	{ name: 'skeleton-basic', component: 'Skeleton', renderer: SkeletonFixture, props: {} },
 	{ name: 'empty-state', component: 'Empty', renderer: EmptyFixture, props: {}, height: 136 },
+	{ name: 'breadcrumb-trail', component: 'Breadcrumb', renderer: BreadcrumbFixture, props: {} },
+	{ name: 'pagination-window', component: 'Pagination', renderer: PaginationFixture, props: {}, width: 240 },
+	{ name: 'table-two-rows', component: 'Table', renderer: TableFixture, props: {} },
+	{ name: 'virtual-list-viewport', component: 'VirtualList', renderer: VirtualListFixture, props: {} },
+	{ name: 'timeline-two-events', component: 'Timeline', renderer: TimelineFixture, props: {}, height: 128 },
+	{ name: 'tree-expanded', component: 'Tree', renderer: TreeFixture, props: {} },
+	{ name: 'alert-warning', component: 'Alert', renderer: AlertFixture, props: {} },
+	{ name: 'card-with-slots', component: 'Card', renderer: CardFixture, props: {}, height: 120 },
+	{ name: 'chip-selected', component: 'Chip', renderer: ChipFixture, props: {} },
+	{ name: 'banner-dismissible', component: 'Banner', renderer: BannerFixture, props: {} },
+	{ name: 'progress-group-two-items', component: 'ProgressGroup', renderer: ProgressGroupFixture, props: {}, height: 104 },
 	{ name: 'screen-layout', component: 'Screen', renderer: ScreenLayoutFixture, props: {} },
 	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
 	{ name: 'safe-area-layout', component: 'SafeArea', renderer: SafeAreaLayoutFixture, props: {}, height: 168 },

@@ -33,23 +33,6 @@ const DEFERRED_GROUPS = [
 	},
 	{
 		reason:
-			'Content-driven dimensions need representative children or data and an intentional bounds contract; VirtualList also needs viewport and scrolling scenarios.',
-		components: [
-			'Breadcrumb',
-			'Pagination',
-			'Table',
-			'VirtualList',
-			'Timeline',
-			'Tree',
-			'Alert',
-			'Card',
-			'Chip',
-			'Banner',
-			'ProgressGroup',
-		],
-	},
-	{
-		reason:
 			'OS- or engine-backed content needs target fixtures for the shared frame and any project-drawn chrome.',
 		components: ['SearchInput', 'Image', 'WebView'],
 	},
