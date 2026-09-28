@@ -318,80 +318,86 @@ export function openWindow(options = {}) {
 					NSWindowStyleMask.Closable
 				: NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
 
-	const nativeWindow = (kind === 'popup' ? NSPanel : NSWindow)
-		.alloc()
-		.initWithContentRectStyleMaskBackingDefer(
-			{ origin: { x: 0, y: 0 }, size },
-			styleMask,
-			2,
-			false,
-		)
-
-	nativeWindow.title = String(options.title ?? 'Octane window')
-	nativeWindow.releasedWhenClosed = false
-	nativeWindow.delegate = appDelegate()
-	nativeWindow.contentView = makeContentView(size)
-
-	let resolveWindowClosed
-	const controller = {
-		kind,
-		window: nativeWindow,
-		data: options.data ?? null,
-		root: null,
-		isClosed: false,
-		closed: new Promise((resolve) => {
-			resolveWindowClosed = resolve
-		}),
-		onCloseRequested: null,
-		setTitle(title) {
-			nativeWindow.title = String(title)
-		},
-		setSize(next) {
-			nativeWindow.setContentSize(normalizeWindowSize(next, 'setSize'))
-		},
-		// Explicit close is a command; NSWindow.close() skips windowShouldClose,
-		// which is reserved for user/performClose requests and their veto callback.
-		close() {
-			if (controller.isClosed) {
-				return
-			}
-
-			closeOwnedWindows(nativeWindow)
-			if (kind === 'dialog' && parentWindow) {
-				parentWindow.endSheet(nativeWindow)
-			} else {
-				nativeWindow.close()
-			}
-
-			controller.__didClose()
-		},
-		__didClose() {
-			if (controller.isClosed) {
-				return
-			}
-
-			controller.isClosed = true
-			closeOwnedWindows(nativeWindow)
-			shared.byNative.delete(nativeWindow)
-			shared.parentWindows.delete(nativeWindow)
-			const root = controller.root
-			controller.root = null
-			try {
-				root?.unmount()
-			} catch (error) {
-				console.error('[macos] window root unmount failed', error)
-			} finally {
-				resolveWindowClosed()
-			}
-		},
-	}
-
-	shared.byNative.set(nativeWindow, controller)
-	if (kind !== 'regular') {
-		shared.parentWindows.set(nativeWindow, parentWindow)
-	}
-
+	let nativeWindow
+	let controller
 	try {
+		nativeWindow = (kind === 'popup' ? NSPanel : NSWindow)
+			.alloc()
+			.initWithContentRectStyleMaskBackingDefer(
+				{ origin: { x: 0, y: 0 }, size },
+				styleMask,
+				2,
+				false,
+			)
+
+		if (!nativeWindow) {
+			throw new Error('AppKit failed to initialize the window')
+		}
+
+		nativeWindow.title = String(options.title ?? 'Octane window')
+		nativeWindow.releasedWhenClosed = false
+		nativeWindow.delegate = appDelegate()
+		nativeWindow.contentView = makeContentView(size)
+
+		let resolveWindowClosed
+		controller = {
+			kind,
+			window: nativeWindow,
+			data: options.data ?? null,
+			root: null,
+			isClosed: false,
+			closed: new Promise((resolve) => {
+				resolveWindowClosed = resolve
+			}),
+			onCloseRequested: null,
+			setTitle(title) {
+				nativeWindow.title = String(title)
+			},
+			setSize(next) {
+				nativeWindow.setContentSize(normalizeWindowSize(next, 'setSize'))
+			},
+			// Explicit close is a command; NSWindow.close() skips windowShouldClose,
+			// which is reserved for user/performClose requests and their veto callback.
+			close() {
+				if (controller.isClosed) {
+					return
+				}
+
+				closeOwnedWindows(nativeWindow)
+				if (kind === 'dialog' && parentWindow) {
+					parentWindow.endSheet(nativeWindow)
+				} else {
+					nativeWindow.close()
+				}
+
+				controller.__didClose()
+			},
+			__didClose() {
+				if (controller.isClosed) {
+					return
+				}
+
+				controller.isClosed = true
+				closeOwnedWindows(nativeWindow)
+				shared.byNative.delete(nativeWindow)
+				shared.parentWindows.delete(nativeWindow)
+				const root = controller.root
+				controller.root = null
+				try {
+					root?.unmount()
+				} catch (error) {
+					console.error('[macos] window root unmount failed', error)
+				} finally {
+					resolveWindowClosed()
+				}
+			},
+		}
+
+		shared.byNative.set(nativeWindow, controller)
+		if (kind !== 'regular') {
+			shared.parentWindows.set(nativeWindow, parentWindow)
+		}
+
 		if (typeof shared.resolver !== 'function') {
 			throw new Error('Install setWindowContentResolver() before calling openWindow()')
 		}
@@ -415,9 +421,14 @@ export function openWindow(options = {}) {
 			nativeWindow.makeKeyAndOrderFront(app)
 		}
 	} catch (error) {
-		controller.__didClose()
 		try {
-			nativeWindow.close()
+			controller?.__didClose()
+		} catch (cleanupError) {
+			console.error('[macos] failed to clean up a window after setup failed', cleanupError)
+		}
+
+		try {
+			nativeWindow?.close()
 		} catch (closeError) {
 			console.error('[macos] failed to close a window after setup failed', closeError)
 		}
