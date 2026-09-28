@@ -318,7 +318,12 @@ export async function packageMacOS(appRoot) {
 			await cp(join(nativeRuntimePackage, file), join(nativeRuntimePath, file))
 		}
 
-		await cp(nativeRuntimeSource, packagedFrameworkPath, { recursive: true })
+		await cp(nativeRuntimeSource, packagedFrameworkPath, {
+			recursive: true,
+			// Keep framework-relative symlinks resolving within the copied bundle.
+			verbatimSymlinks: true,
+		})
+
 		await completeFrameworkSymlinks(packagedFrameworkPath)
 		await symlink(
 			relative(dirname(runtimeFrameworkPath), packagedFrameworkPath),
