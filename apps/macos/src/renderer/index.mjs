@@ -197,8 +197,7 @@ class AccessibleStackView extends NSStackView {
 	}
 }
 
-// AppKit's grid host overlays its children in one cell. The macOS Slider uses
-// that behavior to place its track, fill, and thumb from shared proportions.
+// The macOS Slider uses the grid host as an overlay when no tracks are set.
 class GridLayoutView extends NSView {
 	static ObjCExposedMethods = {
 		accessibilityRole: { params: [], returns: interop.types.id },
@@ -513,13 +512,168 @@ function layoutLength(value, available, fallback) {
 	return Number.isFinite(length) ? length : fallback
 }
 
+function parseGridTracks(spec) {
+	if (typeof spec !== 'string' || !spec.trim()) {return []}
+
+	return spec.split(/[\s,]+/).filter(Boolean).map((token) => {
+		if (token === 'auto') {return { kind: 'auto', value: 0 }}
+
+		const fraction = /^(\d+(?:\.\d+)?|\.\d+)?(?:\*|fr)$/.exec(token)
+		if (fraction) {
+			const weight = Number(fraction[1] || 1)
+			if (weight > 0) {return { kind: 'fraction', value: weight }}
+		}
+
+		const fixed = /^(\d+(?:\.\d+)?|\.\d+)(?:px)?$/.exec(token)
+		if (fixed) {return { kind: 'fixed', value: Number(fixed[1]) }}
+
+		throw new Error('[macos-host] unsupported grid track ' + JSON.stringify(token))
+	})
+}
+
+function gridIndex(value) {
+	const index = Number(value ?? 0)
+	return Number.isFinite(index) ? Math.max(0, Math.floor(index)) : 0
+}
+
+function gridSpan(value) {
+	const span = Number(value ?? 1)
+	return Number.isFinite(span) ? Math.max(1, Math.floor(span)) : 1
+}
+
+function gridAxisTracks(spec, placements, axis) {
+	const indexKey = axis === 'columns' ? 'col' : 'row'
+	const spanKey = axis === 'columns' ? 'colSpan' : 'rowSpan'
+	const explicit = parseGridTracks(spec)
+	const requiredCount = Math.max(1, ...placements.map((placement) =>
+		placement[indexKey] + placement[spanKey],
+	))
+	const tracks = explicit.length
+		? explicit
+		: Array.from({ length: requiredCount }, () => ({ kind: 'auto', value: 0 }))
+	while (tracks.length < requiredCount) {
+		tracks.push({ kind: 'auto', value: 0 })
+	}
+	return tracks
+}
+
+function gridPreferredSize(child, axis, available) {
+	const name = axis === 'columns' ? 'width' : 'height'
+	const styled = child.props.style?.[name]
+	if (styled != null) {return Math.max(0, layoutLength(styled, available, 0))}
+
+	const intrinsic = Number(child.view.intrinsicContentSize?.[name] ?? 0)
+	return Number.isFinite(intrinsic) ? Math.max(0, intrinsic) : 0
+}
+
+function resolveGridTrackSizes(tracks, placements, axis, available) {
+	const sizes = tracks.map((track) => track.kind === 'fixed' ? track.value : 0)
+	for (const placement of placements) {
+		const start = placement[axis === 'columns' ? 'col' : 'row']
+		const span = placement[axis === 'columns' ? 'colSpan' : 'rowSpan']
+		const autoTracks = []
+		let currentSize = 0
+		for (let index = start; index < Math.min(start + span, tracks.length); index++) {
+			currentSize += sizes[index]
+			if (tracks[index].kind === 'auto') {autoTracks.push(index)}
+		}
+		if (!autoTracks.length) {continue}
+
+		const preferred = gridPreferredSize(placement.child, axis, available)
+		const extra = Math.max(0, preferred - currentSize) / autoTracks.length
+		for (const index of autoTracks) {sizes[index] += extra}
+	}
+
+	const fixedAndAuto = sizes.reduce((sum, size, index) =>
+		sum + (tracks[index].kind === 'fraction' ? 0 : size), 0,
+	)
+	const fractionWeight = tracks.reduce((sum, track) =>
+		sum + (track.kind === 'fraction' ? track.value : 0), 0,
+	)
+	const fractionSize = fractionWeight > 0 ? Math.max(0, available - fixedAndAuto) / fractionWeight : 0
+	for (let index = 0; index < tracks.length; index++) {
+		if (tracks[index].kind === 'fraction') {sizes[index] = fractionSize * tracks[index].value}
+	}
+	return sizes
+}
+
+function trackOffset(sizes, index) {
+	let offset = 0
+	for (let current = 0; current < index; current++) {offset += sizes[current]}
+	return offset
+}
+
 function layoutGridChildren(parent) {
 	if (!parent?.view) {return}
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
+	const placements = parent.children
+		.filter((child) => child.view)
+		.map((child) => ({
+			child,
+			row: gridIndex(child.props.row),
+			col: gridIndex(child.props.col),
+			rowSpan: gridSpan(child.props.rowSpan),
+			colSpan: gridSpan(child.props.colSpan),
+		}))
+	const hasTracks = Boolean(
+		String(parent.props.rows ?? '').trim() || String(parent.props.columns ?? '').trim(),
+	)
+	const hasPlacement = placements.some(({ child, row, col, rowSpan, colSpan }) =>
+		(child.props.row != null && row !== 0) ||
+		(child.props.col != null && col !== 0) ||
+		rowSpan !== 1 ||
+		colSpan !== 1,
+	)
 
-	for (const child of parent.children) {
-		if (!child.view) {continue}
+	// Preserve the overlay grid used by Slider. Explicit tracks or non-default
+	// cell placement opt into track layout.
+	if (hasTracks || hasPlacement) {
+		const columns = gridAxisTracks(parent.props.columns, placements, 'columns')
+		const rows = gridAxisTracks(parent.props.rows, placements, 'rows')
+		const columnSizes = resolveGridTrackSizes(columns, placements, 'columns', width)
+		const rowSizes = resolveGridTrackSizes(rows, placements, 'rows', height)
+
+		for (const placement of placements) {
+			const { child, row, col, rowSpan, colSpan } = placement
+			const style = child.props.style ?? {}
+			const cellX = trackOffset(columnSizes, col)
+			const cellTop = trackOffset(rowSizes, row)
+			const cellWidth = columnSizes.slice(col, col + colSpan).reduce((sum, size) => sum + size, 0)
+			const cellHeight = rowSizes.slice(row, row + rowSpan).reduce((sum, size) => sum + size, 0)
+			const horizontal = child.props.horizontalAlignment ?? 'stretch'
+			const vertical = child.props.verticalAlignment ?? 'stretch'
+			const intrinsic = child.view.intrinsicContentSize ?? { width: 0, height: 0 }
+			const childWidth = style.width == null
+				? (horizontal === 'stretch' ? cellWidth : Math.max(0, Number(intrinsic.width ?? 0)))
+				: layoutLength(style.width, cellWidth, 0)
+			const childHeight = style.height == null
+				? (vertical === 'stretch' ? cellHeight : Math.max(0, Number(intrinsic.height ?? 0)))
+				: layoutLength(style.height, cellHeight, 0)
+			let x = cellX
+			if (horizontal === 'center' || horizontal === 'middle') {
+				x += (cellWidth - childWidth) / 2
+			} else if (horizontal === 'right') {
+				x += cellWidth - childWidth
+			}
+			x += layoutLength(style.left, cellWidth, 0) + Number(style.marginLeft ?? 0)
+
+			let top = cellTop
+			if (vertical === 'middle' || vertical === 'center') {
+				top += (cellHeight - childHeight) / 2
+			} else if (vertical === 'bottom') {
+				top += cellHeight - childHeight
+			}
+			top += layoutLength(style.top, cellHeight, 0)
+			child.view.frame = {
+				origin: { x, y: height - top - childHeight },
+				size: { width: childWidth, height: childHeight },
+			}
+		}
+		return
+	}
+
+	for (const { child } of placements) {
 		const style = child.props.style ?? {}
 		const horizontal = child.props.horizontalAlignment ?? 'stretch'
 		const vertical = child.props.verticalAlignment ?? 'stretch'
@@ -1120,9 +1274,7 @@ function applyProps(node, props) {
 				else if (name === 'accessible' || name.startsWith('accessibility')) {
 					applyAccessibility(node, name, value)
 				} else if (['rows', 'columns'].includes(name)) {
-					if (value) {
-						throw new Error('[macos-host] gridlayout overlay does not support ' + name)
-					}
+					layoutGridChildren(node)
 				} else {console.warn('[macos-host] ignored gridlayout prop ' + name)}
 
 				break
@@ -1256,17 +1408,20 @@ function applyProps(node, props) {
 			setSizeConstraint(node, 'height', Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO))
 		}
 	}
+	if (node.type === 'gridlayout') {layoutGridChildren(node)}
+	else if (node.parent?.type === 'gridlayout') {layoutGridChildren(node.parent)}
 }
 
 function detach(container, node) {
-	const siblings = node.parent?.children ?? container.children
+	const previousParent = node.parent
+	const siblings = previousParent?.children ?? container.children
 	const index = siblings.indexOf(node)
 	if (index >= 0) {siblings.splice(index, 1)}
 	if (node.crossAxisConstraint) {node.crossAxisConstraint.active = false}
 	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
 	if (node.view) {
-		const parentView = node.parent?.childHost ?? node.parent?.view
+		const parentView = previousParent?.childHost ?? previousParent?.view
 		if (parentView?.removeArrangedSubview) {
 			parentView.removeArrangedSubview(node.view)
 		}
@@ -1274,7 +1429,8 @@ function detach(container, node) {
 		node.view.removeFromSuperview()
 	}
 
-	syncText(node.parent)
+	if (previousParent?.type === 'gridlayout') {layoutGridChildren(previousParent)}
+	syncText(previousParent)
 	node.parent = null
 }
 
@@ -1282,17 +1438,6 @@ function insert(container, parentId, node, beforeId) {
 	detach(container, node)
 	const parent = parentId === null ? null : container.nodes.get(parentId)
 	if (parentId !== null && !parent) {throw new Error('Unknown AppKit parent ' + parentId)}
-	if (
-		parent?.type === 'gridlayout' &&
-		node.view &&
-		(Number(node.props.row ?? 0) !== 0 ||
-			Number(node.props.col ?? 0) !== 0 ||
-			Number(node.props.rowSpan ?? 1) !== 1 ||
-			Number(node.props.colSpan ?? 1) !== 1)
-	) {
-		throw new Error('[macos-host] gridlayout overlay supports only its default cell')
-	}
-
 	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout' && parent.type !== 'scrollview' && parent.type !== 'gridlayout') {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
@@ -1348,6 +1493,7 @@ function remove(container, parentId, node) {
 		node.view.removeFromSuperview()
 	}
 
+	if (expectedParent?.type === 'gridlayout') {layoutGridChildren(expectedParent)}
 	node.parent = null
 	syncText(expectedParent)
 }

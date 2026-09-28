@@ -448,6 +448,56 @@ export const CHECKS = [
 		},
 	},
 	{
+		fixture: 'grid-layout',
+		targets: ['web', 'macos'],
+		elements: {
+			root: 'parity-grid-root',
+			fixed: 'parity-grid-fixed',
+			weighted: 'parity-grid-weighted',
+			auto: 'parity-grid-auto',
+			fill: 'parity-grid-fill',
+		},
+		equal: [
+			'root.box.w',
+			'root.box.h',
+			'fixed.box.x',
+			'fixed.box.y',
+			'fixed.box.w',
+			'fixed.box.h',
+			'weighted.box.x',
+			'weighted.box.y',
+			'weighted.box.w',
+			'weighted.box.h',
+			'auto.box.x',
+			'auto.box.y',
+			'auto.box.w',
+			'auto.box.h',
+			'fill.box.x',
+			'fill.box.y',
+			'fill.box.w',
+			'fill.box.h',
+		],
+		check: (m) => {
+			const root = m('root')
+			const fixed = m('fixed')
+			const weighted = m('weighted')
+			const auto = m('auto')
+			const fill = m('fill')
+			return [
+				dims(root, 96, 48, 1),
+				dims(fixed, 30, 12, 1),
+				['fixed cell starts at grid origin', near(fixed.box.x, 0, 1) && near(fixed.box.y, 0, 1)],
+				dims(weighted, 44, 12, 1),
+				['weighted column starts after the fixed 30-dip column', near(weighted.box.x, 30, 1)],
+				dims(auto, 30, 10, 1),
+				['auto row follows the fixed 12-dip row', near(auto.box.y, 12, 1)],
+				dims(fill, 22, 26, 1),
+				['fraction row follows the 10-dip auto row', near(fill.box.y, 22, 1)],
+				['fill cell starts at the final column', near(fill.box.x, 74, 1)],
+			]
+		},
+	},
+	{
 		fixture: 'column-layout',
 		elements: {
 			root: 'parity-column-root',
