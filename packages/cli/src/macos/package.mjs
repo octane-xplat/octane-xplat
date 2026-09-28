@@ -83,14 +83,13 @@ async function ensureNodeRuntime() {
 
 	await mkdir(cacheRoot, { recursive: true })
 	const baseUrl = `https://nodejs.org/dist/v${nodeVersion}`
-	const checksums = await (await fetchOk(`${baseUrl}/SHASUMS256.txt`)).text()
-	const checksumLine = checksums.split(/\r?\n/).find((line) => line.endsWith(`  ${nodeArchive}`))
-	const expectedHash = checksumLine?.split(/\s+/)[0]
-	if (!expectedHash) {throw new Error(`Node ${nodeVersion} has no checksum for ${nodeArchive}`)}
-
 	const archive = Buffer.from(await (await fetchOk(`${baseUrl}/${nodeArchive}`)).arrayBuffer())
 	const actualHash = createHash('sha256').update(archive).digest('hex')
-	if (actualHash !== expectedHash) {throw new Error(`Node archive checksum mismatch: ${actualHash}`)}
+	if (actualHash !== bundledNodeRuntime.archiveSha256) {
+		throw new Error(
+			`Node archive checksum mismatch (expected ${bundledNodeRuntime.archiveSha256}, got ${actualHash})`,
+		)
+	}
 
 	const archivePath = join(cacheRoot, nodeArchive)
 	await writeFile(archivePath, archive)

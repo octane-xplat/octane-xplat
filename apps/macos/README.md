@@ -68,9 +68,10 @@ With `OCTANE_MACOS_AUTOMATION=1`, the dev process accepts `snapshot` and
 
 `pnpm --filter @xplat/macos package` delegates to the CLI to build an Apple
 Silicon `.app` and compressed `.dmg`. The packager embeds Node 24.21.0 LTS from
-the official arm64 distribution, verifies the published SHA-256, and includes
-the NativeScript Node-API runtime and bundled Octane component. The app's Mach-O
-launcher lives in `Contents/MacOS`; it starts Node from `Contents/Helpers` with
+the official arm64 distribution and verifies its SHA-256 against the value
+pinned with the runtime version. The app also includes the NativeScript Node-API
+runtime and bundled Octane component. Its Mach-O launcher lives in
+`Contents/MacOS`; it starts Node from `Contents/Helpers` with
 `Resources/app/main.cjs` as its entry script. The NativeScript framework lives
 in `Contents/Frameworks` and is linked from its package-relative loader path.
 The bundle targets macOS 13.5 or later, matching the minimum OS required by the

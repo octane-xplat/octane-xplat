@@ -36,6 +36,8 @@ production Vite config that emits its CommonJS host bundle.
   staples, and validates the disk image.
 - AC5: When an icon is configured, `xplat doctor` validates the `.icns` path
   and the packaged app includes its matching `Info.plist` icon entry.
+- AC6: The packager embeds Node 24.21.0 for Apple Silicon only after verifying
+  its archive against a checksum pinned to that release, and fails if it differs.
 
 ## Documentation
 
@@ -46,3 +48,4 @@ production Vite config that emits its CommonJS host bundle.
 - AC3: [macOS signing and notarization notes](../apps/macos/README.md#packaging-proof).
 - AC5: [App icon packaging](../apps/macos/README.md#packaging-proof) and
   [experimental AppKit target](../docs/toolchain.md#experimental-appkit-target).
+- AC6: [macOS packaging proof](../apps/macos/README.md#packaging-proof).
