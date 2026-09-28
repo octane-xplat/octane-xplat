@@ -84,17 +84,31 @@ Rules of the road:
 ## Silo conventions
 
 Database is git-scoped to this workspace (stored under Silo's app-data dir;
-nothing to commit). Tables:
+nothing to commit) and **shared across every worktree of this repo** — writes
+here are visible to parallel agents immediately. Tables:
 
-| Table         | One row =                                | Status values                                         |
-| ------------- | ---------------------------------------- | ----------------------------------------------------- |
-| `topics`      | an area of interrogation                 | `queued` → `exploring` → `resolved` / `parked`        |
-| `questions`   | a specific unknown                       | `open` → `answered` / `parked`                        |
-| `decisions`   | a commitment (mirrors decisions.md `#`s) | `forced` / `decided` / `provisional` / `rejected`     |
-| `experiments` | a validation to run                      | `queued` → `running` → `passed` / `failed` / `parked` |
+| Table          | One row =                                | Status values                                         |
+| -------------- | ---------------------------------------- | ----------------------------------------------------- |
+| `topics`       | an area of interrogation                 | `queued` → `exploring` → `resolved` / `parked`        |
+| `questions`    | a specific unknown                       | `open` → `answered` / `parked`                        |
+| `decisions`    | a commitment (mirrors decisions.md `#`s) | `forced` / `decided` / `provisional` / `rejected`     |
+| `experiments`  | a validation to run                      | `queued` → `running` → `passed` / `failed` / `parked` |
+| `docs_audit`   | an audited user-facing docs page         | `queued` → `auditing` → `clean` / `fixed` / `verified` |
+| `recipe_audit` | a per-criterion recipe assessment        | per-recipe state; `optimistic_revision` enforced      |
 
 - Natural keys: topic `slug`, decision `num`. Update rows in place; don't
   duplicate.
+- **Silo allocates decision numbers.** For a new decision, insert the
+  `decisions` row first (`num` = `max(num) + 1`; on a primary-key conflict
+  another worktree won the number — retry with the next). Then write the
+  `decisions.md` row using the allocated `num` in the same commit. Never pick
+  a `#` in the doc before the Silo row exists.
+- `pnpm check:decisions` verifies the mirror: doc `#`s missing from Silo and
+  status mismatches are errors; Silo `num`s ahead of the local doc are
+  warnings (in-flight work in other worktrees — do not delete or renumber
+  them to satisfy the check).
+- Saved queries: `silo query open-questions`, `silo query work-queue`,
+  `silo query topic-decisions <slug>`.
 - `questions.evidence`: `desk-source` (upstream code/doc read) or
   `lab-experiment` (needs the running app).
 - `experiments.targets`: `web` | `native` | `both`.
