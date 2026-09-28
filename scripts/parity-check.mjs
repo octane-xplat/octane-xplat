@@ -3,7 +3,7 @@
 // evaluates scripts/parity-checks.mjs: per-target invariants plus
 // cross-target `equal` facets.
 //
-//   pnpm parity            → evaluate every dump present
+//   pnpm parity            → require web, iOS, and Android; evaluate every dump present
 //   (write a dump first:   pnpm -F @xplat/web parity)
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -14,6 +14,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dir = join(root, 'parity-report')
 const NEAR = 0.51
 const OPACITY_NEAR = 0.01
+const REQUIRED_TARGETS = ['web', 'ios', 'android']
 
 const dumps = new Map()
 if (existsSync(dir)) {
@@ -34,9 +35,10 @@ if (unknownTargets.length) {
 	process.exit(1)
 }
 
-const missingTargets = requestedTargets?.filter((target) => !dumps.has(target)) ?? []
+const expectedTargets = requestedTargets ?? REQUIRED_TARGETS
+const missingTargets = expectedTargets.filter((target) => !dumps.has(target))
 if (missingTargets.length) {
-	console.error(`[parity] missing dump(s): ${missingTargets.join(', ')}`)
+	console.error(`[parity] missing required dump(s): ${missingTargets.join(', ')}`)
 	process.exit(1)
 }
 
