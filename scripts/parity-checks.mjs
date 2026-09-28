@@ -112,6 +112,23 @@ const buttonEqual = [
 	'label.textLineAdvances',
 ]
 
+const buttonNaturalEqual = [
+	'btn.box.x',
+	'btn.box.y',
+	'btn.box.w',
+	'btn.box.h',
+	'label.box.x',
+	'label.box.y',
+	'label.box.w',
+	'label.box.h',
+	'label.style.fontSize',
+	'label.style.fontFamily',
+	'label.style.fontPostScriptName',
+	'label.style.fontWeight',
+	'label.style.color',
+	'label.textLineAdvances',
+]
+
 function buttonRows(m, width, height, labelText) {
 	const btn = m('btn')
 	const label = m('label')
@@ -126,6 +143,17 @@ function buttonRows(m, width, height, labelText) {
 			'label centered vertically',
 			near(label.box.y + label.box.h / 2 - btn.box.y, btn.box.h / 2, 1),
 		],
+	]
+}
+
+function buttonNaturalRows(m, labelText) {
+	const btn = m('btn')
+	const label = m('label')
+	return [
+		['button has positive dimensions', btn.box?.w > 0 && btn.box?.h > 0, `${btn.box?.w}×${btn.box?.h}`],
+		['label child renders', label.text === labelText, JSON.stringify(label.text)],
+		['label centered horizontally', near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1)],
+		['label centered vertically', near(label.box.y + label.box.h / 2 - btn.box.y, btn.box.h / 2, 1)],
 	]
 }
 
@@ -156,6 +184,15 @@ function inputRows(m, value) {
 	return rows
 }
 
+function inputNaturalRows(m, value) {
+	const field = m('field')
+	return [
+		['input has positive intrinsic dimensions', field.box?.w > 0 && field.box?.h > 0, `${field.box?.w}×${field.box?.h}`],
+		['placeholder is set', field.placeholder === 'Name', field.placeholder],
+		['input value matches', field.text === value, JSON.stringify(field.text)],
+	]
+}
+
 function textAreaRows(m, target, value) {
 	const field = m('field')
 	const rows = [
@@ -170,6 +207,23 @@ function textAreaRows(m, target, value) {
 			'placeholder aligns to the textarea content origin',
 			near(field.placeholderBox?.x, field.box.x, 1) &&
 				near(field.placeholderBox?.y, field.box.y, 1),
+			JSON.stringify(field.placeholderBox),
+		])
+	}
+	return rows
+}
+
+function textAreaRowsIntrinsic(m, target, value, height) {
+	const field = m('field')
+	const rows = [
+		dims(field, 180, height, 1),
+		['placeholder is set', field.placeholder === 'Notes', field.placeholder],
+		['textarea value matches', field.text === value, JSON.stringify(field.text)],
+	]
+	if (target === 'macos') {
+		rows.push([
+			'placeholder aligns to the textarea content origin',
+			near(field.placeholderBox?.x, field.box.x, 1) && near(field.placeholderBox?.y, field.box.y, 1),
 			JSON.stringify(field.placeholderBox),
 		])
 	}
@@ -464,6 +518,13 @@ export const CHECKS = [
 		check: (m) => buttonRows(m, 160, 36, 'Continue'),
 	},
 	{
+		fixture: 'button-natural',
+		targets: ['web', 'macos'],
+		elements: { btn: 'parity-button-natural', label: 'parity-txt' },
+		equal: buttonNaturalEqual,
+		check: (m) => buttonNaturalRows(m, 'Go'),
+	},
+	{
 		fixture: 'text-input',
 		targets: ['web', 'macos'],
 		elements: { field: 'parity-textinput' },
@@ -476,6 +537,13 @@ export const CHECKS = [
 		elements: { field: 'parity-textinput' },
 		equal: [...inputEqual, 'field.text', 'field.textLineAdvances'],
 		check: (m) => inputRows(m, 'alec@example.com'),
+	},
+	{
+		fixture: 'text-input-natural',
+		targets: ['web', 'macos'],
+		elements: { field: 'parity-textinput' },
+		equal: [...inputEqual, 'field.text', 'field.textLineAdvances'],
+		check: (m) => inputNaturalRows(m, 'alec@example.com'),
 	},
 	{
 		fixture: 'text-area',
@@ -496,6 +564,28 @@ export const CHECKS = [
 			)
 			.concat('field.text', 'field.textLineAdvances'),
 		check: (m, target) => textAreaRows(m, target, 'First line\nSecond line'),
+	},
+	{
+		fixture: 'text-area-rows-2',
+		targets: ['web', 'macos'],
+		elements: { field: 'parity-textarea' },
+		equal: inputEqual
+			.filter(
+				(facet) => !['field.style.fontFamily', 'field.style.fontPostScriptName'].includes(facet),
+			)
+			.concat('field.text', 'field.textLineAdvances'),
+		check: (m, target) => textAreaRowsIntrinsic(m, target, 'First line\nSecond line', 36),
+	},
+	{
+		fixture: 'text-area-rows-default',
+		targets: ['web', 'macos'],
+		elements: { field: 'parity-textarea' },
+		equal: inputEqual
+			.filter(
+				(facet) => !['field.style.fontFamily', 'field.style.fontPostScriptName'].includes(facet),
+			)
+			.concat('field.text', 'field.textLineAdvances'),
+		check: (m, target) => textAreaRowsIntrinsic(m, target, 'First line\nSecond line', 54),
 	},
 	{
 		fixture: 'view-layout',

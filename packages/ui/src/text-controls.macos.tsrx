@@ -7,5 +7,5 @@ export function TextInput(props: TextInputProps) @{
 }
 
 export function TextArea(props: TextAreaProps) @{
-	<textview id={props.id} value={props.value} placeholder={props.placeholder} className={cx('vx-textarea', props.className)} style={props.style} onTextChange={props.onChange} accessibilityLabel={props.accessibilityLabel} />
+	<textview id={props.id} value={props.value} placeholder={props.placeholder} rows={props.autoGrow ? undefined : props.rows ?? 3} className={cx('vx-textarea', props.className)} style={props.style} onTextChange={props.onChange} accessibilityLabel={props.accessibilityLabel} />
 }

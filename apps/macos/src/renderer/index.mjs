@@ -1454,6 +1454,7 @@ function applyProps(node, props) {
 				else if (name === 'style') {applyStyle(node, value)}
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'id') {continue}
+				else if (name === 'rows' && node.type === 'textview') {continue}
 				else if (name.startsWith('accessibility')) {applyAccessibility(node, name, value)}
 				else if (name.startsWith('on') && value == null) {continue}
 				else if (['editable', 'enabled', 'secure', 'keyboardType', 'returnKeyType', 'autoGrow', 'maxRows'].includes(name)) {continue}
@@ -1511,6 +1512,20 @@ function applyProps(node, props) {
 				? node.headingDefaultHeight
 				: node.classLineHeight ?? Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO)
 			setSizeConstraint(node, 'height', height)
+		}
+	}
+	if (node.type === 'textview') {
+		const style = node.props.style ?? {}
+		const rows = Number(node.props.rows)
+		if (style.height == null && Number.isFinite(rows) && rows > 0) {
+			const font = node.view.font
+			const lineHeight = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
+			const rowHeight = Math.round(
+				Number.isFinite(lineHeight)
+					? lineHeight
+					: Number(font?.pointSize ?? 14) * DEFAULT_TEXT_LINE_HEIGHT_RATIO,
+			)
+			setSizeConstraint(node, 'height', Math.max(1, Math.floor(rows)) * rowHeight)
 		}
 	}
 	if (node.type === 'gridlayout') {layoutGridChildren(node)}

@@ -69,12 +69,26 @@ function ButtonFixture(props: { width: number; height: number; label: string }) 
 	</Button>
 }
 
+function ButtonNaturalFixture(props: { label: string }) @{
+	<Button className="parity-button-natural">
+		<Text className="parity-txt">{props.label}</Text>
+	</Button>
+}
+
 function TextInputFixture(props: { value?: string }) @{
 	<TextInput className="parity-textinput" value={props.value} placeholder="Name" style={{ width: 180, height: 32 }} />
 }
 
+function TextInputNaturalFixture(props: { value?: string }) @{
+	<TextInput className="parity-textinput" value={props.value} placeholder="Name" />
+}
+
 function TextAreaFixture(props: { value?: string }) @{
 	<TextArea className="parity-textarea" value={props.value} placeholder="Notes" rows={2} style={{ width: 180, height: 48 }} />
+}
+
+function TextAreaRowsFixture(props: { value: string; rows?: number }) @{
+	<TextArea className="parity-textarea" value={props.value} placeholder="Notes" rows={props.rows} style={{ width: 180 }} />
 }
 
 function ViewLayoutFixture() @{
@@ -222,10 +236,14 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'button-basic', component: 'Button', renderer: ButtonFixture, props: { width: 220, height: 32, label: 'Go' }, wide: true },
 	{ name: 'button-compact', component: 'Button', renderer: ButtonFixture, props: { width: 96, height: 28, label: 'Save' }, wide: true },
 	{ name: 'button-long-label', component: 'Button', renderer: ButtonFixture, props: { width: 160, height: 36, label: 'Continue' }, wide: true },
+	{ name: 'button-natural', component: 'Button', renderer: ButtonNaturalFixture, props: { label: 'Go' }, width: 220 },
 	{ name: 'text-input', component: 'TextInput', renderer: TextInputFixture, props: {} },
 	{ name: 'text-input-filled', component: 'TextInput', renderer: TextInputFixture, props: { value: 'alec@example.com' } },
+	{ name: 'text-input-natural', component: 'TextInput', renderer: TextInputNaturalFixture, props: { value: 'alec@example.com' }, width: 520, wide: true },
 	{ name: 'text-area', component: 'TextArea', renderer: TextAreaFixture, props: {} },
 	{ name: 'text-area-filled', component: 'TextArea', renderer: TextAreaFixture, props: { value: 'First line\nSecond line' } },
+	{ name: 'text-area-rows-2', component: 'TextArea', renderer: TextAreaRowsFixture, props: { value: 'First line\nSecond line', rows: 2 } },
+	{ name: 'text-area-rows-default', component: 'TextArea', renderer: TextAreaRowsFixture, props: { value: 'First line\nSecond line' } },
 	{ name: 'view-layout', component: 'View', renderer: ViewLayoutFixture, props: {} },
 	{ name: 'view-padding-layout', component: 'View', renderer: ViewPaddingLayoutFixture, props: {} },
 	{ name: 'grid-layout', component: 'Grid', renderer: GridLayoutFixture, props: {} },
