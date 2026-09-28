@@ -217,9 +217,15 @@ LiveRegion` unwired in leaves so far).
 30. ⏳ **Set the VirtualList fast-scroll and performance boundary.** — Does the
     current bounded, unmounting window stay blank-free and meet an acceptable
     performance budget under sustained fast scrolling and long sessions on
-    web, iOS, and Android? Profile before deciding whether cell recycling is
-    needed. Off-window rows currently unmount and lose local component state.
-    Evidence: queued lab experiment in Silo.
+    web, iOS, and Android? The first scripted variable-height profile found no
+    stream coverage gaps on any target, but 110/501 iOS and 121/501 Android
+    checkpoints lagged; only 1/5 deep seeks met the 250 ms readiness check on
+    each native target. Android also had three deep-seek snapshots with visible
+    gaps (up to 17 rows). This uses programmed offsets, not real gestures, and
+    does not cover fixed-height lists, long sessions, or memory. Keep the
+    question open before changing overscan or adding recycling. Evidence:
+    partial lab experiment in Silo; see
+    [primitive-notes](primitive-notes.md#virtuallist-fast-scroll-profile-q30-2026-09-28).
 31. ⏳ **How should shared `openWindow()` expose mobile availability and
     readiness?** — In `@nativescript/core` 9.1.2, `Application.openWindow()`
     returns `void`; the app-installed `WindowContentResolver` receives the

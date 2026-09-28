@@ -659,6 +659,38 @@ and Android. This validates measured-height correction and bounded windowing;
 it does not establish FlashList v2 performance or feature parity. Decision #58
 records the chosen engine boundary. Q30 tracks the remaining fast-scroll and
 performance validation.
+
+### VirtualList fast-scroll profile (Q30; 2026-09-28)
+
+The first comparable pass used the shared 5,000-row variable-height fixture
+(`32 + (index % 5) * 8`, 240,000 total units), 501 programmed 16 ms offset
+checkpoints across a 12,000-unit forward/reverse stream, then five deep seeks.
+Web ran in headless Chromium; native results came from the iOS simulator and an
+Android emulator. Deep seeks had a 250 ms deadline to settle at a stable offset
+with the expected visible rows mounted.
+
+| Target | Stream interval p50 / p95 / max (ms) | Lagged checkpoints | Deep seeks ready / 5 | Coverage gaps: stream / deep seek | Mounted rows p50 / max |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Web | 16.8 / 18.2 / 25.3 | 0 / 501 | 5 / 5 | 0 / 0 | 34 / 35 |
+| iOS simulator | 51.4 / 165.2 / 220.2 | 110 / 501 | 1 / 5 | 0 / 0 | 47 / 48 |
+| Android emulator | 35.6 / 72.2 / 182.9 | 121 / 501 | 1 / 5 | 0 / 3 snapshots | 49 / 50 |
+
+Rows mounted and unmounted were 650/650 on web, 711/711 on iOS, and 628/628
+on Android. The Android deep-seek gaps reached 17 missing visible rows and a
+320.76-dip gap. The 25 ms JavaScript timer's p95/max drift was 5.6/7.7 ms on
+web, 197.6/273.4 ms on iOS, and 60.4/331.5 ms on Android. These are scripted
+JavaScript responsiveness and geometry measurements; they do not measure
+display vsync or reproduce wheel, trackpad, or touch-fling input. A seek timeout
+means the offset, stability, and mounted-row checks missed the deadline; it
+does not by itself mean the viewport was blank.
+
+The programmed stream stayed gap-free on all three targets, so this pass does
+not justify changing shared overscan or adding cell recycling. Native
+checkpoints lagged, and Android showed gaps during deep seeks. Keep Q30 open for
+real wheel/trackpad input on web, touch flings on iOS and Android, fixed-height
+data, long sessions, and memory sampling before deciding whether an algorithm
+change is warranted.
+
 Capability references: [FlashList v2 usage](https://shopify.github.io/flash-list/docs/usage/)
 for dynamic sizing, recycling-safe state, viewability, and visible-position
 maintenance; [Lynx `list`](https://lynxjs.org/next/api/elements/built-in/list.html)

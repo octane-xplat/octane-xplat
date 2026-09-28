@@ -2,10 +2,10 @@ import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@n
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { installParityDump } from '@xplat/app/parity/measure'
-import { VirtualListBenchmark } from '@xplat/app/virtual-list-benchmark-host'
+import { VirtualListBenchmark } from '@xplat/app/virtual-list-benchmark-host.mobile'
 import { probeSignal$ } from '@xplat/app/probe-state'
-import { runVirtualListBenchmark } from '@xplat/app/platform/virtual-list-benchmark'
-import { VIRTUAL_LIST_BENCH_MODE } from '@xplat/app/platform/virtual-list-benchmark-mode'
+import { runVirtualListBenchmark } from '@xplat/app/platform/virtual-list-benchmark.mobile'
+import { VIRTUAL_LIST_BENCH_MODE } from '@xplat/app/platform/virtual-list-benchmark-mode.mobile'
 import { sheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick.mobile'
 import {
@@ -40,6 +40,54 @@ const roots = new Set<ReturnType<typeof renderNativeScriptApp>>()
 console.log('[harness] entry evaluated, App=' + typeof App)
 
 let thePage: Page | null = null
+
+function virtualListBenchmarkReport(metrics: Awaited<ReturnType<typeof runVirtualListBenchmark>>) {
+	return {
+		schema: metrics.schema,
+		target: metrics.target,
+		fixture: {
+			rows: metrics.fixture.rowCount,
+			height: metrics.fixture.totalContentHeight,
+		},
+		durationMs: metrics.durationMs,
+		frameMs: {
+			p50: metrics.streamFrameIntervalMs.p50,
+			p95: metrics.streamFrameIntervalMs.p95,
+			max: metrics.streamFrameIntervalMs.max,
+		},
+		frames: {
+			count: metrics.stream.frames,
+			lagged: metrics.stream.laggedFrames,
+		},
+		seeks: {
+			ready: metrics.deepSeekLatencyMs.samples,
+			timeouts: metrics.deepSeekLatencyMs.timeouts,
+			latencyMs: metrics.deepSeekLatencyMs.p50,
+			results: metrics.deepSeekLatencyMs.results.map((result) => [
+				result.requestedOffset,
+				result.actualOffset,
+				result.status === 'ready' ? 1 : 0,
+			]),
+		},
+		mountedRows: [metrics.mountedRows.p50, metrics.mountedRows.max],
+		coverage: {
+			stream: [
+				metrics.visibleCoverage.stream.gapSamples,
+				metrics.visibleCoverage.stream.maxMissingVisibleRows,
+				metrics.visibleCoverage.stream.maxGapUnits,
+				metrics.visibleCoverage.stream.worst?.offset ?? null,
+			],
+			seeks: [
+				metrics.visibleCoverage.deepSeeks.gapSamples,
+				metrics.visibleCoverage.deepSeeks.maxMissingVisibleRows,
+				metrics.visibleCoverage.deepSeeks.maxGapUnits,
+				metrics.visibleCoverage.deepSeeks.worst?.offset ?? null,
+			],
+		},
+		rowChurn: [metrics.rowChurn.mounted, metrics.rowChurn.unmounted],
+		timerDriftMs: [metrics.eventLoopTimerDriftMs.p95, metrics.eventLoopTimerDriftMs.max],
+	}
+}
 
 // Root is a Frame (not a bare Page) so Frame.navigate can push Pages —
 // the seam behind shared `openDetail`/`goBack` (Exp 9). navigate() before
@@ -82,7 +130,9 @@ if (VIRTUAL_LIST_BENCH_MODE) {
 		const list = thePage?.getViewById?.('vlist-bench-list') ?? findInRootLayouts('vlist-bench-list')
 		if (list) {
 			void runVirtualListBenchmark('vlist-bench-list', thePage)
-				.then((metrics) => console.log('[vlist-benchmark] result ' + JSON.stringify(metrics)))
+				.then((metrics) =>
+					console.log('[vlist-benchmark] result ' + JSON.stringify(virtualListBenchmarkReport(metrics))),
+				)
 				.catch((error) => {
 					const message = error instanceof Error ? error.message : String(error)
 					console.log('[vlist-benchmark] error ' + message)
@@ -1393,7 +1443,7 @@ if (Application.android) {
 // iOS side of lifecycle-appearance-model: the theme leaf writes
 // rootView.statusBarStyle ('light' icons under dark scheme) on scheme
 // change + 'displayed'. Self-drive flips dark at ~4s; read it after.
-if (Application.ios) {
+if (!VIRTUAL_LIST_BENCH_MODE && Application.ios) {
 	setTimeout(() => {
 		const style = (Application.getRootView() as any)?.statusBarStyle
 		console.log(
@@ -1407,7 +1457,7 @@ if (Application.ios) {
 // has a camera (physical Android) — a driver cancels via back — and returns
 // null quickly where capture is unsupported (iOS Simulator). Runs after the
 // sweep and before the files.pick browser at +90s.
-import('@octane-xplat/platform').then(({ media }) => {
+	if (!VIRTUAL_LIST_BENCH_MODE) import('@octane-xplat/platform').then(({ media }) => {
 	setTimeout(async () => {
 		// Report the permission gate result so a null return is attributable —
 		// 'denied'/'unsupported' vs an actual camera cancel look identical from

@@ -91,7 +91,7 @@ function dump(hay: string[]): string {
 // catalog kind — the current step's stack drives every page lookup.
 let stepStack = 'demos'
 const stackFor = (id: string) =>
-	id === 'vlist-perf' || DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos'
+	DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos'
 
 // Self-drawn Tabs panes hold no Frame — their content lives inside the
 // root Page's subtree, so fall back to it for text/probe reads.
@@ -780,7 +780,7 @@ const STEPS: Step[] = [
 	{ id: 'dialer', checks: [{ at: 800, run: () => assertHas('demo dialer', 'Enter number') }] },
 	{
 		id: 'vlist',
-		hold: VIRTUAL_LIST_BENCH_MODE ? 1200 : 45000,
+		hold: 45000,
 		checks: [
 			{
 				at: 500,
@@ -801,7 +801,7 @@ const STEPS: Step[] = [
 							'/500)',
 					)
 
-					if (!VIRTUAL_LIST_BENCH_MODE) runVirtualListStateProbe()
+					runVirtualListStateProbe()
 				},
 			},
 		],
@@ -1581,29 +1581,25 @@ if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 				}
 
 				console.log('[assert] Android VirtualList returned to tab shell: OK')
-				const targetId = 'vlist'
-				const targetStack = 'demos'
-				selectTab(targetStack)
+				selectTab('demos')
 				waitFor(
 					() => {
-						const chip = findInRootLayouts('menu-' + targetId)
+						const chip = findInRootLayouts('menu-vlist')
 						return chip != null && chip.isLoaded !== false
 					},
 					() => {
-						stepStack = targetStack
-						const chip = findInRootLayouts('menu-' + targetId)
+						stepStack = 'demos'
+						const chip = findInRootLayouts('menu-vlist')
 						if (!chip || chip.isLoaded === false) {
-							console.log('[assert] Android VirtualList test chip: FAIL')
+							console.log('[assert] Android VirtualList gallery chip: FAIL')
 							return
 						}
 
-						navigate('demo/:id', { id: targetId }, { into: targetStack })
+						navigate('demo/:id', { id: 'vlist' }, { into: 'demos' })
 						waitFor(
-							() =>
-								routeFor(targetStack)?.params?.id === targetId &&
-								find('vlist') != null,
+							() => routeFor('demos')?.params?.id === 'vlist' && find('vlist') != null,
 							() => {
-								const routeOk = routeFor(targetStack)?.params?.id === targetId
+								const routeOk = routeFor('demos')?.params?.id === 'vlist'
 								const list: any = find('vlist')
 								const mounted = list
 									? collect(list).filter((view) =>
@@ -1636,7 +1632,7 @@ if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 			},
 			100,
 		)
-	}, VIRTUAL_LIST_BENCH_MODE ? 15_000 : 60_000)
+	}, 60_000)
 }
 
 function runStep(i: number) {

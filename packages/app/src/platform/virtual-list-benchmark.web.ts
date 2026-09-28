@@ -23,8 +23,8 @@ function readSnapshot(list: HTMLElement | null): VirtualListBenchSnapshot {
 	}
 }
 
-export async function runVirtualListBenchmark(listId: string) {
-	const list = document.getElementById(listId) as HTMLElement | null
+export async function runVirtualListBenchmark(listId: string, root?: ParentNode) {
+	const list = (root?.querySelector?.(`#${listId}`) ?? document.getElementById(listId)) as HTMLElement | null
 	const adapter: VirtualListBenchAdapter = {
 		target: 'web',
 		read: () => readSnapshot(list),

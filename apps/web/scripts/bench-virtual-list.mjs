@@ -1,15 +1,14 @@
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
 
-const PORT = 4321
-const BASE = `http://localhost:${PORT}`
-const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', String(PORT)], {
+const preview = spawn('pnpm', ['exec', 'vite', 'preview'], {
 	cwd: process.cwd(),
 	stdio: ['ignore', 'pipe', 'pipe'],
 	detached: true,
 })
 
 let previewOutput = ''
+let baseUrl
 
 let browser
 try {
@@ -18,8 +17,10 @@ try {
 		const onData = (chunk) => {
 			previewOutput += String(chunk)
 			if (previewOutput.includes('Local:')) {
+				baseUrl = previewOutput.match(/Local:\s+(https?:\/\/\S+)/)?.[1]
 				clearTimeout(timeout)
-				resolve()
+				if (baseUrl) resolve()
+				else reject(new Error(`Could not find Vite preview URL: ${previewOutput}`))
 			}
 		}
 		preview.stdout.on('data', onData)
@@ -57,7 +58,7 @@ try {
 		}
 	})
 
-	await page.goto(BASE, { waitUntil: 'networkidle' })
+	await page.goto(baseUrl, { waitUntil: 'networkidle' })
 	await page.locator('button:text("Test")').click()
 	await page.locator('#menu-vlist-perf').click()
 	await page.locator('#vlist-bench-run').waitFor({ state: 'visible', timeout: 10_000 })

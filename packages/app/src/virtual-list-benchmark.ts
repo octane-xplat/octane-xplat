@@ -171,6 +171,20 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 	const seekLatencySamples: number[] = []
 	const mountedSamples: number[] = []
 	const eventLoopDriftSamples: number[] = []
+	const streamCoverage = {
+		samples: 0,
+		gapSamples: 0,
+		maxMissingVisibleRows: 0,
+		maxGapUnits: 0,
+		worst: null as null | { offset: number; missing: number; gap: number },
+	}
+	const seekCoverage = {
+		samples: 0,
+		gapSamples: 0,
+		maxMissingVisibleRows: 0,
+		maxGapUnits: 0,
+		worst: null as null | { offset: number; missing: number; gap: number },
+	}
 	let coverageSamples = 0
 	let visibleGapSamples = 0
 	let missingVisibleRows = 0
@@ -197,7 +211,10 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 	}
 	heartbeatTimer = setTimeout(heartbeat, 25)
 
-	const recordSnapshot = (snapshot: VirtualListBenchSnapshot) => {
+	const recordSnapshot = (
+		snapshot: VirtualListBenchSnapshot,
+		phaseCoverage: typeof streamCoverage,
+	) => {
 		const nextMounted = new Set(snapshot.mountedIndices)
 		for (const index of nextMounted) if (!previousMounted.has(index)) mountedRowsAdded += 1
 		for (const index of previousMounted) if (!nextMounted.has(index)) mountedRowsRemoved += 1
@@ -205,6 +222,26 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 		mountedSamples.push(snapshot.mountedIndices.length)
 
 		const coverage = snapshotCoverage(snapshot)
+		phaseCoverage.samples += 1
+		phaseCoverage.maxMissingVisibleRows = Math.max(
+			phaseCoverage.maxMissingVisibleRows,
+			coverage.missingVisibleRows,
+		)
+		phaseCoverage.maxGapUnits = Math.max(phaseCoverage.maxGapUnits, coverage.maxGap)
+		if (coverage.missingVisibleRows > 0 || coverage.maxGap > 1) {
+			phaseCoverage.gapSamples += 1
+			if (
+				!phaseCoverage.worst ||
+				coverage.maxGap > phaseCoverage.worst.gap ||
+				coverage.missingVisibleRows > phaseCoverage.worst.missing
+			) {
+				phaseCoverage.worst = {
+					offset: Number(snapshot.offset.toFixed(2)),
+					missing: coverage.missingVisibleRows,
+					gap: Number(coverage.maxGap.toFixed(2)),
+				}
+			}
+		}
 		coverageSamples += 1
 		missingVisibleRows += coverage.missingVisibleRows
 		maxMissingVisibleRows = Math.max(maxMissingVisibleRows, coverage.missingVisibleRows)
@@ -219,7 +256,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 		adapter.writeOffset(targetOffset)
 		await wait()
 		const snapshot = adapter.read()
-		recordSnapshot(snapshot)
+		recordSnapshot(snapshot, streamCoverage)
 		const clampedTarget = Math.max(
 			0,
 			Math.min(targetOffset, VIRTUAL_LIST_BENCH_TOTAL_HEIGHT - snapshot.viewportHeight),
@@ -246,7 +283,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 			await wait()
 			lastSnapshot = adapter.read()
 			polls += 1
-			recordSnapshot(lastSnapshot)
+			recordSnapshot(lastSnapshot, seekCoverage)
 			const clampedTarget = Math.max(
 				0,
 				Math.min(targetOffset, VIRTUAL_LIST_BENCH_TOTAL_HEIGHT - lastSnapshot.viewportHeight),
@@ -334,6 +371,8 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 			maxMissingVisibleRows,
 			missingVisibleRowsAcrossSamples: missingVisibleRows,
 			maxGapUnits: Number(maxVisibleGap.toFixed(2)),
+			stream: streamCoverage,
+			deepSeeks: seekCoverage,
 		},
 		rowChurn: { mounted: mountedRowsAdded, unmounted: mountedRowsRemoved },
 		eventLoopTimerDriftMs: summarize(eventLoopDriftSamples),
