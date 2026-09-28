@@ -14,6 +14,7 @@ to a file in `docs/` (our commitment) or here (context that informed it).
 | [octane.md](octane.md)                           | `octane` runtime + compiler                      | The framework. Defines the universal runtime, the renderer ABI, and which APIs are DOM-only.      |
 | [nativescript-octane.md](nativescript-octane.md) | `@nativescript-community/octane` + `vite-octane` | The renderer port: host driver, element registry, HMR. Also covers the `ns-octane` reference app. |
 | [nativescript-core.md](nativescript-core.md)     | `@nativescript/core`                             | The actual native platform: layouts, CSS engine, events, animation, navigation, globals.          |
+| [nativescript-windows.md](nativescript-windows.md) | `NativeScript/windows` + `@nativescript/windows[-napi]` | The Windows runtime — WinUI 3 host + Node-API addon modes, plus the in-flight core platform PR. |
 
 ## Design precedents (what we learn from — patterns to steal)
 

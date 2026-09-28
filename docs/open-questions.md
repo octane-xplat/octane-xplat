@@ -234,3 +234,37 @@ LiveRegion` unwired in leaves so far).
     for options. Sources: [NativeScript multi-window
     guide](https://docs.nativescript.org/guide/multi-window),
     [AndroidApplication API](https://docs.nativescript.org/api/classes/AndroidApplication).
+32. ⏳ **Does `@nativescript/core`'s windows platform boot our universal
+    driver end-to-end?** — Upstream PR
+    [NativeScript#11272](https://github.com/NativeScript/NativeScript/pull/11272)
+    adds `index.windows.ts` for the full widget surface over
+    `Microsoft.UI.Xaml` plus `@nativescript/vite` windows support; installable
+    today via pkg.pr.new previews. `@nativescript-community/octane`'s driver
+    has no platform branching, so `.native` leaves should run — but Frame/Page
+    desktop semantics, plugin winmd sideloading (`plugin.targets`), and the
+    dev-server path are all unverified. Lab: harness app under the WinUI3
+    template host on a Windows machine/VM (arm64 dlls ship). See
+    [windows-notes](windows-notes.md).
+33. ⏳ **Can `Microsoft.UI.Xaml` activate from a bare Node process via
+    `@nativescript/windows-napi`?** — The napi doc marks `Windows.UI.Xaml`
+    dead headless (`RPC_E_WRONG_THREAD`) and `Windows.UI.Composition` proven
+    (`native.createWindow` + `attachCompositorToWindow` demo); WinUI3-from-Node
+    (WASDK bootstrap + `DispatcherQueueController` + `Application.Start`) is
+    untested, and the package isn't on npm (source build needs Rust+MSVC).
+    Fallback for that path is a fully self-drawn Composition renderer — text
+    and inputs then need Win2D/DirectWrite interop. Lab experiment; decides
+    whether the macOS-style host is viable on Windows.
+34. 🔬 **Which XAML namespace do windows apps write — `Windows.UI.Xaml` or
+    `Microsoft.UI.Xaml`?** — Evidence is split: repo demos/tests and sbg use
+    `Windows.UI.Xaml.*` (legacy UWP surface, or system XAML via islands —
+    `ui_dispatcher.rs` mentions `WindowsXamlManager`), while core's
+    `index.windows.ts` files and the app template use `Microsoft.UI.Xaml.*`,
+    and no alias exists in the metadata resolver. Probably Microsoft.UI.Xaml
+    for real apps; confirm when the preview build runs.
+35. ⏳ **What owns the Windows dev loop until `nativescript-cli#6065`
+    merges?** — The runtime already implements the HTTP-ESM `/ns/m` loader
+    contract, `NSWinRT.HMR`, and `NSWinRT.LiveSync` (`sync`/`reload`/`reset`),
+    and the host P/Invokes `runtime_notify_app_event`. Options: `dotnet
+    publish` + exe launch with an HTTP dev-server entry, or a CLI-side
+    watcher pushing LiveSync calls. Decide after Q32's boot experiment shows
+    which half already works.
