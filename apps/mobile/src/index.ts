@@ -2,8 +2,10 @@ import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@n
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { installParityDump } from '@xplat/app/parity/measure'
-import '@xplat/app/platform/paritysweep'
+import { VirtualListBenchmark } from '@xplat/app/virtual-list-benchmark-host'
 import { probeSignal$ } from '@xplat/app/probe-state'
+import { runVirtualListBenchmark } from '@xplat/app/platform/virtual-list-benchmark'
+import { VIRTUAL_LIST_BENCH_MODE } from '@xplat/app/platform/virtual-list-benchmark-mode'
 import { sheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick.mobile'
 import {
@@ -20,6 +22,7 @@ import { findInRootLayouts } from '@octane-xplat/ui/native'
 import { storage, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
 installParityDump()
+if (!VIRTUAL_LIST_BENCH_MODE) void import('@xplat/app/platform/paritysweep')
 // Per-file css module imports — same shape as apps/web/src/main.tsrx. Each
 // module passes the xplat-native-css transform (px→dip + xplat-web-only
 // strip); an @import'd chain inlines raw text and bypasses it — that's how
@@ -47,7 +50,7 @@ function createWindowContent(): Frame {
 	page.actionBarHidden = true
 	console.log('[harness] createWindowContent')
 	try {
-		roots.add(renderNativeScriptApp(page, App))
+		roots.add(renderNativeScriptApp(page, VIRTUAL_LIST_BENCH_MODE ? VirtualListBenchmark : App))
 		thePage = page
 		console.log('[harness] root mounted')
 	} catch (e) {
@@ -72,6 +75,29 @@ if (Application.started) {
 	Application.resetRootView(entry)
 } else {
 	Application.run(entry)
+}
+
+if (VIRTUAL_LIST_BENCH_MODE) {
+	const startWhenMounted = (tries = 100) => {
+		const list = thePage?.getViewById?.('vlist-bench-list') ?? findInRootLayouts('vlist-bench-list')
+		if (list) {
+			void runVirtualListBenchmark('vlist-bench-list', thePage)
+				.then((metrics) => console.log('[vlist-benchmark] result ' + JSON.stringify(metrics)))
+				.catch((error) => {
+					const message = error instanceof Error ? error.message : String(error)
+					console.log('[vlist-benchmark] error ' + message)
+				})
+			return
+		}
+
+		if (tries <= 0) {
+			console.log('[vlist-benchmark] error benchmark list did not mount')
+			return
+		}
+
+		setTimeout(() => startWhenMounted(tries - 1), 100)
+	}
+	setTimeout(startWhenMounted, 100)
 }
 
 // NS gesture events (tap/pan/swipe/longPress) don't live on the plain event
@@ -152,6 +178,7 @@ function tapTab(label: string) {
 	}
 }
 
+if (!VIRTUAL_LIST_BENCH_MODE) {
 // Controlled-input probe: fire textChange natively at +1.5s (between the
 // self-test's shuffle and setText) to exercise the native→state direction
 // without real keyboard input.
@@ -1405,6 +1432,7 @@ import('@octane-xplat/platform').then(({ media }) => {
 
 function dump0(hay: string[]): string {
 	return ' texts=' + JSON.stringify(hay.slice(0, 12))
+}
 }
 
 // A module-graph reload re-evaluates this entry and mounts fresh roots.

@@ -11,6 +11,7 @@ import { findInRootLayouts } from '@octane-xplat/ui/native'
 import { DEMOS } from '@xplat/demos'
 import { goBack, navigate } from './nav'
 import { closeSheet, sheetHost } from './sheet'
+import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 // The catalog sweep stays gated on Android — its step chain asserts native
 // Page/Frame objects (getStack().currentPage, navigated pages), which the
@@ -90,7 +91,7 @@ function dump(hay: string[]): string {
 // catalog kind — the current step's stack drives every page lookup.
 let stepStack = 'demos'
 const stackFor = (id: string) =>
-	DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos'
+	id === 'vlist-perf' || DEMOS.find((d) => d.id === id)?.kind === 'proof' ? 'test' : 'demos'
 
 // Self-drawn Tabs panes hold no Frame — their content lives inside the
 // root Page's subtree, so fall back to it for text/probe reads.
@@ -201,7 +202,9 @@ function runNavLinkProbe() {
 
 // Exercise the Home page's declarative NavLink through its real native tap
 // observer, then return to the app shell before the nested-stack sweep.
-setTimeout(runNavLinkProbe, 5000)
+if (!VIRTUAL_LIST_BENCH_MODE) {
+	setTimeout(runNavLinkProbe, 5000)
+}
 
 // The +modal route: tap 'About ⤴' → manifest presentation:'modal' →
 // showModal root (currentPage untouched), popRoute dismisses it.
@@ -240,7 +243,9 @@ function runModalRouteProbe() {
 }
 
 // Root-stack modal — not a nested-stack push, so it runs on Android too.
-setTimeout(runModalRouteProbe, 6500)
+if (!VIRTUAL_LIST_BENCH_MODE) {
+	setTimeout(runModalRouteProbe, 6500)
+}
 
 // Chips live on the demos stack's current page; the sheet host sits on the
 // app's RootLayout, a sibling of every page — read it from there.
@@ -775,7 +780,7 @@ const STEPS: Step[] = [
 	{ id: 'dialer', checks: [{ at: 800, run: () => assertHas('demo dialer', 'Enter number') }] },
 	{
 		id: 'vlist',
-		hold: 45000,
+		hold: VIRTUAL_LIST_BENCH_MODE ? 1200 : 45000,
 		checks: [
 			{
 				at: 500,
@@ -796,7 +801,7 @@ const STEPS: Step[] = [
 							'/500)',
 					)
 
-					runVirtualListStateProbe()
+					if (!VIRTUAL_LIST_BENCH_MODE) runVirtualListStateProbe()
 				},
 			},
 		],
@@ -1525,17 +1530,16 @@ function selectTab(stack: string) {
 	fireTap(target)
 }
 
-if (!SKIP) {
+
+if (!SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(() => {
 		selectTab('demos')
 	}, 9600)
-}
 
-// Poll for the frame's default page AND its first chip's views — pane
-// attach + first-navigation + native-attach latency can run seconds
-// past the CORE trace; pushing while appearance is still settling
-// stalls bookkeeping (setCurrent) and leaves chips without observers.
-if (!SKIP) {
+	// Poll for the frame's default page AND its first chip's views — pane
+	// attach + first-navigation + native-attach latency can run seconds
+	// past the CORE trace; pushing while appearance is still settling
+	// stalls bookkeeping (setCurrent) and leaves chips without observers.
 	setTimeout(() => {
 		waitFor(
 			() => {
@@ -1560,7 +1564,7 @@ if (!SKIP) {
 	}, 9600)
 }
 
-if (SKIP) {
+if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(() => {
 		// The Android route probe intentionally finishes on a root-level demo.
 		// Return to the tab shell before opening the Apps pane's swap-pane route.
@@ -1577,25 +1581,29 @@ if (SKIP) {
 				}
 
 				console.log('[assert] Android VirtualList returned to tab shell: OK')
-				selectTab('demos')
+				const targetId = 'vlist'
+				const targetStack = 'demos'
+				selectTab(targetStack)
 				waitFor(
 					() => {
-						const chip = findInRootLayouts('menu-vlist')
+						const chip = findInRootLayouts('menu-' + targetId)
 						return chip != null && chip.isLoaded !== false
 					},
 					() => {
-						stepStack = 'demos'
-						const chip = findInRootLayouts('menu-vlist')
+						stepStack = targetStack
+						const chip = findInRootLayouts('menu-' + targetId)
 						if (!chip || chip.isLoaded === false) {
-							console.log('[assert] Android VirtualList gallery chip: FAIL')
+							console.log('[assert] Android VirtualList test chip: FAIL')
 							return
 						}
 
-						navigate('demo/:id', { id: 'vlist' }, { into: 'demos' })
+						navigate('demo/:id', { id: targetId }, { into: targetStack })
 						waitFor(
-							() => routeFor('demos')?.params?.id === 'vlist' && find('vlist') != null,
+							() =>
+								routeFor(targetStack)?.params?.id === targetId &&
+								find('vlist') != null,
 							() => {
-								const routeOk = routeFor('demos')?.params?.id === 'vlist'
+								const routeOk = routeFor(targetStack)?.params?.id === targetId
 								const list: any = find('vlist')
 								const mounted = list
 									? collect(list).filter((view) =>
@@ -1628,7 +1636,7 @@ if (SKIP) {
 			},
 			100,
 		)
-	}, 60000)
+	}, VIRTUAL_LIST_BENCH_MODE ? 15_000 : 60_000)
 }
 
 function runStep(i: number) {

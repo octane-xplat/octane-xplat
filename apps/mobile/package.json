@@ -7,7 +7,9 @@
 		"ios": "pnpm --filter @xplat/app gen && ns run ios",
 		"android": "pnpm --filter @xplat/app gen && ns run android",
 		"debug:ios": "pnpm --filter @xplat/app gen && ns debug ios",
-		"build:ios": "pnpm --filter @xplat/app gen && ns build ios"
+		"build:ios": "pnpm --filter @xplat/app gen && ns build ios",
+		"bench:vlist:ios": "pnpm --filter @xplat/app gen && node scripts/bench-virtual-list.mjs ios",
+		"bench:vlist:android": "pnpm --filter @xplat/app gen && node scripts/bench-virtual-list.mjs android"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",

@@ -9,10 +9,11 @@ export type Stretch = 'none' | 'fill' | 'aspectFill' | 'aspectFit'
 export const srcProperty = new Property<SVGView, string | ImageAsset | File>({ name: 'src' })
 export const stretchProperty = new Property<SVGView, Stretch>({ name: 'stretch' })
 
-@CSSType('SVGView')
 export class SVGView extends View {
 	declare src: string
 }
+
+CSSType('SVGView')(SVGView)
 
 srcProperty.register(SVGView)
 stretchProperty.register(SVGView)
