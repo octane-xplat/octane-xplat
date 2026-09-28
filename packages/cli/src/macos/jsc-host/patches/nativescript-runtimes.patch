@@ -1,0 +1,46 @@
+diff --git a/NativeScript/ffi/napi/Object.mm b/NativeScript/ffi/napi/Object.mm
+index 5283280..49f39dd 100644
+--- a/NativeScript/ffi/napi/Object.mm
++++ b/NativeScript/ffi/napi/Object.mm
+@@ -508,7 +508,6 @@ napi_value ObjCBridgeState::getObject(napi_env env, id obj, napi_value construct
+     return nullptr;
+   }
+ 
+-  napi_wrap(env, result, obj, nullptr, nullptr, nullptr);
+   napi_value nativePointer = Pointer::create(env, obj);
+   if (nativePointer != nullptr) {
+     napi_set_named_property(env, result, kNativePointerProperty, nativePointer);
+diff --git a/NativeScript/napi/common/js_native_tsfn.h b/NativeScript/napi/common/js_native_tsfn.h
+index 42b9de0..763935b 100644
+--- a/NativeScript/napi/common/js_native_tsfn.h
++++ b/NativeScript/napi/common/js_native_tsfn.h
+@@ -1,6 +1,9 @@
+ #ifndef JS_NATIVE_TSFN_H_
+ #define JS_NATIVE_TSFN_H_
+ 
++#ifdef BARE_COMPAT_NAPI
++#include <node_api.h>
++#else
+ #include "js_native_api.h"
+ #include <cstddef>
+ #include <cwchar>
+@@ -42,3 +45,4 @@ extern "C" NAPI_EXTERN napi_status
+ napi_unref_threadsafe_function(napi_env env, napi_threadsafe_function func);
+ 
+ #endif
++#endif
+diff --git a/NativeScript/runtime/Runtime.h b/NativeScript/runtime/Runtime.h
+index bc785fe..d2167b5 100644
+--- a/NativeScript/runtime/Runtime.h
++++ b/NativeScript/runtime/Runtime.h
+@@ -9,6 +9,10 @@
+ #include "runtime/SpinLock.h"
+ #include "runtime/modules/RuntimeModules.h"
+ 
++#ifdef BARE_COMPAT_NAPI
++typedef struct napi_runtime__ *napi_runtime;
++#endif
++
+ typedef napi_value (*napi_module_init)(napi_env env, napi_value exports);
+ 
+ extern "C" {

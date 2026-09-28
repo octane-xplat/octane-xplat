@@ -6,6 +6,7 @@ import * as p from '@clack/prompts'
 import { hasMacOS, hasNative } from '../targets.mjs'
 import { inspectPatches, patchStateDetail } from '../patches.mjs'
 import { inspectMacOSPackageConfig } from '../macos/config.mjs'
+import { inspectJscHost } from '../macos/jsc-host/runtime.mjs'
 import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from '../macos/runtime-package.mjs'
 
 const frameworkFallbacks = {
@@ -421,16 +422,22 @@ export const doctor = command({
 			)
 
 			row(
-				'macOS Node-API runtime',
+				'macOS NativeScript dev runtime',
 				runtimeHint === undefined,
 				runtimeInspection.packageManifest?.version ?? runtimeVersion ?? 'not declared',
 				runtimeHint,
+			)
+			const jscHost = inspectJscHost()
+			row(
+				'macOS JavaScriptCore package host',
+				jscHost.issues.length === 0,
+				jscHost.issues.length ? jscHost.issues.join('; ') : 'pinned arm64 host and addon verified',
+				'reinstall @octane-xplat/cli or rebuild its pinned macOS host artifacts',
 			)
 
 			if (macHost) {
 				const codesign = check('codesign', ['--verify', '/usr/bin/codesign'])
 				const hdiutil = check('hdiutil', ['help'])
-				const clang = check('clang', ['--version'])
 				row(
 					'codesign',
 					codesign.ok,
@@ -445,12 +452,6 @@ export const doctor = command({
 					'install macOS command-line tools',
 				)
 
-				row(
-					'clang',
-					clang.ok,
-					clang.out || 'unavailable',
-					'install Xcode Command Line Tools with xcode-select --install',
-				)
 			}
 
 			if (notaryProfile) {

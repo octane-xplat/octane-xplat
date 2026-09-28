@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import {
 	access,
@@ -14,20 +13,15 @@ import {
 } from 'node:fs/promises'
 
 import { existsSync, readFileSync } from 'node:fs'
-import { arch, homedir, platform } from 'node:os'
-import { dirname, join, relative } from 'node:path'
+import { arch, platform } from 'node:os'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { inspectMacOSPackageConfig } from './config.mjs'
 import {
 	inspectMacOSRuntimePackage,
-	macOSRuntimeFrameworkRelativePath,
 	macOSRuntimePackageName,
 } from './runtime-package.mjs'
-
-import { bundledNodeRuntime } from './runtime.mjs'
-
-const nodeVersion = bundledNodeRuntime.version
-const nodeArchive = `node-v${nodeVersion}-darwin-arm64.tar.xz`
+import { hostBundle, hostRoot, inspectJscHost, prebuiltRoot, validateHostBundle } from './jsc-host/runtime.mjs'
 
 function run(command, args, options = {}) {
 	execFileSync(command, args, { stdio: 'inherit', ...options })
@@ -46,66 +40,23 @@ function readPackageConfig(appRoot) {
 	return config
 }
 
+function viteExecutable(appRoot) {
+	const viteRoot = join(appRoot, 'node_modules', 'vite')
+	let manifest
+	try {manifest = JSON.parse(readFileSync(join(viteRoot, 'package.json'), 'utf8'))} catch {
+		throw new Error('Cannot resolve Vite from the macOS app. Declare vite in devDependencies and run pnpm install.')
+	}
+	const bin = typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.vite
+	if (typeof bin !== 'string') {throw new Error('Installed Vite package has no CLI binary.')}
+	return join(viteRoot, bin)
+}
+
 async function exists(path) {
 	try {
 		await access(path)
 		return true
 	} catch {
 		return false
-	}
-}
-
-async function fetchOk(url) {
-	const response = await fetch(url)
-	if (!response.ok) {throw new Error(`Download failed (${response.status}): ${url}`)}
-	return response
-}
-
-async function ensureNodeRuntime() {
-	const cacheRoot = join(homedir(), 'Library', 'Caches', 'octane-xplat', 'macos')
-	const nodeDistribution = join(cacheRoot, `node-v${nodeVersion}-darwin-arm64`)
-	const nodeExecutable = join(nodeDistribution, 'bin', 'node')
-
-	if (await exists(nodeExecutable)) {
-		await verifyNodeExecutable(nodeExecutable)
-		return { executable: nodeExecutable, distribution: nodeDistribution }
-	}
-
-	await mkdir(cacheRoot, { recursive: true })
-	const baseUrl = `https://nodejs.org/dist/v${nodeVersion}`
-	const archive = Buffer.from(await (await fetchOk(`${baseUrl}/${nodeArchive}`)).arrayBuffer())
-	const actualHash = createHash('sha256').update(archive).digest('hex')
-	if (actualHash !== bundledNodeRuntime.archiveSha256) {
-		throw new Error(
-			`Node archive checksum mismatch (expected ${bundledNodeRuntime.archiveSha256}, got ${actualHash})`,
-		)
-	}
-
-	const archivePath = join(cacheRoot, nodeArchive)
-	await writeFile(archivePath, archive)
-	run('tar', ['-xJf', archivePath, '-C', cacheRoot])
-	if (!(await exists(nodeExecutable))) {
-		throw new Error(`Node ${nodeVersion} did not extract to ${nodeExecutable}`)
-	}
-
-	await verifyNodeExecutable(nodeExecutable)
-	return { executable: nodeExecutable, distribution: nodeDistribution }
-}
-
-async function verifyNodeExecutable(nodeExecutable) {
-	const actualHash = createHash('sha256').update(await readFile(nodeExecutable)).digest('hex')
-	if (actualHash !== bundledNodeRuntime.executableSha256) {
-		throw new Error(
-			`Node executable checksum mismatch (expected ${bundledNodeRuntime.executableSha256}, got ${actualHash})`,
-		)
-	}
-
-	const runtime = execFileSync(nodeExecutable, ['-p', '`${process.version} ${process.arch}`'], {
-		encoding: 'utf8',
-	}).trim()
-
-	if (runtime !== `v${nodeVersion} arm64`) {
-		throw new Error(`Unexpected Node runtime: ${runtime}`)
 	}
 }
 
@@ -148,14 +99,15 @@ function signApp({
 	signingIdentity,
 	entitlementsPath,
 	nativeRuntimeFramework,
-	nodeExecutable,
-	nodeIdentifier,
 	mainExecutable,
 	appPath,
 }) {
+	if (process.env.XPLAT_MACOS_SKIP_SIGNING === '1' && !signingIdentity) {
+		console.log('[macos-package] signing skipped for local host validation')
+		return false
+	}
 	if (!signingIdentity) {
 		run('codesign', ['--force', '--sign', '-', nativeRuntimeFramework])
-		run('codesign', ['--force', '--sign', '-', nodeExecutable])
 		run('codesign', ['--force', '--sign', '-', mainExecutable])
 		run('codesign', ['--force', '--sign', '-', appPath])
 		run('codesign', ['--verify', '--deep', '--strict', '--verbose=2', appPath])
@@ -176,21 +128,8 @@ function signApp({
 		'--force',
 		'--sign',
 		signingIdentity,
-		'--identifier',
-		nodeIdentifier,
-		'--options',
-		'runtime',
-		'--timestamp',
 		'--entitlements',
 		entitlementsPath,
-		nodeExecutable,
-	])
-
-	run('codesign', ['--verify', '--strict', '--verbose=2', nodeExecutable])
-	run('codesign', [
-		'--force',
-		'--sign',
-		signingIdentity,
 		'--options',
 		'runtime',
 		'--timestamp',
@@ -279,17 +218,25 @@ export async function packageMacOS(appRoot) {
 		throw new Error(`Cannot resolve ${macOSRuntimePackageName} from the app. Declare it in dependencies.`)
 	}
 
-	const nativeRuntimeSource = join(nativeRuntimePackage, macOSRuntimeFrameworkRelativePath)
+	const hostInspection = inspectJscHost()
+	if (hostInspection.issues.length) {
+		throw new Error(`JavaScriptCore host is unavailable: ${hostInspection.issues.join('; ')}`)
+	}
 
 	console.log('[macos-package] building production Octane bundle')
-	run('pnpm', ['exec', 'vite', 'build', '--config', viteConfig], { cwd: appRoot })
+	run(process.execPath, [fileURLToPath(new URL('./jsc-host/check-vite.mjs', import.meta.url)), appRoot, viteConfig], { cwd: appRoot })
+	run(process.execPath, [viteExecutable(appRoot), 'build', '--config', viteConfig], { cwd: appRoot })
 	if (!existsSync(bundleFile)) {throw new Error(`Packaged JS bundle not found: ${bundleFile}`)}
+	validateHostBundle(bundleFile)
 
 	const octaneRoot = await realpath(join(appRoot, 'node_modules', 'octane'))
 	const octaneLicense = await readFile(join(octaneRoot, 'LICENSE'), 'utf8')
 	const nativeLicense = await readFile(join(nativeRuntimePackage, 'LICENSE'), 'utf8')
-	const nodeRuntime = await ensureNodeRuntime()
-	const nodeLicense = await readFile(join(nodeRuntime.distribution, 'LICENSE'), 'utf8')
+	const hostLicenses = await Promise.all(
+		['libjsc', 'libjs', 'libnapi', 'libuv', 'libutf', 'libintrusive'].map(async (name) =>
+			`${name}\n${await readFile(join(prebuiltRoot, 'licenses', `${name}.txt`), 'utf8')}`,
+		),
+	)
 
 	const releaseRoot = join(appRoot, 'artifacts', 'macos-arm64')
 	await mkdir(releaseRoot, { recursive: true })
@@ -299,46 +246,25 @@ export async function packageMacOS(appRoot) {
 	const resourcesPath = join(contentsPath, 'Resources')
 	const packagedAppPath = join(resourcesPath, 'app')
 	const mainExecutable = join(contentsPath, 'MacOS', settings.executableName)
-	const nodeExecutable = join(contentsPath, 'Helpers', 'octane-node')
 	const dmgPath = join(stagingRoot, `${settings.executableName}-macos-arm64.dmg`)
 
 	let preserveStagingRoot = false
 	try {
 		await mkdir(dirname(mainExecutable), { recursive: true })
-		await mkdir(dirname(nodeExecutable), { recursive: true })
 		await mkdir(join(resourcesPath, 'licenses'), { recursive: true })
 		await mkdir(packagedAppPath, { recursive: true })
 		await cp(bundleFile, join(packagedAppPath, 'main.cjs'))
-		await cp(nodeRuntime.executable, nodeExecutable)
-		run('chmod', ['755', nodeExecutable])
-
-		const nativeRuntimePath = join(
-			packagedAppPath,
-			'node_modules',
-			'@nativescript',
-			'macos-node-api',
-		)
-
-		const runtimeFrameworkPath = join(nativeRuntimePath, macOSRuntimeFrameworkRelativePath)
+		await cp(join(hostBundle, 'host'), mainExecutable)
+		await cp(join(hostBundle, 'metadata.nsmd'), join(resourcesPath, 'metadata.macos.arm64.nsmd'))
+		await cp(join(hostRoot, 'shim.js'), join(resourcesPath, 'host-shim.js'))
 		const packagedFrameworkPath = join(contentsPath, 'Frameworks', 'NativeScript.framework')
-		await mkdir(nativeRuntimePath, { recursive: true })
-		await mkdir(dirname(runtimeFrameworkPath), { recursive: true })
 		await mkdir(dirname(packagedFrameworkPath), { recursive: true })
-		for (const file of ['index.cjs', 'index.mjs', 'index.d.ts', 'package.json', 'LICENSE']) {
-			await cp(join(nativeRuntimePackage, file), join(nativeRuntimePath, file))
-		}
-
-		await cp(nativeRuntimeSource, packagedFrameworkPath, {
+		await cp(join(hostBundle, 'NativeScript.framework'), packagedFrameworkPath, {
 			recursive: true,
 			// Keep framework-relative symlinks resolving within the copied bundle.
 			verbatimSymlinks: true,
 		})
 		await completeFrameworkSymlinks(packagedFrameworkPath)
-		await symlink(
-			relative(dirname(runtimeFrameworkPath), packagedFrameworkPath),
-			runtimeFrameworkPath,
-			'dir',
-		)
 
 		if (iconPath) {
 			await cp(iconPath, join(resourcesPath, 'AppIcon.icns'))
@@ -347,9 +273,9 @@ export async function packageMacOS(appRoot) {
 		await writeFile(
 			join(resourcesPath, 'licenses', 'THIRD-PARTY-NOTICES.txt'),
 			[
-				`Node.js ${nodeVersion}\n${nodeLicense}`,
 				`Octane\n${octaneLicense}`,
 				`${macOSRuntimePackageName}\n${nativeLicense}`,
+				...hostLicenses,
 			].join('\n\n'),
 		)
 
@@ -358,30 +284,13 @@ export async function packageMacOS(appRoot) {
 			writeInfoPlist(settings, iconPath ? 'AppIcon.icns' : null),
 		)
 
-		const launcherSource = fileURLToPath(new URL('./launcher.c', import.meta.url))
-		console.log(`[macos-package] compiling app launcher and embedding Node ${nodeVersion} arm64 runtime`)
-		run('clang', [
-			'-arch',
-			'arm64',
-			`-mmacosx-version-min=${settings.minimumSystemVersion}`,
-			'-O2',
-			'-std=c11',
-			'-Wall',
-			'-Wextra',
-			'-Werror',
-			'-o',
-			mainExecutable,
-			launcherSource,
-		])
-
+		console.log('[macos-package] staging JavaScriptCore AppKit host')
 		run('chmod', ['755', mainExecutable])
 
 		const signed = signApp({
 			signingIdentity,
 			entitlementsPath,
 			nativeRuntimeFramework: packagedFrameworkPath,
-			nodeExecutable,
-			nodeIdentifier: `${settings.bundleIdentifier}.node`,
 			mainExecutable,
 			appPath,
 		})

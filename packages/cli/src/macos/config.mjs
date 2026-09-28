@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'node:fs'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
-import { bundledNodeRuntime } from './runtime.mjs'
+import { minimumJscHostSystemVersion } from './jsc-host/runtime.mjs'
 
 const requiredFields = [
 	'productName',
@@ -78,10 +78,10 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 	if (
 		typeof settings.minimumSystemVersion === 'string' &&
 		macOSVersionPattern.test(settings.minimumSystemVersion) &&
-		compareVersions(settings.minimumSystemVersion, bundledNodeRuntime.minimumSystemVersion) < 0
+		compareVersions(settings.minimumSystemVersion, minimumJscHostSystemVersion) < 0
 	) {
 		issues.push(
-			`macOS minimum system version must be at least ${bundledNodeRuntime.minimumSystemVersion} for the bundled Node runtime`,
+			`macOS minimum system version must be at least ${minimumJscHostSystemVersion} for the JavaScriptCore host`,
 		)
 	}
 

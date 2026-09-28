@@ -1,0 +1,17 @@
+{
+  "minimumSystemVersion": "13.5",
+  "sourceRevisions": {
+    "libjsc": "8ebb40f77efc8d89a6d3e06de1c73c8ed382c7f2",
+    "libjs": "7031ca1ec4c937200a03850072df85d3c826efc0",
+    "libnapi": "b4c5a66e9865f220bcc595be465f3bb566fd9e35",
+    "libutf": "c542254ca22a7b0d3183e5fcc0826662e5e904c3",
+    "libintrusive": "01eae7f87e0f9613de35572f8cf53e9282e409f4",
+    "libuv": "5152db2cbfeb5582e9c27c5ea1dba2cd9e10759b",
+    "nativescriptRuntimes": "5b697b393152f973dd392851fd72dacf03a7a0c9"
+  },
+  "sha256": {
+    "macos-arm64/host": "e2e4636657eb018543f81db2542c2054bf89fabb342308aa2652752000c42dd8",
+    "macos-arm64/metadata.nsmd": "445ed3e030a44baa39884052d5573d2ad5e777127f18436a5907291479d49349",
+    "macos-arm64/NativeScript.framework/Versions/A/NativeScript": "c34e55e428c877945c9db33c86ca4bed05afed4a86a006f63d82c5a39f8b83d0"
+  }
+}

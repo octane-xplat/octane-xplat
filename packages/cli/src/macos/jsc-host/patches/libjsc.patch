@@ -1,0 +1,183 @@
+diff --git a/src/js.c b/src/js.c
+index ed8f016..39c4e6b 100644
+--- a/src/js.c
++++ b/src/js.c
+@@ -1321,7 +1321,11 @@ js__on_constructor_call(JSContextRef context, JSObjectRef new_target, size_t arg
+ 
+   JSObjectRef receiver = JSObjectMake(context, NULL, NULL);
+ 
+-  JSObjectSetPrototype(context, receiver, JSObjectGetPrototype(context, new_target));
++  JSStringRef prototype_key = JSStringCreateWithUTF8CString("prototype");
++  JSValueRef prototype = JSObjectGetProperty(context, new_target, prototype_key, exception);
++  JSStringRelease(prototype_key);
++  if (*exception) return NULL;
++  JSObjectSetPrototype(context, receiver, prototype);
+ 
+   JSStringRef ref = JSStringCreateWithUTF8CString("__native_constructor");
+ 
+@@ -1374,13 +1378,15 @@ js_define_class(js_env_t *env, const char *name, size_t len, js_function_cb cons
+ 
+   JSStringRef ref;
+ 
+-  JSObjectRef class = JSObjectMakeConstructor(env->context, NULL, js__on_constructor_call);
++  JSClassDefinition definition = kJSClassDefinitionEmpty;
++  JSClassRef class_ref = JSClassCreate(&definition);
++  JSObjectRef class = JSObjectMakeConstructor(env->context, class_ref, js__on_constructor_call);
++  JSClassRelease(class_ref);
+ 
+-  JSObjectRef prototype = JSObjectMake(env->context, NULL, NULL);
+-
+-  JSObjectSetPrototype(env->context, prototype, JSObjectGetPrototype(env->context, class));
+-
+-  JSObjectSetPrototype(env->context, class, prototype);
++  JSStringRef prototype_key = JSStringCreateWithUTF8CString("prototype");
++  JSObjectRef prototype = (JSObjectRef) JSObjectGetProperty(env->context, class, prototype_key, &exception);
++  JSStringRelease(prototype_key);
++  if (exception) return js__propagate_exception(env);
+ 
+   ref = JSStringCreateWithUTF8CString("constructor");
+ 
+@@ -1500,19 +1506,53 @@ js_define_properties(js_env_t *env, js_value_t *object, js_property_descriptor_t
+     JSValueRef value;
+ 
+     if (property->getter || property->setter) {
++      js_value_t *descriptor;
++      js_value_t *flag;
++      js_value_t *global;
++      js_value_t *object_constructor;
++      js_value_t *define_property;
++      js_value_t *args[3];
++
++      err = js_create_object(env, &descriptor);
++      if (err < 0) return err;
++
+       if (property->getter) {
+         js_value_t *fn;
+         err = js_create_function(env, "fn", -1, property->getter, property->data, &fn);
+-        assert(err == 0);
++        if (err < 0) return err;
++        err = js_set_named_property(env, descriptor, "get", fn);
++        if (err < 0) return err;
+       }
+ 
+       if (property->setter) {
+         js_value_t *fn;
+         err = js_create_function(env, "fn", -1, property->setter, property->data, &fn);
+-        assert(err == 0);
++        if (err < 0) return err;
++        err = js_set_named_property(env, descriptor, "set", fn);
++        if (err < 0) return err;
+       }
+ 
+-      return js__error(env);
++      err = js_get_boolean(env, (property->attributes & js_enumerable) != 0, &flag);
++      if (err < 0) return err;
++      err = js_set_named_property(env, descriptor, "enumerable", flag);
++      if (err < 0) return err;
++      err = js_get_boolean(env, (property->attributes & js_configurable) != 0, &flag);
++      if (err < 0) return err;
++      err = js_set_named_property(env, descriptor, "configurable", flag);
++      if (err < 0) return err;
++
++      err = js_get_global(env, &global);
++      if (err < 0) return err;
++      err = js_get_named_property(env, global, "Object", &object_constructor);
++      if (err < 0) return err;
++      err = js_get_named_property(env, object_constructor, "defineProperty", &define_property);
++      if (err < 0) return err;
++      args[0] = object;
++      args[1] = property->name;
++      args[2] = descriptor;
++      err = js_call_function(env, object_constructor, define_property, 3, args, NULL);
++      if (err < 0) return err;
++      continue;
+     } else if (property->method) {
+       js_value_t *fn;
+       err = js_create_function(env, "fn", -1, property->method, property->data, &fn);
+@@ -1573,11 +1613,7 @@ js_wrap(js_env_t *env, js_value_t *object, void *data, js_finalize_cb finalize_c
+ 
+   if (JSValueIsObjectOfClass(env->context, wrapped, env->classes.wrap) && js__is_own_property(env, (JSObjectRef) object, ref, wrapped) && JSObjectGetPrivate((JSObjectRef) wrapped) != NULL) {
+     JSStringRelease(ref);
+-
+-    err = js_throw_errorf(env, NULL, "Object is already wrapped");
+-    assert(err == 0);
+-
+-    return js__error(env);
++    return 1;
+   }
+ 
+   js_finalizer_t *finalizer = malloc(sizeof(js_finalizer_t));
+@@ -1640,27 +1676,19 @@ js_unwrap(js_env_t *env, js_value_t *object, void **result) {
+     return js__propagate_exception(env);
+   }
+ 
+-  int err;
+-
+   bool wrapped = JSValueIsObjectOfClass(env->context, external, env->classes.wrap) &&
+                  js__is_own_property(env, (JSObjectRef) object, ref, external);
+ 
+   JSStringRelease(ref);
+ 
+   if (!wrapped) {
+-    err = js_throw_type_error(env, NULL, "Object is not wrapped");
+-    assert(err == 0);
+-
+-    return js__error(env);
++    return 1;
+   }
+ 
+   js_finalizer_t *finalizer = (js_finalizer_t *) JSObjectGetPrivate((JSObjectRef) external);
+ 
+   if (finalizer == NULL) {
+-    err = js_throw_type_error(env, NULL, "Object is not wrapped");
+-    assert(err == 0);
+-
+-    return js__error(env);
++    return 1;
+   }
+ 
+   *result = finalizer->data;
+@@ -1682,27 +1710,19 @@ js_remove_wrap(js_env_t *env, js_value_t *object, void **result) {
+     return js__propagate_exception(env);
+   }
+ 
+-  int err;
+-
+   bool wrapped = JSValueIsObjectOfClass(env->context, external, env->classes.wrap) &&
+                  js__is_own_property(env, (JSObjectRef) object, ref, external);
+ 
+   JSStringRelease(ref);
+ 
+   if (!wrapped) {
+-    err = js_throw_type_error(env, NULL, "Object is not wrapped");
+-    assert(err == 0);
+-
+-    return js__error(env);
++    return 1;
+   }
+ 
+   js_finalizer_t *finalizer = (js_finalizer_t *) JSObjectGetPrivate((JSObjectRef) external);
+ 
+   if (finalizer == NULL) {
+-    err = js_throw_type_error(env, NULL, "Object is not wrapped");
+-    assert(err == 0);
+-
+-    return js__error(env);
++    return 1;
+   }
+ 
+   if (result) *result = finalizer->data;
+@@ -4944,6 +4964,13 @@ int
+ js_get_filtered_property_names(js_env_t *env, js_value_t *object, js_key_collection_mode_t mode, js_property_filter_t property_filter, js_index_filter_t index_filter, js_key_conversion_mode_t key_conversion, js_value_t **result) {
+   if (env->exception) return js__error(env);
+ 
++  if (mode == js_key_own_only &&
++      property_filter == js_property_skip_symbols &&
++      index_filter == js_index_include_indices &&
++      key_conversion == js_key_convert_to_string) {
++    return js_get_property_names(env, object, result);
++  }
++
+   int err;
+ 
+   err = js_throw_error(env, NULL, "Unsupported operation");
