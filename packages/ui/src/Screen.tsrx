@@ -3,6 +3,7 @@ import type { ScreenProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
 import { registerRootLayout, unregisterRootLayout } from "./root-layout.mobile";
+import { attachTapToBlur } from "./tap-to-blur.mobile";
 // The screen shell is a RootLayout so RootLayout.open() can layer overlays
 // over it (decision #22). Self-registers on loaded/unloaded — overlay and
 // sheet services mount on the most recently mounted shell (topRootLayout).
@@ -22,6 +23,7 @@ export function Screen(props: ScreenProps) @{
 			flexDirection="column"
 			className={cx(props.className)}
 			style={props.style}
+			ref={(v: any) => { if (v) attachTapToBlur(v); }}
 		>
 			{props.children}
 		</flexboxlayout>

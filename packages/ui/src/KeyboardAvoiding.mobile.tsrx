@@ -14,9 +14,13 @@ function useKeyboardInset() {
 			null,
 			NSOperationQueue.mainQueue,
 			(note: any) => {
-				const frame = note.userInfo.objectForKey(UIKeyboardFrameEndUserInfoKey);
+				// NSValue-boxed CGRect — `CGRectValue` marshals to a plain
+				// object property on this runtime, not a callable.
+				const raw = note.userInfo.objectForKey(UIKeyboardFrameEndUserInfoKey);
+				const boxed = raw?.CGRectValue;
+				const frame = typeof boxed === 'function' ? raw.CGRectValue() : (boxed ?? raw);
 				const screenHeight = UIScreen.mainScreen.bounds.size.height;
-				setInset(Math.max(0, screenHeight - frame.origin.y));
+				setInset(Math.max(0, screenHeight - (frame?.origin?.y ?? screenHeight)));
 			},
 		);
 

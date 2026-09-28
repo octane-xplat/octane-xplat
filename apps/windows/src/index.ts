@@ -776,19 +776,33 @@ setTimeout(() => {
 	}
 }, 8300)
 
-// Modal probe (Exp 12): declarative open → showModal on a second root.
-// The modal isn't under thePage — read it via presenter.modal.
+// Modal probe (Exp 12): declarative <Sheet> on a second root — back to the
+// Home tab first (modal-btn lives there; pane views unmount on switch).
+// The imperative sheet is still open until ~8.3s — the declarative sheet
+// stacks above it on the same RootLayout, then the sheet probe's close
+// removes the imperative one and the modal assert at 8.6s sees only this.
+setTimeout(() => {
+	tapTab('Home')
+}, 7800)
+
 setTimeout(() => {
 	fireGesture(find('modal-btn'), 1, 'tap', {})
 }, 8000)
 
 setTimeout(() => {
-	const f = Frame.topmost() as any
-	const m = f?.currentPage?.modal
-	console.log('[probe] modal=' + (m ? m.constructor.name : 'none'))
-	assertHas('modal texts', texts(m), 'Modal content')
-	// Q19: theme + token propagation across the modal root boundary.
-	const modalDark = collect(m).some((v) =>
+	// The declarative modal seam is the in-window Sheet — a popup host on the
+	// RootLayout, not a native showModal page.modal. Reach it through
+	// modal-close's ancestors (the vx-sheet-host GridLayout).
+	const closeBtn = find('modal-close')
+	let host: any = closeBtn
+	while (host && !String(host.className ?? '').includes('vx-sheet-host')) {
+		host = host.parent
+	}
+
+	console.log('[probe] modal=' + (host ? host.constructor.name : 'none'))
+	assertHas('modal texts', texts(host), 'Modal content')
+	// Q19: theme + token propagation across the sheet's separate root.
+	const modalDark = collect(host).some((v) =>
 		String(v?.className ?? '')
 			.split(/\s+/)
 			.includes('ns-dark'),
@@ -797,7 +811,7 @@ setTimeout(() => {
 	console.log(
 		'[probe] modal ns-dark: ' +
 			(modalDark
-				? 'present — theme class crosses the modal root'
+				? 'present — theme class crosses the sheet root'
 				: 'absent — theme class does not cross'),
 	)
 
@@ -810,13 +824,12 @@ setTimeout(() => {
 			')',
 	)
 
-	const close = m?.getViewById?.('modal-close')
-	fireGesture(close, 1, 'tap', {})
+	fireGesture(closeBtn, 1, 'tap', {})
 }, 8600)
 
 setTimeout(() => {
-	const f = Frame.topmost() as any
-	console.log('[assert] modal closed: ' + (f?.currentPage?.modal == null ? 'OK' : 'FAIL'))
+	const gone = !find('modal-close')
+	console.log('[assert] modal closed: ' + (gone ? 'OK' : 'FAIL'))
 }, 9200)
 
 // Animation probe (Exp 13): imperative to() writes translateX per frame;

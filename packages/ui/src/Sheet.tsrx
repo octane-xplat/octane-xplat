@@ -8,6 +8,8 @@ import { cx } from './cx';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout.mobile';
 import { attachSheetDetents } from './sheet-detents';
+import { bindBottomInsetToKeyboard } from './keyboard-inset.mobile';
+import { attachTapToBlur } from './tap-to-blur.mobile';
 
 function SheetBody(props: { children?: any }) @{
 	<>{props.children}</>
@@ -22,6 +24,7 @@ export function Sheet(props: SheetProps) @{
 		host: GridLayout;
 		root: any;
 		unbindTheme?: () => void;
+		unbindKeyboard?: () => void;
 		programmatic?: boolean;
 		detach?: () => void;
 	} | null>(null);
@@ -33,6 +36,7 @@ export function Sheet(props: SheetProps) @{
 			shown.current = null;
 			cur.programmatic = true;
 			cur.unbindTheme?.();
+			cur.unbindKeyboard?.();
 			cur.root.unmount?.();
 			const owner = cur.host.parent as any;
 			if (owner?.hasChild?.(cur.host)) {
@@ -71,12 +75,17 @@ export function Sheet(props: SheetProps) @{
 				})
 			: null;
 
-		const opened = { host, root, unbindTheme, programmatic: false, detach: detents?.detach };
+		// Lift the host above the software keyboard (todo 'Add' row inside a
+		// demo sheet is bottom-anchored and was covered on iOS).
+		const unbindKeyboard = bindBottomInsetToKeyboard(host);
+		attachTapToBlur(host);
+		const opened = { host, root, unbindTheme, unbindKeyboard, programmatic: false, detach: detents?.detach };
 		shown.current = opened;
 		root.render(SheetBody as unknown as UniversalComponent, { children: props.children });
 		host.on('closed', () => {
 			if (shown.current === opened) shown.current = null;
 			opened.detach?.();
+			opened.unbindKeyboard?.();
 			opened.unbindTheme?.();
 			opened.root.unmount?.();
 			// 'closed' fires for programmatic closes too — onDismiss only when
@@ -100,6 +109,7 @@ export function Sheet(props: SheetProps) @{
 			.then(() => detents?.enter())
 			.catch((error: unknown) => {
 				if (shown.current === opened) shown.current = null;
+				opened.unbindKeyboard?.();
 				opened.unbindTheme?.();
 				opened.root.unmount?.();
 				console.error('[Sheet] open failed', error);

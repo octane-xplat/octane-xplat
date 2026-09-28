@@ -5,10 +5,13 @@ import type { ModalOpenResult, OpenSheet } from './props'
 import { topRootLayout } from './root-layout.mobile'
 import { applyThemeClasses } from './theme/theme-scheme'
 import { attachSheetDetents } from './sheet-detents'
+import { bindBottomInsetToKeyboard } from './keyboard-inset.mobile'
+import { attachTapToBlur } from './tap-to-blur.mobile' 
 
 interface ActiveSheet {
 	host: GridLayout
 	root: any
+	unbindKeyboard?: () => void
 	finish: (result?: ModalOpenResult) => void
 }
 
@@ -48,6 +51,12 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 			? attachSheetDetents(host, options.detents, () => finish())
 			: null
 
+		// Lift the host above the software keyboard — bottom-anchored sheets
+		// hosting inputs (e.g. the demo 'In sheet' todo add row) are covered
+		// otherwise.
+		const unbindKeyboard = bindBottomInsetToKeyboard(host)
+		attachTapToBlur(host)
+
 		let finished = false
 		// RootLayout notifies 'closed' from inside its own close(), before the
 		// removal lands — hasChild still answers true there. Re-entering
@@ -64,6 +73,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 
 			finished = true
 			active.delete(entry)
+			unbindKeyboard()
 			unbindTheme()
 			detents?.detach()
 			root.unmount?.()
@@ -83,7 +93,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 
 		let closing = false
 
-		const entry: ActiveSheet = { host, root, finish }
+		const entry: ActiveSheet = { host, root, unbindKeyboard, finish }
 		// 'closed' covers tap-to-dismiss — finish through the same path, but
 		// mark the close as already in flight so finish doesn't re-enter
 		// RootLayout.close (see above).

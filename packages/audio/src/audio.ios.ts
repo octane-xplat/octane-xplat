@@ -8,8 +8,19 @@ import type {
 export const createAudioPlayer = (): AudioPlayer => {
   const listeners = new Set<(snapshot: AudioSnapshot) => void>();
   const session = AVAudioSession.sharedInstance();
-  const commandCenter = MPRemoteCommandCenter.sharedCommandCenter();
-  const nowPlaying = MPNowPlayingInfoCenter.defaultCenter();
+  // Lock-screen transport (MPRemoteCommandCenter / MPNowPlayingInfoCenter)
+  // needs MediaPlayer.framework linked AND metadata-generated — plugin
+  // LDFLAGS alone don't reach the metadata scan, so the MP* globals can be
+  // undefined. Playback still works; guard and report systemControls:false.
+  const hasMediaPlayer =
+    typeof MPRemoteCommandCenter !== 'undefined' &&
+    typeof MPNowPlayingInfoCenter !== 'undefined' &&
+    // Metadata constants/enums don't get TS declarations — probe via globalThis.
+    typeof (globalThis as any).MPNowPlayingInfoPropertyPlaybackDuration !== 'undefined' &&
+    typeof (globalThis as any).MPRemoteCommandHandlerStatus !== 'undefined';
+
+  const commandCenter = hasMediaPlayer ? MPRemoteCommandCenter.sharedCommandCenter() : undefined;
+  const nowPlaying = hasMediaPlayer ? MPNowPlayingInfoCenter.defaultCenter() : undefined;
   let queue: Track[] = [];
   let index = -1;
   let player: AVPlayer | undefined;
@@ -42,6 +53,7 @@ export const createAudioPlayer = (): AudioPlayer => {
   };
 
   const updateNowPlaying = () => {
+    if (!nowPlaying) {return;}
     const track = current();
     if (!track) {
       nowPlaying.nowPlayingInfo = null;
@@ -60,7 +72,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 
   const clearTrack = () => {
     if (endObserver) {
-      NSNotificationCenter.defaultCenter().removeObserver(endObserver);
+      NSNotificationCenter.defaultCenter.removeObserver(endObserver);
       endObserver = undefined;
     }
 
@@ -88,7 +100,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 
       const item = AVPlayerItem.playerItemWithURL(url);
       player = AVPlayer.playerWithPlayerItem(item);
-      endObserver = NSNotificationCenter.defaultCenter().addObserverForNameObjectQueueUsingBlock(
+      endObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
         AVPlayerItemDidPlayToEndTimeNotification,
         item,
         NSOperationQueue.mainQueue,
@@ -140,19 +152,21 @@ export const createAudioPlayer = (): AudioPlayer => {
     remoteTargets.push({ command, token });
   };
 
-  addRemoteTarget(commandCenter.playCommand, () => void play());
-  addRemoteTarget(commandCenter.pauseCommand, () => void pause());
-  addRemoteTarget(commandCenter.nextTrackCommand, () => void advance(1));
-  addRemoteTarget(commandCenter.previousTrackCommand, () => void advance(-1));
-  addRemoteTarget(commandCenter.changePlaybackPositionCommand, (event) => {
-    if (player && Number.isFinite(event.positionTime)) {
-      player.seekToTime(CMTimeMakeWithSeconds(Math.max(0, event.positionTime), 600));
-      updateNowPlaying();
-      emit();
-    }
-  });
+  if (commandCenter) {
+    addRemoteTarget(commandCenter.playCommand, () => void play());
+    addRemoteTarget(commandCenter.pauseCommand, () => void pause());
+    addRemoteTarget(commandCenter.nextTrackCommand, () => void advance(1));
+    addRemoteTarget(commandCenter.previousTrackCommand, () => void advance(-1));
+    addRemoteTarget(commandCenter.changePlaybackPositionCommand, (event) => {
+      if (player && Number.isFinite(event.positionTime)) {
+        player.seekToTime(CMTimeMakeWithSeconds(Math.max(0, event.positionTime), 600));
+        updateNowPlaying();
+        emit();
+      }
+    });
+  }
 
-  interruptionObserver = NSNotificationCenter.defaultCenter().addObserverForNameObjectQueueUsingBlock(
+  interruptionObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
     AVAudioSessionInterruptionNotification,
     null,
     NSOperationQueue.mainQueue,
@@ -177,7 +191,7 @@ export const createAudioPlayer = (): AudioPlayer => {
     capabilities: (): AudioCapabilities => ({
       supported: true,
       backgroundPlayback: true,
-      systemControls: true,
+      systemControls: hasMediaPlayer,
       userGestureRequired: false,
       interruptions: true,
     }),
@@ -224,13 +238,13 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (disposed) {return;}
       disposed = true;
       clearTrack();
-      if (interruptionObserver) {NSNotificationCenter.defaultCenter().removeObserver(interruptionObserver);}
+      if (interruptionObserver) {NSNotificationCenter.defaultCenter.removeObserver(interruptionObserver);}
       interruptionObserver = undefined;
       for (const { command, token } of remoteTargets) {command.removeTarget(token);}
       remoteTargets.length = 0;
       if (timer) {clearInterval(timer);}
       timer = undefined;
-      nowPlaying.nowPlayingInfo = null;
+      if (nowPlaying) {nowPlaying.nowPlayingInfo = null;}
       session.setActiveWithOptionsError(false, AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation, null);
       listeners.clear();
       queue = [];

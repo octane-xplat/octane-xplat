@@ -1,0 +1,5 @@
+// MediaPlayer.framework supplies MPNowPlayingInfoCenter / MPRemoteCommandCenter
+// and the MPNowPlayingInfoProperty* keys used by the iOS lock-screen transport
+// integration. Without the explicit link, JS symbol lookups fail at runtime
+// (ReferenceError: MPNowPlayingInfoPropertyPlaybackDuration is not defined).
+OTHER_LDFLAGS = $(inherited) -framework "MediaPlayer"

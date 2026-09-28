@@ -36,7 +36,9 @@ export const createHaptics = (): Haptics => {
       )
     : undefined;
 
-  const bridge = android ? undefined : XplatPulsarBridge;
+  // Instance class on iOS (Swift @objcMembers) — call via an
+  // instance; it stays undefined when the plugin bridge isn't linked.
+  const bridge = android ? undefined : (typeof XplatPulsarBridge !== 'undefined' ? new XplatPulsarBridge() : undefined);
   const supported = android
     ? sdk.hapticSupport().name() !== "NO_SUPPORT"
     : Boolean(bridge?.isSupported?.());
@@ -50,14 +52,14 @@ export const createHaptics = (): Haptics => {
       if (android) {
         realtime.stop();
       } else {
-        bridge.stopRealtime();
+        bridge?.stopRealtime();
       }
     }
 
     if (android) {
       sdk.stopHaptics();
     } else {
-      bridge.stop();
+      bridge?.stop();
     }
 
     realtimeActive = false;
