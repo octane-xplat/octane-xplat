@@ -774,20 +774,19 @@ setTimeout(() => {
 	if (sheet) {
 		;(sheet as any).parent?.close?.(sheet)
 	}
-}, 8300)
+}, 7800)
 
 // Modal probe (Exp 12): declarative <Sheet> on a second root — back to the
 // Home tab first (modal-btn lives there; pane views unmount on switch).
-// The imperative sheet is still open until ~8.3s — the declarative sheet
-// stacks above it on the same RootLayout, then the sheet probe's close
-// removes the imperative one and the modal assert at 8.6s sees only this.
+// The imperative sheet assert/close runs at 7.8s, before the Home switch —
+// once the Test pane unloads, its hosted popups lose their RootLayout owner.
 setTimeout(() => {
 	tapTab('Home')
-}, 7800)
+}, 8000)
 
 setTimeout(() => {
 	fireGesture(find('modal-btn'), 1, 'tap', {})
-}, 8000)
+}, 8300)
 
 setTimeout(() => {
 	// The declarative modal seam is the in-window Sheet — a popup host on the
@@ -825,12 +824,12 @@ setTimeout(() => {
 	)
 
 	fireGesture(closeBtn, 1, 'tap', {})
-}, 8600)
+}, 8800)
 
 setTimeout(() => {
 	const gone = !find('modal-close')
 	console.log('[assert] modal closed: ' + (gone ? 'OK' : 'FAIL'))
-}, 9200)
+}, 9300)
 
 // Animation probe (Exp 13): imperative to() writes translateX per frame;
 // spring() integrates back to 0. No re-render involved.
