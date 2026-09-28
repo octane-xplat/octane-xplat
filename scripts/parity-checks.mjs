@@ -43,6 +43,29 @@ export const CHECKS = [
 		},
 	},
 	{
+		fixture: 'text-bold',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: [
+			'text.box.w',
+			'text.box.h',
+			'text.style.fontSize',
+			'text.style.fontFamily',
+			'text.style.fontPostScriptName',
+			'text.style.fontWeight',
+			'text.style.lineHeight',
+			'text.style.color',
+		],
+		check: (m) => {
+			const text = m('text')
+			return [
+				['text height is 20px', near(text.box?.h, 20, 1), text.box?.h],
+				['text content matches', text.text === 'Shared label', JSON.stringify(text.text)],
+				['text is inside the fixture box', text.box?.x >= 0 && text.box?.y >= 0],
+			]
+		},
+	},
+	{
 		fixture: 'switch-off',
 		targets: ['web', 'ios', 'android'],
 		elements: { track: 'vx-switch', thumb: 'vx-switch-thumb' },

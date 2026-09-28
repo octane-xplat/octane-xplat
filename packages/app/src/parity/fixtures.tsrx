@@ -31,8 +31,8 @@ function CheckboxFixture(props: { checked: boolean }) @{
 	<Checkbox checked={props.checked} />
 }
 
-function TextFixture() @{
-	<Text className="parity-text" style={{ fontSize: 14, fontWeight: '600', lineHeight: 20, color: '#0a0a0a' }}>
+function TextFixture(props: { weight: number }) @{
+	<Text className="parity-text" style={{ fontSize: 14, fontWeight: props.weight, lineHeight: 20, color: '#0a0a0a' }}>
 		Shared label
 	</Text>
 }
@@ -136,7 +136,8 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'slider-50', component: 'Slider', renderer: SliderFixture, props: { id: 'probe-slider-50', value: 50 }, wide: true },
 	{ name: 'checkbox-off', component: 'Checkbox', renderer: CheckboxFixture, props: { checked: false } },
 	{ name: 'checkbox-on', component: 'Checkbox', renderer: CheckboxFixture, props: { checked: true } },
-	{ name: 'text-basic', component: 'Text', renderer: TextFixture, props: {} },
+	{ name: 'text-basic', component: 'Text', renderer: TextFixture, props: { weight: 600 } },
+	{ name: 'text-bold', component: 'Text', renderer: TextFixture, props: { weight: 700 } },
 	{ name: 'button-basic', component: 'Button', renderer: ButtonFixture, props: {}, wide: true },
 	{ name: 'text-input', component: 'TextInput', renderer: TextInputFixture, props: {} },
 	{ name: 'text-area', component: 'TextArea', renderer: TextAreaFixture, props: {} },

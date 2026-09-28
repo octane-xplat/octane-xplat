@@ -19,6 +19,30 @@ const injectedGeistLicense = typeof __XPLAT_GEIST_FONT_LICENSE__ === 'string'
 	? __XPLAT_GEIST_FONT_LICENSE__
 	: null
 let geistLicenseText
+const geistFontDescriptors = new Map()
+const GEIST_WEIGHT_ALIASES = new Map([
+	['thin', 100],
+	['extralight', 200],
+	['light', 300],
+	['normal', 400],
+	['regular', 400],
+	['medium', 500],
+	['semibold', 600],
+	['bold', 700],
+	['extrabold', 800],
+	['black', 900],
+])
+const GEIST_WEIGHT_FACES = [
+	[100, 'Geist-Thin'],
+	[200, 'Geist-ExtraLight'],
+	[300, 'Geist-Light'],
+	[400, 'Geist-Regular'],
+	[500, 'Geist-Medium'],
+	[600, 'Geist-SemiBold'],
+	[700, 'Geist-Bold'],
+	[800, 'Geist-ExtraBold'],
+	[Infinity, 'Geist-Black'],
+]
 
 function sourceFontPath(filename) {
 	const candidates = [
@@ -28,7 +52,7 @@ function sourceFontPath(filename) {
 	return candidates.find(existsSync)
 }
 
-function registerBundledGeistFont() {
+function loadBundledGeistFonts() {
 	const fontBytes = injectedGeistFontBase64
 		? Buffer.from(injectedGeistFontBase64, 'base64')
 		: (() => {
@@ -50,19 +74,34 @@ function registerBundledGeistFont() {
 	if (!existsSync(fontPath)) {writeFileSync(fontPath, fontBytes)}
 	if (!existsSync(licensePath)) {writeFileSync(licensePath, licenseText, 'utf8')}
 
-	if (!NSFont.fontWithNameSize('Geist-Regular', 14)) {
-		const registered = CTFontManagerRegisterFontsForURL(
-			NSURL.fileURLWithPath(fontPath),
-			CTFontManagerScope.Process,
-			null,
-		)
-		if (!registered || !NSFont.fontWithNameSize('Geist-Regular', 14)) {
-			throw new Error('Failed to register the bundled Geist font for this macOS process')
+	const descriptors = CTFontManagerCreateFontDescriptorsFromURL(NSURL.fileURLWithPath(fontPath))
+	for (let index = 0; index < Number(descriptors?.count ?? 0); index++) {
+		const descriptor = descriptors.objectAtIndex(index)
+		const postScriptName = String(descriptor.postscriptName ?? '')
+		const descriptorURL = CTFontDescriptorCopyAttribute(descriptor, kCTFontURLAttribute)
+		if (postScriptName.startsWith('Geist-') && descriptorURL?.path === fontPath) {
+			geistFontDescriptors.set(postScriptName, descriptor)
+		}
+	}
+
+	for (const postScriptName of [
+		'Geist-Thin',
+		'Geist-ExtraLight',
+		'Geist-Light',
+		'Geist-Regular',
+		'Geist-Medium',
+		'Geist-SemiBold',
+		'Geist-Bold',
+		'Geist-ExtraBold',
+		'Geist-Black',
+	]) {
+		if (!geistFontDescriptors.has(postScriptName)) {
+			throw new Error(`Failed to load the bundled ${postScriptName} font face`)
 		}
 	}
 }
 
-registerBundledGeistFont()
+loadBundledGeistFonts()
 
 function invokeAction(actionId) {
 	const action = actionHandlers.get(actionId)
@@ -473,29 +512,14 @@ function nativeColor(value) {
 
 function fontForStyle(size, weight = 400) {
 	const value = String(weight).toLowerCase()
-	const numericWeight = value === 'bold'
-		? 700
-		: value === 'semibold'
-			? 600
-			: value === 'medium'
-				? 500
-				: Number(value)
-	const geistName = numericWeight >= 600
-		? 'Geist-SemiBold'
-		: numericWeight >= 500
-			? 'Geist-Medium'
-			: 'Geist-Regular'
-	const geistFont = NSFont.fontWithNameSize(geistName, Number(size))
-	if (geistFont) {return geistFont}
-
-	const nativeWeight = value === 'bold' || Number(value) >= 700
-		? NSFontWeightBold
-		: value === 'semibold' || Number(value) >= 600
-			? NSFontWeightSemibold
-			: value === 'medium' || Number(value) >= 500
-				? NSFontWeightMedium
-				: NSFontWeightRegular
-	return NSFont.systemFontOfSizeWeight(Number(size), nativeWeight)
+	const parsedWeight = GEIST_WEIGHT_ALIASES.get(value) ?? Number(value)
+	const numericWeight = Number.isFinite(parsedWeight) ? parsedWeight : 400
+	const geistName = GEIST_WEIGHT_FACES.find(([maxWeight]) => numericWeight <= maxWeight)[1]
+	const geistFont = NSFont.fontWithDescriptorSize(geistFontDescriptors.get(geistName), Number(size))
+	if (!geistFont || String(geistFont.fontName) !== geistName) {
+		throw new Error(`Failed to create the bundled ${geistName} font face`)
+	}
+	return geistFont
 }
 
 function setSizeConstraint(node, name, value) {
