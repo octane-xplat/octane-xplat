@@ -25,7 +25,7 @@ export function ParityStage() @{
 	>
 		@for (const f of fixtures; key f.name) {
 			<View id={'cell-' + f.name} className="parity-cell" gap={0} alignItems="start">
-				<Text className="parity-label">{f.name}</Text>
+				<Text className="parity-label" style={{ fontSize: 10, color: '#666666' }}>{f.name}</Text>
 				<View
 					className={f.wide ? 'parity-box parity-box--fill' : 'parity-box'}
 					style={{ width: f.width ?? PARITY_BOX_STYLE.width, height: f.height ?? PARITY_BOX_STYLE.height }}

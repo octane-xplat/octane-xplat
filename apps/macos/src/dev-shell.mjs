@@ -91,7 +91,35 @@ globalThis.__xplatOnInput = (line) => {
 				try { target?.pressAccessibilityLabel(label); handled = true; break } catch {}
 			}
 			if (!handled) throw Error('No AppKit pressable labeled ' + label)
-		} else if (line !== 'snapshot' && line !== 'parity')
+		} else if (line === 'cells') {
+			console.log('[parity-cells] ' + JSON.stringify(root.__macosDebug.parityCellFrames('parity-scroll')))
+			return
+		}
+		else if (line.startsWith('scrolltop ')) {
+			const top = Number(line.slice(10))
+			console.log('[scrolled] ' + JSON.stringify({ scrollTop: root.__macosDebug.scrollToTop('parity-scroll', top) }))
+			return
+		}
+		else if (line.startsWith('ancestors ')) {
+			console.log('[ancestors] ' + JSON.stringify(root.__macosDebug.ancestors(line.slice(10))))
+			return
+		}
+		else if (line.startsWith('frame ')) {
+			console.log('[frame] ' + JSON.stringify(root.__macosDebug.frameInWindow(line.slice(6))))
+			return
+		}
+		else if (line === 'pin-window') {
+			window.setContentSize({ width: 640, height: 420 })
+			console.log('[frame] ' + JSON.stringify({ w: window.frame.size.width, h: window.frame.size.height }))
+			return
+		}
+		else if (line.startsWith('title ')) {
+			// Screenshot drivers poll the window title to learn which
+			// capture is pending — CUA can't see process-local files.
+			window.title = line.slice(6)
+			return
+		}
+		else if (line !== 'snapshot' && line !== 'parity')
 			throw Error('Use tap <accessibility label>, press <button title>, pressid <id>, hover <id> [enter|exit], popups, snapshot, or parity')
 		if (line === 'parity') {
 			if (!globalThis.__xplatMacOSRunParity) throw Error('Parity runner is unavailable')

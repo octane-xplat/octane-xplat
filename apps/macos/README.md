@@ -69,10 +69,30 @@ interaction assertions in the process log, and accepts `tap`, `press`,
 `pnpm --filter @xplat/macos parity` to write AppKit geometry and selected style
 measurements to `parity-report/macos.json`. From the workspace root,
 `pnpm parity:macos` rebuilds the web and macOS measurements and compares their
-shared fixtures. The sweep compares geometry and selected style values; it
-does not capture screenshots or verify pixels.
+shared fixtures. The sweep compares geometry and selected style values.
 For a focused HMR check, run `node apps/macos/scripts/verify-hmr.mjs` from the
 repository root.
+
+Screenshot-led comparison also exists: `node apps/web/scripts/parity-shots.mjs`
+captures the web parity stage in Playwright (640x420 viewport at 2x, ~300pt
+scroll steps) and `node apps/macos/scripts/parity-shots.mjs` drives the AppKit
+host through the same scroll sweep, writing `shot-NNN.png` plus a
+`shot-NNN.cells.json` sidecar per step under `parity-report/shots/`. The macOS
+driver cannot capture its own window; it signals each pending capture through
+the window title (`title shot-NNN` stdin command), so an external capturer —
+Goddard Computer Use via `get_window_state` — polls the title and writes each
+PNG to the expected path. `node scripts/parity-shots-compare.mjs --diffs` then
+pairs per-fixture crops by window-space geometry (not shot index, so tab-bar
+and title chrome differences do not bias the result) and ranks fixtures by
+pixel difference. Additional automation stdin commands: `scrolltop <n>`,
+`cells`, `frame <id>`, `ancestors <id>`, `pin-window` (re-asserts the 640x420
+content size after AppKit refits the window to constraint-driven content).
+
+Per-fixture diffs rank text baseline offsets (~1pt) and anti-aliasing as the
+main residual gaps; labels, spacing, padding, and self-drawn controls match
+closely. The AppKit parity route keeps the host tab bar visible above the
+stage, and AppKit still re-fits the window to content on commits — both are
+harness quirks outside the per-fixture comparison.
 This CLI target does not add macOS to the `create-octane-xplat` starter or the
 supported web/iOS/Android release contract.
 

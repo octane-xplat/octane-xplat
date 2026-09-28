@@ -334,13 +334,18 @@ function updateCrossAxisConstraints(parent) {
 	const horizontal = stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal
 	const dimension = horizontal ? 'height' : 'width'
 	const alignItems = stackAlignItems(parent)
+	// Stretch must respect edgeInsets — an unconstrained child would
+	// otherwise span the stack's full cross size, overflowing the padding.
+	const insets = stack.edgeInsets ?? { top: 0, left: 0, bottom: 0, right: 0 }
+	const inset = horizontal ? insets.top + insets.bottom : insets.left + insets.right
 	for (const child of parent.children) {
 		if (child.crossAxisConstraint) {child.crossAxisConstraint.active = false}
 		child.crossAxisConstraint = null
 		if (alignItems !== 'stretch' || !child.view || child.sizeConstraintSpecs?.[dimension]) {continue}
-		child.crossAxisConstraint = horizontal
-			? child.view.heightAnchor.constraintEqualToAnchor(stack.heightAnchor)
-			: child.view.widthAnchor.constraintEqualToAnchor(stack.widthAnchor)
+		const anchor = horizontal ? 'heightAnchor' : 'widthAnchor'
+		child.crossAxisConstraint = inset
+			? child.view[anchor].constraintEqualToAnchorConstant(stack[anchor], -inset)
+			: child.view[anchor].constraintEqualToAnchor(stack[anchor])
 		child.crossAxisConstraint.active = true
 	}
 }
@@ -1291,6 +1296,8 @@ function applyStyle(node, style) {
 		} else if (name === 'borderColor' && node.view) {
 			node.view.wantsLayer = true
 			node.view.layer.borderColor = nativeColor(value).CGColor
+		} else if (/^margin/.test(name) && (value === 0 || value === '0')) {
+			// Zero margins are a no-op on every platform — no need to warn.
 		} else {
 			console.warn('[macos-style] ignored unsupported style.' + name + ' on <' + node.type + '>')
 		}
@@ -2522,6 +2529,140 @@ export function createMacOSRoot(hostView) {
 				clipView.scrollToPoint({ x: 0, y: Math.max(0, Number(offset) || 0) })
 				node.view.reflectScrolledClipView(clipView)
 				return Number(clipView.bounds.origin.y ?? 0)
+			},
+			/** Web-style scroll offset: `top` is the distance from the
+			 *  document's visual top (scrollTop semantics). Non-flipped
+			 *  AppKit documents count clip origin y up from the bottom, so
+			 *  the conversion inverts through the doc/clip heights. */
+			scrollToTop(id, top) {
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
+				)
+				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
+				const clipView = node.view.contentView
+				const doc = node.view.documentView
+				const docH = Number(doc.frame.size.height)
+				const clipH = Number(clipView.bounds.size.height)
+				const flip = typeof doc.isFlipped === 'function' ? doc.isFlipped() : doc.isFlipped
+				const flipped = flip === true || Number(flip) === 1
+				const t = Math.min(Math.max(Number(top) || 0, 0), Math.max(0, docH - clipH))
+				const y = flipped ? t : docH - clipH - t
+				clipView.scrollToPoint({ x: 0, y })
+				node.view.reflectScrolledClipView(clipView)
+				return flipped
+					? Number(clipView.bounds.origin.y)
+					: docH - clipH - Number(clipView.bounds.origin.y)
+			},
+			/** Node frame in window base coordinates (points, y-up from the
+			 *  window's bottom edge) — screenshot cropping consumes it. */
+			frameInWindow(id) {
+				if (id === ':host') {
+					const winFrame = container.hostView.window?.frame
+					return {
+						x: 0,
+						y: 0,
+						w: Number(container.hostView.frame.size.width),
+						h: Number(container.hostView.frame.size.height),
+						window: winFrame
+							? {
+									w: Number(winFrame.size.width),
+									h: Number(winFrame.size.height),
+								}
+							: null,
+					}
+				}
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.props.id === id && candidate.view,
+				)
+				if (!node) {throw new Error('No AppKit view with id ' + id)}
+				const rect = node.view.convertRectToView(node.view.bounds, null)
+				return {
+					x: Number(rect.origin.x),
+					y: Number(rect.origin.y),
+					w: Number(rect.size.width),
+					h: Number(rect.size.height),
+				}
+			},
+			/** Ancestor chain for a node id with frames — layout forensics. */
+			ancestors(id) {
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.props.id === id,
+				)
+				if (!node) {throw new Error('No AppKit node with id ' + id)}
+				const chain = []
+				for (let cur = node; cur; cur = cur.parent) {
+					chain.push({
+						id: cur.props.id ?? null,
+						type: cur.type,
+						classes: nodeClasses(cur),
+						frame: cur.view
+							? {
+									x: Number(cur.view.frame.origin.x),
+									y: Number(cur.view.frame.origin.y),
+									w: Number(cur.view.frame.size.width),
+									h: Number(cur.view.frame.size.height),
+								}
+							: null,
+					})
+				}
+				return chain
+			},
+			/** Per-cell geometry for the parity stage inside its ScrollView:
+			 *  top-down document offsets plus the window-space rect at the
+			 *  current scroll position, so a screenshot pass can choose
+			 *  offsets and crop without re-querying the host. */
+			parityCellFrames(scrollId) {
+				const scroll = [...container.nodes.values()].find(
+					(candidate) => candidate.type === 'scrollview' && candidate.props.id === scrollId,
+				)
+				if (!scroll) {throw new Error('No AppKit ScrollView with id ' + scrollId)}
+				const stage = [...container.nodes.values()].find(
+					(candidate) => candidate.props.id === 'parity-stage',
+				)
+				if (!stage) {throw new Error('No parity stage mounted')}
+				container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
+				scroll.view.layoutSubtreeIfNeeded?.()
+				const doc = scroll.view.documentView
+				const clip = scroll.view.contentView
+				const docH = Number(doc.frame.size.height)
+				const clipH = Number(clip.bounds.size.height)
+				const flip = typeof doc.isFlipped === 'function' ? doc.isFlipped() : doc.isFlipped
+				const flipped = flip === true || Number(flip) === 1
+				const cells = []
+				for (const cell of stage.children) {
+					if (!cell.view || !nodeClasses(cell).includes('parity-cell')) {continue}
+					const inDoc = cell.view.convertRectToView(cell.view.bounds, doc)
+					const inWindow = cell.view.convertRectToView(cell.view.bounds, null)
+					cells.push({
+						name: String(cell.props.id ?? '').replace(/^cell-/, ''),
+						top: flipped ? Number(inDoc.origin.y) : docH - Number(inDoc.origin.y) - Number(inDoc.size.height),
+						height: Number(inDoc.size.height),
+						width: Number(inDoc.size.width),
+						x: Number(inDoc.origin.x),
+						window: {
+							x: Number(inWindow.origin.x),
+							y: Number(inWindow.origin.y),
+							w: Number(inWindow.size.width),
+							h: Number(inWindow.size.height),
+						},
+					})
+				}
+				const scrollInWindow = scroll.view.convertRectToView(scroll.view.bounds, null)
+				return {
+					docHeight: docH,
+					viewportHeight: clipH,
+					docFlipped: flipped,
+					scrollTop: flipped
+						? Number(clip.bounds.origin.y)
+						: docH - clipH - Number(clip.bounds.origin.y),
+					scrollWindow: {
+						x: Number(scrollInWindow.origin.x),
+						y: Number(scrollInWindow.origin.y),
+						w: Number(scrollInWindow.size.width),
+						h: Number(scrollInWindow.size.height),
+					},
+					cells,
+				}
 			},
 			scrollStats(id) {
 				const node = [...container.nodes.values()].find(
