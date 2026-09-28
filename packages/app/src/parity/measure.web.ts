@@ -43,6 +43,7 @@ function nodeFor(el: any, boxEl: any) {
 		},
 		style,
 		text: ownText(el),
+		placeholder: typeof el.placeholder === 'string' ? el.placeholder || undefined : undefined,
 	}
 }
 

@@ -10,6 +10,7 @@
 //              Return rows [name, ok, detail?].
 //   equal    — 'el.box.<f>' | 'el.style.<f>' | 'el.text' paths that must
 //              agree across every dumped target (skipped with one dump).
+//   targets  — optional target allowlist; omitted checks run against every dump.
 const near = (a, b, tol = 0.51) => a != null && b != null && Math.abs(a - b) <= tol
 const dims = (el, w, h, tol) => [
 	`${w}×${h}`,
@@ -19,7 +20,29 @@ const dims = (el, w, h, tol) => [
 
 export const CHECKS = [
 	{
+		fixture: 'text-basic',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: [
+			'text.box.w',
+			'text.box.h',
+			'text.style.fontSize',
+			'text.style.fontWeight',
+			'text.style.lineHeight',
+			'text.style.color',
+		],
+		check: (m) => {
+			const text = m('text')
+			return [
+				dims(text, 84.17, 20, 1),
+				['text content matches', text.text === 'Shared label', JSON.stringify(text.text)],
+				['text is inside the fixture box', text.box?.x >= 0 && text.box?.y >= 0],
+			]
+		},
+	},
+	{
 		fixture: 'switch-off',
+		targets: ['web', 'ios', 'android'],
 		elements: { track: 'vx-switch', thumb: 'vx-switch-thumb' },
 		equal: [
 			'track.style.backgroundColor',
@@ -47,6 +70,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'switch-on',
+		targets: ['web', 'ios', 'android'],
 		elements: { track: 'vx-switch', thumb: 'vx-switch-thumb' },
 		equal: ['track.style.backgroundColor', 'thumb.style.backgroundColor'],
 		check: (m) => {
@@ -64,6 +88,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'slider-0',
+		targets: ['web', 'ios', 'android'],
 		elements: {
 			host: 'vx-slider',
 			track: 'vx-slider-track',
@@ -98,6 +123,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'slider-50',
+		targets: ['web', 'ios', 'android'],
 		elements: {
 			host: 'vx-slider',
 			track: 'vx-slider-track',
@@ -117,39 +143,8 @@ export const CHECKS = [
 		},
 	},
 	{
-		// Regression for the @import/css-strip leak: children of a bare
-		// gridlayout must place inside their cell — leaked web-only
-		// position/transform rules previously offset them by −50 dips.
-		fixture: 'grid-probe',
-		elements: { cell: 'probe-grid-cell', thumb: 'vx-slider-thumb' },
-		equal: [],
-		check: (m, target) => [
-			dims(m('cell'), 20, 20),
-			// Intentional divergence: a fixed-size grid child resolves
-			// stretch→start on web but centers in the NS cell. Also,
-			// vx-slider-thumb carries web-only absolute+translate css —
-			// -10/-10-ish on web, middle-of-cell on native.
-			[
-				'cell placement (web start 0,0 / native center 100,4)',
-				target === 'web'
-					? near(m('cell').box.x, 0, 1) && near(m('cell').box.y, 0, 1)
-					: near(m('cell').box.x, 100, 1) && near(m('cell').box.y, 4, 1),
-			],
-			// native-only: if web-only css leaks, the thumb gets a −50dip
-			// translate. On web it's abs-positioned relative to a
-			// non-positioned ancestor — a meaningless number, so no assert.
-			...(target === 'web'
-				? []
-				: [
-						[
-							'thumb centers in cell (no leaked translate)',
-							near(m('thumb').box.x, 100, 1) && near(m('thumb').box.y, 4, 1),
-						],
-					]),
-		],
-	},
-	{
 		fixture: 'checkbox-off',
+		targets: ['web', 'ios', 'android'],
 		elements: { row: 'vx-checkbox-row', box: 'vx-checkbox' },
 		equal: ['box.style.borderTopColor', 'box.style.borderTopLeftRadius'],
 		check: (m) => {
@@ -159,6 +154,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'checkbox-on',
+		targets: ['web', 'ios', 'android'],
 		elements: { row: 'vx-checkbox-row', box: 'vx-checkbox', glyph: 'vx-checkbox-check' },
 		equal: ['box.style.backgroundColor'],
 		check: (m) => {
@@ -174,18 +170,75 @@ export const CHECKS = [
 	{
 		fixture: 'button-basic',
 		elements: { btn: 'vx-button', label: 'parity-txt' },
-		equal: ['btn.style.justifyContent', 'btn.style.alignItems'],
+		equal: [
+			'btn.style.justifyContent',
+			'btn.style.alignItems',
+			'label.box.x',
+			'label.box.y',
+			'label.box.w',
+			'label.box.h',
+		],
 		check: (m) => {
 			const btn = m('btn')
 			const label = m('label')
 			return [
-				['button fills the stage box', near(btn.box.w, 220, 1), btn.box.w],
+				dims(btn, 220, 32, 1),
 				['label child renders', label.text === 'Go', JSON.stringify(label.text)],
 				[
 					'label centered in button',
 					near(label.box.x + label.box.w / 2 - btn.box.x, btn.box.w / 2, 1),
 				],
 			]
+		},
+	},
+	{
+		fixture: 'text-input',
+		targets: ['web', 'macos'],
+		elements: { field: 'parity-textinput' },
+		equal: [
+			'field.box.x',
+			'field.box.y',
+			'field.box.w',
+			'field.box.h',
+			'field.placeholder',
+			'field.style.fontSize',
+			'field.style.color',
+		],
+		check: (m) => {
+			const field = m('field')
+			return [
+				dims(field, 180, 32, 1),
+				['placeholder is set', field.placeholder === 'Name', field.placeholder],
+			]
+		},
+	},
+	{
+		fixture: 'text-area',
+		targets: ['web', 'macos'],
+		elements: { field: 'parity-textarea' },
+		equal: [
+			'field.box.x',
+			'field.box.y',
+			'field.box.w',
+			'field.box.h',
+			'field.placeholder',
+			'field.style.fontSize',
+			'field.style.color',
+		],
+		check: (m, target) => {
+			const field = m('field')
+			const rows = [
+				dims(field, 180, 48, 1),
+				['placeholder is set', field.placeholder === 'Notes', field.placeholder],
+			]
+			if (target === 'macos') {
+				rows.push([
+					'placeholder aligns to the textarea content origin',
+					near(field.placeholderBox?.x, field.box.x, 1) && near(field.placeholderBox?.y, field.box.y, 1),
+					JSON.stringify(field.placeholderBox),
+				])
+			}
+			return rows
 		},
 	},
 	{

@@ -1,7 +1,9 @@
-export function measureTree(): { target: 'macos'; cells: Record<string, unknown[]>; supported: false } {
-	return { target: 'macos', cells: {}, supported: false }
+import { STYLE_FACETS } from './style-facets'
+
+export function measureTree() {
+	return (globalThis as any).__xplatMacOSDebug?.measureParity?.(STYLE_FACETS) ?? null
 }
 
 export function installParityDump(): void {
-	;(globalThis as any).__xplatParity = () => ({ target: 'macos', cells: {}, supported: false })
+	;(globalThis as any).__xplatParity = measureTree
 }

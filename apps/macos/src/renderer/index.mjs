@@ -3,9 +3,11 @@ import { createUniversalRoot } from 'octane/universal/native'
 
 const actionHandlers = new Map()
 const actionIdsByView = new WeakMap()
+const textNodesByView = new WeakMap()
 const accessibilityLabels = new Map()
 const accessibilityRoles = new Map()
 let nextActionId = 1
+const DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16
 
 function invokeAction(actionId) {
 	const action = actionHandlers.get(actionId)
@@ -39,6 +41,8 @@ class ButtonActionTarget extends NSObject {
 	}
 
 	textDidChange(notification) {
+		const node = textNodesByView.get(notification.object)
+		syncTextViewPlaceholder(node)
 		invokeAction(actionIdsByView.get(notification.object))
 	}
 }
@@ -87,11 +91,98 @@ function makeStack(props, StackClass = NSStackView) {
 		? NSUserInterfaceLayoutOrientation.Horizontal
 		: NSUserInterfaceLayoutOrientation.Vertical
 
-	stack.alignment = NSLayoutAttribute.CenterX
-	stack.distribution = NSStackViewDistribution.Fill
-	stack.spacing = Number(props.gap ?? props.spacing ?? 14)
+	stack.alignment = stackAlignmentAttribute(stack, props.alignItems ?? 'stretch')
+	stack.distribution = NSStackViewDistribution.GravityAreas
+	stack.spacing = Number(props.gap ?? props.spacing ?? 0)
 	stack.translatesAutoresizingMaskIntoConstraints = false
 	return stack
+}
+
+function stackAlignmentAttribute(view, value) {
+	const horizontal = view.orientation === NSUserInterfaceLayoutOrientation.Horizontal
+	if (value === 'center') {return horizontal ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX}
+	if (value === 'end' || value === 'flex-end') {return horizontal ? NSLayoutAttribute.Bottom : NSLayoutAttribute.Right}
+	if (value === 'stretch' || value === 'start' || value === 'flex-start' || value === 'normal') {
+		return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
+	}
+	if (value === 'baseline' && horizontal) {return NSLayoutAttribute.FirstBaseline}
+	return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
+}
+
+function stackAlignItems(node) {
+	const classes = nodeClasses(node)
+	if (classes.includes('vx-button') || classes.includes('items-center')) {return 'center'}
+	if (classes.includes('items-start')) {return 'start'}
+	if (classes.includes('items-end')) {return 'end'}
+	return node.props.alignItems ?? 'stretch'
+}
+
+function stackJustifyContent(node) {
+	if (nodeClasses(node).includes('vx-button')) {return 'center'}
+	if (nodeClasses(node).includes('justify-between')) {return 'space-between'}
+	return node.props.justifyContent ?? 'start'
+}
+
+function updateCrossAxisConstraints(parent) {
+	const stack = parent.childHost ?? parent.view
+	if (!stack || stack.orientation == null) {return}
+	const horizontal = stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal
+	const dimension = horizontal ? 'height' : 'width'
+	const alignItems = stackAlignItems(parent)
+	for (const child of parent.children) {
+		if (child.crossAxisConstraint) {child.crossAxisConstraint.active = false}
+		child.crossAxisConstraint = null
+		if (alignItems !== 'stretch' || !child.view || child.sizeConstraints?.[dimension]) {continue}
+		child.crossAxisConstraint = horizontal
+			? child.view.heightAnchor.constraintEqualToAnchor(stack.heightAnchor)
+			: child.view.widthAnchor.constraintEqualToAnchor(stack.widthAnchor)
+		child.crossAxisConstraint.active = true
+	}
+}
+
+function stackGravity(parent, child) {
+	const stack = parent.childHost ?? parent.view
+	const horizontal = stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal
+	const leading = horizontal ? NSStackViewGravity.Leading : NSStackViewGravity.Top
+	const trailing = horizontal ? NSStackViewGravity.Trailing : NSStackViewGravity.Bottom
+	const justifyContent = stackJustifyContent(parent)
+	if (justifyContent === 'center') {return NSStackViewGravity.Center}
+	if (justifyContent === 'end' || justifyContent === 'flex-end') {return trailing}
+	if (justifyContent === 'space-between') {
+		const index = parent.children.indexOf(child)
+		if (index === 0) {return leading}
+		if (index === parent.children.length - 1) {return trailing}
+		return NSStackViewGravity.Center
+	}
+	return leading
+}
+
+function moveStackChildren(parent) {
+	const stack = parent.childHost ?? parent.view
+	if (typeof stack?.addViewInGravity !== 'function') {return}
+	for (const child of parent.children) {
+		if (!child.view) {continue}
+		stack.removeArrangedSubview(child.view)
+		child.view.removeFromSuperview()
+		stack.addViewInGravity(child.view, stackGravity(parent, child))
+		setStackChildPriorities(parent, child)
+	}
+	updateCrossAxisConstraints(parent)
+}
+
+function setStackChildPriorities(parent, child) {
+	const stack = parent.childHost ?? parent.view
+	if (stack?.orientation == null || !child.view) {return}
+	const mainAxis = stack.orientation
+	const grow = nodeClasses(child).includes('flex-1')
+	for (const orientation of [
+		NSUserInterfaceLayoutOrientation.Horizontal,
+		NSUserInterfaceLayoutOrientation.Vertical,
+	]) {
+		const priority = grow && orientation === mainAxis ? 1 : 750
+		child.view.setContentHuggingPriorityForOrientation(priority, orientation)
+		child.view.setContentCompressionResistancePriorityForOrientation(750, orientation)
+	}
 }
 
 function makeFlexbox(props) {
@@ -122,7 +213,7 @@ function makeLabel() {
 	label.drawsBackground = false
 	label.editable = false
 	label.selectable = false
-	label.alignment = NSTextAlignment.Center
+	label.alignment = NSTextAlignment.Left
 	label.translatesAutoresizingMaskIntoConstraints = false
 	label.font = NSFont.systemFontOfSize(16)
 	return label
@@ -164,9 +255,11 @@ function makeTextField(props, multiline = false) {
 		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
 		: NSTextField.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 28 } })
 	field.translatesAutoresizingMaskIntoConstraints = false
+	field.font = NSFont.systemFontOfSize(14)
+	field.textColor = nativeColor('#0a0a0a')
 	if (!multiline) {
-		field.bezeled = true
-		field.drawsBackground = true
+		field.bezeled = false
+		field.drawsBackground = false
 		field.editable = true
 		field.selectable = true
 		field.sendsActionOnEndEditing = false
@@ -174,7 +267,9 @@ function makeTextField(props, multiline = false) {
 	} else {
 		field.editable = true
 		field.selectable = true
-		field.drawsBackground = true
+		field.drawsBackground = false
+		field.textContainerInset = { width: 0, height: 0 }
+		field.textContainer.lineFragmentPadding = 0
 	}
 	if (multiline) {field.string = String(props.value ?? '')}
 	else {field.stringValue = String(props.value ?? '')}
@@ -291,6 +386,20 @@ function makeNode(container, id, type, props) {
 	}
 
 	const node = { id, type, view, childHost, props: {}, parent: null, children: [], container, actionId, text: '' }
+	if (type === 'textview') {
+		const placeholder = makeLabel()
+		placeholder.font = fontForStyle(14)
+		placeholder.textColor = nativeColor('#666666')
+		placeholder.stringValue = String(props.placeholder ?? '')
+		placeholder.translatesAutoresizingMaskIntoConstraints = false
+		placeholder.heightAnchor.constraintEqualToConstant(Math.ceil(14 * DEFAULT_TEXT_LINE_HEIGHT_RATIO)).active = true
+		placeholder.hidden = String(props.value ?? '').length > 0
+		view.addSubview(placeholder)
+		placeholder.leadingAnchor.constraintEqualToAnchorConstant(view.leadingAnchor, 0).active = true
+		placeholder.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
+		node.placeholderView = placeholder
+		textNodesByView.set(view, node)
+	}
 	applyProps(node, props)
 	return node
 }
@@ -307,15 +416,40 @@ function nativeColor(value) {
 	)
 }
 
+function fontForStyle(size, weight = 400) {
+	const value = String(weight).toLowerCase()
+	const nativeWeight = value === 'bold' || Number(value) >= 700
+		? NSFontWeightBold
+		: value === 'semibold' || Number(value) >= 600
+			? NSFontWeightSemibold
+			: value === 'medium' || Number(value) >= 500
+				? NSFontWeightMedium
+				: NSFontWeightRegular
+	return NSFont.systemFontOfSizeWeight(Number(size), nativeWeight)
+}
+
+function setSizeConstraint(node, name, value) {
+	const constraints = (node.sizeConstraints ??= {})
+	if (constraints[name]) {constraints[name].active = false}
+	constraints[name] = name === 'width'
+		? node.view.widthAnchor.constraintEqualToConstant(Number(value))
+		: node.view.heightAnchor.constraintEqualToConstant(Number(value))
+	constraints[name].active = true
+}
+
 function applyStyle(node, style) {
 	if (style == null) {return}
 	if (typeof style !== 'object') {throw new Error('AppKit spike expects style to be an object')}
 	for (const [name, value] of Object.entries(style)) {
 		if (value == null) {continue}
-		if (name === 'fontSize' && node.type === 'label') {
-			node.view.font = NSFont.systemFontOfSize(Number(value))
-		} else if (name === 'color' && node.type === 'label') {
+		if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
+			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
+			node.appliedFontWeight = String(weight)
+			node.view.font = fontForStyle(value, weight)
+		} else if (name === 'color' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			node.view.textColor = nativeColor(value)
+		} else if (name === 'lineHeight' && node.type === 'label' && style.height == null) {
+			setSizeConstraint(node, 'height', value)
 		} else if (name === 'padding' && node.type === 'flexboxlayout') {
 			const padding = Number(value)
 			node.view.edgeInsets = { top: padding, left: padding, bottom: padding, right: padding }
@@ -327,16 +461,12 @@ function applyStyle(node, style) {
 			node.view.layer.cornerRadius = Number(value)
 			node.view.layer.masksToBounds = true
 		} else if ((name === 'width' || name === 'height') && node.view) {
-			const constraints = (node.sizeConstraints ??= {})
-			constraints[name]?.setActive(false)
-			constraints[name] = name === 'width'
-				? node.view.widthAnchor.constraintEqualToConstant(Number(value))
-				: node.view.heightAnchor.constraintEqualToConstant(Number(value))
-			constraints[name].active = true
+			setSizeConstraint(node, name, value)
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
-		} else if (name === 'fontWeight' && node.type === 'label') {
-			node.view.font = NSFont.boldSystemFontOfSize(node.view.font.pointSize)
+		} else if (name === 'fontWeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
+			node.appliedFontWeight = String(value)
+			node.view.font = fontForStyle(node.view.font.pointSize, value)
 		} else if (name === 'textAlign' && node.type === 'label') {
 			node.view.alignment = value === 'left' ? NSTextAlignment.Left : value === 'right' ? NSTextAlignment.Right : NSTextAlignment.Center
 		} else if (name === 'borderWidth' && node.view) {
@@ -356,8 +486,15 @@ function applyClassName(node, value) {
 	if (node.type === 'label') {
 		const sizes = { 'text-xs': 12, 'text-sm': 14, 'text-base': 16, 'text-lg': 18, 'text-xl': 20, 'text-2xl': 24 }
 		for (const name of classes) {
-			if (sizes[name]) {node.view.font = NSFont.systemFontOfSize(sizes[name])}
-			if (name === 'font-semibold' || name === 'font-bold') {node.view.font = NSFont.boldSystemFontOfSize(node.view.font.pointSize)}
+			if (sizes[name]) {node.view.font = fontForStyle(sizes[name], node.appliedFontWeight ?? 400)}
+			if (name === 'font-semibold') {
+				node.appliedFontWeight = '600'
+				node.view.font = fontForStyle(node.view.font.pointSize, 600)
+			}
+			if (name === 'font-bold') {
+				node.appliedFontWeight = '700'
+				node.view.font = fontForStyle(node.view.font.pointSize, 700)
+			}
 			if (name === 'text-muted') {node.view.textColor = nativeColor('#71717a')}
 			if (name === 'text-onprimary') {node.view.textColor = nativeColor('#ffffff')}
 		}
@@ -369,10 +506,13 @@ function applyClassName(node, value) {
 			if (gaps[name] !== undefined) {node.view.spacing = gaps[name]}
 			if (name === 'flex-row') {node.view.orientation = NSUserInterfaceLayoutOrientation.Horizontal}
 			if (name === 'flex-col') {node.view.orientation = NSUserInterfaceLayoutOrientation.Vertical}
-			if (name === 'items-center') {
-				node.view.alignment = node.view.orientation === NSUserInterfaceLayoutOrientation.Horizontal
-					? NSLayoutAttribute.CenterY
-					: NSLayoutAttribute.CenterX
+			if (name === 'items-center' || name === 'items-start' || name === 'items-end') {
+				node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
+			}
+			if (name === 'vx-button') {
+				node.view.orientation = NSUserInterfaceLayoutOrientation.Horizontal
+				node.view.alignment = NSLayoutAttribute.CenterY
+				node.view.distribution = NSStackViewDistribution.GravityAreas
 			}
 			if (name === 'justify-between') {node.view.distribution = NSStackViewDistribution.EqualSpacing}
 			if (name === 'flex-1') {
@@ -403,6 +543,16 @@ function applyClassName(node, value) {
 			}
 		}
 	}
+
+	if (node.type === 'textfield' || node.type === 'textview') {
+		if (classes.includes('vx-input') || classes.includes('vx-textarea')) {
+			node.view.font = NSFont.systemFontOfSize(14)
+			node.view.textColor = nativeColor('#0a0a0a')
+			node.view.drawsBackground = false
+			if (node.type === 'textfield') {node.view.bezeled = false}
+			if (node.type === 'textview') {node.view.textContainerInset = { width: 0, height: 0 }}
+		}
+	}
 }
 
 function textContent(node) {
@@ -414,6 +564,10 @@ function textContent(node) {
 function syncText(parent) {
 	if (parent?.type !== 'label') {return}
 	parent.view.stringValue = parent.children.map(textContent).join('')
+}
+
+function syncTextViewPlaceholder(node) {
+	if (node?.placeholderView) {node.placeholderView.hidden = String(node.view.string ?? '').length > 0}
 }
 
 function setAction(node, value) {
@@ -491,10 +645,25 @@ function applyProps(node, props) {
 				else if (name === 'spacing') {node.view.spacing = Number(value ?? 0)}
 				else if (name === 'flexDirection') {
 					node.view.orientation = value === 'row'
-						? NSUserInterfaceLayoutOrientation.Horizontal
-						: NSUserInterfaceLayoutOrientation.Vertical
+					? NSUserInterfaceLayoutOrientation.Horizontal
+					: NSUserInterfaceLayoutOrientation.Vertical
+					node.view.distribution = NSStackViewDistribution.GravityAreas
+					node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
+					moveStackChildren(node)
+					updateCrossAxisConstraints(node)
+				} else if (name === 'alignItems') {
+					node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
+					updateCrossAxisConstraints(node)
+				} else if (name === 'justifyContent') {
+					node.view.distribution = NSStackViewDistribution.GravityAreas
+					moveStackChildren(node)
 				} else if (name === 'style') {applyStyle(node, value)}
-				else if (name === 'className') {applyClassName(node, value)}
+				else if (name === 'className') {
+					applyClassName(node, value)
+					moveStackChildren(node)
+					node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
+					updateCrossAxisConstraints(node)
+				}
 				else if (name === 'id') {continue}
 				else if (name === 'onTap') {setAction(node, value)}
 				else if (name === 'onTouch') {continue}
@@ -577,11 +746,18 @@ function applyProps(node, props) {
 			case 'textfield':
 			case 'textview':
 				if (name === 'value') {
-					if (node.type === 'textview') {node.view.string = String(value ?? '')}
+					if (node.type === 'textview') {
+						node.view.string = String(value ?? '')
+						syncTextViewPlaceholder(node)
+					}
 					else {node.view.stringValue = String(value ?? '')}
 				}
 				else if (name === 'placeholder') {
 					if (node.type === 'textfield') {node.view.placeholderString = String(value ?? '')}
+					else if (node.placeholderView) {
+						node.placeholderView.stringValue = String(value ?? '')
+						syncTextViewPlaceholder(node)
+					}
 				}
 				else if (name === 'onTextChange') {
 					setControlAction(node, value, () => String(node.type === 'textview' ? node.view.string : node.view.stringValue ?? ''))
@@ -635,12 +811,22 @@ function applyProps(node, props) {
 				break
 		}
 	}
+
+	if (node.type === 'label') {
+		const style = node.props.style ?? {}
+		if (style.lineHeight == null && style.height == null) {
+			const size = Number(node.view.font?.pointSize ?? 16)
+			setSizeConstraint(node, 'height', Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO))
+		}
+	}
 }
 
 function detach(container, node) {
 	const siblings = node.parent?.children ?? container.children
 	const index = siblings.indexOf(node)
 	if (index >= 0) {siblings.splice(index, 1)}
+	if (node.crossAxisConstraint) {node.crossAxisConstraint.active = false}
+	node.crossAxisConstraint = null
 	if (node.view) {
 		const parentView = node.parent?.childHost ?? node.parent?.view
 		if (parentView?.removeArrangedSubview) {
@@ -671,7 +857,9 @@ function insert(container, parentId, node, beforeId) {
 		const parentView = parent?.childHost ?? parent?.view ?? container.hostView
 		if (!parentView) {throw new Error('AppKit host has no parent view for node ' + node.id)}
 		if (parent) {
-			parentView.addViewInGravity(node.view, NSStackViewGravity.Center)
+			parentView.addViewInGravity(node.view, stackGravity(parent, node))
+			setStackChildPriorities(parent, node)
+			updateCrossAxisConstraints(parent)
 		} else {
 			parentView.addSubview(node.view)
 			node.view.leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active = true
@@ -690,6 +878,8 @@ function remove(container, parentId, node) {
 	const siblings = expectedParent ? expectedParent.children : container.children
 	const index = siblings.indexOf(node)
 	if (index >= 0) {siblings.splice(index, 1)}
+	if (node.crossAxisConstraint) {node.crossAxisConstraint.active = false}
+	node.crossAxisConstraint = null
 	if (node.view) {
 		const parentView = expectedParent?.childHost ?? expectedParent?.view
 		if (parentView?.removeArrangedSubview) {
@@ -782,6 +972,166 @@ const macOSDriver = {
 	},
 }
 
+const round = (value) => Math.round(value * 100) / 100
+
+function nodeClasses(node) {
+	return String(node.props?.className ?? '').split(/\s+/).filter(Boolean)
+}
+
+function descendants(node, out = []) {
+	for (const child of node.children) {
+		out.push(child)
+		descendants(child, out)
+	}
+
+	return out
+}
+
+function colorValue(color) {
+	if (!color) {return undefined}
+	try {
+		const rgb = color.usingColorSpace?.(NSColorSpace.sRGBColorSpace) ?? color
+		return (
+			'#' +
+			[rgb.redComponent, rgb.greenComponent, rgb.blueComponent]
+				.map((component) => Math.round(Number(component) * 255).toString(16).padStart(2, '0'))
+				.join('')
+		)
+	} catch {
+		return undefined
+	}
+}
+
+function stackDirection(view) {
+	return view.orientation === NSUserInterfaceLayoutOrientation.Horizontal ? 'row' : 'column'
+}
+
+function parityStyle(node, facets) {
+	const view = node.view
+	const font = view?.font
+	const supplied = node.props?.style ?? {}
+	const out = {}
+	for (const facet of facets) {
+		let value = supplied[facet]
+		if (facet === 'fontSize' && font?.pointSize != null) {value = font.pointSize}
+		if (facet === 'fontFamily' && font?.familyName) {value = font.familyName}
+		if (facet === 'fontWeight' && font?.fontDescriptor?.symbolicTraits != null) {
+			value = supplied.fontWeight ?? node.appliedFontWeight ?? (Number(font.fontDescriptor.symbolicTraits) & 2 ? '700' : '400')
+		}
+		if (facet === 'lineHeight' && font) {
+			value = supplied.lineHeight ?? (node.type === 'label'
+				? round(Number(view.frame.size.height))
+				: round(Number(font.ascender) - Number(font.descender) + Number(font.leading)))
+		}
+		if (facet === 'color' && view?.textColor) {value = colorValue(view.textColor) ?? value}
+		if (facet === 'backgroundColor') {
+			value = colorValue(view?.layer?.backgroundColor ? NSColor.colorWithCGColor(view.layer.backgroundColor) : null) ?? value
+			if (value == null && view?.drawsBackground === false) {value = 'rgba(0,0,0,0)'}
+		}
+		if (facet === 'borderTopWidth' && view?.layer) {value = view.layer.borderWidth}
+		if (facet === 'borderTopColor' && view?.layer?.borderColor) {
+			value = colorValue(NSColor.colorWithCGColor(view.layer.borderColor)) ?? value
+		}
+		if (facet === 'borderTopLeftRadius' && view?.layer) {value = view.layer.cornerRadius}
+		if (facet === 'opacity' && view?.alphaValue != null) {value = view.alphaValue}
+		if (facet === 'flexDirection' && view?.orientation != null) {value = stackDirection(view)}
+		if (facet === 'alignItems' && view?.orientation != null) {value = stackAlignItems(node)}
+		if (facet === 'justifyContent' && view?.distribution != null) {value = stackJustifyContent(node)}
+
+		if (value !== undefined && value !== null && value !== '') {
+			out[facet] = String(value)
+		}
+	}
+
+	return out
+}
+
+function parityNode(node, boxNode, facets) {
+	const view = node.view
+	let box = null
+	if (view && boxNode.view) {
+		try {
+			const alignedRect = view.alignmentRectForFrame?.(view.frame)
+			const rect = alignedRect && view.superview
+				? view.superview.convertRectToView(alignedRect, boxNode.view)
+				: view.convertRectToView(view.bounds, boxNode.view)
+			const boxHeight = Number(boxNode.view.bounds.size.height)
+			box = {
+				x: round(Number(rect.origin.x)),
+				y: round(boxHeight - Number(rect.origin.y) - Number(rect.size.height)),
+				w: round(Number(rect.size.width)),
+				h: round(Number(rect.size.height)),
+			}
+		} catch {}
+	}
+	let placeholderBox = null
+	if (node.placeholderView && boxNode.view) {
+		try {
+			const placeholderView = node.placeholderView
+			const alignedRect = placeholderView.alignmentRectForFrame?.(placeholderView.frame)
+			const rect = alignedRect && placeholderView.superview
+				? placeholderView.superview.convertRectToView(alignedRect, boxNode.view)
+				: placeholderView.convertRectToView(placeholderView.bounds, boxNode.view)
+			const boxHeight = Number(boxNode.view.bounds.size.height)
+			placeholderBox = {
+				x: round(Number(rect.origin.x)),
+				y: round(boxHeight - Number(rect.origin.y) - Number(rect.size.height)),
+				w: round(Number(rect.size.width)),
+				h: round(Number(rect.size.height)),
+			}
+		} catch {}
+	}
+
+	let text
+	if (node.type === 'label') {text = String(view?.stringValue ?? '').trim()}
+	else if (node.type === 'button') {text = String(view?.title ?? '').trim()}
+	else if (node.type === 'textfield') {text = String(view?.stringValue ?? '').trim()}
+	else if (node.type === 'textview') {text = String(view?.string ?? '').trim()}
+	const placeholder = node.type === 'textfield'
+		? String(view?.placeholderString ?? '').trim()
+		: node.type === 'textview'
+			? String(node.placeholderView?.stringValue ?? '').trim()
+			: ''
+
+	return {
+		tag: String(node.type ?? 'view').toLowerCase(),
+		id: node.props?.id || undefined,
+		classes: nodeClasses(node),
+		box,
+		placeholderBox,
+		style: parityStyle(node, facets),
+		text: text || undefined,
+		placeholder: placeholder || undefined,
+	}
+}
+
+function measureParity(container, facets) {
+	const stage = [...container.nodes.values()].find((node) => node.props?.id === 'parity-stage')
+	if (!stage?.view) {return null}
+	container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
+	stage.view.layoutSubtreeIfNeeded?.()
+
+	const cells = {}
+	for (const cell of stage.children.filter((node) => nodeClasses(node).includes('parity-cell'))) {
+		const name = String(cell.props?.id ?? '').replace(/^cell-/, '')
+		const box = descendants(cell).find((node) => nodeClasses(node).includes('parity-box'))
+		if (!box?.view) {continue}
+		box.view.layoutSubtreeIfNeeded?.()
+		for (const scroll of descendants(box).filter((node) => node.type === 'scrollview' && node.view)) {
+			const clip = scroll.view.contentView
+			const document = scroll.view.documentView
+			const y = Math.max(0, Number(document.bounds.size.height) - Number(clip.bounds.size.height))
+			clip.scrollToPoint({ x: 0, y })
+			scroll.view.reflectScrolledClipView(clip)
+		}
+		cells[name] = [box, ...descendants(box)]
+			.filter((node) => node.view)
+			.map((node) => parityNode(node, box, facets))
+	}
+
+	return { target: 'macos', cells }
+}
+
 export function createMacOSRoot(hostView) {
 	const container = { hostView, nodes: new Map(), children: [], root: null }
 	const root = createUniversalRoot(container, macOSDriver, {
@@ -792,7 +1142,10 @@ export function createMacOSRoot(hostView) {
 	container.root = root
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 		const debug = {
-					snapshot() {
+			measureParity(facets) {
+				return measureParity(container, facets)
+			},
+			snapshot() {
 						return {
 							labels: [...container.nodes.values()]
 								.filter((node) => node.type === 'label' && node.view)

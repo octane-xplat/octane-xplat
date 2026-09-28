@@ -3,8 +3,6 @@ import type { ViewProps } from './props'
 import { cx } from './cx'
 import { layoutChildProps } from './layout-child.native'
 
-export const Column = View
-
 export function View(props: ViewProps) @{
 	<flexboxlayout
 		id={props.id}
@@ -27,3 +25,5 @@ export function View(props: ViewProps) @{
 		{props.children}
 	</flexboxlayout>
 }
+
+export const Column = View

@@ -16,6 +16,7 @@
 		"dev": "node ./scripts/dev.mjs",
 		"build": "vite build",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"parity": "node ./scripts/parity.mjs",
 		"package": "xplat build --targets macos"
 	},
 	"dependencies": {

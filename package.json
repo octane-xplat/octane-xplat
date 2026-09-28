@@ -19,6 +19,7 @@
 		"gen:css-registry": "node scripts/gen-css-registry.mjs",
 		"parity:coverage": "node scripts/parity-coverage.mjs",
 		"parity": "node scripts/parity-coverage.mjs && node scripts/parity-check.mjs",
+		"parity:macos": "pnpm parity:coverage && pnpm --filter @xplat/web parity && pnpm --filter @xplat/macos parity && node scripts/parity-check.mjs --targets=web,macos",
 		"test": "pnpm --filter @xplat/web test && pnpm --filter @octane-xplat/ui test:native"
 	},
 	"devDependencies": {

@@ -40,9 +40,13 @@ const DEFERRED_GROUPS = [
 	},
 	{
 		reason:
+			'The AppKit host does not implement gridlayout, so Grid cannot mount in the shared cross-target fixture sweep.',
+		components: ['Grid'],
+	},
+	{
+		reason:
 			'Text, glyph, or font metrics need box-only assertions that avoid comparing platform font rendering.',
 		components: [
-			'Text',
 			'RichText',
 			'RichTextSpan',
 			'Badge',
@@ -111,7 +115,13 @@ const DEFERRED_GROUPS = [
 	{
 		reason:
 			'OS- or engine-backed content needs target fixtures for the shared frame and any project-drawn chrome.',
-		components: ['TextInput', 'TextArea', 'SearchInput', 'Pager', 'Image', 'WebView', 'Video'],
+		components: [
+			'SearchInput',
+			'Pager',
+			'Image',
+			'WebView',
+			'Video',
+		],
 	},
 ]
 

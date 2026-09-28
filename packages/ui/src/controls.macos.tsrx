@@ -3,9 +3,10 @@ import type { ActivityIndicatorProps, ButtonProps, CheckboxProps, SegmentedContr
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
+import { cx } from './cx'
 
 export function Button(props: ButtonProps) @{
-	<Pressable id={props.id} className={props.className} style={props.style} disabled={props.disabled} onPress={props.onPress}>
+	<Pressable id={props.id} className={cx('vx-button', props.className)} style={props.style} disabled={props.disabled} onPress={props.onPress}>
 		{props.children ?? <Text>{props.title}</Text>}
 	</Pressable>
 }

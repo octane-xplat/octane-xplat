@@ -23,7 +23,23 @@ if (existsSync(dir)) {
 	}
 }
 
-const targets = [...dumps.keys()]
+const targetsArg = process.argv.find((arg) => arg.startsWith('--targets='))
+const requestedTargets = targetsArg
+	? [...new Set(targetsArg.slice('--targets='.length).split(',').map((target) => target.trim()).filter(Boolean))]
+	: null
+const unknownTargets = requestedTargets?.filter((target) => !['web', 'ios', 'android', 'macos'].includes(target)) ?? []
+if (unknownTargets.length) {
+	console.error(`[parity] unknown target(s): ${unknownTargets.join(', ')}`)
+	process.exit(1)
+}
+
+const missingTargets = requestedTargets?.filter((target) => !dumps.has(target)) ?? []
+if (missingTargets.length) {
+	console.error(`[parity] missing dump(s): ${missingTargets.join(', ')}`)
+	process.exit(1)
+}
+
+const targets = requestedTargets ?? [...dumps.keys()]
 if (targets.length === 0) {
 	console.log('[parity] no dumps — write one first (pnpm -F @xplat/web parity)')
 	process.exit(1)
@@ -89,7 +105,8 @@ const report = (ok, label, detail = '') => {
 }
 
 for (const def of CHECKS) {
-	for (const target of targets) {
+	const applicableTargets = def.targets ? targets.filter((target) => def.targets.includes(target)) : targets
+	for (const target of applicableTargets) {
 		const dump = dumps.get(target)
 		if (!dump.cells?.[def.fixture]) {
 			report(false, `${def.fixture} · ${target} · fixture`, 'cell missing from dump')
@@ -118,10 +135,10 @@ for (const def of CHECKS) {
 	}
 
 	// Cross-target equality — only meaningful with ≥2 dumps.
-	if (targets.length > 1) {
+	if (applicableTargets.length > 1) {
 		for (const facet of def.equal ?? []) {
 			const [el] = facet.split('.')
-			const values = targets.map((t) => {
+			const values = applicableTargets.map((t) => {
 				const dump = dumps.get(t)
 				const node = (dump.cells?.[def.fixture] ?? []).find((n) =>
 					n.classes?.includes(def.elements[el]),
