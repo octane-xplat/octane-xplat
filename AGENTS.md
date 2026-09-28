@@ -234,7 +234,10 @@ not maintained incrementally.
   reads in render subscribe automatically — no compiler flags needed. Every
   consuming module needs a runtime import of `octane/signals` (or /client).
   `$`-suffix naming (`count$`, `user$`) tells the compiler to preserve native
-  reads through caches and props.
+  reads through caches and props. `query$` is the default data-fetching path
+  — see `docs/data.md`. `@octanejs/tanstack-query` is a supported opt-in for
+  apps that want TanStack's cache machinery; on native it needs the entry
+  shims documented in `docs/data.md`.
 - **Rouzer** (`rouzer`, `rouzer/http`) — shared route tree between server and
   client. `http.resource('posts/:id', { get: http.get({query, response:
 $type<T>()}), like: http.post('like', {body, response: $type<T>()}) })` —

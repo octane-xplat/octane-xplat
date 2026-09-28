@@ -117,7 +117,7 @@ component or service instead.
 ## Shared state
 
 Keep shared state in a `.ts` module using Octane signals
-(`octane/signals`):
+(`octane/signals`). [Fetching data](data.md) is the full guide; the summary:
 
 ```ts
 import { signal$, query$, skip } from 'octane/signals'

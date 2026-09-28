@@ -37,7 +37,9 @@ document` checks). Platform-authentic widgets live behind
    for async data. Name signal variables with a `$` suffix (`count$`,
    `user$`) — the compiler uses the suffix to preserve reactive reads on
    native. Every module that reads or writes signals needs a runtime
-   `import 'octane/signals'` (or `octane/signals/client`).
+   `import 'octane/signals'` (or `octane/signals/client`). `query$` reads
+   suspend — put `.get()` under `@try`/`@pending`/`@catch`, or use
+   `.snapshot()`/`.latest()` for non-suspending reads.
 6. **One `octane` per app.** Don't add a second renderer or duplicate the
    package — two copies break the reconciler without a helpful error.
 

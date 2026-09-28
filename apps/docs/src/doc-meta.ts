@@ -31,6 +31,7 @@ export const ORDER = [
 	'architecture',
 	'primitives',
 	'navigation',
+	'data',
 	'styling',
 	'animation-gestures',
 	'module-resolution',

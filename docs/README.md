@@ -13,10 +13,11 @@ the framework itself.
 2. [Building screens](primitives.md) — compose a first shared screen.
 3. [Styling screens](styling.md) — choose classes, tokens, and runtime styles.
 4. [Moving between screens](navigation.md) — keep URLs and native stacks useful.
-5. [Using device features](platform-services.md) — use storage, permissions,
+5. [Fetching data](data.md) — load remote data with `query$`.
+6. [Using device features](platform-services.md) — use storage, permissions,
    and other capabilities safely.
-6. [Running and checking an app](toolchain.md) — develop, build, and test.
-7. [Known limits](known-limits.md) — what's broken or platform-bound in the
+7. [Running and checking an app](toolchain.md) — develop, build, and test.
+8. [Known limits](known-limits.md) — what's broken or platform-bound in the
    current release.
 
 ## Machine-readable
