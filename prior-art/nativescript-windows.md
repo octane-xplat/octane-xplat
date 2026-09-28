@@ -107,8 +107,35 @@ closes #254) adds a full `windows` platform to `@nativescript/core`:
   and `/@nativescript/vite@11272`.
 
 Companion PR `NativeScript/nativescript-cli#6065` "feat: windows" is open;
-published `nativescript@9.1.1` contains no `windows` references — there is no
-released `ns run windows`.
+published `nativescript@9.1.1` contains no `windows` references — but the
+windows support ships in the dev-tag CLI (`nativescript@9.1.2-dev.*`), and
+`ns run windows` works there today.
+
+## Dogfooded starter — `triniwiz/nativescript-desktop-starter-template`
+
+The runtime author's own starter (created 2026-09-27) is a nativescript-vue app
+running `ns run windows` / `ns run ios` / `ns run android` off `src/app.ts`.
+Facts worth copying:
+
+- Pins: `pkg.pr.new/@nativescript/core@11468` + `/@nativescript/vite@11468`
+  (the feat/windows branch **plus** a percentage-size fix — prefer this over
+  the raw #11272 build), `@nativescript/windows` **exact** alpha (caret matches
+  incompatible older betas), npm `overrides` to force the PR core through
+  transitive deps, dev-tag `nativescript@9.1.2-dev.2026-09-24-*` CLI.
+- Prereqs: Windows 10 1809+, Node LTS, .NET 10 SDK (`dotnet build`), Developer
+  Mode for unsigned debug install. No Rust/MSVC on the app side.
+- `ns run windows` builds, installs, launches, and livesyncs on save;
+  `ns doctor windows` exists in the dev CLI.
+- `nativescript-vue@3.1.2` + `@nativescript/vite`'s vue preset proves the
+  universal-driver-over-core layering works on this runtime; the ws transport
+  is `@valor/nativescript-websockets` (same one our harness uses).
+- It carries a `masonkit-hmr.mjs` `/ns/m` middleware that canonicalizes
+  specifier URLs because the device double-loads modules when `import` vs
+  `export from` resolve differently — the same dev-server bug family we patch
+  in `@nativescript/vite`.
+- CSS seams: unitless = dp, `px` = physical pixels; Tailwind 4 via
+  `@nativescript/tailwind` with postcss workarounds for selector commas
+  (NativeScript#11463) and stripped layout utilities.
 
 Namespace note: repo demos/tests use `Windows.UI.Xaml.*` (legacy UWP surface,
 or system XAML via islands — `runtime/src/ui_dispatcher.rs` mentions

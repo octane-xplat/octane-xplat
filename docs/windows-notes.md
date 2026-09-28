@@ -41,7 +41,7 @@ derisks how much of A we could self-host if upstream stalls.
 | Suffix lattice | `.windows.*` joins the extension chain ahead of `.native.*` in `packages/cli/src/vite.mjs` (`xplatNative` gains a `windows` platform branch); `windows` export condition + `./windows` subpath on `@octane-xplat/ui`; `customConditions`/`moduleSuffixes` in app tsconfigs |
 | App shell | `@nativescript/windows` devDep + `windows` block in `nativescript.config.ts`; `App_Resources/Windows` scaffold (Package.appxmanifest, assets, `app.csproj` — upstream ships the template) |
 | Leaves | `.native` files compile for Windows by default; `.windows` overrides only where behavior diverges. NS plugins we depend on have no windows impl — leaf packages need `.windows` `Unsupported` fallbacks, same pattern as `.macos` |
-| CLI | `targets.mjs`: `windows` kind (dev = `ns run windows` once cli#6065 lands; interim = `dotnet publish` + exe launch or `NSWinRT.LiveSync` push). `doctor`: `win32` host, .NET 10 SDK, Windows SDK (`makeappx`/`signtool`), WindowsAppSDK framework package, `@nativescript/windows` presence |
+| CLI | `targets.mjs`: `windows` kind — `ns run windows` already works on the dev-tag CLI (`nativescript@9.1.2-dev.*`, proven by upstream's starter); released CLI waits on cli#6065. `doctor`: `win32` host, Windows 10 1809+, .NET 10 SDK, Developer Mode enabled, `@nativescript/windows` exact pin — mirroring `ns doctor windows` |
 | Lint | `isNativeFile` learns `windows`; platform-subpath rules gain `./windows` |
 | Packaging | MSIX via `makeappx`/`signtool` (self-signed for dev), or unpackaged exe + WASDK bootstrapper; `app.nsbundle` for source protection. CI: `windows-latest` runners — no cross-compile |
 | Runtime supply chain | `@nativescript/windows` is days old → `minimumReleaseAgeExclude` entry, same precedent as the octane packages |
@@ -51,7 +51,11 @@ derisks how much of A we could self-host if upstream stalls.
 - **Merge risk.** #11272 is 279 files / +183k and a maintainer has already
   asked for it to be split. Until core ships a `windows` platform in a release,
   we prototype on pkg.pr.new previews — unmerged upstream is the schedule risk,
-  not a design risk.
+  not a design risk. The usable pin is `@11468` (the feat/windows branch plus a
+  percentage-size fix), per the starter template.
+- **Version skew.** Upstream's own template pins `@nativescript/windows` exact
+  (caret matches incompatible older betas) and forces the PR core through npm
+  `overrides` — our equivalent is `pnpm.overrides` in `pnpm-workspace.yaml`.
 - **Desktop semantics.** `Frame`/`Page` and `openWindow` (#59) on a real
   multi-window OS; safe-area/status-bar services mostly reduce to no-ops;
   `KeyboardAvoiding`'s native-only status gets a third interpretation.
@@ -61,8 +65,8 @@ derisks how much of A we could self-host if upstream stalls.
 
 ## Sequencing
 
-1. Lab: boot the harness `App` under the WinUI3 template host using
-   pkg.pr.new builds — bundled `.mjs` dropped into `app/` needs no CLI
+1. Lab: boot the harness under `ns run windows` on the dev-tag CLI with
+   pkg.pr.new `@11468` builds — the same commands the starter template runs
    (Q32). Windows-arm64 VM works — the runtime ships arm64 dlls.
 2. Path-agnostic plumbing meanwhile: suffix/condition/lint additions, the
    `xplat.targets.windows` manifest block + doctor checks.

@@ -261,10 +261,12 @@ LiveRegion` unwired in leaves so far).
     `index.windows.ts` files and the app template use `Microsoft.UI.Xaml.*`,
     and no alias exists in the metadata resolver. Probably Microsoft.UI.Xaml
     for real apps; confirm when the preview build runs.
-35. ⏳ **What owns the Windows dev loop until `nativescript-cli#6065`
-    merges?** — The runtime already implements the HTTP-ESM `/ns/m` loader
-    contract, `NSWinRT.HMR`, and `NSWinRT.LiveSync` (`sync`/`reload`/`reset`),
-    and the host P/Invokes `runtime_notify_app_event`. Options: `dotnet
-    publish` + exe launch with an HTTP dev-server entry, or a CLI-side
-    watcher pushing LiveSync calls. Decide after Q32's boot experiment shows
-    which half already works.
+35. 🔬 **What owns the Windows dev loop until `nativescript-cli#6065`
+    merges?** — Desk-answered via upstream's own starter
+    (`triniwiz/nativescript-desktop-starter-template`): the dev-tag CLI
+    `nativescript@9.1.2-dev.2026-09-24-*` already contains the windows
+    platform, and `ns run windows` builds, installs, launches, and livesyncs
+    there today. Released-CLI support still waits on cli#6065; if we need a
+    fallback the runtime itself ships `NSWinRT.HMR`/`NSWinRT.LiveSync`
+    (`sync`/`reload`/`reset`) and `runtime_notify_app_event` for a host-side
+    watcher. Verify the dev-CLI path against our vite preset in lab.
