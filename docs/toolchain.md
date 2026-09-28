@@ -76,8 +76,10 @@ file inside the app project for the packaged app icon. `entitlements` is also
 required when `MACOS_SIGNING_IDENTITY` is set. The minimum macOS version must be
 13.5 or later to match the bundled Node runtime. `xplat doctor` rejects lower
 values and checks the configuration and local packaging tools, including
-`clang`, `codesign`, and `hdiutil`. Packaging compiles a small Mach-O launcher,
-so install Xcode Command Line Tools on the Apple Silicon build host. See the
-[macOS experiment
+`clang`, `codesign`, and `hdiutil`. It also checks the installed
+`@nativescript/macos-node-api` entry points, type declarations, license, and
+ARM64 framework binary; missing paths appear in the runtime check. Packaging
+compiles a small Mach-O launcher, so install Xcode Command Line Tools on the
+Apple Silicon build host. See the [macOS experiment
 notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for signing, notarization, and icon setup.
