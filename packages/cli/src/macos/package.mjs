@@ -7,7 +7,6 @@ import {
 	mkdtemp,
 	readFile,
 	realpath,
-	relative,
 	rename,
 	rm,
 	symlink,
@@ -16,7 +15,7 @@ import {
 
 import { existsSync, readFileSync } from 'node:fs'
 import { arch, homedir, platform } from 'node:os'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { inspectMacOSPackageConfig } from './config.mjs'
 import {
@@ -192,6 +191,22 @@ function signApp({
 	return true
 }
 
+async function completeFrameworkSymlinks(frameworkPath) {
+	const aliases = [
+		['A', join(frameworkPath, 'Versions', 'Current')],
+		['Versions/Current/Headers', join(frameworkPath, 'Headers')],
+		['Versions/Current/Resources', join(frameworkPath, 'Resources')],
+		['Versions/Current/NativeScript', join(frameworkPath, 'NativeScript')],
+	]
+	for (const [target, path] of aliases) {
+		try {
+			await symlink(target, path)
+		} catch (error) {
+			if (error.code !== 'EEXIST') throw error
+		}
+	}
+}
+
 function signDiskImage(signingIdentity, bundleIdentifier, dmgPath) {
 	if (!signingIdentity) {return}
 	run('codesign', [
@@ -301,6 +316,7 @@ export async function packageMacOS(appRoot) {
 		}
 
 		await cp(nativeRuntimeSource, packagedFrameworkPath, { recursive: true })
+		await completeFrameworkSymlinks(packagedFrameworkPath)
 		await symlink(
 			relative(dirname(runtimeFrameworkPath), packagedFrameworkPath),
 			runtimeFrameworkPath,
