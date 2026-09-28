@@ -29,6 +29,19 @@ export function Test() @{
 		<Services />
 
 		<View className="sink-section">
+			<Text className="section-label">Performance gate</Text>
+			<Row className="demo-menu">
+				<Pressable
+					id="menu-vlist-perf"
+					onPress={() => navigate('demo/:id', { id: 'vlist-perf' }, { into: 'test' })}
+					className="chip"
+				>
+					<Text>VirtualList · 5,000 rows</Text>
+				</Pressable>
+			</Row>
+		</View>
+
+		<View className="sink-section">
 			<Text className="section-label">Seam proofs</Text>
 			<Row className="demo-menu">
 				@for (const d of proofs; key d.id) {

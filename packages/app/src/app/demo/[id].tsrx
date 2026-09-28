@@ -3,6 +3,9 @@ import { Screen, View, Row, Text, Pressable } from '@octane-xplat/ui';
 import { DEMOS, RENDER, setLastDemo } from '@xplat/demos';
 import { goBack } from '../../platform/nav';
 import { openSheet } from '../../platform/sheet';
+import { VirtualListBenchmark } from '../../VirtualListBenchmark.tsrx';
+
+const renderVirtualListBenchmark = () => <VirtualListBenchmark />;
 
 /** demo/:id route — pushed via navigate('demo/:id', {id}): a fresh Page +
  *  Octane root on native (context doesn't cross; the store does); a real
@@ -10,8 +13,10 @@ import { openSheet } from '../../platform/sheet';
  *  inside the RootLayout sheet root — same demo, third root. */
 export function DemoDetail(props: { id?: string; _stack?: string }) @{
 	const id = props.id ?? 'counter';
-	const title = DEMOS.find((d) => d.id === id)?.title ?? id;
-	const renderDemo = RENDER[id] ?? RENDER.counter;
+	const title = id === 'vlist-perf'
+		? 'VirtualList performance'
+		: DEMOS.find((d) => d.id === id)?.title ?? id;
+	const renderDemo = id === 'vlist-perf' ? renderVirtualListBenchmark : RENDER[id] ?? RENDER.counter;
 
 	useEffect(() => { setLastDemo(id); }, []);
 

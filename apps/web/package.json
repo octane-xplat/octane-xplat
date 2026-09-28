@@ -8,6 +8,7 @@
 		"build": "pnpm --filter @xplat/app gen && vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
+		"bench:vlist": "pnpm --filter @xplat/app gen && vite build && node scripts/bench-virtual-list.mjs",
 		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs",
 		"parity": "vite build && node scripts/parity.mjs"
 	},
