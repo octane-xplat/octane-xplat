@@ -1,6 +1,19 @@
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { access, cp, mkdir, mkdtemp, readFile, realpath, rename, rm, writeFile } from 'node:fs/promises'
+import {
+	access,
+	cp,
+	mkdir,
+	mkdtemp,
+	readFile,
+	realpath,
+	relative,
+	rename,
+	rm,
+	symlink,
+	writeFile,
+} from 'node:fs/promises'
+
 import { existsSync, readFileSync } from 'node:fs'
 import { arch, homedir, platform } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -122,8 +135,9 @@ ${iconEntry}  <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
 `
 }
 
-function signApp({ signingIdentity, entitlementsPath, nativeRuntimeBinary, mainExecutable, appPath }) {
+function signApp({ signingIdentity, entitlementsPath, nativeRuntimeFramework, mainExecutable, appPath }) {
 	if (!signingIdentity) {
+		run('codesign', ['--force', '--sign', '-', nativeRuntimeFramework])
 		run('codesign', ['--force', '--sign', '-', mainExecutable])
 		run('codesign', ['--force', '--sign', '-', appPath])
 		run('codesign', ['--verify', '--deep', '--strict', '--verbose=2', appPath])
@@ -135,13 +149,11 @@ function signApp({ signingIdentity, entitlementsPath, nativeRuntimeBinary, mainE
 		'--force',
 		'--sign',
 		signingIdentity,
-		'--options',
-		'runtime',
 		'--timestamp',
-		nativeRuntimeBinary,
+		nativeRuntimeFramework,
 	])
 
-	run('codesign', ['--verify', '--strict', '--verbose=2', nativeRuntimeBinary])
+	run('codesign', ['--verify', '--strict', '--verbose=2', nativeRuntimeFramework])
 	run('codesign', [
 		'--force',
 		'--sign',
@@ -254,12 +266,21 @@ export async function packageMacOS(appRoot) {
 		)
 
 		const runtimeFrameworkPath = join(nativeRuntimePath, runtimeFrameworkRelativePath)
+		const packagedFrameworkPath = join(contentsPath, 'Frameworks', 'NativeScript.framework')
+		await mkdir(nativeRuntimePath, { recursive: true })
 		await mkdir(dirname(runtimeFrameworkPath), { recursive: true })
+		await mkdir(dirname(packagedFrameworkPath), { recursive: true })
 		for (const file of ['index.cjs', 'index.mjs', 'index.d.ts', 'package.json', 'LICENSE']) {
 			await cp(join(nativeRuntimePackage, file), join(nativeRuntimePath, file))
 		}
 
-		await cp(nativeRuntimeSource, runtimeFrameworkPath, { recursive: true })
+		await cp(nativeRuntimeSource, packagedFrameworkPath, { recursive: true })
+		await symlink(
+			relative(dirname(runtimeFrameworkPath), packagedFrameworkPath),
+			runtimeFrameworkPath,
+			'dir',
+		)
+
 		if (iconPath) {
 			await cp(iconPath, join(resourcesPath, 'AppIcon.icns'))
 		}
@@ -300,12 +321,7 @@ export async function packageMacOS(appRoot) {
 		const signed = signApp({
 			signingIdentity,
 			entitlementsPath,
-			nativeRuntimeBinary: join(
-				runtimeFrameworkPath,
-				'Versions',
-				'A',
-				'NativeScript',
-			),
+			nativeRuntimeFramework: packagedFrameworkPath,
 			mainExecutable,
 			appPath,
 		})
