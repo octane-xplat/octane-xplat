@@ -19,9 +19,13 @@ for (const name of ['vite', 'octane', '@nativescript/macos-node-api']) {
 
 const unsupportedBundle = join(appRoot, 'unsupported.cjs')
 await writeFile(unsupportedBundle, 'require("node:child_process")\n')
-assert.throws(() => validateHostBundle(unsupportedBundle), /Unsupported macOS JavaScriptCore host imports: node:child_process/)
+await assert.rejects(() => validateHostBundle(unsupportedBundle, appRoot), /Unsupported macOS JavaScriptCore host imports: node:child_process/)
 await writeFile(unsupportedBundle, 'require(name)\n')
-assert.throws(() => validateHostBundle(unsupportedBundle), /Unsupported dynamic require/)
+await assert.rejects(() => validateHostBundle(unsupportedBundle, appRoot), /Unsupported macOS JavaScriptCore host APIs: dynamic require/)
+await writeFile(unsupportedBundle, 'const fs = require("node:fs"); fs.rmSync("x")\n')
+await assert.rejects(() => validateHostBundle(unsupportedBundle, appRoot), /Unsupported macOS JavaScriptCore host APIs: node:fs.rmSync/)
+await writeFile(unsupportedBundle, 'console.log(process.version)\n')
+await assert.rejects(() => validateHostBundle(unsupportedBundle, appRoot), /Unsupported macOS JavaScriptCore host APIs: process.version/)
 
 execFileSync(process.execPath, [cliPath, 'build', '--targets', 'macos'], {
 	cwd: appRoot,
@@ -38,6 +42,16 @@ assert.doesNotMatch(result.stderr, /JSC_FIXTURE_FAIL|failed:/)
 const dependencies = execFileSync('otool', ['-L', executable], { encoding: 'utf8' })
 assert.doesNotMatch(dependencies, /node|@rpath/)
 assert.match(dependencies, /JavaScriptCore\.framework/)
+
+await writeFile(join(appRoot, 'src/main.js'), "import { rmSync } from 'node:fs'\nconsole.log(rmSync)\n")
+const rejectedApi = spawnSync(process.execPath, [cliPath, 'build', '--targets', 'macos'], {
+	cwd: appRoot,
+	env: { ...process.env, XPLAT_MACOS_SKIP_SIGNING: '1' },
+	encoding: 'utf8',
+	timeout: 30_000,
+})
+assert.notEqual(rejectedApi.status, 0)
+assert.match(`${rejectedApi.stdout}\n${rejectedApi.stderr}`, /Unsupported macOS JavaScriptCore host APIs: node:fs.rmSync/)
 
 await writeFile(join(appRoot, 'src/main.js'), "import { execSync } from 'node:child_process'\nconsole.log(execSync)\n")
 const rejected = spawnSync(process.execPath, [cliPath, 'build', '--targets', 'macos'], {

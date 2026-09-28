@@ -150,8 +150,9 @@ other `require()` imports and dynamic `require()`. The supported Node subset is
 `mkdirSync`/`existsSync`/`readFileSync`/`writeFileSync`, `os.homedir()`, and
 `path.join`/`path.resolve`. Globals include `console`, `process.env` reads,
 `process.cwd()`, `Buffer.from(base64, 'base64')`, timers, and
-`queueMicrotask`. Unsupported members throw `Unsupported macOS host API` at
-runtime. Use the AppKit ObjC bridge for native UI and services; general Node
+`queueMicrotask`. Packaging rejects static calls to unsupported host members;
+the shim also throws `Unsupported macOS host API` for unsupported runtime
+access. Use the AppKit ObjC bridge for native UI and services; general Node
 modules are outside this host contract.
 
 The native inputs and source revisions are recorded in

@@ -227,7 +227,7 @@ export async function packageMacOS(appRoot) {
 	run(process.execPath, [fileURLToPath(new URL('./jsc-host/check-vite.mjs', import.meta.url)), appRoot, viteConfig], { cwd: appRoot })
 	run(process.execPath, [viteExecutable(appRoot), 'build', '--config', viteConfig], { cwd: appRoot })
 	if (!existsSync(bundleFile)) {throw new Error(`Packaged JS bundle not found: ${bundleFile}`)}
-	validateHostBundle(bundleFile)
+	await validateHostBundle(bundleFile, appRoot)
 
 	const octaneRoot = await realpath(join(appRoot, 'node_modules', 'octane'))
 	const octaneLicense = await readFile(join(octaneRoot, 'LICENSE'), 'utf8')

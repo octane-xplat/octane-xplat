@@ -51,8 +51,8 @@ production Vite config that emits one CommonJS host bundle.
   list fallback mounts all rows and does not validate virtualization or scale.
 - AC8: An independent app using the public macOS package contract opens an
   AppKit window, uses the supported host API, and exits successfully from the
-  packaged executable. An unsupported `node:` import fails packaging with a
-  diagnostic naming that import.
+  packaged executable. An unsupported `node:` import or API member fails
+  packaging with a diagnostic naming that import or member.
 
 ## Documentation
 
