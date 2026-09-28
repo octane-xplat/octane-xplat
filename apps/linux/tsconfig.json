@@ -1,0 +1,37 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "octane",
+		"moduleSuffixes": [".linux", ".web", ""],
+		"customConditions": ["linux", "web"],
+		"types": ["vite/client"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"paths": {
+			"@xplat/app": ["../../packages/app/src/index.ts"],
+			"@xplat/app/*": ["../../packages/app/src/*"],
+			"@octane-xplat/canvas": ["../../packages/canvas/src/index.web.ts"],
+			"@octane-xplat/canvas/*": ["../../packages/canvas/src/*"],
+			"@octane-xplat/gif": ["../../packages/gif/src/index.web.ts"],
+			"@octane-xplat/gif/*": ["../../packages/gif/src/*"],
+			"@octane-xplat/ui": ["../../packages/ui/src/index.web.ts"],
+			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
+		}
+	},
+	"include": ["src/**/*", "../../packages/**/*"],
+	"exclude": [
+		"**/*.test.*",
+		"../../packages/**/*.test.*",
+		"../../packages/**/*.native.*",
+		"../../packages/**/*.ios.*",
+		"../../packages/**/*.android.*",
+		"../../packages/**/*.macos.*",
+		"**/*.native.*",
+		"**/*.ios.*",
+		"**/*.android.*",
+		"**/*.macos.*",
+		"../../packages/ui/src/ios/**/*",
+		"../../packages/ui/src/android/**/*",
+		"**/node_modules",
+		"../../packages/create/template"
+	]
+}

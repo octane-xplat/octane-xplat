@@ -32,6 +32,10 @@ export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
 export const hasMacOS = (cwd) =>
 	readJson(`${cwd}/package.json`)?.xplat?.targets?.macos?.runtime === 'appkit-node-api'
 
+/** The opt-in WebKitGTK webview target currently used by apps/linux. */
+export const hasLinux = (cwd) =>
+	readJson(`${cwd}/package.json`)?.xplat?.targets?.linux?.runtime === 'webkitgtk'
+
 /** iOS targets: booted sims first, then other available sims, then physical devices. */
 export function iosTargets() {
 	const out = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'])
@@ -108,6 +112,14 @@ export function discoverTargets(cwd) {
 		})
 	}
 
+	if (hasLinux(cwd)) {
+		targets.push({
+			kind: 'linux',
+			id: 'linux',
+			name: 'Linux (experimental WebKitGTK webview)',
+		})
+	}
+
 	return targets
 }
 
@@ -131,6 +143,14 @@ export function buildTargets(cwd) {
 			kind: 'macos',
 			id: 'macos',
 			name: 'macOS (experimental AppKit Node-API)',
+		})
+	}
+
+	if (hasLinux(cwd)) {
+		t.push({
+			kind: 'linux',
+			id: 'linux',
+			name: 'Linux (experimental WebKitGTK webview)',
 		})
 	}
 

@@ -9,7 +9,8 @@ import { generateRoutes } from './routes.mjs'
 
 export const build = command({
 	name: 'build',
-	description: 'Build web and NativeScript targets, plus experimental macOS AppKit',
+	description:
+		'Build web and NativeScript targets, plus experimental macOS AppKit and Linux webview',
 	args: {
 		release: flag({
 			long: 'release',
@@ -20,14 +21,17 @@ export const build = command({
 			long: 'targets',
 			short: 't',
 			type: optional(string),
-			description: 'Comma list (web,ios,android,macos) — skips the prompt',
+			description: 'Comma list (web,ios,android,macos,linux) — skips the prompt',
 		}),
 	},
 	handler: async (args) => {
 		const cwd = process.cwd()
 		const all = buildTargets(cwd)
 		if (all.length === 0) {
-			p.log.error('Nothing to build — no web, NativeScript, or AppKit Node-API target is declared.')
+			p.log.error(
+				'Nothing to build — no web, NativeScript, AppKit Node-API, or Linux webview target is declared.',
+			)
+
 			process.exit(1)
 		}
 
@@ -74,10 +78,15 @@ export const build = command({
 				if (t.kind === 'macos') {
 					await packageMacOS(cwd)
 				} else {
+					// linux produces a vite bundle artifact — the webview host
+					// packages it; a packageLinux step lands with the real
+					// WebKitGTK host. The app's own script names its config.
 					const argv =
 						t.kind === 'web'
 							? ['exec', 'vite', 'build']
-							: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
+							: t.kind === 'linux'
+								? ['run', 'build']
+								: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
 
 					await runTagged(t.kind, 'pnpm', argv, cwd)
 				}

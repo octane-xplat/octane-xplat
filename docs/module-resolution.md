@@ -11,6 +11,7 @@ Card.web.tsrx      browser implementation
 Card.native.tsrx   iOS and Android implementation
 Card.ios.tsrx      iOS-only implementation
 Card.android.tsrx  Android-only implementation
+Card.linux.tsrx    Linux webview only (experimental — falls back to .web)
 ```
 
 Import `Card` without writing a platform condition. The web build chooses the

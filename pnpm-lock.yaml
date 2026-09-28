@@ -70,6 +70,31 @@ importers:
         specifier: ^4.0.0
         version: 4.136.3
 
+  apps/linux:
+    dependencies:
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@xplat/app':
+        specifier: workspace:*
+        version: link:../../packages/app
+      '@xplat/demos':
+        specifier: workspace:*
+        version: link:../../packages/demos
+      octane:
+        specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
+        version: file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@octanejs/vite-plugin':
+        specifier: 0.1.60
+        version: 0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
+
   apps/macos:
     dependencies:
       '@nativescript/macos-node-api':

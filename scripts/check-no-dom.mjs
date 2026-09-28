@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Static no-DOM sweep (invariants #4/#5): DOM globals must never appear in
-// shared or native-targeted source. *.web.* files are exempt — the DOM is
-// their platform. This catches leaks at lint time; the renderer's runtime
+// shared or native-targeted source. *.web.* and *.linux.* files are exempt —
+// the DOM is their platform (Linux renders in a system webview). This catches leaks at lint time; the renderer's runtime
 // validation (forbiddenGlobals, in the driver patch) is the backstop.
 //
 // Not flagged: setTimeout/fetch/console/requestAnimationFrame — NS installs
@@ -52,7 +52,7 @@ function* walk(dir) {
 			}
 
 			yield* walk(p)
-		} else if (EXT.test(e) && !/\.web(\.test)?\.(ts|tsx|tsrx)$/.test(e)) {
+		} else if (EXT.test(e) && !/\.(web|linux)(\.test)?\.(ts|tsx|tsrx)$/.test(e)) {
 			yield p
 		}
 	}

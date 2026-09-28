@@ -39,7 +39,9 @@ export function checkRecipes(root) {
 		if (
 			!targets.length ||
 			new Set(targets).size !== targets.length ||
-			targets.some((target) => !['web', 'ios', 'android', 'macos'].includes(target))
+			targets.some(
+				(target) => !['web', 'ios', 'android', 'macos', 'linux'].includes(target),
+			)
 		) {
 			fail('invalid Targets')
 		}

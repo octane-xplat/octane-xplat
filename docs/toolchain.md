@@ -94,3 +94,21 @@ set of components and style tokens, while missing host services report
 `unsupported` or `unavailable`. This verifies the in-repository harness, not
 general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for the measured boundary.
+
+## Experimental Linux target (WebKitGTK webview)
+
+The CLI also discovers an opt-in Linux target when an app manifest declares
+`xplat.targets.linux.runtime: 'webkitgtk'` (see `apps/linux`). Unlike macOS,
+Linux does not use the universal renderer — it renders the DOM inside the
+system webview, so `pnpm xplat dev --targets linux` is the app's own vite
+dev server (:5201) and `build` produces the same bundle web does. Suffix
+chain is `.linux` → `.web` → shared: leaves only exist where the host bridge
+improves on the DOM API (`packages/platform/src/*.linux.ts`).
+
+OS access crosses a single `webkit.messageHandlers.xplat` channel — the same
+API shape on WKWebView and WebKitGTK. `apps/linux/host/WKHost.swift` is a
+macOS dev stand-in that runs the real contract (`run.sh --self-test` does a
+round-trip check); `gjs-host.js` is the desk-written GJS/WebKitGTK host for
+the container pass. Host-side services are D-Bus/Gio-shaped (freedesktop
+notifications, portals, libsecret) — no JS↔native binding layer. See
+`apps/linux/host/README.md` and decision #61.

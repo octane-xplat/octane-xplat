@@ -5,7 +5,8 @@
 // (scripts/oxlint-plugin.mjs and scripts/lint-tsrx.mjs).
 //
 // Rule scope follows the platform-suffix convention: `.web.*` files own the
-// DOM, `.native/.ios/.android.*` own NativeScript, unsuffixed files compile
+// DOM, `.linux.*` files own the WebKitGTK webview target (also DOM),
+// `.native/.ios/.android.*` own NativeScript, unsuffixed files compile
 // for both. The `exclude` option is a list of filename substrings for trees
 // that break that assumption (web-only apps, the native shell).
 
@@ -16,8 +17,10 @@ import { join } from 'node:path'
 
 const norm = (f) => f.split('\\').join('/')
 // `.web.`/`.native.` anywhere in the name — `foo.web.test.tsrx` is a web
-// file as much as `foo.web.tsrx` is.
-export const isWebFile = (f) => /\.web\./.test(norm(f))
+// file as much as `foo.web.tsrx` is. `.linux.` counts as web: the Linux
+// target renders the DOM in a system webview, so its leaves may use DOM
+// globals and `ui/web` imports.
+export const isWebFile = (f) => /\.(web|linux)\./.test(norm(f))
 export const isNativeFile = (f) => /\.(native|ios|android)\./.test(norm(f))
 export const isSharedFile = (f) => !isWebFile(f) && !isNativeFile(f)
 const isTestFile = (f) => /\.(test|spec)\.[^.]+$/.test(norm(f))

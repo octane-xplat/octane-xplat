@@ -42,6 +42,7 @@ Resolution order per build target (first match wins):
 | web     | `.web` → (none)                 |
 | ios     | `.ios` → `.native` → (none)     |
 | android | `.android` → `.native` → (none) |
+| linux   | `.linux` → `.web` → (none)      |
 
 Same order across `.tsrx`, `.tsx`, `.ts`, `.css`, `.json`, assets. Keep the
 chain short — the shared file is the norm; per-OS files are for genuinely

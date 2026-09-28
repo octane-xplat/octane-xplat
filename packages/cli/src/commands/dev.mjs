@@ -9,6 +9,7 @@ import { generateRoutes } from './routes.mjs'
 const spawnFor = (t, cwd) => {
 	if (t.kind === 'web') {return spawnTagged('web', 'pnpm', ['exec', 'vite'], cwd)}
 	if (t.kind === 'macos') {return spawnTagged('macos', 'pnpm', ['run', 'dev'], cwd)}
+	if (t.kind === 'linux') {return spawnTagged('linux', 'pnpm', ['run', 'dev'], cwd)}
 	return spawnTagged(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
 }
 
@@ -21,7 +22,7 @@ export const dev = command({
 			long: 'targets',
 			short: 't',
 			type: optional(string),
-			description: 'Comma list (web,ios,android,macos) — skips the prompt',
+			description: 'Comma list (web,ios,android,macos,linux) — skips the prompt',
 		}),
 	},
 	handler: async (args) => {
@@ -29,7 +30,7 @@ export const dev = command({
 		const all = discoverTargets(cwd)
 		if (all.length === 0) {
 			p.log.error(
-				'No targets found — declare Vite, NativeScript, or xplat.targets.macos (AppKit Node-API).',
+				'No targets found — declare Vite, NativeScript, xplat.targets.macos (AppKit Node-API), or xplat.targets.linux (WebKitGTK webview).',
 			)
 
 			process.exit(1)
