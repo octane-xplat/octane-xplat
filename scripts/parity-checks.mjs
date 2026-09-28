@@ -241,7 +241,7 @@ export const CHECKS = [
 	{
 		fixture: 'slider-0',
 		targets: ['web', 'ios', 'android', 'macos'],
-		equalTargets: ['web', 'ios', 'android'],
+		equalTargets: ['web', 'ios', 'android', 'macos'],
 		elements: {
 			host: 'vx-slider',
 			track: 'vx-slider-track',
@@ -250,16 +250,13 @@ export const CHECKS = [
 		},
 		equal: [
 			'track.style.backgroundColor',
+			'track.style.borderTopLeftRadius',
 			'fill.style.backgroundColor',
+			'fill.style.borderTopLeftRadius',
 			'thumb.style.backgroundColor',
 		],
 		check: (m, target) => {
 			const host = m('host')
-			if (target === 'macos') {
-				// NSSlider exposes only its host bounds, not the shared drawn parts.
-				return [dims(host, 220, 28, 1)]
-			}
-
 			const track = m('track')
 			const fill = m('fill')
 			const thumb = m('thumb')
@@ -267,13 +264,15 @@ export const CHECKS = [
 				dims(host, 220, 28, 1),
 				dims(track, 220, 4, 1),
 				dims(thumb, 20, 20),
+				circular(thumb),
+				['track vertically centered', near(track.box.y - host.box.y, 12, 1), track.box.y - host.box.y],
+				['thumb vertically centered', near(thumb.box.y - host.box.y, 4, 1), thumb.box.y - host.box.y],
 				['empty fill', near(fill.box.w, 0, 1), fill.box.w],
-				// Intentional divergence: web centers the thumb ON the track
-				// edge (translate(-50%) → overhang -10), native clamps flush
-				// inside the track — same clamp semantic as UISlider.
+				// Web and macOS center the thumb on each end value; iOS and
+				// Android keep it inside the track.
 				[
-					'thumb at min edge (web overhangs −10, native clamps flush)',
-					near(thumb.box.x - track.box.x, target === 'web' ? -10 : 0, 1),
+					'thumb at min edge (web and macOS overhang −10, iOS and Android clamp flush)',
+					near(thumb.box.x - track.box.x, target === 'web' || target === 'macos' ? -10 : 0, 1),
 					thumb.box.x - track.box.x,
 				],
 			]
@@ -282,7 +281,7 @@ export const CHECKS = [
 	{
 		fixture: 'slider-50',
 		targets: ['web', 'ios', 'android', 'macos'],
-		equalTargets: ['web', 'ios', 'android'],
+		equalTargets: ['web', 'ios', 'android', 'macos'],
 		elements: {
 			host: 'vx-slider',
 			track: 'vx-slider-track',
@@ -290,13 +289,7 @@ export const CHECKS = [
 			thumb: 'vx-slider-thumb',
 		},
 		equal: ['fill.style.backgroundColor'],
-		check: (m, target) => {
-			const host = m('host')
-			if (target === 'macos') {
-				// NSSlider exposes only its host bounds, not the shared drawn parts.
-				return [dims(host, 220, 28, 1)]
-			}
-
+		check: (m) => {
 			const track = m('track')
 			const fill = m('fill')
 			const thumb = m('thumb')

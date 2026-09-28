@@ -8,6 +8,8 @@ import { join, resolve } from 'node:path'
 const actionHandlers = new Map()
 const actionIdsByView = new WeakMap()
 const textNodesByView = new WeakMap()
+const panHandlersByView = new WeakMap()
+const gridLayoutNodesByView = new WeakMap()
 const accessibilityLabels = new Map()
 const accessibilityRoles = new Map()
 let nextActionId = 1
@@ -114,6 +116,7 @@ class ButtonActionTarget extends NSObject {
 	static ObjCExposedMethods = {
 		buttonPressed: { params: [NSButton], returns: interop.types.void },
 		viewPressed: { params: [NSObject], returns: interop.types.void },
+		viewPanned: { params: [NSPanGestureRecognizer], returns: interop.types.void },
 		controlChanged: { params: [NSObject], returns: interop.types.void },
 		textDidChange: { params: [NSNotification], returns: interop.types.void },
 	}
@@ -132,6 +135,25 @@ class ButtonActionTarget extends NSObject {
 
 	controlChanged(sender) {
 		invokeAction(sender.tag ?? actionIdsByView.get(sender))
+	}
+
+	viewPanned(sender) {
+		const handler = panHandlersByView.get(sender.view)
+		if (!handler) {return}
+
+		const translation = sender.translationInView(sender.view)
+		const nativeState = Number(sender.state)
+		const state = nativeState === 1 ? 1 : nativeState === 2 ? 2 : nativeState === 3 ? 3 : 0
+		try {
+			handler({
+				deltaX: Number(translation.x ?? 0),
+				deltaY: Number(translation.y ?? 0),
+				state,
+				view: sender.view,
+			})
+		} catch (error) {
+			console.error('[macos-event] pan handler failed', error)
+		}
 	}
 
 	textDidChange(notification) {
@@ -172,6 +194,68 @@ class AccessibleStackView extends NSStackView {
 
 	accessibilityIsIgnored() {
 		return !accessibilityRoles.has(actionIdsByView.get(this))
+	}
+}
+
+// AppKit's grid host overlays its children in one cell. The macOS Slider uses
+// that behavior to place its track, fill, and thumb from shared proportions.
+class GridLayoutView extends NSView {
+	static ObjCExposedMethods = {
+		accessibilityRole: { params: [], returns: interop.types.id },
+		accessibilityLabel: { params: [], returns: interop.types.id },
+		accessibilityValue: { params: [], returns: interop.types.id },
+		accessibilityMinValue: { params: [], returns: interop.types.id },
+		accessibilityMaxValue: { params: [], returns: interop.types.id },
+		accessibilityIsIgnored: { params: [], returns: interop.types.bool },
+		accessibilityIsEnabled: { params: [], returns: interop.types.bool },
+		accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
+		accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
+	}
+
+	static {
+		NativeClass(this)
+	}
+
+	accessibilityRole() {
+		const node = gridLayoutNodesByView.get(this)
+		return node?.props.accessibilityRole === 'adjustable' ? 'AXSlider' : 'AXGroup'
+	}
+
+	accessibilityLabel() {
+		return gridLayoutNodesByView.get(this)?.props.accessibilityLabel ?? ''
+	}
+
+	accessibilityValue() {
+		return NSNumber.numberWithDouble(Number(gridLayoutNodesByView.get(this)?.props.accessibilityValue ?? 0))
+	}
+
+	accessibilityMinValue() {
+		return NSNumber.numberWithDouble(Number(gridLayoutNodesByView.get(this)?.props.accessibilityMinValue ?? 0))
+	}
+
+	accessibilityMaxValue() {
+		return NSNumber.numberWithDouble(Number(gridLayoutNodesByView.get(this)?.props.accessibilityMaxValue ?? 100))
+	}
+
+	accessibilityIsIgnored() {
+		return !gridLayoutNodesByView.get(this)?.props.accessibilityRole
+	}
+
+	accessibilityIsEnabled() {
+		return gridLayoutNodesByView.get(this)?.props.disabled !== true
+	}
+
+	accessibilityPerformIncrement() {
+		return performGridAccessibilityAdjustment(this, 'onAccessibilityIncrement')
+	}
+
+	accessibilityPerformDecrement() {
+		return performGridAccessibilityAdjustment(this, 'onAccessibilityDecrement')
+	}
+
+	layout() {
+		super.layout()
+		layoutGridChildren(gridLayoutNodesByView.get(this))
 	}
 }
 
@@ -413,6 +497,76 @@ function makeSlider(props) {
 	return { view: slider, actionId }
 }
 
+function makeGridLayout() {
+	const view = GridLayoutView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 140, height: 28 } })
+	view.translatesAutoresizingMaskIntoConstraints = false
+	return view
+}
+
+function layoutLength(value, available, fallback) {
+	if (typeof value === 'string' && value.trim().endsWith('%')) {
+		const percent = Number(value.trim().slice(0, -1))
+		return Number.isFinite(percent) ? (available * percent) / 100 : fallback
+	}
+
+	const length = Number(value)
+	return Number.isFinite(length) ? length : fallback
+}
+
+function layoutGridChildren(parent) {
+	if (!parent?.view) {return}
+	const width = Number(parent.view.bounds.size.width)
+	const height = Number(parent.view.bounds.size.height)
+
+	for (const child of parent.children) {
+		if (!child.view) {continue}
+		const style = child.props.style ?? {}
+		const horizontal = child.props.horizontalAlignment ?? 'stretch'
+		const vertical = child.props.verticalAlignment ?? 'stretch'
+		const intrinsic = child.view.intrinsicContentSize ?? { width: 0, height: 0 }
+		const childWidth = style.width == null
+			? (horizontal === 'stretch' ? width : Math.max(0, Number(intrinsic.width ?? 0)))
+			: layoutLength(style.width, width, 0)
+		const childHeight = style.height == null
+			? (vertical === 'stretch' ? height : Math.max(0, Number(intrinsic.height ?? 0)))
+			: layoutLength(style.height, height, 0)
+
+		let x = 0
+		if (horizontal === 'center' || horizontal === 'middle') {
+			x = (width - childWidth) / 2
+		} else if (horizontal === 'right') {
+			x = width - childWidth
+		} else if (horizontal === 'left') {
+			x = layoutLength(style.left, width, 0) + Number(style.marginLeft ?? 0)
+		}
+
+		let y = 0
+		if (vertical === 'middle' || vertical === 'center') {
+			y = (height - childHeight) / 2
+		} else if (vertical === 'top') {
+			y = height - childHeight
+		}
+
+		child.view.frame = {
+			origin: { x, y },
+			size: { width: childWidth, height: childHeight },
+		}
+	}
+}
+
+function performGridAccessibilityAdjustment(view, name) {
+	const node = gridLayoutNodesByView.get(view)
+	const handler = node?.props[name]
+	if (typeof handler !== 'function') {return false}
+	try {
+		node.container.root.eventScope('discrete', handler)
+		return true
+	} catch (error) {
+		console.error('[macos-event] slider accessibility adjustment failed', error)
+		return false
+	}
+}
+
 function makeImageView(props) {
 	const image = NSImageView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 24, height: 24 } })
 	image.translatesAutoresizingMaskIntoConstraints = false
@@ -438,6 +592,9 @@ function makeNode(container, id, type, props) {
 			actionId = flexbox.actionId
 			break
 		}
+		case 'gridlayout':
+			view = makeGridLayout()
+			break
 		case 'label':
 			view = makeLabel()
 			break
@@ -498,6 +655,9 @@ function makeNode(container, id, type, props) {
 	}
 
 	const node = { id, type, view, childHost, props: {}, parent: null, children: [], container, actionId, text: '' }
+	if (type === 'gridlayout') {
+		gridLayoutNodesByView.set(view, node)
+	}
 	if (type === 'textview') {
 		const placeholder = makeLabel()
 		placeholder.font = fontForStyle(14)
@@ -558,6 +718,12 @@ function setSizeConstraint(node, name, value) {
 		console.warn('[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value))
 	} else {
 		specs[name] = spec
+	}
+
+	if (node.parent?.type === 'gridlayout') {
+		deactivateSizeConstraints(node)
+		layoutGridChildren(node.parent)
+		return
 	}
 
 	applySizeConstraint(node, name)
@@ -661,6 +827,8 @@ function applyStyle(node, style) {
 			node.view.layer.masksToBounds = true
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
+		} else if ((name === 'left' || name === 'marginLeft') && node.view) {
+			if (node.parent?.type === 'gridlayout') {layoutGridChildren(node.parent)}
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
 		} else if (name === 'fontWeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
@@ -699,7 +867,7 @@ function applyClassName(node, value) {
 		}
 	}
 
-	if (node.type === 'flexboxlayout' || node.type === 'stack' || node.type === 'scrollview') {
+	if (node.type === 'flexboxlayout' || node.type === 'stack' || node.type === 'scrollview' || node.type === 'gridlayout') {
 		const gaps = { 'gap-1': 4, 'gap-2': 8, 'gap-3': 12, 'gap-4': 16, 'gap-6': 24 }
 		for (const name of classes) {
 			if (gaps[name] !== undefined) {node.view.spacing = gaps[name]}
@@ -810,6 +978,29 @@ function setAction(node, value) {
 	)
 }
 
+function setPanAction(node, value) {
+	if (typeof value === 'function' && !node.panGestureRecognizer) {
+		node.panGestureRecognizer = NSPanGestureRecognizer.alloc().initWithTargetAction(
+			buttonActionTarget,
+			'viewPanned',
+		)
+		node.view.addGestureRecognizer(node.panGestureRecognizer)
+	}
+
+	panHandlersByView.set(
+		node.view,
+		typeof value === 'function'
+			? (event) => {
+				try {
+					node.container.root.eventScope('discrete', () => value(event))
+				} catch (error) {
+					console.error('[macos-event] pan handler failed', error)
+				}
+			}
+			: null,
+	)
+}
+
 function setControlAction(node, value, readValue) {
 	if (node.actionId === undefined) {return}
 	actionHandlers.set(
@@ -882,8 +1073,9 @@ function applyProps(node, props) {
 				}
 				else if (name === 'id') {continue}
 				else if (name === 'onTap') {setAction(node, value)}
+				else if (name === 'onPan') {setPanAction(node, value)}
 				else if (name === 'onTouch') {continue}
-				else if (name === 'onPan' || name === 'onSwipe') {
+				else if (name === 'onSwipe') {
 					if (typeof value === 'function') {
 						console.warn('[macos-host] ' + name + ' is unsupported by the AppKit renderer')
 					}
@@ -906,9 +1098,32 @@ function applyProps(node, props) {
 						'flexShrink',
 						'alignSelf',
 						'order',
+						'horizontalAlignment',
+						'verticalAlignment',
 					].includes(name)
 				) {continue}
 				else {console.warn('[macos-host] ignored flexboxlayout prop ' + name)}
+
+				break
+			case 'gridlayout':
+				if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id') {continue}
+				else if (name === 'disabled') {continue}
+				else if (name === 'onPan') {setPanAction(node, value)}
+				else if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {continue}
+				else if (name === 'onSwipe') {
+					if (typeof value === 'function') {
+						console.warn('[macos-host] onSwipe is unsupported by the AppKit renderer')
+					}
+				}
+				else if (name.startsWith('on') && value == null) {continue}
+				else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else if (['rows', 'columns'].includes(name)) {
+					if (value) {
+						throw new Error('[macos-host] gridlayout overlay does not support ' + name)
+					}
+				} else {console.warn('[macos-host] ignored gridlayout prop ' + name)}
 
 				break
 		case 'label':
@@ -1067,7 +1282,18 @@ function insert(container, parentId, node, beforeId) {
 	detach(container, node)
 	const parent = parentId === null ? null : container.nodes.get(parentId)
 	if (parentId !== null && !parent) {throw new Error('Unknown AppKit parent ' + parentId)}
-	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout' && parent.type !== 'scrollview') {
+	if (
+		parent?.type === 'gridlayout' &&
+		node.view &&
+		(Number(node.props.row ?? 0) !== 0 ||
+			Number(node.props.col ?? 0) !== 0 ||
+			Number(node.props.rowSpan ?? 1) !== 1 ||
+			Number(node.props.colSpan ?? 1) !== 1)
+	) {
+		throw new Error('[macos-host] gridlayout overlay supports only its default cell')
+	}
+
+	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout' && parent.type !== 'scrollview' && parent.type !== 'gridlayout') {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
 
@@ -1080,10 +1306,17 @@ function insert(container, parentId, node, beforeId) {
 		const parentView = parent?.childHost ?? parent?.view ?? container.hostView
 		if (!parentView) {throw new Error('AppKit host has no parent view for node ' + node.id)}
 		if (parent) {
-			parentView.addViewInGravity(node.view, stackGravity(parent, node))
-			applySizeConstraints(node)
-			setStackChildPriorities(parent, node)
-			updateCrossAxisConstraints(parent)
+			if (parent.type === 'gridlayout') {
+				parentView.addSubview(node.view)
+				node.view.translatesAutoresizingMaskIntoConstraints = false
+				deactivateSizeConstraints(node)
+				layoutGridChildren(parent)
+			} else {
+				parentView.addViewInGravity(node.view, stackGravity(parent, node))
+				applySizeConstraints(node)
+				setStackChildPriorities(parent, node)
+				updateCrossAxisConstraints(parent)
+			}
 		} else {
 			parentView.addSubview(node.view)
 			node.view.leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active = true

@@ -1,9 +1,12 @@
 /** @jsxImportSource @xplat/macos/renderer */
-import type { ActivityIndicatorProps, ButtonProps, CheckboxProps, SegmentedControlProps, SliderProps, SwitchProps } from './props'
+import { useRef, useState } from 'octane'
+import type { ActivityIndicatorProps, ButtonProps, CheckboxProps, PanEvent, SegmentedControlProps, SliderProps, SwitchProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { cx } from './cx'
+import { usePan } from './pan.native.tsrx'
+import { nativeAccessibilityRole } from './escape-props'
 import { useThemeScheme } from './theme/theme-scheme.macos'
 
 function controlColors(dark: boolean) {
@@ -81,15 +84,68 @@ export function Switch(props: SwitchProps) @{
 }
 
 export function Slider(props: SliderProps) @{
-	<slider
+	const min = props.minValue ?? 0
+	const max = props.maxValue ?? 100
+	const drag = useRef<{ value0: number } | null>(null)
+	const [dragValue, setDragValue] = useState<number | null>(null)
+	const value = dragValue ?? props.value ?? min
+	const ratio = Math.min(1, Math.max(0, (value - min) / (max - min)))
+	const colors = controlColors(useThemeScheme() === 'dark')
+	const onPan = usePan(props.disabled ? undefined : (event: PanEvent) => {
+		if (event.state === 'began') {
+			drag.current = { value0: value }
+			return
+		}
+
+		const width = Number(event.target?.bounds?.size?.width ?? event.target?.frame?.size?.width ?? 0)
+		if (!drag.current || !width) {return}
+		if (event.state === 'moved') {
+			const next = Math.min(max, Math.max(min, drag.current.value0 + (event.dx / width) * (max - min)))
+			setDragValue(next)
+			props.onValueChange?.(next)
+		} else {
+			drag.current = null
+			setDragValue(null)
+		}
+	})
+	const adjustValue = (direction: number) => {
+		if (props.disabled) {return}
+		const next = Math.min(max, Math.max(min, value + direction * ((max - min) / 100)))
+		setDragValue(next)
+		props.onValueChange?.(next)
+	}
+
+	<gridlayout
 		id={props.id}
-		value={props.value}
-		minValue={props.minValue}
-		maxValue={props.maxValue}
-		onValueChange={props.onValueChange}
+		disabled={props.disabled}
 		className={cx('vx-slider', props.className)}
 		style={{ height: 28, ...props.style }}
-	/>
+		accessibilityRole={nativeAccessibilityRole('adjustable') as any}
+		accessibilityValue={value}
+		accessibilityMinValue={min}
+		accessibilityMaxValue={max}
+		onAccessibilityIncrement={() => adjustValue(1)}
+		onAccessibilityDecrement={() => adjustValue(-1)}
+		onPan={onPan}
+	>
+		<flexboxlayout
+			className="vx-slider-track"
+			verticalAlignment="middle"
+			style={{ height: 4, borderRadius: 2, backgroundColor: colors.border }}
+		/>
+		<flexboxlayout
+			className="vx-slider-fill"
+			horizontalAlignment="left"
+			verticalAlignment="middle"
+			style={{ width: String(ratio * 100) + '%', height: 4, borderRadius: 2, backgroundColor: colors.primary }}
+		/>
+		<flexboxlayout
+			className="vx-slider-thumb"
+			horizontalAlignment="left"
+			verticalAlignment="middle"
+			style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: colors.primary, left: String(ratio * 100) + '%', marginLeft: -10 }}
+		/>
+	</gridlayout>
 }
 
 export function SegmentedControl(_props: SegmentedControlProps) @{
