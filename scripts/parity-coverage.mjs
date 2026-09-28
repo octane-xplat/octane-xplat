@@ -11,7 +11,7 @@ import ts from 'typescript'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const errors = []
 const ALL_TARGETS = ['web', 'ios', 'android', 'macos']
-const GOAL_TARGETS = ['web', 'macos']
+const REQUIRED_TARGETS = ['web', 'ios', 'android']
 
 // These renderer-file exports are helpers, not component roots. Every other
 // runtime export from a renderer file needs fixture coverage or a deferral.
@@ -109,6 +109,11 @@ const DEFERRED_GROUPS = [
 		reason:
 			'OS- or engine-backed content needs target fixtures for the shared frame and any project-drawn chrome.',
 		components: ['SearchInput', 'Image', 'WebView'],
+	},
+	{
+		reason:
+			'Pager and Video need leaf-package fixtures for their native engine-backed frames and project-drawn chrome.',
+		components: ['Pager', 'Video'],
 	},
 ]
 
@@ -242,6 +247,15 @@ function exportNames(path) {
 const webExports = exportNames(join(root, 'packages/ui/src/index.web.ts'))
 const nativeExports = exportNames(join(root, 'packages/ui/src/index.native.ts'))
 const sharedRendererExports = new Set([...webExports].filter((name) => nativeExports.has(name)))
+for (const pkg of ['pager', 'video']) {
+	const web = exportNames(join(root, `packages/${pkg}/src/index.web.ts`))
+	const native = exportNames(join(root, `packages/${pkg}/src/index.native.ts`))
+	for (const name of web) {
+		if (native.has(name)) {
+			sharedRendererExports.add(name)
+		}
+	}
+}
 for (const [name, reason] of NON_RENDERABLE) {
 	if (!reason.trim()) {
 		errors.push(`${name}: non-renderable exports need a reason`)
@@ -297,7 +311,7 @@ for (const element of arrayDeclaration(checksPath, 'CHECKS', ts.ScriptKind.JS)) 
 
 const fixtureNames = new Set()
 const coveredComponents = new Set()
-const goalPairComponents = new Set()
+const requiredTargetComponents = new Set()
 for (const fixture of fixtures) {
 	if (fixtureNames.has(fixture.name)) {
 		errors.push(`duplicate fixture name: ${fixture.name}`)
@@ -315,8 +329,13 @@ for (const fixture of fixtures) {
 	}
 
 	const checkTargets = checkTargetsByFixture.get(fixture.name)
-	if (GOAL_TARGETS.every((target) => checkTargets?.has(target))) {
-		goalPairComponents.add(fixture.component)
+	const missingTargets = REQUIRED_TARGETS.filter((target) => !checkTargets?.has(target))
+	if (missingTargets.length) {
+		errors.push(
+			`${fixture.name}: measured assertion must include required targets ${missingTargets.join(', ')}`,
+		)
+	} else {
+		requiredTargetComponents.add(fixture.component)
 	}
 }
 
@@ -368,14 +387,14 @@ if (errors.length) {
 	process.exitCode = 1
 } else {
 	console.log(
-		`[parity-coverage] ${coveredComponents.size}/${sharedComponents.size} shared renderable exports have measured checks; web+macOS checks cover ${goalPairComponents.size}; ${deferredComponents.size} deferred; ${NON_RENDERABLE.size} renderer helpers excluded`,
+		`[parity-coverage] ${coveredComponents.size}/${sharedComponents.size} shared renderable exports have measured checks; web+iOS+Android checks cover ${requiredTargetComponents.size}; ${deferredComponents.size} deferred; ${NON_RENDERABLE.size} renderer helpers excluded`,
 	)
 
 	const targetLimited = [...coveredComponents]
-		.filter((component) => !goalPairComponents.has(component))
+		.filter((component) => !requiredTargetComponents.has(component))
 		.sort((a, b) => a.localeCompare(b))
 
 	if (targetLimited.length) {
-		console.log(`[parity-coverage] no web+macOS check: ${targetLimited.join(', ')}`)
+		console.log(`[parity-coverage] no web+iOS+Android check: ${targetLimited.join(', ')}`)
 	}
 }

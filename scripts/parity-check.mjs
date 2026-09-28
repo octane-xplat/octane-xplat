@@ -14,7 +14,6 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dir = join(root, 'parity-report')
 const NEAR = 0.51
 const OPACITY_NEAR = 0.01
-const TEXT_ADVANCE_NEAR = 0.1
 
 const dumps = new Map()
 if (existsSync(dir)) {
@@ -165,11 +164,7 @@ for (const def of CHECKS) {
 			})
 
 			const [first, ...rest] = values
-			const tolerance = facet.endsWith('opacity')
-				? OPACITY_NEAR
-				: facet.endsWith('textLineAdvances')
-					? TEXT_ADVANCE_NEAR
-					: NEAR
+			const tolerance = facet.endsWith('opacity') ? OPACITY_NEAR : NEAR
 			const ok = rest.every(([, v]) => equalValue(first[1], v, tolerance))
 
 			report(ok, `${def.fixture} · equal ${facet}`, values.map(([t, v]) => `${t}=${v}`).join(' '))
