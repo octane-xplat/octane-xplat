@@ -95,11 +95,12 @@ const DEFERRED_GROUPS = [
 	},
 	{
 		reason:
-			'Content-driven dimensions need representative children or data and an intentional bounds contract.',
+			'Content-driven dimensions need representative children or data and an intentional bounds contract; VirtualList also needs viewport and scrolling scenarios.',
 		components: [
 			'Breadcrumb',
 			'Pagination',
 			'Table',
+			'VirtualList',
 			'Timeline',
 			'Tree',
 			'Alert',
@@ -120,7 +121,6 @@ const DEFERRED_GROUPS = [
 			'Image',
 			'WebView',
 			'Video',
-			'CameraView',
 		],
 	},
 ]
