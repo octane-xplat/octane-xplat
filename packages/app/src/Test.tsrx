@@ -8,7 +8,7 @@ import { Probes } from './probes-host';
 import { Services } from './Services.tsrx';
 import { openSheet } from './platform/sheet';
 import { navigate } from './platform/nav';
-import { MediaServices } from './MediaServices.tsrx';
+import { MediaServices } from './media-services';
 
 /** Test tab — everything that isn't the familiar poke surface: probe
  *  instrumentation, the platform-services catalog, harness seams (switch,

@@ -4,7 +4,10 @@
 	"private": true,
 	"type": "module",
 	"exports": {
-		".": "./src/index.ts",
+		".": {
+			"macos": "./src/index.macos.ts",
+			"default": "./src/index.ts"
+		},
 		"./*": "./src/*"
 	},
 	"dependencies": {

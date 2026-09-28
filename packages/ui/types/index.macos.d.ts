@@ -64,6 +64,11 @@ export declare const SearchInput: Component<P.SearchInputProps>
 export declare const SegmentedControl: Component<P.SegmentedControlProps>
 export declare const ScrollBox: Component<P.ScrollViewProps>
 export declare const ScrollView: Component<P.ScrollViewProps>
+/**
+ * AppKit fallback with keyed rows and one nonvirtualized scroll view.
+ * Offscreen rows remain mounted; use a platform-native list for large data.
+ */
+export declare function VirtualList<T = any>(props: P.VirtualListProps<T> & { children?: any }): unknown
 export declare const Pager: Component<P.PagerProps>
 export declare const Image: Component<P.ImageProps>
 export declare const WebView: Component<P.WebViewProps>

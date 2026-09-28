@@ -29,7 +29,7 @@ export function Services() @{
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Unsupported on this AppKit host</Text>
-			<Text className="text-sm text-muted">Connectivity, secure storage, haptics, notifications, location, camera, photo and file pickers, sharing, app settings, biometrics, system bars, and accessibility announcements.</Text>
+			<Text className="text-sm text-muted">Connectivity, secure storage, audio, UI sounds, haptics, notifications, location, camera, photo and file pickers, sharing, app settings, biometrics, system bars, and accessibility announcements.</Text>
 			<Text className="text-sm text-muted">{conn.supported === false ? 'Connectivity: unsupported' : 'Connectivity: available'}</Text>
 		</View>
 	</View>
