@@ -844,9 +844,11 @@ setTimeout(() => {
 }, 10600)
 
 // ---------------------------------------------------------------------------
-// Android-only probes. The iOS demosweep is skipped on Android (upstream
-// #11444 nested-Frame bug); SwapTabs is the Android path under test —
-// tab switching is a Pressable tap, not selectedIndexChanged.
+// Android-only probes. The iOS demosweep is skipped on Android — its steps
+// read native Page/Frame objects, while Android named stacks are
+// router-owned swap panes (upstream #11444; fix ported as #11446 in the
+// core patch). SwapTabs is the Android path under test — tab switching is
+// a Pressable tap, not selectedIndexChanged.
 if (Application.android) {
 	const waitFor = (cond: () => boolean, then: () => void, tries = 40) => {
 		const tick = () => {

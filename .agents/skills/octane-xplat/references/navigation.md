@@ -16,9 +16,11 @@ goBack({ into?: 'demos' });
 - `pushRoute({ stack, name, params })` — `'root'` is a full-screen push
   covering the tab shell on both targets. Web renders named routes in the
   tab outlet. iOS uses a named `Frame` only when one is registered (the
-  platform `UITabBar` does this; shared `Tabs` does not). Android has a
-  router-owned swap-pane implementation, but consult the canonical limit
-  before relying on it (NativeScript#11444).
+  platform `UITabBar` does this; shared `Tabs` does not). Android named
+  stacks always use the router-owned swap-pane: pushes live in the route
+  store and render through `RouteHost` inside the pane — including inside
+  `BottomNavigationView`, whose Frame panes are kept for chrome only
+  (TabViewItem Frames lose bookkeeping upstream, NativeScript#11444).
 - `popRoute(stack?)` — native pops the selected registered `Frame` or
   Android route array (quiet no-op at the base). Web is one linear history →
   `history.back()`; the `stack` arg is accepted for parity and ignored.
@@ -42,9 +44,9 @@ goBack({ into?: 'demos' });
    drops.
 3. **Named stacks** — `UITabBar` from `@octane-xplat/ui/ios` registers a
    `Frame` for each stacked tab. The shared `Tabs` does not register Frames;
-   Android stores named routes in router-owned arrays and swaps the active
-   pane. Android support remains unverified per the canonical known-limits
-   guide.
+   Android stores named routes in router-owned arrays and the active pane
+   (`Tabs` or `BottomNavigationView`) renders the top entry through
+   `RouteHost`.
 
 Invalid targets warn loudly (once per key, dev and release): unregistered
 root stack, unknown screen name, or non-Frame root.
@@ -54,7 +56,7 @@ root stack, unknown screen name, or non-Frame root.
 | Shape                         | Web                                                                                                                   | iOS                      | Android                                                               |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------- |
 | `{stack:'root'}` push         | ✓ `/<path>?params` covers shell                                                                                       | ✓ verified               | ✓ verified                                                            |
-| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane                                                                                             | registered `UITabBar` Frame; shared `Tabs` unverified | swap-pane code exists; unverified per known-limits |
+| named stack (`stack:'demos'`) | ✓ `/demos/<path>` in pane                                                                                             | registered `UITabBar` Frame; shared `Tabs` via route store | swap-pane route store, rendered in-pane (shared `Tabs` verified; `BottomNavigationView` desk-only) |
 | params                        | `[param]` segments → real path (`/demo/counter`); extras → query-string scalars — objects degrade (`[object Object]`) | real objects as props    | real objects as props                                                 |
 | `useRoute`/`routeFor`         | ✓                                                                                                                     | ✓ stamped on pushed page | ✓ root; named tabs subscribe to router state                          |
 | `popRoute`                    | ✓ (`history.back`)                                                                                                    | ✓                        | ✓ root + router-owned named-stack pop                                 |

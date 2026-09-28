@@ -214,11 +214,17 @@ making the generated API's scalar contract explicit.
 6. Nested layouts, basic loaders, fade transitions, web scroll restoration,
    and the minimal window-opening seam — implemented; loader boundary and
    multi-window resolver composition remain app-owned.
-7. Android nested tab stacks — swap-style fallback implemented. Android
-   stores named-stack routes in the router and swaps the active screen under
-   a fixed tab row (no swipe gesture); tab screen-local state resets when
-   switching away. NativeScript #11444 remains open for apps that use
-   `Frame` inside `TabViewItem`. Runtime validation is pending.
+7. Android nested tab stacks — swap-style fallback implemented and now
+   rendered inside the platform tab bar too: Android stores named-stack
+   routes in the router and swaps the active screen under a fixed tab row
+   (no swipe gesture), so named pushes never touch the fragment manager
+   (the raced-push `IllegalArgumentException: No view found for id` class
+   of crash is structurally eliminated). Tab screen-local state resets
+   when switching away. iOS `UITabBar` keeps real per-pane Frames — the
+   router re-arms `isLoaded` before every push and pop (the #11444 stall
+   hits `goBack` too), and the upstream fix (NativeScript#11446:
+   items-churn teardown + `topmost()` ranking) is ported into the xplat
+   `@nativescript/core` patch. On-device validation is pending.
 
 ## Lab log
 

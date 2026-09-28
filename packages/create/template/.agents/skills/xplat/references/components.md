@@ -77,10 +77,12 @@ inert layout below it).
   `DrawerLayout`/`SideDrawer` in the platform subpaths.
 - `RichTextSpan` children carry their own `className`/`style`/`onPress`;
   native maps spans to `FormattedString` runs.
-- `UITabBar`/`BottomNavigationView` give real per-pane navigation stacks
-  for `TabSpec.stack`; the shared `Tabs` keeps stack history in the route
-  store instead. On Android, Frame-in-TabViewItem is unreliable upstream
-  (NativeScript#11444) — prefer the shared `Tabs` there for stack panes.
+- `UITabBar`/`BottomNavigationView` give platform-authentic tab chrome for
+  `TabSpec.stack`; pushed screens render inside the pane either way —
+  through a real per-pane `Frame` on iOS, and through the route store on
+  Android (Frame-in-TabViewItem bookkeeping is unreliable upstream,
+  NativeScript#11444). The shared `Tabs` uses the same route-store pane on
+  both.
 - Accessibility props (`accessible`, label, hint, role, state, live
   region) share names across targets; native translates roles such as
   `heading` → `header`.

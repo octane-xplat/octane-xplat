@@ -23,7 +23,7 @@ uses a swapped pane rather than a `TabView`.
 - `Frame.topmost()` returns the **innermost** frame once nested stacks
   exist — root reads via `getStack('root')`.
 
-## Android — nested stacks broken (upstream #11444)
+## Android — nested stacks (upstream #11444, framework-owned)
 
 A `Frame` inside a `TabViewItem` on Android:
 
@@ -34,18 +34,26 @@ A `Frame` inside a `TabViewItem` on Android:
 - a push raced against attach crashes: `IllegalArgumentException: No view
 found for id 0x3` (release-build fatal).
 
-Root cause (desk): `TransitionListener.onTransitionEnd` doesn't propagate
-from the child `FragmentManager` under `TabViewItem` — completion never
-reaches `transitionOrAnimationCompleted → setCurrent`. Filed as
-[NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444)
-(covers the iOS `isLoaded` strand too).
+Root cause (upstream, #11446): `TabViewBase.onItemsChanged` tore down and
+re-added every item whenever `items` was re-assigned — which a reactive
+renderer does on every update — recreating the frame's native view
+detached from its tab fragment. Transactions then land on a detached child
+`FragmentManager`, so `TransitionListener.onTransitionEnd` never reaches
+`transitionOrAnimationCompleted → setCurrent`. Filed as
+[NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444);
+the fix ([NativeScript#11446](https://github.com/NativeScript/NativeScript/pull/11446))
+is ported into the xplat `@nativescript/core` patch.
 
-**Containment:** the framework's shared `Tabs` shell avoids this structure:
-it uses a fixed tab row and router-owned per-tab route arrays, then swaps the
-active pane. Tab screen-local state resets when switching tabs. Apps that
-directly host a `Frame` in a `TabViewItem` still encounter this issue. The
-current `demosweep.ts` probe remains gated on Android because it reads
-native `Page` objects; it has not been adapted to the router-owned pane.
+**Containment:** the framework avoids the structure entirely on Android —
+named-stack pushes always live in the route store and render through
+`RouteHost` inside the active pane (shared `Tabs` and
+`BottomNavigationView` alike), so no fragment transaction runs and the
+raced-push crash can't occur. On iOS the registered `UITabBar` Frames do
+navigate natively; `route` re-arms `isLoaded` before every push and pop
+(both queue on `_processNextNavigationEntry`). Apps that directly host a
+`Frame` in a `TabViewItem` rely on the core patch. The `demosweep.ts`
+catalog sweep remains gated on Android because it asserts native `Page`
+objects; its swap-pane VirtualList check already runs.
 
 ## Fragment/page bookkeeping order
 

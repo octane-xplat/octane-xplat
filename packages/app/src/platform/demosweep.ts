@@ -12,14 +12,16 @@ import { DEMOS } from '@xplat/demos'
 import { goBack, navigate } from './nav'
 import { closeSheet, sheetHost } from './sheet'
 
-// Nested stacks don't work on Android yet — a TabViewItem-hosted Frame
-// accepts pushes (fragment transaction commits) but setCurrent/bookkeeping
-// never runs, and a push raced against attach crashes the FragmentManager
-// (upstream issue NativeScript#11444). Skip the catalog sweep there; the
-// focused VirtualList check below uses the Android-safe swap-pane route.
+// The catalog sweep stays gated on Android — its step chain asserts native
+// Page/Frame objects (getStack().currentPage, navigated pages), which the
+// Android path deliberately lacks: named-stack pushes live in the route
+// store and render through the swap pane (TabViewItem-hosted Frames lose
+// bookkeeping upstream — NativeScript#11444; fix ported as #11446 in the
+// xplat core patch). The focused VirtualList check below uses the
+// Android-safe swap-pane route.
 const SKIP = Application.android != null
 if (SKIP) {
-	console.log('[sweep] nested stacks skipped on android — upstream #11444')
+	console.log('[sweep] catalog sweep skipped on android — asserts native Page objects; swap-pane route used instead')
 }
 
 // Demo-catalog sweep probe (native only — web twin is a no-op). Lives outside

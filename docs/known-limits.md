@@ -87,14 +87,15 @@ them. Theme classes are forwarded; read context inside the overlay or pass
 values down.
 
 The self-drawn set compiles on both leaves, passes the web smoke suite, and
-renders in the harness `components` sweep on iOS; Android nested-stack
-sweeps remain skipped on #11444.
+renders in the harness `components` sweep on iOS; the Android nested-stack
+sweep remains skipped because it asserts native `Page`/`Frame` objects —
+pushes themselves work through the swap-pane route store.
 
 ## Navigation
 
 | Seam                    | Web                                          | iOS                                             | Android                                    | Kind             | Verified |
 | ----------------------- | -------------------------------------------- | ----------------------------------------------- | ------------------------------------------ | ---------------- | -------- |
-| Push into a named stack | nested-outlet URL push                       | commits but loses bookkeeping ([NS#11444](https://github.com/NativeScript/NativeScript/issues/11444)) | warns loudly and drops — raced pushes can crash the fragment manager | `broken-upstream` | 0.5.0    |
+| Push into a named stack | nested-outlet URL push                       | `UITabBar` Frame navigates natively — the router re-arms `isLoaded` before push and pop; the [NS#11446](https://github.com/NativeScript/NativeScript/pull/11446) fix (items-churn root cause + `topmost()` ranking) ships in the xplat core patch. Shared `Tabs` panes use the route store | router-owned swap pane — pushed routes render through `RouteHost` inside the platform tab pane, so named pushes never touch the fragment manager (`BottomNavigationView` behaves like shared `Tabs`) | `different`     | 0.6.0·desk |
 | Hardware back           | browser back → `popstate`                    | — (no hardware back)                            | wired; `useBackInterceptor()` can handle back before route pop; pop-while-pushed not yet verified live | `different`     | 0.6.0·desk |
 | Route params            | serialize to query string — objects dropped  | objects survive                                 | objects survive                            | `degraded`       | 0.5.0    |
 | `popRoute(stack)`       | `history.back()` regardless of `stack`       | pops that stack                                 | pops that stack                            | `different`      | 0.5.0    |

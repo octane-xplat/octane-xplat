@@ -19,12 +19,15 @@ call sites drive both.
 - **Back** — browser back, hardware back (Android), and swipe-back (iOS)
   all map to `popRoute` on the current stack.
 
-## Known gap
+## Named stacks
 
-Pushing into a _named_ stack is iOS-only until
-[NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444)
-lands — `pushRoute` there warns loudly on Android instead of dropping
-silently. Root-stack navigation works on both platforms.
+Pushing into a named stack (`{ into: 'stackName' }`) works on all three
+targets: web pushes into the nested outlet, iOS navigates a real `Frame`
+when the platform `UITabBar` registered one (and uses the route store
+under the shared `Tabs`), and Android always uses the router-owned
+swap-pane — pushed screens render inside the active tab pane.
+`popRoute(stack)`/`useRoute(stack)` behave the same either way, so app
+code never sees which mechanism ran.
 
 For loaders, route config, and generated route types, see the navigation
 guide: https://octane-xplat.goddardai.org/navigation

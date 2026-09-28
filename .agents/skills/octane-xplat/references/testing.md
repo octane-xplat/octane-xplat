@@ -33,7 +33,9 @@ Drives the app and proof catalogs: switches to Apps or Test, opens each
 entry in its stack, checks rendered content, then goes back. The sweep also
 covers a sheet-hosted demo, overlay/popover/toast behavior, controls, and
 other primitive seams. The nested-Frame sweep remains gated off Android
-(NativeScript#11444); the web twin is a no-op.
+because it asserts native `Page`/`Frame` objects — named pushes themselves
+work through the swap-pane route store and a focused VirtualList probe
+runs there instead; the web twin is a no-op.
 
 ## Web smoke (`apps/web/scripts/smoke.mjs`)
 
