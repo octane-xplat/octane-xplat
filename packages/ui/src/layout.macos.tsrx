@@ -37,5 +37,5 @@ export function Absolute(props: AbsoluteProps) @{
 }
 
 export function Spacer(props: SpacerProps) @{
-	<flexboxlayout className={props.className} style={{ flexGrow: 1, ...props.style }} />
+	<flexboxlayout className={cx('vx-spacer flex-1', props.className)} style={props.style} />
 }

@@ -31,7 +31,6 @@ const DEFERRED_GROUPS = [
 			'Remaining layout and overlay components need positioning, root-host, or overlay-host scenarios beyond the measured containers.',
 		components: [
 			'Absolute',
-			'Spacer',
 			'ScrollBox',
 			'Overlay',
 			'Popover',

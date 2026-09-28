@@ -359,6 +359,20 @@ function moveStackChildren(parent) {
 	updateCrossAxisConstraints(parent)
 }
 
+function updateStackDistribution(parent) {
+	const stack = parent.childHost ?? parent.view
+	if (stack?.orientation == null) {return}
+	if (stackJustifyContent(parent) === 'space-between') {
+		stack.distribution = NSStackViewDistribution.EqualSpacing
+		return
+	}
+
+	const grows = parent.children.some(
+		(child) => child.view && nodeClasses(child).includes('flex-1'),
+	)
+	stack.distribution = grows ? NSStackViewDistribution.Fill : NSStackViewDistribution.GravityAreas
+}
+
 function setStackChildPriorities(parent, child) {
 	const stack = parent.childHost ?? parent.view
 	if (stack?.orientation == null || !child.view) {return}
@@ -372,6 +386,7 @@ function setStackChildPriorities(parent, child) {
 		child.view.setContentHuggingPriorityForOrientation(priority, orientation)
 		child.view.setContentCompressionResistancePriorityForOrientation(750, orientation)
 	}
+	updateStackDistribution(parent)
 }
 
 function makeFlexbox(props) {
@@ -1187,6 +1202,9 @@ function applyClassName(node, value) {
 			if (node.type === 'textview') {node.view.textContainerInset = { width: 0, height: 0 }}
 		}
 	}
+
+	if (node.parent) {setStackChildPriorities(node.parent, node)}
+	updateStackDistribution(node)
 }
 
 function textContent(node) {
@@ -1562,6 +1580,7 @@ function detach(container, node) {
 	}
 
 	if (previousParent?.type === 'gridlayout') {layoutGridChildren(previousParent)}
+	if (previousParent) {updateStackDistribution(previousParent)}
 	syncText(previousParent)
 	node.parent = null
 }
@@ -1626,6 +1645,7 @@ function remove(container, parentId, node) {
 	}
 
 	if (expectedParent?.type === 'gridlayout') {layoutGridChildren(expectedParent)}
+	if (expectedParent) {updateStackDistribution(expectedParent)}
 	node.parent = null
 	syncText(expectedParent)
 }

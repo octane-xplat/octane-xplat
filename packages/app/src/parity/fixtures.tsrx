@@ -11,6 +11,7 @@ import {
 	View,
 	Grid,
 	Stack,
+	Spacer,
 	Column,
 	Row,
 	ScrollView,
@@ -164,6 +165,14 @@ function RowLayoutFixture() @{
 	</Row>
 }
 
+function SpacerLayoutFixture() @{
+	<Row className="parity-spacer-root" style={{ width: 96, height: 24 }} gap={4}>
+		<View className="parity-spacer-leading" style={{ width: 20, height: 10 }} />
+		<Spacer className="parity-spacer" />
+		<View className="parity-spacer-trailing" style={{ width: 20, height: 10 }} />
+	</Row>
+}
+
 function ScrollViewLayoutFixture() @{
 	<ScrollView className="parity-scroll-root" style={{ width: 96, height: 32 }}>
 		<Column className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={4}>
@@ -272,6 +281,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'stack-overlay-layout', component: 'Stack', renderer: StackLayoutFixture, props: {} },
 	{ name: 'column-layout', component: 'Column', renderer: ColumnLayoutFixture, props: {} },
 	{ name: 'row-layout', component: 'Row', renderer: RowLayoutFixture, props: {} },
+	{ name: 'spacer-layout', component: 'Spacer', renderer: SpacerLayoutFixture, props: {} },
 	{ name: 'scroll-view-layout', component: 'ScrollView', renderer: ScrollViewLayoutFixture, props: {} },
 	{ name: 'screen-layout', component: 'Screen', renderer: ScreenLayoutFixture, props: {} },
 	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
