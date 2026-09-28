@@ -13,7 +13,7 @@ export interface Capability<T> {
 export type AppState = 'active' | 'background' | 'inactive'
 
 export interface DeviceInfo {
-	os: 'web' | 'ios' | 'android'
+	os: 'web' | 'ios' | 'android' | 'macos'
 	osVersion: string
 	model: string
 	manufacturer: string
@@ -130,6 +130,8 @@ export type ConnectionType =
 	| 'unknown'
 
 export interface ConnectivityState {
+	/** False when this runtime has no connectivity probe. */
+	supported?: boolean
 	online: boolean
 	type: ConnectionType
 }

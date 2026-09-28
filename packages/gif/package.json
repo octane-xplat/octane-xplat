@@ -10,6 +10,10 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"macos": {
+				"types": "./types/index.macos.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"web": "./src/index.web.ts",
 			"native": "./src/index.native.ts",
 			"default": "./src/index.native.ts"
@@ -19,6 +23,10 @@
 		"access": "public",
 		"exports": {
 			".": {
+				"macos": {
+					"types": "./types/index.macos.d.ts",
+					"default": "./src/index.macos.ts"
+				},
 				"types": "./types/index.d.ts",
 				"web": "./dist/web/index.js",
 				"native": "./dist/native/index.js",

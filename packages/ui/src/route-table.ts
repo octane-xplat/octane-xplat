@@ -29,7 +29,7 @@
 import type { Route, RouteManifest, RouteMeta } from './props'
 
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
-const SUFFIX = /\.(web|native|ios|android)$/
+const SUFFIX = /\.(web|native|ios|android|macos)$/
 const PARAM = /^\[(.+)\]$/
 // `settings+modal.tsrx` → route 'settings' presented modally by default.
 const PRESENT = /\+(modal|fade|push)$/

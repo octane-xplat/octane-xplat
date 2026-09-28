@@ -4,16 +4,7 @@
 	"files": [
 		"dist",
 		"types",
-		"src/index.macos.ts",
-		"src/View.native.tsrx",
-		"src/Text.native.tsrx",
-		"src/Pressable.native.tsrx",
-		"src/cx.ts",
-		"src/layout-child.native.ts",
-		"src/pan.native.tsrx",
-		"src/props.ts",
-		"src/escape-props.native.ts",
-		"src/theme/tokens.css"
+		"src"
 	],
 	"type": "module",
 	"exports": {
