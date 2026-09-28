@@ -922,6 +922,32 @@ input.vx-search-field::-webkit-search-cancel-button {
 	margin-bottom: 8px;
 }
 
+/* ListItem — a reusable shared row; callers own the surrounding list chrome. */
+.vx-listitem {
+	flex-direction: row;
+	align-items: center;
+	width: 100%;
+	padding: 10px 12px;
+	gap: 12px;
+}
+.vx-listitem-leading,
+.vx-listitem-trailing {
+	flex-shrink: 0;
+	align-items: center;
+}
+.vx-listitem-content {
+	flex-direction: column;
+	flex-grow: 1;
+}
+.vx-listitem-title {
+	font-weight: 500;
+}
+.vx-listitem-supporting {
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--color-text-secondary);
+}
+
 /* InputNumber — steppers flanking a centered field. */
 .vx-inputnumber {
 	flex-direction: row;
@@ -1039,6 +1065,10 @@ input.vx-search-field::-webkit-search-cancel-button {
 /* xplat-web-only:start — display:flex for the div/span flex classes */
 .vx-field,
 .vx-fieldgroup,
+.vx-listitem,
+.vx-listitem-leading,
+.vx-listitem-content,
+.vx-listitem-trailing,
 .vx-inputnumber,
 .vx-inputnumber-step,
 .vx-select-trigger,

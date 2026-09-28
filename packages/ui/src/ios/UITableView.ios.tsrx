@@ -3,10 +3,11 @@
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo, useEffect, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
-import type { ListProps } from "../props";
+import type { ListProps, PlatformWidgetProps } from "../props";
 import type { RefreshConfig, RefreshController } from '../refresh';
 import { cx } from "../cx";
 import { ActivityIndicator } from '../ActivityIndicator.tsrx';
+import { applyEscapeProps } from '../escape-props';
 import { REFRESH_HEADER_HEIGHT } from '../refresh-metrics';
 import { createPullToRefresh } from '../refresh';
 
@@ -46,6 +47,7 @@ function UITableViewInner(props: {
 	estimatedItemHeight?: number;
 	onEndReached?: () => void;
 	ios?: Record<string, any>;
+	modifiers?: PlatformWidgetProps<ListProps>['modifiers'];
 	refresh?: RefreshBag;
 }) @{
 	const lv = useRef<any>(null);
@@ -68,6 +70,7 @@ function UITableViewInner(props: {
 	<listview
 		ref={(v: any) => {
 			lv.current = v;
+			applyEscapeProps(v, props);
 		}}
 		id={props.id}
 		className={cx(props.className)}
@@ -98,6 +101,7 @@ const MemoListView = memo(UITableViewInner, (a, b) =>
 	a.estimatedItemHeight === b.estimatedItemHeight &&
 	a.onEndReached === b.onEndReached &&
 	a.ios === b.ios &&
+	a.modifiers === b.modifiers &&
 	a.refresh === b.refresh
 );
 
@@ -113,7 +117,7 @@ const MemoListView = memo(UITableViewInner, (a, b) =>
  *  the indicator is self-drawn (vx-spinner), the pull rides UITableView's
  *  own bounce, and the docked phase holds via contentInset — the same
  *  mechanics UIRefreshControl uses, without its OS spinner. */
-export function UITableView(props: ListProps) @{
+export function UITableView(props: PlatformWidgetProps<ListProps>) @{
 	const refreshCapable = props.onRefresh != null || props.refreshing != null;
 	const cfg = useRef<RefreshConfig>({});
 	cfg.current = {
@@ -148,6 +152,7 @@ export function UITableView(props: ListProps) @{
 					estimatedItemHeight={props.estimatedItemHeight}
 					onEndReached={props.onEndReached}
 					ios={props.ios}
+					modifiers={props.modifiers}
 					refresh={refresh.current}
 				/>
 				<flexboxlayout
@@ -172,6 +177,7 @@ export function UITableView(props: ListProps) @{
 				estimatedItemHeight={props.estimatedItemHeight}
 				onEndReached={props.onEndReached}
 				ios={props.ios}
+				modifiers={props.modifiers}
 			/>
 		}
 	} @else {

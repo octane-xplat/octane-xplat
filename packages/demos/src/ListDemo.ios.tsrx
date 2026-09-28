@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
-import { Pressable, Row, Text, View } from '@octane-xplat/ui';
+import { FieldGroup, ListItem, Pressable, Row, Text, View } from '@octane-xplat/ui';
 import { UITableView } from '@octane-xplat/ui/ios';
 
 type DemoRow = {
@@ -21,17 +21,23 @@ const INITIAL_ROWS: DemoRow[] = [
 
 const renderDemoRow = (item: DemoRow) => @{
 	@if (item.kind === 'notice') {
-		<Row className="list-demo-row list-demo-notice">
-			<Text className="list-demo-badge">Info</Text>
-			<Text>{item.title + ': ' + item.detail}</Text>
-		</Row>
-	} @else {
-		<Row className="list-demo-row list-demo-event">
-			<View className="list-demo-copy">
+		<ListItem id={'list-row-' + item.id} className="list-demo-row list-demo-notice">
+			<ListItem.Leading><Text className="list-demo-badge">Info</Text></ListItem.Leading>
+			<ListItem.Content>
 				<Text className="list-demo-title">{item.title}</Text>
-				<Text>{item.detail}</Text>
-			</View>
-		</Row>
+				<ListItem.Supporting>{item.detail}</ListItem.Supporting>
+			</ListItem.Content>
+			<ListItem.Trailing><Text>›</Text></ListItem.Trailing>
+		</ListItem>
+	} @else {
+		<ListItem
+			id={'list-row-' + item.id}
+			className="list-demo-row list-demo-event"
+			leading={<Text className="list-demo-badge">Event</Text>}
+			title={item.title}
+			supportingText={item.detail}
+			trailing={<Text>›</Text>}
+		/>
 	}
 };
 
@@ -61,6 +67,9 @@ export function ListDemo() @{
 			</Pressable>
 			<Text>{items.length + ' rows · scroll to load more'}</Text>
 		</Row>
+		<FieldGroup label="Preferences">
+			<ListItem title="Email updates" supportingText="Weekly event highlights" trailing={<Text>On</Text>} />
+		</FieldGroup>
 		<UITableView
 			id="list-demo-list"
 			className="list flex-1"

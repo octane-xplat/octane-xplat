@@ -91,7 +91,7 @@ it is the design:
 
 | Class                | Interior                | Chrome          | Parity claim                          | Examples                                                  |
 | -------------------- | ----------------------- | --------------- | ------------------------------------- | --------------------------------------------------------- |
-| `self-drawn`         | us                      | all ours        | every pixel                           | `Switch`, `Tabs`, `SegmentedControl`                      |
+| `self-drawn`         | us                      | all ours        | every pixel                           | `Switch`, `Tabs`, `SegmentedControl`, `ListItem`          |
 | `chrome-reset`       | the OS widget's behavior | stripped        | every pixel                           | `TextInput`, `TextArea`, `SearchInput`                    |
 | `hosted`             | an OS/engine surface    | ours, or none   | the frame + whatever chrome we draw   | `Video`, `CameraView` (chrome ours); `WebView` (none)     |
 | `platform-authentic` | the OS                  | the OS          | none — OS chrome is the point         | `UISwitch`, `MaterialDialog`, the subpath catalogs        |

@@ -1,11 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
-import type { SliderProps } from '../props';
+import type { PlatformWidgetProps, SliderProps } from '../props';
 import { cx } from '../cx';
 import { applyNativeProps } from '../platformProps';
 
 /** UISlider — the platform widget (UIKit UISlider via NativeScript `slider`).
  *  The self-drawn shared `Slider` lives in the root export. */
-export function UISlider(props: SliderProps) @{
+export function UISlider(props: PlatformWidgetProps<SliderProps>) @{
 	<slider
 		id={props.id}
 		className={cx(props.className)}

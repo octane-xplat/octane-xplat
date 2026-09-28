@@ -3,10 +3,11 @@
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo, useEffect, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
-import type { ListProps } from "../props";
+import type { ListProps, PlatformWidgetProps } from "../props";
 import type { RefreshConfig, RefreshController } from '../refresh';
 import { cx } from "../cx";
 import { ActivityIndicator } from '../ActivityIndicator.tsrx';
+import { applyEscapeProps } from '../escape-props';
 import { REFRESH_HEADER_HEIGHT } from '../refresh-metrics';
 import { createPullToRefresh } from '../refresh';
 
@@ -45,6 +46,7 @@ function RecyclerViewInner(props: {
 	renderItem: (item: any, index: number) => any;
 	onEndReached?: () => void;
 	android?: Record<string, any>;
+	modifiers?: PlatformWidgetProps<ListProps>['modifiers'];
 	refresh?: RefreshBag;
 }) @{
 	const lv = useRef<any>(null);
@@ -67,6 +69,7 @@ function RecyclerViewInner(props: {
 	<listview
 		ref={(v: any) => {
 			lv.current = v;
+			applyEscapeProps(v, props);
 		}}
 		id={props.id}
 		className={cx(props.className)}
@@ -95,6 +98,7 @@ const MemoListView = memo(RecyclerViewInner, (a, b) =>
 	a.id === b.id &&
 	a.onEndReached === b.onEndReached &&
 	a.android === b.android &&
+	a.modifiers === b.modifiers &&
 	a.refresh === b.refresh
 );
 
@@ -110,7 +114,7 @@ const MemoListView = memo(RecyclerViewInner, (a, b) =>
  *  the indicator is self-drawn (vx-spinner) and the list is translated
  *  inside a clipped wrapper while the drag accumulates — no
  *  SwipeRefreshLayout, so the pixels match the shared ScrollView path. */
-export function RecyclerView(props: ListProps) @{
+export function RecyclerView(props: PlatformWidgetProps<ListProps>) @{
 	const refreshCapable = props.onRefresh != null || props.refreshing != null;
 	const cfg = useRef<RefreshConfig>({});
 	cfg.current = {
@@ -136,6 +140,7 @@ export function RecyclerView(props: ListProps) @{
 					renderItem={props.renderItem}
 					onEndReached={props.onEndReached}
 					android={props.android}
+					modifiers={props.modifiers}
 					refresh={refresh.current}
 				/>
 				<flexboxlayout
@@ -159,6 +164,7 @@ export function RecyclerView(props: ListProps) @{
 				renderItem={props.renderItem}
 				onEndReached={props.onEndReached}
 				android={props.android}
+				modifiers={props.modifiers}
 			/>
 		}
 	} @else {

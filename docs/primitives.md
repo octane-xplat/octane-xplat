@@ -18,6 +18,7 @@ if you do not yet have a working app.
 | Compose styled or tappable inline text | `RichText` + `RichTextSpan`     |
 | Respond to a tap                       | `Pressable`                     |
 | Render repeated items                  | `ScrollView` + `items.map(...)` |
+| Show a settings or preference row       | `ListItem`                       |
 | Accept one or more lines               | `TextInput`, `TextArea`         |
 | Scroll content                         | `ScrollView`, `ScrollBox`       |
 | Show a web page or inline HTML         | `WebView`                       |
@@ -72,6 +73,62 @@ runtime, and shared event names such as `onPress` and `onChange`.
 Cmd/Ctrl+Enter. On native, `onSubmit` is enabled only when
 `returnKeyType="done"` or `returnKeyType="send"`; other return keys insert
 a newline instead.
+
+### Reusable rows
+
+`ListItem` is a reusable, self-drawn row for settings, preferences, and
+compact navigation lists. Use `leading`, `title`, `supportingText`, and
+`trailing` for the common shape, or compose `Leading`, `Content`,
+`Supporting`, and `Trailing` slots for richer content. It works by itself or
+inside `FieldGroup`; the row owns its layout and press behavior, while
+`FieldGroup` remains the field container. See the maintained `ListDemo` for
+both forms.
+
+### Native modifiers and glyphs
+
+Native platform widgets accept a `modifiers` array for OS-specific styling or
+properties. Import `modifier` from the matching `@octane-xplat/ui/ios` or
+`@octane-xplat/ui/android` subpath and keep that configuration in a matching
+platform file. `Icon.select({ ios, android })` chooses a native asset for
+`UITabBar` or `BottomNavigationView`; the shared `Icon` remains unchanged.
+These selectors and modifiers are escape hatches for platform-authentic
+widgets, not shared styling props.
+
+```tsx
+// In a .ios.tsx/.ios.tsrx file; use the android subpath in .android.*.
+import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
+
+<UITabBar
+  tabs={[{ title: 'Saved', icon: Icon.select({ ios: 'heart.fill', android: 'favorite' }), render: Saved }]}
+  modifiers={[modifier.opacity(0.98)]}
+/>
+```
+
+### Implementation map
+
+| Component | Web element | iOS NativeScript view | Android NativeScript view | Normalization class |
+| --- | --- | --- | --- | --- |
+| `ListItem` | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable` | `FlexboxLayout` via shared `Pressable` | `self-drawn` |
+| `SafeArea` | `div` | `FlexboxLayout` | `FlexboxLayout` | shared layout wrapper |
+| `WebView` | sandboxed `iframe` | `webview` → WKWebView | `webview` → android.webkit.WebView | `chrome-reset` |
+| `UITableView` | unavailable | `listview` → UITableView | unavailable | `platform-authentic` |
+| `RecyclerView` | unavailable | unavailable | `listview` → RecyclerView | `platform-authentic` |
+| `UITabBar` | unavailable | `TabView` / UITabBarController | unavailable | `platform-authentic` |
+| `BottomNavigationView` | unavailable | unavailable | `TabView` | `platform-authentic` |
+| `UISwitch` | unavailable | `switch` → UISwitch | unavailable | `platform-authentic` |
+| `MaterialSwitch` | unavailable | unavailable | `switch` → SwitchMaterial | `platform-authentic` |
+| `UISlider` | unavailable | `slider` → UISlider | unavailable | `platform-authentic` |
+| `SeekBar` | unavailable | unavailable | `slider` → SeekBar | `platform-authentic` |
+| `UIActivityIndicatorView` | unavailable | `activityindicator` → UIActivityIndicatorView | unavailable | `platform-authentic` |
+| `CircularProgressIndicator` | unavailable | unavailable | `activityindicator` → ProgressBar | `platform-authentic` |
+| `SideDrawer` | unavailable | ui-drawer host view | unavailable | `platform-authentic` |
+| `DrawerLayout` | unavailable | unavailable | ui-drawer host view | `platform-authentic` |
+| `LiquidGlass` | unavailable | NativeScript glass effect view | unavailable | `platform-authentic` |
+| `LiquidGlassContainer` | unavailable | NativeScript glass effect view | unavailable | `platform-authentic` |
+
+The platform-authentic rows intentionally have no web counterpart. Their
+native modifiers and glyph names stay behind platform subpaths; they do not
+change the shared components' parity class.
 
 `Pressable`, `Text`, and the containers (`View`/`Row`/`Stack`/`Absolute`/
 `Grid`/`ScrollView`/`ScrollBox`) share the accessibility props in the
@@ -167,9 +224,17 @@ single read after binding.
 Pass `anchor` plus an optional `placement` to position a toast from a view;
 that anchored form follows `Popover`'s platform-specific overlay behavior.
 
+### WebView content sizing
+
 `WebView` embeds a web document — `src` for a URL, `html` for an inline
 document — with `onLoad`/`onError`, `scrollEnabled`, and a `bind` handle for
-`reload`/`goBack`/`goForward`. On web it is a sandboxed `<iframe>`
+`reload`/`goBack`/`goForward`. `matchContents` sizes the frame height to its
+document and `onLayoutContent` reports measured content dimensions. Browser
+measurement works only when the iframe document is same-origin; cross-origin
+content cannot expose its internal size. On native, `onLayoutContent` reports
+the web view's content size, and `matchContents` applies the measured height.
+Wrap it in `SafeArea` and set `ignoreSafeArea` when the content should extend
+under system safe areas. On web it is a sandboxed `<iframe>`
 (default `allow-scripts allow-same-origin allow-forms allow-modals`, tunable
 via the `sandbox` prop); on native it is the OS web view. The document itself
 renders in each platform's engine, so parity applies to the frame's chrome,

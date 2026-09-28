@@ -23,6 +23,7 @@ export {
 	Unsupported as AvatarGroup,
 	Unsupported as FormField,
 	Unsupported as FieldGroup,
+	Unsupported as ListItem,
 	Unsupported as InputNumber,
 	Unsupported as PinInput,
 	Unsupported as Select,

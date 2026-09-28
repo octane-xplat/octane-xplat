@@ -1,11 +1,11 @@
 /** @jsxImportSource @nativescript-community/octane */
-import type { ActivityIndicatorProps } from '../props';
+import type { ActivityIndicatorProps, PlatformWidgetProps } from '../props';
 import { cx } from '../cx';
 import { applyNativeProps } from '../platformProps';
 
 /** UIActivityIndicatorView — the platform spinner (UIKit). The self-drawn
  *  shared `ActivityIndicator` lives in the root export. */
-export function UIActivityIndicatorView(props: ActivityIndicatorProps) @{
+export function UIActivityIndicatorView(props: PlatformWidgetProps<ActivityIndicatorProps>) @{
 	if (props.busy === false) return null;
 
 	<activityindicator

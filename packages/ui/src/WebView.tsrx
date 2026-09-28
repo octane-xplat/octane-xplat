@@ -6,6 +6,24 @@ import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child';
 
+function reportContentLayout(view: any, props: WebViewProps) {
+	let width = Number(view?.getActualSize?.()?.width ?? 0)
+	let height = 0
+	if (isIOS) {
+		const size = view?.ios?.scrollView?.contentSize
+		width = Number(size?.width ?? width)
+		height = Number(size?.height ?? 0)
+	} else if (isAndroid) {
+		height = Number(view?.android?.getContentHeight?.() ?? 0) * Number(view?.android?.getScale?.() ?? 1)
+	}
+	if (!Number.isFinite(width) || !Number.isFinite(height) || height <= 0) return
+	props.onLayoutContent?.({ width, height })
+	if (props.matchContents) {
+		view.height = height
+		view.style.height = height
+	}
+}
+
 /** Embedded web document — NS <webview> (WKWebView / android.webkit.WebView).
  *  `html` flows through the `src` property: values that aren't http/file
  *  URLs take its `_loadData` path. NS reports failures as `loadFinished`
@@ -17,6 +35,7 @@ import { layoutChildProps } from './layout-child';
  *  link taps work but drag text selection inside the frame does not). */
 export function WebView(props: WebViewProps) @{
 	const el = useRef<any>(null);
+	const loaded = useRef(false);
 	useEffect(() => {
 		const v = el.current;
 		if (!v) return;
@@ -30,7 +49,8 @@ export function WebView(props: WebViewProps) @{
 					})
 				: null);
 		}
-	}, [props.scrollEnabled]);
+		if (props.matchContents && loaded.current) reportContentLayout(v, props);
+	}, [props.scrollEnabled, props.matchContents]);
 
 	<webview
 		ref={(v: any) => {
@@ -52,7 +72,11 @@ export function WebView(props: WebViewProps) @{
 		src={props.html !== undefined ? props.html : props.src}
 		onLoadFinished={(e: any) => {
 			if (e.error) props.onError?.({ url: e.url, error: e.error });
-			else props.onLoad?.({ url: e.url });
+			else {
+				loaded.current = true;
+				reportContentLayout(e.object ?? el.current, props);
+				props.onLoad?.({ url: e.url });
+			}
 		}}
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}

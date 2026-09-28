@@ -37,6 +37,30 @@ export interface LayoutChildProps {
     alignSelf?: string;
     order?: number;
 }
+/** JSON-compatible modifier data accepted by the platform-authentic widgets. */
+export type NativeModifierValue = string | number | boolean | null | readonly NativeModifierValue[] | {
+    readonly [key: string]: NativeModifierValue;
+};
+/** A serializable change to a NativeScript view's style or native property.
+ *  Platform-specific UI subpaths apply modifier arrays after shared props and
+ *  the matching `ios`/`android` escape bag. */
+export type NativeModifier = {
+    type: 'style';
+    values: Record<string, NativeModifierValue | undefined>;
+} | {
+    type: 'property';
+    name: string;
+    value: NativeModifierValue;
+};
+/** Adds the native-only modifier escape hatch to an OS-backed widget's props. */
+export type PlatformWidgetProps<Props> = Props & {
+    modifiers?: readonly NativeModifier[];
+};
+/** Native glyph names for the OS-authentic UI subpaths. */
+export interface PlatformIconChoice {
+    ios: string;
+    android: string;
+}
 /** Flex-container props shared by View/Row/Pressable — RN vocabulary, applied
  *  to the host flexboxlayout natively and the element's style on web.
  *  `gap` is a dip number (px on web); NS supports it on FlexboxLayout only
@@ -432,6 +456,10 @@ export interface WebViewLoadEvent {
     /** Failure description; present only on the `onError` path. */
     error?: string;
 }
+export interface WebViewContentSize {
+    width: number;
+    height: number;
+}
 /** Embedded web document — chrome-reset bucket: web renders a sandboxed
  *  `<iframe>`, native renders the OS web view (`webview` → WKWebView /
  *  android.webkit.WebView). The *frame* is normalized; the document's
@@ -455,6 +483,12 @@ export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
     /** After each successful document load (web `load`; native
      *  `loadFinished` without an error). */
     onLoad?: (e: WebViewLoadEvent) => void;
+    /** Report the embedded document's measured size when the platform can read
+     *  it. Cross-origin browser frames cannot be inspected. */
+    onLayoutContent?: (size: WebViewContentSize) => void;
+    /** Resize the host to the embedded document's measured height. Browser
+     *  frames must be same-origin; native measurement is best-effort. */
+    matchContents?: boolean;
     /** On load failure. Native reports the NS `loadFinished` error string;
      *  web maps the iframe `error` event, which does not fire reliably
      *  cross-browser — treat as best-effort there. */
@@ -504,6 +538,8 @@ export interface SafeAreaProps {
     className?: any;
     style?: any;
     children?: any;
+    /** Do not inset the child away from the system's safe area. */
+    ignoreSafeArea?: boolean;
     /** NativeScript props applied to the host after shared props. */
     ios?: Record<string, any>;
     android?: Record<string, any>;
@@ -803,6 +839,14 @@ export interface TabsProps {
      *  Web: route outlet. Native: pushes render inside the pane's Frame. */
     resolveScreen?: (name: string, params: Record<string, unknown>) => any;
 }
+/** Platform tab-bar item shape. `icon` may be a registered name or a native
+ *  asset value returned by `Icon.select()` from the matching subpath. */
+export type PlatformTabSpec = Omit<TabSpec, 'icon'> & {
+    icon?: string;
+};
+export type PlatformTabsProps = Omit<TabsProps, 'tabs'> & {
+    tabs: readonly PlatformTabSpec[];
+};
 export interface Route {
     stack: string;
     name: string;
@@ -1167,6 +1211,32 @@ export interface FieldGroupProps {
     ios?: any;
     android?: any;
     web?: any;
+}
+/** Shared settings/navigation row. Use the four shorthand props for common
+ *  rows, or `ListItem.Leading`/`Content`/`Supporting`/`Trailing` children
+ *  when the row needs custom composition. */
+export interface ListItemProps extends AccessibilityProps {
+    className?: any;
+    style?: any;
+    id?: string;
+    title?: any;
+    supportingText?: any;
+    leading?: any;
+    trailing?: any;
+    onPress?: () => void;
+    disabled?: boolean;
+    children?: any;
+}
+export interface ListItemSlotProps {
+    className?: any;
+    children?: any;
+}
+export interface ListItemComponent {
+    (props: ListItemProps): unknown;
+    Leading: (props: ListItemSlotProps) => unknown;
+    Content: (props: ListItemSlotProps) => unknown;
+    Supporting: (props: ListItemSlotProps) => unknown;
+    Trailing: (props: ListItemSlotProps) => unknown;
 }
 /** InputNumber — normalized TextInput (number keyboard) flanked by −/+
  *  steppers. `value`/`onValueChange` for controlled, `defaultValue` for

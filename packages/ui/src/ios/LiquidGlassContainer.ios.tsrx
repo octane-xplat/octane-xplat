@@ -2,7 +2,7 @@
 import { LiquidGlassContainer as NSLiquidGlassContainer } from '@nativescript/core';
 import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
-import type { LiquidGlassContainerProps } from '../props';
+import type { LiquidGlassContainerProps, PlatformWidgetProps } from '../props';
 import { cx } from '../cx';
 import { applyEscapeProps } from '../escape-props';
 import { layoutChildProps } from '../layout-child';
@@ -20,7 +20,7 @@ registerElement('liquidglasscontainer', NSLiquidGlassContainer);
  *  host is an AbsoluteLayout — children position via left/top, or nest a
  *  layout primitive inside and let the glass effects merge spatially.
  *  Inert layout on iOS < 26. */
-export function LiquidGlassContainer(props: LiquidGlassContainerProps) @{
+export function LiquidGlassContainer(props: PlatformWidgetProps<LiquidGlassContainerProps>) @{
 	<liquidglasscontainer
 		id={props.id}
 		ref={(v: any) => applyEscapeProps(v, props)}

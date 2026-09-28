@@ -31,6 +31,7 @@ export declare const Avatar: Component<P.AvatarProps>
 export declare const AvatarGroup: Component<P.AvatarGroupProps>
 export declare const FormField: Component<P.FormFieldProps>
 export declare const FieldGroup: Component<P.FieldGroupProps>
+export declare const ListItem: Component<P.ListItemProps>
 export declare const InputNumber: Component<P.InputNumberProps>
 export declare const PinInput: Component<P.PinInputProps>
 export declare const Select: Component<P.SelectProps>

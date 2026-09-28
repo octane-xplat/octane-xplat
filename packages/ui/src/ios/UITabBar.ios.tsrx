@@ -6,9 +6,10 @@ import type { UniversalComponent } from 'octane/universal';
 import { registerStack } from '../stacks';
 import { cx } from '../cx';
 import { getIcon } from '../icons';
-import type { TabSpec, TabsProps } from '../props';
+import type { PlatformTabSpec, PlatformTabsProps, PlatformWidgetProps } from '../props';
+import { applyEscapeProps } from '../escape-props';
 
-export type { TabSpec } from '../props';
+export type { PlatformTabSpec as TabSpec } from '../props';
 
 // TabViewItem content is a plain native view — the driver can't parent
 // reconciled children into <tabviewitem>, so each pane is a GridLayout
@@ -24,7 +25,7 @@ function TabPane(props: TabPaneProps) @{
 
 const paneRoots = new WeakMap<GridLayout, any>();
 const tabsByView = new WeakMap<GridLayout, () => any>();
-const itemsCache = new WeakMap<readonly TabSpec[], TabViewItem[]>();
+const itemsCache = new WeakMap<readonly PlatformTabSpec[], TabViewItem[]>();
 const iconWarned = new Set<string>();
 
 // Registered glyph → UITabBarItem image. `src` passes to iconSource
@@ -32,6 +33,10 @@ const iconWarned = new Set<string>();
 // `text` glyphs draw through font://. svg/markup can't become a UIImage
 // synchronously — warn once, render title-only.
 function applyIcon(item: TabViewItem, name: string): void {
+	if (name.startsWith('sys://') || name.startsWith('res://')) {
+		item.iconSource = name;
+		return;
+	}
 	const glyph = getIcon(name);
 	if (!glyph) {
 		warnIconOnce(name, `tab icon '${name}' isn't registered — call registerIcons() at boot.`);
@@ -60,13 +65,13 @@ function warnIconOnce(name: string, msg: string): void {
 	console.warn('[octane-xplat] ' + msg);
 }
 
-function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
+function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 	let items = itemsCache.get(tabs);
 	if (items !== undefined) return items;
 	items = tabs.map((t) => {
 		const item = new TabViewItem();
 		item.title = t.title;
-		if (t.icon) applyIcon(item, t.icon);
+		if (t.icon != null) applyIcon(item, t.icon);
 		if (t.stack) {
 			// Parallel-stack pane: the item's view IS a Frame whose default
 			// page hosts the pane's own Octane root. Pushes land inside the
@@ -127,11 +132,14 @@ function TabBarInner(props: {
 	className?: any;
 	style?: any;
 	id?: string;
-	tabs: readonly TabSpec[];
+	tabs: readonly PlatformTabSpec[];
 	selectedIndex?: number;
 	onSelectedIndexChanged?: (index: number) => void;
+	ios?: Record<string, any>;
+	modifiers?: PlatformWidgetProps<PlatformTabsProps>['modifiers'];
 }) @{
 	<tabview
+		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx(props.className)}
 		style={props.style}
@@ -144,19 +152,21 @@ function TabBarInner(props: {
 
 // Memoized on the tabs array — TabView.item writes rebuild the native
 // structure, and the driver re-applies props every render.
-const MemoTabBar = memo(TabBarInner, (a, b) => a.tabs === b.tabs && a.selectedIndex === b.selectedIndex);
+const MemoTabBar = memo(TabBarInner, (a, b) => a.tabs === b.tabs && a.selectedIndex === b.selectedIndex && a.modifiers === b.modifiers);
 
 /** UITabBar — the platform tab bar (UIKit UITabBarController-backed TabView).
  *  Real per-pane Frames: each `stack` tab keeps a native navigation stack
  *  inside its pane. The self-drawn shared `Tabs` lives in the root export.
  *  `tabs` is identity-stable (module const preferred). */
-export function UITabBar(props: TabsProps) @{
+export function UITabBar(props: PlatformWidgetProps<PlatformTabsProps>) @{
 	<MemoTabBar
 		id={props.id}
 		className={props.className}
 		style={props.style}
 		tabs={props.tabs}
 		selectedIndex={props.selectedIndex}
+		ios={props.ios}
 		onSelectedIndexChanged={props.onSelectedIndexChanged}
+		modifiers={props.modifiers}
 	/>
 }

@@ -22,6 +22,9 @@ import type {
 	ImageProps,
 	KeyboardAvoidingProps,
 	LayoutChildProps,
+	ListItemComponent,
+	ListItemProps,
+	ListItemSlotProps,
 	LinkProps,
 	MeterProps,
 	ModalOpenResult,
@@ -75,6 +78,7 @@ import type {
 	VideoProps,
 	ViewProps,
 	WebViewHandle,
+	WebViewContentSize,
 	WebViewLoadEvent,
 	WebViewProps,
 } from './props'
@@ -94,6 +98,9 @@ export type {
 	ImageProps,
 	KeyboardAvoidingProps,
 	LayoutChildProps,
+	ListItemComponent,
+	ListItemProps,
+	ListItemSlotProps,
 	LinkProps,
 	ModalOpenResult,
 	MeasureBounds,
@@ -147,6 +154,7 @@ export type {
 	VideoProps,
 	ViewProps,
 	WebViewHandle,
+	WebViewContentSize,
 	WebViewLoadEvent,
 	WebViewProps,
 } from './props'
@@ -177,6 +185,12 @@ export declare const ScrollBox: UniversalComponent<ScrollBoxProps>
 export declare const ScrollView: UniversalComponent<ScrollViewProps>
 export declare const Pager: UniversalComponent<PagerProps>
 export declare const Image: UniversalComponent<ImageProps>
+export declare const ListItem: UniversalComponent<ListItemProps> & {
+	Leading: UniversalComponent<ListItemSlotProps>
+	Content: UniversalComponent<ListItemSlotProps>
+	Supporting: UniversalComponent<ListItemSlotProps>
+	Trailing: UniversalComponent<ListItemSlotProps>
+}
 export declare const WebView: UniversalComponent<WebViewProps>
 export declare const Video: UniversalComponent<VideoProps>
 export declare const Screen: UniversalComponent<ScreenProps>

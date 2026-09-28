@@ -1,8 +1,12 @@
 import { isAndroid, isIOS } from '@nativescript/core'
-import type { Role } from './props'
+import type { NativeModifier, Role } from './props'
+import { applyNativeModifiers } from './apply-native-modifiers.native'
 
 /** Apply only the active device's escape bag after the primitive's own props. */
-export function applyEscapeProps(view: any, props: { ios?: any; android?: any }): void {
+export function applyEscapeProps(
+	view: any,
+	props: { ios?: any; android?: any; modifiers?: readonly NativeModifier[] },
+): void {
 	if (!view) {
 		return
 	}
@@ -11,6 +15,7 @@ export function applyEscapeProps(view: any, props: { ios?: any; android?: any })
 	if (bag) {
 		Object.assign(view, bag)
 	}
+	applyNativeModifiers(view, props.modifiers)
 }
 
 const NATIVE_ACCESSIBILITY_ROLES: Record<Role, string> = {

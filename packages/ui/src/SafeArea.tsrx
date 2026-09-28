@@ -5,7 +5,8 @@ import { cx } from './cx';
 import { useSafeAreaInsets } from './safeAreaInsets.tsrx';
 
 export function SafeArea(props: SafeAreaProps) @{
-	const insets = useSafeAreaInsets();
+	const measuredInsets = useSafeAreaInsets();
+	const insets = props.ignoreSafeArea ? { top: 0, right: 0, bottom: 0, left: 0 } : measuredInsets;
 	const platformProps = Application.ios != null ? props.ios : props.android;
 
 	<flexboxlayout

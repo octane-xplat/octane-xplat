@@ -2,7 +2,7 @@
 import { LiquidGlass as NSLiquidGlass } from '@nativescript/core';
 import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
-import type { LiquidGlassProps } from '../props';
+import type { LiquidGlassProps, PlatformWidgetProps } from '../props';
 import { cx } from '../cx';
 import { applyEscapeProps } from '../escape-props';
 import { layoutChildProps } from '../layout-child';
@@ -22,7 +22,7 @@ registerElement('liquidglass', NSLiquidGlass);
  *  UIGlassEffect on iOS 26+, inert GridLayout on older iOS. The effect is
  *  always applied as a config object: the upstream string shorthand rebuilds
  *  the effect without `interactive` on prop updates. */
-export function LiquidGlass(props: LiquidGlassProps) @{
+export function LiquidGlass(props: PlatformWidgetProps<LiquidGlassProps>) @{
 	<liquidglass
 		id={props.id}
 		ref={(v: any) => applyEscapeProps(v, props)}

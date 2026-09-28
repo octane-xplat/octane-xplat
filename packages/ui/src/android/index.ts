@@ -9,10 +9,12 @@ export { SeekBar } from './SeekBar.android.tsrx'
 export { CircularProgressIndicator } from './CircularProgressIndicator.android.tsrx'
 export { RecyclerView } from './RecyclerView.android.tsrx'
 export { BottomNavigationView } from './BottomNavigationView.android.tsrx'
-export type { TabSpec } from './BottomNavigationView.android.tsrx'
+export type { PlatformTabSpec as TabSpec } from '../props'
 export { MaterialDialog } from './MaterialDialog.android.tsrx'
 export { openModal } from './openModal.android'
 export { DrawerLayout } from './DrawerLayout.android.tsrx'
+export { Icon } from './icon.android'
+export { modifier } from '../modifier-factories'
 
 export type {
 	SwitchProps,
@@ -25,4 +27,10 @@ export type {
 	ModalOpenResult,
 	OpenModal,
 	DrawerProps,
+	NativeModifier,
+	NativeModifierValue,
+	PlatformIconChoice,
+	PlatformTabSpec,
+	PlatformTabsProps,
+	PlatformWidgetProps,
 } from '../props'

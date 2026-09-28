@@ -3,8 +3,9 @@ import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import { Drawer as NSDrawer, install } from '@nativescript-community/ui-drawer';
 import { useEffect, useRef } from 'octane';
-import type { DrawerProps } from '../props';
+import type { DrawerProps, PlatformWidgetProps } from '../props';
 import { cx } from '../cx';
+import { applyEscapeProps } from '../escape-props';
 
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
@@ -24,7 +25,7 @@ registerElement('drawer', NSDrawer);
  *  driver's hostSlot mechanism (parentView[slot] = view → mainContent /
  *  leftDrawer); `open` drives the imperative open()/close(). Slot hosts are
  *  gridlayout so each side stays multi-child. */
-export function SideDrawer(props: DrawerProps) @{
+export function SideDrawer(props: PlatformWidgetProps<DrawerProps>) @{
 	const host = useRef<NSDrawer | null>(null);
 
 	useEffect(() => {
@@ -36,7 +37,7 @@ export function SideDrawer(props: DrawerProps) @{
 
 	<drawer
 		id={props.id}
-		ref={(d: any) => { host.current = d; if (d && props.ios) Object.assign(d, props.ios); }}
+		ref={(d: any) => { host.current = d; applyEscapeProps(d, props); }}
 		className={cx('vx-drawer', props.className)}
 		style={props.style}
 	>

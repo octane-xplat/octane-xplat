@@ -9,12 +9,14 @@ export { UISlider } from './UISlider.ios.tsrx'
 export { UIActivityIndicatorView } from './UIActivityIndicatorView.ios.tsrx'
 export { UITableView } from './UITableView.ios.tsrx'
 export { UITabBar } from './UITabBar.ios.tsrx'
-export type { TabSpec } from './UITabBar.ios.tsrx'
+export type { PlatformTabSpec as TabSpec } from '../props'
 export { UIModal } from './UIModal.ios.tsrx'
 export { openModal } from './openModal.ios'
 export { SideDrawer } from './SideDrawer.ios.tsrx'
 export { LiquidGlass } from './LiquidGlass.ios.tsrx'
 export { LiquidGlassContainer } from './LiquidGlassContainer.ios.tsrx'
+export { Icon } from './icon.ios'
+export { modifier } from '../modifier-factories'
 
 export type {
 	SwitchProps,
@@ -30,4 +32,10 @@ export type {
 	LiquidGlassProps,
 	LiquidGlassContainerProps,
 	GlassConfig,
+	NativeModifier,
+	NativeModifierValue,
+	PlatformIconChoice,
+	PlatformTabSpec,
+	PlatformTabsProps,
+	PlatformWidgetProps,
 } from '../props'

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'octane'
 import type { WebViewHandle, WebViewProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { layoutChildProps } from './layout-child.web';
@@ -11,6 +12,7 @@ const DEFAULT_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-modal
  *  `srcdoc` and wins over `src` when both are set. The iframe `error`
  *  event is unreliable cross-browser, so `onError` is best-effort here. */
 export function WebView(props: WebViewProps) @{
+	const frame = useRef<HTMLIFrameElement | null>(null);
 	const handle = (el: any): WebViewHandle => ({
 		reload: () => {
 			try {
@@ -31,10 +33,47 @@ export function WebView(props: WebViewProps) @{
 		},
 		native: el,
 	});
+	useEffect(() => {
+		const el = frame.current;
+		if (!el) return;
+		let observer: ResizeObserver | undefined;
+		let observedDocument: Document | undefined;
+		const measure = () => {
+			try {
+				const doc = el.contentDocument;
+				const body = doc?.body;
+				const root = doc?.documentElement;
+				if (!doc || !body || !root) return;
+				const size = {
+					width: Math.max(body.scrollWidth, root.scrollWidth),
+					height: Math.max(body.scrollHeight, root.scrollHeight),
+				};
+				if (size.width <= 0 || size.height <= 0) return;
+				if (props.matchContents) el.style.height = `${size.height}px`;
+				props.onLayoutContent?.(size);
+				if (observedDocument !== doc && typeof ResizeObserver !== 'undefined') {
+					observer?.disconnect();
+					observer = new ResizeObserver(measure);
+					observer.observe(body);
+					observer.observe(root);
+					observedDocument = doc;
+				}
+			} catch {
+				// Cross-origin documents cannot be inspected by the embedding page.
+			}
+		};
+		el.addEventListener('load', measure);
+		measure();
+		return () => {
+			el.removeEventListener('load', measure);
+			observer?.disconnect();
+		};
+	}, [props.matchContents, props.onLayoutContent]);
 
 	<iframe
 		ref={(el: any) => {
 			if (!el) return;
+			frame.current = el;
 			applyEscapeProps(el, props);
 			props.bind?.(handle(el));
 		}}

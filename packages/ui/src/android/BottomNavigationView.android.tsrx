@@ -11,9 +11,10 @@ import { Pressable } from '../Pressable.tsrx';
 import { Text } from '../Text.tsrx';
 import { layoutsForRoute, screenFor, useRoute } from '../route';
 import { RouteHost, screenParamsFor } from '../RouteHost.mobile';
-import type { TabSpec, TabsProps } from '../props';
+import type { PlatformTabSpec, PlatformTabsProps, PlatformWidgetProps } from '../props';
+import { applyEscapeProps } from '../escape-props';
 
-export type { TabSpec } from '../props';
+export type { PlatformTabSpec as TabSpec } from '../props';
 
 // Android named stacks never navigate a Frame (upstream #11444 makes
 // TabViewItem frames unsafe) — pushes live in the route store instead, and a
@@ -38,10 +39,14 @@ function TabPane(props: TabPaneProps) @{
 
 const paneRoots = new WeakMap<GridLayout, any>();
 const tabsByView = new WeakMap<GridLayout, () => any>();
-const itemsCache = new WeakMap<readonly TabSpec[], TabViewItem[]>();
+const itemsCache = new WeakMap<readonly PlatformTabSpec[], TabViewItem[]>();
 const iconWarned = new Set<string>();
 
 function applyIcon(item: TabViewItem, name: string): void {
+	if (name.startsWith('res://')) {
+		item.iconSource = name;
+		return;
+	}
 	const glyph = getIcon(name);
 	if (!glyph) {
 		warnIconOnce(name, `tab icon '${name}' isn't registered — call registerIcons() at boot.`);
@@ -69,7 +74,7 @@ function warnIconOnce(name: string, msg: string): void {
 	console.warn('[octane-xplat] ' + msg);
 }
 
-function itemsFor(tabs: readonly TabSpec[]): TabViewItem[] {
+function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
 	let items = itemsCache.get(tabs);
 	if (items !== undefined) return items;
 	items = tabs.map((t) => {
@@ -125,11 +130,13 @@ function NavInner(props: {
 	className?: any;
 	style?: any;
 	id?: string;
-	tabs: readonly TabSpec[];
+	tabs: readonly PlatformTabSpec[];
 	selectedIndex?: number;
 	onSelectedIndexChanged?: (index: number) => void;
+	modifiers?: PlatformWidgetProps<PlatformTabsProps>['modifiers'];
 }) @{
 	<tabview
+		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx(props.className)}
 		style={props.style}
@@ -142,7 +149,7 @@ function NavInner(props: {
 
 // Memoized on the tabs array — TabView.item writes rebuild the native
 // structure, and the driver re-applies props every render.
-const MemoNav = memo(NavInner, (a, b) => a.tabs === b.tabs && a.selectedIndex === b.selectedIndex);
+const MemoNav = memo(NavInner, (a, b) => a.tabs === b.tabs && a.selectedIndex === b.selectedIndex && a.modifiers === b.modifiers);
 
 /** BottomNavigationView — the platform tab bar (Android bottom navigation
  *  via NativeScript TabView). Each `stack` pane hosts a Frame for the tab's
@@ -150,7 +157,7 @@ const MemoNav = memo(NavInner, (a, b) => a.tabs === b.tabs && a.selectedIndex ==
  *  TabViewItem-hosted Frames lose navigation bookkeeping upstream
  *  (NativeScript#11444; the #11446 fix ships in the xplat core patch).
  *  `tabs` is identity-stable. */
-export function BottomNavigationView(props: TabsProps) @{
+export function BottomNavigationView(props: PlatformWidgetProps<PlatformTabsProps>) @{
 	<MemoNav
 		id={props.id}
 		className={props.className}
@@ -158,5 +165,6 @@ export function BottomNavigationView(props: TabsProps) @{
 		tabs={props.tabs}
 		selectedIndex={props.selectedIndex}
 		onSelectedIndexChanged={props.onSelectedIndexChanged}
+		modifiers={props.modifiers}
 	/>
 }

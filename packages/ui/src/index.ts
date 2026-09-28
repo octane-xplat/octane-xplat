@@ -43,6 +43,7 @@ export type {
 
 export { FormField } from './FormField.tsrx'
 export { FieldGroup } from './FieldGroup.tsrx'
+export { ListItem } from './ListItem.tsrx'
 export { InputNumber } from './InputNumber.tsrx'
 export { PinInput } from './PinInput.tsrx'
 export { Select } from './Select.tsrx'
@@ -53,6 +54,9 @@ export { CheckboxGroup } from './CheckboxGroup.tsrx'
 export type {
 	CheckboxGroupProps,
 	FieldGroupProps,
+	ListItemComponent,
+	ListItemProps,
+	ListItemSlotProps,
 	FormFieldProps,
 	InputNumberProps,
 	InputRatingProps,
@@ -118,7 +122,7 @@ export { VirtualList } from './VirtualList.tsrx'
 export type { VirtualListProps } from './props'
 export { Image } from './Image.tsrx'
 export { WebView } from './WebView.tsrx'
-export type { WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
+export type { WebViewContentSize, WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
 export { Overlay } from './Overlay.tsrx'
 export { Popover } from './Popover.tsrx'
 export { showToast } from './toast-anchor.tsrx'
