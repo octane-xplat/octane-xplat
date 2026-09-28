@@ -61,6 +61,11 @@ export default defineConfig(({ mode }) => {
 							'ios/index': 'src/ios/index.ts',
 							'android/index': 'src/android/index.ts',
 							'native/index': 'src/native/index.ts',
+							// Vendored ui-svg: the './vendor/ui-svg' specifier stays
+							// external so the consumer's per-platform build resolves
+							// index.ios.js / index.android.js itself.
+							'vendor/ui-svg/index.ios': 'src/vendor/ui-svg/index.ios.ts',
+							'vendor/ui-svg/index.android': 'src/vendor/ui-svg/index.android.ts',
 						}
 					: {
 							ui: 'src/index.web.ts',
@@ -73,7 +78,13 @@ export default defineConfig(({ mode }) => {
 			minify: false,
 			rollupOptions: {
 				output: { preserveModules: true },
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//, /^@nstudio\//],
+				external: [
+					/^octane/,
+					/^@nativescript\//,
+					/^@nativescript-community\//,
+					/^@nstudio\//,
+					/^\.\/vendor\/ui-svg$/,
+				],
 			},
 		},
 		resolve: {

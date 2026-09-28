@@ -1,0 +1,8 @@
+{
+    "uses": [
+        "com.caverock.androidsvg:SVG",
+        "com.caverock.androidsvg:SVGExternalFileResolver",
+        "com.caverock.androidsvg:PreserveAspectRatio",
+        "com.caverock.androidsvg:RenderOptions"
+    ]
+}

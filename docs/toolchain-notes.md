@@ -99,8 +99,9 @@ warnings, not a hard failure, because the web target does not need them and
 some native capabilities are optional.
 
 The starter declares only the optional UI plugins (`ui-drawer`, plus
-`gesturehandler` — see below); `ui-svg` travels transitively as a real
-dependency of `@octane-xplat/ui`. It does not seed every platform service
+`gesturehandler` — see below); svg support is vendored inside
+`@octane-xplat/ui` (`src/vendor/ui-svg` — decision #62). It does not seed
+every platform service
 plugin: apps should add the
 plugins for the services they import, and `doctor` names the missing package.
 `@nativescript-community/gesturehandler` is also required: `Drawer.native`

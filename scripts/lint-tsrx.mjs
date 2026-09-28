@@ -27,6 +27,7 @@ const ignoredDirectories = new Set([
 	'graft',
 	'node_modules',
 	'prior-art',
+	'vendor',
 	'research',
 ])
 

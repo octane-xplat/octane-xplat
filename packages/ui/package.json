@@ -4,7 +4,8 @@
 	"files": [
 		"dist",
 		"types",
-		"src"
+		"src",
+		"platforms"
 	],
 	"type": "module",
 	"exports": {
@@ -73,9 +74,6 @@
 		"prepublishOnly": "pnpm build",
 		"test:native": "vitest run --config vitest.native.config.mts"
 	},
-	"dependencies": {
-		"@nativescript-community/ui-svg": "0.2.24"
-	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.1",
 		"@nativescript-community/ui-drawer": "0.1.32",
@@ -105,6 +103,12 @@
 		},
 		"@nativescript/core": {
 			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"ios": "9.1.0",
+			"android": "9.1.0"
 		}
 	}
 }

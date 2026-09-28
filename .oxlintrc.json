@@ -1,26 +1,82 @@
 {
 	"$schema": "./node_modules/oxlint/configuration_schema.json",
-	"ignorePatterns": ["**/*.gen.*"],
-	"jsPlugins": ["./scripts/oxlint-plugin.mjs"],
+	"ignorePatterns": [
+		"**/*.gen.*",
+		"**/vendor/**"
+	],
+	"jsPlugins": [
+		"./scripts/oxlint-plugin.mjs"
+	],
 	"rules": {
 		"curly": "error",
 		"xplat/spacing": "error",
-		"xplat/no-dom-globals": ["error", { "exclude": ["apps/web/", "apps/docs/", "scripts/"] }],
-		"xplat/no-web-only-api": ["error", { "exclude": ["apps/web/", "apps/docs/"] }],
+		"xplat/no-dom-globals": [
+			"error",
+			{
+				"exclude": [
+					"apps/web/",
+					"apps/docs/",
+					"scripts/"
+				]
+			}
+		],
+		"xplat/no-web-only-api": [
+			"error",
+			{
+				"exclude": [
+					"apps/web/",
+					"apps/docs/"
+				]
+			}
+		],
 		"xplat/element-vocabulary": [
 			"error",
-			{ "exclude": ["apps/web/", "apps/docs/", "apps/native/"] }
+			{
+				"exclude": [
+					"apps/web/",
+					"apps/docs/",
+					"apps/native/"
+				]
+			}
 		],
-		"xplat/no-nativescript-import": ["error", { "exclude": ["apps/native/"] }],
+		"xplat/no-nativescript-import": [
+			"error",
+			{
+				"exclude": [
+					"apps/native/"
+				]
+			}
+		],
 		"xplat/no-ns-deep-import": "error",
 		"xplat/platform-subpath-import": "error",
-		"xplat/no-native-dead-style": ["error", { "exclude": ["apps/web/", "apps/docs/"] }],
+		"xplat/no-native-dead-style": [
+			"error",
+			{
+				"exclude": [
+					"apps/web/",
+					"apps/docs/"
+				]
+			}
+		],
 		"xplat/no-line-height-unitless": "error",
 		"xplat/no-style-string": "error",
-		"xplat/no-unknown-class": ["warn", { "exclude": ["scripts/"] }],
+		"xplat/no-unknown-class": [
+			"warn",
+			{
+				"exclude": [
+					"scripts/"
+				]
+			}
+		],
 		"xplat/no-ts-imports-tsrx": [
 			"error",
-			{ "exclude": ["packages/ui/src/ios/", "packages/ui/src/android/", "packages/ui/src/web/"] }
+			{
+				"exclude": [
+					"packages/ui/src/ios/",
+					"packages/ui/src/android/",
+					"packages/ui/src/web/"
+				]
+			}
 		],
 		"xplat/signal-dollar-suffix": "error",
 		"xplat/require-signals-runtime": "warn",

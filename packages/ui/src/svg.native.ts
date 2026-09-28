@@ -1,6 +1,6 @@
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
-import { SVGView } from '@nativescript-community/ui-svg'
+import { SVGView } from './vendor/ui-svg'
 import type { IconGlyph } from './props'
 
 declare module '@nativescript-community/octane/intrinsics' {
@@ -13,9 +13,10 @@ declare module '@nativescript-community/octane/intrinsics' {
 	}
 }
 
-// Required peer (Icon + Image leaves route SVG sources here unconditionally):
-// SVGView renders via androidsvg on Android, SVGKit on iOS. Its src grammar is
-// File / ImageAsset / res:// / ~/, or an inline markup string.
+// Vendored ui-svg SVGView (Icon + Image + Meter route SVG sources here
+// unconditionally): SVGView renders via androidsvg on Android, SVGKit on iOS.
+// Its src grammar is File / ImageAsset / res:// / ~/, or an inline markup
+// string.
 registerElement('svgview', SVGView)
 
 const SVG_DATA_URI = /^data:image\/svg\+xml[;,]/i
