@@ -5,6 +5,10 @@ import { hmrUniversalComponent, UNIVERSAL_HMR } from 'octane/universal/native'
 import { createAppKitWindow, debugWindows } from '../src/appkit.mjs'
 import { createMacOSRoot } from '../src/renderer/index.mjs'
 
+if (process.env.OCTANE_MACOS_PARITY_ONLY === '1') {
+	globalThis.__xplatMacOSParityOnly = true
+}
+
 const configFile = new URL('../vite.dev.config.mjs', import.meta.url).pathname
 const bundleFile = new URL('../dist/app.js', import.meta.url).pathname
 let appKit
@@ -177,8 +181,14 @@ try {
 					if (!handled) {
 						throw new Error('No AppKit pressable labeled ' + label)
 					}
+				} else if (command === 'parity') {
+					const runParity = globalThis.__xplatMacOSRunParity
+					if (typeof runParity !== 'function') {
+						throw new Error('The AppKit parity sweep is unavailable')
+					}
+					runParity()
 				} else if (command !== 'snapshot') {
-					throw new Error('Use tap <accessibility label>, press <button title>, or snapshot')
+					throw new Error('Use tap <accessibility label>, press <button title>, parity, or snapshot')
 				}
 
 				setTimeout(() => {

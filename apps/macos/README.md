@@ -56,7 +56,13 @@ also needs `clang` from Xcode Command Line Tools; `xplat doctor` checks for it.
 
 With `OCTANE_MACOS_AUTOMATION=1`, the dev host runs the adapted macOS harness
 sweep through the AppKit renderer's debug interface. It reports route and
-interaction assertions in the process log; it does not accept stdin commands.
+interaction assertions in the process log, and accepts `tap`, `press`,
+`snapshot`, and `parity` commands on stdin. Run
+`pnpm --filter @xplat/macos parity` to write AppKit geometry and selected style
+measurements to `parity-report/macos.json`. From the workspace root,
+`pnpm parity:macos` rebuilds the web and macOS measurements and compares their
+shared fixtures. The sweep compares geometry and selected style values; it
+does not capture screenshots or verify pixels.
 This CLI target does not add macOS to the `create-octane-xplat` starter or the
 supported web/iOS/Android release contract.
 

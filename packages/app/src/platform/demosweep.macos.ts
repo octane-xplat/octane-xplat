@@ -125,4 +125,6 @@ async function run(): Promise<void> {
 	}
 }
 
-setTimeout(() => { void run().catch((error) => console.error('[sweep] macOS failed', error)) }, 1500)
+if (!(globalThis as any).__xplatMacOSParityOnly) {
+	setTimeout(() => { void run().catch((error) => console.error('[sweep] macOS failed', error)) }, 1500)
+}

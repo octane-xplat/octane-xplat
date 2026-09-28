@@ -45,9 +45,19 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 						{ include: '**/packages/app/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/demos/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/gif/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/pager/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/platform/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/video/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{
 							include: '**/node_modules/@octane-xplat/ui/src/**/*.{tsx,tsrx}',
+							renderer: rendererId,
+						},
+						{
+							include: '**/node_modules/@octane-xplat/pager/src/**/*.{tsx,tsrx}',
+							renderer: rendererId,
+						},
+						{
+							include: '**/node_modules/@octane-xplat/video/src/**/*.{tsx,tsrx}',
 							renderer: rendererId,
 						},
 					],
