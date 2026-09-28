@@ -349,7 +349,13 @@ export function openWindow(options = {}) {
 		setSize(next) {
 			nativeWindow.setContentSize(normalizeWindowSize(next, 'setSize'))
 		},
+		// Explicit close is a command; NSWindow.close() skips windowShouldClose,
+		// which is reserved for user/performClose requests and their veto callback.
 		close() {
+			if (controller.isClosed) {
+				return
+			}
+
 			closeOwnedWindows(nativeWindow)
 			if (kind === 'dialog' && parentWindow) {
 				parentWindow.endSheet(nativeWindow)
