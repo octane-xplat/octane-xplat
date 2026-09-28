@@ -16,6 +16,7 @@
 		"check:recipes": "node scripts/check-recipes.mjs",
 		"sync:patches": "node scripts/sync-patches.mjs",
 		"check:patches": "node scripts/sync-patches.mjs --check",
+		"check:decisions": "node scripts/check-decisions.mjs",
 		"check:no-dom": "node scripts/check-no-dom.mjs",
 		"check:css": "node scripts/check-css.mjs",
 		"gen:css-registry": "node scripts/gen-css-registry.mjs",
