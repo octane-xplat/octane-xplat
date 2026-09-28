@@ -297,6 +297,10 @@ export function openWindow(options = {}) {
 		throw new TypeError('openWindow options must be an object')
 	}
 
+	if (!shared.running) {
+		throw new Error('Cannot open a macOS window after application termination has started')
+	}
+
 	const kind = options.kind ?? 'regular'
 	const parentOption = options.parent ?? null
 	if (!WINDOW_KINDS.has(kind)) {
