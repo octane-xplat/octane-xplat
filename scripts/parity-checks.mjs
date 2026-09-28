@@ -27,6 +27,8 @@ export const CHECKS = [
 			'text.box.w',
 			'text.box.h',
 			'text.style.fontSize',
+			'text.style.fontFamily',
+			'text.style.fontPostScriptName',
 			'text.style.fontWeight',
 			'text.style.lineHeight',
 			'text.style.color',
@@ -177,6 +179,8 @@ export const CHECKS = [
 			'label.box.y',
 			'label.box.w',
 			'label.box.h',
+			'label.style.fontFamily',
+			'label.style.fontPostScriptName',
 		],
 		check: (m) => {
 			const btn = m('btn')
@@ -202,6 +206,8 @@ export const CHECKS = [
 			'field.box.h',
 			'field.placeholder',
 			'field.style.fontSize',
+			'field.style.fontFamily',
+			'field.style.fontPostScriptName',
 			'field.style.color',
 		],
 		check: (m) => {
@@ -223,6 +229,8 @@ export const CHECKS = [
 			'field.box.h',
 			'field.placeholder',
 			'field.style.fontSize',
+			'field.style.fontFamily',
+			'field.style.fontPostScriptName',
 			'field.style.color',
 		],
 		check: (m, target) => {

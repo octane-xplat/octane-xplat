@@ -1,0 +1,8 @@
+/* Shared with the AppKit host; source is pinned to vercel/geist-font@10dc7658f13c38a474cde201bb09a4617267545b. */
+@font-face {
+	font-family: 'Geist';
+	src: url('../../../packages/app/src/assets/fonts/Geist-Variable.ttf') format('truetype');
+	font-style: normal;
+	font-weight: 400 600;
+	font-display: swap;
+}

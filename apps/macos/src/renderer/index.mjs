@@ -1,5 +1,9 @@
 import '@nativescript/macos-node-api'
 import { createUniversalRoot } from 'octane/universal/native'
+import { createHash } from 'node:crypto'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { homedir } from 'node:os'
+import { join, resolve } from 'node:path'
 
 const actionHandlers = new Map()
 const actionIdsByView = new WeakMap()
@@ -8,6 +12,57 @@ const accessibilityLabels = new Map()
 const accessibilityRoles = new Map()
 let nextActionId = 1
 const DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16
+const injectedGeistFontBase64 = typeof __XPLAT_GEIST_FONT_BASE64__ === 'string'
+	? __XPLAT_GEIST_FONT_BASE64__
+	: null
+const injectedGeistLicense = typeof __XPLAT_GEIST_FONT_LICENSE__ === 'string'
+	? __XPLAT_GEIST_FONT_LICENSE__
+	: null
+let geistLicenseText
+
+function sourceFontPath(filename) {
+	const candidates = [
+		resolve(process.cwd(), 'packages/app/src/assets/fonts', filename),
+		resolve(process.cwd(), '../../packages/app/src/assets/fonts', filename),
+	]
+	return candidates.find(existsSync)
+}
+
+function registerBundledGeistFont() {
+	const fontBytes = injectedGeistFontBase64
+		? Buffer.from(injectedGeistFontBase64, 'base64')
+		: (() => {
+			const path = sourceFontPath('Geist-Variable.ttf')
+			return path ? readFileSync(path) : null
+		})()
+	if (!fontBytes) {throw new Error('Could not find the bundled Geist font asset')}
+	const licenseText = injectedGeistLicense ?? (() => {
+		const path = sourceFontPath('OFL.txt')
+		if (!path) {throw new Error('Could not find the Geist font license')}
+		return readFileSync(path, 'utf8')
+	})()
+	geistLicenseText = licenseText
+	const digest = createHash('sha256').update(fontBytes).digest('hex')
+	const fontDirectory = join(homedir(), 'Library', 'Caches', 'octane-xplat', 'macos', 'fonts')
+	const fontPath = join(fontDirectory, `Geist-Variable-${digest}.ttf`)
+	const licensePath = join(fontDirectory, 'Geist-OFL.txt')
+	mkdirSync(fontDirectory, { recursive: true })
+	if (!existsSync(fontPath)) {writeFileSync(fontPath, fontBytes)}
+	if (!existsSync(licensePath)) {writeFileSync(licensePath, licenseText, 'utf8')}
+
+	if (!NSFont.fontWithNameSize('Geist-Regular', 14)) {
+		const registered = CTFontManagerRegisterFontsForURL(
+			NSURL.fileURLWithPath(fontPath),
+			CTFontManagerScope.Process,
+			null,
+		)
+		if (!registered || !NSFont.fontWithNameSize('Geist-Regular', 14)) {
+			throw new Error('Failed to register the bundled Geist font for this macOS process')
+		}
+	}
+}
+
+registerBundledGeistFont()
 
 function invokeAction(actionId) {
 	const action = actionHandlers.get(actionId)
@@ -215,7 +270,7 @@ function makeLabel() {
 	label.selectable = false
 	label.alignment = NSTextAlignment.Left
 	label.translatesAutoresizingMaskIntoConstraints = false
-	label.font = NSFont.systemFontOfSize(16)
+	label.font = fontForStyle(16)
 	return label
 }
 
@@ -255,7 +310,7 @@ function makeTextField(props, multiline = false) {
 		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
 		: NSTextField.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 28 } })
 	field.translatesAutoresizingMaskIntoConstraints = false
-	field.font = NSFont.systemFontOfSize(14)
+	field.font = fontForStyle(14)
 	field.textColor = nativeColor('#0a0a0a')
 	if (!multiline) {
 		field.bezeled = false
@@ -418,6 +473,21 @@ function nativeColor(value) {
 
 function fontForStyle(size, weight = 400) {
 	const value = String(weight).toLowerCase()
+	const numericWeight = value === 'bold'
+		? 700
+		: value === 'semibold'
+			? 600
+			: value === 'medium'
+				? 500
+				: Number(value)
+	const geistName = numericWeight >= 600
+		? 'Geist-SemiBold'
+		: numericWeight >= 500
+			? 'Geist-Medium'
+			: 'Geist-Regular'
+	const geistFont = NSFont.fontWithNameSize(geistName, Number(size))
+	if (geistFont) {return geistFont}
+
 	const nativeWeight = value === 'bold' || Number(value) >= 700
 		? NSFontWeightBold
 		: value === 'semibold' || Number(value) >= 600
@@ -546,7 +616,7 @@ function applyClassName(node, value) {
 
 	if (node.type === 'textfield' || node.type === 'textview') {
 		if (classes.includes('vx-input') || classes.includes('vx-textarea')) {
-			node.view.font = NSFont.systemFontOfSize(14)
+			node.view.font = fontForStyle(14, node.appliedFontWeight ?? 400)
 			node.view.textColor = nativeColor('#0a0a0a')
 			node.view.drawsBackground = false
 			if (node.type === 'textfield') {node.view.bezeled = false}
@@ -699,7 +769,7 @@ function applyProps(node, props) {
 				if (name === 'text') {
 					node.view.stringValue = String(value ?? '')
 				} else if (name === 'fontSize') {
-					node.view.font = NSFont.systemFontOfSize(Number(value ?? 16))
+					node.view.font = fontForStyle(Number(value ?? 16), node.appliedFontWeight ?? 400)
 				} else if (name === 'style') {applyStyle(node, value)}
 				else if (name === 'className') {applyClassName(node, value)}
 				else if (name === 'id') {continue}
@@ -1042,6 +1112,7 @@ function parityStyle(node, facets) {
 			out[facet] = String(value)
 		}
 	}
+	if (font?.fontName) {out.fontPostScriptName = String(font.fontName)}
 
 	return out
 }
@@ -1142,6 +1213,7 @@ export function createMacOSRoot(hostView) {
 	container.root = root
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 		const debug = {
+			fontLicenses: { Geist: geistLicenseText },
 			measureParity(facets) {
 				return measureParity(container, facets)
 			},

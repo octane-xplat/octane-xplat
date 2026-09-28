@@ -1,9 +1,20 @@
 import { octane } from '@octanejs/vite-plugin'
 import { defineConfig } from 'vite'
-import { dirname, resolve } from 'node:path'
+import { readFileSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const appRoot = dirname(fileURLToPath(import.meta.url))
+const fontAssetRoot = resolve(appRoot, '../../packages/app/src/assets/fonts')
+
+function bundledFontDefines() {
+	return {
+		__XPLAT_GEIST_FONT_BASE64__: JSON.stringify(
+			readFileSync(join(fontAssetRoot, 'Geist-Variable.ttf')).toString('base64'),
+		),
+		__XPLAT_GEIST_FONT_LICENSE__: JSON.stringify(readFileSync(join(fontAssetRoot, 'OFL.txt'), 'utf8')),
+	}
+}
 
 export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 	const rendererId = 'macos'
@@ -11,6 +22,7 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 
 	return defineConfig({
 		root: appRoot,
+		...(packaged ? { define: bundledFontDefines() } : {}),
 		plugins: [
 			octane({
 				hmr,
@@ -48,7 +60,7 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 			},
 			rollupOptions: {
 				external: packaged
-					? [nativeRuntime]
+					? [nativeRuntime, /^node:/]
 					: [nativeRuntime, '@xplat/macos/renderer', /^octane\//],
 			},
 		},

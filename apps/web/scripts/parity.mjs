@@ -28,6 +28,37 @@ const stopPreview = () => {
 	}
 }
 
+async function addRenderedFontData(page, dump) {
+	const session = await page.context().newCDPSession(page)
+	try {
+		await session.send('DOM.enable')
+		await session.send('CSS.enable')
+		const { root: { nodeId: documentNodeId } } = await session.send('DOM.getDocument')
+		for (const [name, nodes] of Object.entries(dump.cells ?? {})) {
+			const { nodeId: boxNodeId } = await session.send('DOM.querySelector', {
+				nodeId: documentNodeId,
+				selector: `#cell-${name} .parity-box`,
+			})
+			if (!boxNodeId) {continue}
+			const { nodeIds } = await session.send('DOM.querySelectorAll', { nodeId: boxNodeId, selector: '*' })
+			const measuredNodeIds = [boxNodeId, ...nodeIds]
+			for (let index = 0; index < Math.min(nodes.length, measuredNodeIds.length); index++) {
+				const { fonts } = await session.send('CSS.getPlatformFontsForNode', { nodeId: measuredNodeIds[index] })
+				const usedFonts = fonts.filter((font) => font.glyphCount > 0)
+				const families = [...new Set(usedFonts.map((font) => font.familyName).filter(Boolean))]
+				const postScriptNames = [...new Set(usedFonts.map((font) => font.postScriptName).filter(Boolean))]
+				const style = nodes[index]?.style
+				if (!style || families.length === 0) {continue}
+				style.fontFamilyStack = style.fontFamily
+				style.fontFamily = families.join(', ')
+				style.fontPostScriptName = postScriptNames.join(', ')
+			}
+		}
+	} finally {
+		await session.detach()
+	}
+}
+
 await new Promise((r) => preview.stdout.on('data', (d) => String(d).includes('Local') && r()))
 await new Promise((r) => setTimeout(r, 500))
 
@@ -51,6 +82,7 @@ try {
 		console.log('[parity] __xplatParity missing or returned null')
 		process.exitCode = 1
 	} else {
+		await addRenderedFontData(page, dump)
 		const out = path.join(repoDir, 'parity-report', 'web.json')
 		mkdirSync(path.dirname(out), { recursive: true })
 		writeFileSync(out, JSON.stringify(dump, null, 2))

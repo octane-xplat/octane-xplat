@@ -7,8 +7,8 @@
  * this file is screen dressing: sections, probe surfaces, and panel chrome. */
 
 :root {
-	/* Geist is loaded by the web entry's index.html; native keeps the
-	   platform face (SF/Roboto) — nothing references this var there. */
+	/* Web entries load the bundled Geist face; NativeScript keeps the
+	   platform face (SF/Roboto). The AppKit host registers that same face. */
 	--font-sans: 'Geist', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
