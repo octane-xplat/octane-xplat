@@ -358,6 +358,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'screen-layout',
+		targets: ['web', 'ios', 'android'],
 		elements: { root: 'parity-screen-root', child: 'parity-screen-child' },
 		equal: [],
 		check: (m) => {
