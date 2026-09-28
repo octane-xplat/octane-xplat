@@ -5,7 +5,7 @@ import { Frame, GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import { applyThemeClasses } from '../theme/theme-scheme';
-import { modalPresenter } from '../modal-presenter.native';
+import { modalPresenter } from '../modal-presenter.mobile';
 
 // The modal's content renders inside a separate Octane root on a GridLayout
 // host — modals never share context with their presenter (decision #9).

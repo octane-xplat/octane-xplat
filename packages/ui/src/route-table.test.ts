@@ -44,18 +44,18 @@ describe('deriveRouteManifest', () => {
 		const files = {
 			'./app/settings.tsrx': { S: C('shared') },
 			'./app/settings.web.tsrx': { S: C('web') },
-			'./app/settings.native.tsrx': { S: C('native') },
+			'./app/settings.mobile.tsrx': { S: C('mobile') },
 			'./app/only.tsrx': { O: C('only') },
 		}
 
 		const web = manifest(files, ['web'])
 		expect(web.screens.settings.displayName).toBe('web')
-		const nat = manifest(files, ['ios', 'native'])
-		expect(nat.screens.settings.displayName).toBe('native')
+		const mobile = manifest(files, ['ios', 'mobile'])
+		expect(mobile.screens.settings.displayName).toBe('mobile')
 	})
 
 	it('skips a suffix that is not in the prefer list', () => {
-		const m = manifest({ './app/x.ios.tsrx': { X: C('x') } }, ['android', 'native'])
+		const m = manifest({ './app/x.ios.tsrx': { X: C('x') } }, ['android', 'mobile'])
 		expect(m.screens.x).toBeUndefined()
 	})
 
@@ -137,12 +137,12 @@ describe('matchRoute + buildRoutePath', () => {
 		const m = manifest(
 			{
 				'./app/sheet+modal.tsrx': { S: C('shared') },
-				'./app/sheet+modal.native.tsrx': { S: C('native') },
+				'./app/sheet+modal.mobile.tsrx': { S: C('mobile') },
 			},
-			['ios', 'native'],
+			['ios', 'mobile'],
 		)
 
-		expect(m.screens.sheet.displayName).toBe('native')
+		expect(m.screens.sheet.displayName).toBe('mobile')
 		expect(m.routes[0].name).toBe('sheet')
 		expect(m.routes[0].presentation).toBe('modal')
 	})

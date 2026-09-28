@@ -15,8 +15,8 @@
 				"default": "./src/index.macos.ts"
 			},
 			"web": "./src/index.web.ts",
-			"native": "./src/index.native.ts",
-			"default": "./src/index.native.ts"
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
 		},
 		"./ios": {
 			"native": "./src/ios/index.ts"
@@ -44,7 +44,7 @@
 					"default": "./dist/web/ui.js"
 				},
 				"native": {
-					"types": "./types/index.native.d.ts",
+					"types": "./types/index.mobile.d.ts",
 					"default": "./dist/native/ui.js"
 				},
 				"types": "./types/index.d.ts",

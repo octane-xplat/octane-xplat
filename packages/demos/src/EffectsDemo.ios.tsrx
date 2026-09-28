@@ -3,7 +3,7 @@ import { ShaderEffect } from '@octane-xplat/effects/ios';
 import { Row, Screen, Text, View } from '@octane-xplat/ui';
 import { useEffect } from 'octane';
 
-// Swift class from apps/native/App_Resources/iOS/src — maps effect names
+// Swift class from apps/mobile/App_Resources/iOS/src — maps effect names
 // onto the app-owned stitchable functions in OctaneShaders.metal.
 declare const OctaneShaderEffects: any;
 

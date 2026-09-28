@@ -4,11 +4,11 @@
 import { memo, useEffect, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
 import type { ListProps } from "../props";
-import type { RefreshConfig, RefreshController } from '../refresh.native';
+import type { RefreshConfig, RefreshController } from '../refresh';
 import { cx } from "../cx";
-import { ActivityIndicator } from '../ActivityIndicator.native.tsrx';
+import { ActivityIndicator } from '../ActivityIndicator.tsrx';
 import { REFRESH_HEADER_HEIGHT } from '../refresh-metrics';
-import { createPullToRefresh } from '../refresh.native';
+import { createPullToRefresh } from '../refresh';
 
 function rejectNestedScrollView(event: any) {
 	let parent = event.object?.parent;

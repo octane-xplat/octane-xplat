@@ -5,15 +5,15 @@ import { nativeScriptRenderer } from "@nativescript-community/octane/config";
 const EXTENSIONS = [
   ".ios.tsrx",
   ".android.tsrx",
-  ".native.tsrx",
+  ".mobile.tsrx",
   ".tsrx",
   ".ios.tsx",
   ".android.tsx",
-  ".native.tsx",
+  ".mobile.tsx",
   ".tsx",
   ".ios.ts",
   ".android.ts",
-  ".native.ts",
+  ".mobile.ts",
   ".mjs",
   ".mts",
   ".ts",
@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
     }),
     build: {
       lib: {
-        entry: native ? "src/index.native.ts" : "src/index.web.ts",
+        entry: native ? "src/index.ts" : "src/index.web.ts",
         formats: ["es"],
       },
       outDir: native ? "dist/native" : "dist/web",

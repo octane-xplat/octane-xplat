@@ -65,9 +65,9 @@ Keep params to scalars for parity — the web leaf serializes into the URL.
 ## Screen registry — the `app/` route dir
 
 `packages/app/src/app/` — every `.tsrx`/`.tsx` file is a route, derived by
-`import.meta.glob` in platform manifest leaves (`route-manifest.web.ts`
-excludes `*.native/ios/android.*`; `route-manifest.native.ts` excludes
-`*.web.*` and prefers the running OS via `Device.os`).
+`import.meta.glob` in platform manifests (`routes.gen.web.ts` excludes
+mobile/OS-specific files; `routes.gen.mobile.ts` excludes web/macOS files and
+prefers `.ios` or `.android` before `.mobile` via `Device.os`).
 `deriveRouteManifest(files, prefer)` → `{screens, routes, layouts}`;
 `registerRoutes(manifest)` in `routes.ts` registers both.
 
@@ -75,7 +75,7 @@ excludes `*.native/ios/android.*`; `route-manifest.native.ts` excludes
   `[param]` → `:param`. `app/foo/index.tsrx` → `foo`.
 - `app/_layout.tsrx` → `layouts['']` — the shell the entry renders
   (`export const App = routes.layouts['']` in `index.ts`). Not a route.
-- `app/settings.web.tsrx` → web-only route (skipped by the native glob).
+- `app/settings.web.tsrx` → web-only route (skipped by the mobile glob).
 - Component pick: `default` → `screen` → single function export.
 - Params arrive as props (native: pushed root's props; web: path segments
   - query). Route names are `string` — literal typing awaits routes.d.ts

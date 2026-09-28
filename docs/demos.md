@@ -23,13 +23,13 @@ Web-only entry that doesn't touch the harness: `pnpm -C apps/web exec vite
 dev|build --config vite.democheck.ts` (serves `democheck.html` →
 `src/democheck.tsrx` mounting `Gallery` alone).
 
-`@xplat/demos` is a declared dep of `apps/web`, `apps/native`, and
-`packages/app`. `demo.css` is imported by `apps/native/src/app.css` (`@import`)
+`@xplat/demos` is a declared dep of `apps/web`, `apps/mobile`, and
+`packages/app`. `demo.css` is imported by `apps/mobile/src/app.css` (`@import`)
 and `apps/web/src/main.tsrx`.
 
 ## Native sweep probe
 
-`packages/app/src/platform/demosweep.native.ts` (+ `.web.ts` no-op twin)
+`packages/app/src/platform/demosweep.ts` (+ `.web.ts` no-op twin)
 drives the gallery on-device: switches to tab 2, taps each `menu-*` chip via
 the gesture-observer path (same technique as the entry probes), and asserts
 demo content in the view tree — `Loading…` before Weather's fake fetch
@@ -97,8 +97,9 @@ swap` / `if else swap` all OK). An earlier version of this doc blamed the
   fails at parse (`Unexpected character '✕'`); `{'✕'}` string containers are
   fine (as is `…`/`°` raw — the rejected set isn't simply "non-ASCII").
   Demos keep all glyphs in string expressions.
-- **`tsrx-tsc` covers `packages/**` for both targets** — `pnpm typecheck:web`
-  / `typecheck:native` are the fast desk check before any lab run.
+- **`tsrx-tsc` uses each target's source set** —
+  `pnpm typecheck:web` / `pnpm typecheck:mobile` are the fast desk check before
+  any lab run.
 - **The universal runtime prop-diffs child components at commit time** —
   verified by ReactiveProbe's render ledger: after bumping A, `plain-b`
   stayed at `renders=1` with no `memo()` wrapper, and `memo-b` likewise.

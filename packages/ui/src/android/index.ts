@@ -1,7 +1,7 @@
 // @octane-xplat/ui/android — Android-authentic widgets. OS chrome is the
 // point: these resolve only in native builds (the `ui/android` subpath has
-// no `web` export condition). Use inside `.android.tsrx`/`.native.tsrx`
-// files, or behind `isAndroid` in `.native` code — a shared `.tsrx` that
+// no `web` export condition). Use inside `.android.tsrx`/`.mobile.tsrx`
+// files, or behind `isAndroid` in native-default code — a shared `.tsrx` that
 // imports this path fails the web build on purpose.
 
 export { MaterialSwitch } from './MaterialSwitch.android.tsrx'

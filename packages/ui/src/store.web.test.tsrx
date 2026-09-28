@@ -4,7 +4,7 @@ import { act, createRoot } from 'octane';
 import { createStore } from './store';
 import { useStore } from './use-store';
 
-// DOM-renderer counterpart to store.native.test.ts. Here a parent re-render
+// DOM-renderer counterpart to store.mobile.test.ts. Here a parent re-render
 // re-invokes children with unchanged props (React semantics — memo() is the
 // only bail), so a bare store.get() in a child refreshes incidentally. The
 // portable rule is still: readers subscribe via useStore.

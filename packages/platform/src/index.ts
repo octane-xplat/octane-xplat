@@ -1,5 +1,5 @@
 // Single index — each specifier resolves its own leaf through the suffix
-// chain (.web under web conditions, .native/.ios/.android under native).
+// chain (.web under web conditions, unsuffixed native defaults / .mobile/.ios/.android under native).
 // Hook-bearing services live in .tsrx files with .ts shims so tsc's
 // moduleSuffixes can reach them (docs/module-resolution.md).
 export type {

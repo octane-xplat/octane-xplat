@@ -7,11 +7,14 @@ const files = import.meta.glob(
 		'./app/**/*.{tsrx,tsx}',
 		'!./app/**/*.web.{tsrx,tsx}',
 		'!./app/**/*.ios.{tsrx,tsx}',
-		'!./app/**/*.android.{tsrx,tsx}'
+		'!./app/**/*.android.{tsrx,tsx}',
+		'!./app/**/*.mobile.{tsrx,tsx}',
+		'!./app/**/*.windows.{tsrx,tsx}',
+		'!./app/**/*.linux.{tsrx,tsx}'
 	],
 	{ eager: true },
 )
 
-export const routes = deriveRouteManifest(files, ['macos', 'native'])
+export const routes = deriveRouteManifest(files, ['macos'])
 registerRoutes(routes)
 export const screens = routes.screens

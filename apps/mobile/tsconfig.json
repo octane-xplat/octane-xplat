@@ -1,0 +1,49 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "@nativescript-community/octane",
+		"moduleSuffixes": [".ios", ".android", ".mobile", ""],
+		"customConditions": ["native"],
+		"lib": ["ESNext"],
+		"paths": {
+			"@xplat/app": ["../../packages/app/src/index.ts"],
+			"@xplat/app/*": ["../../packages/app/src/*"],
+			"@xplat/demos": ["../../packages/demos/src/index.ts"],
+			"@xplat/demos/*": ["../../packages/demos/src/*"],
+			"@octane-xplat/audio": ["../../packages/audio/src/index.ts"],
+			"@octane-xplat/audio/*": ["../../packages/audio/src/*"],
+			"@octane-xplat/haptics": ["../../packages/haptics/src/index.ts"],
+			"@octane-xplat/haptics/*": ["../../packages/haptics/src/*"],
+			"@octane-xplat/sounds": ["../../packages/sounds/src/index.ts"],
+			"@octane-xplat/sounds/*": ["../../packages/sounds/src/*"],
+			"@octane-xplat/platform": ["../../packages/platform/src/index.ts"],
+			"@octane-xplat/platform/*": ["../../packages/platform/src/*"],
+			"@octane-xplat/canvas": ["../../packages/canvas/src/index.ts"],
+			"@octane-xplat/canvas/*": ["../../packages/canvas/src/*"],
+			"@octane-xplat/effects": ["../../packages/effects/src"],
+			"@octane-xplat/effects/*": ["../../packages/effects/src/*"],
+			"@octane-xplat/gif": ["../../packages/gif/src/index.ts"],
+			"@octane-xplat/gif/*": ["../../packages/gif/src/*"],
+			"@octane-xplat/ui": ["../../packages/ui/src/index.ts"],
+			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
+		}
+	},
+	"include": ["src/**/*", "../../packages/**/*"],
+	"files": ["./references.d.ts", "./types/globals.d.ts"],
+	"exclude": [
+		"node_modules",
+		"platforms",
+		"**/*.web.*",
+		"../../packages/**/*.web.*",
+		"../../packages/ui/src/web/**/*",
+		"**/*.test.*",
+		"../../packages/**/*.test.*",
+		"../../packages/create/template",
+		"**/*.macos.*",
+		"../../packages/**/*.macos.*",
+		"**/*.windows.*",
+		"../../packages/**/*.windows.*",
+		"**/*.linux.*",
+		"../../packages/**/*.linux.*"
+	]
+}

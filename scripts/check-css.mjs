@@ -44,7 +44,7 @@ const WEB_ONLY_BLOCK = /\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xp
 
 // css-tree is a dependency of @nativescript/core — resolve through that
 // package so the audit runs without adding a root dep.
-const corePkg = createRequire(join(process.cwd(), 'apps/native/package.json')).resolve(
+const corePkg = createRequire(join(process.cwd(), 'apps/mobile/package.json')).resolve(
 	'@nativescript/core/package.json',
 )
 

@@ -7,9 +7,9 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // @octane-xplat/ui's native mode.
 
 const NATIVE_EXTS = [
-	'.ios.tsrx', '.android.tsrx', '.native.tsrx', '.tsrx',
-	'.ios.tsx', '.android.tsx', '.native.tsx', '.tsx',
-	'.ios.ts', '.android.ts', '.native.ts',
+	'.ios.tsrx', '.android.tsrx', '.mobile.tsrx', '.tsrx',
+	'.ios.tsx', '.android.tsx', '.mobile.tsx', '.tsx',
+	'.ios.ts', '.android.ts', '.mobile.ts',
 	'.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
 ]
 

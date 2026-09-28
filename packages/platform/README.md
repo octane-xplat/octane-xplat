@@ -1,7 +1,7 @@
 # @octane-xplat/platform
 
 > Headless platform capabilities for Octane xplat — one shared API surface,
-> resolved per target (`*.web` under web conditions, `*.native`/`.ios`/
+> resolved per target (`*.web` under web conditions, unsuffixed native default/`.mobile`/`.ios`/
 > `.android` under native).
 >
 > Status: `0.x` — the API surface is still moving.

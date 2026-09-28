@@ -4,14 +4,14 @@
 
 | Layer     | Command                                                | What it proves                                                                                                                                                          |
 | --------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Typecheck | `tsrx-tsc --noEmit -p apps/{web,native}/tsconfig.json` | .tsrx typechecks per target                                                                                                                                             |
-| Unit      | `pnpm test`                                            | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.native.test.*`, universal runtime via the object driver) |
+| Typecheck | `tsrx-tsc --noEmit -p apps/{web,mobile}/tsconfig.json` | .tsrx typechecks per target                                                                                                                                             |
+| Unit      | `pnpm test`                                            | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.mobile.test.*`, universal runtime via the object driver) |
 | Seam lint | `node scripts/check-no-dom.mjs`                        | no DOM globals in native/shared                                                                                                                                         |
 | Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright, 34 assertions in the current script                                                                                                                |
 | iOS       | build + install + launch → read sim log                | Check the named `[assert]` results emitted by the current harness sweep                                                                                               |
 | Android   | build + install + launch → logcat `I JS`               | Base probes; the nested-Frame sweep is gated                                                                                                                            |
 
-## The probe harness (`apps/native/src/index.ts`)
+## The probe harness (`apps/mobile/src/index.ts`)
 
 Timer-scheduled probes fire synthesized gestures/notifications at views:
 
@@ -27,7 +27,7 @@ Timer-scheduled probes fire synthesized gestures/notifications at views:
 exists but native attach/settle hasn't landed". Fixes are polling, not
 bigger timeouts (see the demosweep's `waitFor`).
 
-## The demos sweep (`platform/demosweep.native.ts`)
+## The demos sweep (`platform/demosweep.ts`)
 
 Drives the app and proof catalogs: switches to Apps or Test, opens each
 entry in its stack, checks rendered content, then goes back. The sweep also
@@ -55,7 +55,7 @@ in the platform log. The one release-only bug we caught:
 
 ## Universal-renderer unit tests (`vitest.native.config.mts`)
 
-`packages/ui/src/*.native.test.*` run the REAL compiled leaves against
+`packages/ui/src/*.mobile.test.*` run the REAL compiled leaves against
 octane's host-neutral object driver (`createUniversalRoot` +
 `createObjectDriver` from `octane/universal/native`) — no
 `@nativescript/core`, no sim. The config compiles under the nativescript
@@ -64,7 +64,7 @@ renderer + aliases `octane` AND `@nativescript-community/octane` to
 raw `octane` plugin from `octane/compiler/vite` with `ssr: false` — vitest
 transforms through the SSR pipeline and the renderer is
 `server:'unsupported'`; the app-level plugin wrapper doesn't forward `ssr`.
-Scheduler/retention semantics get pinned there (see `store.native.test.ts`).
+Scheduler/retention semantics get pinned there (see `store.mobile.test.ts`).
 
 ## Adding a probe
 

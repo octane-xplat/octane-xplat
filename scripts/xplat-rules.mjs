@@ -4,11 +4,10 @@
 // same estree-jsx nodes for .tsrx — so each rule runs in both passes
 // (scripts/oxlint-plugin.mjs and scripts/lint-tsrx.mjs).
 //
-// Rule scope follows the platform-suffix convention: `.web.*` files own the
-// DOM, `.linux.*` files own the WebKitGTK webview target (also DOM),
-// `.native/.ios/.android.*` own NativeScript, unsuffixed files compile
-// for both. The `exclude` option is a list of filename substrings for trees
-// that break that assumption (web-only apps, the native shell).
+// Rule scope follows the platform-file convention: `.web.*` and `.linux.*`
+// files own DOM code; `.mobile/.ios/.android.*`, `apps/mobile`, and
+// unsuffixed files with a `.web.*` sibling own NativeScript. Other unsuffixed
+// files are shared. The `exclude` option covers trees that break that default.
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -16,12 +15,32 @@ import { join } from 'node:path'
 // ---------- file scope ----------
 
 const norm = (f) => f.split('\\').join('/')
-// `.web.`/`.native.` anywhere in the name — `foo.web.test.tsrx` is a web
-// file as much as `foo.web.tsrx` is. `.linux.` counts as web: the Linux
-// target renders the DOM in a system webview, so its leaves may use DOM
-// globals and `ui/web` imports.
+// `.web.`/`.linux.` anywhere in the name — `foo.web.test.tsrx` and
+// `foo.linux.test.tsrx` are target-specific files too. Linux's system
+// webview renders DOM, so its leaves may use DOM globals and `ui/web` imports.
 export const isWebFile = (f) => /\.(web|linux)\./.test(norm(f))
-export const isNativeFile = (f) => /\.(native|ios|android)\./.test(norm(f))
+const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)\./
+const SOURCE_EXTENSIONS = ['.tsrx', '.tsx', '.mts', '.cts', '.mjs', '.cjs', '.jsx', '.ts', '.js']
+const isNativeDefaultFile = (f) => {
+	const file = norm(f)
+	if (PLATFORM_SUFFIX.test(file) || isWebFile(file)) {
+		return false
+	}
+
+	const extension = SOURCE_EXTENSIONS.find((candidate) => file.endsWith(candidate))
+	if (!extension) {
+		return false
+	}
+
+	const stem = file.slice(0, -extension.length)
+	return SOURCE_EXTENSIONS.some((candidate) => existsSync(`${stem}.web${candidate}`))
+}
+export const isNativeFile = (f) =>
+	!isWebFile(f) &&
+	(/\.(mobile|ios|android)\./.test(norm(f)) ||
+		/(^|\/)apps\/mobile\//.test(norm(f)) ||
+		/(^|\/)packages\/create\/template\//.test(norm(f)) ||
+		isNativeDefaultFile(f))
 export const isSharedFile = (f) => !isWebFile(f) && !isNativeFile(f)
 const isTestFile = (f) => /\.(test|spec)\.[^.]+$/.test(norm(f))
 export const fileExcluded = (f, options) =>
@@ -291,7 +310,7 @@ export function checkNoWebOnlyApi(program, _src, filename, options) {
 
 // ---------- element-vocabulary (invariant #1) ----------
 
-// HTML tags with no NativeScript counterpart — dead in .native/.ios/.android.
+// HTML tags with no NativeScript counterpart — dead in mobile/platform files.
 // `label`, `span` (formatted text), `button`, `image`, `switch`, `slider`,
 // `progress` exist in both vocabularies and are not flagged either way.
 const HTML_ONLY_TAGS = new Set([
@@ -457,12 +476,12 @@ export function checkElementVocabulary(program, _src, filename, options) {
 		if (!web && !native) {
 			out.push({
 				node: node.name,
-				message: `Shared files must use xplat primitives, not raw '<${name}>' elements — platform tags belong in .web.* / .native.* leaves.`,
+				message: `Shared files must use xplat primitives, not raw '<${name}>' elements — put platform tags in a platform-specific module.`,
 			})
 		} else if (web && NS_ONLY_TAGS.has(name)) {
 			out.push({
 				node: node.name,
-				message: `'<${name}>' is a NativeScript view — it renders nothing on web. Use a primitive or move to a .native.* leaf.`,
+				message: `'<${name}>' is a NativeScript view — it renders nothing on web. Use a primitive or add a .web.* sibling.`,
 			})
 		} else if (native && HTML_ONLY_TAGS.has(name)) {
 			out.push({
@@ -505,7 +524,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 		) {
 			out.push({
 				node: node.source,
-				message: `Shared files can't import '${source}' — it only exists on native. Put it behind a .native.* leaf.`,
+				message: `Shared files can't import '${source}' — keep it in the native default module, with a .web.* sibling when web uses this module.`,
 			})
 		}
 	}
@@ -542,24 +561,25 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
 // /android resolve only under the `native` export condition, /web only
 // under `web`. `/native` is for NativeScript integration plumbing. Importing
 // one from a shared (or wrong-platform) file fails the other platform's build
-// on purpose — the import must live in a suffixed leaf. `.native` files may
+// on purpose — the import must live in a platform-specific module. `.mobile`
+// files may
 // import ui/ios + ui/android, but only for specifiers that load safely on both
 // platforms; module-top platform-only APIs belong in .ios/.android leaves.
 const PLATFORM_SUBPATHS = [
 	{
 		spec: '@octane-xplat/ui/ios',
-		ok: (f) => /\.(ios|native)\./.test(f),
-		leaf: '.ios.* or .native.*',
+		ok: (f) => /\.(ios|mobile)\./.test(f),
+		leaf: '.ios.* or .mobile.*',
 	},
 	{
 		spec: '@octane-xplat/ui/android',
-		ok: (f) => /\.(android|native)\./.test(f),
-		leaf: '.android.* or .native.*',
+		ok: (f) => /\.(android|mobile)\./.test(f),
+		leaf: '.android.* or .mobile.*',
 	},
 	{
 		spec: '@octane-xplat/ui/native',
-		ok: (f) => /\.native\./.test(f) || f.endsWith('/apps/native/src/index.ts'),
-		leaf: '.native.* or the native app entry point',
+		ok: (f) => isNativeFile(f),
+		leaf: 'a native default module or .mobile.* leaf',
 	},
 	{
 		spec: '@octane-xplat/ui/web',
@@ -603,7 +623,7 @@ export function checkPlatformSubpathImport(program, _src, filename, options) {
 	return out
 }
 
-// Only shared .ts files are flagged: platform leaves (.native.ts/.web.ts)
+// Only shared .ts files are flagged: platform leaves (.mobile.ts/.web.ts)
 // importing .tsrx is the normal leaf pattern — the bundler owns both.
 export function checkNoTsImportsTsrx(program, _src, filename, options) {
 	const f = norm(filename)
@@ -1196,10 +1216,10 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 export const NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
 
 // The pragma sets the JSX import source — only files that contain JSX need
-// it. JSX-free native leaves (styled.native, use-store.native) omit it by
+// it. JSX-free native leaves (styled, use-store) omit it by
 // design.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
-	if (!/\.(native|ios|android)\.tsrx$/.test(norm(filename)) || fileExcluded(filename, options)) {
+	if (!/\.tsrx$/.test(norm(filename)) || !isNativeFile(filename) || fileExcluded(filename, options)) {
 		return []
 	}
 

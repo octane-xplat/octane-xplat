@@ -1,7 +1,7 @@
 /* Kitchen-sink chrome — harness-only styles on top of tokens.css.
  * Imported once per entry, after tokens.css and demo.css:
  *   web:    import '@xplat/app/app.css'   (apps/web/src/main.tsrx)
- *   native: @import '@xplat/app/app.css'  (apps/native/src/app.css)
+ *   native: @import '@xplat/app/app.css'  (apps/mobile/src/app.css)
  * Grammar stays inside the NS∩web matrix (docs/css-support-matrix.md).
  * Theme palette + shared vocabulary live in @octane-xplat/ui/theme/tokens.css;
  * this file is screen dressing: sections, probe surfaces, and panel chrome. */

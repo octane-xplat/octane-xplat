@@ -54,7 +54,7 @@
    are decoupled: the octane plugin compiles by **resolved filename** at
    transform time; its `resolveId` only claims virtual/adapter ids. Our suffix
    resolution (via `resolve.extensions` ordering or a `resolveId` plugin)
-   completes first; the rule glob sees `Foo.native.tsrx` and assigns the
+   completes first; the rule glob sees `Foo.tsrx (native default)` and assigns the
    nativescript renderer. No ordering hazard. (vite-plugin `src/index.js` +
    `compiler/bundler.js`.)
 
@@ -174,11 +174,11 @@ LiveRegion` unwired in leaves so far).
     Parked: Android platform convention is round corners; revisit if a real
     app wants parity.
 25. ⏳ **Suffix-aware `.tsrx` leaf resolution under tsrx-tsc.** — Plain-tsc
-    never resolves a bare `./Leaf` import to `Leaf.web.tsrx`/`Leaf.native.tsrx`:
+    never resolves a bare `./Leaf` import to `Leaf.web.tsrx`/`Leaf.tsrx`:
     `moduleSuffixes` doesn't probe `.tsrx`, `paths` doesn't apply to relative
     specifiers, and ambient `declare module` doesn't bind relative names
     (verified by experiment in the proving app). Apps work around it with a
-    platform `leaves.web.ts`/`leaves.native.ts` barrel pair whose re-exports
+    platform `leaves.web.ts`/`leaves.ts` barrel pair whose re-exports
     name each leaf explicitly. The durable fix lives upstream: teach
     `@tsrx/typescript-plugin`'s module resolution (or the volar layer) to
     probe `Leaf<moduleSuffix>.tsrx` for bare relative specifiers so

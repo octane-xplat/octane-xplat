@@ -231,24 +231,24 @@ function nsHmrClientWatchdog() {
 	}
 }
 
-/** The full extension chain, most-specific first: .ios/.android → .native →
- *  shared. NS's own file qualifiers (.land, .minWH600…) still apply to
- *  assets on top of this. */
+/** The full extension chain, most-specific first: .ios/.android → .mobile →
+ *  the unsuffixed native default. NS's own file qualifiers (.land,
+ *  .minWH600…) still apply to assets on top of this. */
 export const nativeExtensions = [
 	'.ios.tsrx',
 	'.android.tsrx',
-	'.native.tsrx',
+	'.mobile.tsrx',
 	'.tsrx',
 	'.ios.tsx',
 	'.android.tsx',
-	'.native.tsx',
+	'.mobile.tsx',
 	'.tsx',
 	'.ios.ts',
 	'.android.ts',
-	'.native.ts',
+	'.mobile.ts',
 	'.ios.js',
 	'.android.js',
-	'.native.js',
+	'.mobile.js',
 	'.mjs',
 	'.mts',
 	'.ts',
@@ -286,16 +286,16 @@ function nativePlatformExtensions() {
 	const target = platform === 'android' ? '.android' : '.ios'
 	return [
 		`${target}.tsrx`,
-		'.native.tsrx',
+		'.mobile.tsrx',
 		'.tsrx',
 		`${target}.tsx`,
-		'.native.tsx',
+		'.mobile.tsx',
 		'.tsx',
 		`${target}.ts`,
-		'.native.ts',
+		'.mobile.ts',
 		'.ts',
 		`${target}.js`,
-		'.native.js',
+		'.mobile.js',
 		'.mjs',
 		'.mts',
 		'.jsx',

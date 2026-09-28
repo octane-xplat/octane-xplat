@@ -161,7 +161,7 @@ function exportNames(path) {
 }
 
 const webExports = exportNames(join(root, 'packages/ui/src/index.web.ts'))
-const nativeExports = exportNames(join(root, 'packages/ui/src/index.native.ts'))
+const nativeExports = exportNames(join(root, 'packages/ui/src/index.ts'))
 const sharedRendererExports = new Set([...webExports].filter((name) => nativeExports.has(name)))
 for (const pkg of ['pager', 'video']) {
 	const web = exportNames(join(root, `packages/${pkg}/src/index.web.ts`))

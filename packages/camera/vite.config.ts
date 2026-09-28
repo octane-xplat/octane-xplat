@@ -3,9 +3,9 @@ import { octane } from '@octanejs/vite-plugin'
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 
 const NATIVE_EXTS = [
-	'.ios.tsrx', '.android.tsrx', '.native.tsrx', '.tsrx',
-	'.ios.tsx', '.android.tsx', '.native.tsx', '.tsx',
-	'.ios.ts', '.android.ts', '.native.ts',
+	'.ios.tsrx', '.android.tsrx', '.mobile.tsrx', '.tsrx',
+	'.ios.tsx', '.android.tsx', '.mobile.tsx', '.tsx',
+	'.ios.ts', '.android.ts', '.mobile.ts',
 	'.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
 ]
 
@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
 	const native = mode === 'native'
 	const entry: Record<string, string> = native
 		? {
-				index: 'src/index.native.ts',
+				index: 'src/index.ts',
 				'CameraView.ios': 'src/CameraView.ios.tsrx',
 				'CameraView.android': 'src/CameraView.android.tsrx',
 			}

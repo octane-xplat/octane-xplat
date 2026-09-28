@@ -1,4 +1,4 @@
-// Web twin of camera-permission.native — the web leaf doesn't call these:
+// Web twin of camera-permission — the web leaf doesn't call these:
 // getUserMedia IS the permission prompt. Present so the import surface
 // stays twin-symmetric.
 

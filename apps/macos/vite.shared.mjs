@@ -112,13 +112,10 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 			],
 			extensions: [
 				'.macos.tsrx',
-				'.native.tsrx',
 				'.tsrx',
 				'.macos.tsx',
-				'.native.tsx',
 				'.tsx',
 				'.macos.ts',
-				'.native.ts',
 				'.mjs',
 				'.mts',
 				'.ts',

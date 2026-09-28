@@ -1,6 +1,6 @@
 // @octane-xplat/ui/native — NativeScript integration plumbing shared by iOS
 // and Android. This is not part of the cross-platform component barrel.
 
-export { rootLayoutFor, topRootLayout, findInRootLayouts } from '../root-layout.native'
-export { layoutsForRoute } from '../route.native'
-export { sheetHost } from '../sheet-service.native'
+export { rootLayoutFor, topRootLayout, findInRootLayouts } from '../root-layout.mobile'
+export { layoutsForRoute } from '../route'
+export { sheetHost } from '../sheet-service'

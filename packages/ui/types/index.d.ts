@@ -232,7 +232,7 @@ export declare function hrefFor(r: Route): string
 /** Turn an `import.meta.glob` module map of the route dir into
  *  {screens, routes, layouts}: `demo/[id].tsrx` → 'demo/:id',
  *  `_layout.tsrx` → layouts[''], platform suffixes deduped by `prefer`
- *  rank (web: ['web']; native: ['ios'|'android','native']). */
+ *  rank (web: ['web']; mobile: ['ios'|'android','mobile']). */
 export declare function deriveRouteManifest(
 	files: Record<string, any>,
 	prefer: readonly string[],

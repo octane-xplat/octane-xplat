@@ -1,7 +1,7 @@
 /** @jsxImportSource @xplat/macos/renderer */
 import type { RowProps } from './props'
 import { cx } from './cx'
-import { layoutChildProps } from './layout-child.native'
+import { layoutChildProps } from './layout-child'
 
 export function Row(props: RowProps) @{
 	<flexboxlayout

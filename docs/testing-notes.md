@@ -44,7 +44,7 @@ Then lint-level rules for what validation can't express:
   nativescript validation covers native-owned files; this covers shared +
   web-owned.)
 - **No intrinsics in shared files** — custom rule or codemod check: lowercase
-  JSX tags outside `*.web.*`/`*.native.*` leaf files are an error (all shared
+  JSX tags outside `*.web.*`/native-default and `.mobile.*` leaf files are an error (all shared
   JSX should be capitalized components). Note: `hostProps`/`textHosts`
   validation already constrains native-owned files — this rule targets the
   shared set.

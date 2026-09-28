@@ -1,5 +1,7 @@
 # Architecture notes
 
+> **Filename update (2026-09-28):** current suffix and fallback rules are in [module resolution](module-resolution.md). This planning record retains some earlier `.native` examples.
+
 > Detailed architecture record for contributors: renderer mechanics, seam
 > enforcement, package layout, and unresolved boundaries.
 

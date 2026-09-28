@@ -1,7 +1,7 @@
 # Primitive notes (`packages/ui`)
 
 > The detailed cross-platform vocabulary. Every primitive is an interface (`.ts` types)
-> plus leaf impls (`.web.tsrx` / `.native.tsrx`, occasionally `.ios`/`.android`).
+> plus a native-default module, a browser `.web.tsrx` override, optional `.mobile.tsrx`, and OS-specific `.ios`/`.android` variants.
 > Shared code imports the interface only. Design rule from RNW: converge on the
 > _constrained_ vocabulary — never the DOM's open one.
 >
@@ -65,7 +65,7 @@ interface PrimitiveProps {
 | `List` [platform]                 | — _(removed from shared)_                                 | `listview` + **per-cell Octane sub-roots** — now `UITableView`/`RecyclerView` in the subpaths       | The driver owns one `itemTemplate` and `itemLoading` callback: each recycled slot gets a `ContentView` and Octane root. It exposes only `renderItem`, so `kindFor` is removed; branch on the item inside `renderItem` when row markup differs. Never place a platform list inside native `ScrollView`; the leaf throws a named error and `ScrollBox` is the replacement. Shared code composes `ScrollView` + `items.map`. The platform lists take the same `refreshing`/`onRefresh`/`refreshThreshold` props — same pull-to-refresh host shape as `ScrollView`.                         |
 | `SegmentedControl`                | self-drawn `div` radiogroup (`vx-segmented`/`vx-segment`) | self-drawn `flexboxlayout` row (same classes)                                                       | `RadioOption[]` options, `value`/`defaultValue`/`onValueChange`. Segments are equal-width via `width:0` + `flex-grow:1` — `flex-basis` is dead on NS (the `flex` shorthand drops it, and `flexBasis` is not a registered style property). Space/Enter selects on web, tap on native; group + per-option `disabled`. The platform-authentic widgets (UISegmentedControl, Material segmented buttons) stay out of the shared barrel.                                                                                                          |
 | `SearchInput`                     | `input[type=search]` in a `div` shell                     | styled `textfield` in a `flexboxlayout`                                                             | chrome-reset — no UISearchBar. Same `writeText` imperative-write path as TextInput (selection preserved on controlled writes). `returnKeyType` is fixed `'search'`. Webkit's own `::-webkit-search-cancel-button` is hidden so the self-drawn clear matches native; clear fires `onChange('')` then `onClear`. `icon` names a registered glyph — `xplat-search`/`xplat-clear` are framework defaults registered in `icons.ts`, app-overridable.                                                                                            |
-| `TextInput` / `TextArea`          | `input`/`textarea`                                        | `textfield`/`textview`                                                                              | controlled `value` ↔ `text` is written imperatively through `writeText` (`text-write.native.ts`) — Android `EditText.setText` resets selection to 0, so the leaf parks and restores `setSelection(min(pos, len))` around the write; iOS `UITextField` preserves the range itself. No-ops when the value already matches, so the user's own `textChange` echo never bounces. `returnKeyType`, `autocorrect`, keyboard types still differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS) |
+| `TextInput` / `TextArea`          | `input`/`textarea`                                        | `textfield`/`textview`                                                                              | controlled `value` ↔ `text` is written imperatively through `writeText` (`text-write.ts`) — Android `EditText.setText` resets selection to 0, so the leaf parks and restores `setSelection(min(pos, len))` around the write; iOS `UITextField` preserves the range itself. No-ops when the value already matches, so the user's own `textChange` echo never bounces. `returnKeyType`, `autocorrect`, keyboard types still differ. `TextArea` shipped: `rows`/`autoGrow`/`maxRows` — web auto-grow via scrollHeight re-fit; native TextView grows by default, row counts → `min/maxHeight` dips at the widget's measured line height (its `maxLines` is truncation-only on iOS) |
 | `Image`                           | `img`                                                     | `image`; svg srcs → `svgview` (vendored ui-svg)                                                              | `src`: URL/`res://`/`~/`/data: URI plus inline `<svg>` markup, svg data URIs, `.svg` paths/URLs; remote `.svg` fetches→markup (SVGView awaits promise srcs)                                                                                                                                                                                                                                                                                       |
 | `Icon`                            | inline SVG (lucide-style)                                 | `svgview` (vendored ui-svg → SVGKit/androidsvg) for `svg`/`markup`                                           | name → glyph map; precedence `markup`/`svg` > `font` > `src` > `text`; `viewBox` is preserved on both leaves                                                                                                                                                                                                                                                                                                                                      |
 | `Switch`                          | self-drawn `div` track+thumb (`vx-switch`)                | self-drawn `flexboxlayout` track+thumb (same classes)                                               | not an OS checkbox/switch — tap toggles on both; keyboard Space/Enter on web. `UISwitch`/`MaterialSwitch` in subpaths for OS chrome                                                                                                                                                                                                                                                                                                               |
@@ -257,13 +257,13 @@ UITableView delegate path; the Octane driver supplies those cells as recycled
 assertion. This is a driver/platform measurement constraint, not a row-render
 bug. The native leaf now rejects the mounted parent shape with an explicit
 `[List] cannot be nested inside native ScrollView` error. The proving app's
-`ScrollBox.native.tsrx` is the corresponding inline `View` escape hatch.
+`ScrollBox.tsrx` is the corresponding inline `View` escape hatch.
 
 This change adds the same escape hatch to `@octane-xplat/ui`. The demo covers
 the shared `ScrollBox` + `List` shape; native device verification remains lab
 work, so this conclusion is marked desk-source rather than lab-verified.
 
-**Lab findings (iOS sim, experiment 1 — `packages/ui/src/List.native.tsrx`):**
+**Lab findings (iOS sim, experiment 1 — `packages/ui/src/List.tsrx`):**
 
 - ✅ Per-cell `createNativeScriptRoot` works: 5 visible cells → 5 roots,
   reused across waves; `root.render` re-entry updates in place.
@@ -328,7 +328,7 @@ returns a rejecting promise — leaf must `.catch`.
 Root selection (verified on iOS, commit `af5f492`): `getRootLayout()` returns
 the FIRST mounted rootlayout — wrong root after a push (overlay would land on
 the home screen, invisible under the pushed page). `rootLayoutFor(view)` in
-`src/root-layout.native.ts` walks `view.parent` to the enclosing `RootLayout`
+`src/root-layout.mobile.ts` walks `view.parent` to the enclosing `RootLayout`
 — the Screen shell of the page that declared the overlay. Imperative services
 with no declaring view (toast, app-level sheets) use `topRootLayout()` — the
 most recently mounted shell from a ui-owned registry; `Screen` self-registers

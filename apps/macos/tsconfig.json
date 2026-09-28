@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"jsxImportSource": "@xplat/macos/renderer",
 		"customConditions": ["macos"],
-		"moduleSuffixes": [".macos", ".native", ""],
+		"moduleSuffixes": [".macos", ""],
 		"lib": ["ESNext"],
 		"allowJs": true,
 		"checkJs": false,

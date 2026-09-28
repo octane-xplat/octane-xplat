@@ -14,7 +14,7 @@ below prevent that; `pnpm lint` enforces most of them.
 
 1. **One element vocabulary per file.** Shared code renders only
    `@octane-xplat/ui` components. Platform divergence lives in whole files
-   — `Foo.web.tsrx`, `Foo.native.tsrx`, `Foo.ios.tsrx`, `Foo.android.tsrx` —
+   — `.web` for browser code, `.mobile` for shared iOS/Android variants, OS-specific suffixes, and the unsuffixed native default —
    chosen by the bundler when something imports `./Foo`. Never branch on
    platform inside JSX (`Platform.OS`, conditional imports, `typeof
 document` checks). Platform-authentic widgets live behind
@@ -56,7 +56,7 @@ document` checks). Platform-authentic widgets live behind
   declare deps explicitly: `useLayoutEffect(fn, [props.x])`.
 - Input handlers must be idempotent — `onInput`/`onChange` can dispatch
   more than once per user action on web.
-- `.native.tsrx`/`.ios.tsrx`/`.android.tsrx` files containing JSX must
+- `.mobile.tsrx`/`.ios.tsrx`/`.android.tsrx` files and unsuffixed native-default files containing JSX must
   start with `/** @jsxImportSource @nativescript-community/octane */` on
   line 1 — nothing may precede it.
 

@@ -26,9 +26,9 @@ export default defineConfig({
 		// symlinks (packages/app/node_modules/@xplat/*) and double-run.
 		root: '../..',
 		include: ['packages/*/src/**/*.test.{ts,tsx,tsrx}'],
-		// *.native.test.* runs under packages/ui/vitest.native.config.mts —
+		// *.mobile.test.* runs under packages/ui/vitest.native.config.mts —
 		// it needs the nativescript renderer + the octane→universal/native
 		// alias; here it would bind DOM hooks inside universal components.
-		exclude: ['**/*.native.test.*'],
+		exclude: ['**/*.mobile.test.*'],
 	},
 })

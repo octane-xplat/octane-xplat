@@ -1,5 +1,7 @@
 # Toolchain notes
 
+> **Filename update (2026-09-28):** the app shell now lives in `apps/mobile`; current module suffix rules are in [module resolution](module-resolution.md). Historical build notes below may use the former `.native` suffix.
+
 > Detailed build and release record. Two builds, one tree. The dev loop should feel like one project even though
 > it is two pipelines.
 >
@@ -40,7 +42,7 @@
   tsconfig `compilerOptions.paths`. A workspace package that is imported but
   absent from `paths` builds and serves fine, but edits to it never reach
   `handleHotUpdate` — the save is dropped _silently_, no log line. Harness
-  fix: `apps/native/tsconfig.json` maps `@xplat/app`, `@xplat/demos`,
+  fix: `apps/mobile/tsconfig.json` maps `@xplat/app`, `@xplat/demos`,
   `@octane-xplat/ui`, and `@octane-xplat/platform`. `xplat doctor` warns when
   an imported workspace package is missing from `paths`.
 - `recipients=N` in `[hmr-ws][update]` counts attached `/ns-hmr` websocket
@@ -196,7 +198,7 @@ See module-resolution.md for the suffix-typing strategy.
 ## Native app plumbing
 
 - `nativescript.config.ts`, `App_Resources/` (icons, splash, fonts, strings,
-  entitlements), `platforms/` generated — live in `apps/native`.
+  entitlements), `platforms/` generated — live in `apps/mobile`.
 - Xcode + Android SDK toolchains; CocoaPods via NS CLI. Signing/profiles per
   usual native workflow — CI needs macOS runners for iOS builds.
 - Distribution: no EAS equivalent — `ns build ios --release` + fastlane or
@@ -277,18 +279,18 @@ the same version; the peer range in `packages/ui` is the contract.
 `packages/cli/patches/@nativescript-community__octane@0.2.1.patch` skips
 `undefined` prop writes in the driver's `setProp` — NativeScript native
 setters coerce it (e.g. `editable` → `ios.userInteractionEnabled = NO`),
-leaving dead UI that still has its JS listeners. Applied repo-wide via
-`pnpm-workspace.yaml` `patchedDependencies` (see the patch manifest for the
-full set and drop conditions).
+leaving dead UI that still has its JS listeners. The root applies it through
+`pnpm-workspace.yaml` `patchedDependencies`; downstream apps can materialize
+it with `xplat patches apply`. The patch manifest records its scope and drop
+condition.
 
 ## CI shape
 
 1. `tsc --noEmit -p tsconfig.web.json` + `-p tsconfig.native.json`
-2. `pnpm check:no-dom` — static sweep: DOM globals banned in shared +
-   `*.native.*`/`*.ios.*`/`*.android.*` source (`scripts/check-no-dom.mjs`).
-   Catches leaks at lint time; the renderer's `forbiddenGlobals` is the
-   runtime backstop. NS-safe globals (setTimeout/fetch/console/rAF) are
-   deliberately not flagged.
+2. `pnpm check:no-dom` is the older static sweep. `xplat/no-dom-globals`
+   applies to shared and NativeScript code; `.web.*` and `.linux.*` leaves own
+   DOM globals. The renderer's `forbiddenGlobals` is the runtime backstop.
+   NS-safe globals (setTimeout/fetch/console/rAF) are deliberately not flagged.
 3. `vitest` shared/logic + web component tests
 4. `vite build` (web)
 5. `ns build ios|android` (macOS runner; can gate on label early on)

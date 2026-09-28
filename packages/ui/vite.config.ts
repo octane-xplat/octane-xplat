@@ -6,20 +6,20 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // don't need the .tsrx toolchain. Two invocations: `vite build` (web) and
 // `vite build --mode native`. Output preserves the module structure; the
 // suffix chain resolves at build time (web: .web.*, native: .ios/.android/
-// .native). Runtime deps stay external via peerDependencies.
+// unsuffixed native default). Runtime deps stay external via peerDependencies.
 
 const NATIVE_EXTS = [
 	'.ios.tsrx',
 	'.android.tsrx',
-	'.native.tsrx',
+	'.mobile.tsrx',
 	'.tsrx',
 	'.ios.tsx',
 	'.android.tsx',
-	'.native.tsx',
+	'.mobile.tsx',
 	'.tsx',
 	'.ios.ts',
 	'.android.ts',
-	'.native.ts',
+	'.mobile.ts',
 	'.mjs',
 	'.mts',
 	'.ts',
@@ -57,7 +57,7 @@ export default defineConfig(({ mode }) => {
 			lib: {
 				entry: (native
 					? {
-							ui: 'src/index.native.ts',
+							ui: 'src/index.ts',
 							'ios/index': 'src/ios/index.ts',
 							'android/index': 'src/android/index.ts',
 							'native/index': 'src/native/index.ts',

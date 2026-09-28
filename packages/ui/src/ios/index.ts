@@ -1,7 +1,7 @@
 // @octane-xplat/ui/ios — iOS-authentic widgets. OS chrome is the point:
 // these resolve only in native builds (the `ui/ios` subpath has no `web`
-// export condition). Use inside `.ios.tsrx`/`.native.tsrx` files, or behind
-// `isIOS` in `.native` code — a shared `.tsrx` that imports this path fails
+// export condition). Use inside `.ios.tsrx`/`.mobile.tsrx` files, or behind
+// `isIOS` in native-default code — a shared `.tsrx` that imports this path fails
 // the web build on purpose.
 
 export { UISwitch } from './UISwitch.ios.tsrx'

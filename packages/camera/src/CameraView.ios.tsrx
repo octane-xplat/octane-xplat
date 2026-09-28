@@ -1,10 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useEffect, useRef } from 'octane'
 import type { CameraViewProps } from './props'
-import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.native'
+import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
 import { startCameraPreview } from './camera-session.ios'
-import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child.native'
-import { cx } from './cx.native'
+import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
+import { cx } from './cx.mobile'
 
 /** Live iOS preview backed by AVFoundation. */
 export function CameraView(props: CameraViewProps) @{

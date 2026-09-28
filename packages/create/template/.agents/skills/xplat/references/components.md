@@ -6,7 +6,7 @@ OS chrome) live behind `@octane-xplat/ui/ios` and `@octane-xplat/ui/android`
 under their official OS names — those subpaths resolve only in native
 builds and are the honest opt-in for "I want the platform widget." A shared
 `.tsrx` file that imports them fails the other platform's build on purpose;
-import them inside `.ios.tsrx`/`.android.tsrx`/`.native.tsrx` leaves.
+import them inside `.ios.tsrx`/`.android.tsrx`/`.mobile.tsrx` leaves.
 
 ## Shared — `@octane-xplat/ui` (self-drawn, same pixels everywhere)
 

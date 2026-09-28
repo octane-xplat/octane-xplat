@@ -32,7 +32,7 @@ packages/ui/anim (shared API)
 ├── useGesture('pan' | 'pinch' | 'tap'…) → normalized event stream
 └── curves: named easings + cubic-bezier + spring params
         │                    │
-   .web impl            .native impl
+   .web impl            unsuffixed native default
    WAAPI / @octanejs/   view.animate() /
    motion               view.style per-frame in touch handlers
 ```
@@ -102,7 +102,7 @@ which is a real event). Programmatic probing must call
 (taps + typing).
 
 **Verified:** payload normalization landed in the shared pan plumbing
-(`pan.native`/`pan.web`) — View, Row, and Pressable all take
+(`pan`/`pan.web`)  — View, Row, and Pressable all take
 `onPan`/`onSwipe`/`bind`. NS `{deltaX,deltaY,state:int}` →
 `{x,y,dx,dy,vx,vy,state:'began'|...'}`; enum map is
 `cancelled=0,began=1,changed→moved=2,ended=3`. Web leaves attach raw

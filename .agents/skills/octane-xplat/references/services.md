@@ -1,12 +1,13 @@
 # Platform services
 
-Shared platform capabilities live in `packages/platform/src/` as paired
-`.native`/`.web` leaves behind a package barrel. App-specific navigation,
+Shared platform capabilities live in `packages/platform/src/` as an
+unsuffixed native default and optional `.web` browser override behind a package
+barrel. Use `.mobile` or an OS suffix for narrower platform variants. App-specific navigation,
 sheet, overlay, and demosweep seams live in `packages/app/src/platform/`.
 
 ## `storage` — key/value
 
-`packages/platform/src/storage.native.ts` → `ApplicationSettings`;
+`packages/platform/src/storage.ts` → `ApplicationSettings`;
 `storage.web.ts` → `localStorage`. Import through `@octane-xplat/platform`.
 
 ```ts
@@ -54,10 +55,10 @@ twins such as `storage`, connectivity, files, and system bars live under
 
 ## Adding a service
 
-1. `packages/platform/src/foo.native.ts` (real impl) +
+1. `packages/platform/src/foo.ts` (native default) +
    `foo.web.ts` (implementation or
    explicit no-op stub + log) — same export names.
 2. Export through the package barrel (deep specifiers don't
    extension-resolve).
 3. If it touches a DOM global on web — fine, web leaf is DOM territory;
-   the `.native` twin must stay DOM-free (check:no-dom).
+   the unsuffixed native implementation must stay DOM-free (check:no-dom).

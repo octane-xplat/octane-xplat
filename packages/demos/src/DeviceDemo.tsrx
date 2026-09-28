@@ -5,7 +5,7 @@ import {
 } from '@octane-xplat/ui';
 
 /** Shared fallback (web) — KeyboardAvoiding is native-only now, so the
- *  keyboard section lives in the `.native.tsrx` sibling. */
+ *  keyboard section lives in the `.mobile.tsrx` sibling. */
 export function DeviceDemo() @{
 	const insets = useSafeAreaInsets();
 	const [drawerOpen, setDrawerOpen] = useState(false);

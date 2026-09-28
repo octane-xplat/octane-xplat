@@ -8,8 +8,8 @@ description: Build, test, and ship a single Octane codebase that targets web (DO
 One Octane codebase, three targets: **web** (Octane DOM renderer) and
 **iOS/Android** (NativeScript via `@nativescript-community/octane`'s
 universal-runtime driver over `@nativescript/core`). Platform divergence
-lives at **file boundaries** — `.web`/`.native`/`.ios`/`.android` suffixes
-resolved by Vite — never inside shared logic.
+lives at **file boundaries** — `.web` for browser code, `.mobile` for shared
+iOS/Android differences, OS-specific suffixes, and the unsuffixed native default.
 
 ## The rules that can't bend
 
@@ -27,8 +27,9 @@ resolved by Vite — never inside shared logic.
 6. **Cross-root state uses module-scope stores** (`useSyncExternalStore`).
    A class or context on one root never reaches another root (pushed
    pages, modals, sheets are separate trees on native).
-7. **Every platform leaf needs a twin.** A `.native.ts` API needs a
-   `.web.ts` no-op (or real impl) for import-surface parity.
+7. **The unsuffixed module is the native default.** Add a `.web.ts` sibling
+   when browser code imports a native-only module; use `.mobile.ts` for a
+   shared iOS/Android override and `.ios.ts`/`.android.ts` for OS-only code.
 
 ## References — read what the task touches
 
@@ -51,7 +52,7 @@ resolved by Vite — never inside shared logic.
   `styled()`, stacks, routes, theme.
 - `packages/app` — the harness app exercising every seam (not a product).
 - `packages/demos` — 10 demo screens used as navigation/store payloads.
-- `apps/web`, `apps/native` — the two entry shells + their vite configs.
+- `apps/web`, `apps/mobile` — the two entry shells + their vite configs.
 - `docs/` — the full design record (decisions ledger, exploration notes).
   References here are distilled for use; `docs/` is the why.
 

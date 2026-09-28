@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { styled } from './styled.native.tsrx'
+import { styled } from './styled.tsrx'
 import { getColorScheme } from './theme/colorScheme.web'
 
-// styled.native.tsrx builds elements via universalComponent() — a plain
+// styled.tsrx builds elements via universalComponent() — a plain
 // {$$kind, component, props:{props,key,hasKey,hasChildren}} object — so
 // composition is node-testable. (Compiled components can't be
 // direct-called for inspection on web — the runtime owns invocation.)

@@ -91,9 +91,9 @@ twice as two separate components — is framework-authoring policy in the
 Split a component when the platform needs a different implementation:
 
 ```text
-ShareButton.tsrx          shared behavior and props
+ShareButton.tsrx          native default
 ShareButton.web.tsrx      browser implementation
-ShareButton.native.tsrx   iOS and Android implementation
+ShareButton.mobile.tsrx   shared iOS and Android implementation
 ```
 
 The filename tells the build which implementation to use. The screen that

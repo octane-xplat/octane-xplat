@@ -7,10 +7,11 @@
 
 One source tree, two compilations. A shared `.tsrx` file is compiled by the
 DOM renderer (`octane`) in the web build and by the NativeScript universal
-renderer (`@nativescript-community/octane`) in the iOS/Android build. Files
-diverge by suffix (`*.web`/`*.native`/`*.ios`/`*.android`), resolved by
-ordered `resolve.extensions` + `moduleSuffixes`; renderer ownership follows
-the _resolved_ filename through first-match `renderers.rules` globs.
+renderer (`@nativescript-community/octane`) in the iOS/Android build. Files diverge with `.web` for browser code, `.mobile` for shared
+iOS/Android variants, and OS-specific suffixes such as `.ios`/`.android`; the
+unsuffixed module is the native default. Vite `resolve.extensions` and TypeScript
+`moduleSuffixes` select the implementation, and renderer ownership follows the
+_resolved_ filename through first-match `renderers.rules` globs.
 
 ```
 app screens / features          shared .tsrx — primitives + services only
@@ -46,7 +47,7 @@ app screens / features          shared .tsrx — primitives + services only
 | #   | Surface                                     | One-line contract                                                                                                                                                  |
 | --- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1   | [primitives](primitives.md)                 | RN-shaped vocabulary (`View`/`Text`/`Pressable`/`List`/`Modal`…); leaf files speak native intrinsics; prop conventions = `className`/`style`(dip)/refs/escape bags |
-| 2   | [navigation](navigation.md)                 | Shared route table + `Link`/`useNavigate`/`goBack`; shells split `_layout.web/.native`; modals = own roots (`component`+`params`)                                  |
+| 2   | [navigation](navigation.md)                 | Shared route table + `Link`/`useNavigate`/`goBack`; shells split `_layout.web` and the unsuffixed native default; modals = own roots (`component`+`params`)                                  |
 | 3   | [module-resolution](module-resolution.md)   | `resolve.extensions` ordering + TS `moduleSuffixes`; `.tsrx` default dialect; dual tsconfig typecheck                                                              |
 | 4   | [testing](testing.md)                       | Compiler `validation` first; lint backstops; `createObjectDriver` mock-host tests; dual `tsrx-tsc` matrix                                                          |
 | 5   | [animation-gestures](animation-gestures.md) | `useAnimation().to/spring` + `useGesture`; imperative writes per frame; JS spring integrator (native `spring` diverges)                                            |
@@ -56,10 +57,12 @@ app screens / features          shared .tsrx — primitives + services only
 ## File conventions
 
 ```
-Foo.tsrx            shared (both renderers) — components, screens
-Foo.web.tsrx        web leaf               — DOM intrinsics
-Foo.native.tsrx     native leaf            — NS intrinsics
-Foo.ios.tsrx        iOS-only divergence    — rare (<5% target)
+Foo.tsrx            native default            — NS intrinsics
+Foo.web.tsrx        browser implementation    — DOM intrinsics
+Foo.mobile.tsrx     shared iOS/Android variant
+Foo.ios.tsrx        iOS-only override
+Foo.android.tsrx    Android-only override
+Foo.macos.tsrx      macOS-only override
 app/_layout.tsrx    per-platform nav shell (expected split)
 *.ts                hook-free logic only   — hooks need .tsrx/.tsx in glob
 ```
@@ -70,13 +73,13 @@ is the portable boundary). `.tsx` allowed for directive-free files.
 ## Config surface (what an app writes)
 
 ```ts
-// apps/native/vite.config.ts
+// apps/mobile/vite.config.mts
 import { octaneConfig } from '@nativescript-community/vite-octane'
 export default octaneConfig({
 	// + our config helper asserting:
 	//   renderers.rules include: 'src/**/*.{tsx,tsrx}', 'packages/**/*.{tsx,tsrx}'
 	//   nativescript.validation: { forbiddenGlobals, forbiddenImports, textHosts, hostProps }
-	//   resolve.extensions: ['.ios.tsrx','.native.tsrx','.tsrx', …full chain…]
+	//   resolve.extensions: ['.ios.tsrx','.mobile.tsrx','.tsrx', …full chain…]
 })
 // apps/web/vite.config.ts — @octanejs/vite-plugin + '.web' chain
 ```
@@ -90,8 +93,8 @@ Entries: web `createRoot(el)`; native `Application.run({create})` +
 > These are enforced by compiler validation and lint, not by convention —
 > violations produce silent wrong-renderer bindings, not friendly errors.
 
-1. One element vocabulary per file — splits happen at `.web`/`.native`
-   boundaries, never inline.
+1. One element vocabulary per file — browser-specific code uses `.web`; native
+   defaults are unsuffixed, with `.mobile` and OS suffixes for overrides.
 2. Hooks only in `.tsrx`/`.tsx` under a renderer rule — `.ts` helpers get
    validated not compiled, and their slotted helpers resolve to the DOM
    runtime.

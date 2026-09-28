@@ -2,7 +2,7 @@
 	"name": "octane-xplat-app",
 	"private": true,
 	"type": "module",
-	"main": "src/index.native.ts",
+	"main": "src/index.ts",
 	"scripts": {
 		"xplat": "xplat",
 		"dev": "vite",

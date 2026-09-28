@@ -3,7 +3,7 @@ import { memo } from 'octane';
 import { Frame, GridLayout, Page, TabView, TabViewItem } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
-import { registerStack } from '../stacks.native';
+import { registerStack } from '../stacks';
 import { cx } from '../cx';
 import { getIcon } from '../icons';
 import type { TabSpec, TabsProps } from '../props';

@@ -12,8 +12,8 @@
   "exports": {
     ".": {
       "web": "./src/index.web.ts",
-      "native": "./src/index.native.ts",
-      "default": "./src/index.native.ts"
+      "native": "./src/index.ts",
+      "default": "./src/index.ts"
     }
   },
   "publishConfig": {

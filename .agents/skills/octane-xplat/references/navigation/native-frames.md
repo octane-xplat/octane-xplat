@@ -44,7 +44,7 @@ reaches `transitionOrAnimationCompleted → setCurrent`. Filed as
 it uses a fixed tab row and router-owned per-tab route arrays, then swaps the
 active pane. Tab screen-local state resets when switching tabs. Apps that
 directly host a `Frame` in a `TabViewItem` still encounter this issue. The
-current `demosweep.native.ts` probe remains gated on Android because it reads
+current `demosweep.ts` probe remains gated on Android because it reads
 native `Page` objects; it has not been adapted to the router-owned pane.
 
 ## Fragment/page bookkeeping order

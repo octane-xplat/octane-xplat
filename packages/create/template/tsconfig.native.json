@@ -6,7 +6,7 @@
 		"moduleResolution": "bundler",
 		"jsx": "preserve",
 		"jsxImportSource": "@nativescript-community/octane",
-		"moduleSuffixes": [".ios", ".android", ".native", ""],
+		"moduleSuffixes": [".ios", ".android", ".mobile", ""],
 		"customConditions": ["native"],
 		"lib": ["ESNext"],
 		"types": ["@nativescript/types"],

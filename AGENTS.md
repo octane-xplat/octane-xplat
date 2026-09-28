@@ -11,7 +11,7 @@ the universal-runtime driver over `@nativescript/core`).
 
 The framework exists and is published: `packages/ui` ships as
 `@octane-xplat/ui` on npm, `packages/cli` as `@octane-xplat/cli` (dev/build/
-doctor/typecheck). `packages/app` + `apps/web` + `apps/native` are the probe
+doctor/typecheck). `packages/app` + `apps/web` + `apps/mobile` are the probe
 harness; `packages/demos` the seam-by-seam demo screens. `docs/` remains the
 design record. The real-app proving ground is `~/dev/ns/text-coral-ns` —
 its `.agents/docs/` notes record which framework seams still leak.
@@ -24,7 +24,7 @@ its `.agents/docs/` notes record which framework seams still leak.
 | `packages/ui`                          | The framework — `@octane-xplat/ui` on npm. Primitives, styled(), stacks, routes, theme. Prop types in `src/props.ts`.                                                                             |
 | `packages/cli`                         | `@octane-xplat/cli` — `xplat` dev/build/doctor/typecheck/clean commands.                                                                                                                          |
 | `packages/app`, `packages/demos`       | Probe harness app + seam-by-seam demo screens.                                                                                                                                                    |
-| `apps/web`, `apps/native`              | Entry shells + vite configs for the harness.                                                                                                                                                      |
+| `apps/web`, `apps/mobile`              | Entry shells + vite configs for the harness.                                                                                                                                                      |
 | `packages/create`, `packages/platform` | Project scaffolder; platform services seam.                                                                                                                                                       |
 | `packages/gif`, `packages/canvas`, `packages/effects` | Leaf packages — features that need a NativeScript plugin ship here, declaring the plugin as a real `dependency` (decision #51).                                        |
 | `prior-art/`                           | Other people's systems — substrate (`octane`, `nativescript-octane`, `nativescript-core`) and precedents (`one`, `tamagui`, `react-native-web`, `flutter`). Documents here are never commitments. |
@@ -146,7 +146,7 @@ experience of agents writing Octane-xplat code effectively.
   mismatch.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
   from the registry → 404).
-- `apps/native` needs `@valor/nativescript-websockets` — the on-device HMR
+- `apps/mobile` needs `@valor/nativescript-websockets` — the on-device HMR
   transport that `virtual:entry-with-polyfills` imports in dev.
 - iOS native build needs the `xcodeproj` Ruby gem visible to the `ruby` on PATH
   (`gem install --user-install xcodeproj`). `ns doctor` can report OK while the
@@ -215,8 +215,10 @@ not maintained incrementally.
 
 ## Invariants (the short list — full set in docs/architecture.md)
 
-1. One element vocabulary per file; platform divergence at file boundaries
-   (`*.web`/`.native`/`.ios`/`.android` suffixes via Vite resolver).
+1. One element vocabulary per file; platform divergence at file boundaries:
+   `.web` for browser code, `.mobile` for shared iOS/Android variants, and
+   unsuffixed files as the native default; OS suffixes such as `.ios`,
+   `.android`, and `.macos` override for one platform.
 2. Hook-calling code only in `.tsx`/`.tsrx` inside the renderer include glob.
 3. One copy of `octane` per app.
 4. No DOM globals in shared code.

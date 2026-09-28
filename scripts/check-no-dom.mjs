@@ -9,7 +9,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
-const ROOTS = ['packages', 'apps/native/src']
+const ROOTS = ['packages', 'apps/mobile/src']
 const EXT = /\.(ts|tsx|tsrx)$/
 // (?<![.'"\w]) — skip member access (obj.window), quoted strings, and
 // identifier tails; bare globals still flag.

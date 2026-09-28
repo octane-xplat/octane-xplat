@@ -14,7 +14,7 @@ use these shared prop contracts where applicable.
 
 These names are exported from the root package on web and native, except
 `KeyboardAvoiding`, which is native-only. This inventory follows the current
-`index.web.ts` and `index.native.ts` barrels.
+`index.web.ts` and unsuffixed native-default `index.ts` barrels.
 
 | Area | Shared exports |
 | --- | --- |

@@ -71,7 +71,7 @@ that reads shared state subscribes** — `useStore(store)` /
 `useStore(store, select)` from `@octane-xplat/ui` (over
 `useSyncExternalStore`; a subscriber is marked dirty and always re-runs).
 `createStore(initial)` makes a minimal `{get,set,subscribe}` store.
-Pinned by `packages/ui/src/store.native.test.ts` + `store.web.test.tsrx`.
+Pinned by `packages/ui/src/store.mobile.test.ts` + `store.web.test.tsrx`.
 
 ## Frame/page containers
 

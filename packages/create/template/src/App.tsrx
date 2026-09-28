@@ -3,14 +3,14 @@ import { View, Row, Text, Pressable, ScrollView, useColorScheme } from '@octane-
 
 const FEATURES = [
 	'shared components',
-	'platform leaves (.web / .native)',
+	'platform leaves (.web / .mobile)',
 	'design tokens + dark mode',
 	'native navigation',
 ];
 
 /** Every element here compiles for web AND for NativeScript iOS/Android —
  *  the same file, no branches. Platform divergence lives in leaf files
- *  (.web.tsrx / .native.tsrx), never inside a component. */
+ *  (.web.tsrx / .mobile.tsrx), never inside a component. */
 export function App() @{
 	const [count, setCount] = useState(0);
 	// null = follow the system; the toggle overrides it for this session.

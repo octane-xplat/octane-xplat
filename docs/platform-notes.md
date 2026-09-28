@@ -1,8 +1,9 @@
 # Platform-service notes (`packages/platform`)
 
 > Detailed record of everything non-visual that differs between targets. Pattern is uniform:
-> interface in a shared `.ts`, implementation resolved by suffix
-> (`*.web.ts` / `*.native.ts`, or `*.ios`/`.android` when they diverge).
+> interface in a shared `.ts`; the unsuffixed module is the native default, `.web`
+> is the browser override, `.mobile` is shared by iOS/Android, and OS suffixes
+> such as `.ios`/`.android` specialize a single platform.
 > Consumers `import { … } from 'platform/storage'` — never the impl file.
 >
 > **Owns:** #6 platform services surface · **Status:** surface enumerated ·
@@ -114,8 +115,8 @@ function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void
   rather than throwing — share-sheet behavior on desktop web, biometrics, etc.
 - Anything async-permission-shaped gets `ensure(): Promise<'granted'|'denied'|'unsupported'>`.
 - Platform impls may import `@nativescript/*` plugins or DOM APIs freely —
-  that's the point of the boundary. Keep third-party plugin calls _only_
-  inside `*.native.*` files.
+  that's the point of the boundary. Keep third-party plugin calls _only_ inside `.mobile` or unsuffixed
+  native-default files (with web types kept separate).
 - Plugin views that are UI (drawer, menu, input-accessory) are **not** here —
   they're `registerElement`'d leaf primitives in `packages/ui`. This package is
   headless capabilities only.
@@ -165,8 +166,8 @@ UI effects, and audio playback.
 
 > [!IMPORTANT]
 > `references.d.ts`/`@nativescript/types` give native API typings
-> (objc/java-ish globals). Scope them to `*.native.*` files via the native
-> tsconfig only — never let UIKit types leak into shared typecheck.
+> (objc/java-ish globals). Scope them to mobile/OS-specific or unsuffixed
+> native-default files via the mobile tsconfig only — never let UIKit types leak into shared typecheck.
 
 > [!IMPORTANT]
 > `platform` interfaces should be defined in `.ts` (no hooks at the interface

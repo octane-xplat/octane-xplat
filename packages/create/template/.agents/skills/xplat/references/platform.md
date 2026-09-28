@@ -1,44 +1,44 @@
 # Platform services + writing leaves
 
-Two seams cover everything shared code can't reach:
-
 ## `@octane-xplat/platform` — device services
 
-One import per capability; each service resolves internally to a `.web` or
-`.native` implementation. Surface: `device`, `appInfo`, `locale`,
+Import a capability through the package barrel. The unsuffixed module is its
+native default, `.web` is the browser implementation, and `.mobile` or an OS
+suffix narrows behavior when needed. Surface: `device`, `appInfo`, `locale`,
 `connectivity`, `useWindowSize`, `useAppState`, `useSafeAreaInsets`, deep
 links, clipboard, `secureStorage`, haptics, notifications, `announce`,
 `systemBars`, geolocation, permissions, media, files, share, `openUrl`,
 `openSettings`, biometrics.
 
-Services report honestly — `biometrics` returns `unsupported` on web
-rather than faking a result. Handle the tier your app can fall back to
-instead of assuming success.
+Services report honestly — `biometrics` returns `unsupported` on web rather
+than faking a result. Handle the tier your app can fall back to instead of
+assuming success.
 
 ## Leaf files — your own divergence
 
-When a service doesn't exist yet or a visual behavior truly differs,
-split the file, not the JSX:
+When a service doesn't exist yet or a visual behavior truly differs, split the
+file, not the JSX:
 
 ```text
-src/parts/Scanner.tsrx          shared part — imports './Scanner.impl'
-src/parts/Scanner.impl.web.ts   DOM implementation (camera via getUserMedia)
-src/parts/Scanner.impl.native.ts NativeScript implementation
+src/parts/Scanner.tsrx          native default
+src/parts/Scanner.web.tsrx      browser implementation (camera via getUserMedia)
+src/parts/Scanner.mobile.tsrx   shared iOS/Android implementation
+src/parts/Scanner.ios.tsrx      iOS-only override
 ```
 
-Import the bare specifier (`./Scanner.impl`); the bundler picks the leaf
-via the suffix chain `.ios` → `.android` → `.native` → shared / `.web` →
-shared.
+Import the bare specifier (`./Scanner`); the bundler selects `.web` first on
+web and the most specific native variant on each OS. The `.mobile` variant
+overrides the unsuffixed native default on iOS and Android.
 
 Leaf rules:
 
-- Inside a leaf, platform APIs are _expected_: DOM globals in `.web.*`,
-  `@nativescript/*` imports in `.native.*`. The lint rules key off the
-  suffix — don't fight them with suppressions.
+- Inside `.web.*`, DOM APIs are expected; NativeScript imports belong in
+  `.mobile.*`, `.ios.*`, `.android.*`, or the unsuffixed native default. If
+  browser code imports that default, add a `.web.*` sibling.
 - Never read app-level NativeScript globals (`Application.android.*`)
-  at module top — read them inside the call. Top-level reads crash cold
-  start before the app exists.
-- `.native.tsrx` files with JSX start with
+  at module top — read them inside the call. Top-level reads crash cold start
+  before the app exists.
+- Native-specific `.tsrx` files containing JSX start with
   `/** @jsxImportSource @nativescript-community/octane */` on line 1.
 - Deep imports under `@nativescript/core/ui/*` bundle as a second module
   instance — import from `@nativescript/core` only.

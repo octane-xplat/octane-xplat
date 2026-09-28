@@ -4,9 +4,9 @@ import { Application, View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import type { CameraViewProps } from './props'
-import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.native'
-import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child.native'
-import { cx } from './cx.native'
+import { cameraHardwarePresent, ensureCameraPermission } from './camera-permission.mobile'
+import { applyEscapeProps, layoutChildProps, nativeAccessibilityRole, nativeAccessibilityState } from './layout-child'
+import { cx } from './cx.mobile'
 
 class CameraPreview extends View {
 	createNativeView() {

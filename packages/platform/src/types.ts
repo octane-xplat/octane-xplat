@@ -1,5 +1,5 @@
 // Shared contract shapes — imported by BOTH leaves. Types must live here,
-// never in a leaf: `import … from './x.web'` inside x.native.ts drags the
+// never in a leaf: `import … from './x.web'` inside a native default module drags the
 // web implementation into the native typecheck program.
 
 /** Optional capability — never throws for absence (docs/platform-services.md). */

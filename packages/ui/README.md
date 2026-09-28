@@ -44,6 +44,6 @@ Rules for consumers:
 
 - Static styles = `className`; dynamic styles = `style` objects.
 - One element vocabulary per file — platform divergence happens at file
-  boundaries (`*.web`/`.native`/`.ios`/`.android`), not inside JSX.
+  boundaries (`*.web`, `.mobile`, `.ios`, `.android`, and the unsuffixed native default), not inside JSX.
 - No DOM globals in shared code; use `@octane-xplat/platform` for device
   capabilities.

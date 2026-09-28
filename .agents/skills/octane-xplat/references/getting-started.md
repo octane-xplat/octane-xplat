@@ -8,7 +8,7 @@
 | `packages/app`   | Harness app exercising every seam (screens, nav, overlays, probes). Not a product.                                                     |
 | `packages/demos` | Familiar mini-apps and seam-proof demos used as navigation and store payloads. |
 | `apps/web`       | Web entry — vite + `@octanejs/vite-plugin`, `resolve.conditions:['web']`, port 5200.                                                   |
-| `apps/native`    | NativeScript entry — `ns build/run`, Vite configured with `xplatNative()`, `resolve.conditions:['native']`.                              |
+| `apps/mobile`    | NativeScript entry — `ns build/run`, Vite configured with `xplatNative()`, `resolve.conditions:['native']`.                              |
 | `docs/`          | Design record: decisions ledger, per-domain specs, exploration notes.                                                                  |
 | `scripts/`       | `check-no-dom.mjs` (seam lint).                                                                                                        |
 
@@ -19,7 +19,7 @@ pnpm install                                    # never npm
 
 # typecheck (tsrx-tsc, per target)
 pnpm exec tsrx-tsc --noEmit -p apps/web/tsconfig.json
-pnpm exec tsrx-tsc --noEmit -p apps/native/tsconfig.json
+pnpm exec tsrx-tsc --noEmit -p apps/mobile/tsconfig.json
 
 # tests + seam lint
 pnpm test                                       # vitest
@@ -30,12 +30,12 @@ cd apps/web && pnpm dev                         # dev server :5200
 cd apps/web && pnpm smoke                       # vite build + Playwright smoke
 
 # native (iOS — needs a booted sim)
-cd apps/native && pnpm exec ns build ios        # debug build
+cd apps/mobile && pnpm exec ns build ios        # debug build
 xcrun simctl install <UDID> platforms/ios/build/Debug-iphonesimulator/native.app
 xcrun simctl launch <UDID> org.nativescript.xplat
 
 # native (Android — emulator + ANDROID_HOME + JDK17)
-cd apps/native && pnpm exec ns build android
+cd apps/mobile && pnpm exec ns build android
 adb -s emulator-5554 install -r platforms/android/app/build/outputs/apk/debug/app-debug.apk
 adb -s emulator-5554 shell am start -n org.nativescript.xplat/com.tns.NativeScriptActivity
 ```

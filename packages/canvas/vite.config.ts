@@ -9,9 +9,9 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // .tsrx-source-only package can't be esbuild-bundled there).
 
 const NATIVE_EXTS = [
-	'.ios.tsrx', '.android.tsrx', '.native.tsrx', '.tsrx',
-	'.ios.tsx', '.android.tsx', '.native.tsx', '.tsx',
-	'.ios.ts', '.android.ts', '.native.ts',
+	'.ios.tsrx', '.android.tsrx', '.mobile.tsrx', '.tsrx',
+	'.ios.tsx', '.android.tsx', '.mobile.tsx', '.tsx',
+	'.ios.ts', '.android.ts', '.mobile.ts',
 	'.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
 ]
 
@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
 		}),
 		build: {
 			lib: {
-				entry: { index: native ? 'src/index.native.ts' : 'src/index.web.ts' },
+				entry: { index: native ? 'src/index.ts' : 'src/index.web.ts' },
 				formats: ['es'],
 			},
 			outDir: native ? 'dist/native' : 'dist/web',

@@ -41,7 +41,7 @@ app/chat/_layout.tsrx  → wraps every 'chat/*' route
 registers it once at boot — there is no per-screen wiring to maintain.
 `xplat routes` (run automatically by `xplat dev`, `xplat build`, and
 `xplat typecheck`) emits `routes.gen.types.ts` +
-`routes.gen.web.ts` / `routes.gen.native.ts` — the typed names and the
+`routes.gen.web.ts` / `routes.gen.mobile.ts` — the typed names and the
 platform-specific globs + registration all live in generated code;
 `routes.ts` just re-exports. The generated `RouteName` and `RouteParams`
 types describe every route name and its param shape, so a typed wrapper

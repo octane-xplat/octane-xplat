@@ -3,15 +3,19 @@
  *  pass the module map here; the suffix seam applies to directories the
  *  same way it does to imports:
  *
- *    // route-manifest.web.ts
+ *    // route-manifest.web.ts — generated globs also omit a plain route when
+ *    // a `.web` twin exists, so native-default modules are never evaluated.
  *    const files = import.meta.glob(
- *      ['./app/**\/*.tsrx', '!./app/**\/*.native.tsrx', '!./app/**\/*.ios.tsrx', '!./app/**\/*.android.tsrx'],
+ *      ['./app/**\/*.{tsrx,tsx}', '!./app/**\/*.mobile.{tsrx,tsx}',
+ *       '!./app/**\/*.ios.{tsrx,tsx}', '!./app/**\/*.android.{tsrx,tsx}',
+ *       '!./app/**\/*.macos.{tsrx,tsx}', '!./app/**\/*.windows.{tsrx,tsx}',
+ *       '!./app/**\/*.linux.{tsrx,tsx}'],
  *      { eager: true });
  *    export const routes = deriveRouteManifest(files, ['web']);
  *
- *    // route-manifest.native.ts — excludes *.web.tsrx; prefer by running OS
+ *    // route-manifest.mobile.ts — excludes *.web.tsrx; prefer by running OS
  *    export const routes = deriveRouteManifest(files,
- *      Device.os === 'Android' ? ['android', 'native'] : ['ios', 'native']);
+ *      Device.os === 'Android' ? ['android', 'mobile'] : ['ios', 'mobile']);
  *
  *  Conventions (route dir = `dir`, default 'app'):
  *    app/detail.tsrx        → route 'detail'
@@ -23,13 +27,13 @@
  *
  *  `prefer` ranks platform suffixes — a suffix absent from it is another
  *  platform's file and is skipped entirely; unsuffixed files are the
- *  fallback (rank = prefer.length). Web callers pass ['web']; native
+ *  fallback (rank = prefer.length). Web callers pass ['web']; mobile
  *  callers pass the running OS first. */
 
 import type { Route, RouteManifest, RouteMeta } from './props'
 
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
-const SUFFIX = /\.(web|native|ios|android|macos)$/
+const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
 const PARAM = /^\[(.+)\]$/
 // `settings+modal.tsrx` → route 'settings' presented modally by default.
 const PRESENT = /\+(modal|fade|push)$/

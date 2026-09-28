@@ -13,15 +13,15 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 const NATIVE_EXTS = [
 	'.ios.tsrx',
 	'.android.tsrx',
-	'.native.tsrx',
+	'.mobile.tsrx',
 	'.tsrx',
 	'.ios.tsx',
 	'.android.tsx',
-	'.native.tsx',
+	'.mobile.tsx',
 	'.tsx',
 	'.ios.ts',
 	'.android.ts',
-	'.native.ts',
+	'.mobile.ts',
 	'.mjs',
 	'.mts',
 	'.ts',
@@ -55,7 +55,7 @@ export default defineConfig({
 		extensions: NATIVE_EXTS,
 	},
 	test: {
-		include: ['src/**/*.native.test.{ts,tsx,tsrx}'],
+		include: ['src/**/*.mobile.test.{ts,tsx,tsrx}'],
 		environment: 'node',
 	},
 })

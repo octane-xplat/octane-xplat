@@ -5,9 +5,12 @@ export type { RouteName, RouteParams, RoutePresentations } from './routes.gen.ty
 const files = import.meta.glob(
 	[
 		'./app/**/*.{tsrx,tsx}',
-		'!./app/**/*.native.{tsrx,tsx}',
+		'!./app/**/*.mobile.{tsrx,tsx}',
 		'!./app/**/*.ios.{tsrx,tsx}',
-		'!./app/**/*.android.{tsrx,tsx}'
+		'!./app/**/*.android.{tsrx,tsx}',
+		'!./app/**/*.macos.{tsrx,tsx}',
+		'!./app/**/*.windows.{tsrx,tsx}',
+		'!./app/**/*.linux.{tsrx,tsx}'
 	],
 	{ eager: true },
 )

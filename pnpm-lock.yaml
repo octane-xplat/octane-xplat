@@ -133,7 +133,7 @@ importers:
         specifier: 8.3.0
         version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
 
-  apps/native:
+  apps/mobile:
     dependencies:
       '@nativescript-community/gesturehandler':
         specifier: 2.0.45

@@ -1,5 +1,10 @@
 # Navigation notes
 
+> **Filename update (2026-09-28):** current route variants are unsuffixed for
+> the native default, `.web` for browser routes, and `.mobile` for shared
+> iOS/Android routes; see [module resolution](module-resolution.md). Dated lab
+> entries below preserve the suffix names used when those probes ran.
+
 > Detailed navigation record. Web = URL-driven router; native =
 > `Frame`/`Page` stacks, `TabView`, drawers, modals-as-roots, multi-window.
 > Design follows [One](https://one.dev): **shared route table + shared screens,
@@ -24,14 +29,14 @@ app/                          (shared route dir — implemented)
   index.tsrx                  screen component (shared)
   chat/[id].tsrx              dynamic param screen
   settings.web.tsrx           web-only route
-  onboarding.native.tsrx      native-only route
+  onboarding.mobile.tsrx      shared iOS/Android route
 ```
 
 - **Route files export screen components** — shared, vocabulary-free.
 - **`_layout` files are the per-platform seam**: web layout renders
   `<Outlet/>`-style children inside URL router context; native layout renders
   `frame`/`tabview`/`drawer` shells. Same file name, different vocabulary —
-  `_layout.web.tsrx` / `_layout.native.tsrx` splits are expected and fine.
+  `_layout.web.tsrx` / unsuffixed native-default splits are expected and fine.
 - Render-mode suffixes (`page+ssr.tsrx`) are web semantics; ignored on native.
 - **Named exports preferred** for route files — HMR accept boundaries are
   self-accepting modules either way ; named exports stay as
@@ -41,15 +46,15 @@ app/                          (shared route dir — implemented)
 
 The dir is scanned by `import.meta.glob` in generated platform leaves —
 `xplat routes` emits `routes.gen.web.ts` (excluding native-only files) and
-`routes.gen.native.ts` (excluding web-only files and preferring the running
+`routes.gen.mobile.ts` (excluding web-only files and preferring the running
 OS via `Device.os`), alongside `routes.gen.types.ts`.
 `deriveRouteManifest(files, prefer)` (`packages/ui/src/route-table.ts`)
 turns the module map into `{screens, routes, layouts, loaders}`:
 
 - `demo/[id].tsrx` → route name `demo/:id` (`[param]` → `:param`);
   `foo/index.tsrx` → `foo`; trailing `index` drops.
-- Platform suffix dedupe by `prefer` rank: web `['web']`, native
-  `['ios'|'android','native']`; suffixes outside `prefer` are skipped.
+- Platform suffix dedupe by `prefer` rank: web `['web']`, mobile
+  `['ios'|'android','mobile']`; suffixes outside `prefer` are skipped.
 - `_layout` files catalog into `layouts[dir]` (`''` = root) — the entry
   renders `routes.layouts['']` as the app shell; matching nested layouts
   wrap screens from outer directory to inner directory on both targets.

@@ -5,7 +5,7 @@ import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
 import { cx } from './cx'
-import { usePan } from './pan.native.tsrx'
+import { usePan } from './pan.tsrx'
 import { nativeAccessibilityRole } from './escape-props'
 import { useThemeScheme } from './theme/theme-scheme.macos'
 

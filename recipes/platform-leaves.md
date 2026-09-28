@@ -1,8 +1,8 @@
 # Use platform-specific implementations from shared code
 
 ID: platform-leaves
-Targets: web, ios, android, linux
-Related APIs: xplat typecheck, moduleSuffixes, .web.tsrx, .native.tsrx, .ios.tsrx, .android.tsrx, .linux.tsrx
+Targets: web, ios, android, macos, linux
+Related APIs: xplat typecheck, moduleSuffixes, .web.tsrx, .mobile.tsrx, .ios.tsrx, .android.tsrx, .macos.tsrx, .linux.tsrx
 
 ## Starting point
 
@@ -18,14 +18,14 @@ outside this recipe's scope.
 
 ## Acceptance criteria
 
-- AC1: The same shared import reaches the browser implementation on web and the native implementation on iOS and Android.
-- AC2: On iOS and Android, an OS-specific implementation takes precedence over a native fallback only on its own OS.
-- AC3: The reader can typecheck the shared caller and its .tsrx leaves for each target using the documented import and shim conventions.
-- AC4: On the experimental Linux webview target, a .linux implementation takes precedence over the .web fallback.
+- AC1: The same import reaches `.web` in a browser; native targets select their most-specific implementation and fall back to the unsuffixed module.
+- AC2: `.mobile` overrides the unsuffixed default on iOS and Android; `.ios` and `.android` override `.mobile` only on their matching OS, and `.macos` overrides the default on macOS.
+- AC3: The reader can typecheck the shared caller and its .tsrx leaves on web, iOS, Android, and macOS using the documented import and shim conventions.
+- AC4: On Linux's WebKitGTK target, `.linux` takes precedence over `.web`, which is the fallback for webview-compatible code.
 
 ## Documentation
 
-- AC1: [Suffix pattern](../docs/module-resolution.md#the-suffix-pattern) and [compatible contracts](../docs/module-resolution.md#what-belongs-in-each-file).
-- AC2: [Resolution order](../docs/module-resolution-notes.md#suffix-convention).
-- AC3: [TypeScript and .tsrx shims](../docs/module-resolution-notes.md#typescript).
-- AC4: [Resolution order](../docs/module-resolution-notes.md#suffix-convention) (linux row) and [experimental Linux target](../docs/toolchain.md#experimental-linux-target-webkitgtk-webview).
+- AC1: [File variants and resolution order](../docs/module-resolution.md#file-variants) and [choosing a variant](../docs/module-resolution.md#choosing-a-variant).
+- AC2: [Resolution order](../docs/module-resolution.md#file-variants).
+- AC3: [TypeScript, .tsrx shims, and target commands](../docs/module-resolution.md#typescript).
+- AC4: [Linux resolution order](../docs/module-resolution.md#file-variants) and [experimental Linux target](../docs/toolchain.md#experimental-linux-target-webkitgtk-webview).

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ActivityIndicatorProps } from '../props';
 import { cx } from '../cx';
-import { applyNativeProps } from '../platformProps.native';
+import { applyNativeProps } from '../platformProps';
 
 /** UIActivityIndicatorView — the platform spinner (UIKit). The self-drawn
  *  shared `ActivityIndicator` lives in the root export. */

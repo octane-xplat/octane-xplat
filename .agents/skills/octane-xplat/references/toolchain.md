@@ -7,12 +7,12 @@
 cd apps/web && pnpm exec vite build
 
 # iOS — debug / release (simulator, unsigned OK)
-cd apps/native && pnpm exec ns build ios
-cd apps/native && pnpm exec ns build ios --release     # Release-iphonesimulator
+cd apps/mobile && pnpm exec ns build ios
+cd apps/mobile && pnpm exec ns build ios --release     # Release-iphonesimulator
 
 # Android — debug / signed release
-cd apps/native && pnpm exec ns build android
-cd apps/native && pnpm exec ns build android --release \
+cd apps/mobile && pnpm exec ns build android
+cd apps/mobile && pnpm exec ns build android --release \
   --key-store-path <keystore> --key-store-password <pw> \
   --key-store-alias <alias> --key-store-alias-password <pw>
 ```

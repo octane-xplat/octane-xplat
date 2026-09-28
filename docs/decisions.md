@@ -69,6 +69,7 @@
 | 61  | Linux targets the system webview (WebKitGTK) rather than native widgets — the DOM renderer is the Linux renderer, `.linux` leaves sit ahead of `.web` in the suffix chain, and OS access goes through a host bridge over `webkit.messageHandlers` whose services are mostly D-Bus-shaped | Provisional | Lab-verified 2026-09-28 twice: WKWebView stand-in (same `webkit.messageHandlers` API lineage) and a real GJS/WebKitGTK 2.52.6 host under Debian trixie in a container (Xvfb + `dbus-run-session`) — clipboard, Secret Service, freedesktop `Notify`, and rejection all round-trip (`apps/linux/host/container-smoke.sh`). Bridge requests are JSON strings — WebKitGTK 6.0 delivers bare `JSCValue`s to handlers. Chosen over waiting for a NativeScript Linux node-api runtime — none exists upstream (`runtime-node-api` bridges ObjC only), and the desktop surface is mostly session-bus services reachable from any process. Open: portals needing a backend + `/dev/fuse`, packaging, WebKitGTK version skew, real DE session | toolchain, platform-notes |
 | 62  | `@octane-xplat/ui` vendors `SVGView` from `@nativescript-community/ui-svg@0.2.24` (ISC) under `src/vendor/ui-svg`, carries the plugin's `platforms/` (`androidsvg-aar` include.gradle, Akylas SVGKit Podfile) on the package, and drops the `ui-svg` dependency; `CanvasSVG`, `ImageViewSVG` extras, and the `vue/` integration are not vendored | Decided | `ui-svg`'s `index.*` (the `svgview` we register) never imports `ui-canvas` — only its `canvas.*` modules do — but `ns prepare` merges whole declared dependencies, so every native app paid the ui-canvas merge for a code path nothing reaches. Vendoring the used path keeps SVG default (`Icon`/`Image`/`Meter`) while restoring #53's zero-dependency state. Lab-verified 2026-09-28: `ns prepare android`+`ios` with the vendored plugin — `@octane-xplat/ui` itself appears in the plugin merge, `com.caverock:androidsvg-aar` applies via its include.gradle, `SVGKit` 3.1.1 pod resolves via its Podfile, and `ui-canvas`/`ui-svg` no longer appear in `dependencies.json`. Vendored-code maintenance is owned at `src/vendor/ui-svg` | toolchain, architecture |
 | 63  | The framework patch set ships inside `@octane-xplat/cli` (`patches/` + `manifest.json` carrying specifier/scope/why/dropWhen per patch); downstream pnpm apps materialize it via `xplat patches apply` (copies files into `<app>/patches/`, merges `patchedDependencies` into the app's `pnpm-workspace.yaml` — or `pnpm.patchedDependencies` in package.json when no workspace yaml exists) and verify with `xplat patches check` / `xplat doctor`; the create template carries generated self-contained copies, `pnpm sync:patches`/`check:patches` guard drift | Decided | pnpm honors `patchedDependencies` only at the lockfile root — nothing in a dependency's manifest propagates it — so the CLI writes real committed files: auditable, present before first install, and removable when upstream ships the fix. This repo's yaml references `packages/cli/patches/` directly so `pnpm patch-commit` lands in the canonical dir. The template's hand-synced copies had already drifted (2 of 4 patches, stale `@nativescript/vite`), motivating generation over convention. Republished forks via `overrides` → `npm:` aliases rejected — `ns prepare`'s plugin BFS and runtime discovery key on real package identity/layout | toolchain |
+| 64  | The unsuffixed module is the native default; `.web` marks browser-specific implementations, `.mobile` shared iOS/Android overrides, and OS suffixes override for one OS. There is no `.native` or `.desktop` filename tier | Decided | `.web` makes browser code explicit while keeping the base implementation available to native targets; `.mobile` covers the useful shared iOS/Android seam without adding a generic desktop tier | module-resolution, architecture |
 
 
 > **#59 implementation note (2026-09-27):** The candidate is not yet the
@@ -82,3 +83,15 @@
 > scenes on iPadOS and activity/task windows on Android in supported
 > configurations; iPhone remains single-window. See the [NativeScript
 > multi-window guide](https://docs.nativescript.org/guide/multi-window).
+
+
+## Reversals
+
+- **2026-09-28 — filename convention (#2, #18, #31):** replace the generic
+  `.native` filename tier with the unsuffixed native default. `.web` marks
+  browser-specific code; `.mobile` marks code shared by iOS and Android; and
+  `.ios`/`.android`/`.macos`/`.windows` remain OS-specific overrides. Route
+  generation now emits `routes.gen.mobile.ts`. This convention is formalized
+  by #64, which supersedes #2. NativeScript runtime/export
+  conditions and config names such as `tsconfig.native.json` retain “native”
+  because those names identify the runtime target, not a module suffix.

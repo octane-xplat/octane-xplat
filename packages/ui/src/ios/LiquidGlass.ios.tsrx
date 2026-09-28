@@ -5,7 +5,7 @@ import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import type { LiquidGlassProps } from '../props';
 import { cx } from '../cx';
 import { applyEscapeProps } from '../escape-props';
-import { layoutChildProps } from '../layout-child.native';
+import { layoutChildProps } from '../layout-child';
 
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
