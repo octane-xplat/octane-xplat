@@ -1085,9 +1085,30 @@ function applyStyle(node, style) {
 function applyClassName(node, value) {
 	const classes = String(value ?? '').split(/\s+/).filter(Boolean)
 	if (node.type === 'label') {
-		const sizes = { 'text-xs': 12, 'text-sm': 14, 'text-base': 16, 'text-lg': 18, 'text-xl': 20, 'text-2xl': 24 }
+		const sizes = { 'text-xs': 12, 'text-sm': 13, 'text-base': 16, 'text-lg': 18, 'text-xl': 20, 'text-2xl': 28 }
+		const lineHeights = { 'text-sm': 20, 'text-lg': 28, 'text-xl': 28, 'text-2xl': 36 }
+		const headingMetrics = {
+			'vx-h1': { size: 32, height: 41 },
+			'vx-h2': { size: 24, height: 31 },
+			'vx-h3': { size: 18.72, height: 25 },
+			'vx-h4': { size: 16, height: 21 },
+			'vx-h5': { size: 13.28, height: 17 },
+			'vx-h6': { size: 10.72, height: 14 },
+		}
+		node.headingDefaultHeight = undefined
+		node.classLineHeight = undefined
 		for (const name of classes) {
-			if (sizes[name]) {node.view.font = fontForFamilyStyle(sizes[name], node.appliedFontWeight ?? 400, node.appliedFontFamily)}
+			const heading = headingMetrics[name]
+			if (heading) {
+				node.appliedFontWeight = '700'
+				node.headingDefaultHeight = heading.height
+				node.view.font = fontForFamilyStyle(heading.size, 700, node.appliedFontFamily)
+			}
+			if (sizes[name]) {
+				node.headingDefaultHeight = undefined
+				node.view.font = fontForFamilyStyle(sizes[name], node.appliedFontWeight ?? 400, node.appliedFontFamily)
+			}
+			if (lineHeights[name] != null) {node.classLineHeight = lineHeights[name]}
 			if (name === 'font-semibold') {
 				node.appliedFontWeight = '600'
 				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 600, node.appliedFontFamily)
@@ -1486,7 +1507,10 @@ function applyProps(node, props) {
 		const style = node.props.style ?? {}
 		if (style.lineHeight == null && style.height == null) {
 			const size = Number(node.view.font?.pointSize ?? 16)
-			setSizeConstraint(node, 'height', Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO))
+			const height = style.fontSize == null && node.headingDefaultHeight != null
+				? node.headingDefaultHeight
+				: node.classLineHeight ?? Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO)
+			setSizeConstraint(node, 'height', height)
 		}
 	}
 	if (node.type === 'gridlayout') {layoutGridChildren(node)}

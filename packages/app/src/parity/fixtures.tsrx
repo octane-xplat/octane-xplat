@@ -4,6 +4,7 @@ import {
 	Checkbox,
 	Button,
 	Text,
+	Heading,
 	TextInput,
 	TextArea,
 	View,
@@ -38,6 +39,18 @@ function TextFixture(props: { size: number; weight: number; lineHeight: number; 
 	<Text className="parity-text" style={{ fontSize: props.size, fontWeight: props.weight, lineHeight: props.lineHeight, color: '#0a0a0a' }}>
 		{props.content}
 	</Text>
+}
+
+function TextClassFixture(props: { sizeClass: string; content: string }) @{
+	<Text className={`parity-text ${props.sizeClass}`} style={{ color: '#0a0a0a' }}>
+		{props.content}
+	</Text>
+}
+
+function HeadingFixture(props: { level: 1 | 2 | 3 | 4 | 5 | 6; content: string; className?: string }) @{
+	<Heading className={`parity-heading ${props.className ?? ''}`} level={props.level} style={{ width: 520 }}>
+		{props.content}
+	</Heading>
 }
 
 function ButtonFixture(props: { width: number; height: number; label: string }) @{
@@ -188,6 +201,17 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'slider-50', component: 'Slider', renderer: SliderFixture, props: { id: 'probe-slider-50', value: 50 }, wide: true },
 	{ name: 'checkbox-off', component: 'Checkbox', renderer: CheckboxFixture, props: { checked: false } },
 	{ name: 'checkbox-on', component: 'Checkbox', renderer: CheckboxFixture, props: { checked: true } },
+	{ name: 'heading-level-1', component: 'Heading', renderer: HeadingFixture, props: { level: 1, content: 'Shared heading' }, width: 520 },
+	{ name: 'heading-level-2', component: 'Heading', renderer: HeadingFixture, props: { level: 2, content: 'Shared heading' }, width: 520 },
+	{ name: 'heading-level-3', component: 'Heading', renderer: HeadingFixture, props: { level: 3, content: 'Shared heading' }, width: 520 },
+	{ name: 'heading-level-4', component: 'Heading', renderer: HeadingFixture, props: { level: 4, content: 'Shared heading' }, width: 520 },
+	{ name: 'heading-level-5', component: 'Heading', renderer: HeadingFixture, props: { level: 5, content: 'Shared heading' }, width: 520 },
+	{ name: 'heading-level-6', component: 'Heading', renderer: HeadingFixture, props: { level: 6, content: 'Shared heading' }, width: 520 },
+	{ name: 'heading-custom-size', component: 'Heading', renderer: HeadingFixture, props: { level: 1, content: 'Shared heading', className: 'text-xl' }, width: 520 },
+	{ name: 'text-class-sm', component: 'Text', renderer: TextClassFixture, props: { sizeClass: 'text-sm', content: 'Shared label' } },
+	{ name: 'text-class-lg', component: 'Text', renderer: TextClassFixture, props: { sizeClass: 'text-lg', content: 'Shared label' } },
+	{ name: 'text-class-xl', component: 'Text', renderer: TextClassFixture, props: { sizeClass: 'text-xl', content: 'Shared label' } },
+	{ name: 'text-class-2xl', component: 'Text', renderer: TextClassFixture, props: { sizeClass: 'text-2xl', content: 'Shared label' } },
 	{ name: 'text-basic', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 600, lineHeight: 20, content: 'Shared label' } },
 	{ name: 'text-bold', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 700, lineHeight: 20, content: 'Shared label' } },
 	{ name: 'text-regular', component: 'Text', renderer: TextFixture, props: { size: 14, weight: 400, lineHeight: 20, content: 'Shared label' } },

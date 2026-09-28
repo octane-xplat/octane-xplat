@@ -9,7 +9,7 @@ export function Heading(props: HeadingProps) @{
 
 	<label
 		id={props.id}
-		className={cx(`vx-h${level}`, props.className)}
+		className={cx('vx-heading', `vx-h${level}`, props.className)}
 		style={props.style}
 		accessibilityRole={AccessibilityRole.Header}
 		ref={(el: any) => applyNativeProps(el, props)}

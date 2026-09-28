@@ -53,7 +53,6 @@ const DEFERRED_GROUPS = [
 			'Link',
 			'NavLink',
 			'Icon',
-			'Heading',
 		],
 	},
 	{

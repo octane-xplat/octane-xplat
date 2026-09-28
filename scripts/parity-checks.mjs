@@ -43,6 +43,39 @@ const textEqual = [
 	'text.textLineAdvances',
 ]
 
+const headingEqual = [
+	'heading.box.x',
+	'heading.box.y',
+	'heading.box.w',
+	'heading.box.h',
+	'heading.style.fontSize',
+	'heading.style.fontFamily',
+	'heading.style.fontPostScriptName',
+	'heading.style.fontWeight',
+	'heading.style.color',
+	'heading.textLineAdvances',
+]
+
+function headingRows(m, content, size) {
+	const heading = m('heading')
+	return [
+		['heading starts at the fixture origin', near(heading.box?.x, 0, 0.5) && near(heading.box?.y, 0, 0.5), `${heading.box?.x},${heading.box?.y}`],
+		['heading width is 520px', near(heading.box?.w, 520, 1), heading.box?.w],
+		[`heading font size is ${size}px`, near(Number.parseFloat(heading.style?.fontSize), size, 0.05), heading.style?.fontSize],
+		['heading weight is bold', Number(heading.style?.fontWeight) === 700, heading.style?.fontWeight],
+		['heading content matches', heading.text === content, JSON.stringify(heading.text)],
+	]
+}
+
+function textClassRows(m, content, size, lineHeight) {
+	const text = m('text')
+	return [
+		[`text font size is ${size}px`, near(Number.parseFloat(text.style?.fontSize), size, 0.05), text.style?.fontSize],
+		[`text line height is ${lineHeight}px`, near(Number.parseFloat(text.style?.lineHeight), lineHeight, 0.05), text.style?.lineHeight],
+		['text content matches', text.text === content, JSON.stringify(text.text)],
+	]
+}
+
 function textRows(m, content, height, width) {
 	const text = m('text')
 	const rows = [
@@ -144,6 +177,83 @@ function textAreaRows(m, target, value) {
 }
 
 export const CHECKS = [
+	{
+		fixture: 'heading-level-1',
+		targets: ['web', 'macos'],
+		elements: { heading: 'parity-heading' },
+		equal: headingEqual,
+		check: (m) => headingRows(m, 'Shared heading', 32),
+	},
+	{
+		fixture: 'heading-level-2',
+		targets: ['web', 'macos'],
+		elements: { heading: 'parity-heading' },
+		equal: headingEqual,
+		check: (m) => headingRows(m, 'Shared heading', 24),
+	},
+	{
+		fixture: 'heading-level-3',
+		targets: ['web', 'macos'],
+		elements: { heading: 'parity-heading' },
+		equal: headingEqual,
+		check: (m) => headingRows(m, 'Shared heading', 18.72),
+	},
+	{
+		fixture: 'heading-level-4',
+		targets: ['web', 'macos'],
+		elements: { heading: 'parity-heading' },
+		equal: headingEqual,
+		check: (m) => headingRows(m, 'Shared heading', 16),
+	},
+	{
+		fixture: 'heading-level-5',
+		targets: ['web', 'macos'],
+		elements: { heading: 'parity-heading' },
+		equal: headingEqual,
+		check: (m) => headingRows(m, 'Shared heading', 13.28),
+	},
+	{
+		fixture: 'heading-level-6',
+		targets: ['web', 'macos'],
+		elements: { heading: 'parity-heading' },
+		equal: headingEqual,
+		check: (m) => headingRows(m, 'Shared heading', 10.72),
+	},
+	{
+		fixture: 'heading-custom-size',
+		targets: ['web', 'macos'],
+		elements: { heading: 'parity-heading' },
+		equal: headingEqual,
+		check: (m) => headingRows(m, 'Shared heading', 20),
+	},
+	{
+		fixture: 'text-class-sm',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: textEqual,
+		check: (m) => textClassRows(m, 'Shared label', 13, 20),
+	},
+	{
+		fixture: 'text-class-lg',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: textEqual,
+		check: (m) => textClassRows(m, 'Shared label', 18, 28),
+	},
+	{
+		fixture: 'text-class-xl',
+		targets: ['web', 'macos'],
+		elements: { text: 'parity-text' },
+		equal: textEqual,
+		check: (m) => textClassRows(m, 'Shared label', 20, 28),
+	},
+	{
+		fixture: 'text-class-2xl',
+		targets: ['web', 'macos'],
+		equal: textEqual,
+		elements: { text: 'parity-text' },
+		check: (m) => textClassRows(m, 'Shared label', 28, 36),
+	},
 	{
 		fixture: 'text-basic',
 		targets: ['web', 'macos'],

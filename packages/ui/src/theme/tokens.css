@@ -1493,6 +1493,9 @@ input.vx-search-field::-webkit-search-cancel-button {
 }
 /* xplat-web-only:end */
 
+.vx-heading {
+	margin: 0;
+}
 .vx-h1 {
 	font-size: 2em;
 	font-weight: bold;
