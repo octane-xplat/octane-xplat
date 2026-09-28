@@ -198,11 +198,14 @@ async function completeFrameworkSymlinks(frameworkPath) {
 		['Versions/Current/Resources', join(frameworkPath, 'Resources')],
 		['Versions/Current/NativeScript', join(frameworkPath, 'NativeScript')],
 	]
+
 	for (const [target, path] of aliases) {
 		try {
 			await symlink(target, path)
 		} catch (error) {
-			if (error.code !== 'EEXIST') throw error
+			if (error.code !== 'EEXIST') {
+				throw error
+			}
 		}
 	}
 }
