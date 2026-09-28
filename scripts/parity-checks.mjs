@@ -27,6 +27,7 @@ const textEqual = [
 	'text.style.fontWeight',
 	'text.style.lineHeight',
 	'text.style.color',
+	'text.textLineAdvances',
 ]
 
 function textRows(m, content, height, width) {
@@ -51,6 +52,7 @@ const buttonEqual = [
 	'label.box.h',
 	'label.style.fontFamily',
 	'label.style.fontPostScriptName',
+	'label.textLineAdvances',
 ]
 
 function buttonRows(m, width, height, labelText) {

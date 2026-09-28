@@ -1318,8 +1318,16 @@ function parityNode(node, boxNode, facets) {
 
 	let text
 	let textLineAdvances
-	if (node.type === 'label') {text = String(view?.stringValue ?? '').trim()}
-	else if (node.type === 'button') {text = String(view?.title ?? '').trim()}
+	if (node.type === 'label') {
+		const value = String(view?.stringValue ?? '')
+		text = value.trim()
+		textLineAdvances = measureTextLineAdvances(value, view?.font)
+	}
+	else if (node.type === 'button') {
+		const value = String(view?.title ?? '')
+		text = value.trim()
+		textLineAdvances = measureTextLineAdvances(value, view?.font)
+	}
 	else if (node.type === 'textfield') {
 		const value = String(view?.stringValue ?? '')
 		text = value.trim()

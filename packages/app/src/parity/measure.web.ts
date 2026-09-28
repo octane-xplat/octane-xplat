@@ -32,8 +32,9 @@ function nodeFor(el: any, boxEl: any) {
 	const r = el.getBoundingClientRect()
 	const cs = getComputedStyle(el)
 	const value = typeof el.value === 'string' ? el.value : undefined
-	const text = value !== undefined ? value.trim() : ownText(el)
-	const textLineAdvances = value !== undefined ? measureTextLineAdvances(value, cs.font) : undefined
+	const textValue = value ?? ownText(el)
+	const text = textValue?.trim()
+	const textLineAdvances = textValue !== undefined ? measureTextLineAdvances(textValue, cs.font) : undefined
 	const placeholder = typeof el.placeholder === 'string' ? el.placeholder || undefined : undefined
 	const placeholderCss = placeholder ? getComputedStyle(el, '::placeholder') : undefined
 	const style: Record<string, string> = {}
