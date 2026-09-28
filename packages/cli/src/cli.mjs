@@ -6,11 +6,12 @@ import { typecheck } from './commands/typecheck.mjs'
 import { doctor } from './commands/doctor.mjs'
 import { clean } from './commands/clean.mjs'
 import { routes } from './commands/routes.mjs'
+import { patches } from './commands/patches.mjs'
 
 const cli = subcommands({
 	name: 'xplat',
 	description: 'One Octane codebase → web + iOS + Android + experimental macOS AppKit',
-	cmds: { dev, build, typecheck, doctor, clean, routes },
+	cmds: { dev, build, typecheck, doctor, clean, routes, patches },
 })
 
 await run(binary(cli), process.argv)

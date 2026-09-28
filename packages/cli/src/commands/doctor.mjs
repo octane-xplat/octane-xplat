@@ -4,6 +4,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, parse, relative, resolve } from 'node:path'
 import * as p from '@clack/prompts'
 import { hasMacOS, hasNative } from '../targets.mjs'
+import { inspectPatches, patchStateDetail } from '../patches.mjs'
 import { inspectMacOSPackageConfig } from '../macos/config.mjs'
 import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from '../macos/runtime-package.mjs'
 
@@ -468,6 +469,18 @@ export const doctor = command({
 					'install Xcode Command Line Tools',
 				)
 			}
+		}
+
+		for (const patch of inspectPatches(cwd)) {
+			if (patch.state === 'not-declared') continue
+			row(
+				`patch ${patch.specifier}`,
+				patch.state === 'applied',
+				patchStateDetail(patch.state),
+				patch.state === 'not-installed'
+					? 'run `pnpm install`'
+					: 'run `xplat patches apply`',
+			)
 		}
 
 		const pluginWarnings = native ? findMissingPluginDeclarations(cwd) : []

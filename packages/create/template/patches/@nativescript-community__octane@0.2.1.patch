@@ -1,0 +1,16 @@
+diff --git a/dist/driver.js b/dist/driver.js
+index f485f992282c05c58fed810458303be3141f51c0..9b5a654cf0c32be5fc6da4ae5fec04a58560925f 100644
+--- a/dist/driver.js
++++ b/dist/driver.js
+@@ -83,6 +83,11 @@ function setProp(node, view, name, value) {
+         setRenderItem(view, value ?? null, createNativeScriptRoot);
+         return;
+     }
++    // `undefined` means "prop not supplied" — skip the write. NativeScript
++    // native setters coerce it (e.g. editable → ios.userInteractionEnabled =
++    // NO) leaving dead UI that still has its JS listeners.
++    if (value === undefined)
++        return;
+     // Core raises `<name>Change` for a script write exactly as for a user
+     // edit; a controlled input must not see its own value come back as one.
+     const echo = `${name}Change`;

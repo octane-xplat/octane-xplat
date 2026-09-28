@@ -114,11 +114,20 @@ experience of agents writing Octane-xplat code effectively.
   (decision #51).
   `minimumReleaseAgeExclude` covers the octane packages — they're newer than
   the supply-chain cutoff.
-- `pnpm-workspace.yaml` `patchedDependencies` currently patches
-  `@nativescript-community/octane`, `@nativescript-community/vite-octane`,
-  `@nativescript/core`, and `@nativescript/vite`.
-  Each patch is pinned to an exact version; remove it when upstream ships its
-  fix. esbuild is pinned to 0.27.7 — vite 8's
+- The framework patch set lives canonically in `packages/cli/patches/`
+  (`manifest.json` carries specifier/scope/why/dropWhen per patch) and ships
+  inside `@octane-xplat/cli` — pnpm only honors `patchedDependencies` at the
+  app root, so downstream apps materialize it with `xplat patches apply`
+  (copies files into `<app>/patches/` + merges the yaml block; `--force`
+  takes the framework copy over a divergent one) and verify with
+  `xplat patches check` / `xplat doctor`. The root `pnpm-workspace.yaml`
+  references `packages/cli/patches/` directly; the create template carries
+  generated self-contained copies. `pnpm sync:patches` regenerates both yaml
+  blocks + template files from the manifest — `pnpm check:patches` fails on
+  drift. Regenerate a patch via `pnpm patch`/`pnpm patch-commit` (writes to
+  the configured path, i.e. the canonical dir), then sync + update the
+  manifest entry. Each patch is pinned to an exact version; remove it when
+  upstream ships its fix. esbuild is pinned to 0.27.7 — vite 8's
   peer range admits 0.28.x and the vendor bundler dies on the host/binary
   mismatch.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`

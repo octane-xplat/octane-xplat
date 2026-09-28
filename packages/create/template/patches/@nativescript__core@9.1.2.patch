@@ -1,0 +1,519 @@
+diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
+index 54a037138b909446c71da47eb1cd682d5286fb18..2e1eafc92ff54e4c952b99dfd89816b222981aa3 100644
+--- a/ui/layouts/flexbox-layout/flexbox-layout-common.js
++++ b/ui/layouts/flexbox-layout/flexbox-layout-common.js
+@@ -193,7 +193,21 @@ let FlexboxLayoutBase = class FlexboxLayoutBase extends LayoutBase {
+         validateArgs(view).style.alignSelf = align;
+     }
+     static getAlignSelf(view) {
+-        return validateArgs(view).style.alignSelf;
++        const style = validateArgs(view).style;
++        const alignSelf = style.alignSelf;
++        if (alignSelf !== 'auto' && alignSelf !== 'stretch') {
++            return alignSelf;
++        }
++        const parent = view.parent;
++        if (!(parent instanceof FlexboxLayoutBase)) {
++            return alignSelf;
++        }
++        if (alignSelf === 'auto' && parent.alignItems !== 'stretch') {
++            return alignSelf;
++        }
++        const isRow = parent.flexDirection === 'row' || parent.flexDirection === 'row-reverse';
++        const crossSize = isRow ? style.height : style.width;
++        return crossSize == null || crossSize === 'auto' ? alignSelf : 'flex-start';
+     }
+     static setFlexWrapBefore(view, wrap) {
+         validateArgs(view).style.flexWrapBefore = wrap;
+diff --git a/ui/layouts/flexbox-layout/index.android.js b/ui/layouts/flexbox-layout/index.android.js
+index ed354fddfe1caf982e73b603798cb8f5bf0d3501..58dfc04a6a4549c8fe52f04022fff82b321b0301 100644
+--- a/ui/layouts/flexbox-layout/index.android.js
++++ b/ui/layouts/flexbox-layout/index.android.js
+@@ -1,7 +1,7 @@
+ import { FlexDirection, FlexWrap, JustifyContent, AlignItems, AlignContent, FlexboxLayoutBase, orderProperty, flexGrowProperty, flexShrinkProperty, flexWrapBeforeProperty, alignSelfProperty, AlignSelf, flexDirectionProperty, flexWrapProperty, justifyContentProperty, alignItemsProperty, alignContentProperty } from './flexbox-layout-common';
+ import { View } from '../../core/view';
+ import { Length } from '../../styling/length-shared';
+-import { columnGapProperty, rowGapProperty } from '../../styling/style-properties';
++import { columnGapProperty, rowGapProperty, widthProperty, heightProperty } from '../../styling/style-properties';
+ export * from './flexbox-layout-common';
+ let widgetFlexboxLayout;
+ let widgetLayoutParams;
+@@ -27,6 +27,25 @@ View.prototype[flexGrowProperty.setNative] = makeNativeSetter((lp, value) => (lp
+ View.prototype[flexShrinkProperty.setNative] = makeNativeSetter((lp, value) => (lp.flexShrink = value));
+ View.prototype[flexWrapBeforeProperty.setNative] = makeNativeSetter((lp, value) => (lp.wrapBefore = value));
+ View.prototype[alignSelfProperty.setNative] = makeNativeSetter((lp, value) => (lp.alignSelf = alignSelfMap[value]));
++function refreshFlexboxParent(child) {
++    const parent = child.parent;
++    if (parent instanceof FlexboxLayoutBase) {
++        parent._updateNativeLayoutParams(child);
++    }
++}
++function wrapChildLayoutProperty(property) {
++    const setter = View.prototype[property.setNative];
++    if (typeof setter !== 'function') {
++        return;
++    }
++    View.prototype[property.setNative] = function (value) {
++        setter.call(this, value);
++        refreshFlexboxParent(this);
++    };
++}
++wrapChildLayoutProperty(widthProperty);
++wrapChildLayoutProperty(heightProperty);
++wrapChildLayoutProperty(alignSelfProperty);
+ const flexDirectionMap = {
+     [FlexDirection.ROW]: 0, //FlexboxLayoutWidget.FLEX_DIRECTION_ROW,
+     [FlexDirection.ROW_REVERSE]: 1, //FlexboxLayoutWidget.FLEX_DIRECTION_ROW_REVERSE,
+@@ -85,6 +104,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+     }
+     [flexDirectionProperty.setNative](flexDirection) {
+         this.nativeViewProtected.setFlexDirection(flexDirectionMap[flexDirection]);
++        this.eachLayoutChild((child) => this._updateNativeLayoutParams(child));
+     }
+     [flexWrapProperty.getDefault]() {
+         return flexWrapProperty.defaultValue;
+@@ -103,6 +123,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+     }
+     [alignItemsProperty.setNative](alignItems) {
+         this.nativeViewProtected.setAlignItems(alignItemsMap[alignItems]);
++        this.eachLayoutChild((child) => this._updateNativeLayoutParams(child));
+     }
+     [alignContentProperty.getDefault]() {
+         return alignContentProperty.defaultValue;
+@@ -136,7 +157,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+         lp.flexGrow = style.flexGrow;
+         lp.flexShrink = style.flexShrink;
+         lp.wrapBefore = style.flexWrapBefore;
+-        lp.alignSelf = alignSelfMap[style.alignSelf];
++        lp.alignSelf = alignSelfMap[FlexboxLayoutBase.getAlignSelf(child)];
+         child.nativeViewProtected.setLayoutParams(lp);
+     }
+     _setChildMinWidthNative(child, value) {
+diff --git a/ui/styling/background.ios.js b/ui/styling/background.ios.js
+index ed4b6883680229ffd1aa92a7bbcba2d36f1efebc..3882cad9a8d17fb5b8a80a4795b0161bc2f82e28 100644
+--- a/ui/styling/background.ios.js
++++ b/ui/styling/background.ios.js
+@@ -197,8 +197,8 @@ export var ios;
+                     bottomLeft: cappedRadius + spreadRadius,
+                     bottomRight: cappedRadius + spreadRadius,
+                 };
+-                innerPath = generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadii);
+-                shadowPath = generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadiiWithSpread, spreadRadius);
++                innerPath = generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadii, 0, background.cornerShape === CoreTypes.CornerShape.squircle);
++                shadowPath = generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadiiWithSpread, spreadRadius, background.cornerShape === CoreTypes.CornerShape.squircle);
+             }
+             else {
+                 const outerTopLeftRadius = layout.toDeviceIndependentPixels(background.borderTopLeftRadius);
+@@ -223,8 +223,8 @@ export var ios;
+                     bottomLeft: cappedOuterRadii.bottomLeft > 0 ? cappedOuterRadii.bottomLeft + spreadRadius : cappedOuterRadii.bottomLeft,
+                     bottomRight: cappedOuterRadii.bottomRight > 0 ? cappedOuterRadii.bottomRight + spreadRadius : cappedOuterRadii.bottomRight,
+                 };
+-                innerPath = generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadii);
+-                shadowPath = generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadiiWithSpread, spreadRadius);
++                innerPath = generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadii, 0, background.cornerShape === CoreTypes.CornerShape.squircle);
++                shadowPath = generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadiiWithSpread, spreadRadius, background.cornerShape === CoreTypes.CornerShape.squircle);
+             }
+         }
+         else {
+@@ -292,7 +292,7 @@ export var ios;
+     function generateNonUniformBorderOuterClipRoundedPath(view, bounds) {
+         const background = view.style.backgroundInternal;
+         const cappedOuterRadii = calculateNonUniformBorderCappedRadii(bounds, background);
+-        return generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadii);
++        return generateNonUniformBorderOuterClipPath(bounds, cappedOuterRadii, 0, background.cornerShape === CoreTypes.CornerShape.squircle);
+     }
+     ios.generateNonUniformBorderOuterClipRoundedPath = generateNonUniformBorderOuterClipRoundedPath;
+     function generateNonUniformMultiColorBorderRoundedPaths(view, bounds) {
+@@ -626,7 +626,7 @@ function drawNonUniformBorders(nativeView, background) {
+     layer.cornerRadius = 0;
+     const cappedOuterRadii = calculateNonUniformBorderCappedRadii(layerBounds, background);
+     if (nativeView.maskType === iosViewUtils.LayerMask.BORDER && layer.mask instanceof CAShapeLayer) {
+-        layer.mask.path = generateNonUniformBorderOuterClipPath(layerBounds, cappedOuterRadii);
++        layer.mask.path = generateNonUniformBorderOuterClipPath(layerBounds, cappedOuterRadii, 0, background.cornerShape === CoreTypes.CornerShape.squircle);
+     }
+     if (background.hasBorderWidth()) {
+         if (!nativeView.hasNonUniformBorder) {
+@@ -694,15 +694,57 @@ function calculateInnerBorderClipRadius(radius, insetX, insetY) {
+         maxRadius: innerMaxRadius,
+     };
+ }
++// Squircle corner curve — superellipse |x|^n + |y|^n = r^n with n=4, the
++// approximation of Apple's "continuous" corner that CSS `corner-shape:
++// squircle` specifies. Sampled as a short polyline per corner (the mask is
++// rasterized once per bounds change, so segment count doesn't matter at
++// screen scale).
++const SQUIRCLE_EXPONENT = 4;
++const SQUIRCLE_CORNER_STEPS = 12;
++/**
++ * Appends a straight line to the incoming tangent point, then a squircle
++ * quarter arc to the exit tangent — same semantics as CGPathAddArcToPoint.
++ *
++ * @param path
++ * @param t1x/t1y tangent point on the incoming edge
++ * @param t2x/t2y tangent point on the outgoing edge
++ * @param vx/vy corner vertex where the two edges would meet
++ */
++function addSquircleArcToPoint(path, t1x, t1y, t2x, t2y, vx, vy) {
++    CGPathAddLineToPoint(path, null, t1x, t1y);
++    // The corner-box corner opposite the vertex is the arc's center.
++    const cx = t1x + t2x - vx;
++    const cy = t1y + t2y - vy;
++    const e = 2 / SQUIRCLE_EXPONENT;
++    // t1 sits on a horizontal edge when its offset from the center is
++    // vertical; parametrize θ: 0 → π/2 so the polyline always runs t1 → t2.
++    if (Math.abs(t1y - cy) >= Math.abs(t1x - cx)) {
++        const ax = t2x - cx;
++        const ay = t1y - cy;
++        for (let i = 1; i <= SQUIRCLE_CORNER_STEPS; i++) {
++            const a = (i / SQUIRCLE_CORNER_STEPS) * (Math.PI / 2);
++            CGPathAddLineToPoint(path, null, cx + ax * Math.pow(Math.sin(a), e), cy + ay * Math.pow(Math.cos(a), e));
++        }
++    }
++    else {
++        const ax = t1x - cx;
++        const ay = t2y - cy;
++        for (let i = 1; i <= SQUIRCLE_CORNER_STEPS; i++) {
++            const a = (i / SQUIRCLE_CORNER_STEPS) * (Math.PI / 2);
++            CGPathAddLineToPoint(path, null, cx + ax * Math.pow(Math.cos(a), e), cy + ay * Math.pow(Math.sin(a), e));
++        }
++    }
++}
+ /**
+  * Generates a path that represents the rounded view area.
+  *
+  * @param bounds
+  * @param cappedRadii
+  * @param offset
++ * @param squircle draw corner arcs as squircles instead of circular arcs
+  * @returns
+  */
+-function generateNonUniformBorderOuterClipPath(bounds, cappedRadii, offset = 0) {
++function generateNonUniformBorderOuterClipPath(bounds, cappedRadii, offset = 0, squircle = false) {
+     const { width, height } = bounds.size;
+     const { x, y } = bounds.origin;
+     const left = x - offset;
+@@ -711,10 +753,18 @@ function generateNonUniformBorderOuterClipPath(bounds, cappedRadii, offset = 0)
+     const bottom = y + height + offset;
+     const clipPath = CGPathCreateMutable();
+     CGPathMoveToPoint(clipPath, null, left + cappedRadii.topLeft, top);
+-    CGPathAddArcToPoint(clipPath, null, right, top, right, top + cappedRadii.topRight, cappedRadii.topRight);
+-    CGPathAddArcToPoint(clipPath, null, right, bottom, right - cappedRadii.bottomRight, bottom, cappedRadii.bottomRight);
+-    CGPathAddArcToPoint(clipPath, null, left, bottom, left, bottom - cappedRadii.bottomLeft, cappedRadii.bottomLeft);
+-    CGPathAddArcToPoint(clipPath, null, left, top, left + cappedRadii.topLeft, top, cappedRadii.topLeft);
++    if (squircle) {
++        addSquircleArcToPoint(clipPath, right - cappedRadii.topRight, top, right, top + cappedRadii.topRight, right, top);
++        addSquircleArcToPoint(clipPath, right, bottom - cappedRadii.bottomRight, right - cappedRadii.bottomRight, bottom, right, bottom);
++        addSquircleArcToPoint(clipPath, left + cappedRadii.bottomLeft, bottom, left, bottom - cappedRadii.bottomLeft, left, bottom);
++        addSquircleArcToPoint(clipPath, left, top + cappedRadii.topLeft, left + cappedRadii.topLeft, top, left, top);
++    }
++    else {
++        CGPathAddArcToPoint(clipPath, null, right, top, right, top + cappedRadii.topRight, cappedRadii.topRight);
++        CGPathAddArcToPoint(clipPath, null, right, bottom, right - cappedRadii.bottomRight, bottom, cappedRadii.bottomRight);
++        CGPathAddArcToPoint(clipPath, null, left, bottom, left, bottom - cappedRadii.bottomLeft, cappedRadii.bottomLeft);
++        CGPathAddArcToPoint(clipPath, null, left, top, left + cappedRadii.topLeft, top, cappedRadii.topLeft);
++    }
+     CGPathCloseSubpath(clipPath);
+     return clipPath;
+ }
+@@ -747,6 +797,7 @@ function generateNonUniformBorderInnerClipPath(bounds, background, cappedOuterRa
+     const cappedBorderLeftWidth = borderLeftWidth && borderLeftWidth * Math.min(1, width / borderHWidth);
+     const clipPath = CGPathCreateMutable();
+     CGPathAddRect(clipPath, null, CGRectMake(x, y, width, height));
++    const squircle = background.cornerShape === CoreTypes.CornerShape.squircle;
+     // Inner clip paths
+     if (cappedBorderTopWidth > 0 || cappedBorderLeftWidth > 0) {
+         CGPathMoveToPoint(clipPath, null, position.left + cappedOuterRadii.topLeft, position.top + cappedBorderTopWidth);
+@@ -756,32 +807,52 @@ function generateNonUniformBorderInnerClipPath(bounds, background, cappedOuterRa
+     }
+     if (cappedBorderTopWidth > 0 || cappedBorderRightWidth > 0) {
+         const { xRadius, yRadius, maxRadius } = calculateInnerBorderClipRadius(cappedOuterRadii.topRight, cappedBorderRightWidth, cappedBorderTopWidth);
+-        const innerTopRightTransform = CGAffineTransformMake(maxRadius && xRadius / maxRadius, 0, 0, maxRadius && yRadius / maxRadius, position.right - cappedBorderRightWidth - xRadius, position.top + cappedBorderTopWidth + yRadius);
+-        CGPathAddArc(clipPath, innerTopRightTransform, 0, 0, maxRadius, (Math.PI * 3) / 2, 0, false);
++        if (squircle) {
++            addSquircleArcToPoint(clipPath, position.right - cappedBorderRightWidth - xRadius, position.top + cappedBorderTopWidth, position.right - cappedBorderRightWidth, position.top + cappedBorderTopWidth + yRadius, position.right - cappedBorderRightWidth, position.top + cappedBorderTopWidth);
++        }
++        else {
++            const innerTopRightTransform = CGAffineTransformMake(maxRadius && xRadius / maxRadius, 0, 0, maxRadius && yRadius / maxRadius, position.right - cappedBorderRightWidth - xRadius, position.top + cappedBorderTopWidth + yRadius);
++            CGPathAddArc(clipPath, innerTopRightTransform, 0, 0, maxRadius, (Math.PI * 3) / 2, 0, false);
++        }
+     }
+     else {
+         CGPathAddLineToPoint(clipPath, null, position.right, position.top);
+     }
+     if (cappedBorderBottomWidth > 0 || cappedBorderRightWidth > 0) {
+         const { xRadius, yRadius, maxRadius } = calculateInnerBorderClipRadius(cappedOuterRadii.bottomRight, cappedBorderRightWidth, cappedBorderBottomWidth);
+-        const innerBottomRightTransform = CGAffineTransformMake(maxRadius && xRadius / maxRadius, 0, 0, maxRadius && yRadius / maxRadius, position.right - cappedBorderRightWidth - xRadius, position.bottom - cappedBorderBottomWidth - yRadius);
+-        CGPathAddArc(clipPath, innerBottomRightTransform, 0, 0, maxRadius, 0, Math.PI / 2, false);
++        if (squircle) {
++            addSquircleArcToPoint(clipPath, position.right - cappedBorderRightWidth, position.bottom - cappedBorderBottomWidth - yRadius, position.right - cappedBorderRightWidth - xRadius, position.bottom - cappedBorderBottomWidth, position.right - cappedBorderRightWidth, position.bottom - cappedBorderBottomWidth);
++        }
++        else {
++            const innerBottomRightTransform = CGAffineTransformMake(maxRadius && xRadius / maxRadius, 0, 0, maxRadius && yRadius / maxRadius, position.right - cappedBorderRightWidth - xRadius, position.bottom - cappedBorderBottomWidth - yRadius);
++            CGPathAddArc(clipPath, innerBottomRightTransform, 0, 0, maxRadius, 0, Math.PI / 2, false);
++        }
+     }
+     else {
+         CGPathAddLineToPoint(clipPath, null, position.right, position.bottom);
+     }
+     if (cappedBorderBottomWidth > 0 || cappedBorderLeftWidth > 0) {
+         const { xRadius, yRadius, maxRadius } = calculateInnerBorderClipRadius(cappedOuterRadii.bottomLeft, cappedBorderLeftWidth, cappedBorderBottomWidth);
+-        const innerBottomLeftTransform = CGAffineTransformMake(maxRadius && xRadius / maxRadius, 0, 0, maxRadius && yRadius / maxRadius, position.left + cappedBorderLeftWidth + xRadius, position.bottom - cappedBorderBottomWidth - yRadius);
+-        CGPathAddArc(clipPath, innerBottomLeftTransform, 0, 0, maxRadius, Math.PI / 2, Math.PI, false);
++        if (squircle) {
++            addSquircleArcToPoint(clipPath, position.left + cappedBorderLeftWidth + xRadius, position.bottom - cappedBorderBottomWidth, position.left + cappedBorderLeftWidth, position.bottom - cappedBorderBottomWidth - yRadius, position.left + cappedBorderLeftWidth, position.bottom - cappedBorderBottomWidth);
++        }
++        else {
++            const innerBottomLeftTransform = CGAffineTransformMake(maxRadius && xRadius / maxRadius, 0, 0, maxRadius && yRadius / maxRadius, position.left + cappedBorderLeftWidth + xRadius, position.bottom - cappedBorderBottomWidth - yRadius);
++            CGPathAddArc(clipPath, innerBottomLeftTransform, 0, 0, maxRadius, Math.PI / 2, Math.PI, false);
++        }
+     }
+     else {
+         CGPathAddLineToPoint(clipPath, null, position.left, position.bottom);
+     }
+     if (cappedBorderTopWidth > 0 || cappedBorderLeftWidth > 0) {
+         const { xRadius, yRadius, maxRadius } = calculateInnerBorderClipRadius(cappedOuterRadii.topLeft, cappedBorderLeftWidth, cappedBorderTopWidth);
+-        const innerTopLeftTransform = CGAffineTransformMake(maxRadius && xRadius / maxRadius, 0, 0, maxRadius && yRadius / maxRadius, position.left + cappedBorderLeftWidth + xRadius, position.top + cappedBorderTopWidth + yRadius);
+-        CGPathAddArc(clipPath, innerTopLeftTransform, 0, 0, maxRadius, Math.PI, (Math.PI * 3) / 2, false);
++        if (squircle) {
++            addSquircleArcToPoint(clipPath, position.left + cappedBorderLeftWidth, position.top + cappedBorderTopWidth + yRadius, position.left + cappedBorderLeftWidth + xRadius, position.top + cappedBorderTopWidth, position.left + cappedBorderLeftWidth, position.top + cappedBorderTopWidth);
++        }
++        else {
++            const innerTopLeftTransform = CGAffineTransformMake(maxRadius && xRadius / maxRadius, 0, 0, maxRadius && yRadius / maxRadius, position.left + cappedBorderLeftWidth + xRadius, position.top + cappedBorderTopWidth + yRadius);
++            CGPathAddArc(clipPath, innerTopLeftTransform, 0, 0, maxRadius, Math.PI, (Math.PI * 3) / 2, false);
++        }
+     }
+     else {
+         CGPathAddLineToPoint(clipPath, null, position.left, position.top);
+diff --git a/css/css-tree-parser.js b/css/css-tree-parser.js
+index 0c13e7e..7ce38a9 100644
+--- a/css/css-tree-parser.js
++++ b/css/css-tree-parser.js
+@@ -66,6 +66,10 @@ function transformAst(node, css, type = null) {
+             atrule.keyframes = transformAst(node.block, css, 'keyframe');
+             atrule.vendor = undefined;
+         }
++        else if (node.name === 'layer') {
++            atrule.layer = node.prelude ? node.prelude.value.trim() : '';
++            atrule.rules = transformAst(node.block, css);
++        }
+         else {
+             atrule.rules = transformAst(node.block, css);
+         }
+diff --git a/css/reworkcss.d.ts b/css/reworkcss.d.ts
+index 3ac4f61..1906ed1 100644
+--- a/css/reworkcss.d.ts
++++ b/css/reworkcss.d.ts
+@@ -10,7 +10,7 @@ export interface Position {
+     };
+ }
+ export interface Node {
+-    type: 'rule' | 'keyframes' | 'declaration' | 'import' | 'media';
++    type: 'rule' | 'keyframes' | 'declaration' | 'import' | 'media' | 'layer';
+     position: Position;
+ }
+ export interface Declaration extends Node {
+@@ -21,7 +21,7 @@ export interface Rule extends Node {
+     selectors: string[];
+     declarations: Declaration[];
+ }
+-export type AtRule = KeyFrames | Media;
++export type AtRule = KeyFrames | Media | Layer;
+ export interface Keyframes extends Rule {
+     name: string;
+     vendor?: string;
+@@ -35,6 +35,11 @@ export interface Media extends Node {
+     media: string;
+     rules: Array<Rule | AtRule>;
+ }
++export interface Layer extends Node {
++    /** Layer-name prelude — '' for an anonymous block. Statement form (`@layer a, b;`) leaves rules undefined. */
++    layer: string;
++    rules?: Array<Rule | AtRule>;
++}
+ export interface StyleSheet {
+     rules: Rule[];
+ }
+diff --git a/ui/styling/css-selector.d.ts b/ui/styling/css-selector.d.ts
+index 734d886..d90f0e4 100644
+--- a/ui/styling/css-selector.d.ts
++++ b/ui/styling/css-selector.d.ts
+@@ -222,6 +222,8 @@ export declare class RuleSet {
+     mediaQueryString: string | string[];
+     tag?: string | number;
+     scopedTag?: string;
++    /** Cascade-layer rank per nesting depth; undefined/shortest path sorts after every layer (unlayered styles win). */
++    layerPath?: number[];
+     constructor(selectors: SelectorCore[], declarations: Declaration[]);
+     toString(): string;
+     lookupSort(sorter: LookupSorter): void;
+diff --git a/ui/styling/css-selector.js b/ui/styling/css-selector.js
+index 702ca50..b6fa55a 100644
+--- a/ui/styling/css-selector.js
++++ b/ui/styling/css-selector.js
+@@ -1081,9 +1081,27 @@ export class StyleSheetSelectorScope extends SelectorScope {
+         return matchSelectorCandidates(node, this.collectCandidates(node));
+     }
+ }
+-/** Cascade order: specificity, then source order - (tier, position) across stylesheets. */
++/**
++ * Cascade layers order before specificity: rules in an earlier-declared layer lose
++ * to rules in a later-declared layer regardless of specificity, and unlayered
++ * rules (absent rank at a depth) beat every layered rule.
++ */
++function compareLayerPaths(a, b) {
++    const aLength = a?.length ?? 0;
++    const bLength = b?.length ?? 0;
++    const length = Math.max(aLength, bLength);
++    for (let i = 0; i < length; i++) {
++        const rankA = i < aLength ? a[i] : Number.POSITIVE_INFINITY;
++        const rankB = i < bLength ? b[i] : Number.POSITIVE_INFINITY;
++        if (rankA !== rankB) {
++            return rankA - rankB;
++        }
++    }
++    return 0;
++}
++/** Cascade order: cascade layer, then specificity, then source order - (tier, position) across stylesheets. */
+ function compareSelectors(a, b) {
+-    return a.specificity - b.specificity || a.tier - b.tier || a.pos - b.pos;
++    return compareLayerPaths(a.ruleset?.layerPath, b.ruleset?.layerPath) || a.specificity - b.specificity || a.tier - b.tier || a.pos - b.pos;
+ }
+ /**
+  * Resolve collected candidates against a node, compacting the array in place.
+diff --git a/ui/styling/style-scope.d.ts b/ui/styling/style-scope.d.ts
+index d6f0266..321217d 100644
+--- a/ui/styling/style-scope.d.ts
++++ b/ui/styling/style-scope.d.ts
+@@ -8,7 +8,7 @@ import { Keyframes, KeyframeAnimationInfo, KeyframeAnimation } from '../animatio
+  */
+ export declare function mergeCssSelectors(): void;
+ export declare function mergeCssKeyframes(): void;
+-export declare function _populateRules(nodes: ReworkCSS.Node[], rulesets: RuleSet[], keyframes: Keyframes[], mediaQueryString?: string | string[]): void;
++export declare function _populateRules(nodes: ReworkCSS.Node[], rulesets: RuleSet[], keyframes: Keyframes[], mediaQueryString?: string | string[], layerPath?: number[], layerPrefix?: string): void;
+ export declare function removeTaggedAdditionalCSS(tag: string | number): boolean;
+ export declare function addTaggedAdditionalCSS(cssText: string, tag?: string | number): boolean;
+ export declare const loadAppCSS: any;
+diff --git a/ui/styling/style-scope.js b/ui/styling/style-scope.js
+index e75c7c8..7cf9244 100644
+--- a/ui/styling/style-scope.js
++++ b/ui/styling/style-scope.js
+@@ -344,6 +344,33 @@ __decorate([
+     __metadata("design:paramtypes", [String, String]),
+     __metadata("design:returntype", String)
+ ], CSSSource, "resolveCSSPathFromURL", null);
++// Cascade-layer registry: qualified name -> first-seen ordinal, shared across
++// every stylesheet feeding the cascade (layer order is document-wide per spec).
++// '~' synthesizes names for anonymous layers, which authors cannot reference —
++// the char is illegal in a CSS ident, so they never collide with named layers.
++const cascadeLayerOrdinals = new Map();
++let cascadeLayerCount = 0;
++let anonymousLayerCount = 0;
++function layerOrdinal(name) {
++    let ordinal = cascadeLayerOrdinals.get(name);
++    if (ordinal === undefined) {
++        ordinal = cascadeLayerCount++;
++        cascadeLayerOrdinals.set(name, ordinal);
++    }
++    return ordinal;
++}
++// Rank path for `name` nested under the layer at prefixPath/prefixName. Dotted
++// names register each ancestor on the way down, so a top-level `@layer a.b`
++// refers to the same layer as `@layer a { @layer b }`.
++function layerPathFor(name, prefixPath, prefixName) {
++    const path = [...prefixPath];
++    let qualified = prefixName;
++    for (const segment of name.split('.')) {
++        qualified = qualified ? `${qualified}.${segment}` : segment;
++        path.push(layerOrdinal(qualified));
++    }
++    return path;
++}
+ function populateRulesFromImports(nodes, rulesets, keyframes) {
+     const imports = nodes.filter((r) => r.type === 'import');
+     if (!imports.length) {
+@@ -354,6 +381,11 @@ function populateRulesFromImports(nodes, rulesets, keyframes) {
+         const urlMatch = importItem && importItem.match(pattern);
+         return urlMatch && urlMatch[2];
+     };
++    const layerFromImportObject = (importObject) => {
++        const importItem = importObject['import'];
++        const layerMatch = importItem && importItem.match(/\blayer\b(?:\(\s*([^)]*?)\s*\))?/);
++        return layerMatch ? layerMatch[1] ?? '' : null;
++    };
+     const sourceFromImportObject = (importObject) => importObject['position'] && importObject['position']['source'];
+     const toUrlSourcePair = (importObject) => ({
+         url: urlFromImportObject(importObject),
+@@ -361,17 +393,25 @@ function populateRulesFromImports(nodes, rulesets, keyframes) {
+     });
+     const getCssFile = ({ url, source }) => (source ? CSSSource.fromFileImport(url, source) : CSSSource.fromURI(url));
+     const cssFiles = imports
+-        .map(toUrlSourcePair)
++        .map((importObject) => ({ ...toUrlSourcePair(importObject), layer: layerFromImportObject(importObject) }))
+         .filter(({ url }) => !!url)
+-        .map(getCssFile);
+-    for (const cssFile of cssFiles) {
++        .map(({ url, source, layer }) => ({ cssFile: getCssFile({ url, source }), layer }));
++    for (const { cssFile, layer } of cssFiles) {
+         if (cssFile) {
++            if (layer !== null) {
++                // @import "x.css" layer(name) — the imported sheet joins the named
++                // layer; its own layers become nested sublayers of it.
++                const importPath = [layerOrdinal(layer.trim() || `~import-${anonymousLayerCount++}`)];
++                for (const ruleset of cssFile.selectors) {
++                    ruleset.layerPath = [...importPath, ...(ruleset.layerPath ?? [])];
++                }
++            }
+             rulesets.push(...cssFile.selectors);
+             keyframes.push(...cssFile.keyframes);
+         }
+     }
+ }
+-export function _populateRules(nodes, rulesets, keyframes, mediaQueryString) {
++export function _populateRules(nodes, rulesets, keyframes, mediaQueryString, layerPath, layerPrefix) {
+     for (const node of nodes) {
+         if (isKeyframe(node)) {
+             const keyframeRule = {
+@@ -396,11 +436,32 @@ export function _populateRules(nodes, rulesets, keyframes, mediaQueryString) {
+             else {
+                 compositeMediaQuery = node.media;
+             }
+-            _populateRules(node.rules, rulesets, keyframes, compositeMediaQuery);
++            _populateRules(node.rules, rulesets, keyframes, compositeMediaQuery, layerPath, layerPrefix);
++        }
++        else if (isLayer(node)) {
++            const name = (node.layer ?? '').trim();
++            if (node.rules) {
++                // Block at-rule: a single name, or anonymous when the prelude is empty.
++                const qualified = name ? (layerPrefix ? `${layerPrefix}.${name}` : name) : `${layerPrefix ?? ''}~${anonymousLayerCount++}`;
++                const childPath = name ? layerPathFor(name, layerPath ?? [], layerPrefix ?? '') : [...(layerPath ?? []), layerOrdinal(qualified)];
++                _populateRules(node.rules, rulesets, keyframes, mediaQueryString, childPath, qualified);
++            }
++            else {
++                // Statement at-rule: `@layer a, b;` pre-declares order only.
++                for (const declared of name.split(',')) {
++                    const declaredName = declared.trim();
++                    if (declaredName) {
++                        layerPathFor(declaredName, layerPath ?? [], layerPrefix ?? '');
++                    }
++                }
++            }
+         }
+         else if (isRule(node)) {
+             const ruleset = fromAstNode(node);
+             ruleset.mediaQueryString = mediaQueryString;
++            if (layerPath?.length) {
++                ruleset.layerPath = layerPath;
++            }
+             rulesets.push(ruleset);
+         }
+     }
+@@ -1263,6 +1324,9 @@ function isMedia(node) {
+ function isKeyframe(node) {
+     return node.type === 'keyframes';
+ }
++function isLayer(node) {
++    return node.type === 'layer';
++}
+ function isRule(node) {
+     return node.type === 'rule';
+ }

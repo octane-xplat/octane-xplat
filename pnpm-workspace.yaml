@@ -45,25 +45,35 @@ allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   workerd: true
-# Reserved-word export fix for the dev-session deps/core bundle shims:
-# buildDepsShimCode/buildCoreSubShimCode filtered names like `enum` out of the
-# generated export surface entirely (zod exports `enum`/`catch`/`function`/
-# `instanceof`/`null`/`void` → `z.enum is not a function` on device). The patch
-# emits them as temp+`export { t as name }` aliases — legal ES2015, since the
-# export-name position accepts any IdentifierName. Remove once upstream
-# (@nativescript/vite, packages/vite/hmr/server/deps-bundle.ts +
-# core-bundle.ts in NativeScript/NativeScript) ships the same fix.
-#
-# octane@0.4.0: universal compiler miscompiled `@else if` chains (else thunk
-# returned an empty range). Remove once a release carries octanejs/octane#1297.
-# vite-octane's octaneServerStrategy early-returns for `.tsrx` files (its
-# SCRIPT_FILE_RE only covers [jt]sx?), so component edits never emit the
-# deferred ns:hmr-delta broadcast. The patch also counts open /ns-hmr
-# sockets so the update summary stops reporting recipients=0 for delivered
-# updates. Drop once a release carries the fix.
+# Canonical copies live in packages/cli/patches/ — manifest.json there carries
+# why/dropWhen per entry and feeds `xplat patches apply`. Regenerate a patch with `pnpm
+# patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`
+# propagates to the create template. `pnpm check:patches` fails on drift.
 patchedDependencies:
-  '@nativescript-community/octane@0.2.1': patches/@nativescript-community__octane@0.2.1.patch
-  '@nativescript-community/vite-octane@0.2.1': patches/@nativescript-community__vite-octane@0.2.1.patch
-  '@nativescript/core@9.1.2': patches/@nativescript__core@9.1.2.patch
-  '@nativescript/vite@8.0.11': patches/@nativescript__vite@8.0.11.patch
-  'css@3.0.0': patches/css@3.0.0.patch
+  # FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts
+  # parent padding + child margins — a column-stretched row re-measurement clamps padded
+  # children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for
+  # iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer
+  # nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered
+  # last — sans !important).
+  "@nativescript/core@9.1.2": packages/cli/patches/@nativescript__core@9.1.2.patch
+  # @nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0,
+  # which mis-parses @layer into garbage selectors — rules die before reaching
+  # _populateRules. Adds atlayer() covering block and statement forms. Applies to a
+  # transitive dep — no app declares it directly.
+  css@3.0.0: packages/cli/patches/css@3.0.0.patch
+  # Dev-server /ns/m fixes: a plugin-patterned package absent from the vendor manifest
+  # (transitive dep under pnpm's isolated linker, NS_VENDOR_EXCLUDE) falls through to
+  # per-module HTTP serving instead of the missing-module stub; percent-decoded specifiers
+  # resolve bracketed file-route names; platform-suffixed (.ios/.android) candidates resolve
+  # for workspace package dirs.
+  "@nativescript/vite@8.0.11": packages/cli/patches/@nativescript__vite@8.0.11.patch
+  # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
+  # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
+  # listeners.
+  "@nativescript-community/octane@0.2.1": packages/cli/patches/@nativescript-community__octane@0.2.1.patch
+  # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
+  # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
+  # Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for
+  # delivered updates.
+  "@nativescript-community/vite-octane@0.2.1": packages/cli/patches/@nativescript-community__vite-octane@0.2.1.patch

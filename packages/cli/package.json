@@ -6,7 +6,8 @@
 		"xplat": "./src/cli.mjs"
 	},
 	"files": [
-		"src"
+		"src",
+		"patches"
 	],
 	"type": "module",
 	"exports": {
@@ -20,6 +21,7 @@
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",
-		"@clack/prompts": "1.8.1"
+		"@clack/prompts": "1.8.1",
+		"yaml": "2.9.1"
 	}
 }

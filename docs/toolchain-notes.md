@@ -67,7 +67,7 @@
   payload itself is what fails to load. `@nativescript/vite` decode gap —
   filed as NativeScript/NativeScript#11455 and patched locally
   (`decodeURIComponent` on the `/ns/m` spec in
-  `patches/@nativescript__vite@8.0.11.patch`).
+  `packages/cli/patches/@nativescript__vite@8.0.11.patch`).
 
 ### Dev-loop troubleshooting
 
@@ -140,8 +140,12 @@ decide whether a reported TypeScript error is real.
 | Node                                                                   | `>= 22.22.2` for published Octane packages                                                          |
 
 Expect churn: octane is beta, the NS port is days old. Pin exact versions, bump
-deliberately, keep `patches/` (patch-package) as an accepted escape hatch —
-ns-octane already does this.
+deliberately. The escape hatch is pnpm `patchedDependencies` — the canonical
+set lives in `packages/cli/patches/` (manifest.json + `.patch` files), the
+workspace yaml references it directly, and `pnpm sync:patches` /
+`pnpm check:patches` keep the create template's copies identical. Downstream
+apps materialize it via `xplat patches apply` and verify with
+`xplat patches check` / `xplat doctor`.
 
 When a workspace package's dependency declarations change, resync with
 `pnpm install --lockfile-only`; do not hand-edit the importer. The
@@ -268,16 +272,14 @@ mute). Symptom: `lv.itemTemplate` undefined + `hasListeners('itemLoading')`
 false while `lv.renderItem` held the function. Keep all workspace pins on
 the same version; the peer range in `packages/ui` is the contract.
 
-### Retained Suspense compatibility patch
+### Retained driver patch
 
-`@nativescript-community/octane@0.2.1` predates the universal runtime's
-retained-`@try` visibility commands. The checked-in
-`patches/@nativescript-community__octane@0.2.1.patch` supplies the missing
-`visibility` capability and maps those commands to NativeScript's
-`View.visibility` (`visible`/`collapse`). It also threads `onUncaughtError`
-through root creation. Event dispatch failures are reported through that
-callback (or rethrown to the host) instead of being logged as “dropped”
-events. `apps/native` applies the patch via its `postinstall` hook.
+`packages/cli/patches/@nativescript-community__octane@0.2.1.patch` skips
+`undefined` prop writes in the driver's `setProp` — NativeScript native
+setters coerce it (e.g. `editable` → `ios.userInteractionEnabled = NO`),
+leaving dead UI that still has its JS listeners. Applied repo-wide via
+`pnpm-workspace.yaml` `patchedDependencies` (see the patch manifest for the
+full set and drop conditions).
 
 ## CI shape
 

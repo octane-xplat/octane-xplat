@@ -14,6 +14,8 @@
 		"lint:fix": "node scripts/lint.mjs --fix",
 		"format": "oxlint --fix && oxfmt",
 		"check:recipes": "node scripts/check-recipes.mjs",
+		"sync:patches": "node scripts/sync-patches.mjs",
+		"check:patches": "node scripts/sync-patches.mjs --check",
 		"check:no-dom": "node scripts/check-no-dom.mjs",
 		"check:css": "node scripts/check-css.mjs",
 		"gen:css-registry": "node scripts/gen-css-registry.mjs",
@@ -28,7 +30,8 @@
 		"oxfmt": "0.70.0",
 		"oxlint": "1.74.0",
 		"typescript": "5.9.3",
-		"vitest": "5.0.1"
+		"vitest": "5.0.1",
+		"yaml": "2.9.1"
 	},
 	"packageManager": "pnpm@11.24.0"
 }

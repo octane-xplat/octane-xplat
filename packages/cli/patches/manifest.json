@@ -1,0 +1,40 @@
+{
+	"$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` propagates this set to packages/create/template; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` — the root workspace yaml points here so commit writes land in this dir.",
+	"patches": [
+		{
+			"specifier": "@nativescript/core@9.1.2",
+			"file": "@nativescript__core@9.1.2.patch",
+			"scope": "runtime",
+			"why": "FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts parent padding + child margins — a column-stretched row re-measurement clamps padded children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered last — sans !important).",
+			"dropWhen": "@nativescript/core ships the measure-spec fix, corner-shape support, and cascade layers (source lives on research/nativescript feat/css-cascade-layers)"
+		},
+		{
+			"specifier": "css@3.0.0",
+			"file": "css@3.0.0.patch",
+			"scope": "build",
+			"why": "@nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0, which mis-parses @layer into garbage selectors — rules die before reaching _populateRules. Adds atlayer() covering block and statement forms. Applies to a transitive dep — no app declares it directly.",
+			"dropWhen": "npm `css` is unmaintained — drop when @nativescript/vite's serializer stops using it (e.g. pointed at NS's vendored css/lib/parse; NativeScript#11462)"
+		},
+		{
+			"specifier": "@nativescript/vite@8.0.11",
+			"file": "@nativescript__vite@8.0.11.patch",
+			"scope": "dev",
+			"why": "Dev-server /ns/m fixes: a plugin-patterned package absent from the vendor manifest (transitive dep under pnpm's isolated linker, NS_VENDOR_EXCLUDE) falls through to per-module HTTP serving instead of the missing-module stub; percent-decoded specifiers resolve bracketed file-route names; platform-suffixed (.ios/.android) candidates resolve for workspace package dirs.",
+			"dropWhen": "@nativescript/vite ships the vendor-routing + /ns/m fixes (bracket decode filed as NativeScript/NativeScript#11455)"
+		},
+		{
+			"specifier": "@nativescript-community/octane@0.2.1",
+			"file": "@nativescript-community__octane@0.2.1.patch",
+			"scope": "runtime",
+			"why": "Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g. editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners.",
+			"dropWhen": "@nativescript-community/octane ships the undefined-skip"
+		},
+		{
+			"specifier": "@nativescript-community/vite-octane@0.2.1",
+			"file": "@nativescript-community__vite-octane@0.2.1.patch",
+			"scope": "dev",
+			"why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
+			"dropWhen": "vite-octane release adds .tsrx to the strategy's file matching"
+		}
+	]
+}

@@ -4,7 +4,6 @@
 	"private": true,
 	"main": "src/index.ts",
 	"scripts": {
-		"postinstall": "patch-package",
 		"ios": "pnpm --filter @xplat/app gen && ns run ios",
 		"android": "pnpm --filter @xplat/app gen && ns run android",
 		"debug:ios": "pnpm --filter @xplat/app gen && ns debug ios",
@@ -49,7 +48,6 @@
 		"@nativescript/vite": "8.0.11",
 		"@octane-xplat/cli": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.60",
-		"patch-package": "8.0.1",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"
 	}
