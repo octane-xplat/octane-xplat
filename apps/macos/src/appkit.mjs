@@ -61,7 +61,11 @@ function closeOwnedWindows(parentWindow) {
 				console.error('[macos] failed to close an owned AppKit window', closeError)
 			}
 
-			child.__didClose()
+			try {
+				child.__didClose()
+			} catch (cleanupError) {
+				console.error('[macos] failed to finalize an owned window', cleanupError)
+			}
 		}
 	}
 }
@@ -382,7 +386,12 @@ export function openWindow(options = {}) {
 				}
 
 				controller.isClosed = true
-				closeOwnedWindows(nativeWindow)
+				try {
+					closeOwnedWindows(nativeWindow)
+				} catch (error) {
+					console.error('[macos] failed to close owned windows while closing a window', error)
+				}
+
 				shared.byNative.delete(nativeWindow)
 				shared.parentWindows.delete(nativeWindow)
 				const root = controller.root
