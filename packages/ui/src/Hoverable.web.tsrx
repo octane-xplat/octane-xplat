@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'octane';
-import { Popover } from '../Popover.web.tsrx';
-import { View } from '../View.web.tsrx';
-import type { HoverableProps } from '../props';
+import { Popover } from './Popover.web.tsrx';
+import { View } from './View.web.tsrx';
+import type { HoverableProps } from './props';
 
 type Binding = { node: HTMLElement; enter: () => void; leave: () => void };
 
@@ -84,7 +84,7 @@ export function Hoverable(props: HoverableProps) @{
 		unbind(cardBinding.current);
 	}, []);
 
-	<View className={props.className} style={props.style} bind={bindAnchor} web={props.web}>
+	<View id={props.id} className={props.className} style={props.style} bind={bindAnchor} web={props.web}>
 		{props.children}
 		<Popover
 			open={open}

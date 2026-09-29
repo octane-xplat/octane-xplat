@@ -77,6 +77,8 @@ export declare const Video: Component<P.VideoProps>
 export declare const CameraView: Component<P.CameraViewProps>
 export declare const Overlay: Component<P.OverlayProps>
 export declare const Popover: Component<P.PopoverProps>
+export declare const Hoverable: Component<P.HoverableProps>
+export declare const Tooltip: Component<P.TooltipProps>
 export declare const Sheet: Component<P.SheetProps>
 export declare const Tabs: Component<P.TabsProps>
 export declare const Screen: Component<P.ScreenProps>

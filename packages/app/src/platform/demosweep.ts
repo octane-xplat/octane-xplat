@@ -991,7 +991,8 @@ const STEPS: Step[] = [
 			{ at: 1100, run: () => fireTap(tapTargetForText(demosPage(), 'Show toast')) },
 			{ at: 1200, run: () => fireTap(tapTargetForText(demosPage(), 'Toast top')) },
 			{ at: 1300, run: () => fireTap(tapTargetForText(demosPage(), 'Toast anchored')) },
-			// Hoverable's native contract is long-press → anchored Popover.
+			// Hoverable's touch contract is passthrough — the trigger renders
+			// but long-press mounts nothing (pointer platforms own the card).
 			{
 				at: 1400,
 				run: () => {
@@ -1010,12 +1011,12 @@ const STEPS: Step[] = [
 			{
 				at: 2200,
 				run: () => {
-					// Hoverable is a web-only primitive (decisions #44–46 surface);
-					// the native OverlayDemo has no card to long-press. Presence
-					// is informational — absence is expected, not a failure.
+					// Hoverable passes through on touch — the shared OverlayDemo
+					// renders the trigger but never mounts a card. Presence is
+					// informational — absence is expected, not a failure.
 					const ok = viewTexts(demosPage()).includes('Hint card text')
 					console.log(
-						'[assert] hoverable card on long-press: ' + (ok ? 'OK' : 'INFO (web-only primitive)'),
+						'[assert] hoverable card on long-press: ' + (ok ? 'OK' : 'INFO (passthrough on touch)'),
 					)
 				},
 			},

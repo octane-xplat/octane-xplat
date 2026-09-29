@@ -67,6 +67,23 @@ globalThis.__xplatOnInput = (line) => {
 		if (process.env.OCTANE_MACOS_AUTOMATION !== '1') return
 		const targets = [root.__macosDebug, ...debugWindows().map((entry) => entry.debug)]
 		if (line.startsWith('press ')) root.__macosDebug.pressButton(line.slice(6))
+		else if (line.startsWith('pressid ')) {
+			const id = line.slice(8)
+			let handled = false
+			for (const target of targets) {
+				try { target?.pressId(id); handled = true; break } catch {}
+			}
+
+			if (!handled) {throw Error('No AppKit pressable with id ' + id)}
+		}
+		else if (line.startsWith('hover ')) {
+			const [id, phase] = line.slice(6).split(' ')
+			root.__macosDebug.hover(id, phase ?? 'enter')
+		}
+		else if (line === 'popups') {
+			console.log('[macos-automation] ' + JSON.stringify({ openPopups: root.__macosDebug.openPopupCount() }))
+			return
+		}
 		else if (line.startsWith('tap ')) {
 			const label = line.slice(4)
 			let handled = false
@@ -75,7 +92,7 @@ globalThis.__xplatOnInput = (line) => {
 			}
 			if (!handled) throw Error('No AppKit pressable labeled ' + label)
 		} else if (line !== 'snapshot' && line !== 'parity')
-			throw Error('Use tap <accessibility label>, press <button title>, snapshot, or parity')
+			throw Error('Use tap <accessibility label>, press <button title>, pressid <id>, hover <id> [enter|exit], popups, snapshot, or parity')
 		if (line === 'parity') {
 			if (!globalThis.__xplatMacOSRunParity) throw Error('Parity runner is unavailable')
 			globalThis.__xplatMacOSRunParity()

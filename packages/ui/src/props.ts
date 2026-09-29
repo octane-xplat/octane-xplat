@@ -758,7 +758,10 @@ export interface PopoverProps {
 }
 
 export interface HoverableProps {
-	/** Content shown after the pointer rests over the children on web. */
+	id?: string
+	/** Content shown after the pointer rests over the children on pointer
+	 *  platforms (web, macOS). Touch targets never mount the card — keep
+	 *  essential information out of it. */
 	card: any
 	/** Styling for the card's wrapper view inside the popover — e.g. a
 	 *  pointer bridge covering the anchor↔card gap or a positional offset. */
@@ -775,11 +778,13 @@ export interface HoverableProps {
 	web?: Record<string, any>
 }
 
-/** Web-only tooltip (`@octane-xplat/ui/web`, decision #47) — `trigger` is
- *  the anchor content, `content` the tooltip body. Hover-intent delay plus
- *  keyboard focus; wires `aria-describedby` onto the focusable trigger and
- *  dismisses on Escape, blur, or scroll. */
+/** Tooltip — `trigger` is the anchor content, `content` the hint body.
+ *  Pointer platforms show the hint after hover/focus intent (web adds
+ *  `aria-describedby` + Escape/scroll dismissal; macOS presents an anchored
+ *  NSPopover). Touch targets render the trigger and never mount the hint —
+ *  keep essential information out of `content`. */
 export interface TooltipProps {
+	id?: string
 	trigger: any
 	content: any
 	/** Styling for the tooltip panel inside the popover. */

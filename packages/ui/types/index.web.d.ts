@@ -17,6 +17,7 @@ import type {
 	DrawerProps,
 	GridProps,
 	HeadingProps,
+	HoverableProps,
 	IconGlyph,
 	IconProps,
 	ImageProps,
@@ -71,6 +72,7 @@ import type {
 	ToastContent,
 	ToastOptions,
 	ToastPosition,
+	TooltipProps,
 	UseMeasureOptions,
 	VideoEvent,
 	VideoFit,
@@ -93,6 +95,7 @@ export type {
 	DrawerProps,
 	GridProps,
 	HeadingProps,
+	HoverableProps,
 	IconGlyph,
 	IconProps,
 	ImageProps,
@@ -147,6 +150,7 @@ export type {
 	ToastContent,
 	ToastOptions,
 	ToastPosition,
+	TooltipProps,
 	UseMeasureOptions,
 	VideoEvent,
 	VideoFit,
@@ -212,6 +216,8 @@ export declare function registerIcons(record: Record<string, IconGlyph>): void
 export declare function openWindow(options?: OpenWindowOptions): Window | null
 export declare const Overlay: UniversalComponent<OverlayProps>
 export declare const Popover: UniversalComponent<PopoverProps>
+export declare const Hoverable: UniversalComponent<HoverableProps>
+export declare const Tooltip: UniversalComponent<TooltipProps>
 export declare function showToast(content: ToastContent, options?: ToastOptions): void
 export declare const Tabs: UniversalComponent<TabsProps>
 
@@ -262,6 +268,7 @@ export declare function deriveRouteManifest(
 	prefer: readonly string[],
 	dir?: string,
 ): RouteManifest
+
 /** Build a manifest from specs instead of the route dir (decision #67) —
  *  `path` uses route-dir vocabulary ('docs/:slug' or 'docs/[slug]', a
  *  trailing 'index' or '' is the root route); `layouts` keys are path

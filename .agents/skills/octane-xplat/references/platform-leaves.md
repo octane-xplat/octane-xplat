@@ -40,11 +40,12 @@ suffixes.
 ## Platform-authentic package subpaths
 
 `@octane-xplat/ui/ios` and `/android` expose OS-widget-backed components;
-`/web` exposes web-only components such as `Hoverable`. Keep an OS-only import
+`/web` is a web-conditioned compat surface (`Hoverable`/`Tooltip` moved to
+the root barrel — decision #69). Keep an OS-only import
 in its matching `.ios` or `.android` file. A `.mobile` file may import a
 cross-platform native API only when that import loads safely on both iOS and
 Android. The package's `/native` subpath is NativeScript integration plumbing,
-not a filename suffix; `/web` is web-only.
+not a filename suffix; `/web` resolves only under web/Linux conditions.
 
 ## The barrel rule
 

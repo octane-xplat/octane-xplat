@@ -44,7 +44,7 @@ importing them fails the other platform's build on purpose:
 | Modal dialog                      | `Sheet` / `openSheet`                          | `UIModal` / `openModal` (`ui/ios`)                              | `MaterialDialog` / `openModal` (`ui/android`)                               |
 | Edge-swipe drawer                 | `Drawer` (self-drawn, no edge swipe)           | `SideDrawer` (`ui/ios`)                                         | `DrawerLayout` (`ui/android`)                                               |
 | OS switch / slider / spinner / tab bar | shared self-drawn set                      | `UISwitch` / `UISlider` / `UIActivityIndicatorView` / `UITabBar` | `MaterialSwitch` / `SeekBar` / `CircularProgressIndicator` / `BottomNavigationView` |
-| Hover interactions                | `Hoverable`, `Tooltip` (`ui/web`)              | —                                                               | —                                                                           |
+| Hover interactions                | `Hoverable`, `Tooltip` (shared; macOS = `NSPopover` via host bridge) | passthrough — trigger/children render, hint never mounts | passthrough — trigger/children render, hint never mounts                    |
 | Liquid glass                      | —                                              | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)               | —                                                                           |
 
 `ui/ios` and `ui/android` resolve only in native builds; `ui/web` only in

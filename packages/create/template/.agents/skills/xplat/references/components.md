@@ -53,8 +53,9 @@ inert layout below it).
 ## Platform-only shared exports
 
 - `KeyboardAvoiding` — native root export only (inert on web).
-- `Hoverable` — `@octane-xplat/ui/web` only. Hover has no touch-platform
-  semantic; the old native leaf's long-press stand-in was fake parity.
+- `Hoverable`, `Tooltip` — shared root exports; pointer platforms (web,
+  macOS) mount the hint layer, touch targets render only the trigger —
+  keep essential information out of `card`/`content`.
 
 ## Divergences that matter
 

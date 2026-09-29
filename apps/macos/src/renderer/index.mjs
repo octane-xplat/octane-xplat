@@ -2234,6 +2234,211 @@ function measureParity(container, facets) {
 	return { target: 'macos', cells }
 }
 
+// Pointer-intent plumbing: NSTrackingArea-backed hover observation and an
+// NSPopover surface for anchored hint layers (Tooltip/Hoverable). Reached by
+// packages/ui macOS leaves through the __xplatAppKit host global — ui never
+// links macos-node-api directly.
+
+const hoverRecordsByArea = new Map()
+const hoverRecordByView = new WeakMap()
+const openPopups = new Set()
+
+const TRACKING_OPTS = typeof NSTrackingAreaOptions === 'undefined' ? {} : NSTrackingAreaOptions
+const trackingOpt = (value, fallback) =>
+	typeof value === 'number' && Number.isFinite(value) ? value : fallback
+
+const HOVER_TRACKING_OPTIONS =
+	trackingOpt(TRACKING_OPTS.MouseEnteredAndExited, 0x01) |
+	trackingOpt(TRACKING_OPTS.ActiveAlways, 0x80) |
+	trackingOpt(TRACKING_OPTS.InVisibleRect, 0x200)
+
+function dispatchHover(area, phase) {
+	const record = hoverRecordsByArea.get(area)
+	const handler = phase === 'enter' ? record?.enter : record?.exit
+	if (typeof handler !== 'function') {return}
+	try {
+		handler()
+	} catch (error) {
+		console.error('[macos-hover] hover handler failed', error)
+	}
+}
+
+function observeHover(view, handlers) {
+	if (
+		!view ||
+		typeof view.addTrackingArea !== 'function' ||
+		typeof NSTrackingArea === 'undefined' ||
+		!hoverTrackingTarget
+	) {
+		return () => {}
+	}
+
+	unobserveHover(view)
+	const area = NSTrackingArea.alloc().initWithRectOptionsOwnerUserInfo(
+		{ origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
+		HOVER_TRACKING_OPTIONS,
+		hoverTrackingTarget,
+		null,
+	)
+
+	if (!area) {return () => {}}
+	view.addTrackingArea(area)
+	const record = { view, area, enter: handlers?.enter, exit: handlers?.exit }
+	hoverRecordsByArea.set(area, record)
+	hoverRecordByView.set(view, record)
+	return () => unobserveHover(view)
+}
+
+function unobserveHover(view) {
+	const record = hoverRecordByView.get(view)
+	if (!record) {return}
+	hoverRecordByView.delete(view)
+	hoverRecordsByArea.delete(record.area)
+	try {
+		view.removeTrackingArea(record.area)
+	} catch (error) {
+		console.error('[macos-hover] failed to remove tracking area', error)
+	}
+}
+
+let hoverTrackingTarget = null
+try {
+	class HoverTrackingTarget extends NSObject {
+		static ObjCExposedMethods = {
+			mouseEntered: { params: [NSEvent], returns: interop.types.void },
+			mouseExited: { params: [NSEvent], returns: interop.types.void },
+		}
+
+		static {
+			NativeClass(this)
+		}
+
+		mouseEntered(event) {
+			dispatchHover(event?.trackingArea, 'enter')
+		}
+
+		mouseExited(event) {
+			dispatchHover(event?.trackingArea, 'exit')
+		}
+	}
+
+	hoverTrackingTarget = HoverTrackingTarget.new()
+} catch (error) {
+	console.error('[macos-hover] tracking target registration failed — hover affordances disabled', error)
+}
+
+// preferredEdge is the anchor edge the popover attaches to: 'top' places the
+// panel above the anchor (its MaxY edge). Numeric NSRectEdge values are the
+// fallback when the bridged enum object is absent.
+function popoverEdge(placement) {
+	const edges = typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
+	switch (placement) {
+		case 'bottom': {return edges.MinY ?? 1}
+		case 'left': {return edges.MinX ?? 0}
+		case 'right': {return edges.MaxX ?? 2}
+		case 'top':
+		default: {return edges.MaxY ?? 3}
+	}
+}
+
+function popupFittingSize(contentView) {
+	try {
+		const direct = contentView.fittingSize
+		if (direct && direct.width > 0 && direct.height > 0) {
+			return { width: direct.width, height: direct.height }
+		}
+
+		const child = contentView.subviews?.objectAtIndex?.(0)?.fittingSize
+		if (child && child.width > 0 && child.height > 0) {
+			return { width: child.width, height: child.height }
+		}
+	} catch (error) {
+		console.error('[macos-popup] fitting-size measurement failed', error)
+	}
+
+	return null
+}
+
+function showAnchoredPopup(options) {
+	const anchor = options?.anchor
+	if (
+		!anchor ||
+		!anchor.window ||
+		typeof NSPopover === 'undefined' ||
+		typeof NSViewController === 'undefined'
+	) {
+		return null
+	}
+
+	const contentView = NSView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 1, height: 1 },
+	})
+
+	const root = createMacOSRoot(contentView)
+	const popup = {
+		popover: null,
+		contentView,
+		closed: false,
+		close() {
+			if (popup.closed) {return}
+			popup.closed = true
+			openPopups.delete(popup)
+			try {
+				popup.popover?.close()
+			} catch (error) {
+				console.error('[macos-popup] popover close failed', error)
+			}
+
+			try {
+				root.unmount()
+			} catch (error) {
+				console.error('[macos-popup] popup root unmount failed', error)
+			}
+		},
+	}
+
+	try {
+		root.render(options.component, options.props ?? {})
+	} catch (error) {
+		console.error('[macos-popup] popup render failed', error)
+		try {
+			root.unmount()
+		} catch {}
+
+		return null
+	}
+
+	const controller = NSViewController.alloc().init()
+	controller.view = contentView
+	const fit = popupFittingSize(contentView)
+	if (fit) {controller.preferredContentSize = fit}
+
+	const popover = NSPopover.alloc().init()
+	popover.contentViewController = controller
+	const behaviors = typeof NSPopoverBehavior === 'undefined' ? {} : NSPopoverBehavior
+	// Transient closes on outside interaction — the AppKit-native feel for a
+	// hint layer. The leaf still owns close() for hover-intent dismissal.
+	popover.behavior = behaviors.Transient ?? 1
+	popover.animates = true
+	popup.popover = popover
+	openPopups.add(popup)
+
+	try {
+		popover.showRelativeToRectOfViewPreferredEdge(anchor.bounds, anchor, popoverEdge(options.placement))
+	} catch (error) {
+		console.error('[macos-popup] popover presentation failed', error)
+		popup.close()
+		return null
+	}
+
+	return popup
+}
+
+const appKitBridge = (globalThis.__xplatAppKit ??= {})
+appKitBridge.observeHover = observeHover
+appKitBridge.showAnchoredPopup = showAnchoredPopup
+
 export function createMacOSRoot(hostView) {
 	const container = { hostView, nodes: new Map(), children: [], root: null }
 	const root = createUniversalRoot(container, macOSDriver, {
@@ -2387,6 +2592,18 @@ export function createMacOSRoot(hostView) {
 
 					if (!node) {throw new Error('No AppKit button titled ' + title)}
 					node.view.performClick(null)
+				},
+				hover(id, phase) {
+					const node = [...container.nodes.values()].find((candidate) => candidate.props?.id === id && candidate.view)
+					if (!node) {throw new Error('No AppKit view with id ' + id)}
+					const record = hoverRecordByView.get(node.view)
+					if (!record) {throw new Error('No hover observer on ' + id)}
+					const handler = phase === 'exit' ? record.exit : record.enter
+					if (typeof handler !== 'function') {throw new Error('No ' + phase + ' handler on ' + id)}
+					handler()
+				},
+				openPopupCount() {
+					return openPopups.size
 				},
 			}
 		Object.defineProperty(root, '__macosDebug', { value: debug })

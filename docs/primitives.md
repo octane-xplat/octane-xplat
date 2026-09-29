@@ -44,9 +44,9 @@ Platform-authentic widgets (real OS chrome, no parity promised) live behind
 under their OS names — `UITableView`, `RecyclerView`, `UIModal`,
 `MaterialDialog`, `UITabBar`, `BottomNavigationView`, `SideDrawer`,
 `DrawerLayout`, `UISwitch`, `MaterialSwitch`, `UISlider`, `SeekBar`,
-`UIActivityIndicatorView`, `CircularProgressIndicator`, `LiquidGlass` +
-`LiquidGlassContainer` (iOS-only), and `Hoverable` (web-only). Import them
-only from `.ios.*`/`.android.*`/`.web.*` files — a shared `.tsrx` importing a
+`UIActivityIndicatorView`, `CircularProgressIndicator`, and `LiquidGlass` +
+`LiquidGlassContainer` (iOS-only). Import them only from
+`.ios.*`/`.android.*`/`.web.*` files — a shared `.tsrx` importing a
 platform subpath fails the other platform's build, which is the point.
 
 ## A practical example
@@ -202,16 +202,20 @@ grabber. The platform's own modal presentation is `UIModal`/`MaterialDialog`
 reloading and the self-drawn `ActivityIndicator` strip stays docked above
 the content. There is no OS spinner anywhere in the path.
 
-`Hoverable` (delayed hover card) is web-only at `@octane-xplat/ui/web`.
-Touch platforms have no hover semantic; the old native long-press
-stand-in was fake parity and is gone.
+`Hoverable` (delayed hover card) is a shared export that shows its `card`
+only on pointer platforms — web and the macOS desktop target. On touch
+targets it renders the children and never mounts the card (decision #69);
+the old native long-press stand-in was fake parity and is gone. Keep
+essential information out of `card`.
 
-`Tooltip` is web-only at `@octane-xplat/ui/web` (decision #47). It takes
-`trigger` + `content` slots, opens on hover after `openDelay` and
+`Tooltip` follows the same contract (decision #69). It takes `trigger` +
+`content` slots and, on web, opens on hover after `openDelay` and
 immediately on keyboard focus, wires `aria-describedby` onto the focusable
 trigger, and dismisses on Escape, blur, or scroll. Positioning rides the
-shared `Popover` machinery (`placement`, default `top`). On native, compose
-`Pressable` + `Popover`/`Sheet` for tap-to-reveal hints.
+shared `Popover` machinery (`placement`, default `top`). On macOS the hint
+is an anchored `NSPopover`. On touch targets only the `trigger` renders —
+keep essential information out of `content`, or compose
+`Pressable` + `Popover`/`Sheet` for an explicit tap-to-reveal hint.
 
 Use `useMeasure()` when a screen needs live element bounds:
 `const { bind, bounds } = useMeasure()`, then pass `bind` to a primitive's

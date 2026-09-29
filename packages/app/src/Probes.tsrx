@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable, NavLink, styled, useThemeScheme, Meter, useMeasure, useModalRoute, openWindow } from '@octane-xplat/ui';
+import { View, Row, Text, Pressable, NavLink, styled, useThemeScheme, Meter, useMeasure, useModalRoute, openWindow, Hoverable, Tooltip } from '@octane-xplat/ui';
 import { probeSignal$ } from './probe-state';
 import { navigate } from './platform/nav';
 import 'octane/signals';
@@ -9,8 +9,8 @@ const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-dange
 
 /** Probes section — regression instrumentation, kept off the familiar demo
  *  surface. Each row pokes one seam; the muted text is the live readout.
- *  Shared/native leaf — the Hoverable probe is web-only and lives in
- *  `Probes.web.tsrx` (dispatched via `probes-host`). */
+ *  Hoverable/Tooltip are shared now: pointer platforms (web, macOS) mount the
+ *  hint layer on hover; touch leaves render the trigger only. */
 export function Probes() @{
 	const [count, setCount] = useState(0);
 	// multi-indicator proves a child mounted post-commit lands inside the
@@ -56,6 +56,20 @@ export function Probes() @{
 			<Row className="gap-4 items-center">
 				{/* Meter ring tracks the probe count (wraps at max). */}
 				<Meter id="meter" value={count % 6} max={5} size={40} />
+				{/* Hover intent — real card on pointer platforms, passthrough on touch. */}
+				<Hoverable
+					id="hoverable-probe"
+					card={<View className="overlay-demo-card"><Text className="text-sm">Hover card</Text></View>}
+					placement="top"
+				>
+					<Text className="text-sm">Hover me</Text>
+				</Hoverable>
+				<Tooltip
+					id="tooltip-probe"
+					content={<Text className="text-sm">Tooltip text</Text>}
+					placement="top"
+					trigger={<Text className="text-sm">Tooltip trigger</Text>}
+				/>
 			</Row>
 		</View>
 

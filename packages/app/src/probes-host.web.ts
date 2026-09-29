@@ -1,3 +1,4 @@
-// Probes dispatch — web leaf carries the ui/web-only Hoverable probe.
-// './probes-host' resolves this file on web via moduleSuffixes/extensions.
-export { Probes } from './Probes.web.tsrx'
+// Probes dispatch — Hoverable/Tooltip are shared now, so both leaves
+// re-export the same file; the .web.ts twin still exercises moduleSuffixes
+// resolution (imported extensionless as './probes-host').
+export { Probes } from './Probes.tsrx'

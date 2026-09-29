@@ -42,7 +42,7 @@ from the shared root barrel.
 | --- | --- |
 | `@octane-xplat/ui/ios` | `UISwitch`, `UISlider`, `UIActivityIndicatorView`, `UITableView`, `UITabBar`, `UIModal`, `openModal`, `SideDrawer`, `LiquidGlass`, `LiquidGlassContainer` |
 | `@octane-xplat/ui/android` | `MaterialSwitch`, `SeekBar`, `CircularProgressIndicator`, `RecyclerView`, `BottomNavigationView`, `MaterialDialog`, `openModal`, `DrawerLayout` |
-| `@octane-xplat/ui/web` | `Hoverable`, `Tooltip` |
+| `@octane-xplat/ui/web` | `Hoverable`, `Tooltip` (compat re-export — the shared root barrel carries them too) |
 
 These conditional exports include the platform-authentic names
 `UISwitch`/`MaterialSwitch`, `UITableView`/`RecyclerView`,
@@ -59,7 +59,10 @@ deliberate exits from the same-pixels shared contract; use a matching
   `UIModal`/`MaterialDialog` for platform-authentic modal UI.
 - `openModal`, `PlatformBadge`, and the shared `glass` container prop are not
   root exports. `openModal` is available only from the iOS and Android
-  subpaths; `Hoverable` and `Tooltip` are available only from the web subpath.
+  subpaths. `Hoverable` and `Tooltip` ARE shared root exports (decision #69):
+  pointer platforms (web, macOS) mount the hint layer on hover; touch leaves
+  render only the trigger/children — keep essential information out of
+  `content`/`card`.
 
 ## Conventions
 

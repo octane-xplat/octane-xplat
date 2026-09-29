@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'octane';
-import { Popover } from '../Popover.web.tsrx';
-import { View } from '../View.web.tsrx';
-import type { TooltipProps } from '../props';
-import { cx } from '../cx';
+import { Popover } from './Popover.web.tsrx';
+import { View } from './View.web.tsrx';
+import type { TooltipProps } from './props';
+import { cx } from './cx';
 
 let nextTooltipId = 0;
 
@@ -139,7 +139,7 @@ export function Tooltip(props: TooltipProps) @{
 		};
 	}, [open]);
 
-	<View className={props.className} style={props.style} bind={bindAnchor} web={props.web}>
+	<View id={props.id} className={props.className} style={props.style} bind={bindAnchor} web={props.web}>
 		{props.trigger}
 		<Popover
 			open={open}

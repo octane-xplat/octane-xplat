@@ -48,6 +48,8 @@ export { User } from './User.macos.tsrx'
 export { ProgressGroup } from './ProgressGroup.macos.tsrx'
 export { Drawer } from './Drawer.macos.tsrx'
 
+export { Hoverable } from './Hoverable.macos.tsrx'
+export { Tooltip } from './Tooltip.macos.tsrx'
 export { Link } from './Link.macos.tsrx'
 export { NavLink } from './NavLink.macos.tsrx'
 export { TextInput, TextArea } from './text-controls.macos.tsrx'
@@ -95,6 +97,7 @@ export {
 	hrefFor,
 	layoutsFor as layoutsForRoute,
 } from './route.macos'
+
 export { deriveRouteManifest, defineRoutes, mergeRouteManifests } from './route-table'
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
