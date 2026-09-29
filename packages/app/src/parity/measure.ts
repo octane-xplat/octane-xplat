@@ -21,10 +21,18 @@ function resolvedFontOf(view: any) {
 		const lineHeight = metrics
 			? Utils.layout.toDeviceIndependentPixels(Number(metrics.descent) - Number(metrics.ascent))
 			: undefined
+		const layout = nativeView?.getLayout?.()
 		const dip = (value: unknown) => {
 			const pixels = Number(value)
 			return Number.isFinite(pixels) ? round(Utils.layout.toDeviceIndependentPixels(pixels)) : undefined
 		}
+		const layoutLineCount = Number(layout?.getLineCount?.())
+		const layoutLines = Number.isFinite(layoutLineCount) && layoutLineCount > 0
+			? Array.from({ length: Math.min(layoutLineCount, 4) }, (_, index) => ({
+				top: dip(layout.getLineTop?.(index)),
+				bottom: dip(layout.getLineBottom?.(index)),
+			}))
+			: undefined
 
 		return {
 			family: typeface.getFamilyName?.() ? String(typeface.getFamilyName()) : undefined,
@@ -34,6 +42,15 @@ function resolvedFontOf(view: any) {
 			lineSpacingExtra: dip(nativeView?.getLineSpacingExtra?.()),
 			lineSpacingMultiplier: nativeView?.getLineSpacingMultiplier?.(),
 			layoutLineHeight: dip(nativeView?.getLineHeight?.()),
+			actualLayout: layout
+				? {
+						lineCount: Number.isFinite(layoutLineCount) ? layoutLineCount : undefined,
+						height: dip(layout.getHeight?.()),
+						lines: layoutLines,
+						measuredHeight: dip(nativeView?.getMeasuredHeight?.()),
+						viewHeight: dip(nativeView?.getHeight?.()),
+					}
+				: undefined,
 		}
 	}
 

@@ -40,6 +40,8 @@ const textEqual = [
 	'text.style.color',
 ]
 
+const textLongEqual = textEqual.filter((facet) => facet !== 'text.box.h')
+
 const headingEqual = [
 	'heading.box.x',
 	'heading.box.y',
@@ -77,6 +79,35 @@ function textRows(m, height, width) {
 	]
 	if (width !== undefined) {
 		rows.unshift([`text width is ${width}px`, near(text.box?.w, width, 1), text.box?.w])
+	}
+	return rows
+}
+
+function textLongRows(m, target) {
+	const text = m('text')
+	const styleLineHeight = Number.parseFloat(text.style?.lineHeight)
+	const rows = [['text line height is 20px', near(styleLineHeight, 20, 0.05), text.style?.lineHeight]]
+	if (target === 'web' || target === 'macos') {
+		rows.push(...textRows(m, 40))
+		rows.push(['text wraps to two lines', text.textLineCount === 2, text.textLineCount])
+		return rows
+	}
+
+	// NativeScript treats CSS lineHeight as spacing between lines; web treats it
+	// as each line's full box. Keep the platform-specific expectation here.
+	const fontLineHeight = Number(text.resolvedFont?.lineHeight)
+	const expectedHeight = fontLineHeight * 2 + styleLineHeight
+	rows.push([
+		'native multiline height includes additive line spacing',
+		Number.isFinite(expectedHeight) && near(text.box?.h, expectedHeight, 1),
+		`${text.box?.h}px; expected about ${expectedHeight}px from two font lines plus line spacing`,
+	])
+	if (target === 'android') {
+		rows.unshift([
+			'Android lays out two text lines',
+			Number(text.resolvedFont?.actualLayout?.lineCount) === 2,
+			text.resolvedFont?.actualLayout?.lineCount,
+		])
 	}
 	return rows
 }
@@ -339,8 +370,8 @@ export const CHECKS = [
 		fixture: 'text-long',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { text: 'parity-text' },
-		equal: textEqual,
-		check: (m) => textRows(m, 40),
+		equal: textLongEqual,
+		check: textLongRows,
 	},
 	{
 		fixture: 'text-advance',
