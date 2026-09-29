@@ -1,6 +1,7 @@
 research/
 node_modules/
 dist/
+dist-app/
 apps/macos/artifacts/
 dist-democheck/
 .ns-vite-build/

@@ -23,6 +23,23 @@ document-start   window.__xplatInitialUrl (sync state that can't round-trip)
 The request is a JSON *string*, not an object — WebKitGTK 6.0 delivers a bare
 `JSCValue` to the handler, and `value.to_string()` beats walking properties.
 
+## Load paths
+
+The webview loads one of two URLs, chosen by `gjs-host.js` args:
+
+- `xplat://localhost/` — production. A `WebKitURISchemeRequest` handler on
+  the shared `WebKitWebContext` serves the bundle from `--bundle DIR` /
+  `$XPLAT_BUNDLE_DIR` / `./bundle` / `../dist`, with SPA fallback to
+  `index.html` for non-file paths. The scheme is registered *secure* and
+  *CORS-enabled* so secure-context APIs (`navigator.clipboard`,
+  `crypto.subtle`) and module/font fetches work.
+- `http://localhost:5201` — dev; vite serves, HMR rides real HTTP.
+
+`pnpm --filter @xplat/linux build` emits `apps/linux/dist-app/` — the
+runnable app dir: `bundle/` + `host/` + `run.sh` + `xplat.desktop` (the
+`.desktop` entry declares `x-scheme-handler/xplat`, which is how installed
+deep links reach the host's `Gio.Application` `open` signal).
+
 ## Container verification
 
 `Dockerfile` + `container-smoke.sh` run gjs-host under Debian trixie
@@ -34,7 +51,8 @@ docker run --rm --shm-size=1g --security-opt seccomp=unconfined \
   -v <repo>:/work -w /work/apps/linux/host xplat-linux-host
 ```
 
-Verified there (self-test, real D-Bus session): clipboard (GTK4
+Verified there (self-test, real D-Bus session, both load legs): `xplat://`
+bundle serving + `__xplatBridge` injection, clipboard (GTK4
 `set_content`/`read_text_async` — there is no `set_text`), Secret Service
 round-trip (`COLLECTION_SESSION` — a headless `default` keyring prompts and
 hangs the sync call), `org.freedesktop.Notifications` `GetCapabilities` +
