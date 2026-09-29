@@ -50,6 +50,35 @@ if (targets.length === 0) {
 
 // rgb()/rgba()/hex → canonical '#rrggbb' so 'rgb(59, 130, 246)' and
 // '#3b82f6' compare equal across engines.
+const normalizeColor = (value) => {
+	const rgb = /^rgba?\(\s*([^,\s)]+)[,\s]+([^,\s)]+)[,\s]+([^,/\s)]+)(?:\s*[,/]\s*([^,\s)]+))?\s*\)$/i.exec(value)
+	if (rgb) {
+		const channel = (part) => {
+			const parsed = Number.parseFloat(part)
+			const number = part.endsWith('%') ? (parsed * 255) / 100 : parsed
+			return Math.max(0, Math.min(255, Math.round(number)))
+		}
+		const hex = (number) => number.toString(16).padStart(2, '0')
+		const channels = [rgb[1], rgb[2], rgb[3]].map((part) => hex(channel(part))).join('')
+		if (rgb[4] === undefined) {
+			return `#${channels}`
+		}
+
+		const opacity = rgb[4].endsWith('%')
+			? Number.parseFloat(rgb[4]) / 100
+			: Number.parseFloat(rgb[4])
+		const alpha = hex(Math.max(0, Math.min(255, Math.round(opacity * 255))))
+		return alpha === 'ff' ? `#${channels}` : `#${channels}${alpha}`
+	}
+
+	const hex = /^#([\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i.exec(value)?.[1]?.toLowerCase()
+	if (!hex) {
+		return undefined
+	}
+	const expanded = hex.length <= 4 ? [...hex].map((digit) => digit + digit).join('') : hex
+	return expanded.length === 8 && expanded.endsWith('ff') ? `#${expanded.slice(0, 6)}` : `#${expanded}`
+}
+
 const normValue = (v, facet) => {
 	if (typeof v !== 'string') {
 		return v
@@ -61,16 +90,15 @@ const normValue = (v, facet) => {
 		if (v.trim().toLowerCase() === 'normal') {return 400}
 		if (v.trim().toLowerCase() === 'bold') {return 700}
 	}
+	const color = normalizeColor(v)
+	if (color !== undefined) {
+		return color
+	}
 
 	// '6', '6px', '6dip' — same length across engines (native reports dips
 	// bare, web reports px).
 	if (/^-?\d+(\.\d+)?(px|dip)?$/.test(v.trim())) {
 		return parseFloat(v)
-	}
-
-	const m = v.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/)
-	if (m) {
-		return '#' + [m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, '0')).join('')
 	}
 
 	return v.toLowerCase()
