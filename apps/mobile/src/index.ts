@@ -1495,29 +1495,37 @@ if (!VIRTUAL_LIST_BENCH_MODE && Application.ios) {
 // media.capturePhoto end-to-end: presents the OS camera UI when the device
 // has a camera (physical Android) — a driver cancels via back — and returns
 // null quickly where capture is unsupported (iOS Simulator). Runs after the
-// sweep and before the files.pick browser at +90s.
-	if (!VIRTUAL_LIST_BENCH_MODE) import('@octane-xplat/platform').then(({ media }) => {
-	setTimeout(async () => {
-		// Report the permission gate result so a null return is attributable —
-		// 'denied'/'unsupported' vs an actual camera cancel look identical from
-		// the PickedImage contract alone.
-		try {
-			const perm = await media.ensure('camera').catch((e: Error) => 'threw ' + (e as Error).message)
-			console.log('[probe] capturePhoto ensure(camera)=' + JSON.stringify(perm))
-		} catch (e) {
-			console.log('[probe] capturePhoto ensure threw: ' + (e as Error).message)
-		}
+// parity report on Android because opening Camera backgrounds the harness.
+	if (!VIRTUAL_LIST_BENCH_MODE) {
+		import('@octane-xplat/platform').then(({ media }) => {
+			setTimeout(async () => {
+				const paritySweepComplete = (globalThis as any).__xplatParitySweepComplete
+				if (Application.android && paritySweepComplete) {
+					console.log('[probe] capturePhoto waits for parity report')
+					await paritySweepComplete
+				}
 
-		try {
-			const p = await media.capturePhoto()
-			console.log(
-				'[assert] capturePhoto: ' + (p ? 'OK (' + p.name + ')' : 'INFO (null — cancelled or unsupported)'),
-			)
-		} catch (e) {
-			console.log('[assert] capturePhoto: FAIL ' + (e as Error).message)
-		}
-	}, 80000)
-})
+				// Report the permission gate result so a null return is attributable —
+				// 'denied'/'unsupported' vs an actual camera cancel look identical from
+				// the PickedImage contract alone.
+				try {
+					const perm = await media.ensure('camera').catch((e: Error) => 'threw ' + (e as Error).message)
+					console.log('[probe] capturePhoto ensure(camera)=' + JSON.stringify(perm))
+				} catch (e) {
+					console.log('[probe] capturePhoto ensure threw: ' + (e as Error).message)
+				}
+
+				try {
+					const p = await media.capturePhoto()
+					console.log(
+						'[assert] capturePhoto: ' + (p ? 'OK (' + p.name + ')' : 'INFO (null — cancelled or unsupported)'),
+					)
+				} catch (e) {
+					console.log('[assert] capturePhoto: FAIL ' + (e as Error).message)
+				}
+			}, 80000)
+		})
+	}
 
 function dump0(hay: string[]): string {
 	return ' texts=' + JSON.stringify(hay.slice(0, 12))

@@ -14,6 +14,13 @@ import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 let ran = false
 let lastDump = ''
+let resolveParitySweepComplete!: () => void
+const paritySweepComplete = new Promise<void>((resolve) => {
+	resolveParitySweepComplete = resolve
+})
+
+const g = globalThis as any
+g.__xplatParitySweepComplete = paritySweepComplete
 
 // Native layout settles in passes — leaf ResizeObserver-equivalents and
 // grid overlays lag the frame push by a beat. Two identical dumps back to
@@ -71,12 +78,12 @@ export function runParity() {
 			}
 
 			goBack()
+			resolveParitySweepComplete()
 			console.log('[parity] done')
 		},
 	)
 }
 
-const g = globalThis as any
 g.__xplatSweepDone = runParity
 if (Application.android != null && !VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(runParity, 120000)
