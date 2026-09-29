@@ -13,10 +13,10 @@ capability with a different permission flow, a layout that only makes sense
 on one form factor.
 
 These guides assume a specific division of labor: your agent writes the
-code, and you decide what "correct" means and check that it happened. That
-suits serious projects — the framework owns the cross-platform plumbing, but
-no tool can verify your product for you. If you would rather not review
-agent output at all, this is the wrong tool.
+code, and you decide what "correct" means and check that it happened — by
+running the app on the targets you ship, not by reviewing its code. That
+suits serious projects: the framework owns the cross-platform plumbing, but
+no tool can verify your product for you.
 
 Start with one flow your app actually needs. A field app might need a form
 with a photo attachment; a trip app might need a packing list. These are
