@@ -74,26 +74,33 @@ function iosOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionR
 	})
 }
 
-@NativeClass()
-class AuthSessionPresentationAnchor extends NSObject {
-	static ObjCProtocols = [ASWebAuthenticationPresentationContextProviding]
+// NSObject exists only on iOS — a module-scope `extends NSObject` would throw
+// on Android before iosOpen is ever reached. Apply NativeClass() manually so
+// the iOS-only class is built lazily.
+const AuthSessionPresentationAnchor: any =
+	typeof NSObject !== 'undefined'
+		? NativeClass()(
+				class AuthSessionPresentationAnchor extends NSObject {
+					static ObjCProtocols = [ASWebAuthenticationPresentationContextProviding]
 
-	presentationAnchorForWebAuthenticationSession(): UIWindow {
-		const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
-		const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
-		for (let i = 0; i < scenes.count; i++) {
-			const scene = scenes.objectAtIndex(i) as UIWindowScene
-			if (scene.activationState === foregroundActive) {
-				const anchor = scene.windows.objectAtIndex(0)
-				if (anchor) {
-					return anchor
-				}
-			}
-		}
+					presentationAnchorForWebAuthenticationSession(): UIWindow {
+						const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
+						const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
+						for (let i = 0; i < scenes.count; i++) {
+							const scene = scenes.objectAtIndex(i) as UIWindowScene
+							if (scene.activationState === foregroundActive) {
+								const anchor = scene.windows.objectAtIndex(0)
+								if (anchor) {
+									return anchor
+								}
+							}
+						}
 
-		return UIApplication.sharedApplication.keyWindow
-	}
-}
+						return UIApplication.sharedApplication.keyWindow
+					}
+				},
+			)
+		: undefined
 
 function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionResult> {
 	return new Promise((resolve) => {

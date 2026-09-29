@@ -1,0 +1,8 @@
+{
+	// Package source is consumed as raw .ts (exports map → ./src/*), so
+	// consumer dev transforms resolve THIS directory's nearest tsconfig.json.
+	// @NativeClass()/decorator files need experimentalDecorators emit; without
+	// a discoverable config the transform emits TC39 `export @dec class`,
+	// which the device V8 cannot parse — SyntaxError at boot.
+	"extends": "../../../tsconfig.base.json"
+}
