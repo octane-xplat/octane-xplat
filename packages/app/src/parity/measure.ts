@@ -7,6 +7,45 @@ import { STYLE_FACETS } from './style-facets'
 // screen coordinates, so rel = child.loc − cell's .parity-box loc.
 const round = (n: number) => Math.round(n * 100) / 100
 
+function resolvedFontOf(view: any) {
+	const nativeView = view?.nativeTextViewProtected ?? view?.nativeViewProtected?.titleLabel ?? view?.nativeViewProtected
+
+	if (Application.android) {
+		const typeface = nativeView?.getTypeface?.() ?? nativeView?.getPaint?.()?.getTypeface?.()
+		if (!typeface) {
+			return undefined
+		}
+
+		const metrics = nativeView?.getPaint?.()?.getFontMetrics?.()
+		const lineHeight = metrics
+			? Utils.layout.toDeviceIndependentPixels(Number(metrics.descent) - Number(metrics.ascent))
+			: undefined
+
+		return {
+			family: typeface.getFamilyName?.() ? String(typeface.getFamilyName()) : undefined,
+			weight: typeface.getWeight?.() === undefined ? undefined : Number(typeface.getWeight()),
+			lineHeight: lineHeight === undefined ? undefined : round(lineHeight),
+		}
+	}
+
+	const font = nativeView?.font ?? nativeView?.searchTextField?.font
+	if (!font) {
+		return undefined
+	}
+
+	const traitsKey = (globalThis as any).UIFontDescriptorTraitsAttribute ?? 'NSCTFontTraitsAttribute'
+	const weightKey = (globalThis as any).UIFontWeightTrait ?? 'NSCTFontWeightTrait'
+	const descriptorWeight = font.fontDescriptor?.objectForKey?.(traitsKey)?.objectForKey?.(weightKey)
+
+	return {
+		family: font.familyName ? String(font.familyName) : undefined,
+		face: font.fontName ? String(font.fontName) : undefined,
+		size: Number.isFinite(Number(font.pointSize)) ? round(Number(font.pointSize)) : undefined,
+		lineHeight: Number.isFinite(Number(font.lineHeight)) ? round(Number(font.lineHeight)) : undefined,
+		weight: Number.isFinite(Number(descriptorWeight)) ? round(Number(descriptorWeight)) : undefined,
+	}
+}
+
 function rootLayoutFor(view: any): RootLayout | undefined {
 	for (let parent = view?.parent; parent; parent = parent.parent) {
 		if (parent instanceof RootLayout) {
@@ -68,6 +107,7 @@ function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
 	const textControl = hasClass(view, 'vx-input') || hasClass(view, 'vx-textarea')
 	const placeholder = textControl && view?.hint ? String(view.hint) : undefined
 	const placeholderColor = textControl ? view?.style?.placeholderColor : undefined
+	const resolvedFont = resolvedFontOf(view)
 	return {
 		tag: String(view?.typeName ?? view?.constructor?.name ?? 'view').toLowerCase(),
 		id: view?.id || undefined,
@@ -83,6 +123,7 @@ function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
 				: null,
 		style: styleOf(view),
 		text: typeof view?.text === 'string' && view.text ? view.text : undefined,
+		resolvedFont,
 		contentBox: textControl && loc && size ? contentBoxOf(view, loc, size, boxLoc) : undefined,
 		placeholder,
 		placeholderStyle:
