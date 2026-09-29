@@ -8,6 +8,7 @@ import {
 	Button,
 	Pressable,
 	Text,
+	ListItem,
 	Heading,
 	TextInput,
 	TextArea,
@@ -106,6 +107,17 @@ function TextFixture(props: { size: number; weight: number; lineHeight: number; 
 	<Text className="parity-text" style={{ fontSize: props.size, fontWeight: props.weight, lineHeight: props.lineHeight, color: '#0a0a0a' }}>
 		{props.content}
 	</Text>
+}
+
+function ListItemFixture() @{
+	<ListItem
+		id="parity-listitem-root"
+		style={{ width: 220, height: 64, backgroundColor: '#f5f5f5' }}
+		title="Event title"
+		supportingText="6:30 PM / 2 tickets"
+		leading={<Text className="parity-listitem-leading-text">A</Text>}
+		trailing={<Text className="parity-listitem-trailing-text">&gt;</Text>}
+	/>
 }
 
 function TextClassFixture(props: { sizeClass: string; content: string }) @{
@@ -995,6 +1007,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'avatar-group-overflow', component: 'AvatarGroup', renderer: AvatarGroupFixture, props: {} },
 	{ name: 'user-row', component: 'User', renderer: UserFixture, props: {} },
 	{ name: 'list-item-row', component: 'ListItem', renderer: ListItemFixture, props: {} },
+	{ name: 'list-item-standard', component: 'ListItem', renderer: ListItemFixture, props: {} },
 	{ name: 'kbd-shortcut', component: 'Kbd', renderer: KbdFixture, props: {} },
 	{ name: 'link-fixed-target', component: 'Link', renderer: LinkFixture, props: {} },
 	{ name: 'nav-link-active', component: 'NavLink', renderer: NavLinkFixture, props: {} },
