@@ -1,1 +1,1 @@
-export * from './index.shared.web.js';
+export * from './index.shared.js';

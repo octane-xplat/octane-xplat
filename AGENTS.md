@@ -253,6 +253,11 @@ Bump/changelog inference only counts commits touching `packages/**`
    mode prop. There is no shared `List`, `Modal`, `openModal`,
    `PlatformBadge`, or `glass` prop; `KeyboardAvoiding` is native-only.
    (decisions #44–46, #50)
+9. A platform-suffixed file is an implementation redirect for the same
+   module. The default and `.web`, `.mobile`, `.ios`, `.android`, `.macos`,
+   `.windows`, and `.linux` variants must expose the same names and public
+   types. Keep shared prop types in `props.ts`; platform differences belong
+   in the implementation, not in the exported contract.
 
 ## Companion libraries (used by apps built on this stack)
 
