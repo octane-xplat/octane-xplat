@@ -83,9 +83,17 @@ function SpanText(props: { s: Span }) @{
 	if (s.href) {
 		const slug = docSlug(s.href);
 		if (slug) {
-			return <a className={cls} href={docPath(slug)} onClick={(e: MouseEvent) => { e.preventDefault(); pushRoute(docRoute(slug)); resetDocScroll(); }}>{s.text}</a>;
+			const hash = s.href.includes('#') ? s.href.slice(s.href.indexOf('#')) : '';
+			return <a className={cls} href={docPath(slug) + hash} onClick={(e: MouseEvent) => {
+				if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+				e.preventDefault();
+				pushRoute(docRoute(slug));
+				if (hash) history.replaceState(history.state, '', docPath(slug) + hash);
+				resetDocScroll();
+			}}>{s.text}</a>;
 		}
 
+		if (s.href.startsWith('#')) return <a className={cls} href={s.href}>{s.text}</a>;
 		return <a className={cls} href={extUrl(s.href)} target="_blank" rel="noopener">{s.text}</a>;
 	}
 
@@ -98,7 +106,7 @@ function Spans(props: { spans: Span[] }) @{
 
 function BlockView(props: { b: Block }) @{
 	const b = props.b;
-	if (b.kind === 'h') return <Text className={`h${b.level}`}>{b.text}</Text>;
+	if (b.kind === 'h') return <Text id={b.id} className={`h${b.level}`}>{b.text}</Text>;
 	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} /></Text>;
 	if (b.kind === 'li') return (
 		<View className="li" style={{ paddingLeft: b.depth * 16 }}>

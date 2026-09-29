@@ -2,6 +2,8 @@
 // render loops, and missing content without a browser. Run after build.
 import { JSDOM } from 'jsdom'
 import { readFileSync, readdirSync } from 'fs'
+import { docPath, titleOf } from './src/doc-meta.ts'
+import { parseMd } from './src/md.ts'
 
 const js = 'dist/assets/' + readdirSync('dist/assets').find((f) => f.endsWith('.js'))
 const dom = new JSDOM(readFileSync('dist/index.html', 'utf8'), {
@@ -23,6 +25,7 @@ for (const k of [
 }
 
 globalThis.requestAnimationFrame = (cb) => setTimeout(cb, 16)
+window.requestAnimationFrame = globalThis.requestAnimationFrame
 window.matchMedia ??= () => ({
 	matches: false,
 	addEventListener() {},
@@ -60,5 +63,39 @@ for (const [name, ok] of checks) {
 		fail++
 	}
 }
+
+const assert = (name, ok) => {
+	console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
+	if (!ok) { fail++ }
+}
+
+const table = parseMd('| value | meaning |\n| --- | --- |\n| `ready \\| error` | status |')[0]
+assert('escaped table pipe stays in its cell', table?.kind === 'table' && table.rows[1].length === 2 && table.rows[1][0] === '`ready | error`')
+const settle = () => new Promise((resolve) => setTimeout(resolve, 60))
+let scrolledTo
+window.HTMLElement.prototype.scrollIntoView = function () { scrolledTo = this.id }
+
+const firstFlow = [...root.querySelectorAll('a')].find((a) => a.textContent === 'Try the first flow')
+assert('section link retains fragment', firstFlow?.getAttribute('href') === '/toolchain#create-and-run')
+firstFlow?.click()
+await settle()
+assert('section navigation reaches heading', window.location.hash === '#create-and-run' && scrolledTo === 'create-and-run')
+
+const pages = readdirSync('../../docs').filter((file) => file.endsWith('.md'))
+for (const file of pages) {
+	const slug = file.slice(0, -3)
+	const title = titleOf(slug, readFileSync(`../../docs/${file}`, 'utf8'))
+	const item = [...root.querySelectorAll('.side-item')].find((el) => el.textContent === title.toLowerCase())
+	item?.click()
+	await settle()
+	assert(`page ${slug}`, window.location.pathname === docPath(slug) && root.querySelector('.doc .h1')?.textContent === title)
+}
+
+const navigationNotes = [...root.querySelectorAll('.side-item')].find((el) => el.textContent === 'navigation notes')
+navigationNotes?.click()
+await settle()
+const labLink = [...root.querySelectorAll('.doc a')].find((a) => a.textContent === 'lab log')
+assert('same-page fragment stays local', labLink?.getAttribute('href') === '#lab-log' && !labLink.hasAttribute('target'))
+assert('same-page heading exists', Boolean(root.querySelector('#lab-log')))
 
 process.exit(fail ? 1 : 0)

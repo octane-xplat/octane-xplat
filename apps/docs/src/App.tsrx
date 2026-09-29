@@ -67,7 +67,7 @@ export function App() @{
 				</a>
 			</View>
 			<ScrollView id="doc-content" className="content">
-				<MdDoc md={doc.md} />
+				<MdDoc key={doc.slug} md={doc.md} />
 			</ScrollView>
 		</Row>
 	</View>

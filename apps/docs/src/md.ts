@@ -10,7 +10,7 @@ export type Span = {
 }
 
 export type Block =
-	| { kind: 'h'; level: number; text: string }
+	| { kind: 'h'; level: number; text: string; id: string }
 	| { kind: 'p'; spans: Span[] }
 	| { kind: 'code'; text: string; lang: string }
 	| { kind: 'li'; spans: Span[]; depth: number; marker: string }
@@ -84,6 +84,7 @@ const BLOCKSTART = /^#{1,4}\s|^\s*(?:[-*]|\d+[.)])\s|^\s*\||^\s*>|^\s*```|^\s*(-
 
 export function parseMd(md: string): Block[] {
 	const blocks: Block[] = []
+	const headingIds = new Set<string>()
 	const lines = md.split('\n')
 	let i = 0
 	let seenQuote = false
@@ -104,7 +105,15 @@ export function parseMd(md: string): Block[] {
 
 		if (/^#{1,4}\s/.test(line)) {
 			const m = line.match(/^(#+)\s+(.*)/)!
-			blocks.push({ kind: 'h', level: m[1].length, text: m[2].replace(/[`*_]/g, '') })
+			const slug = m[2].toLowerCase().replace(/[^\p{L}\p{N}_\s-]/gu, '').replace(/ /g, '-')
+			let id = slug
+			let suffix = 0
+			while (headingIds.has(id)) {
+				id = `${slug}-${++suffix}`
+			}
+
+			headingIds.add(id)
+			blocks.push({ kind: 'h', level: m[1].length, text: m[2].replace(/[`*_]/g, ''), id })
 			i++
 			continue
 		}
@@ -115,9 +124,9 @@ export function parseMd(md: string): Block[] {
 				if (!/^\s*\|[\s:|-]+\|\s*$/.test(lines[i])) {
 					rows.push(
 						lines[i]
-							.split('|')
+							.split(/(?<!\\)\|/)
 							.slice(1, -1)
-							.map((c) => c.trim()),
+							.map((c) => c.trim().replace(/\\\|/g, '|')),
 					)
 				}
 
