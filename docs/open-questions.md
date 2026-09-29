@@ -201,9 +201,12 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     facet makes `./Leaf` resolve `Leaf.<suffix>.tsrx` under tsrx-tsc and the
     delegated checker alike — verified with a shim language plugin on this
     fixture (`./Probe` → `Probe.web.tsrx` / `Probe.ios.tsrx`, zero
-    diagnostics). Still needed alongside it: `.mobile` in ns-vite's
-    generated suffixes (or honoring the project's chain), and the barrels'
-    export-remapping role stays regardless.
+    diagnostics). Submitted upstream as
+    [tsrx-org/tsrx#971](https://github.com/tsrx-org/tsrx/pull/971) (all CI
+    green): the flag plus a `moduleSuffixes` regression test. Still needed
+    alongside it: `.mobile` in ns-vite's generated suffixes (or honoring the
+    project's chain), and the barrels' export-remapping role stays
+    regardless.
 26. 🟡 **Can Pulsar ship as an optional NativeScript leaf on both mobile
     targets?** — Pulsar's APIs match presets, patterns, realtime control, and
     capability reporting. The Android emulator now exercises the packaged
