@@ -42,6 +42,19 @@ export function Test() @{
 		<Services />
 
 		<View className="sink-section">
+			<Text className="section-label">Motion contract</Text>
+			<Row className="demo-menu">
+				<Pressable
+					id="menu-motion-probe"
+					onPress={() => navigate('motion-probe', {}, { into: 'test' })}
+					className="chip"
+				>
+					<Text>Motion · device checks</Text>
+				</Pressable>
+			</Row>
+		</View>
+
+		<View className="sink-section">
 			<Text className="section-label">Performance gate</Text>
 			<Row className="demo-menu">
 				<Pressable

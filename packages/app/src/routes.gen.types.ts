@@ -5,6 +5,7 @@ export type RouteName =
 	| 'demo/:id'
 	| 'detail'
 	| 'list-nested-probe'
+	| 'motion-probe'
 	| 'parity'
 	| 'private'
 	| 'qa'
@@ -14,6 +15,7 @@ export interface RouteParams {
 	'demo/:id': { id: string }
 	'detail': {  }
 	'list-nested-probe': {  }
+	'motion-probe': {  }
 	'parity': {  }
 	'private': {  }
 	'qa': {  }

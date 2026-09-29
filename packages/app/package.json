@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@octane-xplat/audio": "workspace:*",
 		"@octane-xplat/haptics": "workspace:*",
+		"@octane-xplat/motion": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/sounds": "workspace:*",

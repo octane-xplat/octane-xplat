@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vitest/config'
 import { octane } from 'octane/compiler/vite'
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'
@@ -30,6 +31,7 @@ const NATIVE_EXTS = [
 	'.js',
 	'.json',
 ]
+const configDir = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
 	plugins: [
@@ -46,15 +48,15 @@ export default defineConfig({
 		alias: [
 			{
 				find: /^@octane-xplat\/ui$/,
-				replacement: fileURLToPath(new URL('./test/ui.mobile.tsrx', import.meta.url)),
+				replacement: resolve(configDir, 'test/ui.mobile.tsrx'),
 			},
 			{
 				find: './clock',
-				replacement: fileURLToPath(new URL('./test/platform.ts', import.meta.url)),
+				replacement: resolve(configDir, 'test/platform.ts'),
 			},
 			{
 				find: './reduced-motion',
-				replacement: fileURLToPath(new URL('./test/platform.ts', import.meta.url)),
+				replacement: resolve(configDir, 'test/platform.ts'),
 			},
 			{ find: /^octane$/, replacement: 'octane/universal/native' },
 			// Compiled leaves import the renderer module (the driver package),

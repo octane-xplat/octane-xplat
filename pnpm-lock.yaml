@@ -414,6 +414,9 @@ importers:
       '@octane-xplat/haptics':
         specifier: workspace:*
         version: link:../haptics
+      '@octane-xplat/motion':
+        specifier: workspace:*
+        version: link:../motion
       '@octane-xplat/pager':
         specifier: workspace:*
         version: link:../pager

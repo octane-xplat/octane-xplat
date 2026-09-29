@@ -1,5 +1,9 @@
-import type { ViewProps, RowProps, PressableProps } from '@octane-xplat/ui'
+import type { View, Row, Pressable } from '@octane-xplat/ui'
 import type { MotionValue } from './value'
+
+type ViewProps = Parameters<typeof View>[0]
+type RowProps = Parameters<typeof Row>[0]
+type PressableProps = Parameters<typeof Pressable>[0]
 
 /** Supported channels. Translation is CSS pixels/DIP; rotation is degrees. */
 export type MotionKey = 'opacity' | 'x' | 'y' | 'scale' | 'scaleX' | 'scaleY' | 'rotate'
