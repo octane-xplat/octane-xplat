@@ -950,6 +950,9 @@ export interface ParityFixture {
 }
 
 export const FIXTURES: ParityFixture[] = [
+	// Opens on mount; keep the native anchor in the visible viewport. The web
+	// parity runner scrolls this cell into view before measuring it.
+	{ name: 'popover-bottom-frame', component: 'Popover', renderer: PopoverLayoutFixture, props: { marker: 'parity-portal--popover-bottom-frame' } },
 	{ name: 'switch-off', component: 'Switch', renderer: SwitchFixture, props: { checked: false } },
 	{ name: 'switch-on', component: 'Switch', renderer: SwitchFixture, props: { checked: true } },
 	{ name: 'slider-0', component: 'Slider', renderer: SliderFixture, props: { value: 0 }, wide: true },
@@ -998,7 +1001,6 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'scroll-box-layout', component: 'ScrollBox', renderer: ScrollBoxLayoutFixture, props: {} },
 	{ name: 'drawer-open-frame', component: 'Drawer', renderer: DrawerLayoutFixture, props: {} },
 	{ name: 'overlay-fixed-frame', component: 'Overlay', renderer: OverlayLayoutFixture, props: { marker: 'parity-portal--overlay-fixed-frame' } },
-	{ name: 'popover-bottom-frame', component: 'Popover', renderer: PopoverLayoutFixture, props: { marker: 'parity-portal--popover-bottom-frame' } },
 	{ name: 'sheet-fixed-frame', component: 'Sheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' }, height: 112 },
 	{ name: 'form-field-basic', component: 'FormField', renderer: FormFieldFixture, props: {} },
 	{ name: 'field-group-basic', component: 'FieldGroup', renderer: FieldGroupFixture, props: {} },
