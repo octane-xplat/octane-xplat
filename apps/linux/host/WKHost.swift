@@ -20,6 +20,9 @@ let selfTest = CommandLine.arguments.contains("--self-test")
 // __xplatBridge.resolve/reject; events go in through __xplatBridge.emit.
 final class Bridge: NSObject, WKScriptMessageHandler {
 	weak var webView: WKWebView?
+	var windows: [String: (window: NSWindow, wv: WKWebView)] = [:]
+	var closeDelegates: [String: NSWindowDelegate] = [:] // NSWindow.delegate is weak
+	private var currentSender: WKWebView? // replies land on the window that asked
 	let secrets = UserDefaults(suiteName: "xplat-host")! // stand-in for Secret Service
 
 	static func currentScheme() -> String {
@@ -38,6 +41,8 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 			let method = req["method"] as? String
 		else { return }
 		let args = req["args"] as? [Any] ?? []
+		let sender = message.webView ?? webView
+		currentSender = sender
 
 		switch (service, method) {
 		case ("notifications", "ensure"):
@@ -85,11 +90,64 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 			}
 			try? (args.dropFirst().first as? String ?? "").write(to: url, atomically: true, encoding: .utf8)
 			respond(id, ["name": url.lastPathComponent, "uri": url.absoluteString])
+		case ("windows", "open"):
+			respond(id, openSecondary(sender, args.first as? [String: Any] ?? [:]))
+		case ("windows", "close"):
+			if let wid = args.first as? String, let entry = windows[wid] {
+				entry.window.close() // close-request delegate emits windows.closed
+			}
+			respond(id, true)
+		case ("windows", "setTitle"):
+			if let wid = args.first as? String {
+				windows[wid]?.window.title = args.dropFirst().first as? String ?? ""
+			}
+			respond(id, true)
 		case ("deepLinks", "initialUrl"):
 			respond(id, NSNull())
 		default:
 			rejectRequest(id, "host has no \(service).\(method)")
 		}
+	}
+
+	// windows.open — own NSWindow + WKWebView (own root), like gjs-host's
+	// Adw window. 'dialog' shows as a sheet on the sender's window.
+	private func openSecondary(_ sender: WKWebView?, _ opts: [String: Any]) -> String {
+		let wid = (opts["id"] as? String) ?? "w\(windows.count + 1)"
+		let size = opts["size"] as? [String: Double] ?? ["width": 640, "height": 480]
+		let w = NSWindow(
+			contentRect: NSRect(x: 0, y: 0, width: size["width"] ?? 640, height: size["height"] ?? 480),
+			styleMask: [.titled, .closable, .resizable],
+			backing: .buffered, defer: false)
+		w.title = opts["title"] as? String ?? "xplat"
+		let dataJson = jsLiteral(opts["data"] ?? NSNull())
+		let wv = makeWebView(
+			extraInjected: "window.__xplatWindowId = \"\(wid)\"; window.__xplatWindowData = \(dataJson);")
+		wv.autoresizingMask = [.width, .height]
+		wv.frame = w.contentView!.bounds
+		w.contentView!.addSubview(wv)
+		windows[wid] = (w, wv)
+		let delegate = WindowCloseDelegate { [weak self] in
+			self?.windows.removeValue(forKey: wid)
+			self?.closeDelegates.removeValue(forKey: wid)
+			if let opener = sender {
+				self?.emitTo(opener, "windows", "closed", wid)
+			}
+		}
+		closeDelegates[wid] = delegate
+		w.delegate = delegate
+		let target = opts["url"] as? String ?? "/"
+		let resolved = target.hasPrefix("http") || target.contains("://")
+			? target
+			: URL(string: urlString)!.deletingLastPathComponent().appendingPathComponent(target).absoluteString
+		wv.load(URLRequest(url: URL(string: resolved)!))
+		w.makeKeyAndOrderFront(nil)
+		return wid
+	}
+
+	private func emitTo(_ wv: WKWebView, _ service: String, _ event: String, _ payload: Any) {
+		wv.evaluateJavaScript(
+			"__xplatBridge?.emit('\(service)', '\(event)', \(jsLiteral(payload)))",
+			completionHandler: nil)
 	}
 
 	// JSONSerialization only writes top-level arrays/dicts — wrap scalars and
@@ -114,12 +172,12 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 	}
 
 	private func respond(_ id: Int, _ value: Any) {
-		webView?.evaluateJavaScript(
+		(currentSender ?? webView)?.evaluateJavaScript(
 			"__xplatBridge?.resolve(\(id), \(jsLiteral(value)))", completionHandler: nil)
 	}
 
 	private func rejectRequest(_ id: Int, _ message: String) {
-		webView?.evaluateJavaScript(
+		(currentSender ?? webView)?.evaluateJavaScript(
 			"__xplatBridge?.reject(\(id), \(jsLiteral(message)))", completionHandler: nil)
 	}
 
@@ -136,28 +194,39 @@ final class LogSink: NSObject, WKScriptMessageHandler {
 	}
 }
 
+final class WindowCloseDelegate: NSObject, NSWindowDelegate {
+	let onClose: () -> Void
+	init(_ onClose: @escaping () -> Void) { self.onClose = onClose }
+	func windowWillClose(_: Notification) { onClose() }
+}
+
 let app = NSApplication.shared
 let bridge = Bridge()
-let ucc = WKUserContentController()
-ucc.add(bridge, name: "xplat")
-ucc.add(LogSink(), name: "xplatLog")
-// Document-start injection — the sync half of the contract (__xplatInitialUrl
-// must be readable before app code runs; a round-trip would be too late).
-ucc.addUserScript(
-	WKUserScript(
-		source: "window.__xplatInitialUrl = null; window.__xplatColorScheme = "
-			+ (Bridge.currentScheme() == "dark" ? "\"dark\"" : "\"light\""),
-		injectionTime: .atDocumentStart, forMainFrameOnly: true))
 
-let config = WKWebViewConfiguration()
-config.userContentController = ucc
+// Every webview gets its own UCC — per-window message wiring and its own
+// document-start injection (initial url / color scheme / window data).
+func makeWebView(extraInjected: String = "") -> WKWebView {
+	let ucc = WKUserContentController()
+	ucc.add(bridge, name: "xplat")
+	ucc.add(LogSink(), name: "xplatLog")
+	ucc.addUserScript(
+		WKUserScript(
+			source: "window.__xplatInitialUrl = null; window.__xplatColorScheme = "
+				+ (Bridge.currentScheme() == "dark" ? "\"dark\"" : "\"light\"") + ";" + extraInjected,
+			injectionTime: .atDocumentStart, forMainFrameOnly: true))
+	let config = WKWebViewConfiguration()
+	config.userContentController = ucc
+	return WKWebView(frame: .zero, configuration: config)
+}
+
 let window = NSWindow(
 	contentRect: NSRect(x: 0, y: 0, width: 1024, height: 768),
 	styleMask: [.titled, .closable, .resizable, .miniaturizable],
 	backing: .buffered, defer: false)
 window.title = "xplat linux harness"
-let webView = WKWebView(frame: window.contentView!.bounds, configuration: config)
+let webView = makeWebView()
 webView.autoresizingMask = [.width, .height]
+webView.frame = window.contentView!.bounds
 window.contentView!.addSubview(webView)
 bridge.webView = webView
 

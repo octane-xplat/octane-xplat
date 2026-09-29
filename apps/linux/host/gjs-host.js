@@ -41,6 +41,7 @@ const url =
 	positionals.find((u) => u.startsWith('xplat://localhost')) ??
 	positionals[0] ??
 	(bundleDir ? 'xplat://localhost/' : 'http://localhost:5201');
+const contentOrigin = url.match(/^[a-z]+:\/\/[^/]+/i)?.[0] ?? url;
 
 // --- xplat:// scheme: serve the built bundle so the app never needs http ---
 const MIMES = {
@@ -94,11 +95,13 @@ const app = new Adw.Application({
 	flags: Gio.ApplicationFlags.HANDLES_OPEN,
 });
 let win = null;
-let webView = null;
+let webView = null; // main window's view — global events default here
 let loadedOnce = false;
 const linkQueue = [];
 let colorScheme = 'light';
 let secretSchema = null;
+// wid → { win, wv, opener } — secondary windows opened via windows.open.
+const windows = new Map();
 
 try {
 	secretSchema = new Secret.Schema('org.octane.xplat', Secret.SchemaFlags.NONE, {
@@ -126,6 +129,24 @@ function detectColorScheme() {
 	}
 }
 
+function emitTo(wv, service, event, payload) {
+	wv.evaluate_javascript(
+		`__xplatBridge?.emit('${service}', '${event}', ${JSON.stringify(payload ?? null)})`,
+		-1, null, null, null, null);
+}
+
+// Global events (appearance) go to every window's webview; app-targeted
+// events (deep links) go to the main view.
+function emitAll(service, event, payload) {
+	if (webView) {
+		emitTo(webView, service, event, payload);
+	}
+
+	for (const entry of windows.values()) {
+		emitTo(entry.wv, service, event, payload);
+	}
+}
+
 function subscribeAppearance() {
 	try {
 		Gio.bus_get_sync(Gio.BusType.SESSION, null).signal_subscribe(
@@ -137,7 +158,7 @@ function subscribeAppearance() {
 
 				if (key === 'color-scheme') {
 					colorScheme = val.get_uint32() === 1 ? 'dark' : 'light';
-					emit('appearance', 'change', colorScheme);
+					emitAll('appearance', 'change', colorScheme);
 				}
 			});
 	} catch (e) {
@@ -145,26 +166,16 @@ function subscribeAppearance() {
 	}
 }
 
-function evalJS(js) {
-	webView.evaluate_javascript(js, -1, null, null, null, null);
-}
-
-function respond(id, value) {
-	evalJS(`__xplatBridge?.resolve(${id}, ${JSON.stringify(value ?? null)})`);
-}
-
-function rejectReq(id, message) {
-	evalJS(`__xplatBridge?.reject(${id}, ${JSON.stringify(message)})`);
-}
-
-function emit(service, event, payload) {
-	evalJS(
-		`__xplatBridge?.emit('${service}', '${event}', ${JSON.stringify(payload ?? null)})`,
-	);
-}
-
 // Same dispatch table as WKHost.swift — native access here is Gio/D-Bus-shaped.
-function dispatch(id, service, method, args) {
+// wv is the sender's webview: replies must land on the window that asked.
+function dispatch(wv, id, service, method, args) {
+	const evalJS = (js) =>
+		wv.evaluate_javascript(js, -1, null, null, null, null);
+	const reply = (value) =>
+		evalJS(`__xplatBridge?.resolve(${id}, ${JSON.stringify(value ?? null)})`);
+	const fail = (message) =>
+		evalJS(`__xplatBridge?.reject(${id}, ${JSON.stringify(message)})`);
+
 	try {
 		if (service === 'notifications') {
 			// org.freedesktop.Notifications directly — GApplication.send_notification
@@ -179,9 +190,9 @@ function dispatch(id, service, method, args) {
 						'org.freedesktop.Notifications', 'GetCapabilities', null,
 						new GLib.VariantType('(as)'), Gio.DBusCallFlags.NONE, 2000, null);
 
-					respond(id, 'granted');
+					reply('granted');
 				} catch {
-					respond(id, 'unsupported');
+					reply('unsupported');
 				}
 			} else if (method === 'notify') {
 				bus.call_sync(
@@ -192,14 +203,14 @@ function dispatch(id, service, method, args) {
 					]),
 					new GLib.VariantType('(u)'), Gio.DBusCallFlags.NONE, -1, null);
 
-				respond(id, true);
+				reply(true);
 			}
 
 			return;
 		}
 
 		if (service === 'clipboard') {
-			const cb = webView.get_display().get_clipboard();
+			const cb = wv.get_display().get_clipboard();
 
 			if (method === 'write') {
 				// GTK4 has no Gdk.Clipboard.set_text — writes go through a
@@ -207,13 +218,13 @@ function dispatch(id, service, method, args) {
 				cb.set_content(
 					Gdk.ContentProvider.new_for_value(String(args[0] ?? '')));
 
-				respond(id, true);
+				reply(true);
 			} else if (method === 'read') {
 				cb.read_text_async(null, (_c, res) => {
 					try {
-						respond(id, cb.read_text_finish(res));
+						reply(cb.read_text_finish(res));
 					} catch {
-						respond(id, null);
+						reply(null);
 					}
 				});
 			}
@@ -223,7 +234,7 @@ function dispatch(id, service, method, args) {
 
 		if (service === 'secureStorage') {
 			if (!secretSchema) {
-				rejectReq(id, 'Secret.Schema unavailable');
+				fail('Secret.Schema unavailable');
 				return;
 			}
 
@@ -235,37 +246,37 @@ function dispatch(id, service, method, args) {
 			const collection = Secret.COLLECTION_SESSION;
 
 			if (method === 'get') {
-				respond(id, Secret.password_lookup_sync(secretSchema, attrs, null));
+				reply(Secret.password_lookup_sync(secretSchema, attrs, null));
 			} else if (method === 'set') {
-				respond(
-					id,
+				reply(
 					Secret.password_store_sync(
 						secretSchema, attrs, collection,
 						'xplat secret', String(args[1] ?? ''), null,
 					),
 				);
 			} else if (method === 'remove') {
-				respond(id, Secret.password_clear_sync(secretSchema, attrs, null));
+				reply(Secret.password_clear_sync(secretSchema, attrs, null));
 			}
 
 			return;
 		}
 
 		if (service === 'appearance' && method === 'get') {
-			respond(id, colorScheme);
+			reply(colorScheme);
 			return;
 		}
 
 		if (service === 'files') {
 			if (method === 'readText') {
 				const [ok, bytes] = Gio.File.new_for_uri(String(args[0])).load_contents(null);
-				respond(id, ok ? imports.byteArray.toString(bytes) : null);
+				reply(ok ? imports.byteArray.toString(bytes) : null);
 				return;
 			}
 
 			// pick/writeText open a Gtk.FileDialog — unsandboxed host, so the
 			// native dialog beats portal.FileChooser here. Portal is the
-			// sandboxed upgrade path.
+			// sandboxed upgrade path. The dialog parents on the sender's window.
+			const parent = winFor(wv) ?? win;
 			const dialog = new Gtk.FileDialog();
 			const finish = (d, res) => {
 				try {
@@ -273,7 +284,7 @@ function dispatch(id, service, method, args) {
 						method === 'pick' ? d.open_finish(res) : d.save_finish(res);
 
 					if (!f) {
-						respond(id, null);
+						reply(null);
 						return;
 					}
 
@@ -283,9 +294,9 @@ function dispatch(id, service, method, args) {
 							null, false, Gio.FileCreateFlags.NONE, null);
 					}
 
-					respond(id, { name: f.get_basename(), uri: f.get_uri() });
+					reply({ name: f.get_basename(), uri: f.get_uri() });
 				} catch {
-					respond(id, null);
+					reply(null);
 				}
 			};
 
@@ -294,38 +305,148 @@ function dispatch(id, service, method, args) {
 					dialog.set_initial_folder(Gio.File.new_for_path(String(args[1])));
 				}
 
-				dialog.open(win, null, finish);
+				dialog.open(parent, null, finish);
 			} else if (method === 'writeText') {
 				dialog.set_initial_name(String(args[0] ?? 'untitled.txt'));
-				dialog.save(win, null, finish);
+				dialog.save(parent, null, finish);
+			}
+
+			return;
+		}
+
+		if (service === 'windows') {
+			if (method === 'open') {
+				const opts = args[0] ?? {};
+				const wid = String(opts.id ?? `w${windows.size + 1}`);
+				openSecondaryWindow(wv, wid, opts);
+				reply(wid);
+			} else if (method === 'close') {
+				const entry = windows.get(String(args[0]));
+				entry?.win.close();
+				reply(!!entry);
+			} else if (method === 'setTitle') {
+				windows.get(String(args[0]))?.win.set_title(String(args[1] ?? ''));
+				reply(true);
 			}
 
 			return;
 		}
 
 		if (service === 'system' && method === 'openUrl') {
-			respond(id, Gio.AppInfo.launch_default_for_uri(String(args[0]), null));
+			reply(Gio.AppInfo.launch_default_for_uri(String(args[0]), null));
 			return;
 		}
 
 		if (service === 'deepLinks' && method === 'initialUrl') {
-			respond(id, null);
+			reply(null);
 			return;
 		}
 
-		rejectReq(id, `host has no ${service}.${method}`);
+		fail(`host has no ${service}.${method}`);
 	} catch (e) {
-		rejectReq(id, e.message ?? String(e));
+		fail(e.message ?? String(e));
 	}
 }
 
 function readSelftest() {
-	try {
-		const [ok, bytes] = GLib.file_get_contents('bridge-selftest.linux.js');
-		return ok ? imports.byteArray.toString(bytes) : null;
-	} catch {
-		return null;
+	for (const dir of ['.', bundleDir ?? '']) {
+		try {
+			const [ok, bytes] = GLib.file_get_contents(
+				GLib.build_filenamev([dir, 'bridge-selftest.linux.js']));
+			if (ok) {
+				return imports.byteArray.toString(bytes);
+			}
+		} catch {}
 	}
+
+	return null;
+}
+
+// Every webview gets its own UCM — per-window message wiring and its own
+// document-start injection (initial url / color scheme / window data).
+function wireWebView(wv, extraInjected) {
+	const ucm = wv.get_user_content_manager();
+	ucm.register_script_message_handler('xplat', null);
+	ucm.register_script_message_handler('xplatLog', null);
+	// Detailed signals separate the two handlers — WebKitGTK 6.0 delivers a
+	// bare JSCValue (WebKitJavascriptResult is gone); the client posts a JSON
+	// string, so to_string() → JSON.parse.
+	ucm.connect('script-message-received::xplat', (_ucm, value) => {
+		const req = JSON.parse(value.to_string());
+		dispatch(wv, req.id, req.service, req.method, req.args ?? []);
+	});
+
+	ucm.connect('script-message-received::xplatLog', (_ucm, value) => {
+		print(`[webview] ${value.to_string()}`);
+	});
+
+	ucm.add_script(WebKit.UserScript.new(
+		`window.__xplatInitialUrl = ${JSON.stringify(linkQueue.shift() ?? null)};` +
+			`window.__xplatColorScheme = ${JSON.stringify(colorScheme)};` +
+			(extraInjected ?? ''),
+		WebKit.UserContentInjectedFrames.TOP_FRAME,
+		WebKit.UserScriptInjectionTime.START, null, null));
+}
+
+function winFor(wv) {
+	if (wv === webView) {
+		return win;
+	}
+
+	for (const entry of windows.values()) {
+		if (entry.wv === wv) {
+			return entry.win;
+		}
+	}
+
+	return null;
+}
+
+// openWindow → Adw window + own WebKitWebView + own Octane root. kinds:
+// 'regular' = independent window; 'dialog' = transient modal on the opener
+// (GTK has no sheets — modal-transient is the OS-level equivalent). options.url
+// resolves against the content origin; options.data is injected as
+// window.__xplatWindowData — the app-installed content resolver reads it.
+function openSecondaryWindow(opener, wid, opts) {
+	const w = new Adw.ApplicationWindow({
+		application: app,
+		title: String(opts.title ?? 'xplat'),
+	});
+	const size = opts.size ?? { width: 640, height: 480 };
+	w.set_default_size(Number(size.width) || 640, Number(size.height) || 480);
+
+	const wv = new WebKit.WebView();
+	wireWebView(
+		wv,
+		`window.__xplatWindowId = ${JSON.stringify(wid)};` +
+			`window.__xplatWindowData = ${JSON.stringify(opts.data ?? null)};`);
+
+	if (opts.kind === 'dialog') {
+		const parent = winFor(opener) ?? win;
+		w.set_transient_for(parent);
+		w.set_modal(true);
+	}
+
+	const u = String(opts.url ?? '/');
+	const target = /^[a-z]+:/i.test(u)
+		? u
+		: contentOrigin + (u.startsWith('/') ? u : '/' + u);
+
+	w.set_content(wv);
+	windows.set(wid, { win: w, wv, opener });
+
+	w.connect('close-request', () => {
+		windows.delete(wid);
+		if (opener) {
+			emitTo(opener, 'windows', 'closed', wid);
+		}
+
+		return false;
+	});
+
+	wv.load_uri(target);
+	w.present();
+	print(`[host] window ${wid} → ${target}`);
 }
 
 function ensureWindow() {
@@ -341,28 +462,7 @@ function ensureWindow() {
 
 	webView = new WebKit.WebView();
 	serveBundle(webView.get_context());
-	const ucm = webView.get_user_content_manager();
-	ucm.register_script_message_handler('xplat', null);
-	ucm.register_script_message_handler('xplatLog', null);
-	// Detailed signals separate the two handlers — WebKitGTK 6.0 delivers a
-	// bare JSCValue (WebKitJavascriptResult is gone); the client posts a JSON
-	// string, so to_string() → JSON.parse.
-	ucm.connect('script-message-received::xplat', (_ucm, value) => {
-		const req = JSON.parse(value.to_string());
-		dispatch(req.id, req.service, req.method, req.args ?? []);
-	});
-
-	ucm.connect('script-message-received::xplatLog', (_ucm, value) => {
-		print(`[webview] ${value.to_string()}`);
-	});
-
-	// Document-start injection — the sync contracts that can't round-trip:
-	// consumeInitialUrl() and getColorScheme().
-	ucm.add_script(WebKit.UserScript.new(
-		`window.__xplatInitialUrl = ${JSON.stringify(linkQueue.shift() ?? null)};` +
-			`window.__xplatColorScheme = ${JSON.stringify(colorScheme)}`,
-		WebKit.UserContentInjectedFrames.TOP_FRAME,
-		WebKit.UserScriptInjectionTime.START, null, null));
+	wireWebView(webView, '');
 
 	if (selfTest) {
 		const js = readSelftest();
@@ -381,11 +481,11 @@ function ensureWindow() {
 					if (ready) {
 						webView.evaluate_javascript(js ?? '0', -1, null, null, null, null);
 						GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1500, () => {
-							emit('deep-links', 'open', 'xplat://self-test/deep-link');
+							emitTo(webView, 'deep-links', 'open', 'xplat://self-test/deep-link');
 							return GLib.SOURCE_REMOVE;
 						});
 
-						GLib.timeout_add(GLib.PRIORITY_DEFAULT, 4000, () => {
+						GLib.timeout_add(GLib.PRIORITY_DEFAULT, 8000, () => {
 							app.quit();
 							return GLib.SOURCE_REMOVE;
 						});
@@ -415,7 +515,7 @@ function ensureWindow() {
 		// The cold-start link was consumed via __xplatInitialUrl injection —
 		// emit any that arrived alongside it.
 		while (linkQueue.length) {
-			emit('deep-links', 'open', linkQueue.shift());
+			emitTo(webView, 'deep-links', 'open', linkQueue.shift());
 		}
 	});
 
@@ -423,9 +523,7 @@ function ensureWindow() {
 	webView.load_uri(url);
 	win.present();
 
-	// Host → webview events use the same emit() path a real scheme-activated
-	// deep link would take: emit('deep-links', 'open', url).
-	emit('host', 'ready', { url });
+	emitTo(webView, 'host', 'ready', { url });
 }
 
 // 'open' fires instead of 'activate' when argv carries URIs — and again on a
@@ -443,7 +541,7 @@ app.connect('open', (_a, files) => {
 		}
 
 		if (loadedOnce) {
-			emit('deep-links', 'open', u);
+			emitTo(webView, 'deep-links', 'open', u);
 		} else {
 			linkQueue.push(u);
 		}

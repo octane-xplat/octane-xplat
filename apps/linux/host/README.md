@@ -59,7 +59,10 @@ links; cold-start URL arrives via `__xplatInitialUrl` injection), appearance
 `appearance.change`; WebKitGTK's `prefers-color-scheme` does NOT follow
 GNOME — `theme/colorScheme.linux.ts` consumes the injected + emitted value),
 files (`Gtk.FileDialog` pick/save + host-side `readText` — untested dialogs
-aside), clipboard (GTK4
+aside), windows (`windows.open` → Adw window + own `WebKitWebView` + own
+Octane root; `options.data` arrives as `window.__xplatWindowData`;
+`windows.closed` emits back to the opener; kinds `regular`/`dialog` — dialog
+maps to transient+modal, GTK has no sheets), clipboard (GTK4
 `set_content`/`read_text_async` — there is no `set_text`), Secret Service
 round-trip (`COLLECTION_SESSION` — a headless `default` keyring prompts and
 hangs the sync call), `org.freedesktop.Notifications` `GetCapabilities` +

@@ -35,6 +35,10 @@ declare global {
 			resolve(id: number, value: unknown): void
 			reject(id: number, message: string): void
 			emit(service: string, event: string, payload: unknown): void
+			// Webview-side API on the same global — dep-free callers (ui leaves)
+			// call/on through this without importing the platform package.
+			call(service: string, method: string, args?: unknown[]): Promise<unknown>
+			on(service: string, event: string, listener: (payload: unknown) => void): () => void
 		}
 		// Synchronous state the host injects at document-start (user script),
 		// for APIs whose contract can't afford an async round-trip.
@@ -100,5 +104,7 @@ if (typeof window !== 'undefined' && !window.__xplatBridge) {
 				new CustomEvent(`xplat:${service}.${event}`, { detail: payload }),
 			)
 		},
+		call: (service, method, args) => call(service, method, ...(args ?? [])),
+		on,
 	}
 }

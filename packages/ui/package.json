@@ -14,6 +14,10 @@
 				"types": "./types/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
+			"linux": {
+				"types": "./types/index.linux.d.ts",
+				"default": "./src/index.linux.ts"
+			},
 			"web": "./src/index.web.ts",
 			"native": "./src/index.ts",
 			"default": "./src/index.ts"
