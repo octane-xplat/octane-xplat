@@ -74,15 +74,13 @@ function iosOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionR
 	})
 }
 
-// NSObject exists only on iOS — a module-scope `extends NSObject` would throw
-// on Android before iosOpen is ever reached. Apply NativeClass() manually so
-// the iOS-only class is built lazily.
+// NSObject exists only on iOS, so create the presentation provider lazily.
+// NativeClass is a build-time decorator; this Vite-transformed module uses the
+// NativeScript runtime's class-extension API instead.
 const AuthSessionPresentationAnchor: any =
 	typeof NSObject !== 'undefined'
-		? NativeClass()(
-				class AuthSessionPresentationAnchor extends NSObject {
-					static ObjCProtocols = [ASWebAuthenticationPresentationContextProviding]
-
+		? (NSObject as any).extend(
+				{
 					presentationAnchorForWebAuthenticationSession(): UIWindow {
 						const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
 						const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
@@ -98,6 +96,10 @@ const AuthSessionPresentationAnchor: any =
 
 						return UIApplication.sharedApplication.keyWindow
 					}
+				},
+				{
+					name: 'XplatAuthSessionPresentationAnchor',
+					protocols: [ASWebAuthenticationPresentationContextProviding],
 				},
 			)
 		: undefined
