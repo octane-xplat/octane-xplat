@@ -1,3 +1,4 @@
+// Foundations and common controls
 export { View } from './View.tsrx'
 export { View as Column } from './View.tsrx'
 export { Row } from './Row.tsrx'
@@ -41,6 +42,7 @@ export type {
 	SkeletonProps,
 } from './props'
 
+// Forms and data entry
 export { FormField } from './FormField.tsrx'
 export { FieldGroup } from './FieldGroup.tsrx'
 export { ListItem } from './ListItem.tsrx'
@@ -66,6 +68,7 @@ export type {
 	SelectProps,
 } from './props'
 
+// Navigation and command surfaces
 export { Breadcrumb } from './Breadcrumb.tsrx'
 export { Pagination } from './Pagination.tsrx'
 export { Stepper } from './Stepper.tsrx'
@@ -82,6 +85,7 @@ export type {
 	StepperStep,
 } from './props'
 
+// Content and display
 export { Table } from './Table.tsrx'
 export { Timeline } from './Timeline.tsrx'
 export { Tree } from './Tree.tsrx'
@@ -110,6 +114,7 @@ export type {
 	UserProps,
 } from './props'
 
+// Links, input, scrolling, media, and overlays
 export { Link } from './Link.tsrx'
 export { NavLink } from './NavLink.tsrx'
 export { TextInput } from './TextInput.tsrx'
@@ -140,6 +145,7 @@ export type {
 	TooltipProps,
 } from './props'
 
+// Animation, theme, styling, and host services
 export { useAnimation } from './anim.tsrx'
 export type { AnimatedValue } from './anim.tsrx'
 export {
@@ -156,6 +162,8 @@ export { useColorScheme, getColorScheme } from './theme/colorScheme'
 export type { ColorScheme } from './theme/colorScheme'
 export { styled } from './styled.tsrx'
 export { openWindow } from './windows'
+
+// Screens, visual controls, and icons
 export { Screen } from './Screen.tsrx'
 export { Tabs } from './Tabs.tsrx'
 export type { TabSpec } from './Tabs.tsrx'
@@ -183,6 +191,7 @@ export type {
 	SliderProps,
 } from './props'
 
+// Platform state and routing
 export { isNative } from './platform'
 export { registerStack, getStack, stackEntries } from './stacks'
 export {
@@ -228,6 +237,7 @@ export type {
 	OpenWindowOptions,
 } from './props'
 
+// Stores, sheets, and shared prop types
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './use-store.tsrx'
