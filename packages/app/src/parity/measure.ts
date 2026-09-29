@@ -1,4 +1,4 @@
-import { Application, Utils, getRootLayout } from '@nativescript/core'
+import { Application, RootLayout, Utils, getRootLayout } from '@nativescript/core'
 import { getStack } from '@octane-xplat/ui'
 import { STYLE_FACETS } from './style-facets'
 
@@ -6,6 +6,16 @@ import { STYLE_FACETS } from './style-facets'
 // Boxes are stage-of-cell relative dips: getLocationOnScreen reports
 // screen coordinates, so rel = child.loc − cell's .parity-box loc.
 const round = (n: number) => Math.round(n * 100) / 100
+
+function rootLayoutFor(view: any): RootLayout | undefined {
+	for (let parent = view?.parent; parent; parent = parent.parent) {
+		if (parent instanceof RootLayout) {
+			return parent
+		}
+	}
+
+	return getRootLayout()
+}
 
 function styleOf(view: any): Record<string, string> {
 	const out: Record<string, string> = {}
@@ -101,7 +111,7 @@ function hasClass(view: any, cls: string) {
 
 export function measureTree(stageView: any) {
 	const cells: Record<string, any[]> = {}
-	const rootNodes = childrenOf(getRootLayout())
+	const rootNodes = childrenOf(rootLayoutFor(stageView))
 	for (const v of childrenOf(stageView)) {
 		if (!hasClass(v, 'parity-cell')) {
 			continue
