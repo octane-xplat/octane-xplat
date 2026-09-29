@@ -1,4 +1,4 @@
-import { createAppKitWindow } from './appkit.mjs'
+import { createAppKitWindow, fitWindowToContent } from './appkit.mjs'
 import App from './App.tsx'
 import { createMacOSRoot } from './renderer/index.mjs'
 
@@ -21,6 +21,7 @@ function unmountMainRoot() {
 }
 
 root.render(App, { parentWindow: mainWindow })
+fitWindowToContent(mainWindow)
 console.log('[macos-bundle] component rendered')
 
 void windowClosed.then(unmountMainRoot)

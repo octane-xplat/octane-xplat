@@ -450,6 +450,32 @@ export function createAppKitWindow(options = {}) {
 	}
 }
 
+/**
+ * Resize a window once to its content's fitting size — call after the first
+ * render. Floored at the default content size (scroll views report no
+ * intrinsic size, so an unclamped fitting can collapse) and capped at the
+ * screen's visible height. One-shot: the window stays resizable afterwards.
+ */
+export function fitWindowToContent(nativeWindow, floor = { width: 640, height: 420 }) {
+	const contentView = nativeWindow?.contentView
+	const fit = contentView?.fittingSize
+	const width = Number(fit?.width)
+	const height = Number(fit?.height)
+	if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+		return
+	}
+
+	const screenHeight = Number(
+		nativeWindow.screen?.visibleFrame?.size?.height
+			?? NSScreen.mainScreen?.visibleFrame?.size?.height
+			?? 0,
+	)
+	nativeWindow.setContentSize({
+		width: Math.max(floor.width, Math.ceil(width)),
+		height: Math.max(floor.height, Math.min(Math.ceil(height), screenHeight > 0 ? screenHeight : height)),
+	})
+}
+
 /** Install the app-owned resolver that maps openWindow data to a component. */
 export function setWindowContentResolver(resolve) {
 	if (resolve !== null && typeof resolve !== 'function') {

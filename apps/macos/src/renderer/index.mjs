@@ -519,7 +519,11 @@ function setStackChildPriorities(parent, child) {
 		NSUserInterfaceLayoutOrientation.Horizontal,
 		NSUserInterfaceLayoutOrientation.Vertical,
 	]) {
-		const priority = grow && orientation === mainAxis ? 1 : 750
+		// Cross-axis hugging must stay below AppKit's WindowSizeStayPut (500):
+		// along the required contentView→root pin chain, any nested child
+		// hugging higher than 500 outranks the window's own hold and locks the
+		// window at the content's fitting size in that axis.
+		const priority = orientation === mainAxis ? (grow ? 1 : 750) : 250
 		const target = arrangedView(child)
 		target.setContentHuggingPriorityForOrientation(priority, orientation)
 		target.setContentCompressionResistancePriorityForOrientation(750, orientation)
@@ -656,7 +660,7 @@ function setScrollAction(node, handler) {
 	})
 }
 
-function setTextFieldPlaceholder(field, props) {
+function setTextFieldPlaceholder(field, props, scheme = 'light') {
 	const placeholder = String(props.placeholder ?? '')
 	if (!placeholder) {
 		field.placeholderAttributedString = null
@@ -667,7 +671,11 @@ function setTextFieldPlaceholder(field, props) {
 	field.placeholderString = placeholder
 	field.placeholderAttributedString = NSAttributedString.alloc().initWithStringAttributes(placeholder, {
 		[NSFontAttributeName]: field.font,
-		[NSForegroundColorAttributeName]: nativeColor(String(props.placeholderTextColor ?? '#666666')),
+		[NSForegroundColorAttributeName]: nativeColor(
+			props.placeholderTextColor != null
+				? String(props.placeholderTextColor)
+				: SCHEME_COLORS[scheme].placeholder,
+		),
 	})
 }
 
@@ -1282,6 +1290,72 @@ function nativeColor(value) {
 	throw new Error('AppKit spike expects #rrggbb, #rrggbbaa, or rgb()/rgba() colors, received ' + string)
 }
 
+// The renderer has no CSS layer, so the shared `dark`/`ns-dark` scheme classes
+// can't cascade through selectors. Each themeable color carries a semantic
+// slot and the resolved value tracks the nearest `dark`/`ns-dark` ancestor —
+// the same mechanism ns-dark uses to re-theme native subtrees. Light values
+// are the pre-existing hardcoded palette; dark values mirror tokens.css's
+// `.dark` overrides (--color-text/text-secondary/onprimary/primary/surface).
+const SCHEME_COLORS = {
+	light: {
+		text: '#0a0a0a',
+		muted: '#71717a',
+		onprimary: '#ffffff',
+		placeholder: '#666666',
+		primary: '#2563eb',
+		danger: '#dc2626',
+		secondary: '#3f3f46',
+		surface: '#ffffff',
+	},
+	dark: {
+		text: '#ededed',
+		muted: '#a1a1a1',
+		onprimary: '#171717',
+		placeholder: '#a1a1a1',
+		primary: '#ededed',
+		danger: '#dc2626',
+		secondary: '#3f3f46',
+		surface: '#0a0a0a',
+	},
+}
+
+function nodeScheme(node) {
+	for (let current = node; current; current = current.parent) {
+		const classes = nodeClasses(current)
+		if (classes.includes('dark') || classes.includes('ns-dark')) {return 'dark'}
+	}
+	return 'light'
+}
+
+// Re-resolve a node's class-driven colors under its current scheme. Explicit
+// style.color/style.backgroundColor always win over class palette slots.
+function applyThemeColors(node) {
+	const view = node.view
+	if (!view) {return}
+	node.scheme = nodeScheme(node)
+	const colors = SCHEME_COLORS[node.scheme]
+	if (node.type === 'label' || node.type === 'textfield' || node.type === 'textview') {
+		view.textColor = nativeColor(node.styleColor ?? colors[node.colorSlot ?? 'text'])
+		if (node.type === 'label') {setLabelText(node, String(view.stringValue ?? ''))}
+	}
+	if (node.type === 'textfield') {setTextFieldPlaceholder(view, node.props, node.scheme)}
+	if (node.type === 'textview' && node.placeholderView) {
+		node.placeholderView.textColor = nativeColor(colors.placeholder)
+	}
+	if (node.bgSlot) {
+		view.wantsLayer = true
+		view.layer.backgroundColor = nativeColor(node.styleBg ?? colors[node.bgSlot]).CGColor
+	}
+}
+
+// Colors resolve through the parent chain, so a node mounted under (or into)
+// a differently-schemed subtree re-resolves its whole branch on insertion.
+function syncScheme(node) {
+	const scheme = nodeScheme(node)
+	if (scheme === (node.scheme ?? 'light')) {return}
+	for (const entry of [node, ...descendants(node)]) {applyThemeColors(entry)}
+}
+
 function fontForStyle(size, weight = 400) {
 	const value = String(weight).toLowerCase()
 	const parsedWeight = GEIST_WEIGHT_ALIASES.get(value) ?? Number(value)
@@ -1413,6 +1487,7 @@ function applyStyle(node, style) {
 			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
 			node.view.font = fontForFamilyStyle(size, weight, value)
 		} else if (name === 'color' && ['label', 'textfield', 'textview'].includes(node.type)) {
+			node.styleColor = String(value)
 			node.view.textColor = nativeColor(value)
 		} else if (name === 'lineHeight' && node.type === 'label') {
 			// syncText applies this to each paragraph; it is not the label's fixed height.
@@ -1424,6 +1499,7 @@ function applyStyle(node, style) {
 			for (const edge of EDGE_INSET_PROPS.get(name)) {insets[edge] = Number(value) || 0}
 			node.view.edgeInsets = insets
 		} else if (name === 'backgroundColor' && node.view) {
+			node.styleBg = String(value)
 			node.view.wantsLayer = true
 			node.view.layer.backgroundColor = nativeColor(value).CGColor
 		} else if (name === 'borderRadius' && node.view) {
@@ -1496,8 +1572,8 @@ function applyClassName(node, value) {
 				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 700, node.appliedFontFamily)
 			}
 
-			if (name === 'text-muted') {node.view.textColor = nativeColor('#71717a')}
-			if (name === 'text-onprimary') {node.view.textColor = nativeColor('#ffffff')}
+			if (name === 'text-muted') {node.colorSlot = 'muted'}
+			if (name === 'text-onprimary') {node.colorSlot = 'onprimary'}
 		}
 	}
 
@@ -1534,20 +1610,31 @@ function applyClassName(node, value) {
 			}
 
 			if (name === 'bg-primary' || name === 'btn') {
+				node.bgSlot = 'primary'
 				node.view.wantsLayer = true
-				node.view.layer.backgroundColor = nativeColor('#2563eb').CGColor
+				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].primary).CGColor
 				node.view.edgeInsets = { top: 6, left: 10, bottom: 6, right: 10 }
 			}
 
 			if (name === 'bg-danger') {
+				node.bgSlot = 'danger'
 				node.view.wantsLayer = true
-				node.view.layer.backgroundColor = nativeColor('#dc2626').CGColor
+				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].danger).CGColor
 			}
 
 			if (name === 'btn-secondary' || name === 'chip' || name === 'chip-off') {
+				node.bgSlot = 'secondary'
 				node.view.wantsLayer = true
-				node.view.layer.backgroundColor = nativeColor('#3f3f46').CGColor
+				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].secondary).CGColor
 				node.view.edgeInsets = { top: 4, left: 8, bottom: 4, right: 8 }
+			}
+			// Panels that paint the web body's --color-surface. On this host the
+			// root view fills the window, so the surface slot re-themes the whole
+			// background the way `body { background }` does in a browser.
+			if (name === 'vx-app' || name === 'sheet-panel' || name === 'overlay-panel' || name === 'modal-panel') {
+				node.bgSlot = 'surface'
+				node.view.wantsLayer = true
+				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].surface).CGColor
 			}
 		}
 	}
@@ -1555,11 +1642,20 @@ function applyClassName(node, value) {
 	if (node.type === 'textfield' || node.type === 'textview') {
 		if (classes.includes('vx-input') || classes.includes('vx-textarea')) {
 			node.view.font = fontForStyle(14, node.appliedFontWeight ?? 400)
-			node.view.textColor = nativeColor('#0a0a0a')
+			node.colorSlot = 'text'
 			node.view.drawsBackground = false
 			if (node.type === 'textfield') {node.view.bezeled = false}
 			if (node.type === 'textview') {node.view.textContainerInset = { width: 0, height: 0 }}
 		}
+	}
+
+	applyThemeColors(node)
+	// `dark`/`ns-dark` re-themes descendants too (the ns-dark cascade), so a
+	// scheme flip on this node re-resolves the whole subtree.
+	const dark = classes.includes('dark') || classes.includes('ns-dark')
+	if (dark !== Boolean(node.hasDarkClass)) {
+		node.hasDarkClass = dark
+		for (const child of descendants(node)) {applyThemeColors(child)}
 	}
 
 	if (node.parent) {setStackChildPriorities(node.parent, node)}
@@ -1905,7 +2001,7 @@ function applyProps(node, props) {
 		}
 	}
 
-	if (node.type === 'textfield') {setTextFieldPlaceholder(node.view, node.props)}
+	if (node.type === 'textfield') {setTextFieldPlaceholder(node.view, node.props, nodeScheme(node))}
 
 	if (node.type === 'label') {
 		const style = node.props.style ?? {}
@@ -2007,6 +2103,7 @@ function insert(container, parentId, node, beforeId) {
 			node.view.bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
 			applySizeConstraints(node)
 		}
+		syncScheme(node)
 	} else {
 		syncText(parent)
 	}
@@ -2890,6 +2987,50 @@ export function createMacOSRoot(hostView) {
 
 				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
 				return { ...(node.scrollMetrics ?? { events: [] }) }
+			},
+			inspect(id) {
+				const node = id.startsWith('type:')
+					? [...container.nodes.values()].find(
+						(candidate) => candidate.type === id.slice(5) && candidate.view,
+					)
+					: [...container.nodes.values()].find(
+						(candidate) => candidate.props?.id === id,
+					)
+				if (!node?.view) {throw new Error('No AppKit view with id ' + id)}
+				const view = node.view
+				const appearance = view.effectiveAppearance ?? view.window?.effectiveAppearance
+				const window = view.window
+				return {
+					type: node.type,
+					classes: nodeClasses(node),
+					scheme: node.scheme ?? 'light',
+					color: view.textColor ? (colorValue(view.textColor, appearance) ?? null) : null,
+					backgroundColor: view.layer?.backgroundColor
+						? (colorValue(NSColor.colorWithCGColor(view.layer.backgroundColor), appearance) ?? null)
+						: null,
+					frame: view.frame ? {
+						x: round(Number(view.frame.origin.x)),
+						y: round(Number(view.frame.origin.y)),
+						w: round(Number(view.frame.size.width)),
+						h: round(Number(view.frame.size.height)),
+					} : null,
+					window: window ? {
+						frame: {
+							x: round(Number(window.frame.origin.x)),
+							y: round(Number(window.frame.origin.y)),
+							w: round(Number(window.frame.size.width)),
+							h: round(Number(window.frame.size.height)),
+						},
+						contentSize: window.contentView?.frame?.size
+							? { w: round(Number(window.contentView.frame.size.width)), h: round(Number(window.contentView.frame.size.height)) }
+							: null,
+						fittingSize: window.contentView?.fittingSize
+							? { w: round(Number(window.contentView.fittingSize.width)), h: round(Number(window.contentView.fittingSize.height)) }
+							: null,
+						styleMask: Number(window.styleMask ?? 0),
+						colorScheme: globalThis.__xplatAppKit?.getColorScheme?.() ?? null,
+					} : null,
+				}
 			},
 			snapshot() {
 						return {

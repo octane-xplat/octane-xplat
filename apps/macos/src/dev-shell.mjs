@@ -3,7 +3,7 @@ import * as octaneNative from 'octane/universal/native'
 import * as octaneSignals from 'octane/signals'
 import * as octaneSignalsClient from 'octane/signals/client'
 import * as renderer from './renderer/index.mjs'
-import { createAppKitWindow, debugWindows } from './appkit.mjs'
+import { createAppKitWindow, debugWindows, fitWindowToContent } from './appkit.mjs'
 import { createDevBench } from './dev-bench.mjs'
 
 const { hmrUniversalComponent, UNIVERSAL_HMR } = octaneNative
@@ -49,6 +49,7 @@ function reload(afterEdit = false) {
 	if (!liveComponent) {
 		liveComponent = hmrUniversalComponent('macos', component)
 		root.render(liveComponent, { parentWindow: window })
+		fitWindowToContent(window)
 		bench.afterRender()
 	} else {
 		liveComponent[UNIVERSAL_HMR].update(component)
@@ -82,6 +83,15 @@ globalThis.__xplatOnInput = (line) => {
 		}
 		else if (line === 'popups') {
 			console.log('[macos-automation] ' + JSON.stringify({ openPopups: root.__macosDebug.openPopupCount() }))
+			return
+		}
+		else if (line.startsWith('inspect ')) {
+			console.log('[inspect] ' + JSON.stringify(root.__macosDebug.inspect(line.slice(8))))
+			return
+		}
+		else if (line.startsWith('resize ')) {
+			const [width, height] = line.slice(7).split('x').map(Number)
+			window.setContentSize({ width, height })
 			return
 		}
 		else if (line.startsWith('tap ')) {
