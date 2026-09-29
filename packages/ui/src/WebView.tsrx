@@ -24,6 +24,22 @@ function reportContentLayout(view: any, props: WebViewProps) {
 	}
 }
 
+function applyNativeScrollEnabled(view: any, enabled: boolean | undefined) {
+	if (isIOS) {
+		const scrollView = view?.ios?.scrollView
+		if (scrollView) scrollView.scrollEnabled = enabled !== false
+	} else if (isAndroid) {
+		const nativeView = view?.android
+		if (!nativeView?.setOnTouchListener) return
+		nativeView.setOnTouchListener(enabled === false
+			? new android.view.View.OnTouchListener({
+					onTouch: (_view: any, event: any) =>
+						event.getActionMasked() === android.view.MotionEvent.ACTION_MOVE,
+				})
+			: null)
+	}
+}
+
 /** Embedded web document — NS <webview> (WKWebView / android.webkit.WebView).
  *  `html` flows through the `src` property: values that aren't http/file
  *  URLs take its `_loadData` path. NS reports failures as `loadFinished`
@@ -39,16 +55,7 @@ export function WebView(props: WebViewProps) @{
 	useEffect(() => {
 		const v = el.current;
 		if (!v) return;
-		if (isIOS) {
-			v.ios.scrollView.scrollEnabled = props.scrollEnabled !== false;
-		} else if (isAndroid) {
-			v.android.setOnTouchListener(props.scrollEnabled === false
-				? new android.view.View.OnTouchListener({
-						onTouch: (_view: any, event: any) =>
-							event.getActionMasked() === android.view.MotionEvent.ACTION_MOVE,
-					})
-				: null);
-		}
+		applyNativeScrollEnabled(v, props.scrollEnabled)
 		if (props.matchContents && loaded.current) reportContentLayout(v, props);
 	}, [props.scrollEnabled, props.matchContents]);
 
@@ -70,7 +77,9 @@ export function WebView(props: WebViewProps) @{
 		className={cx('vx-webview', props.className)}
 		style={props.style}
 		src={props.html !== undefined ? props.html : props.src}
+		onLoaded={() => applyNativeScrollEnabled(el.current, props.scrollEnabled)}
 		onLoadFinished={(e: any) => {
+			applyNativeScrollEnabled(e.object ?? el.current, props.scrollEnabled)
 			if (e.error) props.onError?.({ url: e.url, error: e.error });
 			else {
 				loaded.current = true;
