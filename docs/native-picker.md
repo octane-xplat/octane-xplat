@@ -1,82 +1,65 @@
-# Native picker
+# Platform pickers
 
-> Use a native menu picker on iOS and Android with the same value contract and a browser select fallback.
+> Use a platform-specific selection control through an explicit package entry point.
 
-`@octane-xplat/native-picker` is a pilot leaf for a single-selection picker. It
-keeps native UI frameworks outside `@octane-xplat/ui`, whose dependency and
-peer surface stays plugin-free.
+`@octane-xplat/picker` groups related controls for distribution. It does not
+provide one cross-platform picker component: SwiftUI `Picker`, a Compose
+Material 3 dropdown, and browser `<select>` have different names and contracts.
+This keeps platform behavior visible at the import and call site.
 
 ## Install and import
 
-Run `pnpm add @octane-xplat/native-picker` in the app that renders the picker. Import the
-matching target entry from platform-suffixed control modules:
+Add `@octane-xplat/picker` to the app that renders a control. Import the
+platform-specific component from the matching target entry:
 
-- `@octane-xplat/native-picker/ios` from `.ios.ts` or `.ios.tsrx`.
-- `@octane-xplat/native-picker/android` from `.android.ts` or `.android.tsrx`.
-- `@octane-xplat/native-picker/web` from `.web.ts` or `.web.tsrx`.
+- `SwiftUIPicker` from `@octane-xplat/picker/ios` in `.ios.ts` or `.ios.tsrx`.
+- `MaterialDropdown` from `@octane-xplat/picker/android` in `.android.ts` or `.android.tsrx`.
+- `Select` from `@octane-xplat/picker/web` in `.web.ts` or `.web.tsrx`.
 
-Import `NativePickerProps` and `NativePickerOption` from
-`@octane-xplat/native-picker/types` in shared code. Keep the platform component
-import in its matching leaf; the package intentionally has no shared runtime
-entry. See the maintained usage in
-[`NativePickerDemo.tsrx`](../packages/demos/src/NativePickerDemo.tsrx) and the
-[iOS](../packages/demos/src/nativePickerControl.ios.ts),
-[Android](../packages/demos/src/nativePickerControl.android.ts), and
-[web](../packages/demos/src/nativePickerControl.web.ts) import leaves.
+Each entry exports its own component and prop types. The package has no shared
+runtime entry or shared `types` subpath. See the maintained target-specific
+examples in [`packages/demos/src/`](../packages/demos/src/).
 
 The platform entries install their framework adapters automatically. On iOS,
 the adapter hosts a SwiftUI `Picker` using menu style. On Android, the adapter
-hosts a Jetpack Compose Material dropdown; its NativeScript Gradle hooks enable
-Compose dependencies and Material 3. NativeScript builds plugin Kotlin sources
-in a separate AAR project, so Android apps must make the Compose compiler
-plugin available in `App_Resources/Android/buildscript.gradle` and apply it to
-the generated `native_picker` project from `before-plugins.gradle`. The demo
-harness has this setup in
-[`buildscript.gradle`](../apps/mobile/App_Resources/Android/buildscript.gradle)
+hosts a Jetpack Compose Material 3 dropdown; it is a Compose Material control,
+not an Android framework widget. NativeScript builds plugin Kotlin sources in
+a separate AAR project, so Android apps must make the Compose compiler plugin
+available in `App_Resources/Android/buildscript.gradle` and apply it to the
+generated `picker` project from `before-plugins.gradle`. The demo harness
+has this setup in [`buildscript.gradle`](../apps/mobile/App_Resources/Android/buildscript.gradle)
 and [`before-plugins.gradle`](../apps/mobile/App_Resources/Android/before-plugins.gradle).
 Match the compiler plugin version to the Kotlin Gradle plugin used by the
 NativeScript plugin build. The web entry renders an HTML `<select>`.
 
-## Value and option contract
+## Platform APIs
 
-Each option has a unique string `value`, a display `label`, and optional
-`disabled`. Pass `value` with `onValueChange` for controlled state, or use
-`defaultValue` for an uncontrolled picker. Without either, the first option is
-selected. `onValueChange` receives the selected string. `disabled` disables the
-whole control; per-option `disabled` is respected on all three targets.
+The iOS entry exports `SwiftUIPicker`, `SwiftUIPickerOption`, and
+`SwiftUIPickerProps`. Options use `id`, `title`, and optional `disabled`; the
+selected ID is controlled with `selection` and `onSelectionChange`, or seeded
+with `defaultSelection`.
 
-Pass a useful `label`; it is shown beside the native controls and provides the
-default accessibility label. `accessibilityLabel` can override that value.
-`id`, `className`, and `style` are accepted for shared caller ergonomics; browser
-styling is target-specific, and native controls retain their platform rendering.
+The Android entry exports `MaterialDropdown`, `MaterialDropdownItem`, and
+`MaterialDropdownProps`. Items use `key`, `text`, and optional `enabled`; the
+selected key is controlled with `selectedKey` and `onSelectedKeyChange`, or
+seeded with `defaultSelectedKey`. The whole control uses `enabled`.
 
-The pilot is intentionally limited to a menu/dropdown single selection. It does
-not provide searchable lists, multiple selection, custom row content, or a
-platform-independent presentation mode. The iOS and Android implementations
-use different native bridges and require Xcode / CocoaPods and an Android build
-with the Compose plugin respectively. This pilot does not establish a reusable
-general-purpose SwiftUI or Compose component layer.
+The web entry exports `Select`, `SelectOption`, and `SelectProps`. It follows
+the browser select model: options use `value`, `label`, and optional `disabled`;
+controlled state uses `value` and `onChange`, and uncontrolled state uses
+`defaultValue`.
 
-## Check selection
-
-Mount the maintained poll-length demo. Its initial label should read
-“Selected: 1 day (1440 minutes)”; choosing 7 days should show 10080 minutes.
-Also check a disabled option and a disabled control in your app. Build each
-target after adding its native configuration; a web selection alone does not
-verify the SwiftUI or Compose bridge.
+All three APIs accept an optional visible `label`, `accessibilityLabel`,
+`disabled` or `enabled` state as appropriate, and the host `id`, `className`,
+and `style` props. These similarities do not imply a shared selection contract.
 
 ## Why a leaf package
 
-The picker is a concrete app need and gives us a bounded way to exercise native
-UI islands. Keeping the SwiftUI and Compose adapters in a leaf package lets
-apps opt in without adding native framework dependencies to `@octane-xplat/ui`.
-
-**Recommendation from this pilot: keep the native adapters in leaf packages;
-do not create general `@octane-xplat/swift-ui` or
-`@octane-xplat/jetpack-compose` packages yet.** One picker proves that both
-bridges can serve a real app need, but it does not show that shared framework
-packages would remove repeated work. Android also needs app-level Compose
-compiler configuration for NativeScript's generated AAR build. Revisit the
-package split when a second real feature needs the same bridge setup or a
-reusable abstraction that belongs across leaf packages; compare the repeated
-setup against the cost of maintaining those packages.
+The package groups related platform controls while keeping their APIs distinct.
+Its native adapters stay outside `@octane-xplat/ui`, whose dependency and peer
+surface remains plugin-free. **Keep the controls in this leaf; do not create
+general `@octane-xplat/swift-ui` or `@octane-xplat/jetpack-compose` packages
+yet.** One feature does not show that general bridge packages would remove
+repeated work. Android also needs app-level Compose compiler configuration for
+NativeScript's generated AAR build. Revisit the split when another real feature
+needs the same bridge setup or an abstraction shared across leaf packages.

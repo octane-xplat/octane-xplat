@@ -2,7 +2,7 @@
 
 ID: native-picker
 Targets: web, ios, android
-Related APIs: @octane-xplat/native-picker, NativePicker, NativePickerProps, NativePickerOption
+Related APIs: @octane-xplat/picker, SwiftUIPicker, MaterialDropdown, Select
 
 ## Starting point
 
@@ -12,22 +12,22 @@ the established file suffixes.
 
 ## Requirements
 
-- Present a single selection with a menu-style native control on iOS and Android and a browser select on web.
-- Keep a shared string value and callback contract across all targets.
+- Present single selection through a SwiftUI menu picker on iOS, a Compose Material 3 dropdown on Android, and a browser select on web.
+- Keep each platform's component name, option shape, selection state, and callback contract explicit.
 - Keep SwiftUI and Compose bridge dependencies in an optional leaf package rather than `@octane-xplat/ui`.
 
 ## Acceptance criteria
 
-- AC1: An app can install the leaf and import the matching iOS, Android, and web component from target-suffixed modules without runtime platform branching.
-- AC2: Controlled and uncontrolled selection, option disabling, whole-control disabling, and accessible labeling have the same documented prop contract on web, iOS, and Android.
+- AC1: An app can install the leaf and import `SwiftUIPicker`, `MaterialDropdown`, and `Select` from matching target-suffixed modules without runtime platform branching.
+- AC2: Documentation gives each platform component its own option and selection contract and does not expose a shared picker component or `types` subpath.
 - AC3: The leaf and consuming app build for web, iOS, and Android, including the Android Compose compiler and Material 3 setup.
-- AC4: A maintained example demonstrates a real selection workflow and records selected values through the public callback on all three targets.
+- AC4: Maintained platform-specific examples demonstrate the selection workflow through each component's public callback.
 - AC5: Documentation states the pilot's boundaries and identifies the evidence needed before creating broader SwiftUI or Compose packages.
 
 ## Documentation
 
-- AC1: [Install and import](../docs/native-picker.md#install-and-import) and [maintained target-specific imports](../packages/demos/src/NativePickerDemo.tsrx).
-- AC2: [Value and option contract](../docs/native-picker.md#value-and-option-contract).
+- AC1: [Install and import](../docs/native-picker.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativePickerDemo.*.tsrx`.
+- AC2: [Platform APIs](../docs/native-picker.md#platform-apis).
 - AC3: [Platform adapters and build requirements](../docs/native-picker.md#install-and-import).
-- AC4: [Maintained picker demo](../packages/demos/src/NativePickerDemo.tsrx), with [iOS](../packages/demos/src/nativePickerControl.ios.ts), [Android](../packages/demos/src/nativePickerControl.android.ts), and [web](../packages/demos/src/nativePickerControl.web.ts) imports.
+- AC4: [iOS example](../packages/demos/src/NativePickerDemo.ios.tsrx), [Android example](../packages/demos/src/NativePickerDemo.android.tsrx), and [web example](../packages/demos/src/NativePickerDemo.web.tsrx).
 - AC5: [Pilot boundaries and package decision evidence](../docs/native-picker.md#why-a-leaf-package).

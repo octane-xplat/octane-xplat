@@ -1,18 +1,18 @@
 /** @jsxImportSource octane */
 import { useState } from 'octane'
-import type { NativePickerProps } from './types'
+import type { SelectProps } from './web/types'
 
-/** Uses a browser select while preserving NativePicker's controlled-value contract. */
-export function NativePicker(props: NativePickerProps) @{
+/** Renders a labeled browser select. */
+export function Select(props: SelectProps) @{
 	const controlled = props.value !== undefined
 	const [internalValue, setInternalValue] = useState(props.defaultValue ?? props.options[0]?.value ?? '')
 	const value = controlled ? props.value! : internalValue
 	const labelId = props.id ? `${props.id}-label` : undefined
-	const selectId = props.id
+
 	<label className={props.className} style={props.style}>
 		<span id={labelId}>{props.label}</span>
 		<select
-			id={selectId}
+			id={props.id}
 			aria-label={props.accessibilityLabel ?? props.label}
 			aria-labelledby={labelId}
 			value={value}
@@ -20,7 +20,7 @@ export function NativePicker(props: NativePickerProps) @{
 			onChange={(event: any) => {
 				const nextValue = event.target.value as string
 				if (!controlled) setInternalValue(nextValue)
-				props.onValueChange?.(nextValue)
+				props.onChange?.(nextValue)
 			}}
 		>
 			{props.options.map((option) => (

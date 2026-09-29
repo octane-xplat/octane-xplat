@@ -9,6 +9,11 @@ const NATIVE_EXTS = [
 	'.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
 ]
 
+const WEB_EXTS = [
+	'.web.tsrx', '.tsrx', '.web.tsx', '.tsx',
+	'.web.ts', '.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+]
+
 export default defineConfig(({ mode }) => {
 	const native = mode === 'native'
 	return {
@@ -34,18 +39,25 @@ export default defineConfig(({ mode }) => {
 			emptyOutDir: true,
 			minify: false,
 			rollupOptions: {
-				output: { preserveModules: true },
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//],
+				output: {
+					preserveModules: true,
+					// `octane` is external, so `resolve.alias` never sees it
+					// (externals match the raw specifier). Rewrite at emit
+					// instead: native code importing the DOM entry bundles a
+					// second octane runtime. Exact match only.
+					...(native ? { paths: (id) => (id === 'octane' ? 'octane/universal/native' : id) } : {}),
+				},
+				external: [
+					/^octane/,
+					/^@nativescript\//,
+					/^@nativescript-community\//,
+					/^@octane-xplat\//,
+				],
 			},
 		},
 		resolve: {
 			conditions: native ? ['native'] : ['web'],
-			...(native
-				? {
-						alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }],
-						extensions: NATIVE_EXTS,
-					}
-				: {}),
+			extensions: native ? NATIVE_EXTS : WEB_EXTS,
 		},
 	}
 })

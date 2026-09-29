@@ -9,7 +9,7 @@ import { Dialer } from './Dialer.tsrx';
 // './variant-demos' is extensionless on purpose: moduleSuffixes +
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
-import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo } from './variant-demos';
+import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo, NativePickerDemo } from './variant-demos';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
@@ -18,7 +18,6 @@ import { PropsDemo } from './PropsDemo.tsrx';
 import { ControlsDemo } from './ControlsDemo.tsrx';
 import { PagerDemo } from './PagerDemo.tsrx';
 import { SegmentedDemo } from './SegmentedDemo.tsrx';
-import { NativePickerDemo } from './NativePickerDemo.tsrx';
 import { SearchDemo } from './SearchDemo.tsrx';
 import { VideoDemo } from './VideoDemo.tsrx';
 import { CameraDemo, AnimatedImageDemo, CanvasDemo } from './hosted-demos';

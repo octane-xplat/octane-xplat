@@ -1,7 +1,7 @@
 {
-	"name": "@octane-xplat/native-picker",
+	"name": "@octane-xplat/picker",
 	"version": "0.1.0",
-	"description": "Platform-native single-selection picker for Octane xplat",
+	"description": "Platform-specific selection controls for Octane xplat",
 	"files": [
 		"dist",
 		"types",
@@ -10,37 +10,38 @@
 	],
 	"type": "module",
 	"exports": {
-		"./types": "./src/types.ts",
 		"./ios": {
+			"types": "./src/ios/types.ts",
 			"native": "./src/ios/index.ts"
 		},
 		"./android": {
+			"types": "./src/android/types.ts",
 			"native": "./src/android/index.ts"
 		},
 		"./web": {
+			"types": "./src/web/types.ts",
 			"web": "./src/web/index.ts"
 		}
 	},
 	"publishConfig": {
 		"access": "public",
 		"exports": {
-			"./types": "./types/index.d.ts",
 			"./ios": {
-				"types": "./types/index.d.ts",
+				"types": "./types/ios/index.d.ts",
 				"native": "./dist/native/ios/index.js"
 			},
 			"./android": {
-				"types": "./types/index.d.ts",
+				"types": "./types/android/index.d.ts",
 				"native": "./dist/native/android/index.js"
 			},
 			"./web": {
-				"types": "./types/index.d.ts",
+				"types": "./types/web/index.d.ts",
 				"web": "./dist/web/web/index.js"
 			}
 		}
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
 		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
@@ -58,7 +59,7 @@
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
-		"octane": ">=0.1.51 <1"
+		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
 		"@nativescript-community/octane": {

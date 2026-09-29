@@ -3,7 +3,7 @@ import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { ComposeDataDriver, JetpackCompose, registerJetpackCompose } from '@nativescript/jetpack-compose'
 import { useState } from 'octane'
-import type { NativePickerProps } from './types'
+import type { MaterialDropdownProps } from './android/types'
 
 declare const com: any
 
@@ -14,36 +14,36 @@ declare module '@nativescript-community/octane/intrinsics' {
 }
 
 registerElement('xplatandroidpicker', JetpackCompose)
-registerJetpackCompose('xplat-native-picker', (owner: any) =>
+registerJetpackCompose('xplat-material-dropdown', (owner: any) =>
 	new ComposeDataDriver(new com.octanexplat.nativepicker.XplatPickerProvider(), owner),
 )
 
-/** Renders a Material dropdown through the NativeScript Jetpack Compose bridge. */
-export function NativePicker(props: NativePickerProps) @{
-	const controlled = props.value !== undefined
-	const [internalValue, setInternalValue] = useState(props.defaultValue ?? props.options[0]?.value ?? '')
-	const value = controlled ? props.value! : internalValue
+/** Renders a Material 3 dropdown through the NativeScript Jetpack Compose bridge. */
+export function MaterialDropdown(props: MaterialDropdownProps) @{
+	const controlled = props.selectedKey !== undefined
+	const [internalKey, setInternalKey] = useState(props.defaultSelectedKey ?? props.items[0]?.key ?? '')
+	const selectedKey = controlled ? props.selectedKey! : internalKey
 	const data = {
 		label: props.label,
 		accessibilityLabel: props.accessibilityLabel ?? props.label,
-		options: props.options.map((option) => ({
-			value: option.value,
-			label: option.label,
-			disabled: option.disabled ? 1 : 0,
+		options: props.items.map((item) => ({
+			value: item.key,
+			label: item.text,
+			disabled: item.enabled === false ? 1 : 0,
 		})),
-		value,
-		disabled: props.disabled ? 1 : 0,
+		value: selectedKey,
+		disabled: props.enabled === false ? 1 : 0,
 	}
-	const update = (nextValue: string) => {
-		if (!controlled) setInternalValue(nextValue)
-		props.onValueChange?.(nextValue)
+	const update = (nextKey: string) => {
+		if (!controlled) setInternalKey(nextKey)
+		props.onSelectedKeyChange?.(nextKey)
 	}
 
 	<xplatandroidpicker
 		id={props.id}
 		className={props.className}
 		style={props.style}
-		composeId="xplat-native-picker"
+		composeId="xplat-material-dropdown"
 		data={data}
 		onComposeEvent={(event: any) => {
 			if (typeof event.data === 'string') update(event.data)
