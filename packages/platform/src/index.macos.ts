@@ -120,15 +120,17 @@ export const storage = {
 		return host().storageGet?.(key) ?? hostStorage.get(key) ?? null
 	},
 	setString(key: string, value: string): void {
-		if (host().storageSet) {
-			host().storageSet(key, value)
+		const set = host().storageSet
+		if (set) {
+			set(key, value)
 			return
 		}
 		hostStorage.set(key, value)
 	},
 	remove(key: string): void {
-		if (host().storageRemove) {
-			host().storageRemove(key)
+		const remove = host().storageRemove
+		if (remove) {
+			remove(key)
 			return
 		}
 		hostStorage.delete(key)

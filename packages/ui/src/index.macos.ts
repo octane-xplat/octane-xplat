@@ -10,18 +10,6 @@ export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
 export { Pressable } from './Pressable.macos.tsrx'
 export { Button, Checkbox, Switch, Slider, SegmentedControl, SearchInput, ActivityIndicator } from './controls.macos.tsrx'
 
-// Experimental AppKit public surface. Components with a direct AppKit
-// equivalent use the host renderer; NativeScript-only features are exported
-// as visible unsupported leaves so the shared harness can still load them.
-export { View, Column } from './View.macos.tsrx'
-export { Row } from './Row.macos.tsrx'
-export { Grid, Stack, Absolute, Spacer } from './layout.macos.tsrx'
-export type { PanEvent, SwipeEvent, SetTranslate } from './props'
-export { setTranslate } from './translate.macos'
-export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
-export { Pressable } from './Pressable.macos.tsrx'
-export { Button, Checkbox, Switch, Slider, SegmentedControl, SearchInput, ActivityIndicator } from './controls.macos.tsrx'
-
 export { Collapsible } from './Collapsible.macos.tsrx'
 export { Accordion } from './Accordion.macos.tsrx'
 export { RadioGroup } from './RadioGroup.macos.tsrx'
