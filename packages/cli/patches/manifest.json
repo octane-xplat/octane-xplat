@@ -1,5 +1,5 @@
 {
-	"$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` propagates this set to packages/create/template; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` — the root workspace yaml points here so commit writes land in this dir.",
+	"$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` propagates this set to packages/create/template; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` \u2014 the root workspace yaml points here so commit writes land in this dir.",
 	"patches": [
 		{
 			"specifier": "octane@0.6.3",
@@ -12,35 +12,35 @@
 			"specifier": "@nativescript/core@9.1.2",
 			"file": "@nativescript__core@9.1.2.patch",
 			"scope": "runtime",
-			"why": "FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts parent padding + child margins — a column-stretched row re-measurement clamps padded children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered last — sans !important). Ports the runtime half of NativeScript PR #11446 (fixes #11444): TabView onItemsChanged keeps retained items attached instead of unloading/re-adding them (the churn that left TabViewItem-hosted Frames isLoaded=false on iOS and detached from their tab fragment on Android), iOS items writes load the selected item's view once controllers exist, and Frame._pushInFrameStack only promotes frames whose ancestors present them (Frame.topmost stops returning hidden preloaded tab frames).",
+			"why": "FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts parent padding + child margins \u2014 a column-stretched row re-measurement clamps padded children (37\u219217 dip, squished controls). Adds squircle (continuous) corner clipping for iOS backgrounds and CSS @layer cascade support to the native css-tree adapter (layer nodes, first-seen layerPath ordinals, layer rank ahead of specificity with unlayered last \u2014 sans !important). Ports the runtime half of NativeScript PR #11446 (fixes #11444): TabView onItemsChanged keeps retained items attached instead of unloading/re-adding them (the churn that left TabViewItem-hosted Frames isLoaded=false on iOS and detached from their tab fragment on Android), iOS items writes load the selected item's view once controllers exist, and Frame._pushInFrameStack only promotes frames whose ancestors present them (Frame.topmost stops returning hidden preloaded tab frames).",
 			"dropWhen": "@nativescript/core ships the measure-spec fix, corner-shape support, cascade layers (source lives on research/nativescript feat/css-cascade-layers), and the #11446 nested-tab-frame fix"
 		},
 		{
 			"specifier": "css@3.0.0",
 			"file": "css@3.0.0.patch",
 			"scope": "build",
-			"why": "@nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0, which mis-parses @layer into garbage selectors — rules die before reaching _populateRules. Adds atlayer() covering block and statement forms. Applies to a transitive dep — no app declares it directly.",
-			"dropWhen": "npm `css` is unmaintained — drop when @nativescript/vite's serializer stops using it (e.g. pointed at NS's vendored css/lib/parse; NativeScript#11462)"
+			"why": "@nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0, which mis-parses @layer into garbage selectors \u2014 rules die before reaching _populateRules. Adds atlayer() covering block and statement forms. Applies to a transitive dep \u2014 no app declares it directly.",
+			"dropWhen": "npm `css` is unmaintained \u2014 drop when @nativescript/vite's serializer stops using it (e.g. pointed at NS's vendored css/lib/parse; NativeScript#11462)"
 		},
 		{
 			"specifier": "@nativescript/vite@8.0.11",
 			"file": "@nativescript__vite@8.0.11.patch",
 			"scope": "dev",
-			"why": "Dev-server /ns/m fixes: resolve pnpm-isolated transitive deps and platform-suffixed entries, inline workspace CSS through /@fs, route vendor-excluded plugins through HTTP, decode bracketed paths, and ignore comments during export-star expansion. Deps-bundle alias: the dev payload's esbuild passes never see vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks crash on boot, octane-xplat#3) — an onResolve plugin redirects `octane` → `octane/universal/native`.",
-			"dropWhen": "@nativescript/vite ships these /ns/m and export-scan fixes (NativeScript/NativeScript#11470 for pnpm resolution; #11455 for bracket decoding); also drop the alias hunk when @nativescript/vite honors vite resolve.alias (or exposes an alias option) inside the deps-bundle esbuild passes"
+			"why": "Dev-server /ns/m fixes: resolve pnpm-isolated transitive deps and platform-suffixed entries, inline workspace CSS through /@fs, route vendor-excluded plugins through HTTP, decode bracketed paths, and ignore comments during export-star expansion. Deps-bundle alias: the dev payload's esbuild passes never see vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks crash on boot, octane-xplat#3) \u2014 an onResolve plugin redirects `octane` \u2192 `octane/universal/native`. tsconfig-paths resolver also probes the .mobile suffix tier (ios/android) between the os qualifier and unsuffixed default \u2014 .mobile-only modules behind paths-mapped imports failed bundle-mode resolution.",
+			"dropWhen": "@nativescript/vite ships these /ns/m and export-scan fixes (NativeScript/NativeScript#11470 for pnpm resolution; #11455 for bracket decoding); also drop the alias hunk when @nativescript/vite honors vite resolve.alias (or exposes an alias option) inside the deps-bundle esbuild passes; .mobile tier probing pending upstream too"
 		},
 		{
 			"specifier": "@nativescript-community/octane@0.2.1",
 			"file": "@nativescript-community__octane@0.2.1.patch",
 			"scope": "runtime",
-			"why": "Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g. editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners.",
+			"why": "Driver setProp skips `undefined` writes \u2014 NativeScript native setters coerce it (e.g. editable \u2192 ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners.",
 			"dropWhen": "@nativescript-community/octane ships the undefined-skip"
 		},
 		{
 			"specifier": "@nativescript-community/vite-octane@0.2.1",
 			"file": "@nativescript-community__vite-octane@0.2.1.patch",
 			"scope": "dev",
-			"why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
+			"why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? \u2014 .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
 			"dropWhen": "vite-octane release adds .tsrx to the strategy's file matching"
 		}
 	]

@@ -40,6 +40,58 @@ index 50e5abddddf80b35044d45eb108a64dd175bf6e7..4f16f129b4c4271173169871f42645d1
          createNodeBuiltinPolyfillEsbuildPlugin(projectRoot, NODE_BUILTINS),
          createNativeClassEsbuildPlugin(platform),
          createVendorEsbuildPlugin(projectRoot),
+diff --git a/helpers/ts-config-paths.js b/helpers/ts-config-paths.js
+index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640fc56c786f 100644
+--- a/helpers/ts-config-paths.js
++++ b/helpers/ts-config-paths.js
+@@ -113,15 +113,20 @@ function resolveTsConfigPath(fullPath, platform, verbose, debugId) {
+     if (verbose && debugId) {
+         console.log(`📁 TypeScript path candidate: ${debugId} -> ${fullPath}`);
+     }
++    // `.mobile` is the shared ios/android suffix tier — it sits between the os
++    // qualifier and the unsuffixed default. Probing it per extension keeps
++    // paths-mapped imports consistent with the bundler's extension chain.
++    const suffixes = platform === 'ios' || platform === 'android' ? [platform, 'mobile'] : platform ? [platform] : [];
+     if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
+-        const platformIndexPatterns = [`index.${platform}.ts`, `index.${platform}.js`, `index.${platform}.mjs`];
+-        for (const indexFile of platformIndexPatterns) {
+-            const indexPath = path.join(fullPath, indexFile);
+-            if (fs.existsSync(indexPath)) {
+-                if (verbose) {
+-                    console.log(`📁 Found platform-specific directory index: ${indexPath}`);
++        for (const suffix of suffixes) {
++            for (const ext of ['.ts', '.js', '.mjs']) {
++                const indexPath = path.join(fullPath, `index.${suffix}${ext}`);
++                if (fs.existsSync(indexPath)) {
++                    if (verbose) {
++                        console.log(`📁 Found platform-specific directory index: ${indexPath}`);
++                    }
++                    return indexPath;
+                 }
+-                return indexPath;
+             }
+         }
+         for (const indexFile of ['index.ts', 'index.js', 'index.mjs']) {
+@@ -135,12 +140,14 @@ function resolveTsConfigPath(fullPath, platform, verbose, debugId) {
+         }
+     }
+     for (const ext of ['.ts', '.js', '.mjs']) {
+-        const platformPath = `${fullPath}.${platform}${ext}`;
+-        if (fs.existsSync(platformPath)) {
+-            if (verbose) {
+-                console.log(`📁 Found platform-specific file: ${platformPath}`);
++        for (const suffix of suffixes) {
++            const platformPath = `${fullPath}.${suffix}${ext}`;
++            if (fs.existsSync(platformPath)) {
++                if (verbose) {
++                    console.log(`📁 Found platform-specific file: ${platformPath}`);
++                }
++                return platformPath;
+             }
+-            return platformPath;
+         }
+         const basePath = `${fullPath}${ext}`;
+         if (fs.existsSync(basePath)) {
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
 index 9364ce9942b84fffd0e3a6eb6700d8253fa66e7e..0ae5a89f0359afc3c700b43b2c80b176536100a6 100644
 --- a/hmr/server/device-transform-helpers.js
