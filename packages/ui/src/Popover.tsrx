@@ -140,7 +140,7 @@ export function Popover(props: PopoverProps) @{
 		}
 
 		const host = new GridLayout();
-		const unbindTheme = applyThemeClasses(host, cx('vx-popover-host', props.className));
+		const unbindTheme = applyThemeClasses(host, 'vx-popover-host');
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
 		const root = createNativeScriptRoot(host);
