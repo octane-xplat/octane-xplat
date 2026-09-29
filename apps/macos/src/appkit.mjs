@@ -23,6 +23,16 @@ shared.eventPumpErrorReported ??= false
 shared.applicationClosed ??= new Promise((resolve) => {
 	shared.resolveApplicationClosed = resolve
 })
+shared.platformServices ??= {
+	appState: 'active',
+	appStateListeners: new Set(),
+	windowResizeListeners: new Set(),
+	deepLinkListeners: new Set(),
+	pendingUrls: [],
+	primaryWindow: null,
+	appearanceListeners: new Set(),
+	appearanceObserved: false,
+}
 
 const applicationClosed = shared.applicationClosed
 
@@ -107,6 +117,47 @@ class AppDelegate extends NSObject {
 		return shared.terminateAfterLastWindowClosed
 	}
 
+	applicationDidBecomeActive() {
+		shared.platformServices.appState = 'active'
+		for (const listener of shared.platformServices.appStateListeners) {
+			listener()
+		}
+	}
+
+	applicationDidResignActive() {
+		shared.platformServices.appState = 'inactive'
+		for (const listener of shared.platformServices.appStateListeners) {
+			listener()
+		}
+	}
+
+	windowDidResize() {
+		for (const listener of shared.platformServices.windowResizeListeners) {
+			listener()
+		}
+	}
+
+	applicationOpenURLs(application, urls) {
+		for (const url of urls ?? []) {
+			const string = String(url?.absoluteString ?? url)
+			if (shared.platformServices.deepLinkListeners.size === 0) {
+				shared.platformServices.pendingUrls.push(string)
+			} else {
+				for (const listener of shared.platformServices.deepLinkListeners) {
+					listener(string)
+				}
+			}
+		}
+	}
+
+	// KVO — `observeValueForKeyPath:ofObject:change:context:` on the shared
+	// delegate, registered for NSApplication.effectiveAppearance below.
+	observeValueForKeyPathOfObjectChangeContext(keyPath) {
+		if (keyPath === 'effectiveAppearance') {
+			shared.platformServices.appearanceListeners?.forEach((listener) => listener())
+		}
+	}
+
 	windowShouldClose(nativeWindow) {
 		const controller = controllerFor(nativeWindow)
 		try {
@@ -184,6 +235,102 @@ function appDelegate() {
 
 	return shared.appDelegate
 }
+
+// Platform services seam — @octane-xplat/platform's macOS index reads
+// `globalThis.__xplatAppKit` for anything the JS side cannot reach.
+function installPlatformServices() {
+	if (globalThis.__xplatAppKit) return
+
+	const services = shared.platformServices
+	const info = NSBundle.mainBundle.infoDictionary ?? {}
+	globalThis.__xplatAppKit = {
+		appInfo: {
+			supported: true,
+			version: info.CFBundleShortVersionString ?? null,
+			build: info.CFBundleVersion ?? null,
+			bundleId: NSBundle.mainBundle.bundleIdentifier ?? null,
+		},
+		get appState() { return services.appState },
+		get windowSize() {
+			const frame = services.primaryWindow?.contentView?.frame ?? { size: { width: 0, height: 0 } }
+			return {
+				width: frame.size.width,
+				height: frame.size.height,
+				orientation: frame.size.width >= frame.size.height ? 'landscape' : 'portrait',
+			}
+		},
+		readClipboard() {
+			const value = NSPasteboard.generalPasteboard.stringForType('public.utf8-plain-text')
+			return value == null ? null : String(value)
+		},
+		writeClipboard(value) {
+			const pasteboard = NSPasteboard.generalPasteboard
+			pasteboard.clearContents()
+			return Boolean(pasteboard.setStringForType(String(value), 'public.utf8-plain-text'))
+		},
+		openUrl(url) {
+			const target = NSURL.URLWithString(String(url))
+			if (!target) return false
+			return Boolean(NSWorkspace.sharedWorkspace.openURL(target))
+		},
+		getColorScheme() {
+			const appearance = app.effectiveAppearance
+			const match = appearance?.bestMatchFromAppearancesWithNames?.(['NSAppearanceNameDarkAqua'])
+			return match === 'NSAppearanceNameDarkAqua' ? 'dark' : 'light'
+		},
+		onAppearanceChange(listener) {
+			services.appearanceListeners.add(listener)
+			if (!services.appearanceObserved) {
+				services.appearanceObserved = true
+				app.addObserverForKeyPathOptionsContext(appDelegate(), 'effectiveAppearance', 0, null)
+			}
+			return () => services.appearanceListeners.delete(listener)
+		},
+		storageGet(key) {
+			const value = NSUserDefaults.standardUserDefaults.stringForKey(String(key))
+			return value == null ? null : String(value)
+		},
+		storageSet(key, value) {
+			NSUserDefaults.standardUserDefaults.setObjectForKey(String(value), String(key))
+		},
+		storageRemove(key) {
+			NSUserDefaults.standardUserDefaults.removeObjectForKey(String(key))
+		},
+		onAppStateChange(listener) {
+			services.appStateListeners.add(listener)
+			return () => services.appStateListeners.delete(listener)
+		},
+		onWindowResize(listener) {
+			services.windowResizeListeners.add(listener)
+			return () => services.windowResizeListeners.delete(listener)
+		},
+		onDeepLink(listener) {
+			services.deepLinkListeners.add(listener)
+			for (const pending of services.pendingUrls.splice(0)) {
+				listener(pending)
+			}
+			return () => services.deepLinkListeners.delete(listener)
+		},
+		consumeInitialUrl() {
+			return services.pendingUrls.shift() ?? null
+		},
+	}
+}
+
+try {
+	installPlatformServices()
+} catch (error) {
+	console.error('[macos] platform services seam failed to install; __xplatAppKit stays undefined', error)
+}
+
+// `openWindow` from @octane-xplat/ui reaches the host through this global
+// (windows.macos.ts). Function declaration hoisting covers the call order.
+globalThis.__xplatAppKitOpenWindow ??= (options) => openWindow(options)
+
+// Imperative sheets (sheet-service.macos) mount an arbitrary component in a
+// dialog window; the controller's `closed` promise settles on dismissal.
+globalThis.__xplatAppKitMountSheet ??= (component, props, options = {}) =>
+	openWindow({ ...options, kind: 'dialog', component, props })
 
 const REGULAR_STYLE =
 	NSWindowStyleMask.Titled |
@@ -273,6 +420,7 @@ export function createAppKitWindow(options = {}) {
 	nativeWindow.center()
 	nativeWindow.delegate = appDelegate()
 	app.delegate = shared.appDelegate
+	shared.platformServices.primaryWindow ??= nativeWindow
 
 	const contentView = makeContentView({ width: 640, height: 420 })
 	nativeWindow.contentView = contentView
@@ -424,17 +572,20 @@ export function openWindow(options = {}) {
 			shared.parentWindows.set(nativeWindow, parentWindow)
 		}
 
-		if (typeof shared.resolver !== 'function') {
-			throw new Error('Install setWindowContentResolver() before calling openWindow()')
-		}
-
-		const component = shared.resolver(controller.data, controller)
+		const component =
+			options.component ?? (typeof shared.resolver === 'function'
+				? shared.resolver(controller.data, controller)
+				: null)
 		if (typeof component !== 'function') {
-			throw new Error('The window content resolver did not return a component')
+			throw new Error(
+				options.component == null
+					? 'Install setWindowContentResolver() before calling openWindow()'
+					: 'openWindow component must resolve to a component',
+			)
 		}
 
 		controller.root = createMacOSRoot(nativeWindow.contentView)
-		controller.root.render(component, { data: controller.data, controller })
+		controller.root.render(component, options.props ?? { data: controller.data, controller })
 
 		if (kind === 'dialog') {
 			const beginSheet = parentWindow.beginSheetCompletionHandler ?? parentWindow.beginSheet

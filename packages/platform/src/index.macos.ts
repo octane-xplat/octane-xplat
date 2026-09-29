@@ -69,6 +69,9 @@ type AppKitHost = {
 	windowSize?: WindowSize
 	readClipboard?: () => string | null
 	writeClipboard?: (value: string) => boolean
+	storageGet?: (key: string) => string | null
+	storageSet?: (key: string, value: string) => void
+	storageRemove?: (key: string) => void
 	openUrl?: (url: string) => boolean
 	onWindowResize?: (listener: () => void) => () => void
 	onAppStateChange?: (listener: () => void) => () => void
@@ -110,19 +113,27 @@ export const connectivity: ConnectivityImpl = {
 	},
 }
 
+const hostStorage = new Map<string, string>()
+
 export const storage = {
 	getString(key: string): string | null {
-		return hostStorage.get(key) ?? null
+		return host().storageGet?.(key) ?? hostStorage.get(key) ?? null
 	},
 	setString(key: string, value: string): void {
+		if (host().storageSet) {
+			host().storageSet(key, value)
+			return
+		}
 		hostStorage.set(key, value)
 	},
 	remove(key: string): void {
+		if (host().storageRemove) {
+			host().storageRemove(key)
+			return
+		}
 		hostStorage.delete(key)
 	},
 }
-
-const hostStorage = new Map<string, string>()
 
 export const clipboard = {
 	get canCopy() { return !!host().readClipboard && !!host().writeClipboard },

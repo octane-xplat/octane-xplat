@@ -1,4 +1,5 @@
 import { navigate } from './nav'
+import { setThemePreference } from '@octane-xplat/ui'
 
 let running = false
 let lastDump = ''
@@ -50,6 +51,9 @@ export function runParity(): void {
 	if (running) {return}
 	running = true
 	lastDump = ''
+	// The sweep compares against the web dump's light-theme facets — pin the
+	// stage to light so a dark host scheme doesn't skew the measurements.
+	setThemePreference('light')
 	navigate('parity')
 	setTimeout(() => waitForDump(), 100)
 }
