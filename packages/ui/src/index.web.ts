@@ -1,1 +1,1 @@
-export * from './index.shared'
+export * from './index.shared.web'

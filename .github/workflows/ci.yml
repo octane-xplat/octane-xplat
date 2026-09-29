@@ -43,7 +43,7 @@ jobs:
 
       - name: Repo checks
         run: >-
-          pnpm check:patches && pnpm check:css && pnpm check:recipes &&
+          pnpm check:patches && pnpm check:ui-barrels && pnpm check:css && pnpm check:recipes &&
           pnpm check:decisions && pnpm check:suffix-resolution
 
       - name: Typecheck web
