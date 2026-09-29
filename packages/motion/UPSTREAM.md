@@ -60,11 +60,16 @@ Partial device observations are recorded in the
 platform split, an isolated iOS 26.5 MotionProbe run verified pan completion
 and cancellation, Presence focus/reversal/removal, and live Reduce Motion,
 including immediate transform settlement. The API 35 Android emulator verified
-tween/spring completion, cancellation, disposal, pan phase delivery, and focus
-release on Presence exit. Its injected pan release reported zero velocity, and
-the accessibility runner did not reach idle during reversal, so those checks
-remain open. Physical Android CPH2551 evidence covers app launch and the target
-retarget only; the handset is currently disconnected. The physical iPhone IPA
+tween/spring completion, cancellation, disposal, pan phase delivery, focus
+release on Presence exit, and live reduced-motion observation. Changing
+`animator_duration_scale` to `0` while mounted changed the probe state to
+reduced, and a subsequent idle snapshot showed the `-100` tween destination;
+deleting the setting restored the default and the state returned to normal.
+The idle snapshot does not establish frame-accurate settlement time. Its
+injected pan release reported zero velocity, and the accessibility runner did
+not reach idle during reversal, so those checks remain open. Physical Android
+CPH2551 evidence covers app launch and the target retarget only; the handset is
+currently disconnected. The physical iPhone IPA
 installed but did not launch because the phone was locked. The normal iOS mobile
 entry currently aborts in `AuthSessionPresentationAnchor` with
 `NativeClass is not defined`, so the latest simulator and emulator runs used a
