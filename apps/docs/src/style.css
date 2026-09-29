@@ -96,7 +96,7 @@ body {
 	color: var(--nb-onblock);
 	font-family: 'Silkscreen', monospace;
 	font-size: 24px;
-	font-weight: 700;
+	font-weight: 600;
 	letter-spacing: 2px;
 	text-transform: uppercase;
 }
@@ -123,7 +123,7 @@ body {
 .disc-text {
 	color: var(--nb-onblock);
 	font-size: 11px;
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.12em;
 }
@@ -131,7 +131,7 @@ body {
 .tagline {
 	opacity: 0.7;
 	font-size: 13px;
-	font-weight: 700;
+	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.2em;
 }
@@ -152,7 +152,7 @@ body {
 	box-shadow: var(--nb-sh-s);
 	color: #000000;
 	text-decoration: none;
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.12em;
 	transition:
@@ -175,7 +175,7 @@ body {
 .github-label {
 	color: #000000;
 	font-size: 12px;
-	font-weight: 900;
+	font-weight: 800;
 	letter-spacing: 0.12em;
 }
 
@@ -207,7 +207,7 @@ body {
 .mode-text {
 	color: var(--nb-onblock);
 	font-size: 13px;
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.15em;
 }
@@ -223,7 +223,7 @@ body {
 
 .side-head {
 	font-size: 12px;
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.25em;
 	padding: 18px 18px 8px;
@@ -270,13 +270,13 @@ body {
 
 .side-text {
 	font-size: 14px;
-	font-weight: 700;
+	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 }
 
 .side-item.active .side-text {
-	font-weight: 900;
+	font-weight: 800;
 }
 
 .side-foot {
@@ -295,7 +295,7 @@ body {
 
 .side-foot-text {
 	font-size: 11px;
-	font-weight: 700;
+	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 	color: var(--nb-ink);
@@ -320,7 +320,7 @@ body {
 
 .h1 {
 	font-size: 40px;
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: -0.02em;
 	line-height: 1;
@@ -335,7 +335,7 @@ body {
 
 .h2 {
 	font-size: 22px;
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.02em;
 	margin-top: 32px;
@@ -354,7 +354,7 @@ body {
 .h3,
 .h4 {
 	font-size: 17px;
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	margin-top: 24px;
@@ -367,7 +367,7 @@ body {
 
 .p {
 	font-size: 15px;
-	font-weight: 500;
+	font-weight: 400;
 	line-height: 1.6;
 	margin-top: 12px;
 	flex-wrap: wrap;
@@ -375,7 +375,7 @@ body {
 
 .li {
 	font-size: 15px;
-	font-weight: 500;
+	font-weight: 400;
 	line-height: 1.55;
 	margin-top: 6px;
 	flex-direction: row;
@@ -404,7 +404,7 @@ body {
 }
 
 .bold {
-	font-weight: 700;
+	font-weight: 600;
 }
 
 .italic {
@@ -421,7 +421,7 @@ body {
 
 .link {
 	color: var(--nb-link);
-	font-weight: 700;
+	font-weight: 600;
 	text-decoration: underline;
 	text-decoration-thickness: 3px;
 	text-decoration-color: var(--nb-red);
@@ -431,7 +431,7 @@ body {
 .mono {
 	font-family: ui-monospace, 'SF Mono', Menlo, monospace;
 	font-size: 0.92em;
-	font-weight: 700;
+	font-weight: 600;
 	background-color: var(--nb-yellow);
 	color: #000000;
 	border-width: 2px;
@@ -459,7 +459,7 @@ body {
 	border-width: 0;
 	color: #e8e8e0;
 	font-size: 13px;
-	font-weight: 500;
+	font-weight: 400;
 	line-height: 1.55;
 }
 
@@ -520,14 +520,14 @@ body {
 .callout-tagtext {
 	color: var(--nb-onblock);
 	font-size: 12px;
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.15em;
 }
 
 .callout-line {
 	font-size: 14px;
-	font-weight: 500;
+	font-weight: 400;
 	line-height: 1.55;
 	margin-top: 4px;
 	flex-wrap: wrap;
@@ -575,7 +575,7 @@ body {
 .tr-head .td,
 .tr-head Text {
 	color: var(--nb-onblock);
-	font-weight: 900;
+	font-weight: 800;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 }
@@ -584,7 +584,7 @@ body {
 	display: table-cell;
 	padding: 10px 14px;
 	font-size: 14px;
-	font-weight: 500;
+	font-weight: 400;
 	vertical-align: top;
 	overflow-wrap: break-word;
 }
