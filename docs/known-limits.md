@@ -192,5 +192,9 @@ physical-device frame pacing or gesture arbitration; those checks remain pending
 Presence retains live subtrees through exit on all three targets. This differs
 from upstream Octane motion's DOM cloning; there is no AnimatePresence alias.
 It adds a View wrapper, releases exiting focus without automatically restoring
-it, and ends immediately if an ancestor unmounts. Physical-device input/accessibility
-suppression remains unverified; see the [presence guide](animation-gestures.md#retain-content-through-exit).
+it, and ends immediately if an ancestor unmounts. A physical iPhone test
+confirmed keyboard dismissal on exit and that a retained input can be focused
+again after reversal; it did not test touch or assistive-accessibility
+suppression while the subtree is exiting. Physical Android Presence behavior
+remains unverified. See the
+[presence guide](animation-gestures.md#retain-content-through-exit).

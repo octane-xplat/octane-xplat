@@ -56,23 +56,37 @@ An ancestor unmount always disposes immediately. Nested boundaries are independe
 Unit and DOM tests establish bounded behavior, not full Framer Motion parity.
 Universal object-driver tests establish retention and lifecycle without an OS.
 Partial device observations are recorded in the
-[motion v1 validation matrix](../../docs/animation-notes.md). After the
-platform split, an isolated iOS 26.5 MotionProbe run verified pan completion
-and cancellation, Presence focus/reversal/removal, and live Reduce Motion,
-including immediate transform settlement. The API 35 Android emulator verified
-tween/spring completion, cancellation, disposal, pan phase delivery, focus
-release on Presence exit, and live reduced-motion observation. Changing
-`animator_duration_scale` to `0` while mounted changed the probe state to
-reduced, and a subsequent idle snapshot showed the `-100` tween destination;
-deleting the setting restored the default and the state returned to normal.
-The idle snapshot does not establish frame-accurate settlement time. Its
-injected pan release reported zero velocity, and the accessibility runner did
-not reach idle during reversal, so those checks remain open. Physical Android
-CPH2551 evidence covers app launch and the target retarget only; the handset is
-currently disconnected. The physical iPhone IPA
-installed but did not launch because the phone was locked. The normal iOS mobile
-entry currently aborts in `AuthSessionPresentationAnchor` with
-`NativeClass is not defined`, so the latest simulator and emulator runs used a
-temporary direct MotionProbe entry. Background/resume and frame pacing remain
+[motion v1 validation matrix](../../docs/animation-notes.md). An isolated iOS
+26.5 MotionProbe run verified pan completion/cancellation, Presence
+focus/reversal/removal, and live Reduce Motion, including immediate transform
+settlement. The API 35 Android emulator verified tween/spring completion,
+cancellation, disposal, pan phase delivery, focus release on Presence exit, and
+live reduced-motion observation. Changing `animator_duration_scale` to `0`
+while mounted changed the probe state to reduced, and a subsequent idle snapshot
+showed the `-100` tween destination; deleting the setting restored the default
+and the state returned to normal. The idle snapshot does not establish
+frame-accurate settlement time. Its injected pan release reported zero velocity,
+and the accessibility runner did not reach idle during reversal, so those
+checks remain open.
+
+A physical iPhone 13 Pro Max running iOS 27.0.1 launched the temporary direct
+MotionProbe under an Xcode UI-test host. The test verified tween-to-spring
+retargeting, explicit `MotionValue.stop()` cancellation, native pan begin/move/end
+with nonzero release velocity and settling, and Presence child retention through
+a focus-triggered exit/reversal. Presence dismissed the keyboard; after
+re-entry the retained field accepted focus and typed input, and a later exit
+dismissed the keyboard and reported one removal. The failed check expected the
+keyboard to remain open immediately after the focus-triggered reversal; that
+expectation conflicts with Presence releasing focus on exit. The physical
+Reduce Motion change remains inconclusive: the test did not record the system
+switch value before and after its Settings tap. A corrected rerun was blocked
+when the phone re-locked.
+
+Physical Android CPH2551 evidence covers app launch and target retarget only;
+the handset is currently disconnected. The normal iOS mobile entry currently
+aborts in `AuthSessionPresentationAnchor` with `NativeClass is not defined`, so
+the latest simulator, emulator, and iPhone checks used a temporary direct
+MotionProbe entry. Physical input suppression during exit, Android gesture
+cancellation/natural velocity, background/resume, and frame pacing remain
 uncharacterized. Native preference observation polls at 500 ms while subscribed
 and refreshes on resume; Android reads `animator_duration_scale`.
