@@ -65,5 +65,6 @@ by [framework](framework-notes.md), [architecture](architecture-notes.md),
 [navigation](navigation-notes.md), [platform](platform-notes.md), and
 [toolchain](toolchain-notes.md). Focused notes cover [module
 resolution](module-resolution-notes.md), [animation](animation-notes.md),
-[testing](testing-notes.md), [CSS support](css-support-notes.md), and the
-experimental [Windows target](windows-notes.md).
+[testing](testing-notes.md), [CSS support](css-support-notes.md),
+[SQLite persistence](sqlite-notes.md), and the experimental [Windows
+target](windows-notes.md).
