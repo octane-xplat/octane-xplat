@@ -16,15 +16,24 @@ function resolvedFontOf(view: any) {
 			return undefined
 		}
 
-		const metrics = nativeView?.getPaint?.()?.getFontMetrics?.()
+		const paint = nativeView?.getPaint?.()
+		const metrics = paint?.getFontMetrics?.()
 		const lineHeight = metrics
 			? Utils.layout.toDeviceIndependentPixels(Number(metrics.descent) - Number(metrics.ascent))
 			: undefined
+		const dip = (value: unknown) => {
+			const pixels = Number(value)
+			return Number.isFinite(pixels) ? round(Utils.layout.toDeviceIndependentPixels(pixels)) : undefined
+		}
 
 		return {
 			family: typeface.getFamilyName?.() ? String(typeface.getFamilyName()) : undefined,
 			weight: typeface.getWeight?.() === undefined ? undefined : Number(typeface.getWeight()),
+			size: dip(paint?.getTextSize?.()),
 			lineHeight: lineHeight === undefined ? undefined : round(lineHeight),
+			lineSpacingExtra: dip(nativeView?.getLineSpacingExtra?.()),
+			lineSpacingMultiplier: nativeView?.getLineSpacingMultiplier?.(),
+			layoutLineHeight: dip(nativeView?.getLineHeight?.()),
 		}
 	}
 
