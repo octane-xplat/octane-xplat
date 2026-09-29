@@ -1,15 +1,25 @@
 import { isAndroid, isIOS } from '@nativescript/core'
 import type { NativeModifier, Role } from './props'
 import { applyNativeModifiers } from './apply-native-modifiers.native'
+import { rememberGridChildPlacement } from './grid-placement'
 
 /** Apply only the active device's escape bag after the primitive's own props. */
 export function applyEscapeProps(
 	view: any,
-	props: { ios?: any; android?: any; modifiers?: readonly NativeModifier[] },
+	props: {
+		ios?: any
+		android?: any
+		modifiers?: readonly NativeModifier[]
+		row?: number
+		col?: number
+		rowSpan?: number
+		colSpan?: number
+	},
 ): void {
 	if (!view) {
 		return
 	}
+	rememberGridChildPlacement(view, props)
 
 	const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
 	if (bag) {
