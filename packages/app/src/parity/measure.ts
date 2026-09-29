@@ -136,12 +136,25 @@ function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
 	}
 }
 
-function childrenOf(view: any, out: any[] = []): any[] {
-	view?.eachChildView?.((c: any) => {
-		out.push(c)
-		childrenOf(c, out)
+function childrenOf(view: any, out: any[] = [], visited = new Set<any>()): any[] {
+	const visit = (child: any) => {
+		if (!child || visited.has(child)) return
+		visited.add(child)
+		out.push(child)
+		childrenOf(child, out, visited)
+	}
+
+	view?.eachChildView?.((child: any) => {
+		visit(child)
 		return true
 	})
+
+	// ui-pager exposes Android's adapter-backed page through getChildView(),
+	// but it does not enumerate that page from eachChildView().
+	if (hasClass(view, 'vx-pager')) {
+		const index = Number.isInteger(view.selectedIndex) && view.selectedIndex >= 0 ? view.selectedIndex : 0
+		visit(view.getChildView?.(index))
+	}
 
 	return out
 }
