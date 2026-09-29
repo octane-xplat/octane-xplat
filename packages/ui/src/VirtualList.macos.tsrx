@@ -77,6 +77,9 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const anchorRestoreTimerRef = useRef<any>(null)
 	const anchorRestoreScheduledRef = useRef(false)
 	const queuedAnchorRef = useRef<{ rowKey: string; within: number } | null>(null)
+	const estimateAnchorRef = useRef<{ rowKey: string; within: number } | null>(null)
+	const estimateTimerRef = useRef<any>(null)
+	const pendingRowMeasureRef = useRef(new Map<string, number>())
 	const hasSeparator = Boolean(props.renderSeparator)
 	const hasSeparatorRef = useRef(hasSeparator)
 	hasSeparatorRef.current = hasSeparator
@@ -173,6 +176,22 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		anchorRestoreTimerRef.current = timer
 	}
 
+	function scheduleEstimateRebuild(anchor: { rowKey: string; within: number } | null) {
+		if (anchor) {estimateAnchorRef.current = anchor}
+		if (estimateTimerRef.current) {return}
+		// Debounce: each rebuild rescales every unmeasured prefix, so one
+		// rebuild per measurement burst — not per row — keeps the AppKit
+		// relayout/anchor cycle count bounded while samples accumulate.
+		estimateTimerRef.current = setTimeout(() => {
+			estimateTimerRef.current = null
+			const scheduledAnchor = estimateAnchorRef.current
+			estimateAnchorRef.current = null
+			rebuildLayout(entriesRef.current, viewportWidthRef.current)
+			restoreAnchor(scheduledAnchor)
+			refreshWindow()
+		}, 120)
+	}
+
 	function recordRowSize(rowKey: string, width: number, height: number) {
 		if (!Number.isFinite(height) || height < 0) {return}
 		const index = indexByRowKeyRef.current.get(rowKey)
@@ -180,14 +199,16 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		const entry = entriesRef.current[index]
 		if (!entry) {return}
 
+		const hasRowSeparator = hasSeparatorRef.current && index < entriesRef.current.length - 1
+		const cacheKey = virtualListMeasurementKey(rowKey, hasRowSeparator)
+		const cached = sizeCacheRef.current.get(cacheKey)
+		// NSViewFrameDidChangeNotification fires on origin moves too, not just
+		// resizes — spacer shifts move every mounted row and would otherwise
+		// re-run this whole path (and reschedule estimate rebuilds) forever.
+		if (cached && sameSize(cached.height, height) && sameSize(cached.width, width)) {return}
+
 		const anchor = queuedAnchorRef.current ?? captureAnchor()
-		sizeCacheRef.current.set(
-			virtualListMeasurementKey(
-				rowKey,
-				hasSeparatorRef.current && index < entriesRef.current.length - 1,
-			),
-			{ width, height },
-		)
+		sizeCacheRef.current.set(cacheKey, { width, height })
 
 		const delta = sizeIndexRef.current.set(index, height)
 		if (Math.abs(delta) >= 0.5) {
@@ -195,6 +216,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			if (anchor && anchorIndex !== undefined && index < anchorIndex) {restoreAnchor(anchor)}
 			refreshWindow()
 		}
+
+		scheduleEstimateRebuild(anchor)
 	}
 
 	function syncViewport() {
@@ -236,7 +259,21 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}
 
 	function onRowLayout(entry: VirtualListEntry<T>, event: AppKitLayoutEvent) {
-		recordRowSize(entry.rowKey, Number(event?.width ?? 0), Number(event?.height ?? 0))
+		const view = event?.object
+		if (!view) {return}
+		// Frame notifications arrive mid-layout: a row can report h=0 (or a
+		// stack-stretched transient) before its final size is known, and rows
+		// unmounted before the second pass would keep the bogus measurement.
+		// Read the frame on the next tick instead, once layout has settled.
+		const coalesced = (pendingRowMeasureRef.current.get(entry.rowKey) ?? 0) + 1
+		pendingRowMeasureRef.current.set(entry.rowKey, coalesced)
+		setTimeout(() => {
+			if (pendingRowMeasureRef.current.get(entry.rowKey) !== coalesced) {return}
+			pendingRowMeasureRef.current.delete(entry.rowKey)
+			if (!view.superview) {return}
+			const size = view.frame?.size ?? view.bounds?.size
+			recordRowSize(entry.rowKey, Number(size?.width ?? 0), Number(size?.height ?? 0))
+		}, 0)
 	}
 
 	const range = currentRange()
