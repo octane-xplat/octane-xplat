@@ -70,14 +70,20 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
 	let source
 	if (target === 'web') {
-		source = `import { View } from '@octane-xplat/ui'
+		source = `import { Button, View } from '@octane-xplat/ui'
 import { Hoverable, Tooltip } from '@octane-xplat/ui/web'
-import type { ViewProps } from '@octane-xplat/ui'
+import type { ButtonProps, ViewProps } from '@octane-xplat/ui'
 
+const buttonProps: ButtonProps = { children: 'Save', loading: true }
+// @ts-expect-error loading is a boolean prop
+const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'root', gap: 8, ios: { hidden: true } }
+const button = <Button {...buttonProps} />
 const root = <View {...viewProps} />
 const hoverable: typeof Hoverable = Hoverable
 const tooltip: typeof Tooltip = Tooltip
+void invalidButtonProps
+void button
 void root
 void hoverable
 void tooltip
@@ -87,10 +93,13 @@ void tooltip
 import type { ButtonProps, ViewProps } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
+// @ts-expect-error loading is a boolean prop
+const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'macos-root', gap: 4 }
 const button = <Button {...buttonProps} />
 const view = <View {...viewProps} />
 void button
+void invalidButtonProps
 void view
 `
 	} else {
