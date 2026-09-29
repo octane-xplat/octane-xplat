@@ -43,6 +43,7 @@ export const ORDER = [
 	'testing',
 	'native-picker',
 	'date-picker',
+	'context-menu',
 	'known-limits',
 	'status',
 	'decisions',

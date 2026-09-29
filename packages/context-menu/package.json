@@ -1,0 +1,81 @@
+{
+	"name": "@octane-xplat/context-menu",
+	"version": "0.1.0",
+	"description": "Platform-specific context menu controls for Octane xplat",
+	"files": [
+		"dist",
+		"types",
+		"src",
+		"platforms"
+	],
+	"type": "module",
+	"exports": {
+		"./ios": {
+			"types": "./src/ios/types.ts",
+			"native": "./src/ios/index.ts"
+		},
+		"./android": {
+			"types": "./src/android/types.ts",
+			"native": "./src/android/index.ts"
+		},
+		"./web": {
+			"types": "./src/web/types.ts",
+			"web": "./src/web/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			"./ios": {
+				"types": "./types/ios/index.d.ts",
+				"native": "./dist/native/ios/index.js"
+			},
+			"./android": {
+				"types": "./types/android/index.d.ts",
+				"native": "./dist/native/android/index.js"
+			},
+			"./web": {
+				"types": "./types/web/index.d.ts",
+				"web": "./dist/web/web/index.js"
+			}
+		}
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
+		"prepublishOnly": "pnpm build"
+	},
+	"dependencies": {
+		"@nativescript/jetpack-compose": "1.0.0-beta.0",
+		"@nativescript/swift-ui": "4.0.2"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.1",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.60",
+		"octane": "0.5.0",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.1.51 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	}
+}

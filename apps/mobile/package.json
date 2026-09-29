@@ -32,6 +32,7 @@
 		"@nativescript/social-share": "2.3.0",
 		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/canvas": "workspace:*",
+		"@octane-xplat/context-menu": "workspace:*",
 		"@octane-xplat/date-picker": "workspace:*",
 		"@octane-xplat/effects": "workspace:*",
 		"@octane-xplat/gif": "workspace:*",
