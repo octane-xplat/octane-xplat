@@ -26,7 +26,6 @@ import {
 	Drawer,
 	FormField,
 	FieldGroup,
-	ListItem,
 	InputNumber,
 	PinInput,
 	Select,
@@ -111,7 +110,7 @@ function TextFixture(props: { size: number; weight: number; lineHeight: number; 
 	</Text>
 }
 
-function ListItemFixture() @{
+function ListItemStandardFixture() @{
 	<ListItem
 		id="parity-listitem-root"
 		style={{ width: 220, height: 64, backgroundColor: '#f5f5f5' }}
@@ -1031,7 +1030,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'avatar-group-overflow', component: 'AvatarGroup', renderer: AvatarGroupFixture, props: {} },
 	{ name: 'user-row', component: 'User', renderer: UserFixture, props: {} },
 	{ name: 'list-item-row', component: 'ListItem', renderer: ListItemFixture, props: {} },
-	{ name: 'list-item-standard', component: 'ListItem', renderer: ListItemFixture, props: {} },
+	{ name: 'list-item-standard', component: 'ListItem', renderer: ListItemStandardFixture, props: {} },
 	{ name: 'hoverable-anchor', component: 'Hoverable', renderer: HoverableFixture, props: {} },
 	{ name: 'tooltip-trigger', component: 'Tooltip', renderer: TooltipFixture, props: {} },
 	{ name: 'kbd-shortcut', component: 'Kbd', renderer: KbdFixture, props: {} },

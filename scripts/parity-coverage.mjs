@@ -31,9 +31,15 @@ const DEFERRED_GROUPS = [
 			'RichTextSpan is an inline FormattedString run, not an independent view. The NativeScript bounds/style dump exposes only its containing RichText label, so there is no comparable per-run frame or resolved style.',
 		components: ['RichTextSpan'],
 	},
+]
+
+// A default-state fixture can measure the shared anchor while leaving an
+// interaction-only surface unmeasured. Keep those gaps explicit without
+// treating the whole component export as uncovered.
+const DEFERRED_FACETS = [
 	{
 		reason:
-			'Hoverable and Tooltip intentionally omit their hint layers on iOS and Android. Trigger bounds alone cannot measure their pointer interaction across targets.',
+			'Hoverable and Tooltip fixtures compare only the default anchor/trigger. They do not open or measure the hint layer on pointer targets (web/macOS); iOS and Android intentionally omit that layer.',
 		components: ['Hoverable', 'Tooltip'],
 	},
 ]
@@ -293,6 +299,24 @@ for (const group of DEFERRED_GROUPS) {
 	}
 }
 
+const deferredFacetComponents = new Set()
+for (const group of DEFERRED_FACETS) {
+	if (!group.reason.trim()) {
+		errors.push('deferred parity facets need a reason')
+	}
+
+	for (const component of group.components) {
+		if (deferredFacetComponents.has(component)) {
+			errors.push(`${component}: appears in more than one deferred facet group`)
+		}
+
+		deferredFacetComponents.add(component)
+		if (!coveredComponents.has(component)) {
+			errors.push(`${component}: deferred facets require a measured fixture`)
+		}
+	}
+}
+
 for (const component of coveredComponents) {
 	if (deferredComponents.has(component)) {
 		errors.push(`${component}: has both a fixture and a deferred reason`)
@@ -305,7 +329,7 @@ for (const component of sharedComponents) {
 	}
 }
 
-for (const component of [...coveredComponents, ...deferredComponents]) {
+for (const component of [...coveredComponents, ...deferredComponents, ...deferredFacetComponents]) {
 	if (!sharedComponents.has(component)) {
 		errors.push(`${component}: stale coverage entry is not a shared renderable export`)
 	}
@@ -320,7 +344,7 @@ if (errors.length) {
 	process.exitCode = 1
 } else {
 	console.log(
-		`[parity-coverage] ${coveredComponents.size}/${sharedComponents.size} shared renderable exports have measured checks; web+iOS+Android checks cover ${requiredTargetComponents.size}; ${deferredComponents.size} deferred; ${NON_RENDERABLE.size} renderer helpers excluded`,
+		`[parity-coverage] ${coveredComponents.size}/${sharedComponents.size} shared renderable exports have measured checks; web+iOS+Android checks cover ${requiredTargetComponents.size}; ${deferredComponents.size} fully deferred, ${deferredFacetComponents.size} with deferred facets; ${NON_RENDERABLE.size} renderer helpers excluded`,
 	)
 
 	const targetLimited = [...coveredComponents]
