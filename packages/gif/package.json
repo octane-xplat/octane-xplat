@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/gif",
-	"version": "0.1.0",
+	"version": "0.7.0",
 	"description": "Animated image (GIF/animated webp) leaf for Octane xplat — web <img> + @nativescript-community/ui-image",
 	"repository": {
 		"type": "git",

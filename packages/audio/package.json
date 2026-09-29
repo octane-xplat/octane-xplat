@@ -1,6 +1,6 @@
 {
   "name": "@octane-xplat/audio",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "description": "Long-form audio playback for Octane xplat",
   "repository": {
     "type": "git",

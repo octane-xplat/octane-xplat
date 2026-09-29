@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/camera",
-	"version": "0.1.0",
+	"version": "0.7.0",
 	"description": "Live camera preview leaf for Octane xplat",
 	"repository": {
 		"type": "git",

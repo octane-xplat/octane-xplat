@@ -1,5 +1,110 @@
 # Changelog
 
+## [0.7.0] - 2026-09-29
+
+### Breaking Changes
+
+- *(ui)* [**breaking**] Make ui-svg a transitive plugin dependency
+- *(ui)* [**breaking**] Draw Meter on svgview, drop the ui-canvas peer
+- *(ui)* [**breaking**] Vendor ui-svg's SVGView, dropping the ui-canvas merge
+
+### Features
+
+- *(cli)* Add experimental macOS AppKit target
+- *(cli)* Own experimental macOS packaging
+- *(canvas)* @octane-xplat/canvas — DOM Canvas API incl. WebGPU/WGSL
+- *(effects)* @octane-xplat/effects — platform view-effect shaders
+- *(camera)* Replace camera-plus with camera preview leaf
+- *(media)* Add optional haptics sound and audio services
+- *(ui)* Add shared VirtualList vertical foundation
+- *(macos)* Package optional app icon
+- *(ui)* Expose the supported macOS root surface
+- *(ui)* Add AppKit leaves for the shared harness surface
+- *(macos)* Run the xplat harness on AppKit
+- *(macos)* Run shared harness on AppKit
+- *(macos)* Add core web parity baseline
+- *(pager)* Extract Pager into @octane-xplat/pager
+- *(video)* Extract Video into @octane-xplat/video
+- *(linux)* Experimental WebKitGTK webview target with host bridge
+- *(cli)* Ship canonical patch set + xplat patches apply/check
+- *(linux)* Verify gjs host under real WebKitGTK in container
+- *(macos)* Make JavaScriptCore the packaged AppKit host
+- *(macos)* Run dev HMR in JavaScriptCore
+- *(platform)* Add webAuthn + authSession capabilities for passkey/auth ceremonies
+- *(ui)* Add programmatic route registration (defineRoutes/addRoutes)
+- *(cli)* Port NativeScript#11446 nested-tab-frame fix into the core patch
+- *(ui)* Add native UI affordances
+- *(linux)* Host-backed appearance, file picker, and deep links
+- *(linux)* Multi-window via host windows
+- *(windows)* Scaffold apps/windows on the upstream core platform
+- *(ui)* Port shared component leaves to the AppKit host
+- *(macos)* Populate the __xplatAppKit platform-services seam
+- *(ui)* Share Hoverable/Tooltip as passthrough leaves, add macOS hover
+- *(ui)* Impl in unsuffixed leaf, .mobile as passthrough
+- *(native-picker)* Add cross-platform native picker pilot
+- *(motion)* Add cross-platform declarative motion and values
+- *(motion)* Retain live subtrees through exit animations
+- *(typegen)* Verify published package declarations
+- *(ui)* Generate declarations with tsrx-typegen
+- *(cli)* Patch @nativescript/vite deps-bundle to alias octane
+- *(windows)* Port framework patch set to @11468 preview builds
+- *(ui)* Split shared and platform entry barrels
+- *(macos)* Windowed VirtualList and shared 5000-row benchmark on the AppKit host
+- *(picker)* Expose platform-specific controls
+
+### Bug Fixes
+
+- *(cli)* Resolve package metadata rebase conflict
+- *(cli)* Probe codesign with a valid command
+- *(canvas)* Narrow width/height cast for the native view prop types
+- *(canvas)* Align with current NativeScript runtime
+- *(ios)* Resolve Swift target compile errors
+- *(ios)* Initialize SwiftUI view factory before registration
+- *(lint)* Allow the macOS Node-API runtime
+- *(ui)* Type openWindow results by target
+- *(macos)* Preserve previous package artifacts on publish failure
+- *(macos)* Place runtime framework in bundle framework directory
+- *(cli)* Replace macOS SEA packaging
+- *(macos)* Bundle supported LTS runtime
+- *(macos)* Pin bundled Node archive checksum
+- *(cli)* Validate installed macOS runtime layout
+- *(cli)* Preflight macOS runtime before bundling
+- *(macos)* Complete framework links before signing
+- *(macos)* Preserve framework-relative symlinks
+- *(macos)* Use defined runtime package name
+- *(macos)* Verify cached Node runtime binary
+- *(macos)* Complete framework links before signing
+- *(ui)* Honor Android safe area insets
+- *(macos)* Align shared control geometry
+- *(macos)* Match shared slider geometry
+- *(macos)* Match Stack overlay layout
+- *(macos)* Match shared text and heading metrics
+- *(macos)* Align textarea row sizing
+- *(macos)* Honor Pressable alignment props
+- *(macos)* Expand flexible stack children
+- *(cli)* Pin dep-optimizer surface in native dev preset
+- *(patches)* Route /@fs and re-export specifiers through /ns/m
+- *(macos)* Reject unsupported host API members during packaging
+- *(ui)* Named-stack pushes work on Android tab panes and pop past the iOS isLoaded stall
+- *(native)* Serve pnpm-isolated deps and device-safe CSS/CJS over /ns/m
+- *(native)* Keep sheets above the keyboard, tap-to-blur, and guard optional bridges
+- *(platform,ui)* Make link:-consumed source device-safe on native
+- *(ui)* Keep nested Tabs from re-presenting an ancestor's stack
+- *(ui)* Cover ListItem on the AppKit host
+- Restore native parity harness
+- *(parity)* Align shared heading typography
+- *(ui)* Apply NativeScript SVGView decorator without syntax transform
+- *(ui)* Emit octane/universal-native specifiers in native lib builds
+- *(create)* Bump template pins to ui/cli ^0.6.0 + octane 0.6.3
+- *(patches)* Make Octane install independent of research
+- *(ui)* Keep popover className off the native full-screen host
+- *(lint)* Add node shebang to xplat-lint bin
+- *(cli)* Probe the .mobile suffix tier in ns-vite tsconfig-paths resolution
+
+### Refactoring
+
+- *(platform)* Use native default and mobile suffix
+
 ## 0.6.0
 
 Everything added, changed, and fixed since 0.5.0.

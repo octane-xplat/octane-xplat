@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/picker",
-	"version": "0.1.0",
+	"version": "0.7.0",
 	"description": "Platform-specific selection controls for Octane xplat",
 	"repository": {
 		"type": "git",
