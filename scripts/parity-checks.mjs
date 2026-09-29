@@ -52,11 +52,12 @@ const headingEqual = [
 
 function headingRows(m, size) {
 	const heading = m('heading')
+	const weight = String(heading.style?.fontWeight ?? '').toLowerCase()
 	return [
 		['heading starts at the fixture origin', near(heading.box?.x, 0, 0.5) && near(heading.box?.y, 0, 0.5), `${heading.box?.x},${heading.box?.y}`],
 		['heading width is 520px', near(heading.box?.w, 520, 1), heading.box?.w],
 		[`heading font size is ${size}px`, near(Number.parseFloat(heading.style?.fontSize), size, 0.05), heading.style?.fontSize],
-		['heading weight is bold', Number(heading.style?.fontWeight) === 700, heading.style?.fontWeight],
+		['heading weight is bold', weight === 'bold' || Number(weight) === 700, heading.style?.fontWeight],
 	]
 }
 

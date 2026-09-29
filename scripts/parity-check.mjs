@@ -57,6 +57,10 @@ const normValue = (v, facet) => {
 	if (facet.endsWith('.style.alignItems') && v === 'normal') {
 		return 'stretch'
 	}
+	if (facet.endsWith('.style.fontWeight')) {
+		if (v.trim().toLowerCase() === 'normal') {return 400}
+		if (v.trim().toLowerCase() === 'bold') {return 700}
+	}
 
 	// '6', '6px', '6dip' — same length across engines (native reports dips
 	// bare, web reports px).

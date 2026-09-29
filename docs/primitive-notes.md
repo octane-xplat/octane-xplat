@@ -571,8 +571,9 @@ child`) and text under `formattedstring` drops silently.
 - `line-height` on NS means **additive inter-line spacing**, not web's total
   line box — typography tokens must express the NS value (gap) vs web value
   (box height) distinctly.
-- `Heading level={1-6}` primitive: `h1–h6` on web (semantic HTML matters —
-  ); `label` + `className="h{n}"` + a11y role on native.
+- `Heading level={1-6}` primitive: `h1–h6` on web (semantic HTML matters);
+  `label` with matching `.vx-h{n}` typography and header accessibility role
+  on native. Both use the same 16px-based font-size scale.
 
 ## Refs
 

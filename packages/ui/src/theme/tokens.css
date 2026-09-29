@@ -1529,28 +1529,29 @@ input.vx-search-field::-webkit-search-cancel-button {
 .vx-heading {
 	margin: 0;
 }
+/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
 .vx-h1 {
-	font-size: 2em;
+	font-size: 32px;
 	font-weight: bold;
 }
 .vx-h2 {
-	font-size: 1.5em;
+	font-size: 24px;
 	font-weight: bold;
 }
 .vx-h3 {
-	font-size: 1.17em;
+	font-size: 18.72px;
 	font-weight: bold;
 }
 .vx-h4 {
-	font-size: 1em;
+	font-size: 16px;
 	font-weight: bold;
 }
 .vx-h5 {
-	font-size: 0.83em;
+	font-size: 13.28px;
 	font-weight: bold;
 }
 .vx-h6 {
-	font-size: 0.67em;
+	font-size: 10.72px;
 	font-weight: bold;
 }
 
