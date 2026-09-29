@@ -10,6 +10,8 @@ const PARITY_BOX_STYLE = { width: 220, height: 64 };
  *  Elements are dumped relative to their .parity-box, so label metrics and
  *  scroll position can't shift the numbers. */
 export function ParityStage() @{
+	const filter = (globalThis as any).__xplatParityFixtureFilter as string[] | undefined;
+	const fixtures = filter ? FIXTURES.filter((f) => filter.includes(f.name)) : FIXTURES;
 	useEffect(() => {
 		installParityDump();
 	}, []);
@@ -21,7 +23,7 @@ export function ParityStage() @{
 		alignItems="start"
 		ios={{ iosOverflowSafeAreaEnabled: false }}
 	>
-		@for (const f of FIXTURES; key f.name) {
+		@for (const f of fixtures; key f.name) {
 			<View id={'cell-' + f.name} className="parity-cell" gap={0} alignItems="start">
 				<Text className="parity-label">{f.name}</Text>
 				<View

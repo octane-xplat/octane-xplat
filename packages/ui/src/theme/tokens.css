@@ -1212,7 +1212,10 @@ input.vx-search-field::-webkit-search-cancel-button {
 /* CommandPalette — panel centered by the overlay layer. */
 .vx-commandpalette {
 	width: 360px;
-	max-width: 90%;
+	/* vw, not %: the overlay-content wrapper shrink-wraps the palette, so a
+	 * plain % would resolve against the palette's own width (clamping an
+	 * explicit style.width to 90% of itself). */
+	max-width: 90vw;
 	padding: 8px;
 	border-width: 1px;
 	border-color: var(--color-border);

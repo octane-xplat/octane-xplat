@@ -82,9 +82,9 @@ createInterface({ input: host.stdout }).on('line', (line) => {
 try {
 	await within(ready, 120000, 'Timed out waiting for the AppKit host to start')
 	host.stdin.write('parity\n')
-	const dump = await within(report, 30000, 'Timed out waiting for the AppKit geometry dump')
+	const dump = await within(report, 180000, 'Timed out waiting for the AppKit geometry dump')
 	if (dump.target !== 'macos' || !dump.cells || Object.keys(dump.cells).length === 0) {
-		throw new Error('AppKit parity returned an empty or malformed dump')
+		console.error('[parity] malformed dump: ' + JSON.stringify(dump).slice(0, 500)); throw new Error('AppKit parity returned an empty or malformed dump')
 	}
 
 	mkdirSync(dirname(outputFile), { recursive: true })

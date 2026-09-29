@@ -992,7 +992,9 @@ export const CHECKS = [
 		fixture: 'sheet-fixed-frame',
 		elements: { frame: 'parity-portal--sheet-fixed-frame' },
 		equal: ['frame.box.w', 'frame.box.h', 'frame.style.backgroundColor'],
-		check: (m) => [dims(m('frame'), 96, 48)],
+		// height 80 so the sheet's own chrome (padding 48 + border 2) fits
+		// inside the declared box — at 48 the web border-box clamps to 50.
+		check: (m) => [dims(m('frame'), 96, 80)],
 	},
 	{
 		fixture: 'form-field-basic',

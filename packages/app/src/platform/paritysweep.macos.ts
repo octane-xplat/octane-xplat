@@ -2,18 +2,34 @@ import { navigate } from './nav'
 
 let running = false
 let lastDump = ''
+let lastParsed: any = null
+let prevParsed: any = null
 
 function stableDump() {
 	const dump = (globalThis as any).__xplatParity?.()
 	if (!dump) {
 		lastDump = ''
+		lastParsed = null
 		return null
 	}
 
 	const json = JSON.stringify(dump)
 	if (json === lastDump) {return dump}
+	prevParsed = lastParsed
+	lastParsed = dump
 	lastDump = json
 	return null
+}
+
+function diffCells(a: any, b: any): string {
+	if (!a?.cells || !b?.cells) {return 'no-cells a=' + !!a?.cells + ' b=' + !!b?.cells}
+	const out: string[] = []
+	for (const name of Object.keys(b.cells)) {
+		const ja = JSON.stringify(a.cells[name])
+		const jb = JSON.stringify(b.cells[name])
+		if (ja !== jb) {out.push(name)}
+	}
+	return out.slice(0, 8).join(',') + (out.length > 8 ? ' …+' + (out.length - 8) : '')
 }
 
 function waitForDump(tries = 60): void {
@@ -23,7 +39,7 @@ function waitForDump(tries = 60): void {
 		return
 	}
 	if (--tries <= 0) {
-		console.log('[parity] FAIL — stage never produced a stable dump')
+		console.log('[parity] FAIL — stage never produced a stable dump; changed: ' + diffCells(prevParsed, lastParsed))
 		return
 	}
 

@@ -69,10 +69,18 @@ try {
 	page.on('pageerror', (e) => errors.push('pageerror: ' + e.message))
 
 	await page.goto(BASE + '/parity', { waitUntil: 'networkidle' })
+	// Freeze animations: a mid-animation transform inflates the measured
+	// bounding box (e.g. the rotating spinner reads ~29×29 instead of 24×24).
+	await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}' })
 	await page.waitForSelector('#parity-stage .vx-switch', { timeout: 10000 })
 	// Slider's fill/thumb sizes come from a ResizeObserver pass — give it a
 	// frame to settle before dumping.
 	await page.waitForTimeout(400)
+	// Viewport-anchored fixtures (Popover) clamp to the viewport when their
+	// anchor is below the fold; center the cell so the panel lands in the
+	// expected placement relative to its anchor.
+	await page.evaluate(() => document.getElementById('cell-popover-bottom-frame')?.scrollIntoView({ block: 'center' }))
+	await page.waitForTimeout(100)
 
 	const dump = await page.evaluate(() =>
 		globalThis.__xplatParity ? globalThis.__xplatParity() : null,

@@ -289,7 +289,7 @@ function PopoverLayoutFixture(props: { marker: string }) @{
 	<>
 		<View
 			className="parity-popover-anchor"
-			ref={(view: any) => { anchor.current = view; }}
+			bind={(view: any) => { anchor.current = view; }}
 			style={{ width: 24, height: 20 }}
 		/>
 		<Popover
@@ -309,7 +309,7 @@ function SheetLayoutFixture(props: { marker: string }) @{
 		open
 		shadeCover={false}
 		className={props.marker}
-		style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}
+		style={{ width: 96, height: 80, backgroundColor: '#f5f5f5' }}
 	>
 		<View style={{ width: 96, height: 48 }} />
 	</Sheet>
@@ -954,7 +954,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'drawer-open-frame', component: 'Drawer', renderer: DrawerLayoutFixture, props: {} },
 	{ name: 'overlay-fixed-frame', component: 'Overlay', renderer: OverlayLayoutFixture, props: { marker: 'parity-portal--overlay-fixed-frame' } },
 	{ name: 'popover-bottom-frame', component: 'Popover', renderer: PopoverLayoutFixture, props: { marker: 'parity-portal--popover-bottom-frame' } },
-	{ name: 'sheet-fixed-frame', component: 'Sheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' } },
+	{ name: 'sheet-fixed-frame', component: 'Sheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' }, height: 112 },
 	{ name: 'form-field-basic', component: 'FormField', renderer: FormFieldFixture, props: {} },
 	{ name: 'field-group-basic', component: 'FieldGroup', renderer: FieldGroupFixture, props: {} },
 	{ name: 'input-number-value', component: 'InputNumber', renderer: InputNumberFixture, props: {} },

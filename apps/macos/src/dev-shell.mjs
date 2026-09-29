@@ -57,6 +57,9 @@ function reload(afterEdit = false) {
 }
 
 globalThis.__xplatDev = { reload }
+if (process.env.OCTANE_MACOS_PARITY_FIXTURES) {
+	globalThis.__xplatParityFixtureFilter = process.env.OCTANE_MACOS_PARITY_FIXTURES.split(',')
+}
 globalThis.__xplatOnInput = (line) => {
 	try {
 		if (line === 'reload') return reload(true)
