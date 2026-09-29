@@ -60,6 +60,35 @@ The [compatibility record](../packages/motion/UPSTREAM.md) states the bounded
 upstream API, defaults, and platform evidence. Physical-device gesture behavior
 and frame pacing are pending; native compilation is not a performance claim.
 
+## Retain content through exit
+
+Keep `Presence` mounted and change its `present` prop. Render children
+unconditionally inside it; putting the conditional around the child removes it
+before an exit can run. Set `exit` on motion hosts inside the boundary. The
+[PresenceDemo](../packages/motion/examples/PresenceDemo.tsrx) demonstrates a
+counter that survives a reversed exit.
+
+Presence renders a View wrapper and accepts its layout props. It waits for all
+registered motion hosts to finish before removing the live subtree. During exit,
+component state and subscriptions remain active, but the wrapper blocks input
+and hides its descendants from accessibility. Focus inside the subtree is
+released; reappearance does not automatically steal focus back.
+
+Setting `present` back to true during exit retains the same hosts and state,
+cancels pending removal, and animates toward current destinations. A completed
+exit unmounts children; a later appearance creates fresh component state.
+`onExitComplete` fires once after the exits finish, not after reversal or boundary
+disposal. Entry/update completion uses the motion host's `onAnimationComplete`.
+
+Removing Presence or an ancestor disposes immediately. Nested boundaries are
+independent: removing an outer boundary disposes inner boundaries, rather than
+starting a second exit sequence. Each motion host belongs to its nearest boundary.
+An `exit` prop outside Presence is an error.
+
+This is deliberately different from upstream Octane motion, which unmounts the
+original component and animates a DOM clone. Xplat retains the live subtree on
+both web and native; it does not export `AnimatePresence` as a compatibility alias.
+
 ## Existing imperative animation
 
 `useAnimation` and `setTranslate` from UI remain available. The older

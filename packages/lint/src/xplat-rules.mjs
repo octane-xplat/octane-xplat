@@ -1025,7 +1025,8 @@ export function checkNoViewOnPress(program, _src, filename, options) {
 	}
 
 	const out = []
-	for (const [attr, tag] of jsxAttributeNodes(program)) {
+	for (const [attr, rawTag] of jsxAttributeNodes(program)) {
+		const tag = rawTag?.replace(/^motion\./, '')
 		if (!tag || tag === 'Pressable') {
 			continue
 		}
@@ -1034,12 +1035,12 @@ export function checkNoViewOnPress(program, _src, filename, options) {
 		if (NON_PRESSABLE_PRIMITIVES.has(tag) && PRESSABLE_ONLY_PROPS.has(name)) {
 			out.push({
 				node: attr,
-				message: `<${tag}> has no ${name} — it will never fire. Wrap in <Pressable>.`,
+				message: `<${rawTag}> has no ${name} — it will never fire. Wrap in <Pressable>.`,
 			})
 		} else if (tag[0] === tag[0].toLowerCase() && DEAD_ON_NATIVE_TAGS.has(name)) {
 			out.push({
 				node: attr,
-				message: `'<${tag}>' views take NS event names (onTap/onTouch/onLongPress), not ${name} — wrap in <Pressable>.`,
+				message: `'<${rawTag}>' views take NS event names (onTap/onTouch/onLongPress), not ${name} — wrap in <Pressable>.`,
 			})
 		}
 	}

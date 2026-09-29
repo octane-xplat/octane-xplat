@@ -41,6 +41,9 @@ export class Controller {
 		this.write = write
 		this.flush()
 	}
+	snapshot(): Target {
+		return Object.fromEntries([...this.values].map(([key, value]) => [key, value.get()]))
+	}
 	flush() {
 		this.write?.(Object.fromEntries([...this.values].map(([key, value]) => [key, value.get()])))
 	}

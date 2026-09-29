@@ -48,3 +48,6 @@ export declare function useSpring(
 export type { MotionValue, MotionValueEvents }
 export type { AnimationControls, AnimationResult } from './engine'
 export type * from './types'
+
+/** Retain live children through exit; removing the boundary disposes immediately. */
+export declare const Presence: UniversalComponent<import('./types').PresenceProps>

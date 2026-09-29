@@ -19,7 +19,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
 		}),
 		write(values) {
 			if (values.opacity !== undefined) {
-				node.style.opacity = String(values.opacity)
+				node.style.opacity = String(Math.min(1, Math.max(0, values.opacity)))
 			}
 
 			if (Object.keys(values).some((key) => key !== 'opacity')) {

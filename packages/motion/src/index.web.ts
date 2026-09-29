@@ -6,3 +6,4 @@ export { useMotionValue, useTransform, useSpring, useMotionValueEvent } from './
 export type { MotionValue, MotionValueEvents } from './value'
 export type { AnimationControls, AnimationResult } from './engine'
 export type * from './types'
+export { Presence } from './presence.tsrx'

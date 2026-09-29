@@ -5,7 +5,8 @@ Declarative numeric motion for Octane UI on web, iOS, and Android. Use
 and `transition`. Bound motion values update hosts without rendering each frame.
 
 See the [motion guide](../../docs/animation-gestures.md) and maintained
-[MotionDemo](examples/MotionDemo.tsrx). The [compatibility record](UPSTREAM.md)
+[MotionDemo](examples/MotionDemo.tsrx). Use the [PresenceDemo](examples/PresenceDemo.tsrx) for retained exits.
+The [compatibility record](UPSTREAM.md)
 defines the supported subset and differences from `@octanejs/motion`.
 
 Build with `pnpm --filter @octane-xplat/motion build`; run DOM/engine tests with

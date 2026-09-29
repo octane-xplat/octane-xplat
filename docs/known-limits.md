@@ -174,3 +174,9 @@ CSS/SVG properties are excluded. Existing CSS transforms need an outer container
 See [motion compatibility](../packages/motion/UPSTREAM.md) for lifecycle and
 engine boundaries. DOM and universal object-driver tests do not establish
 physical-device frame pacing or gesture arbitration; those checks remain pending.
+
+Presence retains live subtrees through exit on all three targets. This differs
+from upstream Octane motion's DOM cloning; there is no AnimatePresence alias.
+It adds a View wrapper, releases exiting focus without automatically restoring
+it, and ends immediately if an ancestor unmounts. Physical-device input/accessibility
+suppression remains unverified; see the [presence guide](animation-gestures.md#retain-content-through-exit).

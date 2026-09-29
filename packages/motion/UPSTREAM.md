@@ -6,15 +6,16 @@ inspected from Octane main on 2026-09-29. Its UPSTREAM.md pins Motion 12.42.2
 `motion-dom@12.42.2` and bundles its pure numeric generators and interpolation.
 The adapter is original code; it does not copy upstream's DOM host factory.
 
-| Contract                                         | Upstream reference under packages/motion                          | Xplat implementation / evidence                                         |
-| ------------------------------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Initial and changing targets, equal destinations | src/index.ts; tests/conformance/rerender.test.ts, effects.test.ts | Compiled wrappers over UI; components.web.test.tsrx                     |
-| Numeric spring/tween samples                     | Motion's motion-dom animation/generators                          | Reused generators; engine.test.ts compares irregular-time samples       |
-| Stable value, subscriptions, style replacement   | src/useMotionValue.ts; tests/conformance/motionValue.test.ts      | Numeric adapter with native clock; components.web.test.tsrx             |
-| Spring set versus jump; follow source            | src/useSpring.ts; tests/conformance/useSpring.test.ts             | Owned spring interception and cleanup; hook tests                       |
-| Derived numeric values                           | src/useTransform.ts; tests/conformance/useTransform.test.ts       | Upstream interpolation, direct subscriptions; hook tests                |
-| Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts     | Context inheritance; transforms settle immediately, opacity may animate |
-| Retained hosts on native                         | Not a DOM binding concern                                         | components.mobile.test.tsrx uses the universal object driver            |
+| Contract                                         | Upstream reference under packages/motion                          | Xplat implementation / evidence                                                                   |
+| ------------------------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Initial and changing targets, equal destinations | src/index.ts; tests/conformance/rerender.test.ts, effects.test.ts | Compiled wrappers over UI; components.web.test.tsrx                                               |
+| Numeric spring/tween samples                     | Motion's motion-dom animation/generators                          | Reused generators; engine.test.ts compares irregular-time samples                                 |
+| Stable value, subscriptions, style replacement   | src/useMotionValue.ts; tests/conformance/motionValue.test.ts      | Numeric adapter with native clock; components.web.test.tsrx                                       |
+| Spring set versus jump; follow source            | src/useSpring.ts; tests/conformance/useSpring.test.ts             | Owned spring interception and cleanup; hook tests                                                 |
+| Derived numeric values                           | src/useTransform.ts; tests/conformance/useTransform.test.ts       | Upstream interpolation, direct subscriptions; hook tests                                          |
+| Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts     | Context inheritance; transforms settle immediately, opacity may animate                           |
+| Exit lifecycle                                   | src/index.ts; tests/conformance/exit.test.ts                      | Deliberate live-subtree retention on both leaves; presence.web.test.tsrx and native presence test |
+| Retained hosts on native                         | Not a DOM binding concern                                         | components.mobile.test.tsrx uses the universal object driver                                      |
 
 Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packages/motion),
 [upstream ledger](https://github.com/octanejs/octane/blob/main/packages/motion/UPSTREAM.md),
@@ -39,7 +40,16 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
   are deferred until interruption and transform composition preserve this contract.
 - Springs are physical (not duration/bounce based); duration belongs to tweens.
   Default declarative transition is a 0.3-second easeInOut tween. Targets are
-  absolute; scale multiplies scaleX/scaleY. Reduced transforms have no delay.
+  absolute; scale multiplies scaleX/scaleY. Opacity is clamped to 0–1 at the host. Reduced transforms have no delay.
+
+## Presence divergence
+
+`Presence present={...}` retains actual components and their state/subscriptions
+until all registered exits finish. Upstream's `AnimatePresence` is a passthrough
+and exiting DOM hosts clone themselves during cleanup. We deliberately do not
+reuse that path or claim its cleanup timing. Presence renders an explicit View
+wrapper, blocks interaction during exit, and restores interaction on reversal.
+An ancestor unmount always disposes immediately. Nested boundaries are independent.
 
 ## Verification limits
 

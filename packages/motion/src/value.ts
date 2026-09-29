@@ -82,8 +82,8 @@ export class MotionValue {
 	}
 	private emit(event: keyof MotionValueEvents, value?: number) {
 		// Snapshot because subscribers may unsubscribe or add listeners while notified.
-        // eslint-disable-next-line unicorn/no-useless-spread
-        for (const callback of [...(this.listeners.get(event) ?? [])]) {
+		// eslint-disable-next-line unicorn/no-useless-spread
+		for (const callback of [...(this.listeners.get(event) ?? [])]) {
 			callback(value)
 		}
 	}

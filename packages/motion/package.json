@@ -5,7 +5,9 @@
 	"files": [
 		"dist",
 		"types",
-		"src"
+		"src",
+		"LICENSE.motion",
+		"UPSTREAM.md"
 	],
 	"type": "module",
 	"exports": {

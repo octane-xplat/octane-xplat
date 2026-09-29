@@ -22,7 +22,7 @@ export function attachHost(node: any): HostAdapter {
 
 	const write = (values: any) => {
 		if (values.opacity !== undefined) {
-			node.opacity = values.opacity
+			node.opacity = Math.min(1, Math.max(0, values.opacity))
 		}
 
 		if (values.x !== undefined) {

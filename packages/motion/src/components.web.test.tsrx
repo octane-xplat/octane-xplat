@@ -105,3 +105,30 @@ describe('binding lifecycle', () => {
 		mounted.close()
 	})
 })
+
+import { signal$ } from 'octane/signals'
+const position$ = signal$(0)
+function SignalBox() @{
+	<motion.View id="signal" animate={{ x: position$.get() }} transition={{ duration: 0 }} />
+}
+
+it('retargets from a render-time signal read', () => {
+	const mounted = mount(<SignalBox />)
+	act(() => position$.set(40))
+	expect((mounted.container.querySelector('#signal') as HTMLElement).style.transform).toContain('translateX(40px)')
+	mounted.close(); position$.set(0)
+})
+
+function UserReduced() @{
+	<MotionConfig reducedMotion="user"><motion.View id="user-reduced" animate={{ x: 100 }} transition={{ duration: 10 }} /></MotionConfig>
+}
+
+it('observes live system reduced-motion changes', () => {
+	let reduced = false
+	const callbacks = new Set<() => void>()
+	vi.stubGlobal('matchMedia', () => ({ get matches() { return reduced }, addEventListener(_type: string, cb: () => void) { callbacks.add(cb) }, removeEventListener(_type: string, cb: () => void) { callbacks.delete(cb) } }))
+	const mounted = mount(<UserReduced />)
+	act(() => { reduced = true; callbacks.forEach((cb) => cb()) })
+	expect((mounted.container.querySelector('#user-reduced') as HTMLElement).style.transform).toContain('translateX(100px)')
+	mounted.close(); expect(callbacks.size).toBe(0); vi.unstubAllGlobals()
+})

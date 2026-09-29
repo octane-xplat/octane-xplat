@@ -26,6 +26,8 @@ export type MotionStyle = Record<string, unknown> & Partial<Record<MotionKey, nu
 /** Supported declarative motion controls. */
 export interface MotionProps {
 	initial?: Target | false
+	/** Destination while the nearest Presence boundary retains this host for exit. */
+	exit?: Target
 	animate?: Target
 	transition?: Transition
 	style?: MotionStyle
@@ -43,4 +45,11 @@ export interface MotionConfigProps {
 	transition?: Transition
 	reducedMotion?: 'always' | 'never' | 'user'
 	children?: any
+}
+
+/** Presence renders a View wrapper; use its layout props to size retained content. */
+export interface PresenceProps extends ViewProps {
+	present: boolean
+	/** Called once after all registered exits finish, never after reversal/disposal. */
+	onExitComplete?: () => void
 }
