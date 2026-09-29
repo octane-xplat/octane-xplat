@@ -186,7 +186,10 @@ for (const def of CHECKS) {
 
 	// Cross-target equality — only meaningful with ≥2 dumps.
 	if (equalityTargets.length > 1) {
-		for (const facet of def.equal ?? []) {
+		for (const rule of def.equal ?? []) {
+			const facet = typeof rule === 'string' ? rule : rule.path
+			const absoluteTolerance = typeof rule === 'string' ? undefined : rule.tolerance
+			const relativeTolerance = typeof rule === 'string' ? undefined : rule.relativeTolerance
 			const [el] = facet.split('.')
 			const values = equalityTargets.map((t) => {
 				const dump = dumps.get(t)
@@ -198,8 +201,19 @@ for (const def of CHECKS) {
 			})
 
 			const [first, ...rest] = values
-			const tolerance = facet.endsWith('opacity') ? OPACITY_NEAR : NEAR
-			const ok = rest.every(([, v]) => equalValue(first[1], v, tolerance))
+			const tolerance = absoluteTolerance ?? (facet.endsWith('opacity') ? OPACITY_NEAR : NEAR)
+			const ok = rest.every(([, value]) => {
+				if (
+					relativeTolerance !== undefined &&
+					typeof first[1] === 'number' &&
+					typeof value === 'number'
+				) {
+					const scale = Math.max(1, Math.abs(first[1]), Math.abs(value))
+					return Math.abs(first[1] - value) <= scale * relativeTolerance
+				}
+
+				return equalValue(first[1], value, tolerance)
+			})
 
 			report(ok, `${def.fixture} · equal ${facet}`, values.map(([t, v]) => `${t}=${v}`).join(' '))
 		}

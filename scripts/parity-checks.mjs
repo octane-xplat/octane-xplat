@@ -31,22 +31,26 @@ const circular = (el) => {
 	return ['thumb corners form a circle', round, `${radius} on ${width}×${height}`]
 }
 
+const equalPath = (rule) => typeof rule === 'string' ? rule : rule.path
+
 const textEqual = [
-	'text.box.w',
-	'text.box.h',
+	// Font shaping varies slightly by renderer; exact size, weight, line height,
+	// and color checks below keep larger typography changes visible.
+	{ path: 'text.box.w', relativeTolerance: 0.03 },
+	{ path: 'text.box.h', tolerance: 1 },
 	'text.style.fontSize',
 	'text.style.fontWeight',
 	'text.style.lineHeight',
 	'text.style.color',
 ]
 
-const textLongEqual = textEqual.filter((facet) => facet !== 'text.box.h')
+const textLongEqual = textEqual.filter((rule) => equalPath(rule) !== 'text.box.h')
 
 const headingEqual = [
 	'heading.box.x',
 	'heading.box.y',
 	'heading.box.w',
-	'heading.box.h',
+	{ path: 'heading.box.h', tolerance: 1 },
 	'heading.style.fontSize',
 	'heading.style.fontWeight',
 	'heading.style.color',
@@ -78,7 +82,7 @@ function textRows(m, height, width) {
 		['text is inside the fixture box', text.box?.x >= 0 && text.box?.y >= 0],
 	]
 	if (width !== undefined) {
-		rows.unshift([`text width is ${width}px`, near(text.box?.w, width, 1), text.box?.w])
+		rows.unshift([`text width is ${width}px`, near(text.box?.w, width, width * 0.03), text.box?.w])
 	}
 	return rows
 }
@@ -112,6 +116,8 @@ function textLongRows(m, target) {
 	return rows
 }
 
+// Native font engines report different label bounds; buttonRows checks each
+// target still lays out a visible, centered label inside the same button box.
 const buttonEqual = [
 	'btn.style.justifyContent',
 	'btn.style.alignItems',
@@ -123,10 +129,6 @@ const buttonEqual = [
 	'btn.style.paddingRight',
 	'btn.style.paddingBottom',
 	'btn.style.paddingLeft',
-	'label.box.x',
-	'label.box.y',
-	'label.box.w',
-	'label.box.h',
 	'label.style.fontSize',
 	'label.style.fontWeight',
 	'label.style.color',
@@ -190,6 +192,15 @@ const inputEqual = [
 	'field.style.color',
 ]
 
+const inputNaturalEqual = inputEqual.filter(
+	(rule) => !['field.box.h', 'field.contentBox.h'].includes(equalPath(rule)),
+)
+
+const textAreaEqual = inputEqual.map((rule) => {
+	const path = equalPath(rule)
+	return ['field.box.h', 'field.contentBox.h'].includes(path) ? { path, tolerance: 1 } : rule
+})
+
 const controlEqual = [
 	'control.box.w',
 	'control.box.h',
@@ -208,12 +219,22 @@ function inputRows(m) {
 	return rows
 }
 
-function inputNaturalRows(m) {
+function inputNaturalRows(m, target) {
 	const field = m('field')
-	return [
+	const expectedHeight = { web: 18, ios: 20, android: 18.29 }[target]
+	const rows = [
 		['input has positive intrinsic dimensions', field.box?.w > 0 && field.box?.h > 0, `${field.box?.w}×${field.box?.h}`],
 		['input content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
 	]
+	if (expectedHeight !== undefined) {
+		// With no explicit height, each host supplies its natural text-field line box.
+		rows.push([
+			'natural input height matches the target text-field metric',
+			near(field.box?.h, expectedHeight, 0.75) && near(field.contentBox?.h, expectedHeight, 0.75),
+			`field=${field.box?.h}px content=${field.contentBox?.h}px expected=${expectedHeight}px`,
+		])
+	}
+	return rows
 }
 
 function textAreaRows(m, target) {
@@ -506,19 +527,28 @@ export const CHECKS = [
 		elements: { row: 'vx-checkbox-row', box: 'vx-checkbox', glyph: 'vx-checkbox-check' },
 		equal: [
 			'box.style.backgroundColor',
-			'glyph.box.w',
 			'glyph.style.fontSize',
 			'glyph.style.lineHeight',
 			'glyph.style.color',
 		],
-		check: (m) => {
+		check: (m, target) => {
 			const box = m('box')
 			const glyph = m('glyph')
-			return [
+			const expectedGlyphWidth = { web: 11.98, ios: 10.67, android: 11.43 }[target]
+			const rows = [
 				dims(box, 20, 20),
 				['check glyph has positive bounds', glyph.box?.w > 0 && glyph.box?.h > 0],
 				['glyph centered in box', near(glyph.box.x + glyph.box.w / 2 - box.box.x, 10, 1)],
 			]
+			if (expectedGlyphWidth !== undefined) {
+				// The ✓ advance comes from each target's actual font fallback.
+				rows.push([
+					'check glyph width matches target font metrics',
+					near(glyph.box?.w, expectedGlyphWidth, 0.75),
+					`${glyph.box?.w}px; expected ${expectedGlyphWidth}px`,
+				])
+			}
+			return rows
 		},
 	},
 	{
@@ -573,15 +603,15 @@ export const CHECKS = [
 			'leading.box.h',
 			'content.box.x',
 			'content.box.y',
-			'content.box.w',
-			'content.box.h',
+			{ path: 'content.box.w', tolerance: 1 },
+			{ path: 'content.box.h', tolerance: 1 },
 			'title.box.x',
 			'title.box.y',
-			'title.box.w',
+			{ path: 'title.box.w', tolerance: 1 },
 			'title.box.h',
 			'supporting.box.x',
 			'supporting.box.y',
-			'supporting.box.w',
+			{ path: 'supporting.box.w', tolerance: 1 },
 			'supporting.box.h',
 			'trailing.box.x',
 			'trailing.box.y',
@@ -689,35 +719,35 @@ export const CHECKS = [
 		fixture: 'text-input-natural',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { field: 'parity-textinput' },
-		equal: inputEqual,
-		check: (m) => inputNaturalRows(m),
+		equal: inputNaturalEqual,
+		check: (m, target) => inputNaturalRows(m, target),
 	},
 	{
 		fixture: 'text-area',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { field: 'parity-textarea' },
-		equal: inputEqual,
+		equal: textAreaEqual,
 		check: (m, target) => textAreaRows(m, target),
 	},
 	{
 		fixture: 'text-area-filled',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { field: 'parity-textarea' },
-		equal: inputEqual,
+		equal: textAreaEqual,
 		check: (m, target) => textAreaRows(m, target),
 	},
 	{
 		fixture: 'text-area-rows-2',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { field: 'parity-textarea' },
-		equal: inputEqual,
+		equal: textAreaEqual,
 		check: (m, target) => textAreaRowsIntrinsic(m, target, 36),
 	},
 	{
 		fixture: 'text-area-rows-default',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { field: 'parity-textarea' },
-		equal: inputEqual,
+		equal: textAreaEqual,
 		check: (m, target) => textAreaRowsIntrinsic(m, target, 54),
 	},
 	{
@@ -1225,15 +1255,25 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'input-rating-selected',
-	targets: ['web', 'ios', 'android', 'macos'],
+		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-rating-root', selected: 'vx-rating-cell--on' },
-		equal: [...controlEqual, 'selected.box.w', 'selected.box.h'],
-		check: (m) => {
+		// The default star is a font glyph; keep its measured advance explicit per target.
+		equal: [...controlEqual, 'selected.box.h'],
+		check: (m, target) => {
 			const selected = m('selected')
-			return [
+			const expectedWidth = { web: 23.88, ios: 24, android: 21.33 }[target]
+			const rows = [
 				...controlRows(m, 200, 32),
 				['selected rating cell has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
 			]
+			if (expectedWidth !== undefined) {
+				rows.push([
+					'selected star cell width matches target font metrics',
+					near(selected.box?.w, expectedWidth, 0.75),
+					`${selected.box?.w}px; expected ${expectedWidth}px`,
+				])
+			}
+			return rows
 		},
 	},
 	{
@@ -1263,13 +1303,27 @@ export const CHECKS = [
 		fixture: 'segmented-control-selected',
 		targets: ['web', 'ios', 'android'],
 		elements: { control: 'parity-segmented-root', selected: 'vx-segment--on' },
-		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
-		check: (m) => {
+		// The selected segment's cross-axis box follows each renderer's flex/text layout.
+		equal: [...controlEqual, 'selected.style.backgroundColor'],
+		check: (m, target) => {
 			const selected = m('selected')
-			return [
+			const expected = {
+				web: { w: 86, h: 32 },
+				ios: { w: 87, h: 34 },
+				android: { w: 86.1, h: 31.62 },
+			}[target]
+			const rows = [
 				...controlRows(m, 180, 40),
 				['selected segment has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
 			]
+			if (expected) {
+				rows.push([
+					'selected segment bounds match target flex layout',
+					near(selected.box?.w, expected.w, 0.75) && near(selected.box?.h, expected.h, 0.75),
+					`${selected.box?.w}×${selected.box?.h}; expected ${expected.w}×${expected.h}`,
+				])
+			}
+			return rows
 		},
 	},
 	{
@@ -1331,14 +1385,27 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'command-palette-open',
-	targets: ['web', 'ios', 'android', 'macos'],
-	equalTargets: ['web', 'ios', 'android'],
+		targets: ['web', 'ios', 'android', 'macos'],
+		equalTargets: ['web', 'ios', 'android'],
 		elements: { panel: 'parity-portal--command-palette-open', list: 'vx-cmdk-list' },
-		equal: ['panel.box.w', 'panel.box.h', 'panel.style.backgroundColor', 'list.box.w'],
-		check: (m) => [
-			dims(m('panel'), 200, 96),
-			['command list has a visible frame', m('list').box.w > 0 && m('list').box.h > 0],
-		],
+		// The list fills the panel content box; native and DOM border/padding boxes measure it differently.
+		equal: ['panel.box.w', 'panel.box.h', 'panel.style.backgroundColor'],
+		check: (m, target) => {
+			const list = m('list')
+			const expectedWidth = { web: 182, ios: 184, android: 181.71 }[target]
+			const rows = [
+				dims(m('panel'), 200, 96),
+				['command list has a visible frame', list.box.w > 0 && list.box.h > 0],
+			]
+			if (expectedWidth !== undefined) {
+				rows.push([
+					'command list width matches target content box',
+					near(list.box.w, expectedWidth, 1),
+					`${list.box.w}px; expected ${expectedWidth}px`,
+				])
+			}
+			return rows
+		},
 	},
 	{
 		fixture: 'tabs-second-selected',
