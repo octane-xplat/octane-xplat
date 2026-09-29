@@ -619,7 +619,7 @@ function KbdFixture() @{
 }
 
 function LinkFixture() @{
-	<Link className="parity-link-root" href="/parity">
+	<Link className="parity-link-root" href="/parity" style={{ width: 160, height: 32, backgroundColor: '#f5f5f5' }}>
 		<Text>Open parity</Text>
 	</Link>
 }
@@ -629,6 +629,7 @@ function NavLinkFixture() @{
 		className="parity-navlink-root"
 		activeClassName="parity-navlink-active"
 		route={{ stack: 'root', name: 'parity', params: {} }}
+		style={{ width: 160, height: 32, backgroundColor: '#f5f5f5' }}
 	>
 		<Text>Parity</Text>
 	</NavLink>
@@ -968,8 +969,8 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'checkbox-group-selected', component: 'CheckboxGroup', renderer: CheckboxGroupFixture, props: {} },
 	{ name: 'radio-group-selected', component: 'RadioGroup', renderer: RadioGroupFixture, props: {} },
 	{ name: 'segmented-control-selected', component: 'SegmentedControl', renderer: SegmentedControlFixture, props: {} },
-	{ name: 'collapsible-open', component: 'Collapsible', renderer: CollapsibleFixture, props: {} },
-	{ name: 'accordion-one-open', component: 'Accordion', renderer: AccordionFixture, props: {} },
+	{ name: 'collapsible-open', component: 'Collapsible', renderer: CollapsibleFixture, props: {}, height: 88 },
+	{ name: 'accordion-one-open', component: 'Accordion', renderer: AccordionFixture, props: {}, height: 104 },
 	{ name: 'dropdown-menu-trigger', component: 'DropdownMenu', renderer: DropdownMenuFixture, props: {} },
 	{ name: 'context-menu-target', component: 'ContextMenu', renderer: ContextMenuFixture, props: {} },
 	{ name: 'stepper-middle-active', component: 'Stepper', renderer: StepperFixture, props: {} },
@@ -992,10 +993,10 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'empty-state', component: 'Empty', renderer: EmptyFixture, props: {}, height: 136 },
 	{ name: 'breadcrumb-trail', component: 'Breadcrumb', renderer: BreadcrumbFixture, props: {} },
 	{ name: 'pagination-window', component: 'Pagination', renderer: PaginationFixture, props: {}, width: 240 },
-	{ name: 'table-two-rows', component: 'Table', renderer: TableFixture, props: {} },
+	{ name: 'table-two-rows', component: 'Table', renderer: TableFixture, props: {}, height: 112 },
 	{ name: 'virtual-list-viewport', component: 'VirtualList', renderer: VirtualListFixture, props: {} },
 	{ name: 'timeline-two-events', component: 'Timeline', renderer: TimelineFixture, props: {}, height: 128 },
-	{ name: 'tree-expanded', component: 'Tree', renderer: TreeFixture, props: {} },
+	{ name: 'tree-expanded', component: 'Tree', renderer: TreeFixture, props: {}, height: 112 },
 	{ name: 'alert-warning', component: 'Alert', renderer: AlertFixture, props: {} },
 	{ name: 'card-with-slots', component: 'Card', renderer: CardFixture, props: {}, height: 120 },
 	{ name: 'chip-selected', component: 'Chip', renderer: ChipFixture, props: {} },

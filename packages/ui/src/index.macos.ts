@@ -10,47 +10,55 @@ export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
 export { Pressable } from './Pressable.macos.tsrx'
 export { Button, Checkbox, Switch, Slider, SegmentedControl, SearchInput, ActivityIndicator } from './controls.macos.tsrx'
 
-export {
-	Unsupported as Collapsible,
-	Unsupported as Accordion,
-	Unsupported as RadioGroup,
-	Unsupported as DropdownMenu,
-	Unsupported as ContextMenu,
-	Unsupported as Badge,
-	Unsupported as Separator,
-	Unsupported as Skeleton,
-	Unsupported as Avatar,
-	Unsupported as AvatarGroup,
-	Unsupported as FormField,
-	Unsupported as FieldGroup,
-	Unsupported as ListItem,
-	Unsupported as InputNumber,
-	Unsupported as PinInput,
-	Unsupported as Select,
-	Unsupported as SelectMenu,
-	Unsupported as Combobox,
-	Unsupported as InputMenu,
-	Unsupported as InputTags,
-	Unsupported as InputRating,
-	Unsupported as CheckboxGroup,
-	Unsupported as Breadcrumb,
-	Unsupported as Pagination,
-	Unsupported as Stepper,
-	Unsupported as NavigationMenu,
-	Unsupported as CommandPalette,
-	Unsupported as Table,
-	Unsupported as Timeline,
-	Unsupported as Tree,
-	Unsupported as Alert,
-	Unsupported as Card,
-	Unsupported as Chip,
-	Unsupported as Kbd,
-	Unsupported as Empty,
-	Unsupported as Banner,
-	Unsupported as User,
-	Unsupported as ProgressGroup,
-	Unsupported as Drawer,
-} from './unsupported.macos.tsrx'
+// Experimental AppKit public surface. Components with a direct AppKit
+// equivalent use the host renderer; NativeScript-only features are exported
+// as visible unsupported leaves so the shared harness can still load them.
+export { View, Column } from './View.macos.tsrx'
+export { Row } from './Row.macos.tsrx'
+export { Grid, Stack, Absolute, Spacer } from './layout.macos.tsrx'
+export type { PanEvent, SwipeEvent, SetTranslate } from './props'
+export { setTranslate } from './translate.macos'
+export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
+export { Pressable } from './Pressable.macos.tsrx'
+export { Button, Checkbox, Switch, Slider, SegmentedControl, SearchInput, ActivityIndicator } from './controls.macos.tsrx'
+
+export { Collapsible } from './Collapsible.macos.tsrx'
+export { Accordion } from './Accordion.macos.tsrx'
+export { RadioGroup } from './RadioGroup.macos.tsrx'
+export { DropdownMenu } from './DropdownMenu.macos.tsrx'
+export { ContextMenu } from './ContextMenu.macos.tsrx'
+export { Badge } from './Badge.macos.tsrx'
+export { Separator } from './Separator.macos.tsrx'
+export { Skeleton } from './Skeleton.macos.tsrx'
+export { Avatar } from './Avatar.macos.tsrx'
+export { AvatarGroup } from './AvatarGroup.macos.tsrx'
+export { FormField } from './FormField.macos.tsrx'
+export { FieldGroup } from './FieldGroup.macos.tsrx'
+export { ListItem } from './ListItem.macos.tsrx'
+export { InputNumber } from './InputNumber.macos.tsrx'
+export { PinInput } from './PinInput.macos.tsrx'
+export { Select } from './Select.macos.tsrx'
+export { SelectMenu, Combobox, InputMenu } from './aliases.macos.tsrx'
+export { InputTags } from './InputTags.macos.tsrx'
+export { InputRating } from './InputRating.macos.tsrx'
+export { CheckboxGroup } from './CheckboxGroup.macos.tsrx'
+export { Breadcrumb } from './Breadcrumb.macos.tsrx'
+export { Pagination } from './Pagination.macos.tsrx'
+export { Stepper } from './Stepper.macos.tsrx'
+export { NavigationMenu } from './NavigationMenu.macos.tsrx'
+export { CommandPalette } from './CommandPalette.macos.tsrx'
+export { Table } from './Table.macos.tsrx'
+export { Timeline } from './Timeline.macos.tsrx'
+export { Tree } from './Tree.macos.tsrx'
+export { Alert } from './Alert.macos.tsrx'
+export { Card } from './Card.macos.tsrx'
+export { Chip } from './Chip.macos.tsrx'
+export { Kbd } from './Kbd.macos.tsrx'
+export { Empty } from './Empty.macos.tsrx'
+export { Banner } from './Banner.macos.tsrx'
+export { User } from './User.macos.tsrx'
+export { ProgressGroup } from './ProgressGroup.macos.tsrx'
+export { Drawer } from './Drawer.macos.tsrx'
 
 export { Link } from './Link.macos.tsrx'
 export { NavLink } from './NavLink.macos.tsrx'
@@ -72,7 +80,8 @@ export type { TabSpec } from './props'
 export { SafeArea, KeyboardAvoiding } from './layout-shells.macos.tsrx'
 export { useSafeAreaInsets } from './safeAreaInsets.macos.tsrx'
 export { useMeasure } from './useMeasure.macos.tsrx'
-export { Meter, Heading, Icon } from './macos-extras.macos.tsrx'
+export { Meter, Heading } from './macos-extras.macos.tsrx'
+export { Icon } from './Icon.macos.tsrx'
 export { registerIcon, registerIcons } from './icons'
 export type { IconGlyph } from './icons'
 export const isNative = true as const

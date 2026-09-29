@@ -156,6 +156,16 @@ export function SearchInput(props: any) @{
 	<TextInput {...props} placeholder={props.placeholder ?? 'Search'} />
 }
 
-export function ActivityIndicator(_props: ActivityIndicatorProps) @{
-	<label>Loading…</label>
+export function ActivityIndicator(props: ActivityIndicatorProps) @{
+	if (props.busy === false) return null;
+
+	// Self-drawn ring — the vx-spinner class is inert on AppKit (no CSS
+	// layer), so the ring chrome comes from explicit border styles. There
+	// is no layer animation yet; the ring renders statically.
+	<flexboxlayout
+		id={props.id}
+		className={cx('vx-spinner', props.className)}
+		style={{ borderWidth: 2, borderTopColor: '#666666', borderColor: '#666666', borderRadius: 12, width: 24, height: 24, ...props.style }}
+		accessibilityRole="progressbar"
+	/>
 }

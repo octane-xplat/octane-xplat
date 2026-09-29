@@ -926,7 +926,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'drawer-open-frame',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: {
 			root: 'parity-drawer-root',
 			main: 'vx-drawer-main',
@@ -998,70 +998,70 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'form-field-basic',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-formfield-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 180, 64),
 	},
 	{
 		fixture: 'field-group-basic',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-fieldgroup-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 180, 64),
 	},
 	{
 		fixture: 'input-number-value',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-inputnumber-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'pin-input-filled',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-pininput-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 200, 44),
 	},
 	{
 		fixture: 'select-value',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-select-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'select-menu-value',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-selectmenu-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'combobox-value',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-combobox-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'input-menu-value',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-inputmenu-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 160, 40),
 	},
 	{
 		fixture: 'input-tags-values',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-inputtags-root' },
 		equal: controlEqual,
 		check: (m) => controlRows(m, 220, 44),
 	},
 	{
 		fixture: 'input-rating-selected',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-rating-root', selected: 'vx-rating-cell--on' },
 		equal: [...controlEqual, 'selected.box.w', 'selected.box.h'],
 		check: (m) => {
@@ -1074,7 +1074,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'checkbox-group-selected',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-checkboxgroup-root', selected: 'vx-checkbox' },
 		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
 		check: (m) => [
@@ -1084,7 +1084,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'radio-group-selected',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-radiogroup-root', selected: 'vx-radio-dot' },
 		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
 		check: (m) => {
@@ -1110,35 +1110,36 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'collapsible-open',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-collapsible-root', content: 'parity-collapsible-content' },
 		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'content.box.w', 'content.box.h'],
 		check: (m) => [dims(m('root'), 180, 72), dims(m('content'), 160, 24)],
 	},
 	{
 		fixture: 'accordion-one-open',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-accordion-root', content: 'parity-accordion-content' },
 		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'content.box.w', 'content.box.h'],
 		check: (m) => [dims(m('root'), 180, 88), dims(m('content'), 160, 28)],
 	},
 	{
 		fixture: 'dropdown-menu-trigger',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { trigger: 'parity-dropdown-trigger' },
 		equal: ['trigger.box.w', 'trigger.box.h', 'trigger.style.backgroundColor'],
 		check: (m) => [dims(m('trigger'), 160, 32)],
 	},
 	{
 		fixture: 'context-menu-target',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { root: 'parity-contextmenu-root', target: 'parity-contextmenu-target' },
 		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'target.box.w', 'target.box.h'],
 		check: (m) => [dims(m('root'), 180, 56), dims(m('target'), 144, 28)],
 	},
 	{
 		fixture: 'stepper-middle-active',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
+	equalTargets: ['web', 'ios', 'android'],
 		elements: { root: 'parity-stepper-root', active: 'vx-step--on' },
 		equal: ['root.box.w', 'root.box.h', 'root.style.backgroundColor', 'active.box.w', 'active.box.h'],
 		check: (m) => {
@@ -1148,7 +1149,8 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'navigation-menu-active',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
+	equalTargets: ['web', 'ios', 'android'],
 		elements: { root: 'parity-navmenu-root', active: 'vx-navmenu-item--on' },
 		equal: [
 			'root.box.w',
@@ -1165,7 +1167,8 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'command-palette-open',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
+	equalTargets: ['web', 'ios', 'android'],
 		elements: { panel: 'parity-portal--command-palette-open', list: 'vx-cmdk-list' },
 		equal: ['panel.box.w', 'panel.box.h', 'panel.style.backgroundColor', 'list.box.w'],
 		check: (m) => [
@@ -1175,7 +1178,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'tabs-second-selected',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: {
 			root: 'parity-tabs-root',
 			tabbar: 'vx-tabbar',
@@ -1195,14 +1198,14 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'meter-progress',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { meter: 'parity-meter-root' },
 		equal: ['meter.box.w', 'meter.box.h', 'meter.style.backgroundColor'],
 		check: (m) => [dims(m('meter'), 48, 48)],
 	},
 	{
 		fixture: 'activity-indicator-busy',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { spinner: 'parity-activity-indicator-root' },
 		equal: [
 			'spinner.box.w',
@@ -1221,28 +1224,28 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'badge-basic',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { badge: 'parity-badge-root' },
 		equal: ['badge.box.w', 'badge.box.h', 'badge.style.backgroundColor'],
 		check: (m) => [dims(m('badge'), 120, 32)],
 	},
 	{
 		fixture: 'avatar-fallback',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { avatar: 'parity-avatar-root' },
 		equal: ['avatar.box.w', 'avatar.box.h', 'avatar.style.backgroundColor'],
 		check: (m) => [dims(m('avatar'), 40, 40)],
 	},
 	{
 		fixture: 'avatar-group-overflow',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { group: 'parity-avatar-group-root', member: 'parity-avatar-group-member' },
 		equal: ['group.box.w', 'group.box.h', 'member.box.w', 'member.box.h'],
 		check: (m) => [dims(m('group'), 96, 40), dims(m('member'), 32, 32)],
 	},
 	{
 		fixture: 'user-row',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { user: 'parity-user-root', avatar: 'vx-avatar' },
 		equal: [
 			'user.box.w',
@@ -1255,21 +1258,21 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'kbd-shortcut',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { key: 'parity-kbd-root' },
 		equal: ['key.box.w', 'key.box.h', 'key.style.backgroundColor'],
 		check: (m) => [dims(m('key'), 52, 32)],
 	},
 	{
 		fixture: 'link-fixed-target',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { link: 'parity-link-root' },
 		equal: ['link.box.w', 'link.box.h', 'link.style.backgroundColor'],
 		check: (m) => [dims(m('link'), 160, 32)],
 	},
 	{
 		fixture: 'nav-link-active',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { link: 'parity-navlink-active' },
 		equal: ['link.box.w', 'link.box.h', 'link.style.backgroundColor'],
 		check: (m) => [dims(m('link'), 160, 32)],
@@ -1283,21 +1286,21 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'separator-horizontal',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { separator: 'parity-separator-root' },
 		equal: ['separator.box.w', 'separator.box.h', 'separator.style.backgroundColor'],
 		check: (m) => [dims(m('separator'), 160, 2)],
 	},
 	{
 		fixture: 'skeleton-basic',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { skeleton: 'parity-skeleton-root' },
 		equal: ['skeleton.box.w', 'skeleton.box.h', 'skeleton.style.backgroundColor'],
 		check: (m) => [dims(m('skeleton'), 140, 18)],
 	},
 	{
 		fixture: 'empty-state',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { empty: 'parity-empty-root', icon: 'vx-empty-icon' },
 		equal: [
 			'empty.box.w',
@@ -1310,14 +1313,14 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'breadcrumb-trail',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { trail: 'parity-breadcrumb-root' },
 		equal: ['trail.box.w', 'trail.box.h', 'trail.style.backgroundColor'],
 		check: (m) => [dims(m('trail'), 220, 36)],
 	},
 	{
 		fixture: 'pagination-window',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { pages: 'parity-pagination-root', active: 'vx-page-btn--on' },
 		equal: [
 			'pages.box.w',
@@ -1336,7 +1339,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'table-two-rows',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { table: 'parity-table-root', cell: 'parity-table-cell-content' },
 		equal: ['table.box.w', 'table.box.h', 'table.style.backgroundColor', 'cell.box.w', 'cell.box.h'],
 		check: (m) => [dims(m('table'), 220, 96), dims(m('cell'), 64, 24)],
@@ -1350,7 +1353,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'timeline-two-events',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { timeline: 'parity-timeline-root', dot: 'vx-timeline-dot' },
 		equal: [
 			'timeline.box.w',
@@ -1363,7 +1366,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'tree-expanded',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { tree: 'parity-tree-root', child: 'vx-tree-row--disabled' },
 		equal: ['tree.box.w', 'tree.box.h', 'tree.style.backgroundColor', 'child.style.opacity'],
 		check: (m) => {
@@ -1376,7 +1379,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'alert-warning',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { alert: 'parity-alert-root', icon: 'vx-alert-icon' },
 		equal: [
 			'alert.box.w',
@@ -1390,21 +1393,21 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'card-with-slots',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { card: 'parity-card-root', body: 'parity-card-body' },
 		equal: ['card.box.w', 'card.box.h', 'card.style.backgroundColor', 'body.box.w', 'body.box.h'],
 		check: (m) => [dims(m('card'), 220, 104), dims(m('body'), 180, 32)],
 	},
 	{
 		fixture: 'chip-selected',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { chip: 'parity-chip-root', selected: 'vx-chip--on' },
 		equal: ['chip.box.w', 'chip.box.h', 'selected.style.backgroundColor', 'selected.style.color'],
 		check: (m) => [dims(m('chip'), 96, 32)],
 	},
 	{
 		fixture: 'banner-dismissible',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { banner: 'parity-banner-root', icon: 'vx-banner-icon', dismiss: 'vx-banner-dismiss' },
 		equal: [
 			'banner.box.w',
@@ -1425,7 +1428,7 @@ export const CHECKS = [
 	},
 	{
 		fixture: 'progress-group-two-items',
-		targets: ['web', 'ios', 'android'],
+	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { group: 'parity-progress-group-root', meter: 'vx-meter' },
 		equal: ['group.box.w', 'group.box.h', 'group.style.backgroundColor', 'meter.box.w', 'meter.box.h'],
 		check: (m) => [dims(m('group'), 220, 88), dims(m('meter'), 24, 24)],

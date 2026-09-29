@@ -1069,16 +1069,62 @@ function makeNode(container, id, type, props) {
 	return node
 }
 
+const EDGE_INSET_PROPS = new Map([
+	['paddingTop', ['top']],
+	['paddingRight', ['right']],
+	['paddingBottom', ['bottom']],
+	['paddingLeft', ['left']],
+	['paddingVertical', ['top', 'bottom']],
+	['paddingHorizontal', ['left', 'right']],
+])
+
+// number | 'N' | 'V H' | 'T R B L' → NSEdgeInsets (top/left/bottom/right).
+function parseEdgeInsets(value) {
+	if (typeof value === 'number' || !isNaN(Number(value))) {
+		const n = Number(value)
+		return { top: n, left: n, bottom: n, right: n }
+	}
+	const parts = String(value).split(/\s+/).map((p) => parseFloat(p) || 0)
+	const top = parts[0] ?? 0
+	const right = parts.length > 1 ? parts[1] : top
+	const bottom = parts.length > 2 ? parts[2] : top
+	const left = parts.length > 3 ? parts[3] : right
+	return { top, left, bottom, right }
+}
+
 function nativeColor(value) {
-	const match = /^#([\da-f]{6})$/i.exec(String(value))
-	if (!match) {throw new Error('AppKit spike expects #rrggbb colors, received ' + value)}
-	const hex = match[1]
-	return NSColor.colorWithRedGreenBlueAlpha(
-		parseInt(hex.slice(0, 2), 16) / 255,
-		parseInt(hex.slice(2, 4), 16) / 255,
-		parseInt(hex.slice(4, 6), 16) / 255,
-		1,
-	)
+	const string = String(value)
+	let match = /^#([\da-f]{6})$/i.exec(string)
+	if (match) {
+		const hex = match[1]
+		return NSColor.colorWithRedGreenBlueAlpha(
+			parseInt(hex.slice(0, 2), 16) / 255,
+			parseInt(hex.slice(2, 4), 16) / 255,
+			parseInt(hex.slice(4, 6), 16) / 255,
+			1,
+		)
+	}
+	match = /^#([\da-f]{8})$/i.exec(string)
+	if (match) {
+		const hex = match[1]
+		return NSColor.colorWithRedGreenBlueAlpha(
+			parseInt(hex.slice(0, 2), 16) / 255,
+			parseInt(hex.slice(2, 4), 16) / 255,
+			parseInt(hex.slice(4, 6), 16) / 255,
+			parseInt(hex.slice(6, 8), 16) / 255,
+		)
+	}
+	match = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)[,\s/]*([\d.]*)[\s%]*\)$/i.exec(string)
+	if (match) {
+		const alpha = match[4] === '' ? 1 : Number(match[4])
+		return NSColor.colorWithRedGreenBlueAlpha(
+			Number(match[1]) / 255,
+			Number(match[2]) / 255,
+			Number(match[3]) / 255,
+			alpha,
+		)
+	}
+	throw new Error('AppKit spike expects #rrggbb, #rrggbbaa, or rgb()/rgba() colors, received ' + string)
 }
 
 function fontForStyle(size, weight = 400) {
@@ -1215,8 +1261,11 @@ function applyStyle(node, style) {
 			// syncText applies this to each paragraph; it is not the label's fixed height.
 			continue
 		} else if (name === 'padding' && node.type === 'flexboxlayout') {
-			const padding = Number(value)
-			node.view.edgeInsets = { top: padding, left: padding, bottom: padding, right: padding }
+			node.view.edgeInsets = parseEdgeInsets(value)
+		} else if (EDGE_INSET_PROPS.has(name) && node.type === 'flexboxlayout') {
+			const insets = { ...node.view.edgeInsets }
+			for (const edge of EDGE_INSET_PROPS.get(name)) {insets[edge] = Number(value) || 0}
+			node.view.edgeInsets = insets
 		} else if (name === 'backgroundColor' && node.view) {
 			node.view.wantsLayer = true
 			node.view.layer.backgroundColor = nativeColor(value).CGColor
