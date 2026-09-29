@@ -230,3 +230,27 @@ export { useStore } from './use-store.web.tsrx'
 export { Sheet } from './Sheet.web.tsrx'
 export { openSheet, closeSheet } from './sheet-service.web'
 export type { SheetProps, SheetOpenOptions, OpenSheet } from './props'
+export type {
+	AbsoluteProps,
+	DrawerProps,
+	GridProps,
+	ImageProps,
+	KeyboardAvoidingProps,
+	LayoutChildProps,
+	PressableProps,
+	RichTextProps,
+	RichTextSpanProps,
+	RowProps,
+	ScreenProps,
+	SafeAreaProps,
+	ScrollBoxProps,
+	ScrollViewProps,
+	SpacerProps,
+	StackProps,
+	SwitchProps,
+	TabsProps,
+	TextAreaProps,
+	TextInputProps,
+	TextProps,
+	ViewProps,
+} from './props'

@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 
 const moduleSpecifierNodes = (ts, sourceFile) => {
 	const nodes = []
@@ -180,8 +180,42 @@ function sourceFile(ts, file) {
 	)
 }
 
-function staticRuntimeExports(ts, file) {
-	const source = sourceFile(ts, file)
+function localSourceModule(file, specifier) {
+	if (!specifier.startsWith('.')) {
+		return null
+	}
+
+	const target = resolve(dirname(file), specifier)
+	const extension = extname(target)
+	const candidates = [target]
+	if (extension === '.js' || extension === '.mjs' || extension === '.cjs') {
+		const stem = target.slice(0, -extension.length)
+		candidates.push(`${stem}.ts`, `${stem}.tsx`, `${stem}.tsrx`)
+	} else if (!['.ts', '.tsx', '.tsrx'].includes(extension)) {
+		candidates.push(`${target}.ts`, `${target}.tsx`, `${target}.tsrx`)
+		candidates.push(join(target, 'index.ts'), join(target, 'index.tsx'), join(target, 'index.tsrx'))
+	}
+
+	for (const candidate of candidates) {
+		try {
+			if (statSync(candidate).isFile()) {
+				return candidate
+			}
+		} catch {}
+	}
+
+	return null
+}
+
+function staticRuntimeExports(ts, file, seen = new Set()) {
+	const absolute = resolve(file)
+	if (seen.has(absolute)) {
+		return new Set()
+	}
+
+	seen.add(absolute)
+
+	const source = sourceFile(ts, absolute)
 	const names = new Set()
 	const addBindingName = (name) => {
 		if (ts.isIdentifier(name)) {
@@ -222,14 +256,23 @@ function staticRuntimeExports(ts, file) {
 			}
 		}
 
-		if (ts.isExportDeclaration(statement) && !statement.isTypeOnly && statement.exportClause) {
-			if (ts.isNamedExports(statement.exportClause)) {
+		if (ts.isExportDeclaration(statement) && !statement.isTypeOnly) {
+			if (!statement.exportClause && statement.moduleSpecifier && ts.isStringLiteralLike(statement.moduleSpecifier)) {
+				const target = localSourceModule(absolute, statement.moduleSpecifier.text)
+				if (target) {
+					for (const name of staticRuntimeExports(ts, target, seen)) {
+						if (name !== 'default') {
+							names.add(name)
+						}
+					}
+				}
+			} else if (statement.exportClause && ts.isNamedExports(statement.exportClause)) {
 				for (const element of statement.exportClause.elements) {
 					if (!element.isTypeOnly) {
 						names.add(element.name.text)
 					}
 				}
-			} else if (ts.isNamespaceExport(statement.exportClause)) {
+			} else if (statement.exportClause && ts.isNamespaceExport(statement.exportClause)) {
 				names.add(statement.exportClause.name.text)
 			}
 		}

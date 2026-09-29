@@ -38,4 +38,5 @@ export type {
 	PlatformTabSpec,
 	PlatformTabsProps,
 	PlatformWidgetProps,
+	RefreshProps,
 } from '../props'

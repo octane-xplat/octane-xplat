@@ -1,0 +1,50 @@
+{
+	"targets": {
+		"ui": {
+			"renderer": "octane",
+			"project": "tsconfig.types.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": [
+						"./src/index.macos.ts",
+						"./dist/web/ui.js",
+						"./dist/native/ui.js"
+					],
+					"types": [
+						"./types/index.macos.d.ts",
+						"./types/generated/index.web.d.ts",
+						"./types/generated/index.d.ts"
+					]
+				},
+				"./ios": {
+					"source": "src/ios/index.ts",
+					"runtime": "./dist/native/ios/index.js",
+					"types": "./types/generated/ios/index.d.ts"
+				},
+				"./android": {
+					"source": "src/android/index.ts",
+					"runtime": "./dist/native/android/index.js",
+					"types": "./types/generated/android/index.d.ts"
+				},
+				"./native": {
+					"source": "src/native/index.ts",
+					"runtime": "./dist/native/native/index.js",
+					"types": "./types/generated/native/index.d.ts"
+				},
+				"./web": {
+					"source": "src/web/index.ts",
+					"runtime": "./dist/web/web/index.js",
+					"types": "./types/generated/web/index.d.ts"
+				}
+			}
+		}
+	},
+	"sourceExtensions": {
+		".ts": ".js",
+		".tsx": ".js",
+		".tsrx": ".js"
+	},
+	"overrides": {}
+}

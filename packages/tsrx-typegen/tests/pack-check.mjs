@@ -35,6 +35,18 @@ const baseFiles = {
 try {
 	verifyPackedPackage(ts, writePackage(baseFiles))
 
+	const starBarrel = writePackage({
+		'package.json': JSON.stringify({
+			name: '@fixture/star-barrel',
+			exports: { '.': { types: './types/index.d.ts', default: './src/index.ts' } },
+		}),
+		'src/index.ts': "export * from './runtime.js'\n",
+		'src/runtime.ts': 'export const value = 1\n',
+		'types/index.d.ts': 'export declare const value: number\n',
+	})
+
+	verifyPackedPackage(ts, starBarrel)
+
 	const mismatchedRuntime = writePackage({
 		...baseFiles,
 		'dist/index.js': 'export const value = 1\nexport const missingType = true\n',

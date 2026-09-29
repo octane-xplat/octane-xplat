@@ -179,13 +179,17 @@ compiler config and rewrites source extensions to the package's JavaScript
 extensions. Generated declarations live in a dedicated output directory and
 `--check` detects stale output without touching handwritten types.
 
-`@octane-xplat/ui` still publishes target-specific declaration entrypoints.
-Its existing boundary files are being migrated to generated output as the
-tool's published consumer checks are proven. The TS 7 content-mapper path has
-a separate output naming/specifier issue (`Component.d.tsrx.ts` and retained
-`.tsrx` imports; upstream [TS#64053](https://github.com/microsoft/TypeScript/issues/64053)
-and [draft TS#64120](https://github.com/microsoft/TypeScript/pull/64120)).
-The initial typegen backend targets the classic TS 5.9 path; it does not claim
+`@octane-xplat/ui` now generates declarations for its web, native, Linux, and
+iOS/Android subpath entrypoints. Its AppKit root entrypoint keeps an explicit
+declaration because that renderer uses separate JSX types; it now references
+the generated shared props, and stale `Pager`/`Video` entries were removed
+because those components ship from separate leaf packages. This adopts the
+same flow the GIF leaf proved in a packed consumer. The TS 7 content-mapper
+path has a separate output naming/specifier issue (`Component.d.tsrx.ts` and
+retained `.tsrx` imports; upstream
+[TS#64053](https://github.com/microsoft/TypeScript/issues/64053) and
+[draft TS#64120](https://github.com/microsoft/TypeScript/pull/64120)). The
+initial typegen backend targets the classic TS 5.9 path; it does not claim
 that the upstream TS 7 issue is fixed.
 
 Packages with `tsrx-typegen.json` can run `tsrx-typegen --pack-check` as a hard
@@ -201,9 +205,11 @@ the pack gate validates the declaration graph, not every semantic contract.
 
 `@octane-xplat/gif` is the first leaf package using this flow. Its web and
 NativeScript declarations are generated and checked from a packed consumer in
-Bundler and NodeNext modes with `skipLibCheck: false`. The AppKit-specific
-entrypoint retains its explicit declaration because its renderer JSX types are
-not part of the Octane project used for the other targets.
+Bundler and NodeNext modes with `skipLibCheck: false`. The UI consumer fixture
+checks both workspace and publish export maps in those modes; NativeScript's
+third-party ambient declarations require `skipLibCheck: true` in its temporary
+consumer, while package export paths and declaration closure remain checked by
+`--pack-check`.
 
 ## TS configs
 

@@ -15,23 +15,34 @@
 				"default": "./src/index.macos.ts"
 			},
 			"linux": {
-				"types": "./types/index.linux.d.ts",
+				"types": "./types/generated/index.linux.d.ts",
 				"default": "./src/index.linux.ts"
 			},
-			"web": "./src/index.web.ts",
-			"native": "./src/index.ts",
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
+			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
 		},
 		"./ios": {
+			"types": "./types/generated/ios/index.d.ts",
 			"native": "./src/ios/index.ts"
 		},
 		"./android": {
+			"types": "./types/generated/android/index.d.ts",
 			"native": "./src/android/index.ts"
 		},
 		"./native": {
+			"types": "./types/generated/native/index.d.ts",
 			"native": "./src/native/index.ts"
 		},
 		"./web": {
+			"types": "./types/generated/web/index.d.ts",
 			"web": "./src/web/index.ts"
 		},
 		"./theme/*": "./src/theme/*"
@@ -44,47 +55,52 @@
 					"default": "./src/index.macos.ts"
 				},
 				"web": {
-					"types": "./types/index.web.d.ts",
+					"types": "./types/generated/index.web.d.ts",
 					"default": "./dist/web/ui.js"
 				},
 				"native": {
-					"types": "./types/index.mobile.d.ts",
+					"types": "./types/generated/index.d.ts",
 					"default": "./dist/native/ui.js"
 				},
-				"types": "./types/index.d.ts",
+				"types": "./types/generated/index.d.ts",
 				"default": "./dist/native/ui.js"
 			},
 			"./ios": {
-				"types": "./types/ios.d.ts",
+				"types": "./types/generated/ios/index.d.ts",
 				"native": "./dist/native/ios/index.js"
 			},
 			"./android": {
-				"types": "./types/android.d.ts",
+				"types": "./types/generated/android/index.d.ts",
 				"native": "./dist/native/android/index.js"
 			},
 			"./native": {
-				"types": "./types/native.d.ts",
+				"types": "./types/generated/native/index.d.ts",
 				"native": "./dist/native/native/index.js"
 			},
 			"./web": {
-				"types": "./types/web.d.ts",
+				"types": "./types/generated/web/index.d.ts",
 				"web": "./dist/web/web/index.js"
 			},
 			"./theme/tokens.css": "./src/theme/tokens.css"
 		}
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
-		"prepublishOnly": "pnpm build",
+		"build": "vite build && vite build --mode native && tsrx-typegen --target ui",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"test:packed": "node tests/packed-consumer.mjs",
 		"test:native": "vitest run --config vitest.native.config.mts"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.1",
 		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript/core": "9.1.2",
+		"@nativescript/types": "9.0.0",
 		"@octanejs/vite-plugin": "0.1.60",
+		"@tsrx/typescript-plugin": "0.4.11",
 		"jsdom": "30.1.1",
 		"octane": "0.5.0",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
 		"vite": "8.3.0",
 		"vitest": "5.0.1"
 	},

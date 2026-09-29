@@ -91,7 +91,7 @@ export function Tabs(props: TabsProps) @{
 	@if (modalContent) {
 		<div className="vx-modalroute">
 			<button className="vx-modalroute-shade" aria-label="Dismiss" onClick={() => popRoute()} />
-			<div className="vx-modalroute-body"><PresentedStacks value={presentedWith(modal.stack)}>{modalContent}</PresentedStacks></div>
+			<div className="vx-modalroute-body"><PresentedStacks value={presentedWith(modal?.stack ?? '')}>{modalContent}</PresentedStacks></div>
 		</div>
 	}
 	</div>

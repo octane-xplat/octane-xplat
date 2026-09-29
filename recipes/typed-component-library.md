@@ -29,6 +29,6 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC1: [tsrx-typegen setup and configuration](../packages/tsrx-typegen/README.md).
 - AC2: [Generated declaration contract and source-extension mapping](../packages/tsrx-typegen/README.md).
 - AC3: [Generation and check mode](../packages/tsrx-typegen/README.md).
-- AC4: [Package publish model and declaration verification](../docs/toolchain-notes.md#shared-packages-publish-model) and the [GIF packed consumer](../packages/gif/tests/packed-consumer.mjs).
+- AC4: [Package publish model and declaration verification](../docs/toolchain-notes.md#shared-packages-publish-model), plus the [GIF](../packages/gif/tests/packed-consumer.mjs) and [UI](../packages/ui/tests/packed-consumer.mjs) packed consumers.
 - AC5: [Compiler support boundary](../docs/toolchain-notes.md#shared-packages-publish-model) and [known limits](../docs/known-limits.md#same-edge-on-every-target).
 - AC6: [Pack check and doctor integration](../packages/tsrx-typegen/README.md#publish-checks).

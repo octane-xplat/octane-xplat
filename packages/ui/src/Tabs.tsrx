@@ -5,7 +5,7 @@ import { Icon } from './Icon.tsrx';
 import { Pressable } from './Pressable.tsrx';
 import { Text } from './Text.tsrx';
 import { layoutsForRoute, screenFor, useRoute } from './route';
-import { RouteHost, screenParamsFor } from './RouteHost.mobile';
+import { RouteHost, screenParamsFor } from './route-host.mobile';
 import type { TabSpec, TabsProps } from './props';
 
 export type { TabSpec } from './props';

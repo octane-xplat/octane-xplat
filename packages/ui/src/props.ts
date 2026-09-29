@@ -1,9 +1,8 @@
 /** Shared prop/type contract — the single source of truth for the public
  *  API surface. Platform leaves import these types so prop shapes cannot
- *  drift across .web/native-default, and `tsc --emitDeclarationOnly` emits this
- *  file into the published package's boundary types (tsrx can't emit
- *  declarations — pure .ts is what escapes that). No imports here:
- *  everything must stay dependency-free and platform-agnostic. */
+ *  drift across .web/native-default, and `tsrx-typegen` emits the package's
+ *  declarations from its public entrypoints and component leaves. No imports
+ *  here: the shared contracts stay dependency-free and platform-agnostic. */
 
 // ---------- gestures ----------
 
@@ -961,6 +960,8 @@ export type PlatformTabSpec = Omit<TabSpec, 'icon'> & {
 
 export type PlatformTabsProps = Omit<TabsProps, 'tabs'> & {
 	tabs: readonly PlatformTabSpec[]
+	ios?: Record<string, any>
+	android?: Record<string, any>
 }
 
 // ---------- routes ----------

@@ -864,12 +864,24 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=3ccd41d3a4a4d44a7e0653628490e3189dfc6bf052d543185f6014e429260063)
+      '@nativescript/types':
+        specifier: 9.0.0
+        version: 9.0.0
       '@octanejs/vite-plugin':
         specifier: 0.1.60
         version: 0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      '@tsrx/typescript-plugin':
+        specifier: 0.4.11
+        version: 0.4.11(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(typescript@5.9.3)
       jsdom:
         specifier: 30.1.1
         version: 30.1.1(@noble/hashes@2.4.0)
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
       vite:
         specifier: 8.3.0
         version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)

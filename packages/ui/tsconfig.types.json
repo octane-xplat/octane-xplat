@@ -1,12 +1,28 @@
 {
 	"compilerOptions": {
 		"strict": true,
+		"skipLibCheck": true,
 		"module": "esnext",
 		"moduleResolution": "bundler",
+		"moduleSuffixes": [".ios", ".android", ".mobile", ""],
 		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
 		"declaration": true,
 		"emitDeclarationOnly": true,
-		"outDir": "types"
+		"noEmit": false,
+		"rootDir": "src",
+		"outDir": "types/generated"
 	},
-	"include": ["src/props.ts"]
+	"include": [
+		"src/references.d.ts",
+		"src/vendor/ui-svg/index.ts",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/index.linux.ts",
+		"src/ios/index.ts",
+		"src/android/index.ts",
+		"src/native/index.ts",
+		"src/web/index.ts"
+	]
 }
