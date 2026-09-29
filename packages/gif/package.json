@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/gif",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"description": "Animated images (GIF/animated webp) for Octane xplat — web <img> + @nativescript-community/ui-image",
 	"keywords": [
 		"octane",

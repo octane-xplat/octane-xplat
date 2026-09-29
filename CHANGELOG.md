@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.1] - 2026-09-29
+
+### Bug Fixes
+
+- *(macos)* Converge VirtualList measurements instead of oscillating
+- *(ui)* Restore web-specific entry implementations
+
+### Refactoring
+
+- *(ui)* Share web declarations with common API
+
 ## [0.7.0] - 2026-09-29
 
 ### Breaking Changes

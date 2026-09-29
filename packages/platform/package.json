@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/platform",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"description": "Headless platform capabilities for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
 		"octane",

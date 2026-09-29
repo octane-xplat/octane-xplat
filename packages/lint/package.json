@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/lint",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"description": "Oxlint and TSRX lint rules for octane-xplat apps",
 	"keywords": [
 		"octane",

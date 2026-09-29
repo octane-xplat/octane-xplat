@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/motion",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"description": "Declarative motion and retained presence for Octane on web, iOS and Android",
 	"keywords": [
 		"octane",

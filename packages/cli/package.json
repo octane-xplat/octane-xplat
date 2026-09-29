@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/cli",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"description": "xplat — dev/build/doctor for octane-xplat apps (web + iOS + Android + experimental macOS)",
 	"keywords": [
 		"octane",
