@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Screen, View, Row, Text, Pressable } from '@octane-xplat/ui';
+import { Screen, View, Row, Text, Pressable, ScrollView } from '@octane-xplat/ui';
 import { Counter } from './Counter.tsrx';
 import { Stopwatch } from './Stopwatch.tsrx';
 import { Todo } from './Todo.tsrx';
@@ -9,7 +9,7 @@ import { Dialer } from './Dialer.tsrx';
 // './variant-demos' is extensionless on purpose: moduleSuffixes +
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
-import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo, NativePickerDemo } from './variant-demos';
+import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo, NativePickerDemo, NativeDatePickerDemo } from './variant-demos';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
@@ -61,6 +61,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'pager', title: 'Pager', kind: 'proof' },
 	{ id: 'segmented', title: 'Segmented control', kind: 'proof' },
 	{ id: 'native-picker', title: 'Native picker', kind: 'app' },
+	{ id: 'native-date-picker', title: 'Native date picker', kind: 'app' },
 	{ id: 'search', title: 'Search input', kind: 'proof' },
 	{ id: 'video', title: 'Video', kind: 'proof' },
 	{ id: 'camera', title: 'Camera', kind: 'proof' },
@@ -104,6 +105,7 @@ const renderWebView = () => <WebViewDemo />;
 const renderPager = () => <PagerDemo />;
 const renderSegmented = () => <SegmentedDemo />;
 const renderNativePicker = () => <NativePickerDemo />;
+const renderNativeDatePicker = () => <NativeDatePickerDemo />;
 const renderSearch = () => <SearchDemo />;
 const renderVideo = () => <VideoDemo />;
 const renderCamera = () => <CameraDemo />;
@@ -140,6 +142,7 @@ export const RENDER: Record<string, () => any> = {
 	pager: renderPager,
 	segmented: renderSegmented,
 	'native-picker': renderNativePicker,
+	'native-date-picker': renderNativeDatePicker,
 	search: renderSearch,
 	video: renderVideo,
 	camera: renderCamera,
@@ -168,17 +171,19 @@ export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | '
 			<Text className="text-2xl font-semibold">{props.title ?? 'Demos'}</Text>
 			<Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
 		</Row>
-		<Row className="demo-menu">
-			@for (const d of shown; key d.id) {
-				<Pressable
-					id={'menu-' + d.id}
-					onPress={() => open(d.id)}
-					className={['chip', props.onOpen || demo === d.id ? '' : 'chip-off']}
-				>
-					<Text>{d.title}</Text>
-				</Pressable>
-			}
-		</Row>
+		<ScrollView className="flex-1" orientation="vertical">
+			<Row className="demo-menu" style={{ minHeight: 1200 }}>
+				@for (const d of shown; key d.id) {
+					<Pressable
+						id={'menu-' + d.id}
+						onPress={() => open(d.id)}
+						className={['chip', props.onOpen || demo === d.id ? '' : 'chip-off']}
+					>
+						<Text>{d.title}</Text>
+					</Pressable>
+				}
+			</Row>
+		</ScrollView>
 		@if (!props.onOpen) {
 			<View className="flex-1 min-h-0">
 				{RENDER[demo]()}

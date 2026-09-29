@@ -42,6 +42,7 @@ export const ORDER = [
 	'media-services',
 	'testing',
 	'native-picker',
+	'date-picker',
 	'known-limits',
 	'status',
 	'decisions',

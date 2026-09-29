@@ -14,8 +14,9 @@ project.ext {
   // kotlinVersion = "1.6.0"
 }
 
-// NativeScript compiles the picker leaf as a separate plugin AAR. Apply the
-// Compose compiler to that AAR's Kotlin sources as well as the app module.
-if (project.name == 'picker') {
+// NativeScript compiles each leaf as a separate plugin AAR. Apply the Compose
+// compiler to that AAR's Kotlin sources as well as the app module. Project
+// names underscorify the package dir (packages/date-picker -> 'date_picker').
+if (project.name in ['picker', 'date_picker']) {
   project.apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 }

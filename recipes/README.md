@@ -33,6 +33,7 @@ Workflows:
 - [Package an experimental AppKit app](macos-appkit-package.md)
 - [Add a platform-native single-selection picker](native-picker.md)
 - [Publish a typed component library](typed-component-library.md)
+- [Add a platform-native date or time picker](date-picker.md)
 
 ## Authoring contract
 
