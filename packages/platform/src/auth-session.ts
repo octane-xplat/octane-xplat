@@ -65,7 +65,7 @@ function iosOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionR
 		)
 
 		session.prefersEphemeralWebBrowserSession = !!options.prefersEphemeralSession
-		provider = AuthSessionPresentationAnchor.new()
+		provider = presentationAnchorClass().new()
 		session.presentationContextProvider = provider
 
 		if (!session.start()) {
@@ -74,35 +74,38 @@ function iosOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionR
 	})
 }
 
-// NSObject exists only on iOS, so create the presentation provider lazily.
-// NativeClass is a build-time decorator; this Vite-transformed module uses the
-// NativeScript runtime's class-extension API instead.
-const AuthSessionPresentationAnchor: any =
-	typeof NSObject !== 'undefined'
-		? (NSObject as any).extend(
-				{
-					presentationAnchorForWebAuthenticationSession(): UIWindow {
-						const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
-						const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
-						for (let i = 0; i < scenes.count; i++) {
-							const scene = scenes.objectAtIndex(i) as UIWindowScene
-							if (scene.activationState === foregroundActive) {
-								const anchor = scene.windows.objectAtIndex(0)
-								if (anchor) {
-									return anchor
-								}
+// Build the provider on first use, using the runtime class-extension API.
+let AuthSessionPresentationAnchor: any
+
+function presentationAnchorClass(): any {
+	if (!AuthSessionPresentationAnchor) {
+		AuthSessionPresentationAnchor = (NSObject as any).extend(
+			{
+				presentationAnchorForWebAuthenticationSession(): UIWindow {
+					const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
+					const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
+					for (let i = 0; i < scenes.count; i++) {
+						const scene = scenes.objectAtIndex(i) as UIWindowScene
+						if (scene.activationState === foregroundActive) {
+							const anchor = scene.windows.objectAtIndex(0)
+							if (anchor) {
+								return anchor
 							}
 						}
-
-						return UIApplication.sharedApplication.keyWindow
 					}
+
+					return UIApplication.sharedApplication.keyWindow
 				},
-				{
-					name: 'XplatAuthSessionPresentationAnchor',
-					protocols: [ASWebAuthenticationPresentationContextProviding],
-				},
-			)
-		: undefined
+			},
+			{
+				name: 'XplatAuthSessionPresentationAnchor',
+				protocols: [ASWebAuthenticationPresentationContextProviding],
+			},
+		)
+	}
+
+	return AuthSessionPresentationAnchor
+}
 
 function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionResult> {
 	return new Promise((resolve) => {
