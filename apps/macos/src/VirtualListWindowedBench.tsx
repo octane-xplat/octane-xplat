@@ -7,8 +7,9 @@ type BenchItem = { id: string; label: string }
 type ScrollMetrics = { verticalOffset: number; viewportHeight: number }
 
 const ROW_HEIGHT = 44
-// `makeStack` in the AppKit renderer defaults vertical stack spacing to 14pt.
-const STACK_GAP = 14
+// `makeStack` in the AppKit renderer defaults vertical stack spacing to 0
+// (web parity — no default gap; a `gap` prop or gap-* class opts in).
+const STACK_GAP = 0
 const ROW_STEP = ROW_HEIGHT + STACK_GAP
 const OVERSCAN_ROWS = 8
 const count = (globalThis as any).__xplatMacOSVirtualListCount as number

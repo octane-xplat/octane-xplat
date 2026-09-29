@@ -9,8 +9,9 @@ type WindowRange = { start: number; end: number }
 
 const OVERSCAN_ROWS = 8
 const HEIGHTS = [32, 48, 64]
-// `makeStack` in the AppKit renderer defaults vertical stack spacing to 14pt.
-const STACK_GAP = 14
+// `makeStack` in the AppKit renderer defaults vertical stack spacing to 0
+// (web parity — no default gap; a `gap` prop or gap-* class opts in).
+const STACK_GAP = 0
 const now = () => (globalThis as any).performance.now()
 const count = (globalThis as any).__xplatMacOSVirtualListCount as number
 const items: BenchItem[] = Array.from({ length: count }, (_, index) => ({

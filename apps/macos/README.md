@@ -121,10 +121,13 @@ zero intervals above 33.3ms).
 Those scroll figures were also collected with the former Node dev host; they
 have not been remeasured under JavaScriptCore.
 
-The JavaScriptCore dev host currently fails the fixed-height benchmark's
-document-height assertion at 500 rows (28,650pt initially and 28,678pt after
-scrolling, versus 28,986pt expected). The expanded AppKit geometry parity
-route also did not produce a dump within 120 seconds in this rebase check.
+The fixed-height benchmark models a 44pt row with no inter-row gap — the
+AppKit stack's default spacing is 0 (web parity). A previous revision assumed
+a 14pt default gap and reported a document-height mismatch until the bench was
+updated. The full AppKit geometry parity sweep
+now mounts all 104 fixtures and produces a dump — set
+`OCTANE_MACOS_PARITY_FIXTURES=name1,name2` to scope the stage to a subset
+while debugging.
 The historical Node-host measurements above are not JavaScriptCore results.
 
 This drives the clip view with `scrollToPoint`, so it measures the bounds-change

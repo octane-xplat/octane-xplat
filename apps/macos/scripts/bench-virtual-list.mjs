@@ -116,7 +116,9 @@ function assertSample(result, size, mode) {
 	if (result.initial.firstMountedRow !== 0 || result.initial.lastMountedRow >= maxMountedRows) {
 		throw new Error(`The initial window did not start at row 0: ${JSON.stringify(result.initial)}`)
 	}
-	const expectedContentHeight = size * 58 - 14
+	// Rows are 44pt with no inter-row gap — the AppKit stack's default
+	// spacing is 0 (web parity).
+	const expectedContentHeight = size * 44
 	const initialScrollView = result.initial.scrollViews?.find((view) => view.id === 'vlist-bench')
 	const finalScrollView = result.afterScroll.scrollViews?.find((view) => view.id === 'vlist-bench')
 	if (
