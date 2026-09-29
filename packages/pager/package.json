@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/pager",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"description": "Paged swipe container for Octane xplat — web scroll-snap row + @nativescript-community/ui-pager (ViewPager2 / paging UICollectionView)",
 	"keywords": [
 		"octane",

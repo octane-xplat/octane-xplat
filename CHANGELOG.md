@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.2] - 2026-09-29
+
+### Bug Fixes
+
+- *(ui)* Make the shared barrel extensionless
+
 ## [0.7.1] - 2026-09-29
 
 ### Bug Fixes
