@@ -192,9 +192,18 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     alias). Side finding: the checker's generated `moduleSuffixes`
     (`['.<platform>', '.native', '']`) overrides the project's own chain —
     a `.mobile.ts`-only leaf typechecks under the app tsconfig but 2307s
-    under the ns build-time check. The durable fix stays upstream: teach the
-    tsrx plugin / volar layer to probe `Leaf<moduleSuffix>.tsrx` for bare
-    relative specifiers.
+    under the ns build-time check. The durable fix is upstream and proven
+    small: `@volar/typescript`'s module-resolution host already supports
+    `resolveHiddenExtensions` (a typed `TypeScriptGenericOptions` flag that
+    maps `X.d.ts` probes — including `moduleSuffixes`-rewritten ones — back
+    to `X.<extraFileExtension>` sources). Adding
+    `resolveHiddenExtensions: true` to the tsrx language plugin's typescript
+    facet makes `./Leaf` resolve `Leaf.<suffix>.tsrx` under tsrx-tsc and the
+    delegated checker alike — verified with a shim language plugin on this
+    fixture (`./Probe` → `Probe.web.tsrx` / `Probe.ios.tsrx`, zero
+    diagnostics). Still needed alongside it: `.mobile` in ns-vite's
+    generated suffixes (or honoring the project's chain), and the barrels'
+    export-remapping role stays regardless.
 26. 🟡 **Can Pulsar ship as an optional NativeScript leaf on both mobile
     targets?** — Pulsar's APIs match presets, patterns, realtime control, and
     capability reporting. The Android emulator now exercises the packaged
