@@ -4,7 +4,12 @@
 		"skipLibCheck": true,
 		"module": "esnext",
 		"moduleResolution": "bundler",
-		"moduleSuffixes": [".ios", ".android", ".mobile", ""],
+		"moduleSuffixes": [
+			".ios",
+			".android",
+			".mobile",
+			""
+		],
 		"target": "esnext",
 		"jsx": "react-jsx",
 		"jsxImportSource": "octane",
@@ -17,14 +22,17 @@
 	"include": [
 		"src/references.d.ts",
 		"src/vendor/ui-svg/index.ts",
-		"src/index.ts",
-		"src/index.shared.ts",
-		"src/index.mobile.ts",
-		"src/index.web.ts",
-		"src/index.linux.ts",
-		"src/ios/index.ts",
-		"src/android/index.ts",
-		"src/native/index.ts",
-		"src/web/index.ts"
+		"src/*.ts",
+		"src/*.tsrx",
+		"src/*/index.ts"
+	],
+	"exclude": [
+		"src/*.macos.*",
+		"src/*.linux.*",
+		"src/*.windows.*",
+		"**/*.test.*"
+	],
+	"files": [
+		"src/index.linux.ts"
 	]
 }
