@@ -40,6 +40,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'ttt', title: 'Tic-Tac-Toe', kind: 'app' },
 	{ id: 'dialer', title: 'Dialer', kind: 'app' },
 	{ id: 'vlist', title: 'List ×500', kind: 'app' },
+	{ id: 'vlist-perf', title: 'List perf ×5000', kind: 'app' },
 	{ id: 'weather', title: 'Weather', kind: 'app' },
 	{ id: 'list-demo', title: 'Feed', kind: 'app' },
 	{ id: 'anim', title: 'Keyframes', kind: 'proof' },

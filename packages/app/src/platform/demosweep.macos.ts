@@ -103,13 +103,15 @@ async function run(): Promise<void> {
 			if (mounted && demo.id === 'vlist') {
 				const mountedRows = debug.metrics().mountedRowCount
 				assert(
-					'AppKit VirtualList mounts all 500 row components (' + mountedRows + ')',
-					mountedRows === 500,
+					'AppKit VirtualList windows 500 rows (' + mountedRows + ' mounted)',
+					mountedRows > 0 && mountedRows < 500,
 				)
 				debug.pressId('vl-drop')
 				assert(
 					'shared List removes a dropped row',
-					await waitFor(() => has('499 rows') && debug.metrics().mountedRowCount === 499),
+					await waitFor(
+						() => has('499 rows') && debug.metrics().mountedRowCount < 500,
+					),
 				)
 			}
 			assert(demo.title + ' route returns to the gallery', await backToApps())

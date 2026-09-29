@@ -660,6 +660,46 @@ function setScrollAction(node, handler) {
 	})
 }
 
+const layoutHandlers = new WeakMap()
+
+/** `onLayoutChanged` prop: NSViewFrameDidChangeNotification on the arranged
+ *  view (margin host when present) — the windowed VirtualList leaf measures
+ *  rows through it. */
+function setLayoutAction(node, handler) {
+	const target = arrangedView(node)
+	if (!target || node.type === '#text' || node.type === 'span') {return}
+
+	if (typeof handler !== 'function') {
+		layoutHandlers.delete(target)
+		return
+	}
+
+	target.postsFrameChangedNotifications = true
+	if (!node.layoutObserver) {
+		node.layoutObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			typeof NSViewFrameDidChangeNotification !== 'undefined'
+				? NSViewFrameDidChangeNotification
+				: 'NSViewFrameDidChangeNotification',
+			target,
+			null,
+			() => layoutHandlers.get(target)?.(),
+		)
+	}
+
+	layoutHandlers.set(target, () => {
+		const bounds = target.bounds
+		try {
+			node.container.root.eventScope('discrete', () => handler({
+				object: target,
+				width: Number(bounds.size.width ?? 0),
+				height: Number(bounds.size.height ?? 0),
+			}))
+		} catch (error) {
+			console.error('[macos-event] layout handler failed', error)
+		}
+	})
+}
+
 function setTextFieldPlaceholder(field, props, scheme = 'light') {
 	const placeholder = String(props.placeholder ?? '')
 	if (!placeholder) {
@@ -1780,6 +1820,10 @@ function applyProps(node, props) {
 	if (node.type === 'span') {return}
 
 	for (const [name, value] of Object.entries(props)) {
+		if (name === 'onLayoutChanged') {
+			setLayoutAction(node, value)
+			continue
+		}
 		switch (node.type) {
 			case 'stack':
 				if (name === 'spacing') {node.view.spacing = Number(value ?? 0)}
@@ -2144,6 +2188,11 @@ function destroy(node) {
 		NSNotificationCenter.defaultCenter.removeObserver(node.scrollObserver)
 		node.scrollObserver = null
 		node.scrollObserverInstalled = false
+	}
+
+	if (node.layoutObserver) {
+		NSNotificationCenter.defaultCenter.removeObserver(node.layoutObserver)
+		node.layoutObserver = null
 	}
 
 	if (node.actionId !== undefined) {
@@ -2846,6 +2895,46 @@ export function createMacOSRoot(hostView) {
 				return flipped
 					? Number(clipView.bounds.origin.y)
 					: docH - clipH - Number(clipView.bounds.origin.y)
+			},
+			/** VirtualListBenchSnapshot for the scrollview with `id`: scrollTop-
+			 *  style offset plus each mounted vlist-bench-row-* row's top-down
+			 *  box relative to the viewport. Consumed by the app-side
+			 *  platform/virtual-list-benchmark.macos adapter. */
+			listSnapshot(id) {
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
+				)
+
+				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
+				const clipView = node.view.contentView
+				const doc = node.view.documentView
+				const clipH = Number(clipView.bounds.size.height)
+				const docH = Number(doc?.frame?.size?.height ?? 0)
+				const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
+				const flipped = flip === true || Number(flip) === 1
+				const originY = Number(clipView.bounds.origin.y ?? 0)
+				const offset = flipped ? originY : docH - clipH - originY
+				const rows = descendants(node).flatMap((child) => {
+					const match = /^vlist-bench-row-(\d+)$/.exec(String(child.props?.id ?? ''))
+					if (!match || !child.view) {return []}
+					try {
+						// Row box in document space, re-based to the viewport's
+						// top-down offset so `top`/`bottom` read like DOM rects.
+						const inDoc = child.view.superview.convertRectToView(child.view.frame, doc)
+						const h = Number(inDoc.size.height)
+						const docTop = flipped ? Number(inDoc.origin.y) : docH - Number(inDoc.origin.y) - h
+						return [{ index: Number(match[1]), top: docTop - offset, bottom: docTop - offset + h }]
+					} catch {
+						return []
+					}
+				})
+
+				return {
+					offset,
+					viewportHeight: clipH,
+					rows,
+					mountedIndices: rows.map((row) => row.index),
+				}
 			},
 			/** Node frame in window base coordinates (points, y-up from the
 			 *  window's bottom edge) — screenshot cropping consumes it. */

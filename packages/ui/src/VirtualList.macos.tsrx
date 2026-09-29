@@ -1,41 +1,298 @@
 /** @jsxImportSource @xplat/macos/renderer */
+import { useMemo, useRef, useState } from 'octane'
 import type { VirtualListProps } from './props'
-import { ScrollView } from './ScrollView.macos.tsrx'
+import { cx } from './cx'
+import {
+	VirtualListSizeIndex,
+	createVirtualListEntries,
+	estimateVirtualListSizes,
+	virtualListMeasurementKey,
+	virtualListRange,
+	type VirtualListEntry,
+} from './virtual-list-layout'
 
 type AppKitScrollEvent = { verticalOffset: number; viewportHeight: number; contentHeight: number }
-type AppKitVirtualListProps<T> = VirtualListProps<T> & { onScroll?: (event: AppKitScrollEvent) => void }
+type AppKitLayoutEvent = { object: any; width: number; height: number }
 
-/** AppKit fallback that preserves keyed list behavior but renders every row
- *  in one scroll view; it does not virtualize or recycle offscreen rows. */
-export function VirtualList<T = any>(props: AppKitVirtualListProps<T>) @{
-	<ScrollView id={props.id} className={props.className} style={props.style} onScroll={props.onScroll}>
-		@if (props.renderHeader) {
-			<flexboxlayout className="vx-virtual-list-header" flexDirection="column">
-				{props.renderHeader()}
-			</flexboxlayout>
+const sameSize = (a: number, b: number) => Math.abs(a - b) < 0.5
+
+/** Scrolls an AppKit scrollview to a top-down (scrollTop-style) offset. The
+ *  documentView (a vertical NSStackView) is normally flipped so clip origin y
+ *  already counts from the top; the isFlipped check keeps non-flipped
+ *  documents correct too. */
+function scrollViewSetTop(scroll: any, top: number): void {
+	const clip = scroll?.contentView
+	const doc = scroll?.documentView
+	if (!clip) {return}
+	const docHeight = Number(doc?.frame?.size?.height ?? 0)
+	const clipHeight = Number(clip.bounds?.size?.height ?? 0)
+	const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
+	const flipped = flip === true || Number(flip) === 1
+	const y = Math.max(0, flipped ? top : docHeight - clipHeight - top)
+	clip.scrollToPoint({ x: 0, y })
+	scroll.reflectScrolledClipView(clip)
+}
+
+function scrollViewOffset(scroll: any): number {
+	const clip = scroll?.contentView
+	const doc = scroll?.documentView
+	if (!clip) {return 0}
+	const docHeight = Number(doc?.frame?.size?.height ?? 0)
+	const clipHeight = Number(clip.bounds?.size?.height ?? 0)
+	const originY = Number(clip.bounds?.origin?.y ?? 0)
+	const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
+	const flipped = flip === true || Number(flip) === 1
+	return flipped ? originY : docHeight - clipHeight - originY
+}
+
+function scrollViewViewport(scroll: any): { width: number; height: number } {
+	const bounds = scroll?.contentView?.bounds
+	return {
+		width: Number(bounds?.size?.width ?? 0),
+		height: Number(bounds?.size?.height ?? 0),
+	}
+}
+
+/** Windowed vertical virtualization for the AppKit host. Rows outside the
+ *  visible window + one viewport of overscan stay unmounted; row heights are
+ *  measured through `onLayoutChanged` frame notifications and prefix-summed
+ *  by the shared VirtualListSizeIndex. */
+export function VirtualList<T = any>(props: VirtualListProps<T>) @{
+	const entries = useMemo(
+		() => createVirtualListEntries(props.items, props.keyExtractor, props.getItemType),
+		[props.items, props.keyExtractor, props.getItemType],
+	)
+
+	const [windowVersion, setWindowVersion] = useState(0)
+	const sizeIndexRef = useRef(new VirtualListSizeIndex())
+	const sizeCacheRef = useRef(new Map<string, { width: number; height: number }>())
+	const entriesRef = useRef<VirtualListEntry<T>[]>([])
+	const indexByRowKeyRef = useRef(new Map<string, number>())
+	const scrollRef = useRef<any>(null)
+	const scrollOffsetRef = useRef(0)
+	const viewportHeightRef = useRef(0)
+	const viewportWidthRef = useRef(0)
+	const headerHeightRef = useRef(0)
+	const rangeRef = useRef({ start: -1, end: -1, top: -1, bottom: -1 })
+	const anchorRestoreTimerRef = useRef<any>(null)
+	const anchorRestoreScheduledRef = useRef(false)
+	const queuedAnchorRef = useRef<{ rowKey: string; within: number } | null>(null)
+	const hasSeparator = Boolean(props.renderSeparator)
+	const hasSeparatorRef = useRef(hasSeparator)
+	hasSeparatorRef.current = hasSeparator
+
+	function rebuildLayout(nextEntries: VirtualListEntry<T>[], width: number) {
+		entriesRef.current = nextEntries
+		const indexByKey = new Map<string, number>()
+		const activeMeasurements = new Set<string>()
+
+		for (const entry of nextEntries) {
+			indexByKey.set(entry.rowKey, entry.index)
+			activeMeasurements.add(
+				virtualListMeasurementKey(
+					entry.rowKey,
+					hasSeparatorRef.current && entry.index < nextEntries.length - 1,
+				),
+			)
 		}
-		@if (props.items.length === 0) {
-			@if (props.renderEmpty) {
-				<flexboxlayout className="vx-virtual-list-empty" flexDirection="column">
-					{props.renderEmpty()}
+
+		for (const cacheKey of sizeCacheRef.current.keys()) {
+			if (!activeMeasurements.has(cacheKey)) sizeCacheRef.current.delete(cacheKey)
+		}
+
+		indexByRowKeyRef.current = indexByKey
+		sizeIndexRef.current.reset(
+			estimateVirtualListSizes(nextEntries, hasSeparatorRef.current, width, sizeCacheRef.current),
+		)
+	}
+
+	if (entries !== entriesRef.current) {
+		rebuildLayout(entries, viewportWidthRef.current)
+	}
+
+	function currentRange() {
+		const listOffset = Math.max(0, scrollOffsetRef.current - headerHeightRef.current)
+		return virtualListRange(
+			sizeIndexRef.current,
+			listOffset,
+			viewportHeightRef.current,
+			viewportHeightRef.current,
+		)
+	}
+
+	function refreshWindow() {
+		const next = currentRange()
+		const previous = rangeRef.current
+		if (
+			next.start !== previous.start ||
+			next.end !== previous.end ||
+			!sameSize(next.top, previous.top) ||
+			!sameSize(next.bottom, previous.bottom)
+		) {
+			rangeRef.current = next
+			setWindowVersion((version) => version + 1)
+		}
+	}
+
+	function captureAnchor(): { rowKey: string; within: number } | null {
+		const listOffset = scrollOffsetRef.current - headerHeightRef.current
+		if (listOffset < 0 || entriesRef.current.length === 0) {return null}
+		const index = sizeIndexRef.current.indexAt(listOffset)
+		const entry = entriesRef.current[index]
+		if (!entry) {return null}
+		return { rowKey: entry.rowKey, within: listOffset - sizeIndexRef.current.prefix(index) }
+	}
+
+	function restoreAnchor(anchor: { rowKey: string; within: number } | null) {
+		if (!anchor) {return}
+		queuedAnchorRef.current = anchor
+		if (anchorRestoreScheduledRef.current) {return}
+		const scroll = scrollRef.current
+		if (!scroll) {return}
+
+		anchorRestoreScheduledRef.current = true
+		const timer = setTimeout(() => {
+			if (anchorRestoreTimerRef.current !== timer) {return}
+			anchorRestoreTimerRef.current = null
+			anchorRestoreScheduledRef.current = false
+			if (scrollRef.current !== scroll) {return}
+			const queued = queuedAnchorRef.current
+			queuedAnchorRef.current = null
+			if (!queued) {return}
+			const index = indexByRowKeyRef.current.get(queued.rowKey)
+			if (index === undefined) {return}
+			const nextOffset = Math.max(
+				0,
+				headerHeightRef.current + sizeIndexRef.current.prefix(index) + queued.within,
+			)
+
+			if (sameSize(nextOffset, scrollViewOffset(scroll))) {return}
+			scrollViewSetTop(scroll, nextOffset)
+		}, 0)
+
+		anchorRestoreTimerRef.current = timer
+	}
+
+	function recordRowSize(rowKey: string, width: number, height: number) {
+		if (!Number.isFinite(height) || height < 0) {return}
+		const index = indexByRowKeyRef.current.get(rowKey)
+		if (index === undefined) {return}
+		const entry = entriesRef.current[index]
+		if (!entry) {return}
+
+		const anchor = queuedAnchorRef.current ?? captureAnchor()
+		sizeCacheRef.current.set(
+			virtualListMeasurementKey(
+				rowKey,
+				hasSeparatorRef.current && index < entriesRef.current.length - 1,
+			),
+			{ width, height },
+		)
+
+		const delta = sizeIndexRef.current.set(index, height)
+		if (Math.abs(delta) >= 0.5) {
+			const anchorIndex = anchor ? indexByRowKeyRef.current.get(anchor.rowKey) : undefined
+			if (anchor && anchorIndex !== undefined && index < anchorIndex) {restoreAnchor(anchor)}
+			refreshWindow()
+		}
+	}
+
+	function syncViewport() {
+		const scroll = scrollRef.current
+		if (!scroll) {return}
+		const size = scrollViewViewport(scroll)
+		const widthChanged = !sameSize(size.width, viewportWidthRef.current)
+		viewportHeightRef.current = size.height
+		if (widthChanged) {
+			const anchor = captureAnchor()
+			viewportWidthRef.current = size.width
+			rebuildLayout(entriesRef.current, size.width)
+			restoreAnchor(anchor)
+		}
+
+		refreshWindow()
+	}
+
+	function onScroll(event: AppKitScrollEvent) {
+		// The event's verticalOffset is the raw clip bounds origin — bottom-up
+		// on a non-flipped document — so derive the top-down offset ourselves.
+		const scroll = scrollRef.current
+		scrollOffsetRef.current = scroll ? scrollViewOffset(scroll) : Number(event?.verticalOffset ?? 0)
+		viewportHeightRef.current = Number(event?.viewportHeight ?? viewportHeightRef.current)
+		refreshWindow()
+	}
+
+	function onScrollViewLayout() {
+		syncViewport()
+	}
+
+	function onHeaderLayout(event: AppKitLayoutEvent) {
+		const height = Number(event?.height ?? 0)
+		if (sameSize(height, headerHeightRef.current)) {return}
+		const anchor = captureAnchor()
+		headerHeightRef.current = height
+		restoreAnchor(anchor)
+		refreshWindow()
+	}
+
+	function onRowLayout(entry: VirtualListEntry<T>, event: AppKitLayoutEvent) {
+		recordRowSize(entry.rowKey, Number(event?.width ?? 0), Number(event?.height ?? 0))
+	}
+
+	const range = currentRange()
+	rangeRef.current = range
+	void windowVersion
+	const visibleEntries = entries.slice(range.start, range.end)
+
+	<scrollview
+		ref={(view: any) => {
+			scrollRef.current = view
+			if (view) {setTimeout(() => syncViewport(), 0)}
+		}}
+		id={props.id}
+		className={cx('vx-virtual-list', props.className)}
+		style={props.style}
+		accessibilityLabel={props.accessibilityLabel}
+		onScroll={onScroll}
+		onLayoutChanged={onScrollViewLayout}
+	>
+		<flexboxlayout flexDirection="column">
+			@if (props.renderHeader) {
+				<flexboxlayout
+					className="vx-virtual-list-header"
+					flexDirection="column"
+					onLayoutChanged={onHeaderLayout}
+				>
+					{props.renderHeader()}
 				</flexboxlayout>
 			}
-		} @else {
-			@for (const item of props.items; index i; key props.keyExtractor(item, i)) {
-				<flexboxlayout className="vx-virtual-list-row" flexDirection="column">
-					{props.renderItem(item, i)}
-					@if (props.renderSeparator && i < props.items.length - 1) {
-						<flexboxlayout className="vx-virtual-list-separator" flexDirection="column">
-							{props.renderSeparator()}
+			@if (entries.length === 0) {
+				@if (props.renderEmpty) {
+					<flexboxlayout className="vx-virtual-list-empty" flexDirection="column">
+						{props.renderEmpty()}
+					</flexboxlayout>
+				}
+			} @else {
+				<flexboxlayout flexDirection="column">
+					<flexboxlayout className="vx-virtual-list-spacer" style={{ height: range.top }} />
+					@for (const entry of visibleEntries; key entry.rowKey) {
+						<flexboxlayout
+							flexDirection="column"
+							className="vx-virtual-list-row"
+							onLayoutChanged={(event: AppKitLayoutEvent) => onRowLayout(entry, event)}
+						>
+							{props.renderItem(entry.item, entry.index)}
+							{hasSeparator && entry.index < entries.length - 1 ? props.renderSeparator?.() : null}
 						</flexboxlayout>
 					}
-					</flexboxlayout>
+					<flexboxlayout className="vx-virtual-list-spacer" style={{ height: range.bottom }} />
+				</flexboxlayout>
 			}
-		}
-		@if (props.renderFooter) {
-			<flexboxlayout className="vx-virtual-list-footer" flexDirection="column">
-				{props.renderFooter()}
-			</flexboxlayout>
-		}
-	</ScrollView>;
+			@if (props.renderFooter) {
+				<flexboxlayout className="vx-virtual-list-footer" flexDirection="column">
+					{props.renderFooter()}
+				</flexboxlayout>
+			}
+		</flexboxlayout>
+	</scrollview>;
 }

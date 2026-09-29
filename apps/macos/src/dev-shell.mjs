@@ -106,8 +106,21 @@ globalThis.__xplatOnInput = (line) => {
 			return
 		}
 		else if (line.startsWith('scrolltop ')) {
-			const top = Number(line.slice(10))
-			console.log('[scrolled] ' + JSON.stringify({ scrollTop: root.__macosDebug.scrollToTop('parity-scroll', top) }))
+			const parts = line.slice(10).split(' ')
+			const [scrollId, top] = parts.length > 1 ? [parts[0], Number(parts[1])] : ['parity-scroll', Number(parts[0])]
+			console.log('[scrolled] ' + JSON.stringify({ scrollTop: root.__macosDebug.scrollToTop(scrollId, top) }))
+			return
+		}
+		else if (line.startsWith('listsnap ')) {
+			const snap = root.__macosDebug.listSnapshot(line.slice(9))
+			console.log('[listsnap] ' + JSON.stringify({
+				offset: snap.offset,
+				viewportHeight: snap.viewportHeight,
+				mounted: snap.mountedIndices.length,
+				firstRows: snap.mountedIndices.slice(0, 6),
+				lastRows: snap.mountedIndices.slice(-6),
+				rowSample: snap.rows.slice(0, 3),
+			}))
 			return
 		}
 		else if (line.startsWith('ancestors ')) {
@@ -143,7 +156,12 @@ globalThis.__xplatOnInput = (line) => {
 			main: root.__macosDebug.snapshot(),
 			windows: debugWindows().map((entry) => ({ title: entry.title, ...entry.debug?.snapshot() })),
 		})), 0)
-	} catch (error) { console.error('[macos] dev command failed', error) }
+	} catch (error) {
+		console.error(
+			'[macos] dev command failed:',
+			`${error?.name ?? 'Error'}: ${error?.message ?? String(error)} @ ${error?.stack ?? 'no stack'}`,
+		)
+	}
 }
 
 reload()
