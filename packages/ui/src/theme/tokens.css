@@ -168,6 +168,8 @@ img {
 
 .vx-stack > * {
 	grid-area: 1 / 1;
+	horizontal-align: left;
+	vertical-align: top;
 }
 
 /* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
@@ -314,6 +316,11 @@ img {
    (vx-stack). NS-side rules only — DOM resets sit in the web block. */
 .vx-video {
 	background-color: #000;
+}
+
+.vx-video > * {
+	horizontal-align: stretch;
+	vertical-align: stretch;
 }
 
 .vx-video-centerbtn {
