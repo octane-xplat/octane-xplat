@@ -75,17 +75,23 @@ Landed and verified on the macOS host — nothing has run under Windows yet:
   `apps/mobile`, and `App_Resources/Windows` from upstream's starter.
 - `@nativescript/core` + `@nativescript/vite` pinned to pkg.pr.new `@11468`
   builds; `@nativescript/windows` exact `0.1.0-alpha.144`; dev-tag CLI
-  `nativescript@9.1.2-dev.2026-09-24-*`. Workspace `patchedDependencies`
-  (core@9.1.2, vite@8.0.11) do not apply to these versions.
+  `nativescript@9.1.2-dev.2026-09-24-*`. Preview-version patch twins carry
+  the dev-serving fixes (`@nativescript__vite@8.0.13.patch` — /ns/m re-export
+  records, vendor-manifest gating, specifier decoding) and the shared-file
+  subset of the core patch (`@nativescript__core@9.1.3-next.2.patch` — @layer
+  CSS machinery, #11446 frame/tab-view common, flexbox common); the
+  iOS/Android impl hunks are dead code on windows and were not ported.
 - `xplatNative` extension chain + flag detection gained `windows`;
   `xplat routes` emits `routes.gen.windows.ts` (prefer `['windows']`, with unsuffixed fallback);
   `xplat dev`/`build`/`doctor` discover the target via the declared
   `@nativescript/windows` devDep.
-- `vite build` for windows succeeds on macOS: `.ns-vite-build/bundle.mjs` +
-  `vendor.mjs` emitted, zero new typecheck failures (the residual ~36 are
-  the known package typecheck class — unsuffixed native files referencing
-  `android.*`/`com.*`/iOS globals, which will need `.windows` fallback leaves
-  wherever they're reached at runtime).
+- `vite build` for windows resolves `.windows` → unsuffixed leaves correctly
+  (`filepick.windows.ts` lands). Bundle completion is blocked by four
+  expected gaps: `guides.tsrx` (module-scope JSX — the universal-compiler
+  limitation that fails all native bundle builds on main), `Meter.tsrx`'s
+  explicit `./svg.mobile` side-effect import, and `./CameraView` /
+  `./variant-demos` which only have ios/android/web/macos twins — the first
+  `.windows` fallback leaves.
 
 Still needed on a win32 host: `dotnet build`/`ns run windows` end-to-end
 (Q32), the sweep, and per-seam `.windows` leaves where the native default diverges.

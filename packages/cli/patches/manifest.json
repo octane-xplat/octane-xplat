@@ -42,6 +42,20 @@
 			"scope": "dev",
 			"why": "octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? \u2014 .tsrx edits never emit the deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device. Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for delivered updates.",
 			"dropWhen": "vite-octane release adds .tsrx to the strategy's file matching"
+		},
+		{
+			"specifier": "@nativescript/vite@8.0.13",
+			"file": "@nativescript__vite@8.0.13.patch",
+			"scope": "dev",
+			"why": "Same dev-server fixes as the 8.0.11 patch, ported to the @11468 pkg.pr.new preview the windows target uses (apps/windows): /ns/m re-export records, vendor-manifest gating for plugin-patterned packages, percent-decoded specifiers, and the .mobile-aware tsconfig-paths probing.",
+			"dropWhen": "windows moves off the preview pin \u2014 the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)"
+		},
+		{
+			"specifier": "@nativescript/core@9.1.3-next.2",
+			"file": "@nativescript__core@9.1.3-next.2.patch",
+			"scope": "runtime",
+			"why": "Windows spike: the shared-file subset of the 9.1.2 patch \u2014 @layer cascade machinery (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes, and the flexbox common measure-spec \u2014 applied to the @11468 preview. iOS/Android impl-file hunks are dead code on windows and were dropped.",
+			"dropWhen": "upstream ships the fixes and windows moves off the preview pin (NativeScript#11462, #11446, core windows merge)"
 		}
 	]
 }

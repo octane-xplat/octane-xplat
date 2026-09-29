@@ -1,0 +1,233 @@
+diff --git a/helpers/ts-config-paths.js b/helpers/ts-config-paths.js
+index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640fc56c786f 100644
+--- a/helpers/ts-config-paths.js
++++ b/helpers/ts-config-paths.js
+@@ -113,15 +113,20 @@ function resolveTsConfigPath(fullPath, platform, verbose, debugId) {
+     if (verbose && debugId) {
+         console.log(`📁 TypeScript path candidate: ${debugId} -> ${fullPath}`);
+     }
++    // `.mobile` is the shared ios/android suffix tier — it sits between the os
++    // qualifier and the unsuffixed default. Probing it per extension keeps
++    // paths-mapped imports consistent with the bundler's extension chain.
++    const suffixes = platform === 'ios' || platform === 'android' ? [platform, 'mobile'] : platform ? [platform] : [];
+     if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
+-        const platformIndexPatterns = [`index.${platform}.ts`, `index.${platform}.js`, `index.${platform}.mjs`];
+-        for (const indexFile of platformIndexPatterns) {
+-            const indexPath = path.join(fullPath, indexFile);
+-            if (fs.existsSync(indexPath)) {
+-                if (verbose) {
+-                    console.log(`📁 Found platform-specific directory index: ${indexPath}`);
++        for (const suffix of suffixes) {
++            for (const ext of ['.ts', '.js', '.mjs']) {
++                const indexPath = path.join(fullPath, `index.${suffix}${ext}`);
++                if (fs.existsSync(indexPath)) {
++                    if (verbose) {
++                        console.log(`📁 Found platform-specific directory index: ${indexPath}`);
++                    }
++                    return indexPath;
+                 }
+-                return indexPath;
+             }
+         }
+         for (const indexFile of ['index.ts', 'index.js', 'index.mjs']) {
+@@ -135,12 +140,14 @@ function resolveTsConfigPath(fullPath, platform, verbose, debugId) {
+         }
+     }
+     for (const ext of ['.ts', '.js', '.mjs']) {
+-        const platformPath = `${fullPath}.${platform}${ext}`;
+-        if (fs.existsSync(platformPath)) {
+-            if (verbose) {
+-                console.log(`📁 Found platform-specific file: ${platformPath}`);
++        for (const suffix of suffixes) {
++            const platformPath = `${fullPath}.${suffix}${ext}`;
++            if (fs.existsSync(platformPath)) {
++                if (verbose) {
++                    console.log(`📁 Found platform-specific file: ${platformPath}`);
++                }
++                return platformPath;
+             }
+-            return platformPath;
+         }
+         const basePath = `${fullPath}${ext}`;
+         if (fs.existsSync(basePath)) {
+diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
+index f0dcb8390b45e42db1abf0023e748422093c2e8e..4897d28a48c0f5b11ee26dc492fc98f93d12eaf1 100644
+--- a/hmr/server/device-transform-helpers.js
++++ b/hmr/server/device-transform-helpers.js
+@@ -89,7 +89,11 @@ function bareSpecifierFromFlatDepPath(depPath) {
+     return bareSpecifier;
+ }
+ function rewriteVitePrebundleImportsForDevice(code, preserveVendorImports) {
+-    const imports = collectTopLevelImportRecords(code);
++    // Re-export statements (`export { x } from`/`export * from`) carry specifiers
++    // too — vite's importAnalysis rewrites them to `.vite/deps?v=` URLs the same
++    // as `import` declarations, so they need the same decode. Barrel modules
++    // (e.g. a linked framework package's index) are nothing but re-exports.
++    const imports = collectTopLevelImportRecords(code, true);
+     if (!imports.length) {
+         return code;
+     }
+diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
+index 8a73227ead0209fe7f7d921c120a57f356e72a31..566fed5f14e2c8e971cb388f8a5579cb40079eea 100644
+--- a/hmr/server/rewrite-imports.js
++++ b/hmr/server/rewrite-imports.js
+@@ -254,11 +254,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+                 }
+                 return `${prefix}${rewritten}${suffix}`;
+             }
+-            // Path resolves outside both roots — leave Vite's URL alone as a
+-            // last resort. The original behaviour was to fall through here
+-            // and let downstream branches (e.g. `normalizeNodeModulesSpecifier`)
+-            // handle paths whose abs form happens to contain `/node_modules/`,
+-            // so preserve that for the unrewritable case below.
++            // Path resolves outside both roots — the `link:`/`workspace:` case,
++            // where a package's realpath lives in another checkout entirely.
++            // A raw /@fs URL makes the device fetch vite's standard middleware
++            // response, bypassing the device transform: optimizer
++            // `.vite/deps?v=` specifiers inside reach the runtime unrewritten
++            // and 504 once the optimizer re-commits its browserHash. The /ns/m
++            // route already resolves an absolute `/@fs` spec through the full
++            // device pipeline, so route it there. Paths whose realpath still
++            // contains /node_modules/ keep falling through to the bare-package
++            // branch below (upstream behavior).
++            if (!spec.includes('/node_modules/')) {
++                const out = `/ns/m${spec}`;
++                if (httpOriginSafe) {
++                    return `${prefix}${httpOriginSafe}${out}${suffix}`;
++                }
++                return `${prefix}${out}${suffix}`;
++            }
++            // Path resolves outside both roots but still names a node_modules
++            // file — leave Vite's URL alone as a last resort. The original
++            // behaviour was to fall through here and let downstream branches
++            // (e.g. `normalizeNodeModulesSpecifier`) handle paths whose abs
++            // form happens to contain `/node_modules/`, so preserve that for
++            // the unrewritable case below.
+         }
+         // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
+         // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
+diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
+index 7f5a692c12255fd84e220989ec312a2b2c6ae4aa..aefc8e01df9f5794e483ac30026c004f318fe1ec 100644
+--- a/hmr/server/websocket-module-bindings.js
++++ b/hmr/server/websocket-module-bindings.js
+@@ -7,6 +7,7 @@ import { getProjectRootPath } from '../../helpers/project.js';
+ import { extractRootPackageName } from '../shared/package-classifier.js';
+ import { isEsmFrameworkPackageSpecifier, isLikelyNativeScriptPluginSpecifier, isLikelyNativeScriptRuntimePluginSpecifier, normalizeNodeModulesSpecifier, resolveInternalRuntimePluginBareSpecifier, resolveNodeModulesPackageBoundary, resolveVendorFromCandidate, shouldPreserveBareRuntimePluginSubpathImport } from './websocket-module-specifiers.js';
+ import { MODULE_IMPORT_ANALYSIS_PLUGINS } from './websocket-served-module-helpers.js';
++import { getVendorManifest, resolveVendorSpecifier } from '../shared/vendor/registry.js';
+ import { stripViteFsPrefix } from '../../helpers/normalize-id.js';
+ const sourceImportIntentCache = new Map();
+ const EXPLICIT_RUNTIME_PLUGIN_SCRIPT_EXT_RE = /(?:\.(?:ios|android|visionos|windows))?\.(?:ts|tsx|js|jsx|mjs|mts|cts)$/i;
+@@ -110,6 +111,9 @@ export function ensureNativeScriptModuleBindings(code, options) {
+             }
+             const runtimePluginBareSpecifier = resolveInternalRuntimePluginBareSpecifier(specifier, getProjectRootPath());
+             let canonical = runtimePluginBareSpecifier || resolveVendorFromCandidate(specifier);
++            if (canonical && getVendorManifest() && !resolveVendorSpecifier(canonical)) {
++                canonical = null;
++            }
+             const runtimePluginSpecifier = isLikelyNativeScriptRuntimePluginSpecifier(canonical || specifier, getProjectRootPath());
+             // Preserving a bare vendor id is only correct where the IMPORT MAP
+             // exists to route it (main realm). Worker realms have no import map —
+@@ -121,7 +125,7 @@ export function ensureNativeScriptModuleBindings(code, options) {
+                 preservedImports.push(original);
+                 continue;
+             }
+-            if (!canonical && isLikelyNativeScriptPluginSpecifier(specifier, getProjectRootPath())) {
++            if (!canonical && isLikelyNativeScriptPluginSpecifier(specifier, getProjectRootPath()) && (!getVendorManifest() || resolveVendorSpecifier(specifier))) {
+                 canonical = specifier;
+             }
+             if (canonical && /^@nativescript\/core(\b|\/)/i.test(canonical)) {
+@@ -164,6 +168,9 @@ export function ensureNativeScriptModuleBindings(code, options) {
+         }
+         const runtimePluginBareSpecifier = resolveInternalRuntimePluginBareSpecifier(specifier, getProjectRootPath());
+         let canonical = runtimePluginBareSpecifier || resolveVendorFromCandidate(specifier);
++        if (canonical && getVendorManifest() && !resolveVendorSpecifier(canonical)) {
++            canonical = null;
++        }
+         const runtimePluginSpecifier = isLikelyNativeScriptRuntimePluginSpecifier(canonical || specifier, getProjectRootPath());
+         // See the side-effect branch above: bare preservation relies on the main
+         // realm's import map; in a worker serve (vendorImportsAsHttp) it must not
+@@ -172,7 +179,7 @@ export function ensureNativeScriptModuleBindings(code, options) {
+             preservedImports.push(original);
+             continue;
+         }
+-        if (!canonical && isLikelyNativeScriptPluginSpecifier(specifier, getProjectRootPath())) {
++        if (!canonical && isLikelyNativeScriptPluginSpecifier(specifier, getProjectRootPath()) && (!getVendorManifest() || resolveVendorSpecifier(specifier))) {
+             canonical = specifier;
+         }
+         if (canonical && /^@nativescript\/core(\b|\/)/i.test(canonical)) {
+diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
+index fbbf61aa12ecff2820f4fe2906314c63583e47a4..9aa92b30d0324ce5886d4cb0dd8b3f321b0cccc3 100644
+--- a/hmr/server/websocket-module-specifiers.js
++++ b/hmr/server/websocket-module-specifiers.js
+@@ -793,16 +793,24 @@ export function resolveVendorRouting(nodeModulesSpec, projectRoot) {
+     if (rootPackageName && pkgName !== rootPackageName) {
+         return { route: 'http' };
+     }
+-    if (isLikelyNativeScriptRuntimePluginSpecifier(pkgName, projectRoot) && (!subpath || isRootLevelMainEntry)) {
++    // A plugin-patterned package absent from an active vendor manifest (a
++    // transitive dep under pnpm's isolated linker, an NS_VENDOR_EXCLUDE/
++    // flavor-excluded package) must not take the vendor route — the registry
++    // has no entry and the sync require resolves to the missing-module stub.
++    // Fall through to null so callers emit the per-module /ns/m HTTP form,
++    // which resolves transitive deps through Vite's importer-aware resolution.
++    // A null manifest (early boot) keeps the legacy behavior.
++    const manifest = getVendorManifest();
++    const pluginVendored = !manifest || !!manifest.modules?.[pkgName];
++    if (isLikelyNativeScriptRuntimePluginSpecifier(pkgName, projectRoot) && pluginVendored && (!subpath || isRootLevelMainEntry)) {
+         return { route: 'vendor', bareSpec: pkgName };
+     }
+-    if (isLikelyNativeScriptRuntimePluginSpecifier(pkgName, projectRoot) && subpath.includes('/')) {
++    if (isLikelyNativeScriptRuntimePluginSpecifier(pkgName, projectRoot) && pluginVendored && subpath.includes('/')) {
+         const exactBareSpecifier = resolveInternalRuntimePluginBareSpecifier(nodeModulesSpec, projectRoot);
+         if (exactBareSpecifier) {
+             return { route: 'vendor', bareSpec: exactBareSpecifier };
+         }
+     }
+-    const manifest = getVendorManifest();
+     if (!manifest?.modules?.[pkgName]) {
+         return null;
+     }
+diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
+index b54aefcc839e95906d76d02e522c052a706ca76f..f743ffd852e2915acbbd42a0f7d80964e86718a4 100644
+--- a/hmr/server/websocket-ns-m-request.js
++++ b/hmr/server/websocket-ns-m-request.js
+@@ -49,6 +49,14 @@ export function createNsMRequestContext(requestUrl, serverRoot, appVirtualWithSl
+             };
+         }
+         spec = spec.replace(/[?#].*$/, '');
++        // urlObj.pathname keeps percent-encoding — device fetches encode
++        // characters like `[`/`]` in file-based route names, so decode the
++        // spec before resolving it to a filesystem path. Malformed escapes
++        // keep the raw spelling rather than throwing.
++        try {
++            spec = decodeURIComponent(spec);
++        }
++        catch { }
+         const decorated = collapseLegacyNsMTags(spec, 'inbound-request-spec');
+         spec = decorated.cleanedSpec;
+         bootTaggedRequest = decorated.bootTaggedRequest;
+diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
+index e65b1abaaf223cca4b11b65b8428c85c484f125d..4cbf72b0aebf54f362634a10e051c48c219f6c8b 100644
+--- a/hmr/server/websocket-served-module-helpers.js
++++ b/hmr/server/websocket-served-module-helpers.js
+@@ -105,8 +105,8 @@ export function classifyServedRequest(spec, resolvedId) {
+     return classifyServedModule(spec);
+ }
+ export const MODULE_IMPORT_ANALYSIS_PLUGINS = ['typescript', 'jsx', 'importMeta', 'topLevelAwait', 'classProperties', 'classPrivateProperties', 'classPrivateMethods', 'decorators-legacy'];
+-export function collectTopLevelImportRecords(code) {
+-    if (!code || typeof code !== 'string' || !/\bimport\b/.test(code)) {
++export function collectTopLevelImportRecords(code, includeReExports = false) {
++    if (!code || typeof code !== 'string' || !(includeReExports ? /\b(?:import|export)\b/ : /\bimport\b/).test(code)) {
+         return [];
+     }
+     try {
+@@ -119,7 +119,7 @@ export function collectTopLevelImportRecords(code) {
+             return [];
+         }
+         return body
+-            .filter((node) => t.isImportDeclaration(node) && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
++            .filter((node) => (t.isImportDeclaration(node) || (includeReExports && (t.isExportNamedDeclaration(node) || t.isExportAllDeclaration(node)))) && typeof node.start === 'number' && typeof node.end === 'number' && typeof node.source?.value === 'string')
+             .map((node) => ({
+             start: node.start,
+             end: node.end,

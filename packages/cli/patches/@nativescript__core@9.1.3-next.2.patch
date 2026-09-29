@@ -1,0 +1,428 @@
+diff --git a/css/css-tree-parser.js b/css/css-tree-parser.js
+index 0c13e7e67a8eb306248d738bb73189b772b4a409..7ce38a9ba8f1f9aef709136b46f8e5b2435ba714 100644
+--- a/css/css-tree-parser.js
++++ b/css/css-tree-parser.js
+@@ -66,6 +66,10 @@ function transformAst(node, css, type = null) {
+             atrule.keyframes = transformAst(node.block, css, 'keyframe');
+             atrule.vendor = undefined;
+         }
++        else if (node.name === 'layer') {
++            atrule.layer = node.prelude ? node.prelude.value.trim() : '';
++            atrule.rules = transformAst(node.block, css);
++        }
+         else {
+             atrule.rules = transformAst(node.block, css);
+         }
+diff --git a/css/reworkcss.d.ts b/css/reworkcss.d.ts
+index 3ac4f618f307864cb95b70cd01f4ecdc42c9d9e4..1906ed1457de195a799c9e938136f078e7ed6307 100644
+--- a/css/reworkcss.d.ts
++++ b/css/reworkcss.d.ts
+@@ -10,7 +10,7 @@ export interface Position {
+     };
+ }
+ export interface Node {
+-    type: 'rule' | 'keyframes' | 'declaration' | 'import' | 'media';
++    type: 'rule' | 'keyframes' | 'declaration' | 'import' | 'media' | 'layer';
+     position: Position;
+ }
+ export interface Declaration extends Node {
+@@ -21,7 +21,7 @@ export interface Rule extends Node {
+     selectors: string[];
+     declarations: Declaration[];
+ }
+-export type AtRule = KeyFrames | Media;
++export type AtRule = KeyFrames | Media | Layer;
+ export interface Keyframes extends Rule {
+     name: string;
+     vendor?: string;
+@@ -35,6 +35,11 @@ export interface Media extends Node {
+     media: string;
+     rules: Array<Rule | AtRule>;
+ }
++export interface Layer extends Node {
++    /** Layer-name prelude — '' for an anonymous block. Statement form (`@layer a, b;`) leaves rules undefined. */
++    layer: string;
++    rules?: Array<Rule | AtRule>;
++}
+ export interface StyleSheet {
+     rules: Rule[];
+ }
+diff --git a/ui/core/view-base/index.d.ts b/ui/core/view-base/index.d.ts
+index 170ceb1c65bbf17cffb1c648f2cc5c7c21065115..6941110802e2ade9b4d48a172dbb95801bba96d1 100644
+--- a/ui/core/view-base/index.d.ts
++++ b/ui/core/view-base/index.d.ts
+@@ -498,6 +498,12 @@ export declare abstract class ViewBase extends Observable {
+      * @param view to unload.
+      */
+     unloadView(view: ViewBase): void;
++    /**
++     * Whether a child is the one currently shown. Containers that keep several children
++     * alive but show one at a time (a TabView's items) override it for the hidden ones.
++     * @param child A direct child of this view.
++     */
++    _isChildPresented(child: ViewBase): boolean;
+     /**
+      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
+      */
+diff --git a/ui/core/view-base/index.js b/ui/core/view-base/index.js
+index 5f54440b3a3e0a36ddc0139d49db5cbcd6695b75..580061c78ae9326f733f7ea5ebd0dbf92382d031 100644
+--- a/ui/core/view-base/index.js
++++ b/ui/core/view-base/index.js
+@@ -633,6 +633,14 @@ export class ViewBase extends Observable {
+             view.callUnloaded();
+         }
+     }
++    /**
++     * Whether a child is the one currently shown. Containers that keep several children
++     * alive but show one at a time (a TabView's items) override it for the hidden ones.
++     * @param child A direct child of this view.
++     */
++    _isChildPresented(child) {
++        return true;
++    }
+     /**
+      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
+      */
+diff --git a/ui/frame/frame-common.js b/ui/frame/frame-common.js
+index 8637cacf417baebce945c58681daa86ca83dce46..c06da239d58b6174652b120e024f853f58d2c13f 100644
+--- a/ui/frame/frame-common.js
++++ b/ui/frame/frame-common.js
+@@ -3,7 +3,7 @@ import { NavigationType } from './frame-interfaces';
+ import { CustomLayoutView, CSSType } from '../core/view';
+ import { Property } from '../core/properties';
+ import { Trace } from '../../trace';
+-import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
++import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _insertAtFrameStackBottom, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
+ import { viewMatchesModuleContext } from '../core/view/view-common';
+ import { getAncestor } from '../core/view-base';
+ import { Builder } from '../builder';
+@@ -12,6 +12,19 @@ import { profile } from '../../profiling';
+ import { FRAME_SYMBOL } from './frame-helpers';
+ import { SharedTransition } from '../transition/shared-transition';
+ export { NavigationType } from './frame-interfaces';
++/**
++ * A view is presented while every ancestor shows the child leading to it; a frame in an
++ * unselected tab is loaded on Android but must never outrank the tab that is shown.
++ */
++function isPresented(view) {
++    while (view.parent) {
++        if (!view.parent._isChildPresented(view)) {
++            return false;
++        }
++        view = view.parent;
++    }
++    return true;
++}
+ function buildEntryFromArgs(arg) {
+     let entry;
+     if (typeof arg === 'string') {
+@@ -463,7 +476,12 @@ let FrameBase = FrameBase_1 = class FrameBase extends CustomLayoutView {
+         return _isFrameStackEmpty();
+     }
+     _pushInFrameStack() {
+-        _pushInFrameStack(this);
++        if (isPresented(this)) {
++            _pushInFrameStack(this);
++        }
++        else {
++            _insertAtFrameStackBottom(this);
++        }
+     }
+     _popFromFrameStack() {
+         _popFromFrameStack(this);
+diff --git a/ui/frame/frame-stack.d.ts b/ui/frame/frame-stack.d.ts
+index 8387e6202380ec502adbc577c8de73e354ced9a9..0c874161af12d69ea4ced8f43d3e8a4d92032dcd 100644
+--- a/ui/frame/frame-stack.d.ts
++++ b/ui/frame/frame-stack.d.ts
+@@ -19,5 +19,6 @@ export declare function topmostForWindow(window: WindowBase): FrameBase | undefi
+ export declare function topmost(window?: WindowBase): FrameBase;
+ export declare function _isFrameStackEmpty(): boolean;
+ export declare function _pushInFrameStack(frame: FrameBase): void;
++export declare function _insertAtFrameStackBottom(frame: FrameBase): void;
+ export declare function _popFromFrameStack(frame: FrameBase): void;
+ export declare function _removeFromFrameStack(frame: FrameBase): void;
+diff --git a/ui/frame/frame-stack.js b/ui/frame/frame-stack.js
+index 9ded225f53e4c4af92166a3e019671a1a65a2db2..9a9f5d5f9f891c9bcf6035b0345f4bb21c72831c 100644
+--- a/ui/frame/frame-stack.js
++++ b/ui/frame/frame-stack.js
+@@ -46,6 +46,17 @@ export function _pushInFrameStack(frame) {
+     frameStack.push(frame);
+     frame._isInFrameStack = true;
+ }
++/**
++ * Keeps a frame in the stack without making it topmost: the frame stays findable by id,
++ * while every frame that is actually shown outranks it.
++ */
++export function _insertAtFrameStackBottom(frame) {
++    if (frame._isInFrameStack) {
++        return;
++    }
++    frameStack.unshift(frame);
++    frame._isInFrameStack = true;
++}
+ export function _popFromFrameStack(frame) {
+     if (!frame._isInFrameStack) {
+         return;
+diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
+index 50c747a85135d761c1a646a007c4930f790fb0a3..8f3a627224cf903555574480a0cdeba74b1c3e35 100644
+--- a/ui/layouts/flexbox-layout/flexbox-layout-common.js
++++ b/ui/layouts/flexbox-layout/flexbox-layout-common.js
+@@ -195,7 +195,21 @@ let FlexboxLayoutBase = class FlexboxLayoutBase extends LayoutBase {
+         validateArgs(view).style.alignSelf = align;
+     }
+     static getAlignSelf(view) {
+-        return validateArgs(view).style.alignSelf;
++        const style = validateArgs(view).style;
++        const alignSelf = style.alignSelf;
++        if (alignSelf !== 'auto' && alignSelf !== 'stretch') {
++            return alignSelf;
++        }
++        const parent = view.parent;
++        if (!(parent instanceof FlexboxLayoutBase)) {
++            return alignSelf;
++        }
++        if (alignSelf === 'auto' && parent.alignItems !== 'stretch') {
++            return alignSelf;
++        }
++        const isRow = parent.flexDirection === 'row' || parent.flexDirection === 'row-reverse';
++        const crossSize = isRow ? style.height : style.width;
++        return crossSize == null || crossSize === 'auto' ? alignSelf : 'flex-start';
+     }
+     static setFlexWrapBefore(view, wrap) {
+         validateArgs(view).style.flexWrapBefore = wrap;
+diff --git a/ui/styling/css-selector.d.ts b/ui/styling/css-selector.d.ts
+index 734d886877b867e69b36fd75785b0a4372008f0f..d90f0e4fcf0f136bf4e9b10f9b08cc14f9b73e32 100644
+--- a/ui/styling/css-selector.d.ts
++++ b/ui/styling/css-selector.d.ts
+@@ -222,6 +222,8 @@ export declare class RuleSet {
+     mediaQueryString: string | string[];
+     tag?: string | number;
+     scopedTag?: string;
++    /** Cascade-layer rank per nesting depth; undefined/shortest path sorts after every layer (unlayered styles win). */
++    layerPath?: number[];
+     constructor(selectors: SelectorCore[], declarations: Declaration[]);
+     toString(): string;
+     lookupSort(sorter: LookupSorter): void;
+diff --git a/ui/styling/css-selector.js b/ui/styling/css-selector.js
+index 702ca508f27ace527938860dfe4b13dbcbb93c2f..b6fa55a9570d4ed0714f053301bbe69efbd6900c 100644
+--- a/ui/styling/css-selector.js
++++ b/ui/styling/css-selector.js
+@@ -1081,9 +1081,27 @@ export class StyleSheetSelectorScope extends SelectorScope {
+         return matchSelectorCandidates(node, this.collectCandidates(node));
+     }
+ }
+-/** Cascade order: specificity, then source order - (tier, position) across stylesheets. */
++/**
++ * Cascade layers order before specificity: rules in an earlier-declared layer lose
++ * to rules in a later-declared layer regardless of specificity, and unlayered
++ * rules (absent rank at a depth) beat every layered rule.
++ */
++function compareLayerPaths(a, b) {
++    const aLength = a?.length ?? 0;
++    const bLength = b?.length ?? 0;
++    const length = Math.max(aLength, bLength);
++    for (let i = 0; i < length; i++) {
++        const rankA = i < aLength ? a[i] : Number.POSITIVE_INFINITY;
++        const rankB = i < bLength ? b[i] : Number.POSITIVE_INFINITY;
++        if (rankA !== rankB) {
++            return rankA - rankB;
++        }
++    }
++    return 0;
++}
++/** Cascade order: cascade layer, then specificity, then source order - (tier, position) across stylesheets. */
+ function compareSelectors(a, b) {
+-    return a.specificity - b.specificity || a.tier - b.tier || a.pos - b.pos;
++    return compareLayerPaths(a.ruleset?.layerPath, b.ruleset?.layerPath) || a.specificity - b.specificity || a.tier - b.tier || a.pos - b.pos;
+ }
+ /**
+  * Resolve collected candidates against a node, compacting the array in place.
+diff --git a/ui/styling/style-scope.d.ts b/ui/styling/style-scope.d.ts
+index d6f026616cc33cf02f312a5e4f3b6effd71b5dda..321217d036b2fc726c88bf2076d82dcc62e6917e 100644
+--- a/ui/styling/style-scope.d.ts
++++ b/ui/styling/style-scope.d.ts
+@@ -8,7 +8,7 @@ import { Keyframes, KeyframeAnimationInfo, KeyframeAnimation } from '../animatio
+  */
+ export declare function mergeCssSelectors(): void;
+ export declare function mergeCssKeyframes(): void;
+-export declare function _populateRules(nodes: ReworkCSS.Node[], rulesets: RuleSet[], keyframes: Keyframes[], mediaQueryString?: string | string[]): void;
++export declare function _populateRules(nodes: ReworkCSS.Node[], rulesets: RuleSet[], keyframes: Keyframes[], mediaQueryString?: string | string[], layerPath?: number[], layerPrefix?: string): void;
+ export declare function removeTaggedAdditionalCSS(tag: string | number): boolean;
+ export declare function addTaggedAdditionalCSS(cssText: string, tag?: string | number): boolean;
+ export declare const loadAppCSS: any;
+diff --git a/ui/styling/style-scope.js b/ui/styling/style-scope.js
+index 0dbbb309924858ab2b435a004f562c808168b1d9..37495df5a3e0c452ddad493493c12f42d25fba68 100644
+--- a/ui/styling/style-scope.js
++++ b/ui/styling/style-scope.js
+@@ -399,6 +399,33 @@ __decorate([
+     __metadata("design:paramtypes", [String, String]),
+     __metadata("design:returntype", String)
+ ], CSSSource, "resolveCSSPathFromURL", null);
++// Cascade-layer registry: qualified name -> first-seen ordinal, shared across
++// every stylesheet feeding the cascade (layer order is document-wide per spec).
++// '~' synthesizes names for anonymous layers, which authors cannot reference —
++// the char is illegal in a CSS ident, so they never collide with named layers.
++const cascadeLayerOrdinals = new Map();
++let cascadeLayerCount = 0;
++let anonymousLayerCount = 0;
++function layerOrdinal(name) {
++    let ordinal = cascadeLayerOrdinals.get(name);
++    if (ordinal === undefined) {
++        ordinal = cascadeLayerCount++;
++        cascadeLayerOrdinals.set(name, ordinal);
++    }
++    return ordinal;
++}
++// Rank path for `name` nested under the layer at prefixPath/prefixName. Dotted
++// names register each ancestor on the way down, so a top-level `@layer a.b`
++// refers to the same layer as `@layer a { @layer b }`.
++function layerPathFor(name, prefixPath, prefixName) {
++    const path = [...prefixPath];
++    let qualified = prefixName;
++    for (const segment of name.split('.')) {
++        qualified = qualified ? `${qualified}.${segment}` : segment;
++        path.push(layerOrdinal(qualified));
++    }
++    return path;
++}
+ function populateRulesFromImports(nodes, rulesets, keyframes) {
+     const imports = nodes.filter((r) => r.type === 'import');
+     if (!imports.length) {
+@@ -409,6 +436,11 @@ function populateRulesFromImports(nodes, rulesets, keyframes) {
+         const urlMatch = importItem && importItem.match(pattern);
+         return urlMatch && urlMatch[2];
+     };
++    const layerFromImportObject = (importObject) => {
++        const importItem = importObject['import'];
++        const layerMatch = importItem && importItem.match(/\blayer\b(?:\(\s*([^)]*?)\s*\))?/);
++        return layerMatch ? layerMatch[1] ?? '' : null;
++    };
+     const sourceFromImportObject = (importObject) => importObject['position'] && importObject['position']['source'];
+     const toUrlSourcePair = (importObject) => ({
+         url: urlFromImportObject(importObject),
+@@ -416,17 +448,25 @@ function populateRulesFromImports(nodes, rulesets, keyframes) {
+     });
+     const getCssFile = ({ url, source }) => (source ? CSSSource.fromFileImport(url, source) : CSSSource.fromURI(url));
+     const cssFiles = imports
+-        .map(toUrlSourcePair)
++        .map((importObject) => ({ ...toUrlSourcePair(importObject), layer: layerFromImportObject(importObject) }))
+         .filter(({ url }) => !!url)
+-        .map(getCssFile);
+-    for (const cssFile of cssFiles) {
++        .map(({ url, source, layer }) => ({ cssFile: getCssFile({ url, source }), layer }));
++    for (const { cssFile, layer } of cssFiles) {
+         if (cssFile) {
++            if (layer !== null) {
++                // @import "x.css" layer(name) — the imported sheet joins the named
++                // layer; its own layers become nested sublayers of it.
++                const importPath = [layerOrdinal(layer.trim() || `~import-${anonymousLayerCount++}`)];
++                for (const ruleset of cssFile.selectors) {
++                    ruleset.layerPath = [...importPath, ...(ruleset.layerPath ?? [])];
++                }
++            }
+             rulesets.push(...cssFile.selectors);
+             keyframes.push(...cssFile.keyframes);
+         }
+     }
+ }
+-export function _populateRules(nodes, rulesets, keyframes, mediaQueryString) {
++export function _populateRules(nodes, rulesets, keyframes, mediaQueryString, layerPath, layerPrefix) {
+     for (const node of nodes) {
+         if (isKeyframe(node)) {
+             const keyframeRule = {
+@@ -451,11 +491,32 @@ export function _populateRules(nodes, rulesets, keyframes, mediaQueryString) {
+             else {
+                 compositeMediaQuery = node.media;
+             }
+-            _populateRules(node.rules, rulesets, keyframes, compositeMediaQuery);
++            _populateRules(node.rules, rulesets, keyframes, compositeMediaQuery, layerPath, layerPrefix);
++        }
++        else if (isLayer(node)) {
++            const name = (node.layer ?? '').trim();
++            if (node.rules) {
++                // Block at-rule: a single name, or anonymous when the prelude is empty.
++                const qualified = name ? (layerPrefix ? `${layerPrefix}.${name}` : name) : `${layerPrefix ?? ''}~${anonymousLayerCount++}`;
++                const childPath = name ? layerPathFor(name, layerPath ?? [], layerPrefix ?? '') : [...(layerPath ?? []), layerOrdinal(qualified)];
++                _populateRules(node.rules, rulesets, keyframes, mediaQueryString, childPath, qualified);
++            }
++            else {
++                // Statement at-rule: `@layer a, b;` pre-declares order only.
++                for (const declared of name.split(',')) {
++                    const declaredName = declared.trim();
++                    if (declaredName) {
++                        layerPathFor(declaredName, layerPath ?? [], layerPrefix ?? '');
++                    }
++                }
++            }
+         }
+         else if (isRule(node)) {
+             const ruleset = fromAstNode(node);
+             ruleset.mediaQueryString = mediaQueryString;
++            if (layerPath?.length) {
++                ruleset.layerPath = layerPath;
++            }
+             rulesets.push(ruleset);
+         }
+     }
+@@ -1335,6 +1396,9 @@ function isMedia(node) {
+ function isKeyframe(node) {
+     return node.type === 'keyframes';
+ }
++function isLayer(node) {
++    return node.type === 'layer';
++}
+ function isRule(node) {
+     return node.type === 'rule';
+ }
+diff --git a/ui/tab-view/tab-view-common.d.ts b/ui/tab-view/tab-view-common.d.ts
+index 35d1ba1f2479bbbf64cd4b1acb9563e0f823fd4e..e96b3085d75549d06d2c2e9cae183887e8e1adcc 100644
+--- a/ui/tab-view/tab-view-common.d.ts
++++ b/ui/tab-view/tab-view-common.d.ts
+@@ -66,6 +66,7 @@ export declare class TabViewBase extends View implements TabViewDefinition, AddC
+     eachChild(callback: (child: ViewBase) => boolean): void;
+     eachChildView(callback: (child: View) => boolean): void;
+     onItemsChanged(oldItems: TabViewItemDefinition[], newItems: TabViewItemDefinition[]): void;
++    _isChildPresented(child: ViewBase): boolean;
+     onSelectedIndexChanged(oldIndex: number, newIndex: number): void;
+ }
+ export interface TabViewBase {
+diff --git a/ui/tab-view/tab-view-common.js b/ui/tab-view/tab-view-common.js
+index 66672f1fa5ccb31f06a83a2a21bfe1e5c668712f..1eb3676f0346d7ee21ab7ff1c1b78292da641463 100644
+--- a/ui/tab-view/tab-view-common.js
++++ b/ui/tab-view/tab-view-common.js
+@@ -144,21 +144,33 @@ let TabViewBase = TabViewBase_1 = class TabViewBase extends View {
+     }
+     onItemsChanged(oldItems, newItems) {
+         if (oldItems) {
+-            oldItems.forEach((item) => this._removeView(item));
++            oldItems.forEach((item) => {
++                if (!newItems || newItems.indexOf(item) < 0) {
++                    this._removeView(item);
++                }
++            });
+         }
+         if (newItems) {
+             newItems.forEach((item) => {
+                 if (!item.view) {
+                     throw new Error(`TabViewItem must have a view.`);
+                 }
++                // An item kept across the change stays loaded; tearing it down would unload its view.
++                if (item.parent === this) {
++                    return;
++                }
+                 // A view can only have one parent, and _addView throws if it already has one.
+-                if (item.parent && item.parent !== this) {
++                if (item.parent) {
+                     item.parent._removeView(item);
+                 }
+                 this._addView(item);
+             });
+         }
+     }
++    _isChildPresented(child) {
++        const items = this.items;
++        return !items || items[this.selectedIndex] === child;
++    }
+     onSelectedIndexChanged(oldIndex, newIndex) {
+         // to be overridden in platform specific files
+         this.notify({
