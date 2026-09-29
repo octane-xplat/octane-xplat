@@ -170,6 +170,12 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   looks like a silent HMR failure but isn't). The `ns-hmr-client-watchdog`
   plugin in the native vite config warns when a session was fetched but no
   ws client attaches.
+- lib builds: `dist/native` must never import bare `octane` (the DOM entry) —
+  rollup `external` matches raw specifiers before `resolve.alias`, so the alias
+  is dead code there; each package's `vite.config` rewrites it via
+  `output.paths` at emit time and `scripts/check-native-dist.mjs` gates the
+  build. Sources keep importing `'octane'` — the compiler retargets `.tsrx`
+  hook imports to `@nativescript-community/octane` itself.
 - Lint: `pnpm lint` = oxlint (JS plugin in `scripts/oxlint-plugin.mjs`) + a
   `@tsrx/core` companion pass for `.tsrx` (`scripts/lint-tsrx.mjs`) — oxlint
   can't load custom parsers. Rule checks live once in
