@@ -16,7 +16,7 @@
 	--doc-blue: #005fed;
 	--doc-teal: #aee5e0;
 	--doc-green: #51df00;
-	--doc-link: var(--doc-green);
+	--doc-link: #805a2d;
 	--doc-grad: linear-gradient(to right, var(--doc-blue), var(--doc-teal) 59%, var(--doc-green));
 	--doc-tag-note-bg: #dcf1ef;
 	--doc-tag-note-ink: #0c5b55;
@@ -37,7 +37,7 @@
 	--doc-mono-bg: rgba(255, 255, 255, 0.11);
 	--doc-code-bg: #0e0d0c;
 	--doc-code-ink: #e8e8e0;
-	--doc-link: #7fd44a;
+	--doc-link: #d2ad78;
 	--doc-teal: #4a7a76;
 	--doc-tag-note-bg: #173c3a;
 	--doc-tag-note-ink: #9ed8d3;
