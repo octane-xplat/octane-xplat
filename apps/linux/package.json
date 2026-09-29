@@ -12,10 +12,10 @@
 		"@octane-xplat/ui": "workspace:*",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
-		"octane": "0.5.0"
+		"octane": "0.6.3"
 	},
 	"devDependencies": {
-		"@octanejs/vite-plugin": "0.1.60",
+		"@octanejs/vite-plugin": "0.1.61",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"
 	},

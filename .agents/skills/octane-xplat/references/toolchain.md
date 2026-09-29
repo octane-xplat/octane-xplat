@@ -50,8 +50,8 @@ OTP/2FA — run it manually, not through an agent.
 
 ## Version pins (deliberate)
 
-octane 0.5.0, @nativescript-community/octane 0.2.1, @nativescript/core
-9.1.2, vite 8.3.0, @octanejs/vite-plugin 0.1.60, tsrx toolchain pinned.
+octane 0.6.3, @nativescript-community/octane 0.2.1, @nativescript/core
+9.1.2, vite 8.3.0, @octanejs/vite-plugin 0.1.61, tsrx toolchain pinned.
 Beta/fast-moving deps stay exact-pinned — bump deliberately.
 
 ## pnpm workspace specifics

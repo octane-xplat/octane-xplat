@@ -26,8 +26,8 @@ overrides:
 saveExact: true
 minimumReleaseAgeExclude:
   - '@octanejs/app-core@0.0.56'
-  - '@octanejs/vite-plugin@0.1.60'
-  - octane@0.5.0
+  - '@octanejs/vite-plugin@0.1.61'
+  - octane@0.6.3
   - '@nativescript-community/octane@0.2.1'
   - '@nativescript-community/vite-octane@0.2.1'
   - '@nativescript/vite@8.0.11'
@@ -38,11 +38,6 @@ minimumReleaseAgeExclude:
   # windows platform (cli#6065). Exact pins in apps/windows/package.json.
   - '@nativescript/windows@0.1.0-alpha.144'
   - nativescript@9.1.2-dev.2026-09-24-36031892256
-# The patched octane@0.5.0 carries universal `__methodDep` below ui's
-# >=0.6.3 peer floor. Whitelist this workspace pin without weakening the floor.
-peerDependencyRules:
-  allowedVersions:
-    octane: '0.5.0'
 allowBuilds:
   '@nativescript/core': true
   nativescript: true
@@ -55,10 +50,10 @@ allowBuilds:
 # patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`
 # propagates to the create template. `pnpm check:patches` fails on drift.
 patchedDependencies:
-  # Published octane 0.5.0 lacks universal signal reads and JSX prop lowering needed by the
-  # native renderer. Applies the same built-file changes as the former local
-  # universal-signals tarball, including the native method-dependency export.
-  octane@0.5.0: packages/cli/patches/octane@0.5.0.patch
+  # Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal
+  # ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep
+  # already ship upstream.
+  octane@0.6.3: packages/cli/patches/octane@0.6.3.patch
   # FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts
   # parent padding + child margins — a column-stretched row re-measurement clamps padded
   # children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for

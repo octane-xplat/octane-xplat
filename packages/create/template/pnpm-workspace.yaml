@@ -18,10 +18,10 @@ allowBuilds:
 # patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat patches apply`
 # refreshes, `xplat patches check` verifies); do not edit by hand.
 patchedDependencies:
-  # Published octane 0.5.0 lacks universal signal reads and JSX prop lowering needed by the
-  # native renderer. Applies the same built-file changes as the former local
-  # universal-signals tarball, including the native method-dependency export.
-  octane@0.5.0: patches/octane@0.5.0.patch
+  # Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal
+  # ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep
+  # already ship upstream.
+  octane@0.6.3: patches/octane@0.6.3.patch
   # FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts
   # parent padding + child margins — a column-stretched row re-measurement clamps padded
   # children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for

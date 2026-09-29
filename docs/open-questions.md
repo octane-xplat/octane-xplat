@@ -161,11 +161,10 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     Device-only follow-up remains for `currentColor` tint, stretch/auto-size,
     and exact iOS/Android pixels. Evidence: desk-source; see the native sweep.
 23. ✅ **JSX element props on universal targets** — Resolved: the consumed
-    pack carries the lowering (octane-universal-signals `eaa51b09`,
-    upstream octanejs/octane#1311) — prop JSX emits `universalValue`,
-    verified in the iOS bundle and via the drawer sweep assert. Published
-    octane@0.5.0 alone still rejects native signal reads, so the dist-pack
-    override stays until a release ships both.
+    published octane@0.6.3 carries the lowering (upstream octanejs/octane#1311)
+    — prop JSX emits `universalValue`, verified in the iOS bundle and via the
+    drawer sweep assert. Universal signal reads remain in the canonical patch
+    until upstream releases them.
 24. ⏳ **Squircle corners on Android.** — `cornerShape` is parsed but the
     Android background path (`org.nativescript.widgets.BorderDrawable`,
     `Path.addRoundRect`) ignores it. Real support needs either a superellipse

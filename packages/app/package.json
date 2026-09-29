@@ -24,7 +24,7 @@
 		"@nativescript-community/octane": "0.2.1",
 		"@nativescript/core": "9.1.2",
 		"@octane-xplat/cli": "workspace:*",
-		"octane": "0.5.0"
+		"octane": "0.6.3"
 	},
 	"peerDependencies": {
 		"octane": ">=0.6.3 <1"

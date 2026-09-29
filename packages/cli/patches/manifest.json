@@ -2,11 +2,11 @@
 	"$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` propagates this set to packages/create/template; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` — the root workspace yaml points here so commit writes land in this dir.",
 	"patches": [
 		{
-			"specifier": "octane@0.5.0",
-			"file": "octane@0.5.0.patch",
+			"specifier": "octane@0.6.3",
+			"file": "octane@0.6.3.patch",
 			"scope": "runtime",
-			"why": "Published octane 0.5.0 lacks universal signal reads and JSX prop lowering needed by the native renderer. Applies the same built-file changes as the former local universal-signals tarball, including the native method-dependency export.",
-			"dropWhen": "An octane release ships universal signal reads and JSX prop lowering, and the workspace upgrades to that release"
+			"why": "Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep already ship upstream.",
+			"dropWhen": "An octane release ships universal signal reads and the workspace upgrades to that release"
 		},
 		{
 			"specifier": "@nativescript/core@9.1.2",

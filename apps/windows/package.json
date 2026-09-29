@@ -38,7 +38,7 @@
 		"@valor/nativescript-websockets": "2.0.3",
 		"@xplat/app": "workspace:*",
 		"@xplat/demos": "workspace:*",
-		"octane": "0.5.0"
+		"octane": "0.6.3"
 	},
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "0.2.1",
@@ -46,7 +46,7 @@
 		"@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@11468",
 		"@nativescript/windows": "0.1.0-alpha.144",
 		"@octane-xplat/cli": "workspace:*",
-		"@octanejs/vite-plugin": "0.1.60",
+		"@octanejs/vite-plugin": "0.1.61",
 		"nativescript": "9.1.2-dev.2026-09-24-36031892256",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"

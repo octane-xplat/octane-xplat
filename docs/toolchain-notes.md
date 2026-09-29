@@ -153,7 +153,7 @@ When a workspace package's dependency declarations change, resync with
 `pnpm install --lockfile-only`; do not hand-edit the importer. The
 `packages/lint` importer is the canary for this rule because its `@tsrx/core`
 and `oxlint` entries must stay aligned with the published package. The
-workspace installs published `octane@0.5.0` with the canonical patch set;
+workspace installs published `octane@0.6.3` with the canonical patch set;
 fresh clones and worktrees can use `pnpm install --frozen-lockfile` without
 the gitignored `research/` directory.
 
