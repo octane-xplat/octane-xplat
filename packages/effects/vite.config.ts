@@ -32,13 +32,19 @@ export default defineConfig(() => ({
 		emptyOutDir: true,
 		minify: false,
 		rollupOptions: {
-			output: { preserveModules: true },
+			output: {
+				preserveModules: true,
+				// `octane` is external, so `resolve.alias` never sees it
+				// (externals match the raw specifier). Rewrite at emit
+				// instead: native code importing the DOM entry bundles a
+				// second octane runtime. Exact match only.
+				paths: (id) => (id === 'octane' ? 'octane/universal/native' : id),
+			},
 			external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//],
 		},
 	},
 	resolve: {
 		conditions: ['native'],
-		alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }],
 		extensions: NATIVE_EXTS,
 	},
 }))

@@ -44,6 +44,13 @@ minimumReleaseAgeExclude:
   # windows platform (cli#6065). Exact pins in apps/windows/package.json.
   - '@nativescript/windows@0.1.0-alpha.144'
   - nativescript@9.1.2-dev.2026-09-24-36031892256
+# The octane override resolves every `octane` specifier to the packed
+# universal-signals build, still versioned 0.5.0 — below ui's >=0.6.3 peer
+# floor (the floor marks upstream's universal `__methodDep` export, which the
+# tarball already carries). Whitelist it instead of weakening the floor.
+peerDependencyRules:
+  allowedVersions:
+    octane: '0.5.0'
 allowBuilds:
   '@nativescript/core': true
   nativescript: true

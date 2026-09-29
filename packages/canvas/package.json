@@ -27,7 +27,7 @@
 		}
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
 		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
@@ -44,7 +44,7 @@
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
-		"octane": ">=0.1.51 <1"
+		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
 		"@nativescript-community/octane": {

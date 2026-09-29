@@ -77,7 +77,21 @@ export default defineConfig(({ mode }) => {
 			emptyOutDir: true,
 			minify: false,
 			rollupOptions: {
-				output: { preserveModules: true },
+				output: {
+					preserveModules: true,
+					// `octane` is external, so `resolve.alias` never sees it (externals
+					// are matched on the raw specifier). Rewrite it at emit time
+					// instead: native-targeted code importing the DOM entry bundles a
+					// second octane runtime and crashes on first render
+					// (null CURRENT_SCOPE.hooks). Exact match only — `octane/*`
+					// subpaths stay as authored.
+					...(native
+						? {
+								paths: (id) =>
+									id === 'octane' ? 'octane/universal/native' : id,
+							}
+						: {}),
+				},
 				external: [
 					/^octane/,
 					/^@nativescript\//,
@@ -89,7 +103,6 @@ export default defineConfig(({ mode }) => {
 		},
 		resolve: {
 			conditions: [native ? 'native' : 'web'],
-			alias: native ? [{ find: /^octane$/, replacement: 'octane/universal/native' }] : [],
 			extensions: native ? NATIVE_EXTS : WEB_EXTS,
 		},
 	}

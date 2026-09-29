@@ -26,6 +26,6 @@
 		"octane": "0.5.0"
 	},
 	"peerDependencies": {
-		"octane": ">=0.1.51 <1"
+		"octane": ">=0.6.3 <1"
 	}
 }

@@ -85,7 +85,7 @@
 		}
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsrx-typegen --target ui",
+		"build": "vite build && vite build --mode native && tsrx-typegen --target ui && node ../../scripts/check-native-dist.mjs",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"test:native": "vitest run --config vitest.native.config.mts"
@@ -109,7 +109,7 @@
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript-community/ui-drawer": ">=0.1.32 <1",
 		"@nativescript/core": ">=9.1.0 <10",
-		"octane": ">=0.1.51 <1"
+		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
 		"@nativescript-community/gesturehandler": {

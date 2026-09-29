@@ -44,16 +44,21 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       minify: false,
       rollupOptions: {
-        output: { preserveModules: true, entryFileNames: "index.js" },
+        output: {
+          preserveModules: true,
+          entryFileNames: "index.js",
+          // `octane` is external, so `resolve.alias` never fires —
+          // rewrite the specifier at emit: native must not bundle
+          // the DOM runtime.
+          paths: native
+            ? (id) => (id === "octane" ? "octane/universal/native" : id)
+            : undefined,
+        },
         external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//],
       },
     },
     resolve: {
-      conditions: [native ? "native" : "web"],
-      alias: native
-        ? [{ find: /^octane$/, replacement: "octane/universal/native" }]
-        : [],
-      extensions: EXTENSIONS,
+      conditions: [native ? "native" : "web"],      extensions: EXTENSIONS,
     },
   };
 });
