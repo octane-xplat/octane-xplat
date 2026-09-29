@@ -1,4 +1,4 @@
-import { Application, getRootLayout } from '@nativescript/core'
+import { Application, Utils, getRootLayout } from '@nativescript/core'
 import { getStack } from '@octane-xplat/ui'
 import { STYLE_FACETS } from './style-facets'
 
@@ -24,10 +24,40 @@ function styleOf(view: any): Record<string, string> {
 	return out
 }
 
+function contentBoxOf(
+	view: any,
+	loc: { x: number; y: number },
+	size: { width: number; height: number },
+	boxLoc: { x: number; y: number },
+) {
+	const inset = (edge: 'Left' | 'Top' | 'Right' | 'Bottom') => {
+		const px =
+			Number(view?.[`effectivePadding${edge}`] ?? 0) +
+			Number(view?.[`effectiveBorder${edge}Width`] ?? 0)
+
+		return Utils.layout.toDeviceIndependentPixels(px)
+	}
+
+	const left = inset('Left')
+	const top = inset('Top')
+	const right = inset('Right')
+	const bottom = inset('Bottom')
+
+	return {
+		x: round(loc.x - boxLoc.x + left),
+		y: round(loc.y - boxLoc.y + top),
+		w: round(Math.max(0, size.width - left - right)),
+		h: round(Math.max(0, size.height - top - bottom)),
+	}
+}
+
 function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
 	const loc = view.getLocationOnScreen?.()
 	const size = view.getActualSize?.()
 	const classes: string[] = view?.cssClasses ? [...view.cssClasses] : []
+	const textControl = hasClass(view, 'vx-input') || hasClass(view, 'vx-textarea')
+	const placeholder = textControl && view?.hint ? String(view.hint) : undefined
+	const placeholderColor = textControl ? view?.style?.placeholderColor : undefined
 	return {
 		tag: String(view?.typeName ?? view?.constructor?.name ?? 'view').toLowerCase(),
 		id: view?.id || undefined,
@@ -43,6 +73,15 @@ function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
 				: null,
 		style: styleOf(view),
 		text: typeof view?.text === 'string' && view.text ? view.text : undefined,
+		contentBox: textControl && loc && size ? contentBoxOf(view, loc, size, boxLoc) : undefined,
+		placeholder,
+		placeholderStyle:
+			placeholder && placeholderColor
+				? {
+						color: String(placeholderColor),
+						opacity: String(round(Number(placeholderColor.a ?? 255) / 255)),
+					}
+				: undefined,
 	}
 }
 
