@@ -40,6 +40,7 @@ describe('motion hosts', () => {
 		await act(async () => {})
 		expect(mounted.container.querySelector('#box')).toBe(node)
 		expect(node.style.transform).toContain('translateX(80px)')
+		expect(done).toHaveBeenCalledTimes(2)
 		mounted.close()
 	})
 

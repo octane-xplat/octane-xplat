@@ -55,7 +55,19 @@ An ancestor unmount always disposes immediately. Nested boundaries are independe
 
 Unit and DOM tests establish bounded behavior, not full Framer Motion parity.
 Universal object-driver tests establish retention and lifecycle without an OS.
-Physical iOS/Android interruption, cancellation, gesture velocity/arbitration,
-background/resume, and frame pacing are pending. Native system preference
-observation polls at 500 ms while subscribed and refreshes on resume; Android
-uses animator_duration_scale. Real-device accessibility behavior remains pending.
+Partial device observations are recorded in the
+[motion v1 validation matrix](../../docs/animation-notes.md). After the
+platform split, an isolated iOS 26.5 MotionProbe run verified pan completion
+and cancellation, Presence focus/reversal/removal, and live Reduce Motion,
+including immediate transform settlement. The API 35 Android emulator verified
+tween/spring completion, cancellation, disposal, pan phase delivery, and focus
+release on Presence exit. Its injected pan release reported zero velocity, and
+the accessibility runner did not reach idle during reversal, so those checks
+remain open. Physical Android CPH2551 evidence covers app launch and the target
+retarget only; the handset is currently disconnected. The physical iPhone IPA
+installed but did not launch because the phone was locked. The normal iOS mobile
+entry currently aborts in `AuthSessionPresentationAnchor` with
+`NativeClass is not defined`, so the latest simulator and emulator runs used a
+temporary direct MotionProbe entry. Background/resume and frame pacing remain
+uncharacterized. Native preference observation polls at 500 ms while subscribed
+and refreshes on resume; Android reads `animator_duration_scale`.

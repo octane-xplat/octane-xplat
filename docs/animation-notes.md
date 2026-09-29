@@ -5,10 +5,11 @@
 > NativeScript means this can be _simpler_ than the RN equivalent — no worklet
 > boundary.
 >
-> **Owns:** #5 animation/gesture facade · **Status:** declarative subset implemented; physical-device validation pending · **Blocks on:**
-> physical-device gesture and frame-pacing checks · **Decisions:** #10 ·
-> **Validation goal:** a dragged element that settles without per-frame renders.
-> The historical probes below do not establish a 60fps guarantee.
+> **Owns:** #5 animation/gesture facade · **Status:** v1 implemented; physical-device validation is partial · **Blocks on:**
+> physical iOS reduced-motion evidence and physical Android gesture/cancellation/
+> Presence checks · **Decisions:** #10 · **Validation goal:** a dragged element
+> that settles without per-frame renders. These probes do not establish a 60fps
+> guarantee or physical-device frame pacing.
 
 ## Current implementation
 
@@ -16,8 +17,30 @@
 See the [guide](animation-gestures.md) and [pinned compatibility record](../packages/motion/UPSTREAM.md).
 It reuses Motion 12.42.2 numeric generators with platform frame scheduling.
 The older UI `useAnimation` below remains unchanged; its fixed-step spring is
-not the new leaf's engine. Historical iOS observations below do not validate
-the new package on-device.
+not the new leaf's engine. This matrix separates simulator and emulator runs
+from physical handset observations; older `useAnimation` results do not
+validate the new leaf.
+
+## Motion v1 validation record — 2026-09-29
+
+The iOS simulator and Android emulator rows exercise NativeScript's platform
+drivers, but do not stand in for physical-device input or frame pacing.
+
+| Case | Web and host-neutral evidence | iOS simulator and device | Android emulator and device |
+| --- | --- | --- | --- |
+| Build and launch | Motion tests: 22 standard and 3 native-config tests passed; UI package build and native UI tests passed. | iOS 26.5 simulator: a temporary direct `MotionProbe` entry built, installed, and launched after the platform split. The normal mobile entry aborts before render at `AuthSessionPresentationAnchor` with `ReferenceError: NativeClass is not defined`. iPhone 13 Pro Max / iOS 27.0.1: IPA built and installed; launch was refused while the phone was locked. | Android API 35 emulator: temporary direct `MotionProbe` entry built, installed, and launched. Physical CPH2551 / Android 16: build, install, and launch passed in an earlier run; the handset was disconnected during this round. |
+| Tween, spring, retarget | `engine.test.ts` checks tween endpoints, irregular-time spring samples, and velocity-preserving retarget. Host tests check final numeric values and completion. | iOS 26.5 simulator previously reached `100` and `-40`, including a tween interrupted by a spring. | CPH2551 previously reached `100`, then `-40`. The API 35 emulator completed a tween at `100` and a mid-flight spring retarget at `-40`. |
+| Cancellation and disposal | Engine tests verify one cancellation result, no completion callback after cancellation, and channel cleanup on disposal. | Earlier iOS 26.5 simulator run: MotionValue cancellation resolved `cancelled`; unmount disposal resolved `job cancelled`. | API 35 emulator: MotionValue cancellation resolved `cancelled`; unmount disposal resolved `job cancelled`. Physical handset checks remain pending. |
+| Pan and release velocity | Browser and object-driver evidence does not validate OS recognizer delivery. | The iOS 26.5 simulator reported `began → moved → ended`, settled at `x=0`, and release velocity `396`. Sending Home during a held swipe produced `began → moved → cancelled`. | The API 35 emulator reported `began → moved → ended` and settled at `x=0`; ADB-injected swipes reported release velocity `0`, so they do not establish natural release velocity. Pan cancellation remains unverified. |
+| Presence identity, input, and removal | Web and native object-driver tests cover retained child identity, input blocking, reversal, and exactly-once cleanup. | After the platform split, the simulator retained a counter at `1` through a focused exit and reversal, released focus, allowed refocus after re-entry, and reported one removal after completed exit. | The API 35 emulator cleared focus on a completed Presence exit and reported `removals=1`. A later reversal attempt did not produce a stable accessibility snapshot (`uiautomator` could not reach idle), so reversal remains unverified. |
+| Live reduced motion | The web test changes `matchMedia` while mounted and verifies immediate transform settlement and listener cleanup. | Toggling system Reduce Motion while mounted changed `useReducedMotion` from false to true and back. With it enabled, a target change immediately moved the accessibility frame by the full `x=-100` offset while the opacity tween was still completing; the system setting was restored to false. | Android `animator_duration_scale` was not changed during this run; live observation remains unverified. |
+
+The final simulator and emulator runs used a temporary direct `MotionProbe`
+entry to avoid loading unrelated app routes; that entry was removed afterward.
+On Android, injected taps on blank or label chrome left the input focused,
+although Presence exit cleared it. Do not infer Android tap-to-blur or reversal
+parity from the successful exit case. Web and object-driver tests do not close
+the remaining physical-device gaps.
 
 ## The load-bearing fact
 
