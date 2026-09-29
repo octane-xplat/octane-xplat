@@ -11,15 +11,15 @@
 	"type": "module",
 	"exports": {
 		"./ios": {
-			"types": "./src/ios/types.ts",
+			"types": "./src/ios/index.ts",
 			"native": "./src/ios/index.ts"
 		},
 		"./android": {
-			"types": "./src/android/types.ts",
+			"types": "./src/android/index.ts",
 			"native": "./src/android/index.ts"
 		},
 		"./web": {
-			"types": "./src/web/types.ts",
+			"types": "./src/web/index.ts",
 			"web": "./src/web/index.ts"
 		}
 	},
