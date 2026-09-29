@@ -104,13 +104,16 @@ globalThis.__xplatOnInput = (line) => {
 			console.log('[ancestors] ' + JSON.stringify(root.__macosDebug.ancestors(line.slice(10))))
 			return
 		}
-		else if (line.startsWith('frame ')) {
-			console.log('[frame] ' + JSON.stringify(root.__macosDebug.frameInWindow(line.slice(6))))
+		else if (line.startsWith('style ')) {
+			const [, styleId, styleName, styleValue] = line.split(' ')
+			console.log(
+				'[style] ' +
+					JSON.stringify(root.__macosDebug.setStyle(styleId, styleName, Number(styleValue))),
+			)
 			return
 		}
-		else if (line === 'pin-window') {
-			window.setContentSize({ width: 640, height: 420 })
-			console.log('[frame] ' + JSON.stringify({ w: window.frame.size.width, h: window.frame.size.height }))
+		else if (line.startsWith('frame ')) {
+			console.log('[frame] ' + JSON.stringify(root.__macosDebug.frameInWindow(line.slice(6))))
 			return
 		}
 		else if (line.startsWith('title ')) {

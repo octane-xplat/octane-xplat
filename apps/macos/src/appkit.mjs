@@ -417,18 +417,20 @@ export function createAppKitWindow(options = {}) {
 
 	nativeWindow.title = 'Octane macOS spike'
 	nativeWindow.releasedWhenClosed = false
-	// The content is fully constraint-driven (stacks + anchors); AppKit can
-	// re-fit the window to content on commits — parity-shots.mjs sends the
-	// `pin-window` command to re-assert 640x420 before capturing. Min/max
-	// size at least keeps user resizes inside the shared viewport contract.
-	nativeWindow.contentMinSize = { width: 640, height: 420 }
-	nativeWindow.contentMaxSize = { width: 640, height: 420 }
+
 	nativeWindow.center()
 	nativeWindow.delegate = appDelegate()
 	app.delegate = shared.appDelegate
 	shared.platformServices.primaryWindow ??= nativeWindow
 
 	const contentView = makeContentView({ width: 640, height: 420 })
+	// Pin the content size as a required constraint. Without it, every
+	// required child-pin chain hands the solver a path where a nested
+	// view's hugging priority (750) outranks the window↔content constraint
+	// (WindowSizeStayPut, 500) — and AppKit resizes the window to the
+	// content's fitting size.
+	contentView.widthAnchor.constraintEqualToConstant(640).active = true
+	contentView.heightAnchor.constraintEqualToConstant(420).active = true
 	nativeWindow.contentView = contentView
 	let resolveWindowClosed
 	const windowClosed = new Promise((resolve) => {

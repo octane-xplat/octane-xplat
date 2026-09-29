@@ -87,10 +87,6 @@ try {
 	await nextLine((l) => l.includes('[macos] AppKit window ready'), 120000, 'window ready')
 	send('parity')
 	await nextLine((l) => l.includes('[parity-json] '), 30000, 'parity dump')
-	// The AppKit host's constraint-driven content re-fits the window on
-	// commits; pin it back to the shared 640x420 viewport before measuring.
-	send('pin-window')
-	await nextLine((l) => l.startsWith('[frame] '), 10000, 'window pin')
 
 	const first = await cells()
 	const maxTop = Math.max(0, first.docHeight - first.viewportHeight)
