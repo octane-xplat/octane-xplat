@@ -221,7 +221,10 @@ jobs:
 
       - name: Bump version
         if: steps.version.outputs.should_release == 'true'
-        run: npm pkg set version="${{ steps.version.outputs.version }}" --workspace packages/tsrx-typegen
+        # npm --workspace requires npm workspaces; this is a pnpm workspace, so
+        # run inside the package dir instead.
+        working-directory: packages/tsrx-typegen
+        run: npm pkg set version="${{ steps.version.outputs.version }}"
 
       - name: Generate changelog
         if: steps.version.outputs.should_release == 'true'
