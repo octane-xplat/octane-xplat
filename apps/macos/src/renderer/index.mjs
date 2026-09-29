@@ -10,6 +10,7 @@ const actionIdsByView = new WeakMap()
 const textNodesByView = new WeakMap()
 const panHandlersByView = new WeakMap()
 const gridLayoutNodesByView = new WeakMap()
+const absoluteLayoutNodesByView = new WeakMap()
 const accessibilityLabels = new Map()
 const accessibilityRoles = new Map()
 const scrollHandlers = new WeakMap()
@@ -269,6 +270,19 @@ class GridLayoutView extends NSView {
 	layout() {
 		super.layout()
 		layoutGridChildren(gridLayoutNodesByView.get(this))
+	}
+}
+
+// Absolute's host — children position via their own left/top/right/bottom
+// layout-child props; the layout() pass sets frames directly.
+class AbsoluteLayoutView extends NSView {
+	static {
+		NativeClass(this)
+	}
+
+	layout() {
+		super.layout()
+		layoutAbsoluteChildren(absoluteLayoutNodesByView.get(this))
 	}
 }
 
@@ -586,6 +600,12 @@ function makeGridLayout() {
 	return view
 }
 
+function makeAbsoluteLayout() {
+	const view = AbsoluteLayoutView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 140, height: 28 } })
+	view.translatesAutoresizingMaskIntoConstraints = false
+	return view
+}
+
 function layoutLength(value, available, fallback) {
 	if (typeof value === 'string' && value.trim().endsWith('%')) {
 		const percent = Number(value.trim().slice(0, -1))
@@ -872,6 +892,43 @@ function layoutGridChildren(parent) {
 	}
 }
 
+function layoutAbsoluteChildren(parent) {
+	if (!parent?.view) {return}
+	const width = Number(parent.view.bounds.size.width)
+	const height = Number(parent.view.bounds.size.height)
+
+	for (const child of parent.children) {
+		if (!child.view) {continue}
+		const style = child.props.style ?? {}
+		const intrinsic = child.view.intrinsicContentSize ?? { width: 0, height: 0 }
+		const left = layoutLength(child.props.left, width, Number.NaN)
+		const right = layoutLength(child.props.right, width, Number.NaN)
+		const top = layoutLength(child.props.top, height, Number.NaN)
+		const bottom = layoutLength(child.props.bottom, height, Number.NaN)
+		const childWidth = style.width == null
+			? (Number.isFinite(left) && Number.isFinite(right)
+				? Math.max(0, width - left - right)
+				: Math.max(0, Number(intrinsic.width ?? 0)))
+			: layoutLength(style.width, width, 0)
+		const childHeight = style.height == null
+			? (Number.isFinite(top) && Number.isFinite(bottom)
+				? Math.max(0, height - top - bottom)
+				: Math.max(0, Number(intrinsic.height ?? 0)))
+			: layoutLength(style.height, height, 0)
+		const x = Number.isFinite(left)
+			? left
+			: Number.isFinite(right) ? width - right - childWidth : 0
+		const offsetTop = Number.isFinite(top)
+			? top
+			: Number.isFinite(bottom) ? height - bottom - childHeight : 0
+
+		child.view.frame = {
+			origin: { x, y: height - offsetTop - childHeight },
+			size: { width: childWidth, height: childHeight },
+		}
+	}
+}
+
 function performGridAccessibilityAdjustment(view, name) {
 	const node = gridLayoutNodesByView.get(view)
 	const handler = node?.props[name]
@@ -912,6 +969,9 @@ function makeNode(container, id, type, props) {
 		}
 		case 'gridlayout':
 			view = makeGridLayout()
+			break
+		case 'absolutelayout':
+			view = makeAbsoluteLayout()
 			break
 		case 'label':
 			view = makeLabel()
@@ -988,6 +1048,9 @@ function makeNode(container, id, type, props) {
 	if (type === 'gridlayout') {
 		gridLayoutNodesByView.set(view, node)
 	}
+	if (type === 'absolutelayout') {
+		absoluteLayoutNodesByView.set(view, node)
+	}
 	if (type === 'textview') {
 		const placeholder = makeLabel()
 		placeholder.font = fontForStyle(14)
@@ -1053,6 +1116,12 @@ function setSizeConstraint(node, name, value) {
 	if (node.parent?.type === 'gridlayout') {
 		deactivateSizeConstraints(node)
 		layoutGridChildren(node.parent)
+		return
+	}
+
+	if (node.parent?.type === 'absolutelayout') {
+		deactivateSizeConstraints(node)
+		layoutAbsoluteChildren(node.parent)
 		return
 	}
 
@@ -1159,6 +1228,7 @@ function applyStyle(node, style) {
 			setSizeConstraint(node, name, value)
 		} else if ((name === 'left' || name === 'marginLeft') && node.view) {
 			if (node.parent?.type === 'gridlayout') {layoutGridChildren(node.parent)}
+			if (node.parent?.type === 'absolutelayout') {layoutAbsoluteChildren(node.parent)}
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
 		} else if (name === 'fontWeight' && ['label', 'textfield', 'textview'].includes(node.type)) {
@@ -1479,6 +1549,16 @@ function applyProps(node, props) {
 				} else {console.warn('[macos-host] ignored gridlayout prop ' + name)}
 
 				break
+			case 'absolutelayout':
+				if (name === 'style') {applyStyle(node, value)}
+				else if (name === 'className' || name === 'id') {continue}
+				else if (name === 'onPan') {setPanAction(node, value)}
+				else if (name.startsWith('on') && value == null) {continue}
+				else if (name === 'accessible' || name.startsWith('accessibility')) {
+					applyAccessibility(node, name, value)
+				} else {console.warn('[macos-host] ignored absolutelayout prop ' + name)}
+
+				break
 		case 'label':
 				if (name === 'text') {
 					setLabelText(node, String(value ?? ''))
@@ -1629,7 +1709,9 @@ function applyProps(node, props) {
 		}
 	}
 	if (node.type === 'gridlayout') {layoutGridChildren(node)}
+	else if (node.type === 'absolutelayout') {layoutAbsoluteChildren(node)}
 	else if (node.parent?.type === 'gridlayout') {layoutGridChildren(node.parent)}
+	else if (node.parent?.type === 'absolutelayout') {layoutAbsoluteChildren(node.parent)}
 }
 
 function detach(container, node) {
@@ -1650,6 +1732,7 @@ function detach(container, node) {
 	}
 
 	if (previousParent?.type === 'gridlayout') {layoutGridChildren(previousParent)}
+	if (previousParent?.type === 'absolutelayout') {layoutAbsoluteChildren(previousParent)}
 	if (previousParent) {updateStackDistribution(previousParent)}
 	syncText(previousParent)
 	node.parent = null
@@ -1659,7 +1742,7 @@ function insert(container, parentId, node, beforeId) {
 	detach(container, node)
 	const parent = parentId === null ? null : container.nodes.get(parentId)
 	if (parentId !== null && !parent) {throw new Error('Unknown AppKit parent ' + parentId)}
-	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout' && parent.type !== 'scrollview' && parent.type !== 'gridlayout') {
+	if (parent && node.view && parent.type !== 'stack' && parent.type !== 'flexboxlayout' && parent.type !== 'scrollview' && parent.type !== 'gridlayout' && parent.type !== 'absolutelayout') {
 		throw new Error('AppKit <' + parent.type + '> cannot contain child views')
 	}
 
@@ -1677,6 +1760,11 @@ function insert(container, parentId, node, beforeId) {
 				node.view.translatesAutoresizingMaskIntoConstraints = false
 				deactivateSizeConstraints(node)
 				layoutGridChildren(parent)
+			} else if (parent.type === 'absolutelayout') {
+				parentView.addSubview(node.view)
+				node.view.translatesAutoresizingMaskIntoConstraints = false
+				deactivateSizeConstraints(node)
+				layoutAbsoluteChildren(parent)
 			} else {
 				parentView.addViewInGravity(node.view, stackGravity(parent, node))
 				applySizeConstraints(node)
@@ -1715,6 +1803,7 @@ function remove(container, parentId, node) {
 	}
 
 	if (expectedParent?.type === 'gridlayout') {layoutGridChildren(expectedParent)}
+	if (expectedParent?.type === 'absolutelayout') {layoutAbsoluteChildren(expectedParent)}
 	if (expectedParent) {updateStackDistribution(expectedParent)}
 	node.parent = null
 	syncText(expectedParent)
@@ -1797,7 +1886,17 @@ const macOSDriver = {
 	prepareBatch(container, batch) {
 		return {
 			apply() {
-				for (const command of batch.commands) {applyCommand(container, command)}
+				for (const command of batch.commands) {
+					try {
+						applyCommand(container, command)
+					} catch (error) {
+						// The universal root can swallow a mid-batch failure when it
+						// retries or aborts the attempt — log it here so an
+						// unsupported element cannot silently stall the mount.
+						console.error('[macos-host] command ' + command.op + ' failed for <' + (command.type ?? '?') + '> id=' + command.id, error)
+						throw error
+					}
+				}
 			},
 			abort() {},
 		}
@@ -2090,7 +2189,7 @@ export function createMacOSRoot(hostView) {
 	const container = { hostView, nodes: new Map(), children: [], root: null }
 	const root = createUniversalRoot(container, macOSDriver, {
 		scheduleMicrotask: (callback) => queueMicrotask(callback),
-		onUncaughtError: (error) => console.error('[macos-runtime] uncaught render error', error),
+		onUncaughtError: (error) => console.error('[macos-runtime] uncaught render error name=' + (error&&error.name) + ' message=' + (error&&error.message) + ' value=' + (typeof error === 'object' ? JSON.stringify(error) : String(error)) + ' stack=' + (error&&error.stack)),
 	})
 
 	container.root = root
