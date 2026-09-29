@@ -2,6 +2,11 @@
 	"name": "@octane-xplat/motion",
 	"version": "0.1.0",
 	"description": "Declarative motion and retained presence for Octane on web, iOS and Android",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/motion"
+	},
 	"files": [
 		"dist",
 		"types",

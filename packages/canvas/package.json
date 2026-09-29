@@ -2,6 +2,11 @@
 	"name": "@octane-xplat/canvas",
 	"version": "0.1.0",
 	"description": "Canvas/GPU surface leaf for Octane xplat — web <canvas> + @nativescript/canvas (2D, WebGL/WebGL2, WebGPU/WGSL)",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/canvas"
+	},
 	"files": [
 		"dist",
 		"types",

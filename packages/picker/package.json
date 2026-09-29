@@ -2,6 +2,11 @@
 	"name": "@octane-xplat/picker",
 	"version": "0.1.0",
 	"description": "Platform-specific selection controls for Octane xplat",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/picker"
+	},
 	"files": [
 		"dist",
 		"types",
@@ -11,15 +16,15 @@
 	"type": "module",
 	"exports": {
 		"./ios": {
-			"types": "./src/ios/types.ts",
+			"types": "./types/ios/index.d.ts",
 			"native": "./src/ios/index.ts"
 		},
 		"./android": {
-			"types": "./src/android/types.ts",
+			"types": "./types/android/index.d.ts",
 			"native": "./src/android/index.ts"
 		},
 		"./web": {
-			"types": "./src/web/types.ts",
+			"types": "./types/web/index.d.ts",
 			"web": "./src/web/index.ts"
 		}
 	},

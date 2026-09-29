@@ -2,6 +2,11 @@
   "name": "@octane-xplat/haptics",
   "version": "0.1.0",
   "description": "Advanced, capability-aware haptics for Octane xplat",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/octane-xplat/octane-xplat.git",
+    "directory": "packages/haptics"
+  },
   "files": [
     "dist",
     "types",

@@ -2,6 +2,11 @@
 	"name": "@octane-xplat/platform",
 	"version": "0.6.0",
 	"description": "Headless platform capabilities for Octane xplat — web + NativeScript leaf pairs",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/platform"
+	},
 	"files": [
 		"src",
 		"platforms"

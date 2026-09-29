@@ -2,6 +2,11 @@
 	"name": "@octane-xplat/video",
 	"version": "0.1.0",
 	"description": "Embedded video leaf for Octane xplat — web <video> + @nstudio/nativescript-exoplayer (ExoPlayer / AVPlayerViewController) with self-drawn chrome",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/video"
+	},
 	"files": [
 		"dist",
 		"types",
