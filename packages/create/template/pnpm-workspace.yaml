@@ -33,7 +33,9 @@ patchedDependencies:
   # on iOS and detached from their tab fragment on Android), iOS items writes load the
   # selected item's view once controllers exist, and Frame._pushInFrameStack only promotes
   # frames whose ancestors present them (Frame.topmost stops returning hidden preloaded tab
-  # frames).
+  # frames). Also maps CSS font-weight to the OpenType wght axis for custom Android fonts on
+  # API 26+, preserves explicit variation settings, and falls back to the prior file load
+  # when the axis is unsupported.
   "@nativescript/core@9.1.2": patches/@nativescript__core@9.1.2.patch
   # @nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0,
   # which mis-parses @layer into garbage selectors — rules die before reaching
