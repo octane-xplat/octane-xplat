@@ -6,7 +6,7 @@ import { topRootLayout } from './root-layout.mobile'
 import { applyThemeClasses } from './theme/theme-scheme'
 import { attachSheetDetents } from './sheet-detents'
 import { bindBottomInsetToKeyboard } from './keyboard-inset.mobile'
-import { attachTapToBlur } from './tap-to-blur.mobile' 
+import { attachTapToBlur } from './tap-to-blur'
 
 interface ActiveSheet {
 	host: GridLayout

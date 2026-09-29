@@ -9,7 +9,7 @@ import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout.mobile';
 import { attachSheetDetents } from './sheet-detents';
 import { bindBottomInsetToKeyboard } from './keyboard-inset.mobile';
-import { attachTapToBlur } from './tap-to-blur.mobile';
+import { attachTapToBlur } from './tap-to-blur';
 
 function SheetBody(props: { children?: any }) @{
 	<>{props.children}</>
