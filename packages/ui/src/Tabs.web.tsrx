@@ -1,4 +1,4 @@
-import { useState } from 'octane';
+import { createContext, useContext, useState } from 'octane';
 import type { TabSpec, TabsProps } from './props';
 import { Icon } from './Icon.web.tsrx';
 
@@ -6,12 +6,19 @@ import { canGoBack, layoutsFor, popRoute, screenFor, useModalRoute, useRoute } f
 
 export type { TabSpec } from './props';
 
+// Stacks already presented by an ancestor Tabs — a nested Tabs inside a
+// routed screen must not re-present the same stack, or the screen's subtree
+// would recursively contain the route again (e.g. a stackless fixture inside
+// a pushed screen that re-presents 'root').
+const PresentedStacks: any = createContext(null);
+
 /** Platform tab shell — web version: a button row + the active pane. The
  *  pane also acts as the route outlet for its `stack`; a route on the
  *  'root' stack covers the whole shell (native: root push covers tabs). */
 export function Tabs(props: TabsProps) @{
 	const [internal, setInternal] = useState(0);
 	const active = props.selectedIndex ?? internal;
+	const presented: Set<string> = useContext(PresentedStacks) ?? new Set();
 	const rootRoute = useRoute('root');
 	// Hooks must be unconditional — subscribe with the active pane's stack
 	// name ('' never matches a route).
@@ -39,19 +46,25 @@ export function Tabs(props: TabsProps) @{
 		...(Object.prototype.hasOwnProperty.call(route, 'loaderError') ? { error: route.loaderError } : {}),
 	});
 
-	const routed = rootRoute ? resolve(rootRoute.name, routeProps(rootRoute)) : null;
+	const presentedWith = (stack: string) => new Set(presented).add(stack);
+	const routed = rootRoute && !presented.has('root')
+		? resolve(rootRoute.name, routeProps(rootRoute))
+		: null;
+
 	// A modal route overlays the shell without replacing it — the screen
 	// gets a `close` prop (popRoute parity with the native showModal root).
-	const modalContent = modal
+	const modalContent = modal && !presented.has(modal.stack)
 		? resolve(modal.name, { ...routeProps(modal), close: () => popRoute() })
 		: null;
 
 	<div className="vx-tabsroot" style={{ display: 'contents' }}>
 	@if (routed) {
-		<div className="vx-route">{routed}</div>
+		<PresentedStacks value={presentedWith('root')}>
+			<div className="vx-route">{routed}</div>
+		</PresentedStacks>
 	}
 	@else {
-	<div id={props.id} className={['vx-tabs', props.className]} style={props.style}>
+	<div id={props.id} className={['vx-tabs', props.className]} style={{ ...(props.style?.height != null ? { flex: 'none' } : {}), ...props.style }}>
 		<div className="vx-tabbar">
 			@for (const t of props.tabs; key t.title) {
 				<button
@@ -68,7 +81,9 @@ export function Tabs(props: TabsProps) @{
 			}
 		</div>
 		<div className="vx-tabpane">
-			{(paneRoute ? resolve(paneRoute.name, routeProps(paneRoute)) : null)
+			{(paneRoute && !presented.has(paneRoute.stack)
+				? <PresentedStacks value={presentedWith(paneRoute.stack)}>{resolve(paneRoute.name, routeProps(paneRoute))}</PresentedStacks>
+				: null)
 				?? props.tabs[active]?.render()}
 		</div>
 	</div>
@@ -76,7 +91,7 @@ export function Tabs(props: TabsProps) @{
 	@if (modalContent) {
 		<div className="vx-modalroute">
 			<button className="vx-modalroute-shade" aria-label="Dismiss" onClick={() => popRoute()} />
-			<div className="vx-modalroute-body">{modalContent}</div>
+			<div className="vx-modalroute-body"><PresentedStacks value={presentedWith(modal.stack)}>{modalContent}</PresentedStacks></div>
 		</div>
 	}
 	</div>
