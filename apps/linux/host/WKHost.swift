@@ -22,6 +22,11 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 	weak var webView: WKWebView?
 	let secrets = UserDefaults(suiteName: "xplat-host")! // stand-in for Secret Service
 
+	static func currentScheme() -> String {
+		NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+			? "dark" : "light"
+	}
+
 	func userContentController(
 		_: WKUserContentController, didReceive message: WKScriptMessage
 	) {
@@ -58,6 +63,28 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 		case ("system", "openUrl"):
 			let ok = (args.first as? String).flatMap(URL.init).map { NSWorkspace.shared.open($0) } ?? false
 			respond(id, ok)
+		case ("appearance", "get"):
+			respond(id, Self.currentScheme())
+		case ("files", "readText"):
+			let text = (args.first as? String)
+				.flatMap(URL.init(string:))
+				.flatMap { try? String(contentsOf: $0, encoding: .utf8) }
+			respond(id, text as Any)
+		case ("files", "pick"):
+			let panel = NSOpenPanel()
+			panel.allowsMultipleSelection = false
+			respond(id, panel.runModal() == .OK && panel.url != nil
+				? ["name": panel.url!.lastPathComponent, "uri": panel.url!.absoluteString]
+				: NSNull())
+		case ("files", "writeText"):
+			let panel = NSSavePanel()
+			panel.nameFieldStringValue = args.first as? String ?? "untitled.txt"
+			guard panel.runModal() == .OK, let url = panel.url else {
+				respond(id, NSNull())
+				return
+			}
+			try? (args.dropFirst().first as? String ?? "").write(to: url, atomically: true, encoding: .utf8)
+			respond(id, ["name": url.lastPathComponent, "uri": url.absoluteString])
 		case ("deepLinks", "initialUrl"):
 			respond(id, NSNull())
 		default:
@@ -118,7 +145,8 @@ ucc.add(LogSink(), name: "xplatLog")
 // must be readable before app code runs; a round-trip would be too late).
 ucc.addUserScript(
 	WKUserScript(
-		source: "window.__xplatInitialUrl = null",
+		source: "window.__xplatInitialUrl = null; window.__xplatColorScheme = "
+			+ (Bridge.currentScheme() == "dark" ? "\"dark\"" : "\"light\""),
 		injectionTime: .atDocumentStart, forMainFrameOnly: true))
 
 let config = WKWebViewConfiguration()
@@ -158,6 +186,22 @@ final class NavDelegate: NSObject, WKNavigationDelegate {
 }
 let navDelegate = NavDelegate() // WKWebView.navigationDelegate is weak
 webView.navigationDelegate = navDelegate
+
+// Mirrors gjs-host's 'open' signal + appearance watch: deep links delivered
+// by the OS while running, and system dark-mode flips pushed as events.
+final class AppDelegate: NSObject, NSApplicationDelegate {
+	func application(_: NSApplication, open urls: [URL]) {
+		for u in urls {
+			bridge.emit("deep-links", "open", u.absoluteString)
+		}
+	}
+}
+let appDelegate = AppDelegate()
+app.delegate = appDelegate
+var appearanceObs: NSKeyValueObservation?
+appearanceObs = NSApp.observe(\.effectiveAppearance) { _, _ in
+	bridge.emit("appearance", "change", Bridge.currentScheme())
+}
 
 window.makeKeyAndOrderFront(nil)
 app.setActivationPolicy(.regular)

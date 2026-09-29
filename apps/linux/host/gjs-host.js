@@ -12,7 +12,7 @@ imports.gi.versions.Gtk = '4.0';
 imports.gi.versions.WebKit = '6.0';
 imports.gi.versions.Adw = '1';
 imports.gi.versions.Secret = '1';
-const { Adw, WebKit, Gio, GLib, Gdk, Secret } = imports.gi;
+const { Adw, Gtk, WebKit, Gio, GLib, Gdk, Secret } = imports.gi;
 
 const selfTest = ARGV.includes('--self-test');
 
@@ -29,8 +29,18 @@ const bundleDir = [
 	.map((d) => GLib.path_is_absolute(d) ? d : GLib.build_filenamev([GLib.get_current_dir(), d]))
 	.find((d) => GLib.file_test(GLib.build_filenamev([d, 'index.html']), GLib.FileTest.EXISTS));
 
-const urlArg = ARGV.find((a, i) => !a.startsWith('--') && (bundleFlag < 0 || i !== bundleFlag + 1));
-const url = urlArg ?? (bundleDir ? 'xplat://localhost/' : 'http://localhost:5201');
+// Positional args: URIs only (flags and their values are ours). They're
+// handed to GApplication, which delivers them via the 'open' signal (a
+// second invocation of a running app forwards through D-Bus — that's the
+// real deep-link delivery path). xplat://localhost/* URIs are content loads;
+// anything else is a deep link.
+const positionals = ARGV.filter(
+	(a, i) => !a.startsWith('--') && (bundleFlag < 0 || i !== bundleFlag + 1),
+);
+const url =
+	positionals.find((u) => u.startsWith('xplat://localhost')) ??
+	positionals[0] ??
+	(bundleDir ? 'xplat://localhost/' : 'http://localhost:5201');
 
 // --- xplat:// scheme: serve the built bundle so the app never needs http ---
 const MIMES = {
@@ -76,8 +86,18 @@ function serveBundle(webContext) {
 	print(`[host] serving bundle ${bundleDir} at xplat://localhost/`);
 }
 
-const app = new Adw.Application({ application_id: 'org.octane.xplat' });
+// HANDLES_OPEN routes URI argv through the 'open' signal — and, more
+// importantly, forwards second-invocation URIs to the running primary
+// instance over D-Bus. That's the real installed deep-link path.
+const app = new Adw.Application({
+	application_id: 'org.octane.xplat',
+	flags: Gio.ApplicationFlags.HANDLES_OPEN,
+});
+let win = null;
 let webView = null;
+let loadedOnce = false;
+const linkQueue = [];
+let colorScheme = 'light';
 let secretSchema = null;
 
 try {
@@ -86,6 +106,43 @@ try {
 	});
 } catch (e) {
 	print(`[host] Secret.Schema unavailable: ${e.message}`);
+}
+
+// --- appearance: org.freedesktop.appearance via portal.Settings ---
+// Read(ss)→(v) where v wraps uint32 (0 none, 1 dark, 2 light). No portal
+// backend → the call fails → libadwaita's own system tracking is the
+// fallback, else light.
+function detectColorScheme() {
+	try {
+		const reply = Gio.bus_get_sync(Gio.BusType.SESSION, null).call_sync(
+			'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
+			'org.freedesktop.portal.Settings', 'Read',
+			new GLib.Variant('(ss)', ['org.freedesktop.appearance', 'color-scheme']),
+			new GLib.VariantType('(v)'), Gio.DBusCallFlags.NONE, 2000, null);
+
+		return reply.get_child_value(0).get_variant().get_uint32() === 1 ? 'dark' : 'light';
+	} catch {
+		return Adw.StyleManager.get_default().get_dark() ? 'dark' : 'light';
+	}
+}
+
+function subscribeAppearance() {
+	try {
+		Gio.bus_get_sync(Gio.BusType.SESSION, null).signal_subscribe(
+			'org.freedesktop.portal.Desktop', 'org.freedesktop.portal.Settings',
+			'SettingChanged', '/org/freedesktop/portal/desktop',
+			'org.freedesktop.appearance', Gio.DBusSignalFlags.MATCH_ARG0_NAMESPACE,
+			(_c, _s, _p, _i, _m, params) => {
+				const [_ns, key, val] = params.deepUnpack();
+
+				if (key === 'color-scheme') {
+					colorScheme = val.get_uint32() === 1 ? 'dark' : 'light';
+					emit('appearance', 'change', colorScheme);
+				}
+			});
+	} catch (e) {
+		print(`[host] appearance subscribe unavailable: ${e.message}`);
+	}
 }
 
 function evalJS(js) {
@@ -194,6 +251,58 @@ function dispatch(id, service, method, args) {
 			return;
 		}
 
+		if (service === 'appearance' && method === 'get') {
+			respond(id, colorScheme);
+			return;
+		}
+
+		if (service === 'files') {
+			if (method === 'readText') {
+				const [ok, bytes] = Gio.File.new_for_uri(String(args[0])).load_contents(null);
+				respond(id, ok ? imports.byteArray.toString(bytes) : null);
+				return;
+			}
+
+			// pick/writeText open a Gtk.FileDialog — unsandboxed host, so the
+			// native dialog beats portal.FileChooser here. Portal is the
+			// sandboxed upgrade path.
+			const dialog = new Gtk.FileDialog();
+			const finish = (d, res) => {
+				try {
+					const f =
+						method === 'pick' ? d.open_finish(res) : d.save_finish(res);
+
+					if (!f) {
+						respond(id, null);
+						return;
+					}
+
+					if (method === 'writeText') {
+						f.replace_contents(
+							new TextEncoder().encode(String(args[1] ?? '')),
+							null, false, Gio.FileCreateFlags.NONE, null);
+					}
+
+					respond(id, { name: f.get_basename(), uri: f.get_uri() });
+				} catch {
+					respond(id, null);
+				}
+			};
+
+			if (method === 'pick') {
+				if (args[1]) {
+					dialog.set_initial_folder(Gio.File.new_for_path(String(args[1])));
+				}
+
+				dialog.open(win, null, finish);
+			} else if (method === 'writeText') {
+				dialog.set_initial_name(String(args[0] ?? 'untitled.txt'));
+				dialog.save(win, null, finish);
+			}
+
+			return;
+		}
+
 		if (service === 'system' && method === 'openUrl') {
 			respond(id, Gio.AppInfo.launch_default_for_uri(String(args[0]), null));
 			return;
@@ -219,8 +328,15 @@ function readSelftest() {
 	}
 }
 
-app.connect('activate', () => {
-	const win = new Adw.ApplicationWindow({ application: app, title: 'xplat' });
+function ensureWindow() {
+	if (win) {
+		return;
+	}
+
+	colorScheme = detectColorScheme();
+	subscribeAppearance();
+
+	win = new Adw.ApplicationWindow({ application: app, title: 'xplat' });
 	win.set_default_size(1024, 768);
 
 	webView = new WebKit.WebView();
@@ -240,9 +356,11 @@ app.connect('activate', () => {
 		print(`[webview] ${value.to_string()}`);
 	});
 
-	// Document-start injection — sync contract for consumeInitialUrl().
+	// Document-start injection — the sync contracts that can't round-trip:
+	// consumeInitialUrl() and getColorScheme().
 	ucm.add_script(WebKit.UserScript.new(
-		'window.__xplatInitialUrl = null',
+		`window.__xplatInitialUrl = ${JSON.stringify(linkQueue.shift() ?? null)};` +
+			`window.__xplatColorScheme = ${JSON.stringify(colorScheme)}`,
 		WebKit.UserContentInjectedFrames.TOP_FRAME,
 		WebKit.UserScriptInjectionTime.START, null, null));
 
@@ -288,6 +406,19 @@ app.connect('activate', () => {
 		});
 	}
 
+	webView.connect('load-changed', (_wv, ev) => {
+		if (ev !== WebKit.LoadEvent.FINISHED) {
+			return;
+		}
+
+		loadedOnce = true;
+		// The cold-start link was consumed via __xplatInitialUrl injection —
+		// emit any that arrived alongside it.
+		while (linkQueue.length) {
+			emit('deep-links', 'open', linkQueue.shift());
+		}
+	});
+
 	win.set_content(webView);
 	webView.load_uri(url);
 	win.present();
@@ -295,6 +426,30 @@ app.connect('activate', () => {
 	// Host → webview events use the same emit() path a real scheme-activated
 	// deep link would take: emit('deep-links', 'open', url).
 	emit('host', 'ready', { url });
+}
+
+// 'open' fires instead of 'activate' when argv carries URIs — and again on a
+// running instance for each new launch. xplat://localhost/* selects content;
+// anything else is a deep link: the first is consumed via document-start
+// injection, the rest emit once the bundle is up.
+app.connect('activate', ensureWindow);
+app.connect('open', (_a, files) => {
+	for (const f of files) {
+		const u = f.get_uri();
+		print(`[host] open ${u}`);
+
+		if (u.startsWith('xplat://localhost')) {
+			continue;
+		}
+
+		if (loadedOnce) {
+			emit('deep-links', 'open', u);
+		} else {
+			linkQueue.push(u);
+		}
+	}
+
+	ensureWindow();
 });
 
-app.run([]);
+app.run(['gjs-host', ...positionals]);

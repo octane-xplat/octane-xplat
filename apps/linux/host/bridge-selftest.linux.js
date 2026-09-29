@@ -50,6 +50,8 @@
 	await run('notifications.notify', () =>
 		call('notifications', 'notify', ['title', 'body']),
 	)
+	await run('appearance.get', () => call('appearance', 'get', []))
+	await run('files.readText', () => call('files', 'readText', ['file:///etc/hosts']))
 
 	await run('missing.method', () => call('nope', 'nope', []))
 

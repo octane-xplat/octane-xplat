@@ -52,7 +52,14 @@ docker run --rm --shm-size=1g --security-opt seccomp=unconfined \
 ```
 
 Verified there (self-test, real D-Bus session, both load legs): `xplat://`
-bundle serving + `__xplatBridge` injection, clipboard (GTK4
+bundle serving + `__xplatBridge` injection, `Gio.Application` 'open' deep
+links (`HANDLES_OPEN` — URI argv and second-instance forwarding land as deep
+links; cold-start URL arrives via `__xplatInitialUrl` injection), appearance
+(`org.freedesktop.portal.Settings` Read → `Adw.StyleManager` fallback, pushes
+`appearance.change`; WebKitGTK's `prefers-color-scheme` does NOT follow
+GNOME — `theme/colorScheme.linux.ts` consumes the injected + emitted value),
+files (`Gtk.FileDialog` pick/save + host-side `readText` — untested dialogs
+aside), clipboard (GTK4
 `set_content`/`read_text_async` — there is no `set_text`), Secret Service
 round-trip (`COLLECTION_SESSION` — a headless `default` keyring prompts and
 hangs the sync call), `org.freedesktop.Notifications` `GetCapabilities` +

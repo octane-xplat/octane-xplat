@@ -29,7 +29,8 @@ exec dbus-run-session -- sh -c '
 	/usr/lib/notification-daemon/notification-daemon >/dev/null 2>&1 &
 
 	echo "=== xplat:// scheme leg ==="
-	timeout 90 gjs gjs-host.js --self-test --bundle /work/apps/linux/dist xplat://localhost/
+	timeout 90 gjs gjs-host.js --self-test --bundle /work/apps/linux/dist \
+		xplat://localhost/ xplat://cold-start/deep-link
 	echo "=== http leg ==="
 	timeout 90 gjs gjs-host.js --self-test http://127.0.0.1:5201
 '

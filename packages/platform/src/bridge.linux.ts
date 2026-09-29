@@ -28,7 +28,7 @@ declare global {
 	interface Window {
 		webkit?: {
 			messageHandlers?: {
-				xplat?: { postMessage(req: BridgeRequest): void }
+				xplat?: { postMessage(req: string): void }
 			}
 		}
 		__xplatBridge?: {
@@ -92,6 +92,13 @@ if (typeof window !== 'undefined' && !window.__xplatBridge) {
 			for (const l of events.get(`${service}.${event}`) ?? []) {
 				l(payload)
 			}
+
+			// Side-channel for packages that must not depend on this module
+			// (e.g. @octane-xplat/ui leaves): xplat:<service>.<event> CustomEvent
+			// on window, payload in .detail.
+			window.dispatchEvent(
+				new CustomEvent(`xplat:${service}.${event}`, { detail: payload }),
+			)
 		},
 	}
 }
