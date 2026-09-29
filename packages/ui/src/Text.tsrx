@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { createContext, useContext } from 'octane';
+import { Application } from '@nativescript/core';
 import type { TextProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
@@ -24,8 +25,32 @@ function TextScope(props: { children?: any }) {
 
 export function Text(props: TextProps) @{
 	const inText = useContext(InText);
+	const fontWeightValue = String(props.style?.fontWeight ?? '').toLowerCase();
+	const namedWeights: Record<string, number> = {
+		normal: 400,
+		bold: 700,
+		thin: 100,
+		'extra-light': 200,
+		light: 300,
+		medium: 500,
+		'semi-bold': 600,
+		'extra-bold': 800,
+		black: 900,
+	};
+	const fontWeight = /^\d+$/.test(fontWeightValue)
+		? Number(fontWeightValue)
+		: namedWeights[fontWeightValue];
+	// UIFontDescriptor resolves variable fonts to the regular axis default on
+	// iOS. Set wght explicitly so CSS fontWeight selects the matching instance.
 	const textStyle = {
 		...props.style,
+		...(Application.ios &&
+		props.style?.fontVariationSettings == null &&
+		fontWeight !== undefined &&
+		fontWeight >= 100 &&
+		fontWeight <= 900
+			? { fontVariationSettings: `'wght' ${fontWeight}` }
+			: {}),
 		// Clamped text must be allowed to shrink — the shared shrink:0 default
 		// would let the label overflow its row instead of truncating.
 		...(props.ellipsize || props.numberOfLines ? { flexShrink: 1 } : {}),
