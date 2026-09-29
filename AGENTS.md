@@ -152,10 +152,13 @@ experience of agents writing Octane-xplat code effectively.
 - iOS native build needs the `xcodeproj` Ruby gem visible to the `ruby` on PATH
   (`gem install --user-install xcodeproj`). `ns doctor` can report OK while the
   hook still fails — verify with `ruby -e 'require "xcodeproj"'`.
-- Android build needs JDK ≤ 24 — gradle 8.14.3 fails on Java 25
-  (`Unsupported class file major version 69`). `brew install openjdk@17` and
-  `JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home`
-  works; Android Studio's JBR is 25 too.
+- Android harness builds use Temurin JDK 21, matching [NativeScript's macOS
+  recommendation](https://docs.nativescript.org/setup/macos). Gradle 8.14.3
+  supports JDKs through 24; Java 25 fails with
+  `Unsupported class file major version 69`. Install with
+  `brew install --cask temurin@21` and set `JAVA_HOME` per build; on macOS,
+  resolve it with `/usr/libexec/java_home -v 21`. Android Studio's JBR is 25
+  on this machine, so do not rely on its default.
 - Verified: `vite build` + dev transform on web; `ns build ios` + app boots on
   iPhone 17 Pro sim (`running-active-Visible`, no JS errors); `ns run android`
   on physical device — HTTP-ESM boot, `.tsrx` edits apply in place via

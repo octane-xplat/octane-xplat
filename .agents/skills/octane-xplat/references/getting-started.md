@@ -34,8 +34,10 @@ cd apps/mobile && pnpm exec ns build ios        # debug build
 xcrun simctl install <UDID> platforms/ios/build/Debug-iphonesimulator/native.app
 xcrun simctl launch <UDID> org.nativescript.xplat
 
-# native (Android — emulator + ANDROID_HOME + JDK17)
-cd apps/mobile && pnpm exec ns build android
+# native (Android — emulator + ANDROID_HOME + JDK 21)
+cd apps/mobile
+jdk21_home=$(/usr/libexec/java_home -v 21)
+JAVA_HOME="$jdk21_home" PATH="$jdk21_home/bin:$PATH" pnpm exec ns build android
 adb -s emulator-5554 install -r platforms/android/app/build/outputs/apk/debug/app-debug.apk
 adb -s emulator-5554 shell am start -n org.nativescript.xplat/com.tns.NativeScriptActivity
 ```
@@ -49,7 +51,8 @@ adb -s emulator-5554 shell am start -n org.nativescript.xplat/com.tns.NativeScri
 - iOS build needs the `xcodeproj` Ruby gem on PATH ruby.
 - `ns run ios` re-boots the sim and errors — use `simctl install/launch`
   against the existing `.app` instead.
-- JDK 25 breaks the Android toolchain; JDK 17 works.
+- JDK 21 works with the harness's Gradle 8.14.3 build. JDK 25 fails with
+  `Unsupported class file major version 69`.
 - Android AVD `xplat` (API 35, Google APIs arm64) is the expected emulator.
 
 ## Reading logs

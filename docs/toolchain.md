@@ -68,7 +68,11 @@ after each change; those checks complement the interaction you just tried.
 Install the [NativeScript environment prerequisites](https://docs.nativescript.org/setup/)
 for the target first. iOS development needs macOS and Xcode; Android needs the
 Android SDK, a compatible JDK, and an emulator or connected device. This
-repository's Android setup uses JDK 17; its Gradle 8.14.3 setup fails on Java 25.
+repository's Android harness uses JDK 21, matching [NativeScript's macOS
+recommendation](https://docs.nativescript.org/setup/macos); the Android build
+passes with the pinned Gradle 8.14.3. JDK 25 fails with
+`Unsupported class file major version 69`, so set `JAVA_HOME` to JDK 21 when
+building Android.
 For iOS, check that the Ruby on PATH can load `xcodeproj`:
 `ruby -e 'require "xcodeproj"'`. If it cannot, install the user gem with
 `gem install --user-install xcodeproj`.
