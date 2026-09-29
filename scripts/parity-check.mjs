@@ -126,8 +126,8 @@ const resolve = (dump, fixture, elements) => (name) => {
 	return node
 }
 
-// check(m, target) — target is the dump file's name ('web', 'ios', ...)
-// so checks can encode intentional divergences explicitly.
+// check(m, target, dump) — target is the dump file's name ('web', 'ios', ...)
+// so checks can encode intentional divergences using measurements from that target.
 
 const facetOf = (node, path) => {
 	const parts = path.split('.')
@@ -173,7 +173,7 @@ for (const def of CHECKS) {
 
 		let rows
 		try {
-			rows = def.check(m, target)
+			rows = def.check(m, target, dump)
 		} catch (e) {
 			report(false, `${def.fixture} · ${target} · check`, e.message)
 			continue

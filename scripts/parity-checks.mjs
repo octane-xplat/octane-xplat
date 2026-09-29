@@ -1111,10 +1111,23 @@ export const CHECKS = [
 	{
 		fixture: 'sheet-fixed-frame',
 		elements: { frame: 'parity-portal--sheet-fixed-frame' },
-		equal: ['frame.box.w', 'frame.box.h', 'frame.style.backgroundColor'],
-		// height 80 so the sheet's own chrome (padding 48 + border 2) fits
-		// inside the declared box — at 48 the web border-box clamps to 50.
-		check: (m) => [dims(m('frame'), 96, 80)],
+		equal: ['frame.box.w', 'frame.style.backgroundColor'],
+		// The iOS RootLayout extends a bottom-docked host through the device's
+		// bottom safe area. Check that measured inset instead of treating it as
+		// a platform mismatch or hard-coding one device's inset.
+		check: (m, target, dump) => {
+			const expectedHeight = 80
+			if (target === 'ios') {
+				const safeArea = dump.cells?.['safe-area-layout']?.find((node) => node.classes?.includes('parity-safe-area-root'))
+				const bottomInset = Number(safeArea?.style?.paddingBottom)
+				if (!Number.isFinite(bottomInset)) {
+					return [['iOS sheet includes measured bottom safe area', false, String(safeArea?.style?.paddingBottom)]]
+				}
+				return [dims(m('frame'), 96, expectedHeight + bottomInset)]
+			}
+
+			return [dims(m('frame'), 96, expectedHeight)]
+		},
 	},
 	{
 		fixture: 'form-field-basic',
