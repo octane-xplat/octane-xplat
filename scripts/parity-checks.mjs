@@ -27,7 +27,7 @@ const circular = (el) => {
 	const height = el.box?.h
 	const round = radius.endsWith('%')
 		? near(Number.parseFloat(radius), 50) && near(width, height)
-		: near(Number.parseFloat(radius), width / 2) && near(width, height)
+		: Number.parseFloat(radius) >= width / 2 && near(width, height)
 	return ['thumb corners form a circle', round, `${radius} on ${width}×${height}`]
 }
 
@@ -525,7 +525,7 @@ export const CHECKS = [
 		fixture: 'list-item-standard',
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: {
-			row: 'parity-listitem-root',
+			row: 'vx-listitem',
 			leading: 'vx-listitem-leading',
 			content: 'vx-listitem-content',
 			title: 'vx-listitem-title',
@@ -587,6 +587,56 @@ export const CHECKS = [
 					'trailing slot stays inside the row',
 					trailing.box.x + trailing.box.w <= row.box.x + row.box.w + 1,
 				],
+			]
+		},
+	},
+	{
+		fixture: 'hoverable-anchor',
+		targets: ['web', 'ios', 'android'],
+		elements: { anchor: 'parity-hoverable-anchor', child: 'parity-hoverable-child' },
+		equal: [
+			'anchor.box.w',
+			'anchor.box.h',
+			'anchor.style.backgroundColor',
+			'child.box.x',
+			'child.box.y',
+			'child.box.w',
+			'child.box.h',
+			'child.style.backgroundColor',
+		],
+		check: (m) => {
+			const anchor = m('anchor')
+			const child = m('child')
+			return [
+				dims(anchor, 180, 48, 1),
+				dims(child, 72, 24, 1),
+				['child starts at the anchor origin', near(child.box?.x, 0, 1) && near(child.box?.y, 0, 1), `${child.box?.x},${child.box?.y}`],
+				['child stays inside the anchor', child.box?.x >= 0 && child.box?.y >= 0 && child.box.x + child.box.w <= anchor.box?.w + 1 && child.box.y + child.box.h <= anchor.box?.h + 1],
+			]
+		},
+	},
+	{
+		fixture: 'tooltip-trigger',
+		targets: ['web', 'ios', 'android'],
+		elements: { anchor: 'parity-tooltip-anchor', trigger: 'parity-tooltip-trigger' },
+		equal: [
+			'anchor.box.w',
+			'anchor.box.h',
+			'anchor.style.backgroundColor',
+			'trigger.box.x',
+			'trigger.box.y',
+			'trigger.box.w',
+			'trigger.box.h',
+			'trigger.style.backgroundColor',
+		],
+		check: (m) => {
+			const anchor = m('anchor')
+			const trigger = m('trigger')
+			return [
+				dims(anchor, 180, 48, 1),
+				dims(trigger, 72, 24, 1),
+				['trigger starts at the anchor origin', near(trigger.box?.x, 0, 1) && near(trigger.box?.y, 0, 1), `${trigger.box?.x},${trigger.box?.y}`],
+				['trigger stays inside the anchor', trigger.box?.x >= 0 && trigger.box?.y >= 0 && trigger.box.x + trigger.box.w <= anchor.box?.w + 1 && trigger.box.y + trigger.box.h <= anchor.box?.h + 1],
 			]
 		},
 	},

@@ -48,6 +48,8 @@ import {
 	ActivityIndicator,
 	RichText,
 	RichTextSpan,
+	Hoverable,
+	Tooltip,
 	Badge,
 	Avatar,
 	AvatarGroup,
@@ -117,6 +119,26 @@ function ListItemFixture() @{
 		supportingText="6:30 PM / 2 tickets"
 		leading={<Text className="parity-listitem-leading-text">A</Text>}
 		trailing={<Text className="parity-listitem-trailing-text">&gt;</Text>}
+	/>
+}
+
+// Popup contents only mount after pointer/focus intent; compare each default anchor state here.
+function HoverableFixture() @{
+	<Hoverable
+		className="parity-hoverable-anchor"
+		style={{ width: 180, height: 48, backgroundColor: '#f5f5f5' }}
+		card={<Text>Delayed hover card</Text>}
+	>
+		<View className="parity-hoverable-child" style={{ width: 72, height: 24, backgroundColor: '#0a0a0a' }} />
+	</Hoverable>
+}
+
+function TooltipFixture() @{
+	<Tooltip
+		className="parity-tooltip-anchor"
+		style={{ width: 180, height: 48, backgroundColor: '#f5f5f5' }}
+		trigger={<View className="parity-tooltip-trigger" style={{ width: 72, height: 24, backgroundColor: '#0a0a0a' }} />}
+		content={<Text>Delayed tooltip</Text>}
 	/>
 }
 
@@ -1008,6 +1030,8 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'user-row', component: 'User', renderer: UserFixture, props: {} },
 	{ name: 'list-item-row', component: 'ListItem', renderer: ListItemFixture, props: {} },
 	{ name: 'list-item-standard', component: 'ListItem', renderer: ListItemFixture, props: {} },
+	{ name: 'hoverable-anchor', component: 'Hoverable', renderer: HoverableFixture, props: {} },
+	{ name: 'tooltip-trigger', component: 'Tooltip', renderer: TooltipFixture, props: {} },
 	{ name: 'kbd-shortcut', component: 'Kbd', renderer: KbdFixture, props: {} },
 	{ name: 'link-fixed-target', component: 'Link', renderer: LinkFixture, props: {} },
 	{ name: 'nav-link-active', component: 'NavLink', renderer: NavLinkFixture, props: {} },
