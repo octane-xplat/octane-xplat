@@ -1,0 +1,61 @@
+{
+	"name": "@octane-xplat/motion",
+	"version": "0.1.0",
+	"description": "Declarative motion and retained presence for Octane on web, iOS and Android",
+	"files": [
+		"dist",
+		"types",
+		"src"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"types": "./types/index.d.ts",
+				"web": "./dist/web/index.js",
+				"native": "./dist/native/index.js",
+				"default": "./dist/native/index.js"
+			}
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
+		"prepublishOnly": "pnpm build",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@octane-xplat/ui": "workspace:*",
+		"motion-dom": "12.42.2"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.1",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.60",
+		"jsdom": "30.1.1",
+		"octane": "0.5.0",
+		"typescript": "5.9.3",
+		"vite": "8.3.0",
+		"vitest": "5.0.1"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.1.51 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		}
+	}
+}

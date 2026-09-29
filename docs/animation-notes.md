@@ -5,9 +5,18 @@
 > NativeScript means this can be _simpler_ than the RN equivalent — no worklet
 > boundary.
 >
-> **Owns:** #5 animation/gesture facade · **Status:** mapped · **Blocks on:**
+> **Owns:** #5 animation/gesture facade · **Status:** declarative subset implemented; physical-device validation pending · **Blocks on:**
 > Q8, Q7 · **Decisions:** #10 · **Validated by:** a `useGesture('pan')`-driven
 > draggable element on both targets, 60fps, no re-renders during the gesture.
+
+## Current implementation
+
+`@octane-xplat/motion` is the leaf for declarative hosts and numeric values.
+See the [guide](animation-gestures.md) and [pinned compatibility record](../packages/motion/UPSTREAM.md).
+It reuses Motion 12.42.2 numeric generators with platform frame scheduling.
+The older UI `useAnimation` below remains unchanged; its fixed-step spring is
+not the new leaf's engine. Historical iOS observations below do not validate
+the new package on-device.
 
 ## The load-bearing fact
 

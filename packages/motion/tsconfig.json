@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "octane",
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "customConditions": ["web"],
+    "paths": { "@octane-xplat/ui": ["../ui/types/index.d.ts"] }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsrx", "examples/**/*.tsrx"],
+  "exclude": ["src/**/*.test.*"]
+}

@@ -663,6 +663,40 @@ importers:
         specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
         version: file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
+  packages/motion:
+    dependencies:
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../ui
+      motion-dom:
+        specifier: 12.42.2
+        version: 12.42.2
+      octane:
+        specifier: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
+        version: file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+    devDependencies:
+      '@nativescript-community/octane':
+        specifier: 0.2.1
+        version: 0.2.1(patch_hash=0d9bbe3ab2066798cecfa12c5e38de7ef52212c587ea82a8f88985d82a8978f1)(@nativescript/core@9.1.2(patch_hash=3ccd41d3a4a4d44a7e0653628490e3189dfc6bf052d543185f6014e429260063))(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/core':
+        specifier: 9.1.2
+        version: 9.1.2(patch_hash=3ccd41d3a4a4d44a7e0653628490e3189dfc6bf052d543185f6014e429260063)
+      '@octanejs/vite-plugin':
+        specifier: 0.1.60
+        version: 0.1.60(octane@file:../../../../octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      jsdom:
+        specifier: 30.1.1
+        version: 30.1.1(@noble/hashes@2.4.0)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
+      vitest:
+        specifier: 5.0.1
+        version: 5.0.1(jsdom@30.1.1(@noble/hashes@2.4.0))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+
   packages/native-picker:
     dependencies:
       '@nativescript/jetpack-compose':
@@ -3948,6 +3982,12 @@ packages:
     resolution: {integrity: sha512-+NsyUUAZDmo6YVHzL/stxSu3t9YS1iljliy3BSDrXJ/dkn1KYdmtZODGGjLcc9XLgVVpH4KshHB8XmZgMhaBXg==}
     engines: {node: '>=10'}
     hasBin: true
+
+  motion-dom@12.42.2:
+    resolution: {integrity: sha512-5gIMWLp/PycBtJRJWRgjxke5n8dlvkSn2DrYW+tr3XcqAZY1xZh6BJyooJXCM8wdfM7wfMjkBJNLge1CKPUIRA==}
+
+  motion-utils@12.39.0:
+    resolution: {integrity: sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ==}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -7974,6 +8014,12 @@ snapshots:
       minipass: 7.1.3
 
   mkdirp@3.0.1: {}
+
+  motion-dom@12.42.2:
+    dependencies:
+      motion-utils: 12.39.0
+
+  motion-utils@12.39.0: {}
 
   ms@2.1.3: {}
 

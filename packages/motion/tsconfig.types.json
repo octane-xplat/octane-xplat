@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "es2022",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"outDir": "types",
+		"skipLibCheck": true,
+		"rootDir": "src",
+		"paths": {
+			"@octane-xplat/ui": ["../ui/types/index.d.ts"]
+		}
+	},
+	"include": ["src/types.ts", "src/value.ts", "src/engine.ts", "src/clock-types.ts"]
+}

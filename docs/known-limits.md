@@ -165,3 +165,12 @@ pushes themselves work through the swap-pane route store.
   `min-h-0`/`min-w-0`; `ellipsize`/`numberOfLines` text re-enables shrink
   itself. iOS row-axis shrink re-measures the child but keeps natural
   frame width. — post-0.5.0, verified ios-sim 2026-09-26.
+
+## Motion leaf
+
+`@octane-xplat/motion` supports numeric transforms and opacity on web/iOS/Android.
+Layout animation, variants, gesture presets, declarative drag, and arbitrary
+CSS/SVG properties are excluded. Existing CSS transforms need an outer container.
+See [motion compatibility](../packages/motion/UPSTREAM.md) for lifecycle and
+engine boundaries. DOM and universal object-driver tests do not establish
+physical-device frame pacing or gesture arbitration; those checks remain pending.

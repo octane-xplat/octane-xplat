@@ -15,6 +15,9 @@ Pure refactors ordinarily need no recipe change.
 
 Initial workflows:
 
+- [Animate shared components](component-motion.md)
+- [Settle a dragged value with a spring](gesture-motion.md)
+
 - [Show a live camera preview](camera-preview.md)
 - [Use platform-specific implementations from shared code](platform-leaves.md)
 - [Open a screen from an incoming link](incoming-links.md)
