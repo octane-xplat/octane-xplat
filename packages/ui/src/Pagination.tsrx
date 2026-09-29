@@ -36,11 +36,13 @@ export function Pagination(props: PaginationProps) @{
 	>
 		<flexboxlayout className="vx-page-btn" onTap={() => go(current - 1)}><label text="‹" /></flexboxlayout>
 		@for (const e of pages; key e.key) {
-			{e.page == null
-				? <label className="vx-page-ellipsis" text="…" />
-				: <flexboxlayout className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')} onTap={() => go(e.page!)}>
+			@if (e.page == null) {
+				<label className="vx-page-ellipsis" text="…" />
+			} @else {
+				<flexboxlayout className={cx('vx-page-btn', e.page === current && 'vx-page-btn--on')} onTap={() => go(e.page!)}>
 					<label text={String(e.page)} />
-				</flexboxlayout>}
+				</flexboxlayout>
+			}
 		}
 		<flexboxlayout className="vx-page-btn" onTap={() => go(current + 1)}><label text="›" /></flexboxlayout>
 	</flexboxlayout>
