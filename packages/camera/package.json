@@ -1,7 +1,22 @@
 {
 	"name": "@octane-xplat/camera",
 	"version": "0.7.0",
-	"description": "Live camera preview leaf for Octane xplat",
+	"description": "Live camera preview for Octane xplat — web getUserMedia + native capture (AVCapture / CameraX)",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"camera",
+		"camera-preview",
+		"photo",
+		"video-capture",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/camera",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

@@ -1,7 +1,23 @@
 {
 	"name": "@octane-xplat/pager",
 	"version": "0.7.0",
-	"description": "Paged swipe container leaf for Octane xplat — web scroll-snap row + @nativescript-community/ui-pager (ViewPager2 / paging UICollectionView)",
+	"description": "Paged swipe container for Octane xplat — web scroll-snap row + @nativescript-community/ui-pager (ViewPager2 / paging UICollectionView)",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"pager",
+		"carousel",
+		"swipe",
+		"viewpager",
+		"paging",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/pager",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

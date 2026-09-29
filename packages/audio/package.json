@@ -2,6 +2,21 @@
   "name": "@octane-xplat/audio",
   "version": "0.7.0",
   "description": "Long-form audio playback for Octane xplat",
+  "keywords": [
+    "octane",
+    "xplat",
+    "cross-platform",
+    "audio",
+    "audio-player",
+    "playback",
+    "music",
+    "nativescript",
+    "ios",
+    "android",
+    "web"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/audio",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/octane-xplat/octane-xplat.git",

@@ -2,6 +2,20 @@
   "name": "@octane-xplat/sounds",
   "version": "0.7.0",
   "description": "Short UI sound effects for Octane xplat",
+  "keywords": [
+    "octane",
+    "xplat",
+    "cross-platform",
+    "sound-effects",
+    "ui-sounds",
+    "audio",
+    "nativescript",
+    "ios",
+    "android",
+    "web"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/sounds",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/octane-xplat/octane-xplat.git",

@@ -1,7 +1,22 @@
 {
 	"name": "@octane-xplat/canvas",
 	"version": "0.7.0",
-	"description": "Canvas/GPU surface leaf for Octane xplat — web <canvas> + @nativescript/canvas (2D, WebGL/WebGL2, WebGPU/WGSL)",
+	"description": "Canvas/GPU surface for Octane xplat — web <canvas> + @nativescript/canvas (2D, WebGL/WebGL2, WebGPU/WGSL)",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"canvas",
+		"webgl",
+		"webgl2",
+		"webgpu",
+		"wgsl",
+		"gpu",
+		"graphics",
+		"nativescript"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/canvas",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

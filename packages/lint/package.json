@@ -2,6 +2,18 @@
 	"name": "@octane-xplat/lint",
 	"version": "0.7.0",
 	"description": "Oxlint and TSRX lint rules for octane-xplat apps",
+	"keywords": [
+		"octane",
+		"xplat",
+		"lint",
+		"linter",
+		"oxlint",
+		"tsrx",
+		"lint-rules",
+		"static-analysis"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/lint",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

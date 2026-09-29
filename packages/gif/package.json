@@ -1,7 +1,22 @@
 {
 	"name": "@octane-xplat/gif",
 	"version": "0.7.0",
-	"description": "Animated image (GIF/animated webp) leaf for Octane xplat — web <img> + @nativescript-community/ui-image",
+	"description": "Animated images (GIF/animated webp) for Octane xplat — web <img> + @nativescript-community/ui-image",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"gif",
+		"animated-image",
+		"animated-webp",
+		"image",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/gif",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

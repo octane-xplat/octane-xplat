@@ -1,7 +1,22 @@
 {
 	"name": "@octane-xplat/picker",
 	"version": "0.7.0",
-	"description": "Platform-specific selection controls for Octane xplat",
+	"description": "Select control for Octane xplat — web select + SwiftUI picker (iOS) / Material dropdown (Android)",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"picker",
+		"select",
+		"dropdown",
+		"combobox",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/picker",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

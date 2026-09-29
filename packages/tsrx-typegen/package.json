@@ -2,6 +2,17 @@
 	"name": "tsrx-typegen",
 	"version": "0.1.0",
 	"description": "Generate consumer-ready TypeScript declarations for TSRX libraries",
+	"keywords": [
+		"tsrx",
+		"typegen",
+		"typescript",
+		"declarations",
+		"dts",
+		"codegen",
+		"build-tool"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/tsrx-typegen",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

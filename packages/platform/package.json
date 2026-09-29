@@ -1,7 +1,24 @@
 {
 	"name": "@octane-xplat/platform",
 	"version": "0.7.0",
-	"description": "Headless platform capabilities for Octane xplat — web + NativeScript leaf pairs",
+	"description": "Headless platform capabilities for Octane xplat — matching web + NativeScript implementations",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"platform-services",
+		"capabilities",
+		"clipboard",
+		"geolocation",
+		"biometrics",
+		"deep-links",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/platform",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

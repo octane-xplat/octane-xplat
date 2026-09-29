@@ -2,6 +2,22 @@
 	"name": "@octane-xplat/motion",
 	"version": "0.7.0",
 	"description": "Declarative motion and retained presence for Octane on web, iOS and Android",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"animation",
+		"motion",
+		"transitions",
+		"spring",
+		"presence",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/motion",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",

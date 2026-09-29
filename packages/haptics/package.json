@@ -2,6 +2,20 @@
   "name": "@octane-xplat/haptics",
   "version": "0.7.0",
   "description": "Advanced, capability-aware haptics for Octane xplat",
+  "keywords": [
+    "octane",
+    "xplat",
+    "cross-platform",
+    "haptics",
+    "haptic-feedback",
+    "vibration",
+    "taptic-engine",
+    "nativescript",
+    "ios",
+    "android"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/haptics",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/octane-xplat/octane-xplat.git",
