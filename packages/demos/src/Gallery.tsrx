@@ -18,6 +18,7 @@ import { PropsDemo } from './PropsDemo.tsrx';
 import { ControlsDemo } from './ControlsDemo.tsrx';
 import { PagerDemo } from './PagerDemo.tsrx';
 import { SegmentedDemo } from './SegmentedDemo.tsrx';
+import { NativePickerDemo } from './NativePickerDemo.tsrx';
 import { SearchDemo } from './SearchDemo.tsrx';
 import { VideoDemo } from './VideoDemo.tsrx';
 import { CameraDemo, AnimatedImageDemo, CanvasDemo } from './hosted-demos';
@@ -59,6 +60,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'webview', title: 'WebView', kind: 'proof' },
 	{ id: 'pager', title: 'Pager', kind: 'proof' },
 	{ id: 'segmented', title: 'Segmented control', kind: 'proof' },
+	{ id: 'native-picker', title: 'Native picker', kind: 'app' },
 	{ id: 'search', title: 'Search input', kind: 'proof' },
 	{ id: 'video', title: 'Video', kind: 'proof' },
 	{ id: 'camera', title: 'Camera', kind: 'proof' },
@@ -101,6 +103,7 @@ const renderComponents = () => <ComponentsDemo />;
 const renderWebView = () => <WebViewDemo />;
 const renderPager = () => <PagerDemo />;
 const renderSegmented = () => <SegmentedDemo />;
+const renderNativePicker = () => <NativePickerDemo />;
 const renderSearch = () => <SearchDemo />;
 const renderVideo = () => <VideoDemo />;
 const renderCamera = () => <CameraDemo />;
@@ -136,6 +139,7 @@ export const RENDER: Record<string, () => any> = {
 	webview: renderWebView,
 	pager: renderPager,
 	segmented: renderSegmented,
+	'native-picker': renderNativePicker,
 	search: renderSearch,
 	video: renderVideo,
 	camera: renderCamera,

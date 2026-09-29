@@ -1,0 +1,10 @@
+// Applied to the generated plugin buildscript by NativeScript.
+repositories {
+  google()
+  mavenCentral()
+}
+dependencies {
+  // Keep both the generated plugin AAR project and the app on one Kotlin version.
+  classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.10'
+  classpath 'org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin:2.4.10'
+}
