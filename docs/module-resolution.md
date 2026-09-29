@@ -4,9 +4,9 @@
 > behavior, `.mobile` for behavior shared by iOS and Android, and an OS suffix
 > when one platform needs its own implementation.
 
-Share the packing list's actions and data, then tailor only the part that
-needs a platform difference. Ask your agent for a focused implementation:
-“Use `UISwitch` for the packed toggle in an `.ios` file, keep the shared props,
+Share the feature's actions and data, then tailor only the part that needs a
+platform difference. Ask your agent for a focused implementation:
+“Use `UISwitch` for this toggle in an `.ios` file, keep the shared props,
 and preserve the browser and Android behavior.” A suffix selects code; it does not establish
 that a target is ready to ship. See [target support](spec.md#choose-your-targets).
 

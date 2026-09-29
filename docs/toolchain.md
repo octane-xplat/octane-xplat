@@ -15,8 +15,8 @@ pnpm create octane-xplat my-app
 
 The creator copies the starter, installs dependencies, and starts the web dev
 server. Open the local URL printed in the terminal. The checked-in starter
-shows an `octane-xplat` screen with a small counter and a theme toggle;
-it does not yet contain the packing app you will ask your agent to build.
+shows an `octane-xplat` screen with a small counter and a theme toggle —
+placeholder UI your first task will replace.
 Leave that process running while you work. To restart after stopping it
 with Ctrl+C:
 
@@ -32,7 +32,13 @@ and use its printed URL rather than assuming a port.
 
 ## Build and check your first flow
 
-Open `my-app` in your coding agent and give it a bounded first task:
+Treat this task as calibration, not product work: it proves that scaffold →
+agent edit → checks → verified result works end-to-end before you trust the
+loop with real features. A packing checklist is a good brief because every
+step is observable in the browser; if your app already has a small
+self-contained flow, use that instead.
+
+Open `my-app` in your coding agent and give it the bounded task:
 
 > Read AGENTS.md and .agents/skills/xplat/SKILL.md. Replace the starter screen
 > with a trip packing checklist: add items, mark them packed, remove them,
@@ -53,9 +59,9 @@ If a check fails, give the agent the action, expected result, and actual result:
 This gives it a specific behavior to fix. The skill supplies coding guidance;
 access to your browser or device depends on the tools available to your agent.
 
-Once this works, ask for “Group items by bag.” Add persistence or device
-features after the basic flow passes. Run the lint, typecheck, and build checks
-again after the change; those checks complement the interaction you just tried.
+Once this works, move on to a real slice of your app — persistence, a device
+feature, a second screen. Run the lint, typecheck, and build checks again
+after each change; those checks complement the interaction you just tried.
 
 ## Run on iOS and Android
 
@@ -142,6 +148,14 @@ pnpm typecheck
 The web build checks the browser bundle. The iOS and Android builds catch
 problems in the native bundle and platform configuration. A typecheck should
 pass for both target configurations before you publish an app.
+
+For a shipping build, `pnpm xplat build --release` runs `ns build <platform>
+--release` (signed where your NativeScript configuration provides signing)
+alongside the web bundle. Signing credentials and store upload stay app
+responsibilities. Release builds take a different pipeline than the dev
+server — build one before you ship, and check
+[known limits](known-limits.md#same-edge-on-every-target) for current
+release-mode issues.
 
 Native plugin declarations belong to the app. If its source imports
 `@octane-xplat/ui`, declare the UI plugins used by the native entry in that

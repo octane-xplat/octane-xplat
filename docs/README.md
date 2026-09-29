@@ -3,24 +3,26 @@
 > Build a TypeScript app for web, iOS, Android, macOS, and Windows with your
 > coding agent.
 
-xplat is useful when your app needs the same product behavior on web and
-mobile, with room for OS-specific controls. A packing list, for example, can
-share its add/pack/remove actions while using a different control on iOS.
-The starter supplies the project setup and instructions for your coding agent.
+xplat is for real apps: one TypeScript codebase that ships the same product
+behavior on web and mobile, with OS-specific controls where the platform
+experience deserves them. Your agent writes the code; your job is to describe
+behavior precisely and verify what it reports. These guides are written for
+that split — they spend as much effort on what to check as on what to build.
 
-[Try the first flow](toolchain.md#create-and-run): run the starter, ask your
-agent for a packing checklist, and check that packing an item reduces the
-remaining count. No device SDK is needed for that browser check.
+[Prove the loop first](toolchain.md#create-and-run): run the starter and walk
+one small bounded task through edit → checks → verified result before you
+commit real features to it. No device SDK is needed for that browser pass.
 
-The starter runs on web, iOS, and Android. macOS is experimental; the Windows
-scaffold builds a bundle but has not yet been run on Windows. [Choose your targets](spec.md#choose-your-targets)
+The starter runs on web, iOS, and Android — the supported shipping targets.
+macOS is experimental; the Windows scaffold builds a bundle but has not yet
+been run on Windows. [Choose your targets](spec.md#choose-your-targets)
 for the current boundaries before committing to a release.
 
 ## Start here
 
 1. [What you can build](spec.md) — shared app behavior and target support.
 2. [Get a working app and iterate](toolchain.md) — the real setup command,
-   a first agent task, prerequisites, live updates, and checks.
+   a calibration task, prerequisites, live updates, and checks.
 3. [Add device features](platform-services.md) — save, share, pick photos,
    and handle permissions or unavailable features.
 4. [Add media](media-services.md) — audio and haptics, with links to camera
@@ -31,8 +33,8 @@ for the current boundaries before committing to a release.
    [connect routes](navigation.md), and [fetch data](data.md) as the app grows.
    The [component index](components.md) lists everything `@octane-xplat/ui`
    exports.
-7. [Check the result](testing.md) and consult [known limits](known-limits.md)
-   before promising a capability.
+7. [Verify before you ship](testing.md) — an agent's "done" is a claim;
+   [known limits](known-limits.md) records which claims are proven.
 
 [Octane](https://github.com/octanejs/octane) supplies familiar React-style
 components and compiles the UI. [NativeScript](https://docs.nativescript.org/guide/metadata)

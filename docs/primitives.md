@@ -3,9 +3,10 @@
 > Build the screens your app needs with shared components, then choose
 > platform widgets where the OS experience matters.
 
-For a first agent task, describe the screen's actions and empty state: a
-packing list should let someone add an item, mark it packed, and see what
-remains. Start with the components below; [run the starter](toolchain.md)
+When you brief your agent on a screen, describe its actions, its empty state,
+and its failure states — “list saved orders, explain an empty list, offer
+retry when loading fails” gets further than naming components. Start with the
+components below; [run the starter](toolchain.md)
 if you do not yet have a working app.
 
 ## The components you reach for first

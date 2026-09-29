@@ -5,16 +5,24 @@
 
 ## Decide whether it fits
 
-Consider xplat when you want the same product on web and mobile, and expect
-to tailor parts of the experience for each OS. The work you share is concrete:
-a packing list's data, add/remove actions, remaining count, and ordinary
-screen layout. The work you keep separate includes an OS control or a
-capability with a different permission flow.
+Consider xplat when your app is a real product that must live on web and
+mobile, and you expect to tailor parts of the experience for each OS. What
+you share is concrete product behavior — data, actions, workflows, ordinary
+screen layout. What you keep separate is deliberate: an OS control, a
+capability with a different permission flow, a layout that only makes sense
+on one form factor.
+
+These guides assume a specific division of labor: your agent writes the
+code, and you decide what "correct" means and check that it happened. That
+suits serious projects — the framework owns the cross-platform plumbing, but
+no tool can verify your product for you. If you would rather not review
+agent output at all, this is the wrong tool.
 
 Start with one flow your app actually needs. A field app might need a form
-and a photo attachment; a trip app might need a packing list. These are app
-ideas, not bundled demos. The [first-run guide](toolchain.md#create-and-run)
-uses the checklist to give you an observable result before adding device setup.
+with a photo attachment; a trip app might need a packing list. These are
+slices of real apps, not bundled demos. The [first-run
+guide](toolchain.md#create-and-run) uses a checklist to prove the
+build-and-check loop before you point it at your own flows.
 
 If your release requires verified support on all five targets, the current
 project is not ready for that requirement. Desktop support is experimental,
@@ -43,8 +51,9 @@ scaffold and the checks still needed on a Windows host. Linux also has a separat
 [Create and run the starter](toolchain.md#create-and-run), give your agent a
 small user-visible task, and check the result yourself. Keep the dev server
 running while the agent edits; add a native development session once its
-prerequisites are ready. Ask the agent to report checks and actual targets
-run, so a successful browser build is not mistaken for a device test.
+prerequisites are ready. Require the agent to report which checks ran and
+which targets it actually exercised — a clean typecheck and a browser build
+say nothing about a device.
 
 ## Add capabilities that serve the app
 

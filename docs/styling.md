@@ -3,8 +3,8 @@
 > Put reusable appearance in CSS classes and tokens; use inline style values
 > only when the value changes while the app runs.
 
-Give your agent the intended result: “Keep the packing list readable on a
-phone and use the app's colors and spacing.” Start with shared classes and
+Give your agent the outcome, not the CSS: “Keep this screen readable at phone
+widths and use the app's colors and spacing.” Start with shared classes and
 tokens, then use [platform variants](module-resolution.md) for a layout that
 needs to differ. The CSS guidance here covers web and NativeScript mobile;
 the [experimental AppKit renderer](../apps/macos/README.md) supports a curated
