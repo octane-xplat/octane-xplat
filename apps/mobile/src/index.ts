@@ -1,11 +1,11 @@
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
-import { installParityDump } from '@xplat/app/parity/measure.native'
-import '@xplat/app/platform/paritysweep.native'
+import { installParityDump } from '@xplat/app/parity/measure'
+import '@xplat/app/platform/paritysweep'
 import { probeSignal$ } from '@xplat/app/probe-state'
 import { sheetHost } from '@xplat/app/platform/sheet'
-import '@xplat/app/platform/filepick'
+import '@xplat/app/platform/filepick.mobile'
 import {
 	getColorScheme,
 	registerStack,

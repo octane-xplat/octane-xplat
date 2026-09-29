@@ -356,7 +356,7 @@ export async function xplatNative(env, opts = {}) {
 		importApp('@nativescript-community/octane/config'),
 	])
 
-	return mergeConfig(
+	const config = mergeConfig(
 		octaneConfig(
 			{ mode },
 			{
@@ -371,6 +371,11 @@ export async function xplatNative(env, opts = {}) {
 			},
 		),
 		{
+			oxc: {
+				// NativeScript modules use TypeScript's legacy decorators. Oxc's
+				// default emits decorator syntax the native JS runtime cannot parse.
+				decorator: { legacy: true },
+			},
 			plugins: [pxToDip(), nsHmrClientWatchdog()],
 			build: {
 				rolldownOptions: {
@@ -416,6 +421,6 @@ export async function xplatNative(env, opts = {}) {
 				extensions: nativePlatformExtensions(),
 			},
 		},
-		opts.extra ?? {},
 	)
+	return mergeConfig(config, opts.extra ?? {})
 }

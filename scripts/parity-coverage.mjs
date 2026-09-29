@@ -160,12 +160,24 @@ function exportNames(path) {
 	return names
 }
 
+function packageEntry(packageRoot, condition) {
+	const manifestPath = join(packageRoot, 'package.json')
+	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+	const entry = manifest.exports?.['.']?.[condition]
+	if (typeof entry !== 'string') {
+		throw new Error(`${manifestPath}: expected a string "${condition}" export for "."`)
+	}
+
+	return join(packageRoot, entry)
+}
+
 const webExports = exportNames(join(root, 'packages/ui/src/index.web.ts'))
 const nativeExports = exportNames(join(root, 'packages/ui/src/index.ts'))
 const sharedRendererExports = new Set([...webExports].filter((name) => nativeExports.has(name)))
 for (const pkg of ['pager', 'video']) {
-	const web = exportNames(join(root, `packages/${pkg}/src/index.web.ts`))
-	const native = exportNames(join(root, `packages/${pkg}/src/index.native.ts`))
+	const packageRoot = join(root, `packages/${pkg}`)
+	const web = exportNames(packageEntry(packageRoot, 'web'))
+	const native = exportNames(packageEntry(packageRoot, 'native'))
 	for (const name of web) {
 		if (native.has(name)) {
 			sharedRendererExports.add(name)

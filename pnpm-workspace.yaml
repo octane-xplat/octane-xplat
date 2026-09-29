@@ -74,11 +74,9 @@ patchedDependencies:
   # _populateRules. Adds atlayer() covering block and statement forms. Applies to a
   # transitive dep — no app declares it directly.
   css@3.0.0: packages/cli/patches/css@3.0.0.patch
-  # Dev-server /ns/m fixes: a plugin-patterned package absent from the vendor manifest
-  # (transitive dep under pnpm's isolated linker, NS_VENDOR_EXCLUDE) falls through to
-  # per-module HTTP serving instead of the missing-module stub; percent-decoded specifiers
-  # resolve bracketed file-route names; platform-suffixed (.ios/.android) candidates resolve
-  # for workspace package dirs.
+  # Dev-server /ns/m fixes: resolve pnpm-isolated transitive deps and platform-suffixed
+  # entries, inline workspace CSS through /@fs, route vendor-excluded plugins through HTTP,
+  # decode bracketed paths, and ignore comments during export-star expansion.
   "@nativescript/vite@8.0.11": packages/cli/patches/@nativescript__vite@8.0.11.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS

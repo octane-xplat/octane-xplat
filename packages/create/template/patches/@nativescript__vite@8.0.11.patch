@@ -1,5 +1,5 @@
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
-index 9364ce9942b84fffd0e3a6eb6700d8253fa66e7e..0ae5a89f0359afc3c700b43b2c80b176536100a6 100644
+index 9364ce9..0ae5a89 100644
 --- a/hmr/server/device-transform-helpers.js
 +++ b/hmr/server/device-transform-helpers.js
 @@ -89,7 +89,11 @@ function bareSpecifierFromFlatDepPath(depPath) {
@@ -16,7 +16,7 @@ index 9364ce9942b84fffd0e3a6eb6700d8253fa66e7e..0ae5a89f0359afc3c700b43b2c80b176
          return code;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..dc70055007e26117b76fbb9d2f4f17fabfd8db00 100644
+index 4a6575c..dc70055 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
 @@ -253,11 +253,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
@@ -54,8 +54,89 @@ index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..dc70055007e26117b76fbb9d2f4f17fa
          }
          // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
          // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
+diff --git a/hmr/server/websocket-core-bridge.js b/hmr/server/websocket-core-bridge.js
+index 444ea44..caa3724 100644
+--- a/hmr/server/websocket-core-bridge.js
++++ b/hmr/server/websocket-core-bridge.js
+@@ -8,7 +8,76 @@ import { getGlobalScope } from '../shared/runtime/global-scope.js';
+  * an ASCII filter silently drops every such export from generated shims.
+  */
+ export const JS_IDENTIFIER_RE = /^[$_\p{ID_Start}][$\u200c\u200d\p{ID_Continue}]*$/u;
++/**
++ * Blank out `//` and `/* ... *\/` comment bodies (positions and length
++ * preserved — every matched index stays valid). Export-name scanners are
++ * regex-based, so a commented-out declaration like ui-image's
++ * `// export const roundRadiusProperty = ...` would otherwise register a
++ * phantom export and the emitted explicit re-export list then fails to link
++ * on device ("does not provide an export named ...").
++ *
++ * Strings and template literals are skipped so `//` inside quotes isn't
++ * treated as a comment start. Regex literals are intentionally not tracked —
++ * an unescaped `//` inside one (e.g. `[//]` char classes) still masks the
++ * rest of the line; that is rare enough to accept in a dev-server path.
++ */
++export function maskJsComments(code) {
++    if (!code || (code.indexOf('//') === -1 && code.indexOf('/*') === -1)) {
++        return code;
++    }
++    const chars = code.split('');
++    const n = code.length;
++    let i = 0;
++    while (i < n) {
++        const c = code[i];
++        const next = code[i + 1];
++        if (c === '/' && next === '/') {
++            chars[i] = ' ';
++            chars[i + 1] = ' ';
++            i += 2;
++            while (i < n && code[i] !== '\n') {
++                chars[i] = ' ';
++                i++;
++            }
++        }
++        else if (c === '/' && next === '*') {
++            chars[i] = ' ';
++            chars[i + 1] = ' ';
++            i += 2;
++            while (i < n && !(code[i] === '*' && code[i + 1] === '/')) {
++                if (code[i] !== '\n')
++                    chars[i] = ' ';
++                i++;
++            }
++            if (i < n) {
++                chars[i] = ' ';
++                chars[i + 1] = ' ';
++                i += 2;
++            }
++        }
++        else if (c === "'" || c === '"' || c === '`') {
++            const quote = c;
++            i++;
++            while (i < n) {
++                if (code[i] === '\\') {
++                    i += 2;
++                    continue;
++                }
++                if (code[i] === quote) {
++                    i++;
++                    break;
++                }
++                i++;
++            }
++        }
++        else {
++            i++;
++        }
++    }
++    return chars.join('');
++}
+ export function extractDirectExportedNames(code) {
++    code = maskJsComments(code);
+     const names = new Set();
+     const declRe = /\bexport\s+(?:async\s+)?(?:function|class)\s+([$_\p{ID_Start}][$\p{ID_Continue}]*)/gu;
+     let match;
 diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
-index 54b8fba2def7ed0128e8e1dd4b2549d25559de82..fd276ae860d0805533be0bff4399247b38ebac01 100644
+index 54b8fba..fd276ae 100644
 --- a/hmr/server/websocket-module-bindings.js
 +++ b/hmr/server/websocket-module-bindings.js
 @@ -7,6 +7,7 @@ import { getProjectRootPath } from '../../helpers/project.js';
@@ -105,10 +186,111 @@ index 54b8fba2def7ed0128e8e1dd4b2549d25559de82..fd276ae860d0805533be0bff4399247b
          }
          if (canonical && /^@nativescript\/core(\b|\/)/i.test(canonical)) {
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
-index 2f1dd5d5d688076c5fc0ec8c5c888f9e834e7831..543bb17951813d47d34b6650b74c6663e8c38213 100644
+index 2f1dd5d..68cdd05 100644
 --- a/hmr/server/websocket-module-specifiers.js
 +++ b/hmr/server/websocket-module-specifiers.js
-@@ -794,16 +794,24 @@ export function resolveVendorRouting(nodeModulesSpec, projectRoot) {
+@@ -1,4 +1,4 @@
+-import { existsSync, readFileSync, realpathSync } from 'fs';
++import { existsSync, readdirSync, readFileSync, realpathSync } from 'fs';
+ import * as path from 'path';
+ import * as PAT from './constants.js';
+ import { getVendorManifest, resolveVendorSpecifier } from '../shared/vendor/registry.js';
+@@ -331,6 +331,68 @@ export function resolveVendorFromCandidate(specifier) {
+  * request to the dev server's bridge fails with a "transform miss"
+  * 404 even though the file is right there at the workspace root.
+  */
++const workspacePackageNodeModulesDirsCache = new Map();
++/**
++ * Enumerate `node_modules` directories that belong to workspace packages
++ * (e.g. `<root>/packages/<pkg>/node_modules`, `<root>/apps/<app>/node_modules`)
++ * plus the workspace root's own. pnpm's isolated linker gives each workspace
++ * package a private `node_modules` — a dependency declared by a workspace
++ * package (say a NativeScript plugin inside a library) is invisible from the
++ * app root, so `/ns/m/node_modules/<pkg>/...` requests for transitive deps 404
++ * without this fallback.
++ *
++ * Bounded: direct children of the root plus one level down
++ * (`<root>/<group>/<pkg>/node_modules`) covers standard workspace layouts
++ * without walking arbitrary depth. Cached for the dev-server lifetime.
++ */
++function enumerateWorkspacePackageNodeModulesDirs(workspaceRoot) {
++    const resolved = path.resolve(workspaceRoot);
++    const cached = workspacePackageNodeModulesDirsCache.get(resolved);
++    if (cached) {
++        return cached;
++    }
++    const dirs = [];
++    const pushIfPresent = (dir) => {
++        const nm = path.join(dir, 'node_modules');
++        try {
++            if (existsSync(nm)) {
++                dirs.push(nm);
++            }
++        }
++        catch {
++            // unreadable dirs are skipped — this is a best-effort fallback
++        }
++    };
++    pushIfPresent(resolved);
++    let groups = [];
++    try {
++        groups = readdirSync(resolved, { withFileTypes: true });
++    }
++    catch {
++        groups = [];
++    }
++    for (const group of groups) {
++        if (!group.isDirectory() || group.name === 'node_modules' || group.name.startsWith('.')) {
++            continue;
++        }
++        const groupDir = path.join(resolved, group.name);
++        pushIfPresent(groupDir);
++        let packages = [];
++        try {
++            packages = readdirSync(groupDir, { withFileTypes: true });
++        }
++        catch {
++            packages = [];
++        }
++        for (const pkg of packages) {
++            if (pkg.isDirectory() && !pkg.name.startsWith('.')) {
++                pushIfPresent(path.join(groupDir, pkg.name));
++            }
++        }
++    }
++    workspacePackageNodeModulesDirsCache.set(resolved, dirs);
++    return dirs;
++}
+ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot) {
+     const cleaned = candidate.replace(PAT.QUERY_PATTERN, '');
+     if (!cleaned)
+@@ -363,7 +425,24 @@ export function resolveCandidateFilePath(candidate, projectRoot, workspaceRoot)
+         const resolvedProject = path.resolve(projectRoot);
+         const resolvedWorkspace = path.resolve(workspaceRoot);
+         if (resolvedWorkspace !== resolvedProject) {
+-            return tryUnderRoot(resolvedWorkspace);
++            const fromWorkspace = tryUnderRoot(resolvedWorkspace);
++            if (fromWorkspace) {
++                return fromWorkspace;
++            }
++        }
++        // Transitive-dep fallback: the `/ns/m/node_modules/<pkg>/<sub>` URL
++        // form drops the importer, so a package that only exists under a
++        // workspace package's private node_modules (pnpm isolated linker)
++        // can't be anchored to a root. Probe every workspace package's
++        // node_modules for `<pkg>/<sub>` and serve the first hit.
++        if (cleaned.includes('/node_modules/')) {
++            const afterNodeModules = cleaned.slice(cleaned.lastIndexOf('/node_modules/') + '/node_modules/'.length);
++            for (const nmDir of enumerateWorkspacePackageNodeModulesDirs(resolvedWorkspace)) {
++                const absPath = path.join(nmDir, afterNodeModules);
++                if (existsSync(absPath)) {
++                    return absPath;
++                }
++            }
+         }
+     }
+     return null;
+@@ -794,16 +873,24 @@ export function resolveVendorRouting(nodeModulesSpec, projectRoot) {
      if (rootPackageName && pkgName !== rootPackageName) {
          return { route: 'http' };
      }
@@ -137,10 +319,52 @@ index 2f1dd5d5d688076c5fc0ec8c5c888f9e834e7831..543bb17951813d47d34b6650b74c6663
          return null;
      }
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index b54aefcc839e95906d76d02e522c052a706ca76f..f743ffd852e2915acbbd42a0f7d80964e86718a4 100644
+index b54aefc..a9c38c3 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
-@@ -49,6 +49,14 @@ export function createNsMRequestContext(requestUrl, serverRoot, appVirtualWithSl
+@@ -1,6 +1,41 @@
+ import * as path from 'path';
+ import { filterExistingNodeModulesTransformCandidates, getBlockedDeviceNodeModulesReason, resolveCandidateFilePath, tryReadRawExplicitJavaScriptModule } from './websocket-module-specifiers.js';
+ import { collapseLegacyNsMTags } from './websocket-ns-m-paths.js';
++import { resolvePlatform } from '../../helpers/cli-flags.js';
++let cachedPlatformSuffixes = undefined;
++/**
++ * Platform-suffixed resolution tags (`ios`, `android`, `visionos`, plus the
++ * shared `native` tag used by split-entry packages). Packages shipped with
++ * platform-split entries — e.g. `@nativescript-community/*` plugins carrying
++ * `index.ios.js`/`index.android.js` and a `main` like `./index` — 404 on the
++ * device bridge when only unsuffixed candidates are probed. Candidates are
++ * existence-filtered later, so probing every suffix is safe; the active
++ * platform's variants go first so a package shipping several platforms picks
++ * the right one.
++ */
++function platformSuffixes() {
++    if (cachedPlatformSuffixes === undefined) {
++        const platform = resolvePlatform();
++        const list = [platform, 'ios', 'android', 'visionos', 'native'].filter(Boolean);
++        cachedPlatformSuffixes = [...new Set(list)];
++    }
++    return cachedPlatformSuffixes;
++}
++const CANDIDATE_EXTS = ['ts', 'tsx', 'js', 'jsx', 'mjs', 'mts', 'cts', 'vue'];
++function expandModuleCandidates(spec, hasExt, baseNoExt) {
++    const candidates = [...(hasExt ? [spec] : [])];
++    for (const base of [baseNoExt, `${baseNoExt}/index`]) {
++        for (const suffix of platformSuffixes()) {
++            for (const ext of CANDIDATE_EXTS) {
++                candidates.push(`${base}.${suffix}.${ext}`);
++            }
++        }
++        for (const ext of CANDIDATE_EXTS) {
++            candidates.push(`${base}.${ext}`);
++        }
++    }
++    return candidates;
++}
+ function normalizeAbsoluteFilesystemSpec(spec, serverRoot) {
+     const toPosix = (value) => value.replace(/\\/g, '/');
+     const rootPosix = toPosix(serverRoot);
+@@ -49,6 +84,14 @@ export function createNsMRequestContext(requestUrl, serverRoot, appVirtualWithSl
              };
          }
          spec = spec.replace(/[?#].*$/, '');
@@ -155,10 +379,64 @@ index b54aefcc839e95906d76d02e522c052a706ca76f..f743ffd852e2915acbbd42a0f7d80964
          const decorated = collapseLegacyNsMTags(spec, 'inbound-request-spec');
          spec = decorated.cleanedSpec;
          bootTaggedRequest = decorated.bootTaggedRequest;
+@@ -73,7 +116,7 @@ export function createNsMRequestContext(requestUrl, serverRoot, appVirtualWithSl
+         }
+         const hasExt = /\.(ts|tsx|js|jsx|mjs|mts|cts|vue)$/i.test(spec);
+         const baseNoExt = hasExt ? spec.replace(/\.(ts|tsx|js|jsx|mjs|mts|cts)$/i, '') : spec;
+-        const candidates = [...(hasExt ? [spec] : []), `${baseNoExt}.ts`, `${baseNoExt}.js`, `${baseNoExt}.tsx`, `${baseNoExt}.jsx`, `${baseNoExt}.mjs`, `${baseNoExt}.mts`, `${baseNoExt}.cts`, `${baseNoExt}.vue`, `${baseNoExt}/index.ts`, `${baseNoExt}/index.js`, `${baseNoExt}/index.tsx`, `${baseNoExt}/index.jsx`, `${baseNoExt}/index.mjs`];
++        const candidates = expandModuleCandidates(spec, hasExt, baseNoExt);
+         const transformCandidates = filterExistingNodeModulesTransformCandidates(spec, candidates, serverRoot, workspaceRoot);
+         return {
+             kind: 'context',
+diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
+index 8eeb51a..407c2a2 100644
+--- a/hmr/server/websocket-ns-m.js
++++ b/hmr/server/websocket-ns-m.js
+@@ -6,6 +6,7 @@ import { isRuntimeGraphExcludedPath } from './runtime-graph-filter.js';
+ import { buildPiniaVendorShim, buildVueVendorShim } from './vendor-bare-module-shims.js';
+ import { collapseLegacyNsMTags } from './websocket-ns-m-paths.js';
+ import { createNsMRequestContext, resolveNsMTransformedModule } from './websocket-ns-m-request.js';
++import { resolveCandidateFilePath } from './websocket-module-specifiers.js';
+ import { setDeviceModuleHeaders } from './route-helpers.js';
+ import { CSS_MODULE_RE, buildCssRegisterSnippetFromVar, normalizeCssForDevice } from './css-device-module.js';
+ import { assertNoOptimizedArtifacts, buildBootProgressSnippet, canonicalizeRtImports, dedupeRtNamedImportsAgainstDestructures, deduplicateLinkerImports, ensureDestructureCoreImports, ensureGuardPlainDynamicImports, ensureVariableDynamicImportHelper, expandStarExports, hoistTopLevelStaticImports, MODULE_IMPORT_ANALYSIS_PLUGINS, wrapCommonJsModuleForDevice, ensureWorkerEntryGlobalsImport, classifyServedRequest } from './websocket-served-module-helpers.js';
+@@ -154,7 +155,22 @@ export function registerNsModuleServerRoute(server, options) {
+             // string for `import css from './x.css'`. `app.css` has its own path.
+             if (CSS_MODULE_RE.test(spec)) {
+                 try {
+-                    const inlineRes = await sharedTransformRequest(`${spec}?inline`);
++                    // `spec` is root-relative to the app package — workspace
++                    // css (e.g. `packages/ui/theme/tokens.css` in a monorepo)
++                    // resolves under the workspace root, so a bare `${spec}
++                    // ?inline` transform misses there. Anchor it to the real
++                    // file via /@fs/ first, like the module pipeline does.
++                    let inlineSpec = spec;
++                    const cssFsRoots = [serverRoot, ...(monorepoWorkspaceRoot && path.resolve(monorepoWorkspaceRoot) !== path.resolve(serverRoot) ? [monorepoWorkspaceRoot] : [])];
++                    for (const root of cssFsRoots) {
++                        const fsId = `/@fs${String(root).replace(/\\/g, '/').replace(/\/$/, '')}${spec.startsWith('/') ? '' : '/'}${spec}`;
++                        const abs = resolveCandidateFilePath(fsId, serverRoot, monorepoWorkspaceRoot);
++                        if (abs) {
++                            inlineSpec = `/@fs${abs.replace(/\\/g, '/')}`;
++                            break;
++                        }
++                    }
++                    const inlineRes = await sharedTransformRequest(`${inlineSpec}?inline`);
+                     const inlineCode = inlineRes?.code || '';
+                     // `?inline` output is `export default "<compiled css>"`.
+                     const m = inlineCode.match(/export\s+default\s+("(?:[^"\\]|\\.)*")\s*;?/s);
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
-index e65b1abaaf223cca4b11b65b8428c85c484f125d..4cbf72b0aebf54f362634a10e051c48c219f6c8b 100644
+index e65b1ab..c738f97 100644
 --- a/hmr/server/websocket-served-module-helpers.js
 +++ b/hmr/server/websocket-served-module-helpers.js
+@@ -6,7 +6,7 @@ import * as PAT from './constants.js';
+ import { isDeepCoreSubpath } from './core-sanitize.js';
+ import { getCjsNamedExports } from '../helpers/cjs-named-exports.js';
+ import { getMonorepoWorkspaceRoot } from '../../helpers/project.js';
+-import { extractDirectExportedNames, parseExportSpecList } from './websocket-core-bridge.js';
++import { extractDirectExportedNames, maskJsComments, parseExportSpecList } from './websocket-core-bridge.js';
+ import { resolveCandidateFilePath } from './websocket-module-specifiers.js';
+ let cachedWorkspaceCoreRoot;
+ /**
 @@ -105,8 +105,8 @@ export function classifyServedRequest(spec, resolvedId) {
      return classifyServedModule(spec);
  }
@@ -179,3 +457,14 @@ index e65b1abaaf223cca4b11b65b8428c85c484f125d..4cbf72b0aebf54f362634a10e051c48c
              .map((node) => ({
              start: node.start,
              end: node.end,
+@@ -366,6 +366,10 @@ function normalizeStarExportTargetPath(spec, parentVitePath) {
+ //   - `extractExportMetadata` (below): does a module have a default export
+ //     and which named ones — shape-only, for SFC route metadata.
+ function scanModuleExportSurface(code) {
++    // Mask comments up front: the unanchored `export * as`/`export {} from`
++    // regexes below would otherwise claim names from commented-out lines and
++    // shadow the same name's real star-export source.
++    code = maskJsComments(code);
+     const ownNames = new Set(extractDirectExportedNames(code));
+     for (const m of code.matchAll(/\bexport\s+\*\s+as\s+([A-Za-z_$][\w$]*)\s+from\s*["'][^"']+["']/g)) {
+         ownNames.add(m[1]);
