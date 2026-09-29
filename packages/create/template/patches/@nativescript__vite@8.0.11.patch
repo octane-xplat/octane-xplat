@@ -1,5 +1,47 @@
+diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
+index 50e5abddddf80b35044d45eb108a64dd175bf6e7..4f16f129b4c4271173169871f42645d16d3cfa0c 100644
+--- a/hmr/server/deps-bundle.js
++++ b/hmr/server/deps-bundle.js
+@@ -53,6 +53,7 @@
+ import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+ import * as path from 'node:path';
+ import { createHash } from 'node:crypto';
++import { createRequire } from 'node:module';
+ import * as esbuild from 'esbuild';
+ import { resolvePlatform } from '../../helpers/cli-flags.js';
+ import { getGlobalDefines, getUserDefineEntries } from '../../helpers/global-defines.js';
+@@ -669,6 +670,29 @@ export async function generateDepsBundle(options) {
+     // the device cannot resolve.
+     const buildPlugins = () => [
+         createWebpackLoaderStubEsbuildPlugin(),
++        // Bare `octane` is the DOM entry — a dep importing it (published
++        // @octane-xplat/* dist files kept `from "octane"` through 0.6.0)
++        // bundles a second runtime next to the universal one, and hooks read
++        // an empty CURRENT_SCOPE ("Cannot read properties of null (reading
++        // 'hooks')"). Vite resolve.alias never reaches these esbuild passes;
++        // route exact `octane` imports to the host-neutral entry here.
++        {
++            name: 'ns-deps-bundle-octane-universal-alias',
++            setup(build) {
++                build.onResolve({ filter: /^octane$/ }, (args) => {
++                    for (const dir of [args.importer && path.dirname(args.importer), args.resolveDir, projectRoot]) {
++                        if (!dir)
++                            continue;
++                        try {
++                            return { path: createRequire(path.join(dir, 'noop.js')).resolve('octane/universal/native') };
++                        }
++                        catch {
++                        }
++                    }
++                    return null;
++                });
++            },
++        },
+         createNodeBuiltinPolyfillEsbuildPlugin(projectRoot, NODE_BUILTINS),
+         createNativeClassEsbuildPlugin(platform),
+         createVendorEsbuildPlugin(projectRoot),
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
-index 9364ce9..0ae5a89 100644
+index 9364ce9942b84fffd0e3a6eb6700d8253fa66e7e..0ae5a89f0359afc3c700b43b2c80b176536100a6 100644
 --- a/hmr/server/device-transform-helpers.js
 +++ b/hmr/server/device-transform-helpers.js
 @@ -89,7 +89,11 @@ function bareSpecifierFromFlatDepPath(depPath) {
@@ -16,7 +58,7 @@ index 9364ce9..0ae5a89 100644
          return code;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 4a6575c..dc70055 100644
+index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..dc70055007e26117b76fbb9d2f4f17fabfd8db00 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
 @@ -253,11 +253,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
@@ -55,7 +97,7 @@ index 4a6575c..dc70055 100644
          // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
          // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
 diff --git a/hmr/server/websocket-core-bridge.js b/hmr/server/websocket-core-bridge.js
-index 444ea44..caa3724 100644
+index 444ea4474645a10ce4f9ca3b81d96ec9c017c0cb..caa3724caeeb04b4d69d04a15a5899f835fec5ff 100644
 --- a/hmr/server/websocket-core-bridge.js
 +++ b/hmr/server/websocket-core-bridge.js
 @@ -8,7 +8,76 @@ import { getGlobalScope } from '../shared/runtime/global-scope.js';
@@ -136,7 +178,7 @@ index 444ea44..caa3724 100644
      const declRe = /\bexport\s+(?:async\s+)?(?:function|class)\s+([$_\p{ID_Start}][$\p{ID_Continue}]*)/gu;
      let match;
 diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
-index 54b8fba..fd276ae 100644
+index 54b8fba2def7ed0128e8e1dd4b2549d25559de82..fd276ae860d0805533be0bff4399247b38ebac01 100644
 --- a/hmr/server/websocket-module-bindings.js
 +++ b/hmr/server/websocket-module-bindings.js
 @@ -7,6 +7,7 @@ import { getProjectRootPath } from '../../helpers/project.js';
@@ -186,7 +228,7 @@ index 54b8fba..fd276ae 100644
          }
          if (canonical && /^@nativescript\/core(\b|\/)/i.test(canonical)) {
 diff --git a/hmr/server/websocket-module-specifiers.js b/hmr/server/websocket-module-specifiers.js
-index 2f1dd5d..68cdd05 100644
+index 2f1dd5d5d688076c5fc0ec8c5c888f9e834e7831..68cdd051144c1d69d8d20271558c8f8e79532d73 100644
 --- a/hmr/server/websocket-module-specifiers.js
 +++ b/hmr/server/websocket-module-specifiers.js
 @@ -1,4 +1,4 @@
@@ -319,7 +361,7 @@ index 2f1dd5d..68cdd05 100644
          return null;
      }
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index b54aefc..a9c38c3 100644
+index b54aefcc839e95906d76d02e522c052a706ca76f..a9c38c32b8752765044cd8f2c1eac558a30052dd 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
 @@ -1,6 +1,41 @@
@@ -389,7 +431,7 @@ index b54aefc..a9c38c3 100644
          return {
              kind: 'context',
 diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
-index 8eeb51a..407c2a2 100644
+index 8eeb51ab59497e7f775da3117c4207e05f1814c7..407c2a2484c843bc538ce6ef9cf7af0b9b883ad3 100644
 --- a/hmr/server/websocket-ns-m.js
 +++ b/hmr/server/websocket-ns-m.js
 @@ -6,6 +6,7 @@ import { isRuntimeGraphExcludedPath } from './runtime-graph-filter.js';
@@ -425,7 +467,7 @@ index 8eeb51a..407c2a2 100644
                      // `?inline` output is `export default "<compiled css>"`.
                      const m = inlineCode.match(/export\s+default\s+("(?:[^"\\]|\\.)*")\s*;?/s);
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
-index e65b1ab..c738f97 100644
+index e65b1abaaf223cca4b11b65b8428c85c484f125d..c738f974ccdef53166365cf3f34d45136a4684f6 100644
 --- a/hmr/server/websocket-served-module-helpers.js
 +++ b/hmr/server/websocket-served-module-helpers.js
 @@ -6,7 +6,7 @@ import * as PAT from './constants.js';

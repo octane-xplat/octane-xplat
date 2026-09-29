@@ -19,8 +19,8 @@
 			"specifier": "@nativescript/vite@8.0.11",
 			"file": "@nativescript__vite@8.0.11.patch",
 			"scope": "dev",
-			"why": "Dev-server /ns/m fixes: resolve pnpm-isolated transitive deps and platform-suffixed entries, inline workspace CSS through /@fs, route vendor-excluded plugins through HTTP, decode bracketed paths, and ignore comments during export-star expansion.",
-			"dropWhen": "@nativescript/vite ships these /ns/m and export-scan fixes (NativeScript/NativeScript#11470 for pnpm resolution; #11455 for bracket decoding)"
+			"why": "Dev-server /ns/m fixes: resolve pnpm-isolated transitive deps and platform-suffixed entries, inline workspace CSS through /@fs, route vendor-excluded plugins through HTTP, decode bracketed paths, and ignore comments during export-star expansion. Deps-bundle alias: the dev payload's esbuild passes never see vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks crash on boot, octane-xplat#3) — an onResolve plugin redirects `octane` → `octane/universal/native`.",
+			"dropWhen": "@nativescript/vite ships these /ns/m and export-scan fixes (NativeScript/NativeScript#11470 for pnpm resolution; #11455 for bracket decoding); also drop the alias hunk when @nativescript/vite honors vite resolve.alias (or exposes an alias option) inside the deps-bundle esbuild passes"
 		},
 		{
 			"specifier": "@nativescript-community/octane@0.2.1",

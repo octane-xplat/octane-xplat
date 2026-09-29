@@ -38,7 +38,10 @@ patchedDependencies:
   css@3.0.0: patches/css@3.0.0.patch
   # Dev-server /ns/m fixes: resolve pnpm-isolated transitive deps and platform-suffixed
   # entries, inline workspace CSS through /@fs, route vendor-excluded plugins through HTTP,
-  # decode bracketed paths, and ignore comments during export-star expansion.
+  # decode bracketed paths, and ignore comments during export-star expansion. Also aliases
+  # bare `octane` → `octane/universal/native` inside the deps-bundle esbuild
+  # passes (vite resolve.alias never reaches them — a dep importing the DOM
+  # entry bundles a second runtime and hooks crash on boot).
   "@nativescript/vite@8.0.11": patches/@nativescript__vite@8.0.11.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
