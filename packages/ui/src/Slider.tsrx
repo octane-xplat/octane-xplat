@@ -22,13 +22,19 @@ export function Slider(props: SliderProps) @{
 	const ratio = Math.min(1, Math.max(0, (value - min) / (max - min)));
 	const width = measure.bounds?.width ?? 0;
 
-	// Stable ref identity — an inline ref closure re-fires ref(null)/ref(el)
-	// per render, which bounces useMeasure's setView and loops forever.
+	// Keep one ref identity so native measurement listeners stay attached to
+	// the same host across rerenders.
 	const host = useRef<any>(null);
 	const bindHost = useCallback((el: any) => {
 		host.current = el;
 		measure.bind(el);
 	}, []);
+
+	const trackHeight = 4;
+	const thumbSize = 20;
+	const trackTop = (28 - trackHeight) / 2;
+	const thumbTop = (28 - thumbSize) / 2;
+	const thumbLeft = Math.min(Math.max(ratio * width - thumbSize / 2, 0), Math.max(width - thumbSize, 0));
 
 	useEffect(() => {
 		applyNativeProps(host.current, props);
@@ -52,7 +58,7 @@ export function Slider(props: SliderProps) @{
 		}
 	});
 
-	<gridlayout
+	<absolutelayout
 		id={props.id}
 		className={cx('vx-slider', props.className)}
 		style={props.style}
@@ -60,12 +66,8 @@ export function Slider(props: SliderProps) @{
 		onPan={onPan}
 		ref={bindHost}
 	>
-		<flexboxlayout className="vx-slider-track" />
-		<flexboxlayout className="vx-slider-fill" horizontalAlignment="left" style={{ width: ratio * width }} />
-		<flexboxlayout
-			className="vx-slider-thumb"
-			horizontalAlignment="left"
-			style={{ marginLeft: Math.min(Math.max(ratio * width - 10, 0), Math.max(width - 20, 0)) }}
-		/>
-	</gridlayout>
+		<flexboxlayout className="vx-slider-track" style={{ width, translateY: trackTop }} />
+		<flexboxlayout className="vx-slider-fill" style={{ width: ratio * width, translateY: trackTop }} />
+		<flexboxlayout className="vx-slider-thumb" style={{ translateX: thumbLeft, translateY: thumbTop }} />
+	</absolutelayout>
 }

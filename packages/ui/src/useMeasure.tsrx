@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useState } from 'octane';
+import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props';
 
 function readBounds(view: any): MeasureBounds | null {
@@ -11,14 +11,12 @@ function readBounds(view: any): MeasureBounds | null {
 
 /** Binds to a NativeScript view and observes screen-relative DIP bounds by default. */
 export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
-	const [view, setView] = useState<any>(null);
 	const [bounds, setBounds] = useState<MeasureBounds | null>(null);
+	const detach = useRef<(() => void) | null>(null);
 	const observe = options.observe ?? true;
-	const bind = useCallback((next: any) => {
-		setView((current: any) => current === next ? current : next);
-	}, []);
-
-	useEffect(() => {
+	const bind = useCallback((view: any) => {
+		detach.current?.();
+		detach.current = null;
 		if (!view) {
 			setBounds(null);
 			return;
@@ -28,39 +26,40 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 			const next = readBounds(view);
 			// Fresh object each read — skip the setState when nothing moved
 			// or the re-render → layoutChanged → update loop never ends.
-			setBounds((prev: MeasureBounds | null) =>
-				prev && next &&
-				prev.x === next.x && prev.y === next.y &&
-				prev.width === next.width && prev.height === next.height
+			setBounds((prev: MeasureBounds | null) => {
+				return prev && next &&
+					prev.x === next.x && prev.y === next.y &&
+					prev.width === next.width && prev.height === next.height
 					? prev
-					: next,
-			);
+					: next;
+			});
 		};
 
-		const onLoaded = update;
-		view.on?.('loaded', onLoaded);
+		view.on?.('loaded', update);
 		update();
+		const scrollParents: any[] = [];
 		if (observe) {
 			view.on?.('layoutChanged', update);
 			let parent = view.parent;
 			while (parent) {
 				parent.on?.('scroll', update);
+				scrollParents.push(parent);
 				parent = parent.parent;
 			}
 		}
 
-		return () => {
-			view.off?.('loaded', onLoaded);
+		detach.current = () => {
+			view.off?.('loaded', update);
 			if (observe) {
 				view.off?.('layoutChanged', update);
-				let parent = view.parent;
-				while (parent) {
+				for (const parent of scrollParents) {
 					parent.off?.('scroll', update);
-					parent = parent.parent;
 				}
 			}
 		};
-	}, [view, observe]);
+	}, [observe]);
+
+	useEffect(() => () => detach.current?.(), []);
 
 	return { bind, bounds };
 }
