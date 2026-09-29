@@ -29,6 +29,7 @@ import {
 	mergeRouteManifests,
 	RouteRedirect,
 } from './route-table'
+
 import { RouteHost } from './RouteHost.mobile'
 import { modalPresenter } from './modal-presenter.mobile'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
