@@ -5,7 +5,7 @@ import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@natives
 import { GridLayout } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import { useEffect, useRef, useState } from 'octane'
-import type { UniversalComponent } from 'octane/universal'
+import type { UniversalComponent, UniversalRoot } from 'octane/universal'
 import type { SwiftUIContextMenuProps } from './ios/types'
 
 declare const XplatContextMenuProvider: any
@@ -24,7 +24,7 @@ registerSwiftUI('xplat-swiftui-contextmenu', (owner: any) =>
 // Host views keyed by dash-free registry id — the provider's representable
 // appends "-<uuid>" and the factory looks the host up by the first segment.
 const hosts = new Map<string, GridLayout>()
-const roots = new Map<string, { unmount?: () => void }>()
+const roots = new Map<string, UniversalRoot>()
 
 function mountSubtree(id: string, render: () => any): void {
 	let host = hosts.get(id)
@@ -43,11 +43,13 @@ function mountSubtree(id: string, render: () => any): void {
 			} as any,
 		)
 	}
+
 	let root = roots.get(id)
 	if (!root) {
 		root = createNativeScriptRoot(host)
 		roots.set(id, root)
 	}
+
 	root.render(TriggerRoot as unknown as UniversalComponent, { render })
 }
 
@@ -71,6 +73,7 @@ export function SwiftUIContextMenu(props: SwiftUIContextMenuProps) @{
 	if (!triggerId.current) {
 		triggerId.current = `ctxmenu${++seq}`
 	}
+
 	const [ready, setReady] = useState(false)
 
 	useEffect(() => {

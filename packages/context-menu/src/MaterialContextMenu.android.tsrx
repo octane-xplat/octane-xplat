@@ -37,6 +37,7 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 	if (!triggerId.current) {
 		triggerId.current = `ctxmenu${++seq}`
 	}
+
 	const mounted = useRef<{ host: any; root: any } | null>(null)
 	const [ready, setReady] = useState(false)
 	const [expanded, setExpanded] = useState(false)
@@ -47,9 +48,12 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 		// `{}` as the native context, which fails to marshal on Android; the
 		// view factory needs a real android.content.Context to build its
 		// native view.
+
 		const context = (Application.android as any).foregroundActivity ?? (Application.android as any).startActivity
-		;(host as any)._setupAsRootView(context)
-		;(host as any).callLoaded()
+		const nativeHost = host as any
+
+		nativeHost._setupAsRootView(context)
+		nativeHost.callLoaded()
 		const root = createNativeScriptRoot(host)
 		root.render(TriggerRoot as unknown as UniversalComponent, { render: props.trigger })
 		com.octanexplat.contextmenu.XplatViewRegistry.register(triggerId.current, host.android)
@@ -58,11 +62,13 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 		// subtree consumes pointer input before Compose's gesture detectors
 		// could resolve it, so expanded is pushed through data instead.
 		const open = () => setExpanded(true)
+
 		if ((props.activation ?? 'longPress') === 'singlePress') {
 			host.on('tap', open)
 		} else {
 			host.on('longPress', open)
 		}
+
 		// Gate triggerId on registration — the provider only composes the
 		// AndroidView host once triggerId is non-empty, so the factory must
 		// find the view in the registry on first read.
@@ -70,7 +76,7 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 
 		return () => {
 			com.octanexplat.contextmenu.XplatViewRegistry.unregister(triggerId.current)
-			host.off()
+			nativeHost.off()
 			root.unmount?.()
 			mounted.current = null
 			setReady(false)
@@ -108,6 +114,7 @@ export function MaterialContextMenu(props: MaterialContextMenuProps) @{
 				setExpanded(false)
 				return
 			}
+
 			const item = event.data?.item
 			if (typeof item === 'string' && item) {
 				setExpanded(false)
