@@ -3,6 +3,13 @@
 > The implementation record behind the short guides: compiler boundaries,
 > ownership, invariants, risks, and the planned build order.
 
+This page preserves the initial framework plan. Package names such as
+`packages/navigation`, `packages/hooks`, and `packages/core`, and APIs such as
+`List`, `Modal`, and `useNavigate`, below are historical proposals. Current
+routing and shared components ship in `@octane-xplat/ui`; use
+[architecture](architecture.md), [navigation](navigation.md), and the
+[starter](../packages/create/template/) for implementation instructions.
+
 ## The model
 
 One source tree, two compilations. A shared `.tsrx` file is compiled by the
@@ -70,7 +77,7 @@ app/_layout.tsrx    per-platform nav shell (expected split)
 Dialect: `.tsrx` everywhere for owned files (auto-owned by extension; `@try`
 is the portable boundary). `.tsx` allowed for directive-free files.
 
-## Config surface (what an app writes)
+## Original config sketch (historical)
 
 ```ts
 // apps/mobile/vite.config.mts
@@ -108,7 +115,7 @@ Entries: web `createRoot(el)`; native `Application.run({create})` +
 7. Styles: `className`+tokens for static; `style` objects (dip) for dynamics.
 8. Animation/gesture writes are imperative; app state stays declarative.
 
-## Hello world, both targets (the walkthrough)
+## Original hello-world sketch (historical)
 
 ```tsx
 // app/index.tsrx — shared screen

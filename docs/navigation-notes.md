@@ -64,7 +64,7 @@ turns the module map into `{screens, routes, layouts, loaders}`:
   `data`; a rejected loader reaches it as `error`. Loaders run on navigation
   and do not provide prefetch or a suspense boundary.
 - A route may export `beforeLoad({params, context})`. The guard is awaited
-  before an imperative or framework-Link navigation commits; its returned
+  before an imperative or `NavLink` navigation commits; its returned
   object merges into `Route.context` and screen props. `redirect(route)` is a
   short-circuit that runs the target guard, then commits via browser history
   or the native target `Frame.navigate` path. Plain browser URL entry and
@@ -83,10 +83,10 @@ scope. Web: `pushRoute` substitutes `:param` segments into the path
 `parse()` matches incoming paths back to `{stack, name, params}` — named
 stacks keep the `/<stack>/<path>` prefix. Native: `route.name` resolves
 through `screens`, params and loader values land as props. `hrefFor(route)`
-is the canonical path builder (Link's href). `xplat build` and
+is the canonical path builder (`NavLink`’s href). `xplat build` and
 `xplat typecheck` refresh the generated route files from `app/`; generated
-`RouteName` and `RouteParams` types constrain `navigate`, `Link`, and
-`useParams<Name>()`.
+`RouteName` and `RouteParams` types support app-owned typed wrappers over
+`pushRoute` and `NavLink`; they do not add a shared `useParams` hook.
 
 - **Programmatic routes (decision #67):** `defineRoutes({routes: RouteSpec[],
   layouts})` builds a `RouteManifest` from data instead of files —
@@ -121,7 +121,7 @@ params are scalar strings; direct object/array params are JSON-encoded with a
 warning in web URLs and decoded when matched. This preserves old callers while
 making the generated API's scalar contract explicit.
 
-## Mapping
+## Original mapping sketch (historical)
 
 | Shared concept                | Web                                                             | Native                                                                    |
 | ----------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------- |
@@ -136,9 +136,15 @@ making the generated API's scalar contract explicit.
 | deep link                     | URL load                                                        | `Application` lifecycle (openUrl/continueActivity)                        |
 | windows/scenes                | `window.open()`                                                 | `openWindow({data,kind,parent})`; app installs the window content resolver |
 
+The mapping above predates the current API names and shared self-drawn
+shells. Today use `NavLink`, `pushRoute`, `popRoute`, and `useRoute`;
+`UITabBar`/`BottomNavigationView` are platform widgets, while shared
+`Tabs` uses route-store panes. The [navigation guide](navigation.md) owns
+the current caller-facing contract.
+
 ## Hard seams (decide consciously)
 
-1. **Modal = root.** Shared `Modal`/`Sheet` route cannot share context with
+1. **Modal = root.** A platform modal or shared `Sheet` cannot share context with
    its presenter on native. Pass data via params + shared store module, never
    context. (See primitives.md.)
 2. **Android hardware back** must feed the router — intercept
@@ -146,7 +152,7 @@ making the generated API's scalar contract explicit.
    (confirm-dialog flows).
 3. **URL↔stack impedance**: web history is linear+addressable; Frame stacks
    are push/pop with per-entry transitions. Keep the shared API at
-   `navigate(pathOrName, params)` + `goBack()`; don't try to share transition
+   `pushRoute(route)` + `popRoute(stack)`; don't try to share transition
    config beyond a small named set (`'push'|'modal'|'fade'`).
 4. **Scroll/memory parity**: Native keeps page views alive in its stack.
    Web stores scroll offsets by history URL and restores them on back/forward;

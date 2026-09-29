@@ -29,7 +29,7 @@ build each target.
 
 ## Documentation
 
-- AC1: [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies).
-- AC2: [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies).
-- AC3: [authSession platform notes](../docs/platform-services.md#passkeys-and-auth-ceremonies) and [scheme registration](incoming-links.md).
-- AC4: [Capability shape and fallbacks](../docs/platform-services.md#optional-capabilities). Gap: cancel/error paths are desk-verified only — on-device sweep pending (queued experiment).
+- AC1: [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies). Gap: The fragment omits a complete server verification exchange and error-handling example.
+- AC2: [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies). Gap: The hosted page callback/session exchange remains app-owned and lacks a maintained complete example.
+- AC3: [authSession platform notes](../docs/platform-services.md#passkeys-and-auth-ceremonies) and [scheme registration](incoming-links.md). Gap: Android intent-filter configuration and callback reproduction are not provided by the linked incoming-links recipe.
+- AC4: [Capability shape and fallbacks](../docs/platform-services.md#optional-capabilities). Gap: a complete sign-in example and reproducible cancel/error/unsupported checks are missing; on-device verification is also pending.

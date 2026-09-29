@@ -51,6 +51,9 @@ platform subpath fails the other platform's build, which is the point.
 
 ## A practical example
 
+This component logs `create message` when pressed. Define `empty-state` and
+`button` in your shared stylesheet; they are app-owned classes.
+
 ```tsx
 import { View, Text, Pressable } from '@octane-xplat/ui'
 
@@ -81,8 +84,10 @@ compact navigation lists. Use `leading`, `title`, `supportingText`, and
 `trailing` for the common shape, or compose `Leading`, `Content`,
 `Supporting`, and `Trailing` slots for richer content. It works by itself or
 inside `FieldGroup`; the row owns its layout and press behavior, while
-`FieldGroup` remains the field container. See the maintained `ListDemo` for
-both forms.
+`FieldGroup` remains the field container. See the maintained
+[ListDemo](../packages/demos/src/ListDemo.tsrx) for both forms. Press a row
+with an action and verify one callback; disable it and verify the action
+stays unchanged.
 
 ### Native modifiers and glyphs
 
@@ -94,8 +99,10 @@ platform file. `Icon.select({ ios, android })` chooses a native asset for
 These selectors and modifiers are escape hatches for platform-authentic
 widgets, not shared styling props.
 
+This fragment assumes `Saved` is your screen component. Keep it in an
+`.ios.tsx`/`.ios.tsrx` file; use the Android subpath in `.android.*`.
+
 ```tsx
-// In a .ios.tsx/.ios.tsrx file; use the android subpath in .android.*.
 import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
 
 <UITabBar
@@ -110,7 +117,7 @@ import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
 | --- | --- | --- | --- | --- |
 | `ListItem` | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable` | `FlexboxLayout` via shared `Pressable` | `self-drawn` |
 | `SafeArea` | `div` | `FlexboxLayout` | `FlexboxLayout` | shared layout wrapper |
-| `WebView` | sandboxed `iframe` | `webview` → WKWebView | `webview` → android.webkit.WebView | `chrome-reset` |
+| `WebView` | sandboxed `iframe` | `webview` → WKWebView | `webview` → android.webkit.WebView | `hosted` |
 | `UITableView` | unavailable | `listview` → UITableView | unavailable | `platform-authentic` |
 | `RecyclerView` | unavailable | unavailable | `listview` → RecyclerView | `platform-authentic` |
 | `UITabBar` | unavailable | `TabView` / UITabBarController | unavailable | `platform-authentic` |
@@ -246,6 +253,8 @@ not the page's pixels. There is deliberately no script-injection or
 `postMessage` bridge — the three engines expose different page-side APIs, so
 use the `ios:`/`android:`/`web:` escape bags for that.
 
+### Video playback
+
 `Video` plays a clip — `src`, `poster`, `playing`/`onPlayingChange` (or
 `autoPlay` for uncontrolled start), `muted`, `loop`, `fit`
 (`contain`/`cover`/`fill`), and a `bind` handle for `play`/`pause`/
@@ -256,7 +265,13 @@ target while the video pixels stay in each platform's player engine.
 @octane-xplat/video` and import `Video` from that package; the
 `@nstudio/nativescript-exoplayer` plugin travels as the leaf's own
 dependency, so apps declare nothing extra.
-Times are milliseconds everywhere, including `onReady`'s duration.
+Times are milliseconds everywhere, including `onReady`'s duration. Use the
+maintained [VideoDemo](../packages/demos/src/VideoDemo.tsrx) for a bounded
+player and play/pause controls. Check that playback advances, pause holds the
+position, and resume continues. Native player failures do not emit `onError`;
+see [video limits](known-limits.md#primitives) before designing error UI.
+
+### Camera preview
 
 `CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),
 `active` to start/stop, `onReady`/`onError`, and a `bind` handle for the
@@ -266,7 +281,11 @@ leaf requests permission when the preview starts and includes the iOS camera
 usage description and Android camera permission in its platform files; no
 separate camera plugin is needed. Setting `active` to `false` stops the
 preview. Stills deliberately go through `media.capturePhoto` in
-`@octane-xplat/platform`, not this widget.
+`@octane-xplat/platform`, not this widget. Use the maintained
+[CameraDemo](../packages/demos/src/CameraDemo.tsrx) to check start/stop, lens
+changes, and ready/error state. Browser preview needs a secure context
+(HTTPS or localhost). Native `onReady` means the session started or bound,
+not that a frame has appeared; see [camera limits](known-limits.md#primitives).
 
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)

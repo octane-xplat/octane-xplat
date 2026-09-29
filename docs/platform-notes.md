@@ -10,6 +10,13 @@
 > **Blocks on:** Q15, Q18, Q19 · **Decisions:** #11 · **Validated by:**
 > `useColorScheme` + `storage` + `useSafeAreaInsets` working on both targets.
 
+The table mixes original candidate backends with implementation findings.
+Use [device services](platform-services.md) and [known limits](known-limits.md)
+for current support. In particular, web secure storage is unsupported, web
+notifications are local-only, and there is no shared `Platform.select` API.
+The interface sketches below illustrate the design and are not a substitute
+for the published declarations.
+
 ## Capability map
 
 | Capability             | Web impl                                                | Native impl                                                                             | Seam notes                                                                                                                        |
@@ -169,7 +176,7 @@ exercised on the emulator. Background continuation, notification/headset
 controls, and physical audio remain unverified. iOS preparation is blocked
 before its adapter compiles by duplicate QBImagePicker pod declarations.
 
-Decision #54 assigns audio session/focus policy to the full audio service.
+Decision #55 assigns audio session/focus policy to the full audio service.
 Effects remain bounded and must not take focus, interrupt long-form playback,
 or change its route. Android effect/player session coexistence is confirmed at
 the API/session level; audible mixing and route preservation remain a

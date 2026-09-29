@@ -52,7 +52,7 @@ docs.sort((a, b) => {
 
 const HEADER = `# xplat docs
 
-> One Octane codebase, three targets: web via the DOM renderer, iOS and Android via NativeScript (@nativescript-community/octane).
+> Build shared TypeScript screens for web, iOS, and Android. macOS, Windows, and Linux are experimental targets with separate setup and narrower verification; consult the target guide before choosing a release platform.
 
 xplat lets one TypeScript app write shared screens from a small component vocabulary. The web build renders them to the DOM; the iOS/Android build renders NativeScript views. Packages: \`@octane-xplat/ui\` (components, styled(), route table, theme), \`@octane-xplat/cli\` (\`xplat\` dev/build/doctor/typecheck/clean), \`@octane-xplat/platform\` (device services), \`create-octane-xplat\` (project starter).
 

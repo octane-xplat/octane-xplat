@@ -20,6 +20,7 @@ export const NOTES = new Set([
 	'testing-notes',
 	'toolchain-notes',
 	'css-support-notes',
+	'windows-notes',
 ])
 
 // Curated reading order — funnel: orientation → contract → mechanics →
@@ -28,6 +29,7 @@ export const NOTES = new Set([
 export const ORDER = [
 	'README',
 	'spec',
+	'toolchain',
 	'architecture',
 	'primitives',
 	'navigation',
@@ -38,7 +40,6 @@ export const ORDER = [
 	'platform-services',
 	'media-services',
 	'testing',
-	'toolchain',
 	'native-picker',
 	'known-limits',
 	'status',

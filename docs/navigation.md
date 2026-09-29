@@ -35,13 +35,15 @@ Files under `app/` become routes automatically — the file path is the name:
 
 ```
 app/detail.tsrx        → 'detail'
-app/demo/[id].tsrx     → 'demo/:id'      (params land as screen props —
-                                         feed them to a screen-scoped query;
-                                         see [data](data.md#module-scope-vs-screen-scope))
+app/demo/[id].tsrx     → 'demo/:id'
 app/settings.web.tsrx  → 'settings'      (web only — suffixes still apply)
 app/about+modal.tsrx   → 'about'         (modal presentation)
 app/chat/_layout.tsrx  → wraps every 'chat/*' route
 ```
+
+Route params land as screen props. Feed them to a
+[screen-owned query](data.md#module-scope-vs-screen-scope) when stacked
+screens must keep independent requests.
 
 `deriveRouteManifest` turns the glob into the table and `registerRoutes`
 registers it once at boot — there is no per-screen wiring to maintain.
@@ -59,6 +61,10 @@ The file tree can't express routes derived from runtime data — a docs app
 that maps a content directory, or a host framework generating its route
 table. `defineRoutes` builds the same manifest from specs instead of files
 (decision #67):
+
+This composition fragment assumes `docs` is your data array and `GuideIndex`,
+`GuideShell`, and `guideScreen(doc)` are your components. The maintained
+[guide routes](../packages/app/src/guides.tsrx) show the complete example.
 
 ```ts
 import { addRoutes, defineRoutes } from '@octane-xplat/ui'
@@ -120,7 +126,9 @@ a `data` prop; a rejected loader lands as `error`.
 
 ## Guard and document a route
 
-Route files can export behavior alongside their screen:
+Route files can export behavior alongside their screen. This fragment assumes
+the app supplies `context.user` and registers a `login` destination; xplat
+does not populate authentication context automatically:
 
 ```ts
 import { redirect } from '@octane-xplat/ui'
@@ -188,16 +196,27 @@ again on matching. Prefer the generated scalar API for shareable routes.
 
 `pushDeepLink(url)` turns an incoming URL — `https://…` or an app scheme like
 `textcoral://post/5` — into the same route a link would have navigated to.
-Wire the platform listeners once at boot:
+Register routes and mount the navigation host before dispatching incoming
+links. The following native bootstrap fragment wires the listener once; keep
+its returned unsubscribe function for teardown or HMR cleanup. Browser boot
+is already URL-driven, so do not also push its initial URL:
 
 ```ts
 import { pushDeepLink } from '@octane-xplat/ui'
 import { onDeepLink, consumeInitialUrl } from '@octane-xplat/platform'
 
-onDeepLink(pushDeepLink)
+const unsubscribe = onDeepLink(pushDeepLink)
 const boot = consumeInitialUrl() // the URL that launched the app
 if (boot) pushDeepLink(boot)
 ```
+
+For web/iOS/Android, `pushDeepLink` returns `false` and warns if no route
+matches; keep the current screen and show an app-owned not-found message.
+A `true` result means a match was dispatched, not that an asynchronous guard
+or navigation completed. Test a known path and an unknown path separately.
+Native scheme registration and cold/warm-launch reproduction are still a
+[documentation gap](../recipes/incoming-links.md); listener wiring alone
+does not register your app with the OS.
 
 ## Keep browser links real
 

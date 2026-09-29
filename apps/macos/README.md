@@ -49,7 +49,7 @@ addon. The package supplies TypeScript declarations and its license. This uses
 Vite's bundle watcher and Octane's component HMR API; it does not use
 NativeScript's `/ns-hmr` HTTP-ESM transport.
 
-Run `pnpm xplat dev --targets macos` to launch it, or
+From `apps/macos`, run `pnpm xplat dev --targets macos` to launch it, or
 `pnpm xplat build --targets macos` to create the `.app` and `.dmg`. The app's
 `package.json` opts in with `xplat.targets.macos.runtime: "appkit-node-api"`
 and supplies product/package metadata under `xplat.targets.macos.package`.

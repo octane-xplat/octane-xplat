@@ -32,7 +32,7 @@ handling.
 ## Documentation
 
 - AC1: [Long-form audio](../docs/media-services.md#long-form-audio).
-- AC2: [Long-form audio](../docs/media-services.md#long-form-audio).
-- AC3: [Long-form audio](../docs/media-services.md#long-form-audio).
-- AC4: [Long-form audio](../docs/media-services.md#long-form-audio).
+- AC2: [Long-form audio](../docs/media-services.md#long-form-audio). Gap: The maintained probe has one track; queue-end advancement and disposal checks are not demonstrated.
+- AC3: [Long-form audio](../docs/media-services.md#long-form-audio). Gap: Reproducible background and system-control setup/checks are missing; native device evidence remains pending.
+- AC4: [Long-form audio](../docs/media-services.md#long-form-audio). Gap: Interruption recovery and effect/player route coexistence lack a reproducible workflow and physical-device evidence.
 - AC5: [Validation status](../docs/media-services.md#validation-status).

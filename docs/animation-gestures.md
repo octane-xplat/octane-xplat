@@ -20,7 +20,10 @@ and rest thresholds. Springs preserve velocity on retarget. The default is a
 [MotionDemo](../packages/motion/examples/MotionDemo.tsrx) is the maintained
 example for changing destinations and gesture settling. A signal read in the
 component's `animate` expression subscribes that component normally; equal
-numeric destinations do not restart when unrelated state renders.
+numeric destinations do not restart when unrelated state renders. In the demo,
+Toggle motion should move the destination 80 units; dragging is bounded to
+±120 units and release settles at zero. When adapting its relative source
+import to an app, import from `@octane-xplat/motion`.
 
 Motion owns its transform and opacity channels. Put existing CSS transforms on
 an outer container. Do not bind a MotionValue and an animate target to the same

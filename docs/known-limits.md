@@ -91,8 +91,9 @@ web builds. `ui/native` is plumbing (root-layout helpers), not components.
 
 Overlay roots (`Sheet`/`openSheet`, `UIModal`, `MaterialDialog`) mount a
 separate Octane root on every platform — `useContext` does not cross into
-them. Theme classes are forwarded; read context inside the overlay or pass
-values down.
+them. Theme classes are forwarded; pass values as props or use module-level
+signals. Reading context inside the new root does not recover a provider
+from the presenting screen.
 
 The self-drawn set compiles on both leaves, passes the web smoke suite, and
 renders in the harness `components` sweep on iOS; the Android nested-stack
@@ -105,7 +106,7 @@ pushes themselves work through the swap-pane route store.
 | ----------------------- | -------------------------------------------- | ----------------------------------------------- | ------------------------------------------ | ---------------- | -------- |
 | Push into a named stack | nested-outlet URL push                       | `UITabBar` Frame navigates natively — the router re-arms `isLoaded` before push and pop; the [NS#11446](https://github.com/NativeScript/NativeScript/pull/11446) fix (items-churn root cause + `topmost()` ranking) ships in the xplat core patch. Shared `Tabs` panes use the route store | router-owned swap pane — pushed routes render through `RouteHost` inside the platform tab pane, so named pushes never touch the fragment manager (`BottomNavigationView` behaves like shared `Tabs`) | `different`     | 0.6.0·desk |
 | Hardware back           | browser back → `popstate`                    | — (no hardware back)                            | wired; `useBackInterceptor()` can handle back before route pop; pop-while-pushed not yet verified live | `different`     | 0.6.0·desk |
-| Route params            | serialize to query string — objects dropped  | objects survive                                 | objects survive                            | `degraded`       | 0.5.0    |
+| Route params            | scalar params form path/query values; low-level objects/arrays JSON-encode with a warning (non-serializable values become empty strings)  | objects survive                                 | objects survive                            | `degraded`       | 0.5.0    |
 | `popRoute(stack)`       | `history.back()` regardless of `stack`       | pops that stack                                 | pops that stack                            | `different`      | 0.5.0    |
 | Programmatic routes (`defineRoutes`/`addRoutes`) | registered names absent from generated `RouteName`/`RouteParams`/`routes.screens` — use the `Route` shape and `screenFor` | same boundary (codegen is file-only) | same boundary | `different` | post-0.6.0·desk |
 

@@ -127,7 +127,7 @@ resolution (orientation/size classes — `.land`, `.minWH600`) stay for assets.
   compiles it." Renderer include globs must span `packages/**` sources; NS-side
   `include` covers suffixed files the same way.
 
-## The `Platform` module (value-level splits)
+## Original `Platform` proposal (not shipped)
 
 For props/values (not JSX vocabulary), avoid file splits:
 
@@ -182,7 +182,7 @@ Two program configs over a shared base:
 > `UniversalComponent` — passing it to `createNativeScriptRoot().render()`
 > needs `as unknown as UniversalComponent`.
 
-## Build-time defines
+## Original build-time defines proposal (not app guidance)
 
 `import.meta.env`-style defines per target: `__PLATFORM__`,
 `__DEV__`/`__PROD__`. Set in each vite config; keep the set tiny and prefer the

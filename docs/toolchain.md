@@ -5,8 +5,9 @@
 
 ## Create and run
 
-Install [Node.js compatible with Vite 8](https://vite.dev/guide/) (20.19+ or
-22.12+) and pnpm before running the creator:
+Use Node.js 22.22.2 or later and install pnpm before running the creator.
+The framework workspace’s Octane package requires that Node version; meeting
+Vite’s lower minimum alone is not a sufficient toolchain check:
 
 ```sh
 pnpm create octane-xplat my-app

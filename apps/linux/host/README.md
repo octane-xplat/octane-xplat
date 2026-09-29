@@ -45,10 +45,12 @@ deep links reach the host's `Gio.Application` `open` signal).
 `Dockerfile` + `container-smoke.sh` run gjs-host under Debian trixie
 (WebKitGTK 2.52.6, gjs 1.82) with Xvfb + `dbus-run-session`:
 
+From the repository root (with Docker running):
+
 ```sh
 docker build -t xplat-linux-host apps/linux/host
 docker run --rm --shm-size=1g --security-opt seccomp=unconfined \
-  -v <repo>:/work -w /work/apps/linux/host xplat-linux-host
+  -v "$PWD":/work -w /work/apps/linux/host xplat-linux-host
 ```
 
 Verified there (self-test, real D-Bus session, both load legs): `xplat://`

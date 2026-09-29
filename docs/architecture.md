@@ -85,7 +85,8 @@ reuse.
 
 ### Normalization classes
 
-Every shared component carries one of four classes. The class says what the
+Components are classified by the visuals they own; platform-authentic
+components live in platform subpaths rather than the shared contract. The class says what the
 parity claim covers — divergence inside a claim is a bug, divergence outside
 it is the design:
 
@@ -133,22 +134,15 @@ component or service instead.
 Keep shared state in a `.ts` module using Octane signals
 (`octane/signals`). [Fetching data](data.md) is the full guide; the summary:
 
-```ts
-import { signal$, query$, skip } from 'octane/signals'
+For example, a module-level `packedCount$ = signal$(0)` can be read by a
+header and a sheet. Both read the same value; neither needs a context provider.
 
-export const feedMode$ = signal$<'global' | 'following'>('global')
-export const feed$ = query$(
-	() => feedMode$.get(), // cache key — return `skip` for "no request"
-	() => api.posts.list({ mode: feedMode$.get() }),
-)
-```
-
-A component that reads `feedMode$.get()` in render subscribes automatically —
+A component that reads `packedCount$.get()` in render subscribes automatically —
 on web _and_ on native. There is no platform leaf, no subscription hook, and
 no compiler flag. Name shared signals with a `$` suffix so the compiler
 preserves the reads through caches and props, and make sure the module imports
-`octane/signals` at runtime (a `import 'octane/signals'` side-effect import in
-the entry is enough to cover files that only call `.get()`).
+`octane/signals` at runtime. Use `import 'octane/signals'` in a consuming
+module that otherwise only calls `.get()`.
 
 Reads of async queries suspend: render them under `@try`/`@pending`/`@catch`.
 On native, a committed `@try` boundary must not suspend again — queries are

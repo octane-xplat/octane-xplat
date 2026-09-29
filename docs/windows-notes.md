@@ -72,13 +72,13 @@ Landed and verified on the macOS host — nothing has run under Windows yet:
   `resolve.dedupe` on `@nativescript/core` (workspace packages' 9.1.2 devDeps
   otherwise resolve a second core copy from inside `packages/*`), tsconfig
   `paths` pinning the app core for the same reason, the harness entry from
-  `apps/native`, and `App_Resources/Windows` from upstream's starter.
+  `apps/mobile`, and `App_Resources/Windows` from upstream's starter.
 - `@nativescript/core` + `@nativescript/vite` pinned to pkg.pr.new `@11468`
   builds; `@nativescript/windows` exact `0.1.0-alpha.144`; dev-tag CLI
   `nativescript@9.1.2-dev.2026-09-24-*`. Workspace `patchedDependencies`
   (core@9.1.2, vite@8.0.11) do not apply to these versions.
 - `xplatNative` extension chain + flag detection gained `windows`;
-  `xplat routes` emits `routes.gen.windows.ts` (prefer `['windows','native']`);
+  `xplat routes` emits `routes.gen.windows.ts` (prefer `['windows']`, with unsuffixed fallback);
   `xplat dev`/`build`/`doctor` discover the target via the declared
   `@nativescript/windows` devDep.
 - `vite build` for windows succeeds on macOS: `.ns-vite-build/bundle.mjs` +

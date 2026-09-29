@@ -27,4 +27,4 @@ or warning effects. Long-form listening belongs to `@octane-xplat/audio`.
 - AC1: [UI sounds](../docs/media-services.md#ui-sounds).
 - AC2: [UI sounds](../docs/media-services.md#ui-sounds).
 - AC3: [UI sounds](../docs/media-services.md#ui-sounds).
-- AC4: [Long-form audio](../docs/media-services.md#long-form-audio).
+- AC4: [Long-form audio](../docs/media-services.md#long-form-audio). Gap: A reproducible effect/player coexistence procedure and physical-device route evidence are missing.

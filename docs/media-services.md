@@ -37,6 +37,13 @@ On iOS, add Pulsar 1.4.0 to the app's
 configuration; NativeScript does not discover either integration from a leaf
 package automatically.
 
+Use the maintained [MediaServices screen](../packages/app/src/MediaServices.tsrx)
+for package imports, preset/pattern calls, sound loading, player subscription,
+and cleanup. It is an interaction probe, not a complete fallback UI. The
+[harness native configuration](../apps/mobile/nativescript.config.ts) shows
+Pulsar’s `SPMPackages` and `NativeSource` entries; adapt the workspace-relative
+Swift path to your installed package location. Do not copy the harness app ID.
+
 ## Advanced haptics
 
 Create one haptics service for the view or interaction owner and dispose it
@@ -48,7 +55,8 @@ not expose Web Vibration.
 
 Custom pattern points use milliseconds from the start and normalized values
 from 0 to 1. A `HapticSession` returned by `startRealtime()` is scoped to a
-gesture; call `stop()` on release or cancellation and `dispose()` at teardown.
+gesture; call `stop()` on release or cancellation and dispose the owning haptics service at teardown (the session has no
+`dispose()` method).
 The native Pulsar bridge and physical tactile output still need device-level
 verification.
 
@@ -70,8 +78,13 @@ long-form player's route.
 
 ## Long-form audio
 
-`createAudioPlayer()` accepts local or remote `Track` sources, queue metadata,
-play/pause/seek, state subscriptions, and queue advancement. Always handle a
+Create an owner with `createAudioPlayer()`, then await
+`player.setQueue([{ id: 'sample', source: yourAudioUrl, title: 'Sample' }])`.
+`source` is a local path or remote URL reachable by that target. Subscribe with
+`player.subscribe(listener)` to observe state and progress; keep its returned
+unsubscribe function. `seek`, `currentTime`, and `duration` use **seconds**,
+unlike the video component’s milliseconds. Unsubscribe and call `dispose()`
+when the media-session owner ends. Always handle a
 rejected `play()` promise: browsers can block autoplay, remote requests can
 fail, and local paths may not be readable by the platform player.
 
@@ -97,6 +110,22 @@ NativeScript. iOS uses AVPlayer with Now Playing metadata, remote transport
 commands, interruption observation, and the app's audio background mode. Both
 platform adapters are implemented, but route and interruption coexistence with
 short effects still need device verification.
+
+## Check your integration
+
+In the maintained probe, Play should advance the position, Pause should hold
+it, and Seek 10s should move within the sample’s duration. Try an unreachable
+source and check the subscription’s `error` state as well as rejected promises.
+For effects, handle a rejected `load()` and a `false` result from `play()`;
+retry playback from a user action when the browser blocks it. Test overlaps
+against the configured voice cap. For haptics, inspect `supported`, `patterns`,
+and `realtime` independently and show a fallback for unavailable features.
+
+Queue-end, background/lock-screen, interruption, and effect/player coexistence
+checks still need complete reproducible instructions and device evidence.
+The [audio](../recipes/audio-playback.md),
+[haptics](../recipes/advanced-haptics.md), and [sound](../recipes/ui-sounds.md)
+recipes track those gaps separately from the API overview.
 
 ## Validation status
 

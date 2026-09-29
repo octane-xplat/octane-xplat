@@ -36,7 +36,7 @@ database:
 import { storage } from '@octane-xplat/platform'
 
 storage.setString('has-seen-welcome', 'true')
-const seen = storage.getString('has-seen-welcome')
+const seen = storage.getString('has-seen-welcome') // "true"
 ```
 
 Other services cover permissions, clipboard, sharing, haptics, files, media
@@ -86,17 +86,29 @@ unsupported — a raw platform-authenticator ceremony would require the RP to
 host apple-app-site-association/assetlinks.json, so instead `authSession`
 runs the whole flow on the app's real HTTPS origin inside a system browser:
 
+This fragment assumes your backend provides `options` and `signInUrl`;
+credential verification and callback validation remain app responsibilities.
+
 ```ts
+import { webAuthn, authSession } from '@octane-xplat/platform'
+
 if (webAuthn.supported) {
 	const credential = await webAuthn.impl?.get(options)
 	// post credential to the RP's verify endpoint
 } else if (authSession.supported) {
 	const result = await authSession.impl?.open(signInUrl, { callbackScheme: 'myapp' })
 	if (result?.type === 'success') {
-		// result.url carries the session token back from the hosted page
+		// Validate the callback and finish the app-owned sign-in exchange.
 	}
 }
 ```
+
+Handle `type: 'cancel'` by leaving the user signed out, and `type: 'error'`
+by displaying its `message` with a retry action. Web credential operations can
+reject; catch the rejection and keep sign-in available. If neither capability
+is supported, show an unavailable state or your app's alternative sign-in
+method. Closing a native session should exercise the cancel path; target
+runtime verification remains pending.
 
 `authSession` needs no iOS configuration — the session intercepts
 `callbackScheme` itself. On Android the app must declare the scheme's
@@ -105,8 +117,9 @@ link uses; `androidx.browser` (Custom Tabs) arrives transitively with
 `@octane-xplat/platform`, no app-side declaration. `prefersEphemeralSession`
 keeps the iOS session from sharing Safari cookies.
 
-A NativeScript plugin must be declared by the app that ships it, not only by
-`@octane-xplat/platform` — a transitive dependency is not enough. Run
+Declare the optional NativeScript plugin peers used by platform services
+in the app’s dependencies. This differs from leaf-owned implementation
+dependencies such as the video plugin, which travel with their leaf package. Run
 `pnpm xplat doctor` from the app root for warning-only checks on missing
 declarations. `connectivity` comes from `@nativescript/core` and needs no
 plugin.
@@ -130,7 +143,9 @@ the user declines it.
 ## Interface shapes
 
 The shared contracts are deliberately small and platform-neutral — each
-service is a `Capability`-style object whose exact signature lives in the
+optional service may expose a `Capability` object (`supported`, `ensure`,
+`impl`), while direct services such as `storage` and `connectivity` expose
+methods directly. Exact signatures live in the
 `@octane-xplat/platform` type declarations (`GeolocationImpl`,
 `ConnectivityImpl`, `MediaImpl`, and friends). For example,
 `connectivity.getState()` returns `{ online, type }` where `type` is

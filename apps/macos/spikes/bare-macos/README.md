@@ -1,5 +1,9 @@
 # Minimal JavaScriptCore host feasibility spike
 
+> Historical feasibility record. The JavaScriptCore host has since become the
+> experimental packaging path; follow the [current macOS guide](../../README.md#packaging-proof).
+> References below to keeping Node as the default describe the earlier spike decision.
+
 **Result (2026-09-28, continued):** The small host links libjs built on macOS's
 system JavaScriptCore, libnapi, libuv, and libutf. With the two upstream patches
 in `patches/`, it loads a NativeScript framework compiled against

@@ -5,7 +5,11 @@
 > unlike RN — so we don't need to invent a styling runtime. Flutter/Tamagui
 > inform the _authoring API_, not the implementation.
 
-## The shared pipeline
+## The original shared pipeline
+
+The original layout sketch follows. Current tokens live under
+`packages/ui/src/theme/`; entries import stylesheets as JavaScript modules
+rather than CSS `@import` so native transforms run. See [styling](styling.md).
 
 ```
 packages/ui/theme/
@@ -86,7 +90,11 @@ the same API shape as the web. So:
 - Stylesheet-level responsive design can literally share the same CSS.
 - `useMediaQuery(query)` hook has identical semantics both sides.
 
-### Dark mode decision (provisional → decisions.md)
+### Original dark-mode proposal and root-boundary evidence
+
+The shipped API is `setThemePreference` plus `useThemeScheme`, with
+module-level state forwarded to independent overlay roots (decision #34).
+The `ThemeProvider` discussion below is the earlier proposal.
 
 Two coherent options: (a) media-driven (`prefers-color-scheme`, follows
 system, works identically both sides); (b) class-driven (`.dark` / `ns-dark`
@@ -123,7 +131,7 @@ view. A class on one root can never reach another.
      NS recovers _per declaration_, so a rule can half-apply. The preset's css
      pass now warns on the confirmed-silent set (margin-auto,
      position fixed/sticky, float, box-shadow, pre-wrap); a fuller
-     property allowlist stays open
+     property allowlist is enforced by `pnpm check:css`
    - no `position` CSS natively → `Absolute`/`Grid` primitives instead
    - no `display:none` → `visibility: collapse` (removes from layout too)
    - **no `transition` property** — animations are `@keyframes`/`animation-*`

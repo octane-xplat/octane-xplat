@@ -25,5 +25,5 @@ an app-owned custom URL scheme; verified HTTPS app links are a separate workflow
 ## Documentation
 
 - AC1: [Route files](../docs/navigation.md#let-the-route-dir-name-your-routes) and [incoming links](../docs/navigation.md#handle-incoming-links).
-- AC2: [Listener wiring](../docs/navigation.md#handle-incoming-links).
-- AC3: [Guard boundary](../docs/navigation.md#guard-and-document-a-route). Gap: an end-to-end invalid-link example and fallback guidance are still needed.
+- AC2: [Listener wiring](../docs/navigation.md#handle-incoming-links). Gap: native scheme registration and cold/warm-launch reproduction commands are missing.
+- AC3: [Guard boundary](../docs/navigation.md#guard-and-document-a-route). Gap: malformed-link reproduction and end-to-end fallback verification are still needed.

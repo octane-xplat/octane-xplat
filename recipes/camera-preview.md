@@ -25,6 +25,6 @@ preview are outside this recipe; still photos use the platform media service.
 
 ## Documentation
 
-- AC1: [CameraView setup and props](../docs/primitives.md#when-a-screen-needs-more) and [camera platform limits](../docs/known-limits.md#primitives).
+- AC1: [CameraView setup and props](../docs/primitives.md#camera-preview) and [camera platform limits](../docs/known-limits.md#primitives).
 - AC2: [Camera demo](../packages/demos/src/CameraDemo.tsrx).
-- AC3: [CameraView setup and props](../docs/primitives.md#when-a-screen-needs-more), [camera platform limits](../docs/known-limits.md#primitives), and [primitive implementation notes](../docs/primitive-notes.md).
+- AC3: [CameraView setup and props](../docs/primitives.md#camera-preview), [camera platform limits](../docs/known-limits.md#primitives), and [primitive implementation notes](../docs/primitive-notes.md).

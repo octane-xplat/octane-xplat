@@ -25,5 +25,5 @@ selection service. Package publication is outside this workflow.
 ## Documentation
 
 - AC1: [Advanced haptics](../docs/media-services.md#advanced-haptics).
-- AC2: [Advanced haptics](../docs/media-services.md#advanced-haptics).
+- AC2: [Advanced haptics](../docs/media-services.md#advanced-haptics). Gap: The probe uses press-in/out; a complete gesture cancellation and teardown example is still missing.
 - AC3: [Advanced haptics](../docs/media-services.md#advanced-haptics).

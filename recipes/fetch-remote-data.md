@@ -31,7 +31,7 @@ Rouzer route tree are outside this recipe's scope.
 
 - AC1: [The shape](../docs/data.md#the-shape).
 - AC2: [Reading in a screen](../docs/data.md#reading-in-a-screen).
-- AC3: [Reading in a screen](../docs/data.md#reading-in-a-screen) — read-call table.
+- AC3: [Reading in a screen](../docs/data.md#reading-in-a-screen) — read-call table. Gap: The native committed-boundary rule is documented, but a safe reset/re-pending workflow needs an example.
 - AC4: [Writes](../docs/data.md#writes).
 - AC5: [Rules that bite on native](../docs/data.md#rules-that-bite-on-native).
 - AC6: [Module scope vs screen scope](../docs/data.md#module-scope-vs-screen-scope).

@@ -6,8 +6,9 @@
 > boundary.
 >
 > **Owns:** #5 animation/gesture facade · **Status:** declarative subset implemented; physical-device validation pending · **Blocks on:**
-> Q8, Q7 · **Decisions:** #10 · **Validated by:** a `useGesture('pan')`-driven
-> draggable element on both targets, 60fps, no re-renders during the gesture.
+> physical-device gesture and frame-pacing checks · **Decisions:** #10 ·
+> **Validation goal:** a dragged element that settles without per-frame renders.
+> The historical probes below do not establish a 60fps guarantee.
 
 ## Current implementation
 
@@ -33,7 +34,7 @@ pointer events → DOM style is equally synchronous. So:
   per-frame values through `useState` (it's correct but wasteful; compiled
   renders still cost more than a style write).
 
-## Layered design
+## Original layered design (historical)
 
 ```
 packages/ui/anim (shared API)
@@ -45,6 +46,11 @@ packages/ui/anim (shared API)
    WAAPI / @octanejs/   view.animate() /
    motion               view.style per-frame in touch handlers
 ```
+
+The following sketch predates the shipped API. In particular, `useGesture`
+and style-binding the old `useAnimation` return value are not current usage
+instructions. Use [motion and gestures](animation-gestures.md) and its
+maintained examples for the current binding and lifecycle contract.
 
 ### Shared API shape (Flutter-flavored)
 

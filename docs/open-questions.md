@@ -91,11 +91,12 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     `!important`, sibling combinators. Traps: bare `[attr]` matches
     nothing; per-declaration error recovery hides broken values.
     (ns-css-selectors skill.)
-12. 🟡 **Two dev servers on one tree.** — Partially lab-observed: concurrent
+12. ✅ **Two dev servers on one tree.** — The web/iOS shared-edit loop was
+    verified on 2026-09-25; see [dev-loop evidence](toolchain-notes.md#dev-loop).
+    Separately, concurrent
     `ns build ios` runs collide on the shared Xcode DerivedData
     (`build.db` locked → exit 65) — serialize builds or isolate DerivedData
-    per invocation. `vite dev` vs `ns debug` watcher contention over `.tsrx`
-    writes remains unmeasured.
+    per invocation. This build collision is distinct from concurrent dev watchers.
 13. ✅ **Multiple renderers in one config.** — Yes: `registry` map + ordered
     `rules` (first match) + `boundaries` (per-export cross-renderer props,
     e.g. `{ownerRenderer:'dom', childRenderer:'universal', prop:'children'}` —
@@ -114,8 +115,9 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     `accessibilityRole` verified reaching the native view via generic
     `setProp` (iOS sim readback). Web leaf maps the same shared props to
     `role`/`aria-label`/`aria-hidden`. Still open: precise Role-union
-    mapping (NS role names ≠ ARIA 1:1 — `accessibilityHint/Value/State/
-LiveRegion` unwired in leaves so far).
+    assistive-technology behavior. Hint/value/state/live-region props and
+    role translation are now mapped; see the [a11y map](platform-notes.md#a11y-prop-map-shared-prop--leaf-attrs).
+    Prop readback alone does not verify VoiceOver or TalkBack behavior.
 16. ✅ **`@for` keys → native identity.** — Lab-verified (iOS sim): a keyed
     `@for` over `{id,label}` items on a flexboxlayout renders and reorders
     correctly through `insert`/`move` commands — all five rows present in
@@ -143,12 +145,11 @@ LiveRegion` unwired in leaves so far).
     ever runs on DOM-compiled output (shared files compiled under `dom` for
     web). The DOM build's SSR output is DOM-correct; the native build never
     sees it.
-21. ⏳ **Route-file config vocabulary** — pin before apps accumulate route
-    files. Proposed (desk-sketched from the TanStack Start comparison):
-    exports carry behavior (`loader`, `beforeLoad`, `head`), `+suffixes`
-    carry presentation/render mode (`+modal`, `+fade`, `+ssr`), `RouteMeta`
-    fields carry what platforms read. Feature items parked in
-    navigation-notes.md → "Route config surface"; Silo `route-config-surface`.
+21. 🟡 **Route-file config vocabulary** — `loader`, `beforeLoad`, `head`,
+    `+modal`, and `+fade` are implemented; see the
+    [route-config record](navigation-notes.md#route-config-surface-implemented).
+    Additional native runtime checks remain pending. `+ssr` is not part of
+    the documented shared presentation contract.
 22. ✅ **SVG fidelity on native (`svgview` / ui-svg).** — Desk-source closes
     the source contract: `res://`/`~/`/file paths, `File`/`ImageAsset`, inline
     markup strings, and promise/function sources are accepted; the framework
@@ -186,17 +187,18 @@ LiveRegion` unwired in leaves so far).
     research/tsrx (typescript-plugin package), a separate repo.
 26. 🟡 **Can Pulsar ship as an optional NativeScript leaf on both mobile
     targets?** — Pulsar's APIs match presets, patterns, realtime control, and
-    capability reporting, but the Android Kotlin source was not packaged into
-    the generated probe AAR, and iOS preparation stopped on a pre-existing
+    capability reporting. The Android emulator now exercises the packaged
+    bridge without runtime exceptions; physical tactile output is unverified.
+    The recorded iOS preparation run stopped on a pre-existing
     duplicate CocoaPods source for `QBImagePickerController`. Confirm a
     supported bridge/build path and physical-device output before selecting
     it for release. See `platform-notes.md` → “Haptics, UI sounds, and media
     playback.”
 27. ⏳ **Can the full audio contract survive backgrounding and interruptions
-    on both mobile platforms?** — No Media3 session service, iOS Now Playing /
-    remote commands, queue advancement, interruption/resumption, or coexistence
-    with UI sounds was implemented in this spike. Validate these against the
-    eventual player package on physical devices. See `platform-notes.md` →
+    on both mobile platforms?** — Media3 and AVPlayer adapters now implement
+    session controls and interruptions. Android emulator playback and session
+    metadata were exercised; background continuation, physical controls,
+    interruption recovery, and audible coexistence still need device checks. See `platform-notes.md` →
     “Haptics, UI sounds, and media playback.”
 28. ✅ **Preserve the visible anchor through a known-size prepend.** — On the
     iOS simulator, committing the prepended items and logical scroll target

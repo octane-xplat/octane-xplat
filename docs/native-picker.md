@@ -8,7 +8,7 @@ peer surface stays plugin-free.
 
 ## Install and import
 
-Add `@octane-xplat/native-picker` to the app that renders the picker. Import the
+Run `pnpm add @octane-xplat/native-picker` in the app that renders the picker. Import the
 matching target entry from platform-suffixed control modules:
 
 - `@octane-xplat/native-picker/ios` from `.ios.ts` or `.ios.tsrx`.
@@ -20,7 +20,9 @@ Import `NativePickerProps` and `NativePickerOption` from
 import in its matching leaf; the package intentionally has no shared runtime
 entry. See the maintained usage in
 [`NativePickerDemo.tsrx`](../packages/demos/src/NativePickerDemo.tsrx) and the
-three [`nativePickerControl` leaves](../packages/demos/src/).
+[iOS](../packages/demos/src/nativePickerControl.ios.ts),
+[Android](../packages/demos/src/nativePickerControl.android.ts), and
+[web](../packages/demos/src/nativePickerControl.web.ts) import leaves.
 
 The platform entries install their framework adapters automatically. On iOS,
 the adapter hosts a SwiftUI `Picker` using menu style. On Android, the adapter
@@ -54,6 +56,14 @@ platform-independent presentation mode. The iOS and Android implementations
 use different native bridges and require Xcode / CocoaPods and an Android build
 with the Compose plugin respectively. This pilot does not establish a reusable
 general-purpose SwiftUI or Compose component layer.
+
+## Check selection
+
+Mount the maintained poll-length demo. Its initial label should read
+“Selected: 1 day (1440 minutes)”; choosing 7 days should show 10080 minutes.
+Also check a disabled option and a disabled control in your app. Build each
+target after adding its native configuration; a web selection alone does not
+verify the SwiftUI or Compose bridge.
 
 ## Why a leaf package
 

@@ -2,7 +2,7 @@
 
 > The detailed cross-platform vocabulary. Every primitive is an interface (`.ts` types)
 > plus a native-default module, a browser `.web.tsrx` override, optional `.mobile.tsrx`, and OS-specific `.ios`/`.android` variants.
-> Shared code imports the interface only. Design rule from RNW: converge on the
+> Shared code imports the public components and prop types. Design rule from RNW: converge on the
 > _constrained_ vocabulary — never the DOM's open one.
 >
 > **Owns:** #1 primitives contract · **Status:** mapped; driver mechanics
@@ -10,7 +10,15 @@
 > **Decisions:** #3, #6, #9, #16, #21, #22, #24 · **Validated by:** prototype —
 > counter + `@for` list + controlled `TextInput` + `Pressable` on both targets.
 
-## Prop conventions (applies to every primitive)
+The inventory combines shipped behavior with early API sketches and dated
+lab notes. Current usage belongs in [building screens](primitives.md) and
+the package declarations. Historical `List`/`Modal` refer to today’s
+platform-subpath widgets; shared replacements are `VirtualList`/`Sheet`.
+The old `ref`, `onChangeText`, `glass`, and modal-prop sketches are not the
+current public contract: primitives use `bind`, text inputs use `onChange`,
+and Liquid Glass is iOS-only.
+
+## Original prop conventions (historical sketch)
 
 ```ts
 interface PrimitiveProps {
@@ -397,6 +405,10 @@ covers, `bringToFront`, and `closeAll` all see it.
 
 ## Liquid Glass (decision #37)
 
+This section records the earlier glass experiment. The shared `glass` prop
+and web approximation were subsequently removed; today only
+`LiquidGlass`/`LiquidGlassContainer` from `@octane-xplat/ui/ios` are public.
+
 `@nativescript/core` ≥ 9.1 ships three seams the primitives wrap; all are
 `supportsGlass()`-gated — `__APPLE__ && SDK_VERSION >= 26` — so everything
 degrades to inert layouts on Android and iOS < 26:
@@ -431,7 +443,7 @@ mount with `UIVisualEffectView` roots carrying live `UIGlassEffect` /
 `UIGlassContainerEffect`; `glass` prop round-trips `iosGlassEffect` on the
 host view — all sweep asserts green.
 
-## Pressable & input conventions
+## Original Pressable & input sketches and later findings
 
 ```ts
 interface PressableProps {
@@ -579,11 +591,11 @@ child`) and text under `formattedstring` drops silently.
 
 ## Refs
 
-Octane refs-as-props work on both, but the _ref value_ differs (HTMLElement vs
-NS `View`). Public contract: each primitive exposes a typed handle —
-`TextInputRef { focus(); blur(); }` — implemented per platform. Raw native
-view access stays behind `ref.native` escape hatch, marked "shared code must
-not touch this."
+Use the primitive’s `bind` prop. The leaf forwards it to the intrinsic ref;
+component `ref` is runtime-reserved. Handles are component-specific and may
+expose an HTMLElement or NativeScript view, so keep raw host operations in
+platform leaves. There is no shared `ref.native` escape-hatch contract; use
+the package prop declarations for the handle a component actually supplies.
 
 ## What primitives deliberately do NOT do
 
@@ -591,9 +603,9 @@ not touch this."
   post-bind read is enough; native still listens for the initial `loaded` event
   so an early ref bind can settle after layout.
 - `UITableView`/`RecyclerView` keep their platform-authentic recycling
-  semantics. A shared virtualized list is a separate `VirtualList` candidate,
-  not a shared wrapper over those widgets; Stage 1 evidence and the iOS anchor
-  blocker are recorded below.
+  semantics. The shared `VirtualList` is a separate Octane-owned window,
+  not a wrapper over those widgets; Stage 2 and subsequent performance
+  evidence are recorded below.
 - No `<style>` blocks inside shared components — sibling-scoped style blocks
   are a web feature; keep styles in the shared stylesheet + `className`.
 

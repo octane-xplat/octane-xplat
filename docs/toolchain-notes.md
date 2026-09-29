@@ -18,7 +18,7 @@
 | Bundler        | vite + `@octanejs/vite-plugin`        | `@nativescript/vite` + `vite-octane`                           | same                       |
 | Renderer scope | DOM renderer owns all component files | `nativeScriptRenderers` owns all component files               | same                       |
 | Entry          | `main.web.ts` → `createRoot`          | `main.native.ts` → `Application.run` + `renderNativeScriptApp` | same                       |
-| Resolver       | `.web` chain                          | `.ios`→`.native` chain                                         | `.android`→`.native` chain |
+| Resolver       | `.web` chain                          | `.ios`→`.mobile`→unsuffixed                                         | `.android`→`.mobile`→unsuffixed |
 | HMR            | vite dev server                       | on-device via HTTP ESM + `hmrUniversalComponent`               | same                       |
 | Output         | static site / SSR server              | `.app`/`.ipa`                                                  | `.apk`/`.aab`              |
 
@@ -91,10 +91,10 @@
 
 ### Native plugin declaration ownership
 
-NativeScript's module and plugin discovery happens from the app's own
-`package.json`; a plugin that exists only as a transitive dependency of
-`@octane-xplat/ui` or `@octane-xplat/platform` is not a supported app
-declaration. `xplat doctor` walks the app source and reachable local workspace
+Declare the optional UI and platform-service plugin peers in the app’s own
+`package.json`. Leaf-owned implementation plugins are different: NativeScript
+discovers their real transitive dependencies (decision #51), so apps using
+`@octane-xplat/video` or `@octane-xplat/pager` need not redeclare those plugins. `xplat doctor` walks the app source and reachable local workspace
 packages, identifies framework imports, and compares the framework's native
 plugin metadata with the app's direct dependencies. Missing declarations are
 warnings, not a hard failure, because the web target does not need them and
@@ -161,14 +161,9 @@ then resync once the pack is available.
 
 ## Shared packages publish model
 
-Octane's model: packages ship **authored source**; the consuming app compiles
-them against its own runtime. So `packages/ui` etc. export `.tsrx`/`.tsx`
-sources + types, and each app's renderer include glob covers `packages/**`.
-No prebuild step for shared code; hook rule (invariant #2) applies inside
-packages too.
-
-**In practice:** for `@octane-xplat/ui` we diverged — it ships
-**compiled** output, not source. `packages/ui/vite.config.ts` builds the
+Workspace development resolves authored sources and the app compiles them.
+Published `@octane-xplat/ui` instead ships **compiled** output. Do not infer
+the published file layout from workspace `exports` alone. `packages/ui/vite.config.ts` builds the
 package twice in lib mode (`vite build`, `vite build --mode native`) with
 `preserveModules`: `.tsrx` → per-module JS under `dist/web` + `dist/native`,
 suffix chain resolved at build time, hooks retargeted to
@@ -192,7 +187,7 @@ leaves; update it when props change.
 
 `tsconfig.base.json` + `.web` / `.native` variants differing in
 `jsxImportSource`, included globs, and ambient types (`@nativescript/types`
-scoped to native). `tsc --noEmit` per target in CI.
+scoped to native). `tsrx-tsc --noEmit` per target in CI.
 See module-resolution.md for the suffix-typing strategy.
 
 ## Native app plumbing
@@ -249,10 +244,11 @@ that affect our leaves:
 - `module server {…}` blocks + `'server'` imports are DOM/SSR-only — never
   in shared or native files.
 
-## Driver deltas — all upstreamed (0.2.1)
+## Driver fixes shipped upstream in 0.2.1
 
 All three driver fixes we reported upstream shipped in
-`@nativescript-community/octane@0.2.1`; the local `pnpm patch` is deleted:
+`@nativescript-community/octane@0.2.1`; those original local fixes were
+removed. A separate retained patch is described below:
 
 1. **Managed listview cells** — `renderItem` on `<listview>` makes the driver
    own `itemTemplate`/`itemLoading`: per-cell `ContentView` + universal root,
@@ -286,7 +282,8 @@ condition.
 
 ## CI shape
 
-1. `tsc --noEmit -p tsconfig.web.json` + `-p tsconfig.native.json`
+1. `pnpm typecheck:web` + `pnpm typecheck:mobile` from the repository root
+   (the starter uses `pnpm typecheck`).
 2. `pnpm check:no-dom` is the older static sweep. `xplat/no-dom-globals`
    applies to shared and NativeScript code; `.web.*` and `.linux.*` leaves own
    DOM globals. The renderer's `forbiddenGlobals` is the runtime backstop.

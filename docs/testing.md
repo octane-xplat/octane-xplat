@@ -6,8 +6,10 @@
 ## The short feedback loop
 
 1. Ask the agent to run `pnpm lint` and `pnpm typecheck` in the starter app.
-2. Run logic and component tests without a device.
-3. Build the web app.
+2. Run the app’s configured logic and component tests without a device.
+   The starter does not include a test runner or `test` script; configure one
+   before treating this step as automated coverage.
+3. Run `pnpm build` and check the interaction in the browser.
 4. Run a native smoke test on a simulator, emulator, or device before release.
 
 The first two steps are fast and should run on every change. Native builds

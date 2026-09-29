@@ -15,7 +15,9 @@ context cannot cross.
 
 ## The shape
 
-A query is a selector plus a loader:
+A query is a selector plus a loader. The fragment below assumes an app-owned
+`api.posts.list({ mode, signal })` client; replace it with your HTTP client.
+`Feed`, `Spinner`, and `api.user.get` in later fragments are app-owned too.
 
 ```ts
 import { query$, signal$, skip } from 'octane/signals'
@@ -84,6 +86,14 @@ inside it are confirmed on success and rolled back on rejection —
 `isActionUncertain` covers transports that can't tell whether the request
 landed. See the octane signals docs for the full action semantics.
 
+To check this flow, use an endpoint you can delay and fail: the first request
+should show pending, success should show records or an explicit empty state,
+and failure should offer retry. Change the selection after success and check
+that previous records stay visible while `snapshot().refreshing` is true.
+After a successful mutation, await it before calling the owning query’s
+`refetch()`; verify the changed record appears. These fragments describe the
+composition, not a complete fetch-demo screen.
+
 ## Module scope vs screen scope
 
 Where a `query$` is declared decides who shares its selection:
@@ -130,16 +140,18 @@ outside — refetch from the owning screen or fan out invalidation yourself.
   the suffix to preserve reactive reads through caches and props.
 - **Every module that touches a signal needs a runtime import** of
   `octane/signals` (or `octane/signals/client`). A
-  `import 'octane/signals'` side-effect line in the app entry covers
-  modules that only call `.get()`.
+  `import 'octane/signals'` side-effect line belongs in a consuming module
+  that otherwise only calls `.get()`.
 - **Reads outside render never subscribe** — module init, event handlers.
   Write with `.set()`; read imperatively there.
 - **Non-signal module state doesn't subscribe on native.** Plain stores
   and mutable objects need `useStore(store)` per reading component —
   the universal renderer retains unchanged-prop children, so bare reads go
   stale while web keeps working (decision #27). Prefer `signal$`.
-- **Route `loader` exports are prefetch-only** (decision #30), not a data
-  layer. The screen's `query$` stays the single source of truth.
+- **Route `loader` exports run on navigation** and deliver `data` or `error`
+  props; they do not provide a reactive query cache or suspense boundary.
+  Keep remote state in a screen-owned `query$` when it must react to inputs
+  or support refresh; see [route loaders](navigation.md#present-a-route-modally).
 
 ## TanStack Query as an opt-in
 

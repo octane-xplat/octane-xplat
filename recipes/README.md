@@ -13,10 +13,14 @@ configuration, platform differences, or lifecycle states that a signature alone
 cannot explain. Extend an existing recipe when the outcome stays the same.
 Pure refactors ordinarily need no recipe change.
 
-Initial workflows:
+Workflows:
 
 - [Animate shared components](component-motion.md)
 - [Settle a dragged value with a spring](gesture-motion.md)
+- [Fetch remote data in a screen](fetch-remote-data.md)
+- [Add advanced haptics](advanced-haptics.md)
+- [Add UI sound effects](ui-sounds.md)
+- [Add long-form audio playback](audio-playback.md)
 
 - [Show a live camera preview](camera-preview.md)
 - [Use platform-specific implementations from shared code](platform-leaves.md)
@@ -34,7 +38,7 @@ Initial workflows:
 Use one Markdown file per outcome, with these fields and sections:
 
 - `ID: kebab-case-name` — stable across title and filename changes.
-- `Targets: web, ios, android, macos` — only the applicable targets.
+- `Targets: web, ios, android, macos, linux` — only the applicable targets.
 - `Related APIs: ...` — literal public symbols, packages, or configuration names
   to make discovery possible from a code change.
 - `## Starting point` — reader knowledge, app setup, and the scope boundary.
@@ -99,7 +103,8 @@ old rows remain historical evidence, not a current green status. Insert a new
 assessment for a new revision; use Silo's optimistic revision when correcting
 an existing row. Never claim a roll-up is complete with missing applicable target rows.
 The Silo `recipe_audit.target` constraint accepts `web`, `ios`, `android`, and
-`macos`. Extend it before inserting rows for a new target, preserving existing
+`macos`. The `platform-leaves` recipe already includes Linux; its Linux assessment
+remains unrecordable in the current table. Extend it before inserting rows for a new target, preserving existing
 assessments during the schema migration. If Silo is unavailable, report the
 unrecorded findings at handoff and leave the audit pending rather than
 claiming completion.

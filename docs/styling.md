@@ -12,6 +12,9 @@ set of tokens rather than loading CSS stylesheets.
 
 ## The everyday rule
 
+The component fragment below uses `View` and `Text` from `@octane-xplat/ui`.
+Its `card` and `card-title` classes belong to the app stylesheet.
+
 ```tsx
 function Card(props: { title: string; disabled?: boolean }) {
 	return (
@@ -36,7 +39,7 @@ through every component. A theme can then change the whole app without
 rewriting screens.
 
 ```css
-:root {
+:root, .ns-root {
 	--color-surface: #fffdf5;
 	--color-ink: #000;
 	--space-4: 16px;
@@ -48,6 +51,15 @@ rewriting screens.
 	padding: var(--space-4);
 }
 ```
+
+Import each shared stylesheet from the app's web and native entries as a
+JavaScript module, after `@octane-xplat/ui/theme/tokens.css`. Use the starter's
+[web entry](../packages/create/template/src/main.web.tsrx) and
+[native entry](../packages/create/template/src/index.ts) as the setup example.
+Avoid CSS `@import`: it bypasses the native preset's px-to-DIP rewrite and
+web-only stripping. Change `--color-surface` and check the card background
+on both targets; a native card that stays unchanged suggests a missing entry
+import or root selector.
 
 ## Font-family tokens
 

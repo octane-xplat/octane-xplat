@@ -7,6 +7,12 @@
 > rules are writable today · **Decisions:** #3, #4 (the invariants it enforces)
 > · **Validated by:** an intentionally-violating file failing lint/typecheck.
 
+Current checks are `pnpm lint`, `pnpm typecheck:web`,
+`pnpm typecheck:mobile`, and `pnpm test` from the repository root. The lint
+lane uses Oxlint plus the TSRX companion pass; the ESLint and `packages/core`
+references below describe the original test plan. A fresh run is required
+before treating any historical smoke count as evidence for this checkout.
+
 ## Layers
 
 | Layer                              | Tool                                                      | Target                                                                                                                                                                                                                   |
@@ -24,12 +30,14 @@ Two layers — **compile-time first** (verified machinery), lint as backstop:
 **Layer 0 — the compiler's own `renderers.*.validation`**.
 The renderer config accepts `forbiddenGlobals`, `forbiddenImports`,
 `textHosts`, `textParents`, `hostProps` — enforced at compile time on owned
-files AND on `.ts` helpers matched by the rule. Declare on the nativescript
+files. Plain `.ts` helpers also need the lint/typecheck backstop described
+below. The following is an early configuration sketch, not a complete preset.
+Use `xplatNative` from `@octane-xplat/cli/vite` for app setup. Declare on the nativescript
 registry entry (or wrap `nativeScriptRenderers` in our own config helper):
 
 ```ts
 validation: {
-  forbiddenGlobals: ['document', 'window', 'localStorage', 'navigator', 'fetch'],   // DOM/browser — except fetch? NS has fetch; keep list real
+  forbiddenGlobals: ['document', 'window', 'localStorage', 'navigator'], // fetch is available on native
   forbiddenImports: ['octane', 'octane/hydration', /^octane\/react/],               // DOM runtime + react compat
   textHosts: ['label', 'button', 'formattedstring', 'span', 'textfield', 'textview'],
   textParents: [/* same set — text only inside text hosts */],
@@ -59,7 +67,8 @@ Then lint-level rules for what validation can't express:
 
 ## Typecheck matrix
 
-`tsconfig.web.json` and `tsconfig.native.json` both run `tsc --noEmit` — shared
+The starter runs `tsrx-tsc --noEmit` against `tsconfig.json` and
+`tsconfig.native.json` via `pnpm typecheck` — shared
 files must pass under both `jsxImportSource`s. This is the single most
 valuable CI signal for "the seams held."
 
@@ -75,8 +84,9 @@ valuable CI signal for "the seams held."
 
 ### Retained-Suspense regression
 
-The native driver regression is covered at the universal object-driver seam
-and on the device probe. The scenario is intentionally event-driven:
+The regression scenario to verify at the universal object-driver seam and
+on the device probe is intentionally event-driven. This checklist alone is
+not evidence that both target runs passed:
 
 1. Commit a `@try` body.
 2. Tap a control whose handler causes the boundary's resource to suspend.

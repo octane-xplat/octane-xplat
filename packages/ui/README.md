@@ -21,6 +21,8 @@ pnpm add @octane-xplat/ui octane
 `octane` is a required peer; the `@nativescript/*` peers are optional and
 only needed for native targets.
 
+This component fragment assumes `save` is your app’s action handler.
+
 ```tsx
 import { Row, Text, Pressable } from '@octane-xplat/ui'
 
