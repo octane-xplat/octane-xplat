@@ -56,6 +56,27 @@ platform-authentic:
 | Hosted | An OS or engine supplies interior content while the framework owns the frame or draws shared chrome. | `WebView`, `Video`, `CameraView` |
 | Platform-authentic | The OS surface or behavior is the point, so normalizing it would change the contract. Keep it in a platform subpath under its OS name. | `UITableView`, `RecyclerView`, `UIModal`, `LiquidGlass` |
 
+### When a wrapper may pass through
+
+A shared wrapper may omit a platform-specific enhancement when passing its
+children through is still useful and the omission is predictable. Check:
+
+- **Frequency:** a common pattern used throughout an app is a stronger reason
+  to share than a rare, one-off wrapper. Frequency is a factor, not a cutoff.
+- **Children:** wrapping caller-provided JSX can remove platform branches from
+  shared screens. Having children alone is not enough.
+- **Residual value:** after the enhancement is absent, the wrapper must still
+  provide useful structure or layout. If its main purpose disappears, keep it
+  platform-specific.
+- **Predictability:** developers should expect the omitted enhancement on that
+  target, and the pass-through should preserve the wrapper's shared contract,
+  including children and applicable layout or styling props.
+
+For example, a keyboard-avoidance wrapper can remain useful as a shared layout
+boundary on a target without a software keyboard. A `WebView` cannot pass
+through meaningfully when its web content surface is unavailable. Document a
+pass-through as intentional behavior; do not silently drop shared props.
+
 Use these checks when shaping a new primitive:
 
 1. Define the common task and its smallest useful props, events, and state

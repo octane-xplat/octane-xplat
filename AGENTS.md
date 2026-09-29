@@ -258,7 +258,8 @@ Bump/changelog inference only counts commits touching `packages/**`
    module. The default and `.web`, `.mobile`, `.ios`, `.android`, `.macos`,
    `.windows`, and `.linux` variants must expose the same names and public
    types. Keep shared prop types in `props.ts`; platform differences belong
-   in the implementation, not in the exported contract.
+   in the implementation, not in the exported contract. For intentional
+   pass-through behavior, follow the criteria in `docs/architecture.md`.
 
 ## Companion libraries (used by apps built on this stack)
 
