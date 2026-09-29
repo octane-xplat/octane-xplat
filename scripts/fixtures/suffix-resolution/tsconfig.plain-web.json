@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"jsx": "preserve",
+		"moduleSuffixes": [".web", ""],
+		"noEmit": true,
+		"skipLibCheck": true,
+		"types": []
+	},
+	"files": [
+		"shared/use-probe.ts",
+		"shared/use-mobile-only.ts",
+		"shared/use-mobile-ts.ts",
+		"shared/use-os-leaf.ts",
+		"shared/assert-web.ts"
+	]
+}

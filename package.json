@@ -18,6 +18,7 @@
 		"check:patches": "node scripts/sync-patches.mjs --check",
 		"check:decisions": "node scripts/check-decisions.mjs",
 		"check:no-dom": "node scripts/check-no-dom.mjs",
+		"check:suffix-resolution": "node scripts/check-suffix-resolution.mjs",
 		"check:css": "node scripts/check-css.mjs",
 		"gen:css-registry": "node scripts/gen-css-registry.mjs",
 		"parity:coverage": "node scripts/parity-coverage.mjs",

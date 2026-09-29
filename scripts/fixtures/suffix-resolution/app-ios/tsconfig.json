@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"jsx": "preserve",
+		"moduleSuffixes": [".ios", ".android", ".mobile", ""],
+		"noEmit": true,
+		"skipLibCheck": true,
+		"types": []
+	},
+	"files": [
+		"../shared/use-probe.ts",
+		"../shared/use-mobile-only.ts",
+		"../shared/use-mobile-ts.ts",
+		"../shared/use-os-leaf.ts",
+		"../shared/assert-ios.ts",
+		"../shared/entry.tsrx",
+		"../shared/use-explicit.tsrx"
+	]
+}

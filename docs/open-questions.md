@@ -173,17 +173,28 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     `setClipToOutline` (path outlines need API 33+ for child clipping).
     Parked: Android platform convention is round corners; revisit if a real
     app wants parity.
-25. ⏳ **Suffix-aware `.tsrx` leaf resolution under tsrx-tsc.** — Plain-tsc
-    never resolves a bare `./Leaf` import to `Leaf.web.tsrx`/`Leaf.tsrx`:
-    `moduleSuffixes` doesn't probe `.tsrx`, `paths` doesn't apply to relative
-    specifiers, and ambient `declare module` doesn't bind relative names
-    (verified by experiment in the proving app). Apps work around it with a
-    platform `leaves.web.ts`/`leaves.ts` barrel pair whose re-exports
-    name each leaf explicitly. The durable fix lives upstream: teach
-    `@tsrx/typescript-plugin`'s module resolution (or the volar layer) to
-    probe `Leaf<moduleSuffix>.tsrx` for bare relative specifiers so
-    `./Spinner` resolves `Spinner.web.tsrx` directly — in
-    research/tsrx (typescript-plugin package), a separate repo.
+25. ✅ **Suffix-aware `.tsrx` leaf resolution under tsrx-tsc.** — Answered
+    (2026-09-29, lab-experiment; regression fixture lives at
+    `scripts/fixtures/suffix-resolution`, run `pnpm check:suffix-resolution`).
+    No TypeScript lane resolves a bare `./Leaf` to a `.tsrx` variant:
+    `moduleSuffixes` probes a hardcoded extension bitmask in
+    `ts.tryAddingExtensions` (extensionless specifier → `.ts`/`.tsx`/`.d.ts`/
+    `.js`/`.jsx` only), and volar's `supportedTSExtensions` patch — what makes
+    explicit `./Leaf.web.tsrx` specifiers resolve under tsrx-tsc — is never
+    consulted there. NativeScript PR #11450 makes the ns-vite build-time
+    checker delegate to tsrx-tsc (@nativescript/vite ≥ 8.0.12; this repo pins
+    8.0.11 — verified against the 8.0.13 pkg.pr.new preview installed for
+    apps/windows), but that swaps *which* compiler runs, not what it can
+    resolve: suffixless `.tsrx` still 2307s under the delegated check too.
+    The `leaves.ts`/`leaves.web.ts` barrels stay necessary — and would remain
+    so even with direct resolution, since the pair also carries app-level
+    export remapping (text-coral's web `Hoverable` → `@octane-xplat/ui/web`
+    alias). Side finding: the checker's generated `moduleSuffixes`
+    (`['.<platform>', '.native', '']`) overrides the project's own chain —
+    a `.mobile.ts`-only leaf typechecks under the app tsconfig but 2307s
+    under the ns build-time check. The durable fix stays upstream: teach the
+    tsrx plugin / volar layer to probe `Leaf<moduleSuffix>.tsrx` for bare
+    relative specifiers.
 26. 🟡 **Can Pulsar ship as an optional NativeScript leaf on both mobile
     targets?** — Pulsar's APIs match presets, patterns, realtime control, and
     capability reporting. The Android emulator now exercises the packaged
