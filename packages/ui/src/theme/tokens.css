@@ -1219,10 +1219,6 @@ input.vx-search-field::-webkit-search-cancel-button {
 /* CommandPalette — panel centered by the overlay layer. */
 .vx-commandpalette {
 	width: 360px;
-	/* vw, not %: the overlay-content wrapper shrink-wraps the palette, so a
-	 * plain % would resolve against the palette's own width (clamping an
-	 * explicit style.width to 90% of itself). */
-	max-width: 90vw;
 	padding: 8px;
 	border-width: 1px;
 	border-color: var(--color-border);
@@ -1231,6 +1227,13 @@ input.vx-search-field::-webkit-search-cancel-button {
 	background-color: var(--color-surface);
 	color: var(--color-text);
 }
+/* xplat-web-only:start — native uses Screen.mainScreen.widthDIPs */
+.vx-commandpalette {
+	/* The overlay-content wrapper shrink-wraps the palette, so % would resolve
+	 * against the palette itself instead of the available viewport. */
+	max-width: 90vw;
+}
+/* xplat-web-only:end */
 .vx-cmdk-search {
 	margin-bottom: 4px;
 }

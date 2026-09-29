@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
+import { Screen } from '@nativescript/core';
 import type { CommandPaletteProps, MenuItem } from "./props";
 import { cx } from "./cx";
 import { Overlay } from './Overlay.tsrx';
@@ -19,6 +20,10 @@ export function CommandPalette(props: CommandPaletteProps) @{
 	const shown = query
 		? props.items.filter((i) => (i.label ?? i.key).toLowerCase().includes(query.toLowerCase()))
 		: props.items;
+	const panelStyle = {
+		...props.style,
+		maxWidth: props.style?.maxWidth ?? Screen.mainScreen.widthDIPs * 0.9,
+	};
 
 	const select = (item: MenuItem) => {
 		if (item.disabled) return;
@@ -29,8 +34,9 @@ export function CommandPalette(props: CommandPaletteProps) @{
 	<Overlay open={props.open} shadeCover={true} onDismiss={() => setOpen(false)} className="vx-cmdk-layer">
 		<flexboxlayout
 			className={cx('vx-commandpalette', props.className)}
-			style={props.style}
+			style={panelStyle}
 			id={props.id}
+			flexDirection="column"
 			horizontalAlignment="center"
 			verticalAlignment="top"
 			marginTop={80}
