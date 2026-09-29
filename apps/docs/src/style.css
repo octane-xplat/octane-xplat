@@ -8,6 +8,7 @@
 	--nb-red: #ff6b6b;
 	--nb-yellow: #ffd93d;
 	--nb-violet: #c4b5fd;
+	--nb-link: #805a2d;
 	--nb-panel: #ffffff;
 	--nb-gridline: rgba(0, 0, 0, 0.07);
 	--nb-onblock: #000000;
@@ -19,6 +20,7 @@
 .dark {
 	--nb-bg: #101010;
 	--nb-ink: #fffdf5;
+	--nb-link: #d2ad78;
 	--nb-panel: #1a1a1a;
 	--nb-gridline: rgba(255, 253, 245, 0.08);
 }
@@ -418,7 +420,7 @@ body {
 }
 
 .link {
-	color: var(--nb-ink);
+	color: var(--nb-link);
 	font-weight: 700;
 	text-decoration: underline;
 	text-decoration-thickness: 3px;
