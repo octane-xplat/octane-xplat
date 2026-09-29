@@ -265,10 +265,10 @@ function RowLayoutFixture() @{
 }
 
 function SpacerLayoutFixture() @{
-	<Row className="parity-spacer-root" style={{ width: 96, height: 24 }} gap={4}>
-		<View className="parity-spacer-leading" style={{ width: 20, height: 10 }} />
+	<Row className="parity-spacer-root" style={{ width: 96, height: 24 }} gap={8}>
+		<View className="parity-spacer-leading" style={{ width: 16, height: 10 }} />
 		<Spacer className="parity-spacer" />
-		<View className="parity-spacer-trailing" style={{ width: 20, height: 10 }} />
+		<View className="parity-spacer-trailing" style={{ width: 16, height: 10 }} />
 	</Row>
 }
 

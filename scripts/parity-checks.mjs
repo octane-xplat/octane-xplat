@@ -928,12 +928,12 @@ export const CHECKS = [
 			const trailing = m('trailing')
 			return [
 				dims(root, 96, 24),
-				dims(leading, 20, 10),
+				dims(leading, 16, 10),
 				dims(spacer, 48, 24),
-				dims(trailing, 20, 10),
+				dims(trailing, 16, 10),
 				['leading child starts at the row origin', near(leading.box.x - root.box.x, 0, 1)],
-				['spacer follows the leading child and gap', near(spacer.box.x - leading.box.x - leading.box.w, 4, 1)],
-				['trailing child follows the expanded spacer and gap', near(trailing.box.x - spacer.box.x - spacer.box.w, 4, 1)],
+				['spacer follows the leading child and gap', near(spacer.box.x - leading.box.x - leading.box.w, 8, 1)],
+				['trailing child follows the expanded spacer and gap', near(trailing.box.x - spacer.box.x - spacer.box.w, 8, 1)],
 			]
 		},
 	},
