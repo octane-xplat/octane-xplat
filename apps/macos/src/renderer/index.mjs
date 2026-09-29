@@ -19,9 +19,11 @@ const DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16
 const injectedGeistFontBase64 = typeof __XPLAT_GEIST_FONT_BASE64__ === 'string'
 	? __XPLAT_GEIST_FONT_BASE64__
 	: null
+
 const injectedGeistLicense = typeof __XPLAT_GEIST_FONT_LICENSE__ === 'string'
 	? __XPLAT_GEIST_FONT_LICENSE__
 	: null
+
 let geistLicenseText
 const geistFontDescriptors = new Map()
 const GEIST_WEIGHT_ALIASES = new Map([
@@ -36,6 +38,7 @@ const GEIST_WEIGHT_ALIASES = new Map([
 	['extrabold', 800],
 	['black', 900],
 ])
+
 const GEIST_WEIGHT_FACES = [
 	[100, 'Geist-Thin'],
 	[200, 'Geist-ExtraLight'],
@@ -53,6 +56,7 @@ function sourceFontPath(filename) {
 		resolve(process.cwd(), 'packages/app/src/assets/fonts', filename),
 		resolve(process.cwd(), '../../packages/app/src/assets/fonts', filename),
 	]
+
 	return candidates.find(existsSync)
 }
 
@@ -63,12 +67,14 @@ function loadBundledGeistFonts() {
 			const path = sourceFontPath('Geist-Variable.ttf')
 			return path ? readFileSync(path) : null
 		})()
+
 	if (!fontBytes) {throw new Error('Could not find the bundled Geist font asset')}
 	const licenseText = injectedGeistLicense ?? (() => {
 		const path = sourceFontPath('OFL.txt')
 		if (!path) {throw new Error('Could not find the Geist font license')}
 		return readFileSync(path, 'utf8')
 	})()
+
 	geistLicenseText = licenseText
 	const digest = createHash('sha256').update(fontBytes).digest('hex')
 	const fontDirectory = join(homedir(), 'Library', 'Caches', 'octane-xplat', 'macos', 'fonts')
@@ -310,6 +316,7 @@ function stackAlignmentAttribute(view, value) {
 	if (value === 'stretch' || value === 'start' || value === 'flex-start' || value === 'normal') {
 		return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
 	}
+
 	if (value === 'baseline' && horizontal) {return NSLayoutAttribute.FirstBaseline}
 	return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
 }
@@ -341,13 +348,118 @@ function updateCrossAxisConstraints(parent) {
 	for (const child of parent.children) {
 		if (child.crossAxisConstraint) {child.crossAxisConstraint.active = false}
 		child.crossAxisConstraint = null
-		if (alignItems !== 'stretch' || !child.view || child.sizeConstraintSpecs?.[dimension]) {continue}
+		const childView = arrangedView(child)
+		if (alignItems !== 'stretch' || !childView || child.sizeConstraintSpecs?.[dimension]) {continue}
 		const anchor = horizontal ? 'heightAnchor' : 'widthAnchor'
 		child.crossAxisConstraint = inset
-			? child.view[anchor].constraintEqualToAnchorConstant(stack[anchor], -inset)
-			: child.view[anchor].constraintEqualToAnchor(stack[anchor])
+			? childView[anchor].constraintEqualToAnchorConstant(stack[anchor], -inset)
+			: childView[anchor].constraintEqualToAnchor(stack[anchor])
+
 		child.crossAxisConstraint.active = true
 	}
+}
+
+const MARGIN_SIDES = {
+	marginTop: 'top',
+	marginRight: 'right',
+	marginBottom: 'bottom',
+	marginLeft: 'left',
+}
+
+function marginInsetsOf(node) {
+	const insets = node.marginInsets
+	return insets && (insets.top || insets.right || insets.bottom || insets.left) ? insets : null
+}
+
+/** The view a stack should arrange for a child — a margin wrapper when set. */
+function arrangedView(node) {
+	return node.marginHost ?? node.view
+}
+
+/** NSStackView has no per-child margins, so a margined child is wrapped in a
+ *  plain container: the wrapper is the arranged subview and the child pins
+ *  inside it with margin-offset anchors. */
+function makeMarginHost(node) {
+	const host = NSView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } })
+	host.translatesAutoresizingMaskIntoConstraints = false
+	host.addSubview(node.view)
+	const insets = marginInsetsOf(node)
+	const constraints = [
+		node.view.leadingAnchor.constraintEqualToAnchorConstant(host.leadingAnchor, insets.left),
+		node.view.trailingAnchor.constraintEqualToAnchorConstant(host.trailingAnchor, -insets.right),
+		node.view.topAnchor.constraintEqualToAnchorConstant(host.topAnchor, insets.top),
+		node.view.bottomAnchor.constraintEqualToAnchorConstant(host.bottomAnchor, -insets.bottom),
+	]
+
+	for (const constraint of constraints) {constraint.active = true}
+	node.marginHost = host
+	node.marginConstraints = constraints
+	return host
+}
+
+/** Wrap/unwrap/re-apply margins on a node that is already arranged inside a
+ *  stack. Margins set before insert are materialized there instead. */
+function syncMarginHost(node) {
+	const parent = node.parent
+	if (!node.view || !parent) {return}
+	const stack = parent.childHost ?? parent.view
+	if (typeof stack?.addViewInGravity !== 'function') {
+		// Grid children are laid out manually and already honor margins.
+		if (marginInsetsOf(node) && parent.type !== 'gridlayout') {
+			console.warn('[macos-style] ignored margins on <' + node.type + '> — parent is not a stack')
+		}
+
+		return
+	}
+
+	const insets = marginInsetsOf(node)
+	const index = Math.max(parent.children.indexOf(node), 0)
+	if (insets && !node.marginHost) {
+		const gravity = stackGravity(parent, node)
+		stack.removeArrangedSubview(node.view)
+		node.view.removeFromSuperview()
+		const host = makeMarginHost(node)
+		stack.insertViewAtIndexInGravity(host, index, gravity)
+		updateCrossAxisConstraints(parent)
+	} else if (!insets && node.marginHost) {
+		const gravity = stackGravity(parent, node)
+		stack.removeArrangedSubview(node.marginHost)
+		node.view.removeFromSuperview()
+		node.marginHost.removeFromSuperview()
+		node.marginHost = null
+		node.marginConstraints = null
+		stack.insertViewAtIndexInGravity(node.view, index, gravity)
+		updateCrossAxisConstraints(parent)
+	} else if (insets && node.marginHost) {
+		const [leading, trailing, top, bottom] = node.marginConstraints
+		leading.constant = insets.left
+		trailing.constant = -insets.right
+		top.constant = insets.top
+		bottom.constant = -insets.bottom
+	}
+}
+
+function setMarginStyle(node, name, value) {
+	const points = Number(value)
+	if (!Number.isFinite(points)) {
+		console.warn('[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value))
+		return
+	}
+
+	const insets = (node.marginInsets ??= { top: 0, right: 0, bottom: 0, left: 0 })
+	if (name === 'margin') {
+		insets.top = insets.right = insets.bottom = insets.left = points
+	} else {
+		insets[MARGIN_SIDES[name]] = points
+	}
+
+	if (node.parent?.type === 'gridlayout') {
+		// Grids lay out children manually from props.style — no wrapper needed.
+		layoutGridChildren(node.parent)
+		return
+	}
+
+	syncMarginHost(node)
 }
 
 function stackGravity(parent, child) {
@@ -364,6 +476,7 @@ function stackGravity(parent, child) {
 		if (index === parent.children.length - 1) {return trailing}
 		return NSStackViewGravity.Center
 	}
+
 	return leading
 }
 
@@ -372,11 +485,13 @@ function moveStackChildren(parent) {
 	if (typeof stack?.addViewInGravity !== 'function') {return}
 	for (const child of parent.children) {
 		if (!child.view) {continue}
-		stack.removeArrangedSubview(child.view)
-		child.view.removeFromSuperview()
-		stack.addViewInGravity(child.view, stackGravity(parent, child))
+		const arranged = arrangedView(child)
+		stack.removeArrangedSubview(arranged)
+		arranged.removeFromSuperview()
+		stack.addViewInGravity(arranged, stackGravity(parent, child))
 		setStackChildPriorities(parent, child)
 	}
+
 	updateCrossAxisConstraints(parent)
 }
 
@@ -391,6 +506,7 @@ function updateStackDistribution(parent) {
 	const grows = parent.children.some(
 		(child) => child.view && nodeClasses(child).includes('flex-1'),
 	)
+
 	stack.distribution = grows ? NSStackViewDistribution.Fill : NSStackViewDistribution.GravityAreas
 }
 
@@ -404,9 +520,11 @@ function setStackChildPriorities(parent, child) {
 		NSUserInterfaceLayoutOrientation.Vertical,
 	]) {
 		const priority = grow && orientation === mainAxis ? 1 : 750
-		child.view.setContentHuggingPriorityForOrientation(priority, orientation)
-		child.view.setContentCompressionResistancePriorityForOrientation(750, orientation)
+		const target = arrangedView(child)
+		target.setContentHuggingPriorityForOrientation(priority, orientation)
+		target.setContentCompressionResistancePriorityForOrientation(750, orientation)
 	}
+
 	updateStackDistribution(parent)
 }
 
@@ -468,6 +586,7 @@ function makeScrollView() {
 		origin: { x: 0, y: 0 },
 		size: { width: 480, height: 320 },
 	})
+
 	const content = makeStack({ flexDirection: 'column' })
 	scroll.hasVerticalScroller = true
 	scroll.drawsBackground = false
@@ -493,6 +612,7 @@ function setScrollAction(node, handler) {
 			null,
 			() => scrollHandlers.get(clipView)?.(),
 		)
+
 		node.scrollObserverInstalled = true
 	}
 
@@ -505,11 +625,13 @@ function setScrollAction(node, handler) {
 			viewportHeight: Number(bounds.size.height ?? 0),
 			contentHeight,
 		}
+
 		try {
 			node.container.root.eventScope('discrete', () => handler(event))
 		} catch (error) {
 			console.error('[macos-event] scroll handler failed', error)
 		}
+
 		if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 			node.scrollMetrics ??= { events: [] }
 			const sample = {
@@ -518,6 +640,7 @@ function setScrollAction(node, handler) {
 				mountedRows: null,
 				afterEventMs: null,
 			}
+
 			node.scrollMetrics.events.push(sample)
 			if (node.scrollMetrics.events.length > 2000) {node.scrollMetrics.events.shift()}
 			setTimeout(() => {
@@ -552,6 +675,7 @@ function makeTextField(props, multiline = false) {
 	const field = multiline
 		? NSTextView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 72 } })
 		: ContentAlignedTextField.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 320, height: 28 } })
+
 	field.translatesAutoresizingMaskIntoConstraints = false
 	field.font = fontForStyle(14)
 	field.textColor = nativeColor('#0a0a0a')
@@ -569,8 +693,10 @@ function makeTextField(props, multiline = false) {
 		field.textContainerInset = { width: 0, height: 0 }
 		field.textContainer.lineFragmentPadding = 0
 	}
+
 	if (multiline) {field.string = String(props.value ?? '')}
 	else {field.stringValue = String(props.value ?? '')}
+
 	return field
 }
 
@@ -656,6 +782,7 @@ function gridAreaIsFree(occupied, row, col, rowSpan, colSpan) {
 			if (occupied.has(currentRow + ':' + currentCol)) {return false}
 		}
 	}
+
 	return true
 }
 
@@ -673,12 +800,14 @@ function autoPlaceGridChildren(parent, placements) {
 		.filter((placement) => placement.col != null)
 		.map((placement) => placement.col + placement.colSpan),
 	)
+
 	const columnCount = Math.max(
 		1,
 		explicitColumns,
 		placedColumnCount,
 		...placements.map((placement) => placement.colSpan),
 	)
+
 	const occupied = new Set()
 	for (const placement of placements) {
 		if (placement.row != null && placement.col != null) {
@@ -693,6 +822,7 @@ function autoPlaceGridChildren(parent, placements) {
 		placement.col = col
 		occupyGridArea(occupied, placement.row, col, placement.rowSpan, placement.colSpan)
 	}
+
 	for (const placement of placements) {
 		if (placement.col == null || placement.row != null) {continue}
 		let row = 0
@@ -712,9 +842,11 @@ function autoPlaceGridChildren(parent, placements) {
 				cursorCol = 0
 				continue
 			}
+
 			if (gridAreaIsFree(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)) {break}
 			cursorCol++
 		}
+
 		placement.row = cursorRow
 		placement.col = cursorCol
 		occupyGridArea(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)
@@ -733,12 +865,15 @@ function gridAxisTracks(spec, placements, axis) {
 	const requiredCount = Math.max(1, ...placements.map((placement) =>
 		placement[indexKey] + placement[spanKey],
 	))
+
 	const tracks = explicit.length
 		? explicit
 		: Array.from({ length: requiredCount }, () => ({ kind: 'auto', value: 0 }))
+
 	while (tracks.length < requiredCount) {
 		tracks.push({ kind: 'auto', value: 0 })
 	}
+
 	return tracks
 }
 
@@ -762,6 +897,7 @@ function resolveGridTrackSizes(tracks, placements, axis, available) {
 			currentSize += sizes[index]
 			if (tracks[index].kind === 'auto') {autoTracks.push(index)}
 		}
+
 		if (!autoTracks.length) {continue}
 
 		const preferred = gridPreferredSize(placement.child, axis, available)
@@ -772,13 +908,16 @@ function resolveGridTrackSizes(tracks, placements, axis, available) {
 	const fixedAndAuto = sizes.reduce((sum, size, index) =>
 		sum + (tracks[index].kind === 'fraction' ? 0 : size), 0,
 	)
+
 	const fractionWeight = tracks.reduce((sum, track) =>
 		sum + (track.kind === 'fraction' ? track.value : 0), 0,
 	)
+
 	const fractionSize = fractionWeight > 0 ? Math.max(0, available - fixedAndAuto) / fractionWeight : 0
 	for (let index = 0; index < tracks.length; index++) {
 		if (tracks[index].kind === 'fraction') {sizes[index] = fractionSize * tracks[index].value}
 	}
+
 	return sizes
 }
 
@@ -802,9 +941,11 @@ function layoutGridChildren(parent) {
 			rowSpan: overlayChildren ? 1 : gridSpan(child.props.rowSpan),
 			colSpan: overlayChildren ? 1 : gridSpan(child.props.colSpan),
 		}))
+
 	const hasTracks = Boolean(
 		String(parent.props.rows ?? '').trim() || String(parent.props.columns ?? '').trim(),
 	)
+
 	const hasPlacement = placements.some(({ child, row, col, rowSpan, colSpan }) =>
 		(child.props.row != null && row !== 0) ||
 		(child.props.col != null && col !== 0) ||
@@ -836,15 +977,18 @@ function layoutGridChildren(parent) {
 			const childWidth = style.width == null
 				? (horizontal === 'stretch' ? cellWidth : Math.max(0, Number(intrinsic.width ?? 0)))
 				: layoutLength(style.width, cellWidth, 0)
+
 			const childHeight = style.height == null
 				? (vertical === 'stretch' ? cellHeight : Math.max(0, Number(intrinsic.height ?? 0)))
 				: layoutLength(style.height, cellHeight, 0)
+
 			let x = cellX
 			if (horizontal === 'center' || horizontal === 'middle') {
 				x += (cellWidth - childWidth) / 2
 			} else if (horizontal === 'right') {
 				x += cellWidth - childWidth
 			}
+
 			x += layoutLength(style.left, cellWidth, 0) + Number(style.marginLeft ?? 0)
 
 			let top = cellTop
@@ -853,12 +997,14 @@ function layoutGridChildren(parent) {
 			} else if (vertical === 'bottom') {
 				top += cellHeight - childHeight
 			}
-			top += layoutLength(style.top, cellHeight, 0)
+
+			top += layoutLength(style.top, cellHeight, 0) + Number(style.marginTop ?? 0)
 			child.view.frame = {
 				origin: { x, y: height - top - childHeight },
 				size: { width: childWidth, height: childHeight },
 			}
 		}
+
 		return
 	}
 
@@ -870,6 +1016,7 @@ function layoutGridChildren(parent) {
 		const childWidth = style.width == null
 			? (horizontal === 'stretch' ? width : Math.max(0, Number(intrinsic.width ?? 0)))
 			: layoutLength(style.width, width, 0)
+
 		const childHeight = style.height == null
 			? (vertical === 'stretch' ? height : Math.max(0, Number(intrinsic.height ?? 0)))
 			: layoutLength(style.height, height, 0)
@@ -887,7 +1034,7 @@ function layoutGridChildren(parent) {
 		if (vertical === 'middle' || vertical === 'center') {
 			y = (height - childHeight) / 2
 		} else if (vertical === 'top') {
-			y = height - childHeight
+			y = height - childHeight - Number(style.marginTop ?? 0)
 		}
 
 		child.view.frame = {
@@ -955,6 +1102,7 @@ function makeImageView(props) {
 		const data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
 		image.image = NSImage.alloc().initWithData(data)
 	}
+
 	return image
 }
 
@@ -1050,6 +1198,7 @@ function makeNode(container, id, type, props) {
 		scrollObserverInstalled: false,
 		text: '',
 	}
+
 	if (type === 'gridlayout') {
 		gridLayoutNodesByView.set(view, node)
 	}
@@ -1070,6 +1219,7 @@ function makeNode(container, id, type, props) {
 		node.placeholderView = placeholder
 		textNodesByView.set(view, node)
 	}
+
 	applyProps(node, props)
 	return node
 }
@@ -1141,6 +1291,7 @@ function fontForStyle(size, weight = 400) {
 	if (!geistFont || String(geistFont.fontName) !== geistName) {
 		throw new Error(`Failed to create the bundled ${geistName} font face`)
 	}
+
 	return geistFont
 }
 
@@ -1151,6 +1302,7 @@ function fontForFamilyStyle(size, weight = 400, family) {
 		if (!systemFont) {throw new Error('Failed to create the AppKit system font face')}
 		return systemFont
 	}
+
 	return fontForStyle(size, weight)
 }
 
@@ -1280,7 +1432,7 @@ function applyStyle(node, style) {
 			node.view.layer.masksToBounds = true
 		} else if ((name === 'width' || name === 'height') && node.view) {
 			setSizeConstraint(node, name, value)
-		} else if ((name === 'left' || name === 'marginLeft') && node.view) {
+		} else if (name === 'left' && node.view) {
 			if (node.parent?.type === 'gridlayout') {layoutGridChildren(node.parent)}
 			if (node.parent?.type === 'absolutelayout') {layoutAbsoluteChildren(node.parent)}
 		} else if (name === 'opacity' && node.view) {
@@ -1296,8 +1448,8 @@ function applyStyle(node, style) {
 		} else if (name === 'borderColor' && node.view) {
 			node.view.wantsLayer = true
 			node.view.layer.borderColor = nativeColor(value).CGColor
-		} else if (/^margin/.test(name) && (value === 0 || value === '0')) {
-			// Zero margins are a no-op on every platform — no need to warn.
+		} else if (MARGIN_SIDES[name] || name === 'margin') {
+			setMarginStyle(node, name, value)
 		} else {
 			console.warn('[macos-style] ignored unsupported style.' + name + ' on <' + node.type + '>')
 		}
@@ -1317,6 +1469,7 @@ function applyClassName(node, value) {
 			'vx-h5': { size: 13.28, height: 17 },
 			'vx-h6': { size: 10.72, height: 14 },
 		}
+
 		node.headingDefaultHeight = undefined
 		node.classLineHeight = undefined
 		for (const name of classes) {
@@ -1326,19 +1479,23 @@ function applyClassName(node, value) {
 				node.headingDefaultHeight = heading.height
 				node.view.font = fontForFamilyStyle(heading.size, 700, node.appliedFontFamily)
 			}
+
 			if (sizes[name]) {
 				node.headingDefaultHeight = undefined
 				node.view.font = fontForFamilyStyle(sizes[name], node.appliedFontWeight ?? 400, node.appliedFontFamily)
 			}
+
 			if (lineHeights[name] != null) {node.classLineHeight = lineHeights[name]}
 			if (name === 'font-semibold') {
 				node.appliedFontWeight = '600'
 				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 600, node.appliedFontFamily)
 			}
+
 			if (name === 'font-bold') {
 				node.appliedFontWeight = '700'
 				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 700, node.appliedFontFamily)
 			}
+
 			if (name === 'text-muted') {node.view.textColor = nativeColor('#71717a')}
 			if (name === 'text-onprimary') {node.view.textColor = nativeColor('#ffffff')}
 		}
@@ -1353,33 +1510,40 @@ function applyClassName(node, value) {
 			if (name === 'items-center' || name === 'items-start' || name === 'items-end') {
 				node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
 			}
+
 			if (name === 'vx-button') {
 				node.view.orientation = NSUserInterfaceLayoutOrientation.Horizontal
 				node.view.alignment = NSLayoutAttribute.CenterY
 				node.view.distribution = NSStackViewDistribution.GravityAreas
 			}
+
 			if (name === 'justify-between') {node.view.distribution = NSStackViewDistribution.EqualSpacing}
 			if (name === 'flex-1') {
 				node.view.setContentHuggingPriorityForOrientation(1, NSUserInterfaceLayoutOrientation.Vertical)
 				node.view.setContentCompressionResistancePriorityForOrientation(1, NSUserInterfaceLayoutOrientation.Vertical)
 			}
+
 			if (name === 'shrink-0') {
 				node.view.setContentHuggingPriorityForOrientation(750, NSUserInterfaceLayoutOrientation.Vertical)
 			}
+
 			if (name === 'rounded-full' || name.startsWith('rounded-')) {
 				node.view.wantsLayer = true
 				node.view.layer.cornerRadius = name === 'rounded-full' ? 12 : 8
 				node.view.layer.masksToBounds = true
 			}
+
 			if (name === 'bg-primary' || name === 'btn') {
 				node.view.wantsLayer = true
 				node.view.layer.backgroundColor = nativeColor('#2563eb').CGColor
 				node.view.edgeInsets = { top: 6, left: 10, bottom: 6, right: 10 }
 			}
+
 			if (name === 'bg-danger') {
 				node.view.wantsLayer = true
 				node.view.layer.backgroundColor = nativeColor('#dc2626').CGColor
 			}
+
 			if (name === 'btn-secondary' || name === 'chip' || name === 'chip-off') {
 				node.view.wantsLayer = true
 				node.view.layer.backgroundColor = nativeColor('#3f3f46').CGColor
@@ -1464,6 +1628,7 @@ function setPanAction(node, value) {
 			buttonActionTarget,
 			'viewPanned',
 		)
+
 		node.view.addGestureRecognizer(node.panGestureRecognizer)
 	}
 
@@ -1515,6 +1680,7 @@ function applyProps(node, props) {
 		syncText(node.parent)
 		return
 	}
+
 	if (node.type === 'span') {return}
 
 	for (const [name, value] of Object.entries(props)) {
@@ -1534,6 +1700,7 @@ function applyProps(node, props) {
 					node.view.orientation = value === 'row'
 					? NSUserInterfaceLayoutOrientation.Horizontal
 					: NSUserInterfaceLayoutOrientation.Vertical
+
 					node.view.distribution = NSStackViewDistribution.GravityAreas
 					node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
 					moveStackChildren(node)
@@ -1747,9 +1914,11 @@ function applyProps(node, props) {
 			const height = style.fontSize == null && node.headingDefaultHeight != null
 				? node.headingDefaultHeight
 				: node.classLineHeight ?? Math.ceil(size * DEFAULT_TEXT_LINE_HEIGHT_RATIO)
+
 			setSizeConstraint(node, 'height', height)
 		}
 	}
+
 	if (node.type === 'textview') {
 		const style = node.props.style ?? {}
 		const rows = Number(node.props.rows)
@@ -1761,9 +1930,11 @@ function applyProps(node, props) {
 					? lineHeight
 					: Number(font?.pointSize ?? 14) * DEFAULT_TEXT_LINE_HEIGHT_RATIO,
 			)
+
 			setSizeConstraint(node, 'height', Math.max(1, Math.floor(rows)) * rowHeight)
 		}
 	}
+
 	if (node.type === 'gridlayout') {layoutGridChildren(node)}
 	else if (node.type === 'absolutelayout') {layoutAbsoluteChildren(node)}
 	else if (node.parent?.type === 'gridlayout') {layoutGridChildren(node.parent)}
@@ -1822,7 +1993,8 @@ function insert(container, parentId, node, beforeId) {
 				deactivateSizeConstraints(node)
 				layoutAbsoluteChildren(parent)
 			} else {
-				parentView.addViewInGravity(node.view, stackGravity(parent, node))
+				if (marginInsetsOf(node)) {makeMarginHost(node)}
+				parentView.addViewInGravity(arrangedView(node), stackGravity(parent, node))
 				applySizeConstraints(node)
 				setStackChildPriorities(parent, node)
 				updateCrossAxisConstraints(parent)
@@ -1852,10 +2024,13 @@ function remove(container, parentId, node) {
 	if (node.view) {
 		const parentView = expectedParent?.childHost ?? expectedParent?.view
 		if (parentView?.removeArrangedSubview) {
-			parentView.removeArrangedSubview(node.view)
+			parentView.removeArrangedSubview(arrangedView(node))
 		}
 
 		node.view.removeFromSuperview()
+		node.marginHost?.removeFromSuperview()
+		node.marginHost = null
+		node.marginConstraints = null
 	}
 
 	if (expectedParent?.type === 'gridlayout') {layoutGridChildren(expectedParent)}
@@ -1985,6 +2160,7 @@ function withDrawingAppearance(appearance, read) {
 	} else {
 		readValue()
 	}
+
 	return value
 }
 
@@ -2025,20 +2201,24 @@ function parityStyle(node, facets) {
 		if (facet === 'fontWeight' && font?.fontDescriptor?.symbolicTraits != null) {
 			value = supplied.fontWeight ?? node.appliedFontWeight ?? (Number(font.fontDescriptor.symbolicTraits) & 2 ? '700' : '400')
 		}
+
 		if (facet === 'lineHeight' && font) {
 			value = supplied.lineHeight ?? (node.type === 'label'
 				? round(Number(view.frame.size.height))
 				: round(Number(font.ascender) - Number(font.descender) + Number(font.leading)))
 		}
+
 		if (facet === 'color' && view?.textColor) {value = colorValue(view.textColor) ?? value}
 		if (facet === 'backgroundColor') {
 			value = colorValue(view?.layer?.backgroundColor ? NSColor.colorWithCGColor(view.layer.backgroundColor) : null) ?? value
 			if (value == null && view?.drawsBackground === false) {value = 'rgba(0,0,0,0)'}
 		}
+
 		if (facet === 'borderTopWidth' && view?.layer) {value = view.layer.borderWidth}
 		if (facet === 'borderTopColor' && view?.layer?.borderColor) {
 			value = colorValue(NSColor.colorWithCGColor(view.layer.borderColor)) ?? value
 		}
+
 		if (facet === 'borderTopLeftRadius' && view?.layer) {value = view.layer.cornerRadius}
 		if (facet === 'opacity' && view?.alphaValue != null) {value = view.alphaValue}
 		if (facet === 'flexDirection' && view?.orientation != null) {value = stackDirection(view)}
@@ -2049,6 +2229,7 @@ function parityStyle(node, facets) {
 			out[facet] = String(value)
 		}
 	}
+
 	if (font?.fontName) {out.fontPostScriptName = String(font.fontName)}
 
 	return out
@@ -2060,6 +2241,7 @@ function measureTextLineAdvances(value, font) {
 		const attributed = NSAttributedString.alloc().initWithStringAttributes(line, {
 			[NSFontAttributeName]: font,
 		})
+
 		return round(Number(attributed.size().width))
 	})
 }
@@ -2074,6 +2256,7 @@ function measureTextLineCount(node) {
 		origin: { x: 0, y: 0 },
 		size: { width: Number(bounds.size.width), height: 100000 },
 	})
+
 	const height = Number(fit?.height)
 	const styleLineHeight = Number(parityStyle(node, []).lineHeight)
 	const font = view.font
@@ -2082,6 +2265,7 @@ function measureTextLineCount(node) {
 	if (!Number.isFinite(height) || height <= 0 || !Number.isFinite(lineHeight) || lineHeight <= 0) {
 		return undefined
 	}
+
 	return Math.max(1, Math.round(height / lineHeight))
 }
 
@@ -2089,6 +2273,7 @@ function parityBoxInHost(view, rect, boxView) {
 	const converted = view.superview
 		? view.superview.convertRectToView(rect, boxView)
 		: view.convertRectToView(view.bounds, boxView)
+
 	const boxHeight = Number(boxView.bounds.size.height)
 	return {
 		x: round(Number(converted.origin.x)),
@@ -2115,6 +2300,7 @@ function textContentBox(node, boxNode) {
 	if (node.type === 'textfield' && typeof view.cell?.titleRectForBounds === 'function') {
 		return parityLocalBoxInHost(view, view.cell.titleRectForBounds(view.bounds), boxNode.view)
 	}
+
 	if (node.type === 'textview') {
 		const inset = view.textContainerInset ?? { width: 0, height: 0 }
 		const padding = Number(view.textContainer?.lineFragmentPadding ?? 0)
@@ -2125,6 +2311,7 @@ function textContentBox(node, boxNode) {
 			size: { width: Math.max(0, width), height: Math.max(0, height) },
 		}, boxNode.view)
 	}
+
 	return null
 }
 
@@ -2139,6 +2326,7 @@ function parityNode(node, boxNode, facets) {
 			box = alignedRect ? parityBoxInHost(view, alignedRect, boxNode.view) : frameBox
 		} catch {}
 	}
+
 	let placeholderBox = null
 	let placeholderFrameBox = null
 	if (node.placeholderView && boxNode.view) {
@@ -2174,18 +2362,21 @@ function parityNode(node, boxNode, facets) {
 		text = value.trim()
 		textLineAdvances = measureTextLineAdvances(value, view?.font)
 	}
+
 	const placeholderAttributedString = node.type === 'textfield' ? view?.placeholderAttributedString : null
 	const placeholder = node.type === 'textfield'
 		? String(placeholderAttributedString?.string ?? view?.placeholderString ?? '').trim()
 		: node.type === 'textview'
 			? String(node.placeholderView?.stringValue ?? '').trim()
 			: ''
+
 	const placeholderColor = node.type === 'textfield'
 		? placeholderAttributedString?.attributeAtIndexEffectiveRange?.(NSForegroundColorAttributeName, 0, null)
 			?? NSColor.placeholderTextColor
 		: node.type === 'textview'
 			? node.placeholderView?.textColor
 			: null
+
 	const appearance = view?.effectiveAppearance ?? view?.window?.effectiveAppearance
 	const placeholderStyle = placeholderColor
 		? {
@@ -2193,6 +2384,7 @@ function parityNode(node, boxNode, facets) {
 				opacity: round(Number(withDrawingAppearance(appearance, () => placeholderColor.alphaComponent))),
 			}
 		: undefined
+
 	const contentBox = textContentBox(node, boxNode)
 	const textLineCount = measureTextLineCount(node)
 
@@ -2233,6 +2425,7 @@ function measureParity(container, facets) {
 			clip.scrollToPoint({ x: 0, y })
 			scroll.view.reflectScrolledClipView(clip)
 		}
+
 		cells[name] = [box, ...descendants(box)]
 			.filter((node) => node.view)
 			.map((node) => parityNode(node, box, facets))
@@ -2485,6 +2678,7 @@ export function createMacOSRoot(hostView) {
 							contentHeight: Number(node.view.documentView?.frame?.size?.height ?? 0),
 						})
 					}
+
 					const match = /^(?:row-r|bench-row-)(\d+)$/.exec(String(node.props.id ?? ''))
 					if (!match) {continue}
 
@@ -2504,6 +2698,7 @@ export function createMacOSRoot(hostView) {
 						})
 					}
 				}
+
 				return {
 					nodeCount: container.nodes.size,
 					nativeViewCount,
@@ -2524,6 +2719,7 @@ export function createMacOSRoot(hostView) {
 				const node = [...container.nodes.values()].find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
+
 				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
 				const clipView = node.view.contentView
 				clipView.scrollToPoint({ x: 0, y: Math.max(0, Number(offset) || 0) })
@@ -2538,6 +2734,7 @@ export function createMacOSRoot(hostView) {
 				const node = [...container.nodes.values()].find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
+
 				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
 				const clipView = node.view.contentView
 				const doc = node.view.documentView
@@ -2563,6 +2760,10 @@ export function createMacOSRoot(hostView) {
 						y: 0,
 						w: Number(container.hostView.frame.size.width),
 						h: Number(container.hostView.frame.size.height),
+						isContentView: container.hostView.window?.contentView === container.hostView,
+						autoresizingMask: Number(container.hostView.autoresizingMask ?? -1),
+						translatesMask: Boolean(container.hostView.translatesAutoresizingMaskIntoConstraints),
+						subviews: Number(container.hostView.subviews?.length ?? 0),
 						window: winFrame
 							? {
 									w: Number(winFrame.size.width),
@@ -2571,9 +2772,11 @@ export function createMacOSRoot(hostView) {
 							: null,
 					}
 				}
+
 				const node = [...container.nodes.values()].find(
 					(candidate) => candidate.props.id === id && candidate.view,
 				)
+
 				if (!node) {throw new Error('No AppKit view with id ' + id)}
 				const rect = node.view.convertRectToView(node.view.bounds, null)
 				return {
@@ -2583,11 +2786,23 @@ export function createMacOSRoot(hostView) {
 					h: Number(rect.size.height),
 				}
 			},
+			/** Apply a single style prop on a mounted node — margin/layout probes. */
+			setStyle(id, name, value) {
+				const node = [...container.nodes.values()].find(
+					(candidate) => candidate.props.id === id,
+				)
+
+				if (!node) {throw new Error('No AppKit node with id ' + id)}
+				applyStyle(node, { [name]: value })
+				container.hostView.layoutSubtreeIfNeeded?.()
+				return this.frameInWindow(id)
+			},
 			/** Ancestor chain for a node id with frames — layout forensics. */
 			ancestors(id) {
 				const node = [...container.nodes.values()].find(
 					(candidate) => candidate.props.id === id,
 				)
+
 				if (!node) {throw new Error('No AppKit node with id ' + id)}
 				const chain = []
 				for (let cur = node; cur; cur = cur.parent) {
@@ -2605,6 +2820,7 @@ export function createMacOSRoot(hostView) {
 							: null,
 					})
 				}
+
 				return chain
 			},
 			/** Per-cell geometry for the parity stage inside its ScrollView:
@@ -2615,10 +2831,12 @@ export function createMacOSRoot(hostView) {
 				const scroll = [...container.nodes.values()].find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === scrollId,
 				)
+
 				if (!scroll) {throw new Error('No AppKit ScrollView with id ' + scrollId)}
 				const stage = [...container.nodes.values()].find(
 					(candidate) => candidate.props.id === 'parity-stage',
 				)
+
 				if (!stage) {throw new Error('No parity stage mounted')}
 				container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
 				scroll.view.layoutSubtreeIfNeeded?.()
@@ -2647,6 +2865,7 @@ export function createMacOSRoot(hostView) {
 						},
 					})
 				}
+
 				const scrollInWindow = scroll.view.convertRectToView(scroll.view.bounds, null)
 				return {
 					docHeight: docH,
@@ -2668,6 +2887,7 @@ export function createMacOSRoot(hostView) {
 				const node = [...container.nodes.values()].find(
 					(candidate) => candidate.type === 'scrollview' && candidate.props.id === id,
 				)
+
 				if (!node) {throw new Error('No AppKit ScrollView with id ' + id)}
 				return { ...(node.scrollMetrics ?? { events: [] }) }
 			},
@@ -2694,6 +2914,7 @@ export function createMacOSRoot(hostView) {
 						if (!node || node.actionId === undefined) {
 							throw new Error('No AppKit pressable with id ' + id)
 						}
+
 						invokeAction(node.actionId)
 					},
 					setText(idOrPlaceholder, value) {
@@ -2702,9 +2923,11 @@ export function createMacOSRoot(hostView) {
 								(candidate.type === 'textfield' || candidate.type === 'textview') &&
 								(candidate.props.id === idOrPlaceholder || candidate.props.placeholder === idOrPlaceholder),
 						)
+
 						if (!node || node.actionId === undefined) {
 							throw new Error('No AppKit text input with id or placeholder ' + idOrPlaceholder)
 						}
+
 						if (node.type === 'textview') {
 							node.view.string = String(value)
 							buttonActionTarget.textDidChange({ object: node.view })
@@ -2747,6 +2970,7 @@ export function createMacOSRoot(hostView) {
 					return openPopups.size
 				},
 			}
+
 		Object.defineProperty(root, '__macosDebug', { value: debug })
 		Object.defineProperty(globalThis, '__xplatMacOSDebug', { value: debug, configurable: true })
 	}

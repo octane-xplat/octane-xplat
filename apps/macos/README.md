@@ -85,14 +85,17 @@ PNG to the expected path. `node scripts/parity-shots-compare.mjs --diffs` then
 pairs per-fixture crops by window-space geometry (not shot index, so tab-bar
 and title chrome differences do not bias the result) and ranks fixtures by
 pixel difference. Additional automation stdin commands: `scrolltop <n>`,
-`cells`, `frame <id>`, `ancestors <id>`, `pin-window` (re-asserts the 640x420
-content size after AppKit refits the window to constraint-driven content).
+`cells`, `frame <id>`, `ancestors <id>`, `style <id> <prop> <n>` (applies a
+style and reports the node's window frame).
 
 Per-fixture diffs rank text baseline offsets (~1pt) and anti-aliasing as the
 main residual gaps; labels, spacing, padding, and self-drawn controls match
 closely. The AppKit parity route keeps the host tab bar visible above the
-stage, and AppKit still re-fits the window to content on commits — both are
-harness quirks outside the per-fixture comparison.
+stage — a harness quirk outside the per-fixture comparison. The window holds
+its 640x420 content size: the contentView carries required width/height
+constraints so AppKit can't drag the window to the content's fitting size,
+and stack children get per-side margins via a transparent wrapper view
+(NSStackView lacks child margins).
 This CLI target does not add macOS to the `create-octane-xplat` starter or the
 supported web/iOS/Android release contract.
 
