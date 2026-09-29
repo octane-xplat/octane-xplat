@@ -483,10 +483,15 @@ index b54aefcc839e95906d76d02e522c052a706ca76f..a9c38c32b8752765044cd8f2c1eac558
          return {
              kind: 'context',
 diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
-index 8eeb51ab59497e7f775da3117c4207e05f1814c7..407c2a2484c843bc538ce6ef9cf7af0b9b883ad3 100644
+index 8eeb51ab59497e7f775da3117c4207e05f1814c7..ad91d9bab28605d06b16d1ef7fdb5d6c49678d9b 100644
 --- a/hmr/server/websocket-ns-m.js
 +++ b/hmr/server/websocket-ns-m.js
-@@ -6,6 +6,7 @@ import { isRuntimeGraphExcludedPath } from './runtime-graph-filter.js';
+@@ -1,3 +1,4 @@
++import * as path from 'node:path';
+ import { parse as babelParse } from '@babel/parser';
+ import traverse from '@babel/traverse';
+ import { sanitizeStrayCoreReferences } from './core-sanitize.js';
+@@ -6,6 +7,7 @@ import { isRuntimeGraphExcludedPath } from './runtime-graph-filter.js';
  import { buildPiniaVendorShim, buildVueVendorShim } from './vendor-bare-module-shims.js';
  import { collapseLegacyNsMTags } from './websocket-ns-m-paths.js';
  import { createNsMRequestContext, resolveNsMTransformedModule } from './websocket-ns-m-request.js';
