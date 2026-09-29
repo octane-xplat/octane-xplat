@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "pnpm --filter @xplat/app gen && vite --config vite.linux.config.ts",
+		"dev": "pnpm --filter @xplat/app gen && node scripts/dev.mjs",
 		"build": "pnpm --filter @xplat/app gen && vite build --config vite.linux.config.ts && node scripts/package.mjs",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},
