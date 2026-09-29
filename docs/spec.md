@@ -3,13 +3,23 @@
 > Build a TypeScript app for web, iOS, Android, macOS, and Windows; choose
 > targets with the current support boundaries in mind.
 
-## Start with a working flow
+## Decide whether it fits
 
-A trip planner can share its itinerary, packing list, and saved places. A
-field app can share its forms and records, then add photos where capture is
-available. You and your coding agent can build one flow first, inspect it in
-a running app, and add the next feature without rewriting the whole product
-for each platform. These are app ideas, not bundled demos.
+Consider xplat when you want the same product on web and mobile, and expect
+to tailor parts of the experience for each OS. The work you share is concrete:
+a packing list's data, add/remove actions, remaining count, and ordinary
+screen layout. The work you keep separate includes an OS control or a
+capability with a different permission flow.
+
+Start with one flow your app actually needs. A field app might need a form
+and a photo attachment; a trip app might need a packing list. These are app
+ideas, not bundled demos. The [first-run guide](toolchain.md#create-and-run)
+uses the checklist to give you an observable result before adding device setup.
+
+If your release requires verified support on all five targets, the current
+project is not ready for that requirement. Desktop support is experimental,
+and shared APIs do not establish that every implementation works. Use the
+table below to decide whether the available targets cover your first release.
 
 ## Choose your targets
 
@@ -54,10 +64,11 @@ to an iOS implementation without putting iOS branches throughout your app.
 [Styling](styling.md) and [platform widgets](primitives.md) explain the choices.
 Shared code does not imply identical capability or visual support on every target.
 
-The [showcase plan](demos.md#product-showcase) follows four roles: a coherent
-app on all five targets, a shared edit in running targets, a useful capability
-with labeled platform responses, and a focused platform implementation.
-The five-target presentation remains a goal, not a verified demo.
+Use the [showcase evidence](demos.md#product-showcase) to separate the
+five-target app goal from recorded live-edit checks, documented capability
+responses, and platform-specific implementation examples. For your own app,
+verify a shared flow, then a shared edit, then a device capability and any
+OS-specific control you depend on.
 
 ## The tools underneath
 

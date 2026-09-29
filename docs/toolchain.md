@@ -13,13 +13,23 @@ pnpm create octane-xplat my-app
 ```
 
 The creator copies the starter, installs dependencies, and starts the web dev
-server. Open the local URL printed in the terminal. Leave that process running
-while you work. To restart after stopping it with Ctrl+C:
+server. Open the local URL printed in the terminal. The checked-in starter
+shows an `octane-xplat` screen with a small counter and a theme toggle;
+it does not yet contain the packing app you will ask your agent to build.
+Leave that process running while you work. To restart after stopping it
+with Ctrl+C:
 
 ```sh
 cd my-app
 pnpm dev
 ```
+
+If installation stops with “Install didn't finish,” enter `my-app`, run
+`pnpm install`, and resolve the reported error before running `pnpm dev`.
+If the browser cannot connect, check that the dev process is still running
+and use its printed URL rather than assuming a port.
+
+## Build and check your first flow
 
 Open `my-app` in your coding agent and give it a bounded first task:
 
@@ -29,10 +39,22 @@ Open `my-app` in your coding agent and give it a bounded first task:
 > components. Run pnpm lint, pnpm typecheck, and pnpm build. Report failures
 > and which targets you actually ran.
 
-Try adding and packing an item. Then ask for a change you can check, such as
-“Group items by bag.” Add persistence or device features once the basic flow
-works. The skill guides code changes; it does not give the agent automatic
-access to your browser, simulator, or device.
+Check the running result before adding another feature:
+
+1. Add “Passport” and “Charger.” Both should appear, with two items remaining.
+2. Mark Passport packed. It should stay visible, with one item remaining.
+3. Remove both items. Check that the empty state offers a way to add an item.
+4. Add “Passport” again, then reload. The list should reset because this
+   first task uses in-memory state.
+
+If a check fails, give the agent the action, expected result, and actual result:
+“After packing Passport, the remaining count still says two; it should say one.”
+This gives it a specific behavior to fix. The skill supplies coding guidance;
+access to your browser or device depends on the tools available to your agent.
+
+Once this works, ask for “Group items by bag.” Add persistence or device
+features after the basic flow passes. Run the lint, typecheck, and build checks
+again after the change; those checks complement the interaction you just tried.
 
 ## Run on iOS and Android
 
@@ -63,8 +85,13 @@ pnpm xplat dev -t web,ios    # web plus an available iOS target
 
 ## See a shared edit in running targets
 
-Ask the agent to change the checklist's empty state or layout, then save the
-shared screen. Web and iOS/Android development sessions watch the same source.
+With web and a native development session running, ask the agent to change
+the empty-state text to “Ready for your next trip?” in the shared screen.
+Save the file and empty the list on each target. Both should show the new text
+without manually restarting the apps. Check each app separately: their
+in-memory packing lists are separate too.
+
+Web and iOS/Android development sessions watch the same source.
 The xplat development loop has been verified with a shared `.tsrx` edit reaching
 web and an iOS simulator; verify your own running targets after each change.
 This updates code in local development sessions, not data between devices or

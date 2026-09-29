@@ -10,10 +10,15 @@ item; explain when capture is unavailable.” Use the shared `media` service
 for still capture; a live [camera preview](primitives.md#when-a-screen-needs-more) is a
 separate component and setup.
 
-Label the result by platform when demonstrating it: **iOS/Android** use the
-OS camera flow; **web on a phone** may offer capture; **desktop web** may
-open a file picker instead. Cancellation and denied access need their own UI
-response. macOS and Windows are not implied by an iOS/Android implementation:
+Check the interaction on each intended target. **iOS/Android** use the OS
+camera flow; **web on a phone** may offer capture; **desktop web** may open a
+file picker instead. After a successful selection, the trip item should show
+its photo. Cancel the picker and check that the item stays unchanged. Deny
+access and check that the item remains usable with an explanation of why no
+photo was attached. These are checks for the feature you build, not behavior
+that a service adds to your screen automatically.
+
+macOS and Windows are not implied by an iOS/Android implementation:
 consult the [target guide](spec.md#choose-your-targets) and
 [known limits](known-limits.md).
 

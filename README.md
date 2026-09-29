@@ -1,17 +1,23 @@
 # octane-xplat
 
 Build a TypeScript app for **web, iOS, Android, macOS, and Windows** with
-shared screens and room for each platform to feel right. Describe the app to
-your coding agent, get a working screen, then improve it one task at a time.
+shared screens and room for each platform to feel right. In a packing app,
+for example, adding an item and marking it packed can use the same screen
+code on web and mobile; an iOS-only control can live in its own file.
+
+xplat gives your coding agent a configured starter, shared components, and
+project instructions. You describe the flow, inspect the running result, and
+ask for the next change.
 
 **Start on web, iOS, and Android with the starter today.** macOS has an
 experimental AppKit host; Windows has an experimental WinUI 3 scaffold
-whose bundle builds, but has not yet been run on Windows. These targets do not yet have equal support.
+whose bundle builds, but has not yet been run on Windows. The framework is
+`0.x`, so plan for API changes as well as platform limits.
 See the [target guide](docs/spec.md#choose-your-targets) before planning a release.
 
 ## Get a working app
 
-With Node.js and pnpm installed:
+With Node.js and pnpm installed ([version requirements](docs/toolchain.md#create-and-run)):
 
 ```sh
 pnpm create octane-xplat my-app
@@ -26,10 +32,14 @@ local URL it prints, then open `my-app` in your coding agent. A first task:
 > for this first version. Run lint, typecheck, and the web build, and tell me
 > which checks passed and which targets you actually ran.
 
-Try the result, then ask for the next change: “Group items by bag and keep
-packed items visible.” The starter includes `.agents/skills/xplat/` to give
-your agent the project conventions. [Run and iterate](docs/toolchain.md)
-covers native prerequisites, live updates, and checks.
+Check the result: add “Passport” and “Charger,” mark Passport packed, and
+confirm that one item remains. This first version resets on reload. Then ask
+for the next change: “Group items by bag and keep packed items visible.”
+
+The starter includes `.agents/skills/xplat/` for the agent's conventions.
+[Run and iterate](docs/toolchain.md) shows how to check your first result,
+add a native session, and recognize a failed update. You can inspect the
+[actual starter screen](packages/create/template/src/App.tsrx) before installing.
 
 ## Add useful device features
 
@@ -47,11 +57,25 @@ file when a phone needs an OS control or a desktop needs a different layout.
 [Platform variants](docs/module-resolution.md) keep those choices behind a
 shared import; [platform widgets](docs/primitives.md) provide opt-in OS controls.
 
-The [showcase plan](docs/demos.md#product-showcase) uses four examples: one
-coherent app across all five targets; a shared edit reflected in running
-targets; a useful capability with its platform-specific response labeled;
-and a focused platform-specific implementation. It is a plan, not a claim
-that a five-target demo already ships.
+For example, keep a packing row's props and action shared, but put its
+`UISwitch` implementation in an `.ios` file. The browser and Android keep
+their own implementations; the calling screen keeps one import.
+
+## What you can verify
+
+The [showcase plan](docs/demos.md#product-showcase) separates four claims and
+the evidence each needs:
+
+| Claim | Evidence available now |
+| --- | --- |
+| One coherent app on all five targets | A planned showcase, not a shipped demo. See [target support](docs/spec.md#choose-your-targets). |
+| A shared edit appears in running targets | [Recorded web/iOS live-update check](docs/toolchain-notes.md#dev-loop), plus [steps to check your app](docs/toolchain.md#see-a-shared-edit-in-running-targets). |
+| A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web. |
+| A focused implementation fits one platform | [File variants and import rules](docs/module-resolution.md) explain how to isolate an OS control. |
+
+These are different kinds of evidence: recorded experiments, documented
+contracts, and plans. Check the behaviors your app depends on before adopting
+it for a release.
 
 ## Why Octane and NativeScript
 

@@ -3,9 +3,14 @@
 > Build a TypeScript app for web, iOS, Android, macOS, and Windows with your
 > coding agent.
 
-Start with the app you want: a trip planner, a field checklist, a media library,
-or another product with shared screens and useful device features. Describe
-one working flow to your agent, try it, and keep improving it.
+xplat is useful when your app needs the same product behavior on web and
+mobile, with room for OS-specific controls. A packing list, for example, can
+share its add/pack/remove actions while using a different control on iOS.
+The starter supplies the project setup and instructions for your coding agent.
+
+[Try the first flow](toolchain.md#create-and-run): run the starter, ask your
+agent for a packing checklist, and check that packing an item reduces the
+remaining count. No device SDK is needed for that browser check.
 
 The starter runs on web, iOS, and Android. macOS is experimental; the Windows
 scaffold builds a bundle but has not yet been run on Windows. [Choose your targets](spec.md#choose-your-targets)
