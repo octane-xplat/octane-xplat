@@ -152,12 +152,10 @@ apps materialize it via `xplat patches apply` and verify with
 When a workspace package's dependency declarations change, resync with
 `pnpm install --lockfile-only`; do not hand-edit the importer. The
 `packages/lint` importer is the canary for this rule because its `@tsrx/core`
-and `oxlint` entries must stay aligned with the published package. A resync in
-a linked worktree can rewrite the local octane tarball as a worktree-relative
-`file:` path. That is incidental checkout-local churn: restore it before
-committing, since the path is not valid from another checkout. Fresh worktrees
-without the local pack should bootstrap with `pnpm install --lockfile=false`,
-then resync once the pack is available.
+and `oxlint` entries must stay aligned with the published package. The
+workspace installs published `octane@0.5.0` with the canonical patch set;
+fresh clones and worktrees can use `pnpm install --frozen-lockfile` without
+the gitignored `research/` directory.
 
 ## Shared packages publish model
 

@@ -1,0 +1,789 @@
+diff --git a/dist/cjs/runtime.cjs b/dist/cjs/runtime.cjs
+index a47b545..05a5ad4 100644
+--- a/dist/cjs/runtime.cjs
++++ b/dist/cjs/runtime.cjs
+@@ -352,6 +352,7 @@ var import_stream_protocol = require("./stream-protocol.cjs");
+ var import_renderer_bridge = require("./renderer-bridge.cjs");
+ var import_context_identity = require("./context-identity.cjs");
+ var import_native_read_client = require("./signals/native-read-client.cjs");
++var import_local_hook = require("./signals/local-hook.cjs");
+ var import_native_read_collector = require("./signals/native-read-collector.cjs");
+ var import_native_read_retry = require("./signals/native-read-retry.cjs");
+ var import_transition_state = require("./signals/transition-state.cjs");
+@@ -7601,6 +7602,7 @@ function nativeLocalHook(name, initialize, dispose, slot) {
+   }
+   return cell.nativeValue;
+ }
++(0, import_local_hook.registerLocalSignalHook)(() => CURRENT_SCOPE === null ? null : nativeLocalHook);
+ function useState(initial, slot) {
+   const s = readStateHook(initial, slot, arguments.length === 1);
+   return [s.value, s.setter];
+diff --git a/dist/cjs/signals/client.cjs b/dist/cjs/signals/client.cjs
+index 28e2844..af40518 100644
+--- a/dist/cjs/signals/client.cjs
++++ b/dist/cjs/signals/client.cjs
+@@ -23,13 +23,13 @@ __export(client_exports, {
+ });
+ module.exports = __toCommonJS(client_exports);
+ __reExport(client_exports, require("./index.cjs"), module.exports);
+-var import_runtime = require("../runtime.cjs");
+ var import_engine = require("./engine.cjs");
++var import_local_hook = require("./local-hook.cjs");
+ function disposeLocalSignal(cell) {
+   cell.scope.dispose();
+ }
+ function useSignal$(initial, slot) {
+-  const cell = (0, import_runtime.nativeLocalHook)(
++  const cell = (0, import_local_hook.localSignalHook)(
+     "useSignal$",
+     () => {
+       const value = typeof initial === "function" ? initial() : initial;
+diff --git a/dist/cjs/signals/index.cjs b/dist/cjs/signals/index.cjs
+index 865afcf..08dd675 100644
+--- a/dist/cjs/signals/index.cjs
++++ b/dist/cjs/signals/index.cjs
+@@ -34,6 +34,7 @@ __export(signals_exports, {
+   __derivedAt: () => import_derived_facade.__derivedAt,
+   __derivedScalarAt: () => import_facade.__derivedScalarAt,
+   __enableSignalDocument: () => import_document_owner.enableSignalDocument,
++  __enableUniversalSignalDocument: () => import_universal_owner.enableUniversalSignalDocument,
+   __queryAt: () => import_query_facade.__queryAt,
+   __signalAt: () => import_facade.__signalAt,
+   __startSignalReads: () => import_facade.__startSignalReads,
+@@ -65,6 +66,7 @@ module.exports = __toCommonJS(signals_exports);
+ var import_engine = require("./engine.cjs");
+ var import_control_binding = require("./control-binding.cjs");
+ var import_document_owner = require("./document-owner.cjs");
++var import_universal_owner = require("./universal-owner.cjs");
+ var import_requests = require("./requests.cjs");
+ var import_actions = require("./actions.cjs");
+ var import_derived_facade = require("./derived-facade.cjs");
+@@ -92,6 +94,7 @@ var import_types = require("./types.cjs");
+   __derivedAt,
+   __derivedScalarAt,
+   __enableSignalDocument,
++  __enableUniversalSignalDocument,
+   __queryAt,
+   __signalAt,
+   __startSignalReads,
+diff --git a/dist/cjs/signals/local-hook.cjs b/dist/cjs/signals/local-hook.cjs
+new file mode 100644
+index 0000000..4858595
+--- /dev/null
++++ b/dist/cjs/signals/local-hook.cjs
+@@ -0,0 +1,44 @@
++"use strict";
++var __defProp = Object.defineProperty;
++var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
++var __getOwnPropNames = Object.getOwnPropertyNames;
++var __hasOwnProp = Object.prototype.hasOwnProperty;
++var __export = (target, all) => {
++  for (var name in all)
++    __defProp(target, name, { get: all[name], enumerable: true });
++};
++var __copyProps = (to, from, except, desc) => {
++  if (from && typeof from === "object" || typeof from === "function") {
++    for (let key of __getOwnPropNames(from))
++      if (!__hasOwnProp.call(to, key) && key !== except)
++        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
++  }
++  return to;
++};
++var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
++var local_hook_exports = {};
++__export(local_hook_exports, {
++  localSignalHook: () => localSignalHook,
++  registerLocalSignalHook: () => registerLocalSignalHook
++});
++module.exports = __toCommonJS(local_hook_exports);
++const probes = [];
++function registerLocalSignalHook(probe) {
++  probes.push(probe);
++  return () => {
++    const index = probes.indexOf(probe);
++    if (index !== -1) probes.splice(index, 1);
++  };
++}
++function localSignalHook(name, initialize, dispose, slot) {
++  for (let index = probes.length - 1; index >= 0; index--) {
++    const hook = probes[index]();
++    if (hook !== null) return hook(name, initialize, dispose, slot);
++  }
++  throw new Error(`${name} requires an active Octane component render.`);
++}
++// Annotate the CommonJS export names for ESM import in node:
++0 && (module.exports = {
++  localSignalHook,
++  registerLocalSignalHook
++});
+diff --git a/dist/cjs/signals/universal-owner.cjs b/dist/cjs/signals/universal-owner.cjs
+new file mode 100644
+index 0000000..00c323a
+--- /dev/null
++++ b/dist/cjs/signals/universal-owner.cjs
+@@ -0,0 +1,46 @@
++"use strict";
++var __defProp = Object.defineProperty;
++var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
++var __getOwnPropNames = Object.getOwnPropertyNames;
++var __hasOwnProp = Object.prototype.hasOwnProperty;
++var __export = (target, all) => {
++  for (var name in all)
++    __defProp(target, name, { get: all[name], enumerable: true });
++};
++var __copyProps = (to, from, except, desc) => {
++  if (from && typeof from === "object" || typeof from === "function") {
++    for (let key of __getOwnPropNames(from))
++      if (!__hasOwnProp.call(to, key) && key !== except)
++        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
++  }
++  return to;
++};
++var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
++var universal_owner_exports = {};
++__export(universal_owner_exports, {
++  enableUniversalSignalDocument: () => enableUniversalSignalDocument,
++  installUniversalSignalDocumentProvider: () => installUniversalSignalDocumentProvider,
++  universalSignalDocument: () => universalSignalDocument
++});
++module.exports = __toCommonJS(universal_owner_exports);
++var import_owner_context = require("./owner-context.cjs");
++let universalOwner;
++let provider;
++function installUniversalSignalDocumentProvider(next) {
++  provider = next;
++}
++function universalSignalDocument() {
++  return provider?.() ?? (universalOwner ??= Object.freeze({ scopeKey: "octane:universal" }));
++}
++function enableUniversalSignalDocument(abi = 1) {
++  if (abi !== 1) {
++    throw new TypeError("Unsupported universal signal owner ABI.");
++  }
++  (0, import_owner_context.installDefaultSignalOwner)(universalSignalDocument);
++}
++// Annotate the CommonJS export names for ESM import in node:
++0 && (module.exports = {
++  enableUniversalSignalDocument,
++  installUniversalSignalDocumentProvider,
++  universalSignalDocument
++});
+diff --git a/dist/compiler/compile-universal.js b/dist/compiler/compile-universal.js
+index 81ff62a..51bce9c 100644
+--- a/dist/compiler/compile-universal.js
++++ b/dist/compiler/compile-universal.js
+@@ -2756,7 +2756,7 @@ function rewriteSourceAst(node, state) {
+ 		}
+ 		const replacement = state.astNodeReplacements?.get(value);
+ 		if (replacement !== undefined) return replacement;
+-		if (value !== node && isTemplateNode(value)) {
++		if (isTemplateNode(value)) {
+ 			return compileRenderableExpressionAst(value, state);
+ 		}
+ 		let output = null;
+diff --git a/dist/compiler/compile.js b/dist/compiler/compile.js
+index d980e39..ae34943 100644
+--- a/dist/compiler/compile.js
++++ b/dist/compiler/compile.js
+@@ -2272,7 +2272,7 @@ function classifyViewTransitionOwnership(astBody, production, ownComponents) {
+ 
+ function hookRuntimeModulesForCompile(options, universalUnits = []) {
+ 	const modules = new Set(options?.__hookRuntimeModules || []);
+-	if (options?.nativeReads === true) {
++	if (options?.nativeReads === true || options?.__universalSignalReads === true) {
+ 		modules.add('octane/signals/client');
+ 		modules.add('octane/signals/server');
+ 	}
+@@ -10109,6 +10109,11 @@ function compileInternal(
+ 						universalRuntime: undefined,
+ 						rendererBoundaries: undefined,
+ 						rendererRegistry: undefined,
++						// Universal owners observe reads at render time; the inner
++						// compile must not emit the DOM native-read runtime helpers,
++						// but signal hook classification still applies.
++						nativeReads: false,
++						__universalSignalReads: options.nativeReads === true,
+ 						__hookRuntimeModules: [...(options?.__hookRuntimeModules || []), renderer.module],
+ 						__runtimeImportRoutes: [
+ 							...(options?.__runtimeImportRoutes ?? []),
+@@ -10357,6 +10362,10 @@ function compileInternal(
+ 		autoMemo: autoMemoEnabled,
+ 		strongMemo: strongMemoEnabled,
+ 		nativeReads: options?.nativeReads === true,
++		// Universal renders observe signal reads at runtime through the owner
++		// environment; hook classification still needs to know the module imports
++		// the signals runtime even though no DOM native-read helpers are emitted.
++		signalReads: options?.nativeReads === true || options?.__universalSignalReads === true,
+ 		nativeModuleStyles: options?.nativeReads === true && hasModuleStyleMaps(ast.body),
+ 		// A split Hydrate query module is invoked as the existing server-rendered
+ 		// boundary body. Its sole component child must therefore keep the server's
+@@ -11802,6 +11811,10 @@ function compileServer(
+ 		compilerNameSuffixes: null,
+ 		mode: 'server',
+ 		nativeReads: options?.nativeReads === true,
++		// Universal renders observe signal reads at runtime through the owner
++		// environment; hook classification still needs to know the module imports
++		// the signals runtime even though no DOM native-read helpers are emitted.
++		signalReads: options?.nativeReads === true || options?.__universalSignalReads === true,
+ 		nativeModuleStyles: options?.nativeReads === true && hasModuleStyleMaps(ast.body),
+ 		hmr: false, // SSR never hot-swaps in place; client/server production slot shapes stay aligned
+ 		dev: !!(options && options.dev),
+@@ -18868,7 +18881,7 @@ function slotKeyedHookName(n, ctx) {
+ 			ctx.foreignImportLocals?.has(local) === true;
+ 		if (
+ 			imported !== undefined &&
+-			(HOOK_NAMES.has(imported) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
++			(HOOK_NAMES.has(imported) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
+ 		)
+ 			return imported;
+ 		if (!shadowsImport && HOOK_NAMES.has(local)) return local;
+@@ -18878,7 +18891,7 @@ function slotKeyedHookName(n, ctx) {
+ 	const imported = n._octaneImportedHook ?? n._octaneHookRuntimeImportedHook;
+ 	if (
+ 		imported !== undefined &&
+-		(HOOK_NAMES.has(imported) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
++		(HOOK_NAMES.has(imported) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
+ 	) {
+ 		return imported;
+ 	}
+@@ -19725,7 +19738,7 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
+ 			// enforced by rejectHookInJsLoop.
+ 			const isBuiltin =
+ 				(HOOK_NAMES.has(name) ||
+-					(ctx.nativeReads &&
++					(ctx.signalReads &&
+ 						hookRuntimeImportedName !== undefined &&
+ 						NATIVE_SIGNAL_HOOK_NAMES.has(name))) &&
+ 				(generated ||
+@@ -19854,7 +19867,7 @@ function rewriteHookCalls(node, ctx, componentName, localRoot = false) {
+ 		) {
+ 			const name = n._octaneImportedHook ?? n._octaneHookRuntimeImportedHook;
+ 			const isBuiltin =
+-				HOOK_NAMES.has(name) || (ctx.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(name));
++				HOOK_NAMES.has(name) || (ctx.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(name));
+ 			const isServerUse = name === 'use' && ctx.mode === 'server';
+ 			if (isBuiltin || isServerUse) {
+ 				if (isBuiltin) {
+diff --git a/dist/compiler/native-read-diagnostics.js b/dist/compiler/native-read-diagnostics.js
+index 3ec74f3..0816e98 100644
+--- a/dist/compiler/native-read-diagnostics.js
++++ b/dist/compiler/native-read-diagnostics.js
+@@ -87,9 +87,12 @@ export function assertNativeReadOptions(options) {
+ 	if (
+ 		options?.nativeReads === true &&
+ 		options.renderer?.target != null &&
+-		options.renderer.target !== 'dom'
++		options.renderer.target !== 'dom' &&
++		options.renderer.target !== 'universal'
+ 	) {
+-		throw new Error('Octane native signal reads support only the DOM client and server.');
++		throw new Error(
++			'Octane native signal reads support only the DOM client, DOM server, and universal renderers.',
++		);
+ 	}
+ }
+ 
+@@ -108,11 +111,11 @@ export function analyzeNativeReadDiagnostics(ast, source, filename, options = {}
+ 			filename,
+ 			rendererBoundaries: options.rendererBoundaries,
+ 		});
+-		const unsupported = boundaries.find(
+-			(boundary) =>
+-				boundary.childRenderer !== 'dom' &&
+-				options.rendererRegistry?.[boundary.childRenderer]?.target !== 'dom',
+-		);
++		const unsupported = boundaries.find((boundary) => {
++			if (boundary.childRenderer === 'dom') return false;
++			const target = options.rendererRegistry?.[boundary.childRenderer]?.target;
++			return target !== 'dom' && target !== 'universal';
++		});
+ 		if (unsupported)
+ 			return [
+ 				nativeReadDiagnostic(
+diff --git a/dist/compiler/slot-hooks.js b/dist/compiler/slot-hooks.js
+index 7b2f867..2c1d36c 100644
+--- a/dist/compiler/slot-hooks.js
++++ b/dist/compiler/slot-hooks.js
+@@ -1182,12 +1182,12 @@ function walk(node, owner, st) {
+ 		}
+ 		const imported =
+ 			node._octaneImportedHook ??
+-			(st.nativeReads ? node._octaneHookRuntimeImportedHook : undefined);
++			(st.signalReads ? node._octaneHookRuntimeImportedHook : undefined);
+ 		collectStateGetterEdit(node, imported, st);
+ 		if (
+ 			!st.manualSlots &&
+ 			imported &&
+-			(HOOK_NAMES.has(imported) || (st.nativeReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
++			(HOOK_NAMES.has(imported) || (st.signalReads && NATIVE_SIGNAL_HOOK_NAMES.has(imported)))
+ 		) {
+ 			const local =
+ 				node.callee?.type === 'Identifier'
+@@ -1398,7 +1398,11 @@ export function slotHooks(source, id, options) {
+ 			HOOK_NAMES.has(name),
+ 		);
+ 	const manualProviders = options?.manualSlots ? findManualHookProviders(ast) : new Map();
+-	const nativeReadActivation = options?.nativeReads === true && importsNativeRenderer(ast);
++	// Universal renderers observe reads at render time; the DOM collection
++	// driver and its activation helper only apply to dom targets.
++	const universalTarget = options?.renderer?.target === 'universal';
++	const nativeReadActivation =
++		options?.nativeReads === true && !universalTarget && importsNativeRenderer(ast);
+ 	const signalLowering = signalDeclarationSourceEdits(ast, id, source);
+ 	const pureCalls = collectPureFactoryCalls(
+ 		ast,
+@@ -1487,7 +1491,8 @@ export function slotHooks(source, id, options) {
+ 			]),
+ 		),
+ 		manualSlots: options?.manualSlots === true,
+-		nativeReads: options?.nativeReads === true,
++		nativeReads: options?.nativeReads === true && !universalTarget,
++		signalReads: options?.nativeReads === true,
+ 		locals: importInfo.locals,
+ 		source,
+ 		inferred,
+@@ -1590,7 +1595,9 @@ export function slotHooks(source, id, options) {
+ 				? 'enableServerSignalBindings'
+ 				: nativeReadActivation
+ 					? 'enableSignalBindings'
+-					: '__enableSignalDocument';
++					: universalTarget
++						? '__enableUniversalSignalDocument'
++						: '__enableSignalDocument';
+ 		const local = allocSlotName(st, `_$${imported}`);
+ 		let specifiers = signalHelperImports.get(request);
+ 		if (specifiers === undefined) signalHelperImports.set(request, (specifiers = []));
+diff --git a/dist/runtime.js b/dist/runtime.js
+index 404d1c6..6c68c19 100644
+--- a/dist/runtime.js
++++ b/dist/runtime.js
+@@ -161,6 +161,7 @@ import {
+ import { isRendererContext, registerClientRendererBridge } from "./renderer-bridge.js";
+ import { defineRemovedContextMembers, registerContext } from "./context-identity.js";
+ import { createNativeReadDriver } from "./signals/native-read-client.js";
++import { registerLocalSignalHook } from "./signals/local-hook.js";
+ import {
+   validateNativeReadWitness
+ } from "./signals/native-read-collector.js";
+@@ -7455,6 +7456,7 @@ function nativeLocalHook(name, initialize, dispose, slot) {
+   }
+   return cell.nativeValue;
+ }
++registerLocalSignalHook(() => CURRENT_SCOPE === null ? null : nativeLocalHook);
+ function useState(initial, slot) {
+   const s = readStateHook(initial, slot, arguments.length === 1);
+   return [s.value, s.setter];
+diff --git a/dist/signals/client.d.ts b/dist/signals/client.d.ts
+index 6388c2f..f9e9862 100644
+--- a/dist/signals/client.d.ts
++++ b/dist/signals/client.d.ts
+@@ -1,4 +1,4 @@
+-/** Optional component hooks for the native-read DOM compiler mode. */
++/** Optional component hooks for the native-read compiler mode (DOM and universal). */
+ export * from './index.js';
+ import type { WritableSignal } from './types.js';
+ /** A writable signal owned by this compiler-assigned component hook slot. */
+diff --git a/dist/signals/client.js b/dist/signals/client.js
+index 21a39c3..3f85700 100644
+--- a/dist/signals/client.js
++++ b/dist/signals/client.js
+@@ -1,11 +1,11 @@
+ export * from "./index.js";
+-import { nativeLocalHook } from "../runtime.js";
+ import { createLocalScope } from "./engine.js";
++import { localSignalHook } from "./local-hook.js";
+ function disposeLocalSignal(cell) {
+   cell.scope.dispose();
+ }
+ function useSignal$(initial, slot) {
+-  const cell = nativeLocalHook(
++  const cell = localSignalHook(
+     "useSignal$",
+     () => {
+       const value = typeof initial === "function" ? initial() : initial;
+diff --git a/dist/signals/index.d.ts b/dist/signals/index.d.ts
+index 95f32a2..9855985 100644
+--- a/dist/signals/index.d.ts
++++ b/dist/signals/index.d.ts
+@@ -3,6 +3,7 @@ export { createScope } from './engine.js';
+ export { bindSignalControl } from './control-binding.js';
+ export type { SignalControlBinding } from './control-handoff.js';
+ export { enableSignalDocument as __enableSignalDocument } from './document-owner.js';
++export { enableUniversalSignalDocument as __enableUniversalSignalDocument } from './universal-owner.js';
+ export { createResource, query } from './requests.js';
+ export { ActionUncertainError, action$, isActionUncertain, optimistic$ } from './actions.js';
+ export { __derivedAt, derived$ } from './derived-facade.js';
+diff --git a/dist/signals/index.js b/dist/signals/index.js
+index 8ae19e5..0bf09f5 100644
+--- a/dist/signals/index.js
++++ b/dist/signals/index.js
+@@ -1,6 +1,7 @@
+ import { createScope } from "./engine.js";
+ import { bindSignalControl } from "./control-binding.js";
+ import { enableSignalDocument } from "./document-owner.js";
++import { enableUniversalSignalDocument } from "./universal-owner.js";
+ import { createResource, query } from "./requests.js";
+ import { ActionUncertainError, action$, isActionUncertain, optimistic$ } from "./actions.js";
+ import { __derivedAt, derived$ } from "./derived-facade.js";
+@@ -58,6 +59,7 @@ export {
+   __derivedAt,
+   __derivedScalarAt,
+   enableSignalDocument as __enableSignalDocument,
++  enableUniversalSignalDocument as __enableUniversalSignalDocument,
+   __queryAt,
+   __signalAt,
+   __startSignalReads,
+diff --git a/dist/signals/local-hook.d.ts b/dist/signals/local-hook.d.ts
+new file mode 100644
+index 0000000..d6c1770
+--- /dev/null
++++ b/dist/signals/local-hook.d.ts
+@@ -0,0 +1,16 @@
++/**
++ * Renderer-provided slots for optional signal hooks.
++ *
++ * `useSignal$` allocates a component-local signal cell, but the cell itself
++ * lives in whichever renderer is currently rendering — DOM hook slots on the
++ * client/server, universal owner slots under `target: 'universal'` renderers.
++ * `octane/signals` cannot import either runtime (both import the signal
++ * engine), so each renderer registers a probe at module evaluation; the probe
++ * answers only while one of its own owners is executing, which also settles
++ * nesting (a universal boundary inside a DOM render probes last and wins).
++ */
++export type LocalSignalHook = <T>(name: string, initialize: () => T, dispose: (value: T) => void, slot?: symbol | number) => T;
++/** @internal Renderer runtimes register once, at module evaluation. */
++export declare function registerLocalSignalHook(probe: () => LocalSignalHook | null): () => void;
++/** @internal Dispatch to the innermost renderer that currently owns a render. */
++export declare function localSignalHook<T>(name: string, initialize: () => T, dispose: (value: T) => void, slot?: symbol | number): T;
+diff --git a/dist/signals/local-hook.js b/dist/signals/local-hook.js
+new file mode 100644
+index 0000000..77c63f5
+--- /dev/null
++++ b/dist/signals/local-hook.js
+@@ -0,0 +1,19 @@
++const probes = [];
++function registerLocalSignalHook(probe) {
++  probes.push(probe);
++  return () => {
++    const index = probes.indexOf(probe);
++    if (index !== -1) probes.splice(index, 1);
++  };
++}
++function localSignalHook(name, initialize, dispose, slot) {
++  for (let index = probes.length - 1; index >= 0; index--) {
++    const hook = probes[index]();
++    if (hook !== null) return hook(name, initialize, dispose, slot);
++  }
++  throw new Error(`${name} requires an active Octane component render.`);
++}
++export {
++  localSignalHook,
++  registerLocalSignalHook
++};
+diff --git a/dist/signals/universal-owner.d.ts b/dist/signals/universal-owner.d.ts
+new file mode 100644
+index 0000000..0e57f3a
+--- /dev/null
++++ b/dist/signals/universal-owner.d.ts
+@@ -0,0 +1,10 @@
++import type { SignalOwner } from './types.js';
++/**
++ * @internal A DOM runtime aliases the ambient owner so universal-boundary and
++ * DOM renders resolve the same document scope.
++ */
++export declare function installUniversalSignalDocumentProvider(next: () => SignalOwner): void;
++/** @internal Process-wide signal document for host-neutral renderers. */
++export declare function universalSignalDocument(): SignalOwner;
++/** @internal Compiler capability for ambient signal reads under universal renderers. */
++export declare function enableUniversalSignalDocument(abi?: number): void;
+diff --git a/dist/signals/universal-owner.js b/dist/signals/universal-owner.js
+new file mode 100644
+index 0000000..ff5eb43
+--- /dev/null
++++ b/dist/signals/universal-owner.js
+@@ -0,0 +1,20 @@
++import { installDefaultSignalOwner } from "./owner-context.js";
++let universalOwner;
++let provider;
++function installUniversalSignalDocumentProvider(next) {
++  provider = next;
++}
++function universalSignalDocument() {
++  return provider?.() ?? (universalOwner ??= Object.freeze({ scopeKey: "octane:universal" }));
++}
++function enableUniversalSignalDocument(abi = 1) {
++  if (abi !== 1) {
++    throw new TypeError("Unsupported universal signal owner ABI.");
++  }
++  installDefaultSignalOwner(universalSignalDocument);
++}
++export {
++  enableUniversalSignalDocument,
++  installUniversalSignalDocumentProvider,
++  universalSignalDocument
++};
+diff --git a/dist/universal-core.d.ts b/dist/universal-core.d.ts
+index 448d1b3..73aa7ba 100644
+--- a/dist/universal-core.d.ts
++++ b/dist/universal-core.d.ts
+@@ -1,3 +1,4 @@
++export { __methodDep } from './method-dep.js';
+ declare const UNIVERSAL_PLAN: unique symbol;
+ declare const UNIVERSAL_VALUE: unique symbol;
+ declare const UNIVERSAL_LIST: unique symbol;
+@@ -810,4 +811,3 @@ export interface ObjectHostContainer {
+ }
+ export declare function createObjectContainer(renderer?: string): ObjectHostContainer;
+ export declare function createObjectDriver(renderer?: string): UniversalHostDriver<ObjectHostContainer, ObjectHostInstance>;
+-export {};
+diff --git a/dist/universal-core.js b/dist/universal-core.js
+index 727cbbb..dd08d9a 100644
+--- a/dist/universal-core.js
++++ b/dist/universal-core.js
+@@ -17,6 +17,15 @@ import {
+ } from "./profiling.js";
+ import { getRendererHostFlusher } from "./renderer-bridge.js";
+ import { resolveLazyDefaultProps } from "./shared-value-helpers.js";
++import { universalSignalDocument } from "./signals/universal-owner.js";
++import { registerLocalSignalHook } from "./signals/local-hook.js";
++import { retireSignalOwnerIdentity, runWithSignalOwner } from "./signals/owner-context.js";
++import {
++  beginNativeWriteGuard,
++  endNativeWriteGuard,
++  setNativeReadObserver
++} from "./signals/read-protocol.js";
++import { __methodDep } from "./method-dep.js";
+ const UNIVERSAL_PLAN = /* @__PURE__ */ Symbol.for("octane.universal.plan");
+ const UNIVERSAL_VALUE = /* @__PURE__ */ Symbol.for("octane.universal.value");
+ const UNIVERSAL_LIST = /* @__PURE__ */ Symbol.for("octane.universal.list");
+@@ -836,6 +845,7 @@ function draftOwner(record, parent, replayPath) {
+     boundaryThenable: record.boundaryThenable,
+     isBoundary: record.isBoundary,
+     canHandleSuspense: record.canHandleSuspense,
++    signalReads: null,
+     visibility: parent?.visibility ?? record.visibility,
+     contextStable: null
+   };
+@@ -1006,6 +1016,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+     owner.contextStable = null;
+     owner.needsRender = false;
+     owner.implicitSlot = 0;
++    owner.signalReads = NO_SIGNAL_READS;
+     const previousOwner = CURRENT_OWNER;
+     const previousAttemptOwner = attempt.owner;
+     CURRENT_OWNER = owner;
+@@ -1017,13 +1028,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+     const profileFrame = typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__ && component !== null ? __profileBeginRender(owner.record, component, owner.record.mounted) : null;
+     let didThrow = false;
+     let thrown;
++    const signalOwner = universalSignalOwner(owner.record);
++    const previousReadObserver = setNativeReadObserver(observeUniversalSignalRead);
++    const writeGuard = beginNativeWriteGuard();
+     try {
+-      output = build();
++      output = runWithSignalOwner(signalOwner, build);
+     } catch (error) {
+       didThrow = true;
+-      thrown = error;
+-      throw error;
++      thrown = isThenable(error) ? new UniversalSuspense(error) : error;
++      throw thrown;
+     } finally {
++      endNativeWriteGuard(writeGuard);
++      setNativeReadObserver(previousReadObserver);
+       if (typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__) {
+         __profileEndRender(profileFrame, didThrow, thrown);
+       }
+@@ -1190,6 +1206,8 @@ function disposeUncommittedDraft(owner) {
+     owner.record.componentProps = null;
+     owner.record.range = null;
+     owner.record.updates.clear();
++    disposeUniversalSignalReads(owner.record);
++    disposeUniversalLocalHooks(owner.hooks);
+     for (const hook of owner.hooks.values()) {
+       if (hook.kind === "effect-event") hook.cell.active = false;
+     }
+@@ -3128,6 +3146,85 @@ function scheduleOwner(owner, slot) {
+   }
+   owner.root.scheduleOwned(owner);
+ }
++const UNIVERSAL_SIGNAL_OWNERS = /* @__PURE__ */ new WeakMap();
++function universalSignalOwner(record) {
++  let owner = UNIVERSAL_SIGNAL_OWNERS.get(record);
++  if (owner === void 0) {
++    const documentOwner = universalSignalDocument();
++    const identity = {
++      scopeKey: documentOwner.scopeKey,
++      documentOwner,
++      // The identity object itself is the opaque per-instance token — the
++      // same shape DOM scopes use, so identity maps never retain the record.
++      instanceOwner: null,
++      instanceKey: `u:${record.id}`
++    };
++    identity.instanceOwner = identity;
++    owner = Object.freeze(identity);
++    UNIVERSAL_SIGNAL_OWNERS.set(record, owner);
++  }
++  return owner;
++}
++const NO_SIGNAL_READS = /* @__PURE__ */ new Set();
++function observeUniversalSignalRead(source) {
++  const owner = CURRENT_OWNER;
++  if (owner === null) return;
++  if (owner.signalReads === NO_SIGNAL_READS) owner.signalReads = /* @__PURE__ */ new Set();
++  owner.signalReads.add(source);
++}
++function commitUniversalSignalReads(record, reads) {
++  if (reads === null) return;
++  let subscriptions = record.signalSubscriptions;
++  if (subscriptions !== void 0) {
++    for (const [source, unsubscribe] of subscriptions) {
++      if (!reads.has(source)) {
++        subscriptions.delete(source);
++        unsubscribe();
++      }
++    }
++  }
++  for (const source of reads) {
++    if (subscriptions?.has(source)) continue;
++    if (subscriptions === void 0) {
++      subscriptions = /* @__PURE__ */ new Map();
++      record.signalSubscriptions = subscriptions;
++    }
++    subscriptions.set(
++      source,
++      source.subscribe(() => {
++        if (!record.disposed) scheduleOwner(record);
++      })
++    );
++  }
++  if (subscriptions !== void 0 && subscriptions.size === 0) {
++    record.signalSubscriptions = void 0;
++  }
++}
++function disposeUniversalSignalReads(record) {
++  const subscriptions = record.signalSubscriptions;
++  if (subscriptions !== void 0) {
++    record.signalSubscriptions = void 0;
++    for (const unsubscribe of subscriptions.values()) unsubscribe();
++  }
++  const owner = UNIVERSAL_SIGNAL_OWNERS.get(record);
++  if (owner !== void 0) retireSignalOwnerIdentity(owner);
++}
++function disposeUniversalLocalHooks(hooks) {
++  for (const hook of hooks.values()) {
++    if (hook.kind === "local") hook.dispose(hook.value);
++  }
++}
++function universalLocalHook(_name, initialize, dispose, slot) {
++  const owner = currentDraftOwner();
++  const resolved = resolveHookSlot(slot);
++  let cell = owner.hooks.get(resolved);
++  if (cell === void 0) {
++    cell = { kind: "local", value: initialize(), dispose };
++    owner.hooks.set(resolved, cell);
++  }
++  return cell.value;
++}
++registerLocalSignalHook(() => CURRENT_OWNER === null ? null : universalLocalHook);
+ function currentDraftOwner() {
+   currentAttempt();
+   const owner = activateLazyLeafOwner();
+@@ -5506,7 +5603,7 @@ class UniversalRootImpl {
+     }
+     let result;
+     try {
+-      result = event.handler(payload);
++      result = runWithSignalOwner(universalSignalOwner(event.owner), () => event.handler(payload));
+     } catch (error) {
+       if (!routeUniversalOwnerError(event.owner, error)) throw error;
+     }
+@@ -6082,6 +6179,8 @@ class UniversalRootImpl {
+       draft.record.componentProps = null;
+       draft.record.range = null;
+       draft.record.updates.clear();
++      disposeUniversalSignalReads(draft.record);
++      disposeUniversalLocalHooks(draft.hooks);
+       for (const hook of draft.hooks.values()) {
+         if (hook.kind === "effect-event") hook.cell.active = false;
+       }
+@@ -6762,6 +6861,7 @@ class UniversalRootImpl {
+         owner.componentProps = draftOwner2.componentProps;
+         owner.componentRevision = draftOwner2.componentRevision;
+         owner.hooks = draftOwner2.hooks;
++        commitUniversalSignalReads(owner, draftOwner2.signalReads);
+         for (const [slot, applied] of draftOwner2.appliedUpdates) {
+           const queue = owner.updates.get(slot);
+           if (queue !== applied.queue || applied.lane) continue;
+@@ -6795,6 +6895,7 @@ class UniversalRootImpl {
+       record.componentRevision = draft.componentRevision;
+       record.parent = draft.parent?.record ?? null;
+       record.hooks = draft.hooks;
++      commitUniversalSignalReads(record, draft.signalReads);
+       record.effectOrder = [...draft.seenEffects];
+       for (let index = 0; index < draft.seenEffects.length; index++) {
+         draft.seenEffects[index].previous = null;
+@@ -8441,6 +8542,8 @@ class UniversalRootImpl {
+           owner.componentProps = null;
+           owner.range = null;
+           owner.updates.clear();
++          disposeUniversalSignalReads(owner);
++          disposeUniversalLocalHooks(owner.hooks);
+         }
+         for (const draft of draftOwnersParentFirst) {
+           const record = draft.record;
+@@ -8450,6 +8553,7 @@ class UniversalRootImpl {
+             record.parent = draft.parent?.record ?? null;
+           }
+           record.hooks = draft.hooks;
++          commitUniversalSignalReads(record, draft.signalReads);
+           record.effectOrder = [...draft.seenEffects];
+           for (let index = 0; index < draft.seenEffects.length; index++) {
+             draft.seenEffects[index].previous = null;
+@@ -8971,6 +9075,8 @@ class UniversalRootImpl {
+           owner.componentProps = null;
+           owner.range = null;
+           owner.updates.clear();
++          disposeUniversalSignalReads(owner);
++          disposeUniversalLocalHooks(owner.hooks);
+         }
+         const deactivatedRegionCells = /* @__PURE__ */ new Set();
+         for (const bridge of regionBridges) {
+@@ -9926,6 +10032,7 @@ export {
+   Activity,
+   UNIVERSAL_HMR,
+   UNIVERSAL_TRANSPORT_PROTOCOL_VERSION,
++  __methodDep,
+   __useLinkedStateWithGetter,
+   __useReducerWithGetter,
+   __useStateWithGetter,
+diff --git a/dist/universal-native.js b/dist/universal-native.js
+index 55ac9b6..3ff9a57 100644
+--- a/dist/universal-native.js
++++ b/dist/universal-native.js
+@@ -6,9 +6,11 @@ import {
+ import {
+   universalContext
+ } from "./universal-core.js";
++import { enableUniversalSignalDocument } from "./signals/universal-owner.js";
+ import { registerRendererContext, renderRendererContextProvider } from "./renderer-bridge.js";
+ import { CONTEXT_TAG } from "./runtime-tags.js";
+ import { registerContext } from "./context-identity.js";
++enableUniversalSignalDocument();
+ // @__NO_SIDE_EFFECTS__
+ function createContext(defaultValue) {
+   const context = ((props, scope) => scope === void 0 ? universalContext(context, props.value, props.children) : renderRendererContextProvider(context, props, scope));
+diff --git a/dist/universal.js b/dist/universal.js
+index 6427a01..8049b78 100644
+--- a/dist/universal.js
++++ b/dist/universal.js
+@@ -8,6 +8,9 @@ import {
+   createUniversalHostBoundary,
+   registerUniversalHostBridge
+ } from "./universal-dom-boundary.js";
++import { documentSignalOwner } from "./signals/document-owner.js";
++import { installUniversalSignalDocumentProvider } from "./signals/universal-owner.js";
++installUniversalSignalDocumentProvider(() => documentSignalOwner(document));
+ export {
+   createContext,
+   createSubSlot,

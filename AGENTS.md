@@ -232,7 +232,7 @@ not maintained incrementally.
 5. Universal-runtime APIs only in shared code (allowlist produced by Phase 1).
 6. Static styles = CSS/`className`; dynamic = `style` objects.
 7. Module-level `signal$`/`query$` `.get()` reads subscribe and re-render on
-   native too (universal signal reads, octane universal-signals build).
+   native too (universal signal reads from the canonical octane patch).
    Non-signal module state still needs `useStore` per reader — the universal
    renderer retains unchanged-prop children on parent re-render, so bare
    reads go stale on native (web re-invokes them; decision #27).

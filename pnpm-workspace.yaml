@@ -16,12 +16,6 @@ publicHoistPattern:
 # nothing here invokes; chokidar3+readdirp3 is the coherent pair.
 overrides:
   chokidar: ^3.6.0
-  # Packed octane 0.5.0 + universal-signal-reads + JSX-prop lowering
-  # (built from the octane-universal-signals worktree, HEAD eaa51b09).
-  # Published 0.5.0 rejects native signal reads — drop this override once
-  # a release ships both features. Previous pack:
-  # research/dist-packs/octane-0.4.0-universal-signals.tgz.
-  octane: file:/Users/alec/dev/alloc/octane-xplat/research/dist-packs/octane-0.5.0-universal-signals.tgz
   # vite 8's esbuild peer range admits 0.28.x; where octane/app-core peer
   # contexts resolve it fresh they get 0.28.2 while vite's own tree carries
   # 0.27.7 — the vendor bundler then crashes on the host/binary mismatch.
@@ -44,10 +38,8 @@ minimumReleaseAgeExclude:
   # windows platform (cli#6065). Exact pins in apps/windows/package.json.
   - '@nativescript/windows@0.1.0-alpha.144'
   - nativescript@9.1.2-dev.2026-09-24-36031892256
-# The octane override resolves every `octane` specifier to the packed
-# universal-signals build, still versioned 0.5.0 — below ui's >=0.6.3 peer
-# floor (the floor marks upstream's universal `__methodDep` export, which the
-# tarball already carries). Whitelist it instead of weakening the floor.
+# The patched octane@0.5.0 carries universal `__methodDep` below ui's
+# >=0.6.3 peer floor. Whitelist this workspace pin without weakening the floor.
 peerDependencyRules:
   allowedVersions:
     octane: '0.5.0'
@@ -63,6 +55,10 @@ allowBuilds:
 # patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`
 # propagates to the create template. `pnpm check:patches` fails on drift.
 patchedDependencies:
+  # Published octane 0.5.0 lacks universal signal reads and JSX prop lowering needed by the
+  # native renderer. Applies the same built-file changes as the former local
+  # universal-signals tarball, including the native method-dependency export.
+  octane@0.5.0: packages/cli/patches/octane@0.5.0.patch
   # FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts
   # parent padding + child margins — a column-stretched row re-measurement clamps padded
   # children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for
