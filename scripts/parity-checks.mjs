@@ -1072,9 +1072,9 @@ export const CHECKS = [
 			const backdrop = m('backdrop')
 			const panel = m('panel')
 			return [
-				dims(root, 96, 48),
-				dims(main, 96, 48),
-				dims(backdrop, 96, 48),
+				dims(root, 320, 48),
+				dims(main, 320, 48),
+				dims(backdrop, 320, 48),
 				['drawer panel is 280 dip wide', near(panel.box.w, 280, 1), panel.box.w],
 				[
 					'drawer panel starts at the root origin',
