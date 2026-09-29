@@ -1,7 +1,7 @@
 # Windows experiment (WinUI 3 via `@nativescript/windows`)
 
 Path A of the windows investigation ([docs/windows-notes.md](../../docs/windows-notes.md),
-decision #65): the shared harness runs on upstream's in-flight
+decision #65): this scaffold is intended to run the shared harness on upstream's in-flight
 `@nativescript/core` windows platform ([NativeScript#11468](https://github.com/NativeScript/NativeScript/pull/11468)
 preview builds) inside the `@nativescript/windows` WinUI 3 host. No custom
 renderer — `@nativescript-community/octane` drives core views as on
@@ -32,14 +32,16 @@ Pins, all deliberate:
 
 ## Running
 
-Requires Windows 10 1809+ (arm64 VM works — the runtime ships arm64 dlls),
+Requires Windows 10 1809+ (the runtime ships arm64 DLLs; this harness has not
+been verified in an arm64 VM),
 .NET 10 SDK, Developer Mode enabled, and Node + pnpm. Then:
 
 ```sh
 pnpm install          # in the repo root
 pnpm --filter @xplat/app gen
-pnpm xplat dev --targets windows   # or: pnpm windows
+pnpm -C apps/windows xplat dev --targets windows
+# or: pnpm -C apps/windows windows
 ```
 
-`xplat doctor` checks the win32 host, exact `@nativescript/windows` pin,
-.NET SDK ≥ 10, and the Developer Mode registry flag.
+`pnpm -C apps/windows xplat doctor` checks the win32 host, exact
+`@nativescript/windows` pin, .NET SDK ≥ 10, and the Developer Mode registry flag.

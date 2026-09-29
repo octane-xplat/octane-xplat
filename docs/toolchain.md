@@ -75,8 +75,9 @@ connection attaches. A manual app launch may load a bundled app without live
 updates. Native configuration or dependency changes can require a rebuild.
 If an edit does not appear, use the
 [dev-loop troubleshooting table](toolchain-notes.md#dev-loop-troubleshooting).
-macOS uses a separate experimental update path described below; there is no
-Windows dev target in this checkout.
+macOS uses a separate experimental update path described below. The Windows
+scaffold has a CLI dev target, but its launch and live updates have not yet
+been verified on Windows.
 
 ## Agent context and versions
 
@@ -164,6 +165,24 @@ set of components and style tokens, while missing host services report
 `unsupported` or `unavailable`. This verifies the in-repository harness, not
 general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for the measured boundary.
+
+## Experimental Windows target
+
+The repository includes a WinUI 3 scaffold in `apps/windows`, separate from
+the creator. Its Windows-targeted bundle builds on macOS; launch, interactions,
+and live updates still need verification on a Windows host. This is an
+experimental path, not a verified Windows release workflow.
+
+It requires Windows 10 1809+, .NET 10 SDK, Developer Mode, Node.js, and pnpm.
+The scaffold pins `@nativescript/windows` to `0.1.0-alpha.144`, NativeScript
+CLI to `9.1.2-dev.2026-09-24-36031892256`, and core/Vite to PR #11468 preview
+builds. The standard core 9.1.2/Vite 8.0.11 patches do not apply to those
+previews. Keep this setup separate from the starter's mobile version matrix.
+
+Follow the [Windows harness instructions](../apps/windows/README.md) for
+commands and prerequisites. Ask your agent to report bundle checks separately
+from Windows runtime checks; a compiled shared screen does not prove that its
+native controls or device services work there.
 
 ## Experimental Linux target (WebKitGTK webview)
 

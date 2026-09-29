@@ -11,7 +11,7 @@ illustrative app brief, not an app shipped by this repository.
 
 | Role | App outcome to show | Platform label and evidence required |
 | --- | --- | --- |
-| A coherent app across all five targets | The same trip, itinerary, and packing flow on web, iOS, Android, macOS, and Windows. | Label every target. This is the intended showcase; the current checkout cannot demonstrate all five. macOS is experimental and there is no runnable Windows target. |
+| A coherent app across all five targets | The same trip, itinerary, and packing flow on web, iOS, Android, macOS, and Windows. | Label every target. This is the intended showcase; the current checkout cannot demonstrate all five. macOS is experimental and the Windows scaffold has not yet been run on Windows. |
 | A shared edit reflected in running targets | Ask an agent to group packing items by bag; save the shared screen and inspect the change in each running app. | Name only the targets actually running. The existing web/iOS live-edit evidence is in the toolchain notes; it does not prove a five-target update loop. |
 | One useful capability with a platform-specific response | Attach a photo to a trip item. | Label iOS/Android OS capture separately from web phone capture or desktop browser file selection. Include cancellation, denied access, and unsupported responses. |
 | A focused platform-specific implementation | Use `UISwitch` from `@octane-xplat/ui/ios` for a packing row’s packed toggle while keeping the shared props and action. | Show the `.ios` file and shared import, and verify the other target implementations. A planned example must not be presented as a working demo. |

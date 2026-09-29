@@ -7,9 +7,9 @@
 > the NativeScript toolchain (Xcode/JDK + `ns`).
 
 For a new app, start with the [creator](../create/README.md). The CLI runs
-configured web, iOS, and Android targets, plus opt-in experimental macOS and
-Linux apps. The product direction also includes Windows, but this checkout
-has no Windows CLI target. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+configured web, iOS, and Android targets, plus opt-in experimental macOS,
+Windows, and Linux apps. The Windows scaffold has passed bundle generation
+only; launch and runtime behavior remain unverified. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 
 For an existing app:
 

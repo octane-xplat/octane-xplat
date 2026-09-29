@@ -5,7 +5,7 @@
 
 xplat's target direction spans web, iOS, Android, macOS, and Windows. This
 starter configures **web, iOS, and Android**. macOS is a separate experiment;
-Windows has no runnable xplat setup in this checkout. See
+Windows has a separate experimental scaffold with runtime verification pending. See
 [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 The framework is `0.x` and its API surface is still changing.
 

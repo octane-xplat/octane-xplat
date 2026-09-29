@@ -7,8 +7,8 @@ Start with the app you want: a trip planner, a field checklist, a media library,
 or another product with shared screens and useful device features. Describe
 one working flow to your agent, try it, and keep improving it.
 
-The starter runs on web, iOS, and Android. macOS is experimental; Windows has
-no runnable xplat setup in this checkout. [Choose your targets](spec.md#choose-your-targets)
+The starter runs on web, iOS, and Android. macOS is experimental; the Windows
+scaffold builds a bundle but has not yet been run on Windows. [Choose your targets](spec.md#choose-your-targets)
 for the current boundaries before committing to a release.
 
 ## Start here
@@ -57,4 +57,4 @@ by [framework](framework-notes.md), [architecture](architecture-notes.md),
 [toolchain](toolchain-notes.md). Focused notes cover [module
 resolution](module-resolution-notes.md), [animation](animation-notes.md),
 [testing](testing-notes.md), [CSS support](css-support-notes.md), and the
-proposed [Windows target](windows-notes.md).
+experimental [Windows target](windows-notes.md).

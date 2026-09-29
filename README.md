@@ -5,8 +5,8 @@ shared screens and room for each platform to feel right. Describe the app to
 your coding agent, get a working screen, then improve it one task at a time.
 
 **Start on web, iOS, and Android with the starter today.** macOS has an
-experimental AppKit host; Windows is a target direction, with no runnable
-xplat setup in this checkout. These targets do not yet have equal support.
+experimental AppKit host; Windows has an experimental WinUI 3 scaffold
+whose bundle builds, but has not yet been run on Windows. These targets do not yet have equal support.
 See the [target guide](docs/spec.md#choose-your-targets) before planning a release.
 
 ## Get a working app

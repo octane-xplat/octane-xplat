@@ -9,8 +9,8 @@
 Start with the [app creator](../create/README.md) when building a new app with
 an agent. xplat's five-target direction covers web, iOS, Android, macOS, and
 Windows; this package's established implementations cover web and mobile,
-with a bounded experimental macOS surface. Windows is not runnable in this
-checkout. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+with a bounded experimental macOS surface. The Windows scaffold has not yet
+been run on Windows, so UI support there remains unverified. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 
 To add the UI package to an existing configured app:
 

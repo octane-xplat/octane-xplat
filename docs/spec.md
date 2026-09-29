@@ -19,13 +19,13 @@ for each platform. These are app ideas, not bundled demos.
 | iOS | Starter using NativeScript views and APIs | A Mac, Xcode, NativeScript setup, and signing for device/distribution builds. |
 | Android | Starter using NativeScript views and APIs | Android SDK, a compatible JDK, and an emulator or device. |
 | macOS | Experimental AppKit harness and CLI packaging | Apple Silicon, macOS 13.5+, a separate app configuration, and a limited component/style/service surface; not in the starter. |
-| Windows | Platform suffix convention and provisional design discussion | No runnable Windows app or CLI target in this checkout; do not plan a Windows release from the starter. |
+| Windows | Experimental WinUI 3 scaffold and CLI target; bundle generation verified on macOS | Windows 10 1809+, .NET 10 SDK, Developer Mode, and pinned preview dependencies. Runtime behavior is unverified; not in the starter. |
 
 The framework is `0.x`; APIs are still changing. [Known limits](known-limits.md)
 records capability differences and verification status. The
 [macOS notes](../apps/macos/README.md) describe the measured desktop boundary;
-the [Windows discussion](navigation-notes.md#hard-seams-decide-consciously) is design context,
-not setup instructions. Linux also has a separate
+the [Windows setup](../apps/windows/README.md) describes the experimental
+scaffold and the checks still needed on a Windows host. Linux also has a separate
 [experimental webview target](toolchain.md#experimental-linux-target-webkitgtk-webview).
 
 ## Get a result, then improve it
