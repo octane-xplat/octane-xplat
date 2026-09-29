@@ -164,6 +164,29 @@ body {
 	border-bottom-color: var(--color-border);
 }
 
+/* Human QA checklist (/qa) — one card per check; the verdict tints the
+   card border so review state is scannable mid-sweep. */
+.qa-check {
+	gap: 6px;
+	padding: 12px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+}
+
+.qa-pass {
+	border-color: #16a34a;
+}
+
+.qa-fail {
+	border-color: var(--color-danger);
+}
+
+.qa-skip {
+	border-color: var(--color-border-strong);
+}
+
 /* Probe surfaces — a boundary is earned where interaction happens. */
 .panbox {
 	min-height: 96px;

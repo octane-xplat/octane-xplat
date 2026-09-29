@@ -22,6 +22,19 @@ export function Test() @{
 		<ScrollView id="test-scroll" className="flex-1">
 		<Text className="text-2xl font-semibold">Test</Text>
 
+		<View className="sink-section">
+			<Text className="section-label">Human QA</Text>
+			<Row className="demo-menu">
+				<Pressable
+					id="menu-human-qa"
+					onPress={() => navigate('qa', {}, { into: 'test' })}
+					className="chip"
+				>
+					<Text>Human checklist →</Text>
+				</Pressable>
+			</Row>
+		</View>
+
 		<Probes />
 		<MediaServices />
 

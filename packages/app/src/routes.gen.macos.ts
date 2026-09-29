@@ -10,7 +10,8 @@ const files = import.meta.glob(
 		'!./app/**/*.android.{tsrx,tsx}',
 		'!./app/**/*.mobile.{tsrx,tsx}',
 		'!./app/**/*.windows.{tsrx,tsx}',
-		'!./app/**/*.linux.{tsrx,tsx}'
+		'!./app/**/*.linux.{tsrx,tsx}',
+		'!./app/parity.tsrx'
 	],
 	{ eager: true },
 )

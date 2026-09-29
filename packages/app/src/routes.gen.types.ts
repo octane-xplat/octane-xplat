@@ -7,6 +7,7 @@ export type RouteName =
 	| 'list-nested-probe'
 	| 'parity'
 	| 'private'
+	| 'qa'
 
 export interface RouteParams {
 	'about': {  }
@@ -15,6 +16,7 @@ export interface RouteParams {
 	'list-nested-probe': {  }
 	'parity': {  }
 	'private': {  }
+	'qa': {  }
 }
 
 export interface RoutePresentations {
