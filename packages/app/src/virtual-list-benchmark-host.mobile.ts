@@ -1,1 +1,1 @@
-export { VirtualListBenchmark } from './VirtualListBenchmark.tsrx'
+export { VirtualListBenchmark, VirtualListBenchmarkFixed } from './VirtualListBenchmark.tsrx'

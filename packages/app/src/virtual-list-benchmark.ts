@@ -45,6 +45,10 @@ export const VIRTUAL_LIST_BENCH_ITEMS: VirtualListBenchItem[] = Array.from(
 	}),
 )
 
+export const VIRTUAL_LIST_BENCH_FIXED_ITEMS: VirtualListBenchItem[] = VIRTUAL_LIST_BENCH_ITEMS.map(
+	(item) => ({ ...item, height: 48 }),
+)
+
 const rowOffsets = (() => {
 	const offsets = new Array<number>(VIRTUAL_LIST_BENCH_ROW_COUNT + 1)
 	offsets[0] = 0
@@ -138,6 +142,115 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
 	}
 
 	return { missingVisibleRows, maxGap }
+}
+
+export async function runVirtualListInputTrace(
+	adapter: Pick<VirtualListBenchAdapter, 'target' | 'read' | 'wait'>,
+	durationMs = 20_000,
+) {
+	const performanceApi = (globalThis as any).performance
+	const now = () => performanceApi?.now?.() ?? Date.now()
+	let first = adapter.read()
+	const readyDeadline = now() + 10_000
+	while ((first.viewportHeight <= 0 || first.mountedIndices.length === 0) && now() < readyDeadline) {
+		await adapter.wait()
+		first = adapter.read()
+	}
+	if (first.viewportHeight <= 0 || first.mountedIndices.length === 0) {
+		throw new Error('VirtualList input profile could not read a laid-out list viewport')
+	}
+	if (!Number.isFinite(durationMs) || durationMs <= 0) {
+		throw new Error('VirtualList input profile duration must be positive')
+	}
+
+	const startedAt = now()
+	const intervalSamples: number[] = []
+	const mountedSamples = [first.mountedIndices.length]
+	const gapSamples: number[] = []
+	const offsets = [first.offset]
+	let mountedRowsAdded = 0
+	let mountedRowsRemoved = 0
+	let previousMounted = new Set(first.mountedIndices)
+	let previousAt = startedAt
+
+	const visibleGap = (snapshot: VirtualListBenchSnapshot) => {
+		const visible = snapshot.rows
+			.map((row) => ({ top: Math.max(0, row.top), bottom: Math.min(snapshot.viewportHeight, row.bottom) }))
+			.filter((row) => row.bottom > row.top)
+			.sort((a, b) => a.top - b.top)
+		let coveredUntil = 0
+		let maxGap = 0
+		for (const row of visible) {
+			if (row.top > coveredUntil) maxGap = Math.max(maxGap, row.top - coveredUntil)
+			coveredUntil = Math.max(coveredUntil, row.bottom)
+		}
+		if (snapshot.viewportHeight > coveredUntil) {
+			maxGap = Math.max(maxGap, snapshot.viewportHeight - coveredUntil)
+		}
+		return maxGap
+	}
+
+	while (now() - startedAt < durationMs) {
+		await adapter.wait()
+		const snapshot = adapter.read()
+		const sampledAt = now()
+		intervalSamples.push(Math.max(0, sampledAt - previousAt))
+		previousAt = sampledAt
+		const nextMounted = new Set(snapshot.mountedIndices)
+		for (const index of nextMounted) {
+			if (!previousMounted.has(index)) mountedRowsAdded += 1
+		}
+		for (const index of previousMounted) {
+			if (!nextMounted.has(index)) mountedRowsRemoved += 1
+		}
+		previousMounted = nextMounted
+		mountedSamples.push(snapshot.mountedIndices.length)
+		gapSamples.push(visibleGap(snapshot))
+		offsets.push(snapshot.offset)
+	}
+
+	const movements = offsets.slice(1).map((offset, index) => offset - offsets[index])
+	const nonzeroMovements = movements.filter((delta) => Math.abs(delta) > 0.5)
+	let directionChanges = 0
+	let previousDirection = 0
+	for (const delta of nonzeroMovements) {
+		const direction = Math.sign(delta)
+		if (previousDirection !== 0 && previousDirection !== direction) directionChanges += 1
+		previousDirection = direction
+	}
+	const maxOffset = offsets.length ? Math.max(...offsets) : 0
+	const minOffset = offsets.length ? Math.min(...offsets) : 0
+	const maxVelocity = movements.reduce((max, delta, index) => {
+		const interval = intervalSamples[index] ?? 0
+		return interval > 0 ? Math.max(max, (Math.abs(delta) / interval) * 1000) : max
+	}, 0)
+
+	return {
+		schema: 'xplat.virtual-list-input.v1',
+		target: adapter.target,
+		fixture: { rowCount: VIRTUAL_LIST_BENCH_ROW_COUNT },
+		durationMs: Number((now() - startedAt).toFixed(1)),
+		samples: intervalSamples.length + 1,
+		sampleIntervalMs: summarize(intervalSamples),
+		laggedSamples: intervalSamples.filter((interval) => interval > 32).length,
+		scroll: {
+			movementSamples: nonzeroMovements.length,
+			distance: Number(nonzeroMovements.reduce((sum, delta) => sum + Math.abs(delta), 0).toFixed(1)),
+			startOffset: Number((offsets[0] ?? 0).toFixed(1)),
+			endOffset: Number((offsets.at(-1) ?? 0).toFixed(1)),
+			minOffset: Number(minOffset.toFixed(1)),
+			maxOffset: Number(maxOffset.toFixed(1)),
+			directionChanges,
+			maxVelocity: Number(maxVelocity.toFixed(1)),
+		},
+		mountedRows: summarize(mountedSamples),
+		coverage: {
+			samples: gapSamples.length,
+			gapSamples: gapSamples.filter((gap) => gap > 1).length,
+			maxGap: Number((gapSamples.length ? Math.max(...gapSamples) : 0).toFixed(1)),
+		},
+		rowChurn: { mounted: mountedRowsAdded, unmounted: mountedRowsRemoved },
+	}
 }
 
 /** Run the same scripted trace against the DOM and NativeScript list leaves. */

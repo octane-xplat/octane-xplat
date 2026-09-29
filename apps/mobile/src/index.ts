@@ -2,10 +2,21 @@ import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@n
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
 import { installParityDump } from '@xplat/app/parity/measure'
-import { VirtualListBenchmark } from '@xplat/app/virtual-list-benchmark-host.mobile'
+import {
+	VirtualListBenchmark,
+	VirtualListBenchmarkFixed,
+} from '@xplat/app/virtual-list-benchmark-host.mobile'
 import { probeSignal$ } from '@xplat/app/probe-state'
-import { runVirtualListBenchmark } from '@xplat/app/platform/virtual-list-benchmark.mobile'
-import { VIRTUAL_LIST_BENCH_MODE } from '@xplat/app/platform/virtual-list-benchmark-mode.mobile'
+import {
+	runVirtualListBenchmark,
+	runVirtualListInputBenchmark,
+} from '@xplat/app/platform/virtual-list-benchmark.mobile'
+import {
+	VIRTUAL_LIST_BENCH_FIXED_MODE,
+	VIRTUAL_LIST_BENCH_MODE,
+	VIRTUAL_LIST_INPUT_DURATION_MS,
+	VIRTUAL_LIST_INPUT_MODE,
+} from '@xplat/app/platform/virtual-list-benchmark-mode.mobile'
 import { sheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick.mobile'
 import {
@@ -98,7 +109,12 @@ function createWindowContent(): Frame {
 	page.actionBarHidden = true
 	console.log('[harness] createWindowContent')
 	try {
-		roots.add(renderNativeScriptApp(page, VIRTUAL_LIST_BENCH_MODE ? VirtualListBenchmark : App))
+		const rootComponent = VIRTUAL_LIST_BENCH_MODE
+			? VIRTUAL_LIST_BENCH_FIXED_MODE
+				? VirtualListBenchmarkFixed
+				: VirtualListBenchmark
+			: App
+		roots.add(renderNativeScriptApp(page, rootComponent))
 		thePage = page
 		console.log('[harness] root mounted')
 	} catch (e) {
@@ -129,6 +145,29 @@ if (VIRTUAL_LIST_BENCH_MODE) {
 	const startWhenMounted = (tries = 100) => {
 		const list = thePage?.getViewById?.('vlist-bench-list') ?? findInRootLayouts('vlist-bench-list')
 		if (list) {
+			if (VIRTUAL_LIST_INPUT_MODE) {
+				const target = Application.android != null ? 'android' : 'ios'
+				const heightMode = VIRTUAL_LIST_BENCH_FIXED_MODE ? 'fixed48' : 'variable'
+				console.log(
+					'[vlist-input] ready ' +
+					JSON.stringify({ target, heightMode, durationMs: VIRTUAL_LIST_INPUT_DURATION_MS }),
+				)
+				void runVirtualListInputBenchmark(
+					'vlist-bench-list',
+					VIRTUAL_LIST_INPUT_DURATION_MS,
+					thePage,
+				)
+					.then((metrics) =>
+						console.log(
+							'[vlist-input] result ' + JSON.stringify({ heightMode, ...metrics }),
+						),
+					)
+					.catch((error) => {
+						const message = error instanceof Error ? error.message : String(error)
+						console.log('[vlist-input] error ' + message)
+					})
+				return
+			}
 			void runVirtualListBenchmark('vlist-bench-list', thePage)
 				.then((metrics) =>
 					console.log('[vlist-benchmark] result ' + JSON.stringify(virtualListBenchmarkReport(metrics))),
@@ -941,7 +980,7 @@ setTimeout(() => {
 // router-owned swap panes (upstream #11444; fix ported as #11446 in the
 // core patch). SwapTabs is the Android path under test — tab switching is
 // a Pressable tap, not selectedIndexChanged.
-if (Application.android) {
+if (Application.android && !VIRTUAL_LIST_BENCH_MODE) {
 	const waitFor = (cond: () => boolean, then: () => void, tries = 40) => {
 		const tick = () => {
 			if (cond() || --tries <= 0) {
@@ -1227,7 +1266,7 @@ if (Application.android) {
 // Route-config verification runs after the earlier Android navigation probes.
 // beforeLoad stamps the route already committed at invocation time; redirect
 // must commit only its destination rather than the intermediate route.
-if (Application.android) {
+if (Application.android && !VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(() => {
 		const frame = getStack('root') as any
 		const poll = (condition: () => boolean, done: () => void, tries = 80) => {

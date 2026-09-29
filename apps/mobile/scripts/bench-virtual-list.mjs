@@ -9,22 +9,34 @@ if (target !== 'ios' && target !== 'android') {
 }
 
 const nativeDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const modeFile = path.resolve(
-	nativeDir,
-	'../../packages/app/src/platform/virtual-list-benchmark-mode.mobile.ts',
+const modeFiles = [
+	path.resolve(nativeDir, '../../packages/app/src/platform/virtual-list-benchmark-mode.mobile.ts'),
+	path.resolve(nativeDir, '../../packages/app/src/platform/virtual-list-benchmark-mode.native.ts'),
+]
+const originalModes = modeFiles.map((modeFile) => readFileSync(modeFile, 'utf8'))
+const disabledMode = [
+	'export const VIRTUAL_LIST_BENCH_MODE = false',
+	'export const VIRTUAL_LIST_INPUT_MODE = false',
+	'export const VIRTUAL_LIST_BENCH_FIXED_MODE = false',
+	'export const VIRTUAL_LIST_INPUT_DURATION_MS = 20_000',
+].join('\n') + '\n'
+const enabledMode = disabledMode.replace(
+	'export const VIRTUAL_LIST_BENCH_MODE = false',
+	'export const VIRTUAL_LIST_BENCH_MODE = true',
 )
-const originalMode = readFileSync(modeFile, 'utf8')
-const disabledMode = 'export const VIRTUAL_LIST_BENCH_MODE = false\n'
-const enabledMode = 'export const VIRTUAL_LIST_BENCH_MODE = true\n'
-if (originalMode !== disabledMode) {
-	throw new Error(`Unexpected benchmark mode source in ${modeFile}; refusing to overwrite it`)
+if (originalModes.some((mode) => mode !== disabledMode)) {
+	throw new Error(`Unexpected benchmark mode source in ${modeFiles.join(', ')}; refusing to overwrite it`)
 }
-writeFileSync(modeFile, enabledMode)
+for (const modeFile of modeFiles) {
+	writeFileSync(modeFile, enabledMode)
+}
 
 let modeRestored = false
 const restoreMode = () => {
 	if (modeRestored) return
-	writeFileSync(modeFile, originalMode)
+	modeFiles.forEach((modeFile, index) => {
+		writeFileSync(modeFile, originalModes[index])
+	})
 	modeRestored = true
 }
 process.once('exit', restoreMode)

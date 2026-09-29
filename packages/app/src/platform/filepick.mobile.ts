@@ -4,11 +4,12 @@
 // On My iPhone > native in the document browser.
 import { Application, knownFolders } from '@nativescript/core'
 import { files } from '@octane-xplat/platform'
+import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 // iOS only — the document browser is the surface under test; Android's
 // SAF intent is covered separately. Rooting the picker at Documents via
 // startingFolder leaves one tappable row for unattended drives.
-if (Application.ios) {
+if (Application.ios && !VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(async () => {
 		try {
 			await files.writeText('harness.txt', 'octane-xplat file service')

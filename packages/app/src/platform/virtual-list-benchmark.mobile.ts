@@ -2,6 +2,7 @@ import { Application } from '@nativescript/core'
 import { findInRootLayouts } from '@octane-xplat/ui/native'
 import {
 	VIRTUAL_LIST_BENCH_INTERVAL_MS,
+	runVirtualListInputTrace,
 	runVirtualListBenchTrace,
 	type VirtualListBenchAdapter,
 	type VirtualListBenchSnapshot,
@@ -60,4 +61,22 @@ export async function runVirtualListBenchmark(listId: string, root?: any) {
 		wait: () => new Promise<void>((resolve) => setTimeout(resolve, VIRTUAL_LIST_BENCH_INTERVAL_MS)),
 	}
 	return runVirtualListBenchTrace(adapter)
+}
+
+export async function runVirtualListInputBenchmark(
+	listId: string,
+	durationMs = 20_000,
+	root?: any,
+) {
+	const appRoot: any = Application.getRootView?.()
+	const list: any =
+		root?.getViewById?.(listId) ?? findInRootLayouts(listId) ?? appRoot?.getViewById?.(listId)
+	return runVirtualListInputTrace(
+		{
+			target: Application.android != null ? 'android' : 'ios',
+			read: () => readSnapshot(list),
+			wait: () => new Promise<void>((resolve) => setTimeout(resolve, VIRTUAL_LIST_BENCH_INTERVAL_MS)),
+		},
+		durationMs,
+	)
 }

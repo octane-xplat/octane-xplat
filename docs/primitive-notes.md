@@ -684,12 +684,46 @@ display vsync or reproduce wheel, trackpad, or touch-fling input. A seek timeout
 means the offset, stability, and mounted-row checks missed the deadline; it
 does not by itself mean the viewport was blank.
 
-The programmed stream stayed gap-free on all three targets, so this pass does
-not justify changing shared overscan or adding cell recycling. Native
-checkpoints lagged, and Android showed gaps during deep seeks. Keep Q30 open for
-real wheel/trackpad input on web, touch flings on iOS and Android, fixed-height
-data, long sessions, and memory sampling before deciding whether an algorithm
-change is warranted.
+The programmed stream stayed gap-free on web and iOS; Android showed gaps
+during deep seeks. The second pass below adds injected scroll gestures,
+fixed-height data, and three-minute memory samples. Q30 remains open because
+the inputs are synthetic, iOS variable-height scrolling reports uncovered
+viewport geometry, and Android process memory trends upward.
+
+### VirtualList input and memory profile (Q30; 2026-09-28)
+
+The input pass used the same 5,000-row fixture. Web used Playwright mouse-wheel
+events in headless Chromium; iOS used `idb ui swipe` on the simulator; Android
+used `adb shell input swipe` on a physical OnePlus device. These repeatable
+gestures exercise scrolling, but they do not reproduce a physical trackpad's
+momentum or a person's finger movement. Runners: [web](../apps/web/scripts/bench-virtual-list-input.mjs)
+and [iOS/Android](../apps/mobile/scripts/bench-virtual-list-input.mjs).
+
+| Target | Variable-height run | Max mounted rows | Geometry gap samples | Input timing |
+| --- | ---: | ---: | ---: | ---: |
+| Web | 181.4 s | 27 | 0 / 1,749 | rAF p95/max 16.7/16.8 ms; 0 intervals >32 ms |
+| iOS simulator | 180.0 s | 42 | 272 / 6,055; max 37 pt | JS sample p95/max 56.4/233.4 ms; 2,192 intervals >32 ms |
+| Android device | 180.0 s | 36 | 0 / 6,263 | JS sample p95/max 41.6/224.6 ms; 2,073 intervals >32 ms |
+
+The short fixed-height (`48` unit) runs were gap-free on every target, with
+max mounted rows of 27 on web, 42 on iOS, and 35 on Android. The short
+variable-height iOS run also reported geometry gaps (64 / 673 samples, max 34
+pt); its Android and web runs reported none. A geometry gap is an uncovered
+viewport interval in sampled row bounds, not a visual screenshot assertion.
+
+During the three-minute variable-height runs, web's uncollected heap samples
+fluctuated between 12.3 and 34.1 MB, then fell to 7.85 MB after forced GC
+(6.02 MB before scrolling); DOM nodes returned to the 1,259-node baseline.
+iOS host RSS varied from 329.8 to 356.8 MB and ended below its 339.3 MB start.
+Android total PSS rose from 211 MB to 346 MB, with small dips between samples.
+Native runs did not force garbage collection, so the Android increase is a
+memory-growth signal, not proof of a leak.
+
+Native timing here is the JavaScript snapshot polling interval; intervals over
+32 ms are counted as lag. It does not measure display vsync or frame rate.
+There were no physical trackpad or direct finger-input runs. Keep Q30 open;
+verify the iOS variable-height geometry gaps and investigate Android memory
+growth before changing shared overscan or adding recycling.
 
 Capability references: [FlashList v2 usage](https://shopify.github.io/flash-list/docs/usage/)
 for dynamic sizing, recycling-safe state, viewability, and visible-position

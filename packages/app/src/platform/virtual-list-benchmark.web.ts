@@ -1,5 +1,6 @@
 import {
 	VIRTUAL_LIST_BENCH_INTERVAL_MS,
+	runVirtualListInputTrace,
 	runVirtualListBenchTrace,
 	type VirtualListBenchAdapter,
 	type VirtualListBenchSnapshot,
@@ -34,4 +35,20 @@ export async function runVirtualListBenchmark(listId: string, root?: ParentNode)
 		wait: () => new Promise<void>((resolve) => setTimeout(resolve, VIRTUAL_LIST_BENCH_INTERVAL_MS)),
 	}
 	return runVirtualListBenchTrace(adapter)
+}
+
+export async function runVirtualListInputBenchmark(
+	listId: string,
+	durationMs = 20_000,
+	root?: ParentNode,
+) {
+	const list = (root?.querySelector?.(`#${listId}`) ?? document.getElementById(listId)) as HTMLElement | null
+	return runVirtualListInputTrace(
+		{
+			target: 'web',
+			read: () => readSnapshot(list),
+			wait: () => new Promise<void>((resolve) => setTimeout(resolve, VIRTUAL_LIST_BENCH_INTERVAL_MS)),
+		},
+		durationMs,
+	)
 }

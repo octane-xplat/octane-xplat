@@ -1,6 +1,7 @@
 import { Application, knownFolders } from '@nativescript/core'
 
 import { navigate, goBack } from './nav'
+import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 // Parity sweep step — pushes the parity route on the root stack, dumps the
 // fixture stage's measured tree via the __xplatParity seam (installed by
@@ -77,6 +78,6 @@ export function runParity() {
 
 const g = globalThis as any
 g.__xplatSweepDone = runParity
-if (Application.android != null) {
+if (Application.android != null && !VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(runParity, 120000)
 }
