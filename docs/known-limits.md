@@ -129,9 +129,12 @@ pushes themselves work through the swap-pane route store.
 
 ## Same edge on every target
 
-- **`.tsrx` files don't emit `.d.ts`.** Upstream tsrx#136 → TS#64120/#64053.
-  `@octane-xplat/ui` ships a generated `props.d.ts` plus hand-maintained
-  shells, so consumers still get full types. — 0.5.0.
+- **TS 7 content-mapper declarations need output mapping.** The classic TS 5.9
+  `tsrx-tsc` path emits `.d.ts`, but preserves explicit `.tsrx` imports that
+  plain TypeScript consumers cannot resolve. `tsrx-typegen` rewrites those
+  references for the package's published JavaScript layout. Native TS 7 emits
+  `Component.d.tsrx.ts` and also needs upstream declaration output mapping
+  (TS#64053 / draft TS#64120). — post-0.6.0·desk.
 - **`.tsrx` infers effect deps from closure reads.** An effect that only
   writes (refs, DOM) and never reads its driving prop compiles to a deps
   array that omits it — declare deps explicitly:

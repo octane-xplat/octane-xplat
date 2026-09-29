@@ -171,17 +171,22 @@ suffix chain resolved at build time, hooks retargeted to
 `exports` still point at `src` for workspace dev; `publishConfig` swaps
 them to `dist` only at publish. Verified via `pnpm pack` extraction.
 
-**Types — hand-written boundary `.d.ts`:** `tsrx-tsc` on TS 5.9 has no
-declaration emit; the TS-7 native path emits `Component.d.tsrx.ts`,
-which needs `allowArbitraryExtensions` on the consumer (upstream:
-[tsrx#136](https://github.com/tsrx-org/tsrx/issues/136) →
-microsoft/TypeScript#64120 + #64053). Workaround shipped:
-`packages/ui/types/index.d.ts` covers the whole public surface — the API
-is platform-uniform by design, so one file serves both `web`/`native`
-conditions via a `types` condition in `publishConfig`. Verified against
-the packed tarball with a `customConditions:['web']` consumer tsconfig.
-Cost: drift risk vs the `.tsrx` prop types — the file sits next to the
-leaves; update it when props change.
+**Types:** the classic TS 5.9 `tsrx-tsc` path can emit ordinary `.d.ts`
+files from `.tsrx` sources. It preserves explicit `.tsrx` module specifiers,
+however, so raw output is not directly consumable without tsrx-aware module
+resolution. `tsrx-typegen` runs that declaration emit with the package's own
+compiler config and rewrites source extensions to the package's JavaScript
+extensions. Generated declarations live in a dedicated output directory and
+`--check` detects stale output without touching handwritten types.
+
+`@octane-xplat/ui` still publishes target-specific declaration entrypoints.
+Its existing boundary files are being migrated to generated output as the
+tool's published consumer checks are proven. The TS 7 content-mapper path has
+a separate output naming/specifier issue (`Component.d.tsrx.ts` and retained
+`.tsrx` imports; upstream [TS#64053](https://github.com/microsoft/TypeScript/issues/64053)
+and [draft TS#64120](https://github.com/microsoft/TypeScript/pull/64120)).
+The initial typegen backend targets the classic TS 5.9 path; it does not claim
+that the upstream TS 7 issue is fixed.
 
 ## TS configs
 

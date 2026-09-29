@@ -32,6 +32,7 @@ Workflows:
 - [Size a WebView to its document](webview-content-sizing.md)
 - [Package an experimental AppKit app](macos-appkit-package.md)
 - [Add a platform-native single-selection picker](native-picker.md)
+- [Publish a typed component library](typed-component-library.md)
 
 ## Authoring contract
 

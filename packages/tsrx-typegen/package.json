@@ -1,0 +1,19 @@
+{
+	"name": "tsrx-typegen",
+	"version": "0.1.0",
+	"description": "Generate consumer-ready TypeScript declarations for TSRX libraries",
+	"type": "module",
+	"bin": {
+		"tsrx-typegen": "./src/cli.mjs"
+	},
+	"files": [
+		"src"
+	],
+	"peerDependencies": {
+		"@tsrx/typescript-plugin": ">=0.4.11 <1",
+		"typescript": ">=5.9.3 <6"
+	},
+	"scripts": {
+		"test": "node tests/packed-consumer.mjs"
+	}
+}

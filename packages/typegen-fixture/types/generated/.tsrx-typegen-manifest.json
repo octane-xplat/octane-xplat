@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "files": [
+    "Badge.d.ts",
+    "Box.d.ts",
+    "BoxProps.d.ts",
+    "Card.d.ts",
+    "Factory.d.ts",
+    "decode.d.ts",
+    "format.d.ts",
+    "index.d.ts"
+  ]
+}

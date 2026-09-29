@@ -1,0 +1,90 @@
+# tsrx-typegen
+
+Generate declaration files for packages that export `.tsrx` modules. The
+command uses the consuming package's TypeScript and tsrx compiler, then maps
+source-extension imports in the emitted declarations to JavaScript module
+specifiers.
+
+Install `tsrx-typegen` as a development tool alongside `typescript` and
+`@tsrx/typescript-plugin`. Each target in `tsrx-typegen.json` names its
+renderer, project config, declaration output directory, and public subpaths.
+The project config selects source variants and enables `declaration`,
+`emitDeclarationOnly`, and `noEmit: false`. The target's `renderer` is checked
+against `compilerOptions.jsxImportSource` when TypeScript sets it; the project
+config continues to select the actual tsrx compiler and platform.
+
+```sh
+pnpm exec tsrx-typegen --target octane
+pnpm exec tsrx-typegen --project tsconfig.types.json --check
+```
+
+Generation writes only TypeScript declaration files under the config's `outDir` and records
+which files it owns in `.tsrx-typegen-manifest.json`. Check mode emits to a
+temporary directory and compares the result with those owned files. It reports
+missing or stale output, unresolved `.tsrx` references, and code export paths
+without declaration targets. It refuses to overwrite an unmanaged declaration
+and removes stale files only when the manifest says it owns them. Same-name
+sources such as `Button.ts` and `Button.tsrx` need separate target configs or an
+explicit declaration override.
+
+`--project` selects the target whose project path matches. Use `--target` to
+select a named target directly. A target can look like this:
+
+```json
+{
+	"targets": {
+		"octane": {
+			"renderer": "octane",
+			"project": "tsconfig.types.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": "./dist/index.js",
+					"types": "./types/generated/index.d.ts"
+				}
+			}
+		}
+  }
+}
+```
+
+Keep exceptional signatures in handwritten declaration sources outside the
+generated directory, then map their generated output path explicitly:
+
+```json
+{
+  "overrides": {
+    "Button.d.ts": "types/overrides/Button.d.ts"
+  }
+}
+```
+
+The override source is copied to the generated output and tracked by the
+manifest; check mode detects edits to either the source mapping or generated
+copy. Override declarations must use publishable module specifiers and may not
+reference `.tsrx` files.
+
+Relative imports between generated declarations receive runtime extensions
+from the source map, including extensionless imports. This supports NodeNext
+consumers as well as bundler resolution without requiring `allowArbitraryExtensions`.
+
+Use separate target records and project configs when public signatures differ.
+Each config must select the same source variants as its runtime build.
+`runtime` records the published runtime path or condition map, while `types`
+records the declaration path. The CLI does not edit `package.json`; export maps
+remain package-owned. The default source-extension mapping is `.tsrx`, `.tsx`,
+and `.ts` to `.js`, with `.mts` to `.mjs` and `.cts` to `.cjs`. Packages with
+another runtime layout can override these mappings in `sourceExtensions` at
+the target or root level.
+
+The first supported backend is the classic `tsrx-tsc` path with TypeScript
+5.9.x. TypeScript 7 content-mapper output needs upstream declaration naming and
+specifier support before it can replace this backend. Generation rejects
+compiler errors; editor-only partial transforms are not used.
+
+This tool preserves TypeScript's declaration inference. Keep exported helpers,
+generic signatures, overloads, and compound members explicit in source when
+inference does not preserve the intended package contract. Always check the
+packed package with a plain TypeScript consumer; generated declarations may
+still reference a package peer or a path excluded from the tarball.

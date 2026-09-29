@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"noEmit": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"jsx": "preserve",
+		"skipLibCheck": false
+	},
+	"files": ["consumer.typecheck.ts"]
+}
