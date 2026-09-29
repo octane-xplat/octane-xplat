@@ -31,6 +31,7 @@ export declare function screenFor(name: string): ScreenTable[string] | undefined
 /** Directory layouts wrapping a route, outermost → innermost — outlets
  *  wrap their resolved element with these (`_layout.tsrx` files). */
 export declare function layoutsFor(name: string): any[];
+export { layoutsFor as layoutsForRoute };
 export declare function redirect(r: Route): never;
 export declare function pushRoute(r: Route): void;
 /** Web history is one linear stack — back pops whatever route is current;

@@ -70,9 +70,12 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
 	let source
 	if (target === 'web') {
-		source = `import { Button, View } from '@octane-xplat/ui'
-import { Hoverable, Tooltip } from '@octane-xplat/ui/web'
+		source = `import { Button, View, Hoverable, Tooltip } from '@octane-xplat/ui'
+import { Hoverable as WebHoverable, Tooltip as WebTooltip } from '@octane-xplat/ui/web'
 import type { ButtonProps, ViewProps } from '@octane-xplat/ui'
+
+// @ts-expect-error KeyboardAvoiding is a mobile-only root export
+import { KeyboardAvoiding } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
 // @ts-expect-error loading is a boolean prop
@@ -80,13 +83,14 @@ const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'root', gap: 8, ios: { hidden: true } }
 const button = <Button {...buttonProps} />
 const root = <View {...viewProps} />
-const hoverable: typeof Hoverable = Hoverable
-const tooltip: typeof Tooltip = Tooltip
+const hoverable: typeof WebHoverable = Hoverable
+const tooltip: typeof WebTooltip = Tooltip
 void invalidButtonProps
 void button
 void root
 void hoverable
 void tooltip
+void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
 		source = `import { Button, View } from '@octane-xplat/ui'
@@ -103,8 +107,8 @@ void invalidButtonProps
 void view
 `
 	} else {
-		source = `import { Button, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
-import type { ButtonProps, ListItemProps, RouteSpec, ViewProps } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
+import type { ButtonProps, KeyboardAvoidingProps, ListItemProps, RouteSpec, ViewProps } from '@octane-xplat/ui'
 import { UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps } from '@octane-xplat/ui/ios'
 import { MaterialSwitch, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
 import { layoutsForRoute } from '@octane-xplat/ui/native'
@@ -114,6 +118,7 @@ const buttonProps: ButtonProps = { children: 'Save', loading: true }
 const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'native-root', gap: 6 }
 const itemProps: ListItemProps = { title: 'Profile', supportingText: 'Details' }
+const keyboardProps: KeyboardAvoidingProps = { children: 'Form' }
 const row = <ListItem {...itemProps}><ListItem.Leading>•</ListItem.Leading><ListItem.Content>Profile</ListItem.Content></ListItem>
 const screen = () => null
 const routeSpec: RouteSpec = { path: 'people/:id', screen }
@@ -129,6 +134,7 @@ const iosSwitch: typeof UISwitch = UISwitch
 const androidSwitch: typeof MaterialSwitch = MaterialSwitch
 const getLayouts: typeof layoutsForRoute = layoutsForRoute
 const root = <View {...viewProps} />
+const keyboard = <KeyboardAvoiding {...keyboardProps} />
 void buttonProps
 void invalidButtonProps
 void row
@@ -142,6 +148,7 @@ void iosSwitch
 void androidSwitch
 void getLayouts
 void root
+void keyboard
 `
 	}
 

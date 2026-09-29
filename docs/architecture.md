@@ -32,6 +32,11 @@ Your screens should talk to `@octane-xplat/ui` and
 `@octane-xplat/platform`. They should not talk directly to a DOM element or a
 NativeScript view.
 
+The UI package's common root exports live in `index.shared.ts`. Its web and
+mobile entries re-export that list and add only exports supported on their
+targets. For example, `KeyboardAvoiding` is available from the root import on
+iOS and Android, where keyboard insets exist, but is absent from the web root.
+
 ## Shared code and platform code
 
 Start from the job an app needs, not the name of an OS widget. A common

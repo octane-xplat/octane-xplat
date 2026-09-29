@@ -31,6 +31,11 @@ const DEFERRED_GROUPS = [
 			'RichTextSpan is an inline FormattedString run, not an independent view. The NativeScript bounds/style dump exposes only its containing RichText label, so there is no comparable per-run frame or resolved style.',
 		components: ['RichTextSpan'],
 	},
+	{
+		reason:
+			'Hoverable and Tooltip intentionally omit their hint layers on iOS and Android. Trigger bounds alone cannot measure their pointer interaction across targets.',
+		components: ['Hoverable', 'Tooltip'],
+	},
 ]
 
 function parse(path, kind = ts.ScriptKind.TS) {
@@ -171,9 +176,8 @@ function packageEntry(packageRoot, condition) {
 	return join(packageRoot, entry)
 }
 
-const webExports = exportNames(join(root, 'packages/ui/src/index.web.ts'))
-const nativeExports = exportNames(join(root, 'packages/ui/src/index.ts'))
-const sharedRendererExports = new Set([...webExports].filter((name) => nativeExports.has(name)))
+const sharedRendererExports = exportNames(join(root, 'packages/ui/src/index.shared.ts'))
+
 for (const pkg of ['pager', 'video']) {
 	const packageRoot = join(root, `packages/${pkg}`)
 	const web = exportNames(packageEntry(packageRoot, 'web'))
@@ -184,6 +188,7 @@ for (const pkg of ['pager', 'video']) {
 		}
 	}
 }
+
 for (const [name, reason] of NON_RENDERABLE) {
 	if (!reason.trim()) {
 		errors.push(`${name}: non-renderable exports need a reason`)

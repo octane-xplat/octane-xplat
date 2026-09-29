@@ -89,6 +89,8 @@ export function layoutsFor(name: string): any[] {
 	return layoutChain(routeLayouts, name)
 }
 
+export { layoutsFor as layoutsForRoute }
+
 // ---------- the store ----------
 
 const listeners = new Set<() => void>()

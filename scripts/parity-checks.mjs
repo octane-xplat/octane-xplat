@@ -1258,6 +1258,13 @@ export const CHECKS = [
 		check: (m) => [dims(m('user'), 220, 56), dims(m('avatar'), 40, 40)],
 	},
 	{
+		fixture: 'list-item-row',
+		targets: ['web', 'ios', 'android'],
+		elements: { item: 'parity-list-item-root' },
+		equal: ['item.box.w', 'item.box.h', 'item.style.backgroundColor'],
+		check: (m) => [dims(m('item'), 220, 64)],
+	},
+	{
 		fixture: 'kbd-shortcut',
 	targets: ['web', 'ios', 'android', 'macos'],
 		elements: { key: 'parity-kbd-root' },

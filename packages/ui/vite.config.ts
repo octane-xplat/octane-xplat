@@ -57,7 +57,8 @@ export default defineConfig(({ mode }) => {
 			lib: {
 				entry: (native
 					? {
-							ui: 'src/index.ts',
+							ui: 'src/index.mobile.ts',
+							shared: 'src/index.ts',
 							'ios/index': 'src/ios/index.ts',
 							'android/index': 'src/android/index.ts',
 							'native/index': 'src/native/index.ts',

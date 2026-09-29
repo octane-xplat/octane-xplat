@@ -1,6 +1,6 @@
 # Component index
 
-> Every shared component exported by `@octane-xplat/ui`, grouped by job.
+> Components exported by `@octane-xplat/ui`, grouped by job.
 
 Guides for the mechanics live elsewhere: [primitives](primitives.md) for
 layout/composition, [navigation](navigation.md) for routes and stacks,
@@ -8,6 +8,8 @@ layout/composition, [navigation](navigation.md) for routes and stacks,
 for device APIs. Platform-authentic widgets (no parity promised) live behind
 `@octane-xplat/ui/ios`, `/android`, and `/web` — see
 [primitives](primitives.md#the-components-you-reach-for-first).
+`KeyboardAvoiding` works on iOS and Android. The macOS root provides an
+unsupported stub; the web root does not export it.
 
 Every component accepts `className`/`style`/`id` plus the platform escape props
 (`ios`, `android`, `web`) applied after shared props.
@@ -24,7 +26,7 @@ Every component accepts `className`/`style`/`id` plus the platform escape props
 | `Absolute`         | Absolutely-positioned layer                |                                            |
 | `Spacer`           | Flexible gap filler                        |                                            |
 | `SafeArea`         | Insets-aware container                     |                                            |
-| `KeyboardAvoiding` | Shifts content above the keyboard          |                                            |
+| `KeyboardAvoiding` | Shifts content above the keyboard (iOS/Android) |                                       |
 
 ## Text
 
@@ -114,7 +116,7 @@ Every component accepts `className`/`style`/`id` plus the platform escape props
 | ----------- | ----------------------------------------- | ------------------------------------------ |
 | `Overlay`   | Content above the screen                  |                                            |
 | `Popover`   | Anchored floating content                 | `anchor`, `open`, `placement`, `onDismiss` |
-| `Tooltip`   | Hover/long-press hint                     | `trigger`, `content`, `openDelay`          |
+| `Tooltip`   | Pointer hover hint                        | `trigger`, `content`, `openDelay`          |
 | `Hoverable` | Hover-reveal card around its children     | `card`, `openDelay`                        |
 | `Sheet`     | Bottom sheet                              | `open`, `detents`, `shadeCover`, `onDismiss` |
 | `Drawer`    | Edge drawer                               | `main`, `drawer`, `open`, `onDismiss`      |

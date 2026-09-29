@@ -24,7 +24,7 @@
 			"@octane-xplat/effects/*": ["../../packages/effects/src/*"],
 			"@octane-xplat/gif": ["../../packages/gif/src/index.ts"],
 			"@octane-xplat/gif/*": ["../../packages/gif/src/*"],
-			"@octane-xplat/ui": ["../../packages/ui/src/index.ts"],
+			"@octane-xplat/ui": ["../../packages/ui/src/index.mobile.ts"],
 			"@octane-xplat/ui/*": ["../../packages/ui/src/*"]
 		}
 	},

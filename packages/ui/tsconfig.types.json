@@ -18,6 +18,8 @@
 		"src/references.d.ts",
 		"src/vendor/ui-svg/index.ts",
 		"src/index.ts",
+		"src/index.shared.ts",
+		"src/index.mobile.ts",
 		"src/index.web.ts",
 		"src/index.linux.ts",
 		"src/ios/index.ts",

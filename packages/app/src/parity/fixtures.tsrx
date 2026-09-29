@@ -25,6 +25,7 @@ import {
 	Drawer,
 	FormField,
 	FieldGroup,
+	ListItem,
 	InputNumber,
 	PinInput,
 	Select,
@@ -609,6 +610,15 @@ function UserFixture() @{
 	/>
 }
 
+function ListItemFixture() @{
+	<ListItem
+		className="parity-list-item-root"
+		style={{ width: 220, height: 64, backgroundColor: '#f5f5f5' }}
+		title="Settings"
+		supportingText="Account"
+	/>
+}
+
 function KbdFixture() @{
 	<Kbd
 		className="parity-kbd-root"
@@ -984,6 +994,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'avatar-fallback', component: 'Avatar', renderer: AvatarFixture, props: {} },
 	{ name: 'avatar-group-overflow', component: 'AvatarGroup', renderer: AvatarGroupFixture, props: {} },
 	{ name: 'user-row', component: 'User', renderer: UserFixture, props: {} },
+	{ name: 'list-item-row', component: 'ListItem', renderer: ListItemFixture, props: {} },
 	{ name: 'kbd-shortcut', component: 'Kbd', renderer: KbdFixture, props: {} },
 	{ name: 'link-fixed-target', component: 'Link', renderer: LinkFixture, props: {} },
 	{ name: 'nav-link-active', component: 'NavLink', renderer: NavLinkFixture, props: {} },

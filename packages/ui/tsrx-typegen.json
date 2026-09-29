@@ -6,15 +6,17 @@
 			"outDir": "types/generated",
 			"entrypoints": {
 				".": {
-					"source": "src/index.ts",
+					"source": "src/index.mobile.ts",
 					"runtime": [
 						"./src/index.macos.ts",
 						"./dist/web/ui.js",
-						"./dist/native/ui.js"
+						"./dist/native/ui.js",
+						"./dist/native/shared.js"
 					],
 					"types": [
 						"./types/index.macos.d.ts",
 						"./types/generated/index.web.d.ts",
+						"./types/generated/index.mobile.d.ts",
 						"./types/generated/index.d.ts"
 					]
 				},
