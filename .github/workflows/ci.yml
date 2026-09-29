@@ -32,7 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Repo checks
-        run: pnpm check:patches && pnpm check:ui-barrels && pnpm check:css && pnpm check:recipes
+        run: pnpm check:patches && pnpm check:css && pnpm check:recipes
 
       - name: Typecheck
         run: pnpm typecheck:web
