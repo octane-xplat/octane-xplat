@@ -2,6 +2,20 @@
 
 > Keep product code shared, and put platform-specific work at the edges.
 
+## Keep the app coherent
+
+Share the app's data, actions, and ordinary screens. Tailor a layout or control
+when it improves the experience on a particular platform. For example, a trip
+packing flow can stay shared while a platform-specific component supplies an
+OS control. [File variants](module-resolution.md) keep that choice behind one
+import. Check [target support](spec.md#choose-your-targets) before assuming a
+shared component is implemented everywhere.
+
+Octane provides React-style components and compiles their UI. NativeScript
+supplies native views and API access on iOS/Android. You usually work through
+xplat components and services; the layers below explain where a new feature
+belongs when your agent needs to go beyond them.
+
 ## The three layers
 
 An app normally has these layers:

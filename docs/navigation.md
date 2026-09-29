@@ -3,6 +3,12 @@
 > Give every destination a name and let the same screen map to a browser URL
 > or a native navigation stack.
 
+Start with the journey: open a trip, inspect its packing list, and return
+without losing your place. Ask your agent to verify the browser URL and the
+native back action for that flow. Shared destinations can use different
+platform shells; check [navigation limits](known-limits.md#navigation) for the
+targets you need.
+
 ## A route is a destination
 
 Routes have three pieces:

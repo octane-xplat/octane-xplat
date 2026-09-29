@@ -4,6 +4,13 @@
 > optional packages; check each target's capability report before relying on
 > platform behavior.
 
+Choose the outcome first: a short sound after saving, tactile feedback for an
+action, or playback that continues through a queue. Ask your agent to handle
+unsupported features visibly and check the platform table for that package.
+For [still capture](platform-services.md) or a
+[live camera preview](primitives.md#when-a-screen-needs-more), use their separate guides.
+The media support described here does not imply five-target parity.
+
 Install only the service packages the app uses:
 
 ```sh

@@ -4,6 +4,12 @@
 > behavior, `.mobile` for behavior shared by iOS and Android, and an OS suffix
 > when one platform needs its own implementation.
 
+Share the packing list's actions and data, then tailor only the part that
+needs a platform difference. Ask your agent for a focused implementation:
+“Use `UISwitch` for the packed toggle in an `.ios` file, keep the shared props,
+and preserve the browser and Android behavior.” A suffix selects code; it does not establish
+that a target is ready to ship. See [target support](spec.md#choose-your-targets).
+
 ## File variants
 
 ```text
@@ -87,8 +93,10 @@ re-exports the component. For example, `Card.mobile.ts` can re-export
 directly at runtime. The template skill shows the explicit `.tsrx` import
 form when a shim is unnecessary.
 
-Run the app typechecks with `pnpm typecheck:web`, `pnpm typecheck:mobile`, and
-`pnpm typecheck:macos`. The mobile config covers both iOS and Android.
+In a scaffolded app, run `pnpm typecheck` for its web and native configs.
+Framework contributors use `pnpm typecheck:web`, `pnpm typecheck:mobile`, and
+`pnpm typecheck:macos` in this repository. The mobile config covers both iOS
+and Android.
 
 For the resolver implementation and the historical experiments that led to
 it, see the [module-resolution notes](module-resolution-notes.md).

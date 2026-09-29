@@ -1,59 +1,73 @@
-# xplat at a glance
+# What you can build with xplat
 
-> Decide whether xplat fits your app, then find the smallest set of ideas you
-> need before writing a screen.
+> Build a TypeScript app for web, iOS, Android, macOS, and Windows; choose
+> targets with the current support boundaries in mind.
 
-## What xplat is
+## Start with a working flow
 
-xplat lets one TypeScript app target the browser, iOS, and Android. You write
-shared screens and use the same small set of UI components on every platform.
-When a platform truly needs different behavior, the framework chooses a
-platform-specific file for you.
+A trip planner can share its itinerary, packing list, and saved places. A
+field app can share its forms and records, then add photos where capture is
+available. You and your coding agent can build one flow first, inspect it in
+a running app, and add the next feature without rewriting the whole product
+for each platform. These are app ideas, not bundled demos.
 
-The goal is not to make the platforms identical. The goal is to keep your
-product code shared while leaving room for the browser and native app to feel
-like themselves.
+## Choose your targets
 
-## The useful mental model
+| Target | What this checkout provides | What to plan for |
+| --- | --- | --- |
+| Web | Starter and DOM renderer | Node.js, pnpm, and a browser; device APIs vary by browser. |
+| iOS | Starter using NativeScript views and APIs | A Mac, Xcode, NativeScript setup, and signing for device/distribution builds. |
+| Android | Starter using NativeScript views and APIs | Android SDK, a compatible JDK, and an emulator or device. |
+| macOS | Experimental AppKit harness and CLI packaging | Apple Silicon, macOS 13.5+, a separate app configuration, and a limited component/style/service surface; not in the starter. |
+| Windows | Platform suffix convention and provisional design discussion | No runnable Windows app or CLI target in this checkout; do not plan a Windows release from the starter. |
 
-Think in three layers:
+The framework is `0.x`; APIs are still changing. [Known limits](known-limits.md)
+records capability differences and verification status. The
+[macOS notes](../apps/macos/README.md) describe the measured desktop boundary;
+the [Windows discussion](navigation-notes.md#hard-seams-decide-consciously) is design context,
+not setup instructions. Linux also has a separate
+[experimental webview target](toolchain.md#experimental-linux-target-webkitgtk-webview).
 
-1. **Screens** describe what the user sees and does.
-2. **UI components** provide the shared vocabulary: `View`, `Text`, `Row`,
-   `Pressable`, `ScrollView`, inputs, overlays, and navigation shells.
-3. **Platform services** handle things that differ, such as storage,
-   permissions, haptics, and the app lifecycle.
+## Get a result, then improve it
 
-Most application code stays in the first layer. You only reach for a platform
-leaf when a platform service or visual behavior genuinely differs.
+[Create and run the starter](toolchain.md#create-and-run), give your agent a
+small user-visible task, and check the result yourself. Keep the dev server
+running while the agent edits; add a native development session once its
+prerequisites are ready. Ask the agent to report checks and actual targets
+run, so a successful browser build is not mistaken for a device test.
 
-## A small screen
+## Add capabilities that serve the app
 
-```tsx
-import { View, Text, Pressable } from '@octane-xplat/ui'
+Use [device services](platform-services.md) to save preferences, share content,
+pick images, or follow incoming links. Add [media packages](media-services.md)
+for playback or richer haptics, or a
+[camera preview](primitives.md#when-a-screen-needs-more). Check each feature's
+platform support and show a useful response when permission is denied or a capability
+is absent.
 
-export function Welcome() {
-	return (
-		<View className="screen">
-			<Text className="title">Welcome</Text>
-			<Pressable className="button" onPress={() => console.log('hello')}>
-				<Text>Continue</Text>
-			</Pressable>
-		</View>
-	)
-}
-```
+## Share the product, tailor the experience
 
-The screen uses shared components. The web build renders them for the DOM; the
-native build renders them for NativeScript.
+Shared screens use components such as `Text`, `Pressable`, and `ScrollView`.
+Keep common behavior together, then use [platform variants](module-resolution.md)
+for an OS control or a different screen layout. A shared import can resolve
+to an iOS implementation without putting iOS branches throughout your app.
+[Styling](styling.md) and [platform widgets](primitives.md) explain the choices.
+Shared code does not imply identical capability or visual support on every target.
 
-## Start here
+The [showcase plan](demos.md#product-showcase) follows four roles: a coherent
+app on all five targets, a shared edit in running targets, a useful capability
+with labeled platform responses, and a focused platform implementation.
+The five-target presentation remains a goal, not a verified demo.
 
-- [Building screens](primitives.md)
-- [Styling screens](styling.md)
-- [Moving between screens](navigation.md)
-- [Using device features](platform-services.md)
-- [Running and checking an app](toolchain.md)
+## The tools underneath
 
-The [framework notes](framework-notes.md) keep the compiler model, decisions,
-and risk register for people extending xplat itself.
+[Octane](https://github.com/octanejs/octane) keeps the React-style model of
+components, props, and state, and compiles UI for the selected renderer.
+[NativeScript](https://docs.nativescript.org/guide/metadata) exposes native iOS
+and Android APIs directly to TypeScript without requiring you to write a
+bridge. xplat supplies shared components, services, and file conventions that
+your agent can follow. Native APIs still have OS requirements and permissions.
+
+Read [how an app fits together](architecture.md) when you need to separate
+screens from platform code. The [framework notes](framework-notes.md) preserve
+compiler details and implementation decisions.

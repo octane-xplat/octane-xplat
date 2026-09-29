@@ -1,10 +1,17 @@
 # @octane-xplat/cli
 
-> `xplat` — the dev/build toolchain for Octane xplat apps (one Octane
-> codebase → web + iOS + Android, with an experimental macOS AppKit target).
+> Run your app, inspect changes with your agent, and check builds for the
+> targets you plan to ship.
 >
 > Status: `0.x` — the API surface is still moving. iOS/Android targets need
 > the NativeScript toolchain (Xcode/JDK + `ns`).
+
+For a new app, start with the [creator](../create/README.md). The CLI runs
+configured web, iOS, and Android targets, plus opt-in experimental macOS and
+Linux apps. The product direction also includes Windows, but this checkout
+has no Windows CLI target. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+
+For an existing app:
 
 ```sh
 pnpm add -D @octane-xplat/cli
@@ -44,5 +51,5 @@ import { xplatNative } from '@octane-xplat/cli/vite'
 export default defineConfig(({ mode }) => xplatNative(mode))
 ```
 
-Docs: [Running and checking an app](https://octane-xplat.goddardai.org/toolchain)
+Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)
 — agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)

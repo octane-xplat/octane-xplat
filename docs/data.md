@@ -1,8 +1,15 @@
 # Fetching data
 
+> Load the records your app needs and give users clear loading, empty, and
+> error states.
+
+Ask your agent for a complete flow: “Load the saved trips, show progress while
+waiting, and let me retry a failed request.” Keep the request tied to the
+screen or shared state that owns it; the patterns below explain that choice.
+
 `query$` from `octane/signals` is the default for remote data. It is the
-same reactive engine that backs `signal$` shared state, it runs identically
-on web and native, and a module-level query needs no provider — so it is
+same reactive engine that backs `signal$` shared state, with shared APIs
+for web and native, and a module-level query needs no provider — so it is
 reachable from every root, including modals, sheets, and list cells, where
 context cannot cross.
 

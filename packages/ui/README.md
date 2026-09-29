@@ -1,10 +1,18 @@
 # @octane-xplat/ui
 
-> Cross-platform primitives for Octane xplat — one element vocabulary that
-> renders to the DOM on web and NativeScript views on iOS/Android.
+> Build shared screens for your app, with platform-specific controls where
+> they improve the experience.
 >
 > Status: `0.x` — the API surface is still moving. iOS/Android targets need
 > the NativeScript toolchain (Xcode/JDK + `ns`).
+
+Start with the [app creator](../create/README.md) when building a new app with
+an agent. xplat's five-target direction covers web, iOS, Android, macOS, and
+Windows; this package's established implementations cover web and mobile,
+with a bounded experimental macOS surface. Windows is not runnable in this
+checkout. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+
+To add the UI package to an existing configured app:
 
 ```sh
 pnpm add @octane-xplat/ui octane
@@ -25,7 +33,7 @@ import { Row, Text, Pressable } from '@octane-xplat/ui'
 ```
 
 The package also ships `styled()`, layout stacks, routing (`Link`, `NavLink`,
-route tables), overlay/toast/modal services, and the theme stylesheet:
+route tables), sheet/overlay/toast services, and the theme stylesheet:
 
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'

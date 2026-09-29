@@ -3,7 +3,13 @@
 > What is broken upstream, platform-bound, or deliberately asymmetric in the
 > current release — read before promising behavior on a seam.
 
-Each row names a seam and what each target actually does. **Kind**:
+Most tables below cover **web, iOS, and Android**, not every target named in
+the product direction. macOS has a bounded experimental implementation;
+Windows has no runnable xplat setup in this checkout. Start with the
+[target guide](spec.md#choose-your-targets), then check the feature you need.
+Ask your agent to preserve these boundaries when proposing an implementation.
+
+Each row names a seam and what each listed target actually does. **Kind**:
 
 - `unsupported` — absent on that target, by capability or by design
 - `degraded` — present, but with reduced fidelity or behavior
@@ -23,7 +29,7 @@ meaningful relative to its class's claim: `hosted` components (`WebView`,
 
 ## Where the real OS widgets live
 
-The shared barrel ships only what can be equal everywhere — self-drawn
+The shared UI surface aims for consistent behavior on its supported targets — self-drawn
 controls (`Switch`, `Slider`, `ActivityIndicator`, `Tabs`, `Drawer`,
 `Sheet`), chrome-reset OS controls (`TextInput`, `TextArea`,
 `SearchInput`), and hosted surfaces (`WebView`, `Video`, `CameraView`)

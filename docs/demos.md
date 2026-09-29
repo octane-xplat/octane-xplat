@@ -1,15 +1,40 @@
-# demos/
+# Showcase plan and demo evidence
 
-Little demo screens in [`packages/demos`](../packages/demos/), inspired by the
-[geastack examples catalog](https://github.com/geastack/examples/blob/main/docs/EXAMPLE-CATALOG.md).
-Where that catalog proves a framework across `web`/`esp32`/`geaos`/`ios`/`windows`
-targets, these prove ours across `web` + `native` — each demo is one shared
-`.tsrx` screen exercising a distinct seam.
+> Show what someone can build and improve with an agent. Keep planned
+> product examples separate from the harness's recorded test evidence.
 
-> **Status:** verified on iOS sim — all 10 demos mount and render content via
-> the `demosweep` probe (see below). Web: `vite build` + dev-transform green,
-> plus `tsrx-tsc` clean both targets. Styles: `packages/demos/src/demo.css`
-> (grammar kept inside the NS∩web matrix).
+## Product showcase
+
+Use these four roles, in this order, when presenting xplat. A trip planner
+with a packing checklist provides a coherent example throughout. It is an
+illustrative app brief, not an app shipped by this repository.
+
+| Role | App outcome to show | Platform label and evidence required |
+| --- | --- | --- |
+| A coherent app across all five targets | The same trip, itinerary, and packing flow on web, iOS, Android, macOS, and Windows. | Label every target. This is the intended showcase; the current checkout cannot demonstrate all five. macOS is experimental and there is no runnable Windows target. |
+| A shared edit reflected in running targets | Ask an agent to group packing items by bag; save the shared screen and inspect the change in each running app. | Name only the targets actually running. The existing web/iOS live-edit evidence is in the toolchain notes; it does not prove a five-target update loop. |
+| One useful capability with a platform-specific response | Attach a photo to a trip item. | Label iOS/Android OS capture separately from web phone capture or desktop browser file selection. Include cancellation, denied access, and unsupported responses. |
+| A focused platform-specific implementation | Use `UISwitch` from `@octane-xplat/ui/ios` for a packing row’s packed toggle while keeping the shared props and action. | Show the `.ios` file and shared import, and verify the other target implementations. A planned example must not be presented as a working demo. |
+
+The [first-run guide](toolchain.md) provides the setup command and an agent
+brief for the checklist. [Device services](platform-services.md) owns capture
+behavior and permissions; [platform variants](module-resolution.md) owns file
+selection. Prefer these app outcomes in product presentations. Counters and
+isolated controls remain useful diagnostic probes.
+
+## Existing harness evidence
+
+[`packages/demos`](../packages/demos/) contains small screens that exercise
+individual framework behaviors. They are not the four product examples above.
+The following mounting instructions and findings are the historical mobile/web
+exploration record, including old component names and limitations. For current
+public APIs use [building screens](primitives.md), for current support use
+[known limits](known-limits.md), and for macOS evidence use the
+[AppKit harness notes](../apps/macos/README.md).
+
+The original iOS simulator sweep reported all 10 then-current demos mounting;
+web build/dev-transform and both typechecks also passed at that time. This is
+not a fresh verification of this checkout or of all five target platforms.
 
 ## Mounting
 

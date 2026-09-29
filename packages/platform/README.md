@@ -1,8 +1,7 @@
 # @octane-xplat/platform
 
-> Headless platform capabilities for Octane xplat — one shared API surface,
-> resolved per target (`*.web` under web conditions, unsuffixed native default/`.mobile`/`.ios`/
-> `.android` under native).
+> Save the user's work, share content, attach photos, and handle device
+> permissions through shared TypeScript services.
 >
 > Status: `0.x` — the API surface is still moving.
 
@@ -22,8 +21,12 @@ const seen = storage.getString('has-seen-welcome')
 const result = await permissions.ensure('camera')
 ```
 
-Services cover storage, permissions, share, haptics, media picking, deep
-links, and more. The full capability map lives in the docs:
+Ask your agent for the user outcome and the fallback: “Attach a photo to a
+trip item and explain when capture is unavailable.” Services cover storage,
+permissions, share, haptics, media picking, deep links, and more. Most documented
+implementations cover web and iOS/Android; experimental desktop support varies
+by service. Shared names do not imply identical availability or responses.
+The full capability map lives in the docs:
 
 - [Using device features](https://octane-xplat.goddardai.org/platform-services) — guide
 - [Platform-service notes](https://octane-xplat.goddardai.org/notes/platform-notes) — per-capability impl map
@@ -34,6 +37,6 @@ Rules for consumers:
 
 - Import from the package (`'@octane-xplat/platform'` or a submodule like
   `'@octane-xplat/platform/storage'`) — never a leaf impl file.
-- Optional capabilities return `{ supported: boolean }` rather than throwing.
-- This package is headless only. UI-shaped plugins (drawer, menu) are leaf
-  primitives in [`@octane-xplat/ui`](https://octane-xplat.goddardai.org/primitives).
+- Check optional capabilities' `supported` flag and permission/result states;
+  operations can still fail and need error handling.
+- This package provides services. Screen components and OS widgets live in [`@octane-xplat/ui`](https://octane-xplat.goddardai.org/primitives).

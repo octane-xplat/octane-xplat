@@ -1,30 +1,46 @@
 # create-octane-xplat
 
-> Scaffolds an Octane xplat app — one codebase targeting web, iOS, and
-> Android via NativeScript.
->
-> Status: `0.x` — the API surface is still moving. iOS/Android targets need
-> the NativeScript toolchain (Xcode/JDK + `ns`).
+> Get a TypeScript app running, then build its first useful flow with your
+> coding agent.
+
+xplat's target direction spans web, iOS, Android, macOS, and Windows. This
+starter configures **web, iOS, and Android**. macOS is a separate experiment;
+Windows has no runnable xplat setup in this checkout. See
+[target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+The framework is `0.x` and its API surface is still changing.
+
+With Node.js and pnpm installed:
 
 ```sh
 pnpm create octane-xplat my-app
-# or: npm create octane-xplat my-app
 ```
 
-Copies the starter template (vite + nativescript configs, shared `src/`,
-`App_Resources`, pinned workspace deps), installs dependencies with pnpm,
-and starts the web dev server. From there:
+The creator copies the template, installs dependencies with pnpm, and starts
+the web dev server. Open the printed URL and open `my-app` in your agent.
+Ask it to read `AGENTS.md` and `.agents/skills/xplat/SKILL.md`, then build a
+packing checklist with add, pack, and remove actions using in-memory state.
+Try the result before asking for the next feature.
+
+Leave the server running while you edit. After stopping it, restart from the
+app directory:
 
 ```sh
+cd my-app
 pnpm dev            # web
-pnpm dev:ios        # iOS simulator — needs the NativeScript toolchain
-pnpm dev:android    # Android — needs the NativeScript toolchain
-pnpm typecheck      # web + native tsconfigs
 ```
 
-Docs: [Running and checking an app](https://octane-xplat.goddardai.org/toolchain)
+From that directory, these commands run other targets or check the app:
 
-The scaffolded app ships `.agents/skills/xplat/` — a skill with the
-invariants agents need before writing code (element vocabulary, DOM-global
-rules, signal naming, compiler surprises) plus per-domain references.
-Agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs.
+```sh
+pnpm dev:ios        # needs macOS, Xcode, and NativeScript setup
+pnpm dev:android    # needs Android SDK, compatible JDK, and NativeScript setup
+pnpm lint
+pnpm typecheck      # web + native tsconfigs
+pnpm build          # web production bundle
+```
+
+[Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)
+provides prerequisites, live-update boundaries, and version guidance. The
+starter's xplat skill is included; NativeScript's official skills are optional
+and installed separately. Ask your agent to report checks and targets actually
+run. [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs.

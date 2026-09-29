@@ -1,47 +1,59 @@
 # xplat
 
-> One [Octane](https://github.com/octanejs/octane) codebase, three targets:
-> web via the DOM renderer, iOS and Android via NativeScript
-> ([`@nativescript-community/octane`](https://github.com/nativescript-community/octane)).
+> Build a TypeScript app for web, iOS, Android, macOS, and Windows with your
+> coding agent.
 
-The guides are for building an app. The notes are for understanding or changing
-the framework itself.
+Start with the app you want: a trip planner, a field checklist, a media library,
+or another product with shared screens and useful device features. Describe
+one working flow to your agent, try it, and keep improving it.
+
+The starter runs on web, iOS, and Android. macOS is experimental; Windows has
+no runnable xplat setup in this checkout. [Choose your targets](spec.md#choose-your-targets)
+for the current boundaries before committing to a release.
 
 ## Start here
 
-1. [xplat at a glance](spec.md) — decide whether the model fits your app.
-2. [Building screens](primitives.md) — compose a first shared screen.
-3. [Styling screens](styling.md) — choose classes, tokens, and runtime styles.
-4. [Moving between screens](navigation.md) — keep URLs and native stacks useful.
-5. [Fetching data](data.md) — load remote data with `query$`.
-6. [Using device features](platform-services.md) — use storage, permissions,
-   and other capabilities safely.
-7. [Running and checking an app](toolchain.md) — develop, build, and test.
-8. [Known limits](known-limits.md) — what's broken or platform-bound in the
-   current release.
+1. [What you can build](spec.md) — shared app behavior and target support.
+2. [Get a working app and iterate](toolchain.md) — the real setup command,
+   a first agent task, prerequisites, live updates, and checks.
+3. [Add device features](platform-services.md) — save, share, pick photos,
+   and handle permissions or unavailable features.
+4. [Add media](media-services.md) — audio and haptics, with links to camera
+   preview and video setup.
+5. [Tailor each platform](module-resolution.md) — share the product while
+   choosing platform-specific implementations.
+6. [Build screens](primitives.md), [style them](styling.md),
+   [connect routes](navigation.md), and [fetch data](data.md) as the app grows.
+7. [Check the result](testing.md) and consult [known limits](known-limits.md)
+   before promising a capability.
 
-## Machine-readable
+[Octane](https://github.com/octanejs/octane) supplies familiar React-style
+components and compiles the UI. [NativeScript](https://docs.nativescript.org/guide/metadata)
+lets TypeScript call native iOS and Android APIs without you authoring a
+bridge. The [architecture guide](architecture.md) explains how shared
+screens and platform implementations fit together when you need that detail.
 
-[llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes these docs
-for agents; `llms-full.txt` inlines every guide in one file. Apps
-scaffolded by `create-octane-xplat` carry an `xplat` agent skill with the
-invariants.
+## Context for your agent
 
-## What belongs in the notes
-
-The notes keep details that are useful when extending or debugging the
-framework but distracting when you are building an app: resolver order,
-renderer rules, native driver behavior, CSS support tables, version pins,
-compiler limits, lab evidence, decisions, and open questions.
+The starter includes an `xplat` skill under `.agents/skills/xplat/`.
+Ask your agent to read it before changing the app.
+[llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes these docs;
+[llms-full.txt](https://octane-xplat.goddardai.org/llms-full.txt) includes every
+guide. [Agent context and versions](toolchain.md#agent-context-and-versions)
+explains when NativeScript's optional official skills are useful.
 
 ## Notes
 
-Start with [status](status.md) for the current framework state. The original
-design record is in [decisions](decisions.md), [open questions](open-questions.md),
-and [demos](demos.md). Deep implementation references are grouped by topic:
-[framework](framework-notes.md), [architecture](architecture-notes.md),
+The guides above help you build an app. The notes preserve implementation
+details and evidence for extending or debugging the framework; their historical
+experiments are not promises of current support.
+
+Start with [status](status.md) for the framework work in progress. The design
+record includes [decisions](decisions.md), [open questions](open-questions.md),
+and the [showcase plan and demo evidence](demos.md). Deep references are grouped
+by [framework](framework-notes.md), [architecture](architecture-notes.md),
 [primitives](primitive-notes.md), [styling](styling-notes.md),
 [navigation](navigation-notes.md), [platform](platform-notes.md), and
-[toolchain](toolchain-notes.md). There are also focused notes for [module
+[toolchain](toolchain-notes.md). Focused notes cover [module
 resolution](module-resolution-notes.md), [animation](animation-notes.md),
 [testing](testing-notes.md), and [CSS support](css-support-notes.md).

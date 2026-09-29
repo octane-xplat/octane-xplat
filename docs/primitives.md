@@ -1,7 +1,12 @@
 # Building screens
 
-> Compose a screen from a small shared vocabulary, then let each platform
-> render that vocabulary in its own way.
+> Build the screens your app needs with shared components, then choose
+> platform widgets where the OS experience matters.
+
+For a first agent task, describe the screen's actions and empty state: a
+packing list should let someone add an item, mark it packed, and see what
+remains. Start with the components below; [run the starter](toolchain.md)
+if you do not yet have a working app.
 
 ## The components you reach for first
 
@@ -28,7 +33,10 @@ Start with these components. They are deliberately smaller than the browser
 DOM or the full NativeScript view catalog, which makes a shared screen easier
 to keep portable — and they are self-drawn, chrome-reset, or hosted (see the
 normalization classes in [architecture](architecture.md#normalization-classes)),
-so the same props produce the same pixels on every target.
+which defines which visuals the framework owns. Hosted content keeps its
+platform or engine appearance. These contracts describe the supported
+web/iOS/Android implementations; the [experimental desktop targets](spec.md#choose-your-targets)
+have narrower coverage.
 
 Platform-authentic widgets (real OS chrome, no parity promised) live behind
 `@octane-xplat/ui/ios`, `@octane-xplat/ui/android`, and `@octane-xplat/ui/web`

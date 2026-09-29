@@ -5,7 +5,7 @@
 
 ## The short feedback loop
 
-1. Run the typecheck for the web and native configurations.
+1. Ask the agent to run `pnpm lint` and `pnpm typecheck` in the starter app.
 2. Run logic and component tests without a device.
 3. Build the web app.
 4. Run a native smoke test on a simulator, emulator, or device before release.
@@ -19,9 +19,15 @@ The browser and native targets intentionally produce different view trees.
 Assert what the user can do: a press changes state, a route opens, a modal
 closes, and an unavailable capability shows its fallback.
 
-For a counter, the observable check is simple: press **Increment**, then
-assert that the screen says **Count: 1**. The exact test helper can differ
-between your web and native harness; the behavior should not.
+For a packing checklist, add “Passport,” mark it packed, and check that the
+remaining count decreases. Remove it and verify the empty state. The test
+helper can differ between your web and native harness; the expected product
+behavior stays the same.
+
+Ask the agent to report which commands passed and which targets it actually
+ran. Repeat the important flow yourself on the platforms you plan to ship,
+including denied permissions and unavailable device capabilities. A web build
+or a typecheck alone does not prove a native interaction works.
 
 Keep pure calculations in hook-free modules so they can run in a normal unit
 test. Add a device check when the behavior depends on native measurement,

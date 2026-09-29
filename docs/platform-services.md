@@ -1,7 +1,25 @@
 # Using device features
 
-> Ask the platform service for a capability instead of calling browser or
-> native APIs from a screen.
+> Save the user's work, attach a photo, share content, or open a link. Check
+> capability and permission results so the app stays useful on each platform.
+
+## Choose a useful feature
+
+Give your agent an outcome with a fallback: “Let me attach a photo to a trip
+item; explain when capture is unavailable.” Use the shared `media` service
+for still capture; a live [camera preview](primitives.md#when-a-screen-needs-more) is a
+separate component and setup.
+
+Label the result by platform when demonstrating it: **iOS/Android** use the
+OS camera flow; **web on a phone** may offer capture; **desktop web** may
+open a file picker instead. Cancellation and denied access need their own UI
+response. macOS and Windows are not implied by an iOS/Android implementation:
+consult the [target guide](spec.md#choose-your-targets) and
+[known limits](known-limits.md).
+
+The capability table below describes web and iOS/Android unless stated
+otherwise. Keep native details in a service or platform-specific file so
+shared screens can keep using the same interface.
 
 ## The shared service shape
 
