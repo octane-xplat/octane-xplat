@@ -1,0 +1,36 @@
+# git-cliff config for the tsrx-typegen release track — same commit rules as
+# cliff.toml, but scoped to packages/tsrx-typegen commits and
+# `tsrx-typegen-vX.Y.Z` tags. Used by .github/workflows/release.yml with
+# --include-path 'packages/tsrx-typegen/**'.
+
+[bump]
+features_always_bump_minor = false
+breaking_always_bump_major = false
+initial_tag = "tsrx-typegen-v0.1.0"
+
+[remote.github]
+owner = "octane-xplat"
+repo = "octane-xplat"
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+protect_breaking_commits = false
+filter_commits = true
+tag_pattern = "^tsrx-typegen-v[0-9]+\\.[0-9]+\\.[0-9]+$"
+commit_parsers = [
+  { message = "^[a-z]+\\(ci\\)!?:", skip = true },
+  { message = "^[a-z]+(\\([^)]*\\))?!:", group = "Breaking Changes" },
+  { footer = "BREAKING[ -]CHANGE", group = "Breaking Changes" },
+  { message = "^feat", group = "Features" },
+  { message = "^fix", group = "Bug Fixes" },
+  { message = "^perf", group = "Performance" },
+  { message = "^revert", group = "Reverts" },
+  { message = "^refactor", group = "Refactoring" },
+  { message = "^docs?", skip = true },
+  { message = "^test", skip = true },
+  { message = "^ci", skip = true },
+  { message = "^chore", skip = true },
+  { message = "^build", skip = true },
+  { message = "^style", skip = true },
+]

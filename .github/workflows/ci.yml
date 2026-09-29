@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Repo checks
+        run: pnpm check:patches && pnpm check:ui-barrels && pnpm check:css && pnpm check:recipes
+
+      - name: Typecheck
+        run: pnpm typecheck:web
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build web app
+        run: pnpm build:web
+
+      # Publishable packages: proves dist artifacts + check-native-dist gates
+      # pass before release.yml publishes them.
+      - name: Build packages
+        run: pnpm -r --filter './packages/**' --if-present run build

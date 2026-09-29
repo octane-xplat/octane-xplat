@@ -38,15 +38,19 @@ Ships **compiled** output, not .tsrx source:
 
 ## Publish procedure
 
-```sh
-cd packages/ui
-pnpm version minor --no-git-tag-version   # or patch
-git add package.json && git commit -m "chore(ui): release X.Y.Z"
-pnpm publish --access public              # needs npm login; OTP prompts
-```
+Releases are automated — `.github/workflows/release.yml` fires on every green
+`CI` run on `main`: git-cliff infers the version, all publishable packages
+bump in lockstep (`scripts/bump-versions.mjs`), CHANGELOG.md gets a generated
+section, the commit + `vX.Y.Z` tag push, then `pnpm -r publish` ships via npm
+trusted publishing (OIDC + provenance, no tokens). A preflight
+(`scripts/check-trusted-publishers.mjs`) bails before publishing if any
+package lacks a trusted-publisher config for this repo + workflow.
 
-pnpm publish refuses dirty trees and needs an interactive terminal for
-OTP/2FA — run it manually, not through an agent.
+`tsrx-typegen` releases on its own `tsrx-typegen-v*` cadence; everything else
+is lockstep. Manual escape hatch: `workflow_dispatch` with a version override.
+
+Do not hand-publish or hand-bump versions — a local `pnpm publish` bypasses
+the lockstep bump and the trusted-publisher path.
 
 ## Version pins (deliberate)
 

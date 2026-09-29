@@ -190,38 +190,33 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   standalone regex sweep; `xplat/no-dom-globals` covers it at lint time.
   tsrx suppressions: `xplat-disable[-line|-next-line]` comments.
 
-## Changelog
+## Changelog and releases
 
-`CHANGELOG.md` is generated in one pass before a version ships — it is
-not maintained incrementally.
+Releases are automated: `.github/workflows/release.yml` fires on every green
+`CI` run on `main` (plus `workflow_dispatch` for manual version overrides).
+`git-cliff` (`cliff.toml`) infers the next version from conventional commits
+and generates the changelog; the workflow bumps every publishable package to
+the same version, updates the create template's `@octane-xplat/*` pins,
+commits, tags `vX.Y.Z`, `pnpm -r publish`es, and creates the GitHub Release.
+Publishing is npm **trusted publishing** (OIDC, no tokens) — each package must
+have `octane-xplat/octane-xplat` + `release.yml` configured on npmjs.com; a
+preflight step bails before anything ships if one is missing
+(`scripts/check-trusted-publishers.mjs`).
 
-- **Do not edit it as part of feature/fix work.** Only touch
-  `CHANGELOG.md` when the task explicitly says to. Many agents appending
-  to one file is a merge-conflict farm; a single generation pass before
-  release avoids that.
-- **Range:** everything since the last _published_ release — check
-  `npm view @octane-xplat/ui versions` and the
-  `chore(release): align packages at X.Y.Z` commits; git tags lag the
-  registry.
-- **Audience:** app developers, not framework maintainers. What they can
-  now do, what behavior changed, what to watch for when upgrading. Verify
-  the public surface from `index.*.ts` export diffs, not commit messages.
-  Plain language — explain or drop internals.
-- **Shape:** group by theme (navigation, components, layout, toolchain,
-  state), then a Fixed list, then Upgrading — new peer deps, behavior
-  changes that could surprise, opt-ins.
-- **Exclude repo-internal work:** docs site, harness apps
-  (`packages/app`, `packages/demos`, `apps/*`), repo tooling that doesn't
-  ship in a package.
-- **The docs sweep rides the same pass.** Before a version ships:
-  re-verify `docs/known-limits.md` entries stamped older than the
-  releasing version and fix what moved, then `pnpm -C apps/docs build`
-  (regenerates `llms.txt`/`llms-full.txt` from the guides).
-- **Doc examples stay tiny.** Reserve code fences for conventions types
-  can't express (file suffixes, `.tsrx` imports, specifiers like
-  `theme/tokens.css`); the `create-octane-xplat` template is the
-  canonical large example — point at its real files instead of
-  duplicating snippets.
+`tsrx-typegen` releases on its own cadence: `cliff.tsrx-typegen.toml`,
+`tsrx-typegen-v*` tags, `packages/tsrx-typegen/CHANGELOG.md`, and only
+`packages/tsrx-typegen/**` commits move its version.
+
+The docs site deploys to Cloudflare Pages on every green `main` CI run
+(same workflow, `docs` job) — `llms.txt` regeneration is automatic.
+Manual pre-release task that remains: re-verify `docs/known-limits.md`
+entries stamped older than the releasing version.
+
+`CHANGELOG.md` is generated — **do not edit it as part of feature/fix work.**
+Write commit messages for app developers; they are the changelog source.
+Bump/changelog inference only counts commits touching `packages/**`
+(excluding `app`, `demos`, `typegen-fixture`, `tsrx-typegen`), and skips
+`docs:`/`test:`/`chore:`/`ci:`/`build:`/`style:` types.
 
 ## Invariants (the short list — full set in docs/architecture.md)
 

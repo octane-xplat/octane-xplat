@@ -1,0 +1,306 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Lockstep version override, e.g. 0.7.0 (blank = git-cliff inference)
+        required: false
+        type: string
+      typegen_version:
+        description: tsrx-typegen version override (blank = git-cliff inference)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+# git-cliff path filters for the lockstep track: only shipped packages count
+# for bump inference and changelog entries. Harness, fixtures, and
+# tsrx-typegen (own cadence) are excluded.
+env:
+  LOCKSTEP_PATHS: >-
+    --include-path 'packages/**'
+    --exclude-path 'packages/app/**'
+    --exclude-path 'packages/demos/**'
+    --exclude-path 'packages/typegen-fixture/**'
+    --exclude-path 'packages/tsrx-typegen/**'
+
+jobs:
+  # Lockstep release: every publishable package except tsrx-typegen ships at
+  # the same version.
+  packages:
+    name: Publish @octane-xplat/*
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main') ||
+      (github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main')
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Install git-cliff
+        uses: taiki-e/install-action@git-cliff
+
+      - name: Resolve release version
+        id: version
+        env:
+          VERSION_OVERRIDE: ${{ github.event.inputs.version || '' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -n "$VERSION_OVERRIDE" ]; then
+            next_version="${VERSION_OVERRIDE#v}"
+            node -e "process.exit(/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(process.argv[1]) ? 0 : 1)" "$next_version" || {
+              echo "Invalid version override: $VERSION_OVERRIDE" >&2; exit 1; }
+            echo "Using explicit version override: $next_version"
+          else
+            next_version="$(eval "git-cliff --bumped-version $LOCKSTEP_PATHS" | sed 's/^v//')"
+          fi
+          [ -n "$next_version" ] || { echo "git-cliff did not infer a version" >&2; exit 1; }
+
+          if git rev-parse --verify --quiet "refs/tags/v$next_version" >/dev/null; then
+            echo "Tag v$next_version already exists — nothing to release."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+          echo "version=$next_version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$next_version" >> "$GITHUB_OUTPUT"
+
+      # Bail before any version bumps or publishes: npm must already trust this
+      # workflow for every package, or the lockstep set ships half-released.
+      - name: Verify npm trusted publishing
+        if: steps.version.outputs.should_release == 'true'
+        run: node scripts/check-trusted-publishers.mjs
+
+      - name: Install dependencies
+        if: steps.version.outputs.should_release == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Bump lockstep versions
+        if: steps.version.outputs.should_release == 'true'
+        run: node scripts/bump-versions.mjs "${{ steps.version.outputs.version }}"
+
+      - name: Generate changelog
+        id: changelog
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          eval "git-cliff --unreleased --tag ${{ steps.version.outputs.tag }} $LOCKSTEP_PATHS --strip all -o .release-notes.md"
+          node - <<'EOF'
+          const fs = require('fs')
+          const notes = fs.readFileSync('.release-notes.md', 'utf8').trim()
+          const file = 'CHANGELOG.md'
+          const lines = fs.readFileSync(file, 'utf8').split('\n')
+          const insertAt = lines.findIndex((l) => l.startsWith('## '))
+          lines.splice(insertAt === -1 ? lines.length : insertAt, 0, notes, '')
+          fs.writeFileSync(file, lines.join('\n'))
+          EOF
+
+      - name: Commit and tag release
+        if: steps.version.outputs.should_release == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- 'packages/*/package.json' packages/create/template/package.json CHANGELOG.md
+          git commit -m "chore(release): align packages at ${{ steps.version.outputs.version }}"
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin HEAD:main
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      # pnpm publish (not npm): publishConfig export remapping and workspace:*
+      # rewriting are pnpm behaviors. No NODE_AUTH_TOKEN/NPM_TOKEN is set —
+      # pnpm mints per-package tokens from the OIDC id token via npm's trusted
+      # publishing exchange and attaches provenance automatically.
+      - name: Publish to npm
+        if: steps.version.outputs.should_release == 'true'
+        run: pnpm -r --filter '!tsrx-typegen' publish --access public --no-git-checks --provenance
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ steps.version.outputs.tag }}" --title "${{ steps.version.outputs.tag }}" --notes-file .release-notes.md
+
+  # tsrx-typegen ships on its own cadence — its commits never move the
+  # lockstep version, and its releases don't touch the other packages.
+  tsrx-typegen:
+    name: Publish tsrx-typegen
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main') ||
+      (github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main')
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Install git-cliff
+        uses: taiki-e/install-action@git-cliff
+
+      - name: Resolve release version
+        id: version
+        env:
+          VERSION_OVERRIDE: ${{ github.event.inputs.typegen_version || '' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -n "$VERSION_OVERRIDE" ]; then
+            next_version="${VERSION_OVERRIDE#v}"
+            node -e "process.exit(/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(process.argv[1]) ? 0 : 1)" "$next_version" || {
+              echo "Invalid version override: $VERSION_OVERRIDE" >&2; exit 1; }
+            echo "Using explicit version override: $next_version"
+          else
+            next_version="$(git-cliff --config cliff.tsrx-typegen.toml --bumped-version \
+              --include-path 'packages/tsrx-typegen/**' | sed 's/^tsrx-typegen-v//;s/^v//')"
+          fi
+          [ -n "$next_version" ] || { echo "git-cliff did not infer a version" >&2; exit 1; }
+
+          if git rev-parse --verify --quiet "refs/tags/tsrx-typegen-v$next_version" >/dev/null; then
+            echo "Tag tsrx-typegen-v$next_version already exists — nothing to release."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+          echo "version=$next_version" >> "$GITHUB_OUTPUT"
+          echo "tag=tsrx-typegen-v$next_version" >> "$GITHUB_OUTPUT"
+
+      - name: Verify npm trusted publishing
+        if: steps.version.outputs.should_release == 'true'
+        run: node scripts/check-trusted-publishers.mjs tsrx-typegen
+
+      - name: Install dependencies
+        if: steps.version.outputs.should_release == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Bump version
+        if: steps.version.outputs.should_release == 'true'
+        run: npm pkg set version="${{ steps.version.outputs.version }}" --workspace packages/tsrx-typegen
+
+      - name: Generate changelog
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git-cliff --config cliff.tsrx-typegen.toml --unreleased \
+            --include-path 'packages/tsrx-typegen/**' \
+            --tag "${{ steps.version.outputs.tag }}" \
+            --strip all -o .release-notes.md
+          touch packages/tsrx-typegen/CHANGELOG.md
+          node - <<'EOF'
+          const fs = require('fs')
+          const notes = fs.readFileSync('.release-notes.md', 'utf8').trim()
+          const file = 'packages/tsrx-typegen/CHANGELOG.md'
+          const existing = fs.readFileSync(file, 'utf8')
+          const body = existing.startsWith('# Changelog')
+            ? existing.replace(/^# Changelog\n/, `# Changelog\n\n${notes}\n\n`)
+            : `# Changelog\n\n${notes}\n\n${existing}`
+          fs.writeFileSync(file, body)
+          EOF
+
+      - name: Commit and tag release
+        if: steps.version.outputs.should_release == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/tsrx-typegen/package.json packages/tsrx-typegen/CHANGELOG.md
+          git commit -m "chore(release): tsrx-typegen ${{ steps.version.outputs.version }}"
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin HEAD:main
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Publish to npm
+        if: steps.version.outputs.should_release == 'true'
+        run: pnpm --filter tsrx-typegen publish --access public --no-git-checks --provenance
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ steps.version.outputs.tag }}" --title "${{ steps.version.outputs.tag }}" --notes-file .release-notes.md
+
+  # Docs ship continuously: every green CI run on main deploys the docs site,
+  # independent of whether a package release happened.
+  docs:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main') ||
+      (github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main')
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build docs site
+        run: pnpm --filter @xplat/docs build
+
+      - name: Deploy to Cloudflare Pages
+        run: pnpm --filter @xplat/docs exec wrangler pages deploy dist --project-name octane-xplat-docs --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
