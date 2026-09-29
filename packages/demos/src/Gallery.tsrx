@@ -9,7 +9,7 @@ import { Dialer } from './Dialer.tsrx';
 // './variant-demos' is extensionless on purpose: moduleSuffixes +
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
-import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo, NativePickerDemo, NativeDatePickerDemo, NativeContextMenuDemo } from './variant-demos';
+import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo, NativePickerDemo, NativeDatePickerDemo, NativeContextMenuDemo, NativeSheetDemo } from './variant-demos';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
@@ -63,6 +63,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'native-picker', title: 'Native picker', kind: 'app' },
 	{ id: 'native-date-picker', title: 'Native date picker', kind: 'app' },
 	{ id: 'native-context-menu', title: 'Native context menu', kind: 'app' },
+	{ id: 'native-sheet', title: 'Native sheet', kind: 'app' },
 	{ id: 'search', title: 'Search input', kind: 'proof' },
 	{ id: 'video', title: 'Video', kind: 'proof' },
 	{ id: 'camera', title: 'Camera', kind: 'proof' },
@@ -108,6 +109,7 @@ const renderSegmented = () => <SegmentedDemo />;
 const renderNativePicker = () => <NativePickerDemo />;
 const renderNativeDatePicker = () => <NativeDatePickerDemo />;
 const renderNativeContextMenu = () => <NativeContextMenuDemo />;
+const renderNativeSheet = () => <NativeSheetDemo />;
 const renderSearch = () => <SearchDemo />;
 const renderVideo = () => <VideoDemo />;
 const renderCamera = () => <CameraDemo />;
@@ -146,6 +148,7 @@ export const RENDER: Record<string, () => any> = {
 	'native-picker': renderNativePicker,
 	'native-date-picker': renderNativeDatePicker,
 	'native-context-menu': renderNativeContextMenu,
+	'native-sheet': renderNativeSheet,
 	search: renderSearch,
 	video: renderVideo,
 	camera: renderCamera,
@@ -174,7 +177,7 @@ export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | '
 			<Text className="text-2xl font-semibold">{props.title ?? 'Demos'}</Text>
 			<Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
 		</Row>
-		<ScrollView className="flex-1" orientation="vertical">
+		<ScrollView className="flex-1">
 			<Row className="demo-menu" style={{ minHeight: 1200 }}>
 				@for (const d of shown; key d.id) {
 					<Pressable
