@@ -39,16 +39,21 @@ env:
 
 jobs:
   # Lockstep release: every publishable package except tsrx-typegen ships at
-  # the same version.
+  # the same version. Runs after tsrx-typegen because both jobs commit and
+  # push to main — serializing avoids the non-fast-forward race.
   packages:
     name: Publish @octane-xplat/*
+    needs: tsrx-typegen
     runs-on: ubuntu-latest
+    # always() so a failed typegen run doesn't hold the lockstep release
+    # hostage — the rebase-before-push handles ordering regardless.
     if: >-
-      (github.event_name == 'workflow_run' &&
+      always() &&
+      ((github.event_name == 'workflow_run' &&
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.head_branch == 'main') ||
       (github.event_name == 'workflow_dispatch' &&
-        github.ref == 'refs/heads/main')
+        github.ref == 'refs/heads/main'))
     permissions:
       contents: write
       id-token: write
@@ -135,6 +140,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A -- 'packages/*/package.json' packages/create/template/package.json CHANGELOG.md
           git commit -m "chore(release): align packages at ${{ steps.version.outputs.version }}"
+          # Another job/push may have moved main since checkout — replay on top
+          # before tagging so the push is a fast-forward.
+          git pull --rebase origin main
           git tag "${{ steps.version.outputs.tag }}"
           git push origin HEAD:main
           git push origin "${{ steps.version.outputs.tag }}"
@@ -256,6 +264,9 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add packages/tsrx-typegen/package.json packages/tsrx-typegen/CHANGELOG.md
           git commit -m "chore(release): tsrx-typegen ${{ steps.version.outputs.version }}"
+          # Another job/push may have moved main since checkout — replay on top
+          # before tagging so the push is a fast-forward.
+          git pull --rebase origin main
           git tag "${{ steps.version.outputs.tag }}"
           git push origin HEAD:main
           git push origin "${{ steps.version.outputs.tag }}"
