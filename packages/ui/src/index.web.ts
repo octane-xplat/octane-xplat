@@ -125,11 +125,8 @@ export { WebView } from './WebView.web.tsrx'
 export type { WebViewContentSize, WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
 export { Overlay } from './Overlay.web.tsrx'
 export { Popover } from './Popover.web.tsrx'
-export { Hoverable } from './Hoverable.web.tsrx'
-export { Tooltip } from './Tooltip.web.tsrx'
 export { showToast } from './toast-anchor.web.tsrx'
 export type {
-	HoverableProps,
 	OverlayProps,
 	PopoverAnchorRef,
 	PopoverProps,
@@ -137,7 +134,6 @@ export type {
 	ToastContent,
 	ToastOptions,
 	ToastPosition,
-	TooltipProps,
 } from './props'
 
 export { useAnimation } from './anim.web.tsrx'

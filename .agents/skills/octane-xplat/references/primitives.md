@@ -12,8 +12,9 @@ use these shared prop contracts where applicable.
 
 ## Shared surface
 
-These names are exported from the root package on web and native, except
-`KeyboardAvoiding`, which is native-only. This inventory follows the current
+These names are exported from the root package on web and native, including
+`KeyboardAvoiding` (native leaves own OS keyboard events; web
+observes `visualViewport`, macOS is an inert column). This inventory follows the current
 `index.web.ts` and unsuffixed native-default `index.ts` barrels.
 
 | Area | Shared exports |
@@ -21,7 +22,7 @@ These names are exported from the root package on web and native, except
 | Layout | `View` (`Column` alias), `Row`, `Grid`, `Stack`, `Absolute`, `Spacer`, `Screen` |
 | Text and media | `Text`, `RichText`, `RichTextSpan`, `Heading`, `Image`, `Icon`, `Meter`, `ActivityIndicator` |
 | Interaction | `Pressable`, `Link`, `NavLink`, `Switch`, `Slider`, `Tabs`, `Drawer` |
-| Inputs and scrolling | `TextInput`, `TextArea`, `ScrollView`, `ScrollBox`, `SafeArea`; native-only `KeyboardAvoiding` |
+| Inputs and scrolling | `TextInput`, `TextArea`, `ScrollView`, `ScrollBox`, `SafeArea`; `KeyboardAvoiding` (web = visualViewport inset) |
 | Overlays | `Overlay`, `Popover`, `Sheet`, `openSheet`, `closeSheet`, `showToast` |
 | Styling and state | `styled`, `useAnimation`, `useStore`, theme and color-scheme APIs |
 

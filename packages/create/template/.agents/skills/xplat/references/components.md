@@ -52,7 +52,9 @@ inert layout below it).
 
 ## Platform-only shared exports
 
-- `KeyboardAvoiding` — native root export only (inert on web).
+- `KeyboardAvoiding` — shared root export; web avoids via the
+  `visualViewport` inset, iOS/Android via OS keyboard events, macOS leaf
+  is an inert column.
 - `Hoverable`, `Tooltip` — shared root exports; pointer platforms (web,
   macOS) mount the hint layer, touch targets render only the trigger —
   keep essential information out of `card`/`content`.
