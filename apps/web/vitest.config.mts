@@ -29,6 +29,8 @@ export default defineConfig({
 		// *.mobile.test.* runs under packages/ui/vitest.native.config.mts —
 		// it needs the nativescript renderer + the octane→universal/native
 		// alias; here it would bind DOM hooks inside universal components.
-		exclude: ['**/*.mobile.test.*'],
+		// packages/motion runs its own vitest configs (jsdom + native); running
+		// its web tests here under the node environment crashes on `history`.
+		exclude: ['**/*.mobile.test.*', '**/packages/motion/**'],
 	},
 })
