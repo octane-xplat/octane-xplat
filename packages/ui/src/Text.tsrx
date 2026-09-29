@@ -40,10 +40,19 @@ export function Text(props: TextProps) @{
 	const fontWeight = /^\d+$/.test(fontWeightValue)
 		? Number(fontWeightValue)
 		: namedWeights[fontWeightValue];
+	const lineHeight = props.style?.lineHeight;
 	// UIFontDescriptor resolves variable fonts to the regular axis default on
 	// iOS. Set wght explicitly so CSS fontWeight selects the matching instance.
 	const textStyle = {
 		...props.style,
+		...((Application.ios || Application.android) &&
+		typeof lineHeight === 'number' &&
+		Number.isFinite(lineHeight) &&
+		lineHeight > 0 &&
+		props.style?.height == null &&
+		props.style?.minHeight == null
+			? { minHeight: lineHeight }
+			: {}),
 		...(Application.ios &&
 		props.style?.fontVariationSettings == null &&
 		fontWeight !== undefined &&
