@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useRef, useState } from 'octane';
-import { GridLayout } from '@nativescript/core';
+import { GridLayout, isIOS, Screen } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
 import type { UniversalComponent } from 'octane/universal';
 import type { PopoverProps } from './props';
@@ -38,13 +38,19 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 			},
 			props.placement ?? 'bottom',
 		);
-
+		const insets = isIOS ? panelRef.current?.parent?.getSafeAreaInsets?.() : undefined;
+		const scale = isIOS ? Number(Screen.mainScreen.scale) || 1 : 1;
+		const panelPosition = {
+			...next,
+			left: next.left - Number(insets?.left ?? 0) / scale,
+			top: next.top - Number(insets?.top ?? 0) / scale,
+		};
 		setPosition((current) =>
-			current?.left === next.left &&
-			current?.top === next.top &&
-			current?.placement === next.placement
+			current?.left === panelPosition.left &&
+			current?.top === panelPosition.top &&
+			current?.placement === panelPosition.placement
 				? current
-				: next,
+				: panelPosition,
 		);
 
 		if (panelSize?.width > 0 && panelSize?.height > 0) setSettled(true);
@@ -72,6 +78,14 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 			}
 		};
 	}, [props.open, props.anchorView, props.placement, props.children, props.style]);
+
+	useEffect(() => {
+		if (position) {
+			const panel = panelRef.current;
+			const parent = panel?.parent;
+			parent?.requestLayout?.();
+		}
+	}, [position]);
 
 	useEffect(() => {
 		applyNativeProps(panelRef.current, props);
