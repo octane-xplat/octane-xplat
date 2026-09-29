@@ -7,9 +7,13 @@
  * this file is screen dressing: sections, probe surfaces, and panel chrome. */
 
 :root {
-	/* Web entries load the bundled Geist face; NativeScript keeps the
-	   platform face (SF/Roboto). The AppKit host registers that same face. */
+	/* Geist is bundled for web, NativeScript, and the AppKit host so the
+	   parity fixtures measure one shared font face. */
 	--font-sans: 'Geist', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
+}
+
+.ns-root {
+	font-family: 'Geist';
 }
 
 /* xplat-web-only:start — document shell. The app owns the viewport; lists

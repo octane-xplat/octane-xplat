@@ -1,0 +1,1 @@
+../../../../packages/app/src/assets/fonts/OFL.txt
