@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="34px" viewBox="0 0 32 34" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>tmp-export</title>
+    <defs>
+        <linearGradient x1="78.1532655%" y1="39.4649919%" x2="22.4064813%" y2="51.8673746%" id="linearGradient-1">
+            <stop stop-color="#51DF00" offset="0%"></stop>
+            <stop stop-color="#AEE5E0" offset="40.6536458%"></stop>
+            <stop stop-color="#0060ED" offset="100%"></stop>
+        </linearGradient>
+        <path d="M12.39,13 L16.47,13 L21.66,20.74 L21.81,20.74 L27.03,13 L31.11,13 L24.03,23.14 L24.03,23.32 L31.5,33.97 L27.36,33.97 L21.81,25.66 L21.63,25.66 L17.2886931,32.2312679 L12.4832632,33.2810103 L19.47,23.32 L19.47,23.14 L12.39,13 Z M11.58,-7.10542736e-15 C18.57,-7.10542736e-15 23.16,4.47 23.16,11.01 C23.16,13.7611945 22.3091489,16.1564775 20.7822322,17.9923315 L18.7226913,14.921321 C19.277062,13.8507579 19.59,12.5490346 19.59,11.01 C19.59,5.64 15.99,3.06 11.58,3.06 C7.14,3.06 3.54,5.64 3.54,11.01 C3.54,16.23 7.14,18.72 11.58,18.72 C12.8031119,18.72 13.9639163,18.5284622 15.0028899,18.1402663 L16.8948284,20.8509887 C15.3492132,21.5109817 13.5609873,21.87 11.58,21.87 C4.41,21.87 7.10542736e-15,17.4 7.10542736e-15,11.01 C7.10542736e-15,4.47 4.44,-7.10542736e-15 11.58,-7.10542736e-15 Z" id="path-2"></path>
+        <filter x="-1.5%" y="-1.4%" width="100.6%" height="100.6%" filterUnits="objectBoundingBox" id="filter-3">
+            <feGaussianBlur stdDeviation="0.25" in="SourceAlpha" result="shadowBlurInner1"></feGaussianBlur>
+            <feOffset dx="0" dy="0.5" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.199835325 0" type="matrix" in="shadowInnerInner1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="tmp-export" fill-rule="nonzero">
+            <g id="Combined-Shape">
+                <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-2"></use>
+            </g>
+        </g>
+    </g>
+</svg>

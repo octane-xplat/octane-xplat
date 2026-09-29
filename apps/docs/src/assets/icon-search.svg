@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="19px" viewBox="0 0 18 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Graphic</title>
+    <g id="Graphic" stroke="none" fill="none" transform="translate(0, 0.53)" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round" stroke-width="1">
+        <g id="Group" transform="translate(2, 2)" stroke="#000000">
+            <circle id="Oval" stroke-width="2" cx="6.22222222" cy="6.22222222" r="6.22222222"></circle>
+            <line x1="14" y1="14" x2="10.6166667" y2="10.6166667" id="Path" stroke-width="2"></line>
+        </g>
+    </g>
+</svg>

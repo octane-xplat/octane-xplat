@@ -75,8 +75,8 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 60))
 let scrolledTo
 window.HTMLElement.prototype.scrollIntoView = function () { scrolledTo = this.id }
 
-const firstFlow = [...root.querySelectorAll('a')].find((a) => a.textContent === 'Try the first flow')
-assert('section link retains fragment', firstFlow?.getAttribute('href') === '/toolchain#create-and-run')
+const firstFlow = [...root.querySelectorAll('a')].find((a) => a.getAttribute('href') === '/toolchain#create-and-run')
+assert('section link retains fragment', Boolean(firstFlow))
 firstFlow?.click()
 await settle()
 assert('section navigation reaches heading', window.location.hash === '#create-and-run' && scrolledTo === 'create-and-run')
@@ -85,13 +85,13 @@ const pages = readdirSync('../../docs').filter((file) => file.endsWith('.md'))
 for (const file of pages) {
 	const slug = file.slice(0, -3)
 	const title = titleOf(slug, readFileSync(`../../docs/${file}`, 'utf8'))
-	const item = [...root.querySelectorAll('.side-item')].find((el) => el.textContent === title.toLowerCase())
+	const item = [...root.querySelectorAll('.side-item')].find((el) => el.textContent === title)
 	item?.click()
 	await settle()
 	assert(`page ${slug}`, window.location.pathname === docPath(slug) && root.querySelector('.doc .h1')?.textContent === title)
 }
 
-const navigationNotes = [...root.querySelectorAll('.side-item')].find((el) => el.textContent === 'navigation notes')
+const navigationNotes = [...root.querySelectorAll('.side-item')].find((el) => el.textContent === 'Navigation notes')
 navigationNotes?.click()
 await settle()
 const labLink = [...root.querySelectorAll('.doc a')].find((a) => a.textContent === 'lab log')
