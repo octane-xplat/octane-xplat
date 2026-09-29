@@ -29,6 +29,8 @@ for the current boundaries before committing to a release.
    choosing platform-specific implementations.
 6. [Build screens](primitives.md), [style them](styling.md),
    [connect routes](navigation.md), and [fetch data](data.md) as the app grows.
+   The [component index](components.md) lists everything `@octane-xplat/ui`
+   exports.
 7. [Check the result](testing.md) and consult [known limits](known-limits.md)
    before promising a capability.
 

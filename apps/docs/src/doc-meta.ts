@@ -32,6 +32,7 @@ export const ORDER = [
 	'toolchain',
 	'architecture',
 	'primitives',
+	'components',
 	'navigation',
 	'data',
 	'styling',
