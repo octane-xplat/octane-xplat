@@ -135,6 +135,10 @@ pushes themselves work through the swap-pane route store.
   references for the package's published JavaScript layout. Native TS 7 emits
   `Component.d.tsrx.ts` and also needs upstream declaration output mapping
   (TS#64053 / draft TS#64120). — post-0.6.0·desk.
+- **Packed declaration checks do not prove prop semantics.** `tsrx-typegen
+  --pack-check` verifies tarball paths, dependency declarations, and runtime
+  value-export names; keep a plain TypeScript consumer test for required props,
+  inference, and each supported module-resolution mode. — post-0.6.0·desk.
 - **`.tsrx` infers effect deps from closure reads.** An effect that only
   writes (refs, DOM) and never reads its driving prop compiles to a deps
   array that omits it — declare deps explicitly:

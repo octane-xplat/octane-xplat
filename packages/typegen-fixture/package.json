@@ -2,15 +2,19 @@
 	"name": "tsrx-typegen-fixture",
 	"version": "0.0.0",
 	"private": true,
-	"type": "module",
 	"files": [
 		"src",
 		"types/generated"
 	],
+	"type": "module",
 	"exports": {
 		".": {
 			"types": "./types/generated/index.d.ts",
 			"default": "./src/index.ts"
+		},
+		"./format": {
+			"types": "./types/generated/format.d.ts",
+			"default": "./src/format.ts"
 		}
 	},
 	"scripts": {
@@ -18,7 +22,7 @@
 		"typegen:check": "tsrx-typegen --project tsconfig.types.json --check",
 		"typecheck:consumer": "tsc --noEmit -p tsconfig.consumer.json",
 		"test:packed": "node ../tsrx-typegen/tests/packed-consumer.mjs",
-		"prepack": "pnpm typegen"
+		"prepack": "pnpm typegen && pnpm exec tsrx-typegen --pack-check"
 	},
 	"devDependencies": {
 		"@tsrx/typescript-plugin": "0.4.11",

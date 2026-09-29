@@ -51,7 +51,8 @@ try {
 	writeFileSync(
 		join(consumerRoot, 'consumer.ts'),
 		`
-import { Badge, Box, Card, createBadge, decode, format, type BoxProps } from '${packedManifest.name}'
+import { Badge, Box, Card, createBadge, decode, type BoxProps } from '${packedManifest.name}'
+import { format } from '${packedManifest.name}/format'
 const props: BoxProps<number> = { value: 42 }
 Box(props)
 Badge({ label: 'ready', tone: 'quiet' })

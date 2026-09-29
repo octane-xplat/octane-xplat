@@ -16,6 +16,7 @@ config continues to select the actual tsrx compiler and platform.
 ```sh
 pnpm exec tsrx-typegen --target octane
 pnpm exec tsrx-typegen --project tsconfig.types.json --check
+pnpm exec tsrx-typegen --pack-check
 ```
 
 Generation writes only TypeScript declaration files under the config's `outDir` and records
@@ -78,6 +79,33 @@ and `.ts` to `.js`, with `.mts` to `.mjs` and `.cts` to `.cjs`. Packages with
 another runtime layout can override these mappings in `sourceExtensions` at
 the target or root level.
 
+## Publish checks
+
+Use `--pack-check` before publishing. It checks every configured target unless
+`--target` narrows the selection, packs a temporary tarball with lifecycle
+scripts disabled, and verifies that package and `publishConfig` export paths
+exist in the tarball. It also compares runtime and declaration value exports
+and checks that relative declaration references resolve inside the package and
+bare package imports are declared dependencies or peers. The command needs
+`pnpm` and the system `tar` utility. It checks package structure; keep a plain
+TypeScript consumer test for the module-resolution modes and public prop
+contracts your package supports.
+
+Run the same gate from `prepack` so `pnpm pack` and publication share it:
+
+```json
+{
+  "scripts": {
+    "build": "vite build && tsrx-typegen --target octane",
+    "prepack": "pnpm build && tsrx-typegen --pack-check"
+  }
+}
+```
+
+When run from a package root that has `tsrx-typegen.json`, `xplat doctor`
+delegates to `tsrx-typegen --pack-check` and returns a failing exit status if
+that declaration gate fails.
+
 The first supported backend is the classic `tsrx-tsc` path with TypeScript
 5.9.x. TypeScript 7 content-mapper output needs upstream declaration naming and
 specifier support before it can replace this backend. Generation rejects
@@ -87,4 +115,6 @@ This tool preserves TypeScript's declaration inference. Keep exported helpers,
 generic signatures, overloads, and compound members explicit in source when
 inference does not preserve the intended package contract. Always check the
 packed package with a plain TypeScript consumer; generated declarations may
-still reference a package peer or a path excluded from the tarball.
+still express a different contract even when their paths and exports are
+valid. Use explicit overrides for exceptional signatures and keep those
+overrides outside the generated output directory.

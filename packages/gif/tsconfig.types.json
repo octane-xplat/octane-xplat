@@ -1,12 +1,23 @@
 {
 	"compilerOptions": {
 		"strict": true,
+		"skipLibCheck": true,
 		"module": "esnext",
 		"moduleResolution": "bundler",
 		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
 		"declaration": true,
 		"emitDeclarationOnly": true,
-		"outDir": "types"
+		"noEmit": false,
+		"rootDir": "src"
 	},
-	"include": ["src/props.ts", "types/index.d.ts"]
+	"include": [
+		"src/AnimatedImage.tsrx",
+		"src/AnimatedImage.web.tsrx",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/native-elements.d.ts",
+		"src/props.ts"
+	]
 }

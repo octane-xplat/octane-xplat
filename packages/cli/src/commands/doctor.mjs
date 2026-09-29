@@ -284,20 +284,24 @@ export function findHmrScopeGaps(cwd) {
 	return [...gaps].sort()
 }
 
-const check = (cmd, args) => {
+const check = (cmd, args, cwd = process.cwd(), timeout = 15000) => {
 	try {
 		return {
 			ok: true,
 			out: execFileSync(cmd, args, {
 				encoding: 'utf8',
-				timeout: 15000,
+				cwd,
+				timeout,
 				stdio: ['ignore', 'pipe', 'pipe'],
 			})
 				.trim()
 				.split('\n')[0],
 		}
-	} catch {
-		return { ok: false, out: '' }
+	} catch (error) {
+		return {
+			ok: false,
+			out: [error.stdout, error.stderr].filter(Boolean).join('\n').trim(),
+		}
 	}
 }
 
@@ -314,6 +318,20 @@ export const doctor = command({
 		const native = hasNative(cwd)
 		const macos = hasMacOS(cwd)
 		const manifest = readJson(join(cwd, 'package.json')) ?? {}
+		let declarationPackCheckFailed = false
+		let declarationPackCheckOutput = ''
+		if (existsSync(join(cwd, 'tsrx-typegen.json'))) {
+			const declarations = check('pnpm', ['exec', 'tsrx-typegen', '--pack-check'], cwd, 120000)
+			row(
+				'tsrx package declarations',
+				declarations.ok,
+				declarations.out,
+				'run pnpm exec tsrx-typegen --pack-check and resolve the reported package issue',
+			)
+
+			declarationPackCheckFailed = !declarations.ok
+			declarationPackCheckOutput = declarations.out
+		}
 
 		row('node', check('node', ['--version']).ok, check('node', ['--version']).out)
 		row('pnpm', check('pnpm', ['--version']).ok, check('pnpm', ['--version']).out)
@@ -427,6 +445,7 @@ export const doctor = command({
 				runtimeInspection.packageManifest?.version ?? runtimeVersion ?? 'not declared',
 				runtimeHint,
 			)
+
 			const jscHost = inspectJscHost()
 			row(
 				'macOS JavaScriptCore package host',
@@ -473,7 +492,7 @@ export const doctor = command({
 		}
 
 		for (const patch of inspectPatches(cwd)) {
-			if (patch.state === 'not-declared') continue
+			if (patch.state === 'not-declared') {continue}
 			row(
 				`patch ${patch.specifier}`,
 				patch.state === 'applied',
@@ -497,6 +516,7 @@ export const doctor = command({
 			const windowsRuntimeVersion =
 				manifest.devDependencies?.['@nativescript/windows'] ??
 				manifest.dependencies?.['@nativescript/windows']
+
 			row(
 				'@nativescript/windows',
 				typeof windowsRuntimeVersion === 'string' && !/[\^~]/.test(windowsRuntimeVersion),
@@ -519,6 +539,7 @@ export const doctor = command({
 					'-Command',
 					'(Get-ItemProperty "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock" -Name AllowDevelopmentWithoutDevLicense -ErrorAction SilentlyContinue).AllowDevelopmentWithoutDevLicense',
 				])
+
 				row(
 					'Developer Mode',
 					devMode.ok && devMode.out?.trim() === '1',
@@ -562,5 +583,10 @@ export const doctor = command({
 				? `${summary}; ${pluginWarnings.length} native plugin declaration warning(s)`
 				: summary,
 		)
+
+		if (declarationPackCheckFailed) {
+			if (declarationPackCheckOutput) {console.error(declarationPackCheckOutput)}
+			process.exitCode = 1
+		}
 	},
 })

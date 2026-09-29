@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "files": [
+    "AnimatedImage.d.ts",
+    "AnimatedImage.web.d.ts",
+    "index.d.ts",
+    "index.web.d.ts",
+    "props.d.ts"
+  ]
+}

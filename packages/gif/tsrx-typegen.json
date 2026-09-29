@@ -7,21 +7,16 @@
 			"entrypoints": {
 				".": {
 					"source": "src/index.ts",
-					"runtime": "./src/index.ts",
-					"types": "./types/generated/index.d.ts"
-				},
-				"./format": {
-					"source": "src/format.ts",
-					"runtime": "./src/format.ts",
-					"types": "./types/generated/format.d.ts"
+					"runtime": ["./dist/native/index.js", "./dist/web/index.js"],
+					"types": ["./types/generated/index.d.ts", "./types/generated/index.web.d.ts"]
 				}
 			}
 		}
 	},
 	"sourceExtensions": {
-		".tsrx": ".js",
 		".ts": ".js",
-		".tsx": ".js"
+		".tsx": ".js",
+		".tsrx": ".js"
 	},
 	"overrides": {}
 }

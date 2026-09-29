@@ -188,6 +188,23 @@ and [draft TS#64120](https://github.com/microsoft/TypeScript/pull/64120)).
 The initial typegen backend targets the classic TS 5.9 path; it does not claim
 that the upstream TS 7 issue is fixed.
 
+Packages with `tsrx-typegen.json` can run `tsrx-typegen --pack-check` as a hard
+publication gate. It checks every target's generated output, packs a temporary
+tarball with lifecycle scripts disabled, validates both workspace and
+`publishConfig` export paths against the packed files, compares runtime and
+declaration value exports, and checks declaration references and dependencies.
+Put the gate in `prepack` after the runtime build so `pnpm pack` and publish use
+the same package contents. `xplat doctor`, when invoked at a configured package
+root, runs that gate and exits nonzero on failure. A plain TypeScript consumer
+fixture remains necessary to check inferred props and module-resolution modes;
+the pack gate validates the declaration graph, not every semantic contract.
+
+`@octane-xplat/gif` is the first leaf package using this flow. Its web and
+NativeScript declarations are generated and checked from a packed consumer in
+Bundler and NodeNext modes with `skipLibCheck: false`. The AppKit-specific
+entrypoint retains its explicit declaration because its renderer JSX types are
+not part of the Octane project used for the other targets.
+
 ## TS configs
 
 `tsconfig.base.json` + `.web` / `.native` variants differing in

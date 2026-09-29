@@ -13,6 +13,7 @@ import {
 
 import { tmpdir } from 'node:os'
 import { dirname, extname, isAbsolute, join, normalize, relative, resolve, sep } from 'node:path'
+import { checkPackedPackage } from './pack-check.mjs'
 
 const manifestName = '.tsrx-typegen-manifest.json'
 const defaultExtensions = {
@@ -26,6 +27,7 @@ const defaultExtensions = {
 function usage() {
 	console.log(`Usage: tsrx-typegen --project <tsconfig> [--target <name>] [--check]
        tsrx-typegen --target <name> [--check]
+       tsrx-typegen --pack-check [--target <name>]
 
 Generate declarations with the consuming project's TypeScript and tsrx compiler.
 
@@ -33,6 +35,7 @@ Options:
   --project <path>  TypeScript config for declaration generation
   --target <name>   Target in tsrx-typegen.json (selects its project and output)
   --check           Compare generated declarations without writing files
+  --pack-check      Check declarations, pack the package, and validate the tarball
   -h, --help        Show this help`)
 }
 
@@ -40,6 +43,7 @@ function parseArgs(args) {
 	let project
 	let target
 	let check = false
+	let packCheck = false
 	for (let index = 0; index < args.length; index += 1) {
 		const arg = args[index]
 		if (arg === '--help' || arg === '-h') {
@@ -47,6 +51,8 @@ function parseArgs(args) {
 			process.exit(0)
 		} else if (arg === '--check') {
 			check = true
+		} else if (arg === '--pack-check') {
+			packCheck = true
 		} else if (arg === '--project') {
 			if (!args[index + 1] || args[index + 1].startsWith('--')) {
 				throw new Error('Pass a path after --project.')
@@ -64,8 +70,36 @@ function parseArgs(args) {
 		}
 	}
 
-	if (!project && !target) {throw new Error('Pass --project <tsconfig> or --target <name>.')}
-	return { project: project ? resolve(project) : undefined, target, check }
+	if (!project && !target && !packCheck) {
+		throw new Error('Pass --project <tsconfig>, --target <name>, or --pack-check.')
+	}
+
+	if (packCheck && project) {
+		throw new Error('--pack-check uses targets from tsrx-typegen.json; do not pass --project.')
+	}
+
+	return { project: project ? resolve(project) : undefined, target, check, packCheck }
+}
+
+function configuredTargetNames(projectRoot, selectedTarget) {
+	const path = join(projectRoot, 'tsrx-typegen.json')
+	let config
+	try {
+		config = JSON.parse(readFileSync(path, 'utf8'))
+	} catch (error) {
+		throw new Error(`${path}: ${error.message}`)
+	}
+
+	const targets = config?.targets
+	if (!targets || typeof targets !== 'object' || Array.isArray(targets) || !Object.keys(targets).length) {
+		throw new Error(`${path}: --pack-check requires at least one configured target`)
+	}
+
+	if (selectedTarget && !Object.hasOwn(targets, selectedTarget)) {
+		throw new Error(`${path}: unknown target ${selectedTarget}`)
+	}
+
+	return selectedTarget ? [selectedTarget] : Object.keys(targets)
 }
 
 function loadProjectModule(projectRoot, specifier) {
@@ -574,10 +608,12 @@ function stringsIn(value) {
 
 function typeTargets(value) {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) {return []}
-	if (Object.hasOwn(value, 'types')) {return stringsIn(value.types)}
-	return Object.entries(value)
-		.filter(([key]) => key !== 'default')
-		.flatMap(([, child]) => typeTargets(child))
+	return [
+		...(Object.hasOwn(value, 'types') ? stringsIn(value.types) : []),
+		...Object.entries(value)
+			.filter(([key]) => key !== 'types' && key !== 'default')
+			.flatMap(([, child]) => typeTargets(child)),
+	]
 }
 
 function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs) {
@@ -681,9 +717,7 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 	if (failures.length) {throw new Error(failures.join('\n'))}
 }
 
-function run() {
-	const args = parseArgs(process.argv.slice(2))
-	const projectRoot = process.cwd()
+function runTarget(projectRoot, args) {
 	const { project, target, sourceExtensions, overrides } = configOptions(
 		projectRoot,
 		args.project,
@@ -733,32 +767,54 @@ function run() {
 				'tsrx-typegen: declaration emit failed; generated files were not changed. Fix compiler diagnostics or configure an explicit declaration override for an unsupported public signature.',
 			)
 
-			process.exitCode = result.status ?? 1
+			return false
 		}
-		else {
-			const generated = normalizeOutput(ts, outputDir, sourceExtensions, runtimeByDeclaration)
-			const managedOverrides = applyOverrides(ts, projectRoot, outDir, generated, overrides)
-			verifySourceDeclarations(generated, sourceOutputs)
-			const oldFiles = previousManifest(outDir)
-			verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs)
-			if (args.check) {
-				const errors = compareOutput(outDir, generated, oldFiles, managedOverrides)
-				if (errors.length) {
-					for (const error of errors) {console.error(`tsrx-typegen: ${error}`)}
-					process.exitCode = 1
-				} else {
-					console.log(`tsrx-typegen: ${generated.size} declaration file(s) are current`)
-				}
-			} else {
-				writeOutput(outDir, generated, oldFiles, managedOverrides)
-				console.log(
-					`tsrx-typegen: wrote ${generated.size} declaration file(s) to ${relative(projectRoot, outDir) || outDir}`,
-				)
+
+		const generated = normalizeOutput(ts, outputDir, sourceExtensions, runtimeByDeclaration)
+		const managedOverrides = applyOverrides(ts, projectRoot, outDir, generated, overrides)
+		verifySourceDeclarations(generated, sourceOutputs)
+		const oldFiles = previousManifest(outDir)
+		verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs)
+		if (args.check) {
+			const errors = compareOutput(outDir, generated, oldFiles, managedOverrides)
+			if (errors.length) {
+				for (const error of errors) {console.error(`tsrx-typegen: ${error}`)}
+				return false
 			}
+
+			console.log(`tsrx-typegen: ${generated.size} declaration file(s) are current`)
+		} else {
+			writeOutput(outDir, generated, oldFiles, managedOverrides)
+			console.log(
+				`tsrx-typegen: wrote ${generated.size} declaration file(s) to ${relative(projectRoot, outDir) || outDir}`,
+			)
 		}
+
+		return true
 	} finally {
 		rmSync(temporaryRoot, { recursive: true, force: true })
 	}
+}
+
+function run() {
+	const args = parseArgs(process.argv.slice(2))
+	const projectRoot = process.cwd()
+	if (!args.packCheck) {
+		if (!runTarget(projectRoot, args)) {process.exitCode = 1}
+		return
+	}
+
+	const targets = configuredTargetNames(projectRoot, args.target)
+	for (const target of targets) {
+		if (!runTarget(projectRoot, { ...args, target, check: true })) {
+			process.exitCode = 1
+			return
+		}
+	}
+
+	const tsPath = loadProjectModule(projectRoot, 'typescript')
+	const ts = createRequire(import.meta.url)(tsPath)
+	checkPackedPackage(projectRoot, ts)
 }
 
 try {

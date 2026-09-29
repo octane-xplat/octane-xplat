@@ -1,14 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { registerElement } from '@nativescript-community/octane';
-import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import { Img } from '@nativescript-community/ui-image';
 import type { AnimatedImageProps } from './props';
-
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		animatedimage: Attributes<typeof Img>;
-	}
-}
 
 // @nativescript-community/ui-image — Fresco DraweeView on Android,
 // SDAnimatedImageView on iOS when `animatedImageView` is set (plain UIImageView
