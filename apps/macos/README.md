@@ -14,7 +14,16 @@ from `@octane-xplat/ui` without a Vite alias for the package root. The package's
 is an explicit experimental AppKit surface: components without a host
 implementation use visible unsupported leaves, and platform services without
 an AppKit implementation report `unsupported` or `unavailable` rather than
-simulating success. The renderer maps a curated set of `className` tokens to
+simulating success. Most shared components now have real `.macos` leaves
+ported from the self-drawn native leaves — `Popover` renders inline (no
+NSPopover anchoring yet) and `WebView`/`Video`/`CameraView`/`Pager` remain
+hosted-unsupported. Leaf chrome that web draws via `.vx-*` CSS is inlined
+as style props in the macOS leaves. The `__xplatAppKit` host seam provides
+appInfo, app state, window size, clipboard, `openUrl`, NSUserDefaults-backed
+storage, system color scheme (with appearance-change KVO), deep links
+(`application:openURLs:`), imperative sheets (`openSheet` presents a
+dialog-kind window), and `openWindow` multi-window support.
+The renderer maps a curated set of `className` tokens to
 AppKit views; it does not load CSS stylesheets or promise general NativeScript
 or web style parity. In particular, this harness does not validate every
 exported component or every service. AppKit's shared `VirtualList` fallback
@@ -127,7 +136,12 @@ a 14pt default gap and reported a document-height mismatch until the bench was
 updated. The full AppKit geometry parity sweep
 now mounts all 104 fixtures and produces a dump — set
 `OCTANE_MACOS_PARITY_FIXTURES=name1,name2` to scope the stage to a subset
-while debugging.
+while debugging. `scripts/parity-check.mjs --targets=web,macos` currently
+evaluates 1110 checks; a handful of checks keep `macos` out of `equalTargets`
+where the facet is inherently CSS- or font-metric-driven (stepper/navmenu
+active-item boxes, the command-palette list width). The sweep pins
+`themePreference` to `light` before measuring so a dark host scheme does
+not skew control-color facets.
 The historical Node-host measurements above are not JavaScriptCore results.
 
 This drives the clip view with `scrollToPoint`, so it measures the bounds-change
