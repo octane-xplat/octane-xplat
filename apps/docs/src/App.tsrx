@@ -48,46 +48,49 @@ export function App() @{
 	<View className={['shell', dark ? 'dark' : 'light']}>
 		<Row className="body">
 			<View className="side">
-				<Row className="brand-row">
-					<View className="logo-cluster">
-						<img className="logo-mark" src={logoMark} alt="" />
-						<img className="wordmark" src={wordmark} alt="Octane Xplat" />
+				<View className="side-fixed">
+					<Row className="brand-row">
+						<View className="logo-cluster">
+							<img className="logo-mark" src={logoMark} alt="" />
+							<img className="wordmark" src={wordmark} alt="Octane Xplat" />
+						</View>
+						<Pressable className="mode-toggle" onPress={() => setOverride(!dark)}>
+							<View className="mode-icon" />
+						</Pressable>
+					</Row>
+					<View className="nav">
+						<Pressable className={searchOpen ? 'nav-row active' : 'nav-row'} onPress={() => setSearchOpen(!searchOpen)}>
+							<View className="nav-icon ic-search" />
+							<Text className="nav-label">Search</Text>
+						</Pressable>
+						{searchOpen && (
+							<input
+								className="search-input"
+								placeholder="Filter docs…"
+								value={query}
+								onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
+								autoFocus
+							/>
+						)}
+						<a
+							className="nav-row"
+							href="https://github.com/aleclarson/octane-xplat"
+							target="_blank"
+							rel="noopener"
+						>
+							<View className="nav-icon ic-github" />
+							<Text className="nav-label">Github</Text>
+						</a>
+						<Pressable className="nav-row" onPress={() => open(DOCS[0].slug)}>
+							<View className="nav-icon ic-start" />
+							<Text className="nav-label">Get Started</Text>
+						</Pressable>
+						<a className="nav-row" href="/llms.txt" target="_blank" rel="noopener">
+							<View className="nav-icon ic-doc" />
+							<Text className="nav-label">llms.txt</Text>
+						</a>
 					</View>
-					<Pressable className="mode-toggle" onPress={() => setOverride(!dark)}>
-						<View className="mode-icon" />
-					</Pressable>
-				</Row>
-				<View className="nav">
-					<Pressable className={searchOpen ? 'nav-row active' : 'nav-row'} onPress={() => setSearchOpen(!searchOpen)}>
-						<View className="nav-icon ic-search" />
-						<Text className="nav-label">Search</Text>
-					</Pressable>
-					{searchOpen && (
-						<input
-							className="search-input"
-							placeholder="Filter docs…"
-							value={query}
-							onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
-							autoFocus
-						/>
-					)}
-					<a
-						className="nav-row"
-						href="https://github.com/aleclarson/octane-xplat"
-						target="_blank"
-						rel="noopener"
-					>
-						<View className="nav-icon ic-github" />
-						<Text className="nav-label">Github</Text>
-					</a>
-					<Pressable className="nav-row" onPress={() => open(DOCS[0].slug)}>
-						<View className="nav-icon ic-start" />
-						<Text className="nav-label">Get Started</Text>
-					</Pressable>
-					<a className="nav-row" href="/llms.txt" target="_blank" rel="noopener">
-						<View className="nav-icon ic-doc" />
-						<Text className="nav-label">llms.txt</Text>
-					</a>
+					<View className="side-divider" />
 				</View>
 				{results ? (
 					<View className="side-sec">

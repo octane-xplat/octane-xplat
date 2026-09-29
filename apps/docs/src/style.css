@@ -93,6 +93,13 @@ body {
 	padding: 4px 2px 24px 4px;
 }
 
+.side-fixed {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background-color: var(--doc-bg);
+}
+
 .side .vx-list {
 	flex-grow: 0;
 	flex-shrink: 0;
@@ -165,6 +172,13 @@ body {
 	gap: 4px;
 	margin-bottom: 18px;
 	flex-shrink: 0;
+}
+
+.side-divider {
+	margin-top: 16px;
+	border-top-width: 1px;
+	border-top-color: var(--doc-hairline);
+	border-top-style: solid;
 }
 
 .nav-row {
@@ -252,11 +266,7 @@ body {
 /* nav sections — bold head over regular items, hairline above each */
 
 .side-sec {
-	border-top-width: 1px;
-	border-top-color: var(--doc-hairline);
-	border-top-style: solid;
 	padding-top: 19px;
-	margin-top: 16px;
 	flex-shrink: 0;
 }
 
