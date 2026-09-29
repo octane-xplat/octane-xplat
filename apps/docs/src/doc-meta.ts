@@ -44,6 +44,7 @@ export const ORDER = [
 	'native-picker',
 	'date-picker',
 	'context-menu',
+	'sheet',
 	'known-limits',
 	'status',
 	'decisions',
