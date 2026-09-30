@@ -25,7 +25,7 @@
 		"parity": "node scripts/parity-coverage.mjs && node scripts/parity-check.mjs",
 		"parity:macos": "pnpm parity:coverage && pnpm --filter @xplat/web parity && pnpm --filter @xplat/macos parity && node scripts/parity-check.mjs --targets=web,macos",
 		"test": "pnpm test:cli && pnpm --filter @xplat/web test && pnpm --filter @octane-xplat/motion test && pnpm --filter @octane-xplat/audio test && pnpm --filter @octane-xplat/ui test:native && pnpm test:scripts && pnpm test:typegen",
-		"typegen": "pnpm -r --workspace-concurrency=1 --if-present run typegen",
+		"typegen": "pnpm -r --if-present run typegen",
 		"typegen:watch": "node scripts/watch-types.mjs",
 		"postinstall": "pnpm typegen",
 		"test:cli": "node --test packages/cli/test/*.test.mjs",

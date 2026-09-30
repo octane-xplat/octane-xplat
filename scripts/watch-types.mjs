@@ -89,7 +89,6 @@ async function generate(names = []) {
 
 	return start('pnpm', [
 		'-r',
-		'--workspace-concurrency=1',
 		...filters,
 		'--if-present',
 		'run',
