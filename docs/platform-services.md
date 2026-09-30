@@ -56,7 +56,7 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 | `media.capturePhoto()` | still capture through the OS camera UI | web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops; native needs `@nativescript/camera` |
 | `webAuthn` | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession` |
 | `authSession` | `open(url, { callbackScheme })` — hosted web ceremony in a system browser | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web |
-| `share.text(text, subject?)`, `share.url(url, title?)` | share text or a URL and receive a `ShareResult` | web uses the Web Share API with clipboard fallback; iOS and Android use the native share sheet; macOS uses the AppKit share picker |
+| `@octane-xplat/sqlite` | `openDatabase(name)` → async `execute`/`select`/`get`/`transaction`/`userVersion` | own leaf, not a platform service; web persists via an OPFS worker (`db.persistent` reports); macOS/Windows `supported: false` |
 
 `media` owns the `camera` and `photos` permission requests for still capture
 and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
@@ -209,6 +209,39 @@ else console.log('camera unavailable')
 
 Your screen should show a useful fallback when a capability is unavailable or
 the user declines it.
+
+## Local database
+
+Structured persistence lives in its own leaf rather than the platform
+package — `@octane-xplat/sqlite` is the same async API on web and native:
+
+```ts
+import { openDatabase, supported } from '@octane-xplat/sqlite'
+
+const db = await openDatabase('app.db')
+await db.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
+const rows = await db.select<{ id: number; name: string }>('SELECT * FROM items')
+await db.transaction(async (db) => {
+	// a throw here rolls back every write made inside it
+})
+```
+
+Check `db.persistent` after open: on web it reports whether the database
+really persists (OPFS via a Worker) or opened transiently because the browser
+denied OPFS access — private windows and locked-down embeds can force the
+transient path, and the flag is how app code finds out instead of losing data
+silently. It is always true on iOS and Android. `supported` is `false` on
+macOS and Windows for now; `openDatabase` there rejects, so branch on the
+flag first rather than catching.
+
+`getUserVersion`/`setUserVersion` map to `PRAGMA user_version` — the shared
+migration hook. `deleteDatabase(name)` removes the file. On native, calls
+run on the plugin's worker threads (`threading` option, default on); on web
+everything runs inside a spawned Worker, so no query blocks the UI thread
+either way.
+
+For a handful of flags or strings, `storage` is still the right tool —
+open a database when you need queries, joins, or migrations.
 
 ## Interface shapes
 

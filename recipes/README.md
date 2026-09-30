@@ -39,6 +39,7 @@ Workflows:
 - [Add a platform-native date or time picker](date-picker.md)
 - [Add a platform-native context menu to an octane subtree](context-menu.md)
 - [Present an octane subtree in a platform-native bottom sheet](sheet.md)
+- [Persist structured data in a local database](local-database.md)
 
 ## Authoring contract
 

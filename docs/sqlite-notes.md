@@ -1,11 +1,15 @@
-# SQLite notes (`packages/sqlite` — proposed leaf)
+# SQLite notes (`packages/sqlite`)
 
-> Cross-target SQLite evaluation for the proposed `@octane-xplat/sqlite` leaf.
-> All findings are `desk-source`; nothing here has run on a device.
+> Cross-target SQLite seam record — `@octane-xplat/sqlite` is implemented;
+> the backend findings below now carry verification marks.
 >
-> **Owns:** cross-target structured persistence seam · **Status:** backend map
-> complete, seam proposed · **Blocks on:** lab checks listed under Open
-> questions · **Decisions:** none recorded · **Validated by:** nothing yet.
+> **Owns:** cross-target structured persistence seam · **Status:** implemented
+> in `packages/sqlite` — verified on web (full probe round-trip + OPFS
+> durable persistence across reload, SAH pool path) and iOS sim (same probe
+> readout through FMDB: rows/count/rollback/userVersion, persistent=true) · **Blocks on:** macOS backend and
+> Windows ship `supported: false` leaves · **Decisions:** see decisions.md ·
+> **Validated by:** harness `Services` probe + write→reload→read playwright
+> check.
 
 ## Candidates assessed
 
@@ -19,7 +23,7 @@
 
 | Target | Backend | Evidence |
 | --- | --- | --- |
-| web | `@sqlite.org/sqlite-wasm` oo1 inside a module Worker | Persistent only via `OpfsDb`, which requires `crossOriginIsolated` — the page must be served with `Cross-Origin-Opener-Policy: same-origin` + `Cross-Origin-Embedder-Policy: require-corp`, and OPFS is only reachable from a worker. Without those headers (or on hosts that can't send them) the DB is transient (`new oo1.DB(name, 'ct')`); export/import to IndexedDB is the fallback persistence path. Vite needs `optimizeDeps.exclude: ['@sqlite.org/sqlite-wasm']` + the dev-server headers. |
+| web | `@sqlite.org/sqlite-wasm` oo1 inside a module Worker | **Verified 2026-09-29.** Persistence uses `installOpfsSAHPoolVfs` — sync-access-handle pool over OPFS that needs a Worker but *not* cross-origin isolation, so the COOP/COEP deployment constraint predicted earlier does not apply on the preferred path. Fallback order: SAH pool → `OpfsDb` (does need `crossOriginIsolated`) → transient `oo1.DB`. The worker bundles cleanly through the app vite build (`new Worker(new URL(...))` + `?url` wasm asset). |
 | iOS | `@nativescript-community/sqlite` | `platforms/ios` carries a Podfile pulling **FMDB**; JS API is sync bridge calls wrapped in promises. |
 | Android | `@nativescript-community/sqlite` | `platforms/android` ships a `com.akylas.sqlite` Java layer (WorkersContext for off-thread queries) over Android's framework sqlite. |
 | macOS | system `libsqlite3` via `@nativescript/macos-node-api` `interop` C calls — **unverified** | The AppKit host renders through the node-api runtime, which carries the same metadata-driven ObjC/C interop as the iOS runtime; `libsqlite3` ships in every macOS SDK. Needs the host to link `libsqlite3.tbd` and a small declared-functions surface (`sqlite3_open`, `_prepare_v2`, `_step`, `_column_*`, `_bind_*`, `_exec`, `_close`). Fallback: run sqlite-wasm inside the host's JSC context + persistence through the existing host file bridge. |
@@ -75,12 +79,12 @@ adapter — the low-level shape stays compatible with that.
 
 ## Constraints and risks
 
-- **OPFS is a deployment constraint, not just a config flag.** `require-corp`
-  breaks loading cross-origin subresources (CDN images/scripts/iframes) that
-  don't send CORP/CORS headers — the whole web app inherits that isolation,
-  not just the DB worker. Persistence-on-web needs an explicit
-  "crossOriginIsolated ⇒ OpfsDb, else transient" capability flag in the API
-  so app code can branch instead of silently losing data.
+- ~~**OPFS is a deployment constraint**~~ — resolved differently in the
+  shipped leaf: `installOpfsSAHPoolVfs` persists through OPFS with only a
+  Worker requirement (no `crossOriginIsolated`), verified durable across page
+  reloads in headless Chromium. The `persistent` flag still matters — OPFS
+  can be denied (private windows, locked-down embeds), in which case the DB
+  silently degrades to transient unless the app checks the flag.
 - The plugin-wrap ranking's "fake parity" flag for sqlite applies to
   **persistence semantics** (sandboxed OPFS vs real app files), not the SQL
   surface — it is the same sqlite engine on both sides.
@@ -94,13 +98,19 @@ adapter — the low-level shape stays compatible with that.
 
 ## Open questions (lab)
 
+- ✅ Worker bundling — `new Worker(new URL('./worker.web.ts', import.meta.url))`
+  inside the source-shipped leaf bundles correctly through the app's vite
+  build (worker chunk + wasm asset emitted); verified `vite build`.
+- ✅ Web persistence — SAH pool gives durable OPFS storage without
+  COOP/COEP; write→reload→read verified.
 - Does the AppKit host's node-api runtime expose `interop` C-function calls
   far enough to drive `sqlite3_*` — and does adding `libsqlite3.tbd` to the
-  host link step suffice?
-- Web without cross-origin isolation: IndexedDB export/import on
-  `close()`/checkpoint vs sqlite's `kvvfs` IDB VFS — which lands in the seam?
-- Does `new Worker(new URL(...))` inside a leaf package bundle correctly
-  through `xplatNative`'s web rollup config, or does it need a dedicated
-  worker build step?
+  host link step suffice? (macOS leaf is `supported: false` until this or
+  the `__xplatAppKit` bridge lands.)
+- ✅ iOS runtime — full probe readout on sim
+  (`rows=alpha,beta count=2 rb=true v=0→7 persistent=true`).
+- Upstream bug found: the plugin's `get`/`getArray` crash on iOS (`getRaw`
+  reads `resultDictionary` before `s.next()`). The leaf routes them over
+  `select`/`selectArray` — same contract, working code.
 - `threading: true` on-device behavior (workers survive HMR? cost per call?)
   on the mobile harness.

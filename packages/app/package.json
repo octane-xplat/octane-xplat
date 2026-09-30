@@ -17,6 +17,7 @@
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/sounds": "workspace:*",
+		"@octane-xplat/sqlite": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
 		"@xplat/demos": "workspace:*"

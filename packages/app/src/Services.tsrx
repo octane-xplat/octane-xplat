@@ -7,6 +7,8 @@ import {
 	useAppState, useWindowSize, useSafeAreaInsets, onDeepLink, consumeInitialUrl,
 } from '@octane-xplat/platform';
 
+import { openDatabase, supported as sqliteSupported } from '@octane-xplat/sqlite';
+
 const PERMISSION_KINDS = ['notifications', 'camera', 'photos', 'location'] as const;
 
 /** Services tab — one row per @octane-xplat/platform service. Read-outs are
@@ -85,6 +87,39 @@ export function Services() @{
 					<Text>Read secret</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.sec ?? '—'}</Text>
+			</Row>
+		</View>
+
+		<View className="sink-section">
+			<Text className="section-label">SQLite</Text>
+			<Row className="gap-3 flex-wrap items-center">
+				<Pressable className="btn btn-secondary" onPress={() => run('sqlite', async () => {
+					if (!sqliteSupported) return 'unsupported';
+					const db = await openDatabase('probe.db');
+					await db.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)');
+					await db.execute('DELETE FROM items');
+					await db.execute('INSERT INTO items(name) VALUES (?), (?)', ['alpha', 'beta']);
+					const rows = await db.select<{ name: string }>('SELECT name FROM items ORDER BY id');
+					// A throwing transaction must roll its writes back.
+					let rolledBack = false;
+					try {
+						await db.transaction(async (d) => {
+							await d.execute("INSERT INTO items(name) VALUES ('gamma')");
+							throw new Error('abort on purpose');
+						});
+					} catch { rolledBack = true; }
+
+					const count = await db.getArray('SELECT COUNT(*) FROM items');
+					const before = await db.getUserVersion();
+					await db.setUserVersion(7);
+					const after = await db.getUserVersion();
+					const persistent = db.persistent;
+					await db.close();
+					return `rows=${rows.map((r) => r.name).join(',')} count=${count?.[0]} rb=${rolledBack} v=${before}→${after} persistent=${persistent}`;
+				})}>
+					<Text>Round-trip</Text>
+				</Pressable>
+				<Text id="sqlite-probe" className="text-sm text-muted">{echo.sqlite ?? '—'}</Text>
 			</Row>
 		</View>
 

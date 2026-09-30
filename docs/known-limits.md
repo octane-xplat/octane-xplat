@@ -126,6 +126,7 @@ pushes themselves work through the swap-pane route store.
 | `notifications`               | local `Notification` only                                        | local + push (APNs)  | local + push (FCM)            | `degraded`    | 0.5.0·desk  |
 | `media.ensure('camera')` / `capturePhoto()` | Permissions API query may report `unsupported`; `capturePhoto()` uses `<input capture>` (mobile camera UI, desktop file picker) | native camera permission request + still capture in OS camera UI | same as iOS | `different` | 0.6.0·desk |
 | `files`                       | `pick` → blob URL; `writeText` triggers a download               | real file paths      | real paths; SAF `content://` reads | `different` | 0.5.0·desk  |
+| `@octane-xplat/sqlite`        | sqlite-wasm in a Worker; persists via OPFS sync-access-handle pool (no COOP/COEP needed), `persistent: false` and transient where OPFS is denied; `each` materializes the full result before iterating | `@nativescript-community/sqlite` (FMDB) — `threading` on by default | same plugin (`com.akylas.sqlite`) | `different` | post-0.7.0·web |
 
 The table above lists web, iOS, and Android. On macOS, `share.text()` and
 `share.url()` open the AppKit share picker; file sharing is not supported.
