@@ -14,9 +14,8 @@ const GROUPS: { key: DocPage['group']; label: string }[] = [
 	{ key: 'notes', label: 'Notes' },
 ];
 
-const HIT_GROUP: Record<SearchHit['kind'], string> = {
+const HIT_GROUP: Partial<Record<SearchHit['kind'], string>> = {
 	api: 'API',
-	page: 'Pages',
 	body: 'Content',
 };
 
@@ -174,8 +173,9 @@ export function App() @{
 
 	// Hit rows interleaved with group headers at each kind boundary.
 	const rows = hits.flatMap((h, i) => {
-		const head = i === 0 || hits[i - 1].kind !== h.kind
-			? [<Text key={`g-${h.kind}`} className="hit-group">{HIT_GROUP[h.kind]}</Text>]
+		const group = HIT_GROUP[h.kind];
+		const head = group && (i === 0 || hits[i - 1].kind !== h.kind)
+			? [<Text key={`g-${h.kind}`} className="hit-group">{group}</Text>]
 			: [];
 
 		head.push(
