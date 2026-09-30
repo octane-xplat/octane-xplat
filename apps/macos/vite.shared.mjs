@@ -1,4 +1,5 @@
 import { octane } from '@octanejs/vite-plugin'
+import { xplatBoundary } from '@octane-xplat/cli/vite'
 import { defineConfig } from 'vite'
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
@@ -27,6 +28,7 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 		root: appRoot,
 		...(packaged ? { define: bundledFontDefines() } : {}),
 		plugins: [
+			xplatBoundary('macos'),
 			octane({
 				hmr,
 				renderers: {

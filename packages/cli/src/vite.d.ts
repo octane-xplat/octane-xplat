@@ -1,6 +1,14 @@
-import type { UserConfig } from 'vite'
+import type { Plugin, UserConfig } from 'vite'
 
 export const nativeExtensions: string[]
+
+/** Fails `vite build` when a platform-suffixed module foreign to the target
+ *  is reachable in the graph (e.g. a `.web` leaf pulled into a mobile
+ *  bundle transitively — lint catches direct imports, this catches the
+ *  transitive path). Warns once per module in dev. */
+export function xplatBoundary(
+	platform?: 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'visionos' | 'native',
+): Plugin
 
 export interface XplatNativeOptions {
 	/** Extra optimizeDeps.exclude entries — app-shipped @nativescript plugins. */

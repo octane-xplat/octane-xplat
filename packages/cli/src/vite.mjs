@@ -15,7 +15,7 @@
 
 import { createRequire } from 'node:module'
 import { readFileSync, realpathSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 // The toolchain modules (vite, vite-octane, the nativescript renderer)
@@ -258,7 +258,10 @@ export const nativeExtensions = [
 	'.json',
 ]
 
-function nativePlatformExtensions() {
+/** The bundle platform the current invocation targets, read from
+ *  NATIVESCRIPT_BUNDLER_ENV or the ns/vite CLI args — undefined when the
+ *  caller can't be identified (the generic native chain applies). */
+function nativePlatform() {
 	let platform
 	try {
 		const env = JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
@@ -284,6 +287,12 @@ function nativePlatformExtensions() {
 		}
 	}
 
+	return platform
+}
+
+function nativePlatformExtensions() {
+	const platform = nativePlatform()
+
 	if (platform !== 'android' && platform !== 'ios' && platform !== 'visionos' && platform !== 'windows') {
 		return nativeExtensions
 	}
@@ -291,6 +300,7 @@ function nativePlatformExtensions() {
 	const target = platform === 'android' ? '.android' : platform === 'windows' ? '.windows' : '.ios'
 	// `.mobile` is ios+android shared divergence — windows doesn't inherit it;
 	// its chain is .windows → the unsuffixed native default.
+
 	if (platform === 'windows') {
 		return [
 			'.windows.tsrx', '.tsrx',
@@ -299,6 +309,7 @@ function nativePlatformExtensions() {
 			'.windows.js', '.mjs', '.mts', '.jsx', '.js', '.json',
 		]
 	}
+
 	return [
 		`${target}.tsrx`,
 		'.mobile.tsrx',
@@ -317,6 +328,122 @@ function nativePlatformExtensions() {
 		'.js',
 		'.json',
 	]
+}
+
+// ---------- platform boundary guard ----------
+
+/** Platform suffixes a module filename can carry. Unsuffixed modules are the
+ *  native default — legal in every bundle; only a tag foreign to the target
+ *  is a leak. */
+const PLATFORM_TAG = /\.(web|mobile|ios|android|macos|windows|linux)\.[^./\\]+$/
+
+const boundaryAllowed = {
+	web: new Set(['web']),
+	ios: new Set(['ios', 'mobile']),
+	visionos: new Set(['ios', 'mobile']),
+	android: new Set(['android', 'mobile']),
+	macos: new Set(['macos']),
+	windows: new Set(['windows']),
+	// Linux resolves .linux → .web → unsuffixed, so web leaves are legal there.
+	linux: new Set(['linux', 'web']),
+	// Bundle platform unknown (generic native chain): every native tag is
+	// possible — only browser/desktop tags are foreign.
+	native: new Set(['ios', 'android', 'mobile', 'windows']),
+}
+
+function platformTag(id) {
+	const file = id.split(/[?#]/, 1)[0]
+	const m = PLATFORM_TAG.exec(file)
+	return m?.[1]
+}
+
+/** Build-time enforcement of the platform-suffix boundary (invariant #1) —
+ *  the lint rules catch direct imports, this catches transitive leakage:
+ *  a `foo.web.tsrx` module reachable in a mobile bundle means the resolver
+ *  picked a browser leaf into a native graph. Fails `vite build` with the
+ *  import chain; warns once per module in dev.
+ *
+ *  `platform` names the bundle target — 'web' | 'ios' | 'android' |
+ *  'macos' | 'windows' | 'linux' | 'native' (generic: any native tag ok). */
+export function xplatBoundary(platform = 'native') {
+	const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
+	let command = 'build'
+	let root = ''
+	const warned = new Set()
+	const foreign = new Set()
+
+	const chainFor = (getModuleInfo, id) => {
+		const chain = []
+		let cur = id
+		const seen = new Set()
+
+		while (cur && !seen.has(cur)) {
+			seen.add(cur)
+			const info = getModuleInfo(cur)
+			const importers = [...(info?.importers ?? []), ...(info?.dynamicImporters ?? [])]
+			const next = importers[0]
+			if (!next) {
+				break
+			}
+
+			chain.push(next)
+			cur = next
+		}
+
+		return chain
+	}
+
+	return {
+		name: 'xplat-platform-boundary',
+		configResolved(config) {
+			command = config.command
+			root = config.root
+		},
+		moduleParsed(info) {
+			const tag = platformTag(info.id)
+			if (!tag || allowed.has(tag)) {
+				return
+			}
+
+			if (command === 'serve') {
+				if (!warned.has(info.id)) {
+					warned.add(info.id)
+
+					const infoOf =
+						typeof this.getModuleInfo === 'function'
+							? (i) => this.getModuleInfo(i)
+							: () => undefined
+
+					this.warn(
+						`xplat boundary — .${tag} module in a ${platform} graph: ` +
+							`${relative(root, info.id)} (importers: ${chainFor(infoOf, info.id).map((i) => relative(root, i)).join(' → ') || 'unknown'})`,
+					)
+				}
+
+				return
+			}
+
+			foreign.add(info.id)
+		},
+		buildEnd() {
+			for (const id of foreign) {
+				const tag = platformTag(id)
+
+				const infoOf =
+					typeof this.getModuleInfo === 'function' ? (i) => this.getModuleInfo(i) : () => undefined
+
+				const chain = chainFor(infoOf, id)
+				this.error(
+					`xplat boundary — a .${tag} module is reachable in the ${platform} bundle:\n` +
+						`  foreign: ${relative(root, id)}\n` +
+						`  chain:   ${[...chain.reverse(), id].map((i) => relative(root, i)).join(' → ') || relative(root, id)}\n` +
+						`  Platform-suffixed leaves resolve per-target; a foreign tag here means a\n` +
+						`  shared module imported a platform file directly — split it behind the\n` +
+						`  suffix seam (a .${tag} import must sit in a .${tag} importer's subtree).`,
+				)
+			}
+		},
+	}
 }
 
 /** Default renderer rules: every component file the native graph can reach —
@@ -376,7 +503,7 @@ export async function xplatNative(env, opts = {}) {
 				// default emits decorator syntax the native JS runtime cannot parse.
 				decorator: { legacy: true },
 			},
-			plugins: [pxToDip(), nsHmrClientWatchdog()],
+			plugins: [pxToDip(), nsHmrClientWatchdog(), xplatBoundary(nativePlatform() ?? 'native')],
 			build: {
 				rolldownOptions: {
 					// Dev/HMR universal emit retains JSX in expression props
@@ -385,6 +512,12 @@ export async function xplatNative(env, opts = {}) {
 					// JSX in script-lang modules, so mark .tsrx transform
 					// output tsx.
 					moduleTypes: { '.tsrx': 'tsx' },
+					output: {
+						// Sources deliberately kept out of a graph (boundary-severed
+						// leaves, build-side loader code) must not ride along inside
+						// the map either — positions stay, sources don't embed.
+						sourcemapExcludeSources: true,
+					},
 				},
 			},
 			optimizeDeps: {
@@ -422,5 +555,6 @@ export async function xplatNative(env, opts = {}) {
 			},
 		},
 	)
+
 	return mergeConfig(config, opts.extra ?? {})
 }

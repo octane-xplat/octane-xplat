@@ -58,6 +58,9 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
     devDependencies:
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@octanejs/vite-plugin':
         specifier: 0.1.61
         version: 0.1.61(octane@0.6.3(patch_hash=7dfb84fbf13482ae4c65ed8a00f3944a06caddbf554b55ac3af099e662a31b89)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -92,6 +95,9 @@ importers:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=7dfb84fbf13482ae4c65ed8a00f3944a06caddbf554b55ac3af099e662a31b89)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
     devDependencies:
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@octanejs/vite-plugin':
         specifier: 0.1.61
         version: 0.1.61(octane@0.6.3(patch_hash=7dfb84fbf13482ae4c65ed8a00f3944a06caddbf554b55ac3af099e662a31b89)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -287,6 +293,9 @@ importers:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=7dfb84fbf13482ae4c65ed8a00f3944a06caddbf554b55ac3af099e662a31b89)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
     devDependencies:
+      '@octane-xplat/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@octanejs/vite-plugin':
         specifier: 0.1.61
         version: 0.1.61(octane@0.6.3(patch_hash=7dfb84fbf13482ae4c65ed8a00f3944a06caddbf554b55ac3af099e662a31b89)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
