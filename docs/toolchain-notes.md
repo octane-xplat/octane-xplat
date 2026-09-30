@@ -242,13 +242,32 @@ root, runs that gate and exits nonzero on failure. A plain TypeScript consumer
 fixture remains necessary to check inferred props and module-resolution modes;
 the pack gate validates the declaration graph, not every semantic contract.
 
+Every publishable package that ships declarations runs `--pack-check` in
+`prepack`. Leaves that emit declarations through plain `tsc`
+(`tsconfig.types.json` + committed or generated `types/` output) or publish
+handwritten per-platform declarations declare a target with `"emit": false` —
+`--pack-check` skips their generation/freshness phase and only validates the
+packed package. Such packages must still give every code export branch a
+`types` condition (workspace `exports` point at real `.d.ts` files so the
+graph is verifiable without building). Source-published leaves
+(`@octane-xplat/files`, `media`, `biometrics`, `geolocation`,
+`notifications`, `secure-storage`, `sqlite`) ship no declarations at all —
+their `exports` resolve `.ts` sources, which a plain bundler-mode
+packed-consumer typecheck covers instead of `--pack-check` (the extensionless
+specifiers inside shipped sources cannot satisfy NodeNext, and `pack-check`
+has no declaration files to verify). `@octane-xplat/platform` is the same
+source-published shape plus `.tsrx` entries under its `./*` wildcard, which
+pack-check cannot model as declarations.
+
 `@octane-xplat/gif` is the first leaf package using this flow. Its web and
 NativeScript declarations are generated and checked from a packed consumer in
 Bundler and NodeNext modes with `skipLibCheck: false`. The UI consumer fixture
 checks both workspace and publish export maps in those modes; NativeScript's
 third-party ambient declarations require `skipLibCheck: true` in its temporary
 consumer, while package export paths and declaration closure remain checked by
-`--pack-check`.
+`--pack-check`. The component and service leaves carry the same harness in
+`tests/packed-consumer.mjs` — `pnpm test:packed` runs every package's packed
+consumer and `pnpm check:pack` runs every pack-check.
 
 ## TS configs
 

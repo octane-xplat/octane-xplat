@@ -62,7 +62,10 @@
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
-		"prepublishOnly": "pnpm build"
+		"prepublishOnly": "pnpm build",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
 		"@nativescript/jetpack-compose": "1.0.0-beta.0",
@@ -73,6 +76,7 @@
 		"@nativescript/core": "9.1.2",
 		"@octanejs/vite-plugin": "0.1.61",
 		"octane": "0.6.3",
+		"tsrx-typegen": "workspace:*",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"
 	},

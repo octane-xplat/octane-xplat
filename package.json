@@ -49,10 +49,11 @@
 		"validate": "pnpm check && pnpm typecheck && pnpm test",
 		"smoke:web": "pnpm --filter @xplat/web smoke",
 		"smoke:docs": "pnpm --filter @xplat/docs smoke",
-		"test:packed": "pnpm --filter @octane-xplat/ui test:packed && pnpm --filter @octane-xplat/gif test:packed && pnpm --filter @octane-xplat/auth test:packed && pnpm --filter tsrx-typegen-fixture test:packed",
+		"test:packed": "pnpm -r --filter './packages/**' --if-present run test:packed",
 		"test:scripts": "node --test scripts/*.test.mjs",
 		"test:typegen": "pnpm --filter tsrx-typegen test",
-		"check:optional-services": "node scripts/check-optional-services.mjs"
+		"check:optional-services": "node scripts/check-optional-services.mjs",
+		"check:pack": "pnpm -r --filter './packages/**' --if-present run pack:check"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",

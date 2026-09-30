@@ -71,7 +71,8 @@
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"typegen": "tsrx-typegen --target octane"
+		"typegen": "tsrx-typegen --target octane",
+		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
 		"@nativescript-community/ui-image": "4.6.20"

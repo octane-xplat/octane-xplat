@@ -37,9 +37,11 @@
 	},
 	"exports": {
 		"./ios": {
+			"types": "./types/ios.d.ts",
 			"native": "./src/ios/index.ts"
 		},
 		"./android": {
+			"types": "./types/android.d.ts",
 			"native": "./src/android/index.ts"
 		}
 	},
@@ -60,7 +62,10 @@
 		"build": "vite build --mode native && node ../../scripts/check-native-dist.mjs",
 		"build:metal": "sh scripts/build-metal.sh",
 		"check-types": "tsc -p tsconfig.types.json",
-		"prepublishOnly": "pnpm build"
+		"prepublishOnly": "pnpm build",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"dependencies": {
 		"@nativescript/swift-ui": "4.0.2"
@@ -70,6 +75,7 @@
 		"@nativescript/core": "9.1.2",
 		"@octanejs/vite-plugin": "0.1.61",
 		"octane": "0.6.3",
+		"tsrx-typegen": "workspace:*",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"
 	},

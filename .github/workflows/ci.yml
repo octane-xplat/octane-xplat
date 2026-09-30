@@ -62,8 +62,8 @@ jobs:
       - name: Build packages
         run: pnpm -r --filter './packages/**' --if-present run build
 
-      - name: Check packed declarations and plain TypeScript GIF consumers
-        run: pnpm --filter @octane-xplat/ui exec tsrx-typegen --pack-check && pnpm --filter @octane-xplat/gif test:packed
+      - name: Check packed declarations and plain TypeScript consumers
+        run: pnpm check:pack && pnpm test:packed
 
       - name: Install Playwright chromium
         run: pnpm --dir apps/web exec playwright install --with-deps chromium

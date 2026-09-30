@@ -36,6 +36,9 @@
 	"publishConfig": {
 		"access": "public"
 	},
+	"scripts": {
+		"test:packed": "node tests/packed-consumer.mjs"
+	},
 	"dependencies": {
 		"@nativescript/biometrics": "1.3.1"
 	},

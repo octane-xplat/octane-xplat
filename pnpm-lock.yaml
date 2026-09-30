@@ -494,6 +494,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -565,6 +568,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -590,6 +596,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -633,6 +642,9 @@ importers:
       octane:
         specifier: 0.5.0
         version: 0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -663,6 +675,9 @@ importers:
       octane:
         specifier: 0.5.0
         version: 0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -740,6 +755,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -759,6 +777,9 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
+      '@nativescript/types':
+        specifier: 9.0.0
+        version: 9.0.0(patch_hash=3dc11d16cb6622cce4d19875174015db65e6d9f67cf05ac912d7d2236ea0bf09)
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -824,6 +845,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -855,6 +879,9 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
+      '@nativescript/types':
+        specifier: 9.0.0
+        version: 9.0.0(patch_hash=3dc11d16cb6622cce4d19875174015db65e6d9f67cf05ac912d7d2236ea0bf09)
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -902,6 +929,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -946,6 +976,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -976,6 +1009,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -1016,6 +1052,9 @@ importers:
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -1057,6 +1096,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -1085,6 +1127,9 @@ importers:
       octane:
         specifier: 0.5.0
         version: 0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -1110,6 +1155,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -1217,6 +1265,9 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+      tsrx-typegen:
+        specifier: workspace:*
+        version: link:../tsrx-typegen
       typescript:
         specifier: 5.9.3
         version: 5.9.3

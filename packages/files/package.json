@@ -35,12 +35,16 @@
 	"publishConfig": {
 		"access": "public"
 	},
+	"scripts": {
+		"test:packed": "node tests/packed-consumer.mjs"
+	},
 	"dependencies": {
 		"@nativescript-community/ui-document-picker": "1.1.29"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
+		"@nativescript/types": "9.0.0",
 		"octane": "0.6.3"
 	},
 	"peerDependencies": {

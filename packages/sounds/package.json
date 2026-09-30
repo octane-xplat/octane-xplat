@@ -29,6 +29,7 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./types/index.d.ts",
       "web": "./src/index.web.ts",
       "native": "./src/index.ts",
       "default": "./src/index.ts"
@@ -48,7 +49,9 @@
   "scripts": {
     "build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
     "typegen": "tsc -p tsconfig.types.json",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build && tsrx-typegen --pack-check",
+    "test:packed": "node tests/packed-consumer.mjs",
+    "pack:check": "tsrx-typegen --pack-check"
   },
   "dependencies": {
     "@nativescript/audio-context": "1.3.3"
@@ -58,6 +61,7 @@
     "@nativescript/core": "9.1.2",
     "@octanejs/vite-plugin": "0.1.61",
     "octane": "0.6.3",
+    "tsrx-typegen": "workspace:*",
     "typescript": "5.9.3",
     "vite": "8.3.0"
   },

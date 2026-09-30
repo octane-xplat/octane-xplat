@@ -22,7 +22,8 @@
 		"typegen:check": "tsrx-typegen --project tsconfig.types.json --check",
 		"typecheck:consumer": "tsc --noEmit -p tsconfig.consumer.json",
 		"test:packed": "node ../tsrx-typegen/tests/packed-consumer.mjs",
-		"prepack": "pnpm typegen && pnpm exec tsrx-typegen --pack-check"
+		"prepack": "pnpm typegen && pnpm exec tsrx-typegen --pack-check",
+		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"devDependencies": {
 		"@tsrx/typescript-plugin": "0.4.11",
