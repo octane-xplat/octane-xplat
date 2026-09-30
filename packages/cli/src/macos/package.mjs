@@ -17,11 +17,15 @@ import { arch, platform } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { inspectMacOSPackageConfig } from './config.mjs'
+import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from './runtime-package.mjs'
 import {
-	inspectMacOSRuntimePackage,
-	macOSRuntimePackageName,
-} from './runtime-package.mjs'
-import { hostBundle, hostRoot, inspectJscHost, prebuiltRoot, validateHostBundle } from './jsc-host/runtime.mjs'
+	hostBundle,
+	inspectJscHost,
+	prebuiltRoot,
+	validateHostBundle,
+} from './jsc-host/runtime.mjs'
+
+import { buildMacOSNative, writeNativeBootstrap } from './native.mjs'
 
 function run(command, args, options = {}) {
 	execFileSync(command, args, { stdio: 'inherit', ...options })
@@ -36,18 +40,29 @@ function readPackageConfig(appRoot) {
 	}
 
 	const config = inspectMacOSPackageConfig(appRoot, target.package)
-	if (config.issues.length) {throw new Error(config.issues.join('; '))}
+	if (config.issues.length) {
+		throw new Error(config.issues.join('; '))
+	}
+
 	return config
 }
 
 function viteExecutable(appRoot) {
 	const viteRoot = join(appRoot, 'node_modules', 'vite')
 	let manifest
-	try {manifest = JSON.parse(readFileSync(join(viteRoot, 'package.json'), 'utf8'))} catch {
-		throw new Error('Cannot resolve Vite from the macOS app. Declare vite in devDependencies and run pnpm install.')
+	try {
+		manifest = JSON.parse(readFileSync(join(viteRoot, 'package.json'), 'utf8'))
+	} catch {
+		throw new Error(
+			'Cannot resolve Vite from the macOS app. Declare vite in devDependencies and run pnpm install.',
+		)
 	}
+
 	const bin = typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.vite
-	if (typeof bin !== 'string') {throw new Error('Installed Vite package has no CLI binary.')}
+	if (typeof bin !== 'string') {
+		throw new Error('Installed Vite package has no CLI binary.')
+	}
+
 	return join(viteRoot, bin)
 }
 
@@ -99,6 +114,7 @@ function signApp({
 	signingIdentity,
 	entitlementsPath,
 	nativeRuntimeFramework,
+	nativeLibraries = [],
 	mainExecutable,
 	appPath,
 }) {
@@ -106,22 +122,29 @@ function signApp({
 		console.log('[macos-package] signing skipped for local host validation')
 		return false
 	}
+
 	if (!signingIdentity) {
+		for (const library of nativeLibraries) {
+			run('codesign', ['--force', '--sign', '-', library])
+		}
+
 		run('codesign', ['--force', '--sign', '-', nativeRuntimeFramework])
 		run('codesign', ['--force', '--sign', '-', mainExecutable])
 		run('codesign', ['--force', '--sign', '-', appPath])
 		run('codesign', ['--verify', '--deep', '--strict', '--verbose=2', appPath])
-		console.log('[macos-package] app ad-hoc signed for local use; set MACOS_SIGNING_IDENTITY for distribution signing')
+		console.log(
+			'[macos-package] app ad-hoc signed for local use; set MACOS_SIGNING_IDENTITY for distribution signing',
+		)
+
 		return false
 	}
 
-	run('codesign', [
-		'--force',
-		'--sign',
-		signingIdentity,
-		'--timestamp',
-		nativeRuntimeFramework,
-	])
+	for (const library of nativeLibraries) {
+		run('codesign', ['--force', '--sign', signingIdentity, '--timestamp', library])
+		run('codesign', ['--verify', '--strict', '--verbose=2', library])
+	}
+
+	run('codesign', ['--force', '--sign', signingIdentity, '--timestamp', nativeRuntimeFramework])
 
 	run('codesign', ['--verify', '--strict', '--verbose=2', nativeRuntimeFramework])
 	run('codesign', [
@@ -148,6 +171,7 @@ async function completeFrameworkSymlinks(frameworkPath) {
 		['Versions/Current/Resources', join(frameworkPath, 'Resources')],
 		['Versions/Current/NativeScript', join(frameworkPath, 'NativeScript')],
 	]
+
 	for (const [target, path] of aliases) {
 		try {
 			await symlink(target, path)
@@ -160,7 +184,10 @@ async function completeFrameworkSymlinks(frameworkPath) {
 }
 
 function signDiskImage(signingIdentity, bundleIdentifier, dmgPath) {
-	if (!signingIdentity) {return}
+	if (!signingIdentity) {
+		return
+	}
+
 	run('codesign', [
 		'--force',
 		'--sign',
@@ -176,7 +203,10 @@ function signDiskImage(signingIdentity, bundleIdentifier, dmgPath) {
 }
 
 function notarize(notaryProfile, dmgPath) {
-	if (!notaryProfile) {return}
+	if (!notaryProfile) {
+		return
+	}
+
 	run('xcrun', ['notarytool', 'submit', dmgPath, '--keychain-profile', notaryProfile, '--wait'])
 	run('xcrun', ['stapler', 'staple', dmgPath])
 	run('xcrun', ['stapler', 'validate', dmgPath])
@@ -189,7 +219,9 @@ export async function packageMacOS(appRoot) {
 		throw new Error('The first macOS package target is Apple Silicon; build it on an arm64 Mac.')
 	}
 
-	const { settings, viteConfig, bundleFile, iconPath, entitlementsPath } = readPackageConfig(appRoot)
+	const { settings, viteConfig, bundleFile, iconPath, entitlementsPath } =
+		readPackageConfig(appRoot)
+
 	const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
 	const notaryProfile = process.env.MACOS_NOTARY_PROFILE
 	if (notaryProfile && !signingIdentity) {
@@ -197,25 +229,37 @@ export async function packageMacOS(appRoot) {
 	}
 
 	if (signingIdentity && !entitlementsPath) {
-		throw new Error('Set xplat.targets.macos.package.entitlements before using MACOS_SIGNING_IDENTITY.')
+		throw new Error(
+			'Set xplat.targets.macos.package.entitlements before using MACOS_SIGNING_IDENTITY.',
+		)
 	}
 
 	const runtimeInspection = inspectMacOSRuntimePackage(appRoot)
 	if (!runtimeInspection.packageManifest) {
-		throw new Error(`Cannot resolve ${macOSRuntimePackageName} from the app. Declare it in dependencies.`)
+		throw new Error(
+			`Cannot resolve ${macOSRuntimePackageName} from the app. Declare it in dependencies.`,
+		)
 	}
 
 	if (runtimeInspection.missingPaths.length) {
 		const version = runtimeInspection.packageManifest.version
-		const installed = typeof version === 'string' ? `${macOSRuntimePackageName}@${version}` : macOSRuntimePackageName
-		throw new Error(`Installed ${installed} is missing required files: ${runtimeInspection.missingPaths.join(', ')}`)
+		const installed =
+			typeof version === 'string'
+				? `${macOSRuntimePackageName}@${version}`
+				: macOSRuntimePackageName
+
+		throw new Error(
+			`Installed ${installed} is missing required files: ${runtimeInspection.missingPaths.join(', ')}`,
+		)
 	}
 
 	let nativeRuntimePackage
 	try {
 		nativeRuntimePackage = await realpath(runtimeInspection.packageRoot)
 	} catch {
-		throw new Error(`Cannot resolve ${macOSRuntimePackageName} from the app. Declare it in dependencies.`)
+		throw new Error(
+			`Cannot resolve ${macOSRuntimePackageName} from the app. Declare it in dependencies.`,
+		)
 	}
 
 	const hostInspection = inspectJscHost()
@@ -224,17 +268,39 @@ export async function packageMacOS(appRoot) {
 	}
 
 	console.log('[macos-package] building production Octane bundle')
-	run(process.execPath, [fileURLToPath(new URL('./jsc-host/check-vite.mjs', import.meta.url)), appRoot, viteConfig], { cwd: appRoot })
-	run(process.execPath, [viteExecutable(appRoot), 'build', '--config', viteConfig], { cwd: appRoot })
-	if (!existsSync(bundleFile)) {throw new Error(`Packaged JS bundle not found: ${bundleFile}`)}
+	const native = await buildMacOSNative(appRoot, {
+		minimumSystemVersion: settings.minimumSystemVersion,
+	})
+
+	if (native.libraries.length) {
+		console.log(
+			`[macos-native] ${native.cached ? 'cached' : 'compiled'} ${native.libraries.length} leaf libraries`,
+		)
+	}
+
+	run(
+		process.execPath,
+		[fileURLToPath(new URL('./jsc-host/check-vite.mjs', import.meta.url)), appRoot, viteConfig],
+		{ cwd: appRoot },
+	)
+
+	run(process.execPath, [viteExecutable(appRoot), 'build', '--config', viteConfig], {
+		cwd: appRoot,
+	})
+
+	if (!existsSync(bundleFile)) {
+		throw new Error(`Packaged JS bundle not found: ${bundleFile}`)
+	}
+
 	await validateHostBundle(bundleFile, appRoot)
 
 	const octaneRoot = await realpath(join(appRoot, 'node_modules', 'octane'))
 	const octaneLicense = await readFile(join(octaneRoot, 'LICENSE'), 'utf8')
 	const nativeLicense = await readFile(join(nativeRuntimePackage, 'LICENSE'), 'utf8')
 	const hostLicenses = await Promise.all(
-		['libjsc', 'libjs', 'libnapi', 'libuv', 'libutf', 'libintrusive'].map(async (name) =>
-			`${name}\n${await readFile(join(prebuiltRoot, 'licenses', `${name}.txt`), 'utf8')}`,
+		['libjsc', 'libjs', 'libnapi', 'libuv', 'libutf', 'libintrusive'].map(
+			async (name) =>
+				`${name}\n${await readFile(join(prebuiltRoot, 'licenses', `${name}.txt`), 'utf8')}`,
 		),
 	)
 
@@ -255,8 +321,8 @@ export async function packageMacOS(appRoot) {
 		await mkdir(packagedAppPath, { recursive: true })
 		await cp(bundleFile, join(packagedAppPath, 'main.cjs'))
 		await cp(join(hostBundle, 'host'), mainExecutable)
-		await cp(join(hostBundle, 'metadata.nsmd'), join(resourcesPath, 'metadata.macos.arm64.nsmd'))
-		await cp(join(hostRoot, 'shim.js'), join(resourcesPath, 'host-shim.js'))
+		await cp(native.metadata, join(resourcesPath, 'metadata.macos.arm64.nsmd'))
+		await writeNativeBootstrap(native, join(resourcesPath, 'host-shim.js'), { packaged: true })
 		const packagedFrameworkPath = join(contentsPath, 'Frameworks', 'NativeScript.framework')
 		await mkdir(dirname(packagedFrameworkPath), { recursive: true })
 		await cp(join(hostBundle, 'NativeScript.framework'), packagedFrameworkPath, {
@@ -264,7 +330,14 @@ export async function packageMacOS(appRoot) {
 			// Keep framework-relative symlinks resolving within the copied bundle.
 			verbatimSymlinks: true,
 		})
+
 		await completeFrameworkSymlinks(packagedFrameworkPath)
+		const nativeLibraries = []
+		for (const library of native.libraries) {
+			const path = join(contentsPath, 'Frameworks', library.file)
+			await cp(join(native.directory, library.file), path)
+			nativeLibraries.push(path)
+		}
 
 		if (iconPath) {
 			await cp(iconPath, join(resourcesPath, 'AppIcon.icns'))
@@ -276,6 +349,11 @@ export async function packageMacOS(appRoot) {
 				`Octane\n${octaneLicense}`,
 				`${macOSRuntimePackageName}\n${nativeLicense}`,
 				...hostLicenses,
+				...(native.libraries.length
+					? [
+							`Metadata generator\n${await readFile(join(prebuiltRoot, 'licenses/metadata-generator.txt'), 'utf8')}`,
+						]
+					: []),
 			].join('\n\n'),
 		)
 
@@ -291,6 +369,7 @@ export async function packageMacOS(appRoot) {
 			signingIdentity,
 			entitlementsPath,
 			nativeRuntimeFramework: packagedFrameworkPath,
+			nativeLibraries,
 			mainExecutable,
 			appPath,
 		})

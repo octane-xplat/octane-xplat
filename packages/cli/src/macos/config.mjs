@@ -20,7 +20,9 @@ function compareVersions(left, right) {
 
 	for (let index = 0; index < Math.max(leftParts.length, rightParts.length); index++) {
 		const difference = (leftParts[index] ?? 0) - (rightParts[index] ?? 0)
-		if (difference !== 0) {return difference}
+		if (difference !== 0) {
+			return difference
+		}
 	}
 
 	return 0
@@ -51,7 +53,9 @@ function resolveProjectPath(root, value, label, issues, { mustExist = false } = 
 export function inspectMacOSPackageConfig(appRoot, value) {
 	const issues = []
 	const settings = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
-	if (settings !== value) {issues.push('xplat.targets.macos.package must be an object')}
+	if (settings !== value) {
+		issues.push('xplat.targets.macos.package must be an object')
+	}
 
 	for (const key of requiredFields) {
 		if (typeof settings[key] !== 'string' || !settings[key].trim()) {
@@ -59,7 +63,10 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 		}
 	}
 
-	if (settings.bundleIdentifier && !/^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/.test(settings.bundleIdentifier)) {
+	if (
+		settings.bundleIdentifier &&
+		!/^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/.test(settings.bundleIdentifier)
+	) {
 		issues.push(`invalid macOS bundle identifier: ${settings.bundleIdentifier}`)
 	}
 
@@ -94,7 +101,9 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 	}
 
 	const viteConfig = settings.viteConfig
-		? resolveProjectPath(appRoot, settings.viteConfig, 'macOS viteConfig', issues, { mustExist: true })
+		? resolveProjectPath(appRoot, settings.viteConfig, 'macOS viteConfig', issues, {
+				mustExist: true,
+			})
 		: null
 
 	const bundleFile = settings.bundleFile
@@ -116,7 +125,11 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 		}
 	}
 
-	if (typeof settings.icon === 'string' && settings.icon && !settings.icon.toLowerCase().endsWith('.icns')) {
+	if (
+		typeof settings.icon === 'string' &&
+		settings.icon &&
+		!settings.icon.toLowerCase().endsWith('.icns')
+	) {
 		issues.push('macOS icon must point to an .icns file')
 	}
 
@@ -128,4 +141,39 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 				})
 
 	return { settings, viteConfig, bundleFile, iconPath, entitlementsPath, issues }
+}
+
+/** Validate the CLI-owned CommonJS dev runner configuration. */
+export function inspectMacOSDevConfig(appRoot, value) {
+	const issues = []
+	const settings = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+	if (settings !== value) {
+		issues.push('xplat.targets.macos.dev must be an object')
+	}
+
+	const paths = {}
+	for (const key of ['viteConfig', 'bundleFile', 'shellViteConfig', 'shellBundleFile']) {
+		if (settings[key] === undefined && key.startsWith('shell')) {
+			continue
+		}
+
+		if (typeof settings[key] !== 'string' || !settings[key].trim()) {
+			issues.push(`missing xplat.targets.macos.dev.${key}`)
+			continue
+		}
+
+		paths[key] = resolveProjectPath(appRoot, settings[key], `macOS dev ${key}`, issues, {
+			mustExist: key.endsWith('Config'),
+		})
+
+		if (key.endsWith('File') && !settings[key].endsWith('.cjs')) {
+			issues.push(`macOS dev ${key} must end in .cjs`)
+		}
+	}
+
+	if (Boolean(settings.shellViteConfig) !== Boolean(settings.shellBundleFile)) {
+		issues.push('macOS dev shellViteConfig and shellBundleFile must be specified together')
+	}
+
+	return { ...paths, issues }
 }

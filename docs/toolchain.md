@@ -203,6 +203,13 @@ the [macOS experiment
 notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for signing, notarization, and icon setup.
 
+Leaf packages can also ship `platforms/macos/` sources in C, ObjC, Swift, or
+Zig. The CLI compiles them into separate libraries, extends app metadata, loads
+them before JS, and signs them with the packaged app. Declare
+`xplat.targets.macos.dev` for CLI-owned development with native rebuild/restart;
+see [native macOS leaves](macos-native.md) for the package contract, toolchain,
+language boundaries, and verification limits.
+
 The in-repository app runs the shared `@xplat/app` harness through
 `@octane-xplat/ui`'s `macos` package condition; its Vite config does not alias
 the UI package root. An adapted sweep covers the Home shell, Apps gallery,

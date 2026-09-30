@@ -6,6 +6,7 @@ import { createRequire } from 'node:module'
 import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
+import { macOSExecutable } from './executables.mjs'
 import {
 	hostBundle,
 	hostRoot,
@@ -18,9 +19,14 @@ const hash = (value) => createHash('sha256').update(value).digest('hex')
 const compilerExtensions = new Set(['.c', '.m', '.mm', '.swift', '.zig'])
 const ownSource = fileURLToPath(import.meta.url)
 
-async function run(command, args, stage) {
+async function run(command, args, stage, env = process.env) {
 	try {
-		const result = await execute(command, args, { timeout: 180_000, maxBuffer: 32 * 1024 * 1024 })
+		const result = await execute(command, args, {
+			timeout: 180_000,
+			maxBuffer: 32 * 1024 * 1024,
+			env,
+		})
+
 		return result.stdout.trim()
 	} catch (error) {
 		const diagnostics = (error.stderr ?? error.message)
@@ -366,7 +372,7 @@ export async function inspectMacOSNative(appRoot) {
 		: null
 
 	const manifest = JSON.parse(readFileSync(join(prebuiltRoot, 'manifest.json'), 'utf8'))
-	const generator = join(
+	let generator = join(
 		prebuiltRoot,
 		manifest.metadataGenerator?.path ?? 'missing-metadata-generator',
 	)
@@ -381,6 +387,7 @@ export async function inspectMacOSNative(appRoot) {
 		)
 	}
 
+	generator = await macOSExecutable(appRoot, manifest.metadataGenerator.path)
 	const libclang = await run(
 		generator,
 		['--xplat-check'],
@@ -548,6 +555,7 @@ export async function buildMacOSNative(
 				...leaf.dependencies.map((id) => join(staging, `${id}.dylib`)),
 				...leaf.frameworks.flatMap((name) => ['-framework', name]),
 				...leaf.libraries.map((name) => `-l${name}`),
+				...(leaf.sources.some((path) => extname(path) === '.mm') ? ['-lc++'] : []),
 			]
 
 			const swiftSources = leaf.sources.filter((path) => extname(path) === '.swift')
@@ -602,7 +610,6 @@ export async function buildMacOSNative(
 						...common,
 						...objects,
 						...linkage,
-						...(leaf.sources.some((path) => extname(path) === '.mm') ? ['-lc++'] : []),
 						'-Wl,-install_name',
 						`-Wl,@rpath/${outputName}`,
 						'-Wl,-rpath,@loader_path',
@@ -646,6 +653,11 @@ export async function buildMacOSNative(
 			...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => ['-I', path]),
 		]
 
+		const generatorEnv = {
+			...process.env,
+			PATH: `${dirname(toolchain.clang)}:${process.env.PATH ?? ''}`,
+		}
+
 		await run(
 			toolchain.generator,
 			[
@@ -657,6 +669,7 @@ export async function buildMacOSNative(
 				...clangArgs,
 			],
 			`validate public headers for ${leaves.map((leaf) => leaf.name).join(', ')}`,
+			generatorEnv,
 		)
 
 		const generatorArgs = [
@@ -671,7 +684,13 @@ export async function buildMacOSNative(
 			...clangArgs,
 		]
 
-		await run(toolchain.generator, generatorArgs, 'generate combined SDK and leaf metadata')
+		await run(
+			toolchain.generator,
+			generatorArgs,
+			'generate combined SDK and leaf metadata',
+			generatorEnv,
+		)
+
 		if (discoverMacOSNative(appRoot).fingerprint !== fingerprint) {
 			throw new Error(
 				'[macos-native] Native inputs changed during compilation; retry after edits settle',

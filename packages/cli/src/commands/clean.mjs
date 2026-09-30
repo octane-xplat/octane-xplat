@@ -1,16 +1,22 @@
 import { command } from '@alloc/cmd-ts'
-import { existsSync, rmSync } from 'node:fs'
+import { existsSync, readdirSync, rmSync } from 'node:fs'
 import * as p from '@clack/prompts'
 
-const DIRS = ['dist', 'platforms', '.ns-vite-build', 'node_modules/.vite']
+const DIRS = ['dist', '.ns-vite-build', 'node_modules/.vite', 'node_modules/.cache/xplat']
 
 export const clean = command({
 	name: 'clean',
-	description: 'Remove build outputs (dist, platforms, vite caches)',
+	description: 'Remove generated builds and caches; preserve authored macOS sources',
 	args: {},
 	handler: async () => {
 		const cwd = process.cwd()
-		const found = DIRS.filter((d) => existsSync(`${cwd}/${d}`))
+		const platformOutputs = existsSync(`${cwd}/platforms`)
+			? readdirSync(`${cwd}/platforms`)
+					.filter((name) => name !== 'macos')
+					.map((name) => `platforms/${name}`)
+			: []
+
+		const found = [...DIRS, ...platformOutputs].filter((d) => existsSync(`${cwd}/${d}`))
 		if (found.length === 0) {
 			p.log.info('Nothing to clean')
 			return

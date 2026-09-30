@@ -46,6 +46,7 @@ production Vite config that emits one CommonJS host bundle.
   NativeScript framework, and metadata before the Vite build. The resulting
   app bundles no Node executable or JavaScript engine binary; it loads system
   JavaScriptCore and rejects unsupported external imports with a diagnostic.
+- AC9: Native macOS leaf libraries and extended metadata participate in packaging and nested signing; the native source workflow and verification limits are documented separately.
 - AC7: `apps/macos` loads the shared `@xplat/app` harness through
   `@octane-xplat/ui`'s macOS package-root condition without a Vite alias; the
   adapted sweep mounts Home, Apps, Test/probes, and all nine app-gallery demos,
@@ -70,3 +71,6 @@ production Vite config that emits one CommonJS host bundle.
 - AC7: [macOS package-root boundary](../apps/macos/README.md#macos-experiment).
 - AC8: [Packaged host API](../apps/macos/README.md#packaging-proof) and the
   [independent fixture check](../packages/cli/test/verify-macos-jsc.mjs).
+
+- AC9: [macOS native leaf guide](../docs/macos-native.md) and the
+  [native source recipe](macos-native-code.md).

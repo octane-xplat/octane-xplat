@@ -36,6 +36,9 @@ for the current boundaries before committing to a release.
 7. [Verify before you ship](testing.md) — an agent's "done" is a claim;
    [known limits](known-limits.md) records which claims are proven.
 
+For leaf-owned Swift, ObjC, C, or Zig APIs on the AppKit target, see
+[native macOS leaves](macos-native.md).
+
 [Octane](https://github.com/octanejs/octane) supplies familiar React-style
 components and compiles the UI. [NativeScript](https://docs.nativescript.org/guide/metadata)
 lets TypeScript call native iOS and Android APIs without you authoring a

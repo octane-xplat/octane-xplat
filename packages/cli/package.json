@@ -30,6 +30,10 @@
 	],
 	"type": "module",
 	"exports": {
+		"./macos": {
+			"types": "./src/macos/dev.d.ts",
+			"default": "./src/macos/dev.mjs"
+		},
 		"./vite": {
 			"types": "./src/vite.d.ts",
 			"default": "./src/vite.mjs"

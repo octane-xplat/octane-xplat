@@ -1,16 +1,46 @@
 import { command, option, optional, string } from '@alloc/cmd-ts'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import * as p from '@clack/prompts'
 import { discoverTargets } from '../targets.mjs'
 import { spawnTagged } from '../procs.mjs'
 import { generateRoutes } from './routes.mjs'
+import { discoverMacOSNative } from '../macos/native.mjs'
+import { fileURLToPath } from 'node:url'
 
 const spawnFor = (t, cwd) => {
-	if (t.kind === 'web') {return spawnTagged('web', 'pnpm', ['exec', 'vite'], cwd)}
-	if (t.kind === 'macos') {return spawnTagged('macos', 'pnpm', ['run', 'dev'], cwd)}
-	if (t.kind === 'linux') {return spawnTagged('linux', 'pnpm', ['run', 'dev'], cwd)}
-	if (t.kind === 'windows') {return spawnTagged('windows', 'pnpm', ['exec', 'ns', 'run', 'windows'], cwd)}
+	if (t.kind === 'web') {
+		return spawnTagged('web', 'pnpm', ['exec', 'vite'], cwd)
+	}
+
+	if (t.kind === 'macos') {
+		const manifest = JSON.parse(readFileSync(join(cwd, 'package.json'), 'utf8'))
+		if (manifest.xplat?.targets?.macos?.dev) {
+			return spawnTagged(
+				'macos',
+				process.execPath,
+				[fileURLToPath(new URL('../macos/dev-entry.mjs', import.meta.url)), cwd],
+				cwd,
+			)
+		}
+
+		if (discoverMacOSNative(cwd).leaves.length) {
+			throw new Error(
+				'Native macOS leaves require xplat.targets.macos.dev configuration; see the macOS native leaf guide',
+			)
+		}
+
+		return spawnTagged('macos', 'pnpm', ['run', 'dev'], cwd)
+	}
+
+	if (t.kind === 'linux') {
+		return spawnTagged('linux', 'pnpm', ['run', 'dev'], cwd)
+	}
+
+	if (t.kind === 'windows') {
+		return spawnTagged('windows', 'pnpm', ['exec', 'ns', 'run', 'windows'], cwd)
+	}
+
 	return spawnTagged(t.kind, 'pnpm', ['exec', 'ns', 'run', t.kind, '--device', t.device], cwd)
 }
 

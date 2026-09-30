@@ -1,0 +1,25 @@
+{
+	"name": "xplat-native-consumer",
+	"private": true,
+	"type": "module",
+	"xplat": {
+		"targets": {
+			"macos": {
+				"runtime": "appkit-node-api",
+				"dev": {
+					"viteConfig": "vite.config.mjs",
+					"bundleFile": "dist/main.cjs"
+				},
+				"package": {
+					"productName": "Native Fixture",
+					"bundleIdentifier": "org.octane.xplat.native-fixture",
+					"executableName": "NativeFixture",
+					"version": "1.0.0",
+					"minimumSystemVersion": "13.5",
+					"viteConfig": "vite.config.mjs",
+					"bundleFile": "dist/main.cjs"
+				}
+			}
+		}
+	}
+}

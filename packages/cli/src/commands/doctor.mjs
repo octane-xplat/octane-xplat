@@ -5,7 +5,8 @@ import { dirname, join, parse, relative, resolve } from 'node:path'
 import * as p from '@clack/prompts'
 import { hasMacOS, hasNative, hasWindows } from '../targets.mjs'
 import { inspectPatches, patchStateDetail } from '../patches.mjs'
-import { inspectMacOSPackageConfig } from '../macos/config.mjs'
+import { inspectMacOSPackageConfig, inspectMacOSDevConfig } from '../macos/config.mjs'
+import { inspectMacOSNative } from '../macos/native.mjs'
 import { inspectJscHost } from '../macos/jsc-host/runtime.mjs'
 import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from '../macos/runtime-package.mjs'
 
@@ -416,9 +417,15 @@ export const doctor = command({
 
 			row(
 				'macOS dev script',
-				typeof scripts.dev === 'string',
-				scripts.dev ? 'present' : 'missing',
-				'define scripts.dev in package.json to start the AppKit host',
+				target.dev
+					? inspectMacOSDevConfig(cwd, target.dev).issues.length === 0
+					: typeof scripts.dev === 'string',
+				target.dev
+					? inspectMacOSDevConfig(cwd, target.dev).issues.join('; ') || 'CLI-owned dev runner'
+					: scripts.dev
+						? 'present'
+						: 'missing',
+				'declare xplat.targets.macos.dev (required for native leaves), or scripts.dev for an existing JS-only runner',
 			)
 
 			row(
@@ -443,6 +450,33 @@ export const doctor = command({
 				'reinstall @octane-xplat/cli or rebuild its pinned macOS host artifacts',
 			)
 
+			try {
+				const native = await inspectMacOSNative(cwd)
+				row(
+					'macOS native leaf toolchain',
+					true,
+					native.leaves.length
+						? `${native.leaves.length} leaves; SDK ${native.toolchain.sdk}; ${native.toolchain.libclang}`
+						: 'no native leaves; no compilation tools needed',
+				)
+
+				if (native.leaves.length) {
+					row(
+						'macOS native dev runner',
+						Boolean(target.dev),
+						target.dev ? 'configured' : 'missing',
+						'declare xplat.targets.macos.dev so native changes rebuild and restart the host',
+					)
+				}
+			} catch (error) {
+				row(
+					'macOS native leaf toolchain',
+					false,
+					String(error),
+					'fix the named package inputs, install/select Xcode and Command Line Tools, and install Zig only for Zig leaves',
+				)
+			}
+
 			if (macHost) {
 				const codesign = check('codesign', ['--verify', '/usr/bin/codesign'])
 				const hdiutil = check('hdiutil', ['help'])
@@ -453,13 +487,7 @@ export const doctor = command({
 					'ensure /usr/bin/codesign is available',
 				)
 
-				row(
-					'hdiutil',
-					hdiutil.ok,
-					hdiutil.out || 'available',
-					'install macOS command-line tools',
-				)
-
+				row('hdiutil', hdiutil.ok, hdiutil.out || 'available', 'install macOS command-line tools')
 			}
 
 			if (notaryProfile) {
@@ -481,14 +509,15 @@ export const doctor = command({
 		}
 
 		for (const patch of inspectPatches(cwd)) {
-			if (patch.state === 'not-declared') {continue}
+			if (patch.state === 'not-declared') {
+				continue
+			}
+
 			row(
 				`patch ${patch.specifier}`,
 				patch.state === 'applied',
 				patchStateDetail(patch.state),
-				patch.state === 'not-installed'
-					? 'run `pnpm install`'
-					: 'run `xplat patches apply`',
+				patch.state === 'not-installed' ? 'run `pnpm install`' : 'run `xplat patches apply`',
 			)
 		}
 
@@ -532,7 +561,9 @@ export const doctor = command({
 				row(
 					'Developer Mode',
 					devMode.ok && devMode.out?.trim() === '1',
-					devMode.ok ? `AllowDevelopmentWithoutDevLicense=${devMode.out?.trim() || 'unset'}` : 'unverified',
+					devMode.ok
+						? `AllowDevelopmentWithoutDevLicense=${devMode.out?.trim() || 'unset'}`
+						: 'unverified',
 					'enable Settings → For developers → Developer Mode, or signed MSIX packaging',
 				)
 			}
@@ -563,9 +594,7 @@ export const doctor = command({
 		}
 
 		const summary =
-			bad === 0
-				? 'All checks pass'
-				: `${bad} check(s) need attention — see the missing items above`
+			bad === 0 ? 'All checks pass' : `${bad} check(s) need attention — see the missing items above`
 
 		p.outro(
 			pluginWarnings.length
@@ -574,7 +603,10 @@ export const doctor = command({
 		)
 
 		if (declarationPackCheckFailed) {
-			if (declarationPackCheckOutput) {console.error(declarationPackCheckOutput)}
+			if (declarationPackCheckOutput) {
+				console.error(declarationPackCheckOutput)
+			}
+
 			process.exitCode = 1
 		}
 	},
