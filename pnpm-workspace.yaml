@@ -46,6 +46,10 @@ allowBuilds:
   esbuild: true
   workerd: true
   '@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661)': true
+  # firebase (web push) postinstalls: @firebase/util's is a React Native
+  # bundling shim, protobufjs's prints a deprecation banner — neither needed.
+  '@firebase/util': false
+  protobufjs: false
 # Canonical copies live in packages/cli/patches/ — manifest.json there carries
 # why/dropWhen per entry and feeds `xplat patches apply`. Regenerate a patch with `pnpm
 # patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`

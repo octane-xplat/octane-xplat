@@ -1,0 +1,90 @@
+{
+	"name": "@octane-xplat/push",
+	"version": "0.7.2",
+	"description": "Push notifications for Octane xplat — Firebase Cloud Messaging via @nativescript/firebase-messaging on iOS/Android and the Firebase JS SDK on web",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"push",
+		"push-notifications",
+		"firebase",
+		"fcm",
+		"apns",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/push",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/push"
+	},
+	"files": [
+		"dist",
+		"types",
+		"src",
+		"web"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./firebase-messaging-sw.js": "./web/firebase-messaging-sw.js"
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"types": "./types/index.d.ts",
+				"web": "./dist/web/index.js",
+				"native": "./dist/native/index.js",
+				"default": "./dist/native/index.js"
+			},
+			"./firebase-messaging-sw.js": "./web/firebase-messaging-sw.js"
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
+		"prepublishOnly": "pnpm build"
+	},
+	"dependencies": {
+		"@nativescript/firebase-core": "5.0.2",
+		"@nativescript/firebase-messaging": "5.0.2",
+		"firebase": "12.19.0"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.2",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	}
+}

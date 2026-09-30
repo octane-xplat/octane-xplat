@@ -21,6 +21,7 @@
 		"@octane-xplat/gif": "workspace:*",
 		"@octane-xplat/picker": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
+		"@octane-xplat/push": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*"
 	},
