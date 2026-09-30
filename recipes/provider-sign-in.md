@@ -24,7 +24,7 @@ session storage and refresh stay app-owned.
 - AC1: The reader can place `AppleSignInButton`/`GoogleSignInButton` (or call `appleAuth.signIn()`/`googleAuth.signIn()`) and observe a `SignInResult` — `success` with `credential`, `cancelled`, or `error` — on each intended target.
 - AC2: The reader can complete per-target registration: the `com.apple.developer.applesignin` entitlement on iOS, Services ID + return URL via `appleAuth.configure` on web, `GIDClientID`/`googleAuth.configure({ clientId })` for Google, and can state which steps no target needs.
 - AC3: The reader can interpret the credential shape (`provider`, `idToken`, `authorizationCode`, `accessToken`, `scopes`, `user`) and knows verification happens server-side.
-- AC4: The reader can reproduce a user cancel and an unsupported target (`supported: false` — Apple on Android, both providers on macOS) and choose `authSession` as the hosted-ceremony alternative.
+- AC4: The reader can reproduce a user cancel and an unsupported target (`supported: false` — Apple on Android, Google on macOS) and choose `authSession` as the hosted-ceremony alternative.
 
 ## Documentation
 

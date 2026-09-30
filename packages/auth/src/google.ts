@@ -10,6 +10,7 @@ function isCancel(error: unknown): boolean {
 		(error as any)?.native?.code ?? // iOS: kGIDSignInErrorCodeCanceled = -5
 		(error as any)?.native?.getStatusCode?.() ?? // Android: ApiException
 		(error as any)?.code
+
 	if (code === -5 || code === 12501 /* SIGN_IN_CANCELLED */) {
 		return true
 	}

@@ -54,7 +54,7 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 | `media.pickImage()`, `pickImages()` | pick existing image(s) | native needs `@nativescript/imagepicker` |
 | `media.capturePhoto()` | still capture through the OS camera UI | web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops; native needs `@nativescript/camera` |
 | `webAuthn` | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession` |
-| `authSession` | `open(url, { callbackScheme })` — hosted web ceremony in a system browser | native only; iOS ASWebAuthenticationSession, Android Custom Tab + deep-link return |
+| `authSession` | `open(url, { callbackScheme })` — hosted web ceremony in a system browser | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web |
 
 `media` owns the `camera` and `photos` permission requests for still capture
 and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
@@ -153,11 +153,14 @@ Per-target setup differs because the providers do:
   Apple flow runs in a popup by default (`usePopup: false` for redirect),
   Google's `signIn` uses One Tap while `GoogleSignInButton` renders the
   official GIS button.
-- **macOS** — both report `supported: false`; run the hosted `authSession`
-  ceremony instead.
+- **macOS** — `appleAuth` runs the same AuthenticationServices flow natively
+  on the AppKit host (the packaged app needs
+  `com.apple.developer.applesignin` in `entitlements.plist`).
+  `googleAuth` reports `supported: false` — run the hosted `authSession`
+  ceremony (itself implemented on macOS over ASWebAuthenticationSession).
 
 `appleAuth.getCredentialState(userId)` answers whether a previously-granted
-Apple credential is still `authorized` — iOS only, `'unknown'` elsewhere.
+Apple credential is still `authorized` — iOS and macOS, `'unknown'` elsewhere.
 `googleAuth.signOut()` clears the account selection so the next sign-in
 re-prompts. The plugins (`@nativescript/apple-sign-in`,
 `@nativescript/google-signin`) are real dependencies of the leaf — apps don't

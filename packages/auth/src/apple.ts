@@ -63,6 +63,7 @@ export const appleAuth: AppleAuth = {
 				useNonce: options?.nonce !== undefined,
 				nonce: options?.nonce,
 			})
+
 			return { status: 'success', credential: toCredential(user) }
 		} catch (error) {
 			return isCancel(error)

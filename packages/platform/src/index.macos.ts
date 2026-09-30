@@ -125,6 +125,7 @@ export const storage = {
 			set(key, value)
 			return
 		}
+
 		hostStorage.set(key, value)
 	},
 	remove(key: string): void {
@@ -133,6 +134,7 @@ export const storage = {
 			remove(key)
 			return
 		}
+
 		hostStorage.delete(key)
 	},
 }
@@ -155,7 +157,7 @@ export const haptics: Capability<HapticsImpl> = { supported: false, ensure: unsu
 export const notifications: Capability<NotificationsImpl> = { supported: false, ensure: unsupported, impl: null }
 export const biometrics: Capability<BiometricsImpl> = { supported: false, ensure: unsupported, impl: null }
 export const webAuthn: Capability<WebAuthnImpl> = { supported: false, ensure: unsupported, impl: null }
-export const authSession: Capability<AuthSessionImpl> = { supported: false, ensure: unsupported, impl: null }
+export { authSession } from './auth-session.macos'
 export const openSettings: Capability<OpenSettingsImpl> = { supported: false, ensure: unsupported, impl: null }
 export const geolocation: Capability<GeolocationImpl> = { supported: false, ensure: unsupported, impl: null }
 

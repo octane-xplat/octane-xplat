@@ -28,8 +28,10 @@ function loadSdk(): Promise<any> {
 			sdkPromise = null
 			reject(new Error('failed to load the Sign in with Apple JS SDK'))
 		}
+
 		document.head.appendChild(script)
 	})
+
 	return sdkPromise
 }
 
@@ -48,6 +50,7 @@ function toCredential(response: any): AuthCredential {
 	const name = [response?.user?.name?.firstName, response?.user?.name?.lastName]
 		.filter(Boolean)
 		.join(' ') || undefined
+
 	return {
 		provider: 'apple',
 		idToken: auth.id_token ?? undefined,
@@ -92,6 +95,7 @@ export const appleAuth: AppleAuth = {
 				usePopup: config.usePopup !== false,
 				nonce: options?.nonce,
 			})
+
 			const response = await sdk.auth.signIn()
 			return { status: 'success', credential: toCredential(response) }
 		} catch (error) {

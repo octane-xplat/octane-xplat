@@ -29,8 +29,10 @@ function loadSdk(): Promise<any> {
 			sdkPromise = null
 			reject(new Error('failed to load the Google Identity Services SDK'))
 		}
+
 		document.head.appendChild(script)
 	})
+
 	return sdkPromise
 }
 
@@ -84,6 +86,7 @@ export async function renderGoogleButton(
 			status: 'error',
 			message: 'googleAuth.configure({ clientId }) is required on web — the OAuth web client id',
 		})
+
 		return
 	}
 
@@ -96,6 +99,7 @@ export async function renderGoogleButton(
 			size: 'large',
 			width: options.width,
 		})
+
 		// The button's flow resolves through the initialize callback — park the
 		// consumer's onResult where the credential callback can find it. One
 		// flow at a time, matching the native ceremony.
@@ -118,6 +122,7 @@ export const googleAuth: GoogleAuth = {
 				message: 'googleAuth.configure({ clientId }) is required on web — the OAuth web client id',
 			}
 		}
+
 		if (credentialResolve) {
 			return { status: 'error', message: 'a Google sign-in flow is already active' }
 		}

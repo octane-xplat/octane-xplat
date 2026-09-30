@@ -60,20 +60,21 @@ export interface AppleSignInOptions {
     nonce?: string;
 }
 export type AppleCredentialState = 'authorized' | 'revoked' | 'notFound' | 'transferred'
-/** Anywhere the state check can't run — Android, web, macOS. */
+/** Anywhere the state check can't run — Android, web. */
  | 'unknown';
 export interface AppleAuth {
     /**
-     * Whether the provider's native SDK can run here — iOS 13+. False on
-     * Android and macOS (use a hosted `authSession` flow instead). On web it
-     * reports whether a browser runtime exists; `configure` still needs a
-     * `clientId` before `signIn` will succeed.
+     * Whether the provider's native SDK can run here — iOS 13+ and the macOS
+     * AppKit host (AuthenticationServices via the ObjC bridge; the packaged
+     * app needs the applesignin entitlement for the sheet to complete).
+     * False on Android. On web it reports whether a browser runtime exists;
+     * `configure` still needs a `clientId` before `signIn` will succeed.
      */
     readonly supported: boolean;
     /** Store configuration; the platform SDK loads lazily on first use. */
     configure(config: AppleAuthConfig): void;
     signIn(options?: AppleSignInOptions): Promise<SignInResult>;
-    /** iOS only — credential state for a prior `user.id`. */
+    /** iOS and macOS — credential state for a prior `user.id`. */
     getCredentialState(userId: string): Promise<AppleCredentialState>;
 }
 export interface GoogleAuthConfig {
