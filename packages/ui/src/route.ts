@@ -639,7 +639,7 @@ export function currentModalRoute(): Route | null {
  *  `onDeepLink(pushDeepLink)` plus one `consumeInitialUrl()` call. */
 export function pushDeepLink(url: string): boolean {
 	const r = matchUrl(routes, linkPath(url))
-	if (!r) {
+	if (!r || !screenFor(r.name)) {
 		warnOnce('link:' + url, `pushDeepLink('${url}') dropped — no route matches.`)
 		return false
 	}

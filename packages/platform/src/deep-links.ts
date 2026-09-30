@@ -7,14 +7,13 @@ type LinkHandler = (url: string) => void
 const handlers = new Set<LinkHandler>()
 let wired = false
 let initial: string | null = null
-let lastUrl: string | null = null
+let lastIntent: any = null
 
 function dispatch(url: string | null | undefined) {
-	if (!url || url === lastUrl) {
+	if (!url) {
 		return
 	}
 
-	lastUrl = url
 	for (const handler of handlers) {
 		handler(url)
 	}
@@ -30,12 +29,15 @@ function wire() {
 		const androidUrl = args.android?.getDataString?.()
 		const iosUrl = args.ios?.objectForKey?.('UIApplicationLaunchOptionsURLKey')?.absoluteString
 		initial = androidUrl || iosUrl || initial
-		dispatch(initial)
+		lastIntent = args.android ?? lastIntent
 	})
 
 	if (Application.ios) {
 		Application.on('openUrl', (args: any) => {
 			const url = args.url?.absoluteString ?? String(args.url ?? '')
+			// UIKit can also report a launch URL through openUrl. Keep it
+			// queued for consumeInitialUrl while bootstrap is still pending.
+			if (url === initial) {return}
 			dispatch(url)
 		})
 
@@ -45,10 +47,18 @@ function wire() {
 	}
 
 	if (Application.android) {
+		Application.android.on('activityNewIntent', (args: any) => {
+			lastIntent = args.intent
+			dispatch(args.intent?.getDataString?.())
+		})
+
 		Application.on(Application.resumeEvent, () => {
 			const intent = Application.android.foregroundActivity?.getIntent?.()
-			const url = intent?.getDataString?.()
-			dispatch(url)
+			// A new intent and its resume are one delivery. A later intent
+			// carrying the same URL is a new user action and must navigate.
+			if (!intent || intent === lastIntent || intent.equals?.(lastIntent)) {return}
+			lastIntent = intent
+			dispatch(intent.getDataString?.())
 		})
 	}
 }

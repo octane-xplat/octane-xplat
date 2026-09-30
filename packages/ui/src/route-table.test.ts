@@ -209,6 +209,16 @@ describe('matchUrl + linkPath', () => {
 		expect(linkPath('textcoral://demo/9')).toBe('/demo/9')
 		expect(linkPath('/demo/9')).toBe('/demo/9')
 	})
+
+	it.each(['/demo/%', '/demo/%E0%A4%A', '/detail?from=%', '/detail?%=x'])(
+		'rejects malformed encoding without throwing: %s',
+		(url) => expect(matchUrl(routes, url)).toBeNull(),
+	)
+
+	it('ignores fragments and preserves query delimiters inside values', () => {
+		expect(matchUrl(routes, linkPath('xplat://demo/counter?from=a?b#ignored')))
+			.toMatchObject({ params: { id: 'counter', from: 'a?b' } })
+	})
 })
 
 describe('layoutChain', () => {

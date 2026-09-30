@@ -614,9 +614,25 @@ export function linkPath(url: string): string {
  *  is the stack prefix ('/demos/demo/x' → stack 'demos'). Unmatched names
  *  fall through as literal routes for pre-manifest callers. */
 export function matchUrl(routes: readonly RouteMeta[], url: string): Route | null {
-	const [p, qs] = url.split('?')
+	// Fragments aren't route params. Split only the first query delimiter;
+	// a later '?' belongs to its value. Reject malformed percent encoding at
+	// this external-input boundary instead of crashing the mounted app.
+	url = url.split('#', 1)[0]
+	const at = url.indexOf('?')
+	const p = at === -1 ? url : url.slice(0, at)
+	const qs = at === -1 ? undefined : url.slice(at + 1)
 	const segs = p.split('/').filter(Boolean)
-	const query = parseQueryString(qs)
+	let query: Record<string, unknown>
+	try {
+		// Use the decoded value: production optimizers can drop an unused
+		// builtin call even though malformed input makes it throw.
+		if (!decodeURIComponent(p)) {return null}
+		query = parseQueryString(qs)
+	} catch (error) {
+		if (error instanceof URIError) {return null}
+		throw error
+	}
+
 	if (!segs.length) {
 		return null
 	}
