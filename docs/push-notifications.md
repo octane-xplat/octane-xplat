@@ -28,7 +28,10 @@ but never receive messages — verify on a device.
 **Android.** Drop `google-services.json` into `App_Resources/Android/` and
 apply the `com.google.gms.google-services` Gradle plugin per the
 `@nativescript/firebase-core` setup. On Android 13+, notification permission
-is a runtime prompt — `requestPermission()` below covers it.
+is a runtime prompt — `requestPermission()` below covers it. The harness
+ships a placeholder `google-services.json` so the Gradle plugin parses — it
+carries no real Firebase project, so `configure()`/push delivery fail until
+you replace it with a real one.
 
 **Web.** Copy the service worker the package ships into your app's static
 root:
