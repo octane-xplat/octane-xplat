@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "files": [
+    "AppleSignInButton.d.ts",
+    "AppleSignInButton.web.d.ts",
+    "GoogleSignInButton.d.ts",
+    "GoogleSignInButton.web.d.ts",
+    "apple.d.ts",
+    "apple.web.d.ts",
+    "google.d.ts",
+    "google.web.d.ts",
+    "index.d.ts",
+    "index.web.d.ts",
+    "types.d.ts"
+  ]
+}

@@ -11,6 +11,7 @@
 		"./*": "./src/*"
 	},
 	"dependencies": {
+		"@octane-xplat/auth": "workspace:*",
 		"@octane-xplat/canvas": "workspace:*",
 		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/context-menu": "workspace:*",

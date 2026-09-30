@@ -26,6 +26,7 @@ Workflows:
 - [Use platform-specific implementations from shared code](platform-leaves.md)
 - [Open a screen from an incoming link](incoming-links.md)
 - [Sign in with a passkey or hosted auth ceremony](passkey-sign-in.md)
+- [Sign in with Apple or Google provider SDKs](provider-sign-in.md)
 - [Register routes from runtime data](programmatic-routes.md)
 - [Ship video playback on web and native](video-playback.md)
 - [Build a settings list with reusable rows](settings-list.md)

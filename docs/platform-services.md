@@ -117,6 +117,52 @@ link uses; `androidx.browser` (Custom Tabs) arrives transitively with
 `@octane-xplat/platform`, no app-side declaration. `prefersEphemeralSession`
 keeps the iOS session from sharing Safari cookies.
 
+### Provider SDK sign-in (Apple / Google)
+
+`@octane-xplat/auth` is the provider-SDK path — the native Sign in with
+Apple and Google Sign-In SDKs on iOS/Android, their platform web SDKs in the
+browser, one shared surface. It is an alternative to the hosted `authSession`
+ceremony, not a replacement: use it when the app wants the platform-authentic
+button + credential, not a web session on its own origin.
+
+```ts
+import { appleAuth, googleAuth, AppleSignInButton, GoogleSignInButton } from '@octane-xplat/auth'
+
+googleAuth.configure({ clientId: '…apps.googleusercontent.com' })
+const result = await appleAuth.signIn({ scopes: ['email', 'name'], nonce })
+if (result.status === 'success') {
+	// result.credential = { idToken, authorizationCode?, user: { id, email?, name? } }
+	// hand it to your backend — verification stays app-side
+}
+```
+
+Every `signIn` resolves a `SignInResult` — `success` carries the credential,
+`cancelled` covers a dismissed sheet/popup, `error` reports the message.
+Session storage and token refresh are deliberately out of scope.
+
+Per-target setup differs because the providers do:
+
+- **iOS** — Apple needs the `com.apple.developer.applesignin` entitlement
+  (and iOS 13+; `appleAuth.supported` reports it, false on Android).
+  Google reads `GIDClientID` from Info.plist or `configure({ clientId })`.
+- **Android** — Apple reports `supported: false`; Google resolves its
+  client from google-services resources or `configure`.
+- **Web** — `appleAuth.configure({ clientId, redirectURI })` with the
+  Services ID + registered return URL, and `googleAuth.configure({ clientId })`
+  with the OAuth web client id. Both SDKs load lazily on first use; the
+  Apple flow runs in a popup by default (`usePopup: false` for redirect),
+  Google's `signIn` uses One Tap while `GoogleSignInButton` renders the
+  official GIS button.
+- **macOS** — both report `supported: false`; run the hosted `authSession`
+  ceremony instead.
+
+`appleAuth.getCredentialState(userId)` answers whether a previously-granted
+Apple credential is still `authorized` — iOS only, `'unknown'` elsewhere.
+`googleAuth.signOut()` clears the account selection so the next sign-in
+re-prompts. The plugins (`@nativescript/apple-sign-in`,
+`@nativescript/google-signin`) are real dependencies of the leaf — apps don't
+declare them (decision #51).
+
 Declare the optional NativeScript plugin peers used by platform services
 in the app’s dependencies. This differs from leaf-owned implementation
 dependencies such as the video plugin, which travel with their leaf package. Run

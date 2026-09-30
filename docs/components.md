@@ -125,9 +125,9 @@ Every component accepts `className`/`style`/`id` plus the platform escape props
 supported. Modal/sheet routing shares the navigation layer — see
 [navigation](navigation.md).
 
-## Media and device leaves
+## Leaf packages
 
-Heavyweight widgets that need a NativeScript plugin ship as their own
+Features that need a NativeScript plugin ship as their own
 packages so `@octane-xplat/ui` keeps zero required plugin deps:
 
 | Package                 | Exports                       | What it is                                        |
@@ -141,3 +141,4 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 | `@octane-xplat/haptics` | `createHaptics`               | Capability-aware haptics                          |
 | `@octane-xplat/sounds`  | `createSoundBank`             | Short UI sound effects                            |
 | `@octane-xplat/effects` | `ShaderEffect` (`/ios`, `/android` only) | View-effect shaders (Metal stitch / AGSL) |
+| `@octane-xplat/auth`    | `appleAuth`, `googleAuth`, `AppleSignInButton`, `GoogleSignInButton` | Provider sign-in (Apple / Google SDKs)    |

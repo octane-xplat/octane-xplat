@@ -21,6 +21,7 @@ import { SegmentedDemo } from './SegmentedDemo.tsrx';
 import { SearchDemo } from './SearchDemo.tsrx';
 import { VideoDemo } from './VideoDemo.tsrx';
 import { CameraDemo, AnimatedImageDemo, CanvasDemo } from './hosted-demos';
+import { AuthDemo } from './AuthDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
@@ -68,6 +69,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'video', title: 'Video', kind: 'proof' },
 	{ id: 'camera', title: 'Camera', kind: 'proof' },
 	{ id: 'animated-image', title: 'Animated image', kind: 'proof' },
+	{ id: 'auth', title: 'Provider sign-in', kind: 'proof' },
 	{ id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
 	{ id: 'effects', title: 'Shader effects', kind: 'proof' },
 ];
@@ -114,6 +116,7 @@ const renderSearch = () => <SearchDemo />;
 const renderVideo = () => <VideoDemo />;
 const renderCamera = () => <CameraDemo />;
 const renderAnimatedImage = () => <AnimatedImageDemo />;
+const renderAuth = () => <AuthDemo />;
 const renderCanvas = () => <CanvasDemo />;
 const renderEffects = () => <EffectsDemo />;
 
@@ -153,6 +156,7 @@ export const RENDER: Record<string, () => any> = {
 	video: renderVideo,
 	camera: renderCamera,
 	'animated-image': renderAnimatedImage,
+	auth: renderAuth,
 	canvas: renderCanvas,
 	effects: renderEffects,
 };
