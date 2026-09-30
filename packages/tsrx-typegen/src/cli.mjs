@@ -36,6 +36,7 @@ Options:
   --target <name>   Target in tsrx-typegen.json (selects its project and output)
   --check           Compare generated declarations without writing files
   --pack-check      Check declarations, pack the package, and validate the tarball
+                    (targets with emit: false skip generation and only validate)
   -h, --help        Show this help`)
 }
 
@@ -99,7 +100,7 @@ function configuredTargetNames(projectRoot, selectedTarget) {
 		throw new Error(`${path}: unknown target ${selectedTarget}`)
 	}
 
-	return selectedTarget ? [selectedTarget] : Object.keys(targets)
+	return { names: selectedTarget ? [selectedTarget] : Object.keys(targets), targets }
 }
 
 function loadProjectModule(projectRoot, specifier) {
@@ -251,6 +252,10 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 	}
 
 	if (selected) {
+		if (selected.emit === false) {
+			throw new Error(`${path}: target ${selectedName} has emit: false — it configures --pack-check only`)
+		}
+
 		if (typeof selected.project !== 'string' || !selected.project) {
 			throw new Error(`${path}: target ${selectedName} must name a project`)
 		}
@@ -804,8 +809,12 @@ function run() {
 		return
 	}
 
-	const targets = configuredTargetNames(projectRoot, args.target)
-	for (const target of targets) {
+	const { names, targets } = configuredTargetNames(projectRoot, args.target)
+	for (const target of names) {
+		if (targets[target]?.emit === false) {
+			continue
+		}
+
 		if (!runTarget(projectRoot, { ...args, target, check: true })) {
 			process.exitCode = 1
 			return

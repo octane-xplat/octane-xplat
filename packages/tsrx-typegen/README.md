@@ -101,6 +101,14 @@ bare package imports are declared dependencies or peers. The command needs
 TypeScript consumer test for the module-resolution modes and public prop
 contracts your package supports.
 
+A target with `"emit": false` exists only to drive packed-package
+verification. Packages whose declarations are handwritten or produced by
+another tool declare one so `--pack-check` skips generation and freshness
+checks for it and only validates the packed package. Such targets cannot be
+selected for generation; a plain `--target` run against them fails. Every code
+export path still needs a `types` condition — pointing at a `.d.ts` file or,
+for source-published packages, the `.ts` source itself.
+
 Run the same gate from `prepack` so `pnpm pack` and publication share it:
 
 ```json
