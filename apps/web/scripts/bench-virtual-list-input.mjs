@@ -3,6 +3,11 @@ import { chromium } from 'playwright'
 
 const mode = process.argv[2] ?? 'variable'
 const durationMs = Number(process.env.XPLAT_VLIST_INPUT_MS ?? 15_000)
+const disposalCycles = Number(process.env.XPLAT_VLIST_DISPOSAL_CYCLES ?? 3)
+if (!Number.isSafeInteger(disposalCycles) || disposalCycles < 0 || disposalCycles > 100) {
+	throw new Error('XPLAT_VLIST_DISPOSAL_CYCLES must be an integer from 0 to 100')
+}
+
 if (mode !== 'variable' && mode !== 'fixed48') {
 	throw new Error('Usage: node scripts/bench-virtual-list-input.mjs <variable|fixed48>')
 }
@@ -11,7 +16,7 @@ if (!Number.isFinite(durationMs) || durationMs < 5_000) {
 	throw new Error('XPLAT_VLIST_INPUT_MS must be at least 5000')
 }
 
-const preview = spawn('pnpm', ['exec', 'vite', 'preview'], {
+const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', '5219', '--strictPort'], {
 	cwd: process.cwd(),
 	stdio: ['ignore', 'pipe', 'pipe'],
 	detached: true,
@@ -23,10 +28,17 @@ let browser
 let memoryTimer
 try {
 	await new Promise((resolve, reject) => {
-		const timeout = setTimeout(() => reject(new Error(`Timed out waiting for Vite preview: ${previewOutput}`)), 15_000)
+		const timeout = setTimeout(
+			() => reject(new Error(`Timed out waiting for Vite preview: ${previewOutput}`)),
+			15_000,
+		)
+
 		const onData = (chunk) => {
 			previewOutput += String(chunk)
-			if (!baseUrl) {baseUrl = previewOutput.match(/Local:\s+(https?:\/\/\S+)/)?.[1]}
+			if (!baseUrl) {
+				baseUrl = previewOutput.match(/Local:\s+(https?:\/\/\S+)/)?.[1]
+			}
+
 			if (baseUrl) {
 				clearTimeout(timeout)
 				resolve()
@@ -55,7 +67,10 @@ try {
 		await page.waitForFunction(
 			() => {
 				const rows = [...document.querySelectorAll('#vlist-bench-list [id^="vlist-bench-row-"]')]
-				return rows.length > 0 && rows.every((row) => Math.abs(row.getBoundingClientRect().height - 48) < 0.5)
+				return (
+					rows.length > 0 &&
+					rows.every((row) => Math.abs(row.getBoundingClientRect().height - 48) < 0.5)
+				)
 			},
 			null,
 			{ timeout: 10_000 },
@@ -71,10 +86,16 @@ try {
 	const heapBefore = await cdp.send('Runtime.getHeapUsage')
 	const domBefore = await cdp.send('Memory.getDOMCounters').catch(() => null)
 	const memoryStartedAt = Date.now()
-	const memorySamples = [{ atMs: 0, phase: 'before', heapUsedBytes: heapBefore.usedSize, dom: domBefore }]
+	const memorySamples = [
+		{ atMs: 0, phase: 'before', heapUsedBytes: heapBefore.usedSize, dom: domBefore },
+	]
+
 	let memorySamplePending = false
 	const sampleMemory = async (phase) => {
-		if (memorySamplePending) {return}
+		if (memorySamplePending) {
+			return
+		}
+
 		memorySamplePending = true
 		try {
 			const heap = await cdp.send('Runtime.getHeapUsage')
@@ -90,9 +111,15 @@ try {
 		}
 	}
 
-	memoryTimer = setInterval(() => { void sampleMemory('periodic') }, 30_000)
+	memoryTimer = setInterval(() => {
+		void sampleMemory('periodic')
+	}, 30_000)
+
 	const box = await list.boundingBox()
-	if (!box) {throw new Error('VirtualList benchmark did not have a visible bounds box')}
+	if (!box) {
+		throw new Error('VirtualList benchmark did not have a visible bounds box')
+	}
+
 	const x = box.x + box.width / 2
 	const y = box.y + Math.min(box.height - 40, 300)
 	const initial = await page.evaluate(() => {
@@ -132,7 +159,10 @@ try {
 		)
 
 		const tick = (now) => {
-			if (trace.lastFrame !== undefined) {trace.frames.push({ phase: trace.phase, ms: now - trace.lastFrame })}
+			if (trace.lastFrame !== undefined) {
+				trace.frames.push({ phase: trace.phase, ms: now - trace.lastFrame })
+			}
+
 			trace.lastFrame = now
 			if (now - trace.lastSample >= 100) {
 				const rect = list.getBoundingClientRect()
@@ -144,11 +174,17 @@ try {
 				let coveredUntil = rect.top
 				let gap = 0
 				for (const row of rows) {
-					if (row.top > coveredUntil + 1) {gap += row.top - coveredUntil}
+					if (row.top > coveredUntil + 1) {
+						gap += row.top - coveredUntil
+					}
+
 					coveredUntil = Math.max(coveredUntil, row.bottom)
 				}
 
-				if (coveredUntil < rect.bottom - 1) {gap += rect.bottom - coveredUntil}
+				if (coveredUntil < rect.bottom - 1) {
+					gap += rect.bottom - coveredUntil
+				}
+
 				trace.samples.push({
 					phase: trace.phase,
 					time: now - trace.start,
@@ -160,7 +196,9 @@ try {
 				trace.lastSample = now
 			}
 
-			if (!trace.stop) {requestAnimationFrame(tick)}
+			if (!trace.stop) {
+				requestAnimationFrame(tick)
+			}
 		}
 
 		window.__vlistInputTrace = trace
@@ -172,7 +210,11 @@ try {
 	while (Date.now() - startedAt < durationMs) {
 		inputRound += 1
 		for (const direction of [1, -1]) {
-			await page.evaluate((phase) => (window.__vlistInputTrace.phase = phase), `wheel-${direction > 0 ? 'down' : 'up'}`)
+			await page.evaluate(
+				(phase) => (window.__vlistInputTrace.phase = phase),
+				`wheel-${direction > 0 ? 'down' : 'up'}`,
+			)
+
 			await page.mouse.move(x, y)
 			for (let tick = 0; tick < 6; tick += 1) {
 				await page.mouse.wheel(0, direction * 420)
@@ -182,7 +224,9 @@ try {
 			await page.waitForTimeout(160)
 		}
 
-		if (inputRound % 4 === 0) {process.stderr.write(`input round ${inputRound} / ${durationMs} ms\n`)}
+		if (inputRound % 4 === 0) {
+			process.stderr.write(`input round ${inputRound} / ${durationMs} ms\n`)
+		}
 	}
 
 	await page.waitForTimeout(500)
@@ -194,17 +238,28 @@ try {
 		const phases = [...new Set(trace.samples.map((sample) => sample.phase))]
 		const percentile = (values, p) => {
 			const sorted = [...values].sort((a, b) => a - b)
-			return sorted.length ? Number(sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * p))].toFixed(2)) : null
+			return sorted.length
+				? Number(
+						sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * p))].toFixed(2),
+					)
+				: null
 		}
 
 		const summarizePhase = (phase) => {
 			const samples = trace.samples.filter((sample) => sample.phase === phase)
-			const deltas = samples.slice(1).map((sample, index) => sample.offset - samples[index].offset).filter((delta) => Math.abs(delta) > 0.5)
+			const deltas = samples
+				.slice(1)
+				.map((sample, index) => sample.offset - samples[index].offset)
+				.filter((delta) => Math.abs(delta) > 0.5)
+
 			let directionChanges = 0
 			let previousDirection = 0
 			for (const delta of deltas) {
 				const direction = Math.sign(delta)
-				if (previousDirection && previousDirection !== direction) {directionChanges += 1}
+				if (previousDirection && previousDirection !== direction) {
+					directionChanges += 1
+				}
+
 				previousDirection = direction
 			}
 
@@ -215,7 +270,9 @@ try {
 				directionChanges,
 				maxMountedRows: samples.length ? Math.max(...samples.map((sample) => sample.mounted)) : 0,
 				coverageGapSamples: samples.filter((sample) => sample.gap > 1).length,
-				maxCoverageGap: samples.length ? Number(Math.max(...samples.map((sample) => sample.gap)).toFixed(1)) : 0,
+				maxCoverageGap: samples.length
+					? Number(Math.max(...samples.map((sample) => sample.gap)).toFixed(1))
+					: 0,
 			}
 		}
 
@@ -231,11 +288,16 @@ try {
 				longerThan32ms: frames.filter((ms) => ms > 32).length,
 			},
 			mountedRows: {
-				p50: percentile(trace.samples.map((sample) => sample.mounted), 0.5),
+				p50: percentile(
+					trace.samples.map((sample) => sample.mounted),
+					0.5,
+				),
 				max: trace.samples.length ? Math.max(...trace.samples.map((sample) => sample.mounted)) : 0,
 			},
 			coverageGapSamples: trace.samples.filter((sample) => sample.gap > 1).length,
-			maxCoverageGap: trace.samples.length ? Number(Math.max(...trace.samples.map((sample) => sample.gap)).toFixed(1)) : 0,
+			maxCoverageGap: trace.samples.length
+				? Number(Math.max(...trace.samples.map((sample) => sample.gap)).toFixed(1))
+				: 0,
 			inputRounds,
 		}
 	}, inputRound)
@@ -250,22 +312,54 @@ try {
 		dom: domAfter,
 	})
 
-	if (pageErrors.length) {throw new Error(`Web app errors: ${pageErrors.join('; ')}`)}
+	await page.locator('text=← Back').click()
+	await page.waitForFunction(() => !document.querySelector('#vlist-bench-list'))
+	await page.evaluate(() => {
+		delete window.__vlistInputTrace
+	})
+
+	await cdp.send('HeapProfiler.collectGarbage')
+	await sampleMemory('after-dispose-gc')
+	for (let cycle = 1; cycle <= disposalCycles; cycle++) {
+		await page.locator('#menu-vlist-perf').click()
+		await page.locator('#vlist-bench-list').waitFor({ state: 'visible' })
+		await page.waitForTimeout(100)
+		await page.locator('text=← Back').click()
+		await page.waitForFunction(() => !document.querySelector('#vlist-bench-list'))
+		await page.waitForTimeout(100)
+		await cdp.send('HeapProfiler.collectGarbage')
+		await sampleMemory(`after-reopen-dispose-gc-${cycle}`)
+	}
+
+	if (pageErrors.length) {
+		throw new Error(`Web app errors: ${pageErrors.join('; ')}`)
+	}
+
 	console.log(
 		JSON.stringify(
 			{
-			schema: 'xplat.virtual-list-input.v1',
-			target: 'web',
-			fixture: { mode, rows: 5000, viewportHeight: initial.viewportHeight, contentHeight: initial.contentHeight, initialRowHeights: initial.rowHeights },
-			input: 'Playwright mouse-wheel events; emulated input, not physical trackpad',
-			trace,
-			memoryBytes: { heapBefore: heapBefore.usedSize, heapAfter: heapAfter.usedSize, heapDelta: heapAfter.usedSize - heapBefore.usedSize },
-			memorySamples,
-			domBefore,
-			domAfter,
-			pageErrors,
-			baseUrl,
-		},
+				schema: 'xplat.virtual-list-input.v1',
+				target: 'web',
+				fixture: {
+					mode,
+					rows: 5000,
+					viewportHeight: initial.viewportHeight,
+					contentHeight: initial.contentHeight,
+					initialRowHeights: initial.rowHeights,
+				},
+				input: 'Playwright mouse-wheel events; emulated input, not physical trackpad',
+				trace,
+				memoryBytes: {
+					heapBefore: heapBefore.usedSize,
+					heapAfter: heapAfter.usedSize,
+					heapDelta: heapAfter.usedSize - heapBefore.usedSize,
+				},
+				memorySamples,
+				domBefore,
+				domAfter,
+				pageErrors,
+				baseUrl,
+			},
 			null,
 			2,
 		),

@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -15,12 +15,13 @@ const modeFiles = [
 ]
 
 const originalModes = modeFiles.map((modeFile) => readFileSync(modeFile, 'utf8'))
-const disabledMode = [
-	'export const VIRTUAL_LIST_BENCH_MODE = false',
-	'export const VIRTUAL_LIST_INPUT_MODE = false',
-	'export const VIRTUAL_LIST_BENCH_FIXED_MODE = false',
-	'export const VIRTUAL_LIST_INPUT_DURATION_MS = 20_000',
-].join('\n') + '\n'
+const disabledMode =
+	[
+		'export const VIRTUAL_LIST_BENCH_MODE = false',
+		'export const VIRTUAL_LIST_INPUT_MODE = false',
+		'export const VIRTUAL_LIST_BENCH_FIXED_MODE = false',
+		'export const VIRTUAL_LIST_INPUT_DURATION_MS = 20_000',
+	].join('\n') + '\n'
 
 const enabledMode = disabledMode.replace(
 	'export const VIRTUAL_LIST_BENCH_MODE = false',
@@ -28,7 +29,9 @@ const enabledMode = disabledMode.replace(
 )
 
 if (originalModes.some((mode) => mode !== disabledMode)) {
-	throw new Error(`Unexpected benchmark mode source in ${modeFiles.join(', ')}; refusing to overwrite it`)
+	throw new Error(
+		`Unexpected benchmark mode source in ${modeFiles.join(', ')}; refusing to overwrite it`,
+	)
 }
 
 for (const modeFile of modeFiles) {
@@ -47,15 +50,25 @@ const restoreMode = () => {
 
 process.once('exit', restoreMode)
 
-const runArgs = ['exec', 'ns', 'run', target, '--no-hmr', '--no-watch']
-if (process.env.XPLAT_VLIST_DEVICE) {runArgs.push('--device', process.env.XPLAT_VLIST_DEVICE)}
-
-const child = spawn('pnpm', runArgs, {
-	cwd: nativeDir,
-	env: process.env,
-	stdio: ['ignore', 'pipe', 'pipe'],
-	detached: process.platform !== 'win32',
-})
+const deviceId = process.env.XPLAT_VLIST_DEVICE
+if (!deviceId) {throw new Error('Set XPLAT_VLIST_DEVICE')}
+const child = spawn(
+	'python3',
+	[
+		path.resolve(nativeDir, '../../scripts/with-native-target-lock.py'),
+		target,
+		'node',
+		path.resolve(nativeDir, 'scripts/launch-virtual-list-bench.mjs'),
+		target,
+		deviceId,
+	],
+	{
+		cwd: nativeDir,
+		env: process.env,
+		stdio: ['ignore', 'pipe', 'pipe'],
+		detached: process.platform !== 'win32',
+	},
+)
 
 let partialLine = ''
 let result = null
@@ -73,6 +86,17 @@ const signalRun = (signal) => {
 }
 
 const stopRun = () => {
+	if (result || benchmarkError) {
+		const appId = process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat.vlistbench'
+		try {
+			if (target === 'ios') {
+				execFileSync('xcrun', ['simctl', 'terminate', deviceId, appId], { timeout: 8000, stdio: 'ignore' })
+			} else {
+				execFileSync('adb', ['-s', deviceId, 'shell', 'am', 'force-stop', appId], { timeout: 8000, stdio: 'ignore' })
+			}
+		} catch {}
+	}
+
 	signalRun('SIGINT')
 	forceStop = setTimeout(() => signalRun('SIGTERM'), 5000)
 	forceStop.unref()

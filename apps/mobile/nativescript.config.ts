@@ -1,7 +1,7 @@
 import { NativeScriptConfig } from '@nativescript/core'
 
 export default {
-	id: 'org.nativescript.xplat',
+	id: process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat',
 	appPath: 'src',
 	appResourcesPath: 'App_Resources',
 	// The workspace is pnpm-managed — without this the CLI defaults to npm

@@ -1,7 +1,7 @@
 import { chromium } from 'playwright'
 import { spawn } from 'node:child_process'
 
-const preview = spawn('pnpm', ['exec', 'vite', 'preview'], {
+const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', '5220', '--strictPort'], {
 	cwd: process.cwd(),
 	stdio: ['ignore', 'pipe', 'pipe'],
 	detached: true,
@@ -13,7 +13,7 @@ let baseUrl
 let browser
 try {
 	await new Promise((resolve, reject) => {
-		const timeout = setTimeout(() => reject(new Error('Timed out waiting for Vite preview')), 15_000)
+		const timeout = setTimeout(() => reject(new Error('Timed out waiting for Vite preview')), 120_000)
 		const onData = (chunk) => {
 			previewOutput += String(chunk)
 			if (previewOutput.includes('Local:')) {

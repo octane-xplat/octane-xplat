@@ -95,7 +95,8 @@ export function createVirtualListBenchTrace() {
 
 	const backward = Array.from(
 		{ length: VIRTUAL_LIST_BENCH_STEPS_PER_DIRECTION },
-		(_, step) => (VIRTUAL_LIST_BENCH_STEPS_PER_DIRECTION - step - 1) * VIRTUAL_LIST_BENCH_STEP_UNITS,
+		(_, step) =>
+			(VIRTUAL_LIST_BENCH_STEPS_PER_DIRECTION - step - 1) * VIRTUAL_LIST_BENCH_STEP_UNITS,
 	)
 
 	const seekOffsets = [0.25, 0.5, 0.75, 0.99, 0].map((fraction) =>
@@ -134,7 +135,10 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
 	}
 
 	const visible = snapshot.rows
-		.map((row) => ({ top: Math.max(0, row.top), bottom: Math.min(snapshot.viewportHeight, row.bottom) }))
+		.map((row) => ({
+			top: Math.max(0, row.top),
+			bottom: Math.min(snapshot.viewportHeight, row.bottom),
+		}))
 		.filter((row) => row.bottom > row.top)
 		.sort((a, b) => a.top - b.top)
 
@@ -160,7 +164,10 @@ export async function runVirtualListInputTrace(
 	const now = () => performanceApi?.now?.() ?? Date.now()
 	let first = adapter.read()
 	const readyDeadline = now() + 10_000
-	while ((first.viewportHeight <= 0 || first.mountedIndices.length === 0) && now() < readyDeadline) {
+	while (
+		(first.viewportHeight <= 0 || first.mountedIndices.length === 0) &&
+		now() < readyDeadline
+	) {
 		await adapter.wait()
 		first = adapter.read()
 	}
@@ -183,21 +190,47 @@ export async function runVirtualListInputTrace(
 	let previousMounted = new Set(first.mountedIndices)
 	let previousAt = startedAt
 
+	let worstGeometry: null | {
+		offset: number
+		viewportHeight: number
+		leadingGap: number
+		trailingGap: number
+		internalGap: number
+		rows: VirtualListBenchRowBox[]
+	} = null
+
 	const visibleGap = (snapshot: VirtualListBenchSnapshot) => {
 		const visible = snapshot.rows
-			.map((row) => ({ top: Math.max(0, row.top), bottom: Math.min(snapshot.viewportHeight, row.bottom) }))
+			.map((row) => ({
+				top: Math.max(0, row.top),
+				bottom: Math.min(snapshot.viewportHeight, row.bottom),
+			}))
 			.filter((row) => row.bottom > row.top)
 			.sort((a, b) => a.top - b.top)
 
-		let coveredUntil = 0
-		let maxGap = 0
-		for (const row of visible) {
-			if (row.top > coveredUntil) {maxGap = Math.max(maxGap, row.top - coveredUntil)}
+		const leadingGap = visible[0]?.top ?? snapshot.viewportHeight
+		let coveredUntil = visible[0]?.bottom ?? 0
+		let internalGap = 0
+		for (const row of visible.slice(1)) {
+			internalGap = Math.max(internalGap, row.top - coveredUntil)
 			coveredUntil = Math.max(coveredUntil, row.bottom)
 		}
 
-		if (snapshot.viewportHeight > coveredUntil) {
-			maxGap = Math.max(maxGap, snapshot.viewportHeight - coveredUntil)
+		const trailingGap = Math.max(0, snapshot.viewportHeight - coveredUntil)
+		const maxGap = Math.max(leadingGap, trailingGap, internalGap)
+		const previousMax = worstGeometry
+			? Math.max(worstGeometry.leadingGap, worstGeometry.trailingGap, worstGeometry.internalGap)
+			: 1
+
+		if (maxGap > previousMax) {
+			worstGeometry = {
+				offset: snapshot.offset,
+				viewportHeight: snapshot.viewportHeight,
+				leadingGap,
+				trailingGap,
+				internalGap,
+				rows: snapshot.rows.map((row) => ({ ...row })),
+			}
 		}
 
 		return maxGap
@@ -242,7 +275,8 @@ export async function runVirtualListInputTrace(
 	}, 0)
 
 	return {
-		schema: 'xplat.virtual-list-input.v1',
+		schema: 'xplat.virtual-list-input.v2',
+		framePacing: { status: 'not-collected', pollingIsFramePacing: false },
 		target: adapter.target,
 		fixture: { rowCount: VIRTUAL_LIST_BENCH_ROW_COUNT },
 		durationMs: Number((now() - startedAt).toFixed(1)),
@@ -251,7 +285,9 @@ export async function runVirtualListInputTrace(
 		laggedSamples: intervalSamples.filter((interval) => interval > 32).length,
 		scroll: {
 			movementSamples: nonzeroMovements.length,
-			distance: Number(nonzeroMovements.reduce((sum, delta) => sum + Math.abs(delta), 0).toFixed(1)),
+			distance: Number(
+				nonzeroMovements.reduce((sum, delta) => sum + Math.abs(delta), 0).toFixed(1),
+			),
 			startOffset: Number((offsets[0] ?? 0).toFixed(1)),
 			endOffset: Number((offsets.at(-1) ?? 0).toFixed(1)),
 			minOffset: Number(minOffset.toFixed(1)),
@@ -263,6 +299,7 @@ export async function runVirtualListInputTrace(
 		coverage: {
 			samples: gapSamples.length,
 			gapSamples: gapSamples.filter((gap) => gap > 1).length,
+			worstGeometry,
 			maxGap: Number((gapSamples.length ? Math.max(...gapSamples) : 0).toFixed(1)),
 		},
 		rowChurn: { mounted: mountedRowsAdded, unmounted: mountedRowsRemoved },
@@ -276,7 +313,11 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 	const performanceApi = (globalThis as any).performance
 	const now = () => performanceApi?.now?.() ?? Date.now()
 	const rowsReadyForOffset = (snapshot: VirtualListBenchSnapshot, offset: number) => {
-		const bounded = Math.max(0, Math.min(offset, VIRTUAL_LIST_BENCH_TOTAL_HEIGHT - snapshot.viewportHeight))
+		const bounded = Math.max(
+			0,
+			Math.min(offset, VIRTUAL_LIST_BENCH_TOTAL_HEIGHT - snapshot.viewportHeight),
+		)
+
 		const { start, end } = virtualListBenchVisibleRange(bounded, snapshot.viewportHeight)
 		const mounted = new Set(snapshot.mountedIndices)
 		for (let index = start; index < end; index += 1) {
@@ -288,7 +329,10 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 
 	let first = adapter.read()
 	const readyDeadline = now() + 10_000
-	while ((first.viewportHeight <= 0 || first.mountedIndices.length === 0) && now() < readyDeadline) {
+	while (
+		(first.viewportHeight <= 0 || first.mountedIndices.length === 0) &&
+		now() < readyDeadline
+	) {
 		await wait()
 		first = adapter.read()
 	}
@@ -351,15 +395,11 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 	) => {
 		const nextMounted = new Set(snapshot.mountedIndices)
 		for (const index of nextMounted) {
-			if (!previousMounted.has(index)) {
-				mountedRowsAdded += 1
-			}
+			if (!previousMounted.has(index)) {mountedRowsAdded += 1}
 		}
 
 		for (const index of previousMounted) {
-			if (!nextMounted.has(index)) {
-				mountedRowsRemoved += 1
-			}
+			if (!nextMounted.has(index)) {mountedRowsRemoved += 1}
 		}
 
 		previousMounted = nextMounted
@@ -460,7 +500,10 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 		}
 
 		const expectedRange = virtualListBenchVisibleRange(
-			Math.max(0, Math.min(targetOffset, VIRTUAL_LIST_BENCH_TOTAL_HEIGHT - lastSnapshot.viewportHeight)),
+			Math.max(
+				0,
+				Math.min(targetOffset, VIRTUAL_LIST_BENCH_TOTAL_HEIGHT - lastSnapshot.viewportHeight),
+			),
 			lastSnapshot.viewportHeight,
 		)
 
