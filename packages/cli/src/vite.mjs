@@ -26,8 +26,13 @@ import { pathToFileURL } from 'node:url'
 // and ESM import() does not realpath — loading vite through the symlink
 // leaves its internal 'rolldown' bare-import stranded outside its .pnpm
 // peer dir.
-const req = createRequire(join(process.cwd(), 'package.json'))
-const importApp = (spec) => import(pathToFileURL(realpathSync(req.resolve(spec))).href)
+// Lazy per call: the config file can be loaded while cwd is still the repo
+// root (vite loadConfigFromFile), with the real app cwd set later — freezing
+// a root-scoped require would strand importApp on the wrong package.json.
+const importApp = (spec) => {
+	const req = createRequire(join(process.cwd(), 'package.json'))
+	return import(pathToFileURL(realpathSync(req.resolve(spec))).href)
+}
 
 // The toolchain/runtime realms have their own serving paths (`/ns/core`,
 // dev tooling) — never exclude them into the per-module path.
@@ -339,10 +344,15 @@ const PLATFORM_TAG = /\.(web|mobile|ios|android|macos|windows|linux)\.[^./\\]+$/
 
 const boundaryAllowed = {
 	web: new Set(['web']),
-	ios: new Set(['ios', 'mobile']),
-	visionos: new Set(['ios', 'mobile']),
-	android: new Set(['android', 'mobile']),
+	// The mobile glob eagerly imports every ios/android/mobile leaf and
+	// deriveRouteManifest picks by `prefer` at runtime — a sibling OS's file
+	// in the graph is by design, so the mobile family shares one allowed set.
+	ios: new Set(['ios', 'android', 'mobile']),
+	visionos: new Set(['ios', 'android', 'mobile']),
+	android: new Set(['ios', 'android', 'mobile']),
 	macos: new Set(['macos']),
+	// windows doesn't inherit .mobile (decision #64) — its chain is
+	// .windows → the unsuffixed default.
 	windows: new Set(['windows']),
 	// Linux resolves .linux → .web → unsuffixed, so web leaves are legal there.
 	linux: new Set(['linux', 'web']),
