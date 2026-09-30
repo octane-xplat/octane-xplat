@@ -50,9 +50,10 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
-		"prepublishOnly": "pnpm build",
-		"test": "vitest run"
+		"build": "vite build && vite build --mode native && pnpm typegen",
+		"test": "vitest run",
+		"typegen": "tsc -p tsconfig.types.json",
+		"prepack": "pnpm build"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

@@ -13,3 +13,11 @@ TASK.md
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
 apps/linux/host/.build/
+
+# Declaration build outputs; handwritten entry points and overrides stay tracked.
+packages/**/types/generated/
+packages/*/types/types.d.ts
+packages/*/types/props.d.ts
+packages/motion/types/clock-types.d.ts
+packages/motion/types/engine.d.ts
+packages/motion/types/value.d.ts

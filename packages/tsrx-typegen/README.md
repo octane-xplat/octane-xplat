@@ -28,6 +28,16 @@ and removes stale files only when the manifest says it owns them. Same-name
 sources such as `Button.ts` and `Button.tsrx` need separate target configs or an
 explicit declaration override.
 
+Treat the output directory, including its ownership manifest, as generated
+build artifacts: ignore it in Git, formatting, and linting. Keep handwritten
+declarations and override sources outside that directory. Include the output
+directory in the package's `files` list so ignored declarations still ship in
+the tarball. Generate before local consumer typechecks, and regenerate in
+`prepack` before validating the package. Workspaces that resolve generated
+types directly also need generation during setup and refreshes during
+development; this repository's workflow is documented in
+[Develop against generated declarations](../../docs/toolchain-notes.md#develop-against-generated-declarations).
+
 `--project` selects the target whose project path matches. Use `--target` to
 select a named target directly. A target can look like this:
 
@@ -96,7 +106,8 @@ Run the same gate from `prepack` so `pnpm pack` and publication share it:
 ```json
 {
   "scripts": {
-    "build": "vite build && tsrx-typegen --target octane",
+    "typegen": "tsrx-typegen --target octane",
+    "build": "vite build && pnpm typegen",
     "prepack": "pnpm build && tsrx-typegen --pack-check"
   }
 }

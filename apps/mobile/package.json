@@ -4,12 +4,15 @@
 	"private": true,
 	"main": "src/index.ts",
 	"scripts": {
-		"ios": "pnpm --filter @xplat/app gen && ns run ios",
-		"android": "pnpm --filter @xplat/app gen && ns run android",
-		"debug:ios": "pnpm --filter @xplat/app gen && ns debug ios",
+		"ios": "node ../../scripts/watch-types.mjs -- pnpm ios:app",
+		"android": "node ../../scripts/watch-types.mjs -- pnpm android:app",
+		"debug:ios": "node ../../scripts/watch-types.mjs -- pnpm debug:ios:app",
 		"build:ios": "pnpm --filter @xplat/app gen && ns build ios",
 		"bench:vlist:ios": "pnpm --filter @xplat/app gen && node scripts/bench-virtual-list.mjs ios",
-		"bench:vlist:android": "pnpm --filter @xplat/app gen && node scripts/bench-virtual-list.mjs android"
+		"bench:vlist:android": "pnpm --filter @xplat/app gen && node scripts/bench-virtual-list.mjs android",
+		"ios:app": "pnpm --filter @xplat/app gen && ns run ios",
+		"android:app": "pnpm --filter @xplat/app gen && ns run android",
+		"debug:ios:app": "pnpm --filter @xplat/app gen && ns debug ios"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",

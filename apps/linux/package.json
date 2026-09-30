@@ -4,9 +4,10 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "pnpm --filter @xplat/app gen && node scripts/dev.mjs",
+		"dev": "node ../../scripts/watch-types.mjs -- pnpm dev:app",
 		"build": "pnpm --filter @xplat/app gen && vite build --config vite.linux.config.ts && node scripts/package.mjs",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"dev:app": "pnpm --filter @xplat/app gen && node scripts/dev.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",

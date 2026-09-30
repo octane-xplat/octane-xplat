@@ -68,9 +68,10 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsrx-typegen --target octane && node ../../scripts/check-native-dist.mjs",
+		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
-		"test:packed": "node tests/packed-consumer.mjs"
+		"test:packed": "node tests/packed-consumer.mjs",
+		"typegen": "tsrx-typegen --target octane"
 	},
 	"dependencies": {
 		"@nativescript-community/ui-image": "4.6.20"

@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate declarations before checking consumers
+        run: pnpm typegen
+
       - name: Repo checks
         run: pnpm check:patches && pnpm check:css && pnpm check:recipes
 
@@ -47,3 +50,6 @@ jobs:
       # pass before release.yml publishes them.
       - name: Build packages
         run: pnpm -r --filter './packages/**' --if-present run build
+
+      - name: Check packed declarations and plain TypeScript GIF consumers
+        run: pnpm --filter @octane-xplat/ui exec tsrx-typegen --pack-check && pnpm --filter @octane-xplat/gif test:packed

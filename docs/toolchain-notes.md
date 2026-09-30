@@ -178,6 +178,46 @@ compiler config and rewrites source extensions to the package's JavaScript
 extensions. Generated declarations live in a dedicated output directory and
 `--check` detects stale output without touching handwritten types.
 
+### Develop against generated declarations
+
+Generated declarations are build artifacts and are ignored by Git, oxlint,
+and oxfmt. Handwritten entry declarations and explicit overrides remain
+tracked source. The npm packages include the generated files through their
+`files` lists; consumers do not need to run the declaration compiler.
+
+In this repository, a fresh `pnpm install` runs `pnpm typegen` after dependencies are
+installed. It generates declarations in workspace dependency order before
+editors or linked apps resolve them. If installation used `--ignore-scripts`,
+run `pnpm typegen` explicitly before checking or developing a consumer. Use
+the same command after cleaning generated files: pnpm can reuse install
+lifecycle state and skip an unchanged setup hook on subsequent installs.
+
+The harness web, mobile, macOS, Linux, and Windows development commands start
+a declaration watcher before launching the app. The watcher refreshes the
+changed package and its workspace dependents after source, handwritten type,
+or compiler configuration edits. For an editor-only session or an app linked
+to this checkout, keep this command running in the framework repository:
+
+```sh
+pnpm typegen:watch
+```
+
+Initial generation failure prevents the development command from launching.
+A later compiler error is reported while the watcher keeps running; generated
+files retain the last successful output until the source is fixed. Restart
+the watcher after adding a workspace package or changing its dependency graph.
+
+CI generates declarations before consumer typechecks, validates UI's packed
+declaration graph, and checks GIF with plain TypeScript consumers. UI's plain
+packed-consumer check currently fails on native declarations leaking into its
+web type graph, including `Hoverable` and `Tooltip` return types; that remains
+an explicit verification gap. Declaration-producing packages
+run their build from `prepack`, so both `pnpm pack` and publication regenerate
+output. To prepare one package's types without building runtime bundles, run
+`pnpm --filter <package-name> typegen` after workspace setup.
+
+### Declaration compiler support
+
 `@octane-xplat/ui` now generates declarations for its web, native, Linux, and
 iOS/Android subpath entrypoints. Its AppKit root entrypoint keeps an explicit
 declaration because that renderer uses separate JSX types; it now references

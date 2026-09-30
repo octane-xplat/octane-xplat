@@ -6,6 +6,7 @@
 		"target": "esnext",
 		"declaration": true,
 		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
 		"outDir": "types"
 	},
 	"include": ["src/props.ts", "types/index.d.ts", "types/index.macos.d.ts"]

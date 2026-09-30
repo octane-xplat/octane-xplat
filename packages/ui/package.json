@@ -101,10 +101,11 @@
 		}
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsrx-typegen --target ui && node ../../scripts/check-native-dist.mjs",
+		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"test:native": "vitest run --config vitest.native.config.mts"
+		"test:native": "vitest run --config vitest.native.config.mts",
+		"typegen": "tsrx-typegen --target ui"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

@@ -47,8 +47,9 @@
 		}
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
-		"prepublishOnly": "pnpm build"
+		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"typegen": "tsc -p tsconfig.types.json",
+		"prepack": "pnpm build"
 	},
 	"dependencies": {
 		"@nativescript/canvas": "3.0.0-alpha.15"

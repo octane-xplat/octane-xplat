@@ -13,13 +13,14 @@
 	},
 	"scripts": {
 		"xplat": "xplat",
-		"dev": "node ./scripts/dev.mjs",
+		"dev": "node ../../scripts/watch-types.mjs -- pnpm dev:app",
 		"build": "vite build",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"parity": "node ./scripts/parity.mjs",
 		"bench:virtual-list": "node ./scripts/bench-virtual-list.mjs",
 		"bench:virtual-list-scroll": "node ./scripts/bench-virtual-list-scroll.mjs",
-		"package": "xplat build --targets macos"
+		"package": "xplat build --targets macos",
+		"dev:app": "node ./scripts/dev.mjs"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",

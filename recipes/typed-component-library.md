@@ -14,6 +14,7 @@ The reader knows TypeScript project configs and the package's runtime build.
 - Publish declarations for `.tsrx` exports without manually wrapping every component.
 - Keep declaration module paths and platform selection aligned with runtime output.
 - Verify the package tarball with a consumer that does not install tsrx tooling.
+- Develop and pack the library without committing generated declaration output.
 
 ## Acceptance criteria
 
@@ -23,6 +24,7 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC4: `pnpm pack` includes every declared types entry and its reachable declarations; a plain TypeScript consumer can import the tarball under each published target condition without tsrx tooling or `allowArbitraryExtensions`.
 - AC5: The published type surface preserves intended positive and negative prop checks, and package docs state the supported compiler path and its limits.
 - AC6: The package's prepack gate and `xplat doctor` fail when packed type targets are missing, runtime and declaration value exports differ, declaration references escape or miss the tarball, or a bare declaration dependency is undeclared.
+- AC7: Workspace setup and development refresh declarations for local consumers when generated output is absent from Git; packing regenerates and includes that output while handwritten declarations and overrides remain source.
 
 ## Documentation
 
@@ -32,3 +34,4 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC4: [Package publish model and declaration verification](../docs/toolchain-notes.md#shared-packages-publish-model), plus the [GIF](../packages/gif/tests/packed-consumer.mjs) and [UI](../packages/ui/tests/packed-consumer.mjs) packed consumers.
 - AC5: [Compiler support boundary](../docs/toolchain-notes.md#shared-packages-publish-model) and [known limits](../docs/known-limits.md#same-edge-on-every-target).
 - AC6: [Pack check and doctor integration](../packages/tsrx-typegen/README.md#publish-checks).
+- AC7: [Develop against generated declarations](../docs/toolchain-notes.md#develop-against-generated-declarations) and [package preparation](../packages/tsrx-typegen/README.md#publish-checks).

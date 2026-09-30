@@ -5,9 +5,10 @@
 	"main": "src/index.ts",
 	"scripts": {
 		"xplat": "xplat",
-		"windows": "pnpm --filter @xplat/app gen && ns run windows",
+		"windows": "node ../../scripts/watch-types.mjs -- pnpm windows:app",
 		"build:windows": "pnpm --filter @xplat/app gen && ns build windows",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"windows:app": "pnpm --filter @xplat/app gen && ns run windows"
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",
