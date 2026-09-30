@@ -2,6 +2,7 @@ import { createRoot } from 'octane'
 import type { ModalOpenResult, OpenSheet } from './props'
 import { applyThemeClasses } from './theme/theme-scheme'
 import { attachSheetDetents } from './sheet-detents.web'
+import { isolateModalFocus } from './modal-focus.web'
 
 interface ActiveSheet {
 	layer: HTMLElement
@@ -28,6 +29,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 		}
 
 		let finished = false
+		let releaseFocus: (() => void) | undefined
 		const finish = (result?: ModalOpenResult) => {
 			if (finished) {
 				return
@@ -35,6 +37,7 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 
 			finished = true
 			active.delete(entry)
+			releaseFocus?.()
 			unbindTheme()
 			detents?.detach()
 			root.unmount()
@@ -61,4 +64,9 @@ export const openSheet: OpenSheet = (Component, params, options = {}) =>
 		const root = createRoot(panel)
 		root.render(Component, { params, close: finish })
 		active.add(entry)
+		if (options.shadeCover ?? true) {
+			panel.setAttribute('role', 'dialog')
+			panel.setAttribute('aria-modal', 'true')
+			releaseFocus = isolateModalFocus(layer, panel, () => finish())
+		}
 	})

@@ -4,6 +4,7 @@ import { cx } from './cx';
 import { useThemeScheme } from './theme/theme-scheme';
 import { normalizeDetents } from './sheet-snap';
 import { attachSheetDetents } from './sheet-detents.web';
+import { isolateModalFocus } from './modal-focus.web';
 
 /** In-window bottom sheet — portal layer with a backdrop and a bottom-
  *  anchored panel. Same vocabulary as the native RootLayout sheet.
@@ -13,8 +14,13 @@ import { attachSheetDetents } from './sheet-detents.web';
 export function Sheet(props: SheetProps) @{
 	const dark = useThemeScheme() === 'dark';
 	const panel = useRef<HTMLElement | null>(null);
+	const layer = useRef<HTMLDivElement | null>(null);
 	const dismiss = useRef(props.onDismiss);
 	dismiss.current = props.onDismiss;
+	useEffect(() => {
+		if (!props.open || props.shadeCover === false || !layer.current || !panel.current) return;
+		return isolateModalFocus(layer.current, panel.current, () => dismiss.current?.());
+	}, [props.open, props.shadeCover]);
 
 	const detents = normalizeDetents(props.detents);
 	const maxDetent = detents.length ? detents[detents.length - 1] : 0;
@@ -31,11 +37,13 @@ export function Sheet(props: SheetProps) @{
 
 	@if (props.open) {
 		<>{createPortal(
-			<div className={cx('vx-sheet-layer', dark && 'dark')}>
+			<div ref={layer} className={cx('vx-sheet-layer', dark && 'dark')}>
 				{(props.shadeCover ?? true) && <div className="vx-sheet-backdrop" onClick={props.onDismiss} />}
 				<div
 					ref={(el: any) => { panel.current = el; }}
 					className={cx('vx-sheet', detents.length && 'vx-sheet-detents', props.className)}
+					role={props.shadeCover === false ? undefined : 'dialog'}
+					aria-modal={props.shadeCover === false ? undefined : true}
 					style={{
 						...props.style,
 						...(detents.length
