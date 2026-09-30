@@ -32,7 +32,6 @@
 		"@nativescript/ios": "9.1.0",
 		"@nativescript/types": "9.0.0",
 		"@nativescript/vite": "8.0.16",
-<<<<<<< HEAD
 		"@octane-xplat/cli": "^0.7.3",
 		"@octane-xplat/lint": "^0.7.3",
 		"@octanejs/vite-plugin": "0.1.61",
