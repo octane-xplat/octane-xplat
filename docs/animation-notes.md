@@ -49,6 +49,25 @@ although Presence exit cleared it. Do not infer Android tap-to-blur or reversal
 parity from the successful exit case. Web and object-driver tests do not close
 the remaining physical-device gaps.
 
+## iOS Simulator rerun — 2026-09-30
+
+A fresh `pnpm --filter @xplat/mobile build:ios` installed and launched the
+normal mobile app on the iPhone 17 Pro simulator (iOS 26.5). A temporary
+XCUITest host exercised the existing working-tree Motion probe; all five
+checks passed:
+
+| Check | Result |
+| --- | --- |
+| Tween and spring destination | The tween reached its destination; a following spring prop change reached the expected opposite-side target. This rerun did not retest mid-flight replacement. |
+| MotionValue cancellation | `stop()` resolved the animation as `cancelled`. |
+| Pan | The native recognizer reported `began → moved → ended`, a nonzero release velocity, and settled at `x=0.0`. |
+| Presence | A focused exit/reversal preserved the counter state. A later completed exit incremented removal once; re-entry mounted a fresh counter. This is child-state evidence, not direct UIKit host-object identity. |
+| Live reduced motion | The Settings switch changed from off to on; the mounted probe updated from `false` to `true`. The test restored the switch to off and the probe returned to `false`. |
+
+`pnpm test` also passed: 55 web tests, 23 Motion tests, and 7 native UI
+object-driver tests. This rerun is simulator evidence only. It does not change
+the physical-device gaps above, and Android was not tested in this pass.
+
 ## The load-bearing fact
 
 On NativeScript your JS **runs on the UI thread**: a `touch` move event can
