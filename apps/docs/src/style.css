@@ -285,6 +285,7 @@ body {
    first section (the sketch hides the between-section rule) */
 
 .side-sec {
+	gap: 4px;
 	padding-top: 19px;
 	flex-shrink: 0;
 }
@@ -303,8 +304,8 @@ body {
 
 .side-item {
 	flex-shrink: 0;
-	padding: 6px 8px 7px 11px;
-	border-radius: 6px;
+	padding: 6px;
+	border-radius: 14px;
 	corner-shape: squircle;
 	cursor: pointer;
 	transition: background-color 100ms linear;
@@ -824,7 +825,7 @@ body {
 
 	.side-item {
 		flex-shrink: 0;
-		padding: 5px 10px;
+		padding: 6px;
 		white-space: nowrap;
 	}
 
