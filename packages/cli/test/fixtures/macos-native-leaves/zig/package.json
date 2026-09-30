@@ -1,0 +1,7 @@
+{
+	"name": "xplat-native-zig-fixture",
+	"version": "1.0.0",
+	"files": [
+		"platforms"
+	]
+}

@@ -1,0 +1,73 @@
+--- a/metadata-generator/src/main.cpp
++++ b/metadata-generator/src/main.cpp
+@@ -22,6 +22,14 @@
+ using namespace metagen;
+ 
+ int main(int argc, char** argv) {
++  if (argc == 2 && std::string(argv[1]) == "--xplat-check") {
++    CXString version = clang_getClangVersion();
++    std::cout << clang_getCString(version) << std::endl;
++    clang_disposeString(version);
++    return 0;
++  }
++  std::string leafImports;
++  bool validateHeaders = false;
+   std::string sdk;
+   std::string frameworksDir;
+ 
+@@ -97,7 +105,9 @@
+       continue;
+     }
+ 
+-    if (arg.find("-verbose") == 0) {
++    if (arg == "validate-headers") {
++      validateHeaders = true;
++    } else if (arg.find("-verbose") == 0) {
+       // verbose = true;
+     } else if (arg.find("-apply-manual-dts-changes") == 0) {
+       // TODO: we don't really need it
+@@ -132,6 +142,8 @@
+       includePaths.emplace(arg.substr(8));
+     } else if (arg.find("headers=") == 0) {
+       args.emplace_back("-I" + arg.substr(8));
++    } else if (arg.find("leaf-import=") == 0) {
++      leafImports += "#import " + arg.substr(12) + "\n";
+     } else if (arg.find("import=") == 0) {
+       code += "#import " + arg.substr(7) + "\n";
+     } else if (arg.find("sdk=") == 0) {
+@@ -196,6 +208,8 @@
+     }
+   }
+ 
++  code += leafImports;
++
+   std::error_code umbrellaDirError;
+   std::filesystem::path umbrellaPath(umbrellaHeaderName);
+   if (!umbrellaPath.parent_path().empty()) {
+@@ -245,6 +259,7 @@
+ 
+   // print diagnostics
+   unsigned numDiagnostics = clang_getNumDiagnostics(unit);
++  bool hadErrors = false;
+ 
+   for (unsigned i = 0; i < numDiagnostics; ++i) {
+     CXDiagnostic diagnostic = clang_getDiagnostic(unit, i);
+@@ -252,6 +267,7 @@
+     if (severity != CXDiagnostic_Error && severity != CXDiagnostic_Fatal) {
+       continue;
+     }
++    hadErrors = true;
+     CXString string = clang_formatDiagnostic(
+         diagnostic,
+         CXDiagnostic_DisplayCategoryId | CXDiagnostic_DisplaySourceLocation |
+@@ -260,6 +276,10 @@
+     std::cerr << clang_getCString(string) << std::endl;
+     clang_disposeString(string);
+   }
++
++  // The SDK sweep can encounter unrelated SDK-private headers. Validate leaf
++  // public headers separately and strictly before producing aggregate metadata.
++  if (validateHeaders) return hadErrors ? 1 : 0;
+ 
+   CXCursor cursor = clang_getTranslationUnitCursor(unit);
+ 

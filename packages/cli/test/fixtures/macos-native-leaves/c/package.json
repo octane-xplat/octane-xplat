@@ -1,0 +1,14 @@
+{
+	"name": "xplat-native-c-fixture",
+	"version": "1.0.0",
+	"files": [
+		"platforms"
+	],
+	"xplat": {
+		"macos": {
+			"defines": [
+				"XPLAT_VALUE=40"
+			]
+		}
+	}
+}

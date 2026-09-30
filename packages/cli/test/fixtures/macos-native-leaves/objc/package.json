@@ -1,0 +1,17 @@
+{
+	"name": "xplat-native-objc-fixture",
+	"version": "1.0.0",
+	"files": [
+		"platforms"
+	],
+	"dependencies": {
+		"xplat-native-c-fixture": "1.0.0"
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"Foundation"
+			]
+		}
+	}
+}
