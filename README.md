@@ -66,12 +66,12 @@ their own implementations; the calling screen keeps one import.
 The [showcase plan](docs/demos.md#product-showcase) separates four claims and
 the evidence each needs:
 
-| Claim | Evidence available now |
-| --- | --- |
-| One coherent app on all five targets | A planned showcase, not a shipped demo. See [target support](docs/spec.md#choose-your-targets). |
-| A shared edit appears in running targets | [Recorded web/iOS live-update check](docs/toolchain-notes.md#dev-loop), plus [steps to check your app](docs/toolchain.md#see-a-shared-edit-in-running-targets). |
-| A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web. |
-| A focused implementation fits one platform | [File variants and import rules](docs/module-resolution.md) explain how to isolate an OS control. |
+| Claim                                                       | Evidence available now                                                                                                                                          |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| One coherent app on all five targets                        | A planned showcase, not a shipped demo. See [target support](docs/spec.md#choose-your-targets).                                                                 |
+| A shared edit appears in running targets                    | [Recorded web/iOS live-update check](docs/toolchain-notes.md#dev-loop), plus [steps to check your app](docs/toolchain.md#see-a-shared-edit-in-running-targets). |
+| A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web.                             |
+| A focused implementation fits one platform                  | [File variants and import rules](docs/module-resolution.md) explain how to isolate an OS control.                                                               |
 
 These are different kinds of evidence: recorded experiments, documented
 contracts, and plans. Check the behaviors your app depends on before adopting
@@ -105,3 +105,30 @@ every guide. Packages include `@octane-xplat/ui`, `@octane-xplat/platform`,
 
 Working on the framework itself? Start with [AGENTS.md](AGENTS.md) and the
 [design notes](docs/README.md#notes).
+
+## Framework workspace commands
+
+Run these from the repository root after `pnpm install`:
+
+| Task                                                       | Command                                                                              |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Start a harness target                                     | `pnpm dev:web`, `dev:ios`, `dev:android`, `dev:macos`, `dev:linux`, or `dev:windows` |
+| Build a harness target                                     | `pnpm build:web`, `build:ios`, `build:macos`, `build:linux`, or `build:windows`      |
+| Work on the docs site                                      | `pnpm dev:docs` or `pnpm build:docs`                                                 |
+| Build workspace packages                                   | `pnpm build:packages`                                                                |
+| Run lint and repository checks                             | `pnpm check`                                                                         |
+| Generate declarations and typecheck every target           | `pnpm typecheck`                                                                     |
+| Run unit, repository-checker, and typegen tests            | `pnpm test`                                                                          |
+| Run checks, typechecks, and tests in order                 | `pnpm validate`                                                                      |
+| Verify packed UI, GIF, auth, and typegen-fixture consumers | `pnpm test:packed`                                                                   |
+| Build and browser-smoke the harness or docs                | `pnpm smoke:web` or `pnpm smoke:docs`                                                |
+
+Individual `typecheck:web`, `typecheck:mobile`, `typecheck:macos`,
+`typecheck:linux`, `typecheck:windows`, and `typecheck:docs` commands are also
+available. Aggregates stop on the first failure; `validate` does not run
+native builds, browser smoke, or all packed-consumer checks.
+
+Native launch and build commands require the target's SDK and host tools.
+`build:macos` packages the experimental AppKit app. Browser smoke commands
+require Playwright's browser installation. These shortcuts retain the
+[existing target limits](docs/spec.md#choose-your-targets).
