@@ -408,11 +408,11 @@ body {
 }
 
 .palette .hit-group {
+	display: block;
 	font-size: 12px;
 	font-weight: 600;
 	color: var(--doc-ink);
-	padding: 10px 10px 4px;
-	margin-bottom: 3px;
+	padding: 10px 10px 7px;
 }
 
 .hit {
