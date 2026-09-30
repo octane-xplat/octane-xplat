@@ -264,6 +264,7 @@ body {
 	border-color: var(--doc-hairline);
 	border-style: solid;
 	border-radius: 999px;
+	corner-shape: squircle;
 	padding: 1px 8px;
 }
 
