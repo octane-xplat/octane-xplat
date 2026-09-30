@@ -3,7 +3,7 @@
 	"private": true,
 	"packageManager": "pnpm@11.24.0",
 	"type": "module",
-	"main": "src/index.ts",
+	"main": "src/main.ts",
 	"scripts": {
 		"xplat": "xplat",
 		"dev": "vite",
@@ -35,7 +35,7 @@
 		"@octane-xplat/cli": "^0.7.3",
 		"@octane-xplat/lint": "^0.7.3",
 		"@octanejs/vite-plugin": "0.1.61",
-		"@tsrx/typescript-plugin": "0.4.7",
+		"@tsrx/typescript-plugin": "0.4.11",
 		"nativescript": "9.1.1",
 		"oxlint": "^1.74.0",
 		"typescript": "5.9.3",

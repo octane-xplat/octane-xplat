@@ -4,7 +4,9 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 
-const dir = resolve(process.argv[2] ?? 'octane-xplat-app')
+const positional = process.argv.slice(2).filter((arg) => !arg.startsWith('-'))
+const noInstall = process.argv.includes('--no-install')
+const dir = resolve(positional[0] ?? 'octane-xplat-app')
 
 if (existsSync(dir) && readdirSync(dir).length > 0) {
 	console.error(`✗ ${dir} exists and is not empty`)
@@ -19,6 +21,12 @@ try {
 } catch {}
 
 console.log(`\n✓ scaffolded ${dir}`)
+
+if (noInstall) {
+	console.log('\nSkipped install (--no-install). To run manually:')
+	console.log(`  cd ${dir}\n  pnpm install\n  pnpm dev`)
+	process.exit(0)
+}
 
 const install = spawnSync('pnpm', ['install'], { cwd: dir, stdio: 'inherit' })
 if (install.status !== 0) {

@@ -25,6 +25,7 @@ import {
 	rmSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseDocument, Scalar } from 'yaml'
@@ -38,6 +39,7 @@ const PATCH_PACKAGE_NAME = '@octane-xplat/patches'
 const PATCH_PACKAGE_VERSION = JSON.parse(
 	readFileSync(join(PATCH_PACKAGE, 'package.json'), 'utf8'),
 ).version
+
 const PATCH_CONFIG_PATH = `node_modules/.pnpm-config/${PATCH_PACKAGE_NAME}`
 const CHECK = process.argv.includes('--check')
 
@@ -73,11 +75,18 @@ const renderYaml = (file, pathPrefix, header, withConfigDependency = false) => {
 			new Scalar(PATCH_PACKAGE_NAME),
 			PATCH_PACKAGE_VERSION,
 		)
+
 		doc.set('configDependencies', configDependencies)
 	}
 
+	// The starter must declare only patches its own matrix can resolve —
+	// pnpm fails `pnpm install` on declared-but-unused patches.
 	const map = doc.createNode({})
 	for (const patch of manifest) {
+		if (withConfigDependency && patch.template === false) {
+			continue
+		}
+
 		const key = new Scalar(patch.specifier)
 		key.commentBefore = ' ' + wrap(patch.why)
 		map.set(key, `${pathPrefix}/${patch.file}`)
@@ -167,6 +176,7 @@ syncYaml(
 	failures,
 	true,
 )
+
 syncPatchPackageFiles(failures)
 removeTemplatePatchCopies(failures)
 
