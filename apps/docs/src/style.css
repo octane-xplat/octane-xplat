@@ -469,7 +469,7 @@ body {
 }
 
 .quote.lede + .h2 {
-	margin-top: 24px;
+	margin-top: 12px;
 }
 
 .h2::after {
