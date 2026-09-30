@@ -71,7 +71,8 @@ const assert = (name, ok) => {
 
 const table = parseMd('| value | meaning |\n| --- | --- |\n| `ready \\| error` | status |')[0]
 assert('escaped table pipe stays in its cell', table?.kind === 'table' && table.rows[1].length === 2 && table.rows[1][0] === '`ready | error`')
-const settle = () => new Promise((resolve) => setTimeout(resolve, 60))
+// Sidebar navs hold the route change for the 200ms content fade-out.
+const settle = () => new Promise((resolve) => setTimeout(resolve, 280))
 let scrolledTo
 window.HTMLElement.prototype.scrollIntoView = function () { scrolledTo = this.id }
 
