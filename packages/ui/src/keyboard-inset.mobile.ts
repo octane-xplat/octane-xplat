@@ -1,4 +1,4 @@
-import { Application } from '@nativescript/core';
+import { Application, Utils } from '@nativescript/core';
 
 // One shared observer tracks the keyboard's current bottom inset — a sheet
 // opened while the keyboard is ALREADY up must lift immediately (a
@@ -73,7 +73,8 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
 			onApplyWindowInsets: (v: any, insets: any) => {
 				const ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
 				const nav = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
-				host.translateY = -Math.max(0, ime - nav);
+				// Insets are physical pixels; NativeScript transforms are dips.
+				host.translateY = -Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav));
 				return insets;
 			},
 		});
