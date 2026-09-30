@@ -67,9 +67,6 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 			}),
 		],
 		build: {
-			// sqlite-wasm ships as a data URI — the JSC host has no asset URL
-			// resolution, only fs.
-			assetsInlineLimit: (filePath) => filePath.endsWith('.wasm'),
 			outDir: packaged ? 'dist/package-build' : 'dist',
 			lib: {
 				entry: packaged

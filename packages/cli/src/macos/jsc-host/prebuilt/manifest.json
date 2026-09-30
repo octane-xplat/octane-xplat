@@ -11,7 +11,7 @@
   },
   "sha256": {
     "macos-arm64/host": "5e723c3140b3d1045924f7112c3e6cc4e44a717c90742d023ba7dd7247656f9c",
-    "macos-arm64/metadata.nsmd": "445ed3e030a44baa39884052d5573d2ad5e777127f18436a5907291479d49349",
+    "macos-arm64/metadata.nsmd": "b31576af96aea59190c58a72d07a1e10dca904749072c0f3197c20d6e793e240",
     "macos-arm64/NativeScript.framework/Versions/A/NativeScript": "c34e55e428c877945c9db33c86ca4bed05afed4a86a006f63d82c5a39f8b83d0"
   }
 }

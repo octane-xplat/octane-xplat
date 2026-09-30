@@ -1,74 +1,51 @@
 /**
- * macOS (AppKit/JSC host) backend: sqlite-wasm running in-process.
+ * macOS (AppKit/JSC host) backend: system libsqlite3 via C-function interop.
  *
- * The host's ObjC interop cannot reach libsqlite3 — its C-function metadata
- * covers AppKit/Foundation/CommonCrypto only and there is no dlopen/dlsym
- * seam — so the leaf compiles the bundled sqlite3.wasm directly instead.
- * Async WebAssembly.instantiate never resolves in this host, so the module is
- * built synchronously via the Emscripten instantiateWasm hook.
+ * The host runtime resolves declared C functions from the metadata bundle
+ * (metadata.macos.arm64.nsmd) — sqlite3.h and dlfcn.h are swept in during
+ * generation, so `dlopen` loads /usr/lib/libsqlite3.dylib and the sqlite3_*
+ * entry points are ordinary JS calls. This gives real file-backed sqlite with
+ * per-statement durability, identical semantics to the iOS/Android plugin.
  *
- * Persistence is a whole-db snapshot: the file is deserialized into an
- * in-memory db at open and serialized back out at durability boundaries
- * (transaction commit, setUserVersion, close). Crash between boundaries loses
- * unflushed writes — documented in known-limits.
+ * Depends on host metadata generated with the sqlite3/dlfcn umbrella imports
+ * (prebuilt metadata.nsmd >= the build that carries them); without it
+ * `supported` reports false and openDatabase rejects.
  */
-import './env.macos'
-import sqlite3InitModule from '@sqlite.org/sqlite-wasm'
-// Inlined as a data: URI by the macOS app build (assetsInlineLimit in
-// apps/macos/vite.shared.mjs) — ?inline is not honored for wasm by
-// rolldown-vite, and the host has no URL/asset fetching anyway.
-import wasmDataUri from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url'
-
 import type { OpenDatabaseOptions, SqliteDb, SqliteParams, SqliteRow } from './types'
-
-export const supported = true
-
-type Sqlite3 = Awaited<ReturnType<typeof sqlite3InitModule>>
 
 const host = globalThis as any
 const fs = host.require?.('node:fs')
 
-const normalizeParams = (params?: SqliteParams) =>
-	params == null ? undefined : Array.isArray(params) ? params : [params]
+// SQLITE_TRANSIENT (-1): sqlite copies bound text/blob bytes. The marshaller
+// hands the C side a temporary buffer, so STATIC (0) reads freed memory.
+// Allocate the sentinel once — the runtime's Pointer→fn-pointer marshal is not
+// re-entrant; a fresh Pointer per call crashes on the second bind.
+let transientPtr: any = null
+const SQLITE_TRANSIENT = () => (transientPtr ??= new host.interop.Pointer(-1))
+const SQLITE_ROW = 100
+const SQLITE_DONE = 101
+const SQLITE_INTEGER = 1
+const SQLITE_FLOAT = 2
+const SQLITE_TEXT = 3
+const SQLITE_BLOB = 4
 
-const decodeWasm = (): ArrayBuffer => {
-	const base64 = String(wasmDataUri)
-	const data = host.NSData.alloc().initWithBase64EncodedStringOptions(
-		base64.slice(base64.indexOf(',') + 1),
-		0,
-	)
+let dlopened = false
 
-	if (!data) {
-		throw new Error('sqlite3.wasm failed to decode')
+const ensureLib = () => {
+	if (dlopened) {
+		return
 	}
 
-	return host.interop.bufferFromData(data)
-}
-
-let sqliteReady: Promise<Sqlite3> | null = null
-
-const init = (): Promise<Sqlite3> => {
-	if (!sqliteReady) {
-		const wasmBinary = decodeWasm()
-		const wasmModule = new WebAssembly.Module(wasmBinary)
-
-		sqliteReady = sqlite3InitModule({
-			wasmBinary,
-			locateFile: (name: string) => name,
-			// Async WebAssembly.instantiate is never drained by the host run
-			// loop — compile and instantiate synchronously instead.
-			instantiateWasm(imports: WebAssembly.Imports, done: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
-				const instance = new WebAssembly.Instance(wasmModule, imports)
-				done(instance, wasmModule)
-				return instance.exports
-			},
-			print() {},
-			printErr: (message: string) => console.error(message),
-		} as any)
+	if (typeof host.dlopen !== 'function' || typeof host.sqlite3_open !== 'function') {
+		throw new Error('sqlite3 interop unavailable — host metadata predates the sqlite3/dlfcn sweep')
 	}
 
-	return sqliteReady
+	host.dlopen('/usr/lib/libsqlite3.dylib', 2)
+	dlopened = true
 }
+
+export const supported =
+	typeof host.dlopen === 'function' && typeof host.sqlite3_open === 'function'
 
 // NSApplicationSupportDirectory (14) / NSUserDomainMask (1).
 const databaseDir = (): string | null => {
@@ -85,6 +62,10 @@ const databaseDir = (): string | null => {
 }
 
 const databasePath = (name: string): string | null => {
+	if (name === ':memory:') {
+		return null
+	}
+
 	const dir = databaseDir()
 	if (!dir || !fs) {
 		return null
@@ -97,43 +78,65 @@ const databasePath = (name: string): string | null => {
 	return `${dir}/${name.replace(/[^\w.-]/g, '_')}.sqlite3`
 }
 
-const loadSnapshot = (sqlite3: Sqlite3, db: any, path: string) => {
-	if (!fs.existsSync(path)) {
-		return
+const toArray = (params?: SqliteParams): SqliteParam[] =>
+	params == null ? [] : Array.isArray(params) ? params : [params]
+
+const bind = (stmt: any, params: SqliteParam[]) => {
+	for (let i = 0; i < params.length; i++) {
+		const p = params[i]
+		const index = i + 1
+
+		if (p == null) {
+			host.sqlite3_bind_null(stmt, index)
+		} else if (typeof p === 'string') {
+			host.sqlite3_bind_text(stmt, index, p, -1, SQLITE_TRANSIENT())
+		} else if (typeof p === 'bigint') {
+			host.sqlite3_bind_int64(stmt, index, p)
+		} else if (typeof p === 'number') {
+			if (Number.isSafeInteger(p)) {
+				host.sqlite3_bind_int64(stmt, index, p)
+			} else {
+				host.sqlite3_bind_double(stmt, index, p)
+			}
+		} else {
+			const bytes = p instanceof ArrayBuffer ? new Uint8Array(p) : p
+			host.sqlite3_bind_blob(stmt, index, bytes, bytes.byteLength, SQLITE_TRANSIENT())
+		}
 	}
+}
 
-	const bytes = new Uint8Array(host.interop.bufferFromData(fs.readFileSync(path)))
-	if (!bytes.length) {
-		return
-	}
+const columnValue = (stmt: any, index: number): any => {
+	switch (host.sqlite3_column_type(stmt, index)) {
+		case SQLITE_INTEGER: {
+			const v = host.sqlite3_column_int64(stmt, index)
+			return typeof v === 'bigint' && v >= -9007199254740991n && v <= 9007199254740991n ? Number(v) : v
+		}
+		case SQLITE_FLOAT:
+			return host.sqlite3_column_double(stmt, index)
+		case SQLITE_TEXT:
+			return host.interop.stringFromCString(host.sqlite3_column_text(stmt, index))
+		case SQLITE_BLOB: {
+			const ptr = host.sqlite3_column_blob(stmt, index)
+			const len = host.sqlite3_column_bytes(stmt, index)
 
-	const pointer = sqlite3.wasm.alloc(bytes.length)
-	sqlite3.wasm.heap8u().set(bytes, pointer)
-	const rc = sqlite3.capi.sqlite3_deserialize(
-		db.pointer,
-		'main',
-		pointer,
-		bytes.length,
-		bytes.length,
-		sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE | sqlite3.capi.SQLITE_DESERIALIZE_RESIZEABLE,
-	)
+			if (!ptr || !len) {
+				return new Uint8Array(0)
+			}
 
-	if (rc) {
-		throw new Error(`sqlite3_deserialize failed (rc=${rc}) for ${path}`)
+			const data = host.NSData.alloc().initWithBytesLength(ptr, len)
+			return new Uint8Array(host.interop.bufferFromData(data))
+		}
+		default:
+			return null
 	}
 }
 
 class MacosSqliteDb implements SqliteDb {
 	isOpen = true
 	constructor(
-		private readonly sqlite3: Sqlite3,
 		private readonly db: any,
-		private readonly path: string | null,
+		readonly persistent: boolean,
 	) {}
-
-	get persistent() {
-		return this.path != null
-	}
 
 	private ensureOpen() {
 		if (!this.isOpen) {
@@ -141,49 +144,95 @@ class MacosSqliteDb implements SqliteDb {
 		}
 	}
 
-	// Snapshot durability boundary — copies out of the wasm heap before the
-	// ObjC marshal (bridge wedges on heap-backed views, same as env.macos).
-	private flush() {
-		if (!this.path) {
-			return
+	private err(): Error {
+		return new Error(host.interop.stringFromCString(host.sqlite3_errmsg(this.db)) || 'sqlite error')
+	}
+
+	// prepare → bind → step to completion → finalize. Rows are yielded through
+	// `onRow` (object or array shape chosen by the caller).
+	private run(sql: string, params: SqliteParam[], onRow?: (stmt: any, cols: number) => void): number {
+		const ref = new host.interop.Reference()
+		const rc = host.sqlite3_prepare_v2(this.db, sql, -1, ref, null)
+
+		if (rc !== 0) {
+			throw this.err()
 		}
 
-		const bytes = this.sqlite3.capi.sqlite3_js_db_export(this.db.pointer).slice()
-		const data = host.NSData.alloc().initWithBytesLength(bytes, bytes.length)
-		fs.writeFileSync(this.path, data)
+		const stmt = ref.value
+		try {
+			bind(stmt, params)
+			const cols = host.sqlite3_column_count(stmt)
+			let rows = 0
+
+			while (true) {
+				const step = host.sqlite3_step(stmt)
+
+				if (step === SQLITE_ROW) {
+					rows++
+					onRow?.(stmt, cols)
+				} else if (step === SQLITE_DONE) {
+					return rows
+				} else {
+					throw this.err()
+				}
+			}
+		} finally {
+			host.sqlite3_finalize(stmt)
+		}
 	}
 
 	execute = async (sql: string, params?: SqliteParams): Promise<void> => {
 		this.ensureOpen()
-		this.db.exec({ sql, bind: normalizeParams(params) })
+		this.run(sql, toArray(params))
 	}
 	select = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T[]> => {
 		this.ensureOpen()
-		return this.db.selectObjects(sql, normalizeParams(params)) as T[]
+		const rows: T[] = []
+
+		this.run(sql, toArray(params), (stmt, cols) => {
+			const row: Record<string, unknown> = {}
+			for (let i = 0; i < cols; i++) {
+				row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(stmt, i)
+			}
+
+			rows.push(row as T)
+		})
+
+		return rows
 	}
 	selectArray = async (sql: string, params?: SqliteParams) => {
 		this.ensureOpen()
-		return this.db.selectArrays(sql, normalizeParams(params))
+		const rows: any[][] = []
+
+		this.run(sql, toArray(params), (stmt, cols) => {
+			const row: any[] = []
+			for (let i = 0; i < cols; i++) {
+				row.push(columnValue(stmt, i))
+			}
+
+			rows.push(row)
+		})
+
+		return rows
 	}
 	get = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T | null> => {
-		this.ensureOpen()
-		return (this.db.selectObject(sql, normalizeParams(params)) ?? null) as T | null
+		const rows = await this.select<T>(sql, params)
+		return rows[0] ?? null
 	}
 	getArray = async (sql: string, params?: SqliteParams) => {
-		this.ensureOpen()
-		return this.db.selectArray(sql, normalizeParams(params)) ?? null
+		const rows = await this.selectArray(sql, params)
+		return rows[0] ?? null
 	}
 	transaction = async <T>(action: (db: SqliteDb) => Promise<T>): Promise<T> => {
 		this.ensureOpen()
-		this.db.exec('BEGIN')
+		this.run('BEGIN', [])
 		try {
 			const result = await action(this)
-			this.db.exec('COMMIT')
-			this.flush()
+			this.run('COMMIT', [])
 			return result
 		} catch (error) {
 			try {
-				this.db.exec('ROLLBACK')
+				this.run('ROLLBACK', [])
 			} catch {}
 
 			throw error
@@ -195,23 +244,34 @@ class MacosSqliteDb implements SqliteDb {
 		onRow: (error: Error | null, row: SqliteRow) => void,
 		onDone: (error: Error | null, count: number) => void,
 	) => {
-		const rows = await this.select(sql, params)
+		this.ensureOpen()
+		let count = 0
 
-		for (const row of rows) {
-			onRow(null, row)
+		try {
+			this.run(sql, toArray(params), (stmt, cols) => {
+				const row: SqliteRow = {}
+				for (let i = 0; i < cols; i++) {
+					row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(stmt, i)
+				}
+
+				onRow(null, row)
+				count++
+			})
+		} catch (error) {
+			onDone(error as Error, count)
+			throw error
 		}
 
-		onDone(null, rows.length)
-		return rows.length
+		onDone(null, count)
+		return count
 	}
 	getUserVersion = async (): Promise<number> => {
 		this.ensureOpen()
-		return this.db.selectValue('PRAGMA user_version') as number
+		return Number((await this.getArray('PRAGMA user_version'))?.[0] ?? 0)
 	}
 	setUserVersion = async (version: number): Promise<void> => {
 		this.ensureOpen()
-		this.db.exec(`PRAGMA user_version = ${version | 0}`)
-		this.flush()
+		this.run(`PRAGMA user_version = ${version | 0}`, [])
 	}
 	close = async () => {
 		if (!this.isOpen) {
@@ -219,11 +279,7 @@ class MacosSqliteDb implements SqliteDb {
 		}
 
 		this.isOpen = false
-		try {
-			this.flush()
-		} finally {
-			this.db.close()
-		}
+		host.sqlite3_close_v2(this.db)
 	}
 }
 
@@ -231,27 +287,43 @@ export const openDatabase = async (
 	name: string,
 	_options?: OpenDatabaseOptions,
 ): Promise<SqliteDb> => {
-	const sqlite3 = await init()
-	const path = databasePath(name)
-	const db = new sqlite3.oo1.DB(':memory:')
+	ensureLib()
 
-	if (path) {
-		try {
-			loadSnapshot(sqlite3, db, path)
-		} catch (error) {
-			db.close()
-			throw error
+	const path = name === ':memory:' ? ':memory:' : databasePath(name)
+	const ref = new host.interop.Reference()
+	const rc = host.sqlite3_open(path ?? ':memory:', ref)
+
+	if (rc !== 0) {
+		const db = ref.value
+		const message = db ? host.interop.stringFromCString(host.sqlite3_errmsg(db)) : `open failed (rc=${rc})`
+
+		if (db) {
+			host.sqlite3_close_v2(db)
 		}
+
+		throw new Error(`sqlite open failed: ${message}`)
 	}
 
-	return new MacosSqliteDb(sqlite3, db, path)
+	const db = ref.value
+	host.sqlite3_busy_timeout(db, 5000)
+	return new MacosSqliteDb(db, path != null)
 }
 
 export const deleteDatabase = async (name: string): Promise<boolean> => {
 	const path = databasePath(name)
-	if (!path || !fs?.existsSync(path)) {
+	if (!path) {
 		return false
 	}
 
-	return !!host.NSFileManager.defaultManager.removeItemAtPathError(path, null)
+	let removed = false
+	const fm = host.NSFileManager.defaultManager
+
+	for (const suffix of ['', '-wal', '-shm', '-journal']) {
+		const target = `${path}${suffix}`
+		if (fs?.existsSync(target)) {
+			removed = !!fm.removeItemAtPathError(target, null) || removed
+		}
+	}
+
+	return removed
 }

@@ -103,20 +103,23 @@ adapter — the low-level shape stays compatible with that.
   build (worker chunk + wasm asset emitted); verified `vite build`.
 - ✅ Web persistence — SAH pool gives durable OPFS storage without
   COOP/COEP; write→reload→read verified.
-- ✅ macOS backend — the interop route is dead: `objc.import` loads framework
-  bundles only (`libsqlite3.dylib` isn't one), and the prebuilt `metadata.nsmd`
-  carries no `sqlite3_*`/`dlopen`/`dlsym` symbols (CommonCrypto is in, so C
-  interop works — sqlite just isn't in the generated metadata). Resolved
-  differently: `sqlite-wasm` runs in-process inside the JSC host —
-  `WebAssembly.Module`/`Instance` compile synchronously (async
-  `instantiate` promises never drain on the host run loop) with small shims
-  for TextDecoder/TextEncoder (Foundation NSString/NSData), crypto,
-  URLSearchParams, and a non-throwing `process` wrapper. Verified against the
-  real prebuilt host: full probe round-trip, snapshot persisted to
-  `Application Support/octane-sqlite`, and a second cold process read the
-  file back. Two host quirks encoded in `env.macos.ts`: typed arrays backed
-  by wasm memory wedge the ObjC marshal (copy out first), and exceptions
-  thrown mid-job-drain are silently swallowed (never surfaced as rejections).
+- ✅ macOS backend — system libsqlite3 via metadata C-interop. The blocker
+  was never the mechanism (`CC_SHA256`-style C functions resolve fine); the
+  prebuilt `metadata.nsmd` simply never swept `usr/include` module-map
+  headers. The metadata generator's auto-umbrella only covers framework
+  headers — `patches/nativescript-runtimes.patch` adds `#import <sqlite3.h>`
+  and `#import <dlfcn.h>` to `CreateUmbrellaHeader` plus an `include=` path so
+  their decls pass the filter, and `build-metadata.sh` regenerates the nsmd.
+  `dlopen('/usr/lib/libsqlite3.dylib')` + `sqlite3_open`/`prepare`/`step`/
+  `column_*`/`bind_*` all work; the result is a real file db (the system
+  `sqlite3` CLI reads it). Verified end-to-end on the prebuilt host: full
+  probe round-trip, blob binds, `each` streaming, `PRAGMA user_version`,
+  cold second-process read. Two host quirks found along the way: `new
+  interop.Pointer` isn't re-entrant as a destructor arg (share the
+  SQLITE_TRANSIENT sentinel), and exceptions thrown mid-job-drain are
+  silently swallowed (they kill the microtask queue without rejecting). The
+  earlier wasm-in-JSC fallback (`env.macos.ts`) was dropped once interop
+  worked.
 - ✅ iOS runtime — full probe readout on sim
   (`rows=alpha,beta count=2 rb=true v=0→7 persistent=true`).
 - Upstream bug found: the plugin's `get`/`getArray` crash on iOS (`getRaw`

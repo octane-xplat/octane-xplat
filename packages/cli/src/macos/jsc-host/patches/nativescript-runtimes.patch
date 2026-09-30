@@ -44,3 +44,26 @@ index bc785fe..d2167b5 100644
  typedef napi_value (*napi_module_init)(napi_env env, napi_value exports);
  
  extern "C" {
+diff --git a/metadata-generator/src/Umbrella.cpp b/metadata-generator/src/Umbrella.cpp
+index 4a9002e4..9d4bbbf4 100644
+--- a/metadata-generator/src/Umbrella.cpp
++++ b/metadata-generator/src/Umbrella.cpp
+@@ -382,6 +382,18 @@ std::string CreateUmbrellaHeader(const std::vector<std::string>& clangArgs,
+     umbrellaHeaderContents << "#import \"" << h.c_str() << "\"" << std::endl;
+   }
+ 
++  // xplat: sweep usr/include modules that carry no framework — libsqlite3
++  // (SQLite3 modulemap) and dlfcn (dlopen/dlsym). The includePath keeps their
++  // decls past the includePaths filter in MetadataFactory.
++  for (size_t i = 0; i + 1 < clangArgs.size(); ++i) {
++    if (clangArgs[i] == "-isysroot") {
++      includePaths.push_back(clangArgs[i + 1] + "/usr/include");
++      break;
++    }
++  }
++  umbrellaHeaderContents << "#import <sqlite3.h>" << std::endl;
++  umbrellaHeaderContents << "#import <dlfcn.h>" << std::endl;
++
+   return umbrellaHeaderContents.str();
+ }
+ 
