@@ -48,7 +48,7 @@ export function App() @{
 	<View className={['shell', dark ? 'dark' : 'light']}>
 		<Row className="body">
 			<View className="side">
-				<View className="side-fixed">
+				<View className="side-header">
 					<Row className="brand-row">
 						<View className="logo-cluster">
 							<img className="logo-mark" src={logoMark} alt="" />
@@ -92,18 +92,20 @@ export function App() @{
 					</View>
 					<View className="side-divider" />
 				</View>
-				{results ? (
-					<View className="side-sec">
-						{results.length ? results.map(renderDoc) : <Text className="side-empty">no matches</Text>}
-					</View>
-				) : (
-					GROUPS.map((g) => (
+				<View className="side-scroll">
+					{results ? (
 						<View className="side-sec">
-							<Text className="sec-head">{g.label}</Text>
-							{DOCS.filter((d) => d.group === g.key).map(renderDoc)}
+							{results.length ? results.map(renderDoc) : <Text className="side-empty">no matches</Text>}
 						</View>
-					))
-				)}
+					) : (
+						GROUPS.map((g) => (
+							<View className="side-sec">
+								<Text className="sec-head">{g.label}</Text>
+								{DOCS.filter((d) => d.group === g.key).map(renderDoc)}
+							</View>
+						))
+					)}
+				</View>
 			</View>
 			<View className="card">
 				<img className="constellation" src={constellation} alt="" />

@@ -98,18 +98,24 @@ body {
 .side {
 	width: 310px;
 	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
 	min-height: 0;
-	overflow-y: auto;
-	padding: 4px 2px 24px 3px;
+	overflow: hidden;
+	padding: 4px 2px 0 3px;
 }
 
-.side-fixed {
-	position: sticky;
-	top: 0;
+.side-header {
 	width: auto;
-	padding-top: 16px;
-	z-index: 2;
+	flex-shrink: 0;
 	background-color: var(--doc-bg);
+}
+
+.side-scroll {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding-bottom: 24px;
 }
 
 .side .vx-list {
@@ -707,12 +713,19 @@ body {
 		padding: 0 4px;
 	}
 
-	.side-fixed {
-		position: relative;
-		top: auto;
-		left: auto;
+	.side {
+		overflow: visible;
+	}
+
+	.side-header {
 		width: auto;
 		padding-top: 0;
+	}
+
+	.side-scroll {
+		flex: none;
+		min-height: auto;
+		overflow: visible;
 	}
 
 	.brand-row {
@@ -839,10 +852,6 @@ body {
 @media (min-width: 721px) and (max-width: 1100px) {
 	.side {
 		width: 236px;
-	}
-
-	.side-fixed {
-		width: 231px;
 	}
 
 	.wordmark {
