@@ -332,7 +332,7 @@ body {
 	align-items: flex-start;
 	justify-content: center;
 	padding: 14vh 16px 16px;
-	background-color: rgba(0, 0, 0, 0.16);
+	background-color: rgba(0, 0, 0, 0.4);
 	animation: palette-fade-in 180ms ease-out both;
 }
 
