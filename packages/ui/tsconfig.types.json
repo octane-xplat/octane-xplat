@@ -30,7 +30,6 @@
 		"src/*.macos.*",
 		"src/*.linux.*",
 		"src/*.windows.*",
-		"src/*.web.tsrx",
 		"**/*.test.*"
 	],
 	"files": [

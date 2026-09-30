@@ -208,10 +208,15 @@ files retain the last successful output until the source is fixed. Restart
 the watcher after adding a workspace package or changing its dependency graph.
 
 CI generates declarations before consumer typechecks, validates UI's packed
-declaration graph, and checks GIF with plain TypeScript consumers. UI's plain
-packed-consumer check currently fails on native declarations leaking into its
-web type graph, including `Hoverable` and `Tooltip` return types; that remains
-an explicit verification gap. Declaration-producing packages
+declaration graph, and checks GIF with plain TypeScript consumers. UI's
+packed consumer runs web, native, and macOS targets in Bundler and NodeNext
+modes with the create template's per-target `moduleSuffixes`,
+`customConditions`, ambient `types`, and `skipLibCheck` — suffixless
+`./Icon.js`-style references inside the shared declarations resolve to
+`.web`/`.mobile`/`.ios`/`.android` variants only under those suffixes, and
+third-party NativeScript ambient declarations carry upstream lib conflicts
+that make `skipLibCheck: false` unsupported for consumers.
+Declaration-producing packages
 run their build from `prepack`, so both `pnpm pack` and publication regenerate
 output. To prepare one package's types without building runtime bundles, run
 `pnpm --filter <package-name> typegen` after workspace setup.

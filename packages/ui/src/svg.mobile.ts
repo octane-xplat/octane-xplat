@@ -1,11 +1,14 @@
 import { registerElement } from '@nativescript-community/octane'
-import type { Attributes } from '@nativescript-community/octane/intrinsics'
 import { SVGView } from './vendor/ui-svg'
 import type { IconGlyph } from './props'
 
+// The emitted declaration keeps the import() form: declaration emit elides
+// type-only imports referenced solely inside `declare module`, and the
+// augmentation must still resolve Attributes when the module isn't otherwise
+// loaded in the consumer's program.
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {
-		svgview: Omit<Attributes<typeof SVGView>, 'src'> & {
+		svgview: Omit<import('@nativescript-community/octane/intrinsics').Attributes<typeof SVGView>, 'src'> & {
 			/** SVGView awaits promise srcs — remote .svg URLs arrive as fetched markup. */
 			src?: string | Promise<string>
 			stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'

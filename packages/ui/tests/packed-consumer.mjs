@@ -43,21 +43,32 @@ function run(command, args, cwd) {
 	}
 }
 
-function typecheck(packagePath, target, mode, exportMapIndex) {
+function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all') {
 	console.log(`checking ${target} exports from map ${exportMapIndex} in ${mode.name} mode`)
-	const consumerRoot = join(temporary, `map-${exportMapIndex}-${target}-${mode.name}`)
+	const consumerRoot = join(
+		temporary,
+		`map-${exportMapIndex}-${target}-${mode.name}${peers === 'required' ? '-required-peers' : ''}`,
+	)
+
 	const modules = join(consumerRoot, 'node_modules')
 	const packageLink = join(modules, '@octane-xplat/ui')
 	mkdirSync(dirname(packageLink), { recursive: true })
 	cpSync(packagePath, packageLink, { recursive: true })
 
-	for (const dependency of [
-		'octane',
-		'@nativescript-community/octane',
-		'@nativescript-community/ui-drawer',
-		'@nativescript/core',
-		'@nativescript/types',
-	]) {
+	// Web consumers only install the required peer — the optional
+	// NativeScript peers must stay out of the web type graph.
+	const dependencies =
+		peers === 'required'
+			? ['octane']
+			: [
+					'octane',
+					'@nativescript-community/octane',
+					'@nativescript-community/ui-drawer',
+					'@nativescript/core',
+					'@nativescript/types',
+				]
+
+	for (const dependency of dependencies) {
 		const source = join(packageRoot, 'node_modules', dependency)
 		if (!existsSync(source)) {
 			continue
@@ -155,8 +166,26 @@ void keyboard
 `
 	}
 
+	// ESM consumer — NodeNext treats extensionless .tsx as CJS without it,
+	// which would let an ESM-only package slip type checks its runtime
+	// resolution can't satisfy.
+	writeFileSync(
+		join(consumerRoot, 'package.json'),
+		JSON.stringify({ name: `consumer-${exportMapIndex}-${target}-${mode.name}`, type: 'module' }),
+	)
+
 	writeFileSync(join(consumerRoot, 'consumer.tsx'), source)
 	const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
+	// Mirrors the create template's per-target tsconfig: suffix typing selects
+	// .web/.mobile/.ios/.android/.macos declaration variants, `types` scopes the
+	// ambient globals, and skipLibCheck stays on — NativeScript's third-party
+	// ambient declarations carry upstream lib conflicts.
+	const suffixes = {
+		web: ['.web', ''],
+		native: ['.ios', '.android', '.mobile', ''],
+		macos: ['.macos', ''],
+	}[target]
+
 	writeFileSync(
 		configPath,
 		JSON.stringify(
@@ -168,10 +197,11 @@ void keyboard
 					moduleResolution: mode.moduleResolution,
 					target: 'esnext',
 					jsx: 'react-jsx',
-					jsxImportSource: 'octane',
+					jsxImportSource: target === 'native' ? '@nativescript-community/octane' : 'octane',
+					moduleSuffixes: suffixes,
 					customConditions: [target],
-					// NativeScript peer declarations require host globals and have upstream lib conflicts.
-					skipLibCheck: target === 'native',
+					types: target === 'native' ? ['@nativescript/types'] : [],
+					skipLibCheck: true,
 				},
 				files: ['consumer.tsx'],
 			},
@@ -224,6 +254,9 @@ try {
 				{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
 			]) {
 				typecheck(consumerPackage, target, mode, index)
+				if (target === 'web') {
+					typecheck(consumerPackage, target, mode, index, 'required')
+				}
 			}
 		}
 	}
