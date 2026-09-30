@@ -376,3 +376,22 @@ cross that boundary. Pass values as props or subscribe to shared state in
 each consuming component. The framework keeps the separate host's theme
 current; content updates do not create additional permanent subscriptions.
 Web portals retain the declaring root's context.
+
+## Edit a PIN
+
+`PinInput` uses a contiguous string: provide `value` and update it from
+`onValueChange`, or omit `value` to let the component own it. Filled cells
+and the next empty cell are editable; entry advances focus. Clearing cell 2
+of `1234` reports `1` and clears cells 2–4 rather than moving later digits.
+Replacing a filled cell keeps the remaining digits in their cells.
+
+```tsx
+const [pin, setPin] = useState('')
+<PinInput length={4} value={pin} onValueChange={setPin} onComplete={submitPin} />
+```
+
+This fragment assumes `useState` and `PinInput` are imported and the app
+supplies `submitPin`. `onComplete` receives a full-length PIN after an edit;
+it does not fire for an incomplete value or an external value update.
+The maintained [Components demo](../packages/demos/src/ComponentsDemo.tsrx)
+shows controlled entry. `secure` masks the cells and `disabled` prevents editing.

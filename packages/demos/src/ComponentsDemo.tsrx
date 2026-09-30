@@ -105,6 +105,7 @@ export function ComponentsDemo() @{
 				</FormField>
 				<FormField label="PIN">
 					<PinInput length={4} value={pin} onValueChange={setPin} />
+					<Text>Clearing a cell also clears the following cells.</Text>
 				</FormField>
 			</FieldGroup>
 		</View>
