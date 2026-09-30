@@ -48,14 +48,14 @@ libraries section of `AGENTS.md`.
 
 ## Reading in a screen
 
-| Call                  | Effect                                                              |
-| --------------------- | ------------------------------------------------------------------- |
-| `feed$.get()`         | Suspends until first data — use under `@try`/`@pending`/`@catch`      |
-| `feed$.latest()`      | Non-suspending read; `undefined` before data (`latest(fallback)` too) |
-| `feed$.snapshot()`    | `{ status: 'idle' \| 'pending' \| 'ready' \| 'error' }` plus `refreshing`, `connection`, `complete` |
-| `feed$.refetch()`     | Reload with the current selection                                   |
-| `feed$.retry()`       | Retry after an error (`retry({ pending: true })` re-pends)          |
-| `feed$.reset()`       | Return to pending and reload                                        |
+| Call               | Effect                                                                                              |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| `feed$.get()`      | Suspends until first data — use under `@try`/`@pending`/`@catch`                                    |
+| `feed$.latest()`   | Non-suspending read; `undefined` before data (`latest(fallback)` too)                               |
+| `feed$.snapshot()` | `{ status: 'idle' \| 'pending' \| 'ready' \| 'error' }` plus `refreshing`, `connection`, `complete` |
+| `feed$.refetch()`  | Reload with the current selection                                                                   |
+| `feed$.retry()`    | Retry after an error (`retry({ pending: true })` re-pends)                                          |
+| `feed$.reset()`    | Return to pending and reload; `latest()` still returns previous data                                |
 
 A suspending read belongs under a boundary:
 
@@ -70,12 +70,34 @@ A suspending read belongs under a boundary:
 }
 ```
 
-On native, a committed `@try` boundary must not suspend again. Queries are
-stale-while-revalidate, so only the first read suspends — a later selection
-change keeps rendering previous data inside the same boundary instead of
-re-pending. Use `.snapshot()`/`latest()` when the UI should show a spinner
-on refetch rather than suspend at all (`snapshot().refreshing` covers the
-background-reload case).
+Queries keep previous data during selection changes and `refetch()`, so those
+operations do not re-pend a ready boundary. `reset()` and
+`retry({ pending: true })` deliberately return to pending: `.get()` suspends,
+while `.latest()` can still return the previous value. On the patched native
+renderer, a re-suspending boundary retains and hides its committed body until
+the request settles. Use `.snapshot()`/`.latest()` for an explicit loading
+indicator that leaves the previous records visible; `snapshot().refreshing`
+distinguishes a background refetch from pending.
+
+When a failed suspending read reaches `@catch`, retry the request and reset
+the boundary together:
+
+```tsrx
+@try {
+	<Feed posts={feed$.get()} />
+} @pending {
+	<ActivityIndicator />
+} @catch (error, resetBoundary) {
+	<Pressable onPress={() => {
+		feed$.retry({ pending: true })
+		resetBoundary()
+	}}><Text>Retry</Text></Pressable>
+}
+```
+
+`Pressable`, `Text`, and `ActivityIndicator` come from `@octane-xplat/ui`;
+`Feed` remains an app-owned component. Resetting the boundary alone does not
+restart the failed request.
 
 ## Writes
 
@@ -113,7 +135,7 @@ Where a `query$` is declared decides who shares its selection:
 export function Profile(props: { id: string }) @{
 	const profile$ = query$(
 		() => props.id,
-		(id) => api.user.get({ id }),
+		(id, { signal }) => api.user.get({ id, signal }),
 	)
 	@try {
 		const user = profile$.get()
@@ -133,6 +155,30 @@ Two honest costs of screen-owned queries: they don't dedupe across
 instances (two screens showing the same user fetch twice — there is no
 global keyed cache), and a mutation can't refetch "the" profile query from
 outside — refetch from the owning screen or fan out invalidation yourself.
+
+Read the screen-owned query in children or event handlers as needed: it stays
+with the component that declared it, rather than starting another child-owned
+request. Unmount retires that component's queries and signal subscriptions.
+Pass the loader's `signal` to your transport so cancellation also stops its
+work. Responses from an aborted selection are ignored even if the transport
+does not honor cancellation. Module-level queries remain app-owned after an
+individual reader unmounts.
+
+A selector reacts to signals it reads. A plain route prop supplies the initial
+selection in the example above; replacing that prop on an already-mounted
+component does not itself invalidate the selector in Octane 0.6.3. For an
+editable selection within a screen, use `useSignal$` from
+`octane/signals/client`, read it in the selector, and update it from an event.
+Mount a new route instance for new immutable route params. Do not copy props
+into a shared signal during render to work around this limitation.
+
+The maintained [data probe](../packages/app/src/data-probe.tsrx) and
+[trace](../packages/app/src/data-trace.ts) exercise independent queries,
+pending/error/retry/refetch/reset, cancellation, stale settlement, and
+cross-root signals with a controlled transport. Per-target execution evidence
+belongs in [testing notes](testing-notes.md#data-lifecycle-regressions).
+`query$` does not automatically refetch or pause on app background/resume;
+wire an app lifecycle event to the owning query's `refetch()` if needed.
 
 ## Rules that bite on native
 
@@ -160,8 +206,7 @@ binds the full `@tanstack/react-query` surface to octane hooks on top of
 `@tanstack/query-core`. It is a supported opt-in for apps that want its
 cache machinery — infinite queries, the mutation cache, familiar
 invalidation patterns — but it is not the default: `query$` needs no
-provider, no shims, and its stale-while-revalidate semantics already match
-the native `@try` contract.
+provider and keeps previous data during background reloads.
 
 On native it needs shims in the app entry (desk-source; not yet verified on
 device):
