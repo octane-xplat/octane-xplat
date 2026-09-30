@@ -44,8 +44,10 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 						{ include: '**/packages/ui/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/app/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/demos/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/auth/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/gif/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/pager/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/motion/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/platform/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/video/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{
@@ -107,6 +109,12 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 				},
 				{
 					find: /^@nativescript\/core$/,
+					replacement: resolve(appRoot, 'src/renderer/native-core-shim.mjs'),
+				},
+				{
+					// core's animation-frame subpath imports ios/android-only
+					// *-native internals — the shim covers both on this host.
+					find: /^@nativescript\/core\/animation-frame$/,
 					replacement: resolve(appRoot, 'src/renderer/native-core-shim.mjs'),
 				},
 			],

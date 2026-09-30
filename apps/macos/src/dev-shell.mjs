@@ -2,6 +2,7 @@ import '@nativescript/macos-node-api'
 import * as octaneNative from 'octane/universal/native'
 import * as octaneSignals from 'octane/signals'
 import * as octaneSignalsClient from 'octane/signals/client'
+import * as octaneInternalClient from 'octane/internal/client'
 import * as renderer from './renderer/index.mjs'
 import { createAppKitWindow, debugWindows, fitWindowToContent } from './appkit.mjs'
 import { createDevBench } from './dev-bench.mjs'
@@ -11,6 +12,7 @@ globalThis.__xplatDevModules = {
 	'octane/universal/native': octaneNative,
 	'octane/signals': octaneSignals,
 	'octane/signals/client': octaneSignalsClient,
+	'octane/internal/client': octaneInternalClient,
 	'@xplat/macos/renderer': renderer,
 }
 
