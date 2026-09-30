@@ -2781,9 +2781,347 @@ function showAnchoredPopup(options) {
 	return popup
 }
 
+// Leaf-native controls for the @octane-xplat leaf packages (context-menu,
+// date-picker, sheet). Same convention as the pointer-intent plumbing —
+// leaves reach AppKit through __xplatAppKit, never macos-node-api directly.
+
+let menuActionTarget = null
+try {
+	class MenuActionTarget extends NSObject {
+		static ObjCExposedMethods = {
+			menuItemSelected: { params: [NSMenuItem], returns: interop.types.void },
+		}
+
+		static {
+			NativeClass(this)
+		}
+
+		menuItemSelected(sender) {
+			invokeAction(sender.tag)
+		}
+	}
+
+	menuActionTarget = MenuActionTarget.new()
+} catch (error) {
+	console.error('[macos-leaf] menu target registration failed — context menus disabled', error)
+}
+
+/** Builds an NSMenu from serialized items and attaches it as `view.menu` —
+ *  AppKit presents it on right-click and drives enablement. Returns a
+ *  detach. */
+function attachContextMenu(view, options, onSelect) {
+	if (
+		!view ||
+		!menuActionTarget ||
+		typeof NSMenu !== 'function' ||
+		typeof NSMenuItem !== 'function'
+	) {
+		return () => {}
+	}
+
+	const menu = NSMenu.alloc().init()
+	menu.autoenablesItems = false
+	const created = []
+	for (const item of options?.items ?? []) {
+		if (item?.divider) {
+			menu.addItem(NSMenuItem.separatorItem())
+			continue
+		}
+
+		const menuItem = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(
+			String(item?.title ?? ''),
+			'menuItemSelected',
+			'',
+		)
+		menuItem.target = menuActionTarget
+		if (item?.disabled) {menuItem.enabled = false}
+		const actionId = nextActionId++
+		menuItem.tag = actionId
+		const id = item?.id
+		actionHandlers.set(actionId, () => {
+			try {
+				onSelect?.(id)
+			} catch (error) {
+				console.error('[macos-leaf] context-menu selection failed', error)
+			}
+		})
+		created.push(actionId)
+		menu.addItem(menuItem)
+	}
+
+	// NSView.menu only answers right-clicks that hit *that* view — assign
+	// the menu across the subtree so trigger children don't swallow them.
+	// Children mounted after attach aren't covered (re-attach on items
+	// change re-walks).
+	const tagged = []
+	const assign = (hostView) => {
+		if (!hostView || typeof hostView !== 'object') {return}
+		try {
+			hostView.menu = menu
+			tagged.push(hostView)
+		} catch {}
+		const subviews = hostView.subviews
+		const count = typeof subviews?.count === 'function'
+			? subviews.count()
+			: (subviews?.count ?? 0)
+		for (let i = 0; i < count; i++) {
+			assign(subviews.objectAtIndex(i))
+		}
+	}
+	assign(view)
+
+	return () => {
+		for (const hostView of tagged) {
+			try {
+				if (hostView.menu === menu) {hostView.menu = null}
+			} catch {}
+		}
+		for (const actionId of created) {actionHandlers.delete(actionId)}
+	}
+}
+
+const DATE_PICKER_STYLES = typeof NSDatePickerStyle === 'object' && NSDatePickerStyle ? NSDatePickerStyle : {}
+const DATE_PICKER_ELEMENTS = typeof NSDatePickerElementFlags === 'object' && NSDatePickerElementFlags ? NSDatePickerElementFlags : {}
+
+function dateFromMillis(millis) {
+	if (typeof NSDate !== 'function' || !Number.isFinite(millis)) {return null}
+	return NSDate.dateWithTimeIntervalSince1970(millis / 1000)
+}
+
+/** Embeds a real NSDatePicker inside the leaf's backing view, pinned to its
+ *  edges — the leaf gives the host element an explicit size. mode 'date'
+ *  uses YearMonthDay (text field by default, `style: 'graphical'` for the
+ *  inline calendar); 'time' uses HourMinute with the clock-and-calendar
+ *  field. Returns a handle with update/detach. */
+function attachDatePicker(view, options, onChange) {
+	if (!view || typeof view.addSubview !== 'function' || typeof NSDatePicker !== 'function' || !buttonActionTarget) {
+		return null
+	}
+
+	const isTime = options?.mode === 'time'
+	const picker = NSDatePicker.alloc().init()
+	picker.datePickerElements = isTime
+		? (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
+		: (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0)
+	picker.datePickerStyle = !isTime && options?.style === 'graphical'
+		? (DATE_PICKER_STYLES.Graphical ?? 2)
+		: isTime
+			? (DATE_PICKER_STYLES.ClockAndCalendar ?? 1)
+			: (DATE_PICKER_STYLES.TextField ?? 0)
+
+	const applyRange = (opts) => {
+		const min = dateFromMillis(opts?.minimumMillis)
+		const max = dateFromMillis(opts?.maximumMillis)
+		picker.minDate = min
+		picker.maxDate = max
+	}
+	applyRange(options)
+	picker.enabled = options?.enabled !== false
+
+	const initial = dateFromMillis(options?.selectionMillis)
+	if (initial) {picker.dateValue = initial}
+
+	picker.translatesAutoresizingMaskIntoConstraints = false
+	view.addSubview(picker)
+	picker.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor).active = true
+	picker.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
+	picker.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
+	picker.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
+
+	const actionId = nextActionId++
+	picker.tag = actionId
+	picker.target = buttonActionTarget
+	picker.action = 'controlChanged'
+	actionHandlers.set(actionId, () => {
+		const date = picker.dateValue
+		const millis = typeof date?.timeIntervalSince1970 === 'number'
+			? date.timeIntervalSince1970 * 1000
+			: null
+		if (millis === null) {return}
+		try {
+			onChange?.(millis)
+		} catch (error) {
+			console.error('[macos-leaf] date-picker change failed', error)
+		}
+	})
+
+	return {
+		update(next) {
+			const date = dateFromMillis(next?.selectionMillis)
+			if (date && picker.dateValue?.timeIntervalSince1970 !== date.timeIntervalSince1970) {
+				picker.dateValue = date
+			}
+			applyRange(next)
+			picker.enabled = next?.enabled !== false
+		},
+		detach() {
+			picker.target = null
+			picker.action = null
+			actionHandlers.delete(actionId)
+			picker.removeFromSuperview()
+		},
+	}
+}
+
+const openSheets = new Set()
+
+let sheetDelegateTarget = null
+try {
+	class SheetDelegateTarget extends NSObject {
+		static ObjCProtocols = [NSWindowDelegate]
+
+		static ObjCExposedMethods = {
+			windowWillClose: { params: [NSNotification], returns: interop.types.void },
+			windowDidEndSheet: { params: [NSNotification], returns: interop.types.void },
+		}
+
+		static {
+			NativeClass(this)
+		}
+
+		windowWillClose(notification) {
+			finishSheetDismissal(notification?.object)
+		}
+
+		windowDidEndSheet(notification) {
+			finishSheetDismissal(notification?.object)
+		}
+	}
+
+	sheetDelegateTarget = SheetDelegateTarget.new()
+} catch (error) {
+	console.error('[macos-leaf] sheet delegate registration failed — window close reporting disabled', error)
+}
+
+function finishSheetDismissal(sheetWindow) {
+	for (const entry of openSheets) {
+		if (entry.sheetWindow !== sheetWindow) {continue}
+		openSheets.delete(entry)
+		const wasClosed = entry.closed
+		entry.closed = true
+		try {
+			entry.root.unmount()
+		} catch (error) {
+			console.error('[macos-leaf] sheet root unmount failed', error)
+		}
+		if (!wasClosed) {
+			try {
+				entry.onDismissed?.()
+			} catch (error) {
+				console.error('[macos-leaf] sheet dismissal failed', error)
+			}
+		}
+	}
+}
+
+/** Presents an octane subtree as a window sheet (beginSheet on the leaf's
+ *  window) — a plain floating window when no parent window is attached.
+ *  Returns { close, update }. */
+function presentSheet(view, options) {
+	if (
+		typeof NSWindow !== 'function' ||
+		typeof NSViewController !== 'function' ||
+		typeof options?.component !== 'function'
+	) {
+		return null
+	}
+
+	const parentWindow = view?.window ?? null
+	const contentView = NSView.alloc().initWithFrame({
+		origin: { x: 0, y: 0 },
+		size: { width: 480, height: 1 },
+	})
+
+	const root = createMacOSRoot(contentView)
+	const entry = {
+		root,
+		parentWindow,
+		sheetWindow: null,
+		closed: false,
+		onDismissed: options?.onDismissed,
+	}
+
+	const close = () => {
+		if (entry.closed) {return}
+		entry.closed = true
+		openSheets.delete(entry)
+		try {
+			if (parentWindow && entry.sheetWindow) {
+				parentWindow.endSheet(entry.sheetWindow)
+			} else if (entry.sheetWindow) {
+				entry.sheetWindow.orderOut(null)
+			}
+		} catch (error) {
+			console.error('[macos-leaf] sheet close failed', error)
+		}
+		try {
+			root.unmount()
+		} catch (error) {
+			console.error('[macos-leaf] sheet root unmount failed', error)
+		}
+	}
+
+	try {
+		root.render(options.component, options.props ?? {})
+	} catch (error) {
+		console.error('[macos-leaf] sheet render failed', error)
+		try {
+			root.unmount()
+		} catch {}
+		return null
+	}
+
+	const controller = NSViewController.alloc().init()
+	controller.view = contentView
+	const fit = popupFittingSize(contentView)
+	const width = Math.max(fit?.width ?? 0, options?.minWidth ?? 360)
+	const height = Math.max(fit?.height ?? 0, options?.minHeight ?? 160)
+
+	const SM = typeof NSWindowStyleMask === 'object' && NSWindowStyleMask ? NSWindowStyleMask : {}
+	const BT = typeof NSBackingStoreType === 'object' && NSBackingStoreType ? NSBackingStoreType : {}
+	const sheet = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+		{ origin: { x: 0, y: 0 }, size: { width, height } },
+		(SM.Titled ?? 1) | (SM.Closable ?? 2),
+		BT.Buffered ?? 2,
+		false,
+	)
+	sheet.contentViewController = controller
+	sheet.releasedWhenClosed = false
+	if (sheetDelegateTarget) {sheet.delegate = sheetDelegateTarget}
+	entry.sheetWindow = sheet
+	openSheets.add(entry)
+
+	try {
+		if (parentWindow && typeof parentWindow.beginSheetCompletionHandler === 'function') {
+			parentWindow.beginSheetCompletionHandler(sheet, () => finishSheetDismissal(sheet))
+		} else {
+			sheet.center?.()
+			sheet.makeKeyAndOrderFront(null)
+		}
+	} catch (error) {
+		console.error('[macos-leaf] sheet presentation failed', error)
+		close()
+		return null
+	}
+
+	return {
+		close,
+		update(nextProps) {
+			try {
+				root.render(options.component, nextProps ?? {})
+			} catch (error) {
+				console.error('[macos-leaf] sheet update failed', error)
+			}
+		},
+	}
+}
+
 const appKitBridge = (globalThis.__xplatAppKit ??= {})
 appKitBridge.observeHover = observeHover
 appKitBridge.showAnchoredPopup = showAnchoredPopup
+appKitBridge.attachContextMenu = attachContextMenu
+appKitBridge.attachDatePicker = attachDatePicker
+appKitBridge.presentSheet = presentSheet
 
 export function createMacOSRoot(hostView) {
 	const container = { hostView, nodes: new Map(), children: [], root: null }
