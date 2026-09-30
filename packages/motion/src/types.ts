@@ -1,5 +1,5 @@
 import type { View, Row, Pressable } from '@octane-xplat/ui'
-import type { MotionValue } from './value'
+import type { MotionValue } from './value.js'
 
 type ViewProps = Parameters<typeof View>[0]
 type RowProps = Parameters<typeof Row>[0]

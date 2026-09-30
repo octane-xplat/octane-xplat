@@ -1,6 +1,6 @@
-import type { Clock } from './clock-types'
-import type { Transition } from './types'
-import { runAnimation, validateTransition, type AnimationControls } from './engine'
+import type { Clock } from './clock-types.js'
+import type { Transition } from './types.js'
+import { runAnimation, validateTransition, type AnimationControls } from './engine.js'
 
 /** Events supported by numeric motion values. */
 export interface MotionValueEvents {

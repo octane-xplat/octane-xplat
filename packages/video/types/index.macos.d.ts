@@ -1,4 +1,4 @@
-import type { VideoProps } from './props'
+import type { VideoProps } from './props.js'
 
-export type { VideoEvent, VideoFit, VideoHandle, VideoProps } from './props'
+export type { VideoEvent, VideoFit, VideoHandle, VideoProps } from './props.js'
 export declare function Video(props: VideoProps): unknown

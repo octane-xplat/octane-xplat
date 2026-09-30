@@ -1,6 +1,6 @@
 import { keyframes, spring } from 'motion-dom'
-import type { Clock } from './clock-types'
-import type { Transition } from './types'
+import type { Clock } from './clock-types.js'
+import type { Transition } from './types.js'
 
 /** Terminal status; cancellation never masquerades as completion. */
 export type AnimationResult = 'finished' | 'cancelled' | 'replaced'

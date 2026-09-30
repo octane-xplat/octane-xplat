@@ -5,9 +5,9 @@ import type {
 	MotionPressableProps,
 	MotionConfigProps,
 	Transition,
-} from './types'
+} from './types.js'
 
-import type { MotionValue, MotionValueEvents } from './value'
+import type { MotionValue, MotionValueEvents } from './value.js'
 /** Bounded motion hosts for shared xplat UI primitives. */
 export declare const motion: {
 	View: UniversalComponent<MotionViewProps>
@@ -53,8 +53,8 @@ export declare function useSpring(
 ): MotionValue
 
 export type { MotionValue, MotionValueEvents }
-export type { AnimationControls, AnimationResult } from './engine'
-export type * from './types'
+export type { AnimationControls, AnimationResult } from './engine.js'
+export type * from './types.js'
 
 /** Retain live children through exit; removing the boundary disposes immediately. */
-export declare const Presence: UniversalComponent<import('./types').PresenceProps>
+export declare const Presence: UniversalComponent<import('./types.js').PresenceProps>

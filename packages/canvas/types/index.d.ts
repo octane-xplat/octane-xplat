@@ -2,7 +2,7 @@
 // props.ts (tsrx-tsc can't emit .tsrx declarations; see ui/types/index.d.ts
 // for the same pattern).
 import type { UniversalComponent } from 'octane/universal'
-import type { CanvasProps } from './props'
+import type { CanvasProps } from './props.js'
 
 export declare const Canvas: UniversalComponent<CanvasProps>
 
@@ -10,4 +10,4 @@ export declare const Canvas: UniversalComponent<CanvasProps>
  *  GPU shim on native — or null where WebGPU is unavailable. */
 export declare function getGPU(): any
 
-export type { CanvasProps, CanvasContextKind, CanvasReady } from './props'
+export type { CanvasProps, CanvasContextKind, CanvasReady } from './props.js'
