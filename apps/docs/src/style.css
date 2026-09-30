@@ -332,9 +332,7 @@ body {
 	width: 560px;
 	max-width: 100%;
 	overflow: hidden;
-	border-width: 1px;
-	border-color: var(--doc-hairline);
-	border-style: solid;
+	background-color: var(--doc-card);
 	border-radius: 18px;
 	corner-shape: squircle;
 	box-shadow:
