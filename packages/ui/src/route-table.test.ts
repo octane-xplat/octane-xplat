@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import type {
 	ManifestRouteNames,
 	ManifestRouteParams,
@@ -335,6 +335,7 @@ describe('defineRoutes', () => {
 				head,
 			},
 		})
+
 		const spec = defineRoutes([
 			{ path: 'guides/:slug', screen: C('Guide'), presentation: 'modal', loader, beforeLoad, head },
 		])
@@ -343,6 +344,61 @@ describe('defineRoutes', () => {
 		const sm = spec.routes.find((r) => r.name === 'guides/:slug')!
 		expect({ ...sm, file: undefined }).toEqual({ ...fm, file: undefined })
 		expect(spec.loaders!['guides/:slug']).toBe(loader)
+	})
+
+	it('baked routes resolve data from the manifest baked map, not a loader call', async () => {
+		const m = defineRoutes({
+			routes: [
+				{ path: 'changelog', screen: C('Changelog'), dataMode: 'baked' },
+				{ path: 'live', screen: C('Live'), loader: () => 'live-data' },
+			],
+			baked: { changelog: { entries: ['a', 'b'] } },
+		})
+
+		const baked = m.routes.find((r) => r.name === 'changelog')!
+		expect(baked.dataMode).toBe('baked')
+		expect(await m.loaders!.changelog({})).toEqual({ entries: ['a', 'b'] })
+
+		const live = m.routes.find((r) => r.name === 'live')!
+		expect(live.dataMode).toBeUndefined()
+		expect(await m.loaders!.live({})).toBe('live-data')
+	})
+
+	it('a baked route with no baked entry throws like a loader failure', () => {
+		const m = defineRoutes([{ path: 'gone', screen: C('Gone'), dataMode: 'baked' }])
+		// commitRoute wraps the call in Promise.resolve().then() — a sync
+		// throw becomes a rejection there, landing as the screen's error prop.
+		expect(() => m.loaders!.gone({})).toThrow(/no baked data/)
+	})
+
+	it('baked reads the owning manifest through merges', async () => {
+		const prog = defineRoutes({
+			routes: [{ path: 'docs', screen: C('Docs'), dataMode: 'baked' }],
+			baked: { docs: { pages: 3 } },
+		})
+
+		const merged = mergeRouteManifests(
+			manifest({ './app/detail.tsrx': { D: C('FileDetail') } }),
+			prog,
+		)
+
+		expect(await merged.loaders!.docs({})).toEqual({ pages: 3 })
+		expect(merged.baked).toEqual({ docs: { pages: 3 } })
+	})
+
+	it('file routes honor dataMode and warn on an in-file loader', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const loader = () => 'live'
+		const m = manifest({
+			'./app/report.tsrx': { R: C('Report'), dataMode: 'baked', loader },
+			'./app/report.loader.ts': { loader }, // never a route itself
+		})
+
+		const meta = m.routes.find((r) => r.name === 'report')!
+		expect(meta.dataMode).toBe('baked')
+		expect(meta.loader).not.toBe(loader) // baked lookup, not the file's
+		expect(m.routes.map((r) => r.name)).toEqual(['report'])
+		warn.mockRestore()
 	})
 
 	it('unbranded manifests extract to never/empty', () => {

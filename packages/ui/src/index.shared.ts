@@ -230,6 +230,7 @@ export type {
 	RouteHeadExport,
 	RouteMeta,
 	RouteManifest,
+	RouteDataMode,
 	RouteNameOfPath,
 	RouteParamsFromSpecs,
 	RoutePathParams,

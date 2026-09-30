@@ -42,8 +42,29 @@ import type {
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
 const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
 const PARAM = /^\[(.+)\]$/
+/** Build-time loader modules — `docs.loader.ts` pairs with route `docs`
+ *  for `dataMode: 'baked'`. Never a route itself, never in a runtime glob. */
+const LOADER_FILE = /\.loader\.(ts|mts|cts|js|mjs|cjs|jsx)$/
 // `settings+modal.tsrx` → route 'settings' presented modally by default.
 const PRESENT = /\+(modal|fade|push)$/
+
+/** Loader for a `dataMode: 'baked'` route — resolves the name out of its
+ *  owning manifest's `baked` map at push time. The map is assigned after
+ *  the manifest is built (generated glue) or passed in (RouteSpecSet), so
+ *  the lookup reads it lazily. A missing entry throws, landing as the
+ *  screen's `error` prop like a live loader rejection. */
+function bakedLookup(manifest: () => RouteManifest | undefined, name: string) {
+	return () => {
+		const baked = manifest()?.baked
+		if (baked && Object.prototype.hasOwnProperty.call(baked, name)) {
+			return baked[name]
+		}
+
+		throw new Error(
+			`[octane-xplat] baked route '${name}' has no baked data — run \`xplat routes\` to regenerate`,
+		)
+	}
+}
 
 /** Internal error carrier used by the public `redirect()` helper. Keeping
  * this in the shared route table gives both platform leaves the same guard
@@ -100,8 +121,13 @@ export function deriveRouteManifest(
 	const layouts: Record<string, any> = {}
 	const loaders: RouteManifest['loaders'] = {}
 	const warned = new Set<string>()
+	const self: { m?: RouteManifest } = {}
 
 	for (const key of Object.keys(files).sort()) {
+		if (LOADER_FILE.test(key)) {
+			continue
+		}
+
 		let rel = key.replace(/^\.?\//, '')
 		if (rel.startsWith(prefix)) {
 			rel = rel.slice(prefix.length)
@@ -162,8 +188,20 @@ export function deriveRouteManifest(
 			presentation,
 		}
 
+		const dataMode = files[key]?.dataMode
+		if (dataMode === 'baked' || dataMode === 'live') {
+			meta.dataMode = dataMode
+		}
+
 		const loader = files[key]?.loader
-		if (typeof loader === 'function') {
+		if (meta.dataMode === 'baked') {
+			meta.loader = bakedLookup(() => self.m, name)
+			if (typeof loader === 'function') {
+				console.warn(
+					`[octane-xplat] baked route '${name}' also exports a loader — move it to a .loader.ts sibling so its imports stay out of the bundle`,
+				)
+			}
+		} else if (typeof loader === 'function') {
 			meta.loader = loader
 		}
 
@@ -210,7 +248,9 @@ export function deriveRouteManifest(
 	// Most-specific patterns first — 'demo/new' must beat 'demo/:id'.
 	routes.sort(bySpecificity)
 
-	return { screens, routes, layouts, loaders }
+	const manifest = { screens, routes, layouts, loaders }
+	self.m = manifest
+	return manifest
 }
 
 /** Match-order comparator: static segments (2) outrank params (1), ties
@@ -266,6 +306,7 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 	const layouts: RouteManifest['layouts'] = {}
 	const metas = new Map<string, RouteMeta>()
 	const warned = new Set<string>()
+	const self: { m?: RouteManifest } = {}
 
 	for (const [key, layout] of Object.entries(extra ?? {})) {
 		const dir = key.replace(/^\/+|\/+$/g, '')
@@ -287,7 +328,18 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 			presentation: spec.presentation,
 		}
 
-		if (spec.loader) {
+		if (spec.dataMode) {
+			meta.dataMode = spec.dataMode
+		}
+
+		if (spec.dataMode === 'baked') {
+			meta.loader = bakedLookup(() => self.m, name)
+			if (spec.loader) {
+				console.warn(
+					`[octane-xplat] baked route '${name}' also carries a loader — bake it in the host and pass the result via 'baked' so its code stays out of the bundle`,
+				)
+			}
+		} else if (spec.loader) {
 			meta.loader = spec.loader
 		}
 
@@ -326,7 +378,9 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 		}
 	}
 
-	return { screens, routes, layouts, loaders } as RouteManifest & SpecRouteInfo<Specs>
+	const manifest = { screens, routes, layouts, loaders, baked: set.baked }
+	self.m = manifest
+	return manifest as RouteManifest & SpecRouteInfo<Specs>
 }
 
 /** Compose manifests into one — file-derived base plus any number of
@@ -338,10 +392,12 @@ export function defineRoutes<const Specs extends readonly RouteSpec[]>(
 export function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifest {
 	const screens: RouteManifest['screens'] = {}
 	const layouts: RouteManifest['layouts'] = {}
+	const baked: NonNullable<RouteManifest['baked']> = {}
 	const winners = new Map<string, RouteMeta>()
 
 	for (const m of manifests) {
 		Object.assign(layouts, m.layouts)
+		Object.assign(baked, m.baked)
 		// Screen-table entries without a RouteMeta still register — a screen
 		// is pushable by name even without a URL pattern.
 		Object.assign(screens, m.screens)
@@ -366,7 +422,7 @@ export function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifes
 		}
 	}
 
-	return { screens, routes, layouts, loaders }
+	return { screens, routes, layouts, loaders, baked }
 }
 
 /** Match URL path segments against a manifest — returns the winning meta

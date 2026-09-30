@@ -2,6 +2,7 @@
 // touching the route dir (add/remove/rename route files).
 export type RouteName =
 	| 'about'
+	| 'changelog'
 	| 'demo/:id'
 	| 'detail'
 	| 'list-nested-probe'
@@ -12,6 +13,7 @@ export type RouteName =
 
 export interface RouteParams {
 	'about': {  }
+	'changelog': {  }
 	'demo/:id': { id: string }
 	'detail': {  }
 	'list-nested-probe': {  }

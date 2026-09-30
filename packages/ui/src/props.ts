@@ -1041,14 +1041,24 @@ export interface RouteMeta {
 	/** Optional `loader` named export — a prefetch hook, not a data layer.
 	 *  pushRoute fires it (fire-and-forget) before navigating so the
 	 *  screen's `query$` reads hit a warm cache; boot/deep-link routes
-	 *  skip it (the screen mounts in the same tick anyway). */
+	 *  skip it (the screen mounts in the same tick anyway). Ignored when
+	 *  `dataMode: 'baked'` — baked routes resolve from `manifest.baked`. */
 	loader?: (params: Record<string, unknown>) => unknown
+	/** Data provenance: 'live' (default) runs `loader` at navigation;
+	 *  'baked' reads build-time output from the manifest's `baked` map —
+	 *  for file routes the loader lives in a `<route>.loader.ts` sibling
+	 *  that `xplat routes`/`xplat build` executes and never bundles. */
+	dataMode?: RouteDataMode
 	/** Optional guard awaited before a push commits. A thrown `redirect(...)`
 	 * short-circuits the attempted route. */
 	beforeLoad?: BeforeLoad
 	/** Optional route title/meta declaration, or a params-only function. */
 	head?: RouteHeadExport
 }
+
+/** How a route's data is produced — `'live'` runs the loader at navigation,
+ *  `'baked'` freezes loader output into the bundle at build time. */
+export type RouteDataMode = 'live' | 'baked'
 
 /** Output of `deriveRouteManifest` — `screens` feeds `registerScreens`
  *  (native pushRoute + web outlet fallback), `routes` feeds web URL
@@ -1058,6 +1068,10 @@ export interface RouteManifest {
 	routes: RouteMeta[]
 	layouts: Record<string, any>
 	loaders?: Record<string, (params: Record<string, unknown>) => unknown | Promise<unknown>>
+	/** Build-time loader output for `dataMode: 'baked'` routes — the
+	 *  generated `routes.gen.*` glue assigns it from `routes.gen.data`;
+	 *  programmatic hosts pass it on `RouteSpecSet`/`addRoutes` directly. */
+	baked?: Record<string, unknown>
 }
 
 /** One programmatic route entry for `defineRoutes` — the manifest fields a
@@ -1070,6 +1084,7 @@ export interface RouteSpec {
 	/** Default presentation, like a `+modal`/`+fade` filename suffix. */
 	presentation?: 'push' | 'modal' | 'fade'
 	loader?: RouteMeta['loader']
+	dataMode?: RouteDataMode
 	beforeLoad?: BeforeLoad
 	head?: RouteHeadExport
 	/** Diagnostics label recorded on `RouteMeta.file` (warn strings). */
@@ -1078,10 +1093,13 @@ export interface RouteSpec {
 
 /** Input to `defineRoutes`: the route list plus optional path-keyed layouts
  *  — `layouts: { docs: Shell }` plays the `_layout.tsrx` role for every
- *  route under `docs/*`. */
+ *  route under `docs/*`. `baked` carries build-time data for
+ *  `dataMode: 'baked'` specs — the host computes it (a content dir read, a
+ *  build step) and ships it in the manifest. */
 export interface RouteSpecSet {
 	routes: readonly RouteSpec[]
 	layouts?: Record<string, any>
+	baked?: Record<string, unknown>
 }
 
 // ---------- programmatic route typing ----------

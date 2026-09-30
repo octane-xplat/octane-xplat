@@ -1,6 +1,16 @@
 import { command, option, optional, string } from '@alloc/cmd-ts'
-import { existsSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import {
+	existsSync,
+	readFileSync,
+	readdirSync,
+	realpathSync,
+	statSync,
+	writeFileSync,
+} from 'node:fs'
+
+import { createRequire } from 'node:module'
 import { join, relative, sep } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import * as p from '@clack/prompts'
 
 // Mirror of packages/ui/src/route-table.ts conventions — the CLI walks the
@@ -11,6 +21,12 @@ const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
 const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
 const PARAM = /^\[(.+)\]$/
 const PRESENT = /\+(modal|fade|push)$/
+// Build-time loader modules — `<route>.loader.ts` pairs with a
+// `dataMode: 'baked'` route; runs under vite ssrLoadModule during codegen
+// and is never part of the runtime bundle.
+const LOADER_FILE = /\.loader\.(ts|mts|cts|js|mjs|cjs)$/
+const LOADER_EXTS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
+const DATAMODE = /export\s+const\s+dataMode\s*=\s*['"](baked|live)['"]/
 
 function walk(dir, out = []) {
 	for (const name of readdirSync(dir).sort()) {
@@ -23,6 +39,64 @@ function walk(dir, out = []) {
 	}
 
 	return out
+}
+
+/** Vite from the consuming app — same createRequire dance as vite.mjs:
+ *  under pnpm's isolated linker a bare import here misses the app's copy. */
+function appVite(cwd) {
+	const req = createRequire(join(cwd, 'package.json'))
+	return import(pathToFileURL(realpathSync(req.resolve('vite'))).href)
+}
+
+/** Rejects loader output that can't cross the JSON boundary into the
+ *  emitted routes.gen.data module — names the route in the error. */
+function assertSerializable(data, name) {
+	JSON.stringify(data, (key, value) => {
+		if (typeof value === 'function' || typeof value === 'symbol' || typeof value === 'bigint') {
+			throw new Error(
+				`baked route '${name}' returned a non-serializable ${typeof value}` +
+					(key ? ` at '${key}'` : '') +
+					' — baked data must be JSON',
+			)
+		}
+
+		return value
+	})
+
+	return data
+}
+
+/** Runs each baked route's `.loader.ts` under vite ssrLoadModule (Node —
+ *  no DOM or native globals, app config not loaded) and returns the
+ *  name → serialized-result map. */
+async function bakeRouteData(cwd, loaders) {
+	const vite = await appVite(cwd)
+	const server = await vite.createServer({
+		root: cwd,
+		configFile: false,
+		logLevel: 'silent',
+		server: { middlewareMode: true },
+		appType: 'custom',
+	})
+
+	try {
+		const data = {}
+		for (const [name, file] of loaders) {
+			const mod = await server.ssrLoadModule(file)
+			const loader = mod?.loader ?? mod?.default
+			if (typeof loader !== 'function') {
+				throw new Error(
+					`baked route '${name}' — ${relative(cwd, file)} must export a 'loader' function`,
+				)
+			}
+
+			data[name] = assertSerializable(await loader({}), name)
+		}
+
+		return data
+	} finally {
+		await server.close()
+	}
 }
 
 function routeFor(rel) {
@@ -62,12 +136,20 @@ function routeFor(rel) {
 }
 
 /** Generates routes.gen.types.ts + platform manifest glue for a route dir.
- *  Returns true when a dir was found and files written; false when no route
- *  dir exists (callers that run this implicitly — dev/build — stay quiet). */
-export function generateRoutes(cwd, dir, out) {
+ *  Returns the route count; false when no dir was given. A missing or empty
+ *  dir still emits a valid (empty) gen — apps with only programmatic routes
+ *  can import the stub types.
+ *
+ *  `opts.bake` (default true): execute `dataMode: 'baked'` routes' sibling
+ *  `.loader.ts` modules and emit `<out>.data.ts`. Callers that only need
+ *  the types (typecheck) pass false — an existing data module is left
+ *  alone, a missing one gets an empty stub so imports resolve. */
+export async function generateRoutes(cwd, dir, out, opts = {}) {
 	if (!dir) {
 		return false
 	}
+
+	const bake = opts.bake !== false
 
 	// `out` is the module basename — shared types and target manifests are emitted:
 	//   <out>.types.ts    shared types (RouteName/Params/Presentations)
@@ -82,11 +164,13 @@ export function generateRoutes(cwd, dir, out) {
 	// collapse to a single entry (union across platforms).
 	const seen = new Map()
 	const routePaths = []
-	// A missing or empty dir still emits a valid (empty) gen — apps with
-	// only programmatic routes can import the stub types.
 	const files = existsSync(join(cwd, dir)) ? walk(join(cwd, dir)) : []
 	for (const file of files) {
 		const routePath = relative(join(cwd, dir), file).split(sep).join('/')
+		if (LOADER_FILE.test(routePath)) {
+			continue
+		}
+
 		if (/\.(tsrx|tsx)$/.test(routePath)) {
 			routePaths.push(routePath)
 		}
@@ -96,8 +180,24 @@ export function generateRoutes(cwd, dir, out) {
 			continue
 		}
 
-		if (!seen.has(r.name)) {
+		// `export const dataMode` is source-greped, not evaluated — codegen
+		// stays declarative over route modules it doesn't load.
+		const dm = DATAMODE.exec(readFileSync(file, 'utf8'))
+		if (dm) {
+			r.dataMode = dm[1]
+		}
+
+		r.file = routePath
+
+		const prev = seen.get(r.name)
+		if (!prev) {
 			seen.set(r.name, r)
+		} else if (r.dataMode && prev.dataMode && prev.dataMode !== r.dataMode) {
+			p.log.warn(
+				`route '${r.name}' declares dataMode '${prev.dataMode}' and '${r.dataMode}' in different leaves — keeping '${prev.dataMode}'`,
+			)
+		} else if (r.dataMode && !prev.dataMode) {
+			prev.dataMode = r.dataMode
 		}
 	}
 
@@ -128,6 +228,68 @@ ${presents.length ? presents.join('\n') : '\t// no +modal/+fade routes'}
 
 	writeFileSync(join(cwd, base + '.types.ts'), src)
 
+	// Route file minus ext, platform suffix, and +presentation — the stem a
+	// `<stem>.loader.*` sibling pairs with.
+	const stemFor = (rel) => {
+		const parts = rel.replace(EXT, '').split('/')
+		let base = parts[parts.length - 1]
+		const sm = SUFFIX.exec(base)
+		if (sm) {
+			base = base.slice(0, base.length - sm[0].length)
+		}
+
+		const pm = PRESENT.exec(base)
+		if (pm) {
+			base = base.slice(0, base.length - pm[0].length)
+		}
+
+		parts[parts.length - 1] = base
+		return parts.join('/')
+	}
+
+	// Baked routes run their loader at codegen — the sibling .loader.* module
+	// is the only place baked data comes from, so the loader's imports never
+	// enter a runtime bundle.
+	const loaderFiles = new Map()
+	for (const r of list) {
+		if (r.dataMode !== 'baked') {
+			continue
+		}
+
+		const stem = stemFor(r.file)
+		for (const ext of LOADER_EXTS) {
+			const candidate = join(cwd, dir, `${stem}.loader.${ext}`)
+			if (existsSync(candidate)) {
+				loaderFiles.set(r.name, candidate)
+				break
+			}
+		}
+
+		if (!loaderFiles.has(r.name)) {
+			throw new Error(
+				`baked route '${r.name}' (${r.file}) has no loader sibling — ` +
+					`expected ${dir}/${stem}.loader.{${LOADER_EXTS.join(',')}}`,
+			)
+		}
+	}
+
+	const dataFile = join(cwd, base + '.data.ts')
+	const dataSrc = (data) => `// Generated by \`xplat routes\` — baked loader results.
+// Re-run \`xplat routes\` (or dev/build) after touching *.loader.* files.
+export const bakedRouteData: Record<string, unknown> = ${JSON.stringify(data, null, '\t')}
+`
+
+	if (loaderFiles.size) {
+		if (bake) {
+			writeFileSync(dataFile, dataSrc(await bakeRouteData(cwd, loaderFiles)))
+		} else if (!existsSync(dataFile)) {
+			writeFileSync(dataFile, dataSrc({}))
+		}
+	} else {
+		// No baked routes left — drop stale data so nothing lingers.
+		writeFileSync(dataFile, dataSrc({}))
+	}
+
 	// Platform-suffixed twins carry the actual manifest derivation +
 	// registration — routes.gen.web.ts / routes.gen.mobile.ts resolve
 	// through the platform extension chain, so importing './routes.gen'
@@ -152,8 +314,9 @@ ${presents.length ? presents.join('\n') : '\t// no +modal/+fade routes'}
 		paths.add(plainPath)
 		specializedPaths.set(match[1], paths)
 	}
+
 	const plainPaths = routePaths.filter((path) => !platformSuffix.test(path))
-	const globLiteral = (path) => path.replace(/[\\*?{}()!@+\[\]]/g, '\\$&')
+	const globLiteral = (path) => path.replace(/[\\*?{}()!@+[\]]/g, '\\$&')
 	const exactExclusions = (suffix) => {
 		const specialized = specializedPaths.get(suffix)
 		return [...(specialized ?? [])]
@@ -163,6 +326,7 @@ ${presents.length ? presents.join('\n') : '\t// no +modal/+fade routes'}
 
 	const shared = (prelude, globs, prefer) => `// Generated by \`xplat routes\` — do not edit.
 ${prelude}import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
+import { bakedRouteData } from './${baseName}.data'
 ${typesRef}
 
 const files = import.meta.glob(
@@ -174,6 +338,9 @@ ${globs}
 )
 
 export const routes = deriveRouteManifest(files, ${prefer})
+// Baked loader results ride the manifest — 'baked' route metas resolve
+// against it at push time instead of running a loader.
+routes.baked = bakedRouteData
 registerRoutes(routes)
 export const screens = routes.screens
 `
@@ -271,9 +438,9 @@ export const routes = command({
 			process.exit(1)
 		}
 
-		const count = generateRoutes(cwd, dir, args.out)
+		const count = await generateRoutes(cwd, dir, args.out)
 		p.log.success(
-			`Wrote routes.gen.{types,web,mobile,macos,windows}.ts — ${count} route${count === 1 ? '' : 's'}`,
+			`Wrote routes.gen.{types,data,web,mobile,macos,windows}.ts — ${count} route${count === 1 ? '' : 's'}`,
 		)
 	},
 })

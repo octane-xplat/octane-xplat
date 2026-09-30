@@ -13,7 +13,9 @@ export const typecheck = command({
 		const cwd = process.cwd()
 		const routeDir = ['app', 'src/app'].find((d) => existsSync(join(cwd, d)))
 		if (routeDir) {
-			generateRoutes(cwd, routeDir)
+			// bake: false — typecheck only needs the emitted types; an existing
+			// routes.gen.data.ts is left as-is rather than re-executed.
+			await generateRoutes(cwd, routeDir, undefined, { bake: false })
 		}
 
 		const configs = ['tsconfig.json', 'tsconfig.native.json'].filter((f) =>

@@ -69,7 +69,7 @@ export const build = command({
 		// manifest is committed like a lockfile; a stale one is a silent bug.
 		const routeDir = ['app', 'src/app'].find((d) => existsSync(join(cwd, d)))
 		if (routeDir) {
-			const n = generateRoutes(cwd, routeDir)
+			const n = await generateRoutes(cwd, routeDir)
 			p.log.info(`routes.gen regenerated — ${n} route${n === 1 ? '' : 's'}`)
 		}
 
