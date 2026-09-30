@@ -314,6 +314,16 @@ body {
 
 /* ---------- command palette (⌘K) ---------- */
 
+@keyframes palette-fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes palette-fade-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
 .palette-backdrop {
 	position: fixed;
 	inset: 0;
@@ -323,6 +333,12 @@ body {
 	justify-content: center;
 	padding: 14vh 16px 16px;
 	background-color: rgba(0, 0, 0, 0.16);
+	animation: palette-fade-in 180ms ease-out both;
+}
+
+.palette-backdrop.closing {
+	pointer-events: none;
+	animation: palette-fade-out 180ms ease-in both;
 }
 
 .dark .palette-backdrop {
@@ -570,6 +586,10 @@ body {
 @media (prefers-reduced-motion: reduce) {
 	.doc-page {
 		transition-duration: 0ms;
+	}
+
+	.palette-backdrop {
+		animation-duration: 1ms;
 	}
 }
 

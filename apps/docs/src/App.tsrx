@@ -23,12 +23,35 @@ const HIT_GROUP: Record<SearchHit['kind'], string> = {
 export function App() @{
 	const [override, setOverride] = useState<boolean | null>(null);
 	const [paletteOpen, setPaletteOpen] = useState(false);
+	const [paletteMounted, setPaletteMounted] = useState(false);
 	const [query, setQuery] = useState('');
 	const [active, setActive] = useState(0);
 	const [leaving, setLeaving] = useState(false);
 	const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const paletteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const scheme = useColorScheme();
 	const dark = override ?? scheme === 'dark';
+	const openPalette = () => {
+		if (paletteTimer.current !== null) {
+			clearTimeout(paletteTimer.current);
+			paletteTimer.current = null;
+		}
+
+		setPaletteMounted(true);
+		setPaletteOpen(true);
+	};
+	const closePalette = () => {
+		setPaletteOpen(false);
+
+		if (paletteTimer.current !== null) {
+			clearTimeout(paletteTimer.current);
+		}
+
+		paletteTimer.current = setTimeout(() => {
+			paletteTimer.current = null;
+			setPaletteMounted(false);
+		}, 180);
+	};
 
 	const route = useRoute('notes') ?? useRoute('root');
 	const slug = route?.name ?? DOCS[0].slug;
@@ -71,6 +94,10 @@ export function App() @{
 		if (navigationTimer.current !== null) {
 			clearTimeout(navigationTimer.current);
 		}
+
+		if (paletteTimer.current !== null) {
+			clearTimeout(paletteTimer.current);
+		}
 	}, []);
 
 	// ⌘K/Ctrl+K toggles the palette (resets when already open); '/' opens it
@@ -84,14 +111,14 @@ export function App() @{
 					setActive(0);
 					(document.getElementById('palette-input') as HTMLInputElement | null)?.focus();
 				} else {
-					setPaletteOpen(true);
+					openPalette();
 				}
 
 				return;
 			}
 
 			if (e.key === 'Escape' && paletteOpen) {
-				setPaletteOpen(false);
+				closePalette();
 				return;
 			}
 
@@ -102,7 +129,7 @@ export function App() @{
 				}
 
 				e.preventDefault();
-				setPaletteOpen(true);
+				openPalette();
 			}
 		};
 
@@ -126,7 +153,7 @@ export function App() @{
 		}));
 
 	const selectHit = (h: SearchHit) => {
-		setPaletteOpen(false);
+		closePalette();
 		setQuery('');
 		setActive(0);
 		selectDoc(h.slug, h.anchor);
@@ -183,7 +210,7 @@ export function App() @{
 						</Pressable>
 					</Row>
 					<View className="nav">
-						<Pressable className="nav-row" onPress={() => setPaletteOpen(true)}>
+						<Pressable className="nav-row" onPress={openPalette}>
 							<View className="nav-icon ic-search" />
 							<Text className="nav-label">Search</Text>
 							<Text className="nav-hint">⌘K</Text>
@@ -235,8 +262,12 @@ export function App() @{
 				</ScrollView>
 			</View>
 		</Row>
-		{paletteOpen && (
-			<div className="palette-backdrop" onClick={() => setPaletteOpen(false)}>
+		{paletteMounted && (
+			<div
+				className={paletteOpen ? 'palette-backdrop' : 'palette-backdrop closing'}
+				aria-hidden={!paletteOpen}
+				onClick={closePalette}
+			>
 				<div className="palette" role="dialog" aria-label="Search docs" onClick={(e: MouseEvent) => e.stopPropagation()}>
 					<div className="palette-head">
 						<View className="nav-icon ic-search" />
