@@ -11,25 +11,25 @@ if you do not yet have a working app.
 
 ## The components you reach for first
 
-| Need                                   | Component                       |
-| -------------------------------------- | ------------------------------- |
-| Group content                          | `View`                          |
-| Put items in a row                     | `Row`                           |
-| Show text                              | `Text`                          |
-| Compose styled or tappable inline text | `RichText` + `RichTextSpan`     |
-| Respond to a tap                       | `Pressable`                     |
-| Render repeated items                  | `ScrollView` + `items.map(...)` |
-| Show a settings or preference row       | `ListItem`                       |
-| Accept one or more lines               | `TextInput`, `TextArea`         |
-| Scroll content                         | `ScrollView`, `ScrollBox`       |
-| Show a web page or inline HTML         | `WebView`                       |
-| Play video                             | `Video`                         |
-| Show a live camera preview             | `CameraView`                    |
-| Swipe through full pages               | `Pager`                         |
-| Pick one of a few options inline       | `SegmentedControl`              |
-| Search or filter                       | `SearchInput`                   |
+| Need                                   | Component                        |
+| -------------------------------------- | -------------------------------- |
+| Group content                          | `View`                           |
+| Put items in a row                     | `Row`                            |
+| Show text                              | `Text`                           |
+| Compose styled or tappable inline text | `RichText` + `RichTextSpan`      |
+| Respond to a tap                       | `Pressable`                      |
+| Render repeated items                  | `ScrollView` + `items.map(...)`  |
+| Show a settings or preference row      | `ListItem`                       |
+| Accept one or more lines               | `TextInput`, `TextArea`          |
+| Scroll content                         | `ScrollView`, `ScrollBox`        |
+| Show a web page or inline HTML         | `WebView`                        |
+| Play video                             | `Video`                          |
+| Show a live camera preview             | `CameraView`                     |
+| Swipe through full pages               | `Pager`                          |
+| Pick one of a few options inline       | `SegmentedControl`               |
+| Search or filter                       | `SearchInput`                    |
 | Pull to refresh a scroller or list     | `refreshing` + `onRefresh` props |
-| Show temporary content above a screen  | `Sheet`, `Overlay`              |
+| Show temporary content above a screen  | `Sheet`, `Overlay`               |
 
 Start with these components. They are deliberately smaller than the browser
 DOM or the full NativeScript view catalog, which makes a shared screen easier
@@ -123,33 +123,39 @@ This fragment assumes `Saved` is your screen component. Keep it in an
 ```tsx
 import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
 
-<UITabBar
-  tabs={[{ title: 'Saved', icon: Icon.select({ ios: 'heart.fill', android: 'favorite' }), render: Saved }]}
-  modifiers={[modifier.opacity(0.98)]}
+;<UITabBar
+	tabs={[
+		{
+			title: 'Saved',
+			icon: Icon.select({ ios: 'heart.fill', android: 'favorite' }),
+			render: Saved,
+		},
+	]}
+	modifiers={[modifier.opacity(0.98)]}
 />
 ```
 
 ### Implementation map
 
-| Component | Web element | iOS NativeScript view | Android NativeScript view | Normalization class |
-| --- | --- | --- | --- | --- |
-| `ListItem` | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable` | `FlexboxLayout` via shared `Pressable` | `self-drawn` |
-| `SafeArea` | `div` | `FlexboxLayout` | `FlexboxLayout` | shared layout wrapper |
-| `WebView` | sandboxed `iframe` | `webview` → WKWebView | `webview` → android.webkit.WebView | `hosted` |
-| `UITableView` | unavailable | `listview` → UITableView | unavailable | `platform-authentic` |
-| `RecyclerView` | unavailable | unavailable | `listview` → RecyclerView | `platform-authentic` |
-| `UITabBar` | unavailable | `TabView` / UITabBarController | unavailable | `platform-authentic` |
-| `BottomNavigationView` | unavailable | unavailable | `TabView` | `platform-authentic` |
-| `UISwitch` | unavailable | `switch` → UISwitch | unavailable | `platform-authentic` |
-| `MaterialSwitch` | unavailable | unavailable | `switch` → SwitchMaterial | `platform-authentic` |
-| `UISlider` | unavailable | `slider` → UISlider | unavailable | `platform-authentic` |
-| `SeekBar` | unavailable | unavailable | `slider` → SeekBar | `platform-authentic` |
-| `UIActivityIndicatorView` | unavailable | `activityindicator` → UIActivityIndicatorView | unavailable | `platform-authentic` |
-| `CircularProgressIndicator` | unavailable | unavailable | `activityindicator` → ProgressBar | `platform-authentic` |
-| `SideDrawer` | unavailable | ui-drawer host view | unavailable | `platform-authentic` |
-| `DrawerLayout` | unavailable | unavailable | ui-drawer host view | `platform-authentic` |
-| `LiquidGlass` | unavailable | NativeScript glass effect view | unavailable | `platform-authentic` |
-| `LiquidGlassContainer` | unavailable | NativeScript glass effect view | unavailable | `platform-authentic` |
+| Component                   | Web element                  | iOS NativeScript view                         | Android NativeScript view              | Normalization class   |
+| --------------------------- | ---------------------------- | --------------------------------------------- | -------------------------------------- | --------------------- |
+| `ListItem`                  | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable`        | `FlexboxLayout` via shared `Pressable` | `self-drawn`          |
+| `SafeArea`                  | `div`                        | `FlexboxLayout`                               | `FlexboxLayout`                        | shared layout wrapper |
+| `WebView`                   | sandboxed `iframe`           | `webview` → WKWebView                         | `webview` → android.webkit.WebView     | `hosted`              |
+| `UITableView`               | unavailable                  | `listview` → UITableView                      | unavailable                            | `platform-authentic`  |
+| `RecyclerView`              | unavailable                  | unavailable                                   | `listview` → RecyclerView              | `platform-authentic`  |
+| `UITabBar`                  | unavailable                  | `TabView` / UITabBarController                | unavailable                            | `platform-authentic`  |
+| `BottomNavigationView`      | unavailable                  | unavailable                                   | `TabView`                              | `platform-authentic`  |
+| `UISwitch`                  | unavailable                  | `switch` → UISwitch                           | unavailable                            | `platform-authentic`  |
+| `MaterialSwitch`            | unavailable                  | unavailable                                   | `switch` → SwitchMaterial              | `platform-authentic`  |
+| `UISlider`                  | unavailable                  | `slider` → UISlider                           | unavailable                            | `platform-authentic`  |
+| `SeekBar`                   | unavailable                  | unavailable                                   | `slider` → SeekBar                     | `platform-authentic`  |
+| `UIActivityIndicatorView`   | unavailable                  | `activityindicator` → UIActivityIndicatorView | unavailable                            | `platform-authentic`  |
+| `CircularProgressIndicator` | unavailable                  | unavailable                                   | `activityindicator` → ProgressBar      | `platform-authentic`  |
+| `SideDrawer`                | unavailable                  | ui-drawer host view                           | unavailable                            | `platform-authentic`  |
+| `DrawerLayout`              | unavailable                  | unavailable                                   | ui-drawer host view                    | `platform-authentic`  |
+| `LiquidGlass`               | unavailable                  | NativeScript glass effect view                | unavailable                            | `platform-authentic`  |
+| `LiquidGlassContainer`      | unavailable                  | NativeScript glass effect view                | unavailable                            | `platform-authentic`  |
 
 The platform-authentic rows intentionally have no web counterpart. Their
 native modifiers and glyph names stay behind platform subpaths; they do not
@@ -214,12 +220,15 @@ TextInput; `defaultValue` makes it uncontrolled. The leading glyph is an
 `Icon` — `icon` names a registered glyph (default `'xplat-search'`, a
 framework-provided one any app can override by registering the same name).
 
-Use `Sheet` for a focused interruption, or `openSheet`/`showToast`/`Overlay`
-imperatively, and pass the data it needs as props. `detents` (viewport-height
+Use `Sheet` for a focused interruption, `Overlay` for floating content,
+or `Popover` for anchored content. Control these components with `open`;
+`openSheet` and `showToast` provide imperative alternatives. Pass the data
+the content needs as props. `detents` (viewport-height
 fractions like `[0.25, 0.5, 1]`) turns the sheet into a snap-point panel —
 it opens at the smallest detent and drags between them via a self-drawn
 grabber. The platform's own modal presentation is `UIModal`/`MaterialDialog`
-+ `openModal` in the subpaths — there is no shared `Modal`.
+
+- `openModal` in the subpaths — there is no shared `Modal`.
 
 `ScrollView` and the platform lists (`UITableView`, `RecyclerView`) accept
 `refreshing`, `onRefresh`, and `refreshThreshold` for pull-to-refresh.
@@ -308,3 +317,48 @@ not that a frame has appeared; see [camera limits](known-limits.md#primitives).
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)
 cover the less common components, accessibility details, and renderer limits.
+
+## Own temporary surfaces
+
+Render `Sheet`, `Overlay`, or `Popover` inside a `Screen` on native so the
+component can find its owning `RootLayout`. Keep `open` in app state and
+set it to false from `onDismiss` when the user taps the shade or dismisses
+the sheet by dragging. Setting `open={false}` or removing the declaring
+component closes its surface without calling `onDismiss`.
+
+```tsx
+import { useState } from 'octane'
+import { Screen, Sheet, Pressable, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	const [open, setOpen] = useState(false)
+	return (
+		<Screen>
+			<Pressable onPress={() => setOpen(true)}>
+				<Text>Open sheet</Text>
+			</Pressable>
+			{open && (
+				<Sheet open shadeCover onDismiss={() => setOpen(false)}>
+					<Text>Temporary content</Text>
+					<Pressable onPress={() => setOpen(false)}>
+						<Text>Close sheet</Text>
+					</Pressable>
+				</Sheet>
+			)}
+		</Screen>
+	)
+}
+```
+
+Pressing Close removes the declaring `Sheet` and releases its native root,
+keyboard/gesture bindings, and theme subscription. User dismissal also
+releases those resources and reports through the latest `onDismiss` callback.
+An open animation finishing after removal cannot revive the surface.
+The maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx) uses the
+same conditional ownership pattern.
+
+Native content mounts in a separate Octane root: component context does not
+cross that boundary. Pass values as props or subscribe to shared state in
+each consuming component. The framework keeps the separate host's theme
+current; content updates do not create additional permanent subscriptions.
+Web portals retain the declaring root's context.

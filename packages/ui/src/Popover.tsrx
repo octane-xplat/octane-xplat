@@ -9,6 +9,7 @@ import { cx } from './cx';
 import { positionPopover, type PopoverPosition } from './popover-position';
 import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout.mobile';
+import { createOverlayLifetime } from './overlay-lifetime.mobile';
 
 function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 	const panelRef = useRef<any>(null);
@@ -127,22 +128,15 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
  *  Overlay: a transparent host opened on the RootLayout enclosing the
  *  anchor, with PopoverLayer positioning itself over the anchor's rect. */
 export function Popover(props: PopoverProps) @{
-	const shown = useRef<{ host: any; root: any; unbindTheme?: () => void } | null>(null);
+	const shown = useRef<{ host: any; root: any; lifetime: ReturnType<typeof createOverlayLifetime> } | null>(null);
+
+	const dismiss = useRef(props.onDismiss);
+	dismiss.current = props.onDismiss;
 
 	useEffect(() => {
 		const cur = shown.current;
 		if (!props.open) {
-			if (!cur) return;
-			shown.current = null;
-			cur.unbindTheme?.();
-			const owner = cur.host.parent as any;
-			if (owner?.hasChild?.(cur.host)) {
-				owner.close(cur.host).then(
-					() => cur.root.unmount?.(),
-					(error: any) => { console.error('[Popover] close failed', error); cur.root.unmount?.(); },
-				);
-			} else cur.root.unmount?.();
-
+			cur?.lifetime.close();
 			return;
 		}
 
@@ -160,14 +154,17 @@ export function Popover(props: PopoverProps) @{
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
 		const root = createNativeScriptRoot(host);
-		shown.current = { host, root, unbindTheme };
-		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });
-		rl.open(host).catch((error: unknown) => {
+		const lifetime = createOverlayLifetime(rl, host, root, 'Popover', (dismissed) => {
 			if (shown.current?.host === host) shown.current = null;
-			console.error('[Popover] open failed', error);
-			root.unmount?.();
+			if (dismissed) dismiss.current?.();
 		});
+		lifetime.own(unbindTheme);
+		shown.current = { host, root, lifetime };
+		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });
+		lifetime.open();
 	}, [props.open, props.children, props.placement, props.className, props.style, props.dismissOnOutsideTap]);
+
+	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<></>
 }

@@ -13,6 +13,8 @@ vi.mock('@nativescript/core', () => ({
 		horizontalAlignment = ''
 		verticalAlignment = ''
 		style: Record<string, unknown> = {}
+		on() {}
+		off() {}
 		constructor() {
 			hosts.push(this)
 		}
@@ -32,7 +34,12 @@ vi.mock('./root-layout.mobile', () => ({
 	}),
 }))
 
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
 import { Popover } from './Popover.tsrx'
 
 // The full-screen host must not wear the caller's className — a backgrounded

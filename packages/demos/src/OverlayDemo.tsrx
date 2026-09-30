@@ -53,9 +53,10 @@ export function OverlayDemo() @{
 					: 'Bounds pending'}
 			</Text>
 		</View>
-		<Popover anchor={anchor} open={popoverOpen} placement="bottom" className="overlay-demo-popover">
+		<Popover anchor={anchor} open={popoverOpen} placement="bottom" className="overlay-demo-popover" onDismiss={() => setPopoverOpen(false)}>
 			<Text>Anchored to the button</Text>
 		</Popover>
+		@if (overlayOpen) {
 		<Overlay open={overlayOpen} shadeCover onDismiss={() => setOverlayOpen(false)}>
 			<View className="overlay-demo-card">
 				<Text className="text-xl font-bold">Overlay is open</Text>
@@ -65,5 +66,6 @@ export function OverlayDemo() @{
 				</Pressable>
 			</View>
 		</Overlay>
+		}
 	</Screen>
 }

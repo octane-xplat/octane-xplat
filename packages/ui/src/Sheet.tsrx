@@ -7,6 +7,7 @@ import type { SheetProps } from './props';
 import { cx } from './cx';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout.mobile';
+import { createOverlayLifetime } from './overlay-lifetime.mobile';
 import { attachSheetDetents } from './sheet-detents';
 import { bindBottomInsetToKeyboard } from './keyboard-inset.mobile';
 import { attachTapToBlur } from './tap-to-blur';
@@ -23,28 +24,15 @@ export function Sheet(props: SheetProps) @{
 	const shown = useRef<{
 		host: GridLayout;
 		root: any;
-		unbindTheme?: () => void;
-		unbindKeyboard?: () => void;
-		programmatic?: boolean;
-		detach?: () => void;
+		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
+	const dismiss = useRef(props.onDismiss);
+	dismiss.current = props.onDismiss;
 
 	useEffect(() => {
 		const cur = shown.current;
 		if (!props.open) {
-			if (!cur) return;
-			shown.current = null;
-			cur.programmatic = true;
-			cur.unbindTheme?.();
-			cur.unbindKeyboard?.();
-			cur.root.unmount?.();
-			const owner = cur.host.parent as any;
-			if (owner?.hasChild?.(cur.host)) {
-				owner.close(cur.host).catch((error: unknown) => {
-					console.error('[Sheet] close failed', error);
-				});
-			}
-
+			cur?.lifetime.close();
 			return;
 		}
 
@@ -63,6 +51,11 @@ export function Sheet(props: SheetProps) @{
 		if (props.style) Object.assign(host.style, props.style);
 		Object.assign(host, isIOS ? props.ios : isAndroid ? props.android : undefined);
 		const root = createNativeScriptRoot(host);
+		const lifetime = createOverlayLifetime(rl, host, root, 'Sheet', (dismissed) => {
+			if (shown.current?.host === host) shown.current = null;
+			if (dismissed) dismiss.current?.();
+		});
+		lifetime.own(unbindTheme);
 		// Detents: the controller owns enter/slide-out — RootLayout's open
 		// animation always lands translateY at 0, which would fight the
 		// detent offsets, so it's skipped while detents are attached.
@@ -77,23 +70,13 @@ export function Sheet(props: SheetProps) @{
 
 		// Lift the host above the software keyboard (todo 'Add' row inside a
 		// demo sheet is bottom-anchored and was covered on iOS).
-		const unbindKeyboard = bindBottomInsetToKeyboard(host);
-		attachTapToBlur(host);
-		const opened = { host, root, unbindTheme, unbindKeyboard, programmatic: false, detach: detents?.detach };
-		shown.current = opened;
+		lifetime.own(bindBottomInsetToKeyboard(host));
+		lifetime.own(attachTapToBlur(host));
+		if (detents) lifetime.own(detents.detach);
+		shown.current = { host, root, lifetime };
 		root.render(SheetBody as unknown as UniversalComponent, { children: props.children });
-		host.on('closed', () => {
-			if (shown.current === opened) shown.current = null;
-			opened.detach?.();
-			opened.unbindKeyboard?.();
-			opened.unbindTheme?.();
-			opened.root.unmount?.();
-			// 'closed' fires for programmatic closes too — onDismiss only when
-			// the platform dismissed it (shade tap or detent drag-out).
-			if (!opened.programmatic) props.onDismiss?.();
-		});
 
-		rl.open(host, {
+		lifetime.open({
 			...(props.shadeCover ?? true)
 				? { shadeCover: { opacity: 0.4, tapToClose: true } }
 				: {},
@@ -105,16 +88,10 @@ export function Sheet(props: SheetProps) @{
 							exitTo: { translateY: 400, duration: 200 },
 						},
 					}),
-		})
-			.then(() => detents?.enter())
-			.catch((error: unknown) => {
-				if (shown.current === opened) shown.current = null;
-				opened.unbindKeyboard?.();
-				opened.unbindTheme?.();
-				opened.root.unmount?.();
-				console.error('[Sheet] open failed', error);
-			});
+		}, () => detents?.enter());
 	}, [props.open, props.children, props.className, props.style, props.shadeCover, props.ios, props.android]);
+
+	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	// Zero-size sentinel — the sheet resolves its owning RootLayout from the
 	// declaring component's ancestry, not getRootLayout() (first-mounted shell).

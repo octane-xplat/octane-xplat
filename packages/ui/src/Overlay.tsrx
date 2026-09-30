@@ -7,12 +7,13 @@ import type { OverlayProps } from './props';
 import { cx } from './cx';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout.mobile';
+import { createOverlayLifetime } from './overlay-lifetime.mobile';
 
 function OverlayBody(props: { children?: any }) @{
 	<>{props.children}</>
 }
 
-type OpenOverlay = { host: GridLayout; root: any; dismissOnClose: boolean; unbindTheme?: () => void };
+type OpenOverlay = { host: GridLayout; root: any; lifetime: ReturnType<typeof createOverlayLifetime>; unbindTheme?: () => void };
 
 /** Renders children in a separate RootLayout root above the current screen. */
 export function Overlay(props: OverlayProps) @{
@@ -26,22 +27,13 @@ export function Overlay(props: OverlayProps) @{
 	useEffect(() => {
 		const current = shown.current;
 		if (!props.open) {
-			if (!current) return;
-			current.dismissOnClose = false;
-			shown.current = null;
-			const rl = rootLayout();
-			if (rl && (rl as any)?.hasChild?.(current.host)) {
-				rl.close(current.host).then(
-					() => current.root.unmount?.(),
-					(error) => { console.error('[Overlay] close failed', error); current.root.unmount?.(); },
-				);
-			} else current.root.unmount?.();
-
+			current?.lifetime.close();
 			return;
 		}
 
 		if (current) {
 			current.root.render(OverlayBody as unknown as UniversalComponent, { children: props.children });
+			current.unbindTheme?.();
 			current.unbindTheme = applyThemeClasses(current.host, cx('vx-overlay-host', props.className));
 			if (props.style) Object.assign(current.host.style, props.style);
 			Object.assign(current.host, isIOS ? props.ios : isAndroid ? props.android : undefined);
@@ -57,28 +49,20 @@ export function Overlay(props: OverlayProps) @{
 		if (props.style) Object.assign(host.style, props.style);
 		Object.assign(host, isIOS ? props.ios : isAndroid ? props.android : undefined);
 		const root = createNativeScriptRoot(host);
-		const opened = { host, root, dismissOnClose: true, unbindTheme };
+		const lifetime = createOverlayLifetime(rl, host, root, 'Overlay', (dismissed) => {
+			if (shown.current?.host === host) shown.current = null;
+			if (dismissed) dismiss.current?.();
+		});
+		const opened = { host, root, lifetime, unbindTheme };
+		lifetime.own(() => opened.unbindTheme?.());
 		shown.current = opened;
 		root.render(OverlayBody as unknown as UniversalComponent, { children: props.children });
-		host.on('closed', () => {
-			if (shown.current === opened) shown.current = null;
-			opened.unbindTheme?.();
-			root.unmount?.();
-			if (opened.dismissOnClose) dismiss.current?.();
-		});
-
-		const open = () => rl.open(host, props.shadeCover ? {
+		lifetime.open(props.shadeCover ? {
 			shadeCover: { opacity: 0.45, color: '#000000', tapToClose: true },
-		} : {}).catch((error: unknown) => {
-			if (shown.current === opened) shown.current = null;
-			console.error('[Overlay] open failed', error);
-			root.unmount?.();
-		});
-
-		if ((rl as any).hasChild?.(host)) {
-			rl.close(host).then(open, (error) => console.error('[Overlay] stale host close failed', error));
-		} else open();
+		} : {});
 	}, [props.open, props.children, props.shadeCover, props.className, props.style, props.ios, props.android]);
+
+	useEffect(() => () => shown.current?.lifetime.close(), []);
 
 	<stacklayout ref={(v: any) => { hostView.current = v; }} style={{ width: 0, height: 0 }} />
 }
