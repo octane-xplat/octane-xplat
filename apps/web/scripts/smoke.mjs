@@ -294,12 +294,14 @@ try {
 	await page.waitForFunction(() => location.pathname === '/demos/demo/vlist', null, {
 		timeout: 5000,
 	})
+
 	await page.waitForSelector('#vlist .vx-virtual-list-row', { timeout: 5000 })
 	await page.waitForFunction(
 		() => document.querySelectorAll('#vlist .vx-virtual-list-row').length > 1,
 		null,
 		{ timeout: 5000 },
 	)
+
 	const virtualList = page.locator('#vlist')
 	let mountedRows = await virtualList.locator('.vx-virtual-list-row').count()
 	ok('VirtualList bounds mounted rows', mountedRows > 1 && mountedRows < 40, mountedRows + '/500')
@@ -315,16 +317,19 @@ try {
 			separator: separators.some((separator) => separator.children.length > 0),
 		}
 	})
+
 	ok(
 		'VirtualList renders header, footer, and separators',
 		slots.header && slots.footer && slots.separator,
 	)
+
 	await page.click('#vl-clear')
 	await page.waitForFunction(
 		() => document.querySelector('#vlist .vx-virtual-list-empty')?.textContent?.includes('No rows'),
 		null,
 		{ timeout: 3000 },
 	)
+
 	ok('VirtualList renders its empty state', true)
 	await page.click('#vl-restore')
 	await page.waitForSelector('#row-r0', { timeout: 3000 })
@@ -333,6 +338,7 @@ try {
 	await virtualList.evaluate((list) => {
 		list.scrollTop = 960
 	})
+
 	await page.waitForFunction(
 		() => {
 			const list = document.getElementById('vlist')
@@ -349,6 +355,7 @@ try {
 		null,
 		{ timeout: 5000 },
 	)
+
 	const before = await page.evaluate(() => {
 		const list = document.getElementById('vlist')
 		const row = document.getElementById('row-r20')
@@ -357,12 +364,14 @@ try {
 			rowHeight: document.getElementById('row-r15').getBoundingClientRect().height,
 		}
 	})
+
 	await page.click('#vl-grow')
 	await page.waitForFunction(
 		(height) => document.getElementById('row-r15')?.getBoundingClientRect().height >= height + 23,
 		before.rowHeight,
 		{ timeout: 5000 },
 	)
+
 	await page.waitForTimeout(50)
 	const after = await page.evaluate(() => {
 		const list = document.getElementById('vlist')
@@ -373,12 +382,14 @@ try {
 			rowHeight: document.getElementById('row-r15').getBoundingClientRect().height,
 		}
 	})
+
 	ok('VirtualList records changed row height', after.rowHeight >= before.rowHeight + 23)
 	ok(
 		'VirtualList corrects the visible anchor within 2 px',
 		Math.abs(after.anchorTop - before.anchorTop) <= 2,
 		(after.anchorTop - before.anchorTop).toFixed(2) + ' px',
 	)
+
 	mountedRows = await virtualList.locator('.vx-virtual-list-row').count()
 	ok(
 		'VirtualList keeps the resized window bounded',
@@ -389,6 +400,7 @@ try {
 	await virtualList.evaluate((list) => {
 		list.scrollTop = 10800
 	})
+
 	await page.waitForSelector('#row-r200', { timeout: 5000 })
 	await page.click('#row-r200')
 	await page.waitForFunction(
@@ -396,6 +408,7 @@ try {
 		null,
 		{ timeout: 3000 },
 	)
+
 	await page.click('#vl-prepend')
 	await page.waitForFunction(
 		() =>
@@ -404,10 +417,12 @@ try {
 		null,
 		{ timeout: 5000 },
 	)
+
 	ok('VirtualList prepend updates count and preserves keyed state', true)
 	await virtualList.evaluate((list) => {
 		list.scrollTop = 0
 	})
+
 	await page.waitForFunction(
 		() =>
 			Array.from(document.querySelectorAll('#vlist .vx-virtual-list-row')).some((row) =>
@@ -416,12 +431,14 @@ try {
 		null,
 		{ timeout: 5000 },
 	)
+
 	mountedRows = await virtualList.locator('.vx-virtual-list-row').count()
 	ok(
 		'VirtualList keeps the prepended window bounded',
 		mountedRows > 0 && mountedRows < 40,
 		mountedRows + ' mounted',
 	)
+
 	await page.click('text=← Back')
 	await page.waitForFunction(() => location.pathname === '/', null, { timeout: 3000 })
 

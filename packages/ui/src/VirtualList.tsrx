@@ -10,6 +10,7 @@ import {
 	type VirtualListEntry,
 	type VirtualListSizeRecord,
 } from './virtual-list-layout'
+
 import { cx } from './cx'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { layoutChildProps } from './layout-child'
@@ -32,6 +33,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		() => createVirtualListEntries(props.items, props.keyExtractor, props.getItemType),
 		[props.items, props.keyExtractor, props.getItemType],
 	)
+
 	const [windowVersion, setWindowVersion] = useState(0)
 	const sizeIndexRef = useRef(new VirtualListSizeIndex())
 	const sizeCacheRef = useRef(new Map<string, VirtualListSizeRecord>())
@@ -65,6 +67,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				entry.rowKey,
 				hasSeparatorRef.current && entry.index < nextEntries.length - 1,
 			)
+
 			activeMeasurements.add(cacheKey)
 		}
 
@@ -96,6 +99,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				)
 				.map((entry) => entry.rowKey),
 		)
+
 		pendingAnchorRef.current = pendingRows.size > 0 ? anchor : null
 		pendingAnchorRowsRef.current = pendingRows
 
@@ -170,6 +174,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				0,
 				headerHeightRef.current + sizeIndexRef.current.prefix(index) + queuedAnchor.within,
 			)
+
 			const nativeOffset = Number(view.verticalOffset)
 			if (sameSize(nextOffset, nativeOffset)) {
 				scrollOffsetRef.current = nativeOffset
@@ -186,6 +191,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				view.scrollToVerticalOffset(nextOffset, false)
 			}
 		}, 0)
+
 		anchorRestoreTimerRef.current = timer
 	}
 
@@ -249,6 +255,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			rebuildLayout(entriesRef.current, size.width)
 			restoreAnchor(anchor)
 		}
+
 		refreshWindow()
 	}
 
@@ -261,8 +268,10 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			const nextIndex = sizeIndexRef.current.indexAt(
 				Math.max(0, nextOffset - headerHeightRef.current),
 			)
+
 			if (anchorIndex !== undefined && Math.abs(nextIndex - anchorIndex) > 1) cancelAnchorRestore()
 		}
+
 		scrollOffsetRef.current = nextOffset
 		refreshWindow()
 	}

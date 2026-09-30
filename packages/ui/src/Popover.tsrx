@@ -38,6 +38,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 			},
 			props.placement ?? 'bottom',
 		);
+
 		const insets = isIOS ? panelRef.current?.parent?.getSafeAreaInsets?.() : undefined;
 		const scale = isIOS ? Number(Screen.mainScreen.scale) || 1 : 1;
 		const panelPosition = {
@@ -45,6 +46,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 			left: next.left - Number(insets?.left ?? 0) / scale,
 			top: next.top - Number(insets?.top ?? 0) / scale,
 		};
+
 		setPosition((current) =>
 			current?.left === panelPosition.left &&
 			current?.top === panelPosition.top &&

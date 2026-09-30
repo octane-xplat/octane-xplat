@@ -77,6 +77,7 @@ import {
 	Screen,
 	SafeArea,
 } from '@octane-xplat/ui';
+
 import { Pager } from '@octane-xplat/pager';
 import { Video } from '@octane-xplat/video';
 
@@ -590,7 +591,7 @@ function RichTextFixture() @{
 			height: 32,
 			fontSize: 14,
 			fontWeight: 500,
-			lineHeight: 20,
+			lineHeight: '20px',
 			color: '#0a0a0a',
 			backgroundColor: '#f5f5f5',
 		}}

@@ -44,11 +44,13 @@ export function VirtualList() @{
 		{ id: 'new-' + Date.now(), label: 'Prepended', height: 68, type: 'row' },
 		...current,
 	])
+
 	const dropFirst = () => setItems((current) => current.slice(1))
 	const reverse = () => setItems((current) => [...current].reverse())
 	const growRow = () => setItems((current) => current.map((item) =>
 		item.id === 'r15' ? { ...item, height: item.height + 24 } : item,
 	))
+
 	const clear = () => setItems([])
 	const restore = () => setItems(INITIAL)
 

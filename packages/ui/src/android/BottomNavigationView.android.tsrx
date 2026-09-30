@@ -47,6 +47,7 @@ function applyIcon(item: TabViewItem, name: string): void {
 		item.iconSource = name;
 		return;
 	}
+
 	const glyph = getIcon(name);
 	if (!glyph) {
 		warnIconOnce(name, `tab icon '${name}' isn't registered — call registerIcons() at boot.`);

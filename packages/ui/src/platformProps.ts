@@ -19,5 +19,6 @@ export function applyNativeProps(
 	if (bag) {
 		Object.assign(el, bag)
 	}
+
 	applyNativeModifiers(el, props.modifiers)
 }

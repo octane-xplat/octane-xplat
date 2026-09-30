@@ -7,6 +7,7 @@ export function navigate(...args: NavigateArgs): void {
 		Record<string, unknown>?,
 		{ into?: string; presentation?: 'push' | 'modal' | 'fade' }?,
 	]
+
 	const stack = options?.into ?? 'root'
 	pushRoute({ stack, name, params: params ?? {}, presentation: options?.presentation })
 	console.log('[probe] nav macos → ' + name + ' into ' + stack)

@@ -50,6 +50,7 @@ const rejectedApi = spawnSync(process.execPath, [cliPath, 'build', '--targets', 
 	encoding: 'utf8',
 	timeout: 30_000,
 })
+
 assert.notEqual(rejectedApi.status, 0)
 assert.match(`${rejectedApi.stdout}\n${rejectedApi.stderr}`, /Unsupported macOS JavaScriptCore host APIs: node:fs.rmSync/)
 
@@ -60,6 +61,7 @@ const rejected = spawnSync(process.execPath, [cliPath, 'build', '--targets', 'ma
 	encoding: 'utf8',
 	timeout: 30_000,
 })
+
 assert.notEqual(rejected.status, 0)
 assert.match(`${rejected.stdout}\n${rejected.stderr}`, /Unsupported macOS JavaScriptCore host imports: node:child_process/)
 console.log(`JavaScriptCore public fixture passed: ${appRoot}`)

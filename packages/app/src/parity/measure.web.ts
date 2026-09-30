@@ -35,12 +35,14 @@ function measureTextLineCount(el: any): number | undefined {
 		.filter((rect) => rect.width > 0 && rect.height > 0)
 		.map((rect) => rect.top)
 		.sort((a, b) => a - b)
+
 	const lineTops: number[] = []
 	for (const top of tops) {
 		if (lineTops.every((existing) => Math.abs(existing - top) > 1)) {
 			lineTops.push(top)
 		}
 	}
+
 	return lineTops.length || undefined
 }
 

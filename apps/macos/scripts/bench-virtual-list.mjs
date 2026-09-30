@@ -6,6 +6,7 @@ const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const requestedSizes = process.env.OCTANE_MACOS_VLIST_SIZES
 	? process.env.OCTANE_MACOS_VLIST_SIZES.split(',').map(Number)
 	: [500, 2000, 5000]
+
 const requestedModes = process.env.OCTANE_MACOS_VLIST_MODES
 	? process.env.OCTANE_MACOS_VLIST_MODES.split(',')
 	: ['all', 'windowed']
@@ -38,6 +39,7 @@ function runSample(size, mode) {
 			},
 			stdio: ['ignore', 'pipe', 'pipe'],
 		})
+
 		let output = ''
 		let lineBuffer = ''
 		let result
@@ -72,6 +74,7 @@ function runSample(size, mode) {
 			clearTimeout(killAfterResult)
 			rejectSample(error)
 		})
+
 		child.on('exit', (code, signal) => {
 			clearTimeout(timeout)
 			clearTimeout(killAfterResult)
@@ -79,10 +82,12 @@ function runSample(size, mode) {
 				resolveSample(result)
 				return
 			}
+
 			if (signal === 'SIGKILL') {
 				resolveSample({ mode, items: size, status: 'killed-before-metrics', signal })
 				return
 			}
+
 			rejectSample(
 				new Error(
 					`AppKit VirtualList ${mode} sample for ${size} rows exited (${signal ?? code}) without metrics:\n${output.slice(-12000)}`,
@@ -103,6 +108,7 @@ function assertSample(result, size, mode) {
 		) {
 			throw new Error(`Expected all ${size} rows mounted in order: ${JSON.stringify(result.initial)}`)
 		}
+
 		return
 	}
 
@@ -113,9 +119,11 @@ function assertSample(result, size, mode) {
 			throw new Error(`${phase} exceeded the ${maxMountedRows}-row window or left stale row nodes: ${JSON.stringify(metrics)}`)
 		}
 	}
+
 	if (result.initial.firstMountedRow !== 0 || result.initial.lastMountedRow >= maxMountedRows) {
 		throw new Error(`The initial window did not start at row 0: ${JSON.stringify(result.initial)}`)
 	}
+
 	// Rows are 44pt with no inter-row gap — the AppKit stack's default
 	// spacing is 0 (web parity).
 	const expectedContentHeight = size * 44
@@ -129,6 +137,7 @@ function assertSample(result, size, mode) {
 	) {
 		throw new Error(`The fixed-height spacer changed the total document height: ${JSON.stringify({ initialScrollView, finalScrollView, expectedContentHeight })}`)
 	}
+
 	if (
 		result.actualScrollOffset !== result.requestedScrollOffset ||
 		result.afterScroll.lastMountedRow !== size - 1 ||

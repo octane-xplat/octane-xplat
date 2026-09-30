@@ -19,6 +19,7 @@ async function waitFor(predicate: () => boolean, timeout = 6000): Promise<boolea
 		if (predicate()) {return true}
 		await pause(100)
 	}
+
 	return predicate()
 }
 
@@ -44,11 +45,13 @@ async function run(): Promise<void> {
 		{ id: 'weather', title: 'Weather', matches: (labels) => labels.includes('Forecast') },
 		{ id: 'list-demo', title: 'Feed', matches: (labels) => labels.includes('Doors open') },
 	]
+
 	const demoMounted = (demo: (typeof demoCases)[number]) =>
 		waitFor(() => {
 			const labels = debug.snapshot().labels
 			return labels.some((label) => label.includes(demo.title)) && labels.includes('demo layout') && demo.matches(labels)
 		})
+
 	const backToApps = async () => {
 		debug.pressId('demo-back')
 		return waitFor(() => has('Apps') && has('Counter') && !has('demo layout'))
@@ -72,6 +75,7 @@ async function run(): Promise<void> {
 			console.log('[sweep] demos route=' + JSON.stringify(routeFor('demos')) + ' screen=' + Boolean(screenFor('demo/:id')))
 			console.log('[sweep] labels=' + JSON.stringify(debug.snapshot().labels))
 		}
+
 		if (counterMounted) {
 			debug.pressId('counter-inc')
 			assert('shared Counter demo responds', await waitFor(() => has('Demo count: 1')))
@@ -87,25 +91,30 @@ async function run(): Promise<void> {
 				assert('Stopwatch starts', await waitFor(() => debug.snapshot().labels.includes('Stop')))
 				debug.pressId('sw-toggle')
 			}
+
 			if (mounted && demo.id === 'todo') {
 				debug.setText('Add a todo', 'Finish the macOS harness')
 				debug.pressId('todo-add')
 				assert('Todo adds typed text', await waitFor(() => has('Finish the macOS harness')))
 			}
+
 			if (mounted && demo.id === 'ttt') {
 				debug.pressId('ttt-0')
 				assert('Tic-Tac-Toe updates after a move', await waitFor(() => has('O to play')))
 			}
+
 			if (mounted && demo.id === 'dialer') {
 				debug.pressId('key-1')
 				assert('Dialer accumulates a digit', await waitFor(() => has('1') && !has('Enter number')))
 			}
+
 			if (mounted && demo.id === 'vlist') {
 				const mountedRows = debug.metrics().mountedRowCount
 				assert(
 					'AppKit VirtualList windows 500 rows (' + mountedRows + ' mounted)',
 					mountedRows > 0 && mountedRows < 500,
 				)
+
 				debug.pressId('vl-drop')
 				assert(
 					'shared List removes a dropped row',
@@ -114,6 +123,7 @@ async function run(): Promise<void> {
 					),
 				)
 			}
+
 			assert(demo.title + ' route returns to the gallery', await backToApps())
 		}
 	}

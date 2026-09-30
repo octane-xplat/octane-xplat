@@ -21,6 +21,7 @@ const dims = (el, w, h, tol) => [
 	near(el.box?.w, w, tol) && near(el.box?.h, h, tol),
 	`${el.box?.w}×${el.box?.h}`,
 ]
+
 const circular = (el) => {
 	const radius = String(el.style?.borderTopLeftRadius ?? '')
 	const width = el.box?.w
@@ -28,6 +29,7 @@ const circular = (el) => {
 	const round = radius.endsWith('%')
 		? near(Number.parseFloat(radius), 50) && near(width, height)
 		: Number.parseFloat(radius) >= width / 2 && near(width, height)
+
 	return ['thumb corners form a circle', round, `${radius} on ${width}×${height}`]
 }
 
@@ -81,9 +83,11 @@ function textRows(m, height, width) {
 		[`text height is ${height}px`, near(text.box?.h, height, 1), text.box?.h],
 		['text is inside the fixture box', text.box?.x >= 0 && text.box?.y >= 0],
 	]
+
 	if (width !== undefined) {
 		rows.unshift([`text width is ${width}px`, near(text.box?.w, width, width * 0.03), text.box?.w])
 	}
+
 	return rows
 }
 
@@ -106,6 +110,7 @@ function textLongRows(m, target) {
 		Number.isFinite(expectedHeight) && near(text.box?.h, expectedHeight, 1),
 		`${text.box?.h}px; expected about ${expectedHeight}px from two font lines plus line spacing`,
 	])
+
 	if (target === 'android') {
 		rows.unshift([
 			'Android lays out two text lines',
@@ -113,6 +118,7 @@ function textLongRows(m, target) {
 			text.resolvedFont?.actualLayout?.lineCount,
 		])
 	}
+
 	return rows
 }
 
@@ -226,6 +232,7 @@ function inputNaturalRows(m, target) {
 		['input has positive intrinsic dimensions', field.box?.w > 0 && field.box?.h > 0, `${field.box?.w}×${field.box?.h}`],
 		['input content area is measured', field.contentBox?.w > 0 && field.contentBox?.h > 0, JSON.stringify(field.contentBox)],
 	]
+
 	if (expectedHeight !== undefined) {
 		// With no explicit height, each host supplies its natural text-field line box.
 		rows.push([
@@ -234,6 +241,7 @@ function inputNaturalRows(m, target) {
 			`field=${field.box?.h}px content=${field.contentBox?.h}px expected=${expectedHeight}px`,
 		])
 	}
+
 	return rows
 }
 
@@ -540,6 +548,7 @@ export const CHECKS = [
 				['check glyph has positive bounds', glyph.box?.w > 0 && glyph.box?.h > 0],
 				['glyph centered in box', near(glyph.box.x + glyph.box.w / 2 - box.box.x, 10, 1)],
 			]
+
 			if (expectedGlyphWidth !== undefined) {
 				// The ✓ advance comes from each target's actual font fallback.
 				rows.push([
@@ -548,6 +557,7 @@ export const CHECKS = [
 					`${glyph.box?.w}px; expected ${expectedGlyphWidth}px`,
 				])
 			}
+
 			return rows
 		},
 	},
@@ -1184,6 +1194,7 @@ export const CHECKS = [
 				if (!Number.isFinite(bottomInset)) {
 					return [['iOS sheet includes measured bottom safe area', false, String(safeArea?.style?.paddingBottom)]]
 				}
+
 				return [dims(m('frame'), 96, expectedHeight + bottomInset)]
 			}
 
@@ -1266,6 +1277,7 @@ export const CHECKS = [
 				...controlRows(m, 200, 32),
 				['selected rating cell has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
 			]
+
 			if (expectedWidth !== undefined) {
 				rows.push([
 					'selected star cell width matches target font metrics',
@@ -1273,6 +1285,7 @@ export const CHECKS = [
 					`${selected.box?.w}px; expected ${expectedWidth}px`,
 				])
 			}
+
 			return rows
 		},
 	},
@@ -1312,10 +1325,12 @@ export const CHECKS = [
 				ios: { w: 87, h: 34 },
 				android: { w: 86.1, h: 31.62 },
 			}[target]
+
 			const rows = [
 				...controlRows(m, 180, 40),
 				['selected segment has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],
 			]
+
 			if (expected) {
 				rows.push([
 					'selected segment bounds match target flex layout',
@@ -1323,6 +1338,7 @@ export const CHECKS = [
 					`${selected.box?.w}×${selected.box?.h}; expected ${expected.w}×${expected.h}`,
 				])
 			}
+
 			return rows
 		},
 	},
@@ -1397,6 +1413,7 @@ export const CHECKS = [
 				dims(m('panel'), 200, 96),
 				['command list has a visible frame', list.box.w > 0 && list.box.h > 0],
 			]
+
 			if (expectedWidth !== undefined) {
 				rows.push([
 					'command list width matches target content box',
@@ -1404,6 +1421,7 @@ export const CHECKS = [
 					`${list.box.w}px; expected ${expectedWidth}px`,
 				])
 			}
+
 			return rows
 		},
 	},

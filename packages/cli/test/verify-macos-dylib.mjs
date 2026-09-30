@@ -15,18 +15,20 @@ mkdirSync(scratch, { recursive: true })
 function run(command, args, { log, env = process.env, timeout = 300_000 } = {}) {
 	const result = spawnSync(command, args, { cwd: repoRoot, env, encoding: 'utf8', timeout })
 	const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
-	if (log) writeFileSync(join(scratch, log), output)
+	if (log) {writeFileSync(join(scratch, log), output)}
 	if (result.error || result.status !== 0) {
 		throw new Error(
 			`${command} failed: ${result.error ?? result.signal ?? result.status}\n${output.slice(-6000)}`,
 		)
 	}
+
 	return output.trim()
 }
 
 if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	throw new Error('Run this probe on an Apple Silicon Mac with Xcode and CMake installed.')
 }
+
 const sdk = run('xcrun', ['--sdk', 'macosx', '--show-sdk-path'])
 const clang = run('xcrun', ['--find', 'clang'])
 const clangxx = run('xcrun', ['--find', 'clang++'])
@@ -35,8 +37,10 @@ if (!existsSync(generatorSource)) {
 	const source = run('opensrc', ['path', `NativeScript/runtimes@${revision}`])
 		.split('\n')
 		.at(-1)
+
 	cpSync(join(source, 'metadata-generator'), generatorSource, { recursive: true })
 }
+
 const build = join(scratch, 'build-xcode')
 run(
 	'cmake',
@@ -54,6 +58,7 @@ run(
 	],
 	{ log: 'configure.log' },
 )
+
 run('cmake', ['--build', build, '-j', '8'], { log: 'build.log' })
 const dylib = join(scratch, 'libxplat-probe.dylib')
 run(clang, [
@@ -67,11 +72,13 @@ run(clang, [
 	'-o',
 	dylib,
 ])
+
 console.log('[dylib-probe] compiled custom arm64 dylib')
 
 const output = join(scratch, 'metadata')
 for (const dir of [output, join(output, 'types'), join(output, 'json')])
-	mkdirSync(dir, { recursive: true })
+	{mkdirSync(dir, { recursive: true })}
+
 const metadata = join(output, 'metadata.nsmd')
 run(
 	join(build, 'bin/objc-metadata-generator'),
@@ -96,9 +103,11 @@ run(
 	],
 	{ log: 'metadata.log' },
 )
+
 if (!readFileSync(join(output, 'umbrella.h'), 'utf8').includes('xplat-probe.h')) {
 	throw new Error('Generated umbrella omits custom header')
 }
+
 console.log('[dylib-probe] generated metadata from explicit imports')
 for (const [declared, metadataPath, marker] of [
 	['0', join(prebuilt, 'metadata.nsmd'), 'PASS shipped metadata:'],
@@ -118,7 +127,9 @@ for (const [declared, metadataPath, marker] of [
 			timeout: 10_000,
 		},
 	)
-	if (!transcript.includes(marker)) throw new Error(`Host omitted assertion marker:\n${transcript}`)
+
+	if (!transcript.includes(marker)) {throw new Error(`Host omitted assertion marker:\n${transcript}`)}
 	console.log(transcript.split('\n').find((line) => line.startsWith(marker)))
 }
+
 console.log('[dylib-probe] PASS; artifacts and complete logs: research/macos-dylib-probe')

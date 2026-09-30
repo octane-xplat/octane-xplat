@@ -32,6 +32,7 @@ export function openWindow(
 	const closed = new Promise<void>((resolve) => {
 		resolveClosed = resolve
 	})
+
 	const off = bridge().on('windows', 'closed', (wid: unknown) => {
 		if (wid === id) {
 			off()

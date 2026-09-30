@@ -29,6 +29,7 @@ const targetsArg = process.argv.find((arg) => arg.startsWith('--targets='))
 const requestedTargets = targetsArg
 	? [...new Set(targetsArg.slice('--targets='.length).split(',').map((target) => target.trim()).filter(Boolean))]
 	: null
+
 const unknownTargets = requestedTargets?.filter((target) => !['web', 'ios', 'android', 'macos'].includes(target)) ?? []
 if (unknownTargets.length) {
 	console.error(`[parity] unknown target(s): ${unknownTargets.join(', ')}`)
@@ -58,6 +59,7 @@ const normalizeColor = (value) => {
 			const number = part.endsWith('%') ? (parsed * 255) / 100 : parsed
 			return Math.max(0, Math.min(255, Math.round(number)))
 		}
+
 		const hex = (number) => number.toString(16).padStart(2, '0')
 		const channels = [rgb[1], rgb[2], rgb[3]].map((part) => hex(channel(part))).join('')
 		if (rgb[4] === undefined) {
@@ -67,6 +69,7 @@ const normalizeColor = (value) => {
 		const opacity = rgb[4].endsWith('%')
 			? Number.parseFloat(rgb[4]) / 100
 			: Number.parseFloat(rgb[4])
+
 		const alpha = hex(Math.max(0, Math.min(255, Math.round(opacity * 255))))
 		return alpha === 'ff' ? `#${channels}` : `#${channels}${alpha}`
 	}
@@ -75,6 +78,7 @@ const normalizeColor = (value) => {
 	if (!hex) {
 		return undefined
 	}
+
 	const expanded = hex.length <= 4 ? [...hex].map((digit) => digit + digit).join('') : hex
 	return expanded.length === 8 && expanded.endsWith('ff') ? `#${expanded.slice(0, 6)}` : `#${expanded}`
 }
@@ -83,13 +87,16 @@ const normValue = (v, facet) => {
 	if (typeof v !== 'string') {
 		return v
 	}
+
 	if (facet.endsWith('.style.alignItems') && v === 'normal') {
 		return 'stretch'
 	}
+
 	if (facet.endsWith('.style.fontWeight')) {
 		if (v.trim().toLowerCase() === 'normal') {return 400}
 		if (v.trim().toLowerCase() === 'bold') {return 700}
 	}
+
 	const color = normalizeColor(v)
 	if (color !== undefined) {
 		return color
@@ -156,6 +163,7 @@ for (const def of CHECKS) {
 	const equalityTargets = def.equalTargets
 		? applicableTargets.filter((target) => def.equalTargets.includes(target))
 		: applicableTargets
+
 	for (const target of applicableTargets) {
 		const dump = dumps.get(target)
 		if (!dump.cells?.[def.fixture]) {

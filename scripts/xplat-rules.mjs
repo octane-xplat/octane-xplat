@@ -35,12 +35,13 @@ const isNativeDefaultFile = (f) => {
 	const stem = file.slice(0, -extension.length)
 	return SOURCE_EXTENSIONS.some((candidate) => existsSync(`${stem}.web${candidate}`))
 }
+
 export const isNativeFile = (f) =>
 	!isWebFile(f) &&
 	(/\.(mobile|ios|android|macos|windows)\./.test(norm(f)) ||
-		/(^|\/)apps\/mobile\//.test(norm(f)) ||
-		/(^|\/)packages\/create\/template\//.test(norm(f)) ||
+		/(^|\/)apps\/(mobile|windows)\//.test(norm(f)) ||
 		isNativeDefaultFile(f))
+
 export const isSharedFile = (f) => !isWebFile(f) && !isNativeFile(f)
 const isTestFile = (f) => /\.(test|spec)\.[^.]+$/.test(norm(f))
 export const fileExcluded = (f, options) =>
@@ -1238,7 +1239,7 @@ const MACOS_PRAGMA = '/** @jsxImportSource @xplat/macos/renderer */'
 // it. JSX-free native leaves (styled, use-store) omit it by
 // design. .macos leaves carry the AppKit renderer pragma instead.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
-	if (!/\.tsrx$/.test(norm(filename)) || !isNativeFile(filename) || fileExcluded(filename, options)) {
+	if (!norm(filename).endsWith('.tsrx') || !isNativeFile(filename) || fileExcluded(filename, options)) {
 		return []
 	}
 

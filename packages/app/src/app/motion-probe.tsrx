@@ -7,6 +7,7 @@ import {
 	useReducedMotion,
 	useTransform,
 } from '@octane-xplat/motion'
+
 import { Screen, Row, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
 import { goBack } from '../platform/nav'
 
@@ -85,6 +86,7 @@ export function MotionProbe() @{
 			if (panPhases.current[panPhases.current.length - 1] !== 'moved') {
 				panPhases.current.push('moved')
 			}
+
 			panX.set(Math.max(-100, Math.min(100, panOrigin.current + event.dx)))
 		} else if (event.state === 'ended' || event.state === 'cancelled') {
 			panPhases.current.push(event.state)
@@ -92,6 +94,7 @@ export function MotionProbe() @{
 			setPanStatus(
 				`${event.state}; release vx=${Math.round(velocity)}; phases=${panPhases.current.join('→')}`,
 			)
+
 			void panX.animate(0, reduced ? { duration: 0 } : {
 				type: 'spring', stiffness: 180, damping: 20, velocity,
 			}).finished.then((result) => {

@@ -72,6 +72,7 @@ export const createAudioPlayer = (): AudioPlayer => {
       snapshot().duration,
       (globalThis as any).MPMediaItemPropertyPlaybackDuration,
     );
+
     info.setObjectForKey(snapshot().currentTime, MPNowPlayingInfoPropertyElapsedPlaybackTime);
     info.setObjectForKey(player?.rate ?? 0, MPNowPlayingInfoPropertyPlaybackRate);
     nowPlaying.nowPlayingInfo = info;

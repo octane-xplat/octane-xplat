@@ -50,6 +50,7 @@
 	await run('notifications.notify', () =>
 		call('notifications', 'notify', ['title', 'body']),
 	)
+
 	await run('appearance.get', () => call('appearance', 'get', []))
 	await run('files.readText', () => call('files', 'readText', ['file:///etc/hosts']))
 
@@ -62,9 +63,11 @@
 			gotClosed = true
 		}
 	})
+
 	await run('windows.open', () =>
 		call('windows', 'open', [{ id: wid, url: '/', title: 'secondary' }]),
 	)
+
 	await new Promise((r) => setTimeout(r, 800))
 	await run('windows.close', () => call('windows', 'close', [wid]))
 	await new Promise((r) => setTimeout(r, 500))

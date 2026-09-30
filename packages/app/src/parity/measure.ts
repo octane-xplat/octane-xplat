@@ -21,11 +21,13 @@ function resolvedFontOf(view: any) {
 		const lineHeight = metrics
 			? Utils.layout.toDeviceIndependentPixels(Number(metrics.descent) - Number(metrics.ascent))
 			: undefined
+
 		const layout = nativeView?.getLayout?.()
 		const dip = (value: unknown) => {
 			const pixels = Number(value)
 			return Number.isFinite(pixels) ? round(Utils.layout.toDeviceIndependentPixels(pixels)) : undefined
 		}
+
 		const layoutLineCount = Number(layout?.getLineCount?.())
 		const layoutLines = Number.isFinite(layoutLineCount) && layoutLineCount > 0
 			? Array.from({ length: Math.min(layoutLineCount, 4) }, (_, index) => ({
@@ -164,7 +166,7 @@ function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }) {
 
 function childrenOf(view: any, out: any[] = [], visited = new Set<any>()): any[] {
 	const visit = (child: any) => {
-		if (!child || visited.has(child)) return
+		if (!child || visited.has(child)) {return}
 		visited.add(child)
 		out.push(child)
 		childrenOf(child, out, visited)

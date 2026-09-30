@@ -113,10 +113,12 @@ async function prepareRoute(route: Route, redirects = 0): Promise<void> {
 		commitRoute(route)
 		return
 	}
+
 	if (redirects > 16) {
 		console.warn(`[octane-xplat] beforeLoad redirect loop for '${route.name}'`)
 		return
 	}
+
 	try {
 		const returned = await beforeLoad({ params: route.params, context: contextFor(route) })
 		commitRoute({ ...route, context: returned ? { ...contextFor(route), ...returned } : route.context })
@@ -125,6 +127,7 @@ async function prepareRoute(route: Route, redirects = 0): Promise<void> {
 			await prepareRoute(error.route, redirects + 1)
 			return
 		}
+
 		console.warn(`[octane-xplat] beforeLoad('${route.name}') rejected: ${(error as Error)?.message ?? error}`)
 	}
 }
@@ -138,6 +141,7 @@ export function pushRoute(route: Route): void {
 		void prepareRoute(route)
 		return
 	}
+
 	commitRoute(route)
 }
 
@@ -153,6 +157,7 @@ function commitRoute(route: Route): void {
 			(loaderData) => commitRoute({ ...entry, loaderData }),
 			(loaderError) => commitRoute({ ...entry, loaderError }),
 		)
+
 		return
 	}
 
@@ -164,6 +169,7 @@ function commitRoute(route: Route): void {
 		lastStack = entry.stack
 		modalRoute = null
 	}
+
 	emit()
 }
 
@@ -177,8 +183,10 @@ export function popRoute(stack = 'root'): void {
 		} else if (entries.length) {
 			stacks.set(stack, [])
 		}
+
 		lastStack = stack
 	}
+
 	emit()
 }
 

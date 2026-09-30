@@ -119,9 +119,11 @@ export function discoverTargets(cwd) {
 		if (platforms.includes('ios')) {
 			targets.push(...iosTargets())
 		}
+
 		if (platforms.includes('android')) {
 			targets.push(...androidTargets())
 		}
+
 		if (hasWindows(cwd)) {
 			targets.push({ kind: 'windows', id: 'windows', name: 'Windows (ns run windows)' })
 		}

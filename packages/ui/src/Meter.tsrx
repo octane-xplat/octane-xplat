@@ -17,6 +17,7 @@ function ringSvg(size: number, strokeWidth: number, ratio: number, color: string
 	const arc = ratio > 0 && r > 0
 		? `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-dasharray="${ratio * circumference} ${circumference}" transform="rotate(-90 ${c} ${c})"/>`
 		: '';
+
 	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">${track}${arc}</svg>`;
 }
 

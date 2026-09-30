@@ -26,7 +26,7 @@ let unmounted = false
 
 function unmount() {
 	closed = true
-	if (unmounted) return
+	if (unmounted) {return}
 	unmounted = true
 	try { root.unmount() }
 	catch (error) { console.error('[macos] main window root unmount failed', error) }
@@ -43,11 +43,11 @@ void applicationClosed.then(() => {
 })
 
 function reload(afterEdit = false) {
-	if (closed) return
-	if (!liveComponent) bench.beforeRender()
+	if (closed) {return}
+	if (!liveComponent) {bench.beforeRender()}
 	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE)
 	const component = loaded.default ?? loaded
-	if (!component) throw Error('The macOS dev bundle has no default component export')
+	if (!component) {throw Error('The macOS dev bundle has no default component export')}
 	if (!liveComponent) {
 		liveComponent = hmrUniversalComponent('macos', component)
 		root.render(liveComponent, { parentWindow: window })
@@ -56,6 +56,7 @@ function reload(afterEdit = false) {
 	} else {
 		liveComponent[UNIVERSAL_HMR].update(component)
 	}
+
 	console.log('[macos] component rendered' + (afterEdit ? ' after hot edit' : ''))
 }
 
@@ -63,13 +64,14 @@ globalThis.__xplatDev = { reload }
 if (process.env.OCTANE_MACOS_PARITY_FIXTURES) {
 	globalThis.__xplatParityFixtureFilter = process.env.OCTANE_MACOS_PARITY_FIXTURES.split(',')
 }
+
 globalThis.__xplatOnInput = (line) => {
 	try {
-		if (line === 'reload') return reload(true)
-		if (bench.onInput(line)) return
-		if (process.env.OCTANE_MACOS_AUTOMATION !== '1') return
+		if (line === 'reload') {return reload(true)}
+		if (bench.onInput(line)) {return}
+		if (process.env.OCTANE_MACOS_AUTOMATION !== '1') {return}
 		const targets = [root.__macosDebug, ...debugWindows().map((entry) => entry.debug)]
-		if (line.startsWith('press ')) root.__macosDebug.pressButton(line.slice(6))
+		if (line.startsWith('press ')) {root.__macosDebug.pressButton(line.slice(6))}
 		else if (line.startsWith('pressid ')) {
 			const id = line.slice(8)
 			let handled = false
@@ -102,7 +104,8 @@ globalThis.__xplatOnInput = (line) => {
 			for (const target of targets) {
 				try { target?.pressAccessibilityLabel(label); handled = true; break } catch {}
 			}
-			if (!handled) throw Error('No AppKit pressable labeled ' + label)
+
+			if (!handled) {throw Error('No AppKit pressable labeled ' + label)}
 		} else if (line === 'cells') {
 			console.log('[parity-cells] ' + JSON.stringify(root.__macosDebug.parityCellFrames('parity-scroll')))
 			return
@@ -123,6 +126,7 @@ globalThis.__xplatOnInput = (line) => {
 				lastRows: snap.mountedIndices.slice(-6),
 				rowSample: snap.rows.slice(0, 3),
 			}))
+
 			return
 		}
 		else if (line.startsWith('ancestors ')) {
@@ -135,6 +139,7 @@ globalThis.__xplatOnInput = (line) => {
 				'[style] ' +
 					JSON.stringify(root.__macosDebug.setStyle(styleId, styleName, Number(styleValue))),
 			)
+
 			return
 		}
 		else if (line.startsWith('frame ')) {
@@ -148,12 +153,14 @@ globalThis.__xplatOnInput = (line) => {
 			return
 		}
 		else if (line !== 'snapshot' && line !== 'parity')
-			throw Error('Use tap <accessibility label>, press <button title>, pressid <id>, hover <id> [enter|exit], popups, snapshot, or parity')
+			{throw Error('Use tap <accessibility label>, press <button title>, pressid <id>, hover <id> [enter|exit], popups, snapshot, or parity')}
+
 		if (line === 'parity') {
-			if (!globalThis.__xplatMacOSRunParity) throw Error('Parity runner is unavailable')
+			if (!globalThis.__xplatMacOSRunParity) {throw Error('Parity runner is unavailable')}
 			globalThis.__xplatMacOSRunParity()
 			return
 		}
+
 		setTimeout(() => console.log('[macos-automation] ' + JSON.stringify({
 			main: root.__macosDebug.snapshot(),
 			windows: debugWindows().map((entry) => ({ title: entry.title, ...entry.debug?.snapshot() })),

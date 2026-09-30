@@ -16,6 +16,7 @@ function reportContentLayout(view: any, props: WebViewProps) {
 	} else if (isAndroid) {
 		height = Number(view?.android?.getContentHeight?.() ?? 0) * Number(view?.android?.getScale?.() ?? 1)
 	}
+
 	if (!Number.isFinite(width) || !Number.isFinite(height) || height <= 0) return
 	props.onLayoutContent?.({ width, height })
 	if (props.matchContents) {

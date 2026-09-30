@@ -9,9 +9,11 @@ const eventCount = Number(process.env.OCTANE_MACOS_VLIST_EVENTS ?? 180)
 if (process.platform !== 'darwin' || process.arch !== 'arm64') {
 	throw new Error('The AppKit VirtualList scroll probe requires an Apple Silicon Mac.')
 }
+
 if (!Number.isSafeInteger(rowCount) || rowCount < 100 || rowCount > 10000) {
 	throw new Error('OCTANE_MACOS_VLIST_COUNT must be an integer from 100 to 10000.')
 }
+
 if (!Number.isSafeInteger(eventCount) || eventCount < 30 || eventCount > 1000) {
 	throw new Error('OCTANE_MACOS_VLIST_EVENTS must be an integer from 30 to 1000.')
 }
@@ -31,6 +33,7 @@ const result = await new Promise((resolveSample, rejectSample) => {
 		},
 		stdio: ['pipe', 'pipe', 'pipe'],
 	})
+
 	let output = ''
 	let lineBuffer = ''
 	let resultData
@@ -52,6 +55,7 @@ const result = await new Promise((resolveSample, rejectSample) => {
 				started = true
 				child.stdin.write('scroll-stream\n')
 			}
+
 			if (resultIndex >= 0) {
 				try {
 					resultData = JSON.parse(line.slice(resultIndex + resultMarker.length))
@@ -70,12 +74,14 @@ const result = await new Promise((resolveSample, rejectSample) => {
 		clearTimeout(timeout)
 		rejectSample(error)
 	})
+
 	child.on('exit', (code, signal) => {
 		clearTimeout(timeout)
 		if (resultData) {
 			resolveSample(resultData)
 			return
 		}
+
 		rejectSample(
 			new Error(`AppKit scroll probe exited (${signal ?? code}) without metrics:\n${output.slice(-12000)}`),
 		)
@@ -90,6 +96,7 @@ function assertResult(sample) {
 	) {
 		throw new Error(`The programmatic offset stream did not produce sustained scrolling: ${JSON.stringify(sample)}`)
 	}
+
 	if (
 		sample.current.mountedRowCount > 32 ||
 		sample.current.mappedRowCount !== sample.current.mountedRowCount ||
@@ -98,10 +105,12 @@ function assertResult(sample) {
 	) {
 		throw new Error(`The variable-height window exceeded its row or total-height bound: ${JSON.stringify(sample)}`)
 	}
+
 	const distinctHeights = new Set(sample.current.mountedRows.map((row) => Math.round(row.height)))
 	if (distinctHeights.size !== 3 || sample.current.lastMountedRow !== rowCount - 1) {
 		throw new Error(`Expected three row heights and the final data row in the end window: ${JSON.stringify(sample.current)}`)
 	}
+
 	if (sample.rangeCommitMs.samples < 1 || sample.mainLoopHeartbeatMs.samples < eventCount / 2) {
 		throw new Error(`The scroll run did not collect enough responsiveness samples: ${JSON.stringify(sample)}`)
 	}

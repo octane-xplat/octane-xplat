@@ -23,6 +23,7 @@ shared.eventPumpErrorReported ??= false
 shared.applicationClosed ??= new Promise((resolve) => {
 	shared.resolveApplicationClosed = resolve
 })
+
 shared.platformServices ??= {
 	appState: 'active',
 	appStateListeners: new Set(),
@@ -271,13 +272,13 @@ function installPlatformServices() {
 		},
 		shareContent({ text, url, title }) {
 			const anchor = services.primaryWindow?.contentView
-			if (!anchor || typeof NSSharingServicePicker === 'undefined') return 'unavailable'
+			if (!anchor || typeof NSSharingServicePicker === 'undefined') {return 'unavailable'}
 
 			try {
 				let items
 				if (typeof url === 'string') {
 					const nativeUrl = NSURL.URLWithString(url)
-					if (!nativeUrl) return 'unavailable'
+					if (!nativeUrl) {return 'unavailable'}
 					items = [nativeUrl, String(title ?? url)]
 				} else if (typeof text === 'string') {
 					items = [text]
@@ -294,6 +295,7 @@ function installPlatformServices() {
 					},
 					size: { width: 0, height: 0 },
 				}
+
 				const edges = typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
 				picker.showRelativeToOfPreferredEdge(rect, anchor, edges.MinY ?? 1)
 				return 'shared'
@@ -304,7 +306,7 @@ function installPlatformServices() {
 		},
 		openUrl(url) {
 			const target = NSURL.URLWithString(String(url))
-			if (!target) return false
+			if (!target) {return false}
 			return Boolean(NSWorkspace.sharedWorkspace.openURL(target))
 		},
 		getColorScheme() {
@@ -318,6 +320,7 @@ function installPlatformServices() {
 				services.appearanceObserved = true
 				app.addObserverForKeyPathOptionsContext(appDelegate(), 'effectiveAppearance', 0, null)
 			}
+
 			return () => services.appearanceListeners.delete(listener)
 		},
 		storageGet(key) {
@@ -343,6 +346,7 @@ function installPlatformServices() {
 			for (const pending of services.pendingUrls.splice(0)) {
 				listener(pending)
 			}
+
 			return () => services.deepLinkListeners.delete(listener)
 		},
 		consumeInitialUrl() {
@@ -504,6 +508,7 @@ export function fitWindowToContent(nativeWindow, floor = { width: 640, height: 4
 			?? NSScreen.mainScreen?.visibleFrame?.size?.height
 			?? 0,
 	)
+
 	nativeWindow.setContentSize({
 		width: Math.max(floor.width, Math.ceil(width)),
 		height: Math.max(floor.height, Math.min(Math.ceil(height), screenHeight > 0 ? screenHeight : height)),
@@ -644,6 +649,7 @@ export function openWindow(options = {}) {
 			options.component ?? (typeof shared.resolver === 'function'
 				? shared.resolver(controller.data, controller)
 				: null)
+
 		if (typeof component !== 'function') {
 			throw new Error(
 				options.component == null

@@ -49,8 +49,10 @@ function iosAttach() {
 				if (textField || textView) {
 					return false
 				}
+
 				hit = hit.superview
 			}
+
 			return true
 		}
 

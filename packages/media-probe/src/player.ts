@@ -6,6 +6,7 @@ export const createAudioPlayer = () => {
 		audioFile: 'https://www.w3schools.com/html/horse.mp3',
 		loop: false,
 	})
+
 	return {
 		ready,
 		play: async () => {

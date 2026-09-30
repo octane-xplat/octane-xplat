@@ -25,6 +25,7 @@ function matchesAt<T extends BreakpointMap>(width: number, breakpoints: T): Brea
 	for (const name in breakpoints) {
 		matches[name] = width >= breakpoints[name]
 	}
+
 	return matches as BreakpointMatches<T>
 }
 
@@ -32,9 +33,11 @@ function sameMatches(a: Record<string, boolean>, b: Record<string, boolean>): bo
 	for (const name in a) {
 		if (!(name in b)) return false
 	}
+
 	for (const name in b) {
 		if (a[name] !== b[name]) return false
 	}
+
 	return true
 }
 
@@ -45,9 +48,11 @@ export function useBreakpoints$<T extends BreakpointMap>(breakpoints: T): Breakp
 			const next = matchesAt(Screen.mainScreen.widthDIPs, breakpoints)
 			if (!sameMatches(matches$.get(), next)) matches$.set(next)
 		}
+
 		const unsubscribe = subscribe(update)
 		update()
 		return unsubscribe
 	}, [breakpoints])
+
 	return matches$.get()
 }

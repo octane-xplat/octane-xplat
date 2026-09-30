@@ -16,6 +16,7 @@ const supportedImports = new Set([
 	'node:os',
 	'node:path',
 ])
+
 const supportedMembers = new Map([
 	['node:crypto', new Set(['createHash'])],
 	['node:fs', new Set(['mkdirSync', 'existsSync', 'readFileSync', 'writeFileSync'])],
@@ -35,6 +36,7 @@ function inspectMachO(bytes, label, issues) {
 		issues.push(`${label} is not an arm64 Mach-O binary`)
 		return
 	}
+
 	const commands = bytes.readUInt32LE(16)
 	let offset = 32
 	let minimumVersion
@@ -47,6 +49,7 @@ function inspectMachO(bytes, label, issues) {
 			const version = bytes.readUInt32LE(offset + 12)
 			minimumVersion = `${version >>> 16}.${(version >>> 8) & 255}`
 		}
+
 		if (command === 0xc && size >= 24) {
 			const nameOffset = bytes.readUInt32LE(offset + 8)
 			if (nameOffset < size) {
@@ -54,8 +57,10 @@ function inspectMachO(bytes, label, issues) {
 				if (name.startsWith('@rpath/')) {issues.push(`${label} requires an unpackaged library: ${name}`)}
 			}
 		}
+
 		offset += size
 	}
+
 	if (!minimumVersion) {issues.push(`${label} does not declare a macOS deployment target`)}
 	else {
 		const [major, minor] = minimumVersion.split('.').map(Number)
@@ -81,6 +86,7 @@ export function inspectJscHost() {
 			issues.push(`JavaScriptCore host file is missing: ${relativePath}`)
 			continue
 		}
+
 		const bytes = readFileSync(path)
 		const actualHash = createHash('sha256').update(bytes).digest('hex')
 		if (actualHash !== expectedHash) {issues.push(`JavaScriptCore host checksum mismatch: ${relativePath}`)}
@@ -88,12 +94,15 @@ export function inspectJscHost() {
 			inspectMachO(bytes, relativePath, issues)
 		}
 	}
+
 	for (const relativePath of ['macos-arm64/host', 'macos-arm64/metadata.nsmd', 'macos-arm64/NativeScript.framework/Versions/A/NativeScript']) {
 		if (!manifest.sha256?.[relativePath]) {issues.push(`JavaScriptCore host manifest omits ${relativePath}`)}
 	}
+
 	if (manifest.minimumSystemVersion !== minimumJscHostSystemVersion) {
 		issues.push('JavaScriptCore host deployment target differs from package configuration')
 	}
+
 	if (!isFile(join(hostRoot, 'shim.js'))) {issues.push('JavaScriptCore host shim is missing')}
 	return { issues, manifest }
 }
@@ -103,6 +112,7 @@ function memberName(member) {
 	if (member.property.type === 'Literal' && typeof member.property.value === 'string') {
 		return member.property.value
 	}
+
 	return null
 }
 
@@ -127,6 +137,7 @@ function declarationName(pattern, callback) {
 	if (pattern.type === 'ObjectPattern') {
 		for (const property of pattern.properties) {declarationName(property.value ?? property.argument, callback)}
 	}
+
 	if (pattern.type === 'ArrayPattern') {
 		for (const element of pattern.elements) {declarationName(element, callback)}
 	}
@@ -135,7 +146,7 @@ function declarationName(pattern, callback) {
 function childNodes(node, callback) {
 	for (const value of Object.values(node)) {
 		if (Array.isArray(value)) {
-			for (const item of value) {if (item && typeof item.type === 'string') callback(item)}
+			for (const item of value) {if (item && typeof item.type === 'string') {callback(item)}}
 		} else if (value && typeof value === 'object' && typeof value.type === 'string') {callback(value)}
 	}
 }
@@ -150,21 +161,25 @@ function walkHostMembers(ast, moduleOf, issues) {
 		for (let current = parent; current; current = current.parent) {
 			if (current.bindings.has(name)) {return current.bindings.get(name)}
 		}
+
 		return supportedMembers.has(name) ? name : null
 	}
+
 	function declareVariable(node, current) {
 		for (const item of node.declarations) {
 			const module = moduleOf(item.init)
 			declarationName(item.id, (name) => current.bindings.set(name, item.id.type === 'Identifier' ? module : null))
 		}
 	}
+
 	function hoistVars(node, current) {
 		childNodes(node, (child) => {
 			if (isFunction(child)) {return}
 			if (child.type === 'VariableDeclaration' && child.kind === 'var') {declareVariable(child, current)}
-			else hoistVars(child, current)
+			else {hoistVars(child, current)}
 		})
 	}
+
 	function visit(node, current) {
 		if (node.type === 'Program' || isFunction(node)) {
 			const nested = scope(current)
@@ -173,14 +188,17 @@ function walkHostMembers(ast, moduleOf, issues) {
 					if (statement.type === 'VariableDeclaration' && statement.kind !== 'var') {declareVariable(statement, nested)}
 				}
 			}
+
 			if (isFunction(node)) {
 				for (const parameter of node.params) {declarationName(parameter, (name) => nested.bindings.set(name, null))}
 				if (node.id?.name) {nested.bindings.set(node.id.name, null)}
 			}
+
 			hoistVars(node.body?.type ? node.body : node, nested)
 			childNodes(node, (child) => visit(child, nested))
 			return
 		}
+
 		if (node.type === 'BlockStatement') {
 			const nested = scope(current)
 			for (const statement of node.body) {
@@ -189,15 +207,18 @@ function walkHostMembers(ast, moduleOf, issues) {
 					nested.bindings.set(statement.id.name, null)
 				}
 			}
+
 			for (const statement of node.body) {visit(statement, nested)}
 			return
 		}
+
 		if (node.type === 'CatchClause') {
 			const nested = scope(current)
 			declarationName(node.param, (name) => nested.bindings.set(name, null))
 			visit(node.body, nested)
 			return
 		}
+
 		if (node.type === 'ForStatement' || node.type === 'ForOfStatement' || node.type === 'ForInStatement') {
 			const nested = scope(current)
 			const declaration = node.init ?? node.left
@@ -205,18 +226,22 @@ function walkHostMembers(ast, moduleOf, issues) {
 			childNodes(node, (child) => visit(child, nested))
 			return
 		}
+
 		if (node.type === 'MemberExpression') {
 			const owner = node.object?.type === 'Identifier'
 				? binding(current, node.object.name)
 				: moduleOf(node.object)
+
 			const allowed = supportedMembers.get(owner)
 			if (allowed) {
 				const member = memberName(node)
 				if (!member || !allowed.has(member)) {issues.add(`${owner}.${member ?? '[dynamic]'}`)}
 			}
 		}
+
 		childNodes(node, (child) => visit(child, current))
 	}
+
 	visit(ast, null)
 }
 
@@ -232,15 +257,18 @@ export async function validateHostBundle(bundle, appRoot) {
 		const name = call.arguments?.[0]?.value
 		return typeof name === 'string' ? name : null
 	}
+
 	visitAst(ast, (node) => {
 		if (node.type === 'CallExpression' && node.callee?.type === 'Identifier' && node.callee.name === 'require') {
 			const name = moduleOf(node)
 			if (!name) {issues.add('dynamic require')}
 			else if (!supportedImports.has(name)) {imports.add(name)}
 		}
+
 		if (node.type === 'CallExpression' && node.callee?.name === 'setImmediate') {
 			issues.add('setImmediate')
 		}
+
 		if (node.type !== 'VariableDeclarator') {return}
 		const name = moduleOf(node.init)
 		if (name && node.id.type === 'ObjectPattern') {
@@ -250,9 +278,11 @@ export async function validateHostBundle(bundle, appRoot) {
 			}
 		}
 	})
+
 	if (imports.size) {
 		throw new Error(`Unsupported macOS JavaScriptCore host imports: ${[...imports].sort().join(', ')}. Bundle them or use the documented host API.`)
 	}
+
 	walkHostMembers(ast, moduleOf, issues)
 	if (issues.size) {
 		throw new Error(`Unsupported macOS JavaScriptCore host APIs: ${[...issues].sort().join(', ')}. Use the documented host API.`)

@@ -34,6 +34,7 @@ export function MaterialDropdown(props: MaterialDropdownProps) @{
 		value: selectedKey,
 		disabled: props.enabled === false ? 1 : 0,
 	}
+
 	const update = (nextKey: string) => {
 		if (!controlled) setInternalKey(nextKey)
 		props.onSelectedKeyChange?.(nextKey)

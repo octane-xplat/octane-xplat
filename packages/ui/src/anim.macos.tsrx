@@ -10,6 +10,7 @@ export function useAnimation(initial = 0, property = 'opacity'): AnimatedValue {
 		value = next
 		if (view) {view[property] = next}
 	}
+
 	return {
 		get value() { return value },
 		bind(el: any) { view = el; write(value) },

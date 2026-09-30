@@ -13,6 +13,7 @@ const modeFiles = [
 	path.resolve(nativeDir, '../../packages/app/src/platform/virtual-list-benchmark-mode.mobile.ts'),
 	path.resolve(nativeDir, '../../packages/app/src/platform/virtual-list-benchmark-mode.native.ts'),
 ]
+
 const originalModes = modeFiles.map((modeFile) => readFileSync(modeFile, 'utf8'))
 const disabledMode = [
 	'export const VIRTUAL_LIST_BENCH_MODE = false',
@@ -20,29 +21,34 @@ const disabledMode = [
 	'export const VIRTUAL_LIST_BENCH_FIXED_MODE = false',
 	'export const VIRTUAL_LIST_INPUT_DURATION_MS = 20_000',
 ].join('\n') + '\n'
+
 const enabledMode = disabledMode.replace(
 	'export const VIRTUAL_LIST_BENCH_MODE = false',
 	'export const VIRTUAL_LIST_BENCH_MODE = true',
 )
+
 if (originalModes.some((mode) => mode !== disabledMode)) {
 	throw new Error(`Unexpected benchmark mode source in ${modeFiles.join(', ')}; refusing to overwrite it`)
 }
+
 for (const modeFile of modeFiles) {
 	writeFileSync(modeFile, enabledMode)
 }
 
 let modeRestored = false
 const restoreMode = () => {
-	if (modeRestored) return
+	if (modeRestored) {return}
 	modeFiles.forEach((modeFile, index) => {
 		writeFileSync(modeFile, originalModes[index])
 	})
+
 	modeRestored = true
 }
+
 process.once('exit', restoreMode)
 
 const runArgs = ['exec', 'ns', 'run', target, '--no-hmr', '--no-watch']
-if (process.env.XPLAT_VLIST_DEVICE) runArgs.push('--device', process.env.XPLAT_VLIST_DEVICE)
+if (process.env.XPLAT_VLIST_DEVICE) {runArgs.push('--device', process.env.XPLAT_VLIST_DEVICE)}
 
 const child = spawn('pnpm', runArgs, {
 	cwd: nativeDir,
@@ -59,25 +65,29 @@ const errorMarker = '[vlist-benchmark] error '
 let forceStop
 let benchmarkError = ''
 const signalRun = (signal) => {
-	if (!child.pid) return
+	if (!child.pid) {return}
 	try {
-		if (process.platform === 'win32') child.kill(signal)
-		else process.kill(-child.pid, signal)
+		if (process.platform === 'win32') {child.kill(signal)}
+		else {process.kill(-child.pid, signal)}
 	} catch {}
 }
+
 const stopRun = () => {
 	signalRun('SIGINT')
 	forceStop = setTimeout(() => signalRun('SIGTERM'), 5000)
 	forceStop.unref()
 }
+
 process.once('SIGINT', () => {
 	restoreMode()
 	stopRun()
 })
+
 process.once('SIGTERM', () => {
 	restoreMode()
 	stopRun()
 })
+
 const timeout = setTimeout(() => {
 	stopRun()
 }, 15 * 60_000)
@@ -97,8 +107,9 @@ const consume = (chunk) => {
 			stopRun()
 			continue
 		}
+
 		const at = line.indexOf(marker)
-		if (at === -1) continue
+		if (at === -1) {continue}
 		try {
 			result = JSON.parse(line.slice(at + marker.length))
 			clearTimeout(timeout)
@@ -118,6 +129,7 @@ child.on('error', (error) => {
 	process.stderr.write(`${error.stack ?? error}\n`)
 	process.exitCode = 1
 })
+
 child.on('close', (code, signal) => {
 	restoreMode()
 	clearTimeout(timeout)
@@ -126,8 +138,10 @@ child.on('close', (code, signal) => {
 		process.stderr.write(
 			`\nNativeScript exited without a profile${benchmarkError ? `: ${benchmarkError}` : ` (code=${code}, signal=${signal})`}.\n${outputTail}\n`,
 		)
+
 		process.exitCode = 1
 		return
 	}
+
 	process.stdout.write(JSON.stringify(result, null, 2) + '\n')
 })

@@ -27,6 +27,7 @@ export function draw(
 		report('webgpu: unavailable');
 		return;
 	}
+
 	gpu
 		.requestAdapter()
 		.then((adapter: any) => {
@@ -34,12 +35,14 @@ export function draw(
 				report('webgpu: no adapter');
 				return null;
 			}
+
 			return adapter.requestDevice();
 		})
 		.then((device: any) => {
 			if (!device) {
 				return;
 			}
+
 			const format = gpu.getPreferredCanvasFormat();
 			context.configure({ device, format, alphaMode: 'opaque' });
 			const module = device.createShaderModule({ code: WGSL });
@@ -49,6 +52,7 @@ export function draw(
 				fragment: { module, entryPoint: 'fs', targets: [{ format }] },
 				primitive: { topology: 'triangle-list' },
 			});
+
 			const encoder = device.createCommandEncoder();
 			const pass = encoder.beginRenderPass({
 				colorAttachments: [
@@ -60,6 +64,7 @@ export function draw(
 					},
 				],
 			});
+
 			pass.setPipeline(pipeline);
 			pass.draw(3);
 			pass.end();

@@ -10,6 +10,7 @@ import {
 	createObjectDriver,
 	createUniversalRoot,
 } from 'octane/universal/native'
+
 import { usePan } from './pan.tsrx'
 import type { PanEvent } from './props'
 
@@ -17,6 +18,7 @@ const events: PanEvent[] = []
 
 function PanHost() @{
 	const onPan = usePan((event) => events.push(event))
+
 	<flexboxlayout id="pan-host" onPan={onPan} />
 }
 
@@ -69,6 +71,7 @@ describe('native pan normalization', () => {
 			android: { current: nativeEvent(2) },
 			view: target,
 		})
+
 		container.dispatchEvent(host, 'pan', {
 			// NativeScript's Android pan recognizer reports ended for both
 			// ACTION_UP and ACTION_CANCEL; the MotionEvent disambiguates them.
@@ -97,6 +100,7 @@ describe('native pan normalization', () => {
 			deltaY: 0,
 			android: { current: nativeEvent(0) },
 		})
+
 		container.dispatchEvent(host, 'pan', {
 			state: 3,
 			deltaX: 40,

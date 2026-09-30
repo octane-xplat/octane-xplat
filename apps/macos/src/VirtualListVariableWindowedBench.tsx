@@ -19,11 +19,13 @@ const items: BenchItem[] = Array.from({ length: count }, (_, index) => ({
 	label: 'Variable row ' + index,
 	height: HEIGHTS[index % HEIGHTS.length],
 }))
+
 const offsets = new Array<number>(items.length + 1)
 offsets[0] = 0
 for (let index = 0; index < items.length; index += 1) {
 	offsets[index + 1] = offsets[index] + items[index].height
 }
+
 const rowStart = (index: number) => offsets[index] + index * STACK_GAP
 
 const scrollProbe = {
@@ -31,6 +33,7 @@ const scrollProbe = {
 	pendingRangeAt: 0,
 	totalContentHeight: offsets[items.length] + Math.max(0, items.length - 1) * STACK_GAP,
 }
+
 ;(globalThis as any).__xplatMacOSVirtualListScrollProbe = scrollProbe
 
 function rowAtOffset(offset: number) {
@@ -42,6 +45,7 @@ function rowAtOffset(offset: number) {
 		if (rowStart(middle + 1) <= boundedOffset) {low = middle + 1}
 		else {high = middle}
 	}
+
 	return Math.min(low, Math.max(0, items.length - 1))
 }
 
@@ -75,11 +79,13 @@ export default function VirtualListVariableWindowedBench() {
 			return { start, end }
 		})
 	}
+
 	useEffect(() => {
 		if (scrollProbe.pendingRangeAt === 0) {return}
 		scrollProbe.rangeCommitMs.push(now() - scrollProbe.pendingRangeAt)
 		scrollProbe.pendingRangeAt = 0
 	}, [range.start, range.end])
+
 	const renderHeader = () => <View style={{ height: rowStart(range.start) - STACK_GAP }} />
 	const renderFooter = () => (
 		<View

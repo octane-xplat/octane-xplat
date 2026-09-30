@@ -38,7 +38,6 @@ describe('native compiled hosts', () => {
 	})
 })
 
-import { vi } from 'vitest'
 import { useEffect } from 'octane'
 import { Presence } from './index'
 let nativeCleanups = 0

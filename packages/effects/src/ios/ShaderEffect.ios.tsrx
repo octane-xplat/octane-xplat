@@ -33,6 +33,7 @@ const contentById = new Map<string, ContentView>();
 if (!NativeScriptViewFactory.shared) {
 	NativeScriptViewFactory.initShared();
 }
+
 SwiftUIManager.registerNativeScriptViews({ xplatshader: true } as any, {
 	create: (id: string) => contentById.get(id) ?? new ContentView(),
 	destroy: (id: string) => contentById.delete(id),

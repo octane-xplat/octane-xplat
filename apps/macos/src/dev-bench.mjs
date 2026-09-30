@@ -4,17 +4,18 @@ const env = process.env
 const enabled = env.OCTANE_MACOS_VLIST_BENCH === '1'
 const mode = ['windowed', 'variable'].includes(env.OCTANE_MACOS_VLIST_MODE)
 	? env.OCTANE_MACOS_VLIST_MODE : 'all'
+
 const interactive = env.OCTANE_MACOS_VLIST_INTERACTIVE === '1'
 const requestedCount = Number(env.OCTANE_MACOS_VLIST_COUNT)
 
-if (env.OCTANE_MACOS_PARITY_ONLY === '1') globalThis.__xplatMacOSParityOnly = true
+if (env.OCTANE_MACOS_PARITY_ONLY === '1') {globalThis.__xplatMacOSParityOnly = true}
 if (enabled) {
 	globalThis.__xplatMacOSVirtualListCount = Number.isSafeInteger(requestedCount) && requestedCount > 0
 		? requestedCount : 500
 }
 
 function summarize(values) {
-	if (!values.length) return { samples: 0, p50Ms: null, p95Ms: null, p99Ms: null, maxMs: null }
+	if (!values.length) {return { samples: 0, p50Ms: null, p95Ms: null, p99Ms: null, maxMs: null }}
 	const sorted = values.slice().sort((a, b) => a - b)
 	const percentile = (fraction) => sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * fraction) - 1)]
 	const round = (value) => Number(value.toFixed(2))
@@ -28,7 +29,7 @@ function summarize(values) {
 }
 
 export function createDevBench(root, appKit) {
-	if (!enabled) return { beforeRender() {}, afterRender() {}, onInput() { return false } }
+	if (!enabled) {return { beforeRender() {}, afterRender() {}, onInput() { return false } }}
 	let renderStartedAt = 0
 	let renderMetricsBefore
 	let initialRenderMs = 0
@@ -45,6 +46,7 @@ export function createDevBench(root, appKit) {
 		const scrollEvents = root.__macosDebug.scrollStats('vlist-bench').events ?? []
 		const offsetDeltas = scrollEvents.slice(1).map((event, index) =>
 			event.verticalOffset - scrollEvents[index].verticalOffset)
+
 		const heartbeatIntervals = heartbeatTimes.slice(1).map((time, index) => time - heartbeatTimes[index])
 		return {
 			mode: 'variable-windowed',
@@ -98,8 +100,10 @@ export function createDevBench(root, appKit) {
 							items: globalThis.__xplatMacOSVirtualListCount,
 							initial: root.__macosDebug.metrics(),
 						}))
+
 						return
 					}
+
 						void (async () => {
 							try {
 								const initial = root.__macosDebug.metrics()
@@ -113,6 +117,7 @@ export function createDevBench(root, appKit) {
 									await new Promise((resolve) => setTimeout(resolve, 150))
 									afterScroll = root.__macosDebug.metrics()
 								}
+
 								console.log('[macos-vlist-bench] ' + JSON.stringify({
 									mode, items: globalThis.__xplatMacOSVirtualListCount,
 									initialRenderMs, initialRenderCpuMs, initialRenderRssDeltaMiB,
@@ -135,11 +140,13 @@ export function createDevBench(root, appKit) {
 						const scrollView = root.__macosDebug.metrics().scrollViews.find((view) => view.id === 'vlist-bench')
 						const contentHeight = Number(scrollView?.contentHeight ??
 							globalThis.__xplatMacOSVirtualListScrollProbe?.totalContentHeight ?? 0)
+
 						const maxOffset = Math.max(0, contentHeight - (scrollView?.viewportHeight ?? 0))
 						for (let index = 1; index <= count; index++) {
 							root.__macosDebug.scrollToId('vlist-bench', Math.min(index * 8, maxOffset))
 							await new Promise((resolve) => setTimeout(resolve, 16))
 						}
+
 						root.__macosDebug.scrollToId('vlist-bench', maxOffset / 2)
 						await new Promise((resolve) => setTimeout(resolve, 100))
 						root.__macosDebug.scrollToId('vlist-bench', maxOffset)
@@ -148,15 +155,19 @@ export function createDevBench(root, appKit) {
 					} catch (error) { console.error('[macos-vlist-bench] scroll stream failed', error) }
 					finally { finish() }
 				})()
+
 				return true
 			}
+
 			if (interactive && (command === 'metrics' || command === 'finish')) {
 				setTimeout(() => {
 					console.log('[macos-vlist-result] ' + JSON.stringify(result()))
-					if (command === 'finish') finish()
+					if (command === 'finish') {finish()}
 				}, 100)
+
 				return true
 			}
+
 			return false
 		},
 	}

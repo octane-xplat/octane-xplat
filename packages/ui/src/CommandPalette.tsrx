@@ -20,6 +20,7 @@ export function CommandPalette(props: CommandPaletteProps) @{
 	const shown = query
 		? props.items.filter((i) => (i.label ?? i.key).toLowerCase().includes(query.toLowerCase()))
 		: props.items;
+
 	const panelStyle = {
 		...props.style,
 		maxWidth: props.style?.maxWidth ?? Screen.mainScreen.widthDIPs * 0.9,

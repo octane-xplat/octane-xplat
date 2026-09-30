@@ -27,6 +27,7 @@ function createPlayer() {
 			},
 		]),
 	)
+
 	const sessionCalls = []
 	const session = {
 		setCategoryModeOptionsError(...args) {
@@ -36,6 +37,7 @@ function createPlayer() {
 			sessionCalls.push(['active', ...args])
 		},
 	}
+
 	const nowPlaying = { nowPlayingInfo: null }
 	const observers = []
 	const notificationCenter = {
@@ -46,6 +48,7 @@ function createPlayer() {
 		},
 		removeObserver() {},
 	}
+
 	const nativePlayer = {
 		rate: 0,
 		paused: false,
@@ -63,6 +66,7 @@ function createPlayer() {
 			this.position = time.seconds
 		},
 	}
+
 	const globals = {
 		AVAudioSession: { sharedInstance: () => session },
 		AVAudioSessionCategoryPlayback: 'playback',
@@ -111,6 +115,7 @@ function createPlayer() {
 		setInterval,
 		clearInterval,
 	}
+
 	const module = { exports: {} }
 	vm.runInNewContext(compiled, { ...globals, exports: module.exports, module })
 	return {

@@ -33,6 +33,7 @@ export function WebView(props: WebViewProps) @{
 		},
 		native: el,
 	});
+
 	useEffect(() => {
 		const el = frame.current;
 		if (!el) return;
@@ -48,6 +49,7 @@ export function WebView(props: WebViewProps) @{
 					width: Math.max(body.scrollWidth, root.scrollWidth),
 					height: Math.max(body.scrollHeight, root.scrollHeight),
 				};
+
 				if (size.width <= 0 || size.height <= 0) return;
 				if (props.matchContents) el.style.height = `${size.height}px`;
 				props.onLayoutContent?.(size);
@@ -62,6 +64,7 @@ export function WebView(props: WebViewProps) @{
 				// Cross-origin documents cannot be inspected by the embedding page.
 			}
 		};
+
 		el.addEventListener('load', measure);
 		measure();
 		return () => {

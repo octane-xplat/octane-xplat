@@ -19,10 +19,11 @@ try {
 			if (previewOutput.includes('Local:')) {
 				baseUrl = previewOutput.match(/Local:\s+(https?:\/\/\S+)/)?.[1]
 				clearTimeout(timeout)
-				if (baseUrl) resolve()
-				else reject(new Error(`Could not find Vite preview URL: ${previewOutput}`))
+				if (baseUrl) {resolve()}
+				else {reject(new Error(`Could not find Vite preview URL: ${previewOutput}`))}
 			}
 		}
+
 		preview.stdout.on('data', onData)
 		preview.stderr.on('data', onData)
 		preview.on('exit', (code) => {
@@ -40,6 +41,7 @@ try {
 		resolveResult = resolve
 		rejectResult = reject
 	})
+
 	const resultTimeout = setTimeout(
 		() => rejectResult(new Error('Timed out waiting for the VirtualList profile result')),
 		120_000,
@@ -50,7 +52,7 @@ try {
 		const line = message.text()
 		const marker = '[vlist-benchmark] result '
 		const at = line.indexOf(marker)
-		if (at === -1) return
+		if (at === -1) {return}
 		try {
 			resolveResult(JSON.parse(line.slice(at + marker.length)))
 		} catch (error) {
@@ -65,7 +67,7 @@ try {
 	await page.locator('#vlist-bench-run').click()
 	const result = await resultPromise
 	clearTimeout(resultTimeout)
-	if (pageErrors.length) throw new Error(`Web app errors: ${pageErrors.join('; ')}`)
+	if (pageErrors.length) {throw new Error(`Web app errors: ${pageErrors.join('; ')}`)}
 	console.log(JSON.stringify(result, null, 2))
 } finally {
 	await browser?.close()

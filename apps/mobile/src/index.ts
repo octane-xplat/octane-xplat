@@ -6,17 +6,20 @@ import {
 	VirtualListBenchmark,
 	VirtualListBenchmarkFixed,
 } from '@xplat/app/virtual-list-benchmark-host.mobile'
+
 import { probeSignal$ } from '@xplat/app/probe-state'
 import {
 	runVirtualListBenchmark,
 	runVirtualListInputBenchmark,
 } from '@xplat/app/platform/virtual-list-benchmark.mobile'
+
 import {
 	VIRTUAL_LIST_BENCH_FIXED_MODE,
 	VIRTUAL_LIST_BENCH_MODE,
 	VIRTUAL_LIST_INPUT_DURATION_MS,
 	VIRTUAL_LIST_INPUT_MODE,
 } from '@xplat/app/platform/virtual-list-benchmark-mode.mobile'
+
 import { sheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick.mobile'
 import {
@@ -33,7 +36,7 @@ import { findInRootLayouts } from '@octane-xplat/ui/native'
 import { storage, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
 installParityDump()
-if (!VIRTUAL_LIST_BENCH_MODE) void import('@xplat/app/platform/paritysweep')
+if (!VIRTUAL_LIST_BENCH_MODE) {void import('@xplat/app/platform/paritysweep')}
 // Per-file css module imports — same shape as apps/web/src/main.tsrx. Each
 // module passes the xplat-native-css transform (px→dip + xplat-web-only
 // strip); an @import'd chain inlines raw text and bypasses it — that's how
@@ -114,6 +117,7 @@ function createWindowContent(): Frame {
 				? VirtualListBenchmarkFixed
 				: VirtualListBenchmark
 			: App
+
 		roots.add(renderNativeScriptApp(page, rootComponent))
 		thePage = page
 		console.log('[harness] root mounted')
@@ -152,6 +156,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
 					'[vlist-input] ready ' +
 					JSON.stringify({ target, heightMode, durationMs: VIRTUAL_LIST_INPUT_DURATION_MS }),
 				)
+
 				void runVirtualListInputBenchmark(
 					'vlist-bench-list',
 					VIRTUAL_LIST_INPUT_DURATION_MS,
@@ -166,8 +171,10 @@ if (VIRTUAL_LIST_BENCH_MODE) {
 						const message = error instanceof Error ? error.message : String(error)
 						console.log('[vlist-input] error ' + message)
 					})
+
 				return
 			}
+
 			void runVirtualListBenchmark('vlist-bench-list', thePage)
 				.then((metrics) =>
 					console.log('[vlist-benchmark] result ' + JSON.stringify(virtualListBenchmarkReport(metrics))),
@@ -176,6 +183,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
 					const message = error instanceof Error ? error.message : String(error)
 					console.log('[vlist-benchmark] error ' + message)
 				})
+
 			return
 		}
 
@@ -186,6 +194,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
 
 		setTimeout(() => startWhenMounted(tries - 1), 100)
 	}
+
 	setTimeout(startWhenMounted, 100)
 }
 

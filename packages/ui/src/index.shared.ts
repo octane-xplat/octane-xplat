@@ -227,6 +227,7 @@ export {
 	mergeRouteManifests,
 	manifestToJson,
 } from './route-table'
+
 export type {
 	BeforeLoad,
 	BeforeLoadArgs,

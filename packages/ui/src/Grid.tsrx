@@ -25,11 +25,13 @@ export function Grid(props: GridProps) @{
 			views.push(child);
 			return true;
 		});
+
 		const placement = autoPlaceGridChildren(
 			views.map(gridChildPlacement),
 			props.rows,
 			props.columns,
 		);
+
 		host.rows = ensureGridTracks(props.rows, placement.rowCount);
 		host.columns = ensureGridTracks(props.columns, placement.columnCount);
 		for (let index = 0; index < views.length; index++) {

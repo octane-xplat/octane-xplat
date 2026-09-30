@@ -16,6 +16,7 @@ export function DemoDetail(props: { id?: string; _stack?: string }) @{
 	const title = id === 'vlist-perf'
 		? 'VirtualList performance'
 		: DEMOS.find((d) => d.id === id)?.title ?? id;
+
 	const renderDemo = id === 'vlist-perf' ? renderVirtualListBenchmark : RENDER[id] ?? RENDER.counter;
 
 	useEffect(() => { setLastDemo(id); }, []);

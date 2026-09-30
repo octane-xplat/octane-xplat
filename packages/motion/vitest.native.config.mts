@@ -31,6 +31,7 @@ const NATIVE_EXTS = [
 	'.js',
 	'.json',
 ]
+
 const configDir = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({

@@ -99,6 +99,7 @@ const demosPage = () =>
 	Application.android != null
 		? getStack('root')?.currentPage
 		: (getStack(stepStack)?.currentPage ?? getStack('root')?.currentPage)
+
 // Frame stacks detect pushes via currentPage changes; swap-pane stacks
 // keep the same Page — the route store is the honest signal for both.
 const pushedRoute = () => routeFor(stepStack)
@@ -302,6 +303,7 @@ function runVirtualListHeightProbe() {
 			anchor != null
 		)
 	}
+
 	waitFor(
 		heightAnchorReady,
 		() => {
@@ -348,6 +350,7 @@ function runVirtualListHeightProbe() {
 				previousAnchorY = after.y
 				return stableAnchorSamples >= 2
 			}
+
 			waitFor(
 				heightAnchorSettled,
 				() => {
@@ -396,11 +399,13 @@ function runVirtualListHeightProbe() {
 							.split(/\s+/)
 							.includes('vx-virtual-list-separator'),
 					)
+
 					const hasSeparatorContent = separators.some((separator) => collect(separator).length > 1)
 					const hasSlots =
 						slotTexts.includes('Variable-height rows · tap rows, then reverse') &&
 						slotTexts.includes('End of 500 rows') &&
 						hasSeparatorContent
+
 					console.log(
 						'[assert] VirtualList renders header, footer, and separators: ' +
 							(hasSlots ? 'OK' : 'FAIL'),
@@ -426,6 +431,7 @@ function runVirtualListHeightProbe() {
 								console.log(
 									'[assert] VirtualList restores rows after the empty state: FAIL (button missing)',
 								)
+
 								return
 							}
 
@@ -446,6 +452,7 @@ function runVirtualListHeightProbe() {
 												.split(/\s+/)
 												.includes('vx-virtual-list-row'),
 										)
+
 									console.log(
 										'[assert] VirtualList restores rows after the empty state: ' +
 											(restored ? 'OK' : 'FAIL'),
@@ -494,7 +501,7 @@ function waitForVirtualListDeepRowVisible(
 	const readVisibleWindow = () => {
 		const listY = Number(list?.getLocationOnScreen?.()?.y)
 		const listHeight = Number(list?.getActualSize?.()?.height)
-		if (!Number.isFinite(listY) || !Number.isFinite(listHeight) || listHeight <= 0) return null
+		if (!Number.isFinite(listY) || !Number.isFinite(listHeight) || listHeight <= 0) {return null}
 
 		const rows = virtualListRowMetrics(list).filter(
 			(row) =>
@@ -503,12 +510,15 @@ function waitForVirtualListDeepRowVisible(
 				row.y + row.height > listY &&
 				row.y < listY + listHeight,
 		)
+
 		const fullyVisible = rows.filter(
 			(row) => row.y >= listY && row.y + row.height <= listY + listHeight,
 		)
+
 		const candidate = fullyVisible.find((row) => Number(row.id.slice(5)) >= minIndex)
 		return { listY, listHeight, rows, candidate }
 	}
+
 	const visibleWindowIsStable = () => {
 		const current = readVisibleWindow()
 		if (!current?.candidate) {
@@ -523,8 +533,9 @@ function waitForVirtualListDeepRowVisible(
 			previousSignature = signature
 			positionSamples = []
 		}
+
 		positionSamples.push(current.candidate.y)
-		if (positionSamples.length > 20) positionSamples.shift()
+		if (positionSamples.length > 20) {positionSamples.shift()}
 		lastSampleSpread = Math.max(...positionSamples) - Math.min(...positionSamples)
 		lastCandidate = current.candidate
 		lastOffset = Number(list?.verticalOffset ?? 0)
@@ -555,6 +566,7 @@ function waitForVirtualListDeepRowVisible(
 						lastSampleSpread +
 						')',
 				)
+
 				return
 			}
 
@@ -569,6 +581,7 @@ function waitForVirtualListDeepRowVisible(
 						rowText +
 						')',
 				)
+
 				return
 			}
 
@@ -585,6 +598,7 @@ function runVirtualListStateProbe() {
 		list = find('vlist')
 		return list?.isLoaded !== false && Number(list?.getActualSize?.()?.height ?? 0) > 0
 	}
+
 	waitFor(
 		hasViewport,
 		() => {
@@ -600,6 +614,7 @@ function runVirtualListStateProbe() {
 						Number(size?.height ?? 0) +
 						')',
 				)
+
 				return
 			}
 
@@ -613,6 +628,7 @@ function runVirtualListStateProbe() {
 					tapTargetForText(list, 'Row 200 · 0') != null
 				)
 			}
+
 			waitFor(
 				rowMountedAtTarget,
 				() => {
@@ -638,6 +654,7 @@ function runVirtualListStateProbe() {
 										' press updates local state: ' +
 										(rowPressed ? 'OK' : 'FAIL'),
 								)
+
 								const anchorBefore = visibleVirtualListRows(list)[0]
 								const prependTarget = tapTargetForText(demosPage(), 'Prepend')
 								fireTap(prependTarget)
@@ -647,10 +664,12 @@ function runVirtualListStateProbe() {
 									const prepended = viewTexts(demosPage()).some((text) =>
 										text.startsWith('501 rows ·'),
 									)
+
 									const stayed = viewTexts(demosPage()).includes(pressedText)
 									const after = virtualListRowMetrics(list).find(
 										(row) => row.id === anchorBefore?.id,
 									)
+
 									if (!prepended || !stayed || !anchorBefore || !after) {
 										stableAnchorSamples = 0
 										return false
@@ -667,31 +686,38 @@ function runVirtualListStateProbe() {
 									previousAnchorY = after.y
 									return stableAnchorSamples >= 2
 								}
+
 								waitFor(
 									prependAnchorStable,
 									() => {
 										const prepended = viewTexts(demosPage()).some((text) =>
 											text.startsWith('501 rows ·'),
 										)
+
 										console.log(
 											'[assert] VirtualList prepend updates the rendered item count: ' +
 												(prepended ? 'OK' : 'FAIL'),
 										)
+
 										const rowTextsAfterPrepend = viewTexts(demosPage()).filter((text) =>
 											text.startsWith(rowLabel + ' · '),
 										)
+
 										const stayed = rowTextsAfterPrepend.includes(pressedText)
 										console.log(
 											'[assert] VirtualList keyed row state survives prepend: ' +
 												(stayed ? 'OK' : 'FAIL (' + JSON.stringify(rowTextsAfterPrepend) + ')'),
 										)
+
 										const anchorAfter = virtualListRowMetrics(list).find(
 											(row) => row.id === anchorBefore?.id,
 										)
+
 										const anchorDrift =
 											anchorBefore && anchorAfter
 												? Math.abs(anchorAfter.y - anchorBefore.y)
 												: Number.POSITIVE_INFINITY
+
 										console.log(
 											'[assert] VirtualList preserves the visible row across prepend within 2 dip: ' +
 												(anchorDrift <= 2 ? 'OK' : 'FAIL') +
@@ -1613,6 +1639,7 @@ if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 								console.log(
 									'[assert] Android VirtualList route renders: ' + (routeOk ? 'OK' : 'FAIL'),
 								)
+
 								console.log(
 									'[assert] VirtualList bounds mounted rows: ' +
 										(mounted.length > 0 && mounted.length < 40 ? 'OK' : 'FAIL') +

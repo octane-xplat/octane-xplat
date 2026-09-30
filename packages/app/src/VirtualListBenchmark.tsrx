@@ -5,6 +5,7 @@ import {
 	VIRTUAL_LIST_BENCH_ITEMS,
 	type VirtualListBenchItem,
 } from './virtual-list-benchmark'
+
 import { runVirtualListBenchmark, runVirtualListInputBenchmark } from './platform/virtual-list-benchmark'
 
 const keyExtractor = (item: VirtualListBenchItem) => item.id
@@ -26,6 +27,7 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
 	const [status, setStatus] = useState(
 		props.fixed ? 'Ready · 5,000 fixed-height rows' : 'Ready · 5,000 variable-height rows',
 	)
+
 	const [result, setResult] = useState('')
 	const [running, setRunning] = useState(false)
 	const [inputRunning, setInputRunning] = useState(false)
@@ -50,6 +52,7 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
 			})
 			.finally(() => setRunning(false))
 	}
+
 	const startInput = () => {
 		if (inputRunning) return
 		setInputRunning(true)

@@ -22,6 +22,9 @@
 				"exclude": [
 					"apps/web/",
 					"apps/docs/",
+					"apps/linux/",
+					"apps/macos/",
+					"packages/cli/test/fixtures/",
 					"scripts/"
 				]
 			}
@@ -31,7 +34,8 @@
 			{
 				"exclude": [
 					"apps/web/",
-					"apps/docs/"
+					"apps/docs/",
+					"apps/linux/"
 				]
 			}
 		],
@@ -42,7 +46,8 @@
 					"apps/web/",
 					"apps/docs/",
 					"apps/mobile/",
-					"apps/windows/"
+					"apps/windows/",
+					"packages/typegen-fixture/"
 				]
 			}
 		],
@@ -51,7 +56,8 @@
 			{
 				"exclude": [
 					"apps/mobile/",
-					"apps/windows/"
+					"apps/windows/",
+					"packages/cli/test/fixtures/"
 				]
 			}
 		],

@@ -26,10 +26,12 @@ const ready = new Promise((resolve, reject) => {
 	resolveReady = resolve
 	rejectReady = reject
 })
+
 const report = new Promise((resolve, reject) => {
 	resolveReport = resolve
 	rejectReport = reject
 })
+
 const closed = new Promise((resolve) => host.once('close', (code, signal) => resolve({ code, signal })))
 
 function within(promise, timeout, message) {
@@ -52,6 +54,7 @@ host.once('error', (error) => {
 	rejectReady(error)
 	rejectReport(error)
 })
+
 host.once('close', (code, signal) => {
 	if (!hasReport) {
 		const error = new Error(`AppKit parity host exited before reporting (code=${code}, signal=${signal})`)
@@ -73,6 +76,7 @@ createInterface({ input: host.stdout }).on('line', (line) => {
 		} catch (error) {
 			rejectReport(error)
 		}
+
 		return
 	}
 

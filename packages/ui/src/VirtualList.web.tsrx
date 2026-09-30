@@ -9,6 +9,7 @@ import {
 	type VirtualListEntry,
 	type VirtualListSizeRecord,
 } from './virtual-list-layout'
+
 import { applyEscapeProps } from './escape-props'
 import { layoutChildProps } from './layout-child.web'
 
@@ -29,6 +30,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		() => createVirtualListEntries(props.items, props.keyExtractor, props.getItemType),
 		[props.items, props.keyExtractor, props.getItemType],
 	)
+
 	const [windowVersion, setWindowVersion] = useState(0)
 	const sizeIndexRef = useRef(new VirtualListSizeIndex())
 	const sizeCacheRef = useRef(new Map<string, VirtualListSizeRecord>())
@@ -61,6 +63,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				entry.rowKey,
 				hasSeparatorRef.current && entry.index < nextEntries.length - 1,
 			)
+
 			activeMeasurements.add(cacheKey)
 		}
 
@@ -122,6 +125,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			0,
 			headerHeightRef.current + sizeIndexRef.current.prefix(index) + anchor.within,
 		)
+
 		if (sameSize(nextOffset, scrollOffsetRef.current)) return
 
 		scrollOffsetRef.current = nextOffset
@@ -156,6 +160,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			if (anchor && index < anchor.index) restoreAnchor(anchor)
 			refreshWindow()
 		}
+
 		scheduleEstimateRebuild()
 	}
 
@@ -166,12 +171,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			metaByNodeRef.current.delete(previous)
 			nodesBySlotRef.current.delete(slot)
 		}
+
 		if (!node) {
 			if (previous) {
 				observerRef.current?.unobserve(previous)
 				metaByNodeRef.current.delete(previous)
 				nodesBySlotRef.current.delete(slot)
 			}
+
 			return
 		}
 
@@ -192,6 +199,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				rebuildLayout(entriesRef.current, width)
 				restoreAnchor(anchor)
 			}
+
 			refreshWindow()
 			return
 		}
@@ -222,6 +230,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				if (meta) handlersRef.current(meta, record)
 			}
 		})
+
 		observerRef.current = observer
 		for (const node of nodesBySlotRef.current.values()) observer.observe(node)
 

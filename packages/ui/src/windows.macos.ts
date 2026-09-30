@@ -6,5 +6,6 @@ export function openWindow(options: OpenWindowOptions = {}): void {
 		console.warn('[octane-xplat] Window creation is unsupported by the current AppKit host.')
 		return
 	}
+
 	open(options)
 }

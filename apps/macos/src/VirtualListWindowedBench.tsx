@@ -46,6 +46,7 @@ export default function VirtualListWindowedBench() {
 			current.start === start && current.end === end ? current : { start, end },
 		)
 	}
+
 	const renderHeader = () => <View style={{ height: range.start * ROW_STEP - STACK_GAP }} />
 	const renderFooter = () => {
 		const remaining = items.length - range.end

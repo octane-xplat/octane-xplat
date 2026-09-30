@@ -76,6 +76,7 @@ async function run(): Promise<void> {
 		initial ??= consumeInitialUrl() ?? incoming.shift() ?? null
 		return !!initial
 	})
+
 	if (initial) {
 		check('cold incoming link dispatched', pushDeepLink(initial))
 		await wait('cold screen', () => routeFor('root')?.params.id === 'cold' && texts(frame.currentPage).includes('route:cold'))

@@ -19,6 +19,7 @@ export function subscribeSystemScheme(callback: () => void): () => void {
 		appearanceListener = () => listeners.forEach((listener) => listener())
 		host()?.onAppearanceChange?.(appearanceListener)
 	}
+
 	return () => listeners.delete(callback)
 }
 

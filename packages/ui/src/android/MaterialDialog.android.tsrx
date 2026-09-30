@@ -31,6 +31,7 @@ export function MaterialDialog(props: ModalProps) @{
 				console.warn('[Modal] open dropped — no live presenter (currentPage mid-navigation or no active frame).');
 				return;
 			}
+
 			const host = new GridLayout();
 			const unbindTheme = applyThemeClasses(host, 'vx-modal-host');
 			const root = createNativeScriptRoot(host);

@@ -19,12 +19,14 @@ export function applyEscapeProps(
 	if (!view) {
 		return
 	}
+
 	rememberGridChildPlacement(view, props)
 
 	const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
 	if (bag) {
 		Object.assign(view, bag)
 	}
+
 	applyNativeModifiers(view, props.modifiers)
 }
 

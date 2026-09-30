@@ -1110,14 +1110,17 @@ function layoutAbsoluteChildren(parent) {
 				? Math.max(0, width - left - right)
 				: Math.max(0, Number(intrinsic.width ?? 0)))
 			: layoutLength(style.width, width, 0)
+
 		const childHeight = style.height == null
 			? (Number.isFinite(top) && Number.isFinite(bottom)
 				? Math.max(0, height - top - bottom)
 				: Math.max(0, Number(intrinsic.height ?? 0)))
 			: layoutLength(style.height, height, 0)
+
 		const x = Number.isFinite(left)
 			? left
 			: Number.isFinite(right) ? width - right - childWidth : 0
+
 		const offsetTop = Number.isFinite(top)
 			? top
 			: Number.isFinite(bottom) ? height - bottom - childHeight : 0
@@ -1250,9 +1253,11 @@ function makeNode(container, id, type, props) {
 	if (type === 'gridlayout') {
 		gridLayoutNodesByView.set(view, node)
 	}
+
 	if (type === 'absolutelayout') {
 		absoluteLayoutNodesByView.set(view, node)
 	}
+
 	if (type === 'textview') {
 		const placeholder = makeLabel()
 		placeholder.font = fontForStyle(14)
@@ -1287,6 +1292,7 @@ function parseEdgeInsets(value) {
 		const n = Number(value)
 		return { top: n, left: n, bottom: n, right: n }
 	}
+
 	const parts = String(value).split(/\s+/).map((p) => parseFloat(p) || 0)
 	const top = parts[0] ?? 0
 	const right = parts.length > 1 ? parts[1] : top
@@ -1307,6 +1313,7 @@ function nativeColor(value) {
 			1,
 		)
 	}
+
 	match = /^#([\da-f]{8})$/i.exec(string)
 	if (match) {
 		const hex = match[1]
@@ -1317,6 +1324,7 @@ function nativeColor(value) {
 			parseInt(hex.slice(6, 8), 16) / 255,
 		)
 	}
+
 	match = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)[,\s/]*([\d.]*)[\s%]*\)$/i.exec(string)
 	if (match) {
 		const alpha = match[4] === '' ? 1 : Number(match[4])
@@ -1327,6 +1335,7 @@ function nativeColor(value) {
 			alpha,
 		)
 	}
+
 	throw new Error('AppKit spike expects #rrggbb, #rrggbbaa, or rgb()/rgba() colors, received ' + string)
 }
 
@@ -1364,6 +1373,7 @@ function nodeScheme(node) {
 		const classes = nodeClasses(current)
 		if (classes.includes('dark') || classes.includes('ns-dark')) {return 'dark'}
 	}
+
 	return 'light'
 }
 
@@ -1378,10 +1388,12 @@ function applyThemeColors(node) {
 		view.textColor = nativeColor(node.styleColor ?? colors[node.colorSlot ?? 'text'])
 		if (node.type === 'label') {setLabelText(node, String(view.stringValue ?? ''))}
 	}
+
 	if (node.type === 'textfield') {setTextFieldPlaceholder(view, node.props, node.scheme)}
 	if (node.type === 'textview' && node.placeholderView) {
 		node.placeholderView.textColor = nativeColor(colors.placeholder)
 	}
+
 	if (node.bgSlot) {
 		view.wantsLayer = true
 		view.layer.backgroundColor = nativeColor(node.styleBg ?? colors[node.bgSlot]).CGColor
@@ -1668,6 +1680,7 @@ function applyClassName(node, value) {
 				node.view.layer.backgroundColor = nativeColor(SCHEME_COLORS[nodeScheme(node)].secondary).CGColor
 				node.view.edgeInsets = { top: 4, left: 8, bottom: 4, right: 8 }
 			}
+
 			// Panels that paint the web body's --color-surface. On this host the
 			// root view fills the window, so the surface slot re-themes the whole
 			// background the way `body { background }` does in a browser.
@@ -1824,6 +1837,7 @@ function applyProps(node, props) {
 			setLayoutAction(node, value)
 			continue
 		}
+
 		switch (node.type) {
 			case 'stack':
 				if (name === 'spacing') {node.view.spacing = Number(value ?? 0)}
@@ -2147,6 +2161,7 @@ function insert(container, parentId, node, beforeId) {
 			node.view.bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
 			applySizeConstraints(node)
 		}
+
 		syncScheme(node)
 	} else {
 		syncText(parent)
@@ -2833,6 +2848,7 @@ function attachContextMenu(view, options, onSelect) {
 			'menuItemSelected',
 			'',
 		)
+
 		menuItem.target = menuActionTarget
 		if (item?.disabled) {menuItem.enabled = false}
 		const actionId = nextActionId++
@@ -2845,6 +2861,7 @@ function attachContextMenu(view, options, onSelect) {
 				console.error('[macos-leaf] context-menu selection failed', error)
 			}
 		})
+
 		created.push(actionId)
 		menu.addItem(menuItem)
 	}
@@ -2860,14 +2877,17 @@ function attachContextMenu(view, options, onSelect) {
 			hostView.menu = menu
 			tagged.push(hostView)
 		} catch {}
+
 		const subviews = hostView.subviews
 		const count = typeof subviews?.count === 'function'
 			? subviews.count()
 			: (subviews?.count ?? 0)
+
 		for (let i = 0; i < count; i++) {
 			assign(subviews.objectAtIndex(i))
 		}
 	}
+
 	assign(view)
 
 	return () => {
@@ -2876,6 +2896,7 @@ function attachContextMenu(view, options, onSelect) {
 				if (hostView.menu === menu) {hostView.menu = null}
 			} catch {}
 		}
+
 		for (const actionId of created) {actionHandlers.delete(actionId)}
 	}
 }
@@ -2903,6 +2924,7 @@ function attachDatePicker(view, options, onChange) {
 	picker.datePickerElements = isTime
 		? (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
 		: (DATE_PICKER_ELEMENTS.YearMonthDay ?? 0x00e0)
+
 	picker.datePickerStyle = !isTime && options?.style === 'graphical'
 		? (DATE_PICKER_STYLES.Graphical ?? 2)
 		: isTime
@@ -2915,6 +2937,7 @@ function attachDatePicker(view, options, onChange) {
 		picker.minDate = min
 		picker.maxDate = max
 	}
+
 	applyRange(options)
 	picker.enabled = options?.enabled !== false
 
@@ -2937,6 +2960,7 @@ function attachDatePicker(view, options, onChange) {
 		const millis = typeof date?.timeIntervalSince1970 === 'number'
 			? date.timeIntervalSince1970 * 1000
 			: null
+
 		if (millis === null) {return}
 		try {
 			onChange?.(millis)
@@ -2951,6 +2975,7 @@ function attachDatePicker(view, options, onChange) {
 			if (date && picker.dateValue?.timeIntervalSince1970 !== date.timeIntervalSince1970) {
 				picker.dateValue = date
 			}
+
 			applyRange(next)
 			picker.enabled = next?.enabled !== false
 		},
@@ -3004,6 +3029,7 @@ function finishSheetDismissal(sheetWindow) {
 		} catch (error) {
 			console.error('[macos-leaf] sheet root unmount failed', error)
 		}
+
 		if (!wasClosed) {
 			try {
 				entry.onDismissed?.()
@@ -3054,6 +3080,7 @@ function presentSheet(view, options) {
 		} catch (error) {
 			console.error('[macos-leaf] sheet close failed', error)
 		}
+
 		try {
 			root.unmount()
 		} catch (error) {
@@ -3068,6 +3095,7 @@ function presentSheet(view, options) {
 		try {
 			root.unmount()
 		} catch {}
+
 		return null
 	}
 
@@ -3085,6 +3113,7 @@ function presentSheet(view, options) {
 		BT.Buffered ?? 2,
 		false,
 	)
+
 	sheet.contentViewController = controller
 	sheet.releasedWhenClosed = false
 	if (sheetDelegateTarget) {sheet.delegate = sheetDelegateTarget}
@@ -3428,6 +3457,7 @@ export function createMacOSRoot(hostView) {
 					: [...container.nodes.values()].find(
 						(candidate) => candidate.props?.id === id,
 					)
+
 				if (!node?.view) {throw new Error('No AppKit view with id ' + id)}
 				const view = node.view
 				const appearance = view.effectiveAppearance ?? view.window?.effectiveAppearance

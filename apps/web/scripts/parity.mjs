@@ -39,6 +39,7 @@ async function addRenderedFontData(page, dump) {
 				nodeId: documentNodeId,
 				selector: `#cell-${name} .parity-box`,
 			})
+
 			if (!boxNodeId) {continue}
 			const { nodeIds } = await session.send('DOM.querySelectorAll', { nodeId: boxNodeId, selector: '*' })
 			const measuredNodeIds = [boxNodeId, ...nodeIds]

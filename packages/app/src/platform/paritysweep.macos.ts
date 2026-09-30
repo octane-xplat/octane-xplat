@@ -30,6 +30,7 @@ function diffCells(a: any, b: any): string {
 		const jb = JSON.stringify(b.cells[name])
 		if (ja !== jb) {out.push(name)}
 	}
+
 	return out.slice(0, 8).join(',') + (out.length > 8 ? ' …+' + (out.length - 8) : '')
 }
 
@@ -39,6 +40,7 @@ function waitForDump(tries = 60): void {
 		console.log('[parity-json] ' + JSON.stringify(dump))
 		return
 	}
+
 	if (--tries <= 0) {
 		console.log('[parity] FAIL — stage never produced a stable dump; changed: ' + diffCells(prevParsed, lastParsed))
 		return

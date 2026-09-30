@@ -37,10 +37,12 @@ const bundleDir = [
 const positionals = ARGV.filter(
 	(a, i) => !a.startsWith('--') && (bundleFlag < 0 || i !== bundleFlag + 1),
 );
+
 const url =
 	positionals.find((u) => u.startsWith('xplat://localhost')) ??
 	positionals[0] ??
 	(bundleDir ? 'xplat://localhost/' : 'http://localhost:5201');
+
 const contentOrigin = url.match(/^[a-z]+:\/\/[^/]+/i)?.[0] ?? url;
 
 // --- xplat:// scheme: serve the built bundle so the app never needs http ---
@@ -94,6 +96,7 @@ const app = new Adw.Application({
 	application_id: 'org.octane.xplat',
 	flags: Gio.ApplicationFlags.HANDLES_OPEN,
 });
+
 let win = null;
 let webView = null; // main window's view — global events default here
 let loadedOnce = false;
@@ -171,8 +174,10 @@ function subscribeAppearance() {
 function dispatch(wv, id, service, method, args) {
 	const evalJS = (js) =>
 		wv.evaluate_javascript(js, -1, null, null, null, null);
+
 	const reply = (value) =>
 		evalJS(`__xplatBridge?.resolve(${id}, ${JSON.stringify(value ?? null)})`);
+
 	const fail = (message) =>
 		evalJS(`__xplatBridge?.reject(${id}, ${JSON.stringify(message)})`);
 
@@ -353,6 +358,7 @@ function readSelftest() {
 		try {
 			const [ok, bytes] = GLib.file_get_contents(
 				GLib.build_filenamev([dir, 'bridge-selftest.linux.js']));
+
 			if (ok) {
 				return imports.byteArray.toString(bytes);
 			}
@@ -412,6 +418,7 @@ function openSecondaryWindow(opener, wid, opts) {
 		application: app,
 		title: String(opts.title ?? 'xplat'),
 	});
+
 	const size = opts.size ?? { width: 640, height: 480 };
 	w.set_default_size(Number(size.width) || 640, Number(size.height) || 480);
 

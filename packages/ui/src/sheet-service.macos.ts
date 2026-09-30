@@ -33,7 +33,7 @@ export const openSheet: OpenSheet = (Component, params, options: SheetOpenOption
 	return new Promise<ModalOpenResult>((resolve) => {
 		let finished = false
 		const finish = (result?: ModalOpenResult) => {
-			if (finished) return
+			if (finished) {return}
 			finished = true
 			active.delete(entry)
 			try {
@@ -41,6 +41,7 @@ export const openSheet: OpenSheet = (Component, params, options: SheetOpenOption
 			} catch (error) {
 				console.error('[octane-xplat] sheet close failed', error)
 			}
+
 			resolve(result)
 		}
 

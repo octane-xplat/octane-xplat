@@ -8,6 +8,7 @@ import { getIcon } from './icons'
 export function Icon(props: IconProps) @{
 	const size = props.size ?? 24
 	const glyph = getIcon(props.name)
+
 	<label
 		className={props.className}
 		style={{ width: size, height: size, fontSize: size * 0.75, ...props.style }}

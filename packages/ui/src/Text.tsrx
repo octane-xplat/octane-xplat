@@ -37,9 +37,11 @@ export function Text(props: TextProps) @{
 		'extra-bold': 800,
 		black: 900,
 	};
+
 	const fontWeight = /^\d+$/.test(fontWeightValue)
 		? Number(fontWeightValue)
 		: namedWeights[fontWeightValue];
+
 	const lineHeight = props.style?.lineHeight;
 	// UIFontDescriptor resolves variable fonts to the regular axis default on
 	// iOS. Set wght explicitly so CSS fontWeight selects the matching instance.

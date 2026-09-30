@@ -21,8 +21,10 @@ async function waitForServer() {
 			const res = await fetch(url)
 			if (res.ok) { return true }
 		} catch {}
+
 		await new Promise((r) => setTimeout(r, 100))
 	}
+
 	return false
 }
 

@@ -24,6 +24,7 @@ export function Button(props: ButtonProps) @{
 export function Checkbox(props: CheckboxProps) @{
 	const checked = props.checked ?? false
 	const colors = controlColors(useThemeScheme() === 'dark')
+
 	<flexboxlayout
 		id={props.id}
 		flexDirection="row"
@@ -49,7 +50,7 @@ export function Checkbox(props: CheckboxProps) @{
 				...(checked ? { backgroundColor: colors.primary } : {}),
 			}}
 		>
-			{checked ? <Text className="vx-checkbox-check" style={{ fontFamily: 'system-ui', fontSize: 14, lineHeight: 20, color: colors.onPrimary }}>✓</Text> : null}
+			{checked ? <Text className="vx-checkbox-check" style={{ fontFamily: 'system-ui', fontSize: 14, lineHeight: '20px', color: colors.onPrimary }}>✓</Text> : null}
 		</flexboxlayout>
 		{props.label != null ? <Text className="vx-checkbox-label">{props.label}</Text> : null}
 	</flexboxlayout>
@@ -58,6 +59,7 @@ export function Checkbox(props: CheckboxProps) @{
 export function Switch(props: SwitchProps) @{
 	const checked = props.checked ?? false
 	const colors = controlColors(useThemeScheme() === 'dark')
+
 	<flexboxlayout
 		id={props.id}
 		flexDirection="row"
@@ -108,6 +110,7 @@ export function Slider(props: SliderProps) @{
 			setDragValue(null)
 		}
 	})
+
 	const adjustValue = (direction: number) => {
 		if (props.disabled) {return}
 		const next = Math.min(max, Math.max(min, value + direction * ((max - min) / 100)))
