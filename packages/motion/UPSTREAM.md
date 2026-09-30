@@ -83,10 +83,12 @@ switch value before and after its Settings tap. A corrected rerun was blocked
 when the phone re-locked.
 
 Physical Android CPH2551 evidence covers app launch and target retarget only;
-the handset is currently disconnected. The normal iOS mobile entry currently
-aborts in `AuthSessionPresentationAnchor` with `NativeClass is not defined`, so
-the latest simulator, emulator, and iPhone checks used a temporary direct
-MotionProbe entry. Physical input suppression during exit, Android gesture
+the handset is currently disconnected. The regular mobile app now builds and
+mounts on the iOS 26.5 simulator using NativeScript's `NSObject.extend()` API
+for the auth-session presentation delegate. The Android build also passes with
+the iOS delegate behind the `NSObject` runtime guard. Motion-specific simulator,
+emulator, and iPhone checks still use a temporary direct MotionProbe entry to
+isolate the driver. Physical input suppression during exit, Android gesture
 cancellation/natural velocity, background/resume, and frame pacing remain
 uncharacterized. Native preference observation polls at 500 ms while subscribed
 and refreshes on resume; Android reads `animator_duration_scale`.
