@@ -45,7 +45,7 @@ export function App() @{
 		navigationTimer.current = setTimeout(() => {
 			navigationTimer.current = null;
 			open(s);
-		}, 140);
+		}, 200);
 	};
 
 	// Safety net for navs that flow through octane's commit path.

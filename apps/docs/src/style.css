@@ -377,7 +377,7 @@ body {
 }
 
 .doc-page {
-	transition: opacity 140ms ease;
+	transition: opacity 200ms ease;
 }
 
 .doc-page.leaving {
