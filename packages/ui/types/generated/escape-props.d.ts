@@ -4,6 +4,10 @@ export declare function applyEscapeProps(view: any, props: {
     ios?: any;
     android?: any;
     modifiers?: readonly NativeModifier[];
+    row?: number;
+    col?: number;
+    rowSpan?: number;
+    colSpan?: number;
 }): void;
 /** Translate the shared/ARIA spelling to NativeScript's narrower role enum. */
 export declare function nativeAccessibilityRole(role?: Role): string | undefined;
