@@ -57,10 +57,20 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      actions: read
+    # The revision CI actually tested — publish must consume evidence for
+    # this sha and build the tested code, not whatever main has moved to.
+    env:
+      TESTED_SHA: >-
+        ${{ github.event_name == 'workflow_run' &&
+            github.event.workflow_run.head_sha ||
+            github.sha }}
+      CI_RUN_ID: ${{ github.event.workflow_run.id || '' }}
     steps:
-      - name: Checkout
+      - name: Checkout the tested revision
         uses: actions/checkout@v6
         with:
+          ref: ${{ env.TESTED_SHA }}
           fetch-depth: 0
 
       - name: Setup pnpm
@@ -106,6 +116,16 @@ jobs:
         if: steps.version.outputs.should_release == 'true'
         run: node scripts/check-trusted-publishers.mjs
 
+      # Publication consumes CI evidence recorded for exactly TESTED_SHA —
+      # every required release check (lint, typechecks, tests, browser smoke,
+      # packed consumer verification, native iOS/Android builds) must have run
+      # green in the same CI run the artifacts came from.
+      - name: Verify CI release evidence
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/verify-release-evidence.mjs verify --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
+
       - name: Install dependencies
         if: steps.version.outputs.should_release == 'true'
         run: pnpm install --frozen-lockfile
@@ -144,8 +164,16 @@ jobs:
             packages/create/template/pnpm-workspace.yaml \
             CHANGELOG.md
           git commit -m "chore(release): align packages at ${{ steps.version.outputs.version }}"
-          # Another job/push may have moved main since checkout — replay on top
-          # before tagging so the push is a fast-forward.
+          # Publishing consumes the tested revision only. If main moved past
+          # it, every intervening commit must be a release-bot commit (e.g.
+          # the tsrx-typegen job that ran before this one) — a normal push
+          # would ship untested code, so abort instead of rebasing over it.
+          git fetch origin main
+          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
+          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
+            echo "main advanced past tested revision $TESTED_SHA with non-release commits — rerun release after CI on the new HEAD" >&2
+            exit 1
+          fi
           git pull --rebase origin main
           git tag "${{ steps.version.outputs.tag }}"
           git push origin HEAD:main
@@ -179,10 +207,18 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      actions: read
+    env:
+      TESTED_SHA: >-
+        ${{ github.event_name == 'workflow_run' &&
+            github.event.workflow_run.head_sha ||
+            github.sha }}
+      CI_RUN_ID: ${{ github.event.workflow_run.id || '' }}
     steps:
-      - name: Checkout
+      - name: Checkout the tested revision
         uses: actions/checkout@v6
         with:
+          ref: ${{ env.TESTED_SHA }}
           fetch-depth: 0
 
       - name: Setup pnpm
@@ -227,6 +263,14 @@ jobs:
         if: steps.version.outputs.should_release == 'true'
         run: node scripts/check-trusted-publishers.mjs tsrx-typegen
 
+      # Same contract as the lockstep publish: evidence must exist for the
+      # tested revision, not merely "some CI run succeeded at some point".
+      - name: Verify CI release evidence
+        if: steps.version.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/verify-release-evidence.mjs verify --sha "$TESTED_SHA" ${CI_RUN_ID:+--run-id "$CI_RUN_ID"}
+
       - name: Install dependencies
         if: steps.version.outputs.should_release == 'true'
         run: pnpm install --frozen-lockfile
@@ -268,8 +312,14 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add packages/tsrx-typegen/package.json packages/tsrx-typegen/CHANGELOG.md
           git commit -m "chore(release): tsrx-typegen ${{ steps.version.outputs.version }}"
-          # Another job/push may have moved main since checkout — replay on top
-          # before tagging so the push is a fast-forward.
+          # Same tested-revision guard as the lockstep job: refuse to rebase
+          # over a main that advanced with anything but release-bot commits.
+          git fetch origin main
+          intervening_authors="$(git log "$TESTED_SHA..origin/main" --format='%ae' | sort -u)"
+          if [ -n "$intervening_authors" ] && [ "$intervening_authors" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
+            echo "main advanced past tested revision $TESTED_SHA with non-release commits — rerun release after CI on the new HEAD" >&2
+            exit 1
+          fi
           git pull --rebase origin main
           git tag "${{ steps.version.outputs.tag }}"
           git push origin HEAD:main
