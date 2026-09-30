@@ -1,7 +1,7 @@
 /* Site design (Sketch "Website New", rev 2026-09): white field + white
    rounded card with hairline edge, navy-blue gradient H1, black chamfered
-   lede callout with a blue glow, fading hairline section rules, Google Sans
-   Flex body / Onest display. Dark mode keeps the same bones with inverted
+   lede callout with a blue glow, fading hairline section rules, Outfit body /
+   Onest display. Dark mode keeps the same bones with inverted
    surfaces. */
 
 :root {
@@ -59,7 +59,7 @@
 body {
 	margin: 0;
 	font-family:
-		'Google Sans Flex',
+		'Outfit',
 		'Onest',
 		system-ui,
 		-apple-system,
@@ -380,7 +380,7 @@ body {
 }
 
 .h1 {
-	font-family: 'Onest', 'Google Sans Flex', system-ui, sans-serif;
+	font-family: 'Onest', 'Outfit', system-ui, sans-serif;
 	font-size: 30px;
 	font-weight: 600;
 	letter-spacing: 0.001em;
