@@ -1,5 +1,5 @@
 /* Site design (Sketch "Website New", rev 2026-09): white field + white
-   rounded card with hairline edge, navy-blue gradient H1, black chamfered
+   rounded card with hairline edge, radial blue-to-black gradient H1, black chamfered
    lede callout with a blue glow, fading hairline section rules, Outfit body /
    Onest display. Dark mode keeps the same bones with inverted
    surfaces. */
@@ -22,7 +22,7 @@
 	--doc-green: #51df00;
 	--doc-link: #3386ff;
 	--doc-grad: linear-gradient(to right, var(--doc-blue), var(--doc-teal) 59%, var(--doc-green));
-	--doc-h1-grad: linear-gradient(to bottom, #005ee8, #0046b4);
+	--doc-h1-grad: radial-gradient(circle 14.95em at 0% 50% in oklab, #0060ee 0%, #000000 100%);
 	--doc-glow: linear-gradient(100deg, #0045b2 0%, #002a75 25%, #00061f 45%, #000000 58%);
 	--doc-tag-note-bg: #dcf1ef;
 	--doc-tag-note-ink: #0c5b55;
@@ -46,7 +46,6 @@
 	--doc-code-ink: #e8e8e0;
 	--doc-link: #63a5ff;
 	--doc-teal: #4a7a76;
-	--doc-h1-grad: linear-gradient(to bottom, #86b5ff, #4d83f2);
 	--doc-glow: linear-gradient(100deg, #0a4fc4 0%, #052f80 25%, #010a24 45%, #000000 58%);
 	--doc-tag-note-bg: #173c3a;
 	--doc-tag-note-ink: #9ed8d3;
