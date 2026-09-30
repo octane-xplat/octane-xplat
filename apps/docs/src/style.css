@@ -334,7 +334,7 @@ body {
 	max-width: 100%;
 	overflow: hidden;
 	background-color: var(--doc-card);
-	border-radius: 18px;
+	border-radius: 30px;
 	corner-shape: squircle;
 	box-shadow:
 		0 18px 50px rgba(0, 0, 0, 0.16),
