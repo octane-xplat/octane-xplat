@@ -62,12 +62,14 @@ export function MotionProbe() @{
 	const [present, setPresent] = useState(true)
 	const [presenceStatus, setPresenceStatus] = useState('waiting for card mount')
 	const [focusStatus, setFocusStatus] = useState('unfocused')
+	const [reverseOnNextFocus, setReverseOnNextFocus] = useState(false)
 	const [showDisposable, setShowDisposable] = useState(false)
 	const [disposalStatus, setDisposalStatus] = useState('not mounted')
 	const reduced = useReducedMotion()
 	const panX = useMotionValue(0)
 	const panScale = useTransform(panX, [-100, 0, 100], [0.9, 1, 0.9])
 	const panOrigin = useRef(0)
+	const panPhases = useRef<string[]>([])
 	const removals = useRef(0)
 	const transition = mode === 'spring'
 		? { type: 'spring' as const, stiffness: 200, damping: 22 }
@@ -77,16 +79,27 @@ export function MotionProbe() @{
 		if (event.state === 'began') {
 			panX.stop()
 			panOrigin.current = panX.get()
+			panPhases.current = ['began']
 			setPanStatus('pan began')
 		} else if (event.state === 'moved') {
+			if (panPhases.current[panPhases.current.length - 1] !== 'moved') {
+				panPhases.current.push('moved')
+			}
 			panX.set(Math.max(-100, Math.min(100, panOrigin.current + event.dx)))
 		} else if (event.state === 'ended' || event.state === 'cancelled') {
+			panPhases.current.push(event.state)
 			const velocity = event.state === 'ended' ? event.vx : 0
-			setPanStatus(`${event.state}; release vx=${Math.round(velocity)}`)
+			setPanStatus(
+				`${event.state}; release vx=${Math.round(velocity)}; phases=${panPhases.current.join('→')}`,
+			)
 			void panX.animate(0, reduced ? { duration: 0 } : {
 				type: 'spring', stiffness: 180, damping: 20, velocity,
 			}).finished.then((result) => {
-				if (result === 'finished') setPanStatus(`settled x=${panX.get().toFixed(1)}`)
+				if (result === 'finished') {
+					setPanStatus(
+						`settled x=${panX.get().toFixed(1)}; phases=${panPhases.current.join('→')}; vx=${Math.round(velocity)}`,
+					)
+				}
 			})
 		}
 	}
@@ -157,15 +170,29 @@ export function MotionProbe() @{
 				</Pressable>
 				<Text id="motion-presence-status">{presenceStatus}</Text>
 			</Row>
-			<Text id="motion-presence-focus">Input {focusStatus}</Text>
-			<Presence present={present}>
+			<Pressable id="motion-presence-arm-focus-reversal" onPress={() => setReverseOnNextFocus(true)} className="chip">
+				<Text>Arm focus reversal</Text>
+			</Pressable>
+				<Text id="motion-presence-focus">Input {focusStatus}</Text>
+				<Presence present={present}>
 				<PresenceCounter
 					onMount={() => setPresenceStatus(`mounted; prior removals=${removals.current}`)}
 					onUnmount={() => {
 					removals.current += 1
 					setPresenceStatus(`unmounted; removals=${removals.current}`)
 				}}
-					onFocus={() => setFocusStatus('focused')}
+					onFocus={() => {
+						setFocusStatus('focused')
+						if (reverseOnNextFocus) {
+							setReverseOnNextFocus(false)
+							setPresent(false)
+							setPresenceStatus('exit started while focused')
+							setTimeout(() => {
+								setPresent(true)
+								setPresenceStatus('re-entered while focused')
+							}, 120)
+						}
+					}}
 					onBlur={() => setFocusStatus('blurred')}
 				/>
 			</Presence>
