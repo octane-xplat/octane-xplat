@@ -222,3 +222,12 @@ again after reversal; it did not test touch or assistive-accessibility
 suppression while the subtree is exiting. Physical Android Presence behavior
 remains unverified. See the
 [presence guide](animation-gestures.md#retain-content-through-exit).
+
+## Optional-service verification
+
+Support flags describe API availability, not production qualification. See
+[optional-service qualification](optional-service-qualification.md) for the fresh
+Web/iOS/Android results, historical camera/pod corrections, and feature-specific
+credential, signing, physical-output and runtime gaps. Optional service gaps
+apply to apps relying on those capabilities; they are not blanket core-release
+blockers.

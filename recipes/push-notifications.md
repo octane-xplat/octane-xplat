@@ -42,3 +42,8 @@ published package and place app-level credential files under `App_Resources`.
 - AC3: [Permission, token, events](../docs/push-notifications.md#permission-token-events).
 - AC4: [Behavior by app state](../docs/push-notifications.md#behavior-by-app-state).
 - AC5: [PushDemo](../packages/demos/src/PushDemo.tsrx).
+
+Configured permission/token/delivery/tap-through qualification remains blocked by
+app-owned Firebase/APNs/VAPID setup; see
+[qualification boundaries](../docs/optional-service-qualification.md). The
+unconfigured probe does not establish delivery success.

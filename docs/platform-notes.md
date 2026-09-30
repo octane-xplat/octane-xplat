@@ -152,9 +152,9 @@ selection wrapper stable. The leaf APIs live in `packages/haptics`,
 
 | Capability | Web evidence | iOS evidence | Android evidence |
 | --- | --- | --- | --- |
-| Advanced haptics | `navigator.vibrate` is used when available; iOS Safari does not expose Web Vibration. | Pulsar 1.4.0 and NativeScript Swift-source configuration are present, but iOS preparation stops at conflicting `QBImagePickerController` pod sources before Pulsar compiles. | Pulsar 1.3.0 capability lookup, preset, pattern, and realtime start/stop calls ran on the xplat emulator without runtime exceptions. Compile SDK 36, target SDK 35; physical tactile output remains unverified. |
-| UI sounds | The package builds with preloaded HTML audio; browser autoplay can require a user gesture. | Native preparation is blocked at CocoaPods before runtime validation. | Stable AudioContext 1.3.3 builds into the SDK 36 APK. UI sound and overlap actions ran without runtime exceptions while the Media3 session remained active. The emulator has audio output disabled, so audible overlap and route coexistence are unverified. |
-| Full player | The package builds an `HTMLAudioElement` player with optional Media Session actions; background parity is not claimed. | AVPlayer, Now Playing metadata, remote commands, interruption observation, and audio background mode are implemented, but preparation is blocked at conflicting CocoaPods declarations. Runtime behavior is unverified. | Media3 `MediaSessionService`, queue transport, system controls, background service declarations, and audio-focus handling are implemented. Emulator playback reached `playing`/`ended`, pause and seek updated the session, and metadata was present. Background continuation and notification/headset controls remain unverified. |
+| Advanced haptics | `navigator.vibrate` is used when available; iOS Safari does not expose Web Vibration. | Pulsar 1.4.0 and NativeScript Swift-source configuration are present, fresh 2026-09-30 preparation resolves Pods and Swift packages with one `QBImagePickerController` declaration. Full build and physical output remain separately unqualified. | Pulsar 1.3.0 capability lookup, preset, pattern, and realtime start/stop calls ran on the xplat emulator without runtime exceptions. Compile SDK 36, target SDK 35; physical tactile output remains unverified. |
+| UI sounds | The package builds with preloaded HTML audio; browser autoplay can require a user gesture. | Fresh 2026-09-30 CocoaPods installation succeeds; native runtime validation remains pending. | Stable AudioContext 1.3.3 builds into the SDK 36 APK. UI sound and overlap actions ran without runtime exceptions while the Media3 session remained active. The emulator has audio output disabled, so audible overlap and route coexistence are unverified. |
+| Full player | The package builds an `HTMLAudioElement` player with optional Media Session actions; background parity is not claimed. | AVPlayer, Now Playing metadata, remote commands, interruption observation, and audio background mode are implemented, fresh preparation succeeds; runtime behavior remains unverified. | Media3 `MediaSessionService`, queue transport, system controls, background service declarations, and audio-focus handling are implemented. Emulator playback reached `playing`/`ended`, pause and seek updated the session, and metadata was present. Background continuation and notification/headset controls remain unverified. |
 
 **Package split — decided.** Keep the three services in optional leaf packages
 so their native dependencies and build costs stay out of `ui` and the basic
@@ -173,8 +173,9 @@ preservation still need a physical device.
 AVPlayer and remote commands on iOS, and `HTMLAudioElement` plus optional
 Media Session actions on web. Android player state and session metadata were
 exercised on the emulator. Background continuation, notification/headset
-controls, and physical audio remain unverified. iOS preparation is blocked
-before its adapter compiles by duplicate QBImagePicker pod declarations.
+controls, and physical audio remain unverified. The historical iOS duplicate QBImagePicker pod failure is not reproducible in
+fresh preparation on 2026-09-30; this does not prove native player runtime
+behavior. See [current qualification](optional-service-qualification.md).
 
 Decision #55 assigns audio session/focus policy to the full audio service.
 Effects remain bounded and must not take focus, interrupt long-form playback,
