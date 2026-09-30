@@ -483,7 +483,7 @@ body {
 	border-radius: 36px;
 	corner-shape: squircle;
 	border-width: 1px;
-	border-color: rgba(0, 0, 0, 0.02);
+	border-color: rgba(0, 0, 0, 0.04);
 	border-style: solid;
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 	overflow: hidden;
@@ -547,18 +547,18 @@ body {
 }
 
 .dark .doc-next {
-	border-color: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.08);
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 }
 
 .doc-next:hover {
-	border-color: rgba(0, 0, 0, 0.06);
+	border-color: rgba(0, 0, 0, 0.08);
 	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
 	transform: translateY(-1px);
 }
 
 .dark .doc-next:hover {
-	border-color: rgba(255, 255, 255, 0.12);
+	border-color: rgba(255, 255, 255, 0.14);
 	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.28);
 }
 
