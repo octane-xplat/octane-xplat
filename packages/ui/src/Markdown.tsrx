@@ -60,7 +60,7 @@ function Inlines(props: { nodes: MdInline[] }) {
 	return out;
 }
 
-/** Renders a baked markdown document with the shared vocabulary — Text
+/** Renders a baked markdown doc with the shared vocabulary — Text
  *  blocks on every platform, no parser at runtime. `data` is the AST the
  *  codegen baked into routes.gen.data (or a doc built programmatically). */
 export function Markdown(props: { data?: MdDoc }) @{

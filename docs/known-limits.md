@@ -108,7 +108,7 @@ pushes themselves work through the swap-pane route store.
 | Hardware back           | browser back → `popstate`                    | — (no hardware back)                            | wired; `useBackInterceptor()` can handle back before route pop; pop-while-pushed not yet verified live | `different`     | 0.6.0·desk |
 | Route params            | scalar params form path/query values; low-level objects/arrays JSON-encode with a warning (non-serializable values become empty strings)  | objects survive                                 | objects survive                            | `degraded`       | 0.5.0    |
 | `popRoute(stack)`       | `history.back()` regardless of `stack`       | pops that stack                                 | pops that stack                            | `different`      | 0.5.0    |
-| Programmatic routes (`defineRoutes`/`addRoutes`) | registered names absent from generated `RouteName`/`RouteParams`/`routes.screens` — use the `Route` shape and `screenFor` | same boundary (codegen is file-only) | same boundary | `different` | post-0.6.0·desk |
+| Programmatic routes (`defineRoutes`/`addRoutes`) | literal `path` strings infer names/params at the callsite (`ManifestRoute*` helpers merge into generated types); only runtime-computed paths stay outside the typed surface — use the `Route` shape and `screenFor` | same boundary | same boundary | `different` | post-0.6.0·desk |
 
 ## Platform services
 
