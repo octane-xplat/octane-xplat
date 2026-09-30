@@ -1,4 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import type {
+	ManifestRouteNames,
+	ManifestRouteParams,
+	ManifestRoutePresentations,
+	RouteManifest,
+} from './props'
+
 import {
 	buildRoutePath,
 	defineRoutes,
@@ -287,6 +294,62 @@ describe('defineRoutes', () => {
 		const m = defineRoutes([{ path: 'bad', screen: { default: C('B') } as any }])
 		expect(m.screens.bad).toBeUndefined()
 	})
+
+	it('brands literal route names, params, and presentations onto the manifest type', () => {
+		const m = defineRoutes({
+			routes: [
+				{ path: 'guides', screen: C('GuideIndex') },
+				{ path: 'guides/:slug', screen: C('Guide'), presentation: 'modal' },
+				{ path: 'docs/[id]', screen: C('Doc') },
+				{ path: 'settings/index', screen: C('Settings') },
+				{ path: '', screen: C('Root') },
+			],
+		})
+
+		expectTypeOf<ManifestRouteNames<typeof m>>().toEqualTypeOf<
+			'guides' | 'guides/:slug' | 'docs/:id' | 'settings' | 'index'
+		>()
+
+		expectTypeOf<ManifestRouteParams<typeof m>['guides/:slug']>().toEqualTypeOf<{
+			slug: string
+		}>()
+
+		expectTypeOf<ManifestRouteParams<typeof m>['docs/:id']>().toEqualTypeOf<{ id: string }>()
+		expectTypeOf<ManifestRouteParams<typeof m>['guides']>().toEqualTypeOf<{}>()
+		expectTypeOf<ManifestRoutePresentations<typeof m>['guides/:slug']>().toEqualTypeOf<'modal'>()
+
+		// Still a plain RouteManifest — registerRoutes/matchRoute accept it.
+		expectTypeOf(m).toMatchTypeOf<RouteManifest>()
+	})
+
+	it('spec parity — a spec produces the same meta its file would', () => {
+		const loader = (p: Record<string, unknown>) => p
+		const beforeLoad = () => ({ ok: true })
+		const head = { title: 'Guide' }
+
+		const file = manifest({
+			'./app/guides/[slug]+modal.tsrx': {
+				G: C('Guide'),
+				loader,
+				beforeLoad,
+				head,
+			},
+		})
+		const spec = defineRoutes([
+			{ path: 'guides/:slug', screen: C('Guide'), presentation: 'modal', loader, beforeLoad, head },
+		])
+
+		const fm = file.routes.find((r) => r.name === 'guides/:slug')!
+		const sm = spec.routes.find((r) => r.name === 'guides/:slug')!
+		expect({ ...sm, file: undefined }).toEqual({ ...fm, file: undefined })
+		expect(spec.loaders!['guides/:slug']).toBe(loader)
+	})
+
+	it('unbranded manifests extract to never/empty', () => {
+		const m = manifest({ './app/detail.tsrx': { D: C('D') } })
+		expectTypeOf<ManifestRouteNames<typeof m>>().toEqualTypeOf<never>()
+		expectTypeOf<ManifestRouteParams<typeof m>>().toEqualTypeOf<{}>()
+	})
 })
 
 describe('mergeRouteManifests', () => {
@@ -301,6 +364,7 @@ describe('mergeRouteManifests', () => {
 			routes: [{ path: 'guides/:slug', screen: C('Guide') }],
 			layouts: { docs: C('DocsShell') },
 		})
+
 		const merged = mergeRouteManifests(files, dynamic)
 
 		expect(Object.keys(merged.screens).sort()).toEqual([
@@ -308,6 +372,7 @@ describe('mergeRouteManifests', () => {
 			'detail',
 			'guides/:slug',
 		])
+
 		expect(merged.layouts.guides.displayName).toBe('FileLayout')
 		expect(merged.layouts.docs.displayName).toBe('DocsShell')
 		// Sort order is rebuilt — 'demo/:id' still loses to nothing, but a
@@ -320,6 +385,7 @@ describe('mergeRouteManifests', () => {
 		const file = manifest({
 			'./app/detail.tsrx': { D: C('FileDetail'), loader: fileLoader },
 		})
+
 		const dynamic = defineRoutes([{ path: 'detail', screen: C('DynDetail') }])
 		const merged = mergeRouteManifests(file, dynamic)
 

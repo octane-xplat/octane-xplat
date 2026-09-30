@@ -30,7 +30,14 @@
  *  fallback (rank = prefer.length). Web callers pass ['web']; mobile
  *  callers pass the running OS first. */
 
-import type { Route, RouteManifest, RouteMeta, RouteSpec, RouteSpecSet } from './props'
+import type {
+	Route,
+	RouteManifest,
+	RouteMeta,
+	RouteSpec,
+	RouteSpecSet,
+	SpecRouteInfo,
+} from './props'
 
 const EXT = /\.(tsrx|tsx|ts|mts|cts|js|mjs|cjs|jsx)$/
 const SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux)$/
@@ -242,8 +249,15 @@ const mergeWarned = new Set<string>()
  *  from their own sources, e.g. `readdirSync` over a content dir). Each
  *  spec's `path` uses the route-dir vocabulary; `layouts` keys are path
  *  prefixes playing the `_layout` role. Same-name duplicates inside the
- *  set keep the later entry with a warn, matching merge precedence. */
-export function defineRoutes(input: readonly RouteSpec[] | RouteSpecSet): RouteManifest {
+ *  set keep the later entry with a warn, matching merge precedence.
+ *
+ *  The return is branded with the spec-derived route types — read them
+ *  with `ManifestRouteParams`/`ManifestRouteNames`/
+ *  `ManifestRoutePresentations` to merge programmatic names into the
+ *  app's typed navigation surface (`RouteName | …`, `RouteParams & …`). */
+export function defineRoutes<const Specs extends readonly RouteSpec[]>(
+	input: Specs | (Omit<RouteSpecSet, 'routes'> & { routes: Specs }),
+): RouteManifest & SpecRouteInfo<Specs> {
 	const set = (Array.isArray(input) ? { routes: input } : input) as RouteSpecSet
 	const specs = set.routes
 	const extra = set.layouts
@@ -296,6 +310,7 @@ export function defineRoutes(input: readonly RouteSpec[] | RouteSpecSet): RouteM
 			console.warn(
 				`[octane-xplat] route '${name}' has no component — 'screen' must be a component function, not a module`,
 			)
+
 			continue
 		}
 
@@ -311,7 +326,7 @@ export function defineRoutes(input: readonly RouteSpec[] | RouteSpecSet): RouteM
 		}
 	}
 
-	return { screens, routes, layouts, loaders }
+	return { screens, routes, layouts, loaders } as RouteManifest & SpecRouteInfo<Specs>
 }
 
 /** Compose manifests into one — file-derived base plus any number of

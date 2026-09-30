@@ -73,16 +73,18 @@ export function GuideScreen(props: { slug?: string; _stack?: string }) @{
 	</Screen>
 }
 
-addRoutes(
-	defineRoutes({
-		routes: [
-			{ path: 'guides', screen: GuideIndex, head: { title: 'Guides' } },
-			{
-				path: 'guides/:slug',
-				screen: GuideScreen,
-				head: (params: Record<string, unknown>) => ({ title: GUIDE_BY_SLUG[params.slug as string]?.title ?? 'Guide' }),
-			},
-		],
-		layouts: { guides: GuideShell },
-	}),
-);
+/** Exported so `routes.ts` can merge the spec-derived route types into the
+ *  app's typed navigation surface (ManifestRouteParams et al.). */
+export const guideRoutes = defineRoutes({
+	routes: [
+		{ path: 'guides', screen: GuideIndex, head: { title: 'Guides' } },
+		{
+			path: 'guides/:slug',
+			screen: GuideScreen,
+			head: (params: Record<string, unknown>) => ({ title: GUIDE_BY_SLUG[params.slug as string]?.title ?? 'Guide' }),
+		},
+	],
+	layouts: { guides: GuideShell },
+});
+
+addRoutes(guideRoutes);

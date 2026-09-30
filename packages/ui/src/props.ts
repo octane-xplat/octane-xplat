@@ -1084,6 +1084,114 @@ export interface RouteSpecSet {
 	layouts?: Record<string, any>
 }
 
+// ---------- programmatic route typing ----------
+
+/** Phantom key carrying a `defineRoutes` manifest's spec-derived route
+ *  types — type-level only, never present at runtime. */
+export declare const specRouteTypes: unique symbol
+
+/** ':id' or '[id]' segment → 'id'; a static segment contributes nothing. */
+type RouteParamOf<S extends string> = S extends `:${infer P}`
+	? P
+	: S extends `[${infer P}]`
+		? P
+		: never
+
+type TrimSlashes<P extends string> = P extends `/${infer R}`
+	? TrimSlashes<R>
+	: P extends `${infer R}/`
+		? TrimSlashes<R>
+		: P
+
+/** Route-dir vocabulary at the type level: '[id]' normalizes to ':id'. */
+type NormSegment<S extends string> = S extends `[${infer P}]` ? `:${P}` : S
+
+type NormPath<P extends string> = P extends `${infer Head}/${infer Tail}`
+	? `${NormSegment<Head>}/${NormPath<Tail>}`
+	: NormSegment<P>
+
+/** The route name a spec `path` produces — `''`/`'index'` and a trailing
+ *  'index' segment normalize like `specSegments` does at runtime. */
+export type RouteNameOfPath<P extends string> =
+	NormPath<TrimSlashes<P>> extends infer N extends string
+		? N extends '' | 'index'
+			? 'index'
+			: N extends `${infer R}/index`
+				? R
+				: N
+		: never
+
+/** Param names in a spec path — `'docs/[slug]'` and `'docs/:slug'` both
+ *  give `'slug'`; static-only paths give `never`. */
+export type RoutePathParams<Path extends string> =
+	TrimSlashes<Path> extends infer P extends string
+		? P extends `${infer Head}/${infer Tail}`
+			? RouteParamOf<Head> | RoutePathParams<Tail>
+			: RouteParamOf<P>
+		: never
+
+type RouteParamRecord<Path extends string> = { [K in RoutePathParams<Path>]: string }
+
+type SpecPaths<Specs extends readonly RouteSpec[]> = Specs[number] extends infer S
+	? S extends { path: infer P extends string }
+		? P
+		: never
+	: never
+
+type SpecsToParamMap<P extends string> = P extends string
+	? { [N in RouteNameOfPath<P>]: RouteParamRecord<P> }
+	: never
+
+type UnionToIntersection<U> = (U extends unknown ? (value: U) => void : never) extends (
+	value: infer I,
+) => void
+	? I
+	: never
+
+/** name → params map for a spec list — same shape `routes.gen.types.ts`
+ *  emits for file routes, so the two merge with `&`/`|`. */
+export type RouteParamsFromSpecs<Specs extends readonly RouteSpec[]> = UnionToIntersection<
+	SpecsToParamMap<SpecPaths<Specs>>
+>
+
+type SpecPresentations<S> = S extends {
+	path: infer P extends string
+	presentation: infer Pr
+}
+	? { [N in RouteNameOfPath<P>]: Pr }
+	: {}
+
+export type RoutePresentationsFromSpecs<Specs extends readonly RouteSpec[]> =
+	UnionToIntersection<SpecPresentations<Specs[number]>>
+
+/** The spec-derived typing record `defineRoutes` brands onto its manifest
+ *  return — read it with the `ManifestRoute*` helpers, never directly. */
+export interface SpecRouteInfo<Specs extends readonly RouteSpec[]> {
+	readonly [specRouteTypes]: {
+		params: RouteParamsFromSpecs<Specs>
+		presentations: RoutePresentationsFromSpecs<Specs>
+	}
+}
+
+/** Pull the `{name: params}` map out of a `defineRoutes` manifest's type —
+ *  `RouteParams & ManifestRouteParams<typeof manifest>` merges file and
+ *  programmatic routes into one typed navigation surface. A plain
+ *  `RouteManifest` (untagged) extracts to `{}`, so `ManifestRouteNames`
+ *  is `never` and unions degrade to the file-derived names. */
+export type ManifestRouteParams<M> = M extends {
+	readonly [specRouteTypes]: { params: infer P }
+}
+	? P
+	: {}
+
+export type ManifestRouteNames<M> = keyof ManifestRouteParams<M> & string
+
+export type ManifestRoutePresentations<M> = M extends {
+	readonly [specRouteTypes]: { presentations: infer P }
+}
+	? P
+	: {}
+
 export interface OpenWindowOptions {
 	/** Data made available to the native window content resolver. */
 	data?: Record<string, unknown>

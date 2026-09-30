@@ -82,7 +82,10 @@ export function generateRoutes(cwd, dir, out) {
 	// collapse to a single entry (union across platforms).
 	const seen = new Map()
 	const routePaths = []
-	for (const file of walk(join(cwd, dir))) {
+	// A missing or empty dir still emits a valid (empty) gen — apps with
+	// only programmatic routes can import the stub types.
+	const files = existsSync(join(cwd, dir)) ? walk(join(cwd, dir)) : []
+	for (const file of files) {
 		const routePath = relative(join(cwd, dir), file).split(sep).join('/')
 		if (/\.(tsrx|tsx)$/.test(routePath)) {
 			routePaths.push(routePath)

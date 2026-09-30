@@ -3,15 +3,29 @@
 // route table: native pushRoute resolves route.name through routes.screens,
 // web outlets and URL matching read the same manifest.
 export { routes, screens } from './routes.gen'
-export type { RouteName, RouteParams, RoutePresentations } from './routes.gen'
+
+import type { ManifestRouteNames, ManifestRouteParams, ManifestRoutePresentations } from '@octane-xplat/ui'
+import type {
+	RouteName as FileRouteName,
+	RouteParams as FileRouteParams,
+	RoutePresentations as FileRoutePresentations,
+} from './routes.gen'
 
 import { wireRouteLinks } from './route-links'
-import type { RouteName, RouteParams } from './routes.gen'
 // Programmatic routes — layered over the file manifest via addRoutes at
-// module scope (survives routes.gen re-registration under HMR).
+// module scope (survives routes.gen re-registration under HMR). The
+// imported binding is type-only; the spec-derived names/params merge into
+// RouteName/RouteParams below.
+// oxlint-disable-next-line xplat/no-ts-imports-tsrx — vite transforms this edge; the import registers routes
 import './guides.tsrx'
+import type { guideRoutes } from './guides.tsrx'
 
 wireRouteLinks()
+
+export type RouteName = FileRouteName | ManifestRouteNames<typeof guideRoutes>
+export type RouteParams = FileRouteParams & ManifestRouteParams<typeof guideRoutes>
+export type RoutePresentations =
+	FileRoutePresentations & ManifestRoutePresentations<typeof guideRoutes>
 
 export type NavigateArgs = {
 	[Name in RouteName]: keyof RouteParams[Name] extends never
