@@ -316,14 +316,14 @@ body {
 	background-color: var(--doc-hover);
 }
 
+.side-item.active {
+	background-color: var(--doc-hover);
+}
+
 .side-text {
 	font-size: 15px;
 	font-weight: 250;
 	letter-spacing: 0.003em;
-}
-
-.side-item.active .side-text {
-	font-weight: 550;
 }
 
 .side-empty {
