@@ -190,10 +190,15 @@ function localSourceModule(file, specifier) {
 	const candidates = [target]
 	if (extension === '.js' || extension === '.mjs' || extension === '.cjs') {
 		const stem = target.slice(0, -extension.length)
-		candidates.push(`${stem}.ts`, `${stem}.tsx`, `${stem}.tsrx`)
+		candidates.push(`${stem}.ts`, `${stem}.tsx`, `${stem}.tsrx`, `${stem}.d.ts`)
 	} else if (!['.ts', '.tsx', '.tsrx'].includes(extension)) {
-		candidates.push(`${target}.ts`, `${target}.tsx`, `${target}.tsrx`)
-		candidates.push(join(target, 'index.ts'), join(target, 'index.tsx'), join(target, 'index.tsrx'))
+		candidates.push(`${target}.ts`, `${target}.tsx`, `${target}.tsrx`, `${target}.d.ts`)
+		candidates.push(
+			join(target, 'index.ts'),
+			join(target, 'index.tsx'),
+			join(target, 'index.tsrx'),
+			join(target, 'index.d.ts'),
+		)
 	}
 
 	for (const candidate of candidates) {
@@ -285,7 +290,16 @@ function staticRuntimeExports(ts, file, seen = new Set()) {
 	return names
 }
 
-function compilerExports(ts, program, file) {
+function compilerExports(ts, program, file, cache = new Map(), pending = new Set()) {
+	const absolute = resolve(file)
+	if (cache.has(absolute)) {
+		return cache.get(absolute)
+	}
+
+	if (pending.has(absolute)) {
+		return { all: new Set(), values: new Set() }
+	}
+
 	const source = program.getSourceFile(file)
 	if (!source) {
 		return undefined
@@ -313,7 +327,57 @@ function compilerExports(ts, program, file) {
 		}
 	}
 
-	return { all, values }
+	// Type-only edges (`export type *`, `export type { X }`) re-list the
+	// target's symbols with their original flags — an ambient `declare const`
+	// still reads as a value even though no value binding crosses the edge.
+	// Subtract names whose only export edges are type-only.
+	const typeOnly = new Set()
+	for (const statement of source.statements) {
+		if (!ts.isExportDeclaration(statement) || !statement.isTypeOnly) {
+			continue
+		}
+
+		if (
+			!statement.exportClause &&
+			statement.moduleSpecifier &&
+			ts.isStringLiteralLike(statement.moduleSpecifier)
+		) {
+			pending.add(absolute)
+			const target = ts.resolveModuleName(
+				statement.moduleSpecifier.text,
+				file,
+				program.getCompilerOptions(),
+				ts.sys,
+			).resolvedModule?.resolvedFileName
+
+			const targetExports =
+				target && compilerExports(ts, program, target, cache, pending)
+
+			pending.delete(absolute)
+			for (const name of targetExports?.all ?? []) {
+				typeOnly.add(name)
+			}
+		} else if (statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+			for (const element of statement.exportClause.elements) {
+				typeOnly.add(element.name.text)
+			}
+		} else if (statement.exportClause && ts.isNamespaceExport(statement.exportClause)) {
+			typeOnly.add(statement.exportClause.name.text)
+		}
+	}
+
+	if (typeOnly.size) {
+		const valueEdges = staticRuntimeExports(ts, file)
+		for (const name of values) {
+			if (typeOnly.has(name) && !valueEdges.has(name)) {
+				values.delete(name)
+			}
+		}
+	}
+
+	const result = { all, values }
+	cache.set(absolute, result)
+	return result
 }
 
 function declarationFiles(packageRoot, files) {

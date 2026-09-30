@@ -78,6 +78,41 @@ try {
 		() => verifyPackedPackage(ts, missingRelative),
 		/unresolved declaration reference \.\/missing\.js/,
 	)
+
+	// `export type *` exposes the target's names in type space only — an
+	// ambient `declare const` behind it must not count as a declared value
+	// (mirrors the ui index.macos.d.ts / props specRouteTypes case).
+	const typeStarExport = writePackage({
+		'package.json': JSON.stringify({
+			name: '@fixture/type-star',
+			exports: { '.': { types: './types/index.d.ts', default: './src/index.ts' } },
+		}),
+		'src/index.ts': "export type * from './props.js'\nexport const value = 1\n",
+		'src/props.ts': 'export declare const phantom: unique symbol\nexport interface Props {}\n',
+		'types/index.d.ts':
+			"export type * from './props.js'\nexport declare const value: number\n",
+		'types/props.d.ts':
+			'export declare const phantom: unique symbol\nexport interface Props {}\n',
+	})
+
+	verifyPackedPackage(ts, typeStarExport)
+
+	// Control: a real `export *` edge does carry the ambient const into the
+	// declared value surface, so a runtime that lacks it still fails.
+	const valueStarExport = writePackage({
+		'package.json': JSON.stringify({
+			name: '@fixture/value-star',
+			exports: { '.': { types: './types/index.d.ts', default: './src/index.ts' } },
+		}),
+		'src/index.ts': 'export const value = 1\n',
+		'types/index.d.ts': "export * from './props.js'\nexport declare const value: number\n",
+		'types/props.d.ts': 'export declare const phantom: unique symbol\n',
+	})
+
+	assert.throws(
+		() => verifyPackedPackage(ts, valueStarExport),
+		/declarations without runtime values: phantom/,
+	)
 } finally {
 	rmSync(root, { recursive: true, force: true })
 }
