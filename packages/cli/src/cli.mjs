@@ -10,7 +10,7 @@ import { patches } from './commands/patches.mjs'
 
 const cli = subcommands({
 	name: 'xplat',
-	description: 'One Octane codebase → web + iOS + Android + experimental macOS AppKit',
+	description: 'One Octane codebase → web + iOS + Android + experimental macOS AppKit/WKWebView',
 	cmds: { dev, build, typecheck, doctor, clean, routes, patches },
 })
 

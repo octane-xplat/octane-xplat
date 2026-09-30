@@ -57,12 +57,8 @@ function strings(value, label, fallback = []) {
 }
 
 function packageRoot(root, name) {
-	// resolve.paths returns null for Node builtin names — an npm dependency
-	// shadowing one (e.g. typeorm's `buffer`) still needs node_modules lookup.
-	const paths =
-		createRequire(join(root, 'package.json')).resolve.paths(name) ?? nodeModulePaths(root)
-
-	for (const base of paths) {
+	// The trailing slash makes builtin-named npm dependencies use node_modules lookup.
+	for (const base of createRequire(join(root, 'package.json')).resolve.paths(`${name}/`) ?? []) {
 		const candidate = join(base, name, 'package.json')
 		if (existsSync(candidate)) {
 			return realpathSync(dirname(candidate))

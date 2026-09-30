@@ -3,30 +3,22 @@ import { readFileSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
-import { createInterface } from 'node:readline'
 import { pathToFileURL } from 'node:url'
 import { inspectMacOSDevConfig } from './config.mjs'
 import { buildMacOSNative, discoverMacOSNative, writeNativeBootstrap } from './native.mjs'
 import { hostBundle, inspectJscHost, validateHostBundle } from './jsc-host/runtime.mjs'
 import { macOSExecutable } from './executables.mjs'
 
-export { runMacOSWebViewDev } from './webview-dev.mjs'
-
-/** Run the configured Vite watcher and native host, restarting after native edits. */
-export async function runMacOSDev(appRoot = process.cwd()) {
+/** Run the configured DOM frontend in WKWebView with a CLI-managed JSC host. */
+export async function runMacOSWebViewDev(appRoot = process.cwd()) {
 	appRoot = resolve(appRoot)
 	const readManifest = () => JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
 	const target = readManifest().xplat?.targets?.macos
-	if (target?.renderer === 'webview') {
-		const { runMacOSWebViewDev } = await import('./webview-dev.mjs')
-		return runMacOSWebViewDev(appRoot)
-	}
-
 	if (target?.runtime !== 'appkit-node-api') {
 		throw new Error('Declare xplat.targets.macos.runtime as "appkit-node-api"')
 	}
 
-	const config = inspectMacOSDevConfig(appRoot, target.dev, target.renderer)
+	const config = inspectMacOSDevConfig(appRoot, target.dev, 'webview')
 	if (config.issues.length) {
 		throw new Error(config.issues.join('; '))
 	}
@@ -36,10 +28,11 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 		throw new Error(`JavaScriptCore host is unavailable: ${inspection.issues.join('; ')}`)
 	}
 
-	const { build } = await import(
+	const vite = await import(
 		pathToFileURL(createRequire(join(appRoot, 'package.json')).resolve('vite')).href
 	)
 
+	const { build, createServer } = vite
 	const prepare = () =>
 		buildMacOSNative(appRoot, {
 			minimumSystemVersion: readManifest().xplat?.targets?.macos?.package?.minimumSystemVersion,
@@ -50,9 +43,10 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 	const devRoot = join(appRoot, 'node_modules/.cache/xplat/macos-dev')
 	await mkdir(devRoot, { recursive: true })
 	const bootstrap = join(devRoot, `bootstrap-${process.pid}.js`)
+	let webServer
+	let webAddress
 	let watcher
 	let host
-	let input
 	let polling
 	let rebuilding = null
 	let stopping = false
@@ -66,57 +60,11 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 		rejectDone = reject
 	})
 
-	// Attach a rejection handler before any async startup can fail.
 	done.catch(() => {})
+
 	const stop = () => {
 		stopping = true
 		resolveDone()
-	}
-
-	const launch = async () => {
-		await writeNativeBootstrap(artifact, bootstrap)
-		host = spawn(
-			hostExecutable,
-			[
-				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-				config.shellBundleFile ?? config.bundleFile,
-				artifact.metadata,
-				bootstrap,
-			],
-			{
-				cwd: appRoot,
-				env: {
-					...process.env,
-					NODE_ENV: 'development',
-					OCTANE_MACOS_EXTERNAL_RUNLOOP: '1',
-					...(config.shellBundleFile ? { OCTANE_MACOS_DEV_BUNDLE: config.bundleFile } : {}),
-				},
-				stdio: ['pipe', 'pipe', 'pipe'],
-			},
-		)
-
-		host.stdout.pipe(process.stdout)
-		host.stderr.pipe(process.stdout)
-		host.stdin.on('error', (error) => {
-			if (error.code !== 'EPIPE') {
-				console.error('[macos] host input failed', error)
-			}
-		})
-
-		host.once('error', rejectDone)
-		host.once('close', (code, signal) => {
-			if (!restarting && !stopping) {
-				if (code || signal) {
-					rejectDone(new Error(`macOS host exited: ${code ?? signal}`))
-				} else {
-					resolveDone()
-				}
-			}
-		})
-
-		console.log(
-			`[macos-native] host started pid=${host.pid}; ${artifact.libraries.length} leaf libraries`,
-		)
 	}
 
 	const retire = async () => {
@@ -135,11 +83,57 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 		})
 	}
 
-	const restart = async (next) => {
+	const launch = async () => {
+		await writeNativeBootstrap(artifact, bootstrap)
+		host = spawn(
+			hostExecutable,
+			[
+				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+				config.hostBundleFile,
+				artifact.metadata,
+				bootstrap,
+			],
+			{
+				cwd: appRoot,
+				env: {
+					...process.env,
+					NODE_ENV: 'development',
+					OCTANE_MACOS_EXTERNAL_RUNLOOP: '1',
+					OCTANE_MACOS_WEBVIEW_URL: webAddress,
+				},
+				stdio: ['pipe', 'pipe', 'pipe'],
+			},
+		)
+
+		host.stdout.pipe(process.stdout)
+		host.stderr.pipe(process.stdout)
+		host.stdin.on('error', (error) => {
+			if (error.code !== 'EPIPE') {
+				console.error('[macos-webview] host input failed', error)
+			}
+		})
+
+		host.once('error', rejectDone)
+		host.once('close', (code, signal) => {
+			if (restarting || stopping) {
+				return
+			}
+
+			if (code || signal) {
+				rejectDone(new Error(`macOS webview host exited: ${code ?? signal}`))
+			} else {
+				resolveDone()
+			}
+		})
+
+		console.log(`[macos-webview] host started pid=${host.pid}`)
+	}
+
+	const restart = async (nextArtifact = artifact) => {
 		restarting = true
 		try {
 			await retire()
-			artifact = next
+			artifact = nextArtifact
 			if (!stopping) {
 				await launch()
 			}
@@ -148,37 +142,52 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 		}
 	}
 
+	const signalStop = () => stop()
 	try {
-		process.on('SIGINT', stop)
-		process.on('SIGTERM', stop)
-		if (config.shellViteConfig) {
-			await build({ configFile: config.shellViteConfig, mode: 'development' })
+		process.on('SIGINT', signalStop)
+		process.on('SIGTERM', signalStop)
+
+		webServer = await createServer({
+			configFile: config.webViteConfig,
+			mode: 'development',
+			server: { host: '127.0.0.1', port: 0, strictPort: false, hmr: true },
+		})
+
+		await webServer.listen()
+		const address = webServer.httpServer.address()
+		if (!address || typeof address === 'string') {
+			throw new Error('Vite did not provide a local webview development address')
 		}
 
+		webAddress = webServer.resolvedUrls?.local?.[0] ?? `http://127.0.0.1:${address.port}/`
+		console.log(`[macos-webview] frontend ${webAddress}`)
+
 		watcher = await build({
-			configFile: config.viteConfig,
+			configFile: config.hostViteConfig,
 			mode: 'development',
 			build: { watch: {} },
 		})
 
-		let first = true
 		await new Promise((resolve, reject) => {
+			let first = true
 			watcher.on('event', (event) => {
 				if (event.code === 'BUNDLE_END') {
 					if (first) {
 						first = false
 						resolve()
-					} else if (config.shellBundleFile && host?.stdin.writable) {
-						host.stdin.write('reload\n')
-					} else if (host && !rebuilding && !stopping) {
-						rebuilding = restart(artifact)
+					} else if (!rebuilding && !stopping) {
+						rebuilding = restart()
 							.catch(rejectDone)
 							.finally(() => {
 								rebuilding = null
 							})
 					}
 				} else if (event.code === 'ERROR') {
-					console.error('[macos] JS rebuild failed; preserving the running app', event.error)
+					console.error(
+						'[macos-webview] host rebuild failed; preserving the running app',
+						event.error,
+					)
+
 					if (first) {
 						reject(event.error)
 					}
@@ -186,17 +195,8 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 			})
 		})
 
-		await validateHostBundle(config.shellBundleFile ?? config.bundleFile, appRoot)
+		await validateHostBundle(config.hostBundleFile, appRoot)
 		await launch()
-		if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
-			input = createInterface({ input: process.stdin })
-			input.on('line', (line) => {
-				if (host?.stdin.writable) {
-					host.stdin.write(`${line}\n`)
-				}
-			})
-		}
-
 		polling = setInterval(() => {
 			if (rebuilding || stopping) {
 				return
@@ -213,7 +213,7 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 					const next = await prepare()
 					if (next.key !== artifact.key || next.metadata !== artifact.metadata) {
 						await restart(next)
-						console.log('[macos-native] native rebuild applied')
+						console.log('[macos-webview] native rebuild applied')
 					} else {
 						artifact = next
 					}
@@ -222,7 +222,10 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 				} catch (error) {
 					const message = String(error)
 					if (message !== lastError) {
-						console.error('[macos-native] rebuild failed; preserving the running app', message)
+						console.error(
+							'[macos-webview] native rebuild failed; preserving the running app',
+							message,
+						)
 					}
 
 					lastError = message
@@ -235,16 +238,17 @@ export async function runMacOSDev(appRoot = process.cwd()) {
 		await done
 	} finally {
 		stopping = true
+		process.off('SIGINT', signalStop)
+		process.off('SIGTERM', signalStop)
 		clearInterval(polling)
-		process.off('SIGINT', stop)
-		process.off('SIGTERM', stop)
-		input?.close()
-		if (input) {
-			process.stdin.pause()
+		if (watcher) {
+			await watcher.close()
 		}
 
-		await rebuilding
-		await watcher?.close()
+		if (webServer) {
+			await webServer.close()
+		}
+
 		await retire()
 	}
 }

@@ -2,15 +2,62 @@ import { existsSync, statSync } from 'node:fs'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { minimumJscHostSystemVersion } from './jsc-host/runtime.mjs'
 
-const requiredFields = [
+const requiredPackageFields = [
 	'productName',
 	'bundleIdentifier',
 	'executableName',
 	'version',
 	'minimumSystemVersion',
-	'viteConfig',
-	'bundleFile',
 ]
+
+const macOSRenderers = new Set(['appkit', 'webview'])
+
+function rendererOf(value, issues, prefix) {
+	const renderer = value ?? 'appkit'
+	if (!macOSRenderers.has(renderer)) {
+		issues.push(`${prefix}.renderer must be "appkit" or "webview"`)
+		return 'appkit'
+	}
+
+	return renderer
+}
+
+function resolveBuildPaths(appRoot, settings, issues, prefix, renderer, stage) {
+	const webview = renderer === 'webview'
+	const names = webview
+		? [
+				'webViteConfig',
+				'hostViteConfig',
+				'hostBundleFile',
+				...(stage === 'package' ? ['webOutDir'] : []),
+			]
+		: ['viteConfig', 'bundleFile']
+
+	const paths = {}
+	for (const key of names) {
+		if (typeof settings[key] !== 'string' || !settings[key].trim()) {
+			issues.push(`missing ${prefix}.${key}`)
+			continue
+		}
+
+		paths[key] = resolveProjectPath(
+			appRoot,
+			settings[key],
+			`${prefix.slice('xplat.targets.macos.'.length)} ${key}`,
+			issues,
+			{
+				mustExist: key.endsWith('Config'),
+			},
+		)
+	}
+
+	const bundleKey = webview ? 'hostBundleFile' : 'bundleFile'
+	if (typeof settings[bundleKey] === 'string' && !settings[bundleKey].endsWith('.cjs')) {
+		issues.push(`macOS ${bundleKey} must point to a CommonJS .cjs bundle`)
+	}
+
+	return paths
+}
 
 const macOSVersionPattern = /^\d+(?:\.\d+){1,2}$/
 
@@ -50,18 +97,20 @@ function resolveProjectPath(root, value, label, issues, { mustExist = false } = 
 }
 
 /** Validate the macOS packaging contract shared by `xplat build` and `doctor`. */
-export function inspectMacOSPackageConfig(appRoot, value) {
+export function inspectMacOSPackageConfig(appRoot, value, selectedRenderer) {
 	const issues = []
 	const settings = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
 	if (settings !== value) {
 		issues.push('xplat.targets.macos.package must be an object')
 	}
 
-	for (const key of requiredFields) {
+	for (const key of requiredPackageFields) {
 		if (typeof settings[key] !== 'string' || !settings[key].trim()) {
 			issues.push(`missing xplat.targets.macos.package.${key}`)
 		}
 	}
+
+	const renderer = rendererOf(selectedRenderer, issues, 'xplat.targets.macos')
 
 	if (
 		settings.bundleIdentifier &&
@@ -92,23 +141,14 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 		)
 	}
 
-	if (
-		typeof settings.bundleFile === 'string' &&
-		settings.bundleFile &&
-		!settings.bundleFile.endsWith('.cjs')
-	) {
-		issues.push('macOS bundleFile must point to a CommonJS .cjs bundle')
-	}
-
-	const viteConfig = settings.viteConfig
-		? resolveProjectPath(appRoot, settings.viteConfig, 'macOS viteConfig', issues, {
-				mustExist: true,
-			})
-		: null
-
-	const bundleFile = settings.bundleFile
-		? resolveProjectPath(appRoot, settings.bundleFile, 'macOS bundleFile', issues)
-		: null
+	const buildPaths = resolveBuildPaths(
+		appRoot,
+		settings,
+		issues,
+		'xplat.targets.macos.package',
+		renderer,
+		'package',
+	)
 
 	const iconPath =
 		settings.icon === undefined
@@ -140,15 +180,29 @@ export function inspectMacOSPackageConfig(appRoot, value) {
 					mustExist: true,
 				})
 
-	return { settings, viteConfig, bundleFile, iconPath, entitlementsPath, issues }
+	return { settings, renderer, ...buildPaths, iconPath, entitlementsPath, issues }
 }
 
 /** Validate the CLI-owned CommonJS dev runner configuration. */
-export function inspectMacOSDevConfig(appRoot, value) {
+export function inspectMacOSDevConfig(appRoot, value, selectedRenderer) {
 	const issues = []
 	const settings = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
 	if (settings !== value) {
 		issues.push('xplat.targets.macos.dev must be an object')
+	}
+
+	const renderer = rendererOf(selectedRenderer, issues, 'xplat.targets.macos')
+	if (renderer === 'webview') {
+		const paths = resolveBuildPaths(
+			appRoot,
+			settings,
+			issues,
+			'xplat.targets.macos.dev',
+			renderer,
+			'dev',
+		)
+
+		return { ...paths, issues }
 	}
 
 	const paths = {}

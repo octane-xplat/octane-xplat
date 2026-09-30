@@ -49,6 +49,20 @@ test('schema, missing globs, and paths outside the native directory fail before 
 	}
 })
 
+test('native dependency discovery resolves npm packages that share a Node builtin name', (t) => {
+	const { app, leaf } = fixture(t)
+	writeFileSync(
+		join(leaf, 'package.json'),
+		JSON.stringify({ name: 'leaf', dependencies: { buffer: '6.0.3' } }),
+	)
+
+	const buffer = join(leaf, 'node_modules/buffer')
+	mkdirSync(buffer, { recursive: true })
+	writeFileSync(join(buffer, 'package.json'), JSON.stringify({ name: 'buffer', version: '6.0.3' }))
+
+	assert.equal(discoverMacOSNative(app).leaves.length, 1)
+})
+
 test('escaping symlinks cannot smuggle undeclared external cache inputs', (t) => {
 	const { app, leaf } = fixture(t)
 	symlinkSync(join(app, 'package.json'), join(leaf, 'platforms/macos/external.json'))

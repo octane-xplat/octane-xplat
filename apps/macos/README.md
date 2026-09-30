@@ -8,6 +8,23 @@ The host exposes a `terminateAfterLastWindowClosed` option. The dev and
 packaged app set it to `true`; `createAppKitWindow` defaults to AppKit's
 keep-running behavior.
 
+## System WebView backend
+
+The macOS target can also run the full shared app through the system WKWebView.
+Set `xplat.targets.macos.renderer` to `"webview"`; the CLI then builds the
+`.web` frontend and a JavaScriptCore/NativeScript host. The sample configuration
+in this app points to `vite.webview-app.config.mjs` and
+`vite.webview-app-host.config.mjs`. See the [WKWebView host guide](../../docs/macos-webview.md)
+for configuration and the typed service protocol. AppKit remains the fallback
+when no renderer is selected.
+
+The independent protocol proof runs with
+`pnpm --filter @xplat/macos webview:proof`; it verifies framework services,
+capability discovery, an app-defined service and event, and deep-link delivery
+inside a real WKWebView. `pnpm --filter @xplat/macos webview:dev` launches that
+proof fixture for manual development. The configured renderer uses the full
+shared app from `apps/web/src/main.tsrx`.
+
 `apps/macos` imports `App` from `@xplat/app`, and the app imports UI components
 from `@octane-xplat/ui` without a Vite alias for the package root. The package's
 `macos` condition selects `src/index.macos.ts` and matching declarations. This
@@ -121,14 +138,14 @@ as `null` because the host does not expose it. The fixed-height windowed
 figures are from the Apple Silicon rerun after correcting for AppKit's default
 14pt vertical stack gap:
 
-| Mode | Items | Initial render | RSS increase | Mounted rows |
-| --- | ---: | ---: | ---: | ---: |
-| All rows | 500 | 137 ms | 18.7 MiB | 500 |
-| All rows | 2,000 | 1,133 ms | 135.6 MiB | 2,000 |
-| All rows | 5,000 | Process killed before metrics | — | — |
-| Windowed | 500 | 17.7 ms | 2.3 MiB | 24 → 16 (rows 484–499 at end) |
-| Windowed | 2,000 | 16.2 ms | 2.2 MiB | 24 → 16 (rows 1984–1999 at end) |
-| Windowed | 5,000 | 16.6 ms | 2.1 MiB | 24 → 16 (rows 4984–4999 at end) |
+| Mode     | Items |                Initial render | RSS increase |                    Mounted rows |
+| -------- | ----: | ----------------------------: | -----------: | ------------------------------: |
+| All rows |   500 |                        137 ms |     18.7 MiB |                             500 |
+| All rows | 2,000 |                      1,133 ms |    135.6 MiB |                           2,000 |
+| All rows | 5,000 | Process killed before metrics |            — |                               — |
+| Windowed |   500 |                       17.7 ms |      2.3 MiB |   24 → 16 (rows 484–499 at end) |
+| Windowed | 2,000 |                       16.2 ms |      2.2 MiB | 24 → 16 (rows 1984–1999 at end) |
+| Windowed | 5,000 |                       16.6 ms |      2.1 MiB | 24 → 16 (rows 4984–4999 at end) |
 
 Both AppKit windowing prototypes now include the stack gap in their spacer
 heights. The fixed-height benchmark also asserts that the total document height

@@ -47,7 +47,7 @@ const spawnFor = (t, cwd) => {
 export const dev = command({
 	name: 'dev',
 	description:
-		'Run web and NativeScript dev servers, plus an opt-in experimental macOS AppKit target',
+		'Run web and NativeScript dev servers, plus an opt-in experimental macOS AppKit or WKWebView target',
 	args: {
 		targets: option({
 			long: 'targets',
@@ -61,7 +61,7 @@ export const dev = command({
 		const all = discoverTargets(cwd)
 		if (all.length === 0) {
 			p.log.error(
-				'No targets found — declare Vite, NativeScript, xplat.targets.macos (AppKit Node-API), or xplat.targets.linux (WebKitGTK webview).',
+				'No targets found — declare Vite, NativeScript, xplat.targets.macos (AppKit or WKWebView), or xplat.targets.linux (WebKitGTK webview).',
 			)
 
 			process.exit(1)

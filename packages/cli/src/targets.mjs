@@ -28,7 +28,7 @@ export const hasWeb = (cwd) =>
 
 export const hasNative = (cwd) => existsSync(`${cwd}/nativescript.config.ts`)
 
-/** The opt-in AppKit Node-API target currently used by apps/macos. */
+/** The opt-in macOS AppKit or WKWebView target currently used by apps/macos. */
 export const hasMacOS = (cwd) =>
 	readJson(`${cwd}/package.json`)?.xplat?.targets?.macos?.runtime === 'appkit-node-api'
 
@@ -133,7 +133,7 @@ export function discoverTargets(cwd) {
 		targets.push({
 			kind: 'macos',
 			id: 'macos',
-			name: 'macOS (experimental AppKit Node-API)',
+			name: 'macOS (experimental AppKit / WKWebView)',
 		})
 	}
 
@@ -174,7 +174,7 @@ export function buildTargets(cwd) {
 		t.push({
 			kind: 'macos',
 			id: 'macos',
-			name: 'macOS (experimental AppKit Node-API)',
+			name: 'macOS (experimental AppKit / WKWebView)',
 		})
 	}
 

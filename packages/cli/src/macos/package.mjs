@@ -39,7 +39,7 @@ function readPackageConfig(appRoot) {
 		throw new Error('Declare xplat.targets.macos.runtime as "appkit-node-api".')
 	}
 
-	const config = inspectMacOSPackageConfig(appRoot, target.package)
+	const config = inspectMacOSPackageConfig(appRoot, target.package, target.renderer)
 	if (config.issues.length) {
 		throw new Error(config.issues.join('; '))
 	}
@@ -213,14 +213,17 @@ function notarize(notaryProfile, dmgPath) {
 	console.log('[macos-package] notarization ticket stapled and validated')
 }
 
-/** Build the app bundle and disk image for an opted-in AppKit Node-API app. */
+/** Build the app bundle and disk image for an opted-in macOS target. */
 export async function packageMacOS(appRoot) {
 	if (platform() !== 'darwin' || arch() !== 'arm64') {
 		throw new Error('The first macOS package target is Apple Silicon; build it on an arm64 Mac.')
 	}
 
-	const { settings, viteConfig, bundleFile, iconPath, entitlementsPath } =
-		readPackageConfig(appRoot)
+	const { settings, renderer, iconPath, entitlementsPath } = readPackageConfig(appRoot)
+	const viteConfig = renderer === 'webview' ? settings.hostViteConfig : settings.viteConfig
+	const bundleFile = renderer === 'webview' ? settings.hostBundleFile : settings.bundleFile
+	const webViteConfig = renderer === 'webview' ? settings.webViteConfig : null
+	const webOutDir = renderer === 'webview' ? settings.webOutDir : null
 
 	const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
 	const notaryProfile = process.env.MACOS_NOTARY_PROFILE
@@ -267,7 +270,12 @@ export async function packageMacOS(appRoot) {
 		throw new Error(`JavaScriptCore host is unavailable: ${hostInspection.issues.join('; ')}`)
 	}
 
-	console.log('[macos-package] building production Octane bundle')
+	console.log(
+		renderer === 'webview'
+			? '[macos-package] building production web frontend and JavaScriptCore host'
+			: '[macos-package] building production Octane bundle',
+	)
+
 	const native = await buildMacOSNative(appRoot, {
 		minimumSystemVersion: settings.minimumSystemVersion,
 	})
@@ -288,8 +296,18 @@ export async function packageMacOS(appRoot) {
 		cwd: appRoot,
 	})
 
+	if (webViteConfig) {
+		run(process.execPath, [viteExecutable(appRoot), 'build', '--config', webViteConfig], {
+			cwd: appRoot,
+		})
+	}
+
 	if (!existsSync(bundleFile)) {
 		throw new Error(`Packaged JS bundle not found: ${bundleFile}`)
+	}
+
+	if (webOutDir && !existsSync(join(webOutDir, 'index.html'))) {
+		throw new Error(`Packaged web frontend must contain index.html: ${webOutDir}`)
 	}
 
 	await validateHostBundle(bundleFile, appRoot)
@@ -320,6 +338,10 @@ export async function packageMacOS(appRoot) {
 		await mkdir(join(resourcesPath, 'licenses'), { recursive: true })
 		await mkdir(packagedAppPath, { recursive: true })
 		await cp(bundleFile, join(packagedAppPath, 'main.cjs'))
+		if (webOutDir) {
+			await cp(webOutDir, join(resourcesPath, 'web'), { recursive: true })
+		}
+
 		await cp(join(hostBundle, 'host'), mainExecutable)
 		await cp(native.metadata, join(resourcesPath, 'metadata.macos.arm64.nsmd'))
 		await writeNativeBootstrap(native, join(resourcesPath, 'host-shim.js'), { packaged: true })
@@ -362,7 +384,7 @@ export async function packageMacOS(appRoot) {
 			writeInfoPlist(settings, iconPath ? 'AppIcon.icns' : null),
 		)
 
-		console.log('[macos-package] staging JavaScriptCore AppKit host')
+	console.log('[macos-package] staging JavaScriptCore macOS host')
 		run('chmod', ['755', mainExecutable])
 
 		const signed = signApp({

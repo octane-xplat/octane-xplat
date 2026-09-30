@@ -3,3 +3,5 @@
  * Resolves after shutdown and rejects on startup or unexpected host failure.
  */
 export declare function runMacOSDev(appRoot?: string): Promise<void>
+/** Run a DOM frontend in WKWebView with the CLI-managed JavaScriptCore host. */
+export declare function runMacOSWebViewDev(appRoot?: string): Promise<void>

@@ -10,7 +10,7 @@ import { generateRoutes } from './routes.mjs'
 export const build = command({
 	name: 'build',
 	description:
-		'Build web and NativeScript targets, plus experimental macOS AppKit and Linux webview',
+		'Build web and NativeScript targets, plus experimental macOS AppKit/WKWebView and Linux webview',
 	args: {
 		release: flag({
 			long: 'release',
@@ -29,7 +29,7 @@ export const build = command({
 		const all = buildTargets(cwd)
 		if (all.length === 0) {
 			p.log.error(
-				'Nothing to build — no web, NativeScript, AppKit Node-API, or Linux webview target is declared.',
+				'Nothing to build — no web, NativeScript, macOS AppKit/WKWebView, or Linux webview target is declared.',
 			)
 
 			process.exit(1)

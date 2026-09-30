@@ -222,6 +222,23 @@ set of components and style tokens, while missing host services report
 general NativeScript or web parity; see the [macOS experiment notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for the measured boundary.
 
+### System WKWebView renderer
+
+Set `xplat.targets.macos.renderer` to `"webview"` to run the app's DOM
+frontend in the system WKWebView. The default remains the experimental AppKit
+renderer. The WebView path uses the same Apple Silicon JavaScriptCore host and
+NativeScript mediator, while the frontend resolves `.web` implementations.
+Development serves the frontend from loopback and packages it under
+`Contents/Resources/web`; packaged pages load through the app's `xplat://app`
+scheme. The supported minimum remains macOS 13.5.
+
+Configure `webViteConfig`, `hostViteConfig`, and `hostBundleFile` under both
+`xplat.targets.macos.dev` and `.package`; packaging also requires `webOutDir`.
+All paths are relative to the app root. `xplat doctor` checks this renderer
+configuration. The frontend and host exchange typed calls, replies, events,
+and capabilities through `@octane-xplat/platform/host`; see the
+[WKWebView host guide](macos-webview.md) for configuration and custom services.
+
 ## Experimental Windows target
 
 The repository includes a WinUI 3 scaffold in `apps/windows`, separate from

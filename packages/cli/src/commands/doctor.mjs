@@ -395,7 +395,7 @@ export const doctor = command({
 			const macHost = process.platform === 'darwin'
 			const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
 			const notaryProfile = process.env.MACOS_NOTARY_PROFILE
-			const packageInspection = inspectMacOSPackageConfig(cwd, target.package)
+			const packageInspection = inspectMacOSPackageConfig(cwd, target.package, target.renderer)
 			const packageIssues = [...packageInspection.issues]
 			if (signingIdentity && !packageInspection.entitlementsPath) {
 				packageIssues.push('set xplat.targets.macos.package.entitlements when signing')
@@ -405,7 +405,9 @@ export const doctor = command({
 				'macOS host',
 				macHost,
 				process.platform,
-				'run AppKit Node-API development and packaging on macOS',
+				target.renderer === 'webview'
+					? 'run WKWebView with the JavaScriptCore + NativeScript host on macOS'
+					: 'run AppKit Node-API development and packaging on macOS',
 			)
 
 			row(
@@ -418,10 +420,13 @@ export const doctor = command({
 			row(
 				'macOS dev script',
 				target.dev
-					? inspectMacOSDevConfig(cwd, target.dev).issues.length === 0
+					? inspectMacOSDevConfig(cwd, target.dev, target.renderer).issues.length === 0
 					: typeof scripts.dev === 'string',
 				target.dev
-					? inspectMacOSDevConfig(cwd, target.dev).issues.join('; ') || 'CLI-owned dev runner'
+					? inspectMacOSDevConfig(cwd, target.dev, target.renderer).issues.join('; ') ||
+							(target.renderer === 'webview'
+								? 'CLI-owned WKWebView + JavaScriptCore runner'
+								: 'CLI-owned AppKit Node-API runner')
 					: scripts.dev
 						? 'present'
 						: 'missing',
