@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": false,
+		"noEmit": true
+	},
+	"include": ["webview-proof-host.ts", "src/globals.d.ts", "src/webview-proof-contracts.ts"]
+}

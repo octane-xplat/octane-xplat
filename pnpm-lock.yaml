@@ -114,6 +114,9 @@ importers:
       '@nativescript/macos-node-api':
         specifier: 0.4.4-next.2026-08-09-31292056208
         version: 0.4.4-next.2026-08-09-31292056208
+      '@octane-xplat/desktop-webview':
+        specifier: workspace:*
+        version: link:../../packages/desktop-webview
       '@octane-xplat/platform':
         specifier: workspace:*
         version: link:../../packages/platform
@@ -737,6 +740,12 @@ importers:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
+  packages/desktop-webview:
+    dependencies:
+      '@nativescript/macos-node-api':
+        specifier: 0.4.4-next.2026-08-09-31292056208
+        version: 0.4.4-next.2026-08-09-31292056208
+
   packages/effects:
     dependencies:
       '@nativescript/swift-ui':
@@ -1083,6 +1092,9 @@ importers:
       '@nativescript/social-share':
         specifier: 2.3.0
         version: 2.3.0
+      '@octane-xplat/platform':
+        specifier: workspace:*
+        version: link:../platform
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4

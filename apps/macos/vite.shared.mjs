@@ -8,12 +8,14 @@ import { fileURLToPath } from 'node:url'
 const appRoot = dirname(fileURLToPath(import.meta.url))
 const fontAssetRoot = resolve(appRoot, '../../packages/app/src/assets/fonts')
 
-function bundledFontDefines() {
+export function bundledFontDefines() {
 	return {
 		__XPLAT_GEIST_FONT_BASE64__: JSON.stringify(
 			readFileSync(join(fontAssetRoot, 'Geist-Variable.ttf')).toString('base64'),
 		),
-		__XPLAT_GEIST_FONT_LICENSE__: JSON.stringify(readFileSync(join(fontAssetRoot, 'OFL.txt'), 'utf8')),
+		__XPLAT_GEIST_FONT_LICENSE__: JSON.stringify(
+			readFileSync(join(fontAssetRoot, 'OFL.txt'), 'utf8'),
+		),
 	}
 }
 
@@ -72,8 +74,8 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 			outDir: packaged ? 'dist/package-build' : 'dist',
 			lib: {
 				entry: packaged
-				? 'src/main.mjs'
-				: virtualListBench
+					? 'src/main.mjs'
+					: virtualListBench
 						? variableWindowedBench
 							? 'src/VirtualListVariableWindowedBench.tsx'
 							: virtualListBenchMode

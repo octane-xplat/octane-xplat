@@ -3,22 +3,22 @@
 	"version": "0.7.3",
 	"description": "Headless platform capabilities for Octane xplat — matching web + NativeScript implementations",
 	"keywords": [
-		"octane",
-		"xplat",
-		"cross-platform",
-		"platform-services",
+		"android",
+		"biometrics",
 		"capabilities",
 		"clipboard",
-		"geolocation",
-		"biometrics",
+		"cross-platform",
 		"deep-links",
-		"nativescript",
+		"geolocation",
 		"ios",
-		"android",
-		"web"
+		"nativescript",
+		"octane",
+		"platform-services",
+		"web",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/platform",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
@@ -32,8 +32,19 @@
 	"exports": {
 		".": {
 			"macos": "./src/index.macos.ts",
+			"linux": "./src/index.ts",
+			"web": "./src/index.web.ts",
 			"default": "./src/index.ts"
 		},
+		"./host": {
+			"types": "./src/host-protocol.ts",
+			"import": "./src/host-protocol.ts"
+		},
+		"./host/web": {
+			"types": "./src/host-runtime.web.ts",
+			"import": "./src/host-runtime.web.ts"
+		},
+		"./host/services": "./src/host-services.ts",
 		"./*": "./src/*"
 	},
 	"publishConfig": {

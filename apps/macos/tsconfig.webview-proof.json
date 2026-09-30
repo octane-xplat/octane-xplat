@@ -1,0 +1,17 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"moduleSuffixes": [".web", ""],
+		"allowImportingTsExtensions": true,
+		"noEmit": true
+	},
+	"include": [
+		"webview-proof/**/*.ts",
+		"src/webview-proof-contracts.ts",
+		"../../packages/platform/src/host-protocol.ts",
+		"../../packages/platform/src/host-services.ts",
+		"../../packages/platform/src/host-runtime.web.ts",
+		"../../packages/platform/src/host-bridge.web.ts"
+	]
+}

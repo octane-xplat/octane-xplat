@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Octane desktop host proof</title>
+		<style>
+			body {
+				font: 15px system-ui;
+				margin: 2rem;
+				color: #202124;
+			}
+			pre {
+				white-space: pre-wrap;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<h1>Desktop host bridge proof</h1>
+			<p>This app-owned <code>.web</code> screen is running inside WKWebView.</p>
+			<pre id="result">Checking host capabilities…</pre>
+		</main>
+		<script>
+			window.addEventListener('error', (event) => {
+				const result = {
+					ok: false,
+					capabilities: [],
+					clipboardRoundTrip: false,
+					frameworkClipboard: false,
+					appInfo: false,
+					deepLink: false,
+					formatted: '',
+					event: '',
+					error: `${event.message} (${event.filename}:${event.lineno}:${event.colno})`,
+				}
+				document.querySelector('#result').textContent = JSON.stringify(result, null, 2)
+				window.webkit?.messageHandlers?.xplat?.postMessage(
+					JSON.stringify({
+						type: 'call',
+						id: 2147483647,
+						service: 'application',
+						method: 'report',
+						args: [result],
+					}),
+				)
+			})
+		</script>
+		<script type="module" src="/ProofScreen.web.ts"></script>
+	</body>
+</html>

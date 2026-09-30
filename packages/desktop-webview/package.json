@@ -1,0 +1,22 @@
+{
+	"name": "@octane-xplat/desktop-webview",
+	"version": "0.0.0",
+	"description": "System WebView host adapters for desktop Octane applications",
+	"license": "MIT",
+	"type": "module",
+	"files": ["platforms", "src", "types"],
+	"exports": {
+		"./macos": {
+			"types": "./types/macos.d.ts",
+			"import": "./src/macos.macos.ts"
+		}
+	},
+	"dependencies": {
+		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208"
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": ["WebKit"]
+		}
+	}
+}
