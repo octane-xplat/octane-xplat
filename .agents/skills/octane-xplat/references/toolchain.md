@@ -17,8 +17,23 @@ cd apps/mobile && pnpm exec ns build android --release \
   --key-store-alias <alias> --key-store-alias-password <pw>
 ```
 
-The web production build is covered by the smoke script (34 assertions at
+The web production build is covered by the smoke script (59 assertions at
 this revision).
+
+## Release validation (CI gates)
+
+`pnpm lint`, repo checks (patches/css/recipes/decisions/suffix-resolution),
+`typecheck:web` + `typecheck:mobile`, tests, web build, package builds,
+packed-declaration checks, and the harness browser smoke run in the `checks`
+job. `pnpm check:consumer` (`scripts/verify-consumer.mjs`) packs every
+publishable package, scaffolds a starter via the packed create bin
+(`--no-install`), installs it against `file:` tarballs outside the workspace,
+and runs the consumer's lint/typecheck/build/doctor plus a browser smoke.
+`--native ios,android` + `--smoke-ios` extend it to `ns build` and a simctl
+install/launch smoke on a booted iPhone sim — the `native-ios`/`native-android`
+CI jobs run that under `scripts/with-target-lock.mjs` (per-target advisory
+lock for shared simulators/devices). Debug/simulator artifacts only — no
+signed distribution claims.
 
 ## The publish model (`@octane-xplat/ui`)
 
@@ -45,6 +60,11 @@ section, the commit + `vX.Y.Z` tag push, then `pnpm -r publish` ships via npm
 trusted publishing (OIDC + provenance, no tokens). A preflight
 (`scripts/check-trusted-publishers.mjs`) bails before publishing if any
 package lacks a trusted-publisher config for this repo + workflow.
+Publication is additionally bound to the tested revision: CI's `evidence`
+job records per-job results into the `ci-evidence-<sha>` artifact, both
+publish jobs check out `workflow_run.head_sha` and verify that artifact via
+`scripts/verify-release-evidence.mjs`, and the tag push aborts if main
+advanced past the tested sha with non-release commits.
 
 `tsrx-typegen` releases on its own `tsrx-typegen-v*` cadence; everything else
 is lockstep. Manual escape hatch: `workflow_dispatch` with a version override.

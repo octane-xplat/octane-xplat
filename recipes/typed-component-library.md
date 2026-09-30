@@ -31,7 +31,7 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC1: [tsrx-typegen setup and configuration](../packages/tsrx-typegen/README.md).
 - AC2: [Generated declaration contract and source-extension mapping](../packages/tsrx-typegen/README.md).
 - AC3: [Generation and check mode](../packages/tsrx-typegen/README.md).
-- AC4: [Package publish model and declaration verification](../docs/toolchain-notes.md#shared-packages-publish-model), plus the [GIF](../packages/gif/tests/packed-consumer.mjs) and [UI](../packages/ui/tests/packed-consumer.mjs) packed consumers.
+- AC4: [Package publish model and declaration verification](../docs/toolchain-notes.md#shared-packages-publish-model), plus the [GIF](../packages/gif/tests/packed-consumer.mjs) and [UI](../packages/ui/tests/packed-consumer.mjs) packed consumers; the full packed-artifact starter path is [scripts/verify-consumer.mjs](../scripts/verify-consumer.mjs) (`pnpm check:consumer`).
 - AC5: [Compiler support boundary](../docs/toolchain-notes.md#shared-packages-publish-model) and [known limits](../docs/known-limits.md#same-edge-on-every-target).
 - AC6: [Pack check and doctor integration](../packages/tsrx-typegen/README.md#publish-checks).
 - AC7: [Develop against generated declarations](../docs/toolchain-notes.md#develop-against-generated-declarations) and [package preparation](../packages/tsrx-typegen/README.md#publish-checks).

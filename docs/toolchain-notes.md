@@ -354,14 +354,47 @@ condition.
 
 ## CI shape
 
-1. `pnpm typecheck:web` + `pnpm typecheck:mobile` from the repository root
-   (the starter uses `pnpm typecheck`).
-2. `pnpm check:no-dom` is the older static sweep. `xplat/no-dom-globals`
-   applies to shared and NativeScript code; `.web.*` and `.linux.*` leaves own
-   DOM globals. The renderer's `forbiddenGlobals` is the runtime backstop.
-   NS-safe globals (setTimeout/fetch/console/rAF) are deliberately not flagged.
-3. `vitest` shared/logic + web component tests
-4. `vite build` (web)
-5. `ns build ios|android` (macOS runner; can gate on label early on)
-6. Native unit tests (driver-level) via vitest mock driver; on-device smoke
-   manual until e2e story exists (testing.md)
+`.github/workflows/ci.yml` gates on push and PR. The `checks` job runs, in
+order: `pnpm lint` (oxlint + tsrx pass + recipes + css), `check:patches` /
+`check:css` / `check:recipes` / `check:decisions` /
+`check:suffix-resolution`, `pnpm typecheck:web`, `pnpm typecheck:mobile`,
+`pnpm test`, `pnpm build:web`, the publishable-package builds,
+`tsrx-typegen --pack-check` + the GIF packed consumer, the harness browser
+smoke (`pnpm --filter @xplat/web smoke`, 59 assertions on the production
+bundle), and `pnpm check:consumer --no-build --smoke web`. `check:no-dom`
+is the older static sweep; `xplat/no-dom-globals` covers it at lint time.
+
+`scripts/verify-consumer.mjs` (`check:consumer`) is the release-path
+verification: it `pnpm pack`s every publishable package, scaffolds a starter
+through the PACKED `create-octane-xplat` bin (`--no-install`), rewrites the
+consumer's `@octane-xplat/*` deps to `file:` tarballs plus a materialized
+`node_modules/.pnpm-config` (pnpm's `configDependencies` requires exact
+registry semver — a local tarball can't substitute), installs outside the
+workspace, and asserts the resolved packages are real packed payloads before
+running the consumer's own lint/typecheck/build/doctor. Flags: `--no-build`,
+`--smoke web`, `--native ios,android`, `--smoke-ios`, `--keep`,
+`VERIFY_CONSUMER_DIR`. A `--native` target additionally runs
+`ns build <platform>` inside the consumer; `--smoke-ios` boots an iPhone sim
+and `simctl install`/`launch`es the debug `.app`, failing on crash or
+JS-error log output. These produce debug/simulator artifacts — build-check
+and runtime-boot evidence, not signed store distribution.
+
+Slow target jobs run on main pushes only: `native-ios` (macos-latest) and
+`native-android` (ubuntu-latest with Temurin JDK 21) each wrap their run in
+`scripts/with-target-lock.mjs <target>` — a per-target advisory lock under
+`$TMPDIR/octane-xplat-target-locks/` that serializes native builds and
+simulator/device use across concurrent worktrees and sessions on a shared
+host. Android has no emulator runtime smoke yet.
+
+The final `evidence` job (`needs` the three gate jobs) writes
+`ci-evidence-<sha>.json` recording each required job's result for the tested
+sha and uploads it as workflow artifact `ci-evidence-<sha>`. The required-job
+list lives once in `scripts/verify-release-evidence.mjs`.
+
+`release.yml` publishes only what CI tested: both publish jobs check out
+`workflow_run.head_sha` (not current main), run
+`verify-release-evidence.mjs verify` to fetch and assert the matching
+artifact, and abort the tag push if `TESTED_SHA..origin/main` contains any
+non-release-bot commit — a moved main ships nothing untested.
+`pnpm check:consumer` can run the same packed-consumer path locally before
+pushing.
