@@ -333,7 +333,6 @@ body {
 	width: 560px;
 	max-width: 100%;
 	overflow: hidden;
-	background-color: var(--doc-card);
 	border-width: 1px;
 	border-color: var(--doc-hairline);
 	border-style: solid;
