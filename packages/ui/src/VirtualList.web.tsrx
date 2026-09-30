@@ -77,7 +77,11 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		)
 	}
 
-	if (entries !== entriesRef.current) rebuildLayout(entries, viewportWidthRef.current)
+	if (entries !== entriesRef.current) {
+		const anchor = captureAnchor()
+		rebuildLayout(entries, viewportWidthRef.current)
+		restoreAnchor(anchor)
+	}
 
 	function currentRange() {
 		const listOffset = Math.max(0, scrollOffsetRef.current - headerHeightRef.current)
