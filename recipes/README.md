@@ -31,6 +31,7 @@ Workflows:
 - [Register routes from runtime data](programmatic-routes.md)
 - [Bake route data into the bundle](baked-routes.md)
 - [Ship video playback on web and native](video-playback.md)
+- [Render a long vertical collection](virtual-list.md)
 - [Build a settings list with reusable rows](settings-list.md)
 - [Enter and submit text reliably](text-entry.md)
 - [Size a WebView to its document](webview-content-sizing.md)

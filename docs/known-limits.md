@@ -50,6 +50,15 @@ importing them fails the other platform's build on purpose:
 `ui/ios` and `ui/android` resolve only in native builds; `ui/web` only in
 web builds. `ui/native` is plumbing (root-layout helpers), not components.
 
+## VirtualList performance
+
+`VirtualList` supports a measured vertical window, with off-window unmounts.
+It has no recycling pool, feed/chat callbacks, indexed scroll handle, sticky
+rows, grid, or masonry. Native variable-height momentum, long-session memory,
+and display frame pacing remain Q30 gates; historical evidence is not a fresh
+runtime pass. See the [measured support boundary](virtual-list.md#measured-support-boundary)
+and [readiness evidence](primitive-notes.md#virtuallist-readiness-recheck-q30-2026-09-30).
+
 ## Primitives
 
 | Seam                     | Web                                              | iOS                                                          | Android             | Kind       | Verified    |

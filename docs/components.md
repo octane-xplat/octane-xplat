@@ -109,7 +109,7 @@ Every component accepts `className`/`style`/`id` plus the platform escape props
 | ------------- | ------------------------------ | -------------------------------- |
 | `ScrollView`  | Scrollable region              | `refreshing`, `onRefresh`        |
 | `ScrollBox`   | Scroll container               |                                  |
-| `VirtualList` | Windowed long list             | `items`, `keyExtractor`, `renderItem` |
+| [`VirtualList`](virtual-list.md) | Windowed long list             | `items`, `keyExtractor`, `renderItem` |
 
 ## Overlays
 

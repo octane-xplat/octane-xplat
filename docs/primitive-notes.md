@@ -739,6 +739,58 @@ There were no physical trackpad or direct finger-input runs. Keep Q30 open;
 verify the iOS variable-height geometry gaps and investigate Android memory
 growth before changing shared overscan or adding recycling.
 
+### VirtualList readiness recheck (Q30; 2026-09-30)
+
+The baseline is main `4b43f82d`, checked in an isolated Goddard worktree. Prior
+Q28/Q29/Q30 runtime results above remain historical evidence. No visual analysis
+was performed in this pass.
+
+A fresh 181.35-second Chromium synthetic-wheel baseline sampled 0 geometry gaps
+in 1,754 samples, with at most 27 mounted rows. rAF callback intervals were
+p95/max 16.7/16.8 ms, with no intervals above 32 ms. This does not establish
+physical-trackpad behavior or compositor presentation timing. Live-list heap
+was 6.38 MB before scrolling and 8.22 MB after forced GC; DOM nodes returned
+to 1,379. Uncollected heap samples fluctuated, reaching 33.85 MB.
+
+The existing web smoke asserted keyed-state retention after prepend but omitted
+anchor geometry. A new nonvisual contract gate reproduced 54.64 px of prepend
+anchor drift while local state survived. Restoring the keyed anchor when the
+web leaf rebuilds its size index reduced drift to 0.094 px; above-anchor growth
+then drifted 0.219 px. Five settled deep offsets mounted 22–23 rows, and
+empty/restore/route disposal checks passed without browser errors. This is a
+focused web fix; native overscan and recycling are unchanged.
+
+The post-fix synthetic-wheel run lasted 181.51 seconds: 0/1,753 sampled
+geometry gaps, at most 27 mounts, rAF p95/max 16.7/16.8 ms, and no intervals
+above 32 ms. Collected live-list heap was 6.39→8.22 MB. Twenty disposal/reopen
+cycles returned to 1,378 DOM nodes and 87 listeners; the last six collected
+heap samples ranged 8.52–8.54 MB. This fixture does not prove universal leak
+freedom. A fixed-48 control sampled 0/159 gaps over 16.39 seconds.
+
+A separate programmed stream/deep-seek trace sampled 0/550 geometry gaps and
+at most 29 mounts; all 501 stream checkpoints met the settling gate. Only
+2/5 deep pixel seeks met the 250 ms offset/readiness gate. The three timeouts
+had 59/169/87 px offset errors. Unknown-height pixel seeks remain approximate;
+coverage and seek accuracy are separate results.
+
+The iOS simulator build succeeded in 89.46 seconds and the isolated benchmark
+app launched, but no ready/result telemetry arrived during nine minutes after
+launch. Process-scoped logs contained no benchmark markers; accessibility
+inspection exposed Simulator chrome but no application view tree. No gestures
+or geometry samples were collected, so this is a blocked runtime attempt, not
+a pass or reproduction of the historical gaps. No Android device was connected
+at the final check: the historical uncollected PSS increase remains unresolved
+and is not labeled a leak. Native presentation/frame pacing and direct finger/
+physical-trackpad input were not collected. Directional velocity overscan remains
+a hypothesis, with no native engine change justified by this pass.
+
+The input trace now retains the worst measured leading/trailing/internal gap and its row bounds;
+JavaScript sample timing stays explicitly separate from display frame pacing.
+The [machine-readable evidence](evidence/virtual-list-q30-2026-09-30.json) retains
+the fresh web results and native verification limits.
+The [VirtualList guide](virtual-list.md) states the supported vertical contract
+and the remaining performance-sensitive feed/chat gaps.
+
 Capability references: [FlashList v2 usage](https://shopify.github.io/flash-list/docs/usage/)
 for dynamic sizing, recycling-safe state, viewability, and visible-position
 maintenance; [Lynx `list`](https://lynxjs.org/next/api/elements/built-in/list.html)
