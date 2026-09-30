@@ -40,6 +40,11 @@ database, a content directory, or a host framework's own route model.
 - AC4: On web, a programmatic route produces a real URL and a direct load of
   that URL boots into the screen.
 
+- AC5: When pushes overlap, only the latest request for the affected history
+  can commit a guard, redirect, or loader result; back navigation invalidates
+  pending work. Native/macOS named stacks remain independent, while web uses
+  one history.
+
 ## Documentation
 
 - AC1: [Register routes from data](../docs/navigation.md#register-routes-from-data).
@@ -52,6 +57,10 @@ database, a content directory, or a host framework's own route model.
   and the [Navigation limits row](../docs/known-limits.md#navigation).
 - AC4: [Register routes from data](../docs/navigation.md#register-routes-from-data);
   web smoke in `apps/web/scripts/smoke.mjs` deep-links `/test/guides/deploy`.
+
+- AC5: [Loader and presentation behavior](../docs/navigation.md#present-a-route-modally)
+  and [guard behavior](../docs/navigation.md#guard-and-document-a-route).
+  Regression example: `packages/ui/src/route-navigation.test.ts`.
 
 ## Verification
 

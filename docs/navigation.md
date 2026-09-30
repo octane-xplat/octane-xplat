@@ -188,6 +188,14 @@ without reading the route dir. `manifestToJson(manifest)` produces the
 identical shape in-process for programmatic or merged manifests, so a host
 sees one schema whether routes came from files or `defineRoutes`.
 
+When pushes overlap, the latest request wins for that stack on native and
+macOS. Web has one history, so any newer push supersedes the pending push.
+For example, push a slow-loading detail screen, then a settings screen:
+finishing the detail loader cannot take you away from settings. Back navigation
+also invalidates pending work for the affected history. Superseded guards,
+redirects, and loader results are ignored; their underlying requests are not
+aborted, so loaders must still manage their own side effects.
+
 ## Guard and document a route
 
 Route files can export behavior alongside their screen. This fragment assumes
@@ -377,9 +385,7 @@ import { Link, NavLink, Row } from '@octane-xplat/ui'
 export function Footer() {
 	return (
 		<Row>
-			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>
-				Settings
-			</NavLink>
+			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>Settings</NavLink>
 			<Link href="https://example.com">Website</Link>
 		</Row>
 	)

@@ -1,3 +1,4 @@
+import { createNavigationRequests, type NavigationRequest } from './navigation-request'
 import { useSyncExternalStore } from 'octane'
 
 /** Web route store — the browser half of the nav contract. One linear URL
@@ -26,6 +27,8 @@ import {
 } from './route-table'
 
 // ---------- screen registry ----------
+
+const navigationRequests = createNavigationRequests()
 
 // Effective tables = the file-derived base manifest merged under every
 // addRoutes layer. Keeping the split means an HMR re-run of routes.gen.*
@@ -225,10 +228,12 @@ function contextFor(r: Route): Record<string, unknown> {
 	return r.context ?? {}
 }
 
-async function prepareRoute(r: Route, redirects = 0): Promise<void> {
+async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0): Promise<void> {
+	if (!request.isCurrent()) return
+
 	const beforeLoad = metaFor(r.name)?.beforeLoad
 	if (!beforeLoad) {
-		commitRoute(r)
+		commitRoute(r, request)
 		return
 	}
 
@@ -240,13 +245,17 @@ async function prepareRoute(r: Route, redirects = 0): Promise<void> {
 	try {
 		const returned = await beforeLoad({ params: r.params, context: contextFor(r) })
 		const context = returned ? { ...contextFor(r), ...returned } : contextFor(r)
-		commitRoute({
-			...r,
-			context,
-		})
+		commitRoute(
+			{
+				...r,
+				context,
+			},
+			request,
+		)
 	} catch (e) {
+		if (!request.isCurrent()) return
 		if (e instanceof RouteRedirect) {
-			await prepareRoute(e.route, redirects + 1)
+			await prepareRoute(e.route, request, redirects + 1)
 			return
 		}
 
@@ -259,15 +268,17 @@ export function redirect(r: Route): never {
 }
 
 export function pushRoute(r: Route): void {
+	const request = navigationRequests.begin('history')
 	if (metaFor(r.name)?.beforeLoad) {
-		void prepareRoute(r)
+		void prepareRoute(r, request)
 		return
 	}
 
-	commitRoute(r)
+	commitRoute(r, request)
 }
 
-function commitRoute(r: Route): void {
+function commitRoute(r: Route, request: NavigationRequest): void {
+	if (!request.isCurrent()) return
 	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
 	const loader = routeLoaders[route.name] ?? routes.find((meta) => meta.name === route.name)?.loader
 	if (
@@ -278,8 +289,8 @@ function commitRoute(r: Route): void {
 		void Promise.resolve()
 			.then(() => loader(route.params))
 			.then(
-				(loaderData) => commitRoute({ ...route, loaderData }),
-				(loaderError) => commitRoute({ ...route, loaderError }),
+				(loaderData) => commitRoute({ ...route, loaderData }, request),
+				(loaderError) => commitRoute({ ...route, loaderError }, request),
 			)
 
 		return
@@ -314,6 +325,7 @@ function presentationFor(name: string): Route['presentation'] {
  *  per-stack pops aren't expressible, so `stack` is accepted for parity
  *  and ignored. A pushed modal is the top entry, so back dismisses it. */
 export function popRoute(_stack = 'root'): void {
+	navigationRequests.invalidate('history')
 	history.back()
 }
 
@@ -335,6 +347,7 @@ export function addBackInterceptor(_fn: () => boolean): () => void {
 }
 
 window.addEventListener('popstate', () => {
+	navigationRequests.invalidate('history')
 	saveScroll()
 	historyDepth = history.state?.__octaneXplatDepth ?? 0
 	lastKey = scrollKey()

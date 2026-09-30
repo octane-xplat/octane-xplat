@@ -15,6 +15,7 @@
  *  Every drop path warns loudly — silent no-ops are how apps ship a
  *  default route on native while working fine on web. */
 
+import { createNavigationRequests, type NavigationRequest } from './navigation-request'
 import { Application, Frame, GridLayout, Page } from '@nativescript/core'
 import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal/native'
@@ -37,6 +38,8 @@ import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
 export type { Route } from './props'
 
 // ---------- screen registry ----------
+
+const navigationRequests = createNavigationRequests()
 
 // Effective tables = the file-derived base manifest merged under every
 // addRoutes layer. Keeping the split means an HMR re-run of routes.gen.*
@@ -120,13 +123,14 @@ function warnOnce(key: string, msg: string): void {
 /** Attach the route-store emission hook once per frame. `navigatedTo`
  *  fires on push AND on pop (the revealed page re-fires it), so one
  *  listener keeps every useRoute snapshot honest. */
-function trackFrame(frame: Frame): void {
+function trackFrame(frame: Frame, stack: string): void {
 	if (tracked.has(frame)) {
 		return
 	}
 
 	tracked.add(frame)
-	frame.on('navigatedTo', () => {
+	frame.on('navigatedTo', (event: { isBackNavigation?: boolean }) => {
+		if (event.isBackNavigation) navigationRequests.invalidate(stack)
 		// A page re-shown by pop can stay unloaded when the frame's nav
 		// bookkeeping stalls mid-transition (the iOS strand of #11444 — the
 		// same hole the isLoaded/callLoaded workaround in commitRoute covers
@@ -146,7 +150,7 @@ function trackFrame(frame: Frame): void {
 function resolveStack(stack: string): Frame | undefined {
 	const frame = getStack(stack)
 	if (frame) {
-		trackFrame(frame)
+		trackFrame(frame, stack)
 	}
 
 	return frame
@@ -164,7 +168,7 @@ function rearmFrameLoaded(frame: Frame): void {
 }
 
 onStackRegistered((_name, frame) => {
-	trackFrame(frame)
+	trackFrame(frame, stack)
 	ensureBackWired()
 	emit()
 })
@@ -273,11 +277,12 @@ function ensureBackWired(): void {
 	}
 
 	app.__octaneXplatBackWired = true
-	Application.android.on(Application.AndroidApplication.activityBackPressedEvent, (e: {
-		cancel: boolean
-	}) => {
-		app.__octaneXplatBackPress?.(e)
-	})
+	Application.android.on(
+		Application.AndroidApplication.activityBackPressedEvent,
+		(e: { cancel: boolean }) => {
+			app.__octaneXplatBackPress?.(e)
+		},
+	)
 }
 
 function presentationFor(name: string): Route['presentation'] {
@@ -299,10 +304,13 @@ function contextFor(r: Route): Record<string, unknown> {
 	return r.context ?? {}
 }
 
-async function prepareRoute(r: Route, redirects = 0): Promise<void> {
+async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0): Promise<void> {
+	if (!request.isCurrent()) return
+	if (!request.claim(r.stack)) return
+
 	const beforeLoad = metaFor(r.name)?.beforeLoad
 	if (!beforeLoad) {
-		commitRoute(r)
+		commitRoute(r, request)
 		return
 	}
 
@@ -314,13 +322,17 @@ async function prepareRoute(r: Route, redirects = 0): Promise<void> {
 	try {
 		const returned = await beforeLoad({ params: r.params, context: contextFor(r) })
 		const context = returned ? { ...contextFor(r), ...returned } : contextFor(r)
-		commitRoute({
-			...r,
-			context,
-		})
+		commitRoute(
+			{
+				...r,
+				context,
+			},
+			request,
+		)
 	} catch (e) {
+		if (!request.isCurrent()) return
 		if (e instanceof RouteRedirect) {
-			await prepareRoute(e.route, redirects + 1)
+			await prepareRoute(e.route, request, redirects + 1)
 			return
 		}
 
@@ -333,15 +345,17 @@ export function redirect(r: Route): never {
 }
 
 export function pushRoute(r: Route): void {
+	const request = navigationRequests.begin(r.stack)
 	if (metaFor(r.name)?.beforeLoad) {
-		void prepareRoute(r)
+		void prepareRoute(r, request)
 		return
 	}
 
-	commitRoute(r)
+	commitRoute(r, request)
 }
 
-function commitRoute(r: Route): void {
+function commitRoute(r: Route, request: NavigationRequest): void {
+	if (!request.isCurrent()) return
 	const C = screenFor(r.name)
 	if (!C) {
 		warnOnce(
@@ -362,8 +376,8 @@ function commitRoute(r: Route): void {
 		void Promise.resolve()
 			.then(() => loader(r.params))
 			.then(
-				(loaderData) => commitRoute({ ...r, loaderData }),
-				(loaderError) => commitRoute({ ...r, loaderError }),
+				(loaderData) => commitRoute({ ...r, loaderData }, request),
+				(loaderError) => commitRoute({ ...r, loaderError }, request),
 			)
 
 		return
@@ -542,8 +556,10 @@ function pushModal(frame: Frame, r: Route, C: any): void {
  *  where back at the app root is a no-op; loud only when the stack
  *  itself doesn't exist. */
 export function popRoute(stack = 'root'): void {
+	navigationRequests.invalidate(stack)
 	const modal = modalHosts[modalHosts.length - 1]
 	if (modal) {
+		navigationRequests.invalidate(modal.route.stack)
 		// Bookkeeping first: iOS drops dismissViewController completions
 		// that race a still-in-flight presentation, so the NS closeCallback
 		// isn't guaranteed to run — the route store can't gate on it.

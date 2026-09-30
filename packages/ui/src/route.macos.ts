@@ -1,3 +1,4 @@
+import { createNavigationRequests, type NavigationRequest } from './navigation-request'
 import { useSyncExternalStore } from 'octane'
 import type { Route, RouteHead, RouteManifest, RouteMeta, ScreenTable } from './props'
 import {
@@ -7,6 +8,8 @@ import {
 	mergeRouteManifests,
 	RouteRedirect,
 } from './route-table'
+
+const navigationRequests = createNavigationRequests()
 
 // Effective tables = the file-derived base manifest merged under every
 // addRoutes layer, matching the web/native leaves' registry split.
@@ -107,10 +110,17 @@ function contextFor(route: Route): Record<string, unknown> {
 	return route.context ?? {}
 }
 
-async function prepareRoute(route: Route, redirects = 0): Promise<void> {
+async function prepareRoute(
+	route: Route,
+	request: NavigationRequest,
+	redirects = 0,
+): Promise<void> {
+	if (!request.isCurrent()) return
+	if (!request.claim(route.stack)) return
+
 	const beforeLoad = metaFor(route.name)?.beforeLoad
 	if (!beforeLoad) {
-		commitRoute(route)
+		commitRoute(route, request)
 		return
 	}
 
@@ -121,14 +131,19 @@ async function prepareRoute(route: Route, redirects = 0): Promise<void> {
 
 	try {
 		const returned = await beforeLoad({ params: route.params, context: contextFor(route) })
-		commitRoute({ ...route, context: returned ? { ...contextFor(route), ...returned } : route.context })
+		commitRoute(
+			{ ...route, context: returned ? { ...contextFor(route), ...returned } : route.context },
+			request,
+		)
 	} catch (error) {
+		if (!request.isCurrent()) return
 		if (error instanceof RouteRedirect) {
-			await prepareRoute(error.route, redirects + 1)
+			await prepareRoute(error.route, request, redirects + 1)
 			return
 		}
-
-		console.warn(`[octane-xplat] beforeLoad('${route.name}') rejected: ${(error as Error)?.message ?? error}`)
+		console.warn(
+			`[octane-xplat] beforeLoad('${route.name}') rejected: ${(error as Error)?.message ?? error}`,
+		)
 	}
 }
 
@@ -137,15 +152,16 @@ export function redirect(route: Route): never {
 }
 
 export function pushRoute(route: Route): void {
+	const request = navigationRequests.begin(route.stack)
 	if (metaFor(route.name)?.beforeLoad) {
-		void prepareRoute(route)
+		void prepareRoute(route, request)
 		return
 	}
-
-	commitRoute(route)
+	commitRoute(route, request)
 }
 
-function commitRoute(route: Route): void {
+function commitRoute(route: Route, request: NavigationRequest): void {
+	if (!request.isCurrent()) return
 	const entry = { ...route, presentation: route.presentation ?? metaFor(route.name)?.presentation }
 	const loader = routeLoaders[entry.name] ?? metaFor(entry.name)?.loader
 	if (
@@ -153,11 +169,12 @@ function commitRoute(route: Route): void {
 		!Object.prototype.hasOwnProperty.call(entry, 'loaderData') &&
 		!Object.prototype.hasOwnProperty.call(entry, 'loaderError')
 	) {
-		void Promise.resolve().then(() => loader(entry.params)).then(
-			(loaderData) => commitRoute({ ...entry, loaderData }),
-			(loaderError) => commitRoute({ ...entry, loaderError }),
-		)
-
+		void Promise.resolve()
+			.then(() => loader(entry.params))
+			.then(
+				(loaderData) => commitRoute({ ...entry, loaderData }, request),
+				(loaderError) => commitRoute({ ...entry, loaderError }, request),
+			)
 		return
 	}
 
@@ -174,7 +191,9 @@ function commitRoute(route: Route): void {
 }
 
 export function popRoute(stack = 'root'): void {
+	navigationRequests.invalidate(stack)
 	if (modalRoute) {
+		navigationRequests.invalidate(modalRoute.stack)
 		modalRoute = null
 	} else {
 		const entries = stacks.get(stack) ?? []
@@ -192,7 +211,9 @@ export function popRoute(stack = 'root'): void {
 
 export function pushDeepLink(url: string): void {
 	const route = matchUrl(routes, url)
-	if (route) {pushRoute(route)}
+	if (route) {
+		pushRoute(route)
+	}
 }
 
 export function hrefFor(route: Route): string {
