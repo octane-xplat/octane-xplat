@@ -513,23 +513,36 @@ body {
 	align-items: center;
 	justify-content: space-between;
 	gap: 28px;
-	min-width: 220px;
+	box-sizing: border-box;
+	width: 340px;
+	max-width: calc(100% - 81px);
 	margin: 0 81px 56px 0;
-	padding: 14px 18px;
-	background-color: var(--doc-well);
+	padding: 18px 24px;
+	background-color: var(--doc-card);
 	border-width: 1px;
 	border-style: solid;
-	border-color: var(--doc-hairline);
-	border-radius: 18px;
+	border-color: rgba(0, 0, 0, 0.02);
+	border-radius: 28px;
 	corner-shape: squircle;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 	cursor: pointer;
-	transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease;
+	transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.dark .doc-next {
+	border-color: rgba(255, 255, 255, 0.06);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 }
 
 .doc-next:hover {
-	background-color: var(--doc-hover);
-	border-color: var(--doc-link);
+	border-color: rgba(0, 0, 0, 0.06);
+	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
 	transform: translateY(-1px);
+}
+
+.dark .doc-next:hover {
+	border-color: rgba(255, 255, 255, 0.12);
+	box-shadow: 0 3px 8px rgba(0, 0, 0, 0.28);
 }
 
 .doc-next-copy {
@@ -1016,6 +1029,7 @@ body {
 	}
 
 	.doc-next {
+		max-width: calc(100% - 20px);
 		margin-right: 20px;
 		margin-bottom: 32px;
 	}
