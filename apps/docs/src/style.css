@@ -870,12 +870,14 @@ body {
 	margin-bottom: 20px;
 }
 
-/* Keep wide tables inside the document column and let only the table scroll. */
+/* Let tables span the card while keeping horizontal scrolling on the table. */
 .table-block {
-	max-width: 100%;
+	max-width: none;
 	min-width: 0;
 	margin-top: 16px;
 	margin-bottom: 12px;
+	margin-left: -81px;
+	margin-right: -81px;
 }
 
 .table-scroll-hint {
@@ -1060,6 +1062,11 @@ body {
 		padding: 28px 20px 64px;
 	}
 
+	.table-block {
+		margin-left: -20px;
+		margin-right: -20px;
+	}
+
 	.doc-next {
 		max-width: calc(100% - 20px);
 		margin-right: 20px;
@@ -1126,6 +1133,11 @@ body {
 
 	.doc {
 		padding: 48px 40px 64px;
+	}
+
+	.table-block {
+		margin-left: -40px;
+		margin-right: -40px;
 	}
 
 	.table-scroll-hint {
