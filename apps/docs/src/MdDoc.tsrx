@@ -104,7 +104,7 @@ function Spans(props: { spans: Span[] }) @{
 	<>{props.spans.map((s) => <SpanText s={s} />)}</>
 }
 
-function BlockView(props: { b: Block }) @{
+function BlockView(props: { b: Block; lede?: boolean }) @{
 	const b = props.b;
 	if (b.kind === 'h') return <Text id={b.id} className={`h${b.level}`}>{b.text}</Text>;
 	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} /></Text>;
@@ -115,7 +115,7 @@ function BlockView(props: { b: Block }) @{
 		</View>
 	);
 
-	if (b.kind === 'quote') return <View className="quote"><Text className="dim"><Spans spans={b.spans} /></Text></View>;
+	if (b.kind === 'quote') return <View className={props.lede ? 'quote lede' : 'quote'}><Text className={props.lede ? 'dim lede-content' : 'dim'}><Spans spans={b.spans} /></Text></View>;
 	if (b.kind === 'callout') {
 		return <View className={'callout callout-' + b.level}>
 			<View className="callout-tag"><Text className="callout-tagtext">{b.level}</Text></View>
@@ -141,5 +141,5 @@ function BlockView(props: { b: Block }) @{
 export function MdDoc(props: { md: string }) @{
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
 
-	<View className="doc">{blocks.map((b) => <BlockView b={b} />)}</View>
+	<View className="doc">{blocks.map((b, i) => <BlockView b={b} lede={b.kind === 'quote' && blocks[i - 1]?.kind === 'h' && blocks[i - 1]?.level === 1} />)}</View>
 }

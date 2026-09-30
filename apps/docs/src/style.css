@@ -398,6 +398,18 @@ body {
    corners, the design's signature shape */
 .doc > .h1 + .quote {
 	border-width: 0;
+	background-color: transparent;
+	background-image: none;
+	border-radius: 0;
+	clip-path: none;
+	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.12);
+	padding: 0;
+	margin-top: 0;
+	margin-bottom: 22px;
+}
+
+.doc > .h1 + .quote .lede-content {
+	display: block;
 	background-color: #000000;
 	background-image: var(--doc-glow);
 	border-radius: 0;
@@ -409,10 +421,7 @@ body {
 		18px 100%,
 		0 calc(100% - 18px)
 	);
-	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.12);
 	padding: 24px 18px;
-	margin-top: 0;
-	margin-bottom: 22px;
 }
 
 .doc > .h1 + .quote .dim {
@@ -811,7 +820,7 @@ body {
 		font-size: 24px;
 	}
 
-	.doc > .h1 + .quote {
+	.doc > .h1 + .quote .lede-content {
 		clip-path: polygon(
 			0 0,
 			calc(100% - 24px) 0,
