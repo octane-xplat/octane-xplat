@@ -1,0 +1,5 @@
+{
+	"extends": "../tsconfig.json",
+	"include": ["src/**/*", "../src/navigation-*.ts", "../src/navigation-*.tsrx"],
+	"files": ["../references.d.ts", "../types/globals.d.ts"]
+}

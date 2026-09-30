@@ -234,6 +234,32 @@ the current caller-facing contract.
 
 ## Lab log
 
+> **Lab (navigation readiness, 2026-09-30, main base `4b43f82d`):**
+> Fresh production Web navigation checks pass 14/14 using
+> `apps/web/scripts/navigation.mjs`; focused router/link tests pass 52/52.
+> Reproduced defects included lost guard/loader state after browser history
+> traversal and route registration, absent loader data on direct baked-route
+> entry, malformed URI crashes (including production minification), repeated
+> warm links suppressed by URL deduplication, and native modal roots not
+> unmounted on dismissal. These now have regression checks. Mocked Android
+> checks exercise router-owned named stacks and interceptor/modal/root/named
+> back ordering; they are not device evidence.
+>
+> The first full-harness Android release attempt failed without
+> `google-services.json`. The first iOS release built and installed, but the
+> isolated navigation entry produced no report within 120 seconds. Neither
+> is a runtime pass. The minimal navigation project now excludes optional
+> service plugins; subsequent target attempts were blocked by occupied shared
+> locks. A minimal iOS build exposed missing DOM-helper exports because
+> fixtures were outside the renderer include rule; the rule was corrected,
+> and the isolated Android release subsequently built with Temurin JDK 21.
+> Android runtime remains lock-blocked on newly available `emulator-5566`;
+> no runtime report was collected. iOS
+> `UITabBar` item churn/loading and native OS-link delivery remain unverified.
+> See [reproducible checks](navigation-checks.md) and Silo for criterion-level
+> evidence. Historical release statements below describe their original runs.
+
+
 > **Lab (route dir, web, 2026-09-24):** `packages/app/src/app/` holds the
 > harness routes — `_layout.tsrx` (the Tabs shell, rendered via
 > `layouts['']`), `detail.tsrx`, `demo/[id].tsrx`. `import.meta.glob` +

@@ -102,6 +102,16 @@ pushes themselves work through the swap-pane route store.
 
 ## Navigation
 
+Fresh Web release navigation checks on 2026-09-30 pass 14/14, including
+retained guard/loader results during history traversal and cold baked-route
+loads. Native ordering has focused mocked coverage, but the new native release
+suite has no passing runtime report. Shared locks blocked follow-up runs;
+the isolated Android release built with Temurin JDK 21, but its newly
+available emulator is lock-blocked. The initial iOS run timed out without a
+report. Historical target evidence does not close these gaps. See
+[navigation checks](navigation-checks.md) for reproduction and scope.
+
+
 | Seam                    | Web                                          | iOS                                             | Android                                    | Kind             | Verified |
 | ----------------------- | -------------------------------------------- | ----------------------------------------------- | ------------------------------------------ | ---------------- | -------- |
 | Push into a named stack | nested-outlet URL push                       | `UITabBar` Frame navigates natively — the router re-arms `isLoaded` before push and pop; the [NS#11446](https://github.com/NativeScript/NativeScript/pull/11446) fix (items-churn root cause + `topmost()` ranking) ships in the xplat core patch. Shared `Tabs` panes use the route store | router-owned swap pane — pushed routes render through `RouteHost` inside the platform tab pane, so named pushes never touch the fragment manager (`BottomNavigationView` behaves like shared `Tabs`) | `different`     | 0.6.0·desk |

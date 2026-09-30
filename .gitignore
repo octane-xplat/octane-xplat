@@ -21,3 +21,8 @@ packages/*/types/props.d.ts
 packages/motion/types/clock-types.d.ts
 packages/motion/types/engine.d.ts
 packages/motion/types/value.d.ts
+
+# Generated release navigation reports and build logs.
+apps/mobile/navigation-results/
+apps/mobile/navigation-project/platforms/
+apps/mobile/navigation-project/package-lock.json

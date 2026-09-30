@@ -52,3 +52,10 @@ to render on every target with no runtime fetch.
   — serializability, param-less bake, sibling requirement, typecheck
   behavior.
 - AC4: [Hand the route list to a host](../docs/navigation.md#hand-the-route-list-to-a-host).
+
+## Verification
+
+The [release navigation checks](../docs/navigation-checks.md) exercise this
+workflow separately from documentation coverage. Web production checks cover
+cold changelog loader data and Markdown rendering. Native baked-route runtime
+checks remain unverified; successful Web execution does not establish them.

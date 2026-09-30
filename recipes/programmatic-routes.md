@@ -52,3 +52,10 @@ database, a content directory, or a host framework's own route model.
   and the [Navigation limits row](../docs/known-limits.md#navigation).
 - AC4: [Register routes from data](../docs/navigation.md#register-routes-from-data);
   web smoke in `apps/web/scripts/smoke.mjs` deep-links `/test/guides/deploy`.
+
+## Verification
+
+The [release navigation checks](../docs/navigation-checks.md) exercise this
+workflow separately from documentation coverage. Web production checks cover
+programmatic named routes, layout wrapping, retained loaded history, and cold
+URL entry. Native `addRoutes` runtime checks remain unverified.

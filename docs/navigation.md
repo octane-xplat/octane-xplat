@@ -249,7 +249,13 @@ that warns once.
 
 Web history is one linear stack. `popRoute(stack)` accepts `stack` for API
 symmetry but always pops the browser's current entry; it cannot remove a
-non-top named-stack entry without rewriting browser history.
+non-top named-stack entry without rewriting browser history. Prepared guard context
+and loader results are retained during back/forward traversal within the same
+document, including modal entries. Calling `addRoutes` does not discard this
+prepared state. A fresh document parses its URL again; it does not restore
+non-URL screen state or re-run `beforeLoad` automatically. Direct URLs run
+the route loader without adding a history entry, including the generated
+loader for baked data and Markdown.
 
 Generated `RouteParams` keeps normal route APIs scalar (`string`) for stable
 URLs. The low-level `Route` type remains open for compatibility: if an object
@@ -260,27 +266,101 @@ again on matching. Prefer the generated scalar API for shareable routes.
 
 `pushDeepLink(url)` turns an incoming URL — `https://…` or an app scheme like
 `textcoral://post/5` — into the same route a link would have navigated to.
-Register routes and mount the navigation host before dispatching incoming
-links. The following native bootstrap fragment wires the listener once; keep
-its returned unsubscribe function for teardown or HMR cleanup. Browser boot
-is already URL-driven, so do not also push its initial URL:
+Register routes before dispatching incoming links. On native, subscribe before
+`Application.run` so launch events are captured, but consume the launch URL only
+after the navigation host loads. This bootstrap fragment queues links until
+NativeScript reports its first displayed frame:
 
 ```ts
+import { Application } from '@nativescript/core'
 import { pushDeepLink } from '@octane-xplat/ui'
 import { onDeepLink, consumeInitialUrl } from '@octane-xplat/platform'
 
-const unsubscribe = onDeepLink(pushDeepLink)
-const boot = consumeInitialUrl() // the URL that launched the app
-if (boot) pushDeepLink(boot)
+let ready = false
+const pending: string[] = []
+const unsubscribe = onDeepLink((url) => {
+  if (ready) pushDeepLink(url)
+  else pending.push(url)
+})
+Application.on(Application.displayedEvent, () => {
+  if (ready) return
+  ready = true
+  const boot = consumeInitialUrl()
+  if (boot) pushDeepLink(boot)
+  for (const url of pending.splice(0)) pushDeepLink(url)
+})
+// Then Application.run({ create: ... }) with your Frame-root shell.
 ```
 
-For web/iOS/Android, `pushDeepLink` returns `false` and warns if no route
-matches; keep the current screen and show an app-owned not-found message.
-A `true` result means a match was dispatched, not that an asynchronous guard
-or navigation completed. Test a known path and an unknown path separately.
-Native scheme registration and cold/warm-launch reproduction are still a
-[documentation gap](../recipes/incoming-links.md); listener wiring alone
-does not register your app with the OS.
+Keep `unsubscribe` for teardown. The maintained harness wiring in
+`packages/app/src/route-links.mobile.ts` waits for a loaded root Page instead.
+Browser boot is already URL-driven: do not push its initial URL again.
+A URL carried by the native launch event belongs to `consumeInitialUrl`;
+other URL events go to the listener. Queue both paths while the host loads,
+since iOS may deliver its cold URL through `openUrl`.
+Android deduplicates a new-intent/resume pair by intent identity. A later intent
+with the same URL is a new navigation request.
+
+### Register a custom scheme
+
+For a scheme named `xplatnav`, add this activity filter to
+`App_Resources/Android/src/main/AndroidManifest.xml`, inside the app's
+`com.tns.NativeScriptActivity` (use `android:launchMode="singleTask"`):
+
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="xplatnav" />
+</intent-filter>
+```
+
+Add this entry inside the root dictionary of `App_Resources/iOS/Info.plist`:
+
+```xml
+<key>CFBundleURLTypes</key>
+<array><dict>
+  <key>CFBundleURLSchemes</key>
+  <array><string>xplatnav</string></array>
+</dict></array>
+```
+
+Rebuild and install after changing either file. This registers a custom scheme;
+HTTPS Universal Links/App Links also need domain association and are outside
+this recipe.
+
+### Reproduce launch and fallback behavior
+
+Use a route named `nav/:id`. The isolated release harness registers it and
+uses app ID `org.nativescript.xplat.navigation`. With that app stopped, opening
+the first URL below is a cold launch. Keep it running for the second request;
+send the warm request twice and verify two pushes, one per OS delivery.
+Replace `DEVICE_ID` with the selected simulator UUID or Android serial:
+
+```sh
+xcrun simctl openurl DEVICE_ID 'xplatnav://nav/cold'
+xcrun simctl openurl DEVICE_ID 'xplatnav://nav/warm'
+adb -s DEVICE_ID shell am start -W -a android.intent.action.VIEW \
+  -d 'xplatnav://nav/cold' \
+  -n org.nativescript.xplat.navigation/com.tns.NativeScriptActivity
+adb -s DEVICE_ID shell am start -W -a android.intent.action.VIEW \
+  -d 'xplatnav://nav/warm' \
+  -n org.nativescript.xplat.navigation/com.tns.NativeScriptActivity
+```
+
+Also send `xplatnav://missing` and `xplatnav://nav/%` using the same command.
+`pushDeepLink` rejects an unregistered screen or malformed percent encoding,
+returns `false`, and warns; the current screen stays. Show an app-owned not-found
+message when it returns `false`. A `true` result means a match was dispatched,
+not that an asynchronous guard or navigation completed. On browser direct load,
+a malformed encoded path falls back to the shell; an unmatched literal route
+is left to the outlet's not-found UI. Guards are not a blanket filter for
+browser bootstrap or history traversal.
+
+The [release navigation checks](navigation-checks.md) exercise these commands
+without images. Coverage in this guide and actual per-target results are
+recorded separately; scheme registration alone is not runtime verification.
 
 ## Keep browser links real
 
