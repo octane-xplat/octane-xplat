@@ -239,11 +239,12 @@ function appDelegate() {
 // Platform services seam — @octane-xplat/platform's macOS index reads
 // `globalThis.__xplatAppKit` for anything the JS side cannot reach.
 function installPlatformServices() {
-	if (globalThis.__xplatAppKit) return
-
+	// The renderer seeds the same global with observeHover/showAnchoredPopup —
+	// merge onto it rather than replacing or bailing on an early return.
+	const bridge = (globalThis.__xplatAppKit ??= {})
 	const services = shared.platformServices
 	const info = NSBundle.mainBundle.infoDictionary ?? {}
-	globalThis.__xplatAppKit = {
+	Object.assign(bridge, {
 		appInfo: {
 			supported: true,
 			version: info.CFBundleShortVersionString ?? null,
@@ -347,7 +348,7 @@ function installPlatformServices() {
 		consumeInitialUrl() {
 			return services.pendingUrls.shift() ?? null
 		},
-	}
+	})
 }
 
 try {

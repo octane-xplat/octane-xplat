@@ -266,7 +266,7 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 		title: 'Share sheet',
 		sense: 'eyes',
 		device: 'physical',
-		targets: MOBILE,
+		targets: ['ios', 'android', 'macos'],
 		steps: ['Tap "Share sheet".'],
 		expect: 'The OS share sheet presents and completes/cancels cleanly.',
 		triggers: ['share'],

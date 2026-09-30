@@ -1,8 +1,17 @@
-// macOS twin — the media leaf packages (@octane-xplat/haptics, /sounds,
-// /audio) carry only web/native export conditions and don't resolve on the
-// AppKit host, and media triggers are unsupported there. Same surface, no
-// action.
-export async function runQaTrigger(_key: string): Promise<string> {
+// macOS twin — the share leaf resolves on the AppKit host (the host presents
+// NSSharingServicePicker itself). The remaining media leaves carry only
+// web/native export conditions, so their triggers stay unsupported.
+import { share } from '@octane-xplat/share'
+
+export async function runQaTrigger(key: string): Promise<string> {
+	if (key === 'share') {
+		try {
+			return 'result: ' + (await share.text('octane-xplat human QA'))
+		} catch (e) {
+			return 'error: ' + (e instanceof Error ? e.message : String(e))
+		}
+	}
+
 	return 'unsupported on this target';
 }
 
