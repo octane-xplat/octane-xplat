@@ -22,5 +22,5 @@ platform-specific transforms in the screen.
 ## Documentation
 
 - AC1: [Gesture values](../docs/animation-gestures.md#bind-values-and-gestures), [MotionDemo](../packages/motion/examples/MotionDemo.tsrx).
-- AC2: [Reduced motion](../docs/animation-gestures.md#reduced-motion-and-lifecycle), [MotionDemo](../packages/motion/examples/MotionDemo.tsrx).
+- AC2: [Release velocity and cancellation](../docs/animation-gestures.md#bind-values-and-gestures), [reduced motion](../docs/animation-gestures.md#reduced-motion-and-lifecycle), [MotionDemo](../packages/motion/examples/MotionDemo.tsrx).
 - AC3: [Lifecycle](../docs/animation-gestures.md#bind-values-and-gestures), [compatibility](../packages/motion/UPSTREAM.md#verification-limits).

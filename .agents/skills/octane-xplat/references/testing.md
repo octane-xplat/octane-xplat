@@ -7,8 +7,8 @@
 | Typecheck | `tsrx-tsc --noEmit -p apps/{web,mobile}/tsconfig.json` | .tsrx typechecks per target                                                                                                                                             |
 | Unit      | `pnpm test`                                            | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.mobile.test.*`, universal runtime via the object driver) |
 | Seam lint | `node scripts/check-no-dom.mjs`                        | no DOM globals in native/shared                                                                                                                                         |
-| Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright, 34 assertions in the current script                                                                                                                |
-| iOS       | build + install + launch → read sim log                | Check the named `[assert]` results emitted by the current harness sweep                                                                                               |
+| Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright, 34 assertions in the current script                                                                                                                 |
+| iOS       | build + install + launch → read sim log                | Check the named `[assert]` results emitted by the current harness sweep                                                                                                 |
 | Android   | build + install + launch → logcat `I JS`               | Base probes; the nested-Frame sweep is gated                                                                                                                            |
 
 ## The probe harness (`apps/mobile/src/index.ts`)
@@ -40,10 +40,12 @@ runs there instead; the web twin is a no-op.
 ## Web smoke (`apps/web/scripts/smoke.mjs`)
 
 `pnpm smoke` = `vite build && node scripts/smoke.mjs` — serves dist via
-`vite preview` and drives headless Chromium. The current script has 34
-assertions covering mount/state, routes and tabs, sheet and overlay portals,
-services, proof-stack navigation, and browser errors. The sheet check
-asserts the real panel mounts and the backdrop dismisses it.
+`vite preview` and drives headless Chromium. The current script has 59
+assertions covering mount/state, motion retargeting and cancellation, pan
+release velocity and cancellation, retained Presence identity, routes and
+tabs, sheet and overlay portals, services, proof-stack navigation, and browser
+errors. The sheet check asserts the real panel mounts and the backdrop
+dismisses it.
 
 **Selectors:** `Pressable` renders `div[role="button"]` — use
 `[role="button"]:has-text("X")`, not `button`.

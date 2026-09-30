@@ -47,8 +47,10 @@ MotionValue get reads are imperative, not Octane signal subscriptions.
 Use shared `onPan` events to stop playback on begin, set displacement during
 movement, and spring with release velocity on end. Treat cancellation separately
 and commit product state once the interaction outcome is known. Native velocity
-is DIP/second; web velocity is CSS pixels/second. Full declarative drag and
-scroll-gesture arbitration are outside this release.
+is DIP/second; web velocity is CSS pixels/second. Web pointer-up carries the
+last movement sample for up to 100 ms, so a pointer-up at the same coordinates
+as the final move retains its velocity; older samples resolve to zero. Full
+declarative drag and scroll-gesture arbitration are outside this release.
 
 ## Reduced motion and lifecycle
 

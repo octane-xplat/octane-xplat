@@ -61,7 +61,206 @@ try {
 	ok('pressable multi-child label', (await mp.locator('text=Multi').count()) === 1)
 	ok('pressable multi-child sibling', (await mp.locator('#multi-sibling').count()) === 1)
 
+	// Motion v1 parity: drive the same destination, MotionValue, pan, and
+	// retained-Presence cases used by the NativeScript probe.
+	await page.click('#menu-motion-probe')
+	await page.waitForSelector('#motion-destination', { timeout: 3000 })
+	ok('motion probe mounts', true)
+	const destinationX = () =>
+		page.locator('#motion-destination').evaluate((el) => {
+			const transform = getComputedStyle(el).transform
+			return transform === 'none' ? 0 : new DOMMatrixReadOnly(transform).m41
+		})
+
+	await page.click('#motion-tween-to')
+	await page.waitForFunction(
+		() =>
+			document
+				.querySelector('#motion-destination-status')
+				?.textContent?.includes('completed at 100'),
+		null,
+		{ timeout: 5000 },
+	)
+
+	let x = await destinationX()
+	ok('motion tween reaches destination', Math.abs(x - 100) <= 1, `x=${x.toFixed(1)}`)
+
+	await page.click('#motion-tween-to')
+	await page.waitForTimeout(120)
+	const interruptedAt = await destinationX()
+	ok(
+		'motion tween is in flight before retarget',
+		interruptedAt > -100 && interruptedAt < 100,
+		`x=${interruptedAt.toFixed(1)}`,
+	)
+
+	await page.click('#motion-interrupt-spring')
+	await page.waitForFunction(
+		() =>
+			document
+				.querySelector('#motion-destination-status')
+				?.textContent?.includes('completed at 40'),
+		null,
+		{ timeout: 5000 },
+	)
+
+	x = await destinationX()
+	ok('motion spring retarget settles at destination', Math.abs(x - 40) <= 1, `x=${x.toFixed(1)}`)
+
+	await page.click('#motion-value-cancel')
+	await page.waitForFunction(
+		() =>
+			document.querySelector('#motion-pan-status')?.textContent?.includes('MotionValue cancelled'),
+		null,
+		{ timeout: 3000 },
+	)
+
+	ok('MotionValue cancellation resolves as cancelled', true)
+
+	const panRow = page.locator('#motion-pan-row')
+	await panRow.scrollIntoViewIfNeeded()
+	const panBox = await panRow.boundingBox()
+	if (!panBox) {
+		throw new Error('motion pan row has no browser bounds')
+	}
+
+	const panStart = { x: panBox.x + panBox.width / 2, y: panBox.y + panBox.height / 2 }
+	await page.mouse.move(panStart.x, panStart.y)
+	await page.mouse.down()
+	await page.mouse.move(panStart.x + 72, panStart.y, { steps: 4 })
+	await page.mouse.up()
+	const panEnded = await page
+		.waitForFunction(
+			() =>
+				document
+					.querySelector('#motion-pan-status')
+					?.textContent?.includes('settled x=0.0; phases=began→moved→ended'),
+			null,
+			{ timeout: 3000 },
+		)
+		.then(
+			() => true,
+			() => false,
+		)
+
+	const panEndStatus = await page.locator('#motion-pan-status').innerText()
+	const releaseVelocity = Number(panEndStatus.match(/vx=(-?\d+)/)?.[1] ?? 0)
+	ok(
+		'pan begin/move/end settles with release velocity',
+		panEnded && releaseVelocity > 0,
+		`vx=${releaseVelocity}; ${panEndStatus}`,
+	)
+
+	await page.evaluate(() => {
+		window.__motionPanPointerId = undefined
+		document.addEventListener(
+			'pointerdown',
+			(event) => {
+				if (event.target.closest?.('#motion-pan-row')) {
+					window.__motionPanPointerId = event.pointerId
+				}
+			},
+			{ capture: true, once: true },
+		)
+	})
+
+	await page.mouse.move(panStart.x, panStart.y)
+	await page.mouse.down()
+	await page.mouse.move(panStart.x + 36, panStart.y, { steps: 2 })
+	await page.evaluate(
+		({ x, y }) => {
+			const row = document.querySelector('#motion-pan-row')
+			row.dispatchEvent(
+				new PointerEvent('pointercancel', {
+					bubbles: true,
+					cancelable: true,
+					pointerId: window.__motionPanPointerId,
+					pointerType: 'mouse',
+					clientX: x,
+					clientY: y,
+				}),
+			)
+		},
+		{ x: panStart.x + 36, y: panStart.y },
+	)
+
+	await page.mouse.up()
+	const panCancelled = await page
+		.waitForFunction(
+			() =>
+				document
+					.querySelector('#motion-pan-status')
+					?.textContent?.includes('settled x=0.0; phases=began→moved→cancelled'),
+			null,
+			{ timeout: 3000 },
+		)
+		.then(
+			() => true,
+			() => false,
+		)
+
+	const panCancelStatus = await page.locator('#motion-pan-status').innerText()
+	ok('pan cancellation settles back to origin', panCancelled, panCancelStatus)
+
+	const presenceCard = page.locator('#motion-presence-card')
+	await presenceCard.evaluate((el) => {
+		el.dataset.browserIdentity = 'motion-presence-original'
+	})
+
+	await page.click('#motion-presence-increment')
+	await page.waitForFunction(
+		() =>
+			document.querySelector('#motion-presence-count')?.textContent?.includes('Retained count: 1'),
+		null,
+		{ timeout: 3000 },
+	)
+
+	await page.click('#motion-presence-toggle')
+	await page.waitForTimeout(120)
+	const exitingPresence = await page.evaluate(() => {
+		const card = document.querySelector('#motion-presence-card')
+		return {
+			identity: card?.dataset.browserIdentity,
+			count: document.querySelector('#motion-presence-count')?.textContent,
+		}
+	})
+
+	ok(
+		'Presence keeps the exiting host and child state',
+		exitingPresence.identity === 'motion-presence-original' &&
+			exitingPresence.count?.includes('Retained count: 1'),
+	)
+
+	await page.click('#motion-presence-toggle')
+	await page.waitForFunction(
+		() =>
+			document
+				.querySelector('#motion-presence-status')
+				?.textContent?.includes('re-entry requested'),
+		null,
+		{ timeout: 3000 },
+	)
+
+	ok(
+		'Presence exit reversal retains host identity',
+		(await presenceCard.getAttribute('data-browser-identity')) === 'motion-presence-original',
+	)
+
+	await page.click('#motion-presence-toggle')
+	await page.waitForSelector('#motion-presence-card', { state: 'detached', timeout: 3000 })
+	await page.waitForFunction(
+		() =>
+			document
+				.querySelector('#motion-presence-status')
+				?.textContent?.includes('unmounted; removals=1'),
+		null,
+		{ timeout: 3000 },
+	)
+
+	ok('Presence removes the host exactly once after exit', true)
+
 	// Tab switch: web Tabs leaf renders a button row.
+	await page.goto(BASE, { waitUntil: 'networkidle' })
 	await page.click('button:text("Apps")')
 	await page.waitForSelector('text=Last opened:', { timeout: 3000 })
 	ok('tab switch → demos catalog mounts', true)
