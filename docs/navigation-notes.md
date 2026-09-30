@@ -254,7 +254,10 @@ the current caller-facing contract.
 > fixtures were outside the renderer include rule; the rule was corrected,
 > and the isolated Android release subsequently built with Temurin JDK 21.
 > Android runtime remains lock-blocked on newly available `emulator-5566`;
-> no runtime report was collected. iOS
+> no runtime report was collected. The final isolated iOS release also built and installed, but again produced
+> no report within 120 seconds. A direct diagnostic `simctl launch` was denied
+> by `SBMainWorkspace` (`FBSOpenApplicationServiceErrorDomain`, code 1). No JS
+> startup log was produced; this does not establish a router defect. iOS
 > `UITabBar` item churn/loading and native OS-link delivery remain unverified.
 > See [reproducible checks](navigation-checks.md) and Silo for criterion-level
 > evidence. Historical release statements below describe their original runs.

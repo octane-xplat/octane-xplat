@@ -58,7 +58,11 @@ release console output is not a reliable evidence channel.
 ## What counts as evidence
 
 Each named check must pass and the report must finish with `pass: true`.
-A successful build or living process is insufficient. Timeouts and unavailable
+A successful build or living process is insufficient. The 2026-09-30 isolated
+iOS release built and installed but returned no report; a direct diagnostic
+`simctl launch` was denied by `SBMainWorkspace`
+(`FBSOpenApplicationServiceErrorDomain`, code 1). Preserve that launch error
+as a blocker rather than inferring a JavaScript or router failure. Timeouts and unavailable
 signing, hardware, SDKs, or locks are blocked runs, never passes.
 
 Android named stacks are router arrays rendered by `RouteHost`. The suite

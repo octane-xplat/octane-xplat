@@ -107,8 +107,9 @@ retained guard/loader results during history traversal and cold baked-route
 loads. Native ordering has focused mocked coverage, but the new native release
 suite has no passing runtime report. Shared locks blocked follow-up runs;
 the isolated Android release built with Temurin JDK 21, but its newly
-available emulator is lock-blocked. The initial iOS run timed out without a
-report. Historical target evidence does not close these gaps. See
+available emulator is lock-blocked. Both iOS releases built but timed out without a
+report; a direct diagnostic launch was denied by `SBMainWorkspace`
+(`FBSOpenApplicationServiceErrorDomain`, code 1). Historical target evidence does not close these gaps. See
 [navigation checks](navigation-checks.md) for reproduction and scope.
 
 
