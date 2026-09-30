@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import { URL } from 'node:url'
 import { octane } from 'octane/compiler/vite'
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 
@@ -44,6 +45,13 @@ export default defineConfig({
 		conditions: ['native'],
 		alias: [
 			{ find: /^octane$/, replacement: 'octane/universal/native' },
+			// Vitest's SSR resolver otherwise redirects the authored client hook
+			// module to signals/server, despite client universal compilation.
+			{
+				find: /^octane\/signals\/client$/,
+				replacement: new URL('./node_modules/octane/dist/node/signals/client.js', import.meta.url)
+					.pathname,
+			},
 			// Compiled leaves import the renderer module (the driver package),
 			// whose index pulls @nativescript/core — not loadable in node.
 			// Object-driver tests only need its universal-runtime re-exports.

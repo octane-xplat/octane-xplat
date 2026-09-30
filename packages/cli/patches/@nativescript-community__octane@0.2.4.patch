@@ -1,5 +1,5 @@
 diff --git a/dist/driver.js b/dist/driver.js
-index c88828e..ff34da7 100644
+index c88828e..52cde3f 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -85,6 +85,11 @@ function setProp(node, view, name, value) {
@@ -14,3 +14,12 @@ index c88828e..ff34da7 100644
      // Core raises `<name>Change` for a script write exactly as for a user
      // edit; a controlled input must not see its own value come back as one.
      const echo = `${name}Change`;
+@@ -482,7 +487,7 @@ function applyCommand(container, command) {
+ }
+ export const nativeScriptDriver = {
+     id: NATIVESCRIPT_RENDERER_ID,
+-    capabilities: { text: 'host' },
++    capabilities: { text: 'host', visibility: true },
+     events: {
+         classify(name) {
+             if (!EVENT_PROP.test(name))

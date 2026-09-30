@@ -53,6 +53,46 @@ index ea6b304..56a7439 100644
  }
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
+diff --git a/dist/cjs/signals/facade.cjs b/dist/cjs/signals/facade.cjs
+index 9da71c1..02db86c 100644
+--- a/dist/cjs/signals/facade.cjs
++++ b/dist/cjs/signals/facade.cjs
+@@ -283,6 +283,8 @@ class Descriptor {
+     this.kind = kind;
+     this.create = create;
+     this.site = site;
++    // Instance declarations stay with their component across child templates and events.
++    this.instanceOwner = site?.startsWith("i:") ? (0, import_owner_context.currentSignalOwner)() : null;
+   }
+   key;
+   kind;
+@@ -292,7 +294,7 @@ class Descriptor {
+   cells = /* @__PURE__ */ new WeakMap();
+   [import_types.SIGNAL_OWNER_RESOLVE](owner) {
+     requireSite(this.site);
+-    return this.resolvedCell(resolveDescriptorOwner(this.site, owner));
++    return this.resolvedCell(resolveDescriptorOwner(this.site, this.instanceOwner ?? owner));
+   }
+   resolvedCell(target) {
+     let cell = this.cells.get(target);
+@@ -303,7 +305,7 @@ class Descriptor {
+     return cell;
+   }
+   resolve() {
+-    const token = requireOwner();
++    const token = this.instanceOwner ?? requireOwner();
+     const owner = resolveDescriptorOwner(this.site, token);
+     requireSite(this.site);
+     return this.resolvedCell(owner);
+@@ -334,7 +336,7 @@ class Descriptor {
+     return this.resolve().snapshot();
+   }
+   subscribe(notify) {
+-    const token = requireOwner();
++    const token = this.instanceOwner ?? requireOwner();
+     const scope = resolveDescriptorOwner(this.site, token);
+     const run = (0, import_owner_context.captureSignalOwner)(token);
+     return this[import_types.SIGNAL_OWNER_RESOLVE](scope).subscribe((0, import_read_protocol.forwardNativeTransitionConsumer)(notify, () => run(notify)));
 diff --git a/dist/cjs/signals/index.cjs b/dist/cjs/signals/index.cjs
 index 865afcf..08dd675 100644
 --- a/dist/cjs/signals/index.cjs
@@ -408,6 +448,46 @@ index 0decc92..59a9486 100644
  }
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
+diff --git a/dist/node/signals/facade.js b/dist/node/signals/facade.js
+index 86c0233..594e697 100644
+--- a/dist/node/signals/facade.js
++++ b/dist/node/signals/facade.js
+@@ -241,6 +241,8 @@ class Descriptor {
+     this.kind = kind;
+     this.create = create;
+     this.site = site;
++    // Instance declarations stay with their component across child templates and events.
++    this.instanceOwner = site?.startsWith("i:") ? currentSignalOwner() : null;
+   }
+   key;
+   kind;
+@@ -250,7 +252,7 @@ class Descriptor {
+   cells = /* @__PURE__ */ new WeakMap();
+   [SIGNAL_OWNER_RESOLVE](owner) {
+     requireSite(this.site);
+-    return this.resolvedCell(resolveDescriptorOwner(this.site, owner));
++    return this.resolvedCell(resolveDescriptorOwner(this.site, this.instanceOwner ?? owner));
+   }
+   resolvedCell(target) {
+     let cell = this.cells.get(target);
+@@ -261,7 +263,7 @@ class Descriptor {
+     return cell;
+   }
+   resolve() {
+-    const token = requireOwner();
++    const token = this.instanceOwner ?? requireOwner();
+     const owner = resolveDescriptorOwner(this.site, token);
+     requireSite(this.site);
+     return this.resolvedCell(owner);
+@@ -292,7 +294,7 @@ class Descriptor {
+     return this.resolve().snapshot();
+   }
+   subscribe(notify) {
+-    const token = requireOwner();
++    const token = this.instanceOwner ?? requireOwner();
+     const scope = resolveDescriptorOwner(this.site, token);
+     const run = captureSignalOwner(token);
+     return this[SIGNAL_OWNER_RESOLVE](scope).subscribe(forwardNativeTransitionConsumer(notify, () => run(notify)));
 diff --git a/dist/node/signals/index.js b/dist/node/signals/index.js
 index 8ae19e5..0bf09f5 100644
 --- a/dist/node/signals/index.js
@@ -480,7 +560,7 @@ index 0000000..ff5eb43
 +  universalSignalDocument
 +};
 diff --git a/dist/node/universal-core.js b/dist/node/universal-core.js
-index 4dbe2f9..8184bd9 100644
+index 4dbe2f9..aaffba8 100644
 --- a/dist/node/universal-core.js
 +++ b/dist/node/universal-core.js
 @@ -17,6 +17,14 @@ import {
@@ -631,15 +711,18 @@ index 4dbe2f9..8184bd9 100644
  function currentDraftOwner() {
    currentAttempt();
    const owner = activateLazyLeafOwner();
-@@ -5520,7 +5616,7 @@ class UniversalRootImpl {
+@@ -5520,9 +5616,9 @@ class UniversalRootImpl {
      }
      let result;
      try {
 -      result = event.handler(payload);
 +      result = runWithSignalOwner(universalSignalOwner(event.owner), () => event.handler(payload));
      } catch (error) {
-       if (!routeUniversalOwnerError(event.owner, error)) throw error;
+-      if (!routeUniversalOwnerError(event.owner, error)) throw error;
++      if (!routeUniversalOwnerError(event.owner, error) && !reportUniversalUncaughtError(this, error)) throw error;
      }
+     return result;
+   }
 @@ -6096,6 +6192,8 @@ class UniversalRootImpl {
        draft.record.componentProps = null;
        draft.record.range = null;
@@ -784,6 +867,46 @@ index cd4e628..078dcd3 100644
  }
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
+diff --git a/dist/signals/facade.js b/dist/signals/facade.js
+index 5ab4b73..7b23010 100644
+--- a/dist/signals/facade.js
++++ b/dist/signals/facade.js
+@@ -240,6 +240,8 @@ class Descriptor {
+     this.kind = kind;
+     this.create = create;
+     this.site = site;
++    // Instance declarations stay with their component across child templates and events.
++    this.instanceOwner = site?.startsWith("i:") ? currentSignalOwner() : null;
+   }
+   key;
+   kind;
+@@ -249,7 +251,7 @@ class Descriptor {
+   cells = /* @__PURE__ */ new WeakMap();
+   [SIGNAL_OWNER_RESOLVE](owner) {
+     requireSite(this.site);
+-    return this.resolvedCell(resolveDescriptorOwner(this.site, owner));
++    return this.resolvedCell(resolveDescriptorOwner(this.site, this.instanceOwner ?? owner));
+   }
+   resolvedCell(target) {
+     let cell = this.cells.get(target);
+@@ -260,7 +262,7 @@ class Descriptor {
+     return cell;
+   }
+   resolve() {
+-    const token = requireOwner();
++    const token = this.instanceOwner ?? requireOwner();
+     const owner = resolveDescriptorOwner(this.site, token);
+     requireSite(this.site);
+     return this.resolvedCell(owner);
+@@ -291,7 +293,7 @@ class Descriptor {
+     return this.resolve().snapshot();
+   }
+   subscribe(notify) {
+-    const token = requireOwner();
++    const token = this.instanceOwner ?? requireOwner();
+     const scope = resolveDescriptorOwner(this.site, token);
+     const run = captureSignalOwner(token);
+     return this[SIGNAL_OWNER_RESOLVE](scope).subscribe(forwardNativeTransitionConsumer(notify, () => run(notify)));
 diff --git a/dist/signals/index.d.ts b/dist/signals/index.d.ts
 index 95f32a2..9855985 100644
 --- a/dist/signals/index.d.ts
@@ -906,7 +1029,7 @@ index 0000000..ff5eb43
 +  universalSignalDocument
 +};
 diff --git a/dist/universal-core.js b/dist/universal-core.js
-index 4dbe2f9..8184bd9 100644
+index 4dbe2f9..aaffba8 100644
 --- a/dist/universal-core.js
 +++ b/dist/universal-core.js
 @@ -17,6 +17,14 @@ import {
@@ -1057,15 +1180,18 @@ index 4dbe2f9..8184bd9 100644
  function currentDraftOwner() {
    currentAttempt();
    const owner = activateLazyLeafOwner();
-@@ -5520,7 +5616,7 @@ class UniversalRootImpl {
+@@ -5520,9 +5616,9 @@ class UniversalRootImpl {
      }
      let result;
      try {
 -      result = event.handler(payload);
 +      result = runWithSignalOwner(universalSignalOwner(event.owner), () => event.handler(payload));
      } catch (error) {
-       if (!routeUniversalOwnerError(event.owner, error)) throw error;
+-      if (!routeUniversalOwnerError(event.owner, error)) throw error;
++      if (!routeUniversalOwnerError(event.owner, error) && !reportUniversalUncaughtError(this, error)) throw error;
      }
+     return result;
+   }
 @@ -6096,6 +6192,8 @@ class UniversalRootImpl {
        draft.record.componentProps = null;
        draft.record.range = null;

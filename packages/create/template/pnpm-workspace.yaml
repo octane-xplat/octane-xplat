@@ -20,7 +20,9 @@ allowBuilds:
 patchedDependencies:
   # Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal
   # ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep
-  # already ship upstream.
+  # already ship upstream. Routes uncaught universal event-handler errors to onUncaughtError
+  # when configured. Pins instance signal/query declarations to their declaring owner so
+  # child reads and event handlers share one request.
   octane@0.6.3: node_modules/.pnpm-config/@octane-xplat/patches/patches/octane@0.6.3.patch
   # FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts
   # parent padding + child margins — a column-stretched row re-measurement clamps padded
@@ -58,7 +60,8 @@ patchedDependencies:
   "@nativescript/vite@8.0.16": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.16.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
-  # listeners.
+  # listeners. Advertises the implemented visibility capability so committed suspense bodies
+  # can be retained while pending.
   "@nativescript-community/octane@0.2.4": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.4.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
