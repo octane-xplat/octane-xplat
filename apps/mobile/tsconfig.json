@@ -41,9 +41,13 @@
 		"../../packages/create/template",
 		"**/*.macos.*",
 		"../../packages/**/*.macos.*",
+		"../../packages/*/src/macos",
 		"**/*.windows.*",
 		"../../packages/**/*.windows.*",
+		"../../packages/*/src/windows",
 		"**/*.linux.*",
-		"../../packages/**/*.linux.*"
+		"../../packages/**/*.linux.*",
+		"../../packages/*/src/linux",
+		"../../packages/*/src/web"
 	]
 }
