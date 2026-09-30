@@ -174,39 +174,37 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     Parked: Android platform convention is round corners; revisit if a real
     app wants parity.
 25. ✅ **Suffix-aware `.tsrx` leaf resolution under tsrx-tsc.** — Answered
-    (2026-09-29, lab-experiment; regression fixture lives at
-    `scripts/fixtures/suffix-resolution`, run `pnpm check:suffix-resolution`).
-    No TypeScript lane resolves a bare `./Leaf` to a `.tsrx` variant:
+    (2026-09-29, lab-experiment; updated 2026-09-30; regression fixture lives
+    at `scripts/fixtures/suffix-resolution`, run `pnpm check:suffix-resolution`).
+    Plain `tsc` never resolves a bare `./Leaf` to a `.tsrx` variant:
     `moduleSuffixes` probes a hardcoded extension bitmask in
     `ts.tryAddingExtensions` (extensionless specifier → `.ts`/`.tsx`/`.d.ts`/
-    `.js`/`.jsx` only), and volar's `supportedTSExtensions` patch — what makes
-    explicit `./Leaf.web.tsrx` specifiers resolve under tsrx-tsc — is never
-    consulted there. NativeScript PR #11450 makes the ns-vite build-time
-    checker delegate to tsrx-tsc (@nativescript/vite ≥ 8.0.12; this repo pins
-    8.0.16 — verified against the 8.0.13 pkg.pr.new preview installed for
-    apps/windows), but that swaps *which* compiler runs, not what it can
-    resolve: suffixless `.tsrx` still 2307s under the delegated check too.
-    The `leaves.ts`/`leaves.web.ts` barrels stay necessary — and would remain
-    so even with direct resolution, since the pair also carries app-level
-    export remapping (text-coral's web `Hoverable` → `@octane-xplat/ui/web`
-    alias). Side finding: the checker's generated `moduleSuffixes`
-    (`['.<platform>', '.native', '']`) overrides the project's own chain —
-    a `.mobile.ts`-only leaf typechecks under the app tsconfig but 2307s
-    under the ns build-time check. The durable fix is upstream and proven
-    small: `@volar/typescript`'s module-resolution host already supports
-    `resolveHiddenExtensions` (a typed `TypeScriptGenericOptions` flag that
-    maps `X.d.ts` probes — including `moduleSuffixes`-rewritten ones — back
-    to `X.<extraFileExtension>` sources). Adding
-    `resolveHiddenExtensions: true` to the tsrx language plugin's typescript
-    facet makes `./Leaf` resolve `Leaf.<suffix>.tsrx` under tsrx-tsc and the
-    delegated checker alike — verified with a shim language plugin on this
-    fixture (`./Probe` → `Probe.web.tsrx` / `Probe.ios.tsrx`, zero
-    diagnostics). Submitted upstream as
-    [tsrx-org/tsrx#971](https://github.com/tsrx-org/tsrx/pull/971) (all CI
-    green): the flag plus a `moduleSuffixes` regression test. Still needed
-    alongside it: `.mobile` in ns-vite's generated suffixes (or honoring the
-    project's chain), and the barrels' export-remapping role stays
-    regardless.
+    `.js`/`.jsx` only). Under `tsrx-tsc` the fix is Volar's
+    `resolveHiddenExtensions` host flag, which maps each `.d.ts` probe —
+    including `moduleSuffixes`-rewritten ones — back to the `.tsrx` source.
+    It ships here as a pnpm patch on `@tsrx/typescript-plugin@0.4.11`
+    (`packages/cli/patches/`); upstream
+    [tsrx-org/tsrx#971](https://github.com/tsrx-org/tsrx/pull/971) is still
+    open, labeled DO-NOT-MERGE pending a TypeScript 7 story — the patch is
+    the shipping mechanism, not a stopgap to drop soon. With it, `tsrx-tsc`
+    resolves `./Leaf` → `Leaf.web.tsrx` / `Leaf.ios.tsrx` /
+    `Leaf.mobile.tsrx` per the config's `moduleSuffixes`. NativeScript PR
+    #11450 makes the ns-vite build-time checker delegate to tsrx-tsc
+    (@nativescript/vite ≥ 8.0.12; this repo pins 8.0.16 for apps/mobile), and
+    its generated `moduleSuffixes` (`['.<platform>', '.native', '']` upstream)
+    overrides the project's chain — `.mobile` absent. Our
+    `@nativescript/vite` patch adds the `.mobile` tier for iOS/Android/
+    visionOS, so suffixless `.tsrx`/`.ts` leaves resolve in every toolchain
+    lane; verified on the fixture (all specs resolve, assert-\* literal pins
+    prove the variant, zero diagnostics). Remaining gaps: the `.mobile` tier
+    addition is filed upstream as
+    [NativeScript#11480](https://github.com/NativeScript/NativeScript/issues/11480),
+    the apps/windows @11468 preview copy lacks
+    it (windows has no `.mobile` tier anyway), and the
+    `leaves.ts`/`leaves.web.ts` barrels stay regardless — the pair also
+    carries app-level export remapping (text-coral's web `Hoverable` →
+    `@octane-xplat/ui/web` alias), and unpatched/plain-tsc lanes still need
+    the `.ts` shims.
 26. 🟡 **Can Pulsar ship as an optional NativeScript leaf on both mobile
     targets?** — Pulsar's APIs match presets, patterns, realtime control, and
     capability reporting. The Android emulator now exercises the packaged

@@ -86,23 +86,27 @@ Vite resolver orders the active OS first at build time. The macOS config uses
 `.macos` before the unsuffixed fallback. Keep imports extensionless so the
 resolver can select the right file.
 
-`moduleSuffixes` doesn't probe `.tsrx` — under plain `tsc` **or**
-`tsrx-tsc`: the suffix probe uses a hardcoded extension table, so a bare
-`./Leaf` never reaches `Leaf.web.tsrx` in any TypeScript lane (measured by
-`pnpm check:suffix-resolution`; the volar `supportedTSExtensions` patch only
-rescues specifiers that literally end in `.tsrx`). If TypeScript needs an
-extensionless import of a `.tsrx` leaf, add a same-name `.ts` shim that
-re-exports the component. For example, `Card.mobile.ts` can re-export
-`Card.mobile.tsrx`; the Vite resolver still selects the `.tsrx` component
-directly at runtime. The template skill shows the explicit `.tsrx` import
-form when a shim is unnecessary.
+Plain `tsc` doesn't probe `.tsrx` for extensionless specifiers — the suffix
+probe uses a hardcoded extension table (`.ts`/`.tsx`/`.d.ts`/`.js`/`.jsx`).
+This repo's `@tsrx/typescript-plugin` patch enables Volar's
+`resolveHiddenExtensions`, which maps each `.d.ts` probe — including
+`moduleSuffixes`-rewritten ones — back to the `.tsrx` source, so `tsrx-tsc`
+resolves `import './Leaf'` to `Leaf.web.tsrx` / `Leaf.ios.tsrx` /
+`Leaf.mobile.tsrx` (measured by `pnpm check:suffix-resolution`). Lanes that
+run unpatched TypeScript — plain `tsc`, or a consumer that didn't materialize
+the patch set — still need a same-name `.ts` shim re-exporting the component
+(`Card.mobile.ts` → `Card.mobile.tsrx`) or an explicit `.tsrx` specifier; the
+Vite resolver selects the `.tsrx` component directly at runtime either way.
+The upstream form of the fix is [tsrx-org/tsrx#971](https://github.com/tsrx-org/tsrx/pull/971),
+still open — the shims stay supported until that or an equivalent lands in a
+released plugin.
 
-Caveat for `ns build`'s type check (`@nativescript/vite` ≥ 8.0.12,
-NativeScript PR #11450): the checker generates its own `moduleSuffixes` —
-`['.<platform>', '.native', '']` — overriding the project's chain, so
-`.mobile` is never probed there. A `.mobile.ts`-only shim resolves under
-`pnpm typecheck` but fails the build-time check; per-OS `.ios.ts` +
-`.android.ts` shims (the text-coral `./List` pattern) work in both.
+For `ns build`'s type check (`@nativescript/vite` ≥ 8.0.12, NativeScript PR
+#11450): the checker generates its own `moduleSuffixes`, overriding the
+project's chain. Upstream emits `['.<platform>', '.native', '']` — no
+`.mobile`; our `@nativescript/vite` patch adds the `.mobile` tier for
+iOS/Android/visionOS, so `.mobile` leaves resolve under the build-time check
+too.
 
 In a scaffolded app, run `pnpm typecheck` for its web and native configs.
 Framework contributors use `pnpm typecheck:web`, `pnpm typecheck:mobile`, and

@@ -25,11 +25,13 @@
 //   3. ns-vite check  @nativescript/vite typescriptCheckPlugin buildStart.
 //                     #11450 (in 8.0.12+) delegates to tsrx-tsc with a
 //                     scratch tsconfig whose moduleSuffixes are regenerated
-//                     as ['.<platform>', '.native', ''] — the project's own
-//                     moduleSuffixes are overridden, so `.mobile` is never
-//                     probed. apps/mobile pins 8.0.16 (carries the delegation);
-//                     the checker is loaded from apps/windows' pkg.pr.new
-//                     preview and invoked in-process when installed.
+//                     as ['.<platform>', '.native', ''] upstream — the
+//                     project's own moduleSuffixes are overridden, so
+//                     `.mobile` is never probed. Our @nativescript/vite patch
+//                     adds the .mobile tier for ios/android/visionos. The
+//                     checker is loaded from apps/mobile's installed copy
+//                     (the version ios/android builds actually run) and
+//                     invoked in-process.
 //   4. vite resolveId the runtime bundler path, on the real chains:
 //                     apps/web/vite.config.ts via loadConfigFromFile and
 //                     @octane-xplat/cli xplatNative() for ios/android.
@@ -41,13 +43,14 @@
 //   # ns-checker: cd scripts/fixtures/suffix-resolution/app-<platform> then run
 //   # the plugin's buildStart — this script does it in-process.
 //
-// Today's truth: every TypeScript resolver misses suffixless .tsrx —
-// moduleSuffixes probes a hardcoded extension bitmask in
-// ts.tryAddingExtensions (originalExtension '' → .ts/.tsx/.d.ts/.js/.jsx),
-// and volar's supportedTSExtensions patch is never consulted there.
-// Bundlers resolve it via resolve.extensions. #11450 therefore does NOT
-// retire the barrels. If upstream ever probes `.tsrx` for bare specifiers,
-// expectations below fail loudly — revisit the barrels then.
+// Today's truth: plain tsc misses suffixless .tsrx — moduleSuffixes probes a
+// hardcoded extension bitmask in ts.tryAddingExtensions (originalExtension ''
+// → .ts/.tsx/.d.ts/.js/.jsx). tsrx-tsc DOES resolve it in this repo because our
+// pnpm patch enables `resolveHiddenExtensions` on the language plugin's
+// typescript facet (upstream: tsrx-org/tsrx#971, still open and labeled
+// DO-NOT-MERGE pending a TypeScript 7 path). Unpatched consumers still need
+// the explicit-specifier or .ts-shim forms, and the barrels keep their
+// export-remapping role either way.
 import { spawnSync } from 'node:child_process'
 import { readFileSync, realpathSync, rmSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -92,7 +95,7 @@ function runTsc(binName, config) {
 
 function loadNsViteCheck() {
 	try {
-		const req = createRequire(join(root, 'apps/windows/package.json'))
+		const req = createRequire(join(root, 'apps/mobile/package.json'))
 		const viteMain = realpathSync(req.resolve('@nativescript/vite'))
 		const pkgDir = dirname(viteMain)
 		const checkFile = join(pkgDir, 'helpers/typescript-check.js')
@@ -126,7 +129,7 @@ async function runNsChecker(mod, platform) {
 	rmSync(join(appDir, 'node_modules'), { recursive: true, force: true })
 	const text = captured.join('\n').replace(/\[[0-9;]*m/g, '')
 	const unresolved = [...text.matchAll(/Cannot find module '([^']+)'/g)].map((m) => m[1])
-	return { unresolved, output: text, delegated: /tsrx-tsc/.test(text) }
+	return { unresolved, output: text }
 }
 
 // ---- vite runtime resolution --------------------------------------------
@@ -217,15 +220,15 @@ const tscExpect = {
 		'./OsLeaf': 'OsLeaf.web.ts',
 	},
 	'tsrx-tsc (web suffixes)': {
-		'./Probe': null,
-		'./MobileOnly': null,
+		'./Probe': 'Probe.web.tsrx',
+		'./MobileOnly': 'MobileOnly.web.tsrx',
 		'./MobileTs': 'MobileTs.web.ts',
 		'./OsLeaf': 'OsLeaf.web.ts',
 		[EXPLICIT]: 'Probe.web.tsrx',
 	},
 	'tsrx-tsc (native suffixes)': {
-		'./Probe': null,
-		'./MobileOnly': null,
+		'./Probe': 'Probe.ios.tsrx',
+		'./MobileOnly': 'MobileOnly.mobile.tsrx',
 		'./MobileTs': 'MobileTs.mobile.ts',
 		'./OsLeaf': 'OsLeaf.ios.ts',
 		[EXPLICIT]: 'Probe.web.tsrx',
@@ -268,7 +271,7 @@ function resolvedFile(files, spec, want) {
 const ns = loadNsViteCheck()
 if (ns.error) {
 	console.log(
-		`[skip] ns-vite checker: @nativescript/vite not resolvable from apps/windows (${ns.error})`,
+		`[skip] ns-vite checker: @nativescript/vite not resolvable from apps/mobile (${ns.error})`,
 	)
 } else if (!/tsrx-tsc/.test(ns.source)) {
 	console.log(
@@ -284,28 +287,25 @@ if (ns.error) {
 	const nsMod = await import(pathToFileURL(ns.checkFile).href)
 	for (const platform of ['ios', 'android']) {
 		const scenario = `ns-checker ${platform} (PR #11450)`
-		const { unresolved, output, delegated } = await runNsChecker(nsMod, platform)
-		check(scenario, 'delegated to tsrx-tsc', delegated ? true : null, true)
-		// The generated scratch config overrides moduleSuffixes to
-		// ['.<platform>', '.native', '']: OsLeaf.<platform>.ts resolves, while
-		// the .mobile tier and every .tsrx leaf are invisible.
-		for (const spec of ['./Probe', './MobileOnly', './MobileTs']) {
-			check(scenario, spec, unresolved.includes(spec) ? null : 'resolved?', null)
+		const { unresolved, output } = await runNsChecker(nsMod, platform)
+		// `./Probe` only exists as .tsrx files — a suffixless resolve can only
+		// come from the delegated tsrx-tsc lane; the in-process plain-TS
+		// checker has no .tsrx probing.
+		check(scenario, 'delegated to tsrx-tsc', !unresolved.includes('./Probe'), true)
+		// The patched scratch config probes
+		// ['.<platform>', '.mobile', '.native', ''] — every fixture leaf
+		// resolves suffixless, and the assert-<platform>.ts literal pins prove
+		// the OS/mobile tiers won.
+		for (const spec of SPECS) {
+			check(scenario, spec, unresolved.includes(spec) ? null : 'resolved', 'resolved')
 		}
-
-		check(
-			scenario,
-			'./OsLeaf',
-			unresolved.includes('./OsLeaf') ? null : `OsLeaf.${platform}.ts`,
-			`OsLeaf.${platform}.ts`,
-		)
 
 		check(scenario, EXPLICIT, unresolved.includes(EXPLICIT) ? null : 'resolved', 'resolved')
 		const errors = output.match(/error TS\d+/g) ?? []
 		check(
 			scenario,
-			'diagnostics are exactly the three TS2307s',
-			errors.length === 3 ? 'clean' : errors.join(','),
+			'no diagnostics',
+			errors.length ? errors.join(',') : 'clean',
 			'clean',
 		)
 	}
@@ -381,13 +381,13 @@ for (const s of scenarios) {
 console.log('')
 if (failures) {
 	console.log(
-		`FAIL — ${failures} expectation(s) drifted. If .tsrx suffix probing landed upstream, revisit the leaves barrels (Q25).`,
+		`FAIL — ${failures} expectation(s) drifted. Check whether the workspace patches still apply (pnpm install), then revisit the recorded expectations (Q25).`,
 	)
 
 	process.exit(1)
 }
 
 console.log('PASS — observed behavior matches recorded expectations.')
-console.log('Verdict: suffixless `./Leaf` → `Leaf.<suffix>.tsrx` resolves only in the bundlers;')
-console.log('every tsc lane (plain, tsrx-tsc, and the #11450 ns-vite checker) still needs')
-console.log('the explicit-specifier barrels — PR #11450 does not retire them.')
+console.log('Verdict: suffixless `./Leaf` → `Leaf.<suffix>.tsrx` resolves in the bundlers,')
+console.log('tsrx-tsc, and the delegated ns-vite checker (patched .mobile tier) — plain tsc')
+console.log('still misses it, and unpatched consumers keep the explicit-specifier/shim path.')

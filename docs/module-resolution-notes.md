@@ -23,6 +23,11 @@ evaluated` logged on device. `.android > .native` is the same
 > **Typecheck caveat (measured)**: `tsrx-tsc` does NOT follow extensionless
 > imports to suffixed `.tsrx` despite `moduleSuffixes` — barrels must name
 > the suffix explicitly (`export { X } from './X.native.tsrx'`).
+> **Superseded 2026-09-30**: the workspace `@tsrx/typescript-plugin` patch
+> enables Volar's `resolveHiddenExtensions`, so `tsrx-tsc` (and the
+> delegated ns-vite checker, whose generated chain our `@nativescript/vite`
+> patch extends with `.mobile`) resolves suffixless `.tsrx` leaves; plain
+> `tsc` still can't. See Q25 + `pnpm check:suffix-resolution`.
 > Suffixed `.ts` helpers DO resolve extensionless under `moduleSuffixes`
 > (`./platform/nav` → `nav.native.ts`/`nav.web.ts` typecheck fine). Second
 > caveat (Exp 9): a `.ts` file importing a `.tsrx` component gets
@@ -168,12 +173,15 @@ Two program configs over a shared base:
   go through a barrel (`@xplat/app` re-exporting `./platform/storage`) or a
   `paths` pattern — the suffix chain runs on the barrel's internal relative
   specifier, not on the exports target.
-- **`moduleSuffixes` only covers `.ts`/`.tsx`** (verified): an
+- **`moduleSuffixes` only covers `.ts`/`.tsx`** (verified — superseded
+  2026-09-30 for `tsrx-tsc` lanes; see the header note): an
   extensionless `./Link` won't resolve `Link.native.tsrx` — tsc's suffix
   search doesn't include `.tsrx`. Convention: leaf pairs that shared code
   imports bare get a same-name `.ts` shim per side (`Link.native.ts` →
   `export { Link } from './Link.native.tsrx'`) — the shim is suffix-
-  resolvable, the component stays renderer-owned.
+  resolvable, the component stays renderer-owned. The shims remain the
+  supported form for plain-`tsc` lanes even though the patched `tsrx-tsc`
+  resolves the bare specifier.
 
 > [!WARNING]
 > Suffixed `.ts` helpers DO resolve extensionless under `moduleSuffixes`

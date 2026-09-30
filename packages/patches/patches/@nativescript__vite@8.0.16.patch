@@ -1,5 +1,5 @@
 diff --git a/helpers/ts-config-paths.js b/helpers/ts-config-paths.js
-index 27013b5..53a2e7d 100644
+index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640fc56c786f 100644
 --- a/helpers/ts-config-paths.js
 +++ b/helpers/ts-config-paths.js
 @@ -113,15 +113,20 @@ function resolveTsConfigPath(fullPath, platform, verbose, debugId) {
@@ -50,8 +50,32 @@ index 27013b5..53a2e7d 100644
          }
          const basePath = `${fullPath}${ext}`;
          if (fs.existsSync(basePath)) {
+diff --git a/helpers/typescript-check.js b/helpers/typescript-check.js
+index a05696b679b3feecd1bafa267de44b59db559162..06648067a3fcf7f8c74437a82b94ec01e74a541c 100644
+--- a/helpers/typescript-check.js
++++ b/helpers/typescript-check.js
+@@ -7,14 +7,16 @@ import { getProjectRootPath, getProjectTSConfigPath } from './project.js';
+ import { loadTypeScript } from './typescript.js';
+ const require = createRequire(import.meta.url);
+ function getModuleSuffixes(platform) {
++    // `.mobile` is the shared ios/android suffix tier — it sits between the os
++    // qualifier and `.native`, matching the bundler's extension chain.
+     if (platform === 'android') {
+-        return ['.android', '.native', ''];
++        return ['.android', '.mobile', '.native', ''];
+     }
+     if (platform === 'ios') {
+-        return ['.ios', '.native', ''];
++        return ['.ios', '.mobile', '.native', ''];
+     }
+     if (platform === 'visionos') {
+-        return ['.visionos', '.ios', '.native', ''];
++        return ['.visionos', '.ios', '.mobile', '.native', ''];
+     }
+     return ['.native', ''];
+ }
 diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
-index 8f2fa15..8013726 100644
+index 8f2fa15556244f7ef811b5e2ea0fc6a19bab74d3..80137262ec46d347d39a7ee12d66d649b5f909f5 100644
 --- a/hmr/server/deps-bundle.js
 +++ b/hmr/server/deps-bundle.js
 @@ -53,6 +53,7 @@
@@ -93,7 +117,7 @@ index 8f2fa15..8013726 100644
          createNativeClassEsbuildPlugin(platform),
          createVendorEsbuildPlugin(projectRoot),
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
-index 71574c4..0061d9c 100644
+index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d19f8ace7 100644
 --- a/hmr/server/device-transform-helpers.js
 +++ b/hmr/server/device-transform-helpers.js
 @@ -79,7 +79,11 @@ function bareSpecifierFromFlatDepPath(depPath) {
@@ -110,7 +134,7 @@ index 71574c4..0061d9c 100644
          return code;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 4a6575c..dc70055 100644
+index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..dc70055007e26117b76fbb9d2f4f17fabfd8db00 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
 @@ -253,11 +253,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
@@ -149,7 +173,7 @@ index 4a6575c..dc70055 100644
          // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
          // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index 4b7eac9..3698fbc 100644
+index 4b7eac9bb515958eaaf60e3e69a64c60e7a04d91..3698fbc8c46f2d07b8f9d7cb24cdadbcbfde0546 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
 @@ -27,10 +27,15 @@ const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'v
@@ -186,7 +210,7 @@ index 4b7eac9..3698fbc 100644
          spec = decorated.cleanedSpec;
          bootTaggedRequest = decorated.bootTaggedRequest;
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
-index b9e3ab6..f857f4a 100644
+index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..f857f4a5a5956af229e447ed04bf1a52a90c6399 100644
 --- a/hmr/server/websocket-served-module-helpers.js
 +++ b/hmr/server/websocket-served-module-helpers.js
 @@ -105,8 +105,8 @@ export function classifyServedRequest(spec, resolvedId) {

@@ -56,7 +56,10 @@ patchedDependencies:
   # crash on boot, octane-xplat#3) — an onResolve plugin redirects `octane` →
   # `octane/universal/native`. tsconfig-paths resolver also probes the .mobile suffix tier
   # (ios/android) between the os qualifier and unsuffixed default — .mobile-only modules
-  # behind paths-mapped imports fail bundle-mode resolution.
+  # behind paths-mapped imports fail bundle-mode resolution. The build-time ts checker's
+  # generated moduleSuffixes (['.<platform>', '.native', ''] upstream) gain the .mobile tier
+  # for ios/android/visionos — .mobile leaves otherwise 2307 under `ns build` while
+  # resolving in the app's own tsconfig and the bundler.
   "@nativescript/vite@8.0.16": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.16.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
