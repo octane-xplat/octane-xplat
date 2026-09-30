@@ -59,7 +59,8 @@ derisks how much of A we could self-host if upstream stalls.
   `overrides` — our equivalent is `pnpm.overrides` in `pnpm-workspace.yaml`.
 - **Desktop semantics.** `Frame`/`Page` and `openWindow` (#59) on a real
   multi-window OS; safe-area/status-bar services mostly reduce to no-ops;
-  `KeyboardAvoiding`'s native-only status gets a third interpretation.
+  `KeyboardAvoiding` stays in the common root API and uses a neutral column
+  wrapper without keyboard adjustment.
 - **Verification surface.** The parity sweep (`apps/macos/scripts/parity.mjs`
   pattern) needs a Windows driver-side twin; geometry baselines will differ
   from both web and mobile.

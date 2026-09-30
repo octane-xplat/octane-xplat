@@ -32,10 +32,11 @@ Your screens should talk to `@octane-xplat/ui` and
 `@octane-xplat/platform`. They should not talk directly to a DOM element or a
 NativeScript view.
 
-The UI package's common root exports live in `index.shared.ts`. Its web and
-mobile entries re-export that list and add only exports supported on their
-targets. For example, `KeyboardAvoiding` is available from the root import on
-iOS and Android, where keyboard insets exist, but is absent from the web root.
+The UI package's common root exports live in `index.shared.ts`. Platform
+entries select implementations while preserving the same public names and
+types. `KeyboardAvoiding` is exported from every root entry: iOS and Android
+adjust around the software keyboard, while web, Linux, macOS, and Windows keep
+a neutral column wrapper.
 
 ## Shared code and platform code
 

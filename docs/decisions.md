@@ -103,6 +103,12 @@
 
 ## Reversals
 
+- **2026-09-30 — KeyboardAvoiding (#46):** make `KeyboardAvoiding` part of the
+  shared root API. Its wrapper remains useful at shared call sites even where
+  software-keyboard adjustment is unavailable: iOS/Android keep the real
+  behavior; web, Linux, macOS, and Windows keep a neutral column wrapper. This
+  reverses the KeyboardAvoiding example in #69's platform-only boundary; the
+  same props and export are now available from every root entry.
 - **2026-09-29 — patch distribution (#63):** keep the patch set and manifest
   canonical in `packages/cli/patches/` and retain `xplat patches apply` for
   existing apps. Fresh create templates now declare the dependency-free

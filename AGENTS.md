@@ -252,7 +252,9 @@ Bump/changelog inference only counts commits touching `packages/**`
    idiom may ship in two classes at once (shared `refreshing`/`onRefresh`
    vs a subpath `UIRefreshControl`) — as separate components, never a
    mode prop. There is no shared `List`, `Modal`, `openModal`,
-   `PlatformBadge`, or `glass` prop; `KeyboardAvoiding` is native-only.
+   `PlatformBadge`, or `glass` prop. `KeyboardAvoiding` is part of the shared
+   root API: iOS/Android adjust for the software keyboard, while other targets
+   retain a neutral column wrapper.
    (decisions #44–46, #50)
 9. A platform-suffixed file is an implementation redirect for the same
    module. The default and `.web`, `.mobile`, `.ios`, `.android`, `.macos`,

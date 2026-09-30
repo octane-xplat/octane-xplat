@@ -70,22 +70,22 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
 	let source
 	if (target === 'web') {
-		source = `import { Button, View, Hoverable, Tooltip } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, View, Hoverable, Tooltip } from '@octane-xplat/ui'
 import { Hoverable as WebHoverable, Tooltip as WebTooltip } from '@octane-xplat/ui/web'
-import type { ButtonProps, ViewProps } from '@octane-xplat/ui'
-
-// @ts-expect-error KeyboardAvoiding is a mobile-only root export
-import { KeyboardAvoiding } from '@octane-xplat/ui'
+import type { ButtonProps, KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
 // @ts-expect-error loading is a boolean prop
 const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'root', gap: 8, ios: { hidden: true } }
+const keyboardProps: KeyboardAvoidingProps = { id: 'web-form', children: 'Form' }
 const button = <Button {...buttonProps} />
+const keyboard = <KeyboardAvoiding {...keyboardProps} />
 const root = <View {...viewProps} />
 const hoverable: typeof WebHoverable = Hoverable
 const tooltip: typeof WebTooltip = Tooltip
 void invalidButtonProps
+void keyboard
 void button
 void root
 void hoverable
@@ -93,16 +93,19 @@ void tooltip
 void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
-		source = `import { Button, View } from '@octane-xplat/ui'
-import type { ButtonProps, ViewProps } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, View } from '@octane-xplat/ui'
+import type { ButtonProps, KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
 // @ts-expect-error loading is a boolean prop
 const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'macos-root', gap: 4 }
+const keyboardProps: KeyboardAvoidingProps = { id: 'macos-form', children: 'Form' }
 const button = <Button {...buttonProps} />
+const keyboard = <KeyboardAvoiding {...keyboardProps} />
 const view = <View {...viewProps} />
 void button
+void keyboard
 void invalidButtonProps
 void view
 `

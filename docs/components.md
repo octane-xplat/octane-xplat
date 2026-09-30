@@ -8,8 +8,9 @@ layout/composition, [navigation](navigation.md) for routes and stacks,
 for device APIs. Platform-authentic widgets (no parity promised) live behind
 `@octane-xplat/ui/ios`, `/android`, and `/web` — see
 [primitives](primitives.md#the-components-you-reach-for-first).
-`KeyboardAvoiding` works on iOS and Android. The macOS root provides an
-unsupported stub; the web root does not export it.
+`KeyboardAvoiding` is available from every root entry. It adjusts around the
+software keyboard on iOS and Android; web, Linux, macOS, and Windows keep a
+neutral column wrapper.
 
 Every component accepts `className`/`style`/`id` plus the platform escape props
 (`ios`, `android`, `web`) applied after shared props.
@@ -26,7 +27,7 @@ Every component accepts `className`/`style`/`id` plus the platform escape props
 | `Absolute`         | Absolutely-positioned layer                |                                            |
 | `Spacer`           | Flexible gap filler                        |                                            |
 | `SafeArea`         | Insets-aware container                     |                                            |
-| `KeyboardAvoiding` | Shifts content above the keyboard (iOS/Android) |                                       |
+| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere | |
 
 ## Text
 

@@ -171,6 +171,7 @@ export { Tabs } from './Tabs'
 export type { TabSpec } from './Tabs'
 export { Switch } from './Switch'
 export { SafeArea } from './SafeArea'
+export { KeyboardAvoiding } from './KeyboardAvoiding'
 export { Drawer } from './Drawer'
 export { useSafeAreaInsets } from './safeAreaInsets'
 export type { SafeAreaInsets } from './safeAreaInsets'
@@ -267,6 +268,7 @@ export type {
 	DrawerProps,
 	GridProps,
 	ImageProps,
+	KeyboardAvoidingProps,
 	LayoutChildProps,
 	PressableProps,
 	RichTextProps,
