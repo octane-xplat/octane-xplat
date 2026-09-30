@@ -2913,17 +2913,22 @@ export function createMacOSRoot(hostView) {
 				const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
 				const flipped = flip === true || Number(flip) === 1
 				const originY = Number(clipView.bounds.origin.y ?? 0)
-				const offset = flipped ? originY : docH - clipH - originY
+				// The VirtualList leaf publishes a content-space offset (anchored
+				// to its top spacer, not the document frame) — prefer it since
+				// docH-derived offsets drift every time estimates rebuild.
+				const published = globalThis.__xplatVlistOffsets?.[id]
+				const offset = typeof published === 'number' ? published : flipped ? originY : docH - clipH - originY
 				const rows = descendants(node).flatMap((child) => {
 					const match = /^vlist-bench-row-(\d+)$/.exec(String(child.props?.id ?? ''))
 					if (!match || !child.view) {return []}
 					try {
-						// Row box in document space, re-based to the viewport's
-						// top-down offset so `top`/`bottom` read like DOM rects.
+						// Row box relative to the clip's top edge, computed in doc
+						// coordinates so it stays docH-independent like `offset`.
 						const inDoc = child.view.superview.convertRectToView(child.view.frame, doc)
 						const h = Number(inDoc.size.height)
-						const docTop = flipped ? Number(inDoc.origin.y) : docH - Number(inDoc.origin.y) - h
-						return [{ index: Number(match[1]), top: docTop - offset, bottom: docTop - offset + h }]
+						const y = Number(inDoc.origin.y)
+						const top = flipped ? y - originY : originY + clipH - y - h
+						return [{ index: Number(match[1]), top, bottom: top + h }]
 					} catch {
 						return []
 					}

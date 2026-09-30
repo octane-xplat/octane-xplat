@@ -70,6 +70,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const indexByRowKeyRef = useRef(new Map<string, number>())
 	const scrollRef = useRef<any>(null)
 	const scrollOffsetRef = useRef(0)
+	const topSpacerRef = useRef<any>(null)
+	const topSpacerHeightRef = useRef(0)
 	const viewportHeightRef = useRef(0)
 	const viewportWidthRef = useRef(0)
 	const headerHeightRef = useRef(0)
@@ -80,6 +82,12 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const estimateAnchorRef = useRef<{ rowKey: string; within: number } | null>(null)
 	const estimateTimerRef = useRef<any>(null)
 	const pendingRowMeasureRef = useRef(new Map<string, number>())
+	const programmaticWriteRef = useRef<{ offset: number; until: number } | null>(null)
+	/** Convergent deep seek state (FlashList v2's scrollToIndex model): a large
+	 *  external scroll jump is tracked and anchor-restore writes are suppressed
+	 *  while measurements converge — the clip already sits at the seek target,
+	 *  and re-anchoring would rewrite it to the biased estimated prefix. */
+	const seekStateRef = useRef<{ target: number; until: number } | null>(null)
 	const hasSeparator = Boolean(props.renderSeparator)
 	const hasSeparatorRef = useRef(hasSeparator)
 	hasSeparatorRef.current = hasSeparator
@@ -146,8 +154,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		return { rowKey: entry.rowKey, within: listOffset - sizeIndexRef.current.prefix(index) }
 	}
 
+	function activeSeek() {
+		const seek = seekStateRef.current
+		if (seek && Date.now() > seek.until) {seekStateRef.current = null}
+		return seekStateRef.current
+	}
+
 	function restoreAnchor(anchor: { rowKey: string; within: number } | null) {
-		if (!anchor) {return}
+		if (!anchor || activeSeek()) {return}
 		queuedAnchorRef.current = anchor
 		if (anchorRestoreScheduledRef.current) {return}
 		const scroll = scrollRef.current
@@ -158,6 +172,9 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			if (anchorRestoreTimerRef.current !== timer) {return}
 			anchorRestoreTimerRef.current = null
 			anchorRestoreScheduledRef.current = false
+			// A restore scheduled before a deep seek must not fire its write
+			// mid-convergence — it would move the clip off the seek target.
+			if (activeSeek()) {queuedAnchorRef.current = null; return}
 			if (scrollRef.current !== scroll) {return}
 			const queued = queuedAnchorRef.current
 			queuedAnchorRef.current = null
@@ -169,7 +186,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				headerHeightRef.current + sizeIndexRef.current.prefix(index) + queued.within,
 			)
 
-			if (sameSize(nextOffset, scrollViewOffset(scroll))) {return}
+			if (sameSize(nextOffset, scrollOffsetRef.current)) {return}
+			programmaticWriteRef.current = { offset: nextOffset, until: Date.now() + 250 }
 			scrollViewSetTop(scroll, nextOffset)
 		}, 0)
 
@@ -184,6 +202,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		// relayout/anchor cycle count bounded while samples accumulate.
 		estimateTimerRef.current = setTimeout(() => {
 			estimateTimerRef.current = null
+			// FlashList v2's scrollToIndex model: correction passes stay
+			// paused for the whole seek — sizes keep accumulating in the
+			// cache/index and one rebuild runs once the seek expires.
+			if (activeSeek()) {
+				scheduleEstimateRebuild(null)
+				return
+			}
+
 			const scheduledAnchor = estimateAnchorRef.current
 			estimateAnchorRef.current = null
 			rebuildLayout(entriesRef.current, viewportWidthRef.current)
@@ -206,6 +232,12 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		// resizes — spacer shifts move every mounted row and would otherwise
 		// re-run this whole path (and reschedule estimate rebuilds) forever.
 		if (cached && sameSize(cached.height, height) && sameSize(cached.width, width)) {return}
+
+		// Keep the seek suppression alive through the measurement storm — the
+		// seek ends ~400 ms after the last new/changed size lands (Legend's
+		// idle-settle model), not on the first quiet rebuild.
+		const seek = activeSeek()
+		if (seek) {seek.until = Date.now() + 400}
 
 		const anchor = queuedAnchorRef.current ?? captureAnchor()
 		sizeCacheRef.current.set(cacheKey, { width, height })
@@ -237,10 +269,58 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}
 
 	function onScroll(event: AppKitScrollEvent) {
-		// The event's verticalOffset is the raw clip bounds origin — bottom-up
-		// on a non-flipped document — so derive the top-down offset ourselves.
 		const scroll = scrollRef.current
-		scrollOffsetRef.current = scroll ? scrollViewOffset(scroll) : Number(event?.verticalOffset ?? 0)
+		// Prefer the spacer-landmark offset: the top spacer's bottom edge sits
+		// at content position `range.top`, so measuring the clip against it
+		// reports DOM-style scrollTop with no docH term. Estimate rebuilds
+		// resize the document constantly and would phantom-drift the
+		// docHeight-derived offset even when the clip never moved.
+		const clip = scroll?.contentView
+		const spacerBottomY = Number(topSpacerRef.current?.frame?.origin?.y ?? Number.NaN)
+		const doc = scroll?.documentView
+		const flip = typeof doc?.isFlipped === 'function' ? doc.isFlipped() : doc?.isFlipped
+		const flipped = flip === true || Number(flip) === 1
+		const originY = Number(clip?.bounds?.origin?.y ?? event?.verticalOffset ?? 0)
+		const clipH = Number(clip?.bounds?.size?.height ?? 0)
+		let nextOffset: number
+		if (Number.isFinite(spacerBottomY)) {
+			const clipTopY = flipped ? originY : originY + clipH
+			const spacerBottomContent = flipped
+				? Number(topSpacerRef.current?.frame?.size?.height ?? 0) + spacerBottomY
+				: spacerBottomY
+
+			nextOffset =
+				headerHeightRef.current +
+				topSpacerHeightRef.current +
+				(flipped ? clipTopY - spacerBottomContent : spacerBottomY - clipTopY)
+		} else {
+			nextOffset = scroll ? scrollViewOffset(scroll) : Number(event?.verticalOffset ?? 0)
+		}
+
+		if (props.id) {
+			const published = ((globalThis as any).__xplatVlistOffsets ??= {} as Record<string, number>)
+			published[props.id] = nextOffset
+		}
+
+		let ownWrite = false
+		const wrote = programmaticWriteRef.current
+		if (wrote !== null) {
+			if (sameSize(nextOffset, wrote.offset)) {
+				programmaticWriteRef.current = null
+				ownWrite = true
+			} else if (Date.now() > wrote.until) {
+				programmaticWriteRef.current = null
+			}
+		}
+
+		const jumpThreshold = Math.max(200, viewportHeightRef.current * 1.5)
+		// A jump that doesn't match a pending anchor write is an external seek —
+		// including one that lands while a stale write flag is still open.
+		if (!ownWrite && Math.abs(nextOffset - scrollOffsetRef.current) > jumpThreshold) {
+			seekStateRef.current = { target: nextOffset, until: Date.now() + 1000 }
+		}
+
+		scrollOffsetRef.current = nextOffset
 		viewportHeightRef.current = Number(event?.viewportHeight ?? viewportHeightRef.current)
 		refreshWindow()
 	}
@@ -278,6 +358,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 
 	const range = currentRange()
 	rangeRef.current = range
+	topSpacerHeightRef.current = range.top
 	void windowVersion
 	const visibleEntries = entries.slice(range.start, range.end)
 
@@ -311,7 +392,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 				}
 			} @else {
 				<flexboxlayout flexDirection="column">
-					<flexboxlayout className="vx-virtual-list-spacer" style={{ height: range.top }} />
+					<flexboxlayout
+						className="vx-virtual-list-spacer"
+						style={{ height: range.top }}
+						ref={(view: any) => {
+							topSpacerRef.current = view
+						}}
+					/>
 					@for (const entry of visibleEntries; key entry.rowKey) {
 						<flexboxlayout
 							flexDirection="column"
