@@ -11,16 +11,20 @@
 	"type": "module",
 	"exports": {
 		"./ios": {
-			"types": "./src/ios/index.ts",
+			"types": "./types/ios/index.d.ts",
 			"native": "./src/ios/index.ts"
 		},
 		"./android": {
-			"types": "./src/android/index.ts",
+			"types": "./types/android/index.d.ts",
 			"native": "./src/android/index.ts"
 		},
 		"./web": {
-			"types": "./src/web/index.ts",
+			"types": "./types/web/index.d.ts",
 			"web": "./src/web/index.ts"
+		},
+		"./macos": {
+			"types": "./types/macos/index.d.ts",
+			"macos": "./src/macos/index.ts"
 		}
 	},
 	"publishConfig": {
