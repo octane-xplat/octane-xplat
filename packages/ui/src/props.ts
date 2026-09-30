@@ -1136,8 +1136,9 @@ export interface RouteJson {
 // ---------- programmatic route typing ----------
 
 /** Phantom key carrying a `defineRoutes` manifest's spec-derived route
- *  types — type-level only, never present at runtime. */
-export declare const specRouteTypes: unique symbol
+ *  types — type-level only, never present at runtime. Module-private so the
+ *  published declarations carry no value binding for it. */
+declare const specRouteTypes: unique symbol
 
 /** ':id' or '[id]' segment → 'id'; a static segment contributes nothing. */
 type RouteParamOf<S extends string> = S extends `:${infer P}`
