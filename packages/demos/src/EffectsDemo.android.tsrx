@@ -2,7 +2,7 @@
 import { ShaderEffect } from '@octane-xplat/effects/android';
 import { Screen, Text, View } from '@octane-xplat/ui';
 
-// AGSL heat haze — same effect as OctaneShaders.metal's octaneHeatHaze,
+// AGSL heat haze — same effect as the iOS leaf's bundled octaneHeatHaze,
 // ported to Android's runtime-shader dialect. The view's content samples
 // through `content.eval`.
 const HAZE = `

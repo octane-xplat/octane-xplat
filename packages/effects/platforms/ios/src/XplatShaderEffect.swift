@@ -4,8 +4,10 @@ import UIKit
 /// Registry mapping effect names to stitchable shader constructors.
 ///
 /// Stitchable shaders resolve statically — `ShaderLibrary.<name>` is a
-/// compile-time symbol — so runtime name dispatch needs a table. Apps and
-/// packages register entries from any Swift file in the app target:
+/// compile-time symbol — so runtime name dispatch needs a table. The leaf's
+/// bundled shaders register themselves via `XplatBundledShaders.install()`
+/// on first mount; apps and packages can register more entries from any
+/// Swift file in the app target:
 ///
 ///   XplatShaderEffectRegistry.register("sheen", kind: .color) { args in
 ///       ShaderLibrary.octaneSheen(
@@ -105,6 +107,7 @@ public class XplatShaderEffectProvider: UIViewController, SwiftUIProvider {
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
+		XplatBundledShaders.install()
 		setupSwiftUIView(content: XplatShaderEffectView(model: model))
 	}
 

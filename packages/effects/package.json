@@ -58,6 +58,7 @@
 	},
 	"scripts": {
 		"build": "vite build --mode native && node ../../scripts/check-native-dist.mjs",
+		"build:metal": "sh scripts/build-metal.sh",
 		"check-types": "tsc -p tsconfig.types.json",
 		"prepublishOnly": "pnpm build"
 	},

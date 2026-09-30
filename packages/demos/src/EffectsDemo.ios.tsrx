@@ -1,20 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { ShaderEffect } from '@octane-xplat/effects/ios';
 import { Row, Screen, Text, View } from '@octane-xplat/ui';
-import { useEffect } from 'octane';
-
-// Swift class from apps/mobile/App_Resources/iOS/src — maps effect names
-// onto the app-owned stitchable functions in OctaneShaders.metal.
-declare const OctaneShaderEffects: any;
 
 /** Stitchable-Metal probe — each card is real framework content (View/Text
- *  subtree) wrapped in a ShaderEffect that applies the named app shader.
- *  Sweep reads: 'effect-sheen'/'effect-haze' hosts. */
+ *  subtree) wrapped in a ShaderEffect that applies the named shader from
+ *  the leaf's bundled library. Sweep reads: 'effect-sheen'/'effect-haze'
+ *  hosts. */
 export function EffectsDemo() @{
-	useEffect(() => {
-		OctaneShaderEffects?.install?.();
-	}, []);
-
 	<Screen className="vx-app flex-1 gap-4">
 		<Text className="text-xl font-semibold">Shader effects</Text>
 		<Row className="gap-4">
@@ -42,8 +34,8 @@ export function EffectsDemo() @{
 		</Row>
 		<Text className="text-sm text-muted">
 			Each card's subtree renders into a SwiftUI-hosted view with a
-			stitchable Metal shader applied (iOS 17+). Shaders live in the
-			app's App_Resources — see OctaneShaders.metal.
+			stitchable Metal shader applied (iOS 17+). The shader library
+			ships precompiled inside @octane-xplat/effects.
 		</Text>
 	</Screen>;
 }
