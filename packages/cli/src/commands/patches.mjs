@@ -79,7 +79,7 @@ const check = command({
 
 		let bad = 0
 		for (const row of inspectPatches(appDir)) {
-			if (row.state === 'not-declared') {continue}
+			if (row.state === 'not-declared' || row.state === 'not-applicable') {continue}
 			if (row.state === 'applied') {
 				p.log.success(`${row.specifier} — applied`)
 			} else {

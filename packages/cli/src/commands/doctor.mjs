@@ -509,7 +509,7 @@ export const doctor = command({
 		}
 
 		for (const patch of inspectPatches(cwd)) {
-			if (patch.state === 'not-declared') {
+			if (patch.state === 'not-declared' || patch.state === 'not-applicable') {
 				continue
 			}
 

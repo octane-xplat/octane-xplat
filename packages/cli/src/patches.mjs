@@ -170,6 +170,7 @@ const versionOk = (declared, pinned, resolved) =>
 /**
  * Per-patch state for an app:
  *   not-declared      package isn't a dep of this app — patch not needed
+ *   not-applicable    package installed but not at the pinned version — patch can't bite
  *   missing-config    no patchedDependencies entry
  *   missing-file      configured path doesn't exist
  *   file-differs      configured file isn't the framework copy
@@ -203,6 +204,20 @@ export const inspectPatches = (appDir) => {
 			return { ...base, state: 'not-declared' }
 		}
 
+		// The package is installed, but not at the pinned version the patch
+		// targets and nothing declares the patch — it can never bite (e.g.
+		// the starter never resolves the windows-preview pins). A configured
+		// entry in that state still reports version-mismatch below.
+		if (
+			!base.path &&
+			!versionOk(
+				declared,
+				specifierVersion(patch.specifier),
+				resolved?.[name],
+			)
+		)
+			{return { ...base, state: 'not-applicable' }}
+
 		if (!base.path) {return { ...base, state: 'missing-config' }}
 		const file = join(appDir, base.path)
 		if (!existsSync(file)) {return { ...base, state: 'missing-file' }}
@@ -228,6 +243,7 @@ export const inspectPatches = (appDir) => {
 export const patchStateDetail = (state) =>
 	({
 		'not-declared': 'package not declared — not needed',
+		'not-applicable': 'no install resolves the pinned version — not needed',
 		'missing-config': 'no patchedDependencies entry',
 		'missing-file': 'configured patch file does not exist',
 		'file-differs': 'patch file differs from the framework copy',
