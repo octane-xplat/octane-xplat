@@ -2,12 +2,14 @@
 
 An install boundary for platform-specific context menus: a SwiftUI
 `.contextMenu` on iOS, a Material 3 `DropdownMenu` anchored to a hosted
-trigger on Android, and an in-page right-click menu on web.
+trigger on Android, an in-page right-click menu on web, and a real
+`NSMenu` on the backing view on macOS.
 
 Install the package in the app that renders a control. Import
 `SwiftUIContextMenu` from `@octane-xplat/context-menu/ios`,
-`MaterialContextMenu` from `@octane-xplat/context-menu/android`, or
-`ContextMenu` from `@octane-xplat/context-menu/web` in the matching
+`MaterialContextMenu` from `@octane-xplat/context-menu/android`,
+`ContextMenu` from `@octane-xplat/context-menu/web`, or
+`AppKitContextMenu` from `@octane-xplat/context-menu/macos` in the matching
 platform-suffixed file. There is no shared context-menu API at the package
 root.
 
@@ -27,6 +29,8 @@ back through `onItemSelected(id)`.
   their own taps.
 - Web: right-click (`longPress`) or click (`singlePress`) opens the menu at
   the pointer.
+- macOS: right-click — the NSMenu is the view's `menu`, so AppKit owns
+  activation and disabled-item dimming; the trigger renders inline.
 
 The native implementations are adapted from `@expo/ui` (MIT,
 `packages/expo-ui` sdk-57): `ios/ContextMenu/ContextMenu.swift` and

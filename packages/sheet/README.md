@@ -2,12 +2,14 @@
 
 An install boundary for platform-specific modal bottom sheets: a SwiftUI
 `.sheet` presentation on iOS, a Material 3 `ModalBottomSheet` on Android,
-and a fixed-position DOM panel on web.
+a fixed-position DOM panel on web, and a real `NSWindow` sheet
+(`beginSheet`) on macOS.
 
 Install the package in the app that renders a control. Import
 `SwiftUIBottomSheet` from `@octane-xplat/sheet/ios`,
-`MaterialBottomSheet` from `@octane-xplat/sheet/android`, or `BottomSheet`
-from `@octane-xplat/sheet/web` in the matching platform-suffixed file.
+`MaterialBottomSheet` from `@octane-xplat/sheet/android`, `BottomSheet`
+from `@octane-xplat/sheet/web`, or `AppKitSheet` from
+`@octane-xplat/sheet/macos` in the matching platform-suffixed file.
 There is no shared sheet API at the package root.
 
 Sheet content is a render fn whose octane output mounts into a detached

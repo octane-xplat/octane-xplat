@@ -19,6 +19,7 @@ the platform-specific component from the matching target entry:
 - `SwiftUIContextMenu` from `@octane-xplat/context-menu/ios` in `.ios.ts` or `.ios.tsrx`.
 - `MaterialContextMenu` from `@octane-xplat/context-menu/android` in `.android.ts` or `.android.tsrx`.
 - `ContextMenu` from `@octane-xplat/context-menu/web` in `.web.ts` or `.web.tsrx`.
+- `AppKitContextMenu` from `@octane-xplat/context-menu/macos` in `.macos.ts` or `.macos.tsrx`.
 
 ## The trigger is a render fn
 
@@ -32,6 +33,8 @@ native side embeds it:
 - Android resolves it through the leaf's `XplatViewRegistry` (a JS-callable
   Kotlin registry) and embeds it via `AndroidView` inside the compose
   anchor.
+- macOS renders the trigger inline — the NSMenu attaches directly to the
+  backing `NSView`'s `menu` property, so no detached root is needed.
 
 ```tsx
 <MaterialContextMenu
@@ -65,6 +68,11 @@ in spirit (their slot children become item records here).
   subtrees — and `expanded` is a controlled prop pushed through the bridge.
 - **Web** — an in-page menu at the pointer: right-click for `longPress`,
   click for `singlePress`.
+- **macOS** — a real `NSMenu` on the backing view, so right-click
+  activation and disabled-item dimming come from AppKit. `destructive`
+  has no NSMenuItem role — the item renders as a normal row. Activation
+  gesture props (`longPress`/`singlePress`) don't exist: right-click is
+  the only AppKit convention.
 
 ## Port notes — what carried over
 

@@ -19,6 +19,7 @@ platform-specific component from the matching target entry:
 - `SwiftUIBottomSheet` from `@octane-xplat/sheet/ios` in `.ios.ts` or `.ios.tsrx`.
 - `MaterialBottomSheet` from `@octane-xplat/sheet/android` in `.android.ts` or `.android.tsrx`.
 - `BottomSheet` from `@octane-xplat/sheet/web` in `.web.ts` or `.web.tsrx`.
+- `AppKitSheet` from `@octane-xplat/sheet/macos` in `.macos.ts` or `.macos.tsrx`.
 
 ```tsx
 <MaterialBottomSheet
@@ -74,6 +75,12 @@ sheet content reaches JS normally and can drive `open` back to `false`.
   `sheetGesturesEnabled`/`shouldDismissOnClickOutside` are accepted but
   ignored — the resolved material3 predates those parameters.
 - **Web** — a scrim + fixed bottom panel, scrim-click dismiss.
+- **macOS** — a real AppKit window sheet (`beginSheet` on the leaf's
+  window), falling back to a floating window without a parent. There are
+  no detents or drag handles on macOS — the window sizes to the
+  content's fitting size and `onDismissed` fires when the sheet ends
+  (close button, Esc, or `open`→false). The content subtree mounts as
+  its own octane root inside the sheet window via `createMacOSRoot`.
 
 ## Port notes — what carried over
 

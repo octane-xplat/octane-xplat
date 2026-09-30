@@ -18,6 +18,7 @@ platform-specific component from the matching target entry:
 - `SwiftUIDatePicker` from `@octane-xplat/date-picker/ios` in `.ios.ts` or `.ios.tsrx`.
 - `MaterialDatePicker` from `@octane-xplat/date-picker/android` in `.android.ts` or `.android.tsrx`.
 - `DateInput` from `@octane-xplat/date-picker/web` in `.web.ts` or `.web.tsrx`.
+- `AppKitDatePicker` from `@octane-xplat/date-picker/macos` in `.macos.ts` or `.macos.tsrx`.
 
 Each entry exports its own component and prop types. The package has no shared
 runtime entry or shared `types` subpath. See the maintained target-specific
@@ -65,6 +66,15 @@ Runtime constraints on Android, learned on-device:
 - `onDateSelected` emits the picked day as local-midnight milliseconds —
   the provider converts M3's UTC-day storage back, so
   `new Date(ms).toDateString()` shows the selected day.
+
+The macOS entry exports `AppKitDatePicker` — a real `NSDatePicker`
+embedded in the leaf's backing view through the `__xplatAppKit` bridge.
+`components` selects `'date'` (text field, or the inline graphical
+calendar with `pickerStyle: 'graphical'`), `'time'`
+(clock-and-calendar field), or `'dateAndTime'`. `selection` is a
+controlled `Date` with `onSelectionChange`; `minimumDate`/`maximumDate`
+map to `minDate`/`maxDate`, `disabled` to `enabled`. The host element
+needs an explicit size — the picker is pinned to its edges.
 
 The web entry exports `DateInput` — a labeled `<input>` whose `type` is
 `'date'`, `'time'`, or `'datetime-local'`, with browser-format `value`,

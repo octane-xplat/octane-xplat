@@ -2,13 +2,14 @@
 
 An install boundary for platform-specific date and time selection controls:
 a SwiftUI `DatePicker` on iOS, Material 3 `DatePicker`/`TimePicker` built with
-Jetpack Compose on Android, and a labeled `<input type="date|time|datetime-local">`
-on web.
+Jetpack Compose on Android, a labeled `<input type="date|time|datetime-local">`
+on web, and a real `NSDatePicker` on macOS.
 
 Install the package in the app that renders a control. Import
 `SwiftUIDatePicker` from `@octane-xplat/date-picker/ios`,
-`MaterialDatePicker` from `@octane-xplat/date-picker/android`, or `DateInput`
-from `@octane-xplat/date-picker/web` in the matching platform-suffixed file.
+`MaterialDatePicker` from `@octane-xplat/date-picker/android`, `DateInput`
+from `@octane-xplat/date-picker/web`, or `AppKitDatePicker` from
+`@octane-xplat/date-picker/macos` in the matching platform-suffixed file.
 Each entry exports its own component and types; there is no shared date-picker
 API at the package root.
 
@@ -16,7 +17,9 @@ The platform APIs use their own selection vocabulary: the iOS entry takes a
 controlled `selection`/`defaultSelection` `Date` with `displayedComponents`
 and `pickerStyle`; the Android entry follows the uncontrolled
 `initialDate`/`onDateSelected` model of the Material 3 pickers with
-`selectableDates` range bounds; the web entry follows browser input values.
+`selectableDates` range bounds; the web entry follows browser input values;
+the macOS entry takes `components`/`pickerStyle` (`'graphical'` embeds the
+inline calendar) with a controlled `selection` `Date`.
 
 Android notes: give `MaterialDatePicker` a bounded height (the M3 calendar's
 lazy grid collapses under unbounded height), and keep `initialDate` and

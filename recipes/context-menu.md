@@ -19,7 +19,7 @@ behind the established file suffixes.
 
 ## Acceptance criteria
 
-- AC1: An app can install the leaf and import `SwiftUIContextMenu`, `MaterialContextMenu`, and `ContextMenu` from matching target-suffixed modules without runtime platform branching.
+- AC1: An app can install the leaf and import `SwiftUIContextMenu`, `MaterialContextMenu`, `ContextMenu`, and `AppKitContextMenu` from matching target-suffixed modules without runtime platform branching.
 - AC2: Documentation states that the trigger is a render fn mounted into a detached root, explains the activation model per platform, and does not expose a shared context-menu component or `types` subpath.
 - AC3: The leaf and consuming app build for web, iOS, and Android, including the Android Compose compiler and Material 3 setup for the generated `context-menu` AAR.
 - AC4: Maintained platform-specific examples demonstrate a hosted trigger, a data-driven item list, and item selection through `onItemSelected`.
@@ -29,4 +29,4 @@ behind the established file suffixes.
 - AC1: [Install and import](../docs/context-menu.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeContextMenuDemo.*.tsrx`.
 - AC2: [The trigger is a render fn](../docs/context-menu.md#the-trigger-is-a-render-fn) and [Platform behavior](../docs/context-menu.md#platform-behavior).
 - AC3: [Install and import](../docs/context-menu.md#install-and-import).
-- AC4: [iOS example](../packages/demos/src/NativeContextMenuDemo.ios.tsrx), [Android example](../packages/demos/src/NativeContextMenuDemo.android.tsrx), and [web example](../packages/demos/src/NativeContextMenuDemo.web.tsrx).
+- AC4: [iOS example](../packages/demos/src/NativeContextMenuDemo.ios.tsrx), [Android example](../packages/demos/src/NativeContextMenuDemo.android.tsrx), and [web example](../packages/demos/src/NativeContextMenuDemo.web.tsrx), and [macOS example](../packages/demos/src/NativeContextMenuDemo.macos.tsrx).
