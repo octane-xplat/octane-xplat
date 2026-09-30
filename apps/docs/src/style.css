@@ -104,10 +104,9 @@ body {
 }
 
 .side-fixed {
-	position: fixed;
+	position: sticky;
 	top: 0;
-	left: 15px;
-	width: 305px;
+	width: auto;
 	padding-top: 16px;
 	z-index: 2;
 	background-color: var(--doc-bg);
