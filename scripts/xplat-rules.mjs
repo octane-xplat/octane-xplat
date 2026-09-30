@@ -37,7 +37,7 @@ const isNativeDefaultFile = (f) => {
 }
 export const isNativeFile = (f) =>
 	!isWebFile(f) &&
-	(/\.(mobile|ios|android|windows)\./.test(norm(f)) ||
+	(/\.(mobile|ios|android|macos|windows)\./.test(norm(f)) ||
 		/(^|\/)apps\/mobile\//.test(norm(f)) ||
 		/(^|\/)packages\/create\/template\//.test(norm(f)) ||
 		isNativeDefaultFile(f))
@@ -1220,16 +1220,18 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 // ---------- .tsrx-only checks (run by lint-tsrx.mjs) ----------
 
 export const NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
+const MACOS_PRAGMA = '/** @jsxImportSource @xplat/macos/renderer */'
 
 // The pragma sets the JSX import source — only files that contain JSX need
 // it. JSX-free native leaves (styled, use-store) omit it by
-// design.
+// design. .macos leaves carry the AppKit renderer pragma instead.
 export function checkNativePragmaFirstLine(program, source, filename, options) {
 	if (!/\.tsrx$/.test(norm(filename)) || !isNativeFile(filename) || fileExcluded(filename, options)) {
 		return []
 	}
 
-	if (source.startsWith(NATIVE_PRAGMA)) {
+	const pragma = norm(filename).includes('.macos.') ? MACOS_PRAGMA : NATIVE_PRAGMA
+	if (source.startsWith(pragma)) {
 		return []
 	}
 
@@ -1238,7 +1240,7 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
 			return [
 				{
 					node: program,
-					message: `Native leaves with JSX must start with '${NATIVE_PRAGMA}' on line 1 — nothing may precede it.`,
+					message: `Native leaves with JSX must start with '${pragma}' on line 1 — nothing may precede it.`,
 				},
 			]
 		}
