@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import fs, { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { macOSExecutable } from './executables.mjs'
@@ -57,7 +57,12 @@ function strings(value, label, fallback = []) {
 }
 
 function packageRoot(root, name) {
-	for (const base of createRequire(join(root, 'package.json')).resolve.paths(name) ?? []) {
+	// resolve.paths returns null for Node builtin names — an npm dependency
+	// shadowing one (e.g. typeorm's `buffer`) still needs node_modules lookup.
+	const paths =
+		createRequire(join(root, 'package.json')).resolve.paths(name) ?? nodeModulePaths(root)
+
+	for (const base of paths) {
 		const candidate = join(base, name, 'package.json')
 		if (existsSync(candidate)) {
 			return realpathSync(dirname(candidate))
@@ -65,6 +70,19 @@ function packageRoot(root, name) {
 	}
 
 	return null
+}
+
+function nodeModulePaths(dir) {
+	const paths = []
+	let current = dir
+	while (true) {
+		if (basename(current) !== 'node_modules') {paths.push(join(current, 'node_modules'))}
+		const parent = dirname(current)
+		if (parent === current) {break}
+		current = parent
+	}
+
+	return paths
 }
 
 function nativeFiles(root, dir = root, seen = new Set()) {
