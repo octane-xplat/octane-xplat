@@ -2,9 +2,11 @@
 // load (both WKHost.swift and gjs-host.js read this file). Round-trips every
 // bridge service and reports via the xplatLog message handler, which the
 // host prints to stdout. Also drops a <pre> into the DOM for eyeballing.
-(async () => {
+;(async () => {
 	const log = (m) => webkit.messageHandlers.xplatLog.postMessage(m)
-	const call = (service, method, args) =>
+	const call = (service, method, args) => window.__xplatBridge.call(service, method, args)
+
+	const legacyCall = (service, method, args) =>
 		new Promise((res, rej) => {
 			const id = 90000 + Math.floor(Math.random() * 9000)
 			const orig = window.__xplatBridge.resolve.bind(window.__xplatBridge)
@@ -28,29 +30,45 @@
 				}
 			}
 
-			webkit.messageHandlers.xplat.postMessage(
-				JSON.stringify({ id, service, method, args }),
-			)
+			webkit.messageHandlers.xplat.postMessage(JSON.stringify({ id, service, method, args }))
 		})
 
 	const out = []
+	let deepLink = null
+	window.__xplatBridge.on('deep-links', 'open', (url) => {
+		deepLink = url
+	})
+
 	const run = async (name, fn) => {
 		try {
-			out.push(name + '=' + JSON.stringify(await fn()))
+			const result = name + '=' + JSON.stringify(await fn())
+			out.push(result)
+			log('SELFTEST_STEP ' + result)
 		} catch (e) {
-			out.push(name + '!=>' + e.message)
+			const result = name + '!=>' + e.message
+			out.push(result)
+			log('SELFTEST_STEP ' + result)
 		}
 	}
 
+	log('SELFTEST_STARTED')
+	await run('capabilities', async () => {
+		const caps = await window.__xplatBridge.capabilities()
+		return caps.clipboard?.includes('read') && caps.clipboard?.includes('write')
+	})
+
+	await run('deepLinks.open', async () => {
+		await new Promise((resolve) => setTimeout(resolve, 1800))
+		return deepLink === 'xplat://self-test/deep-link'
+	})
+
+	await run('legacy.clipboard.write', () => legacyCall('clipboard', 'write', ['legacy-ok']))
 	await run('clipboard.write', () => call('clipboard', 'write', ['harness-ok']))
 	await run('clipboard.read', () => call('clipboard', 'read', []))
 	await run('secureStorage.set', () => call('secureStorage', 'set', ['k', 'v']))
 	await run('secureStorage.get', () => call('secureStorage', 'get', ['k']))
 	await run('notifications.ensure', () => call('notifications', 'ensure', []))
-	await run('notifications.notify', () =>
-		call('notifications', 'notify', ['title', 'body']),
-	)
-
+	await run('notifications.notify', () => call('notifications', 'notify', ['title', 'body']))
 	await run('appearance.get', () => call('appearance', 'get', []))
 	await run('files.readText', () => call('files', 'readText', ['file:///etc/hosts']))
 
@@ -72,7 +90,6 @@
 	await run('windows.close', () => call('windows', 'close', [wid]))
 	await new Promise((r) => setTimeout(r, 500))
 	await run('windows.closedEvent', async () => gotClosed)
-
 	await run('missing.method', () => call('nope', 'nope', []))
 
 	log('SELFTEST ' + out.join(' | '))

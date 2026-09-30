@@ -1,8 +1,8 @@
 # Sharing files across platforms
 
-> Use the unsuffixed module as the native default. Add `.web` for browser
-> behavior, `.mobile` for behavior shared by iOS and Android, and an OS suffix
-> when one platform needs its own implementation.
+> Use the unsuffixed module as the native default. Add `.web` for DOM frontends
+> (browser or webview), `.mobile` for behavior shared by iOS and Android, and
+> an OS suffix when a native platform needs its own implementation.
 
 Share the feature's actions and data, then tailor only the part that needs a
 platform difference. Ask your agent for a focused implementation:
@@ -14,41 +14,46 @@ that a target is ready to ship. See [target support](spec.md#choose-your-targets
 
 ```text
 Card.tsrx          native default
-Card.web.tsrx      browser implementation
+Card.web.tsrx      browser or DOM webview implementation
 Card.mobile.tsrx   shared iOS and Android implementation
 Card.ios.tsrx      iOS-specific implementation
 Card.android.tsrx  Android-specific implementation
 Card.macos.tsrx    macOS-specific implementation
 Card.windows.tsrx  Windows-specific implementation
-Card.linux.tsrx    Linux WebKitGTK-specific implementation
+Card.linux.tsrx    legacy Linux WebKitGTK override
 ```
 
 Import `Card` without naming a platform. The resolver selects the most specific
 file for the target, then falls back to the unsuffixed module:
 
-| Target | Resolution order |
-| --- | --- |
-| Web | `.web` → unsuffixed |
-| iOS | `.ios` → `.mobile` → unsuffixed |
-| Android | `.android` → `.mobile` → unsuffixed |
-| macOS | `.macos` → unsuffixed |
-| Windows (when configured) | `.windows` → unsuffixed |
-| Linux (when configured) | `.linux` → `.web` → unsuffixed |
+| Target                            | Resolution order                    |
+| --------------------------------- | ----------------------------------- |
+| Web                               | `.web` → unsuffixed                 |
+| iOS                               | `.ios` → `.mobile` → unsuffixed     |
+| Android                           | `.android` → `.mobile` → unsuffixed |
+| macOS AppKit                      | `.macos` → unsuffixed               |
+| macOS WKWebView                   | `.web` → unsuffixed                 |
+| Windows (when configured)         | `.windows` → unsuffixed             |
+| Windows WebView (when configured) | `.web` → unsuffixed                 |
+| Linux WebKitGTK (legacy)          | `.linux` → `.web` → unsuffixed      |
 
 There is no general `.native` or `.desktop` filename tier. Native code goes in
-the ordinary module; the suffixes identify exceptions to that default. Linux's
-WebKitGTK target is a webview, so `.linux` overrides `.web`, which remains its
-browser-code fallback.
+the ordinary module; the suffixes identify exceptions to that default. A DOM
+webview uses `.web`; `.macos` and `.windows` are reserved for native frontends.
+Existing Linux `.linux` overrides remain for compatibility and take
+precedence over `.web` while the Linux target migrates to the shared contract.
 
 ## Choosing a variant
 
 - Put the native default in the unsuffixed file. It can use native APIs.
-- Add a `.web` sibling when browser code needs different APIs or markup. Web
-  resolves `.web` first, so the native default does not enter that build.
+- Add a `.web` sibling when a DOM frontend needs different APIs or markup. Web
+  and webview frontends resolve `.web` first, so the native default does not
+  enter that build.
 - Use `.mobile` when iOS and Android share an implementation that differs from
   the unsuffixed default. Use `.ios` or `.android` when only one OS differs.
-- Use `.macos`, `.windows`, or `.linux` for an implementation specific to
-  that OS.
+- Use `.macos` or `.windows` for native frontend implementations. Keep
+  existing `.linux` overrides compatible; do not add new ones for behavior a
+  `.web` frontend can provide.
 - Keep the exported props and return values compatible. Callers should not
   need to know which file the resolver selected.
 
@@ -80,11 +85,12 @@ the shared `routes.gen.types.ts`. iOS and Android route files can override a
 
 ## TypeScript
 
-The web config uses `moduleSuffixes: [".web", ""]`. The mobile config includes
+The browser and WebView configs resolve `.web` before the unsuffixed fallback.
+The mobile config includes
 `.ios`, `.android`, `.mobile`, and the unsuffixed fallback; the NativeScript
 Vite resolver orders the active OS first at build time. The macOS config uses
-`.macos` before the unsuffixed fallback. Keep imports extensionless so the
-resolver can select the right file.
+`.macos` before the unsuffixed fallback for AppKit. Keep imports extensionless
+so the resolver can select the right file.
 
 Plain `tsc` doesn't probe `.tsrx` for extensionless specifiers — the suffix
 probe uses a hardcoded extension table (`.ts`/`.tsx`/`.d.ts`/`.js`/`.jsx`).

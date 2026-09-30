@@ -16,14 +16,25 @@ let urlString = CommandLine.arguments.dropFirst().first { !$0.hasPrefix("--") }
 	?? "http://localhost:5201"
 let selfTest = CommandLine.arguments.contains("--self-test")
 
-// Same dispatch table as gjs-host.js — replies go back by evaluating
-// __xplatBridge.resolve/reject; events go in through __xplatBridge.emit.
+// Same protocol and dispatch table as gjs-host.js, with a macOS-native test
+// mediator for the Linux renderer's bridge self-test.
 final class Bridge: NSObject, WKScriptMessageHandler {
 	weak var webView: WKWebView?
 	var windows: [String: (window: NSWindow, wv: WKWebView)] = [:]
 	var closeDelegates: [String: NSWindowDelegate] = [:] // NSWindow.delegate is weak
 	private var currentSender: WKWebView? // replies land on the window that asked
+	private var currentProtocol = false
 	let secrets = UserDefaults(suiteName: "xplat-host")! // stand-in for Secret Service
+	private let hostCapabilities: [String: [String]] = [
+		"notifications": ["ensure", "notify"],
+		"clipboard": ["read", "write"],
+		"secureStorage": ["get", "set", "remove"],
+		"appearance": ["get"],
+		"files": ["readText", "pick", "writeText"],
+		"windows": ["open", "close", "setTitle"],
+		"system": ["openUrl"],
+		"deepLinks": ["initialUrl"],
+	]
 
 	static func currentScheme() -> String {
 		NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
@@ -36,13 +47,23 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 		guard message.name == "xplat",
 			let body = message.body as? String,
 			let req = (try? JSONSerialization.jsonObject(with: Data(body.utf8))) as? [String: Any],
-			let id = req["id"] as? Int,
+			let id = req["id"] as? Int
+		else { return }
+		let protocolType = req["type"] as? String
+		let sender = message.webView ?? webView
+		currentSender = sender
+		if protocolType == "capabilities" {
+			currentProtocol = true
+			respond(id, hostCapabilities)
+			currentProtocol = false
+			return
+		}
+		guard protocolType == nil || protocolType == "call",
 			let service = req["service"] as? String,
 			let method = req["method"] as? String
 		else { return }
+		currentProtocol = protocolType == "call"
 		let args = req["args"] as? [Any] ?? []
-		let sender = message.webView ?? webView
-		currentSender = sender
 
 		switch (service, method) {
 		case ("notifications", "ensure"):
@@ -145,8 +166,14 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 	}
 
 	private func emitTo(_ wv: WKWebView, _ service: String, _ event: String, _ payload: Any) {
+		let name = (service == "deepLinks" || service == "deep-links") && event == "open"
+			? "app.deep-link"
+			: "\(service).\(event)"
+		let packet: [String: Any] = ["type": "event", "name": name, "payload": payload]
+		let encodedPacket = jsLiteral(packet)
 		wv.evaluateJavaScript(
-			"__xplatBridge?.emit('\(service)', '\(event)', \(jsLiteral(payload)))",
+			"window.__xplatHostTransport?.receive(\(jsLiteral(encodedPacket)));" +
+				"__xplatBridge?.emit('\(service)', '\(event)', \(jsLiteral(payload)))",
 			completionHandler: nil)
 	}
 
@@ -172,19 +199,34 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 	}
 
 	private func respond(_ id: Int, _ value: Any) {
-		(currentSender ?? webView)?.evaluateJavaScript(
-			"__xplatBridge?.resolve(\(id), \(jsLiteral(value)))", completionHandler: nil)
+		if currentProtocol {
+			let packet: [String: Any] = ["type": "reply", "id": id, "ok": true, "value": value]
+			let encodedPacket = jsLiteral(packet)
+			(currentSender ?? webView)?.evaluateJavaScript(
+				"window.__xplatHostTransport?.receive(\(jsLiteral(encodedPacket)))",
+				completionHandler: nil)
+		} else {
+			(currentSender ?? webView)?.evaluateJavaScript(
+				"__xplatBridge?.resolve(\(id), \(jsLiteral(value)))", completionHandler: nil)
+		}
 	}
 
 	private func rejectRequest(_ id: Int, _ message: String) {
-		(currentSender ?? webView)?.evaluateJavaScript(
-			"__xplatBridge?.reject(\(id), \(jsLiteral(message)))", completionHandler: nil)
+		if currentProtocol {
+			let packet: [String: Any] = ["type": "reply", "id": id, "ok": false, "error": message]
+			let encodedPacket = jsLiteral(packet)
+			(currentSender ?? webView)?.evaluateJavaScript(
+				"window.__xplatHostTransport?.receive(\(jsLiteral(encodedPacket)))",
+				completionHandler: nil)
+		} else {
+			(currentSender ?? webView)?.evaluateJavaScript(
+				"__xplatBridge?.reject(\(id), \(jsLiteral(message)))", completionHandler: nil)
+		}
 	}
 
 	func emit(_ service: String, _ event: String, _ payload: Any) {
-		webView?.evaluateJavaScript(
-			"__xplatBridge?.emit('\(service)', '\(event)', \(jsLiteral(payload)))",
-			completionHandler: nil)
+		guard let webView else { return }
+		emitTo(webView, service, event, payload)
 	}
 }
 
@@ -209,9 +251,24 @@ func makeWebView(extraInjected: String = "") -> WKWebView {
 	let ucc = WKUserContentController()
 	ucc.add(bridge, name: "xplat")
 	ucc.add(LogSink(), name: "xplatLog")
+	let transportScript = """
+		(() => {
+			const listeners = new Set();
+			Object.defineProperty(window, '__xplatHostTransport', {
+				value: {
+					receive(message) { for (const listener of listeners) listener(message); },
+					listen(listener) {
+						listeners.add(listener);
+						return () => listeners.delete(listener);
+					}
+				},
+				configurable: false
+			});
+		})();
+		"""
 	ucc.addUserScript(
 		WKUserScript(
-			source: "window.__xplatInitialUrl = null; window.__xplatColorScheme = "
+			source: transportScript + "window.__xplatInitialUrl = null; window.__xplatColorScheme = "
 				+ (Bridge.currentScheme() == "dark" ? "\"dark\"" : "\"light\"") + ";" + extraInjected,
 			injectionTime: .atDocumentStart, forMainFrameOnly: true))
 	let config = WKWebViewConfiguration()

@@ -24,7 +24,7 @@ for the current boundaries before committing to a release.
 2. [Get a working app and iterate](toolchain.md) — the real setup command,
    a calibration task, prerequisites, live updates, and checks.
 3. [Add device features](platform-services.md) — save, share, pick photos,
-   and handle permissions or unavailable features.
+   handle permissions, or use a typed [desktop WebView host](macos-webview.md).
 4. [Add media](media-services.md) — audio and haptics, with links to camera
    preview and video setup.
 5. [Tailor each platform](module-resolution.md) — share the product while

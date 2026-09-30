@@ -50,20 +50,66 @@ living in `platform` (#72): `@octane-xplat/share` (`share.text`, `share.url`),
 `@octane-xplat/haptics`. Each leaf owns its plugin as a real dependency —
 apps do not redeclare it.
 
+## Desktop webview host protocol
+
+A `.web` frontend can run in a browser or a system webview. In a desktop
+webview, framework leaves and app-defined services use the same typed host
+channel for calls, replies, events, and capability discovery. The protocol
+types are shared between the frontend and the native JavaScript host; they are
+compile-time contracts, with no runtime schema validator.
+
+Extend the framework service and event maps with app-owned entries:
+
+```ts
+import type {
+	FrameworkHostEvents,
+	FrameworkHostServices,
+} from '@octane-xplat/platform/host/services'
+
+interface InvoiceServices extends FrameworkHostServices {
+	invoices: {
+		load(id: string): Promise<{ id: string; total: number } | null>
+	}
+}
+
+interface InvoiceEvents extends FrameworkHostEvents {
+	'invoices.changed': { id: string }
+}
+```
+
+The frontend uses `createHostClient<InvoiceServices, InvoiceEvents>()`; the
+host registers the same `InvoiceServices` methods with
+`createHostDispatcher<InvoiceServices, InvoiceEvents>()`. `client.call()`
+infers arguments and replies, `client.on()` infers event payloads, and
+`client.capabilities()` reports the methods registered by that host. Calls
+and events carry JSON messages; keep service results and event payloads
+serializable. Capability discovery describes availability; it does not
+replace handling a failed service call.
+
+`@octane-xplat/platform` exposes the framework client to `.web` leaves.
+Clipboard, app info, deep links, outbound links, and sharing can use host
+services when embedded in a desktop host; outside a desktop host they retain
+browser behavior. A macOS
+WKWebView uses NativeScript in the JavaScriptCore host to implement native
+services; Linux keeps its GJS adapter on the same protocol. This shares the
+service contract without requiring the mediator runtimes to match. A future
+CEF frontend would standardize the web engine, not the host-side JavaScript
+runtime (Annotation 2).
+
 ## Capability map
 
-| Service | Shared shape | Platform notes |
-| --- | --- | --- |
-| `geolocation` | `getCurrentPosition(options)` | `@octane-xplat/geolocation` leaf |
-| `connectivity` | `getState()` + `subscribe(listener)` | web also exposes connection type where `navigator.connection` exists |
-| `appInfo` | `{ supported, version, build, bundleId }` | `supported: false` on web — a browser bundle has no trustworthy app identity |
-| `openUrl(url)` | returns whether an outbound link was opened | — |
-| `openSettings` | capability; `open()` | unsupported on web |
-| `media.pickImage()`, `pickImages()` | pick existing image(s) | `@octane-xplat/media` leaf |
-| `media.capturePhoto()` | still capture through the OS camera UI | `@octane-xplat/media` leaf; web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops |
-| `webAuthn` | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession` |
-| `authSession` | `open(url, { callbackScheme })` — hosted web ceremony in a system browser | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web |
-| `@octane-xplat/sqlite` | `openDatabase(name)` → async `execute`/`select`/`get`/`transaction`/`userVersion` | own leaf, not a platform service; web persists via an OPFS worker, macOS binds system libsqlite3 through host metadata interop (`db.persistent` reports); Windows `supported: false` |
+| Service                             | Shared shape                                                                                 | Platform notes                                                                                                                                                                       |
+| ----------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `geolocation`                       | `getCurrentPosition(options)`                                                                | `@octane-xplat/geolocation` leaf                                                                                                                                                     |
+| `connectivity`                      | `getState()` + `subscribe(listener)`                                                         | web also exposes connection type where `navigator.connection` exists                                                                                                                 |
+| `appInfo`                           | `{ supported, version, build, bundleId }`                                                    | `supported: false` on web — a browser bundle has no trustworthy app identity                                                                                                         |
+| `openUrl(url)`                      | returns whether an outbound-link request was accepted                                       | a WKWebView sends the request asynchronously; this synchronous API cannot return the host's eventual result                                                                          |
+| `openSettings`                      | capability; `open()`                                                                         | unsupported on web                                                                                                                                                                   |
+| `media.pickImage()`, `pickImages()` | pick existing image(s)                                                                       | `@octane-xplat/media` leaf                                                                                                                                                           |
+| `media.capturePhoto()`              | still capture through the OS camera UI                                                       | `@octane-xplat/media` leaf; web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops                                                |
+| `webAuthn`                          | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession`                                                                                                                      |
+| `authSession`                       | `open(url, { callbackScheme })` — hosted web ceremony in a system browser                    | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web                                                                                      |
+| `@octane-xplat/sqlite`              | `openDatabase(name)` → async `execute`/`select`/`get`/`transaction`/`userVersion`            | own leaf, not a platform service; web persists via an OPFS worker, macOS binds system libsqlite3 through host metadata interop (`db.persistent` reports); Windows `supported: false` |
 
 `media` owns the `camera` and `photos` permission requests for still capture
 and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
@@ -90,9 +136,10 @@ const textResult = await share.text('A note to share')
 const linkResult = await share.url('https://example.com', 'Example')
 ```
 
-On iOS, Android, and macOS, these calls open the native share picker. On web,
-they use the Web Share API when available and copy the content when the browser
-offers clipboard access. Check the result: `shared` means the share flow was
+On iOS, Android, and macOS, these calls open the native share picker. A macOS
+WKWebView asks its host to open the picker. In a browser, they use the Web
+Share API when available and copy the content when the browser offers
+clipboard access. Check the result: `shared` means the share flow was
 opened or completed by the target, `copied` means the fallback copied the
 content, and `unavailable` means neither option could be offered. The service
 does not report whether a recipient ultimately received the content.
