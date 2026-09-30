@@ -248,7 +248,7 @@ body {
 .nav-label {
 	font-size: 16px;
 	font-weight: 400;
-	letter-spacing: -0.009em;
+	letter-spacing: 0.003em;
 	transform: translateY(1px);
 }
 
@@ -296,7 +296,7 @@ body {
 .sec-head {
 	font-size: 18px;
 	font-weight: 600;
-	letter-spacing: -0.011em;
+	letter-spacing: 0.001em;
 	padding: 0 5px;
 	margin-bottom: 13px;
 }
@@ -316,7 +316,7 @@ body {
 .side-text {
 	font-size: 15px;
 	font-weight: 300;
-	letter-spacing: -0.009em;
+	letter-spacing: 0.003em;
 }
 
 .side-item.active .side-text {
@@ -383,7 +383,7 @@ body {
 	font-family: 'Onest', 'Google Sans Flex', system-ui, sans-serif;
 	font-size: 30px;
 	font-weight: 600;
-	letter-spacing: -0.011em;
+	letter-spacing: 0.001em;
 	line-height: 1.27;
 	margin-bottom: 18px;
 	color: var(--doc-navy);
@@ -441,7 +441,7 @@ body {
 .h2 {
 	font-size: 18px;
 	font-weight: 600;
-	letter-spacing: -0.011em;
+	letter-spacing: 0.001em;
 	padding-bottom: 12px;
 	border-width: 0;
 	border-bottom-width: 1px;
@@ -459,7 +459,7 @@ body {
 .h4 {
 	font-size: 16px;
 	font-weight: 600;
-	letter-spacing: -0.005em;
+	letter-spacing: 0.007em;
 	margin-top: 26px;
 	margin-bottom: 10px;
 }
@@ -470,7 +470,7 @@ body {
 	line-height: 1.4;
 	margin-top: 14px;
 	flex-wrap: wrap;
-	letter-spacing: -0.009em;
+	letter-spacing: 0.003em;
 }
 
 .li {
@@ -480,7 +480,7 @@ body {
 	margin-top: 4px;
 	flex-direction: row;
 	gap: 10px;
-	letter-spacing: -0.009em;
+	letter-spacing: 0.003em;
 }
 
 /* markers are part of the run — same ink and weight as the item text */
@@ -626,7 +626,7 @@ body {
 	font-size: 11px;
 	font-weight: 600;
 	text-transform: uppercase;
-	letter-spacing: 0.1em;
+	letter-spacing: 0.112em;
 }
 
 .callout-line {
