@@ -408,11 +408,9 @@ body {
 }
 
 .palette .hit-group {
-	font-size: 11px;
-	font-weight: 550;
-	text-transform: uppercase;
-	letter-spacing: 0.112em;
-	color: var(--doc-dim);
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--doc-ink);
 	padding: 10px 10px 4px;
 }
 
