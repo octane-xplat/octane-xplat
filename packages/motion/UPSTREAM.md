@@ -13,7 +13,7 @@ The adapter is original code; it does not copy upstream's DOM host factory.
 | Stable value, subscriptions, style replacement   | src/useMotionValue.ts; tests/conformance/motionValue.test.ts      | Numeric adapter with native clock; components.web.test.tsrx                                       |
 | Spring set versus jump; follow source            | src/useSpring.ts; tests/conformance/useSpring.test.ts             | Owned spring interception and cleanup; hook tests                                                 |
 | Derived numeric values                           | src/useTransform.ts; tests/conformance/useTransform.test.ts       | Upstream interpolation, direct subscriptions; hook tests                                          |
-| Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts     | Context inheritance; transforms settle immediately, opacity may animate                           |
+| Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts     | Context inheritance; spring transforms settle immediately on live preference changes while opacity can keep animating (`components.web.test.tsrx`, `engine.test.ts`) |
 | Exit lifecycle                                   | src/index.ts; tests/conformance/exit.test.ts                      | Deliberate live-subtree retention on both leaves; presence.web.test.tsrx and native presence test |
 | Retained hosts on native                         | Not a DOM binding concern                                         | components.mobile.test.tsrx uses the universal object driver                                      |
 
@@ -83,7 +83,7 @@ switch value before and after its Settings tap. A corrected rerun was blocked
 when the phone re-locked.
 
 Physical Android CPH2551 evidence covers app launch and target retarget only;
-the handset is currently disconnected. The regular mobile app now builds and
+ADB sees the handset, but its keyguard is currently locked. The regular mobile app now builds and
 mounts on the iOS 26.5 simulator using NativeScript's `NSObject.extend()` API
 for the auth-session presentation delegate. The Android build also passes with
 the iOS delegate behind the `NSObject` runtime guard. Motion-specific simulator,

@@ -16,7 +16,7 @@ function Values(props: any) @{
 }
 
 function Reduced() @{
-	<MotionConfig reducedMotion="always"><motion.Pressable id="reduced" initial={{ x: 0 }} animate={{ x: 100 }} transition={{ duration: 10 }} /></MotionConfig>
+	<MotionConfig reducedMotion="always"><motion.Pressable id="reduced" initial={{ x: 0 }} animate={{ x: 100 }} transition={{ type: 'spring' }} /></MotionConfig>
 }
 
 function mount(component: any) {
@@ -121,7 +121,7 @@ it('retargets from a render-time signal read', () => {
 })
 
 function UserReduced() @{
-	<MotionConfig reducedMotion="user"><motion.View id="user-reduced" animate={{ x: 100 }} transition={{ duration: 10 }} /></MotionConfig>
+	<MotionConfig reducedMotion="user"><motion.View id="user-reduced" animate={{ x: 100 }} transition={{ type: 'spring' }} /></MotionConfig>
 }
 
 it('observes live system reduced-motion changes', () => {

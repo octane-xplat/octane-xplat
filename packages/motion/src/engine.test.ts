@@ -123,4 +123,17 @@ describe('portable playback', () => {
 		expect(await result).toBe('replaced')
 		expect(time.count()).toBe(0)
 	})
+
+	it('reduces positional springs immediately while preserving opacity motion', async () => {
+		const time = fakeClock()
+		const controller = new Controller(time.clock)
+		const result = controller.animate({ x: 100, opacity: 0 }, { type: 'spring' }, true)
+
+		expect(controller.snapshot()).toMatchObject({ x: 100, opacity: 1 })
+		expect(time.count()).toBe(1)
+		time.advance(10000)
+		expect(await result).toBe('finished')
+		expect(controller.snapshot()).toEqual({ x: 100, opacity: 0 })
+		controller.destroy()
+	})
 })
