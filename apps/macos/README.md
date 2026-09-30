@@ -206,6 +206,19 @@ the shim also throws `Unsupported macOS host API` for unsupported runtime
 access. Use the AppKit ObjC bridge for native UI and services; general Node
 modules are outside this host contract.
 
+Bridge notes for delegate/protocol work: import the Objective-C framework
+first (`objc.import('AuthenticationServices')` etc.) so protocol constants
+resolve, then register classes with `NSObject.extend(members, { protocols,
+exposedMethods })` — class syntax plus `NativeClass` registers the class but
+not its methods on this runtime, so delegate callbacks never fire. JS
+functions marshal into ObjC blocks both synchronously and asynchronously on
+the main queue (verified via `enumerateObjectsUsingBlock` and
+`NSOperationQueue.mainQueue`). Provider flows that consult Apple daemons —
+`ASAuthorizationController.performRequests`,
+`ASAuthorizationAppleIDProvider.getCredentialStateForUserID` — go unanswered
+from this unsigned dev binary; a completed ceremony needs the packaged app
+signed with the matching entitlement.
+
 The native inputs and source revisions are recorded in
 `packages/cli/src/macos/jsc-host/prebuilt/manifest.json`. The adjacent
 `build-runtime.sh` rebuilds the statically linked host and compatible

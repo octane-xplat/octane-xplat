@@ -304,3 +304,47 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     fallback the runtime itself ships `NSWinRT.HMR`/`NSWinRT.LiveSync`
     (`sync`/`reload`/`reset`) and `runtime_notify_app_event` for a host-side
     watcher. Verify the dev-CLI path against our vite preset in lab.
+36. 🟡 **Does the macOS Apple sign-in ceremony complete end-to-end?** — On the
+    adhoc-signed dev host, every seam is verified up to the daemon call:
+    `objc.import('AuthenticationServices')` resolves,
+    `ASAuthorizationController.performRequests` executes without a crash, and
+    the presentation-anchor plus both delegate selectors register via
+    `NSObject.extend` (`respondsToSelector` true). JS→ObjC block marshalling
+    and async main-queue delivery are independently proven
+    (`enumerateObjectsUsingBlock` calls back synchronously;
+    `NSOperationQueue.mainQueue.addOperationWithBlock` fires asynchronously).
+    The request then goes unanswered by the auth daemon — `signIn()` stays
+    pending with no timeout. Lab: package the AppKit app with
+    `MACOS_SIGNING_IDENTITY` + `com.apple.developer.applesignin` (already in
+    `apps/macos/entitlements.plist`) and run a real sign-in; same gate covers
+    `getCredentialState`, whose call boundary is verified.
+37. 🟡 **Does macOS `authSession` complete a real hosted ceremony?** —
+    `ASWebAuthenticationSession` is wired over the same proven bridge pattern
+    (anchor + delegate selectors verified), but no real
+    `open(url, { callbackScheme })` run has happened — needs a hosted endpoint
+    and the packaged app. Lab: drive `authSession.impl.open` against a test
+    authorize URL in the signed fixture app.
+38. 🔬 **Should `googleAuth` route through `authSession` on macOS?** — Now
+    that the hosted ceremony exists there, the leaf could implement Google's
+    OIDC flow itself (the AppAuth shape) instead of reporting
+    `supported: false`. Decide leaf-owned vs. app-owned before documenting a
+    macOS Google path.
+39. 🔬 **Official `ASAuthorizationAppleIDButton` on macOS.** — The leaf
+    renders a styled `flexboxlayout`/`onTap` control because the AppKit
+    renderer has no arbitrary-`NSView` host. Apple's HIG expects the official
+    button for App Store distribution. Blocked on a renderer escape hatch to
+    host an `NSView`; swap when one lands.
+40. ⏳ **Windows auth leaves.** — `@nativescript/apple-sign-in` and
+    `google-signin` ship no windows/base modules, so the native-default leaf
+    cannot resolve under a windows build — consistent with every plugin leaf
+    today. If Q32/33 land Windows as a real target, auth needs explicit
+    `.windows` unsupported leaves or plugin-side windows support.
+41. 🔬 **Handwritten `types/index.macos.d.ts` twins can drift.** — The
+    `.macos` declaration twins in leaf packages are handwritten and absent
+    from the tsrx-typegen manifest; nothing catches a stale one when the
+    shared types change. Options: teach typegen to emit the macos twin, or
+    add a drift check.
+42. 🔬 **Packed-consumer tests don't exercise the `macos` export
+    condition.** — `test:packed` verifies web + native under Bundler and
+    NodeNext; the `macos` condition (`index.macos.ts` + handwritten `.d.ts`)
+    is only exercised by building apps/macos itself.
