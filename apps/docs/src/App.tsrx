@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'octane';
+import { useState, useEffect, useRef } from 'octane';
 import { View, Row, Text, Pressable, ScrollView, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
 import { DOCS, type DocPage } from './docs';
 import { MdDoc } from './MdDoc.tsrx';
@@ -16,6 +16,8 @@ export function App() @{
 	const [override, setOverride] = useState<boolean | null>(null);
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [query, setQuery] = useState('');
+	const [leaving, setLeaving] = useState(false);
+	const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const scheme = useColorScheme();
 	const dark = override ?? scheme === 'dark';
 
@@ -30,17 +32,40 @@ export function App() @{
 		resetDocScroll();
 	};
 
+	const selectDoc = (s: string) => {
+		if (s === doc.slug) {
+			open(s);
+			return;
+		}
+
+		if (navigationTimer.current !== null) {
+			clearTimeout(navigationTimer.current);
+		}
+		setLeaving(true);
+		navigationTimer.current = setTimeout(() => {
+			navigationTimer.current = null;
+			open(s);
+		}, 140);
+	};
+
 	// Safety net for navs that flow through octane's commit path.
 	useEffect(() => {
+		setLeaving(false);
 		resetDocScroll();
 		document.title = doc.title === 'xplat' ? 'xplat docs' : `${doc.title} — xplat`;
 	}, [doc.slug]);
+
+	useEffect(() => () => {
+		if (navigationTimer.current !== null) {
+			clearTimeout(navigationTimer.current);
+		}
+	}, []);
 
 	const q = query.trim().toLowerCase();
 	const results = q ? DOCS.filter((d) => d.title.toLowerCase().includes(q) || d.md.toLowerCase().includes(q)) : null;
 
 	const renderDoc = (d: DocPage) => (
-		<Pressable className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => { open(d.slug); setQuery(''); }}>
+		<Pressable className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => { selectDoc(d.slug); setQuery(''); }}>
 			<Text className="side-text">{d.title}</Text>
 		</Pressable>
 	);
@@ -110,7 +135,9 @@ export function App() @{
 			<View className="card">
 				<img className="constellation" src={constellation} alt="" />
 				<ScrollView id="doc-content" className="content">
-					<MdDoc key={doc.slug} md={doc.md} />
+					<View key={doc.slug} className={leaving ? 'doc-page leaving' : 'doc-page'}>
+						<MdDoc md={doc.md} />
+					</View>
 				</ScrollView>
 			</View>
 		</Row>

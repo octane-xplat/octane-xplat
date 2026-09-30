@@ -370,6 +370,20 @@ body {
 	z-index: 1;
 }
 
+.doc-page {
+	transition: opacity 140ms ease;
+}
+
+.doc-page.leaving {
+	opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.doc-page {
+		transition-duration: 0ms;
+	}
+}
+
 /* ---------- doc typography ---------- */
 
 .doc {
