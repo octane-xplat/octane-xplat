@@ -130,7 +130,7 @@ function trackFrame(frame: Frame, stack: string): void {
 
 	tracked.add(frame)
 	frame.on('navigatedTo', (event) => {
-		if ((event as typeof event & { isBackNavigation?: boolean }).isBackNavigation) {navigationRequests.invalidate(stack)}
+		if ((event as typeof event & { isBackNavigation?: boolean })?.isBackNavigation) {navigationRequests.invalidate(stack)}
 		// A page re-shown by pop can stay unloaded when the frame's nav
 		// bookkeeping stalls mid-transition (the iOS strand of #11444 — the
 		// same hole the isLoaded/callLoaded workaround in commitRoute covers
