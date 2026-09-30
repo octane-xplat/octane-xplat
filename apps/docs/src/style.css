@@ -104,8 +104,11 @@ body {
 }
 
 .side-fixed {
-	position: sticky;
+	position: fixed;
 	top: 0;
+	left: 15px;
+	width: 305px;
+	padding-top: 16px;
 	z-index: 2;
 	background-color: var(--doc-bg);
 }
@@ -705,6 +708,14 @@ body {
 		padding: 0 4px;
 	}
 
+	.side-fixed {
+		position: relative;
+		top: auto;
+		left: auto;
+		width: auto;
+		padding-top: 0;
+	}
+
 	.brand-row {
 		padding-bottom: 10px;
 	}
@@ -829,6 +840,10 @@ body {
 @media (min-width: 721px) and (max-width: 1100px) {
 	.side {
 		width: 236px;
+	}
+
+	.side-fixed {
+		width: 231px;
 	}
 
 	.wordmark {
