@@ -67,6 +67,7 @@ type AppKitHost = {
 	appInfo?: AppInfo
 	appState?: AppState
 	windowSize?: WindowSize
+	shareContent?: (content: { text?: string; url?: string; title?: string }) => ShareResult
 	readClipboard?: () => string | null
 	writeClipboard?: (value: string) => boolean
 	storageGet?: (key: string) => string | null
@@ -189,7 +190,12 @@ export const files = {
 }
 
 export const share = {
-	async text(_value: string): Promise<ShareResult> { return 'unavailable' },
+	async text(value: string, _subject?: string): Promise<ShareResult> {
+		return host().shareContent?.({ text: value }) ?? 'unavailable'
+	},
+	async url(value: string, title?: string): Promise<ShareResult> {
+		return host().shareContent?.({ url: value, title: title ?? value }) ?? 'unavailable'
+	},
 }
 
 export const systemBars = {

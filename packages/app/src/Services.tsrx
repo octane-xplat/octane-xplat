@@ -189,8 +189,13 @@ export function Services() @{
 			</Row>
 			<Row className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('share', async () => 'result: ' + (await share.text('octane-xplat kitchen sink')))}>
-					<Text>Share</Text>
+					<Text>Share text</Text>
 				</Pressable>
+				<Pressable className="btn btn-secondary" onPress={() => run('shareUrl', async () => 'result: ' + (await share.url('https://github.com/octane-xplat/octane-xplat', 'Octane Xplat')))}>
+					<Text>Share URL</Text>
+				</Pressable>
+				<Text className="text-sm text-muted">{echo.share ?? '—'}</Text>
+				<Text className="text-sm text-muted">{echo.shareUrl ?? '—'}</Text>
 				<Pressable className="btn btn-secondary" onPress={() => say('url', openUrl('https://github.com/aleclarson/octane-xplat') ? 'opened' : 'failed')}>
 					<Text>Open repo</Text>
 				</Pressable>

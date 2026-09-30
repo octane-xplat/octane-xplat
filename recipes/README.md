@@ -32,6 +32,7 @@ Workflows:
 - [Build a settings list with reusable rows](settings-list.md)
 - [Size a WebView to its document](webview-content-sizing.md)
 - [Package an experimental AppKit app](macos-appkit-package.md)
+- [Share text and URLs from an app](share-content.md)
 - [Add a platform-native single-selection picker](native-picker.md)
 - [Publish a typed component library](typed-component-library.md)
 - [Add a platform-native date or time picker](date-picker.md)

@@ -127,6 +127,9 @@ pushes themselves work through the swap-pane route store.
 | `media.ensure('camera')` / `capturePhoto()` | Permissions API query may report `unsupported`; `capturePhoto()` uses `<input capture>` (mobile camera UI, desktop file picker) | native camera permission request + still capture in OS camera UI | same as iOS | `different` | 0.6.0·desk |
 | `files`                       | `pick` → blob URL; `writeText` triggers a download               | real file paths      | real paths; SAF `content://` reads | `different` | 0.5.0·desk  |
 
+The table above lists web, iOS, and Android. On macOS, `share.text()` and
+`share.url()` open the AppKit share picker; file sharing is not supported.
+
 ## Same edge on every target
 
 - **TS 7 content-mapper declarations need output mapping.** The classic TS 5.9

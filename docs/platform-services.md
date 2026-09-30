@@ -20,7 +20,8 @@ that a service adds to your screen automatically.
 
 macOS and Windows are not implied by an iOS/Android implementation:
 consult the [target guide](spec.md#choose-your-targets) and
-[known limits](known-limits.md).
+[known limits](known-limits.md). Sharing is available on macOS through the
+AppKit share picker.
 
 The capability table below describes web and iOS/Android unless stated
 otherwise. Keep native details in a service or platform-specific file so
@@ -55,6 +56,7 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 | `media.capturePhoto()` | still capture through the OS camera UI | web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops; native needs `@nativescript/camera` |
 | `webAuthn` | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession` |
 | `authSession` | `open(url, { callbackScheme })` — hosted web ceremony in a system browser | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web |
+| `share.text(text, subject?)`, `share.url(url, title?)` | share text or a URL and receive a `ShareResult` | web uses the Web Share API with clipboard fallback; iOS and Android use the native share sheet; macOS uses the AppKit share picker |
 
 `media` owns the `camera` and `photos` permission requests for still capture
 and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
@@ -68,6 +70,25 @@ the user reports `unsupported`, and `denied` stays `denied`; starting
 `files.writeText(name, text)` writes a file on native. On web, it starts a
 browser download with the requested name and returns a `FileRef` for the
 download's object URL; it does not write to a local filesystem path.
+
+## Share text and URLs
+
+Use the shared `share` service to offer text or a link to the system's sharing
+options:
+
+```ts
+import { share } from '@octane-xplat/platform'
+
+const textResult = await share.text('A note to share')
+const linkResult = await share.url('https://example.com', 'Example')
+```
+
+On iOS, Android, and macOS, these calls open the native share picker. On web,
+they use the Web Share API when available and copy the content when the browser
+offers clipboard access. Check the result: `shared` means the share flow was
+opened or completed by the target, `copied` means the fallback copied the
+content, and `unavailable` means neither option could be offered. The service
+does not report whether a recipient ultimately received the content.
 
 Camera capture is stills-only — no maintained NativeScript video-capture
 plugin exists, so the contract has no `captureVideo`.

@@ -268,6 +268,39 @@ function installPlatformServices() {
 			pasteboard.clearContents()
 			return Boolean(pasteboard.setStringForType(String(value), 'public.utf8-plain-text'))
 		},
+		shareContent({ text, url, title }) {
+			const anchor = services.primaryWindow?.contentView
+			if (!anchor || typeof NSSharingServicePicker === 'undefined') return 'unavailable'
+
+			try {
+				let items
+				if (typeof url === 'string') {
+					const nativeUrl = NSURL.URLWithString(url)
+					if (!nativeUrl) return 'unavailable'
+					items = [nativeUrl, String(title ?? url)]
+				} else if (typeof text === 'string') {
+					items = [text]
+				} else {
+					return 'unavailable'
+				}
+
+				const picker = NSSharingServicePicker.alloc().initWithItems(items)
+				const bounds = anchor.bounds
+				const rect = {
+					origin: {
+						x: bounds.origin.x + bounds.size.width / 2,
+						y: bounds.origin.y + bounds.size.height / 2,
+					},
+					size: { width: 0, height: 0 },
+				}
+				const edges = typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
+				picker.showRelativeToOfPreferredEdge(rect, anchor, edges.MinY ?? 1)
+				return 'shared'
+			} catch (error) {
+				console.error('[macos] share picker presentation failed', error)
+				return 'unavailable'
+			}
+		},
 		openUrl(url) {
 			const target = NSURL.URLWithString(String(url))
 			if (!target) return false
