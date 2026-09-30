@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.7.3] - 2026-09-30
+
+### Bug Fixes
+
+- *(platform)* Create auth anchor with runtime extension
+- *(ui)* Align native stack children
+- *(ui)* Align native slider measurements
+- *(ui)* Honor variable font weight on iOS
+- *(ui)* Preserve explicit native text line heights
+- *(ui)* Size native command palette to viewport
+- *(ui)* Render native pagination pages
+- *(ui)* Keep checkbox glyph on contrast color
+- *(ui)* Align native text utility line boxes
+- *(native)* Restore workspace CSS bridge
+- *(android)* Apply custom font weights
+- *(ui)* Guard native WebView scroll handling
+- *(ui)* Position native popovers inside safe area
+- *(ui)* Auto-place unpositioned grid children
+- *(ui)* Isolate iOS tap blur bridge code by platform
+
 ## [0.7.2] - 2026-09-29
 
 ### Bug Fixes
