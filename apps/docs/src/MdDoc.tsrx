@@ -141,5 +141,8 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 export function MdDoc(props: { md: string }) @{
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
 
-	<View className="doc">{blocks.map((b, i) => <BlockView b={b} lede={b.kind === 'quote' && blocks[i - 1]?.kind === 'h' && blocks[i - 1]?.level === 1} />)}</View>
+	<View className="doc">{blocks.map((b, i) => {
+		const prev = blocks[i - 1];
+		return <BlockView b={b} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />;
+	})}</View>
 }
