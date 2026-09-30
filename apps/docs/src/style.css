@@ -263,9 +263,8 @@ body {
 	border-width: 1px;
 	border-color: var(--doc-hairline);
 	border-style: solid;
-	border-radius: 6px;
-	corner-shape: squircle;
-	padding: 1px 6px;
+	border-radius: 999px;
+	padding: 1px 8px;
 }
 
 /* nav sections — bold head over regular items; hairline only above the
