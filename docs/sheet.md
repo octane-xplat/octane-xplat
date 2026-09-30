@@ -113,3 +113,13 @@ sheet content reaches JS normally and can drive `open` back to `false`.
 - The `XplatViewRegistry` pattern is now written twice — context-menu and
   sheet keep leaf-local copies; that duplication is a data point for the
   shared-bridge decision rather than a reason to import across leaves.
+
+## Focus qualification
+
+Provide a named opening action and a visible close action inside the content.
+The leaf's web `BottomSheet` has not been qualified for keyboard focus
+containment or trigger restoration. Native modal VoiceOver/TalkBack navigation
+and return focus also remain unverified. The shared `@octane-xplat/ui` Sheet
+uses a different implementation; its browser focus results do not cover this
+leaf. See [text-entry guidance](text-entry.md#release-and-restore-focus) and
+[input readiness evidence](input-readiness-notes.md).

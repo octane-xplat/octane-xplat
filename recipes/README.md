@@ -32,6 +32,7 @@ Workflows:
 - [Bake route data into the bundle](baked-routes.md)
 - [Ship video playback on web and native](video-playback.md)
 - [Build a settings list with reusable rows](settings-list.md)
+- [Enter and submit text reliably](text-entry.md)
 - [Size a WebView to its document](webview-content-sizing.md)
 - [Package an experimental AppKit app](macos-appkit-package.md)
 - [Share text and URLs from an app](share-content.md)

@@ -50,6 +50,13 @@
    normally in the AX tree. Driver `setProp` now skips `undefined` (decision
    #40). Still open: IME marked-text composition (only ASCII typed) and
    Android parity — the higher-risk platform for setText cursor reset.
+   Fresh 2026-09-30 checks found imperative leaf writes bypassed the driver's
+   mute guard. Leaf-scoped echo suppression now covers that path, with compiled
+   object-driver regression tests. Chromium keyboard typing and selection
+   replacement pass. Fresh Android emulator EditText key injection also passes
+   ASCII typing, middle-selection replacement, controlled callback counts and
+   blur. Marked-text IME remains unverified on both targets; see
+   [input readiness](input-readiness-notes.md).
 5. ✅ **Resolver ordering vs renderer scoping.** — Resolution and compilation
    are decoupled: the octane plugin compiles by **resolved filename** at
    transform time; its `resolveId` only claims virtual/adapter ids. Our suffix
@@ -118,6 +125,10 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     assistive-technology behavior. Hint/value/state/live-region props and
     role translation are now mapped; see the [a11y map](platform-notes.md#a11y-prop-map-shared-prop--leaf-attrs).
     Prop readback alone does not verify VoiceOver or TalkBack behavior.
+    2026-09-30: disabled Pressable state now takes priority over selected state;
+    object-driver tests verify the mapping. Chromium keyboard activation and
+    modal AX-tree background exclusion pass. VoiceOver/TalkBack remain
+    unverified; see [input readiness](input-readiness-notes.md).
 16. ✅ **`@for` keys → native identity.** — Lab-verified (iOS sim): a keyed
     `@for` over `{id,label}` items on a flexboxlayout renders and reorders
     correctly through `insert`/`move` commands — all five rows present in

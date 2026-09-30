@@ -24,9 +24,13 @@ behind the established file suffixes.
 - AC3: The leaf and consuming app build for web, iOS, and Android, including the Android Compose compiler and Material 3 setup for the generated `sheet` AAR and metadata regeneration for new `com.` packages.
 - AC4: Maintained platform-specific examples demonstrate a hosted content subtree and close-from-inside + outside-dismiss behavior.
 
+- AC5: Modal keyboard focus stays in the presented content and returns to the trigger on dismissal; native VoiceOver/TalkBack navigation is qualified separately from view-tree mappings.
+
 ## Documentation
 
 - AC1: [Install and import](../docs/sheet.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeSheetDemo.*.tsrx`.
 - AC2: [Content is a render fn](../docs/sheet.md#content-is-a-render-fn) and [Open state is controlled](../docs/sheet.md#open-state-is-controlled).
 - AC3: [Install and import](../docs/sheet.md#install-and-import) and [Bridge notes](../docs/sheet.md#bridge-notes--what-this-leaf-proved).
 - AC4: [iOS example](../packages/demos/src/NativeSheetDemo.ios.tsrx), [Android example](../packages/demos/src/NativeSheetDemo.android.tsrx), [web example](../packages/demos/src/NativeSheetDemo.web.tsrx), and [macOS example](../packages/demos/src/NativeSheetDemo.macos.tsrx).
+
+- AC5: [Focus qualification](../docs/sheet.md#focus-qualification) and [input readiness evidence](../docs/input-readiness-notes.md).
