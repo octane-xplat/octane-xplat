@@ -210,7 +210,7 @@ body {
 	text-decoration: none;
 	color: inherit;
 	flex-shrink: 0;
-	transition: background-color 160ms ease;
+	transition: background-color 250ms ease;
 }
 
 .nav-row:hover {
@@ -309,7 +309,7 @@ body {
 	border-radius: 14px;
 	corner-shape: squircle;
 	cursor: pointer;
-	transition: background-color 160ms ease;
+	transition: background-color 250ms ease;
 }
 
 .side-item:hover {
