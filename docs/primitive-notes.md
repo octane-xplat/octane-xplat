@@ -688,6 +688,16 @@ with the expected visible rows mounted.
 | Web | 16.8 / 18.2 / 25.3 | 0 / 501 | 5 / 5 | 0 / 0 | 34 / 35 |
 | iOS simulator | 51.4 / 165.2 / 220.2 | 110 / 501 | 1 / 5 | 0 / 0 | 47 / 48 |
 | Android emulator | 35.6 / 72.2 / 182.9 | 121 / 501 | 1 / 5 | 0 / 3 snapshots | 49 / 50 |
+| macOS AppKit host | 47.2 / 58.1 / 155.0 | 6 / 501 | 4 / 5 | 2 / 13 snapshots | 12 / 13 |
+
+The macOS row is the AppKit dev host running the same trace through the
+windowed `VirtualList.macos.tsrx` leaf (main + pending harness fixes;
+evidence JSON). Its one timed-out deep seek (236,709) still converged to the
+correct offset (0.31-unit error) with expected rows mounted — it missed the
+benchmark's consecutive-stable-polls window, not the landing. The leaf
+suppresses anchor correction and estimate rebuilds while a large jump's
+measurements settle, and derives scroll offset from the top spacer's geometry
+instead of document height, which had previously inflated the apparent error.
 
 Rows mounted and unmounted were 650/650 on web, 711/711 on iOS, and 628/628
 on Android. The Android deep-seek gaps reached 17 missing visible rows and a
@@ -725,19 +735,34 @@ variable-height iOS run also reported geometry gaps (64 / 673 samples, max 34
 pt); its Android and web runs reported none. A geometry gap is an uncovered
 viewport interval in sampled row bounds, not a visual screenshot assertion.
 
+A 2026-09-30 recheck resolved the iOS gaps: they are UIScrollView elastic
+overscroll, not a rendering defect. A 180-second run recorded `minOffset
+-154.7` with `maxGap` equal to the overshoot depth; a 90-second rerun with
+overscroll classified separately reported 83/83 gap samples at overscroll and
+0 in-content. The trace now splits `overscrollGapSamples` from
+`contentGapSamples` (leading gap while `offset < 0`, or trailing gap once the
+last row is mounted) so future runs can't conflate bounce with a coverage
+defect. Android reported none because its overscroll renders edge glow rather
+than uncovered geometry.
+
 During the three-minute variable-height runs, web's uncollected heap samples
 fluctuated between 12.3 and 34.1 MB, then fell to 7.85 MB after forced GC
 (6.02 MB before scrolling); DOM nodes returned to the 1,259-node baseline.
 iOS host RSS varied from 329.8 to 356.8 MB and ended below its 339.3 MB start.
 Android total PSS rose from 211 MB to 346 MB, with small dips between samples.
-Native runs did not force garbage collection, so the Android increase is a
-memory-growth signal, not proof of a leak.
+A 2026-09-30 emulator recheck (`xplat` AVD, same 3-minute variable-height run)
+reproduced the climb (181→351 MB), then the trace called `globalThis.gc()` and
+PSS fell ~157 MB to a ~194 MB plateau over the 45 s post-run tail — lazy
+collection, not a leak; end state sat within ~13 MB of the start. The physical
+OnePlus run remains unrechecked because the device dropped mid-run; the
+emulator evidence answers the leak question but not the physical-device one.
 
 Native timing here is the JavaScript snapshot polling interval; intervals over
 32 ms are counted as lag. It does not measure display vsync or frame rate.
 There were no physical trackpad or direct finger-input runs. Keep Q30 open;
-verify the iOS variable-height geometry gaps and investigate Android memory
-growth before changing shared overscan or adding recycling.
+the iOS gaps are resolved as overscroll and the Android memory climb as lazy
+collection, but physical input remains uncollected before changing shared
+overscan or adding recycling.
 
 ### VirtualList readiness recheck (Q30; 2026-09-30)
 

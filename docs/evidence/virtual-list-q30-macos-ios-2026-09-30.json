@@ -1,0 +1,258 @@
+{
+  "baselineCommit": "dcb0a9c6 (main) + local fixes: native.mjs builtin-dep resolution, variant-demos dup export, index.macos MarkdownScreen, push macos leaf",
+  "inputProvenance": "AppKit host, scripted offsets via __xplatMacOSDebug (not physical trackpad)",
+  "macos-deep-seek-bench-2026-09-30": {
+    "schema": "octane-xplat.virtual-list-profile.v1",
+    "target": "macos",
+    "fixture": {
+      "rowCount": 5000,
+      "rowHeightPattern": "32 + (index % 5) * 8",
+      "totalContentHeight": 240000
+    },
+    "trace": {
+      "direction": "forward-reverse-plus-deep-seeks",
+      "streamFrames": 501,
+      "deepSeekCount": 5,
+      "stepsPerDirection": 250,
+      "intervalMs": 16,
+      "stepUnits": 48,
+      "streamRange": [
+        0,
+        12000
+      ],
+      "seekOffsets": [
+        59775,
+        119550,
+        179325,
+        236709,
+        0
+      ]
+    },
+    "viewportHeight": 182,
+    "durationMs": 24787.31,
+    "streamFrameIntervalMs": {
+      "samples": 500,
+      "p50": 47.2,
+      "p95": 58.07,
+      "max": 155.04
+    },
+    "stream": {
+      "frames": 501,
+      "laggedFrames": 6,
+      "readyFrames": 495
+    },
+    "deepSeekLatencyMs": {
+      "samples": 4,
+      "p50": 111.6,
+      "p95": 199.36,
+      "max": 199.36,
+      "timeouts": 1,
+      "timeoutOffsets": [
+        236709
+      ],
+      "results": [
+        {
+          "requestedOffset": 59775,
+          "actualOffset": 59775,
+          "offsetError": 0,
+          "viewportHeight": 182,
+          "mountedCount": 12,
+          "mountedRange": [
+            1243,
+            1255
+          ],
+          "expectedVisibleRange": [
+            1245,
+            1250
+          ],
+          "polls": 2,
+          "latencyMs": 115.4,
+          "status": "ready"
+        },
+        {
+          "requestedOffset": 119550,
+          "actualOffset": 119549.71,
+          "offsetError": 0.29,
+          "viewportHeight": 182,
+          "mountedCount": 12,
+          "mountedRange": [
+            2489,
+            2501
+          ],
+          "expectedVisibleRange": [
+            2490,
+            2495
+          ],
+          "polls": 2,
+          "latencyMs": 199.36,
+          "status": "ready"
+        },
+        {
+          "requestedOffset": 179325,
+          "actualOffset": 179324.98,
+          "offsetError": 0.02,
+          "viewportHeight": 182,
+          "mountedCount": 12,
+          "mountedRange": [
+            3736,
+            3748
+          ],
+          "expectedVisibleRange": [
+            3736,
+            3740
+          ],
+          "polls": 2,
+          "latencyMs": 111.6,
+          "status": "ready"
+        },
+        {
+          "requestedOffset": 236709,
+          "actualOffset": 236708.69,
+          "offsetError": 0.31,
+          "viewportHeight": 182,
+          "mountedCount": 12,
+          "mountedRange": [
+            4933,
+            4945
+          ],
+          "expectedVisibleRange": [
+            4931,
+            4936
+          ],
+          "polls": 11,
+          "latencyMs": null,
+          "status": "timeout"
+        },
+        {
+          "requestedOffset": 0,
+          "actualOffset": -0.02,
+          "offsetError": 0.02,
+          "viewportHeight": 182,
+          "mountedCount": 9,
+          "mountedRange": [
+            0,
+            9
+          ],
+          "expectedVisibleRange": [
+            0,
+            5
+          ],
+          "polls": 2,
+          "latencyMs": 87.67,
+          "status": "ready"
+        }
+      ]
+    },
+    "mountedRows": {
+      "samples": 520,
+      "p50": 12,
+      "p95": 13,
+      "max": 13
+    },
+    "visibleCoverage": {
+      "samples": 520,
+      "gapSamples": 15,
+      "maxMissingVisibleRows": 2,
+      "missingVisibleRowsAcrossSamples": 22,
+      "maxGapUnits": 182,
+      "stream": {
+        "samples": 501,
+        "gapSamples": 2,
+        "maxMissingVisibleRows": 0,
+        "maxGapUnits": 182,
+        "worst": {
+          "offset": 12000,
+          "missing": 0,
+          "gap": 182
+        }
+      },
+      "deepSeeks": {
+        "samples": 19,
+        "gapSamples": 13,
+        "maxMissingVisibleRows": 2,
+        "maxGapUnits": 182,
+        "worst": {
+          "offset": 236708.69,
+          "missing": 2,
+          "gap": 182
+        }
+      }
+    },
+    "rowChurn": {
+      "mounted": 589,
+      "unmounted": 589
+    },
+    "eventLoopTimerDriftMs": {
+      "samples": 516,
+      "p50": 21.84,
+      "p95": 37.14,
+      "max": 140.68
+    },
+    "measurementNotes": [
+      "Rows mounted and unmounted are identity-set changes observed while polling; they are not native allocation timings.",
+      "The stream reports missed 16 ms offset checkpoints and visible geometry; deep-seek latency includes 16 ms polling and mounted-row readiness.",
+      "Timer drift and checkpoint intervals are JavaScript responsiveness proxies; they do not measure display frame pacing or vsync.",
+      "This scripted offset stream does not reproduce trackpad, wheel, or touch gesture physics."
+    ]
+  },
+  "ios-input-overscroll-recheck-2026-09-30": {
+    "durationMs": 90049,
+    "samples": 3969,
+    "coverage": {
+      "samples": 3968,
+      "gapSamples": 83,
+      "overscrollGapSamples": 83,
+      "contentGapSamples": 0,
+      "maxGap": 75,
+      "maxContentGap": 0
+    },
+    "scroll": {
+      "minOffset": -75,
+      "maxOffset": 888,
+      "maxVelocity": 2967.7
+    },
+    "conclusion": "every sampled geometry gap coincided with UIScrollView elastic overscroll (negative offset or trailing beyond last mounted row); zero in-content coverage defects"
+  },
+  "ios-input-180s-2026-09-30": {
+    "durationMs": 180090,
+    "samples": 7033,
+    "coverage": {
+      "samples": 7032,
+      "gapSamples": 183,
+      "maxGap": 154.7
+    },
+    "scroll": {
+      "minOffset": -154.7,
+      "maxOffset": 987,
+      "maxVelocity": 3416.3
+    },
+    "note": "maxGap equals |minOffset| exactly \u2014 the largest gap is the rubber-band overshoot depth"
+  },
+  "android-emulator-memory-2026-09-30": {
+    "device": "emulator-5554 (xplat AVD, pixel_7) \u2014 physical OnePlus was disconnected; same growth shape reproduced",
+    "durationMs": 180176,
+    "pssMbDuringRun": [
+      181.1,
+      239.9,
+      265.7,
+      297.6,
+      292.0,
+      341.3,
+      350.6
+    ],
+    "pssMbPostGcTail": [
+      349.2,
+      207.5,
+      194.6,
+      194.1,
+      194.1,
+      193.9
+    ],
+    "conclusion": "PSS fell ~157 MB to a ~194 MB plateau within 20 s of the trace's gc() call \u2014 lazy collection, not a leak. End state within ~13 MB of the 181 MB start.",
+    "coverage": {
+      "gapSamples": 0,
+      "overscrollGapSamples": 0,
+      "contentGapSamples": 0
+    }
+  }
+}

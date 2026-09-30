@@ -250,17 +250,24 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
 30. ⏳ **Set the VirtualList fast-scroll and performance boundary.** — Does the
     current bounded, unmounting window stay blank-free and meet an acceptable
     performance budget under sustained fast scrolling and long sessions on
-    web, iOS, and Android? The programmed-offset profile found stream gaps
-    only during Android deep seeks, with 110/501 iOS and 121/501 Android
-    checkpoints lagging. The follow-up injected wheel/swipe gestures and
-    covered fixed-height data plus three-minute memory samples. Fixed-height
-    runs were gap-free on every target. Variable-height runs had no geometry
-    gaps on web or Android, but 272/6,055 iOS samples had uncovered viewport
-    geometry (max 37 pt). Android PSS rose from 211 to
-    346 MB; this is not proof of a leak because native GC was not forced. All
-    inputs were synthetic, and native timing is JavaScript polling rather than
-    vsync. Verify the iOS gaps and Android memory trend, and collect physical
-    trackpad/touch input, before changing overscan or adding recycling.
+    web, iOS, Android, and the macOS AppKit host? The programmed-offset profile
+    found stream gaps only during Android deep seeks, with 110/501 iOS,
+    121/501 Android, and 6/501 macOS checkpoints lagging; deep seeks pass 5/5
+    web, 1/5 iOS, 1/5 Android, and 4/5 macOS (the remaining macOS timeout
+    converges correctly but misses the poll cadence). The follow-up injected
+    wheel/swipe gestures and covered fixed-height data plus three-minute
+    memory samples. Fixed-height runs were gap-free on every target. The
+    iOS variable-height gaps (272/6,055 samples) resolved on 2026-09-30 as
+    UIScrollView elastic overscroll — every gap sample coincided with a
+    rubber-banded offset, and the trace now reports overscroll vs content
+    gaps separately. Android PSS rose from 211 to
+    346 MB on the physical device; a 2026-09-30 emulator recheck reproduced
+    the climb (181→351 MB) and then fell ~157 MB to a ~194 MB plateau after
+    the trace's `globalThis.gc()` call — lazy collection, not a leak. The
+    physical-device recheck is still pending (the OnePlus dropped mid-run).
+    All inputs remain synthetic, and native timing is JavaScript polling
+    rather than vsync. Collect physical trackpad/touch input before deciding
+    whether overscan or recycling is justified.
     Evidence: partial lab experiment in Silo; see
     [primitive-notes](primitive-notes.md#virtuallist-input-and-memory-profile-q30-2026-09-28).
 31. ⏳ **How should shared `openWindow()` expose mobile availability and
