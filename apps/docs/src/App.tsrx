@@ -33,6 +33,7 @@ export function App() @{
 	const route = useRoute('notes') ?? useRoute('root');
 	const slug = route?.name ?? DOCS[0].slug;
 	const doc = DOCS.find((d) => d.slug === slug) ?? DOCS[0];
+	const nextDoc = DOCS[DOCS.findIndex((d) => d.slug === doc.slug) + 1];
 
 	const open = (s: string, anchor?: string) => {
 		const d = DOCS.find((x) => x.slug === s);
@@ -221,6 +222,15 @@ export function App() @{
 				<ScrollView id="doc-content" className="content">
 					<View key={doc.slug} className={leaving ? 'doc-page leaving' : 'doc-page'}>
 						<MdDoc md={doc.md} />
+						{nextDoc && (
+							<Pressable className="doc-next" onPress={() => selectDoc(nextDoc.slug)}>
+								<View className="doc-next-copy">
+									<Text className="doc-next-label">Next page</Text>
+									<Text className="doc-next-title">{nextDoc.title}</Text>
+								</View>
+								<Text className="doc-next-arrow">→</Text>
+							</Pressable>
+						)}
 					</View>
 				</ScrollView>
 			</View>
