@@ -359,12 +359,12 @@ body {
 	right: -280px;
 	width: 523px;
 	height: 523px;
+	opacity: 0.45;
 	pointer-events: none;
 }
 
 .dark .constellation {
 	filter: invert(0.94);
-	opacity: 0.6;
 }
 
 .content {
