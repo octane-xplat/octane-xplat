@@ -193,7 +193,6 @@ body {
 }
 
 .side-divider {
-	margin-top: 16px;
 	border-top-width: 1px;
 	border-top-color: var(--doc-hairline);
 	border-top-style: solid;
