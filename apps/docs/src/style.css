@@ -412,6 +412,7 @@ body {
 	font-weight: 600;
 	color: var(--doc-ink);
 	padding: 10px 10px 4px;
+	margin-bottom: 3px;
 }
 
 .hit {
