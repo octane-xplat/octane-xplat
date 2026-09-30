@@ -2,6 +2,12 @@
 	"$schema": "./node_modules/oxlint/configuration_schema.json",
 	"ignorePatterns": [
 		"**/*.gen.*",
+		"packages/**/types/generated/**",
+		"packages/*/types/types.d.ts",
+		"packages/*/types/props.d.ts",
+		"packages/motion/types/clock-types.d.ts",
+		"packages/motion/types/engine.d.ts",
+		"packages/motion/types/value.d.ts",
 		"**/vendor/**"
 	],
 	"jsPlugins": [
