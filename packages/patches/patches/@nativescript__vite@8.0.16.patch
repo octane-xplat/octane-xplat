@@ -74,6 +74,22 @@ index a05696b679b3feecd1bafa267de44b59db559162..06648067a3fcf7f8c74437a82b94ec01
      }
      return ['.native', ''];
  }
+diff --git a/hmr/frameworks/vue/server/sfc-route-serve.js b/hmr/frameworks/vue/server/sfc-route-serve.js
+index 5d07b987bfe89d835858ea04b2536e43e8956db4..cc15c2d15dc8cf9a9525695c87f5df3840fc5daf 100644
+--- a/hmr/frameworks/vue/server/sfc-route-serve.js
++++ b/hmr/frameworks/vue/server/sfc-route-serve.js
+@@ -54,6 +54,11 @@ export function registerSfcServeRoute(server, options) {
+             if (pathStyle && pathStyle !== '/' && !pathParam) {
+                 if (!pathStyle.startsWith('/'))
+                     pathStyle = '/' + pathStyle;
++                // URL.pathname stays percent-encoded; decode before the query is appended.
++                try {
++                    pathStyle = decodeURIComponent(pathStyle);
++                }
++                catch { }
+                 // Include endpoint query for variant-style requests (e.g. /ns/sfc/Comp.vue?vue&type=template)
+                 pathParam = pathStyle + (urlObj.search || '');
+             }
 diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
 index 8f2fa15556244f7ef811b5e2ea0fc6a19bab74d3..80137262ec46d347d39a7ee12d66d649b5f909f5 100644
 --- a/hmr/server/deps-bundle.js

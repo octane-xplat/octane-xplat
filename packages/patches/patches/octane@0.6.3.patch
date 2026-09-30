@@ -1,5 +1,5 @@
 diff --git a/dist/cjs/runtime.cjs b/dist/cjs/runtime.cjs
-index 6f4f11c..dc96ffa 100644
+index 6f4f11cafea50ca0de062aace3426df371a44867..dc96ffaa91081ca81f904de35ed5db9a024daa96 100644
 --- a/dist/cjs/runtime.cjs
 +++ b/dist/cjs/runtime.cjs
 @@ -354,6 +354,7 @@ var import_stream_protocol = require("./stream-protocol.cjs");
@@ -19,7 +19,7 @@ index 6f4f11c..dc96ffa 100644
    const s = readStateHook(initial, slot, arguments.length === 1);
    return [s.value, s.setter];
 diff --git a/dist/cjs/signals/client.cjs b/dist/cjs/signals/client.cjs
-index 28e2844..af40518 100644
+index 28e28444192dee7af64351cfe02d5dde96658832..af40518defca21eb88707eb76bb6fe10c1d266e7 100644
 --- a/dist/cjs/signals/client.cjs
 +++ b/dist/cjs/signals/client.cjs
 @@ -23,13 +23,13 @@ __export(client_exports, {
@@ -39,7 +39,7 @@ index 28e2844..af40518 100644
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/cjs/signals/document-owner.cjs b/dist/cjs/signals/document-owner.cjs
-index ea6b304..56a7439 100644
+index ea6b3040bcc3d1fe0c600894af33fece59711d4b..56a74394b0e40f0ca1dc9b1afb1b44e5a695994f 100644
 --- a/dist/cjs/signals/document-owner.cjs
 +++ b/dist/cjs/signals/document-owner.cjs
 @@ -54,7 +54,9 @@ function enableSignalDocument(abi = 1) {
@@ -54,7 +54,7 @@ index ea6b304..56a7439 100644
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/cjs/signals/facade.cjs b/dist/cjs/signals/facade.cjs
-index 9da71c1..02db86c 100644
+index 9da71c1a774d4764d6e34df12211a08ae2817d5c..02db86c39e23717e0fedb83eb7faf62e4cca7780 100644
 --- a/dist/cjs/signals/facade.cjs
 +++ b/dist/cjs/signals/facade.cjs
 @@ -283,6 +283,8 @@ class Descriptor {
@@ -94,7 +94,7 @@ index 9da71c1..02db86c 100644
      const run = (0, import_owner_context.captureSignalOwner)(token);
      return this[import_types.SIGNAL_OWNER_RESOLVE](scope).subscribe((0, import_read_protocol.forwardNativeTransitionConsumer)(notify, () => run(notify)));
 diff --git a/dist/cjs/signals/index.cjs b/dist/cjs/signals/index.cjs
-index 865afcf..08dd675 100644
+index 865afcf87d84f0cc319d65145b246c9c033927aa..08dd675a49a50c1621e5d3c5a26ca22f8cdbb31d 100644
 --- a/dist/cjs/signals/index.cjs
 +++ b/dist/cjs/signals/index.cjs
 @@ -34,6 +34,7 @@ __export(signals_exports, {
@@ -123,7 +123,7 @@ index 865afcf..08dd675 100644
    __startSignalReads,
 diff --git a/dist/cjs/signals/local-hook.cjs b/dist/cjs/signals/local-hook.cjs
 new file mode 100644
-index 0000000..4858595
+index 0000000000000000000000000000000000000000..4858595ce50e97284f18daa94c3b5ce6ab041dd4
 --- /dev/null
 +++ b/dist/cjs/signals/local-hook.cjs
 @@ -0,0 +1,44 @@
@@ -173,7 +173,7 @@ index 0000000..4858595
 +});
 diff --git a/dist/cjs/signals/universal-owner.cjs b/dist/cjs/signals/universal-owner.cjs
 new file mode 100644
-index 0000000..00c323a
+index 0000000000000000000000000000000000000000..00c323a8bd4453d566dbd002ab1222f03def2760
 --- /dev/null
 +++ b/dist/cjs/signals/universal-owner.cjs
 @@ -0,0 +1,46 @@
@@ -223,8 +223,40 @@ index 0000000..00c323a
 +  installUniversalSignalDocumentProvider,
 +  universalSignalDocument
 +});
+diff --git a/dist/compiler/compile-universal.js b/dist/compiler/compile-universal.js
+index fb05864726848fec0e680cc06de3cfe88f9930de..e1ae8e2314f2cc61a7a6cbd38ae0fadea8aa08bf 100644
+--- a/dist/compiler/compile-universal.js
++++ b/dist/compiler/compile-universal.js
+@@ -2658,6 +2658,15 @@ function hasOwnTemplateReturn(fn) {
+ }
+ 
+ function componentRender(fn, state, force = false) {
++	// Functions that are never invoked as components stay ordinary functions,
++	// so an async/generator helper only fails once it is actually compiled as
++	// one (the `@{ … }` form, a JSX-shaped return, or component usage).
++	const component =
++		fn.body?.type === 'JSXCodeBlock' ||
++		(fn.body?.type !== 'BlockStatement'
++			? force || isTemplateNode(fn.body)
++			: force || hasOwnTemplateReturn(fn) || state.componentNames.has(functionName(fn)));
++	if (!component) return null;
+ 	if (fn.async || fn.generator) {
+ 		throw universalError(
+ 			state.filename,
+@@ -2672,11 +2681,8 @@ function componentRender(fn, state, force = false) {
+ 		};
+ 	}
+ 	if (fn.body?.type !== 'BlockStatement') {
+-		if (!force && !isTemplateNode(fn.body)) return null;
+ 		return { setup: [], render: isTemplateNode(fn.body) ? fn.body : null, expression: fn.body };
+ 	}
+-	if (!force && !hasOwnTemplateReturn(fn) && !state.componentNames.has(functionName(fn)))
+-		return null;
+ 	return { setup: fn.body.body ?? [], render: null };
+ }
+ 
 diff --git a/dist/compiler/compile.js b/dist/compiler/compile.js
-index cdf5a08..64a3571 100644
+index cdf5a08e96946bf06dd417dcfb87373e4be5f305..64a357159586e45774ff864f4478b204bb0dd7ab 100644
 --- a/dist/compiler/compile.js
 +++ b/dist/compiler/compile.js
 @@ -2275,7 +2275,7 @@ function classifyViewTransitionOwnership(astBody, production, ownComponents) {
@@ -307,7 +339,7 @@ index cdf5a08..64a3571 100644
  			if (isBuiltin || isServerUse) {
  				if (isBuiltin) {
 diff --git a/dist/compiler/native-read-diagnostics.js b/dist/compiler/native-read-diagnostics.js
-index 3ec74f3..0816e98 100644
+index 3ec74f384e5b34a8032c96646e9ba3faeee50e75..0816e98d66d5082d8d3bb337073c2123e6032c4c 100644
 --- a/dist/compiler/native-read-diagnostics.js
 +++ b/dist/compiler/native-read-diagnostics.js
 @@ -87,9 +87,12 @@ export function assertNativeReadOptions(options) {
@@ -343,7 +375,7 @@ index 3ec74f3..0816e98 100644
  			return [
  				nativeReadDiagnostic(
 diff --git a/dist/compiler/slot-hooks.js b/dist/compiler/slot-hooks.js
-index 7b2f867..2c1d36c 100644
+index 7b2f867538a166ebaf3d1a8aa6e7d910e3b0da12..2c1d36c9edb32c483a5e7ed736e51b0ca12cde30 100644
 --- a/dist/compiler/slot-hooks.js
 +++ b/dist/compiler/slot-hooks.js
 @@ -1182,12 +1182,12 @@ function walk(node, owner, st) {
@@ -396,7 +428,7 @@ index 7b2f867..2c1d36c 100644
  		let specifiers = signalHelperImports.get(request);
  		if (specifiers === undefined) signalHelperImports.set(request, (specifiers = []));
 diff --git a/dist/node/runtime.js b/dist/node/runtime.js
-index 21d10d9..2a0b420 100644
+index 21d10d95b6094ee07693a8b0757ca381d706b86e..2a0b4204dbcc6a0a749fcdbecfe93241d73dd768 100644
 --- a/dist/node/runtime.js
 +++ b/dist/node/runtime.js
 @@ -162,6 +162,7 @@ import {
@@ -416,7 +448,7 @@ index 21d10d9..2a0b420 100644
    const s = readStateHook(initial, slot, arguments.length === 1);
    return [s.value, s.setter];
 diff --git a/dist/node/signals/client.js b/dist/node/signals/client.js
-index 21a39c3..3f85700 100644
+index 21a39c3ce9a28d2095e276fd647fd795e939a0bf..3f85700b57cbc3084c2df776ab3e6b5365f091a8 100644
 --- a/dist/node/signals/client.js
 +++ b/dist/node/signals/client.js
 @@ -1,11 +1,11 @@
@@ -434,7 +466,7 @@ index 21a39c3..3f85700 100644
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/node/signals/document-owner.js b/dist/node/signals/document-owner.js
-index 0decc92..59a9486 100644
+index 0decc9286f8d06e78dd15eaa16d0cc53cac44220..59a94863274839675c48880bf37018fddd00ec11 100644
 --- a/dist/node/signals/document-owner.js
 +++ b/dist/node/signals/document-owner.js
 @@ -27,7 +27,9 @@ function enableSignalDocument(abi = 1) {
@@ -449,7 +481,7 @@ index 0decc92..59a9486 100644
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/node/signals/facade.js b/dist/node/signals/facade.js
-index 86c0233..594e697 100644
+index 86c0233dad7013c6516912656e0e1b304351c1cb..594e697b59f19e95821ed09313835842a7afe33e 100644
 --- a/dist/node/signals/facade.js
 +++ b/dist/node/signals/facade.js
 @@ -241,6 +241,8 @@ class Descriptor {
@@ -489,7 +521,7 @@ index 86c0233..594e697 100644
      const run = captureSignalOwner(token);
      return this[SIGNAL_OWNER_RESOLVE](scope).subscribe(forwardNativeTransitionConsumer(notify, () => run(notify)));
 diff --git a/dist/node/signals/index.js b/dist/node/signals/index.js
-index 8ae19e5..0bf09f5 100644
+index 8ae19e510a09e8144ae2ab66c0daf293a4a3f8f6..0bf09f5276e9e1a38ef67923b9cc2a441be2ce7f 100644
 --- a/dist/node/signals/index.js
 +++ b/dist/node/signals/index.js
 @@ -1,6 +1,7 @@
@@ -510,7 +542,7 @@ index 8ae19e5..0bf09f5 100644
    __startSignalReads,
 diff --git a/dist/node/signals/local-hook.js b/dist/node/signals/local-hook.js
 new file mode 100644
-index 0000000..77c63f5
+index 0000000000000000000000000000000000000000..77c63f5e2d931eb8dbd384ae027ee0f09935f9ce
 --- /dev/null
 +++ b/dist/node/signals/local-hook.js
 @@ -0,0 +1,19 @@
@@ -535,7 +567,7 @@ index 0000000..77c63f5
 +};
 diff --git a/dist/node/signals/universal-owner.js b/dist/node/signals/universal-owner.js
 new file mode 100644
-index 0000000..ff5eb43
+index 0000000000000000000000000000000000000000..ff5eb43e8f0ddcadbcf8e861f42788b389b4d99b
 --- /dev/null
 +++ b/dist/node/signals/universal-owner.js
 @@ -0,0 +1,20 @@
@@ -560,7 +592,7 @@ index 0000000..ff5eb43
 +  universalSignalDocument
 +};
 diff --git a/dist/node/universal-core.js b/dist/node/universal-core.js
-index 4dbe2f9..aaffba8 100644
+index 4dbe2f938d039d415b44821bcb3be520172bcada..aaffba80e3f94c909b5eb2f6156baac19c65808c 100644
 --- a/dist/node/universal-core.js
 +++ b/dist/node/universal-core.js
 @@ -17,6 +17,14 @@ import {
@@ -775,7 +807,7 @@ index 4dbe2f9..aaffba8 100644
          const deactivatedRegionCells = /* @__PURE__ */ new Set();
          for (const bridge of regionBridges) {
 diff --git a/dist/node/universal-native.js b/dist/node/universal-native.js
-index 55ac9b6..3ff9a57 100644
+index 55ac9b640dc8bbfd977bb2cbe0b7993c8ddb425a..3ff9a5750fb59cd91b63299aec3a3e0c030b4579 100644
 --- a/dist/node/universal-native.js
 +++ b/dist/node/universal-native.js
 @@ -6,9 +6,11 @@ import {
@@ -791,7 +823,7 @@ index 55ac9b6..3ff9a57 100644
  function createContext(defaultValue) {
    const context = ((props, scope) => scope === void 0 ? universalContext(context, props.value, props.children) : renderRendererContextProvider(context, props, scope));
 diff --git a/dist/node/universal.js b/dist/node/universal.js
-index 6427a01..8049b78 100644
+index 6427a0190c072e7e4629c379e42bedc03669dc6e..8049b7880824de607157091004a46c9d33a23484 100644
 --- a/dist/node/universal.js
 +++ b/dist/node/universal.js
 @@ -8,6 +8,9 @@ import {
@@ -805,7 +837,7 @@ index 6427a01..8049b78 100644
    createContext,
    createSubSlot,
 diff --git a/dist/runtime.js b/dist/runtime.js
-index ee2a2bd..4f9f1b5 100644
+index ee2a2bdd0e0909921fc43ed073be0fbc7f6ec585..4f9f1b5b7782bc0e42799ddb847d22f617a4885f 100644
 --- a/dist/runtime.js
 +++ b/dist/runtime.js
 @@ -161,6 +161,7 @@ import {
@@ -825,7 +857,7 @@ index ee2a2bd..4f9f1b5 100644
    const s = readStateHook(initial, slot, arguments.length === 1);
    return [s.value, s.setter];
 diff --git a/dist/signals/client.d.ts b/dist/signals/client.d.ts
-index 6388c2f..f9e9862 100644
+index 6388c2f98517884a13af720687fb81c1f18357be..f9e98624f159cccf02a379d79201751fc07694d8 100644
 --- a/dist/signals/client.d.ts
 +++ b/dist/signals/client.d.ts
 @@ -1,4 +1,4 @@
@@ -835,7 +867,7 @@ index 6388c2f..f9e9862 100644
  import type { WritableSignal } from './types.js';
  /** A writable signal owned by this compiler-assigned component hook slot. */
 diff --git a/dist/signals/client.js b/dist/signals/client.js
-index 21a39c3..3f85700 100644
+index 21a39c3ce9a28d2095e276fd647fd795e939a0bf..3f85700b57cbc3084c2df776ab3e6b5365f091a8 100644
 --- a/dist/signals/client.js
 +++ b/dist/signals/client.js
 @@ -1,11 +1,11 @@
@@ -853,7 +885,7 @@ index 21a39c3..3f85700 100644
      () => {
        const value = typeof initial === "function" ? initial() : initial;
 diff --git a/dist/signals/document-owner.js b/dist/signals/document-owner.js
-index cd4e628..078dcd3 100644
+index cd4e628f79d9fed839c089a89e711d446d2e18a4..078dcd31218022b69086238180e6b236e7d8224f 100644
 --- a/dist/signals/document-owner.js
 +++ b/dist/signals/document-owner.js
 @@ -26,7 +26,9 @@ function enableSignalDocument(abi = 1) {
@@ -868,7 +900,7 @@ index cd4e628..078dcd3 100644
  function installStreamedSignalOwnerActivator(activate) {
    if (streamedSignalOwnerActivator !== void 0) {
 diff --git a/dist/signals/facade.js b/dist/signals/facade.js
-index 5ab4b73..7b23010 100644
+index 5ab4b73f2e8276b3ade5f04e8fa647efd76cb830..7b23010b7440b698ac4775b44cf16dc55625654d 100644
 --- a/dist/signals/facade.js
 +++ b/dist/signals/facade.js
 @@ -240,6 +240,8 @@ class Descriptor {
@@ -908,7 +940,7 @@ index 5ab4b73..7b23010 100644
      const run = captureSignalOwner(token);
      return this[SIGNAL_OWNER_RESOLVE](scope).subscribe(forwardNativeTransitionConsumer(notify, () => run(notify)));
 diff --git a/dist/signals/index.d.ts b/dist/signals/index.d.ts
-index 95f32a2..9855985 100644
+index 95f32a27af860c358714eeadfbdcbc18bc323d9d..98559855b07e84b61915dba198f357505d584175 100644
 --- a/dist/signals/index.d.ts
 +++ b/dist/signals/index.d.ts
 @@ -3,6 +3,7 @@ export { createScope } from './engine.js';
@@ -920,7 +952,7 @@ index 95f32a2..9855985 100644
  export { ActionUncertainError, action$, isActionUncertain, optimistic$ } from './actions.js';
  export { __derivedAt, derived$ } from './derived-facade.js';
 diff --git a/dist/signals/index.js b/dist/signals/index.js
-index 8ae19e5..0bf09f5 100644
+index 8ae19e510a09e8144ae2ab66c0daf293a4a3f8f6..0bf09f5276e9e1a38ef67923b9cc2a441be2ce7f 100644
 --- a/dist/signals/index.js
 +++ b/dist/signals/index.js
 @@ -1,6 +1,7 @@
@@ -941,7 +973,7 @@ index 8ae19e5..0bf09f5 100644
    __startSignalReads,
 diff --git a/dist/signals/local-hook.d.ts b/dist/signals/local-hook.d.ts
 new file mode 100644
-index 0000000..d6c1770
+index 0000000000000000000000000000000000000000..d6c1770fc22b738e0e107b6616f60eaf676d853e
 --- /dev/null
 +++ b/dist/signals/local-hook.d.ts
 @@ -0,0 +1,16 @@
@@ -963,7 +995,7 @@ index 0000000..d6c1770
 +export declare function localSignalHook<T>(name: string, initialize: () => T, dispose: (value: T) => void, slot?: symbol | number): T;
 diff --git a/dist/signals/local-hook.js b/dist/signals/local-hook.js
 new file mode 100644
-index 0000000..77c63f5
+index 0000000000000000000000000000000000000000..77c63f5e2d931eb8dbd384ae027ee0f09935f9ce
 --- /dev/null
 +++ b/dist/signals/local-hook.js
 @@ -0,0 +1,19 @@
@@ -988,7 +1020,7 @@ index 0000000..77c63f5
 +};
 diff --git a/dist/signals/universal-owner.d.ts b/dist/signals/universal-owner.d.ts
 new file mode 100644
-index 0000000..0e57f3a
+index 0000000000000000000000000000000000000000..0e57f3a79115c858355f863434c6e3423570067b
 --- /dev/null
 +++ b/dist/signals/universal-owner.d.ts
 @@ -0,0 +1,10 @@
@@ -1004,7 +1036,7 @@ index 0000000..0e57f3a
 +export declare function enableUniversalSignalDocument(abi?: number): void;
 diff --git a/dist/signals/universal-owner.js b/dist/signals/universal-owner.js
 new file mode 100644
-index 0000000..ff5eb43
+index 0000000000000000000000000000000000000000..ff5eb43e8f0ddcadbcf8e861f42788b389b4d99b
 --- /dev/null
 +++ b/dist/signals/universal-owner.js
 @@ -0,0 +1,20 @@
@@ -1029,7 +1061,7 @@ index 0000000..ff5eb43
 +  universalSignalDocument
 +};
 diff --git a/dist/universal-core.js b/dist/universal-core.js
-index 4dbe2f9..aaffba8 100644
+index 4dbe2f938d039d415b44821bcb3be520172bcada..aaffba80e3f94c909b5eb2f6156baac19c65808c 100644
 --- a/dist/universal-core.js
 +++ b/dist/universal-core.js
 @@ -17,6 +17,14 @@ import {
@@ -1244,7 +1276,7 @@ index 4dbe2f9..aaffba8 100644
          const deactivatedRegionCells = /* @__PURE__ */ new Set();
          for (const bridge of regionBridges) {
 diff --git a/dist/universal-native.js b/dist/universal-native.js
-index 55ac9b6..3ff9a57 100644
+index 55ac9b640dc8bbfd977bb2cbe0b7993c8ddb425a..3ff9a5750fb59cd91b63299aec3a3e0c030b4579 100644
 --- a/dist/universal-native.js
 +++ b/dist/universal-native.js
 @@ -6,9 +6,11 @@ import {
@@ -1260,7 +1292,7 @@ index 55ac9b6..3ff9a57 100644
  function createContext(defaultValue) {
    const context = ((props, scope) => scope === void 0 ? universalContext(context, props.value, props.children) : renderRendererContextProvider(context, props, scope));
 diff --git a/dist/universal.js b/dist/universal.js
-index 6427a01..8049b78 100644
+index 6427a0190c072e7e4629c379e42bedc03669dc6e..8049b7880824de607157091004a46c9d33a23484 100644
 --- a/dist/universal.js
 +++ b/dist/universal.js
 @@ -8,6 +8,9 @@ import {

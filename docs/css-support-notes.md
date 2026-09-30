@@ -95,12 +95,15 @@ they run per-module in dev and on the emitted `.css` asset in build
    `float`, `box-shadow`, `white-space:pre-wrap` — each message names the
    portable alternative.
 
-**`@import` bypasses all of it.** The transform sees each css *module's* raw
-text; `@import` chains are inlined by vite's own css pass, so imported rules
-ship un-stripped and un-rewritten — including `xplat-web-only` rules, which
-then apply for real (`transform: translate(-50%,-50%)` lands as a −50dip
-view offset; measured in the parity lane 2026-09-26). Entry files must
-import css as JS modules — `import '@pkg/file.css'`, one per file, like
+**`@import` bypasses the plugin transform.** The transform sees each css
+*module's* raw text; `@import` chains are inlined by vite's own css pass, so
+imported rules ship un-stripped and un-rewritten. `xplat-web-only` rules still
+apply on native, and `px` values skip the px-to-dip rewrite. The parity lane
+measured `transform: translate(-50%,-50%)` as a −50dip view offset on
+2026-09-26; the maintained NativeScript core patch now preserves percentage
+translates and resolves each axis against the view's own bounds. That fix is
+source-reviewed but has not been app-verified. Entry files must still import
+css as JS modules — `import '@pkg/file.css'`, one per file, like
 `apps/web/src/main.tsrx`. The transform warns when a `.css` source contains
 `@import`.
 

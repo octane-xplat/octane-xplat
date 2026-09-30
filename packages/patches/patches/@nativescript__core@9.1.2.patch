@@ -1,5 +1,509 @@
+diff --git a/css/css-tree-parser.js b/css/css-tree-parser.js
+index 0c13e7e67a8eb306248d738bb73189b772b4a409..7ce38a9ba8f1f9aef709136b46f8e5b2435ba714 100644
+--- a/css/css-tree-parser.js
++++ b/css/css-tree-parser.js
+@@ -66,6 +66,10 @@ function transformAst(node, css, type = null) {
+             atrule.keyframes = transformAst(node.block, css, 'keyframe');
+             atrule.vendor = undefined;
+         }
++        else if (node.name === 'layer') {
++            atrule.layer = node.prelude ? node.prelude.value.trim() : '';
++            atrule.rules = transformAst(node.block, css);
++        }
+         else {
+             atrule.rules = transformAst(node.block, css);
+         }
+diff --git a/css/reworkcss.d.ts b/css/reworkcss.d.ts
+index 3ac4f618f307864cb95b70cd01f4ecdc42c9d9e4..1906ed1457de195a799c9e938136f078e7ed6307 100644
+--- a/css/reworkcss.d.ts
++++ b/css/reworkcss.d.ts
+@@ -10,7 +10,7 @@ export interface Position {
+     };
+ }
+ export interface Node {
+-    type: 'rule' | 'keyframes' | 'declaration' | 'import' | 'media';
++    type: 'rule' | 'keyframes' | 'declaration' | 'import' | 'media' | 'layer';
+     position: Position;
+ }
+ export interface Declaration extends Node {
+@@ -21,7 +21,7 @@ export interface Rule extends Node {
+     selectors: string[];
+     declarations: Declaration[];
+ }
+-export type AtRule = KeyFrames | Media;
++export type AtRule = KeyFrames | Media | Layer;
+ export interface Keyframes extends Rule {
+     name: string;
+     vendor?: string;
+@@ -35,6 +35,11 @@ export interface Media extends Node {
+     media: string;
+     rules: Array<Rule | AtRule>;
+ }
++export interface Layer extends Node {
++    /** Layer-name prelude — '' for an anonymous block. Statement form (`@layer a, b;`) leaves rules undefined. */
++    layer: string;
++    rules?: Array<Rule | AtRule>;
++}
+ export interface StyleSheet {
+     rules: Rule[];
+ }
+diff --git a/ui/animation/animation-common.js b/ui/animation/animation-common.js
+index d67e3c208de1a37d07aa3ee97f7f64e58ca1c1c4..60415ea6c023212727d090d724793b4ff5cf3b93 100644
+--- a/ui/animation/animation-common.js
++++ b/ui/animation/animation-common.js
+@@ -106,10 +106,26 @@ export class AnimationBase {
+                 console.error(`Property ${item} must be valid number. Value: ${value}`);
+                 return;
+             }
+-            else if ((item === Properties.scale || item === Properties.translate) && (typeof value.x !== 'number' || typeof value.y !== 'number')) {
++            else if (item === Properties.scale && (typeof value.x !== 'number' || typeof value.y !== 'number')) {
+                 console.error(`Property ${item} must be valid Pair. Value: ${value}`);
+                 return;
+             }
++            else if (item === Properties.translate) {
++                // Coerce input into PercentLength values so that percentage
++                // translates (e.g. from keyframe transforms) are preserved.
++                try {
++                    const x = PercentLength.parse(value.x);
++                    const y = PercentLength.parse(value.y);
++                    if (!isValidTranslateValue(x) || !isValidTranslateValue(y)) {
++                        throw new Error();
++                    }
++                    animationDefinition[item] = { x, y };
++                }
++                catch {
++                    console.error(`Property ${item} must be valid Pair. Value: ${value}`);
++                    return;
++                }
++            }
+             else if (item === Properties.backgroundColor && !Color.isValid(animationDefinition.backgroundColor)) {
+                 console.error(`Property ${item} must be valid color. Value: ${value}`);
+                 return;
+@@ -236,4 +252,13 @@ export class AnimationBase {
+         });
+     }
+ }
++function isValidTranslateValue(value) {
++    if (typeof value === 'number') {
++        return true;
++    }
++    if (!value || typeof value !== 'object') {
++        return false;
++    }
++    return (value.unit === 'px' || value.unit === 'dip' || value.unit === '%') && typeof value.value === 'number';
++}
+ //# sourceMappingURL=animation-common.js.map
+\ No newline at end of file
+diff --git a/ui/animation/animation-shared.d.ts b/ui/animation/animation-shared.d.ts
+index 4d5239dc6d6d4dd4d22e34f68b9a2c246fb2f16a..eb216e70300d7a186d40b20d27860a17eb6815f4 100644
+--- a/ui/animation/animation-shared.d.ts
++++ b/ui/animation/animation-shared.d.ts
+@@ -6,17 +6,21 @@ export type Transformation = {
+     value: TransformationValue;
+ };
+ export type TransformationType = 'rotate' | 'rotate3d' | 'rotateX' | 'rotateY' | 'translate' | 'translate3d' | 'translateX' | 'translateY' | 'scale' | 'scale3d' | 'scaleX' | 'scaleY';
+-export type TransformationValue = Point3D | Pair | number;
++export type TransformationValue = Point3D | Pair | TranslatePair | number;
+ export interface Point3D {
+     x: number;
+     y: number;
+     z: number;
+ }
+ export type TransformFunctionsInfo = {
+-    translate: Pair;
++    translate: TranslatePair;
+     rotate: Point3D;
+     scale: Pair;
+ };
++export interface TranslatePair {
++    x: CoreTypes.PercentLengthType;
++    y: CoreTypes.PercentLengthType;
++}
+ export interface Pair {
+     x: number;
+     y: number;
+@@ -29,10 +33,7 @@ export interface AnimationDefinition {
+     target?: View;
+     opacity?: number;
+     backgroundColor?: Color | any;
+-    translate?: Pair | {
+-        x: number;
+-        y: number;
+-    };
++    translate?: TranslatePair;
+     scale?: Pair | {
+         x: number;
+         y: number;
+diff --git a/ui/animation/index.android.js b/ui/animation/index.android.js
+index a9328887ae7ad20eadc75f46d9829ce4d3716b6f..55d0cad961eb9b4e47b007f4a2de7424a98aa890 100644
+--- a/ui/animation/index.android.js
++++ b/ui/animation/index.android.js
+@@ -304,7 +304,7 @@ export class Animation extends AnimationBase {
+                         propertyAnimation.target[translateYProperty.setNative](propertyAnimation.target.style.translateY);
+                     }
+                 });
+-                animators.push(createAnimationSet([createObjectAnimator(nativeView, 'translationX', propertyAnimation.value.x * density), createObjectAnimator(nativeView, 'translationY', propertyAnimation.value.y * density)], propertyAnimation.iterations));
++                animators.push(createAnimationSet([createObjectAnimator(nativeView, 'translationX', PercentLength.toDevicePixels(propertyAnimation.value.x, 0, nativeView.getWidth())), createObjectAnimator(nativeView, 'translationY', PercentLength.toDevicePixels(propertyAnimation.value.y, 0, nativeView.getHeight()))], propertyAnimation.iterations));
+                 break;
+             case Properties.scale:
+                 scaleXProperty._initDefaultNativeValue(style);
+diff --git a/ui/animation/index.d.ts b/ui/animation/index.d.ts
+index 24292e7aa38a0e915e19843551121d336d39d477..47307b90625d2dc09b3ca00b91882d7d8e542864 100644
+--- a/ui/animation/index.d.ts
++++ b/ui/animation/index.d.ts
+@@ -1,4 +1,4 @@
+-﻿export type { Pair, Transformation, TransformationType, TransformationValue, TransformFunctionsInfo, Point3D, AnimationPromise, Cancelable } from './animation-types';
++﻿export type { Pair, TranslatePair, Transformation, TransformationType, TransformationValue, TransformFunctionsInfo, Point3D, AnimationPromise, Cancelable } from './animation-types';
+ export { KeyframeAnimation, KeyframeAnimationInfo, KeyframeDeclaration, KeyframeInfo } from './keyframe-animation';
+ import type { AnimationDefinition, AnimationPromise } from './animation-types';
+ 
+diff --git a/ui/animation/index.ios.js b/ui/animation/index.ios.js
+index 25f3c19349a389341676963351b6315f9181c1fc..f2d0eeb42ac12daa0fa4dd5ce1c704103501a736 100644
+--- a/ui/animation/index.ios.js
++++ b/ui/animation/index.ios.js
+@@ -3,6 +3,7 @@ import { AnimationBase, Properties } from './animation-common';
+ import { CubicBezierAnimationCurve } from '../../core-types/animation-types';
+ import { Trace } from '../../trace';
+ import { opacityProperty, backgroundColorProperty, rotateProperty, rotateXProperty, rotateYProperty, translateXProperty, translateYProperty, scaleXProperty, scaleYProperty, heightProperty, widthProperty } from '../styling/style-properties';
++import { resolveTranslate } from '../styling/css-transform';
+ import { PercentLength } from '../styling/length-shared';
+ import { ios as iosBackground } from '../styling/background';
+ import { ios as iosViewUtils } from '../utils';
+@@ -329,7 +330,8 @@ export class Animation extends AnimationBase {
+                     };
+                     propertyNameToAnimate = 'transform';
+                     fromValue = NSValue.valueWithCATransform3D(nativeView.layer.transform);
+-                    toValue = NSValue.valueWithCATransform3D(CATransform3DTranslate(nativeView.layer.transform, toValue.x, toValue.y, 0));
++                    const bounds = nativeView.bounds.size;
++                    toValue = NSValue.valueWithCATransform3D(CATransform3DTranslate(nativeView.layer.transform, resolveTranslate(toValue.x, bounds.width), resolveTranslate(toValue.y, bounds.height), 0));
+                     break;
+                 case Properties.scale:
+                     if (toValue.x === 0) {
+@@ -583,8 +585,9 @@ export class Animation extends AnimationBase {
+         const value = animation.value;
+         let result = CATransform3DIdentity;
+         if (value[Properties.translate] !== undefined) {
+-            const x = value[Properties.translate].x;
+-            const y = value[Properties.translate].y;
++            const bounds = animation.target.nativeViewProtected ? animation.target.nativeViewProtected.bounds.size : { width: 0, height: 0 };
++            const x = resolveTranslate(value[Properties.translate].x, bounds.width);
++            const y = resolveTranslate(value[Properties.translate].y, bounds.height);
+             result = CATransform3DTranslate(result, x, y, 0);
+         }
+         if (value[Properties.scale] !== undefined) {
+@@ -793,7 +796,8 @@ function calculateTransform(view) {
+     if (view.rotateX || view.rotateY) {
+         expectedTransform.m34 = -1 / perspective;
+     }
+-    expectedTransform = CATransform3DTranslate(expectedTransform, view.translateX, view.translateY, 0);
++    const bounds = view.nativeViewProtected ? view.nativeViewProtected.bounds.size : { width: 0, height: 0 };
++    expectedTransform = CATransform3DTranslate(expectedTransform, resolveTranslate(view.translateX, bounds.width), resolveTranslate(view.translateY, bounds.height), 0);
+     expectedTransform = iosHelper.applyRotateTransform(expectedTransform, view.rotateX, view.rotateY, view.rotate);
+     expectedTransform = CATransform3DScale(expectedTransform, scaleX, scaleY, 1);
+     return expectedTransform;
+diff --git a/ui/animation/keyframe-animation.d.ts b/ui/animation/keyframe-animation.d.ts
+index 3be12d5c382176ca302bc318f8d24e0434e00f51..7e34c4329780fb0cc623dbf28934b17610d427c6 100644
+--- a/ui/animation/keyframe-animation.d.ts
++++ b/ui/animation/keyframe-animation.d.ts
+@@ -38,8 +38,8 @@ interface Keyframe {
+         y: number;
+     };
+     translate?: {
+-        x: number;
+-        y: number;
++        x: CoreTypes.PercentLengthType;
++        y: CoreTypes.PercentLengthType;
+     };
+     rotate?: {
+         x: number;
+diff --git a/ui/core/view/index.android.d.ts b/ui/core/view/index.android.d.ts
+index d540ec1993b7745ac600bc1bb542779024d1bcfa..867345daa6f5a8ded5f3a0ae0655562a3581870e 100644
+--- a/ui/core/view/index.android.d.ts
++++ b/ui/core/view/index.android.d.ts
+@@ -58,8 +58,8 @@ export declare class View extends ViewCommon {
+     [perspectiveProperty.setNative]: (value: number) => void;
+     [scaleXProperty.setNative]: (value: number) => void;
+     [scaleYProperty.setNative]: (value: number) => void;
+-    [translateXProperty.setNative]: (value: CoreTypes.dip) => void;
+-    [translateYProperty.setNative]: (value: CoreTypes.dip) => void;
++    [translateXProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
++    [translateYProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
+     [zIndexProperty.getDefault]: () => number;
+     [zIndexProperty.setNative]: (value: number) => void;
+     [backgroundInternalProperty.getDefault]: () => android.graphics.drawable.Drawable;
+diff --git a/ui/core/view/index.android.js b/ui/core/view/index.android.js
+index b17d5f174ff636be2ac5a18ad06e7986a177f3bc..50bd1c764244d3cb8d7fd5ad8ae7bbcd234c152e 100644
+--- a/ui/core/view/index.android.js
++++ b/ui/core/view/index.android.js
+@@ -6,6 +6,8 @@ import { Trace } from '../../../trace';
+ import { hiddenProperty } from '../view-base';
+ import { isCssWideKeyword } from '../properties/property-shared';
+ import { perspectiveProperty, visibilityProperty, opacityProperty, horizontalAlignmentProperty, verticalAlignmentProperty, minWidthProperty, minHeightProperty, maxWidthProperty, maxHeightProperty, widthProperty, heightProperty, marginLeftProperty, marginTopProperty, marginRightProperty, marginBottomProperty, rotateProperty, rotateXProperty, rotateYProperty, scaleXProperty, scaleYProperty, translateXProperty, translateYProperty, zIndexProperty, backgroundInternalProperty, androidElevationProperty, androidDynamicElevationOffsetProperty } from '../../styling/style-properties';
++import { isPercentTranslate } from '../../styling/css-transform';
++import { PercentLength } from '../../styling/length-shared';
+ import { CoreTypes } from '../../../core-types';
+ import { Background, refreshBorderDrawable } from '../../styling/background';
+ import { profile } from '../../../profiling';
+@@ -694,8 +696,16 @@ export class View extends ViewCommon {
+         return false;
+     }
+     layoutNativeView(left, top, right, bottom) {
+-        if (this.nativeViewProtected) {
+-            this.nativeViewProtected.layout(left, top, right, bottom);
++        const nativeView = this.nativeViewProtected;
++        if (nativeView) {
++            nativeView.layout(left, top, right, bottom);
++            // Percentage translates are resolved against the view's own size.
++            if (isPercentTranslate(this.translateX)) {
++                org.nativescript.widgets.ViewHelper.setTranslateX(nativeView, PercentLength.toDevicePixels(this.translateX, 0, nativeView.getWidth()));
++            }
++            if (isPercentTranslate(this.translateY)) {
++                org.nativescript.widgets.ViewHelper.setTranslateY(nativeView, PercentLength.toDevicePixels(this.translateY, 0, nativeView.getHeight()));
++            }
+         }
+     }
+     requestLayout() {
+@@ -1272,10 +1282,10 @@ export class View extends ViewCommon {
+         org.nativescript.widgets.ViewHelper.setScaleY(this.nativeViewProtected, float(value));
+     }
+     [translateXProperty.setNative](value) {
+-        org.nativescript.widgets.ViewHelper.setTranslateX(this.nativeViewProtected, layout.toDevicePixels(value));
++        org.nativescript.widgets.ViewHelper.setTranslateX(this.nativeViewProtected, PercentLength.toDevicePixels(value, 0, this.nativeViewProtected ? this.nativeViewProtected.getWidth() : 0));
+     }
+     [translateYProperty.setNative](value) {
+-        org.nativescript.widgets.ViewHelper.setTranslateY(this.nativeViewProtected, layout.toDevicePixels(value));
++        org.nativescript.widgets.ViewHelper.setTranslateY(this.nativeViewProtected, PercentLength.toDevicePixels(value, 0, this.nativeViewProtected ? this.nativeViewProtected.getHeight() : 0));
+     }
+     [zIndexProperty.getDefault]() {
+         return 0;
+diff --git a/ui/core/view/index.d.ts b/ui/core/view/index.d.ts
+index f5cc0e283779eb9049932b99fd9c8285526c05f9..af4b295ebed3886b31c0678b2d6e5103ad470ae1 100644
+--- a/ui/core/view/index.d.ts
++++ b/ui/core/view/index.d.ts
+@@ -549,18 +549,20 @@ export abstract class View extends ViewCommon {
+ 	perspective: number;
+ 
+ 	/**
+-	 * Gets or sets the translateX affine transform of the view in device independent pixels.
++	 * Gets or sets the translateX affine transform of the view.
++	 * Percentages are resolved against the view's own width.
+ 	 *
+ 	 * @nsProperty
+ 	 */
+-	translateX: CoreTypes.dip;
++	translateX: CoreTypes.PercentLengthType;
+ 
+ 	/**
+-	 * Gets or sets the translateY affine transform of the view in device independent pixels.
++	 * Gets or sets the translateY affine transform of the view.
++	 * Percentages are resolved against the view's own height.
+ 	 *
+ 	 * @nsProperty
+ 	 */
+-	translateY: CoreTypes.dip;
++	translateY: CoreTypes.PercentLengthType;
+ 
+ 	/**
+ 	 * Gets or sets the scaleX affine transform of the view.
+diff --git a/ui/core/view/index.ios.d.ts b/ui/core/view/index.ios.d.ts
+index a63b36db5e1be012ba5595fa54e624a9bc13d196..9b19fbc49efbb93e6e185e0f1abab36992029377 100644
+--- a/ui/core/view/index.ios.d.ts
++++ b/ui/core/view/index.ios.d.ts
+@@ -51,9 +51,9 @@ export declare class View extends ViewCommon {
+     [scaleYProperty.getDefault]: () => number;
+     [scaleYProperty.setNative]: (value: number) => void;
+     [translateXProperty.getDefault]: () => CoreTypes.dip;
+-    [translateXProperty.setNative]: (value: CoreTypes.dip) => void;
++    [translateXProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
+     [translateYProperty.getDefault]: () => CoreTypes.dip;
+-    [translateYProperty.setNative]: (value: CoreTypes.dip) => void;
++    [translateYProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
+     [zIndexProperty.getDefault]: () => number;
+     [zIndexProperty.setNative]: (value: number) => void;
+     [backgroundInternalProperty.getDefault]: () => UIColor;
+diff --git a/ui/core/view/index.ios.js b/ui/core/view/index.ios.js
+index 9a2ed977caa7e80dd03ae2738620bbeb7972d236..c55989f928aaf9582f82d9a8f5f5a6d8c9679ac1 100644
+--- a/ui/core/view/index.ios.js
++++ b/ui/core/view/index.ios.js
+@@ -8,6 +8,7 @@ import { SDK_VERSION, supportsGlass } from '../../../utils/constants';
+ import { IOSHelper } from './view-helper';
+ import { ios as iosBackground } from '../../styling/background';
+ import { perspectiveProperty, visibilityProperty, opacityProperty, rotateProperty, rotateXProperty, rotateYProperty, scaleXProperty, scaleYProperty, translateXProperty, translateYProperty, zIndexProperty, backgroundInternalProperty, directionProperty } from '../../styling/style-properties';
++import { isPercentTranslate, resolveTranslate } from '../../styling/css-transform';
+ import { profile } from '../../../profiling';
+ import { accessibilityEnabledProperty, accessibilityHiddenProperty, accessibilityHintProperty, accessibilityIdentifierProperty, accessibilityLabelProperty, accessibilityLanguageProperty, accessibilityLiveRegionProperty, accessibilityMediaSessionProperty, accessibilityRoleProperty, accessibilityStateProperty, accessibilityValueProperty, accessibilityIgnoresInvertColorsProperty } from '../../../accessibility/accessibility-properties';
+ import { IOSPostAccessibilityNotificationType } from '../../../accessibility';
+@@ -332,6 +333,10 @@ export class View extends ViewCommon {
+         if (this._nativeBackgroundState === 'invalid' || (this._nativeBackgroundState === 'drawn' && backgroundDependsOnSize)) {
+             this._redrawNativeBackground(background);
+         }
++        // Percentage translates are resolved against the view's own size.
++        if (isPercentTranslate(this.translateX) || isPercentTranslate(this.translateY)) {
++            this.updateNativeTransform();
++        }
+     }
+     updateNativeTransform() {
+         const scaleX = this.scaleX || 1e-6;
+@@ -343,7 +348,8 @@ export class View extends ViewCommon {
+         if (this.rotateX || this.rotateY) {
+             transform.m34 = -1 / perspective;
+         }
+-        transform = CATransform3DTranslate(transform, this.translateX, this.translateY, 0);
++        const bounds = nativeView.bounds.size;
++        transform = CATransform3DTranslate(transform, resolveTranslate(this.translateX, bounds.width), resolveTranslate(this.translateY, bounds.height), 0);
+         transform = iosUtils.applyRotateTransform(transform, this.rotateX, this.rotateY, this.rotate);
+         transform = CATransform3DScale(transform, scaleX, scaleY, 1);
+         if (!CATransform3DEqualToTransform(this.nativeViewProtected.layer.transform, transform)) {
+diff --git a/ui/core/view/view-common.d.ts b/ui/core/view/view-common.d.ts
+index e08bd0515f328334feb43be5c0a608099cc7efd3..5ab1064575441d664a6854f15d92b79d6bd122de 100644
+--- a/ui/core/view/view-common.d.ts
++++ b/ui/core/view/view-common.d.ts
+@@ -228,10 +228,10 @@ export declare abstract class ViewCommon extends ViewBase {
+     set perspective(value: number);
+     get textTransform(): CoreTypes.TextTransformType;
+     set textTransform(value: CoreTypes.TextTransformType);
+-    get translateX(): CoreTypes.dip;
+-    set translateX(value: CoreTypes.dip);
+-    get translateY(): CoreTypes.dip;
+-    set translateY(value: CoreTypes.dip);
++    get translateX(): CoreTypes.PercentLengthType;
++    set translateX(value: CoreTypes.PercentLengthType);
++    get translateY(): CoreTypes.PercentLengthType;
++    set translateY(value: CoreTypes.PercentLengthType);
+     get scaleX(): number;
+     set scaleX(value: number);
+     get scaleY(): number;
+diff --git a/ui/core/view-base/index.d.ts b/ui/core/view-base/index.d.ts
+index e60308ab6e5bdfd05f9ed4173933496b96e23e33..1aee75a717bc61eed76ed2882517ed33fef5c570 100644
+--- a/ui/core/view-base/index.d.ts
++++ b/ui/core/view-base/index.d.ts
+@@ -497,6 +497,12 @@ export declare abstract class ViewBase extends Observable {
+      * @param view to unload.
+      */
+     unloadView(view: ViewBase): void;
++    /**
++     * Whether a child is the one currently shown. Containers that keep several children
++     * alive but show one at a time (a TabView's items) override it for the hidden ones.
++     * @param child A direct child of this view.
++     */
++    _isChildPresented(child: ViewBase): boolean;
+     /**
+      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
+      */
+diff --git a/ui/core/view-base/index.js b/ui/core/view-base/index.js
+index 0c25671db43f74551878c67a38a0b276e10880d4..524dfd7892bae5d8484dd86ae7153a95b8d1a6e3 100644
+--- a/ui/core/view-base/index.js
++++ b/ui/core/view-base/index.js
+@@ -633,6 +633,14 @@ export class ViewBase extends Observable {
+             view.callUnloaded();
+         }
+     }
++    /**
++     * Whether a child is the one currently shown. Containers that keep several children
++     * alive but show one at a time (a TabView's items) override it for the hidden ones.
++     * @param child A direct child of this view.
++     */
++    _isChildPresented(child) {
++        return true;
++    }
+     /**
+      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
+      */
+diff --git a/ui/frame/frame-common.js b/ui/frame/frame-common.js
+index f678538745fbc3b3fd78edf46ea702d8cc4e641b..28b261eafd9560a656a5549e4f718b77016af437 100644
+--- a/ui/frame/frame-common.js
++++ b/ui/frame/frame-common.js
+@@ -3,7 +3,7 @@ import { NavigationType } from './frame-interfaces';
+ import { CustomLayoutView, CSSType } from '../core/view';
+ import { Property } from '../core/properties';
+ import { Trace } from '../../trace';
+-import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
++import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _insertAtFrameStackBottom, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
+ import { viewMatchesModuleContext } from '../core/view/view-common';
+ import { getAncestor } from '../core/view-base';
+ import { Builder } from '../builder';
+@@ -12,6 +12,19 @@ import { profile } from '../../profiling';
+ import { FRAME_SYMBOL } from './frame-helpers';
+ import { SharedTransition } from '../transition/shared-transition';
+ export { NavigationType } from './frame-interfaces';
++/**
++ * A view is presented while every ancestor shows the child leading to it; a frame in an
++ * unselected tab is loaded on Android but must never outrank the tab that is shown.
++ */
++function isPresented(view) {
++    while (view.parent) {
++        if (!view.parent._isChildPresented(view)) {
++            return false;
++        }
++        view = view.parent;
++    }
++    return true;
++}
+ function buildEntryFromArgs(arg) {
+     let entry;
+     if (typeof arg === 'string') {
+@@ -466,7 +479,12 @@ let FrameBase = FrameBase_1 = class FrameBase extends CustomLayoutView {
+         return _isFrameStackEmpty();
+     }
+     _pushInFrameStack() {
+-        _pushInFrameStack(this);
++        if (isPresented(this)) {
++            _pushInFrameStack(this);
++        }
++        else {
++            _insertAtFrameStackBottom(this);
++        }
+     }
+     _popFromFrameStack() {
+         _popFromFrameStack(this);
+diff --git a/ui/frame/frame-stack.d.ts b/ui/frame/frame-stack.d.ts
+index 8387e6202380ec502adbc577c8de73e354ced9a9..0c874161af12d69ea4ced8f43d3e8a4d92032dcd 100644
+--- a/ui/frame/frame-stack.d.ts
++++ b/ui/frame/frame-stack.d.ts
+@@ -19,5 +19,6 @@ export declare function topmostForWindow(window: WindowBase): FrameBase | undefi
+ export declare function topmost(window?: WindowBase): FrameBase;
+ export declare function _isFrameStackEmpty(): boolean;
+ export declare function _pushInFrameStack(frame: FrameBase): void;
++export declare function _insertAtFrameStackBottom(frame: FrameBase): void;
+ export declare function _popFromFrameStack(frame: FrameBase): void;
+ export declare function _removeFromFrameStack(frame: FrameBase): void;
+diff --git a/ui/frame/frame-stack.js b/ui/frame/frame-stack.js
+index 9ded225f53e4c4af92166a3e019671a1a65a2db2..9a9f5d5f9f891c9bcf6035b0345f4bb21c72831c 100644
+--- a/ui/frame/frame-stack.js
++++ b/ui/frame/frame-stack.js
+@@ -46,6 +46,17 @@ export function _pushInFrameStack(frame) {
+     frameStack.push(frame);
+     frame._isInFrameStack = true;
+ }
++/**
++ * Keeps a frame in the stack without making it topmost: the frame stays findable by id,
++ * while every frame that is actually shown outranks it.
++ */
++export function _insertAtFrameStackBottom(frame) {
++    if (frame._isInFrameStack) {
++        return;
++    }
++    frameStack.unshift(frame);
++    frame._isInFrameStack = true;
++}
+ export function _popFromFrameStack(frame) {
+     if (!frame._isInFrameStack) {
+         return;
+diff --git a/ui/index.d.ts b/ui/index.d.ts
+index ef5209d97b83fadf0da672fc2677faa1d56199b6..b2eac9a30234e05ca859c0f664b77ca40f06793c 100644
+--- a/ui/index.d.ts
++++ b/ui/index.d.ts
+@@ -2,7 +2,7 @@ export { ActionBar, ActionItem, ActionItems, NavigationButton } from './action-b
+ export { ActivityIndicator } from './activity-indicator';
+ export { Animation, _resolveAnimationCurve } from './animation';
+ export { KeyframeAnimation, KeyframeAnimationInfo, KeyframeDeclaration, KeyframeInfo } from './animation/keyframe-animation';
+-export type { AnimationDefinition, Pair, Transformation, TransformationType, TransformationValue, TransformFunctionsInfo, Point3D, AnimationPromise, Cancelable } from './animation/animation-types';
++export type { AnimationDefinition, Pair, TranslatePair, Transformation, TransformationType, TransformationValue, TransformFunctionsInfo, Point3D, AnimationPromise, Cancelable } from './animation/animation-types';
+ export * from './animation/animation-shared';
+ export { Builder } from './builder';
+ export type { LoadOptions } from './builder';
 diff --git a/ui/layouts/flexbox-layout/flexbox-layout-common.js b/ui/layouts/flexbox-layout/flexbox-layout-common.js
-index 54a037138b909446c71da47eb1cd682d5286fb18..2e1eafc92ff54e4c952b99dfd89816b222981aa3 100644
+index 54a037138b909446c71da47eb1cd682d5286fb18..64fa8712dae8260998f88eb26b053f5f48002c9e 100644
 --- a/ui/layouts/flexbox-layout/flexbox-layout-common.js
 +++ b/ui/layouts/flexbox-layout/flexbox-layout-common.js
 @@ -193,7 +193,21 @@ let FlexboxLayoutBase = class FlexboxLayoutBase extends LayoutBase {
@@ -26,7 +530,7 @@ index 54a037138b909446c71da47eb1cd682d5286fb18..2e1eafc92ff54e4c952b99dfd89816b2
      static setFlexWrapBefore(view, wrap) {
          validateArgs(view).style.flexWrapBefore = wrap;
 diff --git a/ui/layouts/flexbox-layout/index.android.js b/ui/layouts/flexbox-layout/index.android.js
-index ed354fddfe1caf982e73b603798cb8f5bf0d3501..58dfc04a6a4549c8fe52f04022fff82b321b0301 100644
+index ed354fddfe1caf982e73b603798cb8f5bf0d3501..7191092e40ba07c3dc3e6555059dbda028418d9c 100644
 --- a/ui/layouts/flexbox-layout/index.android.js
 +++ b/ui/layouts/flexbox-layout/index.android.js
 @@ -1,7 +1,7 @@
@@ -89,6 +593,69 @@ index ed354fddfe1caf982e73b603798cb8f5bf0d3501..58dfc04a6a4549c8fe52f04022fff82b
          child.nativeViewProtected.setLayoutParams(lp);
      }
      _setChildMinWidthNative(child, value) {
+diff --git a/ui/layouts/flexbox-layout/index.ios.js b/ui/layouts/flexbox-layout/index.ios.js
+index d391d4213240cab9a5088f9d7937fab17e7c7e54..112a3dc9ca31471c7cbceb94f6ee22bc86181955 100644
+--- a/ui/layouts/flexbox-layout/index.ios.js
++++ b/ui/layouts/flexbox-layout/index.ios.js
+@@ -222,8 +222,8 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+             if (FlexBasisPercent.DEFAULT /*lp.flexBasisPercent*/ !== FlexBasisPercent.DEFAULT && widthMode === EXACTLY) {
+                 childWidth = Math.round(widthSize * FlexBasisPercent.DEFAULT /*lp.flexBasisPercent*/);
+             }
+-            const childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(widthMeasureSpec, lp.effectivePaddingLeft + lp.effectivePaddingRight + lp.effectiveMarginLeft + lp.effectiveMarginRight, childWidth < 0 ? WRAP_CONTENT : childWidth);
+-            const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(heightMeasureSpec, lp.effectivePaddingTop + lp.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
++            const childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(widthMeasureSpec, this.effectivePaddingLeft + this.effectivePaddingRight + lp.effectiveMarginLeft + lp.effectiveMarginRight, childWidth < 0 ? WRAP_CONTENT : childWidth);
++            const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(heightMeasureSpec, this.effectivePaddingTop + this.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
+             child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+             this._checkSizeConstraints(child);
+             childState = View.combineMeasuredStates(childState, child.getMeasuredState());
+@@ -547,7 +547,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+                     // might result in increased height e.g. text that could be shown on one line for larger
+                     // width needs to be wrapped in two when width is reduced.
+                     // As a result we cannot unconditionally measure with EXACTLY the current measured height
+-                    const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentHeightMeasureSpec, lp.effectivePaddingTop + lp.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
++                    const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentHeightMeasureSpec, this.effectivePaddingTop + this.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
+                     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+                     child.effectiveMinWidth = minWidth;
+                     // make sure crossSize is up-to-date as child calculated height might have increased
+@@ -758,7 +758,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
+         let newHeight = crossSize - view.effectiveMarginTop - view.effectiveMarginBottom;
+         newHeight = Math.max(newHeight, 0);
+         const originalMeasuredWidth = view.getMeasuredWidth();
+-        let childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentWidthMeasureSpec, view.effectivePaddingLeft + view.effectivePaddingRight + view.effectiveMarginLeft + view.effectiveMarginRight, view.effectiveWidth < 0 ? WRAP_CONTENT : Math.min(view.effectiveWidth, originalMeasuredWidth));
++        let childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentWidthMeasureSpec, this.effectivePaddingLeft + this.effectivePaddingRight + view.effectiveMarginLeft + view.effectiveMarginRight, view.effectiveWidth < 0 ? WRAP_CONTENT : Math.min(view.effectiveWidth, originalMeasuredWidth));
+         view.measure(childWidthMeasureSpec, makeMeasureSpec(newHeight, EXACTLY));
+         if (originalMeasuredWidth > view.getMeasuredWidth()) {
+             childWidthMeasureSpec = makeMeasureSpec(originalMeasuredWidth, EXACTLY);
+diff --git a/ui/layouts/liquid-glass-container/index.ios.js b/ui/layouts/liquid-glass-container/index.ios.js
+index f72d4a1f66520c71f4830abcb6f908ef04d00ad6..78e97694657babd46fd4900db2dda0b7906ab25c 100644
+--- a/ui/layouts/liquid-glass-container/index.ios.js
++++ b/ui/layouts/liquid-glass-container/index.ios.js
+@@ -1,5 +1,6 @@
+ import { supportsGlass } from '../../../utils/constants';
+ import { iosGlassEffectProperty } from '../../core/view';
++import { resolveTranslate } from '../../styling/css-transform';
+ import { LiquidGlassContainerCommon } from './liquid-glass-container-common';
+ import { toUIGlassStyle } from '../liquid-glass';
+ export class LiquidGlassContainer extends LiquidGlassContainerCommon {
+@@ -123,13 +124,14 @@ export class LiquidGlassContainer extends LiquidGlassContainerCommon {
+             const child = this.getChildAt(i);
+             if (!child)
+                 continue;
+-            const tx = child.translateX || 0;
+-            const ty = child.translateY || 0;
+-            if (!tx && !ty)
+-                continue;
+             const native = child.nativeViewProtected;
+             if (!native)
+                 continue;
++            const bounds = native.bounds.size;
++            const tx = resolveTranslate(child.translateX, bounds.width);
++            const ty = resolveTranslate(child.translateY, bounds.height);
++            if (!tx && !ty)
++                continue;
+             // Skip if the child is still animating (unless forced)
+             if (!force) {
+                 const keys = native.layer.animationKeys ? native.layer.animationKeys() : null;
 diff --git a/ui/styling/background.ios.js b/ui/styling/background.ios.js
 index ed4b6883680229ffd1aa92a7bbcba2d36f1efebc..3882cad9a8d17fb5b8a80a4795b0161bc2f82e28 100644
 --- a/ui/styling/background.ios.js
@@ -284,57 +851,8 @@ index ed4b6883680229ffd1aa92a7bbcba2d36f1efebc..3882cad9a8d17fb5b8a80a4795b0161b
      }
      else {
          CGPathAddLineToPoint(clipPath, null, position.left, position.top);
-diff --git a/css/css-tree-parser.js b/css/css-tree-parser.js
-index 0c13e7e..7ce38a9 100644
---- a/css/css-tree-parser.js
-+++ b/css/css-tree-parser.js
-@@ -66,6 +66,10 @@ function transformAst(node, css, type = null) {
-             atrule.keyframes = transformAst(node.block, css, 'keyframe');
-             atrule.vendor = undefined;
-         }
-+        else if (node.name === 'layer') {
-+            atrule.layer = node.prelude ? node.prelude.value.trim() : '';
-+            atrule.rules = transformAst(node.block, css);
-+        }
-         else {
-             atrule.rules = transformAst(node.block, css);
-         }
-diff --git a/css/reworkcss.d.ts b/css/reworkcss.d.ts
-index 3ac4f61..1906ed1 100644
---- a/css/reworkcss.d.ts
-+++ b/css/reworkcss.d.ts
-@@ -10,7 +10,7 @@ export interface Position {
-     };
- }
- export interface Node {
--    type: 'rule' | 'keyframes' | 'declaration' | 'import' | 'media';
-+    type: 'rule' | 'keyframes' | 'declaration' | 'import' | 'media' | 'layer';
-     position: Position;
- }
- export interface Declaration extends Node {
-@@ -21,7 +21,7 @@ export interface Rule extends Node {
-     selectors: string[];
-     declarations: Declaration[];
- }
--export type AtRule = KeyFrames | Media;
-+export type AtRule = KeyFrames | Media | Layer;
- export interface Keyframes extends Rule {
-     name: string;
-     vendor?: string;
-@@ -35,6 +35,11 @@ export interface Media extends Node {
-     media: string;
-     rules: Array<Rule | AtRule>;
- }
-+export interface Layer extends Node {
-+    /** Layer-name prelude — '' for an anonymous block. Statement form (`@layer a, b;`) leaves rules undefined. */
-+    layer: string;
-+    rules?: Array<Rule | AtRule>;
-+}
- export interface StyleSheet {
-     rules: Rule[];
- }
 diff --git a/ui/styling/css-selector.d.ts b/ui/styling/css-selector.d.ts
-index 734d886..d90f0e4 100644
+index 734d886877b867e69b36fd75785b0a4372008f0f..d90f0e4fcf0f136bf4e9b10f9b08cc14f9b73e32 100644
 --- a/ui/styling/css-selector.d.ts
 +++ b/ui/styling/css-selector.d.ts
 @@ -222,6 +222,8 @@ export declare class RuleSet {
@@ -347,7 +865,7 @@ index 734d886..d90f0e4 100644
      toString(): string;
      lookupSort(sorter: LookupSorter): void;
 diff --git a/ui/styling/css-selector.js b/ui/styling/css-selector.js
-index 702ca50..b6fa55a 100644
+index 702ca508f27ace527938860dfe4b13dbcbb93c2f..b6fa55a9570d4ed0714f053301bbe69efbd6900c 100644
 --- a/ui/styling/css-selector.js
 +++ b/ui/styling/css-selector.js
 @@ -1081,9 +1081,27 @@ export class StyleSheetSelectorScope extends SelectorScope {
@@ -380,8 +898,302 @@ index 702ca50..b6fa55a 100644
  }
  /**
   * Resolve collected candidates against a node, compacting the array in place.
+diff --git a/ui/styling/css-transform.d.ts b/ui/styling/css-transform.d.ts
+index bf6a93847dc04ddf6d91a7912b033ab2ba93659e..b9a1e13824ec36c871c72acc53bdf3ff2de70180 100644
+--- a/ui/styling/css-transform.d.ts
++++ b/ui/styling/css-transform.d.ts
+@@ -1,2 +1,5 @@
+ import { TransformFunctionsInfo } from '../animation/animation-types';
++import type { CoreTypes } from '../../core-types';
+ export declare function transformConverter(text: string): TransformFunctionsInfo;
++export declare function isPercentTranslate(value: CoreTypes.PercentLengthType): boolean;
++export declare function resolveTranslate(value: CoreTypes.PercentLengthType, basis: number): CoreTypes.dip;
+diff --git a/ui/styling/css-transform.js b/ui/styling/css-transform.js
+index 181e6e370d64d1b18bf867eec6d3af4b3f7612b1..35ac4c45a7295cb3603b8c7781013890a6f472bd 100644
+--- a/ui/styling/css-transform.js
++++ b/ui/styling/css-transform.js
+@@ -1,3 +1,5 @@
++import { PercentLength } from './length-shared';
++import { layout } from '../../utils/layout-helper';
+ import { radiansToDegrees } from '../../utils/number-utils';
+ import { decompose2DTransformMatrix, getTransformMatrix, matrixArrayToCssMatrix, multiplyAffine2d } from '../../matrix';
+ import { hasDuplicates } from '../../utils';
+@@ -8,6 +10,7 @@ const IDENTITY_TRANSFORMATION = {
+ };
+ const TRANSFORM_SPLITTER = new RegExp(/\s*(.+?)\((.*?)\)/g);
+ const TRANSFORMATIONS = Object.freeze(['rotate', 'rotateX', 'rotateY', 'rotate3d', 'translate', 'translate3d', 'translateX', 'translateY', 'scale', 'scale3d', 'scaleX', 'scaleY']);
++const TRANSLATE_TRANSFORMATIONS = Object.freeze(['translate', 'translate3d', 'translateX', 'translateY']);
+ const STYLE_TRANSFORMATION_MAP = Object.freeze({
+     scale: (value) => ({ property: 'scale', value }),
+     scale3d: (value) => ({ property: 'scale', value }),
+@@ -60,7 +63,18 @@ export function transformConverter(text) {
+     if (text === 'none' || text === '' || !transformations.length) {
+         return IDENTITY_TRANSFORMATION;
+     }
+-    const usedTransforms = transformations.map((t) => t.property);
++    let usedTransforms = transformations.map((t) => t.property);
++    if (hasDuplicates(usedTransforms)) {
++        // Percent translate values can't be resolved to a concrete value at
++        // parse time (they depend on the view's size), so duplicate translate
++        // functions are merged axis-wise instead of going through the matrix
++        // multiplication below.
++        const duplicated = usedTransforms.filter((property, index) => usedTransforms.indexOf(property) !== index);
++        if (duplicated.every((property) => property === 'translate')) {
++            mergeTranslateTransformations(transformations);
++            usedTransforms = transformations.map((t) => t.property);
++        }
++    }
+     if (!hasDuplicates(usedTransforms)) {
+         const fullTransformations = { ...IDENTITY_TRANSFORMATION };
+         transformations.forEach((transform) => {
+@@ -68,10 +82,39 @@ export function transformConverter(text) {
+         });
+         return fullTransformations;
+     }
+-    const affineMatrix = transformations.map(getTransformMatrix).reduce(multiplyAffine2d);
++    const affineMatrix = transformations.map(normalizeTransformation).map(getTransformMatrix).reduce(multiplyAffine2d);
+     const cssMatrix = matrixArrayToCssMatrix(affineMatrix);
+     return decompose2DTransformMatrix(cssMatrix);
+ }
++/**
++ * Whether a translate value is a percentage that has to be resolved
++ * against the element's own size.
++ */
++export function isPercentTranslate(value) {
++    return typeof value === 'object' && value !== null && value.unit === '%';
++}
++/**
++ * Resolves a translate axis value to dips. Percentage units are resolved
++ * against the given basis, which is the element's own size along that axis.
++ * @param value The translate axis value as a PercentLengthType.
++ * @param basis The element's size in dips along the translated axis.
++ */
++export function resolveTranslate(value, basis) {
++    if (typeof value === 'number') {
++        return value;
++    }
++    if (typeof value !== 'object' || value === null) {
++        return 0;
++    }
++    switch (value.unit) {
++        case 'px':
++            return layout.toDeviceIndependentPixels(value.value);
++        case '%':
++            return basis * value.value;
++        default:
++            return value.value;
++    }
++}
+ function isTransformType(propertyName) {
+     return TRANSFORMATIONS.indexOf(propertyName) !== -1;
+ }
+@@ -91,20 +134,78 @@ function parseTransformString(text) {
+     return matches;
+ }
+ function convertTransformValue(property, rawValue) {
++    if (property === 'rotate' || property === 'rotateX' || property === 'rotateY') {
++        const x = parseFloat(rawValue);
++        return rawValue.slice(-3) === 'rad' ? radiansToDegrees(x) : x;
++    }
++    if (TRANSLATE_TRANSFORMATIONS.indexOf(property) !== -1) {
++        const values = rawValue.split(',').map(PercentLength.parse);
++        const x = values[0];
++        const y = property === 'translate' ? (values[1] ?? IDENTITY_TRANSFORMATION.translate.y) : (values[1] ?? x);
++        return { x, y };
++    }
+     const values = rawValue.split(',').map(parseFloat);
+     const x = values[0];
+-    let y = values[1];
+-    let z = values[2];
+-    if (property === 'translate') {
+-        y ?? (y = IDENTITY_TRANSFORMATION.translate.y);
++    const y = values[1] ?? x;
++    const z = values[2] ?? y;
++    return { x, y, z };
++}
++function mergeTranslateTransformations(transformations) {
++    const xValues = [];
++    const yValues = [];
++    for (let i = transformations.length - 1; i >= 0; i--) {
++        const transformation = transformations[i];
++        if (transformation.property === 'translate') {
++            const value = transformation.value;
++            xValues.unshift(value.x);
++            yValues.unshift(value.y);
++            transformations.splice(i, 1);
++        }
+     }
+-    else {
+-        y ?? (y = x);
+-        z ?? (z = y);
++    transformations.unshift({ property: 'translate', value: { x: mergeTranslateAxis(xValues), y: mergeTranslateAxis(yValues) } });
++}
++function mergeTranslateAxis(values) {
++    const nonZero = values.filter((value) => !isZeroTranslate(value));
++    if (nonZero.length === 0) {
++        return 0;
+     }
+-    if (property === 'rotate' || property === 'rotateX' || property === 'rotateY') {
+-        return rawValue.slice(-3) === 'rad' ? radiansToDegrees(x) : x;
++    if (nonZero.length === 1) {
++        return nonZero[0];
+     }
+-    return { x, y, z };
++    // Values in the same unit can be summed without losing the unit.
++    const unit = typeof nonZero[0] === 'object' && nonZero[0] !== null ? nonZero[0].unit : null;
++    if (unit !== null && nonZero.every((value) => typeof value === 'object' && value !== null && value.unit === unit)) {
++        return { unit, value: nonZero.reduce((sum, value) => sum + value.value, 0) };
++    }
++    // Mixed units can't be combined into a single static value; coerce them
++    // to their numeric value like the old parseFloat-based parsing did.
++    return nonZero.reduce((sum, value) => sum + translateValueToNumber(value), 0);
++}
++function isZeroTranslate(value) {
++    if (typeof value === 'number') {
++        return value === 0;
++    }
++    if (typeof value !== 'object' || value === null) {
++        return true;
++    }
++    return value.value === 0;
++}
++function translateValueToNumber(value) {
++    if (typeof value === 'number') {
++        return value;
++    }
++    if (typeof value !== 'object' || value === null) {
++        return 0;
++    }
++    // A % value stores its fraction (e.g. -50% => -0.5); the pre-unit-aware
++    // parser produced the raw number (-50), which matrix composition keeps.
++    return value.unit === '%' ? value.value * 100 : value.value;
++}
++function normalizeTransformation(transformation) {
++    if (transformation.property === 'translate') {
++        const { x, y } = transformation.value;
++        return { property: 'translate', value: { x: translateValueToNumber(x), y: translateValueToNumber(y) } };
++    }
++    return transformation;
+ }
+ //# sourceMappingURL=css-transform.js.map
+\ No newline at end of file
+diff --git a/ui/styling/font.android.js b/ui/styling/font.android.js
+index a275f112af0ef85433c983cbce31f043b3aa7599..c270115eeb24a2fbf4d33eea08e6dca8fbd5df4e 100644
+--- a/ui/styling/font.android.js
++++ b/ui/styling/font.android.js
+@@ -38,7 +38,7 @@ export class Font extends FontBase {
+ Font.default = new Font(undefined, undefined);
+ function computeFontCacheKey(fontFamily, font) {
+     const sep = ':';
+-    return [fontFamily, String(FontVariationSettings.toString(font.fontVariationSettings)).replace(/'/g, '').replace(/[\s,]/g, '_')].join(sep);
++    return [fontFamily, String(getNumericFontWeight(font.fontWeight)), String(FontVariationSettings.toString(font.fontVariationSettings)).replace(/'/g, '').replace(/[\s,]/g, '_')].join(sep);
+ }
+ function loadFontFromFile(fontFamily, font) {
+     const cacheKey = SDK_VERSION >= 26 ? computeFontCacheKey(fontFamily, font) : fontFamily;
+@@ -71,8 +71,26 @@ function loadFontFromFile(fontFamily, font) {
+                 if (SDK_VERSION >= 26) {
+                     const builder = new android.graphics.Typeface.Builder(fontAssetPath);
+                     if (builder) {
+-                        builder.setFontVariationSettings(font.fontVariationSettings?.length ? FontVariationSettings.toString(font.fontVariationSettings) : '');
+-                        result = builder.build();
++                        const explicitSettings = FontVariationSettings.toString(font.fontVariationSettings) || '';
++                        const variationSettings = font.fontVariationSettings?.length ? [...font.fontVariationSettings] : [];
++                        const hasWeightAxis = variationSettings.some(({ axis }) => axis.toLowerCase() === 'wght');
++                        if (!hasWeightAxis) {
++                            variationSettings.push({ axis: 'wght', value: getNumericFontWeight(font.fontWeight) });
++                        }
++                        try {
++                            builder.setFontVariationSettings(FontVariationSettings.toString(variationSettings) || '');
++                            result = builder.build();
++                        }
++                        catch (e) {
++                            if (hasWeightAxis) {
++                                throw e;
++                            }
++                        }
++                        if (!result && !hasWeightAxis) {
++                            const fallbackBuilder = new android.graphics.Typeface.Builder(fontAssetPath);
++                            fallbackBuilder.setFontVariationSettings(explicitSettings);
++                            result = fallbackBuilder.build();
++                        }
+                     }
+                     else {
+                         result = android.graphics.Typeface.createFromFile(fontAssetPath);
+diff --git a/ui/styling/style/index.d.ts b/ui/styling/style/index.d.ts
+index 6146930bd639001c4f27bc80cbf6237f0abb43bd..05259a5a3d4483900da37debea6a3fcbb48d02d2 100644
+--- a/ui/styling/style/index.d.ts
++++ b/ui/styling/style/index.d.ts
+@@ -52,8 +52,8 @@ export declare class Style extends Observable {
+     perspective: number;
+     scaleX: number;
+     scaleY: number;
+-    translateX: CoreTypes.dip;
+-    translateY: CoreTypes.dip;
++    translateX: CoreTypes.PercentLengthType;
++    translateY: CoreTypes.PercentLengthType;
+     clipPath: string | ClipPathFunction;
+     color: Color;
+     tintColor: Color;
+diff --git a/ui/styling/style-properties.d.ts b/ui/styling/style-properties.d.ts
+index 4d4b15f1397bca6403029acb6615a40f872419b9..6c930a1de6e3f4d28371f94e9eb7fcb57d0df4dd 100644
+--- a/ui/styling/style-properties.d.ts
++++ b/ui/styling/style-properties.d.ts
+@@ -31,8 +31,8 @@ export declare const rotateYProperty: CssAnimationProperty<Style, number>;
+ export declare const perspectiveProperty: CssAnimationProperty<Style, number>;
+ export declare const scaleXProperty: CssAnimationProperty<Style, number>;
+ export declare const scaleYProperty: CssAnimationProperty<Style, number>;
+-export declare const translateXProperty: CssAnimationProperty<Style, CoreTypes.FixedLengthType>;
+-export declare const translateYProperty: CssAnimationProperty<Style, CoreTypes.FixedLengthType>;
++export declare const translateXProperty: CssAnimationProperty<Style, CoreTypes.PercentLengthType>;
++export declare const translateYProperty: CssAnimationProperty<Style, CoreTypes.PercentLengthType>;
+ export declare const backgroundInternalProperty: CssProperty<Style, Background>;
+ export declare const backgroundImageProperty: CssProperty<Style, string | LinearGradient>;
+ export declare const backgroundColorProperty: CssAnimationProperty<Style, Color>;
+diff --git a/ui/styling/style-properties.js b/ui/styling/style-properties.js
+index 0f34471ac6f2fa146dafdd23e3c4290864c11c1b..95214a3c4ff5a40eff8af44e61888db02e78d448 100644
+--- a/ui/styling/style-properties.js
++++ b/ui/styling/style-properties.js
+@@ -6,7 +6,7 @@ import { Font, parseFont, FontStyle, FontWeight, FontVariationSettings } from '.
+ import { Background } from './background';
+ import { Trace } from '../../trace';
+ import { CoreTypes } from '../../core-types';
+-import { Length, FixedLength, PercentLength } from './length-shared';
++import { Length, PercentLength } from './length-shared';
+ import { parseBackground } from '../../css/parser';
+ import { LinearGradient } from './linear-gradient';
+ import { parseCSSShadow } from './css-shadow';
+@@ -564,16 +564,16 @@ export const translateXProperty = new CssAnimationProperty({
+     name: 'translateX',
+     cssName: 'translateX',
+     defaultValue: 0,
+-    equalityComparer: FixedLength.equals,
+-    valueConverter: FixedLength.parse,
++    equalityComparer: PercentLength.equals,
++    valueConverter: PercentLength.parse,
+ });
+ translateXProperty.register(Style);
+ export const translateYProperty = new CssAnimationProperty({
+     name: 'translateY',
+     cssName: 'translateY',
+     defaultValue: 0,
+-    equalityComparer: FixedLength.equals,
+-    valueConverter: FixedLength.parse,
++    equalityComparer: PercentLength.equals,
++    valueConverter: PercentLength.parse,
+ });
+ translateYProperty.register(Style);
+ const transformProperty = new ShorthandProperty({
+@@ -589,7 +589,7 @@ const transformProperty = new ShorthandProperty({
+         const rotateY = this.rotateY;
+         let result = '';
+         if (translateX !== 0 || translateY !== 0) {
+-            result += `translate(${translateX}, ${translateY}) `;
++            result += `translate(${PercentLength.convertToString(translateX)}, ${PercentLength.convertToString(translateY)}) `;
+         }
+         if (scaleX !== 1 || scaleY !== 1) {
+             result += `scale(${scaleX}, ${scaleY}) `;
 diff --git a/ui/styling/style-scope.d.ts b/ui/styling/style-scope.d.ts
-index d6f0266..321217d 100644
+index d6f026616cc33cf02f312a5e4f3b6effd71b5dda..321217d036b2fc726c88bf2076d82dcc62e6917e 100644
 --- a/ui/styling/style-scope.d.ts
 +++ b/ui/styling/style-scope.d.ts
 @@ -8,7 +8,7 @@ import { Keyframes, KeyframeAnimationInfo, KeyframeAnimation } from '../animatio
@@ -394,7 +1206,7 @@ index d6f0266..321217d 100644
  export declare function addTaggedAdditionalCSS(cssText: string, tag?: string | number): boolean;
  export declare const loadAppCSS: any;
 diff --git a/ui/styling/style-scope.js b/ui/styling/style-scope.js
-index e75c7c8..7cf9244 100644
+index e75c7c8010e23917a7138c7351243aab0bad1f49..7cf9244c0290a76b186c15f13cc94ca754dfa9bb 100644
 --- a/ui/styling/style-scope.js
 +++ b/ui/styling/style-scope.js
 @@ -344,6 +344,33 @@ __decorate([
@@ -517,124 +1329,8 @@ index e75c7c8..7cf9244 100644
  function isRule(node) {
      return node.type === 'rule';
  }
-diff --git a/ui/core/view-base/index.d.ts b/ui/core/view-base/index.d.ts
-index e60308a..1aee75a 100644
---- a/ui/core/view-base/index.d.ts
-+++ b/ui/core/view-base/index.d.ts
-@@ -497,6 +497,12 @@ export declare abstract class ViewBase extends Observable {
-      * @param view to unload.
-      */
-     unloadView(view: ViewBase): void;
-+    /**
-+     * Whether a child is the one currently shown. Containers that keep several children
-+     * alive but show one at a time (a TabView's items) override it for the hidden ones.
-+     * @param child A direct child of this view.
-+     */
-+    _isChildPresented(child: ViewBase): boolean;
-     /**
-      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
-      */
-diff --git a/ui/core/view-base/index.js b/ui/core/view-base/index.js
-index 0c25671..524dfd7 100644
---- a/ui/core/view-base/index.js
-+++ b/ui/core/view-base/index.js
-@@ -633,6 +633,14 @@ export class ViewBase extends Observable {
-             view.callUnloaded();
-         }
-     }
-+    /**
-+     * Whether a child is the one currently shown. Containers that keep several children
-+     * alive but show one at a time (a TabView's items) override it for the hidden ones.
-+     * @param child A direct child of this view.
-+     */
-+    _isChildPresented(child) {
-+        return true;
-+    }
-     /**
-      * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
-      */
-diff --git a/ui/frame/frame-common.js b/ui/frame/frame-common.js
-index f678538..28b261e 100644
---- a/ui/frame/frame-common.js
-+++ b/ui/frame/frame-common.js
-@@ -3,7 +3,7 @@ import { NavigationType } from './frame-interfaces';
- import { CustomLayoutView, CSSType } from '../core/view';
- import { Property } from '../core/properties';
- import { Trace } from '../../trace';
--import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
-+import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _insertAtFrameStackBottom, _popFromFrameStack, _removeFromFrameStack, _isFrameStackEmpty } from './frame-stack';
- import { viewMatchesModuleContext } from '../core/view/view-common';
- import { getAncestor } from '../core/view-base';
- import { Builder } from '../builder';
-@@ -12,6 +12,19 @@ import { profile } from '../../profiling';
- import { FRAME_SYMBOL } from './frame-helpers';
- import { SharedTransition } from '../transition/shared-transition';
- export { NavigationType } from './frame-interfaces';
-+/**
-+ * A view is presented while every ancestor shows the child leading to it; a frame in an
-+ * unselected tab is loaded on Android but must never outrank the tab that is shown.
-+ */
-+function isPresented(view) {
-+    while (view.parent) {
-+        if (!view.parent._isChildPresented(view)) {
-+            return false;
-+        }
-+        view = view.parent;
-+    }
-+    return true;
-+}
- function buildEntryFromArgs(arg) {
-     let entry;
-     if (typeof arg === 'string') {
-@@ -466,7 +479,12 @@ let FrameBase = FrameBase_1 = class FrameBase extends CustomLayoutView {
-         return _isFrameStackEmpty();
-     }
-     _pushInFrameStack() {
--        _pushInFrameStack(this);
-+        if (isPresented(this)) {
-+            _pushInFrameStack(this);
-+        }
-+        else {
-+            _insertAtFrameStackBottom(this);
-+        }
-     }
-     _popFromFrameStack() {
-         _popFromFrameStack(this);
-diff --git a/ui/frame/frame-stack.d.ts b/ui/frame/frame-stack.d.ts
-index 8387e62..0c87416 100644
---- a/ui/frame/frame-stack.d.ts
-+++ b/ui/frame/frame-stack.d.ts
-@@ -19,5 +19,6 @@ export declare function topmostForWindow(window: WindowBase): FrameBase | undefi
- export declare function topmost(window?: WindowBase): FrameBase;
- export declare function _isFrameStackEmpty(): boolean;
- export declare function _pushInFrameStack(frame: FrameBase): void;
-+export declare function _insertAtFrameStackBottom(frame: FrameBase): void;
- export declare function _popFromFrameStack(frame: FrameBase): void;
- export declare function _removeFromFrameStack(frame: FrameBase): void;
-diff --git a/ui/frame/frame-stack.js b/ui/frame/frame-stack.js
-index 9ded225..9a9f5d5 100644
---- a/ui/frame/frame-stack.js
-+++ b/ui/frame/frame-stack.js
-@@ -46,6 +46,17 @@ export function _pushInFrameStack(frame) {
-     frameStack.push(frame);
-     frame._isInFrameStack = true;
- }
-+/**
-+ * Keeps a frame in the stack without making it topmost: the frame stays findable by id,
-+ * while every frame that is actually shown outranks it.
-+ */
-+export function _insertAtFrameStackBottom(frame) {
-+    if (frame._isInFrameStack) {
-+        return;
-+    }
-+    frameStack.unshift(frame);
-+    frame._isInFrameStack = true;
-+}
- export function _popFromFrameStack(frame) {
-     if (!frame._isInFrameStack) {
-         return;
 diff --git a/ui/tab-view/index.android.js b/ui/tab-view/index.android.js
-index e195b75..7df6fcb 100644
+index e195b7564af964c333870fbb027c9aaac3335751..7df6fcb99fc0341afb137be4a297337f4fa7bf3e 100644
 --- a/ui/tab-view/index.android.js
 +++ b/ui/tab-view/index.android.js
 @@ -368,7 +368,10 @@ export class TabView extends TabViewBase {
@@ -650,7 +1346,7 @@ index e195b75..7df6fcb 100644
                  item.tabItemSpec = null;
                  item.setNativeView(null);
 diff --git a/ui/tab-view/index.ios.js b/ui/tab-view/index.ios.js
-index c25ff0c..e162b5d 100644
+index c25ff0c66166b9dedd8b284981fc566ad5aa0230..e162b5d59e358965ae88e9b31ad1d1378a595995 100644
 --- a/ui/tab-view/index.ios.js
 +++ b/ui/tab-view/index.ios.js
 @@ -622,6 +622,11 @@ export class TabView extends TabViewBase {
@@ -666,7 +1362,7 @@ index c25ff0c..e162b5d 100644
      [tabTextFontSizeProperty.getDefault]() {
          return null;
 diff --git a/ui/tab-view/tab-view-common.d.ts b/ui/tab-view/tab-view-common.d.ts
-index 35d1ba1..e96b308 100644
+index 35d1ba1f2479bbbf64cd4b1acb9563e0f823fd4e..e96b3085d75549d06d2c2e9cae183887e8e1adcc 100644
 --- a/ui/tab-view/tab-view-common.d.ts
 +++ b/ui/tab-view/tab-view-common.d.ts
 @@ -66,6 +66,7 @@ export declare class TabViewBase extends View implements TabViewDefinition, AddC
@@ -678,7 +1374,7 @@ index 35d1ba1..e96b308 100644
  }
  export interface TabViewBase {
 diff --git a/ui/tab-view/tab-view-common.js b/ui/tab-view/tab-view-common.js
-index 66672f1..1eb3676 100644
+index 66672f1fa5ccb31f06a83a2a21bfe1e5c668712f..1eb3676f0346d7ee21ab7ff1c1b78292da641463 100644
 --- a/ui/tab-view/tab-view-common.js
 +++ b/ui/tab-view/tab-view-common.js
 @@ -144,21 +144,33 @@ let TabViewBase = TabViewBase_1 = class TabViewBase extends View {
@@ -717,78 +1413,3 @@ index 66672f1..1eb3676 100644
      onSelectedIndexChanged(oldIndex, newIndex) {
          // to be overridden in platform specific files
          this.notify({
-diff --git a/ui/layouts/flexbox-layout/index.ios.js b/ui/layouts/flexbox-layout/index.ios.js
-index d391d4213240cab9a5088f9d7937fab17e7c7e54..112a3dc9ca31471c7cbceb94f6ee22bc86181955 100644
---- a/ui/layouts/flexbox-layout/index.ios.js
-+++ b/ui/layouts/flexbox-layout/index.ios.js
-@@ -222,8 +222,8 @@ export class FlexboxLayout extends FlexboxLayoutBase {
-             if (FlexBasisPercent.DEFAULT /*lp.flexBasisPercent*/ !== FlexBasisPercent.DEFAULT && widthMode === EXACTLY) {
-                 childWidth = Math.round(widthSize * FlexBasisPercent.DEFAULT /*lp.flexBasisPercent*/);
-             }
--            const childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(widthMeasureSpec, lp.effectivePaddingLeft + lp.effectivePaddingRight + lp.effectiveMarginLeft + lp.effectiveMarginRight, childWidth < 0 ? WRAP_CONTENT : childWidth);
--            const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(heightMeasureSpec, lp.effectivePaddingTop + lp.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
-+            const childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(widthMeasureSpec, this.effectivePaddingLeft + this.effectivePaddingRight + lp.effectiveMarginLeft + lp.effectiveMarginRight, childWidth < 0 ? WRAP_CONTENT : childWidth);
-+            const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(heightMeasureSpec, this.effectivePaddingTop + this.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
-             child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-             this._checkSizeConstraints(child);
-             childState = View.combineMeasuredStates(childState, child.getMeasuredState());
-@@ -547,7 +547,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
-                     // might result in increased height e.g. text that could be shown on one line for larger
-                     // width needs to be wrapped in two when width is reduced.
-                     // As a result we cannot unconditionally measure with EXACTLY the current measured height
--                    const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentHeightMeasureSpec, lp.effectivePaddingTop + lp.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
-+                    const childHeightMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentHeightMeasureSpec, this.effectivePaddingTop + this.effectivePaddingBottom + lp.effectiveMarginTop + lp.effectiveMarginBottom, lp.effectiveHeight < 0 ? WRAP_CONTENT : lp.effectiveHeight);
-                     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-                     child.effectiveMinWidth = minWidth;
-                     // make sure crossSize is up-to-date as child calculated height might have increased
-@@ -758,7 +758,7 @@ export class FlexboxLayout extends FlexboxLayoutBase {
-         let newHeight = crossSize - view.effectiveMarginTop - view.effectiveMarginBottom;
-         newHeight = Math.max(newHeight, 0);
-         const originalMeasuredWidth = view.getMeasuredWidth();
--        let childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentWidthMeasureSpec, view.effectivePaddingLeft + view.effectivePaddingRight + view.effectiveMarginLeft + view.effectiveMarginRight, view.effectiveWidth < 0 ? WRAP_CONTENT : Math.min(view.effectiveWidth, originalMeasuredWidth));
-+        let childWidthMeasureSpec = FlexboxLayout.getChildMeasureSpec(this._currentWidthMeasureSpec, this.effectivePaddingLeft + this.effectivePaddingRight + view.effectiveMarginLeft + view.effectiveMarginRight, view.effectiveWidth < 0 ? WRAP_CONTENT : Math.min(view.effectiveWidth, originalMeasuredWidth));
-         view.measure(childWidthMeasureSpec, makeMeasureSpec(newHeight, EXACTLY));
-         if (originalMeasuredWidth > view.getMeasuredWidth()) {
-             childWidthMeasureSpec = makeMeasureSpec(originalMeasuredWidth, EXACTLY);
-diff --git a/ui/styling/font.android.js b/ui/styling/font.android.js
-index a275f112af0ef85433c983cbce31f043b3aa7599..4c4ece97f013242aa6b5a10f5f07d7e197c131b7 100644
---- a/ui/styling/font.android.js
-+++ b/ui/styling/font.android.js
-@@ -38,7 +38,7 @@ export class Font extends FontBase {
- Font.default = new Font(undefined, undefined);
- function computeFontCacheKey(fontFamily, font) {
-     const sep = ':';
--    return [fontFamily, String(FontVariationSettings.toString(font.fontVariationSettings)).replace(/'/g, '').replace(/[\s,]/g, '_')].join(sep);
-+    return [fontFamily, String(getNumericFontWeight(font.fontWeight)), String(FontVariationSettings.toString(font.fontVariationSettings)).replace(/'/g, '').replace(/[\s,]/g, '_')].join(sep);
- }
- function loadFontFromFile(fontFamily, font) {
-     const cacheKey = SDK_VERSION >= 26 ? computeFontCacheKey(fontFamily, font) : fontFamily;
-@@ -71,8 +71,26 @@ function loadFontFromFile(fontFamily, font) {
-                 if (SDK_VERSION >= 26) {
-                     const builder = new android.graphics.Typeface.Builder(fontAssetPath);
-                     if (builder) {
--                        builder.setFontVariationSettings(font.fontVariationSettings?.length ? FontVariationSettings.toString(font.fontVariationSettings) : '');
--                        result = builder.build();
-+                        const explicitSettings = FontVariationSettings.toString(font.fontVariationSettings) || '';
-+                        const variationSettings = font.fontVariationSettings?.length ? [...font.fontVariationSettings] : [];
-+                        const hasWeightAxis = variationSettings.some(({ axis }) => axis.toLowerCase() === 'wght');
-+                        if (!hasWeightAxis) {
-+                            variationSettings.push({ axis: 'wght', value: getNumericFontWeight(font.fontWeight) });
-+                        }
-+                        try {
-+                            builder.setFontVariationSettings(FontVariationSettings.toString(variationSettings) || '');
-+                            result = builder.build();
-+                        }
-+                        catch (e) {
-+                            if (hasWeightAxis) {
-+                                throw e;
-+                            }
-+                        }
-+                        if (!result && !hasWeightAxis) {
-+                            const fallbackBuilder = new android.graphics.Typeface.Builder(fontAssetPath);
-+                            fallbackBuilder.setFontVariationSettings(explicitSettings);
-+                            result = fallbackBuilder.build();
-+                        }
-                     }
-                     else {
-                         result = android.graphics.Typeface.createFromFile(fontAssetPath);
