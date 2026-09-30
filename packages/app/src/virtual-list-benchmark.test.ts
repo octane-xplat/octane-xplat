@@ -42,4 +42,41 @@ describe('VirtualList input geometry evidence', () => {
 			now.mockRestore()
 		}
 	})
+
+	it('classifies bounce-region gaps as overscroll instead of content gaps', async () => {
+		let clock = 0
+		const now = vi.spyOn(performance, 'now').mockImplementation(() => clock)
+		// UIScrollView rubber-band: offset past the content top shifts every row
+		// down, so the viewport's leading edge is uncovered by design.
+		const bounced: VirtualListBenchSnapshot = {
+			offset: -40,
+			viewportHeight: 100,
+			mountedIndices: [0, 1],
+			rows: [
+				{ index: 0, top: 40, bottom: 80 },
+				{ index: 1, top: 80, bottom: 99 },
+			],
+		}
+
+		try {
+			const result = await runVirtualListInputTrace(
+				{
+					target: 'ios',
+					read: () => bounced,
+					wait: async () => {
+						clock += 16
+					},
+				},
+				32,
+			)
+
+			expect(result.coverage.gapSamples).toBe(2)
+			expect(result.coverage.overscrollGapSamples).toBe(2)
+			expect(result.coverage.contentGapSamples).toBe(0)
+			expect(result.coverage.maxContentGap).toBe(0)
+			expect(result.coverage.worstGeometry?.overscroll).toBe(true)
+		} finally {
+			now.mockRestore()
+		}
+	})
 })

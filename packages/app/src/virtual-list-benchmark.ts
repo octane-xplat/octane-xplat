@@ -184,6 +184,9 @@ export async function runVirtualListInputTrace(
 	const intervalSamples: number[] = []
 	const mountedSamples = [first.mountedIndices.length]
 	const gapSamples: number[] = []
+	let overscrollGapSamples = 0
+	let contentGapSamples = 0
+	let maxContentGap = 0
 	const offsets = [first.offset]
 	let mountedRowsAdded = 0
 	let mountedRowsRemoved = 0
@@ -196,8 +199,14 @@ export async function runVirtualListInputTrace(
 		leadingGap: number
 		trailingGap: number
 		internalGap: number
+		overscroll: boolean
 		rows: VirtualListBenchRowBox[]
 	} = null
+
+	// A gap that exists only because the viewport is rubber-banded past a
+	// content edge is platform-authentic overscroll, not a rendering defect —
+	// classify it separately so gapSamples stays a true coverage signal.
+	const endIndex = VIRTUAL_LIST_BENCH_ROW_COUNT - 1
 
 	const visibleGap = (snapshot: VirtualListBenchSnapshot) => {
 		const visible = snapshot.rows
@@ -217,7 +226,18 @@ export async function runVirtualListInputTrace(
 		}
 
 		const trailingGap = Math.max(0, snapshot.viewportHeight - coveredUntil)
-		const maxGap = Math.max(leadingGap, trailingGap, internalGap)
+		const leadingOverscroll = snapshot.offset < -0.5
+		const trailingOverscroll = snapshot.mountedIndices.includes(endIndex)
+		const overscrollGap = Math.max(
+			leadingOverscroll ? leadingGap : 0,
+			trailingOverscroll ? trailingGap : 0,
+		)
+		const contentGap = Math.max(
+			leadingOverscroll ? 0 : leadingGap,
+			trailingOverscroll ? 0 : trailingGap,
+			internalGap,
+		)
+		const maxGap = Math.max(overscrollGap, contentGap)
 		const previousMax = worstGeometry
 			? Math.max(worstGeometry.leadingGap, worstGeometry.trailingGap, worstGeometry.internalGap)
 			: 1
@@ -229,11 +249,12 @@ export async function runVirtualListInputTrace(
 				leadingGap,
 				trailingGap,
 				internalGap,
+				overscroll: overscrollGap > 1 && contentGap <= 1,
 				rows: snapshot.rows.map((row) => ({ ...row })),
 			}
 		}
 
-		return maxGap
+		return { maxGap, overscrollGap, contentGap }
 	}
 
 	while (now() - startedAt < durationMs) {
@@ -253,9 +274,20 @@ export async function runVirtualListInputTrace(
 
 		previousMounted = nextMounted
 		mountedSamples.push(snapshot.mountedIndices.length)
-		gapSamples.push(visibleGap(snapshot))
+		const gap = visibleGap(snapshot)
+		gapSamples.push(gap.maxGap)
+		if (gap.overscrollGap > 1) {overscrollGapSamples += 1}
+		if (gap.contentGap > 1) {
+			contentGapSamples += 1
+			maxContentGap = Math.max(maxContentGap, gap.contentGap)
+		}
+
 		offsets.push(snapshot.offset)
 	}
+
+	// Offer the runtime a GC hook before the caller's post-run memory tail —
+	// separates lazy collection from a real leak in the sampled series.
+	;(globalThis as any).gc?.()
 
 	const movements = offsets.slice(1).map((offset, index) => offset - offsets[index])
 	const nonzeroMovements = movements.filter((delta) => Math.abs(delta) > 0.5)
@@ -299,6 +331,9 @@ export async function runVirtualListInputTrace(
 		coverage: {
 			samples: gapSamples.length,
 			gapSamples: gapSamples.filter((gap) => gap > 1).length,
+			overscrollGapSamples,
+			contentGapSamples,
+			maxContentGap: Number(maxContentGap.toFixed(1)),
 			worstGeometry,
 			maxGap: Number((gapSamples.length ? Math.max(...gapSamples) : 0).toFixed(1)),
 		},

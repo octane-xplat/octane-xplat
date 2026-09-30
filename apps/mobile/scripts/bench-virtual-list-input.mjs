@@ -97,6 +97,7 @@ let gestureError = ''
 let gesturePromise
 let gestureSummary
 let memoryTimer
+let postResultPhase = false
 const memorySamples = []
 let androidFrameStats = null
 const readyMarker = '[vlist-input] ready '
@@ -222,7 +223,7 @@ function sampleMemory() {
 					metric: 'totalPssKb',
 					value: Number(match[1].replaceAll(',', '')),
 					summaryPssKb: summary,
-					gc: 'not-requested',
+					gc: postResultPhase ? 'after-app-gc' : 'not-requested',
 				})
 			}
 
@@ -410,7 +411,12 @@ const consume = (chunk) => {
 			result = JSON.parse(line.slice(resultAt + resultMarker.length))
 			clearTimeout(timeout)
 			void Promise.resolve(gesturePromise).then(() => {
+				// The app's trace calls globalThis.gc?.() just before emitting its
+				// result — keep sampling through an idle tail so the memory series
+				// separates a real leak (no decay) from lazy collection.
+				postResultPhase = true
 				clearInterval(memoryTimer)
+				memoryTimer = setInterval(sampleMemory, 10_000)
 				sampleMemory()
 				if (target === 'android') {
 					try {
@@ -438,8 +444,12 @@ const consume = (chunk) => {
 					}
 				}
 
-				printResult()
-				stopRun()
+				setTimeout(() => {
+					clearInterval(memoryTimer)
+					sampleMemory()
+					printResult()
+					stopRun()
+				}, 45_000)
 			})
 		} catch (error) {
 			gestureError = `Could not parse input profile JSON: ${error}`
