@@ -11,7 +11,7 @@
  * (prebuilt metadata.nsmd >= the build that carries them); without it
  * `supported` reports false and openDatabase rejects.
  */
-import type { OpenDatabaseOptions, SqliteDb, SqliteParams, SqliteRow } from './types'
+import type { OpenDatabaseOptions, SqliteDb, SqliteParam, SqliteParams, SqliteRow } from './types'
 
 const host = globalThis as any
 const fs = host.require?.('node:fs')
