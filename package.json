@@ -28,7 +28,8 @@
 		"typegen": "pnpm -r --workspace-concurrency=1 --if-present run typegen",
 		"typegen:watch": "node scripts/watch-types.mjs",
 		"postinstall": "pnpm typegen",
-		"test:cli": "node --test packages/cli/test/*.test.mjs"
+		"test:cli": "node --test packages/cli/test/*.test.mjs",
+		"check:consumer": "node scripts/verify-consumer.mjs"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",
