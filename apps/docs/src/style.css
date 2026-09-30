@@ -527,7 +527,7 @@ body {
 	border-width: 1px;
 	border-style: solid;
 	border-color: rgba(0, 0, 0, 0.04);
-	border-radius: 28px;
+	border-radius: 40px;
 	corner-shape: squircle;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 	cursor: pointer;
