@@ -2,20 +2,29 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { Route, RouteManifest } from './props'
 
+const registration = vi.hoisted(() => ({
+	listener: null as null | ((name: string, frame: any) => void),
+}))
+
 vi.mock('@nativescript/core', () => ({
 	Application: { android: null },
 	Frame: class {},
 	GridLayout: class {},
 	Page: class {},
 }))
+
 vi.mock('@nativescript-community/octane', () => ({
 	createNativeScriptRoot: () => ({ render() {}, unmount() {} }),
 }))
+
 vi.mock('./stacks', () => ({
 	getStack: () => undefined,
-	onStackRegistered() {},
+	onStackRegistered(listener: typeof registration.listener) {
+		registration.listener = listener
+	},
 	stackEntries: () => new Map().entries(),
 }))
+
 vi.mock('./route-host.mobile', () => ({ RouteHost: () => null }))
 
 function deferred<T>() {
@@ -25,8 +34,10 @@ function deferred<T>() {
 		resolve = yes
 		reject = no
 	})
+
 	return { promise, resolve, reject }
 }
+
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
 
 describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (target) => {
@@ -34,6 +45,7 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 		| typeof import('./route.web')
 		| typeof import('./route.macos')
 		| typeof import('./route')
+
 	beforeAll(async () => {
 		router =
 			target === 'web'
@@ -42,6 +54,7 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 					? await import('./route.macos')
 					: await import('./route.ts')
 	}, 60000)
+
 	function setup(slow: Partial<RouteManifest['routes'][number]> = {}) {
 		router.registerRoutes({
 			screens: { slow: () => null, fast: () => null, redirected: () => null },
@@ -55,7 +68,23 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 			})),
 		})
 	}
+
 	const route = (name: string, stack = 'audit'): Route => ({ name, stack, params: {} })
+	if (target === 'native') {
+		it('invalidates pending work when a newly registered frame goes back', async () => {
+			const wait = deferred<unknown>()
+			setup({ loader: () => wait.promise })
+			const on = vi.fn()
+			registration.listener!('audit', { on, currentPage: null })
+			router.pushRoute(route('fast'))
+			router.pushRoute(route('slow'))
+			on.mock.calls[0][1]({ isBackNavigation: true })
+			wait.resolve('old')
+			await settle()
+			expect(router.routeFor('audit')?.name).toBe('fast')
+		})
+	}
+
 	it('ignores a superseded loader result', async () => {
 		const wait = deferred<unknown>()
 		setup({ loader: () => wait.promise })
@@ -66,6 +95,7 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 		await settle()
 		expect(router.routeFor('audit')?.name).toBe('fast')
 	})
+
 	it('ignores a superseded loader rejection', async () => {
 		const wait = deferred<unknown>()
 		setup({ loader: () => wait.promise })
@@ -76,6 +106,7 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 		await settle()
 		expect(router.routeFor('audit')?.name).toBe('fast')
 	})
+
 	it('ignores a superseded guard and its redirect', async () => {
 		const wait = deferred<unknown>()
 		setup({
@@ -84,12 +115,14 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 				router.redirect(route('redirected'))
 			},
 		})
+
 		router.pushRoute(route('slow'))
 		router.pushRoute(route('fast'))
 		wait.resolve(null)
 		await settle()
 		expect(router.routeFor('audit')?.name).toBe('fast')
 	})
+
 	it('preserves active guard context and loader data', async () => {
 		setup({ beforeLoad: async () => ({ allowed: true }), loader: async () => 'loaded' })
 		router.pushRoute(route('slow'))
@@ -100,12 +133,14 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 			loaderData: 'loaded',
 		})
 	})
+
 	it('preserves an active redirect', async () => {
 		setup({ beforeLoad: async () => router.redirect(route('redirected')) })
 		router.pushRoute(route('slow'))
 		await settle()
 		expect(router.routeFor('audit')?.name).toBe('redirected')
 	})
+
 	it('invalidates pending work when back is requested', async () => {
 		const wait = deferred<unknown>()
 		setup({ loader: () => wait.promise })
@@ -115,6 +150,7 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 		if (target === 'web') {
 			vi.spyOn(history, 'back').mockImplementation(() => {})
 		}
+
 		router.popRoute('audit')
 		const before = router.routeFor('audit')
 		wait.resolve('old')
@@ -122,6 +158,7 @@ describe.each(['web', 'macos', 'native'] as const)('%s navigation ownership', (t
 		expect(router.routeFor('audit')).toEqual(before)
 		vi.restoreAllMocks()
 	})
+
 	it('uses one history on web and independent named stacks elsewhere', async () => {
 		const wait = deferred<unknown>()
 		setup({ loader: () => wait.promise })

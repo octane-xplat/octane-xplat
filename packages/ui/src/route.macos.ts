@@ -115,8 +115,8 @@ async function prepareRoute(
 	request: NavigationRequest,
 	redirects = 0,
 ): Promise<void> {
-	if (!request.isCurrent()) return
-	if (!request.claim(route.stack)) return
+	if (!request.isCurrent()) {return}
+	if (!request.claim(route.stack)) {return}
 
 	const beforeLoad = metaFor(route.name)?.beforeLoad
 	if (!beforeLoad) {
@@ -136,11 +136,12 @@ async function prepareRoute(
 			request,
 		)
 	} catch (error) {
-		if (!request.isCurrent()) return
+		if (!request.isCurrent()) {return}
 		if (error instanceof RouteRedirect) {
 			await prepareRoute(error.route, request, redirects + 1)
 			return
 		}
+
 		console.warn(
 			`[octane-xplat] beforeLoad('${route.name}') rejected: ${(error as Error)?.message ?? error}`,
 		)
@@ -157,11 +158,12 @@ export function pushRoute(route: Route): void {
 		void prepareRoute(route, request)
 		return
 	}
+
 	commitRoute(route, request)
 }
 
 function commitRoute(route: Route, request: NavigationRequest): void {
-	if (!request.isCurrent()) return
+	if (!request.isCurrent()) {return}
 	const entry = { ...route, presentation: route.presentation ?? metaFor(route.name)?.presentation }
 	const loader = routeLoaders[entry.name] ?? metaFor(entry.name)?.loader
 	if (
@@ -175,6 +177,7 @@ function commitRoute(route: Route, request: NavigationRequest): void {
 				(loaderData) => commitRoute({ ...entry, loaderData }, request),
 				(loaderError) => commitRoute({ ...entry, loaderError }, request),
 			)
+
 		return
 	}
 

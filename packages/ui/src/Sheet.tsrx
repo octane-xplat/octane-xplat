@@ -26,6 +26,7 @@ export function Sheet(props: SheetProps) @{
 		root: any;
 		lifetime: ReturnType<typeof createOverlayLifetime>;
 	} | null>(null);
+
 	const dismiss = useRef(props.onDismiss);
 	dismiss.current = props.onDismiss;
 
@@ -55,6 +56,7 @@ export function Sheet(props: SheetProps) @{
 			if (shown.current?.host === host) shown.current = null;
 			if (dismissed) dismiss.current?.();
 		});
+
 		lifetime.own(unbindTheme);
 		// Detents: the controller owns enter/slide-out — RootLayout's open
 		// animation always lands translateY at 0, which would fight the

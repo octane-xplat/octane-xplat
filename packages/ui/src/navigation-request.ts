@@ -21,8 +21,14 @@ export function createNavigationRequests() {
 			return {
 				isCurrent,
 				claim(name: string) {
-					if (!isCurrent()) return false
-					if (!owned.has(name)) owned.set(name, invalidate(name))
+					if (!isCurrent()) {
+						return false
+					}
+
+					if (!owned.has(name)) {
+						owned.set(name, invalidate(name))
+					}
+
 					return true
 				},
 			}

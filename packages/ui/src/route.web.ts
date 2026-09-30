@@ -229,7 +229,7 @@ function contextFor(r: Route): Record<string, unknown> {
 }
 
 async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0): Promise<void> {
-	if (!request.isCurrent()) return
+	if (!request.isCurrent()) {return}
 
 	const beforeLoad = metaFor(r.name)?.beforeLoad
 	if (!beforeLoad) {
@@ -253,7 +253,7 @@ async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0)
 			request,
 		)
 	} catch (e) {
-		if (!request.isCurrent()) return
+		if (!request.isCurrent()) {return}
 		if (e instanceof RouteRedirect) {
 			await prepareRoute(e.route, request, redirects + 1)
 			return
@@ -278,7 +278,7 @@ export function pushRoute(r: Route): void {
 }
 
 function commitRoute(r: Route, request: NavigationRequest): void {
-	if (!request.isCurrent()) return
+	if (!request.isCurrent()) {return}
 	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
 	const loader = routeLoaders[route.name] ?? routes.find((meta) => meta.name === route.name)?.loader
 	if (

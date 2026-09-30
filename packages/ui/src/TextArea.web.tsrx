@@ -4,7 +4,7 @@ import type { TextAreaProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 
 /** Multiline input — <textarea>. `autoGrow` re-fits height to content after
- *  every commit via scrollHeight, capped by `maxRows` translated to a real
+ *  input and value updates via scrollHeight, capped by `maxRows` translated to a real
  *  max-height from the element's computed line-height; past the cap the
  *  field scrolls. `useLayoutEffect` so the measure lands pre-paint in the
  *  commit that wrote `value`. Deps are explicit — tsrx infers them from the
@@ -13,7 +13,7 @@ import { applyEscapeProps } from "./escape-props";
 export function TextArea(props: TextAreaProps) @{
 	const el = useRef<HTMLTextAreaElement | null>(null);
 
-	useLayoutEffect(() => {
+	const fit = () => {
 		const t = el.current;
 		if (!t) return;
 		const cs = getComputedStyle(t);
@@ -35,7 +35,9 @@ export function TextArea(props: TextAreaProps) @{
 			t.style.height = Math.min(need, cap) + 'px';
 			t.style.overflowY = need > cap ? 'auto' : 'hidden';
 		}
-	}, [props.value, props.rows, props.autoGrow, props.maxRows, props.className, props.style]);
+	};
+
+	useLayoutEffect(fit, [props.value, props.rows, props.autoGrow, props.maxRows, props.className, props.style]);
 
 	<textarea
 		ref={(node: any) => {
@@ -53,7 +55,7 @@ export function TextArea(props: TextAreaProps) @{
 		readOnly={props.editable === false}
 		placeholder={props.placeholder}
 		rows={props.rows ?? (props.autoGrow ? 1 : 3)}
-		onInput={(e: any) => props.onChange?.(e.target.value)}
+		onInput={(e: any) => { fit(); props.onChange?.(e.target.value); }}
 		onKeyDown={(e: any) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !e.isComposing && e.keyCode !== 229) props.onSubmit?.(); }}
 		onFocus={props.onFocus}
 		onBlur={props.onBlur}

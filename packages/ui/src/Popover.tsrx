@@ -158,6 +158,7 @@ export function Popover(props: PopoverProps) @{
 			if (shown.current?.host === host) shown.current = null;
 			if (dismissed) dismiss.current?.();
 		});
+
 		lifetime.own(unbindTheme);
 		shown.current = { host, root, lifetime };
 		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });

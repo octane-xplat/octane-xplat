@@ -395,3 +395,22 @@ supplies `submitPin`. `onComplete` receives a full-length PIN after an edit;
 it does not fire for an incomplete value or an external value update.
 The maintained [Components demo](../packages/demos/src/ComponentsDemo.tsrx)
 shows controlled entry. `secure` masks the cells and `disabled` prevents editing.
+
+## Grow a multiline field
+
+Set `autoGrow` on `TextArea` to fit content as the user types or clears text.
+Omit `value` to let the field own its text; use `value` and `onChange` together
+when the app owns it. Both modes resize on input, and controlled value updates
+also resize the field.
+
+`rows` sets the starting height (one row by default with `autoGrow`), and
+`maxRows` caps growth. Beyond the cap, the field scrolls internally. Without
+`autoGrow`, the field keeps its row-based height. `onChange` receives the text
+in either mode; submission follows the multiline submit rules described above.
+
+```tsx
+<TextArea autoGrow rows={2} maxRows={4} placeholder="Write a note" />
+```
+
+The [input probe](../packages/app/src/Home.tsrx) includes controlled and
+uncontrolled composers.

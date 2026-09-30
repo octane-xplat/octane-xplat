@@ -53,6 +53,7 @@ export function Overlay(props: OverlayProps) @{
 			if (shown.current?.host === host) shown.current = null;
 			if (dismissed) dismiss.current?.();
 		});
+
 		const opened = { host, root, lifetime, unbindTheme };
 		lifetime.own(() => opened.unbindTheme?.());
 		shown.current = opened;

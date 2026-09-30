@@ -42,6 +42,7 @@ Workflows:
 - [Publish a typed component library](typed-component-library.md)
 - [Add a platform-native date or time picker](date-picker.md)
 - [Add a platform-native context menu to an octane subtree](context-menu.md)
+- [Grow a multiline input](textarea-growth.md)
 - [Edit a PIN without shifting cells](pin-entry.md)
 - [Own shared temporary surfaces](shared-overlays.md)
 - [Present an octane subtree in a platform-native bottom sheet](sheet.md)

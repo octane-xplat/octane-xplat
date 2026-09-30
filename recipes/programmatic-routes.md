@@ -60,7 +60,7 @@ database, a content directory, or a host framework's own route model.
 
 - AC5: [Loader and presentation behavior](../docs/navigation.md#present-a-route-modally)
   and [guard behavior](../docs/navigation.md#guard-and-document-a-route).
-  Regression example: `packages/ui/src/route-navigation.test.ts`.
+  Regression example: `packages/ui/src/route-navigation.web.test.ts`.
 
 ## Verification
 

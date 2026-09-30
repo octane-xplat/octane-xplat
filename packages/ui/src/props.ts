@@ -364,7 +364,8 @@ export interface TextAreaProps extends TextInputProps {
 	 *  minHeight at the widget's measured line height. With `autoGrow` it
 	 *  becomes the starting height instead of a fixed one. */
 	rows?: number
-	/** Grow to fit content, capped by `maxRows`. Native TextView grows by
+	/** Grow on input and value updates, capped by `maxRows`, including when
+	 *  `value` is omitted. Native TextView grows by
 	 *  default — this prop exists so web (<textarea> is fixed-rows) matches;
 	 *  without it, native gets a fixed `rows`-high box like web. */
 	autoGrow?: boolean

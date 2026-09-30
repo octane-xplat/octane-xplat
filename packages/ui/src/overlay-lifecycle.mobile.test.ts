@@ -15,6 +15,7 @@ const state = vi.hoisted(() => ({
 	cleanup: [] as any[],
 	enter: vi.fn(),
 }))
+
 vi.mock('@nativescript/core', () => ({
 	isIOS: false,
 	isAndroid: false,
@@ -36,10 +37,13 @@ vi.mock('@nativescript/core', () => ({
 			this.handlers.get(event)?.delete(handler)
 		}
 		notify(event: string) {
-			for (const handler of this.handlers.get(event) ?? []) handler()
+			for (const handler of this.handlers.get(event) ?? []) {
+				handler()
+			}
 		}
 	},
 }))
+
 vi.mock('@nativescript-community/octane', async (original) => ({
 	...(await original<Record<string, unknown>>()),
 	createNativeScriptRoot: () => {
@@ -48,6 +52,7 @@ vi.mock('@nativescript-community/octane', async (original) => ({
 		return root
 	},
 }))
+
 vi.mock('./root-layout.mobile', () => ({ rootLayoutFor: () => state.owner }))
 vi.mock('./theme/theme-scheme', () => ({
 	useThemeScheme: () => 'light',
@@ -56,12 +61,14 @@ vi.mock('./theme/theme-scheme', () => ({
 		const listener = () => {
 			host.className = base
 		}
+
 		state.subscriptions.add(listener)
 		return () => {
 			state.subscriptions.delete(listener)
 		}
 	},
 }))
+
 vi.mock('./keyboard-inset.mobile', () => ({
 	bindBottomInsetToKeyboard: () => {
 		const off = vi.fn()
@@ -69,6 +76,7 @@ vi.mock('./keyboard-inset.mobile', () => ({
 		return off
 	},
 }))
+
 vi.mock('./tap-to-blur', () => ({
 	attachTapToBlur: () => {
 		const off = vi.fn()
@@ -76,6 +84,7 @@ vi.mock('./tap-to-blur', () => ({
 		return off
 	},
 }))
+
 vi.mock('./sheet-detents', () => ({
 	attachSheetDetents: () => {
 		const off = vi.fn()
@@ -93,11 +102,13 @@ const settle = async () => {
 	await new Promise((r) => setTimeout(r, 0))
 	flushUniversalSync(() => {})
 }
+
 function mount(Component: any, props: any = {}) {
 	const root = createUniversalRoot(
 		createObjectContainer('nativescript'),
 		createObjectDriver('nativescript'),
 	)
+
 	mounted.push(root)
 	const render = (extra: any = {}) => {
 		root.render(Component, {
@@ -107,11 +118,14 @@ function mount(Component: any, props: any = {}) {
 			...props,
 			...extra,
 		})
+
 		flushUniversalSync(() => {})
 	}
+
 	render()
 	return { root, render }
 }
+
 beforeEach(() => {
 	state.hosts.length = 0
 	state.roots.length = 0
@@ -141,10 +155,15 @@ beforeEach(() => {
 		}),
 	}
 })
+
 afterEach(async () => {
-	for (const root of mounted.splice(0)) root.unmount()
+	for (const root of mounted.splice(0)) {
+		root.unmount()
+	}
+
 	await settle()
 })
+
 describe.each([
 	['Overlay', Overlay],
 	['Sheet', Sheet],
@@ -160,8 +179,11 @@ describe.each([
 		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
 		expect(state.subscriptions.size).toBe(0)
 		expect(dismiss).not.toHaveBeenCalled()
-		for (const off of state.cleanup) expect(off).toHaveBeenCalledTimes(1)
+		for (const off of state.cleanup) {
+			expect(off).toHaveBeenCalledTimes(1)
+		}
 	})
+
 	it('releases everything on programmatic close without reporting dismissal', async () => {
 		const dismiss = vi.fn()
 		const { render } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] })
@@ -173,11 +195,13 @@ describe.each([
 		expect(state.subscriptions.size).toBe(0)
 		expect(dismiss).not.toHaveBeenCalled()
 	})
+
 	it('ignores late open completion after unmount', async () => {
 		let finish!: () => void
 		state.open = new Promise<void>((r) => {
 			finish = r
 		})
+
 		const { root } = mount(Component, { detents: [0.5, 1] })
 		await settle()
 		root.unmount()
@@ -188,11 +212,13 @@ describe.each([
 		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
 		expect(state.enter).not.toHaveBeenCalled()
 	})
+
 	it('cleans up a rejected open', async () => {
 		let fail!: (e: Error) => void
 		state.open = new Promise((_, reject) => {
 			fail = reject
 		})
+
 		const error = vi.spyOn(console, 'error').mockImplementation(() => {})
 		mount(Component, { detents: [0.5, 1] })
 		await settle()
@@ -201,9 +227,13 @@ describe.each([
 		expect(state.owner.children.size).toBe(0)
 		expect(state.subscriptions.size).toBe(0)
 		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
-		for (const off of state.cleanup) expect(off).toHaveBeenCalledTimes(1)
+		for (const off of state.cleanup) {
+			expect(off).toHaveBeenCalledTimes(1)
+		}
+
 		error.mockRestore()
 	})
+
 	it('does not remove a host already closing through RootLayout', async () => {
 		const { root } = mount(Component)
 		await settle()
@@ -217,6 +247,7 @@ describe.each([
 		state.owner.removeChild(host)
 		expect(state.roots[0].unmount).toHaveBeenCalledTimes(1)
 	})
+
 	it('detaches a host when its close animation rejects', async () => {
 		const error = vi.spyOn(console, 'error').mockImplementation(() => {})
 		const { root } = mount(Component)
@@ -225,17 +256,20 @@ describe.each([
 			state.owner.popups.delete(host)
 			throw new Error('close failed')
 		})
+
 		root.unmount()
 		await settle()
 		expect(state.owner.children.size).toBe(0)
 		expect(state.subscriptions.size).toBe(0)
 		error.mockRestore()
 	})
+
 	it('keeps a reopened host alive when the old open rejects later', async () => {
 		let fail!: (e: Error) => void
 		state.open = new Promise((_, reject) => {
 			fail = reject
 		})
+
 		const error = vi.spyOn(console, 'error').mockImplementation(() => {})
 		const { render } = mount(Component)
 		await settle()
@@ -251,9 +285,11 @@ describe.each([
 		expect(state.roots[1].unmount).not.toHaveBeenCalled()
 		error.mockRestore()
 	})
+
 	it('uses the latest dismissal callback and never reenters a platform close', async () => {
 		const old = vi.fn(),
 			current = vi.fn()
+
 		const { render } = mount(Component, { onDismiss: old })
 		await settle()
 		render({ onDismiss: current, children: 'updated' })
@@ -266,6 +302,7 @@ describe.each([
 		expect(state.subscriptions.size).toBe(0)
 	})
 })
+
 it('Overlay replaces theme subscriptions when content or classes update', async () => {
 	const { render } = mount(Overlay)
 	await settle()

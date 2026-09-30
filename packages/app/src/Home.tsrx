@@ -248,6 +248,7 @@ export function Home() @{
 						maxRows={4}
 						className="input"
 					/>
+					<TextArea id="probe-textarea-uncontrolled" placeholder="Uncontrolled composer" autoGrow rows={2} maxRows={4} className="input" />
 					<Text className="text-sm text-muted multiline-echo">{'Bio: ' + bio}</Text>
 					{/* Cascade-layer probe — app.css contests these two views across
 					    layers; the harness asserts which rule actually applied. */}
