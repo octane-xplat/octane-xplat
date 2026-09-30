@@ -340,7 +340,7 @@ body {
 	min-height: 0;
 	position: relative;
 	background-color: var(--doc-card);
-	border-radius: 24px;
+	border-radius: 36px;
 	corner-shape: squircle;
 	border-width: 1px;
 	border-color: rgba(0, 0, 0, 0.02);
