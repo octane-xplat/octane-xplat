@@ -183,7 +183,7 @@ function read(): Route | null {
 		restoreRouteState()
 	}
 
-	return current
+	return current ?? null
 }
 
 function emit() {
