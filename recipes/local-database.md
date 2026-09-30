@@ -1,7 +1,7 @@
 # Persist structured data in a local database
 
 ID: local-database
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: @octane-xplat/sqlite, openDatabase, deleteDatabase, select, selectArray, get, getArray, execute, transaction, each, getUserVersion, setUserVersion, persistent, supported
 
 ## Starting point
@@ -22,8 +22,8 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
 
 ## Acceptance criteria
 
-- AC1: `openDatabase(name)` resolves to a `SqliteDb` on web, iOS, and Android
-  from one shared import; `supported` reports false on macOS and Windows and
+- AC1: `openDatabase(name)` resolves to a `SqliteDb` on web, iOS, Android, and
+  macOS from one shared import; `supported` reports false on Windows and
   `openDatabase` rejects there rather than crashing at import.
 - AC2: `execute`, `select`, `selectArray`, `get`, `getArray`, `each`, and
   `transaction` behave the same on every supported target; a throwing
@@ -33,6 +33,9 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
 - AC4: `db.persistent` is true on native and on web under OPFS access, and
   the reader knows that without OPFS the web database is transient and must
   be treated as a cache, not a record of truth.
+- AC6: on macOS the reader knows persistence is a whole-db snapshot written
+  at transaction commit, `setUserVersion`, and `close` — a crash between
+  boundaries loses unflushed writes.
 - AC5: `deleteDatabase(name)` removes the persisted file on native and the
   OPFS entry on web.
 
@@ -49,3 +52,5 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
   transient-fallback conditions.
 - AC5: [Local database](../docs/platform-services.md#local-database) —
   `deleteDatabase`.
+- AC6: [Local database](../docs/platform-services.md#local-database) —
+  snapshot durability model; [known limits](../docs/known-limits.md).

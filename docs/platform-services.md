@@ -56,7 +56,7 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 | `media.capturePhoto()` | still capture through the OS camera UI | web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops; native needs `@nativescript/camera` |
 | `webAuthn` | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession` |
 | `authSession` | `open(url, { callbackScheme })` — hosted web ceremony in a system browser | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web |
-| `@octane-xplat/sqlite` | `openDatabase(name)` → async `execute`/`select`/`get`/`transaction`/`userVersion` | own leaf, not a platform service; web persists via an OPFS worker (`db.persistent` reports); macOS/Windows `supported: false` |
+| `@octane-xplat/sqlite` | `openDatabase(name)` → async `execute`/`select`/`get`/`transaction`/`userVersion` | own leaf, not a platform service; web persists via an OPFS worker, macOS runs sqlite-wasm in-process with file snapshots (`db.persistent` reports); Windows `supported: false` |
 
 `media` owns the `camera` and `photos` permission requests for still capture
 and image picking. Live-preview permission belongs to `@octane-xplat/camera`,
@@ -230,9 +230,12 @@ Check `db.persistent` after open: on web it reports whether the database
 really persists (OPFS via a Worker) or opened transiently because the browser
 denied OPFS access — private windows and locked-down embeds can force the
 transient path, and the flag is how app code finds out instead of losing data
-silently. It is always true on iOS and Android. `supported` is `false` on
-macOS and Windows for now; `openDatabase` there rejects, so branch on the
-flag first rather than catching.
+silently. It is always true on iOS and Android. On macOS the leaf runs the
+same sqlite-wasm build inside the JSC host and persists whole-db snapshots to
+`Application Support/octane-sqlite` at durability boundaries (transaction
+commit, `setUserVersion`, `close`) — a crash between boundaries loses
+unflushed writes. `supported` is `false` on Windows for now; `openDatabase`
+there rejects, so branch on the flag first rather than catching.
 
 `getUserVersion`/`setUserVersion` map to `PRAGMA user_version` — the shared
 migration hook. `deleteDatabase(name)` removes the file. On native, calls

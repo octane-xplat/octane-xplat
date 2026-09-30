@@ -71,6 +71,17 @@
 
 | 71 | Structured local persistence ships as its own leaf — `@octane-xplat/sqlite`, one async API (`openDatabase` → `execute`/`select`/`get`/`transaction`/`each`/`userVersion`/`deleteDatabase`) backed by `@nativescript-community/sqlite` on iOS/Android and `@sqlite.org/sqlite-wasm` inside a module Worker on web (SAH-pool OPFS first, `OpfsDb`, then transient — `db.persistent` reports which); macOS and Windows ship `supported: false` leaves | Decided | `react-native-sqlite-2` is unusable — its per-platform impls are React Native bridge modules, and its WebSQL callback API is a deprecated spec; the community plugin is already promise-shaped ~1:1 with the seam (`threading` routes calls to native workers, matching the web worker model). Same sqlite engine on both sides = real parity, unlike WebSQL/IndexedDB semantics ports. SAH-pool OPFS verified durable across page reloads without COOP/COEP — the predicted deployment constraint never materialized. macOS wants either `__xplatAppKit` bridge or interop `sqlite3_*` calls — deferred as the only remaining lab question | sqlite-notes, platform-services |
 
+> **#71 implementation note (2026-09-29):** macOS no longer ships
+> `supported: false`. The planned `__xplatAppKit`/libsqlite3 bridge turned
+> out to be unreachable — `objc.import` loads framework bundles only and the
+> prebuilt `metadata.nsmd` carries no `sqlite3_*`/`dlopen` symbols. Instead
+> the leaf compiles the bundled `sqlite3.wasm` synchronously inside the JSC
+> host (async `WebAssembly.instantiate` never drains there) behind small
+> shims in `env.macos.ts`, and persists whole-db snapshots to
+> `Application Support/octane-sqlite` at transaction commit, `setUserVersion`,
+> and `close`. Verified end-to-end on the real host binary, including a cold
+> second-process read. Windows remains `supported: false`.
+
 
 > **#59 implementation note (2026-09-27):** The candidate is not yet the
 > `@octane-xplat/ui` API. NativeScript 9.1.2's iOS and Android
