@@ -41,6 +41,7 @@
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",
 		"@clack/prompts": "1.8.1",
+		"marked": "18.0.14",
 		"yaml": "2.9.1"
 	}
 }

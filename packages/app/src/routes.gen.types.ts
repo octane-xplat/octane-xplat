@@ -7,6 +7,7 @@ export type RouteName =
 	| 'detail'
 	| 'list-nested-probe'
 	| 'motion-probe'
+	| 'notes'
 	| 'parity'
 	| 'private'
 	| 'qa'
@@ -18,6 +19,7 @@ export interface RouteParams {
 	'detail': {  }
 	'list-nested-probe': {  }
 	'motion-probe': {  }
+	'notes': {  }
 	'parity': {  }
 	'private': {  }
 	'qa': {  }

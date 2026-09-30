@@ -2,6 +2,7 @@
 import { Device } from '@nativescript/core'
 import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
 import { bakedRouteData } from './routes.gen.data'
+import { defineRoutes, mergeRouteManifests, MarkdownScreen } from '@octane-xplat/ui'
 export type { RouteName, RouteParams, RoutePresentations } from './routes.gen.types'
 
 const files = import.meta.glob(
@@ -19,5 +20,12 @@ export const routes = deriveRouteManifest(files, Device.os === 'Android' ? ['and
 // Baked loader results ride the manifest — 'baked' route metas resolve
 // against it at push time instead of running a loader.
 routes.baked = bakedRouteData
-registerRoutes(routes)
-export const screens = routes.screens
+const mdRoutes = defineRoutes({
+	routes: [
+		{ path: 'notes', screen: MarkdownScreen, dataMode: 'baked', source: 'src/app/notes.md' },
+	],
+	baked: bakedRouteData,
+})
+const manifest = mergeRouteManifests(routes, mdRoutes)
+registerRoutes(manifest)
+export const screens = manifest.screens
