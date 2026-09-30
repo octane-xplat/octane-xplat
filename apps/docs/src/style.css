@@ -367,7 +367,7 @@ body {
 	align-items: center;
 	gap: 10px;
 	padding: 12px 14px;
-	border-bottom-width: 1px;
+	border-bottom-width: 0.5px;
 	border-bottom-color: var(--doc-hairline);
 	border-bottom-style: solid;
 }
@@ -393,7 +393,7 @@ body {
 	font-size: 11px;
 	font-weight: 550;
 	color: var(--doc-dim);
-	border-width: 1px;
+	border-width: 0.5px;
 	border-color: var(--doc-hairline);
 	border-style: solid;
 	border-radius: 6px;
