@@ -287,9 +287,6 @@ export function App() @{
 					) : (
 						<Text className="hit-empty">No matches for “{query}”</Text>
 					)}
-					<div className="palette-foot">
-						<Text className="palette-foot-text">↑↓ navigate · enter open · esc close</Text>
-					</div>
 				</div>
 			</div>
 		)}
