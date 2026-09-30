@@ -4,14 +4,15 @@ import { Utils } from '@nativescript/core';
 import type { TextAreaProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { writeText } from './text-write';
+import { isWritingText, writeText } from './text-write';
+import { blurText } from './text-focus';
 
 /** Multiline input — <textview>. TextView measures to content natively, so
  *  `autoGrow` is its default; `rows`/`maxRows` have no NS equivalent, so the
  *  leaf converts them to min/maxHeight in dips using the widget's own line
  *  height (iOS `font.lineHeight`, Android `getLineHeight()` px→dip — measured
- *  on `loaded`, re-fit every commit for prop/style changes). The driver's
- *  text→textChange echo suppression applies here unchanged. */
+ *  on `loaded`, re-fit every commit for prop/style changes). Imperative
+ *  writes suppress their synchronous textChange echo through text-write. */
 export function TextArea(props: TextAreaProps) @{
 	const el = useRef<any>(null);
 	const submitOnReturn = props.returnKeyType === 'done' || props.returnKeyType === 'send';
@@ -46,7 +47,7 @@ export function TextArea(props: TextAreaProps) @{
 			el.current = v;
 			if (!v) return;
 			applyEscapeProps(v, props);
-			props.bind?.({ focus: () => v.focus(), blur: () => v.dismissSoftInput?.() ?? v.blur(), native: v });
+			props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v });
 		}}
 		className={cx('vx-textarea', props.className)}
 		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
@@ -55,7 +56,7 @@ export function TextArea(props: TextAreaProps) @{
 		returnKeyType={props.returnKeyType}
 		editable={props.editable ?? true}
 		onLoaded={(e: any) => fit(e.object)}
-		onTextChange={(e: any) => props.onChange?.(e.value)}
+		onTextChange={(e: any) => { if (!isWritingText(e.object)) props.onChange?.(e.value); }}
 		// TextView emits returnPress for every newline. Only an explicit action
 		// key opts into the submit semantic; ordinary Return remains a newline.
 		onReturnPress={submitOnReturn ? props.onSubmit : undefined}

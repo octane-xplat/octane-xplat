@@ -4,7 +4,8 @@ import type { SearchInputProps } from './props';
 import { Icon } from './Icon.tsrx';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { writeText } from './text-write';
+import { isWritingText, writeText } from './text-write';
+import { blurText } from './text-focus';
 
 /** Chrome-reset search field — a styled TextField (not UISearchBar) with a
  *  leading glyph and a self-drawn clear button, matching the web leaf.
@@ -40,13 +41,13 @@ export function SearchInput(props: SearchInputProps) @{
 			ref={(v: any) => {
 				el.current = v;
 				if (!v) return;
-				props.bind?.({ focus: () => v.focus(), blur: () => v.dismissSoftInput?.() ?? v.blur(), native: v });
+				props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v });
 			}}
 			className="vx-search-field"
 			hint={props.placeholder}
 			returnKeyType="search"
 			editable={props.editable ?? true}
-			onTextChange={(e: any) => setValue(e.value)}
+			onTextChange={(e: any) => { if (!isWritingText(e.object)) setValue(e.value); }}
 			onReturnPress={props.onSubmit}
 			onFocus={props.onFocus}
 			onBlur={props.onBlur}
