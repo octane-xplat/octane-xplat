@@ -131,20 +131,21 @@ experience of agents writing Octane-xplat code effectively.
   the supply-chain cutoff.
 - The framework patch set lives canonically in `packages/cli/patches/`
   (`manifest.json` carries specifier/scope/why/dropWhen per patch) and ships
-  inside `@octane-xplat/cli` — pnpm only honors `patchedDependencies` at the
-  app root, so downstream apps materialize it with `xplat patches apply`
-  (copies files into `<app>/patches/` + merges the yaml block; `--force`
-  takes the framework copy over a divergent one) and verify with
-  `xplat patches check` / `xplat doctor`. The root `pnpm-workspace.yaml`
-  references `packages/cli/patches/` directly; the create template carries
-  generated self-contained copies. `pnpm sync:patches` regenerates both yaml
-  blocks + template files from the manifest — `pnpm check:patches` fails on
-  drift. Regenerate a patch via `pnpm patch`/`pnpm patch-commit` (writes to
-  the configured path, i.e. the canonical dir), then sync + update the
-  manifest entry. Each patch is pinned to an exact version; remove it when
-  upstream ships its fix. esbuild is pinned to 0.27.7 — vite 8's
-  peer range admits 0.28.x and the vendor bundler dies on the host/binary
-  mismatch.
+  inside `@octane-xplat/cli`. Existing apps materialize it with
+  `xplat patches apply` (copies files into `<app>/patches/` + merges the yaml
+  block; `--force` takes the framework copy over a divergent one) and verify
+  with `xplat patches check` / `xplat doctor`. Fresh create templates instead
+  declare `@octane-xplat/patches` as a pnpm `configDependencies` package and
+  point patched files into `node_modules/.pnpm-config/`, so the first install
+  has the patches without template copies. The root `pnpm-workspace.yaml`
+  references `packages/cli/patches/` directly. `pnpm sync:patches` regenerates
+  both yaml blocks and the config package files from the manifest —
+  `pnpm check:patches` fails on drift. Regenerate a patch via
+  `pnpm patch`/`pnpm patch-commit` (writes to the configured path, i.e. the
+  canonical dir), then sync + update the manifest entry. Each patch is pinned
+  to an exact version; remove it when upstream ships its fix. esbuild is
+  pinned to 0.27.7 — vite 8's peer range admits 0.28.x and the vendor bundler
+  dies on the host/binary mismatch.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
   from the registry → 404).
 - `apps/mobile` needs `@valor/nativescript-websockets` — the on-device HMR

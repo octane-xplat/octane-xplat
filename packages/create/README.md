@@ -9,7 +9,7 @@ Windows has a separate experimental scaffold with runtime verification pending. 
 [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 The framework is `0.x` and its API surface is still changing.
 
-With Node.js and pnpm installed:
+With Node.js and pnpm 11.24.0 installed:
 
 ```sh
 pnpm create octane-xplat my-app
@@ -24,6 +24,10 @@ Check the result before asking for the next feature: add “Passport” and
 clear the list in this in-memory version. The
 [first-flow guide](https://octane-xplat.goddardai.org/toolchain#build-and-check-your-first-flow)
 includes the full prompt and failure checks.
+
+The generated app pins pnpm 11.24.0. Its `pnpm-workspace.yaml` loads
+`@octane-xplat/patches` as a `configDependencies` package, making the
+framework patches available during the first install.
 
 Leave the server running while you edit. After stopping it, restart from the
 app directory:

@@ -49,7 +49,7 @@ allowBuilds:
 # Canonical copies live in packages/cli/patches/ — manifest.json there carries
 # why/dropWhen per entry and feeds `xplat patches apply`. Regenerate a patch with `pnpm
 # patch`/`pnpm patch-commit` (it writes to the configured path), then `pnpm sync:patches`
-# propagates to the create template. `pnpm check:patches` fails on drift.
+# propagates it to @octane-xplat/patches. `pnpm check:patches` fails on drift.
 patchedDependencies:
   # Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal
   # ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep

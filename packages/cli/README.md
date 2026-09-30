@@ -29,11 +29,13 @@ pnpm xplat patches check  # verify the patch set is registered and unmodified
 
 The framework carries a small set of upstream fixes as pnpm
 `patchedDependencies` (`packages/cli/patches/` + manifest in the published
-package). pnpm only honors them at an app's workspace root, so
-`xplat patches apply` copies the `.patch` files into `<app>/patches/` and
-merges the block into the app's `pnpm-workspace.yaml` (or
-`pnpm.patchedDependencies` in package.json). Apps scaffolded by
-`create-octane-xplat` already carry the set.
+package). pnpm only honors them at an app's workspace root. For existing apps,
+`xplat patches apply` copies the `.patch` files into `<app>/patches/` and merges
+the block into the app's `pnpm-workspace.yaml` (or `pnpm.patchedDependencies`
+in package.json). Fresh apps from `create-octane-xplat` fetch the
+dependency-free `@octane-xplat/patches` package through pnpm
+`configDependencies`; their patch paths point into
+`node_modules/.pnpm-config/`.
 
 The scaffolded app's `pnpm dev` / `pnpm build` / `pnpm dev:ios` scripts drive
 the supported targets directly; `xplat` is the multi-target front end. The

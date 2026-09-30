@@ -145,9 +145,10 @@ Expect churn: octane is beta, the NS port is days old. Pin exact versions, bump
 deliberately. The escape hatch is pnpm `patchedDependencies` — the canonical
 set lives in `packages/cli/patches/` (manifest.json + `.patch` files), the
 workspace yaml references it directly, and `pnpm sync:patches` /
-`pnpm check:patches` keep the create template's copies identical. Downstream
-apps materialize it via `xplat patches apply` and verify with
-`xplat patches check` / `xplat doctor`.
+`pnpm check:patches` keep the published `@octane-xplat/patches` config package
+and create template yaml in sync. Fresh scaffolds fetch that package through
+`configDependencies`; existing apps materialize patches with
+`xplat patches apply` and verify with `xplat patches check` / `xplat doctor`.
 
 When a workspace package's dependency declarations change, resync with
 `pnpm install --lockfile-only`; do not hand-edit the importer. The

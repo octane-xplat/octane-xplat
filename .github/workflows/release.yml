@@ -138,7 +138,11 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- 'packages/*/package.json' packages/create/template/package.json CHANGELOG.md
+          git add -A -- \
+            'packages/*/package.json' \
+            packages/create/template/package.json \
+            packages/create/template/pnpm-workspace.yaml \
+            CHANGELOG.md
           git commit -m "chore(release): align packages at ${{ steps.version.outputs.version }}"
           # Another job/push may have moved main since checkout — replay on top
           # before tagging so the push is a fast-forward.

@@ -84,6 +84,13 @@
 
 ## Reversals
 
+- **2026-09-29 — patch distribution (#63):** keep the patch set and manifest
+  canonical in `packages/cli/patches/` and retain `xplat patches apply` for
+  existing apps. Fresh create templates now declare the dependency-free
+  `@octane-xplat/patches` config package and point `patchedDependencies` into
+  `node_modules/.pnpm-config/`; `pnpm sync:patches` generates its patch
+  files instead of copying patches into the template. This removes per-template
+  copies and adds one package to publish and version in lockstep.
 - **2026-09-28 — filename convention (#2, #18, #31):** replace the generic
   `.native` filename tier with the unsuffixed native default. `.web` marks
   browser-specific code; `.mobile` marks code shared by iOS and Android; and

@@ -14,14 +14,14 @@ allowBuilds:
   '@parcel/watcher': true
   nativescript: true
   '@nativescript/core': false
-# Framework patch set required by the octane-xplat toolchain — applied via pnpm
-# patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat patches apply`
-# refreshes, `xplat patches check` verifies); do not edit by hand.
+# Framework patches are supplied by the @octane-xplat/patches config dependency and
+# applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat
+# patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.
 patchedDependencies:
   # Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal
   # ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep
   # already ship upstream.
-  octane@0.6.3: patches/octane@0.6.3.patch
+  octane@0.6.3: node_modules/.pnpm-config/@octane-xplat/patches/patches/octane@0.6.3.patch
   # FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts
   # parent padding + child margins — a column-stretched row re-measurement clamps padded
   # children (37→17 dip, squished controls). Adds squircle (continuous) corner clipping for
@@ -36,12 +36,12 @@ patchedDependencies:
   # frames). Also maps CSS font-weight to the OpenType wght axis for custom Android fonts on
   # API 26+, preserves explicit variation settings, and falls back to the prior file load
   # when the axis is unsupported.
-  "@nativescript/core@9.1.2": patches/@nativescript__core@9.1.2.patch
+  "@nativescript/core@9.1.2": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__core@9.1.2.patch
   # @nativescript/vite serializes bundled CSS and dev app.css through reworkcss `css`@3.0.0,
   # which mis-parses @layer into garbage selectors — rules die before reaching
   # _populateRules. Adds atlayer() covering block and statement forms. Applies to a
   # transitive dep — no app declares it directly.
-  css@3.0.0: patches/css@3.0.0.patch
+  css@3.0.0: node_modules/.pnpm-config/@octane-xplat/patches/patches/css@3.0.0.patch
   # Dev-server /ns/m fixes: resolve pnpm-isolated transitive deps and platform-suffixed
   # entries, inline workspace CSS through /@fs (including the node:path import required to
   # resolve workspace files), route vendor-excluded plugins through HTTP, decode bracketed
@@ -52,28 +52,30 @@ patchedDependencies:
   # resolver also probes the .mobile suffix tier (ios/android) between the os qualifier and
   # unsuffixed default — .mobile-only modules behind paths-mapped imports failed bundle-mode
   # resolution.
-  "@nativescript/vite@8.0.11": patches/@nativescript__vite@8.0.11.patch
+  "@nativescript/vite@8.0.11": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.11.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
   # listeners.
-  "@nativescript-community/octane@0.2.1": patches/@nativescript-community__octane@0.2.1.patch
+  "@nativescript-community/octane@0.2.1": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__octane@0.2.1.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
   # Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for
   # delivered updates.
-  "@nativescript-community/vite-octane@0.2.1": patches/@nativescript-community__vite-octane@0.2.1.patch
+  "@nativescript-community/vite-octane@0.2.1": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript-community__vite-octane@0.2.1.patch
   # Same dev-server fixes as the 8.0.11 patch, ported to the @11468 pkg.pr.new preview the
   # windows target uses (apps/windows): /ns/m re-export records, vendor-manifest gating for
   # plugin-patterned packages, percent-decoded specifiers, and the .mobile-aware
   # tsconfig-paths probing.
-  "@nativescript/vite@8.0.13": patches/@nativescript__vite@8.0.13.patch
+  "@nativescript/vite@8.0.13": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__vite@8.0.13.patch
   # Windows spike: the shared-file subset of the 9.1.2 patch — @layer cascade machinery
   # (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes,
   # and the flexbox common measure-spec — applied to the @11468 preview. iOS/Android
   # impl-file hunks are dead code on windows and were dropped.
-  "@nativescript/core@9.1.3-next.2": patches/@nativescript__core@9.1.3-next.2.patch
+  "@nativescript/core@9.1.3-next.2": node_modules/.pnpm-config/@octane-xplat/patches/patches/@nativescript__core@9.1.3-next.2.patch
   # Enables `resolveHiddenExtensions` on the language plugin's typescript facet so
   # extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required
   # for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc
   # and the IDE plugin.
-  "@tsrx/typescript-plugin@0.4.11": patches/@tsrx__typescript-plugin@0.4.11.patch
+  "@tsrx/typescript-plugin@0.4.11": node_modules/.pnpm-config/@octane-xplat/patches/patches/@tsrx__typescript-plugin@0.4.11.patch
+configDependencies:
+  "@octane-xplat/patches": 0.7.1

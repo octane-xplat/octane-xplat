@@ -1,5 +1,5 @@
 {
-  "$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` propagates this set to packages/create/template; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` \u2014 the root workspace yaml points here so commit writes land in this dir.",
+  "$comment": "Canonical framework patch set. pnpm only honors patchedDependencies at the app/workspace root, so these ship inside @octane-xplat/cli and downstream apps materialize them via `xplat patches apply` (copies files into <app>/patches/ + merges the yaml block). `pnpm sync:patches` generates the config package's patch files and the template config; `pnpm check:patches` fails on drift. Maintain a patch with `pnpm patch <specifier>` + `pnpm patch-commit` \u2014 the root workspace yaml points here so commit writes land in this dir.",
   "patches": [
     {
       "specifier": "octane@0.6.3",

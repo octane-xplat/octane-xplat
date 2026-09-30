@@ -1,6 +1,7 @@
 {
 	"name": "octane-xplat-app",
 	"private": true,
+	"packageManager": "pnpm@11.24.0",
 	"type": "module",
 	"main": "src/index.ts",
 	"scripts": {
