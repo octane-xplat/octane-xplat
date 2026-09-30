@@ -484,6 +484,7 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 		}
 
 		modalHosts.splice(i, 1)
+		root.unmount?.()
 		emit()
 	}
 
@@ -532,7 +533,6 @@ function pushModal(frame: Frame, r: Route, C: any): void {
 		emit()
 	} catch (e) {
 		entry.dismiss()
-		root.unmount?.()
 		console.warn('[octane-xplat] modal pushRoute(' + r.name + ') threw: ' + (e as Error)?.message)
 	}
 }
