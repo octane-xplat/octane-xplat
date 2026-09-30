@@ -14,14 +14,14 @@ export function Pressable(props: PressableProps) @{
 	usePan(el, props.disabled ? undefined : props.onPan);
 
 	const cancel = () => { if (timer.current !== null) { clearTimeout(timer.current); timer.current = null; } };
-	useEffect(() => {
-		if (props.disabled) { cancel(); spacePressed.current = false; }
-		return cancel;
-	}, [props.disabled]);
+	useEffect(() => { if (props.disabled) spacePressed.current = false; }, [props.disabled]);
+	const enabled = !props.disabled && Boolean(props.onLongPress);
+	useEffect(() => { if (!enabled) cancel(); }, [enabled]);
+	useEffect(() => () => cancel(), []);
 
 	// Long-press parity with native: ~500ms hold over pointerdown/up.
 	const down = () => {
-		if (props.disabled || !props.onLongPress) return;
+		if (latest.current.disabled || !latest.current.onLongPress) return;
 		cancel();
 		timer.current = setTimeout(() => {
 			timer.current = null;

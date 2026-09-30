@@ -318,6 +318,20 @@ If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)
 cover the less common components, accessibility details, and renderer limits.
 
+## Hold a press
+
+Use `Pressable onLongPress` for a hold action. Web reports a hold after
+approximately 500 ms and native uses its platform long-press gesture.
+Releasing, leaving the hit area, canceling the pointer, disabling the control,
+or removing it cancels a pending web hold. Rerendering keeps the pending
+interaction and invokes the latest callback if the hold completes.
+
+```tsx
+<Pressable onLongPress={() => showToast('Held')}>
+	<Text>Hold to show a toast</Text>
+</Pressable>
+```
+
 ## Own temporary surfaces
 
 Render `Sheet`, `Overlay`, or `Popover` inside a `Screen` on native so the
