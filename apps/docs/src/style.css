@@ -63,6 +63,7 @@ body {
 		system-ui,
 		-apple-system,
 		sans-serif;
+	font-weight: 350;
 	background-color: var(--doc-bg);
 }
 
