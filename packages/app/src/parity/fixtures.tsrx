@@ -662,7 +662,7 @@ function KbdFixture() @{
 }
 
 function LinkFixture() @{
-	<Link className="parity-link-root" href="/parity" style={{ width: 160, height: 32, backgroundColor: '#f5f5f5' }}>
+	<Link className="parity-link-root" href="/parity">
 		<Text>Open parity</Text>
 	</Link>
 }
@@ -672,7 +672,6 @@ function NavLinkFixture() @{
 		className="parity-navlink-root"
 		activeClassName="parity-navlink-active"
 		route={{ stack: 'root', name: 'parity', params: {} }}
-		style={{ width: 160, height: 32, backgroundColor: '#f5f5f5' }}
 	>
 		<Text>Parity</Text>
 	</NavLink>

@@ -2,7 +2,10 @@ import { TNSPlayer } from '@nativescript-community/audio'
 
 export const createAudioPlayer = () => {
 	const player = new TNSPlayer()
-	const ready = player.initFromUrl({ audioFile: 'https://www.w3schools.com/html/horse.mp3' })
+	const ready = player.initFromUrl({
+		audioFile: 'https://www.w3schools.com/html/horse.mp3',
+		loop: false,
+	})
 	return {
 		ready,
 		play: async () => {

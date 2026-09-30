@@ -1,4 +1,4 @@
-import { AudioContext } from '@nativescript/audio-context'
+import { AudioContext, type OscillatorNode } from '@nativescript/audio-context'
 
 let context: AudioContext | undefined
 const active = new Set<OscillatorNode>()
