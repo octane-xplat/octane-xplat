@@ -648,7 +648,19 @@ export function checkNoTsImportsTsrx(program, _src, filename, options) {
 			continue
 		}
 
-		if (typeof node.source?.value === 'string' && node.source.value.endsWith('.tsrx')) {
+		// Type-only imports emit no module edge — `import type` and
+		// specifier-level `type` markers can never reach the consumer's
+		// runtime graph.
+		const specifiers = node.specifiers ?? []
+		const typeOnly =
+			node.importKind === 'type' ||
+			(specifiers.length > 0 && specifiers.every((s) => s.importKind === 'type'))
+
+		if (
+			!typeOnly &&
+			typeof node.source?.value === 'string' &&
+			node.source.value.endsWith('.tsrx')
+		) {
 			out.push({
 				node: node.source,
 				message: `'.ts' modules can't import '.tsrx' — the consumer gets an untransformed module. JSX-free leaves must stay .ts.`,
