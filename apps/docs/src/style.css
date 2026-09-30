@@ -882,19 +882,43 @@ body {
 	margin-bottom: 20px;
 }
 
-/* real table layout — auto column sizing fits each column to its
-   widest cell across all rows */
+/* Keep wide tables inside the document column and let only the table scroll. */
+.table-block {
+	max-width: 100%;
+	min-width: 0;
+	margin-top: 16px;
+	margin-bottom: 12px;
+}
+
+.table-scroll-hint {
+	display: none;
+}
+
+.table-scroll {
+	max-width: 100%;
+	min-width: 0;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+}
+
+.table-scroll:focus-visible {
+	outline: 2px solid var(--doc-link);
+	outline-offset: 3px;
+	border-radius: 12px;
+}
+
 .table {
 	display: table;
 	width: 100%;
+	min-width: 760px;
 	border-width: 1px;
 	border-color: var(--doc-hairline);
 	border-style: solid;
 	border-radius: 12px;
 	corner-shape: squircle;
 	background-color: var(--doc-bg);
-	margin-top: 16px;
-	margin-bottom: 12px;
+	margin: 0;
 	border-collapse: separate;
 	border-spacing: 0;
 	overflow: hidden;
@@ -1093,6 +1117,13 @@ body {
 		padding: 8px 10px;
 		font-size: 12px;
 	}
+
+	.table-scroll-hint {
+		display: block;
+		margin: 0 0 8px 2px;
+		color: var(--doc-dim);
+		font-size: 12px;
+	}
 }
 
 /* ——— tablet ——— */
@@ -1107,5 +1138,12 @@ body {
 
 	.doc {
 		padding: 48px 40px 64px;
+	}
+
+	.table-scroll-hint {
+		display: block;
+		margin: 0 0 8px 2px;
+		color: var(--doc-dim);
+		font-size: 12px;
 	}
 }

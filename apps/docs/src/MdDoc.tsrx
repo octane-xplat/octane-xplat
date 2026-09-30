@@ -126,12 +126,17 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 	if (b.kind === 'code') return <CodeBlock code={b.text} lang={b.lang} />;
 	if (b.kind === 'hr') return <View className="hr" />;
 	if (b.kind === 'table') {
-		return <View className="table">
-			{b.rows.map((r, ri) => (
-				<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
-					{r.map((c) => <Text className="td"><Spans spans={inlineSpans(c)} /></Text>)}
+		return <View className="table-block">
+			<Text className="table-scroll-hint">Scroll horizontally to view all columns</Text>
+			<View className="table-scroll" role="region" aria-label="Scrollable table" tabIndex={0}>
+				<View className="table">
+					{b.rows.map((r, ri) => (
+						<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
+							{r.map((c) => <Text className="td"><Spans spans={inlineSpans(c)} /></Text>)}
+						</View>
+					))}
 				</View>
-			))}
+			</View>
 		</View>
 	}
 
