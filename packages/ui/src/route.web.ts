@@ -46,7 +46,7 @@ function rebuildRegistry(): void {
 	// Registration can land after the first lazy parse (deep link read
 	// before the routes module ran) — re-parse with patterns present.
 	if (current !== undefined) {
-		current = parse()
+		restoreRouteState()
 		emit()
 	}
 }
@@ -66,7 +66,8 @@ export function registerScreens(table: ScreenTable, manifest?: RouteMeta[]): voi
 export function registerRoutes(manifest: RouteManifest): void {
 	baseManifest = manifest
 	rebuildRegistry()
-	applyHead(read())
+	read()
+	applyHead(modalRoute ?? current ?? null)
 }
 
 /** Layer a programmatic manifest (from `defineRoutes`) over the registered
@@ -76,7 +77,8 @@ export function registerRoutes(manifest: RouteManifest): void {
 export function addRoutes(manifest: RouteManifest): void {
 	dynamicManifests.push(manifest)
 	rebuildRegistry()
-	applyHead(read())
+	read()
+	applyHead(modalRoute ?? current ?? null)
 }
 
 export function screenFor(name: string): ScreenTable[string] | undefined {
@@ -99,6 +101,58 @@ const listeners = new Set<() => void>()
 let current: Route | null | undefined
 let modalRoute: Route | null = null
 let historyDepth = history.state?.__octaneXplatDepth ?? 0
+
+// History stores an identity rather than loader results: loaders may return
+// values that structured clone cannot serialize. Retain the prepared route
+// for this document's back/forward traversal; fresh boots still parse the URL.
+const historyRoutes = new Map<string, { current: Route | null; modal: Route | null }>()
+const historyEntryPrefix = Math.random().toString(36).slice(2)
+let nextHistoryEntry = 0
+
+function rememberRouteState(entry = historyEntryPrefix + ':' + ++nextHistoryEntry): string {
+	historyRoutes.set(entry, { current: current ?? null, modal: modalRoute })
+	return entry
+}
+
+function restoreRouteState(): void {
+	const saved = historyRoutes.get(history.state?.__octaneXplatEntry)
+	if (saved) {
+		current = saved.current
+		modalRoute = saved.modal
+	} else {
+		const route = parse()
+		modalRoute = route?.presentation === 'modal' ? route : null
+		current = modalRoute ? null : route
+		if (route) {hydrateRoute(route)}
+	}
+}
+
+// Direct URLs and history entries from a previous document have no prepared
+// loader result. Run their loader without pushing another history entry or
+// changing the documented bootstrap guard boundary.
+function hydrateRoute(route: Route): void {
+	const loader = routeLoaders[route.name] ?? metaFor(route.name)?.loader
+	if (!loader || Object.prototype.hasOwnProperty.call(route, 'loaderData') ||
+		Object.prototype.hasOwnProperty.call(route, 'loaderError')) {return}
+
+	const finish = (result: Pick<Route, 'loaderData' | 'loaderError'>) => {
+		const prepared = { ...route, ...result }
+		let changed = false
+		if (current === route) { current = prepared; changed = true }
+		if (modalRoute === route) { modalRoute = prepared; changed = true }
+		for (const saved of historyRoutes.values()) {
+			if (saved.current === route) {saved.current = prepared}
+			if (saved.modal === route) {saved.modal = prepared}
+		}
+
+		if (changed) {emit()}
+	}
+
+	void Promise.resolve().then(() => loader(route.params)).then(
+		(loaderData) => finish({ loaderData }),
+		(loaderError) => finish({ loaderError }),
+	)
+}
 
 const ROUTE_HEAD_ATTR = 'data-octane-xplat-route-head'
 
@@ -123,7 +177,7 @@ function parse(): Route | null {
 
 function read(): Route | null {
 	if (current === undefined) {
-		current = parse()
+		restoreRouteState()
 	}
 
 	return current
@@ -232,15 +286,21 @@ function commitRoute(r: Route): void {
 	}
 
 	saveScroll()
+	read()
+	// Include the entry we are leaving, even if it was the initial URL.
+	history.replaceState({ ...history.state, __octaneXplatDepth: historyDepth,
+		__octaneXplatEntry: rememberRouteState(history.state?.__octaneXplatEntry) }, '')
+
 	historyDepth += 1
-	history.pushState({ __octaneXplatDepth: historyDepth }, '', buildRoutePath(routes, route))
-	lastKey = scrollKey()
 	if (route.presentation === 'modal') {
 		modalRoute = route
 	} else {
 		current = route
 		modalRoute = null
 	}
+
+	history.pushState({ __octaneXplatDepth: historyDepth, __octaneXplatEntry: rememberRouteState() }, '', buildRoutePath(routes, route))
+	lastKey = scrollKey()
 
 	applyHead(modalRoute ?? current ?? null)
 	emit()
@@ -278,9 +338,8 @@ window.addEventListener('popstate', () => {
 	saveScroll()
 	historyDepth = history.state?.__octaneXplatDepth ?? 0
 	lastKey = scrollKey()
-	modalRoute = null
-	current = parse()
-	applyHead(current)
+	restoreRouteState()
+	applyHead(modalRoute ?? current ?? null)
 	restoreScroll()
 	emit()
 })
@@ -304,6 +363,7 @@ export function currentRoute(): Route | null {
 
 /** The modal route overlaying the current one, if any. */
 export function currentModalRoute(): Route | null {
+	read()
 	return modalRoute
 }
 
@@ -312,7 +372,7 @@ export function currentModalRoute(): Route | null {
  *  apps wire `onDeepLink(pushDeepLink)`). */
 export function pushDeepLink(url: string): boolean {
 	const r = matchUrl(routes, linkPath(url))
-	if (!r) {
+	if (!r || !screenFor(r.name)) {
 		console.warn(`[octane-xplat] pushDeepLink('${url}') dropped — no route matches.`)
 		return false
 	}
@@ -339,7 +399,8 @@ export function useRoute(stack: string): Route | null {
 /** Whether the selected conceptual stack has an in-app route to pop. A
  * browser's pre-app history is intentionally not counted. */
 export function canGoBack(stack = 'root'): boolean {
-	const route = read()
+	read()
+	const route = modalRoute ?? current
 	return historyDepth > 0 && route?.stack === stack
 }
 
