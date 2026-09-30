@@ -876,7 +876,6 @@ body {
 	min-width: 0;
 	margin-top: 16px;
 	margin-bottom: 12px;
-	margin-left: -81px;
 	margin-right: -81px;
 }
 
@@ -1063,7 +1062,6 @@ body {
 	}
 
 	.table-block {
-		margin-left: -20px;
 		margin-right: -20px;
 	}
 
@@ -1136,7 +1134,6 @@ body {
 	}
 
 	.table-block {
-		margin-left: -40px;
 		margin-right: -40px;
 	}
 
