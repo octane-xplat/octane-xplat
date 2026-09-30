@@ -99,4 +99,26 @@ const labLink = [...root.querySelectorAll('.doc a')].find((a) => a.textContent =
 assert('same-page fragment stays local', labLink?.getAttribute('href') === '#lab-log' && !labLink.hasAttribute('target'))
 assert('same-page heading exists', Boolean(root.querySelector('#lab-log')))
 
+// Cmd-K palette: open via the global shortcut, query for an API symbol,
+// and select the top hit — it should route to that doc (+anchor).
+window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'k', metaKey: true }))
+await settle()
+const paletteInput = window.document.getElementById('palette-input')
+assert('palette opens on cmd-k', Boolean(paletteInput))
+
+paletteInput.value = 'pushRoute'
+paletteInput.dispatchEvent(new window.Event('input', { bubbles: true }))
+await settle()
+const topHit = window.document.querySelector('.hit')
+assert('search finds api symbols', topHit?.textContent?.includes('pushRoute'))
+
+topHit?.click()
+await settle()
+assert(
+	'palette hit navigates',
+	!window.document.getElementById('palette-input')
+		&& window.location.pathname === docPath('navigation')
+		&& root.querySelector('.doc .h1')?.textContent === 'Moving between screens',
+)
+
 process.exit(fail ? 1 : 0)
