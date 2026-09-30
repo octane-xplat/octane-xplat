@@ -29,6 +29,7 @@ Workflows:
 - [Sign in with Apple or Google provider SDKs](provider-sign-in.md)
 - [Receive push notifications](push-notifications.md)
 - [Register routes from runtime data](programmatic-routes.md)
+- [Bake route data into the bundle](baked-routes.md)
 - [Ship video playback on web and native](video-playback.md)
 - [Build a settings list with reusable rows](settings-list.md)
 - [Size a WebView to its document](webview-content-sizing.md)

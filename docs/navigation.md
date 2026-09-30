@@ -38,7 +38,9 @@ app/detail.tsrx        → 'detail'
 app/demo/[id].tsrx     → 'demo/:id'
 app/settings.web.tsrx  → 'settings'      (web only — suffixes still apply)
 app/about+modal.tsrx   → 'about'         (modal presentation)
+app/notes.md           → 'notes'         (markdown — baked at codegen)
 app/chat/_layout.tsrx  → wraps every 'chat/*' route
+app/x.loader.ts        → build-time loader for baked route 'x' (never bundles)
 ```
 
 Route params land as screen props. Feed them to a
@@ -48,12 +50,14 @@ screens must keep independent requests.
 `deriveRouteManifest` turns the glob into the table and `registerRoutes`
 registers it once at boot — there is no per-screen wiring to maintain.
 `xplat routes` (run automatically by `xplat dev`, `xplat build`, and
-`xplat typecheck`) emits `routes.gen.types.ts` +
-`routes.gen.web.ts` / `routes.gen.mobile.ts` — the typed names and the
-platform-specific globs + registration all live in generated code;
-`routes.ts` just re-exports. The generated `RouteName` and `RouteParams`
-types describe every route name and its param shape, so a typed wrapper
-around `pushRoute`/`Link` can name-check destinations.
+`xplat typecheck`) emits `routes.gen.types.ts`, `routes.gen.data.ts`,
+`routes.gen.manifest.json`, and one platform twin per target
+(`routes.gen.web.ts`, `.mobile.ts`, `.macos.ts`, `.windows.ts`) — the
+typed names, baked loader results, the normalized host schema, and the
+platform globs + registration all live in generated code; `routes.ts`
+just re-exports. The generated `RouteName` and `RouteParams` types
+describe every route name and its param shape, so a typed wrapper around
+`pushRoute`/`Link` can name-check destinations.
 
 ## Register routes from data
 
@@ -104,10 +108,14 @@ overrides layer on top, accidental ones are loud. Merge the dynamic
 manifest first (`mergeRouteManifests(dynamic, routes)`) if file routes
 should win.
 
-Programmatic names are not in the generated `RouteName`/`RouteParams`
-types — codegen can't see runtime data. Navigate them with the low-level
-`Route` shape (`pushRoute({stack, name, params})`, `NavLink route={...}`),
-or union your own names into an app-side wrapper. The generated
+Literal paths are typed at the callsite — `defineRoutes` infers route
+names, params, and presentations from each `path` string, and the returned
+manifest carries them through `ManifestRouteNames`/`ManifestRouteParams`/
+`ManifestRoutePresentations`, so an app can union them into its generated
+types (`RouteName | ManifestRouteNames<typeof manifest>`) with no codegen
+step. Only paths that are genuinely computed at runtime stay outside the
+typed surface — navigate those with the low-level `Route` shape
+(`pushRoute({stack, name, params})`, `NavLink route={...}`). The generated
 `routes.screens` snapshot likewise covers file routes only — resolve
 screens through `screenFor(name)`, which reads the merged registry.
 
@@ -122,7 +130,63 @@ values through params or a shared store.
 
 A route file can also export `loader(params)` — it runs when the route is
 pushed, before the screen commits. Its awaited result lands on the screen as
-a `data` prop; a rejected loader lands as `error`.
+a `data` prop; a rejected loader lands as `error`. That's the default
+`dataMode: 'live'`; the next section covers baking the result in instead.
+
+## Bake route data at build time
+
+`export const dataMode = 'baked'` moves the loader off the runtime: its
+output is computed once during `xplat routes`/`dev`/`build`, serialized
+into `routes.gen.data.ts`, and delivered to the screen as `data` on web and
+native without a navigation-time fetch.
+
+The loader itself moves to a sibling module — `app/changelog.tsrx` pairs
+with `app/changelog.loader.ts` exporting `loader()`. That module runs under
+Node (vite `ssrLoadModule`), so `node:fs` and friends are legal inside it,
+and because nothing at runtime imports it, its dependency graph stays out
+of every bundle. An in-file `loader` export on a baked route warns and is
+ignored — it would drag its imports into the shipped graph.
+
+Constraints that keep the mechanism honest:
+
+- **JSON results.** A non-serializable value (function, symbol, bigint)
+  fails `xplat routes` naming the route.
+- **No params at bake.** The loader runs once per route, not per URL — a
+  `docs/[slug]` baked loader returns the whole slug→record table and the
+  screen selects by `params.slug`.
+- **Regeneration is explicit.** Baked data is committed like the manifest;
+  edit a `.loader.ts` and re-run `xplat routes` (or dev/build). `xplat
+  typecheck` refreshes types without re-baking.
+- A `dataMode: 'baked'` route with no `.loader.*` sibling fails codegen —
+  the pairing is checked, not implied.
+
+Programmatic routes carry the same axis: `dataMode: 'baked'` on a
+`RouteSpec` plus a `baked` map on the `defineRoutes` set — the host
+computes the data however it wants and ships it in the manifest.
+
+## Route a markdown file
+
+A `.md` file in the route dir is a baked route with the parser built in:
+`xplat routes` converts it to a JSON AST at codegen, the result rides
+`bakedRouteData` like any baked route, and the shared `MarkdownScreen`
+renders it through the vocabulary (`Text`/`View`) on every target — no
+parser ships. It's the zero-code path for help, changelog, and docs
+screens. A `[param].md` warns and is skipped (use the `.loader.ts` table
+pattern for param'd content); a `.md` file colliding with a same-name
+component file keeps the component with a warn.
+
+`MarkdownScreen` handles the `Screen`/`ScrollView` shell; `Markdown`
+renders a document tree anywhere if you embed a baked doc inside a custom
+screen.
+
+## Hand the route list to a host
+
+`xplat routes` writes `routes.gen.manifest.json` — a versioned normalized
+route list (names, colon paths, params, presentation, `dataMode`, layout
+chains, sources, hook-presence flags) that an external host can consume
+without reading the route dir. `manifestToJson(manifest)` produces the
+identical shape in-process for programmatic or merged manifests, so a host
+sees one schema whether routes came from files or `defineRoutes`.
 
 ## Guard and document a route
 

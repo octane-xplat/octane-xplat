@@ -21,8 +21,10 @@ database, a content directory, or a host framework's own route model.
   programmatic or file-derived layouts.
 - Understand merge precedence between file-derived and programmatic routes
   and what happens on a same-name collision.
-- Navigate to programmatic routes correctly given that generated route types
-  and the `routes.screens` snapshot cover file routes only.
+- Navigate to programmatic routes with correct typing — literal-path specs
+  infer names/params at the callsite (`ManifestRouteNames`/
+  `ManifestRouteParams` merge into the app's generated types); only
+  runtime-computed paths fall back to the low-level `Route` shape.
 
 ## Acceptance criteria
 
@@ -32,8 +34,9 @@ database, a content directory, or a host framework's own route model.
   file `_layout` wraps and `defineRoutes` `layouts` entries like a file
   route does.
 - AC3: The reader can state the precedence rule (later manifest wins, with a
-  warning) and reach programmatic destinations via the low-level `Route`
-  surface or an app-owned type union.
+  warning), union literal-path spec types into the app's `RouteName`/
+  `RouteParams` via the `ManifestRoute*` helpers, and reach computed-path
+  destinations via the low-level `Route` surface.
 - AC4: On web, a programmatic route produces a real URL and a direct load of
   that URL boots into the screen.
 
