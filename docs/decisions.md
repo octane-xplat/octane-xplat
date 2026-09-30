@@ -87,6 +87,8 @@
 > second-process read and a system `sqlite3` CLI read of the file. The
 > wasm-in-JSC fallback was dropped. Windows remains `supported: false`.
 
+| 72 | Plugin-backed platform services ship as leaf packages, not inside `@octane-xplat/platform` — `share` extracted to `@octane-xplat/share` (`@nativescript/social-share` as a real dependency per #51; macOS presents `NSSharingServicePicker` through the `__xplatAppKit` host seam, which owns the window); platform keeps only dep-free seams and gains no new plugin dependencies | Provisional | platform carried nine plugin deps for seams that predate the leaf machinery — the leaf pattern is favored now, so new plugin-backed services land as `@octane-xplat/<feature>` packages and share moved out as the first extraction. The remaining plugin deps (biometrics, geolocation, notifications, media, files, secure-storage, haptics) stay until each seam gets its own leaf — extraction is incremental, not a flag day. Refines #11 | platform-service-breadth |
+
 
 > **#59 implementation note (2026-09-27):** The candidate is not yet the
 > `@octane-xplat/ui` API. NativeScript 9.1.2's iOS and Android

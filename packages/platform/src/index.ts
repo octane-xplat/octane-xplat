@@ -30,7 +30,6 @@ export type {
 	PermissionResult,
 	OpenSettingsImpl,
 	SecureStore,
-	ShareResult,
 	WebAuthnAssertionJSON,
 	WebAuthnCreateOptionsJSON,
 	WebAuthnGetOptionsJSON,
@@ -46,7 +45,6 @@ export { appInfo } from './app-info'
 export { openUrl, openSettings } from './open-url'
 export { storage } from './storage'
 export { clipboard } from './clipboard'
-export { share } from './share'
 export { haptics } from './haptics'
 export { secureStorage } from './secure-storage'
 export { files } from './files'

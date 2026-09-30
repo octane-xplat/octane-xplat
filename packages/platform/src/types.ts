@@ -165,8 +165,6 @@ export interface MediaImpl {
 	ensure(kind: MediaPermissionKind): Promise<PermissionResult>
 }
 
-export type ShareResult = 'shared' | 'copied' | 'unavailable'
-
 /**
  * WebAuthn registration options in the JSON wire shape (base64url fields) —
  * the payload an RP server such as better-auth or SimpleWebAuthn emits.

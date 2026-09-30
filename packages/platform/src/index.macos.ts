@@ -19,7 +19,6 @@ import type {
 	PermissionKind,
 	PermissionResult,
 	SecureStore,
-	ShareResult,
 	WebAuthnImpl,
 	WindowSize,
 } from './types'
@@ -52,7 +51,6 @@ export type {
 	PermissionResult,
 	OpenSettingsImpl,
 	SecureStore,
-	ShareResult,
 	WebAuthnAssertionJSON,
 	WebAuthnCreateOptionsJSON,
 	WebAuthnGetOptionsJSON,
@@ -67,7 +65,6 @@ type AppKitHost = {
 	appInfo?: AppInfo
 	appState?: AppState
 	windowSize?: WindowSize
-	shareContent?: (content: { text?: string; url?: string; title?: string }) => ShareResult
 	readClipboard?: () => string | null
 	writeClipboard?: (value: string) => boolean
 	storageGet?: (key: string) => string | null
@@ -189,15 +186,7 @@ export const files = {
 	release(_file: FileRef): void {},
 }
 
-export const share = {
-	async text(value: string, _subject?: string): Promise<ShareResult> {
-		return host().shareContent?.({ text: value }) ?? 'unavailable'
-	},
-	async url(value: string, title?: string): Promise<ShareResult> {
-		return host().shareContent?.({ url: value, title: title ?? value }) ?? 'unavailable'
-	},
-}
-
+ (feat(share): extract @octane-xplat/share leaf from @octane-xplat/platform)
 export const systemBars = {
 	setColor(_color: string): void {
 		console.warn('[octane-xplat] System bars are unsupported by the AppKit host.')

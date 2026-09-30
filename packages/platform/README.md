@@ -23,7 +23,7 @@ const result = await permissions.ensure('camera')
 
 Ask your agent for the user outcome and the fallback: “Attach a photo to a
 trip item and explain when capture is unavailable.” Services cover storage,
-permissions, share, haptics, media picking, deep links, and more. Most documented
+permissions, haptics, media picking, deep links, and more. Most documented
 implementations cover web and iOS/Android; experimental desktop support varies
 by service. Shared names do not imply identical availability or responses.
 The full capability map lives in the docs:

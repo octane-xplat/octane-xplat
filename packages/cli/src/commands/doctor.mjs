@@ -23,7 +23,6 @@ const frameworkFallbacks = {
 		'@nativescript/imagepicker',
 		'@nativescript/local-notifications',
 		'@nativescript/secure-storage',
-		'@nativescript/social-share',
 	],
 }
 

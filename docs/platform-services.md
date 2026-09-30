@@ -40,8 +40,11 @@ storage.setString('has-seen-welcome', 'true')
 const seen = storage.getString('has-seen-welcome') // "true"
 ```
 
-Other services cover permissions, clipboard, sharing, haptics, files, media
+Other services cover permissions, clipboard, haptics, files, media
 picking, notifications, safe-area insets, screen size, and app lifecycle.
+Sharing lives in the `@octane-xplat/share` leaf package (`share.text`,
+`share.url`), not in `platform` — plugin-backed services ship as leaves
+(#72).
 
 ## Capability map
 

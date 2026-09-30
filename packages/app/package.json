@@ -16,6 +16,7 @@
 		"@octane-xplat/motion": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
+		"@octane-xplat/share": "workspace:*",
 		"@octane-xplat/sounds": "workspace:*",
 		"@octane-xplat/sqlite": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",

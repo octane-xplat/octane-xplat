@@ -7,8 +7,9 @@ native default, `.web` is the browser implementation, and `.mobile` or an OS
 suffix narrows behavior when needed. Surface: `device`, `appInfo`, `locale`,
 `connectivity`, `useWindowSize`, `useAppState`, `useSafeAreaInsets`, deep
 links, clipboard, `secureStorage`, haptics, notifications, `announce`,
-`systemBars`, geolocation, permissions, media, files, share, `openUrl`,
-`openSettings`, biometrics.
+`systemBars`, geolocation, permissions, media, files, `openUrl`,
+`openSettings`, biometrics. Sharing lives in the `@octane-xplat/share` leaf
+(`share.text`, `share.url`) — plugin-backed services ship as leaf packages.
 
 Services report honestly — `biometrics` returns `unsupported` on web rather
 than faking a result. Handle the tier your app can fall back to instead of

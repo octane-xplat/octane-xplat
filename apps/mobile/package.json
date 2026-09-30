@@ -32,7 +32,6 @@
 		"@nativescript/local-notifications": "7.0.0",
 		"@nativescript/secure-storage": "4.0.2",
 		"@nativescript/shared-notification-delegate": "1.0.2",
-		"@nativescript/social-share": "2.3.0",
 		"@octane-xplat/auth": "workspace:*",
 		"@octane-xplat/camera": "workspace:*",
 		"@octane-xplat/canvas": "workspace:*",
@@ -44,6 +43,7 @@
 		"@octane-xplat/picker": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/push": "workspace:*",
+		"@octane-xplat/share": "workspace:*", (feat(share): extract @octane-xplat/share leaf from @octane-xplat/platform)
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
 		"@valor/nativescript-websockets": "2.0.3",

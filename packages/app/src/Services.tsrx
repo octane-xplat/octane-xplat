@@ -3,11 +3,12 @@ import { View, Row, Text, Pressable, Image } from '@octane-xplat/ui';
 import {
 	device, appInfo, connectivity, locale,
 	clipboard, secureStorage, haptics, notifications, announce, systemBars,
-	geolocation, media, files, share, permissions, openUrl, openSettings, biometrics,
+	geolocation, media, files, permissions, openUrl, openSettings, biometrics,
 	useAppState, useWindowSize, useSafeAreaInsets, onDeepLink, consumeInitialUrl,
 } from '@octane-xplat/platform';
 
-import { openDatabase, supported as sqliteSupported } from '@octane-xplat/sqlite';
+import { share } from '@octane-xplat/share';
+import { openDatabase, supported as sqliteSupported } from '@octane-xplat/sqlite'; (feat(share): extract @octane-xplat/share leaf from @octane-xplat/platform)
 
 const PERMISSION_KINDS = ['notifications', 'camera', 'photos', 'location'] as const;
 
