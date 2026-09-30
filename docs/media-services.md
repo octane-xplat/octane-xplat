@@ -65,7 +65,8 @@ verification.
 Use `createSoundBank({ maxVoices })` for short effects. `load(name, source)`
 prepares a sound; `play(name, { volume })` uses a clamped per-play volume, and
 `stop(name?)` stops one sound or every effect. The voice limit is a hard cap;
-when full, the oldest active effect is stopped before the next starts. Call
+when full, the oldest active effect is stopped before the next starts. Web
+`stop()` also unloads each stopped voice; the preloaded clip remains reusable. Call
 `dispose()` when the owning screen or service ends. Native playback uses one
 `@nativescript/audio-context` context with reusable decoded buffers and a gain
 node per voice; the web backend uses preloaded HTML audio. It is pinned to the
@@ -84,7 +85,8 @@ Create an owner with `createAudioPlayer()`, then await
 `player.subscribe(listener)` to observe state and progress; keep its returned
 unsubscribe function. `seek`, `currentTime`, and `duration` use **seconds**,
 unlike the video component’s milliseconds. Unsubscribe and call `dispose()`
-when the media-session owner ends. Always handle a
+when the media-session owner ends. Web disposal clears its Media Session
+action handlers as well as metadata and the audio source. Always handle a
 rejected `play()` promise: browsers can block autoplay, remote requests can
 fail, and local paths may not be readable by the platform player.
 
@@ -94,8 +96,10 @@ transport commands. It reports background playback, system controls, and
 interruption handling as available on native. Android playback and the Media3
 session were exercised on the xplat emulator; notification/headset controls,
 background continuation, interruption recovery, and physical audio output
-still need device verification. iOS native compilation is blocked before the
-audio adapter by duplicate `QBImagePickerController` CocoaPods declarations.
+still need device verification. Fresh iOS preparation on 2026-09-30 installed
+`QBImagePickerController` once and resolved Swift packages; the historical
+duplicate-pod failure is superseded at the preparation stage. Complete native
+build and runtime qualification remain separate checks.
 The Web Media Session API can expose browser system controls when present, but
 the package does not claim background playback parity.
 
@@ -126,7 +130,7 @@ enable the app target’s Background Modes capability and select Audio, AirPlay,
 and Picture in Picture before checking playback after the screen locks ([Apple
 setup](https://developer.apple.com/documentation/Xcode/configuring-background-execution-modes)).
 Start a track, wait until its duration is available, then check the lock screen
-for its title and duration. Pause and resume there; after returning to the app,
+for its current track title and duration. Pause and resume there; after returning to the app,
 confirm the player state and progress match those actions. On Android, check the
 media notification controls in the same way. Only offer system controls when
 `player.capabilities().systemControls` is true.
@@ -135,26 +139,26 @@ While playback is active, trigger a real audio interruption such as an incoming
 call, then confirm playback pauses and resumes only when the system allows it.
 Play a UI sound and an overlapping pair while the track runs; confirm the track
 keeps playing and its output route does not change. A multi-track queue is
-needed to check queue advancement and next/previous controls. These background,
-lock-screen, interruption, and route checks still need device evidence; the
-maintained probe currently has one track.
+needed to check queue advancement and next/previous controls. The maintained
+probe now uses two sample tracks and displays the current track ID. Seek near
+the end of the first track and expect `sample-two`; leave the owning screen
+and verify its playback resources are released. These background, lock-screen,
+interruption, and route checks still need device evidence.
 The [audio](../recipes/audio-playback.md),
 [haptics](../recipes/advanced-haptics.md), and [sound](../recipes/ui-sounds.md)
 recipes track those gaps separately from the API overview.
 
 ## Validation status
 
-All three packages build for web and native. On the Android emulator, the
-harness loaded through the CLI's non-HMR bundle path; Media3 playback moved
-through `playing` and `ended`, pause and seek updated state, and the active
-session exposed the expected `Sample audio` metadata. Pulsar capability lookup,
-preset, pattern, and realtime start/stop calls ran without runtime exceptions.
-The UI sound and overlap actions also ran without exceptions while the player
-session stayed active. The emulator has audio output disabled and no physical
-haptic actuator, so audible output, overlapping sound, tactile output, and
-effect/player route coexistence are not proven. Background continuation and
-system transport controls remain unverified. iOS preparation is blocked before
-its adapter compiles by duplicate `QBImagePickerController` CocoaPods
-declarations. See
-[platform-service notes](platform-notes.md#haptics-ui-sounds-and-media-playback)
-for the current evidence and limits.
+Use [optional-service qualification](optional-service-qualification.md) for the
+current target-by-target evidence and remaining checks. The nonvisual Chromium
+probe exercises real browser file-input reads, playback, pause/seek, two-track
+advancement, effect voice limits, stopping and teardown. It does not verify
+audibility, hardware routes, mobile background playback or system transport UI.
+
+Earlier Android emulator checks verified Media3 state and metadata, haptics
+calls and effects beside an active player. They remain historical evidence;
+the emulator's disabled audio output and absent haptic actuator did not prove
+physical output. Fresh iOS pod installation now succeeds with a single
+`QBImagePickerController` source. Native build and runtime evidence are tracked
+independently from that preparation result.

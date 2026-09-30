@@ -177,6 +177,9 @@ export const createAudioPlayer = (): AudioPlayer => {
       queue = [];
       if (typeof navigator !== "undefined" && "mediaSession" in navigator) {
         navigator.mediaSession.metadata = null;
+        for (const action of ['play', 'pause', 'seekto', 'nexttrack', 'previoustrack'] as const) {
+          navigator.mediaSession.setActionHandler(action, null);
+        }
       }
     },
   };

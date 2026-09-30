@@ -103,9 +103,7 @@ export const createSoundBank = ({
     stop: (name) => {
       for (const [voice, voiceName] of active) {
         if (name === undefined || voiceName === name) {
-          voice.pause();
-          voice.currentTime = 0;
-          active.delete(voice);
+          stopVoice(voice);
         }
       }
     },

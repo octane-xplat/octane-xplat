@@ -22,9 +22,13 @@ export function MediaServices() @{
 
 	useEffect(() => {
 		void sounds.load('tap', sample).catch((error) => console.warn('[media] sound preload failed', error));
-		void player.setQueue([{ id: 'sample', source: sample, title: 'Sample audio', artist: 'Octane xplat' }]);
+		void player.setQueue([
+			{ id: 'sample-one', source: sample, title: 'Sample audio 1', artist: 'Octane xplat' },
+			{ id: 'sample-two', source: sample, title: 'Sample audio 2', artist: 'Octane xplat' },
+		]).catch((error) => setPlayerState('error: ' + String(error)));
+
 		const unsubscribe = player.subscribe((snapshot) => {
-			setPlayerState(snapshot.state);
+			setPlayerState(snapshot.state + (snapshot.track ? ' · ' + snapshot.track.id : ''));
 			setPosition(Math.floor(snapshot.currentTime) + ' / ' + Math.floor(snapshot.duration) + 's');
 		});
 

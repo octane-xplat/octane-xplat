@@ -51,7 +51,8 @@
 		"smoke:docs": "pnpm --filter @xplat/docs smoke",
 		"test:packed": "pnpm --filter @octane-xplat/ui test:packed && pnpm --filter @octane-xplat/gif test:packed && pnpm --filter @octane-xplat/auth test:packed && pnpm --filter tsrx-typegen-fixture test:packed",
 		"test:scripts": "node --test scripts/*.test.mjs",
-		"test:typegen": "pnpm --filter tsrx-typegen test"
+		"test:typegen": "pnpm --filter tsrx-typegen test",
+		"check:optional-services": "node scripts/check-optional-services.mjs"
 	},
 	"devDependencies": {
 		"@tsrx/core": "0.2.4",

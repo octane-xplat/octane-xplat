@@ -32,7 +32,7 @@ handling.
 ## Documentation
 
 - AC1: [Long-form audio](../docs/media-services.md#long-form-audio).
-- AC2: [Long-form audio](../docs/media-services.md#long-form-audio). Gap: The maintained probe has one track; queue-end advancement and disposal checks are not demonstrated.
-- AC3: [Long-form audio](../docs/media-services.md#long-form-audio) and [integration checks](../docs/media-services.md#check-your-integration) cover enabling iOS audio background mode and checking lock-screen/notification metadata and controls. Gap: The maintained probe has one track, and native background, system-control, and queue transport behavior still needs device evidence.
-- AC4: [Long-form audio](../docs/media-services.md#long-form-audio) and [integration checks](../docs/media-services.md#check-your-integration) cover real audio interruptions and effect/player coexistence. Gap: Interruption recovery and route coexistence still need physical-device evidence.
+- AC2: [Long-form audio](../docs/media-services.md#long-form-audio). [Two-track probe](../packages/app/src/MediaServices.tsrx) and [nonvisual browser checks](../apps/web/scripts/optional-services.mjs) exercise advancement and teardown.
+- AC3: [Long-form audio](../docs/media-services.md#long-form-audio) and [integration checks](../docs/media-services.md#check-your-integration) cover enabling iOS audio background mode and checking lock-screen/notification metadata and controls. The [two-track probe](../packages/app/src/MediaServices.tsrx) provides queue state; [qualification boundaries](../docs/optional-service-qualification.md) separate native runtime checks from setup coverage.
+- AC4: [Long-form audio](../docs/media-services.md#long-form-audio) and [integration checks](../docs/media-services.md#check-your-integration) cover real audio interruptions and effect/player coexistence. [Qualification boundaries](../docs/optional-service-qualification.md) track pending physical interruption and route measurements.
 - AC5: [Validation status](../docs/media-services.md#validation-status).
