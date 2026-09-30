@@ -415,6 +415,8 @@ body {
 }
 
 .hit {
+	display: flex;
+	flex-direction: column;
 	padding: 7px 10px;
 	border-radius: 12px;
 	corner-shape: squircle;
