@@ -59,7 +59,7 @@
 		"motion-dom": "12.42.2"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "0.2.1",
+		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
 		"@octanejs/vite-plugin": "0.1.61",
 		"jsdom": "30.1.1",

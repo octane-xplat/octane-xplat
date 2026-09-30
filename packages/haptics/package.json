@@ -51,7 +51,7 @@
     "prepublishOnly": "pnpm build"
   },
   "devDependencies": {
-    "@nativescript-community/octane": "0.2.1",
+    "@nativescript-community/octane": "0.2.4",
     "@nativescript/core": "9.1.2",
     "@octanejs/vite-plugin": "0.1.61",
     "octane": "0.6.3",

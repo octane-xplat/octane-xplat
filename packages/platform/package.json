@@ -51,7 +51,7 @@
 		"@nativescript/social-share": "2.3.0"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "0.2.1",
+		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
 		"octane": "0.6.3"
 	},

@@ -12,7 +12,7 @@
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",
 		"@nativescript-community/observable": "2.0.11",
-		"@nativescript-community/octane": "0.2.1",
+		"@nativescript-community/octane": "0.2.4",
 		"@nativescript-community/perms": "3.0.11",
 		"@nativescript-community/ui-document-picker": "1.1.29",
 		"@nativescript-community/ui-drawer": "0.1.32",

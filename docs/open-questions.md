@@ -183,7 +183,7 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     explicit `./Leaf.web.tsrx` specifiers resolve under tsrx-tsc — is never
     consulted there. NativeScript PR #11450 makes the ns-vite build-time
     checker delegate to tsrx-tsc (@nativescript/vite ≥ 8.0.12; this repo pins
-    8.0.11 — verified against the 8.0.13 pkg.pr.new preview installed for
+    8.0.16 — verified against the 8.0.13 pkg.pr.new preview installed for
     apps/windows), but that swaps *which* compiler runs, not what it can
     resolve: suffixless `.tsrx` still 2307s under the delegated check too.
     The `leaves.ts`/`leaves.web.ts` barrels stay necessary — and would remain

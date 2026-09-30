@@ -28,9 +28,9 @@ minimumReleaseAgeExclude:
   - '@octanejs/app-core@0.0.56'
   - '@octanejs/vite-plugin@0.1.61'
   - octane@0.6.3
-  - '@nativescript-community/octane@0.2.1'
+  - '@nativescript-community/octane@0.2.4'
   - '@nativescript-community/vite-octane@0.2.1'
-  - '@nativescript/vite@8.0.11'
+  - '@nativescript/vite@8.0.16'
   - '@tsrx/core@0.3.2'
   - '@tsrx/typescript-plugin@0.4.11'
   - '@nativescript/canvas@3.0.0-alpha.15'
@@ -75,27 +75,30 @@ patchedDependencies:
   # _populateRules. Adds atlayer() covering block and statement forms. Applies to a
   # transitive dep — no app declares it directly.
   css@3.0.0: packages/cli/patches/css@3.0.0.patch
-  # Dev-server /ns/m fixes: resolve pnpm-isolated transitive deps and platform-suffixed
-  # entries, inline workspace CSS through /@fs (including the node:path import required to
-  # resolve workspace files), route vendor-excluded plugins through HTTP, decode bracketed
-  # paths, and ignore comments during export-star expansion. Deps-bundle alias: the dev
-  # payload's esbuild passes never see vite resolve.alias, so a dep importing bare `octane`
-  # bundles the DOM runtime beside the universal one (hooks crash on boot, octane-xplat#3) —
-  # an onResolve plugin redirects `octane` → `octane/universal/native`. tsconfig-paths
-  # resolver also probes the .mobile suffix tier (ios/android) between the os qualifier and
-  # unsuffixed default — .mobile-only modules behind paths-mapped imports failed bundle-mode
-  # resolution.
-  "@nativescript/vite@8.0.11": packages/cli/patches/@nativescript__vite@8.0.11.patch
+  # Dev-server /ns/m fixes upstream still lacks (8.0.16 landed the pnpm transitive-dep
+  # probing, vendor-manifest gating, comment masking, /@fs→/ns/m anchoring, and
+  # active-platform-suffixed candidates): decode percent-encoded specs (bracketed route
+  # paths 404 otherwise), collect re-export specifiers in the .vite/deps rewrite (barrel
+  # modules skip the decode), route /@fs paths outside both roots through /ns/m (linked
+  # checkouts bypass the device transform upstream), and probe the non-active platform +
+  # `native` suffix tags in module candidates (upstream probes only the active platform).
+  # Deps-bundle alias: the dev payload's esbuild passes never see vite resolve.alias, so a
+  # dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks
+  # crash on boot, octane-xplat#3) — an onResolve plugin redirects `octane` →
+  # `octane/universal/native`. tsconfig-paths resolver also probes the .mobile suffix tier
+  # (ios/android) between the os qualifier and unsuffixed default — .mobile-only modules
+  # behind paths-mapped imports fail bundle-mode resolution.
+  "@nativescript/vite@8.0.16": packages/cli/patches/@nativescript__vite@8.0.16.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
   # listeners.
-  "@nativescript-community/octane@0.2.1": packages/cli/patches/@nativescript-community__octane@0.2.1.patch
+  "@nativescript-community/octane@0.2.4": packages/cli/patches/@nativescript-community__octane@0.2.4.patch
   # octaneServerStrategy's SCRIPT_FILE_RE only covers [jt]sx? — .tsrx edits never emit the
   # deferred ns:hmr-delta broadcast, so component HMR silently never reaches the device.
   # Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for
   # delivered updates.
   "@nativescript-community/vite-octane@0.2.1": packages/cli/patches/@nativescript-community__vite-octane@0.2.1.patch
-  # Same dev-server fixes as the 8.0.11 patch, ported to the @11468 pkg.pr.new preview the
+  # Same dev-server fixes as the 8.0.16 patch, ported to the @11468 pkg.pr.new preview the
   # windows target uses (apps/windows): /ns/m re-export records, vendor-manifest gating for
   # plugin-patterned packages, percent-decoded specifiers, and the .mobile-aware
   # tsconfig-paths probing.

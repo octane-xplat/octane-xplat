@@ -69,7 +69,7 @@
   payload itself is what fails to load. `@nativescript/vite` decode gap —
   filed as NativeScript/NativeScript#11455 and patched locally
   (`decodeURIComponent` on the `/ns/m` spec in
-  `packages/cli/patches/@nativescript__vite@8.0.11.patch`).
+  `packages/cli/patches/@nativescript__vite@8.0.16.patch`).
 
 ### Dev-loop troubleshooting
 
@@ -299,7 +299,7 @@ the same version; the peer range in `packages/ui` is the contract.
 
 ### Retained driver patch
 
-`packages/cli/patches/@nativescript-community__octane@0.2.1.patch` skips
+`packages/cli/patches/@nativescript-community__octane@0.2.4.patch` skips
 `undefined` prop writes in the driver's `setProp` — NativeScript native
 setters coerce it (e.g. `editable` → `ios.userInteractionEnabled = NO`),
 leaving dead UI that still has its JS listeners. The root applies it through

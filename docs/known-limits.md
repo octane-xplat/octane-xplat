@@ -139,12 +139,12 @@ pushes themselves work through the swap-pane route store.
   --pack-check` verifies tarball paths, dependency declarations, and runtime
   value-export names; keep a plain TypeScript consumer test for required props,
   inference, and each supported module-resolution mode. — post-0.6.0·desk.
-- **`@nativescript/vite` release builds can ship without CSS.** In 8.0.11
-  the CSS-inlining pass misses its placeholder once minified (the marker
-  contains backticks) and concatenates vendor CSS after app CSS — reported
-  upstream as NativeScript/NativeScript#11476, `broken-upstream`. Not yet
-  reproduced in the harness; affected release builds need the upstream fix
-  or a patch-set entry. — 0.6.0·reported.
+- **`@nativescript/vite` release builds could ship without CSS.** In 8.0.11
+  the CSS-inlining pass missed its placeholder once minified (the marker
+  contains backticks) and concatenated vendor CSS after app CSS — reported
+  upstream as NativeScript/NativeScript#11476, fixed upstream: 8.0.16's
+  sentinel regex accepts template literals and `collectBundleCssAssets`
+  orders assets by module import order. — 0.6.0·reported, resolved 8.0.16.
 - **`.tsrx` infers effect deps from closure reads.** An effect that only
   writes (refs, DOM) and never reads its driving prop compiles to a deps
   array that omits it — declare deps explicitly:

@@ -63,7 +63,7 @@
 		"@nstudio/nativescript-exoplayer": "6.2.0"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "0.2.1",
+		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",

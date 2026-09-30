@@ -18,7 +18,7 @@
 	},
 	"dependencies": {
 		"@nativescript-community/gesturehandler": "2.0.45",
-		"@nativescript-community/octane": "0.2.1",
+		"@nativescript-community/octane": "0.2.4",
 		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript/core": "9.1.2",
 		"@octane-xplat/effects": "^0.7.3",
@@ -31,7 +31,7 @@
 		"@nativescript/android": "9.1.1",
 		"@nativescript/ios": "9.1.0",
 		"@nativescript/types": "9.0.0",
-		"@nativescript/vite": "8.0.11",
+		"@nativescript/vite": "8.0.16",
 		"@octane-xplat/cli": "^0.7.3",
 		"@octane-xplat/lint": "^0.7.3",
 		"@octanejs/vite-plugin": "0.1.61",

@@ -107,7 +107,7 @@
 		"test:native": "vitest run --config vitest.native.config.mts"
 	},
 	"devDependencies": {
-		"@nativescript-community/octane": "0.2.1",
+		"@nativescript-community/octane": "0.2.4",
 		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript/core": "9.1.2",
 		"@nativescript/types": "9.0.0",

@@ -27,9 +27,9 @@
 //                     scratch tsconfig whose moduleSuffixes are regenerated
 //                     as ['.<platform>', '.native', ''] — the project's own
 //                     moduleSuffixes are overridden, so `.mobile` is never
-//                     probed. The pinned 8.0.11 lacks the delegation; this
-//                     checkout's apps/windows pkg.pr.new preview (8.0.13)
-//                     carries it and is invoked in-process when installed.
+//                     probed. apps/mobile pins 8.0.16 (carries the delegation);
+//                     the checker is loaded from apps/windows' pkg.pr.new
+//                     preview and invoked in-process when installed.
 //   4. vite resolveId the runtime bundler path, on the real chains:
 //                     apps/web/vite.config.ts via loadConfigFromFile and
 //                     @octane-xplat/cli xplatNative() for ios/android.
@@ -273,7 +273,7 @@ if (ns.error) {
 } else if (!/tsrx-tsc/.test(ns.source)) {
 	console.log(
 		`[note] @nativescript/vite@${ns.version} has no tsrx-tsc delegation — ` +
-			`PR #11450 landed in 8.0.12; this checkout pins 8.0.11 for apps/mobile. ` +
+			`PR #11450 landed in 8.0.12+. ` +
 			`The installed copy can only run the in-process plain-TS checker.`,
 	)
 } else {
