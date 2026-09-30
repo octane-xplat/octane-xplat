@@ -50,6 +50,7 @@ export { Drawer } from './Drawer.macos.tsrx'
 
 export { Hoverable } from './Hoverable.tsrx'
 export { Tooltip } from './Tooltip.tsrx'
+export { Markdown, MarkdownScreen } from './Markdown.tsrx'
 export { Link } from './Link.macos.tsrx'
 export { NavLink } from './NavLink.macos.tsrx'
 export { TextInput, TextArea } from './text-controls.macos.tsrx'
