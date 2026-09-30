@@ -404,7 +404,7 @@ body {
 		18px 100%,
 		0 calc(100% - 18px)
 	);
-	box-shadow: none;
+	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.12);
 	padding: 24px 18px;
 	margin-top: 0;
 	margin-bottom: 22px;
