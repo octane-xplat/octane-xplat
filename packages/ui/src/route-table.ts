@@ -33,6 +33,7 @@
 import type {
 	Route,
 	RouteManifest,
+	RouteManifestJson,
 	RouteMeta,
 	RouteSpec,
 	RouteSpecSet,
@@ -423,6 +424,40 @@ export function mergeRouteManifests(...manifests: RouteManifest[]): RouteManifes
 	}
 
 	return { screens, routes, layouts, loaders, baked }
+}
+
+/** Serialize a manifest to the normalized `RouteManifestJson` shape — the
+ *  same list `xplat routes` emits for file routes, produced here for
+ *  programmatic/merged manifests so hosts consume one schema. */
+export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
+	return {
+		version: 1,
+		layouts: Object.keys(manifest.layouts).sort(),
+		screens: Object.keys(manifest.screens).sort(),
+		routes: manifest.routes.map((meta) => {
+			const segs = meta.name.split('/')
+			const layoutDirs: string[] = manifest.layouts[''] ? [''] : []
+			for (let i = 1; i < segs.length; i++) {
+				const d = segs.slice(0, i).join('/')
+				if (manifest.layouts[d]) {
+					layoutDirs.push(d)
+				}
+			}
+
+			return {
+				name: meta.name,
+				path: meta.name === 'index' ? '' : meta.segments.join('/'),
+				params: [...meta.params],
+				...(meta.presentation ? { presentation: meta.presentation } : {}),
+				...(meta.dataMode ? { dataMode: meta.dataMode } : {}),
+				layouts: layoutDirs,
+				source: meta.file,
+				loader: !!meta.loader,
+				guard: !!meta.beforeLoad,
+				head: !!meta.head,
+			}
+		}),
+	}
 }
 
 /** Match URL path segments against a manifest — returns the winning meta

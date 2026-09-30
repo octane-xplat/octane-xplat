@@ -28,6 +28,9 @@ const PRESENT = /\+(modal|fade|push)$/
 const LOADER_FILE = /\.loader\.(ts|mts|cts|js|mjs|cjs)$/
 const LOADER_EXTS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
 const DATAMODE = /export\s+const\s+dataMode\s*=\s*['"](baked|live)['"]/
+// Presence greps for the manifest JSON — codegen records which hooks a
+// route declares without evaluating its module.
+const ROUTE_EXPORTS = /export\s+(?:async\s+)?(?:function|const|let)\s+(loader|beforeLoad|head)\b/g
 
 function walk(dir, out = []) {
 	for (const name of readdirSync(dir).sort()) {
@@ -165,6 +168,7 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 	// collapse to a single entry (union across platforms).
 	const seen = new Map()
 	const routePaths = []
+	const layoutDirs = new Set()
 	const files = existsSync(join(cwd, dir)) ? walk(join(cwd, dir)) : []
 	for (const file of files) {
 		const routePath = relative(join(cwd, dir), file).split(sep).join('/')
@@ -175,6 +179,19 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 		const isMd = routePath.endsWith('.md')
 		if (/\.(tsrx|tsx)$/.test(routePath)) {
 			routePaths.push(routePath)
+		}
+
+		// _layout files aren't routes — record their dir for the manifest.
+		const stemBase = routePath
+			.replace(isMd ? /\.md$/ : EXT, '')
+			.split('/')
+			.pop()
+			.replace(SUFFIX, '')
+			.replace(PRESENT, '')
+
+		if (stemBase === '_layout' && !isMd) {
+			layoutDirs.add(routePath.split('/').slice(0, -1).join('/'))
+			continue
 		}
 
 		const r = routeFor(routePath, isMd ? /\.md$/ : EXT)
@@ -198,11 +215,16 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 				continue
 			}
 		} else {
-			// `export const dataMode` is source-greped, not evaluated — codegen
-			// stays declarative over route modules it doesn't load.
-			const dm = DATAMODE.exec(readFileSync(file, 'utf8'))
+			// Hook + dataMode exports are source-greped, not evaluated —
+			// codegen stays declarative over route modules it doesn't load.
+			const src = readFileSync(file, 'utf8')
+			const dm = DATAMODE.exec(src)
 			if (dm) {
 				r.dataMode = dm[1]
+			}
+
+			for (const m of src.matchAll(ROUTE_EXPORTS)) {
+				r[m[1] === 'beforeLoad' ? 'guard' : m[1]] = true
 			}
 		}
 
@@ -225,6 +247,14 @@ export async function generateRoutes(cwd, dir, out, opts = {}) {
 			)
 		} else if (r.dataMode && !prev.dataMode) {
 			prev.dataMode = r.dataMode
+		}
+
+		// Hook flags union across platform leaves — any variant declaring a
+		// loader/guard/head counts for the shared manifest record.
+		if (prev) {
+			prev.loader ||= r.loader
+			prev.guard ||= r.guard
+			prev.head ||= r.head
 		}
 	}
 
@@ -332,6 +362,45 @@ export const bakedRouteData: Record<string, unknown> = ${JSON.stringify(data, nu
 		// (typecheck) writing just the stub so imports resolve.
 		writeFileSync(dataFile, dataSrc({}))
 	}
+
+	// routes.gen.manifest.json — the normalized route list a host consumes
+	// (RouteManifestJson shape; manifestToJson produces it for programmatic
+	// manifests). Same fields either way.
+	const chainDirs = (name) => {
+		const segs = name.split('/')
+		const dirs = layoutDirs.has('') ? [''] : []
+		for (let i = 1; i < segs.length; i++) {
+			const d = segs.slice(0, i).join('/')
+			if (layoutDirs.has(d)) {
+				dirs.push(d)
+			}
+		}
+
+		return dirs
+	}
+
+	const manifestJson = {
+		version: 1,
+		layouts: [...layoutDirs].sort(),
+		screens: list.map((r) => r.name).sort(),
+		routes: list.map((r) => ({
+			name: r.name,
+			path: r.name === 'index' ? '' : r.name,
+			params: r.params,
+			...(r.presentation ? { presentation: r.presentation } : {}),
+			...(r.dataMode ? { dataMode: r.dataMode } : {}),
+			layouts: chainDirs(r.name),
+			source: `${dir}/${r.file}`,
+			loader: !!(r.loader || r.md || loaderFiles.has(r.name)),
+			guard: !!r.guard,
+			head: !!r.head,
+		})),
+	}
+
+	writeFileSync(
+		join(cwd, base + '.manifest.json'),
+		JSON.stringify(manifestJson, null, '\t') + '\n',
+	)
 
 	// Platform-suffixed twins carry the actual manifest derivation +
 	// registration — routes.gen.web.ts / routes.gen.mobile.ts resolve
@@ -504,7 +573,7 @@ export const routes = command({
 
 		const count = await generateRoutes(cwd, dir, args.out)
 		p.log.success(
-			`Wrote routes.gen.{types,data,web,mobile,macos,windows}.ts — ${count} route${count === 1 ? '' : 's'}`,
+			`Wrote routes.gen.{types,data,manifest.json,web,mobile,macos,windows} — ${count} route${count === 1 ? '' : 's'}`,
 		)
 	},
 })

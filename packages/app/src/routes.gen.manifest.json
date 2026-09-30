@@ -1,0 +1,147 @@
+{
+	"version": 1,
+	"layouts": [
+		"",
+		"demo"
+	],
+	"screens": [
+		"about",
+		"changelog",
+		"demo/:id",
+		"detail",
+		"list-nested-probe",
+		"motion-probe",
+		"notes",
+		"parity",
+		"private",
+		"qa"
+	],
+	"routes": [
+		{
+			"name": "about",
+			"path": "about",
+			"params": [],
+			"presentation": "modal",
+			"layouts": [
+				""
+			],
+			"source": "src/app/about+modal.tsrx",
+			"loader": false,
+			"guard": false,
+			"head": false
+		},
+		{
+			"name": "changelog",
+			"path": "changelog",
+			"params": [],
+			"dataMode": "baked",
+			"layouts": [
+				""
+			],
+			"source": "src/app/changelog.tsrx",
+			"loader": true,
+			"guard": false,
+			"head": false
+		},
+		{
+			"name": "demo/:id",
+			"path": "demo/:id",
+			"params": [
+				"id"
+			],
+			"layouts": [
+				"",
+				"demo"
+			],
+			"source": "src/app/demo/[id].tsrx",
+			"loader": false,
+			"guard": false,
+			"head": false
+		},
+		{
+			"name": "detail",
+			"path": "detail",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/detail.tsrx",
+			"loader": false,
+			"guard": true,
+			"head": true
+		},
+		{
+			"name": "list-nested-probe",
+			"path": "list-nested-probe",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/list-nested-probe.android.tsrx",
+			"loader": false,
+			"guard": false,
+			"head": false
+		},
+		{
+			"name": "motion-probe",
+			"path": "motion-probe",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/motion-probe.tsrx",
+			"loader": false,
+			"guard": false,
+			"head": false
+		},
+		{
+			"name": "notes",
+			"path": "notes",
+			"params": [],
+			"dataMode": "baked",
+			"layouts": [
+				""
+			],
+			"source": "src/app/notes.md",
+			"loader": true,
+			"guard": false,
+			"head": false
+		},
+		{
+			"name": "parity",
+			"path": "parity",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/parity.macos.tsrx",
+			"loader": false,
+			"guard": false,
+			"head": false
+		},
+		{
+			"name": "private",
+			"path": "private",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/private.tsrx",
+			"loader": false,
+			"guard": true,
+			"head": false
+		},
+		{
+			"name": "qa",
+			"path": "qa",
+			"params": [],
+			"layouts": [
+				""
+			],
+			"source": "src/app/qa.tsrx",
+			"loader": false,
+			"guard": false,
+			"head": false
+		}
+	]
+}

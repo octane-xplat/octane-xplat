@@ -220,7 +220,12 @@ export {
 
 export { useBackInterceptor } from './use-back'
 
-export { deriveRouteManifest, defineRoutes, mergeRouteManifests } from './route-table'
+export {
+	deriveRouteManifest,
+	defineRoutes,
+	mergeRouteManifests,
+	manifestToJson,
+} from './route-table'
 export type {
 	BeforeLoad,
 	BeforeLoadArgs,
@@ -232,6 +237,8 @@ export type {
 	RouteHeadExport,
 	RouteMeta,
 	RouteManifest,
+	RouteManifestJson,
+	RouteJson,
 	RouteDataMode,
 	RouteNameOfPath,
 	RouteParamsFromSpecs,

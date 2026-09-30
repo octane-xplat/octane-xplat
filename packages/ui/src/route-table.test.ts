@@ -12,6 +12,7 @@ import {
 	deriveRouteManifest,
 	layoutChain,
 	linkPath,
+	manifestToJson,
 	matchRoute,
 	matchUrl,
 	mergeRouteManifests,
@@ -384,6 +385,57 @@ describe('defineRoutes', () => {
 
 		expect(await merged.loaders!.docs({})).toEqual({ pages: 3 })
 		expect(merged.baked).toEqual({ docs: { pages: 3 } })
+	})
+
+	it('manifestToJson emits the host schema identically for files and specs', () => {
+		const loader = () => 'data'
+		const head = { title: 'Guide' }
+		const file = manifest({
+			'./app/_layout.tsrx': { L: C('Shell') },
+			'./app/guides/_layout.tsrx': { G: C('GuidesShell') },
+			'./app/guides/[slug]+modal.tsrx': {
+				G: C('Guide'),
+				loader,
+				head,
+				dataMode: 'baked',
+			},
+		})
+
+		file.baked = { 'guides/:slug': { ok: true } }
+
+		const spec = defineRoutes({
+			routes: [
+				{
+					path: 'guides/:slug',
+					screen: C('Guide'),
+					presentation: 'modal',
+					loader,
+					head,
+					dataMode: 'baked',
+					source: './app/guides/[slug]+modal.tsrx',
+				},
+			],
+			layouts: { '': C('Shell'), guides: C('GuidesShell') },
+			baked: { 'guides/:slug': { ok: true } },
+		})
+
+		const fj = manifestToJson(file).routes[0]
+		const sj = manifestToJson(spec).routes[0]
+		expect(sj).toEqual(fj)
+		expect(fj).toEqual({
+			name: 'guides/:slug',
+			path: 'guides/:slug',
+			params: ['slug'],
+			presentation: 'modal',
+			dataMode: 'baked',
+			layouts: ['', 'guides'],
+			source: './app/guides/[slug]+modal.tsrx',
+			loader: true,
+			guard: false,
+			head: true,
+		})
+
+		expect(manifestToJson(spec).layouts).toEqual(['', 'guides'])
 	})
 
 	it('file routes honor dataMode and warn on an in-file loader', () => {

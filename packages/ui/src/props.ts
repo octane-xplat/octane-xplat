@@ -1102,6 +1102,37 @@ export interface RouteSpecSet {
 	baked?: Record<string, unknown>
 }
 
+/** The host-consumable route schema — what `xplat routes` writes to
+ *  `routes.gen.manifest.json` and `manifestToJson` produces from any
+ *  RouteManifest. Same shape whether the routes came from the file dir
+ *  or `defineRoutes`, so an external host (e.g. a web SSR tier) consumes
+ *  one normalized list. `loader`/`guard`/`head` are presence flags — the
+ *  functions don't cross the JSON boundary. */
+export interface RouteManifestJson {
+	version: 1
+	/** Layout dirs present, '' = the root `_layout` — sorted. */
+	layouts: string[]
+	/** Registered screen names, including any without a URL pattern. */
+	screens: string[]
+	routes: RouteJson[]
+}
+
+export interface RouteJson {
+	name: string
+	/** Colon-syntax path — 'docs/:slug', '' for the root index. */
+	path: string
+	params: string[]
+	presentation?: 'push' | 'modal' | 'fade'
+	dataMode?: RouteDataMode
+	/** Layout dirs applying to this route, root '' first, innermost last. */
+	layouts: string[]
+	/** Source label — file path or `programmatic:<path>`. */
+	source: string
+	loader: boolean
+	guard: boolean
+	head: boolean
+}
+
 // ---------- programmatic route typing ----------
 
 /** Phantom key carrying a `defineRoutes` manifest's spec-derived route
