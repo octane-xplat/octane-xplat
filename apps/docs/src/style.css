@@ -749,6 +749,10 @@ body {
 	text-decoration: none;
 }
 
+.p .link {
+	font-weight: 425;
+}
+
 .mono {
 	font-family: ui-monospace, 'SF Mono', Menlo, monospace;
 	font-size: 0.9em;
