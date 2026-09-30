@@ -78,6 +78,19 @@ Cmd/Ctrl+Enter. On native, `onSubmit` is enabled only when
 `returnKeyType="done"` or `returnKeyType="send"`; other return keys insert
 a newline instead.
 
+On web, Enter used to confirm an IME composition does not call `onSubmit`
+on `TextInput`, `TextArea`, or `SearchInput`. Keep the controlled `value`
+in sync with `onChange`; defer formatting or validation that rewrites text
+until editing finishes. Real marked-text composition on iOS and Android
+still needs keyboard validation; synthetic events do not establish that pass.
+
+Actionable `Pressable` elements participate in browser Tab navigation. Enter
+activates on keydown and Space on keyup, once per press; `disabled` removes
+keyboard activation and the Tab stop. Give actions an `accessibilityLabel`
+when their visible content does not name them. Native accessibility mappings
+and assistive behavior have separate evidence in
+[platform notes](platform-notes.md#a11y-prop-map-shared-prop--leaf-attrs).
+
 ### Reusable rows
 
 `ListItem` is a reusable, self-drawn row for settings, preferences, and
@@ -89,6 +102,10 @@ inside `FieldGroup`; the row owns its layout and press behavior, while
 [ListDemo](../packages/demos/src/ListDemo.tsrx) for both forms. Press a row
 with an action and verify one callback; disable it and verify the action
 stays unchanged.
+
+On web, Tab to an actionable row and use Enter or Space to activate it.
+Rows without an action are outside the Tab sequence. Check the disabled row
+in the demo too: it must neither activate nor become a keyboard Tab stop.
 
 ### Native modifiers and glyphs
 

@@ -44,6 +44,7 @@ const renderDemoRow = (item: DemoRow) => @{
  *  composition is ScrollView + mapped children. */
 export function ListDemo() @{
 	const [items, setItems] = useState<DemoRow[]>(INITIAL_ROWS);
+	const [updates, setUpdates] = useState(true);
 	const reverseRows = () => setItems([...items].reverse());
 	const appendRows = () => setItems((current) => [
 		...current,
@@ -69,7 +70,8 @@ export function ListDemo() @{
 			<Text>{items.length + ' rows'}</Text>
 		</Row>
 		<FieldGroup label="Preferences">
-			<ListItem title="Email updates" supportingText="Weekly event highlights" trailing={<Text>On</Text>} />
+			<ListItem id="list-demo-updates" title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
+			<ListItem id="list-demo-disabled" title="Managed setting" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} supportingText="Changes disabled" />
 		</FieldGroup>
 		<ScrollView id="list-demo-list" className="list flex-1">
 			{items.map(renderDemoRow)}

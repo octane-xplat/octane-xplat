@@ -21,7 +21,7 @@ export function TextInput(props: TextInputProps) @{
 		readOnly={props.editable === false}
 		placeholder={props.placeholder}
 		onInput={(e: any) => props.onChange?.(e.target.value)}
-		onKeyDown={(e: any) => { if (e.key === 'Enter' && !e.shiftKey) props.onSubmit?.(); }}
+		onKeyDown={(e: any) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) props.onSubmit?.(); }}
 		onFocus={props.onFocus}
 		onBlur={props.onBlur}
 	/>

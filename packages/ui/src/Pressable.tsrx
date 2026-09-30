@@ -20,7 +20,7 @@ export function Pressable(props: PressableProps) @{
 		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
 		accessibilityHint={props.accessibilityHint}
 		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+		accessibilityState={nativeAccessibilityState({ ...props.accessibilityState, disabled: props.disabled || props.accessibilityState?.disabled }) as any}
 		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
 		onPan={usePan(props.disabled ? undefined : props.onPan)}
 		onSwipe={props.disabled ? undefined : props.onSwipe}

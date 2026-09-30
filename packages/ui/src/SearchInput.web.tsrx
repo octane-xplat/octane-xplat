@@ -41,7 +41,7 @@ export function SearchInput(props: SearchInputProps) @{
 			enterKeyHint="search"
 			onInput={(e: any) => setValue(e.target.value)}
 			onKeyDown={(e: any) => {
-				if (e.key === 'Enter' && !e.shiftKey) props.onSubmit?.();
+				if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) props.onSubmit?.();
 			}}
 			onFocus={props.onFocus}
 			onBlur={props.onBlur}

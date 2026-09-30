@@ -54,7 +54,7 @@ export function TextArea(props: TextAreaProps) @{
 		placeholder={props.placeholder}
 		rows={props.rows ?? (props.autoGrow ? 1 : 3)}
 		onInput={(e: any) => props.onChange?.(e.target.value)}
-		onKeyDown={(e: any) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) props.onSubmit?.(); }}
+		onKeyDown={(e: any) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !e.isComposing && e.keyCode !== 229) props.onSubmit?.(); }}
 		onFocus={props.onFocus}
 		onBlur={props.onBlur}
 	/>

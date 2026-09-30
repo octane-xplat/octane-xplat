@@ -46,6 +46,7 @@ const renderDemoRow = (item: DemoRow) => @{
  *  the other targets. */
 export function ListDemo() @{
 	const [items, setItems] = useState<DemoRow[]>(INITIAL_ROWS);
+	const [updates, setUpdates] = useState(true);
 	const reverseRows = () => setItems([...items].reverse());
 	const appendRows = () => setItems((current) => [
 		...current,
@@ -68,7 +69,8 @@ export function ListDemo() @{
 			<Text>{items.length + ' rows · scroll to load more'}</Text>
 		</Row>
 		<FieldGroup label="Preferences">
-			<ListItem title="Email updates" supportingText="Weekly event highlights" trailing={<Text>On</Text>} />
+			<ListItem title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
+			<ListItem title="Managed setting" supportingText="Set by your organization" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} />
 		</FieldGroup>
 		<UITableView
 			id="list-demo-list"

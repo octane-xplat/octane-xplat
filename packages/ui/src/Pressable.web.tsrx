@@ -1,4 +1,4 @@
-import { useRef } from 'octane';
+import { useEffect, useRef } from 'octane';
 import type { PressableProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { layoutChildProps } from './layout-child.web';
@@ -6,17 +6,27 @@ import { usePan } from './pan.web.tsrx';
 
 export function Pressable(props: PressableProps) @{
 	const el = useRef<HTMLElement | null>(null);
-	let timer: ReturnType<typeof setTimeout> | null = null;
+	const spacePressed = useRef(false);
+	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const latest = useRef(props);
+	latest.current = props;
 
 	usePan(el, props.disabled ? undefined : props.onPan);
 
-	const cancel = () => { if (timer !== null) { clearTimeout(timer); timer = null; } };
+	const cancel = () => { if (timer.current !== null) { clearTimeout(timer.current); timer.current = null; } };
+	useEffect(() => {
+		if (props.disabled) { cancel(); spacePressed.current = false; }
+		return cancel;
+	}, [props.disabled]);
 
 	// Long-press parity with native: ~500ms hold over pointerdown/up.
 	const down = () => {
 		if (props.disabled || !props.onLongPress) return;
 		cancel();
-		timer = setTimeout(() => { timer = null; props.onLongPress?.(); }, 500);
+		timer.current = setTimeout(() => {
+			timer.current = null;
+			if (!latest.current.disabled) latest.current.onLongPress?.();
+		}, 500);
 	};
 
 	<div
@@ -28,11 +38,32 @@ export function Pressable(props: PressableProps) @{
 		aria-label={props.accessibilityLabel}
 		aria-description={props.accessibilityHint}
 		aria-valuetext={props.accessibilityValue}
-		aria-disabled={props.accessibilityState?.disabled ?? props.disabled ?? undefined}
+		aria-disabled={props.disabled || props.accessibilityState?.disabled || undefined}
 		aria-selected={props.accessibilityState?.selected}
 		aria-checked={props.accessibilityState?.checked}
 		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
 		aria-hidden={props.accessible === false ? true : undefined}
+		tabIndex={props.onPress && !props.disabled && props.accessible !== false ? 0 : -1}
+		onKeyDown={(e: KeyboardEvent) => {
+			if (e.target !== e.currentTarget || props.disabled || e.isComposing || !props.onPress) return;
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				if (!e.repeat) props.onPress();
+			} else if (e.key === ' ') {
+				e.preventDefault();
+				spacePressed.current = true;
+			}
+		}}
+		onKeyUp={(e: KeyboardEvent) => {
+			if (e.target !== e.currentTarget || e.key !== ' ') return;
+			const activate = spacePressed.current;
+			spacePressed.current = false;
+			if (activate && !props.disabled && props.onPress) {
+				e.preventDefault();
+				props.onPress();
+			}
+		}}
+		onBlur={() => { spacePressed.current = false; }}
 		onClick={props.disabled ? undefined : props.onPress}
 		onDoubleClick={props.disabled ? undefined : props.onDoublePress}
 		onPointerDown={(e: any) => { if (!props.disabled) { props.onPressIn?.(); down(); } }}

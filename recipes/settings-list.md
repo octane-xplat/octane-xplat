@@ -22,9 +22,11 @@ style a platform-authentic widget or choose its native glyph.
 - AC1: A row can show leading content, title, supporting text, trailing content, and an optional press action on web, iOS, and Android.
 - AC2: A row can use the shorthand props or compound slots and can appear inside or outside `FieldGroup`.
 - AC3: Platform-specific widget modifiers and glyph selection are imported from a matching platform subpath and do not change shared `Icon` behavior.
+- AC4: Actionable rows have meaningful accessible names and disabled rows do not activate. On web, Tab reaches enabled actions and Enter/Space activate each action once; informational and disabled rows are outside the Tab sequence. Native assistive activation must be verified with VoiceOver/TalkBack separately from prop readback.
 
 ## Documentation
 
 - AC1: [Building screens: reusable rows](../docs/primitives.md#reusable-rows) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx), [iOS ListDemo](../packages/demos/src/ListDemo.ios.tsrx), and [Android ListDemo](../packages/demos/src/ListDemo.android.tsrx).
 - AC2: [Building screens: reusable rows](../docs/primitives.md#reusable-rows) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx).
 - AC3: [Building screens: native modifiers and glyphs](../docs/primitives.md#native-modifiers-and-glyphs).
+- AC4: [Building screens: reusable rows](../docs/primitives.md#reusable-rows), maintained [ListDemo](../packages/demos/src/ListDemo.tsrx), and [accessibility evidence limits](../docs/open-questions.md#later--finer).
