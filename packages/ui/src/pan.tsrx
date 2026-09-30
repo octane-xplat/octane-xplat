@@ -11,6 +11,12 @@ import type { PanEvent } from './props';
 const PAN_STATE = ['cancelled', 'began', 'moved', 'ended'] as const;
 
 function panVelocity(e: any, state: number, trackerRef: { current: any }): { vx: number; vy: number } {
+	if (state === 0) {
+		trackerRef.current?.recycle?.()
+		trackerRef.current = null
+		return { vx: 0, vy: 0 }
+	}
+
 	const recognizer = e.ios;
 	const nativeView = e.view?.nativeViewProtected;
 	if (recognizer?.velocityInView && nativeView) {
@@ -45,13 +51,25 @@ function panVelocity(e: any, state: number, trackerRef: { current: any }): { vx:
 	return velocity;
 }
 
+function nativePanState(e: any): number {
+	const motionEvent = e.android?.current;
+	if (!motionEvent) return e.state;
+
+	const action = motionEvent.getActionMasked?.();
+	const actionCancel = (globalThis as any).android?.view?.MotionEvent?.ACTION_CANCEL ?? 3;
+	// NativeScript Android reports ACTION_CANCEL as `ended`; the MotionEvent
+	// preserves the distinction needed by the shared pan contract.
+	return action === actionCancel ? 0 : e.state;
+}
+
 export function usePan(cb?: (e: PanEvent) => void): ((e: any) => void) | undefined {
 	const velocityTracker = useRef<any>(null);
 	// Memoized so the driver's observer doesn't churn per render — each
 	// re-subscribe would re-attach a UIPanGestureRecognizer.
 	const handler = useCallback((e: any) => {
-		const state = PAN_STATE[e.state] ?? 'moved';
-		const velocity = panVelocity(e, e.state, velocityTracker);
+		const nativeState = nativePanState(e);
+		const state = PAN_STATE[nativeState] ?? 'moved';
+		const velocity = panVelocity(e, nativeState, velocityTracker);
 		cb?.({
 			x: e.deltaX, y: e.deltaY, dx: e.deltaX, dy: e.deltaY,
 			vx: velocity.vx, vy: velocity.vy,
