@@ -40,7 +40,7 @@
 		"@octane-xplat/picker": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/push": "workspace:*",
-		"@octane-xplat/share": "workspace:*", (feat(share): extract @octane-xplat/share leaf from @octane-xplat/platform)
+		"@octane-xplat/share": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
 		"@valor/nativescript-websockets": "2.0.3",

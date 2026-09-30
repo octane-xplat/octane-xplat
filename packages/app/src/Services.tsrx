@@ -15,7 +15,7 @@ import { media } from '@octane-xplat/media';
 import { notifications } from '@octane-xplat/notifications';
 import { secureStorage } from '@octane-xplat/secure-storage';
 import { share } from '@octane-xplat/share';
-import { openDatabase, supported as sqliteSupported } from '@octane-xplat/sqlite'; (feat(share): extract @octane-xplat/share leaf from @octane-xplat/platform)
+import { openDatabase, supported as sqliteSupported } from '@octane-xplat/sqlite';
 
 const PERMISSION_KINDS = ['notifications', 'camera', 'photos', 'location'] as const;
 
