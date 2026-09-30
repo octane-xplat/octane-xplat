@@ -34,91 +34,15 @@ export interface WindowSize {
 	orientation: 'portrait' | 'landscape'
 }
 
-export interface FileRef {
-	name: string
-	/**
-	 * Opaque reference: blob/object URL on web, filesystem path on native.
-	 * `files.writeText()` downloads on web and writes a file on native.
-	 */
-	uri: string
-}
-
-/**
- * Result of `media.pickImage()`: a displayable URI and an upload data URL.
- * Native URIs point to temporary JPEG files; call `files.release()` when the
- * preview is no longer needed.
- */
-export interface PickedImage extends FileRef {
-	dataUrl: string
-}
-
-/**
- * Options for `media.capturePhoto()`. Sizes are device-independent pixels;
- * the delivered image may be larger on high-density screens and may differ
- * from the request when `keepAspectRatio` applies.
- */
-export interface CapturePhotoOptions {
-	width?: number
-	height?: number
-	/** Preserve the sensor aspect ratio when resizing to width/height. Default true. */
-	keepAspectRatio?: boolean
-	/** Also write the shot to the OS photo library. Default false. */
-	saveToGallery?: boolean
-	/** Preferred lens. Default 'rear'; Android devices may ignore the hint. */
-	cameraFacing?: 'front' | 'rear'
-}
-
 export interface Locale {
 	tag: string
 	language: string
 	region: string
 }
 
-export interface SecureStore {
-	get(key: string): Promise<string | null>
-	set(key: string, value: string): Promise<boolean>
-	remove(key: string): Promise<boolean>
-}
-
-export interface HapticsImpl {
-	impact(style?: 'light' | 'medium' | 'heavy'): void
-	notification(kind: 'success' | 'warning' | 'error'): void
-	selection(): void
-}
-
-export interface NotificationsImpl {
-	notify(title: string, body?: string): void
-}
-
-export interface BiometricsImpl {
-	verify(reason: string): Promise<boolean>
-}
-
 export type PermissionResult = 'granted' | 'denied' | 'unsupported'
 
 export type PermissionKind = 'notifications' | 'camera' | 'photos' | 'location'
-
-export type MediaPermissionKind = 'camera' | 'photos'
-
-export interface GeolocationOptions {
-	enableHighAccuracy?: boolean
-	timeout?: number
-	maximumAge?: number
-}
-
-export interface GeolocationPosition {
-	latitude: number
-	longitude: number
-	accuracy: number
-	altitude: number | null
-	heading: number | null
-	speed: number | null
-	timestamp: number
-}
-
-export interface GeolocationImpl {
-	getCurrentPosition(options?: GeolocationOptions): Promise<GeolocationPosition>
-}
 
 export type ConnectionType =
 	| 'none'
@@ -150,19 +74,6 @@ export interface AppInfo {
 
 export interface OpenSettingsImpl {
 	open(): boolean
-}
-
-export interface MediaImpl {
-	pickImage(): Promise<PickedImage | null>
-	pickImages(): Promise<PickedImage[]>
-	/**
-	 * Still-image capture through the OS camera UI. Resolves null when the
-	 * shot is canceled, permission is denied, or no camera exists — call
-	 * `ensure('camera')` first to tell those apart. Video capture is not part
-	 * of the contract: no maintained NativeScript substrate exists.
-	 */
-	capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null>
-	ensure(kind: MediaPermissionKind): Promise<PermissionResult>
 }
 
 /**

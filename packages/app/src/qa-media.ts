@@ -1,7 +1,8 @@
 import { createHaptics } from '@octane-xplat/haptics';
 import { createSoundBank } from '@octane-xplat/sounds';
 import { createAudioPlayer } from '@octane-xplat/audio';
-import { biometrics, notifications } from '@octane-xplat/platform';
+import { biometrics } from '@octane-xplat/biometrics';
+import { notifications } from '@octane-xplat/notifications';
 import { share } from '@octane-xplat/share';
 
 /** QA checklist triggers — the "do" half of each human check, so the

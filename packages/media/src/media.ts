@@ -10,8 +10,7 @@ import {
 import { create as createImagePicker } from '@nativescript/imagepicker'
 // Ambient const enum — verbatimModuleSyntax forbids value access; Image = 1.
 import type { ImagePickerMediaType } from '@nativescript/imagepicker'
-import { Application, ImageSource, knownFolders, path } from '@nativescript/core'
-import { files } from './files'
+import { Application, File, ImageSource, knownFolders, path } from '@nativescript/core'
 import type {
 	CapturePhotoOptions,
 	MediaImpl,
@@ -143,7 +142,9 @@ async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[
 		return refs
 	} catch (error) {
 		for (const ref of refs) {
-			files.release(ref)
+			try {
+				File.fromPath(ref.uri).removeSync()
+			} catch {}
 		}
 
 		throw error
@@ -185,3 +186,11 @@ export const media: MediaImpl = {
 		return kind === 'photos' ? ensurePhotos() : ensureCamera()
 	},
 }
+
+// Register the permission owners this leaf provides so
+// @octane-xplat/platform's `permissions.ensure(kind)` can reach them without
+// a dependency edge — the generic seam reports 'unsupported' when the leaf
+// is not installed.
+const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+permissionOwners.camera = () => ensureCamera()
+permissionOwners.photos = () => ensurePhotos()

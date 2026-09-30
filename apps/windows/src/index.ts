@@ -1377,7 +1377,7 @@ if (Application.ios) {
 // has a camera (physical Android) — a driver cancels via back — and returns
 // null quickly where capture is unsupported (iOS Simulator). Runs after the
 // sweep and before the files.pick browser at +90s.
-import('@octane-xplat/platform').then(({ media }) => {
+import('@octane-xplat/media').then(({ media }) => {
 	setTimeout(async () => {
 		// Report the permission gate result so a null return is attributable —
 		// 'denied'/'unsupported' vs an actual camera cancel look identical from

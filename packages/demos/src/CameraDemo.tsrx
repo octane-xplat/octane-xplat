@@ -4,7 +4,7 @@ import { CameraView } from '@octane-xplat/camera';
 
 /** Shared `CameraView` demo — live preview only. `facing` flips the lens,
  *  `active` tears the stream/session down. Stills deliberately go through
- *  `media.capturePhoto` in @octane-xplat/platform, not this widget. */
+ *  `media.capturePhoto` in @octane-xplat/media, not this widget. */
 export function CameraDemo() @{
 	const [facing, setFacing] = useState<'front' | 'back'>('back');
 	const [active, setActive] = useState(true);

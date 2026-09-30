@@ -14,16 +14,6 @@ const frameworkFallbacks = {
 		'@nativescript-community/gesturehandler',
 		'@nativescript-community/ui-drawer',
 	],
-	'@octane-xplat/platform': [
-		'@nativescript-community/ui-document-picker',
-		'@nativescript/biometrics',
-		'@nativescript/camera',
-		'@nativescript/geolocation',
-		'@nativescript/haptics',
-		'@nativescript/imagepicker',
-		'@nativescript/local-notifications',
-		'@nativescript/secure-storage',
-	],
 }
 
 const nativePlugin = (name) =>

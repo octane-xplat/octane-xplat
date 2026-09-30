@@ -16,3 +16,6 @@ export const notifications: Capability<NotificationsImpl> = {
 		},
 	},
 }
+
+const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+permissionOwners.notifications = () => notifications.ensure()

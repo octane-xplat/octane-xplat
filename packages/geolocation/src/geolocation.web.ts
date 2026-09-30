@@ -48,3 +48,6 @@ export const geolocation: Capability<GeolocationImpl> = {
 	},
 	impl,
 }
+
+const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+permissionOwners.location = () => geolocation.ensure()

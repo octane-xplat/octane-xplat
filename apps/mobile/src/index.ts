@@ -1497,7 +1497,7 @@ if (!VIRTUAL_LIST_BENCH_MODE && Application.ios) {
 // null quickly where capture is unsupported (iOS Simulator). Runs after the
 // parity report on Android because opening Camera backgrounds the harness.
 	if (!VIRTUAL_LIST_BENCH_MODE) {
-		import('@octane-xplat/platform').then(({ media }) => {
+		import('@octane-xplat/media').then(({ media }) => {
 			setTimeout(async () => {
 				const paritySweepComplete = (globalThis as any).__xplatParitySweepComplete
 				if (Application.android && paritySweepComplete) {

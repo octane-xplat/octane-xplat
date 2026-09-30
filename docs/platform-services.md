@@ -42,21 +42,25 @@ const seen = storage.getString('has-seen-welcome') // "true"
 
 Other services cover permissions, clipboard, haptics, files, media
 picking, notifications, safe-area insets, screen size, and app lifecycle.
-Sharing lives in the `@octane-xplat/share` leaf package (`share.text`,
-`share.url`), not in `platform` — plugin-backed services ship as leaves
-(#72).
+Services that need a NativeScript plugin ship as leaf packages instead of
+living in `platform` (#72): `@octane-xplat/share` (`share.text`, `share.url`),
+`@octane-xplat/files`, `@octane-xplat/media`, `@octane-xplat/biometrics`,
+`@octane-xplat/geolocation`, `@octane-xplat/notifications`,
+`@octane-xplat/secure-storage`, and the `haptics` service in
+`@octane-xplat/haptics`. Each leaf owns its plugin as a real dependency —
+apps do not redeclare it.
 
 ## Capability map
 
 | Service | Shared shape | Platform notes |
 | --- | --- | --- |
-| `geolocation` | `getCurrentPosition(options)` | native needs `@nativescript/geolocation` in the app's dependencies |
+| `geolocation` | `getCurrentPosition(options)` | `@octane-xplat/geolocation` leaf |
 | `connectivity` | `getState()` + `subscribe(listener)` | web also exposes connection type where `navigator.connection` exists |
 | `appInfo` | `{ supported, version, build, bundleId }` | `supported: false` on web — a browser bundle has no trustworthy app identity |
 | `openUrl(url)` | returns whether an outbound link was opened | — |
 | `openSettings` | capability; `open()` | unsupported on web |
-| `media.pickImage()`, `pickImages()` | pick existing image(s) | native needs `@nativescript/imagepicker` |
-| `media.capturePhoto()` | still capture through the OS camera UI | web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops; native needs `@nativescript/camera` |
+| `media.pickImage()`, `pickImages()` | pick existing image(s) | `@octane-xplat/media` leaf |
+| `media.capturePhoto()` | still capture through the OS camera UI | `@octane-xplat/media` leaf; web uses `<input type="file" capture>` — a real camera flow on phones, a file-picker fallback on desktops |
 | `webAuthn` | `isAvailable()`, `create(options)`, `get(options)` — raw WebAuthn over the RP's JSON options | web only; native reports `supported: false` — use `authSession` |
 | `authSession` | `open(url, { callbackScheme })` — hosted web ceremony in a system browser | iOS/macOS ASWebAuthenticationSession, Android Custom Tab + deep-link return; unsupported on web |
 | `@octane-xplat/sqlite` | `openDatabase(name)` → async `execute`/`select`/`get`/`transaction`/`userVersion` | own leaf, not a platform service; web persists via an OPFS worker, macOS binds system libsqlite3 through host metadata interop (`db.persistent` reports); Windows `supported: false` |

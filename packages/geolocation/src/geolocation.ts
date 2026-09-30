@@ -42,3 +42,8 @@ export const geolocation: Capability<GeolocationImpl> = {
 	},
 	impl,
 }
+
+// See @octane-xplat/media for the pattern — registers the kind this leaf owns
+// for the platform permissions dispatcher.
+const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+permissionOwners.location = () => geolocation.ensure()

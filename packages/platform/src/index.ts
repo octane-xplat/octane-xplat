@@ -8,28 +8,16 @@ export type {
 	AuthSessionImpl,
 	AuthSessionOptions,
 	AuthSessionResult,
-	BiometricsImpl,
 	Capability,
-	CapturePhotoOptions,
 	ConnectionType,
 	ConnectivityImpl,
 	ConnectivityState,
 	DeviceInfo,
-	FileRef,
-	GeolocationImpl,
-	GeolocationOptions,
-	GeolocationPosition,
-	HapticsImpl,
-	PickedImage,
 	Insets,
 	Locale,
-	MediaImpl,
-	MediaPermissionKind,
-	NotificationsImpl,
 	PermissionKind,
 	PermissionResult,
 	OpenSettingsImpl,
-	SecureStore,
 	WebAuthnAssertionJSON,
 	WebAuthnCreateOptionsJSON,
 	WebAuthnGetOptionsJSON,
@@ -39,22 +27,15 @@ export type {
 } from './types'
 
 export { device } from './device'
-export { geolocation } from './geolocation'
 export { connectivity } from './connectivity'
 export { appInfo } from './app-info'
 export { openUrl, openSettings } from './open-url'
 export { storage } from './storage'
 export { clipboard } from './clipboard'
-export { haptics } from './haptics'
-export { secureStorage } from './secure-storage'
-export { files } from './files'
-export { notifications } from './notifications'
 export { permissions } from './permissions'
 export { systemBars } from './system-bars'
 export { announce } from './a11y'
 export { locale } from './locale'
-export { media } from './media'
-export { biometrics } from './biometrics'
 export { webAuthn } from './webauthn'
 export { authSession } from './auth-session'
 export { onDeepLink, consumeInitialUrl } from './deep-links'

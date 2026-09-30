@@ -1,0 +1,67 @@
+{
+	"name": "@octane-xplat/media",
+	"version": "0.7.2",
+	"description": "Image picking and OS camera capture for Octane xplat \u2014 matching web + NativeScript implementations",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"media",
+		"image-picker",
+		"camera",
+		"photo",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/media",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/media"
+	},
+	"files": [
+		"src"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"macos": "./src/index.macos.ts",
+			"default": "./src/index.ts"
+		},
+		"./*": "./src/*"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@nativescript/camera": "7.0.0",
+		"@nativescript/imagepicker": "5.0.0"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.2",
+		"octane": "0.6.3"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	}
+}

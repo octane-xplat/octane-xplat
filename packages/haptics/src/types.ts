@@ -36,3 +36,19 @@ export interface Haptics {
 }
 
 export declare function createHaptics(): Haptics;
+
+/** Optional capability — never throws for absence (docs/platform-services.md). */
+export interface Capability<T> {
+  supported: boolean;
+  ensure(): Promise<"granted" | "denied" | "unsupported">;
+  /** usable iff supported && ensured */
+  impl: T | null;
+}
+
+export interface HapticsImpl {
+  impact(style?: "light" | "medium" | "heavy"): void;
+  notification(kind: "success" | "warning" | "error"): void;
+  selection(): void;
+}
+
+export declare const haptics: Capability<HapticsImpl>;

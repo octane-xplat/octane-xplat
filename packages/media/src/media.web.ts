@@ -100,3 +100,9 @@ export const media: MediaImpl = {
 		}
 	},
 }
+
+// See media.ts — registers the kinds this leaf owns for the platform
+// permissions dispatcher.
+const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+permissionOwners.camera = () => media.ensure('camera')
+permissionOwners.photos = () => media.ensure('photos')

@@ -3,7 +3,7 @@
 // The pick is seeded with files.writeText so 'harness.txt' exists under
 // On My iPhone > native in the document browser.
 import { Application, knownFolders } from '@nativescript/core'
-import { files } from '@octane-xplat/platform'
+import { files } from '@octane-xplat/files'
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 // iOS only — the document browser is the surface under test; Android's

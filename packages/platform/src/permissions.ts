@@ -1,20 +1,16 @@
-// Runtime permissions — native leaf. Delegate each kind to the service that
-// owns its plugin request, so this generic seam cannot drift from reality.
-import { geolocation } from './geolocation'
-import { media } from './media'
-import { notifications } from './notifications'
-import type { PermissionKind } from './types'
+// Runtime permissions — shared dispatcher. The kinds' owners live in leaf
+// packages (@octane-xplat/media, /geolocation, /notifications) and register
+// their ensure() into the dep-free __xplatPermissionOwners global at module
+// scope, so this seam reports 'unsupported' when a leaf is absent rather
+// than guessing — same convention as __xplatBridge / __xplatAppKit.
+import type { PermissionKind, PermissionResult } from './types'
+
+type Owner = () => Promise<PermissionResult>
+const owners = () =>
+	((globalThis as any).__xplatPermissionOwners ??= {}) as Record<string, Owner>
 
 export const permissions = {
-	async ensure(kind: PermissionKind): Promise<'granted' | 'denied' | 'unsupported'> {
-		switch (kind) {
-			case 'notifications':
-				return notifications.ensure()
-			case 'camera':
-			case 'photos':
-				return media.ensure(kind)
-			case 'location':
-				return geolocation.ensure()
-		}
+	async ensure(kind: PermissionKind): Promise<PermissionResult> {
+		return owners()[kind]?.() ?? 'unsupported'
 	},
 }

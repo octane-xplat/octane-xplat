@@ -7,9 +7,12 @@ native default, `.web` is the browser implementation, and `.mobile` or an OS
 suffix narrows behavior when needed. Surface: `device`, `appInfo`, `locale`,
 `connectivity`, `useWindowSize`, `useAppState`, `useSafeAreaInsets`, deep
 links, clipboard, `secureStorage`, haptics, notifications, `announce`,
-`systemBars`, geolocation, permissions, media, files, `openUrl`,
-`openSettings`, biometrics. Sharing lives in the `@octane-xplat/share` leaf
-(`share.text`, `share.url`) — plugin-backed services ship as leaf packages.
+`systemBars`, permissions, `openUrl`, `openSettings`. Services that need a
+NativeScript plugin ship as leaf packages: `@octane-xplat/share`,
+`@octane-xplat/files`, `@octane-xplat/media`, `@octane-xplat/biometrics`,
+`@octane-xplat/geolocation`, `@octane-xplat/notifications`,
+`@octane-xplat/secure-storage`, and `haptics` in `@octane-xplat/haptics` —
+each leaf owns its plugin as a real dependency.
 
 Services report honestly — `biometrics` returns `unsupported` on web rather
 than faking a result. Handle the tier your app can fall back to instead of

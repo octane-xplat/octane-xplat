@@ -3,22 +3,14 @@ import type {
 	AppInfo,
 	AppState,
 	AuthSessionImpl,
-	BiometricsImpl,
 	Capability,
 	ConnectivityImpl,
 	ConnectivityState,
 	DeviceInfo,
-	FileRef,
-	GeolocationImpl,
-	HapticsImpl,
 	Insets,
 	Locale,
-	MediaImpl,
-	NotificationsImpl,
 	OpenSettingsImpl,
-	PermissionKind,
 	PermissionResult,
-	SecureStore,
 	WebAuthnImpl,
 	WindowSize,
 } from './types'
@@ -29,28 +21,16 @@ export type {
 	AuthSessionImpl,
 	AuthSessionOptions,
 	AuthSessionResult,
-	BiometricsImpl,
 	Capability,
-	CapturePhotoOptions,
 	ConnectionType,
 	ConnectivityImpl,
 	ConnectivityState,
 	DeviceInfo,
-	FileRef,
-	GeolocationImpl,
-	GeolocationOptions,
-	GeolocationPosition,
-	HapticsImpl,
-	PickedImage,
 	Insets,
 	Locale,
-	MediaImpl,
-	MediaPermissionKind,
-	NotificationsImpl,
 	PermissionKind,
 	PermissionResult,
 	OpenSettingsImpl,
-	SecureStore,
 	WebAuthnAssertionJSON,
 	WebAuthnCreateOptionsJSON,
 	WebAuthnGetOptionsJSON,
@@ -145,48 +125,10 @@ export const clipboard = {
 	async read(): Promise<string | null> { return host().readClipboard?.() ?? null },
 }
 
-export const secureStorage: Capability<SecureStore> = {
-	supported: false,
-	ensure: unsupported,
-	impl: null,
-}
-
-export const haptics: Capability<HapticsImpl> = { supported: false, ensure: unsupported, impl: null }
-export const notifications: Capability<NotificationsImpl> = { supported: false, ensure: unsupported, impl: null }
-export const biometrics: Capability<BiometricsImpl> = { supported: false, ensure: unsupported, impl: null }
 export const webAuthn: Capability<WebAuthnImpl> = { supported: false, ensure: unsupported, impl: null }
 export { authSession } from './auth-session.macos'
 export const openSettings: Capability<OpenSettingsImpl> = { supported: false, ensure: unsupported, impl: null }
-export const geolocation: Capability<GeolocationImpl> = { supported: false, ensure: unsupported, impl: null }
-
-export const media: MediaImpl = {
-	async ensure() { return 'unsupported' },
-	async pickImage() { return null },
-	async pickImages() { return [] },
-	async capturePhoto() { return null },
-}
-
-export const permissions = {
-	async ensure(_kind: PermissionKind): Promise<PermissionResult> { return 'unsupported' },
-}
-
-export const files = {
-	async pick(): Promise<FileRef | null> {
-		throw new Error('unsupported: the AppKit host does not provide a file picker')
-	},
-	async pickMultiple(): Promise<FileRef[]> {
-		throw new Error('unsupported: the AppKit host does not provide a file picker')
-	},
-	async readText(_file: FileRef): Promise<string> {
-		throw new Error('unsupported: AppKit file access is not wired')
-	},
-	async writeText(_name: string, _text: string): Promise<FileRef> {
-		throw new Error('unsupported: the AppKit host does not provide a save panel')
-	},
-	release(_file: FileRef): void {},
-}
-
- (feat(share): extract @octane-xplat/share leaf from @octane-xplat/platform)
+export { permissions } from './permissions'
 export const systemBars = {
 	setColor(_color: string): void {
 		console.warn('[octane-xplat] System bars are unsupported by the AppKit host.')

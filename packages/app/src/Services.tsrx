@@ -2,11 +2,18 @@ import { useState, useEffect } from 'octane';
 import { View, Row, Text, Pressable, Image } from '@octane-xplat/ui';
 import {
 	device, appInfo, connectivity, locale,
-	clipboard, secureStorage, haptics, notifications, announce, systemBars,
-	geolocation, media, files, permissions, openUrl, openSettings, biometrics,
+	clipboard, announce, systemBars,
+	permissions, openUrl, openSettings,
 	useAppState, useWindowSize, useSafeAreaInsets, onDeepLink, consumeInitialUrl,
 } from '@octane-xplat/platform';
 
+import { biometrics } from '@octane-xplat/biometrics';
+import { files } from '@octane-xplat/files';
+import { geolocation } from '@octane-xplat/geolocation';
+import { haptics } from '@octane-xplat/haptics';
+import { media } from '@octane-xplat/media';
+import { notifications } from '@octane-xplat/notifications';
+import { secureStorage } from '@octane-xplat/secure-storage';
 import { share } from '@octane-xplat/share';
 import { openDatabase, supported as sqliteSupported } from '@octane-xplat/sqlite'; (feat(share): extract @octane-xplat/share leaf from @octane-xplat/platform)
 
