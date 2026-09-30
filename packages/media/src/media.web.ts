@@ -41,15 +41,28 @@ function readDataUrl(file: File): Promise<string> {
 	})
 }
 
+async function imageRefs(selected: File[]): Promise<PickedImage[]> {
+	// Finish every fallible read before allocating preview URLs. A failed batch
+	// cannot return its successful siblings, so those need no retained previews.
+	const dataUrls = await Promise.all(selected.map(readDataUrl))
+	const refs: PickedImage[] = []
+	try {
+		for (const [index, file] of selected.entries()) {
+			refs.push({ name: file.name, uri: URL.createObjectURL(file), dataUrl: dataUrls[index]! })
+		}
+
+		return refs
+	} catch (error) {
+		for (const ref of refs) {
+			URL.revokeObjectURL(ref.uri)
+		}
+
+		throw error
+	}
+}
+
 async function pickFiles(multiple: boolean): Promise<PickedImage[]> {
-	const selected = await selectFiles(multiple)
-	return Promise.all(
-		selected.map(async (file) => ({
-			name: file.name,
-			uri: URL.createObjectURL(file),
-			dataUrl: await readDataUrl(file),
-		})),
-	)
+	return imageRefs(await selectFiles(multiple))
 }
 
 export const media: MediaImpl = {
@@ -76,7 +89,8 @@ export const media: MediaImpl = {
 			return null
 		}
 
-		return { name: file.name, uri: URL.createObjectURL(file), dataUrl: await readDataUrl(file) }
+		const [image] = await imageRefs([file])
+		return image ?? null
 	},
 	async ensure(kind: MediaPermissionKind): Promise<PermissionResult> {
 		if (kind === 'photos') {

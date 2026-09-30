@@ -104,6 +104,60 @@ plugin exists, so the contract has no `captureVideo`.
 `NSCameraUsageDescription` — plus `NSPhotoLibraryAddUsageDescription` when
 using `saveToGallery` — in their iOS `Info.plist`.
 
+## Pick and capture images
+
+Install `@octane-xplat/media`; it owns the NativeScript camera/image-picker
+plugins. Import `media` from that leaf. Add app-specific
+`NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to iOS
+`Info.plist`; gallery saving also needs `NSPhotoLibraryAddUsageDescription`.
+Android camera permission and the FileProvider are merged from the camera
+plugin. Do not add another image-picker pod declaration to the app Podfile.
+
+```ts
+import { media } from '@octane-xplat/media'
+import { files } from '@octane-xplat/files'
+
+const permission = await media.ensure('camera')
+if (permission === 'granted') {
+  const image = await media.capturePhoto({ saveToGallery: false })
+  if (image) {
+    try {
+      // Use image.uri for a preview and image.dataUrl for an upload.
+      // Keep the reference alive until both consumers finish.
+    } finally {
+      files.release(image)
+    }
+  }
+}
+```
+
+Install `@octane-xplat/files` for `files.release`; it revokes a web object URL
+or removes a native temporary preview file. On replacement, release the old
+reference after its consumers finish; release the current reference at owner
+teardown. Do not delete a gallery original or arbitrary user-owned file.
+Single selection returns `null` on cancel, multiple selection returns `[]`,
+and capture returns `null` on denial, cancellation, absence or a native capture
+failure. `ensure('camera')` distinguishes permission/availability before capture;
+a granted result alone does not prove the OS capture flow will succeed.
+Picker/conversion failures can reject: catch them and retain the prior selection.
+Failed browser reads allocate no preview URL, and a failed native conversion
+removes its generated temporary JPEG before rejecting.
+
+On web, `ensure('camera')` only queries browser permission; it does not request
+access. A `prompt` state or unavailable Permissions API reports `unsupported`,
+but the file-input capture flow can still be offered from a user action.
+Desktop browsers may open a file picker instead of a camera. Successful picks
+produce an opaque preview URI plus an upload data URL; neither is a persistent
+storage guarantee.
+
+Check denial and cancellation on a fresh test app without resetting an existing
+app's permissions or data. Then capture once after an already-granted permission,
+confirm a non-null result, release it, and verify the app-created preview is gone.
+The [nonvisual browser probe](../apps/web/scripts/optional-services.mjs) uses a
+synthetic file-input payload and never renders or inspects an image. The
+[cleanup tests](../packages/media/tests/cleanup.test.mjs) inject read/conversion
+failures; they do not qualify camera hardware or native permission dialogs.
+
 ## Passkeys and auth ceremonies
 
 Two services cover sign-in (decision #66). On web, `webAuthn` runs the
@@ -312,9 +366,9 @@ open a database when you need queries, joins, or migrations.
 The shared contracts are deliberately small and platform-neutral — each
 optional service may expose a `Capability` object (`supported`, `ensure`,
 `impl`), while direct services such as `storage` and `connectivity` expose
-methods directly. Exact signatures live in the
-`@octane-xplat/platform` type declarations (`GeolocationImpl`,
-`ConnectivityImpl`, `MediaImpl`, and friends). For example,
+methods directly. Exact signatures live in the owning package: `ConnectivityImpl` in
+`@octane-xplat/platform`, `GeolocationImpl` in `@octane-xplat/geolocation`, and
+`MediaImpl` in `@octane-xplat/media`. For example,
 `connectivity.getState()` returns `{ online, type }` where `type` is
 `'none' | 'wifi' | 'mobile' | 'ethernet' | 'bluetooth' | 'vpn' | 'unknown'`.
 

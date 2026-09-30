@@ -8,7 +8,7 @@ Related APIs: CameraView, @octane-xplat/camera, media.capturePhoto
 
 A scaffolded app with a screen that needs a live camera preview. The reader
 knows basic component props. Recording video and capturing stills from the
-preview are outside this recipe; still photos use the platform media service.
+preview are outside this recipe; still photos use the media leaf described in [pick-and-capture-images](pick-and-capture-images.md).
 
 ## Requirements
 

@@ -22,6 +22,7 @@ Workflows:
 - [Add UI sound effects](ui-sounds.md)
 - [Add long-form audio playback](audio-playback.md)
 
+- [Pick and capture images](pick-and-capture-images.md)
 - [Show a live camera preview](camera-preview.md)
 - [Use platform-specific implementations from shared code](platform-leaves.md)
 - [Open a screen from an incoming link](incoming-links.md)

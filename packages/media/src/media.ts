@@ -112,13 +112,22 @@ async function ensureCamera(): Promise<PermissionResult> {
 async function persistImage(source: ImageSource, name: string): Promise<PickedImage> {
 	const filename = `octane-image-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
 	const uri = path.join(knownFolders.temp().path, filename)
-	const saved = await source.saveToFileAsync(uri, 'jpeg', 85)
-	if (!saved) {
-		throw new Error('Could not save the image to temporary storage')
-	}
+	try {
+		const saved = await source.saveToFileAsync(uri, 'jpeg', 85)
+		if (!saved) {
+			throw new Error('Could not save the image to temporary storage')
+		}
 
-	const base64 = await source.toBase64StringAsync('jpeg', 85)
-	return { name, uri, dataUrl: `data:image/jpeg;base64,${base64}` }
+		const base64 = await source.toBase64StringAsync('jpeg', 85)
+		return { name, uri, dataUrl: `data:image/jpeg;base64,${base64}` }
+	} catch (error) {
+		// This operation owns this generated path, including a partial save.
+		try {
+			File.fromPath(uri).removeSync()
+		} catch {}
+
+		throw error
+	}
 }
 
 async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[]> {
