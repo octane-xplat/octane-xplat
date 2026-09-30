@@ -16,10 +16,9 @@ declare const ASWebAuthenticationSessionErrorCode: any
 declare const ASWebAuthenticationPresentationContextProviding: any
 
 let active = false
-let lastCallbackUrl: string | null = null
 
 function isCallback(url: string | null | undefined, scheme: string): url is string {
-	return !!url && url !== lastCallbackUrl && url.startsWith(`${scheme}:`)
+	return !!url && url.slice(0, scheme.length + 1).toLowerCase() === `${scheme.toLowerCase()}:`
 }
 
 function iosOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionResult> {
@@ -35,10 +34,6 @@ function iosOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionR
 		let session: any
 		let provider: any
 		const finish = (result: AuthSessionResult) => {
-			if (result.type === 'success') {
-				lastCallbackUrl = result.url
-			}
-
 			session = null
 			provider = null
 			resolve(result)
@@ -111,14 +106,18 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 	return new Promise((resolve) => {
 		const scheme = options.callbackScheme
 		const intentUrl = (intent: any) => intent?.getDataString?.()
+		const initialActivity = Utils.android.getCurrentActivity() ?? Application.android.foregroundActivity
+		const initialUrl = intentUrl(initialActivity?.getIntent?.())
+		let finished = false
 
 		const finish = (result: AuthSessionResult) => {
-			Application.android.off('activityNewIntent', onNewIntent)
-			Application.off(Application.resumeEvent, onResume)
-			if (result.type === 'success') {
-				lastCallbackUrl = result.url
+			if (finished) {
+				return
 			}
 
+			finished = true
+			Application.android.off('activityNewIntent', onNewIntent)
+			Application.off(Application.resumeEvent, onResume)
 			resolve(result)
 		}
 
@@ -135,7 +134,7 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 			// the Custom Tab was open is already the activity's intent here; a
 			// resume without a matching URL is a user dismiss.
 			const callback = intentUrl(activity?.getIntent?.())
-			if (isCallback(callback, scheme)) {
+			if (callback !== initialUrl && isCallback(callback, scheme)) {
 				finish({ type: 'success', url: callback })
 			} else {
 				finish({ type: 'cancel' })
@@ -153,10 +152,12 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 			} else {
 				// No androidx.browser on the classpath — a plain browser VIEW
 				// intent still returns through the same deep-link path.
-				Utils.openUrl(url)
+				if (!Utils.openUrl(url)) {
+					finish({ type: 'error', message: 'authSession.open: browser could not open URL' })
+				}
 			}
-		} catch (e) {
-			finish({ type: 'error', message: `authSession.open: ${e}` })
+		} catch {
+			finish({ type: 'error', message: 'authSession.open: browser launch failed' })
 		}
 	})
 }
@@ -167,7 +168,7 @@ export const authSession: Capability<AuthSessionImpl> = {
 		return 'granted'
 	},
 	impl: {
-		open(url, options) {
+		async open(url, options) {
 			if (active) {
 				return Promise.resolve({
 					type: 'error',
@@ -177,12 +178,13 @@ export const authSession: Capability<AuthSessionImpl> = {
 
 			active = true
 			const run = Application.ios ? iosOpen : androidOpen
-			const result = run(url, options)
-			result.finally(() => {
+			try {
+				return await run(url, options)
+			} catch {
+				return { type: 'error', message: 'authSession.open: native session failed' }
+			} finally {
 				active = false
-			})
-
-			return result
+			}
 		},
 	},
 }

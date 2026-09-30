@@ -62,5 +62,8 @@
 			"android": "9.1.0",
 			"ios": "9.1.0"
 		}
+	},
+	"scripts": {
+		"test": "node --test tests/*.test.mjs"
 	}
 }

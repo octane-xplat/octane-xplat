@@ -30,6 +30,6 @@ build each target.
 ## Documentation
 
 - AC1: [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies). Gap: The fragment omits a complete server verification exchange and error-handling example.
-- AC2: [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies). Gap: The hosted page callback/session exchange remains app-owned and lacks a maintained complete example.
-- AC3: [authSession platform notes](../docs/platform-services.md#passkeys-and-auth-ceremonies) and [scheme registration](incoming-links.md). Gap: Android intent-filter configuration and callback reproduction are not provided by the linked incoming-links recipe.
-- AC4: [Capability shape and fallbacks](../docs/platform-services.md#optional-capabilities). Gap: a complete sign-in example and reproducible cancel/error/unsupported checks are missing; on-device verification is also pending.
+- AC2: [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies). Gap: The hosted page callback/session exchange remains app-owned and has a [maintained exchange boundary](../examples/auth/README.md), but app-owned code redemption and attempt storage are not implemented here.
+- AC3: [authSession platform notes](../docs/platform-services.md#passkeys-and-auth-ceremonies) and [scheme registration](incoming-links.md). [Hosted callback registration and checks](../docs/platform-services.md#register-and-check-a-hosted-callback) provide the activity filter and callback/cancel/error procedure.
+- AC4: [Capability shape and fallbacks](../docs/platform-services.md#optional-capabilities). [Hosted callback checks](../docs/platform-services.md#register-and-check-a-hosted-callback) and [adapter regressions](../packages/platform/tests/auth-session.test.mjs). Gap: configured system-browser and relying-party runtime verification remains pending.

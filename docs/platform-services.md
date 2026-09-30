@@ -145,7 +145,60 @@ link uses; `androidx.browser` (Custom Tabs) arrives transitively with
 `@octane-xplat/platform`, no app-side declaration. `prefersEphemeralSession`
 keeps the iOS session from sharing Safari cookies.
 
+### Register and check a hosted callback
+
+On Android, add this filter inside the existing main NativeScript activity in
+`App_Resources/Android/src/main/AndroidManifest.xml`. Replace `sample` and the
+host/path with your app's registered callback (`sample://auth/callback` here).
+Keep the activity's `singleTask` launch mode so the active ceremony receives
+`onNewIntent` rather than a second activity.
+
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="sample" android:host="auth" android:path="/callback" />
+</intent-filter>
+```
+
+Use a fresh server-issued state and a short-lived, one-time exchange code for
+every attempt. After `authSession.impl.open` returns `success`, send the URL to
+your backend for validation and redemption; receiving a URL on the requested
+scheme does not authenticate the user. The maintained
+[server exchange example](../examples/auth/README.md) rejects wrong callback
+hosts/paths, duplicate code/state parameters, mismatched state, and reused
+attempts. It requires app-owned cryptographic verification and storage adapters.
+Do not place long-lived session tokens in callback URLs or log their contents.
+
+To check the integration on a configured app:
+
+1. Open a hosted HTTPS ceremony and finish it. Expect `success`, then a successful
+   server code exchange bound to that attempt. Try a wrong state and a reused
+   code; both must leave the app signed out.
+2. Open another attempt and dismiss the browser/auth sheet. Expect `cancel`.
+   An old callback already in Android's activity intent must not become a new
+   success. A new callback delivered by `onNewIntent` is scoped to the active
+   session; the backend still checks state and replay.
+3. Attempt a second `open` while the first is active. Expect `error`; finishing
+   the first must allow a retry. Browser launch failure and iOS native session
+   construction/start failure also return `error`, releasing the active slot.
+4. On web, expect `authSession.supported === false` and `impl === null`; use
+   `webAuthn` or ordinary navigation. Catch web credential rejection and handle
+   a null credential before posting to your RP.
+
+`node --test packages/platform/tests/auth-session.test.mjs` exercises adapter
+callback/cancel/error behavior with mocked NativeScript APIs. It does not qualify
+system-browser behavior or a real relying-party exchange on iOS/Android.
+Incoming-link routing after authentication belongs to the
+[incoming-links recipe](../recipes/incoming-links.md).
+
 ### Provider SDK sign-in (Apple / Google)
+
+Use the [maintained server exchange boundary](../examples/auth/README.md) to
+forward ID tokens to a server verifier bound to its stored audience and nonce.
+The example does not supply a cryptographic verifier or provider registration;
+those remain required before a real sign-in can be qualified.
 
 `@octane-xplat/auth` is the provider-SDK path — the native Sign in with
 Apple and Google Sign-In SDKs on iOS/Android, their platform web SDKs in the
