@@ -56,5 +56,6 @@ export function MediaServices() @{
 		</Row>
 		<Text id="media-player-state">Player: {playerState} · {position}</Text>
 		<Text>Background playback: {caps.backgroundPlayback ? 'available' : 'not available in this backend'}</Text>
+		<Text>System controls: {caps.systemControls ? 'available' : 'not available in this backend'}</Text>
 	</View>
 }

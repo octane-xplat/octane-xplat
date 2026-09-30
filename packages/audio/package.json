@@ -48,6 +48,7 @@
     }
   },
   "scripts": {
+    "test": "node --test tests/*.test.mjs",
     "build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
     "typegen": "tsc -p tsconfig.types.json",
     "prepack": "pnpm build"

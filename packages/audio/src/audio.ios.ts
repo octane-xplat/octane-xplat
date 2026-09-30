@@ -8,6 +8,10 @@ import type {
 export const createAudioPlayer = (): AudioPlayer => {
   const listeners = new Set<(snapshot: AudioSnapshot) => void>();
   const session = AVAudioSession.sharedInstance();
+  // NativeScript's ambient const enums cannot be read with verbatimModuleSyntax.
+  const interruptionBegan = 1; // AVAudioSessionInterruptionType.Began
+  const interruptionShouldResume = 1; // AVAudioSessionInterruptionOptions.ShouldResume
+  const notifyOthersOnDeactivation = 1 as AVAudioSessionSetActiveOptions;
   // Lock-screen transport (MPRemoteCommandCenter / MPNowPlayingInfoCenter)
   // needs MediaPlayer.framework linked AND metadata-generated — plugin
   // LDFLAGS alone don't reach the metadata scan, so the MP* globals can be
@@ -15,8 +19,8 @@ export const createAudioPlayer = (): AudioPlayer => {
   const hasMediaPlayer =
     typeof MPRemoteCommandCenter !== 'undefined' &&
     typeof MPNowPlayingInfoCenter !== 'undefined' &&
-    // Metadata constants/enums don't get TS declarations — probe via globalThis.
-    typeof (globalThis as any).MPNowPlayingInfoPropertyPlaybackDuration !== 'undefined' &&
+    // The runtime metadata keys may be absent when MediaPlayer isn't linked.
+    typeof (globalThis as any).MPMediaItemPropertyPlaybackDuration !== 'undefined' &&
     typeof (globalThis as any).MPRemoteCommandHandlerStatus !== 'undefined';
 
   const commandCenter = hasMediaPlayer ? MPRemoteCommandCenter.sharedCommandCenter() : undefined;
@@ -64,7 +68,10 @@ export const createAudioPlayer = (): AudioPlayer => {
     info.setObjectForKey(track.title ?? track.id, MPMediaItemPropertyTitle);
     if (track.artist) {info.setObjectForKey(track.artist, MPMediaItemPropertyArtist);}
     if (track.album) {info.setObjectForKey(track.album, MPMediaItemPropertyAlbumTitle);}
-    info.setObjectForKey(snapshot().duration, MPNowPlayingInfoPropertyPlaybackDuration);
+    info.setObjectForKey(
+      snapshot().duration,
+      (globalThis as any).MPMediaItemPropertyPlaybackDuration,
+    );
     info.setObjectForKey(snapshot().currentTime, MPNowPlayingInfoPropertyElapsedPlaybackTime);
     info.setObjectForKey(player?.rate ?? 0, MPNowPlayingInfoPropertyPlaybackRate);
     nowPlaying.nowPlayingInfo = info;
@@ -143,10 +150,17 @@ export const createAudioPlayer = (): AudioPlayer => {
     emit();
   };
 
+  const pause = async () => {
+    player?.pause();
+    state = "paused";
+    updateNowPlaying();
+    emit();
+  };
+
   const addRemoteTarget = (command: any, handler: (event?: any) => void) => {
     const token = command.addTargetWithHandler((event: any) => {
       handler(event);
-      return MPRemoteCommandHandlerStatus.Success;
+      return (globalThis as any).MPRemoteCommandHandlerStatus.Success;
     });
 
     remoteTargets.push({ command, token });
@@ -172,7 +186,7 @@ export const createAudioPlayer = (): AudioPlayer => {
     NSOperationQueue.mainQueue,
     (notification) => {
       const type = notification.userInfo.objectForKey(AVAudioSessionInterruptionTypeKey).unsignedIntegerValue;
-      if (type === AVAudioSessionInterruptionType.Began) {
+      if (type === interruptionBegan) {
         wasPlayingBeforeInterruption = state === "playing";
         player?.pause();
         state = "paused";
@@ -180,7 +194,7 @@ export const createAudioPlayer = (): AudioPlayer => {
       } else if (wasPlayingBeforeInterruption) {
         const options = notification.userInfo.objectForKey(AVAudioSessionInterruptionOptionKey)?.unsignedIntegerValue ?? 0;
         wasPlayingBeforeInterruption = false;
-        if ((options & AVAudioSessionInterruptionOptionShouldResume) !== 0) {
+        if ((options & interruptionShouldResume) !== 0) {
           void play();
         }
       }
@@ -222,12 +236,7 @@ export const createAudioPlayer = (): AudioPlayer => {
       await load();
     },
     play,
-    pause: async () => {
-      player?.pause();
-      state = "paused";
-      updateNowPlaying();
-      emit();
-    },
+    pause,
     seek: async (value) => {
       if (!player || !Number.isFinite(value)) {return;}
       player.seekToTime(CMTimeMakeWithSeconds(Math.max(0, value), 600));
@@ -245,7 +254,7 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (timer) {clearInterval(timer);}
       timer = undefined;
       if (nowPlaying) {nowPlaying.nowPlayingInfo = null;}
-      session.setActiveWithOptionsError(false, AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation, null);
+      session.setActiveWithOptionsError(false, notifyOthersOnDeactivation, null);
       listeners.clear();
       queue = [];
       index = -1;

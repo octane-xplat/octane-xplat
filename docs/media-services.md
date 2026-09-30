@@ -121,8 +121,23 @@ retry playback from a user action when the browser blocks it. Test overlaps
 against the configured voice cap. For haptics, inspect `supported`, `patterns`,
 and `realtime` independently and show a fallback for unavailable features.
 
-Queue-end, background/lock-screen, interruption, and effect/player coexistence
-checks still need complete reproducible instructions and device evidence.
+The maintained probe shows `systemControls` beside background playback. On iOS,
+enable the app target’s Background Modes capability and select Audio, AirPlay,
+and Picture in Picture before checking playback after the screen locks ([Apple
+setup](https://developer.apple.com/documentation/Xcode/configuring-background-execution-modes)).
+Start a track, wait until its duration is available, then check the lock screen
+for its title and duration. Pause and resume there; after returning to the app,
+confirm the player state and progress match those actions. On Android, check the
+media notification controls in the same way. Only offer system controls when
+`player.capabilities().systemControls` is true.
+
+While playback is active, trigger a real audio interruption such as an incoming
+call, then confirm playback pauses and resumes only when the system allows it.
+Play a UI sound and an overlapping pair while the track runs; confirm the track
+keeps playing and its output route does not change. A multi-track queue is
+needed to check queue advancement and next/previous controls. These background,
+lock-screen, interruption, and route checks still need device evidence; the
+maintained probe currently has one track.
 The [audio](../recipes/audio-playback.md),
 [haptics](../recipes/advanced-haptics.md), and [sound](../recipes/ui-sounds.md)
 recipes track those gaps separately from the API overview.
