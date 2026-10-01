@@ -763,6 +763,8 @@ body {
 	position: relative;
 	height: 296px;
 	margin-top: 8px;
+	max-width: 933px;
+	padding: 0 81px;
 	pointer-events: none;
 }
 
@@ -1611,6 +1613,10 @@ body {
 		padding: 20px 20px 64px;
 	}
 
+	.orbit {
+		padding: 0 20px;
+	}
+
 	.table-block {
 		margin-right: -20px;
 	}
@@ -1681,6 +1687,10 @@ body {
 
 	.doc {
 		padding: 32px 40px 64px;
+	}
+
+	.orbit {
+		padding: 0 40px;
 	}
 
 	.table-block {
