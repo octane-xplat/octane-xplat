@@ -171,6 +171,26 @@ export { ComplexSelector } from './ComplexSelector'
 export { InputRating } from './InputRating'
 /** Multi-choice checkbox list, exported under Astryx's component name. */
 export { CheckboxGroup as CheckboxList } from './CheckboxGroup'
+export { Calendar } from './Calendar'
+export { DateInput } from './DateInput'
+export { TimeInput } from './TimeInput'
+export { DateTimeInput } from './DateTimeInput'
+export { DateRangeInput } from './DateRangeInput'
+export { FileInput } from './FileInput'
+/** Native file picking needs a provider; adapt the app file service to the
+ *  `FileInputPick` shape. Web ignores it unless an instance supplies `pick`. */
+export { registerFilePicker } from './file-picker'
+export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './calendar-hooks'
+export { isSameDay, isDateInRange, getWeekNumber } from './calendar-core'
+export type { CalendarDay, CalendarMonthGrid } from './calendar-core'
+export type {
+	UseCalendarDaysOptions,
+	UseCalendarDaysReturn,
+	UseCalendarConstraintsOptions,
+	UseCalendarConstraintsReturn,
+	UseCalendarNavigationOptions,
+	UseCalendarNavigationReturn,
+} from './calendar-hooks'
 export type {
 	CheckboxGroupProps,
 	FieldGroupProps,
@@ -208,6 +228,54 @@ export type {
 	TypeaheadItemProps,
 	TypeaheadKeyDownHandler,
 	TypeaheadProps,
+	CalendarProps,
+	CalendarSingleProps,
+	CalendarRangeProps,
+	CalendarHandle,
+	DateInputProps,
+	DateInputSize,
+	DateInputFormat,
+	DateInputNativePicker,
+	DateInputPresentation,
+	DateInputStatus,
+	DateInputStatusType,
+	DateRangeInputProps,
+	DateRangeInputSize,
+	DateRangeInputStatus,
+	DateRangeInputStatusType,
+	DateTimeInputProps,
+	DateTimeInputSize,
+	DateTimeInputHourFormat,
+	DateTimeInputNativePicker,
+	DateTimeInputPresentation,
+	DateTimeInputTimeIncrement,
+	DateTimeInputTimeOptionInterval,
+	DateTimeInputStatus,
+	DateTimeInputStatusType,
+	FileInputStatus,
+	FileInputStatusType,
+	DayOfWeek,
+	DayOfWeekName,
+	DateRange,
+	FieldStatusVariant,
+	FileInputFile,
+	FileInputHandle,
+	FileInputPick,
+	FileInputProps,
+	InputPresentation,
+	ISODateString,
+	ISODateTimeString,
+	ISOTimeString,
+	NativePickerPolicy,
+	PickerPresentation,
+	DateRangePreset,
+	TimeInputProps,
+	TimeInputSize,
+	TimeInputHourFormat,
+	TimeInputNativePicker,
+	TimeInputPresentation,
+	TimeInputStatus,
+	TimeInputStatusType,
 } from './props'
 
 // Navigation and command surfaces

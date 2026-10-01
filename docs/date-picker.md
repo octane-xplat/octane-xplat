@@ -1,7 +1,56 @@
-# Platform date and time pickers
+# Date and file entry
 
-> Use a platform-specific date or time selection control through an explicit
-> package entry point.
+> Use the shared date, time, range, and file controls for application forms.
+> Use the date-picker leaf only when the product specifically needs an
+> OS-authentic picker surface.
+
+`@octane-xplat/ui` exports `Calendar`, `DateInput`, `TimeInput`,
+`DateTimeInput`, `DateRangeInput`, and `FileInput` from its shared entry.
+These components keep the same names and portable values on web, iOS,
+Android, macOS, and Linux. Labels can be supplied directly or by composing a
+control inside `Field`.
+
+## Portable values
+
+Date fields use `YYYY-MM-DD`; time fields use `HH:MM` or `HH:MM:SS`; combined
+date-time values use `YYYY-MM-DDTHH:MM[:SS]` without a timezone suffix. These
+are calendar and wall-clock values, not JavaScript timestamps. Date constraints
+receive local-midnight `Date` values. `Calendar` supports single selection or
+inclusive `{ start, end }` ranges. `DateRangeInput` commits the same range
+shape and uses `null` to clear.
+
+These are controlled components with value callbacks, not React/DOM adapters:
+`onChange` receives the new portable value directly, and there is no
+`SyntheticEvent`, forwarded DOM `ref`, or HTML `name`/form-submission prop.
+Use `bind` for the supported handles (`Calendar.navigateTo()`, input focus and
+blur, or `FileInput.open()`), hold values in app state, and serialize them in
+the app's form or request layer.
+
+`DateInput` and `DateTimeInput` open an adaptive calendar surface by default.
+`TimeInput` supports a typed field, popover, bottom sheet, or platform picker.
+On web, `presentation="native"` uses browser date/time inputs. On iOS and
+Android it uses the framework's portable calendar and time surfaces; the
+shared API does not change into a platform-specific component.
+
+`FileInput` accepts `isMultiple`, `accept`, `maxSize`, and `maxFiles`. Its
+portable values are `{ name, uri, size?, mimeType? }` references. A browser
+`File` object cannot be shared with native code, so web additionally supplies
+the selected object as `file`; native apps receive an opaque URI/path and
+consume it through their file service. Web always provides a chooser and
+dropzone drag-and-drop. Native apps register a picker with
+`registerFilePicker(({ accept }) => files.pick(accept))` or pass one through
+the `pick` prop. `files.pick` selects one file; apps that need
+`isMultiple={true}` must supply a provider that returns an array. The UI
+package has no dependency on a file service. The current AppKit `files` leaf
+does not provide a picker, so macOS needs an app-specific provider; the
+component still renders selected references and validation state.
+
+## OS-authentic pickers
+
+`@octane-xplat/date-picker` remains a native-only leaf for applications that
+need SwiftUI, Material 3, or AppKit picker chrome. The old
+`@octane-xplat/date-picker/web` `DateInput` entry has been removed; use the
+shared `DateInput` from `@octane-xplat/ui` on web and for portable forms.
 
 `@octane-xplat/date-picker` is the second Expo UI port. The native
 implementations are adapted from `@expo/ui` sdk-57 (`ios/DatePickerView.swift`,
@@ -12,12 +61,11 @@ ships no shared component: each target entry has its own name and contract.
 
 ## Install and import
 
-Add `@octane-xplat/date-picker` to the app that renders a control. Import the
-platform-specific component from the matching target entry:
+Add `@octane-xplat/date-picker` only when a target-specific native picker is
+needed. Import from the matching target entry:
 
 - `SwiftUIDatePicker` from `@octane-xplat/date-picker/ios` in `.ios.ts` or `.ios.tsrx`.
 - `MaterialDatePicker` from `@octane-xplat/date-picker/android` in `.android.ts` or `.android.tsrx`.
-- `DateInput` from `@octane-xplat/date-picker/web` in `.web.ts` or `.web.tsrx`.
 - `AppKitDatePicker` from `@octane-xplat/date-picker/macos` in `.macos.ts` or `.macos.tsrx`.
 
 Each entry exports its own component and prop types. The package has no shared
@@ -76,9 +124,9 @@ controlled `Date` with `onSelectionChange`; `minimumDate`/`maximumDate`
 map to `minDate`/`maxDate`, `disabled` to `enabled`. The host element
 needs an explicit size — the picker is pinned to its edges.
 
-The web entry exports `DateInput` — a labeled `<input>` whose `type` is
-`'date'`, `'time'`, or `'datetime-local'`, with browser-format `value`,
-`defaultValue`, `min`, and `max` strings and an `onChange` callback.
+The web entry was removed because its browser-specific `DateInput` value and
+props conflicted with the portable shared `DateInput`. Use
+`@octane-xplat/ui` for shared date entry instead.
 
 ## Port notes — what carried over
 

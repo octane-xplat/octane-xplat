@@ -53,7 +53,7 @@ Workflows:
 - [Add a platform-native single-selection picker](native-picker.md)
 - [Publish a typed component library](typed-component-library.md)
 - [Display formatted content and status](display-content.md)
-- [Add a platform-native date or time picker](date-picker.md)
+- [Add portable date and file inputs](date-picker.md)
 - [Add a platform-native context menu to an octane subtree](context-menu.md)
 - [Grow a multiline input](textarea-growth.md)
 - [Edit a PIN without shifting cells](pin-entry.md)

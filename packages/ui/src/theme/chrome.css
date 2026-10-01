@@ -611,6 +611,162 @@ textarea::placeholder {
 	line-height: 24px;
 	color: var(--color-border);
 }
+
+/* Date & file entry skin — Calendar + the date/time/file field shells. */
+
+.vx-calendar-title {
+	font-size: 13px;
+	font-weight: 600;
+}
+.vx-calendar-weekname,
+.vx-calendar-weeknumber {
+	font-size: 11px;
+	line-height: 32px;
+	color: var(--color-text-secondary);
+}
+.vx-calendar-day {
+	font-size: 13px;
+	border-radius: 50%;
+}
+.vx-calendar-day--outside {
+	color: var(--color-text-secondary);
+	opacity: 0.5;
+}
+.vx-calendar-day--today {
+	font-weight: 700;
+}
+.vx-calendar-day--in-range {
+	background-color: var(--color-border);
+	border-radius: 0;
+}
+.vx-calendar-day--range-start,
+.vx-calendar-day--range-end,
+.vx-calendar-day--selected {
+	background-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+.vx-calendar-day--pending {
+	background-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+.vx-calendar-day--round-start {
+	border-top-left-radius: 50%;
+	border-bottom-left-radius: 50%;
+}
+.vx-calendar-day--round-end {
+	border-top-right-radius: 50%;
+	border-bottom-right-radius: 50%;
+}
+.vx-calendar-day--round-both {
+	border-radius: 50%;
+}
+.vx-calendar-day--disabled {
+	opacity: 0.35;
+}
+.vx-calendar-nav--prev:disabled,
+.vx-calendar-nav--next:disabled {
+	opacity: 0.35;
+}
+
+.vx-dateinput,
+.vx-timeinput,
+.vx-datetimeinput,
+.vx-daterangeinput {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+	background-color: var(--color-surface, transparent);
+}
+.vx-dateinput--disabled,
+.vx-timeinput--disabled,
+.vx-datetimeinput--disabled,
+.vx-daterangeinput--disabled,
+.vx-fileinput--disabled {
+	opacity: 0.5;
+}
+.vx-dateinput--invalid,
+.vx-timeinput--invalid,
+.vx-datetimeinput--invalid,
+.vx-dateinput-input--invalid,
+.vx-timeinput-input--invalid,
+.vx-datetimeinput-input--invalid {
+	border-color: var(--color-danger);
+	color: var(--color-danger);
+}
+.vx-dateinput-segment--placeholder,
+.vx-timeinput-segment--placeholder,
+.vx-datetimeinput-segment--placeholder,
+.vx-daterangeinput-trigger--placeholder .vx-daterangeinput-text,
+.vx-dateinput-overlay--placeholder,
+.vx-timeinput-overlay--placeholder,
+.vx-datetimeinput-overlay--placeholder {
+	color: var(--color-text-secondary);
+}
+.vx-field-label-info {
+	color: var(--color-text-secondary);
+	font-size: 11px;
+}
+.vx-field-icon--error {
+	color: var(--color-danger);
+}
+.vx-field-icon--warning {
+	color: var(--color-warning);
+}
+.vx-field-icon--success {
+	color: var(--color-success);
+}
+
+.vx-dateinput-popover,
+.vx-datetimeinput-popover,
+.vx-daterangeinput-popover {
+	background-color: var(--color-surface, #fff);
+}
+.vx-datetimeinput-timeoption--selected {
+	background-color: var(--color-surface-secondary);
+}
+.vx-daterangeinput-preset--selected {
+	background-color: var(--color-surface-secondary);
+	border-radius: var(--radius-sm);
+}
+.vx-daterangeinput-presets {
+	/* xplat-web-only:start — Native preset rails use the platform layout. */
+	border-right: 1px solid var(--color-border);
+	padding-right: 8px;
+	margin-right: 8px;
+	/* xplat-web-only:end */
+}
+
+.vx-timewheel-option {
+	font-size: 15px;
+	border-radius: var(--radius-sm);
+}
+.vx-timewheel-option--selected {
+	background-color: var(--color-border);
+	font-weight: 600;
+}
+.vx-timewheel-done {
+	font-weight: 600;
+	color: var(--color-primary);
+}
+
+.vx-fileinput--dropzone {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+	border-style: dashed;
+}
+.vx-fileinput--dragging {
+	border-color: var(--color-primary);
+	background-color: var(--color-surface-secondary);
+}
+.vx-fileinput-accept {
+	font-size: 11px;
+	color: var(--color-text-secondary);
+}
+.vx-fileinput-itemsize {
+	font-size: 11px;
+	color: var(--color-text-secondary);
+}
 .vx-rating-cell--on .vx-rating-glyph {
 	color: var(--color-primary);
 }

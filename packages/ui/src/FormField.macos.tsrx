@@ -17,6 +17,7 @@ export function FormField(props: FormFieldProps) @{
 	const labelId = props.label == null ? undefined : (props.labelID ?? `${generatedControlId}-label`)
 	const descriptionId = props.description == null ? undefined : (props.descriptionID ?? `${generatedControlId}-description`)
 	const status = props.status
+	const statusVariant = props.statusVariant ?? 'attached'
 	const statusId = status?.message == null ? undefined : (props.statusID ?? `${generatedControlId}-status`)
 	const isRequired = props.isRequired && !props.isOptional
 	const showRequired = isRequired && form.defaultOptionality !== 'required'
@@ -40,12 +41,13 @@ export function FormField(props: FormFieldProps) @{
 		? <label id={descriptionId} className="vx-field-description" text={props.description} />
 		: null
 	const statusNode = status?.message != null
-		? <label id={statusId} className={cx('vx-field-status', `vx-field-status--${status.type}`, props.statusVariant === 'detached' && 'vx-field-status--detached')} text={status.message} />
+		? <label id={statusId} className={cx('vx-field-status', `vx-field-status--${status.type}`, `vx-field-status--${statusVariant}`)} text={status.message} />
 		: null
-	const rootClass = cx('vx-field', status && `vx-field--${status.type}`, props.isDisabled && 'vx-field--disabled', props.isReadOnly && 'vx-field--readonly', props.isLoading && 'vx-field--loading', props.statusVariant === 'detached' && 'vx-field--status-detached', props.size && `vx-field--size-${props.size}`, props.className)
+	const rootClass = cx('vx-field', status && `vx-field--${status.type}`, `vx-field--status-${statusVariant}`, props.isDisabled && 'vx-field--disabled', props.isReadOnly && 'vx-field--readonly', props.isLoading && 'vx-field--loading', props.size && `vx-field--size-${props.size}`, props.className)
+	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...props.style }
 
 	@if (isHorizontalLabels) {
-		<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx(rootClass, 'vx-field--hl')} style={props.style}>
+		<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx(rootClass, 'vx-field--hl')} style={fieldStyle}>
 			<flexboxlayout className="vx-field-hl-label" flexDirection="column">{labelNode}</flexboxlayout>
 			<flexboxlayout className="vx-field-hl-body" flexDirection="column" flexGrow={1}>
 				{descriptionNode}
@@ -54,7 +56,7 @@ export function FormField(props: FormFieldProps) @{
 			</flexboxlayout>
 		</flexboxlayout>
 	} @else {
-		<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={rootClass} style={props.style}>
+		<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} className={rootClass} style={fieldStyle}>
 			{labelNode}
 			{descriptionNode}
 			<FieldProvider value={fieldContext}>{props.children}</FieldProvider>

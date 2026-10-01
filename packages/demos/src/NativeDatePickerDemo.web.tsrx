@@ -1,30 +1,26 @@
 import { useState } from 'octane'
 import { Heading, Text, View } from '@octane-xplat/ui'
-import { DateInput } from '@octane-xplat/date-picker/web'
+import { DateInput, type ISODateString } from '@octane-xplat/ui'
 
-function toLocalInputValue(date: Date): string {
+function toLocalDate(date: Date): ISODateString {
 	const pad = (n: number) => String(n).padStart(2, '0')
-	return (
-		`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-		`T${pad(date.getHours())}:${pad(date.getMinutes())}`
-	)
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` as ISODateString
 }
 
-/** Demonstrates the browser datetime-local input contract. */
+/** Demonstrates the shared ISO date contract with the adaptive calendar. */
 export function NativeDatePickerDemo() @{
-	const [value, setValue] = useState(toLocalInputValue(new Date(Date.now() + 86400000)))
+	const [value, setValue] = useState<ISODateString | undefined>(toLocalDate(new Date(Date.now() + 86400000)))
 
 	<View className="controls-demo gap-4">
-		<Heading>Web date input</Heading>
+		<Heading>Date input</Heading>
 		<Text>Poll closes</Text>
 		<DateInput
 			id="native-date-picker-poll-close"
 			label="Closes"
-			type="datetime-local"
 			value={value}
-			min={toLocalInputValue(new Date())}
+			min={toLocalDate(new Date())}
 			onChange={setValue}
-			accessibilityLabel="Poll closing time"
+			accessibilityLabel="Poll closing date"
 		/>
 		<Text>{`Closes: ${value || 'unset'}`}</Text>
 	</View>

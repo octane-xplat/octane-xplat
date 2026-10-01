@@ -922,7 +922,304 @@ input.vx-search-field::-webkit-search-cancel-button {
 }
 /* xplat-web-only:end */
 
-	/* Phase-3 navigation & wayfinding. */
+/* Date & file entry layer — Calendar, DateInput, TimeInput, DateTimeInput,
+   DateRangeInput, FileInput. */
+
+/* FormField status variants. `detached` separates the message from the
+   control with extra spacing; `tooltip` hides the inline span (the
+   message rides a tooltip on the field glyph). */
+.vx-field-status--detached {
+	margin-top: 8px;
+}
+.vx-field-label-row {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 4px;
+}
+.vx-field-label-row .vx-field-label {
+	margin-bottom: 0;
+}
+.vx-field-label-info {
+	margin-left: 4px;
+}
+
+/* Calendar — header + weekday row + day grid, self-drawn everywhere. */
+.vx-calendar {
+	flex-direction: column;
+}
+.vx-calendar-header {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-calendar-title {
+	flex-grow: 1;
+	text-align: center;
+}
+.vx-calendar-months {
+	flex-direction: row;
+}
+.vx-calendar--two-months .vx-calendar-months {
+	gap: 24px;
+}
+.vx-calendar-month {
+	flex-direction: column;
+}
+.vx-calendar-weeknames,
+.vx-calendar-week {
+	flex-direction: row;
+}
+.vx-calendar-weekname,
+.vx-calendar-weeknumber,
+.vx-calendar-day {
+	width: 36px;
+	height: 32px;
+	text-align: center;
+}
+.vx-calendar-weeknumber {
+	margin-right: 4px;
+}
+.vx-calendar-live {
+	height: 0;
+	font-size: 0;
+}
+
+/* Date/Time inputs — icon toggle + input + affordances. */
+.vx-dateinput,
+.vx-timeinput,
+.vx-datetimeinput,
+.vx-daterangeinput {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-dateinput-input,
+.vx-timeinput-input,
+.vx-datetimeinput-input {
+	flex-grow: 1;
+}
+.vx-datetimeinput-segment {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-datetimeinput-datesegment {
+	flex-grow: 1;
+}
+.vx-daterangeinput-trigger {
+	flex-grow: 1;
+}
+.vx-daterangeinput-dialog {
+	flex-direction: row;
+}
+.vx-daterangeinput-presets {
+	flex-direction: column;
+}
+.vx-daterangeinput-preset {
+	flex-direction: row;
+	align-items: center;
+	padding: 6px 10px;
+}
+
+/* Time wheel — scrollable option columns in the bottom sheet. */
+.vx-timewheel {
+	flex-direction: column;
+}
+.vx-timewheel-columns {
+	flex-direction: row;
+}
+.vx-timewheel-column {
+	flex-grow: 1;
+	height: 180px;
+}
+.vx-timewheel-option {
+	padding: 6px 0;
+	text-align: center;
+}
+.vx-timewheel-actions {
+	flex-direction: row;
+	justify-content: flex-end;
+}
+.vx-timewheel-cancel,
+.vx-timewheel-done {
+	padding: 8px 16px;
+}
+
+/* FileInput — trigger + list of picked refs. */
+.vx-fileinput {
+	flex-direction: column;
+}
+.vx-fileinput-list {
+	flex-direction: column;
+}
+.vx-fileinput-item {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-fileinput-itemname {
+	flex-grow: 1;
+}
+.vx-fileinput-trigger {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-fileinput-dropzone-hint {
+	flex-direction: column;
+	align-items: center;
+	padding: 16px;
+}
+
+/* xplat-web-only:start — DOM mechanics: flex display, overlay painting,
+   hidden file input, sr-only live region. */
+.vx-calendar,
+.vx-calendar-header,
+.vx-calendar-months,
+.vx-calendar-month,
+.vx-calendar-weeknames,
+.vx-calendar-week,
+.vx-dateinput,
+.vx-timeinput,
+.vx-datetimeinput,
+.vx-datetimeinput-segment,
+.vx-daterangeinput,
+.vx-daterangeinput-dialog,
+.vx-daterangeinput-presets,
+.vx-timewheel,
+.vx-timewheel-columns,
+.vx-timewheel-actions,
+.vx-fileinput,
+.vx-fileinput-list,
+.vx-fileinput-item,
+.vx-fileinput-trigger,
+.vx-fileinput-dropzone-hint,
+.vx-field-label-row {
+	display: flex;
+}
+.vx-calendar-day {
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+}
+.vx-calendar-day--disabled {
+	cursor: default;
+}
+.vx-calendar-day--outside {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.vx-calendar-day--empty {
+	visibility: hidden;
+}
+.vx-calendar-nav {
+	border: 0;
+	background: none;
+	padding: 4px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+.vx-dateinput-toggle,
+.vx-timeinput-toggle,
+.vx-datetimeinput-calendartoggle,
+.vx-datetimeinput-timestoggle,
+.vx-dateinput-clear,
+.vx-timeinput-clear,
+.vx-datetimeinput-clear,
+.vx-daterangeinput-clear,
+.vx-fileinput-clear,
+.vx-fileinput-itemremove {
+	border: 0;
+	background: none;
+	padding: 2px 4px;
+	cursor: pointer;
+}
+.vx-dateinput,
+.vx-timeinput,
+.vx-datetimeinput,
+.vx-daterangeinput {
+	position: relative;
+	gap: 4px;
+}
+.vx-dateinput-input,
+.vx-timeinput-input,
+.vx-datetimeinput-input,
+.vx-daterangeinput-trigger {
+	border: 0;
+	background: none;
+	padding: 6px 4px;
+	font: inherit;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	text-align: left;
+}
+.vx-dateinput-nativeslot,
+.vx-timeinput-nativeslot,
+.vx-datetimeinput-nativeslot {
+	position: relative;
+	display: flex;
+	flex-grow: 1;
+}
+.vx-dateinput-nativeinput,
+.vx-timeinput-nativeinput,
+.vx-datetimeinput-nativeinput {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+}
+.vx-dateinput-overlay,
+.vx-timeinput-overlay,
+.vx-datetimeinput-overlay {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	pointer-events: none;
+	padding: 6px 4px;
+}
+.vx-datetimeinput-timelist {
+	display: flex;
+	flex-direction: column;
+	max-height: 220px;
+	overflow-y: auto;
+}
+.vx-datetimeinput-timeoption {
+	border: 0;
+	background: none;
+	padding: 6px 12px;
+	text-align: left;
+	cursor: pointer;
+}
+.vx-daterangeinput-trigger {
+	border: 0;
+	background: none;
+	padding: 6px 4px;
+	cursor: pointer;
+}
+.vx-fileinput-nativeinput {
+	display: none;
+}
+.vx-fileinput--dropzone {
+	padding: 16px;
+	align-items: center;
+}
+.vx-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+/* xplat-web-only:end */
+
+/* Phase-3 navigation & wayfinding. */
 
 /* Breadcrumb — inline trail. */
 .vx-breadcrumb {

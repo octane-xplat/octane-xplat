@@ -38,7 +38,10 @@ export function useFieldControlProps<T extends FieldControlProps & { id?: string
 	const ariaDescribedBy = [props.web?.['aria-describedby'], field?.descriptionId, field?.statusId]
 		.filter(Boolean)
 		.join(' ') || undefined
-	const hint = [props.accessibilityHint, description, status?.message].filter(Boolean).join('. ') || undefined
+	const disabledReason = (field?.isDisabled ?? props.isDisabled) || props.isDisabled
+		? field?.disabledMessage ?? props.disabledMessage
+		: undefined
+	const hint = [props.accessibilityHint, description, status?.message, disabledReason].filter(Boolean).join('. ') || undefined
 
 	// Resolved required (Astryx useResolvedRequired): the control announces
 	// required when declared, or when the enclosing FormLayout defaults to

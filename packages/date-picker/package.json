@@ -23,10 +23,6 @@
 			"types": "./types/android/index.d.ts",
 			"native": "./src/android/index.ts"
 		},
-		"./web": {
-			"types": "./types/web/index.d.ts",
-			"web": "./src/web/index.ts"
-		},
 		"./macos": {
 			"types": "./types/macos/index.d.ts",
 			"macos": "./src/macos/index.ts"
@@ -42,15 +38,15 @@
 				"types": "./types/android/index.d.ts",
 				"native": "./dist/native/android/index.js"
 			},
-			"./web": {
-				"types": "./types/web/index.d.ts",
-				"web": "./dist/web/web/index.js"
+			"./macos": {
+				"types": "./types/macos/index.d.ts",
+				"macos": "./src/macos/index.ts"
 			}
 		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json",
+		"build": "vite build --mode native && tsc -p tsconfig.types.json",
 		"prepublishOnly": "pnpm build",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",

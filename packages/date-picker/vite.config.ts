@@ -22,43 +22,32 @@ const NATIVE_EXTS = [
 	'.json',
 ]
 
-export default defineConfig(({ mode }) => {
-	const native = mode === 'native'
-	return {
-		plugins: octane({
-			renderers: native
-				? {
-						registry: { nativescript: nativeScriptRenderer },
-						rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }],
-					}
-				: undefined,
-		}),
-		build: {
-			lib: {
-				entry: (native
-					? {
-							'ios/index': 'src/ios/index.ts',
-							'android/index': 'src/android/index.ts',
-						}
-					: { 'web/index': 'src/web/index.ts' }) as Record<string, string>,
-				formats: ['es'] as any,
-			},
-			outDir: native ? 'dist/native' : 'dist/web',
-			emptyOutDir: true,
-			minify: false,
-			rollupOptions: {
-				output: { preserveModules: true },
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//],
-			},
+export default defineConfig({
+	plugins: octane({
+		renderers: {
+			registry: { nativescript: nativeScriptRenderer },
+			rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }],
 		},
-		resolve: {
-			conditions: native ? ['native'] : ['web'],
-			...(native
-				? {
-						alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }],
-						extensions: NATIVE_EXTS,
-					}
-				: {}),
+	}),
+	build: {
+		lib: {
+			entry: {
+				'ios/index': 'src/ios/index.ts',
+				'android/index': 'src/android/index.ts',
+			},
+			formats: ['es'] as any,
 		},
-	}
+		outDir: 'dist/native',
+		emptyOutDir: true,
+		minify: false,
+		rollupOptions: {
+			output: { preserveModules: true },
+			external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//],
+		},
+	},
+	resolve: {
+		conditions: ['native'],
+		alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }],
+		extensions: NATIVE_EXTS,
+	},
 })

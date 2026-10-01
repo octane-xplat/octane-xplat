@@ -18,6 +18,7 @@ export function FormField(props: FormFieldProps) @{
 	const descriptionId = props.description == null ? undefined : (props.descriptionID ?? `${generatedControlId}-description`)
 	const isRequired = props.isRequired && !props.isOptional
 	const status = props.status
+	const statusVariant = props.statusVariant ?? 'attached'
 	const statusId = status?.message == null ? undefined : (props.statusID ?? `${generatedControlId}-status`)
 	const fieldContext = {
 		...props,
@@ -43,12 +44,13 @@ export function FormField(props: FormFieldProps) @{
 		? <span id={descriptionId} className={['vx-field-description', props.isLabelHidden ? 'vx-field-description--hidden' : undefined]}>{props.description}</span>
 		: null
 	const statusNode = status?.message != null
-		? <span id={statusId} className={['vx-field-status', `vx-field-status--${status.type}`, props.statusVariant === 'detached' ? 'vx-field-status--detached' : undefined]} role={status.type === 'error' ? 'alert' : 'status'}>{status.message}</span>
+		? <span id={statusId} className={['vx-field-status', `vx-field-status--${status.type}`, `vx-field-status--${statusVariant}`]} role={status.type === 'error' ? 'alert' : 'status'}>{status.message}</span>
 		: null
-	const rootClass = ['vx-field', status ? `vx-field--${status.type}` : undefined, props.isDisabled ? 'vx-field--disabled' : undefined, props.isReadOnly ? 'vx-field--readonly' : undefined, props.isLoading ? 'vx-field--loading' : undefined, props.statusVariant === 'detached' ? 'vx-field--status-detached' : undefined, props.size ? `vx-field--size-${props.size}` : undefined, props.className]
+	const rootClass = ['vx-field', status ? `vx-field--${status.type}` : undefined, `vx-field--status-${statusVariant}`, props.isDisabled ? 'vx-field--disabled' : undefined, props.isReadOnly ? 'vx-field--readonly' : undefined, props.isLoading ? 'vx-field--loading' : undefined, props.size ? `vx-field--size-${props.size}` : undefined, props.className]
+	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...props.style }
 
 	@if (isHorizontalLabels) {
-		<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={[...rootClass, 'vx-field--hl']} style={props.style}>
+		<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={[...rootClass, 'vx-field--hl']} style={fieldStyle}>
 			<div className="vx-field-hl-label">{labelNode}</div>
 			<div className="vx-field-hl-body">
 				{descriptionNode}
@@ -57,7 +59,7 @@ export function FormField(props: FormFieldProps) @{
 			</div>
 		</div>
 	} @else {
-		<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={rootClass} style={props.style} role="group">
+		<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={rootClass} style={fieldStyle} role="group">
 			{labelNode}
 			{descriptionNode}
 			<FieldProvider value={fieldContext}>{props.children}</FieldProvider>

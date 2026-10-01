@@ -87,6 +87,34 @@ if (!icons.has('xplat-volume')) {
 	})
 }
 
+// Date/time/file affordances for the entry controls — same guarded
+// registration; an app registering these names overrides the defaults.
+if (!icons.has('xplat-calendar')) {
+	icons.set('xplat-calendar', {
+		svg: 'M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z',
+	})
+}
+
+if (!icons.has('xplat-clock')) {
+	icons.set('xplat-clock', {
+		svg: 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z',
+	})
+}
+
+if (!icons.has('xplat-upload')) {
+	icons.set('xplat-upload', {
+		svg: 'M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z',
+	})
+}
+
+if (!icons.has('xplat-chevron-left')) {
+	icons.set('xplat-chevron-left', { svg: 'M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z' })
+}
+
+if (!icons.has('xplat-chevron-right')) {
+	icons.set('xplat-chevron-right', { svg: 'M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z' })
+}
+
 if (!icons.has('xplat-volume-off')) {
 	icons.set('xplat-volume-off', {
 		svg: 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.45-.54 2.78-1.32 3.97-2.27L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z',

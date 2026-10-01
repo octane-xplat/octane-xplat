@@ -95,6 +95,11 @@ matching accessibility group role.
 | `ToggleButton`, `ToggleButtonGroup`   | Pressed action and toggle group                   | `isPressed`, `value`, `onChange`, `type`                    |
 | `ClickableCard`, `SelectableCard`   | Action/navigation card or controlled selection  | `label`, `href`, `isSelected`, `onChange`                  |
 | `MoreMenu`                           | Icon-only overflow menu                            | `items`, `label`, `placement`, `alignment`                 |
+| `DateInput`, `TimeInput`             | ISO date or wall-clock time fields with adaptive picker surfaces | `value`, `onChange`, `min`, `max`, `presentation` |
+| `DateTimeInput`                      | Combined ISO local date-time field                | `value`, `onChange`, `min`, `max`, `presentation` |
+| `Calendar`                           | Single-date or inclusive range calendar           | `mode`, `value`, `numberOfMonths`, `dateConstraints` |
+| `DateRangeInput`                     | Labeled range trigger with calendar and presets  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan` |
+| `FileInput`                           | File picker with input and dropzone modes         | `value`, `onChange`, `accept`, `isMultiple`, `maxSize` |
 | `Switch`                             | On/off toggle (self-drawn)                       | `checked`, `onCheckedChange`, `isDisabled`                  |
 | `CheckboxInput`                     | Self-drawn checkbox                              | `checked`, `onCheckedChange`, `isDisabled`                  |
 | `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks | `state`, `size`, `isDisabled` |
@@ -115,6 +120,24 @@ matching accessibility group role.
 | `Chip`                               | Selectable/removable chip                        | `selected`, `onSelect`, `onRemove`                          |
 | `Field`, `FieldGroup`  | Labeled field wrapper / labeled field group      | `label`, `description`, `inputID`, `isRequired`, `isOptional`, `status` |
 | `Item`                  | Settings-style row                               | `title`, `supportingText`, `leading`, `trailing`, `onPress` |
+
+Date controls use portable ISO strings: `YYYY-MM-DD`, `HH:MM[:SS]`, and
+`YYYY-MM-DDTHH:MM[:SS]`. Date-time strings have no timezone suffix; they
+represent local wall-clock values. `presentation="native"` uses the browser
+input on web and the shared calendar/time sheet on iOS and Android. Choose
+`bottom-sheet`, `popover`, or adaptive presentations when the surface should
+stay consistent across targets. `DateRangeInput` uses `{start, end}` ISO dates
+or `null`. See the [date and file entry guide](date-picker.md) for full
+contracts and the native picker package boundary.
+
+`FileInput` uses a portable `{name, uri, size?, mimeType?}` reference because
+browser `File` objects do not exist on native targets. On web the optional
+`file` property retains the browser object for upload APIs. Native picking
+requires an app-registered picker such as
+`registerFilePicker(({ accept }) => files.pick(accept))`; multi-file support
+needs a provider that returns arrays. Web uses the browser chooser and
+supports drag and drop in `mode="dropzone"`. The current AppKit file service
+has no picker, so macOS apps provide their own picker if they need selection.
 
 ## Content
 

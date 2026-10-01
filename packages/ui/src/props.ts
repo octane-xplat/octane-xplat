@@ -460,12 +460,24 @@ export interface FieldStatus {
 
 export type FieldControlSize = 'sm' | 'md' | 'lg'
 
+/** How a field status message is placed (Astryx parity):
+ *  - `attached`: the message border-merges with the control below it
+ *  - `detached`: a separate message under the control
+ *  - `tooltip`: no message box; the status glyph reveals the message on
+ *    hover/focus. Touch platforms (iOS/Android) have no hover/focus
+ *    surfaces — `tooltip` degrades to `detached` there. */
+export type FieldStatusVariant = 'attached' | 'detached' | 'tooltip'
+
 /** Shared, platform-neutral field vocabulary. */
 export interface FieldControlProps {
 	label?: string
 	description?: string
 	isLabelHidden?: boolean
 	isDisabled?: boolean
+	/** Why the field is disabled. Web shows it as a hover/focus tooltip on the
+	 *  control (which stays focusable via `aria-disabled`); native appends it
+	 *  to the control's accessibility hint instead. */
+	disabledMessage?: string
 	isReadOnly?: boolean
 	/** Indicates asynchronous work associated with the field. */
 	isLoading?: boolean
@@ -473,7 +485,15 @@ export interface FieldControlProps {
 	isOptional?: boolean
 	size?: FieldControlSize
 	status?: FieldStatus
-	statusVariant?: 'attached' | 'detached'
+	/** @default 'attached' */
+	statusVariant?: FieldStatusVariant
+	/** Hint shown from an info glyph at the end of the label. Web renders a
+	 *  real tooltip; native folds it into the label's accessibility hint. */
+	labelTooltip?: string
+	/** Field width — a number in px or a CSS-ish string on web/density units
+	 *  on native. Sizes the whole field (label, control, status), unlike
+	 *  styling the control itself. */
+	width?: number | string
 }
 
 export interface TextInputProps extends FieldControlProps {
@@ -550,6 +570,364 @@ export interface SearchInputProps extends FieldControlProps {
 	bind?: (h: TextInputHandle) => void
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+// ---------- date / time / file entry (Astryx parity) ----------
+
+/** ISO 8601 calendar date `YYYY-MM-DD`. Date/time inputs and Calendar carry
+ *  ISO strings — never `Date` — so values serialize losslessly and ignore
+ *  zones. `Date` appears only in `dateConstraints` callbacks and Calendar's
+ *  single-mode `onChange` second argument. */
+export type ISODateString = `${number}${number}${number}${number}-${number}${number}-${number}${number}`
+
+/** ISO wall-clock time `HH:MM` or `HH:MM:SS`. */
+export type ISOTimeString =
+	| `${number}${number}:${number}${number}`
+	| `${number}${number}:${number}${number}:${number}${number}`
+
+/** ISO local date-time `YYYY-MM-DDTHH:MM[:SS]` — no zone suffix; these are
+ *  wall-clock values, not instants. */
+export type ISODateTimeString = `${ISODateString}T${ISOTimeString}`
+
+export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
+export type DayOfWeekName = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'
+
+/** Inclusive ISO date range. */
+export interface DateRange {
+	start: ISODateString
+	end: ISODateString
+}
+
+/** Quick-select range beside a `DateRangeInput` calendar. A preset is
+ *  disabled when it violates min/max/dateConstraints or the span bounds. */
+export interface DateRangePreset {
+	label: string
+	getRange: () => DateRange
+}
+
+/** Immutable Gregorian calendar day — the unit all calendar math uses. */
+export interface PlainDate {
+	readonly year: number
+	readonly month: number
+	readonly day: number
+}
+
+/** Which surface a date/time field opens. `text-input` is TimeInput-only
+ *  (a typed field, no picker surface at all). `native` is the platform's own
+ *  control — `<input type="date|time">` on web; on iOS/Android the
+ *  OS-authentic pickers live in `@octane-xplat/date-picker`, so the ui leaf
+ *  resolves `native` to its self-drawn `bottom-sheet` surface instead.
+ *  `adaptive-native` / `adaptive-bottom-sheet` pick by pointer coarseness. */
+export type InputPresentation =
+	| 'text-input'
+	| 'popover'
+	| 'bottom-sheet'
+	| 'native'
+	| 'adaptive-bottom-sheet'
+	| 'adaptive-native'
+
+export type PickerPresentation = Exclude<InputPresentation, 'text-input'>
+export type DateInputPresentation = PickerPresentation
+export type TimeInputPresentation = InputPresentation
+export type DateTimeInputPresentation = PickerPresentation
+
+/** @deprecated Prefer `presentation`; kept for upstream source parity —
+ *  `touch` → `adaptive-native`, `always` → `native`, `never` →
+ *  `adaptive-bottom-sheet` (`text-input` for TimeInput). `presentation`
+ *  wins when both are set. */
+export type NativePickerPolicy = 'touch' | 'always' | 'never'
+
+/** Imperative calendar navigation — obtained via `bind`. */
+export interface CalendarHandle {
+	navigateTo(date: ISODateString): void
+}
+
+interface CalendarBaseProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Receives `{ navigateTo }` for imperative month navigation. */
+	bind?: (h: CalendarHandle) => void
+	/** Month panes shown side by side. @default 1 */
+	numberOfMonths?: 1 | 2
+	min?: ISODateString
+	max?: ISODateString
+	/** Extra rules — a date is disabled when ANY callback returns false. The
+	 *  callback receives a local-midnight `Date`. */
+	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
+	/** Range mode: max inclusive day span of a selection. @default none */
+	maxRangeSpan?: number
+	/** Range mode: min inclusive day span; 2 forbids same-day ranges.
+	 *  @default 1 */
+	minRangeSpan?: number
+	/** Controlled visible month (any ISO day in it). */
+	focusDate?: ISODateString
+	onFocusDateChange?: (focusDate: ISODateString) => void
+	/** Render adjacent-month pad days (dimmed, never interactive).
+	 *  @default true */
+	hasOutsideDays?: boolean
+	/** ISO week-number column. @default false */
+	hasWeekNumbers?: boolean
+	/** Trim the grid to the month's own weeks instead of the fixed 6-row
+	 *  layout. @default false */
+	hasVariableRowCount?: boolean
+	/** First column of the week grid — number (0=Sun) or three-letter day
+	 *  name. @default 0 */
+	weekStartsOn?: DayOfWeek | DayOfWeekName
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface CalendarSingleProps extends CalendarBaseProps {
+	mode?: 'single'
+	value?: ISODateString
+	defaultValue?: ISODateString
+	/** Fires with the ISO day plus a local-midnight `Date` convenience. */
+	onChange?: (value: ISODateString, valueAsDate: Date) => void
+}
+
+export interface CalendarRangeProps extends CalendarBaseProps {
+	mode: 'range'
+	value?: DateRange
+	defaultValue?: DateRange
+	onChange?: (value: DateRange) => void
+}
+
+/** A self-drawn month calendar — same value model on every target. Keyboard
+ *  grid navigation is web/macOS; native cells announce through
+ *  `accessibility*` props rather than ARIA. */
+export type CalendarProps = CalendarSingleProps | CalendarRangeProps
+
+export type SharedDateFormat = 'date' | 'date_long' | 'date_weekday' | 'system_date'
+
+// Public Astryx names stay available even where the shared field layer owns
+// the underlying type contract.
+export type DateInputSize = FieldControlSize
+export type TimeInputSize = FieldControlSize
+export type DateTimeInputSize = FieldControlSize
+export type DateRangeInputSize = FieldControlSize
+export type DateInputFormat = SharedDateFormat
+export type TimeInputHourFormat = '12h' | '24h'
+export type DateTimeInputHourFormat = TimeInputHourFormat
+export type DateTimeInputTimeIncrement = 1 | 5 | 10 | 15 | 30
+export type DateTimeInputTimeOptionInterval = 5 | 10 | 15 | 30 | 60
+export type DateInputNativePicker = NativePickerPolicy
+export type TimeInputNativePicker = NativePickerPolicy
+export type DateTimeInputNativePicker = NativePickerPolicy
+export type DateInputStatus = FieldStatus
+export type DateInputStatusType = FieldStatusType
+export type TimeInputStatus = FieldStatus
+export type TimeInputStatusType = FieldStatusType
+export type DateTimeInputStatus = FieldStatus
+export type DateTimeInputStatusType = FieldStatusType
+export type DateRangeInputStatus = FieldStatus
+export type DateRangeInputStatusType = FieldStatusType
+export type FileInputStatus = FieldStatus
+export type FileInputStatusType = FieldStatusType
+
+/** Typed date entry + calendar. The default `presentation` is
+ *  `adaptive-native`: fine pointers get the typed field + calendar popover,
+ *  coarse pointers the platform picker (web) or the self-drawn sheet
+ *  (native). */
+export interface DateInputProps extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	accessibilityLabel?: string
+	accessibilityHint?: string
+	value?: ISODateString
+	onChange?: (value: ISODateString | undefined) => void
+	/** Async follow-up after `onChange`; the field stays busy until it
+	 *  resolves. */
+	changeAction?: (value: ISODateString | undefined) => void | Promise<void>
+	min?: ISODateString
+	max?: ISODateString
+	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
+	/** Closed-value format — a named shared format or a mapper from ISO.
+	 *  @default 'date_long' */
+	format?: DateInputFormat | ((iso: ISODateString) => string)
+	hasClear?: boolean
+	hasAutoFocus?: boolean
+	presentation?: DateInputPresentation
+	/** @deprecated Use `presentation`; `presentation` wins when both set. */
+	nativePicker?: DateInputNativePicker
+	placeholder?: string
+	bind?: (h: TextInputHandle) => void
+	/** Calendar popover pane count. Ignored by the `native` surface.
+	 *  @default 1 */
+	numberOfMonths?: 1 | 2
+	weekStartsOn?: DayOfWeek | DayOfWeekName
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface TimeInputProps extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	accessibilityLabel?: string
+	accessibilityHint?: string
+	value?: ISOTimeString
+	onChange?: (value: ISOTimeString | undefined) => void
+	changeAction?: (value: ISOTimeString | undefined) => void | Promise<void>
+	min?: ISOTimeString
+	max?: ISOTimeString
+	/** Include a seconds segment. @default false */
+	hasSeconds?: boolean
+	hasClear?: boolean
+	hasAutoFocus?: boolean
+	/** Display format of the closed field. @default '12h' */
+	hourFormat?: TimeInputHourFormat
+	/** Arrow-key / stepper minute increment. @default 1 */
+	increment?: number
+	/** @default 'adaptive-native' */
+	presentation?: TimeInputPresentation
+	/** @deprecated Use `presentation`; `presentation` wins when both set.
+	 *  `never` maps to `text-input`. */
+	nativePicker?: TimeInputNativePicker
+	placeholder?: string
+	bind?: (h: TextInputHandle) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Date and time under one label — a date segment and a time segment whose
+ *  commits combine into the ISODateTimeString value. */
+export interface DateTimeInputProps extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	accessibilityLabel?: string
+	accessibilityHint?: string
+	value?: ISODateTimeString
+	onChange: (value: ISODateTimeString | undefined) => void
+	changeAction?: (value: ISODateTimeString | undefined) => void | Promise<void>
+	/** Earliest selectable instant — constrains the calendar and (when the
+	 *  picked day equals `min`'s day) the time segment. */
+	min?: ISODateTimeString
+	max?: ISODateTimeString
+	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
+	hasSeconds?: boolean
+	/** @default '12h' */
+	hourFormat?: DateTimeInputHourFormat
+	/** Arrow-key minute step for the time segment. @default 1 */
+	timeIncrement?: DateTimeInputTimeIncrement
+	/** Preset-time list cadence for the time segment (e.g. 15 → quarter
+	 *  hours). When set the time field offers a selectable option list;
+	 *  typing still accepts times between options. Pointer platforms only —
+	 *  touch sheets use wheels instead. */
+	timeOptionInterval?: DateTimeInputTimeOptionInterval
+	hasClear?: boolean
+	placeholder?: string
+	/** Time segment placeholder. @default "Select a time" */
+	timePlaceholder?: string
+	/** Accessible name of the time segment. @default `${label} time` */
+	timeLabel?: string
+	/** @default 'adaptive-native' */
+	presentation?: DateTimeInputPresentation
+	/** @deprecated Use `presentation`; `presentation` wins when both set. */
+	nativePicker?: DateTimeInputNativePicker
+	bind?: (h: TextInputHandle) => void
+	/** Calendar pane count on the popover/sheet surface. @default 1 */
+	numberOfMonths?: 1 | 2
+	weekStartsOn?: DayOfWeek | DayOfWeekName
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Trigger + range calendar. Always controlled: `value` is the committed
+ *  range or null, `onChange` reports commits and clears. */
+export interface DateRangeInputProps extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	accessibilityLabel?: string
+	accessibilityHint?: string
+	value: DateRange | null
+	onChange: (value: DateRange | null) => void
+	changeAction?: (value: DateRange | null) => void | Promise<void>
+	min?: ISODateString
+	max?: ISODateString
+	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
+	maxRangeSpan?: number
+	minRangeSpan?: number
+	/** Quick ranges beside the calendar. */
+	presets?: ReadonlyArray<DateRangePreset>
+	/** @default true */
+	hasClear?: boolean
+	placeholder?: string
+	/** @default 2 */
+	numberOfMonths?: 1 | 2
+	weekStartsOn?: DayOfWeek | DayOfWeekName
+	bind?: (h: TextInputHandle) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** A picked file, portable shape. `uri` is an opaque reference — a
+ *  blob/object URL on web, a filesystem path or `content://` URI on native
+ *  (`@octane-xplat/files` `FileRef`-compatible: `{name, uri}` is assignable
+ *  to it). Browser `File` objects don't exist on native targets, so the
+ *  shared contract carries this reference instead; on web `file` also holds
+ *  the picked `File` for FormData/upload use. Read via `fetch(uri)` on web
+ *  or the platform file service on native. */
+export interface FileInputFile {
+	name: string
+	uri: string
+	/** Bytes when known (native pickers may not report one). */
+	size?: number
+	/** MIME type when known (native pickers may not report one). */
+	mimeType?: string
+	/** Web only: the browser `File` behind `uri`. */
+	file?: any
+}
+
+/** Native picker seam: `FileInput` calls the registered picker or per-instance
+ *  `pick` prop. Adapt `@octane-xplat/files` with
+ *  `registerFilePicker(({ accept }) => files.pick(accept))`; that service's
+ *  `pick` selects one file, so multi-file apps provide a picker returning an
+ *  array. Web always uses the browser file dialog (and dropzone drag/drop). */
+export type FileInputPick = (options: {
+	accept?: string
+	multiple?: boolean
+}) => Promise<FileInputFile[] | FileInputFile | null>
+
+export interface FileInputHandle {
+	open(): void
+	native: any
+}
+
+export interface FileInputProps extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	accessibilityLabel?: string
+	accessibilityHint?: string
+	/** `input` is a compact field row; `dropzone` a larger target that
+	 *  accepts drag/drop on pointer platforms. @default 'input' */
+	mode?: 'input' | 'dropzone'
+	value: FileInputFile | FileInputFile[] | null
+	onChange: (value: FileInputFile | FileInputFile[] | null) => void
+	changeAction?: (value: FileInputFile | FileInputFile[] | null) => void | Promise<void>
+	/** `accept`-style filter: `.ext`, `type/subtype`, wildcard subtype, any. */
+	accept?: string
+	/** When true, `value` and `onChange` use file arrays. */
+	isMultiple?: boolean
+	/** Max bytes per file; skipped for refs without a `size`. */
+	maxSize?: number
+	maxFiles?: number
+	placeholder?: string
+	/** Per-instance override of the registered native picker. */
+	pick?: FileInputPick
+	bind?: (h: FileInputHandle) => void
 	ios?: any
 	android?: any
 	web?: any

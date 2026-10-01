@@ -119,6 +119,26 @@ export { createStaticSource } from './typeahead-source'
 export { Token } from './Token.macos.tsrx'
 export { Tokenizer } from './Tokenizer.macos.tsrx'
 export { ComplexSelector } from './ComplexSelector.macos.tsrx'
+export { Calendar } from './Calendar.macos.tsrx'
+export { DateInput } from './DateInput.macos.tsrx'
+export { TimeInput } from './TimeInput.macos.tsrx'
+export { DateTimeInput } from './DateTimeInput.macos.tsrx'
+export { DateRangeInput } from './DateRangeInput.macos.tsrx'
+/** Renders + validates, but picking is inert on macOS without a registered
+ *  provider (`@octane-xplat/files` does not implement AppKit picking). */
+export { FileInput } from './FileInput.macos.tsrx'
+export { registerFilePicker } from './file-picker'
+export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './calendar-hooks'
+export { isSameDay, isDateInRange, getWeekNumber } from './calendar-core'
+export type { CalendarDay, CalendarMonthGrid } from './calendar-core'
+export type {
+	UseCalendarDaysOptions,
+	UseCalendarDaysReturn,
+	UseCalendarConstraintsOptions,
+	UseCalendarConstraintsReturn,
+	UseCalendarNavigationOptions,
+	UseCalendarNavigationReturn,
+} from './calendar-hooks'
 export { InputRating } from './InputRating.macos.tsrx'
 /** Multi-choice checkbox list, exported under Astryx's component name. */
 export { CheckboxGroup as CheckboxList } from './CheckboxGroup.macos.tsrx'
