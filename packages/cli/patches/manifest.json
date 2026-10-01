@@ -84,8 +84,8 @@
       "specifier": "@octanejs/tiptap@0.0.51",
       "file": "@octanejs__tiptap@0.0.51.patch",
       "scope": "toolchain",
-      "why": "Two bundler-visible issues: useEditor.ts reads bare process.env.NODE_ENV (no node global in the harness typecheck program; also wrong outside bundled runtimes) and './Context' resolves to Context.tsrx \u2014 a self-import \u2014 under suffix-first resolution, so EditorContext/useCurrentEditor were unreachable. Guards the process read and merges the Context.ts definitions into Context.tsrx.",
-      "dropWhen": "@octanejs/tiptap guards process.env and disambiguates the './Context' specifier upstream"
+      "why": "Two bundler-visible issues: useEditor.ts reads bare process.env.NODE_ENV (no node global in the harness typecheck program) and './Context' resolves to Context.tsrx \u2014 a self-import \u2014 under suffix-first resolution, so EditorContext/useCurrentEditor were unreachable. Adds a module-local process declaration for typecheck and merges the Context.ts definitions into Context.tsrx.",
+      "dropWhen": "@octanejs/tiptap disambiguates the './Context' specifier upstream (PR octanejs/octane#1502)"
     }
   ]
 }

@@ -43,7 +43,7 @@ patchedDependencies:
   '@nativescript/types@9.0.0': 3dc11d16cb6622cce4d19875174015db65e6d9f67cf05ac912d7d2236ea0bf09
   '@nativescript/vite@8.0.13': 65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707
   '@nativescript/vite@8.0.17': 0cd576a526d90c517196a8392e2d2715f6153c8548bb6aabb9c8ecfd23fbe34c
-  '@octanejs/tiptap@0.0.51': 6fcdcd5540c13484f354f6e5bb336aa8807465f46edca7ab9f0abf5753af41ae
+  '@octanejs/tiptap@0.0.51': 1d7d0d3864e41ae3008c316e81dd7c21c9b8dca6af3d89da1cd748c519346bf1
   '@tsrx/typescript-plugin@0.4.11': d59e06c4ca94d559fee4b759d5aa18a118468586dbac9f1ec2c1d75a20bbd6ee
   css@3.0.0: f850496626b52d1bf5ca127576a655d5e46c02def5de9905d568490d4b71959b
   linkifyjs@4.3.3: 6b103bc96e531c5a90bc869f12bc9e28023b5e6c686c4205d96734a28526e202
@@ -1333,7 +1333,7 @@ importers:
         version: link:../richtext
       '@octanejs/tiptap':
         specifier: 0.0.51
-        version: 0.0.51(patch_hash=6fcdcd5540c13484f354f6e5bb336aa8807465f46edca7ab9f0abf5753af41ae)(@floating-ui/dom@1.8.0)(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.0.51(patch_hash=1d7d0d3864e41ae3008c316e81dd7c21c9b8dca6af3d89da1cd748c519346bf1)(@floating-ui/dom@1.8.0)(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@tiptap/core':
         specifier: 3.28.0
         version: 3.28.0(@tiptap/pm@3.28.0)
@@ -9014,7 +9014,7 @@ snapshots:
       esbuild: 0.27.7
       octane: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
-  '@octanejs/tiptap@0.0.51(patch_hash=6fcdcd5540c13484f354f6e5bb336aa8807465f46edca7ab9f0abf5753af41ae)(@floating-ui/dom@1.8.0)(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
+  '@octanejs/tiptap@0.0.51(patch_hash=1d7d0d3864e41ae3008c316e81dd7c21c9b8dca6af3d89da1cd748c519346bf1)(@floating-ui/dom@1.8.0)(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
     dependencies:
       '@tiptap/core': 3.28.0(@tiptap/pm@3.28.0)
       '@tiptap/pm': 3.28.0
