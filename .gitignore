@@ -16,6 +16,7 @@ apps/linux/host/.build/
 
 # Declaration build outputs; handwritten entry points and overrides stay tracked.
 packages/**/types/generated/
+packages/app/src/styled-system/
 packages/*/types/types.d.ts
 packages/*/types/props.d.ts
 packages/motion/types/clock-types.d.ts

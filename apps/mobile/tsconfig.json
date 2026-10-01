@@ -6,6 +6,7 @@
 		"customConditions": ["native"],
 		"lib": ["ESNext"],
 		"paths": {
+			"styled-system/*": ["../../packages/app/src/styled-system/*"],
 			"@xplat/app": ["../../packages/app/src/index.ts"],
 			"@xplat/app/*": ["../../packages/app/src/*"],
 			"@xplat/demos": ["../../packages/demos/src/index.ts"],

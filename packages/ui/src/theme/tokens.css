@@ -1,6 +1,9 @@
 /* Design tokens — NS reads :root/.ns-root; web reads :root/.dark.
    Numbers are dip (native) = px (web) by leaf convention. */
 
+@layer xplat.reset, xplat.base, xplat.tokens, xplat.components, xplat.recipes, xplat.utilities;
+
+@layer xplat.tokens {
 :root,
 .ns-root {
 	--color-primary: #171717;
@@ -41,7 +44,9 @@
 	--color-border: #2e2e2e;
 	--color-border-strong: #4a4a4a;
 }
+}
 
+@layer xplat.components {
 /* xplat-web-only:start — DOM normalization. NativeScript is the reference
    box model: dip sizes are outer boxes, and a border paints from
    width+color alone. The DOM's UA stylesheet diverges on both counts, so
@@ -1948,3 +1953,4 @@ button.vx-tab {
 	touch-action: none;
 }
 /* xplat-web-only:end */
+}

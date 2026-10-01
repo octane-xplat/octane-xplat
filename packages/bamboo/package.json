@@ -1,0 +1,29 @@
+{
+	"name": "@octane-xplat/bamboo",
+	"version": "0.7.3",
+	"description": "Bamboo CSS integration defaults for Octane xplat apps",
+	"keywords": ["bamboo", "css", "octane", "xplat", "nativescript"],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/bamboo",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/bamboo"
+	},
+	"files": ["src"],
+	"type": "module",
+	"exports": {
+		".": "./src/config.ts",
+		"./config": "./src/config.ts",
+		"./vite": "./src/vite.ts"
+	},
+	"publishConfig": { "access": "public" },
+	"dependencies": {
+		"@bamboocss/preset-base": "1.56.2",
+		"@bamboocss/types": "1.56.2",
+		"@bamboocss/vite": "1.56.2"
+	},
+	"peerDependencies": {
+		"vite": ">=5"
+	}
+}

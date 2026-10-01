@@ -8,7 +8,7 @@
 		"./*": "./src/*"
 	},
 	"scripts": {
-		"gen": "xplat routes --dir src/app"
+		"gen": "xplat routes --dir src/app && bamboo codegen"
 	},
 	"dependencies": {
 		"@octane-xplat/audio": "workspace:*",
@@ -30,8 +30,10 @@
 		"@xplat/demos": "workspace:*"
 	},
 	"devDependencies": {
+		"@bamboocss/dev": "1.56.2",
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
+		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
 		"octane": "0.6.3"
 	},

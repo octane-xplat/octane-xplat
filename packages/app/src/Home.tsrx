@@ -4,6 +4,7 @@ import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { SELF_DRIVE } from './platform/selfdrive';
 import { storage } from '@octane-xplat/platform';
+import { bambooCardClass } from './bamboo-styles';
 
 const INITIAL = [
 	{ id: 'a', label: 'Alpha' },
@@ -100,7 +101,7 @@ export function Home() @{
 		    never squash and the Items list keeps real estate below. */}
 		<ScrollView className="flex-1 min-h-0">
 			<View className="gap-6">
-				<View className="sink-section">
+				<View className={['sink-section', bambooCardClass]}>
 					<Text className="section-label">Reactivity</Text>
 					<Text className="text-xl font-bold">{'Count: ' + count}</Text>
 					<Row className="gap-3 flex-wrap items-center">

@@ -50,6 +50,7 @@
 		"octane": "0.6.3"
 	},
 	"devDependencies": {
+		"@octane-xplat/bamboo": "workspace:*",
 		"@nativescript-community/vite-octane": "0.2.1",
 		"@nativescript/android": "9.1.1",
 		"@nativescript/ios": "9.1.0",
