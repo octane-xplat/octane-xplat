@@ -13,6 +13,7 @@ import {
 	statSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -46,9 +47,20 @@ export const targets = {
 		note: 'needs Android SDK + a compatible JDK — `pnpm xplat doctor` checks the toolchain',
 	},
 	// Shared NativeScript machinery pulled in by ios/android. Not user-
-	// selectable on its own.
+	// selectable on its own. `patches` names the packages whose
+	// patchedDependencies entries in pnpm-workspace.yaml belong to this
+	// fragment — pnpm hard-fails installs on unused patch entries, so a
+	// scaffold must not carry patches for deps it doesn't install.
 	'native-shared': {
 		hidden: true,
+		patches: [
+			'@nativescript/core',
+			'@nativescript/types',
+			'css',
+			'@nativescript/vite',
+			'@nativescript-community/octane',
+			'@nativescript-community/vite-octane',
+		],
 		files: [
 			'nativescript.config.ts',
 			'vite.config.native.mts',
@@ -104,9 +116,11 @@ export function resolveTargets(ids) {
 			resolved.push(id)
 		}
 	}
+
 	for (const id of ids) {
 		visit(id)
 	}
+
 	return resolved
 }
 
@@ -122,6 +136,7 @@ function ownerOf(path) {
 			}
 		}
 	}
+
 	return null
 }
 
@@ -139,6 +154,7 @@ function walk(dir, prefix = '') {
 			out.push(rel)
 		}
 	}
+
 	return out
 }
 
@@ -148,8 +164,10 @@ function pickKeys(source, names, label) {
 		if (source[name] === undefined) {
 			throw new Error(`template/package.json has no ${label} entry "${name}"`)
 		}
+
 		out[name] = source[name]
 	}
+
 	return out
 }
 
@@ -177,10 +195,12 @@ export function composeManifest(ids) {
 			const claimed = Object.keys(targets).some((id) =>
 				(targets[id][key] ?? []).includes(name),
 			)
+
 			if (!claimed || wanted.has(name)) {
 				next[name] = spec
 			}
 		}
+
 		manifest[section] = next
 	}
 
@@ -198,6 +218,7 @@ export function composeManifest(ids) {
 			typecheck.push(targets[id].typecheck)
 		}
 	}
+
 	scripts.typecheck = typecheck.join(' && ')
 	// Keep the template's key order: scripts sit where they were.
 	manifest.scripts = {}
@@ -215,13 +236,157 @@ export function composeManifest(ids) {
 	return manifest
 }
 
+// --- pnpm-workspace.yaml patchedDependencies --------------------------------
+// Patch entries look like `  octane@0.6.3: <path>` or
+// `  "@nativescript/core@9.1.2": <path>`, each preceded by a comment block.
+// Ownership comes from each target's `patches` list; unclaimed entries are
+// base and ship in every scaffold.
+const PATCH_ENTRY = /^\s+"?(@?[\w./-]+@[\w.-]+)"?:\s+\S+\s*$/
+
+const patchPkg = (key) => key.replace(/@[^@]+$/, '')
+
+// Split a pnpm-workspace.yaml into per-package patch blocks (leading comment
+// lines included) so compose can drop entries and apply can transplant them.
+function parsePatchEntries(lines) {
+	const entries = []
+	let inPatches = false
+	let pending = []
+	for (const line of lines) {
+		if (/^\S/.test(line)) {
+			inPatches = line.startsWith('patchedDependencies')
+			pending = []
+			continue
+		}
+
+		if (!inPatches) {
+			continue
+		}
+
+		const m = line.match(PATCH_ENTRY)
+		if (m) {
+			entries.push({ name: patchPkg(m[1]), comments: pending, line })
+			pending = []
+		} else {
+			pending.push(line)
+		}
+	}
+
+	return entries
+}
+
+/** The pnpm-workspace.yaml a given target set produces. */
+export function composeWorkspaceYaml(ids) {
+	const resolved = new Set(resolveTargets(ids))
+	const drop = new Set()
+	for (const [id, t] of Object.entries(targets)) {
+		if (!resolved.has(id)) {
+			for (const name of t.patches ?? []) {
+				drop.add(name)
+			}
+		}
+	}
+
+	const lines = readFileSync(join(TEMPLATE_DIR, 'pnpm-workspace.yaml'), 'utf8').split('\n')
+	const out = []
+	let inPatches = false
+	let pending = []
+	for (const line of lines) {
+		if (/^\S/.test(line)) {
+			out.push(...pending, line)
+			pending = []
+			inPatches = line.startsWith('patchedDependencies')
+			continue
+		}
+
+		if (!inPatches) {
+			out.push(line)
+			continue
+		}
+
+		const m = line.match(PATCH_ENTRY)
+		if (!m) {
+			pending.push(line) // comment/blank inside the section
+			continue
+		}
+
+		if (drop.has(patchPkg(m[1]))) {
+			pending = []
+			continue
+		}
+
+		out.push(...pending, line)
+		pending = []
+	}
+
+	out.push(...pending)
+	return out.join('\n')
+}
+
+/**
+ * Add the patch entries that `enabledIds` owns to the app's
+ * pnpm-workspace.yaml. Entries already present (by package name, any
+ * version) are kept. Returns true if the file changed.
+ */
+function ensurePatchEntries(appRoot, enabledIds) {
+	const needed = new Set()
+	for (const id of enabledIds) {
+		for (const name of targets[id].patches ?? []) {
+			needed.add(name)
+		}
+	}
+
+	if (!needed.size) {
+		return false
+	}
+
+	const yamlPath = join(appRoot, 'pnpm-workspace.yaml')
+	const appText = existsSync(yamlPath) ? readFileSync(yamlPath, 'utf8') : ''
+	const present = new Set(parsePatchEntries(appText.split('\n')).map((e) => e.name))
+	const missing = [...needed].filter((name) => !present.has(name))
+	if (!missing.length) {
+		return false
+	}
+
+	const tplText = readFileSync(join(TEMPLATE_DIR, 'pnpm-workspace.yaml'), 'utf8')
+	const blocks = parsePatchEntries(tplText.split('\n'))
+		.filter((e) => missing.includes(e.name))
+		.map((e) => [...e.comments, e.line].join('\n'))
+
+	if (!appText.trim()) {
+		writeFileSync(yamlPath, composeWorkspaceYaml(enabledIds))
+		return true
+	}
+
+	let next = appText
+	const lines = next.split('\n')
+	const sectionStart = lines.findIndex((l) => l.startsWith('patchedDependencies'))
+	if (sectionStart === -1) {
+		next = `${appText.trimEnd()}\npatchedDependencies:\n${blocks.join('\n')}\n`
+	} else {
+		// Insert before the next top-level key (or at EOF).
+		let insertAt = lines.length
+		for (let i = sectionStart + 1; i < lines.length; i++) {
+			if (/^\S/.test(lines[i])) {
+				insertAt = i
+				break
+			}
+		}
+
+		lines.splice(insertAt, 0, ...blocks.join('\n').split('\n'))
+		next = lines.join('\n')
+	}
+
+	writeFileSync(yamlPath, next.endsWith('\n') ? next : next + '\n')
+	return true
+}
+
 /** Write a scaffold for `ids` into `dir` (must not exist or be empty). */
 export function composeTargets(ids, dir) {
 	const resolved = new Set(resolveTargets(ids))
 	mkdirSync(dir, { recursive: true })
 
 	for (const rel of walk(TEMPLATE_DIR)) {
-		if (rel === 'package.json') {
+		if (rel === 'package.json' || rel === 'pnpm-workspace.yaml') {
 			continue // generated below
 		}
 
@@ -236,6 +401,7 @@ export function composeTargets(ids, dir) {
 	}
 
 	writeFileSync(join(dir, 'package.json'), JSON.stringify(composeManifest(ids), null, '\t') + '\n')
+	writeFileSync(join(dir, 'pnpm-workspace.yaml'), composeWorkspaceYaml(ids))
 	return [...resolved]
 }
 
@@ -252,9 +418,11 @@ export function targetEnabled(appRoot, id) {
 	if (id === 'web') {
 		return existsSync(join(appRoot, 'vite.config.ts')) || existsSync(join(appRoot, 'vite.config.mts'))
 	}
+
 	if (id === 'native-shared') {
 		return existsSync(join(appRoot, 'nativescript.config.ts'))
 	}
+
 	// ios/android: declared runtime devDep is the canonical signal — App_Resources
 	// alone doesn't reach the bundler config.
 	const manifest = readJson(join(appRoot, 'package.json')) ?? {}
@@ -271,6 +439,7 @@ function copyMissing(rel, appRoot, report) {
 		report.skipped.push(rel)
 		return
 	}
+
 	mkdirSync(dirname(dest), { recursive: true })
 	cpSync(src, dest, { recursive: true })
 	report.copied.push(rel)
@@ -334,6 +503,14 @@ export function applyTarget(appRoot, id) {
 		}
 
 		touched = true
+	}
+
+	// Newly enabled targets may carry patch entries the scaffolded
+	// pnpm-workspace.yaml never had — without them the next install misses the
+	// framework patches. enabled+already covers the yaml-missing case, where
+	// the file is regenerated for the whole enabled set.
+	if (ensurePatchEntries(appRoot, [...report.enabled, ...report.already])) {
+		report.patchesAdded = true
 	}
 
 	if (touched) {

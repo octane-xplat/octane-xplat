@@ -4,7 +4,6 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import test from 'node:test'
 import {
-	composeManifest,
 	composeTargets,
 	applyTarget,
 	resolveTargets,
@@ -24,13 +23,30 @@ test('composing the full target set reproduces the template byte-for-byte', (t) 
 	const dir = project(t)
 	composeTargets(ALL, dir)
 
-	for (const rel of ['package.json', 'tsconfig.json', 'vite.config.ts', 'nativescript.config.ts']) {
+	for (const rel of ['package.json', 'pnpm-workspace.yaml', 'tsconfig.json', 'vite.config.ts', 'nativescript.config.ts']) {
 		assert.equal(
-			readFileSync(join(dir, rel === 'package.json' ? rel : rel), 'utf8'),
+			readFileSync(join(dir, rel), 'utf8'),
 			readFileSync(join(TEMPLATE_DIR, rel), 'utf8'),
 			`${rel} differs from template`,
 		)
 	}
+})
+
+test('web-only scaffold drops patch entries for packages it never installs', (t) => {
+	const dir = project(t)
+	composeTargets(['web'], dir)
+
+	const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
+	assert.match(yaml, /octane@0\.6\.3:/)
+	assert.match(yaml, /@tsrx\/typescript-plugin@0\.4\.11/)
+	assert.match(yaml, /configDependencies:[\s\S]*@octane-xplat\/patches/)
+	assert.doesNotMatch(yaml, /@nativescript\/core@9\.1\.2/)
+	assert.doesNotMatch(yaml, /@nativescript\/vite@8\.0\.17/)
+
+	const native = project(t)
+	composeTargets(['ios'], native)
+	const nativeYaml = readFileSync(join(native, 'pnpm-workspace.yaml'), 'utf8')
+	assert.match(nativeYaml, /@nativescript\/core@9\.1\.2/)
 })
 
 test('every target-owned file exists in the template', async () => {
@@ -78,6 +94,7 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 		manifest.scripts.typecheck,
 		'tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json',
 	)
+
 	assert.equal(manifest.devDependencies['@nativescript/ios'], '9.1.0')
 	assert.equal(manifest.devDependencies['@nativescript/android'], undefined)
 })
@@ -113,8 +130,16 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 		manifest.scripts.typecheck,
 		'tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json',
 	)
+
 	assert.equal(manifest.devDependencies['@nativescript/ios'], '9.1.0')
 	assert.equal(manifest.dependencies['@nativescript/core'], '9.1.2')
+
+	// The web-only scaffold's yaml lacked native patch entries — add restores
+	// them so the next `pnpm install` doesn't miss the framework patches.
+	const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
+	assert.match(yaml, /@nativescript\/core@9\.1\.2/)
+	assert.match(yaml, /@nativescript-community\/octane@0\.2\.4/)
+	assert.ok(report.patchesAdded)
 })
 
 test('applyTarget is idempotent and detects already-enabled targets', (t) => {

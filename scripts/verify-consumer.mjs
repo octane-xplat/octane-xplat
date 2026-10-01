@@ -184,6 +184,8 @@ try {
 	})
 
 	// ---- scaffold via the packed create bin --------------------------------
+	// Web-only subset: `xplat add ios android` below restores the rest, which
+	// exercises the post-scaffold enablement path on the packed artifacts.
 	await gate('packed create-octane-xplat scaffolds a starter app', 60 * 1000, () => {
 		const createTarball = tarballs.get('create-octane-xplat')
 		assert.ok(createTarball, 'create-octane-xplat tarball missing')
@@ -191,10 +193,15 @@ try {
 		assert.equal(r.status, 0, 'tar extract failed')
 		const binPath = join(extractDir, 'package', 'index.mjs')
 		assert.ok(existsSync(binPath), 'packed create bin missing')
-		const runResult = run('node', [binPath, appDir, '--no-install'], work)
+		const runResult = run('node', [binPath, appDir, '--no-install', '--targets', 'web'], work)
+
 		assert.equal(runResult.status, 0, 'create bin exited nonzero')
 		assert.ok(existsSync(join(appDir, 'package.json')), 'scaffold produced no package.json')
 		assert.ok(existsSync(join(appDir, '.gitignore')), 'scaffold dropped gitignore rename')
+		assert.ok(
+			!existsSync(join(appDir, 'nativescript.config.ts')),
+			'subset scaffold leaked native files',
+		)
 	})
 
 	// ---- repoint @octane-xplat/* at the tarballs ---------------------------
@@ -240,7 +247,16 @@ try {
 		const updated = workspaceYaml.replace(/\n?configDependencies:\n([ \t]+(?!#)\S[^\n]*\n?)+/, '\n')
 
 		assert.notEqual(updated, workspaceYaml, 'configDependencies rewrite found no entry')
-		writeFileSync(workspaceFile, updated)
+
+		// Deps can also enter the graph after this gate — xplat add writes
+		// registry specs, and create-octane-xplat is a runtime dep of the packed
+		// CLI outside @octane-xplat/*. Pin every packed tarball via workspace
+		// overrides so late-resolving deps still hit the packed artifacts.
+		const overrides = [...tarballs]
+			.map(([name, tarball]) => `  "${name}": file:${tarball}`)
+			.join('\n')
+
+		writeFileSync(workspaceFile, `${updated}\noverrides:\n${overrides}\n`)
 		return `${rewritten} deps + materialized .pnpm-config`
 	})
 
@@ -267,6 +283,21 @@ try {
 			assert.ok(existsSync(join(installed, 'dist', 'native')), 'packed ui has no dist/native')
 		},
 	)
+
+	// ---- xplat add: enable the platforms skipped at scaffold ---------------
+	await gate('xplat add ios android — post-scaffold enablement on packed CLI', 15 * 60 * 1000, () => {
+		const r = run('pnpm', ['exec', 'xplat', 'add', 'ios', 'android'], appDir)
+		assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+		assert.ok(existsSync(join(appDir, 'nativescript.config.ts')), 'add produced no nativescript.config.ts')
+		assert.ok(existsSync(join(appDir, 'App_Resources/iOS')), 'add produced no App_Resources/iOS')
+		assert.ok(existsSync(join(appDir, 'App_Resources/Android')), 'add produced no App_Resources/Android')
+		const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+		assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
+		assert.ok(
+			manifest.devDependencies['@nativescript/android'],
+			'add missed @nativescript/android',
+		)
+	})
 
 	// ---- consumer gates ------------------------------------------------------
 	for (const [name, argv] of [

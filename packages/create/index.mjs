@@ -2,7 +2,6 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
-import * as p from '@clack/prompts'
 import {
 	composeTargets,
 	defaultTargets,
@@ -16,6 +15,7 @@ const noInstall = argv.includes('--no-install')
 const targetsIndex = argv.findIndex((arg) => arg === '--targets' || arg.startsWith('--targets='))
 const targetsValueIndex =
 	targetsIndex !== -1 && argv[targetsIndex] === '--targets' ? targetsIndex + 1 : -1
+
 const targetsArg =
 	targetsIndex === -1
 		? undefined
@@ -27,6 +27,7 @@ if (targetsIndex !== -1 && (targetsArg === undefined || targetsArg.startsWith('-
 	console.error(`✗ --targets needs a comma list: ${selectableTargets.join(', ')}`)
 	process.exit(1)
 }
+
 const positional = argv.filter((arg, i) => !arg.startsWith('-') && i !== targetsValueIndex)
 const dir = resolve(positional[0] ?? 'octane-xplat-app')
 
@@ -40,6 +41,7 @@ const parseTargets = (value) => {
 	if (ids.length === 0) {
 		throw new Error(`--targets needs a comma list: ${selectableTargets.join(', ')}`)
 	}
+
 	for (const id of ids) {
 		if (!selectableTargets.includes(id)) {
 			throw new Error(
@@ -47,6 +49,7 @@ const parseTargets = (value) => {
 			)
 		}
 	}
+
 	return resolveTargets(ids)
 }
 
@@ -59,6 +62,9 @@ if (targetsArg !== undefined) {
 		process.exit(1)
 	}
 } else if (process.stdout.isTTY) {
+	// Lazy: the extracted tarball has no installed deps — only the interactive
+	// path needs @clack/prompts (verify-consumer runs the bin dep-free).
+	const p = await import('@clack/prompts')
 	p.intro('create-octane-xplat')
 	const picked = await p.multiselect({
 		message: 'Target platforms',
@@ -75,6 +81,7 @@ if (targetsArg !== undefined) {
 		p.cancel('Cancelled')
 		process.exit(0)
 	}
+
 	ids = picked
 } else {
 	ids = defaultTargets

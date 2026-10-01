@@ -740,6 +740,9 @@ importers:
       '@clack/prompts':
         specifier: 1.8.1
         version: 1.8.1
+      create-octane-xplat:
+        specifier: workspace:*
+        version: link:../create
       marked:
         specifier: 18.0.14
         version: 18.0.14

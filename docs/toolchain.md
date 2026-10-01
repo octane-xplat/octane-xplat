@@ -37,9 +37,18 @@ text fields. You don't need phone development tools to start in the browser.
    ```
 
    `my-app` is the new folder's name; you can choose another name. Use a
-   folder that doesn't already contain files. The command copies a starter
-   project, installs its packages, and starts a **development server**: a
-   local process that serves your app to the browser and watches for edits.
+   folder that doesn't already contain files. The command asks which
+   platforms to target — web, iOS, and Android are pre-selected — then
+   copies the matching starter files, installs its packages, and starts a
+   **development server**: a local process that serves your app to the
+   browser and watches for edits. Pass `--targets` to skip the prompt
+   (`pnpm create octane-xplat my-app --targets web` scaffolds web only);
+   non-interactive runs without it keep all three.
+
+   A platform skipped at create time can be enabled later from the app
+   directory — `pnpm xplat add ios` copies its files, adds its packages and
+   scripts, and installs. `xplat add` never overwrites files or manifest
+   entries you have already edited.
 
 4. Open the local address printed in the terminal. The checked-in starter
    contains a counter and a light/dark theme button. Try the counter buttons.
@@ -152,7 +161,9 @@ Or, for Android:
 pnpm dev:android
 ```
 
-These start the app on a simulator, emulator, or connected device. Once it
+The `dev:*` scripts exist for every platform enabled at create time —
+`pnpm xplat add <platform>` adds one that was skipped. These start the app
+on a simulator, emulator, or connected device. Once it
 opens, try the same checklist actions you tried in the browser.
 
 To launch multiple platforms together instead, stop the existing development

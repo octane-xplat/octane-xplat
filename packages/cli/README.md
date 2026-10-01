@@ -19,6 +19,7 @@ pnpm add -D @octane-xplat/cli
 
 ```sh
 pnpm xplat dev          # pick available targets
+pnpm xplat add ios      # enable a platform skipped at create time
 pnpm xplat build        # production builds
 pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
 pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
