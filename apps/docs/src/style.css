@@ -762,20 +762,22 @@ body {
    each badge counter-rotates to stay upright. */
 
 .orbit {
-	/* same content width + side padding as .doc, so both boxes share
-	   the .doc-page column's left edge at every breakpoint */
-	--orbit-pad: 81px;
+	/* side inset matches .doc's padding, so the box spans the content
+	   column — the agent-prompt width — at every breakpoint */
+	--orbit-inset: 81px;
 	position: relative;
-	height: 210px;
-	margin: 8px auto -12px;
-	max-width: 933px;
-	padding: 0 var(--orbit-pad);
+	height: 250px;
+	margin: 8px var(--orbit-inset) 24px;
+	border: 1px solid var(--doc-hairline);
+	border-radius: 26px;
+	corner-shape: squircle;
+	background: var(--doc-card);
 	pointer-events: none;
 }
 
 .orbit-user {
 	position: absolute;
-	left: 0;
+	left: 50%;
 	top: 50%;
 	width: 74px;
 	height: 74px;
@@ -784,7 +786,7 @@ body {
 
 .orbit-ring {
 	position: absolute;
-	left: 0;
+	left: 50%;
 	top: 50%;
 	width: 0;
 	height: 0;
@@ -1660,7 +1662,7 @@ body {
 	}
 
 	.orbit {
-		--orbit-pad: 20px;
+		--orbit-inset: 20px;
 	}
 
 	.table-block {
@@ -1740,7 +1742,7 @@ body {
 	}
 
 	.orbit {
-		--orbit-pad: 40px;
+		--orbit-inset: 40px;
 	}
 
 	.table-block {
