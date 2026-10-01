@@ -1,4 +1,4 @@
-# xplat
+# Ship anything with Octane Xplat
 
 > Build a TypeScript app for web, iOS, Android, macOS, and Windows with your
 > coding agent.
