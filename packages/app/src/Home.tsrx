@@ -33,6 +33,7 @@ export function Home() @{
 		const saved = storage.getString('theme-preference');
 		return saved === 'light' || saved === 'dark' ? saved : null;
 	});
+
 	const dark = (override ?? scheme) === 'dark';
 	// Push the app-level override into the theme store so imperative roots
 	// (overlay/popover/toast/sheet/modal) render with the same scheme.

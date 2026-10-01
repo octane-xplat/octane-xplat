@@ -19,6 +19,7 @@ export function App() @{
 		const saved = storage.getString('theme-preference');
 		return saved === 'light' ? false : saved === 'dark' ? true : null;
 	});
+
 	const scheme = useColorScheme();
 	const dark = override ?? scheme === 'dark';
 

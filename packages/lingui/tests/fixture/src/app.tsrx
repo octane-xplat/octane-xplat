@@ -1,3 +1,4 @@
+// xplat-disable element-vocabulary — lingui extraction probe fixture, not shipped UI
 import { t } from '@lingui/core/macro'
 
 export function App() @{
