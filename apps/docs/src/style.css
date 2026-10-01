@@ -764,8 +764,12 @@ body {
 	height: 210px;
 	margin-top: 8px;
 	margin-bottom: -12px;
+	margin-left: auto;
+	margin-right: auto;
 	max-width: 933px;
 	padding: 0 81px;
+	--orbit-content-inset: 81px;
+	transform: translateX(calc(-50% + 164px + var(--orbit-content-inset)));
 	pointer-events: none;
 }
 
@@ -1657,6 +1661,7 @@ body {
 
 	.orbit {
 		padding: 0 20px;
+		--orbit-content-inset: 20px;
 	}
 
 	.table-block {
@@ -1733,6 +1738,7 @@ body {
 
 	.orbit {
 		padding: 0 40px;
+		--orbit-content-inset: 40px;
 	}
 
 	.table-block {
