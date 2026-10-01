@@ -41,10 +41,12 @@ jobs:
       - name: Lint (oxlint + tsrx pass + recipes + css)
         run: pnpm lint
 
+      # check:decisions is deliberately absent — it mirrors the ledger against
+      # the git-scoped Silo DB, which lives on dev machines, not in the checkout.
       - name: Repo checks
         run: >-
           pnpm check:patches && pnpm check:ui-barrels && pnpm check:css && pnpm check:recipes &&
-          pnpm check:decisions && pnpm check:suffix-resolution
+          pnpm check:suffix-resolution
 
       - name: Typecheck web
         run: pnpm typecheck:web
