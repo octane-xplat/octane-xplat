@@ -40,8 +40,13 @@ export { PinInput } from './PinInput.macos.tsrx'
 /** Option picker, exported under Astryx's component name. */
 export { Select as Selector } from './Select.macos.tsrx'
 /** Multi-choice option picker, exported under Astryx's component name. */
-export { SelectMenu as MultiSelector, Combobox, InputMenu } from './aliases.macos.tsrx'
-export { InputTags } from './InputTags.macos.tsrx'
+export { SelectMenu as MultiSelector } from './aliases.macos.tsrx'
+export { BaseTypeahead, Typeahead } from './Typeahead.macos.tsrx'
+export { TypeaheadItem } from './TypeaheadItem.macos.tsrx'
+export { createStaticSource } from './typeahead-source'
+export { Token } from './Token.macos.tsrx'
+export { Tokenizer } from './Tokenizer.macos.tsrx'
+export { ComplexSelector } from './ComplexSelector.macos.tsrx'
 export { InputRating } from './InputRating.macos.tsrx'
 /** Multi-choice checkbox list, exported under Astryx's component name. */
 export { CheckboxGroup as CheckboxList } from './CheckboxGroup.macos.tsrx'

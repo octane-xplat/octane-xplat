@@ -38,6 +38,7 @@ Workflows:
 - [Render a long vertical collection](virtual-list.md)
 - [Build a settings list with reusable rows](settings-list.md)
 - [Enter and submit text reliably](text-entry.md)
+- [Search and enter selected values](search-and-token-entry.md)
 - [Size a WebView to its document](webview-content-sizing.md)
 - [Package an experimental AppKit app](macos-appkit-package.md)
 - [Package a Linux WebKitGTK app](linux-package.md)

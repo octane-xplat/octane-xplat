@@ -27,17 +27,19 @@ export function positionPopover(
 	viewport: PopoverRect,
 	requested: PopoverPlacement = 'bottom',
 	gap = 8,
+	alignment: 'start' | 'center' | 'end' = 'start',
 ): PopoverPosition {
+	const ratio = alignment === 'start' ? 0 : alignment === 'center' ? 0.5 : 1
 	const at = (placement: PopoverPlacement): { left: number; top: number } => {
 		switch (placement) {
 			case 'top':
-				return { left: anchor.left, top: anchor.top - panel.height - gap }
+				return { left: anchor.left + (anchor.width - panel.width) * ratio, top: anchor.top - panel.height - gap }
 			case 'bottom':
-				return { left: anchor.left, top: anchor.top + anchor.height + gap }
+				return { left: anchor.left + (anchor.width - panel.width) * ratio, top: anchor.top + anchor.height + gap }
 			case 'left':
-				return { left: anchor.left - panel.width - gap, top: anchor.top }
+				return { left: anchor.left - panel.width - gap, top: anchor.top + (anchor.height - panel.height) * ratio }
 			case 'right':
-				return { left: anchor.left + anchor.width + gap, top: anchor.top }
+				return { left: anchor.left + anchor.width + gap, top: anchor.top + (anchor.height - panel.height) * ratio }
 		}
 
 		throw new Error(`Unknown popover placement: ${placement}`)

@@ -25,6 +25,8 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 			{ width: panelRect?.width ?? 0, height: panelRect?.height ?? 0 },
 			{ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight },
 			props.placement ?? 'bottom',
+			8,
+			props.alignment ?? 'start',
 		);
 
 		setPosition((current) =>
@@ -53,7 +55,7 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 			window.removeEventListener('scroll', update, true);
 			observer?.disconnect();
 		};
-	}, [props.open, props.anchorElement, props.placement, props.children, position === null]);
+	}, [props.open, props.anchorElement, props.placement, props.alignment, props.children, position === null]);
 
 	const stopPointer = (event: PointerEvent) => event.stopPropagation();
 	const dismiss = (event: MouseEvent) => {

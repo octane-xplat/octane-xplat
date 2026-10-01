@@ -51,9 +51,13 @@ export declare const PinInput: Component<P.PinInputProps>
 export declare const Selector: Component<P.SelectorProps>
 /** Multi-choice option picker, exported under Astryx's component name. */
 export declare const MultiSelector: Component<P.MultiSelectorProps>
-export declare const Combobox: Component<P.SelectProps>
-export declare const InputMenu: Component<P.SelectProps>
-export declare const InputTags: Component<P.InputTagsProps>
+export declare const BaseTypeahead: Component<P.BaseTypeaheadProps>
+export declare const Typeahead: Component<P.TypeaheadProps>
+export declare const TypeaheadItem: Component<P.TypeaheadItemProps>
+export declare function createStaticSource<T extends P.SearchableItem>(items: T[], options?: P.CreateStaticSourceOptions<T>): P.SearchSource<T>
+export declare const Token: Component<P.TokenProps>
+export declare const Tokenizer: Component<P.TokenizerProps>
+export declare const ComplexSelector: Component<P.ComplexSelectorProps<any>>
 export declare const InputRating: Component<P.InputRatingProps>
 /** Multi-choice checkbox list, exported under Astryx's component name. */
 export declare const CheckboxList: Component<P.CheckboxListProps>

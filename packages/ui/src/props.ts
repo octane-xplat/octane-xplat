@@ -357,6 +357,7 @@ export interface FieldControlProps {
 	isOptional?: boolean
 	size?: FieldControlSize
 	status?: FieldStatus
+	statusVariant?: 'attached' | 'detached'
 }
 
 export interface TextInputProps extends FieldControlProps {
@@ -777,6 +778,8 @@ export interface PopoverProps {
 	anchor: PopoverAnchorRef
 	open?: boolean
 	placement?: PopoverPlacement
+	/** Alignment along the edge adjoining the anchor. */
+	alignment?: 'start' | 'center' | 'end'
 	dismissOnOutsideTap?: boolean
 	onDismiss?: () => void
 	className?: any
@@ -1533,6 +1536,7 @@ export interface FormFieldProps extends FieldControlProps {
 	id?: string
 	/** ID of the single control associated with this field's label. */
 	inputID?: string
+	labelTooltip?: string
 	children?: any
 	ios?: any
 	android?: any
@@ -1647,21 +1651,364 @@ export interface SelectProps extends FieldControlProps {
 	web?: any
 }
 
-/** InputTags — chip list + trailing normalized TextInput. Enter commits a
- *  tag, Backspace on an empty field removes the last tag. */
-export interface InputTagsProps extends FieldControlProps {
+// ---------- Astryx parity: typeahead + token selection ----------
+
+/** Minimal item contract for search results feeding the Typeahead family.
+ *  `element` is a pre-rendered node that takes priority over `renderItem` and
+ *  the default TypeaheadItem row; a string `auxiliaryData.group` groups
+ *  results under a shared heading. */
+export interface SearchableItem<TAuxData = any> {
+	id: string
+	label: string
+	element?: any
+	auxiliaryData?: TAuxData
+}
+
+/** Supplies items to Typeahead/Tokenizer. `search` runs on (debounced) query
+ *  changes, `bootstrap` on focus when `hasEntriesOnFocus` is set, and
+ *  `cancel` aborts superseded in-flight work — optional; without it stale
+ *  results are discarded when they resolve. */
+export interface SearchSource<T extends SearchableItem = SearchableItem> {
+	search(query: string): Promise<T[]> | T[]
+	bootstrap(): Promise<T[]> | T[]
+	cancel?(): void
+}
+
+export interface CreateStaticSourceOptions<T extends SearchableItem = SearchableItem> {
+	/** Extra search terms per item, matched alongside `label`. */
+	keywords?: (item: T) => string[]
+}
+
+/** Imperative handle for the text input inside the Typeahead family,
+ *  delivered through `bind`. `setQuery` rewrites the field's query text —
+ *  it backs Typeahead's click-to-edit. */
+export interface TypeaheadInputHandle {
+	focus(): void
+	blur(): void
+	setQuery(query: string): void
+	native: any
+}
+
+/** Keydown notification on the typeahead input. Fires with the DOM
+ *  KeyboardEvent on web before internal navigation (call `preventDefault`
+ *  to suppress it). Never fires on iOS/Android — native text fields emit
+ *  no key events — so behavior gated on it (e.g. Tokenizer's
+ *  Backspace-removes-last-token) is pointer-platform only. */
+export type TypeaheadKeyDownHandler = (event: any) => void
+
+/** BaseTypeahead — the unstyled combobox engine under Typeahead and
+ *  Tokenizer: bare input + search/bootstrap + keyboard navigation + an
+ *  anchored result listbox. It renders no field chrome; callers supply the
+ *  visible wrapper and pass `anchor` for dropdown positioning. */
+export interface BaseTypeaheadProps<T extends SearchableItem = SearchableItem> extends FieldControlProps {
 	className?: any
 	style?: any
+	/** Element id applied to the input itself. */
 	id?: string
-	value?: string[]
-	defaultValue?: string[]
-	onValueChange?: (tags: string[]) => void
+	searchSource: SearchSource<T>
+	/** Currently selected item (null = nothing selected). Controlled. */
+	value: T | null
+	/** Fires when a result is committed (item) or cleared (null). */
+	onChange: (item: T | null) => void
+	/** Custom option content inside the stable result row. Default:
+	 *  TypeaheadItem. `item.element` takes precedence over this. */
+	renderItem?: (item: T) => any
 	placeholder?: string
-	max?: number
+	/** Offer `bootstrap()` results on focus before typing. */
+	hasEntriesOnFocus?: boolean
+	/** Max options rendered in the dropdown. Default 10. */
+	maxMenuItems?: number
+	/** Requested dropdown width (px on web, dip on native) before viewport
+	 *  clamping; defaults to the anchor's width. */
+	menuWidth?: number
+	/** Minimum grapheme count before `search` runs; shorter queries show no
+	 *  results and no empty state. Default 1. */
+	minQueryLength?: number
+	/** Empty-state text after a completed empty search. */
+	emptySearchResultsText?: string
+	/** Disabled presentation that keeps the input focusable (web:
+	 *  aria-disabled + readOnly) so a disabled-reason tooltip stays
+	 *  discoverable. Editing stays blocked. */
+	isFocusableDisabled?: boolean
+	hasAutoFocus?: boolean
+	onChangeQuery?: (query: string) => void
+	onOpenChange?: (open: boolean) => void
+	/** Debounce before `search` after typing; 0 runs synchronously.
+	 *  Default 150. */
+	debounceMs?: number
+	/** Anchor the dropdown to this ref's element/view instead of the input. */
+	anchorRef?: PopoverAnchorRef
+	placement?: PopoverPlacement
+	inputId?: string
+	ariaDescribedBy?: string
+	ariaLabelledBy?: string
+	inputTabIndex?: number
+	onKeyDown?: TypeaheadKeyDownHandler
+	onFocus?: () => void
+	onBlur?: () => void
+	bind?: (handle: TypeaheadInputHandle) => void
+	/** Class/style applied to the input element only. */
+	inputClassName?: any
+	inputStyle?: any
+	accessibilityLabel?: string
+	/** @internal — entries derived from the query text, appended to search
+	 *  results and exempt from minQueryLength (Tokenizer's "Create …"). */
+	__queryEntries?: (query: string, results: T[]) => T[]
 	ios?: any
 	android?: any
 	web?: any
 }
+
+/** Typeahead — single-selection search-as-you-type field. Renders its Field
+ *  chrome (label/description/status), the input wrapper, and the selected
+ *  value as a Token over the input; click the token to edit (blur or Escape
+ *  restores it). */
+export interface TypeaheadProps<T extends SearchableItem = SearchableItem> extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Accessible label — required by Astryx; kept required here. */
+	label: string
+	isLabelHidden?: boolean
+	searchSource: SearchSource<T>
+	value: T | null
+	onChange: (item: T | null) => void
+	renderItem?: (item: T) => any
+	placeholder?: string
+	hasEntriesOnFocus?: boolean
+	maxMenuItems?: number
+	minQueryLength?: number
+	emptySearchResultsText?: string
+	/** Why the field is disabled; shown as a tooltip on pointer platforms
+	 *  while the input stays focusable. */
+	disabledMessage?: string
+	/** Show the clear button while a value is selected. Default true. */
+	hasClear?: boolean
+	hasAutoFocus?: boolean
+	debounceMs?: number
+	onChangeQuery?: (query: string) => void
+	onOpenChange?: (open: boolean) => void
+	/** Leading glyph — a registered Icon name or a node. */
+	startIcon?: any
+	/** Field width; numbers are px/dip, strings pass through. */
+	width?: number | string
+	bind?: (handle: TypeaheadInputHandle) => void
+	ios?: any
+	android?: any
+	web?: any
+	labelTooltip?: string
+}
+
+export interface TypeaheadItemProps<T extends SearchableItem = SearchableItem> {
+	className?: any
+	style?: any
+	id?: string
+	item: T
+	/** Leading node — icon, avatar, etc. */
+	icon?: any
+	/** Supporting text under the label. */
+	description?: string
+	isDisabled?: boolean
+	/** Group label; presentational only — grouping itself is driven by
+	 *  `item.auxiliaryData.group`. */
+	group?: string
+	bind?: (el: any) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Token color — the Astryx palette names. */
+export type TokenColor =
+	| 'default'
+	| 'red'
+	| 'orange'
+	| 'yellow'
+	| 'green'
+	| 'teal'
+	| 'cyan'
+	| 'blue'
+	| 'purple'
+	| 'pink'
+	| 'gray'
+
+export type TokenSize = FieldControlSize
+
+/** Token — inline chip for an entity: label + optional icon, end content,
+ *  and a remove affordance. `onClick` makes the whole chip a button;
+ *  `href` makes it a link (web `<a>`, native opens the URL); with both
+ *  `href` and `onRemove` the link and the remove button render as siblings
+ *  and the rest of the chip surface activates the link. */
+export interface TokenProps {
+	className?: any
+	style?: any
+	id?: string
+	label: string
+	size?: TokenSize
+	color?: TokenColor
+	/** Leading node — icon, avatar, etc. */
+	icon?: any
+	isDisabled?: boolean
+	/** Remove affordance — renders the ✕ button. (Astryx `onRemove`.) */
+	onRemove?: () => void
+	/** Whole-chip press action. (Astryx `onClick`.) */
+	onClick?: () => void
+	/** Link target — chip behaves as a link. */
+	href?: string
+	/** Accessible description for the token (aria-description /
+	 *  accessibilityHint). */
+	description?: string
+	/** Content rendered after the label, before the remove button. */
+	endContent?: any
+	/** Hide the label visually; it stays the accessible name. */
+	isLabelHidden?: boolean
+	bind?: (el: any) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Change metadata passed to Tokenizer's `onChange`. */
+export type TokenizerChange<T extends SearchableItem = SearchableItem> =
+	| { item: T; type: 'add' }
+	| { item: T; type: 'create' }
+	| { item: T; type: 'remove' }
+	| { type: 'reorder' }
+
+export type TokenizerSize = FieldControlSize
+
+/** Token overflow when the field is too narrow: 'none' wraps (default);
+ *  'unfocusedInline' collapses to one clipped line with a "+N more" count
+ *  until the field is focused; 'unfocusedLayer' does the same but expands
+ *  in an anchored overlay instead of reflowing the field. */
+export type TokenizerOverflowBehavior = 'none' | 'unfocusedInline' | 'unfocusedLayer'
+
+/** Imperative handle delivered through Tokenizer's `bind`. */
+export interface TokenizerHandle {
+	focus(): void
+	blur(): void
+	/** The root field element/view. */
+	native: any
+}
+
+/** Tokenizer — multi-select field: Token chips + a BaseTypeahead input.
+ *  Selecting adds a token and clears the query; Backspace on an empty input
+ *  removes the last token (pointer platforms — native fields emit no key
+ *  events); `hasCreate` offers a "Create \"…\"" entry for free text. */
+export interface TokenizerProps<T extends SearchableItem = SearchableItem> extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	label: string
+	searchSource: SearchSource<T>
+	/** Selected items. Controlled. */
+	value: T[]
+	onChange: (items: T[], change: TokenizerChange<T>) => void
+	renderItem?: (item: T) => any
+	/** Custom token renderer — receives the item and its remove callback.
+	 *  Default: Token with label + ✕. */
+	renderToken?: (item: T, onRemove: () => void) => any
+	/** Cap on selections; the input collapses at the cap. */
+	maxEntries?: number
+	placeholder?: string
+	hasEntriesOnFocus?: boolean
+	maxMenuItems?: number
+	/** Fixed dropdown width (px/dip); never below the field width. */
+	menuWidth?: number
+	minQueryLength?: number
+	emptySearchResultsText?: string
+	/** Why the field is disabled; tooltip on pointer platforms. */
+	disabledMessage?: string
+	/** Show a clear-all button while tokens exist. Default false. */
+	hasClear?: boolean
+	/** Content in the field's inline-end lane (with the spinner/clear). */
+	endContent?: any
+	hasAutoFocus?: boolean
+	tokenOverflowBehavior?: TokenizerOverflowBehavior
+	debounceMs?: number
+	/** Offer "Create \"query\"" for unmatched free text. */
+	hasCreate?: boolean
+	/** HTML form name — web only: renders hidden `<input>`s carrying one
+	 *  entry per selected item id. No-op on native. */
+	htmlName?: string
+	onChangeQuery?: (query: string) => void
+	/** Focus enters/leaves the field (no event object — portable). */
+	onFocus?: () => void
+	onBlur?: () => void
+	startIcon?: any
+	width?: number | string
+	labelTooltip?: string
+	bind?: (handle: TokenizerHandle) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export type ComplexSelectorVariant = 'input' | 'ghost'
+export type ComplexSelectorSize = FieldControlSize
+
+/** Render state passed to the ComplexSelector surface builder. */
+export interface ComplexSelectorRenderState {
+	isOpen: boolean
+	isBusy: boolean
+	triggerId: string
+	contentId: string
+}
+
+/** Imperative handle delivered through ComplexSelector's `bind`. Drives the
+ *  same popover machinery as the trigger — prefer it over mirroring open
+ *  state in the parent. */
+export interface ComplexSelectorHandle {
+	open(): void
+	/** Closes the surface and restores focus to the trigger. */
+	close(): void
+	toggle(): void
+	isOpen(): boolean
+}
+
+/** ComplexSelector — a field + trigger + anchored surface for rich custom
+ *  pickers. `children` is a render function receiving the (optimistic)
+ *  value, a commit callback, a close callback, and the render state; the
+ *  component owns the trigger, popover, focus restore, and async
+ *  `changeAction` flow. */
+export interface ComplexSelectorProps<Value> extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	label: string
+	value: Value
+	onChange?: (value: Value) => void
+	/** Async action run after `onChange`; the surface reports `isBusy` and
+	 *  renders `value` optimistically until it settles. */
+	changeAction?: (value: Value) => void | Promise<void>
+	children: (
+		value: Value,
+		onChange: (value: Value) => void,
+		close: () => void,
+		state: ComplexSelectorRenderState,
+	) => any
+	/** Trigger content while closed; falls back to `placeholder`. */
+	triggerLabel?: any
+	placeholder?: any
+	/** Loading/busy state on the trigger. */
+	isLoading?: boolean
+	/** 'input' (default) draws the field chrome; 'ghost' a flat
+	 *  toolbar-style button. */
+	variant?: ComplexSelectorVariant
+	startIcon?: any
+	width?: number | string
+	labelTooltip?: string
+	placement?: PopoverPlacement
+	alignment?: 'start' | 'center' | 'end'
+	bind?: (handle: ComplexSelectorHandle) => void
+	onOpenChange?: (open: boolean) => void
+	contentClassName?: any
+	contentXstyle?: any
+	ios?: any
+	android?: any
+	web?: any
+}
+
 
 /** InputRating — row of tappable glyphs reporting a 1..max score. */
 export interface InputRatingProps extends FieldControlProps {

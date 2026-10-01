@@ -30,9 +30,9 @@ import {
 	PinInput,
 	Selector,
 	MultiSelector,
-	Combobox,
-	InputMenu,
-	InputTags,
+	Typeahead,
+	Tokenizer,
+	createStaticSource,
 	InputRating,
 	CheckboxList,
 	Collapsible,
@@ -400,29 +400,25 @@ function SelectMenuFixture() @{
 	/>
 }
 
-function ComboboxFixture() @{
-	<Combobox
-		className="parity-combobox-root"
-		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
-		value="small"
-		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
+function TypeaheadFixture() @{
+	<Typeahead
+		className="parity-typeahead-root"
+		label="Size"
+		searchSource={createStaticSource([{ id: 'small', label: 'Small' }, { id: 'large', label: 'Large' }])}
+		value={{ id: 'small', label: 'Small' }}
+		onChange={() => {}}
+		style={{ width: 220, height: 44, backgroundColor: '#f5f5f5' }}
 	/>
 }
 
-function InputMenuFixture() @{
-	<InputMenu
-		className="parity-inputmenu-root"
-		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
-		value="small"
-		style={{ width: 160, height: 40, backgroundColor: '#f5f5f5' }}
-	/>
-}
-
-function InputTagsFixture() @{
-	<InputTags
-		className="parity-inputtags-root"
-		value={['north', 'south']}
-		placeholder="Add a tag"
+function TokenizerFixture() @{
+	<Tokenizer
+		className="parity-tokenizer-root"
+		label="Regions"
+		searchSource={createStaticSource([{ id: 'east', label: 'East' }, { id: 'west', label: 'West' }])}
+		value={[{ id: 'north', label: 'North' }, { id: 'south', label: 'South' }]}
+		onChange={() => {}}
+		placeholder="Add a region"
 		style={{ width: 220, height: 44, backgroundColor: '#f5f5f5' }}
 	/>
 }
@@ -1007,9 +1003,8 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'pin-input-filled', component: 'PinInput', renderer: PinInputFixture, props: {} },
 	{ name: 'select-value', component: 'Selector', renderer: SelectFixture, props: {} },
 	{ name: 'select-menu-value', component: 'MultiSelector', renderer: SelectMenuFixture, props: {} },
-	{ name: 'combobox-value', component: 'Combobox', renderer: ComboboxFixture, props: {} },
-	{ name: 'input-menu-value', component: 'InputMenu', renderer: InputMenuFixture, props: {} },
-	{ name: 'input-tags-values', component: 'InputTags', renderer: InputTagsFixture, props: {}, wide: true },
+	{ name: 'typeahead-value', component: 'Typeahead', renderer: TypeaheadFixture, props: {} },
+	{ name: 'tokenizer-values', component: 'Tokenizer', renderer: TokenizerFixture, props: {}, wide: true },
 	{ name: 'input-rating-selected', component: 'InputRating', renderer: InputRatingFixture, props: {} },
 	{ name: 'checkbox-group-selected', component: 'CheckboxList', renderer: CheckboxGroupFixture, props: {} },
 	{ name: 'radio-group-selected', component: 'RadioList', renderer: RadioGroupFixture, props: {} },

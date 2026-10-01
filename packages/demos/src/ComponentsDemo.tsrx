@@ -3,7 +3,7 @@ import {
 	Accordion, Alert, Avatar, AvatarGroup, Badge, Banner, Breadcrumbs, Button,
 	Card, CheckboxInput, CheckboxList, Chip, Collapsible, CommandPalette,
 	ContextMenu, DropdownMenu, EmptyState, FieldGroup, Field, Heading,
-	NumberInput, InputRating, InputTags, Kbd, NavigationMenu, Pagination,
+	NumberInput, InputRating, Typeahead, Tokenizer, createStaticSource, Kbd, NavigationMenu, Pagination,
 	PinInput, ProgressGroup, RadioList, HStack, Selector, Divider, Skeleton,
 	Stepper, Table, Text, Timeline, TreeList, User, View, registerIcons,
 } from '@octane-xplat/ui';
@@ -11,6 +11,12 @@ import {
 registerIcons({
 	'menu-dot': { svg: 'M12 5v.01M12 12v.01M12 19v.01' },
 });
+
+const demoSelectionSource = createStaticSource([
+	{ id: 'apple', label: 'Apple' },
+	{ id: 'banana', label: 'Banana' },
+	{ id: 'cherry', label: 'Cherry' },
+]);
 
 /** Phase-1 self-drawn components — one row per component, plain usage. */
 export function ComponentsDemo() @{
@@ -21,7 +27,8 @@ export function ComponentsDemo() @{
 	const [num, setNum] = useState(2);
 	const [pin, setPin] = useState('');
 	const [fruit, setFruit] = useState<string | string[] | null>('apple');
-	const [tags, setTags] = useState<string[]>(['one']);
+	const [assignee, setAssignee] = useState<{ id: string; label: string } | null>({ id: 'apple', label: 'Apple' });
+	const [tags, setTags] = useState<Array<{ id: string; label: string }>>([{ id: 'one', label: 'One' }]);
 	const [rating, setRating] = useState(3);
 	const [checks, setChecks] = useState<string[]>(['x']);
 	const [page, setPage] = useState(4);
@@ -97,9 +104,7 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Fields</Text>
 			<FieldGroup label="Sign up">
-				<Field label="Name" description="As it appears on your badge">
-					<InputTags value={tags} onValueChange={setTags} placeholder="Add tag…" />
-				</Field>
+				<Tokenizer label="Tags" searchSource={demoSelectionSource} value={tags} onChange={setTags} placeholder="Add tag…" hasCreate={true} />
 				<Field label="Quantity" status={num > 5 ? { type: 'error', message: 'Too many' } : undefined}>
 					<NumberInput value={num} onValueChange={setNum} min={0} max={9} />
 				</Field>
@@ -119,6 +124,7 @@ export function ComponentsDemo() @{
 				placeholder="Pick a fruit"
 				searchable={true}
 			/>
+			<Typeahead label="Fruit" searchSource={demoSelectionSource} value={assignee} onChange={setAssignee} placeholder="Pick a fruit" />
 			<InputRating value={rating} onValueChange={setRating} />
 			<CheckboxList
 				options={[{ value: 'x', label: 'X' }, { value: 'y', label: 'Y' }]}

@@ -4,6 +4,8 @@ import type { FormFieldProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
 import { FieldProvider } from './field-context'
+import { Tooltip } from './Tooltip.tsrx'
+import { Pressable } from './Pressable.tsrx'
 
 /** Shared field wrapper for labels, descriptions, and validation status. */
 export function FormField(props: FormFieldProps) @{
@@ -14,6 +16,7 @@ export function FormField(props: FormFieldProps) @{
 	const isRequired = props.isRequired && !props.isOptional;
 	const status = props.status;
 	const statusId = status?.message == null ? undefined : `${generatedControlId}-status`
+	const label = props.label == null || props.isLabelHidden ? null : <label id={labelId} className="vx-field-label" text={isRequired ? props.label + ' *' : props.isOptional ? props.label + ' (Optional)' : props.label} />
 	const fieldContext = {
 		...props,
 		controlId,
@@ -25,18 +28,18 @@ export function FormField(props: FormFieldProps) @{
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
-		className={cx('vx-field', status && `vx-field--${status.type}`, props.isDisabled && 'vx-field--disabled', props.isReadOnly && 'vx-field--readonly', props.isLoading && 'vx-field--loading', props.size && `vx-field--size-${props.size}`, props.className)}
+		className={cx('vx-field', status && `vx-field--${status.type}`, props.isDisabled && 'vx-field--disabled', props.isReadOnly && 'vx-field--readonly', props.isLoading && 'vx-field--loading', props.statusVariant === 'detached' && 'vx-field--status-detached', props.size && `vx-field--size-${props.size}`, props.className)}
 		style={props.style}
 	>
-		{props.label != null && !props.isLabelHidden
-			? <label id={labelId} className={cx('vx-field-label', props.isLabelHidden && 'vx-field-label--hidden')} text={isRequired ? props.label + ' *' : props.isOptional ? props.label + ' (Optional)' : props.label} />
-			: null}
+		{props.labelTooltip && label
+			? <Tooltip trigger={<flexboxlayout className="vx-field-label-row" flexDirection="row" alignItems="center">{label}<Pressable className="vx-field-info" accessibilityLabel={'More about ' + props.label} accessibilityHint={props.labelTooltip}><label text="i" /></Pressable></flexboxlayout>} content={props.labelTooltip} placement="top" />
+			: label}
 		{props.description != null && !props.isLabelHidden
 			? <label id={descriptionId} className={cx('vx-field-description', props.isLabelHidden && 'vx-field-description--hidden')} text={props.description} />
 			: null}
 		<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
 		{status?.message != null
-			? <label id={statusId} className={cx('vx-field-status', `vx-field-status--${status.type}`)} text={status.message} />
+			? <label id={statusId} className={cx('vx-field-status', `vx-field-status--${status.type}`, props.statusVariant === 'detached' && 'vx-field-status--detached')} text={status.message} />
 			: null}
 	</flexboxlayout>
 }

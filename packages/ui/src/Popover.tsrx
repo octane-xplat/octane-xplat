@@ -38,6 +38,8 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 				height: coordinateRoot.getActualSize().height,
 			},
 			props.placement ?? 'bottom',
+			8,
+			props.alignment ?? 'start',
 		);
 
 		const insets = isIOS ? panelRef.current?.parent?.getSafeAreaInsets?.() : undefined;
@@ -80,7 +82,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 				listener.view.off?.(listener.event, listener.handler);
 			}
 		};
-	}, [props.open, props.anchorView, props.placement, props.children, props.style]);
+	}, [props.open, props.anchorView, props.placement, props.alignment, props.children, props.style]);
 
 	useEffect(() => {
 		if (position) {

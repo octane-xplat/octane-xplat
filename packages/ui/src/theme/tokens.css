@@ -748,6 +748,17 @@ input.vx-search-field::-webkit-search-cancel-button {
 .vx-field-status {
 	margin-top: 4px;
 }
+.vx-field-label-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 4px;
+}
+.vx-field-status--detached {
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top-width: 1px;
+}
 .vx-fieldgroup {
 	flex-direction: column;
 }
@@ -817,26 +828,36 @@ input.vx-search-field::-webkit-search-cancel-button {
 	margin-bottom: 4px;
 }
 
-/* InputTags — wrapped chip row + trailing field. */
-.vx-inputtags {
+/* Token and Typeahead selection anatomy. */
+/* xplat-web-only:start — web leaves use div/span; native leaves select flexboxlayout/gridlayout tags. */
+.vx-token,
+.vx-typeahead,
+.vx-tokenizer,
+.vx-complex-selector-trigger {
+	display: flex;
+	align-items: center;
+}
+.vx-tokenizer {
 	flex-direction: row;
 	flex-wrap: wrap;
-	align-items: center;
 }
-.vx-inputtags-tag {
-	flex-direction: row;
-	align-items: center;
-	padding: 1px 6px;
-	margin-right: 4px;
-	margin-bottom: 4px;
-}
-.vx-inputtags-remove {
-	margin-left: 4px;
-}
-.vx-inputtags-field {
+.vx-tokenizer-content,
+.vx-typeahead-content {
+	min-width: 0;
 	flex: 1;
-	min-width: 80px;
 }
+.vx-tokenizer-token {
+	display: flex;
+}
+.vx-tokenizer--truncated {
+	flex-wrap: nowrap;
+	overflow: hidden;
+}
+.vx-complex-selector {
+	display: flex;
+	flex-direction: row;
+}
+/* xplat-web-only:end */
 
 /* InputRating — glyph row; --on lights the cell. */
 .vx-rating {
@@ -864,8 +885,12 @@ input.vx-search-field::-webkit-search-cancel-button {
 .vx-inputnumber-step,
 .vx-select-trigger,
 .vx-select-list,
-.vx-inputtags,
-.vx-inputtags-tag,
+.vx-token,
+.vx-typeahead,
+.vx-tokenizer,
+.vx-tokenizer-token,
+.vx-complex-selector,
+.vx-complex-selector-trigger,
 .vx-rating,
 .vx-rating-cell,
 .vx-checkbox-group {

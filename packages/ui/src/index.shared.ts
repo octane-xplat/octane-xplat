@@ -65,8 +65,14 @@ export { PinInput } from './PinInput'
 /** Option picker, exported under Astryx's component name. */
 export { Select as Selector } from './Select'
 /** Multi-choice option picker, exported under Astryx's component name. */
-export { SelectMenu as MultiSelector, Combobox, InputMenu } from './aliases'
-export { InputTags } from './InputTags'
+export { SelectMenu as MultiSelector } from './aliases'
+export { BaseTypeahead } from './BaseTypeahead'
+export { Typeahead } from './Typeahead'
+export { TypeaheadItem } from './TypeaheadItem'
+export { createStaticSource } from './typeahead-source'
+export { Token } from './Token'
+export { Tokenizer } from './Tokenizer'
+export { ComplexSelector } from './ComplexSelector'
 export { InputRating } from './InputRating'
 /** Multi-choice checkbox list, exported under Astryx's component name. */
 export { CheckboxGroup as CheckboxList } from './CheckboxGroup'
@@ -79,10 +85,30 @@ export type {
 	FormFieldProps,
 	InputNumberProps,
 	InputRatingProps,
-	InputTagsProps,
+	BaseTypeaheadProps,
+	ComplexSelectorHandle,
+	ComplexSelectorProps,
+	ComplexSelectorRenderState,
+	ComplexSelectorSize,
+	ComplexSelectorVariant,
 	PinInputProps,
+	SearchableItem,
+	SearchSource,
+	CreateStaticSourceOptions,
 	SelectOption,
 	SelectProps,
+	TokenColor,
+	TokenProps,
+	TokenSize,
+	TokenizerChange,
+	TokenizerHandle,
+	TokenizerOverflowBehavior,
+	TokenizerProps,
+	TokenizerSize,
+	TypeaheadInputHandle,
+	TypeaheadItemProps,
+	TypeaheadKeyDownHandler,
+	TypeaheadProps,
 } from './props'
 
 // Navigation and command surfaces

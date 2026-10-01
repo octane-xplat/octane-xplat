@@ -455,6 +455,14 @@ textarea::placeholder {
 	font-size: 12px;
 	line-height: 16px;
 }
+.vx-field-info {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--color-text-secondary);
+}
+.vx-field-status--detached {
+	border-top-color: var(--color-border);
+}
 .vx-field-status--error {
 	color: var(--color-danger);
 }
@@ -508,14 +516,61 @@ textarea::placeholder {
 	color: var(--color-text-secondary);
 }
 
-/* InputTags — wrapped chip row + trailing field. */
-.vx-inputtags-tag {
-	border-radius: var(--radius-sm);
+/* Token, Typeahead, Tokenizer, and ComplexSelector chrome. */
+.vx-token {
+	gap: 4px;
+	border-radius: 999px;
 	background-color: var(--color-border);
+	color: var(--color-text);
+	padding: 2px 8px;
 }
-.vx-inputtags--disabled {
-	opacity: 0.5;
+/* xplat-web-only:start */
+.vx-token--interactive { cursor: pointer; }
+.vx-typeahead-token { position: absolute; }
+.vx-typeahead-endlane,
+.vx-tokenizer-endlane { display: flex; flex-direction: row; align-items: center; }
+/* xplat-web-only:end */
+.vx-token--disabled,
+.vx-typeahead--disabled,
+.vx-tokenizer--disabled,
+.vx-complex-selector--disabled { opacity: 0.5; }
+.vx-token--size-sm { font-size: 12px; min-height: 22px; }
+.vx-token--size-md { font-size: 13px; min-height: 26px; }
+.vx-token--size-lg { font-size: 14px; min-height: 30px; }
+.vx-token--red { background-color: #fee2e2; color: #991b1b; }
+.vx-token--orange { background-color: #ffedd5; color: #9a3412; }
+.vx-token--yellow { background-color: #fef9c3; color: #854d0e; }
+.vx-token--green { background-color: #dcfce7; color: #166534; }
+.vx-token--teal { background-color: #ccfbf1; color: #115e59; }
+.vx-token--cyan { background-color: #cffafe; color: #155e75; }
+.vx-token--blue { background-color: #dbeafe; color: #1e40af; }
+.vx-token--purple { background-color: #f3e8ff; color: #6b21a8; }
+.vx-token--pink { background-color: #fce7f3; color: #9d174d; }
+.vx-token--gray { background-color: #f3f4f6; color: #374151; }
+.vx-token-remove { margin-left: 4px; }
+.vx-typeahead,
+.vx-tokenizer,
+.vx-complex-selector-trigger--input {
+	min-height: 40px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	padding: 6px 10px;
 }
+.vx-typeahead-input { min-width: 0; flex: 1; }
+.vx-typeahead-spinner { width: 20px; height: 20px; }
+.vx-tokenizer-overflow { margin-left: 4px; }
+/* xplat-web-only:start — native Tokenizer collapses hidden tokens directly. */
+.vx-tokenizer--truncated .vx-tokenizer-token--hidden { display: none; }
+/* xplat-web-only:end */
+.vx-complex-selector-trigger--ghost {
+	border-width: 0;
+	background-color: transparent;
+	color: var(--color-text);
+}
+.vx-complex-selector-placeholder { color: var(--color-text-secondary); }
 
 /* InputRating — glyph row; --on lights the cell. */
 .vx-rating-glyph {

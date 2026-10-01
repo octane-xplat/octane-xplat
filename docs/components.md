@@ -69,10 +69,13 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 | `Slider`                             | Value scrubber (self-drawn)                      | `value`, `minValue`, `maxValue`, `onValueChange`            |
 | `Selector`                | Single-option picker                       | `options`, `value`, `searchable`, `isDisabled`              |
 | `MultiSelector`       | Multiple-option picker                     | `options`, `value`, `searchable`, `isDisabled`              |
-| `Combobox`, `InputMenu`               | Searchable `Selector` aliases              | `options`, `value`, `searchable`, `isDisabled`              |
+| `Typeahead`                          | Searchable single selection field                  | `searchSource`, `value`, `onChange`, `hasEntriesOnFocus`    |
+| `Tokenizer`                          | Searchable multi-selection token field             | `searchSource`, `value`, `onChange`, `hasCreate`            |
+| `Token`                              | Removable or interactive entity chip               | `label`, `color`, `onRemove`, `onClick`, `href`             |
+| `ComplexSelector`                    | Field trigger with a custom anchored picker surface| `value`, `children`, `changeAction`, `variant`               |
 | `NumberInput`        | Numeric entry with bounds                        | `value`, `min`, `max`, `step`, `onValueChange`              |
 | `PinInput`                           | Fixed-length code/PIN entry                      | `length`, `onValueChange`, `onComplete`, `secure`           |
-| `InputTags`                          | Tag/token entry                                  | `value`, `onValueChange`, `max`                             |
+
 | `InputRating`                        | Tappable 1..max rating row                       | `value`, `max`, `icon`, `onValueChange`                     |
 | `Chip`                               | Selectable/removable chip                        | `selected`, `onSelect`, `onRemove`                          |
 | `Field`, `FieldGroup`  | Labeled field wrapper / labeled field group      | `label`, `description`, `inputID`, `isRequired`, `isOptional`, `status` |
@@ -131,14 +134,14 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
 ## Overlays
 
-| Component   | What it is                            | Key props                                    |
-| ----------- | ------------------------------------- | -------------------------------------------- |
-| `Overlay`   | Content above the screen              |                                              |
-| `Popover`   | Anchored floating content             | `anchor`, `open`, `placement`, `onDismiss`   |
-| `Tooltip`   | Pointer hover hint                    | `trigger`, `content`, `openDelay`            |
-| `Hoverable` | Hover-reveal card around its children | `card`, `openDelay`                          |
-| `Sheet`     | Bottom sheet                          | `open`, `detents`, `shadeCover`, `onDismiss` |
-| `Drawer`    | Edge drawer                           | `main`, `drawer`, `open`, `onDismiss`        |
+| Component   | What it is                                | Key props                                  |
+| ----------- | ----------------------------------------- | ------------------------------------------ |
+| `Overlay`   | Content above the screen                  |                                            |
+| `Popover`   | Anchored floating content                 | `anchor`, `open`, `placement`, `alignment`, `onDismiss` |
+| `Tooltip`   | Pointer hover hint                        | `trigger`, `content`, `openDelay`          |
+| `Hoverable` | Hover-reveal card around its children     | `card`, `openDelay`                        |
+| `Sheet`     | Bottom sheet                              | `open`, `detents`, `shadeCover`, `onDismiss` |
+| `Drawer`    | Edge drawer                               | `main`, `drawer`, `open`, `onDismiss`      |
 
 `showToast` presents a transient toast; `openWindow` opens a host window where
 supported. Modal/sheet routing shares the navigation layer — see
@@ -161,3 +164,5 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 | `@octane-xplat/sounds`  | `createSoundBank`                                                    | Short UI sound effects                    |
 | `@octane-xplat/effects` | `ShaderEffect` (`/ios`, `/android` only)                             | View-effect shaders (Metal stitch / AGSL) |
 | `@octane-xplat/auth`    | `appleAuth`, `googleAuth`, `AppleSignInButton`, `GoogleSignInButton` | Provider sign-in (Apple / Google SDKs)    |
+
+See [search, select, and token entry](search-selection.md) for `SearchSource`, `Typeahead`, `Tokenizer`, `Token`, and `ComplexSelector` workflows and platform limits.
