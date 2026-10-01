@@ -517,7 +517,7 @@ body {
 
 .dark .constellation {
 	filter: brightness(0) invert(1);
-	opacity: 0.12;
+	opacity: 0.45;
 }
 
 .content {
