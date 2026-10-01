@@ -157,9 +157,12 @@ web. `ChatComposerFile` exposes name, MIME type, size, and the original browser
 `File` in `native`; file delivery is web-only. Web token chips are inline in
 the contenteditable field. Native input uses a text field with a token row,
 and mid-text token placement is approximate. Native has no browser paste or
-file-drop event, and native speech recognition reports unsupported. The
-Linux entry uses the web leaves; the AppKit entry exports the Chat family
-through its shared implementation and uses the native text-input behavior.
+file-drop event, and native speech recognition reports unsupported. Top-load
+detection uses an `IntersectionObserver` sentinel on web and a scroll-position
+check on native. New-message tracking uses `ResizeObserver` on web and
+`layoutChanged` on native. The Linux entry uses the web leaves; the AppKit
+entry exports the Chat family through its shared implementation and uses the
+native text-input behavior.
 Windows resolves the shared `index.ts` through its app TypeScript mapping;
 its Chat runtime has not been exercised separately.
 
