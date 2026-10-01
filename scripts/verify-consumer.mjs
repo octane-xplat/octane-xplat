@@ -37,7 +37,6 @@ import {
 	realpathSync,
 	rmSync,
 	writeFileSync,
-	writeSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -93,14 +92,12 @@ function run(command, argv, cwd, env = {}) {
 		maxBuffer: 64 * 1024 * 1024,
 	})
 
-	// writeSync — the gate failure path calls process.exit, which can drop
-	// pending async writes to a piped stdout and lose the subprocess output.
 	if (result.stdout) {
-		writeSync(1, result.stdout)
+		process.stdout.write(result.stdout)
 	}
 
 	if (result.stderr) {
-		writeSync(2, result.stderr)
+		process.stderr.write(result.stderr)
 	}
 
 	if (result.error) {
@@ -134,6 +131,12 @@ async function gate(name, timeoutMs, fn) {
 		console.error(`[verify] ${name} failed:`, error)
 		report()
 		console.error(`[verify] work dir kept for inspection: ${work}`)
+		// Drain piped stdout before exiting — process.exit drops queued async
+		// writes, which lost the failing subprocess's output in CI logs.
+		await Promise.all([
+			new Promise((r) => process.stdout.write('', r)),
+			new Promise((r) => process.stderr.write('', r)),
+		])
 		process.exit(1)
 	}
 }
