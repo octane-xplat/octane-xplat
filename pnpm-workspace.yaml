@@ -168,3 +168,9 @@ patchedDependencies:
   # unreachable. Adds a module-local process declaration for typecheck and merges the
   # Context.ts definitions into Context.tsrx.
   "@octanejs/tiptap@0.0.51": packages/cli/patches/@octanejs__tiptap@0.0.51.patch
+  # @lexical/link declares a /\p{L}\p{N}/u URL matcher as a regex literal at module scope;
+  # NativeScript's embedded V8 builds without ICU, so the literal throws SyntaxError at
+  # parse time and poisons the whole bundle (any bundled app importing @lexical/link dies on
+  # boot). Same fix as linkifyjs: try/catch new RegExp with an ASCII-range fallback — the
+  # matcher only feeds autolink, which native doesn't use.
+  '@lexical/link@0.51.0': packages/cli/patches/@lexical__link@0.51.0.patch

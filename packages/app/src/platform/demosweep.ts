@@ -977,6 +977,14 @@ const STEPS: Step[] = [
 		],
 	},
 	{
+		id: 'lexical-probe',
+		hold: 6000,
+		checks: [
+			{ at: 3500, run: () => assertMatch('lexical probe', /probe \d+\/\d+ (PASS|FAIL)/) },
+			{ at: 4500, run: () => assertMatch('lexical probe pass', /probe \d+\/\d+ PASS/) },
+		],
+	},
+	{
 		// iOS leaf is a stub until the Swift facade lands — the demo must
 		// still mount and report 'unsupported'.
 		id: 'richtext-editor',
@@ -1786,6 +1794,17 @@ function probeTiptapFacade() {
 	const hay = viewTexts(demosPage())
 	const jsonOk = hay.some((t) => t.includes('json ok'))
 	console.log('[assert] Android tiptap facade json bridge: ' + (jsonOk ? 'OK' : 'FAIL') + dump(hay))
+
+	navigate('demo/:id', { id: 'lexical-probe' }, { into: 'test' })
+	waitFor(
+		() => routeFor('test')?.params?.id === 'lexical-probe',
+		() => setTimeout(probeLexicalImports, 4500),
+		80,
+	)
+}
+
+function probeLexicalImports() {
+	assertMatch('lexical probe pass', /probe \d+\/\d+ PASS/)
 }
 
 function runStep(i: number) {

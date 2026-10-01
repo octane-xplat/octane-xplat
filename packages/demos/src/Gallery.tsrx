@@ -28,6 +28,7 @@ import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { RichTextEditorDemo } from './RichTextEditorDemo.tsrx';
 import { TiptapProbe } from './TiptapProbe.tsrx';
+import { LexicalProbe } from './LexicalProbe.tsrx';
 import { TiptapEditorDemo } from './TiptapEditorDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
 import { Reorder } from './Reorder.tsrx';
@@ -60,6 +61,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'layout', title: 'Layout', kind: 'proof' },
 	{ id: 'rich-text', title: 'Rich text', kind: 'proof' },
 	{ id: 'tiptap-probe', title: 'Tiptap imports', kind: 'proof' },
+	{ id: 'lexical-probe', title: 'Lexical imports', kind: 'proof' },
 	{ id: 'richtext-editor', title: 'Aztec editor', kind: 'proof' },
 	{ id: 'tiptap-editor', title: 'Tiptap facade', kind: 'proof' },
 	{ id: 'divergence', title: 'Layout edges', kind: 'proof' },
@@ -112,6 +114,7 @@ const renderControls = () => <ControlsDemo />;
 const renderLayout = () => <LayoutDemo />;
 const renderRichText = () => <RichTextDemo />;
 const renderTiptapProbe = () => <TiptapProbe />;
+const renderLexicalProbe = () => <LexicalProbe />;
 const renderRichTextEditor = () => <RichTextEditorDemo />;
 const renderTiptapEditor = () => <TiptapEditorDemo />;
 const renderDivergence = () => <Divergence />;
@@ -157,6 +160,7 @@ export const RENDER: Record<string, () => any> = {
 	layout: renderLayout,
 	'rich-text': renderRichText,
 	'tiptap-probe': renderTiptapProbe,
+	'lexical-probe': renderLexicalProbe,
 	'richtext-editor': renderRichTextEditor,
 	'tiptap-editor': renderTiptapEditor,
 	divergence: renderDivergence,

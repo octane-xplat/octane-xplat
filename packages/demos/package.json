@@ -31,6 +31,13 @@
 		"@tiptap/pm": "3.28.0",
 		"@tiptap/starter-kit": "3.28.0",
 		"@tiptap/static-renderer": "3.28.0",
+		"@lexical/code": "0.51.0",
+		"@lexical/extension": "0.51.0",
+		"@lexical/html": "0.51.0",
+		"@lexical/link": "0.51.0",
+		"@lexical/list": "0.51.0",
+		"@lexical/rich-text": "0.51.0",
+		"lexical": "0.51.0",
 		"zeed-dom": "0.18.0"
 	},
 	"devDependencies": {
