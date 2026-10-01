@@ -38,6 +38,7 @@
 		"../../packages/ui/src/web/**/*",
 		"**/*.test.*",
 		"../../packages/**/*.test.*",
+		"../../packages/*/src/vendor",
 		"../../packages/create/template",
 		"**/*.macos.*",
 		"../../packages/**/*.macos.*",

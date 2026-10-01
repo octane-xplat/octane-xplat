@@ -58,6 +58,7 @@
 		"../../packages/**/*.linux.*",
 		"**/*.test.*",
 		"../../packages/**/*.test.*",
+		"../../packages/*/src/vendor",
 		"../../packages/create/template"
 	]
 }
