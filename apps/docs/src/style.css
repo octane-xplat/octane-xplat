@@ -683,6 +683,8 @@ body {
 .doc {
 	padding: 40px 81px 72px;
 	max-width: 933px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .doc-actions {
