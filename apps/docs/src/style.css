@@ -88,7 +88,8 @@ body {
 		system-ui,
 		-apple-system,
 		sans-serif;
-	font-weight: 350;
+	font-size: 17px;
+	font-weight: 300;
 	background-color: var(--doc-bg);
 }
 
