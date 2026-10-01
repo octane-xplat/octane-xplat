@@ -1,0 +1,51 @@
+# Build a chat conversation
+
+ID: chat-conversation
+Targets: web, ios, android, macos
+Related APIs: ChatLayout, ChatMessageList, ChatMessage, ChatMessageBubble, ChatComposer, ChatComposerInput, ChatComposerTrigger, ChatComposerToken, useChatStreamScroll, useChatNewMessages, useChatPasteAsToken, useChatDictation
+
+## Starting point
+
+The app already renders screens with `@octane-xplat/ui`. This recipe covers a
+conversation with a docked composer, sender-aware messages, optional trigger
+menus and token chips, streaming scroll behavior, and older-message loading.
+The Chat family supplies presentation and input behavior; the app owns message
+storage, network requests, and upload handling.
+
+## Requirements
+
+- Compose a message list and composer in one scroll-aware layout.
+- Keep submitted text and inserted tokens serialized as a string the app can
+  send or persist.
+- Keep streaming output in view while the user is at the bottom, and make new
+  messages discoverable after the user scrolls away.
+- Load older history without firing duplicate requests while one is pending.
+- Report target-specific limits for file input, speech recognition, and rich
+  token editing.
+
+## Acceptance criteria
+
+- AC1: A developer can render user/assistant rows, sender names, bubbles,
+  metadata, an empty state, and a docked composer; sending trims and submits a
+  non-empty value then clears the composer.
+- AC2: Trigger search supports sync or async sources and selection inserts
+  text or a token; token values serialize consistently for submit and display.
+- AC3: Scroll follows content growth while locked at the bottom, exposes a
+  return-to-bottom action when unlocked, and reports new messages until
+  dismissed.
+- AC4: A top-load callback shows pending state and cannot overlap itself.
+- AC5: File and dictation callbacks behave according to platform capability,
+  and the recipe describes browser `File`, paste, contenteditable, event, and
+  observer boundaries accurately.
+- AC6: The Chat family is exported with matching public names and prop types
+  for web, iOS, Android, macOS, Linux's web-backed entry, and the Windows
+  app's shared TypeScript entry.
+
+## Documentation
+
+- AC1: [Chat API inventory and portable event/file contract](../docs/components.md#chat), plus the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx).
+- AC2: [ChatComposerInput, token, and trigger API](../docs/components.md#chat), plus the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx). Native inline editing remains a documented gap: native uses a chip row and approximates mid-text token positions.
+- AC3: [Chat API inventory](../docs/components.md#chat) and [ChatLayout/scroll hook contracts](../packages/ui/src/props.ts).
+- AC4: [ChatMessageList contract](../docs/components.md#chat) and its `scrollToTopAction` prop documentation.
+- AC5: [Portable Chat deviations](../docs/components.md#chat). Native paste/file delivery and speech recognition are unsupported; file paste and dictation therefore have no native verification.
+- AC6: [Root exports](../packages/ui/src/index.shared.ts) share the family; [macOS](../packages/ui/src/index.macos.ts) explicitly re-exports it. Linux uses the web entry. The [Windows app TypeScript map](../apps/windows/tsconfig.json) resolves the shared entry; its Chat runtime has not been separately exercised.

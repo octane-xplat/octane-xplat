@@ -139,3 +139,31 @@ export type { Store, ReadableStore } from './store'
 export { useStore } from './useStore.macos.tsrx'
 export { openSheet, closeSheet, sheetHost } from './sheet-service.macos'
 export type * from './props'
+
+// Chat shares the same portable contracts on AppKit; browser editing
+// behavior remains in its web leaves.
+export {
+	ChatComposer,
+	ChatComposerDrawer,
+	ChatComposerInput,
+	ChatComposerTokenElement,
+	ChatDictationButton,
+	ChatLayout,
+	ChatLayoutScrollButton,
+	ChatMessage,
+	ChatMessageBubble,
+	ChatMessageList,
+	ChatMessageMetadata,
+	ChatSendButton,
+	ChatSystemMessage,
+	ChatTokenizedText,
+	ChatToolCalls,
+	useChatComposerContext,
+	useChatComposerTokens,
+	useChatDictation,
+	useChatLayoutContext,
+	useChatNewMessages,
+	useChatPasteAsToken,
+	useChatStreamScroll,
+	useSpeechRecognition,
+} from './index.shared'

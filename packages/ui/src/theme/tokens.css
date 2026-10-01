@@ -1481,4 +1481,75 @@ input.vx-search-field::-webkit-search-cancel-button {
 	touch-action: none;
 }
 /* xplat-web-only:end */
+
+/* Shared Chat anatomy — structural defaults used with or without chrome.css. */
+.vx-chatlayout,
+.vx-chatlayout-scroll,
+.vx-chatlayout-messages,
+.vx-chatlist,
+.vx-chatlist-inner,
+.vx-chatmsg,
+.vx-chatmsg-content,
+.vx-chatcomposer,
+.vx-chatcomposer-body,
+.vx-chatcomposer-inputarea,
+.vx-chatcomposer-footer,
+.vx-chatcomposer-header,
+.vx-chattools-list {
+	display: flex;
+	flex-direction: column;
+}
+.vx-chatlayout { flex: 1; min-height: 0; }
+.vx-chatlayout-scroll { flex: 1; min-height: 0; }
+.vx-chatlayout-messages { flex: 1; min-height: 0; }
+.vx-chatlayout-dock,
+.vx-chatlayout-dockinner,
+.vx-chatlist-inner { width: 100%; }
+.vx-chatlist { flex: 1; min-height: 0; }
+.vx-chatlist-spacer { flex: 1; }
+.vx-chatmsg { width: 100%; flex-direction: row; align-items: flex-start; }
+.vx-chatmsg--user { flex-direction: row-reverse; }
+.vx-chatmsg-content { min-width: 0; max-width: 100%; }
+.vx-chatbubble { max-width: 100%; }
+.vx-chatmeta,
+.vx-chatcomposer-header,
+.vx-chatcomposer-footer,
+.vx-chatcomposer-footerright,
+.vx-chatcomposer-footerleft,
+.vx-chatcomposer-headerright,
+.vx-chatcomposer-headerleft,
+.vx-chattools-header,
+.vx-chattools-row,
+.vx-chattools-stats,
+.vx-chatcomposer-tokenwrap,
+.vx-chatinput-tokens,
+.vx-chatsys,
+.vx-chatscroll-wrap,
+.vx-chatdict-btn,
+.vx-chatcomposer-status,
+.vx-chatdict-bars,
+.vx-chat-token {
+	display: flex;
+	align-items: center;
+}
+.vx-chatcomposer-header,
+.vx-chatcomposer-footer { flex-direction: row; justify-content: space-between; }
+.vx-chatcomposer-inputarea { min-width: 0; }
+.vx-chatinput-editable { min-height: 24px; width: 100%; }
+.vx-chattools-row,
+.vx-chatcomposer-status,
+.vx-chatsys,
+.vx-chatdict-bars { flex-direction: row; }
+.vx-chattools-row--toggle { width: 100%; }
+.vx-chatsys { justify-content: center; }
+.vx-chatsys-content { display: flex; flex-direction: row; align-items: center; }
+.vx-chatdrawer-inner { width: 100%; }
+.vx-chatscroll-wrap { justify-content: center; }
+.vx-chatcomposer--disabled,
+.vx-chatinput--disabled { opacity: 0.55; }
+
+/* xplat-web-only:start — DOM positioning and clipping for browser overlays. */
+.vx-chatlayout { position: relative; overflow: hidden; }
+.vx-chatpaste-preview { overflow: hidden; }
+/* xplat-web-only:end */
 }

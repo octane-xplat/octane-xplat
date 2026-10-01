@@ -132,6 +132,37 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 | `ScrollBox`                      | Scroll container   |                                       |
 | [`VirtualList`](virtual-list.md) | Windowed long list | `items`, `keyExtractor`, `renderItem` |
 
+## Chat
+
+The Chat family provides a docked composer and composable message rows. Start
+with [`ChatLayout`](../recipes/chat-conversation.md) for a complete conversation
+or combine `ChatMessageList`, `ChatMessage`, and `ChatMessageBubble` inside an
+existing scroll surface.
+
+| Component | What it is | Key props |
+| --- | --- | --- |
+| `ChatLayout`, `ChatLayoutScrollButton` | Scrollable conversation, docked composer, and return-to-bottom action | `composer`, `emptyState`, `scrollRef`, `density` |
+| `ChatMessageList` | Density-aware message column with empty state and load-older callback | `density`, `gap`, `align`, `scrollToTopAction`, `isStreaming` |
+| `ChatMessage`, `ChatMessageBubble` | Sender alignment/context and filled or ghost bubble | `sender`, `name`, `avatar`, `variant`, `group`, `metadata` |
+| `ChatMessageMetadata`, `ChatSystemMessage` | Timestamp/status row and centered conversation notices | `timestamp`, `status`, `variant`, `icon` |
+| `ChatToolCalls`, `ChatTokenizedText` | Expandable tool-call summary and token-aware message text | `calls`, `isExpanded`, `tokens` |
+| `ChatComposer`, `ChatComposerInput`, `ChatComposerDrawer` | Composer shell, rich input, and collapsible context/attachment region | `onSubmit`, `value`, `triggers`, `onFiles`, `count` |
+| `ChatSendButton`, `ChatDictationButton` | Send/stop action and speech input control | `isStopShown`, `isDisabled`, `onSend`, `onStop` |
+| `useChatStreamScroll`, `useChatNewMessages`, `useChatPasteAsToken`, `useChatComposerTokens`, `useSpeechRecognition`, `useChatDictation` | Hooks for streaming, new messages, tokens, and dictation | See each hook's TSDoc |
+
+`ChatComposerInput.bind` delivers a portable imperative handle because React
+refs do not cross this renderer boundary. Key and paste callbacks expose
+portable event records; their `native` member carries a browser event only on
+web. `ChatComposerFile` exposes name, MIME type, size, and the original browser
+`File` in `native`; file delivery is web-only. Web token chips are inline in
+the contenteditable field. Native input uses a text field with a token row,
+and mid-text token placement is approximate. Native has no browser paste or
+file-drop event, and native speech recognition reports unsupported. The
+Linux entry uses the web leaves; the AppKit entry exports the Chat family
+through its shared implementation and uses the native text-input behavior.
+Windows resolves the shared `index.ts` through its app TypeScript mapping;
+its Chat runtime has not been exercised separately.
+
 ## Overlays
 
 | Component   | What it is                                | Key props                                  |

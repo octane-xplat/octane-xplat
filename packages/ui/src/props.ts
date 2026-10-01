@@ -2322,6 +2322,639 @@ export interface ProgressGroupProps {
 	web?: any
 }
 
+// ---------- chat ----------
+
+/** Who sent a chat message — drives alignment, bubble styling, and metadata
+ *  direction. 'system' messages center and skip the avatar/name affordances. */
+export type ChatMessageSender = 'user' | 'assistant' | 'system'
+
+/** Visual density shared across the chat family. */
+export type ChatDensity = 'compact' | 'balanced' | 'spacious'
+
+/** ChatComposer accepts the same density scale; kept as its own alias so the
+ *  public name matches upstream. */
+export type ChatComposerDensity = ChatDensity
+
+/** Delivery state shown by ChatMessageMetadata. */
+export type ChatMessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'error'
+
+/** Sender context wrapper for one message. Renders the optional avatar, name,
+ *  children (usually ChatMessageBubble), and trailing metadata column. */
+export interface ChatMessageProps {
+	className?: any
+	style?: any
+	id?: string
+	sender: ChatMessageSender
+	children?: any
+	avatar?: any
+	/** Sender name above the body — prefer the bubble's `name` when the first
+	 *  child is a ChatMessageBubble. */
+	name?: any
+	/** Footer content below the body — prefer the bubble's `metadata` when the
+	 *  last child is a ChatMessageBubble. */
+	metadata?: any
+	/** Defaults to the enclosing ChatMessageList density, then 'balanced'. */
+	density?: ChatDensity
+	accessibilityLabel?: string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export type ChatMessageBubbleVariant = 'filled' | 'ghost'
+
+/** Styled content container — the chat bubble. Reads sender/density from the
+ *  enclosing ChatMessage. `group` tightens sender-side corners for
+ *  consecutive bubbles; `width` replaces the default max-width cap. */
+export interface ChatMessageBubbleProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	variant?: ChatMessageBubbleVariant
+	/** Sender name row above the bubble, aligned to its text column. */
+	name?: any
+	/** Metadata row below the bubble, aligned to its text column. */
+	metadata?: any
+	group?: 'first' | 'middle' | 'last'
+	/** Bubble width — number (px/dip) or CSS string ('100%'). Replaces the
+	 *  default max-width cap when set. */
+	width?: number | string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Composable metadata row: timestamp · footer · status. Renders nothing
+ *  when all three are absent. */
+export interface ChatMessageMetadataProps {
+	className?: any
+	style?: any
+	id?: string
+	timestamp?: any
+	footer?: any
+	status?: ChatMessageStatus
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export type ChatSystemMessageVariant = 'default' | 'divider'
+
+/** Centered system/notice row — date separators, "conversation started".
+ *  `divider` draws hairlines on both sides of the text. */
+export interface ChatSystemMessageProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	variant?: ChatSystemMessageVariant
+	icon?: any
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Presentational message container. Density flows to children via context;
+ *  `align:'bottom'` pads short lists so messages sit above the composer;
+ *  `scrollToTopAction` loads older messages (spinner row while pending);
+ *  `isStreaming` marks the region busy for assistive tech. Auto-scroll and
+ *  the scroll-to-bottom button are owned by ChatLayout or useChatStreamScroll. */
+export interface ChatMessageListProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	emptyState?: any
+	/** Called when the user scrolls to the top — load older messages. Calls are
+	 *  serialized while a returned promise is pending. */
+	scrollToTopAction?: () => void | Promise<void>
+	density?: ChatDensity
+	/** Gap between top-level message rows (px on web, dip on native).
+	 *  Defaults to the density's gap. */
+	gap?: number
+	align?: 'top' | 'bottom'
+	isStreaming?: boolean
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export type ChatToolCallStatus = 'pending' | 'running' | 'complete' | 'error'
+
+/** One tool/function call in a ChatToolCalls list — mirrors the shape LLM
+ *  streaming APIs return. */
+export interface ChatToolCallItem {
+	name: string
+	status?: ChatToolCallStatus
+	target?: string
+	duration?: string
+	/** Short qualifier rendered as a chip next to the name (e.g. file part). */
+	node?: string
+	additions?: number
+	deletions?: number
+	/** Custom stats content replacing/augmenting additions+deletions. */
+	stats?: any
+	errorMessage?: string
+	key?: string
+	data?: unknown
+	/** Expandable detail content (diff, code block, arguments). */
+	resultDetail?: any
+}
+
+/** Tool-call list — one call renders inline; several collapse behind a
+ *  summary header showing the latest call and the count. */
+export interface ChatToolCallsProps {
+	className?: any
+	style?: any
+	id?: string
+	calls: ChatToolCallItem[]
+	/** Expanded-state summary label (defaults to "N tool calls"). */
+	label?: string
+	isExpanded?: boolean
+	defaultIsExpanded?: boolean
+	onExpandedChange?: (isExpanded: boolean) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+// --- composer ---
+
+export type ChatComposerStatus = { type: 'error' | 'warning'; message?: string }
+
+/** Portable key event for the composer input — the seam for app-specific key
+ *  handling. `native` carries the platform event (KeyboardEvent on web). */
+export interface ChatComposerKeyEvent {
+	key: string
+	shiftKey: boolean
+	ctrlKey: boolean
+	metaKey: boolean
+	altKey: boolean
+	/** True while an IME composition is active — Enter never submits. */
+	isComposing: boolean
+	defaultPrevented: boolean
+	preventDefault(): void
+	native?: any
+}
+
+/** A pasted/dropped file. On web `native` is the browser `File`; native
+ *  paste/drop file delivery is platform-dependent and may never fire —
+ *  treat this as web-real, native-best-effort. */
+export interface ChatComposerFile {
+	name: string
+	/** MIME type ('' when unknown). */
+	type: string
+	size: number
+	native?: any
+}
+
+/** Portable paste event handed to ChatComposerInput.onPaste. */
+export interface ChatComposerPasteEvent {
+	preventDefault(): void
+	/** The platform event (ClipboardEvent on web; undefined on native). */
+	native?: any
+}
+
+export type ChatComposerTokenVariant =
+	| 'neutral'
+	| 'info'
+	| 'success'
+	| 'warning'
+	| 'error'
+	| 'blue'
+	| 'cyan'
+	| 'green'
+	| 'orange'
+	| 'pink'
+	| 'purple'
+	| 'red'
+	| 'teal'
+	| 'yellow'
+
+/** Badge-configured token — renders as an inline chip; `value` is what
+ *  serializes into the submitted string. */
+export interface ChatComposerTokenBadge {
+	value: string
+	label?: any
+	variant?: ChatComposerTokenVariant
+	/** Registered icon name (see registerIcon). */
+	icon?: string
+}
+
+/** Custom-rendered token — full control over the chip's content. */
+export interface ChatComposerTokenCustom {
+	value: string
+	render: () => any
+}
+
+/** A token (mention, pasted blob, command argument) embedded in the
+ *  composer value. Web renders it as a non-editable inline chip inside the
+ *  field; native keeps tokens in a chip row above the field and serializes
+ *  them at their recorded insertion offset. */
+export type ChatComposerToken = ChatComposerTokenBadge | ChatComposerTokenCustom
+
+/** Item shape for trigger-menu sources — the portable SearchableItem. */
+export interface ChatComposerTriggerItem<TAuxData = unknown> {
+	id: string
+	label: string
+	/** Pre-rendered item content — takes priority over renderItem/label. */
+	element?: any
+	auxiliaryData?: TAuxData
+}
+
+/** Sync or async item source for a trigger menu — the portable SearchSource. */
+export interface ChatComposerSearchSource<
+	T extends ChatComposerTriggerItem = ChatComposerTriggerItem,
+> {
+	search(query: string): Promise<T[]> | T[]
+	bootstrap?(): Promise<T[]> | T[]
+	cancel?(): void
+}
+
+/** One trigger (`@`, `/`, …) activating an autocomplete menu in the input. */
+export interface ChatComposerTrigger {
+	/** Character that activates the menu (e.g. '@', '/'). */
+	character: string
+	searchSource: ChatComposerSearchSource
+	renderItem?: (item: ChatComposerTriggerItem) => any
+	/** What to insert on selection — plain text or a token chip. */
+	onSelect: (item: ChatComposerTriggerItem) => string | ChatComposerToken
+	/** Parse a serialized token back when loading a draft for editing. */
+	deserialize?: (value: string) => ChatComposerToken | null
+	emptySearchResultsText?: string
+	loadingText?: string
+	menuLabel?: string
+}
+
+/** Imperative surface the composer shell and app code invoke on the input.
+ *  Delivered through the input's `bind` prop. */
+export interface ChatComposerInputHandle {
+	/** Insert a token chip at the current caret position; returns its id. */
+	insertToken(token: ChatComposerToken): string | undefined
+	/** Replace the token chip with its serialized text value. */
+	expandToken(id: string): void
+	insertText(text: string): void
+	focus(): void
+	/** Current serialized value (token values inline). */
+	getValue(): string
+}
+
+/** Registration record for the composer shell → input slot seam: a custom
+ *  `input` assigns `{focus}` to `context.inputControlRef.current` so the
+ *  shell's click-to-focus works without knowing the input's shape. */
+export interface ChatComposerInputControl {
+	focus(): void
+}
+
+export interface ChatComposerContextValue {
+	value: string
+	onChange: (value: string) => void
+	onSubmit: (value: string) => void
+	placeholder: string
+	isDisabled: boolean
+	isStopShown: boolean
+	canSend: boolean
+	onStop?: () => void
+	inputControlRef?: { current: ChatComposerInputControl | null }
+}
+
+/** Rich composer field. Web is a real contenteditable with inline token
+ *  chips, Enter-to-submit (IME-guarded), submitted-message recall on ArrowUp/Down,
+ *  paste interception, and file drop. Native is a TextView plus a chip row
+ *  for inserted tokens; serialization matches, mid-text token positions are
+ *  approximated by recorded insertion offsets. */
+export interface ChatComposerInputProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Delivers the imperative handle (this repo's `bind` convention; the
+	 *  upstream `handleRef` equivalent). */
+	bind?: (h: ChatComposerInputHandle) => void
+	value?: string
+	onChange?: (value: string) => void
+	placeholder?: string
+	/** Height cap in lines before the field scrolls internally. */
+	maxRows?: number
+	triggers?: ChatComposerTrigger[]
+	debounceMs?: number
+	/** ArrowUp/ArrowDown recall of submitted messages — keyboard platforms. */
+	hasHistory?: boolean
+	/** Accessible name for the field. */
+	label?: string
+	isDisabled?: boolean
+	/** Plain-text paste interception — return true to take over insertion. */
+	onPaste?: (event: ChatComposerPasteEvent, text: string) => boolean | void
+	/** Long-paste → token conversion; pass a useChatPasteAsToken result to
+	 *  customize, false to disable. Web only — native has no paste event. */
+	pasteAsToken?: { onPaste: (event: ChatComposerPasteEvent, text: string) => boolean } | false
+	/** File drop/paste (web only — see ChatComposerFile). */
+	onFiles?: (files: ChatComposerFile[]) => void
+	onSubmit?: (value: string) => void
+	/** Runs before built-in Enter/recall handling; preventDefault() to own
+	 *  the keystroke. IME composition always suppresses submit. */
+	onKeyDown?: (event: ChatComposerKeyEvent) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface ChatComposerTokenElementProps {
+	className?: any
+	style?: any
+	id?: string
+	token: ChatComposerToken
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Collapsible drawer above the composer input — attachments/context chips.
+ *  With `count`, a collapse toggle renders the badge+label summary. */
+export interface ChatComposerDrawerProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	count?: number
+	label?: string
+	collapsedSummary?: any
+	isCollapsed?: boolean
+	defaultIsCollapsed?: boolean
+	onCollapsedChange?: (isCollapsed: boolean) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Circular send/stop toggle. Reads ChatComposerContext by default; every
+ *  context-derived value is prop-overridable for standalone use. */
+export interface ChatSendButtonProps {
+	className?: any
+	style?: any
+	id?: string
+	isStopShown?: boolean
+	isDisabled?: boolean
+	onSend?: () => void
+	onStop?: () => void
+	/** Custom send-state icon content (default: registered arrow-up glyph). */
+	sendIcon?: any
+	stopIcon?: any
+	size?: 'sm' | 'md'
+	/** Composes after the send/stop action. */
+	onPress?: () => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Composer layout shell — slots for drawer, header actions/context, input,
+ *  footer actions, send actions/button, and an error/warning status strip. */
+export interface ChatComposerProps {
+	className?: any
+	style?: any
+	id?: string
+	onSubmit: (value: string) => void
+	onStop?: () => void
+	isStopShown?: boolean
+	value?: string
+	onChange?: (value: string) => void
+	placeholder?: string
+	isDisabled?: boolean
+	density?: ChatComposerDensity
+	/** 'low' (default) is the raised surface; 'none' is flat with a border. */
+	elevation?: 'none' | 'low'
+	drawer?: any
+	headerActions?: any
+	headerContext?: any
+	/** Custom input element — replaces the default ChatComposerInput. */
+	input?: any
+	footerActions?: any
+	sendActions?: any
+	sendButton?: any
+	status?: ChatComposerStatus
+	statusPosition?: 'top' | 'bottom'
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Renders serialized message text with token values replaced by their
+ *  chips — share one token table between input and display. */
+export interface ChatTokenizedTextProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: string
+	tokens?: ChatComposerToken[]
+	ios?: any
+	android?: any
+	web?: any
+}
+
+// --- chat layout & scrolling ---
+
+/** Page-style chat shell: messages in a scroll area, composer docked at the
+ *  bottom behind a blur strip, scroll-to-bottom button above it. Without
+ *  `scrollRef` the layout root is the scroller (sticky dock); with an
+ *  external scroll container ref the dock floats fixed above the page and
+ *  the scroll hooks target that container. On native the dock is an overlay
+ *  at the bottom of the layout (no backdrop blur — NS has no
+ *  backdrop-filter), and `scrollRef` attaches to the layout's own ScrollView
+ *  (it is populated by the layout, so callers can hand it to the hooks). */
+export interface ChatLayoutProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** Composer element docked at the bottom — typically ChatComposer. */
+	composer?: any
+	emptyState?: any
+	/** Custom scroll-to-bottom control, or null to hide. Defaults to
+	 *  ChatLayoutScrollButton wired to the layout's scroll state. */
+	scrollButton?: any
+	/** External scroll container — { current: HTMLElement | NSView }. */
+	scrollRef?: { current?: any }
+	density?: ChatDensity
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface ChatLayoutScrollButtonProps {
+	className?: any
+	style?: any
+	id?: string
+	isVisible: boolean
+	/** Optional pill label (e.g. "New messages") — expands the button. */
+	label?: string
+	onPress?: () => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export interface ChatScrollToBottomOptions {
+	/** 'instant' jumps in one frame (open/restore); default 'spring' animates
+	 *  (web spring, NS animated scroll). Reduced-motion web jumps instantly. */
+	behavior?: 'instant' | 'spring'
+}
+
+/** Owns a scroll container's follow-the-stream behavior. `scrollRef` points
+ *  at the DOM scroller on web or the bound NS ScrollView on native. */
+export interface UseChatStreamScrollOptions {
+	scrollRef: { current?: any }
+	enabled?: boolean
+	/** Distance from bottom within which scroll-end re-locks (default 10). */
+	lockThreshold?: number
+	/** Distance from bottom beyond which the button shows (default 100). */
+	buttonThreshold?: number
+	/** Web spring parameters; native scroll uses the OS animation. */
+	damping?: number
+	stiffness?: number
+	mass?: number
+}
+
+export interface UseChatStreamScrollReturn {
+	isScrolledUp: boolean
+	isLocked: boolean
+	scrollToBottom(options?: ChatScrollToBottomOptions): void
+	/** Scroll so the given message element/view tops the visible area. */
+	scrollToMessage(el: any): void
+	lock(): void
+	unlock(): void
+	/** Follow growth only while locked — call on content resize. */
+	scrollIfLocked(): void
+	scrollToLastMessage(): void
+}
+
+export interface UseChatNewMessagesOptions {
+	/** When the scroll is locked, new arrivals don't flag — the user is
+	 *  already at the bottom. */
+	isLocked: boolean
+	/** Fires on every content height change (new message, streaming growth). */
+	onResize?: () => void
+}
+
+export interface UseChatNewMessagesReturn {
+	hasNewMessages: boolean
+	dismiss(): void
+	/** Attach to the message-list content element — ResizeObserver on web,
+	 *  layoutChanged on native. */
+	contentRef(el: any): void
+}
+
+/** Converts long pastes into token chips. `inputRef` carries the input
+ *  handle (the object `bind` delivered). */
+export interface UseChatPasteAsTokenOptions {
+	inputRef: { current: ChatComposerInputHandle | null }
+	/** Character threshold — pastes longer than this become tokens (200). */
+	threshold?: number
+	toToken?: (text: string) => ChatComposerToken
+}
+
+export interface UseChatPasteAsTokenReturn {
+	/** Wire as ChatComposerInput's pasteAsToken/onPaste — true means the
+	 *  paste became a token. */
+	onPaste(event: ChatComposerPasteEvent, text: string): boolean
+}
+
+/** Token bookkeeping inside a composer input. `editableRef` is the editable
+ *  div on web; on native it's the host object the native input installs. */
+export interface UseChatComposerTokensOptions {
+	editableRef: { current?: any }
+	onEmitChange(): void
+}
+
+export interface TokenPortal {
+	id: string
+	/** The non-editable span web portals render into (DOM element). */
+	span: any
+	token: ChatComposerToken
+}
+
+export interface UseChatComposerTokensReturn {
+	tokenPortals: TokenPortal[]
+	expandToken(id: string): void
+	insertToken(token: ChatComposerToken): string | undefined
+	/** Backspace-near-token interception (web KeyboardEvent). */
+	handleKeyDown(e: any): boolean
+	/** Paste-near-token interception (web ClipboardEvent). */
+	handlePaste(e: any): boolean
+	cleanupPortals(): void
+}
+
+// --- dictation (web SpeechRecognition; unsupported on native — isSupported:false) ---
+
+export interface UseSpeechRecognitionOptions {
+	lang?: string
+	continuous?: boolean
+	interimResults?: boolean
+	audioContext?: any
+	transformTranscript?: (text: string) => string
+	onTranscript?: (transcript: string, isFinal: boolean) => void
+	onResult?: (transcript: string) => void
+	onError?: (error: { error: string; message?: string }) => void
+	onStart?: () => void
+	onEnd?: () => void
+}
+
+export interface UseSpeechRecognitionReturn {
+	isSupported: boolean
+	isListening: boolean
+	isSpeaking: boolean
+	volume: number
+	bands: number[]
+	rawBands: number[]
+	interimTranscript: string
+	start(): void
+	stop(): void
+	abort(): void
+	toggle(): void
+}
+
+export interface UseChatDictationOptions extends UseSpeechRecognitionOptions {
+	/** Start/stop audio cues (default false). Web only. */
+	hasSounds?: boolean
+	/** Input handle ref — when set, interim/final transcripts are inserted
+	 *  into the composer input. */
+	inputRef?: { current: ChatComposerInputHandle | null }
+}
+
+export interface UseChatDictationReturn extends UseSpeechRecognitionReturn {}
+
+/** Mic button bound to a useChatDictation/useSpeechRecognition result. */
+export interface ChatDictationButtonProps {
+	className?: any
+	style?: any
+	id?: string
+	dictation: UseSpeechRecognitionReturn
+	size?: 'sm' | 'md'
+	/** Hide entirely when unsupported (default true) — else show disabled. */
+	isHiddenWhenUnsupported?: boolean
+	label?: string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Values flowing from ChatMessageList/ChatLayout to their children. */
+export interface ChatMessageContextValue {
+	sender: ChatMessageSender
+	density: ChatDensity
+}
+
+export interface ChatListContextValue {
+	density: ChatDensity
+}
+
+export interface ChatLayoutContextValue {
+	/** The scrollable container — DOM element on web, NS ScrollView natively. */
+	scrollContainerRef: { current?: any }
+	/** Message-list content element for size observation. */
+	contentRef(el: any): void
+}
+
 // ---------- theme ----------
 
 export type ColorScheme = 'light' | 'dark'

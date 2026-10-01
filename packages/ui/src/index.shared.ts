@@ -160,6 +160,84 @@ export type {
 	UserProps,
 } from './props'
 
+// Chat
+export { ChatLayout } from './ChatLayout'
+export { ChatLayoutScrollButton } from './ChatLayoutScrollButton'
+export { ChatMessageList } from './ChatMessageList'
+export { ChatMessage } from './ChatMessage'
+export { ChatMessageBubble } from './ChatMessageBubble'
+export { ChatMessageMetadata } from './ChatMessageMetadata'
+export { ChatSystemMessage } from './ChatSystemMessage'
+export { ChatToolCalls } from './ChatToolCalls'
+export { ChatTokenizedText } from './ChatTokenizedText'
+export { ChatComposer } from './ChatComposer'
+export { ChatComposerInput, ChatComposerTokenElement } from './ChatComposerInput'
+export { ChatComposerDrawer } from './ChatComposerDrawer'
+export { ChatSendButton } from './ChatSendButton'
+export { ChatDictationButton } from './ChatDictationButton'
+export { useChatStreamScroll } from './useChatStreamScroll'
+export { useChatNewMessages } from './useChatNewMessages'
+export { useChatPasteAsToken } from './useChatPasteAsToken'
+export { useChatComposerTokens } from './useChatComposerTokens'
+export { useSpeechRecognition } from './useSpeechRecognition'
+export { useChatDictation } from './useChatDictation'
+export { useChatLayoutContext, useChatComposerContext } from './chat-context'
+export type {
+	ChatComposerContextValue,
+	ChatComposerDensity,
+	ChatComposerDrawerProps,
+	ChatComposerFile,
+	ChatComposerInputControl,
+	ChatComposerInputHandle,
+	ChatComposerInputProps,
+	ChatComposerKeyEvent,
+	ChatComposerPasteEvent,
+	ChatComposerProps,
+	ChatComposerSearchSource,
+	ChatComposerStatus,
+	ChatComposerToken,
+	ChatComposerTokenBadge,
+	ChatComposerTokenCustom,
+	ChatComposerTokenElementProps,
+	ChatComposerTokenVariant,
+	ChatComposerTrigger,
+	ChatComposerTriggerItem,
+	ChatDensity,
+	ChatDictationButtonProps,
+	ChatLayoutContextValue,
+	ChatLayoutProps,
+	ChatLayoutScrollButtonProps,
+	ChatListContextValue,
+	ChatMessageBubbleProps,
+	ChatMessageBubbleVariant,
+	ChatMessageContextValue,
+	ChatMessageListProps,
+	ChatMessageMetadataProps,
+	ChatMessageProps,
+	ChatMessageSender,
+	ChatMessageStatus,
+	ChatScrollToBottomOptions,
+	ChatSystemMessageProps,
+	ChatSystemMessageVariant,
+	ChatTokenizedTextProps,
+	ChatToolCallItem,
+	ChatToolCallStatus,
+	ChatToolCallsProps,
+	TokenPortal,
+	UseChatComposerTokensOptions,
+	UseChatComposerTokensReturn,
+	UseChatDictationOptions,
+	UseChatDictationReturn,
+	UseChatNewMessagesOptions,
+	UseChatNewMessagesReturn,
+	UseChatPasteAsTokenOptions,
+	UseChatPasteAsTokenReturn,
+	UseChatStreamScrollOptions,
+	UseChatStreamScrollReturn,
+	UseSpeechRecognitionOptions,
+	UseSpeechRecognitionReturn,
+} from './props'
+
 // Links, input, scrolling, media, and overlays
 export { Link } from './Link'
 export { NavLink } from './NavLink'

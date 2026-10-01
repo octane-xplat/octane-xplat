@@ -1062,4 +1062,83 @@ textarea::placeholder {
    (overriding the 85% cap) and overlay the grabber; native stacks it as a
    top-aligned grid child. touch-action keeps drags off native scroll. */
 /* xplat-web-only:end */
+
+/* Chat skin is optional; tokens.css provides its layout and anatomy. */
+.vx-chatlayout { background-color: var(--color-surface); color: var(--color-text); }
+.vx-chatlayout-dock { background-color: var(--color-surface); }
+.vx-chatlayout-blur { background-color: var(--color-surface); opacity: 0.94; }
+.vx-chatmsg { padding: 8px 16px; }
+.vx-chatmsg-avatar { margin-right: 10px; }
+.vx-chatmsg--user .vx-chatmsg-avatar { margin-right: 0; margin-left: 10px; }
+.vx-chatmsg-name,
+.vx-chatbubble-name,
+.vx-chatmeta,
+.vx-chatmeta-status,
+.vx-chatcomposer-status,
+.vx-chattools-duration,
+.vx-chattools-target,
+.vx-chattools-grouplabel { color: var(--color-text-secondary); font-size: 12px; }
+.vx-chatbubble {
+	padding: 10px 14px;
+	border-radius: var(--radius-lg);
+	corner-shape: squircle;
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+.vx-chatbubble--user { background-color: var(--color-primary); color: var(--color-onprimary); }
+.vx-chatbubble--ghost { background-color: transparent; }
+.vx-chatbubble--error { border-width: 1px; border-color: var(--color-danger); }
+.vx-chatmeta { gap: 6px; padding: 3px 2px; }
+.vx-chatmeta-status--error { color: var(--color-danger); }
+.vx-chatmeta-status--read,
+.vx-chatmeta-status--delivered { color: var(--color-success); }
+.vx-chatsys-content { gap: 8px; padding: 6px 12px; color: var(--color-text-secondary); font-size: 12px; }
+.vx-chatsys-rule { height: 1px; background-color: var(--color-border); }
+.vx-chatlist-empty,
+.vx-chatlayout-empty { padding: 24px 16px; color: var(--color-text-secondary); }
+.vx-chatlist-loading { padding: 10px; color: var(--color-text-secondary); }
+.vx-chatcomposer {
+	margin: 8px 12px;
+	padding: 10px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-xl);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+.vx-chatcomposer--low { box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12); }
+.vx-chatcomposer--none { box-shadow: none; }
+.vx-chatcomposer-header,
+.vx-chatcomposer-footer { gap: 8px; }
+.vx-chatcomposer-body { gap: 8px; }
+.vx-chatcomposer-inputarea { padding: 4px 2px; }
+.vx-chatinput-editable { color: var(--color-text); font-size: 15px; }
+.vx-chatinput-placeholder { color: var(--color-text-secondary); }
+.vx-chat-token,
+.vx-chattoken-el { padding: 2px 7px; border-radius: 999px; background-color: var(--color-surface-secondary); }
+.vx-chatcomposer-status { gap: 6px; padding: 4px 2px; }
+.vx-chatcomposer-status--error { color: var(--color-danger); }
+.vx-chatcomposer-status--warning { color: var(--color-warning); }
+.vx-chatdrawer-inner { padding: 8px; border-bottom-width: 1px; border-color: var(--color-border); }
+.vx-chatdrawer-handle { padding: 6px; }
+.vx-chatsend,
+.vx-chatdict-btn { border-radius: 999px; background-color: var(--color-primary); color: var(--color-onprimary); }
+.vx-chatsend--stop { background-color: var(--color-danger); }
+.vx-chatdict-btn--recording { background-color: var(--color-danger); }
+.vx-chattools-header,
+.vx-chattools-row { gap: 8px; padding: 6px 8px; }
+.vx-chattools-header { border-radius: var(--radius-md); background-color: var(--color-surface-secondary); }
+.vx-chattools-status--error { color: var(--color-danger); }
+.vx-chattools-status--complete { color: var(--color-success); }
+.vx-chattools-add { color: var(--color-success); }
+.vx-chattools-del { color: var(--color-danger); }
+.vx-chattools-detail { padding: 8px; border-left-width: 2px; border-color: var(--color-border); }
+.vx-chatscroll {
+	border-radius: 999px;
+	border-width: 1px;
+	border-color: var(--color-border);
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
 }

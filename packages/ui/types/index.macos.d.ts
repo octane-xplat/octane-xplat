@@ -9,6 +9,32 @@ type Component<Props = Record<string, unknown>> = (props: Props & { children?: a
 export type * from './generated/props.js'
 export type { MdDoc, MdNode, MdInline } from './generated/Markdown.js'
 
+export {
+	ChatComposer,
+	ChatComposerDrawer,
+	ChatComposerInput,
+	ChatComposerTokenElement,
+	ChatDictationButton,
+	ChatLayout,
+	ChatLayoutScrollButton,
+	ChatMessage,
+	ChatMessageBubble,
+	ChatMessageList,
+	ChatMessageMetadata,
+	ChatSendButton,
+	ChatSystemMessage,
+	ChatTokenizedText,
+	ChatToolCalls,
+	useChatComposerContext,
+	useChatComposerTokens,
+	useChatDictation,
+	useChatLayoutContext,
+	useChatNewMessages,
+	useChatPasteAsToken,
+	useChatStreamScroll,
+	useSpeechRecognition,
+} from './generated/index.shared.js'
+
 export declare const View: Component<P.ViewProps>
 /** Vertical flex container, exported under Astryx's component name. */
 export declare const VStack: Component<P.VStackProps>

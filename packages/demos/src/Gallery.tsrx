@@ -31,6 +31,7 @@ import { TiptapProbe } from './TiptapProbe.tsrx';
 import { LexicalProbe } from './LexicalProbe.tsrx';
 import { TiptapEditorDemo } from './TiptapEditorDemo.tsrx';
 import { LexicalEditorDemo } from './LexicalEditorDemo.tsrx';
+import { ChatDemo } from './ChatDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
 import { Reorder } from './Reorder.tsrx';
 import { ComponentsDemo } from './ComponentsDemo.tsrx';
@@ -66,6 +67,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'richtext-editor', title: 'Aztec editor', kind: 'proof' },
 	{ id: 'tiptap-editor', title: 'Tiptap facade', kind: 'proof' },
 	{ id: 'lexical-editor', title: 'Lexical facade', kind: 'proof' },
+	{ id: 'chat', title: 'Chat', kind: 'app' },
 	{ id: 'divergence', title: 'Layout edges', kind: 'proof' },
 	{ id: 'glass', title: 'Glass', kind: 'proof' },
 	{ id: 'reorder', title: 'Reorder', kind: 'proof' },
@@ -120,6 +122,7 @@ const renderLexicalProbe = () => <LexicalProbe />;
 const renderRichTextEditor = () => <RichTextEditorDemo />;
 const renderTiptapEditor = () => <TiptapEditorDemo />;
 const renderLexicalEditor = () => <LexicalEditorDemo />;
+const renderChat = () => <ChatDemo />;
 const renderDivergence = () => <Divergence />;
 const renderGlass = () => <GlassDemo />;
 const renderReorder = () => <Reorder />;
@@ -167,6 +170,7 @@ export const RENDER: Record<string, () => any> = {
 	'richtext-editor': renderRichTextEditor,
 	'tiptap-editor': renderTiptapEditor,
 	'lexical-editor': renderLexicalEditor,
+	chat: renderChat,
 	divergence: renderDivergence,
 	glass: renderGlass,
 	reorder: renderReorder,
