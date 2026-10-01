@@ -61,15 +61,10 @@
   propagate to the nearest accepting importer; entry edits reload the module
   graph in-process. Named exports remain convention (hygiene), not a hard
   requirement.
-- Known upstream wart: a dynamic route file with `[param]` brackets
-  (`app/demo/[id].tsrx`) logs a bootstrap failure at device boot — the
-  module-graph walk misses it, the blocking fallback fetch encodes
-  `[`/`]` as `%5B%5D`, and the `/ns/m` handler doesn't decode, so the
-  prefetch 404s. The session still boots and HMR works; the lazy route
-  payload itself is what fails to load. `@nativescript/vite` decode gap —
-  filed as NativeScript/NativeScript#11455 and patched locally
-  (`decodeURIComponent` on the `/ns/m` spec in
-  `packages/cli/patches/@nativescript__vite@8.0.16.patch`).
+- NativeScript Vite 8.0.17 fixes percent-encoded path-style `/ns/m` and Vue
+  `/ns/sfc` requests (NativeScript/NativeScript#11483). The stable Vite patch
+  no longer carries those decoding changes; it remains for the unrelated
+  resolver, dependency-bundle, and `.mobile` suffix fixes.
 
 ### Dev-loop troubleshooting
 

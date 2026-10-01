@@ -30,7 +30,7 @@ minimumReleaseAgeExclude:
   - octane@0.6.3
   - '@nativescript-community/octane@0.2.4'
   - '@nativescript-community/vite-octane@0.2.1'
-  - '@nativescript/vite@8.0.16'
+  - '@nativescript/vite@8.0.17'
   - '@tsrx/core@0.3.2'
   - '@tsrx/typescript-plugin@0.4.11'
   - '@nativescript/canvas@3.0.0-alpha.15'
@@ -90,24 +90,17 @@ patchedDependencies:
   # _populateRules. Adds atlayer() covering block and statement forms. Applies to a
   # transitive dep — no app declares it directly.
   css@3.0.0: packages/cli/patches/css@3.0.0.patch
-  # Dev-server /ns/m fixes upstream still lacks (8.0.16 landed the pnpm transitive-dep
-  # probing, vendor-manifest gating, comment masking, /@fs→/ns/m anchoring, and
-  # active-platform-suffixed candidates): decode percent-encoded specs (bracketed route
-  # paths 404 otherwise), collect re-export specifiers in the .vite/deps rewrite (barrel
-  # modules skip the decode), route /@fs paths outside both roots through /ns/m (linked
-  # checkouts bypass the device transform upstream), and probe the non-active platform +
-  # `native` suffix tags in module candidates (upstream probes only the active platform).
-  # Deps-bundle alias: the dev payload's esbuild passes never see vite resolve.alias, so a
-  # dep importing bare `octane` bundles the DOM runtime beside the universal one (hooks
-  # crash on boot, octane-xplat#3) — an onResolve plugin redirects `octane` →
-  # `octane/universal/native`. tsconfig-paths resolver also probes the .mobile suffix tier
-  # (ios/android) between the os qualifier and unsuffixed default — .mobile-only modules
-  # behind paths-mapped imports fail bundle-mode resolution. The build-time ts checker's
-  # generated moduleSuffixes (['.<platform>', '.native', ''] upstream) gain the .mobile tier
-  # for ios/android/visionos — .mobile leaves otherwise 2307 under `ns build` while
-  # resolving in the app's own tsconfig and the bundler. Also percent-decodes Vue /ns/sfc
-  # path-style requests before appending the query (NativeScript/NativeScript#11483).
-  "@nativescript/vite@8.0.16": packages/cli/patches/@nativescript__vite@8.0.16.patch
+  # Dev-server fixes still missing after @nativescript/vite 8.0.17 added percent decoding
+  # for path-style /ns/m and Vue /ns/sfc requests (NativeScript#11483): collect re-export
+  # specifiers in the .vite/deps rewrite, route /@fs paths outside both roots through /ns/m
+  # (linked checkouts bypass the device transform upstream), and probe the non-active
+  # platform + `native` suffix tags in module candidates. The deps-bundle esbuild passes
+  # ignore vite resolve.alias, so a dep importing bare `octane` bundles the DOM runtime
+  # beside the universal one (hooks crash on boot, octane-xplat#3) — an onResolve plugin
+  # redirects `octane` → `octane/universal/native`. tsconfig-paths and the generated
+  # build-time checker moduleSuffixes also need the `.mobile` tier for iOS/Android/visionOS
+  # so `.mobile` leaves resolve under mapped imports and `ns build`.
+  "@nativescript/vite@8.0.17": packages/cli/patches/@nativescript__vite@8.0.17.patch
   # Driver setProp skips `undefined` writes — NativeScript native setters coerce it (e.g.
   # editable → ios.userInteractionEnabled = NO), leaving dead UI that still has its JS
   # listeners. Advertises the implemented visibility capability so committed suspense bodies
@@ -118,10 +111,10 @@ patchedDependencies:
   # Also counts open /ns-hmr sockets so the update summary stops reporting recipients=0 for
   # delivered updates.
   "@nativescript-community/vite-octane@0.2.1": packages/cli/patches/@nativescript-community__vite-octane@0.2.1.patch
-  # Same dev-server fixes as the 8.0.16 patch, ported to the @11468 pkg.pr.new preview the
-  # windows target uses (apps/windows): /ns/m re-export records, vendor-manifest gating for
-  # plugin-patterned packages, percent-decoded specifiers, and the .mobile-aware
-  # tsconfig-paths probing.
+  # apps/windows pins the @11468 pkg.pr.new preview based on @nativescript/vite 8.0.13, so
+  # its separate patch carries /ns/m re-export records, vendor-manifest gating for
+  # plugin-patterned packages, percent-decoding (the preview predates 8.0.17/#11483), and
+  # .mobile-aware tsconfig-paths probing.
   "@nativescript/vite@8.0.13": packages/cli/patches/@nativescript__vite@8.0.13.patch
   # Windows spike: the shared-file subset of the 9.1.2 patch — @layer cascade machinery
   # (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes,

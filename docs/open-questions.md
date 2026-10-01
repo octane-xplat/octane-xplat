@@ -201,7 +201,7 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     resolves `./Leaf` → `Leaf.web.tsrx` / `Leaf.ios.tsrx` /
     `Leaf.mobile.tsrx` per the config's `moduleSuffixes`. NativeScript PR
     #11450 makes the ns-vite build-time checker delegate to tsrx-tsc
-    (@nativescript/vite ≥ 8.0.12; this repo pins 8.0.16 for apps/mobile), and
+    (@nativescript/vite ≥ 8.0.12; this repo pins 8.0.17 for apps/mobile), and
     its generated `moduleSuffixes` (`['.<platform>', '.native', '']` upstream)
     overrides the project's chain — `.mobile` absent. Our
     `@nativescript/vite` patch adds the `.mobile` tier for iOS/Android/

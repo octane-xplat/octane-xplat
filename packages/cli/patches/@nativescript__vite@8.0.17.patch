@@ -74,22 +74,6 @@ index a05696b679b3feecd1bafa267de44b59db559162..06648067a3fcf7f8c74437a82b94ec01
      }
      return ['.native', ''];
  }
-diff --git a/hmr/frameworks/vue/server/sfc-route-serve.js b/hmr/frameworks/vue/server/sfc-route-serve.js
-index 5d07b987bfe89d835858ea04b2536e43e8956db4..cc15c2d15dc8cf9a9525695c87f5df3840fc5daf 100644
---- a/hmr/frameworks/vue/server/sfc-route-serve.js
-+++ b/hmr/frameworks/vue/server/sfc-route-serve.js
-@@ -54,6 +54,11 @@ export function registerSfcServeRoute(server, options) {
-             if (pathStyle && pathStyle !== '/' && !pathParam) {
-                 if (!pathStyle.startsWith('/'))
-                     pathStyle = '/' + pathStyle;
-+                // URL.pathname stays percent-encoded; decode before the query is appended.
-+                try {
-+                    pathStyle = decodeURIComponent(pathStyle);
-+                }
-+                catch { }
-                 // Include endpoint query for variant-style requests (e.g. /ns/sfc/Comp.vue?vue&type=template)
-                 pathParam = pathStyle + (urlObj.search || '');
-             }
 diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
 index 8f2fa15556244f7ef811b5e2ea0fc6a19bab74d3..80137262ec46d347d39a7ee12d66d649b5f909f5 100644
 --- a/hmr/server/deps-bundle.js
@@ -189,7 +173,7 @@ index 4a6575cb00a6aeecbbb7ac5ccac3268cb10d7f54..dc70055007e26117b76fbb9d2f4f17fa
          // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
          // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index 4b7eac9bb515958eaaf60e3e69a64c60e7a04d91..3698fbc8c46f2d07b8f9d7cb24cdadbcbfde0546 100644
+index a11fbd5d24579cdf572a91f70cb06561bfa43cd0..75906db5f3c2cb552b947388a21d29918285849d 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
 @@ -27,10 +27,15 @@ const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'v
@@ -210,21 +194,6 @@ index 4b7eac9bb515958eaaf60e3e69a64c60e7a04d91..3698fbc8c46f2d07b8f9d7cb24cdadbc
          }
          candidates.push(...MODULE_CANDIDATE_EXTS.map((ext) => `${base}.${ext}`));
      }
-@@ -67,6 +72,14 @@ export function createNsMRequestContext(requestUrl, serverRoot, appVirtualWithSl
-             };
-         }
-         spec = spec.replace(/[?#].*$/, '');
-+        // urlObj.pathname keeps percent-encoding — device fetches encode
-+        // characters like `[`/`]` in file-based route names, so decode the
-+        // spec before resolving it to a filesystem path. Malformed escapes
-+        // keep the raw spelling rather than throwing.
-+        try {
-+            spec = decodeURIComponent(spec);
-+        }
-+        catch { }
-         const decorated = collapseLegacyNsMTags(spec, 'inbound-request-spec');
-         spec = decorated.cleanedSpec;
-         bootTaggedRequest = decorated.bootTaggedRequest;
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
 index b9e3ab67eb4ae7c9b12bc4b02b9aa3660d712644..f857f4a5a5956af229e447ed04bf1a52a90c6399 100644
 --- a/hmr/server/websocket-served-module-helpers.js

@@ -135,7 +135,7 @@ skills relevant to the task and check their API/version assumptions against
 your app before applying examples from another frontend.
 
 The checked-in [starter manifest](../packages/create/template/package.json)
-pins NativeScript core 9.1.2, CLI 9.1.1, Vite integration 8.0.16, Octane 0.6.3,
+pins NativeScript core 9.1.2, CLI 9.1.1, Vite integration 8.0.17, Octane 0.6.3,
 and the Octane NativeScript integrations at 0.2.4. It also carries framework
 patches. The framework workspace can use newer versions; the published
 creator can differ from this checkout. Use the created app's manifest and
@@ -232,7 +232,7 @@ experimental path, not a verified Windows release workflow.
 It requires Windows 10 1809+, .NET 10 SDK, Developer Mode, Node.js, and pnpm.
 The scaffold pins `@nativescript/windows` to `0.1.0-alpha.144`, NativeScript
 CLI to `9.1.2-dev.2026-09-24-36031892256`, and core/Vite to PR #11468 preview
-builds. The standard core 9.1.2/Vite 8.0.16 patches do not apply to those
+builds. The standard core 9.1.2/Vite 8.0.17 patches do not apply to those
 previews. Keep this setup separate from the starter's mobile version matrix.
 
 Follow the [Windows harness instructions](../apps/windows/README.md) for
