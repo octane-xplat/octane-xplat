@@ -50,20 +50,32 @@ const short = (e: unknown) => String(e).replace(/\s+/g, ' ').slice(0, 140);
  *  an iterable array that keeps the mutation methods. */
 function patchClassList(VElement: any): void {
 	const proto = VElement?.prototype;
-	if (!proto) throw new Error('VElement.prototype unavailable');
+	if (!proto) {
+		throw new Error('VElement.prototype unavailable');
+	}
+
 	const desc = Object.getOwnPropertyDescriptor(proto, 'classList');
-	if (!desc?.get) throw new Error('classList is not a prototype getter');
-	if ((desc.get as any).__xplatPatched) return;
+	if (!desc?.get) {
+		throw new Error('classList is not a prototype getter');
+	}
+
+	if ((desc.get as any).__xplatPatched) {
+		return;
+	}
+
 	const patched = function (this: any) {
 		const cl = desc.get!.call(this);
 		if (cl && typeof cl[Symbol.iterator] !== 'function') {
 			const tokens = String(this.getAttribute('class') ?? '')
 				.split(/\s+/)
 				.filter(Boolean);
+
 			return Object.assign(tokens, cl);
 		}
+
 		return cl;
 	};
+
 	(patched as any).__xplatPatched = true;
 	Object.defineProperty(proto, 'classList', {
 		configurable: true,
@@ -77,7 +89,10 @@ function patchClassList(VElement: any): void {
  *  real DOM (web target) is never clobbered. */
 function installDomShim(zeed: any): void {
 	const g = globalThis as any;
-	if (g.window?.DOMParser) return;
+	if (g.window?.DOMParser) {
+		return;
+	}
+
 	class ZeedDOMParser {
 		parseFromString(html: string) {
 			const doc = zeed.createHTMLDocument();
@@ -85,6 +100,7 @@ function installDomShim(zeed: any): void {
 			return doc;
 		}
 	}
+
 	g.window = { DOMParser: ZeedDOMParser };
 	g.document = zeed.createHTMLDocument();
 }
