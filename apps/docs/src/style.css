@@ -9,6 +9,8 @@
 	--doc-card: #ffffff;
 	--doc-well: #f5f5f5;
 	--doc-ink: #000000;
+	--doc-selection-bg: #000000;
+	--doc-selection-ink: #ffffff;
 	--doc-dim: rgba(0, 0, 0, 0.55);
 	--doc-hairline: #ececec;
 	--doc-rule: #eceae4;
@@ -38,6 +40,8 @@
 	--doc-card: #1b1c1e;
 	--doc-well: #242528;
 	--doc-ink: #f0eeea;
+	--doc-selection-bg: #ffffff;
+	--doc-selection-ink: #000000;
 	--doc-dim: rgba(240, 238, 234, 0.6);
 	--doc-hairline: rgba(255, 255, 255, 0.09);
 	--doc-rule: rgba(255, 255, 255, 0.12);
@@ -56,6 +60,20 @@
 	--doc-tag-imp-ink: #b8e08a;
 	--doc-tag-warn-bg: #42200f;
 	--doc-tag-warn-ink: #f0a583;
+}
+
+/* Dark slabs keep inverted selection even in the light theme. */
+.code,
+.lede-content {
+	--doc-selection-bg: #ffffff;
+	--doc-selection-ink: #000000;
+}
+
+::selection {
+	background-color: var(--doc-selection-bg);
+	color: var(--doc-selection-ink);
+	-webkit-text-fill-color: var(--doc-selection-ink);
+	text-shadow: none;
 }
 
 body {
