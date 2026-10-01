@@ -995,7 +995,7 @@ body {
 .doc .highlight {
 	background-color: #e9ffdd;
 	color: #41b200;
-	font-weight: 450;
+	font-weight: 400;
 	padding: 1px 3px;
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;
