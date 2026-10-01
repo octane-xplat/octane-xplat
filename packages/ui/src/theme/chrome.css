@@ -1140,7 +1140,8 @@ textarea::placeholder {
 	font-size: 14px;
 	color: var(--color-text-secondary);
 }
-.vx-tab.active {
+.vx-tab.active,
+.vx-tab--selected {
 	color: var(--color-text);
 }
 
@@ -1173,7 +1174,9 @@ textarea::placeholder {
 .vx-app .vx-tab label {
 	color: var(--color-text-secondary);
 }
-.vx-app .vx-tab.active label {
+.vx-app .vx-tab.active label,
+.vx-app .vx-tab--selected label,
+.vx-app .vx-tab--selected .vx-tab-label {
 	color: var(--color-text);
 }
 .vx-app .chip-on label {
@@ -1617,6 +1620,145 @@ textarea::placeholder {
 		display: none;
 	}
 
+/* ----- Astryx navigation family ----- */
+
+.vx-navicon {
+	background-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+
+.vx-toolbar--section {
+	background-color: var(--color-surface);
+}
+.vx-toolbar--muted {
+	background-color: var(--color-surface-secondary);
+}
+.vx-toolbar--div-top {
+	border-top-width: 1;
+	border-top-color: var(--color-border);
+}
+.vx-toolbar--div-bottom {
+	border-bottom-width: 1;
+	border-bottom-color: var(--color-border);
+}
+.vx-toolbar--div-start {
+	border-left-width: 1;
+	border-left-color: var(--color-border);
+}
+.vx-toolbar--div-end {
+	border-right-width: 1;
+	border-right-color: var(--color-border);
+}
+
+.vx-tablist--divided {
+	border-bottom-width: 1;
+	border-bottom-color: var(--color-border);
+}
+.vx-tab-indicator--on {
+	background-color: var(--color-text);
+}
+.vx-tabmenu-heading {
+	color: var(--color-text-secondary);
+}
+
+.vx-navmenu-item-label {
+	color: var(--color-text);
+}
+.vx-navmenu-item-desc {
+	color: var(--color-text-secondary);
+}
+
+.vx-mobilenav-drawer {
+	background-color: var(--color-surface);
+	border-width: 0;
+}
+.vx-mobilenav-header {
+	border-bottom-width: 1;
+	border-bottom-color: var(--color-border);
+	padding: 8 12;
+}
+.vx-mobilenav-heading {
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.vx-sidenav-stickytop {
+	border-bottom-width: 1;
+	border-bottom-color: var(--color-border);
+}
+.vx-sidenav-stickybottom {
+	border-top-width: 1;
+	border-top-color: var(--color-border);
+}
+.vx-sidenav-section-title {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--color-text-secondary);
+}
+.vx-sidenav-section-subtitle {
+	font-size: 11px;
+	color: var(--color-text-secondary);
+}
+.vx-sidenav-item--selected .vx-sidenav-item-main {
+	background-color: rgba(0, 0, 0, 0.06);
+}
+.ns-dark .vx-sidenav-item--selected .vx-sidenav-item-main,
+.dark .vx-sidenav-item--selected .vx-sidenav-item-main {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.vx-appshell--wash .vx-appshell-header,
+.vx-appshell-sidenav--wash {
+	background-color: var(--color-surface-secondary);
+}
+.vx-appshell--surface .vx-appshell-header,
+.vx-appshell-sidenav--surface {
+	background-color: var(--color-surface);
+}
+.vx-appshell--section .vx-appshell-header,
+.vx-appshell--section .vx-appshell-sidenav {
+	background-color: var(--color-surface);
+}
+.vx-appshell--elevated .vx-appshell-header,
+.vx-appshell-sidenav--elevated {
+	background-color: var(--color-surface-secondary);
+}
+.vx-appshell--elevated .vx-appshell-content {
+	background-color: var(--color-surface);
+}
+.vx-appshell-header {
+	border-bottom-width: 1;
+	border-bottom-color: var(--color-border);
+}
+.vx-appshell-sidenav {
+	border-right-width: 1;
+	border-right-color: var(--color-border);
+}
+.vx-appshell-banner {
+	border-bottom-width: 1;
+	border-bottom-color: var(--color-border);
+}
+.vx-topnavmegamenu-card {
+	background-color: var(--color-surface-secondary);
+	border-radius: 8;
+}
+.vx-topnavmegamenu-item-title,
+.vx-topnavmenu-item-title {
+	font-weight: 600;
+	color: var(--color-text);
+}
+.vx-topnavmegamenu-item-desc,
+.vx-topnavmenu-item-desc {
+	font-size: 12px;
+	color: var(--color-text-secondary);
+}
+.vx-topnavmegamenu-card-desc {
+	font-size: 13px;
+	color: var(--color-text-secondary);
+}
+.vx-topnavmegamenu-card-link {
+	color: var(--color-text);
+}
 }
 
 @layer xplat-chrome {

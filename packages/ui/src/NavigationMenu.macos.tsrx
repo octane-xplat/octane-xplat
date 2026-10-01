@@ -1,31 +1,40 @@
 /** @jsxImportSource @xplat/macos/renderer */
-import type { NavigationMenuProps } from "./props";
-import { cx } from "./cx";
-import { applyEscapeProps } from "./escape-props";
+import type { NavigationMenuProps } from './props';
+import { cx } from './cx';
 import { Icon } from './Icon.macos.tsrx';
+import { Text } from './Text.macos.tsrx';
+import { Pressable } from './Pressable.macos.tsrx';
+import { followHref } from './nav-href';
 
-/** NavigationMenu — row (or column) of nav items. Mostly a desktop/web
- *  idiom; the mobile equivalent is Tabs/Drawer. */
+/** NavigationMenu — a simple horizontal (or vertical) strip of nav items.
+ *  Native leaf: Pressable rows; item `href` routes through `followHref`. */
 export function NavigationMenu(props: NavigationMenuProps) @{
+	const isHorizontal = props.horizontal !== false;
+
 	<flexboxlayout
-		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
-		flexDirection={props.horizontal === false ? 'column' : 'row'}
-		className={cx('vx-navmenu', props.horizontal === false ? 'vx-navmenu--col' : 'vx-navmenu--row', props.className)}
+		flexDirection={isHorizontal ? 'row' : 'column'}
+		className={cx('vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className)}
 		style={props.style}
 		accessibilityLabel={props.accessibilityLabel}
 	>
 		@for (const item of props.items; key item.key) {
-			<flexboxlayout
-				className={cx('vx-navmenu-item', item.active && 'vx-navmenu-item--on', item.disabled && 'vx-navmenu-item--disabled')}
-				flexDirection="row"
-				alignItems="center"
-				style={{ padding: '6px 10px', borderRadius: 4, ...(item.active ? { backgroundColor: '#eaeaea' } : {}), ...(item.disabled ? { opacity: 0.5 } : {}) }}
-				onTap={item.disabled ? undefined : item.onSelect}
+			<Pressable
+				className={cx('vx-navmenu-strip-item', item.active && 'vx-navmenu-strip-item--active')}
+				disabled={item.disabled}
+				accessibilityRole="link"
+				accessibilityState={{ disabled: item.disabled, selected: item.active }}
+				onPress={() => {
+					if (item.disabled) return;
+					item.onSelect?.();
+					if (item.href) followHref(item.href);
+				}}
 			>
-				{item.icon ? <Icon name={item.icon} /> : null}
-				{item.label != null ? <label className="vx-navmenu-label" text={item.label} /> : null}
-			</flexboxlayout>
+				<flexboxlayout flexDirection="row" alignItems="center" gap={6}>
+					{item.icon ? <Icon name={item.icon} size={16} /> : null}
+					<Text>{item.label}</Text>
+				</flexboxlayout>
+			</Pressable>
 		}
 	</flexboxlayout>
 }

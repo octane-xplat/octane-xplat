@@ -1,31 +1,52 @@
-import type { NavigationMenuProps } from "./props";
-import { applyEscapeProps } from "./escape-props";
+import type { NavigationMenuProps } from './props';
+import { applyEscapeProps } from './escape-props';
 import { Icon } from './Icon.web.tsrx';
+import { useListFocus } from './list-focus.web.tsrx';
 
-/** NavigationMenu — row (or column) of nav items. Mostly a desktop/web
- *  idiom; the mobile equivalent is Tabs/Drawer. */
+/** NavigationMenu — a simple horizontal (or vertical) strip of nav items.
+ *  The local items-array component shares the nav-item anatomy with
+ *  TopNavItem; items with `href` render as anchors, others as buttons. */
 export function NavigationMenu(props: NavigationMenuProps) @{
+	const { listRef, handleKeyDown, handleFocus } = useListFocus<HTMLElement>({
+		itemSelector: '.vx-navmenu-strip-item',
+		orientation: props.horizontal === false ? 'vertical' : 'horizontal',
+	});
+
+	const isHorizontal = props.horizontal !== false;
+
 	<nav
-		ref={(e: any) => applyEscapeProps(e, props)}
+		ref={(el: any) => { listRef.current = el; applyEscapeProps(el, props); }}
 		id={props.id}
-		className={['vx-navmenu', props.horizontal === false ? 'vx-navmenu--col' : 'vx-navmenu--row', props.className]}
+		className={['vx-navmenu-strip', !isHorizontal && 'vx-navmenu-strip--vertical', props.className]}
 		style={props.style}
 		aria-label={props.accessibilityLabel}
+		onKeyDown={handleKeyDown}
+		onFocus={handleFocus}
 	>
-		{props.items.map((item: any) => (
-			<span
-				key={item.key}
-				role="link"
-				aria-current={item.active ? 'page' : undefined}
-				aria-disabled={item.disabled || undefined}
-				tabIndex={item.disabled ? undefined : 0}
-				className={['vx-navmenu-item', item.active ? 'vx-navmenu-item--on' : undefined, item.disabled ? 'vx-navmenu-item--disabled' : undefined]}
-				onClick={item.disabled ? undefined : item.onSelect}
-				onKeyDown={(e: any) => { if (!item.disabled && e.key === 'Enter') item.onSelect?.(); }}
-			>
-				{item.icon ? <Icon name={item.icon} /> : null}
-				{item.label != null ? <span className="vx-navmenu-label">{item.label}</span> : null}
-			</span>
-		))}
+		@for (const item of props.items; key item.key) {
+			@if (item.href != null && !item.disabled) {
+				<a
+					className={['vx-navmenu-strip-item', item.active && 'vx-navmenu-strip-item--active']}
+					href={item.href}
+					aria-current={item.active ? 'page' : undefined}
+					onClick={() => item.onSelect?.()}
+				>
+					{item.icon ? <Icon name={item.icon} size={16} /> : null}
+					{item.label}
+				</a>
+			} @else {
+				<button
+					type="button"
+					className={['vx-navmenu-strip-item', item.active && 'vx-navmenu-strip-item--active']}
+					disabled={item.disabled}
+					aria-disabled={item.disabled || undefined}
+					aria-current={item.active ? 'page' : undefined}
+					onClick={() => { if (!item.disabled) item.onSelect?.(); }}
+				>
+					{item.icon ? <Icon name={item.icon} size={16} /> : null}
+					{item.label}
+				</button>
+			}
+		}
 	</nav>
 }

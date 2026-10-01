@@ -280,6 +280,88 @@ export type {
 
 // Navigation and command surfaces
 /** Ancestor path trail, exported under Astryx's component name. */
+export { AppShell } from './AppShell'
+export { AppShellMobileContext } from './AppShell'
+export { TopNav, TopNavHeading, TopNavItem, TopNavMenu, TopNavMegaMenu, TopNavMegaMenuItem, TopNavMegaMenuFeaturedCard } from './TopNav'
+export { TopNavRenderContext, useTopNavRenderMode } from './TopNav'
+export { SideNav, SideNavSection, SideNavHeading, SideNavItem, SideNavCollapseButton, useSideNavCollapse, SideNavRenderContext, useSideNavRenderMode } from './SideNav'
+export { MobileNav, MobileNavToggle, useAppShellMobile } from './MobileNav'
+export { NavIcon } from './NavIcon'
+export { NavHeadingMenu, NavHeadingMenuItem } from './NavMenu'
+export { NavHeadingMenuContext, NavHeadingCloseContext, useNavHeadingMenuContext, useNavHeadingCloseContext } from './NavMenu'
+export { TabList, Tab, TabMenu, useTabListContext } from './TabList'
+export { Toolbar } from './Toolbar'
+export { OverflowList } from './OverflowList'
+export { useResizable, ResizeHandle } from './Resizable'
+export { pixel, percent } from './resize-math'
+export type {
+	AppShellProps,
+	AppShellMobileContextValue,
+	AppShellVariant,
+	AppShellBreakpoint,
+	MobileNavConfig,
+	MobileNavProps,
+	MobileNavToggleProps,
+	NavElementSize,
+	NavHeadingMenuSize,
+	NavHeadingCloseContextValue,
+	NavHeadingMenuContextValue,
+	NavHeadingMenuItemProps,
+	NavHeadingMenuProps,
+	NavIconProps,
+	NavItemSize,
+	OverflowItem,
+	OverflowListProps,
+	ResizableConfig,
+	ResizableDirection,
+	ResizablePercentSize,
+	ResizablePixelSize,
+	ResizableMinConfig,
+	ResizableMaxConfig,
+	ResizableRegionSizing,
+	ResizableProps,
+	ResizableRegion,
+	ResizableRegionConfig,
+	ResizableSize,
+	ResizeHandleProps,
+	SideNavCollapseButtonProps,
+	SideNavCollapseState,
+	SideNavCollapsibleConfig,
+	SideNavControlledCollapsible,
+	SideNavImperativeCollapseHandle,
+	SideNavRenderMode,
+	SideNavHeadingProps,
+	SideNavItemProps,
+	SideNavProps,
+	SideNavSectionProps,
+	SpacingStep,
+	TabListContextValue,
+	TabListLayout,
+	TabListOverflow,
+	TabListPattern,
+	TabListSize,
+	TabListProps,
+	TabMenuOption,
+	TabMenuProps,
+	TabProps,
+	ToolbarProps,
+	ToolbarSize,
+	ToolbarVariant,
+	TopNavHeadingProps,
+	TopNavItemProps,
+	TopNavMenuItemData,
+	TopNavMenuProps,
+	TopNavMegaMenuFeaturedCardProps,
+	TopNavMegaMenuItemProps,
+	TopNavMegaMenuProps,
+	TopNavProps,
+	TopNavRenderMode,
+	TopNavSlot,
+	UseResizableMultiConfig,
+	UseResizableSingleOptions,
+	UseResizableSingleConfig,
+} from './props'
+
 export { Breadcrumb as Breadcrumbs } from './Breadcrumb'
 export { Pagination } from './Pagination'
 export { Stepper } from './Stepper'

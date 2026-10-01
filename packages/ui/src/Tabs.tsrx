@@ -1,9 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
 import { cx } from './cx';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
-import { Text } from './Text.tsrx';
+import { TabList, Tab } from './TabList.tsrx';
 import { layoutsForRoute, screenFor, useRoute } from './route';
 import { RouteHost, screenParamsFor } from './route-host.mobile';
 import type { TabSpec, TabsProps } from './props';
@@ -23,23 +21,21 @@ export function Tabs(props: TabsProps) @{
 	const tab = props.tabs[active];
 	const route = useRoute(tab?.stack ?? '');
 	const Screen = route ? screenFor(route.name) : undefined;
-	const columns = props.tabs.map(() => '*').join(',');
 
 	<gridlayout rows="auto,*" id={props.id} className={cx(props.className)} style={props.style}>
-		<gridlayout row={0} columns={columns} className="vx-tabbar">
+		<TabList
+			row={0}
+			className="vx-tabbar"
+			role="tablist"
+			layout="fill"
+			hasDivider
+			value={String(active)}
+			onChange={(v) => { const i = Number(v); setInternal(i); props.onSelectedIndexChanged?.(i); }}
+		>
 			@for (const t of props.tabs; index i; key t.title) {
-				<Pressable
-					col={i}
-					className={cx('vx-tab', active === i ? 'active' : '')}
-					onPress={() => { setInternal(i); props.onSelectedIndexChanged?.(i); }}
-				>
-					@if (t.icon) {
-						<Icon name={t.icon} className="vx-tabicon" size={18} />
-					}
-					<Text>{t.title}</Text>
-				</Pressable>
+				<Tab value={String(i)} label={t.title} icon={t.icon} />
 			}
-		</gridlayout>
+		</TabList>
 		<gridlayout row={1} className={cx('vx-tabpane', route?.presentation === 'fade' ? 'vx-route--fade' : '')}>
 			@if (route && Screen) {
 				<RouteHost

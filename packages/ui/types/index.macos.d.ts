@@ -112,6 +112,46 @@ export declare const Pagination: Component<P.PaginationProps>
 export declare const Stepper: Component<P.StepperProps>
 export declare const NavigationMenu: Component<P.NavigationMenuProps>
 export declare const CommandPalette: Component<P.CommandPaletteProps>
+export declare const AppShell: Component<P.AppShellProps>
+export declare const AppShellMobileContext: any
+export declare function useAppShellMobile(): P.AppShellMobileContextValue
+export declare const TopNav: Component<P.TopNavProps>
+export declare const TopNavHeading: Component<P.TopNavHeadingProps>
+export declare const TopNavItem: Component<P.TopNavItemProps>
+export declare const TopNavMenu: Component<P.TopNavMenuProps>
+export declare const TopNavMegaMenu: Component<P.TopNavMegaMenuProps>
+export declare const TopNavMegaMenuItem: Component<P.TopNavMegaMenuItemProps>
+export declare const TopNavMegaMenuFeaturedCard: Component<P.TopNavMegaMenuFeaturedCardProps>
+export declare const TopNavRenderContext: any
+export declare function useTopNavRenderMode(): P.TopNavRenderMode
+export declare const SideNav: Component<P.SideNavProps>
+export declare const SideNavSection: Component<P.SideNavSectionProps>
+export declare const SideNavHeading: Component<P.SideNavHeadingProps>
+export declare const SideNavItem: Component<P.SideNavItemProps>
+export declare const SideNavCollapseButton: Component<P.SideNavCollapseButtonProps>
+export declare const SideNavRenderContext: any
+export declare function useSideNavCollapse(): P.SideNavCollapseState | null
+export declare function useSideNavRenderMode(): P.SideNavRenderMode
+export declare const MobileNav: Component<P.MobileNavProps>
+export declare const MobileNavToggle: Component<P.MobileNavToggleProps>
+export declare const NavIcon: Component<P.NavIconProps>
+export declare const NavHeadingMenu: Component<P.NavHeadingMenuProps>
+export declare const NavHeadingMenuItem: Component<P.NavHeadingMenuItemProps>
+export declare const NavHeadingMenuContext: any
+export declare const NavHeadingCloseContext: any
+export declare function useNavHeadingMenuContext(): P.NavHeadingMenuContextValue | null
+export declare function useNavHeadingCloseContext(): P.NavHeadingCloseContextValue | null
+export declare const TabList: Component<P.TabListProps>
+export declare const Tab: Component<P.TabProps>
+export declare const TabMenu: Component<P.TabMenuProps>
+export declare function useTabListContext(): P.TabListContextValue
+export declare const Toolbar: Component<P.ToolbarProps>
+export declare const OverflowList: Component<P.OverflowListProps>
+export declare function useResizable(config: P.UseResizableSingleConfig): P.ResizableRegion
+export declare function useResizable(config: P.UseResizableMultiConfig): Record<string, P.ResizableRegion>
+export declare const ResizeHandle: Component<P.ResizeHandleProps>
+export declare function pixel(value: number): P.ResizablePixelSize
+export declare function percent(value: number, constraint: { min: P.ResizablePixelSize } | { max: P.ResizablePixelSize }): P.ResizablePercentSize
 export declare const Table: Component<P.TableProps>
 export declare const Timeline: Component<P.TimelineProps>
 /** Expandable hierarchy, exported under Astryx's component name. */

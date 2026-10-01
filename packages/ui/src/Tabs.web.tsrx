@@ -1,6 +1,6 @@
-import { createContext, useContext, useState } from 'octane';
+import { createContext, useContext, useId, useState } from 'octane';
 import type { TabSpec, TabsProps } from './props';
-import { Icon } from './Icon.web.tsrx';
+import { TabList, Tab } from './TabList.web.tsrx';
 
 import { canGoBack, layoutsFor, popRoute, screenFor, useModalRoute, useRoute } from './route.web';
 
@@ -18,6 +18,7 @@ const PresentedStacks: any = createContext(null);
 export function Tabs(props: TabsProps) @{
 	const [internal, setInternal] = useState(0);
 	const active = props.selectedIndex ?? internal;
+	const panelId = useId();
 	const presented: Set<string> = useContext(PresentedStacks) ?? new Set();
 	const rootRoute = useRoute('root');
 	// Hooks must be unconditional — subscribe with the active pane's stack
@@ -65,22 +66,23 @@ export function Tabs(props: TabsProps) @{
 	}
 	@else {
 	<div id={props.id} className={['vx-tabs', props.className]} style={{ ...(props.style?.height != null ? { flex: 'none' } : {}), ...props.style }}>
-		<div className="vx-tabbar">
-			@for (const t of props.tabs; key t.title) {
-				<button
-					className={['vx-tab', active === props.tabs.indexOf(t) ? 'active' : '']}
-					onClick={() => {
-						const i = props.tabs.indexOf(t);
-						setInternal(i);
-						props.onSelectedIndexChanged?.(i);
-					}}
-				>
-					{t.icon ? <Icon name={t.icon} className="vx-tabicon" size={16} /> : null}
-					{t.title}
-				</button>
+		<TabList
+			className="vx-tabbar"
+			role="tablist"
+			layout="fill"
+			hasDivider
+			value={String(active)}
+			onChange={(v) => {
+				const i = Number(v);
+				setInternal(i);
+				props.onSelectedIndexChanged?.(i);
+			}}
+		>
+			@for (const t of props.tabs; index i; key t.title) {
+				<Tab value={String(i)} label={t.title} icon={t.icon} panelId={panelId} id={panelId + '-tab-' + i} />
 			}
-		</div>
-		<div className="vx-tabpane">
+		</TabList>
+		<div className="vx-tabpane" role="tabpanel" id={panelId} aria-labelledby={panelId + '-tab-' + active} tabIndex={0}>
 			{(paneRoute && !presented.has(paneRoute.stack)
 				? <PresentedStacks value={presentedWith(paneRoute.stack)}>{resolve(paneRoute.name, routeProps(paneRoute))}</PresentedStacks>
 				: null)

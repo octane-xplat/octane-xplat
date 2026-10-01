@@ -4,6 +4,8 @@
 
 Guides for the mechanics live elsewhere: [primitives](primitives.md) for
 layout/composition, [navigation](navigation.md) for routes and stacks,
+[navigation shells and workspace controls](navigation-ui.md) for responsive
+navigation, tab strips, overflow, and resizing,
 [styling](styling.md) for className/style, [platform services](platform-services.md)
 for device APIs. Platform-authentic widgets (no parity promised) live behind
 `@octane-xplat/ui/ios`, `/android`, and `/web` — see
@@ -170,18 +172,36 @@ target.
 
 ## Disclosure & navigation
 
-| Component        | What it is                        | Key props                                   |
-| ---------------- | --------------------------------- | ------------------------------------------- |
-| `Collapsible`    | Show/hide a region                | `trigger`, `open`, `onOpenChange`           |
-| `Accordion`      | List of expanding items           | `items`, `multiple`, `open`, `onOpenChange` |
-| `Tabs`           | Tab bar + panes                   |                                             |
-| `Breadcrumbs`     | Ancestor path trail               | `items`, `separator`                        |
-| `Pagination`     | Prev/next + windowed page buttons | `page`, `pageCount`, `onPageChange`         |
-| `Stepper`        | Multi-step progress/flow control  | `steps`, `current`, `onStepChange`          |
-| `NavigationMenu` | Top-level nav menu                | `items`, `horizontal`                       |
-| `CommandPalette` | Searchable action palette         | `open`, `items`, `placeholder`              |
-| `DropdownMenu`   | Anchored action menu              | `trigger`, `items`, `placement`             |
-| `ContextMenu`    | Secondary-press action menu       | `items`, `open`, `onOpenChange`             |
+| Component         | What it is                                     | Key props                                  |
+| ----------------- | ---------------------------------------------- | ------------------------------------------ |
+| `Collapsible`     | Show/hide a region                             | `trigger`, `open`, `onOpenChange`          |
+| `Accordion`       | List of expanding items                        | `items`, `multiple`, `open`, `onOpenChange` |
+| `Tabs`            | Route-stack switcher with tab panes             | `tabs`, `selectedIndex`, `onSelectedIndexChanged` |
+| `TabList`, `Tab`, `TabMenu` | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled` |
+| `AppShell`        | Top, side, and mobile navigation frame         | `topNav`, `sideNav`, `banner`, `mobileNav` |
+| `TopNav`, `TopNavHeading`, `TopNavItem` | Top navigation bar and items | `heading`, `startContent`, `endContent`, `href` |
+| `SideNav`, `SideNavSection`, `SideNavItem` | Collapsible side rail with grouped items | `collapsible`, `resizable`, `isSelected` |
+| `MobileNav`, `MobileNavToggle` | Mobile navigation drawer and toggle | `isOpen`, `onOpenChange`, `side`, `width` |
+| `NavIcon`         | Circular icon container for navigation         | `icon`                                     |
+| `NavHeadingMenu`, `NavHeadingMenuItem` | Keyboard-operable heading menu | `label`, `description`, `href`, `isDisabled` |
+| `Toolbar`         | Labeled action row with start/center/end slots | `label`, `orientation`, `dividers`         |
+| `OverflowList`    | Responsive list that collapses excess items    | `overflowRenderer`, `maxVisibleItems`, `onOverflowChange` |
+| `useResizable`, `ResizeHandle` | Bounded, optionally persistent panel resizing | `defaultSize`, `minSize`, `maxSize`, `autoSaveId` |
+| `Breadcrumbs` | Ancestor path trail                    | `items`, `separator`                       |
+| `Pagination`      | Prev/next + windowed page buttons              | `page`, `pageCount`, `onPageChange`        |
+| `Stepper`         | Multi-step progress/flow control               | `steps`, `current`, `onStepChange`         |
+| `NavigationMenu`  | Simple item-array navigation strip             | `items`, `horizontal`, `href`              |
+| `CommandPalette`  | Searchable action palette                      | `open`, `items`, `placeholder`             |
+| `DropdownMenu`    | Anchored action menu                           | `trigger`, `items`, `placement`            |
+| `ContextMenu`     | Secondary-press action menu                    | `items`, `open`, `onOpenChange`            |
+
+`Tabs` hosts named route stacks from `TabSpec`; `TabList` is the smaller
+navigation or page-tab strip for caller-owned content. Use `TabList` without
+`role="tablist"` for navigation links; add that role when it controls
+caller-owned panels. `AppShell` changes the side navigation to a mobile drawer
+below its configured breakpoint. The
+[navigation shell guide](navigation-ui.md) covers composition, portable
+boundaries, overflow, and resizing.
 
 ## Data display
 

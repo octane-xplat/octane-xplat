@@ -2674,6 +2674,9 @@ export interface NavigationMenuItem {
 	key: string
 	label?: string
 	icon?: string
+	/** Link target — a real anchor on web; deep-link/route-table activation
+	 *  on native. */
+	href?: string
 	active?: boolean
 	disabled?: boolean
 	onSelect?: () => void
@@ -3531,6 +3534,842 @@ export interface ChatLayoutContextValue {
 	scrollContainerRef: { current?: any }
 	/** Message-list content element for size observation. */
 	contentRef(el: any): void
+// ---------- Astryx navigation family (parity port) ----------
+//
+// Prop names and semantics track @astryxdesign/core. `ReactNode` positions are
+// `any`; DOM `ref` positions are the leaf's `bind`; React `onClick` item
+// callbacks fire on press/tap on native. Anchor-only attributes (`target`,
+// `rel`, `download`, `referrerPolicy`) apply on web; native `href` activates
+// through the route table (deep link) and falls back to the platform opener
+// for absolute URLs.
+
+/** Spacing-scale step used by Astryx components (gap/padding multipliers). */
+export type SpacingStep = 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10
+
+/** Element size scale shared by the navigation family (`sm`/`md`/`lg`). */
+export type NavElementSize = 'sm' | 'md' | 'lg'
+
+/** Custom component rendered in place of the platform link element (the
+ *  Astryx `as` escape hatch). Receives the item's portable props
+ *  (`href`, `className`, `style`, children) on web; ignored on native, where
+ *  activation goes through `followHref`. */
+export type NavLinkComponentType = any
+
+// ----- NavIcon -----
+
+export interface NavIconProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Icon content inside the circular container — an element or a
+	 *  registered icon name (rendered through `Icon`). */
+	icon: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- Toolbar -----
+
+export type ToolbarSize = NavElementSize
+
+/** Painted chrome behind the toolbar row — mirrors the upstream Section
+ *  delegation: `transparent` (default), `section` (surface paint), `muted`
+ *  (secondary wash). */
+export type ToolbarVariant = 'transparent' | 'section' | 'muted'
+
+export interface ToolbarProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Content aligned to the start (left in LTR). */
+	startContent?: any
+	/** Content centered between start and end; switches the row to a
+	 *  three-column layout. */
+	centerContent?: any
+	/** Content aligned to the end (right in LTR). */
+	endContent?: any
+	/** Accessible label for the toolbar (aria-label on web). Required —
+	 *  matches upstream's mandatory `label`. */
+	label: string
+	/** Toolbar size — controls row minimum height and the intended size of
+	 *  contained controls. Astryx cascades it to children via SizeContext;
+	 *  this port sets the row height and exposes `useToolbarSize` context
+	 *  for family components (Button etc. do not consume it — sibling seam). */
+	size?: ToolbarSize
+	/** Gap between items within each slot, spacing-scale step. */
+	gap?: SpacingStep
+	/** Arrow-key direction on web; layout axis on every target. */
+	orientation?: 'horizontal' | 'vertical'
+	/** Painted chrome behind the row. */
+	variant?: ToolbarVariant
+	/** Divider edges painted on the outer chrome. */
+	dividers?: ('top' | 'bottom' | 'start' | 'end')[]
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- TabList / Tab / TabMenu -----
+
+export type TabListSize = NavElementSize
+export type TabListLayout = 'hug' | 'fill'
+/** Resolved semantics: `nav` landmark (default) or the WAI-ARIA `tabs`
+ *  pattern under `role="tablist"`. */
+export type TabListPattern = 'nav' | 'tabs'
+/** Strip overflow behavior — `auto` currently always resolves to `scroll`. */
+export type TabListOverflow = 'auto' | 'scroll' | 'visible'
+
+export interface TabListContextValue {
+	value: string
+	onChange: (value: string) => void
+	size: TabListSize
+	layout: TabListLayout
+	pattern: TabListPattern
+}
+
+export interface TabListProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	id?: string
+	/** The currently selected tab value. */
+	value: string
+	/** Fires when a tab is selected. */
+	onChange: (value: string) => void
+	size?: TabListSize
+	/** `hug`: each tab wraps its content; `fill`: tabs stretch equally to
+	 *  fill the strip width. */
+	layout?: TabListLayout
+	/** Bottom divider rail under the strip. */
+	hasDivider?: boolean
+	/** Pulls the strip out to the host's content edges using the
+	 *  `--container-padding-inline-*` custom properties a padded host
+	 *  publishes. No ancestor publishes them in this framework yet — the
+	 *  bleed clamps to zero (Layout/Section seam, sibling task). */
+	isFullBleed?: boolean
+	/** `'tablist'` selects the WAI-ARIA tabs pattern (role=tab on children,
+	 *  aria-selected, `panelId` → aria-controls, `href` ignored). Unset or
+	 *  any other value leaves the strip a navigation landmark on web. */
+	role?: string
+	/** `auto`/`scroll` scroll the strip when tabs overflow; `visible`
+	 *  disables overflow handling. The selected tab is scrolled into view. */
+	overflow?: TabListOverflow
+	/** Tab and TabMenu children. */
+	children: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface TabProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Unique value matched against TabList `value`. */
+	value: string
+	/** Disabled tabs cannot navigate, select, or receive keyboard focus. */
+	isDisabled?: boolean
+	/** Accessible label — visible text by default; `isLabelHidden` makes it
+	 *  the aria label only. */
+	label: string
+	isLabelHidden?: boolean
+	/** Link target. Web renders a real anchor; native activates through
+	 *  `followHref` (deep link → route table, else platform URL opener).
+	 *  Ignored under `role="tablist"`. */
+	href?: string
+	/** Id of the panel this tab controls → `aria-controls` under the
+	 *  tablist pattern; no effect (documented) under the nav pattern. */
+	panelId?: string
+	/** Custom link component (Astryx `as`) — web only. */
+	as?: NavLinkComponentType
+	/** Icon content or registered icon name shown when not selected. */
+	icon?: any
+	/** Icon shown when selected; falls back to `icon`. */
+	selectedIcon?: any
+	/** Content after the label (badge, status dot). */
+	endContent?: any
+	/** Extra press callback run before selection reports to the list. */
+	onPress?: () => void
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface TabMenuOption {
+	value: string
+	label: string
+	/** Icon content or registered icon name shown before the label. */
+	icon?: any
+}
+
+/** Overflow menu trigger inside a TabList — opens a dropdown of extra
+ *  options; the selected option's label becomes the trigger text. */
+export interface TabMenuProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Trigger label when no option is selected + the dropdown heading. */
+	label: string
+	options: TabMenuOption[]
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- AppShell -----
+
+/** Width breakpoint name (`sm` 640, `md` 768, `lg` 1024, `xl` 1280,
+ *  `2xl` 1536) or `none` to disable mobile mode. */
+export type AppShellBreakpoint = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'none'
+
+/** Navigation background style: `wash` nav background, `surface` nav
+ *  background, `section` dividers between nav and content, `elevated` wash
+ *  nav + elevated surface content. */
+export type AppShellVariant = 'wash' | 'surface' | 'section' | 'elevated'
+
+export interface MobileNavConfig {
+	/** Auto-render the hamburger toggle (default true). `false` → place
+	 *  `MobileNavToggle` yourself. */
+	hasToggle?: boolean
+	/** Controlled drawer open state. */
+	isOpen?: boolean
+	onOpenChange?: (isOpen: boolean) => void
+	/** Custom drawer content replacing the auto drawer — a `MobileNav`
+	 *  element or raw children. */
+	content?: any
+	/** Width point below which mobile nav activates (default `md`;
+	 *  `none` disables automatic mobile mode). */
+	breakpoint?: AppShellBreakpoint
+	/** Initial mobile-layout hint for SSR/first paint. */
+	defaultIsMobile?: boolean
+}
+
+export interface AppShellMobileContextValue {
+	isMobile: boolean
+	isMobileNavOpen: boolean
+	/** Id of the mobile nav drawer (toggle references it). */
+	mobileNavId?: string
+	toggleMobileNav: () => void
+	openMobileNav: () => void
+	closeMobileNav: () => void
+	isMobileNavEnabled: boolean
+	hasAutoToggle: boolean
+}
+
+export interface AppShellProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	id?: string
+	variant?: AppShellVariant
+	/** Banner slot above the top nav. */
+	banner?: any
+	/** Main content area. */
+	children?: any
+	/** Main content padding on the spacing scale. */
+	contentPadding?: SpacingStep
+	/** `fill`: shell fills viewport and content scrolls internally;
+	 *  `auto`: shell grows with content. */
+	height?: 'fill' | 'auto'
+	/** `false` disables the mobile drawer; a config object customizes the
+	 *  auto drawer; an element replaces it entirely. */
+	mobileNav?: false | MobileNavConfig | any
+	/** Side navigation — typically a `SideNav`. */
+	sideNav?: any
+	/** Top navigation — typically a `TopNav`. */
+	topNav?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- TopNav -----
+
+export type TopNavRenderMode = 'default' | 'mobile-bar' | 'drawer'
+export type TopNavSlot = 'start' | 'center' | 'end'
+
+export interface TopNavProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Heading slot — typically `TopNavHeading`. */
+	heading?: any
+	/** Start slot — navigation items after the heading. */
+	startContent?: any
+	/** Alias for `startContent` (startContent wins when both are set). */
+	children?: any
+	/** Center slot — switches the bar to a three-column layout. */
+	centerContent?: any
+	/** End slot — search, icons, user profile. */
+	endContent?: any
+	/** Accessible label for the navigation landmark (default 'Top navigation'). */
+	label?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface TopNavHeadingProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Logo element before the heading (e.g. `NavIcon`). */
+	logo?: any
+	/** Accessible name for a linked logo-only heading. */
+	logoLabel?: string
+	heading?: string
+	headingHref?: string
+	superheading?: string
+	superheadingHref?: string
+	subheading?: string
+	subheadingHref?: string
+	headerEndContent?: any
+	/** Menu content shown in a popover from the heading — typically a
+	 *  `NavHeadingMenu`. A chevron affordance is added automatically. */
+	menu?: any
+	as?: NavLinkComponentType
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface TopNavItemProps {
+	className?: any
+	style?: any
+	id?: string
+	href?: string
+	/** Web anchor attributes; no-op on native. */
+	target?: string
+	rel?: string
+	download?: string | boolean
+	referrerPolicy?: string
+	as?: NavLinkComponentType
+	/** Accessible label; visible text by default, aria label when
+	 *  `isIconOnly`. */
+	label: string
+	isSelected?: boolean
+	/** Disabled items cannot navigate and leave the tab order. */
+	isDisabled?: boolean
+	/** Square icon-only element; requires `icon`. */
+	isIconOnly?: boolean
+	/** Icon content or registered icon name before the label. */
+	icon?: any
+	/** Content rendered instead of the label text. */
+	children?: any
+	/** Size variant — controls drawer-mode height/padding. */
+	size?: NavElementSize
+	onClick?: () => void
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface TopNavMenuItemData {
+	title: string
+	description?: string
+	icon?: any
+	href?: string
+	onClick?: () => void
+}
+
+/** Trigger that opens a menu popover on hover (pointer platforms) or
+ *  press. */
+export interface TopNavMenuProps {
+	className?: any
+	style?: any
+	id?: string
+	label: string
+	items: TopNavMenuItemData[]
+	/** Hover-open delay in ms (pointer platforms). */
+	delay?: number
+	/** Hover-close delay in ms (pointer platforms). */
+	hideDelay?: number
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface TopNavMegaMenuProps {
+	className?: any
+	style?: any
+	id?: string
+	label: string
+	/** Menu items slot — `TopNavMegaMenuItem` children or custom content. */
+	items?: any
+	/** Featured panel content (right side on wide layouts, below items in
+	 *  the drawer). */
+	featured?: any
+	delay?: number
+	hideDelay?: number
+	onOpenChange?: (isOpen: boolean) => void
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface TopNavMegaMenuItemProps {
+	className?: any
+	style?: any
+	id?: string
+	title: string
+	description?: string
+	icon?: any
+	href?: string
+	onClick?: () => void
+	as?: NavLinkComponentType
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface TopNavMegaMenuFeaturedCardProps {
+	className?: any
+	style?: any
+	id?: string
+	title: string
+	description?: string
+	/** Decorative image URL shown above the body; `imageAlt` makes it
+	 *  informative. */
+	image?: string
+	imageAlt?: string
+	linkLabel?: string
+	linkHref?: string
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- SideNav -----
+
+export type SideNavRenderMode = 'default' | 'topbar' | 'drawer' | 'drawer-content'
+export type NavItemSize = NavElementSize
+
+export interface SideNavCollapseState {
+	isCollapsed: boolean
+	toggle: () => void
+	isCollapsible: boolean
+}
+
+export interface SideNavCollapsibleConfig {
+	defaultIsCollapsed?: boolean
+	isCollapsed?: boolean
+	onCollapsedChange?: (isCollapsed: boolean) => void
+	/** Render the built-in collapse button (default true). */
+	hasButton?: boolean
+	/** Accessibility label for the built-in collapse button. */
+	buttonLabel?: string
+}
+
+export interface SideNavControlledCollapsible extends SideNavCollapsibleConfig {
+	isCollapsed: boolean
+	onCollapsedChange: (isCollapsed: boolean) => void
+}
+
+/** @deprecated Hand the same controlled `collapsible` config to SideNav and
+ *  to the outside button instead. */
+export interface SideNavImperativeCollapseHandle {
+	getCollapseState: () => SideNavCollapseState | null
+}
+
+export interface SideNavProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Header area (typically `SideNavHeading`) — sticky at top. */
+	header?: any
+	/** Content pinned below the header — sticky. */
+	topContent?: any
+	/** Navigation sections and items — scrollable. */
+	children?: any
+	/** Footer area above the icon bar. */
+	footer?: any
+	/** Footer icon bar (help, notifications, avatar, collapse button). */
+	footerIcons?: any
+	/** Collapse to an icon-only rail: `true` for defaults, or a config
+	 *  object (`defaultIsCollapsed`, controlled `isCollapsed` +
+	 *  `onCollapsedChange`, `hasButton`, `buttonLabel`). */
+	collapsible?: boolean | SideNavCollapsibleConfig
+	/** Inline-end resize handle: `true` for defaults (260dip initial,
+	 *  180–480 range) or a `ResizableConfig`. */
+	resizable?: boolean | ResizableConfig
+	/** @deprecated Share one controlled `collapsible` config instead. */
+	handleRef?: { current: SideNavImperativeCollapseHandle | null }
+	/** Landmark label (default 'Side navigation'). */
+	label?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface SideNavSectionProps {
+	className?: any
+	style?: any
+	id?: string
+	title: string
+	subtitle?: string
+	children?: any
+	/** Trailing content in the section header. */
+	endContent?: any
+	/** Visually hide the header (title stays accessible). */
+	isHeaderHidden?: boolean
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface SideNavHeadingProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Product/app icon (e.g. `NavIcon`). */
+	icon?: any
+	as?: NavLinkComponentType
+	heading: string
+	headingHref?: string
+	superheading?: string
+	superheadingHref?: string
+	subheading?: string
+	subheadingHref?: string
+	headerEndContent?: any
+	/** Menu popover content (typically `NavHeadingMenu`) — shows a chevron
+	 *  affordance. Without hrefs the whole header is the trigger; with hrefs
+	 *  the chevron area is. */
+	menu?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface SideNavItemProps {
+	className?: any
+	style?: any
+	id?: string
+	as?: NavLinkComponentType
+	label: string
+	/** Icon (element or registered name) shown when not selected. */
+	icon?: any
+	/** Icon shown when selected; falls back to `icon`. */
+	selectedIcon?: any
+	isSelected?: boolean
+	isDisabled?: boolean
+	href?: string
+	onClick?: () => void
+	/** Passive trailing content (badges, counts) inside the primary
+	 *  element. */
+	endContent?: any
+	/** Row-level secondary controls rendered as siblings at the trailing
+	 *  edge; hidden while the rail is collapsed. */
+	actions?: any
+	/** Sub-items for nesting. */
+	children?: any
+	/** Collapse behavior for items with children — `true` (starts expanded)
+	 *  or `{ defaultIsCollapsed?, isCollapsed?, onCollapsedChange? }`. */
+	collapsible?:
+		| boolean
+		| {
+				defaultIsCollapsed?: boolean
+				isCollapsed?: boolean
+				onCollapsedChange?: (isCollapsed: boolean) => void
+		  }
+	size?: NavItemSize
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface SideNavCollapseButtonProps {
+	className?: any
+	style?: any
+	id?: string
+	/** The same controlled config given to SideNav — needed only when the
+	 *  button renders outside this SideNav. */
+	collapsible?: SideNavControlledCollapsible
+	/** @deprecated Pass `collapsible` instead. */
+	handleRef?: { current: SideNavImperativeCollapseHandle | null }
+	/** Text label — renders a text+chevron button instead of icon-only. */
+	label?: string
+	size?: NavElementSize
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- MobileNav -----
+
+export interface MobileNavProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Drawer open state — inside `AppShell` it is managed by context. */
+	isOpen?: boolean
+	onOpenChange?: (isOpen: boolean) => void
+	children?: any
+	/** Drawer header — a string renders as a heading; an element for custom
+	 *  content (logo, `SideNavHeading`, search). */
+	header?: any
+	/** Drawer width in dips/px. */
+	width?: number
+	/** Edge the drawer slides from — `auto` resolves from the toggle's
+	 *  position on web, and defaults to `start` elsewhere. */
+	side?: 'start' | 'end' | 'auto'
+	/** Accessible label (falls back to a string `header`, then
+	 *  'Navigation'). */
+	label?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface MobileNavToggleProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Custom content replacing the default hamburger glyph. */
+	children?: any
+	/** Accessible label (default 'Open navigation'). */
+	label?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- NavHeadingMenu (upstream NavMenu module) -----
+
+export type NavHeadingMenuSize = NavElementSize
+
+export interface NavHeadingMenuContextValue {
+	size: NavHeadingMenuSize
+	closeMenu: () => void
+}
+
+/** Close callback supplied by the heading popover hosting the menu. */
+export interface NavHeadingCloseContextValue {
+	closeMenu: () => void
+}
+
+export interface NavHeadingMenuProps {
+	className?: any
+	style?: any
+	id?: string
+	/** `NavHeadingMenuItem` children, separators, or custom content. */
+	children?: any
+	size?: NavHeadingMenuSize
+	/** Minimum width override (dips/px) — takes precedence over the
+	 *  size-based default. */
+	minWidth?: number | string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface NavHeadingMenuItemProps {
+	className?: any
+	style?: any
+	id?: string
+	icon?: any
+	label: any
+	description?: any
+	href?: string
+	onClick?: () => void
+	isDisabled?: boolean
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- OverflowList -----
+
+export interface OverflowItem {
+	/** The caller-supplied element for this item. */
+	child: any
+	/** Index in the original children list. */
+	index: number
+}
+
+/** Renders a measured subset of `children`; items that exceed the row (or a
+ *  configured count cap) collapse into the `overflowRenderer` indicator. */
+export interface OverflowListProps extends LayoutChildProps {
+	className?: any
+	style?: any
+	id?: string
+	/** One element per item. */
+	children?: any
+	/** Gap between items, spacing-scale step (default 2). */
+	gap?: SpacingStep
+	minVisibleItems?: number
+	maxVisibleItems?: number
+	/** Wrap items across up to this many rows before collapsing. */
+	maxRows?: number
+	collapseFrom?: 'start' | 'end'
+	/** `observeSelf` (default) measures this list's width; `observeParent`
+	 *  measures the parent's content width instead. */
+	behavior?: 'observeParent' | 'observeSelf'
+	/** Renders the overflow indicator for the collapsed items. */
+	overflowRenderer?: (overflowItems: OverflowItem[]) => any
+	/** Called with the collapsed items whenever that set changes; silent
+	 *  while nothing overflows (including mount), and again with `[]` when
+	 *  everything fits after having overflowed. */
+	onOverflowChange?: (overflowItems: OverflowItem[]) => void
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ----- Resizable -----
+
+export type ResizableDirection = 'horizontal' | 'vertical'
+
+/** A pixel bound for a percentage size — `pixel(240)`. */
+export interface ResizablePixelSize {
+	readonly type: 'pixel'
+	readonly value: number
+}
+
+/** A percentage with exactly one pixel floor or ceiling —
+ *  `percent(50, {min: pixel(200)})`. */
+export type ResizablePercentSize = {
+	readonly type: 'percent'
+	readonly value: number
+} & (
+	| { readonly min: ResizablePixelSize; readonly max?: never }
+	| { readonly min?: never; readonly max: ResizablePixelSize }
+)
+
+/** A resizable size: px number, exact `Npx`/`N%` strings, `pixel(n)`, or
+ *  `percent(n, {min|max})`. Basis-dependent values resolve once against the
+ *  `containerRef` element (or the viewport/screen when omitted). */
+export type ResizableSize =
+	| number
+	| `${number}px`
+	| `${number}%`
+	| ResizablePixelSize
+	| ResizablePercentSize
+
+export interface ResizableMinConfig {
+	minSize?: ResizableSize
+}
+
+export interface ResizableMaxConfig {
+	maxSize?: ResizableSize
+}
+
+export interface ResizableRegionSizing {
+	defaultSize?: ResizableSize
+	/** Whether this region can collapse to 0 (default false). */
+	collapsible?: boolean
+	/** Size in px/dips below which a drag collapses the region (default 40). */
+	collapsedSize?: number
+	/** Sizes to snap to during resize. */
+	snaps?: number[]
+	/** Cascade priority — lower numbers shrink first in multi-region layouts. */
+	shrinkOrder?: number
+}
+
+export type ResizableRegionConfig = ResizableRegionSizing &
+	ResizableMinConfig &
+	ResizableMaxConfig
+
+/** Simplified resize config accepted by a component's `resizable` prop
+ *  (e.g. `SideNav`). */
+export interface ResizableConfig {
+	defaultWidth?: number
+	minWidth?: number
+	maxWidth?: number
+	/** Persistence key — localStorage on web, ApplicationSettings on
+	 *  native; in-memory only on the AppKit desktop leaf. */
+	autoSaveId?: string
+	onWidthChange?: (width: number) => void
+	defaultIsCollapsed?: boolean
+	isCollapsed?: boolean
+	onCollapseChange?: (isCollapsed: boolean) => void
+}
+
+export interface UseResizableSingleOptions {
+	/** Element/view a percentage resolves against — `{ current }` shaped. */
+	containerRef?: { current: any }
+	/** Axis this region resizes along; must match `ResizeHandle.direction`. */
+	direction?: ResizableDirection
+	autoSaveId?: string
+	defaultIsCollapsed?: boolean
+	isCollapsed?: boolean
+	onSizeChange?: (size: number) => void
+	onCollapseChange?: (isCollapsed: boolean) => void
+}
+
+export type UseResizableSingleConfig = ResizableRegionConfig &
+	UseResizableSingleOptions
+
+export interface UseResizableMultiConfig {
+	direction?: ResizableDirection
+	containerRef?: { current: any }
+	regions: Record<string, ResizableRegionConfig>
+	autoSaveId?: string
+}
+
+/** The handle-facing contract produced by `useResizable` — spread onto a
+ *  `ResizeHandle`'s `resizable` prop (or a component's `resizable` prop).
+ *  Underscore fields are internal plumbing exported for hand-built
+ *  integrations. */
+export interface ResizableProps {
+	_size: number
+	_isCollapsed: boolean
+	_onResizeStart: () => void
+	_onResizeMove: (delta: number) => void
+	_onResizeEnd: () => void
+	/** Gesture ended without completing (pointercancel/lost capture/handle
+	 *  unmounted) — releases the gesture without signalling a resize end. */
+	_onResizeCancel?: () => void
+	_minSizePx: number
+	_maxSizePx: number
+	_snaps: number[]
+	_collapsedSize: number
+	_collapsible: boolean
+	_direction?: ResizableDirection
+	_isResizableProps: true
+}
+
+export interface ResizableRegion {
+	/** Current size in px/dips. */
+	size: number
+	isCollapsed: boolean
+	collapse: () => void
+	expand: () => void
+	resize: (size: number) => void
+	/** Props to spread into `ResizeHandle`'s `resizable`. */
+	props: ResizableProps
+}
+
+export interface ResizeHandleProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Layout direction — determines cursor and indicator orientation
+	 *  (default 'horizontal'). */
+	direction?: ResizableDirection
+	/** `inline` (default) places the handle in flow; `overlay` positions it
+	 *  inside the parent panel's edge. */
+	position?: 'inline' | 'overlay'
+	/** Reverse the drag direction — set when the handle controls a panel on
+	 *  the end/right/bottom side. */
+	isReversed?: boolean
+	isDisabled?: boolean
+	/** Paint a hairline divider at the handle position (inline mode). */
+	hasDivider?: boolean
+	/** Show the pill grip at rest; `false` reveals it on hover/focus. */
+	isAlwaysVisible?: boolean
+	/** Which side of the divider the pill sits on — `auto` keeps it on the
+	 *  panel side, flipping to centre when the panel collapses to 0. */
+	pillPlacement?: 'auto' | 'start' | 'end' | 'center'
+	/** Accessible label (default 'Resize handle'). */
+	label?: string
+	/** Region props from `useResizable`. */
+	resizable?: ResizableProps
+	/** Custom handle content replacing the default pill. */
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
 }
 
 // ---------- actions & interactive cards (Astryx parity) ----------

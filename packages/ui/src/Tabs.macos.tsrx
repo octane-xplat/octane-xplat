@@ -2,8 +2,7 @@
 import { createContext, useContext, useState } from 'octane'
 import type { TabsProps } from './props'
 import { cx } from './cx'
-import { Pressable } from './Pressable.macos.tsrx'
-import { Text } from './Text.macos.tsrx'
+import { TabList, Tab } from './TabList.macos.tsrx'
 import { RouteHost } from './RouteHost.macos.tsrx'
 import { layoutsFor, useRoute, screenFor } from './route.macos'
 
@@ -36,17 +35,18 @@ export function Tabs(props: TabsProps) @{
 		className={cx('vx-tabs', props.className)}
 		style={props.style}
 	>
-		<flexboxlayout flexDirection="row" className="vx-tabbar">
+		<TabList
+			className="vx-tabbar"
+			role="tablist"
+			layout="fill"
+			hasDivider
+			value={String(active)}
+			onChange={(v) => { const i = Number(v); setInternal(i); props.onSelectedIndexChanged?.(i); }}
+		>
 			@for (const item of props.tabs; index i; key item.title) {
-				<Pressable
-					id={'tab-' + i}
-					className={cx('vx-tab', active === i ? 'active' : '')}
-					onPress={() => { setInternal(i); props.onSelectedIndexChanged?.(i); }}
-				>
-					<Text>{item.title}</Text>
-				</Pressable>
+				<Tab value={String(i)} label={item.title} icon={item.icon} />
 			}
-		</flexboxlayout>
+		</TabList>
 		<flexboxlayout flexDirection="column" className="vx-tabpane flex-1">
 			@if (presentable && Screen) {
 				<PresentedStacks value={new Set(presented).add(presentable.stack)}>

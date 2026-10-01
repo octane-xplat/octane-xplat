@@ -33,9 +33,9 @@ boundaries before committing to a release.
 5. [Tailor each platform](module-resolution.md) — share the product while
    choosing platform-specific implementations.
 6. [Build screens](primitives.md), [style them](styling.md),
-   [connect routes](navigation.md), [enter text](text-entry.md),
-   [fetch data](data.md), and [localize the UI](localization.md) as the app
-   grows.
+   [connect routes](navigation.md), [compose navigation shells](navigation-ui.md),
+   [enter text](text-entry.md), [fetch data](data.md), and
+   [localize the UI](localization.md) as the app grows.
    The [component index](components.md) lists everything `@octane-xplat/ui`
    exports.
 7. [Verify before you ship](testing.md) — an agent's "done" is a claim;

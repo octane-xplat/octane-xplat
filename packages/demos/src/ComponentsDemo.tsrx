@@ -1,11 +1,15 @@
 import { useState } from 'octane';
 import {
-	Accordion, Alert, Avatar, AvatarGroup, Badge, Banner, Breadcrumbs, Button,
+	Accordion, Alert, AppShell, Avatar, AvatarGroup, Badge, Banner, Breadcrumbs, Button,
 	Card, CheckboxInput, CheckboxList, Chip, Collapsible, CommandPalette,
 	ContextMenu, DropdownMenu, EmptyState, FieldGroup, Field, Heading,
-	FormLayout, InputGroup, InputGroupText, NumberInput, InputRating, Typeahead, Tokenizer, createStaticSource, Kbd, NavigationMenu, Pagination,
+	FormLayout, InputGroup, InputGroupText, MobileNav, NavHeadingMenu,
+	NavHeadingMenuItem, NavIcon, NumberInput, InputRating, Typeahead, Tokenizer,
+	createStaticSource, Kbd, NavigationMenu, OverflowList, Pagination,
 	PinInput, ProgressGroup, RadioList, HStack, Selector, Divider, Skeleton,
-	Stepper, Table, Text, TextInput, Timeline, TreeList, User, View, registerIcons,
+	SideNav, SideNavHeading, SideNavItem, SideNavSection, Stepper, Tab, TabList,
+	TabMenu, Table, Text, TextInput, Timeline, Toolbar, TopNav, TopNavHeading,
+	TopNavItem, TreeList, User, View, registerIcons,
 } from '@octane-xplat/ui';
 
 registerIcons({
@@ -35,6 +39,8 @@ export function ComponentsDemo() @{
 	const [step, setStep] = useState(1);
 	const [nav, setNav] = useState('home');
 	const [cmdk, setCmdk] = useState(false);
+	const [activePanel, setActivePanel] = useState('overview');
+	const [overflowCount, setOverflowCount] = useState(0);
 
 	const menuItems = [
 		{ key: 'edit', label: 'Edit', onSelect: () => setLastMenu('edit') },
@@ -157,6 +163,68 @@ export function ComponentsDemo() @{
 			/>
 			<Button className="btn btn-secondary" onPress={() => setCmdk(true)}><Text>Command palette</Text></Button>
 			<CommandPalette open={cmdk} onOpenChange={setCmdk} items={menuItems} />
+		</View>
+
+		<View className="controls-section">
+			<Text className="font-bold">Responsive navigation and workspace controls</Text>
+			<AppShell
+				variant="section"
+				height="auto"
+				topNav={
+					<TopNav
+						heading={
+							<TopNavHeading
+								heading="Workspace"
+								logo={<NavIcon icon="menu-dot" />}
+								menu={
+									<NavHeadingMenu>
+										<NavHeadingMenuItem label="Switch workspace" onClick={() => setLastMenu('workspace')} />
+									</NavHeadingMenu>
+								}
+							/>
+						}
+						endContent={<TopNavItem label="Help" href="/help" />}
+					/>
+				}
+				sideNav={
+					<SideNav
+						header={<SideNavHeading heading="Workspace" />}
+						collapsible={true}
+						resizable={{ defaultWidth: 220, minWidth: 180, maxWidth: 320 }}
+					>
+						<SideNavSection title="Project">
+							<SideNavItem label="Overview" icon="menu-dot" href="/overview" isSelected />
+							<SideNavItem label="Activity" icon="menu-dot" href="/activity" />
+						</SideNavSection>
+					</SideNav>
+				}
+				mobileNav={{
+					content: <MobileNav header="Workspace"><Text>Choose a section</Text></MobileNav>,
+				}}
+			>
+				<Toolbar label="Page actions" startContent={<Text>Overview</Text>} endContent={<Text>Updated now</Text>} />
+				<OverflowList
+					minVisibleItems={1}
+					overflowRenderer={(items) => <Text>+{items.length} more</Text>}
+					onOverflowChange={(items) => setOverflowCount(items.length)}
+				>
+					<Button><Text>Save</Text></Button>
+					<Button><Text>Share</Text></Button>
+					<Button><Text>Archive</Text></Button>
+				</OverflowList>
+				<TabList role="tablist" value={activePanel} onChange={setActivePanel}>
+					<Tab id="overview-tab" value="overview" label="Overview" panelId="overview-panel" />
+					<Tab id="activity-tab" value="activity" label="Activity" panelId="activity-panel" />
+					<TabMenu label="More" options={[{ value: 'settings', label: 'Settings' }]} />
+				</TabList>
+				<View
+					id={activePanel + '-panel'}
+					accessibilityLabel={activePanel + ' panel'}
+					web={{ role: 'tabpanel', 'aria-labelledby': activePanel + '-tab' }}
+				>
+					<Text>{'Selected panel: ' + activePanel + ' (overflow: ' + overflowCount + ')'}</Text>
+				</View>
+			</AppShell>
 		</View>
 
 		<View className="controls-section">

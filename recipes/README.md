@@ -34,6 +34,8 @@ Workflows:
 - [Receive push notifications](push-notifications.md)
 - [Register routes from runtime data](programmatic-routes.md)
 - [Bake route data into the bundle](baked-routes.md)
+- [Build a responsive navigation shell](navigation-shell.md)
+- [Build a responsive resizable workspace](resizable-workspace.md)
 - [Ship video playback on web and native](video-playback.md)
 - [Play a Lottie animation on web and native](lottie-animation.md)
 - [Render a long vertical collection](virtual-list.md)

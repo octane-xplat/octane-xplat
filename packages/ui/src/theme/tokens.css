@@ -2357,6 +2357,1043 @@ input.vx-search-field::-webkit-search-cancel-button {
 		}
 	}
 	/* xplat-web-only:end */
+/* ----- Astryx navigation family (task 05) ----- */
+
+/* NavIcon — circular accent container. */
+.vx-navicon {
+	width: 32;
+	height: 32;
+	border-radius: 16;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+/* xplat-web-only:start — flex display on the DOM span. */
+.vx-navicon {
+	display: inline-flex;
+	width: 32px;
+	height: 32px;
+	border-radius: 9999px;
+}
+/* xplat-web-only:end */
+
+/* Toolbar — outer chrome + slot row. */
+.vx-toolbar-slot {
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+}
+.vx-toolbar-slot--fill {
+	flex-grow: 1;
+}
+/* xplat-web-only:start — display/grid placement and pointer affordances. */
+.vx-toolbar-inner {
+	display: flex;
+	align-items: center;
+	padding: 4px 8px;
+}
+.vx-toolbar-inner--flex {
+	justify-content: space-between;
+}
+.vx-toolbar-inner--grid {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+}
+.vx-toolbar-inner--vertical {
+	flex-direction: column;
+	align-items: stretch;
+}
+.vx-toolbar-slot {
+	display: flex;
+	align-items: center;
+}
+.vx-toolbar-slot--center {
+	justify-content: center;
+	min-width: 0;
+	overflow: hidden;
+}
+.vx-toolbar-slot--end {
+	justify-content: flex-end;
+}
+.vx-toolbar-slot--push {
+	margin-inline-start: auto;
+}
+/* xplat-web-only:end */
+
+/* TabList — strip + tabs. Native uses the flex row; web layers scroll
+ * overflow + fades + arrow affordances. */
+.vx-tablist {
+	flex-direction: row;
+	align-items: stretch;
+	flex-shrink: 0;
+}
+.vx-tabstrip {
+	flex-direction: row;
+	align-items: flex-end;
+	flex-shrink: 0;
+}
+.vx-tabstrip-scroll {
+	flex-direction: row;
+}
+.vx-tab {
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	padding-left: 8;
+	padding-right: 8;
+	flex-shrink: 0;
+}
+.vx-tab-content {
+	flex-direction: column;
+	justify-content: flex-end;
+	align-items: center;
+	height: 100%;
+}
+.vx-tab-indicator {
+	height: 2;
+	width: 100%;
+	border-radius: 1;
+}
+.vx-tablist--fill .vx-tab {
+	flex-grow: 1;
+}
+/* xplat-web-only:start — DOM layout, scroll overflow, fades, arrows. */
+.vx-tablist {
+	display: flex;
+	position: relative;
+}
+.vx-tabstrip {
+	display: flex;
+	flex-wrap: nowrap;
+	min-width: 0;
+}
+.vx-tabstrip--scroll {
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+.vx-tabstrip--scroll::-webkit-scrollbar {
+	display: none;
+}
+.vx-tab {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	position: relative;
+	border: 0;
+	background: none;
+	padding: 0 8px;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	user-select: none;
+	white-space: nowrap;
+}
+.vx-tab-hover {
+	position: absolute;
+	inset: 0 0 2px 0;
+	border-radius: 6px;
+}
+.vx-tab:hover .vx-tab-hover {
+	background-color: var(--vx-tab-hover-bg, rgba(0, 0, 0, 0.04));
+}
+.ns-dark .vx-tab:hover .vx-tab-hover,
+.dark .vx-tab:hover .vx-tab-hover {
+	background-color: var(--vx-tab-hover-bg, rgba(255, 255, 255, 0.08));
+}
+.vx-tab-icon {
+	display: inline-flex;
+	margin-right: 4px;
+}
+.vx-tab-labelwrap {
+	position: relative;
+	display: inline-flex;
+	flex-direction: column;
+	overflow: hidden;
+	padding-bottom: 7px;
+}
+.vx-tab-label {
+	white-space: nowrap;
+}
+.vx-tab-labelsizer {
+	/* Selected tabs bold; the invisible semibold duplicate keeps the stop's
+	   width stable so selection doesn't shift neighbours. */
+	display: block;
+	height: 0;
+	visibility: hidden;
+	font-weight: 600;
+	pointer-events: none;
+	white-space: nowrap;
+}
+.vx-tab--selected .vx-tab-label {
+	font-weight: 600;
+}
+.vx-tab-end {
+	display: inline-flex;
+	margin-left: 4px;
+}
+.vx-tab-indicator {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	border-radius: 1px;
+}
+.vx-tablist--fill .vx-tab {
+	flex: 1 1 0;
+	min-width: 0;
+}
+.vx-tabmenu-chevron {
+	display: inline-flex;
+	margin-left: 4px;
+	transition: transform 120ms ease;
+}
+.vx-tabmenu-chevron--open {
+	transform: rotate(180deg);
+}
+.vx-tabscroll {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	border: 0;
+	background-color: var(--color-surface, #fff);
+	cursor: pointer;
+	padding: 0;
+}
+.vx-tabscroll--start {
+	left: 0;
+}
+.vx-tabscroll--end {
+	right: 0;
+}
+.vx-tabstrip--fade-start {
+	-webkit-mask-image: linear-gradient(to right, transparent 0, black 20px);
+	mask-image: linear-gradient(to right, transparent 0, black 20px);
+}
+.vx-tabstrip--fade-end {
+	-webkit-mask-image: linear-gradient(to left, transparent 0, black 20px);
+	mask-image: linear-gradient(to left, transparent 0, black 20px);
+}
+.vx-tabstrip--fade-both {
+	-webkit-mask-image: linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%);
+	mask-image: linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%);
+}
+.vx-tabmenu {
+	display: flex;
+	flex-direction: column;
+	min-width: 150px;
+	max-height: 300px;
+	overflow-y: auto;
+}
+.vx-tabmenu-heading {
+	padding: 6px 10px;
+}
+.vx-tabmenu-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 10px;
+	cursor: pointer;
+}
+.vx-tabmenu-itemcontent {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+.vx-tabmenu-item:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+.ns-dark .vx-tabmenu-item:hover,
+.dark .vx-tabmenu-item:hover {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+.vx-tabmenu-item:focus-visible {
+	outline: 1.5px solid var(--color-text);
+	outline-offset: -1.5px;
+}
+/* Full-bleed: pull the strip out to the host's content edges when the
+   host publishes --container-padding-inline-* vars (Layout seam). */
+.vx-tablist--bleed {
+	margin-inline-start: calc(-1 * var(--container-padding-inline-start, 0px));
+	margin-inline-end: calc(-1 * var(--container-padding-inline-end, 0px));
+}
+/* xplat-web-only:end */
+
+/* OverflowList — hidden measure copy + visible row. */
+.vx-overflowlist {
+	flex-direction: row;
+	align-items: flex-start;
+	flex-shrink: 0;
+}
+/* xplat-web-only:start — DOM layout + the off-screen measurement row. */
+.vx-overflowlist {
+	display: flex;
+	min-width: 0;
+	max-width: 100%;
+}
+.vx-overflowlist--multirow {
+	flex-wrap: wrap;
+	overflow: hidden;
+}
+.vx-overflowlist--fill-parent {
+	width: 100%;
+}
+.vx-overflowlist-measure {
+	display: flex;
+	position: absolute;
+	visibility: hidden;
+	pointer-events: none;
+	flex-wrap: nowrap;
+	height: 0;
+	overflow: hidden;
+	z-index: -1;
+}
+.vx-overflowlist-measure-indicator {
+	display: flex;
+	flex-shrink: 0;
+}
+/* xplat-web-only:end */
+
+/* NavHeadingMenu — menu column + item rows. */
+.vx-navmenu {
+	flex-direction: column;
+}
+.vx-navmenu-item {
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+}
+.vx-navmenu--sm .vx-navmenu-item,
+.vx-navmenu-item--sm { padding: 4 8; }
+.vx-navmenu--md .vx-navmenu-item,
+.vx-navmenu-item--md { padding: 8; }
+.vx-navmenu--lg .vx-navmenu-item,
+.vx-navmenu-item--lg { padding: 12; }
+.vx-navmenu-item--disabled { opacity: 0.5; }
+/* xplat-web-only:start */
+.vx-navmenu {
+	display: flex;
+	min-width: 200px;
+}
+.vx-navmenu--sm { min-width: 168px; }
+.vx-navmenu--lg { min-width: 240px; }
+.vx-navmenu-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	border: 0;
+	background: none;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+	text-align: start;
+	outline: none;
+	border-radius: 6px;
+	font: inherit;
+}
+@media (hover: hover) {
+	.vx-navmenu-item:hover:not([aria-disabled="true"]) {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+	.ns-dark .vx-navmenu-item:hover:not([aria-disabled="true"]),
+	.dark .vx-navmenu-item:hover:not([aria-disabled="true"]) {
+		background-color: rgba(255, 255, 255, 0.08);
+	}
+}
+.vx-navmenu-item:focus-visible,
+.vx-navmenu-item:focus {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+.ns-dark .vx-navmenu-item:focus-visible,
+.dark .vx-navmenu-item:focus-visible,
+.ns-dark .vx-navmenu-item:focus,
+.dark .vx-navmenu-item:focus {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+.vx-navmenu-item--disabled { cursor: default; }
+.vx-navmenu-item-icon { display: inline-flex; flex-shrink: 0; }
+.vx-navmenu-item-content {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+}
+.vx-navmenu-item-desc {
+	font-size: 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+/* xplat-web-only:end */
+
+/* MobileNav — overlay drawer. */
+.vx-mobilenav-backdrop {
+	background-color: rgba(0, 0, 0, 0.4);
+}
+.vx-mobilenav-drawer {
+	flex-direction: column;
+}
+.vx-mobilenav-header {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-mobilenav-content {
+	flex-direction: column;
+}
+.vx-mobilenav-toggle {
+	align-items: center;
+	justify-content: center;
+}
+/* xplat-web-only:start — <dialog> positioning, transition, scroll lock. */
+.vx-mobilenav {
+	position: fixed;
+	inset: 0;
+	max-width: none;
+	max-height: none;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	overscroll-behavior: contain;
+	touch-action: none;
+	--_mobilenav-close-ms: 220;
+}
+.vx-mobilenav::backdrop {
+	background-color: rgba(0, 0, 0, 0);
+	transition: background-color 200ms ease;
+}
+.vx-mobilenav--open::backdrop {
+	background-color: rgba(0, 0, 0, 0.4);
+}
+.vx-mobilenav-drawer {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--color-surface, #fff);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	transition: transform 220ms ease;
+}
+.vx-mobilenav--start .vx-mobilenav-drawer {
+	left: 0;
+	border-right: 1px solid var(--color-border, #eaeaea);
+	transform: translateX(-100%);
+}
+.vx-mobilenav--end .vx-mobilenav-drawer {
+	right: 0;
+	border-left: 1px solid var(--color-border, #eaeaea);
+	transform: translateX(100%);
+}
+.vx-mobilenav--open .vx-mobilenav-drawer {
+	transform: translateX(0);
+}
+.vx-mobilenav-header {
+	display: flex;
+	align-items: center;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--color-border, #eaeaea);
+}
+.vx-mobilenav-content {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	padding: 8px;
+}
+.vx-mobilenav-toggle {
+	display: inline-flex;
+}
+/* xplat-web-only:end */
+
+/* AppShell — shell grid + landmark areas. */
+.vx-appshell {
+	flex-direction: column;
+}
+.vx-appshell-body {
+	flex-direction: column;
+}
+.vx-appshell-middle {
+	flex-direction: row;
+	flex-grow: 1;
+}
+.vx-appshell-sidenav {
+	flex-direction: column;
+	flex-shrink: 0;
+}
+.vx-appshell-content {
+	flex-direction: column;
+	flex-grow: 1;
+}
+.vx-appshell-header {
+	flex-direction: column;
+	flex-shrink: 0;
+}
+.vx-appshell-banner {
+	flex-direction: column;
+}
+.vx-appshell-mobilebar {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-appshell-drawerhost {
+	/* grid overlay — drawer paints over the shell on native */
+}
+.vx-sidenav-section-title-group {
+	flex-direction: column;
+}
+
+/* TopNav — bar + slots. */
+.vx-topnav {
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+}
+.vx-topnav-start {
+	flex-direction: row;
+	align-items: center;
+	flex-grow: 1;
+	flex-shrink: 1;
+}
+.vx-topnav-center {
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+.vx-topnav-end {
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+}
+.vx-topnav--mobilebar {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-topnav-mobilebar-end {
+	flex-direction: row;
+	align-items: center;
+	flex-grow: 1;
+	justify-content: flex-end;
+}
+.vx-topnav-heading {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-topnav-heading-text {
+	flex-direction: column;
+}
+.vx-topnav-item {
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+}
+.vx-topnav-item--icon {
+	justify-content: center;
+}
+.vx-topnav-item--drawer {
+	align-items: stretch;
+}
+.vx-topnavmenu-item,
+.vx-topnavmegamenu-item {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-topnavmenu-item-title,
+.vx-topnavmegamenu-item-title {
+	flex-grow: 1;
+}
+.vx-topnavmegamenu {
+	flex-direction: row;
+}
+.vx-topnavmegamenu-items {
+	flex-direction: column;
+}
+.vx-topnavmegamenu-featured {
+	flex-direction: column;
+}
+.vx-topnavmegamenu-card {
+	flex-direction: column;
+}
+.vx-topnavmegamenu-card-body {
+	flex-direction: column;
+}
+
+/* NavigationMenu — items strip. */
+.vx-navmenu-strip {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-navmenu-strip--vertical {
+	flex-direction: column;
+	align-items: stretch;
+}
+.vx-navmenu-strip-item {
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+/* ResizeHandle — hit zone + pill. */
+.vx-resize-handle--h {
+	flex-direction: row;
+	align-items: stretch;
+	width: 8;
+}
+.vx-resize-handle--v {
+	flex-direction: column;
+	align-items: stretch;
+	height: 8;
+}
+.vx-resize-handle-pill {
+	border-radius: 3;
+}
+
+/* xplat-web-only:start — DOM layout details for the nav family. */
+.vx-appshell {
+	display: flex;
+	min-height: 0;
+}
+.vx-appshell--fill {
+	height: 100dvh;
+	overflow: hidden;
+}
+.vx-appshell-body {
+	display: flex;
+	min-height: 0;
+	flex: 1;
+}
+.vx-appshell-body--fill {
+	overflow: hidden;
+}
+.vx-appshell-middle {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	min-width: 0;
+}
+.vx-appshell-sidenav {
+	display: flex;
+	min-height: 0;
+}
+.vx-appshell--fill .vx-appshell-sidenav {
+	overflow-y: auto;
+}
+.vx-appshell-content {
+	display: flex;
+	min-width: 0;
+	min-height: 0;
+}
+.vx-appshell--fill .vx-appshell-content {
+	overflow-y: auto;
+}
+.vx-appshell-header {
+	display: flex;
+}
+.vx-appshell-header--sticky {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+.vx-appshell-banner {
+	display: flex;
+}
+.vx-appshell-mobilebar {
+	display: flex;
+	gap: 4px;
+	padding: 4px 8px;
+}
+.vx-appshell-skiplink {
+	position: absolute;
+	left: -10000px;
+	top: 8px;
+	padding: 6px 10px;
+	background-color: var(--color-surface, #fff);
+	border: 1px solid var(--color-border, #eaeaea);
+	border-radius: 6px;
+	z-index: 100;
+}
+.vx-appshell-skiplink:focus {
+	left: 8px;
+}
+.vx-appshell-content:focus {
+	outline: none;
+}
+.vx-topnav {
+	display: flex;
+	min-height: 44px;
+	padding: 4px 8px;
+	gap: 4px;
+}
+.vx-topnav--grid {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+}
+.vx-topnav-start,
+.vx-topnav-center,
+.vx-topnav-end {
+	display: flex;
+	gap: 4px;
+	min-width: 0;
+}
+.vx-topnav-heading {
+	display: flex;
+	gap: 8px;
+	padding: 0 4px;
+}
+.vx-topnav-heading-trigger {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border: 0;
+	background: none;
+	font: inherit;
+	padding: 0;
+	cursor: pointer;
+}
+.vx-topnav-heading-menubtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border: 0;
+	border-radius: 6px;
+	background: none;
+	cursor: pointer;
+	padding: 0;
+}
+.vx-topnav-heading-text {
+	display: flex;
+}
+.vx-topnav-heading-title,
+.vx-topnav-heading-super,
+.vx-topnav-heading-sub {
+	text-decoration: none;
+	color: inherit;
+}
+.vx-topnav-item {
+	display: inline-flex;
+	gap: 6px;
+	border: 0;
+	background: none;
+	font: inherit;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+	padding: 0 8px;
+	min-height: 32px;
+	border-radius: 6px;
+	text-align: start;
+}
+.vx-topnav-item--sm { min-height: 28px; }
+.vx-topnav-item--lg { min-height: 36px; }
+.vx-topnav-item--icon { width: 32px; padding: 0; justify-content: center; }
+.vx-topnav-item--drawer {
+	width: 100%;
+	border-radius: 0;
+	padding: 0 12px;
+	min-height: 40px;
+}
+.vx-topnav-item--disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+.vx-topnav-item:hover:not([aria-disabled="true"]),
+a.vx-topnav-item:hover:not([aria-disabled="true"]) {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+.ns-dark .vx-topnav-item:hover:not([aria-disabled="true"]),
+.dark .vx-topnav-item:hover:not([aria-disabled="true"]),
+.ns-dark a.vx-topnav-item:hover:not([aria-disabled="true"]),
+.dark a.vx-topnav-item:hover:not([aria-disabled="true"]) {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+.vx-topnav-item-icon { display: inline-flex; }
+.vx-topnavmenu {
+	display: flex;
+	flex-direction: column;
+	min-width: 220px;
+}
+.vx-topnavmenu-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 10px;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+	border-radius: 6px;
+}
+.vx-topnavmenu-item:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+.ns-dark .vx-topnavmenu-item:hover,
+.dark .vx-topnavmenu-item:hover {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+.vx-topnavmenu-item-text {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+}
+.vx-topnavmegamenu {
+	display: flex;
+	gap: 16px;
+	max-width: min(720px, 90vw);
+}
+.vx-topnavmegamenu-items {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 4px;
+	min-width: 0;
+	flex: 1;
+}
+.vx-topnavmegamenu-featured {
+	display: flex;
+	min-width: 200px;
+}
+.vx-topnavmegamenu-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	border: 0;
+	background: none;
+	font: inherit;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+	border-radius: 6px;
+	text-align: start;
+}
+.vx-topnavmegamenu-item:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+.ns-dark .vx-topnavmegamenu-item:hover,
+.dark .vx-topnavmegamenu-item:hover {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+.vx-topnavmegamenu-item-text {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+}
+.vx-topnavmegamenu-card {
+	display: flex;
+	border-radius: 8px;
+	overflow: hidden;
+}
+.vx-topnavmegamenu-card-image {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16/9;
+	object-fit: cover;
+}
+.vx-topnavmegamenu-card-body {
+	display: flex;
+	padding: 10px;
+	gap: 4px;
+}
+.vx-topnavmegamenu-card-link {
+	font-size: 13px;
+}
+.vx-navmenu-strip {
+	display: flex;
+	gap: 4px;
+}
+.vx-navmenu-strip-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	border: 0;
+	border-radius: 6px;
+	background: none;
+	font: inherit;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+.vx-navmenu-strip-item:hover:not([disabled]) {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+.ns-dark .vx-navmenu-strip-item:hover:not([disabled]),
+.dark .vx-navmenu-strip-item:hover:not([disabled]) {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+/* ResizeHandle — hit zone sits on the boundary; a 2px pill indicates the
+   grip (auto placement: panel side when expanded, center when collapsed). */
+.vx-resize-handle {
+	position: relative;
+	border: 0;
+	background: none;
+	padding: 0;
+	cursor: col-resize;
+}
+.vx-resize-handle--h { cursor: col-resize; width: 8px; }
+.vx-resize-handle--v { cursor: row-resize; height: 8px; }
+.vx-resize-handle--overlay {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: -4px;
+	width: 8px;
+}
+.vx-resize-handle--v.vx-resize-handle--overlay {
+	top: auto;
+	left: 0;
+	right: 0;
+	bottom: -4px;
+	height: 8px;
+	width: auto;
+}
+.vx-resize-handle--divider.vx-resize-handle--h { border-right: 1px solid var(--color-border, #eaeaea); }
+.vx-resize-handle--divider.vx-resize-handle--v { border-bottom: 1px solid var(--color-border, #eaeaea); }
+.vx-resize-handle-pill {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 4px;
+	height: 32px;
+	border-radius: 2px;
+	background-color: var(--color-border-strong, #d4d4d4);
+	opacity: 0;
+	transition: opacity 120ms ease;
+}
+.vx-resize-handle--v .vx-resize-handle-pill {
+	top: auto;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 32px;
+	height: 4px;
+}
+.vx-resize-handle--pill-start .vx-resize-handle-pill { left: 0; }
+.vx-resize-handle--pill-end .vx-resize-handle-pill { right: 0; }
+.vx-resize-handle--pill-center .vx-resize-handle-pill { left: 50%; transform: translate(-50%, -50%); }
+.vx-resize-handle:hover .vx-resize-handle-pill,
+.vx-resize-handle:focus-visible .vx-resize-handle-pill,
+.vx-resize-handle--always .vx-resize-handle-pill {
+	opacity: 1;
+}
+.vx-resize-handle:focus-visible {
+	outline: 1.5px solid var(--color-text, #0a0a0a);
+	outline-offset: -1.5px;
+}
+.vx-resize-handle--disabled { cursor: default; }
+/* xplat-web-only:end */
+
+/* harness experiment styles */
+
+.vx-app {
+	padding: 24px;
+}
+
+/* `.vx-app label` above (descendant + type) outranks single-class text
+   colors inside the app root — roles that must win escalate here. */
+/* Danger surfaces keep white text in both themes (on-primary flips). */
+
+.input {
+	padding-top: 10px;
+	padding-right: 12px;
+	padding-bottom: 10px;
+	padding-left: 12px;
+	/* NS TextField/TextView placeholder color (ignored on web — the
+	   ::placeholder pseudo above covers it there). */
+}
+
+.chip {
+	padding-top: 5px;
+	padding-right: 12px;
+	padding-bottom: 5px;
+	padding-left: 12px;
+}
+
+/* Selected chip — the one filled element in a group of bordered peers. */
+
+.cell {
+	padding: 12px;
+}
+
+.gap-2 {
+	gap: 8px;
+}
+
+/* In-window sheet — bottom-anchored panel (matches the native RootLayout
+   sheet). Layer is pointer-events:none; backdrop + panel re-enable. */
+.vx-sheet-layer {
+	z-index: 1100;
+}
+
+.vx-sheet {
+	max-height: 85%;
+	padding: 24px;
+}
+
+/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
+   The native leaf renders on RootLayout with its own geometry. */
+.vx-sheet-layer {
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+}
+
+.vx-sheet-backdrop,
+.vx-sheet {
+	position: absolute;
+	inset: 0;
+	pointer-events: auto;
+}
+
+.vx-sheet {
+	top: auto;
+	bottom: 0;
+	overflow: auto;
+}
+/* xplat-web-only:end */
+
+.vx-sheet-grabber {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 28px;
+}
+
+.vx-sheet-grip {
+	width: 36px;
+	height: 4px;
+}
+
+/* xplat-web-only:start — detents size the panel to the largest fraction
+   (overriding the 85% cap) and overlay the grabber; native stacks it as a
+   top-aligned grid child. touch-action keeps drags off native scroll. */
+.vx-sheet-detents {
+	max-height: none;
+}
+.vx-sheet-detents > .vx-sheet-grabber {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	cursor: grab;
+	touch-action: none;
+}
+/* xplat-web-only:end */
 
 }
 
