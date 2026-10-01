@@ -839,6 +839,10 @@ plugin reports seconds and the leaf normalizes. Use the maintained
 controls. The vendored plugin carries fixes unreleased upstream (load
 events, sync-src, remote URLs, `declare` fields for modern bundlers); see
 [lottie limits](../verify/known-limits.md#primitives) before designing error UI.
+On web, `lottie-web` evaluates JavaScript expressions embedded in animation
+data. Load only trusted animation data. Expression-bearing files require a
+Content Security Policy that allows `unsafe-eval`; do not weaken a site's CSP
+to load untrusted animations.
 
 ```tsx
 import { Lottie } from '@octane-xplat/lottie'

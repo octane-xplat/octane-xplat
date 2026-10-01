@@ -87,6 +87,9 @@ export interface LottieHandle {
 /** Lottie animation — lottie-web (svg renderer) on web, vendored
  *  ui-lottie (`src/vendor/ui-lottie` submodule, `octane-xplat/ui-lottie`
  *  @ `xplat-vendored`) on native.
+ *  On web, lottie-web evaluates expressions embedded in animation data as
+ *  JavaScript. Load only trusted animation data; expression-bearing files
+ *  require a CSP that allows `unsafe-eval`.
  *  Progress is always normalized 0..1 and durations are milliseconds on
  *  every platform (the native plugin reports seconds on iOS). */
 export interface LottieProps extends LayoutChildProps, AccessibilityProps {
