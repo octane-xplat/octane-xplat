@@ -11,7 +11,20 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 const distDir = join(process.cwd(), 'dist', 'native')
-const OCTANE_SPEC = /(?:\bfrom|\bimport|\bexport)\s*\(?\s*['"]octane['"]/g
+// Bare `octane` must never reach native dist (see header). `@octanejs/lexical`
+// is the DOM-rendered composer port and `@lexical/headless` pulls happy-dom —
+// both are web-side package boundaries, never valid inside a native bundle.
+const FORBIDDEN = [
+	{ re: /(?:\bfrom|\bimport|\bexport)\s*\(?\s*['"]octane['"]/g, label: 'octane' },
+	{
+		re: /(?:\bfrom|\bimport|\bexport)\s*\(?\s*['"]@octanejs\/lexical['"]/g,
+		label: '@octanejs/lexical',
+	},
+	{
+		re: /(?:\bfrom|\bimport|\bexport)\s*\(?\s*['"]@lexical\/headless['"]/g,
+		label: '@lexical/headless',
+	},
+]
 
 function* jsFiles(dir) {
 	for (const name of readdirSync(dir)) {
@@ -43,24 +56,20 @@ if (!stat.isDirectory()) {
 let failures = 0
 for (const file of jsFiles(distDir)) {
 	const text = readFileSync(file, 'utf8')
-	const hits = [...text.matchAll(OCTANE_SPEC)]
-	if (!hits.length) {
-		continue
-	}
-
-	failures++
 	const lines = text.split('\n')
-	for (const hit of hits) {
-		const line = lines.findIndex((l) => l.includes(hit[0]))
-		console.error(`${relative('.', file)}:${line + 1}: bare "octane" specifier — ${hit[0].trim()}`)
+	for (const { re, label } of FORBIDDEN) {
+		for (const hit of text.matchAll(re)) {
+			failures++
+			const line = lines.findIndex((l) => l.includes(hit[0]))
+			console.error(`${relative('.', file)}:${line + 1}: forbidden "${label}" specifier — ${hit[0].trim()}`)
+		}
 	}
 }
 
 if (failures) {
 	console.error(
-		`check-native-dist: ${failures} file(s) import the DOM runtime — rewrite to octane/universal/native (see packages/ui/vite.config.ts)`,
+		`check-native-dist: ${failures} forbidden specifier(s) — bare "octane" must rewrite to octane/universal/native (see packages/ui/vite.config.ts); @octanejs/lexical and @lexical/headless are DOM-bound and web-only`,
 	)
-
 	process.exit(1)
 }
 
