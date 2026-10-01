@@ -44,7 +44,7 @@ export function AgentPrompt(props: { prompt: string }) @{
 		timer.current = setTimeout(() => setCopyState('idle'), 2000);
 	};
 
-	<section className="agent-prompt" aria-label="Agent Prompt">
+	<section id="agent-prompt" className="agent-prompt" aria-label="Agent Prompt">
 		<div className="agent-prompt-header">
 			<div className="agent-prompt-label">
 				<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" color="currentColor" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">

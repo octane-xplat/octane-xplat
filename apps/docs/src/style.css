@@ -1401,6 +1401,58 @@ body {
 	line-height: 1.4;
 }
 
+.home-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	margin: 16px 0 0 3px;
+}
+
+.home-action {
+	box-sizing: border-box;
+	display: inline-flex;
+	min-height: 48px;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #000000;
+	border-radius: 17px;
+	corner-shape: squircle;
+	padding: 0 20px;
+	font-size: 15px;
+	font-weight: 400;
+	line-height: 1;
+	text-decoration: none;
+	transition: transform 140ms ease, background-color 140ms ease;
+}
+
+.home-action:hover {
+	transform: translateY(-1px);
+}
+
+.home-action:focus-visible {
+	outline: 2px solid var(--doc-blue);
+	outline-offset: 3px;
+}
+
+.home-action-primary {
+	background: #000000;
+	color: #ffffff;
+}
+
+.home-action-primary:hover {
+	background: #222222;
+}
+
+.home-action-secondary {
+	background: #ffffff;
+	color: #000000;
+}
+
+.home-action-secondary:hover {
+	background: #f5f5f5;
+}
+
 .doc > .h1 + .quote .link {
 	color: #7fb4ff;
 }

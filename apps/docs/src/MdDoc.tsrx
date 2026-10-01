@@ -172,7 +172,7 @@ function Spans(props: { spans: Span[]; dir: string }) @{
 	</>
 }
 
-function BlockView(props: { b: Block; lede?: boolean; dir: string }) @{
+function BlockView(props: { b: Block; lede?: boolean; dir: string; homeActions?: boolean }) @{
 	const b = props.b;
 	if (b.kind === 'h') return <Text id={b.id} className={`h${b.level}`}>{b.text}</Text>;
 	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} dir={props.dir} /></Text>;
@@ -183,7 +183,19 @@ function BlockView(props: { b: Block; lede?: boolean; dir: string }) @{
 		</View>
 	);
 
-	if (b.kind === 'quote') return <View className={props.lede ? 'quote lede' : 'quote'}><Text className={props.lede ? 'dim lede-content' : 'dim'}><Spans spans={b.spans} dir={props.dir} /></Text></View>;
+	if (b.kind === 'quote') return <View className={props.lede ? 'quote lede' : 'quote'}>
+		<Text className={props.lede ? 'dim lede-content' : 'dim'}><Spans spans={b.spans} dir={props.dir} /></Text>
+		{props.homeActions && <div className="home-actions" aria-label="Get started">
+			<a className="home-action home-action-primary" href="/toolchain#create-and-run" onClick={(e: MouseEvent) => {
+				if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+				e.preventDefault();
+				pushRoute(routeForDoc(DOCS.find((d) => d.slug === 'toolchain')));
+				history.replaceState(history.state, '', '/toolchain#create-and-run');
+				resetDocScroll();
+			}}>Get Started</a>
+			<a className="home-action home-action-secondary" href="#agent-prompt">Set up your agent</a>
+		</div>}
+	</View>;
 	if (b.kind === 'callout') {
 		return <View className={'callout callout-' + b.level}>
 			<View className="callout-tag"><Text className="callout-tagtext">{b.level}</Text></View>
@@ -200,7 +212,7 @@ function BlockView(props: { b: Block; lede?: boolean; dir: string }) @{
 	return <></>;
 }
 
-export function MdDoc(props: { md: string; dir: string; agentPrompt?: string; showPageActions?: boolean }) @{
+export function MdDoc(props: { md: string; dir: string; agentPrompt?: string; showPageActions?: boolean; showHomeActions?: boolean }) @{
 	// Positions identify nodes within this fixed document; the shell remounts
 	// MdDoc when its slug changes, so keys never cross document boundaries.
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
@@ -315,7 +327,7 @@ export function MdDoc(props: { md: string; dir: string; agentPrompt?: string; sh
 		@for (const b of blocks; index i; key i) {
 			const prev = blocks[i - 1];
 			<>
-				<BlockView b={b} dir={props.dir} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />
+				<BlockView b={b} dir={props.dir} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} homeActions={props.showHomeActions && b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />
 				@if (props.agentPrompt && b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1) {
 					<AgentPrompt prompt={props.agentPrompt} />
 				}

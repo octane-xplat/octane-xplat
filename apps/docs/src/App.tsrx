@@ -375,7 +375,7 @@ export function App() @{
 								<img className="orbit-user" src={orbitUser} alt="" />
 							</div>
 						)}
-						<MdDoc md={doc.md} dir={doc.dir} showPageActions={doc.slug !== 'README'} agentPrompt={doc.slug === 'README'
+						<MdDoc md={doc.md} dir={doc.dir} showPageActions={doc.slug !== 'README'} showHomeActions={doc.slug === 'README'} agentPrompt={doc.slug === 'README'
 							? 'Set up Octane Xplat for me. Fetch https://octane-xplat.goddardai.org/llms-full.txt and follow the “Create and run” guide.'
 							: undefined} />
 						{nextDoc && (
