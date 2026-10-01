@@ -766,13 +766,19 @@ body {
 	   column — the agent-prompt width — at every breakpoint */
 	--orbit-inset: 81px;
 	position: relative;
-	height: 250px;
-	margin: 8px var(--orbit-inset) 24px;
-	border: 1px solid var(--doc-hairline);
-	border-radius: 26px;
+	height: 276px;
+	margin: 48px var(--orbit-inset) 24px;
+	border: .5px solid var(--doc-hairline);
+	border-radius: 66px;
 	corner-shape: squircle;
-	background: var(--doc-card);
+	background: #ffffffa6;
 	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.dark .orbit {
+	background: #1b1c1ea6;
+	box-shadow: none;
 }
 
 .orbit-user {
