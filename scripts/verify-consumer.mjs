@@ -37,6 +37,7 @@ import {
 	realpathSync,
 	rmSync,
 	writeFileSync,
+	writeSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -92,12 +93,14 @@ function run(command, argv, cwd, env = {}) {
 		maxBuffer: 64 * 1024 * 1024,
 	})
 
+	// writeSync — the gate failure path calls process.exit, which can drop
+	// pending async writes to a piped stdout and lose the subprocess output.
 	if (result.stdout) {
-		process.stdout.write(result.stdout)
+		writeSync(1, result.stdout)
 	}
 
 	if (result.stderr) {
-		process.stderr.write(result.stderr)
+		writeSync(2, result.stderr)
 	}
 
 	if (result.error) {
