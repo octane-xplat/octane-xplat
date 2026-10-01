@@ -48,7 +48,14 @@ function CodeBlock(props: { code: string; lang: string }) @{
 	const { tokens } = hl.codeToTokens(props.code, { lang, theme: 'nb' });
 
 	<View className="code"><Text className="mono">
-		{tokens.map((line) => <>{line.map((t) => <Text style={tokenStyle(t)}>{t.content}</Text>)}{'\n'}</>)}
+		@for (const line of tokens; index lineIndex; key lineIndex) {
+			<>
+				@for (const t of line; index tokenIndex; key tokenIndex) {
+					<Text style={tokenStyle(t)}>{t.content}</Text>
+				}
+				{'\n'}
+			</>
+		}
 	</Text></View>
 }
 
@@ -112,9 +119,23 @@ function Spans(props: { spans: Span[] }) @{
 		}
 	}
 
-	<>{runs.map((run) => run[0].highlight
-		? <mark className="highlight">{run.map((s) => <SpanText s={s} />)}</mark>
-		: <>{run.map((s) => <SpanText s={s} />)}</>)}</>
+	<>
+		@for (const run of runs; index runIndex; key runIndex) {
+			@if (run[0].highlight) {
+				<mark className="highlight">
+					@for (const s of run; index spanIndex; key spanIndex) {
+						<SpanText s={s} />
+					}
+				</mark>
+			} @else {
+				<>
+					@for (const s of run; index spanIndex; key spanIndex) {
+						<SpanText s={s} />
+					}
+				</>
+			}
+		}
+	</>
 }
 
 function BlockView(props: { b: Block; lede?: boolean }) @{
@@ -132,7 +153,9 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 	if (b.kind === 'callout') {
 		return <View className={'callout callout-' + b.level}>
 			<View className="callout-tag"><Text className="callout-tagtext">{b.level}</Text></View>
-			{b.lines.map((ls) => <Text className="callout-line"><Spans spans={ls} /></Text>)}
+			@for (const ls of b.lines; index lineIndex; key lineIndex) {
+				<Text className="callout-line"><Spans spans={ls} /></Text>
+			}
 		</View>;
 	}
 
@@ -143,11 +166,13 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 			<Text className="table-scroll-hint">Scroll horizontally to view all columns</Text>
 			<View className="table-scroll" role="region" aria-label="Scrollable table" tabIndex={0}>
 				<View className="table">
-					{b.rows.map((r, ri) => (
+					@for (const r of b.rows; index ri; key ri) {
 						<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
-							{r.map((c) => <Text className="td"><Spans spans={inlineSpans(c)} /></Text>)}
+							@for (const c of r; index ci; key ci) {
+								<Text className="td"><Spans spans={inlineSpans(c)} /></Text>
+							}
 						</View>
-					))}
+					}
 				</View>
 			</View>
 		</View>
@@ -157,6 +182,8 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 }
 
 export function MdDoc(props: { md: string }) @{
+	// Positions identify nodes within this fixed document; the shell remounts
+	// MdDoc when its slug changes, so keys never cross document boundaries.
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
 	const [actionsOpen, setActionsOpen] = useState(false);
 	const [copied, setCopied] = useState(false);
@@ -263,9 +290,9 @@ export function MdDoc(props: { md: string }) @{
 				</button>
 			</div>
 		</div>
-		{blocks.map((b, i) => {
+		@for (const b of blocks; index i; key i) {
 			const prev = blocks[i - 1];
-			return <BlockView b={b} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />;
-		})}
+			<BlockView b={b} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />
+		}
 	</View>
 }

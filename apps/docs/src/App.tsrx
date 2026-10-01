@@ -191,7 +191,7 @@ export function App() @{
 	});
 
 	const renderDoc = (d: DocPage) => (
-		<Pressable className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => selectDoc(d.slug)}>
+		<Pressable key={d.slug} className={d.slug === doc.slug ? 'side-item active' : 'side-item'} onPress={() => selectDoc(d.slug)}>
 			<Text className="side-text">{d.title}</Text>
 		</Pressable>
 	);
@@ -236,12 +236,12 @@ export function App() @{
 					<View className="side-divider" />
 				</View>
 				<View className="side-scroll">
-					{GROUPS.map((g) => (
+					@for (const g of GROUPS; key g.key) {
 						<View className="side-sec">
 							<Text className="sec-head">{g.label}</Text>
 							{DOCS.filter((d) => d.group === g.key).map(renderDoc)}
 						</View>
-					))}
+					}
 				</View>
 			</View>
 			<View className="card">

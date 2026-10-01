@@ -1,5 +1,6 @@
 // Renders the production bundle in jsdom — catches boot hangs, empty
 // render loops, and missing content without a browser. Run after build.
+// `pnpm smoke:keys` builds with development diagnostics enabled too.
 import { JSDOM } from 'jsdom'
 import { readFileSync, readdirSync } from 'fs'
 import { docPath, titleOf } from './src/doc-meta.ts'
@@ -12,6 +13,19 @@ const dom = new JSDOM(readFileSync('dist/index.html', 'utf8'), {
 })
 
 const { window } = dom
+const keyDiagnostics = []
+for (const level of ['warn', 'error']) {
+	const report = console[level].bind(console)
+	console[level] = (...args) => {
+		const message = args.map(String).join(' ')
+		if (message.includes('each element in an array child') || message.includes('two children with the same key')) {
+			keyDiagnostics.push(message)
+		}
+
+		report(...args)
+	}
+}
+
 for (const k of [
 	'document',
 	'window',
@@ -138,5 +152,7 @@ assert(
 		&& window.location.pathname === docPath('navigation')
 		&& root.querySelector('.doc .h1')?.textContent === 'Moving between screens',
 )
+
+assert('no missing or duplicate child keys', keyDiagnostics.length === 0)
 
 process.exit(fail ? 1 : 0)
