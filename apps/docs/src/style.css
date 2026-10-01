@@ -975,6 +975,24 @@ body {
 	font-weight: 425;
 }
 
+/* Sketch 29E3CD0E: square green highlight, 3px sides and 1px top/bottom.
+   Clone the background and padding on each wrapped line. */
+.doc .highlight {
+	background-color: #e9ffdd;
+	color: #41b200;
+	font-weight: 450;
+	padding: 1px 3px;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+
+.doc .highlight .link,
+.doc .highlight span,
+.doc > .h1 + .quote .highlight .link,
+.doc > .h1 + .quote .highlight span {
+	color: inherit;
+}
+
 .mono {
 	font-family: ui-monospace, 'SF Mono', Menlo, monospace;
 	font-size: 0.9em;

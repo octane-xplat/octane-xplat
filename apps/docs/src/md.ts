@@ -6,6 +6,7 @@ export type Span = {
 	bold?: boolean
 	italic?: boolean
 	strike?: boolean
+	highlight?: boolean
 	href?: string
 }
 
@@ -19,7 +20,7 @@ export type Block =
 	| { kind: 'table'; rows: string[][] }
 	| { kind: 'hr' }
 
-// One pass, earliest token wins: `code`, **bold**, *italic*, ~~strike~~,
+// One pass, earliest token wins: `code`, **bold**, *italic*, ~~strike~~, ==highlight==,
 // [link](href). Recursing into link text lets [`code`](x) render as a mono
 // link; recursing into bold lets **[link](x)** stay bold — and lets
 // `**a *b* c**` nest italic inside bold. Code wins at equal index so
@@ -30,7 +31,7 @@ export type Block =
 export function inlineSpans(text: string): Span[] {
 	const spans: Span[] = []
 	const re =
-		/(`[^`]*`)|(\*\*(?:[^*]|\*[^*])+\*\*)|((?<!\*)\*(?!\*)[^*\s][^*]*\*(?!\*))|(~~[^~\s][^~]*~~)|(\[[^\]]+\]\([^)\s]+\))/g
+		/(`[^`]*`)|(\*\*(?:[^*]|\*[^*])+\*\*)|((?<!\*)\*(?!\*)[^*\s][^*]*\*(?!\*))|(~~[^~\s][^~]*~~)|((?<![\\=])==(?!=)[^=\s](?:[^=]|=(?!=))*==(?!=))|(\[[^\]]+\]\([^)\s]+\))/g
 
 	let last = 0
 	for (const m of text.matchAll(re)) {
@@ -52,6 +53,10 @@ export function inlineSpans(text: string): Span[] {
 		} else if (tok.startsWith('~~')) {
 			for (const s of inlineSpans(tok.slice(2, -2))) {
 				spans.push({ ...s, strike: true })
+			}
+		} else if (tok.startsWith('==')) {
+			for (const s of inlineSpans(tok.slice(2, -2))) {
+				spans.push({ ...s, highlight: true })
 			}
 		} else {
 			const lm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(tok)!

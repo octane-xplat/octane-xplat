@@ -3,7 +3,7 @@
 import { JSDOM } from 'jsdom'
 import { readFileSync, readdirSync } from 'fs'
 import { docPath, titleOf } from './src/doc-meta.ts'
-import { parseMd } from './src/md.ts'
+import { inlineSpans, parseMd } from './src/md.ts'
 
 const js = 'dist/assets/' + readdirSync('dist/assets').find((f) => f.endsWith('.js'))
 const dom = new JSDOM(readFileSync('dist/index.html', 'utf8'), {
@@ -68,6 +68,24 @@ const assert = (name, ok) => {
 	console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
 	if (!ok) { fail++ }
 }
+
+const highlights = [...root.querySelectorAll('.doc mark.highlight')]
+assert('xplat page renders both highlights', highlights.length === 2 && highlights[0].textContent === 'one TypeScript codebase' && highlights[1].textContent === 'Prove the loop first')
+assert('highlight keeps its section link', highlights[1]?.querySelector('a')?.getAttribute('href') === '/toolchain#create-and-run')
+
+const mixedHighlight = inlineSpans('before ==**bold** *italic* `code` [link](spec.md)== after')
+assert('highlight composes with inline formatting', mixedHighlight[0].text === 'before ' && !mixedHighlight[0].highlight
+	&& mixedHighlight.some((s) => s.highlight && s.bold && s.text === 'bold')
+	&& mixedHighlight.some((s) => s.highlight && s.italic && s.text === 'italic')
+	&& mixedHighlight.some((s) => s.highlight && s.mono && s.text === 'code')
+	&& mixedHighlight.some((s) => s.highlight && s.href === 'spec.md' && s.text === 'link')
+	&& mixedHighlight.at(-1).text === ' after' && !mixedHighlight.at(-1).highlight)
+
+assert('highlight inside bold stays bold', inlineSpans('**==important==**').some((s) => s.highlight && s.bold && s.text === 'important'))
+assert('code keeps highlight markers literal', inlineSpans('`==literal==`')[0].text === '==literal==' && !inlineSpans('`==literal==`')[0].highlight)
+assert('unclosed or empty highlights stay literal', ['==unfinished', '====', '===literal==='].every((text) => inlineSpans(text).every((s) => !s.highlight) && inlineSpans(text).map((s) => s.text).join('') === text))
+assert('single equals inside highlight stays text', inlineSpans('==x = y==')[0].text === 'x = y' && inlineSpans('==x = y==')[0].highlight)
+assert('fenced code keeps highlight markers literal', parseMd('```md\n==literal==\n```')[0].text === '==literal==')
 
 const table = parseMd('| value | meaning |\n| --- | --- |\n| `ready \\| error` | status |')[0]
 assert('escaped table pipe stays in its cell', table?.kind === 'table' && table.rows[1].length === 2 && table.rows[1][0] === '`ready | error`')

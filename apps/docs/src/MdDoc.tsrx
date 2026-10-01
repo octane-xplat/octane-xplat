@@ -101,7 +101,20 @@ function SpanText(props: { s: Span }) @{
 }
 
 function Spans(props: { spans: Span[] }) @{
-	<>{props.spans.map((s) => <SpanText s={s} />)}</>
+	// Keep mixed formatting inside one highlight so padding only surrounds the phrase.
+	const runs: Span[][] = [];
+	for (const s of props.spans) {
+		const last = runs.at(-1);
+		if (last && last[0].highlight === s.highlight) {
+			last.push(s);
+		} else {
+			runs.push([s]);
+		}
+	}
+
+	<>{runs.map((run) => run[0].highlight
+		? <mark className="highlight">{run.map((s) => <SpanText s={s} />)}</mark>
+		: <>{run.map((s) => <SpanText s={s} />)}</>)}</>
 }
 
 function BlockView(props: { b: Block; lede?: boolean }) @{

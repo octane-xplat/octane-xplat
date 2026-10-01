@@ -3,13 +3,13 @@
 > Build a TypeScript app for web, iOS, Android, macOS, and Windows with your
 > coding agent.
 
-xplat is for real apps: one TypeScript codebase that ships the same product
+xplat is for real apps: ==one TypeScript codebase== that ships the same product
 behavior on web and mobile, with OS-specific controls where the platform
 experience deserves them. Your agent writes the code; your job is to describe
 behavior precisely and verify what it reports. These guides are written for
 that split — they spend as much effort on what to check as on what to build.
 
-[Prove the loop first](toolchain.md#create-and-run): run the starter and walk
+==[Prove the loop first](toolchain.md#create-and-run)==: run the starter and walk
 one small bounded task through edit → checks → verified result before you
 commit real features to it. No device SDK is needed for that browser pass.
 
