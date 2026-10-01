@@ -1,5 +1,6 @@
 import { useState } from 'octane';
 import { View, Row, Text, Pressable, ScrollView, useColorScheme } from '@octane-xplat/ui';
+import { storage } from '@octane-xplat/platform';
 
 const FEATURES = [
 	'shared components',
@@ -13,8 +14,11 @@ const FEATURES = [
  *  (.web.tsrx / .mobile.tsrx), never inside a component. */
 export function App() @{
 	const [count, setCount] = useState(0);
-	// null = follow the system; the toggle overrides it for this session.
-	const [override, setOverride] = useState<boolean | null>(null);
+	// null = follow the system until the user chooses a mode.
+	const [override, setOverride] = useState<boolean | null>(() => {
+		const saved = storage.getString('theme-preference');
+		return saved === 'light' ? false : saved === 'dark' ? true : null;
+	});
 	const scheme = useColorScheme();
 	const dark = override ?? scheme === 'dark';
 
@@ -32,7 +36,11 @@ export function App() @{
 			{FEATURES.map((f) => <Text className="chip">{f}</Text>)}
 		</ScrollView>
 
-		<Pressable className="link" onPress={() => setOverride(!dark)}>
+		<Pressable className="link" onPress={() => {
+			const next = !dark;
+			storage.setString('theme-preference', next ? 'dark' : 'light');
+			setOverride(next);
+		}}>
 			<Text>{dark ? 'light' : 'dark'} mode (system: {scheme})</Text>
 		</Pressable>
 	</View>

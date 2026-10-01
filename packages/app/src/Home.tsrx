@@ -28,7 +28,10 @@ export function Home() @{
 	// dark = manual override ?? system scheme (useColorScheme seam —
 	// systemAppearanceChanged on native, prefers-color-scheme on web).
 	const scheme = useColorScheme();
-	const [override, setOverride] = useState<string | null>(null);
+	const [override, setOverride] = useState<string | null>(() => {
+		const saved = storage.getString('theme-preference');
+		return saved === 'light' || saved === 'dark' ? saved : null;
+	});
 	const dark = (override ?? scheme) === 'dark';
 	// Push the app-level override into the theme store so imperative roots
 	// (overlay/popover/toast/sheet/modal) render with the same scheme.
@@ -82,7 +85,11 @@ export function Home() @{
 		<Row className="justify-between items-baseline shrink-0">
 			<Text className="text-2xl font-semibold">Kitchen sink</Text>
 			<Row className="gap-3 items-center">
-				<Pressable id="scheme-toggle" onPress={() => setOverride(dark ? 'light' : 'dark')} className="btn btn-secondary">
+				<Pressable id="scheme-toggle" onPress={() => {
+					const next = dark ? 'light' : 'dark';
+					storage.setString('theme-preference', next);
+					setOverride(next);
+				}} className="btn btn-secondary">
 					<Text>{dark ? 'Light' : 'Dark'}</Text>
 				</Pressable>
 			</Row>

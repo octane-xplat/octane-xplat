@@ -18,8 +18,8 @@ server. Pass `--no-install` to scaffold only — the directory is created and
 the command exits after printing the manual next steps (used by the packed
 starter verification and offline scaffolding). Open the local URL printed in
 the terminal. The checked-in starter shows an `octane-xplat` screen with a
-small counter and a theme toggle — placeholder UI your first task will
-replace.
+small counter and a theme toggle that remembers your light/dark choice in
+local app storage — placeholder UI your first task will replace.
 Leave that process running while you work. To restart after stopping it
 with Ctrl+C:
 
