@@ -1,6 +1,7 @@
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
+import { VirtualList as VirtualListDemo } from '@xplat/demos'
 import { installParityDump } from '@xplat/app/parity/measure'
 import {
 	VirtualListBenchmark,
@@ -15,6 +16,7 @@ import {
 
 import {
 	VIRTUAL_LIST_BENCH_FIXED_MODE,
+	VIRTUAL_LIST_BENCH_DEMO_MODE,
 	VIRTUAL_LIST_BENCH_MODE,
 	VIRTUAL_LIST_INPUT_DURATION_MS,
 	VIRTUAL_LIST_INPUT_MODE,
@@ -35,7 +37,7 @@ import { findInRootLayouts } from '@octane-xplat/ui/native'
 
 import { storage, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
-import './lottie-probe'
+if (!VIRTUAL_LIST_BENCH_MODE) {void import('./lottie-probe')}
 installParityDump()
 if (!VIRTUAL_LIST_BENCH_MODE) {void import('@xplat/app/platform/paritysweep')}
 // Per-file css module imports — same shape as apps/web/src/main.tsrx. Each
@@ -114,7 +116,9 @@ function createWindowContent(): Frame {
 	console.log('[harness] createWindowContent')
 	try {
 		const rootComponent = VIRTUAL_LIST_BENCH_MODE
-			? VIRTUAL_LIST_BENCH_FIXED_MODE
+			? VIRTUAL_LIST_BENCH_DEMO_MODE
+				? VirtualListDemo
+				: VIRTUAL_LIST_BENCH_FIXED_MODE
 				? VirtualListBenchmarkFixed
 				: VirtualListBenchmark
 			: App
@@ -148,26 +152,31 @@ if (Application.started) {
 
 if (VIRTUAL_LIST_BENCH_MODE) {
 	const startWhenMounted = (tries = 100) => {
-		const list = thePage?.getViewById?.('vlist-bench-list') ?? findInRootLayouts('vlist-bench-list')
+		const listId = VIRTUAL_LIST_BENCH_DEMO_MODE ? 'vlist' : 'vlist-bench-list'
+		const list = thePage?.getViewById?.(listId) ?? findInRootLayouts(listId)
 		if (list) {
 			if (VIRTUAL_LIST_INPUT_MODE) {
 				const target = Application.android != null ? 'android' : 'ios'
-				const heightMode = VIRTUAL_LIST_BENCH_FIXED_MODE ? 'fixed48' : 'variable'
+				const heightMode = VIRTUAL_LIST_BENCH_DEMO_MODE ? 'demo500' : VIRTUAL_LIST_BENCH_FIXED_MODE ? 'fixed48' : 'variable'
 				console.log(
 					'[vlist-input] ready ' +
 					JSON.stringify({ target, heightMode, durationMs: VIRTUAL_LIST_INPUT_DURATION_MS }),
 				)
 
 				void runVirtualListInputBenchmark(
-					'vlist-bench-list',
+					listId,
 					VIRTUAL_LIST_INPUT_DURATION_MS,
 					thePage,
 				)
-					.then((metrics) =>
-						console.log(
-							'[vlist-input] result ' + JSON.stringify({ heightMode, ...metrics }),
-						),
-					)
+					.then((metrics) => {
+						// NativeScript truncates long console records on Android.
+						const report = JSON.stringify({ heightMode, ...metrics })
+						for (let index = 0; index * 500 < report.length; index++) {
+							console.log('[vlist-input] result-part ' + JSON.stringify({ index, text: report.slice(index * 500, (index + 1) * 500) }))
+						}
+
+						console.log('[vlist-input] result complete')
+					})
 					.catch((error) => {
 						const message = error instanceof Error ? error.message : String(error)
 						console.log('[vlist-input] error ' + message)

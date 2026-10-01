@@ -9,12 +9,12 @@ const device = process.env.XPLAT_VLIST_DEVICE
 const durationMs = Number(process.env.XPLAT_VLIST_INPUT_MS ?? 20_000)
 if (target !== 'ios' && target !== 'android') {
 	throw new Error(
-		'Usage: XPLAT_VLIST_DEVICE=<id> node scripts/bench-virtual-list-input.mjs <ios|android> [variable|fixed48]',
+		'Usage: XPLAT_VLIST_DEVICE=<id> node scripts/bench-virtual-list-input.mjs <ios|android> [variable|fixed48|demo500]',
 	)
 }
 
-if (heightMode !== 'variable' && heightMode !== 'fixed48') {
-	throw new Error('Height mode must be variable or fixed48')
+if (!['variable', 'fixed48', 'demo500'].includes(heightMode)) {
+	throw new Error('Height mode must be variable, fixed48, or demo500')
 }
 
 if (!device) {
@@ -37,6 +37,7 @@ const disabledMode =
 		'export const VIRTUAL_LIST_BENCH_MODE = false',
 		'export const VIRTUAL_LIST_INPUT_MODE = false',
 		'export const VIRTUAL_LIST_BENCH_FIXED_MODE = false',
+		'export const VIRTUAL_LIST_BENCH_DEMO_MODE = false',
 		'export const VIRTUAL_LIST_INPUT_DURATION_MS = 20_000',
 	].join('\n') + '\n'
 
@@ -51,6 +52,7 @@ const enabledMode =
 		'export const VIRTUAL_LIST_BENCH_MODE = true',
 		'export const VIRTUAL_LIST_INPUT_MODE = true',
 		`export const VIRTUAL_LIST_BENCH_FIXED_MODE = ${heightMode === 'fixed48'}`,
+		`export const VIRTUAL_LIST_BENCH_DEMO_MODE = ${heightMode === 'demo500'}`,
 		`export const VIRTUAL_LIST_INPUT_DURATION_MS = ${durationMs}`,
 	].join('\n') + '\n'
 
@@ -71,7 +73,10 @@ const restoreMode = () => {
 process.once('exit', restoreMode)
 
 const deviceId = process.env.XPLAT_VLIST_DEVICE
-if (!deviceId) {throw new Error('Set XPLAT_VLIST_DEVICE')}
+if (!deviceId) {
+	throw new Error('Set XPLAT_VLIST_DEVICE')
+}
+
 const child = spawn(
 	'python3',
 	[
@@ -102,12 +107,15 @@ const memorySamples = []
 let androidFrameStats = null
 const readyMarker = '[vlist-input] ready '
 const resultMarker = '[vlist-input] result '
+const resultPartMarker = '[vlist-input] result-part '
+const resultParts = []
 const errorMarker = '[vlist-input] error '
 let forceStop
 let resultPrinted = false
 let ownsApp = false
 let stopping = false
-const hasVerifiedInput = () => Boolean(result?.scroll?.movementSamples > 0 && gestureSummary?.swipeCount > 0 && !gestureError)
+const hasVerifiedInput = () =>
+	Boolean(result?.scroll?.movementSamples > 0 && gestureSummary?.swipeCount > 0 && !gestureError)
 
 const printResult = () => {
 	if (!result || resultPrinted) {
@@ -158,9 +166,15 @@ const stopRun = () => {
 		const appId = process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat.vlistbench'
 		try {
 			if (target === 'ios') {
-				execFileSync('xcrun', ['simctl', 'terminate', device, appId], { timeout: 8000, stdio: 'ignore' })
+				execFileSync('xcrun', ['simctl', 'terminate', device, appId], {
+					timeout: 8000,
+					stdio: 'ignore',
+				})
 			} else {
-				execFileSync('adb', ['-s', device, 'shell', 'am', 'force-stop', appId], { timeout: 8000, stdio: 'ignore' })
+				execFileSync('adb', ['-s', device, 'shell', 'am', 'force-stop', appId], {
+					timeout: 8000,
+					stdio: 'ignore',
+				})
 			}
 		} catch {}
 	}
@@ -212,10 +226,12 @@ function sampleMemory() {
 			const match = output.match(/TOTAL PSS:\s+([\d,]+)/)
 			if (match) {
 				const summary = Object.fromEntries(
-					['Java Heap', 'Native Heap', 'Code', 'Stack', 'Graphics', 'Private Other', 'System'].map((name) => {
-						const category = output.match(new RegExp(name + ':\\s+([\\d,]+)'))?.[1]
-						return [name, category === undefined ? null : Number(category.replaceAll(',', ''))]
-					}),
+					['Java Heap', 'Native Heap', 'Code', 'Stack', 'Graphics', 'Private Other', 'System'].map(
+						(name) => {
+							const category = output.match(new RegExp(name + ':\\s+([\\d,]+)'))?.[1]
+							return [name, category === undefined ? null : Number(category.replaceAll(',', ''))]
+						},
+					),
 				)
 
 				memorySamples.push({
@@ -295,7 +311,7 @@ async function sendInputGestures() {
 	const x = Math.round(width / 2)
 	const lower = Math.round(height * 0.82)
 	const upper = Math.round(height * 0.34)
-	const directions = ['down', 'up', 'down', 'up', 'down', 'up', 'down', 'up']
+	const directions = ['down', 'down', 'down', 'down', 'up', 'up', 'up', 'up']
 	let swipeCount = 0
 	let rounds = 0
 	const startedAt = Date.now()
@@ -402,13 +418,21 @@ const consume = (chunk) => {
 			continue
 		}
 
+		const partAt = line.indexOf(resultPartMarker)
+		if (partAt !== -1) {
+			const part = JSON.parse(line.slice(partAt + resultPartMarker.length))
+			resultParts[part.index] = part.text
+			continue
+		}
+
 		const resultAt = line.indexOf(resultMarker)
 		if (resultAt === -1) {
 			continue
 		}
 
 		try {
-			result = JSON.parse(line.slice(resultAt + resultMarker.length))
+			const payload = line.slice(resultAt + resultMarker.length).trim()
+			result = JSON.parse(payload === 'complete' ? resultParts.join('') : payload)
 			clearTimeout(timeout)
 			void Promise.resolve(gesturePromise).then(() => {
 				// The app's trace calls globalThis.gc?.() just before emitting its
@@ -483,5 +507,7 @@ child.on('close', (code, signal) => {
 	}
 
 	printResult()
-	if (!hasVerifiedInput()) {process.exitCode = 1}
+	if (!hasVerifiedInput()) {
+		process.exitCode = 1
+	}
 })

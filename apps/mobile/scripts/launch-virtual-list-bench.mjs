@@ -31,6 +31,22 @@ if (target === 'android') {
 		throw new Error(`Benchmark app already running (${pid}); refusing to replace its session`)
 	}
 
+	if (process.env.XPLAT_VLIST_FRESH_INSTALL === '1') {
+		// NativeScript preserves extracted bundle files on adb install -r.
+		// Explicitly opting in removes this benchmark app's data under the target lock.
+		let installed = false
+		try {
+			installed = Boolean(execFileSync('adb', ['-s', device, 'shell', 'pm', 'path', appId], { encoding: 'utf8' }).trim())
+		} catch (error) {
+			if (error.status !== 1) {throw error}
+		}
+
+		if (installed) {
+			const result = execFileSync('adb', ['-s', device, 'uninstall', appId], { encoding: 'utf8' })
+			if (!result.includes('Success')) {throw new Error('Could not remove benchmark app for a fresh install')}
+		}
+	}
+
 	await run('pnpm', ['exec', 'ns', 'run', 'android', '--no-hmr', '--no-watch', '--device', device])
 } else {
 	const devices = JSON.parse(

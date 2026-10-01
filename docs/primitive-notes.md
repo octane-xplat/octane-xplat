@@ -825,6 +825,51 @@ Universal List](https://docs.expo.dev/versions/v58.0.0/sdk/ui/universal/list/),
 which says React still creates all rows up front and recommends FlashList or
 Legend List for large data.
 
+### VirtualList Android scheduling corrections (Q30; 2026-10-01)
+
+The List ×500 harness now has a dedicated `demo500` input profile. Android
+window metrics report frame work separately from JavaScript snapshot intervals;
+large reports are split into numbered records to survive console truncation.
+Coverage includes actual header/footer and separator boxes. The fixed48 and
+variable controls remain 5,000 rows.
+
+Nonvisual runs used a dedicated API 35 arm64 emulator (`xplat`, 1080×2400,
+420 dpi, approximately 60 Hz), a debug build, and synthetic ADB swipes: four
+forward viewports followed by four back, repeated for 20 seconds. Each run
+installed a fresh disposable benchmark app and sampled an additional 45-second
+idle memory tail. No unrelated harness startup probes ran. The emulator uses
+software graphics; another session's emulator also used this host.
+
+| Fixture | Before frame-work p95 | After A frame-work p95 | Before layout/measure p95 | After A layout/measure p95 | Before JS interval p95 | After A JS interval p95 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| List ×500 | 94.59 ms | 84.94 ms | 7.52 ms | 2.78 ms | 63.39 ms | 51.91 ms |
+| Fixed 48 ×5,000 | 211.96 ms | 49.16 ms | 14.42 ms | 2.36 ms | 132.32 ms | 35.53 ms |
+| Variable ×5,000 | 141.99 ms | 54.01 ms | 11.36 ms | 2.28 ms | 85.23 ms | 36.49 ms |
+
+All six captures had zero sampled content gaps. The ×500 mounted window stayed
+at most 37 rows before and after A. Frames include first visits and revisits;
+these aggregate percentiles do not isolate their costs. Baseline repeats for
+×500 ranged approximately 95–234 ms at p95, so these samples establish reduced
+work in this environment, not a reliable throughput or physical-device FPS
+claim. Window frame-work duration does not measure presentation.
+
+Phase A coalesces native scroll and measurement work at an animation-frame
+boundary, cancels stale item measurements, and adds geometry corrections to the
+live offset. Exact size updates remain logarithmic. Unvisited type estimates
+rebuild only after a meaningful average change during an idle interval; measuring
+another row with the same type average no longer resets the entire dataset.
+The initial viewport populates immediately. Content-width validation also handles
+border/padding differences, although this demo reported equal row and viewport
+widths, so that edge case is not its measured cause. Row lifecycle remains keyed
+mount/unmount; there is no recycling in phase A.
+
+Native object-driver regressions cover intervening scroll movement, above-anchor
+correction, burst commits, estimate stability, content width, stale measurements,
+and disposal. The web 500-row contract gate also passed before this change.
+Q30 remains open for physical-device frame pacing, longer momentum workloads,
+and process-memory characterization. Follow the current nonvisual commands in
+[VirtualList](virtual-list.md#run-the-nonvisual-gates).
+
 ## Appendix: verified driver semantics
 
 Substrate pass findings — the mechanics that constrain everything above.

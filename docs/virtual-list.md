@@ -45,6 +45,15 @@ See the maintained [interactive example](../packages/demos/src/VirtualList.tsrx)
 for prepend, removal, reverse, resize, empty, restore, and keyed local state.
 Header, footer, separator, and empty content use the corresponding render slots.
 
+On iOS and Android, scroll and row-measurement callbacks queue one window update
+at the next native animation frame. Exact row sizes update the prefix index together; estimates
+for unvisited rows rebuild after a meaningful type-average change and 120 ms
+without scrolling or new measurements. Exact cached sizes use content width,
+including when borders or padding make it narrower than the viewport.
+A queued correction adds the height change to the live scroll offset, preserving
+movement since measurement. Pending measurements and timers are cancelled when
+the list is disposed. This scheduling does not change row state ownership.
+
 ## Measured support boundary
 
 The fresh web checks used headless Chromium, 5,000 simple rows of
@@ -57,6 +66,8 @@ coverage. Twenty disposal/reopen cycles returned to the same DOM/listener counts
 late collected heap samples ranged 8.52–8.54 MB. These are test workloads, not a
 maximum supported row count or a device-independent throughput promise.
 
+The [Android scheduling profile](primitive-notes.md#virtuallist-android-scheduling-corrections-q30-2026-10-01)
+records the latest nonvisual before/after measurements and their limits.
 Q30 remains open. Native fast variable-height momentum and Android process
 memory need fresh runtime characterization. Historical simulator/device results
 are recorded separately from this pass in [primitive notes](primitive-notes.md#virtuallist-input-and-memory-profile-q30-2026-09-28).
@@ -85,7 +96,9 @@ From the repo root, install with `pnpm install --frozen-lockfile`, then:
 4. From `apps/mobile`, run
    `XPLAT_VLIST_DEVICE=<simulator-UDID> XPLAT_VLIST_INPUT_MS=180000 node scripts/bench-virtual-list-input.mjs ios variable`,
    or replace `ios` with `android` and supply an ADB serial. Android requires
-   Temurin JDK 21 on `JAVA_HOME`. Use `fixed48` as a measurement control.
+   Temurin JDK 21 on `JAVA_HOME`. Use `fixed48` as a measurement control and
+   `demo500` for the actual List ×500 demo, including its slots and row state.
+   The swipe sequence moves forward through four viewports, then revisits rows.
 
 Native runners require Python 3 and take an exclusive advisory lock at
 `/tmp/octane-xplat-ios.lock` or `/tmp/octane-xplat-android.lock` for build and
@@ -95,6 +108,17 @@ It uses `org.nativescript.xplat.vlistbench` (override with
 `XPLAT_VLIST_APP_ID`) to avoid replacing the normal harness app. iOS builds,
 installs, and launches with `simctl`; it never reboots an already booted simulator.
 Native input is synthetic `idb`/`adb` swipes, explicitly labeled in results.
-Android PSS includes category samples and the final bounded `gfxinfo framestats`
-buffer. Native memory collection does not force GC: growth is a signal to
+Android records layout/measure, draw, and total frame-work durations through
+`Window.OnFrameMetricsAvailableListener`, plus PSS categories and the final bounded
+`gfxinfo framestats` buffer. Window metrics measure frame work, not presentation;
+JavaScript sampling intervals remain a separate responsiveness measure.
+Header/footer and separator boxes count toward coverage, without increasing
+mounted row counts. Large reports use numbered log records to avoid Android
+console truncation.
+
+For repeatable Android comparisons, set `XPLAT_VLIST_FRESH_INSTALL=1`. This removes
+only the selected benchmark app, including its data, before installing under the
+target lock. NativeScript otherwise retains extracted bundle files during an
+in-place reinstall, which can run stale code. Use this option only for a disposable
+benchmark app. Native memory collection does not force GC: growth is a signal to
 investigate, not proof of a leak. No runner captures images.

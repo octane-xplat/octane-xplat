@@ -22,6 +22,7 @@ export type VirtualListBenchSnapshot = {
 	offset: number
 	viewportHeight: number
 	rows: VirtualListBenchRowBox[]
+	coverageBoxes?: { top: number; bottom: number }[]
 	mountedIndices: number[]
 }
 
@@ -134,7 +135,7 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
 		if (!mounted.has(index)) {missingVisibleRows += 1}
 	}
 
-	const visible = snapshot.rows
+	const visible = (snapshot.coverageBoxes ?? snapshot.rows)
 		.map((row) => ({
 			top: Math.max(0, row.top),
 			bottom: Math.min(snapshot.viewportHeight, row.bottom),
@@ -159,6 +160,7 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
 export async function runVirtualListInputTrace(
 	adapter: Pick<VirtualListBenchAdapter, 'target' | 'read' | 'wait'>,
 	durationMs = 20_000,
+	rowCount = VIRTUAL_LIST_BENCH_ROW_COUNT,
 ) {
 	const performanceApi = (globalThis as any).performance
 	const now = () => performanceApi?.now?.() ?? Date.now()
@@ -206,10 +208,10 @@ export async function runVirtualListInputTrace(
 	// A gap that exists only because the viewport is rubber-banded past a
 	// content edge is platform-authentic overscroll, not a rendering defect —
 	// classify it separately so gapSamples stays a true coverage signal.
-	const endIndex = VIRTUAL_LIST_BENCH_ROW_COUNT - 1
+	const endIndex = rowCount - 1
 
 	const visibleGap = (snapshot: VirtualListBenchSnapshot) => {
-		const visible = snapshot.rows
+		const visible = (snapshot.coverageBoxes ?? snapshot.rows)
 			.map((row) => ({
 				top: Math.max(0, row.top),
 				bottom: Math.min(snapshot.viewportHeight, row.bottom),
@@ -232,11 +234,13 @@ export async function runVirtualListInputTrace(
 			leadingOverscroll ? leadingGap : 0,
 			trailingOverscroll ? trailingGap : 0,
 		)
+
 		const contentGap = Math.max(
 			leadingOverscroll ? 0 : leadingGap,
 			trailingOverscroll ? 0 : trailingGap,
 			internalGap,
 		)
+
 		const maxGap = Math.max(overscrollGap, contentGap)
 		const previousMax = worstGeometry
 			? Math.max(worstGeometry.leadingGap, worstGeometry.trailingGap, worstGeometry.internalGap)
@@ -310,7 +314,7 @@ export async function runVirtualListInputTrace(
 		schema: 'xplat.virtual-list-input.v2',
 		framePacing: { status: 'not-collected', pollingIsFramePacing: false },
 		target: adapter.target,
-		fixture: { rowCount: VIRTUAL_LIST_BENCH_ROW_COUNT },
+		fixture: { rowCount },
 		durationMs: Number((now() - startedAt).toFixed(1)),
 		samples: intervalSamples.length + 1,
 		sampleIntervalMs: summarize(intervalSamples),

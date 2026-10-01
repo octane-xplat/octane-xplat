@@ -30,4 +30,4 @@ performance with target-specific evidence.
 - AC2: [Row state ownership](../docs/virtual-list.md#keep-identity-and-state-stable), [example](../packages/demos/src/VirtualList.tsrx).
 - AC3: [Visible position](../docs/virtual-list.md#preserve-the-visible-position), [contract gate](../apps/web/scripts/bench-virtual-list-contract.mjs).
 - AC4: [Slots and example](../docs/virtual-list.md#preserve-the-visible-position), [example](../packages/demos/src/VirtualList.tsrx).
-- AC5: [Measured boundary](../docs/virtual-list.md#measured-support-boundary), [nonvisual gates](../docs/virtual-list.md#run-the-nonvisual-gates).
+- AC5: Android window frame metrics and the `demo500` fixture are described in [Measured boundary](../docs/virtual-list.md#measured-support-boundary), [nonvisual gates](../docs/virtual-list.md#run-the-nonvisual-gates).
