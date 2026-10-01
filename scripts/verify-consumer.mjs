@@ -64,7 +64,10 @@ const work = process.env.VERIFY_CONSUMER_DIR
 	: mkdtempSync(join(tmpdir(), 'xplat-consumer-'))
 
 const packDir = join(work, 'pack')
-const appDir = join(work, 'app')
+// The dir basename becomes the Xcode project/target name — 'app' would
+// collide with the platforms/ios/<name>/app JS payload dir inside the
+// produced .app (xcodebuild "Multiple commands produce .../app.app/app").
+const appDir = join(work, 'consumer-app')
 const extractDir = join(work, 'create')
 // A reused VERIFY_CONSUMER_DIR may hold a previous attempt's app/scaffold —
 // reset those (the pack dir is rewritten in place anyway).
