@@ -155,8 +155,9 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	function scheduleEstimateRebuild() {
 		if (estimateScheduledRef.current) return
 		estimateScheduledRef.current = true
-		// Microtasks still run during resize delivery. Keep exact measurements and
-		// anchor correction immediate, but defer estimate-driven DOM writes.
+<<<<<<< HEAD
+		// Measurements and anchor correction are immediate. Defer estimate-driven
+		// DOM writes until the next frame so they run after ResizeObserver delivery.
 		estimateFrameRef.current = requestAnimationFrame(() => {
 			estimateFrameRef.current = null
 			estimateScheduledRef.current = false
