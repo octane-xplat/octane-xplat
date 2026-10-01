@@ -774,6 +774,8 @@ body {
 	display: block;
 	background-color: #000000;
 	background-image: var(--doc-glow);
+	box-sizing: border-box;
+	border: 0.5px solid #000000;
 	border-radius: 0;
 	clip-path: polygon(
 		0 0,
