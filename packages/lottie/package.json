@@ -1,0 +1,79 @@
+{
+	"name": "@octane-xplat/lottie",
+	"version": "0.1.0",
+	"description": "Lottie animation leaf for Octane xplat — lottie-web on web + @nativescript-community/ui-lottie on native",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/lottie"
+	},
+	"files": [
+		"dist",
+		"types",
+		"src"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
+			"types": "./types/generated/index.d.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"web": {
+					"types": "./types/generated/index.web.d.ts",
+					"default": "./dist/web/index.js"
+				},
+				"native": {
+					"types": "./types/generated/index.d.ts",
+					"default": "./dist/native/index.js"
+				},
+				"types": "./types/generated/index.d.ts",
+				"default": "./dist/native/index.js"
+			}
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && tsrx-typegen --target octane && node ../../scripts/check-native-dist.mjs",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"test:packed": "node tests/packed-consumer.mjs"
+	},
+	"dependencies": {
+		"@nativescript-community/ui-lottie": "6.0.0",
+		"lottie-web": "5.13.0"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.1",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/typescript-plugin": "0.4.11",
+		"octane": "0.6.3",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		}
+	}
+}

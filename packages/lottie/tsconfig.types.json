@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src"
+	},
+	"include": [
+		"src/Lottie.tsrx",
+		"src/Lottie.web.tsrx",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/props.ts",
+		"src/cx.mobile.ts",
+		"src/escape-props.ts",
+		"src/escape-props.web.ts",
+		"src/layout-child.ts",
+		"src/layout-child.web.ts"
+	]
+}

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "files": [
+    "Lottie.d.ts",
+    "Lottie.web.d.ts",
+    "cx.mobile.d.ts",
+    "escape-props.d.ts",
+    "escape-props.web.d.ts",
+    "index.d.ts",
+    "index.web.d.ts",
+    "layout-child.d.ts",
+    "layout-child.web.d.ts",
+    "props.d.ts"
+  ]
+}
