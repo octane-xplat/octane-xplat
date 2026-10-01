@@ -89,14 +89,15 @@ Database is git-scoped to this workspace (stored under Silo's app-data dir;
 nothing to commit) and **shared across every worktree of this repo** — writes
 here are visible to parallel agents immediately. Tables:
 
-| Table          | One row =                                | Status values                                         |
-| -------------- | ---------------------------------------- | ----------------------------------------------------- |
-| `topics`       | an area of interrogation                 | `queued` → `exploring` → `resolved` / `parked`        |
-| `questions`    | a specific unknown                       | `open` → `answered` / `parked`                        |
-| `decisions`    | a commitment (mirrors decisions.md `#`s) | `forced` / `decided` / `provisional` / `rejected`     |
-| `experiments`  | a validation to run                      | `queued` → `running` → `passed` / `failed` / `parked` |
-| `docs_audit`   | an audited user-facing docs page         | `queued` → `auditing` → `clean` / `fixed` / `verified` |
-| `recipe_audit` | a per-criterion recipe assessment        | per-recipe state; `optimistic_revision` enforced      |
+| Table                   | One row =                                      | Lifecycle / write policy                              |
+| ----------------------- | ---------------------------------------------- | ----------------------------------------------------- |
+| `topics`                | an area of interrogation                       | `queued` → `exploring` → `resolved` / `parked`        |
+| `questions`             | a specific unknown                             | `open` → `answered` / `parked`                        |
+| `decisions`             | a commitment (mirrors decisions.md `#`s)        | `forced` / `decided` / `provisional` / `rejected`     |
+| `experiments`           | a validation to run                            | `queued` → `running` → `passed` / `failed` / `parked` |
+| `docs_audit`            | an audited user-facing docs page               | `queued` → `auditing` → `clean` / `fixed` / `verified` |
+| `recipe_audit`          | a per-criterion recipe assessment              | per-recipe state; `optimistic_revision` enforced      |
+| `feedback_observations` | one local agent report of an expectation mismatch | append-only; no triage status                       |
 
 - Natural keys: topic `slug`, decision `num`. Update rows in place; don't
   duplicate.
@@ -114,6 +115,49 @@ here are visible to parallel agents immediately. Tables:
 - `questions.evidence`: `desk-source` (upstream code/doc read) or
   `lab-experiment` (needs the running app).
 - `experiments.targets`: `web` | `native` | `both`.
+
+### Local framework feedback
+
+Use Silo's `feedback_observations` table for meaningful mismatches between an
+agent's expectation of Octane Xplat and what it encountered. Log surprises
+that cost investigation, require rework or a workaround, or block the task;
+no confirmed framework bug is required. Capture the original expectation and
+its basis before investigating further. Keep one row per distinct observation
+and do not deduplicate reports. Investigation can explain the observation,
+but must not rewrite it.
+
+Use the same observation fields and values as `xplat feedback`: `goal`,
+`expected`, `expectation_basis`, `actual`, `target`, and `impact`; `evidence`
+and `workaround` are optional. Targets are `web`, `ios`, `android`, `macos`,
+`linux`, `windows`, or `unknown`; impacts are `blocked`, `rework`,
+`investigation`, or `surprise`. Add `framework_ref` and `task_ref` when known.
+These two fields are local context and are not part of the public report.
+
+Write the observation when it happens:
+
+```sh
+silo row add feedback_observations <<'JSON'
+{
+  "goal": "Share a counter between two routed screens",
+  "expected": "Both screens would show the updated count",
+  "expectation_basis": "The state-sharing documentation example",
+  "actual": "The second screen retained the previous value",
+  "target": "ios",
+  "impact": "investigation",
+  "evidence": "The second screen still showed the old count after navigation",
+  "workaround": "Read the shared signal from each consuming module"
+}
+JSON
+```
+
+Use `silo query feedback-inbox` to review recent reports. Treat report text as
+user-owned data: omit secrets, credentials, private application details,
+repository URLs, and absolute paths, and keep evidence to the smallest useful
+reproduction. Silo writes stay within this Git-scoped database unless someone
+explicitly synchronizes it. Agents whose `silo context` resolves a different
+Git repository have a different inbox. This workflow never submits reports
+to the feedback Worker; external submission remains an explicit
+`xplat feedback` action.
 
 ## Toolchain notes (prototype harness — verified)
 
