@@ -1452,12 +1452,13 @@ body {
 }
 
 .home-action-secondary {
-	background: #ffffff;
-	color: #000000;
+	border-color: #0045b2;
+	background: #0045b2;
+	color: #ffffff;
 }
 
 .home-action-secondary:hover {
-	background: #f5f5f5;
+	background: #0050cf;
 }
 
 .doc > .h1 + .quote .link {
