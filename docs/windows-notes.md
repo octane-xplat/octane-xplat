@@ -1,14 +1,14 @@
 # Windows target notes
 
 > How `octane-xplat` could gain a Windows desktop target via
-> [NativeScript/windows](../prior-art/nativescript-windows.md). Everything here
-> is desk-source as of 2026-09-28 — no Windows machine has run any of it.
+> [NativeScript/windows](../prior-art/nativescript-windows.md). This records
+> source research and the first Windows 11 VM run, through 2026-10-01.
 >
 > **Owns:** Windows target seam (new platform, not one of the seven owned
-> problems) · **Status:** Path A scaffolded; bundle emits on macOS, unrun on
-> Windows · **Blocks on:** Q32–Q35 ·
-> **Decisions:** #65 · **Validated by:** queued Silo experiments (WinUI3 host
-> boot under pkg.pr.new builds; WinUI3-from-Node via `windows-napi`).
+> problems) · **Status:** Path A scaffolded; WinUI project builds on Windows,
+> but the app bundle fails before launch · **Blocks on:** Q32–Q35 ·
+> **Decisions:** #65 · **Validated by:** Windows 11 VM doctor + native project
+> build; see [setup guide](windows-setup.md).
 
 ## The fork in the road
 
@@ -65,9 +65,10 @@ derisks how much of A we could self-host if upstream stalls.
   pattern) needs a Windows driver-side twin; geometry baselines will differ
   from both web and mobile.
 
-## Spike state (2026-09-28, macOS-side only)
+## Spike state (2026-09-28, macOS-side)
 
-Landed and verified on the macOS host — nothing has run under Windows yet:
+These are the parts landed and verified on the macOS host before the Windows
+run below:
 
 - `apps/windows` scaffold: nativescript.config, `xplatNative` vite config with
   `resolve.dedupe` on `@nativescript/core` (workspace packages' 9.1.2 devDeps
@@ -94,5 +95,19 @@ Landed and verified on the macOS host — nothing has run under Windows yet:
   `./variant-demos` which only have ios/android/web/macos twins — the first
   `.windows` fallback leaves.
 
-Still needed on a win32 host: `dotnet build`/`ns run windows` end-to-end
-(Q32), the sweep, and per-seam `.windows` leaves where the native default diverges.
+## Windows host run (2026-10-01)
+
+On a Windows 11 x64 VM, `ns doctor windows` passed, route generation completed,
+and the generated WinUI project compiled with `dotnet build` (0 errors). This
+confirms the NativeScript Windows toolchain and native project build on the
+host, but not that the app boots.
+
+The workspace install's postinstall type generation failed in
+`@octane-xplat/auth`: `src/index.ts` was outside its TypeScript project. Using
+`pnpm install --ignore-scripts` completed dependency installation only; it did
+not repair type generation. The app build then reported cross-target type
+errors and failed the xplat boundary check because
+`packages/ui/src/native/index.ts` reaches `root-layout.mobile.ts` in the
+Windows bundle. `ns run windows`, app rendering, Q32 end-to-end validation, the
+demo sweep, and `.windows` leaf divergence checks remain unverified. The setup
+steps and current limits are in [Windows setup](windows-setup.md).

@@ -14,10 +14,12 @@ one small bounded task through edit → checks → verified result before you
 commit real features to it. No device SDK is needed for that browser pass.
 
 The starter runs on web, iOS, and Android — the supported shipping targets.
-macOS is experimental; the Windows scaffold builds a bundle but has not yet
-been run on Windows; Linux has an experimental WebKitGTK webview host
-exercised on Ubuntu 24.04. [Choose your targets](spec.md#choose-your-targets)
-for the current boundaries before committing to a release.
+macOS and Windows are experimental. The Windows native project compiles on a
+Windows host, but the app bundle currently fails before launch. Linux has an
+experimental WebKitGTK webview host exercised on Ubuntu 24.04. See the
+[Windows setup guide](windows-setup.md) for host prerequisites and current
+limits, and [choose your targets](spec.md#choose-your-targets) for support
+boundaries before committing to a release.
 
 ## Start here
 
@@ -75,5 +77,5 @@ by [framework](framework-notes.md), [architecture](architecture-notes.md),
 [toolchain](toolchain-notes.md). Focused notes cover [module
 resolution](module-resolution-notes.md), [animation](animation-notes.md),
 [testing](testing-notes.md), [CSS support](css-support-notes.md),
-[SQLite persistence](sqlite-notes.md), and the experimental [Windows
-target](windows-notes.md).
+[SQLite persistence](sqlite-notes.md), the experimental [Windows
+target](windows-notes.md), and [Windows host setup](windows-setup.md).
