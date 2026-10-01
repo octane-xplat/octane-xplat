@@ -276,7 +276,7 @@ body {
 
 .nav-label {
 	font-size: 16px;
-	font-weight: 300;
+	font-weight: 350;
 	letter-spacing: 0.003em;
 }
 
@@ -284,7 +284,7 @@ body {
 .nav .nav-hint {
 	margin-left: auto;
 	font-size: 11px;
-	font-weight: 500;
+	font-weight: 400;
 	color: var(--doc-dim);
 	border-width: 0.5px;
 	border-color: var(--doc-hairline);
@@ -308,7 +308,7 @@ body {
 
 .sec-head {
 	font-size: 16px;
-	font-weight: 500;
+	font-weight: 450;
 	letter-spacing: 0.001em;
 	padding: 0 5px;
 	margin-bottom: 6px;
@@ -333,7 +333,7 @@ body {
 
 .side-text {
 	font-size: 16px;
-	font-weight: 200;
+	font-weight: 300;
 	letter-spacing: 0.003em;
 }
 
