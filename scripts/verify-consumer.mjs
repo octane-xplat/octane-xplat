@@ -104,6 +104,15 @@ function run(command, argv, cwd, env = {}) {
 		throw result.error
 	}
 
+	// A silent nonzero exit (e.g. a shim spawning a missing binary) is
+	// undebuggable from CI logs — surface the process result itself.
+	if (result.status !== 0) {
+		console.error(
+			`[verify] ${command} ${argv.join(' ')} → status=${result.status} signal=${result.signal} ` +
+				`stdout=${result.stdout?.length ?? 0}B stderr=${result.stderr?.length ?? 0}B`,
+		)
+	}
+
 	return result
 }
 
