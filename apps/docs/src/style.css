@@ -741,6 +741,16 @@ body {
 	corner-shape: squircle;
 	background: var(--doc-card);
 	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(-8px);
+	transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+}
+
+.doc-actions-menu.is-open {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
 }
 
 .doc-action {
@@ -806,6 +816,12 @@ body {
 	color: var(--doc-dim) !important;
 	font-size: 12px;
 	line-height: 1.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.doc-actions-menu {
+		transition-duration: 0ms;
+	}
 }
 
 .h1 {
