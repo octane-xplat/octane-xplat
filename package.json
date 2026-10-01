@@ -30,7 +30,7 @@
 		"test": "pnpm test:cli && pnpm --filter @xplat/web test && pnpm --filter @octane-xplat/motion test && pnpm --filter @octane-xplat/audio test && pnpm --filter @octane-xplat/ui test:native && pnpm --filter @octane-xplat/platform test && pnpm --filter @octane-xplat/media test && pnpm --filter @octane-xplat/lingui test && node --test examples/auth/server-verification.test.mjs && pnpm test:scripts && pnpm test:typegen",
 		"typegen": "pnpm -r --if-present run typegen",
 		"typegen:watch": "node scripts/watch-types.mjs",
-		"postinstall": "pnpm typegen",
+		"postinstall": "pnpm typegen && pnpm --filter @xplat/app exec bamboo codegen",
 		"test:cli": "node --test packages/cli/test/*.test.mjs",
 		"check:consumer": "node scripts/verify-consumer.mjs",
 		"dev:android": "pnpm --filter @xplat/mobile android",
