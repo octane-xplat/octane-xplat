@@ -1,4 +1,4 @@
-import { useMemo } from 'octane';
+import { useMemo, useState, useEffect } from 'octane';
 import { View, Text, pushRoute } from '@octane-xplat/ui';
 import { createHighlighterCoreSync } from 'shiki/core';
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
@@ -145,9 +145,105 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 
 export function MdDoc(props: { md: string }) @{
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
+	const [actionsOpen, setActionsOpen] = useState(false);
+	const [copied, setCopied] = useState(false);
 
-	<View className="doc">{blocks.map((b, i) => {
-		const prev = blocks[i - 1];
-		return <BlockView b={b} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />;
-	})}</View>
+	useEffect(() => {
+		if (!actionsOpen) return;
+
+		const onPointerDown = (e: PointerEvent) => {
+			const target = e.target as Node | null;
+			if (target && !document.getElementById('doc-actions')?.contains(target)) {
+				setActionsOpen(false);
+			}
+		};
+		const onKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') setActionsOpen(false);
+		};
+
+		document.addEventListener('pointerdown', onPointerDown);
+		document.addEventListener('keydown', onKeyDown);
+		return () => {
+			document.removeEventListener('pointerdown', onPointerDown);
+			document.removeEventListener('keydown', onKeyDown);
+		};
+	}, [actionsOpen]);
+
+	const copyPage = async () => {
+		try {
+			await navigator.clipboard.writeText(props.md);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1600);
+		} catch {
+			setCopied(false);
+		}
+		setActionsOpen(false);
+	};
+
+	const viewMarkdown = () => {
+		const url = URL.createObjectURL(new Blob([props.md], { type: 'text/plain;charset=utf-8' }));
+		window.open(url, '_blank', 'noopener,noreferrer');
+		setTimeout(() => URL.revokeObjectURL(url), 60_000);
+		setActionsOpen(false);
+	};
+
+	const openV0 = () => {
+		const url = `https://v0.dev/chat/api/open?url=${encodeURIComponent(window.location.href)}`;
+		window.open(url, '_blank', 'noopener,noreferrer');
+		setActionsOpen(false);
+	};
+
+	const askAI = () => {
+		const prompt = `Explain this documentation page: ${window.location.href}`;
+		window.open(`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`, '_blank', 'noopener,noreferrer');
+		setActionsOpen(false);
+	};
+
+	<View className="doc">
+		<div className="doc-actions" id="doc-actions">
+			<div className="doc-actions-bar">
+				<button className="doc-copy" type="button" onClick={copyPage}>
+					<svg className="doc-copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+						<rect x="8" y="8" width="13" height="13" rx="2" />
+						<path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
+					</svg>
+					<span>{copied ? 'Copied' : 'Copy page'}</span>
+				</button>
+				<button
+					className="doc-copy-toggle"
+					type="button"
+					aria-label="More page actions"
+					aria-haspopup="menu"
+					aria-expanded={actionsOpen}
+					onClick={() => setActionsOpen(!actionsOpen)}
+				>
+					<span className="doc-copy-chevron" />
+				</button>
+			</div>
+			{actionsOpen && (
+				<div className="doc-actions-menu" role="menu">
+					<button className="doc-action" role="menuitem" type="button" onClick={copyPage}>
+						<svg className="doc-action-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></svg>
+						<span><span className="doc-action-title">Copy page</span><span className="doc-action-desc">Copy page as Markdown for LLMs</span></span>
+					</button>
+					<button className="doc-action" role="menuitem" type="button" onClick={viewMarkdown}>
+						<span className="doc-action-glyph" aria-hidden="true">M↓</span>
+						<span><span className="doc-action-title">View as Markdown</span><span className="doc-action-desc">Open this page as plain text</span></span>
+					</button>
+					<button className="doc-action" role="menuitem" type="button" onClick={openV0}>
+						<span className="doc-action-glyph v0-glyph" aria-hidden="true">v0</span>
+						<span><span className="doc-action-title">Open in v0</span><span className="doc-action-desc">Ask v0 to help apply this page</span></span>
+					</button>
+					<button className="doc-action" role="menuitem" type="button" onClick={askAI}>
+						<svg className="doc-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8.4 8.4 0 0 1-8.5 8.3 9.2 9.2 0 0 1-4-.9L3 20l1.2-4.1a8 8 0 0 1-1.2-4.4 8.5 8.5 0 0 1 17.5 0Z" /></svg>
+						<span><span className="doc-action-title">Ask AI about this page</span><span className="doc-action-desc">Chat with this page as context</span></span>
+					</button>
+				</div>
+			)}
+		</div>
+		{blocks.map((b, i) => {
+			const prev = blocks[i - 1];
+			return <BlockView b={b} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />;
+		})}
+	</View>
 }

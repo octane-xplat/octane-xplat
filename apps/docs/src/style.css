@@ -589,6 +589,156 @@ body {
 	max-width: 933px;
 }
 
+.doc-actions {
+	position: relative;
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 24px;
+	z-index: 2;
+}
+
+.doc-actions-bar {
+	display: flex;
+	min-height: 48px;
+	border: 1px solid rgba(127, 127, 127, 0.32);
+	border-radius: 10px;
+	background: var(--doc-card);
+	overflow: hidden;
+}
+
+.doc-copy,
+.doc-copy-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 0;
+	background: transparent;
+	color: var(--doc-ink);
+	cursor: pointer;
+	font: inherit;
+}
+
+.doc-copy {
+	gap: 12px;
+	padding: 0 18px;
+	font-size: 16px;
+	font-weight: 500;
+}
+
+.doc-copy-toggle {
+	width: 52px;
+	border-left: 1px solid rgba(127, 127, 127, 0.32);
+}
+
+.doc-copy:hover,
+.doc-copy-toggle:hover {
+	background: var(--doc-hover);
+}
+
+.doc-copy:focus-visible,
+.doc-copy-toggle:focus-visible,
+.doc-action:focus-visible {
+	outline: 2px solid var(--doc-link);
+	outline-offset: -2px;
+}
+
+.doc-copy-icon,
+.doc-action-icon {
+	width: 21px;
+	height: 21px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	flex: 0 0 auto;
+}
+
+.doc-copy-chevron {
+	width: 12px;
+	height: 12px;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	transform: translateY(-3px) rotate(45deg);
+}
+
+.doc-actions-menu {
+	position: absolute;
+	top: calc(100% + 10px);
+	right: 0;
+	width: 420px;
+	max-width: calc(100vw - 48px);
+	padding: 10px;
+	border: 1px solid rgba(127, 127, 127, 0.3);
+	border-radius: 18px;
+	background: var(--doc-card);
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+
+.doc-action {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	width: 100%;
+	min-height: 76px;
+	padding: 12px 14px;
+	border: 0;
+	border-radius: 10px;
+	background: transparent;
+	color: var(--doc-ink);
+	text-align: left;
+	cursor: pointer;
+	font: inherit;
+}
+
+.doc-action:hover {
+	background: var(--doc-hover);
+}
+
+.doc-action-icon,
+.doc-action-glyph {
+	width: 28px;
+	height: 28px;
+	flex: 0 0 28px;
+	color: var(--doc-dim);
+}
+
+.doc-action-glyph {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.v0-glyph {
+	font-size: 13px;
+	letter-spacing: -1px;
+}
+
+.chat-glyph {
+	border: 2px solid currentColor;
+	border-radius: 50%;
+	font-size: 0;
+}
+
+.doc-action > span:last-child {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.doc-action-title {
+	font-size: 16px;
+	line-height: 1.25;
+}
+
+.doc-action-desc {
+	color: var(--doc-dim) !important;
+	font-size: 14px;
+	line-height: 1.35;
+}
+
 .h1 {
 	font-family: 'Onest', 'Outfit', system-ui, sans-serif;
 	font-size: 30px;
