@@ -100,7 +100,7 @@ export function Home() @{
 		{/* The five control sections outgrow a phone pane — keep them in
 		    their own scroller (the flex-1 region) so intrinsic controls
 		    never squash and the Items list keeps real estate below. */}
-		<ScrollableArea className="flex-1 min-h-0">
+		<ScrollableArea className="home-actions flex-1 min-h-0">
 			<View className="gap-6">
 				<View id="bamboo-card" className={['sink-section', 'vx-row', bambooCardClass]}>
 					<Text className="section-label">Reactivity</Text>

@@ -141,6 +141,10 @@ body {
 	min-height: 0;
 }
 
+.home-actions {
+	margin-top: 36px;
+}
+
 .vx-app .section-label {
 	font-size: 12px;
 	line-height: 16px;
