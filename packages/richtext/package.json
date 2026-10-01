@@ -1,0 +1,98 @@
+{
+	"name": "@octane-xplat/richtext",
+	"version": "0.0.0",
+	"description": "Native rich-text editing leaf for Octane xplat \u2014 WordPress Aztec on Android (iOS stubbed, deferred)",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"richtext",
+		"rich-text",
+		"editor",
+		"aztec",
+		"android"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/richtext",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/richtext"
+	},
+	"files": [
+		"dist",
+		"types",
+		"src",
+		"platforms"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"macos": {
+				"default": "./src/index.macos.ts"
+			},
+			"web": {
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"default": "./src/index.ts"
+			},
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"macos": {
+					"types": "./types/index.d.ts",
+					"default": "./src/index.macos.ts"
+				},
+				"web": {
+					"types": "./types/index.d.ts",
+					"default": "./dist/web/index.js"
+				},
+				"native": {
+					"types": "./types/index.d.ts",
+					"default": "./dist/native/index.js"
+				},
+				"types": "./types/index.d.ts",
+				"default": "./dist/native/index.js"
+			}
+		}
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
+		"prepublishOnly": "pnpm build"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.61",
+		"octane": "0.6.3",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	}
+}

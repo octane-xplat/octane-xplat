@@ -22,6 +22,7 @@
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/picker": "workspace:*",
 		"@octane-xplat/push": "workspace:*",
+		"@octane-xplat/richtext": "workspace:*",
 		"@octane-xplat/sheet": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
