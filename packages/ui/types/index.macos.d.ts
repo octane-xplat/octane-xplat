@@ -56,6 +56,10 @@ export declare const RichText: Component<P.RichTextProps>
 export declare const RichTextSpan: Component<P.RichTextSpanProps>
 export declare const Pressable: Component<P.PressableProps>
 export declare const Button: Component<P.ButtonProps>
+export declare const IconButton: Component<P.IconButtonProps>
+export declare const ButtonGroup: Component<P.ButtonGroupProps>
+export declare const ToggleButton: Component<P.ToggleButtonProps>
+export declare const ToggleButtonGroup: Component<P.ToggleButtonGroupProps>
 export declare const Collapsible: Component<P.CollapsibleProps>
 export declare const Accordion: Component<P.AccordionProps>
 /** Self-drawn checkbox, exported under Astryx's component name. */
@@ -63,6 +67,7 @@ export declare const CheckboxInput: Component<P.CheckboxInputProps>
 /** Single-choice option list, exported under Astryx's component name. */
 export declare const RadioList: Component<P.RadioListProps>
 export declare const DropdownMenu: Component<P.DropdownMenuProps>
+export declare const MoreMenu: Component<P.MoreMenuProps>
 export declare const ContextMenu: Component<P.ContextMenuProps>
 export declare const Badge: Component<P.BadgeProps>
 /** Visual separator between content sections, exported under Astryx's name. */
@@ -113,6 +118,8 @@ export declare const Timeline: Component<P.TimelineProps>
 export declare const TreeList: Component<P.TreeListProps>
 export declare const Alert: Component<P.AlertProps>
 export declare const Card: Component<P.CardProps>
+export declare const ClickableCard: Component<P.ClickableCardProps>
+export declare const SelectableCard: Component<P.SelectableCardProps>
 export declare const Chip: Component<P.ChipProps>
 export declare const Kbd: Component<P.KbdProps>
 /** Empty-state block, exported under Astryx's component name. */
@@ -134,6 +141,10 @@ export declare function VirtualList<T = any>(
 ): unknown
 
 export declare const Image: Component<P.ImageProps>
+export declare const PowerSearch: Component<P.PowerSearchProps>
+export declare const PowerSearchToken: Component<P.PowerSearchTokenProps>
+export declare const PowerSearchFilterEditor: Component<P.PowerSearchEditorProps>
+export { createPowerSearchConfig, usePowerSearchConfig, resolveOperatorLabel } from './generated/power-search-config.js'
 export declare const WebView: Component<P.WebViewProps>
 export declare const CameraView: Component
 export declare const Overlay: Component<P.OverlayProps>

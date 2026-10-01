@@ -19,6 +19,8 @@ import { ControlsDemo } from './ControlsDemo.tsrx';
 import { PagerDemo } from './PagerDemo.tsrx';
 import { SegmentedDemo } from './SegmentedDemo.tsrx';
 import { SearchDemo } from './SearchDemo.tsrx';
+import { ActionControlsDemo } from './ActionControlsDemo.tsrx';
+import { PowerSearchDemo } from './PowerSearchDemo.tsrx';
 import { VideoDemo } from './VideoDemo.tsrx';
 import { LottieDemo } from './LottieDemo.tsrx';
 import { CameraDemo, AnimatedImageDemo, CanvasDemo } from './hosted-demos';
@@ -82,6 +84,8 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'native-context-menu', title: 'Native context menu', kind: 'app' },
 	{ id: 'native-sheet', title: 'Native sheet', kind: 'app' },
 	{ id: 'search', title: 'Search input', kind: 'proof' },
+	{ id: 'power-search', title: 'PowerSearch', kind: 'proof' },
+	{ id: 'action-controls', title: 'Action controls', kind: 'proof' },
 	{ id: 'video', title: 'Video', kind: 'proof' },
 	{ id: 'lottie', title: 'Lottie', kind: 'proof' },
 	{ id: 'camera', title: 'Camera', kind: 'proof' },
@@ -138,6 +142,8 @@ const renderNativeDatePicker = () => <NativeDatePickerDemo />;
 const renderNativeContextMenu = () => <NativeContextMenuDemo />;
 const renderNativeSheet = () => <NativeSheetDemo />;
 const renderSearch = () => <SearchDemo />;
+const renderPowerSearch = () => <PowerSearchDemo />;
+const renderActionControls = () => <ActionControlsDemo />;
 const renderVideo = () => <VideoDemo />;
 const renderLottie = () => <LottieDemo />;
 const renderCamera = () => <CameraDemo />;
@@ -187,6 +193,8 @@ export const RENDER: Record<string, () => any> = {
 	'native-context-menu': renderNativeContextMenu,
 	'native-sheet': renderNativeSheet,
 	search: renderSearch,
+	'power-search': renderPowerSearch,
+	'action-controls': renderActionControls,
 	video: renderVideo,
 	lottie: renderLottie,
 	camera: renderCamera,

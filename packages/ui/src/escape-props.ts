@@ -61,6 +61,7 @@ export function nativeAccessibilityState(state?: {
 	disabled?: boolean
 	selected?: boolean
 	checked?: boolean
+	pressed?: boolean
 }): string | undefined {
 	if (state?.disabled) {
 		return 'disabled'
@@ -70,11 +71,13 @@ export function nativeAccessibilityState(state?: {
 		return 'selected'
 	}
 
-	if (state?.checked === true) {
+	// NS has no 'pressed' state — a pressed toggle reports as checked.
+	const checked = state?.checked ?? state?.pressed
+	if (checked === true) {
 		return 'checked'
 	}
 
-	if (state?.checked === false) {
+	if (checked === false) {
 		return 'unchecked'
 	}
 

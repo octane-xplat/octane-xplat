@@ -1,4 +1,4 @@
-import type { PopoverPlacement } from './props'
+import type { PopoverAlignment, PopoverPlacement } from './props'
 
 export interface PopoverRect {
 	left: number
@@ -27,19 +27,30 @@ export function positionPopover(
 	viewport: PopoverRect,
 	requested: PopoverPlacement = 'bottom',
 	gap = 8,
-	alignment: 'start' | 'center' | 'end' = 'start',
+	alignment: PopoverAlignment = 'start',
 ): PopoverPosition {
-	const ratio = alignment === 'start' ? 0 : alignment === 'center' ? 0.5 : 1
+	const align = (placement: PopoverPlacement) => {
+		if (placement === 'top' || placement === 'bottom') {
+			return alignment === 'center'
+				? anchor.left + (anchor.width - panel.width) / 2
+				: alignment === 'end' ? anchor.left + anchor.width - panel.width : anchor.left
+		}
+
+		return alignment === 'center'
+			? anchor.top + (anchor.height - panel.height) / 2
+			: alignment === 'end' ? anchor.top + anchor.height - panel.height : anchor.top
+	}
+
 	const at = (placement: PopoverPlacement): { left: number; top: number } => {
 		switch (placement) {
 			case 'top':
-				return { left: anchor.left + (anchor.width - panel.width) * ratio, top: anchor.top - panel.height - gap }
+				return { left: align(placement), top: anchor.top - panel.height - gap }
 			case 'bottom':
-				return { left: anchor.left + (anchor.width - panel.width) * ratio, top: anchor.top + anchor.height + gap }
+				return { left: align(placement), top: anchor.top + anchor.height + gap }
 			case 'left':
-				return { left: anchor.left - panel.width - gap, top: anchor.top + (anchor.height - panel.height) * ratio }
+				return { left: anchor.left - panel.width - gap, top: align(placement) }
 			case 'right':
-				return { left: anchor.left + anchor.width + gap, top: anchor.top + (anchor.height - panel.height) * ratio }
+				return { left: anchor.left + anchor.width + gap, top: align(placement) }
 		}
 
 		throw new Error(`Unknown popover placement: ${placement}`)

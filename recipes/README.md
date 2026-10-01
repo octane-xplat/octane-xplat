@@ -42,6 +42,8 @@ Workflows:
 - [Compose a shared screen layout](shared-layout.md)
 - [Enter and submit text reliably](text-entry.md)
 - [Search and enter selected values](search-and-token-entry.md)
+- [Build a structured search field](power-search.md)
+- [Compose action controls and interactive cards](interactive-actions.md)
 - [Size a WebView to its document](webview-content-sizing.md)
 - [Package an experimental AppKit app](macos-appkit-package.md)
 - [Package a Linux WebKitGTK app](linux-package.md)

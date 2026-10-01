@@ -4,18 +4,21 @@ import { applyEscapeProps } from "./escape-props";
 import { Pressable } from './Pressable.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
+import { useButtonGroup } from './button-group-context';
 
 /** Self-drawn dropdown menu — `trigger` plus an anchored item list via
  *  Popover. The same anchored listbox renders on every target (decision
  *  #48): bounded, unvirtualized items. */
 export function DropdownMenu(props: DropdownMenuProps) @{
 	const anchor = useRef<any>(null);
+	const group = useButtonGroup();
+	const disabled = !!(props.disabled || group?.isDisabled);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
 	const controlled = props.open !== undefined;
 	const open = controlled ? props.open : internal;
 
 	const setOpen = (next: boolean) => {
-		if (props.disabled && next) return;
+		if (disabled && next) return;
 		if (!controlled) setInternal(next);
 		props.onOpenChange?.(next);
 	};
@@ -37,11 +40,12 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 		<Pressable
 			bind={(e: any) => { anchor.current = e; }}
 			id={props.id}
-			className={['vx-menu-trigger', props.className]}
+			className={['vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, group?.size && `vx-button--size-${group.size}`, props.className]}
 			style={props.style}
-			disabled={props.disabled}
+			disabled={disabled}
+			accessibilityLabel={props.accessibilityLabel}
 			onPress={() => setOpen(!open)}
-			accessibilityState={{ disabled: props.disabled }}
+			accessibilityState={{ disabled }}
 		>
 			{props.trigger}
 		</Pressable>
@@ -49,8 +53,9 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 			anchor={anchor}
 			open={open}
 			placement={props.placement ?? 'bottom'}
+			alignment={props.alignment}
 			onDismiss={() => setOpen(false)}
-			className="vx-menu"
+			className={['vx-menu', props.menuClassName]}
 		>
 			<div role="menu" className="vx-menu-list">
 				{props.items.map((item: MenuItem) => (

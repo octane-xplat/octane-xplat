@@ -41,6 +41,7 @@ export function Pressable(props: PressableProps) @{
 		aria-disabled={props.disabled || props.accessibilityState?.disabled || undefined}
 		aria-selected={props.accessibilityState?.selected}
 		aria-checked={props.accessibilityState?.checked}
+		aria-pressed={props.accessibilityState?.pressed}
 		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
 		aria-hidden={props.accessible === false ? true : undefined}
 		tabIndex={props.onPress && !props.disabled && props.accessible !== false ? 0 : -1}

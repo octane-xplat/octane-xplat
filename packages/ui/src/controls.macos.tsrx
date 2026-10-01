@@ -9,6 +9,8 @@ import { usePan } from './pan.tsrx'
 import { nativeAccessibilityRole } from './escape-props'
 import { useThemeScheme } from './theme/theme-scheme.macos'
 import { useFieldControlProps } from './field-context'
+import { useButtonGroup } from './button-group-context'
+import { Icon } from './Icon.macos.tsrx'
 
 function controlColors(dark: boolean) {
 	return dark
@@ -17,8 +19,22 @@ function controlColors(dark: boolean) {
 }
 
 export function Button(props: ButtonProps) @{
-	<Pressable id={props.id} className={cx('vx-button', props.className)} style={props.style} disabled={props.disabled} onPress={props.onPress}>
-		{props.children ?? <Text>{props.title}</Text>}
+	const group = useButtonGroup()
+	const [pending, setPending] = useState(false)
+	const loading = !!(props.loading || props.isLoading || pending)
+	const disabled = !!(props.disabled || props.isDisabled || props.isLoading || props.loading || group?.isDisabled)
+	const press = () => {
+		if (disabled || (pending && !props.isInterruptible)) return
+		props.onPress?.()
+		const action = props.clickAction?.()
+		if (action && typeof (action as any).then === 'function') {
+			setPending(true)
+			Promise.resolve(action).then(() => setPending(false), () => setPending(false))
+		}
+	}
+
+	<Pressable id={props.id} className={cx('vx-button', `vx-button--${props.variant ?? 'secondary'}`, `vx-button--size-${props.size ?? group?.size ?? 'md'}`, group && `vx-button--group-${group.position}`, props.isIconOnly && 'vx-button--icon', disabled && 'vx-button--disabled', props.className)} style={props.style} disabled={disabled} onPress={press} accessibilityLabel={props.accessibilityLabel ?? (props.isIconOnly ? props.label : undefined)} accessibilityRole="button">
+		{loading ? <ActivityIndicator /> : <>{typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon ?? props.leading}{props.children ?? (props.isIconOnly ? null : <Text>{props.label}</Text>)}{props.endContent ?? props.trailing}</>}
 	</Pressable>
 }
 
@@ -171,6 +187,7 @@ export function SearchInput(props: SearchInputProps) @{
 		if (props.value === undefined) setInternal(next)
 		props.onChange?.(next)
 	}
+
 	<TextInput {...props} value={value} onChange={setValue} hasClear={props.hasClear !== false} placeholder={props.placeholder ?? 'Search'} />
 }
 

@@ -2062,3 +2062,53 @@ input.vx-search-field::-webkit-search-cancel-button {
 	/* xplat-web-only:end */
 
 }
+
+@layer xplat-structure {
+/* Astryx action controls and structured PowerSearch geometry. */
+.vx-button-group,
+.vx-toggle-button-group {
+	flex-direction: row;
+	align-items: stretch;
+}
+.vx-button-group--vertical {
+	flex-direction: column;
+}
+.vx-clickable-card,
+.vx-selectable-card {
+	justify-content: center;
+}
+.vx-power-search,
+.vx-power-search-editor {
+	flex-direction: column;
+}
+.vx-power-search-row,
+.vx-power-search-token-row,
+.vx-power-search-editor-actions {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-power-search-row {
+	flex-wrap: wrap;
+}
+.vx-power-search-input {
+	flex-grow: 1;
+}
+.vx-power-search-result-list {
+	flex-direction: column;
+}
+.vx-power-search-results,
+.vx-power-search-edit {
+	flex-direction: column;
+}
+.vx-power-search-result {
+	padding: 6px 10px;
+}
+.vx-power-search-empty,
+.vx-power-search-count,
+.vx-power-search-status {
+	flex-direction: row;
+}
+.vx-more-menu-sheet-list {
+	flex-direction: column;
+}
+}

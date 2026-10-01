@@ -88,7 +88,13 @@ matching accessibility group role.
 | `SearchInput`                        | Search field with clear button                   | `value`, `onSubmit`, `hasClear`, `onClear`                  |
 | `FormLayout`                         | Arranges labeled fields                          | `direction`, `defaultOptionality`                           |
 | `InputGroup`, `InputGroupText`       | Joins a labeled control with prefix/suffix text  | `label`, `size`                                              |
-| `Button`                             | Action button                                    | `loading`, `leading`, `trailing`                            |
+| `PowerSearch`                        | Structured field/operator/value filters          | `config`, `filters`, `onChange`, `components`               |
+| `Button`                             | Labeled action                                    | `label`, `variant`, `size`, `isDisabled`, `isLoading`, `clickAction`, `href` |
+| `IconButton`                         | Icon-only named action                           | `icon`, `label`, `variant`, `size`                          |
+| `ButtonGroup`                        | Connected action row                              | `label`, `orientation`, `size`, `isDisabled`                |
+| `ToggleButton`, `ToggleButtonGroup`   | Pressed action and toggle group                   | `isPressed`, `value`, `onChange`, `type`                    |
+| `ClickableCard`, `SelectableCard`   | Action/navigation card or controlled selection  | `label`, `href`, `isSelected`, `onChange`                  |
+| `MoreMenu`                           | Icon-only overflow menu                            | `items`, `label`, `placement`, `alignment`                 |
 | `Switch`                             | On/off toggle (self-drawn)                       | `checked`, `onCheckedChange`, `isDisabled`                  |
 | `CheckboxInput`                     | Self-drawn checkbox                              | `checked`, `onCheckedChange`, `isDisabled`                  |
 | `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks | `state`, `size`, `isDisabled` |
@@ -115,6 +121,8 @@ matching accessibility group role.
 | Component        | What it is                                  | Key props                                  |
 | ---------------- | ------------------------------------------- | ------------------------------------------ |
 | `Card`           | Container with header/footer slots          | `header`, `footer`                         |
+| `ClickableCard`  | Named action or link surface                 | `label`, `onPress`, `href`, `isDisabled`   |
+| `SelectableCard` | Controlled checked card                     | `label`, `isSelected`, `onChange`          |
 | `Alert`          | Inline callout                              | `tone`, `icon`, `title`                    |
 | `Banner`         | Notice strip with optional dismiss          | `icon`, `onDismiss`                        |
 | `EmptyState` | Empty-state block (icon + title + actions) | `icon`, `title`, `description`       |

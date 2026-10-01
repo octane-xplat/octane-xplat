@@ -294,6 +294,9 @@ export interface AccessibilityProps {
 		disabled?: boolean
 		selected?: boolean
 		checked?: boolean
+		/** Toggle-button pressed state — `aria-pressed` on web; reported as
+		 *  checked/unchecked where the platform a11y model has no pressed. */
+		pressed?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 }
@@ -365,6 +368,9 @@ export interface TextProps extends LayoutChildProps {
 		disabled?: boolean
 		selected?: boolean
 		checked?: boolean
+		/** Toggle-button pressed state — `aria-pressed` on web; reported as
+		 *  checked/unchecked where the platform a11y model has no pressed. */
+		pressed?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
@@ -427,6 +433,9 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps {
 		disabled?: boolean
 		selected?: boolean
 		checked?: boolean
+		/** Toggle-button pressed state — `aria-pressed` on web; reported as
+		 *  checked/unchecked where the platform a11y model has no pressed. */
+		pressed?: boolean
 	}
 	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
 	/** Platform-specific properties are applied after shared props. */
@@ -877,6 +886,10 @@ export interface OverlayProps {
 
 export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right'
 
+/** Along-axis alignment of the panel against the anchor. 'start' aligns the
+ *  panel start with the anchor start (the previous fixed behavior). */
+export type PopoverAlignment = 'start' | 'center' | 'end'
+
 /** A platform-neutral ref to the host view or element that owns a popover. */
 export interface PopoverAnchorRef {
 	readonly current: unknown
@@ -887,8 +900,8 @@ export interface PopoverProps {
 	anchor: PopoverAnchorRef
 	open?: boolean
 	placement?: PopoverPlacement
-	/** Alignment along the edge adjoining the anchor. */
-	alignment?: 'start' | 'center' | 'end'
+	/** Align the panel along the placement axis. @default 'start' */
+	alignment?: PopoverAlignment
 	dismissOnOutsideTap?: boolean
 	onDismiss?: () => void
 	className?: any
@@ -1412,14 +1425,55 @@ export interface AnimatedValue {
 
 // ---------- self-drawn components (Phase 1) ----------
 
+/** Shared resting-elevation scale for floating surfaces. */
+export type Elevation = 'none' | 'low' | 'med' | 'high'
+
+/** Button visual variants; apps add more through `.vx-button--variant-{name}`
+ *  class hooks (the upstream catalog is open the same way). */
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | (string & {})
+
 /** Button composes Pressable — same-props/same-pixels, self-drawn. `loading`
- *  shows the spinner and blocks presses. */
+ *  shows the spinner and blocks presses. Also accepts the Astryx vocabulary
+ *  (`label`, `variant`, `size`, `isDisabled`, `isLoading`, `icon`,
+ *  `isIconOnly`, `endContent`, `elevation`, `tooltip`, `href`, `clickAction`,
+ *  `isInterruptible`); the legacy `disabled`/`loading`/`leading`/`trailing`
+ *  names keep working and the Astryx names win when both are set. */
 export interface ButtonProps extends PressableProps {
 	loading?: boolean
 	/** Content rendered before children (e.g. an Icon). */
 	leading?: any
 	/** Content rendered after children. */
 	trailing?: any
+	/** Visible label text; `children` takes precedence when both are set. */
+	label?: string
+	/** Visual variant. @default 'secondary' */
+	variant?: ButtonVariant
+	/** @default 'md' */
+	size?: FieldControlSize
+	/** Disabled state (merges with `disabled`). */
+	isDisabled?: boolean
+	/** Loading state (merges with `loading`). */
+	isLoading?: boolean
+	/** Keep the button interactive while a `clickAction` is pending. */
+	isInterruptible?: boolean
+	/** Action run on press; pending promises show the loading spinner unless
+	 *  `isInterruptible` keeps presses live. */
+	clickAction?: () => void | Promise<void>
+	/** Leading icon — a node (e.g. `<Icon />`) or a registered icon name. */
+	icon?: any
+	/** Square icon-only button; `label` becomes the accessible name. */
+	isIconOnly?: boolean
+	/** Trailing content slot (merges with `trailing`). */
+	endContent?: any
+	/** Resting elevation — floating-button shadow. @default 'none' */
+	elevation?: Elevation
+	/** Hover/focus hint on pointer targets (web/macOS); no touch semantic. */
+	tooltip?: string
+	/** Navigate on press — web renders a real anchor (new-tab/keyboard intact);
+	 *  native opens the URL with the platform browser. Unsafe schemes blocked. */
+	href?: string
+	/** Link target for `href`. @default '_self' */
+	target?: string
 }
 
 /** Collapsible shows/hides `children` behind a `trigger`. Controlled via
@@ -1540,11 +1594,20 @@ export interface DropdownMenuProps {
 	id?: string
 	/** Anchor content — rendered inside the trigger Pressable. */
 	trigger?: any
+	/** Accessible name for the trigger when it carries no visible text. */
+	accessibilityLabel?: string
+	/** Class merged onto the trigger Pressable (e.g. `vx-button` chrome for an
+	 *  icon-only overflow trigger). */
+	triggerClassName?: any
+	/** Class merged onto the anchored menu panel (the Popover surface). */
+	menuClassName?: any
 	items: MenuItem[]
 	open?: boolean
 	defaultOpen?: boolean
 	onOpenChange?: (open: boolean) => void
 	placement?: PopoverPlacement
+	/** Panel alignment along the placement axis. @default 'start' */
+	alignment?: PopoverAlignment
 	disabled?: boolean
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
@@ -2353,7 +2416,11 @@ export interface AlertProps {
 	web?: any
 }
 
-/** Card — container with optional header/footer slots. */
+/** Card — container with optional header/footer slots, padding scale, and
+ *  background variants. `variant` names map to `vx-card--{name}` class hooks:
+ *  'default' (bordered), 'muted', 'transparent', and the tint set
+ *  (blue/cyan/gray/green/orange/pink/purple/red/teal/yellow) ship in
+ *  chrome.css; custom variant names still produce a class an app can skin. */
 export interface CardProps {
 	className?: any
 	style?: any
@@ -2361,6 +2428,13 @@ export interface CardProps {
 	header?: any
 	footer?: any
 	children?: any
+	/** Internal padding in 4px spacing steps. @default 4 */
+	padding?: number
+	variant?: string
+	elevation?: Elevation
+	width?: number | string
+	height?: number | string
+	maxWidth?: number | string
 	ios?: any
 	android?: any
 	web?: any
@@ -3081,6 +3155,571 @@ export interface ChatLayoutContextValue {
 	contentRef(el: any): void
 }
 
+// ---------- actions & interactive cards (Astryx parity) ----------
+
+/** Icon-only button — `label` is the accessible name and doubles as the
+ *  hover/focus tooltip on pointer targets. `icon` is required: a node or a
+ *  registered icon name. */
+export interface IconButtonProps extends Omit<ButtonProps, 'children' | 'endContent' | 'isIconOnly' | 'label'> {
+	icon: any
+	label: string
+}
+
+export type ButtonGroupOrientation = 'horizontal' | 'vertical'
+
+/** Shared context Button (and grouped trigger components) read inside a
+ *  ButtonGroup — mirrors upstream `useButtonGroup`. */
+export interface ButtonGroupContextValue {
+	orientation: ButtonGroupOrientation
+	isDisabled: boolean
+	size?: FieldControlSize
+}
+
+/** Connected button row — shared surface, squared inner edges, single tab
+ *  stop with arrow-key navigation on web. Children are Buttons/IconButtons/
+ *  ToggleButtons or a DropdownMenu trigger member. */
+export interface ButtonGroupProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** Accessible label for the group (role="group" aria-label). */
+	label: string
+	/** @default 'horizontal' */
+	orientation?: ButtonGroupOrientation
+	/** Default size for group members. @default 'md' */
+	size?: FieldControlSize
+	/** Resting elevation for the shared surface. @default 'none' */
+	elevation?: Elevation
+	isDisabled?: boolean
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Toggle button — pressed state with `isPressed`/`onPressedChange`, an
+ *  optional `pressedChangeAction` run through Button's action transition, and
+ *  `pressedIcon` for outline→filled swaps. Inside a ToggleButtonGroup the
+ *  group owns pressed state via `value`. */
+export interface ToggleButtonProps extends Omit<ButtonProps, 'label' | 'variant'> {
+	label: string
+	isPressed?: boolean
+	/** Called with the next pressed state when the button is activated. */
+	onPressedChange?: (isPressed: boolean) => void
+	/** Action-backed toggle — runs while the pending spinner shows, with an
+	 *  optimistic press flip. Ignored when `value` binds group membership. */
+	pressedChangeAction?: (isPressed: boolean) => void | Promise<void>
+	/** Icon shown while pressed (e.g. filled variant); falls back to `icon`. */
+	pressedIcon?: any
+	/** Member key inside a ToggleButtonGroup. */
+	value?: string
+}
+
+interface ToggleButtonGroupBaseProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** Accessible label for the group (role="group" aria-label). */
+	label: string
+	orientation?: ButtonGroupOrientation
+	size?: FieldControlSize
+	isDisabled?: boolean
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Single-select toggle group — clicking the active button deselects. */
+export interface ToggleButtonGroupSingleProps extends ToggleButtonGroupBaseProps {
+	type?: 'single'
+	value: string | null
+	onChange: (value: string | null) => void
+}
+
+/** Multi-select toggle group. */
+export interface ToggleButtonGroupMultipleProps extends ToggleButtonGroupBaseProps {
+	type: 'multiple'
+	value: string[]
+	onChange: (value: string[]) => void
+}
+
+export type ToggleButtonGroupProps = ToggleButtonGroupSingleProps | ToggleButtonGroupMultipleProps
+
+/** Interactive card for navigation or action targets. The whole surface is
+ *  one press/click target; nested interactive children (buttons, links) still
+ *  work independently. `href` gives real link semantics on web (modifier and
+ *  middle clicks open a new tab; unsafe URL schemes are refused) and opens
+ *  the platform browser on native. */
+export interface ClickableCardProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Accessible name for the card's action. */
+	label: string
+	onPress?: () => void
+	href?: string
+	target?: string
+	isDisabled?: boolean
+	children?: any
+	/** Internal padding in 4px spacing steps. @default 4 */
+	padding?: number
+	/** @default 'default' */
+	variant?: string
+	/** @default 'none' */
+	elevation?: Elevation
+	width?: number | string
+	height?: number | string
+	maxWidth?: number | string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Toggle-selection card — same surface contract as ClickableCard with a
+ *  checked/selected semantic instead of an action. */
+export interface SelectableCardProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Accessible name for the selectable card. */
+	label: string
+	/** Controlled selection state. */
+	isSelected: boolean
+	onChange: (isSelected: boolean) => void
+	/** Disabled cards stay focusable with a disabled state announced. */
+	isDisabled?: boolean
+	children?: any
+	padding?: number
+	variant?: string
+	elevation?: Elevation
+	width?: number | string
+	height?: number | string
+	maxWidth?: number | string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+export type MoreMenuPlacement = 'above' | 'below' | 'start' | 'end' | 'left' | 'right' | PopoverPlacement
+export type MoreMenuAlignment = PopoverAlignment
+/** 'popover' anchors the menu to the trigger; 'bottom-sheet' docks it in the
+ *  bottom sheet; 'adaptive' resolves to bottom-sheet on coarse-pointer/touch
+ *  targets and popover elsewhere. @default 'popover' */
+export type MoreMenuPresentation = 'popover' | 'bottom-sheet' | 'adaptive'
+
+/** Overflow menu — icon-only three-dot trigger feeding a DropdownMenu. */
+export interface MoreMenuProps {
+	className?: any
+	style?: any
+	id?: string
+	items: MenuItem[]
+	/** Accessible label for the trigger. @default 'More options' */
+	label?: string
+	/** Trigger button variant. @default 'ghost' */
+	variant?: ButtonVariant
+	/** Trigger button size. @default 'md' */
+	size?: FieldControlSize
+	/** Trigger icon override — node or registered name. @default three dots */
+	icon?: any
+	isDisabled?: boolean
+	/** Menu side of the trigger. @default 'below' */
+	placement?: MoreMenuPlacement
+	/** Menu alignment along the placement axis. @default 'start' */
+	alignment?: MoreMenuAlignment
+	/** Menu presentation policy. @default 'popover' */
+	presentation?: MoreMenuPresentation
+	/** Controlled open state. */
+	isMenuOpen?: boolean
+	onOpenChange?: (isOpen: boolean) => void
+	ios?: any
+	android?: any
+	web?: any
+}
+
+// ---------- PowerSearch (Astryx parity) ----------
+
+// Reuse the shared SearchableItem and SearchSource contracts from Typeahead.
+
+// Operator value kinds — what editor a filter value uses.
+export interface EmptyOperatorValue { readonly type: 'empty' }
+export interface StringOperatorValue {
+	readonly type: 'string'
+	readonly searchSource?: SearchSource
+	readonly isArbitraryStringAllowed?: boolean
+}
+
+export interface StringListOperatorValue {
+	readonly type: 'string_list'
+	readonly searchSource?: SearchSource
+	readonly isArbitraryStringAllowed?: boolean
+	readonly tokenization?: OperatorTokenizationConfig
+}
+
+export interface IntegerOperatorValue {
+	readonly type: 'integer'
+	readonly minValue?: number
+	readonly maxValue?: number
+	readonly units?: string
+}
+
+export interface FloatOperatorValue {
+	readonly type: 'float'
+	readonly minValue?: number
+	readonly maxValue?: number
+	readonly units?: string
+}
+
+export interface TimeOperatorValue {
+	readonly type: 'time'
+	readonly minValue?: string
+	readonly maxValue?: string
+}
+
+export interface DateAbsoluteOperatorValue {
+	readonly type: 'date_absolute'
+	/** Date-only editing without a time part. */
+	readonly isDateOnly?: boolean
+}
+
+export interface DateRelativeOperatorValue {
+	readonly type: 'date_relative'
+	/** @default true */
+	readonly isPastAllowed?: boolean
+	/** @default true */
+	readonly isFutureAllowed?: boolean
+}
+
+export interface DateRangeOperatorValue {
+	readonly type: 'date_range'
+	readonly intervalDatePresets?: ReadonlyArray<DateRangeFilterPreset>
+	readonly relativeDatePresets?: ReadonlyArray<RelativeDateFilterPreset>
+}
+
+export interface EnumItem {
+	readonly value: string
+	readonly label: string
+	readonly icon?: any
+}
+
+export interface EnumOperatorValue {
+	readonly type: 'enum'
+	readonly values: ReadonlyArray<EnumItem>
+}
+
+export interface EnumListOperatorValue {
+	readonly type: 'enum_list'
+	readonly values: ReadonlyArray<EnumItem>
+}
+
+export interface EntityListOperatorValue {
+	readonly type: 'entity_list'
+	readonly searchSource?: SearchSource
+	readonly isArbitraryStringAllowed?: boolean
+	readonly tokenization?: OperatorTokenizationConfig
+	readonly renderItem?: (item: SearchableItem) => any
+}
+
+export interface CustomOperatorValue {
+	readonly type: 'custom'
+	/** Caller editor component: `{value, onChange, placeholder, isDisabled}`. */
+	readonly Editor: any
+	/** JSON value → display string for the token. */
+	readonly getString: (value: string) => string
+}
+
+export interface NestedOperatorValue { readonly type: 'nested' }
+
+export type OperatorValue =
+	| EmptyOperatorValue
+	| StringOperatorValue
+	| StringListOperatorValue
+	| IntegerOperatorValue
+	| FloatOperatorValue
+	| TimeOperatorValue
+	| DateAbsoluteOperatorValue
+	| DateRelativeOperatorValue
+	| DateRangeOperatorValue
+	| EnumOperatorValue
+	| EnumListOperatorValue
+	| EntityListOperatorValue
+	| CustomOperatorValue
+	| NestedOperatorValue
+
+// Stored filter values.
+export interface FilterValueEmpty { readonly type: 'empty' }
+export interface FilterValueString { readonly type: 'string'; readonly value: string }
+export interface FilterValueStringList { readonly type: 'string_list'; readonly value: ReadonlyArray<string> }
+export interface FilterValueInteger { readonly type: 'integer'; readonly value: number }
+export interface FilterValueFloat { readonly type: 'float'; readonly value: number }
+export interface FilterValueTime { readonly type: 'time'; readonly value: string }
+export interface FilterValueDateAbsolute { readonly type: 'date_absolute'; readonly unixSeconds: number }
+export interface FilterValueDateRelative { readonly type: 'date_relative'; readonly value: string }
+export interface FilterValueDateRange { readonly type: 'date_range'; readonly value: DateTimeRange }
+export interface FilterValueEnum { readonly type: 'enum'; readonly value: string }
+export interface FilterValueEnumList { readonly type: 'enum_list'; readonly value: ReadonlyArray<string> }
+export interface PowerSearchEntity {
+	readonly id: string
+	readonly label: string
+	readonly photo?: string
+}
+
+export interface FilterValueEntityList { readonly type: 'entity_list'; readonly value: ReadonlyArray<PowerSearchEntity> }
+export interface FilterValueCustom { readonly type: 'custom'; readonly value: string }
+export interface FilterValueNested { readonly type: 'nested'; readonly value: ReadonlyArray<PowerSearchFilter> }
+
+export type FilterValue =
+	| FilterValueEmpty
+	| FilterValueString
+	| FilterValueStringList
+	| FilterValueInteger
+	| FilterValueFloat
+	| FilterValueTime
+	| FilterValueDateAbsolute
+	| FilterValueDateRelative
+	| FilterValueDateRange
+	| FilterValueEnum
+	| FilterValueEnumList
+	| FilterValueEntityList
+	| FilterValueCustom
+	| FilterValueNested
+
+export interface OperatorTokenizationConfig {
+	/** Regex applied to pasted text. */
+	readonly regex?: string
+	/** Sort tokens after tokenizing. */
+	readonly sort?: boolean
+}
+
+export type DateTimeRangePart =
+	| { readonly type: 'NOW' }
+	| { readonly type: 'ABSOLUTE'; readonly unixSeconds: number }
+	| {
+			readonly type: 'RELATIVE'
+			readonly backValue: number
+			readonly unit: 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
+			readonly anchorKey?: string
+		}
+
+export interface DateTimeRange {
+	readonly start: DateTimeRangePart
+	readonly end: DateTimeRangePart
+}
+
+export interface DateRangeFilterPreset {
+	readonly label: string
+	readonly value: DateTimeRange
+}
+
+export interface RelativeDateFilterPreset {
+	readonly label: string
+	readonly value: string
+}
+
+// Config vocabulary.
+export interface PowerSearchOperatorBase {
+	readonly key: string
+	readonly value: OperatorValue
+}
+
+/** Operator with literal label text. */
+export interface PowerSearchOperatorWithLabel extends PowerSearchOperatorBase {
+	readonly label: string
+	readonly i18nKey?: never
+}
+
+/** Operator whose label resolves through the PowerSearch string catalog —
+ *  `@octane-xplat/ui` ships English defaults for the `@astryx.powersearch.*`
+ *  keys; a custom catalog key falls back to the key's last segment. */
+export interface PowerSearchOperatorWithI18nKey extends PowerSearchOperatorBase {
+	readonly i18nKey: string
+	readonly label?: never
+}
+
+export type PowerSearchOperator = PowerSearchOperatorWithLabel | PowerSearchOperatorWithI18nKey
+
+export interface PowerSearchField {
+	readonly key: string
+	readonly label: string
+	readonly operators: ReadonlyArray<PowerSearchOperator>
+	readonly icon?: any
+	/** Default operator key when the field is picked. */
+	readonly defaultOperator?: string
+	/** Group label organizing fields in the browse menu. */
+	readonly group?: string
+	readonly description?: string
+	/** Extra strings that match this field in the typeahead. */
+	readonly typeaheadAliases?: ReadonlyArray<string>
+	/** Minimum query length before this field appears in the menu. */
+	readonly typeaheadMinQueryLength?: number
+	/** Offer value matches for this field. @default true */
+	readonly isValueMatchAllowed?: boolean
+}
+
+export interface PowerSearchConfig {
+	readonly name: string
+	readonly fields: ReadonlyArray<PowerSearchField>
+	/** Field key receiving free-text search. */
+	readonly contentSearchFieldKey?: string
+}
+
+export interface PowerSearchFilter {
+	readonly field: string
+	readonly operator: string
+	readonly value: FilterValue
+	/** Prevent editing this filter. */
+	readonly isReadOnly?: boolean
+}
+
+export interface PartialFilter {
+	readonly field: string
+	readonly operator?: string
+	readonly value?: FilterValue
+	readonly isReadOnly?: boolean
+}
+
+export type PowerSearchChangeType = 'add' | 'edit' | 'remove'
+
+/** Imperative typeahead handle exposed through `handleRef`. */
+export interface PowerSearchHandle {
+	focusTypeahead(): void
+	blurTypeahead(): void
+}
+
+export interface PowerSearchAuxData {
+	readonly fieldKey: string
+	readonly operatorKey?: string
+	readonly filterValue?: FilterValue
+	readonly filterIndex?: number
+	readonly group?: string
+}
+
+export type PowerSearchItem = SearchableItem<PowerSearchAuxData>
+
+export type PowerSearchSize = 'sm' | 'md' | 'lg'
+
+/** Props for a custom token pill (`components[type].Token`). */
+export interface PowerSearchTokenProps {
+	readonly config: PowerSearchConfig
+	readonly filter: PowerSearchFilter
+	readonly field: PowerSearchField
+	readonly operator: PowerSearchOperator
+	readonly maxLength: number
+	readonly onPress?: () => void
+	readonly onRemove?: () => void
+	readonly isDisabled?: boolean
+}
+
+/** Props for a custom filter editor (`components[type].Editor`). */
+export interface PowerSearchEditorProps {
+	readonly config: PowerSearchConfig
+	readonly filter: PartialFilter
+	readonly mode: 'create' | 'edit'
+	readonly onSave: (filter: PowerSearchFilter | null) => void
+	readonly onCancel: () => void
+	readonly saveButtonLabel?: string
+	readonly isReadOnly?: boolean
+	readonly timezoneID?: string
+}
+
+export interface PowerSearchComponentOverride {
+	readonly Token?: any
+	readonly Editor?: any
+}
+
+export type PowerSearchComponents = Partial<Record<OperatorValue['type'], PowerSearchComponentOverride>>
+
+/** Structured filter bar — pick a field, then operator and value in the
+ *  editor popover; committed filters render as removable, editable tokens. */
+export interface PowerSearchProps extends FieldControlProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Status layout: overlaps the field below it or occupies its own row. */
+	statusVariant?: 'attached' | 'detached'
+	/** Field/operator configuration. */
+	config: PowerSearchConfig
+	/** Active filters (controlled). */
+	filters: ReadonlyArray<PowerSearchFilter>
+	/** Fires on add/edit/remove with the change type and filter index. */
+	onChange: (
+		filters: ReadonlyArray<PowerSearchFilter>,
+		changeType: PowerSearchChangeType,
+		index: number,
+	) => void
+	/** Accessible label. @default 'Search' */
+	placeholder?: string
+	/** @default false */
+	hasAutoFocus?: boolean
+	/** Show a clear-all affordance. @default true */
+	hasClear?: boolean
+	/** Explains the disabled state; shown via the platform hint channel. */
+	disabledMessage?: string
+	/** Leading icon — node or registered icon name. */
+	startIcon?: any
+	/** Exact pixel width of the field/suggestion menu. */
+	menuWidth?: number
+	/** Max display length for token values. @default 40 */
+	maxTokenLength?: number
+	/** Max suggestions inside value-editor menus. @default 10 */
+	maxOperatorMenuItems?: number
+	/** Max ranked results for a non-empty query. @default 10 */
+	maxSearchResults?: number
+	/** Editor save-button label. @default 'Apply' */
+	popoverSaveButtonLabel?: string
+	/** IANA timezone for absolute-date formatting. */
+	timezoneID?: string
+	/** Trailing content on the input row. */
+	endContent?: any
+	/** Match count shown at the end of the bar and announced politely. */
+	resultCount?: number | string
+	/** Callback adaptation of Astryx's imperative handle ref. */
+	handleRef?: (handle: PowerSearchHandle) => void
+	onFocus?: () => void
+	onBlur?: () => void
+	/** Per-operator-value-type Token/Editor component overrides. */
+	components?: PowerSearchComponents
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Simplified field definitions → `createPowerSearchConfig`. */
+export interface FieldDefinition<
+	K extends string = string,
+	T extends PowerSearchFieldType = PowerSearchFieldType,
+> {
+	readonly key: K
+	readonly type: T
+	readonly label?: string
+	/** Required for 'enum'/'enum_list'. */
+	readonly enumValues?: ReadonlyArray<EnumItem>
+}
+
+export type PowerSearchFieldType =
+	| 'string'
+	| 'number'
+	| 'boolean'
+	| 'date'
+	| 'enum'
+	| 'enum_list'
+	| 'string_list'
+
+export type PowerSearchFieldTypeToJS = {
+	string: string
+	number: number
+	boolean: boolean
+	date: Date | number
+	enum: string
+	enum_list: ReadonlyArray<string>
+	string_list: ReadonlyArray<string>
+}
+
+/** Infers the row type a field-definition tuple describes. */
+export type InferData<D extends ReadonlyArray<FieldDefinition>> = {
+	[F in D[number] as F['key']]: PowerSearchFieldTypeToJS[F['type']]
+}
+
 // ---------- theme ----------
 
 export type ColorScheme = 'light' | 'dark'
@@ -3647,6 +4286,8 @@ export interface OutlineProps {
 	ios?: any
 	android?: any
 	web?: any
+}
+
 // ---------- Astryx parity: layout containers ----------
 
 /** `Center` — flex centering on the main axis (`horizontal` → justify),

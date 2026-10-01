@@ -1462,3 +1462,56 @@ textarea::placeholder {
 	}
 
 }
+
+@layer xplat-chrome {
+/* Astryx action family: optional visual skin over always-on token geometry. */
+.vx-button--primary { background-color: var(--color-primary); color: var(--color-onprimary); }
+.vx-button--secondary { background-color: var(--color-surface-secondary); color: var(--color-text); }
+.vx-button--ghost { background-color: transparent; color: var(--color-text); }
+.vx-button--destructive { background-color: var(--color-danger); color: #fff; }
+.vx-button--disabled,
+.vx-card--disabled { opacity: 0.5; }
+.vx-button--icon { min-width: 36px; min-height: 36px; padding: 6px; }
+.vx-button--group-first,
+.vx-button--group-middle,
+.vx-button--group-last,
+.vx-button--group-only { border-radius: 0; }
+.vx-button-group,
+.vx-toggle-button-group { border-width: 1px; border-color: var(--color-border); border-radius: var(--radius-md); }
+/* xplat-web-only:start — connected DOM borders and clipping. */
+.vx-button-group,
+.vx-toggle-button-group { overflow: hidden; }
+.vx-button-group--horizontal > :not(:first-child),
+.vx-toggle-button-group--horizontal > :not(:first-child) { border-left-width: 1px; border-left-color: var(--color-border); }
+.vx-button-group--vertical > :not(:first-child),
+.vx-toggle-button-group--vertical > :not(:first-child) { border-top-width: 1px; border-top-color: var(--color-border); }
+/* xplat-web-only:end */
+.vx-toggle-button--pressed,
+.vx-selectable-card--selected { border-color: var(--color-primary); background-color: var(--color-surface-secondary); }
+.vx-card--muted { background-color: var(--color-surface-secondary); }
+.vx-card--transparent { background-color: transparent; }
+.vx-card--elev-low,
+.vx-button--elev-low { box-shadow: 0 1px 2px rgb(0 0 0 / 12%); }
+.vx-card--elev-med,
+.vx-button--elev-med { box-shadow: 0 3px 8px rgb(0 0 0 / 16%); }
+.vx-card--elev-high,
+.vx-button--elev-high { box-shadow: 0 8px 20px rgb(0 0 0 / 20%); }
+.vx-clickable-card,
+.vx-selectable-card { text-align: left; color: inherit; }
+.vx-power-search-row { border-width: 1px; border-color: var(--color-border); border-radius: var(--radius-md); padding: 4px 8px; background: var(--color-surface); }
+.vx-power-search-token-row { align-items: center; }
+.vx-power-search-token-label { max-width: 320px; }
+.vx-power-search-editor { min-width: 280px; padding: 12px; }
+.vx-power-search-editor-actions { justify-content: flex-end; }
+/* xplat-web-only:start — DOM interaction and scroll affordances. */
+.vx-clickable-card, .vx-selectable-card { display: flex; cursor: pointer; }
+.vx-power-search-row { display: flex; gap: 4px; }
+.vx-power-search-token-row { display: inline-flex; gap: 2px; }
+.vx-power-search-token-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vx-power-search-result-list { max-height: 320px; overflow: auto; }
+.vx-power-search-result { display: block; width: 100%; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.vx-power-search-result:hover { background: var(--color-surface-secondary); }
+.vx-power-search-editor { display: flex; flex-direction: column; gap: 12px; }
+.vx-power-search-editor-actions { display: flex; gap: 8px; }
+/* xplat-web-only:end */
+}
