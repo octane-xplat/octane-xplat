@@ -182,7 +182,7 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 	return <></>;
 }
 
-export function MdDoc(props: { md: string; agentPrompt?: string }) @{
+export function MdDoc(props: { md: string; agentPrompt?: string; showCopyPage?: boolean }) @{
 	// Positions identify nodes within this fixed document; the shell remounts
 	// MdDoc when its slug changes, so keys never cross document boundaries.
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
@@ -246,10 +246,10 @@ export function MdDoc(props: { md: string; agentPrompt?: string }) @{
 	<View className="doc">
 		<div className="doc-actions" id="doc-actions">
 			<div className="doc-actions-bar">
-				<svg className="doc-copy-surface" viewBox="0 0 162 30" aria-hidden="true">
+				{props.showCopyPage !== false && <svg className="doc-copy-surface" viewBox="0 0 162 30" aria-hidden="true">
 					<path d="M147.176777,-0.176776695 L162.176777,14.8232233 L162.25,15 L162.25,30.25 L9,30.25 L8.8232233,30.1767767 L-0.176776695,21.1767767 L-0.25,21 L-0.25,-0.25 L147,-0.25 Z" />
-				</svg>
-				<button className="doc-copy" type="button" onClick={copyPage}>
+				</svg>}
+				{props.showCopyPage !== false && <button className="doc-copy" type="button" onClick={copyPage}>
 					<svg className="doc-copy-icon" viewBox="0 0 16 16" aria-hidden="true">
 						<g transform="translate(1.3333, 1.3333)">
 							<rect x="4.66666667" y="4.66666667" width="8.66666667" height="8.66666667" rx="1.33333333" />
@@ -257,7 +257,7 @@ export function MdDoc(props: { md: string; agentPrompt?: string }) @{
 						</g>
 					</svg>
 					<span>{copied ? 'Copied' : 'Copy page'}</span>
-				</button>
+				</button>}
 				<button
 					className="doc-copy-toggle"
 					type="button"
@@ -276,10 +276,10 @@ export function MdDoc(props: { md: string; agentPrompt?: string }) @{
 				role="menu"
 				aria-hidden={!actionsOpen}
 			>
-				<button className="doc-action" role="menuitem" type="button" onClick={copyPage}>
+				{props.showCopyPage !== false && <button className="doc-action" role="menuitem" type="button" onClick={copyPage}>
 					<svg className="doc-action-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></svg>
 					<span><span className="doc-action-title">Copy page</span><span className="doc-action-desc">Copy page as Markdown for LLMs</span></span>
-				</button>
+				</button>}
 				<button className="doc-action" role="menuitem" type="button" onClick={viewMarkdown}>
 					<span className="doc-action-glyph" aria-hidden="true">M↓</span>
 					<span><span className="doc-action-title">View as Markdown</span><span className="doc-action-desc">Open this page as plain text</span></span>
