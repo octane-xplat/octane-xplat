@@ -766,7 +766,7 @@ body {
 	   column — the agent-prompt width — at every breakpoint */
 	--orbit-inset: 81px;
 	position: relative;
-	height: 276px;
+	height: 300px;
 	margin: 48px var(--orbit-inset) 12px;
 	border: .5px solid var(--doc-hairline);
 	border-radius: 66px;
@@ -784,7 +784,7 @@ body {
 .orbit-user {
 	position: absolute;
 	left: 50%;
-	top: 50%;
+	top: calc(50% - 12px);
 	width: 74px;
 	height: 74px;
 	transform: translate(-50%, -50%);
@@ -793,7 +793,7 @@ body {
 .orbit-ring {
 	position: absolute;
 	left: 50%;
-	top: 50%;
+	top: calc(50% - 12px);
 	width: 0;
 	height: 0;
 	animation: orbit-spin 36s linear infinite;
