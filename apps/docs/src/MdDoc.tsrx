@@ -202,10 +202,15 @@ export function MdDoc(props: { md: string }) @{
 	<View className="doc">
 		<div className="doc-actions" id="doc-actions">
 			<div className="doc-actions-bar">
+				<svg className="doc-copy-surface" viewBox="0 0 162 30" aria-hidden="true">
+					<path d="M147.176777,-0.176776695 L162.176777,14.8232233 L162.25,15 L162.25,30.25 L9,30.25 L8.8232233,30.1767767 L-0.176776695,21.1767767 L-0.25,21 L-0.25,-0.25 L147,-0.25 Z" />
+				</svg>
 				<button className="doc-copy" type="button" onClick={copyPage}>
-					<svg className="doc-copy-icon" viewBox="0 0 24 24" aria-hidden="true">
-						<rect x="8" y="8" width="13" height="13" rx="2" />
-						<path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
+					<svg className="doc-copy-icon" viewBox="0 0 16 16" aria-hidden="true">
+						<g transform="translate(1.3333, 1.3333)">
+							<rect x="4.66666667" y="4.66666667" width="8.66666667" height="8.66666667" rx="1.33333333" />
+							<path d="M2,8.66666667 L1.33333333,8.66666667 C0.596953667,8.66666667 0,8.069713 0,7.33333333 L0,1.33333333 C0,0.596953667 0.596953667,0 1.33333333,0 L7.33333333,0 C8.069713,0 8.66666667,0.596953667 8.66666667,1.33333333 L8.66666667,2" />
+						</g>
 					</svg>
 					<span>{copied ? 'Copied' : 'Copy page'}</span>
 				</button>
@@ -217,7 +222,9 @@ export function MdDoc(props: { md: string }) @{
 					aria-expanded={actionsOpen}
 					onClick={() => setActionsOpen(!actionsOpen)}
 				>
-					<span className="doc-copy-chevron" />
+					<svg className="doc-copy-chevron" viewBox="0 0 22 22" aria-hidden="true">
+						<polyline points="5.5 8.70833333 11 14.2083333 16.5 8.70833333" />
+					</svg>
 				</button>
 			</div>
 			{actionsOpen && (
