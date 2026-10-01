@@ -769,12 +769,13 @@ body {
 	max-width: 933px;
 	padding: 0 81px;
 	--orbit-content-inset: 81px;
+	transform: translateX(calc(-50% + 164px + var(--orbit-content-inset)));
 	pointer-events: none;
 }
 
 .orbit-user {
 	position: absolute;
-	left: calc(164px + var(--orbit-content-inset));
+	left: 50%;
 	top: 50%;
 	width: 74px;
 	height: 74px;
@@ -783,7 +784,7 @@ body {
 
 .orbit-ring {
 	position: absolute;
-	left: calc(164px + var(--orbit-content-inset));
+	left: 50%;
 	top: 50%;
 	width: 0;
 	height: 0;
