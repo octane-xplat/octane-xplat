@@ -147,7 +147,7 @@ function installLexicalDomShim(zeed: any): void {
 							return undefined;
 						},
 						set: (_t, k, v) => {
-							writeStyleProp(el, k, v);
+							if (typeof k === 'string') writeStyleProp(el, k, v);
 							return true;
 						},
 					},

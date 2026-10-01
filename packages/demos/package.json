@@ -18,6 +18,7 @@
 		"@octane-xplat/date-picker": "workspace:*",
 		"@octane-xplat/effects": "workspace:*",
 		"@octane-xplat/gif": "workspace:*",
+		"@octane-xplat/lexical": "workspace:*",
 		"@octane-xplat/lottie": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/picker": "workspace:*",

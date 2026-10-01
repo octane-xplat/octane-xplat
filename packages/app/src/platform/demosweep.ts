@@ -1007,6 +1007,13 @@ const STEPS: Step[] = [
 		],
 	},
 	{
+		id: 'lexical-editor',
+		checks: [
+			{ at: 800, run: () => assertHas('lexical ios stub', 'Rich text editing is not supported on iOS yet.') },
+			{ at: 800, run: () => assertMatch('lexical ios status', /unsupported/) },
+		],
+	},
+	{
 		id: 'layout',
 		checks: [
 			{ at: 400, run: () => assertHas('demo layout', 'Layout primitives') },
@@ -1805,6 +1812,20 @@ function probeTiptapFacade() {
 
 function probeLexicalImports() {
 	assertMatch('lexical probe pass', /probe \d+\/\d+ PASS/)
+
+	navigate('demo/:id', { id: 'lexical-editor' }, { into: 'test' })
+	waitFor(
+		() => routeFor('test')?.params?.id === 'lexical-editor',
+		() => setTimeout(probeLexicalFacade, 4500),
+		80,
+	)
+}
+
+function probeLexicalFacade() {
+	assertMatch('lexical facade status', /ready/)
+	const hay = viewTexts(demosPage())
+	const jsonOk = hay.some((t) => t.includes('json ok'))
+	console.log('[assert] Android lexical facade json bridge: ' + (jsonOk ? 'OK' : 'FAIL') + dump(hay))
 }
 
 function runStep(i: number) {
