@@ -50,7 +50,12 @@ const corePkg = createRequire(join(process.cwd(), 'apps/mobile/package.json')).r
 
 const cssTree = createRequire(corePkg)('css-tree')
 
-const FILES = globSync('{packages/*/src,packages/create/template/src}/**/*.css', { cwd: process.cwd() })
+const FILES = globSync('{packages/*/src,packages/create/template/src}/**/*.css', {
+	cwd: process.cwd(),
+	// src/vendor/** is upstream submodule code — diff-identical to the forks,
+	// so its web-only docs CSS can never satisfy the native registry.
+	exclude: (name) => name.includes('/src/vendor/'),
+})
 
 let errors = 0
 let warned = 0
