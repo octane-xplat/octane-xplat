@@ -761,8 +761,9 @@ body {
 
 .orbit {
 	position: relative;
-	height: 250px;
+	height: 210px;
 	margin-top: 8px;
+	margin-bottom: -12px;
 	max-width: 933px;
 	padding: 0 81px;
 	pointer-events: none;
