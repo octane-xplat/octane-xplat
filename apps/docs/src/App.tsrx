@@ -108,7 +108,7 @@ export function App() @{
 	useEffect(() => {
 		setLeaving(false);
 		resetDocScroll();
-		document.title = doc.title === 'xplat' ? 'xplat docs' : `${doc.title} — xplat`;
+		document.title = doc.title === 'Xplat' ? 'Xplat docs' : `${doc.title} — Xplat`;
 	}, [doc.slug]);
 
 	useEffect(() => () => {
@@ -291,7 +291,7 @@ export function App() @{
 							</div>
 						)}
 						<MdDoc md={doc.md} showPageActions={doc.slug !== 'README'} agentPrompt={doc.slug === 'README'
-							? 'Set up Octane xplat for me. Fetch https://octane-xplat.goddardai.org/llms-full.txt and follow the “Create and run” guide.'
+							? 'Set up Octane Xplat for me. Fetch https://octane-xplat.goddardai.org/llms-full.txt and follow the “Create and run” guide.'
 							: undefined} />
 						{nextDoc && (
 							<Pressable className="doc-next" onPress={() => selectDoc(nextDoc.slug)}>

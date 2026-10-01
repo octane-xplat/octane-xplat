@@ -94,7 +94,7 @@ The NativeScript implementation uses a package-owned Android Media3
 `MediaSessionService` and iOS `AVPlayer` with Now Playing metadata and remote
 transport commands. It reports background playback, system controls, and
 interruption handling as available on native. Android playback and the Media3
-session were exercised on the xplat emulator; notification/headset controls,
+session were exercised on the Xplat emulator; notification/headset controls,
 background continuation, interruption recovery, and physical audio output
 still need device verification. Fresh iOS preparation on 2026-09-30 installed
 `QBImagePickerController` once and resolved Swift packages; the historical

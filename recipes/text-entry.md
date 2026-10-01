@@ -6,7 +6,7 @@ Related APIs: TextInput, TextArea, SearchInput, TextInputHandle, KeyboardAvoidin
 
 ## Starting point
 
-An Octane xplat app with stateful forms and web, iOS, and Android targets.
+An Octane Xplat app with stateful forms and web, iOS, and Android targets.
 
 ## Requirements
 

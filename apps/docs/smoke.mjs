@@ -110,7 +110,7 @@ await new Promise((r) => setTimeout(r, 30))
 assert('clipboard failure shows manual-copy guidance and expands the prompt', promptCard?.querySelector('.agent-prompt-status.is-error')?.textContent.includes('Select the prompt text') && expandPrompt?.getAttribute('aria-expanded') === 'true')
 
 const highlights = [...root.querySelectorAll('.doc mark.highlight')]
-assert('xplat page renders both highlights', highlights.length === 2 && highlights[0].textContent === 'one TypeScript codebase' && highlights[1].textContent === 'Prove the loop first')
+assert('Xplat page renders both highlights', highlights.length === 2 && highlights[0].textContent === 'one TypeScript codebase' && highlights[1].textContent === 'Prove the loop first')
 assert('highlight keeps its section link', highlights[1]?.querySelector('a')?.getAttribute('href') === '/toolchain#create-and-run')
 
 const mixedHighlight = inlineSpans('before ==**bold** *italic* `code` [link](spec.md)== after')

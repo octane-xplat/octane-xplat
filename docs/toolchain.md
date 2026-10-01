@@ -45,7 +45,7 @@ Open `my-app` in your coding agent and give it the bounded task:
 
 > Read AGENTS.md and .agents/skills/xplat/SKILL.md. Replace the starter screen
 > with a trip packing checklist: add items, mark them packed, remove them,
-> and show the number still to pack. Use in-memory state and shared xplat
+> and show the number still to pack. Use in-memory state and shared Xplat
 > components. Run pnpm lint, pnpm typecheck, and pnpm build. Report failures
 > and which targets you actually ran.
 
@@ -81,7 +81,7 @@ For iOS, check that the Ruby on PATH can load `xcodeproj`:
 `gem install --user-install xcodeproj`.
 
 From the app directory, run `pnpm exec ns doctor` for the NativeScript
-environment and `pnpm xplat doctor` for xplat configuration and patch checks.
+environment and `pnpm xplat doctor` for Xplat configuration and patch checks.
 Then use a separate terminal while the web server stays running:
 
 ```sh
@@ -106,7 +106,7 @@ without manually restarting the apps. Check each app separately: their
 in-memory packing lists are separate too.
 
 Web and iOS/Android development sessions watch the same source.
-The xplat development loop has been verified with a shared `.tsrx` edit reaching
+The Xplat development loop has been verified with a shared `.tsrx` edit reaching
 web and an iOS simulator; verify your own running targets after each change.
 This updates code in local development sessions, not data between devices or
 installed production apps.
@@ -130,7 +130,7 @@ files, styling, state, and verification. The
 
 NativeScript also publishes [official agent skills](https://github.com/NativeScript/skills)
 for native APIs, platform behavior, and tooling. They are optional, installed
-separately, and do not replace xplat's component and file conventions. Choose
+separately, and do not replace Xplat's component and file conventions. Choose
 skills relevant to the task and check their API/version assumptions against
 your app before applying examples from another frontend.
 

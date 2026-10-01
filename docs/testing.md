@@ -1,4 +1,4 @@
-# Checking an xplat app
+# Checking an Xplat app
 
 > Treat your agent's report as a claim to verify: catch shared-code mistakes
 > quickly, then prove the behavior on the targets you ship.

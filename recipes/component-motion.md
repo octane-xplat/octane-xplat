@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/motion, motion.View, motion.Row, motion.Pressable, M
 
 ## Starting point
 
-An Octane xplat app with UI primitives and reactive screen state.
+An Octane Xplat app with UI primitives and reactive screen state.
 
 ## Requirements
 

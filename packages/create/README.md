@@ -3,7 +3,7 @@
 > Get a TypeScript app running, then build its first useful flow with your
 > coding agent.
 
-xplat's target direction spans web, iOS, Android, macOS, Windows, and Linux.
+Xplat's target direction spans web, iOS, Android, macOS, Windows, and Linux.
 This starter configures **web, iOS, and Android**. macOS, Windows, and Linux
 are separate experiments — an AppKit host, a WinUI 3 scaffold with runtime
 verification pending, and a WebKitGTK webview host. See
@@ -50,6 +50,6 @@ pnpm build          # web production bundle
 
 [Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)
 provides prerequisites, live-update boundaries, and version guidance. The
-starter's xplat skill is included; NativeScript's official skills are optional
+starter's Xplat skill is included; NativeScript's official skills are optional
 and installed separately. Ask your agent to report checks and targets actually
 run. [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs.

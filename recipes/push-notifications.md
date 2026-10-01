@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/push, push.configure, push.getToken, push.requestPer
 
 ## Starting point
 
-A scaffolded Octane xplat app with web, iOS, and Android targets, and a
+A scaffolded Octane Xplat app with web, iOS, and Android targets, and a
 Firebase project the reader controls. The reader can add a workspace or
 published package and place app-level credential files under `App_Resources`.
 

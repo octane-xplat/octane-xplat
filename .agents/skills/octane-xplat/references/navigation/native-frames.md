@@ -42,7 +42,7 @@ detached from its tab fragment. Transactions then land on a detached child
 `transitionOrAnimationCompleted → setCurrent`. Filed as
 [NativeScript#11444](https://github.com/NativeScript/NativeScript/issues/11444);
 the fix ([NativeScript#11446](https://github.com/NativeScript/NativeScript/pull/11446))
-is ported into the xplat `@nativescript/core` patch.
+is ported into the Xplat `@nativescript/core` patch.
 
 **Containment:** the framework avoids the structure entirely on Android —
 named-stack pushes always live in the route store and render through

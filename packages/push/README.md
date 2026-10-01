@@ -1,6 +1,6 @@
 # `@octane-xplat/push`
 
-Push notifications for Octane xplat apps over Firebase Cloud Messaging:
+Push notifications for Octane Xplat apps over Firebase Cloud Messaging:
 
 - **iOS/Android** — `@nativescript/firebase-core` + `@nativescript/firebase-messaging`
 - **Web** — Firebase JS SDK (`firebase/app` + `firebase/messaging`) plus a

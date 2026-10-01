@@ -1,11 +1,11 @@
-# What you can build with xplat
+# What you can build with Xplat
 
 > Build a TypeScript app for web, iOS, Android, macOS, Windows, and Linux;
 > choose targets with the current support boundaries in mind.
 
 ## Decide whether it fits
 
-Consider xplat when your app is a real product that must live on web and
+Consider Xplat when your app is a real product that must live on web and
 mobile, and you expect to tailor parts of the experience for each OS. What
 you share is concrete product behavior — data, actions, workflows, ordinary
 screen layout. What you keep separate is deliberate: an OS control, a
@@ -87,7 +87,7 @@ OS-specific control you depend on.
 components, props, and state, and compiles UI for the selected renderer.
 [NativeScript](https://docs.nativescript.org/guide/metadata) exposes native iOS
 and Android APIs directly to TypeScript without requiring you to write a
-bridge. xplat supplies shared components, services, and file conventions that
+bridge. Xplat supplies shared components, services, and file conventions that
 your agent can follow. Native APIs still have OS requirements and permissions.
 
 Read [how an app fits together](architecture.md) when you need to separate

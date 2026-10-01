@@ -7,7 +7,7 @@
 > the NativeScript toolchain (Xcode/JDK + `ns`).
 
 Start with the [app creator](../create/README.md) when building a new app with
-an agent. xplat's target direction covers web, iOS, Android, macOS, Windows,
+an agent. Xplat's target direction covers web, iOS, Android, macOS, Windows,
 and Linux; this package's established implementations cover web and mobile,
 with a bounded experimental macOS surface. The Windows scaffold has not yet
 been run on Windows, so UI support there remains unverified; Linux renders

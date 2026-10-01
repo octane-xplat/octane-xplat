@@ -5,7 +5,7 @@ shared screens and room for each platform to feel right. In a packing app,
 for example, adding an item and marking it packed can use the same screen
 code on web and mobile; an iOS-only control can live in its own file.
 
-xplat gives your coding agent a configured starter, shared components, and
+Xplat gives your coding agent a configured starter, shared components, and
 project instructions. You describe the flow, inspect the running result, and
 ask for the next change.
 
@@ -27,7 +27,7 @@ pnpm create octane-xplat my-app
 The creator installs dependencies and starts the web dev server. Open the
 local URL it prints, then open `my-app` in your coding agent. A first task:
 
-> Read AGENTS.md and the xplat skill. Turn the starter into a trip packing
+> Read AGENTS.md and the Xplat skill. Turn the starter into a trip packing
 > checklist: add an item, mark it packed, remove it, and show how many remain.
 > Keep the screen shared between web, iOS, and Android. Use in-memory state
 > for this first version. Run lint, typecheck, and the web build, and tell me
@@ -82,14 +82,14 @@ it for a release.
 
 [Octane](https://github.com/octanejs/octane) keeps a familiar React-style
 component model and compiles the UI. You and your agent work with components,
-props, and state while xplat supplies shared UI components.
+props, and state while Xplat supplies shared UI components.
 
 [NativeScript](https://docs.nativescript.org/guide/metadata) exposes native
 iOS and Android APIs directly to TypeScript, without requiring you to author
 a bridge. Its development update loop helps you inspect edits in a running
 app. Its [official agent skills](https://github.com/NativeScript/skills) can
 help with native work; they are optional and separate from the starter's
-xplat skill. Follow the [setup and version guidance](docs/toolchain.md#agent-context-and-versions)
+Xplat skill. Follow the [setup and version guidance](docs/toolchain.md#agent-context-and-versions)
 for this project.
 
 ## Docs

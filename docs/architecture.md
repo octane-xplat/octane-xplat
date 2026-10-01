@@ -1,4 +1,4 @@
-# How an xplat app fits together
+# How an Xplat app fits together
 
 > Keep product code shared, and put platform-specific work at the edges.
 
@@ -13,7 +13,7 @@ shared component is implemented everywhere.
 
 Octane provides React-style components and compiles their UI. NativeScript
 supplies native views and API access on iOS/Android. You usually work through
-xplat components and services; the layers below explain where a new feature
+Xplat components and services; the layers below explain where a new feature
 belongs when your agent needs to go beyond them.
 
 ## The three layers

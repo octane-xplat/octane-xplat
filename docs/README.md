@@ -3,7 +3,7 @@
 > Build a TypeScript app for web, iOS, Android, macOS, Windows, and Linux
 > with your coding agent.
 
-xplat is for real apps: ==one TypeScript codebase== that ships the same product
+Xplat is for real apps: ==one TypeScript codebase== that ships the same product
 behavior on web and mobile, with OS-specific controls where the platform
 experience deserves them. Your agent writes the code; your job is to describe
 behavior precisely and verify what it reports. These guides are written for

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Octane xplat app — one TypeScript codebase for web + iOS + Android (Octane
+Octane Xplat app — one TypeScript codebase for web + iOS + Android (Octane
 
 - NativeScript).
 

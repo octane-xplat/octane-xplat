@@ -4,7 +4,7 @@ ID: baked-routes
 Targets: web, ios, android, macos
 Related APIs: dataMode, RouteSpec.baked, RouteSpecSet.baked, RouteMeta,
 loader, bakedRouteData, routes.gen.data.ts, routes.gen.manifest.json,
-Markdown, MarkdownScreen, manifestToJson, generateRoutes, xplat routes
+Markdown, MarkdownScreen, manifestToJson, generateRoutes, Xplat routes
 
 ## Starting point
 

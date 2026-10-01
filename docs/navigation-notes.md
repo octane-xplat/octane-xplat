@@ -229,7 +229,7 @@ the current caller-facing contract.
    when switching away. iOS `UITabBar` keeps real per-pane Frames — the
    router re-arms `isLoaded` before every push and pop (the #11444 stall
    hits `goBack` too), and the upstream fix (NativeScript#11446:
-   items-churn teardown + `topmost()` ranking) is ported into the xplat
+   items-churn teardown + `topmost()` ranking) is ported into the Xplat
    `@nativescript/core` patch. On-device validation is pending.
 
 ## Lab log

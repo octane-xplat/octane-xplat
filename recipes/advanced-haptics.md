@@ -6,7 +6,7 @@ Related APIs: `@octane-xplat/haptics`, `createHaptics`, `HapticPattern`, `Haptic
 
 ## Starting point
 
-A scaffolded Octane xplat app with one interaction that needs richer tactile
+A scaffolded Octane Xplat app with one interaction that needs richer tactile
 feedback than the basic `@octane-xplat/platform` impact, notification, and
 selection service. Package publication is outside this workflow.
 

@@ -71,7 +71,7 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 			// and logs instead. The real host maps to org.freedesktop.Notifications.
 			respond(id, "granted")
 		case ("notifications", "notify"):
-			NSLog("[xplat] notification: %@ — %@", args.first as? String ?? "", args.dropFirst().first as? String ?? "")
+			NSLog("[Xplat] notification: %@ — %@", args.first as? String ?? "", args.dropFirst().first as? String ?? "")
 			respond(id, true)
 		case ("clipboard", "write"):
 			NSPasteboard.general.clearContents()
@@ -139,7 +139,7 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 			contentRect: NSRect(x: 0, y: 0, width: size["width"] ?? 640, height: size["height"] ?? 480),
 			styleMask: [.titled, .closable, .resizable],
 			backing: .buffered, defer: false)
-		w.title = opts["title"] as? String ?? "xplat"
+		w.title = opts["title"] as? String ?? "Xplat"
 		let dataJson = jsLiteral(opts["data"] ?? NSNull())
 		let wv = makeWebView(
 			extraInjected: "window.__xplatWindowId = \"\(wid)\"; window.__xplatWindowData = \(dataJson);")
@@ -280,7 +280,7 @@ let window = NSWindow(
 	contentRect: NSRect(x: 0, y: 0, width: 1024, height: 768),
 	styleMask: [.titled, .closable, .resizable, .miniaturizable],
 	backing: .buffered, defer: false)
-window.title = "xplat linux harness"
+window.title = "Xplat Linux harness"
 let webView = makeWebView()
 webView.autoresizingMask = [.width, .height]
 webView.frame = window.contentView!.bounds
@@ -333,5 +333,5 @@ window.makeKeyAndOrderFront(nil)
 app.setActivationPolicy(.regular)
 app.activate(ignoringOtherApps: true)
 webView.load(URLRequest(url: URL(string: urlString)!))
-NSLog("[xplat] loading %@", urlString)
+NSLog("[Xplat] loading %@", urlString)
 app.run()

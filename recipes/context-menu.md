@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/context-menu, SwiftUIContextMenu, MaterialContextMen
 
 ## Starting point
 
-A scaffolded Octane xplat app with web, iOS, and Android targets. The reader
+A scaffolded Octane Xplat app with web, iOS, and Android targets. The reader
 can add a workspace or published package and place platform-specific imports
 behind the established file suffixes.
 

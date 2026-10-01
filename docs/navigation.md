@@ -155,7 +155,7 @@ Constraints that keep the mechanism honest:
   `docs/[slug]` baked loader returns the whole slug→record table and the
   screen selects by `params.slug`.
 - **Regeneration is explicit.** Baked data is committed like the manifest;
-  edit a `.loader.ts` and re-run `xplat routes` (or dev/build). `xplat
+  edit a `.loader.ts` and re-run `xplat routes` (or dev/build). `Xplat
   typecheck` refreshes types without re-baking.
 - A `dataMode: 'baked'` route with no `.loader.*` sibling fails codegen —
   the pairing is checked, not implied.
@@ -199,7 +199,7 @@ aborted, so loaders must still manage their own side effects.
 ## Guard and document a route
 
 Route files can export behavior alongside their screen. This fragment assumes
-the app supplies `context.user` and registers a `login` destination; xplat
+the app supplies `context.user` and registers a `login` destination; Xplat
 does not populate authentication context automatically:
 
 ```ts

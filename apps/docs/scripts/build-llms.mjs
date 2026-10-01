@@ -50,11 +50,11 @@ docs.sort((a, b) => {
 		: a.slug.localeCompare(b.slug)
 })
 
-const HEADER = `# xplat docs
+const HEADER = `# Xplat docs
 
 > Build shared TypeScript screens for web, iOS, and Android. macOS, Windows, and Linux are experimental targets with separate setup and narrower verification; consult the target guide before choosing a release platform.
 
-xplat lets one TypeScript app write shared screens from a small component vocabulary. The web build renders them to the DOM; the iOS/Android build renders NativeScript views. Packages: \`@octane-xplat/ui\` (components, styled(), route table, theme), \`@octane-xplat/cli\` (\`xplat\` dev/build/doctor/typecheck/clean), \`@octane-xplat/platform\` (device services), \`create-octane-xplat\` (project starter).
+Xplat lets one TypeScript app write shared screens from a small component vocabulary. The web build renders them to the DOM; the iOS/Android build renders NativeScript views. Packages: \`@octane-xplat/ui\` (components, styled(), route table, theme), \`@octane-xplat/cli\` (\`xplat\` dev/build/doctor/typecheck/clean), \`@octane-xplat/platform\` (device services), \`create-octane-xplat\` (project starter).
 
 Rules for shared app code: one element vocabulary per file — platform divergence happens at file boundaries using \`.web\` for browser code, \`.mobile\` for shared iOS/Android variants, and OS suffixes such as \`.ios\`/\`.android\`; the unsuffixed module is the native default. Static styles go in \`className\`; values that change at runtime go in \`style\` objects. Shared code never touches DOM globals — device capabilities come from \`@octane-xplat/platform\`. Hook-calling code lives in \`.tsx\`/\`.tsrx\` files. Every app bundles exactly one copy of \`octane\`.
 `

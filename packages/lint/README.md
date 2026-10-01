@@ -1,6 +1,6 @@
 # @octane-xplat/lint
 
-Cross-platform lint rules for Octane xplat apps, including `.tsrx` files.
+Cross-platform lint rules for Octane Xplat apps, including `.tsrx` files.
 
 ```sh
 pnpm add -D @octane-xplat/lint oxlint

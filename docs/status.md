@@ -29,7 +29,7 @@ that pass: #18–#24.
 
 | File                                      | Role                                                                              |
 | ----------------------------------------- | --------------------------------------------------------------------------------- |
-| [spec](spec.md)                           | Orientation — what xplat is and where to start                                    |
+| [spec](spec.md)                           | Orientation — what Xplat is and where to start                                    |
 | [architecture](architecture.md)           | Shared screens, UI components, and platform leaves                                |
 | [styling](styling.md)                     | Cross-cuts 1/4/5 — shared CSS strategy                                            |
 | [css-support-notes](css-support-notes.md) | NS∩web allowed grammar (seeded; verify per row in prototype)                      |

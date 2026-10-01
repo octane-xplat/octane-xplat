@@ -6,7 +6,7 @@ Related APIs: @octane-xplat/picker, SwiftUIPicker, MaterialDropdown, Select
 
 ## Starting point
 
-A scaffolded Octane xplat app with web, iOS, and Android targets. The reader can
+A scaffolded Octane Xplat app with web, iOS, and Android targets. The reader can
 add a workspace or published package and place platform-specific imports behind
 the established file suffixes.
 
