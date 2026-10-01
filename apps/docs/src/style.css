@@ -1419,11 +1419,11 @@ body {
 	border: 1px solid #000000;
 	clip-path: polygon(
 		0 0,
-		calc(100% - 12px) 0,
-		100% 12px,
+		calc(100% - 18px) 0,
+		100% 18px,
 		100% 100%,
-		6px 100%,
-		0 calc(100% - 6px)
+		9px 100%,
+		0 calc(100% - 9px)
 	);
 	padding: 0 15px;
 	font-size: 15px;
