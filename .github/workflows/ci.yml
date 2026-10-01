@@ -148,6 +148,9 @@ jobs:
     needs: [checks, native-ios, native-android]
     if: always() && github.event_name == 'push'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - name: Record release evidence
         run: >-
           node scripts/verify-release-evidence.mjs record
