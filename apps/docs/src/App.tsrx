@@ -5,9 +5,10 @@ import { docPath } from './doc-meta';
 import { MdDoc } from './MdDoc.tsrx';
 import { searchDocs, type SearchHit } from './search';
 import { resetDocScroll } from './scroll';
+import { animateConstellation } from './constellation';
 import logoMark from './assets/logo-mark.svg';
 import wordmark from './assets/wordmark.svg';
-import constellation from './assets/constellation.svg';
+import constellation from './assets/constellation.svg?raw';
 import orbitUser from './assets/orbit-user.webp';
 import orbitSafari from './assets/orbit-safari.webp';
 import orbitFirefox from './assets/orbit-firefox.webp';
@@ -117,6 +118,16 @@ export function App() @{
 		if (paletteTimer.current !== null) {
 			clearTimeout(paletteTimer.current);
 		}
+	}, []);
+
+	useEffect(() => {
+		const host = document.querySelector<HTMLElement>('.constellation');
+		const content = document.getElementById('doc-content');
+		if (!host || !content) { return; }
+
+		// Trusted local asset: inline it so each polygon can animate independently.
+		host.innerHTML = constellation;
+		return animateConstellation(host, content);
 	}, []);
 
 	// ⌘K/Ctrl+K toggles the palette (resets when already open); '/' opens it
@@ -265,7 +276,7 @@ export function App() @{
 				</View>
 			</View>
 			<View className="card">
-				<img className="constellation" src={constellation} alt="" />
+				<div className="constellation" aria-hidden="true" />
 				<ScrollView id="doc-content" className="content">
 					<View key={doc.slug} className={leaving ? 'doc-page leaving' : 'doc-page'}>
 						{doc.slug === DOCS[0].slug && (

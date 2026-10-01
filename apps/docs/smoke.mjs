@@ -68,6 +68,7 @@ const checks = [
 	['sidebar items', side >= 10],
 	['doc content rendered', (root?.textContent || '').length > 500],
 	['numbered list markers', numbered],
+	['constellation elements rendered inline', root?.querySelectorAll('.constellation svg polygon').length > 100],
 ]
 
 let fail = 0
@@ -180,5 +181,6 @@ assert(
 )
 
 assert('no missing or duplicate child keys', keyDiagnostics.length === 0)
+assert('constellation survives navigation', root.querySelectorAll('.constellation svg polygon').length > 100)
 
 process.exit(fail ? 1 : 0)
