@@ -26,6 +26,7 @@ import { AuthDemo } from './AuthDemo.tsrx';
 import { PushDemo } from './PushDemo.tsrx';
 import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
+import { TiptapProbe } from './TiptapProbe.tsrx';
 import { Divergence } from './Divergence.tsrx';
 import { Reorder } from './Reorder.tsrx';
 import { ComponentsDemo } from './ComponentsDemo.tsrx';
@@ -56,6 +57,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'controls', title: 'Controls', kind: 'proof' },
 	{ id: 'layout', title: 'Layout', kind: 'proof' },
 	{ id: 'rich-text', title: 'Rich text', kind: 'proof' },
+	{ id: 'tiptap-probe', title: 'Tiptap imports', kind: 'proof' },
 	{ id: 'divergence', title: 'Layout edges', kind: 'proof' },
 	{ id: 'glass', title: 'Glass', kind: 'proof' },
 	{ id: 'reorder', title: 'Reorder', kind: 'proof' },
@@ -105,6 +107,7 @@ const renderOverlay = () => <OverlayDemo />;
 const renderControls = () => <ControlsDemo />;
 const renderLayout = () => <LayoutDemo />;
 const renderRichText = () => <RichTextDemo />;
+const renderTiptapProbe = () => <TiptapProbe />;
 const renderDivergence = () => <Divergence />;
 const renderGlass = () => <GlassDemo />;
 const renderReorder = () => <Reorder />;
@@ -147,6 +150,7 @@ export const RENDER: Record<string, () => any> = {
 	controls: renderControls,
 	layout: renderLayout,
 	'rich-text': renderRichText,
+	'tiptap-probe': renderTiptapProbe,
 	divergence: renderDivergence,
 	glass: renderGlass,
 	reorder: renderReorder,

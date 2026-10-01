@@ -79,5 +79,11 @@ patchedDependencies:
   # for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc
   # and the IDE plugin.
   "@tsrx/typescript-plugin@0.4.11": node_modules/.pnpm-config/@octane-xplat/patches/patches/@tsrx__typescript-plugin@0.4.11.patch
+  # linkifyjs declares /\p{L}/u and /\p{Emoji}/u as regex literals at module scope;
+  # NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at
+  # parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link
+  # dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks —
+  # same behavior where ICU exists, graceful degradation where it doesn't.
+  linkifyjs@4.3.3: node_modules/.pnpm-config/@octane-xplat/patches/patches/linkifyjs@4.3.3.patch
 configDependencies:
   "@octane-xplat/patches": 0.7.1

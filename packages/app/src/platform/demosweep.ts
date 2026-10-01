@@ -967,6 +967,14 @@ const STEPS: Step[] = [
 		],
 	},
 	{
+		id: 'tiptap-probe',
+		hold: 6000,
+		checks: [
+			{ at: 3500, run: () => assertMatch('tiptap probe', /probe \d+\/\d+ (PASS|FAIL)/) },
+			{ at: 4500, run: () => assertMatch('tiptap probe pass', /probe \d+\/\d+ PASS/) },
+		],
+	},
+	{
 		id: 'layout',
 		checks: [
 			{ at: 400, run: () => assertHas('demo layout', 'Layout primitives') },

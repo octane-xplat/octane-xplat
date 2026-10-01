@@ -22,6 +22,35 @@ overrides:
   # Pin everything to vite's 0.27.7 except wrangler, which wants its own.
   esbuild: 0.27.7
   wrangler>esbuild: 0.28.1
+  # tiptap 3.28.0 is the line @octanejs/tiptap pins. Its extension packages
+  # declare ^3.28.0 ranges that float to 3.31.x, which imports core symbols
+  # (getPreviousBlockSibling) that 3.28.0 lacks — pin the whole family.
+  '@tiptap/core': 3.28.0
+  '@tiptap/pm': 3.28.0
+  '@tiptap/starter-kit': 3.28.0
+  '@tiptap/static-renderer': 3.28.0
+  '@tiptap/extensions': 3.28.0
+  '@tiptap/extension-blockquote': 3.28.0
+  '@tiptap/extension-bold': 3.28.0
+  '@tiptap/extension-bullet-list': 3.28.0
+  '@tiptap/extension-code': 3.28.0
+  '@tiptap/extension-code-block': 3.28.0
+  '@tiptap/extension-document': 3.28.0
+  '@tiptap/extension-dropcursor': 3.28.0
+  '@tiptap/extension-gapcursor': 3.28.0
+  '@tiptap/extension-hard-break': 3.28.0
+  '@tiptap/extension-heading': 3.28.0
+  '@tiptap/extension-horizontal-rule': 3.28.0
+  '@tiptap/extension-italic': 3.28.0
+  '@tiptap/extension-link': 3.28.0
+  '@tiptap/extension-list': 3.28.0
+  '@tiptap/extension-list-item': 3.28.0
+  '@tiptap/extension-list-keymap': 3.28.0
+  '@tiptap/extension-ordered-list': 3.28.0
+  '@tiptap/extension-paragraph': 3.28.0
+  '@tiptap/extension-strike': 3.28.0
+  '@tiptap/extension-text': 3.28.0
+  '@tiptap/extension-underline': 3.28.0
 # Exact pins in package.json — no caret/tilde drift on fresh installs.
 saveExact: true
 minimumReleaseAgeExclude:
@@ -126,3 +155,9 @@ patchedDependencies:
   # for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc
   # and the IDE plugin.
   "@tsrx/typescript-plugin@0.4.11": packages/cli/patches/@tsrx__typescript-plugin@0.4.11.patch
+  # linkifyjs declares /\p{L}/u and /\p{Emoji}/u as regex literals at module scope;
+  # NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at
+  # parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link
+  # dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks —
+  # same behavior where ICU exists, graceful degradation where it doesn't.
+  linkifyjs@4.3.3: packages/cli/patches/linkifyjs@4.3.3.patch

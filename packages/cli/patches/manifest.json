@@ -72,6 +72,13 @@
       "scope": "toolchain",
       "why": "Enables `resolveHiddenExtensions` on the language plugin's typescript facet so extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required for a single extensionless shared barrel to resolve per-platform leaves under tsrx-tsc and the IDE plugin.",
       "dropWhen": "@tsrx/typescript-plugin sets resolveHiddenExtensions in its typescript facet upstream"
+    },
+    {
+      "specifier": "linkifyjs@4.3.3",
+      "file": "linkifyjs@4.3.3.patch",
+      "scope": "runtime",
+      "why": "linkifyjs declares /\\p{L}/u and /\\p{Emoji}/u as regex literals at module scope; NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks \u2014 same behavior where ICU exists, graceful degradation where it doesn't.",
+      "dropWhen": "linkifyjs ships an ICU-free-compatible build, or the leaf stops pulling @tiptap/extension-link"
     }
   ]
 }
