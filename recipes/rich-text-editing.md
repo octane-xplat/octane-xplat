@@ -2,7 +2,7 @@
 
 ID: rich-text-editing
 Targets: web, ios, android
-Related APIs: @octane-xplat/tiptap, @octane-xplat/richtext, TiptapEditor, RichTextEditor, ensureJSONBridge
+Related APIs: @octane-xplat/tiptap, @octane-xplat/lexical, @octane-xplat/richtext, TiptapEditor, LexicalEditor, RichTextEditor, ensureJSONBridge
 
 ## Starting point
 
@@ -34,9 +34,13 @@ the platform file-suffix boundary for divergent imports.
   degrade to `null` cleanly where the JSON bridge cannot load.
 - AC5: iOS renders the unsupported stub and returns `supported === false`
   instead of crashing.
-- AC6: The harness covers both demos: the iOS catalog sweep asserts the stub
+- AC6: The harness covers all demos: the iOS catalog sweep asserts the stub
   state and the Android sweep probes Aztec mount, initial-HTML rendering,
-  `toggleFormatting`, `undo`, and the facade's JSON bridge.
+  `toggleFormatting`, `undo`, and both facades' JSON bridges.
+- AC7: The lexical variant (`LexicalEditor`, `@octane-xplat/lexical`)
+  exchanges lexical serialized editor state — the two facades' JSON shapes
+  are not interchangeable, and docs say so. Its fixed plugin set is
+  intentional; custom extensions import `@octanejs/lexical` directly on web.
 
 ## Documentation
 
@@ -51,5 +55,8 @@ the platform file-suffix boundary for divergent imports.
 - AC5: [What is not there yet](../docs/rich-text.md#what-is-not-there-yet) and
   the `supported` flag in [Install and import](../docs/rich-text.md#install-and-import).
 - AC6: [`packages/app/src/platform/demosweep.ts`](../packages/app/src/platform/demosweep.ts)
-  — `richtext-editor`/`tiptap-editor` catalog steps plus the Android
-  `runAndroidLeafProbes` block.
+  — `richtext-editor`/`tiptap-editor`/`lexical-editor` catalog steps plus the
+  Android `runAndroidLeafProbes` block.
+- AC7: [Lexical variant](../docs/rich-text.md#lexical-variant) and
+  [`LexicalEditorDemo`](../packages/demos/src/LexicalEditorDemo.tsrx); the
+  `lexical-probe` demo verifies the native conversion path on-device.

@@ -1,8 +1,9 @@
 # Rich text editing
 
-> Editable rich text on web, Android, and (later) iOS through two packages:
-> the native leaf `@octane-xplat/richtext` and the unified facade
-> `@octane-xplat/tiptap`.
+> Editable rich text on web, Android, and (later) iOS through the native
+> leaf `@octane-xplat/richtext` plus a choice of unified facades:
+> `@octane-xplat/tiptap` (tiptap document JSON) or `@octane-xplat/lexical`
+> (lexical serialized editor state).
 
 Web and native rich text are deliberately different backends behind one
 tiptap-shaped facade. Web runs a real tiptap `Editor` via
@@ -83,6 +84,52 @@ pnpm overrides to match `@octanejs/tiptap@0.0.51` — extension ranges float
 (`^3.28.0` resolved `extension-list@3.31.x`, which needs a `core` export
 that version lacks), so do not widen the pin.
 
+## Lexical variant
+
+`@octane-xplat/lexical` is the same facade contract over
+[`@octanejs/lexical`](https://github.com/octanejs/octane/tree/main/packages/lexical)
+(the octane port of `@lexical/react`):
+
+```ts
+import { LexicalEditor, supported } from '@octane-xplat/lexical'
+```
+
+Web renders a fixed-plugin `LexicalComposer` (rich text, history, lists,
+links, autofocus) whose node set is exactly the facade vocabulary —
+`taskList` joins the default set via `ListItemNode`, and `AutoLinkNode`
+parses docs produced by fuller editors. Native renders `RichTextEditor` and
+converts to/from **lexical serialized editor state** through a lazy
+headless `createEditor` (no `@lexical/headless` — it pulls `happy-dom`)
+with `zeed-dom` standing in for the DOM. `getJSON`/`setJSON` therefore
+exchange `EditorState.toJSON()` shapes, not tiptap doc JSON — the two
+facades' JSON is not interchangeable.
+
+The composition is sealed by design: apps needing custom nodes, plugins, or
+transformers import `@octanejs/lexical` directly on web rather than the
+facade growing a plugin surface it cannot honor on native. On native there
+is no live `LexicalEditor` — `dispatchCommand`, node transforms, and plugin
+behaviors do not exist; `native` still returns the real editing surface
+(the `AztecText`), and the headless editor is an internal conversion
+detail.
+
+`@octanejs/lexical` pins to `0.2.0` — `0.2.1` only bumps the `octane` peer
+(`^0.7.0`) and `@octanejs/floating-ui`; the sources are byte-identical, and
+`0.2.0` accepts the workspace's `octane@0.6.3`. The `@lexical/*` family pins
+to `0.51.0` (upstream's catalog version); mixed copies break node identity,
+so do not widen. `@lexical/link@0.51.0` carries a workspace patch —
+its module-scope `/\p{L}\p{N}/u` URL matcher is a parse-time SyntaxError on
+ICU-less runtimes; the patch builds it via `new RegExp` with an ASCII
+fallback (the matcher only feeds autolink). The zeed-dom shim additionally
+teaches `parentElement`, `null`-valued child/sibling accessors, a
+write-through `style` proxy, and `href`/`target`/`rel`/`title`
+property→attribute mapping — without those, links and alignment drop in
+JSON→HTML export. The `lexical-probe` demo
+([`lexical-probe.ts`](../packages/demos/src/lexical-probe.ts)) re-verifies
+imports and both conversion directions on every harness run.
+
+See [`LexicalEditorDemo`](../packages/demos/src/LexicalEditorDemo.tsrx) for
+the maintained example.
+
 ## What is not there yet
 
 - iOS editing — the Swift facade over Aztec-iOS is deferred; the stub keeps
@@ -93,3 +140,9 @@ that version lacks), so do not widen the pin.
 - No WebView bridge: the native editor never instantiates
   `prosemirror-view`/`EditorView`, so browser-only tiptap extensions (drag
   handles, bubble menus) do not apply on native.
+- Lexical: no live `LexicalEditor` on native — the facade's serialized
+  state is a conversion format, and custom plugins/nodes are web-only via
+  direct `@octanejs/lexical` import. Selection positions reported through
+  `onSelectionChange` are best-effort flat text offsets on web; JSON→HTML
+  fidelity on native is bounded by the zeed-dom shim (link targets,
+  `text-align`-style properties survive; bespoke styles may not).

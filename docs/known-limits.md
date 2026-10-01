@@ -260,3 +260,15 @@ best-effort mapping and HTML is the reliable interchange. Formatting parity
 is bounded to the shared `TiptapFormat` vocabulary; `taskList`, `highlight`,
 `subscript`/`superscript`, and `align*` no-op on web (StarterKit lacks them).
 iOS facade renders the same unsupported stub.
+
+`@octane-xplat/lexical` (the `LexicalEditor` component) is the same facade
+over lexical: web runs a fixed-plugin `LexicalComposer` via
+`@octanejs/lexical@0.2.0`; native delegates editing to `RichTextEditor` and
+round-trips serialized editor state through a headless `createEditor` +
+`@lexical/html` over `zeed-dom`. No live `LexicalEditor` exists on native —
+`dispatchCommand`, node transforms, and arbitrary plugins are web-only
+(apps needing them import `@octanejs/lexical` directly). `@lexical/link`
+carries an ICU patch (its URL-matcher literal is a parse error without
+ICU); `lexical` core's `new RegExp('\p{Emoji}')` already degrades safely.
+`@lexical/*` pins to `0.51.0`; `@octanejs/lexical` pins to `0.2.0` for the
+`octane ^0.6.0` peer.
