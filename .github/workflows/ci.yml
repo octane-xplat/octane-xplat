@@ -71,6 +71,9 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --dir apps/web exec playwright install --with-deps chromium firefox webkit
 
+      - name: Check optional service adapters and Web runtime
+        run: pnpm check:optional-services
+
       # The same production bundle gets a smoke pass on each major desktop engine.
       - name: Browser smoke (Chromium)
         run: pnpm --filter @xplat/web smoke

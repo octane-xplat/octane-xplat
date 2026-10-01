@@ -28,6 +28,8 @@ nonvisual Chromium probe. Node tests inject OS/backend APIs and do not count as
 native runtime evidence. The Chromium probe uses synthetic PCM to measure
 playback state, not audible output. It neither captures screenshots nor renders
 selected images. It does not mock a successful provider sign-in or push delivery.
+CI runs this check after installing Chromium, so its adapter and browser checks
+remain part of the pull-request release gate.
 
 The broad mobile typecheck (`pnpm typecheck:mobile`) passes after correcting
 audio bridge typings and the handwritten JSX component declarations. Focused
