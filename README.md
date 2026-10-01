@@ -1,6 +1,6 @@
 # octane-xplat
 
-Build a TypeScript app for **web, iOS, Android, macOS, and Windows** with
+Build a TypeScript app for **web, iOS, Android, macOS, Windows, and Linux** with
 shared screens and room for each platform to feel right. In a packing app,
 for example, adding an item and marking it packed can use the same screen
 code on web and mobile; an iOS-only control can live in its own file.
@@ -11,7 +11,8 @@ ask for the next change.
 
 **Start on web, iOS, and Android with the starter today.** macOS has an
 experimental AppKit host; Windows has an experimental WinUI 3 scaffold
-whose bundle builds, but has not yet been run on Windows. The framework is
+whose bundle builds, but has not yet been run on Windows; Linux has an
+experimental WebKitGTK webview host exercised on Ubuntu 24.04. The framework is
 `0.x`, so plan for API changes as well as platform limits.
 See the [target guide](docs/spec.md#choose-your-targets) before planning a release.
 

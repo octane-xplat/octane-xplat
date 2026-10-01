@@ -3,9 +3,10 @@
 > Get a TypeScript app running, then build its first useful flow with your
 > coding agent.
 
-xplat's target direction spans web, iOS, Android, macOS, and Windows. This
-starter configures **web, iOS, and Android**. macOS is a separate experiment;
-Windows has a separate experimental scaffold with runtime verification pending. See
+xplat's target direction spans web, iOS, Android, macOS, Windows, and Linux.
+This starter configures **web, iOS, and Android**. macOS, Windows, and Linux
+are separate experiments — an AppKit host, a WinUI 3 scaffold with runtime
+verification pending, and a WebKitGTK webview host. See
 [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 The framework is `0.x` and its API surface is still changing.
 

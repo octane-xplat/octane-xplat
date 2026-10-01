@@ -1,7 +1,7 @@
 # What you can build with xplat
 
-> Build a TypeScript app for web, iOS, Android, macOS, and Windows; choose
-> targets with the current support boundaries in mind.
+> Build a TypeScript app for web, iOS, Android, macOS, Windows, and Linux;
+> choose targets with the current support boundaries in mind.
 
 ## Decide whether it fits
 
@@ -24,7 +24,7 @@ slices of real apps, not bundled demos. The [first-run
 guide](toolchain.md#create-and-run) uses a checklist to prove the
 build-and-check loop before you point it at your own flows.
 
-If your release requires verified support on all five targets, the current
+If your release requires verified support on all six targets, the current
 project is not ready for that requirement. Desktop support is experimental,
 and shared APIs do not establish that every implementation works. Use the
 table below to decide whether the available targets cover your first release.
@@ -38,13 +38,15 @@ table below to decide whether the available targets cover your first release.
 | Android | Starter using NativeScript views and APIs | Android SDK, a compatible JDK, and an emulator or device. |
 | macOS | Experimental AppKit harness and CLI packaging | Apple Silicon, macOS 13.5+, a separate app configuration, and a limited component/style/service surface; not in the starter. |
 | Windows | Experimental WinUI 3 scaffold and CLI target; bundle generation verified on macOS | Windows 10 1809+, .NET 10 SDK, Developer Mode, and pinned preview dependencies. Runtime behavior is unverified; not in the starter. |
+| Linux | Experimental WebKitGTK webview host and CLI packaging; exercised on Ubuntu 24.04 | A Linux host with WebKitGTK, separate package settings, and a DOM-rendered surface; not in the starter. |
 
 The framework is `0.x`; APIs are still changing. [Known limits](known-limits.md)
 records capability differences and verification status. The
 [macOS notes](../apps/macos/README.md) describe the measured desktop boundary;
 the [Windows setup](../apps/windows/README.md) describes the experimental
-scaffold and the checks still needed on a Windows host. Linux also has a separate
-[experimental webview target](toolchain.md#experimental-linux-target-webkitgtk-webview).
+scaffold and the checks still needed on a Windows host; the
+[Linux packaging guide](linux-package.md) covers the WebKitGTK host and its
+verification flow.
 
 ## Get a result, then improve it
 

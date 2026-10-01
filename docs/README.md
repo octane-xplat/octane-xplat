@@ -1,7 +1,7 @@
 # Ship everywhere with Octane Xplat
 
-> Build a TypeScript app for web, iOS, Android, macOS, and Windows with your
-> coding agent.
+> Build a TypeScript app for web, iOS, Android, macOS, Windows, and Linux
+> with your coding agent.
 
 xplat is for real apps: ==one TypeScript codebase== that ships the same product
 behavior on web and mobile, with OS-specific controls where the platform
@@ -15,7 +15,8 @@ commit real features to it. No device SDK is needed for that browser pass.
 
 The starter runs on web, iOS, and Android — the supported shipping targets.
 macOS is experimental; the Windows scaffold builds a bundle but has not yet
-been run on Windows. [Choose your targets](spec.md#choose-your-targets)
+been run on Windows; Linux has an experimental WebKitGTK webview host
+exercised on Ubuntu 24.04. [Choose your targets](spec.md#choose-your-targets)
 for the current boundaries before committing to a release.
 
 ## Start here

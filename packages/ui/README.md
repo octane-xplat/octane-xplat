@@ -7,10 +7,11 @@
 > the NativeScript toolchain (Xcode/JDK + `ns`).
 
 Start with the [app creator](../create/README.md) when building a new app with
-an agent. xplat's five-target direction covers web, iOS, Android, macOS, and
-Windows; this package's established implementations cover web and mobile,
+an agent. xplat's target direction covers web, iOS, Android, macOS, Windows,
+and Linux; this package's established implementations cover web and mobile,
 with a bounded experimental macOS surface. The Windows scaffold has not yet
-been run on Windows, so UI support there remains unverified. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
+been run on Windows, so UI support there remains unverified; Linux renders
+the DOM surface inside an experimental WebKitGTK host. See [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 
 To add the UI package to an existing configured app:
 
