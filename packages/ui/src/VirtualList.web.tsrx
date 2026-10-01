@@ -50,6 +50,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const footerHeightRef = useRef(0)
 	const observerRef = useRef<ResizeObserver | null>(null)
 	const estimateScheduledRef = useRef(false)
+	const resizeDeliveryRef = useRef(false)
+	const refreshAfterResizeRef = useRef(false)
 	const nodesBySlotRef = useRef(new Map<string, Element>())
 	const metaByNodeRef = useRef(new WeakMap<Element, NodeMeta>())
 	const rangeRef = useRef({ start: -1, end: -1, top: -1, bottom: -1 })
@@ -101,6 +103,11 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 
 	function refreshWindow() {
 		if (disposedRef.current) return
+		if (resizeDeliveryRef.current) {
+			refreshAfterResizeRef.current = true
+			return
+		}
+
 		const next = currentRange()
 		const previous = rangeRef.current
 		if (
@@ -115,7 +122,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}
 
 	function captureAnchor() {
-		const listOffset = scrollOffsetRef.current - headerHeightRef.current
+		const scrollOffset = scrollRef.current?.scrollTop ?? scrollOffsetRef.current
+		const listOffset = scrollOffset - headerHeightRef.current
 		if (listOffset < 0 || entriesRef.current.length === 0) return null
 
 		const index = sizeIndexRef.current.indexAt(listOffset)
@@ -270,11 +278,25 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	useEffect(() => {
 		if (typeof ResizeObserver === 'undefined') return
 
+		// Apply measurements and anchor corrections while the previous layout is
+		// still current, but commit the resulting render after ResizeObserver.
+		let frame: number | null = null
 		const observer = new ResizeObserver((records) => {
-			for (const record of records) {
-				const meta = metaByNodeRef.current.get(record.target)
-				if (meta) handlersRef.current(meta, record)
+			resizeDeliveryRef.current = true
+			try {
+				for (const record of records) {
+					const meta = metaByNodeRef.current.get(record.target)
+					if (meta) handlersRef.current(meta, record)
+				}
+			} finally {
+				resizeDeliveryRef.current = false
 			}
+			if (!refreshAfterResizeRef.current || frame !== null) return
+			refreshAfterResizeRef.current = false
+			frame = requestAnimationFrame(() => {
+				frame = null
+				refreshWindow()
+			})
 		})
 
 		observerRef.current = observer
@@ -282,6 +304,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 
 		return () => {
 			observer.disconnect()
+			if (frame !== null) cancelAnimationFrame(frame)
+			refreshAfterResizeRef.current = false
 			observerRef.current = null
 		}
 	}, [])

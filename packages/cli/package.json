@@ -30,6 +30,10 @@
 	],
 	"type": "module",
 	"exports": {
+		"./linux": {
+			"types": "./src/linux/package.d.ts",
+			"default": "./src/linux/package.mjs"
+		},
 		"./macos": {
 			"types": "./src/macos/dev.d.ts",
 			"default": "./src/macos/dev.mjs"

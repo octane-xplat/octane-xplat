@@ -86,6 +86,13 @@ establish those workflows. Actual native frame pacing and direct finger/physical
 trackpad input remain separate verification requirements. JavaScript polling
 intervals are not frame-rate measurements.
 
+Linux WebKitGTK batches ResizeObserver measurements into the next animation
+frame before updating the row window. This avoids changing observed layout
+inside resize delivery. The Linux harness checks mounted-row bounds, emptying,
+and unhandled resize errors with `pnpm --filter @xplat/linux smoke` on a Linux
+host with GTK/WebKit and Xvfb. This smoke does not establish Linux anchor
+accuracy, frame pacing, or the full benchmark contract below.
+
 ## Run the nonvisual gates
 
 From the repo root, install with `pnpm install --frozen-lockfile`, then:

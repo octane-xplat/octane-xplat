@@ -37,6 +37,9 @@ for the current boundaries before committing to a release.
 7. [Verify before you ship](testing.md) — an agent's "done" is a claim;
    [known limits](known-limits.md) records which claims are proven.
 
+For Linux system WebView builds, installation, and verification, see
+[package a Linux app](linux-package.md).
+
 For leaf-owned Swift, ObjC, C, or Zig APIs on the AppKit target, see
 [native macOS leaves](macos-native.md).
 

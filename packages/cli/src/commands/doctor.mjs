@@ -3,12 +3,14 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join, parse, relative, resolve } from 'node:path'
 import * as p from '@clack/prompts'
-import { hasMacOS, hasNative, hasWindows } from '../targets.mjs'
+import { hasLinux, hasMacOS, hasNative, hasWindows } from '../targets.mjs'
 import { inspectPatches, patchStateDetail } from '../patches.mjs'
 import { inspectMacOSPackageConfig, inspectMacOSDevConfig } from '../macos/config.mjs'
 import { inspectMacOSNative } from '../macos/native.mjs'
 import { inspectJscHost } from '../macos/jsc-host/runtime.mjs'
 import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from '../macos/runtime-package.mjs'
+
+import { inspectLinuxPackageConfig } from '../linux/config.mjs'
 
 const frameworkFallbacks = {
 	'@octane-xplat/ui': [
@@ -513,6 +515,31 @@ export const doctor = command({
 			}
 		}
 
+		if (hasLinux(cwd)) {
+			const config = inspectLinuxPackageConfig(cwd)
+			row('Linux packaging config', config.issues.length === 0,
+				config.issues.join('; ') || config.applicationId,
+				config.issues.join('; '))
+
+			const tar = check('tar', ['--version'])
+			row('Linux archive tool', tar.ok, tar.out, 'install tar')
+			if (process.platform === 'linux') {
+				const runtime = check('gjs', ['-c', `imports.gi.versions.Gtk = '4.0'; imports.gi.versions.Adw = '1'; imports.gi.versions.WebKit = '6.0'; imports.gi.versions.Secret = '1'; const {Gtk, Adw, WebKit, Secret} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version() + ', WebKitGTK 6.0, libadwaita, libsecret');`])
+				row('Linux runtime', runtime.ok, runtime.out,
+					'install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 (GTK 4.10+)')
+
+				row('Linux graphical session', !!(process.env.DISPLAY || process.env.WAYLAND_DISPLAY),
+					process.env.DISPLAY || process.env.WAYLAND_DISPLAY || 'unset',
+					'run in a desktop session or use xvfb-run for automated tests')
+
+				row('Linux session bus', !!process.env.DBUS_SESSION_BUS_ADDRESS,
+					process.env.DBUS_SESSION_BUS_ADDRESS ? 'configured' : 'unset',
+					'run in a desktop session or dbus-run-session')
+			} else {
+				p.log.info('Linux archive can be built here; verify the GJS/WebKitGTK runtime on Linux.')
+			}
+		}
+
 		for (const patch of inspectPatches(cwd)) {
 			if (patch.state === 'not-declared' || patch.state === 'not-applicable') {
 				continue
@@ -607,7 +634,7 @@ export const doctor = command({
 				: summary,
 		)
 
-		if (declarationPackCheckFailed) {
+		if (declarationPackCheckFailed || rows.some((r) => r.name.startsWith('Linux ') && !r.ok)) {
 			if (declarationPackCheckOutput) {
 				console.error(declarationPackCheckOutput)
 			}

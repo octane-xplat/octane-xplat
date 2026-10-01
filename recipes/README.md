@@ -38,6 +38,7 @@ Workflows:
 - [Enter and submit text reliably](text-entry.md)
 - [Size a WebView to its document](webview-content-sizing.md)
 - [Package an experimental AppKit app](macos-appkit-package.md)
+- [Package a Linux WebKitGTK app](linux-package.md)
 - [Run a macOS app in the system WKWebView](macos-webview-package.md)
 - [Share text and URLs from an app](share-content.md)
 - [Ship native code in a macOS leaf](macos-native-code.md)

@@ -21,6 +21,7 @@ pnpm add -D @octane-xplat/cli
 pnpm xplat dev          # pick available targets
 pnpm xplat build        # production builds
 pnpm xplat build -t macos # experimental AppKit .app + .dmg (Apple Silicon)
+pnpm xplat build -t linux # experimental GTK/WebKit app directory + tar archive
 pnpm xplat doctor       # environment + framework patch check
 pnpm xplat typecheck    # web + native tsconfigs
 pnpm xplat patches apply  # install the framework's pnpm patch set into this app
@@ -40,6 +41,10 @@ dependency-free `@octane-xplat/patches` package through pnpm
 The scaffolded app's `pnpm dev` / `pnpm build` / `pnpm dev:ios` scripts drive
 the supported targets directly; `xplat` is the multi-target front end. The
 experimental macOS target is configured by the app and packaged by `xplat`.
+
+Linux packaging and its required manifest settings are documented in
+[Package a Linux app](../../docs/linux-package.md). The CLI ships the GJS host;
+Linux users supply the GTK/WebKit system runtime.
 
 Also exports the native vite preset — it absorbs the app-owned native config
 (renderer rules, octane→universal alias, `.ios`/`.android` extension chain,

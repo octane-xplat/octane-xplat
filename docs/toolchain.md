@@ -259,19 +259,15 @@ native controls or device services work there.
 
 ## Experimental Linux target (WebKitGTK webview)
 
-The CLI also discovers an opt-in Linux target when an app manifest declares
-`xplat.targets.linux.runtime: 'webkitgtk'` (see `apps/linux`). Unlike macOS,
-Linux does not use the universal renderer — it renders the DOM inside the
-system webview, so `pnpm xplat dev --targets linux` is the app's own vite
-dev server (:5201) and `build` produces the same bundle web does. Suffix
-chain is `.linux` → `.web` → shared: leaves only exist where the host bridge
-improves on the DOM API (`packages/platform/src/*.linux.ts`).
+Declare `xplat.targets.linux.runtime: 'webkitgtk'` and Linux package settings.
+`pnpm xplat build --targets linux` builds the static frontend and ships the
+GJS host, relocatable launcher, per-user installer, desktop entry, and tar archive.
+Follow [Package a Linux WebKitGTK app](linux-package.md) for the complete
+configuration, prerequisites, installation, URI handling, and verification flow.
 
-OS access crosses a single `webkit.messageHandlers.xplat` channel — the same
-API shape on WKWebView and WebKitGTK. `apps/linux/host/WKHost.swift` is a
-macOS dev stand-in that runs the real contract (`run.sh --self-test` does a
-round-trip check); `gjs-host.js` is the real GJS/WebKitGTK host, verified in
-an OrbStack container (`host/Dockerfile` + `container-smoke.sh`) against real
-D-Bus services. Host-side services are D-Bus/Gio-shaped (freedesktop
-notifications, portals, libsecret) — no JS↔native binding layer. See the
-[Linux host notes](../apps/linux/host/README.md) and decision #61.
+The target renders DOM inside system WebKitGTK, with `.linux` → `.web` → shared
+resolution. It uses the desktop host protocol for OS services. The real host
+has been exercised on the Ubuntu 24.04 x86-64 VM on Andromeda; the macOS
+WKWebView stand-in is development evidence only. `xplat dev --targets linux`
+continues to run the app's configured dev script; see the [harness host
+notes](../apps/linux/host/README.md) for its Vite/GTK loop.

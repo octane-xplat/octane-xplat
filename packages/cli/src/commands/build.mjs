@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import * as p from '@clack/prompts'
 import { buildTargets } from '../targets.mjs'
 import { packageMacOS } from '../macos/package.mjs'
+import { packageLinux } from '../linux/package.mjs'
 import { runTagged } from '../procs.mjs'
 import { generateRoutes } from './routes.mjs'
 
@@ -77,16 +78,13 @@ export const build = command({
 			try {
 				if (t.kind === 'macos') {
 					await packageMacOS(cwd)
+				} else if (t.kind === 'linux') {
+					await packageLinux(cwd)
 				} else {
-					// linux produces a vite bundle artifact — the webview host
-					// packages it; a packageLinux step lands with the real
-					// WebKitGTK host. The app's own script names its config.
 					const argv =
 						t.kind === 'web'
 							? ['exec', 'vite', 'build']
-							: t.kind === 'linux'
-								? ['run', 'build']
-								: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
+							: ['exec', 'ns', 'build', t.kind, ...(args.release ? ['--release'] : [])]
 
 					await runTagged(t.kind, 'pnpm', argv, cwd)
 				}

@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "node ../../scripts/watch-types.mjs -- pnpm dev:app",
-		"build": "pnpm --filter @xplat/app gen && vite build --config vite.linux.config.ts && node scripts/package.mjs",
+		"build": "pnpm --filter @xplat/app gen && xplat build --targets linux",
+		"smoke": "node scripts/smoke.mjs",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"dev:app": "pnpm --filter @xplat/app gen && node scripts/dev.mjs"
 	},
@@ -27,6 +28,13 @@
 				"runtime": "webkitgtk",
 				"host": {
 					"scheme": "xplat"
+				},
+				"package": {
+					"applicationId": "org.octane.xplat",
+					"productName": "Octane xplat",
+					"executableName": "octane-xplat",
+					"version": "0.0.0",
+					"viteConfig": "vite.linux.config.ts"
 				}
 			}
 		}

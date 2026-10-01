@@ -9,14 +9,19 @@ Two hosts share the same wire contract:
 | Host           | File           | Status   | Purpose                                                |
 | -------------- | -------------- | -------- | ------------------------------------------------------ |
 | WKWebView      | `WKHost.swift` | verified | macOS dev stand-in — same `webkit.messageHandlers` API |
-| GJS/WebKitGTK  | `gjs-host.js`  | verified | the real host — Gio/D-Bus + libsecret (container pass) |
+| GJS/WebKitGTK  | `gjs-host.js`  | verified | the real host — Ubuntu 24.04 VM and container evidence |
+
+The canonical GJS host and bridge self-test ship in
+`packages/cli/src/linux/host/`; the files here are symlinks used by the harness.
+For real apps, follow [Linux packaging](../../../docs/linux-package.md).
 
 Wire contract (`packages/platform/src/bridge.linux.ts`):
 
 ```text
 webview → host   webkit.messageHandlers.xplat.postMessage(JSON string)
-host → reply     __xplatBridge.resolve(id, value) | .reject(id, message)
-host → event     __xplatBridge.emit(service, event, payload)
+host → reply     __xplatHostTransport.receive(JSON reply packet)
+host → event     __xplatHostTransport.receive(JSON event packet)
+legacy replies  __xplatBridge.resolve(id, value) | .reject(id, message)
 document-start   window.__xplatInitialUrl (sync state that can't round-trip)
 ```
 
@@ -35,10 +40,29 @@ The webview loads one of two URLs, chosen by `gjs-host.js` args:
   `crypto.subtle`) and module/font fetches work.
 - `http://localhost:5201` — dev; vite serves, HMR rides real HTTP.
 
-`pnpm --filter @xplat/linux build` emits `apps/linux/dist-app/` — the
-runnable app dir: `bundle/` + `host/` + `run.sh` + `xplat.desktop` (the
-`.desktop` entry declares `x-scheme-handler/xplat`, which is how installed
-deep links reach the host's `Gio.Application` `open` signal).
+`pnpm --filter @xplat/linux build` invokes the CLI packager and emits
+`apps/linux/dist/linux/octane-xplat/` plus `octane-xplat-0.0.0.tar.gz`.
+The launcher resolves host and bundle paths independently of the caller's
+working directory. The installer generates the desktop entry at its destination;
+URI-handler registration is explicit.
+
+## VM verification
+
+On Andromeda, the OrbStack `octane-linux` machine runs Ubuntu 24.04 x86-64.
+With the repository and dependencies in `/home/alec/octane-xplat`, run:
+
+```sh
+ssh andromeda.local '/usr/local/bin/orb -m octane-linux bash -lc "cd /home/alec/octane-xplat && PATH=/home/alec/.local/share/pnpm/bin:$PATH pnpm --filter @xplat/linux smoke"'
+```
+
+The maintained [smoke runner](../scripts/smoke.mjs) builds through the CLI and
+runs [handler-driven harness checks](harness-selftest.web.js) inside the real
+GTK WebView under Xvfb. It checks mount/state, textarea growth, routes, virtual
+list mount bounds and empty state, sheets, overlays, and unhandled page errors.
+It does not measure pixels or physical input. The [packed consumer
+verifier](../../../packages/cli/test/verify-linux-consumer.mjs) separately checks
+archive relocation, installation, host services, keyring persistence and app
+isolation, and URI forwarding with an app outside the workspace.
 
 ## Container verification
 
@@ -66,8 +90,8 @@ Octane root; `options.data` arrives as `window.__xplatWindowData`;
 `windows.closed` emits back to the opener; kinds `regular`/`dialog` — dialog
 maps to transient+modal, GTK has no sheets), clipboard (GTK4
 `set_content`/`read_text_async` — there is no `set_text`), Secret Service
-round-trip (`COLLECTION_SESSION` — a headless `default` keyring prompts and
-hangs the sync call), `org.freedesktop.Notifications` `GetCapabilities` +
+round-trip (`COLLECTION_SESSION` during self-tests; production uses the unlocked default
+collection through asynchronous calls), `org.freedesktop.Notifications` `GetCapabilities` +
 `Notify` via `notification-daemon` (started manually — Debian ships no
 activation service file), and the rejection path.
 
