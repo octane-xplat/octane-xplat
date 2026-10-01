@@ -835,8 +835,8 @@ body {
 }
 
 @keyframes orbit-depth {
-	0%, 100% { transform: scale(0.8); }
-	50% { transform: scale(1); }
+	0%, 100% { transform: scale(0.8); opacity: 0.65; }
+	50% { transform: scale(1); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
