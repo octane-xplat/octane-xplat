@@ -448,8 +448,10 @@ order: `pnpm lint` (oxlint + tsrx pass + recipes + css), `check:patches` /
 `check:suffix-resolution`, `pnpm typecheck:web`, `pnpm typecheck:mobile`,
 `pnpm test`, `pnpm build:web`, the publishable-package builds,
 `tsrx-typegen --pack-check` + the GIF packed consumer, the harness browser
-smoke (`pnpm --filter @xplat/web smoke`, 59 assertions on the production
-bundle), and `pnpm check:consumer --no-build --smoke web`. `check:no-dom`
+smoke (`pnpm --filter @xplat/web smoke`, 62 assertions on the production
+bundle in Chromium, Firefox, and WebKit), and
+`pnpm check:consumer --no-build --smoke web` (packed starter smoke on all
+three engines). `check:no-dom`
 is the older static sweep; `xplat/no-dom-globals` covers it at lint time.
 
 `scripts/verify-consumer.mjs` (`check:consumer`) is the release-path

@@ -17,7 +17,7 @@ cd apps/mobile && pnpm exec ns build android --release \
   --key-store-alias "$KEYSTORE_ALIAS" --key-store-alias-password "$KEYSTORE_PASSWORD"
 ```
 
-The web production build is covered by the smoke script (59 assertions at
+The web production build is covered by the smoke script (62 assertions at
 this revision).
 
 ## Release validation (CI gates)

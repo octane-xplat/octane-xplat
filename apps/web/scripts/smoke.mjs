@@ -111,10 +111,20 @@ try {
 		`flex-direction=${bambooCardStyle.flexDirection}`,
 	)
 
-	// Interact: Increment bumps state.
-	await page.click('text=Increment')
+	// Pressable has an accessible button name and responds to pointer + keys.
+	const increment = page.getByRole('button', { name: 'Increment' })
+	ok('increment exposes button role and name', (await increment.count()) === 1)
+	await increment.click()
 	await page.waitForSelector('text=Count: 1', { timeout: 3000 })
 	ok('pressable onClick → state update', true)
+	await increment.focus()
+	await page.keyboard.press('Enter')
+	await page.waitForSelector('text=Count: 2', { timeout: 3000 })
+	ok('pressable keyboard Enter → state update', true)
+	await increment.focus()
+	await page.keyboard.press('Space')
+	await page.waitForSelector('text=Count: 3', { timeout: 3000 })
+	ok('pressable keyboard Space → state update', true)
 
 	// TextArea leaf: real <textarea>, controlled round-trip, autoGrow re-fit.
 	await page.waitForSelector('#probe-textarea', { timeout: 5000 })

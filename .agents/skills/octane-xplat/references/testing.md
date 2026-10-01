@@ -17,7 +17,7 @@ Keep harness edits and catalog sweeps for broader regression coverage.
 | Typecheck | `tsrx-tsc --noEmit -p apps/{web,mobile}/tsconfig.json` | .tsrx typechecks per target                                                                                                                                             |
 | Unit      | `pnpm test`                                            | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.mobile.test.*`, universal runtime via the object driver) |
 | Seam lint | `node scripts/check-no-dom.mjs`                        | no DOM globals in native/shared                                                                                                                                         |
-| Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright Chromium smoke, 59 assertions; CI also runs the built bundle in Firefox and WebKit                                                                 |
+| Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright Chromium smoke, 62 assertions; CI also runs the built bundle in Firefox and WebKit                                                                 |
 | Packed web consumer | `pnpm check:consumer --no-build --smoke web` | scaffolds and builds against packed artifacts; CI runs the starter smoke in Chromium, Firefox, and WebKit |
 | iOS       | build + install + launch → read sim log                | Check the named `[assert]` results emitted by the current harness sweep                                                                                                 |
 | Android   | build + install + launch → logcat `I JS`               | Base probes; the nested-Frame sweep is gated                                                                                                                            |
@@ -71,8 +71,9 @@ runs there instead; the web twin is a no-op.
 ## Web smoke (`apps/web/scripts/smoke.mjs`)
 
 `pnpm smoke` = `vite build && node scripts/smoke.mjs` — serves dist via
-`vite preview` and drives headless Chromium. The current script has 59
-assertions covering mount/state, motion retargeting and cancellation, pan
+`vite preview` and drives headless Chromium. The current script has 62
+assertions covering mount/state, Pressable role/name and pointer/keyboard
+activation, motion retargeting and cancellation, pan
 release velocity and cancellation, retained Presence identity, routes and
 tabs, sheet and overlay portals, services, proof-stack navigation, and browser
 errors. The sheet check asserts the real panel mounts and the backdrop
