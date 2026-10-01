@@ -12,7 +12,7 @@ export interface LayoutChildProps {
 	order?: number
 }
 
-/** Flex-container props shared by View/Row/Pressable — RN vocabulary, applied
+/** Flex-container props shared by View/HStack/Pressable — RN vocabulary, applied
  *  to the host flexboxlayout natively and the element's style on web.
  *  `gap` is a dip number (px on web); NS supports it on FlexboxLayout only
  *  (GridLayout has no gap). */

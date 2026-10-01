@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useEffect, useState } from 'octane';
-import { Icon, Image, Pressable, Row, Slider, Text, View } from '@octane-xplat/ui';
+import { Icon, Image, Pressable, HStack, Slider, Text, View } from '@octane-xplat/ui';
 
 /** Self-drawn video transport — the chrome half of the surface-hosted
  *  `Video` component. Identical structure to the native twin (only the
@@ -78,7 +78,7 @@ export function VideoChrome(props: VideoChromeProps) @{
 				// them pointer-events:none so taps reach the surface/tap layer; NS
 				// layout views never capture touches without handlers.
 				<View className="vx-video-barwrap" justifyContent="end">
-					<Row className="vx-video-bar" alignItems="center" gap={8}>
+					<HStack className="vx-video-bar" alignItems="center" gap={8}>
 						<Pressable
 							className="vx-video-btn"
 							accessibilityRole="button"
@@ -109,7 +109,7 @@ export function VideoChrome(props: VideoChromeProps) @{
 								color="#fff"
 							/>
 						</Pressable>
-					</Row>
+					</HStack>
 				</View>
 			</>
 		}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, NavLink, TextInput, TextArea, ScrollView, Image, Sheet, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, NavLink, TextInput, TextArea, ScrollView, Image, Sheet, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { SELF_DRIVE } from './platform/selfdrive';
@@ -84,9 +84,9 @@ export function Home() @{
 	}, [dark]);
 
 	<View className={['vx-app', 'flex-1', 'gap-6', dark ? 'dark ns-dark' : '']}>
-		<Row className="justify-between items-baseline shrink-0">
+		<HStack className="justify-between items-baseline shrink-0">
 			<Text className="text-2xl font-semibold">Kitchen sink</Text>
-			<Row className="gap-3 items-center">
+			<HStack className="gap-3 items-center">
 				<Pressable id="scheme-toggle" onPress={() => {
 					const next = dark ? 'light' : 'dark';
 					storage.setString('theme-preference', next);
@@ -94,8 +94,8 @@ export function Home() @{
 				}} className="btn btn-secondary">
 					<Text>{dark ? 'Light' : 'Dark'}</Text>
 				</Pressable>
-			</Row>
-		</Row>
+			</HStack>
+		</HStack>
 
 		{/* The five control sections outgrow a phone pane — keep them in
 		    their own scroller (the flex-1 region) so intrinsic controls
@@ -105,7 +105,7 @@ export function Home() @{
 				<View id="bamboo-card" className={['sink-section', 'vx-row', bambooCardClass]}>
 					<Text className="section-label">Reactivity</Text>
 					<Text className="text-xl font-bold">{'Count: ' + count}</Text>
-					<Row className="gap-3 flex-wrap items-center">
+					<HStack className="gap-3 flex-wrap items-center">
 						<Pressable
 							id="a11y-btn"
 							accessible={true}
@@ -116,14 +116,14 @@ export function Home() @{
 						>
 							<Text className="text-onprimary">Increment</Text>
 						</Pressable>
-					</Row>
+					</HStack>
 				</View>
 
 				{/* Navigation + overlay seams (Exp 9): platform modules resolve the
 				    imperative call per target. */}
 				<View className="sink-section">
 					<Text className="section-label">Navigation and overlays</Text>
-					<Row className="gap-3 flex-wrap items-center">
+					<HStack className="gap-3 flex-wrap items-center">
 						<NavLink route={{ stack: 'root', name: 'detail', params: { from: 'home' } }} className="btn bg-primary">
 							<Text className="text-onprimary">Detail →</Text>
 						</NavLink>
@@ -143,7 +143,7 @@ export function Home() @{
 						<Link to="detail" params={{ from: 'link' }} className="chip">
 							<Text>Link →</Text>
 						</Link>
-					</Row>
+					</HStack>
 				</View>
 
 				{/* Sheet seam (the shared in-window modal surface — the platform
@@ -179,7 +179,7 @@ export function Home() @{
 							<Text>Pan / swipe box</Text>
 						</Pressable>
 					</View>
-					<Row className="gap-4 items-center">
+					<HStack className="gap-4 items-center">
 						{/* Animation seam (Exp 13): imperative controller writes the view's
 						    translateX per rAF frame — no re-render, no worklets. */}
 						<View id="anim-box" bind={x.bind} className="anim-box" />
@@ -192,19 +192,19 @@ export function Home() @{
 						}} className="btn btn-secondary">
 							<Text>Animate</Text>
 						</Pressable>
-					</Row>
+					</HStack>
 				</View>
 
 				<View className="sink-section">
 					<Text className="section-label">Reordering and scrolling</Text>
 					{/* @for keyed reorder on a plain layout parent — native driver
 					    insert/move path (experiment bc3f77c4). */}
-					<Row className="gap-2 flex-wrap">
+					<HStack className="gap-2 flex-wrap">
 						@for (const item of items; key item.id) {
 							<Text className="chip">{item.id}</Text>
 						}
-					</Row>
-					<Row className="gap-3 flex-wrap">
+					</HStack>
+					<HStack className="gap-3 flex-wrap">
 						<Pressable
 							onPress={() => {
 								const next = [...items].reverse();
@@ -222,14 +222,14 @@ export function Home() @{
 						>
 							<Text>{items.length ? 'Clear' : 'Restore'}</Text>
 						</Pressable>
-					</Row>
+					</HStack>
 					{/* ScrollView seam: NS <scrollview> hosts one child — the leaf wraps
 					    children in a column layout. Probe reads verticalOffset back.
 					    Universal @for keys default to position when omitted (upstream
 					    branch universal-for-optional-key); `key n` kept for clarity. */}
 					<ScrollView id="scroll-box" className="scrollbox" style={{ height: 96 }}>
 						@for (const n of ROWS; key n) {
-							<Text className="scrollrow">{'Row ' + n}</Text>
+							<Text className="scrollrow">{'HStack ' + n}</Text>
 						}
 					</ScrollView>
 				</View>

@@ -1,6 +1,6 @@
 /** @jsxImportSource @xplat/macos/renderer */
 import { useState } from 'octane'
-import { Row, Text, Pressable, View } from '@octane-xplat/ui'
+import { HStack, Text, Pressable, View } from '@octane-xplat/ui'
 import { clipboard, connectivity, device, locale, useAppState, useWindowSize } from '@octane-xplat/platform'
 
 export function Services() @{
@@ -18,7 +18,7 @@ export function Services() @{
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Clipboard</Text>
-			<Row className="gap-3 items-center">
+			<HStack className="gap-3 items-center">
 				<Pressable className="btn btn-secondary" onPress={async () => {
 					setClipboardResult(clipboard.canCopy && await clipboard.write('octane-xplat') ? 'copied' : 'unsupported')
 				}}><Text>Copy</Text></Pressable>
@@ -26,7 +26,7 @@ export function Services() @{
 					setClipboardResult(clipboard.canCopy ? 'read: ' + (await clipboard.read() ?? 'empty') : 'unsupported')
 				}}><Text>Paste</Text></Pressable>
 				<Text className="text-sm text-muted">{clipboardResult}</Text>
-			</Row>
+			</HStack>
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Unsupported on this AppKit host</Text>

@@ -1,8 +1,8 @@
-import type { View, Row, Pressable } from '@octane-xplat/ui'
+import type { View, HStack, Pressable } from '@octane-xplat/ui'
 import type { MotionValue } from './value.js'
 
 type ViewProps = Parameters<typeof View>[0]
-type RowProps = Parameters<typeof Row>[0]
+type HStackProps = Parameters<typeof HStack>[0]
 type PressableProps = Parameters<typeof Pressable>[0]
 
 /** Supported channels. Translation is CSS pixels/DIP; rotation is degrees. */
@@ -41,7 +41,7 @@ export interface MotionProps {
 /** View layout and accessibility props with motion controls. */
 export type MotionViewProps = Omit<ViewProps, 'style'> & MotionProps
 /** Row layout and accessibility props with motion controls. */
-export type MotionRowProps = Omit<RowProps, 'style'> & MotionProps
+export type MotionRowProps = Omit<HStackProps, 'style'> & MotionProps
 /** Pressable interaction props with motion controls. */
 export type MotionPressableProps = Omit<PressableProps, 'style'> & MotionProps
 /** Inherited defaults; `user` observes the live system preference. */

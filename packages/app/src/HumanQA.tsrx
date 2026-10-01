@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Pressable, Row, Screen, ScrollView, Text, View } from '@octane-xplat/ui';
+import { Pressable, HStack, Screen, ScrollView, Text, View } from '@octane-xplat/ui';
 import { clipboard, device } from '@octane-xplat/platform';
 import { HUMAN_CHECKS, QA_TRIGGERS } from './human-checks';
 import { releaseQaTrigger, runQaTrigger } from './qa-media';
@@ -47,7 +47,7 @@ export function HumanQA(props: { _stack?: string }) @{
 	};
 
 	<Screen className="vx-app vx-app-flush flex-1">
-		<Row className="gap-4 items-center" style={{ padding: 16 }}>
+		<HStack className="gap-4 items-center" style={{ padding: 16 }}>
 			<Pressable id="qa-back" onPress={() => goBack({ into: props._stack })} className="btn btn-secondary">
 				<Text>← Back</Text>
 			</Pressable>
@@ -55,7 +55,7 @@ export function HumanQA(props: { _stack?: string }) @{
 			<Text id="qa-tally" className="text-sm text-muted">
 				{decided + '/' + checks.length + (failed > 0 ? ' · ' + failed + ' failed' : '')}
 			</Text>
-		</Row>
+		</HStack>
 		<ScrollView id="qa-scroll" className="flex-1" style={{ padding: 16 }}>
 			<Text className="text-sm text-muted">
 				{'Checks a probe cannot perform — sensory output, real input, OS chrome, physical hardware. Steps run on this device (' + os + '); "physical" cards need real hardware, not a simulator. Verdicts log [review] lines.'}
@@ -69,17 +69,17 @@ export function HumanQA(props: { _stack?: string }) @{
 						@for (const c of group; key c.id) {
 							const v = verdicts[c.id];
 							<View className={'qa-check' + (v ? ' qa-' + v : '')}>
-								<Row className="gap-2 items-center">
+								<HStack className="gap-2 items-center">
 									<Text className="flex-1 font-semibold">{c.title}</Text>
 									@if (c.device === 'physical') {
 										<Text className="badge">physical</Text>
 									}
-								</Row>
+								</HStack>
 								@for (const step of c.steps; index i) {
 									<Text className="text-sm">{(i + 1) + '. ' + step}</Text>
 								}
 								<Text className="text-sm text-muted">{'Expect: ' + c.expect}</Text>
-								<Row className="gap-2 flex-wrap items-center">
+								<HStack className="gap-2 flex-wrap items-center">
 									@for (const t of c.triggers ?? []; key t) {
 										const def = QA_TRIGGERS[t];
 										@if (def.hold) {
@@ -106,8 +106,8 @@ export function HumanQA(props: { _stack?: string }) @{
 											<Text>Open demo</Text>
 										</Pressable>
 									}
-								</Row>
-								<Row className="gap-2 items-center">
+								</HStack>
+								<HStack className="gap-2 items-center">
 									<Pressable id={'qa-pass-' + c.id} className="chip" onPress={() => mark(c.id, 'pass')}>
 										<Text>Pass</Text>
 									</Pressable>
@@ -120,20 +120,20 @@ export function HumanQA(props: { _stack?: string }) @{
 									@if (v) {
 										<Text className="text-sm text-muted">{v}</Text>
 									}
-								</Row>
+								</HStack>
 							</View>
 						}
 					</View>
 				}
 			}
-			<Row className="gap-2" style={{ paddingTop: 8, paddingBottom: 24 }}>
+			<HStack className="gap-2" style={{ paddingTop: 8, paddingBottom: 24 }}>
 				<Pressable id="qa-copy" className="btn btn-secondary" onPress={copyReport}>
 					<Text>Copy report</Text>
 				</Pressable>
 				<Pressable id="qa-reset" className="btn btn-secondary" onPress={() => setVerdicts({})}>
 					<Text>Reset</Text>
 				</Pressable>
-			</Row>
+			</HStack>
 		</ScrollView>
 	</Screen>
 }

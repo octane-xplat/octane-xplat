@@ -68,7 +68,7 @@ export function layoutChildProps(
 		style.order = props.order
 	}
 
-	// Flex-container props (View/Row/Pressable hosts) — RN vocabulary on the
+	// Flex-container props (View/HStack/Pressable hosts) — RN vocabulary on the
 	// element style. Numbers become px via octane's style normalization.
 	if (props.justifyContent !== undefined) {
 		style.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent

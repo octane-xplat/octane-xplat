@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'octane';
-import { View, Row, Text, Pressable, Image } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, Image } from '@octane-xplat/ui';
 import {
 	device, appInfo, connectivity, locale,
 	clipboard, announce, systemBars,
@@ -69,7 +69,7 @@ export function Services() @{
 		{/* In-window actions — result lands in the muted echo. */}
 		<View className="sink-section">
 			<Text className="section-label">Clipboard</Text>
-			<Row className="gap-3 flex-wrap items-center">
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('clip', async () => (await clipboard.write('octane-xplat')) ? 'copied' : 'write failed')}>
 					<Text>Copy</Text>
 				</Pressable>
@@ -77,12 +77,12 @@ export function Services() @{
 					<Text>Paste</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.clip ?? '—'}</Text>
-			</Row>
+			</HStack>
 		</View>
 
 		<View className="sink-section">
 			<Text className="section-label">Secure storage</Text>
-			<Row className="gap-3 flex-wrap items-center">
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('sec', async () => {
 					if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return 'unsupported';
 					await secureStorage.impl.set('demo', 's3cret');
@@ -95,12 +95,12 @@ export function Services() @{
 					<Text>Read secret</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.sec ?? '—'}</Text>
-			</Row>
+			</HStack>
 		</View>
 
 		<View className="sink-section">
 			<Text className="section-label">SQLite</Text>
-			<Row className="gap-3 flex-wrap items-center">
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('sqlite', async () => {
 					if (!sqliteSupported) return 'unsupported';
 					const db = await openDatabase('probe.db');
@@ -128,12 +128,12 @@ export function Services() @{
 					<Text>Round-trip</Text>
 				</Pressable>
 				<Text id="sqlite-probe" className="text-sm text-muted">{echo.sqlite ?? '—'}</Text>
-			</Row>
+			</HStack>
 		</View>
 
 		<View className="sink-section">
 			<Text className="section-label">Feedback</Text>
-			<Row className="gap-3 flex-wrap items-center">
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('hap', async () => {
 					if ((await haptics.ensure()) !== 'granted' || !haptics.impl) return 'unsupported';
 					haptics.impl.impact('medium');
@@ -152,12 +152,12 @@ export function Services() @{
 					<Text>Announce</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.hap ?? echo.notif ?? echo.a11y ?? '—'}</Text>
-			</Row>
+			</HStack>
 		</View>
 
 		<View className="sink-section">
 			<Text className="section-label">System bars</Text>
-			<Row className="gap-3 flex-wrap items-center">
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => { systemBars.setColor('#171717'); say('bars', 'tinted'); }}>
 					<Text>Tint dark</Text>
 				</Pressable>
@@ -165,7 +165,7 @@ export function Services() @{
 					<Text>Reset</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.bars ?? '—'}</Text>
-			</Row>
+			</HStack>
 		</View>
 
 		{/* OS-mediated actions — file pickers, browser launch, permission
@@ -173,7 +173,7 @@ export function Services() @{
 		    (platform/selfdrive). */}
 		<View className="sink-section">
 			<Text className="section-label">OS-mediated</Text>
-			<Row className="gap-3 flex-wrap items-center">
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('loc', async () => {
 					if ((await geolocation.ensure()) !== 'granted' || !geolocation.impl) return 'denied/unsupported';
 					const p = await geolocation.impl.getCurrentPosition();
@@ -185,8 +185,8 @@ export function Services() @{
 					<Text>Ask permission</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.loc ?? echo['geo-perm'] ?? '—'}</Text>
-			</Row>
-			<Row className="gap-3 flex-wrap items-center">
+			</HStack>
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('img', async () => {
 					if ((await media.ensure('photos')) !== 'granted') return 'denied/unsupported';
 					const img = await media.pickImage();
@@ -212,8 +212,8 @@ export function Services() @{
 					</Pressable>
 				}
 				<Text className="text-sm text-muted">{(echo.capture ?? echo.img ?? PERMISSION_KINDS.map((k) => echo['perm-' + k]).filter(Boolean).join(' · ')) || '—'}</Text>
-			</Row>
-			<Row className="gap-3 flex-wrap items-center">
+			</HStack>
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('file', async () => {
 					const f = await files.pick();
 					if (!f) return 'cancelled';
@@ -229,8 +229,8 @@ export function Services() @{
 					<Text>Save file</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.file ?? '—'}</Text>
-			</Row>
-			<Row className="gap-3 flex-wrap items-center">
+			</HStack>
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('share', async () => 'result: ' + (await share.text('octane-xplat kitchen sink')))}>
 					<Text>Share text</Text>
 				</Pressable>
@@ -255,12 +255,12 @@ export function Services() @{
 					<Text>Biometrics</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.share ?? echo.url ?? echo.settings ?? echo.bio ?? '—'}</Text>
-			</Row>
+			</HStack>
 			@if (picked) {
-				<Row className="gap-3 items-center">
+				<HStack className="gap-3 items-center">
 					<Image src={picked!.dataUrl} style={{ width: 48, height: 48 }} />
 					<Text className="text-sm text-muted">{picked!.name}</Text>
-				</Row>
+				</HStack>
 			}
 		</View>
 	</View>

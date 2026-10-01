@@ -25,14 +25,14 @@ only needed for native targets.
 This component fragment assumes `save` is your app’s action handler.
 
 ```tsx
-import { Row, Text, Pressable } from '@octane-xplat/ui'
+import { HStack, Text, Pressable } from '@octane-xplat/ui'
 
-;<Row className="items-center gap-2">
+;<HStack className="items-center gap-2">
 	<Text>Hello</Text>
 	<Pressable onPress={save}>
 		<Text>Save</Text>
 	</Pressable>
-</Row>
+</HStack>
 ```
 
 The package also ships `styled()`, layout stacks, routing (`Link`, `NavLink`,

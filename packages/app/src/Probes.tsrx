@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable, NavLink, styled, useThemeScheme, Meter, useMeasure, useModalRoute, openWindow, Hoverable, Tooltip } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, NavLink, styled, useThemeScheme, Meter, useMeasure, useModalRoute, openWindow, Hoverable, Tooltip } from '@octane-xplat/ui';
 import { probeSignal$ } from './probe-state';
 import { navigate } from './platform/nav';
 import 'octane/signals';
@@ -25,13 +25,13 @@ export function Probes() @{
 			{/* Multi-child Pressable regression — the old contentview host
 			    kept only the last child. */}
 			<Pressable id="multi-pressable" onPress={() => setCount(count + 1)} className="btn btn-secondary">
-				<Row className="gap-2 items-center">
+				<HStack className="gap-2 items-center">
 					<Text>Multi</Text>
 					<View id="multi-sibling" className="rounded-full" style={{ width: 8, height: 8, backgroundColor: '#22c55e' }} />
 					@if (dark) {
 						<View id="multi-indicator" className="rounded-full" style={{ width: 8, height: 8, backgroundColor: '#facc15' }} />
 					}
-				</Row>
+				</HStack>
 			</Pressable>
 			<Text id="probe-count" className="text-sm text-muted">{'Count: ' + count}</Text>
 		</View>
@@ -53,7 +53,7 @@ export function Probes() @{
 
 		<View className="sink-section">
 			<Text className="section-label">Feedback</Text>
-			<Row className="gap-4 items-center">
+			<HStack className="gap-4 items-center">
 				{/* Meter ring tracks the probe count (wraps at max). */}
 				<Meter id="meter" value={count % 6} max={5} size={40} />
 				{/* Hover intent — real card on pointer platforms, passthrough on touch. */}
@@ -70,7 +70,7 @@ export function Probes() @{
 					placement="top"
 					trigger={<Text className="text-sm">Tooltip trigger</Text>}
 				/>
-			</Row>
+			</HStack>
 		</View>
 
 		{/* useMeasure seam: bind reports live bounds (ResizeObserver on web,
@@ -86,7 +86,7 @@ export function Probes() @{
 
 		<View className="sink-section">
 			<Text className="section-label">Routing</Text>
-			<Row className="gap-3 flex-wrap items-center">
+			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable id="guarded-btn" className="btn btn-secondary" onPress={() => navigate('private')}>
 					<Text>Guarded →</Text>
 				</Pressable>
@@ -101,7 +101,7 @@ export function Probes() @{
 				}}>
 					<Text>Open window</Text>
 				</Pressable>
-			</Row>
+			</HStack>
 			<Text id="modal-route" className="text-sm text-muted">{'modal route: ' + (modalRoute?.name ?? 'none')}</Text>
 		</View>
 	</View>

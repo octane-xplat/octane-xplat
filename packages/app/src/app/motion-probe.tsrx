@@ -8,7 +8,7 @@ import {
 	useTransform,
 } from '@octane-xplat/motion'
 
-import { Screen, Row, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
+import { Screen, HStack, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
 import { goBack } from '../platform/nav'
 
 function PresenceCounter(props: { onMount: () => void; onUnmount: () => void; onFocus: () => void; onBlur: () => void }) @{
@@ -27,12 +27,12 @@ function PresenceCounter(props: { onMount: () => void; onUnmount: () => void; on
 		exit={{ opacity: 0, y: -10 }}
 		transition={{ duration: 0.55 }}
 	>
-		<Row className="items-center gap-3">
+		<HStack className="items-center gap-3">
 			<Text id="motion-presence-count">{`Retained count: ${count}`}</Text>
 			<Pressable id="motion-presence-increment" onPress={() => setCount(count + 1)} className="chip">
 				<Text>Increment</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		<TextInput
 			id="motion-presence-input"
 			placeholder="Focus before hiding this card"
@@ -109,15 +109,15 @@ export function MotionProbe() @{
 
 	<MotionConfig reducedMotion="user">
 		<Screen className="vx-app flex-1 gap-3">
-			<Row className="items-center gap-3">
+			<HStack className="items-center gap-3">
 				<Pressable id="motion-probe-back" onPress={() => goBack({ into: 'test' })} className="chip">
 					<Text>← Back</Text>
 				</Pressable>
 				<Text className="text-xl font-semibold">Motion v1 checks</Text>
-			</Row>
+			</HStack>
 			<Text id="motion-reduced-state">Reduced motion: {String(reduced)}</Text>
 
-			<Row className="gap-2">
+			<HStack className="gap-2">
 				<Pressable id="motion-tween-to" onPress={() => {
 					const next = target === 100 ? -100 : 100
 					setMode('tween')
@@ -134,7 +134,7 @@ export function MotionProbe() @{
 				}} className="chip">
 					<Text>Interrupt with spring</Text>
 				</Pressable>
-			</Row>
+			</HStack>
 			<Text id="motion-destination-status">Destination: {destinationStatus}</Text>
 			<motion.View
 				id="motion-destination"
@@ -150,7 +150,7 @@ export function MotionProbe() @{
 			<motion.Row id="motion-pan-row" onPan={pan} style={{ x: panX, scale: panScale }} className="items-center justify-center rounded-lg bg-primary p-3">
 				<Text className="text-onprimary">Drag me horizontally</Text>
 			</motion.Row>
-			<Row className="items-center gap-2">
+			<HStack className="items-center gap-2">
 				<Pressable id="motion-value-cancel" onPress={() => {
 					const controls = panX.animate(100, { duration: 3 })
 					setPanStatus('MotionValue animation started')
@@ -160,10 +160,10 @@ export function MotionProbe() @{
 					<Text>Start/cancel</Text>
 				</Pressable>
 				<Text id="motion-pan-status">{panStatus}</Text>
-			</Row>
+			</HStack>
 
 			<Text className="section-label">Retained presence</Text>
-			<Row className="items-center gap-2">
+			<HStack className="items-center gap-2">
 				<Pressable id="motion-presence-toggle" onPress={() => {
 					const next = !present
 					setPresent(next)
@@ -172,7 +172,7 @@ export function MotionProbe() @{
 					<Text>{present ? 'Exit card' : 'Restore card'}</Text>
 				</Pressable>
 				<Text id="motion-presence-status">{presenceStatus}</Text>
-			</Row>
+			</HStack>
 			<Pressable id="motion-presence-arm-focus-reversal" onPress={() => setReverseOnNextFocus(true)} className="chip">
 				<Text>Arm focus reversal</Text>
 			</Pressable>
@@ -201,7 +201,7 @@ export function MotionProbe() @{
 			</Presence>
 
 			<Text className="section-label">Unmount cancellation</Text>
-			<Row className="items-center gap-2">
+			<HStack className="items-center gap-2">
 				<Pressable id="motion-disposal-toggle" onPress={() => {
 					setShowDisposable(!showDisposable)
 					setDisposalStatus(showDisposable ? 'unmount requested' : 'mount requested')
@@ -209,7 +209,7 @@ export function MotionProbe() @{
 					<Text>{showDisposable ? 'Unmount job' : 'Mount job'}</Text>
 				</Pressable>
 				<Text id="motion-disposal-status">{disposalStatus}</Text>
-			</Row>
+			</HStack>
 			@if (showDisposable) {
 				<DisposalProbe onResult={(result) => setDisposalStatus(`job ${result}`)} />
 			}

@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Screen, ScrollView, View, Row, Text, Pressable, Switch } from '@octane-xplat/ui';
+import { Screen, ScrollView, View, HStack, Text, Pressable, Switch } from '@octane-xplat/ui';
 import { DEMOS } from '@xplat/demos';
 // './probes-host' is extensionless on purpose: moduleSuffixes resolves the
 // .web.ts/.mobile.ts twin — the suffix-resolution seam itself is the probe,
@@ -24,7 +24,7 @@ export function Test() @{
 
 		<View className="sink-section">
 			<Text className="section-label">Human QA</Text>
-			<Row className="demo-menu">
+			<HStack className="demo-menu">
 				<Pressable
 					id="menu-human-qa"
 					onPress={() => navigate('qa', {}, { into: 'test' })}
@@ -32,7 +32,7 @@ export function Test() @{
 				>
 					<Text>Human checklist →</Text>
 				</Pressable>
-			</Row>
+			</HStack>
 		</View>
 
 		<Probes />
@@ -43,7 +43,7 @@ export function Test() @{
 
 		<View className="sink-section">
 			<Text className="section-label">Motion contract</Text>
-			<Row className="demo-menu">
+			<HStack className="demo-menu">
 				<Pressable
 					id="menu-motion-probe"
 					onPress={() => navigate('motion-probe', {}, { into: 'test' })}
@@ -51,12 +51,12 @@ export function Test() @{
 				>
 					<Text>Motion · device checks</Text>
 				</Pressable>
-			</Row>
+			</HStack>
 		</View>
 
 		<View className="sink-section">
 			<Text className="section-label">Performance gate</Text>
-			<Row className="demo-menu">
+			<HStack className="demo-menu">
 				<Pressable
 					id="menu-vlist-perf"
 					onPress={() => navigate('demo/:id', { id: 'vlist-perf' }, { into: 'test' })}
@@ -64,37 +64,37 @@ export function Test() @{
 				>
 					<Text>VirtualList · 5,000 rows</Text>
 				</Pressable>
-			</Row>
+			</HStack>
 		</View>
 
 		<View className="sink-section">
 			<Text className="section-label">Seam proofs</Text>
-			<Row className="demo-menu">
+			<HStack className="demo-menu">
 				@for (const d of proofs; key d.id) {
 					<Pressable id={'menu-' + d.id} onPress={() => navigate('demo/:id', { id: d.id }, { into: 'test' })} className="chip">
 						<Text>{d.title}</Text>
 					</Pressable>
 				}
-			</Row>
+			</HStack>
 		</View>
 
 		<View className="sink-section">
 			<Text className="section-label">Harness seams</Text>
-			<Row className="setting-row">
+			<HStack className="setting-row">
 				<Text>Notifications</Text>
 				<Switch
 					id="sw-notifications"
 					checked={notifications}
 					onCheckedChange={(v) => { console.log('[probe] switch notif -> ' + v); setNotifications(v); }}
 				/>
-			</Row>
-			<Row className="setting-row">
+			</HStack>
+			<HStack className="setting-row">
 				<Text>Analytics</Text>
 				<Switch
 					checked={analytics}
 					onCheckedChange={(v) => { console.log('[probe] switch analytics -> ' + v); setAnalytics(v); }}
 				/>
-			</Row>
+			</HStack>
 			{/* onPress passes the tap event — wrap; openSheet's first arg is the
 			    content component, not the event. */}
 			<Pressable id="sheet-btn" onPress={() => openSheet()} className="btn bg-primary">

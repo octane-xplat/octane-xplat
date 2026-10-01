@@ -1,4 +1,4 @@
-import { NavLink, Pressable, Row, Screen, Text, View } from '@octane-xplat/ui';
+import { NavLink, Pressable, HStack, Screen, Text, View } from '@octane-xplat/ui';
 import { addRoutes, defineRoutes } from '@octane-xplat/ui';
 import { goBack } from './platform/nav';
 
@@ -38,12 +38,12 @@ export function GuideIndex(props: { _stack?: string }) @{
 	const stack = props._stack ?? 'test';
 
 	<Screen className="vx-app flex-1 gap-6">
-		<Row className="gap-4 items-center">
+		<HStack className="gap-4 items-center">
 			<Pressable id="guides-back" onPress={() => goBack({ into: props._stack })} className="btn btn-secondary">
 				<Text>← Back</Text>
 			</Pressable>
 			<Text className="text-xl font-semibold flex-1">Guides</Text>
-		</Row>
+		</HStack>
 		<Text className="text-sm text-muted">{'Registered from a ' + GUIDES.length + '-record data array.'}</Text>
 		<View className="gap-2">
 			@for (const doc of GUIDES; key doc.slug) {
@@ -62,12 +62,12 @@ export function GuideScreen(props: { slug?: string; _stack?: string }) @{
 	const doc = props.slug ? GUIDE_BY_SLUG[props.slug] : undefined;
 
 	<Screen className="vx-app flex-1 gap-6">
-		<Row className="gap-4 items-center">
+		<HStack className="gap-4 items-center">
 			<Pressable id={'guide-back-' + (props.slug ?? 'missing')} onPress={() => goBack({ into: props._stack })} className="btn btn-secondary">
 				<Text>← Back</Text>
 			</Pressable>
 			<Text className="text-xl font-semibold flex-1">{doc?.title ?? 'Unknown guide'}</Text>
-		</Row>
+		</HStack>
 		<Text className="guide-slug text-sm text-muted">{'guides/' + (props.slug ?? '?')}</Text>
 		<Text>{doc?.body ?? 'No guide is registered at this path.'}</Text>
 	</Screen>

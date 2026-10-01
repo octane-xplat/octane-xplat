@@ -1,5 +1,5 @@
 import { useRef, useLayoutEffect, useContext } from 'octane'
-import { View, Row, Pressable } from '@octane-xplat/ui'
+import { View, HStack, Pressable } from '@octane-xplat/ui'
 import { ConfigContext, useReducedMotion } from './config.tsrx'
 import { PresenceContext } from './presence.tsrx'
 import type { PresenceMember } from './presence-state'
@@ -131,9 +131,9 @@ export function MotionView(props: MotionViewProps) @{
 	<View {...useMotion(props)}>{props.children}</View>
 }
 
-/** Animated horizontal Row. */
+/** Animated horizontal stack. */
 export function MotionRow(props: MotionRowProps) @{
-	<Row {...useMotion(props)}>{props.children}</Row>
+	<HStack {...useMotion(props)}>{props.children}</HStack>
 }
 
 /** Animated Pressable preserving its input callbacks and disabled state. */

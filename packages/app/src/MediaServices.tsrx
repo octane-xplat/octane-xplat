@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'octane';
-import { Text, Pressable, Row, View } from '@octane-xplat/ui';
+import { Text, Pressable, HStack, View } from '@octane-xplat/ui';
 import { createHaptics } from '@octane-xplat/haptics';
 import { createSoundBank } from '@octane-xplat/sounds';
 import { createAudioPlayer } from '@octane-xplat/audio';
@@ -44,20 +44,20 @@ export function MediaServices() @{
 
 	<View className="sink-section gap-2">
 		<Text className="section-label">Optional media services</Text>
-		<Row className="gap-2">
+		<HStack className="gap-2">
 			<Pressable id="media-haptic-preset" onPress={() => haptics.play('success')} className="chip"><Text>Haptic preset</Text></Pressable>
 			<Pressable id="media-haptic-pattern" onPress={() => haptics.playPattern({ duration: 240, points: [{ at: 0, intensity: 0.8 }, { at: 100, intensity: 0.3, sharpness: 0.8 }] })} className="chip"><Text>Haptic pattern</Text></Pressable>
 			<Pressable id="media-haptic-live" onPressIn={() => { realtimeRef.current ??= haptics.startRealtime(); realtimeRef.current.update(0.8, 0.5); }} onPressOut={() => { realtimeRef.current?.stop(); realtimeRef.current = null; }} className="chip"><Text>Hold haptic</Text></Pressable>
-		</Row>
-		<Row className="gap-2">
+		</HStack>
+		<HStack className="gap-2">
 			<Pressable id="media-sound-one" onPress={() => { void sounds.play('tap', { volume: 0.5 }); }} className="chip"><Text>UI sound</Text></Pressable>
 			<Pressable id="media-sound-overlap" onPress={() => { void sounds.play('tap'); setTimeout(() => void sounds.play('tap'), 35); }} className="chip"><Text>Overlap ×2</Text></Pressable>
-		</Row>
-		<Row className="gap-2">
+		</HStack>
+		<HStack className="gap-2">
 			<Pressable id="media-player-play" onPress={() => { void player.play().catch((error) => setPlayerState('error: ' + String(error))); }} className="chip"><Text>Play</Text></Pressable>
 			<Pressable id="media-player-pause" onPress={() => { void player.pause(); }} className="chip"><Text>Pause</Text></Pressable>
 			<Pressable id="media-player-seek" onPress={() => { void player.seek(10); }} className="chip"><Text>Seek 10s</Text></Pressable>
-		</Row>
+		</HStack>
 		<Text id="media-player-state">Player: {playerState} · {position}</Text>
 		<Text>Background playback: {caps.backgroundPlayback ? 'available' : 'not available in this backend'}</Text>
 		<Text>System controls: {caps.systemControls ? 'available' : 'not available in this backend'}</Text>

@@ -1,5 +1,5 @@
 import { useEffect } from 'octane';
-import { Screen, View, Row, Text, Pressable } from '@octane-xplat/ui';
+import { Screen, View, HStack, Text, Pressable } from '@octane-xplat/ui';
 import { DEMOS, RENDER, setLastDemo } from '@xplat/demos';
 import { goBack } from '../../platform/nav';
 import { openSheet } from '../../platform/sheet';
@@ -22,7 +22,7 @@ export function DemoDetail(props: { id?: string; _stack?: string }) @{
 	useEffect(() => { setLastDemo(id); }, []);
 
 	<Screen className="vx-app flex-1 gap-6">
-		<Row className="gap-4 items-center">
+		<HStack className="gap-4 items-center">
 			{/* _stack is injected by navigate(...,{into}) — pop the stack that
 			    pushed this page (parallel stacks: several Frames alive). */}
 			<Pressable id="demo-back" onPress={() => goBack({ into: props._stack })} className="btn btn-secondary">
@@ -36,7 +36,7 @@ export function DemoDetail(props: { id?: string; _stack?: string }) @{
 			>
 				<Text>In sheet</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		<View className="flex-1 min-h-0">
 			{renderDemo()}
 		</View>

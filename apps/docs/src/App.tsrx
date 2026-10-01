@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable, ScrollView, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, ScrollView, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
 import { DOCS, type DocPage } from './docs';
 import { docPath } from './doc-meta';
 import { MdDoc } from './MdDoc.tsrx';
@@ -229,10 +229,10 @@ export function App() @{
 	);
 
 	<View className={['shell', dark ? 'dark' : 'light']}>
-		<Row className="body">
+		<HStack className="body">
 			<View className="side">
 				<View className="side-header">
-					<Row className="brand-row">
+					<HStack className="brand-row">
 						<View className="logo-cluster">
 							<img className="logo-mark" src={logoMark} alt="" />
 							<img className="wordmark" src={wordmark} alt="Octane Xplat" />
@@ -240,7 +240,7 @@ export function App() @{
 						<Pressable className="mode-toggle" onPress={() => setOverride(!dark)}>
 							<View className="mode-icon" />
 						</Pressable>
-					</Row>
+					</HStack>
 					<View className="nav">
 						<Pressable className="nav-row" onPress={openPalette}>
 							<View className="nav-icon ic-search" />
@@ -305,7 +305,7 @@ export function App() @{
 					</View>
 				</ScrollView>
 			</View>
-		</Row>
+		</HStack>
 		{paletteMounted && (
 			<div
 				className={paletteOpen ? 'palette-backdrop' : 'palette-backdrop closing'}
