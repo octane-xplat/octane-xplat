@@ -12,6 +12,7 @@ import { docPath } from './doc-meta';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
 import { resetDocScroll } from './scroll';
 import { nbDark } from './nb-theme';
+import { AgentPrompt } from './AgentPrompt.web.tsrx';
 
 // JS regex engine — no wasm fetch, fully sync. Code slabs are always black,
 // so the one nb-dark theme works in both color modes.
@@ -181,7 +182,7 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 	return <></>;
 }
 
-export function MdDoc(props: { md: string }) @{
+export function MdDoc(props: { md: string; agentPrompt?: string }) @{
 	// Positions identify nodes within this fixed document; the shell remounts
 	// MdDoc when its slug changes, so keys never cross document boundaries.
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
@@ -292,7 +293,12 @@ export function MdDoc(props: { md: string }) @{
 		</div>
 		@for (const b of blocks; index i; key i) {
 			const prev = blocks[i - 1];
-			<BlockView b={b} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />
+			<>
+				<BlockView b={b} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />
+				@if (props.agentPrompt && b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1) {
+					<AgentPrompt prompt={props.agentPrompt} />
+				}
+			</>
 		}
 	</View>
 }

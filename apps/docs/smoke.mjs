@@ -83,6 +83,31 @@ const assert = (name, ok) => {
 	if (!ok) { fail++ }
 }
 
+const promptCard = root.querySelector('.agent-prompt')
+assert('front page includes one agent prompt after the introduction', root.querySelectorAll('.agent-prompt').length === 1 && promptCard?.previousElementSibling?.classList.contains('lede'))
+const promptText = promptCard?.querySelector('p')?.textContent
+const expandPrompt = promptCard?.querySelector('.agent-prompt-expand')
+expandPrompt?.click()
+await new Promise((r) => setTimeout(r, 30))
+assert('agent prompt expands', expandPrompt?.getAttribute('aria-expanded') === 'true' && promptCard?.querySelector('.agent-prompt-text.is-expanded'))
+expandPrompt?.click()
+await new Promise((r) => setTimeout(r, 30))
+assert('agent prompt collapses', expandPrompt?.getAttribute('aria-expanded') === 'false')
+let copiedPrompt
+Object.defineProperty(window.navigator, 'clipboard', { configurable: true, value: { writeText: async (text) => { copiedPrompt = text } } })
+promptCard?.querySelector('[aria-label="Copy prompt"]')?.click()
+await new Promise((r) => setTimeout(r, 30))
+assert('copy includes the complete setup prompt and announces success', copiedPrompt === promptText && promptText?.includes('/llms-full.txt') && promptCard?.querySelector('[role="status"]')?.textContent === 'Prompt copied')
+const promptActions = promptCard?.querySelector('details')
+promptActions.open = true
+window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+assert('Escape dismisses prompt actions', !promptActions.open)
+assert('ChatGPT action includes the full prompt', new URL(promptCard.querySelector('.agent-prompt-menu a').href).searchParams.get('q') === promptText)
+window.navigator.clipboard.writeText = async () => { throw new Error('Clipboard unavailable') }
+promptCard?.querySelector('[aria-label="Copy prompt"]')?.click()
+await new Promise((r) => setTimeout(r, 30))
+assert('clipboard failure shows manual-copy guidance and expands the prompt', promptCard?.querySelector('.agent-prompt-status.is-error')?.textContent.includes('Select the prompt text') && expandPrompt?.getAttribute('aria-expanded') === 'true')
+
 const highlights = [...root.querySelectorAll('.doc mark.highlight')]
 assert('xplat page renders both highlights', highlights.length === 2 && highlights[0].textContent === 'one TypeScript codebase' && highlights[1].textContent === 'Prove the loop first')
 assert('highlight keeps its section link', highlights[1]?.querySelector('a')?.getAttribute('href') === '/toolchain#create-and-run')
@@ -113,6 +138,7 @@ assert('section link retains fragment', Boolean(firstFlow))
 firstFlow?.click()
 await settle()
 assert('section navigation reaches heading', window.location.hash === '#create-and-run' && scrolledTo === 'create-and-run')
+assert('setup card stays on the front page', !root.querySelector('.agent-prompt'))
 
 const pages = readdirSync('../../docs').filter((file) => file.endsWith('.md'))
 for (const file of pages) {

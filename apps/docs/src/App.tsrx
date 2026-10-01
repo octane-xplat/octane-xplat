@@ -278,7 +278,9 @@ export function App() @{
 								<img className="orbit-user" src={orbitUser} alt="" />
 							</div>
 						)}
-						<MdDoc md={doc.md} />
+						<MdDoc md={doc.md} agentPrompt={doc.slug === 'README'
+							? 'Set up Octane xplat for me. Fetch https://octane-xplat.goddardai.org/llms-full.txt and follow the “Create and run” guide.'
+							: undefined} />
 						{nextDoc && (
 							<Pressable className="doc-next" onPress={() => selectDoc(nextDoc.slug)}>
 								<View className="doc-next-copy">
