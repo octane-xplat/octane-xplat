@@ -762,8 +762,8 @@ body {
    each badge counter-rotates to stay upright. */
 
 .orbit {
-	/* matches .doc's side padding so --orbit-pad tracks the content
-	   column's left edge across breakpoints */
+	/* same content width + side padding as .doc, so both boxes share
+	   the .doc-page column's left edge at every breakpoint */
 	--orbit-pad: 81px;
 	position: relative;
 	height: 210px;
@@ -775,10 +775,10 @@ body {
 
 .orbit-user {
 	position: absolute;
-	/* content left edge + farthest badge-center x (127.2) + half badge
-	   width (34) → the ring's leftmost badge edge lands on the doc
-	   column's left edge */
-	left: calc(var(--orbit-pad) + 161.2px);
+	/* farthest badge-center x (127.2) + half badge width (34) → the
+	   ring's leftmost badge edge sits flush on the doc column's
+	   left edge, no gutter */
+	left: 161.2px;
 	top: 50%;
 	width: 74px;
 	height: 74px;
@@ -787,7 +787,7 @@ body {
 
 .orbit-ring {
 	position: absolute;
-	left: calc(var(--orbit-pad) + 161.2px);
+	left: 161.2px;
 	top: 50%;
 	width: 0;
 	height: 0;
