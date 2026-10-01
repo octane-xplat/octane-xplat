@@ -311,7 +311,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 				nowPlaying.nowPlayingInfo = null as unknown as NSDictionary<string, any>
 			}
 
-			session.setActiveWithOptionsError(false, notifyOthersOnDeactivation, undefined)
+			session.setActiveWithOptionsError(false, notifyOthersOnDeactivation, null)
 			listeners.clear()
 			queue = []
 			index = -1
