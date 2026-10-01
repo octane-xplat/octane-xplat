@@ -1,12 +1,14 @@
 import type { RadioGroupProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
+import { useIndicator, RadioIndicator, indicatorScope } from './indicators';
 
 /** Self-drawn radio group — dot options in a column (or row with
  *  `horizontal`). Selecting an option calls `onValueChange`. */
 export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
+	const Ind = useIndicator('radio') ?? RadioIndicator;
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
@@ -34,7 +36,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 					aria-disabled={disabled || undefined}
 					aria-readonly={props.isReadOnly || undefined}
 					tabIndex={disabled ? undefined : 0}
-					className={['vx-radio-row', selected ? 'vx-radio--on' : undefined, disabled ? 'vx-radio--disabled' : undefined, props.isReadOnly ? 'vx-radio--readonly' : undefined]}
+					className={['vx-radio-row', indicatorScope, selected ? 'vx-radio--on' : undefined, disabled ? 'vx-radio--disabled' : undefined, props.isReadOnly ? 'vx-radio--readonly' : undefined]}
 					onClick={blocked ? undefined : () => props.onValueChange?.(opt.value)}
 					onKeyDown={(e: any) => {
 						if (blocked) return;
@@ -44,9 +46,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 						}
 					}}
 				>
-					<div className="vx-radio" aria-hidden="true">
-						{selected ? <div className="vx-radio-dot" /> : null}
-					</div>
+					<Ind state={selected ? 'checked' : 'unchecked'} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 					{opt.label != null ? <span className="vx-radio-label">{opt.label}</span> : null}
 				</div>
 			);

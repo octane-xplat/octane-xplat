@@ -3,12 +3,14 @@ import type { RadioGroupProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { useFieldControlProps } from './field-context';
+import { useIndicator, RadioIndicator, indicatorScope } from './indicators';
 
 /** Self-drawn radio group — dot options in a column (or row with
  *  `horizontal`). Selecting an option calls `onValueChange`. */
 export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
+	const Ind = useIndicator('radio') ?? RadioIndicator;
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
@@ -26,12 +28,10 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 			return (
 				<flexboxlayout
 					key={opt.value}
-					className={cx('vx-radio-row', selected && 'vx-radio--on', disabled && 'vx-radio--disabled', props.isReadOnly && 'vx-radio--readonly')}
+					className={cx('vx-radio-row', indicatorScope, selected && 'vx-radio--on', disabled && 'vx-radio--disabled', props.isReadOnly && 'vx-radio--readonly')}
 					onTap={blocked ? undefined : () => props.onValueChange?.(opt.value)}
 				>
-					<flexboxlayout className="vx-radio">
-						{selected ? <flexboxlayout className="vx-radio-dot" /> : null}
-					</flexboxlayout>
+					<Ind state={selected ? 'checked' : 'unchecked'} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={disabled} />
 					{opt.label != null ? <label className="vx-radio-label" text={opt.label} /> : null}
 				</flexboxlayout>
 			);

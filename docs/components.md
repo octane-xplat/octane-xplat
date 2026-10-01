@@ -12,27 +12,43 @@ for device APIs. Platform-authentic widgets (no parity promised) live behind
 software keyboard on iOS and Android; web, Linux, macOS, and Windows keep a
 neutral column wrapper.
 
-Every component accepts `className`/`style`/`id` plus the platform escape props
-(`ios`, `android`, `web`) applied after shared props.
+Most components accept `className`/`style`/`id` plus the platform escape props
+(`ios`, `android`, `web`) applied after shared props. `VisuallyHidden`
+intentionally omits styling props so hidden content cannot be accidentally
+made visible through component styling.
 
 Component names follow the Astryx catalog where the concepts overlap. Prop
 contracts continue to be documented here as cross-platform parity work lands.
 The content-display family and its platform limits are covered in
 [Content display](content-display.md).
 
+Some browser and native details have no exact match: `Stack as` selects an
+HTML tag only on web, and native scrollable stacks wrap their flex content in
+a `ScrollView`. `Center isInline` is web-only. `FormLayout`'s horizontal
+label mode uses a shared label column and a 480px collapse on web; native
+renders each field as its own label/control row. Native `AspectRatio` derives
+height from the measured width in one layout pass. Native `VisuallyHidden`
+uses a 1dip transparent container, so screen-reader exposure is best-effort.
+Content `List` is rendered in full; it has no native list role and draws
+markers/dividers in its leaf.
+
 ## Layout
 
-| Component          | What it is                                                                                 | Key props |
-| ------------------ | ------------------------------------------------------------------------------------------ | --------- |
-| `View`             | Base container                                                                             |           |
-| `HStack`              | Horizontal flex container                                                                  |           |
-| `VStack`           | `View` alias for vertical stacks                                                           |           |
-| `Grid`             | Grid container                                                                             |           |
-| `Stack`            | Stacked container                                                                          |           |
-| `Absolute`         | Absolutely-positioned layer                                                                |           |
-| `Spacer`           | Flexible gap filler                                                                        |           |
-| `SafeArea`         | Insets-aware container                                                                     |           |
-| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere |           |
+| Component          | What it is                                 | Key props                                  |
+| ------------------ | ------------------------------------------ | ------------------------------------------ |
+| `View`             | Base container                             |                                            |
+| `Stack`            | Flow flex container; vertical by default   | `direction`, `hAlign`, `vAlign`, `gap`, `padding`, `wrap`, `isScrollable` |
+| `HStack`            | Horizontal `Stack`                         | `hAlign`, `vAlign`, `gap`                  |
+| `VStack`            | Vertical `Stack`                           | `hAlign`, `vAlign`, `gap`                  |
+| `Grid`             | Grid container                             |                                            |
+| `Absolute`         | Absolutely-positioned layer                |                                            |
+| `Center`           | Centers children on one or both axes       | `axis`, `isInline`                         |
+| `Section`          | Banded content with padding and dividers   | `variant`, `dividers`, `padding`           |
+| `AspectRatio`      | Constrains child box to a width/height ratio | `ratio`, `shape`, `fit`                  |
+| `VisuallyHidden`   | Keeps content available to assistive technology | `as` (web tag)                         |
+| `Spacer`           | Flexible gap filler                        |                                            |
+| `SafeArea`         | Insets-aware container                     |                                            |
+| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere | |
 
 ## Text
 
@@ -62,6 +78,8 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 | ------------------------------------ | ------------------------------------------------ | ----------------------------------------------------------- |
 | `TextInput`, `TextArea`              | One- and multi-line text entry                   | `value`, `onChange`, `label`, `description`                 |
 | `SearchInput`                        | Search field with clear button                   | `value`, `onSubmit`, `hasClear`, `onClear`                  |
+| `FormLayout`                         | Arranges labeled fields                          | `direction`, `defaultOptionality`                           |
+| `InputGroup`, `InputGroupText`       | Joins a labeled control with prefix/suffix text  | `label`, `size`                                              |
 | `Button`                             | Action button                                    | `loading`, `leading`, `trailing`                            |
 | `Switch`                             | On/off toggle (self-drawn)                       | `checked`, `onCheckedChange`, `isDisabled`                  |
 | `CheckboxInput`                     | Self-drawn checkbox                              | `checked`, `onCheckedChange`, `isDisabled`                  |
@@ -124,6 +142,8 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
 | Component       | What it is                              | Key props                                       |
 | --------------- | --------------------------------------- | ----------------------------------------------- |
+| `List`          | Non-virtual content list                | `listStyle`, `density`, `hasDividers`, `start`  |
+| `ListItem`      | Labeled row inside `List`               | `label`, `description`, `startContent`, `endContent`, `onPress`, `href` |
 | `Table`         | Columnar rows                           | `columns`, `rows`, `renderCell`, `onRowPress`   |
 | `TreeList` | Expandable node hierarchy            | `nodes`, `defaultExpanded`, `onToggle`, `onSelect` |
 | `Timeline`      | Vertical event list (dot + connector)   | `items`                                         |

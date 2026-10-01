@@ -42,6 +42,11 @@ export declare const VStack: Component<P.VStackProps>
 export declare const HStack: Component<P.HStackProps>
 export declare const Grid: Component<P.GridProps>
 export declare const Stack: Component<P.StackProps>
+export declare const StackItem: Component<P.StackItemProps>
+export declare const Center: Component<P.CenterProps>
+export declare const Section: Component<P.SectionProps>
+export declare const AspectRatio: Component<P.AspectRatioProps>
+export declare const VisuallyHidden: Component<P.VisuallyHiddenProps>
 export declare const Absolute: Component<P.AbsoluteProps>
 export declare const Spacer: Component<P.SpacerProps>
 export declare const Text: Component<P.TextProps>
@@ -68,8 +73,17 @@ export declare const AvatarGroup: Component<P.AvatarGroupProps>
 /** Labeled control wrapper, exported under Astryx's component name. */
 export declare const Field: Component<P.FieldProps>
 export declare const FieldGroup: Component<P.FieldGroupProps>
+export declare const FormLayout: Component<P.FormLayoutProps>
+export declare const InputGroup: Component<P.InputGroupProps>
+export declare const InputGroupText: Component<P.InputGroupTextProps>
 /** Reusable labeled row, exported under Astryx's component name. */
 export declare const Item: Component<P.ItemProps>
+/** Bounded child-based content list; not a virtualized or OS list. */
+export declare const List: Component<P.ListProps>
+export declare const ListItem: Component<P.ListItemProps>
+export declare const CheckboxIndicator: Component<P.IndicatorProps<'multiSelection'>>
+export declare const CheckIndicator: Component<P.IndicatorProps<'singleSelection'>>
+export declare const RadioIndicator: Component<P.IndicatorProps<'singleSelection'>>
 /** Bounded numeric entry, exported under Astryx's component name. */
 export declare const NumberInput: Component<P.NumberInputProps>
 export declare const PinInput: Component<P.PinInputProps>
@@ -159,6 +173,21 @@ export declare function useMeasure(options?: P.UseMeasureOptions): P.MeasureResu
 export declare function registerIcon(name: string, glyph: P.IconGlyph): void
 export declare function registerIcons(record: Record<string, P.IconGlyph>): void
 export declare function showToast(content: P.ToastContent, options?: P.ToastOptions): void
+export declare const defaultIndicators: {
+	[N in P.IndicatorName]: P.IndicatorComponent<P.IndicatorMap[N]>
+}
+export declare const indicatorScope: string
+export declare function registerIndicator<N extends P.IndicatorName>(
+	name: N,
+	component: P.IndicatorComponent<P.IndicatorMap[N]>,
+): void
+export declare function registerIndicators(registry: P.IndicatorRegistry): void
+export declare function getIndicator<N extends P.IndicatorName>(
+	name: N,
+): P.IndicatorComponent<P.IndicatorMap[N]> | undefined
+export declare function useIndicator<N extends P.IndicatorName>(
+	name: N,
+): P.IndicatorComponent<P.IndicatorMap[N]> | undefined
 
 export declare const isNative: true
 export declare function registerStack(name: string, stack: any): void

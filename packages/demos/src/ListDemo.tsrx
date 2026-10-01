@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { FieldGroup, Item, Pressable, HStack, ScrollView, Text, View } from '@octane-xplat/ui';
+import { FieldGroup, Item, List, ListItem, Pressable, HStack, ScrollView, Text, View } from '@octane-xplat/ui';
 
 type DemoRow = {
 	id: string;
@@ -69,6 +69,16 @@ export function ListDemo() @{
 			</Pressable>
 			<Text>{items.length + ' rows'}</Text>
 		</HStack>
+		<List id="list-demo-content" listStyle="decimal" density="compact" hasDividers header={<Text>Upcoming events</Text>}>
+			{items.slice(0, 3).map((item) => (
+				<ListItem
+					key={item.id}
+					label={item.title}
+					description={item.detail}
+					startContent={<Text className="list-demo-badge">{item.kind === 'notice' ? 'Info' : 'Event'}</Text>}
+				/>
+			))}
+		</List>
 		<FieldGroup label="Preferences">
 			<Item id="list-demo-updates" title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
 			<Item id="list-demo-disabled" title="Managed setting" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} supportingText="Changes disabled" />

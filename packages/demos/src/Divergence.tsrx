@@ -39,7 +39,7 @@ export function Divergence() @{
 				<Text>lead</Text>
 				<Text id="dv-auto" className="dv-auto">trail</Text>
 			</HStack>
-			<HStack className="dv-row" justifyContent="space-between">
+			<HStack className="dv-row" hAlign="between">
 				<Text>lead</Text>
 				<Text id="dv-auto-fix">trail</Text>
 			</HStack>

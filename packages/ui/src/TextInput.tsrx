@@ -27,7 +27,7 @@ export function TextInput(inputProps: TextInputProps) @{
 		el.current?.focus();
 	};
 
-	<flexboxlayout className="vx-input-shell" flexDirection="row" alignItems="center">
+	<flexboxlayout className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center">
 		<textfield
 			ref={(v: any) => {
 				el.current = v;
@@ -36,7 +36,7 @@ export function TextInput(inputProps: TextInputProps) @{
 				props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v });
 			}}
 			id={props.id}
-			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.className)}
+			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.inInputGroup && 'vx-input--ingroup', props.className)}
 			style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 			hint={props.placeholder}
 			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}

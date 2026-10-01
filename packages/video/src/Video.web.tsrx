@@ -73,7 +73,7 @@ export function Video(props: VideoProps) @{
 
 	<div
 		id={props.id}
-		className={['vx-stack', 'vx-video', props.className]}
+		className={['vx-layers', 'vx-video', props.className]}
 		{...layoutChildProps(props, props.style)}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

@@ -8,12 +8,12 @@ import { useFieldControlProps } from './field-context'
 export function TextInput(inputProps: TextInputProps) @{
 	const props = useFieldControlProps(inputProps)
 	const isBlocked = props.isDisabled || props.isReadOnly
-	<flexboxlayout className="vx-input-shell" flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }}>
+	<flexboxlayout className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }}>
 		<textfield
 			id={props.id}
 			value={props.value}
 			placeholder={props.placeholder}
-			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.className)}
+			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.inInputGroup && 'vx-input--ingroup', props.className)}
 			style={props.style}
 			isEnabled={!props.isDisabled}
 			editable={!isBlocked}

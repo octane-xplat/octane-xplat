@@ -59,7 +59,7 @@ export function CameraView(props: CameraViewProps) @{
 		id={props.id}
 		rows="*"
 		columns="*"
-		className={cx('vx-stack', 'vx-cameraview', props.className)}
+		className={cx('vx-layers', 'vx-cameraview', props.className)}
 		style={{ backgroundColor: '#000', ...props.style }}
 		{...layoutChildProps(props)}
 		accessible={props.accessible}

@@ -4,12 +4,14 @@ import { Pressable } from './Pressable.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
 import { TextInput } from './TextInput.web.tsrx';
 import { FieldProvider, useFieldControlProps } from './field-context';
+import { useIndicator, CheckIndicator } from './indicators';
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
  *  `multiple` toggles options without closing and reports string[];
  *  `searchable` filters the list through a normalized TextInput — that
  *  combination is what Nuxt calls Combobox/InputMenu/SelectMenu. */
 export function Select(inputProps: SelectProps) @{
+	const CheckInd = useIndicator('check') ?? CheckIndicator;
 	const props = useFieldControlProps(inputProps);
 	const anchor = useRef<any>(null);
 	const [internalOpen, setInternalOpen] = useState(props.defaultOpen ?? false);
@@ -137,7 +139,7 @@ export function Select(inputProps: SelectProps) @{
 								}
 							}}
 						>
-							<span className="vx-select-check" aria-hidden="true">{isSelected ? '✓' : ''}</span>
+							<span className="vx-select-check" aria-hidden="true"><CheckInd state={isSelected ? 'checked' : 'unchecked'} isDisabled={opt.isDisabled} /></span>
 							<span className="vx-menu-item-label">{opt.label ?? opt.value}</span>
 						</div>
 					);

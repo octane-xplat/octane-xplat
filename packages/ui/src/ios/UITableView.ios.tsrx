@@ -3,7 +3,7 @@
 // nativescript runtime, and the dev server serves them via HTTP-ESM.
 import { memo, useEffect, useRef } from 'octane';
 import { ScrollView } from '@nativescript/core';
-import type { ListProps, PlatformWidgetProps } from "../props";
+import type { PlatformListProps, PlatformWidgetProps } from "../props";
 import type { RefreshConfig, RefreshController } from '../refresh';
 import { cx } from "../cx";
 import { ActivityIndicator } from '../ActivityIndicator.tsrx';
@@ -47,7 +47,7 @@ function UITableViewInner(props: {
 	estimatedItemHeight?: number;
 	onEndReached?: () => void;
 	ios?: Record<string, any>;
-	modifiers?: PlatformWidgetProps<ListProps>['modifiers'];
+	modifiers?: PlatformWidgetProps<PlatformListProps>['modifiers'];
 	refresh?: RefreshBag;
 }) @{
 	const lv = useRef<any>(null);
@@ -110,14 +110,14 @@ const MemoListView = memo(UITableViewInner, (a, b) =>
  *  ObservableArray — the driver binds `items[index]` into the recycled
  *  cell's root and skips rebinds whose row, item, and renderer are
  *  unchanged. Cell identity = the recycled host view, not the item.
- *  The shared `ui` export has no List — compose ScrollView + mapped
- *  children there.
+ *  The shared `List` is a fully rendered content list, not an OS-backed
+ *  recycled collection. Use `VirtualList` for portable windowing.
  *
  *  `refreshing`/`onRefresh`/`refreshThreshold` enable pull-to-refresh:
  *  the indicator is self-drawn (vx-spinner), the pull rides UITableView's
  *  own bounce, and the docked phase holds via contentInset — the same
  *  mechanics UIRefreshControl uses, without its OS spinner. */
-export function UITableView(props: PlatformWidgetProps<ListProps>) @{
+export function UITableView(props: PlatformWidgetProps<PlatformListProps>) @{
 	const refreshCapable = props.onRefresh != null || props.refreshing != null;
 	const cfg = useRef<RefreshConfig>({});
 	cfg.current = {

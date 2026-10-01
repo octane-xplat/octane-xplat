@@ -6,12 +6,14 @@ import { Pressable } from './Pressable.tsrx';
 import { Popover } from './Popover.tsrx';
 import { TextInput } from './TextInput.tsrx';
 import { FieldProvider, useFieldControlProps } from './field-context';
+import { useIndicator, CheckIndicator } from './indicators';
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
  *  `multiple` toggles options without closing and reports string[];
  *  `searchable` filters the list through a normalized TextInput — that
  *  combination is what Nuxt calls Combobox/InputMenu/SelectMenu. */
 export function Select(inputProps: SelectProps) @{
+	const CheckInd = useIndicator('check') ?? CheckIndicator;
 	const props = useFieldControlProps(inputProps);
 	const anchor = useRef<any>(null);
 	const [internalOpen, setInternalOpen] = useState(props.defaultOpen ?? false);
@@ -110,7 +112,7 @@ export function Select(inputProps: SelectProps) @{
 						className={cx('vx-menu-item', 'vx-select-option', selected.includes(opt.value) && 'vx-select-option--on', opt.isDisabled && 'vx-menu-item--disabled')}
 						onTap={opt.isDisabled ? undefined : () => pick(opt)}
 					>
-						<label className="vx-select-check" text={selected.includes(opt.value) ? '✓' : ''} />
+						<flexboxlayout className="vx-select-check"><CheckInd state={selected.includes(opt.value) ? 'checked' : 'unchecked'} isDisabled={opt.isDisabled} /></flexboxlayout>
 						<label className="vx-menu-item-label" text={opt.label ?? opt.value} />
 					</flexboxlayout>
 				}

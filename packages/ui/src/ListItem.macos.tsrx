@@ -1,52 +1,63 @@
 /** @jsxImportSource @xplat/macos/renderer */
-import type { ListItemComponent, ListItemProps, ListItemSlotProps } from './props'
-import { Pressable } from './Pressable.macos.tsrx'
-import { Text } from './Text.macos.tsrx'
+import type { ListItemProps } from './props'
 import { cx } from './cx'
+import { applyEscapeProps } from './escape-props'
+import { useListContext } from './list-context'
+import { pushDeepLink } from './route'
 
-function Leading(props: ListItemSlotProps) @{
-	<flexboxlayout className={cx('vx-listitem-leading', props.className)}>{props.children}</flexboxlayout>
-}
+/** ListItem — a `List` row: marker + startContent + label/description +
+ *  endContent. `onPress`/`href` interactive; `href` resolves through the
+ *  deep-link table (external open has no AppKit analog here). */
+export function ListItem(props: ListItemProps) @{
+	const ctx = useListContext()
+	const interactive = props.onPress != null || props.href != null
 
-function Content(props: ListItemSlotProps) @{
-	<flexboxlayout flexDirection="column" className={cx('vx-listitem-content', props.className)}>{props.children}</flexboxlayout>
-}
+	const activate = () => {
+		if (props.isDisabled) { return }
+		if (props.onPress != null) { props.onPress(); return }
+		if (props.delegateRef?.current != null) {
+			const target = props.delegateRef.current
+			target.notify?.({ eventName: 'tap', object: target })
+			target.click?.()
+			target.focus?.()
+			return
+		}
+		if (props.href != null) { pushDeepLink(props.href) }
+	}
 
-function Supporting(props: ListItemSlotProps) @{
-	<Text className={cx('vx-listitem-supporting', props.className)}>{props.children}</Text>
-}
+	const labelNode = typeof props.label === 'string'
+		? <label className="vx-listitem-label" text={props.label} />
+		: props.label
+	const descriptionNode = props.description == null ? null
+		: typeof props.description === 'string'
+			? <label className="vx-listitem-desc" text={props.description} />
+			: props.description
 
-function Trailing(props: ListItemSlotProps) @{
-	<flexboxlayout className={cx('vx-listitem-trailing', props.className)}>{props.children}</flexboxlayout>
-}
-
-function ListItemView(props: ListItemProps) @{
-	<Pressable
+	<flexboxlayout
 		id={props.id}
-		className={cx('vx-listitem', props.className)}
+		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		flexDirection="row"
+		alignItems="center"
+		className={cx(
+			'vx-listitem',
+			`vx-listitem--density-${ctx.density}`,
+			interactive && 'vx-listitem--interactive',
+			props.isDisabled && 'vx-listitem--disabled',
+			props.isSelected && 'vx-listitem--selected',
+			props.className,
+		)}
 		style={props.style}
-		onPress={props.onPress}
-		disabled={props.disabled}
+		onTap={interactive && !props.isDisabled ? activate : undefined}
 		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={props.accessibilityRole ?? (props.onPress ? 'button' : 'text')}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityState={props.accessibilityState}
+		accessibilityRole={props.accessibilityRole ?? (props.href != null ? 'link' : props.onPress != null ? 'button' : 'text')}
+		accessibilityState={{ disabled: props.isDisabled, selected: props.isSelected }}
 	>
-		{props.leading != null ? <Leading>{props.leading}</Leading> : null}
-		{props.title != null || props.supportingText != null ? (
-			<Content>
-				{props.title != null ? <Text className="vx-listitem-title">{props.title}</Text> : null}
-				{props.supportingText != null ? <Supporting>{props.supportingText}</Supporting> : null}
-			</Content>
-		) : null}
-		{props.children}
-		{props.trailing != null ? <Trailing>{props.trailing}</Trailing> : null}
-	</Pressable>
+		{props.startContent != null ? <flexboxlayout className="vx-listitem-start">{props.startContent}</flexboxlayout> : null}
+		<flexboxlayout flexDirection="column" flexGrow={1} className="vx-listitem-body" style={{ minWidth: 0 }}>
+			{labelNode}
+			{descriptionNode}
+			{props.children}
+		</flexboxlayout>
+		{props.endContent != null ? <flexboxlayout className="vx-listitem-end">{props.endContent}</flexboxlayout> : null}
+	</flexboxlayout>
 }
-
-export const ListItem = Object.assign(ListItemView, {
-	Leading,
-	Content,
-	Supporting,
-	Trailing,
-}) as ListItemComponent

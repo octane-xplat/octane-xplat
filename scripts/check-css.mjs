@@ -29,7 +29,7 @@ const DROPPED_INTENTIONAL = new Map(
 	Object.entries({
 		display: 'element tag owns the layout type on native (flexboxlayout/gridlayout)',
 		'border-style': 'native draws a solid border when width+color are set; style is web-only',
-		'grid-area': 'vx-stack overlay on native = all children in cell 0,0 by default',
+		'grid-area': 'vx-layers uses grid-area on web; native gridlayout children default to cell 0,0',
 		'aspect-ratio': 'no native analog — kept for web-only surfaces',
 		'user-select': 'no text-selection model on native pressables — dropped',
 	}),

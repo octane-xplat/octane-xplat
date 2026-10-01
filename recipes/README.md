@@ -38,6 +38,8 @@ Workflows:
 - [Play a Lottie animation on web and native](lottie-animation.md)
 - [Render a long vertical collection](virtual-list.md)
 - [Build a settings list with reusable rows](settings-list.md)
+- [Render a bounded content list](content-list.md)
+- [Compose a shared screen layout](shared-layout.md)
 - [Enter and submit text reliably](text-entry.md)
 - [Search and enter selected values](search-and-token-entry.md)
 - [Size a WebView to its document](webview-content-sizing.md)

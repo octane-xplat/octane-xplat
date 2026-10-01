@@ -54,7 +54,7 @@ export function CameraView(props: CameraViewProps) @{
 
 	<div
 		id={props.id}
-		className={['vx-stack', 'vx-cameraview', props.className]}
+		className={['vx-layers', 'vx-cameraview', props.className]}
 		{...layoutChildProps(props, {
 			position: 'relative',
 			overflow: 'hidden',

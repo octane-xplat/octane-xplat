@@ -14,7 +14,8 @@ if you do not yet have a working app.
 | Need                                   | Component                        |
 | -------------------------------------- | -------------------------------- |
 | Group content                          | `View`                           |
-| Put items in a row                     | `HStack`                         |
+| Put items in a row or column           | `HStack`, `VStack`, `Stack`       |
+| Render a short content list            | `List` + `ListItem`               |
 | Show text                              | `Text`                           |
 | Compose styled or tappable inline text | `RichText` + `RichTextSpan`      |
 | Respond to a tap                       | `Pressable`                      |
@@ -40,6 +41,13 @@ which defines which visuals the framework owns. Hosted content keeps its
 platform or engine appearance. These contracts describe the supported
 web/iOS/Android implementations; the [experimental desktop targets](spec.md#choose-your-targets)
 have narrower coverage.
+
+`Stack` is a flow container: it lays children out in a row or column. Its
+`gap` and padding props use spacing steps, with one step equal to 4 dips (and
+4 CSS pixels on web). `HStack` and `VStack` fix the direction. Use `Absolute`
+when children need to occupy the same layer area; `Stack` no longer overlaps
+its children. Native `Stack as="section"` cannot create an HTML semantic tag,
+and native `isScrollable` wraps the layout in a `ScrollView`.
 
 Platform-authentic widgets (real OS chrome, no parity promised) live behind
 `@octane-xplat/ui/ios`, `@octane-xplat/ui/android`, and `@octane-xplat/ui/web`
@@ -104,9 +112,30 @@ inside `FieldGroup`; the row owns its layout and press behavior, while
 with an action and verify one callback; disable it and verify the action
 stays unchanged.
 
+`List` and `ListItem` describe bounded content, such as a short set of steps
+or notices. `List` is rendered in full and is not a data-windowing or native
+OS-list wrapper; use `VirtualList` for long collections and the `ui/ios` or
+`ui/android` subpath when OS list behavior is required. `listStyle` selects
+`none`, `disc`, `circle`, or `decimal` markers; `ListItem` supplies its label,
+optional description, leading and trailing content, and optional action or
+link. Native leaves draw markers and dividers because NativeScript has no
+matching semantic list element. The shared [ListDemo](../packages/demos/src/ListDemo.tsrx)
+shows content `List` separately from settings `Item`.
+
 On web, Tab to an actionable row and use Enter or Space to activate it.
 Rows without an action are outside the Tab sequence. Check the disabled row
 in the demo too: it must neither activate nor become a keyboard Tab stop.
+
+### Grouped fields
+
+Use `FormLayout` to arrange `Field` or `InputGroup` children. Its
+`defaultOptionality` marks the exception to the form's usual required or
+optional state. `InputGroup` provides one label and description for a joined
+control; put prefix/suffix text or icons in `InputGroupText`, then place the
+input beside it. This is layout and accessibility grouping only: `FormLayout`
+does not render a browser `<form>` or provide submit behavior. `InputGroup`
+uses a web `role="group"`; NativeScript has no corresponding group role.
+See the [grouped field example](../packages/demos/src/ComponentsDemo.tsrx).
 
 ### Native modifiers and glyphs
 
@@ -178,6 +207,8 @@ spans and uses the span's `text` prop for driver compatibility.
 ## When a screen needs more
 
 For a small or bounded list, render `items.map(...)` inside a `ScrollView`.
+For a short content list with labels, descriptions, markers, and optional row
+actions, use `List` + `ListItem`; it is not virtualized.
 For larger vertical data sets that need bounded rendering across targets, use
 the shared `VirtualList`: it measures variable row heights and renders the
 viewport plus one viewport of overscan. Rows outside that window unmount, so

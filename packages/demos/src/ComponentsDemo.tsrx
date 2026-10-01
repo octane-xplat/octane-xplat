@@ -3,9 +3,9 @@ import {
 	Accordion, Alert, Avatar, AvatarGroup, Badge, Banner, Breadcrumbs, Button,
 	Card, CheckboxInput, CheckboxList, Chip, Collapsible, CommandPalette,
 	ContextMenu, DropdownMenu, EmptyState, FieldGroup, Field, Heading,
-	NumberInput, InputRating, Typeahead, Tokenizer, createStaticSource, Kbd, NavigationMenu, Pagination,
+	FormLayout, InputGroup, InputGroupText, NumberInput, InputRating, Typeahead, Tokenizer, createStaticSource, Kbd, NavigationMenu, Pagination,
 	PinInput, ProgressGroup, RadioList, HStack, Selector, Divider, Skeleton,
-	Stepper, Table, Text, Timeline, TreeList, User, View, registerIcons,
+	Stepper, Table, Text, TextInput, Timeline, TreeList, User, View, registerIcons,
 } from '@octane-xplat/ui';
 
 registerIcons({
@@ -103,6 +103,12 @@ export function ComponentsDemo() @{
 
 		<View className="controls-section">
 			<Text className="font-bold">Fields</Text>
+			<FormLayout direction="horizontal-labels" defaultOptionality="optional">
+				<InputGroup label="Website" description="Enter a host name" size="md">
+					<InputGroupText>https://</InputGroupText>
+					<TextInput placeholder="example.com" />
+				</InputGroup>
+			</FormLayout>
 			<FieldGroup label="Sign up">
 				<Tokenizer label="Tags" searchSource={demoSelectionSource} value={tags} onChange={setTags} placeholder="Add tag…" hasCreate={true} />
 				<Field label="Quantity" status={num > 5 ? { type: 'error', message: 'Too many' } : undefined}>

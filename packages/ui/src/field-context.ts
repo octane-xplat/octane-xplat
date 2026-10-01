@@ -1,5 +1,7 @@
 import { createContext, useContext } from 'octane'
 import type { FieldControlProps } from './props'
+import { FormLayoutContext } from './form-layout-context'
+import { InputGroupContext } from './input-group-context'
 
 export interface FieldContextValue extends FieldControlProps {
 	controlId?: string
@@ -18,6 +20,9 @@ export interface ResolvedFieldControlProps extends FieldControlProps {
 	ariaLabelledBy?: string
 	ariaDescribedBy?: string
 	accessibilityHint?: string
+	/** True when the control renders inside an `InputGroup`'s surface —
+	 *  it should drop its own border/radius/background chrome. */
+	inInputGroup?: boolean
 }
 
 /** Resolve wrapper defaults and the accessibility links for a field control. */
@@ -25,6 +30,8 @@ export function useFieldControlProps<T extends FieldControlProps & { id?: string
 	props: T,
 ): T & ResolvedFieldControlProps {
 	const field = useContext(FieldContext)
+	const form = useContext(FormLayoutContext)
+	const group = useContext(InputGroupContext)
 	const status = field?.status ?? props.status
 	const description = field?.description ?? props.description
 	const ownLabel = props.accessibilityLabel ?? (props.label && props.label !== field?.label ? props.label : undefined)
@@ -33,14 +40,22 @@ export function useFieldControlProps<T extends FieldControlProps & { id?: string
 		.join(' ') || undefined
 	const hint = [props.accessibilityHint, description, status?.message].filter(Boolean).join('. ') || undefined
 
+	// Resolved required (Astryx useResolvedRequired): the control announces
+	// required when declared, or when the enclosing FormLayout defaults to
+	// 'required'. isOptional always wins — an explicitly optional control
+	// never announces required, even under a required-default form.
+	const isOptional = field?.isOptional ?? props.isOptional
+	const isRequired = !isOptional && Boolean((field?.isRequired ?? props.isRequired) ?? (form.defaultOptionality === 'required'))
+
 	return {
 		...props,
-		isDisabled: Boolean(field?.isDisabled || props.isDisabled),
+		isDisabled: Boolean(field?.isDisabled || group?.isDisabled || props.isDisabled),
 		isReadOnly: Boolean(field?.isReadOnly || props.isReadOnly),
 		isLoading: field?.isLoading ?? props.isLoading,
-		isRequired: field?.isRequired ?? props.isRequired,
-		isOptional: field?.isOptional ?? props.isOptional,
-		size: field?.size ?? props.size,
+		isRequired,
+		isOptional,
+		size: field?.size ?? group?.size ?? props.size,
+		inInputGroup: group != null,
 		status,
 		id: props.id ?? field?.controlId,
 		fieldLabel: field?.label,

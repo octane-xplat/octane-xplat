@@ -187,7 +187,7 @@
 
 /* Video — surface-hosted leaf: the engine surface fills the frame and the
    self-drawn transport layers stack on top in the same grid cell
-   (vx-stack). NS-side rules only — DOM resets sit in the web block. */
+   (vx-layers). NS-side rules only — DOM resets sit in the web block. */
 .vx-video {
 	background-color: #000;
 }
@@ -512,10 +512,10 @@ textarea::placeholder {
 }
 
 /* ListItem — a reusable shared row; callers own the surrounding list chrome. */
-.vx-listitem-title {
+.vx-item-title {
 	font-weight: 500;
 }
-.vx-listitem-supporting {
+.vx-item-supporting {
 	font-size: 12px;
 	line-height: 16px;
 	color: var(--color-text-secondary);

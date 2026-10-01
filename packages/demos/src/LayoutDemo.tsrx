@@ -1,4 +1,4 @@
-import { Absolute, Grid, Screen, Spacer, Stack, Text, View } from '@octane-xplat/ui';
+import { Absolute, AspectRatio, Center, Grid, Screen, Section, Spacer, Stack, Text, View } from '@octane-xplat/ui';
 
 export function LayoutDemo() @{
 	<Screen className="vx-app flex-1 gap-6">
@@ -19,12 +19,26 @@ export function LayoutDemo() @{
 			</Absolute>
 		</View>
 		<View className="sink-section">
-			<Text className="section-label">Stack</Text>
-			<Stack className="layout-stack">
+			<Text className="section-label">Stack (flow) / Absolute (overlap)</Text>
+			<Stack direction="horizontal" gap={2} className="layout-stack-flow">
+				<View className="layout-flow-cell" />
+				<View className="layout-flow-cell" />
+				<View className="layout-flow-cell" />
+			</Stack>
+			<Absolute className="layout-stack">
 				<View className="layout-stack-back" />
 				<View className="layout-stack-front"><Text>Top layer</Text></View>
-			</Stack>
+			</Absolute>
 		</View>
+		<Section variant="muted" padding={2} dividers={['bottom']} className="sink-section">
+			<Text className="section-label">Section and Center</Text>
+			<Center axis="both" style={{ minHeight: 48 }}>
+				<Text>Centered content</Text>
+			</Center>
+			<AspectRatio ratio={16 / 9} className="layout-ratio">
+				<View className="layout-flow-cell" />
+			</AspectRatio>
+		</Section>
 		<View className="layout-footer-column sink-section">
 			<Text className="section-label">Spacer</Text>
 			<Spacer />

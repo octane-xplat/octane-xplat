@@ -1,11 +1,19 @@
 // Foundations and common controls
 export { View } from './View'
-/** Vertical flex container, exported under Astryx's component name. */
-export { View as VStack } from './View'
-/** Horizontal flex container, exported under Astryx's component name. */
-export { Row as HStack } from './Row'
+/** Vertical flow stack (Astryx `Stack` with direction="vertical"). */
+export { VStack } from './VStack'
+/** Horizontal flow stack (Astryx `Stack` with direction="horizontal"). */
+export { HStack } from './HStack'
 export { Grid } from './Grid'
+/** Flow container — `direction`, `hAlign`/`vAlign`, spacing-step
+ *  `gap`/`padding`. Overlapping children belong in `Absolute`. */
 export { Stack } from './Stack'
+/** Per-child size/alignment override inside `Stack`. */
+export { StackItem } from './StackItem'
+export { Center } from './Center'
+export { Section } from './Section'
+export { AspectRatio } from './AspectRatio'
+export { VisuallyHidden } from './VisuallyHidden'
 export { Absolute } from './Absolute'
 export type { PanEvent, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate'
@@ -57,8 +65,14 @@ export type {
 /** Labeled control wrapper, exported under Astryx's component name. */
 export { FormField as Field } from './FormField'
 export { FieldGroup } from './FieldGroup'
+/** Form-field arrangement container (Astryx FormLayout). */
+export { FormLayout } from './FormLayout'
+export { InputGroup, InputGroupText } from './InputGroup'
 /** Reusable labeled row, exported under Astryx's component name. */
-export { ListItem as Item } from './ListItem'
+export { Item } from './Item'
+/** Content list + row (Astryx `List`/`ListItem` — not a virtualized list). */
+export { List } from './List'
+export { ListItem } from './ListItem'
 /** Bounded numeric entry, exported under Astryx's component name. */
 export { InputNumber as NumberInput } from './InputNumber'
 export { PinInput } from './PinInput'
@@ -79,9 +93,13 @@ export { CheckboxGroup as CheckboxList } from './CheckboxGroup'
 export type {
 	CheckboxGroupProps,
 	FieldGroupProps,
-	ListItemComponent,
+	FormLayoutProps,
+	InputGroupProps,
+	InputGroupTextProps,
+	ItemComponent,
+	ItemSlotProps,
 	ListItemProps,
-	ListItemSlotProps,
+	ListProps,
 	FormFieldProps,
 	InputNumberProps,
 	InputRatingProps,
@@ -387,12 +405,64 @@ export { useStore } from './use-store'
 export { Sheet } from './Sheet'
 export { openSheet, closeSheet } from './sheet-service'
 export type { SheetProps, SheetOpenOptions, OpenSheet } from './props'
+
+// Indicators — decorative state visuals (checkbox box, radio circle,
+// selection mark) and the registry that replaces them by name.
+export { CheckboxIndicator, CheckIndicator, RadioIndicator } from './indicators'
+export {
+	defaultIndicators,
+	getIndicator,
+	registerIndicator,
+	registerIndicators,
+	useIndicator,
+	indicatorScope,
+} from './indicators'
+export type {
+	IndicatorComponent,
+	IndicatorFamily,
+	IndicatorFamilyMap,
+	IndicatorMap,
+	IndicatorName,
+	IndicatorNameOfFamily,
+	IndicatorPosition,
+	IndicatorRegistry,
+	IndicatorSize,
+	IndicatorState,
+} from './props'
 export type {
 	AbsoluteProps,
+	AspectRatioFit,
+	AspectRatioProps,
+	AspectRatioShape,
+	CenterAxis,
+	CenterProps,
 	DividerProps,
+	FormLayoutDirection,
+	FormOptionality,
 	HStackProps,
 	VStackProps,
+	IndicatorProps,
+	InputGroupSize,
 	ItemProps,
+	ListDensity,
+	ListMarkerStyle,
+	ListStyle,
+	SectionDividerSide,
+	SectionProps,
+	SectionVariant,
+	SizeValue,
+	StackAlignment,
+	StackCrossAlignment,
+	StackDirection,
+	StackItemCrossAlignSelf,
+	StackItemProps,
+	StackItemSize,
+	StackMainAlignment,
+	StackPaddingProps,
+	StackSizeProps,
+	StackWrap,
+	SpacingStep,
+	VisuallyHiddenProps,
 	CheckboxInputProps,
 	CheckboxListProps,
 	RadioListProps,

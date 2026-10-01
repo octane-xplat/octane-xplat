@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { HStack, Screen, Text, View, Stack } from '@octane-xplat/ui';
+import { Absolute, HStack, Screen, Text, View } from '@octane-xplat/ui';
 import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios';
 
 /** Liquid Glass probes — iOS 26+ renders real UIGlassEffect material,
@@ -15,7 +15,7 @@ export function GlassDemo() @{
 		<Text className="text-xl font-semibold">Liquid Glass</Text>
 
 		{/* Interactive glass — the element root IS the effect view. */}
-		<Stack style={{ height: 140 }}>
+		<Absolute style={{ height: 140 }}>
 			<HStack className="gap-2">
 				<View style={{ width: 60, height: 60, backgroundColor: '#e91e63' }} />
 				<View style={{ width: 60, height: 60, backgroundColor: '#22c55e' }} />
@@ -24,9 +24,9 @@ export function GlassDemo() @{
 			<LiquidGlass id="glass-regular" style={{ margin: 24, padding: 16, borderRadius: 16 }}>
 				<Text>regular · interactive</Text>
 			</LiquidGlass>
-		</Stack>
+		</Absolute>
 
-		<Stack style={{ height: 100 }}>
+		<Absolute style={{ height: 100 }}>
 			<HStack className="gap-2">
 				<View style={{ width: 60, height: 60, backgroundColor: '#f59e0b' }} />
 				<View style={{ width: 60, height: 60, backgroundColor: '#8b5cf6' }} />
@@ -34,18 +34,18 @@ export function GlassDemo() @{
 			<LiquidGlass id="glass-clear" variant="clear" style={{ margin: 16, padding: 16, borderRadius: 16 }}>
 				<Text>clear variant</Text>
 			</LiquidGlass>
-		</Stack>
+		</Absolute>
 
-		<Stack style={{ height: 100 }}>
+		<Absolute style={{ height: 100 }}>
 			<View style={{ backgroundColor: '#0ea5e9' }} />
 			<LiquidGlass id="glass-tinted" tint="#dc262688" style={{ margin: 16, padding: 16, borderRadius: 16 }}>
 				<Text>tinted glass</Text>
 			</LiquidGlass>
-		</Stack>
+		</Absolute>
 
 		{/* Glass as a wrapping element — the shared `glass` prop was fake
 		    parity and is gone; the container is the opt-in shape. */}
-		<Stack style={{ height: 100 }}>
+		<Absolute style={{ height: 100 }}>
 			<HStack className="gap-2">
 				<View style={{ width: 60, height: 60, backgroundColor: '#e91e63' }} />
 				<View style={{ width: 60, height: 60, backgroundColor: '#22c55e' }} />
@@ -53,7 +53,7 @@ export function GlassDemo() @{
 			<LiquidGlass id="glass-prop" style={{ margin: 16, padding: 16, borderRadius: 16 }}>
 				<Text>glass element</Text>
 			</LiquidGlass>
-		</Stack>
+		</Absolute>
 
 		{/* Merged-glass region — siblings morph together across spacing.
 		    AbsoluteLayout host: children position via left/top. */}

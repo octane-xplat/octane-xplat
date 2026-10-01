@@ -2,11 +2,15 @@
 // equivalent use the host renderer; NativeScript-only features are exported
 // as visible unsupported leaves so the shared harness can still load them.
 export { View } from './View.macos.tsrx'
-/** Vertical flex container, exported under Astryx's component name. */
-export { Column as VStack } from './View.macos.tsrx'
-/** Horizontal flex container, exported under Astryx's component name. */
-export { Row as HStack } from './Row.macos.tsrx'
-export { Grid, Stack, Absolute, Spacer } from './layout.macos.tsrx'
+/** Vertical flow stack (Astryx `Stack` direction="vertical"). */
+export { VStack } from './VStack.macos.tsrx'
+/** Horizontal flow stack (Astryx `Stack` direction="horizontal"). */
+export { HStack } from './HStack.macos.tsrx'
+export { Grid, Stack, StackItem, Absolute, Spacer } from './layout.macos.tsrx'
+export { Center } from './Center.macos.tsrx'
+export { Section } from './Section.macos.tsrx'
+export { AspectRatio } from './AspectRatio.macos.tsrx'
+export { VisuallyHidden } from './VisuallyHidden.macos.tsrx'
 export type { PanEvent, SwipeEvent, SetTranslate } from './props'
 export { setTranslate } from './translate.macos'
 export { Text, RichText, RichTextSpan } from './Text.macos.tsrx'
@@ -33,7 +37,71 @@ export { AvatarGroup } from './AvatarGroup.macos.tsrx'
 export { FormField as Field } from './FormField.macos.tsrx'
 export { FieldGroup } from './FieldGroup.macos.tsrx'
 /** Reusable labeled row, exported under Astryx's component name. */
-export { ListItem as Item } from './ListItem.macos.tsrx'
+export { Item } from './Item.macos.tsrx'
+export { List } from './List.macos.tsrx'
+export { ListItem } from './ListItem.macos.tsrx'
+export { FormLayout } from './FormLayout.macos.tsrx'
+export { InputGroup, InputGroupText } from './InputGroup.macos.tsrx'
+export { CheckboxIndicator } from './CheckboxIndicator.macos.tsrx'
+export { CheckIndicator } from './CheckIndicator.macos.tsrx'
+export { RadioIndicator } from './RadioIndicator.macos.tsrx'
+export {
+	defaultIndicators,
+	getIndicator,
+	registerIndicator,
+	registerIndicators,
+	useIndicator,
+	indicatorScope,
+} from './indicators'
+export type {
+	AbsoluteProps,
+	AspectRatioFit,
+	AspectRatioProps,
+	AspectRatioShape,
+	CenterAxis,
+	CenterProps,
+	FormLayoutDirection,
+	FormLayoutProps,
+	FormOptionality,
+	HStackProps,
+	InputGroupProps,
+	InputGroupSize,
+	InputGroupTextProps,
+	IndicatorComponent,
+	IndicatorFamily,
+	IndicatorFamilyMap,
+	IndicatorMap,
+	IndicatorName,
+	IndicatorNameOfFamily,
+	IndicatorPosition,
+	IndicatorProps,
+	IndicatorRegistry,
+	IndicatorSize,
+	IndicatorState,
+	ListDensity,
+	ListItemProps,
+	ListMarkerStyle,
+	ListProps,
+	ListStyle,
+	SectionDividerSide,
+	SectionProps,
+	SectionVariant,
+	StackAlignment,
+	StackCrossAlignment,
+	StackDirection,
+	StackItemCrossAlignSelf,
+	StackItemProps,
+	StackItemSize,
+	StackMainAlignment,
+	StackPaddingProps,
+	StackProps,
+	StackSizeProps,
+	StackWrap,
+	SpacingStep,
+	VStackProps,
+	VisuallyHiddenProps,
+} from './props'
+
 /** Bounded numeric entry, exported under Astryx's component name. */
 export { InputNumber as NumberInput } from './InputNumber.macos.tsrx'
 export { PinInput } from './PinInput.macos.tsrx'
@@ -93,7 +161,6 @@ export {
 	onThemeSchemeChange,
 	applyThemeClasses,
 } from './theme/theme-scheme'
-
 export { useColorScheme, getColorScheme } from './colorScheme.macos'
 export { styled } from './styled.macos.tsrx'
 export { openWindow } from './windows.macos'

@@ -237,7 +237,12 @@ Same applies, weaker, to `Drawer` (`mainContent`/`leftDrawer` via `hostSlot` —
 that's within one root, so context survives; model it as slot props
 `<Drawer main={…} drawer={…}>`).
 
-## The List contract
+## The platform list contract
+
+The old generic `ListProps<T>` sketch below belongs to platform-authentic
+`UITableView`/`RecyclerView` widgets (exported as `ListProps` from their
+platform subpaths). The shared root `List` is now a separate, child-based
+content list; use `VirtualList` for portable windowed collections.
 
 ```ts
 interface ListProps<T> {

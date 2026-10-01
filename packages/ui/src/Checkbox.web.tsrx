@@ -1,6 +1,7 @@
 import type { CheckboxProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
+import { useIndicator, CheckboxIndicator, indicatorScope } from './indicators';
 
 /** Self-drawn checkbox — box + ✓ glyph, identical layout across targets.
  *  Toggles on click, Space, and Enter. The platform look (if wanted) is an
@@ -8,6 +9,8 @@ import { useFieldControlProps } from './field-context';
 export function Checkbox(inputProps: CheckboxProps) @{
 	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
+	const Ind = useIndicator('checkbox') ?? CheckboxIndicator;
+	const indState = props.indeterminate ? 'indeterminate' : props.checked ? 'checked' : 'unchecked';
 	const toggle = () => {
 		if (!isBlocked) props.onCheckedChange?.(!(props.checked ?? false));
 	};
@@ -16,7 +19,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		role="checkbox"
-		aria-checked={props.checked ?? false}
+		aria-checked={props.indeterminate ? 'mixed' : props.checked ?? false}
 		aria-disabled={props.isDisabled || undefined}
 		aria-readonly={props.isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}
@@ -26,7 +29,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		aria-labelledby={props.ariaLabelledBy}
 		aria-describedby={props.ariaDescribedBy}
 		tabIndex={props.isDisabled ? undefined : 0}
-		className={['vx-checkbox-row', props.checked ? 'vx-checkbox--on' : undefined, props.isDisabled ? 'vx-checkbox--disabled' : undefined, props.isReadOnly ? 'vx-checkbox--readonly' : undefined, props.isLoading ? 'vx-checkbox--loading' : undefined, props.status ? `vx-checkbox--status-${props.status.type}` : undefined, props.size ? `vx-checkbox--size-${props.size}` : undefined, props.className]}
+		className={['vx-checkbox-row', indicatorScope, props.checked ? 'vx-checkbox--on' : undefined, props.isDisabled ? 'vx-checkbox--disabled' : undefined, props.isReadOnly ? 'vx-checkbox--readonly' : undefined, props.isLoading ? 'vx-checkbox--loading' : undefined, props.status ? `vx-checkbox--status-${props.status.type}` : undefined, props.size ? `vx-checkbox--size-${props.size}` : undefined, props.className]}
 		style={props.style}
 		onClick={isBlocked ? undefined : toggle}
 		onKeyDown={(e: any) => {
@@ -37,9 +40,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 			}
 		}}
 	>
-		<div className="vx-checkbox" aria-hidden="true">
-			{props.checked ? <span className="vx-checkbox-check">✓</span> : null}
-		</div>
+		<Ind state={indState} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={props.isDisabled} />
 		{props.label != null ? <span className="vx-checkbox-label">{props.label}</span> : null}
 	</div>
 }

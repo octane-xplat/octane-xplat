@@ -120,16 +120,24 @@ img {
 		flex-direction: row;
 	}
 
-	.vx-grid,
-	.vx-stack {
-		display: grid;
-	}
+.vx-stack {
+	display: flex;
+}
 
-	.vx-stack > * {
-		grid-area: 1 / 1;
-		horizontal-align: left;
-		vertical-align: top;
-	}
+.vx-grid,
+.vx-layers {
+	display: grid;
+}
+
+/* Internal same-cell overlay — every child lands in grid cell 1,1
+   (left/top aligned). Used by leaf chrome (video transport, camera
+   overlay) that stacks layers directly on a gridlayout. The public `Stack`
+   component is a flow container; app-level overlap is `Absolute`. */
+.vx-layers > * {
+	grid-area: 1 / 1;
+	horizontal-align: left;
+	vertical-align: top;
+}
 
 	/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
    positioning is web-only (children position via left/top props) */
@@ -274,7 +282,7 @@ img {
 
 	/* Video — surface-hosted leaf: the engine surface fills the frame and the
    self-drawn transport layers stack on top in the same grid cell
-   (vx-stack). NS-side rules only — DOM resets sit in the web block. */
+   (vx-layers). NS-side rules only — DOM resets sit in the web block. */
 
 	.vx-video > * {
 		horizontal-align: stretch;
@@ -766,20 +774,21 @@ input.vx-search-field::-webkit-search-cancel-button {
 	margin-bottom: 8px;
 }
 
-/* ListItem — a reusable shared row; callers own the surrounding list chrome. */
-.vx-listitem {
+/* Item — a reusable shared row (settings/navigation); callers own the
+   surrounding chrome. Content List's ListItem is a separate vocabulary. */
+.vx-item {
 	flex-direction: row;
 	align-items: center;
 	width: 100%;
 	padding: 10px 12px;
 	gap: 12px;
 }
-.vx-listitem-leading,
-.vx-listitem-trailing {
+.vx-item-leading,
+.vx-item-trailing {
 	flex-shrink: 0;
 	align-items: center;
 }
-.vx-listitem-content {
+.vx-item-content {
 	flex-direction: column;
 	flex-grow: 1;
 }
@@ -877,10 +886,10 @@ input.vx-search-field::-webkit-search-cancel-button {
 /* xplat-web-only:start — display:flex for the div/span flex classes */
 .vx-field,
 .vx-fieldgroup,
-.vx-listitem,
-.vx-listitem-leading,
-.vx-listitem-content,
-.vx-listitem-trailing,
+.vx-item,
+.vx-item-leading,
+.vx-item-content,
+.vx-item-trailing,
 .vx-inputnumber,
 .vx-inputnumber-step,
 .vx-select-trigger,

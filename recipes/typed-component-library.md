@@ -2,7 +2,7 @@
 
 ID: typed-component-library
 Targets: web, ios, android
-Related APIs: tsrx-typegen, tsrx-tsc, TypeScript declarations, package.json exports, pnpm pack
+Related APIs: tsrx-typegen, tsrx-tsc, TypeScript declarations, package.json exports, Stack, HStack, VStack, List, ListItem, FormLayout, InputGroup, pnpm pack
 
 ## Starting point
 
@@ -31,7 +31,7 @@ The reader knows TypeScript project configs and the package's runtime build.
 - AC1: [tsrx-typegen setup and configuration](../packages/tsrx-typegen/README.md).
 - AC2: [Generated declaration contract and source-extension mapping](../packages/tsrx-typegen/README.md).
 - AC3: [Generation and check mode](../packages/tsrx-typegen/README.md).
-- AC4: [Package publish model and declaration verification](../docs/toolchain-notes.md#shared-packages-publish-model), plus the [GIF](../packages/gif/tests/packed-consumer.mjs) and [UI](../packages/ui/tests/packed-consumer.mjs) packed consumers — every typed leaf carries the same `tests/packed-consumer.mjs` harness (`pnpm test:packed`); the full packed-artifact starter path is [scripts/verify-consumer.mjs](../scripts/verify-consumer.mjs) (`pnpm check:consumer`).
+- AC4: [Package publish model and declaration verification](../docs/toolchain-notes.md#shared-packages-publish-model), the [component index](../docs/components.md), plus the [GIF](../packages/gif/tests/packed-consumer.mjs) and [UI](../packages/ui/tests/packed-consumer.mjs) packed consumers — every typed leaf carries the same `tests/packed-consumer.mjs` harness (`pnpm test:packed`); the full packed-artifact starter path is [scripts/verify-consumer.mjs](../scripts/verify-consumer.mjs) (`pnpm check:consumer`).
 - AC5: [Compiler support boundary](../docs/toolchain-notes.md#shared-packages-publish-model) and [known limits](../docs/known-limits.md#same-edge-on-every-target).
 - AC6: [Pack check and doctor integration](../packages/tsrx-typegen/README.md#publish-checks); every declaration-shipping package wires `--pack-check` into `prepack` (`pnpm check:pack` runs them all).
 - AC7: [Develop against generated declarations](../docs/toolchain-notes.md#develop-against-generated-declarations) and [package preparation](../packages/tsrx-typegen/README.md#publish-checks).

@@ -1,12 +1,30 @@
+import { useRef } from 'octane';
 import type { StackProps } from './props';
 import { applyEscapeProps } from './escape-props';
+import { applyWebProps } from './platformProps.web';
+import { resolveStackLayout, stackWebStyle } from './stack-layout';
+import { usePan } from './pan.web.tsrx';
 
+/** Astryx flow Stack — flex container in `direction`, `hAlign`/`vAlign`
+ *  mapped to main/cross axes, spacing-step gap/padding. Children that need
+ *  to overlap belong in `Absolute` instead. */
 export function Stack(props: StackProps) @{
-	<div
+	const layout = resolveStackLayout(props);
+	const Tag: any = props.as ?? 'div';
+	const el = useRef<HTMLElement | null>(null);
+	usePan(el, props.onPan);
+
+	<Tag
 		id={props.id}
-		className={['vx-stack', props.className]}
-		style={props.style}
-		ref={(el: any) => applyEscapeProps(el, props)}
+		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+		className={['vx-stack', props.isScrollable ? 'vx-stack--scroll' : undefined, props.className]}
+		style={{
+			flexDirection: layout.flexDirection,
+			justifyContent: layout.justifyContent,
+			alignItems: layout.alignItems,
+			...stackWebStyle(layout, props),
+			...props.style,
+		}}
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}
 		aria-hidden={props.accessible === false ? true : undefined}
@@ -18,5 +36,5 @@ export function Stack(props: StackProps) @{
 		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
 	>
 		{props.children}
-	</div>
+	</Tag>
 }

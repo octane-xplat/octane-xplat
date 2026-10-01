@@ -113,7 +113,58 @@ export interface GridProps extends AccessibilityProps {
 	id?: string
 }
 
-export interface StackProps extends AccessibilityProps {
+/** Astryx spacing scale — `step * 4` dips. Shared by `Stack`, `Center`,
+ *  `Section`, and `FormLayout` gap/padding props. */
+export type SpacingStep = 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10
+
+/** Numbers are dips (px on web); strings are used as-is ('100%', '12em'). */
+export type SizeValue = number | string
+
+export type StackDirection = 'horizontal' | 'vertical'
+
+/** Main-axis alignment — mirrors `justify-content` (start/center/end plus
+ *  the space-distribution values). */
+export type StackMainAlignment = 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly'
+
+/** Cross-axis alignment — mirrors `align-items`. */
+export type StackCrossAlignment = 'start' | 'center' | 'end' | 'stretch'
+
+/** Union accepted by the directional `hAlign`/`vAlign` props; which half is
+ *  meaningful depends on `direction` (hAlign is main-axis when horizontal,
+ *  cross-axis when vertical). */
+export type StackAlignment = StackMainAlignment | StackCrossAlignment
+
+export type StackWrap = 'nowrap' | 'wrap' | 'wrap-reverse'
+
+/** Padding props shared by the flow layout components. Per edge, most
+ *  specific wins: edge → axis → `padding`. */
+export interface StackPaddingProps {
+	padding?: SpacingStep
+	/** Inline axis (horizontal in LTR). Overrides `padding` on both inline edges. */
+	paddingInline?: SpacingStep
+	/** Inline-start edge — left in LTR. Native maps logical edges to physical left/right. */
+	paddingInlineStart?: SpacingStep
+	paddingInlineEnd?: SpacingStep
+	/** Block axis (vertical). Overrides `padding` on both block edges. */
+	paddingBlock?: SpacingStep
+	paddingBlockStart?: SpacingStep
+	paddingBlockEnd?: SpacingStep
+}
+
+export interface StackSizeProps {
+	width?: SizeValue
+	height?: SizeValue
+	maxWidth?: SizeValue
+	minHeight?: SizeValue
+}
+
+/** Astryx flow Stack — a flex container, NOT an overlap layer. For children
+ *  stacked in the same cell use `Absolute`. `hAlign`/`vAlign` map to
+ *  main/cross axis by direction; `justify`/`align` are the CSS-named aliases.
+ *  `as` picks the web element tag; native always renders the platform
+ *  container (no semantic HTML exists there). `isScrollable` wraps content
+ *  in a ScrollView on native and overflow:auto on web. */
+export interface StackProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
 	className?: any
 	style?: any
 	children?: any
@@ -121,6 +172,62 @@ export interface StackProps extends AccessibilityProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
+	/** `ref` is runtime-reserved on component elements — leaves expose
+	 *  `bind` to reach the native/DOM node. */
+	bind?: (el: any) => void
+	/** @default 'vertical' */
+	direction?: StackDirection
+	hAlign?: StackAlignment
+	vAlign?: StackAlignment
+	justify?: StackMainAlignment
+	align?: StackCrossAlignment
+	gap?: SpacingStep
+	wrap?: StackWrap
+	isScrollable?: boolean
+	as?: any
+	onPan?: (e: PanEvent) => void
+	onSwipe?: (e: SwipeEvent) => void
+}
+
+export type StackItemCrossAlignSelf = 'start' | 'center' | 'end' | 'stretch'
+export type StackItemSize = 'static' | 'fill'
+
+/** Per-child overrides inside a `Stack`. `size="fill"` grows into the
+ *  remaining space (splits evenly between fill siblings). On web the item
+ *  carries the flex `min-width/min-height: 0` reset so a fill child can
+ *  become a scroll region; native flex children already shrink to zero. */
+export interface StackItemProps extends AccessibilityProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+	/** Cross-axis self alignment, overriding the stack's cross alignment. */
+	crossAlignSelf?: StackItemCrossAlignSelf
+	/** @default 'static' */
+	size?: StackItemSize
+	/** overflow:auto on web; wraps in a ScrollView on native. */
+	isScrollable?: boolean
+	as?: any
+	onPan?: (e: PanEvent) => void
+	onSwipe?: (e: SwipeEvent) => void
+}
+
+/** Horizontal flow stack — `Stack` with `direction="horizontal"`. `hAlign`
+ *  is the main axis, `vAlign` the cross axis. */
+export interface HStackProps extends Omit<StackProps, 'direction' | 'hAlign' | 'vAlign'> {
+	hAlign?: StackMainAlignment
+	vAlign?: StackCrossAlignment
+}
+
+/** Vertical flow stack — `Stack` with `direction="vertical"`. `vAlign` is
+ *  the main axis, `hAlign` the cross axis. */
+export interface VStackProps extends Omit<StackProps, 'direction' | 'hAlign' | 'vAlign'> {
+	hAlign?: StackCrossAlignment
+	vAlign?: StackMainAlignment
 }
 
 export interface AbsoluteProps extends AccessibilityProps {
@@ -458,7 +565,9 @@ export interface RefreshProps {
 	refreshThreshold?: number
 }
 
-export interface ListProps extends RefreshProps {
+/** Props for platform-authentic list widgets (`UITableView`/`RecyclerView`).
+ *  Shared content `List` has its own `ListProps` below. */
+export interface PlatformListProps extends RefreshProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1362,6 +1471,9 @@ export interface CheckboxProps extends FieldControlProps {
 	style?: any
 	id?: string
 	checked?: boolean
+	/** Partial-selection state (parent-of-a-tree semantics). Renders the
+	 *  indicator's `indeterminate` mark and `aria-checked="mixed"` on web. */
+	indeterminate?: boolean
 	onCheckedChange?: (checked: boolean) => void
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
@@ -1536,6 +1648,17 @@ export interface FormFieldProps extends FieldControlProps {
 	id?: string
 	/** ID of the single control associated with this field's label. */
 	inputID?: string
+	/** ID applied to the label element itself — a grouping host
+	 *  (`InputGroup`) references it via `aria-labelledby`. */
+	labelID?: string
+	/** ID applied to the description element (for `aria-describedby`). */
+	descriptionID?: string
+	/** ID applied to the status message element (for `aria-describedby`). */
+	statusID?: string
+	/** Set when the field wraps a group of controls rather than one input —
+	 *  the label renders as a span (a `<label>` cannot name a group). */
+	isGroupLabel?: boolean
+	/** Tooltip text shown via an info affordance at the end of the label. */
 	labelTooltip?: string
 	children?: any
 	ios?: any
@@ -1555,10 +1678,13 @@ export interface FieldGroupProps {
 	web?: any
 }
 
-/** Shared settings/navigation row. Use the four shorthand props for common
- *  rows, or `ListItem.Leading`/`Content`/`Supporting`/`Trailing` children
- *  when the row needs custom composition. */
-export interface ListItemProps extends AccessibilityProps {
+/** Shared settings/navigation row, exported as `Item`. Use the four
+ *  shorthand props for common rows, or `Item.Leading`/`Content`/
+ *  `Supporting`/`Trailing` children when the row needs custom composition.
+ *  This is the pre-parity settings row; the Astryx `Item` contract
+ *  (label/description/startContent/endContent) is a separate family's
+ *  migration — `ListItem` inside `List` carries its own row layout. */
+export interface ItemProps extends AccessibilityProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1571,17 +1697,17 @@ export interface ListItemProps extends AccessibilityProps {
 	children?: any
 }
 
-export interface ListItemSlotProps {
+export interface ItemSlotProps {
 	className?: any
 	children?: any
 }
 
-export interface ListItemComponent {
-	(props: ListItemProps): unknown
-	Leading: (props: ListItemSlotProps) => unknown
-	Content: (props: ListItemSlotProps) => unknown
-	Supporting: (props: ListItemSlotProps) => unknown
-	Trailing: (props: ListItemSlotProps) => unknown
+export interface ItemComponent {
+	(props: ItemProps): unknown
+	Leading: (props: ItemSlotProps) => unknown
+	Content: (props: ItemSlotProps) => unknown
+	Supporting: (props: ItemSlotProps) => unknown
+	Trailing: (props: ItemSlotProps) => unknown
 }
 
 /** InputNumber — normalized TextInput (number keyboard) flanked by −/+
@@ -2975,12 +3101,6 @@ export interface Store<T> extends ReadableStore<T> {
 // source contracts so these aliases preserve the current cross-platform API.
 /** Props accepted by `Divider`, using the existing `Separator` contract. */
 export type DividerProps = SeparatorProps
-/** Props accepted by `HStack`, using the existing horizontal `Row` contract. */
-export type HStackProps = RowProps
-/** Props accepted by `VStack`, using the existing vertical `Column` contract. */
-export type VStackProps = ViewProps
-/** Props accepted by `Item`, using the existing `ListItem` contract. */
-export type ItemProps = ListItemProps
 /** Props accepted by `CheckboxInput`. */
 export type CheckboxInputProps = CheckboxProps
 /** Props accepted by `CheckboxList`. */
@@ -3527,4 +3647,284 @@ export interface OutlineProps {
 	ios?: any
 	android?: any
 	web?: any
+// ---------- Astryx parity: layout containers ----------
+
+/** `Center` — flex centering on the main axis (`horizontal` → justify),
+ *  cross axis (`vertical` → align-items), or `both` (default). `isInline`
+ *  renders `inline-flex` on web; native containers are always block-level,
+ *  so it is inert there. */
+export type CenterAxis = 'both' | 'horizontal' | 'vertical'
+
+export interface CenterProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+	/** @default 'both' */
+	axis?: CenterAxis
+	isInline?: boolean
+}
+
+/** `Section` — a banded container with a surface/transparent/muted
+ *  background, spacing-scale padding, and optional edge dividers. */
+export type SectionVariant = 'section' | 'transparent' | 'muted'
+export type SectionDividerSide = 'top' | 'bottom' | 'start' | 'end'
+
+export interface SectionProps extends StackPaddingProps, StackSizeProps, AccessibilityProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+	/** @default 'section' */
+	variant?: SectionVariant
+	/** 'start'/'end' are logical edges — on native they map to left/right. */
+	dividers?: SectionDividerSide[]
+	/** @default 4 (16px) */
+	padding?: SpacingStep
+}
+
+/** `VisuallyHidden` — children stay in the accessibility tree but render
+ *  invisible. No className/style: styling a hidden node is a mistake. On
+ *  native there is no offscreen-a11y primitive; the leaf renders a 1dip,
+ *  opacity-0 container (screen-reader exposure is best-effort). */
+export interface VisuallyHiddenProps extends AccessibilityProps {
+	children?: any
+	id?: string
+	bind?: (el: any) => void
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	/** Web element tag — 'span' (default) for inline labels, 'div' for block
+	 *  content / live regions. Native ignores it. */
+	as?: any
+}
+
+/** `AspectRatio` — sizes its box from width / `ratio`. Web uses the CSS
+ *  `aspect-ratio` property; native measures the laid-out width and derives
+ *  the height (one layout pass). `shape="ellipse"` clips to an ellipse;
+ *  `fit` controls how the child fills the box (`contain` letterboxing is a
+ *  media-level concern — on native `fit="contain"`/`"center"` center the
+ *  child without cropping hints). */
+export type AspectRatioShape = 'rectangle' | 'ellipse'
+export type AspectRatioFit = 'cover' | 'contain' | 'center'
+
+export interface AspectRatioProps extends AccessibilityProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+	/** width / height — e.g. 16/9 ≈ 1.777. Required. */
+	ratio: number
+	/** @default 'rectangle' */
+	shape?: AspectRatioShape
+	fit?: AspectRatioFit
+}
+
+// ---------- Astryx parity: forms ----------
+
+export type FormLayoutDirection = 'vertical' | 'horizontal' | 'horizontal-labels'
+
+/** Which state a form treats as its default — only the *exception* carries
+ *  a visible optional/required indicator. `useFieldControlProps` also
+ *  resolves `aria-required` from this so the unmarked majority still
+ *  announces correctly. */
+export type FormOptionality = 'optional' | 'required'
+
+/** `FormLayout` — arranges `Field`/`FormField`-wrapped controls with
+ *  consistent spacing. Renders a neutral container (form submission is a
+ *  separate concern; there is no <form> element contract on native).
+ *  'horizontal' gives equal-width columns on web and a `*`-column grid on
+ *  native; 'horizontal-labels' puts each field's label left of its control
+ *  (a per-field row on native — the web grid's shared label column and
+ *  480px collapse have no native analog). */
+export interface FormLayoutProps extends AccessibilityProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+	/** @default 'vertical' */
+	direction?: FormLayoutDirection
+	defaultOptionality?: FormOptionality
+}
+
+export type InputGroupSize = 'sm' | 'md' | 'lg'
+
+/** `InputGroup` — a labeled group joining an input with prefix/suffix
+ *  addons into one visually connected control. Renders a `Field` around a
+ *  `role="group"` row (web) / grouped row (native). Member inputs pick up
+ *  group styling through `useInputGroup()`. */
+export interface InputGroupProps extends FieldControlProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+	/** Group label — required for accessibility. */
+	label: string
+	/** Tooltip text shown via an info affordance at the end of the label. */
+	labelTooltip?: string
+	size?: InputGroupSize
+}
+
+/** `InputGroupText` — a prefix/suffix text or icon segment inside
+ *  `InputGroup` ('$', 'https://', units). */
+export interface InputGroupTextProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+}
+
+// ---------- Astryx parity: content lists ----------
+
+export type ListDensity = 'compact' | 'balanced' | 'spacious'
+/** Marker style — 'decimal' renders an ordered list (`<ol>` on web) with
+ *  numbered markers, 'disc'/'circle' render bullet markers, 'none' none. */
+export type ListMarkerStyle = 'none' | 'disc' | 'circle' | 'decimal'
+export type ListStyle = ListMarkerStyle
+
+/** `List` — a vertical content list (NOT a virtualized data list — that's
+ *  `VirtualList`). Children are `ListItem`s. Renders semantic `ul`/`ol` on
+ *  web; a column container on native (NativeScript has no list role —
+ *  marker/divider visuals are drawn by the leaf instead). */
+export interface ListProps extends AccessibilityProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+	/** @default 'balanced' */
+	density?: ListDensity
+	hasDividers?: boolean
+	/** Compensates for each item's inline inset up to the container padding
+	 *  on each edge (aligns rows with sibling headings). Reads the
+	 *  `--vx-item-inset-inline` / `--vx-container-padding-*` custom
+	 *  properties; inert where no container padding is declared. Web only. */
+	edgeCompensation?: 'inline'
+	/** Header content rendered above the list (aria-labelledby on web). */
+	header?: any
+	/** @default 'none' */
+	listStyle?: ListMarkerStyle
+	/** Starting number for 'decimal' lists. @default 1 */
+	start?: number
+	'data-testid'?: string
+}
+
+/** `ListItem` — one row inside `List`: optional marker + startContent +
+ *  label/description + endContent. `onPress`/`href` make the row
+ *  interactive (invisible button/anchor on web, tap handling on native).
+ *  `delegateRef` points at a nested control that owns keyboard access and
+ *  the action — the row forwards surface presses to it and adds no second
+ *  stop (upstream `interactiveRef`). */
+export interface ListItemProps extends AccessibilityProps {
+	className?: any
+	style?: any
+	children?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	id?: string
+	bind?: (el: any) => void
+	/** Primary text (string truncates to one line) or rich content. */
+	label: any
+	description?: any
+	startContent?: any
+	endContent?: any
+	onPress?: () => void
+	/** Extra app content rendered inside the row's label area. */
+	delegateRef?: { current: any }
+	/** Link target: web renders a real anchor; native navigates via the
+	 *  registered deep-link table, falling back to opening the URL. */
+	href?: string
+	target?: '_blank' | '_self' | string
+	rel?: string
+	isDisabled?: boolean
+	isSelected?: boolean
+}
+
+// ---------- Astryx parity: indicators ----------
+
+/** Indicator families fix the state space a visual can draw — single
+ *  selection (unchecked/checked) vs multi selection (with indeterminate).
+ *  A replacement registered under a name is checked against its family's
+ *  state space. */
+export interface IndicatorFamilyMap {
+	singleSelection: 'unchecked' | 'checked'
+	multiSelection: 'unchecked' | 'checked' | 'indeterminate'
+}
+
+export type IndicatorFamily = keyof IndicatorFamilyMap & string
+export type IndicatorState<F extends IndicatorFamily = IndicatorFamily> = IndicatorFamilyMap[F]
+export type IndicatorSize = 'sm' | 'md'
+export type IndicatorPosition = 'start' | 'end'
+
+/** Props every indicator accepts. Indicators are decorative — the owning
+ *  control keeps role/focus/state; the indicator renders `aria-hidden` on
+ *  web and draws the picture for `state`. `children` replaces the state
+ *  mark inside the indicator chrome (busy spinners). */
+export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
+	className?: any
+	style?: any
+	id?: string
+	bind?: (el: any) => void
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+	state: IndicatorState<F>
+	/** @default 'md' */
+	size?: IndicatorSize
+	isDisabled?: boolean
+	children?: any
+}
+
+export type IndicatorComponent<F extends IndicatorFamily = IndicatorFamily> = (
+	props: IndicatorProps<F>,
+) => any
+
+/** The named indicators an app can replace, mapped to their family. */
+export interface IndicatorMap {
+	/** The mark on a chosen option — a checkmark by default. */
+	check: 'singleSelection'
+	/** The filled circle of a radio control. */
+	radio: 'singleSelection'
+	/** The box of a checkbox control, including its partial state. */
+	checkbox: 'multiSelection'
+}
+
+export type IndicatorName = keyof IndicatorMap & string
+export type IndicatorNameOfFamily<F extends IndicatorFamily> = {
+	[N in IndicatorName]: IndicatorMap[N] extends F ? N : never
+}[IndicatorName]
+
+/** App-provided indicator overrides, keyed by indicator name — the
+ *  `indicators` half of Astryx's theme replace seam, registered through
+ *  `registerIndicators`. */
+export type IndicatorRegistry = {
+	[N in IndicatorName]?: IndicatorComponent<IndicatorMap[N]>
 }

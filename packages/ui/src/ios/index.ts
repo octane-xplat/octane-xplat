@@ -22,7 +22,7 @@ export type {
 	SwitchProps,
 	SliderProps,
 	ActivityIndicatorProps,
-	ListProps,
+	PlatformListProps as ListProps,
 	TabsProps,
 	ModalProps,
 	ModalOpenOptions,

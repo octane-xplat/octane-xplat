@@ -18,7 +18,7 @@ export function TextInput(props: TextInputProps) @{
 		input.current.focus({ preventScroll: true });
 	};
 
-	<div className="vx-input-shell">
+	<div className={['vx-input-shell', fieldProps.inInputGroup ? 'vx-input-shell--ingroup' : undefined]}>
 		<input
 			ref={(el: any) => {
 				input.current = el;
@@ -27,7 +27,7 @@ export function TextInput(props: TextInputProps) @{
 				fieldProps.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el });
 			}}
 			id={fieldProps.id}
-			className={['vx-input', fieldProps.isDisabled ? 'vx-input--disabled' : undefined, fieldProps.isReadOnly ? 'vx-input--readonly' : undefined, fieldProps.isLoading ? 'vx-input--loading' : undefined, fieldProps.status ? `vx-input--status-${fieldProps.status.type}` : undefined, fieldProps.size ? `vx-input--size-${fieldProps.size}` : undefined, fieldProps.className]}
+			className={['vx-input', fieldProps.isDisabled ? 'vx-input--disabled' : undefined, fieldProps.isReadOnly ? 'vx-input--readonly' : undefined, fieldProps.isLoading ? 'vx-input--loading' : undefined, fieldProps.status ? `vx-input--status-${fieldProps.status.type}` : undefined, fieldProps.size ? `vx-input--size-${fieldProps.size}` : undefined, fieldProps.inInputGroup ? 'vx-input--ingroup' : undefined, fieldProps.className]}
 			style={{ ...normStyle(fieldProps.style), ...(fieldProps.placeholderTextColor ? { '--placeholder-color': fieldProps.placeholderTextColor } : {}) }}
 			value={fieldProps.value}
 			type={fieldProps.secure ? 'password' : fieldProps.keyboardType === 'number' || fieldProps.keyboardType === 'decimal' ? 'number' : keyboardType}

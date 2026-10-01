@@ -243,29 +243,32 @@ function GridLayoutFixture() @{
 	</Grid>
 }
 
+// Overlap migrated to Absolute: the public Stack is now the Astryx flow
+// container (same-cell layering belongs to Absolute). Element ids stay so
+// the stack-overlay-layout parity assertions still bind.
 function StackLayoutFixture() @{
-	<Stack className="parity-stack-root" style={{ width: 96, height: 48 }}>
+	<Absolute className="parity-stack-root" style={{ width: 96, height: 48 }}>
 		<View className="parity-stack-base" style={{ width: 48, height: 32 }} />
 		<View className="parity-stack-overlay" style={{ width: 20, height: 10 }} />
-	</Stack>
+	</Absolute>
 }
 
 function ColumnLayoutFixture() @{
-	<VStack className="parity-column-root" style={{ width: 96, height: 48 }} gap={4} alignItems="center">
+	<VStack className="parity-column-root" style={{ width: 96, height: 48 }} gap={1} align="center">
 		<View className="parity-column-first" style={{ width: 16, height: 8 }} />
 		<View className="parity-column-second" style={{ width: 20, height: 12 }} />
 	</VStack>
 }
 
 function RowLayoutFixture() @{
-	<HStack className="parity-row-root" style={{ width: 96, height: 32 }} gap={8}>
+	<HStack className="parity-row-root" style={{ width: 96, height: 32 }} gap={2}>
 		<View className="parity-row-first" style={{ width: 20, height: 10 }} />
 		<View className="parity-row-second" style={{ width: 12, height: 10 }} />
 	</HStack>
 }
 
 function SpacerLayoutFixture() @{
-	<HStack className="parity-spacer-root" style={{ width: 96, height: 24 }} gap={8}>
+	<HStack className="parity-spacer-root" style={{ width: 96, height: 24 }} gap={2}>
 		<View className="parity-spacer-leading" style={{ width: 16, height: 10 }} />
 		<Spacer className="parity-spacer" />
 		<View className="parity-spacer-trailing" style={{ width: 16, height: 10 }} />
@@ -274,7 +277,7 @@ function SpacerLayoutFixture() @{
 
 function ScrollViewLayoutFixture() @{
 	<ScrollView className="parity-scroll-root" style={{ width: 96, height: 32 }}>
-		<VStack className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={4}>
+		<VStack className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={1}>
 			<View className="parity-scroll-first" style={{ width: 24, height: 12 }} />
 			<View className="parity-scroll-second" style={{ width: 24, height: 12 }} />
 		</VStack>
@@ -290,7 +293,7 @@ function AbsoluteLayoutFixture() @{
 
 function ScrollBoxLayoutFixture() @{
 	<ScrollBox className="parity-scrollbox-root" style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}>
-		<VStack className="parity-scrollbox-content" style={{ width: 96, height: 64 }} gap={4}>
+		<VStack className="parity-scrollbox-content" style={{ width: 96, height: 64 }} gap={1}>
 			<View className="parity-scrollbox-first" style={{ width: 24, height: 12 }} />
 			<View className="parity-scrollbox-second" style={{ width: 24, height: 12 }} />
 		</VStack>
@@ -905,7 +908,7 @@ function SafeAreaLayoutFixture() @{
 	const contentWidth = width - insets.left - insets.right;
 	const contentHeight = height - insets.top - insets.bottom;
 
-	<HStack className="parity-safe-area-fixture" style={{ width: 200, height }} gap={8}>
+	<HStack className="parity-safe-area-fixture" style={{ width: 200, height }} gap={2}>
 		<SafeArea className="parity-safe-area-root" style={{ width, height }}>
 			<View
 				className="parity-safe-area-content"

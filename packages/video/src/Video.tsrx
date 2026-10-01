@@ -101,7 +101,7 @@ export function Video(props: VideoProps) @{
 		id={props.id}
 		rows="*"
 		columns="*"
-		className={cx('vx-stack', 'vx-video', props.className)}
+		className={cx('vx-layers', 'vx-video', props.className)}
 		style={props.style}
 		{...layoutChildProps(props)}
 		accessible={props.accessible}

@@ -6,7 +6,7 @@ import { Icon, Image, Pressable, HStack, Slider, Text, View } from '@octane-xpla
  *  `Video` component. Identical structure to the native twin (only the
  *  pragma differs): every layer composes xplat primitives,
  *  so the transport draws the same pixels on every target — the leaf only
- *  supplies the surface. The layers stack inside the leaf's `vx-stack`
+ *  supplies the surface. The layers stack inside the leaf's `vx-layers`
  *  grid (later = on top), so this fragment's children are each a
  *  full-frame layer. Times are milliseconds (matches both plugin players;
  *  the web leaf converts from `HTMLMediaElement`'s seconds). */
@@ -78,7 +78,7 @@ export function VideoChrome(props: VideoChromeProps) @{
 				// them pointer-events:none so taps reach the surface/tap layer; NS
 				// layout views never capture touches without handlers.
 				<View className="vx-video-barwrap" justifyContent="end">
-					<HStack className="vx-video-bar" alignItems="center" gap={8}>
+					<HStack className="vx-video-bar" vAlign="center" gap={2}>
 						<Pressable
 							className="vx-video-btn"
 							accessibilityRole="button"

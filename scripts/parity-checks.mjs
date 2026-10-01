@@ -592,7 +592,8 @@ export const CHECKS = [
 		equal: ['box.style.borderTopColor', 'box.style.borderTopLeftRadius'],
 		check: (m) => {
 			const box = m('box')
-			return [dims(box, 20, 20), ['box at row start', near(box.box.x, 0, 1), box.box.x]]
+			// Astryx md indicator box is 24px (sm is 20).
+			return [dims(box, 24, 24), ['box at row start', near(box.box.x, 0, 1), box.box.x]]
 		},
 	},
 	{
@@ -610,9 +611,9 @@ export const CHECKS = [
 			const glyph = m('glyph')
 			const expectedGlyphWidth = { web: 11.98, ios: 10.67, android: 11.43 }[target]
 			const rows = [
-				dims(box, 20, 20),
+				dims(box, 24, 24),
 				['check glyph has positive bounds', glyph.box?.w > 0 && glyph.box?.h > 0],
-				['glyph centered in box', near(glyph.box.x + glyph.box.w / 2 - box.box.x, 10, 1)],
+				['glyph centered in box', near(glyph.box.x + glyph.box.w / 2 - box.box.x, 12, 1)],
 			]
 
 			if (expectedGlyphWidth !== undefined) {
@@ -1398,7 +1399,10 @@ export const CHECKS = [
 		targets: ['web', 'ios', 'android', 'macos'],
 		elements: { control: 'parity-checkboxgroup-root', selected: 'vx-checkbox' },
 		equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
-		check: (m) => [...controlRows(m, 180, 56), dims(m('selected'), 20, 20)],
+		check: (m) => [
+			...controlRows(m, 180, 56),
+			dims(m('selected'), 24, 24),
+		],
 	},
 	{
 		fixture: 'radio-group-selected',
