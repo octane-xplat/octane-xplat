@@ -10,6 +10,13 @@ export function xplatBoundary(
 	platform?: 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'visionos' | 'native',
 ): Plugin
 
+/** `define` entries implementing the `process.env.NODE_ENV` npm convention —
+ *  upstream octane deps read it bare and assume the consumer bundler
+ *  statically rewrites the member expression. Only the literal
+ *  `process.env.NODE_ENV` read is covered; `process.env.FOO` or whole-object
+ *  `process` reads still fail on runtimes without a `process` global. */
+export function xplatNodeEnvDefine(mode: string): Record<string, string>
+
 export interface XplatNativeOptions {
 	/** Extra optimizeDeps.exclude entries — app-shipped @nativescript plugins. */
 	deps?: string[]

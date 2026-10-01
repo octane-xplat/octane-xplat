@@ -474,6 +474,21 @@ const nativeRules = [
 	},
 ]
 
+/** `define` for the `process.env.NODE_ENV` npm convention — upstream octane
+ *  packages (and much of the ecosystem) read it bare and assume the consumer
+ *  bundler statically rewrites the member expression. The NativeScript
+ *  runtime has no `process` global, so an unrewritten read throws at module
+ *  eval; vite's define substitution is what makes the convention work.
+ *
+ *  Scope: only the literal `process.env.NODE_ENV` expression is rewritten —
+ *  `process.env.FOO`, `process.platform`, and whole-object `process` reads
+ *  still crash on native. The NS dev server's per-module `globalThis.process`
+ *  shim picks the value up too (it captures `process.env.*` define entries
+ *  from the resolved config). */
+export const xplatNodeEnvDefine = (mode) => ({
+	'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
+})
+
 /**
  * Native (iOS/Android) Vite config. `env` is defineConfig's { mode }; `extra`
  * is merged in last for app-specific additions (own plugins, extra
@@ -518,6 +533,11 @@ export async function xplatNative(env, opts = {}) {
 			},
 		),
 		{
+			// DEBUG mirrors the ns base config's own NODE_ENV choice
+			// (debug = !!process.env.DEBUG || isDevMode) so this define can never
+			// disagree with its replace()/optimizeDeps substitutions on the
+			// same key.
+			define: xplatNodeEnvDefine(process.env.DEBUG ? 'development' : mode),
 			oxc: {
 				// NativeScript modules use TypeScript's legacy decorators. Oxc's
 				// default emits decorator syntax the native JS runtime cannot parse.

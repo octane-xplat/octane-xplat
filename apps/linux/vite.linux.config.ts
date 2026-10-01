@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatBoundary } from '@octane-xplat/cli/vite'
+import { xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
 	plugins: [...octane(), xplatBoundary('linux')],
+	define: xplatNodeEnvDefine(mode),
 	// Distinct from web's 5200 and the native dev server's 5173 so the WK/GTK
 	// host can pin its URL while all three dev servers coexist.
 	server: { port: 5201 },
@@ -30,4 +31,4 @@ export default defineConfig({
 			'.json',
 		],
 	},
-})
+}))

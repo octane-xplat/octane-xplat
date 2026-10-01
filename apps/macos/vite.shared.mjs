@@ -1,5 +1,5 @@
 import { octane } from '@octanejs/vite-plugin'
-import { xplatBoundary } from '@octane-xplat/cli/vite'
+import { xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
 import { defineConfig } from 'vite'
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
@@ -26,9 +26,9 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 	const virtualListBenchMode = process.env.OCTANE_MACOS_VLIST_MODE === 'windowed'
 	const variableWindowedBench = process.env.OCTANE_MACOS_VLIST_MODE === 'variable'
 
-	return defineConfig({
+	return defineConfig(({ mode }) => ({
 		root: appRoot,
-		...(packaged ? { define: bundledFontDefines() } : {}),
+		define: { ...xplatNodeEnvDefine(mode), ...(packaged ? bundledFontDefines() : {}) },
 		plugins: [
 			xplatBoundary('macos'),
 			octane({
@@ -136,5 +136,5 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 				'.json',
 			],
 		},
-	})
+	}))
 }

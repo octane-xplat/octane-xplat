@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatBoundary } from '@octane-xplat/cli/vite'
+import { xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
 	plugins: [...octane(), xplatBoundary('web')],
+	define: xplatNodeEnvDefine(mode),
 	// The native dev server prefers 5173 and auto-bumps on collision; the
 	// device discovers the actual port from synced app metadata, so only the
 	// web port needs pinning to keep the topology deterministic.
@@ -25,4 +26,4 @@ export default defineConfig({
 			'.json',
 		],
 	},
-})
+}))
