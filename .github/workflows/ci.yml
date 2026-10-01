@@ -145,6 +145,11 @@ jobs:
       # emulator runtime smoke yet (documented gap).
       - name: Packed consumer Android build
         run: node scripts/with-target-lock.mjs android -- node scripts/verify-consumer.mjs --no-build --native android
+        env:
+          # ns gates `build` on its doctor check, which requires a working
+          # `emulator` binary — unused by a build-only lane and absent/broken
+          # on hosted ubuntu runners. The gradle build itself is the gate.
+          NS_SKIP_ENV_CHECK: 'true'
 
   # Final job: records per-job release evidence for THIS sha. On push it must
   # see every required job green; on pull_request the native jobs are skipped
