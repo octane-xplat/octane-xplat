@@ -28,7 +28,7 @@ test('constellation caps simultaneous fades and follows scroll, motion preferenc
 			const animation = { cancel: () => live.delete(element) }
 			live.set(element, animation)
 			started.push(element)
-			assert.ok(live.size <= 9, 'at most 45% may fade simultaneously')
+			assert.ok(live.size <= 14, 'at most 70% may fade simultaneously')
 			return animation
 		}
 	}
@@ -44,22 +44,22 @@ test('constellation caps simultaneous fades and follows scroll, motion preferenc
 
 	const dispose = animateConstellation(host, content)
 	advance()
-	assert.equal(live.size, 9)
-	assert.equal(started.length, 9)
+	assert.equal(live.size, 14)
+	assert.equal(started.length, 14)
 	const [finishedElement, finishedAnimation] = [...live][0]
 	live.delete(finishedElement)
 	finishedAnimation.onfinish()
 	advance()
-	assert.equal(live.size, 9, 'completed fades free a slot')
-	assert.equal(started.length, 10)
+	assert.equal(live.size, 14, 'completed fades free a slot')
+	assert.equal(started.length, 15)
 
 	scrollTo(1)
 	assert.equal(live.size, 0, 'leaving the top restores all elements')
 	advance()
-	assert.equal(started.length, 10, 'no new fades while scrolled')
+	assert.equal(started.length, 15, 'no new fades while scrolled')
 	scrollTo(0)
 	advance()
-	assert.equal(live.size, 9, 'returning to the top resumes fades')
+	assert.equal(live.size, 14, 'returning to the top resumes fades')
 
 	motion.matches = true
 	motion.dispatchEvent(new dom.window.Event('change'))
@@ -70,7 +70,7 @@ test('constellation caps simultaneous fades and follows scroll, motion preferenc
 	motion.matches = false
 	motion.dispatchEvent(new dom.window.Event('change'))
 	advance()
-	assert.equal(live.size, 9)
+	assert.equal(live.size, 14)
 	dispose()
 	assert.equal(live.size, 0)
 	const beforeDispose = started.length
