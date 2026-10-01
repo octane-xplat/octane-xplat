@@ -24,6 +24,7 @@ export type VirtualListBenchSnapshot = {
 	rows: VirtualListBenchRowBox[]
 	coverageBoxes?: { top: number; bottom: number }[]
 	mountedIndices: number[]
+	mountedCellIds?: number[]
 }
 
 export type VirtualListBenchAdapter = {
@@ -193,6 +194,10 @@ export async function runVirtualListInputTrace(
 	let mountedRowsAdded = 0
 	let mountedRowsRemoved = 0
 	let previousMounted = new Set(first.mountedIndices)
+	let previousCells = new Set(first.mountedCellIds ?? [])
+	const cellCounts = first.mountedCellIds ? [first.mountedCellIds.length] : []
+	let cellHostsAdded = 0
+	let cellHostsRemoved = 0
 	let previousAt = startedAt
 
 	let worstGeometry: null | {
@@ -276,6 +281,18 @@ export async function runVirtualListInputTrace(
 			if (!nextMounted.has(index)) {mountedRowsRemoved += 1}
 		}
 
+		if (snapshot.mountedCellIds) {
+			const cells = new Set(snapshot.mountedCellIds)
+			for (const id of cells) {
+				if (!previousCells.has(id)) {cellHostsAdded++}
+			}
+			for (const id of previousCells) {
+				if (!cells.has(id)) {cellHostsRemoved++}
+			}
+			previousCells = cells
+			cellCounts.push(cells.size)
+		}
+
 		previousMounted = nextMounted
 		mountedSamples.push(snapshot.mountedIndices.length)
 		const gap = visibleGap(snapshot)
@@ -332,6 +349,9 @@ export async function runVirtualListInputTrace(
 			maxVelocity: Number(maxVelocity.toFixed(1)),
 		},
 		mountedRows: summarize(mountedSamples),
+		cellHosts: cellCounts.length ? {
+			status: 'collected', counts: summarize(cellCounts), added: cellHostsAdded, removed: cellHostsRemoved,
+		} : { status: 'not-collected' },
 		coverage: {
 			samples: gapSamples.length,
 			gapSamples: gapSamples.filter((gap) => gap > 1).length,

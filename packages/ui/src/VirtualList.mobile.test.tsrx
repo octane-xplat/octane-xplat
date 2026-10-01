@@ -54,14 +54,14 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem) {
 		container.dispatchEvent(scroll, 'scroll', { object: scroll })
 	}
 
-	const measure = (id: string, height: number) => {
+	const measure = (id: string, height: number, emit = true) => {
 		const row = collect(container.children).find((node) =>
-			node.props.className === 'vx-virtual-list-row' && collect(node.children).some((child) => child.props.id === id),
+			String(node.props.className).split(' ').includes('vx-virtual-list-row') && collect(node.children).some((child) => child.props.id === id),
 		)
 
 		if (!row) throw new Error('Missing row ' + id)
 		row.getActualSize = () => ({ width: 100, height })
-		container.dispatchEvent(row, 'layoutchanged', { object: row })
+		if (emit) container.dispatchEvent(row, 'layoutchanged', { object: row })
 	}
 
 	return { container, root, scroll, commits, move, measure }
@@ -139,6 +139,8 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		measure('row-r5', 120)
 		const replacement = items.map((item, index) => index === 5 ? { ...item } : item)
 		root.render(VirtualList as any, { items: replacement, keyExtractor, renderItem })
+		// The replacement has its own current geometry; the queued 120-height result is obsolete.
+		measure('row-r5', 48, false)
 		await vi.advanceTimersByTimeAsync(32)
 		expect(scroll.verticalOffset).toBe(480)
 	})
@@ -176,6 +178,23 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		expect(commits).toHaveLength(count)
 	})
 
+	it('keeps physical hosts alive on reassignment and destroys them on disposal', async () => {
+		const { container, root, move } = await mount()
+		const cells = collect(container.children).filter((node) => String(node.props.className).split(' ').includes('vx-virtual-list-cell'))
+		expect(cells.length).toBeGreaterThan(0)
+		for (const cell of cells) cell.destroyNode = vi.fn()
+		move(480)
+		await vi.advanceTimersByTimeAsync(32)
+		for (const cell of cells) {
+			expect(cell.reusable).toBe(true)
+			expect(cell.destroyNode).not.toHaveBeenCalled()
+		}
+
+		root.unmount()
+		await vi.advanceTimersByTimeAsync(0)
+		for (const cell of cells) expect(cell.destroyNode).toHaveBeenCalledWith(true)
+	})
+
 	it('retains keyed state across prepend and resets it after leaving the window', async () => {
 		const { container, root, scroll, move } = await mount(100, renderStatefulItem)
 		move(480)
@@ -193,6 +212,10 @@ describe('native VirtualList scroll and measurement scheduling', () => {
 		move(4000)
 		await vi.advanceTimersByTimeAsync(32)
 		expect(findRow()).toBeUndefined()
+		for (const visible of collect(container.children).filter((node) => /^row-r/.test(String(node.props.id)))) {
+			expect(visible.props.text).toMatch(/:0$/)
+		}
+
 		move(528)
 		await vi.advanceTimersByTimeAsync(32)
 		expect(findRow().props.text).toBe('r10:0')

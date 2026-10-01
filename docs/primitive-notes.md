@@ -870,6 +870,50 @@ Q30 remains open for physical-device frame pacing, longer momentum workloads,
 and process-memory characterization. Follow the current nonvisual commands in
 [VirtualList](virtual-list.md#run-the-nonvisual-gates).
 
+### VirtualList positioned cell pool (Q30; 2026-10-01)
+
+Phase B reuses type-compatible outer hosts on web, iOS, and Android and positions
+rows using the measured prefix index. Logical item subtrees remain keyed: retained
+rows keep state across prepend, while off-window rows unmount and reset local state.
+At most eight free hosts are retained across all types. Assignment generations
+reject obsolete measurements; emptying and disposal release the pool. NativeScript
+hosts use `reusable` to survive keyed moves, with explicit destruction on removal.
+Stable ref callbacks avoid destroying a reused host during reassignment.
+
+A fresh A/B comparison used the same debug emulator, synthetic swipe sequence,
+20-second trace, fresh installs, and 45-second idle memory tail described above.
+Instrumentation counts actual native outer-view identities, separately from
+logical item mounts. First visits and revisits are aggregated in each trace.
+
+| Fixture | A frame-work p95 | B frame-work p95 | A layout/measure p95 | B layout/measure p95 | A JS interval p95 | B JS interval p95 | A/B physical hosts added |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| List ×500 | 65.39 ms | 76.74 ms | 2.49 ms | 1.11 ms | 46.92 ms | 48.54 ms | 199 / 19 |
+| Fixed 48 ×5,000 | 45.04 ms | 30.55 ms | 1.90 ms | 0.72 ms | 34.40 ms | 24.15 ms | 247 / 34 |
+| Variable ×5,000 | 47.83 ms | 79.30 ms | 2.44 ms | 1.13 ms | 34.42 ms | 47.84 ms | 232 / 30 |
+
+All six traces had zero sampled content gaps. Maximum physical host counts were
+37, 43, and 44 for both phases. Logical row mounts stayed approximately unchanged
+(×500: 199 in each phase), as required by the state contract. Layout/measurement
+p95 fell 54–62%; total frame work and JS responsiveness did not improve consistently.
+A separate valid B ×500 trial reported 62.64 ms frame-work p95 and 1.23 ms
+layout/measurement p95 with zero sampled gaps. Host contention and software graphics
+limit timing repeatability. These results establish reduced layout work and host
+churn, not smooth physical-device scrolling or presentation FPS.
+
+Last idle process PSS samples, A/B respectively, were 182.4/185.2 MiB for ×500,
+182.5/179.8 MiB for fixed48, and 179.7/176.5 MiB for variable. These short
+process-memory tails do not establish a leak or long-session plateau. The runner
+labels its collection phases; it does not force native GC.
+
+Eleven native object-driver tests cover the scheduling/anchor contract, stale
+assignments, row-state isolation, empty/restore, and host disposal. Pure pool tests
+cover heterogeneous types and bounded spare retention. The fresh web contract gate
+passed with prepend/growth drift 0.20/0.22 px, retained keyed state, deep offsets,
+slots, empty/restore, and disposal. Fresh iOS device and Android mutation/anchor
+checks remain outstanding; object-driver results are not on-device evidence.
+Q30 remains open. FlashList and LegendList informed the ownership/positioning
+strategy; no React Native package or new UI dependency was introduced.
+
 ## Appendix: verified driver semantics
 
 Substrate pass findings — the mechanics that constrain everything above.

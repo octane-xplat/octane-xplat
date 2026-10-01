@@ -29,7 +29,11 @@ item's type remounts that row.
 Off-window rows unmount. A row that remains mounted retains its keyed local
 state across prepend; a row that leaves the window loses component-local state.
 Keep drafts, selection, and other durable row state in an external store keyed
-by item ID. No recycled cell pool exists.
+by item ID. On web, iOS, and Android, type-compatible outer cell hosts are
+reused and positioned from measured sizes. Their keyed item subtrees still
+unmount off-window; reusing a host never retains another item's local state.
+The pool keeps at most eight unused hosts in total, and releases all hosts on
+emptying or disposal. Other targets retain their existing windowing engines.
 
 ## Preserve the visible position
 
@@ -67,7 +71,8 @@ late collected heap samples ranged 8.52–8.54 MB. These are test workloads, not
 maximum supported row count or a device-independent throughput promise.
 
 The [Android scheduling profile](primitive-notes.md#virtuallist-android-scheduling-corrections-q30-2026-10-01)
-records the latest nonvisual before/after measurements and their limits.
+and [cell-pool comparison](primitive-notes.md#virtuallist-positioned-cell-pool-q30-2026-10-01)
+record nonvisual before/after measurements and their limits.
 Q30 remains open. Native fast variable-height momentum and Android process
 memory need fresh runtime characterization. Historical simulator/device results
 are recorded separately from this pass in [primitive notes](primitive-notes.md#virtuallist-input-and-memory-profile-q30-2026-09-28).
@@ -113,7 +118,9 @@ Android records layout/measure, draw, and total frame-work durations through
 `gfxinfo framestats` buffer. Window metrics measure frame work, not presentation;
 JavaScript sampling intervals remain a separate responsiveness measure.
 Header/footer and separator boxes count toward coverage, without increasing
-mounted row counts. Large reports use numbered log records to avoid Android
+mounted row counts. Reports separate logical row mount/unmount counts from
+physical outer-host additions/removals; pooling preserves only those outer hosts.
+Large reports use numbered log records to avoid Android
 console truncation.
 
 For repeatable Android comparisons, set `XPLAT_VLIST_FRESH_INSTALL=1`. This removes

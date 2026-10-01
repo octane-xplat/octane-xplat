@@ -10,12 +10,14 @@ import {
 	type VirtualListSizeRecord,
 } from './virtual-list-layout'
 
+import { VirtualListCellPool } from './virtual-list-cell-pool'
+
 import { applyEscapeProps } from './escape-props'
 import { layoutChildProps } from './layout-child.web'
 
 type NodeMeta =
 	| { kind: 'viewport' }
-	| { kind: 'row'; rowKey: string }
+	| { kind: 'row'; rowKey: string; cellId: number; generation: number }
 	| { kind: 'header' }
 	| { kind: 'footer' }
 
@@ -33,6 +35,10 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 
 	const [windowVersion, setWindowVersion] = useState(0)
 	const sizeIndexRef = useRef(new VirtualListSizeIndex())
+	const cellsRef = useRef(new VirtualListCellPool<T>())
+	const cellCallbacksRef = useRef(new Map<number, (node: Element | null) => void>())
+	const measuredAssignmentsRef = useRef(new Map<number, number>())
+	const disposedRef = useRef(false)
 	const sizeCacheRef = useRef(new Map<string, VirtualListSizeRecord>())
 	const entriesRef = useRef<VirtualListEntry<T>[]>([])
 	const indexByRowKeyRef = useRef(new Map<string, number>())
@@ -94,6 +100,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}
 
 	function refreshWindow() {
+		if (disposedRef.current) return
 		const next = currentRange()
 		const previous = rangeRef.current
 		if (
@@ -141,6 +148,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		estimateScheduledRef.current = true
 		Promise.resolve().then(() => {
 			estimateScheduledRef.current = false
+			if (disposedRef.current) return
 			const anchor = captureAnchor()
 			rebuildLayout(entriesRef.current, viewportWidthRef.current)
 			restoreAnchor(anchor)
@@ -149,7 +157,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}
 
 	function recordRowSize(rowKey: string, width: number, height: number) {
-		if (!Number.isFinite(height) || height < 0) return
+		if (disposedRef.current || !Number.isFinite(height) || height < 0) return
 		const index = indexByRowKeyRef.current.get(rowKey)
 		if (index === undefined) return
 		const entry = entriesRef.current[index]
@@ -191,6 +199,24 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		observerRef.current?.observe(node)
 	}
 
+	function cellCallback(id: number) {
+		let callback = cellCallbacksRef.current.get(id)
+		if (!callback) {
+			callback = (node: Element | null) => {
+				const cell = cellsRef.current.get(id)
+				bindObservedNode('cell:' + id, node, {
+					kind: 'row', rowKey: cell?.entry?.rowKey ?? '', cellId: id, generation: cell?.generation ?? 0,
+				})
+
+				if (!node) cellCallbacksRef.current.delete(id)
+			}
+
+			cellCallbacksRef.current.set(id, callback)
+		}
+
+		return callback
+	}
+
 	handlersRef.current = (meta, entry) => {
 		if (meta.kind === 'viewport') {
 			const width = scrollRef.current?.clientWidth ?? entry.contentRect.width
@@ -210,7 +236,11 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 
 		const height = entry.contentRect.height
 		if (meta.kind === 'row') {
-			recordRowSize(meta.rowKey, entry.contentRect.width, height)
+			if (!cellsRef.current.isCurrent(meta.cellId, meta.rowKey, meta.generation)) return
+			// A reused node may have an older ResizeObserver record. Read its
+			// current box after assignment rather than caching the former row.
+			const bounds = entry.target.getBoundingClientRect()
+			recordRowSize(meta.rowKey, bounds.width, bounds.height)
 			return
 		}
 
@@ -224,6 +254,18 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			refreshWindow()
 		}
 	}
+
+	useEffect(() => {
+		disposedRef.current = false
+		return () => {
+			disposedRef.current = true
+			cellsRef.current.clear()
+			cellCallbacksRef.current.clear()
+			measuredAssignmentsRef.current.clear()
+			nodesBySlotRef.current.clear()
+			metaByNodeRef.current = new WeakMap()
+		}
+	}, [])
 
 	useEffect(() => {
 		if (typeof ResizeObserver === 'undefined') return
@@ -253,7 +295,33 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const range = currentRange()
 	rangeRef.current = range
 	void windowVersion
-	const visibleEntries = entries.slice(range.start, range.end)
+	const cells = cellsRef.current.update(entries.slice(range.start, range.end)).map((cell) => ({
+		...cell, top: cell.entry ? sizeIndexRef.current.prefix(cell.entry.index) : 0,
+	}))
+
+	const contentHeight = sizeIndexRef.current.total
+	for (const cell of cells) {
+		const node = nodesBySlotRef.current.get('cell:' + cell.id)
+		if (node) metaByNodeRef.current.set(node, {
+			kind: 'row', rowKey: cell.entry?.rowKey ?? '', cellId: cell.id, generation: cell.generation,
+		})
+	}
+
+	useEffect(() => {
+		for (const cell of cells) {
+			if (!cell.entry || measuredAssignmentsRef.current.get(cell.id) === cell.generation) continue
+			const node = nodesBySlotRef.current.get('cell:' + cell.id)
+			if (!node || !cellsRef.current.isCurrent(cell.id, cell.entry.rowKey, cell.generation)) continue
+			const bounds = node.getBoundingClientRect()
+			measuredAssignmentsRef.current.set(cell.id, cell.generation)
+			recordRowSize(cell.entry.rowKey, bounds.width, bounds.height)
+		}
+
+		for (const id of measuredAssignmentsRef.current.keys()) {
+			if (!nodesBySlotRef.current.has('cell:' + id)) measuredAssignmentsRef.current.delete(id)
+		}
+	}, [cells])
+
 	const style = {
 		...props.style,
 		minHeight: props.style?.minHeight ?? 0,
@@ -293,26 +361,26 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		{entries.length === 0 ? (
 			props.renderEmpty ? <div className="vx-virtual-list-empty">{props.renderEmpty()}</div> : null
 		) : (
-			<>
-				<div className="vx-virtual-list-spacer" style={{ height: range.top }} aria-hidden="true" />
-				@for (const entry of visibleEntries; key entry.rowKey) {
+			<div className="vx-virtual-list-body" style={{ position: 'relative', height: contentHeight }}>
+				@for (const cell of cells; key cell.id) {
 					<div
-						className="vx-virtual-list-row"
-						data-vx-row="true"
-						ref={(node: any) => bindObservedNode(
-							'row:' + virtualListMeasurementKey(entry.rowKey, hasSeparator && entry.index < entries.length - 1),
-							node,
-							{ kind: 'row', rowKey: entry.rowKey },
-						)}
+						className={cell.entry ? 'vx-virtual-list-cell vx-virtual-list-row' : 'vx-virtual-list-cell'}
+						data-vx-row={cell.entry ? 'true' : undefined}
+						hidden={!cell.entry}
+						style={{ position: 'absolute', top: cell.top, left: 0, width: '100%' }}
+						ref={cellCallback(cell.id)}
 					>
-						<div className="vx-virtual-list-item">{props.renderItem(entry.item, entry.index)}</div>
-						{hasSeparator && entry.index < entries.length - 1 ? (
-							<div className="vx-virtual-list-separator">{props.renderSeparator?.()}</div>
-						) : null}
+						@for (const entry of cell.rows; key entry.rowKey) {
+							<>
+								<div className="vx-virtual-list-item">{props.renderItem(entry.item, entry.index)}</div>
+								{hasSeparator && entry.index < entries.length - 1 ? (
+									<div className="vx-virtual-list-separator">{props.renderSeparator?.()}</div>
+								) : null}
+							</>
+						}
 					</div>
 				}
-				<div className="vx-virtual-list-spacer" style={{ height: range.bottom }} aria-hidden="true" />
-			</>
+			</div>
 		)}
 		{props.renderFooter ? (
 			<div

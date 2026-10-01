@@ -13,6 +13,8 @@ import {
 	type VirtualListSizeRecord,
 } from './virtual-list-layout'
 
+import { VirtualListCellPool, type VirtualListCell } from './virtual-list-cell-pool'
+
 import { cx } from './cx'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
 import { layoutChildProps } from './layout-child'
@@ -56,9 +58,9 @@ interface VirtualListAnchor {
 	within: number
 }
 
-/** Shared vertical virtualization over NativeScript ScrollView. Off-window
- *  rows unmount; measured row-height changes above the visible anchor adjust
- *  the native scroll offset after layout. */
+/** Shared vertical virtualization with pooled outer hosts and keyed logical
+ *  rows. Off-window item subtrees unmount; measured heights position cells and
+ *  preserve the visible keyed anchor after layout. */
 export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const entries = useMemo(
 		() => createVirtualListEntries(props.items, props.keyExtractor, props.getItemType),
@@ -67,6 +69,10 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 
 	const [windowVersion, setWindowVersion] = useState(0)
 	const sizeIndexRef = useRef(new VirtualListSizeIndex())
+	const cellsRef = useRef(new VirtualListCellPool<T>())
+	const cellNodesRef = useRef(new Map<number, any>())
+	const cellCallbacksRef = useRef(new Map<number, (view: any) => void>())
+	const measuredAssignmentsRef = useRef(new Map<number, number>())
 	const sizeCacheRef = useRef(new Map<string, VirtualListSizeRecord>())
 	const typeSamplesRef = useRef(new Map<string, { sum: number; count: number }>())
 	const appliedEstimatesRef = useRef(new Map<string, number>())
@@ -84,7 +90,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const disposedRef = useRef(false)
 	const pendingOffsetDeltaRef = useRef(0)
 	const measurementsRef = useRef(
-		new Map<string, { entry: VirtualListEntry<T>; width: number; height: number }>(),
+		new Map<string, { entry: VirtualListEntry<T>; width: number; height: number; cellId: number; generation: number; view?: any }>(),
 	)
 
 	const rangeRef = useRef({ start: -1, end: -1, top: -1, bottom: -1 })
@@ -201,11 +207,20 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			const measurements = [...measurementsRef.current.values()]
 			measurementsRef.current.clear()
 			for (const measurement of measurements) {
+				if (!cellsRef.current.isCurrent(measurement.cellId, measurement.entry.rowKey, measurement.generation)) continue
 				const index = indexByRowKeyRef.current.get(measurement.entry.rowKey)
 				if (index === undefined || entriesRef.current[index]?.item !== measurement.entry.item ||
 					entriesRef.current[index]?.index !== measurement.entry.index) continue
 
-				recordRowSize(measurement.entry.rowKey, measurement.width, measurement.height)
+				if (measurement.view?.isLoaded === false) continue
+				if (measurement.view?.isLayoutValid === false) {
+					measurementsRef.current.set(measurement.entry.rowKey, measurement)
+					refreshWindow()
+					continue
+				}
+
+				const size = measurement.view?.getActualSize?.() ?? measurement
+				if (size.width > 0 && size.height >= 0) recordRowSize(measurement.entry.rowKey, size.width, size.height)
 			}
 
 			commitWindow()
@@ -396,10 +411,32 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		refreshWindow()
 	}
 
-	function onRowLayout(entry: VirtualListEntry<T>, event: any) {
+	function cellCallback(id: number) {
+		let callback = cellCallbacksRef.current.get(id)
+		if (!callback) {
+			callback = (view: any) => {
+				if (view) {
+					// Preserve native widgets when the renderer moves a keyed host.
+					view.reusable = true
+					cellNodesRef.current.set(id, view)
+				} else {
+					cellNodesRef.current.get(id)?.destroyNode?.(true)
+					cellNodesRef.current.delete(id)
+					cellCallbacksRef.current.delete(id)
+				}
+			}
+
+			cellCallbacksRef.current.set(id, callback)
+		}
+
+		return callback
+	}
+
+	function onRowLayout(cell: VirtualListCell<T>, event: any) {
+		const entry = cell.entry
 		const size = event.object?.getActualSize?.()
-		if (!size || disposedRef.current) return
-		measurementsRef.current.set(entry.rowKey, { entry, width: size.width, height: size.height })
+		if (!entry || !size || disposedRef.current) return
+		measurementsRef.current.set(entry.rowKey, { entry, width: size.width, height: size.height, cellId: cell.id, generation: cell.generation })
 		refreshWindow()
 	}
 
@@ -412,6 +449,10 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			frameCancelRef.current = null
 			estimateTimerRef.current = null
 			measurementsRef.current.clear()
+			cellsRef.current.clear()
+			cellNodesRef.current.clear()
+			cellCallbacksRef.current.clear()
+			measuredAssignmentsRef.current.clear()
 			cancelAnchorRestore()
 		}
 	}, [])
@@ -419,7 +460,29 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const range = currentRange()
 	rangeRef.current = range
 	void windowVersion
-	const visibleEntries = entries.slice(range.start, range.end)
+	const cells = cellsRef.current.update(entries.slice(range.start, range.end)).map((cell) => ({
+		...cell, top: cell.entry ? sizeIndexRef.current.prefix(cell.entry.index) : 0,
+	}))
+
+	const contentHeight = sizeIndexRef.current.total
+	useEffect(() => {
+		for (const cell of cells) {
+			if (!cell.entry || measuredAssignmentsRef.current.get(cell.id) === cell.generation) continue
+			const view = cellNodesRef.current.get(cell.id)
+			if (!view) continue
+			measuredAssignmentsRef.current.set(cell.id, cell.generation)
+			measurementsRef.current.set(cell.entry.rowKey, {
+				entry: cell.entry, width: 0, height: 0, view, cellId: cell.id, generation: cell.generation,
+			})
+
+			refreshWindow()
+		}
+
+		for (const id of measuredAssignmentsRef.current.keys()) {
+			if (!cellNodesRef.current.has(id)) measuredAssignmentsRef.current.delete(id)
+		}
+	}, [cells])
+
 	const style = { ...props.style, minHeight: props.style?.minHeight ?? 0 }
 
 	<scrollview
@@ -461,27 +524,33 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 					</flexboxlayout>
 				) : null
 			) : (
-				<>
-					<flexboxlayout className="vx-virtual-list-spacer" style={{ height: range.top, flexShrink: 0 }} />
-					@for (const entry of visibleEntries; key entry.rowKey) {
+				<absolutelayout className="vx-virtual-list-body" style={{ height: contentHeight, flexShrink: 0 }}>
+					@for (const cell of cells; key cell.id) {
 						<flexboxlayout
+							ref={cellCallback(cell.id)}
 							flexDirection="column"
-							className="vx-virtual-list-row"
-							style={{ flexShrink: 0 }}
-							onLayoutChanged={(event: any) => onRowLayout(entry, event)}
+							className={cell.entry ? 'vx-virtual-list-cell vx-virtual-list-row' : 'vx-virtual-list-cell'}
+							visibility={cell.entry ? 'visible' : 'collapse'}
+							left={0}
+							top={cell.top}
+							width={contentWidthRef.current || viewportWidthRef.current || '100%'}
+							onLayoutChanged={(event: any) => onRowLayout(cell, event)}
 						>
-							<flexboxlayout flexDirection="column" className="vx-virtual-list-item">
-								{props.renderItem(entry.item, entry.index)}
-							</flexboxlayout>
-							{hasSeparator && entry.index < entries.length - 1 ? (
-								<flexboxlayout flexDirection="column" className="vx-virtual-list-separator">
-									{props.renderSeparator?.()}
-								</flexboxlayout>
-							) : null}
+							@for (const entry of cell.rows; key entry.rowKey) {
+								<>
+									<flexboxlayout flexDirection="column" className="vx-virtual-list-item">
+										{props.renderItem(entry.item, entry.index)}
+									</flexboxlayout>
+									{hasSeparator && entry.index < entries.length - 1 ? (
+										<flexboxlayout flexDirection="column" className="vx-virtual-list-separator">
+											{props.renderSeparator?.()}
+										</flexboxlayout>
+									) : null}
+								</>
+							}
 						</flexboxlayout>
 					}
-					<flexboxlayout className="vx-virtual-list-spacer" style={{ height: range.bottom, flexShrink: 0 }} />
-				</>
+				</absolutelayout>
 			)}
 			{props.renderFooter ? (
 				<flexboxlayout flexDirection="column" className="vx-virtual-list-footer" flexShrink={0}>

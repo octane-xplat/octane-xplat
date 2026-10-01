@@ -63,6 +63,25 @@ describe('VirtualList input geometry evidence', () => {
 		} finally { now.mockRestore() }
 	})
 
+	it('distinguishes logical row churn from retained physical cell hosts', async () => {
+		let clock = 0
+		let moved = false
+		const now = vi.spyOn(performance, 'now').mockImplementation(() => clock)
+		try {
+			const result = await runVirtualListInputTrace({
+				target: 'android',
+				read: () => ({ offset: moved ? 48 : 0, viewportHeight: 100,
+					mountedIndices: moved ? [1, 2] : [0, 1], mountedCellIds: moved ? [2, 1] : [1, 2],
+					rows: [{ index: moved ? 1 : 0, top: 0, bottom: 50 }, { index: moved ? 2 : 1, top: 50, bottom: 100 }],
+				}),
+				wait: async () => { clock += 16; moved = true },
+			}, 16)
+
+			expect(result.rowChurn).toEqual({ mounted: 1, unmounted: 1 })
+			expect(result.cellHosts).toMatchObject({ status: 'collected', added: 0, removed: 0 })
+		} finally { now.mockRestore() }
+	})
+
 	it('classifies bounce-region gaps as overscroll instead of content gaps', async () => {
 		let clock = 0
 		const now = vi.spyOn(performance, 'now').mockImplementation(() => clock)

@@ -8,7 +8,8 @@ Related APIs: VirtualList, keyExtractor, getItemType, renderItem, renderHeader, 
 
 An app with a bounded column viewport and immutable item-array updates. This
 workflow covers vertical windowing and measured anchors, not a complete feed/chat
-implementation or native recycled cells.
+implementation. Web/iOS/Android pool compatible outer hosts while logical
+off-window rows unmount; durable item state belongs in an external store.
 
 ## Requirements
 

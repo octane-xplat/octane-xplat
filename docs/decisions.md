@@ -78,6 +78,8 @@
 | 81 | macOS native leaves ship `platforms/macos/` sources compiled by the CLI into package-owned dylibs and app-specific metadata, retaining the prebuilt host/framework | Decided | `FunctionReference` wraps callbacks rather than raw `dlsym` pointers. Public C/ObjC headers and generated Swift ObjC headers extend SDK metadata. Real-host calls in all four languages, transitive linking, packed consumption, relocation, ad-hoc signing, and dev restart/failure recovery are verified. Developer ID/notarization remain credential-dependent. | macos-native |
 | 82 | Desktop webview calls, replies, events, and capability discovery share one TypeScript service protocol; `.web` selects DOM frontends, `.macos`/`.windows` select native frontends, and existing `.linux` overrides remain a deprecated compatibility path | Decided | `FrameworkHostServices` and `FrameworkHostEvents` type both client and dispatcher without runtime validation. WKWebView uses NativeScript in the existing JavaScriptCore host; Linux GJS/WebKitGTK speaks the same protocol. CEF standardizes the frontend engine, not host-side JavaScript. | platform-services, module-resolution |
 
+| 84 | Shared `VirtualList` on web, iOS, and Android reuses type-compatible outer cell hosts and positions them from measured sizes; logical item subtrees remain keyed and unmount off-window | Decided | Preserves the public API and row-local state semantics while separating physical host identity from item identity. Keep at most eight free hosts, reject obsolete assignments, and destroy hosts on disposal. Android comparisons reduce layout/measurement p95 and physical host churn with zero sampled gaps; total frame work remains variable. Web contract and native object-driver checks pass; fresh iOS device validation remains open | virtual-list |
+
 > **#71 implementation note (2026-09-30, supersedes the 09-29 note):** macOS
 > binds **system libsqlite3** through metadata C-interop — the blocker was
 > coverage, not mechanism. The prebuilt `metadata.nsmd` never swept
@@ -106,6 +108,12 @@
 
 
 ## Reversals
+
+- **2026-10-01 — VirtualList (#84, supersedes #58's cell architecture):**
+  recycle outer hosts by item type and use positioned cells on web/iOS/Android.
+  Logical off-window item subtrees still unmount, so retained keyed local state
+  and state reset after leaving the window preserve the previous API contract.
+  Native table/recycler widgets remain platform-authentic subpaths.
 
 - **2026-09-30 — KeyboardAvoiding (#46):** make `KeyboardAvoiding` part of the
   shared root API. Its wrapper remains useful at shared call sites even where

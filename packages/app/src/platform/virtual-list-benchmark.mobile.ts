@@ -8,6 +8,9 @@ import {
 	type VirtualListBenchSnapshot,
 } from '../virtual-list-benchmark'
 
+const hostIds = new WeakMap<object, number>()
+let nextHostId = 1
+
 function collect(view: any, out: any[] = []): any[] {
 	if (!view) {
 		return out
@@ -61,7 +64,21 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 		return Number.isFinite(top) && height > 0 ? [{ top, bottom: top + height }] : []
 	})
 
+	const pooledHosts = views.filter((view) => String(view.className ?? '').split(' ').includes('vx-virtual-list-cell'))
+	const hosts = pooledHosts.length ? pooledHosts : views.filter((view) => String(view.className ?? '').split(' ').includes('vx-virtual-list-row'))
+	const mountedCellIds = hosts.map((view) => {
+		const nativeHost = view.nativeViewProtected ?? view
+		let id = hostIds.get(nativeHost)
+		if (id === undefined) {
+			id = nextHostId++
+			hostIds.set(nativeHost, id)
+		}
+
+		return id
+	})
+
 	return {
+		mountedCellIds,
 		coverageBoxes: [...rows, ...slotBoxes],
 		offset: Number(list.verticalOffset ?? 0),
 		viewportHeight,
