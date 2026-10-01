@@ -16,8 +16,21 @@ With Node.js and pnpm 11.24.0 installed:
 pnpm create octane-xplat my-app
 ```
 
+The creator asks which platforms to target — web, iOS, and Android are all
+pre-selected. Pass `--targets` to skip the prompt:
+
+```sh
+pnpm create octane-xplat my-app --targets web          # web only
+pnpm create octane-xplat my-app --targets web,android  # web + Android
+```
+
+Platforms skipped here can be enabled later with `pnpm xplat add <platform>`
+inside the app. (Non-interactive runs without `--targets` scaffold all
+three.)
+
 The creator copies the template, installs dependencies with pnpm, and starts
-the web dev server. Open the printed URL and open `my-app` in your agent.
+the web dev server when the web target is included. Open the printed URL and
+open `my-app` in your agent.
 Ask it to read `AGENTS.md` and `.agents/skills/xplat/SKILL.md`, then build a
 packing checklist with add, pack, and remove actions using in-memory state.
 Check the result before asking for the next feature: add “Passport” and
@@ -38,13 +51,15 @@ cd my-app
 pnpm dev            # web
 ```
 
-From that directory, these commands run other targets or check the app:
+From that directory, these commands run other targets or check the app — the
+`dev:*`/`build:*` entries exist only for platforms chosen at create time
+(`pnpm xplat add` adds the rest later):
 
 ```sh
 pnpm dev:ios        # needs macOS, Xcode, and NativeScript setup
 pnpm dev:android    # needs Android SDK, compatible JDK, and NativeScript setup
 pnpm lint
-pnpm typecheck      # web + native tsconfigs
+pnpm typecheck      # every enabled tsconfig
 pnpm build          # web production bundle
 ```
 
