@@ -1416,7 +1416,7 @@ body {
 	min-height: 48px;
 	align-items: center;
 	justify-content: center;
-	border: 1px solid #000000;
+	border: 1px solid var(--doc-hairline);
 	border-radius: 17px;
 	corner-shape: squircle;
 	padding: 0 20px;
