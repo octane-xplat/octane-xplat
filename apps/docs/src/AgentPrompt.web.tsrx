@@ -55,7 +55,10 @@ export function AgentPrompt(props: { prompt: string }) @{
 			<div className="agent-prompt-tools">
 				<button className="agent-prompt-icon-button" type="button" aria-label="Copy prompt" title="Copy prompt" onClick={copy}>
 					<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-						<path className={copyState === 'copied' ? 'agent-prompt-icon' : 'agent-prompt-icon is-visible'} fill="currentColor" fillRule="evenodd" d="M8.25 2c.14 0 .25.11.25.25V3H10v-.75C10 1.28 9.22.5 8.25.5h-5.5C1.78.5 1 1.28 1 2.25v7.5c0 .97.78 1.75 1.75 1.75H4.5V10H2.75a.25.25 0 0 1-.25-.25v-7.5c0-.14.11-.25.25-.25zm5 4c.14 0 .25.11.25.25v7.5q-.02.23-.25.25h-5.5a.25.25 0 0 1-.25-.25v-7.5c0-.14.11-.25.25-.25zm0 9.5c.97 0 1.75-.78 1.75-1.75v-7.5c0-.97-.78-1.75-1.75-1.75h-5.5C6.78 4.5 6 5.28 6 6.25v7.5c0 .97.78 1.75 1.75 1.75z" />
+						<g className={`doc-copy-icon agent-prompt-icon${copyState === 'copied' ? '' : ' is-visible'}`}>
+							<rect x="6" y="6" width="8.66666667" height="8.66666667" rx="1.33333333" />
+							<path d="M3.33333333,10 L2.66666667,10 C1.93028699,10 1.33333333,9.40304633 1.33333333,8.66666667 L1.33333333,2.66666667 C1.33333333,1.93028699 1.93028699,1.33333333 2.66666667,1.33333333 L8.66666667,1.33333333 C9.40304633,1.33333333 10,1.93028699 10,2.66666667 L10,3.33333333" />
+						</g>
 						<path className={copyState === 'copied' ? 'agent-prompt-icon is-visible' : 'agent-prompt-icon'} fill="currentColor" d="m15.56 4-.53.53-8.8 8.8c-.68.68-1.78.68-2.47 0l-2.79-2.79L.44 10 1.5 8.94l.53.53 2.8 2.8c.1.09.25.09.35 0l8.79-8.8.53-.53z" />
 					</svg>
 				</button>
