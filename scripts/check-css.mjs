@@ -13,7 +13,7 @@
 // on purpose" set.
 import { createRequire } from 'node:module'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { join, relative, sep } from 'node:path'
 import { globSync } from 'node:fs'
 
 const registry = JSON.parse(
@@ -29,7 +29,7 @@ const DROPPED_INTENTIONAL = new Map(
 	Object.entries({
 		display: 'element tag owns the layout type on native (flexboxlayout/gridlayout)',
 		'border-style': 'native draws a solid border when width+color are set; style is web-only',
-		'grid-area': 'vx-layers uses grid-area on web; native gridlayout children default to cell 0,0',
+		'grid-area': 'vx-stack overlay on native = all children in cell 0,0 by default',
 		'aspect-ratio': 'no native analog — kept for web-only surfaces',
 		'user-select': 'no text-selection model on native pressables — dropped',
 	}),
@@ -40,8 +40,7 @@ const isVendorPrefix = (p) => /^-(webkit|moz|o|ms)-/.test(p)
 // Custom properties resolve through var() on both targets.
 const isCustomProp = (p) => p.startsWith('--')
 
-const WEB_ONLY_BLOCK =
-	/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g
+const WEB_ONLY_BLOCK = /\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g
 
 // css-tree is a dependency of @nativescript/core — resolve through that
 // package so the audit runs without adding a root dep.
@@ -51,12 +50,11 @@ const corePkg = createRequire(join(process.cwd(), 'apps/mobile/package.json')).r
 
 const cssTree = createRequire(corePkg)('css-tree')
 
-const FILES = globSync('{packages/*/src,packages/create/template/src}/**/*.css', {
-	cwd: process.cwd(),
-	// src/vendor/** is upstream submodule code — diff-identical to the forks,
-	// so its web-only docs CSS can never satisfy the native registry.
-	exclude: (name) => name.includes('/src/vendor/'),
-})
+const cwd = process.cwd()
+// Vendor trees may include upstream docs and demo styles outside our runtime CSS.
+const FILES = globSync('{packages/*/src,packages/create/template/src}/**/*.css', { cwd }).filter(
+	(file) => !relative(cwd, file).split(sep).includes('vendor'),
+)
 
 let errors = 0
 let warned = 0
@@ -65,8 +63,9 @@ for (const file of FILES) {
 	const rel = relative(process.cwd(), file)
 	// Strip web-only blocks but preserve line count — reported line
 	// numbers must match the authored file.
-	const stripped = readFileSync(file, 'utf8').replace(WEB_ONLY_BLOCK, (m) =>
-		m.replace(/[^\n]/g, ' '),
+	const stripped = readFileSync(file, 'utf8').replace(
+		WEB_ONLY_BLOCK,
+		(m) => m.replace(/[^\n]/g, ' '),
 	)
 
 	const ast = cssTree.parse(stripped, { positions: true, filename: rel })
@@ -83,18 +82,12 @@ for (const file of FILES) {
 		}
 
 		if (isVendorPrefix(prop) || DROPPED_INTENTIONAL.has(prop)) {
-			console.log(
-				`${loc}  ${prop}  — dropped on native (${DROPPED_INTENTIONAL.get(prop) ?? 'vendor prefix'})`,
-			)
-
+			console.log(`${loc}  ${prop}  — dropped on native (${DROPPED_INTENTIONAL.get(prop) ?? 'vendor prefix'})`)
 			warned++
 			return
 		}
 
-		console.log(
-			`${loc}  ${prop}: ${node.value ? cssTree.generate(node.value) : ''} — not in NS's registry; silently dropped on native`,
-		)
-
+		console.log(`${loc}  ${prop}: ${node.value ? cssTree.generate(node.value) : ''} — not in NS's registry; silently dropped on native`)
 		errors++
 	})
 }
@@ -105,9 +98,6 @@ if (errors || warned) {
 }
 
 if (errors) {
-	console.log(
-		'fix the declaration, wrap the rule in /* xplat-web-only:start/end */, or extend DROPPED_INTENTIONAL with a reason',
-	)
-
+	console.log('fix the declaration, wrap the rule in /* xplat-web-only:start/end */, or extend DROPPED_INTENTIONAL with a reason')
 	process.exitCode = 1
 }
