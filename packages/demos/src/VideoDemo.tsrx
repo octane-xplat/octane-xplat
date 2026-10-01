@@ -1,7 +1,7 @@
 import { useRef, useState } from 'octane';
 import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui';
 import { Video } from '@octane-xplat/video';
-import type { VideoHandle } from '@octane-xplat/video';
+import type { VideoEvent, VideoHandle } from '@octane-xplat/video';
 
 const SRC = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 const POSTER = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.png';
@@ -25,9 +25,9 @@ export function VideoDemo() @{
 			muted={muted}
 			onPlayingChange={setPlaying}
 			onMutedChange={setMuted}
-			onReady={(e) => setStatus(`ready ${(e.duration ?? 0) / 1000}s`)}
+			onReady={(e: VideoEvent) => setStatus(`ready ${(e.duration ?? 0) / 1000}s`)}
 			onEnded={() => setStatus('ended')}
-			onError={(e) => setStatus(`error ${e.message ?? ''}`)}
+			onError={(e: VideoEvent) => setStatus(`error ${e.message ?? ''}`)}
 			ref={handle}
 		/>
 		<HStack className="gap-2">
