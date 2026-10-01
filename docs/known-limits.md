@@ -97,6 +97,9 @@ and [readiness evidence](primitive-notes.md#virtuallist-readiness-recheck-q30-20
 | `Video` seeking         | `currentTime` write while scrubbing                 | `seekToTime` per drag event — no debounce | same as iOS | `degraded` | post-0.5.0·desk |
 | `CameraView`            | `getUserMedia` → muted/autoplay `<video>`           | `AVCaptureSession` + `AVCaptureVideoPreviewLayer`; simulator availability unverified | CameraX `PreviewView`, lifecycle-bound by the leaf | `different` | post-0.6.0·desk |
 | `CameraView` `onReady`  | video `playing` event                               | after `AVCaptureSession.startRunning()` returns; does not confirm a rendered frame | after CameraX binds the preview use case; does not confirm a rendered frame | `degraded` | post-0.6.0·desk |
+| `Lottie` (`@octane-xplat/lottie`) | `lottie-web` svg renderer in a plain div | `CompatibleAnimationView` via `@nativescript-community/ui-lottie` (real dep; lottie-ios 4.4.1 fork) | `LottieAnimationView` via the same plugin (lottie-android 5.2.0) | `different` | post-0.6.0 |
+| `Lottie` `duration`/`progress` units | ms and 0..1 everywhere | plugin reports `duration` in seconds — leaf ×1000; progress already 0..1 | plugin reports ms; progress 0..1 | `different` | post-0.6.0 |
+| `Lottie` npm 6.0.0 plugin gaps | — | sync `src` dead, no `compositionLoaded`/`loadFailed`, no URL src, async autoPlay no-op — leaf works around via forced `async` + readiness polling + same-tick completion dedupe; fixes staged on `octane-xplat/ui-lottie` `xplat-fixes` | same as iOS | `broken-upstream` | post-0.6.0 |
 
 Overlay roots (`Sheet`/`openSheet`, `UIModal`, `MaterialDialog`) mount a
 separate Octane root on every platform — `useContext` does not cross into

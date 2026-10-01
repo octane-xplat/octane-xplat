@@ -24,6 +24,7 @@ if you do not yet have a working app.
 | Scroll content                         | `ScrollView`, `ScrollBox`        |
 | Show a web page or inline HTML         | `WebView`                        |
 | Play video                             | `Video`                          |
+| Play a Lottie animation                | `Lottie`                         |
 | Show a live camera preview             | `CameraView`                     |
 | Swipe through full pages               | `Pager`                          |
 | Pick one of a few options inline       | `SegmentedControl`               |
@@ -297,6 +298,24 @@ maintained [VideoDemo](../packages/demos/src/VideoDemo.tsrx) for a bounded
 player and play/pause controls. Check that playback advances, pause holds the
 position, and resume continues. Native player failures do not emit `onError`;
 see [video limits](known-limits.md#primitives) before designing error UI.
+
+### Lottie animations
+
+`Lottie` plays a Lottie animation — `src` (URL; native also accepts `~/`
+bundle paths, absolute files, `res://` names, `.lottie` containers, and raw
+`{`-JSON) or `data` (inline animation object), `autoPlay`, `loop`,
+`playing`, `progress` (normalized 0..1), `speed`, `fit`
+(`contain`/`cover`/`fill`), `onLoaded`/`onEnded`/`onError`, and a `bind`
+handle (`play`/`pause`/`stop`/`seekTo`/`setSpeed`/`progress`/`duration`/
+`isPlaying`). It ships as the `@octane-xplat/lottie` leaf — `pnpm add
+@octane-xplat/lottie`; `lottie-web` and the `@nativescript-community/
+ui-lottie` plugin travel as the leaf's own dependencies, so apps declare
+nothing extra. Durations are milliseconds and progress is 0..1 on every
+target — the plugin reports seconds and the leaf normalizes. Use the
+maintained [LottieDemo](../packages/demos/src/LottieDemo.tsrx) for bounded
+playback controls. With npm `ui-lottie` 6.0.0 the leaf relies on
+workarounds for upstream gaps (load events, sync-src, remote URLs); see
+[lottie limits](known-limits.md#primitives) before designing error UI.
 
 ### Camera preview
 

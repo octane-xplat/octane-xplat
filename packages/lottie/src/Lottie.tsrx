@@ -1,19 +1,12 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useEffect, useRef } from 'octane';
 import { registerElement } from '@nativescript-community/octane';
-import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import { isAndroid } from '@nativescript/core';
 import { LottieView } from '@nativescript-community/ui-lottie';
 import type { LottieHandle, LottieProps } from './props';
 import { cx } from './cx.mobile';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { layoutChildProps } from './layout-child';
-
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		xplatlottie: Attributes<typeof LottieView>;
-	}
-}
 
 registerElement('xplatlottie', LottieView);
 
