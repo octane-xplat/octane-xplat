@@ -145,6 +145,15 @@ body {
 	margin-top: 36px;
 }
 
+.home-actions .gap-3 {
+	gap: 15px;
+}
+
+.home-actions .btn {
+	padding-left: 18px;
+	padding-right: 18px;
+}
+
 .vx-app .section-label {
 	font-size: 12px;
 	line-height: 16px;
