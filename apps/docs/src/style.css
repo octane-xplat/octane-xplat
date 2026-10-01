@@ -88,7 +88,6 @@ body {
 		system-ui,
 		-apple-system,
 		sans-serif;
-	font-size: 17px;
 	font-weight: 300;
 	background-color: var(--doc-bg);
 }
@@ -277,7 +276,7 @@ body {
 
 .nav-label {
 	font-size: 16px;
-	font-weight: 350;
+	font-weight: 300;
 	letter-spacing: 0.003em;
 }
 
@@ -285,7 +284,7 @@ body {
 .nav .nav-hint {
 	margin-left: auto;
 	font-size: 11px;
-	font-weight: 550;
+	font-weight: 500;
 	color: var(--doc-dim);
 	border-width: 0.5px;
 	border-color: var(--doc-hairline);
@@ -309,7 +308,7 @@ body {
 
 .sec-head {
 	font-size: 16px;
-	font-weight: 550;
+	font-weight: 500;
 	letter-spacing: 0.001em;
 	padding: 0 5px;
 	margin-bottom: 6px;
@@ -333,8 +332,8 @@ body {
 }
 
 .side-text {
-	font-size: 15px;
-	font-weight: 250;
+	font-size: 16px;
+	font-weight: 200;
 	letter-spacing: 0.003em;
 }
 
@@ -407,7 +406,7 @@ body {
 	background-color: transparent;
 	font-family: inherit;
 	font-size: 16px;
-	font-weight: 350;
+	font-weight: 300;
 	letter-spacing: 0.003em;
 	color: var(--doc-ink);
 }
@@ -418,7 +417,7 @@ body {
 
 .palette .palette-esc {
 	font-size: 11px;
-	font-weight: 550;
+	font-weight: 500;
 	color: var(--doc-dim);
 	border-width: 0.5px;
 	border-color: var(--doc-hairline);
@@ -437,7 +436,7 @@ body {
 .palette .hit-group {
 	display: block;
 	font-size: 12px;
-	font-weight: 600;
+	font-weight: 550;
 	color: var(--doc-ink);
 	padding: 10px 10px 7px;
 }
@@ -458,8 +457,8 @@ body {
 }
 
 .hit-label {
-	font-size: 15px;
-	font-weight: 350;
+	font-size: 16px;
+	font-weight: 300;
 	letter-spacing: 0.003em;
 }
 
@@ -472,7 +471,7 @@ body {
 
 .palette .hit-sub {
 	font-size: 13px;
-	font-weight: 250;
+	font-weight: 200;
 	color: var(--doc-dim);
 	margin-top: 6px;
 }
@@ -589,8 +588,8 @@ body {
 }
 
 .doc-next-title {
-	font-size: 15px;
-	font-weight: 500;
+	font-size: 16px;
+	font-weight: 450;
 	color: var(--doc-ink);
 }
 
@@ -666,7 +665,7 @@ body {
 	gap: 6px;
 	padding: 0 15px;
 	font-size: 14px;
-	font-weight: 450;
+	font-weight: 400;
 	line-height: 18px;
 	letter-spacing: -0.1225px;
 	white-space: nowrap;
@@ -792,7 +791,7 @@ body {
 	align-items: center;
 	justify-content: center;
 	font-size: 16px;
-	font-weight: 600;
+	font-weight: 550;
 }
 
 .v0-glyph {
@@ -832,7 +831,7 @@ body {
 .h1 {
 	font-family: 'Onest', 'Outfit', system-ui, sans-serif;
 	font-size: 30px;
-	font-weight: 550;
+	font-weight: 500;
 	letter-spacing: 0.001em;
 	line-height: 1.27;
 	margin-bottom: 18px;
@@ -882,7 +881,7 @@ body {
 
 .doc > .h1 + .quote span {
 	color: #ffffff;
-	font-weight: 250;
+	font-weight: 200;
 	line-height: 1.4;
 }
 
@@ -893,7 +892,7 @@ body {
 .h2 {
 	position: relative;
 	font-size: 24px;
-	font-weight: 450;
+	font-weight: 400;
 	letter-spacing: 0.001em;
 	padding-bottom: 12px;
 	margin-top: 36px;
@@ -921,15 +920,15 @@ body {
 .h3,
 .h4 {
 	font-size: 16px;
-	font-weight: 550;
+	font-weight: 500;
 	letter-spacing: 0.007em;
 	margin-top: 26px;
 	margin-bottom: 10px;
 }
 
 .p {
-	font-size: 15px;
-	font-weight: 350;
+	font-size: 16px;
+	font-weight: 300;
 	line-height: 1.75;
 	margin-top: 14px;
 	flex-wrap: wrap;
@@ -937,8 +936,8 @@ body {
 }
 
 .li {
-	font-size: 15px;
-	font-weight: 350;
+	font-size: 16px;
+	font-weight: 300;
 	line-height: 1.8;
 	margin-top: 4px;
 	flex-direction: row;
@@ -971,7 +970,7 @@ body {
 }
 
 .bold {
-	font-weight: 550;
+	font-weight: 500;
 }
 
 .italic {
@@ -992,7 +991,7 @@ body {
 }
 
 .doc .link {
-	font-weight: 425;
+	font-weight: 375;
 }
 
 /* Sketch 29E3CD0E: square green highlight, 3px sides and 1px top/bottom.
@@ -1000,7 +999,7 @@ body {
 .doc .highlight {
 	background-color: var(--doc-highlight-bg);
 	color: var(--doc-highlight-ink);
-	font-weight: 400;
+	font-weight: 350;
 	padding: 1px 3px;
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;
@@ -1039,7 +1038,7 @@ body {
 	border-radius: 0;
 	color: var(--doc-code-ink);
 	font-size: 13px;
-	font-weight: 250;
+	font-weight: 200;
 	line-height: 1.55;
 }
 
@@ -1053,7 +1052,7 @@ body {
 }
 
 .quote span {
-	font-size: 15px;
+	font-size: 16px;
 	line-height: 1.5;
 }
 
@@ -1113,14 +1112,14 @@ body {
 
 .callout-tagtext {
 	font-size: 11px;
-	font-weight: 550;
+	font-weight: 500;
 	text-transform: uppercase;
 	letter-spacing: 0.112em;
 }
 
 .callout-line {
 	font-size: 14px;
-	font-weight: 350;
+	font-weight: 300;
 	line-height: 1.55;
 	margin-top: 4px;
 	flex-wrap: wrap;
@@ -1204,7 +1203,7 @@ body {
 
 .tr-head .td,
 .tr-head span {
-	font-weight: 550;
+	font-weight: 500;
 	font-size: 13px;
 }
 
@@ -1212,7 +1211,7 @@ body {
 	display: table-cell;
 	padding: 10px 14px;
 	font-size: 14px;
-	font-weight: 350;
+	font-weight: 300;
 	vertical-align: top;
 	overflow-wrap: break-word;
 	line-height: 1.5;
