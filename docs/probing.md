@@ -56,7 +56,9 @@ Adjust that relative type import for the case's location. The context offers
 `mount(Component, props)`, `find(id)`, `press(id)`, `setText(id, text)`,
 `waitFor(predicate, { timeout, interval }?)`, `inspect(id)`, `assert(name, actual, expected)`,
 `record(name, value)`, and `onCleanup(fn)`. Assertions compare with `Object.is`;
-recorded values must be JSON serializable. Cleanups run in reverse order.
+recorded values must be JSON serializable. A script has no component signal owner;
+use `createScope` and `runWithSignalOwner` for signal reads/writes, as in the script
+example. Cleanups run in reverse order.
 `ctx.host` and found views expose actual platform objects for targeted probes.
 Use platform suffixes for platform-specific imports and maintain matching
 exports across variants.
