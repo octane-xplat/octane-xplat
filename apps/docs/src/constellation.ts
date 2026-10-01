@@ -1,7 +1,7 @@
 /** Random, bounded twinkling while the card is at its scroll origin. */
 export function animateConstellation(host: HTMLElement, content: HTMLElement) {
 	const elements = [...host.querySelectorAll('polygon')];
-	const limit = Math.floor(elements.length * 0.15);
+	const limit = Math.floor(elements.length * 0.45);
 	const active = new Map<SVGPolygonElement, Animation>();
 	const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 	let timer: ReturnType<typeof setTimeout> | undefined;
@@ -24,8 +24,8 @@ export function animateConstellation(host: HTMLElement, content: HTMLElement) {
 				const available = elements.filter((element) => !active.has(element));
 				const element = available[Math.floor(Math.random() * available.length)];
 				const animation = element.animate(
-					[{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }],
-					{ duration: 1800 + Math.random() * 1800, easing: 'ease-in-out' },
+					[{ opacity: 1 }, { opacity: 0.35 }, { opacity: 1 }],
+					{ duration: 2340 + Math.random() * 2340, easing: 'ease-in-out' },
 				);
 
 				active.set(element, animation);
