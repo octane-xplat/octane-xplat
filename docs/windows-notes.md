@@ -2,13 +2,13 @@
 
 > How `octane-xplat` could gain a Windows desktop target via
 > [NativeScript/windows](../prior-art/nativescript-windows.md). This records
-> source research and the first Windows 11 VM run, through 2026-10-01.
+> the design and implementation status through 2026-10-01.
 >
 > **Owns:** Windows target seam (new platform, not one of the seven owned
 > problems) · **Status:** Path A scaffolded; WinUI project builds on Windows,
 > but the app bundle fails before launch · **Blocks on:** Q32–Q35 ·
-> **Decisions:** #65 · **Validated by:** Windows 11 VM doctor + native project
-> build; see [setup guide](windows-setup.md).
+> **Decisions:** #65 · **Validated by:** source research and Windows host
+> toolchain checks; see [setup guide](windows-setup.md).
 
 ## The fork in the road
 
@@ -95,19 +95,9 @@ run below:
   `./variant-demos` which only have ios/android/web/macos twins — the first
   `.windows` fallback leaves.
 
-## Windows host run (2026-10-01)
+## Implementation status (2026-10-01)
 
-On a Windows 11 x64 VM, `ns doctor windows` passed, route generation completed,
-and the generated WinUI project compiled with `dotnet build` (0 errors). This
-confirms the NativeScript Windows toolchain and native project build on the
-host, but not that the app boots.
-
-The workspace install's postinstall type generation failed in
-`@octane-xplat/auth`: `src/index.ts` was outside its TypeScript project. Using
-`pnpm install --ignore-scripts` completed dependency installation only; it did
-not repair type generation. The app build then reported cross-target type
-errors and failed the xplat boundary check because
-`packages/ui/src/native/index.ts` reaches `root-layout.mobile.ts` in the
-Windows bundle. `ns run windows`, app rendering, Q32 end-to-end validation, the
-demo sweep, and `.windows` leaf divergence checks remain unverified. The setup
-steps and current limits are in [Windows setup](windows-setup.md).
+The Windows-specific NativeScript doctor checks and generated WinUI project
+build pass on a Windows host. The full workspace install and app bundle still
+have failures before launch, so end-to-end boot, rendering, and the demo sweep
+remain unverified. Windows setup steps are in [Windows setup](windows-setup.md).

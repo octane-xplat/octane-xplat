@@ -78,4 +78,4 @@ by [framework](framework-notes.md), [architecture](architecture-notes.md),
 resolution](module-resolution-notes.md), [animation](animation-notes.md),
 [testing](testing-notes.md), [CSS support](css-support-notes.md),
 [SQLite persistence](sqlite-notes.md), the experimental [Windows
-target](windows-notes.md), and [Windows host setup](windows-setup.md).
+target](windows-notes.md), and [Windows setup](windows-setup.md).
