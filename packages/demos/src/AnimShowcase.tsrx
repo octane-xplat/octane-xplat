@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
 
 const MODES = ['pulse', 'spin', 'slide'] as const;
 type Mode = (typeof MODES)[number];
@@ -13,7 +13,7 @@ export function AnimShowcase() @{
 	const [active, setActive] = useState<Mode | ''>('');
 
 	<View className="vx-app flex-1 gap-4 items-center">
-		<Row className="gap-4">
+		<HStack className="gap-4">
 			@for (const m of MODES; key m) {
 				<Pressable
 					id={'anim-' + m}
@@ -23,7 +23,7 @@ export function AnimShowcase() @{
 					<Text className={active === m ? 'text-onprimary' : ''}>{m}</Text>
 				</Pressable>
 			}
-		</Row>
+		</HStack>
 		<View className={['demo-anim-box', active ? 'anim-' + active : '']} />
 		<Text className="text-sm text-muted">{'active: ' + (active || 'none')}</Text>
 	</View>

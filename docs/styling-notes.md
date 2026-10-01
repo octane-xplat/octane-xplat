@@ -198,7 +198,7 @@ fix. Verified: `<DangerBtn danger className="extra">` →
 ## Layout vocabulary honesty
 
 NS layout is a set of _classes_ (stack/grid/flex/dock/absolute/wrap), not one
-box model. Our Row/Column/Grid/Stack primitives (primitives.md) deliberately
+box model. Our HStack/VStack/Grid/Stack primitives (primitives.md) deliberately
 mirror that. Do not try to make web flex/grid pretend to be NS layouts inside
 shared files — shared code composes primitives; leaf impls pick the right
 layout class per platform. `gap` is supported on FlexboxLayout (NS 9: gap/

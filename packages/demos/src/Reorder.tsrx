@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Row, Text, View, setTranslate } from '@octane-xplat/ui';
+import { HStack, Text, View, setTranslate } from '@octane-xplat/ui';
 import type { PanEvent } from '@octane-xplat/ui';
 
 type Track = { id: string; title: string; artist: string };
@@ -84,7 +84,7 @@ export function Reorder() @{
 		<Text className="text-xl font-semibold">Playlist</Text>
 		<View>
 			@for (const t of items; index i; key t.id) {
-				<Row
+				<HStack
 					id={'reorder-' + t.id}
 					className={['reorder-row', lifted === t.id ? 'reorder-lifted' : '']}
 					bind={(el: any) => el && views.current.set(t.id, el)}
@@ -96,7 +96,7 @@ export function Reorder() @{
 						<Text className="text-sm text-muted">{t.artist}</Text>
 					</View>
 					<Text className="text-sm text-muted">{i + 1}</Text>
-				</Row>
+				</HStack>
 			}
 		</View>
 	</View>

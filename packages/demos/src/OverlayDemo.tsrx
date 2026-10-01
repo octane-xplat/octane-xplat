@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Hoverable, Overlay, Popover, Pressable, Row, Screen, Text, Tooltip, View, showToast, useMeasure } from '@octane-xplat/ui';
+import { Hoverable, Overlay, Popover, Pressable, HStack, Screen, Text, Tooltip, View, showToast, useMeasure } from '@octane-xplat/ui';
 
 export function OverlayDemo() @{
 	const [overlayOpen, setOverlayOpen] = useState(false);
@@ -10,7 +10,7 @@ export function OverlayDemo() @{
 	<Screen className="vx-app flex-1 gap-6">
 		<Text className="text-xl font-semibold">Overlay primitives</Text>
 		<View className="sink-section">
-			<Row className="gap-3 flex-wrap">
+			<HStack className="gap-3 flex-wrap">
 				<Pressable className="btn btn-secondary" onPress={() => setOverlayOpen(true)}>
 					<Text>Open shade overlay</Text>
 				</Pressable>
@@ -40,7 +40,7 @@ export function OverlayDemo() @{
 				<Pressable className="btn btn-secondary" onPress={() => showToast('Anchored toast', { duration: 1200, anchor })}>
 					<Text>Toast anchored</Text>
 				</Pressable>
-			</Row>
+			</HStack>
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Measure</Text>

@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { Row, Screen, Text, View, Stack } from '@octane-xplat/ui';
+import { HStack, Screen, Text, View, Stack } from '@octane-xplat/ui';
 import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios';
 
 /** Liquid Glass probes — iOS 26+ renders real UIGlassEffect material,
@@ -16,21 +16,21 @@ export function GlassDemo() @{
 
 		{/* Interactive glass — the element root IS the effect view. */}
 		<Stack style={{ height: 140 }}>
-			<Row className="gap-2">
+			<HStack className="gap-2">
 				<View style={{ width: 60, height: 60, backgroundColor: '#e91e63' }} />
 				<View style={{ width: 60, height: 60, backgroundColor: '#22c55e' }} />
 				<View style={{ width: 60, height: 60, backgroundColor: '#3b82f6' }} />
-			</Row>
+			</HStack>
 			<LiquidGlass id="glass-regular" style={{ margin: 24, padding: 16, borderRadius: 16 }}>
 				<Text>regular · interactive</Text>
 			</LiquidGlass>
 		</Stack>
 
 		<Stack style={{ height: 100 }}>
-			<Row className="gap-2">
+			<HStack className="gap-2">
 				<View style={{ width: 60, height: 60, backgroundColor: '#f59e0b' }} />
 				<View style={{ width: 60, height: 60, backgroundColor: '#8b5cf6' }} />
-			</Row>
+			</HStack>
 			<LiquidGlass id="glass-clear" variant="clear" style={{ margin: 16, padding: 16, borderRadius: 16 }}>
 				<Text>clear variant</Text>
 			</LiquidGlass>
@@ -46,10 +46,10 @@ export function GlassDemo() @{
 		{/* Glass as a wrapping element — the shared `glass` prop was fake
 		    parity and is gone; the container is the opt-in shape. */}
 		<Stack style={{ height: 100 }}>
-			<Row className="gap-2">
+			<HStack className="gap-2">
 				<View style={{ width: 60, height: 60, backgroundColor: '#e91e63' }} />
 				<View style={{ width: 60, height: 60, backgroundColor: '#22c55e' }} />
-			</Row>
+			</HStack>
 			<LiquidGlass id="glass-prop" style={{ margin: 16, padding: 16, borderRadius: 16 }}>
 				<Text>glass element</Text>
 			</LiquidGlass>

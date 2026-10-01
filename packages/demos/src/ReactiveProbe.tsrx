@@ -1,5 +1,5 @@
 import { useState, memo } from 'octane';
-import { View, Row, Text, Pressable } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
 
 // Module-scope render ledger — a mutation during render, deliberate for a
 // probe: the text the tree carries IS the observation channel.
@@ -10,10 +10,10 @@ function ProbeChild(props: { name: string; n: number }) @{
 	renderCounts.set(props.name, renders);
 	console.log('[probe] child ' + props.name + ' render n=' + props.n + ' renders=' + renders);
 
-	<Row className="gap-2 items-center">
+	<HStack className="gap-2 items-center">
 		<Text className="chip">{props.name}</Text>
 		<Text>{props.name + ' n=' + props.n + ' renders=' + renders}</Text>
-	</Row>
+	</HStack>
 }
 
 const MemoChild = memo(ProbeChild, (a, b) => a.n === b.n && a.name === b.name);
@@ -34,14 +34,14 @@ export function ReactiveProbe() @{
 	console.log('[probe] ReactiveProbe render a=' + a + ' b=' + b);
 
 	<View className="vx-app flex-1 gap-4">
-		<Row className="gap-4">
+		<HStack className="gap-4">
 			<Pressable id="rp-a" onPress={() => setA(a + 1)} className="btn bg-primary">
 				<Text className="text-onprimary">Bump A</Text>
 			</Pressable>
 			<Pressable id="rp-b" onPress={() => setB(b + 1)} className="btn bg-primary">
 				<Text className="text-onprimary">Bump B</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		<ProbeChild name="plain-a" n={a} />
 		<ProbeChild name="plain-b" n={b} />
 		<MemoChild name="memo-a" n={a} />

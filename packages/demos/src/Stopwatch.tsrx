@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, Row, Text, Pressable } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
 
 type Lap = { id: number; ms: number };
 
@@ -40,7 +40,7 @@ export function Stopwatch() @{
 
 	<View className="vx-app flex-1 gap-4">
 		<Text className="demo-clock">{fmt(elapsed)}</Text>
-		<Row className="gap-4">
+		<HStack className="gap-4">
 			<Pressable id="sw-toggle" onPress={toggle} className="btn bg-primary">
 				<Text className="text-onprimary">{running ? 'Stop' : 'Start'}</Text>
 			</Pressable>
@@ -50,7 +50,7 @@ export function Stopwatch() @{
 			<Pressable id="sw-reset" onPress={() => { setRunning(false); acc.current = 0; setElapsed(0); setLaps([]); }} className="btn btn-secondary">
 				<Text>Reset</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		<View className="gap-2">
 			@for (const lap of laps; index i; key lap.id) {
 				<Text className="chip">{'Lap ' + (laps.length - i) + ' — ' + fmt(lap.ms)}</Text>

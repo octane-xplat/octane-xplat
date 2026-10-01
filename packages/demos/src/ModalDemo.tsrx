@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { openSheet, Pressable, Row, Screen, Sheet, Text, View } from '@octane-xplat/ui';
+import { openSheet, Pressable, HStack, Screen, Sheet, Text, View } from '@octane-xplat/ui';
 
 function Picker(props: { params: { choices: string[] }; close: (value?: string) => void }) @{
 	<Screen className="demo-modal-card gap-4">

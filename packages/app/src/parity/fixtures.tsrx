@@ -2,13 +2,13 @@ import {
 	Absolute,
 	Switch,
 	Slider,
-	Checkbox,
-	RadioGroup,
+	CheckboxInput,
+	RadioList,
 	SegmentedControl,
 	Button,
 	Pressable,
 	Text,
-	ListItem,
+	Item,
 	Heading,
 	TextInput,
 	TextArea,
@@ -16,25 +16,25 @@ import {
 	Grid,
 	Stack,
 	Spacer,
-	Column,
-	Row,
+	VStack,
+	HStack,
 	ScrollView,
 	ScrollBox,
 	Overlay,
 	Popover,
 	Sheet,
 	Drawer,
-	FormField,
+	Field,
 	FieldGroup,
-	InputNumber,
+	NumberInput,
 	PinInput,
-	Select,
-	SelectMenu,
+	Selector,
+	MultiSelector,
 	Combobox,
 	InputMenu,
 	InputTags,
 	InputRating,
-	CheckboxGroup,
+	CheckboxList,
 	Collapsible,
 	Accordion,
 	DropdownMenu,
@@ -44,7 +44,7 @@ import {
 	CommandPalette,
 	Tabs,
 	Meter,
-	ActivityIndicator,
+	Spinner,
 	RichText,
 	RichTextSpan,
 	Hoverable,
@@ -57,15 +57,15 @@ import {
 	Link,
 	NavLink,
 	Icon,
-	Separator,
+	Divider,
 	Skeleton,
-	Empty,
-	Breadcrumb,
+	EmptyState,
+	Breadcrumbs,
 	Pagination,
 	Table,
 	VirtualList,
 	Timeline,
-	Tree,
+	TreeList,
 	Alert,
 	Card,
 	Chip,
@@ -102,7 +102,7 @@ function SliderFixture(props: { id?: string; value: number }) @{
 }
 
 function CheckboxFixture(props: { checked: boolean }) @{
-	<Checkbox checked={props.checked} />
+	<CheckboxInput checked={props.checked} />
 }
 
 function TextFixture(props: { size: number; weight: number; lineHeight: number; content: string }) @{
@@ -112,7 +112,7 @@ function TextFixture(props: { size: number; weight: number; lineHeight: number; 
 }
 
 function ListItemStandardFixture() @{
-	<ListItem
+	<Item
 		id="parity-listitem-root"
 		style={{ width: 220, height: 64, backgroundColor: '#f5f5f5' }}
 		title="Event title"
@@ -251,33 +251,33 @@ function StackLayoutFixture() @{
 }
 
 function ColumnLayoutFixture() @{
-	<Column className="parity-column-root" style={{ width: 96, height: 48 }} gap={4} alignItems="center">
+	<VStack className="parity-column-root" style={{ width: 96, height: 48 }} gap={4} alignItems="center">
 		<View className="parity-column-first" style={{ width: 16, height: 8 }} />
 		<View className="parity-column-second" style={{ width: 20, height: 12 }} />
-	</Column>
+	</VStack>
 }
 
 function RowLayoutFixture() @{
-	<Row className="parity-row-root" style={{ width: 96, height: 32 }} gap={8}>
+	<HStack className="parity-row-root" style={{ width: 96, height: 32 }} gap={8}>
 		<View className="parity-row-first" style={{ width: 20, height: 10 }} />
 		<View className="parity-row-second" style={{ width: 12, height: 10 }} />
-	</Row>
+	</HStack>
 }
 
 function SpacerLayoutFixture() @{
-	<Row className="parity-spacer-root" style={{ width: 96, height: 24 }} gap={8}>
+	<HStack className="parity-spacer-root" style={{ width: 96, height: 24 }} gap={8}>
 		<View className="parity-spacer-leading" style={{ width: 16, height: 10 }} />
 		<Spacer className="parity-spacer" />
 		<View className="parity-spacer-trailing" style={{ width: 16, height: 10 }} />
-	</Row>
+	</HStack>
 }
 
 function ScrollViewLayoutFixture() @{
 	<ScrollView className="parity-scroll-root" style={{ width: 96, height: 32 }}>
-		<Column className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={4}>
+		<VStack className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={4}>
 			<View className="parity-scroll-first" style={{ width: 24, height: 12 }} />
 			<View className="parity-scroll-second" style={{ width: 24, height: 12 }} />
-		</Column>
+		</VStack>
 	</ScrollView>
 }
 
@@ -290,10 +290,10 @@ function AbsoluteLayoutFixture() @{
 
 function ScrollBoxLayoutFixture() @{
 	<ScrollBox className="parity-scrollbox-root" style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}>
-		<Column className="parity-scrollbox-content" style={{ width: 96, height: 64 }} gap={4}>
+		<VStack className="parity-scrollbox-content" style={{ width: 96, height: 64 }} gap={4}>
 			<View className="parity-scrollbox-first" style={{ width: 24, height: 12 }} />
 			<View className="parity-scrollbox-second" style={{ width: 24, height: 12 }} />
-		</Column>
+		</VStack>
 	</ScrollBox>
 }
 
@@ -351,9 +351,9 @@ function SheetLayoutFixture(props: { marker: string }) @{
 }
 
 function FormFieldFixture() @{
-	<FormField className="parity-formfield-root" label="Email" required style={{ width: 180, height: 64, backgroundColor: '#f5f5f5' }}>
+	<Field className="parity-formfield-root" label="Email" required style={{ width: 180, height: 64, backgroundColor: '#f5f5f5' }}>
 		<TextInput placeholder="Email" style={{ width: 160, height: 32 }} />
-	</FormField>
+	</Field>
 }
 
 function FieldGroupFixture() @{
@@ -363,7 +363,7 @@ function FieldGroupFixture() @{
 }
 
 function InputNumberFixture() @{
-	<InputNumber
+	<NumberInput
 		className="parity-inputnumber-root"
 		value={2}
 		min={0}
@@ -383,7 +383,7 @@ function PinInputFixture() @{
 }
 
 function SelectFixture() @{
-	<Select
+	<Selector
 		className="parity-select-root"
 		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
 		value="small"
@@ -392,7 +392,7 @@ function SelectFixture() @{
 }
 
 function SelectMenuFixture() @{
-	<SelectMenu
+	<MultiSelector
 		className="parity-selectmenu-root"
 		options={[{ value: 'small', label: 'Small' }, { value: 'large', label: 'Large' }]}
 		value={['small']}
@@ -437,7 +437,7 @@ function InputRatingFixture() @{
 }
 
 function CheckboxGroupFixture() @{
-	<CheckboxGroup
+	<CheckboxList
 		className="parity-checkboxgroup-root"
 		options={[{ value: 'email', label: 'Email' }, { value: 'sms', label: 'SMS' }]}
 		value={['email']}
@@ -446,7 +446,7 @@ function CheckboxGroupFixture() @{
 }
 
 function RadioGroupFixture() @{
-	<RadioGroup
+	<RadioList
 		className="parity-radiogroup-root"
 		options={[{ value: 'low', label: 'Low' }, { value: 'high', label: 'High' }]}
 		value="low"
@@ -576,7 +576,7 @@ function MeterFixture() @{
 }
 
 function ActivityIndicatorFixture() @{
-	<ActivityIndicator
+	<Spinner
 		className="parity-activity-indicator-root"
 		busy={true}
 		style={{ width: 24, height: 24 }}
@@ -645,7 +645,7 @@ function UserFixture() @{
 }
 
 function ListItemFixture() @{
-	<ListItem
+	<Item
 		className="parity-list-item-root"
 		style={{ width: 220, height: 64, backgroundColor: '#f5f5f5' }}
 		title="Settings"
@@ -683,7 +683,7 @@ function IconFixture() @{
 }
 
 function SeparatorFixture() @{
-	<Separator
+	<Divider
 		className="parity-separator-root"
 		orientation="horizontal"
 		style={{ width: 160, height: 2, backgroundColor: '#737373' }}
@@ -700,7 +700,7 @@ function SkeletonFixture() @{
 }
 
 function EmptyFixture() @{
-	<Empty
+	<EmptyState
 		className="parity-empty-root"
 		icon="tab-home"
 		title="No results"
@@ -710,7 +710,7 @@ function EmptyFixture() @{
 }
 
 function BreadcrumbFixture() @{
-	<Breadcrumb
+	<Breadcrumbs
 		className="parity-breadcrumb-root"
 		style={{ width: 220, height: 36, backgroundColor: '#f5f5f5' }}
 		items={[
@@ -773,7 +773,7 @@ function TimelineFixture() @{
 }
 
 function TreeFixture() @{
-	<Tree
+	<TreeList
 		className="parity-tree-root"
 		style={{ width: 180, height: 96, backgroundColor: '#f5f5f5' }}
 		nodes={[
@@ -909,7 +909,7 @@ function SafeAreaLayoutFixture() @{
 	const contentWidth = width - insets.left - insets.right;
 	const contentHeight = height - insets.top - insets.bottom;
 
-	<Row className="parity-safe-area-fixture" style={{ width: 200, height }} gap={8}>
+	<HStack className="parity-safe-area-fixture" style={{ width: 200, height }} gap={8}>
 		<SafeArea className="parity-safe-area-root" style={{ width, height }}>
 			<View
 				className="parity-safe-area-content"
@@ -927,7 +927,7 @@ function SafeAreaLayoutFixture() @{
 				}}
 			/>
 		</View>
-	</Row>
+	</HStack>
 }
 
 export interface ParityFixture {
@@ -956,8 +956,8 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'switch-on', component: 'Switch', renderer: SwitchFixture, props: { checked: true } },
 	{ name: 'slider-0', component: 'Slider', renderer: SliderFixture, props: { value: 0 }, wide: true },
 	{ name: 'slider-50', component: 'Slider', renderer: SliderFixture, props: { id: 'probe-slider-50', value: 50 }, wide: true },
-	{ name: 'checkbox-off', component: 'Checkbox', renderer: CheckboxFixture, props: { checked: false } },
-	{ name: 'checkbox-on', component: 'Checkbox', renderer: CheckboxFixture, props: { checked: true } },
+	{ name: 'checkbox-off', component: 'CheckboxInput', renderer: CheckboxFixture, props: { checked: false } },
+	{ name: 'checkbox-on', component: 'CheckboxInput', renderer: CheckboxFixture, props: { checked: true } },
 	{ name: 'heading-level-1', component: 'Heading', renderer: HeadingFixture, props: { level: 1, content: 'Shared heading' }, width: 520 },
 	{ name: 'heading-level-2', component: 'Heading', renderer: HeadingFixture, props: { level: 2, content: 'Shared heading' }, width: 520 },
 	{ name: 'heading-level-3', component: 'Heading', renderer: HeadingFixture, props: { level: 3, content: 'Shared heading' }, width: 520 },
@@ -992,8 +992,8 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'view-padding-layout', component: 'View', renderer: ViewPaddingLayoutFixture, props: {} },
 	{ name: 'grid-layout', component: 'Grid', renderer: GridLayoutFixture, props: {} },
 	{ name: 'stack-overlay-layout', component: 'Stack', renderer: StackLayoutFixture, props: {} },
-	{ name: 'column-layout', component: 'Column', renderer: ColumnLayoutFixture, props: {} },
-	{ name: 'row-layout', component: 'Row', renderer: RowLayoutFixture, props: {} },
+	{ name: 'column-layout', component: 'VStack', renderer: ColumnLayoutFixture, props: {} },
+	{ name: 'row-layout', component: 'HStack', renderer: RowLayoutFixture, props: {} },
 	{ name: 'spacer-layout', component: 'Spacer', renderer: SpacerLayoutFixture, props: {} },
 	{ name: 'scroll-view-layout', component: 'ScrollView', renderer: ScrollViewLayoutFixture, props: {} },
 	{ name: 'absolute-layout', component: 'Absolute', renderer: AbsoluteLayoutFixture, props: {} },
@@ -1001,18 +1001,18 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'drawer-open-frame', component: 'Drawer', renderer: DrawerLayoutFixture, props: {} },
 	{ name: 'overlay-fixed-frame', component: 'Overlay', renderer: OverlayLayoutFixture, props: { marker: 'parity-portal--overlay-fixed-frame' } },
 	{ name: 'sheet-fixed-frame', component: 'Sheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' }, height: 112 },
-	{ name: 'form-field-basic', component: 'FormField', renderer: FormFieldFixture, props: {} },
+	{ name: 'form-field-basic', component: 'Field', renderer: FormFieldFixture, props: {} },
 	{ name: 'field-group-basic', component: 'FieldGroup', renderer: FieldGroupFixture, props: {} },
-	{ name: 'input-number-value', component: 'InputNumber', renderer: InputNumberFixture, props: {} },
+	{ name: 'input-number-value', component: 'NumberInput', renderer: InputNumberFixture, props: {} },
 	{ name: 'pin-input-filled', component: 'PinInput', renderer: PinInputFixture, props: {} },
-	{ name: 'select-value', component: 'Select', renderer: SelectFixture, props: {} },
-	{ name: 'select-menu-value', component: 'SelectMenu', renderer: SelectMenuFixture, props: {} },
+	{ name: 'select-value', component: 'Selector', renderer: SelectFixture, props: {} },
+	{ name: 'select-menu-value', component: 'MultiSelector', renderer: SelectMenuFixture, props: {} },
 	{ name: 'combobox-value', component: 'Combobox', renderer: ComboboxFixture, props: {} },
 	{ name: 'input-menu-value', component: 'InputMenu', renderer: InputMenuFixture, props: {} },
 	{ name: 'input-tags-values', component: 'InputTags', renderer: InputTagsFixture, props: {}, wide: true },
 	{ name: 'input-rating-selected', component: 'InputRating', renderer: InputRatingFixture, props: {} },
-	{ name: 'checkbox-group-selected', component: 'CheckboxGroup', renderer: CheckboxGroupFixture, props: {} },
-	{ name: 'radio-group-selected', component: 'RadioGroup', renderer: RadioGroupFixture, props: {} },
+	{ name: 'checkbox-group-selected', component: 'CheckboxList', renderer: CheckboxGroupFixture, props: {} },
+	{ name: 'radio-group-selected', component: 'RadioList', renderer: RadioGroupFixture, props: {} },
 	{ name: 'segmented-control-selected', component: 'SegmentedControl', renderer: SegmentedControlFixture, props: {} },
 	{ name: 'collapsible-open', component: 'Collapsible', renderer: CollapsibleFixture, props: {}, height: 88 },
 	{ name: 'accordion-one-open', component: 'Accordion', renderer: AccordionFixture, props: {}, height: 104 },
@@ -1023,29 +1023,29 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'command-palette-open', component: 'CommandPalette', renderer: CommandPaletteFixture, props: {}, height: 112 },
 	{ name: 'tabs-second-selected', component: 'Tabs', renderer: TabsFixture, props: {}, height: 120 },
 	{ name: 'meter-progress', component: 'Meter', renderer: MeterFixture, props: {} },
-	{ name: 'activity-indicator-busy', component: 'ActivityIndicator', renderer: ActivityIndicatorFixture, props: {} },
+	{ name: 'activity-indicator-busy', component: 'Spinner', renderer: ActivityIndicatorFixture, props: {} },
 	{ name: 'rich-text-fixed-run', component: 'RichText', renderer: RichTextFixture, props: {}, height: 48 },
 	{ name: 'badge-basic', component: 'Badge', renderer: BadgeFixture, props: {} },
 	{ name: 'avatar-fallback', component: 'Avatar', renderer: AvatarFixture, props: {} },
 	{ name: 'avatar-group-overflow', component: 'AvatarGroup', renderer: AvatarGroupFixture, props: {} },
 	{ name: 'user-row', component: 'User', renderer: UserFixture, props: {} },
-	{ name: 'list-item-row', component: 'ListItem', renderer: ListItemFixture, props: {} },
-	{ name: 'list-item-standard', component: 'ListItem', renderer: ListItemStandardFixture, props: {} },
+	{ name: 'list-item-row', component: 'Item', renderer: ListItemFixture, props: {} },
+	{ name: 'list-item-standard', component: 'Item', renderer: ListItemStandardFixture, props: {} },
 	{ name: 'hoverable-anchor', component: 'Hoverable', renderer: HoverableFixture, props: {} },
 	{ name: 'tooltip-trigger', component: 'Tooltip', renderer: TooltipFixture, props: {} },
 	{ name: 'kbd-shortcut', component: 'Kbd', renderer: KbdFixture, props: {} },
 	{ name: 'link-fixed-target', component: 'Link', renderer: LinkFixture, props: {} },
 	{ name: 'nav-link-active', component: 'NavLink', renderer: NavLinkFixture, props: {} },
 	{ name: 'icon-registered-glyph', component: 'Icon', renderer: IconFixture, props: {} },
-	{ name: 'separator-horizontal', component: 'Separator', renderer: SeparatorFixture, props: {} },
+	{ name: 'separator-horizontal', component: 'Divider', renderer: SeparatorFixture, props: {} },
 	{ name: 'skeleton-basic', component: 'Skeleton', renderer: SkeletonFixture, props: {} },
-	{ name: 'empty-state', component: 'Empty', renderer: EmptyFixture, props: {}, height: 136 },
-	{ name: 'breadcrumb-trail', component: 'Breadcrumb', renderer: BreadcrumbFixture, props: {} },
+	{ name: 'empty-state', component: 'EmptyState', renderer: EmptyFixture, props: {}, height: 136 },
+	{ name: 'breadcrumb-trail', component: 'Breadcrumbs', renderer: BreadcrumbFixture, props: {} },
 	{ name: 'pagination-window', component: 'Pagination', renderer: PaginationFixture, props: {}, width: 240 },
 	{ name: 'table-two-rows', component: 'Table', renderer: TableFixture, props: {}, height: 112 },
 	{ name: 'virtual-list-viewport', component: 'VirtualList', renderer: VirtualListFixture, props: {} },
 	{ name: 'timeline-two-events', component: 'Timeline', renderer: TimelineFixture, props: {}, height: 128 },
-	{ name: 'tree-expanded', component: 'Tree', renderer: TreeFixture, props: {}, height: 112 },
+	{ name: 'tree-expanded', component: 'TreeList', renderer: TreeFixture, props: {}, height: 112 },
 	{ name: 'alert-warning', component: 'Alert', renderer: AlertFixture, props: {} },
 	{ name: 'card-with-slots', component: 'Card', renderer: CardFixture, props: {}, height: 120 },
 	{ name: 'chip-selected', component: 'Chip', renderer: ChipFixture, props: {} },

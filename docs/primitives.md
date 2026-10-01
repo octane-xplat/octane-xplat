@@ -14,12 +14,12 @@ if you do not yet have a working app.
 | Need                                   | Component                        |
 | -------------------------------------- | -------------------------------- |
 | Group content                          | `View`                           |
-| Put items in a row                     | `Row`                            |
+| Put items in a row                     | `HStack`                         |
 | Show text                              | `Text`                           |
 | Compose styled or tappable inline text | `RichText` + `RichTextSpan`      |
 | Respond to a tap                       | `Pressable`                      |
 | Render repeated items                  | `ScrollView` + `items.map(...)`  |
-| Show a settings or preference row      | `ListItem`                       |
+| Show a settings or preference row      | `Item`                       |
 | Accept one or more lines               | `TextInput`, `TextArea`          |
 | Scroll content                         | `ScrollView`, `ScrollBox`        |
 | Show a web page or inline HTML         | `WebView`                        |
@@ -94,7 +94,7 @@ and assistive behavior have separate evidence in
 
 ### Reusable rows
 
-`ListItem` is a reusable, self-drawn row for settings, preferences, and
+`Item` is a reusable, self-drawn row for settings, preferences, and
 compact navigation lists. Use `leading`, `title`, `supportingText`, and
 `trailing` for the common shape, or compose `Leading`, `Content`,
 `Supporting`, and `Trailing` slots for richer content. It works by itself or
@@ -140,7 +140,7 @@ import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
 
 | Component                   | Web element                  | iOS NativeScript view                         | Android NativeScript view              | Normalization class   |
 | --------------------------- | ---------------------------- | --------------------------------------------- | -------------------------------------- | --------------------- |
-| `ListItem`                  | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable`        | `FlexboxLayout` via shared `Pressable` | `self-drawn`          |
+| `Item`                  | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable`        | `FlexboxLayout` via shared `Pressable` | `self-drawn`          |
 | `SafeArea`                  | `div`                        | `FlexboxLayout`                               | `FlexboxLayout`                        | shared layout wrapper |
 | `WebView`                   | sandboxed `iframe`           | `webview` → WKWebView                         | `webview` → android.webkit.WebView     | `hosted`              |
 | `UITableView`               | unavailable                  | `listview` → UITableView                      | unavailable                            | `platform-authentic`  |
@@ -162,7 +162,7 @@ The platform-authentic rows intentionally have no web counterpart. Their
 native modifiers and glyph names stay behind platform subpaths; they do not
 change the shared components' parity class.
 
-`Pressable`, `Text`, and the containers (`View`/`Row`/`Stack`/`Absolute`/
+`Pressable`, `Text`, and the containers (`View`/`HStack`/`Stack`/`Absolute`/
 `Grid`/`ScrollView`/`ScrollBox`) share the accessibility props in the
 platform map, including `accessible`, label, hint, value, role, state, and
 live region — a container can carry `accessibilityRole`/live-region for
@@ -204,7 +204,7 @@ leaf's own dependency, so apps declare nothing extra. It takes `items` +
 `page`/`onPageChange` for controlled use, `defaultPage` for uncontrolled.
 Native pages are recycled OS cells, so pages need no fixed height of their
 own — each fills the pager. There is no built-in page indicator; compose
-dots from `Row` + `Pressable` driven by the page index (see the `pager`
+dots from `HStack` + `Pressable` driven by the page index (see the `pager`
 demo). The web leaf is a scroll-snap row; `onPageChange` fires after the
 snap settles.
 
@@ -234,7 +234,7 @@ grabber. The platform's own modal presentation is `UIModal`/`MaterialDialog`
 `ScrollView` and the platform lists (`UITableView`, `RecyclerView`) accept
 `refreshing`, `onRefresh`, and `refreshThreshold` for pull-to-refresh.
 `onRefresh` enables the gesture; `refreshing` is controlled — set it while
-reloading and the self-drawn `ActivityIndicator` strip stays docked above
+reloading and the self-drawn `Spinner` strip stays docked above
 the content. There is no OS spinner anywhere in the path.
 
 `Hoverable` (delayed hover card) is a shared export that shows its `card`

@@ -52,7 +52,7 @@ platform-authentic:
 
 | Approach           | Use it when                                                                                                                            | Examples                                                  |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Self-drawn         | The framework can own the visuals and behavior on every target.                                                                        | `Switch`, `Slider`, `ActivityIndicator`, `Tabs`, `Drawer` |
+| Self-drawn         | The framework can own the visuals and behavior on every target.                                                                        | `Switch`, `Slider`, `Spinner`, `Tabs`, `Drawer` |
 | Chrome-reset       | A host control supplies behavior that would be costly to replace, and its chrome can be removed.                                       | `TextInput`, `TextArea`                                   |
 | Hosted             | An OS or engine supplies interior content while the framework owns the frame or draws shared chrome.                                   | `WebView`, `Video`, `CameraView`                          |
 | Platform-authentic | The OS surface or behavior is the point, so normalizing it would change the contract. Keep it in a platform subpath under its OS name. | `UITableView`, `RecyclerView`, `UIModal`, `LiquidGlass`   |
@@ -119,7 +119,7 @@ it is the design:
 
 | Class                | Interior                 | Chrome        | Parity claim                        | Examples                                              |
 | -------------------- | ------------------------ | ------------- | ----------------------------------- | ----------------------------------------------------- |
-| `self-drawn`         | us                       | all ours      | every pixel                         | `Switch`, `Tabs`, `SegmentedControl`, `ListItem`      |
+| `self-drawn`         | us                       | all ours      | every pixel                         | `Switch`, `Tabs`, `SegmentedControl`, `Item`      |
 | `chrome-reset`       | the OS widget's behavior | stripped      | every pixel                         | `TextInput`, `TextArea`, `SearchInput`                |
 | `hosted`             | an OS/engine surface     | ours, or none | the frame + whatever chrome we draw | `Video`, `CameraView` (chrome ours); `WebView` (none) |
 | `platform-authentic` | the OS                   | the OS        | none — OS chrome is the point       | `UISwitch`, `MaterialDialog`, the subpath catalogs    |

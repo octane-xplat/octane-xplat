@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Pressable, Row, SafeArea, Screen, Text, WebView } from '@octane-xplat/ui';
+import { Pressable, HStack, SafeArea, Screen, Text, WebView } from '@octane-xplat/ui';
 import type { WebViewHandle } from '@octane-xplat/ui';
 
 // Inline document so the demo works without network; tall enough to prove
@@ -32,7 +32,7 @@ export function WebViewDemo() @{
 
 	<Screen className="vx-app flex-1 gap-6">
 		<Text className="text-xl font-semibold">WebView</Text>
-		<Row className="demo-menu">
+		<HStack className="demo-menu">
 			<Pressable className="btn btn-secondary" onPress={() => { setStatus('loading…'); setRemote(!remote); }}>
 				<Text>{remote ? 'Inline HTML' : 'Remote URL'}</Text>
 			</Pressable>
@@ -51,7 +51,7 @@ export function WebViewDemo() @{
 			<Pressable className="btn btn-secondary" onPress={() => setIgnoreSafeArea(!ignoreSafeArea)}>
 				<Text>{ignoreSafeArea ? 'Respect safe area' : 'Ignore safe area'}</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		<Text className="text-sm text-muted">{'status: ' + status + ' · content: ' + contentSize}</Text>
 		<SafeArea className="flex-1" ignoreSafeArea={ignoreSafeArea}>
 			<WebView

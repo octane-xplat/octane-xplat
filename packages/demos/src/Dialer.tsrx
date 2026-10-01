@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, Pressable } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 const MAX = 15;
@@ -25,7 +25,7 @@ export function Dialer() @{
 				</Pressable>
 			}
 		</View>
-		<Row className="gap-4">
+		<HStack className="gap-4">
 			<Pressable
 				id="dial-back"
 				onPress={() => setDigits(digits.slice(0, -1))}
@@ -40,6 +40,6 @@ export function Dialer() @{
 			>
 				<Text className="text-onprimary">Call</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 	</View>
 }

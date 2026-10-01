@@ -1,5 +1,5 @@
 import { useState, useRef } from 'octane';
-import { View, Row, Text, Pressable, TextInput, ScrollView } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, TextInput, ScrollView } from '@octane-xplat/ui';
 
 type Todo = { id: string; text: string; done: boolean };
 
@@ -27,7 +27,7 @@ export function Todo() @{
 	const remove = (id: string) => setTodos(todos.filter((t) => t.id !== id));
 
 	const renderTodo = (t: Todo) => (
-		<Row className="cell gap-2 items-center">
+		<HStack className="cell gap-2 items-center">
 			<Pressable onPress={() => toggle(t.id)}>
 				<Text className="todo-check">{t.done ? '✓' : '○'}</Text>
 			</Pressable>
@@ -35,11 +35,11 @@ export function Todo() @{
 			<Pressable onPress={() => remove(t.id)}>
 				<Text className="todo-check">{'✕'}</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 	);
 
 	<View className="vx-app flex-1 gap-4">
-		<Row className="gap-2">
+		<HStack className="gap-2">
 			<TextInput
 				value={draft}
 				onChange={(v) => setDraft(v)}
@@ -49,7 +49,7 @@ export function Todo() @{
 			<Pressable id="todo-add" onPress={add} className="btn bg-primary">
 				<Text className="text-onprimary">Add</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		@if (todos.length === 0) {
 			<Text className="cell">Nothing yet — add one.</Text>
 		}

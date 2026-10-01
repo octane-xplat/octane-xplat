@@ -380,14 +380,14 @@ web, the OS opener on native. Use `pushRoute` for an in-app action that is
 not naturally a link.
 
 ```tsx
-import { Link, NavLink, Row } from '@octane-xplat/ui'
+import { HStack, Link, NavLink } from '@octane-xplat/ui'
 
 export function Footer() {
 	return (
-		<Row>
+		<HStack>
 			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>Settings</NavLink>
 			<Link href="https://example.com">Website</Link>
-		</Row>
+		</HStack>
 	)
 }
 ```

@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
-import { FieldGroup, ListItem, Pressable, Row, Text, View } from '@octane-xplat/ui';
+import { FieldGroup, Item, Pressable, HStack, Text, View } from '@octane-xplat/ui';
 import { RecyclerView } from '@octane-xplat/ui/android';
 
 type DemoRow = {
@@ -21,16 +21,16 @@ const INITIAL_ROWS: DemoRow[] = [
 
 const renderDemoRow = (item: DemoRow) => @{
 	@if (item.kind === 'notice') {
-		<ListItem id={'list-row-' + item.id} className="list-demo-row list-demo-notice">
-			<ListItem.Leading><Text className="list-demo-badge">Info</Text></ListItem.Leading>
-			<ListItem.Content>
+		<Item id={'list-row-' + item.id} className="list-demo-row list-demo-notice">
+			<Item.Leading><Text className="list-demo-badge">Info</Text></Item.Leading>
+			<Item.Content>
 				<Text className="list-demo-title">{item.title}</Text>
-				<ListItem.Supporting>{item.detail}</ListItem.Supporting>
-			</ListItem.Content>
-			<ListItem.Trailing><Text>›</Text></ListItem.Trailing>
-		</ListItem>
+				<Item.Supporting>{item.detail}</Item.Supporting>
+			</Item.Content>
+			<Item.Trailing><Text>›</Text></Item.Trailing>
+		</Item>
 	} @else {
-		<ListItem
+		<Item
 			id={'list-row-' + item.id}
 			className="list-demo-row list-demo-event"
 			leading={<Text className="list-demo-badge">Event</Text>}
@@ -61,15 +61,15 @@ export function ListDemo() @{
 	]);
 
 	<View className="vx-app flex-1 gap-4">
-		<Row className="list-demo-toolbar">
+		<HStack className="list-demo-toolbar">
 			<Pressable id="list-demo-reverse" className="btn bg-primary" onPress={reverseRows}>
 				<Text className="text-onprimary">Reverse rows</Text>
 			</Pressable>
 			<Text>{items.length + ' rows · scroll to load more'}</Text>
-		</Row>
+		</HStack>
 		<FieldGroup label="Preferences">
-			<ListItem title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
-			<ListItem title="Managed setting" supportingText="Set by your organization" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} />
+			<Item title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
+			<Item title="Managed setting" supportingText="Set by your organization" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} />
 		</FieldGroup>
 		<RecyclerView
 			id="list-demo-list"

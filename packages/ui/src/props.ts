@@ -1441,7 +1441,7 @@ export interface BadgeProps {
 	web?: any
 }
 
-/** Separator — hairline rule between content. */
+/** Hairline rule between content. */
 export interface SeparatorProps {
 	className?: any
 	style?: any
@@ -1970,3 +1970,36 @@ export interface ReadableStore<T> {
 export interface Store<T> extends ReadableStore<T> {
 	set(next: T | ((prev: T) => T)): void
 }
+
+// Astryx-aligned component prop names. The existing interfaces remain the
+// source contracts so these aliases preserve the current cross-platform API.
+/** Props accepted by `Divider`, using the existing `Separator` contract. */
+export type DividerProps = SeparatorProps
+/** Props accepted by `HStack`, using the existing horizontal `Row` contract. */
+export type HStackProps = RowProps
+/** Props accepted by `VStack`, using the existing vertical `Column` contract. */
+export type VStackProps = ViewProps
+/** Props accepted by `Item`, using the existing `ListItem` contract. */
+export type ItemProps = ListItemProps
+/** Props accepted by `CheckboxInput`. */
+export type CheckboxInputProps = CheckboxProps
+/** Props accepted by `CheckboxList`. */
+export type CheckboxListProps = CheckboxGroupProps
+/** Props accepted by `RadioList`. */
+export type RadioListProps = RadioGroupProps
+/** Props accepted by `Field`, using the existing `FormField` contract. */
+export type FieldProps = FormFieldProps
+/** Props accepted by `NumberInput`. */
+export type NumberInputProps = InputNumberProps
+/** Props accepted by `Selector`. */
+export type SelectorProps = SelectProps
+/** Props accepted by `MultiSelector`. */
+export type MultiSelectorProps = SelectProps
+/** Props accepted by `Breadcrumbs`. */
+export type BreadcrumbsProps = BreadcrumbProps
+/** Props accepted by `TreeList`. */
+export type TreeListProps = TreeProps
+/** Props accepted by `EmptyState`. */
+export type EmptyStateProps = EmptyProps
+/** Props accepted by `Spinner`. */
+export type SpinnerProps = ActivityIndicatorProps

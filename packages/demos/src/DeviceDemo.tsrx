@@ -1,6 +1,6 @@
 import { useState } from 'octane';
 import {
-	Drawer, Pressable, Row, SafeArea, Screen, Text, View,
+	Drawer, Pressable, HStack, SafeArea, Screen, Text, View,
 	useSafeAreaInsets,
 } from '@octane-xplat/ui';
 
@@ -23,11 +23,11 @@ export function DeviceDemo() @{
 			</View>
 			<View className="sink-section">
 				<Text className="section-label">Drawer</Text>
-				<Row>
+				<HStack>
 					<Pressable className="btn btn-secondary" onPress={() => setDrawerOpen(!drawerOpen)}>
 						<Text>{drawerOpen ? 'Close drawer' : 'Open drawer'}</Text>
 					</Pressable>
-				</Row>
+				</HStack>
 				<Drawer
 					open={drawerOpen}
 					onDismiss={() => setDrawerOpen(false)}

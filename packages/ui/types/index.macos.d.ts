@@ -1,60 +1,78 @@
 // Components exposed on AppKit use ordinary function signatures so they
 // remain valid JSX elements in the AppKit renderer's TypeScript program.
 import type * as P from './generated/props.js'
+import type { MdDoc } from './generated/Markdown.js'
 import type { SafeAreaInsets } from './generated/safeAreaInsets.js'
 
 type Component<Props = Record<string, unknown>> = (props: Props & { children?: any }) => unknown
 
 export type * from './generated/props.js'
+export type { MdDoc, MdNode, MdInline } from './generated/Markdown.js'
 
 export declare const View: Component<P.ViewProps>
-export declare const Column: Component<P.ViewProps>
-export declare const Row: Component<P.RowProps>
+/** Vertical flex container, exported under Astryx's component name. */
+export declare const VStack: Component<P.VStackProps>
+/** Horizontal flex container, exported under Astryx's component name. */
+export declare const HStack: Component<P.HStackProps>
 export declare const Grid: Component<P.GridProps>
 export declare const Stack: Component<P.StackProps>
 export declare const Absolute: Component<P.AbsoluteProps>
 export declare const Spacer: Component<P.SpacerProps>
 export declare const Text: Component<P.TextProps>
+export declare const Markdown: Component<{ data?: MdDoc }>
+export declare const MarkdownScreen: Component<{ data?: MdDoc; error?: unknown }>
 export declare const RichText: Component<P.RichTextProps>
 export declare const RichTextSpan: Component<P.RichTextSpanProps>
 export declare const Pressable: Component<P.PressableProps>
 export declare const Button: Component<P.ButtonProps>
 export declare const Collapsible: Component<P.CollapsibleProps>
 export declare const Accordion: Component<P.AccordionProps>
-export declare const Checkbox: Component<P.CheckboxProps>
-export declare const RadioGroup: Component<P.RadioGroupProps>
+/** Self-drawn checkbox, exported under Astryx's component name. */
+export declare const CheckboxInput: Component<P.CheckboxInputProps>
+/** Single-choice option list, exported under Astryx's component name. */
+export declare const RadioList: Component<P.RadioListProps>
 export declare const DropdownMenu: Component<P.DropdownMenuProps>
 export declare const ContextMenu: Component<P.ContextMenuProps>
 export declare const Badge: Component<P.BadgeProps>
-export declare const Separator: Component<P.SeparatorProps>
+/** Visual separator between content sections, exported under Astryx's name. */
+export declare const Divider: Component<P.DividerProps>
 export declare const Skeleton: Component<P.SkeletonProps>
 export declare const Avatar: Component<P.AvatarProps>
 export declare const AvatarGroup: Component<P.AvatarGroupProps>
-export declare const FormField: Component<P.FormFieldProps>
+/** Labeled control wrapper, exported under Astryx's component name. */
+export declare const Field: Component<P.FieldProps>
 export declare const FieldGroup: Component<P.FieldGroupProps>
-export declare const ListItem: Component<P.ListItemProps>
-export declare const InputNumber: Component<P.InputNumberProps>
+/** Reusable labeled row, exported under Astryx's component name. */
+export declare const Item: Component<P.ItemProps>
+/** Bounded numeric entry, exported under Astryx's component name. */
+export declare const NumberInput: Component<P.NumberInputProps>
 export declare const PinInput: Component<P.PinInputProps>
-export declare const Select: Component<P.SelectProps>
-export declare const SelectMenu: Component<P.SelectProps>
+/** Option picker, exported under Astryx's component name. */
+export declare const Selector: Component<P.SelectorProps>
+/** Multi-choice option picker, exported under Astryx's component name. */
+export declare const MultiSelector: Component<P.MultiSelectorProps>
 export declare const Combobox: Component<P.SelectProps>
 export declare const InputMenu: Component<P.SelectProps>
 export declare const InputTags: Component<P.InputTagsProps>
 export declare const InputRating: Component<P.InputRatingProps>
-export declare const CheckboxGroup: Component<P.CheckboxGroupProps>
-export declare const Breadcrumb: Component<P.BreadcrumbProps>
+/** Multi-choice checkbox list, exported under Astryx's component name. */
+export declare const CheckboxList: Component<P.CheckboxListProps>
+/** Ancestor path trail, exported under Astryx's component name. */
+export declare const Breadcrumbs: Component<P.BreadcrumbsProps>
 export declare const Pagination: Component<P.PaginationProps>
 export declare const Stepper: Component<P.StepperProps>
 export declare const NavigationMenu: Component<P.NavigationMenuProps>
 export declare const CommandPalette: Component<P.CommandPaletteProps>
 export declare const Table: Component<P.TableProps>
 export declare const Timeline: Component<P.TimelineProps>
-export declare const Tree: Component<P.TreeProps>
+/** Expandable hierarchy, exported under Astryx's component name. */
+export declare const TreeList: Component<P.TreeListProps>
 export declare const Alert: Component<P.AlertProps>
 export declare const Card: Component<P.CardProps>
 export declare const Chip: Component<P.ChipProps>
 export declare const Kbd: Component<P.KbdProps>
-export declare const Empty: Component<P.EmptyProps>
+/** Empty-state block, exported under Astryx's component name. */
+export declare const EmptyState: Component<P.EmptyStateProps>
 export declare const Banner: Component<P.BannerProps>
 export declare const User: Component<P.UserProps>
 export declare const ProgressGroup: Component<P.ProgressGroupProps>
@@ -86,7 +104,8 @@ export declare const Switch: Component<P.SwitchProps>
 export declare const SafeArea: Component<P.SafeAreaProps>
 export declare const KeyboardAvoiding: Component<P.KeyboardAvoidingProps>
 export declare const Drawer: Component<P.DrawerProps>
-export declare const ActivityIndicator: Component<P.ActivityIndicatorProps>
+/** Loading indicator, exported under Astryx's component name. */
+export declare const Spinner: Component<P.SpinnerProps>
 export declare const Meter: Component<P.MeterProps>
 export declare const Slider: Component<P.SliderProps>
 export declare const Icon: Component<P.IconProps>

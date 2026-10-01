@@ -1,5 +1,5 @@
 import { useState } from 'octane'
-import { View, Row, Text, Pressable, VirtualList as VirtualListView } from '@octane-xplat/ui'
+import { View, HStack, Text, Pressable, VirtualList as VirtualListView } from '@octane-xplat/ui'
 
 type Row_ = { id: string; label: string; height: number; type: 'row' }
 
@@ -55,16 +55,16 @@ export function VirtualList() @{
 	const restore = () => setItems(INITIAL)
 
 	<View className="vx-app flex-1 gap-3">
-		<Row className="gap-2">
+		<HStack className="gap-2">
 			<Pressable id="vl-prepend" onPress={prepend} className="btn btn-secondary"><Text>Prepend</Text></Pressable>
 			<Pressable id="vl-drop" onPress={dropFirst} className="btn btn-secondary"><Text>Drop first</Text></Pressable>
 			<Pressable id="vl-reverse" onPress={reverse} className="btn btn-secondary"><Text>Reverse</Text></Pressable>
-		</Row>
-		<Row className="gap-2">
+		</HStack>
+		<HStack className="gap-2">
 			<Pressable id="vl-grow" onPress={growRow} className="btn btn-secondary"><Text>Grow r15</Text></Pressable>
 			<Pressable id="vl-clear" onPress={clear} className="btn btn-secondary"><Text>Empty</Text></Pressable>
 			<Pressable id="vl-restore" onPress={restore} className="btn btn-secondary"><Text>Restore</Text></Pressable>
-		</Row>
+		</HStack>
 		<Text className="text-sm text-muted">{items.length + ' rows · tap a row to test keyed state'}</Text>
 		<VirtualListView
 			id="vlist"

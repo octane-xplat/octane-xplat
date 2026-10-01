@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Button, Heading, Row, Text, View } from '@octane-xplat/ui';
+import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui';
 import { Video } from '@octane-xplat/video';
 import type { VideoHandle } from '@octane-xplat/video';
 
@@ -32,7 +32,7 @@ export function VideoDemo() @{
 				handle.current = h;
 			}}
 		/>
-		<Row className="gap-2">
+		<HStack className="gap-2">
 			<Button className="btn btn-secondary" onPress={() => setPlaying(!playing)}>
 				<Text>{playing ? 'Pause' : 'Play'}</Text>
 			</Button>
@@ -45,7 +45,7 @@ export function VideoDemo() @{
 			<Button className="btn btn-secondary" onPress={() => setMuted(!muted)}>
 				<Text>{muted ? 'Unmute' : 'Mute'}</Text>
 			</Button>
-		</Row>
+		</HStack>
 		<Text className="text-sm text-muted">{status}</Text>
 	</View>
 }

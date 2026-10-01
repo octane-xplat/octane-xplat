@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Button, Heading, Row, Text, View } from '@octane-xplat/ui';
+import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui';
 import { Lottie } from '@octane-xplat/lottie';
 import type { LottieHandle } from '@octane-xplat/lottie';
 import animation from './pinjump-anim';
@@ -33,7 +33,7 @@ export function LottieDemo() @{
 			}}
 		/>
 		<Text className="lottie-demo-status">{status}</Text>
-		<Row className="gap-2">
+		<HStack className="gap-2">
 			<Button className="btn btn-secondary" onPress={() => setPlaying(!playing)}>
 				<Text>{playing ? 'Pause' : 'Play'}</Text>
 			</Button>
@@ -65,6 +65,6 @@ export function LottieDemo() @{
 			>
 				<Text>{speed}x</Text>
 			</Button>
-		</Row>
+		</HStack>
 	</View>
 }

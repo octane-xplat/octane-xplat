@@ -1,7 +1,9 @@
 // Foundations and common controls
 export { View } from './View'
-export { View as Column } from './View'
-export { Row } from './Row'
+/** Vertical flex container, exported under Astryx's component name. */
+export { View as VStack } from './View'
+/** Horizontal flex container, exported under Astryx's component name. */
+export { Row as HStack } from './Row'
 export { Grid } from './Grid'
 export { Stack } from './Stack'
 export { Absolute } from './Absolute'
@@ -16,12 +18,15 @@ export { Pressable } from './Pressable'
 export { Button } from './Button'
 export { Collapsible } from './Collapsible'
 export { Accordion } from './Accordion'
-export { Checkbox } from './Checkbox'
-export { RadioGroup } from './RadioGroup'
+/** Self-drawn checkbox, exported under Astryx's component name. */
+export { Checkbox as CheckboxInput } from './Checkbox'
+/** Single-choice option list, exported under Astryx's component name. */
+export { RadioGroup as RadioList } from './RadioGroup'
 export { DropdownMenu } from './DropdownMenu'
 export { ContextMenu } from './ContextMenu'
 export { Badge } from './Badge'
-export { Separator } from './Separator'
+/** Visual separator between content sections, exported under Astryx's name. */
+export { Separator as Divider } from './Separator'
 export { Skeleton } from './Skeleton'
 export { Avatar } from './Avatar'
 export { AvatarGroup } from './AvatarGroup'
@@ -45,16 +50,22 @@ export type {
 } from './props'
 
 // Forms and data entry
-export { FormField } from './FormField'
+/** Labeled control wrapper, exported under Astryx's component name. */
+export { FormField as Field } from './FormField'
 export { FieldGroup } from './FieldGroup'
-export { ListItem } from './ListItem'
-export { InputNumber } from './InputNumber'
+/** Reusable labeled row, exported under Astryx's component name. */
+export { ListItem as Item } from './ListItem'
+/** Bounded numeric entry, exported under Astryx's component name. */
+export { InputNumber as NumberInput } from './InputNumber'
 export { PinInput } from './PinInput'
-export { Select } from './Select'
-export { SelectMenu, Combobox, InputMenu } from './aliases'
+/** Option picker, exported under Astryx's component name. */
+export { Select as Selector } from './Select'
+/** Multi-choice option picker, exported under Astryx's component name. */
+export { SelectMenu as MultiSelector, Combobox, InputMenu } from './aliases'
 export { InputTags } from './InputTags'
 export { InputRating } from './InputRating'
-export { CheckboxGroup } from './CheckboxGroup'
+/** Multi-choice checkbox list, exported under Astryx's component name. */
+export { CheckboxGroup as CheckboxList } from './CheckboxGroup'
 export type {
 	CheckboxGroupProps,
 	FieldGroupProps,
@@ -71,7 +82,8 @@ export type {
 } from './props'
 
 // Navigation and command surfaces
-export { Breadcrumb } from './Breadcrumb'
+/** Ancestor path trail, exported under Astryx's component name. */
+export { Breadcrumb as Breadcrumbs } from './Breadcrumb'
 export { Pagination } from './Pagination'
 export { Stepper } from './Stepper'
 export { NavigationMenu } from './NavigationMenu'
@@ -90,12 +102,14 @@ export type {
 // Content and display
 export { Table } from './Table'
 export { Timeline } from './Timeline'
-export { Tree } from './Tree'
+/** Expandable hierarchy, exported under Astryx's component name. */
+export { Tree as TreeList } from './Tree'
 export { Alert } from './Alert'
 export { Card } from './Card'
 export { Chip } from './Chip'
 export { Kbd } from './Kbd'
-export { Empty } from './Empty'
+/** Empty-state block, exported under Astryx's component name. */
+export { Empty as EmptyState } from './Empty'
 export { Banner } from './Banner'
 export { User } from './User'
 export { ProgressGroup } from './ProgressGroup'
@@ -177,7 +191,8 @@ export { useSafeAreaInsets } from './safeAreaInsets'
 export type { SafeAreaInsets } from './safeAreaInsets'
 export { useMeasure } from './useMeasure'
 export type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props'
-export { ActivityIndicator } from './ActivityIndicator'
+/** Loading indicator, exported under Astryx's component name. */
+export { ActivityIndicator as Spinner } from './ActivityIndicator'
 export { Meter } from './Meter'
 export { Slider } from './Slider'
 export { Icon } from './Icon'
@@ -266,6 +281,21 @@ export { openSheet, closeSheet } from './sheet-service'
 export type { SheetProps, SheetOpenOptions, OpenSheet } from './props'
 export type {
 	AbsoluteProps,
+	DividerProps,
+	HStackProps,
+	VStackProps,
+	ItemProps,
+	CheckboxInputProps,
+	CheckboxListProps,
+	RadioListProps,
+	FieldProps,
+	NumberInputProps,
+	SelectorProps,
+	MultiSelectorProps,
+	BreadcrumbsProps,
+	TreeListProps,
+	EmptyStateProps,
+	SpinnerProps,
 	DrawerProps,
 	GridProps,
 	ImageProps,

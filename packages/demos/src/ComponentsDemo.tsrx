@@ -1,11 +1,11 @@
 import { useState } from 'octane';
 import {
-	Accordion, Alert, Avatar, AvatarGroup, Badge, Banner, Breadcrumb, Button,
-	Card, Checkbox, CheckboxGroup, Chip, Collapsible, CommandPalette,
-	ContextMenu, DropdownMenu, Empty, FieldGroup, FormField, Heading,
-	InputNumber, InputRating, InputTags, Kbd, NavigationMenu, Pagination,
-	PinInput, ProgressGroup, RadioGroup, Row, Select, Separator, Skeleton,
-	Stepper, Table, Text, Timeline, Tree, User, View, registerIcons,
+	Accordion, Alert, Avatar, AvatarGroup, Badge, Banner, Breadcrumbs, Button,
+	Card, CheckboxInput, CheckboxList, Chip, Collapsible, CommandPalette,
+	ContextMenu, DropdownMenu, EmptyState, FieldGroup, Field, Heading,
+	NumberInput, InputRating, InputTags, Kbd, NavigationMenu, Pagination,
+	PinInput, ProgressGroup, RadioList, HStack, Selector, Divider, Skeleton,
+	Stepper, Table, Text, Timeline, TreeList, User, View, registerIcons,
 } from '@octane-xplat/ui';
 
 registerIcons({
@@ -40,19 +40,19 @@ export function ComponentsDemo() @{
 
 		<View className="controls-section">
 			<Text className="font-bold">Button</Text>
-			<Row className="items-center gap-4">
+			<HStack className="items-center gap-4">
 				<Button className="btn btn-secondary" onPress={() => setLastMenu('pressed')}>
 					<Text>Press me</Text>
 				</Button>
 				<Button className="btn" loading={true}><Text>Loading</Text></Button>
 				<Button className="btn" disabled={true}><Text>Disabled</Text></Button>
-			</Row>
+			</HStack>
 		</View>
 
 		<View className="controls-section">
-			<Text className="font-bold">Checkbox + RadioGroup</Text>
-			<Checkbox checked={checked} onCheckedChange={setChecked} label="Checked" />
-			<RadioGroup
+			<Text className="font-bold">CheckboxInput + RadioList</Text>
+			<CheckboxInput checked={checked} onCheckedChange={setChecked} label="Checked" />
+			<RadioList
 				options={[{ value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta' }, { value: 'c', label: 'Gamma', disabled: true }]}
 				value={radio}
 				onValueChange={setRadio}
@@ -74,22 +74,22 @@ export function ComponentsDemo() @{
 
 		<View className="controls-section">
 			<Text className="font-bold">Menus</Text>
-			<Row className="items-center gap-4">
+			<HStack className="items-center gap-4">
 				<DropdownMenu trigger={<Text className="chip">Menu ▾</Text>} items={menuItems} />
 				<Text className="text-sm text-muted">{'last: ' + lastMenu}</Text>
-			</Row>
+			</HStack>
 			<ContextMenu items={menuItems.map((i) => ({ ...i, onSelect: () => setLastCtx(i.key) }))}>
 				<View className="cell"><Text>Right-click / long-press me ({lastCtx})</Text></View>
 			</ContextMenu>
 		</View>
 
 		<View className="controls-section">
-			<Text className="font-bold">Badge / Separator / Skeleton</Text>
-			<Row className="items-center gap-4">
+			<Text className="font-bold">Badge / Divider / Skeleton</Text>
+			<HStack className="items-center gap-4">
 				<Badge className="chip"><Text>Badge</Text></Badge>
 				<Badge className="chip chip-on"><Text>Active</Text></Badge>
-			</Row>
-			<Separator />
+			</HStack>
+			<Divider />
 			<Skeleton width={160} height={16} />
 			<Skeleton width={220} height={16} />
 		</View>
@@ -97,22 +97,22 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Fields</Text>
 			<FieldGroup label="Sign up">
-				<FormField label="Name" hint="As it appears on your badge">
+				<Field label="Name" hint="As it appears on your badge">
 					<InputTags value={tags} onValueChange={setTags} placeholder="Add tag…" />
-				</FormField>
-				<FormField label="Quantity" error={num > 5 ? 'Too many' : undefined}>
-					<InputNumber value={num} onValueChange={setNum} min={0} max={9} />
-				</FormField>
-				<FormField label="PIN">
+				</Field>
+				<Field label="Quantity" error={num > 5 ? 'Too many' : undefined}>
+					<NumberInput value={num} onValueChange={setNum} min={0} max={9} />
+				</Field>
+				<Field label="PIN">
 					<PinInput length={4} value={pin} onValueChange={setPin} />
 					<Text>Clearing a cell also clears the following cells.</Text>
-				</FormField>
+				</Field>
 			</FieldGroup>
 		</View>
 
 		<View className="controls-section">
-			<Text className="font-bold">Select / Rating / CheckboxGroup</Text>
-			<Select
+			<Text className="font-bold">Selector / Rating / CheckboxList</Text>
+			<Selector
 				options={[{ value: 'apple', label: 'Apple' }, { value: 'banana', label: 'Banana' }, { value: 'cherry', label: 'Cherry', disabled: true }]}
 				value={fruit}
 				onValueChange={setFruit}
@@ -120,7 +120,7 @@ export function ComponentsDemo() @{
 				searchable={true}
 			/>
 			<InputRating value={rating} onValueChange={setRating} />
-			<CheckboxGroup
+			<CheckboxList
 				options={[{ value: 'x', label: 'X' }, { value: 'y', label: 'Y' }]}
 				value={checks}
 				onValueChange={setChecks}
@@ -129,7 +129,7 @@ export function ComponentsDemo() @{
 
 		<View className="controls-section">
 			<Text className="font-bold">Wayfinding</Text>
-			<Breadcrumb items={[{ label: 'Home', onSelect: () => setNav('home') }, { label: 'Library', onSelect: () => setNav('lib') }, { label: 'Book' }]} />
+			<Breadcrumbs items={[{ label: 'Home', onSelect: () => setNav('home') }, { label: 'Library', onSelect: () => setNav('lib') }, { label: 'Book' }]} />
 			<Pagination page={page} pageCount={12} onPageChange={setPage} />
 			<Stepper
 				steps={[{ key: 'cart', label: 'Cart' }, { key: 'ship', label: 'Ship' }, { key: 'pay', label: 'Pay' }]}
@@ -158,7 +158,7 @@ export function ComponentsDemo() @{
 				{ key: 'b', title: 'Shipped', time: '11:40' },
 				{ key: 'c', title: 'Delivered', time: '15:03' },
 			]} />
-			<Tree
+			<TreeList
 				nodes={[
 					{ key: 'src', label: 'src', children: [{ key: 'app', label: 'App.tsrx' }, { key: 'ui', label: 'ui', children: [{ key: 'btn', label: 'Button.tsrx' }] }] },
 					{ key: 'docs', label: 'docs' },
@@ -175,14 +175,14 @@ export function ComponentsDemo() @{
 			<Card header={<Text className="font-bold">Card header</Text>} footer={<Text className="text-sm text-muted">footer</Text>}>
 				<Text>Card body.</Text>
 			</Card>
-			<Row className="items-center gap-4">
+			<HStack className="items-center gap-4">
 				<Chip selected={checked} onSelect={() => setChecked(!checked)}><Text>Chip</Text></Chip>
 				<Chip onRemove={() => setNav('chip-removed')}><Text>Removable</Text></Chip>
 				<Kbd><Text>⌘K</Text></Kbd>
-			</Row>
-			<Empty title="Nothing here" description="Try adding an item">
+			</HStack>
+			<EmptyState title="Nothing here" description="Try adding an item">
 				<Button className="btn btn-secondary"><Text>Add item</Text></Button>
-			</Empty>
+			</EmptyState>
 			<User name="Alec Larson" description="Framework author" fallback="AL" />
 			<ProgressGroup items={[{ key: 'a', label: 'Build', value: 70 }, { key: 'b', label: 'Test', value: 35 }]} />
 		</View>

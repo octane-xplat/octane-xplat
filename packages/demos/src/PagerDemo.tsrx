@@ -1,6 +1,6 @@
 import { useState } from 'octane';
 import { Pager } from '@octane-xplat/pager';
-import { Button, Heading, Pressable, Row, Text, View } from '@octane-xplat/ui';
+import { Button, Heading, Pressable, HStack, Text, View } from '@octane-xplat/ui';
 
 const PAGES = [
 	{
@@ -15,7 +15,7 @@ const PAGES = [
 	},
 	{
 		title: 'No indicator',
-		body: 'Pager ships no dots — the indicator below is composed from Row + Pressable, identical on every target.',
+		body: 'Pager ships no dots — the indicator below is composed from HStack + Pressable, identical on every target.',
 		tint: '#2f9e6e',
 	},
 	{
@@ -46,7 +46,7 @@ export function PagerDemo() @{
 			page={page}
 			onPageChange={setPage}
 		/>
-		<Row className="pager-dots">
+		<HStack className="pager-dots">
 			@for (const _p of PAGES; index i; key i) {
 				<Pressable
 					id={'pager-dot-' + i}
@@ -55,8 +55,8 @@ export function PagerDemo() @{
 					accessibilityLabel={'Go to page ' + (i + 1)}
 				/>
 			}
-		</Row>
-		<Row className="pager-controls">
+		</HStack>
+		<HStack className="pager-controls">
 			<Button className="btn btn-secondary" onPress={() => setPage(Math.max(0, page - 1))}>
 				<Text>Previous</Text>
 			</Button>
@@ -64,6 +64,6 @@ export function PagerDemo() @{
 			<Button className="btn btn-secondary" onPress={() => setPage(Math.min(PAGES.length - 1, page + 1))}>
 				<Text>Next</Text>
 			</Button>
-		</Row>
+		</HStack>
 	</View>
 }

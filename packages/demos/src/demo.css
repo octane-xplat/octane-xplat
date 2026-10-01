@@ -496,7 +496,7 @@
 }
 /* xplat-web-only:end */
 
-/* Pager — the demo's indicator is composed (Row + Pressable dots), matching
+/* Pager — the demo's indicator is composed (HStack + Pressable dots), matching
    the component's contract: Pager itself ships no chrome. */
 .pager-demo-pager {
 	height: 240px;

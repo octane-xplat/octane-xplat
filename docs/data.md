@@ -64,7 +64,7 @@ A suspending read belongs under a boundary:
 	const posts = feed$.get()
 	<Feed posts={posts} />
 } @pending {
-	<ActivityIndicator />
+	<Spinner />
 } @catch (e) {
 	<Text>Could not load the feed.</Text>
 }
@@ -86,7 +86,7 @@ the boundary together:
 @try {
 	<Feed posts={feed$.get()} />
 } @pending {
-	<ActivityIndicator />
+	<Spinner />
 } @catch (error, resetBoundary) {
 	<Pressable onPress={() => {
 		feed$.retry({ pending: true })
@@ -95,7 +95,7 @@ the boundary together:
 }
 ```
 
-`Pressable`, `Text`, and `ActivityIndicator` come from `@octane-xplat/ui`;
+`Pressable`, `Text`, and `Spinner` come from `@octane-xplat/ui`;
 `Feed` remains an app-owned component. Resetting the boundary alone does not
 restart the failed request.
 

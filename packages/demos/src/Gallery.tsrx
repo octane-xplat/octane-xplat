@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Screen, View, Row, Text, Pressable, ScrollView } from '@octane-xplat/ui';
+import { Screen, View, HStack, Text, Pressable, ScrollView } from '@octane-xplat/ui';
 import { Counter } from './Counter.tsrx';
 import { Stopwatch } from './Stopwatch.tsrx';
 import { Todo } from './Todo.tsrx';
@@ -205,12 +205,12 @@ export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | '
 	};
 
 	<Screen className="vx-app flex-1 gap-6">
-		<Row className="justify-between items-baseline">
+		<HStack className="justify-between items-baseline">
 			<Text className="text-2xl font-semibold">{props.title ?? 'Demos'}</Text>
 			<Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
-		</Row>
+		</HStack>
 		<ScrollView className="flex-1">
-			<Row className="demo-menu" style={{ minHeight: 1200 }}>
+			<HStack className="demo-menu" style={{ minHeight: 1200 }}>
 				@for (const d of shown; key d.id) {
 					<Pressable
 						id={'menu-' + d.id}
@@ -220,7 +220,7 @@ export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | '
 						<Text>{d.title}</Text>
 					</Pressable>
 				}
-			</Row>
+			</HStack>
 		</ScrollView>
 		@if (!props.onOpen) {
 			<View className="flex-1 min-h-0">

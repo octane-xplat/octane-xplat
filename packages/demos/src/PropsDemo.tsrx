@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, Row, Text, TextInput, Pressable } from '@octane-xplat/ui';
+import { View, HStack, Text, TextInput, Pressable } from '@octane-xplat/ui';
 
 /** Public prop parity probe for shipped primitives. */
 export function PropsDemo() @{
@@ -16,12 +16,12 @@ export function PropsDemo() @{
 			<Text className="section-label">Fields</Text>
 			<TextInput className="input" value={secret} onChange={setSecret} secure placeholder="Password" returnKeyType="done" onSubmit={() => setSubmitState('Password submitted')} placeholderTextColor="#64748b" />
 			<TextInput className="input" value={value} onChange={setValue} keyboardType="email" editable={editable} placeholder="Email address" onFocus={() => setFocusState('focused')} onBlur={() => setFocusState('blurred')} onSubmit={() => setSubmitState('Email submitted')} />
-			<Row className="gap-3 items-center">
+			<HStack className="gap-3 items-center">
 				<Pressable className="btn btn-secondary" onPress={() => setEditable(!editable)}>
 					<Text>{editable ? 'Disable input' : 'Enable input'}</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{'Input is ' + (editable ? 'editable' : 'read only')}</Text>
-			</Row>
+			</HStack>
 			<Text className="text-sm text-muted">{'Focus: ' + focusState + (submitState ? ' · ' + submitState : '')}</Text>
 		</View>
 		<View className="sink-section">

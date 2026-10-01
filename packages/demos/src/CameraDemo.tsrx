@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Button, Heading, Row, SegmentedControl, Text, View } from '@octane-xplat/ui';
+import { Button, Heading, HStack, SegmentedControl, Text, View } from '@octane-xplat/ui';
 import { CameraView } from '@octane-xplat/camera';
 
 /** Shared `CameraView` demo — live preview only. `facing` flips the lens,
@@ -19,7 +19,7 @@ export function CameraDemo() @{
 			onReady={() => setStatus('preview live')}
 			onError={(e) => setStatus(`error ${e.message ?? ''}`)}
 		/>
-		<Row className="gap-2 items-center">
+		<HStack className="gap-2 items-center">
 			<SegmentedControl
 				options={[
 					{ value: 'back', label: 'Back' },
@@ -31,7 +31,7 @@ export function CameraDemo() @{
 			<Button className="btn btn-secondary" onPress={() => setActive(!active)}>
 				<Text>{active ? 'Stop' : 'Start'}</Text>
 			</Button>
-		</Row>
+		</HStack>
 		<Text className="text-sm text-muted">{status}</Text>
 	</View>
 }

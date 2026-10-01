@@ -848,7 +848,7 @@
 	}
 	/* xplat-web-only:end */
 
-	/* Separator — hairline rule; --h spans width, --v spans height. */
+	/* Divider — hairline rule; --h spans width, --v spans height. */
 	.vx-separator--h {
 		height: 1px;
 		background-color: var(--color-border);

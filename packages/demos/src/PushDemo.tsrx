@@ -1,4 +1,4 @@
-import { createStore, useStore, Heading, Pressable, Row, Text, View } from '@octane-xplat/ui';
+import { createStore, useStore, Heading, Pressable, HStack, Text, View } from '@octane-xplat/ui';
 import { push } from '@octane-xplat/push';
 import type { PushMessage } from '@octane-xplat/push';
 
@@ -47,7 +47,7 @@ export function PushDemo() @{
 			SDK + shipped service worker on web. Needs real credentials — see
 			docs/push-notifications.md.
 		</Text>
-		<Row className="gap-2">
+		<HStack className="gap-2">
 			<Pressable id="push-configure" className="btn btn-secondary" onPress={() => void configure()}>
 				<Text>Configure</Text>
 			</Pressable>
@@ -65,7 +65,7 @@ export function PushDemo() @{
 			>
 				<Text>Get token</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		<View className="gap-2">
 			@for (const line of log; key line) {
 				<Text id="push-log-line" className="text-sm text-muted">{line}</Text>

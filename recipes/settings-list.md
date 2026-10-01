@@ -2,7 +2,7 @@
 
 ID: settings-list
 Targets: web, ios, android
-Related APIs: `ListItem`, `FieldGroup`, `modifier`, `Icon.select`
+Related APIs: `Item`, `FieldGroup`, `modifier`, `Icon.select`
 
 ## Starting point
 
@@ -19,7 +19,7 @@ style a platform-authentic widget or choose its native glyph.
 
 ## Acceptance criteria
 
-- AC1: A row can show leading content, title, supporting text, trailing content, and an optional press action on web, iOS, and Android.
+- AC1: `Item` can show leading content, title, supporting text, trailing content, and an optional press action on web, iOS, and Android.
 - AC2: A row can use the shorthand props or compound slots and can appear inside or outside `FieldGroup`.
 - AC3: Platform-specific widget modifiers and glyph selection are imported from a matching platform subpath and do not change shared `Icon` behavior.
 - AC4: Actionable rows have meaningful accessible names and disabled rows do not activate. On web, Tab reaches enabled actions and Enter/Space activate each action once; informational and disabled rows are outside the Tab sequence. Native assistive activation must be verified with VoiceOver/TalkBack separately from prop readback.

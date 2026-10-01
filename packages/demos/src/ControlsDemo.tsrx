@@ -1,6 +1,6 @@
 import { useState } from 'octane';
 import {
-	ActivityIndicator, Heading, Icon, Row, Slider, Switch, Text, View,
+	Spinner, Heading, Icon, HStack, Slider, Switch, Text, View,
 	registerIcons,
 } from '@octane-xplat/ui';
 
@@ -22,18 +22,18 @@ export function ControlsDemo() @{
 			<Slider value={value} minValue={0} maxValue={100} onValueChange={setValue} />
 		</View>
 		<View className="controls-section">
-			<Row className="items-center gap-2">
+			<HStack className="items-center gap-2">
 				<Text>Activity indicator</Text>
 				<Switch checked={busy} onCheckedChange={setBusy} />
-				<ActivityIndicator busy={busy} className="controls-spinner" />
-			</Row>
+				<Spinner busy={busy} className="controls-spinner" />
+			</HStack>
 		</View>
 		<View className="controls-section">
 			<Text className="font-bold">Icons</Text>
-			<Row className="items-center gap-4">
+			<HStack className="items-center gap-4">
 				<Icon name="controls-check" size={28} color="#666666" />
 				<Icon name="controls-star" size={28} />
-			</Row>
+			</HStack>
 		</View>
 		<View className="controls-section">
 			<Text className="font-bold">Heading levels</Text>

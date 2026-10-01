@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'octane';
-import { View, Row, Text, Pressable } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable } from '@octane-xplat/ui';
 
 type Day = { id: string; name: string; icon: string; lo: number; hi: number };
 
@@ -40,23 +40,23 @@ export function Weather() @{
 	}, [gen]);
 
 	<View className="vx-app flex-1 gap-4">
-		<Row className="gap-4 items-center">
+		<HStack className="gap-4 items-center">
 			<Text className="text-xl font-bold">Forecast</Text>
 			<Pressable id="wx-refresh" onPress={() => setGen(gen + 1)} className="btn bg-primary">
 				<Text className="text-onprimary">Refresh</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		{/* Ternary in children position — the @if/@else version mounted
 		    neither arm on native (docs/demos.md findings). */}
 		{days === null
 			? <Text className="cell">{'Loading…'}</Text>
 			: <View className="gap-2">
 				@for (const d of days; key d.id) {
-					<Row className="wx-card gap-4 items-center">
+					<HStack className="wx-card gap-4 items-center">
 						<Text className="wx-icon">{d.icon}</Text>
 						<Text className="flex-1">{d.name}</Text>
 						<Text>{d.lo + '° / ' + d.hi + '°'}</Text>
-					</Row>
+					</HStack>
 				}
 			</View>
 		}

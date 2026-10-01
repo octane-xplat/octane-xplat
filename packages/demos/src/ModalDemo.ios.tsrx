@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
-import { openSheet, Pressable, Row, Screen, Sheet, Text, View } from '@octane-xplat/ui';
+import { openSheet, Pressable, HStack, Screen, Sheet, Text, View } from '@octane-xplat/ui';
 import { UIModal, openModal } from '@octane-xplat/ui/ios';
 
 function Picker(props: { params: { choices: string[] }; close: (value?: string) => void }) @{
@@ -47,7 +47,7 @@ export function ModalDemo() @{
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Imperative picker</Text>
-			<Row className="demo-menu">
+			<HStack className="demo-menu">
 				@for (const value of ['sheet', 'fullscreen', 'dialog'] as const; key value) {
 					<Pressable
 						onPress={() => setPresentation(value)}
@@ -56,7 +56,7 @@ export function ModalDemo() @{
 						<Text>{value}</Text>
 					</Pressable>
 				}
-			</Row>
+			</HStack>
 			<Pressable onPress={pick} className="btn bg-primary">
 				<Text className="text-onprimary">Open imperative picker</Text>
 			</Pressable>

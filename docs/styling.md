@@ -125,7 +125,7 @@ target. See the [NativeScript fonts guide](https://beta.docs.nativescript.org/pr
 
 ## Keep layouts honest
 
-Flex layouts are the safest common starting point. Prefer `Row`, `View`, and
+Flex layouts are the safest common starting point. Prefer `HStack`, `View`, and
 spacing classes over target-specific positioning. Check a screen at a narrow
 browser width and on a native device before adding a platform split.
 

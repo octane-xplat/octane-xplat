@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { FieldGroup, ListItem, Pressable, Row, ScrollView, Text, View } from '@octane-xplat/ui';
+import { FieldGroup, Item, Pressable, HStack, ScrollView, Text, View } from '@octane-xplat/ui';
 
 type DemoRow = {
 	id: string;
@@ -19,16 +19,16 @@ const INITIAL_ROWS: DemoRow[] = [
 
 const renderDemoRow = (item: DemoRow) => @{
 	@if (item.kind === 'notice') {
-		<ListItem id={'list-row-' + item.id} className="list-demo-row list-demo-notice">
-			<ListItem.Leading><Text className="list-demo-badge">Info</Text></ListItem.Leading>
-			<ListItem.Content>
+		<Item id={'list-row-' + item.id} className="list-demo-row list-demo-notice">
+			<Item.Leading><Text className="list-demo-badge">Info</Text></Item.Leading>
+			<Item.Content>
 				<Text className="list-demo-title">{item.title}</Text>
-				<ListItem.Supporting>{item.detail}</ListItem.Supporting>
-			</ListItem.Content>
-			<ListItem.Trailing><Text>›</Text></ListItem.Trailing>
-		</ListItem>
+				<Item.Supporting>{item.detail}</Item.Supporting>
+			</Item.Content>
+			<Item.Trailing><Text>›</Text></Item.Trailing>
+		</Item>
 	} @else {
-		<ListItem
+		<Item
 			id={'list-row-' + item.id}
 			className="list-demo-row list-demo-event"
 			leading={<Text className="list-demo-badge">Event</Text>}
@@ -60,7 +60,7 @@ export function ListDemo() @{
 	]);
 
 	<View className="vx-app flex-1 gap-4">
-		<Row className="list-demo-toolbar">
+		<HStack className="list-demo-toolbar">
 			<Pressable id="list-demo-reverse" className="btn bg-primary" onPress={reverseRows}>
 				<Text className="text-onprimary">Reverse rows</Text>
 			</Pressable>
@@ -68,10 +68,10 @@ export function ListDemo() @{
 				<Text>Append 5</Text>
 			</Pressable>
 			<Text>{items.length + ' rows'}</Text>
-		</Row>
+		</HStack>
 		<FieldGroup label="Preferences">
-			<ListItem id="list-demo-updates" title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
-			<ListItem id="list-demo-disabled" title="Managed setting" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} supportingText="Changes disabled" />
+			<Item id="list-demo-updates" title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
+			<Item id="list-demo-disabled" title="Managed setting" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} supportingText="Changes disabled" />
 		</FieldGroup>
 		<ScrollView id="list-demo-list" className="list flex-1">
 			{items.map(renderDemoRow)}
