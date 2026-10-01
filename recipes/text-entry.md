@@ -2,7 +2,7 @@
 
 ID: text-entry
 Targets: web, ios, android
-Related APIs: TextInput, TextArea, SearchInput, TextInputHandle, KeyboardAvoiding, onChange, onSubmit, Sheet, Overlay
+Related APIs: TextInput, TextArea, SearchInput, TextInputHandle, KeyboardAvoiding, label, description, isDisabled, isReadOnly, isRequired, isOptional, size, status, isLoading, hasClear, onChange, onSubmit, Sheet, Overlay
 
 ## Starting point
 
@@ -18,7 +18,7 @@ space through form and overlay lifecycles.
 
 - AC1: Controlled field writes do not call onChange, real edits call it once, and typing/replacing a middle selection preserves the intended text and cursor.
 - AC2: Composition confirmation does not submit prematurely, marked text survives controlled updates, and multiline Return/submission semantics are documented and exercised with real keyboards.
-- AC3: Fields have accessible names; enabled actions support browser Tab/Enter/Space; disabled controls cannot activate and report disabled state. VoiceOver/TalkBack behavior is verified separately from mappings.
+- AC3: Standalone fields have accessible names and can render an optional `description`; enabled actions support browser Tab/Enter/Space; `isDisabled` controls cannot activate and expose disabled state, `isReadOnly` controls stay non-editable, and busy fields report `isLoading` without disabling edits. VoiceOver/TalkBack behavior is verified separately from mappings.
 - AC4: Focus and blur handles release/restore editing focus, and software-keyboard avoidance keeps the final field reachable, including overlays opened with the keyboard already visible.
 - AC5: Modal focus cannot escape into background content; close/restoration and nested modal isolation are covered independently on each target. Exiting Presence content cannot accept input or remain in assistive navigation.
 

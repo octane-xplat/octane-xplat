@@ -11,12 +11,16 @@ import { normStyle } from './layout-child.web';
 export function SearchInput(props: SearchInputProps) @{
 	const [internal, setInternal] = useState(props.defaultValue ?? '');
 	const value = props.value ?? internal;
+	const isBlocked = props.isDisabled || props.isReadOnly;
+	const hasClear = props.hasClear !== false;
 	const setValue = (next: string) => {
+		if (isBlocked) return;
 		if (props.value === undefined) setInternal(next);
 		props.onChange?.(next);
 	};
 
 	const clear = () => {
+		if (isBlocked || !hasClear) return;
 		setValue('');
 		props.onClear?.();
 	};
@@ -24,8 +28,9 @@ export function SearchInput(props: SearchInputProps) @{
 	<div
 		ref={(el: any) => applyWebProps(el, props.web)}
 		id={props.id}
-		className={['vx-search', props.editable === false ? 'vx-search--disabled' : undefined, props.className]}
+		className={['vx-search', props.isDisabled ? 'vx-search--disabled' : undefined, props.isReadOnly ? 'vx-search--readonly' : undefined, props.isLoading ? 'vx-search--loading' : undefined, props.status ? `vx-search--status-${props.status.type}` : undefined, props.size ? `vx-search--size-${props.size}` : undefined, props.className]}
 		style={normStyle(props.style)}
+		aria-busy={props.isLoading || undefined}
 	>
 		{props.icon !== false ? <Icon name={props.icon ?? 'xplat-search'} size={16} className="vx-search-icon" /> : null}
 		<input
@@ -36,8 +41,12 @@ export function SearchInput(props: SearchInputProps) @{
 			className="vx-search-field"
 			value={value}
 			placeholder={props.placeholder}
-			aria-label={props.accessibilityLabel ?? props.placeholder}
-			readOnly={props.editable === false}
+			aria-label={props.accessibilityLabel ?? props.label ?? props.placeholder}
+			aria-required={props.isRequired && !props.isOptional || undefined}
+			aria-invalid={props.status?.type === 'error' || undefined}
+			aria-busy={props.isLoading || undefined}
+			disabled={props.isDisabled || undefined}
+			readOnly={props.isReadOnly || undefined}
 			enterKeyHint="search"
 			onInput={(e: any) => setValue(e.target.value)}
 			onKeyDown={(e: any) => {
@@ -46,7 +55,7 @@ export function SearchInput(props: SearchInputProps) @{
 			onFocus={props.onFocus}
 			onBlur={props.onBlur}
 		/>
-		{value !== '' && props.editable !== false ? (
+		{value !== '' && hasClear && !isBlocked ? (
 			<button type="button" className="vx-search-clear" aria-label="Clear search" onClick={clear}>
 				<Icon name="xplat-clear" size={12} />
 			</button>

@@ -47,12 +47,17 @@ export function TextArea(props: TextAreaProps) @{
 			props.bind?.({ focus: () => node.focus(), blur: () => node.blur(), native: node });
 		}}
 		id={props.id}
-		className={['vx-textarea', props.className]}
+		className={['vx-textarea', props.isDisabled ? 'vx-textarea--disabled' : undefined, props.isReadOnly ? 'vx-textarea--readonly' : undefined, props.isLoading ? 'vx-textarea--loading' : undefined, props.status ? `vx-textarea--status-${props.status.type}` : undefined, props.size ? `vx-textarea--size-${props.size}` : undefined, props.className]}
 		style={{ ...normStyle(props.style), ...(props.placeholderTextColor ? { '--placeholder-color': props.placeholderTextColor } : {}) }}
 		value={props.value}
 		inputMode={props.keyboardType === 'number' ? 'numeric' : props.keyboardType === 'phone' ? 'tel' : props.keyboardType === 'default' ? 'text' : props.keyboardType}
 		enterKeyHint={props.returnKeyType}
-		readOnly={props.editable === false}
+		aria-label={props.accessibilityLabel ?? props.label}
+		aria-required={props.isRequired && !props.isOptional || undefined}
+		aria-invalid={props.status?.type === 'error' || undefined}
+		aria-busy={props.isLoading || undefined}
+		disabled={props.isDisabled || undefined}
+		readOnly={props.isReadOnly || undefined}
 		placeholder={props.placeholder}
 		rows={props.rows ?? (props.autoGrow ? 1 : 3)}
 		onInput={(e: any) => { fit(); props.onChange?.(e.target.value); }}

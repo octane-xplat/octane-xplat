@@ -284,8 +284,22 @@
 		/* NS placeholder color; web uses the ::placeholder pseudo below. */
 		placeholder-color: var(--color-text-secondary);
 	}
+	.vx-input-shell {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-input {
+		flex-grow: 1;
+		min-width: 0;
+	}
+	.vx-input-clear {
+		min-width: 24px;
+		min-height: 24px;
+		justify-content: center;
+		align-items: center;
+	}
 	/* xplat-web-only:start — DOM-only reset: element UA chrome and the
-   focus outline (normalized to the same thin ring on both). */
+	   focus outline (normalized to the same thin ring on both). */
 	.vx-input,
 	.vx-textarea {
 		appearance: none;
@@ -296,6 +310,18 @@
 	.vx-textarea:focus {
 		outline: 1px solid var(--color-primary);
 		outline-offset: -1px;
+	}
+	.vx-input-shell {
+		display: flex;
+		align-items: center;
+		min-width: 0;
+	}
+	.vx-input {
+		min-width: 0;
+	}
+	.vx-input-clear {
+		display: flex;
+		flex: 0 0 auto;
 	}
 	/* xplat-web-only:end */
 

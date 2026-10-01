@@ -212,7 +212,10 @@ snap settles.
 normalized shape of UISegmentedControl / Material segmented buttons, with
 no OS chrome. It takes `options` (the `RadioOption` shape), `value` +
 `onValueChange` for controlled use or `defaultValue` for uncontrolled, and
-`disabled` per-option or on the group.
+`isDisabled` per-option or on the group. Field-like controls also accept
+`label`, `description`, `isReadOnly`, `isRequired`, `isOptional`, `size`,
+`status`, and `isLoading`; see [Inputs](components.md#inputs) for the shared
+state contract.
 
 `SearchInput` is a chrome-reset search field — TextInput with a leading
 glyph and a clear button, styled the same on every target (not
@@ -414,7 +417,9 @@ This fragment assumes `useState` and `PinInput` are imported and the app
 supplies `submitPin`. `onComplete` receives a full-length PIN after an edit;
 it does not fire for an incomplete value or an external value update.
 The maintained [Components demo](../packages/demos/src/ComponentsDemo.tsrx)
-shows controlled entry. `secure` masks the cells and `disabled` prevents editing.
+shows controlled entry. `secure` masks the cells, while `isDisabled` and
+`isReadOnly` prevent editing. PIN fields also accept the shared field-control
+props described in [Inputs](components.md#inputs).
 
 ## Grow a multiline field
 

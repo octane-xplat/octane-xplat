@@ -16,20 +16,25 @@ export function CheckboxGroup(props: CheckboxGroupProps) @{
 
 	const toggle = (v: string, on: boolean) =>
 		setSelected(on ? [...selected, v] : selected.filter((x) => x !== v));
+	const isReadOnly = props.isReadOnly;
 
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		role="group"
-		aria-label={props.accessibilityLabel}
-		className={['vx-checkbox-group', props.horizontal ? 'vx-checkbox-group--row' : undefined, props.className]}
+		aria-label={props.accessibilityLabel ?? props.label}
+		aria-disabled={props.isDisabled || undefined}
+		aria-readonly={isReadOnly || undefined}
+		aria-busy={props.isLoading || undefined}
+		className={['vx-checkbox-group', props.horizontal ? 'vx-checkbox-group--row' : undefined, props.isDisabled ? 'vx-checkbox-group--disabled' : undefined, isReadOnly ? 'vx-checkbox-group--readonly' : undefined, props.isLoading ? 'vx-checkbox-group--loading' : undefined, props.status ? `vx-checkbox-group--status-${props.status.type}` : undefined, props.size ? `vx-checkbox-group--size-${props.size}` : undefined, props.className]}
 		style={props.style}
 	>
 		{props.options.map((opt: any) => (
 			<Checkbox
 				key={opt.value}
 				checked={selected.includes(opt.value)}
-				disabled={props.disabled || opt.disabled}
+				isDisabled={props.isDisabled || opt.isDisabled}
+				isReadOnly={isReadOnly}
 				label={opt.label}
 				onCheckedChange={(on: boolean) => toggle(opt.value, on)}
 			/>

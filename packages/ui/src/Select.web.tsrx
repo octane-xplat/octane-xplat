@@ -14,17 +14,18 @@ export function Select(props: SelectProps) @{
 	const openControlled = props.open !== undefined;
 	const open = openControlled ? props.open : internalOpen;
 
-	const norm = (v: string | string[] | undefined) =>
-		v === undefined ? [] : Array.isArray(v) ? v : [v];
+	const norm = (v: string | string[] | null | undefined) =>
+		v == null ? [] : Array.isArray(v) ? v : [v];
 
 	const [internalValue, setInternalValue] = useState<string[]>(norm(props.defaultValue));
 	const valueControlled = props.value !== undefined;
 	const selected = valueControlled ? norm(props.value) : internalValue;
+	const isBlocked = props.isDisabled || props.isReadOnly;
 
 	const [query, setQuery] = useState('');
 
 	const setOpen = (next: boolean) => {
-		if (props.disabled && next) return;
+		if (isBlocked && next) return;
 		if (!openControlled) setInternalOpen(next);
 		if (!next) setQuery('');
 		props.onOpenChange?.(next);
@@ -37,13 +38,20 @@ export function Select(props: SelectProps) @{
 		return () => window.removeEventListener('keydown', onKey);
 	}, [open]);
 
-	const report = (keys: string[]) => {
+	const report = (keys: string[], cleared = false) => {
 		if (!valueControlled) setInternalValue(keys);
-		props.onValueChange?.(props.multiple ? keys : keys[0]);
+		props.onValueChange?.(props.multiple ? keys : keys[0] ?? null);
+		if (cleared) props.onClear?.();
+	};
+
+	const clear = () => {
+		if (!props.hasClear || isBlocked) return;
+		report([], true);
+		setOpen(false);
 	};
 
 	const pick = (opt: SelectOption) => {
-		if (opt.disabled) return;
+		if (isBlocked || opt.isDisabled) return;
 		if (props.multiple) {
 			report(selected.includes(opt.value)
 				? selected.filter((v) => v !== opt.value)
@@ -69,14 +77,22 @@ export function Select(props: SelectProps) @{
 		<Pressable
 			bind={(e: any) => { anchor.current = e; }}
 			id={props.id}
-			className={['vx-select-trigger', props.disabled ? 'vx-select--disabled' : undefined, props.className]}
+			className={['vx-select-trigger', props.isDisabled ? 'vx-select--disabled' : undefined, props.isReadOnly ? 'vx-select--readonly' : undefined, props.isLoading ? 'vx-select--loading' : undefined, props.status ? `vx-select--status-${props.status.type}` : undefined, props.size ? `vx-select--size-${props.size}` : undefined, props.className]}
 			style={props.style}
-			disabled={props.disabled}
-			onPress={() => setOpen(!open)}
-			accessibilityLabel={props.accessibilityLabel}
-			accessibilityState={{ disabled: props.disabled }}
+			disabled={props.isDisabled}
+			onPress={() => { if (!isBlocked) setOpen(!open); }}
+			accessibilityLabel={props.accessibilityLabel ?? props.label}
+			accessibilityState={{ disabled: props.isDisabled }}
+			web={{
+				'aria-readonly': props.isReadOnly || undefined,
+				'aria-busy': props.isLoading || undefined,
+				'aria-required': props.isRequired && !props.isOptional || undefined,
+				'aria-invalid': props.status?.type === 'error' || undefined,
+			}}
 		>
 			<span className={['vx-select-value', selected.length ? undefined : 'vx-select-placeholder']}>{triggerText}</span>
+			{props.hasClear && selected.length && !isBlocked ? <button type="button" className="vx-select-clear" aria-label="Clear selection" onClick={(e: any) => { e.stopPropagation(); clear(); }}>×</button> : null}
+			{props.isLoading ? <span className="vx-select-loading" role="status">Loading…</span> : null}
 			<span className="vx-select-caret" aria-hidden="true">▾</span>
 		</Pressable>
 		<Popover
@@ -94,7 +110,8 @@ export function Select(props: SelectProps) @{
 					onChange={setQuery}
 				/>
 				: null}
-			<div role="listbox" aria-multiselectable={props.multiple || undefined} className="vx-menu-list vx-select-list">
+			<div role="listbox" aria-multiselectable={props.multiple || undefined} aria-busy={props.isLoading || undefined} className="vx-menu-list vx-select-list">
+				{props.isLoading ? <div className="vx-select-loading" role="status">Loading…</div> : null}
 				{shown.map((opt: SelectOption) => {
 					const isSelected = selected.includes(opt.value);
 					return (
@@ -102,12 +119,12 @@ export function Select(props: SelectProps) @{
 							key={opt.value}
 							role="option"
 							aria-selected={isSelected}
-							aria-disabled={opt.disabled || undefined}
-							tabIndex={opt.disabled ? undefined : 0}
-							className={['vx-menu-item', 'vx-select-option', isSelected ? 'vx-select-option--on' : undefined, opt.disabled ? 'vx-menu-item--disabled' : undefined]}
-							onClick={opt.disabled ? undefined : () => pick(opt)}
+							aria-disabled={opt.isDisabled || undefined}
+							tabIndex={opt.isDisabled ? undefined : 0}
+							className={['vx-menu-item', 'vx-select-option', isSelected ? 'vx-select-option--on' : undefined, opt.isDisabled ? 'vx-menu-item--disabled' : undefined]}
+							onClick={opt.isDisabled ? undefined : () => pick(opt)}
 							onKeyDown={(e: any) => {
-								if (!opt.disabled && (e.key === ' ' || e.key === 'Enter')) {
+								if (!opt.isDisabled && (e.key === ' ' || e.key === 'Enter')) {
 									e.preventDefault();
 									pick(opt);
 								}

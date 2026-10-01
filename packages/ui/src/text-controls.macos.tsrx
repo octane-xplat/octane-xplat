@@ -1,11 +1,31 @@
 /** @jsxImportSource @xplat/macos/renderer */
 import type { TextAreaProps, TextInputProps } from './props'
 import { cx } from './cx'
+import { Pressable } from './Pressable.macos.tsrx'
+import { Text } from './Text.macos.tsrx'
 
 export function TextInput(props: TextInputProps) @{
-	<textfield id={props.id} value={props.value} placeholder={props.placeholder} className={cx('vx-input', props.className)} style={props.style} onTextChange={props.onChange} accessibilityLabel={props.accessibilityLabel} />
+	const isBlocked = props.isDisabled || props.isReadOnly
+	<flexboxlayout className="vx-input-shell" flexDirection="row" alignItems="center" accessibilityState={{ busy: props.isLoading }}>
+		<textfield
+			id={props.id}
+			value={props.value}
+			placeholder={props.placeholder}
+			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.className)}
+			style={props.style}
+			isEnabled={!props.isDisabled}
+			editable={!isBlocked}
+			onTextChange={props.onChange}
+			accessibilityLabel={props.accessibilityLabel ?? props.label}
+			accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
+		/>
+		{props.hasClear && props.value != null && props.value !== '' && !isBlocked
+			? <Pressable className="vx-input-clear" accessibilityLabel={props.label ? `Clear ${props.label}` : 'Clear input'} onPress={() => { props.onChange?.(''); props.onClear?.(); }}><Text>×</Text></Pressable>
+			: null}
+	</flexboxlayout>
 }
 
 export function TextArea(props: TextAreaProps) @{
-	<textview id={props.id} value={props.value} placeholder={props.placeholder} rows={props.autoGrow ? undefined : props.rows ?? 3} className={cx('vx-textarea', props.className)} style={props.style} onTextChange={props.onChange} accessibilityLabel={props.accessibilityLabel} />
+	const isBlocked = props.isDisabled || props.isReadOnly
+	<textview id={props.id} value={props.value} placeholder={props.placeholder} rows={props.autoGrow ? undefined : props.rows ?? 3} className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)} style={props.style} isEnabled={!props.isDisabled} editable={!isBlocked} onTextChange={props.onChange} accessibilityLabel={props.accessibilityLabel ?? props.label} accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }} />
 }

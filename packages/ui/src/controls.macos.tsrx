@@ -1,6 +1,6 @@
 /** @jsxImportSource @xplat/macos/renderer */
 import { useRef, useState } from 'octane'
-import type { ActivityIndicatorProps, ButtonProps, CheckboxProps, PanEvent, SegmentedControlProps, SliderProps, SwitchProps } from './props'
+import type { ActivityIndicatorProps, ButtonProps, CheckboxProps, PanEvent, SearchInputProps, SegmentedControlProps, SliderProps, SwitchProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'
 import { TextInput } from './text-controls.macos.tsrx'
@@ -23,6 +23,7 @@ export function Button(props: ButtonProps) @{
 
 export function Checkbox(props: CheckboxProps) @{
 	const checked = props.checked ?? false
+	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
 
 	<flexboxlayout
@@ -30,12 +31,12 @@ export function Checkbox(props: CheckboxProps) @{
 		flexDirection="row"
 		alignItems="center"
 		gap={props.label == null ? 0 : 8}
-		className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.disabled && 'vx-checkbox--disabled', props.className)}
-		style={{ opacity: props.disabled ? 0.5 : 1, ...props.style }}
+		className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)}
+		style={{ opacity: props.isDisabled ? 0.5 : 1, ...props.style }}
 		accessibilityRole="checkbox"
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityState={{ checked, disabled: props.disabled ?? false }}
-		onTap={props.disabled ? undefined : () => props.onCheckedChange?.(!checked)}
+		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
+		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(!checked)}
 	>
 		<flexboxlayout
 			className="vx-checkbox"
@@ -58,6 +59,7 @@ export function Checkbox(props: CheckboxProps) @{
 
 export function Switch(props: SwitchProps) @{
 	const checked = props.checked ?? false
+	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
 
 	<flexboxlayout
@@ -65,7 +67,7 @@ export function Switch(props: SwitchProps) @{
 		flexDirection="row"
 		justifyContent={checked ? 'end' : 'start'}
 		alignItems="center"
-		className={cx('vx-switch', checked && 'vx-switch--on', props.className)}
+		className={cx('vx-switch', checked && 'vx-switch--on', props.isDisabled && 'vx-switch--disabled', props.isReadOnly && 'vx-switch--readonly', props.isLoading && 'vx-switch--loading', props.status && `vx-switch--status-${props.status.type}`, props.size && `vx-switch--size-${props.size}`, props.className)}
 		style={{
 			width: 48,
 			height: 28,
@@ -75,8 +77,9 @@ export function Switch(props: SwitchProps) @{
 			...props.style,
 		}}
 		accessibilityRole="switch"
-		accessibilityState={{ checked }}
-		onTap={() => props.onCheckedChange?.(!checked)}
+		accessibilityLabel={props.label}
+		accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
+		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(!checked)}
 	>
 		<flexboxlayout
 			className="vx-switch-thumb"
@@ -155,8 +158,15 @@ export function SegmentedControl(_props: SegmentedControlProps) @{
 	<label className="vx-unsupported">Segmented control is unsupported by the AppKit host</label>
 }
 
-export function SearchInput(props: any) @{
-	<TextInput {...props} placeholder={props.placeholder ?? 'Search'} />
+export function SearchInput(props: SearchInputProps) @{
+	const [internal, setInternal] = useState(props.defaultValue ?? '')
+	const value = props.value ?? internal
+	const setValue = (next: string) => {
+		if (props.isDisabled || props.isReadOnly) return
+		if (props.value === undefined) setInternal(next)
+		props.onChange?.(next)
+	}
+	<TextInput {...props} value={value} onChange={setValue} hasClear={props.hasClear !== false} placeholder={props.placeholder ?? 'Search'} />
 }
 
 export function ActivityIndicator(props: ActivityIndicatorProps) @{

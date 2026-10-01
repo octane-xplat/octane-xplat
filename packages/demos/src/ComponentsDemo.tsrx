@@ -53,7 +53,7 @@ export function ComponentsDemo() @{
 			<Text className="font-bold">CheckboxInput + RadioList</Text>
 			<CheckboxInput checked={checked} onCheckedChange={setChecked} label="Checked" />
 			<RadioList
-				options={[{ value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta' }, { value: 'c', label: 'Gamma', disabled: true }]}
+				options={[{ value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta' }, { value: 'c', label: 'Gamma', isDisabled: true }]}
 				value={radio}
 				onValueChange={setRadio}
 			/>
@@ -97,10 +97,10 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Fields</Text>
 			<FieldGroup label="Sign up">
-				<Field label="Name" hint="As it appears on your badge">
+				<Field label="Name" description="As it appears on your badge">
 					<InputTags value={tags} onValueChange={setTags} placeholder="Add tag…" />
 				</Field>
-				<Field label="Quantity" error={num > 5 ? 'Too many' : undefined}>
+				<Field label="Quantity" status={num > 5 ? { type: 'error', message: 'Too many' } : undefined}>
 					<NumberInput value={num} onValueChange={setNum} min={0} max={9} />
 				</Field>
 				<Field label="PIN">
@@ -113,7 +113,7 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Selector / Rating / CheckboxList</Text>
 			<Selector
-				options={[{ value: 'apple', label: 'Apple' }, { value: 'banana', label: 'Banana' }, { value: 'cherry', label: 'Cherry', disabled: true }]}
+				options={[{ value: 'apple', label: 'Apple' }, { value: 'banana', label: 'Banana' }, { value: 'cherry', label: 'Cherry', isDisabled: true }]}
 				value={fruit}
 				onValueChange={setFruit}
 				placeholder="Pick a fruit"

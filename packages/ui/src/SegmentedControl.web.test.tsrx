@@ -6,7 +6,7 @@ import { SegmentedControl } from './SegmentedControl.web.tsrx';
 const options = [
 	{ value: 'day', label: 'Day' },
 	{ value: 'week', label: 'Week' },
-	{ value: 'month', label: 'Month', disabled: true },
+	{ value: 'month', label: 'Month', isDisabled: true },
 ];
 
 describe('SegmentedControl (web leaf)', () => {

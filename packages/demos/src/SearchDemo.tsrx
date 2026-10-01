@@ -8,12 +8,12 @@ export function SearchDemo() @{
 	<View className="pager-demo gap-4">
 		<Heading>Search input</Heading>
 		<SearchInput
+			label="Search photos"
 			value={query}
 			onChange={setQuery}
 			onSubmit={() => setSubmitted(query)}
 			onClear={() => {}}
 			placeholder="Search photos"
-			accessibilityLabel="Search photos"
 		/>
 		<Text className="text-sm text-muted">{'Query: ' + (query || '—')}</Text>
 		{submitted !== '' ? <Text className="text-sm text-muted">{'Submitted: ' + submitted}</Text> : null}
@@ -27,7 +27,7 @@ export function SearchDemo() @{
 		/>
 		<Text className="text-sm text-muted">Uncontrolled — defaultValue, icon=false</Text>
 
-		<SearchInput defaultValue="locked query" editable={false} onChange={() => {}} />
-		<Text className="text-sm text-muted">editable=false</Text>
+		<SearchInput defaultValue="locked query" isReadOnly={true} onChange={() => {}} />
+		<Text className="text-sm text-muted">isReadOnly=true</Text>
 	</View>
 }

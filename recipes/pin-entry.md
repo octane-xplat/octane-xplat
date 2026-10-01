@@ -2,7 +2,7 @@
 
 ID: pin-entry
 Targets: web, ios, android, macos
-Related APIs: PinInput, value, onValueChange, onComplete, length, secure, disabled
+Related APIs: PinInput, value, onValueChange, onComplete, length, secure, isDisabled, isReadOnly
 
 ## Starting point
 
@@ -19,7 +19,7 @@ use a contiguous string rather than positional empty-cell placeholders.
 
 - AC1: Controlled state follows onValueChange; omitting value uses component-owned state, with entry advancing focus to the next editable cell.
 - AC2: Clearing an interior cell clears its suffix; replacing a filled cell preserves subsequent cells, and entry cannot create gaps.
-- AC3: Completion fires after a full-length edit, not an incomplete edit or external value update; secure masks cells and disabled prevents editing.
+- AC3: Completion fires after a full-length edit, not an incomplete edit or external value update; secure masks cells and `isDisabled`/`isReadOnly` prevent editing.
 
 ## Documentation
 

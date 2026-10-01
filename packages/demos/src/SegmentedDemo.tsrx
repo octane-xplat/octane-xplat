@@ -5,7 +5,7 @@ const RANGES = [
 	{ value: 'day', label: 'Day' },
 	{ value: 'week', label: 'Week' },
 	{ value: 'month', label: 'Month' },
-	{ value: 'year', label: 'Year', disabled: true },
+	{ value: 'year', label: 'Year', isDisabled: true },
 ];
 
 const LAYOUTS = [
@@ -38,7 +38,7 @@ export function SegmentedDemo() @{
 		<SegmentedControl
 			options={[{ value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta' }]}
 			defaultValue="a"
-			disabled
+			isDisabled={true}
 			accessibilityLabel="Disabled example"
 		/>
 		<Text className="text-sm text-muted">Group disabled</Text>

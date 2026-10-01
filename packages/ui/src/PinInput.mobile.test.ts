@@ -6,7 +6,7 @@ import {
 	flushUniversalSync,
 } from 'octane/universal/native'
 
-vi.mock('./escape-props', () => ({ applyEscapeProps() {} }))
+vi.mock('./escape-props', () => ({ applyEscapeProps() {}, nativeAccessibilityState: (state: any) => state?.disabled ? 'disabled' : state?.checked ? 'checked' : undefined }))
 vi.mock('./TextInput.tsrx', async () => {
 	const { defineUniversalComponent, universalPlan, universalValue, useRef } =
 		await import('octane/universal/native')
@@ -27,7 +27,7 @@ vi.mock('./TextInput.tsrx', async () => {
 			props.bind?.(handle.current)
 			return universalValue(plan, [
 				props.value,
-				props.editable,
+				!props.isDisabled && !props.isReadOnly,
 				{ onChange: props.onChange, focus: handle.current.focus },
 			])
 		}),
@@ -101,7 +101,7 @@ it('ignores disabled edits and edits beyond the next empty cell', () => {
 	const { enter } = mount({ onValueChange: change })
 	enter(3, '9')
 	expect(change).not.toHaveBeenCalled()
-	const disabled = mount({ disabled: true, value: '1234', onValueChange: change })
+	const disabled = mount({ isDisabled: true, value: '1234', onValueChange: change })
 	disabled.enter(1, '9')
 	expect(change).not.toHaveBeenCalled()
 })

@@ -16,29 +16,37 @@ export function Select(props: SelectProps) @{
 	const openControlled = props.open !== undefined;
 	const open = openControlled ? props.open : internalOpen;
 
-	const norm = (v: string | string[] | undefined) =>
-		v === undefined ? [] : Array.isArray(v) ? v : [v];
+	const norm = (v: string | string[] | null | undefined) =>
+		v == null ? [] : Array.isArray(v) ? v : [v];
 
 	const [internalValue, setInternalValue] = useState<string[]>(norm(props.defaultValue));
 	const valueControlled = props.value !== undefined;
 	const selected = valueControlled ? norm(props.value) : internalValue;
+	const isBlocked = props.isDisabled || props.isReadOnly;
 
 	const [query, setQuery] = useState('');
 
 	const setOpen = (next: boolean) => {
-		if (props.disabled && next) return;
+		if (isBlocked && next) return;
 		if (!openControlled) setInternalOpen(next);
 		if (!next) setQuery('');
 		props.onOpenChange?.(next);
 	};
 
-	const report = (keys: string[]) => {
+	const report = (keys: string[], cleared = false) => {
 		if (!valueControlled) setInternalValue(keys);
-		props.onValueChange?.(props.multiple ? keys : keys[0]);
+		props.onValueChange?.(props.multiple ? keys : keys[0] ?? null);
+		if (cleared) props.onClear?.();
+	};
+
+	const clear = () => {
+		if (!props.hasClear || isBlocked) return;
+		report([], true);
+		setOpen(false);
 	};
 
 	const pick = (opt: SelectOption) => {
-		if (opt.disabled) return;
+		if (isBlocked || opt.isDisabled) return;
 		if (props.multiple) {
 			report(selected.includes(opt.value)
 				? selected.filter((v) => v !== opt.value)
@@ -64,13 +72,16 @@ export function Select(props: SelectProps) @{
 		<Pressable
 			bind={(v: any) => { anchor.current = v; }}
 			id={props.id}
-			className={cx('vx-select-trigger', props.disabled && 'vx-select--disabled', props.className)}
+			className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', props.isLoading && 'vx-select--loading', props.status && `vx-select--status-${props.status.type}`, props.size && `vx-select--size-${props.size}`, props.className)}
 			style={props.style}
-			disabled={props.disabled}
-			onPress={() => setOpen(!open)}
-			accessibilityLabel={props.accessibilityLabel}
+			disabled={props.isDisabled}
+			onPress={() => { if (!isBlocked) setOpen(!open); }}
+			accessibilityLabel={props.accessibilityLabel ?? props.label}
+			accessibilityState={{ disabled: props.isDisabled }}
 		>
 			<label className={cx('vx-select-value', !selected.length && 'vx-select-placeholder')} text={triggerText} />
+			{props.hasClear && selected.length && !isBlocked ? <Pressable className="vx-select-clear" accessibilityLabel="Clear selection" onPress={clear}><label text="×" /></Pressable> : null}
+			{props.isLoading ? <label className="vx-select-loading" text="Loading…" /> : null}
 			<label className="vx-select-caret" text="▾" />
 		</Pressable>
 		<Popover
@@ -89,10 +100,11 @@ export function Select(props: SelectProps) @{
 				/>
 				: null}
 			<flexboxlayout className="vx-menu-list vx-select-list">
+				{props.isLoading ? <label className="vx-select-loading" text="Loading…" accessibilityLiveRegion="polite" /> : null}
 				@for (const opt of shown; key opt.value) {
 					<flexboxlayout
-						className={cx('vx-menu-item', 'vx-select-option', selected.includes(opt.value) && 'vx-select-option--on', opt.disabled && 'vx-menu-item--disabled')}
-						onTap={opt.disabled ? undefined : () => pick(opt)}
+						className={cx('vx-menu-item', 'vx-select-option', selected.includes(opt.value) && 'vx-select-option--on', opt.isDisabled && 'vx-menu-item--disabled')}
+						onTap={opt.isDisabled ? undefined : () => pick(opt)}
 					>
 						<label className="vx-select-check" text={selected.includes(opt.value) ? '✓' : ''} />
 						<label className="vx-menu-item-label" text={opt.label ?? opt.value} />

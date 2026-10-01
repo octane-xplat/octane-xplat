@@ -45,24 +45,35 @@ contracts; matching Astryx names does not imply full API parity.
 
 ## Inputs
 
-| Component                   | What it is                                                  | Key props                                                   |
-| --------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
-| `TextInput`, `TextArea`     | One- and multi-line text entry                              | `value`, `onChange`, `placeholder`                          |
-| `SearchInput`               | Search field with clear button                              | `value`, `onSubmit`, `onClear`                              |
-| `Button`                    | Action button                                               | `loading`, `leading`, `trailing`                            |
-| `Switch`                    | On/off toggle (self-drawn)                                  | `checked`, `onCheckedChange`                                |
-| `CheckboxInput`, `CheckboxList` | Self-drawn checkbox / multi-select list                     | `checked`, `onCheckedChange` / `options`, `onValueChange`   |
-| `RadioList`                | Self-drawn radio options                                    | `options`, `value`, `onValueChange`                         |
-| `SegmentedControl`          | Inline option segments                                      | `options`, `value`, `onValueChange`                         |
-| `Slider`                    | Value scrubber (self-drawn)                                 | `value`, `minValue`, `maxValue`, `onValueChange`            |
-| `Selector`                    | Option picker (`MultiSelector`/`Combobox`/`InputMenu` aliases) | `options`, `value`, `searchable`, `multiple`                |
-| `NumberInput`               | Numeric entry with bounds                                   | `value`, `min`, `max`, `step`, `onValueChange`              |
-| `PinInput`                  | Fixed-length code/PIN entry                                 | `length`, `onValueChange`, `onComplete`, `secure`           |
-| `InputTags`                 | Tag/token entry                                             | `value`, `onValueChange`, `max`                             |
-| `InputRating`               | Tappable 1..max rating row                                  | `value`, `max`, `icon`, `onValueChange`                     |
-| `Chip`                      | Selectable/removable chip                                   | `selected`, `onSelect`, `onRemove`                          |
-| `Field`, `FieldGroup`   | Labeled field wrapper / labeled field group                 | `label`, `hint`, `error`, `required`                        |
-| `Item`                  | Settings-style row                                          | `title`, `supportingText`, `leading`, `trailing`, `onPress` |
+Field controls share `label`, `description`, `isDisabled`, `isReadOnly`,
+`isRequired`, `isOptional`, `size`, `status`, and `isLoading`. Labels are
+optional so controls can be composed inside `Field`; `isRequired` and
+`isOptional` are mutually exclusive. `isLoading` reports busy work without
+disabling edits by itself. `status` uses `{ type: 'warning' | 'error' |
+'success', message?: string }`. `hasClear` is available where clearing is part
+of the control, including `TextInput`, `SearchInput`, and `Selector`.
+
+| Component                            | What it is                                       | Key props                                                   |
+| ------------------------------------ | ------------------------------------------------ | ----------------------------------------------------------- |
+| `TextInput`, `TextArea`              | One- and multi-line text entry                   | `value`, `onChange`, `label`, `description`                 |
+| `SearchInput`                        | Search field with clear button                   | `value`, `onSubmit`, `hasClear`, `onClear`                  |
+| `Button`                             | Action button                                    | `loading`, `leading`, `trailing`                            |
+| `Switch`                             | On/off toggle (self-drawn)                       | `checked`, `onCheckedChange`, `isDisabled`                  |
+| `CheckboxInput`                     | Self-drawn checkbox                              | `checked`, `onCheckedChange`, `isDisabled`                  |
+| `CheckboxList`                      | Self-drawn multi-select list                     | `options`, `onValueChange`, `isDisabled`                    |
+| `RadioList`                         | Self-drawn radio options                         | `options`, `value`, `onValueChange`, `isDisabled`           |
+| `SegmentedControl`                  | Inline option segments                           | `options`, `value`, `onValueChange`, `isDisabled`           |
+| `Slider`                             | Value scrubber (self-drawn)                      | `value`, `minValue`, `maxValue`, `onValueChange`            |
+| `Selector`                | Single-option picker                       | `options`, `value`, `searchable`, `isDisabled`              |
+| `MultiSelector`       | Multiple-option picker                     | `options`, `value`, `searchable`, `isDisabled`              |
+| `Combobox`, `InputMenu`               | Searchable `Selector` aliases              | `options`, `value`, `searchable`, `isDisabled`              |
+| `NumberInput`        | Numeric entry with bounds                        | `value`, `min`, `max`, `step`, `onValueChange`              |
+| `PinInput`                           | Fixed-length code/PIN entry                      | `length`, `onValueChange`, `onComplete`, `secure`           |
+| `InputTags`                          | Tag/token entry                                  | `value`, `onValueChange`, `max`                             |
+| `InputRating`                        | Tappable 1..max rating row                       | `value`, `max`, `icon`, `onValueChange`                     |
+| `Chip`                               | Selectable/removable chip                        | `selected`, `onSelect`, `onRemove`                          |
+| `Field`, `FieldGroup`  | Labeled field wrapper / labeled field group      | `label`, `description`, `isRequired`, `isOptional`, `status` |
+| `Item`                  | Settings-style row                               | `title`, `supportingText`, `leading`, `trailing`, `onPress` |
 
 ## Content
 

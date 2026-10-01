@@ -21,8 +21,8 @@ export function NameForm() {
 	const input = useRef<TextInputHandle | null>(null)
 	return (
 		<KeyboardAvoiding>
-			<Text>Name</Text>
 			<TextInput
+				label="Name"
 				value={name}
 				onChange={setName}
 				bind={(handle) => {
@@ -43,12 +43,14 @@ export function NameForm() {
 }
 ```
 
-The labels use the platform escape bags because `TextInput`/`TextArea` do
-not currently expose a shared accessibility-label prop. `SearchInput` has
-`accessibilityLabel`; native assistive naming still needs a TalkBack/VoiceOver
-check. A visible `Text` or placeholder alone does not establish a field's
-accessible name. Avoid replacing the native view through the handle: use
-`value` to change its text.
+`TextInput`, `TextArea`, and `SearchInput` accept the shared field props:
+`label`, `description`, `isLabelHidden`, `isDisabled`, `isReadOnly`,
+`isRequired`, `isOptional`, `size`, `status`, and `isLoading`. Labels are
+optional for composition inside `Field`, but a standalone control needs a
+label for an accessible name. `hasClear` is opt-in on `TextInput` and defaults
+to the existing clear behavior on `SearchInput`. `isLoading` announces busy
+work and does not disable editing. Avoid replacing the native view through the
+handle: use `value` to change its text.
 
 ## Preserve editing and submit deliberately
 

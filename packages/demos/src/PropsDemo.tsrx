@@ -15,7 +15,7 @@ export function PropsDemo() @{
 		<View className="sink-section">
 			<Text className="section-label">Fields</Text>
 			<TextInput className="input" value={secret} onChange={setSecret} secure placeholder="Password" returnKeyType="done" onSubmit={() => setSubmitState('Password submitted')} placeholderTextColor="#64748b" />
-			<TextInput className="input" value={value} onChange={setValue} keyboardType="email" editable={editable} placeholder="Email address" onFocus={() => setFocusState('focused')} onBlur={() => setFocusState('blurred')} onSubmit={() => setSubmitState('Email submitted')} />
+			<TextInput className="input" value={value} onChange={setValue} keyboardType="email" isReadOnly={!editable} placeholder="Email address" onFocus={() => setFocusState('focused')} onBlur={() => setFocusState('blurred')} onSubmit={() => setSubmitState('Email submitted')} />
 			<HStack className="gap-3 items-center">
 				<Pressable className="btn btn-secondary" onPress={() => setEditable(!editable)}>
 					<Text>{editable ? 'Disable input' : 'Enable input'}</Text>

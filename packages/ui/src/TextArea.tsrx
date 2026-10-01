@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'octane';
 import { Utils } from '@nativescript/core';
 import type { TextAreaProps } from "./props";
 import { cx } from "./cx";
-import { applyEscapeProps } from "./escape-props";
+import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';
 
@@ -49,12 +49,15 @@ export function TextArea(props: TextAreaProps) @{
 			applyEscapeProps(v, props);
 			props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v });
 		}}
-		className={cx('vx-textarea', props.className)}
+		className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)}
 		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 		hint={props.placeholder}
+		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
 		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 		returnKeyType={props.returnKeyType}
-		editable={props.editable ?? true}
+		isEnabled={!props.isDisabled}
+		editable={!props.isDisabled && !props.isReadOnly}
 		onLoaded={(e: any) => fit(e.object)}
 		onTextChange={(e: any) => { if (!isWritingText(e.object)) props.onChange?.(e.value); }}
 		// TextView emits returnPress for every newline. Only an explicit action

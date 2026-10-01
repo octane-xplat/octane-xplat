@@ -351,7 +351,7 @@ function SheetLayoutFixture(props: { marker: string }) @{
 }
 
 function FormFieldFixture() @{
-	<Field className="parity-formfield-root" label="Email" required style={{ width: 180, height: 64, backgroundColor: '#f5f5f5' }}>
+	<Field className="parity-formfield-root" label="Email" isRequired={true} style={{ width: 180, height: 64, backgroundColor: '#f5f5f5' }}>
 		<TextInput placeholder="Email" style={{ width: 160, height: 32 }} />
 	</Field>
 }

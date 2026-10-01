@@ -334,13 +334,40 @@ export interface TextInputHandle {
 	native: any
 }
 
-export interface TextInputProps {
+export type FieldStatusType = 'warning' | 'error' | 'success'
+
+/** Portable validation status shared by field controls. */
+export interface FieldStatus {
+	type: FieldStatusType
+	message?: string
+}
+
+export type FieldControlSize = 'sm' | 'md' | 'lg'
+
+/** Shared, platform-neutral field vocabulary. */
+export interface FieldControlProps {
+	label?: string
+	description?: string
+	isLabelHidden?: boolean
+	isDisabled?: boolean
+	isReadOnly?: boolean
+	/** Indicates asynchronous work associated with the field. */
+	isLoading?: boolean
+	isRequired?: boolean
+	isOptional?: boolean
+	size?: FieldControlSize
+	status?: FieldStatus
+}
+
+export interface TextInputProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
 	value?: string
 	placeholder?: string
 	onChange?: (value: string) => void
+	/** Optional explicit accessible name override for the input. */
+	accessibilityLabel?: string
 	bind?: (h: TextInputHandle) => void
 	secure?: boolean
 	keyboardType?: 'default' | 'email' | 'number' | 'decimal' | 'phone' | 'url'
@@ -348,7 +375,10 @@ export interface TextInputProps {
 	onSubmit?: () => void
 	onFocus?: () => void
 	onBlur?: () => void
-	editable?: boolean
+	/** Draw a clear action while the field has a value. Defaults to false. */
+	hasClear?: boolean
+	/** Called after a clear action reports an empty value. */
+	onClear?: () => void
 	placeholderTextColor?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
@@ -356,7 +386,7 @@ export interface TextInputProps {
 	web?: any
 }
 
-export interface TextAreaProps extends TextInputProps {
+export interface TextAreaProps extends Omit<TextInputProps, 'hasClear' | 'onClear'> {
 	/** Submit on native only when `returnKeyType` is `done` or `send`; other
 	 * returns insert newlines because TextView emits returnPress per newline.
 	 * Web submits on Cmd/Ctrl+Enter. */
@@ -380,7 +410,7 @@ export interface TextAreaProps extends TextInputProps {
  *  engine's own clear button hidden (the leaf draws the same one native
  *  gets), the native leaf is a styled TextField with `returnKeyType`
  *  `'search'`. Not UISearchBar — OS search chrome is deliberately absent. */
-export interface SearchInputProps {
+export interface SearchInputProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -396,7 +426,7 @@ export interface SearchInputProps {
 	onFocus?: () => void
 	onBlur?: () => void
 	placeholder?: string
-	editable?: boolean
+	hasClear?: boolean
 	/** Leading glyph — a registered icon name. Defaults to the built-in
 	 *  `'xplat-search'` glyph; `false` renders no glyph. */
 	icon?: string | false
@@ -631,7 +661,7 @@ export interface DrawerProps {
 	web?: Record<string, any>
 }
 
-export interface SwitchProps {
+export interface SwitchProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1324,14 +1354,12 @@ export interface AccordionProps {
 }
 
 /** Self-drawn checkbox — box + check mark, identical pixels across targets. */
-export interface CheckboxProps {
+export interface CheckboxProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
 	checked?: boolean
-	disabled?: boolean
 	onCheckedChange?: (checked: boolean) => void
-	label?: string
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
@@ -1342,17 +1370,16 @@ export interface CheckboxProps {
 export interface RadioOption {
 	value: string
 	label?: string
-	disabled?: boolean
+	isDisabled?: boolean
 }
 
 /** Self-drawn radio group — dot options in a column/row. */
-export interface RadioGroupProps {
+export interface RadioGroupProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
 	options: RadioOption[]
 	value?: string
-	disabled?: boolean
 	horizontal?: boolean
 	onValueChange?: (value: string) => void
 	accessibilityLabel?: string
@@ -1367,7 +1394,7 @@ export interface RadioGroupProps {
  *  chrome). `value`/`onValueChange` for controlled, `defaultValue` for
  *  uncontrolled; `disabled` on the group or per-option. Sizes come from
  *  className, matching the Button family. */
-export interface SegmentedControlProps {
+export interface SegmentedControlProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1375,7 +1402,6 @@ export interface SegmentedControlProps {
 	value?: string
 	defaultValue?: string
 	onValueChange?: (value: string) => void
-	disabled?: boolean
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
@@ -1499,16 +1525,12 @@ export interface AvatarGroupProps {
 
 // ---------- form field layer (Phase 2) ----------
 
-/** FormField wraps a control with a label, hint, and error text. The error
- *  replaces the hint when present. Children is the control element. */
-export interface FormFieldProps {
+/** FormField wraps a control with a label, description, and validation status.
+ *  Children is the control element. */
+export interface FormFieldProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
-	label?: string
-	hint?: string
-	error?: string
-	required?: boolean
 	children?: any
 	ios?: any
 	android?: any
@@ -1559,7 +1581,7 @@ export interface ListItemComponent {
 /** InputNumber — normalized TextInput (number keyboard) flanked by −/+
  *  steppers. `value`/`onValueChange` for controlled, `defaultValue` for
  *  uncontrolled. `step` defaults to 1; `min`/`max` clamp. */
-export interface InputNumberProps {
+export interface InputNumberProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1568,7 +1590,6 @@ export interface InputNumberProps {
 	min?: number
 	max?: number
 	step?: number
-	disabled?: boolean
 	placeholder?: string
 	onValueChange?: (value: number) => void
 	ios?: any
@@ -1578,7 +1599,7 @@ export interface InputNumberProps {
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when all `length` cells are filled. */
-export interface PinInputProps {
+export interface PinInputProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1587,7 +1608,6 @@ export interface PinInputProps {
 	onValueChange?: (value: string) => void
 	onComplete?: (value: string) => void
 	secure?: boolean
-	disabled?: boolean
 	ios?: any
 	android?: any
 	web?: any
@@ -1596,27 +1616,28 @@ export interface PinInputProps {
 export interface SelectOption {
 	value: string
 	label?: string
-	disabled?: boolean
+	isDisabled?: boolean
 }
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
  *  `multiple` keeps the listbox open and reports string[]; `searchable`
  *  puts a normalized TextInput filter at the top of the listbox. */
-export interface SelectProps {
+export interface SelectProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
 	options: SelectOption[]
-	value?: string | string[]
-	defaultValue?: string | string[]
+	value?: string | string[] | null
+	defaultValue?: string | string[] | null
 	multiple?: boolean
 	searchable?: boolean
 	placeholder?: string
 	open?: boolean
 	defaultOpen?: boolean
 	onOpenChange?: (open: boolean) => void
-	onValueChange?: (value: string | string[]) => void
-	disabled?: boolean
+	onValueChange?: (value: string | string[] | null) => void
+	onClear?: () => void
+	hasClear?: boolean
 	placement?: PopoverPlacement
 	accessibilityLabel?: string
 	ios?: any
@@ -1626,7 +1647,7 @@ export interface SelectProps {
 
 /** InputTags — chip list + trailing normalized TextInput. Enter commits a
  *  tag, Backspace on an empty field removes the last tag. */
-export interface InputTagsProps {
+export interface InputTagsProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1635,14 +1656,13 @@ export interface InputTagsProps {
 	onValueChange?: (tags: string[]) => void
 	placeholder?: string
 	max?: number
-	disabled?: boolean
 	ios?: any
 	android?: any
 	web?: any
 }
 
 /** InputRating — row of tappable glyphs reporting a 1..max score. */
-export interface InputRatingProps {
+export interface InputRatingProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1652,7 +1672,6 @@ export interface InputRatingProps {
 	/** Glyph per cell — a Text character (default ★) or a registered Icon name. */
 	icon?: string
 	onValueChange?: (value: number) => void
-	disabled?: boolean
 	accessibilityLabel?: string
 	ios?: any
 	android?: any
@@ -1660,7 +1679,7 @@ export interface InputRatingProps {
 }
 
 /** CheckboxGroup — multi-select list of self-drawn checkboxes. */
-export interface CheckboxGroupProps {
+export interface CheckboxGroupProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -1668,7 +1687,6 @@ export interface CheckboxGroupProps {
 	value?: string[]
 	defaultValue?: string[]
 	onValueChange?: (values: string[]) => void
-	disabled?: boolean
 	horizontal?: boolean
 	accessibilityLabel?: string
 	ios?: any

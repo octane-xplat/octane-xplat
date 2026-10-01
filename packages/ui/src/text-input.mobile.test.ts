@@ -12,7 +12,7 @@ vi.mock('@nativescript/core', () => ({
 	Utils: { layout: { toDeviceIndependentPixels: (value: number) => value } },
 }))
 
-vi.mock('./escape-props', () => ({ applyEscapeProps: () => {} }))
+vi.mock('./escape-props', () => ({ applyEscapeProps: () => {}, nativeAccessibilityState: (state: any) => state?.disabled ? 'disabled' : undefined }))
 vi.mock('./Icon.tsrx', async () => {
 	const { defineUniversalComponent } = await import('octane/universal/native')
 	return { Icon: defineUniversalComponent('nativescript', () => null) }

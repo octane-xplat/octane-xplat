@@ -30,7 +30,7 @@ export function PinInput(props: PinInputProps) @{
 	const cellValue = (i: number) => value[i] ?? '';
 
 	const enter = (i: number, text: string) => {
-		if (props.disabled || i > value.length) return;
+		if (props.isDisabled || props.isReadOnly || i > value.length) return;
 		const ch = text.slice(-1);
 		const next = ch ? (value.slice(0, i) + ch + value.slice(i + 1)).slice(0, length) : value.slice(0, i);
 		pendingFocus.current = ch && i < length - 1 ? i + 1 : null;
@@ -42,14 +42,16 @@ export function PinInput(props: PinInputProps) @{
 		}
 	};
 
-	<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} className={['vx-pininput', props.disabled ? 'vx-pininput--disabled' : undefined, props.className]} style={props.style} role="group">
+	<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} aria-label={props.label} aria-disabled={props.isDisabled || undefined} aria-readonly={props.isReadOnly || undefined} aria-busy={props.isLoading || undefined} className={['vx-pininput', props.isDisabled ? 'vx-pininput--disabled' : undefined, props.isReadOnly ? 'vx-pininput--readonly' : undefined, props.isLoading ? 'vx-pininput--loading' : undefined, props.status ? `vx-pininput--status-${props.status.type}` : undefined, props.size ? `vx-pininput--size-${props.size}` : undefined, props.className]} style={props.style} role="group">
 		{Array.from({ length }, (_, i) => (
 			<TextInput
 				key={i}
 				className="vx-pininput-cell"
 				keyboardType="number"
 				secure={props.secure}
-				editable={!props.disabled && i <= value.length}
+				isDisabled={props.isDisabled}
+				isReadOnly={props.isReadOnly || i > value.length}
+				isLoading={props.isLoading}
 				value={cellValue(i)}
 				onChange={(text: string) => enter(i, text)}
 				bind={(h: TextInputHandle) => { handles.current[i] = h; }}

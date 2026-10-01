@@ -5,21 +5,28 @@ import { applyEscapeProps } from "./escape-props";
  *  Toggles on click, Space, and Enter. The platform look (if wanted) is an
  *  app's own choice — there is no OS checkbox widget in the subpaths. */
 export function Checkbox(props: CheckboxProps) @{
-	const toggle = () => props.onCheckedChange?.(!(props.checked ?? false));
+	const isBlocked = props.isDisabled || props.isReadOnly;
+	const toggle = () => {
+		if (!isBlocked) props.onCheckedChange?.(!(props.checked ?? false));
+	};
 
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		role="checkbox"
 		aria-checked={props.checked ?? false}
-		aria-disabled={props.disabled ?? undefined}
-		aria-label={props.accessibilityLabel}
-		tabIndex={props.disabled ? undefined : 0}
-		className={['vx-checkbox-row', props.checked ? 'vx-checkbox--on' : undefined, props.disabled ? 'vx-checkbox--disabled' : undefined, props.className]}
+		aria-disabled={props.isDisabled || undefined}
+		aria-readonly={props.isReadOnly || undefined}
+		aria-busy={props.isLoading || undefined}
+		aria-required={props.isRequired && !props.isOptional || undefined}
+		aria-invalid={props.status?.type === 'error' || undefined}
+		aria-label={props.accessibilityLabel ?? props.label}
+		tabIndex={props.isDisabled ? undefined : 0}
+		className={['vx-checkbox-row', props.checked ? 'vx-checkbox--on' : undefined, props.isDisabled ? 'vx-checkbox--disabled' : undefined, props.isReadOnly ? 'vx-checkbox--readonly' : undefined, props.isLoading ? 'vx-checkbox--loading' : undefined, props.status ? `vx-checkbox--status-${props.status.type}` : undefined, props.size ? `vx-checkbox--size-${props.size}` : undefined, props.className]}
 		style={props.style}
-		onClick={props.disabled ? undefined : toggle}
+		onClick={isBlocked ? undefined : toggle}
 		onKeyDown={(e: any) => {
-			if (props.disabled) return;
+			if (isBlocked) return;
 			if (e.key === ' ' || e.key === 'Enter') {
 				e.preventDefault();
 				toggle();
