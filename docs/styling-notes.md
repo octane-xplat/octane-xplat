@@ -5,7 +5,21 @@
 > unlike RN — so we don't need to invent a styling runtime. Flutter/Tamagui
 > inform the _authoring API_, not the implementation.
 
-## The original shared pipeline
+## Current stylesheet contract
+
+The required `tokens.css` contains unstyled layout and browser normalization in
+`@layer xplat-structure`. The optional `chrome.css` adds default colors,
+typography, borders, and state treatments in the later `xplat-chrome` layer.
+Import both as JavaScript modules so NativeScript receives px-to-DIP conversion
+and web-only stripping. Native builds unwrap the layer blocks because
+NativeScript's CSS parser does not implement CSS cascade layers. On the web,
+unlayered app CSS remains higher priority than package layers. Native builds
+preserve import order after unwrapping, so app styles follow the package rules.
+
+The generated starter imports `tokens.css` only and owns any palette it wants
+in its app stylesheet. Demos and probes opt into `chrome.css`.
+
+## Original shared pipeline
 
 The original layout sketch follows. Current tokens live under
 `packages/ui/src/theme/`; entries import stylesheets as JavaScript modules
@@ -13,7 +27,8 @@ rather than CSS `@import` so native transforms run. See [styling](styling.md).
 
 ```
 packages/ui/theme/
-  tokens.css        — :root / .ns-root CSS vars (colors, spacing, radii, type)
+  tokens.css        — required structure and cross-platform normalization
+  chrome.css        — optional default colors, spacing, radii, and typography
   base.css          — element-type defaults per vocabulary (Label vs span…)
   utilities         — hand-curated subset today; Tailwind v4 later (blocked)
 apps/*/app.css      — per-app layer importing the shared sheets

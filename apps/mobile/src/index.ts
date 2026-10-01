@@ -51,6 +51,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 // strip); an @import'd chain inlines raw text and bypasses it — that's how
 // the slider's web-only translate() leaked onto native views.
 import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
 import 'virtual:bamboo.css'
 import '@xplat/demos/demo.css'
 import '@xplat/app/app.css'

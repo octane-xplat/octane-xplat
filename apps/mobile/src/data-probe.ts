@@ -10,6 +10,7 @@ import { DataScreen, DataSharedReader, DataRetained, dataShared$ } from '@xplat/
 import { runDataTrace } from '@xplat/app/data-trace'
 import 'octane/signals'
 import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
 
 // Dedicated app ID and entry: never resets the shared harness's root or data.
 const frame = new Frame()

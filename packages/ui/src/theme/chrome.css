@@ -1,0 +1,1010 @@
+/* Optional default component chrome. Import after tokens.css; unlayered app CSS overrides both layers on web. */
+@layer xplat-chrome {
+:root,
+.ns-root {
+	--color-primary: #171717;
+	/* Token names double as the future Tailwind theme keys: text-onprimary
+	   resolves --color-onprimary, bg-danger resolves --color-danger. Keep
+	   class-name segments and var-name segments identical. */
+	--color-onprimary: #fafafa;
+	--color-surface: #ffffff;
+	--color-surface-secondary: #fafafa;
+	--color-text: #0a0a0a;
+	--color-text-secondary: #666666;
+	--color-border: #eaeaea;
+	--color-border-strong: #d4d4d4;
+	--color-danger: #dc2626;
+	--color-warning: #b45309;
+	--color-success: #15803d;
+	/* Family lists are deliberately generic. Apps override these with their
+	   web @font-face family and the platform's registered native name. */
+	--font-sans: system-ui, sans-serif;
+	--font-mono: ui-monospace, monospace;
+	--space-4: 16px;
+	/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
+	   the default corner treatment: every class that consumes a token also
+	   declares `corner-shape: squircle`. Full-radius circles opt out —
+	   `corner-shape` would reshape them into squircle disks on iOS/Chromium. */
+	--radius-sm: 6px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
+}
+
+.ns-dark,
+.dark {
+	--color-primary: #ededed;
+	--color-onprimary: #171717;
+	--color-surface: #0a0a0a;
+	--color-surface-secondary: #141414;
+	--color-text: #ededed;
+	--color-text-secondary: #a1a1a1;
+	--color-border: #2e2e2e;
+	--color-border-strong: #4a4a4a;
+}
+
+/* xplat-web-only:start — DOM normalization. NativeScript is the reference
+   box model: dip sizes are outer boxes, and a border paints from
+   width+color alone. The DOM's UA stylesheet diverges on both counts, so
+   normalize the deltas once instead of patching individual rules:
+   - border-box keeps padding/borders inside declared sizes (a 40dip box
+     is 40px, not 40px + padding + border).
+   - border-width 0 + border-style solid makes the DOM behave like native:
+     any shared border-*-width declaration paints on both targets — the
+     DOM's initial border-width is `medium`, so style alone would draw
+     phantom ~3px edges wherever a rule sets only one side's width.
+   - <img> is a leaf, not inline text (no baseline descender gap).
+   - .vx-app columns are flex like their native screen containers. */
+/* Native has no scroll chaining — a ScrollView just bounces inside
+   itself because the parent is never a scroller. contain is the DOM
+   equivalent: scroll stays in the leaf it started in. */
+/* xplat-web-only:end */
+
+/* Shared normalization — NS FlexboxLayout defaults flex children to
+   shrink:1 with NO min-content floor (its shrink pass clamps at
+   effectiveMinWidth/Height = the explicit min-* prop, default 0), so an
+   overflowing column crushes intrinsic children toward zero where the
+   web stops at min-content. RN's Yoga defaults flexShrink:0 for the same
+   reason — do the same on both engines. `*` is zero-specificity: flex-1
+   (the shorthand sets shrink:1) and .shrink still opt back in, and
+   truncation patterns pair them with min-w-0/min-h-0. */
+
+/* vocabulary base styles */
+
+/* Safe-area values are zero when the viewport has no display cutout. */
+/* Self-drawn drawer — shared geometry. Native grid children overlay the
+   cell (panel pins left via horizontalAlignment in the leaf); DOM
+   positioning extras are web-only below. */
+.vx-drawer-backdrop {
+	background-color: rgba(0, 0, 0, 0.4);
+}
+.vx-drawer-panel {
+	background-color: var(--color-surface);
+}
+/* xplat-web-only:start */
+.vx-drawer-panel {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+/* xplat-web-only:end */
+
+/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
+   positioning is web-only (children position via left/top props) */
+/* xplat-web-only:end */
+
+/* web press feedback */
+.vx-pressable:active {
+	opacity: 0.85;
+}
+/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
+.vx-pressable:pressed {
+	opacity: 0.85;
+}
+
+/* xplat-web-only:start — overlays/toasts/popovers render through RootLayout
+   or showModal on native; these portal/positioning rules are web-only */
+
+.vx-overlay-shade {
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+.vx-tooltip {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	font-size: 12px;
+	line-height: 16px;
+}
+/* xplat-web-only:end */
+
+/* Normalized OS-widget reset — TextInput/TextArea are real
+   <input>/<textarea>/TextField/TextView; the leaves emit vx-input/
+   vx-textarea unconditionally so the platform chrome is stripped before
+   app styles apply. On Android the transparent background replaces the
+   default EditText drawable (kills the Material underline); zero padding
+   removes native insets. Legitimate semantics — IME, secure entry,
+   selection, autofill, caret, focus — stay platform-native by design. */
+.vx-input,
+.vx-textarea {
+	color: var(--color-text);
+	font-size: 14px;
+	/* NS placeholder color; web uses the ::placeholder pseudo below. */
+	placeholder-color: var(--color-text-secondary);
+}
+/* xplat-web-only:start — DOM-only reset: element UA chrome and the
+   focus outline (normalized to the same thin ring on both). */
+.vx-input:focus,
+.vx-textarea:focus {
+	outline: 1px solid var(--color-primary);
+	outline-offset: -1px;
+}
+/* xplat-web-only:end */
+
+/* auto-grow owns height — the manual resize handle has no native analog */
+/* xplat-web-only:start */
+/* xplat-web-only:end */
+
+/* WebView chrome reset — the web leaf is a real <iframe>: strip the UA's
+   inset border and the inline-element baseline gap. WKWebView and
+   android.webkit.WebView ship chrome-free, so there is no native reset. */
+/* xplat-web-only:start */
+/* xplat-web-only:end */
+
+/* Video — surface-hosted leaf: the engine surface fills the frame and the
+   self-drawn transport layers stack on top in the same grid cell
+   (vx-stack). NS-side rules only — DOM resets sit in the web block. */
+.vx-video {
+	background-color: #000;
+}
+
+.vx-video-centerbtn {
+	border-radius: 28px;
+	background-color: rgba(0, 0, 0, 0.55);
+}
+
+.vx-video-bar {
+	background-color: rgba(0, 0, 0, 0.45);
+}
+
+/* Full-frame tap layer — hit target only, never paints. */
+
+.vx-video-time {
+	color: #fff;
+	font-size: 11px;
+}
+
+/* xplat-web-only:start — the <video> element is inline and overlays would
+   otherwise swallow pointer events; native layers are hit-transparent by
+   default, so none of this exists on NS. */
+
+/* xplat-web-only:end */
+
+/* xplat-web-only:start */
+/* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
+   so the overlay is a fixed layer over the shell rather than a dialog. */
+
+.vx-modalroute-shade {
+	background: rgba(0, 0, 0, 0.4);
+}
+
+.vx-modalroute-body {
+	color: var(--color-text);
+	background-color: var(--color-surface);
+}
+/* xplat-web-only:end */
+
+/* xplat-web-only:start — placeholder pseudos are DOM-only. Muted like
+   real placeholder text, not currentColor (a full-opacity hint reads as
+   a typed value); --placeholder-color is the per-field prop escape. */
+input::placeholder,
+textarea::placeholder {
+	color: var(--placeholder-color, var(--color-text-secondary));
+}
+/* xplat-web-only:end */
+
+/* xplat-web-only:start — form controls don't inherit the body font in the
+   DOM (UA stylesheet wins); without this they render in the UA face. */
+/* xplat-web-only:end */
+
+/* Self-drawn spinner — the border ring is shared (native rotates the
+   view via `animate`; DOM spins via the keyframes below). */
+.vx-spinner {
+	border-width: 2px;
+	border-color: var(--color-text-secondary);
+	border-right-color: transparent;
+	border-radius: 50%;
+}
+/* Pull-to-refresh — the overlay strip hosting the spinner. Its height is
+   the default `refreshThreshold` (64px web / 64dip native); the leaf
+   translates it in/out — reveal math lives in refresh.*.ts. */
+/* xplat-web-only:start — the DOM leaf needs explicit clipping plus the
+   absolute overlay; native clips via the wrapper grid
+   (clipsToBounds/ViewGroup) and stacks children in one cell. */
+/* xplat-web-only:end */
+/* xplat-web-only:start — DOM needs an inline-block box + CSS animation;
+   the native leaf drives view.animate instead */
+/* xplat-web-only:end */
+
+/* Self-drawn switch — flex track + thumb. `--on` flips justify-content,
+   which slides the thumb; identical geometry on web and native. */
+.vx-switch {
+	border-radius: 14px;
+	background-color: var(--color-border);
+}
+.vx-switch--on {
+	background-color: var(--color-primary);
+}
+.vx-switch-thumb {
+	border-radius: 50%;
+	background-color: var(--color-surface);
+}
+/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
+/* xplat-web-only:end */
+
+/* Self-drawn slider — host is a grid (native) / relative div (web);
+   track + fill + thumb overlay the same box. */
+.vx-slider-track {
+	border-radius: 2px;
+	background-color: var(--color-border);
+}
+.vx-slider-fill {
+	border-radius: 2px;
+	background-color: var(--color-primary);
+}
+.vx-slider-thumb {
+	border-radius: 50%;
+	background-color: var(--color-primary);
+}
+/* xplat-web-only:start — absolute positioning is DOM-only; native grid
+   children center via vertical-align and pin via margin-left. */
+/* xplat-web-only:end */
+
+/* xplat-web-only:start — Pager's web leaf is a mandatory scroll-snap row:
+   one page per item at 100% host width so scrollLeft / clientWidth is a
+   clean page index. Native pages are sized by the widget itself, so the
+   whole block is DOM-only. Scrollbar hidden (native has none); contain
+   keeps the swipe from chaining to a parent scroller, matching .vx-scroll. */
+/* xplat-web-only:end */
+
+/* Phase-1 self-drawn components — functional geometry + token chrome only;
+   visual design is the app's job. */
+
+/* Button — row-direction pressable (vx-pressable already supplies display
+   and press feedback). */
+
+/* Collapsible/Accordion — column stacks. */
+
+/* Checkbox — 20px box + check glyph; --on fills with primary. */
+.vx-checkbox {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+}
+.vx-checkbox--on .vx-checkbox {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+}
+.vx-checkbox-check {
+	font-size: 14px;
+	line-height: 20px;
+	color: var(--color-onprimary);
+}
+.vx-checkbox--on .vx-checkbox-check {
+	color: var(--color-onprimary);
+}
+.vx-checkbox--disabled {
+	opacity: 0.5;
+}
+
+/* Radio group — column/row of dot options. */
+.vx-radio {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: 50%;
+}
+.vx-radio--on .vx-radio {
+	border-color: var(--color-primary);
+}
+.vx-radio-dot {
+	border-radius: 50%;
+	background-color: var(--color-primary);
+}
+.vx-radio--disabled {
+	opacity: 0.5;
+}
+
+/* SegmentedControl — equal-width segments in a rounded track; `--on`
+   raises the selected one. flex-basis is dead on NS (the shorthand parser
+   drops it and the standalone property isn't registered), so width:0 +
+   flex-grow:1 is what distributes segments equally on both engines. */
+.vx-segmented {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text);
+}
+.vx-segment {
+	border-radius: var(--radius-sm);
+}
+.vx-segment--on {
+	background-color: var(--color-surface);
+}
+.vx-segment-label {
+	font-size: 13px;
+	color: var(--color-text-secondary);
+}
+.vx-segment--on .vx-segment-label {
+	color: var(--color-text);
+	font-weight: 600;
+}
+.vx-segmented--disabled,
+.vx-segment--disabled {
+	opacity: 0.5;
+}
+/* xplat-web-only:start — the DOM hosts are divs; flex + cursor live here */
+.vx-segment:focus {
+	outline: 1px solid var(--color-primary);
+	outline-offset: -1px;
+}
+/* xplat-web-only:end */
+
+/* SearchInput — chrome-reset field: bordered shell, leading glyph, the
+   field owns the remaining width, self-drawn clear. The web leaf hides the
+   engine's own search-cancel button so native's (hand-drawn) matches. */
+.vx-search {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+.vx-search-icon {
+	color: var(--color-text-secondary);
+}
+.vx-search-field {
+	font-size: 14px;
+	color: var(--color-text);
+}
+.vx-search-clear {
+	border-radius: 9999px;
+	background-color: var(--color-surface-secondary);
+	color: var(--color-text-secondary);
+}
+.vx-search--disabled {
+	opacity: 0.5;
+}
+/* xplat-web-only:start — the DOM host/field/buttons need display + the UA
+   reset; native's flexbox children carry these from the class already. */
+/* xplat-web-only:end */
+
+/* Anchored menus — panel + item rows (the Popover leaf positions it). */
+.vx-menu {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+.vx-menu-item {
+	border-radius: var(--radius-sm);
+}
+.vx-menu-item--disabled {
+	opacity: 0.5;
+}
+/* xplat-web-only:start — hover affordance and cursor are DOM-only */
+.vx-menu-item:hover {
+	background-color: var(--color-border);
+}
+/* xplat-web-only:end */
+
+/* Badge — inline chip row. */
+.vx-badge {
+	border-radius: var(--radius-sm);
+	font-size: 12px;
+	line-height: 16px;
+}
+/* xplat-web-only:start — span is inline by default; needs inline-flex */
+/* xplat-web-only:end */
+
+/* Divider — hairline rule; --h spans width, --v spans height. */
+.vx-separator--h {
+	background-color: var(--color-border);
+}
+.vx-separator--v {
+	background-color: var(--color-border);
+}
+
+/* Skeleton — placeholder block. */
+.vx-skeleton {
+	background-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+}
+
+/* Avatar — centered fallback inside the circle. */
+.vx-avatar {
+	background-color: var(--color-border);
+}
+/* xplat-web-only:start — display:flex for the div-based flex classes */
+/* xplat-web-only:end */
+
+/* Phase-2 form field layer. */
+
+/* FormField — label / control / message column. */
+.vx-field-label {
+	font-size: 13px;
+	line-height: 20px;
+	font-weight: 500;
+}
+.vx-field-required {
+	color: var(--color-danger);
+}
+.vx-field-optional,
+.vx-field-description {
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--color-text-secondary);
+}
+.vx-field-status {
+	font-size: 12px;
+	line-height: 16px;
+}
+.vx-field-status--error {
+	color: var(--color-danger);
+}
+.vx-field-status--warning {
+	color: var(--color-warning);
+}
+.vx-field-status--success {
+	color: var(--color-success);
+}
+.vx-fieldgroup-label {
+	font-size: 13px;
+	line-height: 20px;
+	font-weight: 600;
+}
+
+/* ListItem — a reusable shared row; callers own the surrounding list chrome. */
+.vx-listitem-title {
+	font-weight: 500;
+}
+.vx-listitem-supporting {
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--color-text-secondary);
+}
+
+/* InputNumber — steppers flanking a centered field. */
+.vx-inputnumber-step {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+}
+.vx-inputnumber--disabled {
+	opacity: 0.5;
+}
+
+/* PinInput — row of single cells. */
+.vx-pininput--disabled {
+	opacity: 0.5;
+}
+
+/* Select — trigger row + check column inside the anchored listbox. */
+.vx-select-trigger {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+}
+.vx-select--disabled {
+	opacity: 0.5;
+}
+.vx-select-placeholder {
+	color: var(--color-text-secondary);
+}
+
+/* InputTags — wrapped chip row + trailing field. */
+.vx-inputtags-tag {
+	border-radius: var(--radius-sm);
+	background-color: var(--color-border);
+}
+.vx-inputtags--disabled {
+	opacity: 0.5;
+}
+
+/* InputRating — glyph row; --on lights the cell. */
+.vx-rating-glyph {
+	font-size: 20px;
+	line-height: 24px;
+	color: var(--color-border);
+}
+.vx-rating-cell--on .vx-rating-glyph {
+	color: var(--color-primary);
+}
+.vx-rating--disabled {
+	opacity: 0.5;
+}
+
+/* CheckboxGroup — column/row of checkboxes. */
+/* xplat-web-only:start — display:flex for the div/span flex classes */
+/* xplat-web-only:end */
+
+/* Phase-3 navigation & wayfinding. */
+
+/* Breadcrumb — inline trail. */
+.vx-breadcrumb-sep {
+	color: var(--color-text-secondary);
+}
+.vx-breadcrumb-link {
+	color: var(--color-primary);
+}
+
+/* Pagination — windowed page buttons. */
+.vx-page-btn {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-sm);
+}
+.vx-page-btn--on {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+.vx-page-ellipsis {
+	color: var(--color-text-secondary);
+}
+.vx-pagination--disabled {
+	opacity: 0.5;
+}
+
+/* Stepper — dot + label cells joined by a hairline. */
+.vx-stepper-line {
+	background-color: var(--color-border);
+}
+.vx-stepper-line--done {
+	background-color: var(--color-primary);
+}
+.vx-step-dot {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: 50%;
+	font-size: 12px;
+	line-height: 22px;
+	color: var(--color-text-secondary);
+}
+.vx-step--on .vx-step-dot {
+	border-color: var(--color-primary);
+	color: var(--color-primary);
+}
+.vx-step--done .vx-step-dot {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+.vx-step--disabled {
+	opacity: 0.5;
+}
+
+/* NavigationMenu — row/column of nav items. */
+.vx-navmenu-item {
+	border-radius: var(--radius-sm);
+}
+.vx-navmenu-item--on {
+	background-color: var(--color-border);
+}
+.vx-navmenu-item--disabled {
+	opacity: 0.5;
+}
+
+/* CommandPalette — panel centered by the overlay layer. */
+.vx-commandpalette {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+/* xplat-web-only:start — native uses Screen.mainScreen.widthDIPs */
+/* xplat-web-only:end */
+/* xplat-web-only:start — display, centering, and cursor are DOM-only */
+/* xplat-web-only:end */
+
+/* Phase-4 data display. */
+
+/* Table — header + bounded rows (unvirtualized by design). */
+.vx-table {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+}
+.vx-table-th {
+	font-weight: 600;
+}
+.vx-table-head {
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+}
+
+/* Timeline — dot + connector rail beside content. */
+.vx-timeline-dot {
+	border-radius: 50%;
+	background-color: var(--color-primary);
+}
+.vx-timeline-line {
+	background-color: var(--color-border);
+}
+.vx-timeline-time {
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--color-text-secondary);
+}
+.vx-timeline-title {
+	font-weight: 600;
+}
+.vx-timeline-desc {
+	color: var(--color-text-secondary);
+}
+
+/* Tree — indented collapsible rows. */
+.vx-tree-row--disabled {
+	opacity: 0.5;
+}
+
+/* Alert — icon + body callout; tone picks border/text colors. */
+.vx-alert {
+	border-width: 1px;
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	border-color: var(--color-border);
+}
+.vx-alert-title {
+	font-weight: 600;
+}
+.vx-alert--error {
+	border-color: var(--color-danger);
+}
+.vx-alert--warning {
+	border-color: var(--color-warning, #d9a400);
+}
+.vx-alert--success {
+	border-color: var(--color-success, #2e9e5b);
+}
+.vx-alert--info {
+	border-color: var(--color-primary);
+}
+
+/* Card — sectioned container. */
+.vx-card {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+}
+.vx-card-header {
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+}
+.vx-card-footer {
+	border-top-width: 1px;
+	border-top-color: var(--color-border);
+}
+
+/* Chip — pressable pill with selected + remove states. */
+.vx-chip {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	font-size: 13px;
+}
+.vx-chip--on {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+.vx-chip--disabled {
+	opacity: 0.5;
+}
+
+/* Kbd — keycap glyph. */
+.vx-kbd {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-bottom-width: 2px;
+	border-radius: var(--radius-sm);
+	font-size: 12px;
+}
+
+/* Empty — centered placeholder. */
+.vx-empty-title {
+	font-weight: 600;
+}
+.vx-empty-desc {
+	color: var(--color-text-secondary);
+}
+
+/* Banner — notice strip. */
+.vx-banner {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	background-color: var(--color-surface);
+}
+
+/* User — avatar + text column. */
+.vx-user-name {
+	font-weight: 600;
+}
+.vx-user-desc {
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--color-text-secondary);
+}
+
+/* ProgressGroup — stacked labeled meters. */
+/* xplat-web-only:start — display:flex for the div-based flex classes */
+/* xplat-web-only:end */
+/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
+.vx-h1 {
+	font-size: 32px;
+	font-weight: bold;
+}
+.vx-h2 {
+	font-size: 24px;
+	font-weight: bold;
+}
+.vx-h3 {
+	font-size: 18.72px;
+	font-weight: bold;
+}
+.vx-h4 {
+	font-size: 16px;
+	font-weight: bold;
+}
+.vx-h5 {
+	font-size: 13.28px;
+	font-weight: bold;
+}
+.vx-h6 {
+	font-size: 10.72px;
+	font-weight: bold;
+}
+
+/* utilities (hand-written subset — do NOT adopt Tailwind until
+   NativeScript/tailwind#226 is resolved; the plugin strips core-supported
+   props incl. gap, drops all @media, and rewrites invisible→collapse) */
+
+/* flex-1 keeps Tailwind v4's exact emission (`flex: 1 1 0%`) — web gets
+   identical semantics, NS parses grow/shrink out of the shorthand and
+   ignores the basis token it can't model. */
+/* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
+ * shrinkability: grow children never shrink below intrinsic width, fixed
+ * children get crushed, and auto-height rows re-measure grow children at
+ * zero height. The shared `* { flex-shrink: 0 }` default (RN semantics)
+ * makes .shrink the opt-in for a shrinkable child; min-w-0/min-h-0 lower
+ * the min-content floor so it can actually shrink, and shrink-0 remains
+ * for local overrides. All four are plain CSS on web. */
+
+/* Native Labels keep their natural font height even with line-height set, so
+   min-height aligns utilities whose natural metrics fall below their leading.
+   Tailwind pairs every text-* size with a leading, same here. */
+.text-2xl {
+	font-size: 28px;
+	line-height: 36px;
+}
+.text-xl {
+	font-size: 20px;
+	line-height: 28px;
+}
+.text-lg {
+	font-size: 18px;
+	line-height: 28px;
+}
+.text-sm {
+	font-size: 13px;
+	line-height: 20px;
+}
+.font-bold {
+	font-weight: bold;
+}
+.font-semibold {
+	font-weight: 600;
+}
+.text-muted {
+	color: var(--color-text-secondary);
+}
+
+/* Corner utilities — consume the --radius-* scale and carry the smooth
+   (squircle) corner treatment. Circles stay circular: .rounded-full omits
+   corner-shape deliberately (squircle at full radius = a squircle disk,
+   not a circle). Opt out per element with `corner-shape: round`. */
+.rounded-sm {
+	border-radius: var(--radius-sm);
+	corner-shape: squircle;
+}
+.rounded-md {
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+}
+.rounded-lg {
+	border-radius: var(--radius-lg);
+	corner-shape: squircle;
+}
+.rounded-xl {
+	border-radius: var(--radius-xl);
+	corner-shape: squircle;
+}
+.rounded-full {
+	border-radius: 9999px;
+}
+
+.bg-primary {
+	background-color: var(--color-primary);
+}
+.text-onprimary {
+	color: var(--color-onprimary);
+}
+.bg-danger {
+	background-color: var(--color-danger);
+}
+/* xplat-web-only:start — box-shadow is inert on native (elevation is
+   Android-only; no shared mapping yet) */
+.shadow-2 {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+/* xplat-web-only:end */
+
+.btn {
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	font-size: 14px;
+	font-weight: 500;
+	text-decoration: none;
+	color: var(--color-text);
+}
+
+/* Secondary = the same control reading quiet: hairline border, surface
+   fill, body-text label. Reserve .bg-primary for the one decisive action
+   in a group. */
+.btn-secondary {
+	background-color: var(--color-surface);
+	border-width: 1px;
+	border-color: var(--color-border);
+	color: var(--color-text);
+}
+
+/* xplat-web-only:start — controls that render as real <a>/<button> need
+   inline layout and UA resets; the pressable/nav-link leaves are divs on
+   web and don't hit these rules. */
+/* xplat-web-only:end */
+
+/* Tab shell — web divs/buttons + the Android SwapTabs fallback (iOS draws
+   its own UITabBar and never sees these). */
+.vx-tabbar {
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+	background-color: var(--color-surface);
+}
+.vx-tab {
+	font-size: 14px;
+	color: var(--color-text-secondary);
+}
+.vx-tab.active {
+	color: var(--color-text);
+}
+
+/* xplat-web-only:start — DOM defaults are display:block (div) and
+   inline-block (button); every flex-bearing vx- class needs an explicit
+   display or flex-direction/align-items/justify-content are inert. */
+/* xplat-web-only:end */
+
+/* harness experiment styles */
+
+.vx-app {
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+
+.vx-app .text-xl,
+.vx-app Text,
+.vx-app label {
+	color: var(--color-text);
+}
+
+/* `.vx-app label` above (descendant + type) outranks single-class text
+   colors inside the app root — roles that must win escalate here. */
+.vx-app .text-onprimary {
+	color: var(--color-onprimary);
+}
+.vx-app .text-muted {
+	color: var(--color-text-secondary);
+}
+.vx-app .vx-tab label {
+	color: var(--color-text-secondary);
+}
+.vx-app .vx-tab.active label {
+	color: var(--color-text);
+}
+.vx-app .chip-on label {
+	color: var(--color-onprimary);
+}
+/* Danger surfaces keep white text in both themes (on-primary flips). */
+.bg-danger .text-onprimary {
+	color: #ffffff;
+}
+
+.input {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	font-size: 14px;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	/* NS TextField/TextView placeholder color (ignored on web — the
+	   ::placeholder pseudo above covers it there). */
+	placeholder-color: var(--color-text-secondary);
+}
+
+.chip {
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	font-size: 13px;
+	text-decoration: none;
+}
+
+/* Selected chip — the one filled element in a group of bordered peers. */
+.chip-on {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: var(--color-onprimary);
+}
+
+.cell {
+	border-bottom-width: 1px;
+	border-bottom-color: var(--color-border);
+}
+
+/* In-window sheet — bottom-anchored panel (matches the native RootLayout
+   sheet). Layer is pointer-events:none; backdrop + panel re-enable. */
+
+.vx-sheet-backdrop {
+	background: rgba(0, 0, 0, 0.4);
+}
+
+.vx-sheet {
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-top-left-radius: var(--radius-xl);
+	border-top-right-radius: var(--radius-xl);
+	corner-shape: squircle;
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+
+/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
+   The native leaf renders on RootLayout with its own geometry. */
+/* xplat-web-only:end */
+
+.vx-sheet-grip {
+	border-radius: 999px;
+	background-color: var(--color-text-secondary);
+	opacity: 0.4;
+}
+
+/* xplat-web-only:start — detents size the panel to the largest fraction
+   (overriding the 85% cap) and overlay the grabber; native stacks it as a
+   top-aligned grid child. touch-action keeps drags off native scroll. */
+/* xplat-web-only:end */
+}

@@ -2,6 +2,7 @@ import { createRoot } from 'octane'
 import { DataScreen, DataSharedReader, DataRetained } from '@xplat/app/data-probe.tsrx'
 import { runDataTrace } from '@xplat/app/data-trace'
 import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
 
 const ids = ['first', 'second', 'sheet', 'modal']
 const hosts = ids.map((id) => document.getElementById(id)!)

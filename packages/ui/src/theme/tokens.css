@@ -1,5 +1,5 @@
 /* Required shared structure and web normalization. Import in every app before user CSS. */
-@layer xplat-structure;
+@layer xplat-structure, xplat-chrome;
 
 @layer xplat-structure {
 /* xplat-web-only:start — DOM normalization. NativeScript is the reference

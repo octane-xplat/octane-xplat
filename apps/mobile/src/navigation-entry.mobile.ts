@@ -20,6 +20,7 @@ import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
 import { NavigationScreen, NavigationShell } from './navigation-fixture.mobile.tsrx'
 import { NavigationTabs } from './navigation-tabs'
 import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
 
 const results: { name: string; pass: boolean; detail?: string }[] = []
 const frame = new Frame()

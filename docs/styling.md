@@ -32,7 +32,33 @@ function Card(props: { title: string; disabled?: boolean }) {
   size.
 - Shared styles must use properties supported by both targets.
 
-## Build a small token layer
+## Required structure and optional chrome
+
+Import `@octane-xplat/ui/theme/tokens.css` in every web and native app. It
+provides shared layout classes and browser normalization inside the low-priority
+`xplat-structure` layer, so component geometry works without imposing a visual
+theme.
+
+`@octane-xplat/ui/theme/chrome.css` is optional. It adds the package's default
+colors, borders, typography, and control states in `xplat-chrome`, above the
+structure layer. The starter template imports only `tokens.css`; demo and probe
+apps import both. On the web, unlayered app CSS overrides both layers, and app
+layers declared after these imports override the package layers. NativeScript
+does not support cascade layers; the CLI unwraps them and preserves import
+order, so keep app styles after these imports on native too.
+
+Import stylesheets as JavaScript modules, in this order:
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css' // optional
+import './app.css'
+```
+
+Avoid CSS `@import`: it bypasses the native preset's px-to-DIP rewrite and
+web-only stripping.
+
+## Define app tokens
 
 Keep colors, spacing, and type sizes in tokens instead of repeating raw values
 through every component. A theme can then change the whole app without
@@ -53,14 +79,12 @@ rewriting screens.
 }
 ```
 
-Import each shared stylesheet from the app's web and native entries as a
-JavaScript module, after `@octane-xplat/ui/theme/tokens.css`. Use the starter's
-[web entry](../packages/create/template/src/main.web.tsrx) and
-[native entry](../packages/create/template/src/index.ts) as the setup example.
-Avoid CSS `@import`: it bypasses the native preset's px-to-DIP rewrite and
-web-only stripping. Change `--color-surface` and check the card background
-on both targets; a native card that stays unchanged suggests a missing entry
-import or root selector.
+If the app omits `chrome.css`, define any color or type variables its own
+stylesheet uses. Use the starter's [web entry](../packages/create/template/src/main.web.tsrx)
+and [native entry](../packages/create/template/src/index.ts) as the baseline
+setup. Change `--color-surface` and check the card background on both targets;
+a native card that stays unchanged suggests a missing entry import or root
+selector.
 
 ## Use Bamboo CSS utilities
 
@@ -105,11 +129,11 @@ the portable preset and review any warnings before extending it.
 
 ## Font-family tokens
 
-`packages/ui/src/theme/tokens.css` provides `--font-sans` and `--font-mono`
-as portable fallback lists. The framework cannot derive one family name from a
-font file: the web face name, the iOS name, and the Android name are different
-identifiers. Apps own the registration and override the token at the stylesheet
-boundary:
+`chrome.css` provides `--font-sans` and `--font-mono` as portable fallback
+lists; apps that omit it can define those variables themselves. The framework
+cannot derive one family name from a font file: the web face name, the iOS name,
+and the Android name are different identifiers. Apps own the registration and
+override the token at the stylesheet boundary:
 
 | Target  | Register the font                                                                | Token value                          |
 | ------- | -------------------------------------------------------------------------------- | ------------------------------------ |

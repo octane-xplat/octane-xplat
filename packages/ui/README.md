@@ -36,10 +36,12 @@ import { HStack, Text, Pressable } from '@octane-xplat/ui'
 ```
 
 The package also ships `styled()`, layout stacks, routing (`Link`, `NavLink`,
-route tables), sheet/overlay/toast services, and the theme stylesheet:
+route tables), sheet/overlay/toast services, and shared stylesheets. The
+structural stylesheet is required; default component chrome is optional:
 
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css' // optional defaults
 ```
 
 Docs:
