@@ -723,13 +723,13 @@ body {
 	right: -280px;
 	width: 523px;
 	height: 523px;
-	opacity: 0.45;
+	opacity: 0.5;
 	pointer-events: none;
 }
 
 .dark .constellation {
 	filter: brightness(0) invert(1);
-	opacity: .02;
+	opacity: .04;
 }
 
 .constellation > svg {
