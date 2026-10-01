@@ -20,6 +20,24 @@
 	   web @font-face family and the platform's registered native name. */
 	--font-sans: system-ui, sans-serif;
 	--font-mono: ui-monospace, monospace;
+
+	/* Syntax highlighting palette (CodeBlock) — the --color-syntax-* names are
+	   Astryx's; values approximate a GitHub-style scheme. `syntaxTheme` on the
+	   component overrides them per block on web. */
+	--color-syntax-keyword: #cf222e;
+	--color-syntax-string: #0a3069;
+	--color-syntax-comment: #57606a;
+	--color-syntax-number: #0550ae;
+	--color-syntax-function: #8250df;
+	--color-syntax-type: #953800;
+	--color-syntax-variable: #24292f;
+	--color-syntax-operator: #0550ae;
+	--color-syntax-constant: #0550ae;
+	--color-syntax-tag: #116329;
+	--color-syntax-attribute: #953800;
+	--color-syntax-property: #0550ae;
+	--color-syntax-punctuation: #57606a;
+	--color-syntax-background: #f6f8fa;
 	--space-4: 16px;
 	/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
 	   the default corner treatment: every class that consumes a token also
@@ -41,6 +59,21 @@
 	--color-text-secondary: #a1a1a1;
 	--color-border: #2e2e2e;
 	--color-border-strong: #4a4a4a;
+
+	--color-syntax-keyword: #ff7b72;
+	--color-syntax-string: #a5d6ff;
+	--color-syntax-comment: #8b949e;
+	--color-syntax-number: #79c0ff;
+	--color-syntax-function: #d2a8ff;
+	--color-syntax-type: #ffa657;
+	--color-syntax-variable: #e6edf3;
+	--color-syntax-operator: #79c0ff;
+	--color-syntax-constant: #79c0ff;
+	--color-syntax-tag: #7ee787;
+	--color-syntax-attribute: #ffa657;
+	--color-syntax-property: #79c0ff;
+	--color-syntax-punctuation: #8b949e;
+	--color-syntax-background: #161b22;
 }
 
 /* xplat-web-only:start — DOM normalization. NativeScript is the reference
@@ -1141,4 +1174,291 @@ textarea::placeholder {
 	background-color: var(--color-surface);
 	color: var(--color-text);
 }
+
+	/* ---- content display (Astryx parity) — skin layer. ---- */
+
+	.vx-blockquote {
+		border-left-width: 2px;
+		border-left-color: var(--color-border-strong);
+		padding-left: 16px;
+		color: var(--color-text-secondary);
+	}
+
+	.vx-blockquote-cite {
+		margin-top: 8px;
+		font-size: 13px;
+		color: var(--color-text-secondary);
+	}
+
+	.vx-code {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+		background-color: var(--color-surface-secondary);
+		border-radius: 4px;
+		padding: 2px 4px;
+		color: var(--color-text);
+	}
+
+	.vx-code--inherit {
+		color: inherit;
+	}
+
+	.vx-code--size-inherit {
+		font-size: inherit;
+	}
+
+	/* Text-role axes shared by Timestamp/Timer — mirrors the Astryx type
+	   scale; themeable because everything resolves through vars. */
+	.vx-type-body { font-size: 14px; line-height: 20px; }
+	.vx-type-large { font-size: 16px; line-height: 24px; }
+	.vx-type-label { font-size: 14px; line-height: 20px; font-weight: 500; }
+	.vx-type-supporting { font-size: 13px; line-height: 18px; }
+	.vx-type-code { font-family: var(--font-mono); font-size: 13px; line-height: 18px; }
+	.vx-type-display-1 { font-size: 32px; line-height: 40px; font-weight: 600; }
+	.vx-type-display-2 { font-size: 24px; line-height: 32px; font-weight: 600; }
+	.vx-type-display-3 { font-size: 20px; line-height: 28px; font-weight: 600; }
+	.vx-type-inherit { font-size: inherit; line-height: inherit; font-weight: inherit; }
+
+	.vx-size-4xs { font-size: 10px; line-height: 12px; }
+	.vx-size-3xs { font-size: 11px; line-height: 14px; }
+	.vx-size-2xs { font-size: 12px; line-height: 16px; }
+	.vx-size-xsm { font-size: 12px; line-height: 16px; }
+	.vx-size-sm { font-size: 13px; line-height: 18px; }
+	.vx-size-base { font-size: 14px; line-height: 20px; }
+	.vx-size-lg { font-size: 16px; line-height: 24px; }
+	.vx-size-xl { font-size: 18px; line-height: 28px; }
+	.vx-size-2xl { font-size: 20px; line-height: 28px; }
+	.vx-size-3xl { font-size: 24px; line-height: 32px; }
+	.vx-size-4xl { font-size: 28px; line-height: 36px; }
+
+	.vx-color-primary { color: var(--color-text); }
+	.vx-color-secondary { color: var(--color-text-secondary); }
+	.vx-color-disabled { color: var(--color-text-secondary); opacity: 0.6; }
+	.vx-color-placeholder { color: var(--color-text-secondary); }
+	.vx-color-accent { color: var(--color-primary); }
+	.vx-color-inherit { color: inherit; }
+
+	.vx-weight-normal { font-weight: 400; }
+	.vx-weight-medium { font-weight: 500; }
+	.vx-weight-semibold { font-weight: 600; }
+	.vx-weight-bold { font-weight: 700; }
+
+	.vx-statusdot {
+		background-color: var(--color-text-secondary);
+	}
+	.vx-statusdot--success { background-color: var(--color-success); }
+	.vx-statusdot--warning { background-color: var(--color-warning); }
+	.vx-statusdot--error { background-color: var(--color-danger); }
+	.vx-statusdot--accent { background-color: var(--color-primary); }
+	.vx-statusdot--neutral { background-color: var(--color-text-secondary); }
+
+	.vx-statusdot-icon {
+		color: #ffffff;
+	}
+
+	.vx-progressbar-track {
+		background-color: var(--color-border);
+	}
+
+	.vx-progressbar-fill {
+		background-color: var(--color-primary);
+	}
+
+	.vx-progressbar--success .vx-progressbar-fill { background-color: var(--color-success); }
+	.vx-progressbar--warning .vx-progressbar-fill { background-color: var(--color-warning); }
+	.vx-progressbar--error .vx-progressbar-fill { background-color: var(--color-danger); }
+	.vx-progressbar--neutral .vx-progressbar-fill { background-color: var(--color-text-secondary); }
+
+	.vx-progressbar-label {
+		font-size: 13px;
+		color: var(--color-text);
+	}
+
+	.vx-progressbar-value {
+		font-size: 13px;
+		color: var(--color-text-secondary);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.vx-progressbar-mark {
+		background-color: var(--color-surface);
+		border-left-width: 1px;
+		border-left-color: var(--color-border-strong);
+		border-right-width: 1px;
+		border-right-color: var(--color-border-strong);
+	}
+
+	.vx-progressbar--disabled {
+		opacity: 0.38;
+	}
+
+	.vx-metadatalist-label {
+		font-size: 13px;
+		color: var(--color-text-secondary);
+	}
+
+	.vx-metadatalist-value {
+		font-size: 14px;
+		color: var(--color-text);
+	}
+
+	.vx-metadatalist-title {
+		font-weight: 600;
+		color: var(--color-text);
+	}
+
+	.vx-metadatalist-toggle {
+		font-size: 13px;
+		color: var(--color-primary);
+	}
+
+	.vx-thumbnail {
+		border-width: 1px;
+		border-color: var(--color-border);
+		background-color: var(--color-surface-secondary);
+		color: var(--color-text-secondary);
+	}
+
+	.vx-thumbnail--disabled {
+		opacity: 0.5;
+	}
+
+	.vx-thumbnail-remove {
+		background-color: rgba(0, 0, 0, 0.6);
+		color: #ffffff;
+	}
+
+	.vx-thumbnail-overlay {
+		background-color: rgba(255, 255, 255, 0.5);
+	}
+
+	.ns-dark .vx-thumbnail-overlay,
+	.dark .vx-thumbnail-overlay {
+		background-color: rgba(0, 0, 0, 0.4);
+	}
+
+	.vx-citation {
+		border-radius: 4px;
+		padding: 0 2px;
+		font-size: 12px;
+	}
+
+	.vx-citation--link {
+		color: var(--color-primary);
+	}
+
+	.vx-citation--number {
+		font-weight: 600;
+		color: var(--color-primary);
+	}
+
+	.vx-citation-count {
+		color: var(--color-text-secondary);
+	}
+
+	.vx-citation-icon {
+		background-color: var(--color-surface-secondary);
+	}
+
+	.vx-timestamp {
+		cursor: default;
+	}
+
+	.vx-timestamp-card-label {
+		font-size: 12px;
+		color: var(--color-text-secondary);
+	}
+
+	.vx-timestamp-card-value {
+		font-size: 13px;
+		color: var(--color-text);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.vx-timestamp-copy {
+		color: var(--color-text-secondary);
+	}
+
+	.vx-outline-item {
+		font-size: 13px;
+		color: var(--color-text-secondary);
+		border-radius: 4px;
+	}
+
+	.vx-outline-item--active {
+		color: var(--color-text);
+	}
+
+	.vx-outline-indicator {
+		background-color: var(--color-primary);
+		border-radius: 1px;
+	}
+
+	.vx-codeblock {
+		background-color: var(--color-syntax-background, var(--color-surface-secondary));
+		border-radius: 8px;
+	}
+
+	.vx-codeblock--card {
+		border-width: 1px;
+		border-color: var(--color-border);
+	}
+
+	.vx-codeblock--section {
+		background-color: transparent;
+	}
+
+	.vx-codeblock-header {
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+	}
+
+	.vx-codeblock--section .vx-codeblock-header {
+		border-bottom-width: 0;
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.vx-codeblock-title {
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--color-text);
+	}
+
+	.vx-codeblock-lang {
+		font-size: 12px;
+		color: var(--color-text-secondary);
+	}
+
+	.vx-codeblock-copy,
+	.vx-codeblock-collapse {
+		color: var(--color-text-secondary);
+	}
+
+	.vx-codeblock-pre {
+		font-family: var(--font-mono);
+		font-size: 13px;
+		line-height: 18px;
+		color: var(--color-text);
+	}
+
+	.vx-codeblock--sm .vx-codeblock-pre {
+		font-size: 12px;
+		line-height: 16px;
+	}
+
+	.vx-codeblock-gutter {
+		color: var(--color-text-secondary);
+		font-family: var(--font-mono);
+		font-size: inherit;
+	}
+
+	.vx-codeblock-line--highlighted {
+		background-color: var(--color-highlight-line, rgba(255, 213, 79, 0.14));
+	}
+
+	.vx-codeblock--collapsed .vx-codeblock-body {
+		display: none;
+	}
+
 }

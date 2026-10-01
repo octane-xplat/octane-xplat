@@ -426,3 +426,69 @@ export type {
 	TextProps,
 	ViewProps,
 } from './props'
+
+// ---------- content display (Astryx parity) ----------
+export { Blockquote } from './Blockquote'
+export { Code } from './Code'
+export { CodeBlock } from './CodeBlock'
+export { MetadataList } from './MetadataList'
+export { MetadataListItem } from './MetadataListItem'
+export { Thumbnail } from './Thumbnail'
+export { ProgressBar } from './ProgressBar'
+export { StatusDot } from './StatusDot'
+export { Timestamp } from './Timestamp'
+export { Timer } from './Timer'
+export { Citation } from './Citation'
+export { Outline } from './Outline'
+export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
+export { useOutlineFromDOM } from './outline-dom'
+export { parseOutlineFromMarkdown, outlineFromDoc, markdownHeadings, inlineMarkdownText, slugify, uniqueSlug } from './outline-utils'
+export {
+	tokenize,
+	tokenizeAsync,
+	tokenizeStreaming,
+	flatTokensToLines,
+	SYNC_TOKENIZE_THRESHOLD,
+	TOKEN_TYPES,
+	syntaxTokenVar,
+	syntaxTokenVarRef,
+} from './code-tokenizer'
+export type { SyntaxTokenType } from './code-tokenizer'
+export type {
+	BlockquoteProps,
+	CodeProps,
+	CodeColor,
+	CodeSize,
+	CodeBlockProps,
+	CodeTokenizer,
+	SyntaxThemeOverride,
+	SyntaxToken,
+	TokenLine,
+	MetadataListProps,
+	MetadataListItemProps,
+	MetadataListColumns,
+	MetadataListLabelConfig,
+	ThumbnailProps,
+	ProgressBarProps,
+	ProgressBarMark,
+	ProgressBarVariant,
+	ProgressBarVariantMap,
+	StatusDotProps,
+	StatusDotVariant,
+	StatusDotVariantMap,
+	TimestampProps,
+	TimestampFormat,
+	TimestampTooltipEntry,
+	TimestampTooltipFormat,
+	TimerProps,
+	TimerFormat,
+	CitationProps,
+	CitationSource,
+	OutlineProps,
+	OutlineItem,
+	OutlineFromDOMOptions,
+	TextType,
+	TextSize,
+	TextColor,
+	TextWeight,
+} from './props'

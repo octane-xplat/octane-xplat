@@ -3003,3 +3003,528 @@ export type TreeListProps = TreeProps
 export type EmptyStateProps = EmptyProps
 /** Props accepted by `Spinner`. */
 export type SpinnerProps = ActivityIndicatorProps
+
+// ---------- content display (Astryx parity) ----------
+
+/** Semantic text roles used by Timestamp/Timer — the Astryx `type` axis.
+ *  `inherit` adopts the surrounding text's metrics. */
+export type TextType =
+	| 'body'
+	| 'large'
+	| 'label'
+	| 'supporting'
+	| 'code'
+	| 'display-1'
+	| 'display-2'
+	| 'display-3'
+	| 'inherit'
+
+/** Named size override for `TextType`-bearing components (Astryx scale). */
+export type TextSize =
+	| '4xs'
+	| '3xs'
+	| '2xs'
+	| 'xsm'
+	| 'sm'
+	| 'base'
+	| 'lg'
+	| 'xl'
+	| '2xl'
+	| '3xl'
+	| '4xl'
+
+/** Semantic text colors shared by Timestamp/Timer (Astryx `color` axis). */
+export type TextColor =
+	| 'primary'
+	| 'secondary'
+	| 'disabled'
+	| 'placeholder'
+	| 'accent'
+	| 'inherit'
+
+/** Font weight axis shared by Timestamp/Timer. */
+export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
+
+/** Blockquote — styled quotation with optional `cite` attribution. */
+export interface BlockquoteProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** Attribution rendered after the quoted content (`<cite>` on web). */
+	cite?: any
+	/** Platform-specific properties are applied after shared props. */
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Text color for `Code`, mirroring the primary/secondary/inherit subset. */
+export type CodeColor = 'primary' | 'secondary' | 'inherit'
+
+/** Font size for `Code` — `'inherit'` adopts the surrounding text metrics. */
+export type CodeSize = 'inherit'
+
+/** Code — inline monospace run. Standalone renders a mono chip; nested
+ *  inside `Text`/`RichText` it stays an inline run on every target. */
+export interface CodeProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** @default 'primary' */
+	color?: CodeColor
+	/** `'inherit'` adopts the surrounding text's font-size and line-height. */
+	size?: CodeSize
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** One syntax token with line-relative offsets (0 = start of line). */
+export interface SyntaxToken {
+	type: string
+	start: number
+	end: number
+}
+
+/** Per-line token structure returned by `tokenize`/`tokenizeAsync`. */
+export type TokenLine = SyntaxToken[]
+
+/** Custom tokenizer contract for `CodeBlock.tokenizer` — absolute offsets in,
+ *  split per line internally (legacy flat form, converted by
+ *  `flatTokensToLines`). */
+export type CodeTokenizer = (
+	code: string,
+	language: string,
+) => { type: string; start: number; end: number }[]
+
+/** Portable syntax-theme override for one CodeBlock. Token keys are the
+ *  `--color-syntax-*` suffixes (keyword, string, comment, number, function,
+ *  type, variable, operator, constant, tag, attribute, property, punctuation,
+ *  background). Values are color strings or `[light, dark]` tuples resolved
+ *  against the active color scheme. On web the map is applied as CSS custom
+ *  properties; on native it recolors the emitted text runs directly (native
+ *  spans don't resolve CSS vars). */
+export interface SyntaxThemeOverride {
+	name?: string
+	tokens: Record<string, string | [light: string, dark: string]>
+}
+
+/** CodeBlock — read-only syntax-highlighted code display. */
+export interface CodeBlockProps {
+	className?: any
+	style?: any
+	id?: string
+	/** The source code to display. */
+	code: string
+	/** Language identifier (e.g. 'typescript', 'python'). @default 'plaintext' */
+	language?: string
+	/** Optional title rendered in the header row. */
+	title?: string
+	/** Show the language label in the header. @default true */
+	hasLanguageLabel?: boolean
+	/** Show a per-line number gutter. @default false */
+	hasLineNumbers?: boolean
+	/** 1-based line numbers to highlight. */
+	highlightLines?: number[]
+	/** Show the copy button. @default true */
+	hasCopyButton?: boolean
+	/** Fires after a successful clipboard write. */
+	onCopy?: () => void
+	/** Wrap long lines instead of horizontal scrolling. @default false */
+	isWrapped?: boolean
+	/** Cap the code area height (dip/px number or CSS length). Overflow scrolls. */
+	maxHeight?: number | string
+	/** Allow collapsing the code body behind the header when the block is
+	 *  longer than `collapsibleThreshold` lines. @default false */
+	isCollapsible?: boolean
+	/** Minimum line count for the collapse affordance. @default 10 */
+	collapsibleThreshold?: number
+	/** @default 'md' */
+	size?: 'sm' | 'md'
+	/**
+	 * Width of the block.
+	 * - `'fit-content'` (default): shrinks to the longest line (with a floor).
+	 * - `'100%'` or any CSS length fills the parent.
+	 * On native the block always fills its parent width; 'fit-content'
+	 * resolves to the parent's width.
+	 */
+	width?: string
+	/** 'card' (bordered panel, default) or 'section' (transparent, no chrome). */
+	container?: 'card' | 'section'
+	/** Custom tokenizer returning flat absolute-offset tokens. */
+	tokenizer?: CodeTokenizer
+	/**
+	 * Syntax-color strategy. 'ranges' uses the CSS Custom Highlight API on
+	 * web (unsupported engines — and native, always — use styled spans).
+	 * @default 'auto'
+	 */
+	highlightMode?: 'auto' | 'ranges' | 'spans'
+	/** Per-instance syntax theme override (see `SyntaxThemeOverride`). */
+	syntaxTheme?: SyntaxThemeOverride
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** A fixed target mark drawn on a `ProgressBar` track. */
+export interface ProgressBarMark {
+	/** Position in the same `0..max` scale as `value`; clamped to the track. */
+	value: number
+	/** Names the mark — its accessible name and (pointer platforms) tooltip. */
+	label: string
+}
+
+/** ProgressBar variant names — extendable via module augmentation. */
+export interface ProgressBarVariantMap {
+	accent: true
+	success: true
+	warning: true
+	neutral: true
+	error: true
+}
+
+export type ProgressBarVariant = keyof ProgressBarVariantMap
+
+/** ProgressBar — linear determinate or indeterminate progress. `Meter` stays
+ *  the ring form; this is the bar. */
+export interface ProgressBarProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Current value. Ignored when `isIndeterminate` is true. @default 0 */
+	value?: number
+	/** @default 100 */
+	max?: number
+	/** Accessible label (required) — shown above the bar unless `isLabelHidden`. */
+	label: string
+	/** Visually hide the label; it stays the accessible name. @default false */
+	isLabelHidden?: boolean
+	/** Show the formatted value beside the label. @default false */
+	hasValueLabel?: boolean
+	/** @default (value, max) => `${Math.round((value / max) * 100)}%` */
+	formatValueLabel?: (value: number, max: number) => string
+	/** @default 'accent' */
+	variant?: ProgressBarVariant
+	/** Animated unknown-progress mode; `value`/`hasValueLabel`/`marks` are
+	 *  ignored. @default false */
+	isIndeterminate?: boolean
+	/** Target marks on the track. Ignored when `isIndeterminate`. */
+	marks?: readonly ProgressBarMark[]
+	/** Visually disabled (canceled/inactive operations). @default false */
+	isDisabled?: boolean
+	/** `bind` receives the host element (web) / native view. */
+	bind?: (el: any) => void
+	accessible?: boolean
+	accessibilityLabel?: string
+	accessibilityHint?: string
+	accessibilityValue?: string
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** StatusDot variant names — extendable via module augmentation. */
+export interface StatusDotVariantMap {
+	success: true
+	warning: true
+	error: true
+	accent: true
+	neutral: true
+}
+
+export type StatusDotVariant = keyof StatusDotVariantMap
+
+/** StatusDot — small colored status signal. */
+export interface StatusDotProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Semantic color variant (required). */
+	variant: StatusDotVariant
+	/** Accessible label describing the status (required — it is the dot's
+	 *  accessible name). */
+	label: string
+	/** Pulse to indicate activity; honors reduced-motion. @default false */
+	isPulsing?: boolean
+	/** Hint text revealed on hover/focus on pointer targets. Never mounts on
+	 *  touch targets — keep essential information out of it. */
+	tooltip?: string
+	/** Optional icon node painted in the dot's ink color (8px field). */
+	icon?: any
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Every absolute `Timestamp` display format. */
+export type TimestampFormat =
+	| 'relative'
+	| 'relative_short'
+	| 'auto'
+	| 'date'
+	| 'date_long'
+	| 'date_weekday'
+	| 'date_time'
+	| 'time'
+	| 'system_date'
+	| 'system_date_time'
+	| 'system_time'
+	| 'unix_seconds'
+
+/** Formats available to a `Timestamp` tooltip line — every instant-naming
+ *  format plus `'full'` ("March 21, 2025 at 2:51:53 PM GMT+1"). */
+export type TimestampTooltipFormat =
+	| Exclude<TimestampFormat, 'relative' | 'relative_short' | 'auto'>
+	| 'full'
+
+/** One line of the `Timestamp` hover card. */
+export interface TimestampTooltipEntry {
+	/**
+	 * IANA time zone identifier, e.g. `'UTC'`, `'America/Los_Angeles'`.
+	 * Omit — or pass `'local'` — for the viewer's own zone. Unrecognized
+	 * identifiers fall back to the viewer's zone with a console warning.
+	 */
+	timezoneID?: string
+	/** How this line renders the instant. @default 'full' */
+	format?: TimestampTooltipFormat
+	/** Text shown beside the value, e.g. `'UTC'`. Supplied already translated. */
+	label?: string
+	/** Show a copy affordance for this row. @default false */
+	isCopyable?: boolean
+}
+
+/** Timestamp — human-readable instant with relative/absolute formats. */
+export interface TimestampProps {
+	className?: any
+	style?: any
+	id?: string
+	/** The instant to display: Unix seconds (or ms > 1e12) or an ISO 8601 string. */
+	value: string | number
+	/**
+	 * - 'auto': relative for recent times, `date_time` for older (default)
+	 * - 'relative': "2 hours ago" / 'relative_short': "2h ago"
+	 * - absolute formats: date, date_long, date_weekday, date_time, time,
+	 *   system_date, system_date_time, system_time, unix_seconds
+	 * @default 'auto'
+	 */
+	format?: TimestampFormat
+	/** Seconds threshold for 'auto' to switch from relative to date_time.
+	 *  @default 604800 (7 days) */
+	autoThreshold?: number
+	/** Show the hover card with the full absolute time on pointer targets.
+	 *  Touch targets never mount the card. @default true */
+	hasTooltip?: boolean
+	/** Custom tooltip rows — one rendered line per entry, in order. An empty
+	 *  array is treated as no configuration. */
+	tooltipEntries?: readonly TimestampTooltipEntry[]
+	/** Append the timezone abbreviation after `date_time`/`time` text.
+	 *  system_* formats never carry it. @default false */
+	isTimezoneShown?: boolean
+	/** Keep relative formats updated live. @default false */
+	isLive?: boolean
+	/** Semantic text type. @default 'supporting' */
+	type?: TextType
+	/** Explicit font size override; wins over `type`. */
+	size?: TextSize
+	/** @default 'secondary' */
+	color?: TextColor
+	/** Font weight override. */
+	weight?: TextWeight
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Timer duration text modes: 'elapsed' = "4m 05s" / 'clock' = "4:05". */
+export type TimerFormat = 'elapsed' | 'clock'
+
+/** Timer — live elapsed duration since `startTime` (or mount). */
+export interface TimerProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Unix time in milliseconds when the measured operation began. Omit to
+	 *  count from this Timer's mount. */
+	startTime?: number
+	/** @default 'elapsed' */
+	format?: TimerFormat
+	/** Semantic text type. @default 'supporting' */
+	type?: TextType
+	/** Explicit font size override; wins over `type`. */
+	size?: TextSize
+	/** @default 'secondary' */
+	color?: TextColor
+	/** Font weight override. */
+	weight?: TextWeight
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** One cited source for `Citation`. */
+export interface CitationSource {
+	title?: string
+	/** Destination URL. Unsafe schemes (javascript:, vbscript:, data:text/html)
+	 *  are blocked — the citation renders inert instead of linking. */
+	url?: string
+	/** Image URL for a favicon/logo, rendered inside the icon circle. When both
+	 *  `src` and a non-string `icon` are provided, `icon` wins. */
+	src?: string
+	/** Icon node rendered before the label text (label variant). A bare string
+	 *  is treated as an image URL (favicon back-compat), not an icon name. */
+	icon?: any
+}
+
+/** Citation — a superscript number or labelled chip referencing a source. */
+export interface CitationProps {
+	className?: any
+	style?: any
+	id?: string
+	source: CitationSource
+	number: number
+	/** 'label' (icon + title chip, default) or 'number' (accent pill). */
+	variant?: 'label' | 'number'
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** How `MetadataList` places each item's label. */
+export interface MetadataListLabelConfig {
+	/** 'start' = beside the value; 'top' = stacked above it. */
+	position: 'start' | 'top'
+	/** Custom label column width (dips or CSS length); 'start' only. */
+	width?: number | string
+}
+
+export type MetadataListColumns = 'multi' | 'single' | number
+
+/** MetadataList — read-only labeled key/value list (definition list). */
+export interface MetadataListProps {
+	className?: any
+	style?: any
+	id?: string
+	/** MetadataListItem children. */
+	children?: any
+	/** 'single' (default), 'multi' (auto-fill), or a fixed column count. */
+	columns?: MetadataListColumns
+	/** Label position/width. Defaults to 'top' for multi-column and
+	 *  horizontal layouts, 'start' for single-column. */
+	label?: MetadataListLabelConfig
+	/** Collapse beyond this item count behind a show-more toggle
+	 *  (vertical orientation only). */
+	maxNumOfItems?: number
+	/** 'vertical' (default) or 'horizontal' — items flow in a wrapping row
+	 *  with labels stacked above values; `columns`, `label`, and
+	 *  `maxNumOfItems` are ignored in horizontal mode. */
+	orientation?: 'vertical' | 'horizontal'
+	/** Optional title rendered above the list. */
+	title?: any
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** One label/value row inside a `MetadataList`. */
+export interface MetadataListItemProps {
+	className?: any
+	style?: any
+	id?: string
+	children?: any
+	/** Label text for this item. */
+	label: string
+	/** Icon node rendered before the label text. */
+	icon?: any
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** Thumbnail — square image preview with loading/error/remove states. */
+export interface ThumbnailProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Image source (any `Image` src grammar). Shows the placeholder when
+	 *  absent or after a failed load. */
+	src?: string
+	/** Image description. Omitted = explicitly decorative (hidden from
+	 *  assistive tech); pair with `label` to name the thumbnail. */
+	alt?: string
+	/** Accessible label (e.g. file name). Not rendered visually; pointer
+	 *  targets reveal it as a tooltip. */
+	label?: string
+	/** When set, an overlaid remove button appears (hover/focus, or always on
+	 *  touch targets). */
+	onRemove?: () => void
+	/** When set, the thumbnail acts as a button (opens a detail/lightbox). */
+	onPress?: () => void
+	/** Loading state: skeleton without `src`, spinner overlay over `src`.
+	 *  @default false */
+	isLoading?: boolean
+	/** @default false */
+	isDisabled?: boolean
+	/** Remove-button visibility. 'hover' (default) reveals on hover/focus;
+	 *  touch targets always show it (same rule upstream uses for coarse
+	 *  pointers). 'always' always shows it. */
+	showRemoveOn?: 'always' | 'hover'
+	ios?: any
+	android?: any
+	web?: any
+}
+
+/** One entry in an `Outline` — a heading link. */
+export interface OutlineItem {
+	/** Unique id matching the target heading's `id`. */
+	id: string
+	/** Display text. */
+	label: string
+	/** Heading depth 1–6; controls indentation. */
+	level: number
+}
+
+/** Options for `useOutlineFromDOM`. `root` accepts a web ParentNode at runtime;
+ *  it is `unknown` in the shared contract because NativeScript uses a view ref. */
+export interface OutlineFromDOMOptions {
+	selector?: string
+	root?: unknown
+}
+
+/** Outline — table-of-contents nav with a sliding active indicator. */
+export interface OutlineProps {
+	className?: any
+	style?: any
+	id?: string
+	/** Ordered heading items to render. */
+	items: readonly OutlineItem[]
+	/** Currently active item id. Providing it switches the outline to
+	 *  controlled mode and disables built-in scroll-spy. */
+	activeId?: string
+	/** Called when the active item changes (scroll-spy or activation). */
+	onActiveIdChange?: (id: string) => void
+	/** Accessible label for the nav landmark. @default 'Table of contents' */
+	label?: string
+	/** 'default' or 'compact' item density. @default 'default' */
+	density?: 'default' | 'compact'
+	/** Called when navigation to an item begins, before scrolling. */
+	onNavigateStart?: (id: string) => void
+	/** Called once per navigation when the scroll settles or the user
+	 *  interrupts it — every `onNavigateStart` is balanced. */
+	onNavigateEnd?: (id: string) => void
+	/** Height of a fixed header overlaying the scroll root: shifts both the
+	 *  activation line and the scroll landing. @default 0 */
+	offset?: number
+	/** Scroll container ref (`bind`/`ref` object). Default: the nearest
+	 *  scrollable ancestor on web / the nearest enclosing ScrollView on
+	 *  native, else the viewport/screen. */
+	scrollContainerRef?: { current?: any }
+	/** Whether activating an item smooth-scrolls to it. Set false to own
+	 *  scrolling yourself — activation still updates the active item, the
+	 *  URL fragment (web), and the navigate callbacks. @default true */
+	hasScrollOnClick?: boolean
+	ios?: any
+	android?: any
+	web?: any
+}

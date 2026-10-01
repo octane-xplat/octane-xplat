@@ -38,6 +38,36 @@ if (!icons.has('xplat-clear')) {
 	})
 }
 
+if (!icons.has('xplat-copy')) {
+	icons.set('xplat-copy', {
+		svg: 'M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z',
+	})
+}
+
+if (!icons.has('xplat-check')) {
+	icons.set('xplat-check', {
+		svg: 'M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z',
+	})
+}
+
+if (!icons.has('xplat-chevron-down')) {
+	icons.set('xplat-chevron-down', {
+		svg: 'M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z',
+	})
+}
+
+if (!icons.has('xplat-chevron-up')) {
+	icons.set('xplat-chevron-up', {
+		svg: 'M12 8l-6 6 1.41 1.41L12 9.83l4.59 4.58L18 14z',
+	})
+}
+
+if (!icons.has('xplat-doc-image')) {
+	icons.set('xplat-doc-image', {
+		svg: 'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z',
+	})
+}
+
 // Video transport glyphs (self-drawn chrome) — same guarded registration.
 if (!icons.has('xplat-play')) {
 	icons.set('xplat-play', { svg: 'M8 5v14l11-7z' })

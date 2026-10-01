@@ -1552,4 +1552,504 @@ input.vx-search-field::-webkit-search-cancel-button {
 .vx-chatlayout { position: relative; overflow: hidden; }
 .vx-chatpaste-preview { overflow: hidden; }
 /* xplat-web-only:end */
+
+	/* ---- content display (Astryx parity) — structure only; chrome.css owns
+	   the skin. Web-only rules sit inside xplat-web-only blocks; the rest must
+	   stay in the NS-safe vocabulary. ---- */
+
+	.vx-blockquote {
+		flex-direction: column;
+	}
+
+	.vx-statusdot {
+		width: 8px;
+		height: 8px;
+		border-radius: 4px;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.vx-progressbar-track {
+		height: 8px;
+		border-radius: 4px;
+	}
+
+	.vx-progressbar-fill {
+		border-radius: 4px;
+	}
+
+	/* Full-height 2px tick centered on its track position. */
+	.vx-progressbar-mark {
+		width: 2px;
+		height: 8px;
+	}
+
+	.vx-metadatalist {
+		flex-direction: column;
+	}
+
+	.vx-metadatalist-label {
+		margin-bottom: 8px;
+	}
+
+	.vx-metadatalist-value {
+		margin-bottom: 8px;
+	}
+
+	.vx-metadatalist-item .vx-metadatalist-value {
+		margin-top: 4px;
+	}
+
+	.vx-thumbnail {
+		width: 40px;
+		height: 40px;
+		border-radius: 8px;
+	}
+
+	.vx-thumbnail-remove {
+		width: 16px;
+		height: 16px;
+		border-radius: 8px;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.vx-citation {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.vx-outline {
+		flex-direction: column;
+	}
+
+	.vx-outline-item {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.vx-codeblock {
+		flex-direction: column;
+	}
+
+	.vx-codeblock-header {
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.vx-codeblock-line {
+		flex-direction: row;
+	}
+
+	.vx-codeblock-gutter {
+		width: 32px;
+		text-align: right;
+		padding-right: 8px;
+	}
+
+	/* xplat-web-only:start — the DOM needs display/position rules where native
+	   layout classes already carry the equivalent behavior. */
+	.vx-blockquote {
+		margin: 0;
+		padding: 0;
+	}
+
+	.vx-blockquote-cite {
+		display: block;
+		font-style: normal;
+	}
+
+	.vx-visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.vx-statusdot {
+		display: inline-flex;
+		position: relative;
+	}
+
+	.vx-statusdot-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.vx-progressbar {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		min-width: 120px;
+	}
+
+	.vx-progressbar-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 8px;
+	}
+
+	.vx-progressbar-trackwrap {
+		position: relative;
+	}
+
+	.vx-progressbar-track {
+		position: relative;
+		overflow: hidden;
+	}
+
+	.vx-progressbar-fill {
+		height: 100%;
+		transition: width 160ms ease-out;
+	}
+
+	.vx-progressbar-fill--indeterminate {
+		width: 40%;
+		animation: vx-progressbar-slide 1.2s linear infinite;
+	}
+
+	.vx-progressbar-markwrap {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		display: flex;
+		align-items: center;
+	}
+
+	.vx-progressbar-mark {
+		display: block;
+		height: 100%;
+		transform: translateX(-50%);
+	}
+
+	.vx-progressbar-mark[data-placement='start'] {
+		transform: none;
+	}
+
+	.vx-progressbar-mark[data-placement='end'] {
+		transform: translateX(-100%);
+	}
+
+	@keyframes vx-progressbar-slide {
+		from { transform: translateX(-100%); }
+		to { transform: translateX(250%); }
+	}
+
+	@keyframes vx-statusdot-pulse {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.4; }
+	}
+
+	.vx-statusdot--pulse {
+		animation: vx-statusdot-pulse 1.5s ease-in-out infinite;
+	}
+
+	.vx-metadatalist-list {
+		margin: 0;
+		padding: 0;
+	}
+
+	.vx-metadatalist--single {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		column-gap: 16px;
+		row-gap: 8px;
+		align-items: baseline;
+	}
+
+	.vx-metadatalist--multi,
+	.vx-metadatalist--stacked-multi {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: 16px;
+	}
+
+	.vx-metadatalist--stacked-single {
+		display: grid;
+		grid-template-columns: 1fr;
+		row-gap: 12px;
+	}
+
+	.vx-metadatalist--horizontal {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 16px;
+	}
+
+	.vx-metadatalist-label {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin-bottom: 0;
+	}
+
+	.vx-metadatalist-item .vx-metadatalist-label {
+		margin-bottom: 4px;
+	}
+
+	.vx-metadatalist-item .vx-metadatalist-value,
+	.vx-metadatalist--single .vx-metadatalist-value {
+		margin-bottom: 0;
+	}
+
+	.vx-metadatalist-icon {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.vx-metadatalist-value {
+		margin: 0;
+		min-width: 0;
+	}
+
+	.vx-metadatalist-toggle {
+		align-self: flex-start;
+		appearance: none;
+		background: transparent;
+		border: 0;
+		padding: 8px 0;
+		cursor: pointer;
+		font: inherit;
+	}
+
+	.vx-thumbnail {
+		display: inline-flex;
+		position: relative;
+		overflow: hidden;
+		flex: none;
+	}
+
+	.vx-thumbnail-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.vx-thumbnail-placeholder {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.vx-thumbnail-overlay {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.vx-thumbnail-remove {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 0;
+		padding: 0;
+		cursor: pointer;
+	}
+
+	.vx-thumbnail-remove:not(.vx-thumbnail-remove--always) {
+		opacity: 0;
+		transition: opacity 120ms ease-out;
+	}
+
+	.vx-thumbnail:hover .vx-thumbnail-remove,
+	.vx-thumbnail:focus-within .vx-thumbnail-remove {
+		opacity: 1;
+	}
+
+	.vx-citation {
+		display: inline-flex;
+		gap: 4px;
+		vertical-align: baseline;
+		text-decoration: none;
+	}
+
+	.vx-citation-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 16px;
+		height: 16px;
+		border-radius: 8px;
+		overflow: hidden;
+		flex: none;
+	}
+
+	.vx-citation-icon-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.vx-outline {
+		position: relative;
+	}
+
+	.vx-outline-track {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.vx-outline-indicator {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 2px;
+		transition: transform 140ms ease-out, height 140ms ease-out;
+		pointer-events: none;
+	}
+
+	.vx-outline-item {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		border: 0;
+		background: transparent;
+		padding: 8px 12px 8px 0;
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.vx-outline--compact .vx-outline-item {
+		padding-top: 4px;
+		padding-bottom: 4px;
+	}
+
+	.vx-codeblock {
+		overflow: hidden;
+		max-width: 100%;
+	}
+
+	.vx-codeblock-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		padding: 6px 12px;
+	}
+
+	.vx-codeblock-header-text {
+		display: flex;
+		align-items: baseline;
+		gap: 8px;
+		min-width: 0;
+	}
+
+	.vx-codeblock-header-actions {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.vx-codeblock-copy,
+	.vx-codeblock-collapse {
+		appearance: none;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: 0;
+		background: transparent;
+		padding: 4px;
+		cursor: pointer;
+		border-radius: 4px;
+	}
+
+	.vx-codeblock-body {
+		overflow: auto;
+	}
+
+	.vx-codeblock-pre {
+		margin: 0;
+		padding: 8px 12px;
+	}
+
+	.vx-codeblock-code {
+		display: block;
+	}
+
+	.vx-codeblock-row {
+		display: flex;
+		min-width: max-content;
+	}
+
+	.vx-codeblock-line {
+		display: block;
+		min-width: max-content;
+		white-space: pre;
+	}
+
+	.vx-codeblock-row .vx-codeblock-line {
+		flex: 1;
+	}
+
+	.vx-codeblock-gutter {
+		flex: none;
+		width: 2.5em;
+		padding-right: 1em;
+		text-align: right;
+		user-select: none;
+	}
+
+	.vx-codeblock--wrap .vx-codeblock-line {
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+
+	.vx-codeblock--wrap .vx-codeblock-row,
+	.vx-codeblock--wrap .vx-codeblock-line {
+		min-width: 0;
+	}
+
+	.vx-timestamp-card-grid {
+		display: grid;
+		row-gap: 4px;
+		column-gap: 12px;
+	}
+
+	.vx-timestamp-card-row {
+		display: contents;
+	}
+
+	.vx-timestamp-card-action {
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+	}
+
+	.vx-timestamp-copy {
+		appearance: none;
+		border: 0;
+		background: transparent;
+		padding: 2px;
+		cursor: pointer;
+		display: inline-flex;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.vx-statusdot--pulse,
+		.vx-progressbar-fill--indeterminate {
+			animation: none;
+		}
+	}
+	/* xplat-web-only:end */
+
 }

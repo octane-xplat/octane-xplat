@@ -17,6 +17,8 @@ Every component accepts `className`/`style`/`id` plus the platform escape props
 
 Component names follow the Astryx catalog where the concepts overlap. Prop
 contracts continue to be documented here as cross-platform parity work lands.
+The content-display family and its platform limits are covered in
+[Content display](content-display.md).
 
 ## Layout
 
@@ -83,20 +85,25 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
 ## Content
 
-| Component     | What it is                                 | Key props                                |
-| ------------- | ------------------------------------------ | ---------------------------------------- |
-| `Card`        | Container with header/footer slots         | `header`, `footer`                       |
-| `Alert`       | Inline callout                             | `tone`, `icon`, `title`                  |
-| `Banner`      | Notice strip with optional dismiss         | `icon`, `onDismiss`                      |
-| `EmptyState`       | EmptyState-state block (icon + title + actions) | `icon`, `title`, `description`           |
-| `Badge`       | Inline label chip                          |                                          |
-| `Avatar`      | Circular image with text fallback          | `src`, `fallback`, `size`                |
-| `AvatarGroup` | Overlapping avatar row with `+N` overflow  | `max`, `size`                            |
-| `User`        | Avatar + name/description row              | `name`, `description`, `src`, `onSelect` |
-| `Icon`        | Registered icon glyph                      | `name`, `size`, `color`                  |
-| `Image`       | Image                                      | `src`, `alt`                             |
-| `Skeleton`    | Loading placeholder block                  | `width`, `height`                        |
-| `Divider`   | Hairline rule                              | `orientation`                            |
+| Component        | What it is                                  | Key props                                  |
+| ---------------- | ------------------------------------------- | ------------------------------------------ |
+| `Card`           | Container with header/footer slots          | `header`, `footer`                         |
+| `Alert`          | Inline callout                              | `tone`, `icon`, `title`                    |
+| `Banner`         | Notice strip with optional dismiss          | `icon`, `onDismiss`                        |
+| `EmptyState` | Empty-state block (icon + title + actions) | `icon`, `title`, `description`       |
+| `Badge`          | Inline label chip                           |                                            |
+| `Avatar`         | Circular image with text fallback           | `src`, `fallback`, `size`                  |
+| `AvatarGroup`    | Overlapping avatar row with `+N` overflow   | `max`, `size`                              |
+| `User`           | Avatar + name/description row               | `name`, `description`, `src`, `onSelect`   |
+| `Icon`           | Registered icon glyph                       | `name`, `size`, `color`                    |
+| `Image`          | Image                                       | `src`, `alt`                               |
+| `Thumbnail`      | Square image preview with optional remove action | `src`, `alt`, `isLoading`, `onPress`, `onRemove` |
+| `Blockquote`     | Quoted content with optional attribution    | `cite`                                     |
+| `Code`           | Inline monospace text                       | `color`, `size`                            |
+| `CodeBlock`      | Syntax-colored code with copy and collapse actions | `code`, `language`, `hasLineNumbers`, `highlightLines` |
+| `Citation`       | Source label or numbered source link        | `source`, `number`, `variant`              |
+| `Skeleton`       | Loading placeholder block                   | `width`, `height`                          |
+| `Divider` | Hairline rule                         | `orientation`                              |
 
 ## Disclosure & navigation
 
@@ -115,14 +122,20 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
 ## Data display
 
-| Component           | What it is                            | Key props                                          |
-| ------------------- | ------------------------------------- | -------------------------------------------------- |
-| `Table`             | Columnar rows                         | `columns`, `rows`, `renderCell`, `onRowPress`      |
-| `TreeList`              | Expandable node hierarchy             | `nodes`, `defaultExpanded`, `onToggle`, `onSelect` |
-| `Timeline`          | Vertical event list (dot + connector) | `items`                                            |
-| `ProgressGroup`     | Stacked labeled `Meter` rows          | `items`                                            |
-| `Meter`             | Gauge/dash ring                       | `value`, `max`, `strokeWidth`                      |
-| `Spinner` | Spinner (self-drawn)                  |                                                    |
+| Component       | What it is                              | Key props                                       |
+| --------------- | --------------------------------------- | ----------------------------------------------- |
+| `Table`         | Columnar rows                           | `columns`, `rows`, `renderCell`, `onRowPress`   |
+| `TreeList` | Expandable node hierarchy            | `nodes`, `defaultExpanded`, `onToggle`, `onSelect` |
+| `Timeline`      | Vertical event list (dot + connector)   | `items`                                         |
+| `ProgressGroup` | Stacked labeled `Meter` rows            | `items`                                         |
+| `Meter`         | Gauge/dash ring                         | `value`, `max`, `strokeWidth`                   |
+| `ProgressBar`   | Linear determinate or indeterminate progress | `value`, `max`, `label`, `marks`             |
+| `MetadataList`, `MetadataListItem` | Aligned label/value details | `columns`, `labelPosition`, `label`, `children` |
+| `StatusDot`     | Accessible colored status signal          | `variant`, `label`, `isPulsing`, `tooltip`       |
+| `Timestamp`     | Localized relative or absolute instant     | `value`, `format`, `isLive`, `hasTooltip`        |
+| `Timer`         | Live elapsed duration                     | `startTime`, `format`, `type`, `size`            |
+| `Outline`       | Navigable heading outline                 | `items`, `activeId`, `hasScrollOnClick`          |
+| `Spinner` | Self-drawn loading indicator     |                                                 |
 
 ## Scrolling
 

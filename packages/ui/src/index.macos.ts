@@ -138,6 +138,33 @@ export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './useStore.macos.tsrx'
 export { openSheet, closeSheet, sheetHost } from './sheet-service.macos'
+
+export { Blockquote } from './Blockquote.macos.tsrx'
+export { Code } from './Code.macos.tsrx'
+export { CodeBlock } from './CodeBlock.macos.tsrx'
+export { MetadataList } from './MetadataList.macos.tsrx'
+export { MetadataListItem } from './MetadataListItem.macos.tsrx'
+export { Thumbnail } from './Thumbnail.macos.tsrx'
+export { ProgressBar } from './ProgressBar.macos.tsrx'
+export { StatusDot } from './StatusDot.macos.tsrx'
+export { Timestamp } from './Timestamp.macos.tsrx'
+export { Timer } from './Timer.macos.tsrx'
+export { Citation } from './Citation.macos.tsrx'
+export { Outline } from './Outline.macos.tsrx'
+export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
+export { useOutlineFromDOM } from './outline-dom.macos.tsrx'
+export { parseOutlineFromMarkdown, outlineFromDoc, markdownHeadings, inlineMarkdownText, slugify, uniqueSlug } from './outline-utils'
+export {
+	tokenize,
+	tokenizeAsync,
+	tokenizeStreaming,
+	flatTokensToLines,
+	SYNC_TOKENIZE_THRESHOLD,
+	TOKEN_TYPES,
+	syntaxTokenVar,
+	syntaxTokenVarRef,
+} from './code-tokenizer'
+
 export type * from './props'
 
 // Chat shares the same portable contracts on AppKit; browser editing

@@ -48,6 +48,7 @@ Workflows:
 - [Ship native code in a macOS leaf](macos-native-code.md)
 - [Add a platform-native single-selection picker](native-picker.md)
 - [Publish a typed component library](typed-component-library.md)
+- [Display formatted content and status](display-content.md)
 - [Add a platform-native date or time picker](date-picker.md)
 - [Add a platform-native context menu to an octane subtree](context-menu.md)
 - [Grow a multiline input](textarea-growth.md)
