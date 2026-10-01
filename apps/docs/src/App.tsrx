@@ -35,8 +35,27 @@ const HIT_GROUP: Partial<Record<SearchHit['kind'], string>> = {
 	body: 'Content',
 };
 
+const THEME_PREFERENCE_KEY = 'xplat-docs-theme';
+
+function readThemePreference(): boolean | null {
+	try {
+		const saved = localStorage.getItem(THEME_PREFERENCE_KEY);
+		return saved === 'dark' ? true : saved === 'light' ? false : null;
+	} catch {
+		return null;
+	}
+}
+
+function saveThemePreference(dark: boolean): void {
+	try {
+		localStorage.setItem(THEME_PREFERENCE_KEY, dark ? 'dark' : 'light');
+	} catch {
+		// Keep the toggle usable when browser storage is unavailable.
+	}
+}
+
 export function App() @{
-	const [override, setOverride] = useState<boolean | null>(null);
+	const [override, setOverride] = useState<boolean | null>(readThemePreference);
 	const [paletteOpen, setPaletteOpen] = useState(false);
 	const [paletteMounted, setPaletteMounted] = useState(false);
 	const [query, setQuery] = useState('');
@@ -302,7 +321,11 @@ export function App() @{
 						<img className="logo-mark" src={logoMark} alt="" />
 						<img className="wordmark" src={wordmark} alt="Octane Xplat" />
 					</View>
-					<Pressable className="mode-toggle" onPress={() => setOverride(!dark)} accessibilityLabel="Toggle dark mode">
+					<Pressable className="mode-toggle" onPress={() => {
+						const next = !dark;
+						saveThemePreference(next);
+						setOverride(next);
+					}} accessibilityLabel="Toggle dark mode">
 						<View className="mode-icon" />
 					</Pressable>
 				</HStack>
