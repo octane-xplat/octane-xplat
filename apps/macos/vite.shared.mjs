@@ -19,7 +19,7 @@ export function bundledFontDefines() {
 	}
 }
 
-export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
+export function createMacOSConfig({ packaged = false, hmr = false, rules } = {}) {
 	const rendererId = 'macos'
 	const nativeRuntime = '@nativescript/macos-node-api'
 	const virtualListBench = hmr && process.env.OCTANE_MACOS_VLIST_BENCH === '1'
@@ -43,7 +43,7 @@ export function createMacOSConfig({ packaged = false, hmr = false } = {}) {
 							intrinsics: '@xplat/macos/renderer/intrinsics',
 						},
 					},
-					rules: [
+					rules: rules ?? [
 						{ include: 'src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/ui/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/app/src/**/*.{tsx,tsrx}', renderer: rendererId },

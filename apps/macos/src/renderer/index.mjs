@@ -3163,6 +3163,9 @@ export function createMacOSRoot(hostView) {
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 		const debug = {
 			fontLicenses: { Geist: geistLicenseText },
+			findId(id) {
+				return [...container.nodes.values()].find((node) => node.props.id === id)?.view ?? null
+			},
 			measureParity(facets) {
 				return measureParity(container, facets)
 			},

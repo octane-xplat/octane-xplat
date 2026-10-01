@@ -4,6 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"probe": "node scripts/probe.mjs",
 		"dev:web": "pnpm --filter @xplat/web dev",
 		"build:web": "pnpm --filter @xplat/web build",
 		"dev:ios": "node scripts/watch-types.mjs -- ns debug ios --path apps/mobile",

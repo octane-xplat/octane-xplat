@@ -23,6 +23,8 @@ if (GLib.file_test(settingsFile, GLib.FileTest.EXISTS)) {
 	appSettings = JSON.parse(imports.byteArray.toString(bytes))
 }
 
+appSettings.applicationId = GLib.getenv('XPLAT_PROBE_APP_ID') || appSettings.applicationId
+
 const contentPrefix = `${appSettings.scheme}://localhost`
 let selfTestExit = 1
 
