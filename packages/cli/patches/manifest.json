@@ -54,7 +54,7 @@
       "specifier": "@nativescript/vite@8.0.13",
       "file": "@nativescript__vite@8.0.13.patch",
       "scope": "dev",
-      "why": "apps/windows pins the @11468 pkg.pr.new preview based on @nativescript/vite 8.0.13, so its separate patch carries /ns/m re-export records, vendor-manifest gating for plugin-patterned packages, percent-decoding (the preview predates 8.0.17/#11483), and .mobile-aware tsconfig-paths probing.",
+      "why": "apps/windows pins the @7d0adce pkg.pr.new preview based on @nativescript/vite 8.0.13, so its separate patch carries /ns/m re-export records, vendor-manifest gating for plugin-patterned packages, percent-decoding (the preview predates 8.0.17/#11483), and .mobile-aware tsconfig-paths probing.",
       "dropWhen": "windows moves off the preview pin — the real fix lands upstream with the windows platform merge (NativeScript#11272/#11468)",
       "template": false
     },
@@ -62,7 +62,7 @@
       "specifier": "@nativescript/core@9.1.3-next.2",
       "file": "@nativescript__core@9.1.3-next.2.patch",
       "scope": "runtime",
-      "why": "Windows spike: the shared-file subset of the 9.1.2 patch — @layer cascade machinery (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes, and the flexbox common measure-spec — applied to the @11468 preview. iOS/Android impl-file hunks are dead code on windows and were dropped.",
+      "why": "Windows spike: the shared-file subset of the 9.1.2 patch — @layer cascade machinery (css-tree parser, css-selector, style-scope), the #11446 frame/tab-view common fixes, and the flexbox common measure-spec — applied to the @7d0adce preview. iOS/Android impl-file hunks are dead code on windows and were dropped.",
       "dropWhen": "upstream ships the fixes and windows moves off the preview pin (NativeScript#11462, #11446, core windows merge)",
       "template": false
     },
