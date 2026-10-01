@@ -30,7 +30,8 @@ renders each field as its own label/control row. Native `AspectRatio` derives
 height from the measured width in one layout pass. Native `VisuallyHidden`
 uses a 1dip transparent container, so screen-reader exposure is best-effort.
 Content `List` is rendered in full; it has no native list role and draws
-markers/dividers in its leaf.
+markers/dividers in its leaf. `List.edgeCompensation="inline"` adjusts row
+insets from container tokens on web only.
 
 ## Layout
 
@@ -40,6 +41,7 @@ markers/dividers in its leaf.
 | `Stack`            | Flow flex container; vertical by default   | `direction`, `hAlign`, `vAlign`, `gap`, `padding`, `wrap`, `isScrollable` |
 | `HStack`            | Horizontal `Stack`                         | `hAlign`, `vAlign`, `gap`                  |
 | `VStack`            | Vertical `Stack`                           | `hAlign`, `vAlign`, `gap`                  |
+| `StackItem`        | Child sizing/alignment override in `Stack` | `size`, `crossAlignSelf`, `isScrollable`   |
 | `Grid`             | Grid container                             |                                            |
 | `Absolute`         | Absolutely-positioned layer                |                                            |
 | `Center`           | Centers children on one or both axes       | `axis`, `isInline`                         |
@@ -74,6 +76,12 @@ disabling edits by itself. `status` uses `{ type: 'warning' | 'error' |
 'success', message?: string }`. `hasClear` is available where clearing is part
 of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
+`FormLayout` arranges fields; it is not an HTML `<form>` and does not submit.
+`InputGroup` gives joined prefixes/suffixes and the input one visible label.
+Its `size` and disabled state flow to member controls. On web, the group uses
+`role="group"` and its label; NativeScript renders a grouped row without a
+matching accessibility group role.
+
 | Component                            | What it is                                       | Key props                                                   |
 | ------------------------------------ | ------------------------------------------------ | ----------------------------------------------------------- |
 | `TextInput`, `TextArea`              | One- and multi-line text entry                   | `value`, `onChange`, `label`, `description`                 |
@@ -83,6 +91,7 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 | `Button`                             | Action button                                    | `loading`, `leading`, `trailing`                            |
 | `Switch`                             | On/off toggle (self-drawn)                       | `checked`, `onCheckedChange`, `isDisabled`                  |
 | `CheckboxInput`                     | Self-drawn checkbox                              | `checked`, `onCheckedChange`, `isDisabled`                  |
+| `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks | `state`, `size`, `isDisabled` |
 | `CheckboxList`                      | Self-drawn multi-select list                     | `options`, `onValueChange`, `isDisabled`                    |
 | `RadioList`                         | Self-drawn radio options                         | `options`, `value`, `onValueChange`, `isDisabled`           |
 | `SegmentedControl`                  | Inline option segments                           | `options`, `value`, `onValueChange`, `isDisabled`           |
@@ -122,6 +131,11 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 | `Citation`       | Source label or numbered source link        | `source`, `number`, `variant`              |
 | `Skeleton`       | Loading placeholder block                   | `width`, `height`                          |
 | `Divider` | Hairline rule                         | `orientation`                              |
+
+Indicators draw the selection mark; the owning control keeps focus,
+interaction, and accessibility semantics. `registerIndicator` and
+`registerIndicators` replace named marks for subsequent lookups on each
+target.
 
 ## Disclosure & navigation
 

@@ -48,6 +48,8 @@ have narrower coverage.
 when children need to occupy the same layer area; `Stack` no longer overlaps
 its children. Native `Stack as="section"` cannot create an HTML semantic tag,
 and native `isScrollable` wraps the layout in a `ScrollView`.
+Use `StackItem size="fill"` to grow a child into remaining space, or
+`crossAlignSelf` to override the parent's cross-axis alignment.
 
 Platform-authentic widgets (real OS chrome, no parity promised) live behind
 `@octane-xplat/ui/ios`, `@octane-xplat/ui/android`, and `@octane-xplat/ui/web`
@@ -121,6 +123,10 @@ optional description, leading and trailing content, and optional action or
 link. Native leaves draw markers and dividers because NativeScript has no
 matching semantic list element. The shared [ListDemo](../packages/demos/src/ListDemo.tsrx)
 shows content `List` separately from settings `Item`.
+On web, actionable `ListItem` rows use one anchor/button Tab stop; disabled
+rows do not activate. Give rich row labels an `accessibilityLabel` when the
+visible content does not name the action. `edgeCompensation="inline"` uses
+container padding tokens on web and is ignored on native.
 
 On web, Tab to an actionable row and use Enter or Space to activate it.
 Rows without an action are outside the Tab sequence. Check the disabled row
@@ -135,6 +141,8 @@ control; put prefix/suffix text or icons in `InputGroupText`, then place the
 input beside it. This is layout and accessibility grouping only: `FormLayout`
 does not render a browser `<form>` or provide submit behavior. `InputGroup`
 uses a web `role="group"`; NativeScript has no corresponding group role.
+The group's `size` and disabled state are inherited by supported member
+controls so the addon, input border, and input state stay aligned.
 See the [grouped field example](../packages/demos/src/ComponentsDemo.tsrx).
 
 ### Native modifiers and glyphs
