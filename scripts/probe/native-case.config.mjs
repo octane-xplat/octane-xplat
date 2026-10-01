@@ -7,7 +7,7 @@ export default async function nativeCaseConfig(project, target) {
 	const load = async (name) =>
 		import(pathToFileURL(createRequire(join(project, 'package.json')).resolve(name)).href)
 
-	const [{ octane }, { nativeScriptRenderer }, { xplatBoundary, xplatNative }] = await Promise.all([
+	const [{ octane }, { nativeScriptRenderer }, { xplatBoundary, xplatNative, xplatNodeEnvDefine }] = await Promise.all([
 		load('octane/compiler/vite'),
 		load('@nativescript-community/octane/config'),
 		load('@octane-xplat/cli/vite'),
@@ -28,6 +28,10 @@ export default async function nativeCaseConfig(project, target) {
 
 	return {
 		root: project,
+		// The npm `process.env.NODE_ENV` convention — package dev/prod switches
+		// (lexical among them) read it bare; the NS runtime has no `process`,
+		// so unrewritten reads throw at module eval.
+		define: xplatNodeEnvDefine('production'),
 		plugins: [
 			scratchResolver(project),
 			css,
@@ -69,6 +73,11 @@ export default async function nativeCaseConfig(project, target) {
 					id.startsWith('@nativescript/core/') ||
 					id === '@nativescript-community/octane' ||
 					id.startsWith('octane/'),
+				// The runner serves a single case.cjs — dynamic import() must not
+				// split sibling chunks (they'd never reach the app). Disabling
+				// code splitting still keeps dynamic imports lazy, so per-module
+				// import probes keep independent pass/fail reporting.
+				output: { codeSplitting: false },
 			},
 		},
 	}
