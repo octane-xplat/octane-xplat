@@ -775,10 +775,7 @@ body {
 
 .orbit-user {
 	position: absolute;
-	/* farthest badge-center x (127.2) + half badge width (34) → the
-	   ring's leftmost badge edge sits flush on the doc column's
-	   left edge, no gutter */
-	left: 161.2px;
+	left: 0;
 	top: 50%;
 	width: 74px;
 	height: 74px;
@@ -787,7 +784,7 @@ body {
 
 .orbit-ring {
 	position: absolute;
-	left: 161.2px;
+	left: 0;
 	top: 50%;
 	width: 0;
 	height: 0;
