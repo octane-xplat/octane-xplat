@@ -21,8 +21,8 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 let dirReady = false;
 function ensureDir() {
-	if (dirReady) return;
-	if (isAndroid) new java.io.File(DOCS_DIR).mkdirs();
+	if (dirReady) { return; }
+	if (isAndroid) { new java.io.File(DOCS_DIR).mkdirs(); }
 	dirReady = true;
 }
 
@@ -52,13 +52,14 @@ function mount(page: Page): any {
 	} else if (content && typeof content.addChild === 'function') {
 		content.addChild(v);
 	}
+
 	return v;
 }
 
 function loaded(v: any): boolean {
 	try {
 		const nv: any = v.nativeViewProtected ?? (v as any).nativeView;
-		if (isAndroid) return !!nv?.getComposition?.() || (v.duration ?? 0) > 0;
+		if (isAndroid) { return !!nv?.getComposition?.() || (v.duration ?? 0) > 0; }
 		return !!nv?.animation || (v.duration ?? 0) > 0;
 	} catch {
 		return (v.duration ?? 0) > 0;
@@ -68,9 +69,10 @@ function loaded(v: any): boolean {
 async function waitForPage(): Promise<Page> {
 	for (let i = 0; i < 120; i++) {
 		const p = Frame.topmost()?.currentPage;
-		if (p) return p;
+		if (p) { return p; }
 		await sleep(500);
 	}
+
 	throw new Error('no page');
 }
 
@@ -97,12 +99,14 @@ async function run() {
 		await sleep(400);
 		record('sync-inline-json', { loaded: loaded(v), duration: v.duration });
 	}
+
 	{
 		const v = mount(page);
 		v.src = tmpJson; // file path, still sync
 		await sleep(400);
 		record('sync-file-json', { loaded: loaded(v), duration: v.duration });
 	}
+
 	{
 		const v = mount(page);
 		v.src = '~/assets/lottie-probe.json'; // app bundle path, sync
@@ -135,6 +139,7 @@ async function run() {
 		const nativePausePresent = isAndroid
 			? typeof (v.nativeViewProtected as any)?.pauseAnimation === 'function'
 			: typeof (v.nativeViewProtected as any)?.pause === 'function';
+
 		let midProgress = -1;
 		let afterResume = -1;
 		if (apiPresent) {
@@ -159,6 +164,7 @@ async function run() {
 		v.on('compositionLoaded', () => {
 			fired = true;
 		});
+
 		v.src = tmpJson;
 		await sleep(500);
 		record('composition-loaded-event', { fired, loaded: loaded(v) });
@@ -171,6 +177,7 @@ async function run() {
 		v.on('loadFailed', () => {
 			failed = true;
 		});
+
 		v.src = '{"v":"x","broken":';
 		await sleep(500);
 		record('load-failed-event', { failed });
@@ -183,6 +190,7 @@ async function run() {
 		v.on('compositionLoaded', () => {
 			loadedEv = true;
 		});
+
 		v.src = URL_SRC;
 		await sleep(4000);
 		record('url-src', { loaded: loaded(v), duration: v.duration, loadedEvent: loadedEv });
@@ -248,16 +256,17 @@ async function run() {
 			const texts: string[] = [];
 			let leafViews = 0;
 			const walk = (view: any) => {
-				if (!view) return;
-				if (typeof view.text === 'string' && view.text) texts.push(view.text);
+				if (!view) { return; }
+				if (typeof view.text === 'string' && view.text) { texts.push(view.text); }
 				// Duck-typed — the leaf's plugin dep may resolve to a different
 				// copy (npm 6.0.0) than the app's fork override.
-				if (typeof view.isAnimating === 'function' && typeof view.playAnimation === 'function') leafViews++;
+				if (typeof view.isAnimating === 'function' && typeof view.playAnimation === 'function') { leafViews++; }
 				view.eachChildView?.((c: any) => {
 					walk(c);
 					return true;
 				});
 			};
+
 			walk(page);
 			record('leaf-demo', {
 				route: routeFor('root')?.name,

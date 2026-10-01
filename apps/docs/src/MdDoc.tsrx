@@ -198,6 +198,7 @@ export function MdDoc(props: { md: string; agentPrompt?: string }) @{
 				setActionsOpen(false);
 			}
 		};
+
 		const onKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') setActionsOpen(false);
 		};
@@ -218,6 +219,7 @@ export function MdDoc(props: { md: string; agentPrompt?: string }) @{
 		} catch {
 			setCopied(false);
 		}
+
 		setActionsOpen(false);
 	};
 

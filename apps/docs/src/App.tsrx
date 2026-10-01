@@ -60,6 +60,7 @@ export function App() @{
 		setPaletteMounted(true);
 		setPaletteOpen(true);
 	};
+
 	const closePalette = () => {
 		setPaletteOpen(false);
 

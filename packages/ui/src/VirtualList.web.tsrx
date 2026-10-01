@@ -291,6 +291,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 			} finally {
 				resizeDeliveryRef.current = false
 			}
+
 			if (!refreshAfterResizeRef.current || frame !== null) return
 			refreshAfterResizeRef.current = false
 			frame = requestAnimationFrame(() => {

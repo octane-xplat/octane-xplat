@@ -286,9 +286,11 @@ export async function runVirtualListInputTrace(
 			for (const id of cells) {
 				if (!previousCells.has(id)) {cellHostsAdded++}
 			}
+
 			for (const id of previousCells) {
 				if (!cells.has(id)) {cellHostsRemoved++}
 			}
+
 			previousCells = cells
 			cellCounts.push(cells.size)
 		}

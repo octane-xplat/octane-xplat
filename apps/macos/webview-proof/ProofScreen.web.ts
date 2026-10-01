@@ -5,16 +5,17 @@ import type { ProofEvents, ProofResult, ProofServices } from '../src/webview-pro
 import type { HostClient } from '@octane-xplat/platform/host'
 
 const output = document.querySelector<HTMLPreElement>('#result')!
-if (!output) throw new Error('desktop host proof result element is missing')
+if (!output) { throw new Error('desktop host proof result element is missing') }
 
 function assert(condition: unknown, message: string): asserts condition {
-	if (!condition) throw new Error(message)
+	if (!condition) { throw new Error(message) }
 }
 
 async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 	const notice = new Promise<string>((resolve) => {
 		client.on('application.notice', (event) => resolve(event.message))
 	})
+
 	const capabilities = await client.capabilities()
 	const available = [
 		'app.getInfo',
@@ -28,6 +29,7 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 		'application.deepLink',
 		'application.report',
 	]
+
 	for (const method of available) {
 		const [service, name] = method.split('.')
 		assert(capabilities[service]?.includes(name), `host did not report ${method}`)
@@ -40,15 +42,18 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 		(await clipboard.readText()) === clipboardValue,
 		'framework clipboard round-trip did not match',
 	)
+
 	const directClipboardValue = `${clipboardValue}-protocol`
 	assert(
 		await client.call('clipboard', 'write', directClipboardValue),
 		'host clipboard write failed',
 	)
+
 	assert(
 		(await client.call('clipboard', 'read')) === directClipboardValue,
 		'host clipboard round-trip did not match',
 	)
+
 	const deepLink = new Promise<string>((resolve) => onDeepLink(resolve))
 	assert(consumeInitialUrl() === null, 'unexpected initial deep link')
 
@@ -57,16 +62,19 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 		formatted === 'application: shared contract',
 		'application service returned an unexpected value',
 	)
+
 	assert(
 		await client.call('application', 'notify', 'event from the native host'),
 		'host event was not sent',
 	)
+
 	const event = await notice
 	assert(event === 'event from the native host', 'host event payload did not match')
 	assert(
 		await client.call('application', 'deepLink', 'xplat://proof/deep-link'),
 		'deep-link event failed',
 	)
+
 	assert((await deepLink) === 'xplat://proof/deep-link', 'host deep-link event did not arrive')
 
 	const result: ProofResult = {
@@ -79,6 +87,7 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 		formatted,
 		event,
 	}
+
 	output.textContent = JSON.stringify(result, null, 2)
 	await client.call('application', 'report', result)
 	client.dispose()
@@ -102,12 +111,14 @@ if (!transport) {
 			event: '',
 			error: error instanceof Error ? error.message : String(error),
 		}
+
 		output.textContent = JSON.stringify(result, null, 2)
 		try {
 			await client.call('application', 'report', result)
 		} catch {
 			console.error('[webview-proof] host report failed', result.error)
 		}
+
 		client.dispose()
 	})
 }
