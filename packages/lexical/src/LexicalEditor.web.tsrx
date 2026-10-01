@@ -11,6 +11,7 @@ import {
 	OnChangePlugin,
 	RichTextPlugin,
 } from '@octanejs/lexical'
+
 import {
 	$createParagraphNode,
 	$createTextNode,
@@ -24,6 +25,7 @@ import {
 	REDO_COMMAND,
 	UNDO_COMMAND,
 } from 'lexical'
+
 import { $createHeadingNode, $createQuoteNode, $isHeadingNode, $isQuoteNode, HeadingNode, QuoteNode } from '@lexical/rich-text'
 import {
 	$isListItemNode,
@@ -34,6 +36,7 @@ import {
 	ListItemNode,
 	ListNode,
 } from '@lexical/list'
+
 import { $createLinkNode, $isLinkNode, AutoLinkNode, LinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import { $createCodeNode, $isCodeNode, CodeNode } from '@lexical/code'
 import { HorizontalRuleNode, INSERT_HORIZONTAL_RULE_COMMAND, $isHorizontalRuleNode } from '@lexical/extension'
@@ -101,16 +104,19 @@ function applyFormat(editor: any, format: LexicalFormat): void {
 		editor.dispatchCommand(FORMAT_TEXT_COMMAND, text)
 		return
 	}
+
 	const el = ELEMENT_FORMAT[format]
 	if (el) {
 		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, el)
 		return
 	}
+
 	const tag = HEADING_TAG[format]
 	if (tag) {
 		setBlock(editor, $isHeadingNode, () => $createHeadingNode(tag), (n) => n.getTag() === tag)
 		return
 	}
+
 	switch (format) {
 		case 'paragraph':
 			setBlock(editor, () => true, () => $createParagraphNode(), () => false)
@@ -145,6 +151,7 @@ function isActive(editor: any, format: LexicalFormat): boolean {
 		if (text) {
 			return $isRangeSelection(sel) && sel.hasFormat(text as any)
 		}
+
 		const el = ELEMENT_FORMAT[format]
 		if (el) {
 			const nodes = sel.getNodes()
@@ -153,6 +160,7 @@ function isActive(editor: any, format: LexicalFormat): boolean {
 				return block != null && (block as any).getFormatType() === el
 			})
 		}
+
 		const tag = HEADING_TAG[format]
 		if (tag) {
 			return sel.getNodes().some((n: any) => {
@@ -160,6 +168,7 @@ function isActive(editor: any, format: LexicalFormat): boolean {
 				return h?.getTag() === tag
 			})
 		}
+
 		switch (format) {
 			case 'blockquote':
 				return sel.getNodes().some((n: any) => $findMatchingParent(n, $isQuoteNode) != null)
@@ -203,6 +212,7 @@ function flatOffset(root: any, key: string, offset: number): number {
 			acc += offset
 			return true
 		}
+
 		for (const c of node.getChildren?.() ?? []) {
 			if (contains(c)) {
 				if (visit(c)) return true
@@ -210,8 +220,10 @@ function flatOffset(root: any, key: string, offset: number): number {
 				acc += c.getTextContentSize?.() ?? 0
 			}
 		}
+
 		return false
 	}
+
 	visit(root)
 	return acc
 }
@@ -221,9 +233,11 @@ function activeFormats(editor: any): LexicalFormat[] {
 	for (const f of Object.keys(TEXT_FORMAT) as LexicalFormat[]) {
 		if (isActive(editor, f)) out.push(f)
 	}
+
 	for (const f of ['paragraph', 'heading1', 'heading2', 'heading3', 'heading4', 'heading5', 'heading6', 'blockquote', 'bulletList', 'orderedList', 'taskList', 'codeBlock', 'link'] as LexicalFormat[]) {
 		if (isActive(editor, f)) out.push(f)
 	}
+
 	return out
 }
 
@@ -297,6 +311,7 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 			},
 			native: editor,
 		}
+
 		props.bind?.(bound.current)
 		props.onReady?.()
 	}

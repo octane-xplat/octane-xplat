@@ -22,6 +22,7 @@ export async function run(ctx: ProbeContext) {
 	if (ok) {
 		const html =
 			'<h1>B</h1><p>hi <a href="https://x.test">there</a></p><p style="text-align: right">r</p>';
+
 		const doc = bridge.htmlToJSON(html);
 		const types = ((doc?.root as any)?.children ?? []).map((c: any) => c.type).join(',');
 		ctx.assert('leaf bridge HTML→JSON — ' + types, types, 'heading,paragraph,paragraph');

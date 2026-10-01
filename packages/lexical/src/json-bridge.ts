@@ -33,8 +33,10 @@ function chainDesc(proto: object, key: string): PropertyDescriptor | undefined {
 		if (d) {
 			return d
 		}
+
 		o = Object.getPrototypeOf(o)
 	}
+
 	return undefined
 }
 
@@ -48,9 +50,11 @@ function writeStyleProp(el: any, key: string, value: string): void {
 		.map((s: string) => s.trim())
 		.filter(Boolean)
 		.filter((r: string) => !r.startsWith(kebab(key) + ':'))
+
 	if (value !== '' && value != null) {
 		rules.push(`${kebab(key)}: ${value}`)
 	}
+
 	el.setAttribute('style', rules.join('; '))
 }
 
@@ -88,6 +92,7 @@ function installLexicalDomShim(zeed: any): void {
 				},
 			})
 		}
+
 		for (const k of ['firstChild', 'lastChild', 'nextSibling', 'previousSibling']) {
 			const d = chainDesc(p, k)
 			Object.defineProperty(p, k, {
@@ -115,41 +120,50 @@ function installLexicalDomShim(zeed: any): void {
 							if (k === 'setProperty') {
 								return (prop: string, value: string) => writeStyleProp(el, prop, value)
 							}
+
 							if (k === 'removeProperty') {
 								return (prop: string) => {
 									writeStyleProp(el, prop, '')
 									return ''
 								}
 							}
+
 							if (k === 'cssText') {
 								return cssText(el)
 							}
+
 							if (k === 'getPropertyValue') {
 								return (prop: string) => {
 									const raw = cssText(el)
 										.split(';')
 										.map((s: string) => s.trim())
 										.find((r: string) => r.startsWith(prop + ':'))
+
 									return raw ? raw.slice(raw.indexOf(':') + 1).trim() : ''
 								}
 							}
+
 							if (typeof k === 'string') {
 								const raw = cssText(el)
 									.split(';')
 									.map((s: string) => s.trim())
 									.find((r: string) => r.startsWith(kebab(k) + ':'))
+
 								return raw ? raw.slice(raw.indexOf(':') + 1).trim() : ''
 							}
+
 							return undefined
 						},
 						set: (_t, k, v) => {
-							if (typeof k === 'string') writeStyleProp(el, k, v)
+							if (typeof k === 'string') {writeStyleProp(el, k, v)}
 							return true
 						},
 					},
 				)
+
 				styleCache.set(this, proxy)
 			}
+
 			return proxy
 		},
 	})
@@ -179,8 +193,10 @@ function installLexicalDomShim(zeed: any): void {
 					const tokens = String(this.getAttribute('class') ?? '')
 						.split(/\s+/)
 						.filter(Boolean)
+
 					return Object.assign(tokens, cl)
 				}
+
 				return cl
 			},
 			set: clDesc.set,
@@ -196,9 +212,11 @@ function installLexicalDomShim(zeed: any): void {
 				return doc
 			}
 		}
+
 		g.window = { DOMParser: ZeedDOMParser }
 		g.document = zeed.createHTMLDocument()
 	}
+
 	g.Node = g.Node ?? {
 		ELEMENT_NODE: 1,
 		ATTRIBUTE_NODE: 2,
@@ -274,6 +292,7 @@ export function htmlToJSON(htmlText: string): LexicalJSON | null {
 	if (!bridge) {
 		return null
 	}
+
 	try {
 		bridge.editor.update(
 			() => {
@@ -282,6 +301,7 @@ export function htmlToJSON(htmlText: string): LexicalJSON | null {
 			},
 			{ discrete: true },
 		)
+
 		return bridge.editor.getEditorState().toJSON() as LexicalJSON
 	} catch {
 		return null
@@ -294,12 +314,14 @@ export function jsonToHTML(doc: LexicalJSON): string | null {
 	if (!bridge) {
 		return null
 	}
+
 	try {
 		bridge.editor.setEditorState(bridge.editor.parseEditorState(JSON.stringify(doc)))
 		let out = ''
 		bridge.editor.read(() => {
 			out = bridge!.html.$generateHtmlFromNodes(bridge!.editor)
 		})
+
 		return out
 	} catch {
 		return null
