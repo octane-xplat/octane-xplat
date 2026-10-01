@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nativescript/core', () => ({
-	Application: { android: { foregroundActivity: { window: { attributes: { softInputMode: 0 }, decorView: {} } } } },
+	Application: { android: { foregroundActivity: { getWindow: () => ({ getAttributes: () => ({ softInputMode: 0 }), getDecorView: () => ({}) }) } } },
 	Utils: { layout: { toDeviceIndependentPixels: (px: number) => px / 2 } },
 }))
 
