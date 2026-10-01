@@ -1366,7 +1366,7 @@ body {
 	background-image: none;
 	border-radius: 0;
 	clip-path: none;
-	filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.12));
+	filter: none;
 	padding: 0;
 	margin-top: 0;
 	margin-bottom: 22px;
@@ -1378,6 +1378,7 @@ body {
 	display: block;
 	background-color: var(--doc-lede-bg);
 	background-image: var(--doc-glow);
+	filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.12));
 	border-radius: 0;
 	clip-path: polygon(
 		0 0,
