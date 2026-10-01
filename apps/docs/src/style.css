@@ -1131,11 +1131,6 @@ body {
 	font-weight: 550;
 }
 
-.v0-glyph {
-	font-size: 13px;
-	letter-spacing: -1px;
-}
-
 .chat-glyph {
 	border: 2px solid currentColor;
 	border-radius: 50%;

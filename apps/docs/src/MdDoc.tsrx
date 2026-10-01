@@ -230,8 +230,9 @@ export function MdDoc(props: { md: string; agentPrompt?: string }) @{
 		setActionsOpen(false);
 	};
 
-	const openV0 = () => {
-		const url = `https://v0.dev/chat/api/open?url=${encodeURIComponent(window.location.href)}`;
+	const openCodex = () => {
+		const prompt = `Help me apply the guidance from this documentation page: ${window.location.href}`;
+		const url = `codex://new?prompt=${encodeURIComponent(prompt)}`;
 		window.open(url, '_blank', 'noopener,noreferrer');
 		setActionsOpen(false);
 	};
@@ -283,9 +284,9 @@ export function MdDoc(props: { md: string; agentPrompt?: string }) @{
 					<span className="doc-action-glyph" aria-hidden="true">M↓</span>
 					<span><span className="doc-action-title">View as Markdown</span><span className="doc-action-desc">Open this page as plain text</span></span>
 				</button>
-				<button className="doc-action" role="menuitem" type="button" onClick={openV0}>
-					<span className="doc-action-glyph v0-glyph" aria-hidden="true">v0</span>
-					<span><span className="doc-action-title">Open in v0</span><span className="doc-action-desc">Ask v0 to help apply this page</span></span>
+				<button className="doc-action" role="menuitem" type="button" onClick={openCodex}>
+					<svg className="doc-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" /></svg>
+					<span><span className="doc-action-title">Open in Codex</span><span className="doc-action-desc">Ask Codex to help apply this page</span></span>
 				</button>
 				<button className="doc-action" role="menuitem" type="button" onClick={askAI}>
 					<svg className="doc-action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8.4 8.4 0 0 1-8.5 8.3 9.2 9.2 0 0 1-4-.9L3 20l1.2-4.1a8 8 0 0 1-1.2-4.4 8.5 8.5 0 0 1 17.5 0Z" /></svg>
