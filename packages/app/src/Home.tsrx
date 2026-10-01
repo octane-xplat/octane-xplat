@@ -101,7 +101,7 @@ export function Home() @{
 		    never squash and the Items list keeps real estate below. */}
 		<ScrollView className="flex-1 min-h-0">
 			<View className="gap-6">
-				<View className={['sink-section', bambooCardClass]}>
+				<View id="bamboo-card" className={['sink-section', 'vx-row', bambooCardClass]}>
 					<Text className="section-label">Reactivity</Text>
 					<Text className="text-xl font-bold">{'Count: ' + count}</Text>
 					<Row className="gap-3 flex-wrap items-center">

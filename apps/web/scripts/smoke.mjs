@@ -38,6 +38,34 @@ try {
 	await page.waitForSelector('text=Count: 0', { timeout: 10000 })
 	ok('app mounts — Count: 0', true)
 
+	// Bamboo emits its class from the .ts style helper; the TSRX Home view
+	// consumes it alongside a framework class with a conflicting direction.
+	const bambooCardStyle = await page.locator('#bamboo-card').evaluate((el) => {
+		const style = getComputedStyle(el)
+		return {
+			backgroundColor: style.backgroundColor,
+			borderRadius: style.borderTopLeftRadius,
+			color: style.color,
+			flexDirection: style.flexDirection,
+			padding: style.paddingTop,
+		}
+	})
+
+	ok(
+		'Bamboo utilities resolve portable token styles in TSRX className',
+		bambooCardStyle.backgroundColor.startsWith('rgb(') &&
+			bambooCardStyle.borderRadius === '8px' &&
+			bambooCardStyle.color.startsWith('rgb(') &&
+			bambooCardStyle.padding === '16px',
+		JSON.stringify(bambooCardStyle),
+	)
+
+	ok(
+		'Bamboo xplat.utilities overrides the vx-row component rule',
+		bambooCardStyle.flexDirection === 'column',
+		`flex-direction=${bambooCardStyle.flexDirection}`,
+	)
+
 	// Interact: Increment bumps state.
 	await page.click('text=Increment')
 	await page.waitForSelector('text=Count: 1', { timeout: 3000 })

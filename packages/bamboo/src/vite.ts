@@ -13,6 +13,7 @@ export interface XplatBambooOptions extends BambooVitePluginOptions {
  */
 export function xplatBamboo({ native = false, ...options }: XplatBambooOptions = {}) {
 	const plugins = bamboocss(options)
+
 	if (native) {
 		// Let Bamboo prune and validate the emitted asset before NativeScript's
 		// main-entry hook serializes it into the native bootstrap and removes it.
@@ -20,6 +21,7 @@ export function xplatBamboo({ native = false, ...options }: XplatBambooOptions =
 		if (cssPlugin && typeof cssPlugin.generateBundle === 'object') {
 			cssPlugin.generateBundle.order = 'pre'
 		}
+
 		plugins.push({
 			name: 'xplat-bamboo:nativescript-output',
 			enforce: 'post',
@@ -30,14 +32,17 @@ export function xplatBamboo({ native = false, ...options }: XplatBambooOptions =
 						name?: string
 						generateBundle?: { order?: string } | ((...args: never[]) => unknown)
 					}
+
 					const options = inputOptions as unknown as {
 						output?: { plugins?: OutputHook[] } | Array<{ plugins?: OutputHook[] }>
 					}
+
 					const outputs = Array.isArray(options.output)
 						? options.output
 						: options.output
 							? [options.output]
 							: []
+
 					for (const output of outputs) {
 						for (const plugin of output.plugins ?? []) {
 							if (
@@ -52,5 +57,6 @@ export function xplatBamboo({ native = false, ...options }: XplatBambooOptions =
 			},
 		})
 	}
+
 	return plugins
 }

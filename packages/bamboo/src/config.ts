@@ -62,7 +62,10 @@ const radii = Object.fromEntries(
 const portableUtilities = Object.fromEntries(
 	portableProperties.flatMap((property) => {
 		const config = presetBase.utilities[property]
-		if (!config) return []
+		if (!config) {
+			return []
+		}
+
 		// Bamboo's default margin scale includes `auto`, which NativeScript
 		// ignores; expose token spacing only in the shared preset.
 		return [[property, property.startsWith('margin') ? { ...config, values: 'spacing' } : config]]

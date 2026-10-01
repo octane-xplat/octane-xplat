@@ -4,6 +4,6 @@ export const bambooCardClass = css({
 	backgroundColor: 'surface',
 	borderRadius: 'md',
 	color: 'text',
-	gap: '4',
+	flexDirection: 'column',
 	padding: '4',
 })
