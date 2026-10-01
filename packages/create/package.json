@@ -24,8 +24,12 @@
 	},
 	"files": [
 		"index.mjs",
+		"scaffold.mjs",
 		"template"
 	],
+	"exports": {
+		"./scaffold": "./scaffold.mjs"
+	},
 	"type": "module",
 	"publishConfig": {
 		"access": "public"

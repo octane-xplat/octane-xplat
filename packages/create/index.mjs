@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { existsSync, readdirSync, cpSync, renameSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { existsSync, readdirSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { composeTargets, defaultTargets } from './scaffold.mjs'
 
 const positional = process.argv.slice(2).filter((arg) => !arg.startsWith('-'))
 const noInstall = process.argv.includes('--no-install')
@@ -13,12 +13,7 @@ if (existsSync(dir) && readdirSync(dir).length > 0) {
 	process.exit(1)
 }
 
-const template = join(dirname(fileURLToPath(import.meta.url)), 'template')
-cpSync(template, dir, { recursive: true })
-// npm packs .gitignore as a renamed file or drops it — ship it undotted.
-try {
-	renameSync(join(dir, 'gitignore'), join(dir, '.gitignore'))
-} catch {}
+composeTargets(defaultTargets, dir)
 
 console.log(`\n✓ scaffolded ${dir}`)
 
