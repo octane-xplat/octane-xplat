@@ -1,8 +1,7 @@
-// Real-browser smoke for the shared app — the web target's first runtime
-// evidence. Serves apps/web/dist via `vite preview`, drives headless
-// Chromium, asserts render + tab nav + chip→path-route + interaction,
-// and fails on any pageerror/console.error.
-import { chromium } from 'playwright'
+// Real-browser smoke for the shared app. Serves apps/web/dist via `vite preview`,
+// drives a Playwright browser (Chromium by default), and fails on any
+// pageerror/console.error.
+import { chromium, firefox, webkit } from 'playwright'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -10,26 +9,72 @@ import path from 'node:path'
 const webDir = path.dirname(fileURLToPath(import.meta.url)) + '/..'
 const PORT = 4319
 const BASE = `http://localhost:${PORT}`
+const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
+const browserType = { chromium, firefox, webkit }[browserName]
+if (!browserType) {
+	throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
+}
 
-const preview = spawn('pnpm', ['exec', 'vite', 'preview', '--port', String(PORT)], {
-	cwd: webDir,
-	stdio: ['ignore', 'pipe', 'pipe'],
+const preview = spawn(
+	process.execPath,
+	[
+		path.resolve(webDir, 'node_modules/vite/bin/vite.js'),
+		'preview',
+		'--port',
+		String(PORT),
+		'--strictPort',
+	],
+	{
+		cwd: webDir,
+		stdio: ['ignore', 'pipe', 'pipe'],
+	},
+)
+
+let previewOutput = ''
+let settlePreview
+const previewReady = new Promise((resolve, reject) => {
+	let settled = false
+	const timeout = setTimeout(() => {
+		settlePreview(new Error(`Vite preview did not start within 15s:\n${previewOutput}`))
+	}, 15_000)
+
+	settlePreview = (error) => {
+		if (settled) {return}
+		settled = true
+		clearTimeout(timeout)
+		if (error) {reject(error)}
+		else {resolve()}
+	}
+
+	const collect = (chunk) => {
+		const output = String(chunk)
+		previewOutput += output
+		if (output.includes('Local')) {settlePreview()}
+	}
+
+	preview.stdout.on('data', collect)
+	preview.stderr.on('data', collect)
+	preview.once('error', settlePreview)
+	preview.once('exit', (code, signal) => {
+		settlePreview(new Error(`Vite preview exited before ready (code=${code}, signal=${signal}):\n${previewOutput}`))
+	})
 })
-
-await new Promise((r) => preview.stdout.on('data', (d) => String(d).includes('Local') && r()))
-await new Promise((r) => setTimeout(r, 500))
 
 const results = []
 const errors = []
+let browser
+
 const ok = (name, cond, extra = '') => {
 	results.push([cond, name])
 	console.log('[smoke] ' + name + ': ' + (cond ? 'OK' : 'FAIL') + (extra ? ' ' + extra : ''))
 }
 
 try {
-	const browser = await chromium.launch()
+	await previewReady
+	await new Promise((resolve) => setTimeout(resolve, 500))
+	browser = await browserType.launch()
 	const page = await browser.newPage()
-	page.on('pageerror', (e) => errors.push('pageerror: ' + e.message))
+	page.on('pageerror', (e) => errors.push(`pageerror @${page.url()}: ${e.stack ?? e.message}`))
 	page.on('console', (m) => m.type() === 'error' && errors.push('console.error: ' + m.text()))
 
 	await page.goto(BASE, { waitUntil: 'networkidle' })
@@ -596,9 +641,12 @@ try {
 	// No leaked platform failures.
 	ok('zero pageerrors/console.error', errors.length === 0, errors[0] ?? '')
 
-	await browser.close()
 } finally {
-	preview.kill()
+	try {
+		await browser?.close()
+	} finally {
+		preview.kill()
+	}
 }
 
 const fails = results.filter(([c]) => !c).length

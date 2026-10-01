@@ -17,7 +17,7 @@ Keep harness edits and catalog sweeps for broader regression coverage.
 | Typecheck | `tsrx-tsc --noEmit -p apps/{web,mobile}/tsconfig.json` | .tsrx typechecks per target                                                                                                                                             |
 | Unit      | `pnpm test`                                            | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.mobile.test.*`, universal runtime via the object driver) |
 | Seam lint | `node scripts/check-no-dom.mjs`                        | no DOM globals in native/shared                                                                                                                                         |
-| Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright, 34 assertions in the current script                                                                                                                 |
+| Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright Chromium smoke, 59 assertions; CI also runs the built bundle in Firefox and WebKit                                                                 |
 | iOS       | build + install + launch → read sim log                | Check the named `[assert]` results emitted by the current harness sweep                                                                                                 |
 | Android   | build + install + launch → logcat `I JS`               | Base probes; the nested-Frame sweep is gated                                                                                                                            |
 

@@ -68,12 +68,22 @@ jobs:
       - name: Check packed declarations and plain TypeScript consumers
         run: pnpm check:pack && pnpm test:packed
 
-      - name: Install Playwright chromium
-        run: pnpm --dir apps/web exec playwright install --with-deps chromium
+      - name: Install Playwright browsers
+        run: pnpm --dir apps/web exec playwright install --with-deps chromium firefox webkit
 
-      # Harness smoke — 59 assertions against the production web bundle.
-      - name: Browser smoke
+      # The same production bundle gets a smoke pass on each major desktop engine.
+      - name: Browser smoke (Chromium)
         run: pnpm --filter @xplat/web smoke
+
+      - name: Browser smoke (Firefox)
+        run: pnpm --dir apps/web exec node scripts/smoke.mjs
+        env:
+          XPLAT_WEB_BROWSER: firefox
+
+      - name: Browser smoke (WebKit)
+        run: pnpm --dir apps/web exec node scripts/smoke.mjs
+        env:
+          XPLAT_WEB_BROWSER: webkit
 
       # Release-path evidence: packs every publishable package, scaffolds a
       # starter via the PACKED create bin, installs it against file: tarballs
