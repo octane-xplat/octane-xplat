@@ -767,7 +767,7 @@ body {
 	--orbit-inset: 81px;
 	position: relative;
 	height: 276px;
-	margin: 48px var(--orbit-inset) -12px;
+	margin: 48px var(--orbit-inset) 12px;
 	border: .5px solid var(--doc-hairline);
 	border-radius: 66px;
 	corner-shape: squircle;
