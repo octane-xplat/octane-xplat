@@ -1216,6 +1216,7 @@ body {
 .doc > .h1 + .quote span {
 	color: #ffffff;
 	font-weight: 200;
+	font-size: 17px;
 	line-height: 1.4;
 }
 
