@@ -735,8 +735,9 @@ body {
 	width: 360px;
 	max-width: calc(100vw - 32px);
 	padding: 8px;
-	border: 1px solid rgba(127, 127, 127, 0.3);
-	border-radius: 22px;
+	border: 0;
+	outline: 0.5px solid rgba(127, 127, 127, 0.3);
+	border-radius: 28px;
 	corner-shape: squircle;
 	background: var(--doc-card);
 	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
@@ -750,7 +751,7 @@ body {
 	min-height: 62px;
 	padding: 10px 12px;
 	border: 0;
-	border-radius: 14px;
+	border-radius: 20px;
 	corner-shape: squircle;
 	background: transparent;
 	color: var(--doc-ink);
