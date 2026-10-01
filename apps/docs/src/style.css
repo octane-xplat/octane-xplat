@@ -803,12 +803,27 @@ body {
 .orbit-pos:nth-child(7) { transform: translate(-127.2px, 27px); }     /* microsoft */
 .orbit-pos:nth-child(8) { transform: translate(-109px, -70.8px); }    /* macos */
 
+.orbit-spin {
+	animation: orbit-ccw 36s linear infinite;
+}
+
 .orbit-badge {
 	display: block;
 	width: 68px;
 	height: 68px;
-	animation: orbit-ccw 36s linear infinite;
+	animation: orbit-depth 36s ease-in-out infinite;
 }
+
+/* depth: smallest when the badge crosses the top of the orbit — each
+   badge's delay offsets orbit-depth to that moment in the loop */
+.orbit-pos:nth-child(1) .orbit-badge { animation-delay: -34.8s; }
+.orbit-pos:nth-child(2) .orbit-badge { animation-delay: -3.3s; }
+.orbit-pos:nth-child(3) .orbit-badge { animation-delay: -7.8s; }
+.orbit-pos:nth-child(4) .orbit-badge { animation-delay: -12.3s; }
+.orbit-pos:nth-child(5) .orbit-badge { animation-delay: -16.8s; }
+.orbit-pos:nth-child(6) .orbit-badge { animation-delay: -21.3s; }
+.orbit-pos:nth-child(7) .orbit-badge { animation-delay: -25.8s; }
+.orbit-pos:nth-child(8) .orbit-badge { animation-delay: -30.3s; }
 
 @keyframes orbit-spin {
 	to { transform: rotate(360deg); }
@@ -819,8 +834,14 @@ body {
 	to { transform: translate(-50%, -50%) rotate(-360deg); }
 }
 
+@keyframes orbit-depth {
+	0%, 100% { transform: scale(0.8); }
+	50% { transform: scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.orbit-ring,
+	.orbit-spin,
 	.orbit-badge {
 		animation: none;
 	}
