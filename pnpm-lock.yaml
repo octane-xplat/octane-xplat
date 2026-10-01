@@ -10,7 +10,7 @@ overrides:
   wrangler>esbuild: 0.28.1
 
 patchedDependencies:
-  '@nativescript-community/octane@0.2.4': 3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7
+  '@nativescript-community/octane@0.2.4': b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6
   '@nativescript-community/vite-octane@0.2.1': 495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce
   '@nativescript/core@9.1.2': 2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37
   '@nativescript/core@9.1.3-next.2': 801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661
@@ -156,7 +156,7 @@ importers:
         version: 2.0.11
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript-community/perms':
         specifier: 3.0.11
         version: 3.0.11
@@ -317,7 +317,7 @@ importers:
         version: 2.0.11
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript-community/perms':
         specifier: 3.0.11
         version: 3.0.11
@@ -472,7 +472,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -487,7 +487,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -518,7 +518,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -549,7 +549,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -561,7 +561,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -589,7 +589,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -635,7 +635,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -668,7 +668,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -732,7 +732,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -754,7 +754,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -782,7 +782,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -801,7 +801,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -817,7 +817,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -844,7 +844,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -884,7 +884,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -906,7 +906,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -925,7 +925,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -959,7 +959,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -975,7 +975,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -1008,7 +1008,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -1032,7 +1032,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -1057,7 +1057,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -1079,7 +1079,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -1098,7 +1098,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -1129,7 +1129,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -1157,7 +1157,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -1221,7 +1221,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript-community/ui-drawer':
         specifier: 0.1.32
         version: 0.1.32
@@ -1264,7 +1264,7 @@ importers:
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/core':
         specifier: 9.1.2
         version: 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
@@ -7745,17 +7745,17 @@ snapshots:
 
   '@nativescript-community/observable@2.0.11': {}
 
-  '@nativescript-community/octane@0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
+  '@nativescript-community/octane@0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
     dependencies:
       '@nativescript/core': 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
       octane: 0.5.0(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
-  '@nativescript-community/octane@0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
+  '@nativescript-community/octane@0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
     dependencies:
       '@nativescript/core': 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
       octane: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
-  '@nativescript-community/octane@0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
+  '@nativescript-community/octane@0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
     dependencies:
       '@nativescript/core': https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661)
       octane: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
@@ -7784,7 +7784,7 @@ snapshots:
 
   '@nativescript-community/vite-octane@0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(@nativescript/vite@8.0.17(patch_hash=0cd576a526d90c517196a8392e2d2715f6153c8548bb6aabb9c8ecfd23fbe34c)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
     dependencies:
-      '@nativescript-community/octane': 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript-community/octane': 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/vite': 8.0.17(patch_hash=0cd576a526d90c517196a8392e2d2715f6153c8548bb6aabb9c8ecfd23fbe34c)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin': 0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
@@ -7794,7 +7794,7 @@ snapshots:
 
   '@nativescript-community/vite-octane@0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(@nativescript/vite@https://pkg.pr.new/@nativescript/vite@11468(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
     dependencies:
-      '@nativescript-community/octane': 0.2.4(patch_hash=3eef80fab55bc3043bfb948a4b6ec1ce59d693c51c7933e167e094cd54f720a7)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript-community/octane': 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript/vite': https://pkg.pr.new/@nativescript/vite@11468(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin': 0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)

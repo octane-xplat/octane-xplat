@@ -1,5 +1,5 @@
 diff --git a/dist/driver.js b/dist/driver.js
-index c88828e..52cde3f 100644
+index c88828e30337ee566bc1a919940e58b4b0227aba..52cde3f8f8acffcc05a1db8e0fcd90515efc70f6 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -85,6 +85,11 @@ function setProp(node, view, name, value) {
