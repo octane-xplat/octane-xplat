@@ -1,5 +1,9 @@
 # Testing the harness
 
+For repository investigation, use [single-case probing](../../../../docs/probing.md): `pnpm probe doctor`
+and `pnpm probe run examples/probes/counter.tsrx --target web --watch`.
+Keep harness edits and catalog sweeps for broader regression coverage.
+
 ## Layers
 
 | Layer     | Command                                                | What it proves                                                                                                                                                          |

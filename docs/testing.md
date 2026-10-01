@@ -1,5 +1,9 @@
 # Checking an Xplat app
 
+For repository investigation, use [single-case probing](probing.md): `pnpm probe doctor`
+and `pnpm probe run examples/probes/counter.tsrx --target web --watch`.
+Keep harness edits and catalog sweeps for broader regression coverage.
+
 > Treat your agent's report as a claim to verify: catch shared-code mistakes
 > quickly, then prove the behavior on the targets you ship.
 

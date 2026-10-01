@@ -15,6 +15,8 @@ Pure refactors ordinarily need no recipe change.
 
 Workflows:
 
+- [Probe one platform case](probe-platform-case.md)
+
 - [Animate shared components](component-motion.md)
 - [Settle a dragged value with a spring](gesture-motion.md)
 - [Fetch remote data in a screen](fetch-remote-data.md)
