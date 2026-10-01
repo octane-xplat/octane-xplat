@@ -1413,15 +1413,21 @@ body {
 .home-action {
 	box-sizing: border-box;
 	display: inline-flex;
-	min-height: 48px;
+	min-height: 38px;
 	align-items: center;
 	justify-content: center;
-	border: 1px solid var(--doc-hairline);
-	border-radius: 17px;
-	corner-shape: squircle;
-	padding: 0 20px;
+	border: 1px solid #000000;
+	clip-path: polygon(
+		0 0,
+		calc(100% - 36px) 0,
+		100% 36px,
+		100% 100%,
+		18px 100%,
+		0 calc(100% - 18px)
+	);
+	padding: 0 15px;
 	font-size: 15px;
-	font-weight: 400;
+	font-weight: 375;
 	line-height: 1;
 	text-decoration: none;
 	transition: transform 140ms ease, background-color 140ms ease;
