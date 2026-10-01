@@ -234,3 +234,27 @@ Web/iOS/Android results, historical camera/pod corrections, and feature-specific
 credential, signing, physical-output and runtime gaps. Optional service gaps
 apply to apps relying on those capabilities; they are not blanket core-release
 blockers.
+## Rich text leaf
+
+`@octane-xplat/richtext` (the `RichTextEditor` component) edits real rich text
+through WordPress Aztec's `AztecText` on Android — a `Spannable`-backed
+`EditText`, not a WebView. The iOS leaf is a stub rendering an unsupported
+placeholder until the Aztec-iOS Swift facade lands; web, macOS, and Windows
+return `supported: false` and render nothing (the tiptap facade below covers
+web). Content in/out is HTML via Aztec `fromHtml`/`toPlainHtml`; Kotlin
+default parameters are not bridged, so the leaf passes explicit arguments.
+Desk-verified against Aztec v2.1.7 sources; on-device asserts run through
+the Android demo-sweep leaf probes.
+
+`@octane-xplat/tiptap` (the `TiptapEditor` component) is the unified facade:
+web renders `@octanejs/tiptap`'s `EditorContent` over a real tiptap `Editor`,
+native renders `RichTextEditor` and adds tiptap document JSON interchange
+through DOM-free ProseMirror slices (`@tiptap/pm` model/state,
+`@tiptap/static-renderer`) with a `zeed-dom` `DOMParser` shim for
+`generateJSON`. The bridge loads lazily; `onJSONReady(false)` or a null
+`getJSON()` means the runtime can't host it. Document models diverge:
+Aztec's flat span list is not ProseMirror's tree, so `getJSON` output is a
+best-effort mapping and HTML is the reliable interchange. Formatting parity
+is bounded to the shared `TiptapFormat` vocabulary; `taskList`, `highlight`,
+`subscript`/`superscript`, and `align*` no-op on web (StarterKit lacks them).
+iOS facade renders the same unsupported stub.

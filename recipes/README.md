@@ -54,6 +54,7 @@ Workflows:
 - [Present an octane subtree in a platform-native bottom sheet](sheet.md)
 - [Persist structured data in a local database](local-database.md)
 - [Use Bamboo CSS utilities across web and native](bamboo-css.md)
+- [Add rich text editing](rich-text-editing.md)
 
 ## Authoring contract
 
