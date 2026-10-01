@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/lottie",
 	"version": "0.1.0",
-	"description": "Lottie animation leaf for Octane xplat — lottie-web on web + @nativescript-community/ui-lottie on native",
+	"description": "Lottie animation leaf for Octane xplat \u2014 lottie-web on web + vendored @nativescript-community/ui-lottie (fork fixes) on native",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
@@ -10,7 +10,8 @@
 	"files": [
 		"dist",
 		"types",
-		"src"
+		"src",
+		"platforms"
 	],
 	"type": "module",
 	"exports": {
@@ -50,7 +51,6 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
-		"@nativescript-community/ui-lottie": "6.0.0",
 		"lottie-web": "5.13.0"
 	},
 	"devDependencies": {
@@ -61,7 +61,8 @@
 		"octane": "0.6.3",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "5.9.3",
-		"vite": "8.3.0"
+		"vite": "8.3.0",
+		"@nativescript/types": "9.0.0"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -74,6 +75,12 @@
 		},
 		"@nativescript/core": {
 			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "6.0.0",
+			"ios": "6.0.1"
 		}
 	}
 }

@@ -82,10 +82,10 @@ export interface LottieHandle {
 	native: any
 }
 
-/** Lottie animation — lottie-web (svg renderer) on web,
- *  @nativescript-community/ui-lottie on native. Progress is always
- *  normalized 0..1 and durations are milliseconds on every platform
- *  (the native plugin reports seconds on iOS). */
+/** Lottie animation — lottie-web (svg renderer) on web, vendored
+ *  ui-lottie (`src/vendor/ui-lottie`, fork `xplat-fixes`) on native.
+ *  Progress is always normalized 0..1 and durations are milliseconds on
+ *  every platform (the native plugin reports seconds on iOS). */
 export interface LottieProps extends LayoutChildProps, AccessibilityProps {
 	className?: any
 	style?: any

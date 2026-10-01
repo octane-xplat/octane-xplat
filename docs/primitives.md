@@ -308,13 +308,14 @@ bundle paths, absolute files, `res://` names, `.lottie` containers, and raw
 (`contain`/`cover`/`fill`), `onLoaded`/`onEnded`/`onError`, and a `bind`
 handle (`play`/`pause`/`stop`/`seekTo`/`setSpeed`/`progress`/`duration`/
 `isPlaying`). It ships as the `@octane-xplat/lottie` leaf — `pnpm add
-@octane-xplat/lottie`; `lottie-web` and the `@nativescript-community/
-ui-lottie` plugin travel as the leaf's own dependencies, so apps declare
-nothing extra. Durations are milliseconds and progress is 0..1 on every
-target — the plugin reports seconds and the leaf normalizes. Use the
-maintained [LottieDemo](../packages/demos/src/LottieDemo.tsrx) for bounded
-playback controls. With npm `ui-lottie` 6.0.0 the leaf relies on
-workarounds for upstream gaps (load events, sync-src, remote URLs); see
+@octane-xplat/lottie`. `lottie-web` is a real dependency; the NativeScript
+plugin is vendored in the leaf (`src/vendor/ui-lottie`, fork fixes from
+`octane-xplat/ui-lottie` `xplat-fixes`), so apps declare nothing extra.
+Durations are milliseconds and progress is 0..1 on every target — the
+plugin reports seconds and the leaf normalizes. Use the maintained
+[LottieDemo](../packages/demos/src/LottieDemo.tsrx) for bounded playback
+controls. The vendored plugin carries fixes unreleased upstream (load
+events, sync-src, remote URLs, `declare` fields for modern bundlers); see
 [lottie limits](known-limits.md#primitives) before designing error UI.
 
 ### Camera preview

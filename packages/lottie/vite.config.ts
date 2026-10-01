@@ -3,9 +3,9 @@ import { octane } from '@octanejs/vite-plugin'
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 
 // Library build — same shape as @octane-xplat/gif: compiles .tsrx → JS per
-// target so consumers don't need the .tsrx toolchain. `lottie-web` and the
-// ui-lottie plugin stay external — both are real dependencies and the
-// consumer's bundler / ns prepare picks them up.
+// target so consumers don't need the .tsrx toolchain. `lottie-web` stays
+// external — a real dependency the consumer's bundler picks up. The
+// ui-lottie plugin is vendored in src/vendor/ui-lottie (fork xplat-fixes).
 
 const NATIVE_EXTS = [
 	'.ios.tsrx', '.android.tsrx', '.mobile.tsrx', '.tsrx',
@@ -32,7 +32,16 @@ export default defineConfig(({ mode }) => {
 		}),
 		build: {
 			lib: {
-				entry: { index: native ? 'src/Lottie.tsrx' : 'src/Lottie.web.tsrx' } as Record<string, string>,
+				entry: (native
+					? {
+							index: 'src/Lottie.tsrx',
+							// Vendored plugin: the './plugin' specifier stays
+							// external so the consumer's per-platform build
+							// resolves index.ios.js / index.android.js itself.
+							'vendor/ui-lottie/index.ios': 'src/vendor/ui-lottie/index.ios.ts',
+							'vendor/ui-lottie/index.android': 'src/vendor/ui-lottie/index.android.ts',
+						}
+					: { index: 'src/Lottie.web.tsrx' }) as Record<string, string>,
 				formats: ['es'],
 			},
 			outDir: native ? 'dist/native' : 'dist/web',
@@ -47,7 +56,7 @@ export default defineConfig(({ mode }) => {
 					// second octane runtime. Exact match only.
 					...(native ? { paths: (id) => (id === 'octane' ? 'octane/universal/native' : id) } : {}),
 				},
-				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//, /^lottie-web/],
+				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//, /^lottie-web/, /^\.\/vendor\/ui-lottie$/],
 			},
 		},
 		resolve: {

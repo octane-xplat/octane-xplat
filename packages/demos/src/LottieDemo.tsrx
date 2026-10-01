@@ -5,7 +5,7 @@ import type { LottieHandle } from '@octane-xplat/lottie';
 import animation from './pinjump-anim';
 
 /** Shared `Lottie` demo — same animation data, same props, on lottie-web
- *  (web) and @nativescript-community/ui-lottie (native). Buttons drive the
+ *  (web) and vendored ui-lottie (native). Buttons drive the
  *  controlled `playing` prop and the `bind` handle; status surfaces the
  *  normalized events (duration is ms on both platforms). */
 export function LottieDemo() @{

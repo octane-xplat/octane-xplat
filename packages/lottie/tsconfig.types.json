@@ -4,6 +4,8 @@
 		"skipLibCheck": true,
 		"module": "esnext",
 		"moduleResolution": "bundler",
+		"moduleSuffixes": [".ios", ".android", ".mobile", ""],
+		"lib": ["esnext", "dom"],
 		"target": "esnext",
 		"jsx": "react-jsx",
 		"jsxImportSource": "octane",
@@ -13,11 +15,13 @@
 		"rootDir": "src"
 	},
 	"include": [
+		"src/references.d.ts",
 		"src/Lottie.tsrx",
 		"src/Lottie.web.tsrx",
 		"src/index.ts",
 		"src/index.web.ts",
 		"src/native-elements.d.ts",
+		"src/vendor/ui-lottie/index.ts",
 		"src/props.ts",
 		"src/cx.mobile.ts",
 		"src/escape-props.ts",

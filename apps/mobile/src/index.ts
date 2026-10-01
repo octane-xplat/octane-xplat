@@ -35,6 +35,7 @@ import { findInRootLayouts } from '@octane-xplat/ui/native'
 
 import { storage, navigate, goBack } from '@xplat/app'
 import 'octane/signals'
+import './lottie-probe'
 installParityDump()
 if (!VIRTUAL_LIST_BENCH_MODE) {void import('@xplat/app/platform/paritysweep')}
 // Per-file css module imports — same shape as apps/web/src/main.tsrx. Each

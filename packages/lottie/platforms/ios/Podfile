@@ -1,0 +1,5 @@
+# Pinned to the 4.4.1 branch HEAD — a branch reference resolves a moving
+# target on every fresh pod install. The fork carries the
+# CompatibleAnimation* ObjC shims + CompatibleLottieLogger this plugin needs.
+pod 'lottie-ios', :git => 'https://github.com/farfromrefug/lottie-ios.git', :commit => 'fd75f8aaa47d9479fc43cf91dd1da557952f6c0c' 
+# pod 'lottie-ios', :path => '/Volumes/dev/ios/lottie-ios'
