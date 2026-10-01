@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { verifyPackedPackage } from '../src/pack-check.mjs'
+import { checkPackedPackage, verifyPackedPackage } from '../src/pack-check.mjs'
 
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const fixtureRoot = resolve(toolRoot, '../typegen-fixture')
@@ -34,6 +34,22 @@ const baseFiles = {
 
 try {
 	verifyPackedPackage(ts, writePackage(baseFiles))
+
+	const workspaceOnlyTypes = writePackage({
+		'package.json': JSON.stringify({
+			name: '@fixture/workspace-only-types',
+			version: '0.0.0',
+			type: 'module',
+			files: ['dist', 'types'],
+			exports: { '.': { types: './types/index.d.ts', default: './dist/index.js' } },
+		}),
+		'dist/index.js': 'export const value = 1\n',
+		'types/index.d.ts': 'export declare const value: number\n',
+		'workspace/demo-vue/types/shims.vue.d.ts':
+			"import type { Component } from 'vue'\nexport type DemoOnly = Component\n",
+	})
+
+	checkPackedPackage(workspaceOnlyTypes, ts)
 
 	const starBarrel = writePackage({
 		'package.json': JSON.stringify({

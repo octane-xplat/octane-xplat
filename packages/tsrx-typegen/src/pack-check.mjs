@@ -599,8 +599,6 @@ export function checkPackedPackage(projectRoot, ts) {
 	mkdirSync(packOutput)
 	mkdirSync(extractedRoot)
 	try {
-		verifyPackedPackage(ts, projectRoot)
-		console.log('tsrx-typegen: workspace exports and declaration graph are valid')
 		const packed = spawnSync(
 			'pnpm',
 			['--config.ignore-scripts=true', 'pack', '--pack-destination', packOutput],
@@ -654,7 +652,7 @@ export function checkPackedPackage(projectRoot, ts) {
 		}
 
 		verifyPackedPackage(ts, join(extractedRoot, 'package'))
-		console.log('tsrx-typegen: packed runtime exports and declaration graph are valid')
+		console.log('tsrx-typegen: packed exports and declaration graph are valid')
 	} finally {
 		rmSync(temporary, { recursive: true, force: true })
 	}
