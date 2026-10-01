@@ -1,0 +1,107 @@
+{
+	"name": "@octane-xplat/intersection-observer",
+	"version": "0.0.0",
+	"description": "Visibility tracking for Octane xplat — DOM IntersectionObserver on web, scroll/geometry observer on NativeScript iOS/Android",
+	"keywords": [
+		"octane",
+		"xplat",
+		"cross-platform",
+		"intersection-observer",
+		"visibility",
+		"scroll",
+		"nativescript",
+		"ios",
+		"android",
+		"web"
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/intersection-observer",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/intersection-observer"
+	},
+	"files": [
+		"dist",
+		"types",
+		"src"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"macos": {
+				"types": "./types/index.d.ts",
+				"default": "./src/index.macos.ts"
+			},
+			"web": {
+				"types": "./types/index.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/index.d.ts",
+				"default": "./src/index.ts"
+			},
+			"types": "./types/index.d.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"access": "public",
+		"exports": {
+			".": {
+				"macos": {
+					"types": "./types/index.d.ts",
+					"default": "./src/index.macos.ts"
+				},
+				"web": {
+					"types": "./types/index.d.ts",
+					"default": "./dist/web/index.js"
+				},
+				"native": {
+					"types": "./types/index.d.ts",
+					"default": "./dist/native/index.js"
+				},
+				"types": "./types/index.d.ts",
+				"default": "./dist/native/index.js"
+			}
+		}
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
+		"prepublishOnly": "pnpm build",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"pack:check": "tsrx-typegen --pack-check"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.61",
+		"octane": "0.6.3",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	}
+}
