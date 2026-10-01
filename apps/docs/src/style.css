@@ -23,6 +23,7 @@
 	--doc-link: #3386ff;
 	--doc-grad: linear-gradient(to right, var(--doc-blue), var(--doc-teal) 59%, var(--doc-green));
 	--doc-h1-grad: radial-gradient(circle 14.95em at 0% 50% in oklab, #0060ee 0%, #000000 100%);
+	--doc-lede-bg: #000000;
 	--doc-glow: linear-gradient(100deg, #0045b2 0%, #002a75 25%, #00061f 45%, #000000 58%);
 	--doc-tag-note-bg: #dcf1ef;
 	--doc-tag-note-ink: #0c5b55;
@@ -46,7 +47,9 @@
 	--doc-code-ink: #e8e8e0;
 	--doc-link: #63a5ff;
 	--doc-teal: #4a7a76;
-	--doc-glow: linear-gradient(100deg, #0a4fc4 0%, #052f80 25%, #010a24 45%, #000000 58%);
+	--doc-h1-grad: radial-gradient(circle 14.95em at 0% 50% in oklab, #63a5ff 0%, #f0eeea 100%);
+	--doc-lede-bg: var(--doc-well);
+	--doc-glow: linear-gradient(100deg, #193f74 0%, #203552 25%, var(--doc-lede-bg) 58%);
 	--doc-tag-note-bg: #173c3a;
 	--doc-tag-note-ink: #9ed8d3;
 	--doc-tag-imp-bg: #253a10;
@@ -495,7 +498,8 @@ body {
 }
 
 .dark .constellation {
-	filter: invert(0.94);
+	filter: brightness(0) invert(1);
+	opacity: 0.12;
 }
 
 .content {
@@ -772,7 +776,7 @@ body {
 
 .doc > .h1 + .quote .lede-content {
 	display: block;
-	background-color: #000000;
+	background-color: var(--doc-lede-bg);
 	background-image: var(--doc-glow);
 	box-sizing: border-box;
 	border: 0.5px solid #000000;
