@@ -146,6 +146,13 @@ experience of agents writing Octane-xplat code effectively.
   to an exact version; remove it when upstream ships its fix. esbuild is
   pinned to 0.27.7 — vite 8's peer range admits 0.28.x and the vendor bundler
   dies on the host/binary mismatch.
+- `packages/lottie/src/vendor/ui-lottie` is a **git submodule** of the fork
+  `octane-xplat/ui-lottie` (branch `xplat-vendored` = `xplat-fixes` +
+  vendoring-compat markers — ts-nocheck, self-contained tsconfig). Fresh
+  clones need `git submodule update --init` (CI checkouts carry
+  `submodules: true`). Sync fork fixes with `git submodule update --remote`
+  then commit the gitlink bump. `platforms/` (Podfile pin, gradle, java)
+  stays a copy at the package root — `ns prepare` needs it there.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
   from the registry → 404).
 - `apps/mobile` needs `@valor/nativescript-websockets` — the on-device HMR

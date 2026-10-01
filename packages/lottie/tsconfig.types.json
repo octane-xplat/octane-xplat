@@ -21,7 +21,6 @@
 		"src/index.ts",
 		"src/index.web.ts",
 		"src/native-elements.d.ts",
-		"src/vendor/ui-lottie/index.ts",
 		"src/props.ts",
 		"src/cx.mobile.ts",
 		"src/escape-props.ts",

@@ -11,8 +11,8 @@
     "layout-child.d.ts",
     "layout-child.web.d.ts",
     "props.d.ts",
-    "vendor/ui-lottie/index.common.d.ts",
-    "vendor/ui-lottie/index.ios.d.ts",
-    "vendor/ui-lottie/utils.d.ts"
+    "vendor/ui-lottie/src/lottie/index.common.d.ts",
+    "vendor/ui-lottie/src/lottie/index.ios.d.ts",
+    "vendor/ui-lottie/src/lottie/utils.d.ts"
   ]
 }

@@ -10,8 +10,26 @@
 	"files": [
 		"dist",
 		"types",
-		"src",
-		"platforms"
+		"platforms",
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/Lottie.tsrx",
+		"src/Lottie.web.tsrx",
+		"src/props.ts",
+		"src/native-elements.d.ts",
+		"src/references.d.ts",
+		"src/cx.mobile.ts",
+		"src/escape-props.ts",
+		"src/escape-props.web.ts",
+		"src/layout-child.ts",
+		"src/layout-child.web.ts",
+		"src/vendor/ui-lottie/LICENSE.md",
+		"src/vendor/ui-lottie/src/lottie/index.android.ts",
+		"src/vendor/ui-lottie/src/lottie/index.common.ts",
+		"src/vendor/ui-lottie/src/lottie/index.d.ts",
+		"src/vendor/ui-lottie/src/lottie/index.ios.ts",
+		"src/vendor/ui-lottie/src/lottie/utils.ts",
+		"src/vendor/ui-lottie/src/lottie/typings"
 	],
 	"type": "module",
 	"exports": {

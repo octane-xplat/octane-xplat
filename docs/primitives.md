@@ -309,8 +309,8 @@ bundle paths, absolute files, `res://` names, `.lottie` containers, and raw
 handle (`play`/`pause`/`stop`/`seekTo`/`setSpeed`/`progress`/`duration`/
 `isPlaying`). It ships as the `@octane-xplat/lottie` leaf — `pnpm add
 @octane-xplat/lottie`. `lottie-web` is a real dependency; the NativeScript
-plugin is vendored in the leaf (`src/vendor/ui-lottie`, fork fixes from
-`octane-xplat/ui-lottie` `xplat-fixes`), so apps declare nothing extra.
+plugin is vendored in the leaf (`src/vendor/ui-lottie` — a git
+submodule of `octane-xplat/ui-lottie`, branch `xplat-vendored`), so apps declare nothing extra.
 Durations are milliseconds and progress is 0..1 on every target — the
 plugin reports seconds and the leaf normalizes. Use the maintained
 [LottieDemo](../packages/demos/src/LottieDemo.tsrx) for bounded playback

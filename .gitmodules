@@ -1,0 +1,4 @@
+[submodule "packages/lottie/src/vendor/ui-lottie"]
+	path = packages/lottie/src/vendor/ui-lottie
+	url = https://github.com/octane-xplat/ui-lottie.git
+	branch = xplat-vendored

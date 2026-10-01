@@ -72,6 +72,7 @@ jobs:
         with:
           ref: ${{ env.TESTED_SHA }}
           fetch-depth: 0
+          submodules: true
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -220,6 +221,7 @@ jobs:
         with:
           ref: ${{ env.TESTED_SHA }}
           fetch-depth: 0
+          submodules: true
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -351,6 +353,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: true
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
