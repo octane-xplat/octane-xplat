@@ -951,6 +951,7 @@ body {
 	min-width: 1.5em;
 	text-align: right;
 	white-space: nowrap;
+	font-weight: 500;
 	color: var(--doc-ink);
 	opacity: 1;
 }
