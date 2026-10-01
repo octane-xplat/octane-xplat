@@ -17,7 +17,7 @@
 		"@nativescript-community/perms": "3.0.11",
 		"@nativescript-community/ui-drawer": "0.1.32",
 		"@nativescript/canvas": "3.0.0-alpha.15",
-		"@nativescript/core": "https://pkg.pr.new/@nativescript/core@11468",
+		"@nativescript/core": "https://pkg.pr.new/@nativescript/core@7d0adce",
 		"@nativescript/font-manager": "1.0.18",
 		"@octane-xplat/biometrics": "workspace:*",
 		"@octane-xplat/camera": "workspace:*",
@@ -41,7 +41,7 @@
 	"devDependencies": {
 		"@nativescript-community/vite-octane": "0.2.1",
 		"@nativescript/types": "9.0.0",
-		"@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@11468",
+		"@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@7d0adce",
 		"@nativescript/windows": "0.1.0-alpha.144",
 		"@octane-xplat/cli": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",

@@ -17,15 +17,16 @@ a Windows host yet — the runtime is win32-only.
 Pins, all deliberate:
 
 - `@nativescript/core` / `@nativescript/vite` come from
-  `pkg.pr.new/...@11468` (the `feat/windows` branch plus a percentage-size
-  fix — upstream's own starter uses this pin).
+  `pkg.pr.new/...@7d0adce` (the original revision of PR #11468, adding a
+  percentage-size fix to `feat/windows`). Use the commit pin: the PR-number
+  URL moves when upstream pushes, invalidating the lockfile checksums.
 - `@nativescript/windows` is exact `0.1.0-alpha.144` — ranges match
   incompatible older prereleases.
 - `nativescript` CLI is the dev tag `9.1.2-dev.2026-09-24-*`, which already
   carries the windows platform (`ns run windows`, `ns doctor windows`);
   released CLI waits on `nativescript-cli#6065`.
-- The workspace patch set (`core@9.1.2`, `vite@8.0.11`) does **not** apply to
-  these preview versions — the windows dev path runs unpatched upstream.
+- The workspace carries preview-specific patches for `core@9.1.3-next.2`
+  and `vite@8.0.13`; the commit pin preserves the versions they target.
 - The app dedupes `@nativescript/core` to the PR build in vite config and
   tsconfig `paths`; workspace packages' devDeps would otherwise resolve
   `9.1.2` from inside `packages/*`.

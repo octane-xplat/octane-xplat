@@ -320,7 +320,7 @@ importers:
         version: 2.0.11
       '@nativescript-community/octane':
         specifier: 0.2.4
-        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+        version: 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
       '@nativescript-community/perms':
         specifier: 3.0.11
         version: 3.0.11
@@ -331,8 +331,8 @@ importers:
         specifier: 3.0.0-alpha.15
         version: 3.0.0-alpha.15
       '@nativescript/core':
-        specifier: https://pkg.pr.new/@nativescript/core@11468
-        version: https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661)
+        specifier: https://pkg.pr.new/@nativescript/core@7d0adce
+        version: https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661)
       '@nativescript/font-manager':
         specifier: 1.0.18
         version: 1.0.18
@@ -393,13 +393,13 @@ importers:
     devDependencies:
       '@nativescript-community/vite-octane':
         specifier: 0.2.1
-        version: 0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(@nativescript/vite@https://pkg.pr.new/@nativescript/vite@11468(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
+        version: 0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(@nativescript/vite@https://pkg.pr.new/@nativescript/vite@7d0adce(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       '@nativescript/types':
         specifier: 9.0.0
         version: 9.0.0(patch_hash=3dc11d16cb6622cce4d19875174015db65e6d9f67cf05ac912d7d2236ea0bf09)
       '@nativescript/vite':
-        specifier: https://pkg.pr.new/@nativescript/vite@11468
-        version: https://pkg.pr.new/@nativescript/vite@11468(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
+        specifier: https://pkg.pr.new/@nativescript/vite@7d0adce
+        version: https://pkg.pr.new/@nativescript/vite@7d0adce(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
       '@nativescript/windows':
         specifier: 0.1.0-alpha.144
         version: 0.1.0-alpha.144
@@ -2564,8 +2564,8 @@ packages:
   '@nativescript/core@9.1.2':
     resolution: {integrity: sha512-zL/dgfuLmcVu9nR47UEFOaPHXoaRKuWMBnDwiaMAwXmf4WKd6yr1gIXcNHheKgBNGrls06LgbBpkB841fI+HcA==}
 
-  '@nativescript/core@https://pkg.pr.new/@nativescript/core@11468':
-    resolution: {integrity: sha512-azbqCmrswDCKiYvNBg2pW2ltmst89V1UEIvRjyhPG+kaM0EJNwVQLw2uXSqhrP+JE7SQOXymTILqUMBCIGysMA==, tarball: https://pkg.pr.new/@nativescript/core@11468}
+  '@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce':
+    resolution: {integrity: sha512-azbqCmrswDCKiYvNBg2pW2ltmst89V1UEIvRjyhPG+kaM0EJNwVQLw2uXSqhrP+JE7SQOXymTILqUMBCIGysMA==, tarball: https://pkg.pr.new/@nativescript/core@7d0adce}
     version: 9.1.3-next.2
 
   '@nativescript/doctor@2.0.18':
@@ -2667,8 +2667,8 @@ packages:
       vue-tsc:
         optional: true
 
-  '@nativescript/vite@https://pkg.pr.new/@nativescript/vite@11468':
-    resolution: {integrity: sha512-DSXphotjC43dPVc74dsQopl1/iK5m+GE6QahWG6+jr3CBORUwfjX0ut5RTWvShnNiOYOfVX4CWg+1z4isslieg==, tarball: https://pkg.pr.new/@nativescript/vite@11468}
+  '@nativescript/vite@https://pkg.pr.new/@nativescript/vite@7d0adce':
+    resolution: {integrity: sha512-DSXphotjC43dPVc74dsQopl1/iK5m+GE6QahWG6+jr3CBORUwfjX0ut5RTWvShnNiOYOfVX4CWg+1z4isslieg==, tarball: https://pkg.pr.new/@nativescript/vite@7d0adce}
     version: 8.0.13
     hasBin: true
     peerDependencies:
@@ -7809,9 +7809,9 @@ snapshots:
       '@nativescript/core': 9.1.2(patch_hash=2f362248a9a54f955f635bac7a14e4105c75e30f66870c7ffff0a9fc02aced37)
       octane: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
-  '@nativescript-community/octane@0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
+  '@nativescript-community/octane@0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))':
     dependencies:
-      '@nativescript/core': https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661)
+      '@nativescript/core': https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661)
       octane: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
 
   '@nativescript-community/perms@2.3.6': {}
@@ -7846,10 +7846,10 @@ snapshots:
       - '@nativescript/core'
       - octane
 
-  '@nativescript-community/vite-octane@0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(@nativescript/vite@https://pkg.pr.new/@nativescript/vite@11468(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
+  '@nativescript-community/vite-octane@0.2.1(patch_hash=495e5a4f441c704f2ac5996d80722f6210a7d21d2af5678d56fa843aed611bce)(@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(@nativescript/vite@https://pkg.pr.new/@nativescript/vite@7d0adce(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1))(@octanejs/vite-plugin@0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))':
     dependencies:
-      '@nativescript-community/octane': 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
-      '@nativescript/vite': https://pkg.pr.new/@nativescript/vite@11468(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
+      '@nativescript-community/octane': 0.2.4(patch_hash=b91ecc946a05e2319488291a4e69c7e090b3ffc9abb9b4ab83dbe87db5d730d6)(@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661))(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))
+      '@nativescript/vite': https://pkg.pr.new/@nativescript/vite@7d0adce(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)
       '@octanejs/vite-plugin': 0.1.61(octane@0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1))
       vite: 8.3.0(esbuild@0.27.7)(sass@1.104.1)(yaml@2.9.1)
     transitivePeerDependencies:
@@ -7888,7 +7888,7 @@ snapshots:
       source-map-js: 1.2.1
       tslib: 2.8.1
 
-  '@nativescript/core@https://pkg.pr.new/@nativescript/core@11468(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661)':
+  '@nativescript/core@https://pkg.pr.new/@nativescript/core@7d0adce(patch_hash=801830817bbdddb11afa8fa8afd1b62c879e6473b8cfed37f2d6932be109b661)':
     dependencies:
       '@csstools/css-calc': 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-color-parser': 3.1.0(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
@@ -8008,7 +8008,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@nativescript/vite@https://pkg.pr.new/@nativescript/vite@11468(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)':
+  '@nativescript/vite@https://pkg.pr.new/@nativescript/vite@7d0adce(patch_hash=65e39638fdf7026f82de9c75d67fb37a0c4272884d43c28a12d2fcbc0fc9d707)(supports-color@10.2.2)(typescript@5.9.3)(yaml@2.9.1)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/generator': 7.29.8
