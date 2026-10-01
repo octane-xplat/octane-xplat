@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export type DateInputType = 'date' | 'time' | 'datetime-local'
 
 export interface DateInputProps {
@@ -17,4 +15,4 @@ export interface DateInputProps {
 	onChange?: (value: string) => void
 }
 
-export declare const DateInput: UniversalComponent<DateInputProps>
+export declare function DateInput(props: DateInputProps): unknown

@@ -3,6 +3,12 @@ dependencies {
 //  implementation 'androidx.multidex:multidex:2.0.1'
 }
 
+// Google Services searches the generated app directory by default. Keep the
+// app-owned configuration in App_Resources, including on a fresh preparation.
+tasks.matching { it.name.startsWith('process') && it.name.endsWith('GoogleServices') }.configureEach {
+  googleServicesJsonFiles.setFrom(file("${getAppResourcesPath()}/Android/google-services.json"))
+}
+
 android {
   compileSdkVersion 36
   buildToolsVersion "36"

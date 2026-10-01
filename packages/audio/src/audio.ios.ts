@@ -5,6 +5,12 @@ import type {
   Track,
 } from "./types";
 
+// CoreMedia is available at runtime but omitted from NativeScript's common
+// ambient references. Reuse AVPlayer's time type for this bridge slice.
+type PlayerTime = ReturnType<AVPlayer["currentTime"]>;
+declare function CMTimeGetSeconds(time: PlayerTime): number;
+declare function CMTimeMakeWithSeconds(seconds: number, preferredTimescale: number): PlayerTime;
+
 export const createAudioPlayer = (): AudioPlayer => {
   const listeners = new Set<(snapshot: AudioSnapshot) => void>();
   const session = AVAudioSession.sharedInstance();
@@ -38,7 +44,7 @@ export const createAudioPlayer = (): AudioPlayer => {
   const remoteTargets: Array<{ command: any; token: any }> = [];
 
   const current = () => queue[index];
-  const seconds = (time: CMTime) => {
+  const seconds = (time: PlayerTime) => {
     const value = CMTimeGetSeconds(time);
     return Number.isFinite(value) && value > 0 ? value : 0;
   };
@@ -60,7 +66,7 @@ export const createAudioPlayer = (): AudioPlayer => {
     if (!nowPlaying) {return;}
     const track = current();
     if (!track) {
-      nowPlaying.nowPlayingInfo = null;
+      nowPlaying.nowPlayingInfo = null as unknown as NSDictionary<string, any>;
       return;
     }
 
@@ -143,8 +149,8 @@ export const createAudioPlayer = (): AudioPlayer => {
   const play = async () => {
     if (!player || disposed) {return;}
     const category = AVAudioSessionCategoryPlayback;
-    session.setCategoryModeOptionsError(category, AVAudioSessionModeDefault, 0, null);
-    session.setActiveWithOptionsError(true, 0, null);
+    session.setCategoryModeOptionsError(category, AVAudioSessionModeDefault, 0 as AVAudioSessionCategoryOptions, undefined);
+    session.setActiveWithOptionsError(true, 0 as AVAudioSessionSetActiveOptions, undefined);
     player.play();
     state = "playing";
     updateNowPlaying();
@@ -254,8 +260,8 @@ export const createAudioPlayer = (): AudioPlayer => {
       remoteTargets.length = 0;
       if (timer) {clearInterval(timer);}
       timer = undefined;
-      if (nowPlaying) {nowPlaying.nowPlayingInfo = null;}
-      session.setActiveWithOptionsError(false, notifyOthersOnDeactivation, null);
+      if (nowPlaying) {nowPlaying.nowPlayingInfo = null as unknown as NSDictionary<string, any>;}
+      session.setActiveWithOptionsError(false, notifyOthersOnDeactivation, undefined);
       listeners.clear();
       queue = [];
       index = -1;

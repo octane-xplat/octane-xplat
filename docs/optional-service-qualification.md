@@ -29,10 +29,10 @@ native runtime evidence. The Chromium probe uses synthetic PCM to measure
 playback state, not audible output. It neither captures screenshots nor renders
 selected images. It does not mock a successful provider sign-in or push delivery.
 
-The broad mobile typecheck is not green: current audio framework/bridge typings,
-platform-specific demo typings and generated route resolution report errors.
-Focused auth/media native adapter types and web media/audio/sound adapter types
-pass independently. Native bundling currently continues despite type errors;
+The broad mobile typecheck (`pnpm typecheck:mobile`) passes after correcting
+audio bridge typings and the handwritten JSX component declarations. Focused
+auth/media native adapter types and web media/audio/sound adapter types pass
+independently. Native bundling can still continue despite type errors;
 bundle emission alone cannot qualify the complete app. Repository-wide lint also
 reports existing failures outside the changed files; targeted lint passes for the
 changed TypeScript/JavaScript adapters and checks.

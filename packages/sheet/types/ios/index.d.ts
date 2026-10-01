@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export type SwiftUISheetDetent = 'medium' | 'large' | 'fraction' | 'height'
 
 export interface SwiftUIBottomSheetProps {
@@ -18,4 +16,4 @@ export interface SwiftUIBottomSheetProps {
 	content?: () => any
 }
 
-export declare const SwiftUIBottomSheet: UniversalComponent<SwiftUIBottomSheetProps>
+export declare function SwiftUIBottomSheet(props: SwiftUIBottomSheetProps): unknown

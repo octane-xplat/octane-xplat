@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export interface SelectOption {
 	value: string
 	label: string
@@ -19,4 +17,4 @@ export interface SelectProps {
 	accessibilityLabel?: string
 }
 
-export declare const Select: UniversalComponent<SelectProps>
+export declare function Select(props: SelectProps): unknown

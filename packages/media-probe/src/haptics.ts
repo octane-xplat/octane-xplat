@@ -1,6 +1,14 @@
 import { Application, Utils } from '@nativescript/core'
 
 declare const XplatPulsarBridge: any
+declare const com: {
+	xplat: { mediaprobe: { PulsarBridge: {
+		playPreset(context: android.content.Context): void
+		playCustomPattern(context: android.content.Context): void
+		setRealtime(context: android.content.Context, amplitude: number, frequency: number): void
+		stopRealtime(context: android.content.Context): void
+	} } }
+}
 
 const androidContext = () => Utils.android.getApplicationContext()
 

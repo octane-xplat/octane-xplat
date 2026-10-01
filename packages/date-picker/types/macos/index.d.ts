@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export type AppKitDatePickerComponents = 'date' | 'time' | 'dateAndTime'
 
 export type AppKitDatePickerStyle = 'textField' | 'graphical'
@@ -19,4 +17,4 @@ export interface AppKitDatePickerProps {
 	onSelectionChange?: (date: Date) => void
 }
 
-export declare const AppKitDatePicker: UniversalComponent<AppKitDatePickerProps>
+export declare function AppKitDatePicker(props: AppKitDatePickerProps): unknown

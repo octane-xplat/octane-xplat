@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export interface MaterialDropdownItem {
 	key: string
 	text: string
@@ -19,4 +17,4 @@ export interface MaterialDropdownProps {
 	accessibilityLabel?: string
 }
 
-export declare const MaterialDropdown: UniversalComponent<MaterialDropdownProps>
+export declare function MaterialDropdown(props: MaterialDropdownProps): unknown

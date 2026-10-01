@@ -487,6 +487,16 @@ const nativeRules = [
  */
 export async function xplatNative(env, opts = {}) {
 	const mode = typeof env === 'string' ? env : env.mode
+	const appRequire = createRequire(join(process.cwd(), 'package.json'))
+	const octaneRequire = createRequire(realpathSync(appRequire.resolve('octane')))
+	// Signals belong to octane, not the app's direct dependency graph.
+	// Resolve them from their owner under pnpm's isolated linker.
+	const signalAliases = ['alien-signals', 'alien-signals/system'].map((specifier) => ({
+		find: new RegExp(`^${specifier}$`),
+		// require.resolve selects CJS; use the package's explicit ESM exports.
+		replacement: realpathSync(octaneRequire.resolve(specifier.replace('alien-signals', 'alien-signals/esm'))),
+	}))
+
 	const [{ mergeConfig }, { octaneConfig }, { nativeScriptRenderer }] = await Promise.all([
 		importApp('vite'),
 		importApp('@nativescript-community/vite-octane'),
@@ -539,15 +549,13 @@ export async function xplatNative(env, opts = {}) {
 				// linked packages are discovery-eligible because their realpath
 				// sits outside node_modules. Freeze the dep set per session.
 				noDiscovery: true,
-				// Keep alien-signals (octane/signals' reactive impl) optimized:
-				// with the dep set frozen its `?v` stamp is stable for the
-				// session, and any path that still emits a .vite/deps URL gets
-				// a live artifact instead of a per-module miss.
-				include: ['alien-signals', 'alien-signals/system'],
+				// alien-signals is ESM. Serve it directly: NativeScript decodes
+				// flattened optimizer names back into package specifiers, which
+				// cannot represent Vite's generated Rolldown helper chunks.
 				// Flattened optimizeDeps chunks get mangled by the /ns/m device
 				// transform (`import import "/ns/core/utils"`) and miss the vendor
 				// manifest — serve @nativescript plugins per-module instead.
-				exclude: [...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
+				exclude: ['alien-signals', 'alien-signals/system', ...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
 			},
 			resolve: {
 				conditions: ['native'],
@@ -556,7 +564,7 @@ export async function xplatNative(env, opts = {}) {
 				// first — without this it vendors octane/dist/index.js (the full
 				// DOM runtime). Exact-match only: 'octane/universal/native' itself
 				// must not be rewritten.
-				alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }],
+				alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }, ...signalAliases],
 				// ns-vite sets preserveSymlinks:true; under pnpm's isolated layout
 				// that resolves a dep's imports from the symlink path instead of
 				// its real .pnpm dir, so declared transitive deps can't be found.

@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export type SwiftUIDatePickerStyle = 'automatic' | 'compact' | 'graphical' | 'wheel'
 
 export type SwiftUIDatePickerComponent = 'date' | 'hourAndMinute'
@@ -20,4 +18,4 @@ export interface SwiftUIDatePickerProps {
 	onSelectionChange?: (date: Date) => void
 }
 
-export declare const SwiftUIDatePicker: UniversalComponent<SwiftUIDatePickerProps>
+export declare function SwiftUIDatePicker(props: SwiftUIDatePickerProps): unknown

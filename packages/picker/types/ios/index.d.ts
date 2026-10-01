@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export interface SwiftUIPickerOption {
 	id: string
 	title: string
@@ -19,4 +17,4 @@ export interface SwiftUIPickerProps {
 	accessibilityLabel?: string
 }
 
-export declare const SwiftUIPicker: UniversalComponent<SwiftUIPickerProps>
+export declare function SwiftUIPicker(props: SwiftUIPickerProps): unknown

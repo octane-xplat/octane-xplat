@@ -28,9 +28,13 @@ function androidDisplayName(uri: string, nativeUri: any): string | undefined {
 
 	try {
 		const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+		// Android accepts null for projection/filter args; its generated
+		// declarations omit that nullable bridge contract.
+		const noColumns = null as unknown as string[]
+		const noFilter = null as unknown as string
 		const cursor = activity
 			?.getContentResolver()
-			?.query(nativeUri ?? android.net.Uri.parse(uri), null, null, null, null)
+			?.query(nativeUri ?? android.net.Uri.parse(uri), noColumns, noFilter, noColumns, noFilter)
 
 		if (!cursor) {
 			return undefined

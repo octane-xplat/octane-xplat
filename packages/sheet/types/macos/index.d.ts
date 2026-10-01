@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export interface AppKitSheetProps {
 	id?: string
 	className?: any
@@ -9,4 +7,4 @@ export interface AppKitSheetProps {
 	content?: () => any
 }
 
-export declare const AppKitSheet: UniversalComponent<AppKitSheetProps>
+export declare function AppKitSheet(props: AppKitSheetProps): unknown

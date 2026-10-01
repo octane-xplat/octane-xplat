@@ -55,7 +55,11 @@ class SVGExternalFileResolver extends com.caverock.androidsvg.SVGExternalFileRes
 		if (fontFamily) {
 			fontFamily = fontFamily.replace(/\\\//, '/')
 		}
-		return new Font(fontFamily, undefined as any, fontStyle.toLowerCase() as any, (fontWeight + '') as any).getAndroidTypeface()
+		return Font.default
+			.withFontFamily(fontFamily)
+			.withFontStyle(fontStyle.toLowerCase() as any)
+			.withFontWeight((fontWeight + '') as any)
+			.getAndroidTypeface()
 	}
 
 	override resolveImage(filename: string): globalAndroid.graphics.Bitmap {

@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export type ContextMenuActivation = 'longPress' | 'singlePress'
 
 export interface ContextMenuItem {
@@ -21,4 +19,4 @@ export interface ContextMenuProps {
 	accessibilityLabel?: string
 }
 
-export declare const ContextMenu: UniversalComponent<ContextMenuProps>
+export declare function ContextMenu(props: ContextMenuProps): unknown

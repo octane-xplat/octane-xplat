@@ -31,7 +31,19 @@ apply the `com.google.gms.google-services` Gradle plugin per the
 is a runtime prompt — `requestPermission()` below covers it. The harness
 ships a placeholder `google-services.json` so the Gradle plugin parses — it
 carries no real Firebase project, so `configure()`/push delivery fail until
-you replace it with a real one.
+you replace it with a real one. If Gradle reports `File google-services.json
+is missing` even though the file exists in `App_Resources/Android/`, point
+the plugin tasks at that source in `App_Resources/Android/app.gradle`:
+
+```groovy
+tasks.matching { it.name.startsWith('process') && it.name.endsWith('GoogleServices') }.configureEach {
+  googleServicesJsonFiles.setFrom(file("${getAppResourcesPath()}/Android/google-services.json"))
+}
+```
+
+The harness includes this configuration so a fresh Android preparation can
+build with its placeholder. A successful build does not verify FCM registration
+or delivery.
 
 **Web.** Copy the service worker the package ships into your app's static
 root:

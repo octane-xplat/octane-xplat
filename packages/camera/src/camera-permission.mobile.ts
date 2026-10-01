@@ -7,7 +7,7 @@ export function cameraHardwarePresent(): boolean {
 	if (!isAndroid) {return false}
 	try {
 		const context = Application.android?.context ?? Application.android?.startActivity
-		return context?.packageManager?.hasSystemFeature('android.hardware.camera.any') !== false
+  return context?.getPackageManager()?.hasSystemFeature('android.hardware.camera.any') !== false
 	} catch {
 		return true
 	}

@@ -26,7 +26,7 @@ behind the established file suffixes.
 
 ## Documentation
 
-- AC1: [Install and import](../docs/context-menu.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeContextMenuDemo.*.tsrx`.
+- AC1: [Install and import](../docs/context-menu.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeContextMenuDemo.*.tsrx`. Public JSX imports are checked by the [packed consumer](../packages/context-menu/tests/packed-consumer.mjs).
 - AC2: [The trigger is a render fn](../docs/context-menu.md#the-trigger-is-a-render-fn) and [Platform behavior](../docs/context-menu.md#platform-behavior).
 - AC3: [Install and import](../docs/context-menu.md#install-and-import).
 - AC4: [iOS example](../packages/demos/src/NativeContextMenuDemo.ios.tsrx), [Android example](../packages/demos/src/NativeContextMenuDemo.android.tsrx), and [web example](../packages/demos/src/NativeContextMenuDemo.web.tsrx), and [macOS example](../packages/demos/src/NativeContextMenuDemo.macos.tsrx).

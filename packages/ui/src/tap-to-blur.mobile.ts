@@ -12,7 +12,7 @@ export function attachTapToBlur(view: any): () => void {
 
 	const handler = (_args: any) => {
 		const activity = Application.android.foregroundActivity;
-		const focused = activity?.currentFocus;
+		const focused = activity?.getCurrentFocus();
 		if (!focused) {return;}
 		const imm = activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
 		imm?.hideSoftInputFromWindow(focused.getWindowToken(), 0);

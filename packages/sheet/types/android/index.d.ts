@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export interface MaterialBottomSheetProps {
 	id?: string
 	className?: any
@@ -17,4 +15,4 @@ export interface MaterialBottomSheetProps {
 	content?: () => any
 }
 
-export declare const MaterialBottomSheet: UniversalComponent<MaterialBottomSheetProps>
+export declare function MaterialBottomSheet(props: MaterialBottomSheetProps): unknown

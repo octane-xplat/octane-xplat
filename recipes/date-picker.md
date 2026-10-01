@@ -25,7 +25,7 @@ behind the established file suffixes.
 
 ## Documentation
 
-- AC1: [Install and import](../docs/date-picker.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeDatePickerDemo.*.tsrx`.
+- AC1: [Install and import](../docs/date-picker.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeDatePickerDemo.*.tsrx`. Public JSX imports are checked by the [packed consumer](../packages/date-picker/tests/packed-consumer.mjs).
 - AC2: [Platform APIs](../docs/date-picker.md#platform-apis).
 - AC3: [Platform adapters and build requirements](../docs/date-picker.md#install-and-import).
 - AC4: [iOS example](../packages/demos/src/NativeDatePickerDemo.ios.tsrx), [Android example](../packages/demos/src/NativeDatePickerDemo.android.tsrx), [web example](../packages/demos/src/NativeDatePickerDemo.web.tsrx), and [macOS example](../packages/demos/src/NativeDatePickerDemo.macos.tsrx).

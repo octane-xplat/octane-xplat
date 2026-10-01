@@ -6,6 +6,19 @@ import type {
   Track,
 } from "./types";
 
+// The plugin's Java bridge is exposed by NativeScript's runtime metadata.
+declare const com: {
+  xplat: { audio: { AudioBridge: {
+    ACTION_QUEUE: string;
+    ACTION_PLAY: string;
+    ACTION_PAUSE: string;
+    ACTION_SEEK: string;
+    ACTION_RELEASE: string;
+    dispatch(context: android.content.Context, action: string, payload: string, index: number, seconds: number): void;
+    snapshot(): string;
+  } } };
+};
+
 export const createAudioPlayer = (): AudioPlayer => {
   const actions = com.xplat.audio.AudioBridge;
   const context = Utils.android.getApplicationContext();

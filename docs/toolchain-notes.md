@@ -249,7 +249,18 @@ handwritten per-platform declarations declare a target with `"emit": false` —
 `--pack-check` skips their generation/freshness phase and only validates the
 packed package. Such packages must still give every code export branch a
 `types` condition (workspace `exports` point at real `.d.ts` files so the
-graph is verifiable without building). Source-published leaves
+graph is verifiable without building). Handwritten JSX component declarations
+use the consumer-facing call signature, matching generated declarations:
+
+```ts
+export declare function MaterialDropdown(props: MaterialDropdownProps): unknown
+```
+
+`UniversalComponent` describes the compiled renderer's additional context
+argument; exposing that required argument rejects ordinary JSX consumers.
+Check handwritten component types with the package's `test:packed` fixture.
+
+Source-published leaves
 (`@octane-xplat/files`, `media`, `biometrics`, `geolocation`,
 `notifications`, `secure-storage`, `sqlite`) ship no declarations at all —
 their `exports` resolve `.ts` sources, which a plain bundler-mode

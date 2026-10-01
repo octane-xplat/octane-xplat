@@ -55,20 +55,20 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
 	}
 
 	if (Application.android) {
-		const nativeWindow = Application.android.foregroundActivity?.window;
+		const nativeWindow = Application.android.foregroundActivity?.getWindow();
 		if (!nativeWindow) { return () => {}; }
 		const params = (globalThis as any).android?.view?.WindowManager?.LayoutParams;
 		if (!params) { return () => {}; }
 		// adjustResize resizes the RootLayout for us — an extra offset would
 		// double-lift the host.
-		if ((nativeWindow.attributes.softInputMode & params.SOFT_INPUT_MASK_ADJUST) === params.SOFT_INPUT_ADJUST_RESIZE) {
+		if ((nativeWindow.getAttributes().softInputMode & params.SOFT_INPUT_MASK_ADJUST) === params.SOFT_INPUT_ADJUST_RESIZE) {
 			return () => {};
 		}
 
 		const ViewCompat = (globalThis as any).androidx?.core?.view?.ViewCompat;
 		const WindowInsetsCompat = (globalThis as any).androidx?.core?.view?.WindowInsetsCompat;
 		if (!ViewCompat || !WindowInsetsCompat) { return () => {}; }
-		const decorView = nativeWindow.decorView;
+		const decorView = nativeWindow.getDecorView();
 		const listener = new ViewCompat.OnApplyWindowInsetsListener({
 			onApplyWindowInsets: (v: any, insets: any) => {
 				const ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;

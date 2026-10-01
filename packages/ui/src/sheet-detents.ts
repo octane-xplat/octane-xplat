@@ -1,4 +1,4 @@
-import { FlexboxLayout, Screen } from '@nativescript/core'
+import { FlexboxLayout, Screen, type View } from '@nativescript/core'
 import { detentOffset, normalizeDetents, snapDetentIndex } from './sheet-snap'
 
 const SNAP_MS = 200
@@ -50,7 +50,9 @@ export function attachSheetDetents(
 	grabber.verticalAlignment = 'top'
 	const grip = new FlexboxLayout()
 	grip.className = 'vx-sheet-grip'
-	grabber.addChild(grip)
+	// FlexboxLayout is a View at runtime; NativeScript's generated symbol
+	// setter index signatures make its Android declaration incompatible.
+	grabber.addChild(grip as unknown as View)
 	host.addChild(grabber)
 
 	let dragging = false

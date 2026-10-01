@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export type MaterialDatePickerVariant = 'picker' | 'input'
 
 export type MaterialDatePickerComponents = 'date' | 'hourAndMinute' | 'dateAndTime'
@@ -60,4 +58,4 @@ export interface MaterialDatePickerProps {
 	onDateSelected?: (date: Date | null) => void
 }
 
-export declare const MaterialDatePicker: UniversalComponent<MaterialDatePickerProps>
+export declare function MaterialDatePicker(props: MaterialDatePickerProps): unknown

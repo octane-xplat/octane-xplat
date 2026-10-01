@@ -1,5 +1,3 @@
-import type { UniversalComponent } from 'octane/universal'
-
 export interface AppKitContextMenuItem {
 	id: string
 	title: string
@@ -18,4 +16,4 @@ export interface AppKitContextMenuProps {
 	accessibilityLabel?: string
 }
 
-export declare const AppKitContextMenu: UniversalComponent<AppKitContextMenuProps>
+export declare function AppKitContextMenu(props: AppKitContextMenuProps): unknown

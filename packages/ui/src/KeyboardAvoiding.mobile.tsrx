@@ -32,10 +32,10 @@ function useKeyboardInset() {
 
 function useAndroidResize() {
 	useEffect(() => {
-		const nativeWindow = Application.android?.foregroundActivity?.window;
+		const nativeWindow = Application.android?.foregroundActivity?.getWindow();
 		if (!nativeWindow) return;
 		const params = android.view.WindowManager.LayoutParams;
-		const previous = nativeWindow.attributes.softInputMode;
+		const previous = nativeWindow.getAttributes().softInputMode;
 		const adjusted = (previous & ~params.SOFT_INPUT_MASK_ADJUST) | params.SOFT_INPUT_ADJUST_RESIZE;
 		nativeWindow.setSoftInputMode(adjusted);
 		return () => nativeWindow.setSoftInputMode(previous);
