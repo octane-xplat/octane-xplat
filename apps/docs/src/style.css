@@ -826,6 +826,16 @@ body {
 .orbit-pos:nth-child(7) .orbit-badge { animation-delay: -25.8s; }
 .orbit-pos:nth-child(8) .orbit-badge { animation-delay: -30.3s; }
 
+/* random tilt: each badge rocks ±--tilt on its own period */
+.orbit-pos:nth-child(1) .orbit-tilt { --tilt: 3.8deg; animation: orbit-tilt 8.7s ease-in-out -3.3s infinite; }
+.orbit-pos:nth-child(2) .orbit-tilt { --tilt: 2.4deg; animation: orbit-tilt 7.1s ease-in-out -6.2s infinite; }
+.orbit-pos:nth-child(3) .orbit-tilt { --tilt: 1.7deg; animation: orbit-tilt 7.3s ease-in-out -5.9s infinite; }
+.orbit-pos:nth-child(4) .orbit-tilt { --tilt: 2.2deg; animation: orbit-tilt 8.3s ease-in-out -8.2s infinite; }
+.orbit-pos:nth-child(5) .orbit-tilt { --tilt: 2.9deg; animation: orbit-tilt 5.4s ease-in-out -2.1s infinite; }
+.orbit-pos:nth-child(6) .orbit-tilt { --tilt: 3.0deg; animation: orbit-tilt 8.5s ease-in-out -2.0s infinite; }
+.orbit-pos:nth-child(7) .orbit-tilt { --tilt: 3.7deg; animation: orbit-tilt 9.0s ease-in-out -8.9s infinite; }
+.orbit-pos:nth-child(8) .orbit-tilt { --tilt: 3.4deg; animation: orbit-tilt 6.8s ease-in-out -0.7s infinite; }
+
 /* ring squashed to 65% vertically — badges trace an ellipse (ry=84.5)
    while .orbit-spin's counter-scale keeps each badge round */
 @keyframes orbit-spin {
@@ -843,9 +853,15 @@ body {
 	50% { transform: scale(1); opacity: 1; }
 }
 
+@keyframes orbit-tilt {
+	0%, 100% { transform: rotate(calc(var(--tilt, 3deg) * -1)); }
+	50% { transform: rotate(var(--tilt, 3deg)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.orbit-ring,
 	.orbit-spin,
+	.orbit-tilt,
 	.orbit-badge {
 		animation: none;
 	}

@@ -284,7 +284,7 @@ export function App() @{
 							<div className="orbit" aria-hidden="true">
 								<div className="orbit-ring">
 									{ORBIT_BADGES.map((src) => (
-										<div key={src} className="orbit-pos"><div className="orbit-spin"><img className="orbit-badge" src={src} alt="" /></div></div>
+										<div key={src} className="orbit-pos"><div className="orbit-spin"><div className="orbit-tilt"><img className="orbit-badge" src={src} alt="" /></div></div></div>
 									))}
 								</div>
 								<img className="orbit-user" src={orbitUser} alt="" />
