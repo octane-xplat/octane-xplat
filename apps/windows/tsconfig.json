@@ -59,6 +59,7 @@
 		"**/*.test.*",
 		"../../packages/**/*.test.*",
 		"../../packages/*/src/vendor",
-		"../../packages/create/template"
+		"../../packages/create/template",
+		"../../packages/lingui/tests"
 	]
 }

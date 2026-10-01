@@ -33,6 +33,7 @@
 		"../../packages/ui/src/android/**/*",
 		"**/node_modules",
 		"../../packages/*/src/vendor",
-		"../../packages/create/template"
+		"../../packages/create/template",
+		"../../packages/lingui/tests"
 	]
 }

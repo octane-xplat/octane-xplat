@@ -41,6 +41,7 @@
 		"../../packages/**/*.test.*",
 		"../../packages/*/src/vendor",
 		"../../packages/create/template",
+		"../../packages/lingui/tests",
 		"**/*.macos.*",
 		"../../packages/**/*.macos.*",
 		"../../packages/*/src/macos",
