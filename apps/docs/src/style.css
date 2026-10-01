@@ -830,8 +830,8 @@ body {
 
 .h1 {
 	font-family: 'Onest', 'Outfit', system-ui, sans-serif;
-	font-size: 30px;
-	font-weight: 500;
+	font-size: 33px;
+	font-weight: 600;
 	letter-spacing: 0.001em;
 	line-height: 1.27;
 	margin-bottom: 18px;
@@ -1335,7 +1335,7 @@ body {
 	}
 
 	.h1 {
-		font-size: 24px;
+		font-size: 27px;
 	}
 
 	.doc > .h1 + .quote .lede-content {
