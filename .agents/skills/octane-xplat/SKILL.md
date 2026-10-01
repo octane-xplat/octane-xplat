@@ -61,48 +61,23 @@ iOS/Android differences, OS-specific suffixes, and the unsuffixed native default
 While using Octane Xplat in a consumer app, record meaningful mismatches that
 block the task, cause rework, require a workaround, or cost investigation.
 Capture what you expected and why before investigating further; keep the
-observed result and evidence separate from later diagnosis. Record one row
+observed result and evidence separate from later diagnosis. Record one report
 per distinct observation without deduplicating other agents' reports. A
 confirmed framework bug is not required.
 
-Use the shared framework Silo table `feedback_observations`. Its observation
-fields match `xplat feedback`: `goal`, `expected`, `expectation_basis`,
-`actual`, `target`, and `impact`; `evidence` and `workaround` are optional.
+Use the observation shape from `xplat feedback`: `goal`, `expected`,
+`expectation_basis`, `actual`, `target`, and `impact`; `evidence` and
+`workaround` are optional.
 Targets are `web`, `ios`, `android`, `macos`, `linux`, `windows`, or
 `unknown`; impacts are `blocked`, `rework`, `investigation`, or `surprise`.
-Add `framework_ref` and `task_ref` when known; these are local context, not
-part of the public report.
-
-Before writing, run `silo context`. The shared inbox belongs to the Git
-identity `github.com/octane-xplat/octane-xplat`; a consumer app's default
-Silo usually has a different identity. If the app checkout already has a Git
-remote pointing to the framework repo, select it with `silo switch <remote>`
-and verify the identity before writing. Remember the prior Silo selection and
-restore it afterward. Do not use `--move` or add a Git remote just to report
-feedback. If the shared identity or table is unavailable, say so in the task
-handoff rather than creating an app-local copy or claiming the report was
-centrally recorded.
-
-```sh
-silo row add feedback_observations <<'JSON'
-{
-  "goal": "Share a counter between two routed screens",
-  "expected": "Both screens would show the updated count",
-  "expectation_basis": "The state-sharing documentation example",
-  "actual": "The second screen retained the previous value",
-  "target": "ios",
-  "impact": "investigation",
-  "evidence": "The second screen still showed the old count after navigation",
-  "workaround": "Read the shared signal from each consuming module"
-}
-JSON
-```
-
-Review reports with `silo query feedback-inbox`. Keep reports concise and
-omit secrets, credentials, private application data, repository URLs, and
-absolute paths. Silo capture does not submit to the feedback Worker, though
-the Silo database may have its own configured sync. Do not invoke
-`xplat feedback` unless the task explicitly authorizes external submission.
+Use that observation shape when the task or project instructions provide a
+feedback destination. Follow those instructions for local Silo routing; a
+consumer app's Silo may not be shared with the framework repository. Do not
+assume a local write is centrally visible. Keep reports concise and omit
+secrets, credentials, private application data, repository URLs, and absolute
+paths. The `xplat feedback` command submits to its configured endpoint
+immediately, so invoke it only when the task explicitly authorizes external
+submission.
 
 ## Confidence marks
 
