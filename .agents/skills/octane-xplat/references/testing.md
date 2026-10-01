@@ -18,6 +18,7 @@ Keep harness edits and catalog sweeps for broader regression coverage.
 | Unit      | `pnpm test`                                            | vitest — web config (`*.test.*` + `*.web.test.*`, DOM renderer via jsdom) then `packages/ui` `test:native` (`*.mobile.test.*`, universal runtime via the object driver) |
 | Seam lint | `node scripts/check-no-dom.mjs`                        | no DOM globals in native/shared                                                                                                                                         |
 | Web smoke | `cd apps/web && pnpm smoke`                            | build + Playwright Chromium smoke, 59 assertions; CI also runs the built bundle in Firefox and WebKit                                                                 |
+| Packed web consumer | `pnpm check:consumer --no-build --smoke web` | scaffolds and builds against packed artifacts; CI runs the starter smoke in Chromium, Firefox, and WebKit |
 | iOS       | build + install + launch → read sim log                | Check the named `[assert]` results emitted by the current harness sweep                                                                                                 |
 | Android   | build + install + launch → logcat `I JS`               | Base probes; the nested-Frame sweep is gated                                                                                                                            |
 

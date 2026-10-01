@@ -23,6 +23,7 @@
 //
 // Env:
 //   VERIFY_CONSUMER_DIR — reuse a work dir instead of a mkdtemp (kept afterwards)
+//   XPLAT_WEB_BROWSERS — comma-separated Playwright engines for --smoke web
 //   PLAYWRIGHT_REQUIRED=0 — downgrade a missing playwright install to a skip
 //
 // Usage: node scripts/verify-consumer.mjs [--no-build] [--smoke web]
@@ -117,15 +118,16 @@ function run(command, argv, cwd, env = {}) {
 }
 
 async function gate(name, timeoutMs, fn) {
+	let timeout
 	try {
 		const detail = await Promise.race([
 			fn(),
-			new Promise((_, reject) =>
-				setTimeout(
+			new Promise((_, reject) => {
+				timeout = setTimeout(
 					() => reject(new Error(`gate timed out after ${timeoutMs / 60000}m`)),
 					timeoutMs,
-				),
-			),
+				)
+			}),
 		])
 
 		record(name, true, detail ?? '')
@@ -142,6 +144,8 @@ async function gate(name, timeoutMs, fn) {
 		])
 
 		process.exit(1)
+	} finally {
+		clearTimeout(timeout)
 	}
 }
 
@@ -345,6 +349,8 @@ try {
 				},
 			)
 
+			let browser
+			let browsers
 			try {
 				await new Promise((resolve, reject) => {
 					const timer = setTimeout(
@@ -367,28 +373,53 @@ try {
 
 				const { createRequire } = await import('node:module')
 				const require = createRequire(join(repoRoot, 'apps/web/package.json'))
-				const { chromium } = require('playwright')
-				const browser = await chromium.launch()
-				const page = await browser.newPage()
-				const errors = []
-				page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`))
-				page.on('console', (m) => m.type() === 'error' && errors.push(`console.error: ${m.text()}`))
+				const playwright = require('playwright')
+				browsers = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium')
+					.split(',')
+					.map((name) => name.trim())
+					.filter(Boolean)
 
-				await page.goto(`http://localhost:${port}`, { waitUntil: 'networkidle', timeout: 30000 })
-				await page.waitForSelector('.title', { timeout: 10000 })
-				assert.equal(await page.locator('.title').innerText(), 'octane-xplat')
-				assert.equal(await page.locator('.count').innerText(), '0')
-				await page.click('.btn:has-text("+")')
-				assert.equal(await page.locator('.count').innerText(), '1')
-				assert.equal(errors.length, 0, errors.join('; '))
-				await browser.close()
+				assert.ok(browsers.length, 'XPLAT_WEB_BROWSERS selected no browser engines')
+				for (const browserName of browsers) {
+					console.log(`[verify] browser smoke (${browserName})`)
+					const browserType = playwright[browserName]
+					assert.ok(browserType, `Unsupported Playwright browser: ${browserName}`)
+					browser = await browserType.launch()
+					try {
+						const page = await browser.newPage()
+						const errors = []
+						page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`))
+						page.on(
+							'console',
+							(m) => m.type() === 'error' && errors.push(`console.error: ${m.text()}`),
+						)
+
+						await page.goto(`http://localhost:${port}`, {
+							waitUntil: 'networkidle',
+							timeout: 30000,
+						})
+
+						await page.waitForSelector('.title', { timeout: 10000 })
+						assert.equal(await page.locator('.title').innerText(), 'octane-xplat')
+						assert.equal(await page.locator('.count').innerText(), '0')
+						await page.click('.btn:has-text("+")')
+						assert.equal(await page.locator('.count').innerText(), '1')
+						assert.equal(errors.length, 0, errors.join('; '))
+					} finally {
+						await browser.close()
+						browser = undefined
+					}
+				}
 			} finally {
+				await browser?.close().catch(() => {})
 				try {
 					process.kill(-preview.pid, 'SIGTERM')
 				} catch {
 					preview.kill('SIGTERM')
 				}
 			}
+
+			return browsers.join(', ')
 		})
 	}
 

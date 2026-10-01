@@ -88,9 +88,11 @@ jobs:
       # Release-path evidence: packs every publishable package, scaffolds a
       # starter via the PACKED create bin, installs it against file: tarballs
       # (no workspace links), then lints/typechecks/builds/doctor-checks the
-      # consumer and browser-smokes its starter UI.
+      # consumer and browser-smokes its starter UI across desktop engines.
       - name: Packed consumer + starter verification
         run: pnpm check:consumer --no-build --smoke web
+        env:
+          XPLAT_WEB_BROWSERS: chromium,firefox,webkit
 
   # Slow target jobs — release evidence only. They run on main pushes (PRs get
   # the full `checks` matrix above) because `ns build` costs 20-40 min cold.
