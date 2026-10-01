@@ -92,20 +92,16 @@ body {
 	background-color: var(--doc-bg);
 }
 
-/* Vercel-style agent prompt: a compact header, faded preview, and pill toggle. */
+/* Agent prompts share the docs' surfaces, typography, and squircle controls. */
 .agent-prompt {
-	--prompt-border: #d4d4d4;
 	position: relative;
 	margin: 24px 0 36px;
-	border: 1px solid var(--prompt-border);
-	border-radius: 6px;
+	border: 1px solid var(--doc-hairline);
+	border-radius: 26px;
+	corner-shape: squircle;
 	background: var(--doc-card);
 	color: var(--doc-ink);
-	font-family: system-ui, sans-serif;
-}
-
-.dark .agent-prompt {
-	--prompt-border: #404040;
+	font: inherit;
 }
 
 .agent-prompt-header {
@@ -115,9 +111,10 @@ body {
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
-	padding: 8px 12px 8px 16px;
-	border-bottom: 1px solid var(--prompt-border);
-	border-radius: 6px 6px 0 0;
+	padding: 10px 14px 10px 18px;
+	border-bottom: 1px solid var(--doc-hairline);
+	border-radius: 26px 26px 0 0;
+	corner-shape: squircle;
 	background: var(--doc-well);
 }
 
@@ -129,11 +126,13 @@ body {
 }
 
 .agent-prompt-label {
-	font-size: 13px;
+	font-family: 'Onest', 'Outfit', system-ui, sans-serif;
+	font-size: 14px;
 	font-weight: 500;
 }
 .agent-prompt-label svg {
 	flex-shrink: 0;
+	color: var(--doc-dim);
 }
 .agent-prompt-tools {
 	flex-shrink: 0;
@@ -148,9 +147,10 @@ body {
 	height: 32px;
 	padding: 0;
 	border: 0;
-	border-radius: 6px;
+	border-radius: 12px;
+	corner-shape: squircle;
 	background: transparent;
-	color: inherit;
+	color: var(--doc-dim);
 	cursor: pointer;
 	list-style: none;
 }
@@ -160,6 +160,7 @@ body {
 }
 .agent-prompt-icon-button:hover {
 	background: var(--doc-hover);
+	color: var(--doc-ink);
 }
 .agent-prompt-icon {
 	opacity: 0;
@@ -183,11 +184,13 @@ body {
 	right: 0;
 	z-index: 2;
 	min-width: 170px;
-	padding: 4px;
-	border: 1px solid var(--prompt-border);
-	border-radius: 6px;
+	padding: 8px;
+	border: 0;
+	outline: 0.5px solid rgba(127, 127, 127, 0.3);
+	border-radius: 24px;
+	corner-shape: squircle;
 	background: var(--doc-card);
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
 }
 
 .agent-prompt-menu button,
@@ -195,13 +198,14 @@ body {
 	box-sizing: border-box;
 	display: block;
 	width: 100%;
-	padding: 8px;
+	padding: 10px 12px;
 	border: 0;
-	border-radius: 4px;
+	border-radius: 16px;
+	corner-shape: squircle;
 	background: transparent;
 	color: inherit;
 	font: inherit;
-	font-size: 13px;
+	font-size: 14px;
 	text-align: left;
 	text-decoration: none;
 	cursor: pointer;
@@ -213,18 +217,18 @@ body {
 }
 .agent-prompt-body {
 	position: relative;
-	padding: 16px 16px 20px;
+	padding: 18px 18px 24px;
 }
 .agent-prompt-text {
 	position: relative;
-	max-height: 48px;
+	max-height: 52px;
 	overflow: hidden;
 }
 .agent-prompt-text p {
 	margin: 0;
-	font-size: 14px;
-	font-weight: 400;
-	line-height: 24px;
+	font-size: 16px;
+	font-weight: 300;
+	line-height: 26px;
 	overflow-wrap: anywhere;
 }
 .agent-prompt-text:not(.is-expanded)::after {
@@ -242,15 +246,16 @@ body {
 	left: 50%;
 	bottom: 0;
 	transform: translate(-50%, 60%);
-	height: 32px;
-	padding: 0 12px;
-	border: 1px solid var(--prompt-border);
-	border-radius: 999px;
+	height: 34px;
+	padding: 0 14px;
+	border: 1px solid var(--doc-hairline);
+	border-radius: 14px;
+	corner-shape: squircle;
 	background: var(--doc-card);
 	color: inherit;
 	font: inherit;
-	font-size: 13px;
-	font-weight: 500;
+	font-size: 14px;
+	font-weight: 400;
 	white-space: nowrap;
 	cursor: pointer;
 }
