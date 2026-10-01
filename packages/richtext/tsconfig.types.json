@@ -4,7 +4,10 @@
 		"module": "esnext",
 		"moduleResolution": "bundler",
 		"target": "esnext",
-		"noEmit": true
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
+		"outDir": "types"
 	},
-	"include": ["types/**/*.d.ts"]
+	"include": ["src/types.ts", "types/index.d.ts"]
 }
