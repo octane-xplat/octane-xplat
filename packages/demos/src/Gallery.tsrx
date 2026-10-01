@@ -28,6 +28,7 @@ import { LayoutDemo } from './LayoutDemo.tsrx';
 import { RichTextDemo } from './RichTextDemo.tsrx';
 import { RichTextEditorDemo } from './RichTextEditorDemo.tsrx';
 import { TiptapProbe } from './TiptapProbe.tsrx';
+import { TiptapEditorDemo } from './TiptapEditorDemo.tsrx';
 import { Divergence } from './Divergence.tsrx';
 import { Reorder } from './Reorder.tsrx';
 import { ComponentsDemo } from './ComponentsDemo.tsrx';
@@ -60,6 +61,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'rich-text', title: 'Rich text', kind: 'proof' },
 	{ id: 'tiptap-probe', title: 'Tiptap imports', kind: 'proof' },
 	{ id: 'richtext-editor', title: 'Aztec editor', kind: 'proof' },
+	{ id: 'tiptap-editor', title: 'Tiptap facade', kind: 'proof' },
 	{ id: 'divergence', title: 'Layout edges', kind: 'proof' },
 	{ id: 'glass', title: 'Glass', kind: 'proof' },
 	{ id: 'reorder', title: 'Reorder', kind: 'proof' },
@@ -111,6 +113,7 @@ const renderLayout = () => <LayoutDemo />;
 const renderRichText = () => <RichTextDemo />;
 const renderTiptapProbe = () => <TiptapProbe />;
 const renderRichTextEditor = () => <RichTextEditorDemo />;
+const renderTiptapEditor = () => <TiptapEditorDemo />;
 const renderDivergence = () => <Divergence />;
 const renderGlass = () => <GlassDemo />;
 const renderReorder = () => <Reorder />;
@@ -155,6 +158,7 @@ export const RENDER: Record<string, () => any> = {
 	'rich-text': renderRichText,
 	'tiptap-probe': renderTiptapProbe,
 	'richtext-editor': renderRichTextEditor,
+	'tiptap-editor': renderTiptapEditor,
 	divergence: renderDivergence,
 	glass: renderGlass,
 	reorder: renderReorder,

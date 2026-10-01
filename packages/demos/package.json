@@ -24,6 +24,7 @@
 		"@octane-xplat/push": "workspace:*",
 		"@octane-xplat/richtext": "workspace:*",
 		"@octane-xplat/sheet": "workspace:*",
+		"@octane-xplat/tiptap": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octane-xplat/video": "workspace:*",
 		"@tiptap/core": "3.28.0",

@@ -975,6 +975,22 @@ const STEPS: Step[] = [
 		],
 	},
 	{
+		// iOS leaf is a stub until the Swift facade lands — the demo must
+		// still mount and report 'unsupported'.
+		id: 'richtext-editor',
+		checks: [
+			{ at: 800, run: () => assertHas('richtext ios stub', 'Rich text editing is not supported on iOS yet.') },
+			{ at: 800, run: () => assertMatch('richtext ios status', /unsupported/) },
+		],
+	},
+	{
+		id: 'tiptap-editor',
+		checks: [
+			{ at: 800, run: () => assertHas('tiptap ios stub', 'Rich text editing is not supported on iOS yet.') },
+			{ at: 800, run: () => assertMatch('tiptap ios status', /unsupported/) },
+		],
+	},
+	{
 		id: 'layout',
 		checks: [
 			{ at: 400, run: () => assertHas('demo layout', 'Layout primitives') },
@@ -1669,6 +1685,102 @@ if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
 			100,
 		)
 	}, 60_000)
+}
+
+// Android leaf probes — the catalog sweep is gated off on Android, so the
+// richtext (Aztec) and tiptap-facade proofs get explicit swap-pane visits.
+// Scheduled early: the later steps hand the app to external activities
+// (camera intent, WebView renderer) and a backgrounded process may never
+// come back on an emulator.
+if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
+	setTimeout(runAndroidLeafProbes, 30_000)
+}
+
+function runAndroidLeafProbes() {
+	stepStack = 'test'
+	selectTab('test')
+	waitFor(
+		() => {
+			const chip = findInRootLayouts('menu-richtext-editor')
+			return chip != null && chip.isLoaded !== false
+		},
+		() => {
+			navigate('demo/:id', { id: 'richtext-editor' }, { into: 'test' })
+			waitFor(
+				() => routeFor('test')?.params?.id === 'richtext-editor',
+				() => setTimeout(probeAztecLeaf, 1200),
+				80,
+			)
+		},
+		80,
+	)
+}
+
+function probeAztecLeaf() {
+	const el: any = findInRootLayouts('richtext-editor') ?? find('richtext-editor')
+	const aztec = el?.nativeView ?? el?.android
+	console.log('[assert] Android Aztec leaf mounts: ' + (aztec ? 'OK' : 'FAIL'))
+	assertMatch('richtext editor status', /ready/)
+
+	const text = aztec?.getText?.()?.toString?.() ?? ''
+	console.log(
+		'[assert] Android Aztec renders initial HTML: ' +
+			(text.includes('WordPress Aztec') && text.includes('first item') ? 'OK' : 'FAIL') +
+			' (' +
+			text.length +
+			' chars)',
+	)
+
+	if (!aztec) {
+		return
+	}
+
+	const len = aztec.getText().length()
+	aztec.setSelection(0, len)
+	const FORMAT_BOLD = (globalThis as any).org.wordpress.aztec.AztecTextFormat.FORMAT_BOLD
+	aztec.toggleFormatting(FORMAT_BOLD)
+	const styles = aztec.getAppliedStyles(0, len)
+	let bold = false
+	for (let i = 0; i < (styles?.size?.() ?? 0); i++) {
+		if (styles.get(i) === FORMAT_BOLD) {
+			bold = true
+		}
+	}
+
+	console.log('[assert] Android Aztec toggleFormatting applies bold: ' + (bold ? 'OK' : 'FAIL'))
+
+	// Aztec's undo stack only batches keyboard-driven input — neither format
+	// toggles nor programmatic edits register. Probe is informational: the
+	// sweep documents what undo covers instead of asserting a revert it
+	// cannot produce.
+	const beforeInsert = aztec.getText().length()
+	aztec.getText().insert(beforeInsert, '!')
+
+	const grew = aztec.getText().length() === beforeInsert + 1
+	console.log('[assert] Android Aztec programmatic insert edits text: ' + (grew ? 'OK' : 'FAIL'))
+
+	aztec.undo()
+	console.log(
+		'[probe] Android Aztec undo() ran; length ' +
+			aztec.getText().length() +
+			' (was ' +
+			beforeInsert +
+			' — keyboard-only history on this backend)',
+	)
+
+	navigate('demo/:id', { id: 'tiptap-editor' }, { into: 'test' })
+	waitFor(
+		() => routeFor('test')?.params?.id === 'tiptap-editor',
+		() => setTimeout(probeTiptapFacade, 3000),
+		80,
+	)
+}
+
+function probeTiptapFacade() {
+	assertMatch('tiptap facade status', /ready/)
+	const hay = viewTexts(demosPage())
+	const jsonOk = hay.some((t) => t.includes('json ok'))
+	console.log('[assert] Android tiptap facade json bridge: ' + (jsonOk ? 'OK' : 'FAIL') + dump(hay))
 }
 
 function runStep(i: number) {

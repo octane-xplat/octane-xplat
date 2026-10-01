@@ -85,5 +85,11 @@ patchedDependencies:
   # dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks —
   # same behavior where ICU exists, graceful degradation where it doesn't.
   linkifyjs@4.3.3: node_modules/.pnpm-config/@octane-xplat/patches/patches/linkifyjs@4.3.3.patch
+  # Two bundler-visible issues: useEditor.ts reads bare process.env.NODE_ENV (no node global
+  # in the harness typecheck program; also wrong outside bundled runtimes) and './Context'
+  # resolves to Context.tsrx — a self-import — under suffix-first resolution, so
+  # EditorContext/useCurrentEditor were unreachable. Guards the process read and merges the
+  # Context.ts definitions into Context.tsrx.
+  "@octanejs/tiptap@0.0.51": node_modules/.pnpm-config/@octane-xplat/patches/patches/@octanejs__tiptap@0.0.51.patch
 configDependencies:
   "@octane-xplat/patches": 0.7.1

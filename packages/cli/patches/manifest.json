@@ -79,6 +79,13 @@
       "scope": "runtime",
       "why": "linkifyjs declares /\\p{L}/u and /\\p{Emoji}/u as regex literals at module scope; NativeScript's embedded V8 builds without ICU, so the literals throw SyntaxError at parse time and poison the whole bundle (any bundled app importing @tiptap/extension-link dies on boot). Rewrites them as try/catch new RegExp builds with ASCII-range fallbacks \u2014 same behavior where ICU exists, graceful degradation where it doesn't.",
       "dropWhen": "linkifyjs ships an ICU-free-compatible build, or the leaf stops pulling @tiptap/extension-link"
+    },
+    {
+      "specifier": "@octanejs/tiptap@0.0.51",
+      "file": "@octanejs__tiptap@0.0.51.patch",
+      "scope": "toolchain",
+      "why": "Two bundler-visible issues: useEditor.ts reads bare process.env.NODE_ENV (no node global in the harness typecheck program; also wrong outside bundled runtimes) and './Context' resolves to Context.tsrx \u2014 a self-import \u2014 under suffix-first resolution, so EditorContext/useCurrentEditor were unreachable. Guards the process read and merges the Context.ts definitions into Context.tsrx.",
+      "dropWhen": "@octanejs/tiptap guards process.env and disambiguates the './Context' specifier upstream"
     }
   ]
 }
