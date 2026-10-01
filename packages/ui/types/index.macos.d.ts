@@ -75,6 +75,7 @@ export declare const Overlay: Component<P.OverlayProps>
 export declare const Popover: Component<P.PopoverProps>
 export declare const Hoverable: Component<P.HoverableProps>
 export declare const Tooltip: Component<P.TooltipProps>
+export { Markdown, MarkdownScreen } from './generated/Markdown.js'
 export declare const Sheet: Component<P.SheetProps>
 export declare const Tabs: Component<P.TabsProps>
 export declare const Screen: Component<P.ScreenProps>
