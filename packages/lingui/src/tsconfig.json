@@ -1,0 +1,5 @@
+{
+	// Package source is consumed as raw .ts (exports map → ./src/*), so
+	// consumer dev transforms resolve THIS directory's nearest tsconfig.json.
+	"extends": "../../../tsconfig.base.json"
+}

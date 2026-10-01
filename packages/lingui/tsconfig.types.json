@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
+		"outDir": "types",
+		"skipLibCheck": true,
+		"rootDir": "src"
+	},
+	"include": ["src/index.ts", "src/extractor.ts"],
+	"exclude": ["**/*.test.ts"]
+}

@@ -1,0 +1,96 @@
+{
+	"name": "@octane-xplat/lingui",
+	"version": "0.7.3",
+	"description": "Lingui localization runtime for Octane xplat \u2014 core macros, signal-free locale store, per-target locale detection",
+	"keywords": [
+		"android",
+		"cross-platform",
+		"i18n",
+		"ios",
+		"lingui",
+		"localization",
+		"nativescript",
+		"octane",
+		"web",
+		"xplat"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/lingui",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"directory": "packages/lingui"
+	},
+	"files": [
+		"dist",
+		"types",
+		"src"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./types/index.d.ts",
+			"default": "./src/index.ts"
+		},
+		"./extractor": {
+			"types": "./types/extractor.d.ts",
+			"default": "./src/extractor.ts"
+		}
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"types": "./types/index.d.ts",
+				"web": "./dist/web/index.js",
+				"native": "./dist/native/index.js",
+				"default": "./dist/native/index.js"
+			},
+			"./extractor": {
+				"types": "./types/extractor.d.ts",
+				"default": "./src/extractor.ts"
+			}
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"typegen": "tsc -p tsconfig.types.json",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"pack:check": "tsrx-typegen --pack-check",
+		"test": "node --test tests/*.test.mjs"
+	},
+	"dependencies": {
+		"@lingui/core": "6.8.0"
+	},
+	"devDependencies": {
+		"@lingui/cli": "6.8.0",
+		"@lingui/format-json": "6.8.0",
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.61",
+		"octane": "0.6.3",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@lingui/cli": ">=6.5.0 <7",
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@lingui/cli": {
+			"optional": true
+		},
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	}
+}
