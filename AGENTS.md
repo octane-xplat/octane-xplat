@@ -158,6 +158,23 @@ explicitly synchronizes it. Agents whose `silo context` resolves a different
 Git repository have a different inbox. This workflow never submits reports
 to the feedback Worker; external submission remains an explicit
 `xplat feedback` action.
+## Exploratory probes and regression tests
+
+Use [single-case probing](docs/probing.md) for platform investigations:
+`pnpm probe doctor` and `pnpm probe run <case> --target <target> --watch`.
+Prefer an isolated case over editing the harness or running a full sweep just
+to answer one question. Windows is excluded from this runner.
+
+Probes are temporary by default; keep task-specific cases in gitignored
+`research/`. The runner and `examples/probes/` are maintained tooling fixtures.
+Retain another probe only when it has an ongoing diagnostic purpose and a clear
+owner. A retained probe is not automatically regression coverage.
+
+When a probe establishes behavior we need to preserve, promote it into a
+maintained test: focused unit/component tests for logic and component behavior,
+targeted harness tests for platform integration and lifecycle behavior, and
+harness sweeps for broad cross-platform coverage. Record the targets actually
+run; handler dispatch does not prove OS input or hit-testing.
 
 ## Toolchain notes (prototype harness — verified)
 
