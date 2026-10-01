@@ -761,7 +761,7 @@ body {
 
 .orbit {
 	position: relative;
-	height: 340px;
+	height: 250px;
 	margin-top: 8px;
 	max-width: 933px;
 	padding: 0 81px;
@@ -825,17 +825,20 @@ body {
 .orbit-pos:nth-child(7) .orbit-badge { animation-delay: -25.8s; }
 .orbit-pos:nth-child(8) .orbit-badge { animation-delay: -30.3s; }
 
+/* ring squashed to 65% vertically — badges trace an ellipse (ry=84.5)
+   while .orbit-spin's counter-scale keeps each badge round */
 @keyframes orbit-spin {
-	to { transform: rotate(360deg); }
+	from { transform: scale(1, 0.65) rotate(0deg); }
+	to { transform: scale(1, 0.65) rotate(360deg); }
 }
 
 @keyframes orbit-ccw {
-	from { transform: translate(-50%, -50%) rotate(0deg); }
-	to { transform: translate(-50%, -50%) rotate(-360deg); }
+	from { transform: translate(-50%, -50%) rotate(0deg) scale(1, 1.5385); }
+	to { transform: translate(-50%, -50%) rotate(-360deg) scale(1, 1.5385); }
 }
 
 @keyframes orbit-depth {
-	0%, 100% { transform: scale(0.8); opacity: 0.65; }
+	0%, 100% { transform: scale(0.55); opacity: 0.33; }
 	50% { transform: scale(1); opacity: 1; }
 }
 
