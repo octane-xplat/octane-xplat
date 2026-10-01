@@ -8,6 +8,26 @@ import { resetDocScroll } from './scroll';
 import logoMark from './assets/logo-mark.svg';
 import wordmark from './assets/wordmark.svg';
 import constellation from './assets/constellation.svg';
+import orbitUser from './assets/orbit-user.webp';
+import orbitSafari from './assets/orbit-safari.webp';
+import orbitFirefox from './assets/orbit-firefox.webp';
+import orbitChrome from './assets/orbit-chrome.webp';
+import orbitLinux from './assets/orbit-linux.webp';
+import orbitApple from './assets/orbit-apple.webp';
+import orbitAndroid from './assets/orbit-android.webp';
+import orbitMicrosoft from './assets/orbit-microsoft.webp';
+import orbitMacos from './assets/orbit-macos.webp';
+
+const ORBIT_BADGES = [
+	orbitSafari,
+	orbitFirefox,
+	orbitChrome,
+	orbitLinux,
+	orbitApple,
+	orbitAndroid,
+	orbitMicrosoft,
+	orbitMacos,
+];
 
 const GROUPS: { key: DocPage['group']; label: string }[] = [
 	{ key: 'guides', label: 'Guides' },
@@ -248,6 +268,16 @@ export function App() @{
 				<img className="constellation" src={constellation} alt="" />
 				<ScrollView id="doc-content" className="content">
 					<View key={doc.slug} className={leaving ? 'doc-page leaving' : 'doc-page'}>
+						{doc.slug === DOCS[0].slug && (
+							<div className="orbit" aria-hidden="true">
+								<div className="orbit-ring">
+									{ORBIT_BADGES.map((src) => (
+										<div key={src} className="orbit-pos"><img className="orbit-badge" src={src} alt="" /></div>
+									))}
+								</div>
+								<img className="orbit-user" src={orbitUser} alt="" />
+							</div>
+						)}
 						<MdDoc md={doc.md} />
 						{nextDoc && (
 							<Pressable className="doc-next" onPress={() => selectDoc(nextDoc.slug)}>

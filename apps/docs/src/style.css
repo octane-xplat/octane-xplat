@@ -539,6 +539,76 @@ body {
 	opacity: 0;
 }
 
+/* ---------- orbit hero (index page) ----------
+
+   Center user mark ringed by the eight platform badges from the
+   "Website New" Sketch group. The ring rotates once per loop while
+   each badge counter-rotates to stay upright. */
+
+.orbit {
+	position: relative;
+	height: 296px;
+	margin-top: 8px;
+	pointer-events: none;
+}
+
+.orbit-user {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 74px;
+	height: 74px;
+	transform: translate(-50%, -50%);
+}
+
+.orbit-ring {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 0;
+	height: 0;
+	animation: orbit-spin 36s linear infinite;
+}
+
+.orbit-pos {
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+/* badge centers relative to the user mark, lifted from the design */
+.orbit-pos:nth-child(1) { transform: translate(-23.5px, -103.5px); }  /* safari */
+.orbit-pos:nth-child(2) { transform: translate(72.5px, -103.5px); }   /* firefox */
+.orbit-pos:nth-child(3) { transform: translate(142.5px, -34.5px); }   /* chrome */
+.orbit-pos:nth-child(4) { transform: translate(140.5px, 61.5px); }    /* linux */
+.orbit-pos:nth-child(5) { transform: translate(36.5px, 96.5px); }     /* apple */
+.orbit-pos:nth-child(6) { transform: translate(-67.5px, 104.5px); }   /* android */
+.orbit-pos:nth-child(7) { transform: translate(-141.5px, 19.5px); }   /* microsoft */
+.orbit-pos:nth-child(8) { transform: translate(-121.5px, -77.5px); }  /* macos */
+
+.orbit-badge {
+	display: block;
+	width: 68px;
+	height: 68px;
+	animation: orbit-ccw 36s linear infinite;
+}
+
+@keyframes orbit-spin {
+	to { transform: rotate(360deg); }
+}
+
+@keyframes orbit-ccw {
+	from { transform: translate(-50%, -50%) rotate(0deg); }
+	to { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.orbit-ring,
+	.orbit-badge {
+		animation: none;
+	}
+}
+
 .doc-next {
 	align-self: flex-end;
 	flex-direction: row;
