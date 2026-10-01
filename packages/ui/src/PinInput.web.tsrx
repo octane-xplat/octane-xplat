@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'octane';
 import type { PinInputProps, TextInputHandle } from "./props";
 import { applyEscapeProps } from "./escape-props";
+import { FieldProvider, useFieldControlProps } from './field-context';
 import { TextInput } from './TextInput.web.tsrx';
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when every cell is filled. `secure` masks each cell. */
 export function PinInput(props: PinInputProps) @{
+	const fieldProps = useFieldControlProps(props);
 	const length = props.length ?? 4;
 	const [internal, setInternal] = useState('');
 	const controlled = props.value !== undefined;
@@ -30,7 +32,7 @@ export function PinInput(props: PinInputProps) @{
 	const cellValue = (i: number) => value[i] ?? '';
 
 	const enter = (i: number, text: string) => {
-		if (props.isDisabled || props.isReadOnly || i > value.length) return;
+		if (fieldProps.isDisabled || fieldProps.isReadOnly || i > value.length) return;
 		const ch = text.slice(-1);
 		const next = ch ? (value.slice(0, i) + ch + value.slice(i + 1)).slice(0, length) : value.slice(0, i);
 		pendingFocus.current = ch && i < length - 1 ? i + 1 : null;
@@ -42,20 +44,25 @@ export function PinInput(props: PinInputProps) @{
 		}
 	};
 
-	<div ref={(e: any) => applyEscapeProps(e, props)} id={props.id} aria-label={props.label} aria-disabled={props.isDisabled || undefined} aria-readonly={props.isReadOnly || undefined} aria-busy={props.isLoading || undefined} className={['vx-pininput', props.isDisabled ? 'vx-pininput--disabled' : undefined, props.isReadOnly ? 'vx-pininput--readonly' : undefined, props.isLoading ? 'vx-pininput--loading' : undefined, props.status ? `vx-pininput--status-${props.status.type}` : undefined, props.size ? `vx-pininput--size-${props.size}` : undefined, props.className]} style={props.style} role="group">
-		{Array.from({ length }, (_, i) => (
+	<div ref={(e: any) => applyEscapeProps(e, fieldProps)} id={fieldProps.id} aria-label={fieldProps.ariaLabel} aria-labelledby={fieldProps.ariaLabelledBy} aria-describedby={fieldProps.ariaDescribedBy} aria-busy={fieldProps.isLoading || undefined} className={['vx-pininput', fieldProps.isDisabled ? 'vx-pininput--disabled' : undefined, fieldProps.isReadOnly ? 'vx-pininput--readonly' : undefined, fieldProps.isLoading ? 'vx-pininput--loading' : undefined, fieldProps.status ? `vx-pininput--status-${fieldProps.status.type}` : undefined, fieldProps.size ? `vx-pininput--size-${fieldProps.size}` : undefined, fieldProps.className]} style={fieldProps.style} role="group">
+		<FieldProvider value={null}>{Array.from({ length }, (_, i) => (
 			<TextInput
 				key={i}
+				label={`${fieldProps.fieldLabel ?? fieldProps.ariaLabel ?? 'PIN'}, digit ${i + 1}`}
 				className="vx-pininput-cell"
 				keyboardType="number"
 				secure={props.secure}
-				isDisabled={props.isDisabled}
-				isReadOnly={props.isReadOnly || i > value.length}
-				isLoading={props.isLoading}
+				isDisabled={fieldProps.isDisabled}
+				isReadOnly={fieldProps.isReadOnly || i > value.length}
+				isLoading={fieldProps.isLoading}
+				isRequired={fieldProps.isRequired}
+				isOptional={fieldProps.isOptional}
+				size={fieldProps.size}
+				status={fieldProps.status}
 				value={cellValue(i)}
 				onChange={(text: string) => enter(i, text)}
 				bind={(h: TextInputHandle) => { handles.current[i] = h; }}
 			/>
-		))}
+		))}</FieldProvider>
 	</div>
 }

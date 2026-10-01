@@ -6,6 +6,7 @@ import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';
 import { Pressable } from './Pressable.tsrx';
+import { useFieldControlProps } from './field-context';
 
 /** Controlled single-line input. Imperative writes suppress their synchronous
  *  textChange echo through text-write. `isReadOnly` defaults false: an undefined
@@ -13,7 +14,8 @@ import { Pressable } from './Pressable.tsrx';
  *  driver's skip-undefined patch covers it, the ?? stays as documentation.
  *  `text` isn't a bound prop: the leaf writes it imperatively so the
  *  Android selection survives controlled writes (see text-write). */
-export function TextInput(props: TextInputProps) @{
+export function TextInput(inputProps: TextInputProps) @{
+	const props = useFieldControlProps(inputProps);
 	const el = useRef<any>(null);
 	useEffect(() => writeText(el.current, props.value), [props.value]);
 	const isBlocked = props.isDisabled || props.isReadOnly;
@@ -37,7 +39,8 @@ export function TextInput(props: TextInputProps) @{
 			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.className)}
 			style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 			hint={props.placeholder}
-			accessibilityLabel={props.accessibilityLabel ?? props.label}
+			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+			accessibilityHint={props.accessibilityHint}
 			accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
 			secure={props.secure}
 			keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}

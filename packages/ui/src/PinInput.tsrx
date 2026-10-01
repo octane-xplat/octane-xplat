@@ -3,11 +3,13 @@ import { useEffect, useRef, useState } from 'octane';
 import type { PinInputProps, TextInputHandle } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
+import { FieldProvider, useFieldControlProps } from './field-context';
 import { TextInput } from './TextInput.tsrx';
 
 /** PinInput — a row of single-character cells that auto-advance on entry.
  *  `onComplete` fires when every cell is filled. `secure` masks each cell. */
 export function PinInput(props: PinInputProps) @{
+	const fieldProps = useFieldControlProps(props);
 	const length = props.length ?? 4;
 	const [internal, setInternal] = useState('');
 	const controlled = props.value !== undefined;
@@ -32,7 +34,7 @@ export function PinInput(props: PinInputProps) @{
 	const cellValue = (i: number) => value[i] ?? '';
 
 	const enter = (i: number, text: string) => {
-		if (props.isDisabled || props.isReadOnly || i > value.length) return;
+		if (fieldProps.isDisabled || fieldProps.isReadOnly || i > value.length) return;
 		const ch = text.slice(-1);
 		const next = ch ? (value.slice(0, i) + ch + value.slice(i + 1)).slice(0, length) : value.slice(0, i);
 		pendingFocus.current = ch && i < length - 1 ? i + 1 : null;
@@ -44,19 +46,24 @@ export function PinInput(props: PinInputProps) @{
 		}
 	};
 
-	<flexboxlayout ref={(v: any) => applyEscapeProps(v, props)} id={props.id} flexDirection="row" className={cx('vx-pininput', props.isDisabled && 'vx-pininput--disabled', props.isReadOnly && 'vx-pininput--readonly', props.isLoading && 'vx-pininput--loading', props.status && `vx-pininput--status-${props.status.type}`, props.size && `vx-pininput--size-${props.size}`, props.className)} style={props.style} accessibilityLabel={props.label} accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}>
-		@for (const i of Array.from({ length }, (_, k) => k); key i) {
+	<flexboxlayout ref={(v: any) => applyEscapeProps(v, fieldProps)} id={fieldProps.id} flexDirection="row" className={cx('vx-pininput', fieldProps.isDisabled && 'vx-pininput--disabled', fieldProps.isReadOnly && 'vx-pininput--readonly', fieldProps.isLoading && 'vx-pininput--loading', fieldProps.status && `vx-pininput--status-${fieldProps.status.type}`, fieldProps.size && `vx-pininput--size-${fieldProps.size}`, fieldProps.className)} style={fieldProps.style} accessibilityLabel={fieldProps.ariaLabel ?? fieldProps.fieldLabel} accessibilityHint={fieldProps.accessibilityHint} accessibilityState={nativeAccessibilityState({ disabled: fieldProps.isDisabled }) as any}>
+		<FieldProvider value={null}>@for (const i of Array.from({ length }, (_, k) => k); key i) {
 			<TextInput
+				label={`${fieldProps.fieldLabel ?? fieldProps.ariaLabel ?? 'PIN'}, digit ${i + 1}`}
 				className="vx-pininput-cell"
 				keyboardType="number"
 				secure={props.secure}
-				isDisabled={props.isDisabled}
-				isReadOnly={props.isReadOnly || i > value.length}
-				isLoading={props.isLoading}
+				isDisabled={fieldProps.isDisabled}
+				isReadOnly={fieldProps.isReadOnly || i > value.length}
+				isLoading={fieldProps.isLoading}
+				isRequired={fieldProps.isRequired}
+				isOptional={fieldProps.isOptional}
+				size={fieldProps.size}
+				status={fieldProps.status}
 				value={cellValue(i)}
 				onChange={(text: string) => enter(i, text)}
 				bind={(h: TextInputHandle) => { handles.current[i] = h; }}
 			/>
-		}
+		}</FieldProvider>
 	</flexboxlayout>
 }

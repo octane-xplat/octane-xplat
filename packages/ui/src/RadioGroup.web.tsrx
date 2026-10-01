@@ -1,15 +1,19 @@
 import type { RadioGroupProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
+import { useFieldControlProps } from './field-context';
 
 /** Self-drawn radio group — dot options in a column (or row with
  *  `horizontal`). Selecting an option calls `onValueChange`. */
-export function RadioGroup(props: RadioGroupProps) @{
+export function RadioGroup(inputProps: RadioGroupProps) @{
+	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		role="radiogroup"
-		aria-label={props.accessibilityLabel ?? props.label}
+		aria-label={props.ariaLabel}
+		aria-labelledby={props.ariaLabelledBy}
+		aria-describedby={props.ariaDescribedBy}
 		aria-disabled={props.isDisabled || undefined}
 		aria-readonly={props.isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}

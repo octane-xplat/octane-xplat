@@ -15,9 +15,8 @@ neutral column wrapper.
 Every component accepts `className`/`style`/`id` plus the platform escape props
 (`ios`, `android`, `web`) applied after shared props.
 
-The names in parentheses below are deprecated aliases kept for existing apps.
-The new component names retain Octane xplat's current prop and behavior
-contracts; matching Astryx names does not imply full API parity.
+Component names follow the Astryx catalog where the concepts overlap. Prop
+contracts continue to be documented here as cross-platform parity work lands.
 
 ## Layout
 
@@ -47,7 +46,11 @@ contracts; matching Astryx names does not imply full API parity.
 
 Field controls share `label`, `description`, `isDisabled`, `isReadOnly`,
 `isRequired`, `isOptional`, `size`, `status`, and `isLoading`. Labels are
-optional so controls can be composed inside `Field`; `isRequired` and
+optional on controls so they can be composed inside `Field`; `Field` renders
+the visible label and description before its child and the status message
+after it, and connects those texts to the child control. Use `inputID` when a
+specific control ID is needed for the label's `htmlFor`; otherwise the child
+uses the field's accessible label relationship. `isRequired` and
 `isOptional` are mutually exclusive. `isLoading` reports busy work without
 disabling edits by itself. `status` uses `{ type: 'warning' | 'error' |
 'success', message?: string }`. `hasClear` is available where clearing is part
@@ -72,7 +75,7 @@ of the control, including `TextInput`, `SearchInput`, and `Selector`.
 | `InputTags`                          | Tag/token entry                                  | `value`, `onValueChange`, `max`                             |
 | `InputRating`                        | Tappable 1..max rating row                       | `value`, `max`, `icon`, `onValueChange`                     |
 | `Chip`                               | Selectable/removable chip                        | `selected`, `onSelect`, `onRemove`                          |
-| `Field`, `FieldGroup`  | Labeled field wrapper / labeled field group      | `label`, `description`, `isRequired`, `isOptional`, `status` |
+| `Field`, `FieldGroup`  | Labeled field wrapper / labeled field group      | `label`, `description`, `inputID`, `isRequired`, `isOptional`, `status` |
 | `Item`                  | Settings-style row                               | `title`, `supportingText`, `leading`, `trailing`, `onPress` |
 
 ## Content

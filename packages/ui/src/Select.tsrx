@@ -5,12 +5,14 @@ import { cx } from "./cx";
 import { Pressable } from './Pressable.tsrx';
 import { Popover } from './Popover.tsrx';
 import { TextInput } from './TextInput.tsrx';
+import { FieldProvider, useFieldControlProps } from './field-context';
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
  *  `multiple` toggles options without closing and reports string[];
  *  `searchable` filters the list through a normalized TextInput — that
  *  combination is what Nuxt calls Combobox/InputMenu/SelectMenu. */
-export function Select(props: SelectProps) @{
+export function Select(inputProps: SelectProps) @{
+	const props = useFieldControlProps(inputProps);
 	const anchor = useRef<any>(null);
 	const [internalOpen, setInternalOpen] = useState(props.defaultOpen ?? false);
 	const openControlled = props.open !== undefined;
@@ -76,7 +78,8 @@ export function Select(props: SelectProps) @{
 		style={props.style}
 		disabled={props.isDisabled}
 		onPress={() => { if (!isBlocked) setOpen(!open); }}
-		accessibilityLabel={props.accessibilityLabel ?? props.label}
+	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+	accessibilityHint={props.accessibilityHint}
 		accessibilityState={{ disabled: props.isDisabled }}
 	>
 			<label className={cx('vx-select-value', !selected.length && 'vx-select-placeholder')} text={triggerText} />
@@ -92,12 +95,13 @@ export function Select(props: SelectProps) @{
 			className="vx-menu"
 		>
 			{props.searchable
-				? <TextInput
+				? <FieldProvider value={null}><TextInput
 					className="vx-select-search"
+					accessibilityLabel="Search options"
 					placeholder="Search…"
 					value={query}
 					onChange={setQuery}
-				/>
+				/></FieldProvider>
 				: null}
 			<flexboxlayout className="vx-menu-list vx-select-list">
 				{props.isLoading ? <label className="vx-select-loading" text="Loading…" /> : null}

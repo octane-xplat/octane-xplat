@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'octane';
 import { normStyle } from './layout-child.web';
 import type { TextAreaProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
+import { useFieldControlProps } from './field-context';
 
 /** Multiline input — <textarea>. `autoGrow` re-fits height to content after
  *  input and value updates via scrollHeight, capped by `maxRows` translated to a real
@@ -10,7 +11,8 @@ import { applyEscapeProps } from "./escape-props";
  *  commit that wrote `value`. Deps are explicit — tsrx infers them from the
  *  closure's reads otherwise, and `props.value` (the thing that changes the
  *  height) isn't read inside. */
-export function TextArea(props: TextAreaProps) @{
+export function TextArea(inputProps: TextAreaProps) @{
+	const props = useFieldControlProps(inputProps);
 	const el = useRef<HTMLTextAreaElement | null>(null);
 
 	const fit = () => {
@@ -52,7 +54,9 @@ export function TextArea(props: TextAreaProps) @{
 		value={props.value}
 		inputMode={props.keyboardType === 'number' ? 'numeric' : props.keyboardType === 'phone' ? 'tel' : props.keyboardType === 'default' ? 'text' : props.keyboardType}
 		enterKeyHint={props.returnKeyType}
-		aria-label={props.accessibilityLabel ?? props.label}
+	aria-label={props.ariaLabel}
+	aria-labelledby={props.ariaLabelledBy}
+	aria-describedby={props.ariaDescribedBy}
 		aria-required={props.isRequired && !props.isOptional || undefined}
 		aria-invalid={props.status?.type === 'error' || undefined}
 		aria-busy={props.isLoading || undefined}

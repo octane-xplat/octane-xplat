@@ -3,12 +3,14 @@ import type { SelectProps, SelectOption } from "./props";
 import { Pressable } from './Pressable.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
 import { TextInput } from './TextInput.web.tsrx';
+import { FieldProvider, useFieldControlProps } from './field-context';
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
  *  `multiple` toggles options without closing and reports string[];
  *  `searchable` filters the list through a normalized TextInput — that
  *  combination is what Nuxt calls Combobox/InputMenu/SelectMenu. */
-export function Select(props: SelectProps) @{
+export function Select(inputProps: SelectProps) @{
+	const props = useFieldControlProps(inputProps);
 	const anchor = useRef<any>(null);
 	const [internalOpen, setInternalOpen] = useState(props.defaultOpen ?? false);
 	const openControlled = props.open !== undefined;
@@ -81,9 +83,13 @@ export function Select(props: SelectProps) @{
 			style={props.style}
 			disabled={props.isDisabled}
 			onPress={() => { if (!isBlocked) setOpen(!open); }}
-			accessibilityLabel={props.accessibilityLabel ?? props.label}
+			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+			accessibilityHint={props.accessibilityHint}
 			accessibilityState={{ disabled: props.isDisabled }}
 			web={{
+				'aria-label': props.ariaLabel,
+				'aria-labelledby': props.ariaLabelledBy,
+				'aria-describedby': props.ariaDescribedBy,
 				'aria-readonly': props.isReadOnly || undefined,
 				'aria-busy': props.isLoading || undefined,
 				'aria-required': props.isRequired && !props.isOptional || undefined,
@@ -103,12 +109,13 @@ export function Select(props: SelectProps) @{
 			className="vx-menu"
 		>
 			{props.searchable
-				? <TextInput
+				? <FieldProvider value={null}><TextInput
 					className="vx-select-search"
+					accessibilityLabel="Search options"
 					placeholder="Search…"
 					value={query}
 					onChange={setQuery}
-				/>
+				/></FieldProvider>
 				: null}
 			<div role="listbox" aria-multiselectable={props.multiple || undefined} aria-busy={props.isLoading || undefined} className="vx-menu-list vx-select-list">
 				{props.isLoading ? <div className="vx-select-loading" role="status">Loading…</div> : null}

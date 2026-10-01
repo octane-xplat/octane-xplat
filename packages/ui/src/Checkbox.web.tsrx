@@ -1,10 +1,12 @@
 import type { CheckboxProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
+import { useFieldControlProps } from './field-context';
 
 /** Self-drawn checkbox — box + ✓ glyph, identical layout across targets.
  *  Toggles on click, Space, and Enter. The platform look (if wanted) is an
  *  app's own choice — there is no OS checkbox widget in the subpaths. */
-export function Checkbox(props: CheckboxProps) @{
+export function Checkbox(inputProps: CheckboxProps) @{
+	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const toggle = () => {
 		if (!isBlocked) props.onCheckedChange?.(!(props.checked ?? false));
@@ -20,7 +22,9 @@ export function Checkbox(props: CheckboxProps) @{
 		aria-busy={props.isLoading || undefined}
 		aria-required={props.isRequired && !props.isOptional || undefined}
 		aria-invalid={props.status?.type === 'error' || undefined}
-		aria-label={props.accessibilityLabel ?? props.label}
+		aria-label={props.ariaLabel}
+		aria-labelledby={props.ariaLabelledBy}
+		aria-describedby={props.ariaDescribedBy}
 		tabIndex={props.isDisabled ? undefined : 0}
 		className={['vx-checkbox-row', props.checked ? 'vx-checkbox--on' : undefined, props.isDisabled ? 'vx-checkbox--disabled' : undefined, props.isReadOnly ? 'vx-checkbox--readonly' : undefined, props.isLoading ? 'vx-checkbox--loading' : undefined, props.status ? `vx-checkbox--status-${props.status.type}` : undefined, props.size ? `vx-checkbox--size-${props.size}` : undefined, props.className]}
 		style={props.style}

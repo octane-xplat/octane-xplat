@@ -20,7 +20,7 @@ export function ComponentsDemo() @{
 	const [lastCtx, setLastCtx] = useState('—');
 	const [num, setNum] = useState(2);
 	const [pin, setPin] = useState('');
-	const [fruit, setFruit] = useState<string | string[]>('apple');
+	const [fruit, setFruit] = useState<string | string[] | null>('apple');
 	const [tags, setTags] = useState<string[]>(['one']);
 	const [rating, setRating] = useState(3);
 	const [checks, setChecks] = useState<string[]>(['x']);

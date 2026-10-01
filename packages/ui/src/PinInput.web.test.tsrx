@@ -37,6 +37,6 @@ it('does not relocate input from a later empty cell to the beginning', () => {
 })
 
 it('respects disabled cells and controlled updates', () => {
- const {render,inputs}=mount({value:'1234',disabled:true});expect(inputs().every(i=>i.readOnly)).toBe(true)
- render({value:'12',disabled:false});expect(inputs().map(i=>i.value)).toEqual(['1','2','','']);expect(inputs().map(i=>i.readOnly)).toEqual([false,false,false,true])
+	const {render,inputs}=mount({value:'1234',isDisabled:true});expect(inputs().every(i=>i.disabled)).toBe(true)
+	render({value:'12',isDisabled:false});expect(inputs().map(i=>i.value)).toEqual(['1','2','','']);expect(inputs().map(i=>i.readOnly)).toEqual([false,false,false,true]);expect(inputs().every(i=>!i.disabled)).toBe(true)
 })

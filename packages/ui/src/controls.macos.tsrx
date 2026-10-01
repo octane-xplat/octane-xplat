@@ -8,6 +8,7 @@ import { cx } from './cx'
 import { usePan } from './pan.tsrx'
 import { nativeAccessibilityRole } from './escape-props'
 import { useThemeScheme } from './theme/theme-scheme.macos'
+import { useFieldControlProps } from './field-context'
 
 function controlColors(dark: boolean) {
 	return dark
@@ -21,7 +22,8 @@ export function Button(props: ButtonProps) @{
 	</Pressable>
 }
 
-export function Checkbox(props: CheckboxProps) @{
+export function Checkbox(inputProps: CheckboxProps) @{
+	const props = useFieldControlProps(inputProps)
 	const checked = props.checked ?? false
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
@@ -34,7 +36,8 @@ export function Checkbox(props: CheckboxProps) @{
 		className={cx('vx-checkbox-row', checked && 'vx-checkbox--on', props.isDisabled && 'vx-checkbox--disabled', props.isReadOnly && 'vx-checkbox--readonly', props.isLoading && 'vx-checkbox--loading', props.status && `vx-checkbox--status-${props.status.type}`, props.size && `vx-checkbox--size-${props.size}`, props.className)}
 		style={{ opacity: props.isDisabled ? 0.5 : 1, ...props.style }}
 		accessibilityRole="checkbox"
-		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+		accessibilityHint={props.accessibilityHint}
 		accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
 		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(!checked)}
 	>
@@ -57,7 +60,8 @@ export function Checkbox(props: CheckboxProps) @{
 	</flexboxlayout>
 }
 
-export function Switch(props: SwitchProps) @{
+export function Switch(inputProps: SwitchProps) @{
+	const props = useFieldControlProps(inputProps)
 	const checked = props.checked ?? false
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
@@ -77,7 +81,8 @@ export function Switch(props: SwitchProps) @{
 			...props.style,
 		}}
 		accessibilityRole="switch"
-		accessibilityLabel={props.label}
+		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+		accessibilityHint={props.accessibilityHint}
 		accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
 		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(!checked)}
 	>

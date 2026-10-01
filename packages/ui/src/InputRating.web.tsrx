@@ -2,10 +2,12 @@ import { useState } from 'octane';
 import type { InputRatingProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Icon } from './Icon.web.tsrx';
+import { useFieldControlProps } from './field-context';
 
 /** InputRating — row of tappable glyphs reporting a 1..max score. `icon`
  *  names a registered glyph; the default is a ★ text glyph. */
-export function InputRating(props: InputRatingProps) @{
+export function InputRating(inputProps: InputRatingProps) @{
+	const props = useFieldControlProps(inputProps);
 	const max = props.max ?? 5;
 	const [internal, setInternal] = useState(props.defaultValue ?? 0);
 	const controlled = props.value !== undefined;
@@ -24,7 +26,9 @@ export function InputRating(props: InputRatingProps) @{
 		className={['vx-rating', props.isDisabled ? 'vx-rating--disabled' : undefined, props.isReadOnly ? 'vx-rating--readonly' : undefined, props.isLoading ? 'vx-rating--loading' : undefined, props.status ? `vx-rating--status-${props.status.type}` : undefined, props.size ? `vx-rating--size-${props.size}` : undefined, props.className]}
 		style={props.style}
 		role="radiogroup"
-		aria-label={props.accessibilityLabel ?? props.label}
+		aria-label={props.ariaLabel}
+		aria-labelledby={props.ariaLabelledBy}
+		aria-describedby={props.ariaDescribedBy}
 		aria-disabled={props.isDisabled || undefined}
 		aria-readonly={props.isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}

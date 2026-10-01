@@ -6,6 +6,7 @@ import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';
+import { useFieldControlProps } from './field-context';
 
 /** Multiline input — <textview>. TextView measures to content natively, so
  *  `autoGrow` is its default; `rows`/`maxRows` have no NS equivalent, so the
@@ -13,7 +14,8 @@ import { blurText } from './text-focus';
  *  height (iOS `font.lineHeight`, Android `getLineHeight()` px→dip — measured
  *  on `loaded`, re-fit every commit for prop/style changes). Imperative
  *  writes suppress their synchronous textChange echo through text-write. */
-export function TextArea(props: TextAreaProps) @{
+export function TextArea(inputProps: TextAreaProps) @{
+	const props = useFieldControlProps(inputProps);
 	const el = useRef<any>(null);
 	const submitOnReturn = props.returnKeyType === 'done' || props.returnKeyType === 'send';
 
@@ -52,7 +54,8 @@ export function TextArea(props: TextAreaProps) @{
 		className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)}
 		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}
 		hint={props.placeholder}
-		accessibilityLabel={props.accessibilityLabel ?? props.label}
+	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+		accessibilityHint={props.accessibilityHint}
 		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled }) as any}
 		keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
 		returnKeyType={props.returnKeyType}

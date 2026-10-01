@@ -2,9 +2,11 @@ import { useState } from 'octane';
 import type { CheckboxGroupProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Checkbox } from './Checkbox.web.tsrx';
+import { useFieldControlProps } from './field-context';
 
 /** CheckboxGroup — multi-select list of self-drawn checkboxes. */
-export function CheckboxGroup(props: CheckboxGroupProps) @{
+export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
+	const props = useFieldControlProps(inputProps);
 	const [internal, setInternal] = useState<string[]>(props.defaultValue ?? []);
 	const controlled = props.value !== undefined;
 	const selected = controlled ? props.value! : internal;
@@ -22,7 +24,9 @@ export function CheckboxGroup(props: CheckboxGroupProps) @{
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}
 		role="group"
-		aria-label={props.accessibilityLabel ?? props.label}
+		aria-label={props.ariaLabel}
+		aria-labelledby={props.ariaLabelledBy}
+		aria-describedby={props.ariaDescribedBy}
 		aria-disabled={props.isDisabled || undefined}
 		aria-readonly={isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}

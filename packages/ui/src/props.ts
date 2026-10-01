@@ -1531,6 +1531,8 @@ export interface FormFieldProps extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
+	/** ID of the single control associated with this field's label. */
+	inputID?: string
 	children?: any
 	ios?: any
 	android?: any

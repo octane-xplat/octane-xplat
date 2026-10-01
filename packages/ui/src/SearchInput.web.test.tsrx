@@ -3,7 +3,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { act, createRoot } from 'octane';
 import { SearchInput } from './SearchInput.web.tsrx';
 import { TextInput } from './TextInput.web.tsrx';
+import { PinInput } from './PinInput.web.tsrx';
 import { Select } from './Select.web.tsrx';
+import { FormField } from './FormField.web.tsrx';
 
 describe('SearchInput (web leaf)', () => {
 	it('renders the shell, default glyph, and a clear button once text is present', () => {
@@ -155,5 +157,64 @@ describe('Select field props (web leaf)', () => {
 		root.unmount();
 		el.remove();
 		vi.unstubAllGlobals();
+	});
+});
+
+describe('Field anatomy (web leaf)', () => {
+	it('associates the label, description, status, and shared states with its control', () => {
+		const el = document.createElement('div');
+		document.body.appendChild(el);
+		const root = createRoot(el);
+		act(() => root.render(
+			<FormField
+				label="Email"
+				description="Used for account updates"
+				isRequired
+				isDisabled
+				status={{ type: 'error', message: 'Enter a valid address' }}
+			>
+				<TextInput placeholder="name@example.com" />
+			</FormField>,
+		));
+
+		const input = el.querySelector('.vx-input') as HTMLInputElement;
+		const label = el.querySelector('.vx-field-label') as HTMLLabelElement;
+		const description = el.querySelector('.vx-field-description') as HTMLElement;
+		const status = el.querySelector('.vx-field-status') as HTMLElement;
+		expect(label.htmlFor).toBe(input.id);
+		expect(input.getAttribute('aria-labelledby')).toBe(label.id);
+		expect(input.getAttribute('aria-describedby')?.split(' ')).toEqual([description.id, status.id]);
+		expect(input.disabled).toBe(true);
+		expect(input.getAttribute('aria-required')).toBe('true');
+		expect(input.getAttribute('aria-invalid')).toBe('true');
+		expect(status.getAttribute('role')).toBe('alert');
+		root.unmount();
+		el.remove();
+	});
+
+	it('keeps a composite PIN field labelled once without duplicate control IDs', () => {
+		const el = document.createElement('div');
+		document.body.appendChild(el);
+		const root = createRoot(el);
+		act(() => root.render(
+			<FormField label="Security code">
+				<PinInput length={4} />
+			</FormField>,
+		));
+
+		const group = el.querySelector('.vx-pininput') as HTMLElement;
+		const label = el.querySelector('.vx-field-label') as HTMLLabelElement;
+		const cells = Array.from(el.querySelectorAll('.vx-pininput-cell')) as HTMLInputElement[];
+		expect(group.getAttribute('aria-labelledby')).toBe(label.id);
+		expect(group.id).toBeTruthy();
+		expect(cells.map((cell) => cell.getAttribute('aria-label'))).toEqual([
+			'Security code, digit 1',
+			'Security code, digit 2',
+			'Security code, digit 3',
+			'Security code, digit 4',
+		]);
+		expect(cells.every((cell) => !cell.id)).toBe(true);
+		root.unmount();
+		el.remove();
 	});
 });

@@ -17,6 +17,7 @@ import { createRequire } from 'node:module'
 import { readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { unwrapCssLayers } from './css-layers.mjs'
 
 // The toolchain modules (vite, vite-octane, the nativescript renderer)
 // belong to the CONSUMING app, not to this package — under pnpm's isolated
@@ -134,6 +135,7 @@ function pxToDip() {
 			/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g,
 			'',
 		)
+		code = unwrapCssLayers(code)
 
 		// `@import` inlining reads the target file's raw text — it never
 		// reaches this hook, so inlined css ships px units AND un-stripped

@@ -13,7 +13,7 @@ not the field's controlled write-back. `TextInput`, `TextArea`, and
 
 ```tsx
 import { useRef, useState } from 'octane'
-import { KeyboardAvoiding, Pressable, Text, TextInput } from '@octane-xplat/ui'
+import { Field, KeyboardAvoiding, Pressable, Text, TextInput } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 
 export function NameForm() {
@@ -21,23 +21,15 @@ export function NameForm() {
 	const input = useRef<TextInputHandle | null>(null)
 	return (
 		<KeyboardAvoiding>
-			<TextInput
-				label="Name"
-				value={name}
-				onChange={setName}
-				bind={(handle) => {
-					input.current = handle
-				}}
-				web={{ 'aria-label': 'Name' }}
-				ios={{ accessibilityLabel: 'Name' }}
-				android={{ accessibilityLabel: 'Name' }}
-			/>
-			<Pressable onPress={() => setName('')}>
-				<Text>Clear</Text>
-			</Pressable>
-			<Pressable onPress={() => input.current?.blur()}>
-				<Text>Done</Text>
-			</Pressable>
+			<Field label="Name" isOptional>
+				<TextInput
+					value={name}
+					onChange={setName}
+					bind={(handle) => { input.current = handle }}
+				/>
+			</Field>
+			<Pressable onPress={() => setName('')}><Text>Clear</Text></Pressable>
+			<Pressable onPress={() => input.current?.blur()}><Text>Done</Text></Pressable>
 		</KeyboardAvoiding>
 	)
 }
@@ -46,8 +38,9 @@ export function NameForm() {
 `TextInput`, `TextArea`, and `SearchInput` accept the shared field props:
 `label`, `description`, `isLabelHidden`, `isDisabled`, `isReadOnly`,
 `isRequired`, `isOptional`, `size`, `status`, and `isLoading`. Labels are
-optional for composition inside `Field`, but a standalone control needs a
-label for an accessible name. `hasClear` is opt-in on `TextInput` and defaults
+optional for composition inside `Field`; the wrapper renders the visible label,
+description, and status text, and connects them to the child control. A
+standalone control's `label` supplies its accessible name. `hasClear` is opt-in on `TextInput` and defaults
 to the existing clear behavior on `SearchInput`. `isLoading` announces busy
 work and does not disable editing. Avoid replacing the native view through the
 handle: use `value` to change its text.

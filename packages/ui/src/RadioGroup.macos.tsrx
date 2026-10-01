@@ -2,10 +2,12 @@
 import type { RadioGroupProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
+import { useFieldControlProps } from './field-context';
 
 /** Self-drawn radio group — dot options in a column (or row with
  *  `horizontal`). Selecting an option calls `onValueChange`. */
-export function RadioGroup(props: RadioGroupProps) @{
+export function RadioGroup(inputProps: RadioGroupProps) @{
+	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
@@ -13,7 +15,8 @@ export function RadioGroup(props: RadioGroupProps) @{
 		flexDirection={props.horizontal ? 'row' : 'column'}
 		className={cx('vx-radio-group', props.horizontal && 'vx-radio-group--row', props.isDisabled && 'vx-radio-group--disabled', props.isReadOnly && 'vx-radio-group--readonly', props.isLoading && 'vx-radio-group--loading', props.status && `vx-radio-group--status-${props.status.type}`, props.size && `vx-radio-group--size-${props.size}`, props.className)}
 		style={props.style}
-		accessibilityLabel={props.accessibilityLabel ?? props.label}
+		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+		accessibilityHint={props.accessibilityHint}
 		accessibilityState={{ disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
 	>
 		{props.options.map((opt: any) => {

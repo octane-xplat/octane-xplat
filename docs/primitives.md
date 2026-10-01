@@ -410,16 +410,20 @@ Replacing a filled cell keeps the remaining digits in their cells.
 
 ```tsx
 const [pin, setPin] = useState('')
-<PinInput length={4} value={pin} onValueChange={setPin} onComplete={submitPin} />
+<Field label="Security code" description="Enter all four digits" isRequired>
+	<PinInput length={4} value={pin} onValueChange={setPin} onComplete={submitPin} />
+</Field>
 ```
 
-This fragment assumes `useState` and `PinInput` are imported and the app
-supplies `submitPin`. `onComplete` receives a full-length PIN after an edit;
+This fragment assumes `useState`, `Field`, and `PinInput` are imported and the
+app supplies `submitPin`. `onComplete` receives a full-length PIN after an edit;
 it does not fire for an incomplete value or an external value update.
 The maintained [Components demo](../packages/demos/src/ComponentsDemo.tsrx)
 shows controlled entry. `secure` masks the cells, while `isDisabled` and
 `isReadOnly` prevent editing. PIN fields also accept the shared field-control
-props described in [Inputs](components.md#inputs).
+props described in [Inputs](components.md#inputs). Wrap the control in `Field`
+when it needs a visible label, description, or status message; the group uses
+that label and each cell gets a distinct accessible name.
 
 ## Grow a multiline field
 

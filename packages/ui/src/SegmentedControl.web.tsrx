@@ -1,12 +1,14 @@
 import { useState } from 'octane';
 import type { SegmentedControlProps } from './props';
 import { applyWebProps } from './platformProps.web';
+import { useFieldControlProps } from './field-context';
 
 /** Self-drawn segmented control — equal-width segments in a track, one
  *  selected (`--on`). Radiogroup semantics like RadioGroup: Space/Enter
  *  selects. `value`/`onValueChange` for controlled, `defaultValue` for
  *  uncontrolled. Same classes + geometry as the native leaf. */
-export function SegmentedControl(props: SegmentedControlProps) @{
+export function SegmentedControl(inputProps: SegmentedControlProps) @{
+	const props = useFieldControlProps(inputProps);
 	const [internal, setInternal] = useState(props.defaultValue);
 	const current = props.value ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
@@ -20,7 +22,9 @@ export function SegmentedControl(props: SegmentedControlProps) @{
 		ref={(e: any) => applyWebProps(e, props.web)}
 		id={props.id}
 		role="radiogroup"
-		aria-label={props.accessibilityLabel ?? props.label}
+		aria-label={props.ariaLabel}
+		aria-labelledby={props.ariaLabelledBy}
+		aria-describedby={props.ariaDescribedBy}
 		aria-disabled={props.isDisabled || undefined}
 		aria-readonly={props.isReadOnly || undefined}
 		aria-busy={props.isLoading || undefined}
