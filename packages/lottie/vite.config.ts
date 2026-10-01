@@ -57,7 +57,18 @@ export default defineConfig(({ mode }) => {
 					// (externals match the raw specifier). Rewrite at emit
 					// instead: native code importing the DOM entry bundles a
 					// second octane runtime. Exact match only.
-					...(native ? { paths: (id) => (id === 'octane' ? 'octane/universal/native' : id) } : {}),
+					...(native
+						? {
+								paths: (id) => {
+									if (id === 'octane') { return 'octane/universal/native' }
+									// The vendored specifier resolves to an absolute path before
+									// emit; rolldown relativizes it against the package root,
+									// producing './src/vendor/...' which misses dist/native.
+									if (id.endsWith('/src/vendor/ui-lottie/src/lottie')) { return './vendor/ui-lottie' }
+									return id
+								},
+							}
+						: {}),
 				},
 				external: [/^octane/, /^@nativescript\//, /^@nativescript-community\//, /^lottie-web/, /^\.\/vendor\/ui-lottie\/src\/lottie$/],
 			},
