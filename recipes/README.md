@@ -53,6 +53,7 @@ Workflows:
 - [Own shared temporary surfaces](shared-overlays.md)
 - [Present an octane subtree in a platform-native bottom sheet](sheet.md)
 - [Persist structured data in a local database](local-database.md)
+- [Localize an app with Lingui](localization.md)
 - [Use Bamboo CSS utilities across web and native](bamboo-css.md)
 - [Add rich text editing](rich-text-editing.md)
 

@@ -62,3 +62,13 @@ twins such as `storage`, connectivity, files, and system bars live under
    extension-resolve).
 3. If it touches a DOM global on web — fine, web leaf is DOM territory;
    the unsuffixed native implementation must stay DOM-free (check:no-dom).
+
+## Localization — `@octane-xplat/lingui`
+
+`initLingui({ catalogs, fallback, persist? })` once at startup;
+`catalogsFromGlob(import.meta.glob('../locales/*/messages', { query: '?lingui' }))`
+builds the loader map. `useLingui()` subscribes a component to locale changes
+(macro output does not re-render on its own); `setLocale(locale)` switches.
+`.tsrx` extraction needs `tsrxExtractor` from `@octane-xplat/lingui/extractor`
+in the app's `lingui.config.ts` — the default chain skips `.tsrx`. Core macros
+only; no `<Trans>`/`I18nProvider`. Guide: docs/localization.md, decision #85.
