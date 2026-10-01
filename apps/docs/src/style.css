@@ -761,7 +761,7 @@ body {
 
 .orbit {
 	position: relative;
-	height: 296px;
+	height: 340px;
 	margin-top: 8px;
 	max-width: 933px;
 	padding: 0 81px;
@@ -792,15 +792,16 @@ body {
 	top: 0;
 }
 
-/* badge centers relative to the user mark, lifted from the design */
-.orbit-pos:nth-child(1) { transform: translate(-23.5px, -103.5px); }  /* safari */
-.orbit-pos:nth-child(2) { transform: translate(72.5px, -103.5px); }   /* firefox */
-.orbit-pos:nth-child(3) { transform: translate(142.5px, -34.5px); }   /* chrome */
-.orbit-pos:nth-child(4) { transform: translate(140.5px, 61.5px); }    /* linux */
-.orbit-pos:nth-child(5) { transform: translate(36.5px, 96.5px); }     /* apple */
-.orbit-pos:nth-child(6) { transform: translate(-67.5px, 104.5px); }   /* android */
-.orbit-pos:nth-child(7) { transform: translate(-141.5px, 19.5px); }   /* microsoft */
-.orbit-pos:nth-child(8) { transform: translate(-121.5px, -77.5px); }  /* macos */
+/* badge centers on a 130px circle around the user mark, 45° apart,
+   preserving the design's clockwise order */
+.orbit-pos:nth-child(1) { transform: translate(-27px, -127.2px); }    /* safari */
+.orbit-pos:nth-child(2) { transform: translate(70.8px, -109px); }     /* firefox */
+.orbit-pos:nth-child(3) { transform: translate(127.2px, -27px); }     /* chrome */
+.orbit-pos:nth-child(4) { transform: translate(109px, 70.8px); }      /* linux */
+.orbit-pos:nth-child(5) { transform: translate(27px, 127.2px); }      /* apple */
+.orbit-pos:nth-child(6) { transform: translate(-70.8px, 109px); }     /* android */
+.orbit-pos:nth-child(7) { transform: translate(-127.2px, 27px); }     /* microsoft */
+.orbit-pos:nth-child(8) { transform: translate(-109px, -70.8px); }    /* macos */
 
 .orbit-badge {
 	display: block;
