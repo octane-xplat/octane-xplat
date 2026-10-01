@@ -21,7 +21,7 @@
 	},
 	"include": [
 		"src/references.d.ts",
-		"src/vendor/ui-svg/index.ts",
+		"src/vendor/ui-svg/src/index.ts",
 		"src/*.ts",
 		"src/*.tsrx",
 		"src/*/index.ts"

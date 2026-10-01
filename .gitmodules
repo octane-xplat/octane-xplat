@@ -2,3 +2,7 @@
 	path = packages/lottie/src/vendor/ui-lottie
 	url = https://github.com/octane-xplat/ui-lottie.git
 	branch = xplat-vendored
+[submodule "packages/ui/src/vendor/ui-svg"]
+	path = packages/ui/src/vendor/ui-svg
+	url = https://github.com/octane-xplat/ui-svg.git
+	branch = xplat-vendored

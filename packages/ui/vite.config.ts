@@ -65,8 +65,8 @@ export default defineConfig(({ mode }) => {
 							// Vendored ui-svg: the './vendor/ui-svg' specifier stays
 							// external so the consumer's per-platform build resolves
 							// index.ios.js / index.android.js itself.
-							'vendor/ui-svg/index.ios': 'src/vendor/ui-svg/index.ios.ts',
-							'vendor/ui-svg/index.android': 'src/vendor/ui-svg/index.android.ts',
+							'vendor/ui-svg/index.ios': 'src/vendor/ui-svg/src/index.ios.ts',
+							'vendor/ui-svg/index.android': 'src/vendor/ui-svg/src/index.android.ts',
 						}
 					: {
 							ui: 'src/index.web.ts',
@@ -98,7 +98,7 @@ export default defineConfig(({ mode }) => {
 					/^@nativescript\//,
 					/^@nativescript-community\//,
 					/^@nstudio\//,
-					/^\.\/vendor\/ui-svg$/,
+					/^\.\/vendor\/ui-svg\/src$/,
 				],
 			},
 		},

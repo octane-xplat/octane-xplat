@@ -1,5 +1,5 @@
 import { registerElement } from '@nativescript-community/octane'
-import { SVGView } from './vendor/ui-svg'
+import { SVGView } from './vendor/ui-svg/src'
 import type { IconGlyph } from './props'
 
 // The emitted declaration keeps the import() form: declaration emit elides

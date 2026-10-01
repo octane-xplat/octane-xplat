@@ -53,8 +53,9 @@ recipe and documentation are reconciled and any remaining gap is explicit.
 needing a NativeScript plugin ships as its own leaf package instead
 (decision #53). `octane` is the only required peer; the remaining peers
 are optional, and `ui` has zero `dependencies` — the svg plugin is
-vendored into `src/vendor/ui-svg` with its `platforms/` config carried
-on the package (#62).
+vendored as a git submodule at `src/vendor/ui-svg`
+(`octane-xplat/ui-svg` @ `xplat-vendored`) with its `platforms/` config
+carried on the package (#62).
 
 ## The exploration loop
 
@@ -146,13 +147,15 @@ experience of agents writing Octane-xplat code effectively.
   to an exact version; remove it when upstream ships its fix. esbuild is
   pinned to 0.27.7 — vite 8's peer range admits 0.28.x and the vendor bundler
   dies on the host/binary mismatch.
-- `packages/lottie/src/vendor/ui-lottie` is a **git submodule** of the fork
-  `octane-xplat/ui-lottie` (branch `xplat-vendored` = `xplat-fixes` +
-  vendoring-compat markers — ts-nocheck, self-contained tsconfig). Fresh
-  clones need `git submodule update --init` (CI checkouts carry
-  `submodules: true`). Sync fork fixes with `git submodule update --remote`
-  then commit the gitlink bump. `platforms/` (Podfile pin, gradle, java)
-  stays a copy at the package root — `ns prepare` needs it there.
+- `packages/*/src/vendor/*` dirs are **git submodules** of forks in the
+  `octane-xplat` org, each pinned to a `xplat-vendored` branch
+  (`octane-xplat/ui-lottie` = `xplat-fixes` + vendoring-compat markers;
+  `octane-xplat/ui-svg` = the reduced SVGView-only subset). Fresh clones
+  need `git submodule update --init` (CI checkouts carry
+  `submodules: true`). Sync fork changes with
+  `git submodule update --remote` then commit the gitlink bump.
+  `platforms/` artifacts (Podfile, gradle, java) stay copies at the
+  package root — `ns prepare` needs them there.
 - Workspace deps use `"workspace:*"` (pnpm auto-install-peers fetches bare `*`
   from the registry → 404).
 - `apps/mobile` needs `@valor/nativescript-websockets` — the on-device HMR

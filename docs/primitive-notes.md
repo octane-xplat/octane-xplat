@@ -138,7 +138,8 @@ code writes `<Text row={1} col={2}/>` inside a `<Grid>` identically on both
 targets.
 
 **Native SVG** (`svgview`, `SVGView` vendored from
-`@nativescript-community/ui-svg` at `src/vendor/ui-svg`, decision #62;
+`@nativescript-community/ui-svg` at `src/vendor/ui-svg` — a submodule of
+`octane-xplat/ui-svg` (`xplat-vendored`), decision #62;
 lab-verified 2026-09-26 — `icon svgview glyphs` sweep assert finds every
 `Icon` mounted as a sized SVGView on iOS sim and Android device): `Icon`
 SVG/markup glyphs and
