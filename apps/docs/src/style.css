@@ -830,8 +830,8 @@ body {
 
 .h1 {
 	font-family: 'Onest', 'Outfit', system-ui, sans-serif;
-	font-size: 30px;
-	font-weight: 500;
+	font-size: 33px;
+	font-weight: 600;
 	letter-spacing: 0.001em;
 	line-height: 1.27;
 	margin-bottom: 18px;
@@ -840,11 +840,6 @@ body {
 	-webkit-background-clip: text;
 	background-clip: text;
 	-webkit-text-fill-color: transparent;
-}
-
-#what-you-can-build-with-xplat {
-	font-size: 33px;
-	font-weight: 600;
 }
 
 /* the lede — first blockquote after the H1 is the page's purpose;
@@ -1340,10 +1335,6 @@ body {
 	}
 
 	.h1 {
-		font-size: 24px;
-	}
-
-	#what-you-can-build-with-xplat {
 		font-size: 27px;
 	}
 
