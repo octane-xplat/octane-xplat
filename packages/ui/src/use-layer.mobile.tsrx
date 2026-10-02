@@ -16,8 +16,8 @@ import { Popover } from './Popover.tsrx';
 import { applyNativeProps } from './platformProps';
 import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
 import { cx } from './cx';
-import { rootLayoutFor } from './root-layout.mobile';
-import { createOverlayLifetime } from './overlay-lifetime.mobile';
+import { rootLayoutFor } from './root-layout';
+import { createOverlayLifetime } from './overlay-lifetime';
 import { layerOffset, resolveLayerSide } from './popover-position';
 
 interface FixedSurfaceProps {
