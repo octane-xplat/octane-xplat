@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useContext, useId, useMemo, useRef, useState } from 'octane'
+import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from './cx'
+import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
@@ -39,11 +40,11 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const [datePending, setDatePending] = useState<string | null>(null)
 	const [timePending, setTimePending] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
-	const [draft, setDraft] = useState<ISODateTimeString | null | undefined>(undefined)
 	const [timeDraft, setTimeDraft] = useState<ISOTimeString | undefined>(undefined)
 
+	const lastEmitted = useRef<ISODateTimeString | undefined>(undefined)
 	const value = props.value
-	const shown: ISODateTimeString | undefined = draft === undefined ? value : (draft ?? undefined)
+	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const hasSeconds = !!props.hasSeconds
@@ -61,13 +62,24 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const timeMin = minParts.date && minParts.time && valueParts.date === minParts.date ? minParts.time : undefined
 	const timeMax = maxParts.date && maxParts.time && valueParts.date === maxParts.date ? maxParts.time : undefined
 
+	// Preserve typing on an echoed edit; external values replace the draft.
+	useEffect(() => {
+		if (value !== lastEmitted.current) {
+			setDatePending(null)
+			setTimePending(null)
+			setTimeDraft(undefined)
+		}
+
+		lastEmitted.current = undefined
+	}, [value])
+
 	const fireChange = (next: ISODateTimeString | undefined) => {
-		if (isDisabled) return
-		setDraft(next === undefined ? null : next)
+		if (isDisabled || isBusy) return
+		lastEmitted.current = next
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			Promise.resolve(props.changeAction(next)).finally(() => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
 		}
 	}
 

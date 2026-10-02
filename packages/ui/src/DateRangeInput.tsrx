@@ -2,6 +2,7 @@
 import { useRef, useImperativeHandle, useContext, useId, useState } from 'octane'
 import type { DateRange, DateRangeInputProps } from './props'
 import { cx } from './cx'
+import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon'
 import { Pressable } from './Pressable'
 import { FormField } from './FormField'
@@ -9,6 +10,7 @@ import { BottomSheet } from './BottomSheet'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { Calendar } from './Calendar'
 import { formatDateValue, resolveLocale } from './datetime'
+import { isDateRangeAllowed } from './calendar-core'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
@@ -21,22 +23,29 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
 	const [open, setOpen] = useState(false)
 	const [busy, setBusy] = useState(false)
-	const [draft, setDraft] = useState<DateRange | null | undefined>(undefined)
 
 	const value = props.value
-	const shown: DateRange | undefined = draft === undefined ? (value ?? undefined) : (draft ?? undefined)
+	const shown = value ?? undefined
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 
 	const fireChange = (next: DateRange | null) => {
-		if (isDisabled) return
-		setDraft(next)
+		if (isDisabled || isBusy || next !== null && !isDateRangeAllowed(next, props)) return
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			Promise.resolve(props.changeAction(next)).finally(() => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
 		}
 	}
+
+	const selectRange = (range: DateRange) => {
+		if (isDisabled || isBusy || !isDateRangeAllowed(range, props)) return
+		fireChange(range)
+		setOpen(false)
+	}
+
+	const isPresetDisabled = (preset: { getRange: () => DateRange }) =>
+		isDisabled || isBusy || !isDateRangeAllowed(preset.getRange(), props)
 
 	const displayText = shown ? `${formatDateValue(shown.start, 'date_long', locale)} – ${formatDateValue(shown.end, 'date_long', locale)}` : ''
 	const isSelectedPreset = (p: { getRange: () => DateRange }) => { const r = p.getRange(); return shown?.start === r.start && shown?.end === r.end }
@@ -86,13 +95,15 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				{props.presets?.length ? (
 					<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
 						<stacklayout>
-							{props.presets.map((preset) => (
+							{props.presets.map((preset, index) => (
 								<flexboxlayout
 									key={preset.label}
-									onTap={() => { fireChange(preset.getRange()); setOpen(false) }}
+									id={`${inputId}-preset-${index}`}
+									onTap={() => { if (!isPresetDisabled(preset)) selectRange(preset.getRange()) }}
 									className={cx('vx-daterangeinput-preset', isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected')}
 									accessibilityRole={"button" as any}
-									accessibilityState={{ selected: isSelectedPreset(preset) } as any}
+									isEnabled={!isPresetDisabled(preset)}
+									accessibilityState={{ selected: isSelectedPreset(preset), disabled: isPresetDisabled(preset) } as any}
 								>
 									<label text={preset.label} />
 								</flexboxlayout>
@@ -103,7 +114,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				<Calendar
 					mode="range"
 					value={shown}
-					onChange={(range: DateRange) => fireChange(range)}
+					onChange={selectRange}
 					min={props.min}
 					max={props.max}
 					dateConstraints={props.dateConstraints}

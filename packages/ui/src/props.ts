@@ -735,6 +735,8 @@ export interface DateInputProps extends FieldControlProps {
 	id?: string
 	accessibilityLabel?: string
 	accessibilityHint?: string
+	/** Parent-owned committed value. Echo accepted edits in `onChange`;
+	 *  resets and corrections replace the displayed value. */
 	value?: ISODateString
 	onChange?: (value: ISODateString | undefined) => void
 	/** Async follow-up after `onChange`; the field stays busy until it
@@ -768,6 +770,8 @@ export interface TimeInputProps extends FieldControlProps {
 	id?: string
 	accessibilityLabel?: string
 	accessibilityHint?: string
+	/** Parent-owned committed value. Echo accepted edits in `onChange`;
+	 *  resets and corrections replace the displayed value. */
 	value?: ISOTimeString
 	onChange?: (value: ISOTimeString | undefined) => void
 	changeAction?: (value: ISOTimeString | undefined) => void | Promise<void>
@@ -801,6 +805,8 @@ export interface DateTimeInputProps extends FieldControlProps {
 	id?: string
 	accessibilityLabel?: string
 	accessibilityHint?: string
+	/** Parent-owned committed value. Echo accepted edits in `onChange`;
+	 *  resets and corrections replace the displayed value. */
 	value?: ISODateTimeString
 	onChange: (value: ISODateTimeString | undefined) => void
 	changeAction?: (value: ISODateTimeString | undefined) => void | Promise<void>
@@ -846,6 +852,8 @@ export interface DateRangeInputProps extends FieldControlProps {
 	id?: string
 	accessibilityLabel?: string
 	accessibilityHint?: string
+	/** Parent-owned committed value. Echo accepted edits in `onChange`;
+	 *  resets and corrections replace the displayed value. */
 	value: DateRange | null
 	onChange: (value: DateRange | null) => void
 	changeAction?: (value: DateRange | null) => void | Promise<void>
@@ -854,7 +862,8 @@ export interface DateRangeInputProps extends FieldControlProps {
 	dateConstraints?: ReadonlyArray<(date: Date) => boolean>
 	maxRangeSpan?: number
 	minRangeSpan?: number
-	/** Quick ranges beside the calendar. */
+	/** Quick ranges beside the calendar. Invalid endpoint/span selections
+	 *  are disabled; an accepted preset closes the picker. */
 	presets?: ReadonlyArray<DateRangePreset>
 	/** @default true */
 	hasClear?: boolean

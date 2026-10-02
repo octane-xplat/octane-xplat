@@ -1,6 +1,7 @@
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from './cx'
+import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.web.tsrx'
 import { FormField } from './FormField.web.tsrx'
 import { BottomSheet } from './BottomSheet.web.tsrx'
@@ -76,11 +77,11 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [isFocused, setIsFocused] = useState(false)
 	const [busy, setBusy] = useState(false)
-	const [draft, setDraft] = useState<ISOTimeString | null | undefined>(undefined)
 	const [announcement, setAnnouncement] = useState('')
 
+	const lastEmitted = useRef<ISOTimeString | undefined>(undefined)
 	const value = props.value
-	const shown: ISOTimeString | undefined = draft === undefined ? value : (draft ?? undefined)
+	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const canClear = !!props.hasClear && shown != null && !isDisabled && !isBusy
@@ -89,18 +90,24 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const increment = props.increment ?? 1
 	const formatDisplay = props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h
 
+	// Preserve typing on an echoed edit; external values replace the draft.
+	useEffect(() => {
+		if (value !== lastEmitted.current) {
+			setPendingInput(null)
+		}
+
+		lastEmitted.current = undefined
+	}, [value])
+
 	const fireChange = (next: ISOTimeString | undefined) => {
-		setDraft(next === undefined ? null : next)
+		if (isDisabled || isBusy) return
+		lastEmitted.current = next
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			Promise.resolve(props.changeAction(next)).finally(() => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
 		}
 	}
-
-	useEffect(() => {
-		if (draft !== undefined && value === (draft ?? undefined)) setDraft(undefined)
-	}, [value])
 
 	const parsedPending = pendingInput != null && pendingInput.trim() ? parseTimeInput(pendingInput, hasSeconds) : null
 	const isPendingValid = pendingInput == null || !pendingInput.trim()

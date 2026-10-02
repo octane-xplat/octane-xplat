@@ -2,6 +2,7 @@
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from './cx'
+import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon'
 import { Pressable } from './Pressable'
 import { FormField } from './FormField'
@@ -41,10 +42,10 @@ function DateInputControl(inputProps: CoreProps) @{
 	const [open, setOpen] = useState(false)
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
-	const [draft, setDraft] = useState<ISODateString | null | undefined>(undefined)
 
+	const lastEmitted = useRef<ISODateString | undefined>(undefined)
 	const value = props.value
-	const shown: ISODateString | undefined = draft === undefined ? value : (draft ?? undefined)
+	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 
@@ -55,12 +56,22 @@ function DateInputControl(inputProps: CoreProps) @{
 
 	const formatValue = (iso: ISODateString): string => formatDateValue(iso, props.format ?? 'date_long', locale)
 
+	// Preserve typing on an echoed edit; external values replace the draft.
+	useEffect(() => {
+		if (value !== lastEmitted.current) {
+			setPendingInput(null)
+		}
+
+		lastEmitted.current = undefined
+	}, [value])
+
 	const fireChange = (next: ISODateString | undefined) => {
-		setDraft(next === undefined ? null : next)
+		if (isDisabled || isBusy) return
+		lastEmitted.current = next
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			Promise.resolve(props.changeAction(next)).finally(() => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
 		}
 	}
 

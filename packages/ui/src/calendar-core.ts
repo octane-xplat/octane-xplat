@@ -171,6 +171,28 @@ export function createDateDisabledCheck(input: CalendarConstraintsInput): (date:
 	}
 }
 
+/** Validate a complete range at every commit boundary, including presets.
+ * Bounds/predicates apply to endpoints; interior days are not constrained. */
+export function isDateRangeAllowed(range: DateRange, input: CalendarConstraintsInput): boolean {
+	const start = plainDateFromISO(range.start)
+	const end = plainDateFromISO(range.end)
+	if (!start || !end || plainDateIsAfter(start, end)) {
+		return false
+	}
+
+	const span = plainDateDiffDays(end, start) + 1
+	if (span < (input.minRangeSpan ?? 1)) {
+		return false
+	}
+
+	if (input.maxRangeSpan != null && span > input.maxRangeSpan) {
+		return false
+	}
+
+	const isDisabled = createDateDisabledCheck({ ...input, rangeAnchor: null })
+	return !isDisabled(start) && !isDisabled(end)
+}
+
 // ---------------------------------------------------------------------------
 // Range picking
 // ---------------------------------------------------------------------------

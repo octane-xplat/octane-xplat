@@ -1,6 +1,7 @@
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from './cx'
+import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.web.tsrx'
 import { FormField } from './FormField.web.tsrx'
 import { Popover } from './Popover.web.tsrx'
@@ -82,13 +83,11 @@ function DateInputControl(inputProps: CoreProps) @{
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [isFocused, setIsFocused] = useState(false)
 	const [busy, setBusy] = useState(false)
-	// Last value this control emitted while changeAction work is outstanding;
-	// the display keeps it until the controlled value catches up.
-	const [draft, setDraft] = useState<ISODateString | null | undefined>(undefined)
 	const [rejected, setRejected] = useState<string | null>(null)
 
+	const lastEmitted = useRef<ISODateString | undefined>(undefined)
 	const value = props.value
-	const shown: ISODateString | undefined = draft === undefined ? value : (draft ?? undefined)
+	const shown = value
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const canClear = !!props.hasClear && shown != null && !isDisabled && !isBusy
@@ -103,19 +102,24 @@ function DateInputControl(inputProps: CoreProps) @{
 
 	const formatValue = (iso: ISODateString): string => formatDateValue(iso, props.format ?? 'date_long', locale)
 
+	// Preserve typing on an echoed edit; external values replace the draft.
+	useEffect(() => {
+		if (value !== lastEmitted.current) {
+			setPendingInput(null)
+		}
+
+		lastEmitted.current = undefined
+	}, [value])
+
 	const fireChange = (next: ISODateString | undefined) => {
-		setDraft(next === undefined ? null : next)
+		if (isDisabled || isBusy) return
+		lastEmitted.current = next
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
-			Promise.resolve(props.changeAction(next)).finally(() => setBusy(false))
+			runDateChangeAction(() => props.changeAction!(next), () => setBusy(false))
 		}
 	}
-
-	// Once the controlled value reaches the emitted draft, drop it.
-	useEffect(() => {
-		if (draft !== undefined && value === (draft ?? undefined)) setDraft(undefined)
-	}, [value])
 
 	const parsedPending = pendingInput != null && pendingInput.trim() ? parseDateInput(pendingInput, locale) : null
 	const isPendingValid = pendingInput == null || !pendingInput.trim() ? true : parsedPending !== null && !isDateDisabled(parsedPending)

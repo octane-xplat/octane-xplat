@@ -35,6 +35,20 @@ and blur, or `FileInput.open()`. A handle lets your code call those actions.
 If you are adapting React examples, these are not DOM refs or
 `SyntheticEvent` callbacks.
 
+Committed values remain owned by the parent: update `value` in `onChange` to
+accept an edit, or leave it unchanged to reject it. A later reset or correction
+replaces the displayed value. Typed text is preserved when the parent echoes an
+edit and replaced when it supplies a different value. `changeAction` reports
+loading while an app-owned save runs; handle domain failures in that callback
+and set `status` to explain them. Settlement, including rejection, releases
+loading without keeping a separate committed value.
+
+`DateRangeInput` checks calendar commits and presets against valid ordered ISO
+endpoints, `min`/`max`, `dateConstraints`, and inclusive `minRangeSpan`/
+`maxRangeSpan`. Invalid presets are disabled. Bounds and predicates apply to
+the endpoints, not every interior day. A completed range or preset closes the
+picker; clearing emits `null`.
+
 `DateInput` and `DateTimeInput` open an adaptive calendar surface by default.
 `TimeInput` supports a typed field, popover, bottom sheet, or platform picker.
 On web, `presentation="native"` uses browser date/time inputs. On iOS and

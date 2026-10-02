@@ -19,7 +19,7 @@ picker bundled with `@octane-xplat/files`.
 ## Acceptance criteria
 
 - AC1: Date controls are exported from `@octane-xplat/ui` and `FileInput` from `@octane-xplat/files`, with the same public prop names and types on every target.
-- AC2: Date, time, date-time, and inclusive range values follow documented zone-free ISO contracts; date bounds and constraints apply on web and native surfaces.
+- AC2: Date, time, date-time, and inclusive range values follow documented zone-free ISO contracts; date bounds and constraints apply on web and native surfaces, including range presets. Parent values remain authoritative after commits, resets, corrections, and rejected saves.
 - AC3: `FileInput` supports `accept`, `isMultiple`, `maxSize`, `maxFiles`, clear/remove, and dropzone behavior where pointer drag/drop exists; its portable file reference and web `File` adaptation are documented.
 - AC4: `FileInput` opens the browser, NativeScript, or AppKit picker by default; iOS and Android multi-file selection needs no app-owned adapter.
 - AC5: Apps that need OS-authentic controls can use the iOS, Android, or macOS leaf entry. The obsolete `@octane-xplat/date-picker/web` `DateInput` contract is removed in favor of `@octane-xplat/ui`.
