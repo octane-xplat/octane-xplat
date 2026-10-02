@@ -71,10 +71,15 @@ void write
 	macos: `import { secureStorage } from '@octane-xplat/secure-storage'
 const supported: boolean = secureStorage.supported
 const value = secureStorage.impl?.get('key')
-const write = secureStorage.impl?.set('key', 'value')
+const write: Promise<boolean> | undefined = secureStorage.impl?.set('key', 'value')
+const read: Promise<string | null> | undefined = value
+const remove: Promise<boolean> | undefined = secureStorage.impl?.remove('key')
+const permission: Promise<'granted' | 'denied' | 'unsupported'> = secureStorage.ensure()
 void supported
-void value
+void read
 void write
+void remove
+void permission
 `,
 }
 
@@ -153,9 +158,15 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 						const pkg = name.startsWith('@') ? segments.slice(0, 2) : segments.slice(0, 1)
 						return existsSync(join(modules, ...pkg, 'package.json'))
 					}),
-					skipLibCheck: true,
+					skipLibCheck: target !== 'macos',
 				},
-				files: ['consumer.ts', ...Object.keys(extraFiles)],
+				files: [
+					'consumer.ts',
+					...Object.keys(extraFiles),
+					...(target === 'macos' && mode.name === 'bundler'
+						? [join(packageLink, 'src/secure-storage.macos.ts')]
+						: []),
+				],
 			},
 			null,
 			2,
@@ -213,13 +224,18 @@ try {
 					module: 'esnext',
 					moduleResolution: 'bundler',
 				},
+				...(target === 'macos'
+					? [{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' }]
+					: []),
 			]) {
 				typecheck(consumerPackage, target, mode, index)
 			}
 		}
 	}
 
-	console.log('secure-storage packed consumer: exports typecheck in Bundler mode')
+	console.log(
+		'secure-storage packed consumer: Bundler targets and strict macOS NodeNext declarations passed',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

@@ -126,6 +126,53 @@ and queue behavior have not been verified for this implementation.
 
 AppKit semantics follow Apple's [announcement notification documentation](https://developer.apple.com/documentation/appkit/nsaccessibility-swift.struct/notification/announcementrequested).
 
+## Store a session token
+
+Use `@octane-xplat/secure-storage` for secrets such as a token returned by your
+sign-in flow. A token is a private string your app sends to its server to identify
+a signed-in session. Install the leaf with `pnpm add @octane-xplat/secure-storage`.
+Use it from a setup function or event handler:
+
+```ts
+import { secureStorage } from '@octane-xplat/secure-storage'
+
+async function rememberSession(token: string): Promise<boolean> {
+    if (await secureStorage.ensure() !== 'granted' || !secureStorage.impl) return false
+    return secureStorage.impl.set('session-token', token)
+}
+
+async function restoreSession(): Promise<string | null> {
+    if (await secureStorage.ensure() !== 'granted' || !secureStorage.impl) return null
+    try {
+        return await secureStorage.impl.get('session-token')
+    } catch {
+        // Tell the user that restoring the session failed; do not log the error.
+        return null
+    }
+}
+
+async function forgetSession(): Promise<boolean> {
+    if (await secureStorage.ensure() !== 'granted' || !secureStorage.impl) return false
+    return secureStorage.impl.remove('session-token')
+}
+```
+
+Use the restored value privately in your sign-in flow. Display only a status such
+as “session restored”; never put keys, tokens, or native errors in UI or logs.
+Check the boolean returned by saving or deleting before reporting success. A
+missing item reads as `null`, including after successful deletion. Ordinary
+preferences (`storage`) are not a fallback for secrets. Plain browsers report
+unsupported; keep the session in memory or require sign-in again.
+
+On macOS AppKit, the existing [native leaf workflow](macos-native.md#prepare-the-app)
+compiles and loads this package's Keychain implementation. Keep the packaged app's
+bundle identifier stable. Development entries are scoped to the app's working
+directory and separate from packaged entries. `ensure()` reports implementation
+availability; locked Keychains or access policies can still make operations fail.
+The leaf does not open authentication prompts. See the
+[leaf's macOS contract](../../packages/secure-storage/README.md#macos-appkit) for return
+values, storage scope, and non-visual verification commands.
+
 ## Desktop webview host protocol
 
 A `.web` frontend can run in a browser or a system webview. In a desktop

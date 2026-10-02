@@ -72,6 +72,7 @@ Workflows:
 - [Edit a PIN without shifting cells](pin-entry.md)
 - [Own shared temporary surfaces](shared-overlays.md)
 - [Present an octane subtree in a platform-native bottom sheet](sheet.md)
+- [Keep a session token private](secure-storage.md)
 - [Persist structured data in a local database](local-database.md)
 - [Localize an app with Lingui](localization.md)
 - [Use Bamboo CSS utilities across web and native](bamboo-css.md)

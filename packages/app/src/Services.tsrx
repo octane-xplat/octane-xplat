@@ -42,7 +42,7 @@ export function Services() @{
 	useEffect(() => connectivity.subscribe(setConn), []);
 
 	const run = (key: string, work: () => Promise<string>) => {
-		work().then((v) => say(key, v), (e: Error) => say(key, 'error: ' + e.message));
+		work().then((v) => say(key, v), (e: Error) => say(key, key === 'sec' ? 'storage unavailable' : 'error: ' + e.message));
 	};
 
 	<View className="gap-6">
@@ -85,14 +85,17 @@ export function Services() @{
 			<HStack className="gap-3 flex-wrap items-center">
 				<Pressable className="btn btn-secondary" onPress={() => run('sec', async () => {
 					if ((await secureStorage.ensure()) !== 'granted' || !secureStorage.impl) return 'unsupported';
-					await secureStorage.impl.set('demo', 's3cret');
-					return 'stored';
+					return await secureStorage.impl.set('octane-xplat-demo', String(Date.now()) + String(Math.random())) ? 'stored' : 'write failed';
 				})}>
 					<Text>Set secret</Text>
 				</Pressable>
 				<Pressable className="btn btn-secondary" onPress={() => run('sec', async () =>
-					secureStorage.impl ? 'read: ' + (await secureStorage.impl.get('demo')) : 'unsupported')}>
+					secureStorage.impl ? ((await secureStorage.impl.get('octane-xplat-demo')) === null ? 'missing' : 'present') : 'unsupported')}>
 					<Text>Read secret</Text>
+				</Pressable>
+				<Pressable className="btn btn-secondary" onPress={() => run('sec', async () =>
+					secureStorage.impl ? (await secureStorage.impl.remove('octane-xplat-demo') ? 'removed' : 'remove failed') : 'unsupported')}>
+					<Text>Remove secret</Text>
 				</Pressable>
 				<Text className="text-sm text-muted">{echo.sec ?? '—'}</Text>
 			</HStack>
