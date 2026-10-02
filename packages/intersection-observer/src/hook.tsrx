@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useEffect, useRef, useState } from 'octane'
-import { IntersectionObserver } from './observer'
+import { IntersectionObserver as PlatformIntersectionObserver } from './observer'
 import { sameEntry } from './entries'
 import type {
 	IntersectionObserverEntry,
@@ -33,16 +33,18 @@ export function useIntersectionObserver(
 			return
 		}
 
-		const observer = new IntersectionObserver(
+		const observer = new PlatformIntersectionObserver(
 			(entries) => {
 				const latest = entries[entries.length - 1]
 				setEntry((prev: IntersectionObserverEntry | null) =>
 					sameEntry(prev, latest) ? prev : latest,
 				)
+
 				onChange.current?.(latest)
 			},
 			{ root, rootMargin: options.rootMargin, threshold: options.threshold },
 		)
+
 		observer.observe(target)
 		return () => observer.disconnect()
 	}, [target, root, options.rootMargin, threshold])
@@ -51,6 +53,7 @@ export function useIntersectionObserver(
 		(el: any) => setTarget((current: any) => (current === el ? current : el)),
 		[],
 	)
+
 	const bindRoot = useCallback(
 		(el: any) => setBoundRoot((current: any) => (current === el ? current : el)),
 		[],

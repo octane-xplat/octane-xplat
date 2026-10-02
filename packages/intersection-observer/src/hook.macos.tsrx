@@ -1,6 +1,6 @@
 /** @jsxImportSource @xplat/macos/renderer */
 import { useCallback, useEffect, useRef, useState } from 'octane'
-import { IntersectionObserver } from './observer.macos'
+import { IntersectionObserver as PlatformIntersectionObserver } from './observer.macos'
 import { sameEntry } from './entries'
 import type {
 	IntersectionObserverEntry,
@@ -31,16 +31,18 @@ export function useIntersectionObserver(
 			return
 		}
 
-		const observer = new IntersectionObserver(
+		const observer = new PlatformIntersectionObserver(
 			(entries) => {
 				const latest = entries[entries.length - 1]
 				setEntry((previous: IntersectionObserverEntry | null) =>
 					sameEntry(previous, latest) ? previous : latest,
 				)
+
 				onChange.current?.(latest)
 			},
 			{ root, rootMargin: options.rootMargin, threshold: options.threshold },
 		)
+
 		observer.observe(target)
 		return () => observer.disconnect()
 	}, [target, root, options.rootMargin, threshold])
@@ -49,6 +51,7 @@ export function useIntersectionObserver(
 		(view: any) => setTarget((current: any) => (current === view ? current : view)),
 		[],
 	)
+
 	const bindRoot = useCallback(
 		(view: any) => setBoundRoot((current: any) => (current === view ? current : view)),
 		[],

@@ -3,6 +3,7 @@
 	"ignorePatterns": [
 		"**/*.gen.*",
 		"**/vendor/**",
+		"**/pnpm-workspace.yaml",
 		"packages/**/types/generated/**",
 		"packages/*/types/types.d.ts",
 		"packages/*/types/props.d.ts",

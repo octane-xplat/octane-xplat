@@ -237,10 +237,7 @@ try {
 
 		const workspaceFile = join(appDir, 'pnpm-workspace.yaml')
 		const workspaceYaml = readFileSync(workspaceFile, 'utf8')
-		const updated = workspaceYaml.replace(
-			/\n?configDependencies:\n(\s+"[^"]+":\s*[^\n]+\n?)+/,
-			'\n',
-		)
+		const updated = workspaceYaml.replace(/\n?configDependencies:\n([ \t]+(?!#)\S[^\n]*\n?)+/, '\n')
 
 		assert.notEqual(updated, workspaceYaml, 'configDependencies rewrite found no entry')
 		writeFileSync(workspaceFile, updated)

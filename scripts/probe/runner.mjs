@@ -78,6 +78,7 @@ async function caseConfig(project, target, options) {
 		const configFactory = createMacOSConfig({
 			rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
 		})
+
 		const config =
 			typeof configFactory === 'function'
 				? await configFactory({ command: 'build', mode: 'development' })

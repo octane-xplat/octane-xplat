@@ -15,6 +15,7 @@ export declare function matchLocale(
 	supported: readonly string[],
 	fallbackLocale: string,
 ): string
+
 /**
  * Resolve the active locale: the given candidate (route param, stored
  * preference, …) or the platform's system locale, normalized onto the
@@ -34,6 +35,7 @@ export declare function defineCatalogs(next: Record<string, CatalogLoader>): voi
 export declare function catalogsFromGlob(
 	record: Record<string, CatalogLoader>,
 ): Record<string, CatalogLoader>
+
 /** Load + activate a locale, notify subscribers, and persist the choice. */
 export declare function setLocale(locale: string): Promise<void>
 /**

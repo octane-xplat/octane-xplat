@@ -38,10 +38,12 @@ export function useIntersectionObserver(
 				setEntry((prev: IntersectionObserverEntry | null) =>
 					sameEntry(prev, latest) ? prev : latest,
 				)
+
 				onChange.current?.(latest)
 			},
 			{ root, rootMargin: options.rootMargin, threshold: options.threshold },
 		)
+
 		observer.observe(target)
 		return () => observer.disconnect()
 	}, [target, root, options.rootMargin, threshold])
@@ -50,6 +52,7 @@ export function useIntersectionObserver(
 		(el: any) => setTarget((current: any) => (current === el ? current : el)),
 		[],
 	)
+
 	const bindRoot = useCallback(
 		(el: any) => setBoundRoot((current: any) => (current === el ? current : el)),
 		[],
