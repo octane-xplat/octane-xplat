@@ -55,8 +55,9 @@ floor or qualify iOS Safari and screen readers; apps must define those targets
 for their own releases. Browser APIs and device services remain feature-specific
 boundaries in [known limits](known-limits.md) and
 [optional-service qualification](optional-service-qualification.md).
-CI also runs a Chromium keyboard/focus/accessibility-tree fixture and a separate
-`@octane-xplat/sheet/web` runtime check in Chromium, Firefox, and WebKit.
+CI runs the keyboard/focus fixture in Chromium, Firefox, and WebKit; Chromium
+also inspects the accessibility tree through CDP. A separate
+`@octane-xplat/sheet/web` runtime check runs in all three engines.
 
 ## Get a result, then improve it
 

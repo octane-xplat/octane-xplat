@@ -133,6 +133,7 @@ export function TripPreview() {
 - AC3: Removing an open declaration releases its content and bindings; a pending open completion cannot revive it, and content updates do not accumulate host theme subscriptions.
 - AC4: The reader can supply data to native content without relying on presenter context and knows that web portals retain context.
 - AC5: The reader can choose the public shared component names and anatomy for modal surfaces, hover cards, media, scrolling, and toasts, including the platform-native sheet boundary and macOS implementation limits.
+- AC6: A shaded Web `Overlay` requires an accessible name; modal Web `Overlay` and `BottomSheet` contain keyboard focus, hide background actions, and restore focus to the opener after pointer, keyboard, and nested dismissal.
 
 ## Documentation
 
@@ -141,6 +142,7 @@ export function TripPreview() {
 - AC3: [Ownership and cleanup](../docs/app/primitives.md#own-temporary-surfaces); renderer lifecycle examples in `packages/ui/src/overlay-lifecycle.mobile.test.ts` cover pending opens, closes, failures, and theme subscriptions.
 - AC4: [Root boundaries](../docs/app/primitives.md#own-temporary-surfaces).
 - AC5: [Shared component catalog](../docs/app/components.md#overlays), [useLayer anchored layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), and maintained examples in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), [ModalDemo](../packages/demos/src/ModalDemo.tsrx), and [ScrollBoxDemo](../packages/demos/src/ScrollBoxDemo.tsrx).
+- AC6: [Temporary surfaces](../docs/app/primitives.md#own-temporary-surfaces), [input readiness evidence](../docs/notes/input-readiness-notes.md), and the maintained [cross-browser input fixture](../apps/web/scripts/input-readiness.mjs).
 
 Windows remains experimental: native mounting and cleanup have bounded runtime
 evidence, while gesture, dismissal, focus, and accessibility gaps remain. See

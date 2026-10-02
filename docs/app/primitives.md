@@ -1014,6 +1014,14 @@ An open animation finishing after removal cannot revive the surface.
 The maintained [Overlay demo](../../packages/demos/src/OverlayDemo.tsrx) uses the
 same conditional ownership pattern.
 
+On Web, a shaded `Overlay` is a modal dialog and requires an
+`accessibilityLabel`; `BottomSheet` uses its required `label`. Modal focus stays
+inside the surface, the background leaves keyboard and accessibility queries,
+and dismissal returns focus to the opener, including when a nested surface
+closes. The maintained browser check covers Chromium, Firefox, and WebKit;
+Chromium also checks the accessibility tree. It does not qualify iOS Safari or
+screen-reader behavior; see [input readiness evidence](input-readiness-notes.md).
+
 Native content mounts in a separate Octane root: component context does not
 cross that boundary. Pass values as props or subscribe to shared state in
 each consuming component. The framework keeps the separate host's theme

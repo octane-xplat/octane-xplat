@@ -18,7 +18,9 @@ recorded separately in Silo.
 | Native blur falls through after dismissSoftInput returns void      | Compiled handle test threw when the NativeScript-shaped view had no blur method                                                                       | Choose dismissal by method availability; clear Android editing focus after hiding the keyboard                        |
 | Disabled native Pressable can report selected instead of disabled  | Object-driver state assertion failed before the change                                                                                                | Give the actual disabled prop priority in the native accessibility mapping                                            |
 | Android keyboard inset uses physical pixels as dips                | Density-two inset test expected -250 dips and received -500                                                                                           | Convert the IME minus system-bar inset to device-independent layout units                                             |
-| Shaded web overlays leave background keyboard/AX content reachable | Compiled Sheet/Overlay focus tests failed before isolation; Chromium verifies Tab cycle and background AX exclusion after the fix                     | Own a nested modal focus scope, inert background portals, Escape dismissal and connected-trigger restoration          |
+| Shaded web overlays leave background keyboard/AX content reachable | Compiled Sheet/Overlay focus tests failed before isolation; Chromium, Firefox, and WebKit now verify focus containment and background exclusion | Own nested modal focus, inert background portals, Escape dismissal, and connected-trigger restoration                 |
+| Pointer-opened WebKit modal returns focus to the page body           | A trusted click opened a sheet, but Escape left focus on `body` instead of its connected opener                                                | Capture the recent focusable click target and restore focus after pointer activation                                    |
+| Shaded Web `Overlay` exposes an unnamed dialog                       | The generated `role="dialog"` had no accessible name                                                                                           | Require `accessibilityLabel` for shaded overlays and apply it to the dialog panel                                       |
 
 Tests are maintained in `packages/ui/src/input-readiness.web.test.tsrx`,
 `modal-focus.web.test.tsrx`, `text-input.mobile.test.ts`,
@@ -28,14 +30,14 @@ or real-IME tests.
 
 ## Completed checks
 
-- Web component regression suite: 11 tests passed, including SearchInput's existing tests.
+- Web component regression suite: 255 tests across 41 files passed on 2026-10-02.
 - Native object-driver suite: 12 tests across six files passed.
-- Chromium runtime: trusted Tab/Enter/Space, typing `hello`, replacing selection
-  [2,4] with `XY` to obtain `heXYo` with cursor 4, and a controlled reset with
-  no extra callback passed. Shared Sheet/Overlay Tab cycles, Escape and
-  trigger restoration, nested overlays, and Chromium AX-tree background
-  exclusion passed. Exiting Presence blocks focus/input and reversal restores
-  interaction. No OS IME or screen reader was exercised.
+- Playwright input readiness passed on Chromium, Firefox, and WebKit: keyboard
+  input and selection replacement, controlled writes, named Sheet/Overlay
+  dialogs, Tab containment, pointer/keyboard opener restoration, nested modal
+  restoration, background role exclusion, and Presence reversal. Chromium
+  additionally checks background exclusion in its accessibility tree. No OS
+  IME or screen reader was exercised.
 - The `@octane-xplat/sheet/web` leaf passes its maintained Playwright runtime
   check in Chromium, Firefox, and WebKit: accessible dialog name, focus entry,
   Tab wrapping, `finalFocusRef` restoration, Escape/scrim/drag dismissal,
@@ -63,7 +65,9 @@ or real-IME tests.
 
 Run the browser qualification with
 `pnpm --filter @xplat/web exec node scripts/input-readiness.mjs`.
-The runner selects an OS-assigned local port and captures no images.
+It defaults to Chromium; set `XPLAT_WEB_BROWSER=firefox` or `webkit` to select
+the other engines. The runner selects an OS-assigned local port and captures no
+images.
 Native checks use a shared per-target advisory lock; Android builds select
 Temurin JDK21. Native build success alone does not verify editing behavior. The isolated
 input probe built for both targets. The iOS app was installed/launched through

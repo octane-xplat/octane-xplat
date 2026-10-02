@@ -57,7 +57,7 @@ export function OverlayDemo() @{
 			<Text>Anchored to the button</Text>
 		</Popover>
 		@if (overlayOpen) {
-		<Overlay open={overlayOpen} shadeCover onDismiss={() => setOverlayOpen(false)}>
+		<Overlay open={overlayOpen} shadeCover accessibilityLabel="Overlay demo" onDismiss={() => setOverlayOpen(false)}>
 			<View className="overlay-demo-card">
 				<Text className="text-xl font-bold">Overlay is open</Text>
 				<Text>Tap outside or close it below.</Text>

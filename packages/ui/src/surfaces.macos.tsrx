@@ -4,7 +4,7 @@ import { cx } from './cx'
 
 export function Overlay(props: OverlayProps) @{
 	@if (props.open) {
-		<flexboxlayout flexDirection="column" className={cx('vx-overlay', props.className)} style={props.style}>
+		<flexboxlayout flexDirection="column" className={cx('vx-overlay', props.className)} style={props.style} accessibilityLabel={props.accessibilityLabel}>
 			{props.children}
 		</flexboxlayout>
 	}

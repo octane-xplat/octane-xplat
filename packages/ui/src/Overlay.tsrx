@@ -37,6 +37,7 @@ export function Overlay(props: OverlayProps) @{
 			current.unbindTheme = applyThemeClasses(current.host, cx('vx-overlay-host', props.className));
 			current.host.accessibilityLabel = props.accessibilityLabel ?? '';
 			if (props.style) Object.assign(current.host.style, props.style);
+			current.host.accessibilityLabel = props.accessibilityLabel ?? '';
 			Object.assign(current.host, isIOS ? props.ios : isAndroid ? props.android : undefined);
 			return;
 		}
@@ -49,6 +50,7 @@ export function Overlay(props: OverlayProps) @{
 		host.horizontalAlignment = 'stretch';
 		host.verticalAlignment = 'stretch';
 		if (props.style) Object.assign(host.style, props.style);
+		host.accessibilityLabel = props.accessibilityLabel ?? '';
 		Object.assign(host, isIOS ? props.ios : isAndroid ? props.android : undefined);
 		const root = createNativeScriptRoot(host);
 		const lifetime = createOverlayLifetime(rl, host, root, 'Overlay', (dismissed) => {

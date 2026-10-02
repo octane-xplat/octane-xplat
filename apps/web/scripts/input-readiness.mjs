@@ -65,6 +65,8 @@ try {
 	for (const name of ['sheet', 'overlay']) {
 		await page.locator(`#open-${name}`).click()
 		await page.waitForFunction((id) => document.activeElement?.id === id, `${name}-first`)
+		const dialogName = name === 'sheet' ? 'Input sheet' : 'Input overlay'
+		assert.equal(await page.getByRole('dialog', { name: dialogName, exact: true }).count(), 1)
 		assert.equal(await page.locator('#root').evaluate((root) => root.inert), true)
 		await page.keyboard.press('Shift+Tab')
 		assert.equal(await focused(), `${name}-last`)
@@ -165,6 +167,32 @@ try {
 	await page.waitForFunction(() => !document.querySelector('#presence-input')?.closest('[inert]'))
 	await page.locator('#presence-input').focus()
 	assert.equal(await focused(), 'presence-input')
+	await page.locator('#open-command-palette').click()
+	await page.waitForFunction(() => document.activeElement?.classList.contains('vx-cmdk-search'), null, {
+		timeout: 10000,
+	})
+
+	assert.equal(await page.getByRole('dialog', { name: 'Command palette', exact: true }).count(), 1)
+	await page.keyboard.press('Escape')
+	try {
+		await page.waitForFunction(() => document.activeElement?.id === 'open-command-palette', null, {
+			timeout: 10000,
+		})
+	} catch (error) {
+		console.error(
+			`${browserName}: CommandPalette focus restoration diagnostic`,
+			await page.evaluate(() => ({
+				activeElement: document.activeElement?.outerHTML,
+				triggerConnected: document.getElementById('open-command-palette')?.isConnected,
+				triggerInert: document.getElementById('open-command-palette')?.closest('[inert]') != null,
+				rootInert: document.getElementById('root')?.inert,
+				dialogs: [...document.querySelectorAll('[role="dialog"]')].map((dialog) => dialog.outerHTML),
+			})),
+		)
+
+		throw error
+	}
+
 	assert.deepEqual(errors, [])
 	console.log(
 		`Input readiness: ${browserName} keyboard, selection, controlled writes, modal focus/accessibility isolation, and Presence reversal passed. IME and screen readers were not exercised.`,

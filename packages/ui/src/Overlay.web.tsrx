@@ -22,7 +22,7 @@ export function Overlay(props: OverlayProps) @{
 				@if (props.shadeCover) {
 					<div className="vx-overlay-shade" onClick={props.onDismiss} />
 				}
-				<div ref={panel} role={props.shadeCover ? 'dialog' : undefined} aria-modal={props.shadeCover ? true : undefined} aria-label={props.accessibilityLabel} className="vx-overlay-content" onClick={(event: any) => event.stopPropagation()}>
+				<div ref={panel} role={props.shadeCover ? 'dialog' : undefined} aria-modal={props.shadeCover ? true : undefined} aria-label={props.shadeCover ? props.accessibilityLabel : undefined} className="vx-overlay-content" onClick={(event: any) => event.stopPropagation()}>
 					{props.children}
 				</div>
 			</div>,
