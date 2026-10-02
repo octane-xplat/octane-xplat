@@ -160,7 +160,9 @@ view. A class on one root can never reach another.
      scale (decision #38): iOS uniform via `CALayer.cornerCurve`, iOS
      non-uniform via a core patch (superellipse paths); Android ignores,
      non-Chromium web degrades to round. Circles (`border-radius` ≥ 50%)
-     stay `round` — squircle at full radius is a squircle disk, not a circle
+     stay `round` — squircle at full radius is a squircle disk, not a circle.
+     For one identical caller-tuned curve on every target, see
+     [smooth-corners](smooth-corners.md) (decision #88)
    - `spring` curve in keyframes = UIKit spring iOS vs BounceInterpolator Android
 4. Fonts: register in `App_Resources`/font plugin natively, `@font-face` on
    web; shared `font-family` tokens resolve per-platform.

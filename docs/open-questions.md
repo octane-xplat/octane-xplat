@@ -176,14 +176,14 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     — prop JSX emits `universalValue`, verified in the iOS bundle and via the
     drawer sweep assert. Universal signal reads remain in the canonical patch
     until upstream releases them.
-24. ⏳ **Squircle corners on Android.** — `cornerShape` is parsed but the
+24. ✅ **Squircle corners on Android.** — `cornerShape` is parsed but the
     Android background path (`org.nativescript.widgets.BorderDrawable`,
-    `Path.addRoundRect`) ignores it. Real support needs either a superellipse
-    path in ui-mobile-base's Java drawable (AAR rebuild — heavy) or a
-    TS-level `android.graphics.drawable.Drawable` subclass plus
-    `setClipToOutline` (path outlines need API 33+ for child clipping).
-    Parked: Android platform convention is round corners; revisit if a real
-    app wants parity.
+    `Path.addRoundRect`) ignores it. Answered by design (2026-10-02,
+    desk-source): the AAR-rebuild route is unnecessary — `@octane-xplat/smooth-corners`
+    (decision #88, [design](smooth-corners.md)) paints fill/stroke through a
+    JS `Drawable` subclass and clips children via `ViewOutlineProvider`
+    (`Outline.setPath` API 33+, `setConvexPath` API 21–32 for convex curves).
+    Lab verification queued.
 25. ✅ **Suffix-aware `.tsrx` leaf resolution under tsrx-tsc.** — Answered
     (2026-09-29, lab-experiment; updated 2026-09-30; regression fixture lives
     at `scripts/fixtures/suffix-resolution`, run `pnpm check:suffix-resolution`).
