@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { StackProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -26,7 +27,7 @@ export function Stack(props: StackProps) @{
 		...(layout.paddingInlineEnd !== undefined ? { paddingRight: layout.paddingInlineEnd } : {}),
 	};
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	@if (layout.scrollable) {
 		<scrollview

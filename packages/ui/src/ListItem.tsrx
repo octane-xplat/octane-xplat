@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import { Utils } from '@nativescript/core';
 import type { ListItemProps } from './props';
 import { cx } from './cx';
@@ -47,7 +48,7 @@ export function ListItem(props: ListItemProps) @{
 			? <label className="vx-listitem-desc" text={props.description} />
 			: props.description;
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<flexboxlayout
 		id={props.id}

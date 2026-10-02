@@ -1,4 +1,5 @@
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { IndicatorProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -9,7 +10,7 @@ import { applyWebProps } from './platformProps.web';
 export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 	const size = props.size ?? 'md';
 
-	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	@if (props.children != null) {
 		<span

@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useEffect, useRef } from 'octane';
+import { refList } from './ref-list'
 import type { ProgressBarProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole } from './escape-props';
@@ -95,7 +96,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 		};
 	}, [isIndeterminate]);
 
-	const forwardedRef = useMemo(() => [(v: any) => applyEscapeProps(v, props), props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => applyEscapeProps(v, props), props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<flexboxlayout
 		ref={forwardedRef}

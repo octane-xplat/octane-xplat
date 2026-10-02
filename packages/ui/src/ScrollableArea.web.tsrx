@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useRef } from 'octane';
+import { refList } from './ref-list'
 import type { ScrollableAreaProps } from './props';
 import type { RefreshConfig, RefreshController } from './refresh.web';
 import { applyEscapeProps } from './escape-props';
@@ -153,7 +154,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 	const { ref: contentRef, ...content } = area.getContentProps();
 	const outer = layoutChildProps(props, { ...props.style });
 
-	const forwardedRef = useMemo(() => [(el: any) => applyEscapeProps(el, props), viewportRef, props.ref], [props.ref, props.ios, props.android, props.web, viewportRef]);
+	const forwardedRef = useMemo(() => refList((el: any) => applyEscapeProps(el, props), viewportRef, props.ref), [props.ref, props.ios, props.android, props.web, viewportRef]);
 
 	<div
 		{...viewport}

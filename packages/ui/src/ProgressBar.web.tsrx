@@ -1,4 +1,5 @@
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { ProgressBarProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { Tooltip } from './Tooltip.web.tsrx';
@@ -25,7 +26,7 @@ export function ProgressBar(props: ProgressBarProps) @{
 	const variant = props.variant ?? 'accent';
 	const marks = isIndeterminate ? [] : (props.marks ?? []);
 
-	const forwardedRef = useMemo(() => [(e: any) => applyEscapeProps(e, props), props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => applyEscapeProps(e, props), props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<div
 		ref={forwardedRef}

@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo, useId } from 'octane'
+import { refList } from './ref-list'
 import type { InputGroupProps, InputGroupTextProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -12,7 +13,7 @@ export function InputGroup(props: InputGroupProps) @{
 	const groupId = useId()
 	const group = { isDisabled: props.isDisabled, size: props.size }
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<FormField
 		label={props.label}
@@ -47,7 +48,7 @@ export function InputGroup(props: InputGroupProps) @{
 }
 
 export function InputGroupText(props: InputGroupTextProps) @{
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<flexboxlayout
 		id={props.id}

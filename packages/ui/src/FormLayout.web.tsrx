@@ -1,4 +1,5 @@
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { FormLayoutProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -13,7 +14,7 @@ export function FormLayout(props: FormLayoutProps) @{
 	const direction = props.direction ?? 'vertical';
 	const value = { direction, defaultOptionality: props.defaultOptionality };
 
-	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<FormLayoutProvider value={value}>
 		<div

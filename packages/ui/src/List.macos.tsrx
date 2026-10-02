@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { ListProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -23,7 +24,7 @@ export function List(props: ListProps) @{
 					? <flexboxlayout className={cx('vx-list-marker', 'vx-list-marker--circle')}><flexboxlayout className="vx-list-marker-circle" /></flexboxlayout>
 					: null
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<ListProvider value={contextValue}>
 		<flexboxlayout

@@ -2,6 +2,7 @@ import type { StackItemProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
 import { useMemo, useRef } from 'octane';
+import { refList } from './ref-list'
 import { stackItemStyle } from './stack-layout';
 import { usePan } from './pan.web.tsrx';
 
@@ -13,7 +14,7 @@ export function StackItem(props: StackItemProps) @{
 	const el = useRef<HTMLElement | null>(null);
 	usePan(el, props.onPan);
 
-	const forwardedRef = useMemo(() => [(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web);  } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web);  } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<Tag
 		id={props.id}

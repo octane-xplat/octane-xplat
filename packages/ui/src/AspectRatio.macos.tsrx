@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { AspectRatioProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -14,7 +15,7 @@ export function AspectRatio(props: AspectRatioProps) @{
 	const ellipse = props.shape === 'ellipse'
 	const derivedHeight = bounds != null && bounds.width > 0 ? bounds.width / props.ratio : undefined
 
-	const hostRef = useMemo(() => [(view: any) => applyEscapeProps(view, props), ref, props.ref], [ref, props.ref, props.ios, props.android, props.web])
+	const hostRef = useMemo(() => refList((view: any) => applyEscapeProps(view, props), ref, props.ref), [ref, props.ref, props.ios, props.android, props.web])
 
 	<flexboxlayout
 		id={props.id}

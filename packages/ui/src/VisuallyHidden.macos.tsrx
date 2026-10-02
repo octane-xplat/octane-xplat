@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { VisuallyHiddenProps } from './props'
 import { applyEscapeProps } from './escape-props'
 
@@ -7,7 +8,7 @@ import { applyEscapeProps } from './escape-props'
  *  tree while rendering invisible (AppKit hidden views drop from
  *  VoiceOver; transparent ones stay). */
 export function VisuallyHidden(props: VisuallyHiddenProps) @{
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<flexboxlayout
 		id={props.id}

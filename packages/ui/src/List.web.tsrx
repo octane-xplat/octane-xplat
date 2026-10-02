@@ -1,4 +1,5 @@
 import { useMemo, useId } from 'octane';
+import { refList } from './ref-list'
 import type { ListProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -25,7 +26,7 @@ export function List(props: ListProps) @{
 		props.className,
 	];
 
-	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	const list = (
 		<Tag

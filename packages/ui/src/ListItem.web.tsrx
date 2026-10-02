@@ -1,4 +1,5 @@
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { ListItemProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -50,7 +51,7 @@ export function ListItem(props: ListItemProps) @{
 				? <button type="button" className="vx-listitem-hit" onClick={props.onPress} disabled={props.isDisabled || undefined} aria-label={hitLabel} tabIndex={props.isDisabled ? -1 : undefined} />
 				: null;
 
-	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<li
 		id={props.id}

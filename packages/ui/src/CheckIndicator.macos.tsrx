@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { IndicatorProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -9,7 +10,7 @@ import { applyEscapeProps } from './escape-props'
 export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 	const size = props.size ?? 'md'
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	@if (props.children != null) {
 		<flexboxlayout

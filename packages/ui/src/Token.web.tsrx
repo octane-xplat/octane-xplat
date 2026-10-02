@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'octane';
+import { refList } from './ref-list'
 import type { TokenProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Icon } from './Icon.web.tsrx';
@@ -56,7 +57,7 @@ export function Token(props: TokenProps) @{
 		}
 	};
 
-	const forwardedRef = useMemo(() => [(el: any) => { if (el) { applyEscapeProps(el, props); } rootRef.current = el; }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((el: any) => { if (el) { applyEscapeProps(el, props); } rootRef.current = el; }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	if (props.href != null) {
 		if (props.onRemove == null) {

@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'octane';
+import { refList } from './ref-list'
 import type { StackProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -14,7 +15,7 @@ export function Stack(props: StackProps) @{
 	const el = useRef<HTMLElement | null>(null);
 	usePan(el, props.onPan);
 
-	const forwardedRef = useMemo(() => [(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web);  } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web);  } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<Tag
 		id={props.id}

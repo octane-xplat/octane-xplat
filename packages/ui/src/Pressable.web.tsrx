@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useRef } from 'octane';
+import { refList } from './ref-list'
 import type { PressableProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { layoutChildProps } from './layout-child.web';
@@ -29,7 +30,7 @@ export function Pressable(props: PressableProps) @{
 		}, 500);
 	};
 
-	const forwardedRef = useMemo(() => [(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props);  } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => { el.current = e; if (e) { applyEscapeProps(e, props);  } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<div
 		ref={forwardedRef}

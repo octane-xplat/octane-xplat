@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { SectionProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -17,7 +18,7 @@ export function Section(props: SectionProps) @{
 	const pBlockStart = spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding;
 	const pBlockEnd = spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding;
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<flexboxlayout
 		id={props.id}

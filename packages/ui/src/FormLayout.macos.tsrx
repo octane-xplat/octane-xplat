@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { FormLayoutProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -13,7 +14,7 @@ export function FormLayout(props: FormLayoutProps) @{
 	const direction = props.direction ?? 'vertical'
 	const value = { direction, defaultOptionality: props.defaultOptionality }
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<FormLayoutProvider value={value}>
 		<flexboxlayout

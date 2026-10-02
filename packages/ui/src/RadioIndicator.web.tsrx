@@ -1,4 +1,5 @@
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { IndicatorProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -13,7 +14,7 @@ export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
 			? <span className={['vx-radio-dot', 'vx-ind-radio-dot', `vx-ind-radio-dot--${size}`]} />
 			: null;
 
-	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<span
 		id={props.id}

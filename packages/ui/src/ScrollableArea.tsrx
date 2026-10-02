@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useEffect, useRef } from 'octane';
+import { mergedRef } from './ref-list'
 import type { ScrollableAreaProps } from './props';
 import type { RefreshConfig, RefreshController } from './refresh';
 import { cx } from './cx';
@@ -68,10 +69,10 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 		ctl.current?.sync();
 	}, [props.refreshing]);
 
-	const forwardedRef = useMemo(() => [(v: any) => {
+	const forwardedRef = useMemo(() => mergedRef((v: any) => {
 				scroller.current = v;
 				applyEscapeProps(v, props);
-			}, props.ref], [props.ref, props.ios, props.android, props.web]);
+			}, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<gridlayout
 		ref={(v: any) => {
@@ -117,9 +118,9 @@ export function ScrollableArea(props: ScrollableAreaProps) @{
 	const horizontal = axis === 'inline';
 	const both = axis === 'both';
 
-	const forwardedRef = useMemo(() => [(v: any) => {
+	const forwardedRef = useMemo(() => mergedRef((v: any) => {
 				applyEscapeProps(v, props);
-			}, props.ref], [props.ref, props.ios, props.android, props.web]);
+			}, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	@if (axis === 'block' && (props.onRefresh != null || props.refreshing != null)) {
 		<ScrollableAreaRefreshable {...props} />

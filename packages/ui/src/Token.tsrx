@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import { Utils } from '@nativescript/core';
 import type { TokenProps } from "./props";
 import { cx } from "./cx";
@@ -72,7 +73,7 @@ export function Token(props: TokenProps) @{
 		</Pressable>
 	}
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	return <flexboxlayout
 		ref={forwardedRef}

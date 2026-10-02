@@ -1,5 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useMemo, useEffect, useRef } from 'octane';
+import { refList } from './ref-list'
 import type { FormLayoutProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -26,8 +27,8 @@ export function FormLayout(props: FormLayoutProps) @{
 		}
 	}, [props.children, direction]);
 
-	const forwardedRef = useMemo(() => [(v: any) => { host.current = v; if (v) { applyEscapeProps(v, props);  } }, props.ref], [props.ref, props.ios, props.android, props.web]);
-	const forwardedRef2 = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { host.current = v; if (v) { applyEscapeProps(v, props);  } }, props.ref), [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef2 = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<FormLayoutProvider value={value}>
 		{direction === 'horizontal' ? (

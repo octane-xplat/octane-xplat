@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane'
+import { refList } from './ref-list'
 import type { SectionProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -13,7 +14,7 @@ export function Section(props: SectionProps) @{
 	const dividers = new Set(props.dividers ?? [])
 	const padding = spacingPx(props.padding) ?? 16
 
-	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef = useMemo(() => refList((v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref), [props.ref, props.ios, props.android, props.web]);
 
 	<flexboxlayout
 		id={props.id}
