@@ -132,9 +132,9 @@ class AppDelegate extends NSObject {
 		}
 	}
 
-	windowDidResize() {
+	windowDidResize(notification) {
 		for (const listener of shared.platformServices.windowResizeListeners) {
-			listener()
+			listener(notification.object)
 		}
 	}
 
@@ -256,11 +256,16 @@ function installPlatformServices() {
 			return services.appState
 		},
 		get windowSize() {
-			const frame = services.primaryWindow?.contentView?.frame ?? { size: { width: 0, height: 0 } }
+			const window =
+				services.primaryWindow ?? app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject
+
+			const size = window?.frame?.size ??
+				window?.contentView?.frame?.size ?? { width: 0, height: 0 }
+
 			return {
-				width: frame.size.width,
-				height: frame.size.height,
-				orientation: frame.size.width >= frame.size.height ? 'landscape' : 'portrait',
+				width: Number(size.width ?? 0),
+				height: Number(size.height ?? 0),
+				orientation: Number(size.width ?? 0) >= Number(size.height ?? 0) ? 'landscape' : 'portrait',
 			}
 		},
 		readClipboard() {
@@ -285,6 +290,7 @@ function installPlatformServices() {
 					if (!nativeUrl) {
 						return 'unavailable'
 					}
+
 					items = [nativeUrl, String(title ?? url)]
 				} else if (typeof text === 'string') {
 					items = [text]
@@ -315,7 +321,11 @@ function installPlatformServices() {
 			if (!target) {
 				return false
 			}
+
 			return Boolean(NSWorkspace.sharedWorkspace.openURL(target))
+		},
+		openPath(path) {
+			return Boolean(NSWorkspace.sharedWorkspace.openURL(NSURL.fileURLWithPath(String(path))))
 		},
 		getColorScheme() {
 			const appearance = app.effectiveAppearance
@@ -697,6 +707,105 @@ export function openWindow(options = {}) {
 		}
 
 		throw error
+	}
+
+	return controller
+}
+
+/**
+ * Create a bare AppKit window for a non-Octane host view (currently the desktop
+ * WKWebView bridge). Unlike openWindow, this does not create a universal root.
+ */
+export function createHostedWindow(options = {}) {
+	if (options === null || typeof options !== 'object' || Array.isArray(options)) {
+		throw new TypeError('createHostedWindow options must be an object')
+	}
+
+	if (!shared.running) {
+		throw new Error('Cannot open a macOS window after application termination has started')
+	}
+
+	const kind = options.kind ?? 'regular'
+	if (!['regular', 'dialog'].includes(kind)) {
+		throw new RangeError(`Unsupported hosted macOS window kind: ${String(kind)}`)
+	}
+
+	const parentWindow = kind === 'dialog' ? resolveParentWindow(options.parent, kind) : null
+	const size = normalizeWindowSize(
+		options.size ?? { width: 640, height: 480 },
+		'createHostedWindow',
+	)
+
+	const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+		{ origin: { x: 0, y: 0 }, size },
+		REGULAR_STYLE,
+		2,
+		false,
+	)
+
+	nativeWindow.title = String(options.title ?? 'Octane window')
+	nativeWindow.releasedWhenClosed = false
+	nativeWindow.delegate = appDelegate()
+	nativeWindow.contentView = makeContentView(size)
+	if (parentWindow) {
+		shared.parentWindows.set(nativeWindow, parentWindow)
+	}
+
+	let resolveWindowClosed
+	const closed = new Promise((resolve) => {
+		resolveWindowClosed = resolve
+	})
+
+	let isClosed = false
+	const finalizeClose = () => {
+		if (isClosed) {
+			return
+		}
+
+		isClosed = true
+		shared.windowCloseHandlers.delete(nativeWindow)
+		shared.byNative.delete(nativeWindow)
+		shared.parentWindows.delete(nativeWindow)
+		resolveWindowClosed()
+	}
+
+	const controller = {
+		window: nativeWindow,
+		contentView: nativeWindow.contentView,
+		closed,
+		get isClosed() {
+			return isClosed
+		},
+		setTitle(title) {
+			nativeWindow.title = String(title)
+		},
+		close() {
+			if (isClosed) {
+				return
+			}
+
+			if (kind === 'dialog' && parentWindow) {
+				parentWindow.endSheet(nativeWindow)
+			} else {
+				nativeWindow.close()
+			}
+
+			finalizeClose()
+		},
+		__didClose() {
+			finalizeClose()
+		},
+	}
+
+	shared.byNative.set(nativeWindow, controller)
+	shared.windowCloseHandlers.set(nativeWindow, finalizeClose)
+
+	if (kind === 'dialog' && parentWindow) {
+		const beginSheet = parentWindow.beginSheetCompletionHandler ?? parentWindow.beginSheet
+		beginSheet.call(parentWindow, nativeWindow, null)
+	} else {
+		nativeWindow.center()
+		nativeWindow.makeKeyAndOrderFront(app)
 	}
 
 	return controller

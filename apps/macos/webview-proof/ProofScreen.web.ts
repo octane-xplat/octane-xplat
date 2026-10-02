@@ -1,5 +1,5 @@
 import { createHostClient } from '@octane-xplat/platform/host'
-import { createWebKitTransport } from '@octane-xplat/platform/host/web'
+import { createWebKitTransport, desktopHost } from '@octane-xplat/platform/host/web'
 import { appInfo, clipboard, consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
 import type { ProofEvents, ProofResult, ProofServices } from '../src/webview-proof-contracts'
 import type { HostClient } from '@octane-xplat/platform/host'
@@ -20,14 +20,34 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 		client.on('application.notice', (event) => resolve(event.message))
 	})
 
+	const desktop = desktopHost()
+	assert(desktop, 'typed desktop host facade is unavailable')
 	const capabilities = await client.capabilities()
 	const available = [
 		'app.getInfo',
+		'app.getState',
+		'app.getWindowSize',
+		'app.consumeInitialUrl',
 		'clipboard.read',
 		'clipboard.write',
-		'storage.get',
+		'files.pick',
+		'files.readText',
+		'files.writeText',
+		'notifications.ensure',
+		'notifications.notify',
+		'secureStorage.get',
+		'secureStorage.set',
+		'secureStorage.remove',
+		'appearance.get',
+		'windows.open',
+		'windows.close',
+		'windows.setTitle',
 		'system.openUrl',
+		'system.openPath',
 		'system.shareContent',
+		'storage.get',
+		'storage.set',
+		'storage.remove',
 		'application.format',
 		'application.notify',
 		'application.deepLink',
@@ -81,6 +101,40 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 
 	assert((await deepLink) === 'xplat://proof/deep-link', 'host deep-link event did not arrive')
 
+	assert((await desktop.app.getState()) === 'active', 'app state was not active')
+	const windowSize = await desktop.app.getWindowSize()
+	assert(windowSize.width > 0, `window size was not reported: ${JSON.stringify(windowSize)}`)
+	assert((await desktop.app.consumeInitialUrl()) === null, 'initial URL was consumed twice')
+	const hostsText = await desktop.files.readText('file:///etc/hosts')
+	assert(hostsText?.includes('localhost'), 'host file read did not return /etc/hosts')
+	const secretKey = `xplat-proof-${Date.now()}`
+	assert(await desktop.secureStorage.set(secretKey, 'stored'), 'secure storage write failed')
+	assert((await desktop.secureStorage.get(secretKey)) === 'stored', 'secure storage read failed')
+	assert(await desktop.secureStorage.remove(secretKey), 'secure storage remove failed')
+	await desktop.storage.set('proof', 'stored')
+	assert((await desktop.storage.get('proof')) === 'stored', 'storage read failed')
+	await desktop.storage.remove('proof')
+	const scheme = await desktop.appearance.get()
+	assert(scheme === 'light' || scheme === 'dark', 'appearance did not report a color scheme')
+
+	let resolveWindowClosed!: (id: string) => void
+	const windowClosed = new Promise<string>((resolve) => {
+		resolveWindowClosed = resolve
+	})
+
+	desktop.on('windows.closed', resolveWindowClosed)
+	const windowId = await desktop.windows.open({
+		id: 'proof-secondary',
+		url: '/?secondary=1',
+		title: 'Secondary proof window',
+		data: { proof: true },
+		size: { width: 320, height: 180 },
+	})
+
+	assert(await desktop.windows.setTitle(windowId, 'Secondary proof'), 'window title update failed')
+	assert(await desktop.windows.close(windowId), 'window close failed')
+	assert((await windowClosed) === windowId, 'window closed event did not arrive')
+
 	const result: ProofResult = {
 		ok: true,
 		capabilities: available,
@@ -98,7 +152,9 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 }
 
 const transport = createWebKitTransport()
-if (!transport) {
+if ((window as Window & { __xplatWindowId?: string }).__xplatWindowId) {
+	output.textContent = 'secondary proof window'
+} else if (!transport) {
 	output.textContent = 'This .web proof screen is open outside its WKWebView host.'
 } else {
 	const client = createHostClient<ProofServices, ProofEvents>(transport)
