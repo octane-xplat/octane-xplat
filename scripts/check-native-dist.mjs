@@ -70,6 +70,7 @@ if (failures) {
 	console.error(
 		`check-native-dist: ${failures} forbidden specifier(s) — bare "octane" must rewrite to octane/universal/native (see packages/ui/vite.config.ts); @octanejs/lexical and @lexical/headless are DOM-bound and web-only`,
 	)
+
 	process.exit(1)
 }
 
