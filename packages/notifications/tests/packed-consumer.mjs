@@ -45,7 +45,11 @@ function run(command, args, cwd) {
 
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
-const dependencies = ['@nativescript/local-notifications', '@nativescript/core']
+const dependencies = [
+	'@nativescript/local-notifications',
+	'@octane-xplat/platform',
+	'@nativescript/core',
+]
 
 const consumers = {
 	web: `import { notifications } from '@octane-xplat/notifications'

@@ -47,6 +47,7 @@ function run(command, args, cwd) {
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
 	'@nativescript/social-share',
+	'@octane-xplat/platform',
 	'octane',
 	'@nativescript-community/octane',
 	'@nativescript/core',

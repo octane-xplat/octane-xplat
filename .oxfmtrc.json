@@ -4,6 +4,7 @@
 		"**/*.gen.*",
 		"**/vendor/**",
 		"**/pnpm-workspace.yaml",
+		"packages/lingui/types/**",
 		"packages/**/types/generated/**",
 		"packages/*/types/types.d.ts",
 		"packages/*/types/props.d.ts",

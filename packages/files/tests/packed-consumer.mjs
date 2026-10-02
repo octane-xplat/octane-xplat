@@ -49,6 +49,7 @@ const dependencies = [
 	'@nativescript-community/ui-document-picker',
 	'@nativescript/core',
 	'@nativescript/types',
+	'@octane-xplat/platform',
 ]
 
 const consumers = {
