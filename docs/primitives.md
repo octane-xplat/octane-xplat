@@ -483,3 +483,27 @@ in either mode; submission follows the multiline submit rules described above.
 
 The [input probe](../packages/app/src/Home.tsrx) includes controlled and
 uncontrolled composers.
+
+## Render bundled SVG on AppKit
+
+On experimental AppKit macOS, `Image.src` accepts trusted inline SVG markup,
+percent-encoded SVG data URIs, and base64 SVG data URIs. The macOS boundary
+encodes markup with Foundation and loads it into a native `NSImageView`.
+Use `alt` for the accessibility label; omit it for decorative images.
+Registered `Icon` glyphs with `svg` or `markup` use this same path.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+;<Image
+	src='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 12h16" stroke="black"/></svg>'
+	alt="Horizontal line"
+	style={{ width: 24, height: 24 }}
+/>
+```
+
+This image host does not load SVG file paths or remote URLs. The native SVG
+path has runtime evidence on macOS 27.0.1; decoding on macOS 13.5 remains
+unverified. An unsupported decoder produces an empty image. See the
+[AppKit SVG notes](icon-svg-notes.md) for evidence and limits, and the
+[icons leaf](../packages/icons/README.md) for set-agnostic Iconify rendering.

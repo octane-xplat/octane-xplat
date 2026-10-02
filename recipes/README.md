@@ -65,7 +65,8 @@ Workflows:
 - [Localize an app with Lingui](localization.md)
 - [Use Bamboo CSS utilities across web and native](bamboo-css.md)
 - [Add rich text editing](rich-text-editing.md)
-- [Render bundled icons across web and mobile](bundled-icons.md)
+- [Render SVG images on AppKit](appkit-svg-images.md)
+- [Render bundled icons across web, mobile, and AppKit](bundled-icons.md)
 
 ## Authoring contract
 

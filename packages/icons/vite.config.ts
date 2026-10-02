@@ -37,22 +37,33 @@ const WEB_EXTS = [
 ]
 
 export default defineConfig(({ mode }) => {
+	const macos = mode === 'macos'
 	const native = mode === 'native'
+	const platformNative = native || macos
 	return {
 		plugins: octane({
-			renderers: native
+			renderers: platformNative
 				? {
-						registry: { nativescript: nativeScriptRenderer },
-						rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: 'nativescript' }],
+						registry: {
+							[macos ? 'macos' : 'nativescript']: macos
+								? {
+										module: '@xplat/macos/renderer',
+										target: 'universal',
+										server: 'unsupported',
+										text: 'host',
+									}
+								: nativeScriptRenderer,
+						},
+						rules: [{ include: '**/*.{ts,tsx,tsrx}', renderer: macos ? 'macos' : 'nativescript' }],
 					}
 				: undefined,
 		}),
 		build: {
 			lib: {
-				entry: native ? 'src/index.ts' : 'src/index.web.ts',
+				entry: macos ? 'src/index.macos.ts' : native ? 'src/index.ts' : 'src/index.web.ts',
 				formats: ['es'],
 			},
-			outDir: native ? 'dist/native' : 'dist/web',
+			outDir: macos ? 'dist/macos' : native ? 'dist/native' : 'dist/web',
 			emptyOutDir: true,
 			minify: false,
 			rollupOptions: {
@@ -62,10 +73,18 @@ export default defineConfig(({ mode }) => {
 					// `octane` is external, so `resolve.alias` never sees it —
 					// rewrite the specifier at emit: native must not bundle
 					// the DOM runtime.
-					paths: native ? (id) => (id === 'octane' ? 'octane/universal/native' : id) : undefined,
+					paths: platformNative
+						? (id) =>
+								id === 'octane'
+									? 'octane/universal/native'
+									: id === '@xplat/macos/renderer'
+										? '@nativescript-community/octane'
+										: id
+						: undefined,
 				},
 				external: [
 					/^octane/,
+					/^@xplat\/macos\/renderer/,
 					/^@nativescript\//,
 					/^@nativescript-community\//,
 					/^@octane-xplat\//,
@@ -75,8 +94,17 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		resolve: {
-			conditions: [native ? 'native' : 'web'],
-			extensions: native ? NATIVE_EXTS : WEB_EXTS,
+			conditions: [macos ? 'macos' : native ? 'native' : 'web'],
+			extensions: macos
+				? [
+						'.macos.tsrx',
+						'.macos.tsx',
+						'.macos.ts',
+						...WEB_EXTS.filter((ext) => !ext.startsWith('.web')),
+					]
+				: native
+					? NATIVE_EXTS
+					: WEB_EXTS,
 		},
 	}
 })

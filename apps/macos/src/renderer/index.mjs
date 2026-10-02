@@ -2516,7 +2516,8 @@ function applyProps(node, props) {
 				} else if (name === 'className' || name === 'id' || name === 'alt') {
 					continue
 				} else if (name === 'accessibilityLabel') {
-					node.view.setAccessibilityLabel?.(String(value ?? ''))
+					node.view.accessibilityLabel = String(value ?? '')
+					node.view.accessibilityElement = !!value
 				} else {
 					console.warn('[macos-host] ignored image prop ' + name)
 				}

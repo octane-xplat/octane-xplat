@@ -49,8 +49,24 @@ try {
 	assert.equal(manifest.dependencies['@octane-xplat/ui'].startsWith('workspace:'), false)
 	assert.ok(manifest.exports['.'].web.default.startsWith('./dist/'))
 	assert.ok(manifest.exports['.'].native.default.startsWith('./dist/'))
+	assert.ok(manifest.exports['.'].macos.default.startsWith('./dist/'))
+	const macosComponent = readFileSync(join(packed, 'dist/macos/Icon.macos.js'), 'utf8')
+	assert.match(macosComponent, /defineUniversalComponent\("macos"/)
+	assert.doesNotMatch(macosComponent, /from ["'](?:octane|@xplat\/macos\/renderer)["']/)
+	for (const variant of ['Icon.web', 'Icon.macos']) {
+		assert.equal(
+			readFileSync(join(packed, `types/generated/${variant}.d.ts`), 'utf8').replace(
+				/\/\*\*[\s\S]*?\*\/\n/g,
+				'',
+			),
+			readFileSync(join(packed, 'types/generated/Icon.d.ts'), 'utf8').replace(
+				/\/\*\*[\s\S]*?\*\/\n/g,
+				'',
+			),
+		)
+	}
 
-	for (const target of ['web', 'native']) {
+	for (const target of ['web', 'native', 'macos']) {
 		for (const mode of ['bundler', 'nodenext']) {
 			const consumer = join(temporary, `${target}-${mode}`)
 			const modules = join(consumer, 'node_modules')
@@ -95,7 +111,12 @@ void element; void missing; void invalid
 						jsx: 'react-jsx',
 						jsxImportSource: 'octane',
 						customConditions: [target],
-						moduleSuffixes: target === 'web' ? ['.web', ''] : ['.mobile', ''],
+						moduleSuffixes:
+							target === 'web'
+								? ['.web', '']
+								: target === 'macos'
+									? ['.macos', '']
+									: ['.mobile', ''],
 					},
 					files: ['consumer.tsx'],
 				}),
@@ -109,7 +130,7 @@ void element; void missing; void invalid
 		}
 	}
 
-	console.log('icons packed consumer: web/native declarations pass Bundler and NodeNext')
+	console.log('icons packed consumer: web/native/macos declarations pass Bundler and NodeNext')
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

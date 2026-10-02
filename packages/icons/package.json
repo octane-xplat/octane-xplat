@@ -23,6 +23,10 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"macos": {
+				"types": "./types/generated/index.macos.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"web": {
 				"types": "./types/generated/index.web.d.ts",
 				"default": "./src/index.web.ts"
@@ -38,6 +42,10 @@
 	"publishConfig": {
 		"exports": {
 			".": {
+				"macos": {
+					"types": "./types/generated/index.macos.d.ts",
+					"default": "./dist/macos/index.js"
+				},
 				"web": {
 					"types": "./types/generated/index.web.d.ts",
 					"default": "./dist/web/index.js"
@@ -53,9 +61,9 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"build": "vite build && vite build --mode native && vite build --mode macos && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --target icons",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.web.json && tsrx-tsc --noEmit -p tsconfig.native.json",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.web.json && tsrx-tsc --noEmit -p tsconfig.native.json && tsrx-tsc --noEmit -p tsconfig.macos.json",
 		"test": "pnpm build && node --test tests/*.test.mjs",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",

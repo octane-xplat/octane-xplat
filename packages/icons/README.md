@@ -1,11 +1,7 @@
 # @octane-xplat/icons
 
-Render bundled Iconify icons on web, iOS, and Android. Apps choose their sets;
+Render bundled Iconify icons on web, iOS, Android, and experimental AppKit macOS. Apps choose their sets;
 this package ships no icon data, default collection, or Iconify API client.
-
-Native AppKit support is not shipped yet. The
-[AppKit SVG investigation](../../docs/icon-svg-notes.md) records a working
-system-image prototype and its remaining compatibility checks.
 
 ## Install and register
 
@@ -81,9 +77,18 @@ Web uses inline `<svg>` and inherits `currentColor` when `color` is omitted.
 Native defaults to black; pass a concrete color to match app/theme text. It sends
 DOM-free SVG markup through UI's `Image` SVG path to the vendored ui-svg SVGView
 (SVGKit on iOS, androidsvg on Android). No extra native plugin setup is needed
-beyond UI's setup. Both leaves have the same props and exports. The package uses
+beyond UI's setup. All leaves have the same props and exports. The package uses
 style objects and ships no CSS pipeline. Native compatibility follows those SVG
 engines; browser-only SVG features such as filters/animation are not guaranteed.
+
+AppKit uses UI's macOS `Image` to encode inline SVG with Foundation and load it
+into `NSImageView` through public `NSImage` APIs. This path was runtime-tested
+on macOS 27.0.1; SVG decoding on the app deployment minimum macOS 13.5 remains
+unverified. An OS that cannot decode the SVG produces an empty image; there is
+no fallback renderer. macOS forwards `id`/`className`, but the image host does
+not apply class-based styling. Labels map to the native accessibility label;
+unlabeled images are marked decorative. Pixel fidelity and OS accessibility
+traversal remain unverified. See [AppKit SVG notes](../../docs/icon-svg-notes.md).
 
 `iconToSvg(icon, options?)` exposes the shared DOM-free conversion. It returns
 `body`, `viewBox`, numeric `width`/`height`, and complete `markup`. It resolves
@@ -105,6 +110,7 @@ sets, sizing, aliases, missing names, and mounted registration/prop updates:
 
 ```sh
 pnpm probe doctor
+pnpm probe run examples/probes/icons.macos.tsrx --target macos --deps @octane-xplat/icons
 pnpm probe run examples/probes/icons.tsrx --target web --deps @octane-xplat/icons
 pnpm probe run examples/probes/icons.tsrx --target ios --device SIMULATOR_UDID --deps @octane-xplat/icons
 ```

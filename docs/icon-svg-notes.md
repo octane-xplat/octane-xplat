@@ -1,23 +1,23 @@
 # Native SVG rendering on AppKit
 
-Use the existing `NSImageView` image pipeline as the first candidate for
+Use the existing `NSImageView` image pipeline for
 `@octane-xplat/icons` on AppKit. A native-host experiment passed on macOS
-27.0.1 (26A434), Apple Silicon, without a new dependency. This is a proven
-prototype path, not shipped macOS support: the icons package still has only
-web and mobile entries.
+27.0.1 (26A434), Apple Silicon, without a new dependency. The icons package now has an experimental macOS entry using this path.
+Minimum-OS compatibility and pixel fidelity remain unverified.
 
-## Proposed leaf boundary
+## Platform boundary
 
-Keep collection resolution and `iconToSvg` shared. A future `Icon.macos.tsrx`
-would subscribe to the same registry, convert the resolved icon with a concrete
-color, and send its markup to UI's macOS `Image` as a base64 data URI:
+Keep collection resolution and `iconToSvg` shared. `Icon.macos.tsrx`
+subscribes to the same registry, converts the resolved icon with a concrete
+color, and sends raw markup to UI's macOS `Image`, which encodes it:
 
 ```text
-bundled Iconify JSON → shared SVG markup → UTF-8/base64 data URI
-→ Image.macos → NSData → NSImage → NSImageView
+bundled Iconify JSON → shared SVG markup → Image.macos
+→ UTF-8/base64 data URI → NSData → NSImage → NSImageView
 ```
 
-The DOM-free, macOS-only encoding helper tested in the prototype was:
+The DOM-free Foundation encoding is owned by UI in `svg-image.macos.ts`.
+Its public-API mechanism is:
 
 ```ts
 declare const NSString: any
@@ -28,8 +28,7 @@ export function svgDataUri(markup: string): string {
 }
 ```
 
-Here `4` is `NSUTF8StringEncoding`. Production code should use the available
-platform declarations and handle failed encoding explicitly. It needs no DOM,
+Here `4` is `NSUTF8StringEncoding`. The implementation handles failed UTF-8 encoding explicitly. It needs no DOM,
 Node buffer, network service, custom native library, or new UI dependency.
 
 `packages/ui/src/Image.macos.tsrx` already forwards `src` and styles to the
@@ -64,9 +63,8 @@ accessibility traversal, or compatibility on older macOS releases.
 
 The AppKit deployment minimum is currently macOS 13.5. SVG decoding on that
 version remains unverified, and the public initializer documentation does not
-establish SVG's first supported OS release. Before shipping this leaf, test a
-small SVG through public `NSImage` APIs on the minimum supported OS and define
-explicit failure behavior for unsupported decoding. Do not infer runtime SVG
+establish SVG's first supported OS release. Before claiming support for the deployment minimum, test a
+small SVG through public `NSImage` APIs on the minimum supported OS The current unsupported-decoder behavior is an empty image. Do not infer runtime SVG
 support from successful compilation against a newer SDK.
 
 If the minimum OS cannot decode SVG, evaluate a leaf-owned native fallback.
@@ -77,12 +75,30 @@ Both add packaging and maintenance work. A handwritten path-only parser would
 narrow the accepted Iconify JSON bodies and needs an explicit compatibility
 contract before consideration.
 
-## Remaining integration
+## Implemented integration
 
-Add the macOS component, explicit platform barrel/export condition, renderer
-build/typegen support, and matching public declarations. Preserve the existing
-props and exports, reactive collection updates, and per-instance SVG IDs.
-Map `label` to the macOS image's `accessibilityLabel`; the current image host
-does not demonstrate the full `id`/`className` contract. Promote the prototype
-to a maintained macOS probe when support ships, and reconcile README/recipe
-coverage then. The bundled-icons recipe is unchanged by this investigation.
+`Image.macos` normalizes inline SVG and percent-encoded SVG data URIs to base64;
+already-base64 image sources pass through. SVG file paths and remote URLs are
+not loaded by this AppKit image host. Use trusted bundled markup or data URIs.
+UI's registered `Icon` now sends `svg`/`markup` glyphs through that same path;
+font/name fallbacks retain their existing behavior. No dependency was added to UI.
+The AppKit image host assigns the accessibility label through the property bridge
+and marks empty-label images decorative.
+
+The icons leaf has a macOS export condition, compiled entry, and matching
+public declarations. Its universal renderer import follows the AppKit app's
+existing renderer alias. The maintained
+[macOS icon probe](../examples/probes/icons.macos.tsrx) exercises UI inline SVG,
+SVG data URIs, registered glyphs, and public leaf registration/prop updates:
+
+```sh
+pnpm probe run examples/probes/icons.macos.tsrx --target macos --deps @octane-xplat/icons
+```
+
+The maintained source-entry and compiled-entry probes each passed 21 assertions
+on macOS 27.0.1. Web and iOS regression probes passed 14 assertions each.
+Packed declarations passed Bundler and NodeNext for all three entries.
+
+The bundled-icons recipe now includes macOS; the SVG-image recipe covers UI's
+AppKit source grammar and compatibility boundary. Runtime checks establish
+native metadata and updates only, not pixels or VoiceOver traversal.
