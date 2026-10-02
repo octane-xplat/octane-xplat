@@ -226,6 +226,8 @@ export declare const Icon: Component<P.IconProps>
 export declare const Heading: Component<P.HeadingProps>
 
 export declare function setTranslate(el: any, x?: number, y?: number): void
+/** Stable imperative value; defaults to translateX. Tween duration is milliseconds.
+ * AppKit supports opacity, translations, scale axes and rotation; see AnimatedValue. */
 export declare function useAnimation(initial?: number, property?: string): P.AnimatedValue
 export declare function useThemeScheme(): P.ColorScheme
 export declare function getThemeScheme(): P.ColorScheme

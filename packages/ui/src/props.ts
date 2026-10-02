@@ -2418,7 +2418,13 @@ export interface OpenWindowOptions {
  * translateX/translateY/translateZ, scale/scaleX/scaleY, rotate/rotateX/
  * rotateY, and skewX/skewY as CSS transforms, plus `opacity` and other CSS
  * style properties. On NativeScript, `prop` is the name of a NativeScript
- * view property (for example, `translateX` or `opacity`).
+ * view property (for example, `translateX` or `opacity`). AppKit supports
+ * opacity, translateX/translateY (points, positive Y downward), scale/scaleX/
+ * scaleY, and rotate (degrees). The default property is translateX.
+ * `to` uses milliseconds (300 by default); spring defaults to damping 14 and
+ * stiffness 120. stop freezes the sampled value; a new run replaces playback.
+ * The owning hook stops work on disposal. AppKit reduced motion snaps transforms
+ * while allowing opacity fades.
  */
 export interface AnimatedValue {
 	readonly value: number

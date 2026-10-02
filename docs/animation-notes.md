@@ -16,8 +16,9 @@
 `@octane-xplat/motion` is the leaf for declarative hosts and numeric values.
 See the [guide](animation-gestures.md) and [pinned compatibility record](../packages/motion/UPSTREAM.md).
 It reuses Motion 12.42.2 numeric generators with platform frame scheduling.
-The older UI `useAnimation` below remains unchanged; its fixed-step spring is
-not the new leaf's engine. This matrix separates simulator and emulator runs
+UI's `useAnimation` keeps its smaller millisecond/ref contract and now shares
+an elapsed-time, unit-mass spring controller across web, NativeScript and AppKit.
+It does not import the motion leaf or its dependencies. This matrix separates simulator and emulator runs
 from physical handset observations; older `useAnimation` results do not
 validate the new leaf.
 
@@ -427,3 +428,43 @@ sim — the Reorder step); real-recognizer delivery stays manual.
 - CSS `transition`-style implicit animation — **verified absent on NS**; the
   facade owns state→state animation explicitly (`x.to(...)`) or via keyframe
   classes.
+
+## AppKit imperative animation
+
+AppKit `useAnimation` previously committed targets immediately and wrote
+NativeScript property names onto NSView. It now uses the shared UI numeric
+controller, mapping opacity to `alphaValue` and transforms to Core Animation
+layer key paths. Explicit samples disable implicit layer actions. The hook owns
+its controller and cancels work on disposal; detached refs stop playback.
+
+Motion's host delegation remains iOS/Android-specific. UI cannot depend on
+motion: motion depends on UI and owns motion-dom. The smaller UI controller
+uses a linear tween and an exact unit-mass damped spring solution with existing
+UI defaults and rest tolerances (speed and displacement below 0.5). Both APIs
+sample elapsed time, but their options, units and rest behavior remain distinct
+existing contracts. No new motion-style API is introduced in UI.
+
+Verification: `node --test packages/ui/tests/animated-value.test.mjs` checks
+irregular elapsed samples, all damping regimes, replacement, stale callbacks,
+stop, detach, disposal, native mapping, and reduced-motion changes.
+`node apps/macos/test/verify-animation.mjs` builds an isolated fixture and runs
+it in the real AppKit/JSC host. It reads intermediate `alphaValue` and layer
+translation, exact spring settlement, hook identity after render, cancellation,
+and unmount cleanup. The recorded run had system Reduce Motion off; preference
+changes are covered with an injected deterministic host, not an OS setting
+toggle. No handler dispatch, OS input, screenshot, or frame-pacing test is
+implied. Scheduling uses the existing main-run-loop 16ms timer shim, not a
+screen-synchronized display link; this is not a 60fps guarantee.
+
+UI web/native builds, declaration generation, native regression tests (86 plus
+7 Node tests), recipe links, and the docs site build pass. A scoped packed
+animation consumer passes web/native/macOS source and publish export maps in
+Bundler and NodeNext, including rejected string duration/damping options.
+That tarball was built in isolation with prepack omitted: the normal pack gate
+still reports unrelated missing macOS declarations, Meter's unresolved svg
+reference, and undeclared drawer/octane declaration imports. The broad native
+consumer also encounters missing ListItem.Leading/Content declarations. Those
+checks remain unchanged and are not claimed as passing. Motion's independent
+suite reports 47 passing tests and a components.web.test.tsrx module failure
+because motion.create is undefined. The repository-wide TSRX spacing pass has
+existing failures outside this change; changed animation files pass.

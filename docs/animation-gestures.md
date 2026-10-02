@@ -221,7 +221,45 @@ both web and native; it does not export `AnimatePresence` as a compatibility ali
 
 ## Existing imperative animation
 
-`useAnimation` and `setTranslate` from UI remain available. The older
-`useAnimation.to` duration is in milliseconds, unlike the new motion package.
-[Reorder](../packages/demos/src/Reorder.tsrx) demonstrates the existing pan path.
-See [animation notes](animation-notes.md) for its platform research and limitations.
+Use UI's `useAnimation` for a single value attached to a component ref. This
+works on web, iOS, Android, and native AppKit. For example, press **Slide** to
+move a card 80 points or pixels to the right, then **Return** to spring back:
+
+```tsx
+import { View, Text, Pressable, useAnimation } from '@octane-xplat/ui'
+
+export function SlidingCard() @{
+  const x = useAnimation(0, 'translateX')
+  <View>
+    <Pressable onPress={() => x.to(80, { duration: 300 })}><Text>Slide</Text></Pressable>
+    <Pressable onPress={() => x.spring(0)}><Text>Return</Text></Pressable>
+    <View ref={x.ref}><Text>Moving card</Text></View>
+  </View>
+}
+```
+
+The ref connects the controller to the native view or web element. Pass
+`x.ref` directly: animation frames write that view without rendering the
+screen again. `x.value` reads the latest sample; it does not subscribe the
+screen to updates. The controller remains the same across renders. The initial
+value and property are chosen when the hook first runs.
+
+`to` is linear and takes **milliseconds**, with a default of 300. Motion's
+`transition.duration` uses seconds. `spring` takes positive damping and
+stiffness, with defaults of 14 and 120 and unit mass. Larger damping reduces
+oscillation. A new `to` or `spring` replaces playback from the latest sample;
+`stop()` freezes it there. Passing a null ref stops playback, and removing the
+owning component disposes its controller. Do not reuse a disposed controller.
+
+On AppKit the default property is `translateX`. Supported properties are
+`opacity`, `translateX`, `translateY`, `scale`, `scaleX`, `scaleY`, and `rotate`.
+Translations use points with positive Y downward; rotation uses degrees.
+Unsupported AppKit properties throw. When macOS Reduce Motion is enabled,
+transforms snap to their destination, including when the setting changes during
+playback; opacity may still fade. This hook has no MotionConfig, Presence,
+variant, or completion-promise contract. Use the motion leaf for those
+capabilities on its documented targets. `setTranslate` also remains available.
+
+The [maintained example](../packages/ui/examples/AnimationDemo.tsrx) demonstrates
+replacement and stop. [Animation notes](animation-notes.md#appkit-imperative-animation)
+record AppKit verification and scheduling limits.

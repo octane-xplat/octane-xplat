@@ -104,12 +104,18 @@ void tooltip
 void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
-		source = `import { Button, KeyboardAvoiding, View } from '@octane-xplat/ui'
-import type { ButtonProps, KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, View, useAnimation } from '@octane-xplat/ui'
+import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
 // @ts-expect-error loading is a boolean prop
 const invalidButtonProps: ButtonProps = { loading: 'yes' }
+const animation: AnimatedValue = useAnimation(0, 'translateX')
+animation.to(100, { duration: 250 })
+animation.spring(0, { damping: 14, stiffness: 120 })
+animation.stop()
+// @ts-expect-error duration is numeric milliseconds
+animation.to(1, { duration: 'fast' })
 const viewProps: ViewProps = { id: 'macos-root', gap: 4 }
 const keyboardProps: KeyboardAvoidingProps = { id: 'macos-form', children: 'Form' }
 const button = <Button {...buttonProps} />

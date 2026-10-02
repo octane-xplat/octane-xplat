@@ -20,6 +20,7 @@ Workflows:
 - [Probe one platform case](probe-platform-case.md)
 
 - [Animate shared components](component-motion.md)
+- [Animate a view through a ref](imperative-animation.md)
 - [Settle a dragged value with a spring](gesture-motion.md)
 - [Fetch remote data in a screen](fetch-remote-data.md)
 - [Add advanced haptics](advanced-haptics.md)

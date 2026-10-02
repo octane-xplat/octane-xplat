@@ -1,21 +1,24 @@
+/** @jsxImportSource @octane-xplat/macos-renderer */
+import { useEffect, useRef } from 'octane'
+import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/animation-frame'
+import { createAnimatedValue } from './animated-value'
+import { writeAnimatedProperty, readReducedMotion } from './animation-host.macos'
 import type { AnimatedValue } from './props'
+export type { AnimatedValue } from './props'
 
-/** AppKit animation writes currently commit their target value immediately.
- * This preserves the shared hook surface while the host animation driver is
- * still unsupported. */
-export function useAnimation(initial = 0, property = 'opacity'): AnimatedValue {
-	let value = initial
-	let view: any
-	const write = (next: number) => {
-		value = next
-		if (view) {view[property] = next}
+export function useAnimation(initial = 0, property = 'translateX'): AnimatedValue {
+	const value = useRef<ReturnType<typeof createAnimatedValue> | null>(null)
+	if (!value.current) {
+		value.current = createAnimatedValue(initial, {
+			now: Date.now,
+			request: requestAnimationFrame,
+			cancel: cancelAnimationFrame,
+			write: (view, next) => writeAnimatedProperty(view, property, next),
+			// Match motion's system policy: transforms snap, opacity may fade.
+			reducedMotion: () => property !== 'opacity' && readReducedMotion(),
+		})
 	}
 
-	return {
-		get value() { return value },
-		ref(el: any) { view = el; write(value) },
-		to(target: number) { write(target) },
-		spring(target: number) { write(target) },
-		stop() {},
-	}
+	useEffect(() => () => value.current?.dispose(), [])
+	return value.current
 }
