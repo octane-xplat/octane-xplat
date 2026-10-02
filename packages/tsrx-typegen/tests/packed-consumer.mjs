@@ -30,9 +30,11 @@ function run(command, args, cwd) {
 	if (result.stdout) {
 		process.stdout.write(result.stdout)
 	}
+
 	if (result.stderr) {
 		process.stderr.write(result.stderr)
 	}
+
 	if (result.status !== 0) {
 		throw new Error(`${command} exited with ${result.status}`)
 	}
@@ -149,6 +151,7 @@ void value
 		for (const source of collidingSources) {
 			writeFileSync(source, 'export {}\n')
 		}
+
 		const collision = spawnSync(
 			process.execPath,
 			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
@@ -171,6 +174,7 @@ void value
 		for (const source of collidingSources) {
 			writeFileSync(source, 'export {}\n')
 		}
+
 		mkdirSync(dirname(overrideSource), { recursive: true })
 		writeFileSync(overrideSource, overrideText)
 		const config = JSON.parse(originalConfig)
@@ -193,6 +197,7 @@ void value
 		for (const source of collidingSources) {
 			rmSync(source, { force: true })
 		}
+
 		rmSync(overrideSource, { force: true })
 	}
 

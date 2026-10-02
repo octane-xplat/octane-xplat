@@ -132,6 +132,7 @@ function readProjectConfig(ts, configPath, projectRoot, target) {
 	if (!parsed) {
 		throw new Error(`Could not read ${configPath}`)
 	}
+
 	const errors = parsed.errors.map((diagnostic) =>
 		ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
 	)
@@ -139,6 +140,7 @@ function readProjectConfig(ts, configPath, projectRoot, target) {
 	if (errors.length) {
 		throw new Error(errors.join('\n'))
 	}
+
 	const options = parsed.options
 	const jsxRenderer =
 		options.jsxImportSource ??
@@ -179,6 +181,7 @@ function commonDirectory(paths) {
 	if (!paths.length) {
 		throw new Error('TypeScript project has no root files.')
 	}
+
 	const segments = paths.map((path) => resolve(dirname(path)).split(sep))
 	const common = []
 	for (let index = 0; segments.every((parts) => parts[index] === segments[0][index]); index += 1) {
@@ -196,6 +199,7 @@ function sourceDeclarationMap(rootDir, fileNames, extensions, overrides) {
 		if (!Object.hasOwn(extensions, sourceExtension) || /\.d\.[cm]?ts$/i.test(source)) {
 			continue
 		}
+
 		const sourcePath = relative(rootDir, source)
 		if (!sourcePath || sourcePath.startsWith(`..${sep}`) || isAbsolute(sourcePath)) {
 			throw new Error(`Source file is outside compilerOptions.rootDir: ${source}`)
@@ -207,6 +211,7 @@ function sourceDeclarationMap(rootDir, fileNames, extensions, overrides) {
 		const declaration = normalize(
 			sourcePath.slice(0, -sourceExtension.length) + declarationExtension,
 		)
+
 		const prior = sourceOutputs.get(declaration)
 		if (prior && !overrides.has(declaration)) {
 			throw new Error(
@@ -233,6 +238,7 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 			if (targetArgument) {
 				throw new Error(`No tsrx-typegen.json defines target ${targetArgument}.`)
 			}
+
 			return {
 				project: projectArgument,
 				target: null,
@@ -259,6 +265,7 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 	if (selectedName && !selected) {
 		throw new Error(`${path}: unknown target ${selectedName}`)
 	}
+
 	if (!selected && projectArgument) {
 		const matches = Object.entries(targets).filter(
 			([, target]) => target?.project && resolveProject(target.project) === projectArgument,
@@ -360,6 +367,7 @@ function configOptions(projectRoot, projectArgument, targetArgument) {
 		...config.sourceExtensions,
 		...selected?.sourceExtensions,
 	}
+
 	for (const [source, runtime] of Object.entries(sourceExtensions)) {
 		if (!source.startsWith('.') || typeof runtime !== 'string' || !runtime.startsWith('.')) {
 			throw new Error(
@@ -417,6 +425,7 @@ function applyOverrides(ts, projectRoot, outputDir, generated, overrides) {
 	for (const [outputPath, content] of normalized) {
 		generated.set(outputPath, content)
 	}
+
 	return new Set(normalized.keys())
 }
 
@@ -472,6 +481,7 @@ function assertNoTsrxModuleReferences(ts, path, text) {
 	const unresolved = moduleSpecifierNodes(ts, source).find((node) =>
 		/\.tsrx(?:$|[?#])/.test(node.text),
 	)
+
 	if (unresolved) {
 		throw new Error(`${path}: unresolved .tsrx module specifier ${unresolved.text}`)
 	}
@@ -486,9 +496,11 @@ function rewriteDeclaration(ts, path, outputDir, extensions, generatedFiles, run
 		if (!specifier.startsWith('.')) {
 			continue
 		}
+
 		if (/\.d\.[cm]?ts$/i.test(specifier)) {
 			continue
 		}
+
 		const extension = Object.keys(extensions).find(
 			(candidate) => !candidate.startsWith('.d.') && specifier.endsWith(candidate),
 		)
@@ -514,6 +526,7 @@ function rewriteDeclaration(ts, path, outputDir, extensions, generatedFiles, run
 			if (!target) {
 				continue
 			}
+
 			const declaration = relative(outputDir, target)
 			const runtimeExtension = runtimeByDeclaration.get(declaration) ?? '.js'
 			const isIndex = /[\\/]index\.d\.[cm]?ts$/.test(target)
@@ -550,6 +563,7 @@ function normalizeOutput(ts, outputDir, extensions, runtimeByDeclaration) {
 	if (!files.length) {
 		throw new Error('TypeScript emitted no declaration files.')
 	}
+
 	const generatedFiles = new Set(files.map((path) => relative(outputDir, path)))
 	return new Map(
 		files.map((path) => [
@@ -579,6 +593,7 @@ function previousManifest(outputDir) {
 		if (error.code === 'ENOENT') {
 			return null
 		}
+
 		throw new Error(`${path}: ${error.message}`)
 	}
 }
@@ -598,6 +613,7 @@ function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
 		if (oldFiles?.has(file) || overrideFiles.has(file)) {
 			continue
 		}
+
 		try {
 			statSync(join(outputDir, file))
 			throw new Error(`refusing to overwrite unmanaged declaration: ${file}`)
@@ -613,6 +629,7 @@ function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
 		if (!pathInside(outputDir, path)) {
 			throw new Error(`Invalid generated path in manifest: ${file}`)
 		}
+
 		if (!generated.has(file)) {
 			rmSync(path, { force: true })
 		}
@@ -636,6 +653,7 @@ function compareOutput(outputDir, generated, oldFiles, overrideFiles) {
 	if (!oldFiles) {
 		errors.push(`missing ${manifestName}; run tsrx-typegen --project <tsconfig> first`)
 	}
+
 	for (const file of generated.keys()) {
 		if (!oldFiles?.has(file) && !overrideFiles.has(file)) {
 			try {
@@ -670,9 +688,11 @@ function stringsIn(value) {
 	if (typeof value === 'string') {
 		return [value]
 	}
+
 	if (!value || typeof value !== 'object') {
 		return []
 	}
+
 	return Object.values(value).flatMap(stringsIn)
 }
 
@@ -680,6 +700,7 @@ function typeTargets(value) {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) {
 		return []
 	}
+
 	return [
 		...(Object.hasOwn(value, 'types') ? stringsIn(value.types) : []),
 		...Object.entries(value)
@@ -717,6 +738,7 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 				failures.push(
 					`${subpath} is configured for ${target.name} but missing from effective package exports`,
 				)
+
 				continue
 			}
 
@@ -754,6 +776,7 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 			if (!runtimeTargets.length) {
 				continue
 			}
+
 			const targets = typeTargets(mapping)
 			if (!targets.length) {
 				failures.push(`${subpath} has code exports but no types condition`)
@@ -764,6 +787,7 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 				if (!target.startsWith('./') || target.includes('*')) {
 					continue
 				}
+
 				const absolute = resolve(projectRoot, target)
 				if (!pathInside(projectRoot, absolute)) {
 					failures.push(`${subpath} types target escapes the package: ${target}`)
@@ -774,6 +798,7 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 				if (pathInside(outDir, absolute) && generated.has(generatedPath)) {
 					continue
 				}
+
 				try {
 					if (!statSync(absolute).isFile()) {
 						failures.push(`${subpath} types target is not a file: ${target}`)
@@ -842,6 +867,7 @@ function runTarget(projectRoot, args) {
 			outputFlag,
 			temporaryOut,
 		]
+
 		const result = spawnSync(process.execPath, compilerArgs, {
 			cwd: projectRoot,
 			encoding: 'utf8',
@@ -851,12 +877,15 @@ function runTarget(projectRoot, args) {
 		if (result.stdout) {
 			process.stdout.write(result.stdout)
 		}
+
 		if (result.stderr) {
 			process.stderr.write(result.stderr)
 		}
+
 		if (result.error) {
 			throw result.error
 		}
+
 		if (/\[tsrx-tsc\]/.test(result.stderr ?? '')) {
 			throw new Error(
 				'tsrx compiler reported transform diagnostics; declarations were not written. Fix the source or configure an explicit declaration override.',
@@ -882,6 +911,7 @@ function runTarget(projectRoot, args) {
 				for (const error of errors) {
 					console.error(`tsrx-typegen: ${error}`)
 				}
+
 				return false
 			}
 
@@ -906,6 +936,7 @@ function run() {
 		if (!runTarget(projectRoot, args)) {
 			process.exitCode = 1
 		}
+
 		return
 	}
 

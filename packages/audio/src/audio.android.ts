@@ -45,6 +45,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		if (Number.isInteger(value.index) && value.index! >= 0) {
 			index = value.index!
 		}
+
 		return {
 			state: value.state,
 			track: queue[index],
@@ -65,6 +66,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		if (disposed) {
 			throw new Error('AudioPlayer is disposed')
 		}
+
 		actions.dispatch(context, action, payload, at, seconds)
 	}
 
@@ -72,6 +74,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		if (listeners.size && !poll) {
 			poll = setInterval(emit, 250)
 		}
+
 		if (!listeners.size && poll) {
 			clearInterval(poll)
 			poll = undefined
@@ -100,6 +103,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 			if (disposed) {
 				throw new Error('AudioPlayer is disposed')
 			}
+
 			queue = [...tracks]
 			index = queue.length
 				? Math.max(
@@ -117,17 +121,20 @@ export const createAudioPlayer = (): AudioPlayer => {
 			if (Number.isFinite(seconds)) {
 				dispatch(actions.ACTION_SEEK, '', 0, Math.max(0, seconds))
 			}
+
 			emit()
 		},
 		dispose: () => {
 			if (disposed) {
 				return
 			}
+
 			disposed = true
 			actions.dispatch(context, actions.ACTION_RELEASE, '', 0, 0)
 			if (poll) {
 				clearInterval(poll)
 			}
+
 			poll = undefined
 			listeners.clear()
 			queue = []

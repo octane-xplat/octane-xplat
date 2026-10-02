@@ -130,4 +130,5 @@ assertResult(result)
 console.log(
 	`AppKit variable-height VirtualList scroll probe · ${rowCount} rows · ${eventCount} 8pt offset updates + middle/end seeks`,
 )
+
 console.log(JSON.stringify({ ...result, check: 'passed' }))

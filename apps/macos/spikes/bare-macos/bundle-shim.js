@@ -9,6 +9,7 @@ globalThis.console = {
 globalThis.process = {
 	env: { NODE_ENV: 'production', OCTANE_MACOS_AUTOMATION: '1', OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' },
 }
+
 Object.defineProperty(globalThis, 'Buffer', {
 	configurable: true,
 	value: {
@@ -16,6 +17,7 @@ Object.defineProperty(globalThis, 'Buffer', {
 			if (encoding !== 'base64') {
 				throw Error(`unsupported Buffer encoding: ${encoding}`)
 			}
+
 			return NSData.alloc().initWithBase64EncodedStringOptions(value, 0)
 		},
 	},
@@ -28,6 +30,7 @@ const nodeModules = {
 			if (algorithm !== 'sha256') {
 				throw Error(`unsupported hash: ${algorithm}`)
 			}
+
 			let bytes
 			return {
 				update(data) {
@@ -38,6 +41,7 @@ const nodeModules = {
 					if (encoding !== 'hex' || !bytes) {
 						throw Error(`unsupported digest: ${encoding}`)
 					}
+
 					const output = new Uint8Array(32)
 					CC_SHA256(bytes, bytes.length, output)
 					return Array.from(output, (value) => value.toString(16).padStart(2, '0')).join('')
@@ -60,6 +64,7 @@ const nodeModules = {
 		writeFileSync(path, value) {
 			const bytes =
 				typeof value === 'string' ? NSString.stringWithString(value).dataUsingEncoding(4) : value
+
 			if (!bytes.writeToFileAtomically(path, true)) {
 				throw Error(`write failed: ${path}`)
 			}
@@ -73,9 +78,11 @@ globalThis.require = (name) => {
 	if (name === '@nativescript/macos-node-api') {
 		return __nativeExports
 	}
+
 	if (name in nodeModules) {
 		return nodeModules[name]
 	}
+
 	throw Error(`unsupported require: ${name}`)
 }
 

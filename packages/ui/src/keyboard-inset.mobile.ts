@@ -18,6 +18,7 @@ const wireIos = () => {
 	if (wired) {
 		return
 	}
+
 	wired = true
 	NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
 		UIKeyboardWillChangeFrameNotification,
@@ -34,6 +35,7 @@ const wireIos = () => {
 				UIScreen.mainScreen.bounds.size.height -
 					(frame?.origin?.y ?? UIScreen.mainScreen.bounds.size.height),
 			)
+
 			apply()
 		},
 	)
@@ -64,10 +66,12 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
 		if (!nativeWindow) {
 			return () => {}
 		}
+
 		const params = (globalThis as any).android?.view?.WindowManager?.LayoutParams
 		if (!params) {
 			return () => {}
 		}
+
 		// adjustResize resizes the RootLayout for us — an extra offset would
 		// double-lift the host.
 		if (
@@ -82,6 +86,7 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
 		if (!ViewCompat || !WindowInsetsCompat) {
 			return () => {}
 		}
+
 		const decorView = nativeWindow.getDecorView()
 		const listener = new ViewCompat.OnApplyWindowInsetsListener({
 			onApplyWindowInsets: (v: any, insets: any) => {

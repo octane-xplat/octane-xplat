@@ -9,14 +9,18 @@ export function nativeAccessibilityState(state) {
 	if (state?.disabled) {
 		return 'disabled'
 	}
+
 	if (state?.selected) {
 		return 'selected'
 	}
+
 	if (state?.checked === true) {
 		return 'checked'
 	}
+
 	if (state?.checked === false) {
 		return 'unchecked'
 	}
+
 	return undefined
 }

@@ -53,12 +53,14 @@ function inspectMachO(bytes, label, issues) {
 			issues.push(`${label} has truncated load commands`)
 			return
 		}
+
 		const command = bytes.readUInt32LE(offset)
 		const size = bytes.readUInt32LE(offset + 4)
 		if (size < 8 || offset + size > bytes.length) {
 			issues.push(`${label} has invalid load commands`)
 			return
 		}
+
 		if (command === 0x32 && size >= 24) {
 			const version = bytes.readUInt32LE(offset + 12)
 			minimumVersion = `${version >>> 16}.${(version >>> 8) & 255}`
@@ -111,6 +113,7 @@ export function inspectJscHost() {
 		if (actualHash !== expectedHash) {
 			issues.push(`JavaScriptCore host checksum mismatch: ${relativePath}`)
 		}
+
 		if (relativePath.endsWith('/host') || relativePath.endsWith('/NativeScript')) {
 			inspectMachO(bytes, relativePath, issues)
 		}
@@ -133,6 +136,7 @@ export function inspectJscHost() {
 	if (!isFile(join(hostRoot, 'shim.js'))) {
 		issues.push('JavaScriptCore host shim is missing')
 	}
+
 	return { issues, manifest }
 }
 
@@ -140,6 +144,7 @@ function memberName(member) {
 	if (!member.computed && member.property.type === 'Identifier') {
 		return member.property.name
 	}
+
 	if (member.property.type === 'Literal' && typeof member.property.value === 'string') {
 		return member.property.value
 	}
@@ -154,6 +159,7 @@ function visitAst(root, callback) {
 		if (!node || typeof node !== 'object' || typeof node.type !== 'string') {
 			continue
 		}
+
 		callback(node)
 		for (const value of Object.values(node)) {
 			if (Array.isArray(value)) {
@@ -169,18 +175,22 @@ function declarationName(pattern, callback) {
 	if (!pattern || typeof pattern !== 'object') {
 		return
 	}
+
 	if (pattern.type === 'Identifier') {
 		callback(pattern.name)
 		return
 	}
+
 	if (pattern.type === 'RestElement') {
 		declarationName(pattern.argument, callback)
 		return
 	}
+
 	if (pattern.type === 'AssignmentPattern') {
 		declarationName(pattern.left, callback)
 		return
 	}
+
 	if (pattern.type === 'ObjectPattern') {
 		for (const property of pattern.properties) {
 			declarationName(property.value ?? property.argument, callback)
@@ -220,6 +230,7 @@ function walkHostMembers(ast, moduleOf, issues) {
 	function scope(parent) {
 		return { parent, bindings: new Map() }
 	}
+
 	function binding(parent, name) {
 		for (let current = parent; current; current = current.parent) {
 			if (current.bindings.has(name)) {
@@ -244,6 +255,7 @@ function walkHostMembers(ast, moduleOf, issues) {
 			if (isFunction(child)) {
 				return
 			}
+
 			if (child.type === 'VariableDeclaration' && child.kind === 'var') {
 				declareVariable(child, current)
 			} else {
@@ -267,6 +279,7 @@ function walkHostMembers(ast, moduleOf, issues) {
 				for (const parameter of node.params) {
 					declarationName(parameter, (name) => nested.bindings.set(name, null))
 				}
+
 				if (node.id?.name) {
 					nested.bindings.set(node.id.name, null)
 				}
@@ -283,6 +296,7 @@ function walkHostMembers(ast, moduleOf, issues) {
 				if (statement.type === 'VariableDeclaration' && statement.kind !== 'var') {
 					declareVariable(statement, nested)
 				}
+
 				if (
 					(statement.type === 'FunctionDeclaration' || statement.type === 'ClassDeclaration') &&
 					statement.id?.name
@@ -294,6 +308,7 @@ function walkHostMembers(ast, moduleOf, issues) {
 			for (const statement of node.body) {
 				visit(statement, nested)
 			}
+
 			return
 		}
 
@@ -314,6 +329,7 @@ function walkHostMembers(ast, moduleOf, issues) {
 			if (declaration?.type === 'VariableDeclaration' && declaration.kind !== 'var') {
 				declareVariable(declaration, nested)
 			}
+
 			childNodes(node, (child) => visit(child, nested))
 			return
 		}
@@ -354,6 +370,7 @@ export async function validateHostBundle(bundle, appRoot) {
 		) {
 			return null
 		}
+
 		const name = call.arguments?.[0]?.value
 		return typeof name === 'string' ? name : null
 	}
@@ -379,6 +396,7 @@ export async function validateHostBundle(bundle, appRoot) {
 		if (node.type !== 'VariableDeclarator') {
 			return
 		}
+
 		const name = moduleOf(node.init)
 		if (name && node.id.type === 'ObjectPattern') {
 			for (const property of node.id.properties) {

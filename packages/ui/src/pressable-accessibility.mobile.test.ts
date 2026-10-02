@@ -17,11 +17,13 @@ describe('native disabled Pressable accessibility state', () => {
 			disabled: true,
 			accessibilityState: { selected: true, checked: true },
 		})
+
 		expect(container.children[0].props.accessibilityState).toBe('disabled')
 		root.render(Pressable as any, {
 			disabled: false,
 			accessibilityState: { selected: true, checked: true },
 		})
+
 		expect(container.children[0].props.accessibilityState).toBe('selected')
 		root.unmount()
 	})

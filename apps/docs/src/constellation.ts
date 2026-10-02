@@ -14,6 +14,7 @@ export function animateConstellation(host: HTMLElement, content: HTMLElement) {
 		for (const animation of active.values()) {
 			animation.cancel()
 		}
+
 		active.clear()
 	}
 
@@ -31,6 +32,7 @@ export function animateConstellation(host: HTMLElement, content: HTMLElement) {
 			if (active.get(element) !== animation) {
 				return
 			}
+
 			active.delete(element)
 			if (enabled()) {
 				ensureMinimum()

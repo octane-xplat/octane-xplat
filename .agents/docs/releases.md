@@ -60,6 +60,7 @@ Before the first automated release:
    Replace `<package-name>` with the manifest's `name`. Confirm the entry with
    `npm trust list <package-name>`; the release preflight checks the same
    repository and workflow before publishing.
+
 3. Add the package to `packages/create/template/package.json` only if newly
    scaffolded apps need it. The release workflow updates template versions.
 4. Reconcile the package's public setup and usage with its documentation, any

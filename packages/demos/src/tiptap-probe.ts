@@ -142,17 +142,20 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
 		'@tiptap/pm/view (DOM-bound, expected-fail ok)',
 		() => import('@tiptap/pm/view'),
 	)
+
 	const core = await tryImport('tiptap-core', '@tiptap/core', () => import('@tiptap/core'))
 	const sk = await tryImport(
 		'starter-kit',
 		'@tiptap/starter-kit',
 		() => import('@tiptap/starter-kit'),
 	)
+
 	const sr = await tryImport(
 		'static-renderer',
 		'@tiptap/static-renderer',
 		() => import('@tiptap/static-renderer'),
 	)
+
 	const zeed = await tryImport('zeed-dom', 'zeed-dom', () => import('zeed-dom'))
 
 	if (!model || !state || !core || !sk || !sr || !zeed) {
@@ -217,6 +220,7 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
 				Array.isArray(back?.content) && back.content.length > 0,
 				types,
 			)
+
 			const html2 = sr.renderToHTMLString({ extensions: [StarterKit], content: back })
 			step(
 				'round-trip',

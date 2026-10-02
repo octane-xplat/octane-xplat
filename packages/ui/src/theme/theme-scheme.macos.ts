@@ -12,6 +12,7 @@ export function setThemePreference(value: ThemePreference): void {
 	if (preference === value) {
 		return
 	}
+
 	preference = value
 	emit()
 }
@@ -49,6 +50,7 @@ export function applyThemeClasses(view: any, base = ''): () => void {
 	const apply = () => {
 		view.className = cx(base, themeSchemeClasses())
 	}
+
 	apply()
 	return onThemeSchemeChange(apply)
 }

@@ -25,6 +25,7 @@ const compiled = Object.fromEntries(
 		]),
 	),
 )
+
 // Synthetic PCM measures browser playback state, not audible output.
 const samples = 80000
 const wav = Buffer.alloc(44 + samples * 2)
@@ -43,6 +44,7 @@ wav.writeUInt32LE(samples * 2, 40)
 for (let i = 0; i < samples; i++) {
 	wav.writeInt16LE(Math.round(Math.sin((i * 2 * Math.PI * 220) / 8000) * 1000), 44 + i * 2)
 }
+
 const server = http.createServer((request, response) => {
 	const name = request.url?.slice(1).replace('.js', '')
 	if (request.url === '/tone.wav') {
@@ -83,6 +85,7 @@ try {
 			import('/apple.js'),
 			import('/google.js'),
 		])
+
 		return {
 			hostedSupported: authSession.supported,
 			hostedEnsure: await authSession.ensure(),
@@ -100,6 +103,7 @@ try {
 		const { media } = await import('/media.js')
 		window.selection = media.pickImage()
 	})
+
 	await (
 		await chooser
 	).setFiles({
@@ -107,6 +111,7 @@ try {
 		mimeType: 'image/jpeg',
 		buffer: Buffer.from('synthetic file-input payload; never rendered'),
 	})
+
 	const selected = await page.evaluate(async () => {
 		const ref = await window.selection
 		const bytes = await (await fetch(ref.uri)).text()
@@ -140,6 +145,7 @@ try {
 				window.audioElements.push(voice)
 				return voice
 			}
+
 			return audio
 		}
 
@@ -147,6 +153,7 @@ try {
 			import('/audio.js'),
 			import('/sounds.js'),
 		])
+
 		window.player = createAudioPlayer()
 		window.bank = createSoundBank({ maxVoices: 1 })
 		window.states = []
@@ -157,10 +164,12 @@ try {
 				time: snapshot.currentTime,
 			}),
 		)
+
 		await window.player.setQueue([
 			{ id: 'one', source: '/tone.wav' },
 			{ id: 'two', source: '/tone.wav' },
 		])
+
 		await window.bank.load('effect', '/tone.wav')
 		document.querySelector('#play').onclick = async () => {
 			await window.player.play()
@@ -174,6 +183,7 @@ try {
 		null,
 		{ timeout: 5000 },
 	)
+
 	const effects = await page.evaluate(async () => {
 		const before = window.player.snapshot().state
 		await window.bank.play('effect')
@@ -181,6 +191,7 @@ try {
 		const active = window.effectVoices.filter(
 			(voice) => !voice.paused && voice.getAttribute('src'),
 		).length
+
 		window.bank.stop()
 		const stopped = window.effectVoices.every((voice) => voice.paused)
 		return { before, after: window.player.snapshot().state, active, stopped }
@@ -196,6 +207,7 @@ try {
 		const seeked = new Promise((resolve) =>
 			window.audioElements[0].addEventListener('seeked', resolve, { once: true }),
 		)
+
 		await window.player.seek(0.2)
 		await seeked
 		const paused = window.player.snapshot()
@@ -216,10 +228,12 @@ try {
 		null,
 		{ timeout: 5000 },
 	)
+
 	await page.evaluate(() => window.player.seek(9.8))
 	await page.waitForFunction(() => window.player.snapshot().state === 'ended', null, {
 		timeout: 5000,
 	})
+
 	const cleanup = await page.evaluate(() => {
 		window.bank.stop()
 		window.bank.dispose()

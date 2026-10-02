@@ -7,6 +7,7 @@ export function wireRouteLinks(): void {
 	if (wired) {
 		return
 	}
+
 	wired = true
 	onDeepLink((url) => pushDeepLink(url))
 	const initial = consumeInitialUrl()

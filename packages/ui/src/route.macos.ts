@@ -118,6 +118,7 @@ async function prepareRoute(
 	if (!request.isCurrent()) {
 		return
 	}
+
 	if (!request.claim(route.stack)) {
 		return
 	}
@@ -143,6 +144,7 @@ async function prepareRoute(
 		if (!request.isCurrent()) {
 			return
 		}
+
 		if (error instanceof RouteRedirect) {
 			await prepareRoute(error.route, request, redirects + 1)
 			return
@@ -172,6 +174,7 @@ function commitRoute(route: Route, request: NavigationRequest): void {
 	if (!request.isCurrent()) {
 		return
 	}
+
 	const entry = { ...route, presentation: route.presentation ?? metaFor(route.name)?.presentation }
 	const loader = routeLoaders[entry.name] ?? metaFor(entry.name)?.loader
 	if (

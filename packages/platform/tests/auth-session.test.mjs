@@ -64,6 +64,7 @@ function load({
 					if (constructError) {
 						throw new Error('native construction failed')
 					}
+
 					completion = fn
 					return session
 				},

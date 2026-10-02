@@ -537,6 +537,7 @@ function waitForVirtualListDeepRowVisible(
 		if (positionSamples.length > 20) {
 			positionSamples.shift()
 		}
+
 		lastSampleSpread = Math.max(...positionSamples) - Math.min(...positionSamples)
 		lastCandidate = current.candidate
 		lastOffset = Number(list?.verticalOffset ?? 0)

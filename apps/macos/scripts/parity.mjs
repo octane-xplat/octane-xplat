@@ -62,6 +62,7 @@ host.once('close', (code, signal) => {
 		const error = new Error(
 			`AppKit parity host exited before reporting (code=${code}, signal=${signal})`,
 		)
+
 		rejectReady(error)
 		rejectReport(error)
 	}
@@ -112,6 +113,7 @@ try {
 		closed,
 		new Promise((resolve) => setTimeout(() => resolve(null), 3000)),
 	])
+
 	if (!result && host.exitCode === null && host.signalCode === null) {
 		host.kill('SIGKILL')
 		await closed

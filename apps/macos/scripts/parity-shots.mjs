@@ -46,6 +46,7 @@ function nextLine(match, timeoutMs, label) {
 	if (buffered >= 0) {
 		return Promise.resolve(lineQueue.splice(buffered, 1)[0])
 	}
+
 	return new Promise((resolvePromise, reject) => {
 		const waiter = { match, resolve: resolvePromise }
 		lineWaiters.push(waiter)
@@ -100,6 +101,7 @@ try {
 	for (let o = 0; o <= maxTop; o += STEP) {
 		offsets.push(o)
 	}
+
 	if (offsets.length === 0 || offsets[offsets.length - 1] !== maxTop) {
 		offsets.push(maxTop)
 	}
@@ -123,10 +125,12 @@ try {
 			scrollTop: JSON.parse(scrolled.slice(scrolled.indexOf('[scrolled] ') + 11)).scrollTop,
 			...frames,
 		}
+
 		writeFileSync(
 			join(outDir, file.replace(/\.png$/, '.cells.json')),
 			JSON.stringify(sidecar, null, 2),
 		)
+
 		// The capturer watches the window title — drop 'shot-NNN' there.
 		send('title ' + file.replace(/\.png$/, ''))
 		console.log(`[shots] macos waiting for ${file} (scrollTop=${sidecar.scrollTop})`)
@@ -150,6 +154,7 @@ try {
 		closed,
 		new Promise((resolve) => setTimeout(() => resolve(null), 3000)),
 	])
+
 	if (!result && host.exitCode === null && host.signalCode === null) {
 		host.kill('SIGKILL')
 		await closed

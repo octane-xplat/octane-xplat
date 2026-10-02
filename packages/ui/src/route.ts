@@ -133,6 +133,7 @@ function trackFrame(frame: Frame, stack: string): void {
 		if ((event as typeof event & { isBackNavigation?: boolean })?.isBackNavigation) {
 			navigationRequests.invalidate(stack)
 		}
+
 		// A page re-shown by pop can stay unloaded when the frame's nav
 		// bookkeeping stalls mid-transition (the iOS strand of #11444 — the
 		// same hole the isLoaded/callLoaded workaround in commitRoute covers
@@ -310,6 +311,7 @@ async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0)
 	if (!request.isCurrent()) {
 		return
 	}
+
 	if (!request.claim(r.stack)) {
 		return
 	}
@@ -339,6 +341,7 @@ async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0)
 		if (!request.isCurrent()) {
 			return
 		}
+
 		if (e instanceof RouteRedirect) {
 			await prepareRoute(e.route, request, redirects + 1)
 			return
@@ -366,6 +369,7 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 	if (!request.isCurrent()) {
 		return
 	}
+
 	const C = screenFor(r.name)
 	if (!C) {
 		warnOnce(

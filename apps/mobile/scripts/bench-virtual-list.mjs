@@ -44,6 +44,7 @@ const restoreMode = () => {
 	if (modeRestored) {
 		return
 	}
+
 	modeFiles.forEach((modeFile, index) => {
 		writeFileSync(modeFile, originalModes[index])
 	})
@@ -57,6 +58,7 @@ const deviceId = process.env.XPLAT_VLIST_DEVICE
 if (!deviceId) {
 	throw new Error('Set XPLAT_VLIST_DEVICE')
 }
+
 const child = spawn(
 	'python3',
 	[
@@ -86,6 +88,7 @@ const signalRun = (signal) => {
 	if (!child.pid) {
 		return
 	}
+
 	try {
 		if (process.platform === 'win32') {
 			child.kill(signal)
@@ -152,6 +155,7 @@ const consume = (chunk) => {
 		if (at === -1) {
 			continue
 		}
+
 		try {
 			result = JSON.parse(line.slice(at + marker.length))
 			clearTimeout(timeout)

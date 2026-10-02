@@ -40,10 +40,12 @@ import 'octane/signals'
 if (!VIRTUAL_LIST_BENCH_MODE) {
 	void import('./lottie-probe')
 }
+
 installParityDump()
 if (!VIRTUAL_LIST_BENCH_MODE) {
 	void import('@xplat/app/platform/paritysweep')
 }
+
 // Per-file css module imports — same shape as apps/web/src/main.tsrx. Each
 // module passes the xplat-native-css transform (px→dip + xplat-web-only
 // strip); an @import'd chain inlines raw text and bypasses it — that's how
@@ -167,6 +169,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
 					: VIRTUAL_LIST_BENCH_FIXED_MODE
 						? 'fixed48'
 						: 'variable'
+
 				console.log(
 					'[vlist-input] ready ' +
 						JSON.stringify({ target, heightMode, durationMs: VIRTUAL_LIST_INPUT_DURATION_MS }),
@@ -347,11 +350,13 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(() => {
 		const hex = (c: any) =>
 			(c && typeof c === 'object' ? (c.hex ?? String(c)) : String(c))?.toLowerCase?.()
+
 		const lp = find('layer-probe')
 		const up = find('layer-unlayered-probe')
 		console.log(
 			'[probe] layer-probe=' + (lp ? lp.constructor.name : 'none') + ' opacity=' + lp?.opacity,
 		)
+
 		assertEq('layer order beats specificity', lp?.opacity, 0.35)
 		assertEq(
 			'unlayered beats layered',
@@ -523,6 +528,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 					const desc = String(cur.description ?? cur)
 						.replace(/<|>/g, '')
 						.split(':')[0]
+
 					chain += ' < ' + desc
 					cur = cur.superview
 				}
@@ -1412,6 +1418,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 											const pageTexts = texts(page)
 											const inlineOk =
 												!!scrollBox && !!list && pageTexts.includes('ScrollBox row 1')
+
 											console.log(
 												'[assert] Android ScrollBox inline list: ' +
 													(inlineOk ? 'OK' : 'FAIL') +
@@ -1568,6 +1575,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 					const perm = await media
 						.ensure('camera')
 						.catch((e: Error) => 'threw ' + (e as Error).message)
+
 					console.log('[probe] capturePhoto ensure(camera)=' + JSON.stringify(perm))
 				} catch (e) {
 					console.log('[probe] capturePhoto ensure threw: ' + (e as Error).message)

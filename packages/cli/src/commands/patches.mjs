@@ -84,6 +84,7 @@ const check = command({
 			if (row.state === 'not-declared' || row.state === 'not-applicable') {
 				continue
 			}
+
 			if (row.state === 'applied') {
 				p.log.success(`${row.specifier} — applied`)
 			} else {
@@ -98,6 +99,7 @@ const check = command({
 		if (bad) {
 			process.exitCode = 1
 		}
+
 		p.outro(bad ? `${bad} patch(es) need attention` : 'patch set applied')
 	},
 })

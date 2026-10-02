@@ -30,6 +30,7 @@ export function startCameraPreview(
 	if (!input || !session.canAddInput(input)) {
 		throw new Error('camera input unavailable')
 	}
+
 	session.addInput(input)
 	const layer = av.AVCaptureVideoPreviewLayer.layerWithSession(session)
 	layer.videoGravity = 'resizeAspectFill'
@@ -45,6 +46,7 @@ export function startCameraPreview(
 	if (!nativeView?.layer) {
 		throw new Error('camera preview host unavailable')
 	}
+
 	nativeView.layer.addSublayer(layer)
 	const updateFrame = () => {
 		layer.frame = nativeView.bounds

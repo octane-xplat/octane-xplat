@@ -23,10 +23,12 @@ function measureTextLineAdvances(value: string, font: string): number[] | undefi
 	if (!value || !font) {
 		return undefined
 	}
+
 	const context = document.createElement('canvas').getContext('2d')
 	if (!context) {
 		return undefined
 	}
+
 	context.font = font
 	return value.split(/\r\n|\r|\n/).map((line) => round(context.measureText(line).width))
 }
@@ -35,6 +37,7 @@ function measureTextLineCount(el: any): number | undefined {
 	if (!el.childNodes?.length) {
 		return undefined
 	}
+
 	const range = document.createRange()
 	range.selectNodeContents(el)
 	const tops = [...range.getClientRects()]
@@ -56,6 +59,7 @@ function measureContentBox(el: any, bounds: DOMRect, box: DOMRect, cs: CSSStyleD
 	if (!['input', 'textarea'].includes(el.tagName.toLowerCase())) {
 		return undefined
 	}
+
 	const styleNumber = (name: string) => Number.parseFloat((cs as any)[name]) || 0
 	const left = styleNumber('borderLeftWidth') + styleNumber('paddingLeft')
 	const right = styleNumber('borderRightWidth') + styleNumber('paddingRight')
@@ -78,6 +82,7 @@ function nodeFor(el: any, boxEl: any) {
 	const text = textValue?.trim()
 	const textLineAdvances =
 		textValue !== undefined ? measureTextLineAdvances(textValue, cs.font) : undefined
+
 	const textLineCount = measureTextLineCount(el)
 	const contentBox = measureContentBox(el, r, box, cs)
 	const placeholder = typeof el.placeholder === 'string' ? el.placeholder || undefined : undefined

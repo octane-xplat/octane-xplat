@@ -58,6 +58,7 @@ function runSample(size, mode) {
 				if (markerIndex < 0) {
 					continue
 				}
+
 				try {
 					result = JSON.parse(line.slice(markerIndex + marker.length))
 					clearTimeout(killAfterResult)
@@ -103,6 +104,7 @@ function assertSample(result, size, mode) {
 	if (result.status === 'killed-before-metrics') {
 		return
 	}
+
 	if (mode === 'all') {
 		if (
 			result.initial?.mountedRowCount !== size ||
@@ -166,6 +168,7 @@ function assertSample(result, size, mode) {
 console.log(
 	`AppKit VirtualList probe · ${requestedModes.join(', ')} · ${requestedSizes.join(', ')} rows`,
 )
+
 for (const mode of requestedModes) {
 	for (const size of requestedSizes) {
 		const result = await runSample(size, mode)

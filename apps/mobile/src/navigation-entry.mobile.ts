@@ -41,6 +41,7 @@ async function wait(name: string, condition: () => boolean): Promise<void> {
 		if (Date.now() - start > 10000) {
 			throw new Error(name + ' timed out')
 		}
+
 		await pause()
 	}
 }
@@ -57,11 +58,13 @@ function collect(view: any, out: any[] = []): any[] {
 	if (!view) {
 		return out
 	}
+
 	out.push(view)
 	view.eachChildView?.((child: any) => {
 		collect(child, out)
 		return true
 	})
+
 	return out
 }
 
@@ -69,11 +72,13 @@ const texts = (view: any) =>
 	collect(view)
 		.map((v) => v.text)
 		.filter((v) => typeof v === 'string')
+
 async function select(label: string): Promise<void> {
 	let view = collect(page).find((v) => v.text === label)
 	while (view && !view.getGestureObservers?.(1)?.length) {
 		view = view.parent
 	}
+
 	check('tab target loaded ' + label, view?.isLoaded === true)
 	for (const observer of view.getGestureObservers(1)) {
 		observer.callback.call(observer.context, { eventName: 'tap', object: view })
@@ -84,6 +89,7 @@ async function select(label: string): Promise<void> {
 
 const push = (stack: string, id: string, name = 'nav/:id') =>
 	pushRoute({ stack, name, params: { id } })
+
 async function shown(stack: string, id: string, view: any = page): Promise<void> {
 	await wait(
 		'route ' + id,
@@ -112,6 +118,7 @@ async function run(): Promise<void> {
 			() =>
 				routeFor('root')?.params.id === 'cold' && texts(frame.currentPage).includes('route:cold'),
 		)
+
 		check('cold incoming link once', frame.backStack.length === 1 && incoming.length === 0)
 		popRoute()
 		await wait('cold pop', () => routeFor('root') === null && frame.currentPage === page)
@@ -139,6 +146,7 @@ async function run(): Promise<void> {
 			{ path: 'runtime/:id', screen: NavigationScreen, loader: (p) => 'runtime-' + p.id },
 		]),
 	)
+
 	push('first', 'runtime', 'runtime/:id')
 	await shown('first', 'runtime')
 	await wait('runtime loader', () => texts(page).includes('data:runtime-runtime'))
@@ -150,6 +158,7 @@ async function run(): Promise<void> {
 		'guard context and loader render',
 		texts(page).includes('guard:true') && texts(page).includes('data:loaded-guarded'),
 	)
+
 	pushRoute({ stack: 'first', name: 'blocked', params: {} })
 	await pause()
 	check('rejected guard leaves route', routeFor('first')?.params.id === 'guarded')
@@ -162,6 +171,7 @@ async function run(): Promise<void> {
 			},
 		]),
 	)
+
 	pushRoute({ stack: 'first', name: 'redirected', params: {} })
 	await shown('first', 'redirect')
 	popRoute('first')
@@ -178,6 +188,7 @@ async function run(): Promise<void> {
 		'root pushed',
 		() => routeFor('root')?.params.id === 'root' && texts(frame.currentPage).includes('route:root'),
 	)
+
 	push('root', 'modal', 'modal/:id')
 	await wait(
 		'modal mounted',
@@ -185,26 +196,31 @@ async function run(): Promise<void> {
 			currentModalRoute()?.params.id === 'modal' &&
 			(frame.currentPage as any)?.modal?.isLoaded === true,
 	)
+
 	if (Application.android) {
 		const calls: string[] = []
 		const old = addBackInterceptor(() => {
 			calls.push('old')
 			return false
 		})
+
 		const newest = addBackInterceptor(() => {
 			calls.push('new')
 			return true
 		})
+
 		check(
 			'hardware interceptor consumes',
 			hardwareBack() && currentModalRoute()?.params.id === 'modal',
 		)
+
 		check('hardware interceptor newest first', calls.join(',') === 'new')
 		newest()
 		check(
 			'hardware dismisses modal first',
 			hardwareBack() && currentModalRoute() === null && routeFor('root')?.params.id === 'root',
 		)
+
 		await wait('modal native dismissal', () => !(frame.currentPage as any)?.modal)
 		check('older interceptor resumed', calls.join(',') === 'new,old')
 		old()
@@ -215,6 +231,7 @@ async function run(): Promise<void> {
 			'modal dismissed',
 			() => currentModalRoute() === null && !(frame.currentPage as any)?.modal,
 		)
+
 		check('modal dismissal retains presenter', routeFor('root')?.params.id === 'root')
 		popRoute()
 	}
@@ -225,6 +242,7 @@ async function run(): Promise<void> {
 			'hardware pops most recent named stack',
 			hardwareBack() && routeFor('first') === null && routeFor('second')?.params.id === 'other',
 		)
+
 		check('hardware pops remaining named stack', hardwareBack() && routeFor('second') === null)
 		check('hardware base falls through', !hardwareBack())
 	} else {
@@ -257,6 +275,7 @@ async function run(): Promise<void> {
 				tabview.items.every((item: any, index: number) => item === items[index]) &&
 					getStack('ios-first')?.backStack.length === 1,
 			)
+
 			popRoute('ios-first')
 			await wait('UITabBar pop', () => routeFor('ios-first') === null)
 		}
@@ -269,6 +288,7 @@ async function run(): Promise<void> {
 	File.fromPath(knownFolders.documents().path + '/navigation-check.json').writeTextSync(
 		JSON.stringify({ awaitingWarmLinks: true, results }),
 	)
+
 	for (let i = 1; i <= 2; i++) {
 		await wait('warm OS link ' + i, () => incoming.length >= i)
 		check('warm incoming dispatch ' + i, pushDeepLink(incoming[i - 1]))
@@ -288,9 +308,11 @@ setTimeout(() => {
 				results,
 				pass: results.every((r) => r.pass),
 			}
+
 			File.fromPath(knownFolders.documents().path + '/navigation-check.json').writeTextSync(
 				JSON.stringify(report),
 			)
+
 			console.log('[navigation] result ' + JSON.stringify(report))
 		})
 }, 100)

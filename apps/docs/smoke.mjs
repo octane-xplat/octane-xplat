@@ -98,6 +98,7 @@ assert(
 	root.querySelectorAll('.agent-prompt').length === 1 &&
 		promptCard?.previousElementSibling?.classList.contains('lede'),
 )
+
 const promptText = promptCard?.querySelector('p')?.textContent
 const expandPrompt = promptCard?.querySelector('.agent-prompt-expand')
 expandPrompt?.click()
@@ -107,6 +108,7 @@ assert(
 	expandPrompt?.getAttribute('aria-expanded') === 'true' &&
 		promptCard?.querySelector('.agent-prompt-text.is-expanded'),
 )
+
 expandPrompt?.click()
 await new Promise((r) => setTimeout(r, 30))
 assert('agent prompt collapses', expandPrompt?.getAttribute('aria-expanded') === 'false')
@@ -119,6 +121,7 @@ Object.defineProperty(window.navigator, 'clipboard', {
 		},
 	},
 })
+
 promptCard?.querySelector('[aria-label="Copy prompt"]')?.click()
 await new Promise((r) => setTimeout(r, 30))
 assert(
@@ -127,6 +130,7 @@ assert(
 		promptText?.includes('/llms-full.txt') &&
 		promptCard?.querySelector('[role="status"]')?.textContent === 'Prompt copied',
 )
+
 const promptActions = promptCard?.querySelector('details')
 promptActions.open = true
 window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
@@ -136,9 +140,11 @@ assert(
 	new URL(promptCard.querySelector('.agent-prompt-menu a').href).searchParams.get('q') ===
 		promptText,
 )
+
 window.navigator.clipboard.writeText = async () => {
 	throw new Error('Clipboard unavailable')
 }
+
 promptCard?.querySelector('[aria-label="Copy prompt"]')?.click()
 await new Promise((r) => setTimeout(r, 30))
 assert(
@@ -156,6 +162,7 @@ assert(
 		highlights[0].textContent === 'one TypeScript codebase' &&
 		highlights[1].textContent === 'Prove the loop first',
 )
+
 assert(
 	'highlight keeps its section link',
 	highlights[1]?.querySelector('a')?.getAttribute('href') === '/toolchain#create-and-run',
@@ -178,11 +185,13 @@ assert(
 	'highlight inside bold stays bold',
 	inlineSpans('**==important==**').some((s) => s.highlight && s.bold && s.text === 'important'),
 )
+
 assert(
 	'code keeps highlight markers literal',
 	inlineSpans('`==literal==`')[0].text === '==literal==' &&
 		!inlineSpans('`==literal==`')[0].highlight,
 )
+
 assert(
 	'unclosed or empty highlights stay literal',
 	['==unfinished', '====', '===literal==='].every(
@@ -193,10 +202,12 @@ assert(
 				.join('') === text,
 	),
 )
+
 assert(
 	'single equals inside highlight stays text',
 	inlineSpans('==x = y==')[0].text === 'x = y' && inlineSpans('==x = y==')[0].highlight,
 )
+
 assert(
 	'fenced code keeps highlight markers literal',
 	parseMd('```md\n==literal==\n```')[0].text === '==literal==',
@@ -207,6 +218,7 @@ assert(
 	'escaped table pipe stays in its cell',
 	table?.kind === 'table' && table.rows[1].length === 2 && table.rows[1][0] === '`ready | error`',
 )
+
 // Sidebar navs hold the route change for the 200ms content fade-out.
 const settle = () => new Promise((resolve) => setTimeout(resolve, 280))
 let scrolledTo
@@ -217,6 +229,7 @@ window.HTMLElement.prototype.scrollIntoView = function () {
 const firstFlow = [...root.querySelectorAll('a')].find(
 	(a) => a.getAttribute('href') === '/toolchain#create-and-run',
 )
+
 assert('section link retains fragment', Boolean(firstFlow))
 firstFlow?.click()
 await settle()
@@ -224,6 +237,7 @@ assert(
 	'section navigation reaches heading',
 	window.location.hash === '#create-and-run' && scrolledTo === 'create-and-run',
 )
+
 assert('setup card stays on the front page', !root.querySelector('.agent-prompt'))
 
 const pages = readdirSync('../../docs').filter((file) => file.endsWith('.md'))
@@ -243,6 +257,7 @@ for (const file of pages) {
 const navigationNotes = [...root.querySelectorAll('.side-item')].find(
 	(el) => el.textContent === 'Navigation notes',
 )
+
 navigationNotes?.click()
 await settle()
 const labLink = [...root.querySelectorAll('.doc a')].find((a) => a.textContent === 'lab log')
@@ -250,6 +265,7 @@ assert(
 	'same-page fragment stays local',
 	labLink?.getAttribute('href') === '#lab-log' && !labLink.hasAttribute('target'),
 )
+
 assert('same-page heading exists', Boolean(root.querySelector('#lab-log')))
 
 // Cmd-K palette: open via the global shortcut, query for an API symbol,

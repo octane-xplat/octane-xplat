@@ -119,6 +119,7 @@ function percentile(values: number[], p: number) {
 	if (values.length === 0) {
 		return null
 	}
+
 	const sorted = [...values].sort((a, b) => a - b)
 	return Number(sorted[Math.max(0, Math.ceil((p / 100) * sorted.length) - 1)].toFixed(2))
 }
@@ -127,6 +128,7 @@ function summarize(values: number[]) {
 	if (values.length === 0) {
 		return { samples: 0, p50: null, p95: null, max: null }
 	}
+
 	return {
 		samples: values.length,
 		p50: percentile(values, 50),
@@ -159,6 +161,7 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
 		if (row.top > coveredUntil) {
 			maxGap = Math.max(maxGap, row.top - coveredUntil)
 		}
+
 		coveredUntil = Math.max(coveredUntil, row.bottom)
 	}
 
@@ -321,6 +324,7 @@ export async function runVirtualListInputTrace(
 		if (gap.overscrollGap > 1) {
 			overscrollGapSamples += 1
 		}
+
 		if (gap.contentGap > 1) {
 			contentGapSamples += 1
 			maxContentGap = Math.max(maxContentGap, gap.contentGap)
@@ -342,6 +346,7 @@ export async function runVirtualListInputTrace(
 		if (previousDirection !== 0 && previousDirection !== direction) {
 			directionChanges += 1
 		}
+
 		previousDirection = direction
 	}
 
@@ -474,6 +479,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 		if (heartbeatStopped) {
 			return
 		}
+
 		const firedAt = now()
 		eventLoopDriftSamples.push(Math.max(0, firedAt - heartbeatDue))
 		heartbeatDue = firedAt + 25
@@ -539,6 +545,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 		if (previousStreamIssueAt !== null) {
 			streamIntervalSamples.push(issuedAt - previousStreamIssueAt)
 		}
+
 		previousStreamIssueAt = issuedAt
 		adapter.writeOffset(targetOffset)
 		await wait()
@@ -628,6 +635,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 	if (heartbeatTimer !== undefined) {
 		clearTimeout(heartbeatTimer)
 	}
+
 	const finishedAt = now()
 
 	return {

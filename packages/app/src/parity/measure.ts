@@ -177,6 +177,7 @@ function childrenOf(view: any, out: any[] = [], visited = new Set<any>()): any[]
 		if (!child || visited.has(child)) {
 			return
 		}
+
 		visited.add(child)
 		out.push(child)
 		childrenOf(child, out, visited)
@@ -192,6 +193,7 @@ function childrenOf(view: any, out: any[] = [], visited = new Set<any>()): any[]
 	if (hasClass(view, 'vx-pager')) {
 		const index =
 			Number.isInteger(view.selectedIndex) && view.selectedIndex >= 0 ? view.selectedIndex : 0
+
 		visit(view.getChildView?.(index))
 	}
 

@@ -31,6 +31,7 @@ try {
 	console.error(
 		`check-native-dist: ${relative('.', distDir)} does not exist — run the native build first`,
 	)
+
 	process.exit(1)
 }
 
@@ -59,6 +60,7 @@ if (failures) {
 	console.error(
 		`check-native-dist: ${failures} file(s) import the DOM runtime — rewrite to octane/universal/native (see packages/ui/vite.config.ts)`,
 	)
+
 	process.exit(1)
 }
 

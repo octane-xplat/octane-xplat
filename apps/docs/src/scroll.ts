@@ -15,6 +15,7 @@ export function resetDocScroll() {
 		if (!location.hash) {
 			return
 		}
+
 		try {
 			document
 				.getElementById(decodeURIComponent(location.hash.slice(1)))

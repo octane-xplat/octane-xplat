@@ -50,6 +50,7 @@ try {
 	console.log(
 		'Chromium: keyboard actions, selection replacement, and controlled-write callback counts passed',
 	)
+
 	assert.equal(await page.locator('#input').evaluate((input) => input.selectionStart), 4)
 	await page.locator('#write').click()
 	assert.equal(await page.locator('#input').inputValue(), 'replacement')
@@ -70,6 +71,7 @@ try {
 			nodes.some((node) => !node.ignored && node.name?.value === 'Save'),
 			false,
 		)
+
 		await session.detach()
 		await page.keyboard.press('Escape')
 		await page.waitForFunction((id) => document.activeElement?.id === id, `open-${name}`)
@@ -117,6 +119,7 @@ try {
 			.evaluate((input) => input.closest('[aria-hidden="true"]') !== null),
 		true,
 	)
+
 	await page.locator('#reverse').click()
 	await page.waitForFunction(() => !document.querySelector('#presence-input')?.closest('[inert]'))
 	await page.locator('#presence-input').focus()

@@ -26,10 +26,12 @@ const isNativeDefaultFile = (f) => {
 	if (PLATFORM_SUFFIX.test(file) || isWebFile(file)) {
 		return false
 	}
+
 	const extension = SOURCE_EXTENSIONS.find((candidate) => file.endsWith(candidate))
 	if (!extension) {
 		return false
 	}
+
 	const stem = file.slice(0, -extension.length)
 	return SOURCE_EXTENSIONS.some((candidate) => existsSync(`${stem}.web${candidate}`))
 }

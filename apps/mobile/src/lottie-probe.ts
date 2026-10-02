@@ -12,6 +12,7 @@ import {
 	knownFolders,
 	path,
 } from '@nativescript/core'
+
 // The vendored plugin class — resolved through the leaf's registered
 // element so the probe exercises the same copy consumers get.
 import '@octane-xplat/lottie'
@@ -23,6 +24,7 @@ const DOCS_DIR = knownFolders.documents().path
 const RESULTS = path.join(DOCS_DIR, 'lottie-probe-results.json')
 const URL_SRC =
 	'https://raw.githubusercontent.com/octane-xplat/ui-lottie/master/sample-effects/pinjump.json'
+
 const records: Record<string, any>[] = []
 
 const LottieView = ELEMENTS.get('xplatlottie') as any
@@ -34,9 +36,11 @@ function ensureDir() {
 	if (dirReady) {
 		return
 	}
+
 	if (isAndroid) {
 		new java.io.File(DOCS_DIR).mkdirs()
 	}
+
 	dirReady = true
 }
 
@@ -76,6 +80,7 @@ function loaded(v: any): boolean {
 		if (isAndroid) {
 			return !!nv?.getComposition?.() || (v.duration ?? 0) > 0
 		}
+
 		return !!nv?.animation || (v.duration ?? 0) > 0
 	} catch {
 		return (v.duration ?? 0) > 0
@@ -88,6 +93,7 @@ async function waitForPage(): Promise<Page> {
 		if (p) {
 			return p
 		}
+
 		await sleep(500)
 	}
 
@@ -166,13 +172,16 @@ async function run() {
 			const p = isAndroid
 				? (v.nativeViewProtected as any).getProgress()
 				: (v.nativeViewProtected as any).currentProgress
+
 			midProgress = p
 			const stillPaused = !v.isAnimating()
+
 			;(v as any).resumeAnimation()
 			await sleep(250)
 			afterResume = isAndroid
 				? (v.nativeViewProtected as any).getProgress()
 				: (v.nativeViewProtected as any).currentProgress
+
 			record('pause-resume', {
 				apiPresent,
 				nativePausePresent,
@@ -287,14 +296,17 @@ async function run() {
 				if (!view) {
 					return
 				}
+
 				if (typeof view.text === 'string' && view.text) {
 					texts.push(view.text)
 				}
+
 				// Duck-typed — the leaf's plugin dep may resolve to a different
 				// copy (npm 6.0.0) than the app's fork override.
 				if (typeof view.isAnimating === 'function' && typeof view.playAnimation === 'function') {
 					leafViews++
 				}
+
 				view.eachChildView?.((c: any) => {
 					walk(c)
 					return true

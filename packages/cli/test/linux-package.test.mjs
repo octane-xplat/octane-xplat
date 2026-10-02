@@ -8,6 +8,7 @@ import {
 	rmSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { execFileSync } from 'node:child_process'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -42,10 +43,12 @@ function project(t) {
 		join(root, 'node_modules/vite/package.json'),
 		JSON.stringify({ name: 'vite', bin: { vite: 'build.cjs' } }),
 	)
+
 	writeFileSync(
 		join(root, 'node_modules/vite/build.cjs'),
 		`const fs = require('fs'); const path = require('path'); const out = process.argv[process.argv.indexOf('--outDir') + 1]; fs.mkdirSync(out, {recursive:true}); fs.writeFileSync(path.join(out, 'index.html'), '<h1>Sample</h1>');`,
 	)
+
 	return { root, manifest }
 }
 
@@ -64,6 +67,7 @@ test('Linux packaging creates relocatable app, metadata, archive and per-user de
 			'sample-app/bundle/index.html',
 		),
 	)
+
 	const relocated = join(root, 'relocated app')
 	cpSync(appDir, relocated, { recursive: true })
 	execFileSync('sh', ['-n', join(relocated, 'sample-app')])
@@ -71,6 +75,7 @@ test('Linux packaging creates relocatable app, metadata, archive and per-user de
 	execFileSync('sh', [join(relocated, 'install.sh')], {
 		env: { ...process.env, XDG_DATA_HOME: dataHome },
 	})
+
 	const installed = join(dataHome, 'org.example.Sample')
 	assert.ok(existsSync(join(installed, 'bundle/index.html')))
 	const desktop = readFileSync(join(dataHome, 'applications/org.example.Sample.desktop'), 'utf8')
@@ -90,6 +95,7 @@ test('Linux packaging rejects invalid identities, injection and config traversal
 			executableName: '../bad',
 			viteConfig: '../outside.ts',
 		}
+
 		manifest.xplat.targets.linux.host.scheme = 'https'
 		writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
 		const config = inspectLinuxPackageConfig(root)

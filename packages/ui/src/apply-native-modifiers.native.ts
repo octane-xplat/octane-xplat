@@ -5,6 +5,7 @@ export function applyNativeModifiers(view: any, modifiers?: readonly NativeModif
 	if (!view || !modifiers?.length) {
 		return
 	}
+
 	for (const entry of modifiers) {
 		if (entry.type === 'style') {
 			Object.assign(view.style, entry.values)

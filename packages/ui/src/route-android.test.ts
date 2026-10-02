@@ -40,6 +40,7 @@ const native = vi.hoisted(() => {
 			if (this.backStack.length) {
 				this.currentPage = this.backStack.pop()
 			}
+
 			this.listeners.get('navigatedTo')?.()
 		}
 		callLoaded() {
@@ -53,6 +54,7 @@ const native = vi.hoisted(() => {
 		AndroidApplication: { activityBackPressedEvent: 'back' },
 		getRootView: () => null,
 	}
+
 	return { View, Frame, app, events, roots: [] as any[] }
 })
 
@@ -62,6 +64,7 @@ vi.mock('@nativescript/core', () => ({
 	Page: native.View,
 	GridLayout: native.View,
 }))
+
 vi.mock('octane', () => ({ useSyncExternalStore: vi.fn(), hookSlots: vi.fn() }))
 vi.mock('@nativescript-community/octane', () => ({
 	createNativeScriptRoot: (host: any) => {
@@ -91,11 +94,13 @@ beforeEach(async () => {
 
 const push = (stack: string, id: string, presentation?: 'modal') =>
 	router.pushRoute({ stack, name: 'detail', params: { id }, presentation })
+
 const back = () => {
 	const event = { cancel: false }
 	native.events.get('back')!(event)
 	return event.cancel
 }
+
 it('uses route arrays even when Android has a registered named Frame', () => {
 	const named = new native.Frame()
 	stacks.registerStack('first', named as any)
@@ -117,10 +122,12 @@ it('orders interceptors then modal, root, latest named stack and base fall-throu
 		calls.push('old')
 		return false
 	})
+
 	const newest = router.addBackInterceptor(() => {
 		calls.push('new')
 		return true
 	})
+
 	expect(back()).toBe(true)
 	expect(calls).toEqual(['new'])
 	newest()

@@ -55,9 +55,11 @@ try {
 			const next = await read()
 			matches =
 				JSON.stringify(next) === JSON.stringify(previous) && next.mounted > 1 ? matches + 1 : 0
+
 			if (matches >= 3) {
 				return next
 			}
+
 			previous = next
 		}
 
@@ -122,12 +124,14 @@ try {
 	await list.evaluate((node, y) => {
 		node.scrollTop = y
 	}, after.offset)
+
 	await stable()
 	assert.match(
 		await page.locator('#' + anchor.id).innerText(),
 		/ · 0$/,
 		'Off-window local state should reset',
 	)
+
 	await page.locator('#vl-clear').click()
 	await page.waitForFunction(() => document.querySelector('#vlist .vx-virtual-list-empty'))
 	assert.equal(await list.locator('.vx-virtual-list-row').count(), 0)

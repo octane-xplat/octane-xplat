@@ -1,12 +1,12 @@
 {
 	"name": "@octane-xplat/context-menu",
-	"repository": {
-		"type": "git",
-		"directory": "packages/context-menu",
-		"url": "https://github.com/octane-xplat/octane-xplat"
-	},
 	"version": "0.8.0",
 	"description": "Platform-specific context menu controls for Octane xplat",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/context-menu"
+	},
 	"files": [
 		"dist",
 		"types",

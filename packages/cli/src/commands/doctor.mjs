@@ -531,6 +531,7 @@ export const doctor = command({
 					'-c',
 					`imports.gi.versions.Gtk = '4.0'; imports.gi.versions.Adw = '1'; imports.gi.versions.WebKit = '6.0'; imports.gi.versions.Secret = '1'; const {Gtk, Adw, WebKit, Secret} = imports.gi; if (Gtk.get_major_version() === 4 && Gtk.get_minor_version() < 10) throw new Error('GTK 4.10+ required'); print('GTK ' + Gtk.get_major_version() + '.' + Gtk.get_minor_version() + ', WebKitGTK 6.0, libadwaita, libsecret');`,
 				])
+
 				row(
 					'Linux runtime',
 					runtime.ok,

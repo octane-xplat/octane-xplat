@@ -65,6 +65,7 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 		if (!/\bvx-virtual-list-(header|footer|empty)\b/.test(String(view.className ?? ''))) {
 			return []
 		}
+
 		const top = Number(view.getLocationOnScreen?.()?.y ?? Number.NaN) - listY
 		const height = Number(view.getActualSize?.()?.height ?? 0)
 		return Number.isFinite(top) && height > 0 ? [{ top, bottom: top + height }] : []
@@ -75,6 +76,7 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 			.split(' ')
 			.includes('vx-virtual-list-cell'),
 	)
+
 	const hosts = pooledHosts.length
 		? pooledHosts
 		: views.filter((view) =>
@@ -82,6 +84,7 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 					.split(' ')
 					.includes('vx-virtual-list-row'),
 			)
+
 	const mountedCellIds = hosts.map((view) => {
 		const nativeHost = view.nativeViewProtected ?? view
 		let id = hostIds.get(nativeHost)
@@ -159,6 +162,7 @@ export async function runVirtualListInputBenchmark(
 					.includes('vx-virtual-list-row'),
 			)
 			.map((view) => Number(view.getActualSize?.()?.width ?? 0))
+
 		return {
 			...result,
 			framePacing: frames.result(),
@@ -207,6 +211,7 @@ function observeAndroidFrames() {
 					if (metrics.getMetric(android.view.FrameMetrics.FIRST_DRAW_FRAME) !== 0) {
 						return
 					}
+
 					totals.push(metrics.getMetric(android.view.FrameMetrics.TOTAL_DURATION) / 1e6)
 					layouts.push(metrics.getMetric(android.view.FrameMetrics.LAYOUT_MEASURE_DURATION) / 1e6)
 					draws.push(metrics.getMetric(android.view.FrameMetrics.DRAW_DURATION) / 1e6)

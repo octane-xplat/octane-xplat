@@ -4,19 +4,24 @@ const library = dlopen(__hostEnv('XPLAT_PROBE_DYLIB'), 2 | 8) // RTLD_NOW | RTLD
 if (!library) {
 	throw Error('Custom dylib failed to load')
 }
+
 if (!dlsym(library, 'xplat_probe_add')) {
 	throw Error('Custom export missing')
 }
+
 if (expectDeclared) {
 	if (typeof xplat_probe_add !== 'function') {
 		throw Error('Custom declaration missing')
 	}
+
 	if (xplat_probe_add(19, 23) !== 42) {
 		throw Error('Native sum differs')
 	}
+
 	if (xplat_probe_add(-7, 2) !== -5) {
 		throw Error('Signed native sum differs')
 	}
+
 	console.log('PASS custom metadata: xplat_probe_add(19, 23) = 42; (-7, 2) = -5')
 } else {
 	if (typeof xplat_probe_add !== 'undefined') {

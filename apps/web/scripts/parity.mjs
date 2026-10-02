@@ -36,6 +36,7 @@ async function addRenderedFontData(page, dump) {
 		const {
 			root: { nodeId: documentNodeId },
 		} = await session.send('DOM.getDocument')
+
 		for (const [name, nodes] of Object.entries(dump.cells ?? {})) {
 			const { nodeId: boxNodeId } = await session.send('DOM.querySelector', {
 				nodeId: documentNodeId,
@@ -45,24 +46,29 @@ async function addRenderedFontData(page, dump) {
 			if (!boxNodeId) {
 				continue
 			}
+
 			const { nodeIds } = await session.send('DOM.querySelectorAll', {
 				nodeId: boxNodeId,
 				selector: '*',
 			})
+
 			const measuredNodeIds = [boxNodeId, ...nodeIds]
 			for (let index = 0; index < Math.min(nodes.length, measuredNodeIds.length); index++) {
 				const { fonts } = await session.send('CSS.getPlatformFontsForNode', {
 					nodeId: measuredNodeIds[index],
 				})
+
 				const usedFonts = fonts.filter((font) => font.glyphCount > 0)
 				const families = [...new Set(usedFonts.map((font) => font.familyName).filter(Boolean))]
 				const postScriptNames = [
 					...new Set(usedFonts.map((font) => font.postScriptName).filter(Boolean)),
 				]
+
 				const style = nodes[index]?.style
 				if (!style || families.length === 0) {
 					continue
 				}
+
 				style.fontFamilyStack = style.fontFamily
 				style.fontFamily = families.join(', ')
 				style.fontPostScriptName = postScriptNames.join(', ')
@@ -88,6 +94,7 @@ try {
 	await page.addStyleTag({
 		content: '*,*::before,*::after{animation:none!important;transition:none!important}',
 	})
+
 	await page.waitForSelector('#parity-stage .vx-switch', { timeout: 10000 })
 	// Slider's fill/thumb sizes come from a ResizeObserver pass — give it a
 	// frame to settle before dumping.
@@ -98,6 +105,7 @@ try {
 	await page.evaluate(() =>
 		document.getElementById('cell-popover-bottom-frame')?.scrollIntoView({ block: 'center' }),
 	)
+
 	await page.waitForTimeout(100)
 
 	const dump = await page.evaluate(() =>

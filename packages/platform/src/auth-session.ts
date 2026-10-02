@@ -108,6 +108,7 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 		const intentUrl = (intent: any) => intent?.getDataString?.()
 		const initialActivity =
 			Utils.android.getCurrentActivity() ?? Application.android.foregroundActivity
+
 		const initialUrl = intentUrl(initialActivity?.getIntent?.())
 		let finished = false
 

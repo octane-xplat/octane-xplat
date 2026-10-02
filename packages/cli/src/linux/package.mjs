@@ -9,6 +9,7 @@ import {
 	rmSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
@@ -25,6 +26,7 @@ export async function packageLinux(appRoot) {
 	if (config.issues.length) {
 		throw new Error(config.issues.join('\n'))
 	}
+
 	const require = createRequire(join(resolve(appRoot), 'package.json'))
 	let vite
 	try {
@@ -55,6 +57,7 @@ export async function packageLinux(appRoot) {
 			],
 			{ cwd: appRoot, stdio: 'inherit' },
 		)
+
 		if (!existsSync(join(appDir, 'bundle', 'index.html'))) {
 			throw new Error(
 				'Linux packaging requires a static Vite frontend with index.html (not SSR or library output).',
@@ -74,6 +77,7 @@ export async function packageLinux(appRoot) {
 				2,
 			) + '\n',
 		)
+
 		writeFileSync(
 			join(appDir, config.executableName),
 			`#!/bin/sh
@@ -131,22 +135,26 @@ printf 'Installed to %s\\n' "$DEST"
 			join(appDir, 'README.txt'),
 			`${config.productName} ${config.version}\nRun ./${config.executableName} from any directory, or ./install.sh to copy into XDG_DATA_HOME and install the desktop entry.\nRequires Python 3 for installation; GJS, GTK4 (4.10+), libadwaita, WebKitGTK 6.0, libsecret, a graphical session, and D-Bus for execution.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 python3 desktop-file-utils xdg-utils\nSecret storage needs an unlocked Secret Service keyring. Notifications need a desktop notification service.\nRegister incoming links with: xdg-mime default ${config.applicationId}.desktop x-scheme-handler/${config.scheme}\nRemove the installed application directory and ${config.applicationId}.desktop from XDG_DATA_HOME/applications to uninstall.\n`,
 		)
+
 		execFileSync(
 			'tar',
 			['-czf', join(staging, archiveName), '-C', staging, config.executableName],
 			{ stdio: 'inherit' },
 		)
+
 		const destination = join(output, config.executableName)
 		const backup = join(staging, 'previous')
 		if (existsSync(destination)) {
 			renameSync(destination, backup)
 		}
+
 		try {
 			renameSync(appDir, destination)
 		} catch (error) {
 			if (existsSync(backup)) {
 				renameSync(backup, destination)
 			}
+
 			throw error
 		}
 

@@ -6,6 +6,7 @@ export function toChildArray(children: any): any[] {
 		if (node == null || node === false) {
 			return
 		}
+
 		if (Array.isArray(node)) {
 			for (const child of node) {
 				walk(child)

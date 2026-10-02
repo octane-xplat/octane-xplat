@@ -150,12 +150,14 @@ export const webAuthn: Capability<WebAuthnImpl> = {
 	ensure: unsupported,
 	impl: null,
 }
+
 export { authSession } from './auth-session.macos'
 export const openSettings: Capability<OpenSettingsImpl> = {
 	supported: false,
 	ensure: unsupported,
 	impl: null,
 }
+
 export { permissions } from './permissions'
 export const systemBars = {
 	setColor(_color: string): void {

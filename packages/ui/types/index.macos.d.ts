@@ -70,6 +70,7 @@ export declare const ScrollView: Component<P.ScrollViewProps>
 export declare function VirtualList<T = any>(
 	props: P.VirtualListProps<T> & { children?: any },
 ): unknown
+
 export declare const Image: Component<P.ImageProps>
 export declare const WebView: Component<P.WebViewProps>
 export declare const CameraView: Component
@@ -140,9 +141,11 @@ export declare function deriveRouteManifest(
 	prefer: readonly string[],
 	dir?: string,
 ): P.RouteManifest
+
 export declare function defineRoutes(
 	input: readonly P.RouteSpec[] | P.RouteSpecSet,
 ): P.RouteManifest
+
 export declare function mergeRouteManifests(...manifests: P.RouteManifest[]): P.RouteManifest
 export declare function createStore<T>(initial: T): P.Store<T>
 export declare function useStore<T>(store: P.ReadableStore<T>): T

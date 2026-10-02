@@ -152,14 +152,17 @@ function hydrateRoute(route: Route): void {
 			current = prepared
 			changed = true
 		}
+
 		if (modalRoute === route) {
 			modalRoute = prepared
 			changed = true
 		}
+
 		for (const saved of historyRoutes.values()) {
 			if (saved.current === route) {
 				saved.current = prepared
 			}
+
 			if (saved.modal === route) {
 				saved.modal = prepared
 			}
@@ -279,6 +282,7 @@ async function prepareRoute(r: Route, request: NavigationRequest, redirects = 0)
 		if (!request.isCurrent()) {
 			return
 		}
+
 		if (e instanceof RouteRedirect) {
 			await prepareRoute(e.route, request, redirects + 1)
 			return
@@ -306,6 +310,7 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 	if (!request.isCurrent()) {
 		return
 	}
+
 	const route: Route = { ...r, presentation: r.presentation ?? presentationFor(r.name) }
 	const loader = routeLoaders[route.name] ?? routes.find((meta) => meta.name === route.name)?.loader
 	if (
@@ -348,6 +353,7 @@ function commitRoute(r: Route, request: NavigationRequest): void {
 		'',
 		buildRoutePath(routes, route),
 	)
+
 	lastKey = scrollKey()
 
 	applyHead(modalRoute ?? current ?? null)

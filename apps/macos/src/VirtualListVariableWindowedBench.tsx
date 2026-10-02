@@ -80,6 +80,7 @@ export default function VirtualListVariableWindowedBench() {
 			if (current.start === start && current.end === end) {
 				return current
 			}
+
 			scrollProbe.pendingRangeAt = now()
 			return { start, end }
 		})
@@ -89,6 +90,7 @@ export default function VirtualListVariableWindowedBench() {
 		if (scrollProbe.pendingRangeAt === 0) {
 			return
 		}
+
 		scrollProbe.rangeCommitMs.push(now() - scrollProbe.pendingRangeAt)
 		scrollProbe.pendingRangeAt = 0
 	}, [range.start, range.end])

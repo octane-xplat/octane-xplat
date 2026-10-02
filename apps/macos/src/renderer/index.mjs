@@ -69,6 +69,7 @@ function loadBundledGeistFonts() {
 	if (!fontBytes) {
 		throw new Error('Could not find the bundled Geist font asset')
 	}
+
 	const licenseText =
 		injectedGeistLicense ??
 		(() => {
@@ -76,6 +77,7 @@ function loadBundledGeistFonts() {
 			if (!path) {
 				throw new Error('Could not find the Geist font license')
 			}
+
 			return readFileSync(path, 'utf8')
 		})()
 
@@ -88,6 +90,7 @@ function loadBundledGeistFonts() {
 	if (!existsSync(fontPath)) {
 		writeFileSync(fontPath, fontBytes)
 	}
+
 	if (!existsSync(licensePath)) {
 		writeFileSync(licensePath, licenseText, 'utf8')
 	}
@@ -214,6 +217,7 @@ class AccessibleStackView extends NSStackView {
 		if (actionId === undefined || !actionHandlers.has(actionId)) {
 			return false
 		}
+
 		invokeAction(actionId)
 		return true
 	}
@@ -334,9 +338,11 @@ function stackAlignmentAttribute(view, value) {
 	if (value === 'center') {
 		return horizontal ? NSLayoutAttribute.CenterY : NSLayoutAttribute.CenterX
 	}
+
 	if (value === 'end' || value === 'flex-end') {
 		return horizontal ? NSLayoutAttribute.Bottom : NSLayoutAttribute.Right
 	}
+
 	if (value === 'stretch' || value === 'start' || value === 'flex-start' || value === 'normal') {
 		return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
 	}
@@ -344,6 +350,7 @@ function stackAlignmentAttribute(view, value) {
 	if (value === 'baseline' && horizontal) {
 		return NSLayoutAttribute.FirstBaseline
 	}
+
 	return horizontal ? NSLayoutAttribute.Top : NSLayoutAttribute.Left
 }
 
@@ -352,12 +359,15 @@ function stackAlignItems(node) {
 	if (classes.includes('vx-button') || classes.includes('items-center')) {
 		return 'center'
 	}
+
 	if (classes.includes('items-start')) {
 		return 'start'
 	}
+
 	if (classes.includes('items-end')) {
 		return 'end'
 	}
+
 	return node.props.alignItems ?? 'stretch'
 }
 
@@ -365,9 +375,11 @@ function stackJustifyContent(node) {
 	if (nodeClasses(node).includes('vx-button')) {
 		return 'center'
 	}
+
 	if (nodeClasses(node).includes('justify-between')) {
 		return 'space-between'
 	}
+
 	return node.props.justifyContent ?? 'start'
 }
 
@@ -376,6 +388,7 @@ function updateCrossAxisConstraints(parent) {
 	if (!stack || stack.orientation == null) {
 		return
 	}
+
 	const horizontal = stack.orientation === NSUserInterfaceLayoutOrientation.Horizontal
 	const dimension = horizontal ? 'height' : 'width'
 	const alignItems = stackAlignItems(parent)
@@ -387,11 +400,13 @@ function updateCrossAxisConstraints(parent) {
 		if (child.crossAxisConstraint) {
 			child.crossAxisConstraint.active = false
 		}
+
 		child.crossAxisConstraint = null
 		const childView = arrangedView(child)
 		if (alignItems !== 'stretch' || !childView || child.sizeConstraintSpecs?.[dimension]) {
 			continue
 		}
+
 		const anchor = horizontal ? 'heightAnchor' : 'widthAnchor'
 		child.crossAxisConstraint = inset
 			? childView[anchor].constraintEqualToAnchorConstant(stack[anchor], -inset)
@@ -426,6 +441,7 @@ function makeMarginHost(node) {
 		origin: { x: 0, y: 0 },
 		size: { width: 0, height: 0 },
 	})
+
 	host.translatesAutoresizingMaskIntoConstraints = false
 	host.addSubview(node.view)
 	const insets = marginInsetsOf(node)
@@ -439,6 +455,7 @@ function makeMarginHost(node) {
 	for (const constraint of constraints) {
 		constraint.active = true
 	}
+
 	node.marginHost = host
 	node.marginConstraints = constraints
 	return host
@@ -451,6 +468,7 @@ function syncMarginHost(node) {
 	if (!node.view || !parent) {
 		return
 	}
+
 	const stack = parent.childHost ?? parent.view
 	if (typeof stack?.addViewInGravity !== 'function') {
 		// Grid children are laid out manually and already honor margins.
@@ -494,6 +512,7 @@ function setMarginStyle(node, name, value) {
 		console.warn(
 			'[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value),
 		)
+
 		return
 	}
 
@@ -522,17 +541,21 @@ function stackGravity(parent, child) {
 	if (justifyContent === 'center') {
 		return NSStackViewGravity.Center
 	}
+
 	if (justifyContent === 'end' || justifyContent === 'flex-end') {
 		return trailing
 	}
+
 	if (justifyContent === 'space-between') {
 		const index = parent.children.indexOf(child)
 		if (index === 0) {
 			return leading
 		}
+
 		if (index === parent.children.length - 1) {
 			return trailing
 		}
+
 		return NSStackViewGravity.Center
 	}
 
@@ -544,10 +567,12 @@ function moveStackChildren(parent) {
 	if (typeof stack?.addViewInGravity !== 'function') {
 		return
 	}
+
 	for (const child of parent.children) {
 		if (!child.view) {
 			continue
 		}
+
 		const arranged = arrangedView(child)
 		stack.removeArrangedSubview(arranged)
 		arranged.removeFromSuperview()
@@ -563,6 +588,7 @@ function updateStackDistribution(parent) {
 	if (stack?.orientation == null) {
 		return
 	}
+
 	if (stackJustifyContent(parent) === 'space-between') {
 		stack.distribution = NSStackViewDistribution.EqualSpacing
 		return
@@ -578,6 +604,7 @@ function setStackChildPriorities(parent, child) {
 	if (stack?.orientation == null || !child.view) {
 		return
 	}
+
 	const mainAxis = stack.orientation
 	const grow = nodeClasses(child).includes('flex-1')
 	for (const orientation of [
@@ -715,6 +742,7 @@ function setScrollAction(node, handler) {
 			if (node.scrollMetrics.events.length > 2000) {
 				node.scrollMetrics.events.shift()
 			}
+
 			setTimeout(() => {
 				sample.afterEventMs = performance.now() - startedAt
 				sample.mountedRows = [...node.container.nodes.values()].filter(
@@ -846,6 +874,7 @@ function makeSlider(props) {
 		origin: { x: 0, y: 0 },
 		size: { width: 140, height: 24 },
 	})
+
 	slider.minValue = Number(props.minValue ?? 0)
 	slider.maxValue = Number(props.maxValue ?? 1)
 	slider.doubleValue = Number(props.value ?? 0)
@@ -863,6 +892,7 @@ function makeGridLayout() {
 		origin: { x: 0, y: 0 },
 		size: { width: 140, height: 28 },
 	})
+
 	view.translatesAutoresizingMaskIntoConstraints = false
 	return view
 }
@@ -872,6 +902,7 @@ function makeAbsoluteLayout() {
 		origin: { x: 0, y: 0 },
 		size: { width: 140, height: 28 },
 	})
+
 	view.translatesAutoresizingMaskIntoConstraints = false
 	return view
 }
@@ -973,10 +1004,12 @@ function autoPlaceGridChildren(parent, placements) {
 		if (placement.row == null || placement.col != null) {
 			continue
 		}
+
 		let col = 0
 		while (!gridAreaIsFree(occupied, placement.row, col, placement.rowSpan, placement.colSpan)) {
 			col++
 		}
+
 		placement.col = col
 		occupyGridArea(occupied, placement.row, col, placement.rowSpan, placement.colSpan)
 	}
@@ -985,10 +1018,12 @@ function autoPlaceGridChildren(parent, placements) {
 		if (placement.col == null || placement.row != null) {
 			continue
 		}
+
 		let row = 0
 		while (!gridAreaIsFree(occupied, row, placement.col, placement.rowSpan, placement.colSpan)) {
 			row++
 		}
+
 		placement.row = row
 		occupyGridArea(occupied, row, placement.col, placement.rowSpan, placement.colSpan)
 	}
@@ -999,6 +1034,7 @@ function autoPlaceGridChildren(parent, placements) {
 		if (placement.row != null && placement.col != null) {
 			continue
 		}
+
 		while (true) {
 			const availableColumns = Math.max(columnCount, placement.colSpan)
 			if (cursorCol + placement.colSpan > availableColumns) {
@@ -1010,6 +1046,7 @@ function autoPlaceGridChildren(parent, placements) {
 			if (gridAreaIsFree(occupied, cursorRow, cursorCol, placement.rowSpan, placement.colSpan)) {
 				break
 			}
+
 			cursorCol++
 		}
 
@@ -1092,6 +1129,7 @@ function resolveGridTrackSizes(tracks, placements, axis, available) {
 
 	const fractionSize =
 		fractionWeight > 0 ? Math.max(0, available - fixedAndAuto) / fractionWeight : 0
+
 	for (let index = 0; index < tracks.length; index++) {
 		if (tracks[index].kind === 'fraction') {
 			sizes[index] = fractionSize * tracks[index].value
@@ -1106,6 +1144,7 @@ function trackOffset(sizes, index) {
 	for (let current = 0; current < index; current++) {
 		offset += sizes[current]
 	}
+
 	return offset
 }
 
@@ -1113,6 +1152,7 @@ function layoutGridChildren(parent) {
 	if (!parent?.view) {
 		return
 	}
+
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
 	const overlayChildren = parent.props.overlayChildren === true
@@ -1146,6 +1186,7 @@ function layoutGridChildren(parent) {
 		if (!overlayChildren) {
 			autoPlaceGridChildren(parent, placements)
 		}
+
 		const columns = gridAxisTracks(parent.props.columns, placements, 'columns')
 		const rows = gridAxisTracks(parent.props.rows, placements, 'rows')
 		const columnSizes = resolveGridTrackSizes(columns, placements, 'columns', width)
@@ -1247,6 +1288,7 @@ function layoutAbsoluteChildren(parent) {
 	if (!parent?.view) {
 		return
 	}
+
 	const width = Number(parent.view.bounds.size.width)
 	const height = Number(parent.view.bounds.size.height)
 
@@ -1254,6 +1296,7 @@ function layoutAbsoluteChildren(parent) {
 		if (!child.view) {
 			continue
 		}
+
 		const style = child.props.style ?? {}
 		const intrinsic = child.view.intrinsicContentSize ?? { width: 0, height: 0 }
 		const left = layoutLength(child.props.left, width, Number.NaN)
@@ -1295,6 +1338,7 @@ function performGridAccessibilityAdjustment(view, name) {
 	if (typeof handler !== 'function') {
 		return false
 	}
+
 	try {
 		node.container.root.eventScope('discrete', handler)
 		return true
@@ -1309,6 +1353,7 @@ function makeImageView(props) {
 		origin: { x: 0, y: 0 },
 		size: { width: 24, height: 24 },
 	})
+
 	image.translatesAutoresizingMaskIntoConstraints = false
 	const match = /^data:[^,]*;base64,(.+)$/s.exec(String(props.src ?? ''))
 	if (match) {
@@ -1429,6 +1474,7 @@ function makeNode(container, id, type, props) {
 		placeholder.heightAnchor.constraintEqualToConstant(
 			Math.ceil(14 * DEFAULT_TEXT_LINE_HEIGHT_RATIO),
 		).active = true
+
 		placeholder.hidden = String(props.value ?? '').length > 0
 		view.addSubview(placeholder)
 		placeholder.leadingAnchor.constraintEqualToAnchorConstant(view.leadingAnchor, 0).active = true
@@ -1460,6 +1506,7 @@ function parseEdgeInsets(value) {
 	const parts = String(value)
 		.split(/\s+/)
 		.map((p) => parseFloat(p) || 0)
+
 	const top = parts[0] ?? 0
 	const right = parts.length > 1 ? parts[1] : top
 	const bottom = parts.length > 2 ? parts[2] : top
@@ -1554,6 +1601,7 @@ function applyThemeColors(node) {
 	if (!view) {
 		return
 	}
+
 	node.scheme = nodeScheme(node)
 	const colors = SCHEME_COLORS[node.scheme]
 	if (node.type === 'label' || node.type === 'textfield' || node.type === 'textview') {
@@ -1566,6 +1614,7 @@ function applyThemeColors(node) {
 	if (node.type === 'textfield') {
 		setTextFieldPlaceholder(view, node.props, node.scheme)
 	}
+
 	if (node.type === 'textview' && node.placeholderView) {
 		node.placeholderView.textColor = nativeColor(colors.placeholder)
 	}
@@ -1583,6 +1632,7 @@ function syncScheme(node) {
 	if (scheme === (node.scheme ?? 'light')) {
 		return
 	}
+
 	for (const entry of [node, ...descendants(node)]) {
 		applyThemeColors(entry)
 	}
@@ -1606,11 +1656,13 @@ function fontForFamilyStyle(size, weight = 400, family) {
 		.split(',')[0]
 		.trim()
 		.replace(/^['"]|['"]$/g, '')
+
 	if (firstFamily === 'system-ui' || firstFamily === '-apple-system') {
 		const systemFont = NSFont.systemFontOfSize(Number(size))
 		if (!systemFont) {
 			throw new Error('Failed to create the AppKit system font face')
 		}
+
 		return systemFont
 	}
 
@@ -1671,6 +1723,7 @@ function sizeConstraintParentView(node) {
 	if (node.parent) {
 		return node.parent.childHost ?? node.parent.view
 	}
+
 	return node.container.children.includes(node) ? node.container.hostView : null
 }
 
@@ -1692,6 +1745,7 @@ function applySizeConstraint(node, name) {
 		if (!parentView) {
 			return
 		}
+
 		const anchor = name === 'width' ? node.view.widthAnchor : node.view.heightAnchor
 		const parentAnchor = name === 'width' ? parentView.widthAnchor : parentView.heightAnchor
 		constraint = anchor.constraintEqualToAnchorMultiplier(parentAnchor, spec.multiplier)
@@ -1726,13 +1780,16 @@ function applyStyle(node, style) {
 	if (style == null) {
 		return
 	}
+
 	if (typeof style !== 'object') {
 		throw new Error('AppKit spike expects style to be an object')
 	}
+
 	for (const [name, value] of Object.entries(style)) {
 		if (value == null) {
 			continue
 		}
+
 		if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
 			node.appliedFontWeight = String(weight)
@@ -1755,6 +1812,7 @@ function applyStyle(node, style) {
 			for (const edge of EDGE_INSET_PROPS.get(name)) {
 				insets[edge] = Number(value) || 0
 			}
+
 			node.view.edgeInsets = insets
 		} else if (name === 'backgroundColor' && node.view) {
 			node.styleBg = String(value)
@@ -1770,6 +1828,7 @@ function applyStyle(node, style) {
 			if (node.parent?.type === 'gridlayout') {
 				layoutGridChildren(node.parent)
 			}
+
 			if (node.parent?.type === 'absolutelayout') {
 				layoutAbsoluteChildren(node.parent)
 			}
@@ -1807,6 +1866,7 @@ function applyClassName(node, value) {
 	const classes = String(value ?? '')
 		.split(/\s+/)
 		.filter(Boolean)
+
 	if (node.type === 'label') {
 		const sizes = {
 			'text-xs': 12,
@@ -1816,6 +1876,7 @@ function applyClassName(node, value) {
 			'text-xl': 20,
 			'text-2xl': 28,
 		}
+
 		const lineHeights = { 'text-sm': 20, 'text-lg': 28, 'text-xl': 28, 'text-2xl': 36 }
 		const headingMetrics = {
 			'vx-h1': { size: 32, height: 41 },
@@ -1848,6 +1909,7 @@ function applyClassName(node, value) {
 			if (lineHeights[name] != null) {
 				node.classLineHeight = lineHeights[name]
 			}
+
 			if (name === 'font-semibold') {
 				node.appliedFontWeight = '600'
 				node.view.font = fontForFamilyStyle(node.view.font.pointSize, 600, node.appliedFontFamily)
@@ -1861,6 +1923,7 @@ function applyClassName(node, value) {
 			if (name === 'text-muted') {
 				node.colorSlot = 'muted'
 			}
+
 			if (name === 'text-onprimary') {
 				node.colorSlot = 'onprimary'
 			}
@@ -1878,12 +1941,15 @@ function applyClassName(node, value) {
 			if (gaps[name] !== undefined) {
 				node.view.spacing = gaps[name]
 			}
+
 			if (name === 'flex-row') {
 				node.view.orientation = NSUserInterfaceLayoutOrientation.Horizontal
 			}
+
 			if (name === 'flex-col') {
 				node.view.orientation = NSUserInterfaceLayoutOrientation.Vertical
 			}
+
 			if (name === 'items-center' || name === 'items-start' || name === 'items-end') {
 				node.view.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
 			}
@@ -1897,11 +1963,13 @@ function applyClassName(node, value) {
 			if (name === 'justify-between') {
 				node.view.distribution = NSStackViewDistribution.EqualSpacing
 			}
+
 			if (name === 'flex-1') {
 				node.view.setContentHuggingPriorityForOrientation(
 					1,
 					NSUserInterfaceLayoutOrientation.Vertical,
 				)
+
 				node.view.setContentCompressionResistancePriorityForOrientation(
 					1,
 					NSUserInterfaceLayoutOrientation.Vertical,
@@ -1927,6 +1995,7 @@ function applyClassName(node, value) {
 				node.view.layer.backgroundColor = nativeColor(
 					SCHEME_COLORS[nodeScheme(node)].primary,
 				).CGColor
+
 				node.view.edgeInsets = { top: 6, left: 10, bottom: 6, right: 10 }
 			}
 
@@ -1944,6 +2013,7 @@ function applyClassName(node, value) {
 				node.view.layer.backgroundColor = nativeColor(
 					SCHEME_COLORS[nodeScheme(node)].secondary,
 				).CGColor
+
 				node.view.edgeInsets = { top: 4, left: 8, bottom: 4, right: 8 }
 			}
 
@@ -1973,6 +2043,7 @@ function applyClassName(node, value) {
 			if (node.type === 'textfield') {
 				node.view.bezeled = false
 			}
+
 			if (node.type === 'textview') {
 				node.view.textContainerInset = { width: 0, height: 0 }
 			}
@@ -1993,6 +2064,7 @@ function applyClassName(node, value) {
 	if (node.parent) {
 		setStackChildPriorities(node.parent, node)
 	}
+
 	updateStackDistribution(node)
 }
 
@@ -2000,9 +2072,11 @@ function textContent(node) {
 	if (node.type === '#text') {
 		return node.text
 	}
+
 	if (node.type === 'label') {
 		return node.view.stringValue
 	}
+
 	return node.children.map(textContent).join('')
 }
 
@@ -2027,6 +2101,7 @@ function syncText(parent) {
 	if (parent?.type !== 'label') {
 		return
 	}
+
 	setLabelText(parent, parent.children.map(textContent).join(''))
 }
 
@@ -2088,6 +2163,7 @@ function setControlAction(node, value, readValue) {
 	if (node.actionId === undefined) {
 		return
 	}
+
 	actionHandlers.set(
 		node.actionId,
 		typeof value === 'function'
@@ -2107,6 +2183,7 @@ function applyAccessibility(node, name, value) {
 		if (name === 'accessibilityLabel') {
 			accessibilityLabels.set(node.actionId, String(value ?? ''))
 		}
+
 		if (name === 'accessibilityRole') {
 			accessibilityRoles.set(node.actionId, String(value ?? ''))
 		}
@@ -2123,6 +2200,7 @@ function applyProps(node, props) {
 		if ('value' in props) {
 			node.text = String(props.value ?? '')
 		}
+
 		syncText(node.parent)
 		return
 	}
@@ -2498,9 +2576,11 @@ function detach(container, node) {
 	if (index >= 0) {
 		siblings.splice(index, 1)
 	}
+
 	if (node.crossAxisConstraint) {
 		node.crossAxisConstraint.active = false
 	}
+
 	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
 	if (node.view) {
@@ -2515,12 +2595,15 @@ function detach(container, node) {
 	if (previousParent?.type === 'gridlayout') {
 		layoutGridChildren(previousParent)
 	}
+
 	if (previousParent?.type === 'absolutelayout') {
 		layoutAbsoluteChildren(previousParent)
 	}
+
 	if (previousParent) {
 		updateStackDistribution(previousParent)
 	}
+
 	syncText(previousParent)
 	node.parent = null
 }
@@ -2531,6 +2614,7 @@ function insert(container, parentId, node, beforeId) {
 	if (parentId !== null && !parent) {
 		throw new Error('Unknown AppKit parent ' + parentId)
 	}
+
 	if (
 		parent &&
 		node.view &&
@@ -2553,6 +2637,7 @@ function insert(container, parentId, node, beforeId) {
 		if (!parentView) {
 			throw new Error('AppKit host has no parent view for node ' + node.id)
 		}
+
 		if (parent) {
 			if (parent.type === 'gridlayout') {
 				parentView.addSubview(node.view)
@@ -2568,6 +2653,7 @@ function insert(container, parentId, node, beforeId) {
 				if (marginInsetsOf(node)) {
 					makeMarginHost(node)
 				}
+
 				parentView.addViewInGravity(arrangedView(node), stackGravity(parent, node))
 				applySizeConstraints(node)
 				setStackChildPriorities(parent, node)
@@ -2593,14 +2679,17 @@ function remove(container, parentId, node) {
 	if (node.parent !== expectedParent) {
 		return
 	}
+
 	const siblings = expectedParent ? expectedParent.children : container.children
 	const index = siblings.indexOf(node)
 	if (index >= 0) {
 		siblings.splice(index, 1)
 	}
+
 	if (node.crossAxisConstraint) {
 		node.crossAxisConstraint.active = false
 	}
+
 	node.crossAxisConstraint = null
 	deactivateSizeConstraints(node)
 	if (node.view) {
@@ -2618,12 +2707,15 @@ function remove(container, parentId, node) {
 	if (expectedParent?.type === 'gridlayout') {
 		layoutGridChildren(expectedParent)
 	}
+
 	if (expectedParent?.type === 'absolutelayout') {
 		layoutAbsoluteChildren(expectedParent)
 	}
+
 	if (expectedParent) {
 		updateStackDistribution(expectedParent)
 	}
+
 	node.parent = null
 	syncText(expectedParent)
 }
@@ -2659,6 +2751,7 @@ function applyCommand(container, command) {
 			if (!node) {
 				throw new Error('Unknown AppKit node ' + command.id)
 			}
+
 			applyProps(node, command.props)
 			return
 		}
@@ -2668,6 +2761,7 @@ function applyCommand(container, command) {
 			if (!node) {
 				throw new Error('Unknown AppKit node ' + command.id)
 			}
+
 			insert(container, command.parent, node, command.before)
 			return
 		}
@@ -2676,6 +2770,7 @@ function applyCommand(container, command) {
 			if (node) {
 				remove(container, command.parent, node)
 			}
+
 			return
 		}
 		case 'destroy': {
@@ -2683,6 +2778,7 @@ function applyCommand(container, command) {
 			if (node) {
 				destroy(node)
 			}
+
 			container.nodes.delete(command.id)
 			return
 		}
@@ -2691,6 +2787,7 @@ function applyCommand(container, command) {
 			if (node?.view) {
 				node.view.hidden = command.state === 'hidden'
 			}
+
 			return
 		}
 		case 'ensure-public-instance':
@@ -2700,6 +2797,7 @@ function applyCommand(container, command) {
 			if (!node) {
 				throw new Error('Unknown AppKit node ' + command.id)
 			}
+
 			const replacement = makeNode(container, command.id, command.type, command.props)
 			const parent = node.parent
 			const siblings = parent ? parent.children : container.children
@@ -2738,6 +2836,7 @@ const macOSDriver = {
 								command.id,
 							error,
 						)
+
 						throw error
 					}
 				}
@@ -2772,6 +2871,7 @@ function withDrawingAppearance(appearance, read) {
 	const readValue = () => {
 		value = read()
 	}
+
 	if (typeof appearance?.performAsCurrentDrawingAppearance === 'function') {
 		appearance.performAsCurrentDrawingAppearance(readValue)
 	} else {
@@ -2785,6 +2885,7 @@ function colorValue(color, appearance) {
 	if (!color) {
 		return undefined
 	}
+
 	try {
 		return withDrawingAppearance(appearance, () => {
 			const rgb = color.colorUsingColorSpace?.(NSColorSpace.sRGBColorSpace) ?? color
@@ -2818,21 +2919,27 @@ function parityStyle(node, facets) {
 		if (facet === 'paddingTop' && view?.edgeInsets?.top != null) {
 			value = view.edgeInsets.top
 		}
+
 		if (facet === 'paddingRight' && view?.edgeInsets?.right != null) {
 			value = view.edgeInsets.right
 		}
+
 		if (facet === 'paddingBottom' && view?.edgeInsets?.bottom != null) {
 			value = view.edgeInsets.bottom
 		}
+
 		if (facet === 'paddingLeft' && view?.edgeInsets?.left != null) {
 			value = view.edgeInsets.left
 		}
+
 		if (facet === 'fontSize' && font?.pointSize != null) {
 			value = font.pointSize
 		}
+
 		if (facet === 'fontFamily' && font?.familyName) {
 			value = font.familyName
 		}
+
 		if (facet === 'fontWeight' && font?.fontDescriptor?.symbolicTraits != null) {
 			value =
 				supplied.fontWeight ??
@@ -2851,6 +2958,7 @@ function parityStyle(node, facets) {
 		if (facet === 'color' && view?.textColor) {
 			value = colorValue(view.textColor) ?? value
 		}
+
 		if (facet === 'backgroundColor') {
 			value =
 				colorValue(
@@ -2858,6 +2966,7 @@ function parityStyle(node, facets) {
 						? NSColor.colorWithCGColor(view.layer.backgroundColor)
 						: null,
 				) ?? value
+
 			if (value == null && view?.drawsBackground === false) {
 				value = 'rgba(0,0,0,0)'
 			}
@@ -2866,6 +2975,7 @@ function parityStyle(node, facets) {
 		if (facet === 'borderTopWidth' && view?.layer) {
 			value = view.layer.borderWidth
 		}
+
 		if (facet === 'borderTopColor' && view?.layer?.borderColor) {
 			value = colorValue(NSColor.colorWithCGColor(view.layer.borderColor)) ?? value
 		}
@@ -2873,15 +2983,19 @@ function parityStyle(node, facets) {
 		if (facet === 'borderTopLeftRadius' && view?.layer) {
 			value = view.layer.cornerRadius
 		}
+
 		if (facet === 'opacity' && view?.alphaValue != null) {
 			value = view.alphaValue
 		}
+
 		if (facet === 'flexDirection' && view?.orientation != null) {
 			value = stackDirection(view)
 		}
+
 		if (facet === 'alignItems' && view?.orientation != null) {
 			value = stackAlignItems(node)
 		}
+
 		if (facet === 'justifyContent' && view?.distribution != null) {
 			value = stackJustifyContent(node)
 		}
@@ -2902,6 +3016,7 @@ function measureTextLineAdvances(value, font) {
 	if (!value || !font) {
 		return undefined
 	}
+
 	return String(value)
 		.split(/\r\n|\r|\n/)
 		.map((line) => {
@@ -2917,11 +3032,13 @@ function measureTextLineCount(node) {
 	if (node.type !== 'label') {
 		return undefined
 	}
+
 	const view = node.view
 	const cell = view?.cell
 	if (typeof cell?.cellSizeForBounds !== 'function') {
 		return undefined
 	}
+
 	const bounds = view.bounds
 	const fit = cell.cellSizeForBounds({
 		origin: { x: 0, y: 0 },
@@ -2974,6 +3091,7 @@ function textContentBox(node, boxNode) {
 	if (!view || !boxNode.view) {
 		return null
 	}
+
 	if (node.type === 'textfield' && typeof view.cell?.titleRectForBounds === 'function') {
 		return parityLocalBoxInHost(view, view.cell.titleRectForBounds(view.bounds), boxNode.view)
 	}
@@ -3043,6 +3161,7 @@ function parityNode(node, boxNode, facets) {
 
 	const placeholderAttributedString =
 		node.type === 'textfield' ? view?.placeholderAttributedString : null
+
 	const placeholder =
 		node.type === 'textfield'
 			? String(placeholderAttributedString?.string ?? view?.placeholderString ?? '').trim()
@@ -3097,6 +3216,7 @@ function measureParity(container, facets) {
 	if (!stage?.view) {
 		return null
 	}
+
 	container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
 	stage.view.layoutSubtreeIfNeeded?.()
 
@@ -3107,6 +3227,7 @@ function measureParity(container, facets) {
 		if (!box?.view) {
 			continue
 		}
+
 		box.view.layoutSubtreeIfNeeded?.()
 		for (const scroll of descendants(box).filter(
 			(node) => node.type === 'scrollview' && node.view,
@@ -3150,6 +3271,7 @@ function dispatchHover(area, phase) {
 	if (typeof handler !== 'function') {
 		return
 	}
+
 	try {
 		handler()
 	} catch (error) {
@@ -3178,6 +3300,7 @@ function observeHover(view, handlers) {
 	if (!area) {
 		return () => {}
 	}
+
 	view.addTrackingArea(area)
 	const record = { view, area, enter: handlers?.enter, exit: handlers?.exit }
 	hoverRecordsByArea.set(area, record)
@@ -3190,6 +3313,7 @@ function unobserveHover(view) {
 	if (!record) {
 		return
 	}
+
 	hoverRecordByView.delete(view)
 	hoverRecordsByArea.delete(record.area)
 	try {
@@ -3293,6 +3417,7 @@ function showAnchoredPopup(options) {
 			if (popup.closed) {
 				return
 			}
+
 			popup.closed = true
 			openPopups.delete(popup)
 			try {
@@ -3409,6 +3534,7 @@ function attachContextMenu(view, options, onSelect) {
 		if (item?.disabled) {
 			menuItem.enabled = false
 		}
+
 		const actionId = nextActionId++
 		menuItem.tag = actionId
 		const id = item?.id
@@ -3433,6 +3559,7 @@ function attachContextMenu(view, options, onSelect) {
 		if (!hostView || typeof hostView !== 'object') {
 			return
 		}
+
 		try {
 			hostView.menu = menu
 			tagged.push(hostView)
@@ -3465,6 +3592,7 @@ function attachContextMenu(view, options, onSelect) {
 
 const DATE_PICKER_STYLES =
 	typeof NSDatePickerStyle === 'object' && NSDatePickerStyle ? NSDatePickerStyle : {}
+
 const DATE_PICKER_ELEMENTS =
 	typeof NSDatePickerElementFlags === 'object' && NSDatePickerElementFlags
 		? NSDatePickerElementFlags
@@ -3474,6 +3602,7 @@ function dateFromMillis(millis) {
 	if (typeof NSDate !== 'function' || !Number.isFinite(millis)) {
 		return null
 	}
+
 	return NSDate.dateWithTimeIntervalSince1970(millis / 1000)
 }
 
@@ -3539,6 +3668,7 @@ function attachDatePicker(view, options, onChange) {
 		if (millis === null) {
 			return
 		}
+
 		try {
 			onChange?.(millis)
 		} catch (error) {
@@ -3603,6 +3733,7 @@ function finishSheetDismissal(sheetWindow) {
 		if (entry.sheetWindow !== sheetWindow) {
 			continue
 		}
+
 		openSheets.delete(entry)
 		const wasClosed = entry.closed
 		entry.closed = true
@@ -3653,6 +3784,7 @@ function presentSheet(view, options) {
 		if (entry.closed) {
 			return
 		}
+
 		entry.closed = true
 		openSheets.delete(entry)
 		try {
@@ -3703,6 +3835,7 @@ function presentSheet(view, options) {
 	if (sheetDelegateTarget) {
 		sheet.delegate = sheetDelegateTarget
 	}
+
 	entry.sheetWindow = sheet
 	openSheets.add(entry)
 
@@ -3783,6 +3916,7 @@ export function createMacOSRoot(hostView) {
 					if (node.view) {
 						nativeViewCount += 1
 					}
+
 					if (node.type === 'scrollview' && node.view) {
 						const bounds = node.view.contentView.bounds
 						scrollViews.push({
@@ -3805,9 +3939,11 @@ export function createMacOSRoot(hostView) {
 					if (node.parent !== null) {
 						parentedRowCount += 1
 					}
+
 					if (node.view?.superview != null) {
 						nativeAttachedRowCount += 1
 					}
+
 					if (node.parent !== null && node.view?.superview != null) {
 						mountedRowCount += 1
 						firstMountedRow = Math.min(firstMountedRow, index)
@@ -3843,6 +3979,7 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit ScrollView with id ' + id)
 				}
+
 				const clipView = node.view.contentView
 				clipView.scrollToPoint({ x: 0, y: Math.max(0, Number(offset) || 0) })
 				node.view.reflectScrolledClipView(clipView)
@@ -3860,6 +3997,7 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit ScrollView with id ' + id)
 				}
+
 				const clipView = node.view.contentView
 				const doc = node.view.documentView
 				const docH = Number(doc.frame.size.height)
@@ -3886,6 +4024,7 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit ScrollView with id ' + id)
 				}
+
 				const clipView = node.view.contentView
 				const doc = node.view.documentView
 				const clipH = Number(clipView.bounds.size.height)
@@ -3899,11 +4038,13 @@ export function createMacOSRoot(hostView) {
 				const published = globalThis.__xplatVlistOffsets?.[id]
 				const offset =
 					typeof published === 'number' ? published : flipped ? originY : docH - clipH - originY
+
 				const rows = descendants(node).flatMap((child) => {
 					const match = /^vlist-bench-row-(\d+)$/.exec(String(child.props?.id ?? ''))
 					if (!match || !child.view) {
 						return []
 					}
+
 					try {
 						// Row box relative to the clip's top edge, computed in doc
 						// coordinates so it stays docH-independent like `offset`.
@@ -3954,6 +4095,7 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit view with id ' + id)
 				}
+
 				const rect = node.view.convertRectToView(node.view.bounds, null)
 				return {
 					x: Number(rect.origin.x),
@@ -3969,6 +4111,7 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit node with id ' + id)
 				}
+
 				applyStyle(node, { [name]: value })
 				container.hostView.layoutSubtreeIfNeeded?.()
 				return this.frameInWindow(id)
@@ -3980,6 +4123,7 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit node with id ' + id)
 				}
+
 				const chain = []
 				for (let cur = node; cur; cur = cur.parent) {
 					chain.push({
@@ -4011,6 +4155,7 @@ export function createMacOSRoot(hostView) {
 				if (!scroll) {
 					throw new Error('No AppKit ScrollView with id ' + scrollId)
 				}
+
 				const stage = [...container.nodes.values()].find(
 					(candidate) => candidate.props.id === 'parity-stage',
 				)
@@ -4018,6 +4163,7 @@ export function createMacOSRoot(hostView) {
 				if (!stage) {
 					throw new Error('No parity stage mounted')
 				}
+
 				container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
 				scroll.view.layoutSubtreeIfNeeded?.()
 				const doc = scroll.view.documentView
@@ -4031,6 +4177,7 @@ export function createMacOSRoot(hostView) {
 					if (!cell.view || !nodeClasses(cell).includes('parity-cell')) {
 						continue
 					}
+
 					const inDoc = cell.view.convertRectToView(cell.view.bounds, doc)
 					const inWindow = cell.view.convertRectToView(cell.view.bounds, null)
 					cells.push({
@@ -4075,6 +4222,7 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit ScrollView with id ' + id)
 				}
+
 				return { ...(node.scrollMetrics ?? { events: [] }) }
 			},
 			inspect(id) {
@@ -4087,6 +4235,7 @@ export function createMacOSRoot(hostView) {
 				if (!node?.view) {
 					throw new Error('No AppKit view with id ' + id)
 				}
+
 				const view = node.view
 				const appearance = view.effectiveAppearance ?? view.window?.effectiveAppearance
 				const window = view.window
@@ -4189,6 +4338,7 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit pressable labeled ' + label)
 				}
+
 				if (!node.view.accessibilityPerformPress()) {
 					throw new Error('AppKit pressable has no action for ' + label)
 				}
@@ -4201,23 +4351,28 @@ export function createMacOSRoot(hostView) {
 				if (!node) {
 					throw new Error('No AppKit button titled ' + title)
 				}
+
 				node.view.performClick(null)
 			},
 			hover(id, phase) {
 				const node = [...container.nodes.values()].find(
 					(candidate) => candidate.props?.id === id && candidate.view,
 				)
+
 				if (!node) {
 					throw new Error('No AppKit view with id ' + id)
 				}
+
 				const record = hoverRecordByView.get(node.view)
 				if (!record) {
 					throw new Error('No hover observer on ' + id)
 				}
+
 				const handler = phase === 'exit' ? record.exit : record.enter
 				if (typeof handler !== 'function') {
 					throw new Error('No ' + phase + ' handler on ' + id)
 				}
+
 				handler()
 			},
 			openPopupCount() {

@@ -50,6 +50,7 @@ export async function runQaTrigger(key: string): Promise<string> {
 				await player().setQueue([
 					{ id: 'sample', source: SAMPLE, title: 'Sample audio', artist: 'Octane xplat' },
 				])
+
 				await player().play()
 				return 'playing'
 			case 'audio-pause':
@@ -69,6 +70,7 @@ export async function runQaTrigger(key: string): Promise<string> {
 						{ at: 100, intensity: 0.3, sharpness: 0.8 },
 					],
 				})
+
 				return 'fired'
 			case 'haptic-hold':
 				_hold ??= haptics().startRealtime()

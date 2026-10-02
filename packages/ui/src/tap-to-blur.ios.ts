@@ -15,6 +15,7 @@ export function attachTapToBlur(view: any): () => void {
 	if (!view || view[marker]) {
 		return () => {}
 	}
+
 	view[marker] = true
 
 	iosAttach()
@@ -34,10 +35,12 @@ function iosAttach() {
 	if (iosRecognizer) {
 		return
 	}
+
 	const appWin = appWindow()
 	if (!appWin) {
 		return
 	}
+
 	iosWindow = appWin
 	// Resolve Objective-C bridge globals only when the iOS view is attached.
 	@NativeClass
@@ -79,6 +82,7 @@ function iosDetach() {
 	if (iosCount > 0 || !iosRecognizer) {
 		return
 	}
+
 	iosWindow?.removeGestureRecognizer(iosRecognizer)
 	iosRecognizer = null
 	iosTarget = null

@@ -45,6 +45,7 @@ test('hosted exchange rejects wrong callback, duplicate parameters, mismatched s
 			if (consumed) {
 				return null
 			}
+
 			consumed = true
 			return { state: 'expected', pkceVerifier: 'server-only' }
 		},

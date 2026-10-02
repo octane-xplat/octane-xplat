@@ -18,6 +18,7 @@ function run(command, args, { log, env = process.env, timeout = 300_000 } = {}) 
 	if (log) {
 		writeFileSync(join(scratch, log), output)
 	}
+
 	if (result.error || result.status !== 0) {
 		throw new Error(
 			`${command} failed: ${result.error ?? result.signal ?? result.status}\n${output.slice(-6000)}`,
@@ -134,6 +135,7 @@ for (const [declared, metadataPath, marker] of [
 	if (!transcript.includes(marker)) {
 		throw new Error(`Host omitted assertion marker:\n${transcript}`)
 	}
+
 	console.log(transcript.split('\n').find((line) => line.startsWith(marker)))
 }
 

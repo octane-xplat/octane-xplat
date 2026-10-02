@@ -40,6 +40,7 @@ function wire() {
 			if (url === initial) {
 				return
 			}
+
 			dispatch(url)
 		})
 
@@ -61,6 +62,7 @@ function wire() {
 			if (!intent || intent === lastIntent || intent.equals?.(lastIntent)) {
 				return
 			}
+
 			lastIntent = intent
 			dispatch(intent.getDataString?.())
 		})

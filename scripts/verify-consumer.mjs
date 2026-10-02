@@ -164,6 +164,7 @@ try {
 				['-r', '--filter', './packages/*', '--if-present', 'run', 'build'],
 				repoRoot,
 			)
+
 			assert.equal(r.status, 0, 'pnpm -r build failed')
 		})
 	}
@@ -231,6 +232,7 @@ try {
 			['-xzf', patchesTarball, '-C', configDir, '--strip-components=1'],
 			work,
 		)
+
 		assert.equal(untar.status, 0, 'patches tarball extraction failed')
 
 		const workspaceFile = join(appDir, 'pnpm-workspace.yaml')
@@ -311,6 +313,7 @@ try {
 						() => reject(new Error('vite preview never printed Local')),
 						30000,
 					)
+
 					preview.stdout.on('data', (chunk) => {
 						if (String(chunk).includes('Local')) {
 							clearTimeout(timer)

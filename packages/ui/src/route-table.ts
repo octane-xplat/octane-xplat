@@ -629,11 +629,13 @@ export function matchUrl(routes: readonly RouteMeta[], url: string): Route | nul
 		if (!decodeURIComponent(p)) {
 			return null
 		}
+
 		query = parseQueryString(qs)
 	} catch (error) {
 		if (error instanceof URIError) {
 			return null
 		}
+
 		throw error
 	}
 

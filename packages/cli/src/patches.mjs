@@ -66,16 +66,19 @@ const workspaceDeps = (appDir) => {
 	if (!existsSync(ws)) {
 		return {}
 	}
+
 	const globs = readYamlDoc(ws)?.get('packages')?.toJSON() ?? []
 	const deps = {}
 	for (const glob of globs) {
 		if (!glob.endsWith('/*')) {
 			continue
 		}
+
 		const parent = join(appDir, glob.slice(0, -2))
 		if (!existsSync(parent)) {
 			continue
 		}
+
 		for (const member of readdirSync(parent)) {
 			const pkg = readJson(join(parent, member, 'package.json'))
 			Object.assign(deps, declaredDeps(pkg))
@@ -106,6 +109,7 @@ const lockfilePatches = (appDir) => {
 	if (!existsSync(lock)) {
 		return null
 	}
+
 	const pd = readYamlDoc(lock)?.get('patchedDependencies')
 	return isMap(pd) ? new Set(pd.items.map((i) => String(i.key))) : new Set()
 }
@@ -118,12 +122,14 @@ const lockfileResolvedVersions = (appDir) => {
 	if (!existsSync(lock)) {
 		return null
 	}
+
 	const doc = readYamlDoc(lock)
 	const resolved = {}
 	const add = (name, version) => {
 		if (!name || !version) {
 			return
 		}
+
 		const set = (resolved[name] ??= new Set())
 		set.add(version)
 	}
@@ -219,10 +225,12 @@ export const inspectPatches = (appDir) => {
 		if (!base.path) {
 			return { ...base, state: 'missing-config' }
 		}
+
 		const file = join(appDir, base.path)
 		if (!existsSync(file)) {
 			return { ...base, state: 'missing-file' }
 		}
+
 		if (sha(file) !== sha(join(canonicalPatchesDir, patch.file))) {
 			return { ...base, state: 'file-differs' }
 		}
@@ -269,6 +277,7 @@ export const wrapComment = (text, width = 88) => {
 	if (line) {
 		lines.push(line)
 	}
+
 	return lines.join('\n ')
 }
 
@@ -401,6 +410,7 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 			if (existing === target) {
 				continue
 			}
+
 			if (existing !== undefined && !force) {
 				report.conflicts.push({
 					...patch,
@@ -419,6 +429,7 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 		if (changed) {
 			writeFileSync(file, String(doc))
 		}
+
 		return
 	}
 
@@ -434,6 +445,7 @@ const mergeConfig = (appDir, patches, { force, report }) => {
 		if (existing === target) {
 			continue
 		}
+
 		if (existing !== undefined && !force) {
 			report.conflicts.push({
 				...patch,

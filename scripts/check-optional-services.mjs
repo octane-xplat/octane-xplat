@@ -33,11 +33,13 @@ try {
 				...(target === 'web' ? { compilerOptions: { types: [] } } : {}),
 			}),
 		)
+
 		execFileSync(
 			process.execPath,
 			[join(root, 'node_modules/typescript/bin/tsc'), '--noEmit', '-p', config],
 			{ cwd: root, stdio: 'inherit' },
 		)
+
 		console.log(`Optional service ${target} adapter types pass`)
 	}
 
@@ -52,6 +54,7 @@ try {
 		],
 		{ cwd: root, stdio: 'inherit' },
 	)
+
 	execFileSync(process.execPath, ['apps/web/scripts/optional-services.mjs'], {
 		cwd: root,
 		stdio: 'inherit',

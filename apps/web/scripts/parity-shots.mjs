@@ -76,6 +76,7 @@ try {
 	for (let o = 0; o <= scrollInfo.max; o += STEP) {
 		offsets.push(o)
 	}
+
 	if (offsets.length === 0 || offsets[offsets.length - 1] !== scrollInfo.max) {
 		offsets.push(scrollInfo.max)
 	}

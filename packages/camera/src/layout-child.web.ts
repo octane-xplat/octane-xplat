@@ -17,21 +17,27 @@ export function layoutChildProps(props: CameraViewProps, baseStyle: any = props.
 	if (props.left !== undefined) {
 		style.left = props.left
 	}
+
 	if (props.top !== undefined) {
 		style.top = props.top
 	}
+
 	if (props.flexGrow !== undefined) {
 		style.flexGrow = props.flexGrow
 	}
+
 	if (props.flexShrink !== undefined) {
 		style.flexShrink = props.flexShrink
 	}
+
 	if (props.alignSelf !== undefined) {
 		style.alignSelf = props.alignSelf
 	}
+
 	if (props.order !== undefined) {
 		style.order = props.order
 	}
+
 	return { style }
 }
 
@@ -39,6 +45,7 @@ export function applyEscapeProps(element: any, props: { web?: any }): void {
 	if (!element || !props.web) {
 		return
 	}
+
 	for (const [key, value] of Object.entries(props.web)) {
 		if (key.includes('-')) {
 			if (value == null || value === false) {

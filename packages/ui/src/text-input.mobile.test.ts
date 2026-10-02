@@ -74,6 +74,7 @@ describe('native controlled input writes', () => {
 			flushUniversalSync(() =>
 				container.dispatchEvent(node, 'textchange', { object: node, value: text }),
 			)
+
 			expect(change).toHaveBeenCalledExactlyOnceWith('xy')
 			const dismiss = vi.fn()
 			const clearFocus = vi.fn()

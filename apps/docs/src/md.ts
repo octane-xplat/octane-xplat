@@ -114,6 +114,7 @@ export function parseMd(md: string): Block[] {
 				.toLowerCase()
 				.replace(/[^\p{L}\p{N}_\s-]/gu, '')
 				.replace(/ /g, '-')
+
 			let id = slug
 			let suffix = 0
 			while (headingIds.has(id)) {

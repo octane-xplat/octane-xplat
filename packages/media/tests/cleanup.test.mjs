@@ -75,9 +75,11 @@ test('native failed conversion removes the JPEG created by the current selection
 			if (name === '@nativescript/core') {
 				return core
 			}
+
 			if (name === '@nativescript/camera') {
 				return {}
 			}
+
 			return {
 				create: () => ({ authorize: async () => true, present: async () => [{ asset: {} }] }),
 			}

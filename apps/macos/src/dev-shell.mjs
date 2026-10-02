@@ -29,6 +29,7 @@ function unmount() {
 	if (unmounted) {
 		return
 	}
+
 	unmounted = true
 	try {
 		root.unmount()
@@ -51,14 +52,17 @@ function reload(afterEdit = false) {
 	if (closed) {
 		return
 	}
+
 	if (!liveComponent) {
 		bench.beforeRender()
 	}
+
 	const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE)
 	const component = loaded.default ?? loaded
 	if (!component) {
 		throw Error('The macOS dev bundle has no default component export')
 	}
+
 	if (!liveComponent) {
 		liveComponent = hmrUniversalComponent('macos', component)
 		root.render(liveComponent, { parentWindow: window })
@@ -81,12 +85,15 @@ globalThis.__xplatOnInput = (line) => {
 		if (line === 'reload') {
 			return reload(true)
 		}
+
 		if (bench.onInput(line)) {
 			return
 		}
+
 		if (process.env.OCTANE_MACOS_AUTOMATION !== '1') {
 			return
 		}
+
 		const targets = [root.__macosDebug, ...debugWindows().map((entry) => entry.debug)]
 		if (line.startsWith('press ')) {
 			root.__macosDebug.pressButton(line.slice(6))
@@ -111,6 +118,7 @@ globalThis.__xplatOnInput = (line) => {
 			console.log(
 				'[macos-automation] ' + JSON.stringify({ openPopups: root.__macosDebug.openPopupCount() }),
 			)
+
 			return
 		} else if (line.startsWith('inspect ')) {
 			console.log('[inspect] ' + JSON.stringify(root.__macosDebug.inspect(line.slice(8))))
@@ -137,14 +145,17 @@ globalThis.__xplatOnInput = (line) => {
 			console.log(
 				'[parity-cells] ' + JSON.stringify(root.__macosDebug.parityCellFrames('parity-scroll')),
 			)
+
 			return
 		} else if (line.startsWith('scrolltop ')) {
 			const parts = line.slice(10).split(' ')
 			const [scrollId, top] =
 				parts.length > 1 ? [parts[0], Number(parts[1])] : ['parity-scroll', Number(parts[0])]
+
 			console.log(
 				'[scrolled] ' + JSON.stringify({ scrollTop: root.__macosDebug.scrollToTop(scrollId, top) }),
 			)
+
 			return
 		} else if (line.startsWith('listsnap ')) {
 			const snap = root.__macosDebug.listSnapshot(line.slice(9))
@@ -190,6 +201,7 @@ globalThis.__xplatOnInput = (line) => {
 			if (!globalThis.__xplatMacOSRunParity) {
 				throw Error('Parity runner is unavailable')
 			}
+
 			globalThis.__xplatMacOSRunParity()
 			return
 		}

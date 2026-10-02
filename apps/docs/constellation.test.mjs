@@ -8,6 +8,7 @@ test('constellation keeps 50–80% fading and follows scroll, motion preference,
 	const dom = new JSDOM(
 		'<div id="host"><svg>' + '<polygon />'.repeat(20) + '</svg></div><div id="content"></div>',
 	)
+
 	const previousWindow = globalThis.window
 	globalThis.window = dom.window
 	t.after(() => {
@@ -28,6 +29,7 @@ test('constellation keeps 50–80% fading and follows scroll, motion preference,
 				frames.map((frame) => frame.opacity),
 				[1, 0.35, 1],
 			)
+
 			assert.ok(options.duration >= 2340 && options.duration < 4680)
 			assert.ok(!live.has(element), 'an element cannot have overlapping fades')
 			const animation = { cancel: () => live.delete(element) }

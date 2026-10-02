@@ -63,6 +63,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		if (!nowPlaying) {
 			return
 		}
+
 		const track = current()
 		if (!track) {
 			nowPlaying.nowPlayingInfo = null as unknown as NSDictionary<string, any>
@@ -74,9 +75,11 @@ export const createAudioPlayer = (): AudioPlayer => {
 		if (track.artist) {
 			info.setObjectForKey(track.artist, MPMediaItemPropertyArtist)
 		}
+
 		if (track.album) {
 			info.setObjectForKey(track.album, MPMediaItemPropertyAlbumTitle)
 		}
+
 		info.setObjectForKey(
 			snapshot().duration,
 			(globalThis as any).MPMediaItemPropertyPlaybackDuration,
@@ -142,6 +145,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		if (!queue.length || disposed) {
 			return
 		}
+
 		if (index + delta >= queue.length) {
 			state = 'ended'
 			player?.pause()
@@ -157,6 +161,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		if (!player || disposed) {
 			return
 		}
+
 		const category = AVAudioSessionCategoryPlayback
 		session.setCategoryModeOptionsError(
 			category,
@@ -164,6 +169,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 			0 as AVAudioSessionCategoryOptions,
 			undefined,
 		)
+
 		session.setActiveWithOptionsError(true, 0 as AVAudioSessionSetActiveOptions, undefined)
 		player.play()
 		state = 'playing'
@@ -209,6 +215,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 			const type = notification.userInfo.objectForKey(
 				AVAudioSessionInterruptionTypeKey,
 			).unsignedIntegerValue
+
 			if (type === interruptionBegan) {
 				wasPlayingBeforeInterruption = state === 'playing'
 				player?.pause()
@@ -218,6 +225,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 				const options =
 					notification.userInfo.objectForKey(AVAudioSessionInterruptionOptionKey)
 						?.unsignedIntegerValue ?? 0
+
 				wasPlayingBeforeInterruption = false
 				if ((options & interruptionShouldResume) !== 0) {
 					void play()
@@ -255,6 +263,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 			if (disposed) {
 				throw new Error('AudioPlayer is disposed')
 			}
+
 			queue = [...tracks]
 			index = queue.length
 				? Math.max(
@@ -271,6 +280,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 			if (!player || !Number.isFinite(value)) {
 				return
 			}
+
 			player.seekToTime(CMTimeMakeWithSeconds(Math.max(0, value), 600))
 			updateNowPlaying()
 			emit()
@@ -279,23 +289,28 @@ export const createAudioPlayer = (): AudioPlayer => {
 			if (disposed) {
 				return
 			}
+
 			disposed = true
 			clearTrack()
 			if (interruptionObserver) {
 				NSNotificationCenter.defaultCenter.removeObserver(interruptionObserver)
 			}
+
 			interruptionObserver = undefined
 			for (const { command, token } of remoteTargets) {
 				command.removeTarget(token)
 			}
+
 			remoteTargets.length = 0
 			if (timer) {
 				clearInterval(timer)
 			}
+
 			timer = undefined
 			if (nowPlaying) {
 				nowPlaying.nowPlayingInfo = null as unknown as NSDictionary<string, any>
 			}
+
 			session.setActiveWithOptionsError(false, notifyOthersOnDeactivation, undefined)
 			listeners.clear()
 			queue = []

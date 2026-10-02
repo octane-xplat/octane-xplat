@@ -29,6 +29,7 @@ export function applyEscapeProps(view: any, props: { ios?: any; android?: any })
 	if (!view) {
 		return
 	}
+
 	const bag = isIOS ? props.ios : props.android
 	if (bag) {
 		Object.assign(view, bag)
@@ -63,14 +64,18 @@ export function nativeAccessibilityState(
 	if (state?.disabled) {
 		return 'disabled'
 	}
+
 	if (state?.selected) {
 		return 'selected'
 	}
+
 	if (state?.checked === true) {
 		return 'checked'
 	}
+
 	if (state?.checked === false) {
 		return 'unchecked'
 	}
+
 	return undefined
 }

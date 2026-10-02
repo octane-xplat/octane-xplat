@@ -36,6 +36,7 @@ export const openSheet: OpenSheet = (Component, params, options: SheetOpenOption
 			if (finished) {
 				return
 			}
+
 			finished = true
 			active.delete(entry)
 			try {

@@ -34,6 +34,7 @@ it('restores guard context and loader data on back and forward', async () => {
 		context: { guarded: true },
 		loaderData: 'loaded',
 	})
+
 	history.forward()
 	await settle()
 	expect(router.currentModalRoute()?.name).toBe('about')
@@ -70,6 +71,7 @@ it('loads a direct URL without adding history or running its guard', async () =>
 	router.registerRoutes(
 		defineRoutes([{ path: 'baked', screen: () => null, beforeLoad: guard, loader }]),
 	)
+
 	await settle()
 	expect(router.routeFor('root')).toMatchObject({ loaderData: { entries: ['baked'] } })
 	expect(history.length).toBe(length)

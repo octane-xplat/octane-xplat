@@ -61,6 +61,7 @@ const wrap = (text, width = 88) => {
 	if (line) {
 		lines.push(line)
 	}
+
 	return lines.join('\n ')
 }
 
@@ -107,6 +108,7 @@ const syncYaml = (file, pathPrefix, header, failures, withConfigDependency = fal
 	if (readFileSync(file, 'utf8') === rendered) {
 		return
 	}
+
 	failures.push(`${relative(file)} — patchedDependencies block is stale`)
 	if (!CHECK) {
 		writeFileSync(file, rendered)
@@ -185,6 +187,7 @@ if (failures.length) {
 	for (const f of failures) {
 		console.error(`  ${f}`)
 	}
+
 	if (CHECK) {
 		console.error('\nrun `pnpm sync:patches` to regenerate')
 		process.exit(1)

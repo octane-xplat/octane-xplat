@@ -18,6 +18,7 @@ function stableDump() {
 	if (json === lastDump) {
 		return dump
 	}
+
 	prevParsed = lastParsed
 	lastParsed = dump
 	lastDump = json
@@ -28,6 +29,7 @@ function diffCells(a: any, b: any): string {
 	if (!a?.cells || !b?.cells) {
 		return 'no-cells a=' + !!a?.cells + ' b=' + !!b?.cells
 	}
+
 	const out: string[] = []
 	for (const name of Object.keys(b.cells)) {
 		const ja = JSON.stringify(a.cells[name])
@@ -52,6 +54,7 @@ function waitForDump(tries = 60): void {
 			'[parity] FAIL — stage never produced a stable dump; changed: ' +
 				diffCells(prevParsed, lastParsed),
 		)
+
 		return
 	}
 
@@ -62,6 +65,7 @@ export function runParity(): void {
 	if (running) {
 		return
 	}
+
 	running = true
 	lastDump = ''
 	// The sweep compares against the web dump's light-theme facets — pin the

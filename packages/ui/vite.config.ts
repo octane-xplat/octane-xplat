@@ -92,12 +92,14 @@ export default defineConfig(({ mode }) => {
 									if (id === 'octane') {
 										return 'octane/universal/native'
 									}
+
 									// The vendored specifier resolves to an absolute path before
 									// emit; rolldown relativizes it against the package root,
 									// producing './src/vendor/...' which misses dist/native.
 									if (id.endsWith('/src/vendor/ui-svg/src')) {
 										return './vendor/ui-svg'
 									}
+
 									return id
 								},
 							}

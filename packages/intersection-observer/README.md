@@ -37,7 +37,7 @@ const observer = new IntersectionObserver(
 	},
 	{ root, rootMargin: '0px', threshold: [0, 0.5, 1] },
 )
-observer.observe(target)   // Element on web, NativeScript View, or AppKit NSView
+observer.observe(target) // Element on web, NativeScript View, or AppKit NSView
 observer.unobserve(target)
 observer.disconnect()
 observer.takeRecords()

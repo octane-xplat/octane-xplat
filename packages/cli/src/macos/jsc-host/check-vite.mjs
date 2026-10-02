@@ -20,14 +20,17 @@ const loaded = await loadConfigFromFile(
 	appRoot,
 	'silent',
 )
+
 if (!loaded) {
 	throw new Error(`Could not load macOS Vite config: ${configFile}`)
 }
+
 const external = loaded.config.build?.rollupOptions?.external
 const externalizes = (specifier) => {
 	if (typeof external === 'function') {
 		return !!external(specifier, undefined, false)
 	}
+
 	const entries = Array.isArray(external) ? external : [external]
 	return entries.some(
 		(entry) => entry === specifier || (entry instanceof RegExp && entry.test(specifier)),

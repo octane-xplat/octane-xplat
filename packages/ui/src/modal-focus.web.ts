@@ -29,6 +29,7 @@ function updateIsolation(): void {
 		if (!originalInert.has(element)) {
 			originalInert.set(element, element.hasAttribute('inert'))
 		}
+
 		const inert = originalInert.get(element) || !element.contains(top.layer)
 		element.toggleAttribute('inert', inert)
 	}
@@ -47,6 +48,7 @@ function tabStops(panel: HTMLElement): HTMLElement[] {
 		) {
 			return false
 		}
+
 		for (let parent: HTMLElement | null = element; parent; parent = parent.parentElement) {
 			const style = getComputedStyle(parent)
 			if (style.display === 'none' || style.visibility === 'hidden') {
@@ -71,6 +73,7 @@ export function isolateModalFocus(
 	if (tabIndex === null) {
 		panel.tabIndex = -1
 	}
+
 	scopes.push(scope)
 	updateIsolation()
 
@@ -93,6 +96,7 @@ export function isolateModalFocus(
 		if (topScope() !== scope || event.isComposing || event.keyCode === 229) {
 			return
 		}
+
 		if (event.key === 'Escape') {
 			event.preventDefault()
 			event.stopPropagation()
@@ -122,6 +126,7 @@ export function isolateModalFocus(
 		if (index < 0) {
 			return
 		}
+
 		// If a lower modal closes first, its children's return targets disappear.
 		for (const other of scopes) {
 			if (other !== scope && other.trigger && scope.layer.contains(other.trigger)) {
@@ -135,6 +140,7 @@ export function isolateModalFocus(
 		if (tabIndex === null) {
 			panel.removeAttribute('tabindex')
 		}
+
 		updateIsolation()
 		if (!scopes.length) {
 			observer?.disconnect()

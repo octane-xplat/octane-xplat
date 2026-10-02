@@ -7,8 +7,10 @@ export const createAudioPlayer = (): AudioPlayer => {
 	if (Application.android) {
 		return createAndroidAudioPlayer()
 	}
+
 	if (Application.ios) {
 		return createIOSAudioPlayer()
 	}
+
 	throw new Error('@octane-xplat/audio requires iOS or Android')
 }

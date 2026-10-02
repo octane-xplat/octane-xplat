@@ -14,6 +14,7 @@ const mime = {
 	'.json': 'application/json',
 	'.svg': 'image/svg+xml',
 }
+
 const server = createServer(async (req, res) => {
 	try {
 		const pathname = new URL(req.url, 'http://localhost').pathname
@@ -22,6 +23,7 @@ const server = createServer(async (req, res) => {
 			res.writeHead(403).end()
 			return
 		}
+
 		const file = await readFile(path).then(
 			(body) => ({ body, ext: extname(path) }),
 			() => readFile(resolve(dist, 'index.html')).then((body) => ({ body, ext: '.html' })),
@@ -68,6 +70,7 @@ try {
 		'forward retains guard context',
 		(await page.getByText('guard: home', { exact: true }).count()) === 1,
 	)
+
 	await page.goBack()
 	await page.getByRole('button', { name: 'Test', exact: true }).click()
 	await page.locator('#guarded-btn').click()
@@ -82,6 +85,7 @@ try {
 		'programmatic layout applied once',
 		(await page.locator('.guide-layout-banner').count()) === 1,
 	)
+
 	await page.goto(base + '/test/guides/deploy')
 	await page.getByText('guides/deploy', { exact: true }).waitFor()
 	check('cold programmatic link', true)
@@ -92,6 +96,7 @@ try {
 		(await page.locator('.vx-modalroute').count()) === 1 &&
 			(await page.locator('.vx-tabbar').count()) === 1,
 	)
+
 	await page.goto(base + '/changelog')
 	await page.getByText('Changelog (baked)', { exact: true }).waitFor()
 	await page.waitForTimeout(100)
@@ -101,6 +106,7 @@ try {
 		/entries baked: [1-9]/.test(baked),
 		baked.replaceAll('\n', '; '),
 	)
+
 	await page.goto(base + '/notes')
 	await page.getByText('Release Notes', { exact: true }).waitFor()
 	check('cold markdown baked route renders', true)

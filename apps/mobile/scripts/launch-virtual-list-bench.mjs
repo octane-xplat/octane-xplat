@@ -70,9 +70,11 @@ if (target === 'android') {
 	if (!selected) {
 		throw new Error(`Unknown simulator ${device}`)
 	}
+
 	if (selected.state === 'Shutdown') {
 		await run('xcrun', ['simctl', 'boot', device])
 	}
+
 	await run('xcrun', ['simctl', 'bootstatus', device, '-b'])
 	const jobs = execFileSync('xcrun', ['simctl', 'spawn', device, 'launchctl', 'list'], {
 		encoding: 'utf8',
@@ -89,6 +91,7 @@ if (target === 'android') {
 	if (apps.length !== 1) {
 		throw new Error(`Expected one simulator app in ${buildDir}: ${apps}`)
 	}
+
 	await run('xcrun', ['simctl', 'install', device, path.join(buildDir, apps[0])])
 	await run('xcrun', ['simctl', 'launch', '--console', device, appId])
 }

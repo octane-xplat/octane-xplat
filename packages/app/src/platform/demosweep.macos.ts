@@ -19,6 +19,7 @@ async function waitFor(predicate: () => boolean, timeout = 6000): Promise<boolea
 		if (predicate()) {
 			return true
 		}
+
 		await pause(100)
 	}
 
@@ -34,6 +35,7 @@ async function run(): Promise<void> {
 	if (!debug) {
 		return
 	}
+
 	const has = (text: string) => debug.snapshot().labels.some((label) => label.includes(text))
 	const demoCases: {
 		id: string
@@ -100,6 +102,7 @@ async function run(): Promise<void> {
 					' screen=' +
 					Boolean(screenFor('demo/:id')),
 			)
+
 			console.log('[sweep] labels=' + JSON.stringify(debug.snapshot().labels))
 		}
 

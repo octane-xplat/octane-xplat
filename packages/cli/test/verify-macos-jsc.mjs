@@ -23,16 +23,19 @@ await assert.rejects(
 	() => validateHostBundle(unsupportedBundle, appRoot),
 	/Unsupported macOS JavaScriptCore host imports: node:child_process/,
 )
+
 await writeFile(unsupportedBundle, 'require(name)\n')
 await assert.rejects(
 	() => validateHostBundle(unsupportedBundle, appRoot),
 	/Unsupported macOS JavaScriptCore host APIs: dynamic require/,
 )
+
 await writeFile(unsupportedBundle, 'const fs = require("node:fs"); fs.rmSync("x")\n')
 await assert.rejects(
 	() => validateHostBundle(unsupportedBundle, appRoot),
 	/Unsupported macOS JavaScriptCore host APIs: node:fs.rmSync/,
 )
+
 await writeFile(unsupportedBundle, 'console.log(process.version)\n')
 await assert.rejects(
 	() => validateHostBundle(unsupportedBundle, appRoot),
@@ -59,6 +62,7 @@ await writeFile(
 	join(appRoot, 'src/main.js'),
 	"import { rmSync } from 'node:fs'\nconsole.log(rmSync)\n",
 )
+
 const rejectedApi = spawnSync(process.execPath, [cliPath, 'build', '--targets', 'macos'], {
 	cwd: appRoot,
 	env: { ...process.env, XPLAT_MACOS_SKIP_SIGNING: '1' },
@@ -76,6 +80,7 @@ await writeFile(
 	join(appRoot, 'src/main.js'),
 	"import { execSync } from 'node:child_process'\nconsole.log(execSync)\n",
 )
+
 const rejected = spawnSync(process.execPath, [cliPath, 'build', '--targets', 'macos'], {
 	cwd: appRoot,
 	env: { ...process.env, XPLAT_MACOS_SKIP_SIGNING: '1' },
@@ -88,4 +93,5 @@ assert.match(
 	`${rejected.stdout}\n${rejected.stderr}`,
 	/Unsupported macOS JavaScriptCore host imports: node:child_process/,
 )
+
 console.log(`JavaScriptCore public fixture passed: ${appRoot}`)

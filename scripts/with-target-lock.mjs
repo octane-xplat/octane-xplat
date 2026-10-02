@@ -77,6 +77,7 @@ for (;;) {
 			console.log(
 				`[lock] reclaiming stale ${target} lock (owner pid ${owner?.pid ?? 'unknown'} is gone)`,
 			)
+
 			rmSync(lockDir, { recursive: true, force: true })
 			continue
 		}

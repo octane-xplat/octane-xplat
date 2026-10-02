@@ -6,6 +6,7 @@ export function attachTapToBlur(view: any): () => void {
 	if (!view || view[marker]) {
 		return () => {}
 	}
+
 	view[marker] = true
 
 	if (!Application.android) {
@@ -20,6 +21,7 @@ export function attachTapToBlur(view: any): () => void {
 		if (!focused) {
 			return
 		}
+
 		const imm = activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
 		imm?.hideSoftInputFromWindow(focused.getWindowToken(), 0)
 	}

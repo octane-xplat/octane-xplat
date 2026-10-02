@@ -78,6 +78,7 @@ export {
 	onThemeSchemeChange,
 	applyThemeClasses,
 } from './theme/theme-scheme'
+
 export { useColorScheme, getColorScheme } from './colorScheme.macos'
 export { styled } from './styled.macos.tsrx'
 export { openWindow } from './windows.macos'

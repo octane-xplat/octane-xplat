@@ -7,6 +7,7 @@ export function wireRouteLinks(): void {
 	if (wired) {
 		return
 	}
+
 	wired = true
 	const pending: string[] = []
 	let scheduled = false
@@ -27,6 +28,7 @@ export function wireRouteLinks(): void {
 		if (initial) {
 			pending.unshift(initial)
 		}
+
 		for (const url of pending.splice(0)) {
 			pushDeepLink(url)
 		}
@@ -43,6 +45,7 @@ export function wireRouteLinks(): void {
 		pending.push(url)
 		schedule()
 	})
+
 	Application.on(Application.launchEvent, schedule)
 	schedule()
 }

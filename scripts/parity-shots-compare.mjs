@@ -31,6 +31,7 @@ function decodePng(buf) {
 	if (buf.readUInt32BE(0) !== 0x89504e47) {
 		throw new Error('not a PNG')
 	}
+
 	let pos = 8
 	let w = 0
 	let h = 0
@@ -60,10 +61,12 @@ function decodePng(buf) {
 	if (bitDepth !== 8 || interlace !== 0) {
 		throw new Error(`unsupported PNG depth=${bitDepth} interlace=${interlace}`)
 	}
+
 	const channels = { 0: 1, 2: 3, 4: 2, 6: 4 }[colorType]
 	if (!channels) {
 		throw new Error('unsupported PNG color type ' + colorType)
 	}
+
 	const stride = w * channels
 	const raw = inflateSync(Buffer.concat(idat))
 	const px = Buffer.alloc(h * stride)
@@ -127,6 +130,7 @@ function crc32(buf) {
 			for (let k = 0; k < 8; k++) {
 				c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
 			}
+
 			table[n] = c >>> 0
 		}
 	}
@@ -135,6 +139,7 @@ function crc32(buf) {
 	for (let i = 0; i < buf.length; i++) {
 		c = table[(c ^ buf[i]) & 0xff] ^ (c >>> 8)
 	}
+
 	return (c ^ 0xffffffff) >>> 0
 }
 
@@ -177,6 +182,7 @@ function crop(img, x, y, w, h) {
 			if (sx < 0 || sy < 0 || sx >= img.w || sy >= img.h) {
 				continue
 			}
+
 			img.data.copy(out, (row * w + col) * 4, (sy * img.w + sx) * 4, (sy * img.w + sx) * 4 + 4)
 		}
 	}
@@ -212,6 +218,7 @@ function pickWeb(name) {
 		if (!cell?.visible) {
 			continue
 		}
+
 		if (!best || cell.y < best.cell.y) {
 			best = { shot, cell }
 		}
@@ -228,6 +235,7 @@ function pickMacos(name) {
 		if (!cell) {
 			continue
 		}
+
 		// window coords are y-up inside the frame; fully visible iff the
 		// rect sits inside the scrollview's window rect
 		const sv = side.scrollWindow
@@ -238,6 +246,7 @@ function pickMacos(name) {
 		if (!visible) {
 			continue
 		}
+
 		// distance of the cell top below the scrollview top, in points
 		const topDist = scrollTopInWindow - topInWindow
 		if (!best || topDist < best.topDist) {
@@ -254,6 +263,7 @@ for (const shot of webManifest.shots) {
 		names.add(name)
 	}
 }
+
 const macosCache = new Map()
 const macosImage = (file) => {
 	if (!macosCache.has(file)) {
@@ -278,6 +288,7 @@ for (const name of [...names].sort()) {
 			name,
 			error: !webPick ? 'not fully visible in any web shot' : 'not fully visible in any macOS shot',
 		})
+
 		continue
 	}
 
@@ -319,6 +330,7 @@ for (const name of [...names].sort()) {
 		if (d > THRESHOLD) {
 			diffPixels++
 		}
+
 		if (diffImg) {
 			diffImg[i * 4] = Math.min(255, d * 4)
 			diffImg[i * 4 + 1] = 0
@@ -353,6 +365,7 @@ if (JSON_OUT) {
 	console.log(
 		'fixture'.padEnd(24) + 'diff%'.padStart(7) + '  meanAbs  webSize    macosSize   sizeDelta',
 	)
+
 	for (const r of rows) {
 		if (r.error) {
 			console.log(r.name.padEnd(24) + '  ' + r.error)

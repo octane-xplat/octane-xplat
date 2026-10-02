@@ -5,6 +5,7 @@ export function providerVerification({ consumeAttempt, verifyIdToken, createSess
 		if (request.method !== 'POST') {
 			return new Response(null, { status: 405 })
 		}
+
 		try {
 			const { attemptId, provider, idToken } = await request.json()
 			if (
@@ -21,6 +22,7 @@ export function providerVerification({ consumeAttempt, verifyIdToken, createSess
 			if (!attempt || attempt.provider !== provider) {
 				return new Response(null, { status: 401 })
 			}
+
 			// The adapter MUST check signature against provider keys, issuer, audience,
 			// expiry and nonce. Never implement it with JWT decoding alone. Return the
 			// verified subject, never the client-supplied credential.user.id.
@@ -34,6 +36,7 @@ export function providerVerification({ consumeAttempt, verifyIdToken, createSess
 			if (!identity?.subject) {
 				return new Response(null, { status: 401 })
 			}
+
 			return await createSession(request, { provider, subject: identity.subject })
 		} catch {
 			// Credentials and provider exception text must not enter response/log output.
@@ -50,6 +53,7 @@ export function hostedVerification({ callbackBase, consumeAttempt, redeemCode, c
 		if (request.method !== 'POST') {
 			return new Response(null, { status: 405 })
 		}
+
 		try {
 			const { attemptId, callbackURL } = await request.json()
 			if (typeof attemptId !== 'string' || typeof callbackURL !== 'string') {
@@ -78,12 +82,14 @@ export function hostedVerification({ callbackBase, consumeAttempt, redeemCode, c
 			if (!attempt || states[0] !== attempt.state) {
 				return new Response(null, { status: 401 })
 			}
+
 			// Redeem once on the RP, bound to this attempt and its PKCE verifier. A URL
 			// received on the right scheme alone never proves authentication.
 			const identity = await redeemCode({ code: codes[0], attempt })
 			if (!identity?.subject) {
 				return new Response(null, { status: 401 })
 			}
+
 			return await createSession(request, identity)
 		} catch {
 			return new Response(null, { status: 401 })

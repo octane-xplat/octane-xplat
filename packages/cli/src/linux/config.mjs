@@ -9,6 +9,7 @@ export function inspectLinuxPackageConfig(appRoot) {
 	if (target.runtime !== 'webkitgtk') {
 		issues.push('linux.runtime must be webkitgtk')
 	}
+
 	const { applicationId, productName, executableName } = settings
 	const version = settings.version ?? manifest.version
 	const scheme = target.host?.scheme ?? 'xplat'

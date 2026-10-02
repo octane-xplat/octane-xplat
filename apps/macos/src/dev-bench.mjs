@@ -12,6 +12,7 @@ const requestedCount = Number(env.OCTANE_MACOS_VLIST_COUNT)
 if (env.OCTANE_MACOS_PARITY_ONLY === '1') {
 	globalThis.__xplatMacOSParityOnly = true
 }
+
 if (enabled) {
 	globalThis.__xplatMacOSVirtualListCount =
 		Number.isSafeInteger(requestedCount) && requestedCount > 0 ? requestedCount : 500
@@ -21,9 +22,11 @@ function summarize(values) {
 	if (!values.length) {
 		return { samples: 0, p50Ms: null, p95Ms: null, p99Ms: null, maxMs: null }
 	}
+
 	const sorted = values.slice().sort((a, b) => a - b)
 	const percentile = (fraction) =>
 		sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * fraction) - 1)]
+
 	const round = (value) => Number(value.toFixed(2))
 	return {
 		samples: sorted.length,
@@ -44,6 +47,7 @@ export function createDevBench(root, appKit) {
 			},
 		}
 	}
+
 	let renderStartedAt = 0
 	let renderMetricsBefore
 	let initialRenderMs = 0
@@ -68,6 +72,7 @@ export function createDevBench(root, appKit) {
 		const heartbeatIntervals = heartbeatTimes
 			.slice(1)
 			.map((time, index) => time - heartbeatTimes[index])
+
 		return {
 			mode: 'variable-windowed',
 			items: globalThis.__xplatMacOSVirtualListCount,
@@ -144,10 +149,12 @@ export function createDevBench(root, appKit) {
 									0,
 									scrollView.contentHeight - scrollView.viewportHeight,
 								)
+
 								actualScrollOffset = root.__macosDebug.scrollToId(
 									'vlist-bench',
 									requestedScrollOffset,
 								)
+
 								await new Promise((resolve) => setTimeout(resolve, 150))
 								afterScroll = root.__macosDebug.metrics()
 							}
@@ -186,6 +193,7 @@ export function createDevBench(root, appKit) {
 						const scrollView = root.__macosDebug
 							.metrics()
 							.scrollViews.find((view) => view.id === 'vlist-bench')
+
 						const contentHeight = Number(
 							scrollView?.contentHeight ??
 								globalThis.__xplatMacOSVirtualListScrollProbe?.totalContentHeight ??

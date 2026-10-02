@@ -24,6 +24,7 @@ beforeEach(() => {
 	native.listeners.clear()
 	native.androidListeners.clear()
 })
+
 const intent = (url: string) => ({ getDataString: () => url })
 it('delivers a cold link once through consumeInitialUrl, not also the listener', async () => {
 	const links = await import('./deep-links.ts')

@@ -6,9 +6,11 @@ export function cameraHardwarePresent(): boolean {
 	if (isIOS) {
 		return typeof (globalThis as any).AVCaptureDevice !== 'undefined'
 	}
+
 	if (!isAndroid) {
 		return false
 	}
+
 	try {
 		const context = Application.android?.context ?? Application.android?.startActivity
 		return context?.getPackageManager()?.hasSystemFeature('android.hardware.camera.any') !== false
@@ -26,9 +28,11 @@ export async function ensureCameraPermission(): Promise<boolean> {
 			if (status === 3) {
 				return true
 			}
+
 			if (status === 1 || status === 2) {
 				return false
 			}
+
 			return await new Promise<boolean>((resolve) =>
 				av.requestAccessForMediaTypeCompletionHandler(mediaType, resolve),
 			)
@@ -47,12 +51,14 @@ export async function ensureCameraPermission(): Promise<boolean> {
 			if (!activity) {
 				return false
 			}
+
 			return await new Promise<boolean>((resolve) => {
 				const currentRequest = requestCode++
 				const onResult = (args: any) => {
 					if (args.requestCode !== currentRequest) {
 						return
 					}
+
 					Application.android.off(Application.android.activityRequestPermissionsEvent, onResult)
 
 					resolve(args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED)

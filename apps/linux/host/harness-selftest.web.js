@@ -13,6 +13,7 @@
 			if (predicate()) {
 				return
 			}
+
 			await new Promise((resolve) => setTimeout(resolve, 50))
 		}
 
@@ -24,9 +25,11 @@
 		const element = [...document.querySelectorAll(selector)].find(
 			(node) => node.textContent.trim() === label,
 		)
+
 		if (!element) {
 			throw new Error(`missing action: ${label}`)
 		}
+
 		element.click()
 	}
 
@@ -35,6 +38,7 @@
 		if (!element) {
 			throw new Error(`missing element: ${selector}`)
 		}
+
 		element.click()
 	}
 
@@ -62,6 +66,7 @@
 			if (!field) {
 				throw new Error('missing textarea')
 			}
+
 			const before = field.offsetHeight
 			field.value = 'line one\nline two\nline three'
 			field.dispatchEvent(new Event('input', { bubbles: true }))
@@ -98,6 +103,7 @@
 			await wait(() =>
 				document.querySelector('#vlist .vx-virtual-list-empty')?.textContent.includes('No rows'),
 			)
+
 			history.back()
 			await wait(() => location.pathname === '/')
 		})

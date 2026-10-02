@@ -199,11 +199,13 @@ setTimeout(() => {
 setTimeout(() => {
 	const hex = (c: any) =>
 		(c && typeof c === 'object' ? (c.hex ?? String(c)) : String(c))?.toLowerCase?.()
+
 	const lp = find('layer-probe')
 	const up = find('layer-unlayered-probe')
 	console.log(
 		'[probe] layer-probe=' + (lp ? lp.constructor.name : 'none') + ' opacity=' + lp?.opacity,
 	)
+
 	assertEq('layer order beats specificity', lp?.opacity, 0.35)
 	assertEq(
 		'unlayered beats layered',
@@ -375,6 +377,7 @@ const dumpChips = () => {
 				const desc = String(cur.description ?? cur)
 					.replace(/<|>/g, '')
 					.split(':')[0]
+
 				chain += ' < ' + desc
 				cur = cur.superview
 			}

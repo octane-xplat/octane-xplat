@@ -26,6 +26,7 @@ describe('Android overlay keyboard inset', () => {
 				},
 			},
 		})
+
 		vi.stubGlobal('androidx', {
 			core: {
 				view: {

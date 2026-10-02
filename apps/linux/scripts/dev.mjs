@@ -52,6 +52,7 @@ function shutdown(code) {
 	if (exiting) {
 		return
 	}
+
 	exiting = true
 	vite.kill()
 	process.exit(code)
@@ -64,5 +65,6 @@ vite.on('exit', (code) => {
 		process.exit(code ?? 0)
 	}
 })
+
 process.on('SIGINT', () => shutdown(0))
 process.on('SIGTERM', () => shutdown(0))

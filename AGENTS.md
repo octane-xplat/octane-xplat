@@ -20,7 +20,7 @@ working agreements and detail moved out of this entry point.
 | Change public behavior, setup, or a supported workflow  | [Documentation coverage](.agents/docs/documentation.md)                                                              |
 | Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
 | Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
-| Add or publish a package                               | [Releases](.agents/docs/releases.md)                                                                                 |
+| Add or publish a package                                | [Releases](.agents/docs/releases.md)                                                                                 |
 | Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md)                                                                                 |
 
 ## Critical rules

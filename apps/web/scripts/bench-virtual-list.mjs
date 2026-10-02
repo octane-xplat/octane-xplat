@@ -17,6 +17,7 @@ try {
 			() => reject(new Error('Timed out waiting for Vite preview')),
 			120_000,
 		)
+
 		const onData = (chunk) => {
 			previewOutput += String(chunk)
 			if (previewOutput.includes('Local:')) {
@@ -61,6 +62,7 @@ try {
 		if (at === -1) {
 			return
 		}
+
 		try {
 			resolveResult(JSON.parse(line.slice(at + marker.length)))
 		} catch (error) {
@@ -78,6 +80,7 @@ try {
 	if (pageErrors.length) {
 		throw new Error(`Web app errors: ${pageErrors.join('; ')}`)
 	}
+
 	console.log(JSON.stringify(result, null, 2))
 } finally {
 	await browser?.close()

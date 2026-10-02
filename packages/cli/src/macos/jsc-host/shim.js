@@ -19,6 +19,7 @@ globalThis.process = new Proxy(
 			if (key in target) {
 				return target[key]
 			}
+
 			throw Error(`Unsupported macOS host API: process.${String(key)}`)
 		},
 	},
@@ -31,6 +32,7 @@ Object.defineProperty(globalThis, 'Buffer', {
 			if (encoding !== 'base64') {
 				throw Error(`unsupported Buffer encoding: ${encoding}`)
 			}
+
 			return NSData.alloc().initWithBase64EncodedStringOptions(value, 0)
 		},
 	},
@@ -43,6 +45,7 @@ const nodeModules = {
 			if (algorithm !== 'sha256') {
 				throw Error(`unsupported hash: ${algorithm}`)
 			}
+
 			let bytes
 			return {
 				update(data) {
@@ -53,6 +56,7 @@ const nodeModules = {
 					if (encoding !== 'hex' || !bytes) {
 						throw Error(`unsupported digest: ${encoding}`)
 					}
+
 					const output = new Uint8Array(32)
 					CC_SHA256(bytes, bytes.length, output)
 					return Array.from(output, (value) => value.toString(16).padStart(2, '0')).join('')
@@ -81,17 +85,21 @@ const nodeModules = {
 			if (!data) {
 				throw Error(`read failed: ${path}`)
 			}
+
 			if (encoding === undefined) {
 				return data
 			}
+
 			if (encoding === 'utf8') {
 				return String(NSString.alloc().initWithDataEncoding(data, 4))
 			}
+
 			throw Error(`Unsupported macOS host API: fs.readFileSync encoding ${encoding}`)
 		},
 		writeFileSync(path, value) {
 			const bytes =
 				typeof value === 'string' ? NSString.stringWithString(value).dataUsingEncoding(4) : value
+
 			if (!bytes.writeToFileAtomically(path, true)) {
 				throw Error(`write failed: ${path}`)
 			}
@@ -118,6 +126,7 @@ function normalizePath(path) {
 		if (!part || part === '.') {
 			continue
 		}
+
 		if (part === '..') {
 			if (parts.length && parts.at(-1) !== '..') {
 				parts.pop()
@@ -138,6 +147,7 @@ for (const [name, methods] of Object.entries(nodeModules)) {
 			if (key in target) {
 				return target[key]
 			}
+
 			throw Error(`Unsupported macOS host API: ${name}.${String(key)}`)
 		},
 	})
@@ -147,12 +157,15 @@ globalThis.require = (name) => {
 	if (name === '@nativescript/macos-node-api') {
 		return __nativeExports
 	}
+
 	if (Object.hasOwn(globalThis.__xplatDevModules ?? {}, name)) {
 		return globalThis.__xplatDevModules[name]
 	}
+
 	if (name in nodeModules) {
 		return nodeModules[name]
 	}
+
 	throw Error(`unsupported require: ${name}`)
 }
 

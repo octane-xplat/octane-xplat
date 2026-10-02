@@ -40,6 +40,7 @@ const requestedTargets = targetsArg
 
 const unknownTargets =
 	requestedTargets?.filter((target) => !['web', 'ios', 'android', 'macos'].includes(target)) ?? []
+
 if (unknownTargets.length) {
 	console.error(`[parity] unknown target(s): ${unknownTargets.join(', ')}`)
 	process.exit(1)
@@ -65,6 +66,7 @@ const normalizeColor = (value) => {
 		/^rgba?\(\s*([^,\s)]+)[,\s]+([^,\s)]+)[,\s]+([^,/\s)]+)(?:\s*[,/]\s*([^,\s)]+))?\s*\)$/i.exec(
 			value,
 		)
+
 	if (rgb) {
 		const channel = (part) => {
 			const parsed = Number.parseFloat(part)
@@ -110,6 +112,7 @@ const normValue = (v, facet) => {
 		if (v.trim().toLowerCase() === 'normal') {
 			return 400
 		}
+
 		if (v.trim().toLowerCase() === 'bold') {
 			return 700
 		}
@@ -182,6 +185,7 @@ for (const def of CHECKS) {
 	const applicableTargets = def.targets
 		? targets.filter((target) => def.targets.includes(target))
 		: targets
+
 	const equalityTargets = def.equalTargets
 		? applicableTargets.filter((target) => def.equalTargets.includes(target))
 		: applicableTargets

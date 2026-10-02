@@ -38,6 +38,7 @@ export const createHaptics = (): Haptics => {
 		: typeof XplatPulsarBridge !== 'undefined'
 			? new XplatPulsarBridge()
 			: undefined
+
 	const supported = android
 		? sdk.hapticSupport().name() !== 'NO_SUPPORT'
 		: Boolean(bridge?.isSupported?.())

@@ -86,6 +86,7 @@ for (const file of FILES) {
 			console.log(
 				`${loc}  ${prop}  — dropped on native (${DROPPED_INTENTIONAL.get(prop) ?? 'vendor prefix'})`,
 			)
+
 			warned++
 			return
 		}
@@ -93,6 +94,7 @@ for (const file of FILES) {
 		console.log(
 			`${loc}  ${prop}: ${node.value ? cssTree.generate(node.value) : ''} — not in NS's registry; silently dropped on native`,
 		)
+
 		errors++
 	})
 }
@@ -106,5 +108,6 @@ if (errors) {
 	console.log(
 		'fix the declaration, wrap the rule in /* xplat-web-only:start/end */, or extend DROPPED_INTENTIONAL with a reason',
 	)
+
 	process.exitCode = 1
 }

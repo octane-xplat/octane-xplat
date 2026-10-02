@@ -117,6 +117,7 @@ function textLongRows(m, target) {
 	const rows = [
 		['text line height is 20px', near(styleLineHeight, 20, 0.05), text.style?.lineHeight],
 	]
+
 	if (target === 'web' || target === 'macos') {
 		rows.push(...textRows(m, 40))
 		rows.push(['text wraps to two lines', text.textLineCount === 2, text.textLineCount])
@@ -1286,6 +1287,7 @@ export const CHECKS = [
 				const safeArea = dump.cells?.['safe-area-layout']?.find((node) =>
 					node.classes?.includes('parity-safe-area-root'),
 				)
+
 				const bottomInset = Number(safeArea?.style?.paddingBottom)
 				if (!Number.isFinite(bottomInset)) {
 					return [

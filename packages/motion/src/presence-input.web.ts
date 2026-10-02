@@ -6,6 +6,7 @@ export function blockInput(node: HTMLElement): () => void {
 	if (focused && node.contains(focused)) {
 		focused.blur()
 	}
+
 	node.setAttribute('inert', '')
 	node.setAttribute('aria-hidden', 'true')
 	node.style.pointerEvents = 'none'
@@ -13,6 +14,7 @@ export function blockInput(node: HTMLElement): () => void {
 		if (!inert) {
 			node.removeAttribute('inert')
 		}
+
 		if (hidden === null) {
 			node.removeAttribute('aria-hidden')
 		} else {
