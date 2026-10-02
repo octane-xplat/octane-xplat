@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Button, Heading, Row, Text, View } from '@octane-xplat/ui';
+import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui';
 import { RichTextEditor, supported } from '@octane-xplat/richtext';
 import type { RichTextEditorHandle } from '@octane-xplat/richtext';
 
@@ -73,7 +73,7 @@ export function RichTextEditorDemo() @{
 				editor.current = h;
 			}}
 		/>
-		<Row className="flex-wrap gap-2">
+		<HStack className="flex-wrap gap-2">
 			{TOOLBAR.map((item) => (
 				<Button
 					key={item.label}
@@ -83,7 +83,7 @@ export function RichTextEditorDemo() @{
 					<Text>{item.label}</Text>
 				</Button>
 			))}
-		</Row>
+		</HStack>
 		<Text id="richtext-active" className="text-sm">
 			active: {active}
 		</Text>

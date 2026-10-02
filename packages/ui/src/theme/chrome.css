@@ -1436,7 +1436,9 @@ textarea::placeholder {
 	.vx-progressbar-value {
 		font-size: 13px;
 		color: var(--color-text-secondary);
+		/* xplat-web-only:start */
 		font-variant-numeric: tabular-nums;
+		/* xplat-web-only:end */
 	}
 
 	.vx-progressbar-mark {
@@ -1520,7 +1522,9 @@ textarea::placeholder {
 	}
 
 	.vx-timestamp {
+		/* xplat-web-only:start */
 		cursor: default;
+		/* xplat-web-only:end */
 	}
 
 	.vx-timestamp-card-label {
@@ -1531,7 +1535,9 @@ textarea::placeholder {
 	.vx-timestamp-card-value {
 		font-size: 13px;
 		color: var(--color-text);
+		/* xplat-web-only:start */
 		font-variant-numeric: tabular-nums;
+		/* xplat-web-only:end */
 	}
 
 	.vx-timestamp-copy {

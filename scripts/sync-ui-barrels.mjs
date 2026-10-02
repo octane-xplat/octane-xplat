@@ -20,7 +20,7 @@ const webSpecifier = (specifier) => {
 		return candidate
 	}
 
-	if (extension) {
+	if (extension && /@jsxImportSource/.test(readFileSync(join(sourceDir, specifier), 'utf8'))) {
 		throw new Error(`shared UI export ${specifier} has no ${candidate} leaf`)
 	}
 

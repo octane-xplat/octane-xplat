@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'octane';
-import { Pressable, Screen, ScrollView, Text } from '@octane-xplat/ui';
+import { Pressable, Screen, ScrollableArea, Text } from '@octane-xplat/ui';
 import { runTiptapProbe, type ProbeStep } from './tiptap-probe';
 
 /** tiptap-probe — can the DOM-free tiptap/ProseMirror slices load and
@@ -39,12 +39,12 @@ export function TiptapProbe() @{
 				? running ? 'probe running' : 'probe idle'
 				: `probe ${pass}/${steps.length} ${pass === steps.length ? 'PASS' : 'FAIL'}`}
 		</Text>
-		<ScrollView className="flex-1">
+		<ScrollableArea className="flex-1">
 			@for (const s of steps; key s.id) {
 				<Text id={'probe-' + s.id} className="text-sm">
 					{(s.status === 'pass' ? 'PASS' : 'FAIL') + ' ' + s.label + (s.detail ? ' — ' + s.detail : '')}
 				</Text>
 			}
-		</ScrollView>
+		</ScrollableArea>
 	</Screen>
 }

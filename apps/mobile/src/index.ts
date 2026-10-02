@@ -22,7 +22,7 @@ import {
 	VIRTUAL_LIST_INPUT_MODE,
 } from '@xplat/app/platform/virtual-list-benchmark-mode.mobile'
 
-import { sheetHost } from '@xplat/app/platform/sheet'
+import { bottomSheetHost } from '@xplat/app/platform/sheet'
 import '@xplat/app/platform/filepick.mobile'
 import {
 	getColorScheme,
@@ -913,7 +913,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 	setTimeout(() => {
 		// Host ref beats id-search: the sheet's owning rootlayout can unload
 		// (tab-pane shells churn) while the host stays attached to it.
-		const sheet = (sheetHost() ?? find('sheet-host')) as any
+		const sheet = (bottomSheetHost() ?? find('sheet-host')) as any
 
 		assertHas('sheet texts', texts(sheet), 'Sheet content')
 		// Q-theme: sheet root — does the theme class / token resolution cross?

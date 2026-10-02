@@ -1776,17 +1776,6 @@ input.vx-search-field::-webkit-search-cancel-button {
 		touch-action: none;
 	}
 	/* xplat-web-only:end */
-}
-.vx-sheet-detents > .vx-sheet-grabber {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 2;
-	cursor: grab;
-	touch-action: none;
-}
-/* xplat-web-only:end */
 
 /* Shared Chat anatomy — structural defaults used with or without chrome.css. */
 .vx-chatlayout,

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, HStack, Text, Pressable, ScrollView, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, ScrollableArea, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
 import { DOCS, type DocPage } from './docs';
 import { docPath } from './doc-meta';
 import { MdDoc } from './MdDoc.tsrx';
@@ -278,7 +278,7 @@ export function App() @{
 			</View>
 			<View className="card">
 				<div className="constellation" aria-hidden="true" />
-				<ScrollView id="doc-content" className="content">
+				<ScrollableArea id="doc-content" className="content">
 					<View key={doc.slug} className={leaving ? 'doc-page leaving' : 'doc-page'}>
 						{doc.slug === DOCS[0].slug && (
 							<div className="orbit" aria-hidden="true">
@@ -303,7 +303,7 @@ export function App() @{
 							</Pressable>
 						)}
 					</View>
-				</ScrollView>
+				</ScrollableArea>
 			</View>
 		</HStack>
 		{paletteMounted && (

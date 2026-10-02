@@ -165,7 +165,7 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 	if (b.kind === 'table') {
 		return <View className="table-block">
 			<Text className="table-scroll-hint">Scroll horizontally to view all columns</Text>
-			<View className="table-scroll" role="region" aria-label="Scrollable table" tabIndex={0}>
+			<View className="table-scroll" web={{ role: 'region', 'aria-label': 'Scrollable table', tabIndex: 0 }}>
 				<View className="table">
 					@for (const r of b.rows; index ri; key ri) {
 						<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
