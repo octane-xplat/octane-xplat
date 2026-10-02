@@ -196,6 +196,30 @@ range, iOS resolves `font-weight` through `font-variation-settings`, and Android
 maps `font-weight` to the `wght` axis on API 26+ (older APIs load the file's
 default instance).
 
+Using the font: a `--font-sans` add restyles the whole app — `body` on web,
+`.ns-root` natively — with no component changes, and `--font-mono` feeds the
+framework's code styles. Pick a weight with the `font-*` utility classes or a
+style value, which is also how a variable font selects its instance:
+
+```tsx
+<Text className="font-semibold">Semi-bold</Text>
+<Text style={{ fontWeight: 600 }}>Semi-bold</Text>
+```
+
+A custom token (`--token display`) declares only the CSS variable — reference
+it in your own rules:
+
+```css
+.hero-title {
+	font-family: var(--font-display);
+}
+```
+
+On native, `var()` inside `font-family` is not guaranteed to resolve; if a
+custom token does not apply there, write the family names the command reports
+directly in the rule. `--token none` registers the files only — use those same
+reported names in `font-family` declarations.
+
 What the command writes, by hand:
 
 | Target  | Register the font                                                                | Token value                          |
