@@ -27,9 +27,9 @@ Linux desktop application and knows which application ID and URI scheme it owns.
 
 ## Documentation
 
-- AC1: [App configuration](../docs/linux-package.md#configure-the-app) and [runtime checks](../docs/linux-package.md#check-the-runtime).
-- AC2: [Build output and failure behavior](../docs/linux-package.md#build-and-install) and [packaging tests](../packages/cli/test/linux-package.test.mjs).
-- AC3: [Extraction and per-user installation](../docs/linux-package.md#build-and-install) and [consumer verifier](../packages/cli/test/verify-linux-consumer.mjs).
-- AC4: [URI registration and launch behavior](../docs/linux-package.md#build-and-install) and [maintained consumer screen](../packages/cli/test/fixtures/linux-app/src/main.web.tsrx).
-- AC5: [App identity](../docs/linux-package.md#configure-the-app), [keyring ownership](../docs/linux-package.md#check-the-runtime), and [consumer verifier](../packages/cli/test/verify-linux-consumer.mjs).
-- AC6: [Automated verification and support limits](../docs/linux-package.md#verify-before-distributing).
+- AC1: [App configuration](../docs/platform/linux-package.md#configure-the-app) and [runtime checks](../docs/platform/linux-package.md#check-the-runtime).
+- AC2: [Build output and failure behavior](../docs/platform/linux-package.md#build-and-install) and [packaging tests](../packages/cli/test/linux-package.test.mjs).
+- AC3: [Extraction and per-user installation](../docs/platform/linux-package.md#build-and-install) and [consumer verifier](../packages/cli/test/verify-linux-consumer.mjs).
+- AC4: [URI registration and launch behavior](../docs/platform/linux-package.md#build-and-install) and [maintained consumer screen](../packages/cli/test/fixtures/linux-app/src/main.web.tsrx).
+- AC5: [App identity](../docs/platform/linux-package.md#configure-the-app), [keyring ownership](../docs/platform/linux-package.md#check-the-runtime), and [consumer verifier](../packages/cli/test/verify-linux-consumer.mjs).
+- AC6: [Automated verification and support limits](../docs/platform/linux-package.md#verify-before-distributing).

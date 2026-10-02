@@ -1,8 +1,8 @@
 # Windows host lab log
 
 Internal test record. Keep machine-specific setup and raw failure details here;
-the public setup and support guidance lives in [`docs/windows-setup.md`](../../docs/windows-setup.md)
-and [`docs/windows-notes.md`](../../docs/windows-notes.md).
+the public setup and support guidance lives in [`docs/platform/windows-setup.md`](../../docs/platform/windows-setup.md)
+and [`docs/notes/windows-notes.md`](../../docs/notes/windows-notes.md).
 
 ## Host
 

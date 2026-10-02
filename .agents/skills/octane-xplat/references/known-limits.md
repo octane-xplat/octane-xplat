@@ -1,6 +1,6 @@
 # Known limits — internal/probe state
 
-Consumer-facing limits moved to `docs/known-limits.md` (a published guide,
+Consumer-facing limits moved to `docs/verify/known-limits.md` (a published guide,
 re-verified each pre-release sweep — that file is canonical). This file
 keeps only lab/probe state that shouldn't be reader-facing.
 
@@ -15,4 +15,4 @@ keeps only lab/probe state that shouldn't be reader-facing.
   fails; hit-area mismatch suspected
 
 When a flake is root-caused it either gets fixed or graduates into
-`docs/known-limits.md` — don't copy entries the other direction.
+`docs/verify/known-limits.md` — don't copy entries the other direction.

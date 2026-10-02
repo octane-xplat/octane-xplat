@@ -181,4 +181,4 @@ f() @{ … }` shorthand; dynamic text needs `{expr as string}`.
 `@nativescript-community/octane` peer (`octane >= 0.1.51`, universal ABI
 unchanged through 0.2.2) + `@nativescript/core >= 9.1` + single copy of `octane`
 per app (hooks bind to the runtime that owns the root). A pinned version matrix
-is a hard requirement — see [`../docs/toolchain.md`](../docs/toolchain.md).
+is a hard requirement — see [`../docs/toolchain.md`](../docs/start/toolchain.md).

@@ -25,7 +25,7 @@ without hiding their accessible names or disabled state.
 
 ## Documentation
 
-- AC1: [Choosing a list](../docs/primitives.md#when-a-screen-needs-more) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx).
-- AC2: [Content lists and ListDemo](../docs/primitives.md#reusable-rows).
-- AC3: [Content lists and ListDemo](../docs/primitives.md#reusable-rows), plus [accessibility evidence limits](../docs/open-questions.md#later--finer).
-- AC4: [Component index](../docs/components.md#data-display) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx).
+- AC1: [Choosing a list](../docs/app/primitives.md#when-a-screen-needs-more) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx).
+- AC2: [Content lists and ListDemo](../docs/app/primitives.md#reusable-rows).
+- AC3: [Content lists and ListDemo](../docs/app/primitives.md#reusable-rows), plus [accessibility evidence limits](../docs/notes/open-questions.md#later--finer).
+- AC4: [Component index](../docs/app/components.md#data-display) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx).

@@ -25,7 +25,7 @@ outside this recipe's scope.
 
 ## Documentation
 
-- AC1: [File variants and resolution order](../docs/module-resolution.md#file-variants) and [choosing a variant](../docs/module-resolution.md#choosing-a-variant).
-- AC2: [Resolution order](../docs/module-resolution.md#file-variants).
-- AC3: [TypeScript, .tsrx shims, and target commands](../docs/module-resolution.md#typescript).
-- AC4: [Linux compatibility resolution](../docs/module-resolution.md#file-variants) and [experimental Linux target](../docs/toolchain.md#experimental-linux-target-webkitgtk-webview).
+- AC1: [File variants and resolution order](../docs/platform/module-resolution.md#file-variants) and [choosing a variant](../docs/platform/module-resolution.md#choosing-a-variant).
+- AC2: [Resolution order](../docs/platform/module-resolution.md#file-variants).
+- AC3: [TypeScript, .tsrx shims, and target commands](../docs/platform/module-resolution.md#typescript).
+- AC4: [Linux compatibility resolution](../docs/platform/module-resolution.md#file-variants) and [experimental Linux target](../docs/start/toolchain.md#experimental-linux-target-webkitgtk-webview).

@@ -43,15 +43,15 @@ The reader knows the platform-services pattern and per-target leaf resolution.
 
 ## Documentation
 
-- AC1: [Startup](../docs/localization.md#starting-the-runtime) — catalog
+- AC1: [Startup](../docs/app/localization.md#starting-the-runtime) — catalog
   registration and initial-locale order.
-- AC2: [Authoring](../docs/localization.md#authoring-messages) — the
+- AC2: [Authoring](../docs/app/localization.md#authoring-messages) — the
   core-macros-only contract.
-- AC3: [Setup](../docs/localization.md#setup) — the extractor wiring and
-  scripts; [status](../docs/localization.md#verification-status) for the
+- AC3: [Setup](../docs/app/localization.md#setup) — the extractor wiring and
+  scripts; [status](../docs/app/localization.md#verification-status) for the
   remaining native-bundle check.
-- AC4: [Rendering and switching](../docs/localization.md#rendering-localized-text)
-  and [persistence](../docs/localization.md#switching-and-persisting).
-- AC5: [Detection](../docs/localization.md#locale-detection) — per-target
+- AC4: [Rendering and switching](../docs/app/localization.md#rendering-localized-text)
+  and [persistence](../docs/app/localization.md#switching-and-persisting).
+- AC5: [Detection](../docs/app/localization.md#locale-detection) — per-target
   sources and the matching rule.
-- AC6: [Persistence](../docs/localization.md#switching-and-persisting).
+- AC6: [Persistence](../docs/app/localization.md#switching-and-persisting).

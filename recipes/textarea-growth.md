@@ -21,5 +21,5 @@ its text.
 
 ## Documentation
 
-- AC1: [State ownership](../docs/primitives.md#grow-a-multiline-field) and maintained [input probes](../packages/app/src/Home.tsrx).
-- AC2: [Growth and limits](../docs/primitives.md#grow-a-multiline-field); input-driven sizing regressions in `packages/ui/src/TextArea.web.test.tsrx`.
+- AC1: [State ownership](../docs/app/primitives.md#grow-a-multiline-field) and maintained [input probes](../packages/app/src/Home.tsrx).
+- AC2: [Growth and limits](../docs/app/primitives.md#grow-a-multiline-field); input-driven sizing regressions in `packages/ui/src/TextArea.web.test.tsrx`.

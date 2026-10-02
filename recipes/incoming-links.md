@@ -24,6 +24,6 @@ an app-owned custom URL scheme; verified HTTPS app links are a separate workflow
 
 ## Documentation
 
-- AC1: [Route files](../docs/navigation.md#let-the-route-dir-name-your-routes) and [incoming links](../docs/navigation.md#handle-incoming-links).
-- AC2: [Listener wiring](../docs/navigation.md#handle-incoming-links), [scheme registration](../docs/navigation.md#register-a-custom-scheme), and [cold/warm reproduction](../docs/navigation.md#reproduce-launch-and-fallback-behavior). Maintained release harness: `apps/mobile/src/navigation-entry.mobile.ts`.
-- AC3: [Fallback reproduction](../docs/navigation.md#reproduce-launch-and-fallback-behavior) and [guard boundary](../docs/navigation.md#guard-and-document-a-route). Runtime status is recorded separately in Silo; blocked native runs do not count as verification.
+- AC1: [Route files](../docs/app/navigation.md#let-the-route-dir-name-your-routes) and [incoming links](../docs/app/navigation.md#handle-incoming-links).
+- AC2: [Listener wiring](../docs/app/navigation.md#handle-incoming-links), [scheme registration](../docs/app/navigation.md#register-a-custom-scheme), and [cold/warm reproduction](../docs/app/navigation.md#reproduce-launch-and-fallback-behavior). Maintained release harness: `apps/mobile/src/navigation-entry.mobile.ts`.
+- AC3: [Fallback reproduction](../docs/app/navigation.md#reproduce-launch-and-fallback-behavior) and [guard boundary](../docs/app/navigation.md#guard-and-document-a-route). Runtime status is recorded separately in Silo; blocked native runs do not count as verification.

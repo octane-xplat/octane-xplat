@@ -359,7 +359,7 @@ pnpm probe run packages/table/examples/interactive.tsrx --target ios --device YO
 
 Use a real booted simulator ID from `pnpm probe doctor`. Results are handler
 or pointer dispatch, not proof of OS input, hit-testing, or screen-reader
-navigation. See the [audit implementation record](../../docs/astryx-parity-table.md#implementation-follow-through)
+navigation. See the [audit implementation record](../../docs/notes/astryx-parity-table.md#implementation-follow-through)
 for the actual targets/results and known probe blockers.
 
 Still deferred: grouped section headers/detail/tree controls, frozen-column

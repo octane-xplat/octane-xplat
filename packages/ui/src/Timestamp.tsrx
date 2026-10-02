@@ -20,7 +20,7 @@ import { textRoleClasses } from './text-role';
  *  accessible label. `isLive` re-renders on the relative cadence. There is
  *  no pointer-hover surface on touch targets, so `hasTooltip`/`tooltipEntries`
  *  are accepted for API parity but inert (the absolute instant stays
- *  reachable via the accessible label — see docs/components.md). */
+ *  reachable via the accessible label — see docs/app/components.md). */
 export function Timestamp(props: TimestampProps) @{
 	const format = props.format ?? 'auto';
 	const autoThreshold = props.autoThreshold ?? DEFAULT_AUTO_THRESHOLD;

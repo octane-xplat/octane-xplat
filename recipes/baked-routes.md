@@ -43,19 +43,19 @@ to render on every target with no runtime fetch.
 
 ## Documentation
 
-- AC1: [Bake route data at build time](../docs/navigation.md#bake-route-data-at-build-time).
+- AC1: [Bake route data at build time](../docs/app/navigation.md#bake-route-data-at-build-time).
   Maintained example: `packages/app/src/app/changelog.tsrx` +
   `changelog.loader.ts` (`data` prop, `node:fs` inside the loader).
-- AC2: [Route a markdown file](../docs/navigation.md#route-a-markdown-file).
+- AC2: [Route a markdown file](../docs/app/navigation.md#route-a-markdown-file).
   Maintained example: `packages/app/src/app/notes.md`.
-- AC3: [constraints list](../docs/navigation.md#bake-route-data-at-build-time)
+- AC3: [constraints list](../docs/app/navigation.md#bake-route-data-at-build-time)
   — serializability, param-less bake, sibling requirement, typecheck
   behavior.
-- AC4: [Hand the route list to a host](../docs/navigation.md#hand-the-route-list-to-a-host).
+- AC4: [Hand the route list to a host](../docs/app/navigation.md#hand-the-route-list-to-a-host).
 
 ## Verification
 
-The [release navigation checks](../docs/navigation-checks.md) exercise this
+The [release navigation checks](../docs/verify/navigation-checks.md) exercise this
 workflow separately from documentation coverage. Web production checks cover
 cold changelog loader data and Markdown rendering. Native baked-route runtime
 checks remain unverified; successful Web execution does not establish them.

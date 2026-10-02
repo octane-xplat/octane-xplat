@@ -30,7 +30,7 @@ if (result === 'copied') {
 }
 ```
 
-Guide: [Using device features](../../docs/platform-services.md);
-per-target availability: [platform notes](../../docs/platform-notes.md).
+Guide: [Using device features](../../docs/platform/platform-services.md);
+per-target availability: [platform notes](../../docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen
 ([`packages/app/src/Services.tsrx`](../app/src/Services.tsrx)).

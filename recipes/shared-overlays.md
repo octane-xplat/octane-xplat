@@ -136,13 +136,13 @@ export function TripPreview() {
 
 ## Documentation
 
-- AC1: [Surface selection](../docs/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../docs/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../docs/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
-- AC2: [Visibility and dismissal](../docs/primitives.md#own-temporary-surfaces) and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
-- AC3: [Ownership and cleanup](../docs/primitives.md#own-temporary-surfaces); renderer lifecycle examples in `packages/ui/src/overlay-lifecycle.mobile.test.ts` cover pending opens, closes, failures, and theme subscriptions.
-- AC4: [Root boundaries](../docs/primitives.md#own-temporary-surfaces).
-- AC5: [Shared component catalog](../docs/components.md#overlays), [useLayer anchored layers](../docs/primitives.md#anchor-a-layer-to-an-element), and maintained examples in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), [ModalDemo](../packages/demos/src/ModalDemo.tsrx), and [ScrollBoxDemo](../packages/demos/src/ScrollBoxDemo.tsrx).
+- AC1: [Surface selection](../docs/app/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../docs/app/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
+- AC2: [Visibility and dismissal](../docs/app/primitives.md#own-temporary-surfaces) and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
+- AC3: [Ownership and cleanup](../docs/app/primitives.md#own-temporary-surfaces); renderer lifecycle examples in `packages/ui/src/overlay-lifecycle.mobile.test.ts` cover pending opens, closes, failures, and theme subscriptions.
+- AC4: [Root boundaries](../docs/app/primitives.md#own-temporary-surfaces).
+- AC5: [Shared component catalog](../docs/app/components.md#overlays), [useLayer anchored layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), and maintained examples in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), [ModalDemo](../packages/demos/src/ModalDemo.tsrx), and [ScrollBoxDemo](../packages/demos/src/ScrollBoxDemo.tsrx).
 
 Windows remains experimental: native mounting and cleanup have bounded runtime
 evidence, while gesture, dismissal, focus, and accessibility gaps remain. See
-the [Windows support boundary](../docs/windows-notes.md#current-support-boundary);
+the [Windows support boundary](../docs/notes/windows-notes.md#current-support-boundary);
 Windows is not added to this recipe’s supported targets.

@@ -39,7 +39,7 @@ tree's components and you've left the context; reintroduce a Host to go back.
 | `Icon.select({ ios: sfSymbol, android: drawable })` — OS-native glyph lookup                    | SF Symbol / Material glyph refs on platform-authentic widgets (tab bars, menus, swipe actions) where app-registered SVG looks off. Shared `Icon` keeps app glyphs for same-pixels.                                                                                                                                                                                        |
 | `ListItem` dual API — `leading`/`trailing`/`supportingText` props + compound children for slots | Pattern for `FieldGroup` rows and any settings-list primitive: props cover the terse 90%, slots are the escape hatch.                                                                                                                                                                                                                                                     |
 | Per-component "native implementations" doc table (platform → backing widget)                    | For each shared component document: web element \| NS view class \| normalization class \| known divergences. Cheap to produce, instant debugging orientation.                                                                                                                                                                                                            |
-| Honest per-component limits ("List doesn't lazily render yet")                                  | Same practice as `docs/known-limits.md` — validation, not a steal.                                                                                                                                                                                                                                                                                                        |
+| Honest per-component limits ("List doesn't lazily render yet")                                  | Same practice as `docs/verify/known-limits.md` — validation, not a steal.                                                                                                                                                                                                                                                                                                        |
 
 ## The island mechanism
 
@@ -99,5 +99,5 @@ Validates the shared + platform-authentic structure (#44–46, #50) from a
 different substrate — and shows where its ceiling is. Steal the boundary
 props, the `modifiers` pipe, OS-glyph icon selection, and the dual-slot
 `ListItem` shape now; treat Expo's component source as an MIT parts bin for
-island leaves when a widget has no NS path. See `docs/architecture.md`
-(normalization classes) and `docs/decisions.md` (#44–46, #50, #51, #53).
+island leaves when a widget has no NS path. See `docs/start/architecture.md`
+(normalization classes) and `docs/notes/decisions.md` (#44–46, #50, #51, #53).

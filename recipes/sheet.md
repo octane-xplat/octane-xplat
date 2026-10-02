@@ -28,9 +28,9 @@ behind the established file suffixes.
 
 ## Documentation
 
-- AC1: [Install and import](../docs/sheet.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeSheetDemo.*.tsrx`. Public JSX imports are checked by the [packed consumer](../packages/sheet/tests/packed-consumer.mjs).
-- AC2: [Content is a render fn](../docs/sheet.md#content-is-a-render-fn) and [Open state is controlled](../docs/sheet.md#open-state-is-controlled).
-- AC3: [Install and import](../docs/sheet.md#install-and-import) and [Bridge notes](../docs/sheet.md#bridge-notes--what-this-leaf-proved).
+- AC1: [Install and import](../docs/platform/sheet.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativeSheetDemo.*.tsrx`. Public JSX imports are checked by the [packed consumer](../packages/sheet/tests/packed-consumer.mjs).
+- AC2: [Content is a render fn](../docs/platform/sheet.md#content-is-a-render-fn) and [Open state is controlled](../docs/platform/sheet.md#open-state-is-controlled).
+- AC3: [Install and import](../docs/platform/sheet.md#install-and-import) and [Bridge notes](../docs/platform/sheet.md#bridge-notes--what-this-leaf-proved).
 - AC4: [iOS example](../packages/demos/src/NativeSheetDemo.ios.tsrx), [Android example](../packages/demos/src/NativeSheetDemo.android.tsrx), [web example](../packages/demos/src/NativeSheetDemo.web.tsrx), and [macOS example](../packages/demos/src/NativeSheetDemo.macos.tsrx).
 
-- AC5: [Focus qualification](../docs/sheet.md#focus-qualification) and [input readiness evidence](../docs/input-readiness-notes.md).
+- AC5: [Focus qualification](../docs/platform/sheet.md#focus-qualification) and [input readiness evidence](../docs/notes/input-readiness-notes.md).

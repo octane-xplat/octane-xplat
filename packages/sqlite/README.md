@@ -55,7 +55,7 @@ if (supported) {
 }
 ```
 
-Design notes: [`docs/sqlite-notes.md`](../../docs/sqlite-notes.md);
-limits: [known limits](../../docs/known-limits.md). Exercised by the
+Design notes: [`docs/notes/sqlite-notes.md`](../../docs/notes/sqlite-notes.md);
+limits: [known limits](../../docs/verify/known-limits.md). Exercised by the
 harness `Services` screen
 ([`packages/app/src/Services.tsrx`](../app/src/Services.tsrx)).

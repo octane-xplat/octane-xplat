@@ -44,7 +44,7 @@ the tarball. Generate before local consumer typechecks, and regenerate in
 `prepack` before validating the package. Workspaces that resolve generated
 types directly also need generation during setup and refreshes during
 development; this repository's workflow is documented in
-[Develop against generated declarations](../../docs/toolchain-notes.md#develop-against-generated-declarations).
+[Develop against generated declarations](../../docs/notes/toolchain-notes.md#develop-against-generated-declarations).
 
 `--project` selects the target whose project path matches. Use `--target` to
 select a named target directly. A target can look like this:

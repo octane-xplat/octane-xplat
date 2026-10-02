@@ -49,7 +49,7 @@ export function PhotoPicker() {
 For a live preview surface instead of one-shot capture, use
 [`@octane-xplat/camera`](../camera/README.md)'s `CameraView`.
 
-Guide: [Using device features](../../docs/platform-services.md);
-per-target availability: [platform notes](../../docs/platform-notes.md).
+Guide: [Using device features](../../docs/platform/platform-services.md);
+per-target availability: [platform notes](../../docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen and
 [`CameraDemo`](../demos/src/CameraDemo.tsrx).

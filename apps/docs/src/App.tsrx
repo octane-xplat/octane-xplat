@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'octane';
 import { View, HStack, Text, Pressable, ScrollableArea, useRoute, pushRoute, useColorScheme, BottomSheet } from '@octane-xplat/ui';
-import { DOCS, type DocPage } from './docs';
-import { docPath } from './doc-meta';
+import { DOCS, routeForDoc, type DocPage } from './docs';
+import { docPath, GROUPS, INDEX_SLUG, NOTES_INDEX_SLUG } from './doc-meta';
 import { MdDoc } from './MdDoc.tsrx';
 import { searchDocs, type SearchHit } from './search';
 import { resetDocScroll } from './scroll';
@@ -28,11 +28,6 @@ const ORBIT_BADGES = [
 	orbitAndroid,
 	orbitMicrosoft,
 	orbitMacos,
-];
-
-const GROUPS: { key: DocPage['group']; label: string }[] = [
-	{ key: 'guides', label: 'Guides' },
-	{ key: 'notes', label: 'Notes' },
 ];
 
 const HIT_GROUP: Partial<Record<SearchHit['kind'], string>> = {
@@ -130,9 +125,10 @@ export function App() @{
 	};
 
 	const route = useRoute('notes') ?? useRoute('root');
-	const slug = route?.name ?? DOCS[0].slug;
+	const slug = route ? route.name || (route.stack === 'notes' ? NOTES_INDEX_SLUG : INDEX_SLUG) : INDEX_SLUG;
 	const doc = DOCS.find((d) => d.slug === slug) ?? DOCS[0];
-	const nextDoc = DOCS[DOCS.findIndex((d) => d.slug === doc.slug) + 1];
+	const nextDoc = DOCS.filter((d) => d.group === doc.group)[DOCS.filter((d) => d.group === doc.group).findIndex((d) => d.slug === doc.slug) + 1];
+	const notesIndex = DOCS.find((d) => d.slug === NOTES_INDEX_SLUG);
 
 	const open = (s: string, anchor?: string) => {
 		if (menuOpen) {
@@ -141,8 +137,8 @@ export function App() @{
 
 		const d = DOCS.find((x) => x.slug === s);
 		// The index doc lives at '/', not /README.
-		pushRoute({ stack: d?.group === 'notes' ? 'notes' : 'root', name: s === DOCS[0].slug ? '' : s, params: {} });
-		history.replaceState(history.state, '', docPath(s) + (anchor ? `#${anchor}` : ''));
+		pushRoute(routeForDoc(d));
+		history.replaceState(history.state, '', docPath(s, d?.group) + (anchor ? `#${anchor}` : ''));
 		resetDocScroll();
 	};
 
@@ -317,7 +313,7 @@ export function App() @{
 					</Pressable>
 					<a
 						className="nav-row"
-						href="https://github.com/aleclarson/octane-xplat"
+						href="https://github.com/octane-xplat/octane-xplat"
 						target="_blank"
 						rel="noopener"
 					>
@@ -337,11 +333,12 @@ export function App() @{
 			</View>
 			<View className="side-scroll">
 				{GROUPS.map((g) => (
-					<View key={g.key} className="side-sec">
+					<View key={g.dir} className="side-sec">
 						<Text className="sec-head">{g.label}</Text>
-						{DOCS.filter((d) => d.group === g.key).map(renderDoc)}
+						{DOCS.filter((d) => d.group === 'guides' && d.section === g.dir).map(renderDoc)}
 					</View>
 				))}
+				{notesIndex && <View className="side-sec">{renderDoc(notesIndex)}</View>}
 			</View>
 		</View>
 	);
@@ -377,7 +374,7 @@ export function App() @{
 								<img className="orbit-user" src={orbitUser} alt="" />
 							</div>
 						)}
-						<MdDoc md={doc.md} showPageActions={doc.slug !== 'README'} agentPrompt={doc.slug === 'README'
+						<MdDoc md={doc.md} dir={doc.dir} showPageActions={doc.slug !== 'README'} agentPrompt={doc.slug === 'README'
 							? 'Set up Octane Xplat for me. Fetch https://octane-xplat.goddardai.org/llms-full.txt and follow the “Create and run” guide.'
 							: undefined} />
 						{nextDoc && (

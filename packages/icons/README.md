@@ -119,7 +119,7 @@ unverified. An OS that cannot decode the SVG produces an empty image; there is
 no fallback renderer. macOS forwards `id`/`className`, but the image host does
 not apply class-based styling. Labels map to the native accessibility label;
 unlabeled images are marked decorative. Pixel fidelity and OS accessibility
-traversal remain unverified. See [AppKit SVG notes](../../docs/icon-svg-notes.md).
+traversal remain unverified. See [AppKit SVG notes](../../docs/notes/icon-svg-notes.md).
 
 ```tsx
 // Direction.macos.tsx

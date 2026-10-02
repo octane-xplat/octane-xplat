@@ -24,7 +24,7 @@ the behavior differences between DOM and NativeScript.
 
 ## Documentation
 
-- AC1: [Flow layout](../docs/primitives.md#the-components-you-reach-for-first) and maintained [LayoutDemo](../packages/demos/src/LayoutDemo.tsrx).
-- AC2: [Flow and overlap](../docs/primitives.md#the-components-you-reach-for-first) and maintained [LayoutDemo](../packages/demos/src/LayoutDemo.tsrx).
-- AC3: [Layout component index](../docs/components.md#layout) and maintained [LayoutDemo](../packages/demos/src/LayoutDemo.tsrx).
-- AC4: [Grouped fields](../docs/primitives.md#grouped-fields) and maintained [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx).
+- AC1: [Flow layout](../docs/app/primitives.md#the-components-you-reach-for-first) and maintained [LayoutDemo](../packages/demos/src/LayoutDemo.tsrx).
+- AC2: [Flow and overlap](../docs/app/primitives.md#the-components-you-reach-for-first) and maintained [LayoutDemo](../packages/demos/src/LayoutDemo.tsrx).
+- AC3: [Layout component index](../docs/app/components.md#layout) and maintained [LayoutDemo](../packages/demos/src/LayoutDemo.tsrx).
+- AC4: [Grouped fields](../docs/app/primitives.md#grouped-fields) and maintained [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx).

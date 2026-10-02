@@ -18,7 +18,7 @@ export function followHref(href: string): void {
 	if (!warned.has(href)) {
 		warned.add(href)
 		console.warn(
-			`[octane-xplat] href '${href}' matched no route — relative links need a registered deep link (see docs/navigation.md).`,
+			`[octane-xplat] href '${href}' matched no route — relative links need a registered deep link (see docs/app/navigation.md).`,
 		)
 	}
 }

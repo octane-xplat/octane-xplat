@@ -102,9 +102,9 @@ export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) 
 
 ## Documentation
 
-- AC1: [Chat API inventory and portable event/file contract](../docs/components.md#chat), plus the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx).
-- AC2: [ChatComposerInput, token, and trigger API](../docs/components.md#chat), this recipe's [trigger and token example](#compose-triggers-and-tokens), and the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx). Native inline editing remains a documented limitation: native uses a chip row and approximates mid-text token positions.
-- AC3: [Chat API inventory](../docs/components.md#chat) and this recipe's [ChatLayout scroll behavior](#compose-triggers-and-tokens).
-- AC4: [ChatMessageList contract](../docs/components.md#chat) and its `scrollToTopAction` prop documentation.
-- AC5: [Portable Chat deviations](../docs/components.md#chat). Native paste/file delivery and speech recognition are unsupported; file paste and dictation therefore have no native verification.
-- AC6: [Root exports](../packages/ui/src/index.shared.ts) share the family; [macOS](../packages/ui/src/index.macos.ts) explicitly re-exports it. Linux uses the web entry. The [Windows app TypeScript map](../apps/windows/tsconfig.json) resolves the shared entry; Windows runtime checks render explicit message slots and token chips, but deferred text, composer actions, and accessibility remain blocked; see [Windows support boundary](../docs/windows-notes.md#current-support-boundary). Windows is not a supported target of this recipe.
+- AC1: [Chat API inventory and portable event/file contract](../docs/app/components.md#chat), plus the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx).
+- AC2: [ChatComposerInput, token, and trigger API](../docs/app/components.md#chat), this recipe's [trigger and token example](#compose-triggers-and-tokens), and the maintained [ChatDemo](../packages/demos/src/ChatDemo.tsrx). Native inline editing remains a documented limitation: native uses a chip row and approximates mid-text token positions.
+- AC3: [Chat API inventory](../docs/app/components.md#chat) and this recipe's [ChatLayout scroll behavior](#compose-triggers-and-tokens).
+- AC4: [ChatMessageList contract](../docs/app/components.md#chat) and its `scrollToTopAction` prop documentation.
+- AC5: [Portable Chat deviations](../docs/app/components.md#chat). Native paste/file delivery and speech recognition are unsupported; file paste and dictation therefore have no native verification.
+- AC6: [Root exports](../packages/ui/src/index.shared.ts) share the family; [macOS](../packages/ui/src/index.macos.ts) explicitly re-exports it. Linux uses the web entry. The [Windows app TypeScript map](../apps/windows/tsconfig.json) resolves the shared entry; Windows runtime checks render explicit message slots and token chips, but deferred text, composer actions, and accessibility remain blocked; see [Windows support boundary](../docs/notes/windows-notes.md#current-support-boundary). Windows is not a supported target of this recipe.

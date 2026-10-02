@@ -25,7 +25,7 @@ or an overflow action menu across supported targets.
 
 ## Documentation
 
-- AC1: [Action controls guide example](../docs/interactive-actions.md#action-controls-and-interactive-cards) and the maintained [action controls demo](../packages/demos/src/ActionControlsDemo.tsrx).
-- AC2: [Groups, toggles, and overflow menus](../docs/interactive-actions.md#action-controls-and-interactive-cards).
-- AC3: [Interactive cards and links](../docs/interactive-actions.md#interactive-cards).
-- AC4: [Button compatibility](../docs/interactive-actions.md#button-compatibility).
+- AC1: [Action controls guide example](../docs/app/interactive-actions.md#action-controls-and-interactive-cards) and the maintained [action controls demo](../packages/demos/src/ActionControlsDemo.tsrx).
+- AC2: [Groups, toggles, and overflow menus](../docs/app/interactive-actions.md#action-controls-and-interactive-cards).
+- AC3: [Interactive cards and links](../docs/app/interactive-actions.md#interactive-cards).
+- AC4: [Button compatibility](../docs/app/interactive-actions.md#button-compatibility).

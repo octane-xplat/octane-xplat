@@ -30,7 +30,7 @@ Markdown parser, clipboard package, image loader, or navigation system.
 
 ## Documentation
 
-- AC1: [Content-display components](../docs/components.md#content) and the [content display guide](../docs/content-display.md).
-- AC2: [Status, progress, and time behavior](../docs/content-display.md#progress-status-and-time) and the [maintained demo](../packages/demos/src/ContentDisplayDemo.tsrx).
-- AC3: [Outline and Markdown behavior](../docs/content-display.md#outline-from-markdown-or-views).
+- AC1: [Content-display components](../docs/app/components.md#content) and the [content display guide](../docs/app/content-display.md).
+- AC2: [Status, progress, and time behavior](../docs/app/content-display.md#progress-status-and-time) and the [maintained demo](../packages/demos/src/ContentDisplayDemo.tsrx).
+- AC3: [Outline and Markdown behavior](../docs/app/content-display.md#outline-from-markdown-or-views).
 - AC4: [Content-display demo](../packages/demos/src/ContentDisplayDemo.tsrx), available as “Content display” in the harness.

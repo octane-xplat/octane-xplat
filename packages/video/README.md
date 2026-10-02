@@ -51,5 +51,5 @@ export function Player() {
 ```
 
 Per-target limits are recorded in
-[known limits](../../docs/known-limits.md). Exercised by
+[known limits](../../docs/verify/known-limits.md). Exercised by
 [`VideoDemo`](../demos/src/VideoDemo.tsrx).

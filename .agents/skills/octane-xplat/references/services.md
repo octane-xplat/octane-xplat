@@ -115,7 +115,7 @@ builds the loader map. `useLingui()` subscribes a component to locale changes
 (macro output does not re-render on its own); `setLocale(locale)` switches.
 `.tsrx` extraction needs `tsrxExtractor` from `@octane-xplat/lingui/extractor`
 in the app's `lingui.config.ts` — the default chain skips `.tsrx`. Core macros
-only; no `<Trans>`/`I18nProvider`. Guide: docs/localization.md, decision #85.
+only; no `<Trans>`/`I18nProvider`. Guide: docs/app/localization.md, decision #85.
 
 ```ts
 // Startup .ts module: Vite loads the app's compiled catalog modules.

@@ -75,5 +75,5 @@ editor used for conversions is an internal detail.
 The lexical family pins to `0.51.0` and `@octanejs/lexical` to `0.2.0`
 (peers `octane ^0.6.0`). `@lexical/link` carries a workspace patch for its
 ICU-dependent URL-matcher literal. See
-[`docs/rich-text.md`](../../docs/rich-text.md) for the shared contract,
+[`docs/app/rich-text.md`](../../docs/app/rich-text.md) for the shared contract,
 format vocabulary, and known limits.

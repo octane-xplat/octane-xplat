@@ -55,4 +55,4 @@ No web implementation — guard usage behind a platform file boundary or a
 `supported` check in app code. Exercised by `EffectsDemo`
 ([`packages/demos/src/EffectsDemo.ios.tsrx`](../demos/src/EffectsDemo.ios.tsrx),
 `.android`, `.macos`); component index:
-[`docs/components.md`](../../docs/components.md).
+[`docs/app/components.md`](../../docs/app/components.md).

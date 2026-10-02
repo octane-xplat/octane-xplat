@@ -25,9 +25,9 @@ space through form and overlay lifecycles.
 
 ## Documentation
 
-- AC1: [Control a field](../docs/text-entry.md#control-a-field) and [editing and submission](../docs/text-entry.md#preserve-editing-and-submit-deliberately).
-- AC2: [Editing and submission](../docs/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../docs/text-entry.md#verification-boundaries).
-- AC3: [Field names](../docs/text-entry.md#control-a-field), [reusable rows](../docs/primitives.md#reusable-rows), and [Q15](../docs/open-questions.md#later--finer).
-- AC4: [Release and restore focus](../docs/text-entry.md#release-and-restore-focus).
-- AC5: [Modal focus](../docs/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../docs/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../docs/text-entry.md#verification-boundaries).
-- AC6: [Building screens: grouped fields](../docs/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx).
+- AC1: [Control a field](../docs/app/text-entry.md#control-a-field) and [editing and submission](../docs/app/text-entry.md#preserve-editing-and-submit-deliberately).
+- AC2: [Editing and submission](../docs/app/text-entry.md#preserve-editing-and-submit-deliberately) and [verification boundaries](../docs/app/text-entry.md#verification-boundaries).
+- AC3: [Field names](../docs/app/text-entry.md#control-a-field), [reusable rows](../docs/app/primitives.md#reusable-rows), and [Q15](../docs/notes/open-questions.md#later--finer).
+- AC4: [Release and restore focus](../docs/app/text-entry.md#release-and-restore-focus).
+- AC5: [Modal focus](../docs/app/text-entry.md#release-and-restore-focus), [retained exit lifecycle](../docs/app/animation-gestures.md#retain-content-through-exit), and [verification boundaries](../docs/app/text-entry.md#verification-boundaries).
+- AC6: [Building screens: grouped fields](../docs/app/primitives.md#grouped-fields) and the maintained [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx).

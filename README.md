@@ -14,11 +14,11 @@ experimental AppKit host; Windows has an experimental WinUI 3 scaffold
 whose bundle builds, but has not yet been run on Windows; Linux has an
 experimental WebKitGTK webview host exercised on Ubuntu 24.04. The framework is
 `0.x`, so plan for API changes as well as platform limits.
-See the [target guide](docs/spec.md#choose-your-targets) before planning a release.
+See the [target guide](docs/start/spec.md#choose-your-targets) before planning a release.
 
 ## Get a working app
 
-With Node.js and pnpm installed ([version requirements](docs/toolchain.md#create-and-run)):
+With Node.js and pnpm installed ([version requirements](docs/start/toolchain.md#create-and-run)):
 
 ```sh
 pnpm create octane-xplat my-app
@@ -38,15 +38,15 @@ confirm that one item remains. This first version resets on reload. Then ask
 for the next change: “Group items by bag and keep packed items visible.”
 
 The starter includes `.agents/skills/xplat/` for the agent's conventions.
-[Run and iterate](docs/toolchain.md) shows how to check your first result,
+[Run and iterate](docs/start/toolchain.md) shows how to check your first result,
 add a native session, and recognize a failed update. You can inspect the
 [actual starter screen](packages/create/template/src/App.tsrx) before installing.
 
 ## Add useful device features
 
 Save a checklist, attach a photo, share a trip, or open a screen from a link.
-[Device services](docs/platform-services.md) and
-[media packages](docs/media-services.md) expose those capabilities to shared
+[Device services](docs/platform/platform-services.md) and
+[media packages](docs/platform/media-services.md) expose those capabilities to shared
 code. Availability, permissions, and responses differ by platform: photo
 capture uses the OS camera on iOS/Android, while the web flow may offer a
 file picker. Handle unavailable features explicitly.
@@ -65,8 +65,8 @@ async function attachPhoto() {
 
 Share product behavior and the basic screen layout. Use a platform-specific
 file when a phone needs an OS control or a desktop needs a different layout.
-[Platform variants](docs/module-resolution.md) keep those choices behind a
-shared import; [platform widgets](docs/primitives.md) provide opt-in OS controls.
+[Platform variants](docs/platform/module-resolution.md) keep those choices behind a
+shared import; [platform widgets](docs/app/primitives.md) provide opt-in OS controls.
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
@@ -93,15 +93,15 @@ export function PackingRow(props: { packed: boolean; setPacked: (value: boolean)
 
 ## What you can verify
 
-The [showcase plan](docs/demos.md#product-showcase) separates four claims and
+The [showcase plan](docs/notes/demos.md#product-showcase) separates four claims and
 the evidence each needs:
 
 | Claim                                                       | Evidence available now                                                                                                                                          |
 | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| One coherent app on all five targets                        | A planned showcase, not a shipped demo. See [target support](docs/spec.md#choose-your-targets).                                                                 |
-| A shared edit appears in running targets                    | [Recorded web/iOS live-update check](docs/toolchain-notes.md#dev-loop), plus [steps to check your app](docs/toolchain.md#see-a-shared-edit-in-running-targets). |
-| A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web.                             |
-| A focused implementation fits one platform                  | [File variants and import rules](docs/module-resolution.md) explain how to isolate an OS control.                                                               |
+| One coherent app on all five targets                        | A planned showcase, not a shipped demo. See [target support](docs/start/spec.md#choose-your-targets).                                                                 |
+| A shared edit appears in running targets                    | [Recorded web/iOS live-update check](docs/notes/toolchain-notes.md#dev-loop), plus [steps to check your app](docs/start/toolchain.md#see-a-shared-edit-in-running-targets). |
+| A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web.                             |
+| A focused implementation fits one platform                  | [File variants and import rules](docs/platform/module-resolution.md) explain how to isolate an OS control.                                                               |
 
 These are different kinds of evidence: recorded experiments, documented
 contracts, and plans. Check the behaviors your app depends on before adopting
@@ -118,15 +118,15 @@ iOS and Android APIs directly to TypeScript, without requiring you to author
 a bridge. Its development update loop helps you inspect edits in a running
 app. Its [official agent skills](https://github.com/NativeScript/skills) can
 help with native work; they are optional and separate from the starter's
-Xplat skill. Follow the [setup and version guidance](docs/toolchain.md#agent-context-and-versions)
+Xplat skill. Follow the [setup and version guidance](docs/start/toolchain.md#agent-context-and-versions)
 for this project.
 
 ## Docs
 
 **[octane-xplat.goddardai.org](https://octane-xplat.goddardai.org)** —
-start with [what you can build](docs/spec.md), then
-[run your app](docs/toolchain.md), [add capabilities](docs/platform-services.md),
-and [tailor the experience](docs/module-resolution.md).
+start with [what you can build](docs/start/spec.md), then
+[run your app](docs/start/toolchain.md), [add capabilities](docs/platform/platform-services.md),
+and [tailor the experience](docs/platform/module-resolution.md).
 
 For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the
 docs; [llms-full.txt](https://octane-xplat.goddardai.org/llms-full.txt) includes
@@ -135,7 +135,7 @@ every guide. Packages include `@octane-xplat/ui`, `@octane-xplat/platform`,
 use [`@octane-xplat/icons`](packages/icons/README.md).
 
 Working on the framework itself? Start with [AGENTS.md](AGENTS.md) and the
-[design notes](docs/architecture-notes.md).
+[design notes](docs/notes/architecture-notes.md).
 
 ## Framework workspace commands
 
@@ -162,4 +162,4 @@ native builds, browser smoke, or all packed-consumer checks.
 Native launch and build commands require the target's SDK and host tools.
 `build:macos` packages the experimental AppKit app. Browser smoke commands
 require Playwright's browser installation. These shortcuts retain the
-[existing target limits](docs/spec.md#choose-your-targets).
+[existing target limits](docs/start/spec.md#choose-your-targets).

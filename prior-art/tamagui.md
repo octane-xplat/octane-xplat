@@ -41,4 +41,4 @@
 
 Steal the **authoring API** (`styled`, variants, token references, state
 props); keep the **implementation** boring: CSS classes + `view.style` objects.
-See `docs/styling.md`.
+See `docs/app/styling.md`.

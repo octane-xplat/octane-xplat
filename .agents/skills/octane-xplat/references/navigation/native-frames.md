@@ -22,49 +22,49 @@ export function Sections() {
   `currentPage` stays undefined. Mount the default page in
   `frame.once('loaded', ...)`, never eagerly.
 
-  ```ts
-  // Host.mobile.ts — mount this Frame in the native host after configuring it.
-  import { Frame, Page } from '@nativescript/core'
+```ts
+// Host.mobile.ts — mount this Frame in the native host after configuring it.
+import { Frame, Page } from '@nativescript/core'
 
-  const frame = new Frame()
-  frame.once('loaded', () => frame.navigate({ create: () => new Page() }))
-  ```
+const frame = new Frame()
+frame.once('loaded', () => frame.navigate({ create: () => new Page() }))
+```
 
 - `TabViewItem`-hosted frames report `isLoaded=false` after tab-selection
   lifecycle churn. Re-arm before each push:
   `if (!frame.isLoaded) frame.callLoaded?.()` (idempotent).
 
-  ```ts
-  // In the framework's existing native Frame owner, after tab lifecycle churn.
-  import type { Frame } from '@nativescript/core'
+```ts
+// In the framework's existing native Frame owner, after tab lifecycle churn.
+import type { Frame } from '@nativescript/core'
 
-  function rearm(frame: Frame) {
-    if (!frame.isLoaded) frame.callLoaded?.()
-  }
-  ```
+function rearm(frame: Frame) {
+	if (!frame.isLoaded) frame.callLoaded?.()
+}
+```
 
 - `setCurrent` runs on `viewDidAppear` — page commit lands ~seconds after
   the `NAVIGATE CORE` trace for a frame's first navigation. Anything that
   reads `currentPage`/`backStack` immediately after a push races it —
   poll (`navigatedTo` event, or view-mount checks), never fixed timers.
 
-  ```ts
-  // Attach before navigation so the target page reports its committed entry.
-  import { Page } from '@nativescript/core'
+```ts
+// Attach before navigation so the target page reports its committed entry.
+import { Page } from '@nativescript/core'
 
-  const targetPage = new Page()
-  targetPage.once('navigatedTo', () => console.log('Target page is current'))
-  ```
+const targetPage = new Page()
+targetPage.once('navigatedTo', () => console.log('Target page is current'))
+```
 
 - `Frame.topmost()` returns the **innermost** frame once nested stacks
   exist — root reads via `getStack('root')`.
 
-  ```ts
-  import { getStack } from '@octane-xplat/ui'
+```ts
+import { getStack } from '@octane-xplat/ui'
 
-  const rootFrame = getStack('root')
-  console.log(rootFrame?.currentPage)
-  ```
+const rootFrame = getStack('root')
+console.log(rootFrame?.currentPage)
+```
 
 ## Android — nested stacks (upstream #11444, framework-owned)
 

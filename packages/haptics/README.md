@@ -58,5 +58,5 @@ if (capabilities.patterns) {
 engine.dispose()
 ```
 
-Guide: [Media services](../../docs/media-services.md); per-target
-availability: [platform notes](../../docs/platform-notes.md).
+Guide: [Media services](../../docs/platform/media-services.md); per-target
+availability: [platform notes](../../docs/notes/platform-notes.md).

@@ -2,7 +2,7 @@
 // never in a leaf: `import … from './x.web'` inside a native default module drags the
 // web implementation into the native typecheck program.
 
-/** Optional capability — never throws for absence (docs/platform-services.md). */
+/** Optional capability — never throws for absence (docs/platform/platform-services.md). */
 export interface Capability<T> {
 	supported: boolean
 	ensure(): Promise<'granted' | 'denied' | 'unsupported'>

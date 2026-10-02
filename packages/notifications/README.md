@@ -36,5 +36,5 @@ if ((await notifications.ensure()) === 'granted') {
 ```
 
 Guide: [Send a local notification](../../docs/local-notifications.md);
-[Using device features](../../docs/platform-services.md);
-per-target availability: [platform notes](../../docs/platform-notes.md).
+[Using device features](../../docs/platform/platform-services.md);
+per-target availability: [platform notes](../../docs/notes/platform-notes.md).

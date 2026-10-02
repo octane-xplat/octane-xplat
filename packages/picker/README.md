@@ -63,7 +63,7 @@ The platform APIs use their own selection vocabulary and option shapes. The iOS
 entry uses SwiftUI selection IDs, the Android entry uses Material dropdown keys
 and enabled states, and the web entry follows browser select values. See the
 framework guide for details and maintained examples:
-[`docs/native-picker.md`](../../docs/native-picker.md).
+[`docs/platform/native-picker.md`](../../docs/platform/native-picker.md).
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */

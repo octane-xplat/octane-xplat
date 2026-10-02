@@ -34,6 +34,6 @@ research references, not dependencies or commitments to copy their APIs.
   separate React web entry. Neither is an Octane or AppKit implementation.
 
 Our current shared-list contract and evidence are in
-[`docs/primitive-notes.md`](../../docs/primitive-notes.md#virtuallist-vertical-foundation-stage-2-2026-09-27).
+[`docs/notes/primitive-notes.md`](../../docs/notes/primitive-notes.md#virtuallist-vertical-foundation-stage-2-2026-09-27).
 Fast-scroll performance remains open in
-[`docs/open-questions.md`](../../docs/open-questions.md).
+[`docs/notes/open-questions.md`](../../docs/notes/open-questions.md).

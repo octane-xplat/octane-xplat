@@ -103,5 +103,5 @@ export function Formatting() {
 The Android Aztec dependency (`org.wordpress:aztec:v2.1.7`) arrives through
 the leaf's `platforms/android/include.gradle` — no app-level gradle work.
 See the framework guide for the full contract and the demo:
-[`docs/rich-text.md`](../../docs/rich-text.md) and
+[`docs/app/rich-text.md`](../../docs/app/rich-text.md) and
 [`packages/demos/src/RichTextEditorDemo.tsrx`](../demos/src/RichTextEditorDemo.tsrx).

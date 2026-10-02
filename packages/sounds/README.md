@@ -37,5 +37,5 @@ For queued music/podcast playback use
 [`@octane-xplat/audio`](../audio/README.md); for tactile feedback use
 [`@octane-xplat/haptics`](../haptics/README.md).
 
-Guide: [Media services](../../docs/media-services.md); per-target
-availability: [platform notes](../../docs/platform-notes.md).
+Guide: [Media services](../../docs/platform/media-services.md); per-target
+availability: [platform notes](../../docs/notes/platform-notes.md).

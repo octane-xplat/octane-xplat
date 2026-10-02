@@ -25,10 +25,10 @@ behavior, and respect reduced motion and component disposal.
 
 ## Documentation
 
-- AC1: [Component motion](../docs/animation-gestures.md#animate-a-component), [maintained example](../packages/motion/examples/MotionDemo.tsrx).
-- AC2: [Value lifecycle](../docs/animation-gestures.md#bind-values-and-gestures).
-- AC3: [Reduced motion](../docs/animation-gestures.md#reduced-motion-and-lifecycle), [known limits](../docs/known-limits.md#motion-leaf).
+- AC1: [Component motion](../docs/app/animation-gestures.md#animate-a-component), [maintained example](../packages/motion/examples/MotionDemo.tsrx).
+- AC2: [Value lifecycle](../docs/app/animation-gestures.md#bind-values-and-gestures).
+- AC3: [Reduced motion](../docs/app/animation-gestures.md#reduced-motion-and-lifecycle), [known limits](../docs/verify/known-limits.md#motion-leaf).
 
-- AC4: [Retained exit lifecycle](../docs/animation-gestures.md#retain-content-through-exit), [PresenceDemo](../packages/motion/examples/PresenceDemo.tsrx), and [nonvisual input qualification](../docs/input-readiness-notes.md#completed-checks).
+- AC4: [Retained exit lifecycle](../docs/app/animation-gestures.md#retain-content-through-exit), [PresenceDemo](../packages/motion/examples/PresenceDemo.tsrx), and [nonvisual input qualification](../docs/notes/input-readiness-notes.md#completed-checks).
 
-- AC5: [Coordinate variants](../docs/animation-gestures.md#coordinate-variants), [compatibility boundaries](../packages/motion/UPSTREAM.md#variants-decision-93), and [maintained motion probe](../examples/probes/motion.tsrx).
+- AC5: [Coordinate variants](../docs/app/animation-gestures.md#coordinate-variants), [compatibility boundaries](../packages/motion/UPSTREAM.md#variants-decision-93), and [maintained motion probe](../examples/probes/motion.tsrx).

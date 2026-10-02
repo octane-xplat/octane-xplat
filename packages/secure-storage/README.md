@@ -37,5 +37,5 @@ if ((await secureStorage.ensure()) === 'granted') {
 For non-secret preferences, use `storage` from
 [`@octane-xplat/platform`](../platform/README.md) instead.
 
-Guide: [Using device features](../../docs/platform-services.md);
-per-target availability: [platform notes](../../docs/platform-notes.md).
+Guide: [Using device features](../../docs/platform/platform-services.md);
+per-target availability: [platform notes](../../docs/notes/platform-notes.md).

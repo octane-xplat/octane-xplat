@@ -107,7 +107,7 @@ lazy grid collapses under unbounded height), and keep `initialDate` and
 `selectableDates` identity-stable — the provider keys its state `remember`
 on them, so a per-render `new Date()` resets the selection.
 See the framework guide for details and maintained examples:
-[`docs/date-picker.md`](../../docs/date-picker.md).
+[`docs/platform/date-picker.md`](../../docs/platform/date-picker.md).
 
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */

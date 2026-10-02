@@ -39,7 +39,7 @@ player.dispose()
 
 For short UI sounds use [`@octane-xplat/sounds`](../sounds/README.md).
 
-Guide: [Media services](../../docs/media-services.md); per-target
-availability: [platform notes](../../docs/platform-notes.md). Exercised by
+Guide: [Media services](../../docs/platform/media-services.md); per-target
+availability: [platform notes](../../docs/notes/platform-notes.md). Exercised by
 the harness `MediaServices` screen
 ([`packages/app/src/MediaServices.tsrx`](../app/src/MediaServices.tsrx)).

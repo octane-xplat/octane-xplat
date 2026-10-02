@@ -22,8 +22,8 @@ platform-specific transforms in the screen.
 
 ## Documentation
 
-- AC1: [Declarative drag](../docs/animation-gestures.md#drag-a-component), [Gesture values](../docs/animation-gestures.md#bind-values-and-gestures), [MotionDemo](../packages/motion/examples/MotionDemo.tsrx).
-- AC2: [Declarative drag](../docs/animation-gestures.md#drag-a-component), [Release velocity and cancellation](../docs/animation-gestures.md#bind-values-and-gestures), [reduced motion](../docs/animation-gestures.md#reduced-motion-and-lifecycle), [MotionDemo](../packages/motion/examples/MotionDemo.tsrx).
-- AC3: [Lifecycle](../docs/animation-gestures.md#bind-values-and-gestures), [compatibility](../packages/motion/UPSTREAM.md#verification-limits).
+- AC1: [Declarative drag](../docs/app/animation-gestures.md#drag-a-component), [Gesture values](../docs/app/animation-gestures.md#bind-values-and-gestures), [MotionDemo](../packages/motion/examples/MotionDemo.tsrx).
+- AC2: [Declarative drag](../docs/app/animation-gestures.md#drag-a-component), [Release velocity and cancellation](../docs/app/animation-gestures.md#bind-values-and-gestures), [reduced motion](../docs/app/animation-gestures.md#reduced-motion-and-lifecycle), [MotionDemo](../packages/motion/examples/MotionDemo.tsrx).
+- AC3: [Lifecycle](../docs/app/animation-gestures.md#bind-values-and-gestures), [compatibility](../packages/motion/UPSTREAM.md#verification-limits).
 
-- AC4: [Declarative drag and native setup](../docs/animation-gestures.md#drag-a-component), [maintained probe](../examples/probes/motion.tsrx), and [drag limits](../packages/motion/UPSTREAM.md#bounded-declarative-drag).
+- AC4: [Declarative drag and native setup](../docs/app/animation-gestures.md#drag-a-component), [maintained probe](../examples/probes/motion.tsrx), and [drag limits](../packages/motion/UPSTREAM.md#bounded-declarative-drag).

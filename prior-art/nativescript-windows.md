@@ -3,7 +3,7 @@
 > Upstream record for the Windows target — everything here is desk-source
 > (repo + published package read), nothing lab-verified yet. Repo:
 > <https://github.com/NativeScript/windows>. Read alongside
-> `docs/windows-notes.md`, which is our plan.
+> `docs/notes/windows-notes.md`, which is our plan.
 
 Three consumption modes ship from one workspace.
 

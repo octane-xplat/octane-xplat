@@ -57,7 +57,7 @@ Web needs registered client IDs; iOS needs the `applesignin` entitlement
 and Google's `GoogleService-Info.plist`/reversed-client-id URL scheme;
 Android needs `google-services.json` and a `serverClientId` for
 `serverAuthCode`. Guide: [Using device
-features](../../docs/platform-services.md). Exercised by
+features](../../docs/platform/platform-services.md). Exercised by
 [`AuthDemo`](../demos/src/AuthDemo.tsrx).
 
 On macOS, `supported` reports AuthenticationServices availability, not completed

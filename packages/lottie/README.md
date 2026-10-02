@@ -53,7 +53,7 @@ export function Animation({ animation }: { animation: object }) {
 ```
 
 Per-target limits — including the expression/CSP boundary on web — are
-recorded in [known limits](../../docs/known-limits.md). Exercised by
+recorded in [known limits](../../docs/verify/known-limits.md). Exercised by
 [`LottieDemo`](../demos/src/LottieDemo.tsrx).
 
 This is a git submodule checkout: after cloning run

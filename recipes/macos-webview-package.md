@@ -29,9 +29,9 @@ its shared DOM frontend inside the system WKWebView.
 
 ## Documentation
 
-- AC1: [Renderer configuration and doctor](../docs/macos-webview.md#configure-the-renderer).
-- AC2: [Development, DOM suffix resolution, and the maintained app config](../docs/macos-webview.md#configure-the-renderer).
-- AC3: [Packaging and the app scheme](../docs/macos-webview.md#configure-the-renderer).
-- AC4: [Typed service and event contracts](../docs/macos-webview.md#share-typed-host-services) and the [app-owned service proof](../apps/macos/webview-proof/ProofScreen.web.ts).
-- AC5: [Framework service adapters](../docs/macos-webview.md#share-typed-host-services) and the [WKWebView proof](../apps/macos/webview-proof/ProofScreen.web.ts).
-- AC6: [Boundary verification](../docs/macos-webview.md#verify-the-boundary) and the [proof host](../apps/macos/webview-proof-host.ts).
+- AC1: [Renderer configuration and doctor](../docs/platform/macos-webview.md#configure-the-renderer).
+- AC2: [Development, DOM suffix resolution, and the maintained app config](../docs/platform/macos-webview.md#configure-the-renderer).
+- AC3: [Packaging and the app scheme](../docs/platform/macos-webview.md#configure-the-renderer).
+- AC4: [Typed service and event contracts](../docs/platform/macos-webview.md#share-typed-host-services) and the [app-owned service proof](../apps/macos/webview-proof/ProofScreen.web.ts).
+- AC5: [Framework service adapters](../docs/platform/macos-webview.md#share-typed-host-services) and the [WKWebView proof](../apps/macos/webview-proof/ProofScreen.web.ts).
+- AC6: [Boundary verification](../docs/platform/macos-webview.md#verify-the-boundary) and the [proof host](../apps/macos/webview-proof-host.ts).

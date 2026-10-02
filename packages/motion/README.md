@@ -23,7 +23,7 @@ export function MovingCard() {
 }
 ```
 
-See the [motion guide](../../docs/animation-gestures.md) and maintained
+See the [motion guide](../../docs/app/animation-gestures.md) and maintained
 [MotionDemo](examples/MotionDemo.tsrx). Use the [PresenceDemo](examples/PresenceDemo.tsrx) for retained exits.
 The [compatibility record](UPSTREAM.md)
 defines the supported subset and differences from `@octanejs/motion`.
@@ -34,7 +34,7 @@ Build with `pnpm --filter @octane-xplat/motion build`; run DOM/engine tests with
 Native compilation and object-driver tests are not physical-device evidence.
 
 Native consumers must install `@nativescript-community/gesturehandler` and call
-its `install()` before creating the root. See [drag setup](../../docs/animation-gestures.md#drag-a-component). Web does not require this optional peer.
+its `install()` before creating the root. See [drag setup](../../docs/app/animation-gestures.md#drag-a-component). Web does not require this optional peer.
 
 ```ts
 // bootstrap.mobile.ts — before Application.run or creating Page/Frame roots.

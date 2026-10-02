@@ -3,7 +3,8 @@
 // `pnpm smoke:keys` builds with development diagnostics enabled too.
 import { JSDOM } from 'jsdom'
 import { readFileSync, readdirSync } from 'fs'
-import { docPath, titleOf } from './src/doc-meta.ts'
+import { join, relative, dirname, basename } from 'node:path'
+import { docPath, titleOf, slugFor, GROUPS } from './src/doc-meta.ts'
 import { inlineSpans, parseMd } from './src/md.ts'
 
 const js = 'dist/assets/' + readdirSync('dist/assets').find((f) => f.endsWith('.js'))
@@ -240,26 +241,64 @@ assert(
 
 assert('setup card stays on the front page', !root.querySelector('.agent-prompt'))
 
-const pages = readdirSync('../../docs').filter((file) => file.endsWith('.md'))
-for (const file of pages) {
-	const slug = file.slice(0, -3)
-	const title = titleOf(slug, readFileSync(`../../docs/${file}`, 'utf8'))
-	const item = [...root.querySelectorAll('.side-item')].find((el) => el.textContent === title)
-	item?.click()
+function* walkDocs(dir) {
+	for (const entry of readdirSync(dir, { withFileTypes: true })) {
+		const path = join(dir, entry.name)
+		if (entry.isDirectory() && entry.name !== 'evidence') {
+			yield* walkDocs(path)
+		} else if (entry.isFile() && entry.name.endsWith('.md')) {
+			yield path
+		}
+	}
+}
+
+const sideItem = (title) =>
+	[...root.querySelectorAll('.side-item')].find((el) => el.textContent === title)
+
+assert(
+	'sidebar groups guides by task',
+	GROUPS.every((g) =>
+		[...root.querySelectorAll('.sec-head')].some((el) => el.textContent === g.label),
+	),
+)
+
+assert(
+	'sidebar has one design-notes entry',
+	Boolean(sideItem('Design notes')) && !sideItem('Navigation notes'),
+)
+
+async function openNote(slug) {
+	sideItem('Design notes')?.click()
 	await settle()
+
+	;[...root.querySelectorAll('.doc a')]
+		.find((a) => a.getAttribute('href') === docPath(slug, 'notes'))
+		?.click()
+
+	await settle()
+}
+
+for (const path of walkDocs('../../docs')) {
+	const rel = relative('../../docs', path)
+	const dir = dirname(rel) === '.' ? '' : dirname(rel)
+	const slug = slugFor(dir, basename(rel, '.md'))
+	const group = dir === 'notes' ? 'notes' : 'guides'
+	const title = titleOf(slug, readFileSync(path, 'utf8'))
+	if (group === 'guides' || slug === 'notes') {
+		sideItem(title)?.click()
+		await settle()
+	} else {
+		await openNote(slug)
+	}
+
 	assert(
 		`page ${slug}`,
-		window.location.pathname === docPath(slug) &&
+		window.location.pathname === docPath(slug, group) &&
 			root.querySelector('.doc .h1')?.textContent === title,
 	)
 }
 
-const navigationNotes = [...root.querySelectorAll('.side-item')].find(
-	(el) => el.textContent === 'Navigation notes',
-)
-
-navigationNotes?.click()
-await settle()
+await openNote('navigation-notes')
 const labLink = [...root.querySelectorAll('.doc a')].find((a) => a.textContent === 'lab log')
 assert(
 	'same-page fragment stays local',

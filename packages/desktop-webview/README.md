@@ -41,4 +41,4 @@ export function deliverReply(webview: ReturnType<typeof attachFrontend>) {
 This package is host-side machinery, not an app-facing widget — apps opt
 into the renderer through their xplat config rather than importing it
 directly. Setup and message-channel details:
-[`docs/macos-webview.md`](../../docs/macos-webview.md).
+[`docs/platform/macos-webview.md`](../../docs/platform/macos-webview.md).

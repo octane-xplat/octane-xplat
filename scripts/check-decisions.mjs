@@ -22,7 +22,7 @@ function normalize(statement) {
 }
 
 export function readDocDecisions(root) {
-	const source = readFileSync(resolve(root, 'docs/decisions.md'), 'utf8')
+	const source = readFileSync(resolve(root, 'docs/notes/decisions.md'), 'utf8')
 	const decisions = new Map()
 	for (const line of source.split('\n')) {
 		if (!/^\|\s*\d+\s*\|/.test(line)) {
@@ -65,7 +65,7 @@ export function checkDecisions(docDecisions, siloDecisions) {
 	const warnings = []
 
 	if (!docDecisions.size) {
-		errors.push('docs/decisions.md: no decision rows parsed')
+		errors.push('docs/notes/decisions.md: no decision rows parsed')
 	}
 
 	for (const [num, doc] of docDecisions) {

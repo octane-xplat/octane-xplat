@@ -26,8 +26,8 @@ the established file suffixes.
 
 ## Documentation
 
-- AC1: [Install and import](../docs/native-picker.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativePickerDemo.*.tsrx`. Public JSX imports are checked by the [packed consumer](../packages/picker/tests/packed-consumer.mjs).
-- AC2: [Platform APIs](../docs/native-picker.md#platform-apis).
-- AC3: [Platform adapters and build requirements](../docs/native-picker.md#install-and-import).
+- AC1: [Install and import](../docs/platform/native-picker.md#install-and-import) and maintained target-specific examples in `packages/demos/src/NativePickerDemo.*.tsrx`. Public JSX imports are checked by the [packed consumer](../packages/picker/tests/packed-consumer.mjs).
+- AC2: [Platform APIs](../docs/platform/native-picker.md#platform-apis).
+- AC3: [Platform adapters and build requirements](../docs/platform/native-picker.md#install-and-import).
 - AC4: [iOS example](../packages/demos/src/NativePickerDemo.ios.tsrx), [Android example](../packages/demos/src/NativePickerDemo.android.tsrx), and [web example](../packages/demos/src/NativePickerDemo.web.tsrx).
-- AC5: [Pilot boundaries and package decision evidence](../docs/native-picker.md#why-a-leaf-package).
+- AC5: [Pilot boundaries and package decision evidence](../docs/platform/native-picker.md#why-a-leaf-package).

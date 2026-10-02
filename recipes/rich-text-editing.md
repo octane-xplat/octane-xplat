@@ -44,19 +44,19 @@ the platform file-suffix boundary for divergent imports.
 
 ## Documentation
 
-- AC1: [Install and import](../docs/rich-text.md#install-and-import) and the
+- AC1: [Install and import](../docs/app/rich-text.md#install-and-import) and the
   maintained examples [`TiptapEditorDemo`](../packages/demos/src/TiptapEditorDemo.tsrx),
   [`RichTextEditorDemo`](../packages/demos/src/RichTextEditorDemo.tsrx).
-- AC2: [The shared contract](../docs/rich-text.md#the-shared-contract) handle table.
-- AC3: [The shared contract](../docs/rich-text.md#the-shared-contract) and
-  [JSON interchange on native](../docs/rich-text.md#json-interchange-on-native).
-- AC4: [JSON interchange on native](../docs/rich-text.md#json-interchange-on-native);
+- AC2: [The shared contract](../docs/app/rich-text.md#the-shared-contract) handle table.
+- AC3: [The shared contract](../docs/app/rich-text.md#the-shared-contract) and
+  [JSON interchange on native](../docs/app/rich-text.md#json-interchange-on-native).
+- AC4: [JSON interchange on native](../docs/app/rich-text.md#json-interchange-on-native);
   the `tiptap-probe` demo exercises the bridge end-to-end.
-- AC5: [What is not there yet](../docs/rich-text.md#what-is-not-there-yet) and
-  the `supported` flag in [Install and import](../docs/rich-text.md#install-and-import).
+- AC5: [What is not there yet](../docs/app/rich-text.md#what-is-not-there-yet) and
+  the `supported` flag in [Install and import](../docs/app/rich-text.md#install-and-import).
 - AC6: [`packages/app/src/platform/demosweep.ts`](../packages/app/src/platform/demosweep.ts)
   — `richtext-editor`/`tiptap-editor`/`lexical-editor` catalog steps plus the
   Android `runAndroidLeafProbes` block.
-- AC7: [Lexical variant](../docs/rich-text.md#lexical-variant) and
+- AC7: [Lexical variant](../docs/app/rich-text.md#lexical-variant) and
   [`LexicalEditorDemo`](../packages/demos/src/LexicalEditorDemo.tsrx); the
   `lexical-probe` demo verifies the native conversion path on-device.

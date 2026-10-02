@@ -30,10 +30,10 @@ Rouzer route tree are outside this recipe's scope.
 
 ## Documentation
 
-- AC1: [The shape](../docs/data.md#the-shape).
-- AC2: [Reading in a screen](../docs/data.md#reading-in-a-screen).
-- AC3: [Reading in a screen](../docs/data.md#reading-in-a-screen), [maintained controls](../packages/app/src/data-probe.tsrx), and [lifecycle trace](../packages/app/src/data-trace.ts).
-- AC4: [Writes](../docs/data.md#writes).
-- AC5: [Rules that bite on native](../docs/data.md#rules-that-bite-on-native).
-- AC6: [Module scope vs screen scope](../docs/data.md#module-scope-vs-screen-scope).
-- AC7: [Module scope vs screen scope](../docs/data.md#module-scope-vs-screen-scope), [maintained data probe](../packages/app/src/data-probe.tsrx), and [lifecycle regression trace](../packages/app/src/data-trace.ts).
+- AC1: [The shape](../docs/app/data.md#the-shape).
+- AC2: [Reading in a screen](../docs/app/data.md#reading-in-a-screen).
+- AC3: [Reading in a screen](../docs/app/data.md#reading-in-a-screen), [maintained controls](../packages/app/src/data-probe.tsrx), and [lifecycle trace](../packages/app/src/data-trace.ts).
+- AC4: [Writes](../docs/app/data.md#writes).
+- AC5: [Rules that bite on native](../docs/app/data.md#rules-that-bite-on-native).
+- AC6: [Module scope vs screen scope](../docs/app/data.md#module-scope-vs-screen-scope).
+- AC7: [Module scope vs screen scope](../docs/app/data.md#module-scope-vs-screen-scope), [maintained data probe](../packages/app/src/data-probe.tsrx), and [lifecycle regression trace](../packages/app/src/data-trace.ts).

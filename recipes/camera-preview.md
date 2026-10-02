@@ -25,6 +25,6 @@ preview are outside this recipe; still photos use the media leaf described in [p
 
 ## Documentation
 
-- AC1: [CameraView setup and props](../docs/primitives.md#camera-preview) and [camera platform limits](../docs/known-limits.md#primitives).
+- AC1: [CameraView setup and props](../docs/app/primitives.md#camera-preview) and [camera platform limits](../docs/verify/known-limits.md#primitives).
 - AC2: [Camera demo](../packages/demos/src/CameraDemo.tsrx).
-- AC3: [CameraView setup and props](../docs/primitives.md#camera-preview), [camera platform limits](../docs/known-limits.md#primitives), and [primitive implementation notes](../docs/primitive-notes.md).
+- AC3: [CameraView setup and props](../docs/app/primitives.md#camera-preview), [camera platform limits](../docs/verify/known-limits.md#primitives), and [primitive implementation notes](../docs/notes/primitive-notes.md).

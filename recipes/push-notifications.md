@@ -37,13 +37,13 @@ published package and place app-level credential files under `App_Resources`.
 
 ## Documentation
 
-- AC1: [Configure once, early](../docs/push-notifications.md#configure-once-early) and [Install and platform setup](../docs/push-notifications.md#install-and-platform-setup).
-- AC2: [Install and platform setup](../docs/push-notifications.md#install-and-platform-setup).
-- AC3: [Permission, token, events](../docs/push-notifications.md#permission-token-events).
-- AC4: [Behavior by app state](../docs/push-notifications.md#behavior-by-app-state).
-- AC5: [PushDemo](../packages/demos/src/PushDemo.tsrx) and the [Android harness configuration](../docs/push-notifications.md#install-and-platform-setup).
+- AC1: [Configure once, early](../docs/platform/push-notifications.md#configure-once-early) and [Install and platform setup](../docs/platform/push-notifications.md#install-and-platform-setup).
+- AC2: [Install and platform setup](../docs/platform/push-notifications.md#install-and-platform-setup).
+- AC3: [Permission, token, events](../docs/platform/push-notifications.md#permission-token-events).
+- AC4: [Behavior by app state](../docs/platform/push-notifications.md#behavior-by-app-state).
+- AC5: [PushDemo](../packages/demos/src/PushDemo.tsrx) and the [Android harness configuration](../docs/platform/push-notifications.md#install-and-platform-setup).
 
 Configured permission/token/delivery/tap-through qualification remains blocked by
 app-owned Firebase/APNs/VAPID setup; see
-[qualification boundaries](../docs/optional-service-qualification.md). The
+[qualification boundaries](../docs/notes/optional-service-qualification.md). The
 unconfigured probe does not establish delivery success.

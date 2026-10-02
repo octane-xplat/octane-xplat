@@ -20,8 +20,8 @@ const docRow = (statement, status) => ({ statement, status })
 function docFixture(t, content = ledger) {
 	const root = mkdtempSync(join(tmpdir(), 'decisions-check-'))
 	t.after(() => rmSync(root, { recursive: true, force: true }))
-	mkdirSync(join(root, 'docs'))
-	writeFileSync(join(root, 'docs/decisions.md'), content)
+	mkdirSync(join(root, 'docs/notes'), { recursive: true })
+	writeFileSync(join(root, 'docs/notes/decisions.md'), content)
 	return root
 }
 

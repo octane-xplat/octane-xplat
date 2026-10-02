@@ -34,4 +34,4 @@ push.onTokenRefresh((token) => {
 
 Native config files, iOS entitlements, and the web service worker are
 app-level setup — see the framework guide
-[`docs/push-notifications.md`](../../docs/push-notifications.md).
+[`docs/platform/push-notifications.md`](../../docs/platform/push-notifications.md).

@@ -311,7 +311,7 @@ No Android runtime was available for this expansion.
 Unit and DOM tests establish bounded behavior, not full Framer Motion parity.
 Universal object-driver tests establish retention and lifecycle without an OS.
 Partial device observations are recorded in the
-[motion v1 validation matrix](../../docs/animation-notes.md). An isolated iOS
+[motion v1 validation matrix](../../docs/notes/animation-notes.md). An isolated iOS
 26.5 MotionProbe run verified pan completion/cancellation, Presence
 focus/reversal/removal, and live Reduce Motion, including immediate transform
 settlement. The API 35 Android emulator verified tween/spring completion,

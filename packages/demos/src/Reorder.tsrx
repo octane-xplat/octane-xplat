@@ -21,7 +21,7 @@ const ROW_GAP = 8; // .reorder-row margin-bottom (demo.css)
 const rowHeight = (el: any) =>
 	'nativeViewProtected' in el ? el.getActualSize().height : el.getBoundingClientRect().height;
 
-/** drag-to-reorder — the pan/imperative-write seam (docs/animation-gestures.md).
+/** drag-to-reorder — the pan/imperative-write seam (docs/app/animation-gestures.md).
  *  Proves: onPan payload parity (began/moved/ended/cancelled, cumulative dy),
  *  per-frame setTranslate writes through `ref` without re-rendering, z-index
  *  lift on native, and one declarative commit at drop. Drag activates on

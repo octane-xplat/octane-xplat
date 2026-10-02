@@ -97,7 +97,7 @@ Keep criterion IDs stable; do not renumber survivors or reuse retired IDs for
 new meanings. State any narrower target scope in the criterion itself. Write criteria around outcomes, not a prescribed implementation.
 A linked section is a candidate source of coverage, not proof of completeness.
 Do not copy implementation instructions into recipes or duplicate platform
-limits: link to the guide and to `docs/known-limits.md` where relevant.
+limits: link to the guide and to `docs/verify/known-limits.md` where relevant.
 Keep guide examples tiny; use maintained starter/demo files for larger examples.
 
 ## Maintain alongside framework changes

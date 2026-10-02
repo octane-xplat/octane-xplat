@@ -24,6 +24,6 @@ An app that previews or uploads selected still images. Live preview belongs to
 
 ## Documentation
 
-- AC1: [Pick and capture images](../docs/platform-services.md#pick-and-capture-images).
-- AC2: [Pick and capture images](../docs/platform-services.md#pick-and-capture-images). [Qualification boundaries](../docs/optional-service-qualification.md) track real permission/capture revalidation.
-- AC3: [Pick and capture images](../docs/platform-services.md#pick-and-capture-images) and [cleanup regressions](../packages/media/tests/cleanup.test.mjs). [Qualification boundaries](../docs/optional-service-qualification.md) track native runtime checks separately from coverage.
+- AC1: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images).
+- AC2: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images). [Qualification boundaries](../docs/notes/optional-service-qualification.md) track real permission/capture revalidation.
+- AC3: [Pick and capture images](../docs/platform/platform-services.md#pick-and-capture-images) and [cleanup regressions](../packages/media/tests/cleanup.test.mjs). [Qualification boundaries](../docs/notes/optional-service-qualification.md) track native runtime checks separately from coverage.

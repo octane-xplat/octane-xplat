@@ -1,0 +1,319 @@
+# Styling notes
+
+> Implementation record for the styling system. Strategy: **shared CSS-ish language first, style objects for dynamic values,
+> `styled()`-style variants as the component API.** NS has a real CSS engine —
+> unlike RN — so we don't need to invent a styling runtime. Flutter/Tamagui
+> inform the _authoring API_, not the implementation.
+
+## Current stylesheet contract
+
+The required `tokens.css` contains unstyled layout and browser normalization in
+`@layer xplat-structure`. The optional `chrome.css` adds default colors,
+typography, borders, and state treatments in the later `xplat-chrome` layer.
+Import both as JavaScript modules so NativeScript receives px-to-DIP conversion
+and web-only stripping. Native builds unwrap the layer blocks because
+NativeScript's CSS parser does not implement CSS cascade layers. On the web,
+unlayered app CSS remains higher priority than package layers. Native builds
+preserve import order after unwrapping, so app styles follow the package rules.
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
+import './app.css'
+```
+
+The generated starter imports `tokens.css` only and owns any palette it wants
+in its app stylesheet. Demos and probes opt into `chrome.css`.
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import './app.css'
+```
+
+## Original shared pipeline
+
+The original layout sketch follows. Current tokens live under
+`packages/ui/src/theme/`; entries import stylesheets as JavaScript modules
+rather than CSS `@import` so native transforms run. See [styling](../app/styling.md).
+
+```
+packages/ui/theme/
+  tokens.css        — required structure and cross-platform normalization
+  chrome.css        — optional default colors, spacing, radii, and typography
+  base.css          — element-type defaults per vocabulary (Label vs span…)
+  utilities         — hand-curated subset today; Tailwind v4 later (blocked)
+apps/*/app.css      — per-app layer importing the shared sheets
+```
+
+**Do not adopt Tailwind yet.** The plan was one PostCSS/Tailwind toolchain,
+two output targets (Tailwind v4 on web, `@nativescript/tailwind` on native —
+ns-octane proves it runs, auto PostCSS, **skip preflight**). But auditing the
+plugin against `@nativescript/core` 9.x found parity gaps we consider
+blocking, tracked upstream as
+[NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226):
+a stale property allowlist silently strips utilities core supports (all
+`gap-*`, `whitespace-*`, `max-w-*`…, applied to _all_ app CSS, not just
+Tailwind output), every `@media` rule is deleted (no `sm:`–`2xl:`, no
+media-`dark:`), `invisible` is rewritten to `collapse` so it removes from
+layout unlike the web, and `translate-*`/`scale-*` die on a shorthand the
+plugin doesn't map to core's `transform`. Until those land, the curated
+utility subset in `tokens.css` is the supported vocabulary — it keeps every
+class inside the NS-supported CSS intersection. The fixes are pending
+upstream in [NativeScript/tailwind#227](https://github.com/NativeScript/tailwind/pull/227)
+(our fork `aleclarson/tailwind`, branch `fix/tw-parity-gaps`); revisit
+adoption when it merges or if we decide to consume the fork directly.
+
+### Tailwind-replaceability audit (2026-09-25)
+
+The curated subset is kept **drop-in replaceable** by Tailwind v4 so adoption
+later is a toolchain swap, not a refactor. Audited every Tailwind-vocabulary
+class we ship/use against v4's emission:
+
+- **Aligned already:** `grow`, `shrink`, `shrink-0`, `min-w-0`, `min-h-0`,
+  `items-center`, `justify-center`, `gap-2`/`gap-4` (values match v4's
+  `--spacing` math), `font-bold` (`bold`≡`700`), `bg-primary` (v4 resolves
+  `--color-primary`), `rounded-full` (9999px ≈ `calc(infinity*1px)`),
+  `rounded-*` (consume `--radius-*` — same var names v4 uses; our scale
+  becomes `@theme` overrides), `vx-*`/`btn`/`chip`/`input` (custom, unaffected).
+- **Fixed in the audit:** `.flex-1` now emits `flex: 1 1 0%` (v4's exact
+  declaration — web identical, NS parses grow/shrink from the shorthand and
+  ignores the basis token); added missing `.items-start` (was a dead class in
+  Divergence.tsrx); `--color-on-primary`→`--color-onprimary` (v4 maps
+  `text-onprimary`→`--color-onprimary` — token and class names must share
+  segments); `--color-danger` token added, `.bg-danger`/`.layout-badge`
+  consume it.
+- **Residual deltas to handle at adoption time:** `text-*` — v4 also emits
+  `line-height` (additive on NS; plan `--text-*--line-height: normal` in
+  `@theme` or keep own `text-*` classes); `rounded-*` carry our
+  `corner-shape: squircle` (not expressible in Tailwind — keep the classes or
+  accept round corners); `--space-*` vs v4's single `--spacing` base unit;
+  `shadow-2`/`btn`/`chip` are custom names that simply coexist.
+
+**Authoring rule going forward:** a Tailwind-vocabulary class must match
+v4's semantics exactly, and a `--color-<key>` token must be named after the
+class segment that consumes it (`bg-onprimary`↔`--color-onprimary`). If a
+needed utility can't match v4 semantics inside the NS intersection, give it
+a non-Tailwind name (`vx-*` or descriptive) instead.
+
+```css
+:root,
+.ns-root {
+	--color-onprimary: #fff;
+}
+.text-onprimary {
+	color: var(--color-onprimary);
+}
+```
+
+### Why CSS vars carry the theme
+
+- NS supports `--x`, `var(--x, fallback)`, nested fallbacks, scoped and
+  unscoped vars, `calc()` — and vars inherit down the view tree.
+- Root classes `.ns-root`, `.ns-ios`, `.ns-android`, `.ns-dark`, `.ns-light`,
+  `.ns-landscape`, `ns-modal` give the same hook points as `:root`/`.dark` on
+  web. Token override = class toggle on both platforms.
+- `view.style.getCssVariable()` reads vars from JS natively; web
+  `getComputedStyle` is forbidden in shared code — wrap in a `useThemeToken()`
+  platform hook.
+
+### Media queries — genuinely shared
+
+NS 8.8+ implements MQ L3: `orientation`, `min-/max-width`, `min-/max-height`,
+`device-width/height`, `prefers-color-scheme`, `not`, nesting, `@keyframes`
+inside `@media`, and `matchMedia()` + `MediaQueryList` with `change` events —
+the same API shape as the web. So:
+
+```css
+@media (min-width: 768px) {
+	.workspace {
+		flex-direction: row;
+	}
+}
+@media (prefers-color-scheme: dark) {
+	.workspace {
+		background-color: #222;
+	}
+}
+```
+
+- Stylesheet-level responsive design can literally share the same CSS.
+- `useMediaQuery(query)` hook has identical semantics both sides.
+
+### Original dark-mode proposal and root-boundary evidence
+
+The shipped API is `setThemePreference` plus `useThemeScheme`, with
+module-level state forwarded to independent overlay roots (decision #34).
+The `ThemeProvider` discussion below is the earlier proposal.
+
+```tsx
+import { Text, Pressable, useThemeScheme, setThemePreference } from '@octane-xplat/ui'
+
+export function Example() {
+	const scheme = useThemeScheme()
+	return (
+		<Pressable onPress={() => setThemePreference('dark')}>
+			<Text>Theme: {scheme}</Text>
+		</Pressable>
+	)
+}
+```
+
+Two coherent options: (a) media-driven (`prefers-color-scheme`, follows
+system, works identically both sides); (b) class-driven (`.dark` / `ns-dark`
+root class, app-controllable). Recommend **(a) as default + (b) override** —
+a `ThemeProvider` that sets the root class, falling back to the media query.
+
+```tsx
+// Proposed provider behavior, not a shipped ThemeProvider API.
+import { View, Text } from '@octane-xplat/ui'
+
+export function ProposedThemeRoot(props: { dark: boolean }) {
+	return (
+		<View className={props.dark ? 'dark ns-dark' : 'ns-light'}>
+			<Text>Preview theme</Text>
+		</View>
+	)
+}
+```
+
+**Latency (iOS sim)**: `setState` → post-commit `useEffect` (i.e.
+render + native prop application) ≈ **1ms** for a root `className` swap
+(`dark ns-dark` toggled on the app root view). The JS-side commit is
+synchronous; pixel-visible time then depends on the next native layout
+pass (not measured — needs visual confirmation).
+
+**Verified (iOS):** `ns-dark` applied on the app root does
+**not** cross into pushed `Page` roots, the sheet root, or the modal
+root (each is a separate native view tree — verified absent in all
+three). Token _values_ do cross: `getCssVariable('--color-primary')`
+returns the same `#4f46e5` inside every root — tokens live at the app
+stylesheet scope, not the class scope. Consequence for the
+`ThemeProvider` design: theme **state** must cross roots through a
+module-scope store (the same seam as `lastDemo`), and every root —
+each pushed `Page`, sheet, modal — applies `ns-dark` to _its own_ root
+view. A class on one root can never reach another.
+
+```tsx
+import { Text, useThemeScheme } from '@octane-xplat/ui'
+
+export function Example() {
+	const scheme = useThemeScheme()
+	return <Text>Theme in this root: {scheme}</Text>
+}
+```
+
+## Rules for shared components
+
+1. Static styling = `className` only. No `<style>` blocks (web-only), no
+   inline `style` for static values.
+2. `style` objects reserved for _computed_ values (animated, data-driven).
+   Numbers = dip/px normalized in leaf; colors/units are strings.
+3. Only use CSS properties inside the **intersection** of both engines —
+   maintain `docs/notes/css-support-notes.md` once the prototype reveals the real
+   subset. Known traps to encode early:
+   - `vertical-align` (not `-alignment`); unknown props **drop silently** — and
+     NS recovers _per declaration_, so a rule can half-apply. The preset's css
+     pass now warns on the confirmed-silent set (margin-auto,
+     position fixed/sticky, float, box-shadow, pre-wrap); a fuller
+     property allowlist is enforced by `pnpm check:css`
+   - no `position` CSS natively → `Absolute`/`Grid` primitives instead
+   - no `display:none` → `visibility: collapse` (removes from layout too)
+   - **no `transition` property** — animations are `@keyframes`/`animation-*`
+     only, and only ~12 properties animate (opacity, translate/scale/rotate,
+     width/height, background-color, perspective, transform). No
+     `animation-play-state`; `direction` accepts only `reverse`; unitless
+     `animation-delay` is seconds; no `fill-mode` → values snap back.
+     → state-transition animations need the JS facade or keyframe classes
+   - `box-shadow`: web has it; native = iOS shadow props / Android `elevation`
+     → wrap in a `shadow-{n}` utility class per platform
+   - units: stylesheet `px` is rewritten to `dip` by the preset's css
+     transform (NS `px` = device pixels, ~1/3 on a 3x device — silent
+     miniaturization without it); inline `style` numbers are already dips;
+     `%` measures differently
+   - `overflow`, `gap`, flex shorthand parity — verify per property
+     (`gap` confirmed on FlexboxLayout; GridLayout needs it per-cell);
+     `zIndex` verified working on NS 9 (iOS `layer.zPosition`)
+   - selector traps: bare `[attr]` matches nothing; sibling combinators
+     unverified; `!important` unverified; typo'd selector chain kills a rule
+     silently
+   - **className swap can leave stale native backgrounds** — the
+     `''`-then-set workaround may belong in our driver patch or leaf
+   - `line-height` = additive spacing on NS, total line box on web — token
+     files carry both notions
+   - `corner-shape: squircle` is the default corner treatment on the radius
+     scale (decision #38): iOS uniform via `CALayer.cornerCurve`, iOS
+     non-uniform via a core patch (superellipse paths); Android ignores,
+     non-Chromium web degrades to round. Circles (`border-radius` ≥ 50%)
+     stay `round` — squircle at full radius is a squircle disk, not a circle.
+     For one identical caller-tuned curve on every target, see
+     [smooth-corners](smooth-corners.md) (decision #88)
+   - `spring` curve in keyframes = UIKit spring iOS vs BounceInterpolator Android
+4. Fonts: register in `App_Resources`/font plugin natively, `@font-face` on
+   web; shared `font-family` tokens resolve per-platform.
+5. Icons: `Icon` primitive owns the SF Symbol ↔ font icon ↔ SVG mapping
+   (see primitives.md).
+
+## The component API over it (`styled()`)
+
+Tamagui-shaped, CSS-backed:
+
+```ts
+import { View, styled } from '@octane-xplat/ui'
+
+const Card = styled(View, {
+	base: 'rounded-lg bg-surface p-4',
+	variants: { elevated: 'shadow-2', destructive: 'bg-danger' },
+})
+```
+
+- `base`/`variants` are class strings → clsx composition (Octane already does
+  clsx-style `class` everywhere).
+- Dynamic variant→style escape: `style` prop still available.
+- Keeps TypeScript prop inference: `styled()` exports typed variant props.
+
+**Verified on iOS:** the component-factory shape hits a real universal
+constraint — component elements require the compiler-stamped
+`UNIVERSAL_COMPONENT` mark, and `@{ }`/JSX only lowers at module-level
+declarations, so `styled` can't author a component inline. The native leaf
+stamps the mark itself (`defineUniversalComponent` + `universalComponent`
+from `octane/universal` — both public); web is a plain nested `@{ }`
+component. If upstream blesses a factory path, this becomes a driver-level
+fix. Verified: `<DangerBtn danger className="extra">` →
+`btn,bg-danger,extra`; variant props are consumed, not leaked.
+
+```tsx
+import { Pressable, Text, styled } from '@octane-xplat/ui'
+
+const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-danger' } })
+export function Example() {
+	return (
+		<DangerBtn danger className="extra">
+			<Text>Delete</Text>
+		</DangerBtn>
+	)
+}
+```
+
+## Layout vocabulary honesty
+
+NS layout is a set of _classes_ (stack/grid/flex/dock/absolute/wrap), not one
+box model. Our HStack/VStack/Grid/Stack primitives (primitives.md) deliberately
+mirror that. Do not try to make web flex/grid pretend to be NS layouts inside
+shared files — shared code composes primitives; leaf impls pick the right
+layout class per platform. `gap` is supported on FlexboxLayout (NS 9: gap/
+rowGap/columnGap — the `.gap-*` utilities work); GridLayout has no gap.
+
+```tsx
+import { HStack, VStack, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<VStack gap={4}>
+			<HStack gap={2}>
+				<Text>Bag</Text>
+				<Text>Ready</Text>
+			</HStack>
+		</VStack>
+	)
+}
+```

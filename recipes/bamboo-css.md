@@ -35,7 +35,7 @@ support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).
 
 ## Documentation
 
-- AC1: [Styling screens — Use Bamboo CSS utilities](../docs/styling.md#use-bamboo-css-utilities) and the maintained [harness probe](../packages/app/src/bamboo-styles.ts).
-- AC2: [Styling screens — Use Bamboo CSS utilities](../docs/styling.md#use-bamboo-css-utilities).
-- AC3: [Styling screens — Use Bamboo CSS utilities](../docs/styling.md#use-bamboo-css-utilities).
-- AC4: [Styling screens — Use Bamboo CSS utilities](../docs/styling.md#use-bamboo-css-utilities).
+- AC1: [Styling screens — Use Bamboo CSS utilities](../docs/app/styling.md#use-bamboo-css-utilities) and the maintained [harness probe](../packages/app/src/bamboo-styles.ts).
+- AC2: [Styling screens — Use Bamboo CSS utilities](../docs/app/styling.md#use-bamboo-css-utilities).
+- AC3: [Styling screens — Use Bamboo CSS utilities](../docs/app/styling.md#use-bamboo-css-utilities).
+- AC4: [Styling screens — Use Bamboo CSS utilities](../docs/app/styling.md#use-bamboo-css-utilities).

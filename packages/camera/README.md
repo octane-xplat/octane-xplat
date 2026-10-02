@@ -44,6 +44,6 @@ export function Preview() {
 }
 ```
 
-Guide: [Building screens](../../docs/primitives.md) (leaf components);
-component index: [`docs/components.md`](../../docs/components.md).
+Guide: [Building screens](../../docs/app/primitives.md) (leaf components);
+component index: [`docs/app/components.md`](../../docs/app/components.md).
 Exercised by [`CameraDemo`](../demos/src/CameraDemo.tsrx).

@@ -76,5 +76,5 @@ export default defineConfig({
 ```
 
 Full setup and catalog conventions:
-[localization guide](../../docs/localization.md); limits in
-[known limits](../../docs/known-limits.md).
+[localization guide](../../docs/app/localization.md); limits in
+[known limits](../../docs/verify/known-limits.md).

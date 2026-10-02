@@ -30,7 +30,7 @@ inherit. This is the auth-redirect / analytics / feature-gate seam we
 don't have: `pushRoute` can't be intercepted today. Largest identified
 gap. Fits our conventions directly as a route-file export; returned
 context would merge into `useRoute` reads down the `_layout` chain.
-Sketched in `docs/navigation-notes.md` → "Route config surface".
+Sketched in `docs/notes/navigation-notes.md` → "Route config surface".
 
 ### Typed loaders whose data reaches the screen
 
@@ -97,7 +97,7 @@ once we can claim cells.
 
 ## Timing
 
-All of it parked — recorded in `docs/navigation-notes.md` → "Route config
+All of it parked — recorded in `docs/notes/navigation-notes.md` → "Route config
 surface" and Silo topic `route-config-surface` (phase 5, parked). The one
 thing worth doing while the core settles is pinning the config-surface
 vocabulary: **exports carry behavior, `+suffixes` carry

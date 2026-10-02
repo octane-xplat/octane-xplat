@@ -34,4 +34,4 @@ export function CounterPreview() {
 ```
 
 When a demo shows a behavior the framework must keep, promote it into a
-maintained test — see [`docs/testing.md`](../../docs/testing.md).
+maintained test — see [`docs/verify/testing.md`](../../docs/verify/testing.md).

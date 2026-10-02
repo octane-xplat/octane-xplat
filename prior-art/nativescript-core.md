@@ -104,7 +104,7 @@ Decoder`, timers, `queueMicrotask`, `AbortController`. **No `document`,
 NS/webpack tooling already resolves `.ios.ts`/`.android.ts` (and `.ios.css` etc.)
 per platform. Our `*.native.*`/`*.ios.*`/`*.android.*`/`*.web.*` scheme stacks
 on top of this — keep suffix ordering consistent between our resolver and NS's
-own pipeline so they don't fight (see `docs/module-resolution.md`).
+own pipeline so they don't fight (see `docs/platform/module-resolution.md`).
 
 ## Plugin ecosystem
 

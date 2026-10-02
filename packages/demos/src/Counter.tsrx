@@ -19,7 +19,7 @@ export function Counter() @{
 			</Pressable>
 		</HStack>
 		{/* Binary @if/@else toggle — discriminates else-arm mount + arm swap
-		    on native (docs/demos.md findings). */}
+		    on native (docs/notes/demos.md findings). */}
 		<Pressable id="if-toggle" onPress={() => setParity(!parity)} className="btn bg-primary">
 			<Text className="text-onprimary">Flip</Text>
 		</Pressable>

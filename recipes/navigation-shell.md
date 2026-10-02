@@ -6,7 +6,7 @@ Related APIs: AppShell, TopNav, SideNav, MobileNav, MobileNavToggle, NavIcon, Na
 
 ## Starting point
 
-An Octane-xplat app with `@octane-xplat/ui` installed and routes configured. This recipe covers the navigation frame and its menus; route registration and stack behavior are in the [navigation guide](../docs/navigation.md).
+An Octane-xplat app with `@octane-xplat/ui` installed and routes configured. This recipe covers the navigation frame and its menus; route registration and stack behavior are in the [navigation guide](../docs/app/navigation.md).
 
 ## Requirements
 
@@ -21,7 +21,7 @@ The app has top-level navigation, a collapsible side rail, a mobile drawer, and 
 
 ## Documentation
 
-- AC1: [Compose the application frame](../docs/navigation-ui.md#compose-the-application-frame) and the maintained [component harness](../packages/demos/src/ComponentsDemo.tsrx).
-- AC2: [Compose the application frame](../docs/navigation-ui.md#compose-the-application-frame) documents automatic and custom mobile navigation.
-- AC3: [Choose navigation tabs or page tabs](../docs/navigation-ui.md#choose-navigation-tabs-or-page-tabs) shows both patterns and panel ownership.
-- AC4: [Portable boundaries](../docs/navigation-ui.md#portable-boundaries) and the maintained [component harness](../packages/demos/src/ComponentsDemo.tsrx) identify web and native behavior.
+- AC1: [Compose the application frame](../docs/app/navigation-ui.md#compose-the-application-frame) and the maintained [component harness](../packages/demos/src/ComponentsDemo.tsrx).
+- AC2: [Compose the application frame](../docs/app/navigation-ui.md#compose-the-application-frame) documents automatic and custom mobile navigation.
+- AC3: [Choose navigation tabs or page tabs](../docs/app/navigation-ui.md#choose-navigation-tabs-or-page-tabs) shows both patterns and panel ownership.
+- AC4: [Portable boundaries](../docs/app/navigation-ui.md#portable-boundaries) and the maintained [component harness](../packages/demos/src/ComponentsDemo.tsrx) identify web and native behavior.

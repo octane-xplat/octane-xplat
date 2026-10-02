@@ -27,9 +27,9 @@ picker bundled with `@octane-xplat/files`.
 
 ## Documentation
 
-- AC1: [Portable component list](../docs/components.md#inputs) and [shared platform contract](../docs/date-picker.md#portable-values).
-- AC2: [ISO values and picker surfaces](../docs/date-picker.md#portable-values).
-- AC3: [File reference and validation behavior](../docs/date-picker.md#portable-values), the [maintained gallery example](../packages/demos/src/FileInputDemo.tsrx), the [web interaction tests](../packages/files/src/FileInput.web.test.tsx), and the [file validation tests](../packages/files/src/file-input-utils.ts).
-- AC4: [Built-in picker defaults and host coverage](../docs/date-picker.md#portable-values).
-- AC5: [OS-authentic picker entries](../docs/date-picker.md#os-authentic-pickers) and [platform APIs](../docs/date-picker.md#platform-apis).
+- AC1: [Portable component list](../docs/app/components.md#inputs) and [shared platform contract](../docs/platform/date-picker.md#portable-values).
+- AC2: [ISO values and picker surfaces](../docs/platform/date-picker.md#portable-values).
+- AC3: [File reference and validation behavior](../docs/platform/date-picker.md#portable-values), the [maintained gallery example](../packages/demos/src/FileInputDemo.tsrx), the [web interaction tests](../packages/files/src/FileInput.web.test.tsx), and the [file validation tests](../packages/files/src/file-input-utils.ts).
+- AC4: [Built-in picker defaults and host coverage](../docs/platform/date-picker.md#portable-values).
+- AC5: [OS-authentic picker entries](../docs/platform/date-picker.md#os-authentic-pickers) and [platform APIs](../docs/platform/date-picker.md#platform-apis).
 - AC6: [web shared-control example](../packages/demos/src/NativeDatePickerDemo.web.tsrx), [iOS example](../packages/demos/src/NativeDatePickerDemo.ios.tsrx), [Android example](../packages/demos/src/NativeDatePickerDemo.android.tsrx), [macOS host note](../packages/demos/src/NativeDatePickerDemo.macos.tsrx), and targeted typegen/tests.

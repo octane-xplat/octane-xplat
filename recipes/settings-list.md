@@ -26,7 +26,7 @@ style a platform-authentic widget or choose its native glyph.
 
 ## Documentation
 
-- AC1: [Building screens: reusable rows](../docs/primitives.md#reusable-rows) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx), [iOS ListDemo](../packages/demos/src/ListDemo.ios.tsrx), and [Android ListDemo](../packages/demos/src/ListDemo.android.tsrx).
-- AC2: [Building screens: reusable rows](../docs/primitives.md#reusable-rows) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx).
-- AC3: [Building screens: native modifiers and glyphs](../docs/primitives.md#native-modifiers-and-glyphs).
-- AC4: [Building screens: reusable rows](../docs/primitives.md#reusable-rows), maintained [ListDemo](../packages/demos/src/ListDemo.tsrx), and [accessibility evidence limits](../docs/open-questions.md#later--finer).
+- AC1: [Building screens: reusable rows](../docs/app/primitives.md#reusable-rows) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx), [iOS ListDemo](../packages/demos/src/ListDemo.ios.tsrx), and [Android ListDemo](../packages/demos/src/ListDemo.android.tsrx).
+- AC2: [Building screens: reusable rows](../docs/app/primitives.md#reusable-rows) and maintained [ListDemo](../packages/demos/src/ListDemo.tsrx).
+- AC3: [Building screens: native modifiers and glyphs](../docs/app/primitives.md#native-modifiers-and-glyphs).
+- AC4: [Building screens: reusable rows](../docs/app/primitives.md#reusable-rows), maintained [ListDemo](../packages/demos/src/ListDemo.tsrx), and [accessibility evidence limits](../docs/notes/open-questions.md#later--finer).

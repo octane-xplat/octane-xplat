@@ -47,24 +47,24 @@ database, a content directory, or a host framework's own route model.
 
 ## Documentation
 
-- AC1: [Register routes from data](../docs/navigation.md#register-routes-from-data).
+- AC1: [Register routes from data](../docs/app/navigation.md#register-routes-from-data).
   Maintained example: `packages/app/src/guides.tsrx` (data array →
   `defineRoutes` → `addRoutes`).
-- AC2: [layouts map and outlet resolution](../docs/navigation.md#register-routes-from-data);
+- AC2: [layouts map and outlet resolution](../docs/app/navigation.md#register-routes-from-data);
   harness `resolveRoute` in `packages/app/src/app/_layout.tsrx` shows the
   `screenFor` + `layoutsForRoute` read.
-- AC3: [precedence and the typing boundary](../docs/navigation.md#register-routes-from-data)
-  and the [Navigation limits row](../docs/known-limits.md#navigation).
-- AC4: [Register routes from data](../docs/navigation.md#register-routes-from-data);
+- AC3: [precedence and the typing boundary](../docs/app/navigation.md#register-routes-from-data)
+  and the [Navigation limits row](../docs/verify/known-limits.md#navigation).
+- AC4: [Register routes from data](../docs/app/navigation.md#register-routes-from-data);
   web smoke in `apps/web/scripts/smoke.mjs` deep-links `/test/guides/deploy`.
 
-- AC5: [Loader and presentation behavior](../docs/navigation.md#present-a-route-modally)
-  and [guard behavior](../docs/navigation.md#guard-and-document-a-route).
+- AC5: [Loader and presentation behavior](../docs/app/navigation.md#present-a-route-modally)
+  and [guard behavior](../docs/app/navigation.md#guard-and-document-a-route).
   Regression example: `packages/ui/src/route-navigation.web.test.ts`.
 
 ## Verification
 
-The [release navigation checks](../docs/navigation-checks.md) exercise this
+The [release navigation checks](../docs/verify/navigation-checks.md) exercise this
 workflow separately from documentation coverage. Web production checks cover
 programmatic named routes, layout wrapping, retained loaded history, and cold
 URL entry. Native `addRoutes` runtime checks remain unverified.

@@ -13,7 +13,7 @@ Two hosts share the same wire contract:
 
 The canonical GJS host and bridge self-test ship in
 `packages/cli/src/linux/host/`; the files here are symlinks used by the harness.
-For real apps, follow [Linux packaging](../../../docs/linux-package.md).
+For real apps, follow [Linux packaging](../../../docs/platform/linux-package.md).
 
 Wire contract (`packages/platform/src/bridge.linux.ts`):
 

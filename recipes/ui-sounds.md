@@ -24,7 +24,7 @@ or warning effects. Long-form listening belongs to `@octane-xplat/audio`.
 
 ## Documentation
 
-- AC1: [UI sounds](../docs/media-services.md#ui-sounds).
-- AC2: [UI sounds](../docs/media-services.md#ui-sounds).
-- AC3: [UI sounds](../docs/media-services.md#ui-sounds).
-- AC4: [Long-form audio](../docs/media-services.md#long-form-audio). [Integration checks](../docs/media-services.md#check-your-integration) provide the coexistence procedure; [qualification boundaries](../docs/optional-service-qualification.md) track pending physical route evidence.
+- AC1: [UI sounds](../docs/platform/media-services.md#ui-sounds).
+- AC2: [UI sounds](../docs/platform/media-services.md#ui-sounds).
+- AC3: [UI sounds](../docs/platform/media-services.md#ui-sounds).
+- AC4: [Long-form audio](../docs/platform/media-services.md#long-form-audio). [Integration checks](../docs/platform/media-services.md#check-your-integration) provide the coexistence procedure; [qualification boundaries](../docs/notes/optional-service-qualification.md) track pending physical route evidence.

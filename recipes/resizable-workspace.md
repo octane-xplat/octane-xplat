@@ -21,7 +21,7 @@ The reader can preserve useful actions during overflow, resize or collapse panel
 
 ## Documentation
 
-- AC1: [Add toolbar actions and responsive overflow](../docs/navigation-ui.md#add-toolbar-actions-and-responsive-overflow) documents toolbar slots and focus behavior.
-- AC2: [Add toolbar actions and responsive overflow](../docs/navigation-ui.md#add-toolbar-actions-and-responsive-overflow) covers item measurement and overflow callbacks.
-- AC3: [Resize a region](../docs/navigation-ui.md#resize-a-region) includes a complete example and region controls.
-- AC4: [Resize a region](../docs/navigation-ui.md#resize-a-region) records platform persistence and desktop implementation coverage.
+- AC1: [Add toolbar actions and responsive overflow](../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow) documents toolbar slots and focus behavior.
+- AC2: [Add toolbar actions and responsive overflow](../docs/app/navigation-ui.md#add-toolbar-actions-and-responsive-overflow) covers item measurement and overflow callbacks.
+- AC3: [Resize a region](../docs/app/navigation-ui.md#resize-a-region) includes a complete example and region controls.
+- AC4: [Resize a region](../docs/app/navigation-ui.md#resize-a-region) records platform persistence and desktop implementation coverage.

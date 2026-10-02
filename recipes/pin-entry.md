@@ -24,7 +24,7 @@ use a contiguous string rather than positional empty-cell placeholders.
 
 ## Documentation
 
-- AC1: [Input ownership](../docs/primitives.md#edit-a-pin) and maintained [Components demo](../packages/demos/src/ComponentsDemo.tsrx).
-- AC2: [Editing behavior](../docs/primitives.md#edit-a-pin); event examples in `packages/ui/src/PinInput.web.test.tsrx`.
-- AC3: [Completion and input restrictions](../docs/primitives.md#edit-a-pin).
-- AC4: [Field composition](../docs/primitives.md#edit-a-pin) and web regression coverage in `packages/ui/src/SearchInput.web.test.tsrx`.
+- AC1: [Input ownership](../docs/app/primitives.md#edit-a-pin) and maintained [Components demo](../packages/demos/src/ComponentsDemo.tsrx).
+- AC2: [Editing behavior](../docs/app/primitives.md#edit-a-pin); event examples in `packages/ui/src/PinInput.web.test.tsrx`.
+- AC3: [Completion and input restrictions](../docs/app/primitives.md#edit-a-pin).
+- AC4: [Field composition](../docs/app/primitives.md#edit-a-pin) and web regression coverage in `packages/ui/src/SearchInput.web.test.tsrx`.

@@ -23,6 +23,6 @@ apps. The reader knows how to add a button and handle an asynchronous result.
 
 ## Documentation
 
-- AC1: [Share text and URLs](../docs/platform-services.md#share-text-and-urls) and the maintained [Services example](../packages/app/src/Services.tsrx).
-- AC2: [Share text and URLs](../docs/platform-services.md#share-text-and-urls) and [platform-service notes](../docs/platform-notes.md).
-- AC3: [Share text and URLs](../docs/platform-services.md#share-text-and-urls).
+- AC1: [Share text and URLs](../docs/platform/platform-services.md#share-text-and-urls) and the maintained [Services example](../packages/app/src/Services.tsrx).
+- AC2: [Share text and URLs](../docs/platform/platform-services.md#share-text-and-urls) and [platform-service notes](../docs/notes/platform-notes.md).
+- AC3: [Share text and URLs](../docs/platform/platform-services.md#share-text-and-urls).

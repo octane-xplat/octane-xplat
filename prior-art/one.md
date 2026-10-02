@@ -26,7 +26,7 @@ app/blog.web.tsx    → "/blog" on web; no native route at all
 
 This makes the suffix resolver a _route-table_ mechanism: each platform can
 declare divergent navigation, not just divergent rendering. Big idea — adopted
-in `docs/navigation.md`.
+in `docs/app/navigation.md`.
 
 ### `_layout.tsx` composition
 
@@ -74,7 +74,7 @@ the same preference — likely, since accept-boundary design usually does.
 One's depth comes from React Navigation + react-native-screens + RNGH +
 Reanimated + Tamagui. None of that exists for Octane+NS; the NS analogs are
 `frame`/`tabview`/`ui-drawer`, `touch` events, and `view.animate`. See
-`docs/animation-gestures.md` for why the JS-on-UI-thread model makes some of
+`docs/app/animation-gestures.md` for why the JS-on-UI-thread model makes some of
 this cheaper than the RN equivalent.
 
 ## Sources

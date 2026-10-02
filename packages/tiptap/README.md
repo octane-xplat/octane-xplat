@@ -67,5 +67,5 @@ export function DocumentCopy() {
 The tiptap family pins to `3.28.0` to match `@octanejs/tiptap@0.0.51` —
 extension `^` ranges float ahead of core and break (`getPreviousBlockSibling`),
 so consumers should keep the workspace override. See
-[`docs/rich-text.md`](../../docs/rich-text.md) for the shared contract,
+[`docs/app/rich-text.md`](../../docs/app/rich-text.md) for the shared contract,
 format vocabulary, and known limits.

@@ -24,6 +24,6 @@ and DRM are outside this recipe's scope.
 
 ## Documentation
 
-- AC1: [Video setup and props](../docs/primitives.md#video-playback).
-- AC2: [Playback controls](../docs/primitives.md#video-playback) and maintained [VideoDemo](../packages/demos/src/VideoDemo.tsrx).
-- AC3: [Video limits](../docs/known-limits.md#primitives).
+- AC1: [Video setup and props](../docs/app/primitives.md#video-playback).
+- AC2: [Playback controls](../docs/app/primitives.md#video-playback) and maintained [VideoDemo](../packages/demos/src/VideoDemo.tsrx).
+- AC3: [Video limits](../docs/verify/known-limits.md#primitives).

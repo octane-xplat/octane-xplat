@@ -52,5 +52,5 @@ const device = await adapter?.requestDevice()
 ```
 
 Per-target limits are recorded in
-[known limits](../../docs/known-limits.md). Exercised by
+[known limits](../../docs/verify/known-limits.md). Exercised by
 [`CanvasDemo`](../demos/src/CanvasDemo.tsrx) (including a WGSL path).

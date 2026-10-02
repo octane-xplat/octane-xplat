@@ -4,7 +4,7 @@
 // understands ATX and Setext headings, fenced/indented code, and strips the
 // inline constructs the local Markdown renderer supports. It has no plugin
 // surface (the local Markdown AST has no extension nodes — see
-// docs/components.md).
+// docs/app/components.md).
 import type { OutlineItem } from './props'
 export type { OutlineItem } from './props'
 import type { MdDoc, MdInline } from './Markdown'

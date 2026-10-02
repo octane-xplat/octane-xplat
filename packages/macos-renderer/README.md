@@ -103,7 +103,7 @@ that view and call `unmount()` before disposing the host. Root creation does
 not create a window or start the application run loop. The package also
 re-exports Octane's universal native runtime for compiler and hook imports.
 
-Use [the packaging guide](../../docs/toolchain.md#experimental-appkit-target)
+Use [the packaging guide](../../docs/start/toolchain.md#experimental-appkit-target)
 for `xplat.targets.macos` metadata, signing, and CLI commands. The
 [independent fixture](test/fixtures/main.mjs) demonstrates a complete host
 entry, including startup and shutdown, without importing the harness.

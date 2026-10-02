@@ -5,7 +5,7 @@ import type { PlotBox } from './scales'
  *  subset: `<svg>`/`<g>` structure, path/rect/circle/line shapes, solid fills
  *  and strokes, `translate` transforms, opacity attributes. Never `<text>`,
  *  filters, masks, patterns, or gradients — labels are real elements in the
- *  leaf overlay (docs/primitive-notes.md). */
+ *  leaf overlay (docs/notes/primitive-notes.md). */
 
 function num(v: number): string {
 	if (!Number.isFinite(v)) {

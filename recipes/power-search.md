@@ -24,6 +24,6 @@ operator, and value filters. The reader knows controlled component state.
 
 ## Documentation
 
-- AC1: [Structured search guide example](../docs/power-search.md#structured-search) and the maintained [PowerSearch demo](../packages/demos/src/PowerSearchDemo.tsrx).
-- AC2: [Field definitions and filter limits](../docs/power-search.md#field-definitions-and-local-filtering).
-- AC3: [Portable implementation and upstream seams](../docs/power-search.md#portable-implementation-and-upstream-seams).
+- AC1: [Structured search guide example](../docs/app/power-search.md#structured-search) and the maintained [PowerSearch demo](../packages/demos/src/PowerSearchDemo.tsrx).
+- AC2: [Field definitions and filter limits](../docs/app/power-search.md#field-definitions-and-local-filtering).
+- AC3: [Portable implementation and upstream seams](../docs/app/power-search.md#portable-implementation-and-upstream-seams).

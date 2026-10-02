@@ -3,7 +3,7 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
-Use [single-case probing](../../docs/probing.md) for platform investigations:
+Use [single-case probing](../../docs/verify/probing.md) for platform investigations:
 `pnpm probe doctor` and `pnpm probe run <case> --target <target> --watch`.
 For Android emulator setup, device isolation, and verified host commands, use the
 [Android lab log](android-lab.md).

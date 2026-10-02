@@ -69,22 +69,22 @@ production Vite config that emits one CommonJS host bundle.
 
 ## Documentation
 
-- AC1: [Experimental AppKit target](../docs/toolchain.md#experimental-appkit-target)
+- AC1: [Experimental AppKit target](../docs/start/toolchain.md#experimental-appkit-target)
   and [macOS experiment notes](../apps/macos/README.md).
-- AC2: [Experimental AppKit target](../docs/toolchain.md#experimental-appkit-target)
+- AC2: [Experimental AppKit target](../docs/start/toolchain.md#experimental-appkit-target)
   and [macOS experiment notes](../apps/macos/README.md).
 - AC3: [macOS signing and notarization notes](../apps/macos/README.md#packaging-proof).
 - AC5: [App icon packaging](../apps/macos/README.md#packaging-proof) and
-  [experimental AppKit target](../docs/toolchain.md#experimental-appkit-target).
+  [experimental AppKit target](../docs/start/toolchain.md#experimental-appkit-target).
 - AC6: [macOS packaging proof](../apps/macos/README.md#packaging-proof).
 - AC7: [macOS package-root boundary](../apps/macos/README.md#macos-experiment).
 - AC8: [Packaged host API](../apps/macos/README.md#packaging-proof) and the
   [independent fixture check](../packages/cli/test/verify-macos-jsc.mjs).
 
-- AC9: [macOS native leaf guide](../docs/macos-native.md) and the
+- AC9: [macOS native leaf guide](../docs/platform/macos-native.md) and the
   [native source recipe](macos-native-code.md).
 
-- AC10: [AppKit fonts](../docs/styling.md#appkit-fonts) and the
+- AC10: [AppKit fonts](../docs/app/styling.md#appkit-fonts) and the
   [maintained harness font setup](../apps/macos/src/fonts.mjs).
 
 - AC11: [Renderer setup](../packages/macos-renderer/README.md) and the

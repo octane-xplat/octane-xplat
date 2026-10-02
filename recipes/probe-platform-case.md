@@ -25,13 +25,13 @@ platform evidence without changing the kitchen-sink harness.
 
 ## Documentation
 
-- AC1: [Run a maintained case](../docs/probing.md#run-a-maintained-case) and
+- AC1: [Run a maintained case](../docs/verify/probing.md#run-a-maintained-case) and
   [Android host recipe](../.agents/docs/android-lab.md#working-recipe).
-- AC2: [Write a case](../docs/probing.md#write-a-case), [script](../examples/probes/signals.ts), [counter](../examples/probes/counter.tsrx), and [native touch sequence](../examples/probes/touch.mobile.tsrx).
-- AC3: [Iterate without harness edits](../docs/probing.md#iterate-without-harness-edits).
-- AC4: [Iterate without harness edits](../docs/probing.md#iterate-without-harness-edits).
-- AC5: [Iterate without harness edits](../docs/probing.md#iterate-without-harness-edits).
-- AC6: [Read the evidence](../docs/probing.md#read-the-evidence).
+- AC2: [Write a case](../docs/verify/probing.md#write-a-case), [script](../examples/probes/signals.ts), [counter](../examples/probes/counter.tsrx), and [native touch sequence](../examples/probes/touch.mobile.tsrx).
+- AC3: [Iterate without harness edits](../docs/verify/probing.md#iterate-without-harness-edits).
+- AC4: [Iterate without harness edits](../docs/verify/probing.md#iterate-without-harness-edits).
+- AC5: [Iterate without harness edits](../docs/verify/probing.md#iterate-without-harness-edits).
+- AC6: [Read the evidence](../docs/verify/probing.md#read-the-evidence).
 
 ## Verification gaps
 

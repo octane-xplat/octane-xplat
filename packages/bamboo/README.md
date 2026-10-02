@@ -38,4 +38,4 @@ const webPlugins = xplatBamboo()
 const nativePlugins = xplatBamboo({ native: true })
 ```
 
-Guide: [Styling screens](../../docs/styling.md).
+Guide: [Styling screens](../../docs/app/styling.md).

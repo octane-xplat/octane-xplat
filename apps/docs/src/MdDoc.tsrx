@@ -7,8 +7,8 @@ import langTsx from 'shiki/langs/tsx.mjs';
 import langJsonc from 'shiki/langs/jsonc.mjs';
 import langSh from 'shiki/langs/shellscript.mjs';
 import langCss from 'shiki/langs/css.mjs';
-import { DOCS } from './docs';
-import { docPath } from './doc-meta';
+import { DOCS, routeForDoc } from './docs';
+import { docPath, docSlugFor, repoPathFor } from './doc-meta';
 import { inlineSpans, parseMd, type Block, type Span } from './md';
 import { resetDocScroll } from './scroll';
 import { nbDark } from './nb-theme';
@@ -60,55 +60,45 @@ function CodeBlock(props: { code: string; lang: string }) @{
 	</Text></View>
 }
 
-const REPO = 'https://github.com/aleclarson/octane-xplat';
+const REPO = 'https://github.com/octane-xplat/octane-xplat';
 
-// x.md / ./x.md / x.md#anchor → doc slug; anything else → null.
-function docSlug(href: string): string | null {
-	const m = href.replace(/^\.\//, '').match(/^([\w-]+)\.md(?:#.*)?$/);
-	return m ? m[1] : null;
+// Resolve links relative to this page's directory in the Markdown corpus.
+function docFor(href: string, dir: string) {
+	const slug = docSlugFor(href, dir);
+	return slug ? DOCS.find((d) => d.slug === slug) : undefined;
 }
 
-function docRoute(slug: string) {
-	const doc = DOCS.find((d) => d.slug === slug);
-	return {
-		stack: doc?.group === 'notes' ? 'notes' : 'root',
-		name: slug === DOCS[0].slug ? '' : slug,
-		params: {},
-	};
+function extUrl(href: string, dir: string): string {
+	if (/^[a-z][\w+.-]*:/i.test(href)) return href;
+	const path = repoPathFor(href, dir);
+	const hash = href.includes('#') ? href.slice(href.indexOf('#')) : '';
+	return `${REPO}/${path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'}/main/${path}${hash}`;
 }
 
-// External URL: http(s) passes through; repo-relative paths (../prior-art/)
-// resolve against docs/ → github.com tree/blob links.
-function extUrl(href: string): string {
-	if (/^https?:/.test(href)) return href;
-	const path = href.replace(/^(\.\.\/)+/, '').replace(/^\.\//, '');
-	return `${REPO}/${path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'}/main/${path}`;
-}
-
-function SpanText(props: { s: Span }) @{
+function SpanText(props: { s: Span; dir: string }) @{
 	const s = props.s;
 	const cls = [s.mono && 'mono', s.bold && 'bold', s.italic && 'italic', s.strike && 'strike', s.href && 'link'].filter(Boolean).join(' ');
 	if (s.href) {
-		const slug = docSlug(s.href);
-		if (slug) {
+		const doc = docFor(s.href, props.dir);
+		if (doc) {
 			const hash = s.href.includes('#') ? s.href.slice(s.href.indexOf('#')) : '';
-			return <a className={cls} href={docPath(slug) + hash} onClick={(e: MouseEvent) => {
+			return <a className={cls} href={docPath(doc.slug, doc.group) + hash} onClick={(e: MouseEvent) => {
 				if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 				e.preventDefault();
-				pushRoute(docRoute(slug));
-				if (hash) history.replaceState(history.state, '', docPath(slug) + hash);
+				pushRoute(routeForDoc(doc));
+				if (hash) history.replaceState(history.state, '', docPath(doc.slug, doc.group) + hash);
 				resetDocScroll();
 			}}>{s.text}</a>;
 		}
 
 		if (s.href.startsWith('#')) return <a className={cls} href={s.href}>{s.text}</a>;
-		return <a className={cls} href={extUrl(s.href)} target="_blank" rel="noopener">{s.text}</a>;
+		return <a className={cls} href={extUrl(s.href, props.dir)} target="_blank" rel="noopener">{s.text}</a>;
 	}
 
 	return <Text className={cls}>{s.text}</Text>;
 }
 
-function Spans(props: { spans: Span[] }) @{
+function Spans(props: { spans: Span[]; dir: string }) @{
 	// Keep mixed formatting inside one highlight so padding only surrounds the phrase.
 	const runs: Span[][] = [];
 	for (const s of props.spans) {
@@ -125,13 +115,13 @@ function Spans(props: { spans: Span[] }) @{
 			@if (run[0].highlight) {
 				<mark className="highlight">
 					@for (const s of run; index spanIndex; key spanIndex) {
-						<SpanText s={s} />
+						<SpanText s={s} dir={props.dir} />
 					}
 				</mark>
 			} @else {
 				<>
 					@for (const s of run; index spanIndex; key spanIndex) {
-						<SpanText s={s} />
+						<SpanText s={s} dir={props.dir} />
 					}
 				</>
 			}
@@ -139,23 +129,23 @@ function Spans(props: { spans: Span[] }) @{
 	</>
 }
 
-function BlockView(props: { b: Block; lede?: boolean }) @{
+function BlockView(props: { b: Block; lede?: boolean; dir: string }) @{
 	const b = props.b;
 	if (b.kind === 'h') return <Text id={b.id} className={`h${b.level}`}>{b.text}</Text>;
-	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} /></Text>;
+	if (b.kind === 'p') return <Text className="p"><Spans spans={b.spans} dir={props.dir} /></Text>;
 	if (b.kind === 'li') return (
 		<View className="li" style={{ paddingLeft: b.depth * 16 }}>
 			<Text className="li-marker dim">{b.marker}</Text>
-			<Text className="li-text"><Spans spans={b.spans} /></Text>
+			<Text className="li-text"><Spans spans={b.spans} dir={props.dir} /></Text>
 		</View>
 	);
 
-	if (b.kind === 'quote') return <View className={props.lede ? 'quote lede' : 'quote'}><Text className={props.lede ? 'dim lede-content' : 'dim'}><Spans spans={b.spans} /></Text></View>;
+	if (b.kind === 'quote') return <View className={props.lede ? 'quote lede' : 'quote'}><Text className={props.lede ? 'dim lede-content' : 'dim'}><Spans spans={b.spans} dir={props.dir} /></Text></View>;
 	if (b.kind === 'callout') {
 		return <View className={'callout callout-' + b.level}>
 			<View className="callout-tag"><Text className="callout-tagtext">{b.level}</Text></View>
 			@for (const ls of b.lines; index lineIndex; key lineIndex) {
-				<Text className="callout-line"><Spans spans={ls} /></Text>
+				<Text className="callout-line"><Spans spans={ls} dir={props.dir} /></Text>
 			}
 		</View>;
 	}
@@ -170,7 +160,7 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 					@for (const r of b.rows; index ri; key ri) {
 						<View className={ri === 0 ? 'tr tr-head' : 'tr'}>
 							@for (const c of r; index ci; key ci) {
-								<Text className="td"><Spans spans={inlineSpans(c)} /></Text>
+								<Text className="td"><Spans spans={inlineSpans(c)} dir={props.dir} /></Text>
 							}
 						</View>
 					}
@@ -182,7 +172,7 @@ function BlockView(props: { b: Block; lede?: boolean }) @{
 	return <></>;
 }
 
-export function MdDoc(props: { md: string; agentPrompt?: string; showPageActions?: boolean }) @{
+export function MdDoc(props: { md: string; dir: string; agentPrompt?: string; showPageActions?: boolean }) @{
 	// Positions identify nodes within this fixed document; the shell remounts
 	// MdDoc when its slug changes, so keys never cross document boundaries.
 	const blocks = useMemo(() => parseMd(props.md), [props.md]);
@@ -297,7 +287,7 @@ export function MdDoc(props: { md: string; agentPrompt?: string; showPageActions
 		@for (const b of blocks; index i; key i) {
 			const prev = blocks[i - 1];
 			<>
-				<BlockView b={b} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />
+				<BlockView b={b} dir={props.dir} lede={b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1} />
 				@if (props.agentPrompt && b.kind === 'quote' && prev?.kind === 'h' && prev.level === 1) {
 					<AgentPrompt prompt={props.agentPrompt} />
 				}

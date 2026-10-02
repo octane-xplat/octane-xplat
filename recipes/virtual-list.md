@@ -27,8 +27,8 @@ performance with target-specific evidence.
 
 ## Documentation
 
-- AC1: [Identity and viewport](../docs/virtual-list.md#keep-identity-and-state-stable), [example](../packages/demos/src/VirtualList.tsrx).
-- AC2: [Row state ownership](../docs/virtual-list.md#keep-identity-and-state-stable), [example](../packages/demos/src/VirtualList.tsrx).
-- AC3: [Visible position](../docs/virtual-list.md#preserve-the-visible-position), [contract gate](../apps/web/scripts/bench-virtual-list-contract.mjs).
-- AC4: [Slots and example](../docs/virtual-list.md#preserve-the-visible-position), [Linux GTK harness sweep](../apps/linux/host/harness-selftest.web.js), [example](../packages/demos/src/VirtualList.tsrx).
-- AC5: Android window frame metrics and the `demo500` fixture are described in [Measured boundary](../docs/virtual-list.md#measured-support-boundary), [Linux smoke limits](../docs/virtual-list.md#measured-support-boundary), and [nonvisual gates](../docs/virtual-list.md#run-the-nonvisual-gates).
+- AC1: [Identity and viewport](../docs/app/virtual-list.md#keep-identity-and-state-stable), [example](../packages/demos/src/VirtualList.tsrx).
+- AC2: [Row state ownership](../docs/app/virtual-list.md#keep-identity-and-state-stable), [example](../packages/demos/src/VirtualList.tsrx).
+- AC3: [Visible position](../docs/app/virtual-list.md#preserve-the-visible-position), [contract gate](../apps/web/scripts/bench-virtual-list-contract.mjs).
+- AC4: [Slots and example](../docs/app/virtual-list.md#preserve-the-visible-position), [Linux GTK harness sweep](../apps/linux/host/harness-selftest.web.js), [example](../packages/demos/src/VirtualList.tsrx).
+- AC5: Android window frame metrics and the `demo500` fixture are described in [Measured boundary](../docs/app/virtual-list.md#measured-support-boundary), [Linux smoke limits](../docs/app/virtual-list.md#measured-support-boundary), and [nonvisual gates](../docs/app/virtual-list.md#run-the-nonvisual-gates).

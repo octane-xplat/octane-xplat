@@ -81,7 +81,7 @@ complete interaction-prop taxonomy in one place.
 
 - **react-native-svg** — the *alternative* substrate: every SVG element is a
   native shadow node. Software Mansion's own guidance (cited in
-  `docs/primitive-notes.md`): for static artwork prefer platform decoders —
+  `docs/notes/primitive-notes.md`): for static artwork prefer platform decoders —
   i.e., our whole-doc `svgview` approach over per-element nodes.
 - **react-native-svg-charts** (JesperLekland) — thinnest d3→SVG mapping in
   the wild (d3-shape/d3-scale produce `d` strings, react-native-svg renders).
@@ -118,7 +118,7 @@ complete interaction-prop taxonomy in one place.
 | --- | --- |
 | Vega scenegraph + `toSVG()` string renderer | `core/spec → marks → <svg> markup string` — the whole-doc string *is* our serialization; leaves are ~20 lines each |
 | ECharts `ssrClient` hydration | `svgview` + transparent overlay (`usePan`/`onTap`) doing shared hit-math; tooltips/crosshair render as real elements |
-| LayerCake `Html` layer / Vega hybrid text→SVG | Axis labels, titles, legends, tooltips as positioned elements in an `Absolute` overlay — never `<text>` in markup (androidsvg/SVGKit text is degraded; see `docs/primitive-notes.md`) |
+| LayerCake `Html` layer / Vega hybrid text→SVG | Axis labels, titles, legends, tooltips as positioned elements in an `Absolute` overlay — never `<text>` in markup (androidsvg/SVGKit text is degraded; see `docs/notes/primitive-notes.md`) |
 | gifted-charts-core split | DOM-free `core/` module inside `@octane-xplat/charts`; leaves contain only the element wiring |
 | `@mui/x-charts-vendor` d3 list | Dependency allowlist for the core: `d3-scale`, `d3-shape`, `d3-array`, `d3-format`, `d3-time-format`, `d3-path`, `d3-interpolate`, `d3-color` — all DOM-free/JSC-safe candidates (verify like `@lisse/core`/`@tanstack/table-core` were) |
 | Swift Charts marks + `AxisMarks` triple + `.value()` semantics | Composable marks over chart-type components; axis = gridline/tick/label as independent pieces; semantic value labels flow to `accessibilityLabel` |
@@ -130,7 +130,7 @@ complete interaction-prop taxonomy in one place.
 ## Constraints our serializer must respect
 
 The output contract is the **androidsvg ∩ SVGKit subset** (full table in
-`docs/primitive-notes.md`, topic `svg-icon-fidelity`): paths, basic shapes,
+`docs/notes/primitive-notes.md`, topic `svg-icon-fidelity`): paths, basic shapes,
 and linear gradients are safe; **no filters**; radial gradients and `<text>`
 are degraded; `currentColor` needs explicit `color`/`fill` on the root. This
 subset is why labels move to elements — and it means our serializer should

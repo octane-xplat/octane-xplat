@@ -25,7 +25,7 @@ for an independent consumer setup.
 The renderer defaults to Apple's system font. This harness explicitly registers
 Geist and selects it on each root to keep its demo typography consistent.
 `src/fonts.mjs` owns the font assets, license, and registration; the packaged
-host embeds the font bytes and license. See [AppKit fonts](../../docs/styling.md#appkit-fonts)
+host embeds the font bytes and license. See [AppKit fonts](../../docs/app/styling.md#appkit-fonts)
 for application font ownership and fallback behavior.
 
 ```js
@@ -42,7 +42,7 @@ The macOS target can also run the full shared app through the system WKWebView.
 Set `xplat.targets.macos.renderer` to `"webview"`; the CLI then builds the
 `.web` frontend and a JavaScriptCore/NativeScript host. The sample configuration
 in this app points to `vite.webview-app.config.mjs` and
-`vite.webview-app-host.config.mjs`. See the [WKWebView host guide](../../docs/macos-webview.md)
+`vite.webview-app-host.config.mjs`. See the [WKWebView host guide](../../docs/platform/macos-webview.md)
 for configuration and the typed service protocol. AppKit remains the fallback
 when no renderer is selected.
 

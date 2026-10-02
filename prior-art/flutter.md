@@ -21,7 +21,7 @@ For us: a shared `useAnimation({ duration, curve })`/`animateTo()` facade that
 drives `view.animate()` on NS and WAAPI/`@octanejs/motion` on web. Because NS JS
 is on the UI thread, per-frame JS-driven animation is viable there in a way RN
 needed worklets for — our facade can be simpler than Flutter's and simpler than
-Reanimated's. See `docs/animation-gestures.md`.
+Reanimated's. See `docs/app/animation-gestures.md`.
 
 ### Navigator 2.0 — declarative routing
 
@@ -30,7 +30,7 @@ page-stack model (Router API): the visible stack is a function of state, back
 button is an event that mutates state. This is the right mental model for
 reconciling URL routing (web) with `Frame` stacks (native): **state → stack of
 pages**, with the platform shell rendering it. One's file-system routing is a
-concrete instance of the same idea — see `docs/navigation.md` and
+concrete instance of the same idea — see `docs/app/navigation.md` and
 `prior-art/one.md`.
 
 ### Composition idioms

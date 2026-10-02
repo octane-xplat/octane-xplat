@@ -9,7 +9,7 @@ import { layoutChildProps } from './layout-child';
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
  * label/formattedstring. Note: span-under-TextBase parenting needs the
- * driver extension from docs/decisions.md #25 — bare-text-only usage is
+ * driver extension from docs/notes/decisions.md #25 — bare-text-only usage is
  * safe today.
  */
 // The 'octane' import is compiler-retargeted to the universal runtime on

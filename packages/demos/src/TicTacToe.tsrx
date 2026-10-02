@@ -20,7 +20,7 @@ function winnerOf(b: string[]): string | null {
  *  container, pure derived state (winner + status computed in render — no
  *  useMemo needed at this size). Status is a ternary-derived string: the
  *  original @if/@else-if version hit a universal-codegen bug where @else-if
- *  branches discard their output (docs/demos.md findings). */
+ *  branches discard their output (docs/notes/demos.md findings). */
 export function TicTacToe() @{
 	const [board, setBoard] = useState<string[]>(Array(9).fill(''));
 	const [xNext, setXNext] = useState(true);

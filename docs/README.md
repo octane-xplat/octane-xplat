@@ -29,14 +29,14 @@ that first step.
 
 ## Start here
 
-1. ==[Create your first app](toolchain.md#create-and-run)==. Set up the tools,
+1. ==[Create your first app](start/toolchain.md#create-and-run)==. Set up the tools,
    create a project, and open the starter in your browser.
-2. [Try your first change](toolchain.md#build-and-check-your-first-flow).
+2. [Try your first change](start/toolchain.md#build-and-check-your-first-flow).
    Turn the starter into a packing checklist: add an item, mark it packed,
    and remove it. The guide includes a prompt for your coding agent and
    actions you can try to check the result.
 
-Still deciding whether Xplat fits your idea? Read [what you can build](spec.md).
+Still deciding whether Xplat fits your idea? Read [what you can build](start/spec.md).
 The starter includes web, iOS, and Android. Desktop support is experimental
 and needs additional setup. Xplat is at version `0.x`, so names and options
 can change between releases.
@@ -45,30 +45,29 @@ can change between releases.
 
 Pick a guide when you need it. You don't need to read them all before you start.
 
-| I want to…                                      | Read this                                     |
-| ----------------------------------------------- | --------------------------------------------- |
-| Put text, buttons, and lists on a screen        | [Building screens](primitives.md)             |
-| Change colors, spacing, and fonts               | [Styling screens](styling.md)                 |
-| Let someone type into a form                    | [Enter and submit text](text-entry.md)        |
-| Move between screens                            | [Moving between screens](navigation.md)       |
-| Load information from a server                  | [Fetching data](data.md)                      |
-| Save a setting, attach a photo, or share a link | [Using device features](platform-services.md) |
+| I want to…                                      | Read this                                              |
+| ----------------------------------------------- | ------------------------------------------------------ |
+| Put text, buttons, and lists on a screen        | [Building screens](app/primitives.md)                  |
+| Change colors, spacing, and fonts               | [Styling screens](app/styling.md)                      |
+| Let someone type into a form                    | [Enter and submit text](app/text-entry.md)             |
+| Move between screens                            | [Moving between screens](app/navigation.md)            |
+| Load information from a server                  | [Fetching data](app/data.md)                           |
+| Save a setting, attach a photo, or share a link | [Using device features](platform/platform-services.md) |
 
-For more pieces to use on your screens, browse the [component index](components.md).
-When a feature is ready to try, use [Checking an Xplat app](testing.md) and
-check [known limits](known-limits.md) for the platforms you plan to release for.
+For more pieces to use on your screens, browse the [component index](app/components.md).
+When a feature is ready to try, use [Checking an Xplat app](verify/testing.md) and
+check [known limits](verify/known-limits.md) for the platforms you plan to release for.
 
 ## When you're ready to go further
 
-To try your app on a phone, follow [iOS and Android setup](toolchain.md#run-on-ios-and-android).
-For desktop apps, start with [platform support and limits](spec.md#choose-your-targets).
+To try your app on a phone, follow [iOS and Android setup](start/toolchain.md#run-on-ios-and-android).
+For desktop apps, start with [platform support and limits](start/spec.md#choose-your-targets).
 
 If you want to understand how screens and device features connect, read
-[How an app fits together](architecture.md). For extra instructions and
+[How an app fits together](start/architecture.md). For extra instructions and
 reference material to give your coding agent, see
-[Agent context and versions](toolchain.md#agent-context-and-versions).
+[Agent context and versions](start/toolchain.md#agent-context-and-versions).
 
-If you're extending or debugging the framework itself, start with
-[framework status](status.md) and [architecture notes](architecture-notes.md).
-These include work in progress and past experiments; you can leave them
-until you need that detail.
+If you're extending or debugging the framework itself, open the
+[design notes](notes/README.md). They collect decisions, implementation records,
+and past experiments; you can leave that detail until you need it.

@@ -27,7 +27,7 @@ carried on the package (#62).
    reads go stale on native (web re-invokes them; decision #27).
 8. Shared `@octane-xplat/ui` delivers same props → same pixels. Every
    shared component carries a normalization class (see
-   `docs/architecture.md`): `self-drawn` (`Switch`, `Slider`,
+   `docs/start/architecture.md`): `self-drawn` (`Switch`, `Slider`,
    `ActivityIndicator`, `Tabs`, `Drawer`, `SegmentedControl`),
    `chrome-reset` OS controls (`TextInput`, `TextArea`, `ScrollView`,
    `SearchInput`), or `hosted` OS surfaces (`WebView`, `Video`,
@@ -51,4 +51,4 @@ carried on the package (#62).
    `.windows`, and `.linux` variants must expose the same names and public
    types. Keep shared prop types in `props.ts`; platform differences belong
    in the implementation, not in the exported contract. For intentional
-   pass-through behavior, follow the criteria in `docs/architecture.md`.
+   pass-through behavior, follow the criteria in `docs/start/architecture.md`.

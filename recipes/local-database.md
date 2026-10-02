@@ -39,14 +39,14 @@ ORM layers (e.g. Drizzle over the seam) are outside this recipe's scope.
 
 ## Documentation
 
-- AC1: [Local database](../docs/platform-services.md#local-database) —
+- AC1: [Local database](../docs/platform/platform-services.md#local-database) —
   `supported`/`openDatabase` behavior per target.
-- AC2: [Local database](../docs/platform-services.md#local-database) —
+- AC2: [Local database](../docs/platform/platform-services.md#local-database) —
   method surface and transaction semantics.
-- AC3: [Local database](../docs/platform-services.md#local-database) —
+- AC3: [Local database](../docs/platform/platform-services.md#local-database) —
   `getUserVersion`/`setUserVersion` as the migration hook.
-- AC4: [Local database](../docs/platform-services.md#local-database) —
-  `persistent` flag semantics; [known limits](../docs/known-limits.md) —
+- AC4: [Local database](../docs/platform/platform-services.md#local-database) —
+  `persistent` flag semantics; [known limits](../docs/verify/known-limits.md) —
   transient-fallback conditions.
-- AC5: [Local database](../docs/platform-services.md#local-database) —
+- AC5: [Local database](../docs/platform/platform-services.md#local-database) —
   `deleteDatabase`.

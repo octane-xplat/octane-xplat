@@ -16,7 +16,7 @@ Every web leaf we write is doing the same job RNW does for react-dom.
 
 - **Responder/pointer events**: RN gestures (responder grant/move/release)
   shimmed over pointer events. For us: NS `touch`/`pan` vs Pointer Events —
-  normalize to one gesture event shape (see `docs/animation-gestures.md`).
+  normalize to one gesture event shape (see `docs/app/animation-gestures.md`).
 - **Text rules**: `Text` cannot contain `View`; nested `Text` = inline spans.
   Same on NS (`label` + `formattedstring`/`span`). Adopt RN's rule verbatim.
 - **StyleSheet.create**: mostly a no-op/validation wrapper — but establishes
@@ -24,7 +24,7 @@ Every web leaf we write is doing the same job RNW does for react-dom.
   them efficiently. For us that's shared CSS classes instead.
 - **Accessibility mapping**: `accessibilityRole`/`accessibilityLabel` → ARIA.
   NS exposes the same prop names natively — a shared a11y prop set can be
-  near-1:1 (see `docs/platform-services.md`).
+  near-1:1 (see `docs/platform/platform-services.md`).
 - **AppRegistry/root**: web mounts to a DOM node; native registers a
   component. For us: `createRoot(el)` vs `renderNativeScriptApp(page, App)` —
   per-platform `main.*.ts` entries own this.

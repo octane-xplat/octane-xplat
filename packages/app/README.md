@@ -27,5 +27,5 @@ The demo screens it routes to live in
 [`@xplat/demos`](../demos/README.md); the entry shells and vite configs
 live in `apps/web` + `apps/mobile`. Run it with `pnpm probe run <case>
 --target <target> --watch` for investigations — see
-[`docs/probing.md`](../../docs/probing.md) and
-[`docs/testing.md`](../../docs/testing.md).
+[`docs/verify/probing.md`](../../docs/verify/probing.md) and
+[`docs/verify/testing.md`](../../docs/verify/testing.md).

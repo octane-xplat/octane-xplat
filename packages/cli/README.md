@@ -57,7 +57,7 @@ pnpm dev:ios
 ```
 
 Linux packaging and its required manifest settings are documented in
-[Package a Linux app](../../docs/linux-package.md). The CLI ships the GJS host;
+[Package a Linux app](../../docs/platform/linux-package.md). The CLI ships the GJS host;
 Linux users supply the GTK/WebKit system runtime.
 
 Also exports the native vite preset — it absorbs the app-owned native config

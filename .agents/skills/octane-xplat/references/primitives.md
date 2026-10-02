@@ -130,7 +130,7 @@ export function PackingToggle() {
   velocity in dips per second.
 - `children` is a universal renderable; avoid over-typing it.
 - Accessibility props map to ARIA/native attributes; see
-  `docs/platform-services.md` for the current mappings.
+  `docs/platform/platform-services.md` for the current mappings.
 
 ## What primitives deliberately don't do
 

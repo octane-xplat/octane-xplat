@@ -25,5 +25,5 @@ and the plugin accepts the same values natively. For Lottie JSON
 animations use [`@octane-xplat/lottie`](../lottie/README.md) instead.
 
 Per-target limits are recorded in
-[known limits](../../docs/known-limits.md). Exercised by
+[known limits](../../docs/verify/known-limits.md). Exercised by
 [`AnimatedImageDemo`](../demos/src/AnimatedImageDemo.tsrx).

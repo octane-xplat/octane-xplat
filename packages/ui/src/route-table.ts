@@ -1,5 +1,5 @@
 /** Shared route-dir manifest — the file-router half of the nav contract
- *  (docs/navigation-notes.md). Apps glob their route dir per platform and
+ *  (docs/notes/navigation-notes.md). Apps glob their route dir per platform and
  *  pass the module map here; the suffix seam applies to directories the
  *  same way it does to imports:
  *

@@ -1,6 +1,6 @@
 # Windows experiment (WinUI 3 via `@nativescript/windows`)
 
-Path A of the windows investigation ([docs/windows-notes.md](../../docs/windows-notes.md),
+Path A of the windows investigation ([docs/notes/windows-notes.md](../../docs/notes/windows-notes.md),
 decision #65): this scaffold is intended to run the shared harness on upstream's in-flight
 `@nativescript/core` windows platform ([NativeScript#11468](https://github.com/NativeScript/NativeScript/pull/11468)
 preview builds) inside the `@nativescript/windows` WinUI 3 host. No custom
