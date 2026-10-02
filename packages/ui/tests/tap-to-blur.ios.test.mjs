@@ -19,7 +19,7 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
 	const added = []
 	const removed = []
 	const editing = []
-	const window = {
+	const keyWindowStub = {
 		addGestureRecognizer: (recognizer) => added.push(recognizer),
 		removeGestureRecognizer: (recognizer) => removed.push(recognizer),
 		endEditing: (force) => editing.push(force),
@@ -40,7 +40,7 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
 		UITextField: { class: () => 'field' },
 		UITextView: { class: () => 'text' },
 		UIApplication: {
-			sharedApplication: { connectedScenes: { allObjects: [] }, keyWindow: window },
+			sharedApplication: { connectedScenes: { allObjects: [] }, keyWindow: keyWindowStub },
 		},
 	})
 

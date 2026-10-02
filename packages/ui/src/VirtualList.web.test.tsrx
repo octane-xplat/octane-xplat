@@ -21,18 +21,21 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
 		unobserve(node: Element) { observed.delete(node) }
 		disconnect() { observed.clear() }
 	})
+
 	let nextFrame = 0
 	const frames = new Map<number, FrameRequestCallback>()
 	vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
 		frames.set(++nextFrame, callback)
 		return nextFrame
 	})
+
 	const cancelFrame = vi.fn((id: number) => frames.delete(id))
 	vi.stubGlobal('cancelAnimationFrame', cancelFrame)
 	vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
 		x: 0, y: 0, width: 100, height: 60, top: 0, bottom: 60, left: 0, right: 100,
 		toJSON() {},
 	}))
+
 	const reset = vi.spyOn(VirtualListSizeIndex.prototype, 'reset')
 	const set = vi.spyOn(VirtualListSizeIndex.prototype, 'set')
 	const host = document.createElement('div')
@@ -41,11 +44,13 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
 	roots.push(root)
 	act(() => root.render(<VirtualList items={Array.from({ length: 100 }, (_, i) => i)}
 		keyExtractor={(i) => i} renderItem={(i) => <div>{i}</div>} />))
+
 	const flushFrame = () => act(() => {
 		const pending = [...frames.values()]
 		frames.clear()
 		for (const callback of pending) callback(0)
 	})
+
 	// Establish the viewport and mounted rows before testing row delivery.
 	const viewport = host.firstElementChild as HTMLElement
 	Object.defineProperties(viewport, { clientWidth: { value: 100 }, clientHeight: { value: 200 } })

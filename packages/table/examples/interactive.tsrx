@@ -117,6 +117,7 @@ export async function run(ctx: ProbeContext) {
 			(ctx.inspect('grid-th-name').frame?.width ?? 0) > 0
 		)
 	})
+
 	ctx.record('before-width-header', ctx.inspect('grid-th-name'))
 	ctx.record('before-width-grid', ctx.inspect('grid'))
 	const before = ctx.inspect('grid-th-name').frame!.width

@@ -88,6 +88,7 @@ export function App() @{
 				panel.style.transition = 'transform 200ms ease-out';
 				panel.style.transform = 'translateY(0px)';
 			}
+
 			if (shade) {
 				shade.style.transition = 'opacity 200ms ease-out';
 				shade.style.opacity = '0.4'; // BASE_SCRIM

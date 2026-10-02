@@ -2491,7 +2491,6 @@
 
 	.vx-metadatalist--single {
 		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
 		column-gap: 16px;
 		row-gap: 8px;
 		align-items: baseline;
@@ -2500,15 +2499,26 @@
 	.vx-metadatalist--multi,
 	.vx-metadatalist--stacked-multi {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 		gap: 16px;
 	}
 
 	.vx-metadatalist--stacked-single {
 		display: grid;
-		grid-template-columns: 1fr;
 		row-gap: 12px;
 	}
+	/* xplat-web-only:start — track templates have no native analog; the
+   native leaf sizes columns through the Grid columns attribute. */
+	.vx-metadatalist--single {
+		grid-template-columns: auto minmax(0, 1fr);
+	}
+	.vx-metadatalist--multi,
+	.vx-metadatalist--stacked-multi {
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	}
+	.vx-metadatalist--stacked-single {
+		grid-template-columns: 1fr;
+	}
+	/* xplat-web-only:end */
 
 	.vx-metadatalist--horizontal {
 		display: flex;
@@ -2545,60 +2555,76 @@
 
 	.vx-metadatalist-toggle {
 		align-self: flex-start;
-		appearance: none;
 		background: transparent;
-		border: 0;
 		padding: 8px 0;
-		cursor: pointer;
 		font: inherit;
 	}
+	/* xplat-web-only:start — DOM button reset + cursor */
+	.vx-metadatalist-toggle {
+		appearance: none;
+		border: 0;
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
 	.vx-thumbnail {
 		display: inline-flex;
-		position: relative;
-		overflow: hidden;
 		flex: none;
 	}
 
 	.vx-thumbnail-image {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
 		display: block;
 	}
 
 	.vx-thumbnail-placeholder {
-		position: absolute;
-		inset: 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
 
 	.vx-thumbnail-overlay {
-		position: absolute;
-		inset: 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
 
 	.vx-thumbnail-remove {
-		position: absolute;
-		top: 2px;
-		right: 2px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		border: 0;
 		padding: 0;
-		cursor: pointer;
 	}
 
 	.vx-thumbnail-remove:not(.vx-thumbnail-remove--always) {
 		opacity: 0;
+	}
+	/* xplat-web-only:start — DOM-only positioning, clipping, and hover
+   reveal; the native leaf overlays via its grid cell. */
+	.vx-thumbnail {
+		position: relative;
+		overflow: hidden;
+	}
+	.vx-thumbnail-image {
+		object-fit: cover;
+	}
+	.vx-thumbnail-placeholder,
+	.vx-thumbnail-overlay {
+		position: absolute;
+		inset: 0;
+	}
+	.vx-thumbnail-remove {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		border: 0;
+		cursor: pointer;
+	}
+	.vx-thumbnail-remove:not(.vx-thumbnail-remove--always) {
 		transition: opacity 120ms ease-out;
 	}
+	/* xplat-web-only:end */
 
 	.vx-thumbnail:hover .vx-thumbnail-remove,
 	.vx-thumbnail:focus-within .vx-thumbnail-remove {
@@ -2619,49 +2645,61 @@
 		width: 16px;
 		height: 16px;
 		border-radius: 8px;
-		overflow: hidden;
 		flex: none;
 	}
 
 	.vx-citation-icon-img {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
 		display: block;
 	}
-
-	.vx-outline {
-		position: relative;
+	/* xplat-web-only:start — DOM-only clipping and image fitting */
+	.vx-citation-icon {
+		overflow: hidden;
 	}
+	.vx-citation-icon-img {
+		object-fit: cover;
+	}
+	/* xplat-web-only:end */
 
 	.vx-outline-track {
-		position: relative;
 		display: flex;
 		flex-direction: column;
 	}
 
 	.vx-outline-indicator {
-		position: absolute;
-		left: 0;
-		top: 0;
 		width: 2px;
-		transition:
-			transform 140ms ease-out,
-			height 140ms ease-out;
-		pointer-events: none;
 	}
 
 	.vx-outline-item {
 		display: flex;
 		align-items: center;
 		width: 100%;
-		border: 0;
 		background: transparent;
 		padding: 8px 12px 8px 0;
 		font: inherit;
 		text-align: left;
+	}
+	/* xplat-web-only:start — DOM-only positioning, transitions, and the
+   button reset; the native leaf positions the indicator in its grid. */
+	.vx-outline,
+	.vx-outline-track {
+		position: relative;
+	}
+	.vx-outline-indicator {
+		position: absolute;
+		left: 0;
+		top: 0;
+		transition:
+			transform 140ms ease-out,
+			height 140ms ease-out;
+		pointer-events: none;
+	}
+	.vx-outline-item {
+		border: 0;
 		cursor: pointer;
 	}
+	/* xplat-web-only:end */
 
 	.vx-outline--compact .vx-outline-item {
 		padding-top: 4px;
@@ -2669,9 +2707,13 @@
 	}
 
 	.vx-codeblock {
-		overflow: hidden;
 		max-width: 100%;
 	}
+	/* xplat-web-only:start — DOM-only clipping */
+	.vx-codeblock {
+		overflow: hidden;
+	}
+	/* xplat-web-only:end */
 
 	.vx-codeblock-header {
 		display: flex;
@@ -2696,20 +2738,24 @@
 
 	.vx-codeblock-copy,
 	.vx-codeblock-collapse {
-		appearance: none;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		border: 0;
 		background: transparent;
 		padding: 4px;
-		cursor: pointer;
 		border-radius: 4px;
 	}
-
+	/* xplat-web-only:start — DOM button reset + scroll clipping */
+	.vx-codeblock-copy,
+	.vx-codeblock-collapse {
+		appearance: none;
+		border: 0;
+		cursor: pointer;
+	}
 	.vx-codeblock-body {
 		overflow: auto;
 	}
+	/* xplat-web-only:end */
 
 	.vx-codeblock-pre {
 		margin: 0;
@@ -2745,8 +2791,12 @@
 
 	.vx-codeblock--wrap .vx-codeblock-line {
 		white-space: pre-wrap;
+	}
+	/* xplat-web-only:start — DOM-only breaking inside wrapped code */
+	.vx-codeblock--wrap .vx-codeblock-line {
 		word-break: break-word;
 	}
+	/* xplat-web-only:end */
 
 	.vx-codeblock--wrap .vx-codeblock-row,
 	.vx-codeblock--wrap .vx-codeblock-line {
@@ -2770,13 +2820,17 @@
 	}
 
 	.vx-timestamp-copy {
-		appearance: none;
-		border: 0;
 		background: transparent;
 		padding: 2px;
-		cursor: pointer;
 		display: inline-flex;
 	}
+	/* xplat-web-only:start — DOM button reset + cursor */
+	.vx-timestamp-copy {
+		appearance: none;
+		border: 0;
+		cursor: pointer;
+	}
+	/* xplat-web-only:end */
 
 	@media (prefers-reduced-motion: reduce) {
 		.vx-statusdot--pulse,
