@@ -12,6 +12,7 @@ import type { ProbeContext } from '../../scripts/probe/context'
 
 let frameStamps: number[] = []
 let lastStampAt = 0
+let tapSamples: number[] = []
 const stampNow = () => (globalThis as any).performance?.now?.() ?? Date.now()
 
 function PresenceCounter(props: { onMount: () => void; onUnmount: () => void }) @{
@@ -140,6 +141,15 @@ export default function MotionProbe() @{
 			<motion.Row id="motion-pan-row" onPan={pan} style={{ x: panX }} className="items-center rounded-lg p-3">
 				<Text>Drag target</Text>
 			</motion.Row>
+			<motion.View
+				id="motion-tap-box"
+				animate={{ scale: 1 }}
+				whileTap={{ scale: 0.6 }}
+				transition={{ duration: 0.15, ease: 'linear' }}
+				onUpdate={(latest) => { tapSamples.push(latest.scale ?? 1) }}
+			>
+				<Text>Tap target</Text>
+			</motion.View>
 			<Row className="items-center gap-2">
 				<Pressable id="motion-value-cancel" onPress={() => {
 					const controls = panX.animate(100, { duration: 3 })
@@ -286,6 +296,33 @@ export async function run(ctx: ProbeContext) {
 		ctx.inspect('motion-presence-count').text,
 		'Retained count: 0',
 	)
+
+	// whileTap: pointerdown drives the interaction target, release restores the
+	// declarative animate target. Native `touch` is a gesture observer
+	// (GestureTypes.touch = 128), not a plain event — dispatch through it.
+	const tapBox = ctx.find('motion-tap-box')
+	tapSamples = []
+	const fireTouch = (action: 'down' | 'up') => {
+		if (ctx.target === 'web' || ctx.target === 'linux') {
+			tapBox.dispatchEvent(
+				new PointerEvent(action === 'down' ? 'pointerdown' : 'pointerup', { pointerId: 1, bubbles: true }),
+			)
+		} else if (ctx.target === 'ios' || ctx.target === 'android') {
+			for (const observer of tapBox.getGestureObservers?.(128) ?? []) {
+				observer.callback.call(observer.context, { eventName: 'touch', object: tapBox, action })
+			}
+		}
+	}
+	fireTouch('down')
+	await ctx.waitFor(() => Math.min(...tapSamples) <= 0.7, { timeout: 3000 })
+		.catch(() => ctx.record('tap-engage-samples', tapSamples.slice(0, 10)))
+	ctx.assert('whileTap engaged', Math.min(...tapSamples, 1) <= 0.7, true)
+
+	fireTouch('up')
+	await ctx.waitFor(() => tapSamples[tapSamples.length - 1] === 1, {
+		timeout: 3000,
+	}).catch(() => ctx.record('tap-restore-samples', tapSamples.slice(-10)))
+	ctx.assert('whileTap restores animate target', tapSamples[tapSamples.length - 1] ?? 0, 1)
 
 	// Delegation evidence: on native targets the declarative tween runs above
 	// must have engaged the platform animator; on web the counter stays absent

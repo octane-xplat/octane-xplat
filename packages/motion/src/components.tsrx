@@ -5,14 +5,22 @@ import { PresenceContext } from './presence.tsrx'
 import type { PresenceMember } from './presence-state'
 import { clock } from './clock'
 import { attachHost } from './host'
-import type { HostAdapter } from './host-types'
+import type { GestureKind, HostAdapter } from './host-types'
 import { Controller, keys, defaults, validateTarget } from './controller'
-import { validateTransition } from './engine'
+import { validateTransitionInput } from './engine'
 import { MotionValue } from './value'
 import type { MotionKey, MotionProps, MotionViewProps, MotionRowProps, MotionPressableProps, Target } from './types'
 
-function useMotion(props: MotionProps & { bind?: (host: any) => void }) {
-	for (const name of ['drag', 'layout', 'layoutId', 'variants', 'whileTap', 'whileHover', 'whileFocus', 'whileInView']) {
+/** host node → its motion controller; powers `useAnimate` scope lookup. */
+export const controllers = new WeakMap<object, Controller>()
+
+const GESTURE_PROPS: Record<GestureKind, { target: 'whileTap' | 'whileFocus'; transition: 'whileTapTransition' | 'whileFocusTransition' }> = {
+	press: { target: 'whileTap', transition: 'whileTapTransition' },
+	focus: { target: 'whileFocus', transition: 'whileFocusTransition' },
+}
+
+function useMotion(props: MotionProps & { bind?: ((host: any) => void) | { current: any } }) {
+	for (const name of ['drag', 'layout', 'layoutId', 'variants', 'whileHover', 'whileInView']) {
 		if (name in props) throw new Error(`motion: ${name} is outside the supported subset`)
 	}
 
@@ -22,14 +30,25 @@ function useMotion(props: MotionProps & { bind?: (host: any) => void }) {
 	const systemReduced = useReducedMotion()
 	const reduced = config.reducedMotion === 'always' || (config.reducedMotion === 'user' && systemReduced)
 	const transition = props.transition ?? config.transition ?? {}
-	validateTransition(transition)
+	validateTransitionInput(transition)
 	validateTarget(props.animate)
 	validateTarget(props.exit)
+	validateTarget(props.whileTap)
+	validateTarget(props.whileFocus)
 	if (props.initial !== false) validateTarget(props.initial)
+	if (props.whileTapTransition) validateTransitionInput(props.whileTapTransition)
+	if (props.whileFocusTransition) validateTransitionInput(props.whileFocusTransition)
 	const latest = useRef(props)
 	latest.current = props
-	const state = useRef<{ controller: Controller; host?: any; adapter?: HostAdapter; initialized: boolean } | null>(null)
-	if (!state.current) state.current = { controller: new Controller(clock), initialized: false }
+	const state = useRef<{
+		controller: Controller
+		host?: any
+		adapter?: HostAdapter
+		initialized: boolean
+		gestureOff?: () => void
+		preGesture?: Record<GestureKind, Target | undefined>
+	} | null>(null)
+	if (!state.current) state.current = { controller: new Controller(clock), initialized: false, preGesture: { press: undefined, focus: undefined } }
 	const current = state.current
 	const style: Record<string, unknown> = {}
 	const bindings: [MotionKey, number | MotionValue][] = []
@@ -49,10 +68,36 @@ function useMotion(props: MotionProps & { bind?: (host: any) => void }) {
 	const firstBinding = useRef(true)
 	const firstAnimation = useRef(true)
 	if (previous.current.length !== bindings.length || previous.current.some(([key, value], i) => key !== bindings[i][0] || value !== bindings[i][1])) previous.current = bindings
+	current.controller.onUpdate = (snapshot) => latest.current.onUpdate?.(snapshot)
+
+	const gesture = (kind: GestureKind, phase: 'start' | 'end') => {
+		const shape = GESTURE_PROPS[kind]
+		const target = latest.current[shape.target]
+		if (!target) return
+		const gestureTransition = latest.current[shape.transition] ?? playback.current.transition
+		if (phase === 'start') {
+			// Snapshot the gesture's keys so release returns to where they were.
+			const snapshot = current.controller.snapshot()
+			const rest: Target = {}
+			for (const key of Object.keys(target) as MotionKey[]) rest[key] = snapshot[key]
+			current.preGesture![kind] = rest
+			void current.controller.animate(target, gestureTransition, playback.current.reduced)
+		} else {
+			const snap = current.preGesture![kind] ?? {}
+			current.preGesture![kind] = undefined
+			// The declarative animate prop wins over the pre-gesture snapshot.
+			const rest: Target = {}
+			for (const key of Object.keys(target) as MotionKey[]) rest[key] = latest.current.animate?.[key] ?? snap[key] ?? defaults[key]
+			void current.controller.animate(rest, gestureTransition, playback.current.reduced)
+		}
+	}
+
 	const bind = useRef<(host: any) => void>(() => {})
 	bind.current = (host) => {
 		if (!host) return
 		if (current.host !== host) {
+			current.gestureOff?.()
+			current.gestureOff = undefined
 			current.adapter?.restore()
 			current.host = host
 			current.adapter = attachHost(host)
@@ -65,10 +110,22 @@ function useMotion(props: MotionProps & { bind?: (host: any) => void }) {
 			}
 
 			current.controller.attach(current.adapter)
+			controllers.set(host, current.controller)
+			if (current.adapter.gesture) {
+				const offs = (['press', 'focus'] as const)
+					.map((kind) => current.adapter!.gesture!(kind, { start: () => gesture(kind, 'start'), end: () => gesture(kind, 'end') }))
+					.filter((off): off is () => void => typeof off === 'function')
+				current.gestureOff = () => offs.forEach((off) => off())
+			}
 		}
 
 		current.controller.flush()
-		latest.current.bind?.(host)
+		const userBind = latest.current.bind
+		if (typeof userBind === 'function') {
+			userBind(host)
+		} else if (userBind) {
+			;(userBind as { current: any }).current = host
+		}
 	}
 
 	const playback = useRef({ transition, reduced })
@@ -96,7 +153,7 @@ function useMotion(props: MotionProps & { bind?: (host: any) => void }) {
 
 	useLayoutEffect(() => presence?.register(member.current!), [presence])
 	const stableBind = useRef((host: any) => bind.current(host)).current
-	useLayoutEffect(() => () => { current.controller.destroy(); current.host = undefined; current.adapter = undefined }, [])
+	useLayoutEffect(() => () => { current.gestureOff?.(); current.controller.destroy(); current.host = undefined; current.adapter = undefined }, [])
 	useLayoutEffect(() => {
 		const off: (() => void)[] = []
 		for (const key of boundKeys.current) if (!previous.current.some(([next]) => key === next)) current.controller.set(key, defaults[key])
@@ -115,15 +172,33 @@ function useMotion(props: MotionProps & { bind?: (host: any) => void }) {
 		const skip = firstAnimation.current && props.initial === false
 		firstAnimation.current = false
 		if (presence && !presence.present) presence.restart(member.current!)
-		else if (props.animate && !skip) void current.controller.animate(props.animate, transition, reduced).then((result) => {
-			if (active && result === 'finished') latest.current.onAnimationComplete?.()
-		})
+		else if (props.animate && !skip) {
+			latest.current.onAnimationStart?.(props.animate)
+			void current.controller.animate(props.animate, transition, reduced).then((result) => {
+				if (active && result === 'finished') latest.current.onAnimationComplete?.()
+			})
+		}
 
 		return () => { active = false; current.controller.stop() }
 	}, [JSON.stringify(props.animate), JSON.stringify(props.exit), JSON.stringify(transition), reduced])
 
-	const { initial, exit, animate, transition: ignoredTransition, onAnimationComplete, style: ignoredStyle, bind: ignoredBind, ...rest } = props
+	const { initial, exit, animate, transition: ignoredTransition, whileTap, whileTapTransition, whileFocus, whileFocusTransition, onAnimationStart, onAnimationComplete, onUpdate, style: ignoredStyle, bind: ignoredBind, ...rest } = props
 	return { ...rest, style, bind: stableBind }
+}
+
+function MotionLeaf(props: MotionProps & { component?: any }) @{
+	const Component = props.component
+	<Component {...useMotion(props)}>{props.children}</Component>
+}
+
+/** Wrap any component that accepts `bind`/`style`/`children` — the portable
+ *  equivalent of upstream's `motion.<tag>` host factory. Compiled components
+ *  take (props, slotState, extra) — the factory forwards them into MotionLeaf,
+ *  whose dynamic <Component> tag renders the wrapped leaf. */
+export function createMotion<P extends Record<string, unknown>>(Component: (props: P) => any) {
+	return function MotionCreated(props: P & MotionProps, __s?: any, __extra?: any) {
+		return (MotionLeaf as any)({ ...props, component: Component }, __s, __extra)
+	}
 }
 
 /** Animated View preserving the shared primitive's layout and accessibility. */

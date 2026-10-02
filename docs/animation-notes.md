@@ -184,6 +184,46 @@ passed with `started=8 finished=4 cancelled=3 fallback=0`; JS-engine pacing
 there ran 44 frames, 0 >34ms gaps, 16ms mean. Android runtime is unverified —
 no device/emulator was reachable.
 
+## Upstream API-shape expansion — landed 2026-10-02 (decision #92)
+
+`@octane-xplat/motion` now honors the upstream prop/transition vocabulary where
+it maps onto the bounded numeric contract:
+
+- **Transition**: the full named-ease set (`circIn/circOut/circInOut`,
+  `backIn/backOut/backInOut`, `anticipate`) passes through to motion-dom;
+  springs accept the duration/bounce spec; `repeat`/`repeatType`
+  (`loop`/`reverse`/`mirror`)/`repeatDelay` wrap the generator per leg.
+  Per-channel overrides use upstream's `{x: {…}, default: {…}}` form
+  (`TransitionOrchestration`, resolved per key in `Controller.animate`).
+- **Delegation gates**: non-bezier eases, springs, `repeat`, and per-key
+  orchestration refuse platform delegation — the native drivers take one
+  bezier timing curve per run — and fall to the JS engine on every target.
+- **Interaction props**: `whileTap`/`whileFocus` (+ `…Transition` overrides)
+  go through a `HostAdapter.gesture(kind, callbacks)` seam — PointerEvents on
+  web, NativeScript `touch`/`focus`/`blur` on native. The component snapshots
+  the declarative `animate` target before the interaction run and restores it
+  on release/blur. `whileHover` is deliberately excluded (touch has no hover);
+  `whileInView` waits on a native visibility observer.
+- **Callbacks**: `onAnimationStart(definition)`, `onAnimationComplete()`,
+  `onUpdate(latest)` fire per run through the controller.
+- **`motion.create(Component)`** wraps any leaf that takes
+  `bind`/`style`/`children`; implemented via a top-level `MotionLeaf` because
+  the universal compiler rejects JSX inside non-component module functions.
+- **`useAnimate()`** returns `[scope, animate]`; `bind` accepts callback refs
+  and `{current}` scope objects; a WeakMap registry resolves host nodes to
+  controllers so `animate(node, target, transition)` and
+  `animate(target, transition)` both work.
+
+Not implemented (documented in UPSTREAM.md): variants/stagger, keyframe
+arrays, CSS strings, `motion.<tag>` DOM proxy, `AnimatePresence` naming.
+
+Probe evidence (2026-10-02): web + iOS simulator runs cover `whileTap` via
+PointerEvents/`GestureTypes.touch` observer dispatch — engage to `scale: 0.6`,
+release restores `scale: 1` through the delegated driver. iOS delegations:
+11 started / 7 finished / 4 cancelled. The native `touch` listener is a
+GesturesObserver (GestureTypes.touch = 128), not a plain `notify` event —
+synthetic dispatch must call the observer callback directly.
+
 ## The load-bearing fact
 
 On NativeScript your JS **runs on the UI thread**: a `touch` move event can

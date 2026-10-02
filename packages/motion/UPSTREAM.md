@@ -16,6 +16,9 @@ The adapter is original code; it does not copy upstream's DOM host factory.
 | Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts     | Context inheritance; spring transforms settle immediately on live preference changes while opacity can keep animating (`components.web.test.tsrx`, `engine.test.ts`) |
 | Exit lifecycle                                   | src/index.ts; tests/conformance/exit.test.ts                      | Deliberate live-subtree retention on both leaves; presence.web.test.tsrx and native presence test                                                                    |
 | Retained hosts on native                         | Not a DOM binding concern                                         | components.mobile.test.tsrx uses the universal object driver                                                                                                         |
+| Interaction targets                              | whileTap/whileFocus gesture bindings                              | Host-level gesture seam (PointerEvents/touch/focus); snapshot + restore; components.web.test.tsrx, motion probe                                                      |
+| Scoped imperative runs                           | useAnimate                                                        | Controller registry keyed on host nodes; `bind` accepts callback refs and `{current}` scopes                                                                          |
+| Custom host components                           | motion.create / motion.<tag>                                      | `motion.create(Component)` wraps shared-UI leaves; DOM tag proxy excluded                                                                                            |
 
 Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packages/motion),
 [upstream ledger](https://github.com/octanejs/octane/blob/main/packages/motion/UPSTREAM.md),
@@ -23,8 +26,11 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
 
 ## Deliberate boundaries
 
-- Numeric values only. No CSS strings, keyframe arrays, variants, layout,
-  gesture presets, declarative drag, or broad framework-neutral re-export.
+- Numeric values only. No CSS strings, keyframe arrays, variants/stagger
+  orchestration, layout/layoutId, `whileHover`/`whileInView`, declarative
+  drag, or broad framework-neutral re-export. `whileTap`, `whileFocus`,
+  lifecycle callbacks (`onAnimationStart`/`onAnimationComplete`/`onUpdate`),
+  `motion.create`, and `useAnimate` match the upstream prop names.
 - Host APIs use shared UI names rather than DOM tags. Existing UI props remain
   available; motion owns transform channels and opacity. Put pre-existing CSS
   transforms on an outer container. Conflicting writers are errors.
@@ -41,9 +47,14 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
   interruption hands off value and velocity to the JS engine; springs,
   reduced-motion runs, and gesture-driven values always run on the JS engine.
   WAAPI delegation on web is deferred.
-- Springs are physical (not duration/bounce based); duration belongs to tweens.
-  Default declarative transition is a 0.3-second easeInOut tween. Targets are
-  absolute; scale multiplies scaleX/scaleY. Opacity is clamped to 0–1 at the host. Reduced transforms have no delay.
+- Springs accept both the physical spec (stiffness/damping/mass/velocity) and
+  upstream's duration/bounce spec. Transitions support `repeat`/`repeatType`
+  (`loop`/`reverse`/`mirror`)/`repeatDelay` and per-channel overrides in the
+  `{x: {…}, default: {…}}` form. Default declarative transition is a 0.3-second
+  easeInOut tween. Targets are absolute; scale multiplies scaleX/scaleY.
+  Opacity is clamped to 0–1 at the host. Reduced transforms have no delay.
+  Non-bezier eases, springs, repeats, and per-key transitions refuse platform
+  delegation and run on the JS engine on all targets.
 
 ## Presence divergence
 

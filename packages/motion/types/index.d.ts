@@ -1,18 +1,26 @@
 import type { UniversalComponent } from 'octane/universal'
 import type {
+	MotionProps,
 	MotionViewProps,
 	MotionRowProps,
 	MotionPressableProps,
 	MotionConfigProps,
+	Target,
 	Transition,
+	TransitionInput,
 } from './types.js'
 
 import type { MotionValue, MotionValueEvents } from './value.js'
-/** Bounded motion hosts for shared xplat UI primitives. */
+import type { AnimationControls, AnimationResult } from './engine.js'
+/** Bounded motion hosts for shared xplat UI primitives; `motion.create` wraps
+ *  any component that accepts `bind`/`style`/`children`. */
 export declare const motion: {
 	View: UniversalComponent<MotionViewProps>
 	Row: UniversalComponent<MotionRowProps>
 	Pressable: UniversalComponent<MotionPressableProps>
+	create: <P extends Record<string, unknown>>(
+		component: (props: P) => any,
+	) => UniversalComponent<P & MotionProps>
 }
 
 /** Inherit transition and reduced-motion defaults within this root. */
@@ -51,6 +59,17 @@ export declare function useSpring(
 	source: number | MotionValue,
 	options?: Omit<Transition, 'type' | 'duration' | 'ease' | 'delay'>,
 ): MotionValue
+
+/** Scoped imperative animation: `const [scope, animate] = useAnimate()` then
+ *  `bind={scope}` on a motion host. */
+export declare function useAnimate(): [
+	{ current: any },
+	(
+		target: Target | MotionValue | object,
+		transitionOrTo?: TransitionInput | number,
+		transition?: Transition,
+	) => Promise<AnimationResult> | AnimationControls,
+]
 
 export type { MotionValue, MotionValueEvents }
 export type { AnimationControls, AnimationResult } from './engine.js'

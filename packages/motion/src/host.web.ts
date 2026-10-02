@@ -30,5 +30,30 @@ export function attachHost(node: HTMLElement): HostAdapter {
 			node.style.transform = transform
 			node.style.opacity = opacity
 		},
+		gesture(kind, callbacks) {
+			if (kind === 'press') {
+				const down = (event: PointerEvent) => {
+					node.setPointerCapture?.(event.pointerId)
+					callbacks.start()
+				}
+
+				const end = () => callbacks.end()
+				node.addEventListener('pointerdown', down)
+				node.addEventListener('pointerup', end)
+				node.addEventListener('pointercancel', end)
+				return () => {
+					node.removeEventListener('pointerdown', down)
+					node.removeEventListener('pointerup', end)
+					node.removeEventListener('pointercancel', end)
+				}
+			}
+
+			node.addEventListener('focus', callbacks.start)
+			node.addEventListener('blur', callbacks.end)
+			return () => {
+				node.removeEventListener('focus', callbacks.start)
+				node.removeEventListener('blur', callbacks.end)
+			}
+		},
 	}
 }

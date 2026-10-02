@@ -1,8 +1,11 @@
-import { useRef, useLayoutEffect } from 'octane'
+import { useRef, useLayoutEffect, useContext } from 'octane'
 import { interpolate } from 'motion-dom'
 import { clock } from './clock'
+import { ConfigContext, useReducedMotion } from './config.tsrx'
+import { controllers } from './components.tsrx'
 import { MotionValue, type MotionValueEvents } from './value'
-import type { Transition } from './types'
+import type { AnimationControls, AnimationResult } from './engine'
+import type { Target, Transition, TransitionInput } from './types'
 
 /** Create an owned numeric value that writes to bound hosts without rendering. */
 export function useMotionValue(initial: number): MotionValue {
@@ -53,4 +56,50 @@ export function useSpring(source: number | MotionValue, options: Omit<Transition
 	}, [source instanceof MotionValue ? source : null, JSON.stringify(options)])
 
 	return value
+}
+
+/** Scoped imperative animation: `const [scope, animate] = useAnimate()` then
+ *  `bind={scope}` on a motion host. `animate(target, transition)` drives that
+ *  host; `animate(value, to, transition)` drives a MotionValue directly. */
+export function useAnimate(): [
+	{ current: any },
+	(
+		target: Target | MotionValue | object,
+		transitionOrTo?: TransitionInput | number,
+		transition?: Transition,
+	) => Promise<AnimationResult> | AnimationControls,
+] {
+	const scope = useRef<any>(null)
+	const config = useContext(ConfigContext)
+	const systemReduced = useReducedMotion()
+	const reducedRef = useRef(config.reducedMotion === 'always' || (config.reducedMotion === 'user' && systemReduced))
+	reducedRef.current = config.reducedMotion === 'always' || (config.reducedMotion === 'user' && systemReduced)
+	const animate = useRef(
+		(
+			target: any,
+			transitionOrTo?: any,
+			transition?: any,
+		): Promise<AnimationResult> | AnimationControls => {
+			if (target instanceof MotionValue) {
+				return target.animate(transitionOrTo, transition)
+			}
+
+			// A registered host node targets that element's controller; a plain
+			// channel target drives the scope's host.
+			const controller =
+				target && typeof target === 'object' && controllers.has(target)
+					? controllers.get(target)!
+					: scope.current
+						? controllers.get(scope.current)
+						: undefined
+			if (!controller) {
+				return Promise.resolve('cancelled' as const)
+			}
+
+			const destination = controllers.has(target) ? (transitionOrTo ?? {}) : target
+			const spec = controllers.has(target) ? (transition ?? {}) : (transitionOrTo ?? {})
+			return controller.animate(destination, spec, reducedRef.current)
+		},
+	).current
+	return [scope, animate]
 }

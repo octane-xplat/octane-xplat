@@ -52,5 +52,34 @@ export function attachHost(node: any): HostAdapter {
 		write,
 		restore: () => write(original),
 		delegate: (req: DelegatedRequest): DelegatedRun | null => delegatedRun(node, req, write),
+		gesture(kind, callbacks) {
+			if (typeof node.on !== 'function' || typeof node.off !== 'function') {
+				return null
+			}
+
+			if (kind === 'press') {
+				// NativeScript's `touch` event: action down/up/cancel.
+				const onTouch = (event: any) => {
+					if (event.action === 'down') {
+						callbacks.start()
+					} else if (event.action === 'up' || event.action === 'cancel') {
+						callbacks.end()
+					}
+				}
+
+				node.on('touch', onTouch)
+				return () => node.off('touch', onTouch)
+			}
+
+			// focus/blur exist only on focusable hosts (editable text, buttons).
+			const onFocus = () => callbacks.start()
+			const onBlur = () => callbacks.end()
+			node.on('focus', onFocus)
+			node.on('blur', onBlur)
+			return () => {
+				node.off('focus', onFocus)
+				node.off('blur', onBlur)
+			}
+		},
 	}
 }

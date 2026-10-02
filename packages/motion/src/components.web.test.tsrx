@@ -133,3 +133,93 @@ it('observes live system reduced-motion changes', () => {
 	expect((mounted.container.querySelector('#user-reduced') as HTMLElement).style.transform).toContain('translateX(100px)')
 	mounted.close(); expect(callbacks.size).toBe(0); vi.unstubAllGlobals()
 })
+
+import { useAnimate } from './index.web'
+import { View } from '@octane-xplat/ui'
+
+function TapScale() @{
+	<motion.Pressable id="tap" animate={{ scale: 1 }} whileTap={{ scale: 1.5 }} whileTapTransition={{ duration: 0 }} transition={{ duration: 0.01 }} />
+}
+
+describe('upstream-shaped props', () => {
+	it('animates whileTap on pointerdown and returns on release', () => {
+		const mounted = mount(<TapScale />)
+		const node = mounted.container.querySelector('#tap') as HTMLElement
+		node.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+		expect(node.style.transform).toContain('scale(1.5)')
+		node.dispatchEvent(new Event('pointerup', { bubbles: true }))
+		expect(node.style.transform).toContain('scale(1)')
+		mounted.close()
+	})
+
+	it('animates whileFocus on focus and returns on blur', () => {
+		const mounted = mount(<TapFocusCase />)
+		const node = mounted.container.querySelector('#focusable') as HTMLElement
+		node.dispatchEvent(new Event('focus'))
+		expect(node.style.transform).toContain('translateX(20px)')
+		node.dispatchEvent(new Event('blur'))
+		expect(node.style.transform).toContain('translateX(0px)')
+		mounted.close()
+	})
+
+	it('fires onAnimationStart and onUpdate for declarative runs', () => {
+		const mounted = mount(<CallbackCase />)
+		expect(callbackState.started).toBe(1)
+		expect(callbackState.updated).toBeGreaterThan(0)
+		mounted.close()
+		callbackState.started = 0
+		callbackState.updated = 0
+	})
+
+	it('wraps an arbitrary leaf with motion.create', () => {
+		const mounted = mount(<CreatedCase />)
+		const node = mounted.container.querySelector('#created') as HTMLElement
+		expect(node.style.transform).toContain('translateX(30px)')
+		mounted.close()
+	})
+
+	it('animates through useAnimate scope and a MotionValue directly', async () => {
+		const mounted = mount(<ScopedCase />)
+		const node = mounted.container.querySelector('#scoped') as HTMLElement
+		await scopedApi.animate({ x: 40 }, { duration: 0 })
+		expect(node.style.transform).toContain('translateX(40px)')
+		const direct = scopedApi.animate(scopedApi.value, 77, { duration: 0 })
+		await direct.finished
+		expect(scopedApi.value.get()).toBe(77)
+		mounted.close()
+	})
+})
+
+const callbackState = { started: 0, updated: 0 }
+function CallbackCase() @{
+	<motion.View
+		id="callbacks"
+		animate={{ x: 5 }}
+		transition={{ duration: 0 }}
+		onAnimationStart={() => callbackState.started++}
+		onUpdate={() => callbackState.updated++}
+	/>
+}
+
+function TapFocusCase() @{
+	<motion.View id="focusable" animate={{ x: 0 }} whileFocus={{ x: 20 }} whileFocusTransition={{ duration: 0 }} transition={{ duration: 0.01 }} />
+}
+
+const MotionCard = motion.create(function Card(props: any) @{
+	<View {...props} />
+})
+function CreatedCase() @{
+	<MotionCard id="created" animate={{ x: 30 }} transition={{ duration: 0 }} />
+}
+
+const scopedApi: { animate: any; value: MotionValue } = { animate: undefined, value: undefined as any }
+function ScopedCase() @{
+	const [scope, animate] = useAnimate()
+	const value = useMotionValue(0)
+	useEffect(() => {
+		scopedApi.animate = animate
+		scopedApi.value = value
+	}, [])
+
+	<motion.View id="scoped" bind={scope} />
+}

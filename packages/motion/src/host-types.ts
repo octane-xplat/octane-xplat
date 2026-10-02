@@ -19,6 +19,14 @@ export interface DelegatedRun {
 	finished: Promise<'finished' | 'cancelled'>
 }
 
+/** Gesture-target kinds: press covers whileTap, focus covers whileFocus. */
+export type GestureKind = 'press' | 'focus'
+
+export interface GestureCallbacks {
+	start(): void
+	end(): void
+}
+
 export interface HostAdapter {
 	read(): Target
 	write(values: Target): void
@@ -28,4 +36,7 @@ export interface HostAdapter {
 	 * back to the JS engine.
 	 */
 	delegate?(request: DelegatedRequest): DelegatedRun | null
+	/** Subscribe to a gesture lifecycle; returns an unsubscribe, or null if the
+	 *  host cannot emit it (focus events only exist on focusable hosts). */
+	gesture?(kind: GestureKind, callbacks: GestureCallbacks): (() => void) | null
 }

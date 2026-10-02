@@ -211,9 +211,12 @@ lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
 
 ## Motion leaf
 
-`@octane-xplat/motion` supports numeric transforms and opacity on web/iOS/Android.
-Layout animation, variants, gesture presets, declarative drag, and arbitrary
-CSS/SVG properties are excluded. Existing CSS transforms need an outer container.
+`@octane-xplat/motion` supports numeric transforms and opacity on web/iOS/Android,
+plus `whileTap`/`whileFocus`, lifecycle callbacks, `motion.create`, `useAnimate`,
+repeat/per-key transitions, and duration/bounce springs. Layout animation,
+variants/stagger, `whileHover`/`whileInView`, declarative drag, keyframe arrays,
+and arbitrary CSS/SVG properties are excluded. Existing CSS transforms need an
+outer container.
 Declarative tweens delegate to `UIViewPropertyAnimator` (iOS) and
 `ViewPropertyAnimator` (Android); springs, reduced-motion runs, and
 gesture-driven values stay on the JS engine. See
