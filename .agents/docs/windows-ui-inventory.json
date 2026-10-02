@@ -2040,7 +2040,8 @@
       "status": "parked",
       "evidence": [
         "Windows input sweep: OS mouse down/up at actual centered control bounds changes false to true.",
-        "Windows UIA sweep: no TogglePattern, no keyboard-focusable switch control; pinned application.windows.ts has an empty accessibility update method."
+        "Windows UIA sweep: no TogglePattern, no keyboard-focusable switch control; pinned application.windows.ts has an empty accessibility update method.",
+        "2026-10-02 OS semantics comparison task0: explicit native Name still leaves shared Switch as unfocusable Group without TogglePattern. Native WinUI ToggleSwitch has focus/TogglePattern and changes state by mouse and Space, with Toggled callbacks. No shared pixel/production support claim."
       ],
       "reason": "Pointer input works, but semantic switch state and keyboard access need a Windows accessibility implementation before this control is supported."
     },

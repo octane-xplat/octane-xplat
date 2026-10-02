@@ -789,3 +789,24 @@ Native delegates need correct lifetime, replacement and secure-view-swap cleanup
 The public blur behavior is not isolated here: clicking its Button already
 moves focus before the blur handle executes, so that action is not a blur pass.
 TextInput remains parked; no focus workaround was added to shared components.
+
+### Custom control semantics: a name is not a toggle contract
+
+A shared Switch and a diagnostic native WinUI ToggleSwitch run under the same
+driver. The probe explicitly assigns an AutomationProperties.Name to the shared
+control, isolating semantic behavior from the previously confirmed naming gap.
+The interactive OS input task completes with result0:
+
+| Control | UIA type | Keyboard focus | TogglePattern | OS activation |
+| --- | --- | --- | --- | --- |
+| Shared Switch + explicit native name | Group | SetFocus rejected | Missing | No keyboard test possible |
+| Native WinUI ToggleSwitch | Button | Accepted | Present | Mouse toggles false→true; Space toggles true→false |
+
+The native Toggled delegate reports both changes. This proves that the bridge
+and native control can supply keyboard/toggle semantics; setting accessibility
+names on a self-drawn layout does not supply them. Shared self-drawn controls
+need native semantic-control or AutomationPeer adapters, with correct state,
+keyboard, focus, disabled/read-only behavior, and lifecycle. This stock-widget
+comparison does not prove shared pixel normalization or justify changing the
+public Switch contract. Switch and the other affected custom controls remain
+parked.
