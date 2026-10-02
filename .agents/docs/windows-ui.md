@@ -524,3 +524,51 @@ public-root bundle prepares successfully and runs: native text appears, Icon's
 SVG source completes at24×24, Code reports FontSize13/Consolas/height20, and
 indeterminate indicator geometry is24×24 with12×2 dash. The full demo harness
 and production build are still outside this bounded verification.
+
+## Priority blocker investigation — 2026-10-02
+
+The next investigation focuses on essential app controls: activation, layout
+insets, form editing and semantics, child/text ownership, and overlay dismissal
+and focus. Component dispositions remain unchanged until a maintained fix and
+each component's required cases pass.
+
+### Pointer observer collision: validated diagnostic remedy
+
+On the existing Windows 11 VM, the pinned core again reports
+`_usingAddHandler: false` for both Pressable tap and touch observers. Real mouse
+input logs `DOWN` with no `PRESS` on the unchanged dependency. The runtime's
+`wire_winrt_event` removes the previous event subscription before adding the
+new one, confirming that native property assignment is replacement rather than
+an additive registration.
+
+An isolated guest dependency prototype gives each native element/event one
+pointer delegate and a set of independently removable JS subscribers. The app
+was prepared successfully with that prototype; both generated and deployed
+`vendor.mjs` contain the dispatcher. This is a diagnostic dependency mutation,
+not a shipped framework fix or a new component support claim.
+
+The `lifecycle-v2` run used real OS mouse input through an interactive scheduled
+task and completed with task result 0:
+
+1. Two clicks on Pressable each produce one `DOWN` and one `PRESS`.
+2. A native Button removes only the touch observer using `off('touch')`.
+3. The next Pressable click still produces `PRESS`; dispatch has one subscriber.
+4. Another native Button restores the saved callback and context with
+   `on('touch', callback, context)`.
+5. The next Pressable click again produces one `DOWN` and one `PRESS`; dispatch
+   has two subscribers.
+
+Two temporary local dispatcher tests also pass: independently removing and
+reattaching observers, clearing the final subscription, and keeping native
+views/events independent. These tests cover the candidate dispatcher, not the
+Windows bridge. The first reattachment probe saved the observer object itself;
+NativeScript clears that object's callback on disconnect. Its reattachment
+result was discarded and the corrected run saved callback/context beforehand.
+
+The remaining production work includes routed-registration partial failure,
+hover listener ownership, unload/reload, cancellation and pointer capture,
+long/double press coexistence, and disabled controls. The remedy belongs in
+NativeScript core, following the fork-first dependency policy. No workaround
+was added to shared Pressable. Temporary probes and the prototype live under
+ignored `research/windows-ui/`; the guest's original gesture implementation is
+backed up alongside the dependency file as `index.windows.js.priority-original`.
