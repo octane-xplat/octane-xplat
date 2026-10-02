@@ -6,6 +6,7 @@ import {
 	Label,
 	AbsoluteLayout,
 } from '@nativescript/core'
+
 Application.run({
 	create() {
 		const page = new Page()
@@ -24,16 +25,19 @@ Application.run({
 				flexDirection: 'column',
 				...props,
 			})
+
 			for (let i = 0; i < count; i++) {
 				const label = new Label()
 				label.text = name + ' ' + i
 				label.height = 10
-				if (props.flexDirection?.startsWith('row')) label.width = 100
+				if (props.flexDirection?.startsWith('row')) {label.width = 100}
 				box.addChild(label)
 			}
+
 			host.addChild(box)
 			cases.push({ name, box })
 		}
+
 		add('fixed', { height: 60 })
 		add('auto', {})
 		add('empty', {}, 0)
@@ -58,6 +62,7 @@ Application.run({
 			},
 			2,
 		)
+
 		const report = (stage: string) => {
 			for (const { name, box } of cases) {
 				const children: any[] = []
@@ -68,15 +73,18 @@ Application.run({
 							.TransformToVisual(box.nativeViewProtected)
 							.TransformPoint({ X: 0, Y: 0 })
 					} catch {}
+
 					children.push({ size: v.getActualSize(), offset })
 					return true
 				})
+
 				console.log(
 					'[layout-padding-final] ' +
 						JSON.stringify({ stage, name, size: box.getActualSize(), children }),
 				)
 			}
 		}
+
 		setTimeout(() => {
 			report('initial')
 			cases[0].box.paddingLeft = 23
@@ -86,6 +94,7 @@ Application.run({
 			pct.paddingLeft = 23
 			pct.paddingTop = 9
 		}, 2000)
+
 		setTimeout(() => report('changed'), 4000)
 		const parent = new AbsoluteLayout()
 		parent.width = 200
@@ -109,11 +118,13 @@ Application.run({
 						independent,
 					}),
 			)
+
 		setTimeout(() => {
 			percentReport('initial')
 			parent.width = 300
 			parent.height = 150
 		}, 1500)
+
 		setTimeout(() => {
 			percentReport('resize')
 			child.width = 80
@@ -121,11 +132,13 @@ Application.run({
 			parent.width = 240
 			parent.height = 120
 		}, 3000)
+
 		setTimeout(() => {
 			percentReport('numeric')
 			child.width = '50%'
 			child.height = '50%'
 		}, 4500)
+
 		setTimeout(() => {
 			percentReport('percentage-again')
 			parent.removeChild(child)

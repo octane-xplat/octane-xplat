@@ -24,6 +24,7 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
 		removeGestureRecognizer: (recognizer) => removed.push(recognizer),
 		endEditing: (force) => editing.push(force),
 	}
+
 	Object.assign(context, {
 		NSObject: class {
 			static extend(methods, options) {
@@ -42,6 +43,7 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
 			sharedApplication: { connectedScenes: { allObjects: [] }, keyWindow: window },
 		},
 	})
+
 	const first = {}
 	const detachFirst = attachTapToBlur(first)
 	const detachDuplicate = attachTapToBlur(first)
@@ -57,10 +59,12 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
 	assert.equal(recognizer.cancelsTouchesInView, false)
 	const shouldReceive = (view) =>
 		recognizer.delegate.gestureRecognizerShouldReceiveTouch(recognizer, { view })
+
 	for (const kind of ['field', 'text']) {
 		const editable = { isKindOfClass: (type) => type === kind }
 		assert.equal(shouldReceive({ isKindOfClass: () => false, superview: editable }), false)
 	}
+
 	assert.equal(shouldReceive({ isKindOfClass: () => false }), true)
 	recognizer.target.tap(recognizer)
 	assert.deepEqual(editing, [true])

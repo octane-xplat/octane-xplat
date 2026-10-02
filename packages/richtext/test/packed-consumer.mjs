@@ -18,10 +18,12 @@ function run(command, args, cwd = app) {
 		env: { ...process.env, MACOS_SIGNING_IDENTITY: '', MACOS_NOTARY_PROFILE: '' },
 	})
 }
+
 const dependencies = {
 	octane: '0.6.3',
 	'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
 }
+
 for (const name of ['richtext', 'tiptap', 'lexical', 'macos-renderer', 'cli']) {
 	const dir = join(repo, 'packages', name)
 	const manifest = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'))
@@ -29,6 +31,7 @@ for (const name of ['richtext', 'tiptap', 'lexical', 'macos-renderer', 'cli']) {
 	dependencies[manifest.name] =
 		`file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 }
+
 const product = {
 	productName: 'EditorConsumer',
 	executableName: 'EditorConsumer',
@@ -38,6 +41,7 @@ const product = {
 	viteConfig: 'vite.config.mjs',
 	bundleFile: 'dist/main.cjs',
 }
+
 await writeFile(
 	join(app, 'package.json'),
 	JSON.stringify(
@@ -53,10 +57,12 @@ await writeFile(
 		2,
 	),
 )
+
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
 	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
 )
+
 await writeFile(
 	join(app, 'tsconfig.json'),
 	JSON.stringify({
@@ -77,6 +83,7 @@ await writeFile(
 		include: ['src/types.tsx'],
 	}),
 )
+
 await writeFile(
 	join(app, 'src/types.tsx'),
 	`import { RichTextEditor, type RichTextEditorHandle } from '@octane-xplat/richtext'
@@ -91,6 +98,7 @@ const badJSON = <LexicalEditor json={{ type: 'doc' }} />
 void elements; void bad; void badJSON; void ensureJSONBridge; void jsonBridgeReady
 `,
 )
+
 await writeFile(
 	join(app, 'src/App.macos.tsx'),
 	`/** @jsxImportSource @octane-xplat/macos-renderer */
@@ -113,6 +121,7 @@ export default function App() { return <flexboxlayout flexDirection="column">
  </flexboxlayout> }
 `,
 )
+
 await writeFile(
 	join(app, 'src/main.mjs'),
 	`import '@nativescript/macos-node-api'
@@ -130,12 +139,14 @@ app.finishLaunching()
 setTimeout(() => { console.error('PACKED_EDITORS_TIMEOUT'); globalThis.__finishEditors() }, 20000)
 `,
 )
+
 await writeFile(
 	join(app, 'vite.config.mjs'),
 	`import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 export default async ({mode}) => { const config = await xplatMacOS(mode, {root: import.meta.dirname, entry: 'src/main.mjs'}); config.build.outDir='dist'; return config }
 `,
 )
+
 console.log('[packed editors] installing tarball consumer')
 run('pnpm', ['install', '--ignore-scripts'])
 run('pnpm', ['exec', 'xplat', 'patches', 'apply'])
@@ -148,6 +159,7 @@ const executable = join(
 	app,
 	'artifacts/macos-arm64/EditorConsumer.app/Contents/MacOS/EditorConsumer',
 )
+
 const result = spawnSync(executable, [], { cwd: app, encoding: 'utf8', timeout: 25_000 })
 const output = result.stdout + result.stderr
 assert.equal(result.status, 0, output)

@@ -299,11 +299,13 @@ try {
 				existsSync(join(appDir, 'nativescript.config.ts')),
 				'add produced no nativescript.config.ts',
 			)
+
 			assert.ok(existsSync(join(appDir, 'App_Resources/iOS')), 'add produced no App_Resources/iOS')
 			assert.ok(
 				existsSync(join(appDir, 'App_Resources/Android')),
 				'add produced no App_Resources/Android',
 			)
+
 			const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
 			assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
 			assert.ok(

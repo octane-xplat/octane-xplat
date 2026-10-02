@@ -147,6 +147,7 @@ export declare function createStaticSource<T extends P.SearchableItem>(
 	items: T[],
 	options?: P.CreateStaticSourceOptions<T>,
 ): P.SearchSource<T>
+
 export declare const Token: Component<P.TokenProps>
 export declare const Tokenizer: Component<P.TokenizerProps>
 export declare const ComplexSelector: Component<P.ComplexSelectorProps<any>>
@@ -161,6 +162,7 @@ export declare const NavigationMenu: Component<P.NavigationMenuProps>
 export declare const CommandPalette: <T extends P.CommandPaletteItem = P.CommandPaletteItem>(
 	props: P.CommandPaletteProps<T>,
 ) => unknown
+
 export declare const AppShell: Component<P.AppShellProps>
 export declare const AppShellMobileContext: any
 export declare function useAppShellMobile(): P.AppShellMobileContextValue
@@ -200,12 +202,14 @@ export declare function useResizable(config: P.UseResizableSingleConfig): P.Resi
 export declare function useResizable(
 	config: P.UseResizableMultiConfig,
 ): Record<string, P.ResizableRegion>
+
 export declare const ResizeHandle: Component<P.ResizeHandleProps>
 export declare function pixel(value: number): P.ResizablePixelSize
 export declare function percent(
 	value: number,
 	constraint: { min: P.ResizablePixelSize } | { max: P.ResizablePixelSize },
 ): P.ResizablePercentSize
+
 export declare const Table: Component<P.TableProps>
 export declare const Timeline: Component<P.TimelineProps>
 /** Expandable hierarchy, exported under Astryx's component name. */
@@ -242,6 +246,7 @@ export {
 	usePowerSearchConfig,
 	resolveOperatorLabel,
 } from './generated/power-search-config.js'
+
 export declare const WebView: Component<P.WebViewProps>
 export declare const CameraView: Component
 export declare const Overlay: Component<P.OverlayProps>
@@ -267,6 +272,7 @@ export {
 	computeSegments,
 	markdownTextLength,
 } from './generated/markdown-stream.js'
+
 export type { MarkdownIncrementalState, MdTextSegment } from './generated/markdown-stream.js'
 export declare const Tabs: Component<P.TabsProps>
 export declare const Screen: Component<P.ScreenProps>
@@ -309,6 +315,7 @@ export declare function useLightbox(options: P.UseLightboxOptions): P.UseLightbo
 export declare function useScrollableArea(
 	options?: P.UseScrollableAreaOptions,
 ): P.UseScrollableAreaResult
+
 export declare const defaultIndicators: {
 	[N in P.IndicatorName]: P.IndicatorComponent<P.IndicatorMap[N]>
 }

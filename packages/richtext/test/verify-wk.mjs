@@ -21,10 +21,12 @@ execFileSync(
 	],
 	{ stdio: 'inherit' },
 )
+
 for (const name of ['richtext', 'tiptap', 'lexical']) {
 	const { default: html } = await import(
 		pathToFileURL(join(repo, `packages/${name}/dist/macos/browser.js`))
 	)
+
 	const page = join(scratch, `${name}.html`)
 	await writeFile(page, html)
 	const result = spawnSync(executable, [page], { encoding: 'utf8', timeout: 25_000 })

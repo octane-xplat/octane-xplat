@@ -1,18 +1,21 @@
 import fs from 'node:fs'
 import assert from 'node:assert/strict'
 if (!process.argv[2])
-	throw new Error('Usage: node percent-sizing.test.mjs <upstream View .ts or package .js>')
+	{throw new Error('Usage: node percent-sizing.test.mjs <upstream View .ts or package .js>')}
+
 const source = fs.readFileSync(process.argv[2], 'utf8')
 const typed = source.includes('\tprivate _clearPercentParent()')
 const start = source.indexOf(
 	typed ? '\tprivate _clearPercentParent()' : '    _clearPercentParent()',
 )
+
 const end = source.indexOf('// XAML lays views out natively', start)
 assert(start >= 0 && end > start, 'percentage lifecycle methods missing')
 let methods = source.slice(start, end).replaceAll('private ', '').replaceAll(': void', '')
 const applyStart = source.indexOf(
 	typed ? '\tprivate _applyPercentSizing()' : '    _applyPercentSizing()',
 )
+
 const applyEnd = source.indexOf('[backgroundInternalProperty.getDefault]', applyStart)
 methods += source
 	.slice(applyStart, applyEnd)
@@ -20,6 +23,7 @@ methods += source
 	.replaceAll(': void', '')
 	.replaceAll(' as any', '')
 	.replaceAll(' as View', '')
+
 const queue = []
 const ViewCommon = { layoutChangedEvent: 'layoutChanged' }
 const View = Function(
@@ -32,12 +36,15 @@ const View = Function(
 	(fn) => queue.push(fn),
 	(v) => (typeof v === 'number' ? v : 0),
 )
+
 const flush = () => {
-	while (queue.length) queue.shift()()
+	while (queue.length) {queue.shift()()}
 }
+
 const a = new View(),
 	b = new View(),
 	child = new View()
+
 child.parent = a
 const unrelated = () => {}
 a.on('layoutChanged', unrelated)
@@ -47,7 +54,7 @@ assert.equal(child.nativeViewProtected.Width, 100)
 assert.equal(child.nativeViewProtected.Height, 60)
 a.nativeViewProtected.ActualWidth = 300
 a.nativeViewProtected.ActualHeight = 90
-for (const fn of a.listeners) fn()
+for (const fn of a.listeners) {fn()}
 flush()
 assert.equal(child.nativeViewProtected.Width, 150)
 assert.equal(child.nativeViewProtected.Height, 90)
@@ -83,11 +90,11 @@ child._syncPercentParent()
 flush()
 assert.equal(child.nativeViewProtected.Width, 170)
 b.style.paddingLeft = 23
-for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) fn()
+for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) {fn()}
 flush()
 assert.equal(child.nativeViewProtected.Width, 164)
 b.style.paddingLeft = 210
-for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) fn()
+for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) {fn()}
 flush()
 assert.equal(child.nativeViewProtected.Width, 0)
 child._clearPercentParent()

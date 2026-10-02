@@ -5,21 +5,25 @@ import { createEditorSession } from '../src/host-session.macos.ts'
 test('queues commands until boot; readiness exposes snapshot before callbacks', () => {
 	const sent = [],
 		events = []
+
 	const native = {
 		dispose() {
 			events.push('dispose')
 		},
 	}
+
 	let props = {
 		onReady() {
 			events.push(session.handle.getHTML())
 		},
 	}
+
 	const session = createEditorSession(
 		(packet) => sent.push(JSON.parse(packet)),
 		native,
 		() => props,
 	)
+
 	session.update({ value: '<p>seed</p>' })
 	session.handle.apply('bold')
 	assert.equal(sent.length, 0)
@@ -28,6 +32,7 @@ test('queues commands until boot; readiness exposes snapshot before callbacks', 
 		sent.map((p) => p.method),
 		['props', 'apply'],
 	)
+
 	session.receive(JSON.stringify({ event: 'ready', html: '<p>seed</p>', json: { type: 'doc' } }))
 	assert.deepEqual(events, ['<p>seed</p>'])
 	assert.equal(session.handle.getJSON().type, 'doc')
@@ -39,6 +44,7 @@ test('queues commands until boot; readiness exposes snapshot before callbacks', 
 			events.push(doc.root)
 		},
 	}
+
 	session.receive(
 		JSON.stringify({
 			event: 'change',
@@ -48,6 +54,7 @@ test('queues commands until boot; readiness exposes snapshot before callbacks', 
 			focused: true,
 		}),
 	)
+
 	assert.equal(session.handle.getHTML(), '<p>edit</p>')
 	assert.equal(session.handle.isActive('bold'), true)
 	assert.equal(session.handle.isFocused(), true)

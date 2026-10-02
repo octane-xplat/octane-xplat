@@ -160,6 +160,7 @@ export {
 	TopNavMegaMenuItem,
 	TopNavMegaMenuFeaturedCard,
 } from './TopNav.macos.tsrx'
+
 export { TopNavRenderContext, useTopNavRenderMode } from './TopNav.macos.tsrx'
 export {
 	SideNav,
@@ -171,6 +172,7 @@ export {
 	SideNavRenderContext,
 	useSideNavRenderMode,
 } from './SideNav.macos.tsrx'
+
 export { MobileNav, MobileNavToggle, useAppShellMobile } from './MobileNav.macos.tsrx'
 export { NavIcon } from './NavIcon.macos.tsrx'
 export { NavHeadingMenu, NavHeadingMenuItem } from './NavMenu.macos.tsrx'
@@ -180,6 +182,7 @@ export {
 	useNavHeadingMenuContext,
 	useNavHeadingCloseContext,
 } from './NavMenu.macos.tsrx'
+
 export { TabList, Tab, TabMenu, useTabListContext } from './TabList.macos.tsrx'
 export { Toolbar } from './Toolbar.macos.tsrx'
 export { OverflowList } from './OverflowList.macos.tsrx'
@@ -218,6 +221,7 @@ export {
 	computeSegments,
 	markdownTextLength,
 } from './markdown-stream'
+
 export type { MarkdownIncrementalState, MdTextSegment } from './markdown-stream'
 export { Link } from './Link.macos.tsrx'
 export { NavLink } from './NavLink.macos.tsrx'
@@ -232,6 +236,7 @@ export {
 	usePowerSearchConfig,
 	resolveOperatorLabel,
 } from './power-search-config'
+
 export { WebView, CameraView } from './hosted-unsupported.macos.tsrx'
 export { Overlay, Popover } from './surfaces.macos.tsrx'
 export { Dialog, DialogHeader } from './Dialog.macos.tsrx'
@@ -323,6 +328,7 @@ export {
 	slugify,
 	uniqueSlug,
 } from './outline-utils'
+
 export {
 	tokenize,
 	tokenizeAsync,

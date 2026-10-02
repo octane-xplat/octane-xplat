@@ -9,13 +9,16 @@ for (const line of log.split(/\r?\n/)) {
 		records.set(match[1] + ':' + row.stage + ':' + (row.name ?? ''), row)
 	}
 }
+
 const near = (actual, expected) =>
 	assert(Math.abs(actual - expected) <= 1, `expected ${expected}, received ${actual}`)
+
 const get = (stage, name) => {
 	const row = records.get('layout-padding-final:' + stage + ':' + name)
 	assert(row, `missing ${stage}:${name}`)
 	return row
 }
+
 for (const [stage, name, width, height, x, y] of [
 	['initial', 'fixed', 170, 10, 17, 7],
 	['initial', 'auto', 170, 10, 17, 7],
@@ -30,6 +33,7 @@ for (const [stage, name, width, height, x, y] of [
 	near(child.offset.X, x)
 	near(child.offset.Y, y)
 }
+
 near(get('initial', 'auto').size.height, 28)
 near(get('initial', 'empty').size.height, 18)
 assert.equal(get('initial', 'empty').children.length, 0)
@@ -41,6 +45,7 @@ for (const name of ['row', 'row-reverse', 'column-reverse', 'wrap']) {
 		`${name} inset origin`,
 	)
 }
+
 assert(get('initial', 'wrap').children[1].offset.Y > get('initial', 'wrap').children[0].offset.Y)
 near(get('initial', 'oversized').children[0].size.width, 0)
 for (const [stage, pw, ph, cw, ch] of [
@@ -58,6 +63,7 @@ for (const [stage, pw, ph, cw, ch] of [
 	near(row.child.height, ch)
 	assert(row.independent > 0, 'independent listener retained')
 }
+
 console.log(
 	'PASS: native padding, dynamic content-box percentages, independent listeners and percentage lifecycle',
 )

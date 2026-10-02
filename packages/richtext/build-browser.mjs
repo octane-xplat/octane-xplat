@@ -18,14 +18,17 @@ const result = await build({
 		},
 	},
 })
+
 const output = Array.isArray(result) ? result[0].output : result.output
 const code = output
 	.find((chunk) => chunk.type === 'chunk')
 	.code.replaceAll('</script', '<\\/script')
+
 const css = output
 	.filter((chunk) => chunk.type === 'asset' && chunk.fileName.endsWith('.css'))
 	.map((chunk) => chunk.source)
 	.join('\n')
+
 const html = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-xplat-editor'; style-src 'unsafe-inline'; img-src data:"><style>html,body{margin:0;height:100%;font:14px system-ui} .ProseMirror,.vx-lexical-input{min-height:100px;padding:8px;outline:none} .ProseMirror:empty:before{content:attr(data-placeholder);opacity:.5} ${css}</style></head><body><div id="root"></div><script nonce="xplat-editor">${code}</script></body></html>`
 await mkdir('dist/macos', { recursive: true })
 await writeFile(

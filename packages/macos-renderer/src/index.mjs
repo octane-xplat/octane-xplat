@@ -60,6 +60,7 @@ class ButtonActionTarget extends NSObject {
 		const velocity = sender.velocityInView(sender.view)
 		const flipped =
 			typeof sender.view.isFlipped === 'function' ? sender.view.isFlipped() : sender.view.isFlipped
+
 		const signY = flipped ? 1 : -1
 		const nativeState = Number(sender.state)
 		const state = nativeState === 1 ? 1 : nativeState === 2 ? 2 : nativeState === 3 ? 3 : 0
@@ -4291,6 +4292,7 @@ export function createMacOSRoot(hostView, { fontFamily } = {}) {
 				if (!handler) {
 					throw new Error('No AppKit pan handler attached')
 				}
+
 				handler({ ...event, view })
 			},
 			pressId(id) {
