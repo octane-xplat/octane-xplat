@@ -62,4 +62,21 @@ describe('standard component refs on web', () => {
 		act(() => root.unmount())
 		expect(callback.mock.calls.at(-1)).toEqual([null])
 	})
+
+	it('flattens array refs when a leaf merges an internal ref with props.ref', () => {
+		const container = document.createElement('div')
+		const root = createRoot(container)
+		const view = { current: null as HTMLElement | null }
+		const callback = vi.fn()
+		try {
+			act(() => root.render(RefFixture, { viewRef: [view, callback] }))
+			expect(view.current).toBe(container.firstElementChild)
+			expect(callback).toHaveBeenCalledExactlyOnceWith(view.current)
+		} finally {
+			act(() => root.unmount())
+		}
+
+		expect(view.current).toBeNull()
+		expect(callback.mock.calls.at(-1)).toEqual([null])
+	})
 })
