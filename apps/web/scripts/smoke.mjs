@@ -687,6 +687,29 @@ try {
 	await page.click('.vx-overlay-shade')
 	ok('imperative overlay open + shade dismiss', (await page.locator('.vx-overlay').count()) === 0)
 
+	// A backgrounded page can mount Services after its initial document state
+	// is already hidden. useAppState must report that state on first render.
+	const hiddenPage = await browser.newPage()
+	hiddenPage.on('pageerror', (e) => errors.push(`pageerror @${hiddenPage.url()}: ${e.stack ?? e.message}`))
+	hiddenPage.on('console', (m) => m.type() === 'error' && errors.push('console.error: ' + m.text()))
+	await hiddenPage.addInitScript(() => {
+		Object.defineProperty(document, 'visibilityState', {
+			configurable: true,
+			get: () => 'hidden',
+		})
+	})
+
+	await hiddenPage.goto(BASE, { waitUntil: 'networkidle' })
+	await hiddenPage.getByRole('tab', { name: 'Test' }).click()
+	await hiddenPage.waitForFunction(
+		() => document.body.innerText.includes('· app background'),
+		null,
+		{ timeout: 3000 },
+	)
+
+	ok(`useAppState starts background when mounted in hidden ${browserName} page`, true)
+	await hiddenPage.close()
+
 	// No leaked platform failures.
 	ok('zero pageerrors/console.error', errors.length === 0, errors[0] ?? '')
 

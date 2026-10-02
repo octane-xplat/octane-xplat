@@ -3,10 +3,11 @@
 > Qualify the capabilities your app installs and uses; keep setup coverage,
 > adapter tests, target runtime behavior and physical output as separate evidence.
 
-Web service results and repository checks below were rechecked on 2026-10-02 at
-`f7996367`. Native evidence keeps the scope stated in each cell; this Web
-recheck does not count as a fresh native runtime pass. Optional services live in
-leaf packages: media, auth, push, audio, sounds, and advanced haptics.
+Web service results and repository checks below were rechecked on 2026-10-02
+with Playwright 1.63.0 / Chromium 153.0.8010.12. Native evidence keeps the
+scope stated in each cell; this Web recheck does not count as a fresh native
+runtime pass. Optional services live in leaf packages: media, auth, push,
+audio, sounds, and advanced haptics.
 `@octane-xplat/platform` remains free of runtime npm dependencies; hosted
 `authSession` uses platform APIs and a package-owned Android Custom Tabs Gradle
 dependency. Installing an unrelated optional package is not a core-release gate.

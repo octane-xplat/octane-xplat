@@ -72,9 +72,11 @@ try {
 		assert.equal(await focused(), `${name}-last`)
 		await page.keyboard.press('Tab')
 		assert.equal(await focused(), `${name}-first`)
-		// The background Save action should be absent from role queries while
-		// the modal is open. Chromium also exposes the native AX tree via CDP.
-		assert.equal(await page.getByRole('button', { name: 'Save', exact: true }).count(), 0)
+		// Playwright role locators include nodes inside inert roots. Test the
+		// actual focus boundary here; Chromium's native AX tree check below
+		// verifies assistive-tree exclusion separately.
+		await page.locator('#action').evaluate((action) => action.focus())
+		assert.equal(await focused(), `${name}-first`)
 		if (browserName === 'chromium') {
 			const session = await page.context().newCDPSession(page)
 			const { nodes } = await session.send('Accessibility.getFullAXTree')

@@ -30,14 +30,21 @@ or real-IME tests.
 
 ## Completed checks
 
-- Web component regression suite: 255 tests across 41 files passed on 2026-10-02.
+- Web component regression suite: 256 tests across 42 files passed on 2026-10-02.
 - Native object-driver suite: 12 tests across six files passed.
-- Playwright input readiness passed on Chromium, Firefox, and WebKit: keyboard
-  input and selection replacement, controlled writes, named Sheet/Overlay
-  dialogs, Tab containment, pointer/keyboard opener restoration, nested modal
-  restoration, background role exclusion, and Presence reversal. Chromium
-  additionally checks background exclusion in its accessibility tree. No OS
-  IME or screen reader was exercised.
+- Playwright 1.63.0 input readiness passed on Chromium 153.0.8010.12, Firefox
+  155.0, and WebKit 26.6: keyboard input and selection replacement, controlled
+  writes, named Sheet/Overlay dialogs, Tab containment, pointer/keyboard opener
+  restoration, nested modal restoration, inert background focus exclusion, and
+  Presence reversal. Chromium additionally checks background exclusion in its
+  native accessibility tree. Playwright role locators include inert descendants,
+  so they are not used as a proxy for native accessibility-tree exclusion. No
+  OS IME or screen reader was exercised.
+- The production Web bundle smoke passed 68/68 in each of those three engines,
+  including a hidden-document startup check for `useAppState()`.
+- SQLite Web worker readiness passed in all three engines. Chromium and Firefox
+  retained OPFS persistence after reload; WebKit used the documented transient
+  fallback. Worker startup failures reject the pending open in each engine.
 - The `@octane-xplat/sheet/web` leaf passes its maintained Playwright runtime
   check in Chromium, Firefox, and WebKit: accessible dialog name, focus entry,
   Tab wrapping, `finalFocusRef` restoration, Escape/scrim/drag dismissal,
