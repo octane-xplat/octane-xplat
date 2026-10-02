@@ -69,6 +69,6 @@ the platform file-suffix boundary for divergent imports.
   [`LexicalEditorDemo`](../packages/demos/src/LexicalEditorDemo.tsrx); the
   `lexical-probe` demo verifies the native conversion path on-device.
 
-- AC8: [macOS AppKit editing](../docs/rich-text.md#macos-appkit-editing),
+- AC8: [macOS AppKit editing](../docs/app/rich-text.md#macos-appkit-editing),
   [isolated WebKit fixture](../packages/richtext/test/verify-wk.mjs), and
   [packed AppKit consumer](../packages/richtext/test/packed-consumer.mjs).
