@@ -2,17 +2,10 @@
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
 		"jsxImportSource": "@octane-xplat/macos-renderer",
-		"customConditions": [
-			"macos"
-		],
-		"moduleSuffixes": [
-			".macos",
-			""
-		],
+		"customConditions": ["macos"],
+		"moduleSuffixes": [".macos", ""],
 		"paths": {
-			"@octane-xplat/ui": [
-				"../ui/types/index.macos.d.ts"
-			]
+			"@octane-xplat/ui": ["../ui/types/index.macos.d.ts"]
 		}
 	},
 	"include": [

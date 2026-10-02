@@ -33,8 +33,10 @@ const STRINGS: Record<string, string> = {
 	'@astryx.powersearch.valueEditor.selectValuesPlaceholder': 'Select values\u2026',
 	'@astryx.powersearch.valueEditor.dateRange': 'date range',
 	'@astryx.powersearch.valueEditor.itemsCount': '{count, plural, one {# item} other {# items}}',
-	'@astryx.powersearch.valueEditor.entitiesCount': '{count, plural, one {# entity} other {# entities}}',
-	'@astryx.powersearch.valueEditor.filtersCount': '{count, plural, one {# filter} other {# filters}}',
+	'@astryx.powersearch.valueEditor.entitiesCount':
+		'{count, plural, one {# entity} other {# entities}}',
+	'@astryx.powersearch.valueEditor.filtersCount':
+		'{count, plural, one {# filter} other {# filters}}',
 	'@astryx.powersearch.operator.contains': 'contains',
 	'@astryx.powersearch.operator.notContains': 'does not contain',
 	'@astryx.powersearch.operator.startsWith': 'starts with',

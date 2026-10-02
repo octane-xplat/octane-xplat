@@ -11,8 +11,9 @@ export interface ToggleButtonGroupContextValue {
 	isDisabled?: boolean
 }
 
-export const ToggleButtonGroupContext: any =
-	createContext<ToggleButtonGroupContextValue | null>(null)
+export const ToggleButtonGroupContext: any = createContext<ToggleButtonGroupContextValue | null>(
+	null,
+)
 
 /** ToggleButton reads group membership here; null outside a group. */
 export function useToggleButtonGroup(): ToggleButtonGroupContextValue | null {

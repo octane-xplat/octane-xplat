@@ -37,17 +37,22 @@ function mount(component: any, props: any = {}) {
 }
 
 function findByClass(node: any, cls: string): any {
-	if (!node) {return undefined}
+	if (!node) {
+		return undefined
+	}
 	const classes = String(node.props?.className ?? '').split(' ')
-	if (classes.includes(cls)) {return node}
+	if (classes.includes(cls)) {
+		return node
+	}
 	for (const child of node.children ?? []) {
 		const hit = findByClass(child, cls)
-		if (hit) {return hit}
+		if (hit) {
+			return hit
+		}
 	}
 
 	return undefined
 }
-
 
 describe('native flow Stack', () => {
 	it('renders flexboxlayout with direction + gap + alignment attrs', () => {
@@ -168,7 +173,6 @@ describe('native indicators + list', () => {
 		expect(findByClass(container.children[0], 'vx-ind-checkbox--indeterminate')).not.toBeNull()
 		expect(findByClass(container.children[0], 'vx-ind-dash')).not.toBeNull()
 		root.unmount()
-
 	})
 
 	it('getIndicator resolves defaults and registered overrides', () => {
@@ -208,7 +212,9 @@ describe('native indicators + list', () => {
 		})
 
 		const disabledView = findByClass(disabled.container.children[0], 'vx-listitem')
-		expect(() => disabled.container.dispatchEvent(disabledView, 'tap', { object: disabledView })).toThrow('no "tap" listener')
+		expect(() =>
+			disabled.container.dispatchEvent(disabledView, 'tap', { object: disabledView }),
+		).toThrow('no "tap" listener')
 		expect(calls).toBe(0)
 		disabled.root.unmount()
 

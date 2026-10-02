@@ -18,9 +18,13 @@ function openPanel(accept = '*/*', multiple = false): FileRef[] | null {
 		.filter((value) => value.startsWith('.'))
 		.map((value) => value.slice(1))
 
-	if (extensions.length) {panel.allowedFileTypes = extensions}
+	if (extensions.length) {
+		panel.allowedFileTypes = extensions
+	}
 
-	if (panel.runModal() !== (appKit.NSModalResponseOK ?? 1)) {return null}
+	if (panel.runModal() !== (appKit.NSModalResponseOK ?? 1)) {
+		return null
+	}
 
 	const urls: any[] = []
 	if (multiple) {

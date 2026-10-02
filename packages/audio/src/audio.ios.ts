@@ -313,14 +313,9 @@ export const createAudioPlayer = (): AudioPlayer => {
 
 			// The Objective-C error-out argument is intentionally null at runtime;
 			// NativeScript's generated type only permits Reference<NSError> | undefined.
-			const noErrorOut =
-				null as unknown as Parameters<typeof session.setActiveWithOptionsError>[2]
+			const noErrorOut = null as unknown as Parameters<typeof session.setActiveWithOptionsError>[2]
 
-			session.setActiveWithOptionsError(
-				false,
-				notifyOthersOnDeactivation,
-				noErrorOut,
-			)
+			session.setActiveWithOptionsError(false, notifyOthersOnDeactivation, noErrorOut)
 
 			listeners.clear()
 			queue = []

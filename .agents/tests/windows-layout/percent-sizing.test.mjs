@@ -1,7 +1,8 @@
 import fs from 'node:fs'
 import assert from 'node:assert/strict'
-if (!process.argv[2])
-	{throw new Error('Usage: node percent-sizing.test.mjs <upstream View .ts or package .js>')}
+if (!process.argv[2]) {
+	throw new Error('Usage: node percent-sizing.test.mjs <upstream View .ts or package .js>')
+}
 
 const source = fs.readFileSync(process.argv[2], 'utf8')
 const typed = source.includes('\tprivate _clearPercentParent()')
@@ -38,7 +39,9 @@ const View = Function(
 )
 
 const flush = () => {
-	while (queue.length) {queue.shift()()}
+	while (queue.length) {
+		queue.shift()()
+	}
 }
 
 const a = new View(),
@@ -54,7 +57,9 @@ assert.equal(child.nativeViewProtected.Width, 100)
 assert.equal(child.nativeViewProtected.Height, 60)
 a.nativeViewProtected.ActualWidth = 300
 a.nativeViewProtected.ActualHeight = 90
-for (const fn of a.listeners) {fn()}
+for (const fn of a.listeners) {
+	fn()
+}
 flush()
 assert.equal(child.nativeViewProtected.Width, 150)
 assert.equal(child.nativeViewProtected.Height, 90)
@@ -90,11 +95,15 @@ child._syncPercentParent()
 flush()
 assert.equal(child.nativeViewProtected.Width, 170)
 b.style.paddingLeft = 23
-for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) {fn()}
+for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) {
+	fn()
+}
 flush()
 assert.equal(child.nativeViewProtected.Width, 164)
 b.style.paddingLeft = 210
-for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) {fn()}
+for (const fn of b.style.listeners.get('paddingLeftChange') ?? []) {
+	fn()
+}
 flush()
 assert.equal(child.nativeViewProtected.Width, 0)
 child._clearPercentParent()

@@ -252,7 +252,9 @@ describe('computeBoundaries/computeSegments', () => {
 
 	it('caps the ring and settles evicted spans', () => {
 		let b: number[] = []
-		for (const len of [0, 3, 6, 9, 12]) {b = computeBoundaries(b, len, 3)}
+		for (const len of [0, 3, 6, 9, 12]) {
+			b = computeBoundaries(b, len, 3)
+		}
 		expect(b).toEqual([6, 9, 12])
 	})
 

@@ -4,15 +4,15 @@
 
 ### Features
 
-- *(intersection-observer)* Add cross-platform visibility package
-- *(intersection-observer)* Support macOS AppKit views
-- *(platform)* Add typed desktop webview host contract
-- *(linux)* Expose desktop host services through WebKitGTK
-- *(macos)* Implement shared WKWebView desktop bridge
+- _(intersection-observer)_ Add cross-platform visibility package
+- _(intersection-observer)_ Support macOS AppKit views
+- _(platform)_ Add typed desktop webview host contract
+- _(linux)_ Expose desktop host services through WebKitGTK
+- _(macos)_ Implement shared WKWebView desktop bridge
 
 ### Bug Fixes
 
-- *(release)* Align package repository URLs for provenance
+- _(release)_ Align package repository URLs for provenance
 
 ## [0.8.0] - 2026-10-02
 

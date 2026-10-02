@@ -2,20 +2,9 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"jsxImportSource": "@nativescript-community/octane",
-		"moduleSuffixes": [
-			".ios",
-			".android",
-			".mobile",
-			""
-		],
-		"customConditions": [
-			"native"
-		],
-		"lib": [
-			"ESNext"
-		]
+		"moduleSuffixes": [".ios", ".android", ".mobile", ""],
+		"customConditions": ["native"],
+		"lib": ["ESNext"]
 	},
-	"include": [
-		"src/index.ts"
-	]
+	"include": ["src/index.ts"]
 }

@@ -38,7 +38,9 @@ describe('PlainDate math', () => {
 
 	it('adds days/months across boundaries', () => {
 		expect(plainDateToISO(plainDateAddDays(plainDateFromISO('2026-01-31')!, 1))).toBe('2026-02-01')
-		expect(plainDateToISO(plainDateAddMonths(plainDateFromISO('2026-01-31')!, 1))).toBe('2026-02-28')
+		expect(plainDateToISO(plainDateAddMonths(plainDateFromISO('2026-01-31')!, 1))).toBe(
+			'2026-02-28',
+		)
 	})
 
 	it('reports ISO week numbers', () => {
@@ -96,11 +98,17 @@ describe('calendar month grid', () => {
 
 describe('range picking', () => {
 	it('anchors then commits in order', () => {
-		expect(applyRangePick('2026-03-20', '2026-03-10')).toEqual({ kind: 'commit', range: { start: '2026-03-10', end: '2026-03-20' } })
+		expect(applyRangePick('2026-03-20', '2026-03-10')).toEqual({
+			kind: 'commit',
+			range: { start: '2026-03-10', end: '2026-03-20' },
+		})
 	})
 
 	it('re-clicking the anchor commits a one-day range or cancels', () => {
-		expect(applyRangePick('2026-03-10', '2026-03-10')).toEqual({ kind: 'commit', range: { start: '2026-03-10', end: '2026-03-10' } })
+		expect(applyRangePick('2026-03-10', '2026-03-10')).toEqual({
+			kind: 'commit',
+			range: { start: '2026-03-10', end: '2026-03-10' },
+		})
 		expect(applyRangePick('2026-03-10', '2026-03-10', 2)).toEqual({ kind: 'cancel' })
 	})
 })
@@ -110,7 +118,9 @@ describe('date constraints', () => {
 		const check = createDateDisabledCheck({ min: '2026-03-10', max: '2026-03-20' })
 		expect(check(plainDateFromISO('2026-03-05')!)).toBe(true)
 		expect(check(plainDateFromISO('2026-03-15')!)).toBe(false)
-		const weekend = createDateDisabledCheck({ dateConstraints: [(d: Date) => d.getDay() !== 0 && d.getDay() !== 6] })
+		const weekend = createDateDisabledCheck({
+			dateConstraints: [(d: Date) => d.getDay() !== 0 && d.getDay() !== 6],
+		})
 		expect(weekend(plainDateFromISO('2026-10-03')!)).toBe(true) // Saturday
 		expect(weekend(plainDateFromISO('2026-10-05')!)).toBe(false)
 	})

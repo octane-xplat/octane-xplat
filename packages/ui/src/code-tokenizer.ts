@@ -178,8 +178,7 @@ function buildLanguagePatterns(
 					{ type: 'variable', regex: /--[a-zA-Z_-][\w-]*/ },
 					{
 						type: 'number',
-						regex:
-							/-?\b\d+\.?\d*(?:px|em|rem|%|vh|vw|vmin|vmax|ch|ex|deg|rad|turn|s|ms|fr)?\b/,
+						regex: /-?\b\d+\.?\d*(?:px|em|rem|%|vh|vw|vmin|vmax|ch|ex|deg|rad|turn|s|ms|fr)?\b/,
 					},
 					{ type: 'constant', regex: /#[0-9a-fA-F]{3,8}\b/ },
 					{ type: 'keyword', regex: CSS_KEYWORDS },

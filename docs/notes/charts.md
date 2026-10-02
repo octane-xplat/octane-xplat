@@ -161,9 +161,26 @@ the public props and types match the web and mobile leaves.
 import { Chart } from '@octane-xplat/charts'
 
 export function Visits() {
-  return <Chart type="bar" width={320} height={200}
-    data={[{ name: 'Visits', values: [{ x: 'Mon', y: 2 }, { x: 'Tue', y: 5 }] }]}
-    legend tooltip crosshair accessibilityLabel="Visits by day" />
+	return (
+		<Chart
+			type="bar"
+			width={320}
+			height={200}
+			data={[
+				{
+					name: 'Visits',
+					values: [
+						{ x: 'Mon', y: 2 },
+						{ x: 'Tue', y: 5 },
+					],
+				},
+			]}
+			legend
+			tooltip
+			crosshair
+			accessibilityLabel="Visits by day"
+		/>
+	)
 }
 ```
 

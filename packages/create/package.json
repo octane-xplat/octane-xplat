@@ -27,10 +27,10 @@
 		"scaffold.mjs",
 		"template"
 	],
+	"type": "module",
 	"exports": {
 		"./scaffold": "./scaffold.mjs"
 	},
-	"type": "module",
 	"publishConfig": {
 		"access": "public"
 	},

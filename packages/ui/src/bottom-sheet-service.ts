@@ -118,9 +118,8 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 		root.render(Component as UniversalComponent, { params, close: finish })
 		active.add(entry)
 
-		const openOptions = options.hasScrim ?? true
-			? { shadeCover: { opacity: 0.4, tapToClose: true } }
-			: undefined
+		const openOptions =
+			(options.hasScrim ?? true) ? { shadeCover: { opacity: 0.4, tapToClose: true } } : undefined
 
 		rl.open(host, openOptions)
 			.then(() => detents.enter())

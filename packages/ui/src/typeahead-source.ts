@@ -11,9 +11,13 @@ export function createStaticSource<T extends SearchableItem>(
 	return {
 		search(query: string): T[] {
 			const lower = query.toLowerCase().trim()
-			if (lower === '') {return items}
+			if (lower === '') {
+				return items
+			}
 			return items.filter((item) => {
-				if (item.label.toLowerCase().includes(lower)) {return true}
+				if (item.label.toLowerCase().includes(lower)) {
+					return true
+				}
 				return getKeywords
 					? getKeywords(item).some((kw) => kw.toLowerCase().includes(lower))
 					: false
@@ -28,12 +32,16 @@ export function createStaticSource<T extends SearchableItem>(
 /** User-perceived character count — one emoji/flag/accented grapheme counts
  *  once. `minQueryLength` is measured in these, not UTF-16 code units. */
 export function characterCount(str: string): number {
-	if (str === '') {return 0}
+	if (str === '') {
+		return 0
+	}
 	const Segmenter = (Intl as any).Segmenter
 	if (typeof Segmenter === 'function') {
 		const segmenter = new Segmenter(undefined, { granularity: 'grapheme' })
 		let count = 0
-		for (const _ of segmenter.segment(str)) {count++}
+		for (const _ of segmenter.segment(str)) {
+			count++
+		}
 		return count
 	}
 

@@ -56,7 +56,10 @@ try {
 	await page.locator('#open-platform-sheet').click()
 	await dialog.waitFor()
 	assert.equal(await panel.isVisible(), true)
-	assert.equal(await panel.evaluate((element) => element.classList.contains('consumer-sheet-class')), true)
+	assert.equal(
+		await panel.evaluate((element) => element.classList.contains('consumer-sheet-class')),
+		true,
+	)
 	assert.equal(await panel.evaluate((element) => getComputedStyle(element).paddingTop), '12px')
 
 	assert.equal(
@@ -64,8 +67,13 @@ try {
 		'rgb(240, 240, 240)',
 	)
 
-	assert.equal(await panel.evaluate((element) => getComputedStyle(element).color), 'rgb(24, 24, 24)')
-	const backdropColor = await dialog.evaluate((element) => getComputedStyle(element, '::backdrop').backgroundColor)
+	assert.equal(
+		await panel.evaluate((element) => getComputedStyle(element).color),
+		'rgb(24, 24, 24)',
+	)
+	const backdropColor = await dialog.evaluate(
+		(element) => getComputedStyle(element, '::backdrop').backgroundColor,
+	)
 	assert(backdropColor.includes('0.5'), backdropColor)
 
 	const focusState = await page.evaluate(() => ({
@@ -108,7 +116,9 @@ try {
 	assert(bounds)
 	await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
 	await page.mouse.down()
-	await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2 + 150, { steps: 5 })
+	await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2 + 150, {
+		steps: 5,
+	})
 	await page.mouse.up()
 	await panel.waitFor({ state: 'detached' })
 	assert.equal(await page.locator('#dismissals').textContent(), '3')
@@ -132,9 +142,16 @@ try {
 	const lockedHandle = page.locator('.xplat-web-sheet-handle')
 	const lockedBounds = await lockedHandle.boundingBox()
 	assert(lockedBounds)
-	await page.mouse.move(lockedBounds.x + lockedBounds.width / 2, lockedBounds.y + lockedBounds.height / 2)
+	await page.mouse.move(
+		lockedBounds.x + lockedBounds.width / 2,
+		lockedBounds.y + lockedBounds.height / 2,
+	)
 	await page.mouse.down()
-	await page.mouse.move(lockedBounds.x + lockedBounds.width / 2, lockedBounds.y + lockedBounds.height / 2 + 150, { steps: 5 })
+	await page.mouse.move(
+		lockedBounds.x + lockedBounds.width / 2,
+		lockedBounds.y + lockedBounds.height / 2 + 150,
+		{ steps: 5 },
+	)
 	await page.mouse.up()
 	assert.equal(await lockedDialog.isVisible(), true)
 	await page.locator('#close-locked-platform-sheet').click()

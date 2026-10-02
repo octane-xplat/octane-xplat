@@ -172,7 +172,9 @@ const sheetProps = (p: any) => ({
 	label: 'Sheet',
 	snapPoints: p.detents,
 	onOpenChange: (open: boolean) => {
-		if (!open) {p.onDismiss?.()}
+		if (!open) {
+			p.onDismiss?.()
+		}
 	},
 	children: p.children,
 })

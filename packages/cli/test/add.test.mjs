@@ -25,8 +25,7 @@ function scaffold(t, targets) {
 	return dir
 }
 
-const run = (argv, cwd) =>
-	spawnSync(process.execPath, [cli, ...argv], { cwd, encoding: 'utf8' })
+const run = (argv, cwd) => spawnSync(process.execPath, [cli, ...argv], { cwd, encoding: 'utf8' })
 
 test('xplat add enables a skipped platform and is idempotent', (t) => {
 	const dir = scaffold(t, ['web'])
@@ -39,7 +38,10 @@ test('xplat add enables a skipped platform and is idempotent', (t) => {
 	assert.ok(!existsSync(join(dir, 'App_Resources/Android')))
 
 	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
-	assert.equal(manifest.devDependencies['@nativescript/ios'], TPL.devDependencies['@nativescript/ios'])
+	assert.equal(
+		manifest.devDependencies['@nativescript/ios'],
+		TPL.devDependencies['@nativescript/ios'],
+	)
 	assert.equal(manifest.scripts['dev:ios'], 'ns run ios')
 	assert.match(manifest.scripts.typecheck, /tsconfig\.native\.json/)
 
@@ -54,7 +56,10 @@ test('xplat add accepts several platforms in one call', (t) => {
 	assert.equal(result.status, 0, result.stderr)
 	assert.ok(existsSync(join(dir, 'App_Resources/Android/app.gradle')))
 	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
-	assert.equal(manifest.devDependencies['@nativescript/android'], TPL.devDependencies['@nativescript/android'])
+	assert.equal(
+		manifest.devDependencies['@nativescript/android'],
+		TPL.devDependencies['@nativescript/android'],
+	)
 })
 
 test('xplat add rejects unknown targets and bare non-TTY calls', (t) => {

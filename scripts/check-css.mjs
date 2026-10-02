@@ -40,7 +40,8 @@ const isVendorPrefix = (p) => /^-(webkit|moz|o|ms)-/.test(p)
 // Custom properties resolve through var() on both targets.
 const isCustomProp = (p) => p.startsWith('--')
 
-const WEB_ONLY_BLOCK = /\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g
+const WEB_ONLY_BLOCK =
+	/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g
 
 // css-tree is a dependency of @nativescript/core — resolve through that
 // package so the audit runs without adding a root dep.
@@ -63,9 +64,8 @@ for (const file of FILES) {
 	const rel = relative(process.cwd(), file)
 	// Strip web-only blocks but preserve line count — reported line
 	// numbers must match the authored file.
-	const stripped = readFileSync(file, 'utf8').replace(
-		WEB_ONLY_BLOCK,
-		(m) => m.replace(/[^\n]/g, ' '),
+	const stripped = readFileSync(file, 'utf8').replace(WEB_ONLY_BLOCK, (m) =>
+		m.replace(/[^\n]/g, ' '),
 	)
 
 	const ast = cssTree.parse(stripped, { positions: true, filename: rel })
@@ -82,12 +82,16 @@ for (const file of FILES) {
 		}
 
 		if (isVendorPrefix(prop) || DROPPED_INTENTIONAL.has(prop)) {
-			console.log(`${loc}  ${prop}  — dropped on native (${DROPPED_INTENTIONAL.get(prop) ?? 'vendor prefix'})`)
+			console.log(
+				`${loc}  ${prop}  — dropped on native (${DROPPED_INTENTIONAL.get(prop) ?? 'vendor prefix'})`,
+			)
 			warned++
 			return
 		}
 
-		console.log(`${loc}  ${prop}: ${node.value ? cssTree.generate(node.value) : ''} — not in NS's registry; silently dropped on native`)
+		console.log(
+			`${loc}  ${prop}: ${node.value ? cssTree.generate(node.value) : ''} — not in NS's registry; silently dropped on native`,
+		)
 		errors++
 	})
 }
@@ -98,6 +102,8 @@ if (errors || warned) {
 }
 
 if (errors) {
-	console.log('fix the declaration, wrap the rule in /* xplat-web-only:start/end */, or extend DROPPED_INTENTIONAL with a reason')
+	console.log(
+		'fix the declaration, wrap the rule in /* xplat-web-only:start/end */, or extend DROPPED_INTENTIONAL with a reason',
+	)
 	process.exitCode = 1
 }

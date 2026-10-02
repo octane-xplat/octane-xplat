@@ -92,7 +92,10 @@ first point, a `move` at each later point, and an `up` at the last point.
 Coordinates are relative to the view in NativeScript layout units. For example:
 
 ```ts
-await ctx.scrub('chart', [{ x: 20, y: 40 }, { x: 80, y: 40 }])
+await ctx.scrub('chart', [
+	{ x: 20, y: 40 },
+	{ x: 80, y: 40 },
+])
 ```
 
 The view must be loaded and have a touch observer. Empty paths and non-finite

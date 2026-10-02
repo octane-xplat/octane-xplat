@@ -144,7 +144,9 @@ export function trimStreamingArtifacts(input: string): string {
 
 			const ch = tail[idx]
 			let len = 0
-			while (tail[idx + len] === ch) {len++}
+			while (tail[idx + len] === ch) {
+				len++
+			}
 			scan = idx + len
 			if (len > 3) {
 				continue

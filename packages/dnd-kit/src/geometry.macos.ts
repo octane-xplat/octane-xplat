@@ -8,7 +8,9 @@ export function measure(view: any): Rectangle | null {
 	}
 
 	const frame = view.convertRectToView(view.bounds, content)
-	if (frame.size.width <= 0 || frame.size.height <= 0) {return null}
+	if (frame.size.width <= 0 || frame.size.height <= 0) {
+		return null
+	}
 	const bounds = content.bounds
 	const flipped = typeof content.isFlipped === 'function' ? content.isFlipped() : content.isFlipped
 	const x = Number(frame.origin.x) - Number(bounds.origin.x)

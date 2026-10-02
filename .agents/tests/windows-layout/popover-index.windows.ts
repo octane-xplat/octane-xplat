@@ -12,13 +12,14 @@ Application.run({
 		const timer = setInterval(() => {
 			const records: any[] = []
 			const walk = (v: any) => {
-				if (v.id === 'popover-label' || String(v.className).includes('vx-popover-backdrop'))
-					{records.push({
+				if (v.id === 'popover-label' || String(v.className).includes('vx-popover-backdrop')) {
+					records.push({
 						id: v.id,
 						class: v.className,
 						size: v.getActualSize?.(),
 						brush: !!v.nativeViewProtected?.Background,
-					})}
+					})
+				}
 
 				v.eachChildView?.((c: any) => {
 					walk(c)
@@ -28,7 +29,9 @@ Application.run({
 
 			walk(page)
 			console.log('[priority-popover] tick=' + tick + ' ' + JSON.stringify(records))
-			if (++tick >= 120) {clearInterval(timer)}
+			if (++tick >= 120) {
+				clearInterval(timer)
+			}
 		}, 2000)
 
 		return page

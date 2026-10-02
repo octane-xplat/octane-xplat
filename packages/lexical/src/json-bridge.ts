@@ -155,7 +155,9 @@ function installLexicalDomShim(zeed: any): void {
 							return undefined
 						},
 						set: (_t, k, v) => {
-							if (typeof k === 'string') {writeStyleProp(el, k, v)}
+							if (typeof k === 'string') {
+								writeStyleProp(el, k, v)
+							}
 							return true
 						},
 					},
@@ -297,7 +299,10 @@ export function htmlToJSON(htmlText: string): LexicalJSON | null {
 		bridge.editor.update(
 			() => {
 				const nodes = bridge!.html.$generateNodesFromDOM(bridge!.editor, parseHTML(htmlText))
-				bridge!.lexical.$getRoot().clear().append(...nodes)
+				bridge!.lexical
+					.$getRoot()
+					.clear()
+					.append(...nodes)
 			},
 			{ discrete: true },
 		)

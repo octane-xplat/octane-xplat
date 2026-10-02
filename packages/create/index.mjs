@@ -37,7 +37,10 @@ if (existsSync(dir) && readdirSync(dir).length > 0) {
 }
 
 const parseTargets = (value) => {
-	const ids = value.split(',').map((s) => s.trim()).filter(Boolean)
+	const ids = value
+		.split(',')
+		.map((s) => s.trim())
+		.filter(Boolean)
 	if (ids.length === 0) {
 		throw new Error(`--targets needs a comma list: ${selectableTargets.join(', ')}`)
 	}
@@ -89,7 +92,9 @@ if (targetsArg !== undefined) {
 
 composeTargets(ids, dir)
 
-console.log(`\n✓ scaffolded ${dir} (${[...new Set(resolveTargets(ids))].filter((id) => !targets[id].hidden).join(', ')})`)
+console.log(
+	`\n✓ scaffolded ${dir} (${[...new Set(resolveTargets(ids))].filter((id) => !targets[id].hidden).join(', ')})`,
+)
 
 if (noInstall) {
 	console.log('\nSkipped install (--no-install). To run manually:')

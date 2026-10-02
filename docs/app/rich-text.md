@@ -135,16 +135,16 @@ export function Notes() {
 }
 ```
 
-| Method                                            | Web (tiptap)                    | Android (Aztec)                                                                                                     | macOS (WKWebView)                       |
-| ------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| `getHTML()` / `setHTML(html)`                     | editor `getHTML` / `setContent` | `toPlainHtml` / `fromHtml` — `setHTML` resets undo history                                                          | asynchronous snapshot / update          |
-| `getJSON()` / `setJSON(doc)` (Tiptap facade only) | tiptap `getJSON` / `setContent` | JSON bridge → HTML → Aztec; `null` until `onJSONReady(true)`                                                        | live Tiptap JSON                        |
-| `apply(format)`                                   | `chain().focus()` commands      | `toggleFormatting(AztecTextFormat…)`                                                                                | StarterKit commands                     |
-| `linkTo(url, anchor)` / `removeLink()`            | link mark commands              | `AztecText.link` / `removeLink`                                                                                     | link mark commands                      |
-| `isActive(format)`                                | `editor.isActive`               | `getAppliedStyles` at the selection                                                                                 | latest received snapshot                |
-| `undo()` / `redo()`                               | history commands                | Aztec history batches keyboard input only — format toggles and programmatic edits (setHTML, insert) do not register | engine history                          |
-| `focus()` / `blur()` / `isFocused()`              | editor focus                    | focus + soft keyboard                                                                                               | asynchronous focus command / snapshot   |
-| `native`                                          | the tiptap `Editor`             | the `AztecText` view                                                                                                | `XplatEditorHost` transport             |
+| Method                                            | Web (tiptap)                    | Android (Aztec)                                                                                                     | macOS (WKWebView)                     |
+| ------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| `getHTML()` / `setHTML(html)`                     | editor `getHTML` / `setContent` | `toPlainHtml` / `fromHtml` — `setHTML` resets undo history                                                          | asynchronous snapshot / update        |
+| `getJSON()` / `setJSON(doc)` (Tiptap facade only) | tiptap `getJSON` / `setContent` | JSON bridge → HTML → Aztec; `null` until `onJSONReady(true)`                                                        | live Tiptap JSON                      |
+| `apply(format)`                                   | `chain().focus()` commands      | `toggleFormatting(AztecTextFormat…)`                                                                                | StarterKit commands                   |
+| `linkTo(url, anchor)` / `removeLink()`            | link mark commands              | `AztecText.link` / `removeLink`                                                                                     | link mark commands                    |
+| `isActive(format)`                                | `editor.isActive`               | `getAppliedStyles` at the selection                                                                                 | latest received snapshot              |
+| `undo()` / `redo()`                               | history commands                | Aztec history batches keyboard input only — format toggles and programmatic edits (setHTML, insert) do not register | engine history                        |
+| `focus()` / `blur()` / `isFocused()`              | editor focus                    | focus + soft keyboard                                                                                               | asynchronous focus command / snapshot |
+| `native`                                          | the tiptap `Editor`             | the `AztecText` view                                                                                                | `XplatEditorHost` transport           |
 
 The shared `TiptapFormat` vocabulary is the union the facades expose. StarterKit
 lacks `taskList`, `highlight`, `subscript`/`superscript`, and the `align*`

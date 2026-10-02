@@ -26,8 +26,7 @@ const server = await createServer({
 							'<div id="root"></div><script type="module" src="/test/sqlite-readiness.web.ts"></script>',
 						),
 					)
-				},
-				)
+				})
 			},
 		},
 	],
@@ -91,7 +90,9 @@ try {
 		await failedWorkerPage.locator('#sqlite-readiness-result').textContent(),
 	)
 
-	const workerFailureResult = await failedWorkerPage.locator('#sqlite-readiness-result').textContent()
+	const workerFailureResult = await failedWorkerPage
+		.locator('#sqlite-readiness-result')
+		.textContent()
 
 	assert.deepEqual(errors, [])
 	console.log(

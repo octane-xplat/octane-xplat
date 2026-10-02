@@ -6,7 +6,9 @@ declare const NSWindow: any
 declare const NSAccessibilityPriorityLevel: any
 
 const check = (value: boolean, message: string) => {
-	if (!value) {throw new Error(message)}
+	if (!value) {
+		throw new Error(message)
+	}
 }
 
 setTimeout(() => {

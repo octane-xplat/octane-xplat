@@ -1,82 +1,82 @@
 /* Optional default component chrome. Import after tokens.css; unlayered app CSS overrides both layers on web. */
 @layer xplat-chrome {
-:root,
-.ns-root {
-	--color-primary: #171717;
-	/* Token names double as the future Tailwind theme keys: text-onprimary
+	:root,
+	.ns-root {
+		--color-primary: #171717;
+		/* Token names double as the future Tailwind theme keys: text-onprimary
 	   resolves --color-onprimary, bg-danger resolves --color-danger. Keep
 	   class-name segments and var-name segments identical. */
-	--color-onprimary: #fafafa;
-	--color-surface: #ffffff;
-	--color-surface-secondary: #fafafa;
-	--color-text: #0a0a0a;
-	--color-text-secondary: #666666;
-	--color-border: #eaeaea;
-	--color-border-strong: #d4d4d4;
-	--color-danger: #dc2626;
-	--color-warning: #b45309;
-	--color-success: #15803d;
-	/* Family lists are deliberately generic. Apps override these with their
+		--color-onprimary: #fafafa;
+		--color-surface: #ffffff;
+		--color-surface-secondary: #fafafa;
+		--color-text: #0a0a0a;
+		--color-text-secondary: #666666;
+		--color-border: #eaeaea;
+		--color-border-strong: #d4d4d4;
+		--color-danger: #dc2626;
+		--color-warning: #b45309;
+		--color-success: #15803d;
+		/* Family lists are deliberately generic. Apps override these with their
 	   web @font-face family and the platform's registered native name. */
-	--font-sans: system-ui, sans-serif;
-	--font-mono: ui-monospace, monospace;
+		--font-sans: system-ui, sans-serif;
+		--font-mono: ui-monospace, monospace;
 
-	/* Syntax highlighting palette (CodeBlock) — the --color-syntax-* names are
+		/* Syntax highlighting palette (CodeBlock) — the --color-syntax-* names are
 	   Astryx's; values approximate a GitHub-style scheme. `syntaxTheme` on the
 	   component overrides them per block on web. */
-	--color-syntax-keyword: #cf222e;
-	--color-syntax-string: #0a3069;
-	--color-syntax-comment: #57606a;
-	--color-syntax-number: #0550ae;
-	--color-syntax-function: #8250df;
-	--color-syntax-type: #953800;
-	--color-syntax-variable: #24292f;
-	--color-syntax-operator: #0550ae;
-	--color-syntax-constant: #0550ae;
-	--color-syntax-tag: #116329;
-	--color-syntax-attribute: #953800;
-	--color-syntax-property: #0550ae;
-	--color-syntax-punctuation: #57606a;
-	--color-syntax-background: #f6f8fa;
-	--space-4: 16px;
-	/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
+		--color-syntax-keyword: #cf222e;
+		--color-syntax-string: #0a3069;
+		--color-syntax-comment: #57606a;
+		--color-syntax-number: #0550ae;
+		--color-syntax-function: #8250df;
+		--color-syntax-type: #953800;
+		--color-syntax-variable: #24292f;
+		--color-syntax-operator: #0550ae;
+		--color-syntax-constant: #0550ae;
+		--color-syntax-tag: #116329;
+		--color-syntax-attribute: #953800;
+		--color-syntax-property: #0550ae;
+		--color-syntax-punctuation: #57606a;
+		--color-syntax-background: #f6f8fa;
+		--space-4: 16px;
+		/* Corner scale — rounded-rectangle radii. Smooth (squircle) corners are
 	   the default corner treatment: every class that consumes a token also
 	   declares `corner-shape: squircle`. Full-radius circles opt out —
 	   `corner-shape` would reshape them into squircle disks on iOS/Chromium. */
-	--radius-sm: 6px;
-	--radius-md: 8px;
-	--radius-lg: 12px;
-	--radius-xl: 16px;
-}
+		--radius-sm: 6px;
+		--radius-md: 8px;
+		--radius-lg: 12px;
+		--radius-xl: 16px;
+	}
 
-.ns-dark,
-.dark {
-	--color-primary: #ededed;
-	--color-onprimary: #171717;
-	--color-surface: #0a0a0a;
-	--color-surface-secondary: #141414;
-	--color-text: #ededed;
-	--color-text-secondary: #a1a1a1;
-	--color-border: #2e2e2e;
-	--color-border-strong: #4a4a4a;
+	.ns-dark,
+	.dark {
+		--color-primary: #ededed;
+		--color-onprimary: #171717;
+		--color-surface: #0a0a0a;
+		--color-surface-secondary: #141414;
+		--color-text: #ededed;
+		--color-text-secondary: #a1a1a1;
+		--color-border: #2e2e2e;
+		--color-border-strong: #4a4a4a;
 
-	--color-syntax-keyword: #ff7b72;
-	--color-syntax-string: #a5d6ff;
-	--color-syntax-comment: #8b949e;
-	--color-syntax-number: #79c0ff;
-	--color-syntax-function: #d2a8ff;
-	--color-syntax-type: #ffa657;
-	--color-syntax-variable: #e6edf3;
-	--color-syntax-operator: #79c0ff;
-	--color-syntax-constant: #79c0ff;
-	--color-syntax-tag: #7ee787;
-	--color-syntax-attribute: #ffa657;
-	--color-syntax-property: #79c0ff;
-	--color-syntax-punctuation: #8b949e;
-	--color-syntax-background: #161b22;
-}
+		--color-syntax-keyword: #ff7b72;
+		--color-syntax-string: #a5d6ff;
+		--color-syntax-comment: #8b949e;
+		--color-syntax-number: #79c0ff;
+		--color-syntax-function: #d2a8ff;
+		--color-syntax-type: #ffa657;
+		--color-syntax-variable: #e6edf3;
+		--color-syntax-operator: #79c0ff;
+		--color-syntax-constant: #79c0ff;
+		--color-syntax-tag: #7ee787;
+		--color-syntax-attribute: #ffa657;
+		--color-syntax-property: #79c0ff;
+		--color-syntax-punctuation: #8b949e;
+		--color-syntax-background: #161b22;
+	}
 
-/* xplat-web-only:start — DOM normalization. NativeScript is the reference
+	/* xplat-web-only:start — DOM normalization. NativeScript is the reference
    box model: dip sizes are outer boxes, and a border paints from
    width+color alone. The DOM's UA stylesheet diverges on both counts, so
    normalize the deltas once instead of patching individual rules:
@@ -88,12 +88,12 @@
      phantom ~3px edges wherever a rule sets only one side's width.
    - <img> is a leaf, not inline text (no baseline descender gap).
    - .vx-app columns are flex like their native screen containers. */
-/* Native has no scroll chaining — a ScrollView just bounces inside
+	/* Native has no scroll chaining — a ScrollView just bounces inside
    itself because the parent is never a scroller. contain is the DOM
    equivalent: scroll stays in the leaf it started in. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* Shared normalization — NS FlexboxLayout defaults flex children to
+	/* Shared normalization — NS FlexboxLayout defaults flex children to
    shrink:1 with NO min-content floor (its shrink pass clamps at
    effectiveMinWidth/Height = the explicit min-* prop, default 0), so an
    overflowing column crushes intrinsic children toward zero where the
@@ -102,253 +102,253 @@
    (the shorthand sets shrink:1) and .shrink still opt back in, and
    truncation patterns pair them with min-w-0/min-h-0. */
 
-/* vocabulary base styles */
+	/* vocabulary base styles */
 
-/* Safe-area values are zero when the viewport has no display cutout. */
-/* Self-drawn drawer — shared geometry. Native grid children overlay the
+	/* Safe-area values are zero when the viewport has no display cutout. */
+	/* Self-drawn drawer — shared geometry. Native grid children overlay the
    cell (panel pins left via horizontalAlignment in the leaf); DOM
    positioning extras are web-only below. */
-.vx-drawer-backdrop {
-	background-color: rgba(0, 0, 0, 0.4);
-}
-.vx-drawer-panel {
-	background-color: var(--color-surface);
-}
-/* xplat-web-only:start */
-.vx-drawer-panel {
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-/* xplat-web-only:end */
+	.vx-drawer-backdrop {
+		background-color: rgba(0, 0, 0, 0.4);
+	}
+	.vx-drawer-panel {
+		background-color: var(--color-surface);
+	}
+	/* xplat-web-only:start */
+	.vx-drawer-panel {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	}
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
+	/* xplat-web-only:start — Absolute's native leaf is absolutelayout; CSS
    positioning is web-only (children position via left/top props) */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* web press feedback */
-.vx-pressable:active {
-	opacity: 0.85;
-}
-/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
-.vx-pressable:pressed {
-	opacity: 0.85;
-}
+	/* web press feedback */
+	.vx-pressable:active {
+		opacity: 0.85;
+	}
+	/* native press feedback (NS pseudo — dead rule on web, and vice versa) */
+	.vx-pressable:pressed {
+		opacity: 0.85;
+	}
 
-/* xplat-web-only:start — overlays/toasts/popovers render through RootLayout
+	/* xplat-web-only:start — overlays/toasts/popovers render through RootLayout
    or showModal on native; these portal/positioning rules are web-only */
 
-.vx-overlay-shade {
-	background-color: rgba(0, 0, 0, 0.4);
-}
+	.vx-overlay-shade {
+		background-color: rgba(0, 0, 0, 0.4);
+	}
 
-.vx-tooltip {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	font-size: 12px;
-	line-height: 16px;
-}
-/* xplat-web-only:end */
+	.vx-tooltip {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		font-size: 12px;
+		line-height: 16px;
+	}
+	/* xplat-web-only:end */
 
-/* Normalized OS-widget reset — TextInput/TextArea are real
+	/* Normalized OS-widget reset — TextInput/TextArea are real
    <input>/<textarea>/TextField/TextView; the leaves emit vx-input/
    vx-textarea unconditionally so the platform chrome is stripped before
    app styles apply. On Android the transparent background replaces the
    default EditText drawable (kills the Material underline); zero padding
    removes native insets. Legitimate semantics — IME, secure entry,
    selection, autofill, caret, focus — stay platform-native by design. */
-.vx-input,
-.vx-textarea {
-	color: var(--color-text);
-	font-size: 14px;
-	/* NS placeholder color; web uses the ::placeholder pseudo below. */
-	placeholder-color: var(--color-text-secondary);
-}
-/* xplat-web-only:start — DOM-only reset: element UA chrome and the
+	.vx-input,
+	.vx-textarea {
+		color: var(--color-text);
+		font-size: 14px;
+		/* NS placeholder color; web uses the ::placeholder pseudo below. */
+		placeholder-color: var(--color-text-secondary);
+	}
+	/* xplat-web-only:start — DOM-only reset: element UA chrome and the
    focus outline (normalized to the same thin ring on both). */
-.vx-input:focus,
-.vx-textarea:focus {
-	outline: 1px solid var(--color-primary);
-	outline-offset: -1px;
-}
-/* xplat-web-only:end */
+	.vx-input:focus,
+	.vx-textarea:focus {
+		outline: 1px solid var(--color-primary);
+		outline-offset: -1px;
+	}
+	/* xplat-web-only:end */
 
-/* auto-grow owns height — the manual resize handle has no native analog */
-/* xplat-web-only:start */
-/* xplat-web-only:end */
+	/* auto-grow owns height — the manual resize handle has no native analog */
+	/* xplat-web-only:start */
+	/* xplat-web-only:end */
 
-/* WebView chrome reset — the web leaf is a real <iframe>: strip the UA's
+	/* WebView chrome reset — the web leaf is a real <iframe>: strip the UA's
    inset border and the inline-element baseline gap. WKWebView and
    android.webkit.WebView ship chrome-free, so there is no native reset. */
-/* xplat-web-only:start */
-/* xplat-web-only:end */
+	/* xplat-web-only:start */
+	/* xplat-web-only:end */
 
-/* Video — surface-hosted leaf: the engine surface fills the frame and the
+	/* Video — surface-hosted leaf: the engine surface fills the frame and the
    self-drawn transport layers stack on top in the same grid cell
    (vx-layers). NS-side rules only — DOM resets sit in the web block. */
-.vx-video {
-	background-color: #000;
-}
+	.vx-video {
+		background-color: #000;
+	}
 
-.vx-video-centerbtn {
-	border-radius: 28px;
-	background-color: rgba(0, 0, 0, 0.55);
-}
+	.vx-video-centerbtn {
+		border-radius: 28px;
+		background-color: rgba(0, 0, 0, 0.55);
+	}
 
-.vx-video-bar {
-	background-color: rgba(0, 0, 0, 0.45);
-}
+	.vx-video-bar {
+		background-color: rgba(0, 0, 0, 0.45);
+	}
 
-/* Full-frame tap layer — hit target only, never paints. */
+	/* Full-frame tap layer — hit target only, never paints. */
 
-.vx-video-time {
-	color: #fff;
-	font-size: 11px;
-}
+	.vx-video-time {
+		color: #fff;
+		font-size: 11px;
+	}
 
-/* xplat-web-only:start — the <video> element is inline and overlays would
+	/* xplat-web-only:start — the <video> element is inline and overlays would
    otherwise swallow pointer events; native layers are hit-transparent by
    default, so none of this exists on NS. */
 
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start */
-/* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
+	/* xplat-web-only:start */
+	/* Modal ROUTES (pushRoute presentation:'modal') — the URL stays underneath,
    so the overlay is a fixed layer over the shell rather than a dialog. */
 
-.vx-modalroute-shade {
-	background: rgba(0, 0, 0, 0.4);
-}
+	.vx-modalroute-shade {
+		background: rgba(0, 0, 0, 0.4);
+	}
 
-.vx-modalroute-body {
-	color: var(--color-text);
-	background-color: var(--color-surface);
-}
-/* xplat-web-only:end */
+	.vx-modalroute-body {
+		color: var(--color-text);
+		background-color: var(--color-surface);
+	}
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start — placeholder pseudos are DOM-only. Muted like
+	/* xplat-web-only:start — placeholder pseudos are DOM-only. Muted like
    real placeholder text, not currentColor (a full-opacity hint reads as
    a typed value); --placeholder-color is the per-field prop escape. */
-input::placeholder,
-textarea::placeholder {
-	color: var(--placeholder-color, var(--color-text-secondary));
-}
-/* xplat-web-only:end */
+	input::placeholder,
+	textarea::placeholder {
+		color: var(--placeholder-color, var(--color-text-secondary));
+	}
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start — form controls don't inherit the body font in the
+	/* xplat-web-only:start — form controls don't inherit the body font in the
    DOM (UA stylesheet wins); without this they render in the UA face. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* Self-drawn spinner — the border ring is shared (native rotates the
+	/* Self-drawn spinner — the border ring is shared (native rotates the
    view via `animate`; DOM spins via the keyframes below). */
-.vx-spinner {
-	border-width: 2px;
-	border-color: var(--color-text-secondary);
-	border-right-color: transparent;
-	border-radius: 50%;
-}
-/* Pull-to-refresh — the overlay strip hosting the spinner. Its height is
+	.vx-spinner {
+		border-width: 2px;
+		border-color: var(--color-text-secondary);
+		border-right-color: transparent;
+		border-radius: 50%;
+	}
+	/* Pull-to-refresh — the overlay strip hosting the spinner. Its height is
    the default `refreshThreshold` (64px web / 64dip native); the leaf
    translates it in/out — reveal math lives in refresh.*.ts. */
-/* xplat-web-only:start — the DOM leaf needs explicit clipping plus the
+	/* xplat-web-only:start — the DOM leaf needs explicit clipping plus the
    absolute overlay; native clips via the wrapper grid
    (clipsToBounds/ViewGroup) and stacks children in one cell. */
-/* xplat-web-only:end */
-/* xplat-web-only:start — DOM needs an inline-block box + CSS animation;
+	/* xplat-web-only:end */
+	/* xplat-web-only:start — DOM needs an inline-block box + CSS animation;
    the native leaf drives view.animate instead */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* Self-drawn switch — flex track + thumb. `--on` flips justify-content,
+	/* Self-drawn switch — flex track + thumb. `--on` flips justify-content,
    which slides the thumb; identical geometry on web and native. */
-.vx-switch {
-	border-radius: 14px;
-	background-color: var(--color-border);
-}
-.vx-switch--on {
-	background-color: var(--color-primary);
-}
-.vx-switch-thumb {
-	border-radius: 50%;
-	background-color: var(--color-surface);
-}
-/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
-/* xplat-web-only:end */
+	.vx-switch {
+		border-radius: 14px;
+		background-color: var(--color-border);
+	}
+	.vx-switch--on {
+		background-color: var(--color-primary);
+	}
+	.vx-switch-thumb {
+		border-radius: 50%;
+		background-color: var(--color-surface);
+	}
+	/* xplat-web-only:start — the DOM host is a div; flex + cursor live here */
+	/* xplat-web-only:end */
 
-/* Self-drawn slider — host is a grid (native) / relative div (web);
+	/* Self-drawn slider — host is a grid (native) / relative div (web);
    track + fill + thumb overlay the same box. */
-.vx-slider-track {
-	border-radius: 2px;
-	background-color: var(--color-border);
-}
-.vx-slider-fill {
-	border-radius: 2px;
-	background-color: var(--color-primary);
-}
-.vx-slider-thumb {
-	border-radius: 50%;
-	background-color: var(--color-primary);
-}
-/* xplat-web-only:start — absolute positioning is DOM-only; native grid
+	.vx-slider-track {
+		border-radius: 2px;
+		background-color: var(--color-border);
+	}
+	.vx-slider-fill {
+		border-radius: 2px;
+		background-color: var(--color-primary);
+	}
+	.vx-slider-thumb {
+		border-radius: 50%;
+		background-color: var(--color-primary);
+	}
+	/* xplat-web-only:start — absolute positioning is DOM-only; native grid
    children center via vertical-align and pin via margin-left. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* xplat-web-only:start — Pager's web leaf is a mandatory scroll-snap row:
+	/* xplat-web-only:start — Pager's web leaf is a mandatory scroll-snap row:
    one page per item at 100% host width so scrollLeft / clientWidth is a
    clean page index. Native pages are sized by the widget itself, so the
    whole block is DOM-only. Scrollbar hidden (native has none); contain
    keeps the swipe from chaining to a parent scroller, matching .vx-scroll. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* Phase-1 self-drawn components — functional geometry + token chrome only;
+	/* Phase-1 self-drawn components — functional geometry + token chrome only;
    visual design is the app's job. */
 
-/* Button — row-direction pressable (vx-pressable already supplies display
+	/* Button — row-direction pressable (vx-pressable already supplies display
    and press feedback). */
 
-/* Collapsible/Accordion — column stacks. */
+	/* Collapsible/Accordion — column stacks. */
 
-/* Checkbox — 20px box + check glyph; --on fills with primary. */
-.vx-checkbox {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-}
-.vx-checkbox--on .vx-checkbox {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-}
-.vx-checkbox-check {
-	font-size: 14px;
-	line-height: 20px;
-	color: var(--color-onprimary);
-}
-.vx-checkbox--on .vx-checkbox-check {
-	color: var(--color-onprimary);
-}
-.vx-checkbox--disabled {
-	opacity: 0.5;
-}
+	/* Checkbox — 20px box + check glyph; --on fills with primary. */
+	.vx-checkbox {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+	}
+	.vx-checkbox--on .vx-checkbox {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+	}
+	.vx-checkbox-check {
+		font-size: 14px;
+		line-height: 20px;
+		color: var(--color-onprimary);
+	}
+	.vx-checkbox--on .vx-checkbox-check {
+		color: var(--color-onprimary);
+	}
+	.vx-checkbox--disabled {
+		opacity: 0.5;
+	}
 
-/* Radio group — column/row of dot options. */
-.vx-radio {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: 50%;
-}
-.vx-radio--on .vx-radio {
-	border-color: var(--color-primary);
-}
-.vx-radio-dot {
-	border-radius: 50%;
-	background-color: var(--color-primary);
-}
-.vx-radio--disabled {
-	opacity: 0.5;
-}
+	/* Radio group — column/row of dot options. */
+	.vx-radio {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: 50%;
+	}
+	.vx-radio--on .vx-radio {
+		border-color: var(--color-primary);
+	}
+	.vx-radio-dot {
+		border-radius: 50%;
+		background-color: var(--color-primary);
+	}
+	.vx-radio--disabled {
+		opacity: 0.5;
+	}
 
-/* Decorative selection indicators own their geometry independently of the
+	/* Decorative selection indicators own their geometry independently of the
    checkbox/radio controls. Empty native flex boxes otherwise measure to zero. */
 	.vx-ind-checkbox--sm,
 	.vx-ind-radio--sm {
@@ -393,683 +393,746 @@ textarea::placeholder {
    raises the selected one. flex-basis is dead on NS (the shorthand parser
    drops it and the standalone property isn't registered), so width:0 +
    flex-grow:1 is what distributes segments equally on both engines. */
-.vx-segmented {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface-secondary);
-	color: var(--color-text);
-}
-.vx-segment {
-	border-radius: var(--radius-sm);
-}
-.vx-segment--on {
-	background-color: var(--color-surface);
-}
-.vx-segment-label {
-	font-size: 13px;
-	color: var(--color-text-secondary);
-}
-.vx-segment--on .vx-segment-label {
-	color: var(--color-text);
-	font-weight: 600;
-}
-.vx-segmented--disabled,
-.vx-segment--disabled {
-	opacity: 0.5;
-}
-/* xplat-web-only:start — the DOM hosts are divs; flex + cursor live here */
-.vx-segment:focus {
-	outline: 1px solid var(--color-primary);
-	outline-offset: -1px;
-}
-/* xplat-web-only:end */
+	.vx-segmented {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface-secondary);
+		color: var(--color-text);
+	}
+	.vx-segment {
+		border-radius: var(--radius-sm);
+	}
+	.vx-segment--on {
+		background-color: var(--color-surface);
+	}
+	.vx-segment-label {
+		font-size: 13px;
+		color: var(--color-text-secondary);
+	}
+	.vx-segment--on .vx-segment-label {
+		color: var(--color-text);
+		font-weight: 600;
+	}
+	.vx-segmented--disabled,
+	.vx-segment--disabled {
+		opacity: 0.5;
+	}
+	/* xplat-web-only:start — the DOM hosts are divs; flex + cursor live here */
+	.vx-segment:focus {
+		outline: 1px solid var(--color-primary);
+		outline-offset: -1px;
+	}
+	/* xplat-web-only:end */
 
-/* SearchInput — chrome-reset field: bordered shell, leading glyph, the
+	/* SearchInput — chrome-reset field: bordered shell, leading glyph, the
    field owns the remaining width, self-drawn clear. The web leaf hides the
    engine's own search-cancel button so native's (hand-drawn) matches. */
-.vx-search {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
-.vx-search-icon {
-	color: var(--color-text-secondary);
-}
-.vx-search-field {
-	font-size: 14px;
-	color: var(--color-text);
-}
-.vx-search-clear {
-	border-radius: 9999px;
-	background-color: var(--color-surface-secondary);
-	color: var(--color-text-secondary);
-}
-.vx-search--disabled {
-	opacity: 0.5;
-}
-/* xplat-web-only:start — the DOM host/field/buttons need display + the UA
+	.vx-search {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
+	.vx-search-icon {
+		color: var(--color-text-secondary);
+	}
+	.vx-search-field {
+		font-size: 14px;
+		color: var(--color-text);
+	}
+	.vx-search-clear {
+		border-radius: 9999px;
+		background-color: var(--color-surface-secondary);
+		color: var(--color-text-secondary);
+	}
+	.vx-search--disabled {
+		opacity: 0.5;
+	}
+	/* xplat-web-only:start — the DOM host/field/buttons need display + the UA
    reset; native's flexbox children carry these from the class already. */
-/* xplat-web-only:end */
-
-/* Anchored menus — panel + item rows (the Popover leaf positions it). */
-.vx-menu {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
-.vx-menu-item {
-	border-radius: var(--radius-sm);
-}
-.vx-menu-item--disabled {
-	opacity: 0.5;
-}
-/* xplat-web-only:start — hover affordance and cursor are DOM-only */
-.vx-menu-item:hover {
-	background-color: var(--color-border);
-}
-/* xplat-web-only:end */
-
-/* Badge — inline chip row. */
-.vx-badge {
-	border-radius: var(--radius-sm);
-	font-size: 12px;
-	line-height: 16px;
-}
-/* xplat-web-only:start — span is inline by default; needs inline-flex */
-/* xplat-web-only:end */
-
-/* Divider — hairline rule; --h spans width, --v spans height. */
-.vx-separator--h {
-	background-color: var(--color-border);
-}
-.vx-separator--v {
-	background-color: var(--color-border);
-}
-
-/* Skeleton — placeholder block. */
-.vx-skeleton {
-	background-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-}
-
-/* Avatar — centered fallback inside the circle. */
-.vx-avatar {
-	background-color: var(--color-border);
-}
-/* xplat-web-only:start — display:flex for the div-based flex classes */
-/* xplat-web-only:end */
-
-/* Phase-2 form field layer. */
-
-/* FormField — label / control / message column. */
-.vx-field-label {
-	font-size: 13px;
-	line-height: 20px;
-	font-weight: 500;
-}
-.vx-field-required {
-	color: var(--color-danger);
-}
-.vx-field-optional,
-.vx-field-description {
-	font-size: 12px;
-	line-height: 16px;
-	color: var(--color-text-secondary);
-}
-.vx-field-status {
-	font-size: 12px;
-	line-height: 16px;
-}
-.vx-field-info {
-	font-size: 12px;
-	font-weight: 600;
-	color: var(--color-text-secondary);
-}
-.vx-field-status--detached {
-	border-top-color: var(--color-border);
-}
-.vx-field-status--error {
-	color: var(--color-danger);
-}
-.vx-field-status--warning {
-	color: var(--color-warning);
-}
-.vx-field-status--success {
-	color: var(--color-success);
-}
-.vx-fieldgroup-label {
-	font-size: 13px;
-	line-height: 20px;
-	font-weight: 600;
-}
-
-/* ListItem — a reusable shared row; callers own the surrounding list chrome. */
-.vx-item-title {
-	font-weight: 500;
-}
-.vx-item-supporting {
-	font-size: 12px;
-	line-height: 16px;
-	color: var(--color-text-secondary);
-}
-
-/* InputNumber — steppers flanking a centered field. */
-.vx-inputnumber-step {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-}
-.vx-inputnumber--disabled {
-	opacity: 0.5;
-}
-
-/* PinInput — row of single cells. */
-.vx-pininput--disabled {
-	opacity: 0.5;
-}
-
-/* Select — trigger row + check column inside the anchored listbox. */
-.vx-select-trigger {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-}
-.vx-select--disabled {
-	opacity: 0.5;
-}
-.vx-select-placeholder {
-	color: var(--color-text-secondary);
-}
-
-/* Token, Typeahead, Tokenizer, and ComplexSelector chrome. */
-.vx-token {
-	gap: 4px;
-	border-radius: 999px;
-	background-color: var(--color-border);
-	color: var(--color-text);
-	padding: 2px 8px;
-}
-/* xplat-web-only:start */
-.vx-token--interactive { cursor: pointer; }
-.vx-typeahead-token { position: absolute; }
-.vx-typeahead-endlane,
-.vx-tokenizer-endlane { display: flex; flex-direction: row; align-items: center; }
-/* xplat-web-only:end */
-.vx-token--disabled,
-.vx-typeahead--disabled,
-.vx-tokenizer--disabled,
-.vx-complex-selector--disabled { opacity: 0.5; }
-.vx-token--size-sm { font-size: 12px; min-height: 22px; }
-.vx-token--size-md { font-size: 13px; min-height: 26px; }
-.vx-token--size-lg { font-size: 14px; min-height: 30px; }
-.vx-token--red { background-color: #fee2e2; color: #991b1b; }
-.vx-token--orange { background-color: #ffedd5; color: #9a3412; }
-.vx-token--yellow { background-color: #fef9c3; color: #854d0e; }
-.vx-token--green { background-color: #dcfce7; color: #166534; }
-.vx-token--teal { background-color: #ccfbf1; color: #115e59; }
-.vx-token--cyan { background-color: #cffafe; color: #155e75; }
-.vx-token--blue { background-color: #dbeafe; color: #1e40af; }
-.vx-token--purple { background-color: #f3e8ff; color: #6b21a8; }
-.vx-token--pink { background-color: #fce7f3; color: #9d174d; }
-.vx-token--gray { background-color: #f3f4f6; color: #374151; }
-.vx-token-remove { margin-left: 4px; }
-.vx-typeahead,
-.vx-tokenizer,
-.vx-complex-selector-trigger--input {
-	min-height: 40px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	padding: 6px 10px;
-}
-.vx-typeahead-input { min-width: 0; flex: 1; }
-.vx-typeahead-spinner { width: 20px; height: 20px; }
-.vx-tokenizer-overflow { margin-left: 4px; }
-/* xplat-web-only:start — native Tokenizer collapses hidden tokens directly. */
-.vx-tokenizer--truncated .vx-tokenizer-token--hidden { display: none; }
-/* xplat-web-only:end */
-.vx-complex-selector-trigger--ghost {
-	border-width: 0;
-	background-color: transparent;
-	color: var(--color-text);
-}
-.vx-complex-selector-placeholder { color: var(--color-text-secondary); }
-
-/* InputRating — glyph row; --on lights the cell. */
-.vx-rating-glyph {
-	font-size: 20px;
-	line-height: 24px;
-	color: var(--color-border);
-}
-
-/* Date & file entry skin — Calendar + the date/time/file field shells. */
-
-.vx-calendar-title {
-	font-size: 13px;
-	font-weight: 600;
-}
-.vx-calendar-weekname,
-.vx-calendar-weeknumber {
-	font-size: 11px;
-	line-height: 32px;
-	color: var(--color-text-secondary);
-}
-.vx-calendar-day {
-	font-size: 13px;
-	border-radius: 50%;
-}
-.vx-calendar-day--outside {
-	color: var(--color-text-secondary);
-	opacity: 0.5;
-}
-.vx-calendar-day--today {
-	font-weight: 700;
-}
-.vx-calendar-day--in-range {
-	background-color: var(--color-border);
-	border-radius: 0;
-}
-.vx-calendar-day--range-start,
-.vx-calendar-day--range-end,
-.vx-calendar-day--selected {
-	background-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
-.vx-calendar-day--pending {
-	background-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
-.vx-calendar-day--round-start {
-	border-top-left-radius: 50%;
-	border-bottom-left-radius: 50%;
-}
-.vx-calendar-day--round-end {
-	border-top-right-radius: 50%;
-	border-bottom-right-radius: 50%;
-}
-.vx-calendar-day--round-both {
-	border-radius: 50%;
-}
-.vx-calendar-day--disabled {
-	opacity: 0.35;
-}
-.vx-calendar-nav--prev:disabled,
-.vx-calendar-nav--next:disabled {
-	opacity: 0.35;
-}
-
-.vx-dateinput,
-.vx-timeinput,
-.vx-datetimeinput,
-.vx-daterangeinput {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-	background-color: var(--color-surface, transparent);
-}
-.vx-dateinput--disabled,
-.vx-timeinput--disabled,
-.vx-datetimeinput--disabled,
-.vx-daterangeinput--disabled,
-.vx-fileinput--disabled {
-	opacity: 0.5;
-}
-.vx-dateinput--invalid,
-.vx-timeinput--invalid,
-.vx-datetimeinput--invalid,
-.vx-dateinput-input--invalid,
-.vx-timeinput-input--invalid,
-.vx-datetimeinput-input--invalid {
-	border-color: var(--color-danger);
-	color: var(--color-danger);
-}
-.vx-dateinput-segment--placeholder,
-.vx-timeinput-segment--placeholder,
-.vx-datetimeinput-segment--placeholder,
-.vx-daterangeinput-trigger--placeholder .vx-daterangeinput-text,
-.vx-dateinput-overlay--placeholder,
-.vx-timeinput-overlay--placeholder,
-.vx-datetimeinput-overlay--placeholder {
-	color: var(--color-text-secondary);
-}
-.vx-field-label-info {
-	color: var(--color-text-secondary);
-	font-size: 11px;
-}
-.vx-field-icon--error {
-	color: var(--color-danger);
-}
-.vx-field-icon--warning {
-	color: var(--color-warning);
-}
-.vx-field-icon--success {
-	color: var(--color-success);
-}
-
-.vx-dateinput-popover,
-.vx-datetimeinput-popover,
-.vx-daterangeinput-popover {
-	background-color: var(--color-surface, #fff);
-}
-.vx-datetimeinput-timeoption--selected {
-	background-color: var(--color-surface-secondary);
-}
-.vx-daterangeinput-preset--selected {
-	background-color: var(--color-surface-secondary);
-	border-radius: var(--radius-sm);
-}
-.vx-daterangeinput-presets {
-	/* xplat-web-only:start — Native preset rails use the platform layout. */
-	border-right: 1px solid var(--color-border);
-	padding-right: 8px;
-	margin-right: 8px;
 	/* xplat-web-only:end */
-}
 
-.vx-timewheel-option {
-	font-size: 15px;
-	border-radius: var(--radius-sm);
-}
-.vx-timewheel-option--selected {
-	background-color: var(--color-border);
-	font-weight: 600;
-}
-.vx-timewheel-done {
-	font-weight: 600;
-	color: var(--color-primary);
-}
+	/* Anchored menus — panel + item rows (the Popover leaf positions it). */
+	.vx-menu {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
+	.vx-menu-item {
+		border-radius: var(--radius-sm);
+	}
+	.vx-menu-item--disabled {
+		opacity: 0.5;
+	}
+	/* xplat-web-only:start — hover affordance and cursor are DOM-only */
+	.vx-menu-item:hover {
+		background-color: var(--color-border);
+	}
+	/* xplat-web-only:end */
 
-.vx-fileinput--dropzone {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-	border-style: dashed;
-}
-.vx-fileinput--dragging {
-	border-color: var(--color-primary);
-	background-color: var(--color-surface-secondary);
-}
-.vx-fileinput-accept {
-	font-size: 11px;
-	color: var(--color-text-secondary);
-}
-.vx-fileinput-itemsize {
-	font-size: 11px;
-	color: var(--color-text-secondary);
-}
-.vx-rating-cell--on .vx-rating-glyph {
-	color: var(--color-primary);
-}
-.vx-rating--disabled {
-	opacity: 0.5;
-}
+	/* Badge — inline chip row. */
+	.vx-badge {
+		border-radius: var(--radius-sm);
+		font-size: 12px;
+		line-height: 16px;
+	}
+	/* xplat-web-only:start — span is inline by default; needs inline-flex */
+	/* xplat-web-only:end */
 
-/* CheckboxGroup — column/row of checkboxes. */
-/* xplat-web-only:start — display:flex for the div/span flex classes */
-/* xplat-web-only:end */
+	/* Divider — hairline rule; --h spans width, --v spans height. */
+	.vx-separator--h {
+		background-color: var(--color-border);
+	}
+	.vx-separator--v {
+		background-color: var(--color-border);
+	}
 
-/* Phase-3 navigation & wayfinding. */
+	/* Skeleton — placeholder block. */
+	.vx-skeleton {
+		background-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+	}
 
-/* Breadcrumb — inline trail. */
-.vx-breadcrumb-sep {
-	color: var(--color-text-secondary);
-}
-.vx-breadcrumb-link {
-	color: var(--color-primary);
-}
+	/* Avatar — centered fallback inside the circle. */
+	.vx-avatar {
+		background-color: var(--color-border);
+	}
+	/* xplat-web-only:start — display:flex for the div-based flex classes */
+	/* xplat-web-only:end */
 
-/* Pagination — windowed page buttons. */
-.vx-page-btn {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-sm);
-}
-.vx-page-btn--on {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
-.vx-page-ellipsis {
-	color: var(--color-text-secondary);
-}
-.vx-pagination--disabled {
-	opacity: 0.5;
-}
+	/* Phase-2 form field layer. */
 
-/* Stepper — dot + label cells joined by a hairline. */
-.vx-stepper-line {
-	background-color: var(--color-border);
-}
-.vx-stepper-line--done {
-	background-color: var(--color-primary);
-}
-.vx-step-dot {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: 50%;
-	font-size: 12px;
-	line-height: 22px;
-	color: var(--color-text-secondary);
-}
-.vx-step--on .vx-step-dot {
-	border-color: var(--color-primary);
-	color: var(--color-primary);
-}
-.vx-step--done .vx-step-dot {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
-.vx-step--disabled {
-	opacity: 0.5;
-}
+	/* FormField — label / control / message column. */
+	.vx-field-label {
+		font-size: 13px;
+		line-height: 20px;
+		font-weight: 500;
+	}
+	.vx-field-required {
+		color: var(--color-danger);
+	}
+	.vx-field-optional,
+	.vx-field-description {
+		font-size: 12px;
+		line-height: 16px;
+		color: var(--color-text-secondary);
+	}
+	.vx-field-status {
+		font-size: 12px;
+		line-height: 16px;
+	}
+	.vx-field-info {
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--color-text-secondary);
+	}
+	.vx-field-status--detached {
+		border-top-color: var(--color-border);
+	}
+	.vx-field-status--error {
+		color: var(--color-danger);
+	}
+	.vx-field-status--warning {
+		color: var(--color-warning);
+	}
+	.vx-field-status--success {
+		color: var(--color-success);
+	}
+	.vx-fieldgroup-label {
+		font-size: 13px;
+		line-height: 20px;
+		font-weight: 600;
+	}
 
-/* NavigationMenu — row/column of nav items. */
-.vx-navmenu-item {
-	border-radius: var(--radius-sm);
-}
-.vx-navmenu-item--on {
-	background-color: var(--color-border);
-}
-.vx-navmenu-item--disabled {
-	opacity: 0.5;
-}
+	/* ListItem — a reusable shared row; callers own the surrounding list chrome. */
+	.vx-item-title {
+		font-weight: 500;
+	}
+	.vx-item-supporting {
+		font-size: 12px;
+		line-height: 16px;
+		color: var(--color-text-secondary);
+	}
 
-/* CommandPalette — panel centered by the overlay layer. */
-.vx-commandpalette {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
-/* xplat-web-only:start — native uses Screen.mainScreen.widthDIPs */
-/* xplat-web-only:end */
-/* xplat-web-only:start — display, centering, and cursor are DOM-only */
-/* xplat-web-only:end */
+	/* InputNumber — steppers flanking a centered field. */
+	.vx-inputnumber-step {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+	}
+	.vx-inputnumber--disabled {
+		opacity: 0.5;
+	}
 
-/* Phase-4 data display. */
+	/* PinInput — row of single cells. */
+	.vx-pininput--disabled {
+		opacity: 0.5;
+	}
 
-/* Table — header + bounded rows (unvirtualized by design). */
-.vx-table {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-}
-.vx-table-th {
-	font-weight: 600;
-}
-.vx-table-head {
-	border-bottom-width: 1px;
-	border-bottom-color: var(--color-border);
-}
+	/* Select — trigger row + check column inside the anchored listbox. */
+	.vx-select-trigger {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+	}
+	.vx-select--disabled {
+		opacity: 0.5;
+	}
+	.vx-select-placeholder {
+		color: var(--color-text-secondary);
+	}
 
-/* Timeline — dot + connector rail beside content. */
-.vx-timeline-dot {
-	border-radius: 50%;
-	background-color: var(--color-primary);
-}
-.vx-timeline-line {
-	background-color: var(--color-border);
-}
-.vx-timeline-time {
-	font-size: 12px;
-	line-height: 16px;
-	color: var(--color-text-secondary);
-}
-.vx-timeline-title {
-	font-weight: 600;
-}
-.vx-timeline-desc {
-	color: var(--color-text-secondary);
-}
+	/* Token, Typeahead, Tokenizer, and ComplexSelector chrome. */
+	.vx-token {
+		gap: 4px;
+		border-radius: 999px;
+		background-color: var(--color-border);
+		color: var(--color-text);
+		padding: 2px 8px;
+	}
+	/* xplat-web-only:start */
+	.vx-token--interactive {
+		cursor: pointer;
+	}
+	.vx-typeahead-token {
+		position: absolute;
+	}
+	.vx-typeahead-endlane,
+	.vx-tokenizer-endlane {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+	/* xplat-web-only:end */
+	.vx-token--disabled,
+	.vx-typeahead--disabled,
+	.vx-tokenizer--disabled,
+	.vx-complex-selector--disabled {
+		opacity: 0.5;
+	}
+	.vx-token--size-sm {
+		font-size: 12px;
+		min-height: 22px;
+	}
+	.vx-token--size-md {
+		font-size: 13px;
+		min-height: 26px;
+	}
+	.vx-token--size-lg {
+		font-size: 14px;
+		min-height: 30px;
+	}
+	.vx-token--red {
+		background-color: #fee2e2;
+		color: #991b1b;
+	}
+	.vx-token--orange {
+		background-color: #ffedd5;
+		color: #9a3412;
+	}
+	.vx-token--yellow {
+		background-color: #fef9c3;
+		color: #854d0e;
+	}
+	.vx-token--green {
+		background-color: #dcfce7;
+		color: #166534;
+	}
+	.vx-token--teal {
+		background-color: #ccfbf1;
+		color: #115e59;
+	}
+	.vx-token--cyan {
+		background-color: #cffafe;
+		color: #155e75;
+	}
+	.vx-token--blue {
+		background-color: #dbeafe;
+		color: #1e40af;
+	}
+	.vx-token--purple {
+		background-color: #f3e8ff;
+		color: #6b21a8;
+	}
+	.vx-token--pink {
+		background-color: #fce7f3;
+		color: #9d174d;
+	}
+	.vx-token--gray {
+		background-color: #f3f4f6;
+		color: #374151;
+	}
+	.vx-token-remove {
+		margin-left: 4px;
+	}
+	.vx-typeahead,
+	.vx-tokenizer,
+	.vx-complex-selector-trigger--input {
+		min-height: 40px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		padding: 6px 10px;
+	}
+	.vx-typeahead-input {
+		min-width: 0;
+		flex: 1;
+	}
+	.vx-typeahead-spinner {
+		width: 20px;
+		height: 20px;
+	}
+	.vx-tokenizer-overflow {
+		margin-left: 4px;
+	}
+	/* xplat-web-only:start — native Tokenizer collapses hidden tokens directly. */
+	.vx-tokenizer--truncated .vx-tokenizer-token--hidden {
+		display: none;
+	}
+	/* xplat-web-only:end */
+	.vx-complex-selector-trigger--ghost {
+		border-width: 0;
+		background-color: transparent;
+		color: var(--color-text);
+	}
+	.vx-complex-selector-placeholder {
+		color: var(--color-text-secondary);
+	}
 
-/* Tree — indented collapsible rows. */
-.vx-tree-row--disabled {
-	opacity: 0.5;
-}
+	/* InputRating — glyph row; --on lights the cell. */
+	.vx-rating-glyph {
+		font-size: 20px;
+		line-height: 24px;
+		color: var(--color-border);
+	}
 
-/* Alert — icon + body callout; tone picks border/text colors. */
-.vx-alert {
-	border-width: 1px;
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	border-color: var(--color-border);
-}
-.vx-alert-title {
-	font-weight: 600;
-}
-.vx-alert--error {
-	border-color: var(--color-danger);
-}
-.vx-alert--warning {
-	border-color: var(--color-warning, #d9a400);
-}
-.vx-alert--success {
-	border-color: var(--color-success, #2e9e5b);
-}
-.vx-alert--info {
-	border-color: var(--color-primary);
-}
+	/* Date & file entry skin — Calendar + the date/time/file field shells. */
 
-/* Card — sectioned container. */
-.vx-card {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-}
-.vx-card-header {
-	border-bottom-width: 1px;
-	border-bottom-color: var(--color-border);
-}
-.vx-card-footer {
-	border-top-width: 1px;
-	border-top-color: var(--color-border);
-}
+	.vx-calendar-title {
+		font-size: 13px;
+		font-weight: 600;
+	}
+	.vx-calendar-weekname,
+	.vx-calendar-weeknumber {
+		font-size: 11px;
+		line-height: 32px;
+		color: var(--color-text-secondary);
+	}
+	.vx-calendar-day {
+		font-size: 13px;
+		border-radius: 50%;
+	}
+	.vx-calendar-day--outside {
+		color: var(--color-text-secondary);
+		opacity: 0.5;
+	}
+	.vx-calendar-day--today {
+		font-weight: 700;
+	}
+	.vx-calendar-day--in-range {
+		background-color: var(--color-border);
+		border-radius: 0;
+	}
+	.vx-calendar-day--range-start,
+	.vx-calendar-day--range-end,
+	.vx-calendar-day--selected {
+		background-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-calendar-day--pending {
+		background-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-calendar-day--round-start {
+		border-top-left-radius: 50%;
+		border-bottom-left-radius: 50%;
+	}
+	.vx-calendar-day--round-end {
+		border-top-right-radius: 50%;
+		border-bottom-right-radius: 50%;
+	}
+	.vx-calendar-day--round-both {
+		border-radius: 50%;
+	}
+	.vx-calendar-day--disabled {
+		opacity: 0.35;
+	}
+	.vx-calendar-nav--prev:disabled,
+	.vx-calendar-nav--next:disabled {
+		opacity: 0.35;
+	}
 
-/* Chip — pressable pill with selected + remove states. */
-.vx-chip {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	font-size: 13px;
-}
-.vx-chip--on {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
-.vx-chip--disabled {
-	opacity: 0.5;
-}
+	.vx-dateinput,
+	.vx-timeinput,
+	.vx-datetimeinput,
+	.vx-daterangeinput {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+		background-color: var(--color-surface, transparent);
+	}
+	.vx-dateinput--disabled,
+	.vx-timeinput--disabled,
+	.vx-datetimeinput--disabled,
+	.vx-daterangeinput--disabled,
+	.vx-fileinput--disabled {
+		opacity: 0.5;
+	}
+	.vx-dateinput--invalid,
+	.vx-timeinput--invalid,
+	.vx-datetimeinput--invalid,
+	.vx-dateinput-input--invalid,
+	.vx-timeinput-input--invalid,
+	.vx-datetimeinput-input--invalid {
+		border-color: var(--color-danger);
+		color: var(--color-danger);
+	}
+	.vx-dateinput-segment--placeholder,
+	.vx-timeinput-segment--placeholder,
+	.vx-datetimeinput-segment--placeholder,
+	.vx-daterangeinput-trigger--placeholder .vx-daterangeinput-text,
+	.vx-dateinput-overlay--placeholder,
+	.vx-timeinput-overlay--placeholder,
+	.vx-datetimeinput-overlay--placeholder {
+		color: var(--color-text-secondary);
+	}
+	.vx-field-label-info {
+		color: var(--color-text-secondary);
+		font-size: 11px;
+	}
+	.vx-field-icon--error {
+		color: var(--color-danger);
+	}
+	.vx-field-icon--warning {
+		color: var(--color-warning);
+	}
+	.vx-field-icon--success {
+		color: var(--color-success);
+	}
 
-/* Kbd — keycap glyph. */
-.vx-kbd {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-bottom-width: 2px;
-	border-radius: var(--radius-sm);
-	font-size: 12px;
-}
+	.vx-dateinput-popover,
+	.vx-datetimeinput-popover,
+	.vx-daterangeinput-popover {
+		background-color: var(--color-surface, #fff);
+	}
+	.vx-datetimeinput-timeoption--selected {
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-daterangeinput-preset--selected {
+		background-color: var(--color-surface-secondary);
+		border-radius: var(--radius-sm);
+	}
+	.vx-daterangeinput-presets {
+		/* xplat-web-only:start — Native preset rails use the platform layout. */
+		border-right: 1px solid var(--color-border);
+		padding-right: 8px;
+		margin-right: 8px;
+		/* xplat-web-only:end */
+	}
 
-/* Empty — centered placeholder. */
-.vx-empty-title {
-	font-weight: 600;
-}
-.vx-empty-desc {
-	color: var(--color-text-secondary);
-}
+	.vx-timewheel-option {
+		font-size: 15px;
+		border-radius: var(--radius-sm);
+	}
+	.vx-timewheel-option--selected {
+		background-color: var(--color-border);
+		font-weight: 600;
+	}
+	.vx-timewheel-done {
+		font-weight: 600;
+		color: var(--color-primary);
+	}
 
-/* Banner — notice strip. */
-.vx-banner {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	background-color: var(--color-surface);
-}
+	.vx-fileinput--dropzone {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+		border-style: dashed;
+	}
+	.vx-fileinput--dragging {
+		border-color: var(--color-primary);
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-fileinput-accept {
+		font-size: 11px;
+		color: var(--color-text-secondary);
+	}
+	.vx-fileinput-itemsize {
+		font-size: 11px;
+		color: var(--color-text-secondary);
+	}
+	.vx-rating-cell--on .vx-rating-glyph {
+		color: var(--color-primary);
+	}
+	.vx-rating--disabled {
+		opacity: 0.5;
+	}
 
-/* User — avatar + text column. */
-.vx-user-name {
-	font-weight: 600;
-}
-.vx-user-desc {
-	font-size: 12px;
-	line-height: 16px;
-	color: var(--color-text-secondary);
-}
+	/* CheckboxGroup — column/row of checkboxes. */
+	/* xplat-web-only:start — display:flex for the div/span flex classes */
+	/* xplat-web-only:end */
 
-/* ProgressGroup — stacked labeled meters. */
-/* xplat-web-only:start — display:flex for the div-based flex classes */
-/* xplat-web-only:end */
-/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
-.vx-h1 {
-	font-size: 32px;
-	font-weight: bold;
-}
-.vx-h2 {
-	font-size: 24px;
-	font-weight: bold;
-}
-.vx-h3 {
-	font-size: 18.72px;
-	font-weight: bold;
-}
-.vx-h4 {
-	font-size: 16px;
-	font-weight: bold;
-}
-.vx-h5 {
-	font-size: 13.28px;
-	font-weight: bold;
-}
-.vx-h6 {
-	font-size: 10.72px;
-	font-weight: bold;
-}
+	/* Phase-3 navigation & wayfinding. */
 
-/* utilities (hand-written subset — do NOT adopt Tailwind until
+	/* Breadcrumb — inline trail. */
+	.vx-breadcrumb-sep {
+		color: var(--color-text-secondary);
+	}
+	.vx-breadcrumb-link {
+		color: var(--color-primary);
+	}
+
+	/* Pagination — windowed page buttons. */
+	.vx-page-btn {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-sm);
+	}
+	.vx-page-btn--on {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-page-ellipsis {
+		color: var(--color-text-secondary);
+	}
+	.vx-pagination--disabled {
+		opacity: 0.5;
+	}
+
+	/* Stepper — dot + label cells joined by a hairline. */
+	.vx-stepper-line {
+		background-color: var(--color-border);
+	}
+	.vx-stepper-line--done {
+		background-color: var(--color-primary);
+	}
+	.vx-step-dot {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: 50%;
+		font-size: 12px;
+		line-height: 22px;
+		color: var(--color-text-secondary);
+	}
+	.vx-step--on .vx-step-dot {
+		border-color: var(--color-primary);
+		color: var(--color-primary);
+	}
+	.vx-step--done .vx-step-dot {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-step--disabled {
+		opacity: 0.5;
+	}
+
+	/* NavigationMenu — row/column of nav items. */
+	.vx-navmenu-item {
+		border-radius: var(--radius-sm);
+	}
+	.vx-navmenu-item--on {
+		background-color: var(--color-border);
+	}
+	.vx-navmenu-item--disabled {
+		opacity: 0.5;
+	}
+
+	/* CommandPalette — panel centered by the overlay layer. */
+	.vx-commandpalette {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
+	/* xplat-web-only:start — native uses Screen.mainScreen.widthDIPs */
+	/* xplat-web-only:end */
+	/* xplat-web-only:start — display, centering, and cursor are DOM-only */
+	/* xplat-web-only:end */
+
+	/* Phase-4 data display. */
+
+	/* Table — header + bounded rows (unvirtualized by design). */
+	.vx-table {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+	}
+	.vx-table-th {
+		font-weight: 600;
+	}
+	.vx-table-head {
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+	}
+
+	/* Timeline — dot + connector rail beside content. */
+	.vx-timeline-dot {
+		border-radius: 50%;
+		background-color: var(--color-primary);
+	}
+	.vx-timeline-line {
+		background-color: var(--color-border);
+	}
+	.vx-timeline-time {
+		font-size: 12px;
+		line-height: 16px;
+		color: var(--color-text-secondary);
+	}
+	.vx-timeline-title {
+		font-weight: 600;
+	}
+	.vx-timeline-desc {
+		color: var(--color-text-secondary);
+	}
+
+	/* Tree — indented collapsible rows. */
+	.vx-tree-row--disabled {
+		opacity: 0.5;
+	}
+
+	/* Alert — icon + body callout; tone picks border/text colors. */
+	.vx-alert {
+		border-width: 1px;
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		border-color: var(--color-border);
+	}
+	.vx-alert-title {
+		font-weight: 600;
+	}
+	.vx-alert--error {
+		border-color: var(--color-danger);
+	}
+	.vx-alert--warning {
+		border-color: var(--color-warning, #d9a400);
+	}
+	.vx-alert--success {
+		border-color: var(--color-success, #2e9e5b);
+	}
+	.vx-alert--info {
+		border-color: var(--color-primary);
+	}
+
+	/* Card — sectioned container. */
+	.vx-card {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+	}
+	.vx-card-header {
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-card-footer {
+		border-top-width: 1px;
+		border-top-color: var(--color-border);
+	}
+
+	/* Chip — pressable pill with selected + remove states. */
+	.vx-chip {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		font-size: 13px;
+	}
+	.vx-chip--on {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-chip--disabled {
+		opacity: 0.5;
+	}
+
+	/* Kbd — keycap glyph. */
+	.vx-kbd {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-bottom-width: 2px;
+		border-radius: var(--radius-sm);
+		font-size: 12px;
+	}
+
+	/* Empty — centered placeholder. */
+	.vx-empty-title {
+		font-weight: 600;
+	}
+	.vx-empty-desc {
+		color: var(--color-text-secondary);
+	}
+
+	/* Banner — notice strip. */
+	.vx-banner {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		background-color: var(--color-surface);
+	}
+
+	/* User — avatar + text column. */
+	.vx-user-name {
+		font-weight: 600;
+	}
+	.vx-user-desc {
+		font-size: 12px;
+		line-height: 16px;
+		color: var(--color-text-secondary);
+	}
+
+	/* ProgressGroup — stacked labeled meters. */
+	/* xplat-web-only:start — display:flex for the div-based flex classes */
+	/* xplat-web-only:end */
+	/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
+	.vx-h1 {
+		font-size: 32px;
+		font-weight: bold;
+	}
+	.vx-h2 {
+		font-size: 24px;
+		font-weight: bold;
+	}
+	.vx-h3 {
+		font-size: 18.72px;
+		font-weight: bold;
+	}
+	.vx-h4 {
+		font-size: 16px;
+		font-weight: bold;
+	}
+	.vx-h5 {
+		font-size: 13.28px;
+		font-weight: bold;
+	}
+	.vx-h6 {
+		font-size: 10.72px;
+		font-weight: bold;
+	}
+
+	/* utilities (hand-written subset — do NOT adopt Tailwind until
    NativeScript/tailwind#226 is resolved; the plugin strips core-supported
    props incl. gap, drops all @media, and rewrites invisible→collapse) */
 
-/* flex-1 keeps Tailwind v4's exact emission (`flex: 1 1 0%`) — web gets
+	/* flex-1 keeps Tailwind v4's exact emission (`flex: 1 1 0%`) — web gets
    identical semantics, NS parses grow/shrink out of the shorthand and
    ignores the basis token it can't model. */
-/* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
+	/* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
  * shrinkability: grow children never shrink below intrinsic width, fixed
  * children get crushed, and auto-height rows re-measure grow children at
  * zero height. The shared `* { flex-shrink: 0 }` default (RN semantics)
@@ -1077,303 +1140,408 @@ textarea::placeholder {
  * the min-content floor so it can actually shrink, and shrink-0 remains
  * for local overrides. All four are plain CSS on web. */
 
-/* Native Labels keep their natural font height even with line-height set, so
+	/* Native Labels keep their natural font height even with line-height set, so
    min-height aligns utilities whose natural metrics fall below their leading.
    Tailwind pairs every text-* size with a leading, same here. */
-.text-2xl {
-	font-size: 28px;
-	line-height: 36px;
-}
-.text-xl {
-	font-size: 20px;
-	line-height: 28px;
-}
-.text-lg {
-	font-size: 18px;
-	line-height: 28px;
-}
-.text-sm {
-	font-size: 13px;
-	line-height: 20px;
-}
-.font-bold {
-	font-weight: bold;
-}
-.font-semibold {
-	font-weight: 600;
-}
-.text-muted {
-	color: var(--color-text-secondary);
-}
+	.text-2xl {
+		font-size: 28px;
+		line-height: 36px;
+	}
+	.text-xl {
+		font-size: 20px;
+		line-height: 28px;
+	}
+	.text-lg {
+		font-size: 18px;
+		line-height: 28px;
+	}
+	.text-sm {
+		font-size: 13px;
+		line-height: 20px;
+	}
+	.font-bold {
+		font-weight: bold;
+	}
+	.font-semibold {
+		font-weight: 600;
+	}
+	.text-muted {
+		color: var(--color-text-secondary);
+	}
 
-/* Corner utilities — consume the --radius-* scale and carry the smooth
+	/* Corner utilities — consume the --radius-* scale and carry the smooth
    (squircle) corner treatment. Circles stay circular: .rounded-full omits
    corner-shape deliberately (squircle at full radius = a squircle disk,
    not a circle). Opt out per element with `corner-shape: round`. */
-.rounded-sm {
-	border-radius: var(--radius-sm);
-	corner-shape: squircle;
-}
-.rounded-md {
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-}
-.rounded-lg {
-	border-radius: var(--radius-lg);
-	corner-shape: squircle;
-}
-.rounded-xl {
-	border-radius: var(--radius-xl);
-	corner-shape: squircle;
-}
-.rounded-full {
-	border-radius: 9999px;
-}
+	.rounded-sm {
+		border-radius: var(--radius-sm);
+		corner-shape: squircle;
+	}
+	.rounded-md {
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+	}
+	.rounded-lg {
+		border-radius: var(--radius-lg);
+		corner-shape: squircle;
+	}
+	.rounded-xl {
+		border-radius: var(--radius-xl);
+		corner-shape: squircle;
+	}
+	.rounded-full {
+		border-radius: 9999px;
+	}
 
-.bg-primary {
-	background-color: var(--color-primary);
-}
-.text-onprimary {
-	color: var(--color-onprimary);
-}
-.bg-danger {
-	background-color: var(--color-danger);
-}
-/* xplat-web-only:start — box-shadow is inert on native (elevation is
+	.bg-primary {
+		background-color: var(--color-primary);
+	}
+	.text-onprimary {
+		color: var(--color-onprimary);
+	}
+	.bg-danger {
+		background-color: var(--color-danger);
+	}
+	/* xplat-web-only:start — box-shadow is inert on native (elevation is
    Android-only; no shared mapping yet) */
-.shadow-2 {
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-/* xplat-web-only:end */
+	.shadow-2 {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	}
+	/* xplat-web-only:end */
 
-.btn {
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	font-size: 14px;
-	font-weight: 500;
-	text-decoration: none;
-	color: var(--color-text);
-}
+	.btn {
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		font-size: 14px;
+		font-weight: 500;
+		text-decoration: none;
+		color: var(--color-text);
+	}
 
-/* Secondary = the same control reading quiet: hairline border, surface
+	/* Secondary = the same control reading quiet: hairline border, surface
    fill, body-text label. Reserve .bg-primary for the one decisive action
    in a group. */
-.btn-secondary {
-	background-color: var(--color-surface);
-	border-width: 1px;
-	border-color: var(--color-border);
-	color: var(--color-text);
-}
+	.btn-secondary {
+		background-color: var(--color-surface);
+		border-width: 1px;
+		border-color: var(--color-border);
+		color: var(--color-text);
+	}
 
-/* xplat-web-only:start — controls that render as real <a>/<button> need
+	/* xplat-web-only:start — controls that render as real <a>/<button> need
    inline layout and UA resets; the pressable/nav-link leaves are divs on
    web and don't hit these rules. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* Tab shell — web divs/buttons + the Android SwapTabs fallback (iOS draws
+	/* Tab shell — web divs/buttons + the Android SwapTabs fallback (iOS draws
    its own UITabBar and never sees these). */
-.vx-tabbar {
-	border-bottom-width: 1px;
-	border-bottom-color: var(--color-border);
-	background-color: var(--color-surface);
-}
-.vx-tab {
-	font-size: 14px;
-	color: var(--color-text-secondary);
-}
-.vx-tab.active,
-.vx-tab--selected {
-	color: var(--color-text);
-}
+	.vx-tabbar {
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+		background-color: var(--color-surface);
+	}
+	.vx-tab {
+		font-size: 14px;
+		color: var(--color-text-secondary);
+	}
+	.vx-tab.active,
+	.vx-tab--selected {
+		color: var(--color-text);
+	}
 
-/* xplat-web-only:start — DOM defaults are display:block (div) and
+	/* xplat-web-only:start — DOM defaults are display:block (div) and
    inline-block (button); every flex-bearing vx- class needs an explicit
    display or flex-direction/align-items/justify-content are inert. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* harness experiment styles */
+	/* harness experiment styles */
 
-.vx-app {
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
+	.vx-app {
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
 
-.vx-app .text-xl,
-.vx-app Text,
-.vx-app label {
-	color: var(--color-text);
-}
+	.vx-app .text-xl,
+	.vx-app Text,
+	.vx-app label {
+		color: var(--color-text);
+	}
 
-/* `.vx-app label` above (descendant + type) outranks single-class text
+	/* `.vx-app label` above (descendant + type) outranks single-class text
    colors inside the app root — roles that must win escalate here. */
-.vx-app .text-onprimary {
-	color: var(--color-onprimary);
-}
-.vx-app .text-muted {
-	color: var(--color-text-secondary);
-}
-.vx-app .vx-tab label {
-	color: var(--color-text-secondary);
-}
-.vx-app .vx-tab.active label,
-.vx-app .vx-tab--selected label,
-.vx-app .vx-tab--selected .vx-tab-label {
-	color: var(--color-text);
-}
-.vx-app .chip-on label {
-	color: var(--color-onprimary);
-}
-/* Danger surfaces keep white text in both themes (on-primary flips). */
-.bg-danger .text-onprimary {
-	color: #ffffff;
-}
+	.vx-app .text-onprimary {
+		color: var(--color-onprimary);
+	}
+	.vx-app .text-muted {
+		color: var(--color-text-secondary);
+	}
+	.vx-app .vx-tab label {
+		color: var(--color-text-secondary);
+	}
+	.vx-app .vx-tab.active label,
+	.vx-app .vx-tab--selected label,
+	.vx-app .vx-tab--selected .vx-tab-label {
+		color: var(--color-text);
+	}
+	.vx-app .chip-on label {
+		color: var(--color-onprimary);
+	}
+	/* Danger surfaces keep white text in both themes (on-primary flips). */
+	.bg-danger .text-onprimary {
+		color: #ffffff;
+	}
 
-.input {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	font-size: 14px;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	/* NS TextField/TextView placeholder color (ignored on web — the
+	.input {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		font-size: 14px;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		/* NS TextField/TextView placeholder color (ignored on web — the
 	   ::placeholder pseudo above covers it there). */
-	placeholder-color: var(--color-text-secondary);
-}
+		placeholder-color: var(--color-text-secondary);
+	}
 
-.chip {
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	font-size: 13px;
-	text-decoration: none;
-}
+	.chip {
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		font-size: 13px;
+		text-decoration: none;
+	}
 
-/* Selected chip — the one filled element in a group of bordered peers. */
-.chip-on {
-	background-color: var(--color-primary);
-	border-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
+	/* Selected chip — the one filled element in a group of bordered peers. */
+	.chip-on {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
 
-.cell {
-	border-bottom-width: 1px;
-	border-bottom-color: var(--color-border);
-}
+	.cell {
+		border-bottom-width: 1px;
+		border-bottom-color: var(--color-border);
+	}
 
-/* In-window sheet — bottom-anchored panel (matches the native RootLayout
+	/* In-window sheet — bottom-anchored panel (matches the native RootLayout
    sheet). Layer is pointer-events:none; backdrop + panel re-enable. */
 
-.vx-sheet-backdrop {
-	background: rgba(0, 0, 0, 0.4);
-}
+	.vx-sheet-backdrop {
+		background: rgba(0, 0, 0, 0.4);
+	}
 
-.vx-sheet {
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-top-left-radius: var(--radius-xl);
-	border-top-right-radius: var(--radius-xl);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
+	.vx-sheet {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-top-left-radius: var(--radius-xl);
+		border-top-right-radius: var(--radius-xl);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
 
-/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
+	/* xplat-web-only:start — DOM positioning + hit-testing for the sheet.
    The native leaf renders on RootLayout with its own geometry. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-.vx-sheet-grip {
-	border-radius: 999px;
-	background-color: var(--color-text-secondary);
-	opacity: 0.4;
-}
+	.vx-sheet-grip {
+		border-radius: 999px;
+		background-color: var(--color-text-secondary);
+		opacity: 0.4;
+	}
 
-/* xplat-web-only:start — detents size the panel to the largest fraction
+	/* xplat-web-only:start — detents size the panel to the largest fraction
    (overriding the 85% cap) and overlay the grabber; native stacks it as a
    top-aligned grid child. touch-action keeps drags off native scroll. */
-/* xplat-web-only:end */
+	/* xplat-web-only:end */
 
-/* Chat skin is optional; tokens.css provides its layout and anatomy. */
-.vx-chatlayout { background-color: var(--color-surface); color: var(--color-text); }
-.vx-chatlayout-dock { background-color: var(--color-surface); }
-.vx-chatlayout-blur { background-color: var(--color-surface); opacity: 0.94; }
-.vx-chatmsg { padding: 8px 16px; }
-.vx-chatmsg-avatar { margin-right: 10px; }
-.vx-chatmsg--user .vx-chatmsg-avatar { margin-right: 0; margin-left: 10px; }
-.vx-chatmsg-name,
-.vx-chatbubble-name,
-.vx-chatmeta,
-.vx-chatmeta-status,
-.vx-chatcomposer-status,
-.vx-chattools-duration,
-.vx-chattools-target,
-.vx-chattools-grouplabel { color: var(--color-text-secondary); font-size: 12px; }
-.vx-chatbubble {
-	padding: 10px 14px;
-	border-radius: var(--radius-lg);
-	corner-shape: squircle;
-	background-color: var(--color-surface-secondary);
-	color: var(--color-text);
-}
-.vx-chatbubble--user { background-color: var(--color-primary); color: var(--color-onprimary); }
-.vx-chatbubble--ghost { background-color: transparent; }
-.vx-chatbubble--error { border-width: 1px; border-color: var(--color-danger); }
-.vx-chatmeta { gap: 6px; padding: 3px 2px; }
-.vx-chatmeta-status--error { color: var(--color-danger); }
-.vx-chatmeta-status--read,
-.vx-chatmeta-status--delivered { color: var(--color-success); }
-.vx-chatsys-content { gap: 8px; padding: 6px 12px; color: var(--color-text-secondary); font-size: 12px; }
-.vx-chatsys-rule { height: 1px; background-color: var(--color-border); }
-.vx-chatlist-empty,
-.vx-chatlayout-empty { padding: 24px 16px; color: var(--color-text-secondary); }
-.vx-chatlist-loading { padding: 10px; color: var(--color-text-secondary); }
-.vx-chatcomposer {
-	margin: 8px 12px;
-	padding: 10px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-xl);
-	corner-shape: squircle;
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
-.vx-chatcomposer--low { box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12); }
-.vx-chatcomposer--none { box-shadow: none; }
-.vx-chatcomposer-header,
-.vx-chatcomposer-footer { gap: 8px; }
-.vx-chatcomposer-body { gap: 8px; }
-.vx-chatcomposer-inputarea { padding: 4px 2px; }
-.vx-chatinput-editable { color: var(--color-text); font-size: 15px; }
-.vx-chatinput-placeholder { color: var(--color-text-secondary); }
-.vx-chat-token,
-.vx-chattoken-el { padding: 2px 7px; border-radius: 999px; background-color: var(--color-surface-secondary); }
-.vx-chatcomposer-status { gap: 6px; padding: 4px 2px; }
-.vx-chatcomposer-status--error { color: var(--color-danger); }
-.vx-chatcomposer-status--warning { color: var(--color-warning); }
-.vx-chatdrawer-inner { padding: 8px; border-bottom-width: 1px; border-color: var(--color-border); }
-.vx-chatdrawer-handle { padding: 6px; }
-.vx-chatsend,
-.vx-chatdict-btn { border-radius: 999px; background-color: var(--color-primary); color: var(--color-onprimary); }
-.vx-chatsend--stop { background-color: var(--color-danger); }
-.vx-chatdict-btn--recording { background-color: var(--color-danger); }
-.vx-chattools-header,
-.vx-chattools-row { gap: 8px; padding: 6px 8px; }
-.vx-chattools-header { border-radius: var(--radius-md); background-color: var(--color-surface-secondary); }
-.vx-chattools-status--error { color: var(--color-danger); }
-.vx-chattools-status--complete { color: var(--color-success); }
-.vx-chattools-add { color: var(--color-success); }
-.vx-chattools-del { color: var(--color-danger); }
-.vx-chattools-detail { padding: 8px; border-left-width: 2px; border-color: var(--color-border); }
-.vx-chatscroll {
-	border-radius: 999px;
-	border-width: 1px;
-	border-color: var(--color-border);
-	background-color: var(--color-surface);
-	color: var(--color-text);
-}
+	/* Chat skin is optional; tokens.css provides its layout and anatomy. */
+	.vx-chatlayout {
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
+	.vx-chatlayout-dock {
+		background-color: var(--color-surface);
+	}
+	.vx-chatlayout-blur {
+		background-color: var(--color-surface);
+		opacity: 0.94;
+	}
+	.vx-chatmsg {
+		padding: 8px 16px;
+	}
+	.vx-chatmsg-avatar {
+		margin-right: 10px;
+	}
+	.vx-chatmsg--user .vx-chatmsg-avatar {
+		margin-right: 0;
+		margin-left: 10px;
+	}
+	.vx-chatmsg-name,
+	.vx-chatbubble-name,
+	.vx-chatmeta,
+	.vx-chatmeta-status,
+	.vx-chatcomposer-status,
+	.vx-chattools-duration,
+	.vx-chattools-target,
+	.vx-chattools-grouplabel {
+		color: var(--color-text-secondary);
+		font-size: 12px;
+	}
+	.vx-chatbubble {
+		padding: 10px 14px;
+		border-radius: var(--radius-lg);
+		corner-shape: squircle;
+		background-color: var(--color-surface-secondary);
+		color: var(--color-text);
+	}
+	.vx-chatbubble--user {
+		background-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-chatbubble--ghost {
+		background-color: transparent;
+	}
+	.vx-chatbubble--error {
+		border-width: 1px;
+		border-color: var(--color-danger);
+	}
+	.vx-chatmeta {
+		gap: 6px;
+		padding: 3px 2px;
+	}
+	.vx-chatmeta-status--error {
+		color: var(--color-danger);
+	}
+	.vx-chatmeta-status--read,
+	.vx-chatmeta-status--delivered {
+		color: var(--color-success);
+	}
+	.vx-chatsys-content {
+		gap: 8px;
+		padding: 6px 12px;
+		color: var(--color-text-secondary);
+		font-size: 12px;
+	}
+	.vx-chatsys-rule {
+		height: 1px;
+		background-color: var(--color-border);
+	}
+	.vx-chatlist-empty,
+	.vx-chatlayout-empty {
+		padding: 24px 16px;
+		color: var(--color-text-secondary);
+	}
+	.vx-chatlist-loading {
+		padding: 10px;
+		color: var(--color-text-secondary);
+	}
+	.vx-chatcomposer {
+		margin: 8px 12px;
+		padding: 10px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-xl);
+		corner-shape: squircle;
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
+	.vx-chatcomposer--low {
+		box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12);
+	}
+	.vx-chatcomposer--none {
+		box-shadow: none;
+	}
+	.vx-chatcomposer-header,
+	.vx-chatcomposer-footer {
+		gap: 8px;
+	}
+	.vx-chatcomposer-body {
+		gap: 8px;
+	}
+	.vx-chatcomposer-inputarea {
+		padding: 4px 2px;
+	}
+	.vx-chatinput-editable {
+		color: var(--color-text);
+		font-size: 15px;
+	}
+	.vx-chatinput-placeholder {
+		color: var(--color-text-secondary);
+	}
+	.vx-chat-token,
+	.vx-chattoken-el {
+		padding: 2px 7px;
+		border-radius: 999px;
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-chatcomposer-status {
+		gap: 6px;
+		padding: 4px 2px;
+	}
+	.vx-chatcomposer-status--error {
+		color: var(--color-danger);
+	}
+	.vx-chatcomposer-status--warning {
+		color: var(--color-warning);
+	}
+	.vx-chatdrawer-inner {
+		padding: 8px;
+		border-bottom-width: 1px;
+		border-color: var(--color-border);
+	}
+	.vx-chatdrawer-handle {
+		padding: 6px;
+	}
+	.vx-chatsend,
+	.vx-chatdict-btn {
+		border-radius: 999px;
+		background-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-chatsend--stop {
+		background-color: var(--color-danger);
+	}
+	.vx-chatdict-btn--recording {
+		background-color: var(--color-danger);
+	}
+	.vx-chattools-header,
+	.vx-chattools-row {
+		gap: 8px;
+		padding: 6px 8px;
+	}
+	.vx-chattools-header {
+		border-radius: var(--radius-md);
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-chattools-status--error {
+		color: var(--color-danger);
+	}
+	.vx-chattools-status--complete {
+		color: var(--color-success);
+	}
+	.vx-chattools-add {
+		color: var(--color-success);
+	}
+	.vx-chattools-del {
+		color: var(--color-danger);
+	}
+	.vx-chattools-detail {
+		padding: 8px;
+		border-left-width: 2px;
+		border-color: var(--color-border);
+	}
+	.vx-chatscroll {
+		border-radius: 999px;
+		border-width: 1px;
+		border-color: var(--color-border);
+		background-color: var(--color-surface);
+		color: var(--color-text);
+	}
 
 	/* ---- content display (Astryx parity) — skin layer. ---- */
 
@@ -1416,48 +1584,145 @@ textarea::placeholder {
 
 	/* Text-role axes shared by Timestamp/Timer — mirrors the Astryx type
 	   scale; themeable because everything resolves through vars. */
-	.vx-type-body { font-size: 14px; line-height: 20px; }
-	.vx-type-large { font-size: 16px; line-height: 24px; }
-	.vx-type-label { font-size: 14px; line-height: 20px; font-weight: 500; }
-	.vx-type-supporting { font-size: 13px; line-height: 18px; }
-	.vx-type-code { font-family: var(--font-mono); font-size: 13px; line-height: 18px; }
-	.vx-type-display-1 { font-size: 32px; line-height: 40px; font-weight: 600; }
-	.vx-type-display-2 { font-size: 24px; line-height: 32px; font-weight: 600; }
-	.vx-type-display-3 { font-size: 20px; line-height: 28px; font-weight: 600; }
-	.vx-type-inherit { font-size: inherit; line-height: inherit; font-weight: inherit; }
+	.vx-type-body {
+		font-size: 14px;
+		line-height: 20px;
+	}
+	.vx-type-large {
+		font-size: 16px;
+		line-height: 24px;
+	}
+	.vx-type-label {
+		font-size: 14px;
+		line-height: 20px;
+		font-weight: 500;
+	}
+	.vx-type-supporting {
+		font-size: 13px;
+		line-height: 18px;
+	}
+	.vx-type-code {
+		font-family: var(--font-mono);
+		font-size: 13px;
+		line-height: 18px;
+	}
+	.vx-type-display-1 {
+		font-size: 32px;
+		line-height: 40px;
+		font-weight: 600;
+	}
+	.vx-type-display-2 {
+		font-size: 24px;
+		line-height: 32px;
+		font-weight: 600;
+	}
+	.vx-type-display-3 {
+		font-size: 20px;
+		line-height: 28px;
+		font-weight: 600;
+	}
+	.vx-type-inherit {
+		font-size: inherit;
+		line-height: inherit;
+		font-weight: inherit;
+	}
 
-	.vx-size-4xs { font-size: 10px; line-height: 12px; }
-	.vx-size-3xs { font-size: 11px; line-height: 14px; }
-	.vx-size-2xs { font-size: 12px; line-height: 16px; }
-	.vx-size-xsm { font-size: 12px; line-height: 16px; }
-	.vx-size-sm { font-size: 13px; line-height: 18px; }
-	.vx-size-base { font-size: 14px; line-height: 20px; }
-	.vx-size-lg { font-size: 16px; line-height: 24px; }
-	.vx-size-xl { font-size: 18px; line-height: 28px; }
-	.vx-size-2xl { font-size: 20px; line-height: 28px; }
-	.vx-size-3xl { font-size: 24px; line-height: 32px; }
-	.vx-size-4xl { font-size: 28px; line-height: 36px; }
+	.vx-size-4xs {
+		font-size: 10px;
+		line-height: 12px;
+	}
+	.vx-size-3xs {
+		font-size: 11px;
+		line-height: 14px;
+	}
+	.vx-size-2xs {
+		font-size: 12px;
+		line-height: 16px;
+	}
+	.vx-size-xsm {
+		font-size: 12px;
+		line-height: 16px;
+	}
+	.vx-size-sm {
+		font-size: 13px;
+		line-height: 18px;
+	}
+	.vx-size-base {
+		font-size: 14px;
+		line-height: 20px;
+	}
+	.vx-size-lg {
+		font-size: 16px;
+		line-height: 24px;
+	}
+	.vx-size-xl {
+		font-size: 18px;
+		line-height: 28px;
+	}
+	.vx-size-2xl {
+		font-size: 20px;
+		line-height: 28px;
+	}
+	.vx-size-3xl {
+		font-size: 24px;
+		line-height: 32px;
+	}
+	.vx-size-4xl {
+		font-size: 28px;
+		line-height: 36px;
+	}
 
-	.vx-color-primary { color: var(--color-text); }
-	.vx-color-secondary { color: var(--color-text-secondary); }
-	.vx-color-disabled { color: var(--color-text-secondary); opacity: 0.6; }
-	.vx-color-placeholder { color: var(--color-text-secondary); }
-	.vx-color-accent { color: var(--color-primary); }
-	.vx-color-inherit { color: inherit; }
+	.vx-color-primary {
+		color: var(--color-text);
+	}
+	.vx-color-secondary {
+		color: var(--color-text-secondary);
+	}
+	.vx-color-disabled {
+		color: var(--color-text-secondary);
+		opacity: 0.6;
+	}
+	.vx-color-placeholder {
+		color: var(--color-text-secondary);
+	}
+	.vx-color-accent {
+		color: var(--color-primary);
+	}
+	.vx-color-inherit {
+		color: inherit;
+	}
 
-	.vx-weight-normal { font-weight: 400; }
-	.vx-weight-medium { font-weight: 500; }
-	.vx-weight-semibold { font-weight: 600; }
-	.vx-weight-bold { font-weight: 700; }
+	.vx-weight-normal {
+		font-weight: 400;
+	}
+	.vx-weight-medium {
+		font-weight: 500;
+	}
+	.vx-weight-semibold {
+		font-weight: 600;
+	}
+	.vx-weight-bold {
+		font-weight: 700;
+	}
 
 	.vx-statusdot {
 		background-color: var(--color-text-secondary);
 	}
-	.vx-statusdot--success { background-color: var(--color-success); }
-	.vx-statusdot--warning { background-color: var(--color-warning); }
-	.vx-statusdot--error { background-color: var(--color-danger); }
-	.vx-statusdot--accent { background-color: var(--color-primary); }
-	.vx-statusdot--neutral { background-color: var(--color-text-secondary); }
+	.vx-statusdot--success {
+		background-color: var(--color-success);
+	}
+	.vx-statusdot--warning {
+		background-color: var(--color-warning);
+	}
+	.vx-statusdot--error {
+		background-color: var(--color-danger);
+	}
+	.vx-statusdot--accent {
+		background-color: var(--color-primary);
+	}
+	.vx-statusdot--neutral {
+		background-color: var(--color-text-secondary);
+	}
 
 	.vx-statusdot-icon {
 		color: #ffffff;
@@ -1471,10 +1736,18 @@ textarea::placeholder {
 		background-color: var(--color-primary);
 	}
 
-	.vx-progressbar--success .vx-progressbar-fill { background-color: var(--color-success); }
-	.vx-progressbar--warning .vx-progressbar-fill { background-color: var(--color-warning); }
-	.vx-progressbar--error .vx-progressbar-fill { background-color: var(--color-danger); }
-	.vx-progressbar--neutral .vx-progressbar-fill { background-color: var(--color-text-secondary); }
+	.vx-progressbar--success .vx-progressbar-fill {
+		background-color: var(--color-success);
+	}
+	.vx-progressbar--warning .vx-progressbar-fill {
+		background-color: var(--color-warning);
+	}
+	.vx-progressbar--error .vx-progressbar-fill {
+		background-color: var(--color-danger);
+	}
+	.vx-progressbar--neutral .vx-progressbar-fill {
+		background-color: var(--color-text-secondary);
+	}
 
 	.vx-progressbar-label {
 		font-size: 13px;
@@ -1674,346 +1947,473 @@ textarea::placeholder {
 		display: none;
 	}
 
-/* ----- Astryx navigation family ----- */
+	/* ----- Astryx navigation family ----- */
 
-.vx-navicon {
-	background-color: var(--color-primary);
-	color: var(--color-onprimary);
-}
+	.vx-navicon {
+		background-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
 
-.vx-toolbar--section {
-	background-color: var(--color-surface);
-}
-.vx-toolbar--muted {
-	background-color: var(--color-surface-secondary);
-}
-.vx-toolbar--div-top {
-	border-top-width: 1;
-	border-top-color: var(--color-border);
-}
-.vx-toolbar--div-bottom {
-	border-bottom-width: 1;
-	border-bottom-color: var(--color-border);
-}
-.vx-toolbar--div-start {
-	border-left-width: 1;
-	border-left-color: var(--color-border);
-}
-.vx-toolbar--div-end {
-	border-right-width: 1;
-	border-right-color: var(--color-border);
-}
+	.vx-toolbar--section {
+		background-color: var(--color-surface);
+	}
+	.vx-toolbar--muted {
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-toolbar--div-top {
+		border-top-width: 1;
+		border-top-color: var(--color-border);
+	}
+	.vx-toolbar--div-bottom {
+		border-bottom-width: 1;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-toolbar--div-start {
+		border-left-width: 1;
+		border-left-color: var(--color-border);
+	}
+	.vx-toolbar--div-end {
+		border-right-width: 1;
+		border-right-color: var(--color-border);
+	}
 
-.vx-tablist--divided {
-	border-bottom-width: 1;
-	border-bottom-color: var(--color-border);
-}
-.vx-tab-indicator--on {
-	background-color: var(--color-text);
-}
-.vx-tabmenu-heading {
-	color: var(--color-text-secondary);
-}
+	.vx-tablist--divided {
+		border-bottom-width: 1;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-tab-indicator--on {
+		background-color: var(--color-text);
+	}
+	.vx-tabmenu-heading {
+		color: var(--color-text-secondary);
+	}
 
-.vx-navmenu-item-label {
-	color: var(--color-text);
-}
-.vx-navmenu-item-desc {
-	color: var(--color-text-secondary);
-}
+	.vx-navmenu-item-label {
+		color: var(--color-text);
+	}
+	.vx-navmenu-item-desc {
+		color: var(--color-text-secondary);
+	}
 
-.vx-mobilenav-drawer {
-	background-color: var(--color-surface);
-	border-width: 0;
-}
-.vx-mobilenav-header {
-	border-bottom-width: 1;
-	border-bottom-color: var(--color-border);
-	padding: 8 12;
-}
-.vx-mobilenav-heading {
-	font-size: 16px;
-	font-weight: 600;
-}
+	.vx-mobilenav-drawer {
+		background-color: var(--color-surface);
+		border-width: 0;
+	}
+	.vx-mobilenav-header {
+		border-bottom-width: 1;
+		border-bottom-color: var(--color-border);
+		padding: 8 12;
+	}
+	.vx-mobilenav-heading {
+		font-size: 16px;
+		font-weight: 600;
+	}
 
-.vx-sidenav-stickytop {
-	border-bottom-width: 1;
-	border-bottom-color: var(--color-border);
-}
-.vx-sidenav-stickybottom {
-	border-top-width: 1;
-	border-top-color: var(--color-border);
-}
-.vx-sidenav-section-title {
-	font-size: 12px;
-	font-weight: 600;
-	color: var(--color-text-secondary);
-}
-.vx-sidenav-section-subtitle {
-	font-size: 11px;
-	color: var(--color-text-secondary);
-}
-.vx-sidenav-item--selected .vx-sidenav-item-main {
-	background-color: rgba(0, 0, 0, 0.06);
-}
-.ns-dark .vx-sidenav-item--selected .vx-sidenav-item-main,
-.dark .vx-sidenav-item--selected .vx-sidenav-item-main {
-	background-color: rgba(255, 255, 255, 0.1);
-}
+	.vx-sidenav-stickytop {
+		border-bottom-width: 1;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-sidenav-stickybottom {
+		border-top-width: 1;
+		border-top-color: var(--color-border);
+	}
+	.vx-sidenav-section-title {
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--color-text-secondary);
+	}
+	.vx-sidenav-section-subtitle {
+		font-size: 11px;
+		color: var(--color-text-secondary);
+	}
+	.vx-sidenav-item--selected .vx-sidenav-item-main {
+		background-color: rgba(0, 0, 0, 0.06);
+	}
+	.ns-dark .vx-sidenav-item--selected .vx-sidenav-item-main,
+	.dark .vx-sidenav-item--selected .vx-sidenav-item-main {
+		background-color: rgba(255, 255, 255, 0.1);
+	}
 
-.vx-appshell--wash .vx-appshell-header,
-.vx-appshell-sidenav--wash {
-	background-color: var(--color-surface-secondary);
-}
-.vx-appshell--surface .vx-appshell-header,
-.vx-appshell-sidenav--surface {
-	background-color: var(--color-surface);
-}
-.vx-appshell--section .vx-appshell-header,
-.vx-appshell--section .vx-appshell-sidenav {
-	background-color: var(--color-surface);
-}
-.vx-appshell--elevated .vx-appshell-header,
-.vx-appshell-sidenav--elevated {
-	background-color: var(--color-surface-secondary);
-}
-.vx-appshell--elevated .vx-appshell-content {
-	background-color: var(--color-surface);
-}
-.vx-appshell-header {
-	border-bottom-width: 1;
-	border-bottom-color: var(--color-border);
-}
-.vx-appshell-sidenav {
-	border-right-width: 1;
-	border-right-color: var(--color-border);
-}
-.vx-appshell-banner {
-	border-bottom-width: 1;
-	border-bottom-color: var(--color-border);
-}
-.vx-topnavmegamenu-card {
-	background-color: var(--color-surface-secondary);
-	border-radius: 8;
-}
-.vx-topnavmegamenu-item-title,
-.vx-topnavmenu-item-title {
-	font-weight: 600;
-	color: var(--color-text);
-}
-.vx-topnavmegamenu-item-desc,
-.vx-topnavmenu-item-desc {
-	font-size: 12px;
-	color: var(--color-text-secondary);
-}
-.vx-topnavmegamenu-card-desc {
-	font-size: 13px;
-	color: var(--color-text-secondary);
-}
-.vx-topnavmegamenu-card-link {
-	color: var(--color-text);
-}
-/* ---------- dialog / alert dialog ---------- */
+	.vx-appshell--wash .vx-appshell-header,
+	.vx-appshell-sidenav--wash {
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-appshell--surface .vx-appshell-header,
+	.vx-appshell-sidenav--surface {
+		background-color: var(--color-surface);
+	}
+	.vx-appshell--section .vx-appshell-header,
+	.vx-appshell--section .vx-appshell-sidenav {
+		background-color: var(--color-surface);
+	}
+	.vx-appshell--elevated .vx-appshell-header,
+	.vx-appshell-sidenav--elevated {
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-appshell--elevated .vx-appshell-content {
+		background-color: var(--color-surface);
+	}
+	.vx-appshell-header {
+		border-bottom-width: 1;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-appshell-sidenav {
+		border-right-width: 1;
+		border-right-color: var(--color-border);
+	}
+	.vx-appshell-banner {
+		border-bottom-width: 1;
+		border-bottom-color: var(--color-border);
+	}
+	.vx-topnavmegamenu-card {
+		background-color: var(--color-surface-secondary);
+		border-radius: 8;
+	}
+	.vx-topnavmegamenu-item-title,
+	.vx-topnavmenu-item-title {
+		font-weight: 600;
+		color: var(--color-text);
+	}
+	.vx-topnavmegamenu-item-desc,
+	.vx-topnavmenu-item-desc {
+		font-size: 12px;
+		color: var(--color-text-secondary);
+	}
+	.vx-topnavmegamenu-card-desc {
+		font-size: 13px;
+		color: var(--color-text-secondary);
+	}
+	.vx-topnavmegamenu-card-link {
+		color: var(--color-text);
+	}
+	/* ---------- dialog / alert dialog ---------- */
 
-.vx-dialog {
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-lg);
-	corner-shape: squircle;
-	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.24);
-}
+	.vx-dialog {
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-lg);
+		corner-shape: squircle;
+		box-shadow: 0 16px 48px rgba(0, 0, 0, 0.24);
+	}
 
-.vx-dialog--fullscreen {
-	border-radius: 0;
-	border-width: 0;
-}
+	.vx-dialog--fullscreen {
+		border-radius: 0;
+		border-width: 0;
+	}
 
-.vx-dialog-header {
-	font-weight: 600;
-}
+	.vx-dialog-header {
+		font-weight: 600;
+	}
 
-.vx-dialog-subtitle {
-	color: var(--color-text-secondary);
-	font-size: 13px;
-}
+	.vx-dialog-subtitle {
+		color: var(--color-text-secondary);
+		font-size: 13px;
+	}
 
-.vx-dialog-divider {
-	background-color: var(--color-border);
-}
+	.vx-dialog-divider {
+		background-color: var(--color-border);
+	}
 
-.vx-alertdialog-heading {
-	font-size: 17px;
-	font-weight: 600;
-}
+	.vx-alertdialog-heading {
+		font-size: 17px;
+		font-weight: 600;
+	}
 
-.vx-alertdialog-desc {
-	color: var(--color-text-secondary);
-	font-size: 14px;
-}
+	.vx-alertdialog-desc {
+		color: var(--color-text-secondary);
+		font-size: 14px;
+	}
 
-/* ---------- hover card ---------- */
+	/* ---------- hover card ---------- */
 
-.vx-hovercard {
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: var(--radius-lg);
-	corner-shape: squircle;
-	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
-	padding: 12px;
-	font-size: 14px;
-	line-height: 20px;
-}
+	.vx-hovercard {
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-lg);
+		corner-shape: squircle;
+		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+		padding: 12px;
+		font-size: 14px;
+		line-height: 20px;
+	}
 
-/* xplat-web-only:start — the indication only exists on the web leaf's
+	/* xplat-web-only:start — the indication only exists on the web leaf's
    text-trigger span. */
-.vx-hovercard-indication {
-	text-decoration-color: var(--color-text-secondary);
-}
-/* xplat-web-only:end */
+	.vx-hovercard-indication {
+		text-decoration-color: var(--color-text-secondary);
+	}
+	/* xplat-web-only:end */
 
-/* ---------- toast ---------- */
+	/* ---------- toast ---------- */
 
-/* Astryx's inverted surface: the toast paints in the theme's text color
+	/* Astryx's inverted surface: the toast paints in the theme's text color
    and reads in the surface color. A dark surface in light mode, light in
    dark — error paints danger. */
-.vx-toast {
-	background-color: var(--color-text);
-	color: var(--color-surface);
-	border-radius: var(--radius-md);
-	corner-shape: squircle;
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-	padding: 16px;
-	font-size: 14px;
-	line-height: 20px;
-}
+	.vx-toast {
+		background-color: var(--color-text);
+		color: var(--color-surface);
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+		padding: 16px;
+		font-size: 14px;
+		line-height: 20px;
+	}
 
-.vx-toast--error {
-	background-color: var(--color-danger);
-	color: var(--color-onprimary);
-}
+	.vx-toast--error {
+		background-color: var(--color-danger);
+		color: var(--color-onprimary);
+	}
 
-/* ---------- carousel ---------- */
+	/* ---------- carousel ---------- */
 
-.vx-carousel-btn {
-	background-color: var(--color-surface);
-	color: var(--color-text);
-	border-width: 1px;
-	border-color: var(--color-border);
-	border-radius: 999px;
-	width: 32px;
-	height: 32px;
-	justify-content: center;
-	align-items: center;
-}
+	.vx-carousel-btn {
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: 999px;
+		width: 32px;
+		height: 32px;
+		justify-content: center;
+		align-items: center;
+	}
 
-.vx-carousel-fade-start {
-	background: linear-gradient(to right, var(--color-surface), transparent);
-}
+	.vx-carousel-fade-start {
+		background: linear-gradient(to right, var(--color-surface), transparent);
+	}
 
-.vx-carousel-fade-end {
-	background: linear-gradient(to left, var(--color-surface), transparent);
-}
+	.vx-carousel-fade-end {
+		background: linear-gradient(to left, var(--color-surface), transparent);
+	}
 
-/* ---------- lightbox ---------- */
+	/* ---------- lightbox ---------- */
 
-.vx-lightbox-layer {
-	background-color: rgba(0, 0, 0, 0.9);
-}
+	.vx-lightbox-layer {
+		background-color: rgba(0, 0, 0, 0.9);
+	}
 
-.vx-lightbox {
-	background-color: #000000;
-	color: #fafafa;
-}
+	.vx-lightbox {
+		background-color: #000000;
+		color: #fafafa;
+	}
 
-.vx-lightbox-counter,
-.vx-lightbox-caption {
-	color: #fafafa;
-	font-size: 13px;
-}
+	.vx-lightbox-counter,
+	.vx-lightbox-caption {
+		color: #fafafa;
+		font-size: 13px;
+	}
 
-.vx-lightbox-nav,
-.vx-lightbox-close {
-	background-color: rgba(255, 255, 255, 0.12);
-	color: #fafafa;
-	border-radius: 999px;
-	width: 40px;
-	height: 40px;
-	justify-content: center;
-	align-items: center;
-}
+	.vx-lightbox-nav,
+	.vx-lightbox-close {
+		background-color: rgba(255, 255, 255, 0.12);
+		color: #fafafa;
+		border-radius: 999px;
+		width: 40px;
+		height: 40px;
+		justify-content: center;
+		align-items: center;
+	}
 
-/* ---------- scrollable area ---------- */
+	/* ---------- scrollable area ---------- */
 
-/* Intentionally bare — scrollbars stay platform-native. */
+	/* Intentionally bare — scrollbars stay platform-native. */
 }
 
 @layer xplat-chrome {
-/* Astryx action family: optional visual skin over always-on token geometry. */
-.vx-button--primary { background-color: var(--color-primary); color: var(--color-onprimary); }
-.vx-button--secondary { background-color: var(--color-surface-secondary); color: var(--color-text); }
-.vx-button--ghost { background-color: transparent; color: var(--color-text); }
-.vx-button--destructive { background-color: var(--color-danger); color: #fff; }
-.vx-button--disabled,
-.vx-card--disabled { opacity: 0.5; }
-.vx-button--icon { min-width: 36px; min-height: 36px; padding: 6px; }
-.vx-button--group-first,
-.vx-button--group-middle,
-.vx-button--group-last,
-.vx-button--group-only { border-radius: 0; }
-.vx-button-group,
-.vx-toggle-button-group { border-width: 1px; border-color: var(--color-border); border-radius: var(--radius-md); }
-/* xplat-web-only:start — connected DOM borders and clipping. */
-.vx-button-group,
-.vx-toggle-button-group { overflow: hidden; }
-.vx-button-group--horizontal > :not(:first-child),
-.vx-toggle-button-group--horizontal > :not(:first-child) { border-left-width: 1px; border-left-color: var(--color-border); }
-.vx-button-group--vertical > :not(:first-child),
-.vx-toggle-button-group--vertical > :not(:first-child) { border-top-width: 1px; border-top-color: var(--color-border); }
-/* xplat-web-only:end */
-.vx-toggle-button--pressed,
-.vx-selectable-card--selected { border-color: var(--color-primary); background-color: var(--color-surface-secondary); }
-.vx-card--muted { background-color: var(--color-surface-secondary); }
-.vx-card--transparent { background-color: transparent; }
-.vx-card--elev-low,
-.vx-button--elev-low { box-shadow: 0 1px 2px rgb(0 0 0 / 12%); }
-.vx-card--elev-med,
-.vx-button--elev-med { box-shadow: 0 3px 8px rgb(0 0 0 / 16%); }
-.vx-card--elev-high,
-.vx-button--elev-high { box-shadow: 0 8px 20px rgb(0 0 0 / 20%); }
-.vx-clickable-card,
-.vx-selectable-card { text-align: left; color: inherit; }
-.vx-power-search-row { border-width: 1px; border-color: var(--color-border); border-radius: var(--radius-md); padding: 4px 8px; background: var(--color-surface); }
-.vx-power-search-token-row { align-items: center; }
-.vx-power-search-token-label { max-width: 320px; }
-.vx-power-search-editor { min-width: 280px; padding: 12px; }
-.vx-power-search-editor-actions { justify-content: flex-end; }
-/* xplat-web-only:start — DOM interaction and scroll affordances. */
-.vx-clickable-card, .vx-selectable-card { display: flex; cursor: pointer; }
-.vx-power-search-row { display: flex; gap: 4px; }
-.vx-power-search-token-row { display: inline-flex; gap: 2px; }
-.vx-power-search-token-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.vx-power-search-result-list { max-height: 320px; overflow: auto; }
-.vx-power-search-result { display: block; width: 100%; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
-.vx-power-search-result:hover { background: var(--color-surface-secondary); }
-.vx-power-search-editor { display: flex; flex-direction: column; gap: 12px; }
-.vx-power-search-editor-actions { display: flex; gap: 8px; }
-/* xplat-web-only:end */
-/* Command search content shared by the panel and mobile search sheet. */
-.vx-cmdk-input-row { flex-direction: row; align-items: center; }
-.vx-cmdk-search { flex-grow: 1; }
-.vx-cmdk-heading { padding: 8px; font-size: 12px; opacity: 0.7; }
-.vx-cmdk-status { font-size: 12px; padding: 4px; }
-.vx-cmdk-highlighted { background-color: #e4e4e7; }
-.ns-dark .vx-cmdk-highlighted, .dark .vx-cmdk-highlighted { background-color: #333333; }
-.vx-cmdk-item-content { flex-grow: 1; }
-.vx-cmdk-description { font-size: 12px; opacity: 0.7; }
-.vx-cmdk-shortcut { font-size: 12px; margin-left: 8px; }
-.vx-cmdk-footer { padding: 8px; font-size: 12px; }
-.vx-cmdk-cancel { padding: 4px 8px; }
+	/* Astryx action family: optional visual skin over always-on token geometry. */
+	.vx-button--primary {
+		background-color: var(--color-primary);
+		color: var(--color-onprimary);
+	}
+	.vx-button--secondary {
+		background-color: var(--color-surface-secondary);
+		color: var(--color-text);
+	}
+	.vx-button--ghost {
+		background-color: transparent;
+		color: var(--color-text);
+	}
+	.vx-button--destructive {
+		background-color: var(--color-danger);
+		color: #fff;
+	}
+	.vx-button--disabled,
+	.vx-card--disabled {
+		opacity: 0.5;
+	}
+	.vx-button--icon {
+		min-width: 36px;
+		min-height: 36px;
+		padding: 6px;
+	}
+	.vx-button--group-first,
+	.vx-button--group-middle,
+	.vx-button--group-last,
+	.vx-button--group-only {
+		border-radius: 0;
+	}
+	.vx-button-group,
+	.vx-toggle-button-group {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+	}
+	/* xplat-web-only:start — connected DOM borders and clipping. */
+	.vx-button-group,
+	.vx-toggle-button-group {
+		overflow: hidden;
+	}
+	.vx-button-group--horizontal > :not(:first-child),
+	.vx-toggle-button-group--horizontal > :not(:first-child) {
+		border-left-width: 1px;
+		border-left-color: var(--color-border);
+	}
+	.vx-button-group--vertical > :not(:first-child),
+	.vx-toggle-button-group--vertical > :not(:first-child) {
+		border-top-width: 1px;
+		border-top-color: var(--color-border);
+	}
+	/* xplat-web-only:end */
+	.vx-toggle-button--pressed,
+	.vx-selectable-card--selected {
+		border-color: var(--color-primary);
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-card--muted {
+		background-color: var(--color-surface-secondary);
+	}
+	.vx-card--transparent {
+		background-color: transparent;
+	}
+	.vx-card--elev-low,
+	.vx-button--elev-low {
+		box-shadow: 0 1px 2px rgb(0 0 0 / 12%);
+	}
+	.vx-card--elev-med,
+	.vx-button--elev-med {
+		box-shadow: 0 3px 8px rgb(0 0 0 / 16%);
+	}
+	.vx-card--elev-high,
+	.vx-button--elev-high {
+		box-shadow: 0 8px 20px rgb(0 0 0 / 20%);
+	}
+	.vx-clickable-card,
+	.vx-selectable-card {
+		text-align: left;
+		color: inherit;
+	}
+	.vx-power-search-row {
+		border-width: 1px;
+		border-color: var(--color-border);
+		border-radius: var(--radius-md);
+		padding: 4px 8px;
+		background: var(--color-surface);
+	}
+	.vx-power-search-token-row {
+		align-items: center;
+	}
+	.vx-power-search-token-label {
+		max-width: 320px;
+	}
+	.vx-power-search-editor {
+		min-width: 280px;
+		padding: 12px;
+	}
+	.vx-power-search-editor-actions {
+		justify-content: flex-end;
+	}
+	/* xplat-web-only:start — DOM interaction and scroll affordances. */
+	.vx-clickable-card,
+	.vx-selectable-card {
+		display: flex;
+		cursor: pointer;
+	}
+	.vx-power-search-row {
+		display: flex;
+		gap: 4px;
+	}
+	.vx-power-search-token-row {
+		display: inline-flex;
+		gap: 2px;
+	}
+	.vx-power-search-token-label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.vx-power-search-result-list {
+		max-height: 320px;
+		overflow: auto;
+	}
+	.vx-power-search-result {
+		display: block;
+		width: 100%;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+	.vx-power-search-result:hover {
+		background: var(--color-surface-secondary);
+	}
+	.vx-power-search-editor {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+	.vx-power-search-editor-actions {
+		display: flex;
+		gap: 8px;
+	}
+	/* xplat-web-only:end */
+	/* Command search content shared by the panel and mobile search sheet. */
+	.vx-cmdk-input-row {
+		flex-direction: row;
+		align-items: center;
+	}
+	.vx-cmdk-search {
+		flex-grow: 1;
+	}
+	.vx-cmdk-heading {
+		padding: 8px;
+		font-size: 12px;
+		opacity: 0.7;
+	}
+	.vx-cmdk-status {
+		font-size: 12px;
+		padding: 4px;
+	}
+	.vx-cmdk-highlighted {
+		background-color: #e4e4e7;
+	}
+	.ns-dark .vx-cmdk-highlighted,
+	.dark .vx-cmdk-highlighted {
+		background-color: #333333;
+	}
+	.vx-cmdk-item-content {
+		flex-grow: 1;
+	}
+	.vx-cmdk-description {
+		font-size: 12px;
+		opacity: 0.7;
+	}
+	.vx-cmdk-shortcut {
+		font-size: 12px;
+		margin-left: 8px;
+	}
+	.vx-cmdk-footer {
+		padding: 8px;
+		font-size: 12px;
+	}
+	.vx-cmdk-cancel {
+		padding: 4px 8px;
+	}
 }
 
 .vx-select-option--highlighted {

@@ -25,7 +25,8 @@ const defaultAppShellMobile: AppShellMobileContextValue = {
 	hasAutoToggle: true,
 }
 
-export const AppShellMobileContext = createContext<AppShellMobileContextValue>(defaultAppShellMobile)
+export const AppShellMobileContext =
+	createContext<AppShellMobileContextValue>(defaultAppShellMobile)
 
 export function useAppShellMobile(): AppShellMobileContextValue {
 	return useContext(AppShellMobileContext) ?? defaultAppShellMobile
@@ -77,7 +78,9 @@ export const TabListContext = createContext<TabListContextValue | null>(null)
 export function useTabListContext(): TabListContextValue {
 	const ctx = useContext(TabListContext)
 	if (ctx == null) {
-		throw new Error('useTabListContext must be used within TabList. Wrap your Tab/TabMenu in <TabList>.')
+		throw new Error(
+			'useTabListContext must be used within TabList. Wrap your Tab/TabMenu in <TabList>.',
+		)
 	}
 
 	return ctx

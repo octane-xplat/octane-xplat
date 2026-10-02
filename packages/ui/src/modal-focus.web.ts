@@ -4,8 +4,7 @@ type Scope = {
 	trigger: HTMLElement | null
 }
 
-const TAB_STOP_SELECTOR =
-	'a[href],button,input,textarea,select,[tabindex],[contenteditable="true"]'
+const TAB_STOP_SELECTOR = 'a[href],button,input,textarea,select,[tabindex],[contenteditable="true"]'
 
 const CLICK_TRIGGER_MAX_AGE_MS = 1000
 
@@ -43,11 +42,7 @@ function updateIsolation(): void {
 }
 
 function isTabStop(element: HTMLElement): boolean {
-	if (
-		element.tabIndex < 0 ||
-		element.matches(':disabled') ||
-		element.closest('[inert],[hidden]')
-	) {
+	if (element.tabIndex < 0 || element.matches(':disabled') || element.closest('[inert],[hidden]')) {
 		return false
 	}
 

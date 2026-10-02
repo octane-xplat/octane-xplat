@@ -30,14 +30,14 @@ features are incomplete there.
 A **target** is a platform where your app will run. Start with the browser;
 you can add phone targets after the first screen works.
 
-| Target  | What you get                                                                                                | Extra setup                                                                                                                    |
-| ------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Web     | The starter runs in a browser. Device features vary by browser.                                             | Node.js, pnpm, and a browser; see [create and run](toolchain.md#create-and-run).                                               |
-| iOS     | The starter uses native iOS views and device features through NativeScript.                                 | A Mac, Xcode, and [NativeScript setup](toolchain.md#run-on-ios-and-android). Real-device and release builds also need signing. |
-| Android | The starter uses native Android views and device features through NativeScript.                             | Android development tools, JDK 21, and an emulator or device; see [phone setup](toolchain.md#run-on-ios-and-android).          |
-| macOS   | Experimental native AppKit app or system WebView app; separate from the starter.                            | Apple Silicon, macOS 13.5+, and separate app configuration. See [macOS setup](../../apps/macos/README.md).                        |
-| Windows | Experimental WinUI 3 app; separate from the starter. UI support is incomplete.                              | A Windows host and preview dependencies; see [Windows setup](../platform/windows-setup.md) and [current limits](../notes/windows-notes.md).         |
-| Linux   | Experimental app displaying web content in WebKitGTK; exercised on Ubuntu 24.04. Separate from the starter. | A Linux host with WebKitGTK and separate package settings; see [Linux packaging](../platform/linux-package.md).                            |
+| Target  | What you get                                                                                                | Extra setup                                                                                                                                 |
+| ------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web     | The starter runs in a browser. Device features vary by browser.                                             | Node.js, pnpm, and a browser; see [create and run](toolchain.md#create-and-run).                                                            |
+| iOS     | The starter uses native iOS views and device features through NativeScript.                                 | A Mac, Xcode, and [NativeScript setup](toolchain.md#run-on-ios-and-android). Real-device and release builds also need signing.              |
+| Android | The starter uses native Android views and device features through NativeScript.                             | Android development tools, JDK 21, and an emulator or device; see [phone setup](toolchain.md#run-on-ios-and-android).                       |
+| macOS   | Experimental native AppKit app or system WebView app; separate from the starter.                            | Apple Silicon, macOS 13.5+, and separate app configuration. See [macOS setup](../../apps/macos/README.md).                                  |
+| Windows | Experimental WinUI 3 app; separate from the starter. UI support is incomplete.                              | A Windows host and preview dependencies; see [Windows setup](../platform/windows-setup.md) and [current limits](../notes/windows-notes.md). |
+| Linux   | Experimental app displaying web content in WebKitGTK; exercised on Ubuntu 24.04. Separate from the starter. | A Linux host with WebKitGTK and separate package settings; see [Linux packaging](../platform/linux-package.md).                             |
 
 An **emulator** or **simulator** lets you run a phone app on your computer.
 **Signing** identifies who made an app and is required for installing or

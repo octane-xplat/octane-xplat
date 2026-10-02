@@ -37,7 +37,12 @@ export function validateDrag(props: MotionProps) {
 			}
 
 			for (const target of [props.animate, props.whileTap, props.whileFocus]) {
-				if (target && typeof target === 'object' && !Array.isArray(target) && target[axis] !== undefined) {
+				if (
+					target &&
+					typeof target === 'object' &&
+					!Array.isArray(target) &&
+					target[axis] !== undefined
+				) {
 					throw new Error(`motion: drag and animation both own ${axis}`)
 				}
 			}

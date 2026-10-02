@@ -4,8 +4,7 @@
 
 ### Bug Fixes
 
-- *(release)* Align package repository URLs for provenance
-
+- _(release)_ Align package repository URLs for provenance
 
 ## [tsrx-typegen-v0.2.0] - 2026-10-01
 

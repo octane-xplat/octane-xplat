@@ -96,12 +96,12 @@ export function PackingRow(props: { packed: boolean; setPacked: (value: boolean)
 The [showcase plan](docs/notes/demos.md#product-showcase) separates four claims and
 the evidence each needs:
 
-| Claim                                                       | Evidence available now                                                                                                                                          |
-| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| One coherent app on all five targets                        | A planned showcase, not a shipped demo. See [target support](docs/start/spec.md#choose-your-targets).                                                                 |
+| Claim                                                       | Evidence available now                                                                                                                                                      |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| One coherent app on all five targets                        | A planned showcase, not a shipped demo. See [target support](docs/start/spec.md#choose-your-targets).                                                                       |
 | A shared edit appears in running targets                    | [Recorded web/iOS live-update check](docs/notes/toolchain-notes.md#dev-loop), plus [steps to check your app](docs/start/toolchain.md#see-a-shared-edit-in-running-targets). |
-| A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web.                             |
-| A focused implementation fits one platform                  | [File variants and import rules](docs/platform/module-resolution.md) explain how to isolate an OS control.                                                               |
+| A useful capability responds appropriately on each platform | [Photo capture behavior and setup](docs/platform/platform-services.md): OS capture on iOS/Android; browser capture or file selection on web.                                |
+| A focused implementation fits one platform                  | [File variants and import rules](docs/platform/module-resolution.md) explain how to isolate an OS control.                                                                  |
 
 These are different kinds of evidence: recorded experiments, documented
 contracts, and plans. Check the behaviors your app depends on before adopting

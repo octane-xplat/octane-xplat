@@ -101,7 +101,10 @@ export function findToastByUniqueID(uniqueID: string): ToastEntry | undefined {
 /** Resolved auto-hide contract: error toasts hold for manual dismissal
  *  unless `isAutoHide` overrides; info toasts auto-hide after
  *  `autoHideDuration` (default 5000ms). */
-export function toastTiming(options: ToastOptions): { isAutoHide: boolean; autoHideDuration: number } {
+export function toastTiming(options: ToastOptions): {
+	isAutoHide: boolean
+	autoHideDuration: number
+} {
 	const type = options.type ?? 'info'
 	return {
 		isAutoHide: options.isAutoHide ?? type !== 'error',

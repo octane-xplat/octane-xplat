@@ -10,9 +10,13 @@ const memory = new Map<string, string>()
 export function loadResizableState(key: string): PersistedResizableState | null {
 	try {
 		const raw = memory.get(key)
-		if (raw == null) {return null}
+		if (raw == null) {
+			return null
+		}
 		const parsed = JSON.parse(raw)
-		if (typeof parsed === 'number') {return { size: parsed }}
+		if (typeof parsed === 'number') {
+			return { size: parsed }
+		}
 		if (typeof parsed === 'object' && parsed !== null) {
 			const size = typeof parsed.size === 'number' ? parsed.size : null
 			return { size, isCollapsed: parsed.isCollapsed === true }

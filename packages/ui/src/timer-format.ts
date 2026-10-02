@@ -25,10 +25,7 @@ export function elapsedMilliseconds(now: number, startTime: number): number {
 	return Math.max(0, now - startTime)
 }
 
-export function timerPresentation(
-	elapsedMs: number,
-	format: TimerFormat,
-): TimerPresentation {
+export function timerPresentation(elapsedMs: number, format: TimerFormat): TimerPresentation {
 	const elapsedSeconds = Math.floor(elapsedMs / ONE_SECOND_MS)
 
 	if (format === 'clock') {

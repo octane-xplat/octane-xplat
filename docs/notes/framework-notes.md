@@ -51,15 +51,15 @@ app screens / features          shared .tsrx — primitives + services only
 
 ## What we own (the seven problems)
 
-| #   | Surface                                     | One-line contract                                                                                                                                                  |
-| --- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | [primitives](../app/primitives.md)                 | RN-shaped vocabulary (`View`/`Text`/`Pressable`/`List`/`Modal`…); leaf files speak native intrinsics; prop conventions = `className`/`style`(dip)/refs/escape bags |
-| 2   | [navigation](../app/navigation.md)                 | Shared route table + `Link`/`useNavigate`/`goBack`; shells split `_layout.web` and the unsuffixed native default; modals = own roots (`component`+`params`)        |
-| 3   | [module-resolution](../platform/module-resolution.md)   | `resolve.extensions` ordering + TS `moduleSuffixes`; `.tsrx` default dialect; dual tsconfig typecheck                                                              |
+| #   | Surface                                               | One-line contract                                                                                                                                                  |
+| --- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | [primitives](../app/primitives.md)                    | RN-shaped vocabulary (`View`/`Text`/`Pressable`/`List`/`Modal`…); leaf files speak native intrinsics; prop conventions = `className`/`style`(dip)/refs/escape bags |
+| 2   | [navigation](../app/navigation.md)                    | Shared route table + `Link`/`useNavigate`/`goBack`; shells split `_layout.web` and the unsuffixed native default; modals = own roots (`component`+`params`)        |
+| 3   | [module-resolution](../platform/module-resolution.md) | `resolve.extensions` ordering + TS `moduleSuffixes`; `.tsrx` default dialect; dual tsconfig typecheck                                                              |
 | 4   | [testing](../verify/testing.md)                       | Compiler `validation` first; lint backstops; `createObjectDriver` mock-host tests; dual `tsrx-tsc` matrix                                                          |
-| 5   | [animation-gestures](../app/animation-gestures.md) | `useAnimation().to/spring` + `useGesture`; imperative writes per frame; JS spring integrator (native `spring` diverges)                                            |
-| 6   | [platform-services](../platform/platform-services.md)   | `Capability{supported,ensure,impl}`; `useAppState`/`useBackHandler`/`useColorScheme`; sync storage                                                                 |
-| 7   | [toolchain](../start/toolchain.md)                   | Two vite builds (`@octanejs/vite-plugin` / `@nativescript/vite`+`vite-octane`); pinned matrix; patch-package accepted                                              |
+| 5   | [animation-gestures](../app/animation-gestures.md)    | `useAnimation().to/spring` + `useGesture`; imperative writes per frame; JS spring integrator (native `spring` diverges)                                            |
+| 6   | [platform-services](../platform/platform-services.md) | `Capability{supported,ensure,impl}`; `useAppState`/`useBackHandler`/`useColorScheme`; sync storage                                                                 |
+| 7   | [toolchain](../start/toolchain.md)                    | Two vite builds (`@octanejs/vite-plugin` / `@nativescript/vite`+`vite-octane`); pinned matrix; patch-package accepted                                              |
 
 ## File conventions
 

@@ -1,8 +1,4 @@
-import type {
-	ResizablePercentSize,
-	ResizablePixelSize,
-	ResizableSize,
-} from './props'
+import type { ResizablePercentSize, ResizablePixelSize, ResizableSize } from './props'
 
 /**
  * Resizable size math — 1:1 port of Astryx's parse/toPixels/clamp helpers.
@@ -26,7 +22,7 @@ export function percent(
 		throw new Error(`percent(): value must be a number in [0, 100], received ${String(value)}`)
 	}
 
-	if (!constraint || (('min' in constraint) === ('max' in constraint))) {
+	if (!constraint || 'min' in constraint === 'max' in constraint) {
 		throw new Error('percent(): supply exactly one of { min: pixel(px) } or { max: pixel(px) }')
 	}
 
@@ -54,7 +50,9 @@ export function isPercentSize(v: unknown): v is ResizablePercentSize {
  *   percentage sizes and bounds. Returns null when the size cannot resolve.
  */
 export function toPixels(size: ResizableSize | undefined, basis: number): number | null {
-	if (size == null) {return null}
+	if (size == null) {
+		return null
+	}
 	if (typeof size === 'number') {
 		return size
 	}
@@ -81,8 +79,12 @@ export function toPixels(size: ResizableSize | undefined, basis: number): number
 
 	if (isPercentSize(size)) {
 		const px = (size.value / 100) * basis
-		if ('min' in size && size.min) {return Math.max(px, size.min.value)}
-		if ('max' in size && size.max) {return Math.min(px, size.max.value)}
+		if ('min' in size && size.min) {
+			return Math.max(px, size.min.value)
+		}
+		if ('max' in size && size.max) {
+			return Math.min(px, size.max.value)
+		}
 		return px
 	}
 
@@ -91,7 +93,12 @@ export function toPixels(size: ResizableSize | undefined, basis: number): number
 
 /** Clamp a size to [min, max] then snap to the nearest configured snap
  *  point. Snaps always win — the panel can only rest at snap values. */
-export function clampSize(size: number, minPx: number, maxPx: number, snaps: readonly number[]): number {
+export function clampSize(
+	size: number,
+	minPx: number,
+	maxPx: number,
+	snaps: readonly number[],
+): number {
 	const clamped = Math.max(minPx, Math.min(size, maxPx))
 	if (snaps.length === 0) {
 		return clamped

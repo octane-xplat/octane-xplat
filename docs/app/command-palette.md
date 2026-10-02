@@ -120,11 +120,11 @@ space still needs device verification for your chosen height/content.
 
 ## Platform boundaries and verification
 
-| Target                 | Presentation and interaction                                                                                                                | Verification boundary                                                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Web / desktop webviews | Body-portal modal panel, named combobox/listbox, polite loading/result status, keyboard and pointer selection                               | Component and Chromium probes cover dispatched events; browser/AT and real OS input remain separate checks                |
+| Target                 | Presentation and interaction                                                                                                                                  | Verification boundary                                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Web / desktop webviews | Body-portal modal panel, named combobox/listbox, polite loading/result status, keyboard and pointer selection                                                 | Component and Chromium probes cover dispatched events; browser/AT and real OS input remain separate checks                |
 | iOS / Android          | Existing bottom-sheet surface with keyboard lift, bounded scrollable results, visible Clear/Cancel, row names/disabled states and native status announcements | Search/Return submits the query; tapping a row activates it. No hardware-key highlight adapter is installed on mobile yet |
-| Native macOS           | Experimental inline panel, live field search observer, window/editor-scoped key monitor, tap selection and Cancel                           | No shade/modal isolation. Hardware-key/VoiceOver and offscreen-highlight scrolling need native verification               |
+| Native macOS           | Experimental inline panel, live field search observer, window/editor-scoped key monitor, tap selection and Cancel                                             | No shade/modal isolation. Hardware-key/VoiceOver and offscreen-highlight scrolling need native verification               |
 
 Native and web exports share `CommandPaletteProps`, `CommandPaletteItem`, and
 `CommandPaletteMenuItem`. Platform-specific implementation remains behind file

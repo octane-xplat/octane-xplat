@@ -9,8 +9,7 @@ let nextId = 0
 let worker: Worker | null = null
 let workerGeneration = 0
 
-const toError = (reason: unknown) =>
-	reason instanceof Error ? reason : new Error(String(reason))
+const toError = (reason: unknown) => (reason instanceof Error ? reason : new Error(String(reason)))
 
 const failWorker = (instance: Worker, error: Error) => {
 	if (worker !== instance) {
@@ -34,7 +33,9 @@ const ensureWorker = (): Worker => {
 		// the ?url import inside the worker module.
 		const instance = new Worker(new URL('./worker.web.ts', import.meta.url), { type: 'module' })
 		worker = instance
-		instance.onmessage = (event: MessageEvent<{ id: number; result?: unknown; error?: string }>) => {
+		instance.onmessage = (
+			event: MessageEvent<{ id: number; result?: unknown; error?: string }>,
+		) => {
 			if (worker !== instance) {
 				return
 			}

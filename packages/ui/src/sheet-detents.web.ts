@@ -1,5 +1,10 @@
 import { setTranslate } from './translate.web'
-import { DETENT_FLICK_VELOCITY, detentOffset, normalizeDetents, snapDetentIndex } from './sheet-snap'
+import {
+	DETENT_FLICK_VELOCITY,
+	detentOffset,
+	normalizeDetents,
+	snapDetentIndex,
+} from './sheet-snap'
 
 const SNAP_MS = 200
 
@@ -163,7 +168,9 @@ export function attachSheetDetents(
 	// Slide in from below the screen edge, matching the native leaf's
 	// translateY = vh → resting enter animation.
 	applyTy(vh())
-	const raf = requestAnimationFrame(() => animateTo(swipeOnly ? 0 : detentOffset(sorted, cur, vh())))
+	const raf = requestAnimationFrame(() =>
+		animateTo(swipeOnly ? 0 : detentOffset(sorted, cur, vh())),
+	)
 
 	return {
 		detach: () => {

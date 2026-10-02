@@ -280,14 +280,14 @@ they differ in `jsxImportSource` and which leaf files are in scope. Details in
 
 ## Where the seams are (index)
 
-| Seam                                       | Doc                                         |
-| ------------------------------------------ | ------------------------------------------- |
-| File vocabulary split, resolver, tsconfig  | [module-resolution](../platform/module-resolution.md)   |
-| Element/component abstraction              | [primitives](../app/primitives.md)                 |
-| Shared styling language                    | [styling](../app/styling.md)                       |
-| Animation + gesture normalization          | [animation-gestures](../app/animation-gestures.md) |
-| URL routing vs Frame/Page, modals-as-roots | [navigation](../app/navigation.md)                 |
-| Storage, lifecycle, a11y, icons, safe area | [platform-services](../platform/platform-services.md)   |
-| Build/HMR/CI/version pinning               | [toolchain](../start/toolchain.md)                   |
+| Seam                                       | Doc                                                   |
+| ------------------------------------------ | ----------------------------------------------------- |
+| File vocabulary split, resolver, tsconfig  | [module-resolution](../platform/module-resolution.md) |
+| Element/component abstraction              | [primitives](../app/primitives.md)                    |
+| Shared styling language                    | [styling](../app/styling.md)                          |
+| Animation + gesture normalization          | [animation-gestures](../app/animation-gestures.md)    |
+| URL routing vs Frame/Page, modals-as-roots | [navigation](../app/navigation.md)                    |
+| Storage, lifecycle, a11y, icons, safe area | [platform-services](../platform/platform-services.md) |
+| Build/HMR/CI/version pinning               | [toolchain](../start/toolchain.md)                    |
 | How we verify each target                  | [testing](../verify/testing.md)                       |
-| Unresolved seams                           | [open-questions](open-questions.md)         |
+| Unresolved seams                           | [open-questions](open-questions.md)                   |

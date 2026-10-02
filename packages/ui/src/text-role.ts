@@ -30,7 +30,14 @@ const VALID_SIZES = new Set([
 	'4xl',
 ])
 
-const VALID_COLORS = new Set(['primary', 'secondary', 'disabled', 'placeholder', 'accent', 'inherit'])
+const VALID_COLORS = new Set([
+	'primary',
+	'secondary',
+	'disabled',
+	'placeholder',
+	'accent',
+	'inherit',
+])
 const VALID_WEIGHTS = new Set(['normal', 'medium', 'semibold', 'bold'])
 
 /** Class list for the type/color/weight axes; null when nothing applies. */

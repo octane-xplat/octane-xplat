@@ -23,7 +23,9 @@ export function runAnimationFixture() {
 	let previous
 	const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 	const check = (condition, message) => {
-		if (!condition) {throw new Error(message)}
+		if (!condition) {
+			throw new Error(message)
+		}
 	}
 
 	root.render(Content, { revision: 0 })
@@ -45,7 +47,9 @@ export function runAnimationFixture() {
 				'Opacity did not reach NSView',
 			)
 
-			if (!reduced) {check(x.value > 0 && x.value < 100, 'No intermediate translation sample')}
+			if (!reduced) {
+				check(x.value > 0 && x.value < 100, 'No intermediate translation sample')
+			}
 			root.render(Content, { revision: 1 })
 			await wait(40)
 			check(x === previous, 'Controller changed across renders')
@@ -55,7 +59,9 @@ export function runAnimationFixture() {
 			check(x.value === stopped, 'stop did not freeze')
 			x.spring(-40)
 			await wait(120)
-			if (!reduced) {check(x.value !== -40 && x.value !== stopped, 'Spring did not sample')}
+			if (!reduced) {
+				check(x.value !== -40 && x.value !== stopped, 'Spring did not sample')
+			}
 			await wait(2200)
 			check(x.value === -40, 'Spring did not settle exactly')
 			check(

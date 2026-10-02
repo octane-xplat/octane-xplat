@@ -7,14 +7,11 @@ import { sanitizeUrl } from './safe-url'
 
 describe('portable content display helpers', () => {
 	it('builds stable, deduplicated outline items and ignores fenced code', () => {
-		expect(parseOutlineFromMarkdown([
-			'# Setup',
-			'## Install',
-			'## Setup',
-			'```md',
-			'# Not a heading',
-			'```',
-		].join('\n'))).toEqual([
+		expect(
+			parseOutlineFromMarkdown(
+				['# Setup', '## Install', '## Setup', '```md', '# Not a heading', '```'].join('\n'),
+			),
+		).toEqual([
 			{ id: 'setup', label: 'Setup', level: 1 },
 			{ id: 'install', label: 'Install', level: 2 },
 			{ id: 'setup-1', label: 'Setup', level: 2 },
@@ -34,9 +31,11 @@ describe('portable content display helpers', () => {
 	})
 
 	it('formats explicit timestamp zones without depending on the host zone', () => {
-		expect(formatInstant(new Date('2025-03-21T14:51:53Z'), 'system_date_time', 'en-US', {
-			timeZone: 'UTC',
-		})).toBe('2025-03-21 14:51:53')
+		expect(
+			formatInstant(new Date('2025-03-21T14:51:53Z'), 'system_date_time', 'en-US', {
+				timeZone: 'UTC',
+			}),
+		).toBe('2025-03-21 14:51:53')
 	})
 
 	it('normalizes safe citation URLs and rejects executable schemes', () => {

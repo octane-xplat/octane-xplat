@@ -51,7 +51,7 @@ function DropTarget() {
 	return <View id="drop-target" ref={drop.ref} style={{ height: 40 }} />
 }
 
-	afterEach(() => {
+afterEach(() => {
 	for (const root of roots.splice(0)) {
 		act(() => root.unmount())
 	}

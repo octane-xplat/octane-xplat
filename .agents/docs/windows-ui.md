@@ -27,14 +27,14 @@ modals, and locale formatting. Findings below are verified on the Windows VM
 unless identified as a source lead. The table records the original blockers;
 the repair follow-up above links their current status.
 
-| Priority | Owner and blocker | Evidence / next fix |
-| --- | --- | --- |
-| 1 | Windows runtime: locale formatting | UTC dates still crash the process; number formatting throws an ICU error. ICU initialization/data is a source lead requiring native-binary verification. |
-| 2 | NativeScript core: pointer observers | A subscriber dispatcher restores real Pressable clicks and observer removal/reattachment. Harden lifecycle, cancellation, and routed-event fallback before shipping. |
-| 3 | NativeScript core: essential input contracts | Native focus, focus-event forwarding, disabled state and explicit names work in probes. Their core wiring is missing; secure read-only and literal reset-keyword values also fail. |
-| 4 | Native widget/core: layout | Flexbox ignores padding while Grid/Stack honor it. Popover backdrop percentages stay at zero; a post-parent-layout refresh restores OS dismissal. Implement native padding and percentage initialization/resize ownership. |
-| 5 | Octane / driver / UI leaves: content | Explicit child arrays restore collection boundaries; native styled runs work. Add supported child normalization, Span ownership, and correct leaf text-slot hosting. |
-| 6 | Desktop UI/native semantics | Dialog lacks initial focus, Tab containment, Escape and focus restoration. Shared Switch lacks focus/TogglePattern; a native WinUI control supports both. Add modal focus/key lifetime and semantic-control/AutomationPeer adapters. |
+| Priority | Owner and blocker                            | Evidence / next fix                                                                                                                                                                                                                  |
+| -------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1        | Windows runtime: locale formatting           | UTC dates still crash the process; number formatting throws an ICU error. ICU initialization/data is a source lead requiring native-binary verification.                                                                             |
+| 2        | NativeScript core: pointer observers         | A subscriber dispatcher restores real Pressable clicks and observer removal/reattachment. Harden lifecycle, cancellation, and routed-event fallback before shipping.                                                                 |
+| 3        | NativeScript core: essential input contracts | Native focus, focus-event forwarding, disabled state and explicit names work in probes. Their core wiring is missing; secure read-only and literal reset-keyword values also fail.                                                   |
+| 4        | Native widget/core: layout                   | Flexbox ignores padding while Grid/Stack honor it. Popover backdrop percentages stay at zero; a post-parent-layout refresh restores OS dismissal. Implement native padding and percentage initialization/resize ownership.           |
+| 5        | Octane / driver / UI leaves: content         | Explicit child arrays restore collection boundaries; native styled runs work. Add supported child normalization, Span ownership, and correct leaf text-slot hosting.                                                                 |
+| 6        | Desktop UI/native semantics                  | Dialog lacks initial focus, Tab containment, Escape and focus restoration. Shared Switch lacks focus/TogglePattern; a native WinUI control supports both. Add modal focus/key lifetime and semantic-control/AutomationPeer adapters. |
 
 The first source fixes should address shared seams, with independent component
 checks afterward. A passing diagnostic does not unpark every dependent control.
@@ -506,8 +506,7 @@ and body text has no requested10-DIP inset or16-DIP bottom padding.
 The combined extra-input case mounted all rows but exited during real typing
 with nativescript.DLL access violation0xc0000005. No individual control is blamed
 for that combined crash. An isolated PIN case with700ms pauses logs1,2,2,2,
-does not advance through cells, and never completes1234; its first Edit reports
-342. PIN auto-advance/control ordering is parked on that reproduction.
+does not advance through cells, and never completes1234; its first Edit reports 342. PIN auto-advance/control ordering is parked on that reproduction.
 
 Real OS backdrop input dismisses a bounded300×200 Drawer outside its280-DIP
 panel. Popover's first outside click leaves its panel mounted, despite correct
@@ -652,12 +651,12 @@ to its backup before these form cases.
 The asymmetric inset case uses left17/top7/right13/bottom11 DIP. Native
 `TransformToVisual(parent).TransformPoint(0,0)` and actual sizes show:
 
-| Case | Container | Child result |
-| --- | --- | --- |
-| Fixed Flexbox/View | 200×60 | Width200, offset0,0; insets ignored |
-| Auto-height Flexbox/View | Width200 | Parent height10, child height10; expected parent height28 from top7 + child10 + bottom11 |
-| Grid control | 200×60 | Width170, offset17,23; vertical centering occurs within the inset content box |
-| Stack control | 200×60 | Width170, offset17,7 |
+| Case                     | Container | Child result                                                                             |
+| ------------------------ | --------- | ---------------------------------------------------------------------------------------- |
+| Fixed Flexbox/View       | 200×60    | Width200, offset0,0; insets ignored                                                      |
+| Auto-height Flexbox/View | Width200  | Parent height10, child height10; expected parent height28 from top7 + child10 + bottom11 |
+| Grid control             | 200×60    | Width170, offset17,23; vertical centering occurs within the inset content box            |
+| Stack control            | 200×60    | Width170, offset17,7                                                                     |
 
 The fifth probe used a `flexDirection` prop on View, which View does not forward;
 its row-labeled result is excluded from directional evidence. The fixed and
@@ -684,10 +683,10 @@ C++ toolchain, so no modified native-widget binary was built or verified.
 An isolated counterfactual case confirms the collection failures depend on the
 shape of `children`, rather than the max/numbering arithmetic:
 
-| Component | Normal JSX children | Explicit `children={[...]}` diagnostic |
-| --- | --- | --- |
-| AvatarGroup, max2, three avatars | AA/BB/CC, no overflow avatar | AA/BB/+1 |
-| Decimal List, two Text children | One `1.` marker; both texts share its row | Separate `1.` and `2.` rows |
+| Component                        | Normal JSX children                       | Explicit `children={[...]}` diagnostic |
+| -------------------------------- | ----------------------------------------- | -------------------------------------- |
+| AvatarGroup, max2, three avatars | AA/BB/CC, no overflow avatar              | AA/BB/+1                               |
+| Decimal List, two Text children  | One `1.` marker; both texts share its row | Separate `1.` and `2.` rows            |
 
 This diagnostic is not a proposed public API workaround. Compiler-generated
 children arrive as `UniversalChildrenValue`; its public `render` function returns
@@ -754,14 +753,14 @@ A stable modal with a text field and native close button opens via a real OS
 click. The interactive keyboard task completes with result0; UI Automation
 records focus after each action:
 
-| Action | Focus | Modal still present? |
-| --- | --- | --- |
-| Open Dialog | Open dialog button outside modal | Yes |
-| Tab after opening | Background action outside modal | Yes |
-| Focus Dialog field, press Escape | Dialog field | Yes |
-| Tab from Dialog field | Close dialog button | Yes |
-| Tab again | Underlying field outside modal | Yes |
-| OS click Close dialog | Underlying field | No |
+| Action                           | Focus                            | Modal still present? |
+| -------------------------------- | -------------------------------- | -------------------- |
+| Open Dialog                      | Open dialog button outside modal | Yes                  |
+| Tab after opening                | Background action outside modal  | Yes                  |
+| Focus Dialog field, press Escape | Dialog field                     | Yes                  |
+| Tab from Dialog field            | Close dialog button              | Yes                  |
+| Tab again                        | Underlying field outside modal   | Yes                  |
+| OS click Close dialog            | Underlying field                 | No                   |
 
 This establishes missing initial modal focus, focus containment/background
 inertness, Escape dismissal, and restoration to the opener. Programmatic field
@@ -781,7 +780,7 @@ Two isolated cases on the unchanged Windows runtime narrow the existing crash:
   but `format(1234.5)` throws a catchable
   `TypeError: Internal error. Icu error.` The process stays alive.
 - `Intl.DateTimeFormat('en-US', {timeZone:'UTC', year:'numeric', month:'long',
-  day:'numeric'})` still terminates before the constructor returns. No catch
+day:'numeric'})` still terminates before the constructor returns. No catch
   log appears. The process is absent and a fresh Application1000 event records
   `nativescript.DLL`, exception80000003.
 
@@ -827,10 +826,10 @@ driver. The probe explicitly assigns an AutomationProperties.Name to the shared
 control, isolating semantic behavior from the previously confirmed naming gap.
 The interactive OS input task completes with result0:
 
-| Control | UIA type | Keyboard focus | TogglePattern | OS activation |
-| --- | --- | --- | --- | --- |
-| Shared Switch + explicit native name | Group | SetFocus rejected | Missing | No keyboard test possible |
-| Native WinUI ToggleSwitch | Button | Accepted | Present | Mouse toggles false→true; Space toggles true→false |
+| Control                              | UIA type | Keyboard focus    | TogglePattern | OS activation                                      |
+| ------------------------------------ | -------- | ----------------- | ------------- | -------------------------------------------------- |
+| Shared Switch + explicit native name | Group    | SetFocus rejected | Missing       | No keyboard test possible                          |
+| Native WinUI ToggleSwitch            | Button   | Accepted          | Present       | Mouse toggles false→true; Space toggles true→false |
 
 The native Toggled delegate reports both changes. This proves that the bridge
 and native control can supply keyboard/toggle semantics; setting accessibility

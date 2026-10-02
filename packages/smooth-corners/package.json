@@ -1,19 +1,19 @@
 {
 	"name": "@octane-xplat/smooth-corners",
 	"version": "0.7.3",
-	"description": "Exact-match smooth corners for Octane xplat \u2014 one generated curve (Rosenfeld continuous, Figma squircle, superellipse, clothoid) clipped natively on web, iOS, Android, and macOS",
+	"description": "Exact-match smooth corners for Octane xplat — one generated curve (Rosenfeld continuous, Figma squircle, superellipse, clothoid) clipped natively on web, iOS, Android, and macOS",
 	"keywords": [
-		"octane",
-		"xplat",
-		"cross-platform",
-		"squircle",
-		"smooth-corners",
-		"corner-smoothing",
 		"clip-path",
-		"nativescript"
+		"corner-smoothing",
+		"cross-platform",
+		"nativescript",
+		"octane",
+		"smooth-corners",
+		"squircle",
+		"xplat"
 	],
-	"license": "MIT",
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/smooth-corners",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
@@ -35,7 +35,6 @@
 		}
 	},
 	"publishConfig": {
-		"access": "public",
 		"exports": {
 			".": {
 				"types": "./types/index.d.ts",
@@ -44,7 +43,8 @@
 				"native": "./dist/native/index.js",
 				"default": "./dist/native/index.js"
 			}
-		}
+		},
+		"access": "public"
 	},
 	"scripts": {
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",

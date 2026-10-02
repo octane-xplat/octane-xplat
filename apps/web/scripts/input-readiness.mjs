@@ -105,7 +105,8 @@ try {
 						triggerConnected: trigger?.isConnected,
 						triggerIsInert: trigger?.closest('[inert]') != null,
 						rootInert: document.getElementById('root')?.inert,
-						modalLayers: [...document.querySelectorAll('.vx-sheet-layer, .vx-overlay-layer')].length,
+						modalLayers: [...document.querySelectorAll('.vx-sheet-layer, .vx-overlay-layer')]
+							.length,
 					}
 				}, name),
 			)
@@ -170,9 +171,13 @@ try {
 	await page.locator('#presence-input').focus()
 	assert.equal(await focused(), 'presence-input')
 	await page.locator('#open-command-palette').click()
-	await page.waitForFunction(() => document.activeElement?.classList.contains('vx-cmdk-search'), null, {
-		timeout: 10000,
-	})
+	await page.waitForFunction(
+		() => document.activeElement?.classList.contains('vx-cmdk-search'),
+		null,
+		{
+			timeout: 10000,
+		},
+	)
 
 	assert.equal(await page.getByRole('dialog', { name: 'Command palette', exact: true }).count(), 1)
 	await page.keyboard.press('Escape')
@@ -188,7 +193,9 @@ try {
 				triggerConnected: document.getElementById('open-command-palette')?.isConnected,
 				triggerInert: document.getElementById('open-command-palette')?.closest('[inert]') != null,
 				rootInert: document.getElementById('root')?.inert,
-				dialogs: [...document.querySelectorAll('[role="dialog"]')].map((dialog) => dialog.outerHTML),
+				dialogs: [...document.querySelectorAll('[role="dialog"]')].map(
+					(dialog) => dialog.outerHTML,
+				),
 			})),
 		)
 

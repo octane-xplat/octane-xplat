@@ -65,7 +65,9 @@ export default defineConfig(({ mode }) => {
 		}),
 		build: {
 			lib: {
-				entry: { index: macos ? 'src/index.macos.ts' : native ? 'src/index.ts' : 'src/index.web.ts' },
+				entry: {
+					index: macos ? 'src/index.macos.ts' : native ? 'src/index.ts' : 'src/index.web.ts',
+				},
 				formats: ['es'],
 			},
 			outDir: macos ? 'dist/macos' : native ? 'dist/native' : 'dist/web',
@@ -79,11 +81,12 @@ export default defineConfig(({ mode }) => {
 					// instead: native code importing the DOM entry bundles a
 					// second octane runtime. Exact match only.
 					paths: platformNative
-						? (id) => id === 'octane'
-							? 'octane/universal/native'
-							: id === '@octane-xplat/macos-renderer'
-								? '@nativescript-community/octane'
-								: id
+						? (id) =>
+								id === 'octane'
+									? 'octane/universal/native'
+									: id === '@octane-xplat/macos-renderer'
+										? '@nativescript-community/octane'
+										: id
 						: undefined,
 				},
 				external: [
@@ -98,8 +101,15 @@ export default defineConfig(({ mode }) => {
 		resolve: {
 			conditions: [macos ? 'macos' : native ? 'native' : 'web'],
 			extensions: macos
-				? ['.macos.tsrx', '.macos.tsx', '.macos.ts', ...WEB_EXTS.filter((ext) => !ext.startsWith('.web'))]
-				: native ? NATIVE_EXTS : WEB_EXTS,
+				? [
+						'.macos.tsrx',
+						'.macos.tsx',
+						'.macos.ts',
+						...WEB_EXTS.filter((ext) => !ext.startsWith('.web')),
+					]
+				: native
+					? NATIVE_EXTS
+					: WEB_EXTS,
 		},
 	}
 })

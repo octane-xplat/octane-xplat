@@ -63,7 +63,9 @@ function computeSingleLineFit(
 	let count = 0
 
 	for (let i = 0; i < orderedWidths.length; i++) {
-		if (count >= ceiling) {break}
+		if (count >= ceiling) {
+			break
+		}
 
 		const itemWidth = orderedWidths[i]
 		const gapWidth = i > 0 ? gap : 0
@@ -74,7 +76,9 @@ function computeSingleLineFit(
 			? 0
 			: indicatorWidth + (count > 0 || indicatorWidth > 0 ? gap : 0)
 
-		if (candidateWidth + reservedWidth > availableWidth && count >= floor) {break}
+		if (candidateWidth + reservedWidth > availableWidth && count >= floor) {
+			break
+		}
 
 		totalWidth = candidateWidth
 		count++
@@ -114,13 +118,17 @@ function packRows(
 		if (isFirstInRow) {
 			// A single item wider than the row occupies this row alone — unless
 			// it can't coexist with the reserved indicator on the last row.
-			if (onLastRow && reserve > 0) {break}
+			if (onLastRow && reserve > 0) {
+				break
+			}
 			rowWidth = candidate
 			placed++
 			continue
 		}
 
-		if (row >= maxRows) {break}
+		if (row >= maxRows) {
+			break
+		}
 		row++
 		rowWidth = 0
 		i-- // re-attempt this item as the first on the new row
@@ -131,7 +139,9 @@ function packRows(
 
 /** Count how many rows a set of items occupies when wrapped at availableWidth. */
 function countRows(orderedWidths: number[], gap: number, availableWidth: number): number {
-	if (orderedWidths.length === 0) {return 0}
+	if (orderedWidths.length === 0) {
+		return 0
+	}
 	let rows = 1
 	let rowWidth = 0
 	for (let i = 0; i < orderedWidths.length; i++) {
@@ -159,7 +169,9 @@ function computeMultiRowFit(
 	maxRows: number,
 ): { count: number; rows: number } {
 	const n = orderedWidths.length
-	if (n === 0) {return { count: 0, rows: 0 }}
+	if (n === 0) {
+		return { count: 0, rows: 0 }
+	}
 
 	// If everything fits within maxRows without reserving indicator space, no
 	// overflow and no indicator is needed.
@@ -200,7 +212,14 @@ export function computeOverflow(input: ComputeOverflowInput): ComputeOverflowRes
 	const isMultiRow = maxRows != null && maxRows > 1
 
 	if (!isMultiRow) {
-		const fitCount = computeSingleLineFit(ordered, gap, availableWidth, indicatorWidth, floor, ceiling)
+		const fitCount = computeSingleLineFit(
+			ordered,
+			gap,
+			availableWidth,
+			indicatorWidth,
+			floor,
+			ceiling,
+		)
 		const visibleCount = clamp(fitCount, floor, ceiling)
 		return { visibleCount, rows: visibleCount > 0 ? 1 : 0 }
 	}

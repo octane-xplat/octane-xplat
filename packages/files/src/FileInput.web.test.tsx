@@ -22,7 +22,9 @@ function mount(jsx: any) {
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) {act(() => root.unmount())}
+	for (const root of roots.splice(0)) {
+		act(() => root.unmount())
+	}
 	document.body.innerHTML = ''
 })
 
@@ -35,15 +37,19 @@ describe('FileInput (web)', () => {
 				onChange={change}
 				isMultiple={true}
 				accept=".txt"
-				pick={() => Promise.resolve([
-					{ name: 'ok.txt', uri: 'blob:1', size: 10 },
-					{ name: 'no.exe', uri: 'blob:2', size: 10 },
-				])}
+				pick={() =>
+					Promise.resolve([
+						{ name: 'ok.txt', uri: 'blob:1', size: 10 },
+						{ name: 'no.exe', uri: 'blob:2', size: 10 },
+					])
+				}
 			/>,
 		)
 
 		await act(async () => {
-			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(
+				new MouseEvent('click', { bubbles: true }),
+			)
 		})
 
 		expect(change).toHaveBeenCalledWith([{ name: 'ok.txt', uri: 'blob:1', size: 10 }])
@@ -61,7 +67,9 @@ describe('FileInput (web)', () => {
 		)
 
 		await act(async () => {
-			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(
+				new MouseEvent('click', { bubbles: true }),
+			)
 		})
 
 		expect(change).toHaveBeenCalledWith({ name: 'new.txt', uri: 'blob:new' })
@@ -79,7 +87,9 @@ describe('FileInput (web)', () => {
 		)
 
 		await act(async () => {
-			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(
+				new MouseEvent('click', { bubbles: true }),
+			)
 		})
 
 		expect(change).not.toHaveBeenCalled()

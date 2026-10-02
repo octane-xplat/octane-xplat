@@ -21,9 +21,9 @@
 		"octane": "0.6.3"
 	},
 	"devDependencies": {
-		"@octane-xplat/sqlite": "workspace:*",
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/sqlite": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"playwright": "1.63.0",
 		"typescript": "5.9.3",

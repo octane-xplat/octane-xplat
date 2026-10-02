@@ -16,9 +16,16 @@ export const DEFAULT_COLLAPSED_SIZE = 40
 export interface ResizableBasisSource {
 	/** Current basis in px/dips for the axis (container size, or the
 	 *  viewport/screen when no container is supplied). */
-	measure: (containerRef: { current: any } | undefined, direction: ResizableDirection) => number | null
+	measure: (
+		containerRef: { current: any } | undefined,
+		direction: ResizableDirection,
+	) => number | null
 	/** Subscribe to basis changes; returns an unsubscribe. */
-	observe: (containerRef: { current: any } | undefined, direction: ResizableDirection, cb: () => void) => () => void
+	observe: (
+		containerRef: { current: any } | undefined,
+		direction: ResizableDirection,
+		cb: () => void,
+	) => () => void
 	/** Storage key prefix — `astryx-resizable:` upstream. */
 	storagePrefix: string
 }
@@ -40,7 +47,9 @@ export interface ResizableMachine {
 const warned = new Set<string>()
 function devWarn(what: string, msg: string) {
 	const k = what + ':' + msg
-	if (warned.has(k)) {return}
+	if (warned.has(k)) {
+		return
+	}
 	warned.add(k)
 	console.warn(`[octane-xplat] ${what}: ${msg}`)
 }
@@ -55,7 +64,11 @@ export function createResizableRegion(
 	const direction: ResizableDirection = config.direction ?? 'horizontal'
 	const containerRef = config.containerRef
 	const persistKey = storageKey ?? config.autoSaveId
-	const persisted = persistKey ? loadResizableState(persistKey.startsWith(basis.storagePrefix) ? persistKey : basis.storagePrefix + persistKey) : null
+	const persisted = persistKey
+		? loadResizableState(
+				persistKey.startsWith(basis.storagePrefix) ? persistKey : basis.storagePrefix + persistKey,
+			)
+		: null
 
 	let listeners = new Set<() => void>()
 	let gestureBasis: number | null = null
@@ -84,7 +97,9 @@ export function createResizableRegion(
 	const snaps = () => cfg.snaps ?? []
 
 	const initialSize = () => {
-		if (persisted?.size != null) {return persisted.size}
+		if (persisted?.size != null) {
+			return persisted.size
+		}
 		const d = toPixels(cfg.defaultSize, basisValue ?? 0)
 		return d ?? 0
 	}
@@ -93,7 +108,8 @@ export function createResizableRegion(
 	let uncontrolledCollapsed = persisted?.isCollapsed ?? cfg.defaultIsCollapsed ?? false
 
 	const isControlled = () => cfg.isCollapsed !== undefined
-	const isCollapsed = () => (cfg.collapsible ? (isControlled() ? cfg.isCollapsed! : uncontrolledCollapsed) : false)
+	const isCollapsed = () =>
+		cfg.collapsible ? (isControlled() ? cfg.isCollapsed! : uncontrolledCollapsed) : false
 
 	const recomputeSnapshot = () => {
 		const size = isCollapsed() ? 0 : chosenSize
@@ -105,13 +121,18 @@ export function createResizableRegion(
 	recomputeSnapshot()
 
 	const setCollapsed = (value: boolean) => {
-		if (!isControlled()) {uncontrolledCollapsed = value}
+		if (!isControlled()) {
+			uncontrolledCollapsed = value
+		}
 	}
 
 	const notify = () => {
 		if (resolvedMin() > resolvedMax() && !didWarnInverted) {
 			didWarnInverted = true
-			devWarn('useResizable', `the resolved minimum (${resolvedMin()}px) is above the resolved maximum (${resolvedMax()}px). The maximum wins.`)
+			devWarn(
+				'useResizable',
+				`the resolved minimum (${resolvedMin()}px) is above the resolved maximum (${resolvedMax()}px). The maximum wins.`,
+			)
 		}
 
 		if (persistKey && isBasisMeasured()) {
@@ -126,7 +147,9 @@ export function createResizableRegion(
 	}
 
 	const collapse = () => {
-		if (!cfg.collapsible || isCollapsed()) {return}
+		if (!cfg.collapsible || isCollapsed()) {
+			return
+		}
 		setCollapsed(true)
 		cfg.onCollapseChange?.(true)
 		cfg.onSizeChange?.(0)
@@ -136,14 +159,19 @@ export function createResizableRegion(
 	const expand = () => {
 		const wasCollapsed = isCollapsed()
 		setCollapsed(false)
-		if (wasCollapsed) {cfg.onCollapseChange?.(false)}
+		if (wasCollapsed) {
+			cfg.onCollapseChange?.(false)
+		}
 		cfg.onSizeChange?.(chosenSize)
 		notify()
 	}
 
 	const resize = (newSize: number) => {
 		if (!Number.isFinite(newSize) || newSize < 0) {
-			devWarn('useResizable', `resize(${String(newSize)}) is not a pixel size. Keeping the current size. Percentages configure the hook; they are not a programmatic input.`)
+			devWarn(
+				'useResizable',
+				`resize(${String(newSize)}) is not a pixel size. Keeping the current size. Percentages configure the hook; they are not a programmatic input.`,
+			)
 			return
 		}
 
@@ -151,7 +179,9 @@ export function createResizableRegion(
 		const wasCollapsed = isCollapsed()
 		chosenSize = clamped
 		setCollapsed(false)
-		if (wasCollapsed) {cfg.onCollapseChange?.(false)}
+		if (wasCollapsed) {
+			cfg.onCollapseChange?.(false)
+		}
 		cfg.onSizeChange?.(clamped)
 		notify()
 	}
@@ -223,7 +253,14 @@ export function createResizableRegion(
 	syncProps()
 
 	const machine: ResizableMachine = {
-		region: { size: snapshot.size, isCollapsed: snapshot.isCollapsed, collapse, expand, resize, props },
+		region: {
+			size: snapshot.size,
+			isCollapsed: snapshot.isCollapsed,
+			collapse,
+			expand,
+			resize,
+			props,
+		},
 		subscribe: (cb) => {
 			listeners.add(cb)
 			return () => listeners.delete(cb)
@@ -237,9 +274,13 @@ export function createResizableRegion(
 			return snapshot
 		},
 		remeasure: () => {
-			if (gestureBasis != null) {return} // frozen mid-gesture
+			if (gestureBasis != null) {
+				return
+			} // frozen mid-gesture
 			const next = basis.measure(containerRef, direction)
-			if (next == null || next === basisValue) {return}
+			if (next == null || next === basisValue) {
+				return
+			}
 			basisValue = next
 			// Re-resolve the selection against the new basis.
 			chosenSize = clampSize(chosenSize, resolvedMin(), resolvedMax(), snaps())
@@ -265,8 +306,12 @@ export function createResizableRegion(
 
 /** Map a component's simplified `resizable` config (e.g. SideNav) to the
  *  full single-region config. */
-export function regionConfigFrom(resizable: true | ResizableConfig | undefined): UseResizableSingleConfig | null {
-	if (!resizable) {return null}
+export function regionConfigFrom(
+	resizable: true | ResizableConfig | undefined,
+): UseResizableSingleConfig | null {
+	if (!resizable) {
+		return null
+	}
 	if (resizable === true) {
 		return { defaultSize: 260, minSize: 180, maxSize: 480 }
 	}

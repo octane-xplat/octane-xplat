@@ -43,16 +43,16 @@ The Windows 11 VM uses core preview `7d0adce`, Octane driver `0.2.4`, and Window
 runtime `0.1.0-alpha.144`. A compact probe used real OS mouse input and completed
 with scheduled task result `0`:
 
-| Case | Observed result |
-| --- | --- |
-| Single click | Touch down/up, then one tap |
-| Double click | Touch down/up twice, one double tap, no single tap |
-| Hold | One long press; touch up; no tap |
-| Remove touch observer | Tap and hover still work |
-| Restore touch observer | Touch down/up and tap both work |
-| Remove/reinsert native view | Observers and hover work after real unload/reload |
-| Native capture loss | `CapturePointer` returns true; releasing capture delivers touch cancel and prevents tap/long press |
-| Disable / enable | No gesture callbacks while disabled; normal callbacks return after enable |
+| Case                        | Observed result                                                                                    |
+| --------------------------- | -------------------------------------------------------------------------------------------------- |
+| Single click                | Touch down/up, then one tap                                                                        |
+| Double click                | Touch down/up twice, one double tap, no single tap                                                 |
+| Hold                        | One long press; touch up; no tap                                                                   |
+| Remove touch observer       | Tap and hover still work                                                                           |
+| Restore touch observer      | Touch down/up and tap both work                                                                    |
+| Remove/reinsert native view | Observers and hover work after real unload/reload                                                  |
+| Native capture loss         | `CapturePointer` returns true; releasing capture delivers touch cancel and prevents tap/long press |
+| Disable / enable            | No gesture callbacks while disabled; normal callbacks return after enable                          |
 
 The final exact-package shared Pressable run completed with task result `0`.
 The guest's two JavaScript files matched the local packaged source by SHA256.

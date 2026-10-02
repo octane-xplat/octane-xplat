@@ -30,7 +30,9 @@ Application.run({
 				const label = new Label()
 				label.text = name + ' ' + i
 				label.height = 10
-				if (props.flexDirection?.startsWith('row')) {label.width = 100}
+				if (props.flexDirection?.startsWith('row')) {
+					label.width = 100
+				}
 				box.addChild(label)
 			}
 

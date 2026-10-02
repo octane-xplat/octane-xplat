@@ -1,4 +1,4 @@
-export { SmoothCorners } from './SmoothCorners.macos.tsrx';
+export { SmoothCorners } from './SmoothCorners.macos.tsrx'
 export type {
 	CornerConfig,
 	CornerCurve,
@@ -7,4 +7,4 @@ export type {
 	SmoothBorderConfig,
 	SmoothCornersProps,
 	SmoothShadowConfig,
-} from './props';
+} from './props'

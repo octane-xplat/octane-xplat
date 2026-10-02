@@ -34,7 +34,7 @@ const run = async () => {
 				(error) => ({ type: 'rejected' as const, message: String(error) }),
 			),
 			new Promise<{ type: 'timeout' }>((resolve) => {
-					timeoutId = setTimeout(() => resolve({ type: 'timeout' }), 5000)
+				timeoutId = setTimeout(() => resolve({ type: 'timeout' }), 5000)
 			}),
 		])
 
@@ -51,10 +51,7 @@ const run = async () => {
 		await deleteDatabase(firstName)
 		await deleteDatabase(secondName)
 
-		const [first, second] = await Promise.all([
-			openDatabase(firstName),
-			openDatabase(secondName),
-		])
+		const [first, second] = await Promise.all([openDatabase(firstName), openDatabase(secondName)])
 
 		const persistent = first.persistent
 		await first.execute('CREATE TABLE records(name TEXT NOT NULL)')
@@ -78,11 +75,11 @@ const run = async () => {
 		let rejectedInvalidSql = false
 		try {
 			await first.execute('THIS IS NOT SQL')
-			} catch {
-				rejectedInvalidSql = true
-			}
+		} catch {
+			rejectedInvalidSql = true
+		}
 
-			assert(rejectedInvalidSql, 'invalid SQL must reject its request')
+		assert(rejectedInvalidSql, 'invalid SQL must reject its request')
 		expectNames(
 			await first.select<{ name: string }>('SELECT name FROM records'),
 			['first'],
@@ -117,7 +114,10 @@ const run = async () => {
 
 		const versionBefore = await first.getUserVersion()
 		await first.setUserVersion(7)
-		assert(versionBefore === 0 && (await first.getUserVersion()) === 7, 'user_version must round-trip')
+		assert(
+			versionBefore === 0 && (await first.getUserVersion()) === 7,
+			'user_version must round-trip',
+		)
 
 		await first.close()
 		assert(!first.isOpen, 'closed database reports isOpen=false')
@@ -149,7 +149,10 @@ const run = async () => {
 
 	const wasPersistent = sessionStorage.getItem(`${storageKey}:persistent`) === 'true'
 	const reopened = await openDatabase(firstName)
-	assert(reopened.persistent === wasPersistent, 'persistence capability must remain stable across reload')
+	assert(
+		reopened.persistent === wasPersistent,
+		'persistence capability must remain stable across reload',
+	)
 
 	if (wasPersistent) {
 		expectNames(
@@ -160,14 +163,20 @@ const run = async () => {
 	} else {
 		await reopened.execute('CREATE TABLE records(name TEXT NOT NULL)')
 		await reopened.execute('INSERT INTO records(name) VALUES (?)', ['transient'])
-		expectNames(await reopened.select<{ name: string }>('SELECT name FROM records'), ['transient'], 'transient fallback remains usable')
+		expectNames(
+			await reopened.select<{ name: string }>('SELECT name FROM records'),
+			['transient'],
+			'transient fallback remains usable',
+		)
 	}
 
 	await reopened.close()
 	await deleteDatabase(firstName)
 	await deleteDatabase(secondName)
 	sessionStorage.removeItem(`${storageKey}:persistent`)
-	return wasPersistent ? 'OPFS reload persistence passed' : 'transient fallback passed; persistence was unavailable'
+	return wasPersistent
+		? 'OPFS reload persistence passed'
+		: 'transient fallback passed; persistence was unavailable'
 }
 
 void run().then(
@@ -176,7 +185,7 @@ void run().then(
 		document.documentElement.dataset.sqliteReadiness = 'ok'
 	},
 	(error) => {
-		output.textContent = error instanceof Error ? error.stack ?? error.message : String(error)
+		output.textContent = error instanceof Error ? (error.stack ?? error.message) : String(error)
 		document.documentElement.dataset.sqliteReadiness = 'error'
 		console.error('SQLite Web readiness failed', error)
 	},

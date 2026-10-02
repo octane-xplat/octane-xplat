@@ -103,9 +103,7 @@ export function resolveTargets(ids) {
 	const visit = (id) => {
 		const t = targets[id]
 		if (!t) {
-			throw new Error(
-				`unknown target "${id}" — expected one of: ${selectableTargets.join(', ')}`,
-			)
+			throw new Error(`unknown target "${id}" — expected one of: ${selectableTargets.join(', ')}`)
 		}
 
 		for (const req of t.requires ?? []) {
@@ -124,8 +122,7 @@ export function resolveTargets(ids) {
 	return resolved
 }
 
-const templateManifest = () =>
-	JSON.parse(readFileSync(join(TEMPLATE_DIR, 'package.json'), 'utf8'))
+const templateManifest = () => JSON.parse(readFileSync(join(TEMPLATE_DIR, 'package.json'), 'utf8'))
 
 /** Which target claims a template-relative path (entries may be dirs). */
 function ownerOf(path) {
@@ -192,9 +189,7 @@ export function composeManifest(ids) {
 		const next = {}
 		for (const [name, spec] of Object.entries(tpl[section] ?? {})) {
 			// Unclaimed entries are base; claimed entries follow their target.
-			const claimed = Object.keys(targets).some((id) =>
-				(targets[id][key] ?? []).includes(name),
-			)
+			const claimed = Object.keys(targets).some((id) => (targets[id][key] ?? []).includes(name))
 
 			if (!claimed || wanted.has(name)) {
 				next[name] = spec
@@ -416,7 +411,9 @@ const readJson = (file) => {
 /** Sentinel-based enablement check, mirroring the CLI's targets.mjs. */
 export function targetEnabled(appRoot, id) {
 	if (id === 'web') {
-		return existsSync(join(appRoot, 'vite.config.ts')) || existsSync(join(appRoot, 'vite.config.mts'))
+		return (
+			existsSync(join(appRoot, 'vite.config.ts')) || existsSync(join(appRoot, 'vite.config.mts'))
+		)
 	}
 
 	if (id === 'native-shared') {
@@ -455,7 +452,15 @@ export function applyTarget(appRoot, id) {
 	const raw = readFileSync(manifestPath, 'utf8')
 	const manifest = JSON.parse(raw)
 	const tpl = templateManifest()
-	const report = { enabled: [], already: [], copied: [], skipped: [], scriptsAdded: [], scriptsSkipped: [], depsAdded: [] }
+	const report = {
+		enabled: [],
+		already: [],
+		copied: [],
+		skipped: [],
+		scriptsAdded: [],
+		scriptsSkipped: [],
+		depsAdded: [],
+	}
 
 	let touched = false
 	for (const tid of resolveTargets([id])) {
@@ -470,7 +475,10 @@ export function applyTarget(appRoot, id) {
 			copyMissing(rel, appRoot, report)
 		}
 
-		for (const [section, key] of [['dependencies', 'deps'], ['devDependencies', 'devDeps']]) {
+		for (const [section, key] of [
+			['dependencies', 'deps'],
+			['devDependencies', 'devDeps'],
+		]) {
 			for (const name of t[key] ?? []) {
 				manifest[section] ??= {}
 				if (manifest[section][name] === undefined) {

@@ -7,7 +7,9 @@ import type { OutlineItem } from './props'
 import { slugify, uniqueSlug } from './outline-utils'
 
 export function* outlineChildViews(view: any): Generator<any> {
-	if (!view) {return}
+	if (!view) {
+		return
+	}
 	if (typeof view.eachChildView === 'function') {
 		const kids: any[] = []
 		view.eachChildView((c: any) => {
@@ -30,7 +32,9 @@ export function* outlineChildViews(view: any): Generator<any> {
 }
 
 function textOf(view: any): string {
-	if (typeof view.text === 'string') {return view.text}
+	if (typeof view.text === 'string') {
+		return view.text
+	}
 	let out = ''
 	for (const child of outlineChildViews(view)) {
 		out += textOf(child)
@@ -50,7 +54,9 @@ export function outlineItemsFromViewTree(root: any): OutlineItem[] {
 	const counts = new Map<string, number>()
 	const items: OutlineItem[] = []
 	const walk = (view: any) => {
-		if (!view) {return}
+		if (!view) {
+			return
+		}
 		if (view.accessibilityRole === 'header') {
 			const label = textOf(view).trim()
 			if (label) {
@@ -61,7 +67,9 @@ export function outlineItemsFromViewTree(root: any): OutlineItem[] {
 			return
 		}
 
-		for (const child of outlineChildViews(view)) {walk(child)}
+		for (const child of outlineChildViews(view)) {
+			walk(child)
+		}
 	}
 
 	walk(root)
@@ -71,11 +79,17 @@ export function outlineItemsFromViewTree(root: any): OutlineItem[] {
 /** Locate a view by `id` inside a subtree — used by Outline's native
  *  activation to find the heading it should scroll to. */
 export function findViewById(root: any, id: string): any {
-	if (!root) {return null}
-	if (root.id === id) {return root}
+	if (!root) {
+		return null
+	}
+	if (root.id === id) {
+		return root
+	}
 	for (const child of outlineChildViews(root)) {
 		const hit = findViewById(child, id)
-		if (hit) {return hit}
+		if (hit) {
+			return hit
+		}
 	}
 
 	return null

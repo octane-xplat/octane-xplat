@@ -90,6 +90,7 @@ export async function submitPasskey(
 	})
 }
 ```
+
 For Google on AppKit, [google-hosted.macos.ts](google-hosted.macos.ts) wires
 app-owned `begin`, `complete`, and `signOut` transport functions into
 `googleAuth.configure({ hostedFlow })`. `complete` must return a verified Google

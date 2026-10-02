@@ -54,7 +54,10 @@ const delivered: boolean = announce('Saved')
 	)
 
 	const example = join(directory, 'announce-status.ts')
-	writeFileSync(example, readFileSync(join(root, '../../examples/accessibility/announce-status.ts'), 'utf8'))
+	writeFileSync(
+		example,
+		readFileSync(join(root, '../../examples/accessibility/announce-status.ts'), 'utf8'),
+	)
 	const program = ts.createProgram([entry, example], options)
 	const diagnostics = ts.getPreEmitDiagnostics(program)
 	assert.equal(

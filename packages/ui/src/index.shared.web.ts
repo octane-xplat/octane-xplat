@@ -43,7 +43,11 @@ export { ClickableCard } from './ClickableCard'
 export { SelectableCard } from './SelectableCard'
 export { MoreMenu } from './MoreMenu'
 export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './PowerSearch'
-export { createPowerSearchConfig, usePowerSearchConfig, resolveOperatorLabel } from './power-search-config'
+export {
+	createPowerSearchConfig,
+	usePowerSearchConfig,
+	resolveOperatorLabel,
+} from './power-search-config'
 export { Collapsible } from './Collapsible'
 export { Accordion } from './Accordion'
 /** Self-drawn checkbox, exported under Astryx's component name. */
@@ -286,13 +290,35 @@ export type {
 /** Ancestor path trail, exported under Astryx's component name. */
 export { AppShell } from './AppShell'
 export { AppShellMobileContext } from './AppShell'
-export { TopNav, TopNavHeading, TopNavItem, TopNavMenu, TopNavMegaMenu, TopNavMegaMenuItem, TopNavMegaMenuFeaturedCard } from './TopNav'
+export {
+	TopNav,
+	TopNavHeading,
+	TopNavItem,
+	TopNavMenu,
+	TopNavMegaMenu,
+	TopNavMegaMenuItem,
+	TopNavMegaMenuFeaturedCard,
+} from './TopNav'
 export { TopNavRenderContext, useTopNavRenderMode } from './TopNav'
-export { SideNav, SideNavSection, SideNavHeading, SideNavItem, SideNavCollapseButton, useSideNavCollapse, SideNavRenderContext, useSideNavRenderMode } from './SideNav'
+export {
+	SideNav,
+	SideNavSection,
+	SideNavHeading,
+	SideNavItem,
+	SideNavCollapseButton,
+	useSideNavCollapse,
+	SideNavRenderContext,
+	useSideNavRenderMode,
+} from './SideNav'
 export { MobileNav, MobileNavToggle, useAppShellMobile } from './MobileNav'
 export { NavIcon } from './NavIcon'
 export { NavHeadingMenu, NavHeadingMenuItem } from './NavMenu'
-export { NavHeadingMenuContext, NavHeadingCloseContext, useNavHeadingMenuContext, useNavHeadingCloseContext } from './NavMenu'
+export {
+	NavHeadingMenuContext,
+	NavHeadingCloseContext,
+	useNavHeadingMenuContext,
+	useNavHeadingCloseContext,
+} from './NavMenu'
 export { TabList, Tab, TabMenu, useTabListContext } from './TabList'
 export { Toolbar } from './Toolbar'
 export { OverflowList } from './OverflowList'
@@ -818,7 +844,14 @@ export { Citation } from './Citation'
 export { Outline } from './Outline'
 export { useOutlineFromMarkdown, useOutlineFromDoc } from './outline-hooks.tsrx'
 export { useOutlineFromDOM } from './outline-dom'
-export { parseOutlineFromMarkdown, outlineFromDoc, markdownHeadings, inlineMarkdownText, slugify, uniqueSlug } from './outline-utils'
+export {
+	parseOutlineFromMarkdown,
+	outlineFromDoc,
+	markdownHeadings,
+	inlineMarkdownText,
+	slugify,
+	uniqueSlug,
+} from './outline-utils'
 export {
 	tokenize,
 	tokenizeAsync,

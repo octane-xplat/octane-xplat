@@ -26,31 +26,45 @@ export interface ResolvedFieldControlProps extends FieldControlProps {
 }
 
 /** Resolve wrapper defaults and the accessibility links for a field control. */
-export function useFieldControlProps<T extends FieldControlProps & { id?: string; accessibilityLabel?: string; accessibilityHint?: string; web?: Record<string, any> }>(
-	props: T,
-): T & ResolvedFieldControlProps {
+export function useFieldControlProps<
+	T extends FieldControlProps & {
+		id?: string
+		accessibilityLabel?: string
+		accessibilityHint?: string
+		web?: Record<string, any>
+	},
+>(props: T): T & ResolvedFieldControlProps {
 	const field = useContext(FieldContext)
 	const form = useContext(FormLayoutContext)
 	const group = useContext(InputGroupContext)
 	const status = field?.status ?? props.status
 	const description = field?.description ?? props.description
-	const ownLabel = props.accessibilityLabel ?? (props.label && props.label !== field?.label ? props.label : undefined)
-	const ariaDescribedBy = [props.web?.['aria-describedby'], field?.descriptionId, field?.statusId]
-		.filter(Boolean)
-		.join(' ') || undefined
+	const ownLabel =
+		props.accessibilityLabel ??
+		(props.label && props.label !== field?.label ? props.label : undefined)
+	const ariaDescribedBy =
+		[props.web?.['aria-describedby'], field?.descriptionId, field?.statusId]
+			.filter(Boolean)
+			.join(' ') || undefined
 
-	const disabledReason = (field?.isDisabled ?? props.isDisabled) || props.isDisabled
-		? field?.disabledMessage ?? props.disabledMessage
-		: undefined
+	const disabledReason =
+		(field?.isDisabled ?? props.isDisabled) || props.isDisabled
+			? (field?.disabledMessage ?? props.disabledMessage)
+			: undefined
 
-	const hint = [props.accessibilityHint, description, status?.message, disabledReason].filter(Boolean).join('. ') || undefined
+	const hint =
+		[props.accessibilityHint, description, status?.message, disabledReason]
+			.filter(Boolean)
+			.join('. ') || undefined
 
 	// Resolved required (Astryx useResolvedRequired): the control announces
 	// required when declared, or when the enclosing FormLayout defaults to
 	// 'required'. isOptional always wins — an explicitly optional control
 	// never announces required, even under a required-default form.
 	const isOptional = field?.isOptional ?? props.isOptional
-	const isRequired = !isOptional && Boolean((field?.isRequired ?? props.isRequired) ?? (form.defaultOptionality === 'required'))
+	const isRequired =
+		!isOptional &&
+		Boolean(field?.isRequired ?? props.isRequired ?? form.defaultOptionality === 'required')
 
 	return {
 		...props,
@@ -65,7 +79,7 @@ export function useFieldControlProps<T extends FieldControlProps & { id?: string
 		id: props.id ?? field?.controlId,
 		fieldLabel: field?.label,
 		ariaLabel: ownLabel ?? (field ? undefined : props.label),
-		ariaLabelledBy: ownLabel ? undefined : props.web?.['aria-labelledby'] ?? field?.labelId,
+		ariaLabelledBy: ownLabel ? undefined : (props.web?.['aria-labelledby'] ?? field?.labelId),
 		ariaDescribedBy,
 		accessibilityHint: hint,
 	} as T & ResolvedFieldControlProps
@@ -73,9 +87,14 @@ export function useFieldControlProps<T extends FieldControlProps & { id?: string
 
 /** Resolve field-control props and report whether a surrounding Field owns
  *  the label, so third-party controls can compose with Field without nesting. */
-export function useFieldControl<T extends FieldControlProps & { id?: string; accessibilityLabel?: string; accessibilityHint?: string; web?: Record<string, any> }>(
-	props: T,
-): { props: T & ResolvedFieldControlProps; inField: boolean } {
+export function useFieldControl<
+	T extends FieldControlProps & {
+		id?: string
+		accessibilityLabel?: string
+		accessibilityHint?: string
+		web?: Record<string, any>
+	},
+>(props: T): { props: T & ResolvedFieldControlProps; inField: boolean } {
 	const inField = useContext(FieldContext) != null
 	return { props: useFieldControlProps(props), inField }
 }

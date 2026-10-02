@@ -30,13 +30,13 @@ in the existing packaged app.
 
 For left17/top7/right13/bottom11 DIP:
 
-| Case | Original widget | Candidate widget |
-| --- | --- | --- |
-| Fixed200×60 | Child200 wide at0,0 | Child170 wide at17,7 |
-| Auto height | Parent10 high | Parent28 high |
-| Empty auto height | Parent0 high | Parent18 high |
-| Wrap, two100-wide children | One row | Two inset rows |
-| Dynamic left23/top9, width220 | Child220 at0,0 | Child184 at23,9 |
+| Case                          | Original widget     | Candidate widget     |
+| ----------------------------- | ------------------- | -------------------- |
+| Fixed200×60                   | Child200 wide at0,0 | Child170 wide at17,7 |
+| Auto height                   | Parent10 high       | Parent28 high        |
+| Empty auto height             | Parent0 high        | Parent18 high        |
+| Wrap, two100-wide children    | One row             | Two inset rows       |
+| Dynamic left23/top9, width220 | Child220 at0,0      | Child184 at23,9      |
 
 Row/reverse and column-reverse native offsets respect the inset origin. Insets
 larger than the requested bounds clamp the content width to zero; XAML expands

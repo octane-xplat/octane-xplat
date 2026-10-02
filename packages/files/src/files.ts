@@ -86,7 +86,11 @@ async function readContentUri(uri: string): Promise<string> {
 	}
 }
 
-async function pickFiles(accept: string, multiple: boolean, opts?: { startingFolder?: string }): Promise<FileRef[]> {
+async function pickFiles(
+	accept: string,
+	multiple: boolean,
+	opts?: { startingFolder?: string },
+): Promise<FileRef[]> {
 	const { extensions, mimeTypes } = pickerTypes(accept)
 	const result = await openFilePicker({
 		extensions,

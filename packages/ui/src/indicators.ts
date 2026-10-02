@@ -1,9 +1,4 @@
-import type {
-	IndicatorComponent,
-	IndicatorMap,
-	IndicatorName,
-	IndicatorRegistry,
-} from './props'
+import type { IndicatorComponent, IndicatorMap, IndicatorName, IndicatorRegistry } from './props'
 
 import { CheckboxIndicator } from './CheckboxIndicator'
 import { CheckIndicator } from './CheckIndicator'

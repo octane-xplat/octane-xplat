@@ -39,24 +39,35 @@ const previewReady = new Promise((resolve, reject) => {
 	}, 15_000)
 
 	settlePreview = (error) => {
-		if (settled) {return}
+		if (settled) {
+			return
+		}
 		settled = true
 		clearTimeout(timeout)
-		if (error) {reject(error)}
-		else {resolve()}
+		if (error) {
+			reject(error)
+		} else {
+			resolve()
+		}
 	}
 
 	const collect = (chunk) => {
 		const output = String(chunk)
 		previewOutput += output
-		if (output.includes('Local')) {settlePreview()}
+		if (output.includes('Local')) {
+			settlePreview()
+		}
 	}
 
 	preview.stdout.on('data', collect)
 	preview.stderr.on('data', collect)
 	preview.once('error', settlePreview)
 	preview.once('exit', (code, signal) => {
-		settlePreview(new Error(`Vite preview exited before ready (code=${code}, signal=${signal}):\n${previewOutput}`))
+		settlePreview(
+			new Error(
+				`Vite preview exited before ready (code=${code}, signal=${signal}):\n${previewOutput}`,
+			),
+		)
 	})
 })
 
@@ -608,9 +619,10 @@ try {
 	ok('services catalog renders', (await page.locator('text=/web · browser/').count()) === 1)
 	await page.getByRole('button', { name: 'Round-trip' }).click()
 	await page.waitForFunction(
-		() => /^rows=alpha,beta count=2 rb=true v=0→7 persistent=(true|false)$/.test(
-			document.querySelector('#sqlite-probe')?.textContent ?? '',
-		),
+		() =>
+			/^rows=alpha,beta count=2 rb=true v=0→7 persistent=(true|false)$/.test(
+				document.querySelector('#sqlite-probe')?.textContent ?? '',
+			),
 		null,
 		{ timeout: 10000 },
 	)
@@ -690,7 +702,9 @@ try {
 	// A backgrounded page can mount Services after its initial document state
 	// is already hidden. useAppState must report that state on first render.
 	const hiddenPage = await browser.newPage()
-	hiddenPage.on('pageerror', (e) => errors.push(`pageerror @${hiddenPage.url()}: ${e.stack ?? e.message}`))
+	hiddenPage.on('pageerror', (e) =>
+		errors.push(`pageerror @${hiddenPage.url()}: ${e.stack ?? e.message}`),
+	)
 	hiddenPage.on('console', (m) => m.type() === 'error' && errors.push('console.error: ' + m.text()))
 	await hiddenPage.addInitScript(() => {
 		Object.defineProperty(document, 'visibilityState', {
@@ -712,7 +726,6 @@ try {
 
 	// No leaked platform failures.
 	ok('zero pageerrors/console.error', errors.length === 0, errors[0] ?? '')
-
 } catch (error) {
 	if (errors.length) {
 		console.error('[smoke] browser errors before failure:\n' + errors.join('\n'))

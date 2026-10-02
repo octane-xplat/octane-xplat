@@ -69,7 +69,9 @@ if (!icons.has('xplat-doc-image')) {
 }
 
 if (!icons.has('xplat-more-horizontal')) {
-	icons.set('xplat-more-horizontal', { svg: 'M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z' })
+	icons.set('xplat-more-horizontal', {
+		svg: 'M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z',
+	})
 }
 
 // Video transport glyphs (self-drawn chrome) — same guarded registration.

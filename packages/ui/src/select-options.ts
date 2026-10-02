@@ -19,8 +19,11 @@ export function groupSelectOptions(
 	const groups = new Map<string | undefined, SelectOption[]>()
 	for (const option of options) {
 		const rows = groups.get(option.group)
-		if (rows) {rows.push(option)}
-		else {groups.set(option.group, [option])}
+		if (rows) {
+			rows.push(option)
+		} else {
+			groups.set(option.group, [option])
+		}
 	}
 
 	return [...groups].map(([heading, rows]) => ({ heading, options: rows }))
@@ -29,7 +32,9 @@ export function groupSelectOptions(
 /** Bulk toggles affect only the visible enabled set, retaining hidden/disabled values. */
 export function toggleVisibleSelection(selected: string[], options: SelectOption[]): string[] {
 	const enabled = options.filter((option) => !option.isDisabled).map((option) => option.value)
-	if (!enabled.length) {return selected}
+	if (!enabled.length) {
+		return selected
+	}
 	const allSelected = enabled.every((value) => selected.includes(value))
 	return allSelected
 		? selected.filter((value) => !enabled.includes(value))

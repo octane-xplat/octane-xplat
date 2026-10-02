@@ -24,7 +24,11 @@ describe('toast store', () => {
 		const second = pushToast({ body: 'second', uniqueID: 'save' }, 'screen')
 
 		expect(toastStore.get()).toHaveLength(1)
-		expect(toastStore.get()[0]).toMatchObject({ id: second, viewportId: 'screen', options: { body: 'second' } })
+		expect(toastStore.get()[0]).toMatchObject({
+			id: second,
+			viewportId: 'screen',
+			options: { body: 'second' },
+		})
 		expect(second).not.toBe(first)
 
 		const ignored = pushToast(

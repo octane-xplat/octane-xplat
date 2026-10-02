@@ -25,8 +25,9 @@ function readText(view: any): string {
 
 	const children = view.subviews
 	if (children) {
-		for (let index = 0; index < children.count; index++)
-			{text += readText(children.objectAtIndex(index))}
+		for (let index = 0; index < children.count; index++) {
+			text += readText(children.objectAtIndex(index))
+		}
 	}
 
 	return text

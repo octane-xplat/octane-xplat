@@ -10,7 +10,10 @@ export { bottomSheetHost } from '@octane-xplat/ui/native'
 /** Bottom-anchored sheet: dedicated sub-root on the current RootLayout.
  *  Content is parameterized — callers pass any component (e.g. a demo
  *  render fn); defaults to the SheetPanel probe panel. */
-export function openBottomSheet(Component: unknown = SheetPanel, props: Record<string, unknown> = {}) {
+export function openBottomSheet(
+	Component: unknown = SheetPanel,
+	props: Record<string, unknown> = {},
+) {
 	openSheetUI(Component as any, props).then(
 		() => console.log('[probe] sheet close'),
 		(e: Error) => console.log('[probe] sheet FAILED: ' + e.message),

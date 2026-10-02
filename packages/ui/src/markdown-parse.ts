@@ -266,7 +266,9 @@ const ESCAPABLE = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/
 /** Scan a run of `ch` starting at `i`. */
 function runLen(text: string, i: number, ch: string): number {
 	let n = 0
-	while (text[i + n] === ch) {n++}
+	while (text[i + n] === ch) {
+		n++
+	}
 	return n
 }
 

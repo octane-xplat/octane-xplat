@@ -21,11 +21,7 @@ interface RangeEntry {
 
 /** Whether the CSS Custom Highlight API is usable in this engine. */
 export function hasHighlightAPI(): boolean {
-	return (
-		typeof CSS !== 'undefined' &&
-		'highlights' in CSS &&
-		typeof Highlight !== 'undefined'
-	)
+	return typeof CSS !== 'undefined' && 'highlights' in CSS && typeof Highlight !== 'undefined'
 }
 
 /**
@@ -73,9 +69,7 @@ function ensureDynamicHighlightType(tokenType: string): void {
 	const name = CSS.escape(`xplat-${tokenType}`)
 	const colorVar = `var(${CSS.escape(`--color-syntax-${tokenType}`)}, currentColor)`
 	try {
-		dynamicStyleSheet.insertRule(
-			`.vx-codeblock code::highlight(${name}) { color: ${colorVar}; }`,
-		)
+		dynamicStyleSheet.insertRule(`.vx-codeblock code::highlight(${name}) { color: ${colorVar}; }`)
 	} catch {
 		// An engine that refuses the rule costs that type its colour — never
 		// the whole code block.
@@ -300,10 +294,7 @@ export function applyHighlightRangesBatch(
  * Apply ranges to a flat element (no [data-line] structure), e.g. a
  * contentEditable code surface where all text is Text nodes with newlines.
  */
-export function applyHighlightRangesFlat(
-	el: HTMLElement,
-	tokenLines: TokenLine[],
-): () => void {
+export function applyHighlightRangesFlat(el: HTMLElement, tokenLines: TokenLine[]): () => void {
 	const resolve = createHighlightResolver()
 	const myRanges: RangeEntry[] = []
 

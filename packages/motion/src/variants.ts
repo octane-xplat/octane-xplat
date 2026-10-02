@@ -1,7 +1,14 @@
 import { validateTarget } from './controller'
 import { isOrchestrated, validateTransitionInput } from './engine'
 import type { AnimationResult } from './engine'
-import type { AnimationDefinition, MotionKey, Target, TransitionInput, Variants, VariantLabels } from './types'
+import type {
+	AnimationDefinition,
+	MotionKey,
+	Target,
+	TransitionInput,
+	Variants,
+	VariantLabels,
+} from './types'
 
 export function isLabels(value: unknown): value is VariantLabels {
 	return (
@@ -51,21 +58,34 @@ export function resolveVariant(
 /** Keep tree timing out of Controller and add inherited delay to every channel. */
 export function playbackTransition(input: TransitionInput, delay = 0): TransitionInput {
 	if (isOrchestrated(input)) {
-		const { staggerChildren: _staggerChildren, delayChildren: _delayChildren, when: _when, ...timing } = input
+		const {
+			staggerChildren: _staggerChildren,
+			delayChildren: _delayChildren,
+			when: _when,
+			...timing
+		} = input
 		const result: TransitionInput = {
 			default: { ...timing.default, delay: (timing.default?.delay ?? 0) + delay },
 		}
 
 		for (const [key, value] of Object.entries(timing)) {
 			if (key !== 'default' && value) {
-				result[key as MotionKey] = { ...value, delay: (value.delay ?? timing.default?.delay ?? 0) + delay }
+				result[key as MotionKey] = {
+					...value,
+					delay: (value.delay ?? timing.default?.delay ?? 0) + delay,
+				}
 			}
 		}
 
 		return result
 	}
 
-	const { staggerChildren: _staggerChildren, delayChildren: _delayChildren, when: _when, ...timing } = input
+	const {
+		staggerChildren: _staggerChildren,
+		delayChildren: _delayChildren,
+		when: _when,
+		...timing
+	} = input
 	return { ...timing, delay: (timing.delay ?? 0) + delay }
 }
 

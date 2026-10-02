@@ -35,9 +35,7 @@ export const add = command({
 		let ids = args.platforms
 		for (const id of ids) {
 			if (!selectableTargets.includes(id)) {
-				p.log.error(
-					`unknown target "${id}" — expected one of: ${selectableTargets.join(', ')}`,
-				)
+				p.log.error(`unknown target "${id}" — expected one of: ${selectableTargets.join(', ')}`)
 
 				process.exit(1)
 			}
@@ -86,9 +84,7 @@ export const add = command({
 			const visible = report.enabled.filter((t) => !targets[t].hidden)
 			p.log.success(
 				`enabled ${visible.join(', ')}` +
-					(report.enabled.some((t) => targets[t].hidden)
-						? ' (+ shared NativeScript setup)'
-						: ''),
+					(report.enabled.some((t) => targets[t].hidden) ? ' (+ shared NativeScript setup)' : ''),
 			)
 
 			for (const name of report.scriptsSkipped) {
@@ -119,6 +115,7 @@ export const add = command({
 			cwd,
 			stdio: 'inherit',
 		})
+
 		if (install.status !== 0) {
 			p.log.error('pnpm install failed — run it manually to finish enabling the target')
 			process.exit(install.status ?? 1)

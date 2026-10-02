@@ -146,27 +146,41 @@ export interface CalendarConstraintsInput {
 	rangeAnchor?: ISODateString | null
 }
 
-export function createDateDisabledCheck(input: CalendarConstraintsInput): (date: PlainDate) => boolean {
+export function createDateDisabledCheck(
+	input: CalendarConstraintsInput,
+): (date: PlainDate) => boolean {
 	const minPd = input.min ? plainDateFromISO(input.min) : null
 	const maxPd = input.max ? plainDateFromISO(input.max) : null
 	const anchorPd = input.rangeAnchor ? plainDateFromISO(input.rangeAnchor) : null
 
 	return (date: PlainDate): boolean => {
-		if (minPd && plainDateIsBefore(date, minPd)) {return true}
-		if (maxPd && plainDateIsAfter(date, maxPd)) {return true}
+		if (minPd && plainDateIsBefore(date, minPd)) {
+			return true
+		}
+		if (maxPd && plainDateIsAfter(date, maxPd)) {
+			return true
+		}
 		if (input.dateConstraints) {
 			for (const constraint of input.dateConstraints) {
-				if (!constraint(plainDateToDate(date))) {return true}
+				if (!constraint(plainDateToDate(date))) {
+					return true
+				}
 			}
 		}
 
 		if (anchorPd) {
 			const span = Math.abs(plainDateDiffDays(date, anchorPd)) + 1
-			if (input.maxRangeSpan != null && span > input.maxRangeSpan) {return true}
+			if (input.maxRangeSpan != null && span > input.maxRangeSpan) {
+				return true
+			}
 			// The anchor itself stays selectable below the minimum — clicking it
 			// again is the "move the start" escape hatch (commit-or-cancel is
 			// decided by the picker, not the constraint).
-			if (input.minRangeSpan != null && span < input.minRangeSpan && !plainDateIsEqual(date, anchorPd)) {
+			if (
+				input.minRangeSpan != null &&
+				span < input.minRangeSpan &&
+				!plainDateIsEqual(date, anchorPd)
+			) {
 				return true
 			}
 		}
@@ -209,12 +223,20 @@ export type RangePickResult =
 /** Second-pick reducer: earlier pick → ordered commit; same-day pick →
  *  single-day range when minSpan allows, else cancel the in-progress
  *  selection. */
-export function applyRangePick(anchor: ISODateString, iso: ISODateString, minRangeSpan?: number): RangePickResult {
+export function applyRangePick(
+	anchor: ISODateString,
+	iso: ISODateString,
+	minRangeSpan?: number,
+): RangePickResult {
 	const day = plainDateFromISO(iso)
 	const anchorPd = plainDateFromISO(anchor)
-	if (!day || !anchorPd) {return { kind: 'cancel' }}
+	if (!day || !anchorPd) {
+		return { kind: 'cancel' }
+	}
 	if (plainDateIsEqual(day, anchorPd)) {
-		if ((minRangeSpan ?? 1) > 1) {return { kind: 'cancel' }}
+		if ((minRangeSpan ?? 1) > 1) {
+			return { kind: 'cancel' }
+		}
 		return { kind: 'commit', range: { start: iso, end: iso } }
 	}
 
@@ -246,9 +268,7 @@ export function getInitialFocusDate(input: {
 	numberOfMonths?: 1 | 2
 }): PlainDate {
 	const explicit = input.focusDate ? plainDateFromISO(input.focusDate) : null
-	const selectedRaw = typeof input.value === 'string'
-		? input.value
-		: input.value?.start
+	const selectedRaw = typeof input.value === 'string' ? input.value : input.value?.start
 
 	const selected = selectedRaw ? plainDateFromISO(selectedRaw) : null
 
@@ -256,16 +276,26 @@ export function getInitialFocusDate(input: {
 	const maxPd = input.max ? plainDateFromISO(input.max) : null
 
 	let base = explicit ?? selected ?? plainDateToday()
-	if (minPd && plainDateIsBefore(base, minPd)) {base = minPd}
-	if (maxPd && plainDateIsAfter(base, maxPd)) {base = maxPd}
+	if (minPd && plainDateIsBefore(base, minPd)) {
+		base = minPd
+	}
+	if (maxPd && plainDateIsAfter(base, maxPd)) {
+		base = maxPd
+	}
 
 	// A two-month view shows [baseMonth, baseMonth+1]; pull the base back a
 	// month when every day of the leading month would be out of range.
 	if ((input.numberOfMonths ?? 1) > 1) {
-		const leadingMonthEnd = plainDateCreate(base.year, base.month, daysInMonth(base.year, base.month))!
+		const leadingMonthEnd = plainDateCreate(
+			base.year,
+			base.month,
+			daysInMonth(base.year, base.month),
+		)!
 		if (minPd && plainDateIsBefore(leadingMonthEnd, minPd)) {
 			base = plainDateAddMonths(monthStart(base), 1)
-			if (base.day > daysInMonth(base.year, base.month)) {base = { ...base, day: daysInMonth(base.year, base.month) }}
+			if (base.day > daysInMonth(base.year, base.month)) {
+				base = { ...base, day: daysInMonth(base.year, base.month) }
+			}
 		}
 
 		if (maxPd) {
@@ -293,7 +323,11 @@ export function navigationBounds(
 	const minPd = min ? plainDateFromISO(min) : null
 	const maxPd = max ? plainDateFromISO(max) : null
 	const prevMonth = plainDateAddMonths(baseMonth, -1)
-	const prevEnd = plainDateCreate(prevMonth.year, prevMonth.month, daysInMonth(prevMonth.year, prevMonth.month))!
+	const prevEnd = plainDateCreate(
+		prevMonth.year,
+		prevMonth.month,
+		daysInMonth(prevMonth.year, prevMonth.month),
+	)!
 	const nextStart = plainDateAddMonths(baseMonth, numberOfMonths)
 	return {
 		canNavigatePrevious: !(minPd && plainDateIsBefore(prevEnd, minPd)),
@@ -328,13 +362,27 @@ export function computeDayCellState(
 ): DayCellState {
 	const disabled = opts.isDateDisabled(day.date)
 	if (day.isOutsideMonth) {
-		return { isSelected: false, isRangeStart: false, isRangeEnd: false, isInRange: false, isPendingStart: false, isDisabled: true }
+		return {
+			isSelected: false,
+			isRangeStart: false,
+			isRangeEnd: false,
+			isInRange: false,
+			isPendingStart: false,
+			isDisabled: true,
+		}
 	}
 
 	const iso = day.iso
 	if (opts.mode === 'single') {
 		const value = typeof opts.value === 'string' ? opts.value : undefined
-		return { isSelected: value === iso, isRangeStart: false, isRangeEnd: false, isInRange: false, isPendingStart: false, isDisabled: disabled }
+		return {
+			isSelected: value === iso,
+			isRangeStart: false,
+			isRangeEnd: false,
+			isInRange: false,
+			isPendingStart: false,
+			isDisabled: disabled,
+		}
 	}
 
 	const range = typeof opts.value === 'object' && opts.value ? opts.value : undefined
@@ -378,15 +426,20 @@ export type CellRounding = 'none' | 'start' | 'end' | 'both'
 
 /** Which corners get the selected-range radius: band edges round, band
  *  interiors don't. */
-export function computeCellRounding(
-	state: DayCellState,
-	continuity: CellContinuity,
-): CellRounding {
-	if (!dayCarriesBand(state)) {return 'none'}
+export function computeCellRounding(state: DayCellState, continuity: CellContinuity): CellRounding {
+	if (!dayCarriesBand(state)) {
+		return 'none'
+	}
 	const left = !continuity.before
 	const right = !continuity.after
-	if (left && right) {return 'both'}
-	if (left) {return 'start'}
-	if (right) {return 'end'}
+	if (left && right) {
+		return 'both'
+	}
+	if (left) {
+		return 'start'
+	}
+	if (right) {
+		return 'end'
+	}
 	return 'none'
 }
