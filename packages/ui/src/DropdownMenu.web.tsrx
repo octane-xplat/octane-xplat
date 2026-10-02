@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'octane';
+import { useRef, useState } from 'octane';
 import type { DropdownMenuProps, MenuItem } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Pressable } from './Pressable.web.tsrx';
@@ -23,12 +23,6 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 		props.onOpenChange?.(next);
 	};
 
-	useEffect(() => {
-		if (!open) return;
-		const onKey = (e: any) => { if (e.key === 'Escape') setOpen(false); };
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
-	}, [open]);
 
 	const select = (item: MenuItem) => {
 		if (item.disabled) return;

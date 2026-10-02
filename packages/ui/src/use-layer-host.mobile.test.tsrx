@@ -22,9 +22,9 @@ describe('useLayer AppKit host content', () => {
 			layer.show()
 			await vi.waitFor(() => expect(layer.isOpen).toBe(true))
 			expect(showAnchoredPopup.mock.calls[0][0].props.body).toBe('first')
-			root.render(Probe as any, { body: 'second', label: 'Second' })
+			root.render(Probe as any, { body: 'second', layerDepth: 1, label: 'Second' })
 			flushUniversalSync(() => {})
-			await vi.waitFor(() => expect(popup.update).toHaveBeenLastCalledWith({ body: 'second', label: 'Second', className: undefined, style: undefined }))
+			await vi.waitFor(() => expect(popup.update).toHaveBeenLastCalledWith({ body: 'second', layerDepth: 1, label: 'Second', className: undefined, style: undefined }))
 			expect(showAnchoredPopup).toHaveBeenCalledTimes(1)
 		} finally {
 			root.unmount()

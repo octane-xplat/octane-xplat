@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import type { HoverCardOptions, HoverCardReturn, PopoverPlacement } from './props';
 import { cx } from './cx';
@@ -12,13 +13,13 @@ const PLACEMENT: Record<string, PopoverPlacement> = {
 	end: 'right',
 };
 
-function HoverCardPanel(props: { body?: any; className?: any; style?: any }) @{
+function HoverCardPanel(props: { body?: any; className?: any; style?: any; layerDepth?: number }) @{
 	<flexboxlayout
 		flexDirection="column"
 		className={cx('vx-hovercard', props.className)}
 		style={props.style}
 	>
-		{props.body}
+		<LayerDepthProvider value={props.layerDepth ?? 0}>{props.body}</LayerDepthProvider>
 	</flexboxlayout>
 }
 
@@ -58,13 +59,24 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		closeTimer.current = null;
 	}, []);
 
-	const closeNow = useCallback(() => {
-		clearTimers();
+	const disposePopup = () => {
 		detachCardHover.current?.();
 		detachCardHover.current = null;
-		popup.current?.close?.();
+		const current = popup.current;
 		popup.current = null;
-		if (!controlled) setUncontrolled(false);
+		current?.close?.();
+	};
+
+	const dismissal = useLayerDismissal({ get active() { return open }, isPresent: () => !!popup.current && !popup.current.closed, dismiss: () => closeNow() });
+
+	const closeNow = useCallback(() => {
+		clearTimers();
+
+		if (!controlled) {
+			disposePopup();
+			setUncontrolled(false);
+		}
+
 		onHide.current?.();
 	}, [clearTimers, controlled]);
 
@@ -76,9 +88,20 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		popup.current = showAnchored({
 			anchor: view,
 			placement: PLACEMENT[options.placement ?? 'above'] ?? 'top',
+			onClose: () => {
+				if (!popup.current) return;
+				const report = dismissal.shouldClose(true);
+				popup.current = null;
+				detachCardHover.current?.();
+				detachCardHover.current = null;
+				clearTimers();
+				if (!controlled) setUncontrolled(false);
+				if (report) onHide.current?.();
+			},
 			component: HoverCardPanel,
 			props: {
 				body: cardContent.current,
+				layerDepth: dismissal.depth,
 				className: cardChrome.current?.className,
 				style: cardChrome.current?.style,
 			},
@@ -156,7 +179,8 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		if (options.isOpen === true) {
 			openNow();
 		} else if (options.isOpen === false) {
-			closeNow();
+			clearTimers();
+			disposePopup();
 		}
 	}, [options.isOpen, openNow, closeNow]);
 

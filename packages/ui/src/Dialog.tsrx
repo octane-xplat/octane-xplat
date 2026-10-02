@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useContext, useEffect, useId, useRef } from 'octane';
 import { GridLayout, isAndroid, isIOS } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
@@ -19,7 +20,7 @@ import { Pressable } from './Pressable';
  *  (or `position`-anchored) panel on the page's RootLayout. `purpose`
  *  gates the shade tap; hardware back dismissal arrives via the host's
  *  `closed` event and reports through `onOpenChange(false)`. */
-function DialogPanel(props: DialogProps) @{
+function DialogPanel(props: DialogProps & { layerDepth: number }) @{
 	const titleId = useId();
 	const purpose = props.purpose ?? 'info';
 	const isFullscreen = props.variant === 'fullscreen';
@@ -79,7 +80,7 @@ function DialogPanel(props: DialogProps) @{
 			accessibilityRole={purpose === 'required' ? ('alert' as any) : undefined}
 		>
 			<DialogProvider value={{ titleId, isModal: true }}>
-				{props.children}
+				<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
 			</DialogProvider>
 		</flexboxlayout>
 	</gridlayout>
@@ -108,8 +109,10 @@ function DialogInline(props: DialogProps) @{
  *  go through the RootLayout's own dismissal path; `purpose` maps to
  *  shade `tapToClose` (Android back is not blockable through RootLayout —
  *  documented deviation). Focus restoration has no direct equivalent;
- *  `finalFocusRef` is accepted and ignored. */
+ *  `finalFocusRef` calls the target's focus method when the declaration closes. */
 export function Dialog(props: DialogProps) @{
+	const dismissal = useLayerDismissal({ get active() { return !!props.isOpen && !props.isInline }, isPresent: () => !!shown.current, dismiss: () => props.onOpenChange?.(false), get behavior() { return props.purpose === 'required' ? 'block' : 'close' }, getFocusTarget: () => props.finalFocusRef?.current });
+
 	const sentinel = useRef<any>(null);
 	const shown = useRef<{
 		host: GridLayout;
@@ -131,7 +134,7 @@ export function Dialog(props: DialogProps) @{
 		if (!rl) return;
 
 		if (cur) {
-			cur.root.render(DialogPanel as unknown as UniversalComponent, { ...props });
+			cur.root.render(DialogPanel as unknown as UniversalComponent, { ...props, layerDepth: dismissal.depth });
 			return;
 		}
 
@@ -151,7 +154,7 @@ export function Dialog(props: DialogProps) @{
 		lifetime.own(bindBottomInsetToKeyboard(host));
 		lifetime.own(attachTapToBlur(host));
 		shown.current = { host, root, lifetime };
-		root.render(DialogPanel as unknown as UniversalComponent, { ...props });
+		root.render(DialogPanel as unknown as UniversalComponent, { ...props, layerDepth: dismissal.depth });
 
 		const purpose = props.purpose ?? 'info';
 		lifetime.open({

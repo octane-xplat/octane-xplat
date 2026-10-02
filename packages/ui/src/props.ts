@@ -1305,6 +1305,12 @@ export interface PopoverProps {
 	/** Clearance between the anchor and the panel in dips. @default 8 */
 	offset?: number
 	dismissOnOutsideTap?: boolean
+	/** Escape requests dismissal when this is the top layer. False blocks
+	 *  Escape from reaching a layer below. @default true */
+	dismissOnEscape?: boolean
+	/** Return target when popover content received focus (web), or an explicit
+	 *  native focus target. Defaults to the anchor on web. */
+	finalFocusRef?: { current: any }
 	onDismiss?: () => void
 	className?: any
 	style?: any
@@ -1333,6 +1339,9 @@ interface LayerBaseOptions {
 	/** Dismiss the layer on outside tap/click (and Escape on web).
 	 *  @default false */
 	lightDismiss?: boolean
+	/** Override Escape dismissal independently of outside taps. Defaults to
+	 *  lightDismiss; false blocks Escape from closing a layer below. */
+	dismissOnEscape?: boolean
 }
 
 /** `useLayer` options for anchor-relative positioning (Astryx context mode). */
@@ -1874,7 +1883,8 @@ export interface DialogProps extends AccessibilityProps {
 	 *  management, or dismissal wiring. For docs and previews. */
 	isInline?: boolean
 	/** Element to focus on close; defaults to the element focused when the
-	 *  dialog opened. `{current}`-style ref. Web focus semantics. */
+	 *  dialog opened on web/AppKit. `{current}`-style ref; touch targets call
+	 *  its focus method when available. */
 	finalFocusRef?: { current: any }
 	className?: any
 	style?: any

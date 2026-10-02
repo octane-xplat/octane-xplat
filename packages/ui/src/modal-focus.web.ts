@@ -1,3 +1,5 @@
+import './layer-keys.web'
+import { isTopLayer, layerContains, registerLayer } from './layer-stack'
 type Scope = {
 	layer: HTMLElement
 	panel: HTMLElement
@@ -103,6 +105,7 @@ export function isolateModalFocus(
 	layer: HTMLElement,
 	panel: HTMLElement,
 	dismiss: () => void,
+	depth = scopes.length,
 ): () => void {
 	const document = layer.ownerDocument
 	captureClickTargets(document)
@@ -124,6 +127,8 @@ export function isolateModalFocus(
 		panel.tabIndex = -1
 	}
 
+	const token = {}
+	const removeLayer = registerLayer({ token, depth, behavior: 'close', dismiss, contains: (target) => panel.contains(target) })
 	scopes.push(scope)
 	updateIsolation()
 
@@ -137,21 +142,17 @@ export function isolateModalFocus(
 
 	const focusInside = () => (tabStops(panel)[0] ?? panel).focus({ preventScroll: true })
 	const onFocus = (event: FocusEvent) => {
-		if (topScope() === scope && !panel.contains(event.target as Node)) {
+		if (topScope() === scope && !panel.contains(event.target as Node) && !layerContains(event.target)) {
 			focusInside()
 		}
 	}
 
 	const onKey = (event: KeyboardEvent) => {
-		if (topScope() !== scope || event.isComposing || event.keyCode === 229) {
+		if (topScope() !== scope || !isTopLayer(token) || event.isComposing || event.keyCode === 229) {
 			return
 		}
 
-		if (event.key === 'Escape') {
-			event.preventDefault()
-			event.stopPropagation()
-			dismiss()
-		} else if (event.key === 'Tab') {
+		if (event.key === 'Tab') {
 			const stops = tabStops(panel)
 			const index = stops.indexOf(document.activeElement as HTMLElement)
 			if (
@@ -185,6 +186,7 @@ export function isolateModalFocus(
 		}
 
 		scopes.splice(index, 1)
+		removeLayer()
 		document.removeEventListener('focusin', onFocus)
 		document.removeEventListener('keydown', onKey, true)
 		if (tabIndex === null) {

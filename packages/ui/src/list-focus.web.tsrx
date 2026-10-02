@@ -1,3 +1,4 @@
+import { dispatchLayerKey } from './layer-stack';
 import { useCallback, useEffect, useRef } from 'octane';
 
 /** Options for the web roving-tabindex helper shared by Toolbar, TabList
@@ -87,7 +88,10 @@ export function useListFocus<T extends HTMLElement = HTMLElement>(options: ListF
 				case 'ArrowUp': if (vertical) move(-1); break;
 				case 'Home': if (index >= 0) { e.preventDefault(); focusFirst(); } break;
 				case 'End': if (index >= 0) { e.preventDefault(); focusLast(); } break;
-				case 'Escape': onEscape?.(); break;
+				case 'Escape':
+					dispatchLayerKey(e);
+					if (!e.defaultPrevented && !e.isComposing && e.keyCode !== 229) { onEscape?.(); e.preventDefault(); }
+					break;
 			}
 		},
 		[focusAt, focusFirst, focusLast],

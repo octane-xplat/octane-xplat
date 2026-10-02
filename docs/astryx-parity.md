@@ -10,7 +10,7 @@ The component families are broadly represented, including Chat and NavMenu (fami
 
 | Priority | Finding                                                                                                                            | Next action                                                                                                                                                                                                                                                                                                                                      |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| P1       | Layer dismissal has independent Escape handlers; there is no exported equivalent of Astryx's useLayerDismissal/LayerDepthProvider. | Audit nested menu, hover card, and dialog Escape ownership before migrating all surfaces. A single key should close the intended surface.                                                                                                                                                                                                        |
+| P1       | Layer dismissal used independent Escape handlers; the bounded nested-layer task now shares an internal registry and depth provider. | Dialog, Popover-backed menus/cards, useLayer and Tooltip now share Escape ownership. Native popup roots receive explicit depth. This does not export Astryx hook names or migrate every other surface.                                                                                                                                                                                                        |
 | P1       | CommandPalette, Selector/MultiSelector, and Table have missing compositional parts/hooks.                                          | Use the [palette](astryx-parity-commandpalette.md), [selection](astryx-parity-select.md), and [table](astryx-parity-table.md) audits and their follow-up plans. The [date-input audit](astryx-parity-date-inputs.md) also records date-family contract and interaction gaps. Their findings are baseline records, not current pass/fail results. |
 | P1       | macOS useLayer stored new children but did not update its open popup root.                                                         | Fixed in this change by forwarding render content and surface props after commit. The host bridge already supports update(props).                                                                                                                                                                                                                |
 | P2       | ContextMenu/DropdownMenu and Breadcrumbs expose fewer menu parts than Astryx.                                                      | Audit checkbox/radio/submenu state, focus, and dismissal as one family rather than adding names individually.                                                                                                                                                                                                                                    |
@@ -200,3 +200,61 @@ above. The all-platform packed gate fails on `Meter.d.ts`'s unresolved `./svg`
 and undeclared mobile drawer/renderer references; it no longer reports missing
 macOS value exports. Frozen installation's repository-wide postinstall also
 fails in unrelated image-crop declaration generation (`bind`/`MeasureResult`).
+
+## Nested layer dismissal follow-up
+
+Reconciled against the rich-cub base `8b6f50cd`: the independent handlers were
+still present in Dialog's fallback, DropdownMenu, ContextMenu, useLayer,
+HoverCard, and Tooltip. Positioning fixes from the earlier audit were already
+present and were retained.
+
+Behavioral references at the audit's pinned Astryx revision:
+[layerStack](https://github.com/facebook/astryx/blob/ebd939b665361a078015377c0dfe50cc3c1d70a4/packages/core/src/Layer/layerStack.ts),
+[useLayerDismissal](https://github.com/facebook/astryx/blob/ebd939b665361a078015377c0dfe50cc3c1d70a4/packages/core/src/Layer/useLayerDismissal.ts), and
+[LayerDepthContext](https://github.com/facebook/astryx/blob/ebd939b665361a078015377c0dfe50cc3c1d70a4/packages/core/src/Layer/LayerDepthContext.tsx).
+The portable implementation follows their depth-first ordering, active-cycle
+registration order, close/block behavior, controlled-request ownership, and
+IME suppression. It claims an event before invoking callbacks to prevent
+synchronous removal from handing that same event to another layer. Web
+uses one bubbling key listener; AppKit uses one local key monitor while any
+registered layer is active. Inline dialogs do not participate.
+
+Native content receives the declaring layer's incremented depth as a root
+prop. Context alone would reset it to zero. Focus return and listener cleanup
+belong to the active registration, not to close requests. AppKit Popover's
+programmatic close no longer reports a user dismissal; controlled AppKit
+HoverCard hide requests retain their popup until the owner changes `isOpen`.
+The existing web sheet focus helper also joins the registry, so its capture
+listener cannot dismiss a sheet behind a nested menu.
+
+The affected recipe is shared-overlays, AC2/AC3/AC4 and new AC6. The guide and
+OverlayDemo cover the workflow; local Silo records documentation coverage
+separately from execution evidence. Tests cover nested dialog/menu/card
+ownership, controlled callback updates and rejection, same-commit portals,
+required dialogs, IME, editor cancellation, focus return, separate universal
+roots, AppKit monitor cleanup, and silent programmatic Popover close.
+
+Verification: Chromium probe **9 assertions passed** using synthetic bubbling
+keyboard events and a platform-cancel event; this is browser runtime evidence,
+not physical keyboard input. The last probe rerun timed out during page
+navigation before any assertions; it is not a runtime pass for the final
+revision. Universal object-driver tests exercise portable
+root ownership and the AppKit bridge contract, not real native rendering.
+iOS/Android hardware Escape input, OS back acceptance/rejection and focus
+traversal remain unverified. Native OS outside-close notifications may remove
+a popup before its controlled callback is accepted. RootLayout back can remove the host before a
+controlled callback is accepted. Other surfaces' own keyboard policies remain
+outside this bounded migration. No screenshots or visual analysis were used.
+
+Final focused verification for this follow-up:
+
+- Web jsdom component/geometry suite: **17 tests passed**.
+- Universal object-driver layer/lifetime suite: **33 tests passed**.
+- UI web/native production builds, declaration generation, native-dist import
+  guard, macOS app typecheck, docs production build, recipes and whitespace:
+  **passed**.
+- Web/mobile app typechecks and repository lint: **failed outside this task's
+  changes** (demo SearchSource/Video types, motion/table example types, existing
+  spacing/platform/CSS violations). Frozen installation's workspace postinstall
+  also failed on ImageCrop's existing removed `bind` usage. These do not count
+  as clean repository-wide validation.

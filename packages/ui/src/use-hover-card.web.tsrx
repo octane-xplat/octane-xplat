@@ -219,31 +219,6 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		[positionRef, interactionRef],
 	);
 
-	// Escape hides the open card (or reports upward under control).
-	useEffect(() => {
-		if (!open) return;
-		const onKey = (event: KeyboardEvent) => {
-			if (event.key !== 'Escape' || event.isComposing) return;
-			clearTimers();
-			isTouch.current = false;
-			if (controlled) {
-				onHideRef.current?.();
-				return;
-			}
-
-			const hadFocus = cardEl.current?.contains(document.activeElement) ?? false;
-			setUncontrolled(false);
-			onHideRef.current?.();
-			if (hadFocus) {
-				escapeHiding.current = true;
-				interactionEl.current?.focus?.({ preventScroll: true });
-			}
-		};
-
-		document.addEventListener('keydown', onKey);
-		return () => document.removeEventListener('keydown', onKey);
-	}, [open, controlled, clearTimers]);
-
 	// isDefaultOpen lands once.
 	useEffect(() => {
 		if (isDefaultOpen) {
@@ -265,10 +240,15 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 				<Popover
 					open={open}
 					anchor={anchorObj.current}
+					finalFocusRef={interactionEl}
 					placement={placementFor(props?.placement ?? placement, rtl)}
 					alignment={(props?.alignment ?? alignment) as HoverCardAlignment as any}
 					dismissOnOutsideTap={isTouch.current}
-					onDismiss={() => hideNow()}
+					onDismiss={() => {
+						if (cardEl.current?.contains(document.activeElement)) escapeHiding.current = true;
+						isTouch.current = false;
+						hideNow();
+					}}
 					className={cx('vx-hovercard', props?.className)}
 					style={props?.style}
 					web={{

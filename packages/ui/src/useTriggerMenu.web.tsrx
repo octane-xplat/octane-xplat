@@ -1,3 +1,4 @@
+import { dispatchLayerKey } from './layer-stack';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import type { ChatComposerTrigger, ChatComposerTriggerItem } from './props';
 import { Popover } from './Popover.web.tsrx';
@@ -27,6 +28,7 @@ function getTextBeforeCursor(editable: HTMLDivElement): string | null {
 	const range = selection.getRangeAt(0);
 	if (!range.collapsed || !editable.contains(range.startContainer)) return null;
 	const node = range.startContainer;
+
 	if (node.nodeType === Node.TEXT_NODE) {
 		return (node.textContent ?? '').slice(0, range.startOffset);
 	}
@@ -38,6 +40,7 @@ function findActiveTrigger(
 	textBeforeCursor: string,
 	triggers: ChatComposerTrigger[],
 ): { trigger: ChatComposerTrigger; query: string; triggerStart: number } | null {
+
 	for (let i = textBeforeCursor.length - 1; i >= 0; i--) {
 		const char = textBeforeCursor[i];
 		if (char === ' ' || char === '\n') return null;
@@ -100,6 +103,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 	const anchorRef = useRef<{ current: unknown }>({ current: null });
 
 	const removeAnchorSpan = useCallback(() => {
+
 		if (anchorSpanRef.current) {
 			anchorSpanRef.current.remove();
 			anchorSpanRef.current = null;
@@ -109,6 +113,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 	}, []);
 
 	const reset = useCallback(() => {
+
 		if (searchTimeoutRef.current) {
 			clearTimeout(searchTimeoutRef.current);
 			searchTimeoutRef.current = null;
@@ -169,6 +174,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 
 	const searchItems = useCallback(
 		(trigger: ChatComposerTrigger, query: string) => {
+
 			if (searchTimeoutRef.current) {
 				clearTimeout(searchTimeoutRef.current);
 				searchTimeoutRef.current = null;
@@ -214,6 +220,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			deleteTriggerText(editable, triggerStartRef.current);
 
 			const result = trigger.onSelect(item);
+
 			if (typeof result === 'string') {
 				onInsertText(result);
 			} else {
@@ -257,6 +264,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			switch (e.key) {
 				case 'ArrowDown':
 					e.preventDefault();
+
 					setState((prev) => ({
 						...prev,
 						highlightedIndex: prev.highlightedIndex < prev.items.length - 1 ? prev.highlightedIndex + 1 : 0,
@@ -265,6 +273,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 					return true;
 				case 'ArrowUp':
 					e.preventDefault();
+
 					setState((prev) => ({
 						...prev,
 						highlightedIndex: prev.highlightedIndex > 0 ? prev.highlightedIndex - 1 : prev.items.length - 1,
@@ -273,6 +282,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 					return true;
 				case 'Enter':
 				case 'Tab':
+
 					if (state.highlightedIndex >= 0 && state.highlightedIndex < state.items.length) {
 						e.preventDefault();
 						selectItem(state.items[state.highlightedIndex]);
@@ -281,8 +291,8 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 
 					return false;
 				case 'Escape':
-					e.preventDefault();
-					reset();
+					dispatchLayerKey(e);
+					if (!e.defaultPrevented && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); reset(); }
 					return true;
 				default:
 					return false;
@@ -321,8 +331,10 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 		const trigger = state.activeTrigger;
 		let flatIndex = 0;
 		const out: any[] = [];
+
 		for (const group of groupChatItems(state.items)) {
 			const rows: any[] = [];
+
 			for (const item of group.items) {
 				const idx = flatIndex++;
 				rows.push(

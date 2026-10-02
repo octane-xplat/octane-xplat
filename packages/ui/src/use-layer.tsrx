@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import type {
 	ContextLayerReturn,
@@ -14,26 +15,27 @@ import { resolveLayerSide } from './popover-position';
 
 const host = () => (globalThis as any).__xplatAppKit ?? {};
 
-function LayerPanel(props: { body?: any; className?: any; style?: any; label?: string }) @{
+function LayerPanel(props: { body?: any; className?: any; style?: any; label?: string; layerDepth?: number }) @{
 	<flexboxlayout
 		flexDirection="column"
 		className={cx('vx-popover', props.className)}
 		style={props.style}
 		accessibilityLabel={props.label}
 	>
-		{props.body}
+		<LayerDepthProvider value={props.layerDepth ?? 0}>{props.body}</LayerDepthProvider>
 	</flexboxlayout>
 }
 
-function LayerContentUpdate(props: { popup: { current: any }; body: any; surface?: ContextRenderProps | FixedRenderProps }) @{
+function LayerContentUpdate(props: { popup: { current: any }; body: any; surface?: ContextRenderProps | FixedRenderProps; layerDepth: number }) @{
 	useEffect(() => {
 		props.popup.current?.update?.({
 			body: props.body,
+			layerDepth: props.layerDepth,
 			className: props.surface?.className,
 			style: props.surface?.style,
 			label: props.surface?.accessibilityLabel,
 		});
-	}, [props.popup.current, props.body, props.surface]);
+	}, [props.popup.current, props.body, props.surface, props.layerDepth]);
 
 	return null;
 }
@@ -63,6 +65,8 @@ export function useLayer<O extends LayerOptions>(
 	const onHide = useRef(options.onHide);
 	onHide.current = options.onHide;
 
+	const dismissal = useLayerDismissal({ get active() { return isOpen }, isPresent: () => !!popup.current && !popup.current.closed, dismiss: () => hide(), get behavior() { return (options.dismissOnEscape ?? options.lightDismiss) ? 'close' : 'block' } });
+
 	const show = useCallback(() => {
 		if (openRef.current || popup.current) return;
 		const showPopup = host().showAnchoredPopup;
@@ -90,6 +94,7 @@ export function useLayer<O extends LayerOptions>(
 						component: LayerPanel,
 						props: {
 							body: content.current,
+							layerDepth: dismissal.depth,
 							className: fx.className,
 							style: fx.style,
 							label: fx.accessibilityLabel,
@@ -107,6 +112,7 @@ export function useLayer<O extends LayerOptions>(
 						component: LayerPanel,
 						props: {
 							body: content.current,
+							layerDepth: dismissal.depth,
 							className: cxp.className,
 							style: cxp.style,
 							label: cxp.accessibilityLabel,
@@ -132,6 +138,7 @@ export function useLayer<O extends LayerOptions>(
 
 	useEffect(
 		() => () => {
+			openRef.current = false;
 			popup.current?.close?.();
 			popup.current = null;
 		},
@@ -150,7 +157,7 @@ export function useLayer<O extends LayerOptions>(
 			// component adds no view; the fixed-mode marker
 			// locates the owning AppKit view for the point anchor.
 			return <>
-				<LayerContentUpdate popup={popup} body={children} surface={props} />
+				<LayerContentUpdate popup={popup} body={children} surface={props} layerDepth={dismissal.depth} />
 				{fixed && <flexboxlayout ref={(v: any) => { markerEl.current = v; }} style={{ width: 0, height: 0 }} />}
 			</>;
 		},

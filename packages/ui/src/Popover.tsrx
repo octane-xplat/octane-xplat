@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useEffect, useRef, useState } from 'octane';
 import { GridLayout, isIOS, Screen } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
@@ -12,7 +13,7 @@ import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
 import { relativePosition } from './relative-position';
 
-function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
+function PopoverLayer(props: PopoverProps & { anchorView: any; layerDepth: number }) @{
 	const panelRef = useRef<any>(null);
 	const [position, setPosition] = useState<PopoverPosition | null>(null);
 	const [settled, setSettled] = useState(false);
@@ -121,7 +122,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 			onLoaded={update}
 			onLayoutChanged={update}
 		>
-			{props.children}
+			<LayerDepthProvider value={props.layerDepth}>{props.children}</LayerDepthProvider>
 		</gridlayout>
 	</absolutelayout>
 }
@@ -131,6 +132,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
  *  Overlay: a transparent host opened on the RootLayout enclosing the
  *  anchor, with PopoverLayer positioning itself over the anchor's rect. */
 export function Popover(props: PopoverProps) @{
+	const dismissal = useLayerDismissal({ get active() { return !!props.open }, isPresent: () => !!shown.current, getFocusTarget: () => props.finalFocusRef?.current, dismiss: () => props.onDismiss?.(), get behavior() { return props.dismissOnEscape === false ? 'block' : 'close' } });
 	const shown = useRef<{ host: any; root: any; lifetime: ReturnType<typeof createOverlayLifetime> } | null>(null);
 
 	const dismiss = useRef(props.onDismiss);
@@ -148,7 +150,7 @@ export function Popover(props: PopoverProps) @{
 		if (!anchor || !rl) return;
 
 		if (cur) {
-			cur.root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });
+			cur.root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } });
 			return;
 		}
 
@@ -164,7 +166,7 @@ export function Popover(props: PopoverProps) @{
 
 		lifetime.own(unbindTheme);
 		shown.current = { host, root, lifetime };
-		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });
+		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } });
 		lifetime.open();
 	}, [props.open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
 

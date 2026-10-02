@@ -1,4 +1,5 @@
-import { createPortal, useCallback, useEffect, useId, useRef, useState } from 'octane';
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
+import { createPortal, useCallback, useId, useRef, useState } from 'octane';
 import type {
 	ContextLayerReturn,
 	ContextRenderProps,
@@ -19,6 +20,7 @@ interface FloatingLayerProps {
 	x?: number
 	y?: number
 	lightDismiss?: boolean
+	dismissOnEscape?: boolean
 	onDismiss?: () => void
 	className?: any
 	style?: any
@@ -31,6 +33,7 @@ interface FloatingLayerProps {
  *  which can chain off `anchorId` via CSS anchor positioning). */
 function FloatingLayer(props: FloatingLayerProps) @{
 	const dark = useThemeScheme() === 'dark';
+	const dismissal = useLayerDismissal({ get active() { return !!props.open }, dismiss: () => props.onDismiss?.(), get behavior() { return (props.dismissOnEscape ?? props.lightDismiss) ? 'close' : 'block' } });
 	const stopPointer = (event: PointerEvent) => event.stopPropagation();
 	const dismiss = (event: MouseEvent) => {
 		event.preventDefault();
@@ -62,7 +65,7 @@ function FloatingLayer(props: FloatingLayerProps) @{
 					}}
 					{...props.web}
 				>
-					{props.children}
+					<LayerDepthProvider value={dismissal.depth}>{props.children}</LayerDepthProvider>
 				</div>
 			</div>,
 			document.body,
@@ -107,16 +110,6 @@ export function useLayer<O extends LayerOptions>(
 		onHideRef.current?.();
 	}, []);
 
-	// Escape dismissal rides lightDismiss, matching popover="auto" semantics.
-	useEffect(() => {
-		if (!isOpen || options.lightDismiss !== true) return;
-		const onKey = (event: KeyboardEvent) => {
-			if (event.key === 'Escape' && !event.isComposing) hide();
-		};
-
-		document.addEventListener('keydown', onKey);
-		return () => document.removeEventListener('keydown', onKey);
-	}, [isOpen, options.lightDismiss, hide]);
 
 	const ref = useCallback(
 		(el: any) => {
@@ -144,6 +137,7 @@ export function useLayer<O extends LayerOptions>(
 						x={p.x}
 						y={p.y}
 						lightDismiss={options.lightDismiss}
+						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
 						style={p.style}
@@ -172,6 +166,7 @@ export function useLayer<O extends LayerOptions>(
 					<FloatingLayer
 						open={isOpen}
 						lightDismiss={options.lightDismiss}
+						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
 						style={p.style}
@@ -192,6 +187,7 @@ export function useLayer<O extends LayerOptions>(
 					alignment={p.alignment ?? 'center'}
 					offset={layerOffset(p.offset)}
 					dismissOnOutsideTap={options.lightDismiss === true}
+					dismissOnEscape={options.dismissOnEscape ?? options.lightDismiss === true}
 					onDismiss={hide}
 					className={p.className}
 					style={p.style}
@@ -201,7 +197,7 @@ export function useLayer<O extends LayerOptions>(
 				</Popover>
 			);
 		},
-		[fixed, isOpen, options.lightDismiss, id, hide],
+		[fixed, isOpen, options.lightDismiss, options.dismissOnEscape, id, hide],
 	);
 
 	return (fixed

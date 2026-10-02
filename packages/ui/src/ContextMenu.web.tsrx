@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'octane';
+import { useRef, useState } from 'octane';
 import type { ContextMenuProps, MenuItem } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Popover } from './Popover.web.tsrx';
@@ -18,12 +18,6 @@ export function ContextMenu(props: ContextMenuProps) @{
 		props.onOpenChange?.(next);
 	};
 
-	useEffect(() => {
-		if (!open) return;
-		const onKey = (e: any) => { if (e.key === 'Escape') setOpen(false); };
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
-	}, [open]);
 
 	const select = (item: MenuItem) => {
 		if (item.disabled) return;

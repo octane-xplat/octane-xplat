@@ -30,7 +30,7 @@ export function Tooltip(props: TooltipProps) @{
 	const anchor = useRef<HTMLElement | null>(null);
 	const binding = useRef<Binding | null>(null);
 	const described = useRef<HTMLElement | null>(null);
-	const layer = useLayer({ mode: 'context' });
+	const layer = useLayer({ mode: 'context', dismissOnEscape: true, onHide: () => closeNow() });
 	const tooltipId = layer.id;
 	useEffect(() => {
 		if (open) layer.show();
@@ -131,12 +131,9 @@ export function Tooltip(props: TooltipProps) @{
 			described.current = target;
 		}
 
-		const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') closeNow(); };
 		const onScroll = () => closeNow();
-		window.addEventListener('keydown', onKey);
 		window.addEventListener('scroll', onScroll, true);
 		return () => {
-			window.removeEventListener('keydown', onKey);
 			window.removeEventListener('scroll', onScroll, true);
 			described.current?.removeAttribute('aria-describedby');
 			described.current = null;

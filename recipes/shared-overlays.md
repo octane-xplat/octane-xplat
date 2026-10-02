@@ -133,7 +133,7 @@ export function TripPreview() {
 - AC3: Removing an open declaration releases its content and bindings; a pending open completion cannot revive it, and content updates do not accumulate host theme subscriptions.
 - AC4: The reader can supply data to native content without relying on presenter context and knows that web portals retain context.
 - AC5: The reader can choose the public shared component names and anatomy for modal surfaces, hover cards, media, scrolling, and toasts, including the platform-native sheet boundary and macOS implementation limits.
-- AC6: A shaded Web `Overlay` requires an accessible name; modal Web `Overlay` and `BottomSheet` contain keyboard focus, hide background actions, and restore focus to the opener after pointer, keyboard, and nested dismissal.
+- AC6: A shaded Web `Overlay` requires an accessible name; modal Web `Overlay` and `BottomSheet` contain keyboard focus, hide background actions, and restore focus to the opener after pointer, keyboard, and nested dismissal. Nested dialogs, menus, and hover cards share one Escape owner; controlled close requests do not cascade, composition is preserved, and removal cleans up ownership and focus return. Target limitations are explicit.
 
 ## Documentation
 
@@ -143,6 +143,8 @@ export function TripPreview() {
 - AC4: [Root boundaries](../docs/app/primitives.md#own-temporary-surfaces).
 - AC5: [Shared component catalog](../docs/app/components.md#overlays), [useLayer anchored layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), and maintained examples in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), [ModalDemo](../packages/demos/src/ModalDemo.tsrx), and [ScrollBoxDemo](../packages/demos/src/ScrollBoxDemo.tsrx).
 - AC6: [Temporary surfaces](../docs/app/primitives.md#own-temporary-surfaces), [input readiness evidence](../docs/notes/input-readiness-notes.md), and the maintained [cross-browser input fixture](../apps/web/scripts/input-readiness.mjs).
+
+  [Nested dismissal](../docs/app/primitives.md#close-nested-layers-one-at-a-time), the nested dialog/menu/card in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), and maintained [web regressions](../packages/ui/src/layer-dismissal.web.test.tsrx) and [cross-root object-driver tests](../packages/ui/src/layer-dismissal.mobile.test.tsrx). Object-driver evidence does not establish OS keyboard input or native focus traversal.
 
 Windows remains experimental: native mounting and cleanup have bounded runtime
 evidence, while gesture, dismissal, focus, and accessibility gaps remain. See

@@ -1078,6 +1078,37 @@ export function Example() {
 }
 ```
 
+### Close nested layers one at a time
+
+Put a menu or hover card inside a dialog when it belongs to that dialog's
+content. On web and AppKit, Escape requests a close from the innermost open
+layer. For example, open the menu in the maintained
+[Overlay demo](../../packages/demos/src/OverlayDemo.tsrx): the first Escape closes
+the menu; the next closes the dialog. A required dialog consumes Escape
+without closing. Escape used to cancel text composition does not close a layer.
+
+For controlled components, the request calls `onOpenChange(false)` (or
+`onHide` for HoverCard). Update your open state to accept it. If your callback
+leaves the layer open, later Escape presses keep requesting that layer's close;
+they do not close the dialog underneath. Focus returns when the layer actually
+closes, rather than when the request is sent. `Dialog.finalFocusRef` can select
+a return target with a `focus()` method. Removing a lower layer does not move
+focus away from a layer that is still open above it.
+
+`Popover.finalFocusRef` chooses where to return focus after its content
+receives focus on web (the anchor is the default).
+`Popover.dismissOnEscape={false}` blocks Escape while that popover is on top.
+For `useLayer`, Escape follows `lightDismiss` by default. Set
+`dismissOnEscape: true` to allow Escape without an outside-tap backdrop.
+Nesting depth is carried into separate native roots by the framework; this
+does not make your own component context available there.
+
+iOS/Android retain RootLayout's platform back behavior; there is no shared
+hardware Escape listener on those targets. A platform back close may remove
+the native host before the controlled callback is accepted. Focus return there
+uses an explicit `finalFocusRef` when available; it is not a keyboard focus trap.
+AppKit Dialog remains an inline panel, without browser-style modal isolation.
+
 ## Anchor a layer to an element
 
 `useLayer` is the public anchored-overlay primitive — the same shape Meta

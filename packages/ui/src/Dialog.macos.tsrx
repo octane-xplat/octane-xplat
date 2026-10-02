@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import type { DialogHeaderProps, DialogProps } from './props'
 import { cx } from './cx'
 
@@ -6,13 +7,15 @@ import { cx } from './cx'
  *  shared in-window layer service yet (documented gap; Sheet's own macOS
  *  leaf renders the same way). `isOpen` gates mounting. */
 export function Dialog(props: DialogProps) @{
+	const dismissal = useLayerDismissal({ get active() { return !!props.isOpen && !props.isInline }, dismiss: () => props.onOpenChange?.(false), get behavior() { return props.purpose === 'required' ? 'block' : 'close' } })
+
 	@if (props.isOpen) {
 		<flexboxlayout
 			flexDirection="column"
 			className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.className)}
 			style={props.style}
 		>
-			{props.children}
+			<LayerDepthProvider value={props.isInline ? dismissal.depth - 1 : dismissal.depth}>{props.children}</LayerDepthProvider>
 		</flexboxlayout>
 	}
 }

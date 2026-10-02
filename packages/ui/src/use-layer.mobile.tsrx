@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import { GridLayout } from '@nativescript/core';
 import { createNativeScriptRoot } from '@nativescript-community/octane';
@@ -21,11 +22,13 @@ import { createOverlayLifetime } from './overlay-lifetime';
 import { layerOffset, resolveLayerSide } from './popover-position';
 
 interface FixedSurfaceProps {
+	layerDepth?: number
 	/** Page-coordinate position in dips; consumer-authored styles carry it
 	 *  under `positioning: 'custom'`. */
 	x?: number
 	y?: number
 	lightDismiss?: boolean
+	dismissOnEscape?: boolean
 	onDismiss?: () => void
 	className?: any
 	style?: any
@@ -63,7 +66,7 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
 			className={cx('vx-popover', props.className)}
 			style={props.style}
 		>
-			{props.children}
+			<LayerDepthProvider value={props.layerDepth ?? 0}>{props.children}</LayerDepthProvider>
 		</gridlayout>
 	</absolutelayout>
 }
@@ -72,6 +75,7 @@ function FixedLayerSurface(props: FixedSurfaceProps) @{
  *  zero-size sentinel locates the root; the layer renders in its own root
  *  above the page, the same machinery as `Overlay`/`Popover`. */
 function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
+	const dismissal = useLayerDismissal({ get active() { return !!props.open }, isPresent: () => !!shown.current, dismiss: () => props.onDismiss?.(), get behavior() { return (props.dismissOnEscape ?? props.lightDismiss) ? 'close' : 'block' } });
 	const sentinel = useRef<any>(null);
 	const shown = useRef<{ host: any; root: any; lifetime: ReturnType<typeof createOverlayLifetime> } | null>(null);
 	const dismiss = useRef(props.onDismiss);
@@ -87,7 +91,7 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 		const rl = rootLayoutFor(sentinel.current);
 		if (!rl) return;
 
-		const surface = { ...props, onDismiss: () => dismiss.current?.() };
+		const surface = { ...props, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } };
 		if (current) {
 			current.root.render(FixedLayerSurface as unknown as UniversalComponent, surface);
 			return;
@@ -163,6 +167,7 @@ export function useLayer<O extends LayerOptions>(
 						x={p.x}
 						y={p.y}
 						lightDismiss={options.lightDismiss}
+						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
 						style={p.style}
@@ -181,6 +186,7 @@ export function useLayer<O extends LayerOptions>(
 					<FixedLayerMount
 						open={isOpen}
 						lightDismiss={options.lightDismiss}
+						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
 						style={p.style}
@@ -201,6 +207,7 @@ export function useLayer<O extends LayerOptions>(
 					alignment={p.alignment ?? 'center'}
 					offset={layerOffset(p.offset)}
 					dismissOnOutsideTap={options.lightDismiss === true}
+					dismissOnEscape={options.dismissOnEscape ?? options.lightDismiss === true}
 					onDismiss={hide}
 					className={p.className}
 					style={p.style}
@@ -211,7 +218,7 @@ export function useLayer<O extends LayerOptions>(
 				</Popover>
 			);
 		},
-		[fixed, isOpen, options.lightDismiss, hide],
+		[fixed, isOpen, options.lightDismiss, options.dismissOnEscape, hide],
 	);
 
 	return (fixed

@@ -1,3 +1,4 @@
+import { LayerDepthContext, LayerDepthProvider } from './layer-dismissal.tsrx';
 import { createPortal, useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props';
 import {
@@ -44,6 +45,7 @@ function BottomSheetLayer(props: {
 	onDismiss: () => void;
 }) @{
 	const { sheet, panel } = props;
+	const layerDepth = useContext(LayerDepthContext);
 	const dark = useThemeScheme() === 'dark';
 	const layer = useRef<HTMLDivElement | null>(null);
 	const panelEl = useRef<HTMLDivElement | null>(null);
@@ -70,7 +72,7 @@ function BottomSheetLayer(props: {
 			if ((sheet.purpose ?? 'info') !== 'required') {
 				dismiss.current();
 			}
-		});
+		}, layerDepth);
 	}, [hasScrim, purpose]);
 
 	useEffect(() => {
@@ -122,7 +124,7 @@ function BottomSheetLayer(props: {
 			}}
 			{...sheet.web}
 		>
-			{panel}
+			<LayerDepthProvider value={layerDepth + 1}>{panel}</LayerDepthProvider>
 		</div>
 	</div>
 }

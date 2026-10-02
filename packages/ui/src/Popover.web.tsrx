@@ -1,3 +1,4 @@
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { createPortal, useEffect, useRef, useState } from 'octane';
 import { useThemeScheme } from './theme/theme-scheme';
 import type { PopoverProps } from './props';
@@ -9,6 +10,8 @@ type Position = { left: number; top: number };
 function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 	const dark = useThemeScheme() === 'dark';
 	const panelRef = useRef<any>(null);
+	const focusedInside = useRef(false);
+	const dismissal = useLayerDismissal({ get active() { return !!props.open }, getFocusTarget: () => focusedInside.current ? (props.finalFocusRef?.current ?? props.anchorElement) : undefined, dismiss: () => props.onDismiss?.(), get behavior() { return props.dismissOnEscape === false ? 'block' : 'close' }, contains: (target) => !!panelRef.current?.contains(target) });
 	const [position, setPosition] = useState<Position | null>(null);
 	const update = () => {
 		const anchor = props.anchorElement;
@@ -61,7 +64,7 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 	const dismiss = (event: MouseEvent) => {
 		event.preventDefault();
 		event.stopPropagation();
-		props.onDismiss?.();
+		if (dismissal.shouldClose()) props.onDismiss?.();
 	};
 
 	@if (props.open && position) {
@@ -87,9 +90,9 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 					zIndex: 1,
 					pointerEvents: 'auto',
 				}}
-				{...props.web}
+				{...{ ...props.web, onFocusIn: (event: FocusEvent) => { focusedInside.current = true; props.web?.onFocusIn?.(event); } }}
 			>
-				{props.children}
+				<LayerDepthProvider value={dismissal.depth}>{props.children}</LayerDepthProvider>
 			</div>
 			</div>,
 			document.body,

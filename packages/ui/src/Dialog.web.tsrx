@@ -1,3 +1,4 @@
+import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
 import { createPortal, useContext, useEffect, useId, useRef } from 'octane';
 import type { DialogHeaderProps, DialogProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -27,6 +28,7 @@ function DialogModal(props: DialogProps) @{
 	const dismiss = useRef(props.onOpenChange);
 	dismiss.current = props.onOpenChange;
 	const pos = props.position;
+	const dismissal = useLayerDismissal({ active: true, dismiss: () => dismiss.current?.(false), get behavior() { return props.purpose === 'required' ? 'block' : 'close' }, getFocusTarget: () => props.finalFocusRef?.current, contains: (target) => !!dialogRef.current?.contains(target) });
 
 	useEffect(() => {
 		const dialog = dialogRef.current;
@@ -35,7 +37,6 @@ function DialogModal(props: DialogProps) @{
 			return;
 		}
 
-		const trigger = document.activeElement as HTMLElement | null;
 		const canModal = typeof dialog.showModal === 'function';
 		if (canModal) {
 			try {
@@ -80,7 +81,7 @@ function DialogModal(props: DialogProps) @{
 		// it; other purposes report the dismissal through onOpenChange.
 		const onCancel = (event: Event) => {
 			event.preventDefault();
-			if (purpose !== 'required') {
+			if (props.purpose !== 'required' && dismissal.shouldClose()) {
 				dismiss.current?.(false);
 			}
 		};
@@ -96,23 +97,14 @@ function DialogModal(props: DialogProps) @{
 		// essentials on the wrapper layer.
 		let detachFallback: (() => void) | undefined;
 		if (!canModal && layer) {
-			const onKey = (event: KeyboardEvent) => {
-				if (event.key === 'Escape' && purpose !== 'required') {
-					event.preventDefault();
-					dismiss.current?.(false);
-				}
-			};
-
 			const onLayerClick = (event: MouseEvent) => {
 				if (event.target === layer && purpose === 'info') {
 					dismiss.current?.(false);
 				}
 			};
 
-			document.addEventListener('keydown', onKey);
 			layer.addEventListener('mousedown', onLayerClick);
 			detachFallback = () => {
-				document.removeEventListener('keydown', onKey);
 				layer.removeEventListener('mousedown', onLayerClick);
 			};
 		}
@@ -124,10 +116,6 @@ function DialogModal(props: DialogProps) @{
 			dialog.removeEventListener('click', onClick);
 			detachFallback?.();
 			root.style.overflow = restoreScroll.current ?? '';
-			const target = props.finalFocusRef?.current ?? trigger;
-			if (target?.isConnected !== false && typeof target?.focus === 'function') {
-				target.focus({ preventScroll: true });
-			}
 		};
 	}, []);
 
@@ -170,7 +158,7 @@ function DialogModal(props: DialogProps) @{
 					{...(purpose === 'required' ? { role: 'alertdialog' } : {})}
 					tabIndex={-1}
 				>
-					{props.children}
+					<LayerDepthProvider value={dismissal.depth}>{props.children}</LayerDepthProvider>
 				</dialog>
 			</DialogProvider>
 		</div>

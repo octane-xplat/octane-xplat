@@ -1,7 +1,9 @@
 import { useRef, useState } from 'octane';
-import { HoverCard, Overlay, Popover, Pressable, HStack, Screen, Text, Tooltip, View, showToast, useMeasure } from '@octane-xplat/ui';
+import { Dialog, DropdownMenu, HoverCard, Overlay, Popover, Pressable, HStack, Screen, Text, Tooltip, View, showToast, useMeasure } from '@octane-xplat/ui';
 
 export function OverlayDemo() @{
+	const [dialogOpen, setDialogOpen] = useState(false);
+	const [menuOpen, setMenuOpen] = useState(false);
 	const [overlayOpen, setOverlayOpen] = useState(false);
 	const [popoverOpen, setPopoverOpen] = useState(false);
 	const anchor = useRef<any>(null);
@@ -11,6 +13,9 @@ export function OverlayDemo() @{
 		<Text className="text-xl font-semibold">Overlay primitives</Text>
 		<View className="sink-section">
 			<HStack className="gap-3 flex-wrap">
+				<Pressable className="btn btn-secondary" onPress={() => setDialogOpen(true)}>
+					<Text>Open nested layers</Text>
+				</Pressable>
 				<Pressable className="btn btn-secondary" onPress={() => setOverlayOpen(true)}>
 					<Text>Open shade overlay</Text>
 				</Pressable>
@@ -53,6 +58,14 @@ export function OverlayDemo() @{
 					: 'Bounds pending'}
 			</Text>
 		</View>
+		<Dialog isOpen={dialogOpen} onOpenChange={setDialogOpen} accessibilityLabel="Nested layers">
+			<Text>Open the menu. Escape requests the menu close first, then the dialog close.</Text>
+			<DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} trigger={<Text>Open menu</Text>} items={[{ key: 'close', label: 'Close menu' }]} />
+			<HoverCard content={<Text>Escape closes this card before the dialog.</Text>}>
+				<Pressable onPress={() => {}}><Text>Hover or tap for a card</Text></Pressable>
+			</HoverCard>
+			<Pressable onPress={() => { setMenuOpen(false); setDialogOpen(false); }}><Text>Close dialog</Text></Pressable>
+		</Dialog>
 		<Popover anchor={anchor} open={popoverOpen} placement="bottom" className="overlay-demo-popover" onDismiss={() => setPopoverOpen(false)}>
 			<Text>Anchored to the button</Text>
 		</Popover>
