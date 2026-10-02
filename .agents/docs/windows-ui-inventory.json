@@ -231,9 +231,9 @@
         "Button.tsrx",
         "Button.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required activation uses Button.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "IconButton",
@@ -244,9 +244,9 @@
         "IconButton.tsrx",
         "IconButton.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required icon-button activation uses IconButton.tsrx \u2192 Button.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "ButtonGroup",
@@ -270,9 +270,9 @@
         "ToggleButton.tsrx",
         "ToggleButton.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required toggle activation uses ToggleButton.tsrx \u2192 Button.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "ToggleButtonGroup",
@@ -283,9 +283,9 @@
         "ToggleButton.tsrx",
         "ToggleButton.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required choice activation uses ToggleButton.tsrx \u2192 Button.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "ClickableCard",
@@ -296,9 +296,9 @@
         "ClickableCard.tsrx",
         "ClickableCard.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required card activation uses ClickableCard.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "SelectableCard",
@@ -309,9 +309,9 @@
         "SelectableCard.tsrx",
         "SelectableCard.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required card selection uses SelectableCard.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "MoreMenu",
@@ -322,9 +322,9 @@
         "MoreMenu.tsrx",
         "MoreMenu.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required menu trigger/action activation uses MoreMenu.tsrx \u2192 DropdownMenu.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "PowerSearch",
@@ -374,9 +374,9 @@
         "Collapsible.tsrx",
         "Collapsible.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required expand/collapse trigger uses Collapsible.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Accordion",
@@ -387,9 +387,9 @@
         "Accordion.tsrx",
         "Accordion.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required section expand/collapse triggers uses Accordion.tsrx \u2192 Collapsible.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "CheckboxInput",
@@ -399,9 +399,9 @@
         "Checkbox.tsrx",
         "Checkbox.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#input-control-runtime-and-accessibility",
+      "reason": "Real mouse input changes controlled state, but UI Automation exposes only Text labels without the semantic toggle/selection control. Keyboard and assistive-technology activation are not established. Reopen with a Windows semantic native-control/AutomationPeer seam and test state, focus, keyboard, and OS pointer input."
     },
     {
       "name": "RadioList",
@@ -412,9 +412,9 @@
         "RadioGroup.tsrx",
         "RadioGroup.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#input-control-runtime-and-accessibility",
+      "reason": "Real mouse input changes controlled state, but UI Automation exposes only Text labels without the semantic toggle/selection control. Keyboard and assistive-technology activation are not established. Reopen with a Windows semantic native-control/AutomationPeer seam and test state, focus, keyboard, and OS pointer input."
     },
     {
       "name": "DropdownMenu",
@@ -425,9 +425,9 @@
         "DropdownMenu.tsrx",
         "DropdownMenu.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required menu trigger/actions uses DropdownMenu.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "ContextMenu",
@@ -451,9 +451,9 @@
         "Badge.tsrx",
         "Badge.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
     },
     {
       "name": "Divider",
@@ -464,9 +464,9 @@
         "Separator.tsrx",
         "Separator.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Existing native horizontal implementation renders a 300\u00d71 DIP rule in the Windows case. Vertical styling is not runtime verified."
     },
     {
       "name": "Skeleton",
@@ -477,9 +477,9 @@
         "Skeleton.tsrx",
         "Skeleton.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Existing native implementation renders the requested 160\u00d724 DIP placeholder; Windows runtime verified."
     },
     {
       "name": "Avatar",
@@ -646,9 +646,9 @@
         "Select.tsrx",
         "Select.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required option selection uses Select.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "MultiSelector",
@@ -659,9 +659,9 @@
         "aliases.tsrx",
         "aliases.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required option selection uses aliases.tsrx \u2192 Select.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "BaseTypeahead",
@@ -776,9 +776,9 @@
         "Calendar.tsrx",
         "Calendar.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required day and navigation-button selection uses Calendar.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "DateInput",
@@ -789,9 +789,9 @@
         "DateInput.tsrx",
         "DateInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required date picker trigger uses DateInput.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "TimeInput",
@@ -802,9 +802,9 @@
         "TimeInput.tsrx",
         "TimeInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required time picker trigger uses TimeInput.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "DateTimeInput",
@@ -815,9 +815,9 @@
         "DateTimeInput.tsrx",
         "DateTimeInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required date/time picker trigger uses DateTimeInput.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "DateRangeInput",
@@ -828,9 +828,9 @@
         "DateRangeInput.tsrx",
         "DateRangeInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required range picker trigger uses DateRangeInput.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "AppShell",
@@ -880,9 +880,9 @@
         "TopNav.tsrx",
         "TopNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required navigation-item activation uses TopNav.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "TopNavMenu",
@@ -893,9 +893,9 @@
         "TopNav.tsrx",
         "TopNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required menu-item activation uses TopNav.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "TopNavMegaMenu",
@@ -919,9 +919,9 @@
         "TopNav.tsrx",
         "TopNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required mega-menu item activation uses TopNav.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "TopNavMegaMenuFeaturedCard",
@@ -932,9 +932,9 @@
         "TopNav.tsrx",
         "TopNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required featured navigation-card activation uses TopNav.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "SideNav",
@@ -984,9 +984,9 @@
         "SideNav.tsrx",
         "SideNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required navigation-item activation uses SideNav.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "SideNavCollapseButton",
@@ -997,9 +997,9 @@
         "SideNav.tsrx",
         "SideNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required sidebar collapse action uses SideNav.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "MobileNav",
@@ -1023,9 +1023,9 @@
         "MobileNav.tsrx",
         "MobileNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required navigation drawer toggle uses MobileNav.tsrx \u2192 Button.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "NavIcon",
@@ -1062,9 +1062,9 @@
         "NavMenu.tsrx",
         "NavMenu.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required heading-menu action uses NavMenu.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "TabList",
@@ -1075,9 +1075,9 @@
         "TabList.tsrx",
         "TabList.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required tab selection uses TabList.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Tab",
@@ -1088,9 +1088,9 @@
         "TabList.tsrx",
         "TabList.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required tab activation uses TabList.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "TabMenu",
@@ -1101,9 +1101,9 @@
         "TabList.tsrx",
         "TabList.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required tab-menu action uses TabList.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Toolbar",
@@ -1179,9 +1179,9 @@
         "NavigationMenu.tsrx",
         "NavigationMenu.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required navigation trigger/actions uses NavigationMenu.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "CommandPalette",
@@ -1192,9 +1192,9 @@
         "CommandPalette.tsrx",
         "CommandPalette.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required result action activation uses CommandPalette.tsrx \u2192 TextInput.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Table",
@@ -1244,9 +1244,9 @@
         "Alert.tsrx",
         "Alert.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
     },
     {
       "name": "Card",
@@ -1257,9 +1257,9 @@
         "Card.tsrx",
         "Card.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
     },
     {
       "name": "Chip",
@@ -1359,9 +1359,9 @@
         "ChatLayoutScrollButton.tsrx",
         "ChatLayoutScrollButton.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required scroll-to-latest action uses ChatLayoutScrollButton.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "ChatMessageList",
@@ -1503,9 +1503,9 @@
         "ChatSendButton.tsrx",
         "ChatSendButton.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required message send activation uses ChatSendButton.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "ChatDictationButton",
@@ -1515,9 +1515,9 @@
         "ChatDictationButton.tsrx",
         "ChatDictationButton.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required dictation toggle activation uses ChatDictationButton.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Link",
@@ -1528,9 +1528,9 @@
         "Link.tsrx",
         "Link.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required link activation uses Link.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "NavLink",
@@ -1541,9 +1541,9 @@
         "NavLink.tsrx",
         "NavLink.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required route-link activation uses NavLink.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "TextInput",
@@ -1589,9 +1589,9 @@
         "SegmentedControl.tsrx",
         "SegmentedControl.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#input-control-runtime-and-accessibility",
+      "reason": "Real mouse input changes controlled state, but UI Automation exposes only Text labels without the semantic toggle/selection control. Keyboard and assistive-technology activation are not established. Reopen with a Windows semantic native-control/AutomationPeer seam and test state, focus, keyboard, and OS pointer input."
     },
     {
       "name": "ScrollableArea",
@@ -1745,9 +1745,9 @@
         "Carousel.tsrx",
         "Carousel.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required next/previous controls uses Carousel.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Lightbox",
@@ -1758,9 +1758,9 @@
         "Lightbox.tsrx",
         "Lightbox.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required navigation/close controls uses Lightbox.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Toast",
@@ -1810,9 +1810,9 @@
         "Tabs.tsrx",
         "Tabs.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required tab selection uses Tabs.tsrx \u2192 TabList.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Switch",
@@ -1874,9 +1874,9 @@
         "ActivityIndicator.tsrx",
         "ActivityIndicator.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
     },
     {
       "name": "Meter",
@@ -2003,9 +2003,9 @@
         "Blockquote.tsrx",
         "Blockquote.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Bare string children disappear from the native container; an explicit Label child renders correctly in the paired Windows case. Citation renders in both. Flexbox padding is also ignored. Reopen after native primitive-child normalization and container padding pass."
     },
     {
       "name": "Code",
@@ -2042,9 +2042,9 @@
         "MetadataList.tsrx",
         "MetadataList.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
     },
     {
       "name": "MetadataListItem",
@@ -2055,9 +2055,9 @@
         "MetadataListItem.tsrx",
         "MetadataListItem.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
     },
     {
       "name": "Thumbnail",
@@ -2081,9 +2081,9 @@
         "ProgressBar.tsrx",
         "ProgressBar.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
     },
     {
       "name": "StatusDot",
@@ -2094,9 +2094,9 @@
         "StatusDot.tsrx",
         "StatusDot.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
     },
     {
       "name": "Timestamp",
@@ -2107,9 +2107,9 @@
         "Timestamp.tsrx",
         "Timestamp.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Native Windows runtime terminates inside an isolated Intl.DateTimeFormat constructor (nativescript.DLL 0x80000003). Timestamp always computes a full absolute accessibility label using that constructor. Reopen after the runtime locale constructor works and date/relative/live cases pass."
     },
     {
       "name": "Timer",
@@ -2120,9 +2120,9 @@
         "Timer.tsrx",
         "Timer.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "reason": "Existing native implementation advances its elapsed-duration label (14s \u2192 17s in the isolated Windows case); no Intl constructor dependency."
     },
     {
       "name": "Citation",
@@ -2133,9 +2133,9 @@
         "Citation.tsrx",
         "Citation.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#pressable-dependent-actions",
+      "reason": "Required citation trigger activation uses Citation.tsrx \u2192 Pressable.tsrx. Shared Pressable's reproduced Windows tap/touch handler collision prevents OS activation. This is source dependency evidence plus the foundation OS reproduction, not an individual runtime pass. Reopen after the core gesture collision is repaired, then verify pointer, keyboard, disabled state, and accessible activation for this component."
     },
     {
       "name": "Outline",

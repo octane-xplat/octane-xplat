@@ -273,9 +273,11 @@ Pinned core also lacks a Windows pan recognizer, so Slider needs both measuremen
 and native drag support before it can be unparked.
 
 Real OS keyboard input writes `abc` into TextInput and updates its controlled
-state. The initial `initial` value, however, is absent from the native TextBox.
-A delayed imperative write also fails, while direct assignment succeeds; this
-is still under investigation. TextArea exposes both initial lines through UI
+state. The exact value `initial` is absent from the native TextBox, including after
+a delayed imperative write. Instrumentation shows a reset write: core
+`Property.set` interprets CSS-wide keyword strings as reset values even for
+`text`. An ordinary initial value is being retested. This is a reserved-word
+property issue, not evidence that every initial controlled value is lost. TextArea exposes both initial lines through UI
 Automation (Windows normalizes their separator to carriage return).
 
 UI Automation exposes TextInput/TextArea as Edit controls with ValuePattern.
@@ -284,3 +286,70 @@ no toggle/selection semantics. SegmentedControl likewise exposes Text labels;
 Switch and Slider have no corresponding semantic control in this case. Mouse
 callback success therefore does not establish keyboard or assistive-technology
 support.
+
+### Presentation sweep and locale crash
+
+The ordinary TextInput value `Windows initial text` renders correctly with the
+production component restored; temporary debug code is confined to research.
+The exact strings `initial`, `inherit`, `unset`, and `revert` are reset values in
+pinned core's `property-shared.ts`, including for non-style `text` properties.
+The original missing-value observation remains preserved in Silo.
+
+ProgressBar's determinate case renders a 200×8 track, 50×8 fill at value 25/100,
+and a 2×8 midpoint mark at x=99. MetadataList's two rows align at x=0/x=50, with
+the second row at y=27. Badge, Card, Alert, and StatusDot mount; Card and Badge
+show the already reproduced ignored Flexbox padding. Animation and semantic
+accessibility contracts are still unverified. Two invalid probe prop literals
+were corrected (`positive` → `success`, `iso` → `unix_seconds`) before rerunning.
+
+Both presentation runs terminate upon entering the Timestamp/Timer case.
+An isolated probe containing no UI component reproduces termination in
+`new Intl.DateTimeFormat('en-US', {year:'numeric',month:'long',day:'numeric'})`:
+`Intl` and `DateTimeFormat` exist, the pre-constructor breadcrumb logs, and
+neither the post-constructor breadcrumb nor a surrounding catch runs. Windows
+Event Log reports nativescript.DLL exception 0x80000003. This proves a native
+runtime failure in the locale constructor; its underlying cause is not yet
+known. Timer is not implicated by that isolation and will be tested separately.
+
+RouteHost and modal-presenter helpers contain only shared composition and
+structural view checks. They now use native-default filenames, preserving
+mobile behavior while removing another foreign suffix from the Windows graph.
+26 route tests and the UI declaration no-emit typecheck pass.
+
+The actual Windows SVG backend (not only the earlier prototype) also passes
+source-generation tests: an obsolete delayed invalid source is ignored after
+replacement; current invalid markup emits one decode failure; valid markup
+recovers; an empty source clears native Image.Source. Removing the component
+while a source promise is pending leaves the UI tree free of SVGView and the
+app continues logging after the promise resolves. This is mounting/source
+lifetime evidence, not a memory-leak or pixel-parity claim.
+
+### Pressable-dependent actions
+
+Required actions in button, selectable-card, disclosure, selection, navigation,
+chat-action, link, carousel/lightbox, and citation components ultimately use the
+shared Pressable. The inventory parks those actions against the reproduced
+Windows tap/touch handler collision and records their exact source import chain.
+Those entries are source dependency evidence backed by the foundation OS input
+reproduction; they are not individual runtime passes. Static exports that merely
+share a module with Pressable remain under investigation rather than inheriting
+that blocker automatically. After the core collision is fixed, each parked
+control still needs its own pointer, keyboard, disabled-state, and accessibility
+checks. CheckboxInput/RadioList/SegmentedControl are parked separately for the
+semantic accessibility gap despite their successful real mouse cases.
+
+The public `@octane-xplat/ui` root import now builds and renders View/Text/
+KeyboardAvoiding in the Windows host after the helper/SVG changes. Its build
+selected the unsuffixed `index.ts`; no Windows export-condition change was
+needed for this harness. A first transfer omitted Git-renamed files and caused
+an absent RouteHost file; transferring with rename detection disabled corrected
+that lab artifact. It was not a source-resolution defect.
+
+The isolated tail case confirms Timer keeps advancing, Divider is 300×1 DIP,
+and Skeleton honors 160×24 DIP. Bare-string Blockquote content is absent while
+an explicit Label child appears; citations appear in both. Code originally
+reported fontSize 0.9 and height 6; the native 13px rule yields fontSize 13 and
+height 20. A direct finite core opacity animation completes after 765ms with
+both model/native opacity approximately 0.4, so animation is not generally
+unavailable. Spinner/pulse/indeterminate loops need native-property sampling
+rather than conclusions drawn from their unchanged model values.
