@@ -1,0 +1,5 @@
+export { Icon } from './Icon.web'
+export { addCollection, resolveIcon } from './registry'
+export { iconToSvg } from './svg'
+export type { IconProps, IconOptions, IconSvg } from './props'
+export type { IconifyIcon, IconifyJSON } from '@iconify/types'

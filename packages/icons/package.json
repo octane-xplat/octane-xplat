@@ -1,0 +1,101 @@
+{
+	"name": "@octane-xplat/icons",
+	"version": "0.8.0",
+	"description": "Bundled, set-agnostic Iconify icons for Octane web and NativeScript",
+	"keywords": [
+		"cross-platform",
+		"iconify",
+		"icons",
+		"nativescript",
+		"octane"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/icons",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/icons"
+	},
+	"files": [
+		"dist",
+		"types/generated"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"web": {
+				"types": "./types/generated/index.web.d.ts",
+				"default": "./src/index.web.ts"
+			},
+			"native": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.ts"
+			},
+			"types": "./types/generated/index.d.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"web": {
+					"types": "./types/generated/index.web.d.ts",
+					"default": "./dist/web/index.js"
+				},
+				"native": {
+					"types": "./types/generated/index.d.ts",
+					"default": "./dist/native/index.js"
+				},
+				"types": "./types/generated/index.d.ts",
+				"default": "./dist/native/index.js"
+			}
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"typegen": "tsrx-typegen --target icons",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.web.json && tsrx-tsc --noEmit -p tsconfig.native.json",
+		"test": "pnpm build && node --test tests/*.test.mjs",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"pack:check": "tsrx-typegen --pack-check",
+		"test:packed": "node tests/packed-consumer.mjs"
+	},
+	"dependencies": {
+		"@iconify/types": "2.0.0",
+		"@iconify/utils": "3.1.7",
+		"@octane-xplat/ui": "workspace:*"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/typescript-plugin": "0.4.11",
+		"octane": "0.6.3",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
+		"vite": "8.3.0"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	}
+}

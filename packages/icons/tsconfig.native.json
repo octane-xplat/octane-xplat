@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "@nativescript-community/octane",
+		"moduleSuffixes": [".mobile", ""],
+		"customConditions": ["native"],
+		"lib": ["ESNext"],
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src",
+		"outDir": "types/generated/native"
+	},
+	"files": ["src/index.ts"]
+}

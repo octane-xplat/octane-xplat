@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "octane",
+		"moduleSuffixes": [".web", ""],
+		"customConditions": ["web"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src",
+		"outDir": "types/generated/web"
+	},
+	"files": ["src/index.web.ts"]
+}

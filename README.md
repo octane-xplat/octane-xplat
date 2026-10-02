@@ -102,7 +102,8 @@ and [tailor the experience](docs/module-resolution.md).
 For agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the
 docs; [llms-full.txt](https://octane-xplat.goddardai.org/llms-full.txt) includes
 every guide. Packages include `@octane-xplat/ui`, `@octane-xplat/platform`,
-`@octane-xplat/cli`, and `create-octane-xplat`.
+`@octane-xplat/cli`, and `create-octane-xplat`. For app-chosen bundled icon sets,
+use [`@octane-xplat/icons`](packages/icons/README.md).
 
 Working on the framework itself? Start with [AGENTS.md](AGENTS.md) and the
 [design notes](docs/README.md#notes).
