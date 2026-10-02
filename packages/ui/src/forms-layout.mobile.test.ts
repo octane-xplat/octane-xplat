@@ -191,4 +191,26 @@ describe('native indicators + list', () => {
 		expect(findByClass(container.children[0], 'vx-listitem-label')?.props?.text).toBe('Row')
 		root.unmount()
 	})
+
+	it('disabled ListItem does not wire activation; enabled ListItem activates once', () => {
+		let calls = 0
+		const disabled = mount(ListItem as any, {
+			label: 'Disabled',
+			isDisabled: true,
+			onPress: () => calls++,
+		})
+		const disabledView = findByClass(disabled.container.children[0], 'vx-listitem')
+		expect(() => disabled.container.dispatchEvent(disabledView, 'tap', { object: disabledView })).toThrow('no "tap" listener')
+		expect(calls).toBe(0)
+		disabled.root.unmount()
+
+		const enabled = mount(ListItem as any, {
+			label: 'Enabled',
+			onPress: () => calls++,
+		})
+		const enabledView = findByClass(enabled.container.children[0], 'vx-listitem')
+		enabled.container.dispatchEvent(enabledView, 'tap', { object: enabledView })
+		expect(calls).toBe(1)
+		enabled.root.unmount()
+	})
 })

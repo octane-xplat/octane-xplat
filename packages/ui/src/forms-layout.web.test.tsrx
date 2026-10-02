@@ -283,6 +283,24 @@ describe('List/ListItem (web)', () => {
 		root.unmount();
 	});
 
+	it('disabled rows do not activate and leave the keyboard sequence', () => {
+		let calls = 0;
+		const { el, root } = mount(
+			<List>
+				<ListItem label="Disabled action" onPress={() => calls++} isDisabled />
+				<ListItem label="Disabled link" href="/x" isDisabled />
+			</List>
+		);
+		const button = el.querySelector('button.vx-listitem-hit') as HTMLButtonElement;
+		const anchor = el.querySelector('a.vx-listitem-hit') as HTMLAnchorElement;
+		expect(button.disabled).toBe(true);
+		expect(anchor.tabIndex).toBe(-1);
+		button.click();
+		anchor.click();
+		expect(calls).toBe(0);
+		root.unmount();
+	});
+
 	it('header renders above the list and labels it via aria-labelledby', () => {
 		const { el, root } = mount(<List header={<span>Hdr</span>}><ListItem label="x" /></List>);
 		const header = el.querySelector('.vx-list-header') as HTMLElement;
