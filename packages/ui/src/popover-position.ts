@@ -1,4 +1,4 @@
-import type { PopoverAlignment, PopoverPlacement } from './props'
+import type { LayerPlacement, PopoverAlignment, PopoverPlacement } from './props'
 
 export interface PopoverRect {
 	left: number
@@ -36,12 +36,16 @@ export function positionPopover(
 		if (placement === 'top' || placement === 'bottom') {
 			return alignment === 'center'
 				? anchor.left + (anchor.width - panel.width) / 2
-				: alignment === 'end' ? anchor.left + anchor.width - panel.width : anchor.left
+				: alignment === 'end'
+					? anchor.left + anchor.width - panel.width
+					: anchor.left
 		}
 
 		return alignment === 'center'
 			? anchor.top + (anchor.height - panel.height) / 2
-			: alignment === 'end' ? anchor.top + anchor.height - panel.height : anchor.top
+			: alignment === 'end'
+				? anchor.top + anchor.height - panel.height
+				: anchor.top
 	}
 
 	const at = (placement: PopoverPlacement): { left: number; top: number } => {
@@ -75,4 +79,38 @@ export function positionPopover(
 		top: Math.min(maxTop, Math.max(viewport.top, raw.top)),
 		placement,
 	}
+}
+
+/** Resolve a `useLayer` placement — logical (`above`/`below`/`start`/`end`)
+ *  or physical — to a physical side for `positionPopover`. `rtl` mirrors the
+ *  logical inline sides; native callers pass false (see LayerPlacement). */
+export function resolveLayerSide(
+	placement: LayerPlacement | PopoverPlacement | undefined,
+	rtl = false,
+): PopoverPlacement {
+	switch (placement) {
+		case 'below':
+		case 'bottom':
+			return 'bottom'
+		case 'start':
+			return rtl ? 'right' : 'left'
+		case 'end':
+			return rtl ? 'left' : 'right'
+		case 'left':
+		case 'right':
+			return placement
+		default:
+			return 'top'
+	}
+}
+
+/** Normalize a `useLayer` render-prop offset to a dip clearance. A number is
+ *  taken as-is; a CSS length keeps its px value. Defaults to flush (0). */
+export function layerOffset(offset: number | string | undefined): number {
+	if (offset == null) {
+		return 0
+	}
+
+	const value = typeof offset === 'number' ? offset : parseFloat(offset)
+	return Number.isFinite(value) ? Math.max(0, value) : 0
 }

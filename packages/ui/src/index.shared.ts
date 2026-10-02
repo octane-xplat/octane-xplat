@@ -496,6 +496,9 @@ export { WebView } from './WebView'
 export type { WebViewContentSize, WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
 export { Overlay } from './Overlay'
 export { Popover } from './Popover'
+/** Anchored-layer primitive — anchor-relative (context) or fixed x/y
+ *  overlay content (Astryx `useLayer`). */
+export { useLayer } from './use-layer'
 export { Dialog, DialogHeader } from './Dialog'
 export { useImperativeDialog } from './use-imperative-dialog'
 export { AlertDialog } from './AlertDialog'
@@ -539,6 +542,16 @@ export type {
 	PopoverProps,
 	PopoverPlacement,
 	PopoverAlignment,
+	ContextLayerOptions,
+	ContextLayerReturn,
+	ContextRenderProps,
+	FixedLayerOptions,
+	FixedLayerReturn,
+	FixedRenderProps,
+	LayerAlignment,
+	LayerOptions,
+	LayerPlacement,
+	LayerReturn,
 	ScrollAxis,
 	ScrollAxisState,
 	ScrollKeyboardAccess,

@@ -38,7 +38,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 				height: coordinateRoot.getActualSize().height,
 			},
 			props.placement ?? 'bottom',
-			8,
+			props.offset ?? 8,
 			props.alignment ?? 'start',
 		);
 
@@ -82,7 +82,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 				listener.view.off?.(listener.event, listener.handler);
 			}
 		};
-	}, [props.open, props.anchorView, props.placement, props.alignment, props.children, props.style]);
+	}, [props.open, props.anchorView, props.placement, props.offset, props.alignment, props.children, props.style]);
 
 	useEffect(() => {
 		if (position) {
@@ -165,7 +165,7 @@ export function Popover(props: PopoverProps) @{
 		shown.current = { host, root, lifetime };
 		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });
 		lifetime.open();
-	}, [props.open, props.children, props.placement, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
+	}, [props.open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 

@@ -1290,6 +1290,8 @@ export interface PopoverProps {
 	placement?: PopoverPlacement
 	/** Cross-axis alignment within the placement. @default 'start' */
 	alignment?: PopoverAlignment
+	/** Clearance between the anchor and the panel in dips. @default 8 */
+	offset?: number
 	dismissOnOutsideTap?: boolean
 	onDismiss?: () => void
 	className?: any
@@ -1299,6 +1301,115 @@ export interface PopoverProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 }
+
+// ---------- useLayer (Astryx `useLayer`) ----------
+
+/** Logical placement of a layer relative to its anchor (Astryx
+ *  `LayerPlacement`). 'above'/'below' are the block sides (top/bottom);
+ *  'start'/'end' are the inline sides and mirror under RTL on web — on
+ *  native they currently read as left/right. Physical `PopoverPlacement`
+ *  sides are also accepted wherever a layer placement is taken. */
+export type LayerPlacement = 'above' | 'below' | 'start' | 'end'
+/** Alignment along the cross axis (Astryx `LayerAlignment`). */
+export type LayerAlignment = 'start' | 'center' | 'end'
+
+interface LayerBaseOptions {
+	/** Fires when the layer becomes visible. */
+	onShow?: () => void
+	/** Fires when the layer hides — including outside dismissal. */
+	onHide?: () => void
+	/** Dismiss the layer on outside tap/click (and Escape on web).
+	 *  @default false */
+	lightDismiss?: boolean
+}
+
+/** `useLayer` options for anchor-relative positioning (Astryx context mode). */
+export interface ContextLayerOptions extends LayerBaseOptions {
+	mode: 'context'
+	/** Accepted for API parity: layers always mount content only while open,
+	 *  so the flag is a no-op in this implementation. */
+	lazyMount?: boolean
+}
+
+/** `useLayer` options for manual x/y positioning (Astryx fixed mode). */
+export interface FixedLayerOptions extends LayerBaseOptions {
+	mode: 'fixed'
+}
+
+export type LayerOptions = ContextLayerOptions | FixedLayerOptions
+
+/** Render props for `useLayer` context mode — `render(children, props)`. */
+export interface ContextRenderProps {
+	/** 'anchor' (default) derives the position from `placement`/`alignment`/
+	 *  `offset`. 'custom' authors the position via `style` (web: e.g. CSS
+	 *  `anchor()` insets against the returned `anchorId`; native: `left`/`top`
+	 *  in page coordinates). */
+	positioning?: 'anchor' | 'custom'
+	/** Logical (or physical) side of the anchor. @default 'above' */
+	placement?: LayerPlacement | PopoverPlacement
+	/** Cross-axis alignment. @default 'center' */
+	alignment?: LayerAlignment
+	/** Clearance from the anchor — a number is dips/px; a web CSS length
+	 *  parses to its px value. @default 0 */
+	offset?: number | string
+	/** Accessible name for the layer surface. */
+	accessibilityLabel?: string
+	/** ARIA role on web (e.g. 'tooltip', 'dialog'). */
+	accessibilityRole?: string
+	className?: any
+	style?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** Render props for `useLayer` fixed mode — `render(children, {x, y})`.
+ *  Coordinates are viewport px on web, page dips on native, and top-left-origin
+ *  AppKit points on macOS. */
+export interface FixedRenderProps {
+	x: number
+	y: number
+	accessibilityLabel?: string
+	accessibilityRole?: string
+	className?: any
+	style?: any
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+interface LayerReturnBase {
+	/** Show the layer. No-op while open. */
+	show: () => void
+	/** Hide the layer. No-op while closed. */
+	hide: () => void
+	/** Whether the layer is currently open. */
+	isOpen: boolean
+	/** Stable id for ARIA relationships (aria-describedby etc.). */
+	id: string
+}
+
+/** `useLayer` return for context mode. */
+export interface ContextLayerReturn extends LayerReturnBase {
+	/** Bind callback for the anchor/trigger element or view. On web it also
+	 *  stamps `anchor-name` so 'custom' positioning can use CSS anchor(). */
+	ref: (el: any) => void
+	/** Positioning token identifying the anchor (web: the `anchor-name` CSS
+	 *  value applied by `ref`; kept for upstream parity elsewhere). */
+	anchorId: string
+	/** Render layer content into the anchored surface. */
+	render: (children: any, props?: ContextRenderProps) => any
+}
+
+/** `useLayer` return for fixed mode. */
+export interface FixedLayerReturn extends LayerReturnBase {
+	/** No anchor binding in fixed mode. */
+	ref: undefined
+	/** Render layer content at fixed coordinates. */
+	render: (children: any, props: FixedRenderProps) => any
+}
+
+export type LayerReturn = ContextLayerReturn | FixedLayerReturn
 
 /** Hover/focus-triggered floating card (Astryx `HoverCard`). The trigger is
  *  `children`; `content` is the card body. Pointer hover opens after

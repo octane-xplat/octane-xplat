@@ -182,6 +182,7 @@ export { Drawer } from './Drawer.macos.tsrx'
 
 export { HoverCard } from './HoverCard.tsrx'
 export { useHoverCard } from './use-hover-card.tsrx'
+export { useLayer } from './use-layer.tsrx'
 export { Tooltip } from './Tooltip.tsrx'
 export { Markdown, MarkdownScreen } from './Markdown.tsrx'
 export { Link } from './Link.macos.tsrx'
