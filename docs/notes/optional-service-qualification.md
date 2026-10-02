@@ -4,7 +4,7 @@
 > adapter tests, target runtime behavior and physical output as separate evidence.
 
 Web service results and repository checks below were rechecked on 2026-10-02 at
-`6f82c413`. Native evidence keeps the scope stated in each cell; this Web
+`f7996367`. Native evidence keeps the scope stated in each cell; this Web
 recheck does not count as a fresh native runtime pass. Optional services live in
 leaf packages: media, auth, push, audio, sounds, and advanced haptics.
 `@octane-xplat/platform` remains free of runtime npm dependencies; hosted
