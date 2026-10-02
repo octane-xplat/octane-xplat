@@ -767,3 +767,25 @@ a source-backed initialization/data lead, not a proven root cause or fix.
 Verify ICU data initialization against the actual shipped binary, rebuild the
 runtime with matching data if needed, and rerun date/number formatting before
 unparking consumers. No modified native runtime has been built in this VM.
+
+### Programmatic input focus: native capability, missing core wiring
+
+Real OS clicks on the diagnostic public-focus Button leave that Button focused.
+The same UI path calling `nativeView.Focus(FocusState.Programmatic)` returns
+true and UI Automation reports the field as the focused Edit. The interactive
+task completes with result0.
+
+Pinned EditableTextBase.focus first calls `super.focus()` and only calls native
+Focus when that result is truthy. ViewCommon.focus returns undefined, and the
+Windows View has no override. The public path therefore never reaches the
+working native method. This is also a source-backed lead for PIN auto-advance,
+not a new PIN runtime pass.
+
+Native focus changes initially produce no public onFocus/onBlur callback.
+After the probe assigns native GotFocus/LostFocus delegates that call
+`view.notify({eventName:'focus'|'blur', object:view})`, both public callbacks
+fire. This validates the bridge/event paths for an upstream core implementation.
+Native delegates need correct lifetime, replacement and secure-view-swap cleanup.
+The public blur behavior is not isolated here: clicking its Button already
+moves focus before the blur handle executes, so that action is not a blur pass.
+TextInput remains parked; no focus workaround was added to shared components.
