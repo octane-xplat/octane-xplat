@@ -24,12 +24,11 @@ const commandSource = createStaticSource([
 
 const remoteCommandSource = {
 	bootstrap: commandSource.bootstrap,
-	search: (query: string) => new Promise<ReturnType<typeof commandSource.bootstrap>>((resolve, reject) => {
-		setTimeout(() => {
-			if (query.trim() === 'fail') reject(new Error('Demo search failure'));
-			else resolve(commandSource.search(query) as ReturnType<typeof commandSource.bootstrap>);
-		}, 180);
-	}),
+	search: async (query: string) => {
+		await new Promise((resolve) => setTimeout(resolve, 180));
+		if (query.trim() === 'fail') throw new Error('Demo search failure');
+		return commandSource.search(query);
+	},
 };
 
 const demoSelectionSource = createStaticSource([
