@@ -3,6 +3,10 @@
 Render bundled Iconify icons on web, iOS, and Android. Apps choose their sets;
 this package ships no icon data, default collection, or Iconify API client.
 
+Native AppKit support is not shipped yet. The
+[AppKit SVG investigation](../../docs/icon-svg-notes.md) records a working
+system-image prototype and its remaining compatibility checks.
+
 ## Install and register
 
 In an Octane-xplat app with `@octane-xplat/ui` already configured:
