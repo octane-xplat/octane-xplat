@@ -608,19 +608,42 @@ function pathInside(root, file) {
 	)
 }
 
-function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
-	for (const file of generated.keys()) {
-		if (oldFiles?.has(file) || overrideFiles.has(file)) {
-			continue
+function existingOutputPath(outputDir, file) {
+	let current = outputDir
+	const actualParts = []
+
+	for (const part of normalize(file).split(sep)) {
+		let entries
+		try {
+			entries = readdirSync(current)
+		} catch (error) {
+			if (error.code === 'ENOENT') {
+				return null
+			}
+
+			throw error
 		}
 
-		try {
-			statSync(join(outputDir, file))
+		const actual = entries.includes(part)
+			? part
+			: entries.find((entry) => entry.toLowerCase() === part.toLowerCase())
+
+		if (!actual) {
+			return null
+		}
+
+		actualParts.push(actual)
+		current = join(current, actual)
+	}
+
+	return actualParts.join(sep)
+}
+
+function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
+	for (const file of generated.keys()) {
+		const existing = existingOutputPath(outputDir, file)
+		if (existing && !oldFiles?.has(existing) && !overrideFiles.has(existing)) {
 			throw new Error(`refusing to overwrite unmanaged declaration: ${file}`)
-		} catch (error) {
-			if (error.code !== 'ENOENT') {
-				throw error
-			}
 		}
 	}
 

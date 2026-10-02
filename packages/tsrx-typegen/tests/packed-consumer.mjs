@@ -166,6 +166,52 @@ void value
 		}
 	}
 
+	const outputDir = join(packageRoot, 'types/generated')
+	const outputManifest = join(outputDir, '.tsrx-typegen-manifest.json')
+	const originalOutputManifest = readFileSync(outputManifest, 'utf8')
+	const lowerName = `caseonly-${process.pid}`
+	const upperName = `CaseOnly-${process.pid}`
+	const lowerSource = join(packageRoot, `src/${lowerName}.tsrx`)
+	const upperSource = join(packageRoot, `src/${upperName}.tsrx`)
+	try {
+		writeFileSync(lowerSource, "export function caseOnly() { return 'lower' }\n")
+		run(
+			process.execPath,
+			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
+			packageRoot,
+		)
+
+		const lowerOutput = `${lowerName}.d.ts`
+		assert.ok(JSON.parse(readFileSync(outputManifest, 'utf8')).files.includes(lowerOutput))
+		rmSync(lowerSource)
+		writeFileSync(upperSource, "export function caseOnly() { return 'upper' }\n")
+		run(
+			process.execPath,
+			[join(root, 'packages/tsrx-typegen/src/cli.mjs'), '--project', 'tsconfig.types.json'],
+			packageRoot,
+		)
+
+		const upperOutput = `${upperName}.d.ts`
+		const outputNames = readdirSync(outputDir).filter(
+			(name) => name.toLowerCase() === lowerOutput.toLowerCase(),
+		)
+
+		assert.deepEqual(outputNames, [upperOutput], 'case-only renames replace their owned output')
+		const updatedFiles = JSON.parse(readFileSync(outputManifest, 'utf8')).files
+		assert.ok(updatedFiles.includes(upperOutput))
+		assert.ok(!updatedFiles.includes(lowerOutput))
+	} finally {
+		rmSync(lowerSource, { force: true })
+		rmSync(upperSource, { force: true })
+		for (const name of readdirSync(outputDir)) {
+			if (name.toLowerCase() === `${lowerName}.d.ts`.toLowerCase()) {
+				rmSync(join(outputDir, name), { force: true })
+			}
+		}
+
+		writeFileSync(outputManifest, originalOutputManifest)
+	}
+
 	const overrideConfigPath = join(packageRoot, 'tsrx-typegen.json')
 	const originalConfig = readFileSync(overrideConfigPath, 'utf8')
 	const overrideSource = join(packageRoot, 'types/overrides/Collision.d.ts')

@@ -30,7 +30,9 @@ missing or stale output, unresolved `.tsrx` references, and code export paths
 without declaration targets. It refuses to overwrite an unmanaged declaration
 and removes stale files only when the manifest says it owns them. Same-name
 sources such as `Button.ts` and `Button.tsrx` need separate target configs or an
-explicit declaration override.
+explicit declaration override. Case-only source renames replace the prior
+manifest-owned declaration, including on case-insensitive filesystems; manual
+declarations remain protected.
 
 ```sh
 pnpm exec tsrx-typegen --target octane --check
