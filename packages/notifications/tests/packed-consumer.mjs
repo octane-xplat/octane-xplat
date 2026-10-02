@@ -68,7 +68,12 @@ const bad = notifications.impl?.notify()
 void supported
 void bad
 `,
-	macos: `import { notifications } from '@octane-xplat/notifications'
+	macos: `import type { Capability, NotificationsImpl, PermissionResult } from '@octane-xplat/notifications'
+const result: Promise<PermissionResult> = notifications.ensure()
+const capability: Capability<NotificationsImpl> = notifications
+void result
+void capability
+import { notifications } from '@octane-xplat/notifications'
 const supported: boolean = notifications.supported
 notifications.impl?.notify('title', 'body')
 // @ts-expect-error notify needs a title
@@ -78,7 +83,9 @@ void bad
 `,
 }
 
-const extraFiles = {}
+const extraFiles = {
+	'send-reminder.ts': readFileSync(join(packageRoot, 'tests/send-reminder.ts'), 'utf8'),
+}
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
 // .web/.mobile/.ios/.android/.macos declaration variants, `types` scopes the
@@ -153,7 +160,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 						const pkg = name.startsWith('@') ? segments.slice(0, 2) : segments.slice(0, 1)
 						return existsSync(join(modules, ...pkg, 'package.json'))
 					}),
-					skipLibCheck: true,
+					skipLibCheck: target !== 'macos',
 				},
 				files: ['consumer.ts', ...Object.keys(extraFiles)],
 			},
@@ -176,6 +183,8 @@ try {
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
 	const packedRoot = join(extractedRoot, 'package')
 	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
+	assert.ok(existsSync(join(packedRoot, 'platforms/macos/src/XplatLocalNotifications.m')))
+	assert.ok(existsSync(join(packedRoot, 'types/index.macos.d.ts')))
 	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
 	const exportMaps = [
@@ -208,6 +217,9 @@ try {
 			}
 
 			for (const mode of [
+				...(target === 'macos'
+					? [{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' }]
+					: []),
 				{
 					name: 'bundler',
 					module: 'esnext',
@@ -219,7 +231,9 @@ try {
 		}
 	}
 
-	console.log('notifications packed consumer: exports typecheck in Bundler mode')
+	console.log(
+		'notifications packed consumer: web/mobile Bundler and macOS Bundler/NodeNext exports typecheck',
+	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

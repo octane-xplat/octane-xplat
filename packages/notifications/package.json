@@ -21,12 +21,17 @@
 		"directory": "packages/notifications"
 	},
 	"files": [
-		"src"
+		"src",
+		"types",
+		"platforms"
 	],
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": "./src/index.macos.ts",
+			"macos": {
+				"types": "./types/index.macos.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"default": "./src/index.ts"
 		},
 		"./*": "./src/*"
@@ -35,7 +40,11 @@
 		"access": "public"
 	},
 	"scripts": {
-		"test:packed": "node tests/packed-consumer.mjs"
+		"test:packed": "node tests/packed-consumer.mjs",
+		"build": "tsc -p tsconfig.types.json",
+		"prepack": "pnpm build",
+		"test": "node --experimental-strip-types --test tests/notifications.macos.test.ts",
+		"test:macos": "node tests/verify-macos.mjs"
 	},
 	"dependencies": {
 		"@nativescript/local-notifications": "7.0.0",
@@ -44,7 +53,8 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
-		"octane": "0.6.3"
+		"octane": "0.6.3",
+		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -63,6 +73,14 @@
 		"platforms": {
 			"android": "9.1.0",
 			"ios": "9.1.0"
+		}
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"Foundation",
+				"UserNotifications"
+			]
 		}
 	}
 }
