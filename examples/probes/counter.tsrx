@@ -1,15 +1,15 @@
-import { Column, Pressable, Text } from '@octane-xplat/ui'
+import { VStack, Pressable, Text } from '@octane-xplat/ui'
 import { useSignal$ } from 'octane/signals/client'
 import type { ProbeContext } from '../../scripts/probe/context'
 
 export default function Counter() {
 	const count$ = useSignal$(0)
-	return <Column>
+	return <VStack>
 		<Text id="probe-count">{String(count$.get())}</Text>
 		<Pressable id="probe-increment" onPress={() => count$.set(count$.get() + 1)}>
 			<Text>Increment</Text>
 		</Pressable>
-	</Column>
+	</VStack>
 }
 
 export async function run(ctx: ProbeContext) {

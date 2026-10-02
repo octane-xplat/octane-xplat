@@ -49,9 +49,10 @@ setInterval(async () => {
 		lastRun = control.runId
 		const source = await (await fetch(session.url + '/bundle')).text()
 		const css = await (await fetch(session.url + '/style')).text()
-		const cssPath = path.join(knownFolders.temp().path, 'probe.css')
+		// Android's CSS loader requires a path inside the extracted app root.
+		const cssPath = path.join(knownFolders.currentApp().path, 'probe.css')
 		await File.fromPath(cssPath).writeText(css)
-		Application.setCssFileName(cssPath)
+		Application.setCssFileName('~/probe.css')
 		Application.loadAppCss()
 
 		const module = { exports: {} }

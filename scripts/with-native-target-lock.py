@@ -1,6 +1,7 @@
 """Serialize cooperating native builds/device sessions across worktrees."""
 import fcntl
 import os
+import signal
 import subprocess
 import sys
 
@@ -15,4 +16,13 @@ with open(path, "a+") as lock:
     except BlockingIOError:
         raise SystemExit("Native target is busy; retry after the owner releases " + path)
     print("Holding native target lock: " + path, file=sys.stderr, flush=True)
-    raise SystemExit(subprocess.call(sys.argv[2:]))
+    child = subprocess.Popen(sys.argv[2:])
+
+    def stop_child(signum, _frame):
+        # Keep the lock while the child releases its app and adb mappings.
+        # subprocess.call would kill the child immediately on KeyboardInterrupt.
+        child.send_signal(signum)
+
+    signal.signal(signal.SIGINT, stop_child)
+    signal.signal(signal.SIGTERM, stop_child)
+    raise SystemExit(child.wait())
