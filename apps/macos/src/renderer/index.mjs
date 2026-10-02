@@ -3409,7 +3409,7 @@ function popupFittingSize(contentView) {
 }
 
 function showAnchoredPopup(options) {
-	const anchor = options?.anchor
+	let anchor = options?.anchor
 	if (
 		!anchor ||
 		!anchor.window ||
@@ -3417,6 +3417,21 @@ function showAnchoredPopup(options) {
 		typeof NSViewController === 'undefined'
 	) {
 		return null
+	}
+
+	// `at` anchors the popup to a window point in top-left coordinates instead
+	// of the view's bounds — the fixed-position path for useLayer.
+	const at = options?.at
+	let relativeRect = anchor.bounds
+	if (at && Number.isFinite(at.x) && Number.isFinite(at.y)) {
+		const container = anchor.window?.contentView ?? anchor
+		anchor = container
+		// NSView coordinates are y-up; flip the top-left point.
+		const height = Number(container.frame?.size?.height ?? 0)
+		relativeRect = {
+			origin: { x: Number(at.x), y: height - Number(at.y) },
+			size: { width: 0, height: 0 },
+		}
 	}
 
 	const contentView = NSView.alloc().initWithFrame({
@@ -3435,6 +3450,14 @@ function showAnchoredPopup(options) {
 			}
 
 			popup.closed = true
+			if (closeObserver) {
+				try {
+					NSNotificationCenter.defaultCenter.removeObserver(closeObserver)
+				} catch {}
+
+				closeObserver = null
+			}
+
 			openPopups.delete(popup)
 			try {
 				popup.popover?.close()
@@ -3472,15 +3495,45 @@ function showAnchoredPopup(options) {
 	popover.contentViewController = controller
 	const behaviors = typeof NSPopoverBehavior === 'undefined' ? {} : NSPopoverBehavior
 	// Transient closes on outside interaction — the AppKit-native feel for a
-	// hint layer. The leaf still owns close() for hover-intent dismissal.
-	popover.behavior = behaviors.Transient ?? 1
+	// hint layer. An explicit lightDismiss:false keeps the layer open until
+	// the leaf closes it. The leaf still owns close() for hover-intent
+	// dismissal.
+	popover.behavior =
+		options?.lightDismiss === false
+			? (behaviors.ApplicationDefined ?? 2)
+			: (behaviors.Transient ?? 1)
+
 	popover.animates = true
 	popup.popover = popover
 	openPopups.add(popup)
 
+	let closeObserver = null
+	if (
+		typeof options?.onClose === 'function' &&
+		typeof NSPopoverDidCloseNotification !== 'undefined'
+	) {
+		closeObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+			NSPopoverDidCloseNotification,
+			popover,
+			null,
+			() => {
+				if (popup.closed) {
+					return
+				}
+
+				popup.close()
+				try {
+					options.onClose()
+				} catch (error) {
+					console.error('[macos-popup] onClose callback failed', error)
+				}
+			},
+		)
+	}
+
 	try {
 		popover.showRelativeToRectOfViewPreferredEdge(
-			anchor.bounds,
+			relativeRect,
 			anchor,
 			popoverEdge(options.placement),
 		)
