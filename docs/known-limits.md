@@ -214,9 +214,13 @@ lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
 `@octane-xplat/motion` supports numeric transforms and opacity on web/iOS/Android.
 Layout animation, variants, gesture presets, declarative drag, and arbitrary
 CSS/SVG properties are excluded. Existing CSS transforms need an outer container.
-See [motion compatibility](../packages/motion/UPSTREAM.md) for lifecycle and
+Declarative tweens delegate to `UIViewPropertyAnimator` (iOS) and
+`ViewPropertyAnimator` (Android); springs, reduced-motion runs, and
+gesture-driven values stay on the JS engine. See
+[motion compatibility](../packages/motion/UPSTREAM.md) for lifecycle and
 engine boundaries. DOM and universal object-driver tests do not establish
 physical-device frame pacing or gesture arbitration; those checks remain pending.
+The Android delegated path has not run on a device or emulator yet.
 
 Presence retains live subtrees through exit on all three targets. This differs
 from upstream Octane motion's DOM cloning; there is no AnimatePresence alias.

@@ -33,11 +33,14 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
 - MotionConfig defaults to `reducedMotion="never"`, matching the reference;
   choose `user` for system preferences. Config does not cross separate roots and
   does not alter imperative value.animate calls: consult useReducedMotion there.
-- Timing uses a platform clock. NativeScript exposes frame scheduling through a
-  module; Motion's scheduler captures a global rAF and its values use browser
-  timing globals. The numeric adapter avoids changing application globals.
-- The same generator runs on web/native. WAAPI and native Animation acceleration
-  are deferred until interruption and transform composition preserve this contract.
+- Timing uses a monotonic platform clock (`System.nanoTime`/`CADisplayLink`-derived
+  on native, `performance.now` on web) with NativeScript's vsync scheduler.
+- The same generator runs on web/native. Declarative tweens delegate to the
+  platform animator on native (`UIViewPropertyAnimator` on iOS,
+  `ViewPropertyAnimator` on Android) with per-frame presentation tracking so
+  interruption hands off value and velocity to the JS engine; springs,
+  reduced-motion runs, and gesture-driven values always run on the JS engine.
+  WAAPI delegation on web is deferred.
 - Springs are physical (not duration/bounce based); duration belongs to tweens.
   Default declarative transition is a 0.3-second easeInOut tween. Targets are
   absolute; scale multiplies scaleX/scaleY. Opacity is clamped to 0–1 at the host. Reduced transforms have no delay.

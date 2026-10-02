@@ -147,6 +147,43 @@ increment/exit/re-entry, and disposal cancellation. Passing: web (Chromium) and
 iOS simulator, 2026-10-02. Gesture dispatch is observer-level — real recognizer
 delivery remains a manual/device check.
 
+## Delegated drivers — landed 2026-10-02
+
+The seam is `HostAdapter.delegate(request) → DelegatedRun` in `host-types.ts`;
+`Controller.animate` delegates declarative tweens (`type` unset, `duration>0`,
+not reduced) and keeps springs, reduced-motion runs, and gesture-linked
+`MotionValue.animate` on the JS engine. The run exposes `sample()`/`cancel()`;
+a per-frame sampler tracks presentation values into the channel MotionValues so
+an interrupted delegated run hands off value and velocity exactly. Scale folds
+into scaleX/scaleY for native props; `scale` and `scaleX` both in a target stay
+consistent through the fold.
+
+- **iOS**: `UIViewPropertyAnimator` + `UICubicTimingParameters` (CSS bezier
+  control points) on `view.transform`/`view.alpha` (`src/driver.ts`).
+  `sample()` reads `layer.presentationLayer()` and decomposes the affine
+  subset; `cancel()` freezes at presentation (`stopAnimation(true)`) and syncs
+  the model via the adapter. Model props land at the destination when
+  animations are added, which is why interruption must write back before
+  stopping.
+- **Android**: `ViewPropertyAnimator` on `translationX/Y`, `scaleX/Y`,
+  `rotation`, `alpha`, with `PathInterpolatorCompat` for bezier eases (no new
+  dependency; androidx.core is already on the classpath). Properties stay
+  readable mid-flight, so `sample()` is a direct getter read. Cancel fires
+  `onAnimationCancel` then `onAnimationEnd` — the end callback only commits the
+  destination when the run actually finished.
+- **Web**: unchanged JS path for now — there is no bridge cost there, so
+  WAAPI delegation is deferred until a case needs it.
+- `__xplatMotionDelegations` on `globalThis` counts
+  started/finished/cancelled/fallback so probes can distinguish real delegation
+  from silent fallback without widening the public API.
+
+Verification: `delegation.test.ts` covers delegation, scale folding,
+interruption handoff, spring bypass, reduced-motion bypass, and stop semantics
+on a scripted driver (6 tests). The retained probe on the iOS 26.5 simulator
+passed with `started=8 finished=4 cancelled=3 fallback=0`; JS-engine pacing
+there ran 44 frames, 0 >34ms gaps, 16ms mean. Android runtime is unverified —
+no device/emulator was reachable.
+
 ## The load-bearing fact
 
 On NativeScript your JS **runs on the UI thread**: a `touch` move event can

@@ -1,4 +1,5 @@
-import type { HostAdapter } from './host-types'
+import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
+import { delegatedRun } from './driver'
 // The retained NativeScript View exposes direct transform channels in DIP.
 export function attachHost(node: any): HostAdapter {
 	const original = {
@@ -46,5 +47,10 @@ export function attachHost(node: any): HostAdapter {
 		}
 	}
 
-	return { read: () => ({ ...original, scale: 1 }), write, restore: () => write(original) }
+	return {
+		read: () => ({ ...original, scale: 1 }),
+		write,
+		restore: () => write(original),
+		delegate: (req: DelegatedRequest): DelegatedRun | null => delegatedRun(node, req, write),
+	}
 }

@@ -64,7 +64,7 @@ function useMotion(props: MotionProps & { bind?: (host: any) => void }) {
 				current.initialized = true
 			}
 
-			current.controller.attach(current.adapter.write)
+			current.controller.attach(current.adapter)
 		}
 
 		current.controller.flush()

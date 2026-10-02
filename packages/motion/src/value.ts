@@ -88,6 +88,15 @@ export class MotionValue {
 		}
 	}
 	private write(value: number) {
+		this.track(value)
+		if (!this.disposed && value !== this.previous) {
+			this.emit('change', value)
+		}
+	}
+	/** Update position bookkeeping without emitting — platform-delegated runs
+	 *  track presentation state so interruption reads fresh value/velocity. */
+	track(value: number) {
+		this.assert(value)
 		if (this.disposed) {
 			return
 		}
@@ -101,9 +110,6 @@ export class MotionValue {
 		this.previous = this.current
 		this.current = value
 		this.updated = now
-		if (value !== this.previous) {
-			this.emit('change', value)
-		}
 	}
 	/** Animate to a destination. New playback replaces old playback. */
 	animate(target: number, transition: Transition = {}): AnimationControls {
