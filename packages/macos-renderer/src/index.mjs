@@ -1,3 +1,4 @@
+import { loadImage } from './image.mjs'
 import '@nativescript/macos-node-api'
 import { createUniversalRoot } from 'octane/universal/native'
 import { resolveFont as fontForFamilyStyle } from './fonts.mjs'
@@ -96,7 +97,13 @@ class ContentAlignedTextField extends NSTextField {
 	}
 }
 
+const inputTransparentViews = new WeakSet()
+
 class AccessibleStackView extends NSStackView {
+	hitTest(point) {
+		return inputTransparentViews.has(this) ? null : super.hitTest(point)
+	}
+
 	static ObjCExposedMethods = {
 		accessibilityPerformPress: { params: [], returns: interop.types.bool },
 		accessibilityRole: { params: [], returns: interop.types.id },
@@ -1244,18 +1251,21 @@ function performGridAccessibilityAdjustment(view, name) {
 	}
 }
 
+class InputImageView extends NSImageView {
+	static { NativeClass(this) }
+	hitTest(point) {
+		return inputTransparentViews.has(this) ? null : super.hitTest(point)
+	}
+}
+
 function makeImageView(props) {
-	const image = NSImageView.alloc().initWithFrame({
+	const image = InputImageView.alloc().initWithFrame({
 		origin: { x: 0, y: 0 },
 		size: { width: 24, height: 24 },
 	})
 
 	image.translatesAutoresizingMaskIntoConstraints = false
-	const match = /^data:[^,]*;base64,(.+)$/s.exec(String(props.src ?? ''))
-	if (match) {
-		const data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
-		image.image = NSImage.alloc().initWithData(data)
-	}
+	image.image = loadImage(props.src)
 
 	return image
 }
@@ -1664,7 +1674,13 @@ function applyStyle(node, style) {
 			continue
 		}
 
-		if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
+		if (name === 'pointerEvents') {
+			if (value === 'none') inputTransparentViews.add(node.view)
+			else inputTransparentViews.delete(node.view)
+		} else if (name === 'objectFit' && node.type === 'image') {
+			// NSImageScaleProportionallyUpOrDown / NSImageScaleProportionallyDown.
+			node.view.imageScaling = value === 'contain' ? 3 : 0
+		} else if (name === 'fontSize' && ['label', 'textfield', 'textview'].includes(node.type)) {
 			const weight = style.fontWeight ?? node.appliedFontWeight ?? 400
 			node.appliedFontWeight = String(weight)
 			node.view.font = fontForFamilyStyle(value, weight, style.fontFamily ?? node.appliedFontFamily)
@@ -2398,11 +2414,7 @@ function applyProps(node, props) {
 				break
 			case 'image':
 				if (name === 'src') {
-					const match = /^data:[^,]*;base64,(.+)$/s.exec(String(value ?? ''))
-					if (match) {
-						const data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
-						node.view.image = NSImage.alloc().initWithData(data)
-					}
+					node.view.image = loadImage(value)
 				} else if (name === 'style') {
 					applyStyle(node, value)
 				} else if (name === 'className' || name === 'id' || name === 'alt') {
