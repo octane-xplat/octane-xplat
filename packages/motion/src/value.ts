@@ -112,7 +112,11 @@ export class MotionValue {
 		this.updated = now
 	}
 	/** Animate to a destination. New playback replaces old playback. */
-	animate(target: number, transition: Transition = {}): AnimationControls {
+	animate(
+		target: number,
+		transition: Transition = {},
+		clampSample?: (value: number) => number,
+	): AnimationControls {
 		this.assert(target)
 		validateTransition(transition)
 		if (this.disposed) {
@@ -128,7 +132,7 @@ export class MotionValue {
 			this.current,
 			target,
 			{ ...transition, velocity },
-			(value) => this.write(value),
+			(value) => this.write(clampSample ? clampSample(value) : value),
 		)
 
 		this.controls = controls

@@ -3,6 +3,7 @@ import { View, HStack, Pressable } from '@octane-xplat/ui'
 import { ConfigContext, useReducedMotion } from './config.tsrx'
 import { PresenceContext } from './presence.tsrx'
 import type { PresenceMember } from './presence-state'
+import { attachDrag, validateDrag } from './drag'
 import { clock } from './clock'
 import { attachHost } from './host'
 import type { GestureKind, HostAdapter } from './host-types'
@@ -20,10 +21,11 @@ const GESTURE_PROPS: Record<GestureKind, { target: 'whileTap' | 'whileFocus'; tr
 }
 
 function useMotion(props: MotionProps & { bind?: ((host: any) => void) | { current: any } }) {
-	for (const name of ['drag', 'layout', 'layoutId', 'variants', 'whileHover', 'whileInView']) {
+	for (const name of ['layout', 'layoutId', 'variants', 'whileHover', 'whileInView']) {
 		if (name in props) throw new Error(`motion: ${name} is outside the supported subset`)
 	}
 
+	validateDrag(props)
 	const presence = useContext(PresenceContext)
 	if (props.exit && !presence) throw new Error('motion: exit requires a mounted Presence boundary')
 	const config = useContext(ConfigContext)
@@ -46,6 +48,7 @@ function useMotion(props: MotionProps & { bind?: ((host: any) => void) | { curre
 		adapter?: HostAdapter
 		initialized: boolean
 		gestureOff?: () => void
+		dragOff?: () => void
 		preGesture?: Record<GestureKind, Target | undefined>
 	} | null>(null)
 	if (!state.current) state.current = { controller: new Controller(clock), initialized: false, preGesture: { press: undefined, focus: undefined } }
@@ -97,6 +100,7 @@ function useMotion(props: MotionProps & { bind?: ((host: any) => void) | { curre
 		if (!host) return
 		if (current.host !== host) {
 			current.gestureOff?.()
+			current.dragOff?.()
 			current.gestureOff = undefined
 			current.adapter?.restore()
 			current.host = host
@@ -111,6 +115,7 @@ function useMotion(props: MotionProps & { bind?: ((host: any) => void) | { curre
 
 			current.controller.attach(current.adapter)
 			controllers.set(host, current.controller)
+			configureDrag()
 			if (current.adapter.gesture) {
 				const offs = (['press', 'focus'] as const)
 					.map((kind) => current.adapter!.gesture!(kind, { start: () => gesture(kind, 'start'), end: () => gesture(kind, 'end') }))
@@ -153,7 +158,7 @@ function useMotion(props: MotionProps & { bind?: ((host: any) => void) | { curre
 
 	useLayoutEffect(() => presence?.register(member.current!), [presence])
 	const stableBind = useRef((host: any) => bind.current(host)).current
-	useLayoutEffect(() => () => { current.gestureOff?.(); current.controller.destroy(); current.host = undefined; current.adapter = undefined }, [])
+	useLayoutEffect(() => () => { current.dragOff?.(); current.gestureOff?.(); current.controller.destroy(); current.host = undefined; current.adapter = undefined }, [])
 	useLayoutEffect(() => {
 		const off: (() => void)[] = []
 		for (const key of boundKeys.current) if (!previous.current.some(([next]) => key === next)) current.controller.set(key, defaults[key])
@@ -166,6 +171,20 @@ function useMotion(props: MotionProps & { bind?: ((host: any) => void) | { curre
 		firstBinding.current = false
 		return () => off.forEach((unsubscribe) => unsubscribe())
 	}, [previous.current])
+
+	const configureDrag = () => {
+		current.dragOff?.()
+		current.dragOff = undefined
+		if (!current.adapter) return
+		current.dragOff = attachDrag(current.adapter, current.controller, latest.current, (axis) => {
+			const binding = previous.current.find(([key]) => key === axis)?.[1]
+			return binding instanceof MotionValue ? binding : current.controller.value(axis)
+		}, () => playback.current.reduced, () => latest.current)
+	}
+
+	useLayoutEffect(() => {
+		configureDrag()
+	}, [props.drag, JSON.stringify(props.dragConstraints), props.dragElastic, props.dragMomentum, previous.current])
 
 	useLayoutEffect(() => {
 		let active = true
@@ -182,7 +201,7 @@ function useMotion(props: MotionProps & { bind?: ((host: any) => void) | { curre
 		return () => { active = false; current.controller.stop() }
 	}, [JSON.stringify(props.animate), JSON.stringify(props.exit), JSON.stringify(transition), reduced])
 
-	const { initial, exit, animate, transition: ignoredTransition, whileTap, whileTapTransition, whileFocus, whileFocusTransition, onAnimationStart, onAnimationComplete, onUpdate, style: ignoredStyle, bind: ignoredBind, ...rest } = props
+	const { drag, dragConstraints, dragElastic, dragMomentum, onDragStart, onDrag, onDragEnd, initial, exit, animate, transition: ignoredTransition, whileTap, whileTapTransition, whileFocus, whileFocusTransition, onAnimationStart, onAnimationComplete, onUpdate, style: ignoredStyle, bind: ignoredBind, ...rest } = props
 	return { ...rest, style, bind: stableBind }
 }
 

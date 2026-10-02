@@ -31,7 +31,7 @@ export class Controller {
 	private delegated?: { run: DelegatedRun; frame: number; trackSample: () => void }
 	private generation = 0
 	constructor(private clock: Clock) {}
-	private value(key: MotionKey) {
+	value(key: MotionKey) {
 		let value = this.values.get(key)
 		if (!value) {
 			value = new MotionValue(defaults[key], this.clock)

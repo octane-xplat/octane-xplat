@@ -1,5 +1,8 @@
+import { install as installGestureHandler } from '@nativescript-community/gesturehandler'
 import { Application, Frame, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
+
+installGestureHandler()
 
 export function mobileAdapter() {
 	const page = new Page()

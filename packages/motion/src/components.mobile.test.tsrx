@@ -95,3 +95,27 @@ it('retargets a retained native host on a signal write', () => {
 	expect(node.translateX).toBe(75)
 	root.unmount()
 })
+
+import { handlers, GestureHandlerStateEvent, GestureHandlerTouchEvent, GestureState } from '../test/gesturehandler'
+
+function NativeDrag() @{
+	<MotionConfig reducedMotion="always">
+		<motion.View id="native-drag" drag="x" dragConstraints={{ left: -40, right: 40 }} dragElastic={false} />
+	</MotionConfig>
+}
+
+it('drives the retained native host from its handler and snaps reduced settlement', () => {
+	const container = createObjectContainer('nativescript')
+	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+	root.render(NativeDrag, {})
+	const node: any = container.children[0]
+	const handler = handlers.findLast((h) => h.node === node)
+	expect(handler).toBeDefined()
+	handler.emit(GestureHandlerStateEvent, { state: GestureState.ACTIVE, extraData: { translationX: 10 } })
+	handler.emit(GestureHandlerTouchEvent, { state: GestureState.ACTIVE, extraData: { translationX: 20 } })
+	expect(node.translateX).toBe(20)
+	handler.emit(GestureHandlerStateEvent, { state: GestureState.END, extraData: { translationX: 20, velocityX: 250 } })
+	expect(node.translateX).toBe(40)
+	root.unmount()
+	expect(handler.node).toBeUndefined()
+})

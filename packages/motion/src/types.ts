@@ -58,8 +58,37 @@ export type TransitionInput = Transition | TransitionOrchestration
 
 /** Static platform styles plus numeric motion-value bindings. */
 export type MotionStyle = Record<string, unknown> & Partial<Record<MotionKey, number | MotionValue>>
+/** Translation limits in CSS pixels/DIP. Omitted edges are unbounded. */
+export interface DragConstraints {
+	left?: number
+	right?: number
+	top?: number
+	bottom?: number
+}
+
+export interface DragInfo {
+	point: { x: number; y: number }
+	delta: { x: number; y: number }
+	offset: { x: number; y: number }
+	/** CSS pixels/DIP per second. */
+	velocity: { x: number; y: number }
+	cancelled: boolean
+}
+
+export type DragCallback = (event: any, info: DragInfo) => void
+
 /** Supported declarative motion controls. */
 export interface MotionProps {
+	drag?: boolean | 'x' | 'y'
+	/** Numeric translation bounds; measured ref constraints are deferred. */
+	dragConstraints?: DragConstraints
+	/** Project release velocity into a spring destination (default true). */
+	dragMomentum?: boolean
+	/** Resistance beyond bounds, 0–1 (default 0.35); false = 0, true = 0.35. */
+	dragElastic?: boolean | number
+	onDragStart?: DragCallback
+	onDrag?: DragCallback
+	onDragEnd?: DragCallback
 	initial?: Target | false
 	/** Destination while the nearest Presence boundary retains this host for exit. */
 	exit?: Target

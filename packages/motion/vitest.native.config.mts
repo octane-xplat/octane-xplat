@@ -47,6 +47,11 @@ export default defineConfig({
 	resolve: {
 		conditions: ['native'],
 		alias: [
+			{ find: /^@nativescript\/core$/, replacement: resolve(configDir, 'test/platform.ts') },
+			{
+				find: /^@nativescript-community\/gesturehandler$/,
+				replacement: resolve(configDir, 'test/gesturehandler.ts'),
+			},
 			{
 				find: /^@octane-xplat\/ui$/,
 				replacement: resolve(configDir, 'test/ui.mobile.tsrx'),

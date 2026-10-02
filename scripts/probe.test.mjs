@@ -214,3 +214,19 @@ test('resource edits and additions invalidate the build fingerprint', async () =
 		await rm(resources, { recursive: true })
 	}
 })
+
+test('native probe resolves gesturehandler and its pnpm runtime dependency', async () => {
+	const { dependencies, repo } = await import('./probe/project.mjs')
+	const { join } = await import('node:path')
+	const deps = await dependencies('ios', join(repo, 'examples/probes/motion.tsrx'), [
+		'@octane-xplat/motion',
+	])
+
+	assert.equal(deps.names.has('@nativescript-community/gesturehandler'), true)
+	assert.ok(deps.resolved.get('@nativescript-community/observable'))
+	assert.ok(
+		deps.nativeFiles.includes(
+			join(deps.resolved.get('@nativescript-community/observable'), 'package.json'),
+		),
+	)
+})

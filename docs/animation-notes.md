@@ -224,6 +224,47 @@ release restores `scale: 1` through the delegated driver. iOS delegations:
 GesturesObserver (GestureTypes.touch = 128), not a plain `notify` event —
 synthetic dispatch must call the observer callback directly.
 
+## Bounded declarative drag — decision #94
+
+The gesture-arbitration half of #89 lands with `drag`, numeric constraints,
+scalar `dragElastic` (default 0.35), `dragMomentum`, and drag callbacks.
+[Drag setup and behavior](animation-gestures.md#drag-a-component) owns the
+consumer workflow; [compatibility](../packages/motion/UPSTREAM.md#bounded-declarative-drag)
+lists the covered and excluded upstream semantics.
+
+Native uses `@nativescript-community/gesturehandler@2.0.45` as an optional
+motion peer, with explicit app-owned `install()` before Page/Frame creation.
+The mobile app already declared this dependency but had not installed its
+Manager/root hooks. Motion does not call `install(true)` or change `onPan`.
+The probe host also installs the plugin before root creation and keeps plugin
+imports external in case bundles so they resolve to the host's single instance.
+
+The PanGestureHandler configuration uses minDist 8 DIP for both-axis drag;
+horizontal drag activates outside ±8 x and fails outside ±8 y before activation
+(vertical is symmetric). Android 2.0.45's option converters are getter-only,
+so the adapter passes explicit device-pixel thresholds; touch payloads are
+already DIP. Android single-axis handlers disable the default radial slop
+alternative to activation so only the selected axis activates. NativeViewGestureHandler/waitFor/simultaneous graphs for nested
+controls remain out of scope. This policy addresses the raw Android pan
+first-MOVE/no-disallow-intercept seam without reimplementing RNGH arbitration.
+
+All drag writes and release springs run through JS MotionValues/motion-dom.
+Momentum projects velocity 0.2 seconds, clamps the destination, and settles
+with stiffness 200/damping 30. Hard bounds clamp samples before notification;
+elastic bounds permit overflow and spring back. Cancellation drops velocity;
+reduced motion snaps settlement. This is intentionally not upstream inertia.
+
+Verification (2026-10-02): 51 shared/web tests and 6 native object-driver/handler
+tests pass, along with web/native builds, pack checks, packed consumers, and
+source lint/formatting. The retained motion probe passes 14 assertions on
+Chromium and 14 on iOS simulator 0F6290B1-8BF6-4D0D-AD40-3966591ECDCA.
+Both runs cover drag live writes, momentum to x=40, hard constraints over every
+sample, callbacks, and cancellation. iOS dispatches through the actual plugin
+handler; release velocity was 250 DIP/s. Existing onPan/tap/Presence/delegation
+checks still pass (iOS: 11 delegated starts, 7 finishes, 4 cancellations).
+These are synthetic pointer/handler dispatch results, not OS input or
+ScrollView arbitration evidence. Android runtime was unavailable.
+
 ## The load-bearing fact
 
 On NativeScript your JS **runs on the UI thread**: a `touch` move event can

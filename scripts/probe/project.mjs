@@ -25,9 +25,19 @@ export const importFrom = async (root, specifier) => {
 
 async function packageRoot(name, roots) {
 	for (const root of roots) {
-		const candidate = join(root, 'node_modules', name)
-		if (existsSync(join(candidate, 'package.json'))) {
-			return realpath(candidate)
+		let ancestor = root
+		while (true) {
+			const candidate = join(ancestor, 'node_modules', name)
+			if (existsSync(join(candidate, 'package.json'))) {
+				return realpath(candidate)
+			}
+
+			const parent = dirname(ancestor)
+			if (parent === ancestor) {
+				break
+			}
+
+			ancestor = parent
 		}
 	}
 
@@ -80,6 +90,7 @@ export async function dependencies(target, caseFile, extra) {
 		for (const name of [
 			'@nativescript/core',
 			'@nativescript-community/octane',
+			'@nativescript-community/gesturehandler',
 			'@valor/nativescript-websockets',
 		]) {
 			names.add(name)
@@ -117,10 +128,24 @@ export async function dependencies(target, caseFile, extra) {
 			...manifest.dependencies,
 			...manifest.optionalDependencies,
 		})) {
-			const candidate = join(root, 'node_modules', name)
-			if (existsSync(join(candidate, 'package.json'))) {
-				await visit(await realpath(candidate))
+			// pnpm places transitive dependencies beside the package in its
+			// virtual store, rather than inside the package's node_modules.
+			let candidate
+			try {
+				candidate = await packageRoot(name, [root])
+			} catch (error) {
+				if (Object.hasOwn(manifest.optionalDependencies ?? {}, name)) {
+					continue
+				}
+
+				throw error
 			}
+
+			if (!resolved.has(name)) {
+				resolved.set(name, candidate)
+			}
+
+			await visit(candidate)
 		}
 	}
 

@@ -7,12 +7,16 @@ import {
 	useReducedMotion,
 } from '@octane-xplat/motion'
 
-import { Column, Row, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
+import { VStack as Column, HStack as Row, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
+import { dragInput } from './motion-drag-input'
 import type { ProbeContext } from '../../scripts/probe/context'
 
 let frameStamps: number[] = []
 let lastStampAt = 0
 let tapSamples: number[] = []
+let dragSamples: number[] = []
+let dragPhases: string[] = []
+let dragVelocity = 0
 const stampNow = () => (globalThis as any).performance?.now?.() ?? Date.now()
 
 function PresenceCounter(props: { onMount: () => void; onUnmount: () => void }) @{
@@ -136,6 +140,19 @@ export default function MotionProbe() @{
 				onAnimationComplete={() => setDestinationStatus(`completed at ${target}`)}
 			>
 				<Text>Animated destination</Text>
+			</motion.View>
+
+			<motion.View
+				id="motion-drag-box"
+				drag="x"
+				dragConstraints={{ left: -40, right: 40 }}
+				dragElastic={false}
+				onUpdate={(latest) => { dragSamples.push(latest.x ?? 0) }}
+				onDragStart={() => { dragPhases.push('start') }}
+				onDrag={() => { dragPhases.push('move') }}
+				onDragEnd={(_event, info) => { dragPhases.push(info.cancelled ? 'cancel' : 'end'); dragVelocity = info.velocity.x }}
+			>
+				<Text>Bounded declarative drag</Text>
 			</motion.View>
 
 			<motion.Row id="motion-pan-row" onPan={pan} style={{ x: panX }} className="items-center rounded-lg p-3">
@@ -277,6 +294,31 @@ export async function run(ctx: ProbeContext) {
 			'pan phases and settle',
 			/began→moved→ended/.test(ctx.inspect('motion-pan-status').text),
 		)
+	}
+
+	// Pointer dispatch on web; actual plugin handler notifications on iOS.
+	// This exercises normalization/JS settlement, not native scroll hit-testing.
+	if (ctx.target === 'web' || ctx.target === 'ios') {
+		const box = ctx.find('motion-drag-box')
+		dragSamples = []
+		dragPhases = []
+		dragInput(box, 'start', 0)
+		await new Promise((resolve) => setTimeout(resolve, 16))
+		dragInput(box, 'move', 20, 250)
+		ctx.record('drag-live', { phases: dragPhases.slice(), samples: dragSamples.slice(), touchAction: box.style?.touchAction ?? null })
+		ctx.assert('drag writes live displacement', dragSamples.at(-1), 20)
+		await new Promise((resolve) => setTimeout(resolve, 16))
+		dragInput(box, 'end', 20, 250)
+		await ctx.waitFor(() => dragSamples.at(-1) === 40, { timeout: 4000 })
+		ctx.assert('drag momentum reaches bounded destination', dragSamples.at(-1), 40)
+		ctx.assert('drag callbacks', dragPhases.join('→').includes('start→move') && dragPhases.at(-1) === 'end')
+		ctx.assert('drag hard bounds include spring samples', dragSamples.every((x) => x >= -40 && x <= 40))
+		ctx.record('drag-release-velocity', dragVelocity)
+		dragInput(box, 'start', 0)
+		dragInput(box, 'move', -100, -250)
+		ctx.assert('drag constraints clamp live input', dragSamples.at(-1), -40)
+		dragInput(box, 'cancel', -100, -250)
+		ctx.assert('drag cancellation callback', dragPhases.at(-1), 'cancel')
 	}
 
 	// Presence: retained count through a completed exit is replaced by fresh

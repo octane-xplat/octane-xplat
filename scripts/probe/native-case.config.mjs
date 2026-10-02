@@ -7,11 +7,12 @@ export default async function nativeCaseConfig(project, target) {
 	const load = async (name) =>
 		import(pathToFileURL(createRequire(join(project, 'package.json')).resolve(name)).href)
 
-	const [{ octane }, { nativeScriptRenderer }, { xplatBoundary, xplatNative, xplatNodeEnvDefine }] = await Promise.all([
-		load('octane/compiler/vite'),
-		load('@nativescript-community/octane/config'),
-		load('@octane-xplat/cli/vite'),
-	])
+	const [{ octane }, { nativeScriptRenderer }, { xplatBoundary, xplatNative, xplatNodeEnvDefine }] =
+		await Promise.all([
+			load('octane/compiler/vite'),
+			load('@nativescript-community/octane/config'),
+			load('@octane-xplat/cli/vite'),
+		])
 
 	const previousDirectory = process.cwd()
 	let css
@@ -72,6 +73,7 @@ export default async function nativeCaseConfig(project, target) {
 					id === '@nativescript/core' ||
 					id.startsWith('@nativescript/core/') ||
 					id === '@nativescript-community/octane' ||
+					id === '@nativescript-community/gesturehandler' ||
 					id.startsWith('octane/'),
 				// The runner serves a single case.cjs — dynamic import() must not
 				// split sibling chunks (they'd never reach the app). Disabling

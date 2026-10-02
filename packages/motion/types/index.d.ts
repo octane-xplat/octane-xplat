@@ -73,6 +73,7 @@ export declare function useAnimate(): [
 
 export type { MotionValue, MotionValueEvents }
 export type { AnimationControls, AnimationResult } from './engine.js'
+/** Includes bounded drag props and DragInfo callback payloads on both targets. */
 export type * from './types.js'
 
 /** Retain live children through exit; removing the boundary disposes immediately. */

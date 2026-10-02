@@ -1,3 +1,4 @@
+import * as gesturehandler from '@nativescript-community/gesturehandler'
 import { Application, File, Frame, knownFolders, Page, path } from '@nativescript/core'
 import * as core from '@nativescript/core'
 import * as animationFrame from '@nativescript/core/animation-frame'
@@ -10,6 +11,7 @@ import * as internal from 'octane/internal/client'
 // NativeScript's require and are present in this host's declared dependency graph.
 const modules = {
 	'@nativescript/core': core,
+	'@nativescript-community/gesturehandler': gesturehandler,
 	'@nativescript/core/animation-frame': animationFrame,
 	'@nativescript-community/octane': native,
 	'octane/universal/native': native,
@@ -17,6 +19,8 @@ const modules = {
 	'octane/signals/client': signalsClient,
 	'octane/internal/client': internal,
 }
+
+gesturehandler.install()
 
 const frame = new Frame()
 const page = new Page()

@@ -49,8 +49,66 @@ movement, and spring with release velocity on end. Treat cancellation separately
 and commit product state once the interaction outcome is known. Native velocity
 is DIP/second; web velocity is CSS pixels/second. Web pointer-up carries the
 last movement sample for up to 100 ms, so a pointer-up at the same coordinates
-as the final move retains its velocity; older samples resolve to zero. Full
-declarative drag and scroll-gesture arbitration are outside this release.
+as the final move retains its velocity; older samples resolve to zero. For declarative bounded dragging, use the surface below. Raw `onPan` keeps its
+existing dispatch and does not gain gesturehandler arbitration.
+
+## Drag a component
+
+Use `drag="x"` to move horizontally while allowing vertical scrolling:
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+;<motion.View
+	drag="x"
+	dragConstraints={{ left: -100, right: 100 }}
+	dragElastic={false}
+	onDragEnd={(_event, info) => {
+		if (!info.cancelled) console.log(info.velocity.x)
+	}}
+/>
+```
+
+Native apps install the optional motion peer with
+`pnpm add @nativescript-community/gesturehandler@2.0.45`. In the native entry,
+call its `install()` before creating any Page, Frame, or root view:
+
+```ts
+import { install } from '@nativescript-community/gesturehandler'
+
+install()
+// Create the app's root after installation.
+```
+
+Use `install()` without the override flag to preserve existing `onPan` observers.
+A normal Page supplies the handler root; custom native roots need the plugin's
+`GestureRootView`. The peer is required for the native motion entry, and is
+unnecessary on web. Missing native setup has no raw-pan fallback.
+
+`drag={true}` owns both axes; `drag="y"` owns vertical translation. Constraints
+are numeric translation limits in CSS pixels/DIP, with omitted edges unbounded.
+Measured-ref constraints are deferred. Default `dragElastic={0.35}` permits
+resisted overflow; `false` clamps input and all release-spring samples.
+`dragMomentum` defaults to true: release velocity projects a destination 0.2
+seconds ahead, bounded by constraints, then settles with a JS spring. Set it to
+false to stay at the current bounded position or return from elastic overflow.
+Reduced-motion policy snaps the release settlement.
+
+Drag writes internal x/y MotionValues, or the value supplied in `style.x`/`y`,
+without rendering the screen per frame. Do not also animate the same axes via
+`animate`, `whileTap`, or `whileFocus`; conflicting writers throw. `initial`
+can seed translation. Start waits for activation beyond 8 units. Callbacks use
+`(event, info)` with point/delta/offset/velocity and `cancelled`; offset is the
+unclamped pointer displacement. Cancellation suppresses momentum; unmount or
+disabling drag removes handlers and cancels settlement.
+
+The maintained [motion probe](../examples/probes/motion.tsrx) exercises live
+movement, bounded momentum, callbacks, and cancellation. Web uses pointer
+capture plus axis-specific touch-action; native uses PanGestureHandler
+activation/failure thresholds to yield perpendicular input before activation.
+Native handler dispatch does not prove OS touch delivery or scrolling conflicts.
+See [motion limits](known-limits.md#motion-leaf) before relying on nested control
+arbitration or full upstream drag behavior.
 
 ## Reduced motion and lifecycle
 

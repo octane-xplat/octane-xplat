@@ -1,3 +1,4 @@
+import { attachPan } from './pan.web'
 import type { HostAdapter } from './host-types'
 export function attachHost(node: HTMLElement): HostAdapter {
 	const transform = node.style.transform
@@ -8,6 +9,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
 	}
 
 	return {
+		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
 		read: () => ({
 			opacity: Number(computed.opacity || 1),
 			x: 0,
@@ -33,7 +35,15 @@ export function attachHost(node: HTMLElement): HostAdapter {
 		gesture(kind, callbacks) {
 			if (kind === 'press') {
 				const down = (event: PointerEvent) => {
-					node.setPointerCapture?.(event.pointerId)
+					try {
+						node.setPointerCapture?.(event.pointerId)
+					} catch (error) {
+						// Synthetic pointer dispatch has no active browser pointer.
+						if (event.isTrusted || (error as Error).name !== 'NotFoundError') {
+							throw error
+						}
+					}
+
 					callbacks.start()
 				}
 

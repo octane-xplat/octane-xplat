@@ -1,4 +1,5 @@
 import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
+import { attachPan } from './pan'
 import { delegatedRun } from './driver'
 // The retained NativeScript View exposes direct transform channels in DIP.
 export function attachHost(node: any): HostAdapter {
@@ -48,6 +49,7 @@ export function attachHost(node: any): HostAdapter {
 	}
 
 	return {
+		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
 		read: () => ({ ...original, scale: 1 }),
 		write,
 		restore: () => write(original),

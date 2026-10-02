@@ -1,3 +1,4 @@
+import { install as installGestureHandler } from '@nativescript-community/gesturehandler'
 import { Application, Color, Frame, GridLayout, ListView, Page, Trace } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { App } from '@xplat/app'
@@ -40,6 +41,8 @@ import 'octane/signals'
 if (!VIRTUAL_LIST_BENCH_MODE) {
 	void import('./lottie-probe')
 }
+
+installGestureHandler()
 
 installParityDump()
 if (!VIRTUAL_LIST_BENCH_MODE) {

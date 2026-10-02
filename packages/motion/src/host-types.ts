@@ -1,4 +1,4 @@
-import type { Target, Transition } from './types'
+import type { Target, Transition, DragInfo } from './types'
 
 export interface DelegatedRequest {
 	/** Channels the caller asked to animate. */
@@ -27,7 +27,14 @@ export interface GestureCallbacks {
 	end(): void
 }
 
+export interface PanCallbacks {
+	start(event: any, info: DragInfo): void
+	move(event: any, info: DragInfo): void
+	end(event: any, info: DragInfo): void
+}
+
 export interface HostAdapter {
+	pan?(axis: true | 'x' | 'y', callbacks: PanCallbacks): () => void
 	read(): Target
 	write(values: Target): void
 	restore(): void

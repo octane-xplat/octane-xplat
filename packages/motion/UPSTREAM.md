@@ -16,8 +16,9 @@ The adapter is original code; it does not copy upstream's DOM host factory.
 | Config and reduced motion                        | src/context.ts; tests/conformance/reducedMotionConfig.test.ts     | Context inheritance; spring transforms settle immediately on live preference changes while opacity can keep animating (`components.web.test.tsrx`, `engine.test.ts`) |
 | Exit lifecycle                                   | src/index.ts; tests/conformance/exit.test.ts                      | Deliberate live-subtree retention on both leaves; presence.web.test.tsrx and native presence test                                                                    |
 | Retained hosts on native                         | Not a DOM binding concern                                         | components.mobile.test.tsrx uses the universal object driver                                                                                                         |
+| Bounded drag                                     | src/index.ts pointer-drag binding; upstream/src/gestures/drag     | Numeric constraints, scalar elasticity, callbacks, JS velocity spring; drag.test.ts and web/native handler tests                                                     |
 | Interaction targets                              | whileTap/whileFocus gesture bindings                              | Host-level gesture seam (PointerEvents/touch/focus); snapshot + restore; components.web.test.tsrx, motion probe                                                      |
-| Scoped imperative runs                           | useAnimate                                                        | Controller registry keyed on host nodes; `bind` accepts callback refs and `{current}` scopes                                                                          |
+| Scoped imperative runs                           | useAnimate                                                        | Controller registry keyed on host nodes; `bind` accepts callback refs and `{current}` scopes                                                                         |
 | Custom host components                           | motion.create / motion.<tag>                                      | `motion.create(Component)` wraps shared-UI leaves; DOM tag proxy excluded                                                                                            |
 
 Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packages/motion),
@@ -27,8 +28,7 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
 ## Deliberate boundaries
 
 - Numeric values only. No CSS strings, keyframe arrays, variants/stagger
-  orchestration, layout/layoutId, `whileHover`/`whileInView`, declarative
-  drag, or broad framework-neutral re-export. `whileTap`, `whileFocus`,
+  orchestration, layout/layoutId, `whileHover`/`whileInView`, or broad framework-neutral re-export. `whileTap`, `whileFocus`,
   lifecycle callbacks (`onAnimationStart`/`onAnimationComplete`/`onUpdate`),
   `motion.create`, and `useAnimate` match the upstream prop names.
 - Host APIs use shared UI names rather than DOM tags. Existing UI props remain
@@ -56,6 +56,58 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
   Non-bezier eases, springs, repeats, and per-key transitions refuse platform
   delegation and run on the JS engine on all targets.
 
+## Bounded declarative drag
+
+Decision #94 widens the exclusions recorded in #92. `drag={true}` moves both
+axes; `drag="x"`/`"y"` owns one axis. Numeric `dragConstraints` edges are
+absolute translation limits in CSS pixels/DIP; omitted edges are unbounded.
+Measured-ref constraints are rejected explicitly. `dragElastic` is a scalar
+0–1 (default 0.35; false = 0, true = 0.35), with linear resistance outside
+bounds. Per-edge elasticity objects are excluded.
+
+`onDragStart`, `onDrag`, and `onDragEnd` receive `(event, info)`, where info has
+`point`, `delta`, `offset`, `velocity` (units/second), and `cancelled`. Point is
+viewport/screen coordinates. Offset and delta describe pointer movement before
+constraints. Start fires on activation after an 8-unit threshold, rather than
+on pointer-down; unsuccessful pre-activation gestures emit no drag callbacks.
+Cancellation emits one end callback and suppresses momentum. Disposal removes
+input handlers and stops settlement without emitting an end callback.
+
+Release projects `current + velocity * 0.2`, clamps the destination, and uses a
+JS spring (stiffness 200, damping 30). `dragMomentum={false}` keeps the current
+position if in bounds, or springs back from elastic overflow. This is a bounded
+spring settle, **not upstream's inertia/decay algorithm**. Hard constraints
+(`dragElastic={false}`) clamp every spring sample before host/value notification.
+Reduced motion snaps release settlement; pointer tracking remains live.
+
+A plain or spring-backed `style.x`/`style.y` MotionValue can receive drag writes;
+live writes use `jump` so passive spring following cannot lag the pointer.
+Drag axes reject competing `animate`, `whileTap`, or `whileFocus` targets;
+`initial` seeds the position and `exit` can own it after interaction ends.
+No ref measurement, dragControls, dragListener, direction lock, propagation,
+snap-to-origin, dragTransition, onDragTransitionEnd, or layout projection is
+implemented. `drag` axis selection is not `dragDirectionLock`.
+
+Web uses host PointerEvents/capture and `touch-action: pan-y` for horizontal
+drag, `pan-x` for vertical drag, or `none` for both. Native imports the optional
+peer `@nativescript-community/gesturehandler` (pinned to 2.0.45); native consumers
+must install it even when using only other motion APIs because the native
+entry imports its adapter. Web consumers do not need it. Apps call `install()`
+before creating their Page/Frame/root; **do not call `install(true)`**, which
+would replace existing NS gesture observers. There is no raw-pan fallback.
+Motion reserves handler tags from 700000000 upward within its single module
+instance. Native axis activation/failure uses 8 DIP; 2.0.45's Android config
+setters need explicit DIP→pixel conversion while payloads already return DIP.
+On Android single-axis handlers disable the default radial slop trigger so
+only the selected axis can activate. The plugin's Manager owns view-init/dispose attachment; motion removes its
+state/touch listeners and detaches on cleanup.
+
+NativeViewGestureHandler is not needed for the bounded surface: motion attaches
+PanGestureHandler directly to its host, with no simultaneous/waitFor graph.
+Nested native control ownership and complex competing drags are deferred.
+Threshold configuration is source/test evidence of arbitration policy; only
+real OS input inside a ScrollView can establish runtime arbitration.
+
 ## Presence divergence
 
 `Presence present={...}` retains actual components and their state/subscriptions
@@ -66,6 +118,13 @@ wrapper, blocks interaction during exit, and restores interaction on reversal.
 An ancestor unmount always disposes immediately. Nested boundaries are independent.
 
 ## Verification limits
+
+Bounded drag (2026-10-02): the maintained probe passes 14 assertions on web
+Chromium and 14 on the requested iOS simulator, including live writes, bounded
+momentum, callbacks, and cancellation. Native input is plugin handler dispatch;
+it does not prove OS hit-testing or drag-versus-scroll arbitration. Android drag
+runtime remains unverified. Package unit/build/packed-consumer checks cover the
+public types and shared numeric behavior.
 
 Unit and DOM tests establish bounded behavior, not full Framer Motion parity.
 Universal object-driver tests establish retention and lifecycle without an OS.

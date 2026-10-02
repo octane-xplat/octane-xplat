@@ -228,7 +228,7 @@ lint` (`xplat/no-dom-globals`) is the backstop; keep DOM code in `.tsrx`
 `@octane-xplat/motion` supports numeric transforms and opacity on web/iOS/Android,
 plus `whileTap`/`whileFocus`, lifecycle callbacks, `motion.create`, `useAnimate`,
 repeat/per-key transitions, and duration/bounce springs. Layout animation,
-variants/stagger, `whileHover`/`whileInView`, declarative drag, keyframe arrays,
+variants/stagger, `whileHover`/`whileInView`, keyframe arrays,
 and arbitrary CSS/SVG properties are excluded. Existing CSS transforms need an
 outer container.
 Declarative tweens delegate to `UIViewPropertyAnimator` (iOS) and
@@ -238,6 +238,17 @@ gesture-driven values stay on the JS engine. See
 engine boundaries. DOM and universal object-driver tests do not establish
 physical-device frame pacing or gesture arbitration; those checks remain pending.
 The Android delegated path has not run on a device or emulator yet.
+
+Bounded declarative drag supports numeric box constraints, scalar elasticity,
+and velocity spring settlement. Ref constraints, inertia parity, per-edge
+elasticity, dragControls, direction lock, propagation, and layout projection
+remain excluded. Native requires the optional gesturehandler peer and app-side
+`install()` before root creation; there is no raw-pan fallback. Axis thresholds
+are configured for scroll arbitration, but OS drag-inside-ScrollView delivery
+remains unverified. The retained probe exercises synthetic web pointers and
+iOS plugin handler notifications only. Android drag runtime is unverified.
+Existing `onPan` keeps its raw NativeScript observer path and its arbitration
+limits. See [drag setup](animation-gestures.md#drag-a-component).
 
 Presence retains live subtrees through exit on all three targets. This differs
 from upstream Octane motion's DOM cloning; there is no AnimatePresence alias.

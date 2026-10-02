@@ -49,6 +49,7 @@ const dependencies = [
 	'octane',
 	'@nativescript-community/octane',
 	'@nativescript/core',
+	'@nativescript-community/gesturehandler',
 	'@nativescript/types',
 	'@octane-xplat/ui',
 	'motion-dom',
@@ -58,7 +59,13 @@ const consumers = {
 	web: `import { motion, MotionConfig, Presence, useMotionValue, useSpring, type MotionValue } from '@octane-xplat/motion'
 const value: MotionValue = useMotionValue(0)
 const sprung: MotionValue = useSpring(value)
-const view = <motion.View animate={{ opacity: 1 }} />
+const view = <motion.View animate={{ opacity: 1 }} drag="x" dragConstraints={{left: -40, right: 40}} dragElastic={0.35} dragMomentum={false} onDragEnd={(_event, info) => { const velocity: number = info.velocity.x; void velocity }} />
+// @ts-expect-error ref constraints are deliberately deferred
+const refDrag = <motion.View drag dragConstraints={{current: null}} />
+// @ts-expect-error drag only accepts boolean or an axis
+const badDrag = <motion.View drag="both" />
+void refDrag
+void badDrag
 const config = <MotionConfig reducedMotion="user" />
 const presence = <Presence present={true} />
 // @ts-expect-error useMotionValue seeds a number
@@ -75,7 +82,7 @@ void badMotion
 	native: `import { motion, useMotionValue, useTransform, type MotionValue } from '@octane-xplat/motion'
 const value: MotionValue = useMotionValue(0)
 const doubled: MotionValue = useTransform(value, (input: number) => input * 2)
-const view = <motion.Row animate={{ opacity: 0.5 }} />
+const view = <motion.Row drag="y" dragConstraints={{top: -20, bottom: 20}} onDrag={(_event, info) => { const y: number = info.offset.y; void y }} animate={{ opacity: 0.5 }} />
 void view
 void doubled
 `,

@@ -223,3 +223,67 @@ function ScopedCase() @{
 
 	<motion.View id="scoped" bind={scope} />
 }
+
+function DragBox(props: any) @{
+	<MotionConfig reducedMotion="never"><motion.View id="drag" {...props} /></MotionConfig>
+}
+
+function pointer(node: HTMLElement, type: string, x: number, y = 0, pointerId = 1) {
+	const event = new MouseEvent(type, { clientX: x, clientY: y, button: 0, bubbles: true })
+	Object.defineProperty(event, 'pointerId', { value: pointerId })
+	node.dispatchEvent(event)
+}
+
+describe('declarative pointer drag', () => {
+	it('writes a bound MotionValue live, captures one pointer, clamps, and cleans up', () => {
+		const x = new MotionValue(10, clock)
+		const started = vi.fn(), moved = vi.fn(), ended = vi.fn()
+		const mounted = mount(<DragBox drag="x" style={{ x }} dragConstraints={{ left: -30, right: 30 }} dragElastic={false} dragMomentum={false} onDragStart={started} onDrag={moved} onDragEnd={ended} />)
+		const node = mounted.container.querySelector('#drag') as HTMLElement
+		node.setPointerCapture = vi.fn()
+		expect(node.style.touchAction).toBe('pan-y')
+		pointer(node, 'pointerdown', 0)
+		pointer(node, 'pointermove', 4)
+		expect(started).not.toHaveBeenCalled()
+		pointer(node, 'pointermove', 100, 0, 2)
+		expect(x.get()).toBe(10)
+		pointer(node, 'pointermove', 100)
+		expect(x.get()).toBe(30)
+		expect(node.style.transform).toContain('translateX(30px)')
+		pointer(node, 'pointerup', 100)
+		expect(started).toHaveBeenCalledTimes(1)
+		expect(ended).toHaveBeenCalledTimes(1)
+		expect(node.setPointerCapture).toHaveBeenCalledWith(1)
+		mounted.close()
+		pointer(node, 'pointerdown', 0); pointer(node, 'pointermove', -100)
+		expect(x.get()).toBe(30)
+		expect(node.style.touchAction).toBe('')
+		x.destroy()
+	})
+
+	it('updates drag axis and disables listeners on prop changes', () => {
+		const mounted = mount(<DragBox drag="x" dragMomentum={false} />)
+		const node = mounted.container.querySelector('#drag') as HTMLElement
+		act(() => mounted.root.render(<DragBox drag="y" dragMomentum={false} />))
+		expect(node.style.touchAction).toBe('pan-x')
+		pointer(node, 'pointerdown', 0); pointer(node, 'pointermove', 0, 30); pointer(node, 'pointerup', 0, 30)
+		expect(node.style.transform).toContain('translateY(30px)')
+		act(() => mounted.root.render(<DragBox drag={false} />))
+		pointer(node, 'pointerdown', 0); pointer(node, 'pointermove', 0, 80)
+		expect(node.style.transform).toContain('translateY(30px)')
+		mounted.close()
+	})
+
+	it('yields perpendicular movement and reports active cancellation once', () => {
+		const end = vi.fn(), start = vi.fn()
+		const mounted = mount(<DragBox drag="x" dragMomentum={false} onDragStart={start} onDragEnd={end} />)
+		const node = mounted.container.querySelector('#drag') as HTMLElement
+		pointer(node, 'pointerdown', 0); pointer(node, 'pointermove', 0, 30)
+		expect(start).not.toHaveBeenCalled()
+		pointer(node, 'pointerdown', 0); pointer(node, 'pointermove', 30)
+		pointer(node, 'pointercancel', 30); pointer(node, 'lostpointercapture', 30)
+		expect(end).toHaveBeenCalledTimes(1)
+		expect(end.mock.calls[0][1].cancelled).toBe(true)
+		mounted.close()
+	})
+})
