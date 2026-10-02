@@ -1,21 +1,9 @@
 import type { DelegatedRequest, DelegatedRun } from './host-types'
-import { isBezierEase } from './engine'
+import { bezierPoints, isBezierEase } from './engine'
+import { delegationStats, trackDelegatedRun } from './delegation'
 import type { Target } from './types'
 
 const platform = globalThis as any
-
-const EASE_POINTS: Record<string, [number, number, number, number]> = {
-	linear: [0, 0, 1, 1],
-	easeIn: [0.42, 0, 1, 1],
-	easeOut: [0, 0, 0.58, 1],
-	easeInOut: [0.42, 0, 0.58, 1],
-}
-
-function easePoints(
-	ease: DelegatedRequest['transition']['ease'],
-): [number, number, number, number] {
-	return Array.isArray(ease) ? ease : EASE_POINTS[ease ?? 'easeInOut']
-}
 
 function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): DelegatedRun | null {
 	const view = node.ios ?? node.nativeViewProtected
@@ -24,7 +12,7 @@ function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): D
 	}
 
 	const { eff, target, transition: t } = req
-	const [x1, y1, x2, y2] = easePoints(t.ease)
+	const [x1, y1, x2, y2] = bezierPoints(t.ease)
 	const params = platform.UICubicTimingParameters.alloc().initWithControlPoint1ControlPoint2(
 		platform.CGPointMake(x1, y1),
 		platform.CGPointMake(x2, y2),
@@ -144,7 +132,7 @@ function androidRun(
 
 	const { eff, target, transition: t } = req
 	const animator = view.animate()
-	const [x1, y1, x2, y2] = easePoints(t.ease)
+	const [x1, y1, x2, y2] = bezierPoints(t.ease)
 	animator.setInterpolator(
 		androidx.core.view.animation.PathInterpolatorCompat.create(x1, y1, x2, y2),
 	)
@@ -229,17 +217,6 @@ function androidRun(
 	}
 }
 
-// Probe-visible counters so retained probes can distinguish a real delegated
-// run from a silent JS-engine fallback without widening the public API.
-function stats() {
-	return (platform.__xplatMotionDelegations ??= {
-		started: 0,
-		finished: 0,
-		cancelled: 0,
-		fallback: 0,
-	})
-}
-
 // Platform animators drive the presentation while MotionValues track sampled
 // state; interruption stays velocity-exact on the JS engine. Falls back to
 // null anywhere the platform object is missing (tests, unknown targets).
@@ -252,7 +229,7 @@ export function delegatedRun(
 	// this module stays loadable in the object-driver test environment. Eases
 	// that are not cubic-bezier-expressible stay on the JS engine.
 	if (!isBezierEase(req.transition.ease)) {
-		stats().fallback++
+		delegationStats().fallback++
 		return null
 	}
 
@@ -264,20 +241,9 @@ export function delegatedRun(
 				: null
 
 	if (!run) {
-		stats().fallback++
+		delegationStats().fallback++
 		return null
 	}
 
-	stats().started++
-	const finished = run.finished.then((result) => {
-		if (result === 'finished') {
-			stats().finished++
-		} else {
-			stats().cancelled++
-		}
-
-		return result
-	})
-
-	return { ...run, finished }
+	return trackDelegatedRun(run)
 }

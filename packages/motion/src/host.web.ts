@@ -1,11 +1,23 @@
 import { attachPan } from './pan.web'
-import type { HostAdapter } from './host-types'
+import { delegatedRun } from './driver.web'
+import type { DelegatedRequest, DelegatedRun, HostAdapter } from './host-types'
+import type { Target } from './types'
 export function attachHost(node: HTMLElement): HostAdapter {
 	const transform = node.style.transform
 	const opacity = node.style.opacity
 	const computed = getComputedStyle(node)
 	if (computed.transform && computed.transform !== 'none') {
 		throw new Error('motion: put existing CSS transforms on an outer container')
+	}
+
+	const write = (values: Target) => {
+		if (values.opacity !== undefined) {
+			node.style.opacity = String(Math.min(1, Math.max(0, values.opacity)))
+		}
+
+		if (Object.keys(values).some((key) => key !== 'opacity')) {
+			node.style.transform = `translateX(${values.x ?? 0}px) translateY(${values.y ?? 0}px) scale(${values.scale ?? 1}) scaleX(${values.scaleX ?? 1}) scaleY(${values.scaleY ?? 1}) rotate(${values.rotate ?? 0}deg)`
+		}
 	}
 
 	return {
@@ -19,15 +31,8 @@ export function attachHost(node: HTMLElement): HostAdapter {
 			scaleY: 1,
 			rotate: 0,
 		}),
-		write(values) {
-			if (values.opacity !== undefined) {
-				node.style.opacity = String(Math.min(1, Math.max(0, values.opacity)))
-			}
-
-			if (Object.keys(values).some((key) => key !== 'opacity')) {
-				node.style.transform = `translateX(${values.x ?? 0}px) translateY(${values.y ?? 0}px) scale(${values.scale ?? 1}) scaleX(${values.scaleX ?? 1}) scaleY(${values.scaleY ?? 1}) rotate(${values.rotate ?? 0}deg)`
-			}
-		},
+		write,
+		delegate: (req: DelegatedRequest): DelegatedRun | null => delegatedRun(node, req, write),
 		restore() {
 			node.style.transform = transform
 			node.style.opacity = opacity

@@ -416,15 +416,14 @@ export async function run(ctx: ProbeContext) {
 
 	ctx.assert('whileTap restores animate target', tapSamples[tapSamples.length - 1] ?? 0, 1)
 
-	// Delegation evidence: on native targets the declarative tween runs above
-	// must have engaged the platform animator; on web the counter stays absent
-	// (the web host has no delegate yet).
+	// Delegation evidence: the declarative tween runs above must have engaged
+	// the platform animator — WAAPI on web/linux webviews, UIViewPropertyAnimator
+	// on iOS, ViewPropertyAnimator on Android. macOS shares the native entry but
+	// has no delegated driver, so its counter is absent or all-fallback.
 	const g = globalThis as any
 	ctx.record('delegations', JSON.parse(JSON.stringify(g.__xplatMotionDelegations ?? null)))
-	if (ctx.target === 'ios' || ctx.target === 'android') {
+	if (ctx.target !== 'macos') {
 		ctx.assert('platform delegation engaged', (g.__xplatMotionDelegations?.started ?? 0) >= 1)
-	} else {
-		ctx.assert('web stays on the JS engine', g.__xplatMotionDelegations === undefined)
 	}
 
 	// Frame pacing of the JS engine path: a spring's 'change' stamps are

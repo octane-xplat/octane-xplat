@@ -24,6 +24,18 @@ export function isBezierEase(ease: Transition['ease']): boolean {
 	return ease === undefined || Array.isArray(ease) || BEZIER_EASES.has(ease)
 }
 
+const BEZIER_POINTS: Record<string, [number, number, number, number]> = {
+	linear: [0, 0, 1, 1],
+	easeIn: [0.42, 0, 1, 1],
+	easeOut: [0, 0, 0.58, 1],
+	easeInOut: [0.42, 0, 0.58, 1],
+}
+
+/** CSS cubic-bezier control points for a delegatable ease; tuples pass through. */
+export function bezierPoints(ease: Transition['ease']): [number, number, number, number] {
+	return Array.isArray(ease) ? ease : BEZIER_POINTS[ease ?? 'easeInOut']
+}
+
 export function isOrchestrated(t: TransitionInput | undefined): t is TransitionOrchestration {
 	if (!t || typeof t !== 'object') {
 		return false
