@@ -3,7 +3,7 @@ import { AccessibilityRole } from '@nativescript/core';
 import type { MeterProps } from './props';
 import { cx } from './cx';
 import { meterRange } from './meter-math';
-import './svg.mobile';
+import './svg';
 
 /** Ring markup matching the web leaf's conic-gradient: a track circle plus a
  *  dash-array arc rotated to start at 12 o'clock, drawn by `svgview`

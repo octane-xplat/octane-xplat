@@ -3,7 +3,7 @@ import type { IconProps } from './props';
 import { getIcon } from './icons';
 import { cx } from './cx';
 import { applyNativeProps } from './platformProps';
-import { glyphSvgMarkup, isSvgSrc, svgSource } from './svg.mobile';
+import { glyphSvgMarkup, isSvgSrc, svgSource } from './svg';
 
 export function Icon(props: IconProps) @{
 	const glyph = getIcon(props.name);

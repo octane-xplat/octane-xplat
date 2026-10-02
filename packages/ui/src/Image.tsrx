@@ -5,7 +5,7 @@ import type { ImageProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
 import { layoutChildProps } from './layout-child';
-import { isSvgSrc, svgSource } from './svg.mobile';
+import { isSvgSrc, svgSource } from './svg';
 /** Image — NS <image>. `src` accepts the NS ImageSource grammar:
  *  res://name, ~/bundle-path, file path, remote URL, or data: URI. SVG srcs
  *  (inline markup, svg data URIs, .svg paths/URLs) route to <svgview> —
