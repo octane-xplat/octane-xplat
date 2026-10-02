@@ -19,7 +19,7 @@ describe('Tooltip shared layer', () => {
 			expect((container.firstElementChild as HTMLElement).style.getPropertyValue('anchor-name')).toContain('--xplat-layer-')
 			act(() => root.render(Tooltip, { trigger: <button>Help</button>, content: 'Second' }))
 			expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('Second')
-			act(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })))
+			act(() => button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
 			expect(document.querySelector('[role="tooltip"]')).toBeNull()
 			expect(button.hasAttribute('aria-describedby')).toBe(false)
 		} finally {
