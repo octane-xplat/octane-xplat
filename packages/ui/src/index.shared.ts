@@ -693,7 +693,6 @@ export type {
 	StackPaddingProps,
 	StackSizeProps,
 	StackWrap,
-	SpacingStep,
 	VisuallyHiddenProps,
 	CheckboxInputProps,
 	CheckboxListProps,

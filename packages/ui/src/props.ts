@@ -3545,9 +3545,6 @@ export interface ChatLayoutContextValue {
 // through the route table (deep link) and falls back to the platform opener
 // for absolute URLs.
 
-/** Spacing-scale step used by Astryx components (gap/padding multipliers). */
-export type SpacingStep = 0 | 0.5 | 1 | 1.5 | 2 | 3 | 4 | 5 | 6 | 8 | 10
-
 /** Element size scale shared by the navigation family (`sm`/`md`/`lg`). */
 export type NavElementSize = 'sm' | 'md' | 'lg'
 
