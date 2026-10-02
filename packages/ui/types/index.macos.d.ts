@@ -247,7 +247,8 @@ export {
 	resolveOperatorLabel,
 } from './generated/power-search-config.js'
 
-export declare const WebView: Component<P.WebViewProps>
+/** Embedded WKWebView document; use its ref for frame-local navigation. */
+export declare function WebView(props: P.WebViewProps): unknown
 export declare const CameraView: Component
 export declare const Overlay: Component<P.OverlayProps>
 export declare const Popover: Component<P.PopoverProps>

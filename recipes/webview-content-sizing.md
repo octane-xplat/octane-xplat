@@ -1,7 +1,7 @@
 # Size a WebView to its document
 
 ID: webview-content-sizing
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: `WebView`, `WebViewContentSize`, `SafeArea`
 
 ## Starting point
@@ -17,7 +17,7 @@ to extend the frame beneath system safe areas when that is desired.
 
 ## Acceptance criteria
 
-- AC1: The app can receive measured content width and height after a successful load on web, iOS, and Android.
+- AC1: The app can receive measured content width and height after a successful load on web, iOS, Android, and AppKit macOS.
 - AC2: The app can enable `matchContents` to size the frame to the content, and knows that cross-origin browser documents cannot be measured.
 - AC3: The app can place the WebView in `SafeArea` and use `ignoreSafeArea` to extend content under system insets.
 

@@ -1,9 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import type { CameraViewProps, WebViewProps } from './props'
-
-export function WebView(_props: WebViewProps) @{
-	<label className="vx-unsupported">WebView is unsupported by the AppKit host</label>
-}
+import type { CameraViewProps } from './props'
 
 export function CameraView(_props: CameraViewProps) @{
 	<label className="vx-unsupported">Camera capture is unsupported by the AppKit host</label>

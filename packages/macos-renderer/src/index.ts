@@ -1,5 +1,6 @@
-import { loadImage } from './image'
 import '@nativescript/macos-node-api'
+import { loadImage } from './image'
+import { makeWebView, updateWebView, disposeWebView } from './webview.mjs'
 import { createUniversalRoot } from 'octane/universal/native'
 import { resolveFont as fontForFamilyStyle } from './fonts'
 export { registerFontFamily } from './fonts'
@@ -1330,6 +1331,9 @@ function makeNode(container, id, type, props) {
 			actionId = control.actionId
 			break
 		}
+		case 'webview':
+			view = makeWebView()
+			break
 		case 'image':
 			view = makeImageView(props)
 			break
@@ -2421,6 +2425,20 @@ function applyProps(node, props) {
 				}
 
 				break
+			case 'webview':
+				if (name === 'style') {
+					applyStyle(node, value)
+				} else if (name === 'className') {
+					applyClassName(node, value)
+				} else if (name === 'accessibilityLabel') {
+					node.view.accessibilityLabel = String(value ?? '')
+				} else if (name === 'accessible') {
+					node.view.accessibilityElement = value !== false
+				} else if (name === 'accessibilityHint') {
+					node.view.accessibilityHelp = String(value ?? '')
+				}
+
+				break
 			case 'image':
 				if (name === 'src') {
 					node.view.image = loadImage(value)
@@ -2437,6 +2455,13 @@ function applyProps(node, props) {
 
 				break
 		}
+	}
+
+	if (node.type === 'webview') {
+		updateWebView(node, props, (height) => {
+			node.props.style = { ...node.props.style, height }
+			setSizeConstraint(node, 'height', height)
+		})
 	}
 
 	if (node.type === 'textfield') {
@@ -2635,6 +2660,10 @@ function remove(container, parentId, node) {
 }
 
 function destroy(node) {
+	if (node.type === 'webview') {
+		disposeWebView(node.view)
+	}
+
 	if (node.type === 'scrollview' && node.scrollObserverInstalled) {
 		const clipView = node.view.contentView
 		scrollHandlers.delete(clipView)

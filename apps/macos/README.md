@@ -71,7 +71,7 @@ implementation use visible unsupported leaves, and platform services without
 an AppKit implementation report `unsupported` or `unavailable` rather than
 simulating success. Most shared components now have real `.macos` leaves
 ported from the self-drawn native leaves — `Popover` renders inline (no
-NSPopover anchoring yet) and `WebView`/`Video`/`CameraView`/`Pager` remain
+NSPopover anchoring yet) and `Video`/`CameraView`/`Pager` remain
 hosted-unsupported. Leaf chrome that web draws via `.vx-*` CSS is inlined
 as style props in the macOS leaves. The `__xplatAppKit` host seam provides
 appInfo, app state, window size, clipboard, `openUrl`, NSUserDefaults-backed
@@ -423,3 +423,14 @@ available in the CLI but were not exercised in this JavaScriptCore change.
 The packaged host's AppKit event
 loop, window close, and runtime error behavior should be checked in each app;
 the in-repository sweep covers its shared harness, not every AppKit API.
+
+## Embedded WebView verification
+
+The shared `@octane-xplat/ui` `WebView` embeds WKWebView inside an AppKit screen;
+it is separate from the system WebView app-shell backend above.
+Run `pnpm --filter @xplat/macos exec node test/verify-webview.mjs` from the
+repository root for the isolated compiled component fixture. It exercises real
+WebKit load callbacks, reload, HTML replacement, local-file history and errors,
+content measurement and unmount cleanup without screenshots. Delegate tests run with
+`pnpm --filter @octane-xplat/macos-renderer test`. Those simulated callbacks do
+not establish OS input or hit-testing.

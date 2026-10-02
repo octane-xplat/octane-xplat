@@ -1044,7 +1044,7 @@ export interface WebViewHandle {
 	goBack(): void
 	goForward(): void
 	stopLoading(): void
-	/** The platform view (`HTMLIFrameElement` / NS `WebView`). */
+	/** The platform view (`HTMLIFrameElement` / NS `WebView` / AppKit `WKWebView`). */
 	native: any
 }
 
@@ -1061,7 +1061,7 @@ export interface WebViewContentSize {
 	height: number
 }
 
-/** Embedded web document — chrome-reset bucket: web renders a sandboxed
+/** Embedded web document — hosted bucket: web renders a sandboxed
  *  `<iframe>`, native renders the OS web view (`webview` → WKWebView /
  *  android.webkit.WebView). The *frame* is normalized; the document's
  *  pixels belong to each platform's engine, same as TextInput's IME.
@@ -1073,7 +1073,8 @@ export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
 	style?: any
 	id?: string
 	/** Remote document URL. Native also accepts `~/` bundle paths and
-	 *  absolute file paths (NS `src` grammar). */
+	 *  absolute file paths (NS `src` grammar). AppKit resolves `~/` relative
+	 *  to the app bundle resources and permits reads in the file's directory. */
 	src?: string
 	/** Inline HTML document — web `srcdoc`; native loads it through the
 	 *  `src` property's data path (`loadHTMLString`/`loadDataWithBaseURL`).
@@ -1096,7 +1097,8 @@ export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
 	onError?: (e: WebViewLoadEvent) => void
 	/** Default true. `false` freezes inner scrolling: web writes
 	 *  `scrolling="no"`, iOS clears the WKWebView scrollView's
-	 *  `scrollEnabled`, Android eats move touch events on the view (link
+	 *  `scrollEnabled`, AppKit uses hidden document overflow,
+	 *  Android eats move touch events on the view (link
 	 *  taps still pass; drag text selection inside the frame is lost). */
 	scrollEnabled?: boolean
 	/** Web only — the iframe `sandbox` token list. Defaults to

@@ -237,7 +237,8 @@ export {
 	resolveOperatorLabel,
 } from './power-search-config'
 
-export { WebView, CameraView } from './hosted-unsupported.macos.tsrx'
+export { WebView } from './WebView.macos.tsrx'
+export { CameraView } from './hosted-unsupported.macos.tsrx'
 export { Overlay, Popover } from './surfaces.macos.tsrx'
 export { Dialog, DialogHeader } from './Dialog.macos.tsrx'
 export { AlertDialog } from './AlertDialog.macos.tsrx'

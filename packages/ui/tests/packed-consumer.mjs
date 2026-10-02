@@ -104,8 +104,8 @@ void tooltip
 void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
-		source = `import { Button, KeyboardAvoiding, View, useAnimation } from '@octane-xplat/ui'
-import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, View, useAnimation, WebView, SafeArea } from '@octane-xplat/ui'
+import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue, WebViewProps, WebViewHandle, WebViewContentSize, WebViewLoadEvent } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
 // @ts-expect-error loading is a boolean prop
@@ -121,6 +121,26 @@ const keyboardProps: KeyboardAvoidingProps = { id: 'macos-form', children: 'Form
 const button = <Button {...buttonProps} />
 const keyboard = <KeyboardAvoiding {...keyboardProps} />
 const view = <View {...viewProps} />
+const handle: { current: WebViewHandle | null } = { current: null }
+const webProps: WebViewProps = {
+ html: '<p>Embedded</p>', src: 'https://example.com', ref: handle,
+ matchContents: true, scrollEnabled: false,
+ onLayoutContent: (size: WebViewContentSize) => { const height: number = size.height; void height },
+ onLoad: (event: WebViewLoadEvent) => { const url: string | undefined = event.url; void url },
+ onError: (event) => { const error: string | undefined = event.error; void error },
+}
+const embedded = <SafeArea ignoreSafeArea><WebView {...webProps} /></SafeArea>
+handle.current?.reload()
+handle.current?.goBack()
+handle.current?.goForward()
+handle.current?.stopLoading()
+// @ts-expect-error content height is numeric
+const invalidSize: WebViewContentSize = { width: 320, height: 'tall' }
+// @ts-expect-error WebView hosts a document, not component children
+const invalidChildren = <WebView children="text" />
+void invalidChildren
+void invalidSize
+void embedded
 void button
 void keyboard
 void invalidButtonProps

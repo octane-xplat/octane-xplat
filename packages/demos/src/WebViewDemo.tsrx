@@ -3,7 +3,7 @@ import { Pressable, HStack, SafeArea, Screen, Text, WebView } from '@octane-xpla
 import type { WebViewHandle } from '@octane-xplat/ui';
 
 // Inline document so the demo works without network; tall enough to prove
-// scrollEnabled on both targets.
+// scrollEnabled across targets.
 const INLINE_HTML = `<!DOCTYPE html>
 <html><head><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -11,7 +11,7 @@ const INLINE_HTML = `<!DOCTYPE html>
 	.box { border: 1px solid #ccc; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
 </style></head><body>
 	<h2>Inline HTML</h2>
-	<div class="box">This document arrives through the shared <code>html</code> prop — srcdoc on web, loadData on native.</div>
+	<div class="box">This document arrives through the shared <code>html</code> prop — srcdoc on web and the platform HTML loader on native.</div>
 	<div class="box">Row 1 — scroll me</div>
 	<div class="box">Row 2 — scroll me</div>
 	<div class="box">Row 3 — scroll me</div>
@@ -44,6 +44,12 @@ export function WebViewDemo() @{
 			</Pressable>
 			<Pressable className="btn btn-secondary" onPress={() => handle.current?.goBack()}>
 				<Text>Back</Text>
+			</Pressable>
+			<Pressable className="btn btn-secondary" onPress={() => handle.current?.goForward()}>
+				<Text>Forward</Text>
+			</Pressable>
+			<Pressable className="btn btn-secondary" onPress={() => handle.current?.stopLoading()}>
+				<Text>Stop</Text>
 			</Pressable>
 			<Pressable className="btn btn-secondary" onPress={() => setMatchContents(!matchContents)}>
 				<Text>{matchContents ? 'Fill frame' : 'Match content height'}</Text>

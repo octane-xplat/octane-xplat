@@ -189,6 +189,12 @@ renders in the harness `components` sweep on iOS; the Android nested-stack
 sweep remains skipped because it asserts native `Page`/`Frame` objects —
 pushes themselves work through the swap-pane route store.
 
+AppKit macOS embeds the shared `WebView` using WKWebView. Content sizing runs
+after load or measurement-prop changes, not continuously as page content changes.
+The viewport can impose a minimum measured height. Scroll disabling sets hidden document overflow; page scripts can still scroll.
+`sandbox` remains browser-only. See [content sizing](primitives.md#webview-content-sizing)
+for the embedded component and its separate app-shell boundary.
+
 ## Navigation
 
 Fresh Web release navigation checks on 2026-09-30 pass 14/14, including

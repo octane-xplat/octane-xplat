@@ -786,6 +786,38 @@ export function Example() {
 }
 ```
 
+On AppKit macOS, the same component embeds `WKWebView` inside the native
+screen. For example:
+
+```tsx
+import { WebView } from '@octane-xplat/ui'
+
+;<WebView
+	html="<html><body><h2>Hello from a document</h2></body></html>"
+	style={{ width: 320, height: 180 }}
+	onLoad={() => console.log('Document loaded')}
+	onError={(event) => console.error(event.error)}
+	onLayoutContent={(size) => console.log(size.width, size.height)}
+/>
+```
+
+`html` wins when both sources are present, including an empty string. Set
+`matchContents` to apply the measured height after a successful load. AppKit
+measures after loading and when measurement props change; later changes made
+by page scripts are not continuously observed. A document's viewport can set a
+minimum measured height. Use the maintained
+[WebView demo](../../packages/demos/src/WebViewDemo.tsrx) to try sizing and navigation.
+`scrollEnabled={false}` applies hidden document overflow to freeze inner scrolling;
+it does not prevent a page script from scrolling. `sandbox` is browser-only.
+The ref's `native` is the WKWebView itself. `reload()` reloads the current
+remote or file page; for `html`, it submits the supplied HTML again. AppKit
+`SafeArea` is a neutral wrapper, so `ignoreSafeArea` adds no desktop inset. Removing the component stops loading,
+clears the delegate and ref, and ignores pending measurements.
+
+This embedded component does not install a service bridge. To run an entire
+DOM app in a macOS webview window, use the separate
+[desktop-webview app-shell workflow](../platform/macos-webview.md).
+
 ### Video playback
 
 `Video` plays a clip — `src`, `poster`, `playing`/`onPlayingChange` (or
