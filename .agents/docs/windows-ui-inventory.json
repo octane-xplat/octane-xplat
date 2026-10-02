@@ -71,9 +71,9 @@
         "StackItem.tsrx",
         "StackItem.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "Center",
@@ -84,9 +84,9 @@
         "Center.tsrx",
         "Center.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "Section",
@@ -97,9 +97,9 @@
         "Section.tsrx",
         "Section.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "AspectRatio",
@@ -110,9 +110,9 @@
         "AspectRatio.tsrx",
         "AspectRatio.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "VisuallyHidden",
@@ -123,9 +123,9 @@
         "VisuallyHidden.tsrx",
         "VisuallyHidden.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "Absolute",
@@ -135,9 +135,9 @@
         "Absolute.tsrx",
         "Absolute.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "Spacer",
@@ -147,9 +147,9 @@
         "Spacer.tsrx",
         "Spacer.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "Text",
@@ -194,9 +194,9 @@
         "RichText.tsrx",
         "RichText.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "RichTextSpan",
@@ -206,9 +206,9 @@
         "RichText.tsrx",
         "RichText.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "Pressable",
@@ -1837,7 +1837,7 @@
       ],
       "status": "exploring",
       "evidence": ".agents/docs/windows-ui.md#safearea-escape-prop-correction",
-      "reason": "Foundation app renders in the Windows desktop session. Layout structure confirmed; Flexbox padding and Label/Pressable OS gesture delivery fail. SafeArea runtime case pending."
+      "reason": "Updated guest source renders with id safe despite Android escape id override; Windows insets are zero. Fixed source runtime checked; remaining layout/style integration checks in progress."
     },
     {
       "name": "KeyboardAvoiding",
@@ -1925,9 +1925,9 @@
         "Heading.tsrx",
         "Heading.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "BottomSheet",
@@ -2003,9 +2003,9 @@
         "Blockquote.tsrx",
         "Blockquote.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "Code",
@@ -2016,9 +2016,9 @@
         "Code.tsrx",
         "Code.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
+      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
     },
     {
       "name": "CodeBlock",

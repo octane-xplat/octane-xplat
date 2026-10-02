@@ -155,16 +155,23 @@ logs provide the layout tree instead. No debugger port was observed.
 ### Foundation input and padding issues
 
 OS mouse down/up on a raw native Button logs its tap callback. The same input
-on a raw Label and on Pressable leaves their counters at zero. The automation
+on Pressable initially left its counters at zero. Repeated foreground clicks
+increment the raw Label tap counter and Pressable press-down counter, while
+Pressable onPress remains zero (two downs, zero presses). The automation
 records matching foreground/window handles and live element bounds. This is
-real OS input evidence for the Button, and a reproducible failure for the other
-two controls; it does not establish that all Windows input fails.
+real OS input evidence for Button and Label, and a reproducible conflict between
+Pressable gesture handlers; it does not establish that all Windows input fails.
 
 Runtime inspection shows the Label tap observer and both Pressable tap/touch
 observers use `_usingAddHandler: false`. NativeScript falls back to assigning
 PointerPressed/PointerReleased properties when routed-event registration fails.
 Pressable adds two observers, so that fallback also risks overwriting handlers.
-The registration failure is being isolated before selecting a fix.
+A direct AddHandler probe reports `No such interface supported (HRESULT
+0x80004002)` even though the routed-event static and method exist. Direct
+PointerPressed/PointerReleased property handlers attached after load receive
+OS input. The initial diagnosis of all Label input failing was too broad.
+One later diagnostic traversal also had an out-of-scope loop variable and
+stopped early; its reattachment code did not run and is not verification.
 
 View's computed paddingTop/paddingLeft are both 16, but children start at its
 edge and retain its full 584 DIP width. The pinned core's C++ FlexboxLayout IDL
@@ -172,3 +179,51 @@ has no Padding property; MeasureOverride and ArrangeOverride use the full panel
 space. This is a runtime-confirmed upstream layout gap, not a TSRX style
 assignment failure. Stack gap and Grid auto-placement work in this case.
 
+### Native SVG seam
+
+A raw Windows probe wrote inline SVG through DataWriter into an
+InMemoryRandomAccessStream, sought back to zero, and created SvgImageSource on
+the UI thread. Assigning it to the native Image Source and calling
+SetSourceAsync produced the native `Opened` event. The app continued processing
+timers; this was not a stalled UI-thread callback. No screenshot/pixel claim is
+made. This establishes a candidate native SVG path without a new dependency.
+
+`NSWinRT.toPromise` did not resolve the SvgImageSource load-status operation,
+and reading that operation's Status returned undefined. Stream WriteAsync did
+resolve. The prototype uses Opened/OpenFailed rather than waiting on the enum
+result. [WinUI's API](https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.media.imaging.svgimagesource.setsourceasync?view=windows-app-sdk-1.6)
+supports this stream-loading approach. Component integration, source changes,
+URI sources, disposal, and failure handling remain to be tested.
+
+The initial foundation case intentionally isolated explicit styles and did not
+import the library's theme CSS. Its explicit padding/gap observations remain
+valid, but it cannot establish normalization-class parity. Subsequent component
+cases import tokens.css and chrome.css through xplatNative.
+
+## Layout and text sweep
+
+The CSS-enabled batch cycles Center, Section, AspectRatio, VisuallyHidden,
+Absolute, Spacer, StackItem, SafeArea, RichText/RichTextSpan, Heading,
+Blockquote, and Code in the live Windows host. Compilation and the cycle's
+state updates pass. Native tree evidence so far:
+
+- Spacer divides a 200 DIP row into 40 + 120 + 40. StackItem divides its
+  200 DIP row into a fixed 40 and filling 160.
+- AspectRatio with ratio 2 and width 200 remains height 19 instead of 100.
+  Its measurement hook requires getLocationOnScreen as well as size; the
+  Windows View source does not implement that location API. Diagnosis is
+  source plus runtime failure, rather than a missing layoutChanged assumption.
+- RichText concatenates two spans into the expected native Label text. Span
+  font weight and link input still need checks.
+- VisuallyHidden initially measures 300 × 19. Its rules were inside a
+  web-only block. A shared CSS rule for width/height 1 and opacity 0 restores
+  the measured box to 1 × 1 on Windows. Accessibility retention is pending.
+- SafeArea's first sweep used the guest's older source and reproduced Android
+  escape leakage. After copying the committed fix, the id remains `safe`
+  despite the Android escape bag; inset padding is zero as expected on Windows.
+- Section padding remains ineffective. Heading gets a taller native label.
+  Blockquote omits its string body while retaining its citation, and Code has
+  an unexpectedly small 6 DIP height. Both require isolated follow-up before
+  declaring typography usable.
+
+These are bounded runtime cases, not full normalization or accessibility passes.
