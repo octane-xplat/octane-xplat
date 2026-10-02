@@ -1171,10 +1171,11 @@ export function Example() {
 ```
 
 On native, layer content is a separate root: it does not see the declaring
-component's context, and on macOS the content is snapshotted when the popup
-opens. Pass data through props or subscribe to shared state inside the layer
-tree. `Popover`, `Tooltip`, and `HoverCard` do not yet sit on `useLayer` —
-converging them is follow-up work.
+component's context. Calling `render` with updated content refreshes an open
+layer, including on macOS. Pass data through props or subscribe to shared
+state inside the layer tree. Web `Tooltip` uses `useLayer`; `Popover` remains
+the positioning surface underneath the web and mobile hook, and `HoverCard`
+still uses that surface directly.
 
 ```tsx
 import { Text, useLayer } from '@octane-xplat/ui'

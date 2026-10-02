@@ -25,13 +25,26 @@ function LayerPanel(props: { body?: any; className?: any; style?: any; label?: s
 	</flexboxlayout>
 }
 
+function LayerContentUpdate(props: { popup: { current: any }; body: any; surface?: ContextRenderProps | FixedRenderProps }) @{
+	useEffect(() => {
+		props.popup.current?.update?.({
+			body: props.body,
+			className: props.surface?.className,
+			style: props.surface?.style,
+			label: props.surface?.accessibilityLabel,
+		});
+	}, [props.popup.current, props.body, props.surface]);
+
+	return null;
+}
+
 /**
  * Anchored-layer primitive (Astryx `useLayer`), native-default/macOS leaf.
  * The AppKit host bridge presents the layer as a real anchored `NSPopover`
  * (`showAnchoredPopup`): context mode anchors on the `ref` view, fixed mode
  * anchors at a top-left-origin point via the `at` option. The panel is a separate
- * Octane root, so `render` snapshots its content at open — updates to the
- * declaring tree do not reach an open layer.
+ * Octane root; `render` passes updated content and surface props to that root
+ * while the layer is open. Context from the declaring tree is not shared.
  */
 export function useLayer<O extends LayerOptions>(
 	options: O,
@@ -133,11 +146,13 @@ export function useLayer<O extends LayerOptions>(
 		(children: any, props?: ContextRenderProps | FixedRenderProps) => {
 			content.current = children;
 			renderProps.current = props;
-			// The layer mounts imperatively through the host bridge — nothing
-			// lands in the declaring tree except the fixed-mode marker, which
+			// The layer mounts imperatively through the host bridge. The update
+			// component adds no view; the fixed-mode marker
 			// locates the owning AppKit view for the point anchor.
-			if (!fixed) return null;
-			return <flexboxlayout ref={(v: any) => { markerEl.current = v; }} style={{ width: 0, height: 0 }} />;
+			return <>
+				<LayerContentUpdate popup={popup} body={children} surface={props} />
+				{fixed && <flexboxlayout ref={(v: any) => { markerEl.current = v; }} style={{ width: 0, height: 0 }} />}
+			</>;
 		},
 		[fixed],
 	);

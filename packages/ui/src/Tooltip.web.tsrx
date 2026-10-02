@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'octane';
-import { Popover } from './Popover.web.tsrx';
+import { useLayer } from './use-layer';
 import { View } from './View.web.tsrx';
 import type { TooltipProps } from './props';
 import { cx } from './cx';
-
-let nextTooltipId = 0;
 
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]';
 
@@ -17,7 +15,7 @@ type Binding = {
 };
 
 /**
- * Delayed hover-intent tooltip anchored through Popover. `focusin`/`focusout`
+ * Delayed hover-intent tooltip anchored through useLayer. `focusin`/`focusout`
  * bubble, so keyboard focus on a focusable child opens it without forcing a
  * tab stop on the wrapper; while open the resolved focusable element gets
  * `aria-describedby` pointing at the `role="tooltip"` panel. Escape, blur,
@@ -32,8 +30,13 @@ export function Tooltip(props: TooltipProps) @{
 	const anchor = useRef<HTMLElement | null>(null);
 	const binding = useRef<Binding | null>(null);
 	const described = useRef<HTMLElement | null>(null);
-	const tooltipId = useRef<string>('');
-	if (!tooltipId.current) tooltipId.current = `vx-tooltip-${++nextTooltipId}`;
+	const layer = useLayer({ mode: 'context' });
+	const tooltipId = layer.id;
+	useEffect(() => {
+		if (open) layer.show();
+		else layer.hide();
+	}, [open, layer.show, layer.hide]);
+
 	const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -80,6 +83,7 @@ export function Tooltip(props: TooltipProps) @{
 
 	const bindAnchor = (node: HTMLElement | null) => {
 		anchor.current = node;
+		layer.ref(node);
 		if (binding.current?.node === node) return;
 		const old = binding.current;
 		if (old) {
@@ -123,7 +127,7 @@ export function Tooltip(props: TooltipProps) @{
 		const host = anchor.current;
 		const target = (host?.matches?.(FOCUSABLE) ? host : host?.querySelector?.(FOCUSABLE) ?? host) as HTMLElement | null;
 		if (target) {
-			target.setAttribute('aria-describedby', tooltipId.current);
+			target.setAttribute('aria-describedby', tooltipId);
 			described.current = target;
 		}
 
@@ -141,16 +145,13 @@ export function Tooltip(props: TooltipProps) @{
 
 	<View id={props.id} className={props.className} style={props.style} ref={bindAnchor} web={props.web}>
 		{props.trigger}
-		<Popover
-			open={open}
-			anchor={anchor}
-			placement={props.placement ?? 'top'}
-			dismissOnOutsideTap={false}
-			className={cx('vx-tooltip', props.contentClassName)}
-			style={{ pointerEvents: 'none', ...props.contentStyle }}
-			web={{ role: 'tooltip', id: tooltipId.current }}
-		>
-			{props.content}
-		</Popover>
+		{layer.render(props.content, {
+			placement: props.placement ?? 'top',
+			alignment: 'start',
+			offset: 8,
+			className: cx('vx-tooltip', props.contentClassName),
+			style: { pointerEvents: 'none', ...props.contentStyle },
+			accessibilityRole: 'tooltip',
+		})}
 	</View>
 }
