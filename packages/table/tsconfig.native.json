@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "@nativescript-community/octane",
+		"moduleSuffixes": [".ios", ".mobile", ""],
+		"customConditions": ["native"],
+		"lib": ["ESNext"]
+	},
+	"include": ["src/index.ts"],
+	"exclude": ["**/*.test.*"]
+}

@@ -61,7 +61,8 @@
 		"typegen": "tsc -p tsconfig.types.json",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"pack:check": "tsrx-typegen --pack-check"
+		"pack:check": "tsrx-typegen --pack-check",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.web.json && tsrx-tsc --noEmit -p tsconfig.native.json"
 	},
 	"dependencies": {
 		"@tanstack/table-core": "9.2.4"

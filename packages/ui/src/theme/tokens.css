@@ -3818,3 +3818,31 @@ a.vx-topnav-item:hover:not([aria-disabled="true"]) {
 	display: block;
 }
 /* xplat-web-only:end */
+/* DataGrid controls share their layout across platform leaves. */
+.vx-datagrid-controls,
+.vx-datagrid-handles {
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: wrap;
+}
+.vx-datagrid-action,
+.vx-datagrid-handle {
+	padding: 6px 8px;
+}
+.vx-datagrid-settings {
+	padding: 8px;
+}
+.vx-datagrid-selection {
+	width: 44px;
+	flex-grow: 0;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+}
+.vx-datagrid-row-action {
+	flex-direction: row;
+	flex-grow: 1;
+}
+.vx-datagrid-body {
+	min-height: 0;
+}

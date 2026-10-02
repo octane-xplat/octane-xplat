@@ -107,6 +107,46 @@ V1 completion should mean maintained examples plus behavior coverage on web, iOS
 
 This audit changes no public behavior, setup, or supported workflow, so no recipe criteria or Silo recipe coverage require changes. The phased implementation would need its own recipe/example reconciliation and `pnpm check:recipes`; that is future work, not completed parity.
 
+## Implementation follow-through
+
+The later implementation request authorized the following plan on top of this
+source audit. The preceding sections preserve the audited baseline.
+
+| Step                                | Concrete work and acceptance                                                                                                                                                         | Status                                                                                                          |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 1 — expose existing state ownership | DataGrid `options` forwards core callbacks/atoms and manual server options; explicit props win. Correct outdated UI imports/type exports and add web/native source typechecks.       | Implemented; controlled sorting callback component test.                                                        |
+| 2 — v1 controls                     | `GridControls.tsrx`, `GridPagination`, and DataGrid checkboxes expose text filtering, page/size controls, page-scoped eligible selection, count/clear, and caller bulk actions.      | Implemented; component coverage plus real-host fixture.                                                         |
+| 3 — column management               | Columns panel controls visibility/order/reset, honors `enableHiding:false`, and uses touch/keyboard move buttons.                                                                    | Implemented; reset restores initial visibility/order/sizing.                                                    |
+| 4 — resize/reorder                  | `ColumnDrag.tsrx` uses shared pan events, live column sizes, bounds, cancellation rollback, release-only order commits, and +/- alternatives; `direction` controls gesture sign.     | Implemented without adopting the browser-only table-core resize listener feature.                               |
+| 5 — bounded header ownership        | Header stays outside `VirtualList` body with `flexShrink=0`; grid/body expose stable IDs.                                                                                            | Existing structure retained and strengthened; outer-page sticky positioning and frozen columns remain deferred. |
+| 6 — evidence and documentation      | Maintained `packages/table/examples/interactive.tsrx`, control regression tests, leaf README, and `interactive-data-grid` recipe; coverage/verification recorded separately in Silo. | Verification results below; no publishing.                                                                      |
+
+Native and web source typechecks, web/native package builds, packed-consumer
+Bundler/NodeNext checks, and 16 tests pass. Shared CSS validation has zero
+unsupported properties. Repository TSRX lint has unrelated existing failures;
+changed leaf files are checked separately.
+
+Runtime evidence is handler dispatch, not OS input or accessibility testing.
+Web currently reaches all 15 interaction assertions but the runner reports a
+VirtualList ResizeObserver delivery error, leaving the overall probe **failed**.
+AppKit cannot build the fixture because `svg.mobile.ts` reaches its UI barrel
+and trips the platform-boundary guard. Android has no authorized device.
+iOS reaches nine assertions for paging/filtering/selection/settings, then
+times out verifying header resizing: both the grid and header measurements
+return the host frame (402 × 874), even with a registered native root. Native
+resize/reorder geometry remains unverified. Both web and iOS overall runs
+are **failed**, not clean runtime passes. Final run IDs: web
+`122851f4-dfb0-437e-a36a-442c771c6aab`; iOS
+`b3dfcaac-356c-4ffb-bc31-9162f7be3af4`.
+
+Remaining work follows the original priorities: complete native indeterminate
+selection/accessibility semantics and virtual row ordinals; then grouped/tree/
+detail presentations, richer filter types and multi-sort controls, horizontal
+scroll/pinned-column layout, per-column resize policies, and desktop splitter
+keyboard semantics. The stock resize buttons offer an accessible alternative
+but do not reproduce Astryx's WAI-ARIA splitter protocol or neighboring
+proportional-column preservation. No cell-editing system is introduced.
+
 [exports]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/package.json
 [index]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/Table/index.ts
 [spec]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/Table/Table.spec.md

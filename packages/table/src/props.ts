@@ -68,8 +68,14 @@ export interface DataGridProps<
 	columns: ColumnDef<TFeatures, TData, any>[]
 	/** Feature overrides merged onto the defaults (see `dataGridFeatures`). */
 	features?: Partial<TableFeatures>
-	/** Partial controlled state — pair with `atoms` or subscribe to
-	 *  `table.atoms.<slice>` / `table.store` for change notifications. */
+	/** Core options (atoms, change callbacks, manual row models, selection
+	 * predicates). Data/columns and the explicit props below take precedence. */
+	options?: Omit<
+		DataGridOptions<TFeatures, TData>,
+		'data' | 'columns' | 'features' | 'state' | 'initialState' | 'getRowId'
+	>
+	/** Partial controlled state. Pair with options.atoms or per-slice
+	 * options callbacks; a state snapshot alone is read-only. */
 	state?: Partial<TableState<TFeatures>>
 	initialState?: Partial<TableState<TFeatures>>
 	getRowId?: (row: TData, index: number) => string
@@ -82,6 +88,33 @@ export interface DataGridProps<
 	/** Row tap — marks rows pressable. */
 	onRowPress?: (row: Row<TFeatures, TData>) => void
 	renderEmpty?: () => any
+	/** Show a text query across globally filterable columns. */
+	showGlobalFilter?: boolean
+	/** Show text filters beneath filterable leaf-column headings. */
+	showColumnFilters?: boolean
+	/** Show previous/next and page-size controls. Client-side by default;
+	 * use options.manualPagination with pageCount/rowCount for server data. */
+	showPagination?: boolean
+	/** Positive integer page sizes offered by the pager. Defaults to [10, 25, 50]. */
+	pageSizeOptions?: readonly number[]
+	/** Show row checkboxes and a current-page select-all checkbox. Selection
+	 * survives filtering/pagination by ID; provide getRowId for mutable data. */
+	showRowSelection?: boolean
+	/** Optional label for each selection checkbox. */
+	getRowLabel?: (row: Row<TFeatures, TData>) => string
+	/** Show a column visibility/order panel, reset to initial state, and
+	 * keyboard/touch move buttons. Non-hideable columns stay visible. */
+	showColumnSettings?: boolean
+	/** Fixed-width columns with pan resize handles and accessible +/- actions.
+	 * Widths use column minSize/maxSize; cancellation restores prior state. */
+	resizableColumns?: boolean
+	/** Separate pan handles reorder leaf columns on release. Cancel preserves
+	 * order; settings move buttons provide a non-drag alternative. */
+	reorderableColumns?: boolean
+	/** Horizontal gesture direction. Defaults to ltr; use rtl for mirrored layouts. */
+	direction?: 'ltr' | 'rtl'
+	/** Caller-owned bulk actions; selected IDs include off-page selections. */
+	renderSelectionActions?: (table: Table<TFeatures, TData>) => any
 	/** Platform escape bags — applied after shared props on the root view. */
 	ios?: Record<string, any>
 	android?: Record<string, any>
