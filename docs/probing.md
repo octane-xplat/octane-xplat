@@ -55,7 +55,7 @@ export async function run(ctx: ProbeContext) {
 ```
 
 Adjust that relative type import for the case's location. The context offers
-`mount(Component, props)`, `find(id)`, `press(id)`, `setText(id, text)`,
+`mount(Component, props)`, `find(id)`, `press(id)`, `scrub(id, points)`, `setText(id, text)`,
 `waitFor(predicate, { timeout, interval }?)`, `inspect(id)`, `assert(name, actual, expected)`,
 `record(name, value)`, and `onCleanup(fn)`. Assertions compare with `Object.is`;
 recorded values must be JSON serializable. A script has no component signal owner;
@@ -70,6 +70,18 @@ and units belong to the actual host; they are not a cross-platform pixel
 comparison. `press` dispatches the DOM click or native action/gesture handler.
 Results label that mechanism. A passing handler probe does not prove OS input,
 hit-testing, keyboard behavior, or accessibility navigation.
+
+On iOS and Android, `scrub` dispatches touch observers with a `down` at the
+first point, a `move` at each later point, and an `up` at the last point.
+Coordinates are relative to the view in NativeScript layout units. For example:
+
+```ts
+await ctx.scrub('chart', [{ x: 20, y: 40 }, { x: 80, y: 40 }])
+```
+
+The view must be loaded and have a touch observer. Empty paths and non-finite
+coordinates fail the case. Other targets reject `scrub`. Like `press`, this
+exercises handlers; it does not send OS input or test hit-testing.
 
 ## Iterate without harness edits
 
@@ -114,7 +126,10 @@ measurements, errors, and status. Exit 0 means every requested result passed;
 exit 1 includes failure or unavailable targets; interruption exits 130.
 
 A thrown assertion, runtime error, cleanup failure, timeout, closed host, or
-missing completion cannot count as a pass. `--timeout` bounds case execution
+missing completion cannot count as a pass. Web host errors with the exact message
+`ResizeObserver loop completed with undelivered notifications.` are recorded
+with `fatal: false` and do not fail an otherwise passing case. Other errors and
+thrown case or cleanup failures remain fatal. `--timeout` bounds case execution
 (default 10 seconds); `--startup-timeout` bounds waiting for completion including
 startup (default 10 minutes). Use `--verbose` for build/host diagnostics. Report
 which targets actually ran, and keep build-only or unavailable evidence separate

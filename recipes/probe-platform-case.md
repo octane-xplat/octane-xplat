@@ -2,7 +2,7 @@
 
 ID: probe-platform-case
 Targets: web, ios, android, macos, linux
-Related APIs: pnpm probe, ProbeContext, --watch, --fresh-process, --deps, --resources
+Related APIs: pnpm probe, ProbeContext, scrub, --watch, --fresh-process, --deps, --resources
 
 ## Starting point
 
@@ -17,7 +17,7 @@ platform evidence without changing the kitchen-sink harness.
 ## Acceptance criteria
 
 - AC1: Discover prerequisites and select a supported target/device; unavailable targets cannot pass.
-- AC2: Run maintained script and component cases with assertions and actual host inspection.
+- AC2: Run maintained script and component cases with assertions and actual host inspection, including coordinate-bearing touch sequences on iOS/Android.
 - AC3: Rerun edited cases with a fresh component root and optionally a fresh process.
 - AC4: Isolate generated entries, build artifacts, app identities, and owned session cleanup from other work.
 - AC5: Supply installed extra dependencies and native resources, and understand build invalidation and custom integration limits.
@@ -27,7 +27,7 @@ platform evidence without changing the kitchen-sink harness.
 
 - AC1: [Run a maintained case](../docs/probing.md#run-a-maintained-case) and
   [Android host recipe](../.agents/docs/android-lab.md#working-recipe).
-- AC2: [Write a case](../docs/probing.md#write-a-case), [script](../examples/probes/signals.ts), and [counter](../examples/probes/counter.tsrx).
+- AC2: [Write a case](../docs/probing.md#write-a-case), [script](../examples/probes/signals.ts), [counter](../examples/probes/counter.tsrx), and [native touch sequence](../examples/probes/touch.mobile.tsrx).
 - AC3: [Iterate without harness edits](../docs/probing.md#iterate-without-harness-edits).
 - AC4: [Iterate without harness edits](../docs/probing.md#iterate-without-harness-edits).
 - AC5: [Iterate without harness edits](../docs/probing.md#iterate-without-harness-edits).

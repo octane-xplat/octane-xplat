@@ -1,3 +1,5 @@
+import { isNonFatalError } from './errors.mjs'
+
 export const marker = '[xplat-probe] '
 
 const describe = (error) => ({
@@ -19,8 +21,10 @@ export async function executeCase(
 	let active = true
 	let cancelled = false
 	let timer
-	const reportError = (error) => {
-		errors.push(describe(error))
+	const reportError = (error, fatal) => {
+		const entry = describe(error)
+		entry.fatal = fatal ?? !isNonFatalError(entry, options.target)
+		errors.push(entry)
 	}
 
 	const originalError = console.error
@@ -50,6 +54,13 @@ export async function executeCase(
 		mount: guard((Component, props = {}) => adapter.mount(Component, props)),
 		find: guard((id) => adapter.find(id)),
 		press: guard((id) => adapter.press(id)),
+		scrub: guard((id, points) => {
+			if (!adapter.scrub) {
+				throw new Error('Probe scrub is only supported on iOS and Android')
+			}
+
+			return adapter.scrub(id, points)
+		}),
 		setText: guard((id, value) => adapter.setText(id, value)),
 		inspect: guard((id) => adapter.inspect(id)),
 		assert(name, actual, expected = true) {
@@ -118,7 +129,7 @@ export async function executeCase(
 			}),
 		])
 	} catch (error) {
-		reportError(error)
+		reportError(error, true)
 	} finally {
 		active = false
 		clearTimeout(timer)
@@ -136,7 +147,7 @@ export async function executeCase(
 					clearTimeout(cleanupTimer)
 				}
 			} catch (error) {
-				reportError(error)
+				reportError(error, true)
 			}
 		}
 
@@ -154,7 +165,7 @@ export async function executeCase(
 		target: options.target,
 		host: adapter.identity,
 		interaction: adapter.interaction,
-		status: errors.length ? 'fail' : 'pass',
+		status: errors.some((error) => error.fatal) ? 'fail' : 'pass',
 		durationMs: Date.now() - started,
 		assertions,
 		measurements,

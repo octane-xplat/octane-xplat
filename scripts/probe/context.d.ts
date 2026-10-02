@@ -5,6 +5,8 @@ export interface ProbeContext {
 	mount(Component: any, props?: Record<string, unknown>): Promise<void> | void
 	find(id: string): any | null
 	press(id: string): Promise<void> | void
+	/** iOS/Android touch observer dispatch; coordinates are local NativeScript units. */
+	scrub(id: string, points: readonly { x: number; y: number }[]): Promise<void> | void
 	setText(id: string, value: string): Promise<void> | void
 	inspect(id: string): {
 		text: string

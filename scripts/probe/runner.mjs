@@ -9,6 +9,7 @@ import { appFor, directory, importFrom, prepare, repo, scratchResolver } from '.
 
 import nativeCaseConfig from './native-case.config.mjs'
 import { marker } from './runtime.mjs'
+import { isNonFatalError } from './errors.mjs'
 
 export function validateResult(result, options) {
 	if (
@@ -27,7 +28,10 @@ export function validateResult(result, options) {
 		typeof result.measurements === 'object' &&
 		result.measurements !== null &&
 		(result.status !== 'pass' ||
-			(!result.errors.length && result.assertions.every((assertion) => assertion.pass === true)))
+			(result.errors.every(
+				(error) => error?.fatal === false && isNonFatalError(error, result.target),
+			) &&
+				result.assertions.every((assertion) => assertion.pass === true)))
 	)
 }
 

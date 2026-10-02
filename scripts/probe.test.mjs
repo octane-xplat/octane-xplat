@@ -230,3 +230,114 @@ test('native probe resolves gesturehandler and its pnpm runtime dependency', asy
 		),
 	)
 })
+
+test('only allowlisted web host diagnostics can pass with recorded errors', async () => {
+	const message = 'ResizeObserver loop completed with undelivered notifications.'
+	for (const [target, messages, status] of [
+		['web', [message], 'pass'],
+		['web', [message, 'actual failure'], 'fail'],
+		['web', [message + ' extra'], 'fail'],
+		['ios', [message], 'fail'],
+	]) {
+		let report
+		const result = await execute(
+			{
+				run() {
+					messages.forEach((message) => report(message))
+				},
+			},
+			{
+				...host(),
+				onError(callback) {
+					report = callback
+				},
+			},
+			{ target },
+		)
+
+		assert.equal(result.status, status)
+		assert.equal(result.errors.length, messages.length)
+		assert.equal(validateResult(result, { ...options, target }), true)
+	}
+
+	const thrown = await execute({
+		run() {
+			throw new Error(message)
+		},
+	})
+
+	assert.equal(thrown.status, 'fail')
+	const cleanup = await execute(
+		{ run() {} },
+		host(() => {
+			throw new Error(message)
+		}),
+	)
+
+	assert.equal(cleanup.status, 'fail')
+	assert.equal(validateResult({ ...thrown, status: 'pass' }, options), false)
+})
+
+test('scrub delivers touch actions and local coordinates with observer context', async () => {
+	const { dispatchScrub } = await import('./probe/touch.mjs')
+	const received = []
+	const receiver = {}
+	const view = {
+		id: 'chart',
+		isLoaded: true,
+		getGestureObservers(type) {
+			assert.equal(type, 128)
+			return [
+				{
+					context: receiver,
+					callback(event) {
+						assert.equal(this, receiver)
+						assert.equal(event.object, view)
+						assert.equal(event.eventName, 'touch')
+						assert.equal(event.getPointerCount(), 1)
+						assert.equal(event.getActivePointers()[0].getX(), event.getX())
+						received.push([event.action, event.getX(), event.getY()])
+					},
+				},
+			]
+		},
+	}
+
+	const result = await execute(
+		{
+			run(ctx) {
+				ctx.scrub('chart', [
+					{ x: 10, y: 20 },
+					{ x: 30, y: 40 },
+				])
+			},
+		},
+		{
+			...host(),
+			scrub(id, points) {
+				assert.equal(id, 'chart')
+				dispatchScrub(view, points, 128)
+			},
+		},
+		{ target: 'ios' },
+	)
+
+	assert.equal(result.status, 'pass')
+	assert.deepEqual(received, [
+		['down', 10, 20],
+		['move', 30, 40],
+		['up', 30, 40],
+	])
+
+	assert.throws(() => dispatchScrub(view, [], 128), /nonempty/)
+	assert.throws(() => dispatchScrub(view, [{ x: NaN, y: 0 }], 128), /finite/)
+	assert.throws(() => dispatchScrub({ ...view, isLoaded: false }, [{ x: 0, y: 0 }], 128), /loaded touch/)
+	const unsupported = await execute({
+		run(ctx) {
+			ctx.scrub('chart', [{ x: 0, y: 0 }])
+		},
+	})
+
+	assert.equal(unsupported.status, 'fail')
+	assert.match(unsupported.errors[0].message, /only supported/)
+})

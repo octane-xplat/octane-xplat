@@ -1,6 +1,8 @@
 import { install as installGestureHandler } from '@nativescript-community/gesturehandler'
-import { Application, Frame, Page } from '@nativescript/core'
+import { Application, Frame, GestureTypes, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
+
+import { dispatchScrub } from './touch.mjs'
 
 installGestureHandler()
 
@@ -57,6 +59,9 @@ export function mobileAdapter() {
 			for (const observer of observers) {
 				observer.callback.call(observer.context, { eventName: 'tap', object: view })
 			}
+		},
+		scrub(id, points) {
+			return dispatchScrub(required(id), points, GestureTypes.touch)
 		},
 		setText(id, value) {
 			required(id).text = value
