@@ -64,7 +64,7 @@ index 671479c..42d13e7 100644
 +++ b/runtime/src/lib.rs
 @@ -8550,6 +8550,10 @@ impl Runtime {
          crate::source_protect::init_from_app_root(app_root);
- 
+
          INIT.call_once(|| {
 +            // rusty_v8 does not embed ICU common data. Register its matching,
 +            // statically owned 16-byte-aligned data before any V8/Intl use.
