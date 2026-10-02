@@ -27,6 +27,7 @@ to a file in `docs/` (our commitment) or here (context that informed it).
 | [lynx.md](lynx.md)                         | Lynx (lynxjs.org)  | Same destination by a different road: lowercase element vocabulary → native views, dual-thread React. Thread tax validates JS-on-UI-thread; Snapshot IR confirms Octane's universalPlan ABI.                                              |
 | [expo-ui.md](expo-ui.md)                   | Expo `@expo/ui`    | React props over real SwiftUI/Compose. Same tiered shape as our shared + `ui/{ios,android}` split, opposite parity bet. `Host` boundary props, `modifiers` arrays, OS-glyph icons, and the island-leaf path via `@nativescript/swift-ui`. |
 | [tanstack-start.md](tanstack-start.md)     | TanStack Start     | "Route file = config surface" done thoroughly: `beforeLoad` guards + context, typed loaders→screens, `head`, param schemas, per-route render modes. Server layer not borrowed.                                                            |
+| [charts.md](charts.md)                     | Chart libraries    | SVG-leaning survey for a future `@octane-xplat/charts` leaf. Vega/ECharts/LayerCake/gifted-charts prove headless-core → interchangeable renderers + markup-string output + element-layer labels/tooltips.                                     |
 
 Related but folded into the files above: React Native itself (the API-surface
 lingua franca — see react-native-web.md), Expo Router (One is derived from it —
