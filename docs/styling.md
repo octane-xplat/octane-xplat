@@ -147,6 +147,25 @@ can print the CSS names for a font directory. Keep the token name (`--font-sans`
 stable in shared components; only the registered family value changes per
 target. See the [NativeScript fonts guide](https://beta.docs.nativescript.org/project-structure/src/fonts).
 
+### AppKit fonts
+
+The experimental macOS renderer uses Apple's system font by default, with the
+requested size and weight. `system-ui`, `-apple-system`, and `sans-serif`
+explicitly select it. Missing custom families fall back to the system font;
+applications do not need to ship Geist.
+
+Applications own custom font files and licenses. For app-owned native font
+descriptors, call `registerFontFamily` before rendering and select the family
+with a `fontFamily` style or the root's `fontFamily` option. The registry maps
+CSS weights to native faces; registering a family does not change the default.
+Installed AppKit families can also be selected by name.
+
+The macOS harness's [font setup](../apps/macos/src/fonts.mjs) loads its own
+Geist assets and license, registers weighted descriptors, and explicitly sets
+`fontFamily: 'Geist'` on its roots. Renderer-hosted popups and sheets inherit
+the owning root's default family. Custom assets must also be included in a
+packaged app; the harness embeds its font bytes and license in the host bundle.
+
 ## Keep layouts honest
 
 Flex layouts are the safest common starting point. Prefer `HStack`, `View`, and

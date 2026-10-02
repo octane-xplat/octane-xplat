@@ -1,3 +1,4 @@
+import { harnessFontOptions } from './fonts.mjs'
 import '@nativescript/macos-node-api'
 import * as octaneNative from 'octane/universal/native'
 import * as octaneSignals from 'octane/signals'
@@ -18,7 +19,7 @@ globalThis.__xplatDevModules = {
 
 const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
 const { app, window, contentView, applicationClosed, windowClosed } = appKit
-const root = renderer.createMacOSRoot(contentView)
+const root = renderer.createMacOSRoot(contentView, harnessFontOptions)
 const bench = createDevBench(root, appKit)
 let liveComponent
 let closed = false

@@ -8,6 +8,14 @@ The host exposes a `terminateAfterLastWindowClosed` option. The dev and
 packaged app set it to `true`; `createAppKitWindow` defaults to AppKit's
 keep-running behavior.
 
+## Fonts
+
+The renderer defaults to Apple's system font. This harness explicitly registers
+Geist and selects it on each root to keep its demo typography consistent.
+`src/fonts.mjs` owns the font assets, license, and registration; the packaged
+host embeds the font bytes and license. See [AppKit fonts](../../docs/styling.md#appkit-fonts)
+for application font ownership and fallback behavior.
+
 ## System WebView backend
 
 The macOS target can also run the full shared app through the system WKWebView.

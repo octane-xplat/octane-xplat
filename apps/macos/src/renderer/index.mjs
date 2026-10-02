@@ -1,9 +1,7 @@
 import '@nativescript/macos-node-api'
 import { createUniversalRoot } from 'octane/universal/native'
-import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { resolveFont as fontForFamilyStyle } from './fonts.mjs'
+export { registerFontFamily } from './fonts.mjs'
 
 const actionHandlers = new Map()
 const actionIdsByView = new WeakMap()
@@ -16,113 +14,6 @@ const accessibilityRoles = new Map()
 const scrollHandlers = new WeakMap()
 let nextActionId = 1
 const DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16
-const injectedGeistFontBase64 =
-	typeof __XPLAT_GEIST_FONT_BASE64__ === 'string' ? __XPLAT_GEIST_FONT_BASE64__ : null
-
-const injectedGeistLicense =
-	typeof __XPLAT_GEIST_FONT_LICENSE__ === 'string' ? __XPLAT_GEIST_FONT_LICENSE__ : null
-
-let geistLicenseText
-const geistFontDescriptors = new Map()
-const GEIST_WEIGHT_ALIASES = new Map([
-	['thin', 100],
-	['extralight', 200],
-	['light', 300],
-	['normal', 400],
-	['regular', 400],
-	['medium', 500],
-	['semibold', 600],
-	['bold', 700],
-	['extrabold', 800],
-	['black', 900],
-])
-
-const GEIST_WEIGHT_FACES = [
-	[100, 'Geist-Thin'],
-	[200, 'Geist-ExtraLight'],
-	[300, 'Geist-Light'],
-	[400, 'Geist-Regular'],
-	[500, 'Geist-Medium'],
-	[600, 'Geist-SemiBold'],
-	[700, 'Geist-Bold'],
-	[800, 'Geist-ExtraBold'],
-	[Infinity, 'Geist-Black'],
-]
-
-function sourceFontPath(filename) {
-	const candidates = [
-		resolve(process.cwd(), 'packages/app/src/assets/fonts', filename),
-		resolve(process.cwd(), '../../packages/app/src/assets/fonts', filename),
-	]
-
-	return candidates.find(existsSync)
-}
-
-function loadBundledGeistFonts() {
-	const fontBytes = injectedGeistFontBase64
-		? Buffer.from(injectedGeistFontBase64, 'base64')
-		: (() => {
-				const path = sourceFontPath('Geist-Variable.ttf')
-				return path ? readFileSync(path) : null
-			})()
-
-	if (!fontBytes) {
-		throw new Error('Could not find the bundled Geist font asset')
-	}
-
-	const licenseText =
-		injectedGeistLicense ??
-		(() => {
-			const path = sourceFontPath('OFL.txt')
-			if (!path) {
-				throw new Error('Could not find the Geist font license')
-			}
-
-			return readFileSync(path, 'utf8')
-		})()
-
-	geistLicenseText = licenseText
-	const digest = createHash('sha256').update(fontBytes).digest('hex')
-	const fontDirectory = join(homedir(), 'Library', 'Caches', 'octane-xplat', 'macos', 'fonts')
-	const fontPath = join(fontDirectory, `Geist-Variable-${digest}.ttf`)
-	const licensePath = join(fontDirectory, 'Geist-OFL.txt')
-	mkdirSync(fontDirectory, { recursive: true })
-	if (!existsSync(fontPath)) {
-		writeFileSync(fontPath, fontBytes)
-	}
-
-	if (!existsSync(licensePath)) {
-		writeFileSync(licensePath, licenseText, 'utf8')
-	}
-
-	const descriptors = CTFontManagerCreateFontDescriptorsFromURL(NSURL.fileURLWithPath(fontPath))
-	for (let index = 0; index < Number(descriptors?.count ?? 0); index++) {
-		const descriptor = descriptors.objectAtIndex(index)
-		const postScriptName = String(descriptor.postscriptName ?? '')
-		const descriptorURL = CTFontDescriptorCopyAttribute(descriptor, kCTFontURLAttribute)
-		if (postScriptName.startsWith('Geist-') && descriptorURL?.path === fontPath) {
-			geistFontDescriptors.set(postScriptName, descriptor)
-		}
-	}
-
-	for (const postScriptName of [
-		'Geist-Thin',
-		'Geist-ExtraLight',
-		'Geist-Light',
-		'Geist-Regular',
-		'Geist-Medium',
-		'Geist-SemiBold',
-		'Geist-Bold',
-		'Geist-ExtraBold',
-		'Geist-Black',
-	]) {
-		if (!geistFontDescriptors.has(postScriptName)) {
-			throw new Error(`Failed to load the bundled ${postScriptName} font face`)
-		}
-	}
-}
-
-loadBundledGeistFonts()
 
 function invokeAction(actionId) {
 	const action = actionHandlers.get(actionId)
@@ -1457,9 +1348,14 @@ function makeNode(container, id, type, props) {
 		parent: null,
 		children: [],
 		container,
+		appliedFontFamily: container.fontFamily,
 		actionId,
 		scrollObserverInstalled: false,
 		text: '',
+	}
+
+	if (['label', 'textfield', 'textview'].includes(type) && view.font) {
+		view.font = fontForFamilyStyle(view.font.pointSize, 400, container.fontFamily)
 	}
 
 	if (type === 'gridlayout') {
@@ -1472,7 +1368,7 @@ function makeNode(container, id, type, props) {
 
 	if (type === 'textview') {
 		const placeholder = makeLabel()
-		placeholder.font = fontForStyle(14)
+		placeholder.font = fontForFamilyStyle(14, 400, node.appliedFontFamily)
 		placeholder.textColor = nativeColor('#666666')
 		placeholder.stringValue = String(props.placeholder ?? '')
 		placeholder.translatesAutoresizingMaskIntoConstraints = false
@@ -1644,34 +1540,7 @@ function syncScheme(node) {
 }
 
 function fontForStyle(size, weight = 400) {
-	const value = String(weight).toLowerCase()
-	const parsedWeight = GEIST_WEIGHT_ALIASES.get(value) ?? Number(value)
-	const numericWeight = Number.isFinite(parsedWeight) ? parsedWeight : 400
-	const geistName = GEIST_WEIGHT_FACES.find(([maxWeight]) => numericWeight <= maxWeight)[1]
-	const geistFont = NSFont.fontWithDescriptorSize(geistFontDescriptors.get(geistName), Number(size))
-	if (!geistFont || String(geistFont.fontName) !== geistName) {
-		throw new Error(`Failed to create the bundled ${geistName} font face`)
-	}
-
-	return geistFont
-}
-
-function fontForFamilyStyle(size, weight = 400, family) {
-	const firstFamily = String(family ?? '')
-		.split(',')[0]
-		.trim()
-		.replace(/^['"]|['"]$/g, '')
-
-	if (firstFamily === 'system-ui' || firstFamily === '-apple-system') {
-		const systemFont = NSFont.systemFontOfSize(Number(size))
-		if (!systemFont) {
-			throw new Error('Failed to create the AppKit system font face')
-		}
-
-		return systemFont
-	}
-
-	return fontForStyle(size, weight)
+	return fontForFamilyStyle(size, weight)
 }
 
 function setSizeConstraint(node, name, value) {
@@ -2052,7 +1921,7 @@ function applyClassName(node, value) {
 
 	if (node.type === 'textfield' || node.type === 'textview') {
 		if (classes.includes('vx-input') || classes.includes('vx-textarea')) {
-			node.view.font = fontForStyle(14, node.appliedFontWeight ?? 400)
+			node.view.font = fontForFamilyStyle(14, node.appliedFontWeight ?? 400, node.appliedFontFamily)
 			node.colorSlot = 'text'
 			node.view.drawsBackground = false
 			if (node.type === 'textfield') {
@@ -2362,7 +2231,11 @@ function applyProps(node, props) {
 				if (name === 'text') {
 					setLabelText(node, String(value ?? ''))
 				} else if (name === 'fontSize') {
-					node.view.font = fontForStyle(Number(value ?? 16), node.appliedFontWeight ?? 400)
+					node.view.font = fontForFamilyStyle(
+						Number(value ?? 16),
+						node.appliedFontWeight ?? 400,
+						node.appliedFontFamily,
+					)
 				} else if (name === 'style') {
 					applyStyle(node, value)
 					syncText(node)
@@ -3439,7 +3312,7 @@ function showAnchoredPopup(options) {
 		size: { width: 1, height: 1 },
 	})
 
-	const root = createMacOSRoot(contentView)
+	const root = createMacOSRoot(contentView, { fontFamily: fontFamilyForView(anchor) })
 	const popup = {
 		popover: null,
 		contentView,
@@ -3838,7 +3711,7 @@ function presentSheet(view, options) {
 		size: { width: 480, height: 1 },
 	})
 
-	const root = createMacOSRoot(contentView)
+	const root = createMacOSRoot(contentView, { fontFamily: fontFamilyForView(view) })
 	const entry = {
 		root,
 		parentWindow,
@@ -3938,8 +3811,21 @@ appKitBridge.attachContextMenu = attachContextMenu
 appKitBridge.attachDatePicker = attachDatePicker
 appKitBridge.presentSheet = presentSheet
 
-export function createMacOSRoot(hostView) {
-	const container = { hostView, nodes: new Map(), children: [], root: null }
+const rootFontFamilies = new WeakMap()
+
+function fontFamilyForView(view) {
+	for (let current = view; current; current = current.superview) {
+		if (rootFontFamilies.has(current)) {
+			return rootFontFamilies.get(current)
+		}
+	}
+
+	return undefined
+}
+
+export function createMacOSRoot(hostView, { fontFamily } = {}) {
+	rootFontFamilies.set(hostView, fontFamily)
+	const container = { hostView, fontFamily, nodes: new Map(), children: [], root: null }
 	const root = createUniversalRoot(container, macOSDriver, {
 		scheduleMicrotask: (callback) => queueMicrotask(callback),
 		onUncaughtError: (error) =>
@@ -3958,7 +3844,6 @@ export function createMacOSRoot(hostView) {
 	container.root = root
 	if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
 		const debug = {
-			fontLicenses: { Geist: geistLicenseText },
 			findId(id) {
 				return [...container.nodes.values()].find((node) => node.props.id === id)?.view ?? null
 			},

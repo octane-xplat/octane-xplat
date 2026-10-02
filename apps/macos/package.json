@@ -15,6 +15,7 @@
 		"xplat": "xplat",
 		"dev": "node ../../scripts/watch-types.mjs -- pnpm dev:app",
 		"build": "vite build",
+		"test:fonts": "node --test test/fonts.test.mjs && node test/verify-fonts.mjs",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"parity": "node ./scripts/parity.mjs",
 		"bench:virtual-list": "node ./scripts/bench-virtual-list.mjs",

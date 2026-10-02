@@ -1,3 +1,4 @@
+import { harnessFontOptions } from './fonts.mjs'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@xplat/macos/renderer'
 
@@ -680,7 +681,7 @@ export function openWindow(options = {}) {
 			)
 		}
 
-		controller.root = createMacOSRoot(nativeWindow.contentView)
+		controller.root = createMacOSRoot(nativeWindow.contentView, harnessFontOptions)
 		controller.root.render(component, options.props ?? { data: controller.data, controller })
 
 		if (kind === 'dialog') {

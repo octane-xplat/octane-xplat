@@ -1,3 +1,4 @@
+import { harnessFontOptions } from '../../apps/macos/src/fonts.mjs'
 import '@nativescript/macos-node-api'
 import * as native from 'octane/universal/native'
 import * as signals from 'octane/signals'
@@ -35,7 +36,7 @@ function adapter() {
 		interaction: 'appkit-action-dispatch',
 		mount(Component, props) {
 			root?.unmount()
-			root = renderer.createMacOSRoot(appKit.contentView)
+			root = renderer.createMacOSRoot(appKit.contentView, harnessFontOptions)
 			root.render(Component, { ...props, parentWindow: appKit.window })
 			fitWindowToContent(appKit.window)
 		},

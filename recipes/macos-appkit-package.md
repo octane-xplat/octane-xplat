@@ -58,6 +58,11 @@ production Vite config that emits one CommonJS host bundle.
   packaged executable. An unsupported `node:` import or API member fails
   packaging with a diagnostic naming that import or member.
 
+- AC10: AppKit text defaults to Apple's system font with the requested size and
+  weight, without requiring custom font assets. An app can explicitly register
+  and select its own weighted faces, including in a packaged build. The macOS
+  harness opts into Geist rather than changing the renderer default.
+
 ## Documentation
 
 - AC1: [Experimental AppKit target](../docs/toolchain.md#experimental-appkit-target)
@@ -74,3 +79,6 @@ production Vite config that emits one CommonJS host bundle.
 
 - AC9: [macOS native leaf guide](../docs/macos-native.md) and the
   [native source recipe](macos-native-code.md).
+
+- AC10: [AppKit fonts](../docs/styling.md#appkit-fonts) and the
+  [maintained harness font setup](../apps/macos/src/fonts.mjs).

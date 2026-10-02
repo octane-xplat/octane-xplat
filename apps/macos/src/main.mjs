@@ -1,10 +1,11 @@
+import { harnessFontOptions } from './fonts.mjs'
 import { createAppKitWindow, fitWindowToContent } from './appkit.mjs'
 import App from './App.tsx'
 import { createMacOSRoot } from './renderer/index.mjs'
 
 const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
 const { app, window: mainWindow, contentView, applicationClosed, windowClosed } = appKit
-const root = createMacOSRoot(contentView)
+const root = createMacOSRoot(contentView, harnessFontOptions)
 let rootUnmounted = false
 
 function unmountMainRoot() {
