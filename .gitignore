@@ -19,6 +19,7 @@ packages/**/types/generated/
 packages/app/src/styled-system/
 packages/*/types/types.d.ts
 packages/*/types/props.d.ts
+packages/*/types/table.d.ts
 packages/motion/types/clock-types.d.ts
 packages/motion/types/engine.d.ts
 packages/motion/types/value.d.ts

@@ -1356,6 +1356,9 @@ input.vx-search-field::-webkit-search-cancel-button {
 	padding: 16px;
 	align-items: center;
 }
+.vx-table-row--selected {
+	background-color: var(--color-surface-secondary);
+}
 
 /* Timeline — dot + connector rail beside content. */
 .vx-timeline {
@@ -1517,6 +1520,7 @@ input.vx-search-field::-webkit-search-cancel-button {
 		display: flex;
 	}
 	.vx-table-row--pressable,
+	.vx-table-th--sortable,
 	.vx-tree-row,
 	.vx-user--pressable,
 	.vx-banner-dismiss,

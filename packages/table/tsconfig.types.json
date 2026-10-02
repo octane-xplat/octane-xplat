@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmitOnError": true,
+		"outDir": "types",
+		"skipLibCheck": true
+	},
+	"include": ["src/props.ts", "src/table.ts", "types/index.d.ts", "types/index.macos.d.ts"]
+}
