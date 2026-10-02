@@ -38,6 +38,15 @@ Add `.card { padding: 16px; }` and `.card-title { font-size: 20px; }` to
 The title should be larger than ordinary text, with space around it.
 `disabled={true}` dims the whole card.
 
+```css
+.card {
+	padding: 16px;
+}
+.card-title {
+	font-size: 20px;
+}
+```
+
 - `className` is for layout, colors, fonts, borders, and other stable
   choices.
 - `style` is for runtime values such as an animated position or a measured
@@ -50,10 +59,19 @@ Xplat has two stylesheets. `tokens.css` provides layout rules the components
 need; `chrome.css` adds optional default colors, borders, and fonts. “Chrome”
 means that visible decoration. The starter already imports `tokens.css`.
 
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css' // Optional default decoration.
+```
+
 Import `@octane-xplat/ui/theme/tokens.css` in every web and native app. It
 provides shared layout classes and browser normalization inside the low-priority
 `xplat-structure` layer, so component geometry works without imposing a visual
 theme.
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+```
 
 `@octane-xplat/ui/theme/chrome.css` is optional. It adds the package's default
 colors, borders, typography, and control states in `xplat-chrome`, above the
@@ -62,6 +80,12 @@ apps import both. On the web, unlayered app CSS overrides both layers, and app
 layers declared after these imports override the package layers. NativeScript
 does not support cascade layers; the CLI unwraps them and preserves import
 order, so keep app styles after these imports on native too.
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
+import './style.css'
+```
 
 Import stylesheets as JavaScript modules, in this order:
 
@@ -79,6 +103,16 @@ web-only stripping.
 A **token** is a named style value. For example, `--color-surface` can name
 the background color you use on cards. Changing it updates every style that
 uses that name, so you don't have to find and replace the color in each card.
+
+```css
+:root,
+.ns-root {
+	--color-surface: #fffdf5;
+}
+.card {
+	background-color: var(--color-surface);
+}
+```
 
 Add these rules to your app stylesheet. `:root` selects the browser root;
 `.ns-root` selects the NativeScript root. Using both lets the variables apply
@@ -106,11 +140,26 @@ setup. Change `--color-surface` and check the card background on both targets;
 a native card that stays unchanged suggests a missing entry import or root
 selector.
 
+```css
+:root,
+.ns-root {
+	--color-surface: #fffdf5;
+	--color-ink: #222;
+}
+.card {
+	background-color: var(--color-surface);
+	color: var(--color-ink);
+}
+```
+
 ## Use Bamboo CSS utilities
 
 This is optional; you can keep writing ordinary CSS. **Utilities** are small
 classes for individual choices such as padding or text color. Bamboo generates
 those classes from your code.
+
+Install `@octane-xplat/bamboo` and `@bamboocss/dev`, then create
+`bamboo.config.ts`:
 
 [`@octane-xplat/bamboo`](../packages/bamboo/) provides a restricted Bamboo
 preset for shared web/iOS/Android styles. It disables browser preflight, puts
@@ -118,9 +167,6 @@ generated variables under `:root, .ns-root`, and includes only portable
 colors, spacing, radii, flex, sizing, border, and typography utilities by
 default. The full Bamboo browser preset can add CSS that NativeScript does not
 support; extend the preset only after checking the properties on every target.
-
-Install `@octane-xplat/bamboo` and `@bamboocss/dev`, then create
-`bamboo.config.ts`:
 
 ```ts
 import { defineConfig } from '@bamboocss/dev'
@@ -140,11 +186,29 @@ entries. The UI stylesheet declares the shared cascade order and places
 the later `xplat.utilities` layer, so they can override component defaults.
 Unlayered app CSS still takes precedence over both.
 
+```ts
+// vite.config.native.ts
+import { defineConfig } from 'vite'
+import { xplatNative } from '@octane-xplat/cli/vite'
+import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+
+export default defineConfig(({ mode }) =>
+	xplatNative(mode, { extra: { plugins: xplatBamboo({ native: true }) } }),
+)
+```
+
 Bamboo's Vite transform currently supports `.ts`, `.tsx`, `.js`, and `.jsx`;
 keep `css()` calls in a `.ts` module and import the resulting class into `.tsrx`
 until upstream [TSRX support](https://github.com/gajus/bamboocss/pull/125) is
 released. [TSRX](https://tsrx.dev/) is a framework-agnostic TypeScript
 language extension, not an Octane-specific module format.
+
+```ts
+// bamboo-styles.ts; use the generated class in your component.
+import { css } from 'styled-system/css'
+
+export const cardClass = css({ padding: '4', color: 'text' })
+```
 
 The harness configuration and [generated utility probe](../packages/app/src/bamboo-styles.ts)
 show the complete wiring. Native builds still run the xplat CSS checks, but
@@ -230,6 +294,21 @@ reported names in `font-family` declarations.
 
 What the command writes, by hand:
 
+```css
+:root {
+	--font-sans: 'Acme Sans', system-ui, sans-serif;
+}
+.ns-ios {
+	--font-sans: 'AcmeSans-Regular', sans-serif;
+}
+.ns-android {
+	--font-sans: 'acme-sans-regular', sans-serif;
+}
+.card-title {
+	font-family: var(--font-sans);
+}
+```
+
 | Target  | Register the font                                                                | Token value                          |
 | ------- | -------------------------------------------------------------------------------- | ------------------------------------ |
 | Web     | `@font-face { font-family: 'Acme Sans'; src: ... }`, or use an installed family  | `'Acme Sans', system-ui, sans-serif` |
@@ -248,6 +327,14 @@ can print the CSS names for a font directory. Keep the token name (`--font-sans`
 stable in shared components; only the registered family value changes per
 target. See the [NativeScript fonts guide](https://docs.nativescript.org/project-structure/src/fonts).
 
+```css
+/* Native stylesheet; the app bundles the matching .ttf file. */
+.ns-ios,
+.ns-android {
+	--font-sans: 'AcmeSans-Regular', 'acme-sans-regular', sans-serif;
+}
+```
+
 ### AppKit fonts
 
 The experimental macOS renderer uses Apple's system font by default, with the
@@ -255,11 +342,28 @@ requested size and weight. `system-ui`, `-apple-system`, and `sans-serif`
 explicitly select it. Missing custom families fall back to the system font;
 applications do not need to ship Geist.
 
+```css
+.card-title {
+	font-family: system-ui;
+	font-size: 20px;
+	font-weight: 700;
+}
+```
+
 Applications own custom font files and licenses. For app-owned native font
 descriptors, call `registerFontFamily` before rendering and select the family
 with a `fontFamily` style or the root's `fontFamily` option. The registry maps
 CSS weights to native faces; registering a family does not change the default.
 Installed AppKit families can also be selected by name.
+
+```ts
+// AppKit host bootstrap; regularDescriptor comes from your loaded font asset.
+import { registerFontFamily } from '@octane-xplat/macos-renderer'
+
+export function registerAppFont(regularDescriptor: NSFontDescriptor) {
+	registerFontFamily('Acme Sans', [{ weight: 400, descriptor: regularDescriptor }])
+}
+```
 
 The macOS harness's [font setup](../apps/macos/src/fonts.mjs) loads its own
 Geist assets and license, registers weighted descriptors, and explicitly sets
@@ -267,11 +371,30 @@ Geist assets and license, registers weighted descriptors, and explicitly sets
 the owning root's default family. Custom assets must also be included in a
 packaged app; the harness embeds its font bytes and license in the host bundle.
 
+```css
+.card-title {
+	font-family: 'Geist';
+}
+```
+
 ## Check layouts at different sizes
 
 Flex layouts are the safest common starting point. Prefer `HStack`, `View`, and
 spacing classes over target-specific positioning. Check a screen at a narrow
 browser width and on a native device before adding a platform split.
+
+```tsx
+import { HStack, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<HStack gap={2}>
+			<Text>Bag</Text>
+			<Text>Ready</Text>
+		</HStack>
+	)
+}
+```
 
 ## Wrap text on native
 
@@ -281,6 +404,20 @@ multiple lines. It rejects the web value `pre-wrap`. If web also needs
 use `pre-wrap` on web and `wrap` on native. Native `wrap` enables line
 wrapping, but does not preserve repeated spaces and newlines like web
 `pre-wrap`.
+
+```css
+/* style.mobile.css */
+.note {
+	white-space: wrap;
+}
+```
+
+```css
+/* style.web.css */
+.note {
+	white-space: pre-wrap;
+}
+```
 
 ## Tailwind and native
 

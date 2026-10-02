@@ -16,6 +16,19 @@ without choosing a browser or phone implementation itself.
 Check [target support](spec.md#choose-your-targets) when adding a platform:
 shared names do not mean every feature is available everywhere.
 
+```tsx
+import { share } from '@octane-xplat/share'
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Pressable onPress={() => share({ text: 'Packing list' })}>
+			<Text>Share list</Text>
+		</Pressable>
+	)
+}
+```
+
 ## The three layers
 
 You will usually work with these pieces:
@@ -30,6 +43,21 @@ A **component** is a reusable piece of a screen. A **service** provides an
 action or data without drawing a screen, such as saving a setting.
 You import common components from `@octane-xplat/ui`; device services come
 from `@octane-xplat/platform` or the [package for that feature](platform-services.md).
+
+```tsx
+import { View, Text, Pressable } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<View>
+			<Text>Packing list</Text>
+			<Pressable onPress={() => console.log('Add item')}>
+				<Text>Add item</Text>
+			</Pressable>
+		</View>
+	)
+}
+```
 
 Octane turns components into UI. NativeScript connects them to native views
 and APIs on iOS and Android. Most app screens can use Xplat's components
@@ -50,7 +78,6 @@ ShareButton.mobile.tsrx   implementation shared by iOS and Android
 The screen keeps one import:
 
 ```ts
-import { ShareButton } from './ShareButton'
 ```
 
 The build selects the right file. Each version should accept the same
@@ -63,6 +90,20 @@ A wrapper is a component that surrounds other screen content. Sometimes
 its extra behavior is needed only on phones. `KeyboardAvoiding`, for
 example, makes room for the software keyboard on iOS and Android. On web
 and desktop it keeps the same column layout without that adjustment.
+
+```tsx
+import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	return (
+		<KeyboardAvoiding>
+			<TextInput label="Name" value={name} onChange={setName} />
+		</KeyboardAvoiding>
+	)
+}
+```
 
 That works because the content is still useful without the adjustment.
 A missing camera preview cannot work the same way: removing the camera
@@ -93,6 +134,14 @@ engines draw that page identically. An iOS `UISwitch` is available through
 `@octane-xplat/ui/ios` and belongs in an iOS file, while the shared `Switch`
 comes from `@octane-xplat/ui`.
 
+```tsx
+import { WebView } from '@octane-xplat/ui'
+
+export function Example() {
+	return <WebView src="https://example.com" />
+}
+```
+
 If you are adding components to the framework, the
 [architecture notes](architecture-notes.md#normalization-classes-how-a-shared-component-gets-classified)
 explain how these labels are assigned and checked.
@@ -119,6 +168,13 @@ updates. For example, a `packedCount$` signal in a shared `.ts` file can be
 read by both a header and a bottom sheet. Both see the same count in that
 running app. This does not sync separate devices.
 
+```ts
+import { signal$ } from 'octane/signals'
+
+// packing-state.ts: import this same signal in each reader.
+export const packedCount$ = signal$(0)
+```
+
 For native reads to update the UI, keep signal names ending in `$` and
 include a runtime import from `octane/signals` in every file that reads
 them. If that file only receives a signal from elsewhere, add
@@ -126,9 +182,33 @@ them. If that file only receives a signal from elsewhere, add
 Reads while drawing a component subscribe to updates; reads in event
 handlers or at file startup do not.
 
+```tsx
+import 'octane/signals'
+import { packedCount$ } from './packing-state'
+import { Text, Pressable } from '@octane-xplat/ui'
+
+export function PackingCount() {
+	return (
+		<Pressable onPress={() => packedCount$.set(packedCount$.get() + 1)}>
+			<Text>Packed: {packedCount$.get()}</Text>
+		</Pressable>
+	)
+}
+```
+
 Plain mutable objects do not subscribe automatically on native. Code using
 an existing store needs `useStore(store)` in each reading component. Prefer
 signals for new shared state.
+
+```tsx
+import { createStore, useStore, Text } from '@octane-xplat/ui'
+
+const count = createStore(0)
+export function Count() {
+	const value = useStore(count)
+	return <Text>{value}</Text>
+}
+```
 
 For server data, use a query and show loading and error content while it
 runs. [Fetching data](data.md) covers queries, sharing, cancellation, and

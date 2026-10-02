@@ -6,11 +6,32 @@ For a short packing list, start with `ScrollableArea` and render every item.
 Use `VirtualList` from `@octane-xplat/ui` when a longer list needs to limit
 how many rows exist at once. This is called **virtualization**.
 
+```tsx
+import { VirtualList, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<VirtualList
+			className="item-viewport"
+			items={[{ id: 'coat', title: 'Coat' }]}
+			keyExtractor={(item) => item.id}
+			renderItem={(item) => <Text>{item.title}</Text>}
+		/>
+	)
+}
+```
+
 Give the list a fixed or otherwise limited visible area (its **viewport**),
 and give each item a stable, unique **key**, such as its saved ID. Keys let
 the list recognize an item after others are added, removed, or reordered.
 The example below is a fragment for a screen that already has an `items`
 array and a container with a limited height.
+
+```css
+.item-viewport {
+	height: 320px;
+}
+```
 
 For the OS's own scrolling lists, see `UITableView` and `RecyclerView` in
 [platform controls](primitives.md#implementation-map). Those use a different
@@ -21,18 +42,51 @@ implementation that recycles native cells.
 ```tsx
 import { VirtualList, Text } from '@octane-xplat/ui'
 
-const keyFor = (item: { id: string; title: string }) => item.id
-const renderRow = (item: { id: string; title: string }) => <Text>{item.title}</Text>
-
-// Inside a component in a bounded column:
-<VirtualList className="flex-1 min-h-0" items={items}
-  keyExtractor={keyFor} renderItem={renderRow} />
+export function Example() {
+	const items = [{ id: 'coat', title: 'Coat' }]
+	const keyFor = (item: (typeof items)[number]) => item.id
+	const renderRow = (item: (typeof items)[number]) => <Text>{item.title}</Text>
+	return (
+		<VirtualList
+			className="item-viewport"
+			items={items}
+			keyExtractor={keyFor}
+			renderItem={renderRow}
+		/>
+	)
+}
 ```
 
 Replace the item array when changing data. Do not use array indices as keys
 for reorderable data. Keys must be unique strings or finite numbers; duplicate
 keys throw. `getItemType` optionally distinguishes templates: changing an
 item's type remounts that row.
+
+```tsx
+import { VirtualList, Text, Pressable } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [items, setItems] = useState([
+		{ id: 'coat', title: 'Coat', kind: 'note' },
+		{ id: 'shoes', title: 'Shoes', kind: 'note' },
+	])
+	return (
+		<>
+			<Pressable onPress={() => setItems([...items].reverse())}>
+				<Text>Reverse order</Text>
+			</Pressable>
+			<VirtualList
+				className="item-viewport"
+				items={items}
+				keyExtractor={(item) => item.id}
+				getItemType={(item) => item.kind}
+				renderItem={(item) => <Text>{item.title}</Text>}
+			/>
+		</>
+	)
+}
+```
 
 When a row moves far enough outside the visible area, its component is
 removed (**unmounted**). When it comes back, a new row component is created.
@@ -45,6 +99,37 @@ unmount off-window; reusing a host never retains another item's local state.
 The pool keeps at most eight unused hosts in total, and releases all hosts on
 emptying or disposal. Other targets retain their existing windowing engines.
 
+```tsx
+import { createStore, useStore, VirtualList, Text, Pressable } from '@octane-xplat/ui'
+
+const selected = createStore<Record<string, boolean>>({})
+const items = [{ id: 'coat', title: 'Coat' }]
+function Row(props: { id: string; title: string }) {
+	const selections = useStore(selected)
+	return (
+		<Pressable
+			onPress={() => selected.set({ ...selected.get(), [props.id]: !selected.get()[props.id] })}
+		>
+			<Text>
+				{selections[props.id] ? 'Packed: ' : ''}
+				{props.title}
+			</Text>
+		</Pressable>
+	)
+}
+const renderRow = (item: (typeof items)[number]) => <Row id={item.id} title={item.title} />
+export function Items() {
+	return (
+		<VirtualList
+			className="item-viewport"
+			items={items}
+			keyExtractor={(item) => item.id}
+			renderItem={renderRow}
+		/>
+	)
+}
+```
+
 ## Preserve the visible position
 
 The engine measures mounted rows and estimates unvisited rows. Prepending data
@@ -55,9 +140,50 @@ Changing width invalidates exact cached sizes and requires new measurements.
 Unmeasured rows may change the estimated total extent, so a raw pixel seek into
 unknown rows is approximate; there is no public indexed-seek handle.
 
+```tsx
+import { VirtualList, Text, Pressable } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [items, setItems] = useState([{ id: 'coat', title: 'Coat' }])
+	return (
+		<>
+			<Pressable onPress={() => setItems([{ id: 'shoes', title: 'Shoes' }, ...items])}>
+				<Text>Prepend shoes</Text>
+			</Pressable>
+			<VirtualList
+				className="item-viewport"
+				items={items}
+				keyExtractor={(item) => item.id}
+				renderItem={(item) => <Text>{item.title}</Text>}
+			/>
+		</>
+	)
+}
+```
+
 See the maintained [interactive example](../packages/demos/src/VirtualList.tsrx)
 for prepend, removal, reverse, resize, empty, restore, and keyed local state.
 Header, footer, separator, and empty content use the corresponding render slots.
+
+```tsx
+import { VirtualList, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<VirtualList
+			className="item-viewport"
+			items={[]}
+			keyExtractor={(item: { id: string }) => item.id}
+			renderItem={(item) => <Text>{item.id}</Text>}
+			renderHeader={() => <Text>Packing list</Text>}
+			renderFooter={() => <Text>End of list</Text>}
+			renderSeparator={() => <Text>—</Text>}
+			renderEmpty={() => <Text>Add your first item</Text>}
+		/>
+	)
+}
+```
 
 On iOS and Android, scroll and row-measurement callbacks queue one window update
 at the next native animation frame. Exact row sizes update the prefix index together; estimates

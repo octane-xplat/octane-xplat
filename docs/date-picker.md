@@ -15,6 +15,22 @@ the same component names and portable values on web, iOS, Android, macOS, and
 Linux. Labels can be supplied directly or by composing a control inside
 `Field`.
 
+```tsx
+import { Field, DateInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | undefined>(
+		'2026-10-02',
+	)
+	return (
+		<Field label="Travel date">
+			<DateInput value={date} onChange={setDate} />
+		</Field>
+	)
+}
+```
+
 ## Portable values
 
 Date fields use strings such as `2026-10-02` (`YYYY-MM-DD`). Time fields use
@@ -25,15 +41,76 @@ receive local-midnight `Date` values. `Calendar` supports single selection or
 inclusive `{ start, end }` ranges. `DateRangeInput` commits the same range
 shape and uses `null` to clear.
 
+```tsx
+import { DateInput, TimeInput, DateTimeInput, Calendar, DateRangeInput } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<>
+			<DateInput label="Date" value="2026-10-02" onChange={(value) => console.log(value)} />
+			<TimeInput label="Time" value="14:30" onChange={(value) => console.log(value)} />
+			<DateTimeInput
+				label="Departure"
+				value="2026-10-02T14:30"
+				onChange={(value) => console.log(value)}
+			/>
+			<Calendar
+				mode="range"
+				value={{ start: '2026-10-02', end: '2026-10-05' }}
+				onChange={(range) => console.log(range)}
+			/>
+			<DateRangeInput label="Trip" value={null} onChange={(range) => console.log(range)} />
+		</>
+	)
+}
+```
+
 Your app supplies `value`, and `onChange` receives the new value when someone
 edits it. Keep that value in app state and send it with the rest of your form
 when submitting. `onChange` gives you the value itself rather than a browser
 event object; these controls do not submit an HTML form automatically.
 
+```tsx
+import { Field, DateInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | undefined>(
+		'2026-10-02',
+	)
+	return (
+		<Field label="Travel date">
+			<DateInput value={date} onChange={setDate} />
+		</Field>
+	)
+}
+```
+
 Use `ref` for the supported handles: `Calendar.navigateTo()`, input focus
 and blur, or `FileInput.open()`. A handle lets your code call those actions.
 If you are adapting React examples, these are not DOM refs or
 `SyntheticEvent` callbacks.
+
+```tsx
+import { useRef } from 'octane'
+import { Calendar, Pressable, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	const calendar = useRef<import('@octane-xplat/ui').CalendarHandle | null>(null)
+	return (
+		<>
+			<Calendar
+				ref={(handle) => {
+					calendar.current = handle
+				}}
+			/>
+			<Pressable onPress={() => calendar.current?.navigateTo('2026-12-01')}>
+				<Text>Show December</Text>
+			</Pressable>
+		</>
+	)
+}
+```
 
 Committed values remain owned by the parent: update `value` in `onChange` to
 accept an edit, or leave it unchanged to reject it. A later reset or correction
@@ -55,6 +132,24 @@ On web, `presentation="native"` uses browser date/time inputs. On iOS and
 Android it uses the framework's portable calendar and time surfaces; the
 shared API does not change into a platform-specific component.
 
+```tsx
+import { DateInput, TimeInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | undefined>(
+		'2026-10-02',
+	)
+	const [time, setTime] = useState<import('@octane-xplat/ui').ISOTimeString | undefined>('14:30')
+	return (
+		<>
+			<DateInput label="Date" presentation="native" value={date} onChange={setDate} />
+			<TimeInput label="Time" presentation="bottom-sheet" value={time} onChange={setTime} />
+		</>
+	)
+}
+```
+
 `FileInput` accepts `isMultiple`, `accept`, `maxSize`, and `maxFiles`. Its
 portable values are `{ name, uri, size?, mimeType? }` references. A browser
 `File` object cannot be shared with native code, so web additionally supplies
@@ -66,6 +161,27 @@ optional `pick` prop can override the default for app-specific sources. The
 AppKit files leaf provides picking; its `readText` and `writeText` methods
 remain unsupported.
 
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+import { useState } from 'octane'
+
+export function Attachments() {
+	const [files, setFiles] = useState<FileInputFile | FileInputFile[] | null>(null)
+	return (
+		<FileInput
+			label="Attachments"
+			value={files}
+			onChange={setFiles}
+			isMultiple
+			accept="image/*"
+			maxSize={5000000}
+			maxFiles={3}
+		/>
+	)
+}
+```
+
 `@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the
 field presentation. Install both packages when using `FileInput`.
 
@@ -75,6 +191,14 @@ field presentation. Install both packages when using `FileInput`.
 need SwiftUI, Material 3, or AppKit picker chrome. The old
 `@octane-xplat/date-picker/web` `DateInput` entry has been removed; use the
 shared `DateInput` from `@octane-xplat/ui` on web and for portable forms.
+
+```tsx
+import { DateInput } from '@octane-xplat/ui'
+
+export function Example() {
+	return <DateInput label="Departure" value="2026-10-02" onChange={(value) => console.log(value)} />
+}
+```
 
 `@octane-xplat/date-picker` is the second Expo UI port. The native
 implementations are adapted from `@expo/ui` sdk-57 (`ios/DatePickerView.swift`,
@@ -113,6 +237,25 @@ bounds, `displayedComponents` (`'date'` and/or `'hourAndMinute'`), a
 `pickerStyle` (`'automatic'`, `'compact'`, `'graphical'`, `'wheel'`), and
 `disabled`.
 
+```tsx
+// TravelDate.ios.tsrx
+import { SwiftUIDatePicker } from '@octane-xplat/date-picker/ios'
+
+const initial = new Date(2026, 9, 2)
+export function TravelDate() {
+	return (
+		<SwiftUIDatePicker
+			title="Travel date"
+			defaultSelection={initial}
+			minimumDate={initial}
+			displayedComponents={['date']}
+			pickerStyle="graphical"
+			onSelectionChange={(date) => console.log(date)}
+		/>
+	)
+}
+```
+
 The Android entry exports `MaterialDatePicker`. It follows the Material 3
 pickers' uncontrolled model: `initialDate` seeds the state and
 `onDateSelected` reports each change (`null` when the selection clears).
@@ -125,19 +268,49 @@ derives the calendar's `yearRange`. `color` tints a subset of elements;
 `elementColors` overrides individual Material 3 color slots as CSS hex
 strings.
 
+```tsx
+// TravelDate.android.tsrx
+import { MaterialDatePicker } from '@octane-xplat/date-picker/android'
+
+const initial = new Date(2026, 9, 2)
+const bounds = { start: initial, end: new Date(2026, 11, 31) }
+export function TravelDate() {
+	return (
+		<MaterialDatePicker
+			className="calendar-picker"
+			initialDate={initial}
+			selectableDates={bounds}
+			displayedComponents="date"
+			variant="picker"
+			showVariantToggle
+			elementColors={{ todayDateBorderColor: '#4f46e5' }}
+			onDateSelected={(date) => console.log(date?.toDateString())}
+		/>
+	)
+}
+```
+
 Runtime constraints on Android, learned on-device:
 
+```css
+.calendar-picker {
+	width: 360px;
+	height: 400px;
+}
+```
+
 - **Give the picker a bounded size.** The M3 calendar contains a lazy grid;
-  under an unbounded height it composes to zero. Pass `style={{ height: … }}`
+  under an unbounded height it composes to zero. Use the `.calendar-picker` class above
   (400 shows the full calendar) or a constrained parent.
 - **Keep props identity-stable.** The provider keys its `remember` on
   `initialDate` and the `selectableDates` bounds; a per-render `new Date()`
   produces a new timestamp each push, recreates `DatePickerState`, and drops
   the selection — so each pick appears to do nothing. Memoize the props (or
   use module constants) the same way you would for any controlled control.
-- `onDateSelected` emits the picked day as local-midnight milliseconds —
-  the provider converts M3's UTC-day storage back, so
-  `new Date(ms).toDateString()` shows the selected day.
+- The provider emits the picked day as local-midnight milliseconds and
+  the JavaScript adapter converts them to a `Date` for `onDateSelected`.
+  M3's UTC-day storage is converted back before the callback, so
+  `date?.toDateString()` shows the selected day.
 
 The macOS entry exports `AppKitDatePicker` — a real `NSDatePicker`
 embedded in the leaf's backing view through the `__xplatAppKit` bridge.
@@ -147,6 +320,24 @@ calendar with `pickerStyle: 'graphical'`), `'time'`
 controlled `Date` with `onSelectionChange`; `minimumDate`/`maximumDate`
 map to `minDate`/`maxDate`, `disabled` to `enabled`. The host element
 needs an explicit size — the picker is pinned to its edges.
+
+```tsx
+// TravelDate.macos.tsrx
+import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
+
+const initial = new Date(2026, 9, 2)
+export function TravelDate() {
+	return (
+		<AppKitDatePicker
+			className="calendar-picker"
+			components="date"
+			pickerStyle="graphical"
+			defaultSelection={initial}
+			onSelectionChange={(date) => console.log(date)}
+		/>
+	)
+}
+```
 
 The web entry was removed because its browser-specific `DateInput` value and
 props conflicted with the portable shared `DateInput`. Use

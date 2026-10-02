@@ -23,6 +23,8 @@ This is a fragment for a button's press handler; import `pushRoute` from
 `@octane-xplat/ui` and register a `settings` screen before using it:
 
 ```ts
+import { pushRoute } from '@octane-xplat/ui'
+
 pushRoute({
 	stack: 'root',
 	name: 'settings',
@@ -34,11 +36,29 @@ The `name` identifies the screen. `params` carries the small amount of data
 needed to open it. `stack` is `root` for the main flow or a named stack such
 as a tab's inner navigation.
 
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+
+// In a press handler; settings is registered in the app route table.
+pushRoute({ stack: 'root', name: 'settings', params: {} })
+```
+
 On the web, the route becomes a real URL, so refresh, back, bookmarks, and
 shared links keep working. On native, the same route pushes a screen into the
 matching navigation stack.
 
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+
+// In a press handler; settings is registered in the app route table.
+pushRoute({ stack: 'root', name: 'settings', params: {} })
+```
+
 ## Keep browser links real
+
+This example assumes a registered `settings` route. Place the component in
+your app and render `<Footer />` in a screen. Select Settings and check that
+it opens that destination; on web, its link can also open in a new tab.
 
 Use `NavLink` for an in-app destination the user might copy or open in a new
 tab — on web it renders a real `<a href>` whose plain click drives
@@ -46,10 +66,6 @@ tab — on web it renders a real `<a href>` whose plain click drives
 navigates the same route. Use `Link` for an outbound URL — a real anchor on
 web, the OS opener on native. Use `pushRoute` for an in-app action that is
 not naturally a link.
-
-This example assumes a registered `settings` route. Place the component in
-your app and render `<Footer />` in a screen. Select Settings and check that
-it opens that destination; on web, its link can also open in a new tab.
 
 ```tsx
 import { HStack, Link, NavLink } from '@octane-xplat/ui'
@@ -67,6 +83,15 @@ export function Footer() {
 For a component that must observe the current destination, use `useRoute` on
 the stack it owns. A tab can therefore keep its own history without taking
 over the whole app.
+
+```tsx
+import { Text, useRoute } from '@octane-xplat/ui'
+
+export function Example() {
+	const route = useRoute('root')
+	return <Text>Current screen: {route?.name ?? 'Home'}</Text>
+}
+```
 
 ## Let the route dir name your routes
 
@@ -89,6 +114,14 @@ Route params land as screen props. Feed them to a
 [screen-owned query](data.md#module-scope-vs-screen-scope) when stacked
 screens must keep independent requests.
 
+```tsx
+import { Text } from '@octane-xplat/ui'
+
+export function Detail(props: { id: string }) {
+	return <Text>Item: {props.id}</Text>
+}
+```
+
 ### What the route generator writes
 
 The rest of this section explains generated files for setup and debugging.
@@ -108,19 +141,27 @@ just re-exports. The generated `RouteName` and `RouteParams` types
 describe every route name and its param shape, so a typed wrapper around
 `pushRoute`/`Link` can name-check destinations.
 
+```ts
+import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
+
+// Generated web route entry: Vite supplies this glob.
+const files = import.meta.glob('./app/**/*.tsrx', { eager: true })
+registerRoutes(deriveRouteManifest(files, ['web']))
+```
+
 ## Register routes from data
 
 You can skip this if your destinations come from screen files. Use it when
 a list of data records determines the routes, such as one help page per guide.
 
+This composition fragment assumes `docs` is your data array and `GuideIndex`,
+`GuideShell`, and `guideScreen(doc)` are your components. The maintained
+[guide routes](../packages/app/src/guides.tsrx) show the complete example.
+
 The file tree can't express routes derived from runtime data — a docs app
 that maps a content directory, or a host framework generating its route
 table. `defineRoutes` builds the same manifest from specs instead of files
 (decision #67):
-
-This composition fragment assumes `docs` is your data array and `GuideIndex`,
-`GuideShell`, and `guideScreen(doc)` are your components. The maintained
-[guide routes](../packages/app/src/guides.tsrx) show the complete example.
 
 ```ts
 import { addRoutes, defineRoutes } from '@octane-xplat/ui'
@@ -147,6 +188,36 @@ the component itself, not a module; `loader`, `beforeLoad`, and `head` work
 exactly like the route-file exports. `layouts` keys are path prefixes that
 wrap every route beneath them, the same job `_layout.tsrx` does.
 
+```tsx
+import { defineRoutes, registerRoutes, Text } from '@octane-xplat/ui'
+
+function Guide(props: { slug: string }) {
+	return <Text>{props.slug}</Text>
+}
+function GuideShell(props: { children?: unknown }) {
+	return <>{props.children}</>
+}
+
+registerRoutes(
+	defineRoutes({
+		routes: [
+			{
+				path: 'docs/:slug',
+				screen: Guide,
+				presentation: 'push',
+				head: { title: 'Guide' },
+				loader: (params) => ({ slug: params.slug }),
+			},
+		],
+		layouts: { docs: GuideShell },
+	}),
+)
+
+export function Example() {
+	return <Text>Routes registered</Text>
+}
+```
+
 Registered routes are indistinguishable from file routes — they push into
 named stacks, resolve through `screenFor` outlets, match deep links, and
 substitute params into web URLs. `addRoutes` layers its manifest over the
@@ -154,11 +225,35 @@ file-derived one at any point (it survives `routes.gen` re-registration
 under HMR); to compose before registration instead, pass
 `registerRoutes(mergeRouteManifests(routes, dynamic))`.
 
+```tsx
+import { addRoutes, defineRoutes, screenFor, Text } from '@octane-xplat/ui'
+
+function Guide() {
+	return <Text>Guide</Text>
+}
+addRoutes(defineRoutes({ routes: [{ path: 'guides', screen: Guide }] }))
+const GuideScreen = screenFor('guides')
+```
+
 **Precedence is registration order.** On a same-name collision the later
 manifest wins and a console warning names both sources — deliberate
 overrides layer on top, accidental ones are loud. Merge the dynamic
 manifest first (`mergeRouteManifests(dynamic, routes)`) if file routes
 should win.
+
+```tsx
+import { defineRoutes, mergeRouteManifests, registerRoutes, Text } from '@octane-xplat/ui'
+
+function FileGuide() {
+	return <Text>File guide</Text>
+}
+function DynamicGuide() {
+	return <Text>Dynamic guide</Text>
+}
+const files = defineRoutes({ routes: [{ path: 'guide', screen: FileGuide }] })
+const dynamic = defineRoutes({ routes: [{ path: 'guide', screen: DynamicGuide }] })
+registerRoutes(mergeRouteManifests(dynamic, files)) // FileGuide wins.
+```
 
 Literal paths are typed at the callsite — `defineRoutes` infers route
 names, params, and presentations from each `path` string, and the returned
@@ -170,6 +265,20 @@ typed surface — navigate those with the low-level `Route` shape
 (`pushRoute({stack, name, params})`, `NavLink route={...}`). The generated
 `routes.screens` snapshot likewise covers file routes only — resolve
 screens through `screenFor(name)`, which reads the merged registry.
+
+```tsx
+import { defineRoutes, Text } from '@octane-xplat/ui'
+import type { ManifestRouteNames, ManifestRouteParams } from '@octane-xplat/ui'
+
+function Guide(props: { slug: string }) {
+	return <Text>{props.slug}</Text>
+}
+const manifest = defineRoutes({ routes: [{ path: 'docs/:slug', screen: Guide }] })
+type Name = ManifestRouteNames<typeof manifest>
+type Params = ManifestRouteParams<typeof manifest>
+const name: Name = 'docs/:slug'
+const params: Params['docs/:slug'] = { slug: 'packing' }
+```
 
 ## Present a route modally
 
@@ -183,10 +292,29 @@ receives — dismisses it. `+fade` pushes with a fade transition. A modal
 screen mounts its own root, so component context does not reach it — pass
 values through params or a shared store.
 
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+
+// The about route is registered; run this in an action handler.
+pushRoute({ stack: 'root', name: 'about', params: {}, presentation: 'modal' })
+```
+
 A route file can also export `loader(params)` — it runs when the route is
 pushed, before the screen commits. Its awaited result lands on the screen as
 a `data` prop; a rejected loader lands as `error`. That's the default
 `dataMode: 'live'`; the next section covers baking the result in instead.
+
+```tsx
+// app/detail.tsrx
+import { Text } from '@octane-xplat/ui'
+
+export async function loader(params: Record<string, string>) {
+	return { title: `Item ${params.id}` }
+}
+export function Detail(props: { data?: { title: string }; error?: unknown }) {
+	return <Text>{props.error ? 'Could not load item' : (props.data?.title ?? 'Loading')}</Text>
+}
+```
 
 ## Bake route data at build time
 
@@ -195,12 +323,29 @@ output is computed once during `xplat routes`/`dev`/`build`, serialized
 into `routes.gen.data.ts`, and delivered to the screen as `data` on web and
 native without a navigation-time fetch.
 
+```tsx
+// app/changelog.tsrx; pair with changelog.loader.ts below.
+import { Text } from '@octane-xplat/ui'
+
+export const dataMode = 'baked'
+export function Changelog(props: { data: { title: string } }) {
+	return <Text>{props.data.title}</Text>
+}
+```
+
 The loader itself moves to a sibling module — `app/changelog.tsrx` pairs
 with `app/changelog.loader.ts` exporting `loader()`. That module runs under
 Node (vite `ssrLoadModule`), so `node:fs` and friends are legal inside it,
 and because nothing at runtime imports it, its dependency graph stays out
 of every bundle. An in-file `loader` export on a baked route warns and is
 ignored — it would drag its imports into the shipped graph.
+
+```ts
+// app/changelog.loader.ts: runs during route generation, not in the app.
+export function loader() {
+	return { title: 'Packing list release notes' }
+}
+```
 
 Constraints that keep the mechanism honest:
 
@@ -219,6 +364,20 @@ Programmatic routes carry the same axis: `dataMode: 'baked'` on a
 `RouteSpec` plus a `baked` map on the `defineRoutes` set — the host
 computes the data however it wants and ships it in the manifest.
 
+```tsx
+import { defineRoutes, registerRoutes, Text } from '@octane-xplat/ui'
+
+function Guide(props: { data: { title: string } }) {
+	return <Text>{props.data.title}</Text>
+}
+registerRoutes(
+	defineRoutes({
+		routes: [{ path: 'guide', screen: Guide, dataMode: 'baked' }],
+		baked: { guide: { title: 'Packing guide' } },
+	}),
+)
+```
+
 ## Route a markdown file
 
 A `.md` file in the route dir is a baked route with the parser built in:
@@ -230,9 +389,29 @@ screens. A `[param].md` warns and is skipped (use the `.loader.ts` table
 pattern for param'd content); a `.md` file colliding with a same-name
 component file keeps the component with a warn.
 
+```md
+<!-- app/help.md: route generation bakes this document. -->
+# Packing help
+
+Keep heavy items at the bottom of your bag.
+```
+
 `MarkdownScreen` handles the `Screen`/`ScrollableArea` shell; `Markdown`
 renders a document tree anywhere if you embed a baked doc inside a custom
 screen.
+
+```tsx
+import { Markdown, MarkdownScreen } from '@octane-xplat/ui'
+import type { MdDoc } from '@octane-xplat/ui'
+
+// doc is the baked Markdown tree supplied by route generation.
+export function Help(props: { doc: MdDoc }) {
+	return <MarkdownScreen data={props.doc} />
+}
+export function HelpSection(props: { doc: MdDoc }) {
+	return <Markdown data={props.doc} />
+}
+```
 
 ## Hand the route list to a host
 
@@ -243,6 +422,17 @@ without reading the route dir. `manifestToJson(manifest)` produces the
 identical shape in-process for programmatic or merged manifests, so a host
 sees one schema whether routes came from files or `defineRoutes`.
 
+```tsx
+import { defineRoutes, manifestToJson, Text } from '@octane-xplat/ui'
+
+function Help() {
+	return <Text>Packing help</Text>
+}
+const manifest = defineRoutes({ routes: [{ path: 'help', screen: Help }] })
+const hostRoutes = manifestToJson(manifest)
+console.log(JSON.stringify(hostRoutes))
+```
+
 When pushes overlap, the latest request wins for that stack on native and
 macOS. Web has one history, so any newer push supersedes the pending push.
 For example, push a slow-loading detail screen, then a settings screen:
@@ -250,6 +440,14 @@ finishing the detail loader cannot take you away from settings. Back navigation
 also invalidates pending work for the affected history. Superseded guards,
 redirects, and loader results are ignored; their underlying requests are not
 aborted, so loaders must still manage their own side effects.
+
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+
+// Both routes are registered; detail has an asynchronous loader.
+pushRoute({ stack: 'root', name: 'detail', params: { id: 'coat' } })
+pushRoute({ stack: 'root', name: 'settings', params: {} })
+```
 
 ## Guard and document a route
 
@@ -265,7 +463,9 @@ does not populate authentication context automatically:
 ```ts
 import { redirect } from '@octane-xplat/ui'
 
-export async function beforeLoad({ params, context }) {
+import type { BeforeLoadArgs } from '@octane-xplat/ui'
+
+export async function beforeLoad({ params, context }: BeforeLoadArgs) {
 	if (!context.user) {
 		redirect({ stack: 'root', name: 'login', params: {} })
 	}
@@ -273,7 +473,7 @@ export async function beforeLoad({ params, context }) {
 	return { accountId: params.id }
 }
 
-export const head = (params) => ({
+export const head = (params: Record<string, string>) => ({
 	title: `Account ${params.id}`,
 	meta: { description: 'Account details' },
 })
@@ -288,10 +488,34 @@ commits it through the target `Frame.navigate` path rather than recursively
 calling the public `pushRoute` API. A rejected guard logs and leaves the
 current destination unchanged.
 
+```ts
+import { redirect } from '@octane-xplat/ui'
+import type { BeforeLoadArgs } from '@octane-xplat/ui'
+
+// Route-file export; the app supplies user in the navigation context.
+export function beforeLoad({ context }: BeforeLoadArgs) {
+	if (!context.user) redirect({ stack: 'root', name: 'login', params: {} })
+	return { checked: true }
+}
+```
+
 `NavLink` therefore runs guards on both platforms. `Link`, plain browser
 anchors, refresh, and browser back/forward are URL navigation that does not
 pass through `pushRoute`; apps that need a boot-time policy should apply it
 in their deep-link/bootstrap layer.
+
+```tsx
+import { NavLink, Link } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<>
+			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>Settings</NavLink>
+			<Link href="https://example.com">Website</Link>
+		</>
+	)
+}
+```
 
 `head` is either a static object or a synchronous function of route params.
 Web sets `document.title` and creates `meta[name]` tags. Native applies the
@@ -299,10 +523,31 @@ title to a pushed `Page`'s action bar; meta entries are inert there. Native
 modal roots do not expose a `Page` action-bar surface, so modal meta is inert
 on native.
 
+```ts
+// In a registered route file.
+export const head = (params: Record<string, string>) => ({
+	title: `Item ${params.id}`,
+	meta: { description: 'Packing item details' },
+})
+```
+
 Screens can use `useCanGoBack(stack?)` to render a back affordance. The
 framework also supplies `_pushed` on route screen props (and `_stack` for
 named native stacks) for code that needs a prop-level seam. On web this is
 based on in-app history depth, not the browser's unrelated history entries.
+
+```tsx
+import { Pressable, Text, useCanGoBack, popRoute } from '@octane-xplat/ui'
+
+export function Example() {
+	const canBack = useCanGoBack('root')
+	return (
+		<Pressable disabled={!canBack} onPress={() => popRoute('root')}>
+			<Text>Back</Text>
+		</Pressable>
+	)
+}
+```
 
 Android hardware back is framework-owned — nothing to wire. Once screens or
 stacks register, the press dismisses the newest open modal, then pops the
@@ -315,6 +560,25 @@ consumes the press before the stack pop. On web there is nothing to
 intercept: browser back is URL history, so `addBackInterceptor` is a no-op
 that warns once.
 
+```tsx
+import { useBackInterceptor, Text, Pressable } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [drawerOpen, setDrawerOpen] = useState(false)
+	useBackInterceptor(() => {
+		if (!drawerOpen) return false
+		setDrawerOpen(false)
+		return true
+	})
+	return (
+		<Pressable onPress={() => setDrawerOpen(true)}>
+			<Text>{drawerOpen ? 'Drawer open' : 'Open drawer'}</Text>
+		</Pressable>
+	)
+}
+```
+
 Web history is one linear stack. `popRoute(stack)` accepts `stack` for API
 symmetry but always pops the browser's current entry; it cannot remove a
 non-top named-stack entry without rewriting browser history. Prepared guard context
@@ -325,10 +589,24 @@ non-URL screen state or re-run `beforeLoad` automatically. Direct URLs run
 the route loader without adding a history entry, including the generated
 loader for baked data and Markdown.
 
+```ts
+import { popRoute } from '@octane-xplat/ui'
+
+// In a Back action; web pops the current browser entry.
+popRoute('root')
+```
+
 Generated `RouteParams` keeps normal route APIs scalar (`string`) for stable
 URLs. The low-level `Route` type remains open for compatibility: if an object
 or array is passed directly, web JSON-encodes it with a warning and decodes it
 again on matching. Prefer the generated scalar API for shareable routes.
+
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+
+// Prefer scalar params for a registered item route.
+pushRoute({ stack: 'root', name: 'detail', params: { id: 'coat' } })
+```
 
 ## Handle incoming links
 
@@ -372,6 +650,19 @@ other URL events go to the listener. Queue both paths while the host loads,
 since iOS may deliver its cold URL through `openUrl`.
 Android deduplicates a new-intent/resume pair by intent identity. A later intent
 with the same URL is a new navigation request.
+
+```ts
+import { onDeepLink } from '@octane-xplat/platform'
+import { pushDeepLink } from '@octane-xplat/ui'
+
+// Native bootstrap, after the route host is ready.
+const unsubscribe = onDeepLink((url) => {
+	pushDeepLink(url)
+})
+export function disposeLinks() {
+	unsubscribe()
+}
+```
 
 ### Register a custom scheme
 
@@ -430,6 +721,15 @@ a malformed encoded path falls back to the shell; an unmatched literal route
 is left to the outlet's not-found UI. Guards are not a blanket filter for
 browser bootstrap or history traversal.
 
+```ts
+import { pushDeepLink, showToast } from '@octane-xplat/ui'
+
+// Called after route registration and host readiness.
+if (!pushDeepLink('xplatnav://missing')) {
+	showToast({ body: 'This page could not be found.' })
+}
+```
+
 The [release navigation checks](navigation-checks.md) exercise these commands
 without images. Coverage in this guide and actual per-target results are
 recorded separately; scheme registration alone is not runtime verification.
@@ -443,6 +743,13 @@ content separate from ordinary back-stack navigation.
 Native deep links resolve against the same route manifest. `openWindow({data})`
 opens another NativeScript window; the app provides
 `Application.setWindowContentResolver()` to render that window's root.
+
+```ts
+import { openWindow } from '@octane-xplat/ui'
+
+// Native app bootstrap must install its window content resolver first.
+openWindow({ data: { listId: 'trip' } })
+```
 
 The [navigation notes](navigation-notes.md) explain native containers, modal
 roots, deep links, Android tab-stack limits, and the platform-specific

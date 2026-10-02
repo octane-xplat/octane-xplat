@@ -51,6 +51,14 @@ OS via `Device.os`), alongside `routes.gen.types.ts`.
 `deriveRouteManifest(files, prefer)` (`packages/ui/src/route-table.ts`)
 turns the module map into `{screens, routes, layouts, loaders}`:
 
+```ts
+import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
+
+// Generated web entry, with Vite's eager screen modules.
+const files = import.meta.glob('./app/**/*.tsrx', { eager: true })
+registerRoutes(deriveRouteManifest(files, ['web']))
+```
+
 - `demo/[id].tsrx` → route name `demo/:id` (`[param]` → `:param`);
   `foo/index.tsrx` → `foo`; trailing `index` drops.
 - Platform suffix dedupe by `prefer` rank: web `['web']`, mobile
@@ -88,6 +96,21 @@ is the canonical path builder (`NavLink`’s href). `xplat build` and
 `RouteName` and `RouteParams` types support app-owned typed wrappers over
 `pushRoute` and `NavLink`; they do not add a shared `useParams` hook.
 
+```tsx
+import { defineRoutes, registerRoutes, hrefFor, pushRoute, Text } from '@octane-xplat/ui'
+
+function Demo(props: { id: string }) {
+	return <Text>{props.id}</Text>
+}
+registerRoutes(defineRoutes({ routes: [{ path: 'demo/:id', screen: Demo }] }))
+const route = { stack: 'root', name: 'demo/:id', params: { id: 'counter' } }
+console.log(hrefFor(route))
+// Use in the app's navigation handler.
+export function openDemo() {
+	pushRoute(route)
+}
+```
+
 - **Programmatic routes (decision #67):** `defineRoutes({routes: RouteSpec[],
 layouts})` builds a `RouteManifest` from data instead of files —
   `RouteSpec.path` uses the route-dir vocabulary (`'docs/:slug'` or
@@ -116,10 +139,30 @@ Android named-stack entries in the swap-pane shell. Route screens also receive
 `_pushed: true` when they were admitted by a push and `_stack` for named native
 stacks.
 
+```tsx
+import { useCanGoBack, popRoute, Pressable, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	const back = useCanGoBack('root')
+	return (
+		<Pressable disabled={!back} onPress={() => popRoute('root')}>
+			<Text>Back</Text>
+		</Pressable>
+	)
+}
+```
+
 The low-level route object remains open for compatibility. Generated route
 params are scalar strings; direct object/array params are JSON-encoded with a
 warning in web URLs and decoded when matched. This preserves old callers while
 making the generated API's scalar contract explicit.
+
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+
+// Registered detail route; scalar params keep shareable URLs simple.
+pushRoute({ stack: 'root', name: 'detail', params: { id: 'coat' } })
+```
 
 ## Original mapping sketch (historical)
 
@@ -141,6 +184,23 @@ shells. Today use `NavLink`, `pushRoute`, `popRoute`, and `useRoute`;
 `UITabBar`/`BottomNavigationView` are platform widgets, while shared
 `Tabs` uses route-store panes. The [navigation guide](navigation.md) owns
 the current caller-facing contract.
+
+```tsx
+import { NavLink, Pressable, Text, popRoute, useRoute } from '@octane-xplat/ui'
+
+export function Example() {
+	const route = useRoute('root')
+	return (
+		<>
+			<Text>{route?.name ?? 'Home'}</Text>
+			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>Settings</NavLink>
+			<Pressable onPress={() => popRoute('root')}>
+				<Text>Back</Text>
+			</Pressable>
+		</>
+	)
+}
+```
 
 ## Hard seams (decide consciously)
 
@@ -177,6 +237,23 @@ the current caller-facing contract.
    every target creates an OS window. Requested size and position are hints
    the platform may clamp.
 
+```ts
+// Proposed shared window contract, not the current ui export.
+interface ProposedWindowController {
+	setTitle(title: string): void
+	setSize(width: number, height: number): void
+	close(): void
+	closed: Promise<void>
+	onCloseRequested(callback: () => boolean): () => void
+}
+declare function proposedOpenWindow(options: {
+	data: unknown
+	kind: 'regular' | 'dialog' | 'popup'
+}): ProposedWindowController
+const proposed = proposedOpenWindow({ data: { listId: 'trip' }, kind: 'dialog' })
+proposed.setTitle('Packing list')
+```
+
    This richer shape is not yet the `@octane-xplat/ui` API. The package does
    export a basic `openWindow`: its `OpenWindowOptions` contains only `data`
    and web-only `url`; native forwards to `Application.openWindow()` and
@@ -189,6 +266,13 @@ the current caller-facing contract.
    experimental and depends on `launchMode`. The richer shared contract still
    needs typed readiness, request correlation, and creation-error behavior
    (Q31).
+
+```ts
+import { openWindow } from '@octane-xplat/ui'
+
+// Current minimal API; native apps install their content resolver first.
+openWindow({ data: { listId: 'trip' } })
+```
 
    The app-local AppKit prototype has its own resolver and returns a
    synchronous controller; its `dialog` path has been lab-verified, while

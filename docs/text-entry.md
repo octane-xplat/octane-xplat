@@ -14,6 +14,16 @@ edits it. Store that text in state and pass it back as `value`.
 `TextInput` is for one line, `TextArea` for several lines, and
 `SearchInput` for searching.
 
+```tsx
+import { TextInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	return <TextInput label="Name" value={name} onChange={setName} />
+}
+```
+
 In the example, `name` holds the text and `setName` changes it. Clear sets
 it to an empty string. Done calls `blur()`, which removes focus from the
 field and dismisses a phone's keyboard. A handle lets your code call those
@@ -49,6 +59,14 @@ press Done and check that the keyboard closes. Programmatically setting
 `SearchInput` can also keep its own value when you supply `defaultValue`
 instead of controlling `value`.
 
+```tsx
+import { SearchInput } from '@octane-xplat/ui'
+
+export function Example() {
+	return <SearchInput label="Search items" defaultValue="coat" />
+}
+```
+
 `TextInput`, `TextArea`, and `SearchInput` accept the shared field props:
 `label`, `description`, `isLabelHidden`, `isDisabled`, `isReadOnly`,
 `isRequired`, `isOptional`, `size`, `status`, and `isLoading`. Labels are
@@ -58,6 +76,25 @@ standalone control's `label` supplies its accessible name. `hasClear` is opt-in 
 to the existing clear behavior on `SearchInput`. `isLoading` announces busy
 work and does not disable editing. Avoid replacing the native view through the
 handle: use `value` to change its text.
+
+```tsx
+import { Field, TextInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	return (
+		<Field
+			label="Name"
+			description="Shown on your profile"
+			isRequired
+			status={{ type: 'warning', message: 'Check the spelling' }}
+		>
+			<TextInput value={name} onChange={setName} hasClear isLoading size="sm" />
+		</Field>
+	)
+}
+```
 
 ## Preserve editing and submit deliberately
 
@@ -77,6 +114,33 @@ with `returnKeyType="done"` or `"send"`. Web Enter that confirms a composition
 does not submit. Verify one callback per edit and no callback for a controlled
 reset; type in the middle of a selection as well as at the end of a field.
 
+```tsx
+import { TextInput, SearchInput, TextArea } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	return (
+		<>
+			<TextInput
+				label="Name"
+				value={name}
+				onChange={setName}
+				onSubmit={() => console.log('Submitted')}
+			/>
+			<SearchInput label="Search" onSubmit={() => console.log('Submitted')} />
+			<TextArea
+				label="Message"
+				value={name}
+				onChange={setName}
+				returnKeyType="send"
+				onSubmit={() => console.log('Submitted')}
+			/>
+		</>
+	)
+}
+```
+
 ## Release and restore focus
 
 Keep the `ref` handle for `focus()` and `blur()`. `blur()` dismisses the
@@ -85,12 +149,54 @@ native overlay, explicitly focus the field or action that should resume
 editing. Automatic native overlay focus restoration and isolation remain
 unverified.
 
+```tsx
+import { TextInput, Pressable, Text } from '@octane-xplat/ui'
+import { useState, useRef } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	const input = useRef<import('@octane-xplat/ui').TextInputHandle | null>(null)
+	return (
+		<>
+			<TextInput
+				label="Name"
+				value={name}
+				onChange={setName}
+				bind={(handle) => {
+					input.current = handle
+				}}
+			/>
+			<Pressable onPress={() => input.current?.focus()}>
+				<Text>Edit</Text>
+			</Pressable>
+			<Pressable onPress={() => input.current?.blur()}>
+				<Text>Done</Text>
+			</Pressable>
+		</>
+	)
+}
+```
+
 `KeyboardAvoiding` adds keyboard space on iOS and requests Android window
 resize. Bottom-anchored native shared sheets also account for the keyboard;
 the Android inset fallback converts physical pixels into layout dips. Check
 the last field with the software keyboard open, including a sheet opened
 while the keyboard is already visible. Observer/property tests alone do not
 verify viewport behavior on a device.
+
+```tsx
+import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [note, setNote] = useState('')
+	return (
+		<KeyboardAvoiding>
+			<TextInput label="Note" value={note} onChange={setNote} />
+		</KeyboardAvoiding>
+	)
+}
+```
 
 On web, shared `BottomSheet` with its default shade, and
 `Overlay` with `shadeCover`, move focus into the panel, cycle Tab inside it,
@@ -100,6 +206,32 @@ without a shade does not take over focus. Give a BottomSheet a name through
 `web={{ 'aria-label': 'Edit name' }}` and provide a visible close action.
 The separate `@octane-xplat/sheet` leaf's `BottomSheet` still needs its own
 keyboard-focus qualification; shared BottomSheet results do not cover it.
+
+```tsx
+import { Screen, BottomSheet, Pressable, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [open, setOpen] = useState(false)
+	return (
+		<Screen>
+			<Pressable onPress={() => setOpen(true)}>
+				<Text>Edit name</Text>
+			</Pressable>
+			<BottomSheet
+				label="Edit name"
+				isOpen={open}
+				onOpenChange={setOpen}
+				web={{ 'aria-label': 'Edit name' }}
+			>
+				<Pressable onPress={() => setOpen(false)}>
+					<Text>Close</Text>
+				</Pressable>
+			</BottomSheet>
+		</Screen>
+	)
+}
+```
 
 ## Verification boundaries
 

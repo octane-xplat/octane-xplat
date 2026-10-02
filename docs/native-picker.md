@@ -7,6 +7,20 @@ Use `@octane-xplat/picker` when you want a platform's own control. Each version
 has its own name and options, so keep it in a matching
 [platform file](module-resolution.md).
 
+```tsx
+import { Selector } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Selector
+			label="Region"
+			options={[{ value: 'sfo', label: 'San Francisco' }]}
+			defaultValue="sfo"
+		/>
+	)
+}
+```
+
 On iOS the package uses SwiftUI's picker; on Android it uses a Material 3
 dropdown; on web it uses the browser's `<select>`. There is no single shared
 component in this package.
@@ -43,19 +57,86 @@ The iOS entry exports `SwiftUIPicker`, `SwiftUIPickerOption`, and
 selected ID is controlled with `selection` and `onSelectionChange`, or seeded
 with `defaultSelection`.
 
+```tsx
+// Region.ios.tsrx
+import { SwiftUIPicker } from '@octane-xplat/picker/ios'
+
+export function Region() {
+	return (
+		<SwiftUIPicker
+			label="Region"
+			options={[{ id: 'sfo', title: 'San Francisco' }]}
+			defaultSelection="sfo"
+			onSelectionChange={(id) => console.log(id)}
+		/>
+	)
+}
+```
+
 The Android entry exports `MaterialDropdown`, `MaterialDropdownItem`, and
 `MaterialDropdownProps`. Items use `key`, `text`, and optional `enabled`; the
 selected key is controlled with `selectedKey` and `onSelectedKeyChange`, or
 seeded with `defaultSelectedKey`. The whole control uses `enabled`.
+
+```tsx
+// Region.android.tsrx
+import { MaterialDropdown } from '@octane-xplat/picker/android'
+
+export function Region() {
+	return (
+		<MaterialDropdown
+			label="Region"
+			items={[{ key: 'sfo', text: 'San Francisco', enabled: true }]}
+			defaultSelectedKey="sfo"
+			enabled
+			onSelectedKeyChange={(key) => console.log(key)}
+		/>
+	)
+}
+```
 
 The web entry exports `Select`, `SelectOption`, and `SelectProps`. It follows
 the browser select model: options use `value`, `label`, and optional `disabled`;
 controlled state uses `value` and `onChange`, and uncontrolled state uses
 `defaultValue`.
 
-All three APIs accept an optional visible `label`, `accessibilityLabel`,
+```tsx
+// Region.web.tsrx
+import { Select } from '@octane-xplat/picker/web'
+
+export function Region() {
+	return (
+		<Select
+			label="Region"
+			options={[{ value: 'sfo', label: 'San Francisco' }]}
+			defaultValue="sfo"
+			onChange={(value) => console.log(value)}
+		/>
+	)
+}
+```
+
+All three APIs require a visible `label` and accept `accessibilityLabel`,
 `disabled` or `enabled` state as appropriate, and the host `id`, `className`,
 and `style` props. These similarities do not imply a shared selection contract.
+
+```tsx
+// Region.web.tsrx; native files use their matching prop contracts.
+import { Select } from '@octane-xplat/picker/web'
+
+export function Region() {
+	return (
+		<Select
+			id="region"
+			className="region-picker"
+			label="Region"
+			accessibilityLabel="Region"
+			disabled
+			options={[{ value: 'sfo', label: 'San Francisco' }]}
+		/>
+	)
+}
+```
 
 ## Why a leaf package
 

@@ -16,8 +16,19 @@ NativeScript's CSS parser does not implement CSS cascade layers. On the web,
 unlayered app CSS remains higher priority than package layers. Native builds
 preserve import order after unwrapping, so app styles follow the package rules.
 
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css'
+import './app.css'
+```
+
 The generated starter imports `tokens.css` only and owns any palette it wants
 in its app stylesheet. Demos and probes opt into `chrome.css`.
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import './app.css'
+```
 
 ## Original shared pipeline
 
@@ -84,6 +95,16 @@ class segment that consumes it (`bg-onprimary`↔`--color-onprimary`). If a
 needed utility can't match v4 semantics inside the NS intersection, give it
 a non-Tailwind name (`vx-*` or descriptive) instead.
 
+```css
+:root,
+.ns-root {
+	--color-onprimary: #fff;
+}
+.text-onprimary {
+	color: var(--color-onprimary);
+}
+```
+
 ### Why CSS vars carry the theme
 
 - NS supports `--x`, `var(--x, fallback)`, nested fallbacks, scoped and
@@ -102,6 +123,19 @@ NS 8.8+ implements MQ L3: `orientation`, `min-/max-width`, `min-/max-height`,
 inside `@media`, and `matchMedia()` + `MediaQueryList` with `change` events —
 the same API shape as the web. So:
 
+```css
+@media (min-width: 768px) {
+	.workspace {
+		flex-direction: row;
+	}
+}
+@media (prefers-color-scheme: dark) {
+	.workspace {
+		background-color: #222;
+	}
+}
+```
+
 - Stylesheet-level responsive design can literally share the same CSS.
 - `useMediaQuery(query)` hook has identical semantics both sides.
 
@@ -111,10 +145,36 @@ The shipped API is `setThemePreference` plus `useThemeScheme`, with
 module-level state forwarded to independent overlay roots (decision #34).
 The `ThemeProvider` discussion below is the earlier proposal.
 
+```tsx
+import { Text, Pressable, useThemeScheme, setThemePreference } from '@octane-xplat/ui'
+
+export function Example() {
+	const scheme = useThemeScheme()
+	return (
+		<Pressable onPress={() => setThemePreference('dark')}>
+			<Text>Theme: {scheme}</Text>
+		</Pressable>
+	)
+}
+```
+
 Two coherent options: (a) media-driven (`prefers-color-scheme`, follows
 system, works identically both sides); (b) class-driven (`.dark` / `ns-dark`
 root class, app-controllable). Recommend **(a) as default + (b) override** —
 a `ThemeProvider` that sets the root class, falling back to the media query.
+
+```tsx
+// Proposed provider behavior, not a shipped ThemeProvider API.
+import { View, Text } from '@octane-xplat/ui'
+
+export function ProposedThemeRoot(props: { dark: boolean }) {
+	return (
+		<View className={props.dark ? 'dark ns-dark' : 'ns-light'}>
+			<Text>Preview theme</Text>
+		</View>
+	)
+}
+```
 
 **Latency (iOS sim)**: `setState` → post-commit `useEffect` (i.e.
 render + native prop application) ≈ **1ms** for a root `className` swap
@@ -132,6 +192,15 @@ stylesheet scope, not the class scope. Consequence for the
 module-scope store (the same seam as `lastDemo`), and every root —
 each pushed `Page`, sheet, modal — applies `ns-dark` to _its own_ root
 view. A class on one root can never reach another.
+
+```tsx
+import { Text, useThemeScheme } from '@octane-xplat/ui'
+
+export function Example() {
+	const scheme = useThemeScheme()
+	return <Text>Theme in this root: {scheme}</Text>
+}
+```
 
 ## Rules for shared components
 
@@ -189,6 +258,8 @@ view. A class on one root can never reach another.
 Tamagui-shaped, CSS-backed:
 
 ```ts
+import { View, styled } from '@octane-xplat/ui'
+
 const Card = styled(View, {
 	base: 'rounded-lg bg-surface p-4',
 	variants: { elevated: 'shadow-2', destructive: 'bg-danger' },
@@ -210,6 +281,19 @@ component. If upstream blesses a factory path, this becomes a driver-level
 fix. Verified: `<DangerBtn danger className="extra">` →
 `btn,bg-danger,extra`; variant props are consumed, not leaked.
 
+```tsx
+import { Pressable, Text, styled } from '@octane-xplat/ui'
+
+const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-danger' } })
+export function Example() {
+	return (
+		<DangerBtn danger className="extra">
+			<Text>Delete</Text>
+		</DangerBtn>
+	)
+}
+```
+
 ## Layout vocabulary honesty
 
 NS layout is a set of _classes_ (stack/grid/flex/dock/absolute/wrap), not one
@@ -218,3 +302,19 @@ mirror that. Do not try to make web flex/grid pretend to be NS layouts inside
 shared files — shared code composes primitives; leaf impls pick the right
 layout class per platform. `gap` is supported on FlexboxLayout (NS 9: gap/
 rowGap/columnGap — the `.gap-*` utilities work); GridLayout has no gap.
+
+
+```tsx
+import { HStack, VStack, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<VStack gap={4}>
+			<HStack gap={2}>
+				<Text>Bag</Text>
+				<Text>Ready</Text>
+			</HStack>
+		</VStack>
+	)
+}
+```

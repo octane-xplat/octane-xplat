@@ -36,6 +36,27 @@ Loading supplied by the caller remains independent and does not prevent selectin
 existing options. Closing or disabling a control hides its surface; disposal
 prevents late callbacks.
 
+```tsx
+import { useState } from 'octane'
+import { MultiSelector } from '@octane-xplat/ui'
+
+export function Example() {
+	const [regions, setRegions] = useState<string[]>([])
+	return (
+		<MultiSelector
+			label="Regions"
+			options={[{ value: 'sfo', label: 'San Francisco' }]}
+			value={regions}
+			onValueChange={setRegions}
+			changeAction={async (next) => {
+				console.log('Save', next)
+			}}
+			onChangeError={(error) => console.log(error)}
+		/>
+	)
+}
+```
+
 ## Verification
 
 Run focused web component/model tests, UI package builds, web/mobile/macOS

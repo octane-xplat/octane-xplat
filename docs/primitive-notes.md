@@ -18,9 +18,34 @@ The old `ref`, `onChangeText`, `glass`, and modal-prop sketches are not the
 current public contract: primitives use `ref`, text inputs use `onChange`,
 and Liquid Glass is iOS-only.
 
+```tsx
+import { TextInput, BottomSheet, Screen, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	return (
+		<Screen>
+			<TextInput label="Name" value={name} onChange={setName} />
+			<BottomSheet label="Details" isOpen={false}>
+				<Text>Details</Text>
+			</BottomSheet>
+		</Screen>
+	)
+}
+```
+
 ## Original prop conventions (historical sketch)
 
-```ts
+```tsx
+// Proposed historical types, not today's public prop declarations.
+type ClassValue = string | readonly string[]
+type StyleObject = Record<string, string | number>
+type TypedHandle = { focus(): void; blur(): void }
+type Ref<T> = (handle: T) => void
+type NativeProps = Record<string, unknown>
+type DOMProps = Record<string, unknown>
+
 interface PrimitiveProps {
 	className?: ClassValue // clsx-style — works both targets
 	style?: StyleObject // dynamic values only
@@ -31,6 +56,8 @@ interface PrimitiveProps {
 	android?: Partial<NativeProps>
 	web?: DOMProps
 }
+
+const proposedProps: PrimitiveProps = { className: 'card', ios: { opacity: 0.9 } }
 ```
 
 - `className` composes via clsx on both targets (native: through NS CSS).
@@ -112,6 +139,24 @@ inside the clipped wrapper and `OVER_SCROLL_NEVER` kills the edge glow.
 `onRefresh` fires but `refreshing` never turns true, the dock collapses
 after a 350ms grace window. Desk-verified; on-device pending.
 
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [refreshing, setRefreshing] = useState(false)
+	return (
+		<ScrollableArea
+			refreshing={refreshing}
+			onRefresh={() => setRefreshing(true)}
+			refreshThreshold={64}
+		>
+			<Text>Items</Text>
+		</ScrollableArea>
+	)
+}
+```
+
 **BottomSheet snap points** (`snapPoints` on `BottomSheet`/`openBottomSheet`, e.g.
 `[0.25, 0.5, 0.9]`) — on web, iOS, and Android, the
 panel is sized to the largest detent and parked at a `translateY` offset
@@ -130,12 +175,45 @@ enter/exit animation is skipped (it hardcodes a translateY→0 target that
 would fight the offsets); the leaf drives its own slide-in/out.
 Desk-verified; on-device pending.
 
+```tsx
+import { Screen, BottomSheet, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Screen>
+			<BottomSheet
+				label="Actions"
+				isOpen
+				snapPoints={[0.25, 0.5, 0.9]}
+				onOpenChange={(open) => console.log(open)}
+			>
+				<Text>Actions</Text>
+			</BottomSheet>
+		</Screen>
+	)
+}
+```
+
 **Child layout props are part of the shared surface** — `row`, `col`,
 `rowSpan`, `colSpan`, `dock`, `left`, `top`, `flexGrow`, `flexShrink`,
 `alignSelf`, `order` exist in the driver `CommonAttributes`; the web leaf maps
 each to the matching CSS (`grid-row`/`grid-column`, `order`, `flex-*`). Shared
 code writes `<Text row={1} col={2}/>` inside a `<Grid>` identically on both
 targets.
+
+```tsx
+import { Grid, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Grid rows="auto,*" columns="*,auto,*">
+			<Text row={1} col={2}>
+				Placed in row 2, column 3
+			</Text>
+		</Grid>
+	)
+}
+```
 
 **Native SVG** (`svgview`, `SVGView` vendored from
 `@nativescript-community/ui-svg` at `src/vendor/ui-svg` — a submodule of
@@ -150,6 +228,18 @@ framework fetches remote `.svg` URLs first because SVGView itself has no URL
 fetcher. SVG data URIs are decoded before they reach the view. `IconGlyph.src`
 therefore supports inline SVG, SVG data URIs, and `.svg` paths/URLs; opaque
 resource names whose format is not inferable stay on the image path.
+
+```tsx
+import { registerIcon, Icon } from '@octane-xplat/ui'
+
+registerIcon('line', {
+	markup:
+		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 12h16" stroke="black"/></svg>',
+})
+export function Line() {
+	return <Icon name="line" />
+}
+```
 
 The two native parsers do not form a full-fidelity contract:
 
@@ -167,6 +257,23 @@ availability, not SVG geometry or color fidelity. Sources: [ui-svg's pinned
 implementation](https://github.com/nativescript-community/ui-canvas/tree/master/src/ui-svg),
 [AndroidSVG feature matrix](https://bigbadaboom.github.io/androidsvg/), and
 [SVGKit's 3.x release notes](https://github.com/SVGKit/SVGKit/releases).
+
+```tsx
+import { registerIcons, Icon } from '@octane-xplat/ui'
+
+registerIcons({
+	line: { svg: '<path d="M4 12h16" stroke="black"/>', viewBox: '0 0 24 24' },
+	fallback: { text: '•' },
+})
+export function Marks() {
+	return (
+		<>
+			<Icon name="line" />
+			<Icon name="fallback" />
+		</>
+	)
+}
+```
 
 **Prior art** (desk-survey 2026-09-26 — reinforces decision #29's
 platform-delegation choice; no framework in the field renders the full spec
@@ -195,6 +302,19 @@ whichever root renders them — so `<Modal open>{children}</Modal>` works; the
 `component`/`params` contract below still stands for value-returning flows.
 Readback: `presenter.modal` exposes the modal view for assertions.
 
+```tsx
+// iOS platform file: system-modal component, not shared Modal.
+import { UIModal } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
+
+function Details(props: { title: string }) {
+	return <Text>{props.title}</Text>
+}
+export function Example() {
+	return <UIModal open component={Details} params={{ title: 'Packing list' }} />
+}
+```
+
 > [!CAUTION]
 > The signature is `showModal(viewToShow, options)`, not an options bag — a
 > `{view}` first arg silently hits the deprecated moduleName path.
@@ -217,25 +337,62 @@ onClose, params }`-shaped components (`UIModal`/`MaterialDialog` in the
   subpaths) rather than "render my children in place" — treat children as
   a _screen component_ rendered inside the modal root.
 
-```ts
+```tsx
+// Proposed historical contract; Modal is not a current root export.
+import { Text } from '@octane-xplat/ui'
+
+type ComponentType<P> = (props: P) => unknown
 interface ModalProps {
-  open: boolean;
-  onClose?: (result?: unknown) => void;
-  presentation?: 'sheet' | 'fullscreen' | 'dialog';
-  component: ComponentType<any>;   // screen component, rendered in its own root
-  params?: unknown;                // serializable-ish; crosses the root boundary
+	open: boolean
+	onClose?: (result?: unknown) => void
+	presentation?: 'sheet' | 'fullscreen' | 'dialog'
+	component: ComponentType<any>
+	params?: unknown
 }
-<Modal open={show} onClose={close} presentation="sheet"
-       component={SettingsSheet} params={{ userId }} />
+declare function ProposedModal(props: ModalProps): JSX.Element
+function SettingsSheet(props: { userId: string }) {
+	return <Text>{props.userId}</Text>
+}
+export function HistoricalExample() {
+	return (
+		<ProposedModal
+			open
+			presentation="sheet"
+			component={SettingsSheet}
+			params={{ userId: '42' }}
+			onClose={(result) => console.log(result)}
+		/>
+	)
+}
 ```
 
 Plus an imperative service for flows that return a value:
 `const res = await modal.open(PickerSheet, params)` — native
 `showModal`'s closeCallback carries results; web resolves the same promise.
 
+```ts
+// Proposed early service shape; not a current portable export.
+type PickerParams = { selected: string }
+declare const modal: {
+	open(component: (props: PickerParams) => unknown, params: PickerParams): Promise<string>
+}
+const PickerSheet = (props: PickerParams) => props.selected
+async function choose() {
+	return await modal.open(PickerSheet, { selected: 'coat' })
+}
+```
+
 Same applies, weaker, to `Drawer` (`mainContent`/`leftDrawer` via `hostSlot` —
 that's within one root, so context survives; model it as slot props
 `<Drawer main={…} drawer={…}>`).
+
+```tsx
+import { Drawer, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return <Drawer main={<Text>Main content</Text>} drawer={<Text>Menu</Text>} open={false} />
+}
+```
 
 ## The platform list contract
 
@@ -244,7 +401,22 @@ The old generic `ListProps<T>` sketch below belongs to platform-authentic
 platform subpaths). The shared root `List` is now a separate, child-based
 content list; use `VirtualList` for portable windowed collections.
 
+```tsx
+// Items.ios.tsrx: the current platform list API.
+import { UITableView } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
+
+const items = [{ id: 'coat', title: 'Coat' }]
+const renderItem = (item: (typeof items)[number]) => <Text>{item.title}</Text>
+export function Items() {
+	return <UITableView items={items} renderItem={renderItem} />
+}
+```
+
 ```ts
+// Proposed early list contract; consult platform declarations for current props.
+type ClassValue = string
+type StyleObject = Record<string, string | number>
 interface ListProps<T> {
 	items: readonly T[]
 	renderItem: (item: T, index: number) => unknown // a row template, not a child
@@ -278,6 +450,22 @@ bug. The native leaf now rejects the mounted parent shape with an explicit
 This change adds the same escape hatch to `@octane-xplat/ui`. The demo covers
 the shared `ScrollBox` + `List` shape; native device verification remains lab
 work, so this conclusion is marked desk-source rather than lab-verified.
+
+```tsx
+// Current replacement for the historical ScrollBox + List shape, iOS file.
+import { UITableView } from '@octane-xplat/ui/ios'
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+
+const items = ['Coat', 'Shoes']
+const renderItem = (item: string) => <Text>{item}</Text>
+export function Items() {
+	return (
+		<ScrollableArea axis="both">
+			<UITableView items={items} renderItem={renderItem} />
+		</ScrollableArea>
+	)
+}
+```
 
 **Lab findings (iOS sim, experiment 1 — `packages/ui/src/List.tsrx`):**
 
@@ -316,6 +504,17 @@ leaf can't feed reconciled children into `itemTemplate`. Shared code calls it
 as `<List items={msgs} renderItem={(m) => <MsgRow msg={m}/>}/>`; the function
 body compiles normally.
 
+```tsx
+// Items.ios.tsrx
+import { UITableView } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
+
+const renderItem = (message: string) => <Text>{message}</Text>
+export function Messages() {
+	return <UITableView items={['Hello']} renderItem={renderItem} />
+}
+```
+
 > [!WARNING]
 > TSRX trap inside the web leaf: a bare `{renderItem(item)}` call in an `@for`
 > body iterates but mounts nothing — items render as empty anchors. Wrap call
@@ -329,9 +528,31 @@ body compiles normally.
 
 ## The Overlay/Popover/Toast contract
 
-```ts
-<Overlay open={open} onDismiss={…} shadeCover?>…in-window overlay…</Overlay>
-<Popover anchor={ref} placement="top">…anchored…</Popover>
+```tsx
+import { Screen, Overlay, Popover, View, Text } from '@octane-xplat/ui'
+import { useRef, useState } from 'octane'
+
+export function Example() {
+	const [open, setOpen] = useState(false)
+	const anchor = useRef(null)
+	return (
+		<Screen>
+			<View
+				ref={(view) => {
+					anchor.current = view
+				}}
+			>
+				<Text>Anchor</Text>
+			</View>
+			<Overlay open={open} onDismiss={() => setOpen(false)} shadeCover>
+				<Text>Floating content</Text>
+			</Overlay>
+			<Popover anchor={anchor} open={open} placement="top" onDismiss={() => setOpen(false)}>
+				<Text>Anchored content</Text>
+			</Popover>
+		</Screen>
+	)
+}
 ```
 
 Native: `RootLayout.open(view, {shadeCover, animation})` — the leaf creates a
@@ -353,6 +574,20 @@ deep imports can land in separate bundled module instances, so its
 `getRootLayout()`/stack copy isn't the same array other packages read.)
 `createPortal` is not enabled in the universal driver at all — `Popover`
 opens an anchored layer via `rl.open` the same way `Overlay` does.
+
+```tsx
+import { Screen, Overlay, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Screen>
+			<Overlay open shadeCover>
+				<Text>Content on this screen</Text>
+			</Overlay>
+		</Screen>
+	)
+}
+```
 
 Caveats learned in the sweep:
 
@@ -395,9 +630,23 @@ native sheet on iOS. The `Sheet` primitive is the **in-window** bottom
 sheet — content stays inside the app window on the declaring page's
 RootLayout (native) or a `document.body` portal layer (web):
 
-```ts
-<Sheet open={open} onDismiss={…} shadeCover?>…bottom panel…</Sheet>
-openSheet(Component, params) → Promise<result>   // openModal-shaped service
+```tsx
+// Proposed historical API, superseded by shared BottomSheet.
+import { Text } from '@octane-xplat/ui'
+
+declare function Sheet(props: {
+	open: boolean
+	onDismiss: () => void
+	shadeCover?: boolean
+	children?: unknown
+}): JSX.Element
+export function HistoricalSheet() {
+	return (
+		<Sheet open onDismiss={() => console.log('Dismissed')} shadeCover>
+			<Text>Bottom panel</Text>
+		</Sheet>
+	)
+}
 ```
 
 Declarative form resolves its root via the `rootLayoutFor` sentinel walk
@@ -409,20 +658,64 @@ the sheet host registers as a tracked RootLayout popup child
 (`getPopupIndex(host) >= 0` — `[assert] sheet host registered`), so shade
 covers, `bringToFront`, and `closeAll` all see it.
 
+```tsx
+import { Screen, BottomSheet, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Screen>
+			<BottomSheet label="Details" isOpen>
+				<Text>Current shared sheet replacement</Text>
+			</BottomSheet>
+		</Screen>
+	)
+}
+```
+
 ## Liquid Glass (decision #37)
 
 This section records the earlier glass experiment. The shared `glass` prop
 and web approximation were subsequently removed; today only
 `LiquidGlass`/`LiquidGlassContainer` from `@octane-xplat/ui/ios` are public.
 
+```tsx
+// Glass.ios.tsrx
+import { LiquidGlass } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
+
+export function Glass() {
+	return (
+		<LiquidGlass variant="regular" interactive>
+			<Text>Glass content</Text>
+		</LiquidGlass>
+	)
+}
+```
+
 `@nativescript/core` ≥ 9.1 ships three seams the primitives wrap; all are
 `supportsGlass()`-gated — `__APPLE__ && SDK_VERSION >= 26` — so everything
 degrades to inert layouts on Android and iOS < 26:
 
-| Surface                    | Wraps                         | Behavior                                                                                                                                                                                                            |
-| -------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LiquidGlass`              | `liquidglass` layout          | Element root IS the glass — interactive, touch-tracking `UIGlassEffect`. Props `variant` (`'regular'`/`'clear'`, default `'regular'`), `interactive` (default `true`), `tint`, `animateChangeDuration`              |
-| `LiquidGlassContainer`     | `liquidglasscontainer` layout | `UIGlassContainerEffect` region — sibling glass views morph together across `spacing` (default 8). AbsoluteLayout host: children position via `left`/`top`, or nest layout primitives inside                        |
+```tsx
+// Glass.ios.tsrx; fallback remains an inert layout on older iOS.
+import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
+
+export function Glass() {
+	return (
+		<LiquidGlassContainer spacing={8}>
+			<LiquidGlass variant="regular" interactive>
+				<Text>Glass content</Text>
+			</LiquidGlass>
+		</LiquidGlassContainer>
+	)
+}
+```
+
+| Surface                    | Wraps                         | Behavior                                                                                                                                                                                                         |
+| -------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LiquidGlass`              | `liquidglass` layout          | Element root IS the glass — interactive, touch-tracking `UIGlassEffect`. Props `variant` (`'regular'`/`'clear'`, default `'regular'`), `interactive` (default `true`), `tint`, `animateChangeDuration`           |
+| `LiquidGlassContainer`     | `liquidglasscontainer` layout | `UIGlassContainerEffect` region — sibling glass views morph together across `spacing` (default 8). AbsoluteLayout host: children position via `left`/`top`, or nest layout primitives inside                     |
 | `glass` prop on containers | `iosGlassEffect` View prop    | `View`/`Stack`/`Grid`/`HStack`/`Absolute`/`Pressable`/`ScrollView` take `glass={true \| 'regular' \| 'clear' \| GlassConfig}` — background glass inserted behind the view's content. **Never interactive upstream** |
 
 Caveats found reading the 9.1.2 implementation:
@@ -452,31 +745,33 @@ host view — all sweep asserts green.
 ## Original Pressable & input sketches and later findings
 
 ```ts
+// Proposed historical props; current inputs use onChange and bind.
+type Ref<T> = (handle: T) => void
 interface PressableProps {
-	onPress?
-	onLongPress?
-	onDoublePress?
-	onPressIn?
-	onPressOut?
-	disabled?
+	onPress?: () => void
+	onLongPress?: () => void
+	onDoublePress?: () => void
+	onPressIn?: () => void
+	onPressOut?: () => void
+	disabled?: boolean
 	hitSlop?: number
 	ignoreTouchAnimation?: boolean // opts out of TouchManager global press-scale
-	className?
-	style?
+	className?: string
+	style?: Record<string, string | number>
 }
 interface TextInputProps {
 	value: string
 	onChangeText?: (text: string) => void // NOT onChange(event) — RN convention
-	onSubmit?
-	onFocus?
-	onBlur?
-	placeholder?
-	placeholderTextColor?
-	keyboardType?
-	returnKeyType?
-	autocorrect?
-	secure?
-	editable?
+	onSubmit?: () => void
+	onFocus?: () => void
+	onBlur?: () => void
+	placeholder?: string
+	placeholderTextColor?: string
+	keyboardType?: string
+	returnKeyType?: string
+	autocorrect?: boolean
+	secure?: boolean
+	editable?: boolean
 	ref?: Ref<{ focus(): void; blur(): void }>
 }
 interface TextAreaProps extends TextInputProps {
@@ -540,11 +835,18 @@ interface TextAreaProps extends TextInputProps {
 runs:
 
 ```tsx
-<RichText>
-	<RichTextSpan text="Read " />
-	<RichTextSpan className="link" onPress={openProfile} text="@alec" />
-	<RichTextSpan text="'s post." />
-</RichText>
+import { RichText, RichTextSpan } from '@octane-xplat/ui'
+
+export function Post() {
+	const openProfile = () => console.log('Open profile')
+	return (
+		<RichText>
+			<RichTextSpan text="Read " />
+			<RichTextSpan className="link" onPress={openProfile} text="@alec" />
+			<RichTextSpan text="'s post." />
+		</RichText>
+	)
+}
 ```
 
 The web leaf composes inline DOM spans. The native leaf renders one `label`
@@ -554,9 +856,34 @@ the current driver parents `FormattedString` → `Span`, but folding bare text
 children into `Span.text` is part of provisional decision #25. A single string
 child is accepted as a convenience and is normalized by the native leaf.
 
+```tsx
+import { RichText, RichTextSpan } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<RichText>
+			<RichTextSpan text="Read " />
+			<RichTextSpan text="the guide" />
+		</RichText>
+	)
+}
+```
+
 Use `className` for static run styles, `style` for dynamic values, and
 `onPress` for a run-level tap. The root accepts only inline run children — do
 not place `View` or other layout primitives inside it.
+
+```tsx
+import { RichText, RichTextSpan } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<RichText>
+			<RichTextSpan className="link" text="Open guide" onPress={() => console.log('Guide')} />
+		</RichText>
+	)
+}
+```
 
 - Static text in shared code: `<Text>Hello {name}</Text>` — the native driver
   folds `#text` into `text` prop automatically (TextBase parents only).
@@ -606,6 +933,29 @@ and nested ref arrays follow Octane’s attachment and cleanup lifecycle.
 Keep raw host operations in platform leaves. See [using refs](primitives.md#refs)
 for examples and migration from `bind`.
 
+```tsx
+import { useRef } from 'octane'
+import { TextInput, Text, Pressable } from '@octane-xplat/ui'
+
+export function Example() {
+	const input = useRef<import('@octane-xplat/ui').TextInputHandle | null>(null)
+	return (
+		<>
+			<TextInput
+				label="Name"
+				value=""
+				ref={(handle) => {
+					input.current = handle
+				}}
+			/>
+			<Pressable onPress={() => input.current?.focus()}>
+				<Text>Edit</Text>
+			</Pressable>
+		</>
+	)
+}
+```
+
 ## What primitives deliberately do NOT do
 
 - `useMeasure` observes by default. Use `{ observe: false }` when a single
@@ -643,12 +993,38 @@ Android. Stage 2 validates this engine boundary for the vertical foundation.
 Keep `UITableView`/`RecyclerView` in the platform subpaths for apps that
 want their platform-authentic list behavior.
 
+```tsx
+// Current iOS platform API; this does not change the historical gate result.
+import { UITableView } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
+
+const items = [{ id: 'coat', title: 'Coat' }]
+export function Items() {
+	return <UITableView items={items} renderItem={(item) => <Text>{item.title}</Text>} />
+}
+```
+
 Stage 1 supplied row heights. Stage 2 verifies post-layout correction after a
 measured row changes height (Q29). Recycling-safe reuse under fast scroll,
 viewability callbacks, heterogeneous item types, grid/masonry, sticky rows,
 load thresholds, and long-session performance remain untested; Q30 tracks the
 fast-scroll and performance boundary. Small arrays remain `ScrollView` +
 `items.map(...)`.
+
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	const items = [{ title: 'Coat' }, { title: 'Shoes' }]
+	return (
+		<ScrollableArea>
+			{items.map((item) => (
+				<Text>{item.title}</Text>
+			))}
+		</ScrollableArea>
+	)
+}
+```
 
 ## VirtualList vertical foundation (Stage 2; 2026-09-27)
 
@@ -661,12 +1037,43 @@ Octane-owned on every target: a DOM scroll container on web and NativeScript
 `ScrollView` on iOS and Android. Native `UITableView`/`RecyclerView` remain
 available for their platform-authentic behavior.
 
+```tsx
+import { VirtualList, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<VirtualList
+			className="item-viewport"
+			items={[{ id: 'coat', title: 'Coat' }]}
+			keyExtractor={(item) => item.id}
+			getItemType={() => 'item'}
+			renderItem={(item) => <Text>{item.title}</Text>}
+			renderHeader={() => <Text>Packing list</Text>}
+			renderFooter={() => <Text>End</Text>}
+			renderSeparator={() => <Text>—</Text>}
+			renderEmpty={() => <Text>No items</Text>}
+		/>
+	)
+}
+```
+
 Rows outside the window unmount; this implementation does not recycle cell
 instances. State local to an unmounted row is lost, so durable row state must
 be kept outside the row and keyed by item identity. `getItemType` participates
 in row identity but does not enable a recycled-cell pool. Feed/chat callbacks,
 scroll handles, fast-scroll performance budgets, and advanced layouts remain
 outside this stage.
+
+```tsx
+import { createStore, useStore, Text } from '@octane-xplat/ui'
+
+// Kept outside the row, so unmounting a row does not delete its draft.
+const drafts = createStore<Record<string, string>>({ coat: 'Bring the warm one' })
+export function Row(props: { id: string }) {
+	const values = useStore(drafts)
+	return <Text>{values[props.id] ?? ''}</Text>
+}
+```
 
 The post-layout measurement gate changed row `r15` from 72 to 96 units while
 keeping a keyed visible row within the 2-unit tolerance on all targets:

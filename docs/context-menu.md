@@ -7,10 +7,28 @@ they affect. `@octane-xplat/context-menu` uses each platform's own menu
 appearance. Its components have different names and options, so put them
 in matching [platform files](module-resolution.md).
 
+```tsx
+// Actions.web.tsrx
+import { ContextMenu } from '@octane-xplat/context-menu/web'
+import { Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [selected, setSelected] = useState('')
+	return (
+		<ContextMenu
+			items={[{ id: 'rename', title: 'Rename' }]}
+			onItemSelected={(id) => console.log(id)}
+			trigger={() => <Text>Right-click this item</Text>}
+		/>
+	)
+}
+```
+
 This is an optional package. For a shared overflow button with actions,
 start with `MoreMenu` in [action controls](interactive-actions.md).
-The example here assumes your app supplies `items`, an `act(id)` callback,
-and styles for the trigger.
+The example logs the chosen action ID; replace that callback with your
+app’s Rename or Delete action when you connect it to real data.
 
 ## Install and import
 
@@ -28,6 +46,28 @@ The **trigger** is the content someone holds or right-clicks to open the
 menu. Supply it as a function that returns your components. The function
 in the example returns a card with a text label.
 
+```tsx
+// Actions.android.tsrx
+import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
+import { Text, View } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [selected, setSelected] = useState('')
+	return (
+		<MaterialContextMenu
+			items={[{ id: 'rename', title: 'Rename' }]}
+			onItemSelected={(id) => console.log(id)}
+			trigger={() => (
+				<View className="menu-card">
+					<Text>Post card — hold for actions</Text>
+				</View>
+			)}
+		/>
+	)
+}
+```
+
 On native, that content is drawn in a separate Octane root: its own UI
 container inside the platform control. The following details explain how
 that connection works; you can skip them when using the component:
@@ -42,15 +82,25 @@ that connection works; you can skip them when using the component:
   backing `NSView`'s `menu` property, so no detached root is needed.
 
 ```tsx
-<MaterialContextMenu
-	items={items}
-	onItemSelected={(id) => act(id)}
-	trigger={() => (
-		<View className="rounded-lg border p-4">
-			<Text>Post card — hold for actions</Text>
-		</View>
-	)}
-/>
+// Actions.android.tsrx
+import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
+import { Text, View } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [selected, setSelected] = useState('')
+	return (
+		<MaterialContextMenu
+			items={[{ id: 'rename', title: 'Rename' }]}
+			onItemSelected={(id) => console.log(id)}
+			trigger={() => (
+				<View className="menu-card">
+					<Text>Post card — hold for actions</Text>
+				</View>
+			)}
+		/>
+	)
+}
 ```
 
 ## Items and events
@@ -60,6 +110,28 @@ Menu content is data: `items` is a list of
 separator before the item. `onItemSelected(id)` reports picks. This keeps
 the bridge payload serializable and matches Expo's data-driven menu model
 in spirit (their slot children become item records here).
+
+```tsx
+// Actions.android.tsrx
+import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
+import { Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [selected, setSelected] = useState('')
+	return (
+		<MaterialContextMenu
+			items={[
+				{ id: 'rename', title: 'Rename' },
+				{ id: 'delete', title: 'Delete', destructive: true, divider: true },
+				{ id: 'archive', title: 'Archive', disabled: true },
+			]}
+			onItemSelected={(id) => console.log(id)}
+			trigger={() => <Text>Hold for actions</Text>}
+		/>
+	)
+}
+```
 
 ## Platform behavior
 

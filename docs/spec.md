@@ -77,6 +77,21 @@ A shared screen can use `Text` for words, `Pressable` for a tappable action,
 and `ScrollableArea` for content that needs to scroll. These are
 **components**: reusable pieces you combine to make a screen.
 
+```tsx
+import { Text, Pressable, ScrollableArea } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<ScrollableArea>
+			<Text>Packing list</Text>
+			<Pressable onPress={() => console.log('Packed')}>
+				<Text>Mark packed</Text>
+			</Pressable>
+		</ScrollableArea>
+	)
+}
+```
+
 When a screen needs a different layout or control on one platform, use
 [platform files](module-resolution.md). You keep one name in the rest of
 the app, and the build selects the file for that platform. See

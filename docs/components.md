@@ -19,10 +19,39 @@ for device APIs. Platform-authentic widgets (no parity promised) live behind
 software keyboard on iOS and Android; web, Linux, macOS, and Windows keep a
 neutral column wrapper.
 
+```tsx
+import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	return (
+		<KeyboardAvoiding>
+			<TextInput label="Name" value={name} onChange={setName} />
+		</KeyboardAvoiding>
+	)
+}
+```
+
 Most components accept `className`/`style`/`id` plus the platform escape props
 (`ios`, `android`, `web`) applied after shared props. `VisuallyHidden`
 intentionally omits styling props so hidden content cannot be accidentally
 made visible through component styling.
+
+```tsx
+import { View, VisuallyHidden, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<View id="summary" className="summary" web={{ 'data-testid': 'summary' }}>
+			<Text>Packing progress</Text>
+			<VisuallyHidden>
+				<Text>Two items packed</Text>
+			</VisuallyHidden>
+		</View>
+	)
+}
+```
 
 Some names follow the Astryx component library. Options and platform support
 can change as Xplat develops; check the guide for a component you rely on.
@@ -39,6 +68,26 @@ uses a 1dip transparent container, so screen-reader exposure is best-effort.
 Content `List` is rendered in full; it has no native list role and draws
 markers/dividers in its leaf. `List.edgeCompensation="inline"` adjusts row
 insets from container tokens on web only.
+
+```tsx
+import { Stack, Center, AspectRatio, VisuallyHidden, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Stack as="section" isScrollable>
+			<Center isInline>
+				<Text>Summary</Text>
+			</Center>
+			<AspectRatio ratio={16 / 9}>
+				<Text>Preview</Text>
+			</AspectRatio>
+			<VisuallyHidden>
+				<Text>Packing progress</Text>
+			</VisuallyHidden>
+		</Stack>
+	)
+}
+```
 
 ## Layout
 
@@ -84,11 +133,46 @@ disabling edits by itself. `status` uses `{ type: 'warning' | 'error' |
 'success', message?: string }`. `hasClear` is available where clearing is part
 of the control, including `TextInput`, `SearchInput`, and `Selector`.
 
+```tsx
+import { Field, TextInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	return (
+		<Field
+			label="Name"
+			description="Shown on your profile"
+			inputID="name"
+			isRequired
+			status={{ type: 'warning', message: 'Check the spelling' }}
+		>
+			<TextInput id="name" value={name} onChange={setName} hasClear isLoading size="sm" />
+		</Field>
+	)
+}
+```
+
 `FormLayout` arranges fields; it is not an HTML `<form>` and does not submit.
 `InputGroup` gives joined prefixes/suffixes and the input one visible label.
 Its `size` and disabled state flow to member controls. On web, the group uses
 `role="group"` and its label; NativeScript renders a grouped row without a
 matching accessibility group role.
+
+```tsx
+import { FormLayout, InputGroup, InputGroupText, TextInput } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<FormLayout direction="horizontal-labels">
+			<InputGroup label="Website" size="sm" isDisabled>
+				<InputGroupText>https://</InputGroupText>
+				<TextInput value="example.com" />
+			</InputGroup>
+		</FormLayout>
+	)
+}
+```
 
 | Component                                               | What it is                                                       | Key props                                                                    |
 | ------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -138,6 +222,34 @@ stay consistent across targets. `DateRangeInput` uses `{start, end}` ISO dates
 or `null`. See the [date and file entry guide](date-picker.md) for full
 contracts and the native picker package boundary.
 
+```tsx
+import { DateInput, TimeInput, DateTimeInput } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<>
+			<DateInput
+				label="Date"
+				value="2026-10-02"
+				onChange={(value) => console.log(value)}
+				presentation="native"
+			/>
+			<TimeInput
+				label="Time"
+				value="14:30"
+				onChange={(value) => console.log(value)}
+				presentation="bottom-sheet"
+			/>
+			<DateTimeInput
+				label="Departure"
+				value="2026-10-02T14:30"
+				onChange={(value) => console.log(value)}
+			/>
+		</>
+	)
+}
+```
+
 `FileInput` is exported by `@octane-xplat/files`, which depends on
 `@octane-xplat/ui` for its field presentation. It uses portable
 `{name, uri, size?, mimeType?}` references because browser `File` objects do
@@ -147,6 +259,17 @@ default, including multi-file selection on iOS and Android; no app-level
 picker registration is needed. Web uses the browser chooser and supports drag
 and drop in `mode="dropzone"`. See the [date and file entry guide](date-picker.md)
 for platform details and AppKit file-access limits.
+
+```tsx
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
+import { useState } from 'octane'
+
+export function Attachments() {
+	const [files, setFiles] = useState<FileInputFile | FileInputFile[] | null>(null)
+	return <FileInput label="Attachments" value={files} onChange={setFiles} isMultiple />
+}
+```
 
 ## Content
 
@@ -176,6 +299,20 @@ Indicators draw the selection mark; the owning control keeps focus,
 interaction, and accessibility semantics. `registerIndicator` and
 `registerIndicators` replace named marks for subsequent lookups on each
 target.
+
+```tsx
+import { registerIndicators, Text, View } from '@octane-xplat/ui'
+import type { IndicatorProps } from '@octane-xplat/ui'
+
+function SelectionMark(props: IndicatorProps<'singleSelection'>) {
+	return (
+		<View>
+			<Text>{props.state === 'checked' ? '✓' : ''}</Text>
+		</View>
+	)
+}
+registerIndicators({ check: SelectionMark })
+```
 
 ## Disclosure & navigation
 
@@ -210,6 +347,28 @@ below its configured breakpoint. The
 [navigation shell guide](navigation-ui.md) covers composition, portable
 boundaries, overflow, and resizing.
 
+```tsx
+import { TabList, Tab, AppShell, SideNav, SideNavItem, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<AppShell
+			sideNav={
+				<SideNav>
+					<SideNavItem label="Projects" href="/projects" />
+				</SideNav>
+			}
+			mobileNav={{ breakpoint: 'md' }}
+		>
+			<TabList value="projects" onChange={(value) => console.log(value)}>
+				<Tab value="projects" label="Projects" href="/projects" />
+			</TabList>
+			<Text>Projects</Text>
+		</AppShell>
+	)
+}
+```
+
 ## Data display
 
 | Component                          | What it is                                   | Key props                                                               |
@@ -222,7 +381,7 @@ boundaries, overflow, and resizing.
 | `ProgressGroup`                    | Stacked labeled `Meter` rows                 | `items`                                                                 |
 | `Meter`                            | Gauge/dash ring                              | `value`, `max`, `strokeWidth`                                           |
 | `ProgressBar`                      | Linear determinate or indeterminate progress | `value`, `max`, `label`, `marks`                                        |
-| `MetadataList`, `MetadataListItem` | Aligned label/value details                  | `columns`, `labelPosition`, `label`, `children`                         |
+| `MetadataList`, `MetadataListItem` | Aligned label/value details                  | `columns`, `label`, `children`                         |
 | `StatusDot`                        | Accessible colored status signal             | `variant`, `label`, `isPulsing`, `tooltip`                              |
 | `Timestamp`                        | Localized relative or absolute instant       | `value`, `format`, `isLive`, `hasTooltip`                               |
 | `Timer`                            | Live elapsed duration                        | `startTime`, `format`, `type`, `size`                                   |
@@ -243,6 +402,30 @@ with [`ChatLayout`](../recipes/chat-conversation.md) for a complete conversation
 or combine `ChatMessageList`, `ChatMessage`, and `ChatMessageBubble` inside an
 existing scroll surface.
 
+```tsx
+import { ChatLayout, ChatComposer, ChatMessage, ChatMessageBubble } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [message, setMessage] = useState('')
+	return (
+		<ChatLayout
+			composer={
+				<ChatComposer
+					value={message}
+					onChange={setMessage}
+					onSubmit={(value) => console.log(value)}
+				/>
+			}
+		>
+			<ChatMessage sender="assistant">
+				<ChatMessageBubble>Hello! Where are you traveling?</ChatMessageBubble>
+			</ChatMessage>
+		</ChatLayout>
+	)
+}
+```
+
 | Component                                                                                                                               | What it is                                                            | Key props                                                     |
 | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------- |
 | `ChatLayout`, `ChatLayoutScrollButton`                                                                                                  | Scrollable conversation, docked composer, and return-to-bottom action | `composer`, `emptyState`, `scrollRef`, `density`              |
@@ -254,8 +437,7 @@ existing scroll surface.
 | `ChatSendButton`, `ChatDictationButton`                                                                                                 | Send/stop action and speech input control                             | `isStopShown`, `isDisabled`, `onSend`, `onStop`               |
 | `useChatStreamScroll`, `useChatNewMessages`, `useChatPasteAsToken`, `useChatComposerTokens`, `useSpeechRecognition`, `useChatDictation` | Hooks for streaming, new messages, tokens, and dictation              | See each hook's TSDoc                                         |
 
-`ChatComposerInput.ref` delivers a portable imperative handle because React
-refs do not cross this renderer boundary. Key and paste callbacks expose
+`ChatComposerInput.ref` delivers the component's portable imperative handle. Key and paste callbacks expose
 portable event records; their `native` member carries a browser event only on
 web. `ChatComposerFile` exposes name, MIME type, size, and the original browser
 `File` in `native`; file delivery is web-only. Web token chips are inline in
@@ -269,6 +451,31 @@ entry exports the Chat family through its shared implementation and uses the
 native text-input behavior.
 Windows resolves the shared `index.ts` through its app TypeScript mapping;
 its Chat runtime has not been exercised separately.
+
+```tsx
+import { ChatComposerInput, Pressable, Text } from '@octane-xplat/ui'
+import { useState, useRef } from 'octane'
+
+export function Example() {
+	const [message, setMessage] = useState('')
+	const composer = useRef<import('@octane-xplat/ui').ChatComposerInputHandle | null>(null)
+	return (
+		<>
+			<ChatComposerInput
+				value={message}
+				onChange={setMessage}
+				bind={(handle) => {
+					composer.current = handle
+				}}
+				onKeyDown={(event) => console.log(event.key)}
+			/>
+			<Pressable onPress={() => composer.current?.focus()}>
+				<Text>Write a message</Text>
+			</Pressable>
+		</>
+	)
+}
+```
 
 ## Overlays
 
@@ -296,6 +503,25 @@ separate native root, so pass its data as props instead of depending on
 presenter context. `openWindow` opens a host window where supported; modal
 routing shares the navigation layer — see [navigation](navigation.md).
 
+```tsx
+import { Screen, Dialog, Text, Pressable, showToast } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [open, setOpen] = useState(false)
+	return (
+		<Screen>
+			<Dialog isOpen={open} onOpenChange={setOpen}>
+				<Text>Saved details</Text>
+			</Dialog>
+			<Pressable onPress={() => showToast({ body: 'Saved' })}>
+				<Text>Save</Text>
+			</Pressable>
+		</Screen>
+	)
+}
+```
+
 On macOS, `Dialog`, `AlertDialog`, `BottomSheet`, and `Lightbox` render inline
 because the AppKit host has no shared in-window layer service. `ToastViewport`
 provides context but does not mount a macOS toast stack; the standalone
@@ -304,6 +530,24 @@ player is provided by the separate `@octane-xplat/video` package. macOS
 `Carousel` is a basic horizontal scroller without navigation buttons, looping,
 edge fades, or a `CarouselHandle`; `ScrollableArea` ignores pull-to-refresh and
 uses block scrolling for `axis="both"`.
+
+```tsx
+import { Dialog, Toast, ScrollableArea, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<>
+			<Dialog isOpen onOpenChange={() => {}}>
+				<Text>Inline details on AppKit</Text>
+			</Dialog>
+			<Toast body="Saved" />
+			<ScrollableArea axis="both">
+				<Text>Content</Text>
+			</ScrollableArea>
+		</>
+	)
+}
+```
 
 ## Leaf packages
 

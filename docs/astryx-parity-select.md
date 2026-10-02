@@ -53,6 +53,20 @@ are both aliases of `SelectProps`. See [shared exports](../packages/ui/src/index
 [macOS exports](../packages/ui/src/index.macos.ts), and
 [SelectMenu](../packages/ui/src/aliases.web.tsrx).
 
+```tsx
+import { Selector, MultiSelector } from '@octane-xplat/ui'
+
+export function Example() {
+	const options = [{ value: 'sfo', label: 'San Francisco' }]
+	return (
+		<>
+			<Selector options={options} defaultValue="sfo" />
+			<MultiSelector options={options} defaultValue={['sfo']} />
+		</>
+	)
+}
+```
+
 **Capabilities absent from Select are not necessarily absent from the library.**
 `Typeahead`/`BaseTypeahead`, `Tokenizer`, `ComplexSelector`, and `PowerSearch`
 already have separate exports and props. For example,
@@ -62,6 +76,28 @@ search/bootstrap, optional cancellation, stale-response generations, and
 `auxiliaryData.group` grouping. [Tokenizer](../packages/ui/src/Tokenizer.tsrx)
 already supports `hasCreate`, removable tokens, and `maxEntries`.
 Those source facts do not establish full Astryx parity or runtime verification.
+
+```tsx
+import { useState } from 'octane'
+import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
+
+export function Example() {
+	const source = createStaticSource([
+		{ id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
+	])
+	const [items, setItems] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
+	return (
+		<Tokenizer
+			label="Regions"
+			searchSource={source}
+			value={items}
+			onChange={setItems}
+			hasCreate
+			maxEntries={5}
+		/>
+	)
+}
+```
 
 ## Astryx contracts and why the family is split
 
@@ -113,6 +149,19 @@ which PowerSearch composes. It is not a missing shipped free-text mode of Select
 or Typeahead. PowerSearch also accepts free strings within configured value
 editors; these become typed filters, not arbitrary Select option keys.
 
+```tsx
+// Xplat usage of the same token-creation role; not an Astryx import.
+import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
+import type { SearchableItem } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+const source = createStaticSource([])
+export function Tags() {
+	const [tags, setTags] = useState<SearchableItem[]>([])
+	return <Tokenizer label="Tags" searchSource={source} value={tags} onChange={setTags} hasCreate />
+}
+```
+
 ## Prioritized gaps
 
 P0 = correctness/accessibility of the current control; P1 = useful cross-platform
@@ -141,6 +190,32 @@ placement/collision handling, and updates on resize/scroll. Mobile
 anchor page’s RootLayout and tracks layout/scroll. Both provide outside-tap
 backdrops. Therefore “Select has no portal or anchoring” would be incorrect for
 these targets.
+
+```tsx
+import { Screen, View, Pressable, Popover, Text } from '@octane-xplat/ui'
+import { useState, useRef } from 'octane'
+
+export function Example() {
+	const anchor = useRef(null)
+	const [open, setOpen] = useState(false)
+	return (
+		<Screen>
+			<View
+				bind={(view) => {
+					anchor.current = view
+				}}
+			>
+				<Pressable onPress={() => setOpen(true)}>
+					<Text>Open</Text>
+				</Pressable>
+			</View>
+			<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)}>
+				<Text>Anchored content</Text>
+			</Popover>
+		</Screen>
+	)
+}
+```
 
 Astryx’s [Layer/useLayer.tsx][layer-source] uses CSS anchor positioning and the
 browser Popover API/top layer, retaining inline hosting when suitable and
@@ -175,6 +250,26 @@ The sibling API split is already plausible: Typeahead uses `SearchSource<T>` and
 uses generic `Value`; PowerSearch uses typed filters. ComplexSelector adapts
 Astryx’s `handleRef` to `bind`, and PowerSearch adapts the ref to a callback.
 Treat those as explicit portability choices, not interchangeable signatures.
+
+```tsx
+import { useState } from 'octane'
+import { Typeahead, Tokenizer, ComplexSelector, createStaticSource, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	const source = createStaticSource([{ id: '42', label: 'Alec' }])
+	const [person, setPerson] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
+	const [people, setPeople] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
+	return (
+		<>
+			<Typeahead label="Person" searchSource={source} value={person} onChange={setPerson} />
+			<Tokenizer label="People" searchSource={source} value={people} onChange={setPeople} />
+			<ComplexSelector label="Color" value="blue">
+				{(value) => <Text>{value}</Text>}
+			</ComplexSelector>
+		</>
+	)
+}
+```
 
 ## Recommended phases and acceptance evidence
 
@@ -222,6 +317,21 @@ and HTML Select on web, via platform subpaths with distinct contracts.
 Material, and AppKit date/time widgets; it is not an entity-search or multi-select
 solution. Neither leaf removes the need for shared searchable/multi-selection
 UX, and plugin-backed functionality must stay outside dependency-free UI additions.
+
+```tsx
+// Region.ios.tsrx: platform-authentic picker, distinct from shared Selector.
+import { SwiftUIPicker } from '@octane-xplat/picker/ios'
+
+export function Region() {
+	return (
+		<SwiftUIPicker
+			label="Region"
+			options={[{ id: 'sfo', title: 'San Francisco' }]}
+			defaultSelection="sfo"
+		/>
+	)
+}
+```
 
 ## Demo, test, and verification coverage
 

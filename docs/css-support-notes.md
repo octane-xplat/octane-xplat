@@ -83,6 +83,13 @@ The native Vite preset (`@octane-xplat/cli/vite`) owns three css passes —
 they run per-module in dev and on the emitted `.css` asset in build
 (`generateBundle`, before ns-vite's `addTaggedAdditionalCSS` pass):
 
+```ts
+import { defineConfig } from 'vite'
+import { xplatNative } from '@octane-xplat/cli/vite'
+
+export default defineConfig(({ mode }) => xplatNative(mode))
+```
+
 1. **px → dip rewrite.** Shared stylesheets are authored in web px; NS reads
    `px` as _device_ pixels. `Npx` → `Ndip`. Inline `style` props were always
    dips and are untouched. (Absorbs text-coral's app-local `pxToDip` plugin.)
@@ -107,6 +114,11 @@ css as JS modules — `import '@pkg/file.css'`, one per file, like
 `apps/web/src/main.tsrx`. The transform warns when a `.css` source contains
 `@import`.
 
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import './app.css'
+```
+
 ## Author-time audit (`pnpm check:css`)
 
 `scripts/check-css.mjs` runs as part of `pnpm lint`: it parses every shared
@@ -119,8 +131,21 @@ upgrades). Dropped-but-intentional props (`display`, `grid-area`,
 `DROPPED_INTENTIONAL` map with a reason each; `xplat-web-only` blocks are
 stripped before auditing since they never reach native.
 
+```sh
+pnpm check:css
+```
+
 This catches the silent-drop class — a typo'd prop name or a prop NS simply
 doesn't read (`position`, `overflow`, `cursor`...) half-applies a rule with
 zero diagnostics. What it can't catch: registered props with divergent
 _semantics_ (`transform` percents parse as dips, stretch clobbering width) —
 that's what the measured parity lane is for.
+
+
+```css
+/* Prefer a layout primitive over unsupported position CSS. */
+.notice {
+	padding: 16px;
+	color: #222;
+}
+```

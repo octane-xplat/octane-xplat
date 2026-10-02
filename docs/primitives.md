@@ -7,6 +7,21 @@ A **component** is a reusable piece of a screen. `Text` displays words,
 components **props**: options such as the text to show or what to do when
 someone presses a button.
 
+```tsx
+import { View, Text, Pressable } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<View>
+			<Text>Packing list</Text>
+			<Pressable onPress={() => console.log('Add item')}>
+				<Text>Add item</Text>
+			</Pressable>
+		</View>
+	)
+}
+```
+
 If you're working with an agent, describe the screen in terms of what someone
 can do: “Show saved orders. If there are none, explain how to add one. If
 loading fails, offer Retry.” You can also write the components yourself.
@@ -72,8 +87,45 @@ Use `Absolute` when children need to overlap. `StackItem size="fill"` grows
 into remaining space, and `crossAlignSelf` changes an item's alignment across
 the row or column.
 
+```tsx
+import { Stack, HStack, VStack, StackItem, Absolute, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<VStack gap={2} padding={4}>
+			<HStack gap={1}>
+				<Text>Bag</Text>
+				<StackItem size="fill" crossAlignSelf="center">
+					<Text>Ready</Text>
+				</StackItem>
+			</HStack>
+			<Stack direction="horizontal">
+				<Text>Next item</Text>
+			</Stack>
+			<Absolute>
+				<Text left={0} top={0}>
+					Badge
+				</Text>
+			</Absolute>
+		</VStack>
+	)
+}
+```
+
 On web, `Stack as="section"` selects an HTML tag. Native cannot create that
 tag. Native `isScrollable` puts the layout inside a `ScrollView`.
+
+```tsx
+import { Stack, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Stack as="section" isScrollable>
+			<Text>Notes</Text>
+		</Stack>
+	)
+}
+```
 
 Xplat also offers the OS's own controls through platform imports such as
 `@octane-xplat/ui/ios` and `@octane-xplat/ui/android`. They keep their platform's
@@ -85,6 +137,17 @@ a shared screen will fail the other platform's build.
 The [implementation map](#implementation-map) lists more controls and their
 underlying views for readers who need that detail.
 
+```tsx
+// Settings.ios.tsrx: keep this import in the iOS file.
+import { UISwitch } from '@octane-xplat/ui/ios'
+import { useState } from 'octane'
+
+export function Settings() {
+	const [checked, setChecked] = useState(false)
+	return <UISwitch checked={checked} onCheckedChange={setChecked} />
+}
+```
+
 ### Text and keyboard actions
 
 `TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.
@@ -92,6 +155,24 @@ On iOS and Android, submission is enabled only with
 `returnKeyType="done"` or `returnKeyType="send"`; other Return keys insert
 a newline. Keep `value` updated from `onChange`; the
 [text-entry guide](text-entry.md) explains how.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [note, setNote] = useState('')
+	return (
+		<TextArea
+			label="Note"
+			value={note}
+			onChange={setNote}
+			returnKeyType="done"
+			onSubmit={() => console.log('Submitted')}
+		/>
+	)
+}
+```
 
 Some keyboards compose a character over several keystrokes, such as when
 entering Japanese text. This is called **IME composition**. Web inputs do
@@ -105,6 +186,18 @@ action an `accessibilityLabel` when its visible content does not name it,
 so a screen reader can describe it. Native accessibility behavior has
 [separate checks](platform-notes.md#a11y-prop-map-shared-prop--leaf-attrs).
 
+```tsx
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Pressable disabled accessibilityLabel="Save note" onPress={() => console.log('Saved')}>
+			<Text>Save</Text>
+		</Pressable>
+	)
+}
+```
+
 ### Reusable rows
 
 `Item` is a reusable, self-drawn row for settings, preferences, and
@@ -116,6 +209,36 @@ inside `FieldGroup`; the row owns its layout and press behavior, while
 [ListDemo](../packages/demos/src/ListDemo.tsrx) for both forms. Press a row
 with an action and verify one callback; disable it and verify the action
 stays unchanged.
+
+```tsx
+import { Item, FieldGroup, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<FieldGroup>
+			<Item
+				title="Notifications"
+				supportingText="Daily reminders"
+				leading={<Text>•</Text>}
+				trailing={<Text>Off</Text>}
+				onPress={() => console.log('Open reminders')}
+			/>
+			<Item>
+				<Item.Leading>
+					<Text>•</Text>
+				</Item.Leading>
+				<Item.Content>
+					<Text>Account</Text>
+					<Item.Supporting>Profile settings</Item.Supporting>
+				</Item.Content>
+				<Item.Trailing>
+					<Text>›</Text>
+				</Item.Trailing>
+			</Item>
+		</FieldGroup>
+	)
+}
+```
 
 `List` and `ListItem` describe bounded content, such as a short set of steps
 or notices. `List` is rendered in full and is not a data-windowing or native
@@ -130,6 +253,25 @@ On web, actionable `ListItem` rows use one anchor/button Tab stop; disabled
 rows do not activate. Give rich row labels an `accessibilityLabel` when the
 visible content does not name the action. `edgeCompensation="inline"` uses
 container padding tokens on web and is ignored on native.
+
+```tsx
+import { List, ListItem, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<List listStyle="decimal" hasDividers>
+			<ListItem
+				label="Pack shoes"
+				description="One pair"
+				startContent={<Text>✓</Text>}
+				endContent={<Text>Ready</Text>}
+				onPress={() => console.log('Shoes')}
+			/>
+			<ListItem label="Pack coat" isDisabled onPress={() => console.log('Coat')} />
+		</List>
+	)
+}
+```
 
 On web, Tab to an actionable row and use Enter or Space to activate it.
 Rows without an action are outside the Tab sequence. Check the disabled row
@@ -148,7 +290,30 @@ The group's `size` and disabled state are inherited by supported member
 controls so the addon, input border, and input state stay aligned.
 See the [grouped field example](../packages/demos/src/ComponentsDemo.tsrx).
 
+```tsx
+import { FormLayout, Field, InputGroup, InputGroupText, TextInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [name, setName] = useState('')
+	return (
+		<FormLayout defaultOptionality="required">
+			<Field label="Name" isOptional>
+				<TextInput value={name} onChange={setName} />
+			</Field>
+			<InputGroup label="Website" description="Your profile link" size="sm" isDisabled>
+				<InputGroupText>https://</InputGroupText>
+				<TextInput value="example.com" />
+			</InputGroup>
+		</FormLayout>
+	)
+}
+```
+
 ### Native modifiers and glyphs
+
+Keep this example in an `.ios.tsx`/`.ios.tsrx` file; use the Android
+subpath in `.android.*`.
 
 Native platform widgets accept a `modifiers` array for OS-specific styling or
 properties. Import `modifier` from the matching `@octane-xplat/ui/ios` or
@@ -158,22 +323,28 @@ platform file. `Icon.select({ ios, android })` chooses a native asset for
 These selectors and modifiers are escape hatches for platform-authentic
 widgets, not shared styling props.
 
-This fragment assumes `Saved` is your screen component. Keep it in an
-`.ios.tsx`/`.ios.tsrx` file; use the Android subpath in `.android.*`.
-
 ```tsx
 import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
+import { Text } from '@octane-xplat/ui'
 
-;<UITabBar
-	tabs={[
-		{
-			title: 'Saved',
-			icon: Icon.select({ ios: 'heart.fill', android: 'favorite' }),
-			render: Saved,
-		},
-	]}
-	modifiers={[modifier.opacity(0.98)]}
-/>
+function Saved() {
+	return <Text>Saved trips</Text>
+}
+
+export function SavedTabs() {
+	return (
+		<UITabBar
+			tabs={[
+				{
+					title: 'Saved',
+					icon: Icon.select({ ios: 'heart.fill', android: 'favorite' }),
+					render: Saved,
+				},
+			]}
+			modifiers={[modifier.opacity(0.98)]}
+		/>
+	)
+}
 ```
 
 ### Implementation map
@@ -210,10 +381,40 @@ grouped announcements without reaching for the `web` escape bag. Role
 names stay portable; the native leaf translates names such as `heading` to
 NativeScript's `header`.
 
+```tsx
+import { View, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<View
+			accessible
+			accessibilityRole="summary"
+			accessibilityLiveRegion="polite"
+			accessibilityLabel="Packing progress"
+		>
+			<Text>Two items packed</Text>
+		</View>
+	)
+}
+```
+
 For mixed formatting or inline links, compose `RichText` with
 `RichTextSpan` children. Each span can carry its own `className`, `style`, and
 `onPress`; the native leaf maps the runs to NativeScript `FormattedString`
 spans and uses the span's `text` prop for driver compatibility.
+
+```tsx
+import { RichText, RichTextSpan } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<RichText>
+			<RichTextSpan text="Read " />
+			<RichTextSpan text="the guide" className="link" onPress={() => console.log('Open guide')} />
+		</RichText>
+	)
+}
+```
 
 ## When a screen needs more
 
@@ -228,6 +429,32 @@ keep durable row state outside the row and key it by item identity.
 The shared list does not promise FlashList-level performance; fast-scroll and
 long-session budgets remain open.
 
+```tsx
+import { ScrollableArea, List, ListItem, Text, VirtualList } from '@octane-xplat/ui'
+
+export function Example() {
+	const items = [{ id: 'coat', title: 'Coat' }]
+	return (
+		<>
+			<ScrollableArea>
+				{items.map((item) => (
+					<Text>{item.title}</Text>
+				))}
+			</ScrollableArea>
+			<List>
+				<ListItem label="Coat" />
+			</List>
+			<VirtualList
+				className="item-viewport"
+				items={items}
+				keyExtractor={(item) => item.id}
+				renderItem={(item) => <Text>{item.title}</Text>}
+			/>
+		</>
+	)
+}
+```
+
 Use `UITableView` (`ui/ios`) or `RecyclerView` (`ui/android`) when their
 platform-authentic list behavior is what the app needs. A native platform list
 must not sit inside a vertically scrolling `ScrollableArea` — NativeScript
@@ -237,6 +464,22 @@ on that nesting. Wrap the list in `ScrollableArea axis="both"` (a scrolling
 viewport on web and an inline shell on native) so the list owns scrolling.
 _VirtualList anchor correction and slots verified on web, iOS simulator, and
 Android emulator; native nested-list guard verified on iOS._
+
+```tsx
+// Items.ios.tsrx
+import { UITableView } from '@octane-xplat/ui/ios'
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+
+const items = [{ id: 'coat', title: 'Coat' }]
+const renderItem = (item: (typeof items)[number]) => <Text>{item.title}</Text>
+export function Items() {
+	return (
+		<ScrollableArea axis="both">
+			<UITableView items={items} renderItem={renderItem} />
+		</ScrollableArea>
+	)
+}
+```
 
 `Pager` gives paged horizontal swiping — onboarding flows, media galleries.
 It ships as the `@octane-xplat/pager` leaf — `pnpm add @octane-xplat/pager`
@@ -250,6 +493,24 @@ dots from `HStack` + `Pressable` driven by the page index (see the `pager`
 demo). The web leaf is a scroll-snap row; `onPageChange` fires after the
 snap settles.
 
+```tsx
+import { Pager } from '@octane-xplat/pager'
+import { Text } from '@octane-xplat/ui'
+
+const pages = ['Welcome', 'Pack a bag']
+const renderPage = (page: string) => <Text>{page}</Text>
+export function Onboarding() {
+	return (
+		<Pager
+			items={pages}
+			renderItem={renderPage}
+			defaultPage={0}
+			onPageChange={(page) => console.log(page)}
+		/>
+	)
+}
+```
+
 `SegmentedControl` is a self-drawn row of equal-width segments — the
 normalized shape of UISegmentedControl / Material segmented buttons, with
 no OS chrome. It takes `options` (the `RadioOption` shape), `value` +
@@ -259,12 +520,50 @@ no OS chrome. It takes `options` (the `RadioOption` shape), `value` +
 `status`, and `isLoading`; see [Inputs](components.md#inputs) for the shared
 state contract.
 
+```tsx
+import { SegmentedControl } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [filter, setFilter] = useState('all')
+	return (
+		<SegmentedControl
+			label="Items"
+			options={[
+				{ value: 'all', label: 'All' },
+				{ value: 'packed', label: 'Packed', isDisabled: true },
+			]}
+			value={filter}
+			onValueChange={setFilter}
+		/>
+	)
+}
+```
+
 `SearchInput` is a chrome-reset search field — TextInput with a leading
 glyph and a clear button, styled the same on every target (not
 UISearchBar). `value`/`onChange`/`onSubmit`/`onClear` are controlled like
 TextInput; `defaultValue` makes it uncontrolled. The leading glyph is an
 `Icon` — `icon` names a registered glyph (default `'xplat-search'`, a
 framework-provided one any app can override by registering the same name).
+
+```tsx
+import { SearchInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [query, setQuery] = useState('')
+	return (
+		<SearchInput
+			label="Find items"
+			value={query}
+			onChange={setQuery}
+			onSubmit={() => console.log('Submitted')}
+			onClear={() => console.log('Cleared')}
+		/>
+	)
+}
+```
 
 Use `Dialog` for modal content, `AlertDialog` when the user must choose an
 action, `BottomSheet` for bottom-anchored content, `Overlay` for floating
@@ -275,6 +574,55 @@ transient notification. Pass the data the content needs as props. BottomSheet
 into a snap-point surface — it opens at the smallest stop and drags between
 them via a self-drawn grabber. The platform's own modal presentation is `UIModal`/`MaterialDialog`
 
+```tsx
+import {
+	Screen,
+	Dialog,
+	AlertDialog,
+	BottomSheet,
+	Overlay,
+	Popover,
+	View,
+	Text,
+} from '@octane-xplat/ui'
+import { useState, useRef } from 'octane'
+
+export function Example() {
+	const [open, setOpen] = useState(false)
+	const anchor = useRef(null)
+	return (
+		<Screen>
+			<View
+				bind={(view) => {
+					anchor.current = view
+				}}
+			>
+				<Text>Anchor</Text>
+			</View>
+			<Dialog isOpen={open} onOpenChange={setOpen}>
+				<Text>Details</Text>
+			</Dialog>
+			<AlertDialog
+				title="Remove item?"
+				actionLabel="Remove"
+				isOpen={false}
+				onOpenChange={() => {}}
+				onAction={() => console.log('Removed')}
+			/>
+			<BottomSheet label="Actions" isOpen={false} snapPoints={[0.25, 0.5]}>
+				<Text>Actions</Text>
+			</BottomSheet>
+			<Overlay open={false}>
+				<Text>Floating content</Text>
+			</Overlay>
+			<Popover anchor={anchor} open={false}>
+				<Text>Anchored content</Text>
+			</Popover>
+		</Screen>
+	)
+}
+```
+
 - `openModal` in the subpaths — there is no shared `Modal`.
 
 `ScrollableArea` and the platform lists (`UITableView`, `RecyclerView`) accept
@@ -283,10 +631,44 @@ them via a self-drawn grabber. The platform's own modal presentation is `UIModal
 reloading and the self-drawn `Spinner` strip stays docked above
 the content. There is no OS spinner anywhere in the path.
 
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [refreshing, setRefreshing] = useState(false)
+	async function reload() {
+		setRefreshing(true)
+		try {
+			await Promise.resolve()
+		} finally {
+			setRefreshing(false)
+		}
+	}
+	return (
+		<ScrollableArea refreshing={refreshing} refreshThreshold={64} onRefresh={reload}>
+			<Text>Items</Text>
+		</ScrollableArea>
+	)
+}
+```
+
 `HoverCard` (delayed hover card) shows `content` on pointer platforms — web
 and macOS. Its touch behavior is controlled by `touchTrigger`; keep essential
 information available in the trigger. `Tooltip` remains a hint-only
 enhancement.
+
+```tsx
+import { HoverCard, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<HoverCard content={<Text>Updated today</Text>} touchTrigger="tap">
+			<Text>Report — updated today</Text>
+		</HoverCard>
+	)
+}
+```
 
 `Tooltip` remains a hint-only enhancement. It takes `trigger` +
 `content` slots and, on web, opens on hover after `openDelay` and
@@ -297,6 +679,25 @@ is an anchored `NSPopover`. On touch targets only the `trigger` renders —
 keep essential information out of `content`, or compose
 `Pressable` + `Popover`/`BottomSheet` for an explicit tap-to-reveal hint.
 
+```tsx
+import { Tooltip, Pressable, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<Tooltip
+			placement="top"
+			openDelay={300}
+			trigger={
+				<Pressable onPress={() => console.log('Save')}>
+					<Text>Save</Text>
+				</Pressable>
+			}
+			content={<Text>Save your changes</Text>}
+		/>
+	)
+}
+```
+
 Use `useMeasure()` when a screen needs live element bounds:
 `const { ref, bounds } = useMeasure()`, then pass `ref` to a primitive's
 `ref` prop. Bounds are observed by default and are `null` before the element
@@ -304,10 +705,38 @@ has a usable layout. Web coordinates are viewport-relative; native coordinates
 are screen-relative device-independent pixels. Set `{ observe: false }` for a
 single read after binding.
 
+```tsx
+import { View, Text, useMeasure } from '@octane-xplat/ui'
+
+export function Example() {
+	const { bind, bounds } = useMeasure({ observe: false })
+	return (
+		<View bind={bind}>
+			<Text>Width: {bounds?.width ?? 0}</Text>
+		</View>
+	)
+}
+```
+
 `ToastViewport` owns toast position and visibility limits. `showToast({ body,
 position, anchor, placement })` returns a dismiss function; `useToast()` routes
 to the nearest viewport or the fallback viewport. Anchored toasts follow
 `Popover`'s platform-specific overlay behavior.
+
+```tsx
+import { ToastViewport, Pressable, Text, useToast } from '@octane-xplat/ui'
+
+export function Example() {
+	const toast = useToast()
+	return (
+		<ToastViewport position="bottomEnd">
+			<Pressable onPress={() => toast({ body: 'Saved' })}>
+				<Text>Save</Text>
+			</Pressable>
+		</ToastViewport>
+	)
+}
+```
 
 ### WebView content sizing
 
@@ -327,6 +756,33 @@ not the page's pixels. There is deliberately no script-injection or
 `postMessage` bridge — the three engines expose different page-side APIs, so
 use the `ios:`/`android:`/`web:` escape bags for that.
 
+```tsx
+import { useRef } from 'octane'
+import { SafeArea, WebView, Pressable, Text } from '@octane-xplat/ui'
+
+export function Example() {
+	const browser = useRef<import('@octane-xplat/ui').WebViewHandle | null>(null)
+	return (
+		<SafeArea>
+			<WebView
+				src="https://example.com"
+				matchContents
+				scrollEnabled={false}
+				onLoad={() => console.log('Loaded')}
+				onError={(error) => console.log(error)}
+				onLayoutContent={(size) => console.log(size)}
+				bind={(handle) => {
+					browser.current = handle
+				}}
+			/>
+			<Pressable onPress={() => browser.current?.reload()}>
+				<Text>Reload</Text>
+			</Pressable>
+		</SafeArea>
+	)
+}
+```
+
 ### Video playback
 
 `Video` plays a clip — `src`, `poster`, `playing`/`onPlayingChange` (or
@@ -344,6 +800,23 @@ maintained [VideoDemo](../packages/demos/src/VideoDemo.tsrx) for a bounded
 player and play/pause controls. Check that playback advances, pause holds the
 position, and resume continues. Native player failures do not emit `onError`;
 see [video limits](known-limits.md#primitives) before designing error UI.
+
+```tsx
+import { Video } from '@octane-xplat/video'
+
+export function Clip() {
+	return (
+		<Video
+			src="https://example.com/clip.mp4"
+			poster="https://example.com/poster.jpg"
+			autoPlay
+			muted
+			loop
+			fit="contain"
+		/>
+	)
+}
+```
 
 ### Lottie animations
 
@@ -364,6 +837,22 @@ controls. The vendored plugin carries fixes unreleased upstream (load
 events, sync-src, remote URLs, `declare` fields for modern bundlers); see
 [lottie limits](known-limits.md#primitives) before designing error UI.
 
+```tsx
+import { Lottie } from '@octane-xplat/lottie'
+
+export function Celebration() {
+	return (
+		<Lottie
+			src="https://example.com/celebration.json"
+			autoPlay
+			loop={false}
+			speed={1}
+			fit="contain"
+		/>
+	)
+}
+```
+
 ### Camera preview
 
 `CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),
@@ -379,6 +868,21 @@ preview. Stills deliberately go through `media.capturePhoto` in
 changes, and ready/error state. Browser preview needs a secure context
 (HTTPS or localhost). Native `onReady` means the session started or bound,
 not that a frame has appeared; see [camera limits](known-limits.md#primitives).
+
+```tsx
+import { CameraView } from '@octane-xplat/camera'
+
+export function Preview() {
+	return (
+		<CameraView
+			facing="back"
+			active
+			onReady={() => console.log('Ready')}
+			onError={(error) => console.log(error)}
+		/>
+	)
+}
+```
 
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)
@@ -448,9 +952,15 @@ or removing it cancels a pending web hold. Rerendering keeps the pending
 interaction and invokes the latest callback if the hold completes.
 
 ```tsx
-<Pressable onLongPress={() => showToast({ body: 'Held' })}>
-	<Text>Hold to show a toast</Text>
-</Pressable>
+import { Pressable, Text, showToast } from '@octane-xplat/ui'
+
+export function HoldAction() {
+	return (
+		<Pressable onLongPress={() => showToast({ body: 'Held' })}>
+			<Text>Hold to show a toast</Text>
+		</Pressable>
+	)
+}
 ```
 
 ## Own temporary surfaces
@@ -473,7 +983,7 @@ export function Example() {
 				<Text>Open sheet</Text>
 			</Pressable>
 			{open && (
-				<BottomSheet isOpen={open} onOpenChange={setOpen}>
+				<BottomSheet label="Temporary content" isOpen={open} onOpenChange={setOpen}>
 					<Text>Temporary content</Text>
 					<Pressable onPress={() => setOpen(false)}>
 						<Text>Close sheet</Text>
@@ -497,6 +1007,24 @@ cross that boundary. Pass values as props or subscribe to shared state in
 each consuming component. The framework keeps the separate host's theme
 current; content updates do not create additional permanent subscriptions.
 Web portals retain the declaring root's context.
+
+```tsx
+import { Screen, BottomSheet, Text } from '@octane-xplat/ui'
+
+function Details(props: { title: string }) {
+	return <Text>{props.title}</Text>
+}
+
+export function Example() {
+	return (
+		<Screen>
+			<BottomSheet label="Details" isOpen>
+				<Details title="Packing list" />
+			</BottomSheet>
+		</Screen>
+	)
+}
+```
 
 ## Anchor a layer to an element
 
@@ -540,17 +1068,74 @@ is a real `NSPopover` presented by the AppKit host bridge. Pass
 `positioning: 'custom'` (context mode only) to skip anchor measurement and
 mount the layer in the overlay shell unpositioned.
 
+```tsx
+import { View, Text, Pressable, useLayer } from '@octane-xplat/ui'
+
+export function Example() {
+	const layer = useLayer({ mode: 'context', lightDismiss: true })
+	return (
+		<>
+			<View bind={layer.ref}>
+				<Pressable onPress={layer.show}>
+					<Text>Help</Text>
+				</Pressable>
+			</View>
+			{layer.render(<Text>Help text</Text>, { placement: 'below', alignment: 'start', offset: 4 })}
+		</>
+	)
+}
+```
+
 `mode: 'fixed'` drops the anchor entirely: `render` positions at the `x`/`y`
 given in its props — viewport pixels on web, page dips on native, and the
 containing window's top-left point on macOS. `lightDismiss` closes on outside
 interaction; `onShow`/`onHide` track state, `isOpen` reads it, `show`/`hide`
 toggle it.
 
+```tsx
+import { Pressable, Text, useLayer } from '@octane-xplat/ui'
+
+export function Example() {
+	const layer = useLayer({
+		mode: 'fixed',
+		lightDismiss: true,
+		onShow: () => console.log('Open'),
+		onHide: () => console.log('Closed'),
+	})
+	return (
+		<>
+			<Pressable onPress={layer.show}>
+				<Text>Open at a point</Text>
+			</Pressable>
+			{layer.render(
+				<Pressable onPress={layer.hide}>
+					<Text>Close</Text>
+				</Pressable>,
+				{ x: 20, y: 40 },
+			)}
+		</>
+	)
+}
+```
+
 On native, layer content is a separate root: it does not see the declaring
 component's context, and on macOS the content is snapshotted when the popup
 opens. Pass data through props or subscribe to shared state inside the layer
 tree. `Popover`, `Tooltip`, and `HoverCard` do not yet sit on `useLayer` —
 converging them is follow-up work.
+
+```tsx
+import { Text, useLayer } from '@octane-xplat/ui'
+
+function Details(props: { title: string }) {
+	return <Text>{props.title}</Text>
+}
+
+export function Example() {
+	const layer = useLayer({ mode: 'fixed' })
+	return <>{layer.render(<Details title="Help" />, { x: 20, y: 40 })}</>
+}
+```
 
 ## Edit a PIN
 
@@ -561,14 +1146,26 @@ of `1234` reports `1` and clears cells 2–4 rather than moving later digits.
 Replacing a filled cell keeps the remaining digits in their cells.
 
 ```tsx
-const [pin, setPin] = useState('')
-<Field label="Security code" description="Enter all four digits" isRequired>
-	<PinInput length={4} value={pin} onValueChange={setPin} onComplete={submitPin} />
-</Field>
+import { Field, PinInput } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [pin, setPin] = useState('')
+	return (
+		<Field label="Security code" description="Enter all four digits" isRequired>
+			<PinInput
+				length={4}
+				secure
+				value={pin}
+				onValueChange={setPin}
+				onComplete={(value) => console.log(value)}
+			/>
+		</Field>
+	)
+}
 ```
 
-This fragment assumes `useState`, `Field`, and `PinInput` are imported and the
-app supplies `submitPin`. `onComplete` receives a full-length PIN after an edit;
+`onComplete` receives a full-length PIN after an edit;
 it does not fire for an incomplete value or an external value update.
 The maintained [Components demo](../packages/demos/src/ComponentsDemo.tsrx)
 shows controlled entry. `secure` masks the cells, while `isDisabled` and
@@ -584,13 +1181,27 @@ Omit `value` to let the field own its text; use `value` and `onChange` together
 when the app owns it. Both modes resize on input, and controlled value updates
 also resize the field.
 
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Example() {
+	const [note, setNote] = useState('')
+	return <TextArea label="Note" autoGrow value={note} onChange={setNote} />
+}
+```
+
 `rows` sets the starting height (one row by default with `autoGrow`), and
 `maxRows` caps growth. Beyond the cap, the field scrolls internally. Without
 `autoGrow`, the field keeps its row-based height. `onChange` receives the text
 in either mode; submission follows the multiline submit rules described above.
 
 ```tsx
-<TextArea autoGrow rows={2} maxRows={4} placeholder="Write a note" />
+import { TextArea } from '@octane-xplat/ui'
+
+export function Composer() {
+	return <TextArea label="Note" autoGrow rows={2} maxRows={4} placeholder="Write a note" />
+}
 ```
 
 The [input probe](../packages/app/src/Home.tsrx) includes controlled and
@@ -604,13 +1215,20 @@ encodes markup with Foundation and loads it into a native `NSImageView`.
 Use `alt` for the accessibility label; omit it for decorative images.
 Registered `Icon` glyphs with `svg` or `markup` use this same path.
 
+```css
+.line-image {
+	width: 24px;
+	height: 24px;
+}
+```
+
 ```tsx
 import { Image } from '@octane-xplat/ui'
 
 ;<Image
 	src='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 12h16" stroke="black"/></svg>'
 	alt="Horizontal line"
-	style={{ width: 24, height: 24 }}
+	className="line-image"
 />
 ```
 

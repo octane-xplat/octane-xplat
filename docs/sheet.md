@@ -7,12 +7,28 @@ for extra actions or a short form. Start with the shared `BottomSheet`
 from `@octane-xplat/ui` for a common appearance; see
 [temporary panels](primitives.md#own-temporary-surfaces).
 
-Use the optional `@octane-xplat/sheet` package when you want the platform's
-own presentation. The iOS and Android panels use their native UI systems;
-macOS uses a window sheet, and web uses a fixed panel. Each has its own name
-and options, so keep it in a matching [platform file](module-resolution.md).
-The example is a screen fragment with an `open` state value and `setOpen`
-callback supplied by your app.
+```tsx
+import { BottomSheet, Pressable, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [open, setOpen] = useState(false)
+	return (
+		<>
+			<Pressable onPress={() => setOpen(true)}>
+				<Text>Open actions</Text>
+			</Pressable>
+			<BottomSheet label="Actions" isOpen={open} onOpenChange={setOpen}>
+				<Pressable onPress={() => setOpen(false)}>
+					<Text>Close</Text>
+				</Pressable>
+			</BottomSheet>
+		</>
+	)
+}
+```
+
+
 
 ## Install and import
 
@@ -24,20 +40,38 @@ platform-specific component from the matching target entry:
 - `BottomSheet` from `@octane-xplat/sheet/web` in `.web.ts` or `.web.tsrx`.
 - `AppKitSheet` from `@octane-xplat/sheet/macos` in `.macos.ts` or `.macos.tsrx`.
 
+Use the optional `@octane-xplat/sheet` package when you want the platform's
+own presentation. The iOS and Android panels use their native UI systems;
+macOS uses a window sheet, and web uses a fixed panel. Each has its own name
+and options, so keep it in a matching [platform file](module-resolution.md).
+The Android example below owns its `open` state and provides opening and
+closing actions.
+
 ```tsx
-<MaterialBottomSheet
-	open={open}
-	onDismissed={() => setOpen(false)}
-	skipPartiallyExpanded={false}
-	content={() => (
-		<View className="gap-3 p-5">
-			<Heading>More</Heading>
-			<Pressable onPress={() => setOpen(false)}>
-				<Text>Close</Text>
+// Actions.android.tsrx
+import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [open, setOpen] = useState(false)
+	return (
+		<>
+			<Pressable onPress={() => setOpen(true)}>
+				<Text>Open actions</Text>
 			</Pressable>
-		</View>
-	)}
-/>
+			<MaterialBottomSheet
+				open={open}
+				onDismissed={() => setOpen(false)}
+				content={() => (
+					<Pressable onPress={() => setOpen(false)}>
+						<Text>Close</Text>
+					</Pressable>
+				)}
+			/>
+		</>
+	)
+}
 ```
 
 ## Content is a render fn
@@ -45,6 +79,32 @@ platform-specific component from the matching target entry:
 Supply `content` as a function that returns the components to show in the
 panel. “Render fn” means that content-producing function. Buttons inside
 it can call your callbacks, such as `setOpen(false)` to close the panel.
+
+```tsx
+// Actions.android.tsrx
+import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
+import { Text, Pressable, View } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [open, setOpen] = useState(false)
+	return (
+		<MaterialBottomSheet
+			open={open}
+			onDismissed={() => setOpen(false)}
+			skipPartiallyExpanded={false}
+			content={() => (
+				<View className="sheet-content">
+					<Text>More</Text>
+					<Pressable onPress={() => setOpen(false)}>
+						<Text>Close</Text>
+					</Pressable>
+				</View>
+			)}
+		/>
+	)
+}
+```
 
 On native, the content is drawn in a separate Octane root: its own UI
 container inside the sheet. These details explain the implementation:
@@ -57,11 +117,63 @@ container inside the sheet. These details explain the implementation:
 The hosted subtree keeps its own event handling — `onPress` inside the
 sheet content reaches JS normally and can drive `open` back to `false`.
 
+```tsx
+// Actions.android.tsrx
+import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
+import { Text, Pressable, View } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [open, setOpen] = useState(false)
+	return (
+		<MaterialBottomSheet
+			open={open}
+			onDismissed={() => setOpen(false)}
+			skipPartiallyExpanded={false}
+			content={() => (
+				<View className="sheet-content">
+					<Text>More</Text>
+					<Pressable onPress={() => setOpen(false)}>
+						<Text>Close</Text>
+					</Pressable>
+				</View>
+			)}
+		/>
+	)
+}
+```
+
 ## Open state is controlled
 
 Your app decides whether the panel is open by supplying `open`. Update that
 value when opening it or when `onDismissed` reports that someone closed it.
 This is a **controlled** component.
+
+```tsx
+// Actions.android.tsrx
+import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
+import { Text, Pressable, View } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [open, setOpen] = useState(false)
+	return (
+		<MaterialBottomSheet
+			open={open}
+			onDismissed={() => setOpen(false)}
+			skipPartiallyExpanded={false}
+			content={() => (
+				<View className="sheet-content">
+					<Text>More</Text>
+					<Pressable onPress={() => setOpen(false)}>
+						<Text>Close</Text>
+					</Pressable>
+				</View>
+			)}
+		/>
+	)
+}
+```
 
 - `open` controls presentation on all entries.
 - `onDismissed` fires when the platform dismisses — swipe-down or
@@ -138,3 +250,30 @@ and return focus also remain unverified. The shared `@octane-xplat/ui` BottomShe
 uses a different implementation; its browser focus results do not cover this
 leaf. See [text-entry guidance](text-entry.md#release-and-restore-focus) and
 [input readiness evidence](input-readiness-notes.md).
+
+```tsx
+// Actions.web.tsrx
+import { BottomSheet } from '@octane-xplat/sheet/web'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+
+export function Actions() {
+	const [open, setOpen] = useState(false)
+	return (
+		<>
+			<Pressable onPress={() => setOpen(true)}>
+				<Text>Open actions</Text>
+			</Pressable>
+			<BottomSheet
+				open={open}
+				onDismissed={() => setOpen(false)}
+				content={() => (
+					<Pressable onPress={() => setOpen(false)}>
+						<Text>Close actions</Text>
+					</Pressable>
+				)}
+			/>
+		</>
+	)
+}
+```

@@ -7,6 +7,21 @@ fields, navigation, and access to device features such as the camera. You can
 share most of your code between a browser and a phone, and customize parts
 for each when you need to.
 
+```tsx
+import { View, Text, Pressable } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<View>
+			<Text>Packing list</Text>
+			<Pressable onPress={() => console.log('Add item')}>
+				<Text>Add item</Text>
+			</Pressable>
+		</View>
+	)
+}
+```
+
 You can write the code yourself, work with a coding agent, or mix the two.
 If you're new to programming, start with a small app you can open in your
 browser. You don't need to know React or set up a phone simulator to take

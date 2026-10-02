@@ -6,6 +6,21 @@ For plain words, use `Text`. The components here add formatting and supporting
 information: `CodeBlock` displays code, `ProgressBar` shows how far an action
 has progressed, and `Outline` lists a document's headings.
 
+```tsx
+import { Text, CodeBlock, ProgressBar, Outline } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<>
+			<Text>Upload report</Text>
+			<CodeBlock code="const ready = true" language="typescript" />
+			<ProgressBar label="Upload" value={68} />
+			<Outline items={[{ id: 'report', label: 'Report', level: 1 }]} hasScrollOnClick={false} />
+		</>
+	)
+}
+```
+
 The example combines several of these pieces into an article summary. Place
 the component in a `.tsrx` file and render it in your screen. The bars,
 labels, and outline all use sample data so you can try them before connecting
@@ -27,19 +42,25 @@ import {
 
 const source = '# Release notes\n\n## Highlights\n\n## Fixes'
 
-function ArticleSummary() @{
+function ArticleSummary() {
 	const items = useOutlineFromMarkdown(source)
-	<>
-		<Blockquote cite="Release notes">A portable quotation.</Blockquote>
-		<Code>pnpm add @octane-xplat/ui</Code>
-		<CodeBlock code="const ready = true" language="typescript" hasCopyButton={true} />
-		<MetadataList columns={2}>
-			<MetadataListItem label="Status"><StatusDot variant="success" label="Ready" /> Ready</MetadataListItem>
-			<MetadataListItem label="Updated"><Timestamp value="2026-10-01T12:00:00Z" /></MetadataListItem>
-		</MetadataList>
-		<ProgressBar label="Upload" value={68} hasValueLabel={true} />
-		<Outline items={items} hasScrollOnClick={false} />
-	</>
+	return (
+		<>
+			<Blockquote cite="Release notes">A portable quotation.</Blockquote>
+			<Code>pnpm add @octane-xplat/ui</Code>
+			<CodeBlock code="const ready = true" language="typescript" hasCopyButton={true} />
+			<MetadataList columns={2}>
+				<MetadataListItem label="Status">
+					<StatusDot variant="success" label="Ready" /> Ready
+				</MetadataListItem>
+				<MetadataListItem label="Updated">
+					<Timestamp value="2026-10-01T12:00:00Z" />
+				</MetadataListItem>
+			</MetadataList>
+			<ProgressBar label="Upload" value={68} hasValueLabel={true} />
+			<Outline items={items} hasScrollOnClick={false} />
+		</>
+	)
 }
 ```
 
@@ -111,6 +132,30 @@ renderer can display and activate outline items, but has no scroll-position or
 scroll-to-heading bridge; `hasScrollOnClick` and scroll spy therefore have no
 effect there.
 
+```tsx
+import { View, Heading, Outline, useOutlineFromDOM } from '@octane-xplat/ui'
+import { useRef } from 'octane'
+
+export function Example() {
+	const root = useRef(null)
+	const items = useOutlineFromDOM(root)
+	return (
+		<>
+			<View
+				bind={(view) => {
+					root.current = view
+				}}
+			>
+				<Heading id="summary" level={2}>
+					Summary
+				</Heading>
+			</View>
+			<Outline items={items} />
+		</>
+	)
+}
+```
+
 ## Code highlighting and copy
 
 `CodeBlock` tokenizes shared source text and uses the same language/token
@@ -121,12 +166,35 @@ scrolling is vertical only: long unwrapped lines do not horizontally scroll.
 Copy uses the host clipboard implementation and calls `onCopy` only after a
 successful write.
 
+```tsx
+import { CodeBlock } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<CodeBlock
+			code="const ready = true"
+			language="typescript"
+			isWrapped
+			hasCopyButton
+			onCopy={() => console.log('Copied')}
+		/>
+	)
+}
+```
+
 The upstream low-level helpers `applyHighlightRangesChunked`,
 `applyHighlightRangesBatch`, `applyHighlightRangesFlat`, `cleanupRanges`, and
 `ensureHighlightStyles` act directly on DOM ranges and CSS Custom Highlights.
 They are not exported from the portable root because NativeScript has no
 equivalent range API; `CodeBlock` chooses the span path on native. The portable
 root does export the tokenizer functions and token types.
+
+```ts
+import { tokenize } from '@octane-xplat/ui'
+
+const tokens = tokenize('const ready = true', 'typescript')
+console.log(tokens)
+```
 
 ## Progress, status, and time
 
@@ -135,10 +203,36 @@ relative timestamps and timers update on their own intervals. Hover cards and
 mark tooltips are pointer affordances; touch targets do not show them. Keep
 essential status in visible or accessible labels.
 
+```tsx
+import { Timestamp, Timer } from '@octane-xplat/ui'
+
+export function Example() {
+	return (
+		<>
+			<Timestamp
+				value="2026-10-01T12:00:00Z"
+				format="date_time"
+				tooltipEntries={[{ timezoneID: 'UTC', format: 'full', label: 'UTC' }]}
+			/>
+			<Timestamp value="2026-10-01T12:00:00Z" format="relative" isLive />
+			<Timer format="clock" />
+		</>
+	)
+}
+```
+
 Web pulse and indeterminate animations stop under
 `prefers-reduced-motion`. The NativeScript and experimental macOS pulse loops
 currently have no system reduced-motion subscription, so set
 `isPulsing={false}` when the app applies a reduced-motion preference itself.
+
+```tsx
+import { StatusDot } from '@octane-xplat/ui'
+
+export function Example() {
+	return <StatusDot variant="success" label="Connected" isPulsing={false} />
+}
+```
 
 The [content-display demo](../packages/demos/src/ContentDisplayDemo.tsrx)
 exercises these components from the shared package entry.
