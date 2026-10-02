@@ -15,10 +15,31 @@ import wasmUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm?url'
 type Sqlite3 = Awaited<ReturnType<typeof sqlite3InitModule>>
 const sqlite3Promise = sqlite3InitModule({ locateFile: () => wasmUrl })
 
-let db: any = null
-let dbName = ''
-let sahPool: any = null
-let persistent = false
+type DatabaseHandle = { db: any; name: string; persistent: boolean }
+const databases = new Map<number, DatabaseHandle>()
+let nextDatabaseId = 0
+let sahPoolPromise: Promise<any> | null = null
+
+const getSahPool = (sqlite3: Sqlite3) => {
+	sahPoolPromise ??= Promise.resolve()
+		.then(() =>
+			typeof (sqlite3 as any).installOpfsSAHPoolVfs === 'function'
+				? (sqlite3 as any).installOpfsSAHPoolVfs()
+				: null,
+		)
+		.catch(() => null)
+
+	return sahPoolPromise
+}
+
+const database = (id: number) => {
+	const entry = databases.get(id)
+	if (!entry) {
+		throw new Error(`sqlite db handle ${id} is not open`)
+	}
+
+	return entry
+}
 
 const normalizeParams = (params: any) =>
 	params == null ? undefined : Array.isArray(params) ? params : [params]
@@ -26,17 +47,10 @@ const normalizeParams = (params: any) =>
 const open = async (name: string) => {
 	const sqlite3: Sqlite3 = await sqlite3Promise
 	const file = name.startsWith('/') ? name : `/${name}`
+	const sahPool = await getSahPool(sqlite3)
 
-	if (db) {
-		db.close()
-	}
-
-	db = null
-	sahPool ??=
-		typeof (sqlite3 as any).installOpfsSAHPoolVfs === 'function'
-			? await (sqlite3 as any).installOpfsSAHPoolVfs().catch(() => null)
-			: null
-
+	let db: any
+	let persistent = false
 	if (sahPool) {
 		db = new sqlite3.oo1.DB(file, 'c', sahPool.vfsName)
 		persistent = true
@@ -48,51 +62,65 @@ const open = async (name: string) => {
 		persistent = false
 	}
 
-	dbName = file
-	return { persistent, version: sqlite3.version.libVersion }
+	const databaseId = ++nextDatabaseId
+	databases.set(databaseId, { db, name: file, persistent })
+	return { databaseId, persistent, version: sqlite3.version.libVersion }
 }
 
 const deleteDb = async (name: string) => {
 	const file = name.startsWith('/') ? name : `/${name}`
+	const databaseIds: number[] = []
 
-	if (db && dbName === file) {
-		db.close()
-		db = null
+	for (const [id, entry] of databases) {
+		if (entry.name === file) {
+			entry.db.close()
+			databases.delete(id)
+			databaseIds.push(id)
+		}
 	}
 
+	const sahPool = sahPoolPromise ? await sahPoolPromise : null
 	if (sahPool) {
-		return Boolean(sahPool.unlink(file))
+		return { deleted: Boolean(sahPool.unlink(file)), databaseIds }
 	}
 
 	// OpfsDb path: best-effort removal of the OPFS entry.
 	try {
 		const root = await navigator.storage.getDirectory()
 		await root.removeEntry(file.slice(1))
-		return true
+		return { deleted: true, databaseIds }
 	} catch {
-		return false
+		return { deleted: false, databaseIds }
 	}
 }
 
 const handlers: Record<string, (...args: any[]) => unknown> = {
 	open,
 	delete: deleteDb,
-	execute: (sql: string, params?: any) => db.exec({ sql, bind: normalizeParams(params) }),
-	select: (sql: string, params?: any) => db.selectObjects(sql, normalizeParams(params)),
-	selectArray: (sql: string, params?: any) => db.selectArrays(sql, normalizeParams(params)),
-	get: (sql: string, params?: any) => db.selectObjects(sql, normalizeParams(params))[0] ?? null,
-	getArray: (sql: string, params?: any) => db.selectArrays(sql, normalizeParams(params))[0] ?? null,
-	begin: () => db.exec('BEGIN'),
-	commit: () => db.exec('COMMIT'),
-	rollback: () => db.exec('ROLLBACK'),
-	getUserVersion: () => db.selectValue('PRAGMA user_version'),
-	setUserVersion: (version: number) => db.exec(`PRAGMA user_version = ${version | 0}`),
-	close: () => {
-		if (db) {
-			db.close()
+	execute: (id: number, sql: string, params?: any) =>
+		database(id).db.exec({ sql, bind: normalizeParams(params) }),
+	select: (id: number, sql: string, params?: any) =>
+		database(id).db.selectObjects(sql, normalizeParams(params)),
+	selectArray: (id: number, sql: string, params?: any) =>
+		database(id).db.selectArrays(sql, normalizeParams(params)),
+	get: (id: number, sql: string, params?: any) =>
+		database(id).db.selectObjects(sql, normalizeParams(params))[0] ?? null,
+	getArray: (id: number, sql: string, params?: any) =>
+		database(id).db.selectArrays(sql, normalizeParams(params))[0] ?? null,
+	begin: (id: number) => database(id).db.exec('BEGIN'),
+	commit: (id: number) => database(id).db.exec('COMMIT'),
+	rollback: (id: number) => database(id).db.exec('ROLLBACK'),
+	getUserVersion: (id: number) => database(id).db.selectValue('PRAGMA user_version'),
+	setUserVersion: (id: number, version: number) =>
+		database(id).db.exec(`PRAGMA user_version = ${version | 0}`),
+	close: (id: number) => {
+		const entry = databases.get(id)
+		if (!entry) {
+			return
 		}
 
-		db = null
+		entry.db.close()
+		databases.delete(id)
 	},
 }
 
@@ -104,10 +132,6 @@ self.onmessage = async (event: MessageEvent<{ id: number; op: string; args: any[
 
 		if (!handler) {
 			throw new Error(`unknown sqlite op: ${op}`)
-		}
-
-		if (!db && op !== 'open' && op !== 'delete') {
-			throw new Error('sqlite db is not open')
 		}
 
 		const result = await handler(...args)

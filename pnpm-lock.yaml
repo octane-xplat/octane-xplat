@@ -335,6 +335,9 @@ importers:
       '@octane-xplat/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@octane-xplat/sqlite':
+        specifier: workspace:*
+        version: link:../../packages/sqlite
       '@octanejs/vite-plugin':
         specifier: 0.1.61
         version: 0.1.61(octane@0.6.3(patch_hash=a499b299c9e8fff92e65f5beac944c82b230464e0890d8f43b87b6161ba24dd7)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1)))(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))

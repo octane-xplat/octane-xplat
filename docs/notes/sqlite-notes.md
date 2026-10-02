@@ -4,12 +4,13 @@
 > the backend findings below now carry verification marks.
 >
 > **Owns:** cross-target structured persistence seam · **Status:** implemented
-> in `packages/sqlite` — verified on web (full probe round-trip + OPFS
-> durable persistence across reload, SAH pool path) and iOS sim (same probe
+> in `packages/sqlite` — verified on web (full probe round-trip + durable
+> persistence where OPFS is available) and iOS sim (same probe
 > readout through FMDB: rows/count/rollback/userVersion, persistent=true) · **Blocks on:** macOS backend and
 > Windows ship `supported: false` leaves · **Decisions:** see decisions.md ·
-> **Validated by:** harness `Services` probe + write→reload→read playwright
-> check.
+> **Validated by:** harness `Services` probe + production-bundle smoke + maintained
+> `pnpm --filter @xplat/web sqlite:readiness` checks in Chromium, Firefox, and
+> WebKit.
 
 ## Candidates assessed
 
@@ -23,7 +24,7 @@
 
 | Target  | Backend                                                                                   | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| web     | `@sqlite.org/sqlite-wasm` oo1 inside a module Worker                                      | **Verified 2026-09-29.** Persistence uses `installOpfsSAHPoolVfs` — sync-access-handle pool over OPFS that needs a Worker but _not_ cross-origin isolation, so the COOP/COEP deployment constraint predicted earlier does not apply on the preferred path. Fallback order: SAH pool → `OpfsDb` (does need `crossOriginIsolated`) → transient `oo1.DB`. The worker bundles cleanly through the app vite build (`new Worker(new URL(...))` + `?url` wasm asset). |
+| web     | `@sqlite.org/sqlite-wasm` oo1 inside a module Worker                                      | **Verified 2026-09-29; browser runtime rechecked 2026-10-02.** Persistence uses `installOpfsSAHPoolVfs` — sync-access-handle pool over OPFS that needs a Worker but _not_ cross-origin isolation, so the COOP/COEP deployment constraint predicted earlier does not apply on the preferred path. Fallback order: SAH pool → `OpfsDb` when available → transient `oo1.DB`. The worker bundles cleanly through the app vite build (`new Worker(new URL(...))` + `?url` wasm asset). Each `openDatabase` call has an independent worker-side handle. |
 | iOS     | `@nativescript-community/sqlite`                                                          | `platforms/ios` carries a Podfile pulling **FMDB**; JS API is sync bridge calls wrapped in promises.                                                                                                                                                                                                                                                                                                                                                           |
 | Android | `@nativescript-community/sqlite`                                                          | `platforms/android` ships a `com.akylas.sqlite` Java layer (WorkersContext for off-thread queries) over Android's framework sqlite.                                                                                                                                                                                                                                                                                                                            |
 | macOS   | system `libsqlite3` via `@nativescript/macos-node-api` `interop` C calls — **unverified** | The AppKit host renders through the node-api runtime, which carries the same metadata-driven ObjC/C interop as the iOS runtime; `libsqlite3` ships in every macOS SDK. Needs the host to link `libsqlite3.tbd` and a small declared-functions surface (`sqlite3_open`, `_prepare_v2`, `_step`, `_column_*`, `_bind_*`, `_exec`, `_close`). Fallback: run sqlite-wasm inside the host's JSC context + persistence through the existing host file bridge.        |
@@ -117,6 +118,13 @@ adapter — the low-level shape stays compatible with that.
   build (worker chunk + wasm asset emitted); verified `vite build`.
 - ✅ Web persistence — SAH pool gives durable OPFS storage without
   COOP/COEP; write→reload→read verified.
+- ✅ Maintained Web runtime regression — concurrent opens keep separate
+  databases isolated; closing one leaves the other usable; rollback,
+  deleting an open database invalidates its handles, `user_version`, SQL error
+  recovery, and worker-startup rejection pass in Chromium, Firefox, and WebKit.
+  Chromium and Firefox verified OPFS data after reload; WebKit exercised the
+  transient fallback with `persistent=false`. The production app bundle also
+  completes the Services round-trip in all three Playwright engines.
 - ✅ macOS backend — system libsqlite3 via metadata C-interop. The blocker
   was never the mechanism (`CC_SHA256`-style C functions resolve fine); the
   prebuilt `metadata.nsmd` simply never swept `usr/include` module-map

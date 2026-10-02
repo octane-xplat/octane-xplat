@@ -10,6 +10,7 @@
 		"test": "vitest run",
 		"bench:vlist": "pnpm --filter @xplat/app gen && vite build && node scripts/bench-virtual-list.mjs",
 		"smoke": "pnpm --filter @xplat/app gen && vite build && node scripts/smoke.mjs",
+		"sqlite:readiness": "node scripts/sqlite-readiness.mjs",
 		"parity": "vite build && node scripts/parity.mjs",
 		"dev:app": "pnpm --filter @xplat/app gen && vite"
 	},
@@ -20,6 +21,7 @@
 		"octane": "0.6.3"
 	},
 	"devDependencies": {
+		"@octane-xplat/sqlite": "workspace:*",
 		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",

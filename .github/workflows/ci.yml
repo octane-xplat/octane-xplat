@@ -74,6 +74,19 @@ jobs:
       - name: Web keyboard, focus, and accessibility-tree readiness
         run: pnpm --filter @xplat/web exec node scripts/input-readiness.mjs
 
+      - name: SQLite Web worker runtime readiness
+        run: pnpm --filter @xplat/web sqlite:readiness
+
+      - name: SQLite Web worker runtime readiness (Firefox)
+        run: pnpm --filter @xplat/web sqlite:readiness
+        env:
+          XPLAT_WEB_BROWSER: firefox
+
+      - name: SQLite Web worker runtime readiness (WebKit)
+        run: pnpm --filter @xplat/web sqlite:readiness
+        env:
+          XPLAT_WEB_BROWSER: webkit
+
       - name: Platform sheet smoke (Chromium)
         run: pnpm --filter @xplat/web exec node scripts/sheet-readiness.mjs
 

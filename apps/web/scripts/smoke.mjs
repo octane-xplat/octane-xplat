@@ -606,6 +606,17 @@ try {
 	await page.getByRole('tab', { name: 'Test' }).click()
 	await page.waitForSelector('text=Platform services', { timeout: 3000 })
 	ok('services catalog renders', (await page.locator('text=/web · browser/').count()) === 1)
+	await page.getByRole('button', { name: 'Round-trip' }).click()
+	await page.waitForFunction(
+		() => /^rows=alpha,beta count=2 rb=true v=0→7 persistent=(true|false)$/.test(
+			document.querySelector('#sqlite-probe')?.textContent ?? '',
+		),
+		null,
+		{ timeout: 10000 },
+	)
+
+	const sqliteResult = await page.locator('#sqlite-probe').innerText()
+	ok('built SQLite worker and WASM complete the Services round-trip', true, sqliteResult)
 
 	// Seam-proof chips push into the Test pane's own stack (/test/...).
 	await page.click('#menu-layout')
