@@ -1,5 +1,12 @@
 # Changelog
 
+## [tsrx-typegen-v0.2.1] - 2026-10-02
+
+### Bug Fixes
+
+- *(release)* Align package repository URLs for provenance
+
+
 ## [tsrx-typegen-v0.2.0] - 2026-10-01
 
 ### Features
