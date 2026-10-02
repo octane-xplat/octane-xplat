@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'octane';
-import { Pressable, Screen, ScrollView, Text } from '@octane-xplat/ui';
+import { Pressable, Screen, ScrollableArea, Text } from '@octane-xplat/ui';
 import { runLexicalProbe, type ProbeStep } from './lexical-probe';
 
 /** lexical-probe — can the DOM-free lexical slices load and round-trip
@@ -39,12 +39,12 @@ export function LexicalProbe() @{
 				? running ? 'probe running' : 'probe idle'
 				: `probe ${pass}/${steps.length} ${pass === steps.length ? 'PASS' : 'FAIL'}`}
 		</Text>
-		<ScrollView className="flex-1">
+		<ScrollableArea className="flex-1">
 			@for (const s of steps; key s.id) {
 				<Text id={'probe-' + s.id} className="text-sm">
 					{(s.status === 'pass' ? 'PASS' : 'FAIL') + ' ' + s.label + (s.detail ? ' — ' + s.detail : '')}
 				</Text>
 			}
-		</ScrollView>
+		</ScrollableArea>
 	</Screen>
 }

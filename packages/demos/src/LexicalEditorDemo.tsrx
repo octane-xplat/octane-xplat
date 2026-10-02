@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Button, Heading, Row, Text, View } from '@octane-xplat/ui';
+import { Button, Heading, HStack, Text, View } from '@octane-xplat/ui';
 import { LexicalEditor, supported } from '@octane-xplat/lexical';
 import type { LexicalEditorHandle } from '@octane-xplat/lexical';
 
@@ -78,7 +78,7 @@ export function LexicalEditorDemo() @{
 				editor.current = h;
 			}}
 		/>
-		<Row className="flex-wrap gap-2">
+		<HStack className="flex-wrap gap-2">
 			{TOOLBAR.map((item) => (
 				<Button
 					key={item.label}
@@ -88,7 +88,7 @@ export function LexicalEditorDemo() @{
 					<Text>{item.label}</Text>
 				</Button>
 			))}
-		</Row>
+		</HStack>
 		<Text id="lexical-editor-active" className="text-sm">
 			active: {active}
 		</Text>
