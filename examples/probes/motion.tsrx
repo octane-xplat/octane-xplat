@@ -10,6 +10,10 @@ import {
 import { Column, Row, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
 
+let frameStamps: number[] = []
+let lastStampAt = 0
+const stampNow = () => (globalThis as any).performance?.now?.() ?? Date.now()
+
 function PresenceCounter(props: { onMount: () => void; onUnmount: () => void }) @{
 	const [count, setCount] = useState(0)
 
@@ -57,6 +61,15 @@ export default function MotionProbe() @{
 	const [disposalStatus, setDisposalStatus] = useState('not mounted')
 	const reduced = useReducedMotion()
 	const panX = useMotionValue(0)
+	const pacer = useMotionValue(0)
+	useEffect(
+		() =>
+			pacer.on('change', () => {
+				lastStampAt = stampNow()
+				frameStamps.push(lastStampAt)
+			}),
+		[],
+	)
 	const panOrigin = useRef(0)
 	const panPhases = useRef<string[]>([])
 	const removals = useRef(0)
@@ -135,6 +148,13 @@ export default function MotionProbe() @{
 					void controls.finished.then((result) => setPanStatus(`MotionValue ${result}`))
 				}} className="chip">
 					<Text>Start/cancel</Text>
+				</Pressable>
+				<Pressable id="motion-pacing-run" onPress={() => {
+					frameStamps = []
+					pacer.set(0)
+					void pacer.animate(100, { type: 'spring', stiffness: 140, damping: 16 })
+				}} className="chip">
+					<Text>Pace</Text>
 				</Pressable>
 				<Text id="motion-pan-status">{panStatus}</Text>
 			</Row>
@@ -266,6 +286,31 @@ export async function run(ctx: ProbeContext) {
 		ctx.inspect('motion-presence-count').text,
 		'Retained count: 0',
 	)
+
+	// Delegation evidence: on native targets the declarative tween runs above
+	// must have engaged the platform animator; on web the counter stays absent
+	// (the web host has no delegate yet).
+	const g = globalThis as any
+	ctx.record('delegations', JSON.parse(JSON.stringify(g.__xplatMotionDelegations ?? null)))
+	if (ctx.target === 'ios' || ctx.target === 'android') {
+		ctx.assert('platform delegation engaged', (g.__xplatMotionDelegations?.started ?? 0) >= 1)
+	} else {
+		ctx.assert('web stays on the JS engine', g.__xplatMotionDelegations === undefined)
+	}
+
+	// Frame pacing of the JS engine path: a spring's 'change' stamps are
+	// engine frames — report drops (>34ms gaps) as a measurement, not a gate.
+	await ctx.press('motion-pacing-run')
+	await ctx.waitFor(() => frameStamps.length > 0 && stampNow() - lastStampAt > 250, {
+		timeout: 8000,
+	})
+	const deltas = frameStamps.slice(1).map((t, i) => t - frameStamps[i])
+	ctx.record('pacing', {
+		frames: frameStamps.length,
+		dropped: deltas.filter((d) => d > 34).length,
+		maxMs: Math.round(Math.max(0, ...deltas)),
+		meanMs: deltas.length ? Math.round(deltas.reduce((a, b) => a + b, 0) / deltas.length) : 0,
+	})
 
 	// Unmounting mid-animation cancels the value's job.
 	await ctx.press('motion-disposal-toggle')
