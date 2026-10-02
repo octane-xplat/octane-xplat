@@ -234,6 +234,12 @@ What the command writes, by hand:
 | iOS     | Ship the file in the app fonts directory; use its internal/PostScript font name  | `'AcmeSans-Regular', sans-serif`     |
 | Android | Ship the file in the app fonts directory; use the filename without `.ttf`/`.otf` | `'acme-sans-regular', sans-serif`    |
 
+There is no `fonts remove` yet. To unregister a font, delete its file from
+`src/fonts`, drop its `@font-face`/`@import` line from `src/fonts.css` and its
+entry in `src/fonts/fonts.json`, and edit or delete the `xplat-fonts:*` block
+in `style.css`. Swapping in a new file is easier: replace the input and re-run
+`fonts add` — the managed block updates in place.
+
 For a bundled face with different file and internal names, put both native
 names in the platform-specific family list. NativeScript's `ns fonts` command
 can print the CSS names for a font directory. Keep the token name (`--font-sans`)
