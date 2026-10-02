@@ -1,17 +1,27 @@
-import { command, option, optional, restPositionals, string, subcommands } from '@alloc/cmd-ts'
+import {
+	command,
+	flag,
+	option,
+	optional,
+	restPositionals,
+	string,
+	subcommands,
+} from '@alloc/cmd-ts'
+
 import { resolve } from 'node:path'
 import * as p from '@clack/prompts'
-import { addFont } from '../fonts.mjs'
+import { addFontInputs } from '../fonts.mjs'
 
 const add = command({
 	name: 'add',
 	description:
-		'Register a .ttf/.otf font for web (@font-face), iOS, and Android (src/fonts) and wire it onto a --font-* token',
+		'Register fonts for web (@font-face/@fontsource), iOS, and Android (src/fonts) and wire them onto a --font-* token',
 	args: {
-		files: restPositionals({
+		inputs: restPositionals({
 			type: string,
-			displayName: 'file',
-			description: 'font files — one variable file or several static weights of one family',
+			displayName: 'input',
+			description:
+				'font files (.ttf/.otf/.woff/.woff2) or Fontsource specs (@fontsource/roboto, @fontsource-variable/inter)',
 		}),
 		dir: option({
 			type: optional(string),
@@ -29,21 +39,35 @@ const add = command({
 			description:
 				"--font-* token to wire in style.css: 'sans' (default), 'mono', a custom name, or 'none'",
 		}),
-		weight: option({
+		subset: option({
 			type: optional(string),
-			long: 'weight',
-			description:
-				"@font-face font-weight override, e.g. '700' or '100 900' (default: fvar wght range or OS/2 weight class)",
+			long: 'subset',
+			description: "Fontsource subset (default: 'latin')",
+		}),
+		weights: option({
+			type: optional(string),
+			long: 'weights',
+			description: "Fontsource static weights to add, e.g. '400,700' (default: all in the subset)",
+		}),
+		install: flag({
+			long: 'install',
+			description: 'pnpm add a Fontsource package that is not installed yet',
 		}),
 	},
-	handler: async ({ files, dir, name, token, weight }) => {
+	handler: async ({ inputs, dir, name, token, subset, weights, install }) => {
 		const appDir = resolve(dir ?? '.')
 		p.intro('xplat fonts add')
 
-		const report = addFont(
+		const report = await addFontInputs(
 			appDir,
-			files.map((f) => resolve(f)),
-			{ name, token, weight },
+			inputs.map((f) => (f.startsWith('@') ? f : resolve(f))),
+			{
+				name,
+				token,
+				subset,
+				weights: weights?.split(',').map((w) => Number(w.trim())),
+				install,
+			},
 		)
 
 		if (report.error) {
@@ -52,13 +76,19 @@ const add = command({
 			return
 		}
 
+		for (const spec of report.installed ?? []) {
+			p.log.success(`pnpm add ${spec}`)
+		}
+
 		for (const file of report.copied) {
 			p.log.success(`src/fonts/${file} — iOS/Android pick this up automatically`)
 		}
 
 		for (const face of report.faces) {
 			p.log.success(
-				`fonts.css — @font-face '${report.names.family}' weight ${face.weight}${face.variable ? ' (variable)' : ''}`,
+				face.imported
+					? `fonts.css — @import for '${report.names.family}'`
+					: `fonts.css — @font-face '${report.names.family}' weight ${face.weight}${face.variable ? ' (variable)' : ''}`,
 			)
 		}
 
@@ -70,8 +100,9 @@ const add = command({
 			p.log.warn(warning)
 		}
 
+		const webKind = report.faces.some((f) => f.imported) ? '@import' : '@font-face'
 		const names = [
-			`web: '${report.names.family}' (@font-face)`,
+			`web: '${report.names.family}' (${webKind})`,
 			report.names.ios.length
 				? `iOS: ${report.names.ios.map((n) => `'${n}'`).join(', ')} (internal/PostScript)`
 				: null,

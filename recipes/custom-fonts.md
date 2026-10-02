@@ -13,8 +13,10 @@ default; custom faces are opt-in.
 ## Requirements
 
 - Register one or more `.ttf`/`.otf` files — a variable file or several static
-  weights of one family — so a single family name resolves on web, iOS, and
-  Android without the author inspecting font metadata.
+  weights of one family — or an installed Fontsource package, so a single
+  family name resolves on web, iOS, and Android without the author inspecting
+  font metadata. `.woff`/`.woff2` inputs are decompressed to `.ttf` for the
+  native bundles.
 - Wire the family onto a `--font-*` token so shared components and app chrome
   pick it up, or opt out and reference the family directly.
 - Preserve a variable font's weight axis on each target.
@@ -35,6 +37,10 @@ default; custom faces are opt-in.
 - AC4: Re-running for the same file reports it as already registered rather
   than duplicating the face; adding another file merges into the existing
   token block.
+- AC5: `.woff`/`.woff2` files and `@fontsource`/`@fontsource-variable` package
+  specs are accepted; web keeps the package's own CSS via `@import` (local
+  files get a local `@font-face`) while native receives a converted `.ttf`
+  whose embedded family/PostScript names and `wght` range survive intact.
 
 ## Documentation
 
@@ -43,3 +49,6 @@ default; custom faces are opt-in.
 - AC3: [Styling screens — Font-family tokens](../docs/styling.md#font-family-tokens).
 - AC4: [Styling screens — Font-family tokens](../docs/styling.md#font-family-tokens);
   merge and idempotency behavior is covered by `packages/cli/test/fonts.test.mjs`.
+- AC5: [Styling screens — Font-family tokens](../docs/styling.md#font-family-tokens);
+  conversion preserves name metadata per `packages/cli/test/fonts.test.mjs`
+  (`woff2ToSfnt`, real `@fontsource-variable/inter` fixture).

@@ -36,11 +36,14 @@ class on the root, and let tokens switch underneath.
 
 ## Fonts
 
-`pnpm xplat fonts add <file.ttf>` registers a font everywhere: copies it
-into `src/fonts` (iOS/Android pick it up from there), writes the web
-`@font-face` into `src/fonts.css`, and wires `--font-sans` (or another token
-via `--token mono|none|<name>`) in `style.css`. Variable fonts carry their
-weight range — `font-weight` on `Text` selects the matching instance. Family
-names differ per target; the command reads them from the file itself. See the
-styling guide at https://octane-xplat.goddardai.org/styling for the per-target
-table.
+`pnpm xplat fonts add <file>` registers a font everywhere: stages a `.ttf`
+into `src/fonts` (iOS/Android pick it up from there; `.woff`/`.woff2` inputs
+are converted), writes the web `@font-face` into `src/fonts.css`, and wires
+`--font-sans` (or another token via `--token mono|none|<name>`) in
+`style.css`. Fontsource packages work too —
+`pnpm xplat fonts add @fontsource-variable/inter --install` imports the
+package's own CSS on web and stages its converted files natively. Variable
+fonts carry their weight range — `font-weight` on `Text` selects the matching
+instance. Family names differ per target; the command reads them from the
+file itself. See the styling guide at
+https://octane-xplat.goddardai.org/styling for the per-target table.

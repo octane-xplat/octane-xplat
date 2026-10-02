@@ -160,20 +160,34 @@ and the Android name are different identifiers. Apps own the registration and
 override the token at the stylesheet boundary.
 
 `xplat fonts add` is the turnkey path — run it from the app root with one
-variable file or several static weights of a family:
+variable file, several static weights of a family, or a Fontsource package:
 
 ```sh
 pnpm xplat fonts add path/to/AcmeSans-Variable.ttf           # --font-sans
 pnpm xplat fonts add path/to/JetBrainsMono.ttf --token mono  # --font-mono
+pnpm xplat fonts add ./downloads/inter-latin-wght.woff2      # woff/woff2 are converted to ttf
+pnpm xplat fonts add @fontsource-variable/inter --install    # Fontsource package
+pnpm xplat fonts add @fontsource/roboto --weights 400,700    # static family, chosen weights
 ```
 
 It reads the font's own metadata (family, PostScript name, `fvar` weight range),
-copies the file into `src/fonts`, writes the web `@font-face` into `src/fonts.css`
-(imported from `main.web.tsrx`), and upserts a marked token block in `style.css`:
-`--font-sans`/`--font-mono`/custom under `:root, .ns-root`, plus a literal
-`font-family` on `.ns-root` and `body` for `--font-sans`. Pass `--token none` to
-register files without wiring a token. Options: `--name` (override the detected
-family), `--weight` (override the detected face weight), `--dir` (app root).
+stages a `.ttf` in `src/fonts` — `.woff`/`.woff2` inputs are decompressed since
+NativeScript registers only `.ttf`/`.otf` — writes the web `@font-face` into
+`src/fonts.css` (imported from `main.web.tsrx`), and upserts a marked token
+block in `style.css`: `--font-sans`/`--font-mono`/custom under
+`:root, .ns-root`, plus a literal `font-family` on `.ns-root` and `body` for
+`--font-sans`. Pass `--token none` to register files without wiring a token.
+Options: `--name` (override the detected family), `--dir` (app root).
+
+Fontsource inputs — `@fontsource/<family>` or `@fontsource-variable/<family>` —
+must be installed in the app (`--install` runs `pnpm add` when missing). The
+web side imports the package's own CSS in `fonts.css` (Fontsource already ships
+per-subset `@font-face` with `unicode-range`); the package's font files are
+converted and staged under `src/fonts` for iOS/Android. Variable packages pick
+the `wght` face; static packages take every weight in `--subset` (default
+`latin`) unless narrowed by `--weights`. Android resolves `font-family` by
+filename, so multi-weight static adds also emit weight-scoped `font-*` class
+rules pointing at each file.
 
 Variable fonts are supported on every target: web gets the `font-weight: min max`
 range, iOS resolves `font-weight` through `font-variation-settings`, and Android
