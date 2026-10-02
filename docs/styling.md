@@ -177,7 +177,9 @@ NativeScript registers only `.ttf`/`.otf` — writes the web `@font-face` into
 block in `style.css`: `--font-sans`/`--font-mono`/custom under
 `:root, .ns-root`, plus a literal `font-family` on `.ns-root` and `body` for
 `--font-sans`. Pass `--token none` to register files without wiring a token.
-Options: `--name` (override the detected family), `--dir` (app root).
+Options: `--name` (override the detected family), `--dir` (app root). Commit
+everything the command writes — `src/fonts/`, `src/fonts.css`, and the token
+block — so teammates and CI get the font binaries and registration together.
 
 [Fontsource](https://fontsource.org) publishes free fonts — most of Google
 Fonts and more — as npm packages: `@fontsource/<family>` for static families
