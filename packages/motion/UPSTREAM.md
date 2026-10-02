@@ -86,9 +86,12 @@ Physical Android CPH2551 evidence covers app launch and target retarget only;
 ADB sees the handset, but its keyguard is currently locked. The regular mobile app now builds and
 mounts on the iOS 26.5 simulator using NativeScript's `NSObject.extend()` API
 for the auth-session presentation delegate. The Android build also passes with
-the iOS delegate behind the `NSObject` runtime guard. Motion-specific simulator,
-emulator, and iPhone checks still use a temporary direct MotionProbe entry to
-isolate the driver. Physical input suppression during exit, Android gesture
+the iOS delegate behind the `NSObject` runtime guard. The maintained
+`examples/probes/motion.tsrx` case replaces the earlier temporary direct
+MotionProbe entry (web Chromium and iOS simulator passes, 2026-10-02).
+Physical input suppression during exit, Android gesture
 cancellation/natural velocity, background/resume, and frame pacing remain
-uncharacterized. Native preference observation polls at 500 ms while subscribed
-and refreshes on resume; Android reads `animator_duration_scale`.
+uncharacterized. On iOS the preference is observed through
+`UIAccessibilityReduceMotionStatusDidChangeNotification`; Android still polls
+`animator_duration_scale` at 500 ms while subscribed (plus
+`ValueAnimator.areAnimatorsEnabled()` on API 26+) and refreshes on resume.
