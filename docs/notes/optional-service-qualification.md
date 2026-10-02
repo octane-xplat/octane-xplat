@@ -3,7 +3,9 @@
 > Qualify the capabilities your app installs and uses; keep setup coverage,
 > adapter tests, target runtime behavior and physical output as separate evidence.
 
-This recheck started from main `4b43f82` on 2026-09-30. Optional services live in
+Web service results and repository checks below were rechecked on 2026-10-02 at
+`6f82c413`. Native evidence keeps the scope stated in each cell; this Web
+recheck does not count as a fresh native runtime pass. Optional services live in
 leaf packages: media, auth, push, audio, sounds, and advanced haptics.
 `@octane-xplat/platform` remains free of runtime npm dependencies; hosted
 `authSession` uses platform APIs and a package-owned Android Custom Tabs Gradle
@@ -34,10 +36,9 @@ remain part of the pull-request release gate.
 The broad mobile typecheck (`pnpm typecheck:mobile`) passes after correcting
 audio bridge typings and the handwritten JSX component declarations. Focused
 auth/media native adapter types and web media/audio/sound adapter types pass
-independently. Native bundling can still continue despite type errors;
-bundle emission alone cannot qualify the complete app. Repository-wide lint also
-reports existing failures outside the changed files; targeted lint passes for the
-changed TypeScript/JavaScript adapters and checks.
+independently. Repository-wide lint now passes; keep typechecking explicit
+because NativeScript bundling can continue despite type errors. Bundle emission
+alone cannot qualify the complete app.
 
 ## Historical defects rechecked
 
