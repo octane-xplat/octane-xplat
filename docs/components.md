@@ -68,6 +68,7 @@ insets from container tokens on web only.
 | `Heading`                  | Section heading (shared typography)         |                 |
 | `Kbd`                      | Keyboard-key glyph (⌘K styling hook)        |                 |
 | `Link`, `NavLink`          | Route navigation as text                    | `href`, `route` |
+| [`Markdown`](content-display.md#markdown-documents) | Markdown doc — baked AST or runtime text, streaming-ready | `data`, `text`, `isStreaming`, `fadeIn` |
 
 ## Inputs
 

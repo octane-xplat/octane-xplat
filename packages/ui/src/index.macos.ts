@@ -185,6 +185,16 @@ export { useHoverCard } from './use-hover-card.tsrx'
 export { useLayer } from './use-layer.tsrx'
 export { Tooltip } from './Tooltip.tsrx'
 export { Markdown, MarkdownScreen } from './Markdown.tsrx'
+export { parseMdDoc, parseMdNodes, mdInlineText } from './markdown-parse'
+export {
+	createMarkdownIncrementalState,
+	parseMarkdownIncremental,
+	trimStreamingArtifacts,
+	computeBoundaries,
+	computeSegments,
+	markdownTextLength,
+} from './markdown-stream'
+export type { MarkdownIncrementalState, MdTextSegment } from './markdown-stream'
 export { Link } from './Link.macos.tsrx'
 export { NavLink } from './NavLink.macos.tsrx'
 export { TextInput, TextArea } from './text-controls.macos.tsrx'

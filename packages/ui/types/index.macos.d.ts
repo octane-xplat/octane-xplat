@@ -50,7 +50,7 @@ export declare const VisuallyHidden: Component<P.VisuallyHiddenProps>
 export declare const Absolute: Component<P.AbsoluteProps>
 export declare const Spacer: Component<P.SpacerProps>
 export declare const Text: Component<P.TextProps>
-export declare const Markdown: Component<{ data?: MdDoc }>
+export declare const Markdown: Component<P.MarkdownProps>
 export declare const MarkdownScreen: Component<{ data?: MdDoc; error?: unknown }>
 export declare const RichText: Component<P.RichTextProps>
 export declare const RichTextSpan: Component<P.RichTextSpanProps>
@@ -202,6 +202,16 @@ export declare const Toast: Component<P.ToastProps>
 export declare const ToastViewport: Component<P.ToastViewportProps>
 export declare const Tooltip: Component<P.TooltipProps>
 export { Markdown, MarkdownScreen } from './generated/Markdown.js'
+export { parseMdDoc, parseMdNodes, mdInlineText } from './generated/markdown-parse.js'
+export {
+	createMarkdownIncrementalState,
+	parseMarkdownIncremental,
+	trimStreamingArtifacts,
+	computeBoundaries,
+	computeSegments,
+	markdownTextLength,
+} from './generated/markdown-stream.js'
+export type { MarkdownIncrementalState, MdTextSegment } from './generated/markdown-stream.js'
 export declare const Tabs: Component<P.TabsProps>
 export declare const Screen: Component<P.ScreenProps>
 export declare const Switch: Component<P.SwitchProps>

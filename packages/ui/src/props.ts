@@ -6267,6 +6267,56 @@ export interface OutlineProps {
 	web?: any
 }
 
+// ---------- markdown ----------
+
+/** One inline run inside a Markdown paragraph/heading/list/quote — the
+ *  serialized shape `xplat routes` bakes for `.md` routes and the runtime
+ *  `text` parser emits. */
+export type MdInline =
+	| { t: 'text'; text: string }
+	| { t: 'code'; text: string }
+	| { t: 'bold'; children: MdInline[] }
+	| { t: 'em'; children: MdInline[] }
+	| { t: 'link'; text: string; href: string }
+
+/** One block in a Markdown doc. `MdNode` covers what the renderer lowers to
+ *  shared primitives; `MdInline` covers text runs inside paragraphs, lists,
+ *  and quotes. */
+export type MdNode =
+	| { t: 'h'; depth: 1 | 2 | 3 | 4 | 5 | 6; children: MdInline[] }
+	| { t: 'p'; children: MdInline[] }
+	| { t: 'code'; lang?: string; text: string }
+	| { t: 'list'; ordered: boolean; items: MdInline[][] }
+	| { t: 'quote'; children: MdInline[] }
+	| { t: 'hr' }
+
+export interface MdDoc {
+	kind: 'octane-xplat/md'
+	v: 1
+	children: MdNode[]
+}
+
+/** `Markdown` — renders a Markdown doc with the shared vocabulary. Pass
+ *  either `data` (an AST baked by route codegen — no parser in the bundle)
+ *  or `text` (raw source parsed at runtime). `data` wins when both are set. */
+export interface MarkdownProps {
+	/** Pre-parsed doc, e.g. `routes.gen.data` for a `.md` route. */
+	data?: MdDoc
+	/** Raw Markdown source, parsed at runtime with the package's built-in
+	 *  subset parser (see docs/content-display.md for the grammar). */
+	text?: string
+	/** `text` is a cumulative streaming snapshot that grows in chunks — often
+	 *  mid-token with unclosed constructs. Completed blocks parse once and
+	 *  are kept mounted; incomplete trailing constructs (an unclosed fence,
+	 *  a half-typed `[link](`, a bare `- ` marker) are withheld until they
+	 *  close rather than flashing raw markup. @default false */
+	isStreaming?: boolean
+	/** Fade in newly arrived text while streaming. The fade animates on web
+	 *  (suppressed under `prefers-reduced-motion`); native renders new text
+	 *  settled. @default true */
+	fadeIn?: boolean
+}
+
 // ---------- Astryx parity: layout containers ----------
 
 /** `Center` — flex centering on the main axis (`horizontal` → justify),

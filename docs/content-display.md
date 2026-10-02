@@ -49,6 +49,56 @@ The Markdown outline parser covers ATX and Setext headings, ignores fenced and
 indented code, and strips the inline constructs rendered by this package's
 Markdown vocabulary. It is not a plug-in Markdown parser.
 
+## Markdown documents
+
+`Markdown` renders either a `data` prop — the `MdDoc` AST that `xplat routes`
+bakes from `marked` at codegen (no parser in the bundle) — or a `text` prop of
+raw Markdown parsed at runtime. `data` wins when both are set.
+
+The runtime parser is a deliberately small, dependency-free subset covering
+what the `MdDoc` AST can express: ATX and Setext headings, paragraphs, fenced
+code (` ``` ` and `~~~`; an unclosed fence runs to end of input), flat
+ordered/unordered lists, blockquotes, and horizontal rules; inline code spans,
+`**`/`__` bold, `*`/`_` emphasis, `[text](href)` links, and images reduced to
+their alt text. Tables, HTML blocks, indented code, reference-style links, and
+nested block structure fall through to literal text.
+
+### Streaming text
+
+For chat/AI-style output where `text` is a cumulative snapshot that grows in
+chunks — often ending mid-token — set `isStreaming`:
+
+```tsx
+<Markdown text={message.text} isStreaming={message.status === 'streaming'} />
+```
+
+Streaming mode parses incrementally: blocks before the last safe blank line
+(not inside an open fence) are parsed once and reused by reference, so
+per-chunk work stays proportional to the open tail rather than the document.
+Incomplete trailing constructs are withheld until they close — a bare `- `
+marker, a half-typed `[link](…`, a `>`/`#` opener, a whole-line backtick run —
+and unclosed mid-line `**bold`/`_em_` is auto-closed so it formats while it
+streams instead of flashing raw markers. A loose list split by a chunk
+boundary merges to match the full parse. When the input is replaced rather
+than appended, the cache resets and reparses whole.
+
+`fadeIn` (default on while streaming) wraps newly arrived text in a
+`vx-md-fade` span that fades in once on web — suppressed under
+`prefers-reduced-motion` — and renders settled on native.
+
+The same machinery is exported for custom renderers: `parseMdDoc` /
+`parseMdNodes` for one-shot parsing, `createMarkdownIncrementalState` +
+`parseMarkdownIncremental` for the settled-prefix cache, and
+`computeBoundaries` / `computeSegments` / `markdownTextLength` for boundary
+tracking. These are ports of the incremental parser and streaming segmentation
+in upstream Astryx's `Markdown`, narrowed to the local grammar.
+
+> Runtime evidence: convergence (every-character chunking → identical AST as
+> the full parse), withholding, and settled-block reference stability are
+> covered by `packages/ui/src/markdown-stream.test.ts` and
+> `markdown-stream.mobile.test.ts` (web + native-rendered suites). The fade
+> animation itself is web CSS and unverified on native targets.
+
 ## Outline from Markdown or views
 
 `useOutlineFromDOM` is platform-specific under one portable function name. On

@@ -2389,6 +2389,30 @@ dialog.vx-dialog {
 		animation: vx-statusdot-pulse 1.5s ease-in-out infinite;
 	}
 
+	/* Streaming Markdown — spans that arrived after the last boundary wrap
+	   newly surfaced text. The class is inert on native (no keyframe
+	   animation); web fades it in via the keyframes below. */
+	.vx-md-fade {
+	}
+
+	/* xplat-web-only:start — DOM fades each new span; the native leaf renders
+	   the class inert (no opacity animation driver for text spans). */
+	.vx-md-fade {
+		animation: vx-md-fade-in 0.2s ease-out;
+	}
+
+	@keyframes vx-md-fade-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.vx-md-fade {
+			animation: none;
+		}
+	}
+	/* xplat-web-only:end */
+
 	.vx-metadatalist-list {
 		margin: 0;
 		padding: 0;
