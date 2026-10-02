@@ -449,7 +449,7 @@ order: `pnpm lint` (oxlint + tsrx pass + recipes + css), `check:patches` /
 `pnpm test`, `pnpm build:web`, the publishable-package builds,
 `tsrx-typegen --pack-check` + the GIF packed consumer, the optional-service
 gate (`pnpm check:optional-services`), the harness browser smoke
-(`pnpm --filter @xplat/web smoke`, 62 assertions on the production
+(`pnpm --filter @xplat/web smoke`, 66 assertions on the production
 bundle in Chromium, Firefox, and WebKit), and
 `pnpm check:consumer --no-build --smoke web` (packed starter smoke on all
 three engines). `check:no-dom`
