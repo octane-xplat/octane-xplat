@@ -1,15 +1,16 @@
 # Charts (`@octane-xplat/charts`)
 
 > Design record for a leaf package that renders the same charts on every
-> target from one DOM-free core. Status: desk-source design — implementation
-> not built; native seams unverified in lab. Prior art surveyed in
+> target from one DOM-free core. Web, NativeScript, and AppKit leaves are
+> implemented; verification is target-specific. Prior art surveyed in
 > [`prior-art/charts.md`](../prior-art/charts.md).
 
 ## Architecture
 
 One artifact crosses the platform boundary: an **SVG markup string** produced
 by a pure-TS core. The web leaf inlines it in a real `<svg>`; the native leaf
-hands it to `<svgview>` (vendored ui-svg → SVGKit/androidsvg); Linux/Windows
+hands it to `<svgview>` (vendored ui-svg → SVGKit/androidsvg); the AppKit
+leaf encodes it as a base64 SVG data URI for `<image>` / `NSImage`. Linux/Windows
 desktop webviews and macOS webview apps inherit the web leaf. `Meter`
 (decision #60) already proves src-string regeneration is the accepted update
 path on `svgview`.
@@ -52,7 +53,8 @@ src/
                       snap-to-x, touch slop)
   Chart.web.tsrx      <div> + <svg> (markup via innerHTML) + overlay
   Chart.tsrx          native: <View> + <svgview src> + <Absolute> overlay
-  index.ts / index.web.ts
+  Chart.macos.tsrx    AppKit: <image> + native overlays
+  index.ts / index.web.ts / index.macos.ts
 tests/                golden markup per chart type; hit-math; scale mapping
 ```
 
@@ -117,11 +119,52 @@ semantic labels feeding `accessibilityLabel`.
 - Chart types: line, area, bar (grouped + stacked), pie/donut, scatter.
   No candlestick, radar, heatmap, gauge — `Mark[]` + props extend cleanly.
 - No per-point screen-reader rotor — chart-level `accessibilityLabel` only.
-- macOS native (AppKit) leaf is deferred: it depends on the planned
-  `packages/ui` macOS SVG conversion (raw markup → `NSImage(data:)`,
-  user-directed home for that seam). macOS/Linux/Windows **webview** apps
-  get the web leaf today; Windows native stays parked (windows-target
-  track).
+- Windows native stays parked; desktop webview apps use the web leaf.
+
+## AppKit charts
+
+In an existing AppKit app with `@octane-xplat/charts` installed, import `Chart`
+from the package root. The `macos` export condition selects the AppKit leaf;
+the public props and types match the web and mobile leaves.
+
+```tsx
+import { Chart } from '@octane-xplat/charts'
+
+export function Visits() {
+  return <Chart type="bar" width={320} height={200}
+    data={[{ name: 'Visits', values: [{ x: 'Mon', y: 2 }, { x: 'Tue', y: 5 }] }]}
+    legend tooltip crosshair accessibilityLabel="Visits by day" />
+}
+```
+
+This produces SVG marks in one native image, with real labels for axes,
+legend, and tooltip. Explicit dimensions work immediately; otherwise the
+macOS `useMeasure` hook observes AppKit frame and bounds notifications.
+Source changes regenerate the image. The SVG decoder has the same
+[OS compatibility limits as AppKit icons](icon-svg-notes.md#evidence-and-limits).
+
+AppKit click recognizers currently call `onTap` without coordinates. Both real
+clicks and synthetic probe presses therefore select the datum nearest the
+chart center, rather than the clicked position. A center miss (for example,
+inside a donut hole) does not call `onPress`. Tooltip and crosshair update on
+a successful tap. `onTouch` is not delivered, so `onScrub` and continuous touch
+scrubbing are unavailable in this leaf. The handler accepts view-relative
+`getX()` / `getY()` if a future renderer supplies them.
+
+Run the maintained nonvisual probe from the repository root:
+
+```sh
+pnpm probe run examples/probes/charts.macos.tsrx --target macos --deps @octane-xplat/charts
+```
+
+It checks native image decoding, mounting, center-fallback handler dispatch,
+and tooltip creation. It does not prove OS hit-testing or visual parity.
+
+Verified on macOS 27.0.1 with AppKit/JavaScriptCore: a 320 × 200 SVG decoded
+as an `NSImage`, the overlay filled that frame, and action dispatch selected
+`Visits: 5` and created its tooltip. Charts' native, web, and macOS typecheck
+lanes, all three library builds, and 18 core tests passed. iOS/Android and web
+runtime rendering were not exercised for this change.
 
 ## Risks / verification gates
 

@@ -2,7 +2,7 @@
 
 ID: appkit-svg-images
 Targets: macos
-Related APIs: @octane-xplat/ui, Image, Icon, registerIcons
+Related APIs: @octane-xplat/ui, Image, Icon, registerIcons, @octane-xplat/charts, Chart
 
 ## Starting point
 
@@ -20,8 +20,11 @@ sources, provide accessible labels, and understand OS compatibility limits.
 - AC2: Update image sources and dimensions, use `alt` for the native accessibility label, and mark unlabeled images decorative.
 - AC3: Distinguish the verified macOS version from the deployment minimum, recognize unsupported-decoder empty-image behavior, and avoid unsupported path/remote-URL source assumptions.
 
+- AC4: Render chart marks and native labels with the shared Chart props on AppKit; understand coordinate-free tap selection and unavailable touch scrubbing.
+
 ## Documentation
 
 - AC1: [AppKit source grammar and integration](../docs/icon-svg-notes.md#implemented-integration) and [maintained AppKit probe](../examples/probes/icons.macos.tsrx).
 - AC2: [AppKit integration](../docs/icon-svg-notes.md#implemented-integration) and [maintained AppKit probe](../examples/probes/icons.macos.tsrx).
 - AC3: [Evidence and limits](../docs/icon-svg-notes.md#evidence-and-limits) and [source grammar](../docs/icon-svg-notes.md#implemented-integration).
+- AC4: [AppKit charts](../docs/charts.md#appkit-charts) and [maintained chart probe](../examples/probes/charts.macos.tsrx).

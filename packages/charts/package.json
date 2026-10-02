@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/charts",
 	"version": "0.8.0",
-	"description": "Cross-platform SVG charts for Octane xplat — a DOM-free d3 core serializes marks to one <svg> markup string, inlined on web and fed to <svgview> on iOS/Android",
+	"description": "Cross-platform SVG charts for Octane xplat — a DOM-free d3 core with web, iOS/Android, and macOS AppKit leaves",
 	"keywords": [
 		"android",
 		"charts",
@@ -9,6 +9,7 @@
 		"d3",
 		"graph",
 		"ios",
+		"macos",
 		"nativescript",
 		"octane",
 		"svg",
@@ -30,6 +31,10 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"macos": {
+				"types": "./types/index.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"types": "./types/index.d.ts",
 			"web": "./src/index.web.ts",
 			"native": "./src/index.ts",
@@ -39,6 +44,10 @@
 	"publishConfig": {
 		"exports": {
 			".": {
+				"macos": {
+					"types": "./types/index.d.ts",
+					"default": "./dist/macos/index.js"
+				},
 				"types": "./types/index.d.ts",
 				"web": "./dist/web/index.js",
 				"native": "./dist/native/index.js",
@@ -48,9 +57,9 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"build": "vite build && vite build --mode native && vite build --mode macos && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsc -p tsconfig.types.json",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.check.json && tsrx-tsc --noEmit -p tsconfig.check.web.json",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.check.json && tsrx-tsc --noEmit -p tsconfig.check.web.json && tsrx-tsc --noEmit -p tsconfig.check.macos.json",
 		"test": "vitest run",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
@@ -66,6 +75,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",

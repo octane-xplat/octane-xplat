@@ -1,0 +1,10 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/macos-renderer",
+		"moduleSuffixes": [".macos", ""],
+		"customConditions": ["macos"],
+		"lib": ["ESNext"]
+	},
+	"include": ["src/index.macos.ts"]
+}

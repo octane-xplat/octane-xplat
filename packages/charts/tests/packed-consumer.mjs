@@ -51,6 +51,7 @@ const dependencies = [
 	'@nativescript/core',
 	'@nativescript/types',
 	'@octane-xplat/ui',
+	'@octane-xplat/macos-renderer',
 	'd3-scale',
 	'd3-shape',
 	'd3-array',
@@ -59,6 +60,14 @@ const dependencies = [
 ]
 
 const consumers = {
+	macos: `import { Chart, type ChartProps, type ChartHit } from '@octane-xplat/charts'
+const props: ChartProps = { type: 'bar', tooltip: true, crosshair: true, data: [{ name: 's', values: [{ x: 'a', y: 1 }] }] }
+const chart = <Chart {...props} onPress={(hit: ChartHit) => void hit.index} />
+// @ts-expect-error type follows the shared published union
+const badType = <Chart type="candlestick" data={[]} />
+void chart
+void badType
+`,
 	web: `import { Chart, type ChartProps, type ChartHit } from '@octane-xplat/charts'
 const props: ChartProps = { type: 'bar', data: [{ name: 's', values: [{ x: 'a', y: 1 }] }] }
 const chart = <Chart {...props} onPress={(hit: ChartHit) => void hit.index} />
@@ -84,6 +93,12 @@ const extraFiles = {}
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
+	macos: {
+		jsxImportSource: '@octane-xplat/macos-renderer',
+		moduleSuffixes: ['.macos', ''],
+		customConditions: ['macos'],
+		types: [],
+	},
 	web: {
 		jsxImportSource: 'octane',
 		moduleSuffixes: ['.web', ''],
