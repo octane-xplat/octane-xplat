@@ -95,4 +95,4 @@ patchedDependencies:
   # Context.ts definitions into Context.tsrx.
   "@octanejs/tiptap@0.0.51": node_modules/.pnpm-config/@octane-xplat/patches/patches/@octanejs__tiptap@0.0.51.patch
 configDependencies:
-  "@octane-xplat/patches": 0.7.1
+  "@octane-xplat/patches": 0.8.0

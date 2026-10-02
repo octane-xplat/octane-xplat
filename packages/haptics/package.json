@@ -1,6 +1,6 @@
 {
   "name": "@octane-xplat/haptics",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Advanced, capability-aware haptics for Octane xplat",
   "keywords": [
     "octane",

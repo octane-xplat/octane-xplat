@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/files",
-	"version": "0.7.2",
+	"version": "0.8.0",
 	"description": "Native + web file pick and read/write for Octane xplat \u2014 matching web + NativeScript implementations",
 	"keywords": [
 		"octane",

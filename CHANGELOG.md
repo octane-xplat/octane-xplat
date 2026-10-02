@@ -1,5 +1,113 @@
 # Changelog
 
+## [0.8.0] - 2026-10-02
+
+### Breaking Changes
+
+- *(share)* [**breaking**] Extract @octane-xplat/share leaf from @octane-xplat/platform
+- *(platform)* [**breaking**] Extract all plugin-backed services into leaf packages
+
+### Features
+
+- *(cli)* Ship scaffold patches as config dependency
+- *(date-picker)* Port Expo's DatePicker/TimePicker into platform leaves
+- *(context-menu)* Port Expo's ContextMenu/DropdownMenu into platform leaves
+- *(sheet)* Port Expo's BottomSheet/ModalBottomSheet into platform leaves
+- *(auth)* Add @octane-xplat/auth — Sign in with Apple + Google Sign-In
+- *(auth)* Implement Sign in with Apple + authSession on macOS
+- *(platform)* Add macOS share sheet support
+- *(effects)* Ship shader registration inside the leaf
+- *(push)* Add @octane-xplat/push leaf — Firebase Cloud Messaging on all targets
+- *(sqlite)* Add @octane-xplat/sqlite leaf for cross-target persistence
+- *(sqlite)* Run sqlite-wasm in-process on macOS
+- *(sqlite)* Bind system libsqlite3 on macOS via host metadata interop
+- *(context-menu)* Add the AppKit leaf
+- *(date-picker)* Add the AppKit leaf
+- *(sheet)* Add the AppKit leaf
+- *(ui)* Typed programmatic routes via literal-path inference
+- *(cli)* Fail builds on platform-boundary module leaks
+- *(ui,cli)* Baked dataMode — route loaders that run at codegen
+- *(ui,cli)* Markdown files as baked routes
+- *(ui,cli)* Normalized JSON route manifest for external hosts
+- *(sqlite)* Run sqlite-wasm in-process on macOS
+- *(sqlite)* Bind system libsqlite3 on macOS via host metadata interop
+- *(cli)* Compile macOS leaf sources and generate app metadata
+- *(cli)* Integrate macOS native leaves into dev and packaged apps
+- *(bridge)* Add typed desktop host contracts and macOS proof
+- *(macos)* Add system webview desktop backend
+- *(lottie)* Add @octane-xplat/lottie leaf package
+- *(lottie)* Vendor the ui-lottie fork inside the leaf
+- *(cli)* Add Linux WebKitGTK app packaging
+- Persist the selected color scheme
+- Add isolated platform probe runner
+- *(cli)* Define process.env.NODE_ENV at the bundler level
+- *(bamboo)* Integrate portable CSS utilities
+- *(richtext)* Add @octane-xplat/richtext leaf with Android Aztec editor
+- *(tiptap)* Add @octane-xplat/tiptap unified editor facade
+- *(lingui)* Add @octane-xplat/lingui leaf package
+
+### Bug Fixes
+
+- *(ui)* Preserve web pan gestures through rerenders
+- *(leaves)* Point export types at the platform barrel, not types.ts
+- *(context-menu)* Create the Android trigger host with a real Context
+- *(macos)* Converge deep seeks — suppress corrections mid-seek, docH-free offset
+- *(ui)* Preserve native pan cancellation
+- *(cli)* Resolve app imports lazily in xplatNative
+- *(ui)* Share KeyboardAvoiding root API
+- *(audio)* Repair iOS system playback controls
+- *(app)* Correct navigation parity and media probe usage
+- *(manifests)* Remove rebase conflict markers
+- *(platform)* Build the auth-session anchor class lazily
+- *(data)* Preserve query ownership and native suspense events
+- *(cli)* Probe the .mobile suffix tier in the ns-vite type check
+- *(ui)* Emit web-variant declarations and fix the packed consumer
+- *(ui)* Retain prepared routes across browser history
+- *(navigation)* Handle malformed and repeated incoming links
+- *(ui)* Unmount route roots when native modals dismiss
+- *(ui)* Prevent controlled native text echoes and release editing focus
+- *(ui)* Support keyboard actions and prevent disabled activation
+- *(ui)* Convert Android keyboard insets to layout units
+- *(ui)* Contain and restore focus for shaded web overlays
+- *(typecheck)* Exclude platform directories from the mobile program
+- *(create)* Ship a starter that installs and lints cleanly
+- *(ui)* Keep the phantom route key out of the published value surface
+- *(cli)* Report unresolvable patches as not-applicable
+- *(lint)* Correct rule scopes and clear the violation backlog
+- *(ui)* Preserve VirtualList visible anchor on web data updates
+- *(ui)* Prevent stale route loads from overriding navigation
+- *(ui)* Release native overlay hosts and theme subscriptions
+- *(ui)* Cancel long presses when their interaction ends
+- *(ui)* Keep PIN edits in their intended cells
+- *(ui)* Grow uncontrolled textareas as users type
+- *(ui)* Tolerate navigation events without a payload
+- *(ui)* Unblock typegen by narrowing restored route state
+- *(patches)* Carry upstream runtime fixes
+- *(platform)* Settle hosted auth sessions safely on failure and retry
+- *(media)* Clean up temporary previews when image conversion fails
+- *(audio)* Release browser sound voices and system controls on teardown
+- *(cli)* Resolve builtin-named deps in the macOS native scan
+- *(macos)* Repair the dev bundle against main drift
+- *(cli)* Refresh NativeScript Vite patch at 8.0.17
+- *(leaves)* Resolve packed declaration specifiers under NodeNext
+- *(sqlite)* Import SqliteParam in the macOS database backend
+- Restore Android development startup and native JSX types
+- *(ui)* Reduce VirtualList scroll and measurement work
+- *(ui)* Restore generated web barrel for platform-leaf resolution
+- *(ui)* Declare Markdown exports on the macOS type surface
+- *(ui,lottie)* Rewrite vendored specifiers to the emitted paths
+- *(tiptap)* Keep upstream's bare process.env read in the @octanejs/tiptap patch
+- *(richtext,tiptap)* Emit types.d.ts from src/types.ts
+- *(create)* Tolerate unused framework patches in scaffolded apps
+
+### Performance
+
+- *(ui)* Recycle and position VirtualList cells
+
+### Refactoring
+
+- *(web)* Share desktop host services across webview backends
+
 ## [0.7.3] - 2026-09-30
 
 ### Bug Fixes
