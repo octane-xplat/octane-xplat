@@ -4,6 +4,13 @@ type Scope = {
 	trigger: HTMLElement | null
 }
 
+const TAB_STOP_SELECTOR =
+	'a[href],button,input,textarea,select,[tabindex],[contenteditable="true"]'
+
+const CLICK_TRIGGER_MAX_AGE_MS = 1000
+
+const recentClickTargets = new WeakMap<Document, { element: HTMLElement; at: number }>()
+const clickCaptureDocuments = new WeakSet<Document>()
 const scopes: Scope[] = []
 const originalInert = new Map<HTMLElement, boolean>()
 let observer: MutationObserver | undefined
@@ -35,29 +42,64 @@ function updateIsolation(): void {
 	}
 }
 
-function tabStops(panel: HTMLElement): HTMLElement[] {
-	return Array.from(
-		panel.querySelectorAll<HTMLElement>(
-			'a[href],button,input,textarea,select,[tabindex],[contenteditable="true"]',
-		),
-	).filter((element) => {
-		if (
-			element.tabIndex < 0 ||
-			element.matches(':disabled') ||
-			element.closest('[inert],[hidden]')
-		) {
+function isTabStop(element: HTMLElement): boolean {
+	if (
+		element.tabIndex < 0 ||
+		element.matches(':disabled') ||
+		element.closest('[inert],[hidden]')
+	) {
+		return false
+	}
+
+	for (let parent: HTMLElement | null = element; parent; parent = parent.parentElement) {
+		const style = getComputedStyle(parent)
+		if (style.display === 'none' || style.visibility === 'hidden') {
 			return false
 		}
+	}
 
-		for (let parent: HTMLElement | null = element; parent; parent = parent.parentElement) {
-			const style = getComputedStyle(parent)
-			if (style.display === 'none' || style.visibility === 'hidden') {
-				return false
+	return true
+}
+
+function tabStops(panel: HTMLElement): HTMLElement[] {
+	return Array.from(panel.querySelectorAll<HTMLElement>(TAB_STOP_SELECTOR)).filter(isTabStop)
+}
+
+// WebKit may leave pointer-activated buttons unfocused. Keep their target
+// briefly so the modal effect can associate a new portal with its opener.
+function captureClickTargets(document: Document): void {
+	if (clickCaptureDocuments.has(document)) {
+		return
+	}
+
+	clickCaptureDocuments.add(document)
+	document.addEventListener(
+		'click',
+		(event) => {
+			recentClickTargets.delete(document)
+			for (const target of event.composedPath()) {
+				if (
+					!target ||
+					typeof target !== 'object' ||
+					!('nodeType' in target) ||
+					(target as Node).nodeType !== 1
+				) {
+					continue
+				}
+
+				const element = target as HTMLElement
+				if (element.matches(TAB_STOP_SELECTOR) && isTabStop(element)) {
+					recentClickTargets.set(document, { element, at: Date.now() })
+					return
+				}
 			}
-		}
+		},
+		true,
+	)
+}
 
-		return true
-	})
+if (typeof document !== 'undefined') {
+	captureClickTargets(document)
 }
 
 /** Own keyboard focus only for a modal body portal. Inert preserves the
@@ -68,7 +110,20 @@ export function isolateModalFocus(
 	dismiss: () => void,
 ): () => void {
 	const document = layer.ownerDocument
-	const scope: Scope = { layer, panel, trigger: document.activeElement as HTMLElement | null }
+	captureClickTargets(document)
+	const recentClick = recentClickTargets.get(document)
+	const clickTrigger =
+		recentClick && Date.now() - recentClick.at <= CLICK_TRIGGER_MAX_AGE_MS
+			? recentClick.element
+			: null
+
+	recentClickTargets.delete(document)
+	const scope: Scope = {
+		layer,
+		panel,
+		trigger: clickTrigger ?? (document.activeElement as HTMLElement | null),
+	}
+
 	const tabIndex = panel.getAttribute('tabindex')
 	if (tabIndex === null) {
 		panel.tabIndex = -1

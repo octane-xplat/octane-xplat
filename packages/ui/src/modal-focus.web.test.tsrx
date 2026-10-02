@@ -64,4 +64,24 @@ describe('modal focus isolation', () => {
 		host.remove();
 		existing.remove();
 	}, 30000);
+
+	it('restores the clicked opener when pointer activation leaves focus elsewhere', () => {
+		const host = document.createElement('div');
+		host.innerHTML = '<button id="previous">Previous</button><button id="trigger">Open</button>';
+		const layer = document.createElement('div');
+		layer.innerHTML = '<button id="inside">Close</button>';
+		document.body.append(host, layer);
+		const previous = host.querySelector('#previous') as HTMLElement;
+		const trigger = host.querySelector('#trigger') as HTMLElement;
+		const inside = layer.querySelector('#inside') as HTMLElement;
+		previous.focus();
+		trigger.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+		expect(document.activeElement).toBe(previous);
+		const close = isolateModalFocus(layer, layer, () => {});
+		expect(document.activeElement).toBe(inside);
+		close();
+		expect(document.activeElement).toBe(trigger);
+		host.remove();
+		layer.remove();
+	});
 });

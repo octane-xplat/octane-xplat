@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
-import { chromium } from 'playwright'
+import { chromium, firefox, webkit } from 'playwright'
 import { createServer } from 'vite'
+
+const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
+const browserType = { chromium, firefox, webkit }[browserName]
+if (!browserType) {
+	throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
+}
 
 // A dedicated fixture and OS-assigned port: no screenshots or shared :5200.
 const server = await createServer({
@@ -28,7 +34,7 @@ const server = await createServer({
 let browser
 try {
 	await server.listen()
-	browser = await chromium.launch({ headless: true })
+	browser = await browserType.launch({ headless: true })
 	const page = await browser.newPage()
 	page.setDefaultTimeout(120000)
 	const errors = []
@@ -48,7 +54,7 @@ try {
 	assert.equal(await page.locator('#input').inputValue(), 'heXYo')
 	assert.equal(await page.locator('#changes').textContent(), '2')
 	console.log(
-		'Chromium: keyboard actions, selection replacement, and controlled-write callback counts passed',
+		`${browserName}: keyboard actions, selection replacement, and controlled-write callback counts passed`,
 	)
 
 	assert.equal(await page.locator('#input').evaluate((input) => input.selectionStart), 4)
@@ -64,24 +70,54 @@ try {
 		assert.equal(await focused(), `${name}-last`)
 		await page.keyboard.press('Tab')
 		assert.equal(await focused(), `${name}-first`)
-		// Chromium AX snapshot is tree evidence, not a screen-reader run.
-		const session = await page.context().newCDPSession(page)
-		const { nodes } = await session.send('Accessibility.getFullAXTree')
-		assert.equal(
-			nodes.some((node) => !node.ignored && node.name?.value === 'Save'),
-			false,
-		)
+		// The background Save action should be absent from role queries while
+		// the modal is open. Chromium also exposes the native AX tree via CDP.
+		assert.equal(await page.getByRole('button', { name: 'Save', exact: true }).count(), 0)
+		if (browserName === 'chromium') {
+			const session = await page.context().newCDPSession(page)
+			const { nodes } = await session.send('Accessibility.getFullAXTree')
+			assert.equal(
+				nodes.some((node) => !node.ignored && node.name?.value === 'Save'),
+				false,
+			)
 
-		await session.detach()
+			await session.detach()
+		}
+
 		await page.keyboard.press('Escape')
-		await page.waitForFunction((id) => document.activeElement?.id === id, `open-${name}`)
+		try {
+			await page.waitForFunction((id) => document.activeElement?.id === id, `open-${name}`, {
+				timeout: 10000,
+			})
+		} catch (error) {
+			console.log(
+				`${browserName}: ${name} focus restoration diagnostic`,
+				await page.evaluate((modalName) => {
+					const trigger = document.querySelector(`#open-${modalName}`)
+					const active = document.activeElement
+					return {
+						activeElementId: active?.id,
+						activeElement: active?.outerHTML,
+						triggerConnected: trigger?.isConnected,
+						triggerIsInert: trigger?.closest('[inert]') != null,
+						rootInert: document.getElementById('root')?.inert,
+						modalLayers: [...document.querySelectorAll('.vx-sheet-layer, .vx-overlay-layer')].length,
+					}
+				}, name),
+			)
+
+			throw error
+		}
+
 		assert.equal(await page.locator('#root').evaluate((root) => root.inert), false)
 		console.log(
-			`Chromium: ${name} Tab cycle, AX background isolation, Escape, and focus restoration passed`,
+			`${browserName}: ${name} Tab cycle, inert background exclusion, Escape, and focus restoration passed`,
 		)
 	}
 
-	await page.locator('#open-sheet').click()
+	const sheetOpener = page.locator('#open-sheet')
+	await sheetOpener.focus()
+	await sheetOpener.press('Enter')
 	try {
 		await page.waitForFunction(() => document.activeElement?.id === 'sheet-first', null, {
 			timeout: 10000,
@@ -103,10 +139,15 @@ try {
 	await page.locator('#sheet-nested').click()
 	await page.waitForFunction(() => document.activeElement?.id === 'overlay-first')
 	await page.keyboard.press('Escape')
-	await page.waitForFunction(() => document.activeElement?.id === 'sheet-nested')
+	await page.waitForFunction(() => document.activeElement?.id === 'sheet-nested', null, {
+		timeout: 10000,
+	})
+
 	assert.equal(await page.locator('#root').evaluate((root) => root.inert), true)
 	await page.keyboard.press('Escape')
-	await page.waitForFunction(() => document.activeElement?.id === 'open-sheet')
+	await page.waitForFunction(() => document.activeElement?.id === 'open-sheet', null, {
+		timeout: 10000,
+	})
 
 	await page.locator('#presence-input').focus()
 	// Invoke the exit control without transferring input focus first.
@@ -126,7 +167,7 @@ try {
 	assert.equal(await focused(), 'presence-input')
 	assert.deepEqual(errors, [])
 	console.log(
-		'Input readiness: Chromium keyboard, selection, controlled writes, modal focus/AX isolation, and Presence reversal passed. IME and screen readers were not exercised.',
+		`Input readiness: ${browserName} keyboard, selection, controlled writes, modal focus/accessibility isolation, and Presence reversal passed. IME and screen readers were not exercised.`,
 	)
 } catch (error) {
 	console.error('Input readiness failed', error)

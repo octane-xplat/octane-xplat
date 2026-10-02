@@ -71,8 +71,18 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --dir apps/web exec playwright install --with-deps chromium firefox webkit
 
-      - name: Web keyboard, focus, and accessibility-tree readiness
+      - name: Web keyboard, focus, and accessibility readiness (Chromium)
         run: pnpm --filter @xplat/web exec node scripts/input-readiness.mjs
+
+      - name: Web keyboard, focus, and accessibility readiness (Firefox)
+        run: pnpm --filter @xplat/web exec node scripts/input-readiness.mjs
+        env:
+          XPLAT_WEB_BROWSER: firefox
+
+      - name: Web keyboard, focus, and accessibility readiness (WebKit)
+        run: pnpm --filter @xplat/web exec node scripts/input-readiness.mjs
+        env:
+          XPLAT_WEB_BROWSER: webkit
 
       - name: SQLite Web worker runtime readiness
         run: pnpm --filter @xplat/web sqlite:readiness
