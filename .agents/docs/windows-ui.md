@@ -111,3 +111,28 @@ ready without running (result 267011). Desktop sign-in was requested; once
 `octane` is signed in, launch the registered package and inspect native logs
 before building/running the prepared foundation case. No screenshot analysis
 is authorized or needed for these first structural/input checks.
+
+## SafeArea escape-prop correction
+
+Executing SafeArea's exact escape-prop selection with both mobile Application
+objects absent selected the Android bag. `62ba1ccd` uses the existing
+`applyEscapeProps` helper instead, which guards each platform explicitly.
+The UI project's no-emit TSRX typecheck passes. This restores the documented
+platform escape contract; SafeArea inset behavior and the WebView recipe AC3
+are unchanged. Windows runtime verification remains pending.
+
+Local declaration regeneration encountered an existing unmanaged `Toast.d.ts`
+output and refused overwrite. The artifact was preserved; the no-emit project
+check supplied source/type validation instead. Recipe structure checks pass.
+
+The first foundation build was interrupted by PowerShell treating native stderr
+as terminating: the full harness type project reported an unrelated unresolved
+`styled-system/css` import. No build success is claimed for that attempt. The
+isolated guest probe now includes only its two source entry files, keeping
+transitive component checking while excluding unrelated demo roots.
+
+The isolated seven-component foundation build subsequently returned exit 0 on
+Windows: Vite bundle compilation and WinUI compilation passed, with zero .NET
+errors/warnings. Its type project includes the case and imported component
+graph, rather than unrelated demo roots. This is build evidence only. The raw
+label source and bundled app were preserved for boot-failure isolation.
