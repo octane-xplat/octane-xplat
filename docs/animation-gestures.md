@@ -30,6 +30,49 @@ an outer container. Do not bind a MotionValue and an animate target to the same
 channel or write it using setTranslate at the same time. Invalid targets and
 conflicting inline styles throw instead of silently failing on native.
 
+## Coordinate variants
+
+Use named variants when several hosts should respond to one state change.
+Children without their own `animate` inherit the parent's label and resolve it
+against their own maps. Each child keeps its own transition and numeric target.
+
+```tsx
+<motion.View
+	initial="hidden"
+	animate="visible"
+	variants={{
+		hidden: { opacity: 0 },
+		visible: {
+			opacity: 1,
+			transition: { duration: 0.2, when: 'beforeChildren', staggerChildren: 0.1 },
+		},
+	}}
+>
+	<motion.View variants={{ hidden: { y: 20 }, visible: { y: 0 } }} />
+	<motion.View variants={{ hidden: { y: 20 }, visible: { y: 0 } }} />
+</motion.View>
+```
+
+The parent fades first, then the children move to zero 0.1 seconds apart.
+`delayChildren` adds a base delay; `when: 'afterChildren'` waits for the children
+before starting the parent. Omit `when` for concurrent playback. Child delays
+add to their own per-channel delays. Reduced motion still settles transforms
+immediately. An explicit child `animate` creates an independent subtree.
+
+Label arrays, such as `animate={['visible', 'selected']}`, merge left to right;
+later channels win and the last specified variant transition overrides the
+host/config transition. Missing labels are ignored. Use
+`variants={{ visible: (custom) => ({ x: custom }) }}` with `custom={40}` for a
+host-specific target. Resolvers must return supported numeric channels.
+`initial={false}` also inherits, so the whole subtree starts at its destination.
+
+`exit`, `whileTap`, and `whileFocus` accept labels too, but resolve locally;
+put explicit exit labels on children inside Presence. Their variant transition
+wins for that run. Child sequencing applies to animate labels only.
+The [maintained motion probe](../examples/probes/motion.tsrx) exercises inherited
+labels and child sequencing; [compatibility](../packages/motion/UPSTREAM.md#variants-decision-93)
+records dynamic membership, ordering, and unsupported upstream options.
+
 ## Bind values and gestures
 
 `useMotionValue(number)` returns an owned numeric value. Bind it through the

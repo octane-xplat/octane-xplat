@@ -13,7 +13,8 @@ import type {
 import type { MotionValue, MotionValueEvents } from './value.js'
 import type { AnimationControls, AnimationResult } from './engine.js'
 /** Bounded motion hosts for shared xplat UI primitives; `motion.create` wraps
- *  any component that accepts `bind`/`style`/`children`. */
+ *  any component that accepts `bind`/`style`/`children`. All hosts support
+ *  numeric variants and root-local initial/animate label inheritance. */
 export declare const motion: {
 	View: UniversalComponent<MotionViewProps>
 	Row: UniversalComponent<MotionRowProps>

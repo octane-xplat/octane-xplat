@@ -1,6 +1,12 @@
 import { keyframes, spring } from 'motion-dom'
 import type { Clock } from './clock-types.js'
-import type { Transition, TransitionInput, MotionKey, RepeatType } from './types.js'
+import type {
+	Transition,
+	TransitionInput,
+	TransitionOrchestration,
+	MotionKey,
+	RepeatType,
+} from './types.js'
 
 /** Terminal status; cancellation never masquerades as completion. */
 export type AnimationResult = 'finished' | 'cancelled' | 'replaced'
@@ -18,9 +24,7 @@ export function isBezierEase(ease: Transition['ease']): boolean {
 	return ease === undefined || Array.isArray(ease) || BEZIER_EASES.has(ease)
 }
 
-export function isOrchestrated(
-	t: TransitionInput | undefined,
-): t is Exclude<TransitionInput, Transition> {
+export function isOrchestrated(t: TransitionInput | undefined): t is TransitionOrchestration {
 	if (!t || typeof t !== 'object') {
 		return false
 	}
@@ -38,6 +42,9 @@ export function validateTransition(t: Transition): void {
 	}
 
 	const allowed = [
+		'staggerChildren',
+		'delayChildren',
+		'when',
 		'type',
 		'duration',
 		'delay',
@@ -60,11 +67,17 @@ export function validateTransition(t: Transition): void {
 		}
 	}
 
+	if (t.when !== undefined && !['beforeChildren', 'afterChildren'].includes(t.when)) {
+		throw new Error('motion: unsupported when')
+	}
+
 	if (t.type !== undefined && t.type !== 'tween' && t.type !== 'spring') {
 		throw new Error('motion: unsupported transition type')
 	}
 
 	for (const key of [
+		'staggerChildren',
+		'delayChildren',
 		'duration',
 		'delay',
 		'repeatDelay',
@@ -133,9 +146,15 @@ export function validateTransition(t: Transition): void {
 
 export function validateTransitionInput(t: TransitionInput): void {
 	if (isOrchestrated(t)) {
-		for (const value of Object.values(t)) {
+		const { staggerChildren, delayChildren, when, ...channels } = t
+		validateTransition({ staggerChildren, delayChildren, when })
+		for (const [key, value] of Object.entries(channels)) {
+			if (key !== 'default' && !MOTION_KEYS.includes(key as MotionKey)) {
+				throw new Error(`motion: unsupported transition ${key}`)
+			}
+
 			if (value) {
-				validateTransition(value)
+				validateTransition(value as Transition)
 			}
 		}
 	} else {

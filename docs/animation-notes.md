@@ -184,6 +184,36 @@ passed with `started=8 finished=4 cancelled=3 fallback=0`; JS-engine pacing
 there ran 44 frames, 0 >34ms gaps, 16ms mean. Android runtime is unverified —
 no device/emulator was reachable.
 
+## Bounded variants — decision #93
+
+Variant labels and arrays now resolve to the existing numeric target contract.
+Each host owns its map and optional `custom` resolver argument. Later array
+entries overwrite earlier channels; the last defined variant transition wins.
+A root-local context provides initial/animate labels to motion children without
+an explicit animate control. The scheduler handles numeric delayChildren,
+staggerChildren, and beforeChildren/afterChildren sequencing on animate runs;
+children with their own animate form independent subtrees. Exit and interaction
+labels stay local to each host, preserving Presence's per-host registration.
+
+The scheduler strips tree metadata and adds child delay before Controller.animate,
+so the platform delegation gate remains unchanged. Generations cancel queued
+phases after replacement or unmount. Sequencing waits for actual completion
+(including springs/repeats), rather than estimating duration. An infinite repeat
+therefore holds the corresponding sequencing barrier until interrupted.
+See [the guide](animation-gestures.md#coordinate-variants) and
+[exact compatibility boundaries](../packages/motion/UPSTREAM.md#variants-decision-93).
+
+Verification (2026-10-02): 60 standard tests and 5 native object-driver tests
+passed, along with web/native builds, packed export checks and packed consumers
+in Bundler/NodeNext modes. The maintained motion probe passed 11 assertions on
+Chromium and the requested iOS simulator: inherited custom targets landed at
+20/40, completion order was parent → A → B, and iOS platform delegation engaged
+(14 starts, 9 finishes, 4 cancellations, 0 fallbacks across the whole probe).
+These are host/observer dispatch checks, not physical input or hit-testing.
+Android runtime was unavailable and remains unverified for this expansion.
+The component-motion recipe adds AC5 for variants; coverage is complete, with
+Android execution limited to native build/type evidence.
+
 ## Upstream API-shape expansion — landed 2026-10-02 (decision #92)
 
 `@octane-xplat/motion` now honors the upstream prop/transition vocabulary where
@@ -214,7 +244,7 @@ it maps onto the bounded numeric contract:
   controllers so `animate(node, target, transition)` and
   `animate(target, transition)` both work.
 
-Not implemented (documented in UPSTREAM.md): variants/stagger, keyframe
+Not implemented (documented in UPSTREAM.md): keyframe
 arrays, CSS strings, `motion.<tag>` DOM proxy, `AnimatePresence` naming.
 
 Probe evidence (2026-10-02): web + iOS simulator runs cover `whileTap` via

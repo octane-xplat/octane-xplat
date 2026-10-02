@@ -119,3 +119,37 @@ it('drives the retained native host from its handler and snaps reduced settlemen
 	root.unmount()
 	expect(handler.node).toBeUndefined()
 })
+
+function NativeVariants(props: any) @{
+	<motion.View animate={props.label} variants={{ show: { transition: { duration: 0, when: 'beforeChildren' } }, hide: { transition: { duration: 0 } } }}>
+		<motion.View custom={props.custom ?? 70} variants={{ show: (custom: number) => ({ x: custom, transition: { duration: 0 } }), hide: { x: 0, transition: { duration: 0 } } }} />
+	</motion.View>
+}
+
+it('propagates variant labels to retained native children', async () => {
+	const container = createObjectContainer('nativescript')
+	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+	root.render(NativeVariants, { label: 'show' })
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	const child: any = container.children[0].children[0]
+	expect(child.translateX).toBe(70)
+	flushUniversalSync(() => root.render(NativeVariants, { label: 'hide' }))
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	expect(container.children[0].children[0]).toBe(child)
+	expect(child.translateX).toBe(0)
+	root.unmount()
+})
+
+it('retargets native inherited custom resolvers with an unchanged parent label', async () => {
+	const container = createObjectContainer('nativescript')
+	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+	root.render(NativeVariants, { label: 'show', custom: 30 })
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	const child: any = container.children[0].children[0]
+	expect(child.translateX).toBe(30)
+	flushUniversalSync(() => root.render(NativeVariants, { label: 'show', custom: 50 }))
+	await new Promise((resolve) => setTimeout(resolve, 0))
+	expect(container.children[0].children[0]).toBe(child)
+	expect(child.translateX).toBe(50)
+	root.unmount()
+})

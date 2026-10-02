@@ -18,6 +18,7 @@ The adapter is original code; it does not copy upstream's DOM host factory.
 | Retained hosts on native                         | Not a DOM binding concern                                         | components.mobile.test.tsrx uses the universal object driver                                                                                                         |
 | Bounded drag                                     | src/index.ts pointer-drag binding; upstream/src/gestures/drag     | Numeric constraints, scalar elasticity, callbacks, JS velocity spring; drag.test.ts and web/native handler tests                                                     |
 | Interaction targets                              | whileTap/whileFocus gesture bindings                              | Host-level gesture seam (PointerEvents/touch/focus); snapshot + restore; components.web.test.tsrx, motion probe                                                      |
+| Variant labels and bounded orchestration         | src/context.ts; src/index.ts variant inheritance/stagger          | variants.test.ts, web/native compiled host tests; numeric resolution before Controller                                                                               |
 | Scoped imperative runs                           | useAnimate                                                        | Controller registry keyed on host nodes; `bind` accepts callback refs and `{current}` scopes                                                                         |
 | Custom host components                           | motion.create / motion.<tag>                                      | `motion.create(Component)` wraps shared-UI leaves; DOM tag proxy excluded                                                                                            |
 
@@ -27,10 +28,11 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
 
 ## Deliberate boundaries
 
-- Numeric values only. No CSS strings, keyframe arrays, variants/stagger
-  orchestration, layout/layoutId, `whileHover`/`whileInView`, or broad framework-neutral re-export. `whileTap`, `whileFocus`,
-  lifecycle callbacks (`onAnimationStart`/`onAnimationComplete`/`onUpdate`),
-  `motion.create`, and `useAnimate` match the upstream prop names.
+- Numeric values only. No CSS strings, keyframe arrays, layout/layoutId,
+  `whileHover`/`whileInView`, or broad framework-neutral re-export. Bounded drag,
+  variants, `whileTap`, `whileFocus`, lifecycle callbacks
+  (`onAnimationStart`/`onAnimationComplete`/`onUpdate`), `motion.create`, and
+  `useAnimate` match the upstream prop names.
 - Host APIs use shared UI names rather than DOM tags. Existing UI props remain
   available; motion owns transform channels and opacity. Put pre-existing CSS
   transforms on an outer container. Conflicting writers are errors.
@@ -108,6 +110,44 @@ Nested native control ownership and complex competing drags are deferred.
 Threshold configuration is source/test evidence of arbitration policy; only
 real OS input inside a ScrollView can establish runtime arbitration.
 
+## Variants (decision #93)
+
+`variants` maps labels to numeric targets with an optional `transition`, or to
+`(custom) => target` resolvers. The host's `custom` is passed to its own resolver;
+current values and velocities are not resolver arguments. `initial`, `animate`,
+`exit`, `whileTap`, and `whileFocus` accept targets, labels, or label arrays.
+Arrays merge targets left to right; later channels win. Missing labels are
+ignored. The last defined variant transition replaces the host/config transition
+for that run; otherwise the normal default applies. Per-key transitions remain
+supported. Resolvers should be pure; they may be evaluated during validation.
+
+Initial labels (including `initial={false}`) inherit through a root-local
+context. Animate labels propagate to descendant motion hosts without their own
+`animate`; each host resolves its own map and `custom`. Ordinary UI wrappers do
+not break propagation. An explicit `animate` makes that host an independent
+animation subtree. Direct target objects are not inherited. Both shared motion
+hosts and `motion.create` provide the context.
+
+On label-driven **animate** runs, the parent's resolved transition supports
+numeric non-negative `delayChildren` and `staggerChildren` in seconds, applied
+in child registration order and added to the child's own channel delays.
+`when: 'beforeChildren'` waits for successful parent completion;
+`'afterChildren'` waits for all inherited children; omitting `when` runs both
+concurrently. Nested runs wait for their own descendants. Replacement and
+unmount invalidate queued phases. A child mounted after a run starts joins
+once that run completes, with fresh child delay; it does not extend that run's
+completion barrier. Changing a retained child's resolved target/custom starts
+its own inherited run. Registration order does not track keyed visual reorders.
+
+Exit and interaction labels resolve locally: they do not propagate activation
+or child timing. Presence continues waiting for each registered host's explicit
+exit; specify `exit` on children that need one. Callback completion remains
+per-host playback, rather than a tree completion event. Unsupported upstream
+semantics include `inherit={false}`, dynamic delay functions, `staggerDirection`,
+`stagger()` helpers, gesture priority blending, `transitionEnd`, resolver chains,
+and inheritance across separate renderer roots. Resolved targets and ordinary
+transitions enter Controller unchanged, retaining existing delegation gates.
+
 ## Presence divergence
 
 `Presence present={...}` retains actual components and their state/subscriptions
@@ -125,6 +165,11 @@ momentum, callbacks, and cancellation. Native input is plugin handler dispatch;
 it does not prove OS hit-testing or drag-versus-scroll arbitration. Android drag
 runtime remains unverified. Package unit/build/packed-consumer checks cover the
 public types and shared numeric behavior.
+The variants expansion passes 60 standard tests and 5 native object-driver
+tests. The maintained probe passes 11 assertions on web Chromium and the iOS
+simulator (2026-10-02), including inherited custom destinations and
+parent-before-children stagger completion order; iOS platform delegation engages.
+No Android runtime was available for this expansion.
 
 Unit and DOM tests establish bounded behavior, not full Framer Motion parity.
 Universal object-driver tests establish retention and lifecycle without an OS.

@@ -88,6 +88,23 @@ void doubled
 `,
 }
 
+for (const target of Object.keys(consumers)) {
+	consumers[target] += `
+import type { Variants, AnimationDefinition, TransitionInput } from '@octane-xplat/motion'
+const variants: Variants = { show: (custom: number) => ({ x: custom, transition: { duration: 0, when: 'beforeChildren', staggerChildren: 0.1 } }) }
+const labels: AnimationDefinition = ['show']
+const timing: TransitionInput = { default: { duration: 0.2 }, x: { delay: 0.1 }, delayChildren: 0.1, when: 'afterChildren' }
+const variantHost = <motion.View variants={variants} custom={20} initial="show" animate={labels} exit="show" whileTap="show" whileFocus={['show']} transition={timing} />
+// @ts-expect-error arbitrary values are outside the numeric target contract
+const invalidVariant: Variants = { show: { x: '10px' } }
+// @ts-expect-error when has a bounded vocabulary
+const invalidWhen: TransitionInput = { when: 'together' }
+void variantHost
+void invalidVariant
+void invalidWhen
+`
+}
+
 const extraFiles = {}
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects

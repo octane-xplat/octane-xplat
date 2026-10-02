@@ -2,7 +2,7 @@
 
 ID: component-motion
 Targets: web, ios, android
-Related APIs: @octane-xplat/motion, motion.View, motion.Row, motion.Pressable, MotionConfig, Presence, exit
+Related APIs: @octane-xplat/motion, motion.View, motion.Row, motion.Pressable, MotionConfig, Presence, exit, variants, custom, staggerChildren, delayChildren, when
 
 ## Starting point
 
@@ -21,6 +21,8 @@ behavior, and respect reduced motion and component disposal.
 
 - AC4: Retain live component state during exit, reverse without remounting, disable exiting input, and distinguish boundary disposal from completed exit.
 
+- AC5: Coordinate named parent and child variants, distinguish inherited labels from explicit child targets, and understand child timing and local exit/interaction limits.
+
 ## Documentation
 
 - AC1: [Component motion](../docs/animation-gestures.md#animate-a-component), [maintained example](../packages/motion/examples/MotionDemo.tsrx).
@@ -28,3 +30,5 @@ behavior, and respect reduced motion and component disposal.
 - AC3: [Reduced motion](../docs/animation-gestures.md#reduced-motion-and-lifecycle), [known limits](../docs/known-limits.md#motion-leaf).
 
 - AC4: [Retained exit lifecycle](../docs/animation-gestures.md#retain-content-through-exit), [PresenceDemo](../packages/motion/examples/PresenceDemo.tsrx), and [nonvisual input qualification](../docs/input-readiness-notes.md#completed-checks).
+
+- AC5: [Coordinate variants](../docs/animation-gestures.md#coordinate-variants), [compatibility boundaries](../packages/motion/UPSTREAM.md#variants-decision-93), and [maintained motion probe](../examples/probes/motion.tsrx).

@@ -1,6 +1,6 @@
 import { act, createRoot, useEffect } from 'octane'
 import { describe, expect, it, vi } from 'vitest'
-import { motion, MotionConfig, useMotionValue, useTransform, useSpring } from './index.web'
+import { motion, Presence, MotionConfig, useMotionValue, useTransform, useSpring } from './index.web'
 
 function Box(props: any) @{
 	<motion.View id="box" initial={{ x: 20 }} animate={props.target} transition={{ duration: 0 }} onAnimationComplete={props.done} />
@@ -208,6 +208,7 @@ function TapFocusCase() @{
 const MotionCard = motion.create(function Card(props: any) @{
 	<View {...props} />
 })
+
 function CreatedCase() @{
 	<MotionCard id="created" animate={{ x: 30 }} transition={{ duration: 0 }} />
 }
@@ -286,4 +287,82 @@ describe('declarative pointer drag', () => {
 		expect(end.mock.calls[0][1].cancelled).toBe(true)
 		mounted.close()
 	})
+})
+
+function VariantTree(props: any) @{
+	<motion.View initial="hidden" animate={props.label} variants={{ hidden: { x: -10 }, show: { x: 10, transition: { duration: 0, when: 'beforeChildren' } }, hide: { x: 0, transition: { duration: 0 } } }}>
+		<motion.View id="variant-child" custom={props.custom} variants={{ hidden: { x: -20 }, show: (custom: number) => ({ x: custom, transition: { duration: 0 } }), hide: { x: 0, transition: { duration: 0 } } }} />
+		<motion.View id="variant-explicit" animate={{ x: 99 }} transition={{ duration: 0 }} />
+	</motion.View>
+}
+
+function VariantGesture() @{
+	<motion.View id="variant-gesture" animate={['base', 'position']} whileTap="tap" whileFocus="focus" variants={{ base: { scale: 1, transition: { duration: 0 } }, position: { x: 5 }, tap: { scale: 2, transition: { duration: 0 } }, focus: { x: 30, transition: { duration: 0 } } }} />
+}
+
+it('inherits labels and initial targets while explicit animate remains independent', async () => {
+	const mounted = mount(<VariantTree label="show" custom={40} />)
+	const child = mounted.container.querySelector('#variant-child') as HTMLElement
+	await act(async () => {})
+	expect(child.style.transform).toContain('translateX(40px)')
+	expect((mounted.container.querySelector('#variant-explicit') as HTMLElement).style.transform).toContain('translateX(99px)')
+	act(() => mounted.root.render(<VariantTree label="hide" custom={40} />))
+	await act(async () => {})
+	expect(mounted.container.querySelector('#variant-child')).toBe(child)
+	expect(child.style.transform).toContain('translateX(0px)')
+	mounted.close()
+})
+
+it('resolves gesture labels and restores the resolved animate target', () => {
+	const mounted = mount(<VariantGesture />)
+	const host = mounted.container.querySelector('#variant-gesture') as HTMLElement
+	host.dispatchEvent(new Event('pointerdown'))
+	expect(host.style.transform).toContain('scale(2)')
+	host.dispatchEvent(new Event('pointerup'))
+	expect(host.style.transform).toContain('scale(1)')
+	host.dispatchEvent(new Event('focus'))
+	expect(host.style.transform).toContain('translateX(30px)')
+	host.dispatchEvent(new Event('blur'))
+	expect(host.style.transform).toContain('translateX(5px)')
+	mounted.close()
+})
+
+it('retargets an inherited resolver when custom changes without a new parent label', async () => {
+	const mounted = mount(<VariantTree label="show" custom={40} />)
+	await act(async () => {})
+	act(() => mounted.root.render(<VariantTree label="show" custom={60} />))
+	await act(async () => {})
+	expect((mounted.container.querySelector('#variant-child') as HTMLElement).style.transform).toContain('translateX(60px)')
+	mounted.close()
+})
+
+function InitialVariantTree() @{
+	<motion.View initial={false} animate="show" variants={{ show: { x: 10 } }}>
+		<motion.View id="initial-variant" variants={{ show: { x: 90 } }} />
+	</motion.View>
+}
+
+it('inherits initial=false and seeds child destinations without playback', () => {
+	const mounted = mount(<InitialVariantTree />)
+	expect((mounted.container.querySelector('#initial-variant') as HTMLElement).style.transform).toContain('translateX(90px)')
+	mounted.close()
+})
+
+function VariantExit(props: any) @{
+	<Presence present={props.present} onExitComplete={props.done}>
+		<motion.View id="variant-exit" initial={false} animate="show" exit={['hide', 'offset']} variants={{ show: { x: 0 }, hide: { x: 70, transition: { duration: 0.1 } }, offset: { x: 100 } }} transition={{ duration: 20 }} />
+	</Presence>
+}
+
+it('uses exit label arrays and their transition overrides under Presence', async () => {
+	vi.useFakeTimers()
+	const done = vi.fn()
+	const mounted = mount(<VariantExit present={true} done={done} />)
+	act(() => mounted.root.render(<VariantExit present={false} done={done} />))
+	expect(mounted.container.querySelector('#variant-exit')).not.toBeNull()
+	await act(async () => { await vi.advanceTimersByTimeAsync(160) })
+	expect(mounted.container.querySelector('#variant-exit')).toBeNull()
+	expect(done).toHaveBeenCalledOnce()
+	mounted.close()
+	vi.useRealTimers()
 })

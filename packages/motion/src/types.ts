@@ -27,8 +27,15 @@ export type Ease =
 /** How repeated legs play: restart, alternate direction, or alternate
  *  direction with inverted easing (identical to reverse for two keyframes). */
 export type RepeatType = 'loop' | 'reverse' | 'mirror'
+/** Numeric tree timing in seconds, applied to inherited animate labels. */
+export interface ChildOrchestration {
+	staggerChildren?: number
+	delayChildren?: number
+	when?: 'beforeChildren' | 'afterChildren'
+}
+
 /** Timing is seconds. Spring velocity is units per second. */
-export interface Transition {
+export interface Transition extends ChildOrchestration {
 	type?: 'tween' | 'spring'
 	/** Tween duration; on springs this is the visual duration (combine with bounce). */
 	duration?: number
@@ -49,12 +56,21 @@ export interface Transition {
 }
 
 /** Per-channel transition overrides, upstream form: `{x: {…}, default: {…}}`. */
-export type TransitionOrchestration = {
+export type TransitionOrchestration = ChildOrchestration & {
 	default?: Transition
 } & Partial<Record<MotionKey, Transition>>
 
 /** A flat transition or per-channel overrides. */
 export type TransitionInput = Transition | TransitionOrchestration
+
+/** Labels resolve against this host's variants, in array order. */
+export type VariantLabels = string | string[]
+/** An inline numeric target or labels resolved by the host. */
+export type AnimationDefinition = Target | VariantLabels
+/** A numeric variant destination with an optional run transition override. */
+export type VariantTarget = Target & { transition?: TransitionInput }
+/** Host-local definitions; pure resolvers receive this host's custom value. */
+export type Variants = Record<string, VariantTarget | ((custom: any) => VariantTarget)>
 
 /** Static platform styles plus numeric motion-value bindings. */
 export type MotionStyle = Record<string, unknown> & Partial<Record<MotionKey, number | MotionValue>>
@@ -89,19 +105,23 @@ export interface MotionProps {
 	onDragStart?: DragCallback
 	onDrag?: DragCallback
 	onDragEnd?: DragCallback
-	initial?: Target | false
+	/** Named numeric targets; array labels merge left to right. */
+	variants?: Variants
+	/** Passed to this host's variant resolvers; not inherited. */
+	custom?: any
+	initial?: AnimationDefinition | false
 	/** Destination while the nearest Presence boundary retains this host for exit. */
-	exit?: Target
-	animate?: Target
+	exit?: AnimationDefinition
+	animate?: AnimationDefinition
 	transition?: TransitionInput
 	style?: MotionStyle
 	/** Target while the pointer is down (web: pointerdown; native: touch down). */
-	whileTap?: Target
+	whileTap?: AnimationDefinition
 	whileTapTransition?: Transition
 	/** Target while the host holds focus. */
-	whileFocus?: Target
+	whileFocus?: AnimationDefinition
 	whileFocusTransition?: Transition
-	onAnimationStart?: (definition: Target) => void
+	onAnimationStart?: (definition: AnimationDefinition) => void
 	onAnimationComplete?: () => void
 	/** Per-frame snapshot while any channel animates. */
 	onUpdate?: (latest: Target) => void

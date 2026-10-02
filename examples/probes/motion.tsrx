@@ -7,7 +7,7 @@ import {
 	useReducedMotion,
 } from '@octane-xplat/motion'
 
-import { VStack as Column, HStack as Row, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
+import { VStack as Column, HStack as Row, VStack, HStack, Text, Pressable, TextInput, type PanEvent } from '@octane-xplat/ui'
 import { dragInput } from './motion-drag-input'
 import type { ProbeContext } from '../../scripts/probe/context'
 
@@ -18,6 +18,35 @@ let dragSamples: number[] = []
 let dragPhases: string[] = []
 let dragVelocity = 0
 const stampNow = () => (globalThis as any).performance?.now?.() ?? Date.now()
+
+const variantEvidence = { order: [] as string[], a: 0, b: 0 }
+
+function VariantProbe() @{
+	const [label, setLabel] = useState('hidden')
+	const childVariants = {
+		hidden: { x: 0, transition: { duration: 0 } },
+		visible: (custom: number) => ({ x: custom, transition: { duration: 0.08, ease: 'linear' as const } }),
+	}
+
+	<VStack>
+		<Pressable id="motion-variants-run" onPress={() => {
+			variantEvidence.order = []
+			setLabel('visible')
+		}}><Text>Run variants</Text></Pressable>
+		<motion.View
+			initial="hidden"
+			animate={label}
+			variants={{
+				hidden: { opacity: 0.5, transition: { duration: 0 } },
+				visible: { opacity: 1, transition: { duration: 0.1, when: 'beforeChildren', delayChildren: 0.05, staggerChildren: 0.15 } },
+			}}
+			onAnimationComplete={() => { variantEvidence.order.push('parent') }}
+		>
+			<motion.View id="motion-variant-a" variants={childVariants} custom={20} onUpdate={(latest) => { variantEvidence.a = latest.x ?? 0 }} onAnimationComplete={() => { variantEvidence.order.push('a') }}><Text>Variant A</Text></motion.View>
+			<motion.View id="motion-variant-b" variants={childVariants} custom={40} onUpdate={(latest) => { variantEvidence.b = latest.x ?? 0 }} onAnimationComplete={() => { variantEvidence.order.push('b') }}><Text>Variant B</Text></motion.View>
+		</motion.View>
+	</VStack>
+}
 
 function PresenceCounter(props: { onMount: () => void; onUnmount: () => void }) @{
 	const [count, setCount] = useState(0)
@@ -34,12 +63,12 @@ function PresenceCounter(props: { onMount: () => void; onUnmount: () => void }) 
 		exit={{ opacity: 0, y: -10 }}
 		transition={{ duration: 0.3 }}
 	>
-		<Row className="items-center gap-3">
+		<HStack className="items-center gap-3">
 			<Text id="motion-presence-count">{`Retained count: ${count}`}</Text>
 			<Pressable id="motion-presence-increment" onPress={() => setCount(count + 1)} className="chip">
 				<Text>Increment</Text>
 			</Pressable>
-		</Row>
+		</HStack>
 		<TextInput id="motion-presence-input" placeholder="Focus target" />
 	</motion.View>
 }
@@ -75,6 +104,7 @@ export default function MotionProbe() @{
 			}),
 		[],
 	)
+
 	const panOrigin = useRef(0)
 	const panPhases = useRef<string[]>([])
 	const removals = useRef(0)
@@ -110,10 +140,11 @@ export default function MotionProbe() @{
 	}
 
 	<MotionConfig reducedMotion="user">
-		<Column className="gap-3 p-4">
+		<VStack className="gap-3 p-4">
+			<VariantProbe />
 			<Text id="motion-reduced-state">{`Reduced motion: ${String(reduced)}`}</Text>
 
-			<Row className="gap-2">
+			<HStack className="gap-2">
 				<Pressable id="motion-tween-to" onPress={() => {
 					const next = target === 100 ? -100 : 100
 					setMode('tween')
@@ -130,7 +161,7 @@ export default function MotionProbe() @{
 				}} className="chip">
 					<Text>Interrupt with spring</Text>
 				</Pressable>
-			</Row>
+			</HStack>
 			<Text id="motion-destination-status">{`Destination: ${destinationStatus}`}</Text>
 			<motion.View
 				id="motion-destination"
@@ -167,7 +198,7 @@ export default function MotionProbe() @{
 			>
 				<Text>Tap target</Text>
 			</motion.View>
-			<Row className="items-center gap-2">
+			<HStack className="items-center gap-2">
 				<Pressable id="motion-value-cancel" onPress={() => {
 					const controls = panX.animate(100, { duration: 3 })
 					setPanStatus('MotionValue animation started')
@@ -184,9 +215,9 @@ export default function MotionProbe() @{
 					<Text>Pace</Text>
 				</Pressable>
 				<Text id="motion-pan-status">{panStatus}</Text>
-			</Row>
+			</HStack>
 
-			<Row className="items-center gap-2">
+			<HStack className="items-center gap-2">
 				<Pressable id="motion-presence-toggle" onPress={() => {
 					const next = !present
 					setPresent(next)
@@ -195,7 +226,7 @@ export default function MotionProbe() @{
 					<Text>Toggle card</Text>
 				</Pressable>
 				<Text id="motion-presence-status">{presenceStatus}</Text>
-			</Row>
+			</HStack>
 			<Presence present={present}>
 				<PresenceCounter
 					onMount={() => setPresenceStatus(`mounted; prior removals=${removals.current}`)}
@@ -206,18 +237,18 @@ export default function MotionProbe() @{
 				/>
 			</Presence>
 
-			<Row className="items-center gap-2">
+			<HStack className="items-center gap-2">
 				<Pressable id="motion-disposal-toggle" onPress={() => {
 					setShowDisposable(!showDisposable)
 				}} className="chip">
 					<Text>Toggle job</Text>
 				</Pressable>
 				<Text id="motion-disposal-status">{disposalStatus}</Text>
-			</Row>
+			</HStack>
 			@if (showDisposable) {
 				<DisposalProbe onResult={(result) => setDisposalStatus(`job ${result}`)} />
 			}
-		</Column>
+		</VStack>
 	</MotionConfig>
 }
 
@@ -227,6 +258,14 @@ export async function run(ctx: ProbeContext) {
 		'reduced-motion state label',
 		ctx.inspect('motion-reduced-state').text.startsWith('Reduced motion:'),
 	)
+
+	await ctx.waitFor(() => variantEvidence.order.length >= 3, { timeout: 4000 })
+	await ctx.press('motion-variants-run')
+	await ctx.waitFor(() => variantEvidence.a === 20 && variantEvidence.b === 40 && variantEvidence.order.includes('b'), { timeout: 4000 })
+	ctx.assert('variants inherited custom target A', variantEvidence.a, 20)
+	ctx.assert('variants inherited custom target B', variantEvidence.b, 40)
+	ctx.assert('variants parent-before-children stagger order', variantEvidence.order.join(','), 'parent,a,b')
+	ctx.record('variants', variantEvidence)
 
 	// Mount animation lands at the resting destination.
 	await ctx.waitFor(() => ctx.inspect('motion-destination-status').text.includes('completed at'), {
@@ -240,11 +279,13 @@ export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.inspect('motion-destination-status').text === 'Destination: completed at 100', {
 		timeout: 4000,
 	}).catch(() => ctx.record('tween-timeout-status', ctx.inspect('motion-destination-status').text))
+
 	await ctx.press('motion-tween-to')
 	await ctx.press('motion-interrupt-spring')
 	await ctx.waitFor(() => ctx.inspect('motion-destination-status').text === 'Destination: completed at 40', {
 		timeout: 4000,
 	}).catch(() => ctx.record('spring-timeout-status', ctx.inspect('motion-destination-status').text))
+
 	ctx.assert(
 		'spring retarget destination',
 		ctx.inspect('motion-destination-status').text,
@@ -263,6 +304,7 @@ export async function run(ctx: ProbeContext) {
 	if (ctx.target === 'web' || ctx.target === 'linux') {
 		const fire = (type: string, x: number) =>
 			panRow.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: 100, pointerId: 1, bubbles: true }))
+
 		fire('pointerdown', 200)
 		fire('pointermove', 240)
 		fire('pointermove', 280)
@@ -282,14 +324,17 @@ export async function run(ctx: ProbeContext) {
 				})
 			}
 		}
+
 		emit(1, 0)
 		emit(2, 60)
 		emit(3, 80)
 	}
+
 	if (ctx.target !== 'macos') {
 		await ctx.waitFor(() => ctx.inspect('motion-pan-status').text.startsWith('settled x=0.0'), {
 			timeout: 4000,
 		})
+
 		ctx.assert(
 			'pan phases and settle',
 			/began→moved→ended/.test(ctx.inspect('motion-pan-status').text),
@@ -329,10 +374,12 @@ export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.inspect('motion-presence-status').text === 'unmounted; removals=1', {
 		timeout: 4000,
 	})
+
 	await ctx.press('motion-presence-toggle')
 	await ctx.waitFor(() => ctx.inspect('motion-presence-status').text === 'mounted; prior removals=1', {
 		timeout: 4000,
 	})
+
 	ctx.assert(
 		'fresh state after completed exit',
 		ctx.inspect('motion-presence-count').text,
@@ -355,15 +402,18 @@ export async function run(ctx: ProbeContext) {
 			}
 		}
 	}
+
 	fireTouch('down')
 	await ctx.waitFor(() => Math.min(...tapSamples) <= 0.7, { timeout: 3000 })
 		.catch(() => ctx.record('tap-engage-samples', tapSamples.slice(0, 10)))
+
 	ctx.assert('whileTap engaged', Math.min(...tapSamples, 1) <= 0.7, true)
 
 	fireTouch('up')
 	await ctx.waitFor(() => tapSamples[tapSamples.length - 1] === 1, {
 		timeout: 3000,
 	}).catch(() => ctx.record('tap-restore-samples', tapSamples.slice(-10)))
+
 	ctx.assert('whileTap restores animate target', tapSamples[tapSamples.length - 1] ?? 0, 1)
 
 	// Delegation evidence: on native targets the declarative tween runs above
@@ -383,6 +433,7 @@ export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => frameStamps.length > 0 && stampNow() - lastStampAt > 250, {
 		timeout: 8000,
 	})
+
 	const deltas = frameStamps.slice(1).map((t, i) => t - frameStamps[i])
 	ctx.record('pacing', {
 		frames: frameStamps.length,
