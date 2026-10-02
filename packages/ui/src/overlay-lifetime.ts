@@ -1,10 +1,19 @@
-import type { GridLayout, RootLayout, RootLayoutOptions } from '@nativescript/core'
-
 /** Own the resources of one independently mounted overlay. RootLayout emits
  * closed before removing the host, so that notification must never reenter close. */
+type OverlayHost = {
+	on(eventName: string, listener: (...args: any[]) => void): void
+	off(eventName: string, listener: (...args: any[]) => void): void
+}
+
+type OverlayOwner = {
+	close(host: any): Promise<unknown>
+	open(host: any, options?: any): Promise<unknown>
+	removeChild(host: any): void
+}
+
 export function createOverlayLifetime(
-	owner: RootLayout,
-	host: GridLayout,
+	owner: OverlayOwner,
+	host: OverlayHost,
 	root: { unmount(): void },
 	label: string,
 	onFinish: (dismissed: boolean) => void,
@@ -12,8 +21,8 @@ export function createOverlayLifetime(
 	// RootLayout removes closing hosts from its private popup registry before
 	// their exit animation finishes. Inspect that runtime seam to avoid reentry.
 	const registry = owner as unknown as {
-		hasChild(view: GridLayout): boolean
-		getPopupIndex(view: GridLayout): number
+		hasChild(view: any): boolean
+		getPopupIndex(view: any): number
 	}
 
 	let released = false
@@ -81,7 +90,7 @@ export function createOverlayLifetime(
 			release(false)
 			detach()
 		},
-		open(options?: RootLayoutOptions, afterOpen?: () => void | Promise<void>) {
+		open(options?: any, afterOpen?: () => void | Promise<void>) {
 			const failed = (error: unknown) => {
 				report('open', error)
 				release(false)

@@ -7,17 +7,28 @@ const sourceProperty = new Property<SVGView, string | Promise<string>>({
 	name: 'src',
 	defaultValue: '',
 })
+
 const stretchProperty = new Property<SVGView, string>({
 	name: 'stretch',
 	defaultValue: 'aspectFit',
 })
+
 const stretches: Record<string, number> = { none: 0, fill: 1, aspectFit: 2, aspectFill: 3 }
 const windows = () => globalThis as any
 
 function sourceUri(source: string): string {
-	if (source.startsWith('~/')) return `ms-appx:///app/${source.slice(2)}`
-	if (/^[a-z]:[\\/]/i.test(source)) return `file:///${source.replace(/\\/g, '/')}`
-	if (/^[a-z][a-z\d+.-]*:/i.test(source)) return source
+	if (source.startsWith('~/')) {
+		return `ms-appx:///app/${source.slice(2)}`
+	}
+
+	if (/^[a-z]:[\\/]/i.test(source)) {
+		return `file:///${source.replace(/\\/g, '/')}`
+	}
+
+	if (/^[a-z][a-z\d+.-]*:/i.test(source)) {
+		return source
+	}
+
 	return `ms-appx:///app/${source.replace(/^\//, '')}`
 }
 
@@ -39,7 +50,10 @@ class SVGView extends View {
 	}
 
 	private clearPending() {
-		if (!this.pending) return
+		if (!this.pending) {
+			return
+		}
+
 		this.pending.Opened = null
 		this.pending.OpenFailed = null
 		this.pending = null
@@ -61,9 +75,13 @@ class SVGView extends View {
 				console.error('[SVGView] Windows SVG load failed', error)
 			}
 		}
+
 		void Promise.resolve(value)
 			.then(async (source) => {
-				if (generation !== this.generation || !this.image) return
+				if (generation !== this.generation || !this.image) {
+					return
+				}
+
 				const { Windows, NSWinRT, Microsoft } = windows()
 				let stream: any
 				if (source.trimStart().startsWith('<')) {
@@ -74,24 +92,35 @@ class SVGView extends View {
 					await NSWinRT.toPromise(stream.WriteAsync(buffer))
 					stream.Seek(0)
 				}
+
 				Utils.executeOnMainThread(() => {
-					if (generation !== this.generation || !this.image) return
+					if (generation !== this.generation || !this.image) {
+						return
+					}
+
 					try {
 						if (!source) {
 							this.image.Source = null
 							return
 						}
+
 						const svg = new Microsoft.UI.Xaml.Media.Imaging.SvgImageSource()
 						this.pending = svg
 						// The preview bridge cannot resolve this generic enum-result operation.
 						// Native completion events work, including invalid-source recovery.
 						svg.Opened = () => {
-							if (generation === this.generation) this.clearPending()
+							if (generation === this.generation) {
+								this.clearPending()
+							}
 						}
+
 						svg.OpenFailed = () => fail(new Error('Unable to decode SVG'))
 						this.image.Source = svg
-						if (stream) svg.SetSourceAsync(stream)
-						else svg.UriSource = new Windows.Foundation.Uri(sourceUri(source))
+						if (stream) {
+							svg.SetSourceAsync(stream)
+						} else {
+							svg.UriSource = new Windows.Foundation.Uri(sourceUri(source))
+						}
 					} catch (error) {
 						fail(error)
 					}
