@@ -50,6 +50,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const footerHeightRef = useRef(0)
 	const observerRef = useRef<ResizeObserver | null>(null)
 	const estimateScheduledRef = useRef(false)
+	const estimateFrameRef = useRef<number | null>(null)
 	const resizeDeliveryRef = useRef(false)
 	const refreshAfterResizeRef = useRef(false)
 	const nodesBySlotRef = useRef(new Map<string, Element>())
@@ -154,7 +155,10 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	function scheduleEstimateRebuild() {
 		if (estimateScheduledRef.current) return
 		estimateScheduledRef.current = true
-		Promise.resolve().then(() => {
+		// Microtasks still run during resize delivery. Keep exact measurements and
+		// anchor correction immediate, but defer estimate-driven DOM writes.
+		estimateFrameRef.current = requestAnimationFrame(() => {
+			estimateFrameRef.current = null
 			estimateScheduledRef.current = false
 			if (disposedRef.current) return
 			const anchor = captureAnchor()
@@ -267,6 +271,9 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		disposedRef.current = false
 		return () => {
 			disposedRef.current = true
+			if (estimateFrameRef.current !== null) cancelAnimationFrame(estimateFrameRef.current)
+			estimateFrameRef.current = null
+			estimateScheduledRef.current = false
 			cellsRef.current.clear()
 			cellCallbacksRef.current.clear()
 			measuredAssignmentsRef.current.clear()
