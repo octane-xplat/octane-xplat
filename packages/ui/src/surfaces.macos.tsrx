@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { OverlayProps, PopoverProps } from './props'
 import { cx } from './cx'
 

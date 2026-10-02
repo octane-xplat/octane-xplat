@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ScrollableAreaProps } from './props'
 
 /** AppKit NSScrollView leaf. `axis` maps the same way as on NativeScript;

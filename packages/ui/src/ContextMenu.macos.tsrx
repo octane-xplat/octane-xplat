@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useRef, useState } from 'octane';
 import type { ContextMenuProps, MenuItem } from "./props";
 import { cx } from "./cx";

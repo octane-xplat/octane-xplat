@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useContext, useMemo } from 'octane';
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props';
 import { cx } from './cx';

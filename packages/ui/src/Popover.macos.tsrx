@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useRef } from 'octane'
 import type { PopoverProps } from './props'
 import { cx } from './cx'

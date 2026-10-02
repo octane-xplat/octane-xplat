@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { CitationProps } from './props';
 import { cx } from './cx';
 import { getColorScheme } from './colorScheme.macos';

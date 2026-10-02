@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { appleAuth } from './apple.macos'
 import type { AppleSignInButtonProps, SignInResult } from './types'
 

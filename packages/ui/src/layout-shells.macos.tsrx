@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { SafeAreaProps } from './props'
 
 export function SafeArea(props: SafeAreaProps) @{

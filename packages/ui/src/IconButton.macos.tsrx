@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { IconButtonProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Icon } from './Icon.macos.tsrx'

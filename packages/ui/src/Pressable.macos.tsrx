@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { PressableProps } from './props'
 import { cx } from './cx'
 import { layoutChildProps } from './layout-child'

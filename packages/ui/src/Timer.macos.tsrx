@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useRef, useState } from 'octane';
 import type { TimerProps } from './props';
 import {

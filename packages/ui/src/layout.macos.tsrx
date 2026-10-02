@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { AbsoluteProps, GridProps, SpacerProps, StackItemProps, StackProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'

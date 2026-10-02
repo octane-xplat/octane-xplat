@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { CameraViewProps } from './props'
 
 export function CameraView(_props: CameraViewProps) @{

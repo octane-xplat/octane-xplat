@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo, useRef, useState } from 'octane'
 import type { VirtualListProps } from './props'
 import { cx } from './cx'

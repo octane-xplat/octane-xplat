@@ -1,0 +1,161 @@
+# Render Octane components in AppKit
+
+`@octane-xplat/macos-renderer` mounts Octane components into an existing
+`NSView`. It is the experimental macOS AppKit renderer, using the
+`@nativescript/macos-node-api` runtime and the CLI's JavaScriptCore host.
+The supported packaging target is Apple Silicon with macOS 13.5 or later.
+
+Your application owns startup, windows, menus, host services, and custom font
+assets. The renderer owns views, layout, events, accessibility, and its hosted
+popups and sheets. It does not load web stylesheets or implement every
+NativeScript widget. See the [macOS harness](../../apps/macos/README.md) for
+the current component and service limits. The full harness currently fails its
+platform boundary check on `packages/ui/src/svg.mobile.ts`; the independent
+renderer fixture does not import that UI barrel. A raw AppKit button
+`performClick` check also exposes an existing action-selector mismatch. Native
+click delivery needs separate repair and verification; the maintained consumer
+checks direct handler dispatch.
+
+## Configure an app
+
+Declare the renderer, `octane`, and `@nativescript/macos-node-api` as application
+dependencies. The CLI also requires the runtime to be directly declared, even
+though the renderer depends on it. Use one copy of Octane per application.
+Declare `@octane-xplat/cli`, `@octanejs/vite-plugin`, and `vite` as development
+dependencies; the preset resolves these from your app, not from the CLI.
+The maintained consumer uses Octane 0.6.3, the Vite plugin 0.1.61, Vite 8.3.0,
+and the runtime `0.4.4-next.2026-08-09-31292056208`.
+
+Apply the framework's [patch setup](../cli/README.md)
+before building. For TSX checking, install TypeScript; for TSRX source, also
+install `@tsrx/typescript-plugin` and use `tsrx-tsc`.
+
+Use this production Vite config:
+
+```js
+import { defineConfig } from 'vite'
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+export default defineConfig(({ mode }) => xplatMacOS(mode))
+```
+
+The async preset bundles `src/main.mjs` into `dist/package-build/main.cjs`,
+selects macOS platform files, registers the universal renderer, aliases
+NativeScript compatibility imports, and externalizes only the native runtime
+and `node:` host imports. Unsupported host imports still fail CLI packaging.
+No repository paths or harness fonts are needed.
+
+Set these TypeScript options:
+
+```json
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/macos-renderer",
+		"customConditions": ["macos"],
+		"moduleSuffixes": [".macos", ""],
+		"lib": ["ESNext"],
+		"strict": true,
+		"skipLibCheck": true,
+		"noEmit": true
+	},
+	"include": ["src/**/*"]
+}
+```
+
+JSX runtime subpaths contain compiler typing declarations; use the Octane Vite
+compiler to produce runnable code. The preset compiles reachable TSX/TSRX
+source by default. `rules` can override that selection.
+
+## Mount and dispose a root
+
+In your existing host bootstrap, pass its content view to the renderer:
+
+```js
+import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+import App from './App.macos.tsx'
+
+const root = createMacOSRoot(contentView)
+root.render(App, {})
+
+// Call when the owning window or application closes.
+root.unmount()
+```
+
+`contentView` is the `NSView` supplied by your window host. Keep one root for
+that view and call `unmount()` before disposing the host. Root creation does
+not create a window or start the application run loop. The package also
+re-exports Octane's universal native runtime for compiler and hook imports.
+
+Use [the packaging guide](../../docs/toolchain.md#experimental-appkit-target)
+for `xplat.targets.macos` metadata, signing, and CLI commands. The
+[independent fixture](test/fixtures/main.mjs) demonstrates a complete host
+entry, including startup and shutdown, without importing the harness.
+
+## Choose fonts
+
+Roots default to Apple's system font. Sizes and CSS numeric or named weights
+map to weighted AppKit fonts. `system-ui`, `-apple-system`, and `sans-serif`
+select the system font; unavailable families fall through the family stack,
+then fall back to the system font.
+
+For an installed family, set `style.fontFamily` on text or choose a root
+default with `createMacOSRoot(contentView, { fontFamily: 'Helvetica Neue' })`.
+Renderer-hosted popups and sheets inherit that root default.
+
+For bundled fonts, the application loads its assets and license and creates
+native descriptors. Register those descriptors before mounting:
+
+```js
+import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-renderer'
+
+// regularFace and boldFace are NSFontDescriptors created from your font asset.
+registerFontFamily('Acme Sans', [
+	{ weight: 400, descriptor: regularFace },
+	{ weight: 700, descriptor: boldFace },
+])
+const root = createMacOSRoot(contentView, { fontFamily: 'Acme Sans' })
+```
+
+Registration does not change the renderer default. Registered weights resolve
+to the first face at or above the requested weight, or the heaviest face.
+Invalid names, empty face lists, and missing descriptors or invalid weights are
+rejected. The renderer does not read assets, register Geist automatically, or
+write a font cache. The [harness font setup](../../apps/macos/src/fonts.mjs)
+demonstrates app-owned descriptors and packaged font bytes.
+
+## Development bundles
+
+Call `xplatMacOS(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`
+for the component bundle. It retains renderer and Octane imports so the
+CLI-managed shell can share their live instances across edits. Build the
+shell with `packaged: true`, and populate `__xplatDevModules` with the renderer
+and Octane modules. The [independent development shell](test/fixtures/dev-shell.mjs)
+shows the module mapping and retained-root HMR lifecycle.
+
+Other preset options are `root` (defaults to cwd), `entry`, `outDir`, and
+`rules`. Packaged output defaults to CommonJS; component output defaults to
+ES modules. Component builds preserve the output directory so they do not
+delete a shell sharing it; shell configurations should also preserve that
+directory when used for development. Applications may override the component format to CommonJS for
+the CLI watcher, as the maintained fixture does.
+
+## Verify the package
+
+From this repository:
+
+```sh
+pnpm --filter @octane-xplat/macos-renderer test
+pnpm --filter @octane-xplat/macos-renderer test:packed
+pnpm --filter @xplat/macos test:fonts
+```
+
+The packed check uses the renderer and CLI tarballs in a temporary app outside
+the checkout. It checks declarations and production compilation on every
+host; on Apple Silicon macOS it also packages and launches the app and verifies
+retained-root HMR. Programmatic action dispatch establishes handler behavior,
+not OS input or hit-testing. Publication requires the repository's normal
+[npm bootstrap and trusted-publisher setup](../../.agents/docs/releases.md).

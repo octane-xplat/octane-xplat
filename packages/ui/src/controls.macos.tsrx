@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useRef, useState } from 'octane'
 import type { ActivityIndicatorProps, ButtonProps, CheckboxProps, PanEvent, SearchInputProps, SegmentedControlProps, SliderProps, SwitchProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'

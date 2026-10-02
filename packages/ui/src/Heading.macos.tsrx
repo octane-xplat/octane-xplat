@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { HeadingProps } from './props'
 
 export function Heading(props: HeadingProps) @{

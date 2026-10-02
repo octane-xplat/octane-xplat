@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { CodeProps } from './props';
 import { cx } from './cx';
 import { Text } from './Text.macos.tsrx';

@@ -1,5 +1,5 @@
 /** AppKit-only scale probe for the current shared VirtualList leaf. */
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane'
 import { Pressable, Text, VirtualList } from '@octane-xplat/ui'
 

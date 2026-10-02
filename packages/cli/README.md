@@ -60,3 +60,17 @@ export default defineConfig(({ mode }) => xplatNative(mode))
 
 Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolchain)
 — agents: [llms.txt](https://octane-xplat.goddardai.org/llms.txt)
+
+The experimental AppKit preset is exported separately from
+`@octane-xplat/cli/macos/vite`:
+
+```js
+import { defineConfig } from 'vite'
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+export default defineConfig(({ mode }) => xplatMacOS(mode))
+```
+
+It resolves the app's `@octane-xplat/macos-renderer` package and installed
+Octane compiler. See [AppKit renderer setup](../macos-renderer/README.md) for
+application dependencies, root ownership, fonts, and development bundles.

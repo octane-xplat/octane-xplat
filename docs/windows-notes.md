@@ -37,7 +37,7 @@ Two structurally different integrations are possible:
   "the native default that also runs on desktop" — zero renderer code from us.
 - **Path B — Node-API host (the macOS pattern).** A `node` process loads
   `@nativescript/windows-napi` and we write a driver for the universal-root
-  contract, like `apps/macos/src/renderer`. Headless UI is proven only for
+  contract, like `packages/macos-renderer`. Headless UI is proven only for
   `Windows.UI.Composition` (Win32 HWND + compositor visuals — a fully
   self-drawn renderer; text/inputs need Win2D/DirectWrite interop).
   `Microsoft.UI.Xaml` from a bare Node host is unproven. The napi package is

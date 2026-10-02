@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { CarouselProps } from './props'
 import { toChildArray } from './child-array'
 import { spacingStep } from './spacing'

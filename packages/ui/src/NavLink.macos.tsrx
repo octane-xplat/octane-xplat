@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { NavLinkProps } from './props';
 import { Pressable } from './Pressable.macos.tsrx';
 import { pushRoute, useRoute } from './route.macos';

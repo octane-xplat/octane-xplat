@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { VisuallyHiddenProps } from './props'
 import { applyEscapeProps } from './escape-props'
 

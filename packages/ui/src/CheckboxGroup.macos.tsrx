@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane';
 import type { CheckboxGroupProps } from "./props";
 import { cx } from "./cx";

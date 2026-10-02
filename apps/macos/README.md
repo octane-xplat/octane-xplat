@@ -10,6 +10,10 @@ keep-running behavior.
 
 ## Fonts
 
+`@octane-xplat/macos-renderer` owns the AppKit driver and JSX declarations.
+The app owns startup, windows, and host services. See the [renderer package](../../packages/macos-renderer/README.md)
+for an independent consumer setup.
+
 The renderer defaults to Apple's system font. This harness explicitly registers
 Geist and selects it on each root to keep its demo typography consistent.
 `src/fonts.mjs` owns the font assets, license, and registration; the packaged
@@ -57,8 +61,8 @@ components mount and that dropping one removes a row; it does not prove
 virtualization or large-list performance.
 
 The AppKit Vite config compiles the UI package's macOS leaves with its renderer
-and still supplies app-local shims for NativeScript core and escape-prop
-helpers. The UI package includes the leaf sources and local helpers needed by
+through `@octane-xplat/cli/macos/vite`. The preset resolves NativeScript
+compatibility shims from `@octane-xplat/macos-renderer`. The UI package includes the leaf sources and local helpers needed by
 the bounded root surface. `tsconfig.json` sets the `macos` custom condition so
 TypeScript selects the matching declarations.
 

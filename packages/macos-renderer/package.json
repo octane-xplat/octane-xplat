@@ -1,0 +1,45 @@
+{
+	"name": "@octane-xplat/macos-renderer",
+	"version": "0.8.0",
+	"description": "Experimental AppKit renderer for Octane on macOS",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/macos-renderer"
+	},
+	"files": [
+		"src",
+		"LICENSE"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/index.d.ts",
+			"import": "./src/index.mjs",
+			"default": "./src/index.mjs"
+		},
+		"./intrinsics": "./src/intrinsics.d.ts",
+		"./jsx-runtime": {
+			"types": "./src/jsx-runtime.d.ts"
+		},
+		"./jsx-dev-runtime": {
+			"types": "./src/jsx-runtime.d.ts"
+		},
+		"./compat/native-core": "./src/native-core-shim.mjs",
+		"./compat/escape-props": "./src/native-escape-props.mjs"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"test": "node --test test/*.test.mjs",
+		"test:packed": "node test/packed-consumer.mjs"
+	},
+	"dependencies": {
+		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208"
+	},
+	"peerDependencies": {
+		"octane": ">=0.6.3 <1"
+	}
+}

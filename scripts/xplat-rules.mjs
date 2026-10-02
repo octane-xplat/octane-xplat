@@ -505,7 +505,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 		return []
 	}
 
-	const isMacOSAppFile = /(^|\/)apps\/macos\//.test(norm(filename))
+	const isMacOSRuntimeFile = /(^|\/)(apps\/macos|packages\/macos-renderer)\//.test(norm(filename))
 	const out = []
 	for (const [node] of walk(program)) {
 		if (
@@ -517,7 +517,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 		}
 
 		const source = node.source?.value
-		const isMacOSRuntimeImport = isMacOSAppFile && source === '@nativescript/macos-node-api'
+		const isMacOSRuntimeImport = isMacOSRuntimeFile && source === '@nativescript/macos-node-api'
 		if (
 			typeof source === 'string' &&
 			/^@(nativescript|nativescript-community)\//.test(source) &&
@@ -1233,7 +1233,7 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 // ---------- .tsrx-only checks (run by lint-tsrx.mjs) ----------
 
 export const NATIVE_PRAGMA = '/** @jsxImportSource @nativescript-community/octane */'
-const MACOS_PRAGMA = '/** @jsxImportSource @xplat/macos/renderer */'
+const MACOS_PRAGMA = '/** @jsxImportSource @octane-xplat/macos-renderer */'
 
 // The pragma sets the JSX import source — only files that contain JSX need
 // it. JSX-free native leaves (styled, use-store) omit it by

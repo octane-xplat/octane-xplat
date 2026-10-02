@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useContext, useEffect, useRef, useState } from 'octane';
 import type { BaseTypeaheadProps, SearchableItem } from "./props";
 import { cx } from "./cx";

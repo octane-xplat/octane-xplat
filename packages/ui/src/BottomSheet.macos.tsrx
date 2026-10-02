@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useContext, useEffect, useMemo, useRef } from 'octane'
 import type { BottomSheetProps, BottomSheetSwitcherProps } from './props'
 import {

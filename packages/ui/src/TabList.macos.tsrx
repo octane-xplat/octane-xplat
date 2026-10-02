@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps } from './props';
 import { cx } from './cx';

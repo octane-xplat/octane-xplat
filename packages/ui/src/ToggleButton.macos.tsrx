@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane'
 import type { ToggleButtonProps, ToggleButtonGroupProps } from './props'
 import { useToggleButtonGroup, ToggleButtonGroupContext } from './toggle-button-group-context'

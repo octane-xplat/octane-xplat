@@ -1,5 +1,5 @@
 /** AppKit-only fixed-height windowing probe; not the shared VirtualList API. */
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane'
 import { Pressable, Text, View, VirtualList } from '@octane-xplat/ui'
 

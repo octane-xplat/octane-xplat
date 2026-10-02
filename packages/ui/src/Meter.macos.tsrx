@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { MeterProps } from './props'
 
 export function Meter(props: MeterProps) @{

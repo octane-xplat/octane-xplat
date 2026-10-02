@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { RichTextProps, RichTextSpanProps, TextProps } from './props'
 
 export function Text(props: TextProps) @{

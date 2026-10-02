@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useId } from 'octane'
 import type { InputGroupProps, InputGroupTextProps } from './props'
 import { cx } from './cx'

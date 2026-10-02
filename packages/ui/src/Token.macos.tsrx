@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { TokenProps } from "./props";
 import { cx } from "./cx";
 import { Pressable } from './Pressable.macos.tsrx';

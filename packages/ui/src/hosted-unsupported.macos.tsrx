@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { CameraViewProps, WebViewProps } from './props'
 
 export function WebView(_props: WebViewProps) @{

@@ -5,16 +5,23 @@ export namespace JSX {
 		key?: string | number
 	}
 
+	export interface HostProps {
+		id?: string
+		className?: string
+		style?: Record<string, unknown>
+		children?: unknown
+	}
+
 	export interface IntrinsicElements {
-		stack: {
+		stack: HostProps & {
 			children?: unknown
 			spacing?: number
 		}
-		label: {
+		label: HostProps & {
 			text?: string | number
 			fontSize?: number
 		}
-		button: {
+		button: HostProps & {
 			title?: string
 			enabled?: boolean
 			onPress?: () => void

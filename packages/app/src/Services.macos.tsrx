@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane'
 import { HStack, Text, Pressable, View } from '@octane-xplat/ui'
 import { clipboard, connectivity, device, locale, useAppState, useWindowSize } from '@octane-xplat/platform'

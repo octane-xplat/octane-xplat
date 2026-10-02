@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { LinkProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { pushDeepLink } from './route.macos'

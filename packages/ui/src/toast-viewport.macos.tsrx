@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useId, useMemo } from 'octane'
 import type { ToastViewportProps } from './props'
 import { ToastViewportProvider, type ToastViewportContextValue } from './toast-context'

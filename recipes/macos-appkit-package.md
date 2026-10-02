@@ -2,7 +2,7 @@
 
 ID: macos-appkit-package
 Targets: macos
-Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package, @nativescript/macos-node-api
+Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package, @nativescript/macos-node-api, @octane-xplat/macos-renderer, xplatMacOS
 
 ## Starting point
 
@@ -63,6 +63,10 @@ production Vite config that emits one CommonJS host bundle.
   and select its own weighted faces, including in a packaged build. The macOS
   harness opts into Geist rather than changing the renderer default.
 
+- AC11: An independent app consumes the packed AppKit renderer, compiler
+  preset, and JSX declarations through package exports, with no harness
+  source paths. App startup, windows, and host services remain app-owned.
+
 ## Documentation
 
 - AC1: [Experimental AppKit target](../docs/toolchain.md#experimental-appkit-target)
@@ -82,3 +86,6 @@ production Vite config that emits one CommonJS host bundle.
 
 - AC10: [AppKit fonts](../docs/styling.md#appkit-fonts) and the
   [maintained harness font setup](../apps/macos/src/fonts.mjs).
+
+- AC11: [Renderer setup](../packages/macos-renderer/README.md) and the
+  [packed renderer consumer](../packages/macos-renderer/test/packed-consumer.mjs).

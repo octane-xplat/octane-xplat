@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 // macOS leaf — same duck-typed subtree walk as the mobile leaf (the AppKit
 // host exposes `children`/`subviews` on its view wrappers). No mutation
 // observation: collected on mount and when the container view changes.

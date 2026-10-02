@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useRef, useSyncExternalStore } from 'octane';
 import type { ResizableRegion, UseResizableMultiConfig, UseResizableSingleConfig } from './props';
 import { createResizableRegion, type ResizableMachine } from './resize-state';

@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { AlertDialogProps } from './props'
 import { Dialog } from './Dialog.macos.tsrx'
 import { Button } from './controls.macos.tsrx'

@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useContext, useId, useRef, useState } from 'octane'
 import type { DateRange, DateRangeInputProps } from './props'
 import { cx } from './cx'

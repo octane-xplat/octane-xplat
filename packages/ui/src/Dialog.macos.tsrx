@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { DialogHeaderProps, DialogProps } from './props'
 import { cx } from './cx'
 

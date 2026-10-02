@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useId, useRef, useState } from 'octane';
 import type { ComplexSelectorHandle, ComplexSelectorProps } from './props';
 import { cx } from './cx';

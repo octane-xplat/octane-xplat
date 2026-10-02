@@ -29,6 +29,20 @@ meaningful relative to its class's claim: `hosted` components (`WebView`,
 `Video`, `CameraView`) claim the frame plus whatever chrome we draw, so
 `different` interior pixels are expected, not a regression.
 
+## Experimental AppKit renderer
+
+`@octane-xplat/macos-renderer` has independent packed-consumer coverage for
+system fonts, rendering updates, and the CLI's AppKit packaging contract. This
+coverage does not establish OS input delivery or general UI-package parity.
+
+The full `apps/macos` harness currently fails its build's platform boundary
+check because `packages/ui/src/svg.mobile.ts` is reachable in the macOS graph.
+A packaged raw button `performClick` check also throws an unrecognized
+`buttonPressed` selector: the action string does not match the exposed
+one-argument method. Direct debug handler dispatch bypasses that native action
+path. These are separate follow-ups to the renderer extraction; see the
+[renderer setup and verification boundary](../packages/macos-renderer/README.md).
+
 ## Where the real OS widgets live
 
 The shared UI surface aims for consistent behavior on its supported targets — self-drawn

@@ -41,6 +41,10 @@
 		"./vite": {
 			"types": "./src/vite.d.ts",
 			"default": "./src/vite.mjs"
+		},
+		"./macos/vite": {
+			"types": "./src/macos/vite.d.ts",
+			"default": "./src/macos/vite.mjs"
 		}
 	},
 	"publishConfig": {

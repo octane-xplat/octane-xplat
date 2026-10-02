@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useEffect, useMemo, useRef, useState } from 'octane'
 import type { PowerSearchProps, PowerSearchFilter, PartialFilter, PowerSearchHandle } from './props'
 import { SearchInput } from './controls.macos.tsrx'

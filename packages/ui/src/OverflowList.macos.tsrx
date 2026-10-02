@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { OverflowItem, OverflowListProps } from './props';
 import { cx } from './cx';

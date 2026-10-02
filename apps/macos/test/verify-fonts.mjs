@@ -18,7 +18,7 @@ await mkdir(scratch, { recursive: true })
 const directory = await mkdtemp(join(scratch, 'macos-fonts-'))
 const bootstrap = join(directory, 'bootstrap.js')
 await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
-const config = createMacOSConfig({
+const config = await createMacOSConfig({
 	packaged: true,
 	rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
 })({ mode: 'production' })

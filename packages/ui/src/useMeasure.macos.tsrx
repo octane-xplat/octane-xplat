@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { MeasureBounds, MeasureResult, UseMeasureOptions } from './props'
 import { readBounds } from './measure-bounds.macos'

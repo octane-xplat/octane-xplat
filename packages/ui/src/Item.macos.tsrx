@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ItemComponent, ItemProps, ItemSlotProps } from './props'
 import { Pressable } from './Pressable.macos.tsrx'
 import { Text } from './Text.macos.tsrx'

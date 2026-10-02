@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useId, useMemo, useState } from 'octane';
 import type { AppShellProps, MobileNavConfig } from './props';
 import { cx } from './cx';

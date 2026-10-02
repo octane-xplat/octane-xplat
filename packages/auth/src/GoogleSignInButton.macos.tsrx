@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { GoogleSignInButtonProps } from './types'
 
 /** Explicit placeholder — the AppKit host has no Google sign-in button. */

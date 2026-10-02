@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useState } from 'octane';
 import type { AlertDialogProps, ImperativeAlertDialogReturn } from './props';
 import { AlertDialog } from './AlertDialog.macos.tsrx';

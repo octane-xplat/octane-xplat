@@ -1,6 +1,6 @@
 import { harnessFontOptions } from './fonts.mjs'
 import '@nativescript/macos-node-api'
-import { createMacOSRoot } from '@xplat/macos/renderer'
+import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 
 const app = NSApplication.sharedApplication
 

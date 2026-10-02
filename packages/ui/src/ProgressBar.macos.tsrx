@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { ProgressBarProps } from './props';
 import { cx } from './cx';
 import { getColorScheme } from './colorScheme.macos';

@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useState } from 'octane';
 import type { DialogOptions, ImperativeDialogReturn } from './props';
 import { Dialog } from './Dialog.macos.tsrx';

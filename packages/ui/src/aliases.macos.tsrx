@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { Select } from './Select.macos.tsrx'
 import type { MultiSelectorProps } from './props'
 

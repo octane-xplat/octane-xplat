@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { IconProps } from './props'
 import { Image } from './Image.macos'
 import { glyphSvgMarkup } from './svg-glyph'

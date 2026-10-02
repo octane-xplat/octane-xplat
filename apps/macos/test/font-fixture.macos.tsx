@@ -1,5 +1,5 @@
-/** @jsxImportSource @xplat/macos/renderer */
-import { createMacOSRoot } from '@xplat/macos/renderer'
+/** @jsxImportSource @octane-xplat/macos-renderer */
+import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 
 function Content({ weight = 400 }) {
 	return (
@@ -38,6 +38,11 @@ export function runFontFixture(options = {}, custom = false) {
 	root.render(Content, { weight: 400 })
 	setTimeout(() => {
 		try {
+			check(
+				String(root.__macosDebug.findId('default').stringValue) === 'Default',
+				'Styles erased label text',
+			)
+
 			check(Number(required('default').pointSize) === 22, 'Font size was lost')
 			check(
 				String(required('default').fontName) ===

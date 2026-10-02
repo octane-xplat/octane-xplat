@@ -3,19 +3,11 @@
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
-	"exports": {
-		"./renderer": {
-			"types": "./src/renderer/index.d.ts",
-			"import": "./src/renderer/index.mjs"
-		},
-		"./renderer/intrinsics": "./src/renderer/intrinsics.d.ts",
-		"./renderer/jsx-runtime": "./src/renderer/jsx-runtime.d.ts"
-	},
 	"scripts": {
 		"xplat": "xplat",
 		"dev": "node ../../scripts/watch-types.mjs -- pnpm dev:app",
 		"build": "vite build",
-		"test:fonts": "node --test test/fonts.test.mjs && node test/verify-fonts.mjs",
+		"test:fonts": "node test/verify-fonts.mjs",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"parity": "node ./scripts/parity.mjs",
 		"bench:virtual-list": "node ./scripts/bench-virtual-list.mjs",
@@ -28,6 +20,7 @@
 	"dependencies": {
 		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",
 		"@octane-xplat/desktop-webview": "workspace:*",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@xplat/app": "workspace:*",

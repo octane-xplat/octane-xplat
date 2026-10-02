@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { TimelineProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";

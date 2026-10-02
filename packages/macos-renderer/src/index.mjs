@@ -1986,7 +1986,11 @@ function syncText(parent) {
 		return
 	}
 
-	setLabelText(parent, parent.children.map(textContent).join(''))
+	const text = parent.children.length
+		? parent.children.map(textContent).join('')
+		: String(parent.props?.text ?? '')
+
+	setLabelText(parent, text)
 }
 
 function syncTextViewPlaceholder(node) {
@@ -3122,8 +3126,12 @@ function measureParity(container, facets) {
 			(node) => node.type === 'scrollview' && node.view,
 		)) {
 			const clip = scroll.view.contentView
-			const document = scroll.view.documentView
-			const y = Math.max(0, Number(document.bounds.size.height) - Number(clip.bounds.size.height))
+			const contentDocument = scroll.view.documentView
+			const y = Math.max(
+				0,
+				Number(contentDocument.bounds.size.height) - Number(clip.bounds.size.height),
+			)
+
 			clip.scrollToPoint({ x: 0, y })
 			scroll.view.reflectScrolledClipView(clip)
 		}
@@ -4190,7 +4198,7 @@ export function createMacOSRoot(hostView, { fontFamily } = {}) {
 
 				const view = node.view
 				const appearance = view.effectiveAppearance ?? view.window?.effectiveAppearance
-				const window = view.window
+				const nativeWindow = view.window
 				return {
 					type: node.type,
 					classes: nodeClasses(node),
@@ -4207,27 +4215,27 @@ export function createMacOSRoot(hostView, { fontFamily } = {}) {
 								h: round(Number(view.frame.size.height)),
 							}
 						: null,
-					window: window
+					window: nativeWindow
 						? {
 								frame: {
-									x: round(Number(window.frame.origin.x)),
-									y: round(Number(window.frame.origin.y)),
-									w: round(Number(window.frame.size.width)),
-									h: round(Number(window.frame.size.height)),
+									x: round(Number(nativeWindow.frame.origin.x)),
+									y: round(Number(nativeWindow.frame.origin.y)),
+									w: round(Number(nativeWindow.frame.size.width)),
+									h: round(Number(nativeWindow.frame.size.height)),
 								},
-								contentSize: window.contentView?.frame?.size
+								contentSize: nativeWindow.contentView?.frame?.size
 									? {
-											w: round(Number(window.contentView.frame.size.width)),
-											h: round(Number(window.contentView.frame.size.height)),
+											w: round(Number(nativeWindow.contentView.frame.size.width)),
+											h: round(Number(nativeWindow.contentView.frame.size.height)),
 										}
 									: null,
-								fittingSize: window.contentView?.fittingSize
+								fittingSize: nativeWindow.contentView?.fittingSize
 									? {
-											w: round(Number(window.contentView.fittingSize.width)),
-											h: round(Number(window.contentView.fittingSize.height)),
+											w: round(Number(nativeWindow.contentView.fittingSize.width)),
+											h: round(Number(nativeWindow.contentView.fittingSize.height)),
 										}
 									: null,
-								styleMask: Number(window.styleMask ?? 0),
+								styleMask: Number(nativeWindow.styleMask ?? 0),
 								colorScheme: globalThis.__xplatAppKit?.getColorScheme?.() ?? null,
 							}
 						: null,

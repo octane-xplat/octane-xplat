@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { PowerSearchTokenProps } from './props'
 import { resolveOperatorLabel, formatFilterValue, createInternalConfig } from './power-search-config'
 import { Pressable } from './Pressable.macos.tsrx'

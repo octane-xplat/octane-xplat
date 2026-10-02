@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import type { SearchableItem, TypeaheadItemProps } from "./props";
 import { cx } from "./cx";
 import { Icon } from './Icon.macos.tsrx';
