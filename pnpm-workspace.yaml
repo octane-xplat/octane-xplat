@@ -162,7 +162,9 @@ patchedDependencies:
   # ref-counted hover, unload/reload cleanup, cancellation/capture-loss handling, disabled
   # guards, and separated tap/double/long-press delivery. Repairs parent-driven percentage
   # sizing initialization, resize/reparent/load/unload ownership, and padded content-box
-  # updates.
+  # updates. Restores Windows input focus/blur events and lifecycle ownership, IsEnabled
+  # forwarding, explicit accessible names, fail-closed secure readonly, and literal non-CSS
+  # property values.
   "@nativescript/core@9.1.3-next.2": packages/cli/patches/@nativescript__core@9.1.3-next.2.patch
   # Enables `resolveHiddenExtensions` on the language plugin's typescript facet so
   # extensionless specifiers (e.g. './Text') probe `.tsrx` after moduleSuffixes — required

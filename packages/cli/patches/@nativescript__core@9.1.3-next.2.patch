@@ -1,3 +1,15 @@
+diff --git a/application/application.windows.js b/application/application.windows.js
+index 599c126890de6173fbfadc4cca4bb061e311f749..21b1b14884cc61d2e931416c4121883c1ffba4e5 100644
+--- a/application/application.windows.js
++++ b/application/application.windows.js
+@@ -338,6 +338,7 @@ function updateAccessibilityProperties(view) {
+     if (!view || !view.nativeViewProtected) {
+         return;
+     }
++    Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(view.nativeViewProtected, view.accessibilityLabel ?? '');
+ }
+ setA11yUpdatePropertiesCallback(updateAccessibilityProperties);
+ const applicationEvents = [Application.orientationChangedEvent, Application.systemAppearanceChangedEvent];
 diff --git a/css/css-tree-parser.js b/css/css-tree-parser.js
 index 0c13e7e67a8eb306248d738bb73189b772b4a409..7ce38a9ba8f1f9aef709136b46f8e5b2435ba714 100644
 --- a/css/css-tree-parser.js
@@ -47,11 +59,76 @@ index 3ac4f618f307864cb95b70cd01f4ecdc42c9d9e4..1906ed1457de195a799c9e938136f078
  export interface StyleSheet {
      rules: Rule[];
  }
+diff --git a/ui/core/properties/index.js b/ui/core/properties/index.js
+index 333ac76a172c54da8049ed6807439fa52d09a0aa..0974c33b80b8f25d0542487c7f231bdf2d6ec682 100644
+--- a/ui/core/properties/index.js
++++ b/ui/core/properties/index.js
+@@ -280,7 +280,7 @@ export class Property {
+         };
+         const property = this;
+         this.set = function (boxedValue, origin) {
+-            const reset = isResetValue(boxedValue);
++            const reset = boxedValue === unsetValue;
+             let value;
+             let wrapped;
+             if (reset) {
+@@ -446,7 +446,7 @@ export class CoercibleProperty extends Property {
+             target[propertyName] = originalValue;
+         };
+         this.set = function (boxedValue) {
+-            const reset = isResetValue(boxedValue);
++            const reset = boxedValue === unsetValue;
+             let value;
+             let wrapped;
+             if (reset) {
+@@ -542,7 +542,7 @@ export class InheritedProperty extends Property {
+             const that = this;
+             let unboxedValue;
+             let newValueSource;
+-            if (isResetValue(value)) {
++            if (value === unsetValue) {
+                 const parent = that.parent;
+                 // If value is not initial or unset and view has a parent that has non-default value, use it as the reset value.
+                 if (value !== 'initial' && parent && parent[sourceKey] !== 0 /* ValueSource.Default */) {
+diff --git a/ui/core/view/index.windows.d.ts b/ui/core/view/index.windows.d.ts
+index 8c55d09f9cf58714b8981ebbe33d5989e295a8b9..81555e90bee14d3b3ed47c925f3dc1b1de92300b 100644
+--- a/ui/core/view/index.windows.d.ts
++++ b/ui/core/view/index.windows.d.ts
+@@ -1,7 +1,8 @@
+ export * from './view-common';
+ export * from './view-helper';
+ export * from '../properties';
+-import { ViewCommon, originXProperty, originYProperty } from './view-common';
++import { ViewCommon, originXProperty, originYProperty, isEnabledProperty } from './view-common';
++import { accessibilityLabelProperty } from '../../../accessibility/accessibility-properties';
+ import type { CoreTypes } from '../../../core-types';
+ import { visibilityProperty, opacityProperty, backgroundInternalProperty, translateXProperty, translateYProperty, scaleXProperty, scaleYProperty, rotateProperty, rotateXProperty, rotateYProperty, perspectiveProperty, horizontalAlignmentProperty, verticalAlignmentProperty, paddingTopProperty, paddingRightProperty, paddingBottomProperty, paddingLeftProperty } from '../../styling/style-properties';
+ import { widthProperty, heightProperty, minWidthProperty, minHeightProperty, marginLeftProperty, marginTopProperty, marginRightProperty, marginBottomProperty } from '../../styling/style-properties';
+@@ -13,6 +14,8 @@ export declare function _ensureNativeTransforms(native: any): {
+     translate: any;
+ } | null;
+ export declare class View extends ViewCommon {
++    [isEnabledProperty.setNative]: (value: boolean) => void;
++    [accessibilityLabelProperty.setNative]: (_value: string) => void;
+     [backgroundInternalProperty.getDefault]: () => any;
+     [backgroundInternalProperty.setNative]: (value: any) => void;
+     [widthProperty.setNative]: (value: CoreTypes.PercentLengthType) => void;
 diff --git a/ui/core/view/index.windows.js b/ui/core/view/index.windows.js
-index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a90d63cc0d 100644
+index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..20826905d88ff7a7634ae6f20325a3c2e0097ada 100644
 --- a/ui/core/view/index.windows.js
 +++ b/ui/core/view/index.windows.js
-@@ -645,6 +645,10 @@ export class View extends ViewCommon {
+@@ -1,7 +1,9 @@
+ export * from './view-common';
+ export * from './view-helper';
+ export * from '../properties';
+-import { ViewCommon, originXProperty, originYProperty } from './view-common';
++import { ViewCommon, originXProperty, originYProperty, isEnabledProperty } from './view-common';
++import { accessibilityLabelProperty } from '../../../accessibility/accessibility-properties';
++import { updateA11yPropertiesCallback } from '../../../application/helpers-common';
+ import { visibilityProperty, opacityProperty, backgroundInternalProperty, translateXProperty, translateYProperty, scaleXProperty, scaleYProperty, rotateProperty, rotateXProperty, rotateYProperty, perspectiveProperty, horizontalAlignmentProperty, verticalAlignmentProperty, paddingTopProperty, paddingRightProperty, paddingBottomProperty, paddingLeftProperty } from '../../styling/style-properties';
+ import { widthProperty, heightProperty, minWidthProperty, minHeightProperty, marginLeftProperty, marginTopProperty, marginRightProperty, marginBottomProperty } from '../../styling/style-properties';
+ import { layout } from '../../../utils';
+@@ -645,6 +647,10 @@ export class View extends ViewCommon {
          this._nativeBackgroundState = 'invalid';
          this._percentWidth = null; // null = not set
          this._percentHeight = null;
@@ -62,7 +139,23 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a9
          // Held SizeChanged delegate (prevents GC; see _ensureSizeWatch).
          this._sizeChangedDelegate = null;
          this._sizeWatchWired = false;
-@@ -1173,6 +1177,56 @@ export class View extends ViewCommon {
+@@ -1164,6 +1170,15 @@ export class View extends ViewCommon {
+         })
+             .catch(() => { });
+     }
++    [isEnabledProperty.setNative](value) {
++        const native = this.nativeViewProtected;
++        if (native && typeof native.IsEnabled !== 'undefined') {
++            native.IsEnabled = value;
++        }
++    }
++    [accessibilityLabelProperty.setNative](_value) {
++        updateA11yPropertiesCallback(this);
++    }
+     initNativeView() {
+         super.initNativeView();
+         // Size-dependent work (percent sizing, border/shadow/clip redraw) is wired ON DEMAND via
+@@ -1173,6 +1188,56 @@ export class View extends ViewCommon {
              this._ensureSizeWatch();
          }
      }
@@ -119,7 +212,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a9
      // XAML lays views out natively, so core's own layout pass (and the bounds it records) never runs:
      // read the bounds off the element. In device pixels relative to the parent, as on Android.
      _getCurrentLayoutBounds() {
-@@ -1477,6 +1531,7 @@ export class View extends ViewCommon {
+@@ -1477,6 +1542,7 @@ export class View extends ViewCommon {
          step();
      }
      disposeNativeView() {
@@ -127,7 +220,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a9
          const nativeView = this.nativeViewProtected;
          if (nativeView && this._sizeWatchWired) {
              nativeView.SizeChanged = null;
-@@ -1484,6 +1539,8 @@ export class View extends ViewCommon {
+@@ -1484,6 +1550,8 @@ export class View extends ViewCommon {
          // Reset so a recycled view re-wires on the next size-dependent property set.
          this._sizeWatchWired = false;
          this._sizeChangedDelegate = null;
@@ -136,7 +229,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a9
          // Its shadow and border overlays are siblings in the old parent.
          this._viewCompositionHandler?.Free();
          this._viewCompositionHandler = null;
-@@ -1554,18 +1611,22 @@ export class View extends ViewCommon {
+@@ -1554,18 +1622,22 @@ export class View extends ViewCommon {
          }
          try {
              const parentNative = this.parent?.nativeViewProtected;
@@ -165,7 +258,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a9
              }
          }
          catch (_e) { }
-@@ -1586,10 +1647,12 @@ export class View extends ViewCommon {
+@@ -1586,10 +1658,12 @@ export class View extends ViewCommon {
              const pct = value.value;
              if (this.parent instanceof View && this.parent._setChildPercentSize(this, true, pct)) {
                  this._percentWidth = null;
@@ -178,7 +271,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a9
              this._ensureSizeWatch(); // re-apply percent when the parent resizes
              this.nativeViewProtected.Width = NaN;
              if (pct >= 1) {
-@@ -1613,6 +1676,7 @@ export class View extends ViewCommon {
+@@ -1613,6 +1687,7 @@ export class View extends ViewCommon {
              return;
          }
          this._percentWidth = null;
@@ -186,7 +279,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a9
          if (this.parent instanceof View)
              this.parent._setChildPercentSize(this, true, null);
          // Clear any previously set flex-basis so the C++ widget falls back to DesiredSize.
-@@ -1631,10 +1695,12 @@ export class View extends ViewCommon {
+@@ -1631,10 +1706,12 @@ export class View extends ViewCommon {
              const pct = value.value;
              if (this.parent instanceof View && this.parent._setChildPercentSize(this, false, pct)) {
                  this._percentHeight = null;
@@ -199,7 +292,7 @@ index 9adf9e78c4714b02c8fa53b45fc7c53e7f93a72d..8b3c32d014dcda55e87374fa146d29a9
              this._ensureSizeWatch(); // re-apply percent when the parent resizes
              this.nativeViewProtected.Height = NaN;
              if (pct >= 1) {
-@@ -1657,6 +1723,7 @@ export class View extends ViewCommon {
+@@ -1657,6 +1734,7 @@ export class View extends ViewCommon {
              return;
          }
          this._percentHeight = null;
@@ -243,6 +336,190 @@ index 5f54440b3a3e0a36ddc0139d49db5cbcd6695b75..580061c78ae9326f733f7ea5ebd0dbf9
      /**
       * Core logic for removing a child view from this instance. Used by the framework to handle lifecycle events more centralized. Do not use outside the UI Stack implementation.
       */
+diff --git a/ui/editable-text-base/index.windows.d.ts b/ui/editable-text-base/index.windows.d.ts
+index 33d2058f382c3c83512209b2e18623a8c653454b..79f0f50310533b9d681fc14017db49909e01c653 100644
+--- a/ui/editable-text-base/index.windows.d.ts
++++ b/ui/editable-text-base/index.windows.d.ts
+@@ -2,8 +2,10 @@ export * from './editable-text-base-common';
+ import { EditableTextBase as EditableTextBaseCommon, autofillTypeProperty, keyboardTypeProperty, returnKeyTypeProperty, editableProperty, autocapitalizationTypeProperty, autocorrectProperty, hintProperty, placeholderColorProperty, maxLengthProperty } from './editable-text-base-common';
+ import { textProperty } from '../text-base';
+ import { Color } from '../../color';
++import { isEnabledProperty } from '../core/view/view-common';
+ export * from './editable-text-base-common';
+ export declare abstract class EditableTextBase extends EditableTextBaseCommon {
++    [isEnabledProperty.setNative]: (_value: boolean) => void;
+     [textProperty.setNative]: (value: string | symbol) => void;
+     [keyboardTypeProperty.getDefault]: () => string;
+     [keyboardTypeProperty.setNative]: (_value: string) => void;
+@@ -18,9 +20,17 @@ export declare abstract class EditableTextBase extends EditableTextBaseCommon {
+     [maxLengthProperty.setNative]: (value: number) => void;
+     nativeViewProtected: Microsoft.UI.Xaml.Controls.TextBox | Microsoft.UI.Xaml.Controls.PasswordBox;
+     private _changeFromCode;
+-    private _textChangeDelegate;
++    private _inputNative;
++    private _inputDisposers;
++    private _focused;
+     initNativeView(): void;
++    onLoaded(): void;
++    onUnloaded(): void;
++    disposeNativeView(): void;
++    private _notifyFocus;
++    private _detachInputListeners;
+     _attachTextChangeListener(): void;
++    protected _updateInputEnabled(): void;
+     private _onNativeTextChanged;
+     dismissSoftInput(): void;
+     focus(): boolean;
+diff --git a/ui/editable-text-base/index.windows.js b/ui/editable-text-base/index.windows.js
+index 1ea9d7502e405266a5369b10eee7b5ce971c7649..0496d481a8bfc9570ca591d8376b2a802f0227dc 100644
+--- a/ui/editable-text-base/index.windows.js
++++ b/ui/editable-text-base/index.windows.js
+@@ -2,47 +2,83 @@ export * from './editable-text-base-common';
+ import { EditableTextBase as EditableTextBaseCommon, autofillTypeProperty, keyboardTypeProperty, returnKeyTypeProperty, editableProperty, autocapitalizationTypeProperty, autocorrectProperty, hintProperty, placeholderColorProperty, maxLengthProperty } from './editable-text-base-common';
+ import { textProperty, resetSymbol } from '../text-base';
+ import { Color } from '../../color';
++import { isEnabledProperty } from '../core/view/view-common';
++import { subscribeNativeEvent } from '../gestures/pointer-events.windows';
+ export * from './editable-text-base-common';
+ export class EditableTextBase extends EditableTextBaseCommon {
+     constructor() {
+         super(...arguments);
+-        // Guards against the native TextChanged firing while we write text from JS (avoids loops).
+         this._changeFromCode = false;
+-        this._textChangeDelegate = null; // held so the handler isn't GC'd (would go dead)
++        this._inputNative = null;
++        this._inputDisposers = [];
++        this._focused = false;
+     }
+     initNativeView() {
+         super.initNativeView();
+         this._attachTextChangeListener();
++        this._updateInputEnabled();
++    }
++    onLoaded() {
++        super.onLoaded();
++        this._attachTextChangeListener();
++    }
++    onUnloaded() {
++        this._detachInputListeners();
++        super.onUnloaded();
++    }
++    disposeNativeView() {
++        this._detachInputListeners();
++        super.disposeNativeView();
++    }
++    _notifyFocus(focused) {
++        if (this._focused === focused)
++            return;
++        this._focused = focused;
++        this.notify({ eventName: focused ? EditableTextBaseCommon.focusEvent : EditableTextBaseCommon.blurEvent, object: this });
++    }
++    _detachInputListeners() {
++        this._inputNative = null;
++        for (const dispose of this._inputDisposers.splice(0))
++            dispose();
++        this._notifyFocus(false);
+     }
+-    // Wires the native text-change event so typing flows back into the framework (valueFormatter,
+-    // `textChange`). Re-callable because TextField swaps its native view on `secure`.
+     _attachTextChangeListener() {
+-        const nv = this.nativeViewProtected;
+-        if (!nv) {
++        const native = this.nativeViewProtected;
++        if (this._inputNative === native)
+             return;
+-        }
++        this._detachInputListeners();
++        if (!native || !this.isLoaded)
++            return;
++        this._inputNative = native;
+         const ref = new WeakRef(this);
+-        const asTextBox = nv;
+-        const asPassword = nv;
+-        if (typeof asTextBox.Text !== 'undefined') {
+-            this._textChangeDelegate = NSWinRT.asDelegate('Microsoft.UI.Xaml.Controls.TextChangedEventHandler', (sender) => {
++        const listen = (name, type, callback) => {
++            this._inputDisposers.push(subscribeNativeEvent(native, name, (sender) => {
+                 const owner = ref.deref();
+-                if (owner)
+-                    owner._onNativeTextChanged(sender.Text ?? '');
+-            });
+-            asTextBox.TextChanged = this._textChangeDelegate;
++                if (owner?.isLoaded && owner._inputNative === native && owner.nativeViewProtected === native)
++                    callback(owner, sender);
++            }, null, (handler) => NSWinRT.asDelegate(type, handler)));
++        };
++        if (typeof native.Text !== 'undefined') {
++            listen('TextChanged', 'Microsoft.UI.Xaml.Controls.TextChangedEventHandler', (owner, sender) => owner._onNativeTextChanged(sender.Text ?? ''));
+         }
+-        else if (typeof asPassword.Password !== 'undefined') {
+-            this._textChangeDelegate = NSWinRT.asDelegate('Microsoft.UI.Xaml.RoutedEventHandler', (sender) => {
+-                const owner = ref.deref();
+-                if (owner)
+-                    owner._onNativeTextChanged(sender.Password ?? '');
+-            });
+-            asPassword.PasswordChanged = this._textChangeDelegate;
++        else {
++            listen('PasswordChanged', 'Microsoft.UI.Xaml.RoutedEventHandler', (owner, sender) => owner._onNativeTextChanged(sender.Password ?? ''));
+         }
++        listen('GotFocus', 'Microsoft.UI.Xaml.RoutedEventHandler', (owner) => owner._notifyFocus(true));
++        listen('LostFocus', 'Microsoft.UI.Xaml.RoutedEventHandler', (owner) => owner._notifyFocus(false));
++    }
++    _updateInputEnabled() {
++        const native = this.nativeViewProtected;
++        if (!native)
++            return;
++        // PasswordBox has no readonly mode; disable it to protect the value.
++        native.IsEnabled = this.isEnabled && (typeof native.Password === 'undefined' || this.editable);
++    }
++    [isEnabledProperty.setNative](_value) {
++        this._updateInputEnabled();
+     }
+     _onNativeTextChanged(rawText) {
+-        if (this._changeFromCode) {
++        if (this._changeFromCode || !this.isEnabled || !this.editable) {
+             return;
+         }
+         let value = rawText;
+@@ -86,19 +122,20 @@ export class EditableTextBase extends EditableTextBaseCommon {
+         }
+     }
+     dismissSoftInput() {
+-        const nativeView = this.nativeViewProtected;
+-        if (nativeView) {
+-            // Toggling focusability is the only way to drop focus from a TextBox/PasswordBox.
+-            nativeView.IsEnabled = false;
+-            nativeView.IsEnabled = true;
++        const native = this.nativeViewProtected;
++        if (!native || !native.IsEnabled || native.FocusState === Microsoft.UI.Xaml.FocusState.Unfocused)
++            return;
++        native.IsEnabled = false;
++        try {
++            this._notifyFocus(false);
++        }
++        finally {
++            this._updateInputEnabled();
+         }
+     }
+     focus() {
+-        const result = super.focus();
+-        if (result && this.nativeViewProtected) {
+-            this.nativeViewProtected.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+-        }
+-        return result;
++        const native = this.nativeViewProtected;
++        return !!(this.isLoaded && native?.IsEnabled && native.Focus(Microsoft.UI.Xaml.FocusState.Programmatic));
+     }
+     [keyboardTypeProperty.getDefault]() {
+         return '';
+@@ -118,6 +155,7 @@ export class EditableTextBase extends EditableTextBaseCommon {
+         if (typeof nativeView.IsReadOnly !== 'undefined') {
+             nativeView.IsReadOnly = !value;
+         }
++        this._updateInputEnabled();
+     }
+     [autocapitalizationTypeProperty.setNative](_value) { }
+     [autocorrectProperty.setNative](_value) { }
 diff --git a/ui/frame/frame-common.js b/ui/frame/frame-common.js
 index 8637cacf417baebce945c58681daa86ca83dce46..c06da239d58b6174652b120e024f853f58d2c13f 100644
 --- a/ui/frame/frame-common.js
@@ -1201,3 +1478,147 @@ index 66672f1fa5ccb31f06a83a2a21bfe1e5c668712f..1eb3676f0346d7ee21ab7ff1c1b78292
      onSelectedIndexChanged(oldIndex, newIndex) {
          // to be overridden in platform specific files
          this.notify({
+diff --git a/ui/text-field/index.windows.d.ts b/ui/text-field/index.windows.d.ts
+index a88815c17ff87271143e457f7e81e3c651ef0ab3..9c0c2a7db4dcd4bcb185e1e1c0f42cfa1aba53bb 100644
+--- a/ui/text-field/index.windows.d.ts
++++ b/ui/text-field/index.windows.d.ts
+@@ -14,10 +14,16 @@ export declare class TextField extends TextFieldBase {
+     [colorProperty.setNative]: (value: Color | null) => void;
+     nativeViewProtected: Microsoft.UI.Xaml.Controls.TextBox | Microsoft.UI.Xaml.Controls.PasswordBox;
+     private _isSecure;
+-    private _keyDownDelegate;
++    private _returnNative;
++    private _returnDisposer;
+     _attachTextChangeListener: () => void;
++    protected _updateInputEnabled: () => void;
+     createNativeView(): Microsoft.UI.Xaml.Controls.TextBox | Microsoft.UI.Xaml.Controls.PasswordBox;
+     initNativeView(): void;
+     private _neutralizeStateBackgrounds;
++    onLoaded(): void;
++    onUnloaded(): void;
++    disposeNativeView(): void;
++    private _detachReturnKeyListener;
+     _attachReturnKeyListener(): void;
+ }
+diff --git a/ui/text-field/index.windows.js b/ui/text-field/index.windows.js
+index 1dcaa390d7ad1a37fecc5e0edfaa0cd38380146e..be96ae1b112f9d084c2f9ef0db48fc3de84e4bb1 100644
+--- a/ui/text-field/index.windows.js
++++ b/ui/text-field/index.windows.js
+@@ -1,8 +1,10 @@
+ export * from './text-field-common';
+ import { TextFieldBase, secureProperty } from './text-field-common';
+ import { hintProperty, editableProperty, maxLengthProperty, keyboardTypeProperty, autocapitalizationTypeProperty } from '../editable-text-base/editable-text-base-common';
++import { textProperty } from '../text-base';
+ import { colorProperty } from '../styling/style-properties';
+ import { Color } from '../../color';
++import { subscribeNativeEvent } from '../gestures/pointer-events.windows';
+ import { nativeChildIndex } from '../core/view/native-children.windows';
+ const KEYBOARD_SCOPE = {
+     number: 29,
+@@ -31,7 +33,8 @@ export class TextField extends TextFieldBase {
+     constructor() {
+         super(...arguments);
+         this._isSecure = false;
+-        this._keyDownDelegate = null;
++        this._returnNative = null;
++        this._returnDisposer = null;
+     }
+     createNativeView() {
+         // `secure` is parsed before the native view is created; pick the correct control up-front.
+@@ -66,30 +69,38 @@ export class TextField extends TextFieldBase {
+         }
+         catch (_e) { }
+     }
++    onLoaded() {
++        super.onLoaded();
++        this._attachReturnKeyListener();
++    }
++    onUnloaded() {
++        this._detachReturnKeyListener();
++        super.onUnloaded();
++    }
++    disposeNativeView() {
++        this._detachReturnKeyListener();
++        super.disposeNativeView();
++    }
++    _detachReturnKeyListener() {
++        this._returnNative = null;
++        this._returnDisposer?.();
++        this._returnDisposer = null;
++    }
+     _attachReturnKeyListener() {
+-        const nv = this.nativeViewProtected;
+-        if (!nv) {
++        const native = this.nativeViewProtected;
++        if (this._returnNative === native)
++            return;
++        this._detachReturnKeyListener();
++        if (!native || !this.isLoaded)
+             return;
+-        }
+         const ref = new WeakRef(this);
+-        this._keyDownDelegate = NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.KeyEventHandler', (_sender, e) => {
+-            if (e.Key === Windows.System.VirtualKey.Enter) {
+-                const owner = ref.deref();
+-                if (owner)
+-                    owner.notify({ eventName: TextFieldBase.returnPressEvent, object: owner });
++        this._returnNative = native;
++        this._returnDisposer = subscribeNativeEvent(native, 'KeyDown', (_sender, args) => {
++            const owner = ref.deref();
++            if (owner?.isLoaded && owner._returnNative === native && owner.nativeViewProtected === native && owner.isEnabled && owner.editable && args.Key === Windows.System.VirtualKey.Enter) {
++                owner.notify({ eventName: TextFieldBase.returnPressEvent, object: owner });
+             }
+-        });
+-        // AddHandler(KeyDownEvent) throws E_INVALIDARG (0x80070057) in the runtime's RoutedEvent
+-        // projection: an uncaught throw jams frame navigation. Fall back to instance KeyDown.
+-        try {
+-            nv.AddHandler(Microsoft.UI.Xaml.UIElement.KeyDownEvent, this._keyDownDelegate, true);
+-        }
+-        catch (_e) {
+-            try {
+-                nv.KeyDown = this._keyDownDelegate;
+-            }
+-            catch (_e2) { }
+-        }
++        }, null, (handler) => NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.KeyEventHandler', handler));
+     }
+     // @ts-ignore: setNative is a symbol index whose value type is widened across properties.
+     [secureProperty.setNative](value) {
+@@ -99,7 +110,7 @@ export class TextField extends TextFieldBase {
+         this._isSecure = !!value;
+         const prev = this.nativeViewProtected;
+         // Carry the value across the swap from the JS model (source of truth), not off `prev`.
+-        const currentText = this.text ?? '';
++        const wasFocused = !!prev && prev.FocusState !== Microsoft.UI.Xaml.FocusState.Unfocused;
+         const newView = this._isSecure ? new Microsoft.UI.Xaml.Controls.PasswordBox() : new Microsoft.UI.Xaml.Controls.TextBox();
+         // Must swap in the ACTUAL visual parent (not the NS parent's nativeViewProtected).
+         // Using the NS parent's Border missed the real container and the swap silently no-op'd,
+@@ -129,15 +140,11 @@ export class TextField extends TextFieldBase {
+                 }
+             }
+         }
+-        this.nativeViewProtected = newView;
+-        if (this._isSecure) {
+-            newView.Password = currentText;
+-        }
+-        else {
+-            newView.Text = currentText;
+-        }
+-        this._attachTextChangeListener();
+-        this._attachReturnKeyListener();
++        this.disposeNativeView();
++        this.setNativeView(newView);
++        this[textProperty.setNative](this.text ?? '');
++        if (wasFocused)
++            this.focus();
+     }
+     [hintProperty.setNative](value) {
+         const nativeView = this.nativeViewProtected;
+@@ -151,6 +158,7 @@ export class TextField extends TextFieldBase {
+         if (typeof nativeView.IsReadOnly !== 'undefined') {
+             nativeView.IsReadOnly = !value;
+         }
++        this._updateInputEnabled();
+     }
+     // @ts-ignore: setNative is a symbol index whose value type is widened across properties.
+     [maxLengthProperty.setNative](value) {
