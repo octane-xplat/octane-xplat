@@ -353,9 +353,6 @@ importers:
 
   apps/windows:
     dependencies:
-      '@nativescript-community/gesturehandler':
-        specifier: 2.0.45
-        version: 2.0.45
       '@nativescript-community/observable':
         specifier: 2.0.11
         version: 2.0.11
@@ -365,9 +362,6 @@ importers:
       '@nativescript-community/perms':
         specifier: 3.0.11
         version: 3.0.11
-      '@nativescript-community/ui-drawer':
-        specifier: 0.1.32
-        version: 0.1.32
       '@nativescript/canvas':
         specifier: 3.0.0-alpha.15
         version: 3.0.0-alpha.15
@@ -1820,10 +1814,6 @@ importers:
         version: 5.9.3
 
   packages/ui:
-    dependencies:
-      '@nativescript-community/gesturehandler':
-        specifier: '>=2.0.8 <3'
-        version: 2.0.45
     devDependencies:
       '@nativescript-community/octane':
         specifier: 0.2.4

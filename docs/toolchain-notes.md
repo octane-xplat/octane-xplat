@@ -86,14 +86,18 @@
 
 ### Native plugin declaration ownership
 
-Declare the optional UI and platform-service plugin peers in the app’s own
-`package.json`. Leaf-owned implementation plugins are different: NativeScript
-discovers their real transitive dependencies (decision #51), so apps using
-`@octane-xplat/video` or `@octane-xplat/pager` need not redeclare those plugins. `xplat doctor` walks the app source and reachable local workspace
-packages, identifies framework imports, and compares the framework's native
-plugin metadata with the app's direct dependencies. Missing declarations are
-warnings, not a hard failure, because the web target does not need them and
-some native capabilities are optional.
+Declare native plugins used by an app's resolved features directly in its own
+`package.json`. `@octane-xplat/ui` peers only `octane` and optional
+`@nativescript/core`; plugin-backed platform subpaths remain app-owned.
+Leaf-owned implementation plugins are different: NativeScript discovers their
+real transitive dependencies (decision #51), so apps using `@octane-xplat/video`
+or `@octane-xplat/pager` need not redeclare those plugins. `xplat doctor` walks
+the app source and reachable local workspace packages, identifies framework
+imports, and compares required peer metadata with the app's direct
+dependencies. It does not require plugins for optional UI subpaths across every
+target; apps that import those subpaths declare their plugins directly. Missing
+required peer declarations are warnings, not a hard failure, because some
+native capabilities are optional.
 
 The starter declares only the optional UI plugins (`ui-drawer`, plus
 `gesturehandler` — see below); svg support is vendored inside
@@ -101,13 +105,16 @@ The starter declares only the optional UI plugins (`ui-drawer`, plus
 every platform service
 plugin: apps should add the
 plugins for the services they import, and `doctor` names the missing package.
-`@nativescript-community/gesturehandler` is also required: `Drawer.native`
-eagerly imports `ui-drawer`, which eagerly imports gesturehandler, whose iOS
-code reads the `GestureHandlerDelegate` ObjC protocol at module load — a
-protocol that exists only when the plugin's `platforms/ios` sources are
-compiled in, which requires a top-level app declaration. The starter and
-`@octane-xplat/ui`'s optional peers both carry it, so `doctor` reports it
-when an app omits it.
+The shared `Drawer` is self-drawn. The optional iOS `SideDrawer` and Android
+`DrawerLayout` widgets live in `@octane-xplat/ui/ios` and
+`@octane-xplat/ui/android`; those platform subpaths use `ui-drawer`. The mobile
+harness imports these subpaths, while the Windows harness does not, so only the
+mobile app declares `ui-drawer` and `gesturehandler`.
+`gesturehandler` is required with `ui-drawer`: its iOS code reads the
+`GestureHandlerDelegate` ObjC protocol at module load, and that protocol exists
+only when the plugin's `platforms/ios` sources are compiled. This requires a
+top-level app declaration. The starter also declares both plugins for native
+apps that use those optional widgets.
 The proving app may therefore carry plugins that a particular screen does not
 render; that is an app ownership concern, not evidence that the framework
 should make those plugins transitive.

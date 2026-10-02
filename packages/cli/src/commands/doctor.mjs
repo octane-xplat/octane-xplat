@@ -13,10 +13,10 @@ import { inspectMacOSRuntimePackage, macOSRuntimePackageName } from '../macos/ru
 import { inspectLinuxPackageConfig } from '../linux/config.mjs'
 
 const frameworkFallbacks = {
-	'@octane-xplat/ui': [
-		'@nativescript-community/gesturehandler',
-		'@nativescript-community/ui-drawer',
-	],
+	// UI's plugin-backed widgets are optional platform subpaths. Requiring
+	// their plugins for every `@octane-xplat/ui` import creates false warnings
+	// for targets and apps that never load those subpaths.
+	'@octane-xplat/ui': [],
 }
 
 const nativePlugin = (name) =>
