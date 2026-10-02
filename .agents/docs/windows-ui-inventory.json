@@ -1,0 +1,2166 @@
+{
+  "baseline": "7c47480b",
+  "scope": "All root-exported UI components; OS-authentic subpaths are inventoried separately. Contexts, hooks, and types are not components.",
+  "components": [
+    {
+      "name": "View",
+      "symbol": "View",
+      "module": "View",
+      "variants": [
+        "View.macos.tsrx",
+        "View.tsrx",
+        "View.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "VStack",
+      "symbol": "VStack",
+      "module": "VStack",
+      "variants": [
+        "VStack.macos.tsrx",
+        "VStack.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "HStack",
+      "symbol": "HStack",
+      "module": "HStack",
+      "variants": [
+        "HStack.macos.tsrx",
+        "HStack.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Grid",
+      "symbol": "Grid",
+      "module": "Grid",
+      "variants": [
+        "Grid.tsrx",
+        "Grid.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Stack",
+      "symbol": "Stack",
+      "module": "Stack",
+      "variants": [
+        "Stack.tsrx",
+        "Stack.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "StackItem",
+      "symbol": "StackItem",
+      "module": "StackItem",
+      "variants": [
+        "StackItem.tsrx",
+        "StackItem.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Center",
+      "symbol": "Center",
+      "module": "Center",
+      "variants": [
+        "Center.macos.tsrx",
+        "Center.tsrx",
+        "Center.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Section",
+      "symbol": "Section",
+      "module": "Section",
+      "variants": [
+        "Section.macos.tsrx",
+        "Section.tsrx",
+        "Section.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "AspectRatio",
+      "symbol": "AspectRatio",
+      "module": "AspectRatio",
+      "variants": [
+        "AspectRatio.macos.tsrx",
+        "AspectRatio.tsrx",
+        "AspectRatio.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "VisuallyHidden",
+      "symbol": "VisuallyHidden",
+      "module": "VisuallyHidden",
+      "variants": [
+        "VisuallyHidden.macos.tsrx",
+        "VisuallyHidden.tsrx",
+        "VisuallyHidden.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Absolute",
+      "symbol": "Absolute",
+      "module": "Absolute",
+      "variants": [
+        "Absolute.tsrx",
+        "Absolute.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Spacer",
+      "symbol": "Spacer",
+      "module": "Spacer",
+      "variants": [
+        "Spacer.tsrx",
+        "Spacer.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Text",
+      "symbol": "Text",
+      "module": "Text",
+      "variants": [
+        "Text.macos.tsrx",
+        "Text.tsrx",
+        "Text.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Markdown",
+      "symbol": "Markdown",
+      "module": "Markdown",
+      "variants": [
+        "Markdown.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "MarkdownScreen",
+      "symbol": "MarkdownScreen",
+      "module": "Markdown",
+      "variants": [
+        "Markdown.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "RichText",
+      "symbol": "RichText",
+      "module": "RichText",
+      "variants": [
+        "RichText.tsrx",
+        "RichText.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "RichTextSpan",
+      "symbol": "RichTextSpan",
+      "module": "RichText",
+      "variants": [
+        "RichText.tsrx",
+        "RichText.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Pressable",
+      "symbol": "Pressable",
+      "module": "Pressable",
+      "variants": [
+        "Pressable.macos.tsrx",
+        "Pressable.tsrx",
+        "Pressable.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Button",
+      "symbol": "Button",
+      "module": "Button",
+      "variants": [
+        "Button.tsrx",
+        "Button.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "IconButton",
+      "symbol": "IconButton",
+      "module": "IconButton",
+      "variants": [
+        "IconButton.macos.tsrx",
+        "IconButton.tsrx",
+        "IconButton.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ButtonGroup",
+      "symbol": "ButtonGroup",
+      "module": "ButtonGroup",
+      "variants": [
+        "ButtonGroup.macos.tsrx",
+        "ButtonGroup.tsrx",
+        "ButtonGroup.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ToggleButton",
+      "symbol": "ToggleButton",
+      "module": "ToggleButton",
+      "variants": [
+        "ToggleButton.macos.tsrx",
+        "ToggleButton.tsrx",
+        "ToggleButton.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ToggleButtonGroup",
+      "symbol": "ToggleButtonGroup",
+      "module": "ToggleButton",
+      "variants": [
+        "ToggleButton.macos.tsrx",
+        "ToggleButton.tsrx",
+        "ToggleButton.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ClickableCard",
+      "symbol": "ClickableCard",
+      "module": "ClickableCard",
+      "variants": [
+        "ClickableCard.macos.tsrx",
+        "ClickableCard.tsrx",
+        "ClickableCard.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SelectableCard",
+      "symbol": "SelectableCard",
+      "module": "SelectableCard",
+      "variants": [
+        "SelectableCard.macos.tsrx",
+        "SelectableCard.tsrx",
+        "SelectableCard.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "MoreMenu",
+      "symbol": "MoreMenu",
+      "module": "MoreMenu",
+      "variants": [
+        "MoreMenu.macos.tsrx",
+        "MoreMenu.tsrx",
+        "MoreMenu.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "PowerSearch",
+      "symbol": "PowerSearch",
+      "module": "PowerSearch",
+      "variants": [
+        "PowerSearch.macos.tsrx",
+        "PowerSearch.tsrx",
+        "PowerSearch.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "PowerSearchToken",
+      "symbol": "PowerSearchToken",
+      "module": "PowerSearch",
+      "variants": [
+        "PowerSearch.macos.tsrx",
+        "PowerSearch.tsrx",
+        "PowerSearch.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "PowerSearchFilterEditor",
+      "symbol": "PowerSearchFilterEditor",
+      "module": "PowerSearch",
+      "variants": [
+        "PowerSearch.macos.tsrx",
+        "PowerSearch.tsrx",
+        "PowerSearch.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Collapsible",
+      "symbol": "Collapsible",
+      "module": "Collapsible",
+      "variants": [
+        "Collapsible.macos.tsrx",
+        "Collapsible.tsrx",
+        "Collapsible.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Accordion",
+      "symbol": "Accordion",
+      "module": "Accordion",
+      "variants": [
+        "Accordion.macos.tsrx",
+        "Accordion.tsrx",
+        "Accordion.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "CheckboxInput",
+      "symbol": "Checkbox",
+      "module": "Checkbox",
+      "variants": [
+        "Checkbox.tsrx",
+        "Checkbox.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "RadioList",
+      "symbol": "RadioGroup",
+      "module": "RadioGroup",
+      "variants": [
+        "RadioGroup.macos.tsrx",
+        "RadioGroup.tsrx",
+        "RadioGroup.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "DropdownMenu",
+      "symbol": "DropdownMenu",
+      "module": "DropdownMenu",
+      "variants": [
+        "DropdownMenu.macos.tsrx",
+        "DropdownMenu.tsrx",
+        "DropdownMenu.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ContextMenu",
+      "symbol": "ContextMenu",
+      "module": "ContextMenu",
+      "variants": [
+        "ContextMenu.macos.tsrx",
+        "ContextMenu.tsrx",
+        "ContextMenu.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Badge",
+      "symbol": "Badge",
+      "module": "Badge",
+      "variants": [
+        "Badge.macos.tsrx",
+        "Badge.tsrx",
+        "Badge.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Divider",
+      "symbol": "Separator",
+      "module": "Separator",
+      "variants": [
+        "Separator.macos.tsrx",
+        "Separator.tsrx",
+        "Separator.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Skeleton",
+      "symbol": "Skeleton",
+      "module": "Skeleton",
+      "variants": [
+        "Skeleton.macos.tsrx",
+        "Skeleton.tsrx",
+        "Skeleton.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Avatar",
+      "symbol": "Avatar",
+      "module": "Avatar",
+      "variants": [
+        "Avatar.macos.tsrx",
+        "Avatar.tsrx",
+        "Avatar.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "AvatarGroup",
+      "symbol": "AvatarGroup",
+      "module": "AvatarGroup",
+      "variants": [
+        "AvatarGroup.macos.tsrx",
+        "AvatarGroup.tsrx",
+        "AvatarGroup.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Field",
+      "symbol": "FormField",
+      "module": "FormField",
+      "variants": [
+        "FormField.macos.tsrx",
+        "FormField.tsrx",
+        "FormField.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "FieldGroup",
+      "symbol": "FieldGroup",
+      "module": "FieldGroup",
+      "variants": [
+        "FieldGroup.macos.tsrx",
+        "FieldGroup.tsrx",
+        "FieldGroup.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "FormLayout",
+      "symbol": "FormLayout",
+      "module": "FormLayout",
+      "variants": [
+        "FormLayout.macos.tsrx",
+        "FormLayout.tsrx",
+        "FormLayout.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "InputGroup",
+      "symbol": "InputGroup",
+      "module": "InputGroup",
+      "variants": [
+        "InputGroup.macos.tsrx",
+        "InputGroup.tsrx",
+        "InputGroup.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "InputGroupText",
+      "symbol": "InputGroupText",
+      "module": "InputGroup",
+      "variants": [
+        "InputGroup.macos.tsrx",
+        "InputGroup.tsrx",
+        "InputGroup.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Item",
+      "symbol": "Item",
+      "module": "Item",
+      "variants": [
+        "Item.macos.tsrx",
+        "Item.tsrx",
+        "Item.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "List",
+      "symbol": "List",
+      "module": "List",
+      "variants": [
+        "List.macos.tsrx",
+        "List.tsrx",
+        "List.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ListItem",
+      "symbol": "ListItem",
+      "module": "ListItem",
+      "variants": [
+        "ListItem.macos.tsrx",
+        "ListItem.tsrx",
+        "ListItem.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "NumberInput",
+      "symbol": "InputNumber",
+      "module": "InputNumber",
+      "variants": [
+        "InputNumber.macos.tsrx",
+        "InputNumber.tsrx",
+        "InputNumber.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "PinInput",
+      "symbol": "PinInput",
+      "module": "PinInput",
+      "variants": [
+        "PinInput.macos.tsrx",
+        "PinInput.tsrx",
+        "PinInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Selector",
+      "symbol": "Select",
+      "module": "Select",
+      "variants": [
+        "Select.macos.tsrx",
+        "Select.tsrx",
+        "Select.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "MultiSelector",
+      "symbol": "SelectMenu",
+      "module": "aliases",
+      "variants": [
+        "aliases.macos.tsrx",
+        "aliases.tsrx",
+        "aliases.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "BaseTypeahead",
+      "symbol": "BaseTypeahead",
+      "module": "BaseTypeahead",
+      "variants": [
+        "BaseTypeahead.macos.tsrx",
+        "BaseTypeahead.tsrx",
+        "BaseTypeahead.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Typeahead",
+      "symbol": "Typeahead",
+      "module": "Typeahead",
+      "variants": [
+        "Typeahead.macos.tsrx",
+        "Typeahead.tsrx",
+        "Typeahead.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TypeaheadItem",
+      "symbol": "TypeaheadItem",
+      "module": "TypeaheadItem",
+      "variants": [
+        "TypeaheadItem.macos.tsrx",
+        "TypeaheadItem.tsrx",
+        "TypeaheadItem.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Token",
+      "symbol": "Token",
+      "module": "Token",
+      "variants": [
+        "Token.macos.tsrx",
+        "Token.tsrx",
+        "Token.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Tokenizer",
+      "symbol": "Tokenizer",
+      "module": "Tokenizer",
+      "variants": [
+        "Tokenizer.macos.tsrx",
+        "Tokenizer.tsrx",
+        "Tokenizer.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ComplexSelector",
+      "symbol": "ComplexSelector",
+      "module": "ComplexSelector",
+      "variants": [
+        "ComplexSelector.macos.tsrx",
+        "ComplexSelector.tsrx",
+        "ComplexSelector.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "InputRating",
+      "symbol": "InputRating",
+      "module": "InputRating",
+      "variants": [
+        "InputRating.macos.tsrx",
+        "InputRating.tsrx",
+        "InputRating.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "CheckboxList",
+      "symbol": "CheckboxGroup",
+      "module": "CheckboxGroup",
+      "variants": [
+        "CheckboxGroup.macos.tsrx",
+        "CheckboxGroup.tsrx",
+        "CheckboxGroup.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Calendar",
+      "symbol": "Calendar",
+      "module": "Calendar",
+      "variants": [
+        "Calendar.macos.tsrx",
+        "Calendar.tsrx",
+        "Calendar.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "DateInput",
+      "symbol": "DateInput",
+      "module": "DateInput",
+      "variants": [
+        "DateInput.macos.tsrx",
+        "DateInput.tsrx",
+        "DateInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TimeInput",
+      "symbol": "TimeInput",
+      "module": "TimeInput",
+      "variants": [
+        "TimeInput.macos.tsrx",
+        "TimeInput.tsrx",
+        "TimeInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "DateTimeInput",
+      "symbol": "DateTimeInput",
+      "module": "DateTimeInput",
+      "variants": [
+        "DateTimeInput.macos.tsrx",
+        "DateTimeInput.tsrx",
+        "DateTimeInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "DateRangeInput",
+      "symbol": "DateRangeInput",
+      "module": "DateRangeInput",
+      "variants": [
+        "DateRangeInput.macos.tsrx",
+        "DateRangeInput.tsrx",
+        "DateRangeInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "AppShell",
+      "symbol": "AppShell",
+      "module": "AppShell",
+      "variants": [
+        "AppShell.macos.tsrx",
+        "AppShell.tsrx",
+        "AppShell.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TopNav",
+      "symbol": "TopNav",
+      "module": "TopNav",
+      "variants": [
+        "TopNav.macos.tsrx",
+        "TopNav.tsrx",
+        "TopNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TopNavHeading",
+      "symbol": "TopNavHeading",
+      "module": "TopNav",
+      "variants": [
+        "TopNav.macos.tsrx",
+        "TopNav.tsrx",
+        "TopNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TopNavItem",
+      "symbol": "TopNavItem",
+      "module": "TopNav",
+      "variants": [
+        "TopNav.macos.tsrx",
+        "TopNav.tsrx",
+        "TopNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TopNavMenu",
+      "symbol": "TopNavMenu",
+      "module": "TopNav",
+      "variants": [
+        "TopNav.macos.tsrx",
+        "TopNav.tsrx",
+        "TopNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TopNavMegaMenu",
+      "symbol": "TopNavMegaMenu",
+      "module": "TopNav",
+      "variants": [
+        "TopNav.macos.tsrx",
+        "TopNav.tsrx",
+        "TopNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TopNavMegaMenuItem",
+      "symbol": "TopNavMegaMenuItem",
+      "module": "TopNav",
+      "variants": [
+        "TopNav.macos.tsrx",
+        "TopNav.tsrx",
+        "TopNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TopNavMegaMenuFeaturedCard",
+      "symbol": "TopNavMegaMenuFeaturedCard",
+      "module": "TopNav",
+      "variants": [
+        "TopNav.macos.tsrx",
+        "TopNav.tsrx",
+        "TopNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SideNav",
+      "symbol": "SideNav",
+      "module": "SideNav",
+      "variants": [
+        "SideNav.macos.tsrx",
+        "SideNav.tsrx",
+        "SideNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SideNavSection",
+      "symbol": "SideNavSection",
+      "module": "SideNav",
+      "variants": [
+        "SideNav.macos.tsrx",
+        "SideNav.tsrx",
+        "SideNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SideNavHeading",
+      "symbol": "SideNavHeading",
+      "module": "SideNav",
+      "variants": [
+        "SideNav.macos.tsrx",
+        "SideNav.tsrx",
+        "SideNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SideNavItem",
+      "symbol": "SideNavItem",
+      "module": "SideNav",
+      "variants": [
+        "SideNav.macos.tsrx",
+        "SideNav.tsrx",
+        "SideNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SideNavCollapseButton",
+      "symbol": "SideNavCollapseButton",
+      "module": "SideNav",
+      "variants": [
+        "SideNav.macos.tsrx",
+        "SideNav.tsrx",
+        "SideNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "MobileNav",
+      "symbol": "MobileNav",
+      "module": "MobileNav",
+      "variants": [
+        "MobileNav.macos.tsrx",
+        "MobileNav.tsrx",
+        "MobileNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "MobileNavToggle",
+      "symbol": "MobileNavToggle",
+      "module": "MobileNav",
+      "variants": [
+        "MobileNav.macos.tsrx",
+        "MobileNav.tsrx",
+        "MobileNav.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "NavIcon",
+      "symbol": "NavIcon",
+      "module": "NavIcon",
+      "variants": [
+        "NavIcon.macos.tsrx",
+        "NavIcon.tsrx",
+        "NavIcon.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "NavHeadingMenu",
+      "symbol": "NavHeadingMenu",
+      "module": "NavMenu",
+      "variants": [
+        "NavMenu.macos.tsrx",
+        "NavMenu.tsrx",
+        "NavMenu.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "NavHeadingMenuItem",
+      "symbol": "NavHeadingMenuItem",
+      "module": "NavMenu",
+      "variants": [
+        "NavMenu.macos.tsrx",
+        "NavMenu.tsrx",
+        "NavMenu.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TabList",
+      "symbol": "TabList",
+      "module": "TabList",
+      "variants": [
+        "TabList.macos.tsrx",
+        "TabList.tsrx",
+        "TabList.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Tab",
+      "symbol": "Tab",
+      "module": "TabList",
+      "variants": [
+        "TabList.macos.tsrx",
+        "TabList.tsrx",
+        "TabList.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TabMenu",
+      "symbol": "TabMenu",
+      "module": "TabList",
+      "variants": [
+        "TabList.macos.tsrx",
+        "TabList.tsrx",
+        "TabList.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Toolbar",
+      "symbol": "Toolbar",
+      "module": "Toolbar",
+      "variants": [
+        "Toolbar.macos.tsrx",
+        "Toolbar.tsrx",
+        "Toolbar.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "OverflowList",
+      "symbol": "OverflowList",
+      "module": "OverflowList",
+      "variants": [
+        "OverflowList.macos.tsrx",
+        "OverflowList.tsrx",
+        "OverflowList.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Breadcrumbs",
+      "symbol": "Breadcrumb",
+      "module": "Breadcrumb",
+      "variants": [
+        "Breadcrumb.macos.tsrx",
+        "Breadcrumb.tsrx",
+        "Breadcrumb.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Pagination",
+      "symbol": "Pagination",
+      "module": "Pagination",
+      "variants": [
+        "Pagination.macos.tsrx",
+        "Pagination.tsrx",
+        "Pagination.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Stepper",
+      "symbol": "Stepper",
+      "module": "Stepper",
+      "variants": [
+        "Stepper.macos.tsrx",
+        "Stepper.tsrx",
+        "Stepper.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "NavigationMenu",
+      "symbol": "NavigationMenu",
+      "module": "NavigationMenu",
+      "variants": [
+        "NavigationMenu.macos.tsrx",
+        "NavigationMenu.tsrx",
+        "NavigationMenu.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "CommandPalette",
+      "symbol": "CommandPalette",
+      "module": "CommandPalette",
+      "variants": [
+        "CommandPalette.macos.tsrx",
+        "CommandPalette.tsrx",
+        "CommandPalette.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Table",
+      "symbol": "Table",
+      "module": "Table",
+      "variants": [
+        "Table.macos.tsrx",
+        "Table.tsrx",
+        "Table.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Timeline",
+      "symbol": "Timeline",
+      "module": "Timeline",
+      "variants": [
+        "Timeline.macos.tsrx",
+        "Timeline.tsrx",
+        "Timeline.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TreeList",
+      "symbol": "Tree",
+      "module": "Tree",
+      "variants": [
+        "Tree.macos.tsrx",
+        "Tree.tsrx",
+        "Tree.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Alert",
+      "symbol": "Alert",
+      "module": "Alert",
+      "variants": [
+        "Alert.macos.tsrx",
+        "Alert.tsrx",
+        "Alert.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Card",
+      "symbol": "Card",
+      "module": "Card",
+      "variants": [
+        "Card.macos.tsrx",
+        "Card.tsrx",
+        "Card.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Chip",
+      "symbol": "Chip",
+      "module": "Chip",
+      "variants": [
+        "Chip.macos.tsrx",
+        "Chip.tsrx",
+        "Chip.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Kbd",
+      "symbol": "Kbd",
+      "module": "Kbd",
+      "variants": [
+        "Kbd.macos.tsrx",
+        "Kbd.tsrx",
+        "Kbd.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "EmptyState",
+      "symbol": "Empty",
+      "module": "Empty",
+      "variants": [
+        "Empty.macos.tsrx",
+        "Empty.tsrx",
+        "Empty.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Banner",
+      "symbol": "Banner",
+      "module": "Banner",
+      "variants": [
+        "Banner.macos.tsrx",
+        "Banner.tsrx",
+        "Banner.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "User",
+      "symbol": "User",
+      "module": "User",
+      "variants": [
+        "User.macos.tsrx",
+        "User.tsrx",
+        "User.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ProgressGroup",
+      "symbol": "ProgressGroup",
+      "module": "ProgressGroup",
+      "variants": [
+        "ProgressGroup.macos.tsrx",
+        "ProgressGroup.tsrx",
+        "ProgressGroup.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatLayout",
+      "symbol": "ChatLayout",
+      "module": "ChatLayout",
+      "variants": [
+        "ChatLayout.tsrx",
+        "ChatLayout.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatLayoutScrollButton",
+      "symbol": "ChatLayoutScrollButton",
+      "module": "ChatLayoutScrollButton",
+      "variants": [
+        "ChatLayoutScrollButton.tsrx",
+        "ChatLayoutScrollButton.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatMessageList",
+      "symbol": "ChatMessageList",
+      "module": "ChatMessageList",
+      "variants": [
+        "ChatMessageList.tsrx",
+        "ChatMessageList.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatMessage",
+      "symbol": "ChatMessage",
+      "module": "ChatMessage",
+      "variants": [
+        "ChatMessage.tsrx",
+        "ChatMessage.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatMessageBubble",
+      "symbol": "ChatMessageBubble",
+      "module": "ChatMessageBubble",
+      "variants": [
+        "ChatMessageBubble.tsrx",
+        "ChatMessageBubble.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatMessageMetadata",
+      "symbol": "ChatMessageMetadata",
+      "module": "ChatMessageMetadata",
+      "variants": [
+        "ChatMessageMetadata.tsrx",
+        "ChatMessageMetadata.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatSystemMessage",
+      "symbol": "ChatSystemMessage",
+      "module": "ChatSystemMessage",
+      "variants": [
+        "ChatSystemMessage.tsrx",
+        "ChatSystemMessage.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatToolCalls",
+      "symbol": "ChatToolCalls",
+      "module": "ChatToolCalls",
+      "variants": [
+        "ChatToolCalls.tsrx",
+        "ChatToolCalls.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatTokenizedText",
+      "symbol": "ChatTokenizedText",
+      "module": "ChatTokenizedText",
+      "variants": [
+        "ChatTokenizedText.tsrx",
+        "ChatTokenizedText.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatComposer",
+      "symbol": "ChatComposer",
+      "module": "ChatComposer",
+      "variants": [
+        "ChatComposer.tsrx",
+        "ChatComposer.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatComposerInput",
+      "symbol": "ChatComposerInput",
+      "module": "ChatComposerInput",
+      "variants": [
+        "ChatComposerInput.tsrx",
+        "ChatComposerInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatComposerTokenElement",
+      "symbol": "ChatComposerTokenElement",
+      "module": "ChatComposerInput",
+      "variants": [
+        "ChatComposerInput.tsrx",
+        "ChatComposerInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatComposerDrawer",
+      "symbol": "ChatComposerDrawer",
+      "module": "ChatComposerDrawer",
+      "variants": [
+        "ChatComposerDrawer.tsrx",
+        "ChatComposerDrawer.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatSendButton",
+      "symbol": "ChatSendButton",
+      "module": "ChatSendButton",
+      "variants": [
+        "ChatSendButton.tsrx",
+        "ChatSendButton.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ChatDictationButton",
+      "symbol": "ChatDictationButton",
+      "module": "ChatDictationButton",
+      "variants": [
+        "ChatDictationButton.tsrx",
+        "ChatDictationButton.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Link",
+      "symbol": "Link",
+      "module": "Link",
+      "variants": [
+        "Link.macos.tsrx",
+        "Link.tsrx",
+        "Link.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "NavLink",
+      "symbol": "NavLink",
+      "module": "NavLink",
+      "variants": [
+        "NavLink.macos.tsrx",
+        "NavLink.tsrx",
+        "NavLink.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TextInput",
+      "symbol": "TextInput",
+      "module": "TextInput",
+      "variants": [
+        "TextInput.tsrx",
+        "TextInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "TextArea",
+      "symbol": "TextArea",
+      "module": "TextArea",
+      "variants": [
+        "TextArea.tsrx",
+        "TextArea.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SearchInput",
+      "symbol": "SearchInput",
+      "module": "SearchInput",
+      "variants": [
+        "SearchInput.tsrx",
+        "SearchInput.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SegmentedControl",
+      "symbol": "SegmentedControl",
+      "module": "SegmentedControl",
+      "variants": [
+        "SegmentedControl.tsrx",
+        "SegmentedControl.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ScrollableArea",
+      "symbol": "ScrollableArea",
+      "module": "ScrollableArea",
+      "variants": [
+        "ScrollableArea.macos.tsrx",
+        "ScrollableArea.tsrx",
+        "ScrollableArea.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "VirtualList",
+      "symbol": "VirtualList",
+      "module": "VirtualList",
+      "variants": [
+        "VirtualList.macos.tsrx",
+        "VirtualList.tsrx",
+        "VirtualList.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Image",
+      "symbol": "Image",
+      "module": "Image",
+      "variants": [
+        "Image.macos.tsrx",
+        "Image.tsrx",
+        "Image.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "WebView",
+      "symbol": "WebView",
+      "module": "WebView",
+      "variants": [
+        "WebView.macos.tsrx",
+        "WebView.tsrx",
+        "WebView.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Overlay",
+      "symbol": "Overlay",
+      "module": "Overlay",
+      "variants": [
+        "Overlay.macos.tsrx",
+        "Overlay.tsrx",
+        "Overlay.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Popover",
+      "symbol": "Popover",
+      "module": "Popover",
+      "variants": [
+        "Popover.macos.tsrx",
+        "Popover.tsrx",
+        "Popover.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Dialog",
+      "symbol": "Dialog",
+      "module": "Dialog",
+      "variants": [
+        "Dialog.macos.tsrx",
+        "Dialog.tsrx",
+        "Dialog.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "DialogHeader",
+      "symbol": "DialogHeader",
+      "module": "Dialog",
+      "variants": [
+        "Dialog.macos.tsrx",
+        "Dialog.tsrx",
+        "Dialog.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "AlertDialog",
+      "symbol": "AlertDialog",
+      "module": "AlertDialog",
+      "variants": [
+        "AlertDialog.macos.tsrx",
+        "AlertDialog.tsrx",
+        "AlertDialog.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "HoverCard",
+      "symbol": "HoverCard",
+      "module": "HoverCard",
+      "variants": [
+        "HoverCard.mobile.tsrx",
+        "HoverCard.tsrx",
+        "HoverCard.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Tooltip",
+      "symbol": "Tooltip",
+      "module": "Tooltip",
+      "variants": [
+        "Tooltip.mobile.tsrx",
+        "Tooltip.tsrx",
+        "Tooltip.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Carousel",
+      "symbol": "Carousel",
+      "module": "Carousel",
+      "variants": [
+        "Carousel.macos.tsrx",
+        "Carousel.tsrx",
+        "Carousel.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Lightbox",
+      "symbol": "Lightbox",
+      "module": "Lightbox",
+      "variants": [
+        "Lightbox.macos.tsrx",
+        "Lightbox.tsrx",
+        "Lightbox.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Toast",
+      "symbol": "Toast",
+      "module": "Toast",
+      "variants": [
+        "Toast.macos.tsrx",
+        "Toast.tsrx",
+        "Toast.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ToastViewport",
+      "symbol": "ToastViewport",
+      "module": "toast-viewport",
+      "variants": [
+        "toast-viewport.macos.tsrx",
+        "toast-viewport.tsrx",
+        "toast-viewport.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Screen",
+      "symbol": "Screen",
+      "module": "Screen",
+      "variants": [
+        "Screen.macos.tsrx",
+        "Screen.tsrx",
+        "Screen.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Tabs",
+      "symbol": "Tabs",
+      "module": "Tabs",
+      "variants": [
+        "Tabs.macos.tsrx",
+        "Tabs.tsrx",
+        "Tabs.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Switch",
+      "symbol": "Switch",
+      "module": "Switch",
+      "variants": [
+        "Switch.tsrx",
+        "Switch.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "SafeArea",
+      "symbol": "SafeArea",
+      "module": "SafeArea",
+      "variants": [
+        "SafeArea.macos.tsrx",
+        "SafeArea.tsrx",
+        "SafeArea.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "KeyboardAvoiding",
+      "symbol": "KeyboardAvoiding",
+      "module": "KeyboardAvoiding",
+      "variants": [
+        "KeyboardAvoiding.macos.tsrx",
+        "KeyboardAvoiding.mobile.tsrx",
+        "KeyboardAvoiding.tsrx",
+        "KeyboardAvoiding.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Drawer",
+      "symbol": "Drawer",
+      "module": "Drawer",
+      "variants": [
+        "Drawer.macos.tsrx",
+        "Drawer.tsrx",
+        "Drawer.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Spinner",
+      "symbol": "ActivityIndicator",
+      "module": "ActivityIndicator",
+      "variants": [
+        "ActivityIndicator.tsrx",
+        "ActivityIndicator.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Meter",
+      "symbol": "Meter",
+      "module": "Meter",
+      "variants": [
+        "Meter.macos.tsrx",
+        "Meter.tsrx",
+        "Meter.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Slider",
+      "symbol": "Slider",
+      "module": "Slider",
+      "variants": [
+        "Slider.tsrx",
+        "Slider.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Icon",
+      "symbol": "Icon",
+      "module": "Icon",
+      "variants": [
+        "Icon.macos.tsrx",
+        "Icon.tsrx",
+        "Icon.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Heading",
+      "symbol": "Heading",
+      "module": "Heading",
+      "variants": [
+        "Heading.macos.tsrx",
+        "Heading.tsrx",
+        "Heading.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "BottomSheet",
+      "symbol": "BottomSheet",
+      "module": "BottomSheet",
+      "variants": [
+        "BottomSheet.macos.tsrx",
+        "BottomSheet.tsrx",
+        "BottomSheet.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "BottomSheetSwitcher",
+      "symbol": "BottomSheetSwitcher",
+      "module": "BottomSheet",
+      "variants": [
+        "BottomSheet.macos.tsrx",
+        "BottomSheet.tsrx",
+        "BottomSheet.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "CheckboxIndicator",
+      "symbol": "CheckboxIndicator",
+      "module": "CheckboxIndicator",
+      "variants": [
+        "CheckboxIndicator.macos.tsrx",
+        "CheckboxIndicator.tsrx",
+        "CheckboxIndicator.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "CheckIndicator",
+      "symbol": "CheckIndicator",
+      "module": "CheckIndicator",
+      "variants": [
+        "CheckIndicator.macos.tsrx",
+        "CheckIndicator.tsrx",
+        "CheckIndicator.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "RadioIndicator",
+      "symbol": "RadioIndicator",
+      "module": "RadioIndicator",
+      "variants": [
+        "RadioIndicator.macos.tsrx",
+        "RadioIndicator.tsrx",
+        "RadioIndicator.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Blockquote",
+      "symbol": "Blockquote",
+      "module": "Blockquote",
+      "variants": [
+        "Blockquote.macos.tsrx",
+        "Blockquote.tsrx",
+        "Blockquote.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Code",
+      "symbol": "Code",
+      "module": "Code",
+      "variants": [
+        "Code.macos.tsrx",
+        "Code.tsrx",
+        "Code.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "CodeBlock",
+      "symbol": "CodeBlock",
+      "module": "CodeBlock",
+      "variants": [
+        "CodeBlock.macos.tsrx",
+        "CodeBlock.tsrx",
+        "CodeBlock.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "MetadataList",
+      "symbol": "MetadataList",
+      "module": "MetadataList",
+      "variants": [
+        "MetadataList.macos.tsrx",
+        "MetadataList.tsrx",
+        "MetadataList.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "MetadataListItem",
+      "symbol": "MetadataListItem",
+      "module": "MetadataListItem",
+      "variants": [
+        "MetadataListItem.macos.tsrx",
+        "MetadataListItem.tsrx",
+        "MetadataListItem.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Thumbnail",
+      "symbol": "Thumbnail",
+      "module": "Thumbnail",
+      "variants": [
+        "Thumbnail.macos.tsrx",
+        "Thumbnail.tsrx",
+        "Thumbnail.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ProgressBar",
+      "symbol": "ProgressBar",
+      "module": "ProgressBar",
+      "variants": [
+        "ProgressBar.macos.tsrx",
+        "ProgressBar.tsrx",
+        "ProgressBar.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "StatusDot",
+      "symbol": "StatusDot",
+      "module": "StatusDot",
+      "variants": [
+        "StatusDot.macos.tsrx",
+        "StatusDot.tsrx",
+        "StatusDot.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Timestamp",
+      "symbol": "Timestamp",
+      "module": "Timestamp",
+      "variants": [
+        "Timestamp.macos.tsrx",
+        "Timestamp.tsrx",
+        "Timestamp.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Timer",
+      "symbol": "Timer",
+      "module": "Timer",
+      "variants": [
+        "Timer.macos.tsrx",
+        "Timer.tsrx",
+        "Timer.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Citation",
+      "symbol": "Citation",
+      "module": "Citation",
+      "variants": [
+        "Citation.macos.tsrx",
+        "Citation.tsrx",
+        "Citation.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "Outline",
+      "symbol": "Outline",
+      "module": "Outline",
+      "variants": [
+        "Outline.macos.tsrx",
+        "Outline.tsrx",
+        "Outline.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    },
+    {
+      "name": "ResizeHandle",
+      "symbol": "ResizeHandle",
+      "module": "ResizeHandle",
+      "variants": [
+        "ResizeHandle.tsrx",
+        "ResizeHandle.web.tsrx"
+      ],
+      "status": "queued",
+      "evidence": null,
+      "reason": null
+    }
+  ]
+}
