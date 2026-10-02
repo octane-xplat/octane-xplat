@@ -4,6 +4,42 @@
 
 Audited 2026-10-02 against Astryx core 0.6.4 at [ebd939b](https://github.com/facebook/astryx/tree/ebd939b665361a078015377c0dfe50cc3c1d70a4/packages/core). This is a source audit of all 106 capitalized top-level package entry points, including utility families. It compares named runtime exports with the shared web/mobile UI barrels and the files leaf. Types, StyleX compatibility, subpath compatibility, visual parity, OS input, accessibility, and every component's behavior are outside this inventory's proof boundary. Earlier focused audits use a different pinned revision and describe their own baselines.
 
+## Integrated parity batch
+
+All eight approved tasks are integrated into rich-cub. The worktree was first
+rebased onto local main at `c7bb8fa4`; each delegated task then started from a
+rich-cub commit, with no more than two tasks active at once. This closes the
+bounded implementation batch, not every difference in the export inventory.
+
+| Task                                 | Result                                                                                          | Strongest evidence and remaining limit                                                                                                                                                                                         |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Shared layer dismissal               | One depth-aware Escape owner, controlled close requests, root depth and cleanup                 | Web and universal-renderer regressions pass; physical keys and native OS back acceptance remain unverified.                                                                                                                    |
+| Shared positioning                   | HoverCard uses useLayer; AppKit geometry, native RTL, browser CSS lengths and anchor ownership  | Chromium and AppKit numeric-frame probes pass; mobile runtime RTL and native non-px lengths remain outside verified support.                                                                                                   |
+| Menu composition                     | Checkbox/radio/divider/submenu parts and Breadcrumbs overflow share the existing menu surfaces  | Web focus/IME and separate-root native tests pass; native hardware navigation and screen-reader behavior remain unverified. See [menus](menus.md).                                                                             |
+| Date keyboard and locale             | Web calendar/time navigation, composition guards, locale and translated message inputs          | Focused web and native-renderer checks pass; native hardware navigation and broader localized parsing remain unsupported. See [date follow-up](astryx-parity-date-inputs.md).                                                  |
+| DataGrid selection and accessibility | Eligible-page mixed state, caller-owned selection, virtual row positions, AppKit checkbox state | Chromium and AppKit selection/geometry probes pass; iOS/Android probes fail before assertions on the existing Unicode-regex parser error. VoiceOver/TalkBack remain unverified. See [table follow-up](astryx-parity-table.md). |
+| AppKit CommandPalette                | Modal sheet, shared Escape/focus ownership and highlighted-result scrolling                     | Maintained AppKit host case passes 16 assertions through adapters/native notifications; physical keyboard, actual IME and VoiceOver remain unverified. See [palette plan](command-palette-plan.md#remaining-work).             |
+| VirtualList geometry and recycling   | Native layout observation, same-range geometry updates and AppKit keyed order                   | Web, iOS and AppKit list probes pass; full native DataGrid checks retain the parser/input limits recorded in the table audit.                                                                                                  |
+| AppKit package boundaries            | Runtime/declaration exports match; normal-barrel and packed-consumer gates maintained           | macOS consumers pass in Bundler and NodeNext modes; all-platform packed closure and unrelated postinstall failures remain separate gates.                                                                                      |
+
+Integration checks on rich-cub pass for the affected layer, menu, date, table,
+renderer and palette regressions. The macOS package gate also passes after
+integrating the new menu exports. The detailed sections and family audits below
+record each task's tests, runtime evidence and limitations; dispatched events do
+not establish physical input or assistive-technology behavior. No visual analysis
+was performed.
+
+Affected recipes are shared-overlays, shared-menus, date-picker,
+interactive-data-grid, virtual-list and search-and-token-entry. Their guides and
+maintained examples were reconciled, with coverage recorded separately from
+verification in local Silo. Repository-wide lint/typecheck failures and the
+image-crop postinstall failure prevent a clean whole-repository claim.
+
+Remaining parity work includes inherited size/interactive-role contracts,
+additional upstream composition APIs, native keyboard/accessibility verification,
+and the explicitly deferred table presentations. Use the family audits to choose
+the next bounded task; the export inventory alone does not establish a defect.
+
 ## Findings and priority
 
 The component families are broadly represented, including Chat and NavMenu (families of parts rather than components named Chat or NavMenu), Resizable (a hook and handle), and FileInput (in the files leaf). The remaining differences are mostly composition APIs, provider/hooks, and behavioral contracts. Do not add aliases solely to make this table green: an alias can conceal different state ownership or interaction behavior.
@@ -318,7 +354,6 @@ platform limits, maintained layer example and regression references are
 reconciled. Local Silo records coverage separately from target evidence.
 iOS/Android runtime RTL, OS input and focus traversal remain unverified;
 vertical writing modes and native non-px CSS lengths remain explicit boundaries.
-
 
 ## Menu-family follow-up
 
