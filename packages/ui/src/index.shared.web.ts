@@ -363,6 +363,8 @@ export type {
 	BreadcrumbItem,
 	BreadcrumbProps,
 	CommandPaletteProps,
+	CommandPaletteItem,
+	CommandPaletteMenuItem,
 	NavigationMenuItem,
 	NavigationMenuProps,
 	PaginationProps,

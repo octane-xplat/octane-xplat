@@ -1260,6 +1260,8 @@ export interface HeadingProps {
 // ---------- overlays ----------
 
 export interface OverlayProps {
+	/** Accessible name for the modal content surface. */
+	accessibilityLabel?: string
 	open?: boolean
 	onDismiss?: () => void
 	/** Enables a RootLayout shade that dismisses when tapped. */
@@ -3340,16 +3342,54 @@ export interface NavigationMenuProps {
 	web?: any
 }
 
-/** CommandPalette — overlay with a search field over a filtered action
- *  list. Esc/outside dismisses, Enter selects the highlighted match. */
-export interface CommandPaletteProps {
+/** Static command entry; existing MenuItem callsites remain valid. */
+export interface CommandPaletteMenuItem extends MenuItem {
+	group?: string
+	keywords?: string[]
+	description?: string
+	shortcut?: string
+}
+
+/** Source-backed command entry. Metadata grouping uses auxiliaryData.group. */
+export interface CommandPaletteItem extends SearchableItem {
+	icon?: string
+	disabled?: boolean
+	description?: string
+	shortcut?: string
+	onSelect?: () => void
+}
+
+/** Searchable commands. Desktop Enter activates the highlighted enabled item;
+ * mobile Search submits the query and taps activate rows. Sources own ranking
+ * and bootstrap entries. Closing invalidates pending work and resets the query. */
+export interface CommandPaletteProps<T extends CommandPaletteItem = CommandPaletteItem> {
 	className?: any
 	style?: any
 	id?: string
+	/** Controlled visibility. Defaults to false. */
 	open?: boolean
 	onOpenChange?: (open: boolean) => void
-	items: MenuItem[]
+	/** Static commands; ignored when searchSource is supplied. */
+	items?: CommandPaletteMenuItem[]
+	/** Sync/async results; bootstrap supplies empty-query entries. */
+	searchSource?: SearchSource<T>
+	/** Static matching only. Custom sources own their matching policy. */
+	searchMode?: 'substring' | 'fuzzy'
 	placeholder?: string
+	/** Accessible surface and input name. Defaults to Command palette. */
+	label?: string
+	value?: string
+	onValueChange?: (value: string) => void
+	/** Inner row content; selection/disabled semantics remain palette-owned. */
+	renderItem?: (item: T, isSelected: boolean) => any
+	emptySearchText?: string
+	emptyBootstrapText?: string
+	loadingText?: string
+	errorText?: string
+	/** Custom footer content; false hides it. Mobile has no default key hints. */
+	footer?: any
+	width?: number | string
+	maxHeight?: number
 	ios?: any
 	android?: any
 	web?: any

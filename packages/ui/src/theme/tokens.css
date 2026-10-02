@@ -3846,3 +3846,22 @@ a.vx-topnav-item:hover:not([aria-disabled="true"]) {
 .vx-datagrid-body {
 	min-height: 0;
 }
+
+/* Command search content shared by the panel and mobile search sheet. */
+.vx-cmdk-input-row { flex-direction: row; align-items: center; }
+.vx-cmdk-search { flex-grow: 1; }
+.vx-cmdk-heading { padding: 8px; font-size: 12px; opacity: 0.7; }
+.vx-cmdk-status { font-size: 12px; padding: 4px; }
+.vx-cmdk-highlighted { background-color: #e4e4e7; }
+.ns-dark .vx-cmdk-highlighted, .dark .vx-cmdk-highlighted { background-color: #333333; }
+.vx-cmdk-item-content { flex-grow: 1; }
+.vx-cmdk-description { font-size: 12px; opacity: 0.7; }
+.vx-cmdk-shortcut { font-size: 12px; margin-left: 8px; }
+.vx-cmdk-footer { padding: 8px; font-size: 12px; }
+.vx-cmdk-cancel { padding: 4px 8px; }
+/* xplat-web-only:start */
+.vx-cmdk-input-row { display: flex; gap: 4px; }
+.vx-cmdk-list { overflow-y: auto; }
+.vx-cmdk-item-content { display: flex; flex-direction: column; }
+.vx-cmdk-footer { display: flex; align-items: center; gap: 4px; }
+/* xplat-web-only:end */

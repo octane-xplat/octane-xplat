@@ -111,7 +111,9 @@ export declare const Breadcrumbs: Component<P.BreadcrumbsProps>
 export declare const Pagination: Component<P.PaginationProps>
 export declare const Stepper: Component<P.StepperProps>
 export declare const NavigationMenu: Component<P.NavigationMenuProps>
-export declare const CommandPalette: Component<P.CommandPaletteProps>
+export declare const CommandPalette: <T extends P.CommandPaletteItem = P.CommandPaletteItem>(
+	props: P.CommandPaletteProps<T>,
+) => unknown
 export declare const AppShell: Component<P.AppShellProps>
 export declare const AppShellMobileContext: any
 export declare function useAppShellMobile(): P.AppShellMobileContextValue

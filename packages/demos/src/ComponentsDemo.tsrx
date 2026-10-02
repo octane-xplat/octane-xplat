@@ -16,6 +16,22 @@ registerIcons({
 	'menu-dot': { svg: 'M12 5v.01M12 12v.01M12 19v.01' },
 });
 
+const commandSource = createStaticSource([
+	{ id: 'home', label: 'Home', auxiliaryData: { group: 'Navigation' }, description: 'Open your workspace' },
+	{ id: 'settings', label: 'Settings', auxiliaryData: { group: 'Navigation' }, description: 'Manage preferences' },
+	{ id: 'create', label: 'Create project', auxiliaryData: { group: 'Actions' } },
+]);
+
+const remoteCommandSource = {
+	bootstrap: commandSource.bootstrap,
+	search: (query: string) => new Promise<ReturnType<typeof commandSource.bootstrap>>((resolve, reject) => {
+		setTimeout(() => {
+			if (query.trim() === 'fail') reject(new Error('Demo search failure'));
+			else resolve(commandSource.search(query) as ReturnType<typeof commandSource.bootstrap>);
+		}, 180);
+	}),
+};
+
 const demoSelectionSource = createStaticSource([
 	{ id: 'apple', label: 'Apple' },
 	{ id: 'banana', label: 'Banana' },
@@ -40,6 +56,8 @@ export function ComponentsDemo() @{
 	const [step, setStep] = useState(1);
 	const [nav, setNav] = useState('home');
 	const [cmdk, setCmdk] = useState(false);
+	const [remoteCmdk, setRemoteCmdk] = useState(false);
+	const [lastCommand, setLastCommand] = useState('—');
 	const [activePanel, setActivePanel] = useState('overview');
 	const [overflowCount, setOverflowCount] = useState(0);
 
@@ -164,7 +182,14 @@ export function ComponentsDemo() @{
 				]}
 			/>
 			<Button className="btn btn-secondary" onPress={() => setCmdk(true)}><Text>Command palette</Text></Button>
-			<CommandPalette open={cmdk} onOpenChange={setCmdk} items={menuItems} />
+			<CommandPalette id="demo-commands" open={cmdk} onOpenChange={setCmdk} searchMode="fuzzy" items={[
+				{ key: 'edit', label: 'Edit', group: 'Actions', onSelect: () => setLastCommand('edit') },
+				{ key: 'settings', label: 'Settings', group: 'Navigation', keywords: ['preferences'], description: 'Manage preferences', onSelect: () => setLastCommand('settings') },
+				{ key: 'delete', label: 'Delete', group: 'Actions', disabled: true },
+			]} />
+			<Button className="btn btn-secondary" onPress={() => setRemoteCmdk(true)}><Text>Search remote commands</Text></Button>
+			<CommandPalette id="demo-remote-commands" open={remoteCmdk} onOpenChange={setRemoteCmdk} searchSource={remoteCommandSource} onValueChange={setLastCommand} />
+			<Text>Last command: {lastCommand}. Remote search: type fail to exercise Retry.</Text>
 		</View>
 
 		<View className="controls-section">

@@ -197,7 +197,7 @@ target.
 | `Pagination`                               | Prev/next + windowed page buttons                        | `page`, `pageCount`, `onPageChange`                       |
 | `Stepper`                                  | Multi-step progress/flow control                         | `steps`, `current`, `onStepChange`                        |
 | `NavigationMenu`                           | Simple item-array navigation strip                       | `items`, `horizontal`, `href`                             |
-| `CommandPalette`                           | Searchable action palette                                | `open`, `items`, `placeholder`                            |
+| [`CommandPalette`](command-palette.md)     | Searchable commands; mobile search sheet                 | `open`, `items` / `searchSource`, `searchMode`, `onValueChange` |
 | `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items`, `placement`                           |
 | `ContextMenu`                              | Secondary-press action menu                              | `items`, `open`, `onOpenChange`                           |
 
