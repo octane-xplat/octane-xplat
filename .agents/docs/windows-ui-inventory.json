@@ -1883,7 +1883,8 @@
       "status": "parked",
       "evidence": [
         "Live modal sweep mounts Windows dialog and Dialog body; host disappears on case unmount.",
-        "DialogPanel uses Flexbox padding20; Dialog native source accepts/ignores finalFocusRef and has no desktop Escape/focus-trap implementation."
+        "DialogPanel uses Flexbox padding20; Dialog native source accepts/ignores finalFocusRef and has no desktop Escape/focus-trap implementation.",
+        "2026-10-02 OS keyboard/modal case task0: initial focus remains opener; Tab reaches background action; Escape in Dialog field leaves it open; Tab from close button escapes to underlying field. Close removes modal but does not restore opener focus."
       ],
       "reason": "Overlay lifecycle works, but panel normalization, Windows focus containment/restoration, Escape and shade dismissal need explicit support."
     },

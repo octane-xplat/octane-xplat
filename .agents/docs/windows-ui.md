@@ -708,3 +708,28 @@ must initialize percentages after parent layout and refresh them on parent
 resize, reparent/load/unload, and percent/numeric property changes without
 replacing another size handler or mutating during a XAML layout pass. A manual
 one-time refresh is diagnostic only; no production fix or resize pass is claimed.
+
+### Dialog keyboard and focus: real OS failure cases
+
+A stable modal with a text field and native close button opens via a real OS
+click. The interactive keyboard task completes with result0; UI Automation
+records focus after each action:
+
+| Action | Focus | Modal still present? |
+| --- | --- | --- |
+| Open Dialog | Open dialog button outside modal | Yes |
+| Tab after opening | Background action outside modal | Yes |
+| Focus Dialog field, press Escape | Dialog field | Yes |
+| Tab from Dialog field | Close dialog button | Yes |
+| Tab again | Underlying field outside modal | Yes |
+| OS click Close dialog | Underlying field | No |
+
+This establishes missing initial modal focus, focus containment/background
+inertness, Escape dismissal, and restoration to the opener. Programmatic field
+focus is setup; the Tab/Escape sequences and open/close clicks are OS input.
+It is not a source-only accessibility inference. Pinned native Dialog mounts a
+RootLayout overlay and wires shade dismissal/lifetime, but has no desktop
+keyboard/focus manager. The remedy needs shared desktop modal lifetime rules
+with a Windows focus/key adapter, purpose-aware Escape behavior, background
+inertness, nested-modal ownership, and focus restoration/cleanup. The working
+shade/lifetime path does not supply those semantics. Dialog remains parked.
