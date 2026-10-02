@@ -2,6 +2,7 @@
 	"$schema": "./node_modules/oxfmt/configuration_schema.json",
 	"ignorePatterns": [
 		"**/*.gen.*",
+		"**/vendor/**",
 		"packages/**/types/generated/**",
 		"packages/*/types/types.d.ts",
 		"packages/*/types/props.d.ts",
