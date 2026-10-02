@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"jsxImportSource": "@xplat/macos/renderer",
+		"moduleSuffixes": [".macos", ""],
+		"customConditions": ["macos"],
+		"lib": ["ESNext"],
+		"paths": {
+			"@xplat/macos/renderer": ["../../apps/macos/src/renderer/index.d.ts"],
+			"@xplat/macos/renderer/jsx-runtime": ["../../apps/macos/src/renderer/jsx-runtime.d.ts"],
+			"@xplat/macos/renderer/intrinsics": ["../../apps/macos/src/renderer/intrinsics.d.ts"]
+		}
+	},
+	"include": ["src/index.macos.ts"]
+}

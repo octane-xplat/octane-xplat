@@ -52,13 +52,21 @@ component resolved by suffix (the `packages/canvas` pattern, not subpaths):
 ```text
 src/
   props.ts                    shared props + CornerConfig types
-  path.ts                     shared: generatePath → structured commands
-  curves.ts                   shared: 'continuous' builder (Rosenfeld), delegates rest to @lisse/core/path
-  SmoothCorners.web.tsrx      clip-path: path(d)
-  SmoothCorners.ios.tsrx      CAShapeLayer mask
-  SmoothCorners.android.tsrx  Drawable + ViewOutlineProvider
-  SmoothCorners.macos.tsrx    CAShapeLayer mask via NSBezierPath
+  path.ts                     shared: generateCommands → PathCommand[]; 'continuous' (Rosenfeld)
+                              builder + stitcher; delegates other curves to @lisse/core/path
+  SmoothCorners.tsrx          shared native leaf — isIOS dispatches to apply.ios/apply.android
+                              (dist/native is a single generic bundle, so per-OS *files* can't
+                              be selected by suffix there — runtime dispatch keeps both OSes right)
+  apply.ios.ts                CGMutablePath → CAShapeLayer mask + border stroke + shadowPath
+  apply.android.ts            android.graphics.Path → Drawable + ViewOutlineProvider + elevation
+  SmoothCorners.web.tsrx      clip-path: path(d) + SVG stroke overlay + drop-shadow wrapper
+  SmoothCorners.macos.tsrx    NSBezierPath → CAShapeLayer mask (y-flip for AppKit)
 ```
+
+Built 2026-10-02: `pnpm build` emits dist/web + dist/native (check-native-dist
+clean), typegen passes, `node --test tests/` covers the Rosenfeld constants,
+arc conversion, per-corner mixing, and degenerate inputs (8/8). The native
+mask/outline seams remain lab-unverified — see the queued experiment.
 
 ```ts
 // props.ts — identical on every leaf
