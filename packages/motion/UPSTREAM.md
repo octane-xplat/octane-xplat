@@ -44,11 +44,13 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
 - Timing uses a monotonic platform clock (`System.nanoTime`/`CADisplayLink`-derived
   on native, `performance.now` on web) with NativeScript's vsync scheduler.
 - The same generator runs on web/native. Declarative tweens delegate to the
-  platform animator on native (`UIViewPropertyAnimator` on iOS,
-  `ViewPropertyAnimator` on Android) with per-frame presentation tracking so
-  interruption hands off value and velocity to the JS engine; springs,
-  reduced-motion runs, and gesture-driven values always run on the JS engine.
-  WAAPI delegation on web is deferred.
+  platform animator (`UIViewPropertyAnimator` on iOS, `ViewPropertyAnimator`
+  on Android, WAAPI `element.animate` on web) with per-frame presentation
+  tracking so interruption hands off value and velocity to the JS engine;
+  springs, reduced-motion runs, and gesture-driven values always run on the
+  JS engine. The web driver animates a matched function-list transform
+  keyframe plus `opacity`; sampled matrices decompose back to channels with
+  rotate read modulo ±180° and scale signs folded per the matrix.
 - Springs accept both the physical spec (stiffness/damping/mass/velocity) and
   upstream's duration/bounce spec. Transitions support `repeat`/`repeatType`
   (`loop`/`reverse`/`mirror`)/`repeatDelay` and per-channel overrides in the
@@ -295,6 +297,14 @@ export function RetainedCard() {
 ```
 
 ## Verification limits
+
+Web WAAPI delegation (2026-10-02): unit tests drive a fake `Animation` through
+the real web adapter for keyframe shape, matrix/matrix3d decomposition with
+transform-origin correction, cancel-before-sample ordering, mid-flight
+value/velocity handoff, and bezier-only gating; the retained probe passes on
+headless Chromium with delegation counters engaged (14 starts, 10 finishes, 4
+cancellations, 0 fallbacks). DOM dispatch evidence only — compositor pacing is
+not asserted.
 
 Bounded drag (2026-10-02): the maintained probe passes 14 assertions on web
 Chromium and 14 on the requested iOS simulator, including live writes, bounded

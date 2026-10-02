@@ -201,9 +201,9 @@ export function PanProbe() {
 
 **Web.** The pinned `motion-dom` ships the full WAAPI layer
 (`startWaapiAnimation`, `NativeAnimation`, `acceleratedValues`,
-`mapEasingToNativeEasing`); our adapter bypasses it. Web delegation largely
-means routing declarative runs through the engine our dependency already
-provides, with its interruption semantics as the spec.
+`mapEasingToNativeEasing`); the adapter bypassed it until the web delegation
+recorded below landed — a direct `element.animate` driver proved sufficient,
+so the motion-dom helpers remain unused.
 
 **Retained probe.** `examples/probes/motion.tsrx` is now the maintained
 MotionProbe replacement (the previous physical-device probe was a temporary
@@ -251,18 +251,42 @@ export async function delegatedSample(adapter: HostAdapter, request: DelegatedRe
   readable mid-flight, so `sample()` is a direct getter read. Cancel fires
   `onAnimationCancel` then `onAnimationEnd` — the end callback only commits the
   destination when the run actually finished.
-- **Web**: unchanged JS path for now — there is no bridge cost there, so
-  WAAPI delegation is deferred until a case needs it.
+- **Web**: `element.animate` with an explicit `from`/`to` keyframe pair —
+  transform channels share one matched function list
+  (`translateX/translateY/scaleX/scaleY/rotate`, same composition order as the
+  adapter's writes) so WAAPI interpolates each channel numerically, and
+  `opacity` animates as its own property (`src/driver.web.ts`). One
+  `cubic-bezier()` timing per run, `fill: 'forwards'`. `sample()` reads
+  `getComputedStyle` and decomposes the resolved matrix/matrix3d, peeling the
+  `transform-origin` offset back off so rotation and scale don't leak into
+  x/y. `cancel()` samples before `animation.cancel()` — cancel reverts to
+  base styles synchronously — then writes the frozen values through the
+  adapter so the next run's `from` keyframe continues the same frame. On
+  finish the destination is committed to base styles before the fill is
+  released, so later adapter writes still apply.
 - `__xplatMotionDelegations` on `globalThis` counts
   started/finished/cancelled/fallback so probes can distinguish real delegation
-  from silent fallback without widening the public API.
+  from silent fallback without widening the public API. Web increments the
+  same counters through `src/delegation.ts`.
 
 Verification: `delegation.test.ts` covers delegation, scale folding,
 interruption handoff, spring bypass, reduced-motion bypass, and stop semantics
-on a scripted driver (6 tests). The retained probe on the iOS 26.5 simulator
+on a scripted driver (6 tests), plus a web WAAPI section driving a fake
+`Animation` through the real web adapter — keyframe/options shape, matrix and
+matrix3d decomposition with transform-origin correction, cancel-before-sample
+ordering, mid-flight value/velocity handoff, and bezier-only gating (11 tests).
+The retained probe on the iOS 26.5 simulator
 passed with `started=8 finished=4 cancelled=3 fallback=0`; JS-engine pacing
 there ran 44 frames, 0 >34ms gaps, 16ms mean. Android runtime is unverified —
 no device/emulator was reachable.
+
+Web delegation evidence (2026-10-02): the retained probe passes 17 assertions
+on headless Chromium with `started=14 finished=10 cancelled=4 fallback=0` —
+the same counters as the iOS rerun — covering the mount tween, mid-flight
+spring retargets, variants stagger, whileTap engage/restore, and the Presence
+exit tween through `element.animate`. Interruption frees the MotionValues at
+the sampled frame; spring retargets land at the expected destination. The DOM
+dispatch path does not establish compositor scheduling or OS input.
 
 ## Bounded variants — decision #93
 

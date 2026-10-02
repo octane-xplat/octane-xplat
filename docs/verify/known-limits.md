@@ -303,9 +303,14 @@ resolvers, inherited animate labels, and child stagger/when timing. Exit/interac
 labels resolve locally; child timing applies to animate runs. Layout animation,
 `whileHover`/`whileInView`, keyframe arrays, and arbitrary CSS/SVG properties are
 excluded. Existing CSS transforms need an outer container.
-Declarative tweens delegate to `UIViewPropertyAnimator` (iOS) and
-`ViewPropertyAnimator` (Android); springs, reduced-motion runs, and
-gesture-driven values stay on the JS engine. See
+Declarative tweens delegate to `UIViewPropertyAnimator` (iOS),
+`ViewPropertyAnimator` (Android), and WAAPI `element.animate` (web and
+webview targets); springs, reduced-motion runs, and gesture-driven values
+stay on the JS engine. A delegated web run still samples `getComputedStyle`
+per frame for MotionValue tracking, and the matrix decomposition reports
+rotate wrapped to ±180° and folded scale signs — visual output is unaffected,
+but multi-winding rotations and negative scales read back in canonical form.
+See
 [motion compatibility](../../packages/motion/UPSTREAM.md) for lifecycle and
 engine boundaries. DOM and universal object-driver tests do not establish
 physical-device frame pacing or gesture arbitration; those checks remain pending.
