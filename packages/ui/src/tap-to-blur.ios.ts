@@ -25,6 +25,7 @@ export function attachTapToBlur(view: any): () => void {
 	}
 }
 
+let iosTargetClass: any = null
 let iosCount = 0
 let iosTarget: any = null
 let iosRecognizer: any = null
@@ -42,36 +43,42 @@ function iosAttach() {
 	}
 
 	iosWindow = appWin
-	// Resolve Objective-C bridge globals only when the iOS view is attached.
-	@NativeClass
-	class TapToBlurRecognizerTarget extends NSObject implements UIGestureRecognizerDelegate {
-		static ObjCProtocols = [UIGestureRecognizerDelegate]
-		static ObjCExposedMethods = {
-			tap: { returns: interop.types.void, params: [UITapGestureRecognizer] },
-		}
+	// The probe runtime does not provide NativeClass. Register through the
+	// Objective-C bridge lazily, and reuse the class across attach cycles.
+	if (!iosTargetClass) {
+		iosTargetClass = (NSObject as any).extend(
+			{
+				gestureRecognizerShouldReceiveTouch(_recognizer: any, touch: any) {
+					let hit = touch.view
+					while (hit) {
+						const textField = hit.isKindOfClass(UITextField.class())
+						const textView = hit.isKindOfClass(UITextView.class())
+						if (textField || textView) {
+							return false
+						}
 
-		gestureRecognizerShouldReceiveTouch(_recognizer: any, touch: any) {
-			let hit = touch.view
-			while (hit) {
-				const textField = hit.isKindOfClass(UITextField.class())
-				const textView = hit.isKindOfClass(UITextView.class())
-				if (textField || textView) {
-					return false
-				}
+						hit = hit.superview
+					}
 
-				hit = hit.superview
-			}
+					return true
+				},
 
-			return true
-		}
-
-		tap(_recognizer: any) {
-			iosWindow.endEditing(true)
-		}
+				tap(_recognizer: any) {
+					iosWindow.endEditing(true)
+				},
+			},
+			{
+				name: 'XplatTapToBlurRecognizerTarget',
+				protocols: [UIGestureRecognizerDelegate],
+				exposedMethods: {
+					'tap:': { returns: interop.types.void, params: [interop.types.id] },
+				},
+			},
+		)
 	}
 
-	iosTarget = TapToBlurRecognizerTarget.new()
-	iosRecognizer = UITapGestureRecognizer.alloc().initWithTargetAction(iosTarget, 'tap')
+	iosTarget = iosTargetClass.new()
+	iosRecognizer = UITapGestureRecognizer.alloc().initWithTargetAction(iosTarget, 'tap:')
 	iosRecognizer.delegate = iosTarget
 	iosRecognizer.cancelsTouchesInView = false
 	appWin.addGestureRecognizer(iosRecognizer)
