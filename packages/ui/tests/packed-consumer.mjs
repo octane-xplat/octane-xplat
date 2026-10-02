@@ -127,7 +127,7 @@ void invalidButtonProps
 void view
 `
 	} else {
-		source = `import { Button, KeyboardAvoiding, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, List, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
 import type { ButtonProps, KeyboardAvoidingProps, ListItemProps, RouteSpec, ViewProps } from '@octane-xplat/ui'
 import { UITabBar, UISwitch, type PlatformTabsProps, type RefreshProps as IOSRefreshProps } from '@octane-xplat/ui/ios'
 import { MaterialSwitch, type RefreshProps as AndroidRefreshProps } from '@octane-xplat/ui/android'
@@ -137,9 +137,9 @@ const buttonProps: ButtonProps = { children: 'Save', loading: true }
 // @ts-expect-error loading is a boolean prop
 const invalidButtonProps: ButtonProps = { loading: 'yes' }
 const viewProps: ViewProps = { id: 'native-root', gap: 6 }
-const itemProps: ListItemProps = { title: 'Profile', supportingText: 'Details' }
+const itemProps: ListItemProps = { label: 'Profile', description: 'Details', startContent: '•' }
 const keyboardProps: KeyboardAvoidingProps = { children: 'Form' }
-const row = <ListItem {...itemProps}><ListItem.Leading>•</ListItem.Leading><ListItem.Content>Profile</ListItem.Content></ListItem>
+const row = <List><ListItem {...itemProps} /></List>
 const screen = () => null
 const routeSpec: RouteSpec = { path: 'people/:id', screen }
 const manifest = defineRoutes({ routes: [routeSpec], layouts: { people: screen } })
