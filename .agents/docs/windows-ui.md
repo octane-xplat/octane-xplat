@@ -11,12 +11,21 @@ Native default implementations may be reused when their Windows behavior is
 verified. Platform-authentic iOS/Android subpaths require a separate assessment.
 Source inspection and compilation do not establish runtime or OS-input parity.
 
+## Repair follow-up
+
+The first repair batch has passed targeted Windows checks. The pinned core patch
+now includes [pointer ownership and lifecycle](windows-pointer-repair.md) and
+[parent-driven percentage sizing](windows-layout-repair.md). The verified native
+Flexbox padding and [Intl runtime](windows-intl-repair.md) fixes are retained as
+upstream source patches; their rebuilt binaries still need package adoption.
+Component dispositions remain unchanged pending individual reassessment.
+
 ## Priority blocker findings
 
-The priority investigation covers essential activation, forms, layout, content,
+The initial priority investigation covered essential activation, forms, layout, content,
 modals, and locale formatting. Findings below are verified on the Windows VM
-unless identified as a source lead. Prototypes remain diagnostic; none has been
-shipped, and component dispositions are unchanged.
+unless identified as a source lead. The table records the original blockers;
+the repair follow-up above links their current status.
 
 | Priority | Owner and blocker | Evidence / next fix |
 | --- | --- | --- |
