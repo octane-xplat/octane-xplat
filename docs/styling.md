@@ -191,6 +191,12 @@ the `wght` face; static packages take every weight in `--subset` (default
 filename, so multi-weight static adds also emit weight-scoped `font-*` class
 rules pointing at each file.
 
+Only upright faces are supported today: italic files in a Fontsource package
+are skipped, and a local italic file is registered as `font-style: normal` —
+it applies only where `font-style` is already normal. To use an italic face,
+register it under its own family (`--name 'Inter Italic'`) and apply that
+family where you want italic text.
+
 Variable fonts are supported on every target: web gets the `font-weight: min max`
 range, iOS resolves `font-weight` through `font-variation-settings`, and Android
 maps `font-weight` to the `wght` axis on API 26+ (older APIs load the file's
