@@ -616,3 +616,35 @@ This verifies both WinUI property paths through the bridge. It does not install
 ongoing framework property forwarding or fix secure read-only. The prototype
 is confined to the ignored probe index; the core gesture dependency was restored
 to its backup before these form cases.
+
+### Flexbox padding: isolated geometry comparison
+
+The asymmetric inset case uses left17/top7/right13/bottom11 DIP. Native
+`TransformToVisual(parent).TransformPoint(0,0)` and actual sizes show:
+
+| Case | Container | Child result |
+| --- | --- | --- |
+| Fixed Flexbox/View | 200×60 | Width200, offset0,0; insets ignored |
+| Auto-height Flexbox/View | Width200 | Parent height10, child height10; expected parent height28 from top7 + child10 + bottom11 |
+| Grid control | 200×60 | Width170, offset17,23; vertical centering occurs within the inset content box |
+| Stack control | 200×60 | Width170, offset17,7 |
+
+The fifth probe used a `flexDirection` prop on View, which View does not forward;
+its row-labeled result is excluded from directional evidence. The fixed and
+auto-height cases above are sufficient to reproduce the padding defect.
+
+The custom Flexbox widget's IDL has no Padding member and its C++ measure/arrange
+uses the full available/final box. Reading `native.Padding` after JS assignment
+returns the assigned object, but that can be the bridge's JS side-store; it does
+not establish a native layout property. Stack's core implementation instead
+wraps its native panel in a Border that owns padding, explaining its successful
+control case.
+
+The focused upstream fix is either native Flexbox padding (reduce measurement
+constraints, restore insets to desired size, and offset arrangement) or a core
+Border wrapper with explicit inner-panel child/property forwarding. Native
+padding preserves the existing panel identity and avoids changing those core
+interfaces. Validation must include empty/auto-size boxes, row/column/reverse
+and wrapping, percentages/flex growth, asymmetric and changing insets, and
+insets larger than the available size. The guest currently has no Visual Studio
+C++ toolchain, so no modified native-widget binary was built or verified.
