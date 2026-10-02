@@ -55,6 +55,43 @@ that need a NativeScript plugin live in these packages: `@octane-xplat/share` (`
 `@octane-xplat/haptics`. Each leaf owns its plugin as a real dependency —
 apps do not redeclare it.
 
+## Announce a status
+
+Keep a status such as “Settings saved” visible, and call `announce` after the
+operation succeeds to request a screen-reader announcement without moving focus:
+
+```ts
+import { announce } from '@octane-xplat/platform'
+
+// First update your screen's visible status, then request the announcement.
+announce('Settings saved')
+```
+
+Pass a short message translated into the user's language. `announce` returns
+nothing; it does not confirm that anyone heard or read the message. The
+[maintained example](../examples/accessibility/announce-status.ts) updates the
+visible message before requesting the announcement.
+
+Web uses a polite live region; iOS posts an accessibility announcement; Android
+requests one on the foreground activity's content view. In a macOS **AppKit**
+app, each nonblank call posts an announcement request at medium priority on the
+application, without choosing or retaining a window. Repeated identical messages
+produce separate requests, but VoiceOver decides their presentation and timing.
+Blank or whitespace-only text does nothing on AppKit. Calls before host setup or
+after host termination do nothing and are not replayed. Once the host is set up,
+calls can post before any window opens and after a window closes. There are no
+announcement timers, observers, or retained messages to clean up. A macOS
+WKWebView frontend uses the web live region instead.
+
+To check delivery, enable the target's screen reader, trigger a real successful
+save, and listen for the message (or check braille output). Confirm focus stays
+on the original control. Repeat the same action and check its presentation;
+rapid requests may be managed by the screen reader. An API test or a successful
+AppKit notification call establishes dispatch only. VoiceOver speech, braille,
+and queue behavior have not been verified for this implementation.
+
+AppKit semantics follow Apple's [announcement notification documentation](https://developer.apple.com/documentation/appkit/nsaccessibility-swift.struct/notification/announcementrequested).
+
 ## Desktop webview host protocol
 
 A `.web` frontend can run in a browser or a system webview. In a desktop

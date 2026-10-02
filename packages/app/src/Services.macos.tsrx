@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import { useState } from 'octane'
 import { HStack, Text, Pressable, View } from '@octane-xplat/ui'
-import { clipboard, connectivity, device, locale, useAppState, useWindowSize } from '@octane-xplat/platform'
+import { announce, clipboard, connectivity, device, locale, useAppState, useWindowSize } from '@octane-xplat/platform'
 
 export function Services() @{
 	const [clipboardResult, setClipboardResult] = useState('—')
+	const [announcementResult, setAnnouncementResult] = useState('—')
 	const conn = connectivity.getState()
 	const appState = useAppState()
 	const size = useWindowSize()
@@ -29,8 +30,19 @@ export function Services() @{
 			</HStack>
 		</View>
 		<View className="sink-section">
+			<Text className="section-label">Accessibility announcement</Text>
+			<HStack className="gap-3 items-center">
+				<Pressable className="btn btn-secondary" onPress={() => {
+					setAnnouncementResult('Announcement request sent')
+					announce('Kitchen sink announcement')
+				}}><Text>Announce</Text></Pressable>
+				<Text className="text-sm text-muted">{announcementResult}</Text>
+			</HStack>
+			<Text className="text-sm text-muted">Enable VoiceOver to check delivery. Sending a request does not confirm speech or braille output.</Text>
+		</View>
+		<View className="sink-section">
 			<Text className="section-label">Unsupported on this AppKit host</Text>
-			<Text className="text-sm text-muted">Connectivity, secure storage, audio, UI sounds, haptics, notifications, location, camera, photo and file pickers, sharing, app settings, biometrics, system bars, and accessibility announcements.</Text>
+			<Text className="text-sm text-muted">Connectivity, secure storage, audio, UI sounds, haptics, notifications, location, camera, photo and file pickers, sharing, app settings, biometrics, and system bars.</Text>
 			<Text className="text-sm text-muted">{conn.supported === false ? 'Connectivity: unsupported' : 'Connectivity: available'}</Text>
 		</View>
 	</View>

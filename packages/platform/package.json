@@ -26,12 +26,16 @@
 	},
 	"files": [
 		"src",
-		"platforms"
+		"platforms",
+		"types"
 	],
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": "./src/index.macos.ts",
+			"macos": {
+				"types": "./types/generated/macos/index.macos.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"linux": "./src/index.ts",
 			"web": "./src/index.web.ts",
 			"default": "./src/index.ts"
@@ -51,12 +55,15 @@
 		"access": "public"
 	},
 	"scripts": {
-		"test": "node --test tests/*.test.mjs"
+		"test": "node --test tests/*.test.mjs",
+		"typegen": "tsc -p tsconfig.types.macos.json",
+		"prepack": "pnpm typegen"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
-		"octane": "0.6.3"
+		"octane": "0.6.3",
+		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

@@ -15,7 +15,8 @@
 		"package": "xplat build --targets macos",
 		"dev:app": "node ./scripts/dev.mjs",
 		"webview:proof": "node ./scripts/webview-proof.mjs --verify",
-		"webview:dev": "node ./scripts/webview-dev.mjs"
+		"webview:dev": "node ./scripts/webview-dev.mjs",
+		"test:announce": "node test/verify-announce.mjs"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "0.4.4-next.2026-08-09-31292056208",

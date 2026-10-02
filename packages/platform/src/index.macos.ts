@@ -2,7 +2,6 @@ import { useSyncExternalStore } from 'octane'
 import type {
 	AppInfo,
 	AppState,
-	AuthSessionImpl,
 	Capability,
 	ConnectivityImpl,
 	ConnectivityState,
@@ -45,6 +44,7 @@ type AppKitHost = {
 	appInfo?: AppInfo
 	appState?: AppState
 	windowSize?: WindowSize
+	announce?: (text: string) => void
 	readClipboard?: () => string | null
 	writeClipboard?: (value: string) => boolean
 	storageGet?: (key: string) => string | null
@@ -165,8 +165,16 @@ export const systemBars = {
 	},
 }
 
-export function announce(_text: string): void {
-	console.warn('[octane-xplat] Accessibility announcements are unsupported by the AppKit host.')
+/**
+ * Request an accessibility announcement of localized text without moving focus.
+ * AppKit uses medium priority. Blank text, a missing host, or a stopped host
+ * does nothing. Each call posts independently; no message or window is retained.
+ * Returning does not acknowledge speech or braille delivery by VoiceOver.
+ */
+export function announce(text: string): void {
+	if (text.trim()) {
+		host().announce?.(text)
+	}
 }
 
 export function openUrl(url: string): boolean {

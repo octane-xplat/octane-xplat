@@ -1,4 +1,5 @@
 import { harnessFontOptions } from './fonts.mjs'
+import { announceAppKit } from './accessibility.mjs'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-renderer'
 
@@ -267,6 +268,11 @@ function installPlatformServices() {
 				width: Number(size.width ?? 0),
 				height: Number(size.height ?? 0),
 				orientation: Number(size.width ?? 0) >= Number(size.height ?? 0) ? 'landscape' : 'portrait',
+			}
+		},
+		announce(text) {
+			if (shared.running) {
+				announceAppKit(text, app)
 			}
 		},
 		readClipboard() {

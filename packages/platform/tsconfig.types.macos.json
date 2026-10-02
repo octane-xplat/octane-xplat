@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"noEmit": false,
+		"emitDeclarationOnly": true,
+		"declaration": true,
+		"outDir": "types/generated/macos",
+		"rootDir": "src",
+		"lib": ["ESNext", "DOM"]
+	},
+	"include": ["src/index.macos.ts"]
+}
