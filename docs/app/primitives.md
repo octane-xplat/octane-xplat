@@ -897,6 +897,11 @@ It renders an unsupported label and calls `onError` on mount. It supplies no
 playback handle and does not emit `onLoaded` or `onEnded`. The macOS WKWebView
 renderer uses the web implementation instead.
 
+The experimental native macOS AppKit target does not play Lottie animations.
+It renders an unsupported label and calls `onError` on mount. It supplies no
+playback handle and does not emit `onLoaded` or `onEnded`. The macOS WKWebView
+renderer uses the web implementation instead.
+
 ### Camera preview
 
 `CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),
