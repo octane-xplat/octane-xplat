@@ -98,7 +98,7 @@ interface Capability<T> {
 
 // App lifecycle — shared event vocabulary
 type AppState = 'active' | 'background' | 'inactive'
-declare function useAppState(): AppState // visibilitychange/pagehide/pageshow
+declare function useAppState(): AppState // host bootstrap or current visibility; visibilitychange/pagehide/pageshow
 // ↔ Application suspend/resume/exit
 // Hardware back → owned by ui's route layer, which auto-installs
 // activityBackPressed at screen/stack registration and pops the visible

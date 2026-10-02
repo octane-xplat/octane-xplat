@@ -4,16 +4,20 @@ import { useEffect, useState } from 'octane';
 import type { AppState } from './types';
 import { desktopHostBootstrap, desktopHostClient } from './host-runtime.web';
 
+function browserAppState(): AppState {
+	return document.visibilityState === 'visible' ? 'active' : 'background';
+}
+
 export function useAppState(): AppState {
 	const bootstrap = desktopHostBootstrap();
-	const [state, setState] = useState<AppState>(bootstrap?.appState ?? 'active');
+	const [state, setState] = useState<AppState>(bootstrap?.appState ?? browserAppState());
 	useEffect(() => {
 		const host = desktopHostClient();
 		if (host) {
 			return host.on('app.state.change', setState);
 		}
 
-		const onVis = () => setState(document.visibilityState === 'visible' ? 'active' : 'background');
+		const onVis = () => setState(browserAppState());
 		const onHide = () => setState('inactive');
 		document.addEventListener('visibilitychange', onVis);
 		window.addEventListener('pagehide', onHide);
