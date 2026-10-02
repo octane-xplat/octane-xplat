@@ -31,19 +31,32 @@ export function Lottie(props: LottieProps) @{
 		setAnimation(null);
 		ready.current = false;
 
-		const animationData = props.data ?? (props.src?.startsWith('{') ? JSON.parse(props.src) : undefined);
+		let animationData: object | undefined;
+		try {
+			animationData = props.data ?? (props.src?.startsWith('{') ? JSON.parse(props.src) : undefined);
+		} catch (error) {
+			props.onError?.({ message: error instanceof Error ? error.message : String(error) });
+			return;
+		}
+
 		const path = animationData ? undefined : props.src;
 		if (!animationData && !path) return;
 
-		const a = lottie.loadAnimation({
-			container: host,
-			renderer: 'svg',
-			loop: props.loop ?? false,
-			autoplay: false, // leaf owns play state — uniform with native
-			animationData,
-			path,
-			rendererSettings: { preserveAspectRatio: PRESERVE[props.fit ?? 'contain'] },
+		let a: AnimationItem;
+		try {
+			a = lottie.loadAnimation({
+				container: host,
+				renderer: 'svg',
+				loop: props.loop ?? false,
+				autoplay: false, // leaf owns play state — uniform with native
+				animationData,
+				path,
+				rendererSettings: { preserveAspectRatio: PRESERVE[props.fit ?? 'contain'] },
 		});
+		} catch (error) {
+			props.onError?.({ message: error instanceof Error ? error.message : String(error) });
+			return;
+		}
 
 		anim.current = a;
 		setAnimation(a);
