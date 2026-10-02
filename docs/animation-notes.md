@@ -68,6 +68,85 @@ checks passed:
 object-driver tests. This rerun is simulator evidence only. It does not change
 the physical-device gaps above, and Android was not tested in this pass.
 
+## Delegated-driver research — 2026-10-02 (desk-source)
+
+Source: vendored NativeScript tree at `research/nativescript/packages/core`,
+installed `@nativescript-community/gesturehandler@2.0.45`, and the pinned
+`motion-dom@12.42.2` dist. Findings behind decision #89.
+
+**Frame scheduling.** NS `requestAnimationFrame` chains frames through
+`FPSCallback` — `Choreographer.postFrameCallback` on Android (with a
+`__postFrameCallback` runtime fast path) and `CADisplayLink` on iOS, registered
+in both `NSDefaultRunLoopMode` and `UITrackingRunLoopMode` so it ticks during
+scroll. A rAF requested outside a frame instead goes through `queueMacrotask`
+→ `dispatchToMainThread`, so the first frame of an animation is not
+vsync-aligned and carries a `getTimeInFrameBase()` timestamp; subsequent
+vsync-aligned frames carry the Choreographer nanos / `CADisplayLink.timestamp`
+(both monotonic). Frame timestamps are the natural frame-pacing instrumentation
+points.
+
+**Clock.** NS's own frame base is `System.nanoTime()` on Android and
+`global.__time || Date.now` (`profiling.time`) on iOS — both monotonic.
+`CACurrentMediaTime()` is also directly callable on iOS.
+
+**Reduced motion.** iOS has a posted notification and NS wraps observation:
+`Application.ios.addNotificationObserver(UIAccessibilityReduceMotionStatusDidChangeNotification, cb)`
+— no polling needed on iOS. Android has no event; `ValueAnimator.areAnimatorsEnabled()`
+(API 26; app minSdk is 24, so gate it) covers the framework check and the
+`Settings.Global` read stays as the <26/OEM fallback. Polling remains
+Android-only.
+
+**iOS animation internals.** `view.animate` adds `CABasicAnimation`/
+`CAAnimationGroup` to `nativeView.layer` — render-server driven — and uses
+`_suspendPresentationLayerUpdates` so model writes don't clobber the
+presentation layer. Its "spring" is `UIView.animateWithDuration...
+UsingSpringWithDamping` with hardcoded damping `0.2` — unsuitable, as
+previously recorded. NS composes all transform channels into one
+`layer.transform` `CATransform3D` (`ui/core/view/index.ios.ts` `_updateTransform`),
+so a delegated iOS run must drive that keypath and resync the model props at
+completion. `CASpringAnimation` exposes mass/stiffness/damping/initialVelocity —
+a direct param match to our `Transition`; `CAMediaTimingFunction(controlPoints:)`
+covers cubic-bezier tweens. Interruption reads `layer.presentation()`.
+
+**Android animation internals.** Platform `view.animate()`
+(`ViewPropertyAnimator`, a method on every `View` — zero new deps) covers
+`translationX/Y`, `scaleX/Y`, `rotation`, `alpha` with `PathInterpolatorCompat`
+for beziers (androidx.core is on the classpath), updates the readable property
+continuously, and cancels cleanly. `androidx.dynamicanimation` (`SpringAnimation`)
+is **not** on the NS classpath — bundled set is appcompat/core/fragment/
+activity/transition/viewpager2/exifinterface/documentfile; adding it needs a
+plugin `include.gradle` (precedent: gesturehandler ships one). Decision: keep
+springs on the JS engine (velocity-exact retargets, gesture settle) and
+delegate only tweens.
+
+**Gestures.** Shared `onPan` uses NS built-ins: real `UIPanGestureRecognizer`
+on iOS (the shared `UIGestureRecognizerDelegate` already supports
+`shouldRecognizeSimultaneously`/`requireFailureOf`, wired only for double-tap)
+and `CustomPanGestureDetector` on Android, which starts tracking on the first
+`ACTION_MOVE` — no touch slop — and nothing calls
+`requestDisallowInterceptTouchEvent`, so pan inside `ScrollView` is currently
+unhandled. `@nativescript-community/gesturehandler` is already an optional peer
+of `@octane-xplat/ui` and an installed app dep; it ports RNGH semantics
+(`Manager`, `PanGestureHandler` with `minDist`/`activeOffset*`/`failOffset*`,
+`NativeViewGestureHandler` with `shouldActivateOnStart`/`disallowInterruption`).
+Adopting it for the gesture surface replaces building arbitration on raw NS
+gestures.
+
+**Web.** The pinned `motion-dom` ships the full WAAPI layer
+(`startWaapiAnimation`, `NativeAnimation`, `acceleratedValues`,
+`mapEasingToNativeEasing`); our adapter bypasses it. Web delegation largely
+means routing declarative runs through the engine our dependency already
+provides, with its interruption semantics as the spec.
+
+**Retained probe.** `examples/probes/motion.tsrx` is now the maintained
+MotionProbe replacement (the previous physical-device probe was a temporary
+entry). It drives tween→destination, mid-flight spring retarget, `MotionValue`
+cancellation, pan began→moved→ended→spring-settle via PointerEvent dispatch on
+web and the pan gesture observer (`GestureTypes.pan`) on iOS/Android, Presence
+increment/exit/re-entry, and disposal cancellation. Passing: web (Chromium) and
+iOS simulator, 2026-10-02. Gesture dispatch is observer-level — real recognizer
+delivery remains a manual/device check.
+
 ## The load-bearing fact
 
 On NativeScript your JS **runs on the UI thread**: a `touch` move event can
