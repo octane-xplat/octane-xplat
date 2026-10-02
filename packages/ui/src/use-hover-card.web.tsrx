@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'octane';
+import { useCallback, useEffect, useRef, useState } from 'octane';
 import type {
-	HoverCardAlignment,
 	HoverCardOptions,
 	HoverCardPlacement,
 	HoverCardReturn,
 	PopoverPlacement,
 } from './props';
 
-import { Popover } from './Popover.web.tsrx';
+import { useLayer } from './use-layer';
 import { cx } from './cx';
 
 /** Elements a tap "belongs to" — under `touchTrigger: 'auto'` their tap
@@ -64,7 +63,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		onHide,
 	} = options;
 
-	const id = useId();
+
 	const [uncontrolled, setUncontrolled] = useState(isDefaultOpen);
 	const controlled = isOpen !== undefined;
 	const open = controlled ? isOpen === true : uncontrolled;
@@ -75,7 +74,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 	const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const isTouch = useRef(false);
 	const escapeHiding = useRef(false);
-	const anchorObj = useRef<{ current: any }>({ current: null });
+
 
 	const onShowRef = useRef(onShow);
 	onShowRef.current = onShow;
@@ -206,10 +205,18 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		[focusTrigger, onMouseEnter, onMouseLeave, onPointerDown, onFocusIn, onFocusOut],
 	);
 
+	const layer = useLayer({ mode: 'context', isOpen: open, lightDismiss: isTouch.current, dismissOnEscape: true, onHide: () => {
+		if (cardEl.current?.contains(document.activeElement)) escapeHiding.current = true;
+		isTouch.current = false;
+		hideNow();
+	} });
+
+	const id = layer.id;
+
 	const positionRef = useCallback((el: HTMLElement | null) => {
 		positionEl.current = el;
-		anchorObj.current.current = el;
-	}, []);
+		layer.ref(el);
+	}, [layer.ref]);
 
 	const ref = useCallback(
 		(el: HTMLElement | null) => {
@@ -230,28 +237,14 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 
 	useEffect(() => () => clearTimers(), [clearTimers]);
 
-	const renderHoverCard = useCallback(
-		(children: any, props?: Record<string, any>) => {
-			const rtl =
-				positionEl.current != null &&
-				getComputedStyle(positionEl.current).direction === 'rtl';
 
-			return (
-				<Popover
-					open={open}
-					anchor={anchorObj.current}
-					finalFocusRef={interactionEl}
-					placement={placementFor(props?.placement ?? placement, rtl)}
-					alignment={(props?.alignment ?? alignment) as HoverCardAlignment as any}
-					dismissOnOutsideTap={isTouch.current}
-					onDismiss={() => {
-						if (cardEl.current?.contains(document.activeElement)) escapeHiding.current = true;
-						isTouch.current = false;
-						hideNow();
-					}}
-					className={cx('vx-hovercard', props?.className)}
-					style={props?.style}
-					web={{
+	const renderHoverCard = useCallback((children: any, props?: Record<string, any>) => { return layer.render(
+		<div ref={(el: any) => { cardEl.current = el; }} className="vx-hovercard-content">
+						{children}
+					</div>,
+		{ placement: props?.placement ?? placement, alignment: props?.alignment ?? alignment, offset: 8,
+			finalFocusRef: interactionEl, className: cx('vx-hovercard', props?.className), style: props?.style,
+			web: {
 						id,
 						role: label ? 'dialog' : 'group',
 						'aria-label': label || undefined,
@@ -271,23 +264,14 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 							}
 
 							scheduleHide();
-						},
-					}}
-				>
-					<div ref={(el: any) => { cardEl.current = el; }} className="vx-hovercard-content">
-						{children}
-					</div>
-				</Popover>
-			);
-		},
-		[open, placement, alignment, label, id, hideNow, clearTimers, scheduleHide],
-	);
+						}, } },
+	); }, [layer.render, placement, alignment, label, id, clearTimers, scheduleHide]);
 
 	return {
 		ref,
 		positionRef,
 		interactionRef,
-		anchorId: id,
+		anchorId: layer.anchorId,
 		id,
 		describedBy: id,
 		isOpen: open,

@@ -1329,14 +1329,16 @@ export interface PopoverAnchorRef {
 }
 
 export interface PopoverProps {
+	/** @internal Logical geometry adapter used by useLayer. */
+	layerPosition?: Pick<ContextRenderProps, 'placement' | 'alignment'>
 	/** Ref to a native view or web element, commonly populated by `ref`. */
 	anchor: PopoverAnchorRef
 	open?: boolean
 	placement?: PopoverPlacement
 	/** Cross-axis alignment within the placement. @default 'start' */
 	alignment?: PopoverAlignment
-	/** Clearance between the anchor and the panel in dips. @default 8 */
-	offset?: number
+	/** Clearance in dips/px; web also resolves CSS lengths. Native accepts numbers or px strings. @default 8 */
+	offset?: number | string
 	dismissOnOutsideTap?: boolean
 	/** Escape requests dismissal when this is the top layer. False blocks
 	 *  Escape from reaching a layer below. @default true */
@@ -1357,14 +1359,15 @@ export interface PopoverProps {
 
 /** Logical placement of a layer relative to its anchor (Astryx
  *  `LayerPlacement`). 'above'/'below' are the block sides (top/bottom);
- *  'start'/'end' are the inline sides and mirror under RTL on web — on
- *  native they currently read as left/right. Physical `PopoverPlacement`
+ *  'start'/'end' are the inline sides and mirror under the anchor's RTL direction. Physical `PopoverPlacement`
  *  sides are also accepted wherever a layer placement is taken. */
 export type LayerPlacement = 'above' | 'below' | 'start' | 'end'
 /** Alignment along the cross axis (Astryx `LayerAlignment`). */
 export type LayerAlignment = 'start' | 'center' | 'end'
 
 interface LayerBaseOptions {
+	/** Controlled visibility. show/hide request changes through onShow/onHide. */
+	isOpen?: boolean
 	/** Fires when the layer becomes visible. */
 	onShow?: () => void
 	/** Fires when the layer hides — including outside dismissal. */
@@ -1394,6 +1397,8 @@ export type LayerOptions = ContextLayerOptions | FixedLayerOptions
 
 /** Render props for `useLayer` context mode — `render(children, props)`. */
 export interface ContextRenderProps {
+	/** Focus return target; defaults to the anchor on web. */
+	finalFocusRef?: { current: any }
 	/** 'anchor' (default) derives the position from `placement`/`alignment`/
 	 *  `offset`. 'custom' authors the position via `style` (web: e.g. CSS
 	 *  `anchor()` insets against the returned `anchorId`; native: `left`/`top`
@@ -1404,7 +1409,7 @@ export interface ContextRenderProps {
 	/** Cross-axis alignment. @default 'center' */
 	alignment?: LayerAlignment
 	/** Clearance from the anchor — a number is dips/px; a web CSS length
-	 *  parses to its px value. @default 0 */
+	 *  resolves in the anchor writing context. Native accepts numbers or px only. @default 0 */
 	offset?: number | string
 	/** Accessible name for the layer surface. */
 	accessibilityLabel?: string

@@ -135,6 +135,8 @@ export function TripPreview() {
 - AC5: The reader can choose the public shared component names and anatomy for modal surfaces, hover cards, media, scrolling, and toasts, including the platform-native sheet boundary and macOS implementation limits.
 - AC6: A shaded Web `Overlay` requires an accessible name; modal Web `Overlay` and `BottomSheet` contain keyboard focus, hide background actions, and restore focus to the opener after pointer, keyboard, and nested dismissal. Nested dialogs, menus, and hover cards share one Escape owner; controlled close requests do not cascade, composition is preserved, and removal cleans up ownership and focus return. Target limitations are explicit.
 
+- AC7: Anchored layers honor placement, cross-axis alignment and clearance; logical sides mirror RTL. Custom and fixed coordinate systems, CSS-length support, anchor ownership and platform boundaries are documented.
+
 ## Documentation
 
 - AC1: The [AppKit normal-barrel fixture](../packages/ui/tests/macos-barrel.mjs) and [packed consumer](../packages/ui/tests/packed-consumer.mjs) check public import and declaration boundaries; they do not establish OS rendering or input. [Surface selection](../docs/app/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../docs/app/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
@@ -150,3 +152,5 @@ Windows remains experimental: native mounting and cleanup have bounded runtime
 evidence, while gesture, dismissal, focus, and accessibility gaps remain. See
 the [Windows support boundary](../docs/notes/windows-notes.md#current-support-boundary);
 Windows is not added to this recipe’s supported targets.
+
+- AC7: [Anchored layers](../docs/primitives.md#anchor-a-layer-to-an-element), maintained [layer example](../examples/probes/layer.tsrx), [web ownership regressions](../packages/ui/src/use-layer.web.test.tsrx), [geometry tests](../packages/ui/src/popover-position.test.ts), [Chromium CSS-length regression](../packages/ui/tests/layer-position.web.mjs), and [AppKit layer bridge tests](../packages/macos-renderer/test/layer.test.mjs). These tests distinguish numeric geometry and lifecycle evidence from physical OS input.

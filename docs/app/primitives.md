@@ -1146,10 +1146,22 @@ positions `render`'s children beside it: `placement` accepts `above`, `below`,
 cross axis; `offset` is the gap. The layer flips to the opposite side when the
 preferred side does not fit and clamps into the viewport. Web portals to
 `document.body` and measures with `getBoundingClientRect`; native mounts on the
-owning `RootLayout` and measures the anchor's native bounds. On macOS the layer
-is a real `NSPopover` presented by the AppKit host bridge. Pass
+owning `RootLayout` and measures the anchor's native bounds. On macOS the AppKit host mounts a self-drawn view inside the owning window. Pass
 `positioning: 'custom'` (context mode only) to skip anchor measurement and
-mount the layer in the overlay shell unpositioned.
+author its position yourself. Web keeps `position-anchor` wired to `anchorId`
+and leaves all insets unset; for example, `{ positioning: 'custom', style: {
+left: 'anchor(left)', top: 'anchor(bottom)' } }`. Native uses numeric `left`/`top`
+in page coordinates; macOS uses numeric points from the window's top-left corner.
+macOS rejects nonnumeric custom coordinates. Custom mode ignores placement,
+alignment, and offset.
+
+On web, `offset` also accepts CSS lengths such as `'1rem'`, `'2em'`,
+`'var(--gap)'`, or `'calc(var(--gap) + 4px)'`. The browser resolves them using
+the anchor's font and custom properties. Native accepts numbers and numeric
+`px` strings; other CSS units throw instead of being interpreted as dips.
+Logical sides and horizontal alignment mirror the anchor's effective direction
+on every supported target. The portable geometry assumes horizontal writing;
+vertical CSS writing modes are outside this contract.
 
 ```tsx
 import { View, Text, Pressable, useLayer } from '@octane-xplat/ui'
@@ -1173,7 +1185,9 @@ export function Example() {
 given in its props — viewport pixels on web, page dips on native, and the
 containing window's top-left point on macOS. `lightDismiss` closes on outside
 interaction; `onShow`/`onHide` track state, `isOpen` reads it, `show`/`hide`
-toggle it.
+toggle it. To keep visibility in your own state, pass `isOpen` in the options.
+Then `show`/`hide` call `onShow`/`onHide` as requests; content stays mounted until
+you change `isOpen`. A rejected close request retains dismissal ownership.
 
 ```tsx
 import { Pressable, Text, useLayer } from '@octane-xplat/ui'
@@ -1204,9 +1218,13 @@ export function Example() {
 On native, layer content is a separate root: it does not see the declaring
 component's context. Calling `render` with updated content refreshes an open
 layer, including on macOS. Pass data through props or subscribe to shared
-state inside the layer tree. Web `Tooltip` uses `useLayer`; `Popover` remains
-the positioning surface underneath the web and mobile hook, and `HoverCard`
-still uses that surface directly.
+state inside the layer tree. `Tooltip` and `HoverCard` route positioning through `useLayer`.
+`Popover` remains the positioning surface underneath the web and mobile hook.
+macOS layers require the host's `showLayer` bridge; a missing bridge leaves the
+surface absent. Outside dismissal also requires the AppKit local mouse monitor;
+presentation rejects that request when the monitor is unavailable. The in-window view has no OS popover arrow or animation. Focus
+traversal on macOS/mobile and physical outside-input behavior need separate
+OS input evidence.
 
 ```tsx
 import { Text, useLayer } from '@octane-xplat/ui'

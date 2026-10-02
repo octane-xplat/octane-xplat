@@ -19,7 +19,7 @@ import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
 import { cx } from './cx';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
-import { layerOffset, resolveLayerSide } from './popover-position';
+import { layerOffset } from './popover-position';
 
 interface FixedSurfaceProps {
 	layerDepth?: number
@@ -121,9 +121,7 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 /**
  * Anchored-layer primitive (Astryx `useLayer`), iOS/Android leaf. Context
  * mode delegates to `Popover` — JS measure/flip placement on the page's
- * RootLayout, not CSS anchor positioning. Logical `start`/`end` read as
- * left/right (RTL mirroring is the consumer's responsibility — documented
- * on `LayerPlacement`). Fixed mode positions at page-coordinate x/y. The
+ * RootLayout, not CSS anchor positioning. Logical sides and horizontal alignment use the anchor's effective OS direction. Fixed mode positions at page-coordinate x/y. The
  * layer is a separate Octane root: pass data as props, not context.
  */
 export function useLayer<O extends LayerOptions>(
@@ -131,9 +129,12 @@ export function useLayer<O extends LayerOptions>(
 ): O extends FixedLayerOptions ? FixedLayerReturn : ContextLayerReturn @{
 	const fixed = options.mode === 'fixed';
 	const id = useId();
-	const [isOpen, setIsOpen] = useState(false);
+	const [uncontrolled, setIsOpen] = useState(false);
+	const isOpen = options.isOpen ?? uncontrolled;
+	const controlled = options.isOpen !== undefined;
 	const openRef = useRef(false);
 	const anchor = useRef<{ current: any }>({ current: null });
+	openRef.current = isOpen;
 	const onShow = useRef(options.onShow);
 	onShow.current = options.onShow;
 	const onHide = useRef(options.onHide);
@@ -141,17 +142,15 @@ export function useLayer<O extends LayerOptions>(
 
 	const show = useCallback(() => {
 		if (openRef.current) return;
-		openRef.current = true;
-		setIsOpen(true);
+		if (!controlled) { openRef.current = true; setIsOpen(true); }
 		onShow.current?.();
-	}, []);
+	}, [controlled]);
 
 	const hide = useCallback(() => {
 		if (!openRef.current) return;
-		openRef.current = false;
-		setIsOpen(false);
+		if (!controlled) { openRef.current = false; setIsOpen(false); }
 		onHide.current?.();
-	}, []);
+	}, [controlled]);
 
 	const ref = useCallback((el: any) => {
 		anchor.current.current = el;
@@ -202,13 +201,13 @@ export function useLayer<O extends LayerOptions>(
 			return (
 				<Popover
 					open={isOpen}
+					layerPosition={p}
 					anchor={anchor.current}
-					placement={resolveLayerSide(p.placement)}
-					alignment={p.alignment ?? 'center'}
 					offset={layerOffset(p.offset)}
 					dismissOnOutsideTap={options.lightDismiss === true}
 					dismissOnEscape={options.dismissOnEscape ?? options.lightDismiss === true}
 					onDismiss={hide}
+					finalFocusRef={p.finalFocusRef}
 					className={p.className}
 					style={p.style}
 					ios={{ accessibilityLabel: p.accessibilityLabel, ...p.ios }}

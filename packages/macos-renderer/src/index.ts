@@ -1,3 +1,4 @@
+import { showWindowLayer } from './layer.mjs'
 import '@nativescript/macos-node-api'
 import { loadImage } from './image'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
@@ -3965,6 +3966,10 @@ function presentSheet(view: NSView, options: PropBag) {
 const appKitBridge = (globalThis.__xplatAppKit ??= {})
 appKitBridge.observeHover = observeHover
 appKitBridge.showAnchoredPopup = showAnchoredPopup
+appKitBridge.showLayer = (options) => showWindowLayer(options, {
+	createRoot: (view, anchor) => createMacOSRoot(view, { fontFamily: fontFamilyForView(anchor) }),
+	fittingSize: popupFittingSize,
+})
 appKitBridge.attachContextMenu = attachContextMenu
 appKitBridge.attachDatePicker = attachDatePicker
 appKitBridge.presentSheet = presentSheet

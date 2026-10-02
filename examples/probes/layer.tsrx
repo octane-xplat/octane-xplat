@@ -30,6 +30,7 @@ export default function LayerProbe() {
 				</View>,
 				{
 					placement: 'below',
+					alignment: 'end',
 					offset: 4,
 					web: { id: 'probe-anchored-panel' },
 					ios: { id: 'probe-anchored-panel' },

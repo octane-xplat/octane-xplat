@@ -1,5 +1,5 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
-import { createPortal, useCallback, useId, useRef, useState } from 'octane';
+import { createPortal, useCallback, useEffect, useId, useRef, useState } from 'octane';
 import type {
 	ContextLayerReturn,
 	ContextRenderProps,
@@ -10,9 +10,9 @@ import type {
 } from './props';
 
 import { useThemeScheme } from './theme/theme-scheme';
-import { Popover } from './Popover.web.tsrx';
-import { layerOffset, resolveLayerSide } from './popover-position';
+import { Popover } from './Popover';
 import { cx } from './cx';
+import { ownAnchorName } from './layer-position.web';
 
 interface FloatingLayerProps {
 	open?: boolean
@@ -57,8 +57,8 @@ function FloatingLayer(props: FloatingLayerProps) @{
 					className={cx('vx-popover', props.className)}
 					style={{
 						position: 'fixed',
-						top: props.y ?? 0,
-						left: props.x ?? 0,
+						...(props.y != null && { top: props.y }),
+						...(props.x != null && { left: props.x }),
 						zIndex: 1,
 						pointerEvents: 'auto',
 						...props.style,
@@ -87,10 +87,12 @@ export function useLayer<O extends LayerOptions>(
 	const fixed = options.mode === 'fixed';
 	const id = useId();
 	const anchorId = `--xplat-layer-${id.replace(/[^a-zA-Z0-9_-]/g, '')}`;
-	const [isOpen, setIsOpen] = useState(false);
+	const [uncontrolled, setIsOpen] = useState(false);
+	const isOpen = options.isOpen ?? uncontrolled;
+	const controlled = options.isOpen !== undefined;
 	const openRef = useRef(false);
 	const anchor = useRef<{ current: any }>({ current: null });
-	const triggerEl = useRef<any>(null);
+	openRef.current = isOpen;
 	const onShowRef = useRef(options.onShow);
 	onShowRef.current = options.onShow;
 	const onHideRef = useRef(options.onHide);
@@ -98,34 +100,25 @@ export function useLayer<O extends LayerOptions>(
 
 	const show = useCallback(() => {
 		if (openRef.current) return;
-		openRef.current = true;
-		setIsOpen(true);
+		if (!controlled) { openRef.current = true; setIsOpen(true); }
 		onShowRef.current?.();
-	}, []);
+	}, [controlled]);
 
 	const hide = useCallback(() => {
 		if (!openRef.current) return;
-		openRef.current = false;
-		setIsOpen(false);
+		if (!controlled) { openRef.current = false; setIsOpen(false); }
 		onHideRef.current?.();
-	}, []);
+	}, [controlled]);
 
 
-	const ref = useCallback(
-		(el: any) => {
-			const prev = triggerEl.current;
-			if (prev && prev !== el && prev.style) {
-				prev.style.anchorName = '';
-			}
+	const releaseAnchor = useRef<(() => void) | null>(null);
+	const ref = useCallback((el: any) => {
+		releaseAnchor.current?.();
+		anchor.current.current = el;
+		releaseAnchor.current = el?.style ? ownAnchorName(el, anchorId) : null;
+	}, [anchorId]);
 
-			triggerEl.current = el;
-			anchor.current.current = el;
-			if (el?.style) {
-				el.style.anchorName = anchorId;
-			}
-		},
-		[anchorId],
-	);
+	useEffect(() => () => releaseAnchor.current?.(), []);
 
 	const render = useCallback(
 		(children: any, props?: ContextRenderProps | FixedRenderProps) => {
@@ -169,7 +162,7 @@ export function useLayer<O extends LayerOptions>(
 						dismissOnEscape={options.dismissOnEscape}
 						onDismiss={hide}
 						className={p.className}
-						style={p.style}
+						style={{ positionAnchor: anchorId, ...p.style }}
 						web={web}
 					>
 						{children}
@@ -177,18 +170,16 @@ export function useLayer<O extends LayerOptions>(
 				);
 			}
 
-			const anchorEl = anchor.current.current;
-			const rtl = anchorEl?.nodeType === 1 && getComputedStyle(anchorEl).direction === 'rtl';
 			return (
 				<Popover
 					open={isOpen}
+					layerPosition={p}
 					anchor={anchor.current}
-					placement={resolveLayerSide(p.placement, rtl)}
-					alignment={p.alignment ?? 'center'}
-					offset={layerOffset(p.offset)}
+					offset={p.offset ?? 0}
 					dismissOnOutsideTap={options.lightDismiss === true}
 					dismissOnEscape={options.dismissOnEscape ?? options.lightDismiss === true}
 					onDismiss={hide}
+					finalFocusRef={p.finalFocusRef}
 					className={p.className}
 					style={p.style}
 					web={web}

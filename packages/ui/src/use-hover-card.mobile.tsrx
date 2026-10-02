@@ -1,15 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useId, useRef, useState } from 'octane';
-import type { HoverCardOptions, HoverCardReturn, PopoverPlacement } from './props';
-import { Popover } from './Popover';
+import { useCallback, useRef, useState } from 'octane';
+import type { HoverCardOptions, HoverCardReturn } from './props';
+import { useLayer } from './use-layer';
 import { cx } from './cx';
-
-const PLACEMENT: Record<string, PopoverPlacement> = {
-	above: 'top',
-	below: 'bottom',
-	start: 'left',
-	end: 'right',
-};
 
 /**
  * Touch-leaf of the hover card hook. There is no hover or focus traversal
@@ -25,10 +18,10 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 	const controlled = options.isOpen !== undefined;
 	const [uncontrolled, setUncontrolled] = useState(options.isDefaultOpen === true);
 	const open = controlled ? options.isOpen === true : uncontrolled;
-	const id = useId();
+
 	const positionEl = useRef<any>(null);
 	const interactionEl = useRef<any>(null);
-	const anchorObj = useRef<{ current: any }>({ current: null });
+
 	const onShow = useRef(options.onShow);
 	onShow.current = options.onShow;
 	const onHide = useRef(options.onHide);
@@ -89,10 +82,13 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 		[isEnabled, touchTrigger, controlled, options.isOpen],
 	);
 
+	const layer = useLayer({ mode: 'context', isOpen: open, lightDismiss: true, dismissOnEscape: true, onHide: hide });
+	const id = layer.id;
+
 	const positionRef = useCallback((el: any) => {
 		positionEl.current = el;
-		anchorObj.current.current = el;
-	}, []);
+		layer.ref(el);
+	}, [layer.ref]);
 
 	const ref = useCallback(
 		(el: any) => {
@@ -102,37 +98,24 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 		[positionRef, interactionRef],
 	);
 
-	const renderHoverCard = useCallback(
-		(children: any, props?: Record<string, any>) => {
-			return (
-				<Popover
-					open={open}
-					anchor={anchorObj.current}
-					placement={PLACEMENT[props?.placement ?? options.placement ?? 'above'] ?? 'top'}
-					alignment={(props?.alignment ?? options.alignment ?? 'center') as any}
-					dismissOnOutsideTap={true}
-					onDismiss={hide}
-					className={cx('vx-hovercard', props?.className)}
-					style={props?.style}
-				>
-					<flexboxlayout
+
+	const renderHoverCard = useCallback((children: any, props?: Record<string, any>) => { return layer.render(
+		<flexboxlayout
 						flexDirection="column"
 						className="vx-hovercard-content"
 						accessibilityLabel={options.label}
 					>
 						{children}
-					</flexboxlayout>
-				</Popover>
-			);
-		},
-		[open, options.placement, options.alignment, options.label, hide],
-	);
+					</flexboxlayout>,
+		{ placement: props?.placement ?? options.placement ?? 'above', alignment: props?.alignment ?? options.alignment ?? 'center', offset: 8,
+			className: cx('vx-hovercard', props?.className), style: props?.style },
+	); }, [layer.render, options.placement, options.alignment, options.label]);
 
 	return {
 		ref,
 		positionRef,
 		interactionRef,
-		anchorId: id,
+		anchorId: layer.anchorId,
 		id,
 		describedBy: id,
 		isOpen: open,

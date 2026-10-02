@@ -95,7 +95,7 @@ export function PackedToggle(props: { packed: boolean; onChange: (value: boolean
 | Platform modal dialog                  | —                                                                    | `UIModal` / `openModal` (`ui/ios`)                               | `MaterialDialog` / `openModal` (`ui/android`)                                       |
 | Edge-swipe drawer                      | `Drawer` (self-drawn, no edge swipe)                                 | `SideDrawer` (`ui/ios`)                                          | `DrawerLayout` (`ui/android`)                                                       |
 | OS switch / slider / spinner / tab bar | shared self-drawn set                                                | `UISwitch` / `UISlider` / `UIActivityIndicatorView` / `UITabBar` | `MaterialSwitch` / `SeekBar` / `CircularProgressIndicator` / `BottomNavigationView` |
-| Hover interactions                     | `HoverCard`, `Tooltip` (shared; macOS = `NSPopover` via host bridge) | `HoverCard` opens on tap; `Tooltip` passes through               | `HoverCard` opens on tap; `Tooltip` passes through                                  |
+| Hover interactions                     | `HoverCard`, `Tooltip` (shared; macOS HoverCard = in-window layer via host bridge) | `HoverCard` opens on tap; `Tooltip` passes through               | `HoverCard` opens on tap; `Tooltip` passes through                                  |
 | Liquid glass                           | —                                                                    | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)                | —                                                                                   |
 
 `ui/ios` and `ui/android` resolve only in native builds; `ui/web` only in

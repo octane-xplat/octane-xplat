@@ -113,6 +113,7 @@
 		"test:native": "node --test tests/animated-value.test.mjs tests/tap-to-blur.ios.test.mjs && vitest run --config vitest.native.config.mts",
 		"typegen": "tsrx-typegen --target ui",
 		"pack:check": "tsrx-typegen --pack-check",
+		"test:layer:web": "node --test tests/layer-position.web.mjs",
 		"test:macos": "node tests/macos-barrel.mjs && node tests/packed-consumer.mjs --macos-only"
 	},
 	"devDependencies": {

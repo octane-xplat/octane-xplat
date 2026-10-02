@@ -7,7 +7,7 @@ import type { UniversalComponent } from 'octane/universal';
 import type { PopoverProps } from './props';
 import { applyNativeProps } from './platformProps';
 import { cx } from './cx';
-import { positionPopover, type PopoverPosition } from './popover-position';
+import { layerOffset, nativeLayerRTL, positionPopover, resolveLayerAlignment, resolveLayerSide, type PopoverPosition } from './popover-position';
 import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
@@ -25,6 +25,8 @@ function PopoverLayer(props: PopoverProps & { anchorView: any; layerDepth: numbe
 		const anchorSize = anchor.getActualSize();
 		const panelSize = panelRef.current?.getActualSize?.();
 		if (!point || !anchorSize) return;
+		const rtl = nativeLayerRTL(anchor);
+		const side = props.layerPosition ? resolveLayerSide(props.layerPosition.placement, rtl) : props.placement ?? 'bottom';
 		const next = positionPopover(
 			{
 				left: point.x,
@@ -39,9 +41,9 @@ function PopoverLayer(props: PopoverProps & { anchorView: any; layerDepth: numbe
 				width: coordinateRoot.getActualSize().width,
 				height: coordinateRoot.getActualSize().height,
 			},
-			props.placement ?? 'bottom',
-			props.offset ?? 8,
-			props.alignment ?? 'start',
+			side,
+			layerOffset(props.offset ?? 8),
+			props.layerPosition ? resolveLayerAlignment(props.layerPosition.alignment, side, rtl) : props.alignment ?? 'start',
 		);
 
 		const insets = isIOS ? panelRef.current?.parent?.getSafeAreaInsets?.() : undefined;
@@ -84,7 +86,7 @@ function PopoverLayer(props: PopoverProps & { anchorView: any; layerDepth: numbe
 				listener.view.off?.(listener.event, listener.handler);
 			}
 		};
-	}, [props.open, props.anchorView, props.placement, props.offset, props.alignment, props.children, props.style]);
+	}, [props.layerPosition, props.open, props.anchorView, props.placement, props.offset, props.alignment, props.children, props.style]);
 
 	useEffect(() => {
 		if (position) {
@@ -168,7 +170,7 @@ export function Popover(props: PopoverProps) @{
 		shown.current = { host, root, lifetime };
 		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor, layerDepth: dismissal.depth, onDismiss: () => { if (dismissal.shouldClose()) dismiss.current?.(); } });
 		lifetime.open();
-	}, [props.open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
+	}, [props.anchor?.current, props.layerPosition, props.open, props.children, props.placement, props.offset, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 

@@ -1,50 +1,39 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx';
-import { useCallback, useEffect, useId, useRef, useState } from 'octane';
-import type { HoverCardOptions, HoverCardReturn, PopoverPlacement } from './props';
+import { useLayer } from './use-layer';
+import { useCallback, useEffect, useRef, useState } from 'octane';
+import type { HoverCardOptions, HoverCardReturn } from './props';
 import { cx } from './cx';
 
 const host = () => (globalThis as any).__xplatAppKit ?? {};
 
-const PLACEMENT: Record<string, PopoverPlacement> = {
-	above: 'top',
-	below: 'bottom',
-	start: 'left',
-	end: 'right',
-};
+function HoverCardPanel(props: { body: any; enter: () => void; exit: () => void }) @{
+	const view = useRef<any>(null);
+	useEffect(() => host().observeHover?.(view.current, { enter: props.enter, exit: props.exit }), [props.enter, props.exit]);
 
-function HoverCardPanel(props: { body?: any; className?: any; style?: any; layerDepth?: number }) @{
-	<flexboxlayout
-		flexDirection="column"
-		className={cx('vx-hovercard', props.className)}
-		style={props.style}
-	>
-		<LayerDepthProvider value={props.layerDepth ?? 0}>{props.body}</LayerDepthProvider>
-	</flexboxlayout>
+	<flexboxlayout ref={view} flexDirection="column" className="vx-hovercard-content">{props.body}</flexboxlayout>
 }
 
 /**
  * Default (macOS) leaf of the hover-card hook — the AppKit host bridge
  * supplies real pointer intent (`observeHover` tracking areas) and the
- * card mounts as an anchored `showAnchoredPopup` (NSPopover-kind surface)
+ * card mounts through the in-window useLayer primitive
  * in its own root. iOS/Android resolve the
  * `.mobile` leaf instead.
  */
-export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
+export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 	const isEnabled = options.isEnabled ?? true;
 	const delay = Math.max(0, options.delay ?? 300);
 	const hideDelay = Math.max(0, options.hideDelay ?? 200);
 	const controlled = options.isOpen !== undefined;
 	const [uncontrolled, setUncontrolled] = useState(options.isDefaultOpen === true);
 	const open = controlled ? options.isOpen === true : uncontrolled;
-	const id = useId();
+
 	const positionEl = useRef<any>(null);
 	const interactionEl = useRef<any>(null);
 	const detachHover = useRef<(() => void) | null>(null);
-	const cardContent = useRef<any>(null);
-	const cardChrome = useRef<Record<string, any> | undefined>(undefined);
-	const popup = useRef<any>(null);
-	const detachCardHover = useRef<(() => void) | null>(null);
+
+
+
 	const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const onShow = useRef(options.onShow);
@@ -59,68 +48,22 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		closeTimer.current = null;
 	}, []);
 
-	const disposePopup = () => {
-		detachCardHover.current?.();
-		detachCardHover.current = null;
-		const current = popup.current;
-		popup.current = null;
-		current?.close?.();
-	};
-
-	const dismissal = useLayerDismissal({ get active() { return open }, isPresent: () => !!popup.current && !popup.current.closed, dismiss: () => closeNow() });
-
+	const requestedShow = useRef(false);
 	const closeNow = useCallback(() => {
 		clearTimers();
-
-		if (!controlled) {
-			disposePopup();
-			setUncontrolled(false);
-		}
-
+		if (!controlled) setUncontrolled(false);
 		onHide.current?.();
 	}, [clearTimers, controlled]);
 
 	const openNow = useCallback(() => {
-		if (!isEnabled || popup.current) return;
-		const view = positionEl.current;
-		const showAnchored = host().showAnchoredPopup;
-		if (!view || typeof showAnchored !== 'function') return;
-		popup.current = showAnchored({
-			anchor: view,
-			placement: PLACEMENT[options.placement ?? 'above'] ?? 'top',
-			onClose: () => {
-				if (!popup.current) return;
-				const report = dismissal.shouldClose(true);
-				popup.current = null;
-				detachCardHover.current?.();
-				detachCardHover.current = null;
-				clearTimers();
-				if (!controlled) setUncontrolled(false);
-				if (report) onHide.current?.();
-			},
-			component: HoverCardPanel,
-			props: {
-				body: cardContent.current,
-				layerDepth: dismissal.depth,
-				className: cardChrome.current?.className,
-				style: cardChrome.current?.style,
-			},
-		});
-
-		if (popup.current?.contentView && typeof host().observeHover === 'function') {
-			detachCardHover.current = host().observeHover(popup.current.contentView, {
-				enter: clearTimers,
-				exit: () => {
-					clearTimers();
-					closeTimer.current = setTimeout(closeNow, hideDelay);
-				},
-			});
-		}
-
+		if (!isEnabled || open || !positionEl.current || typeof host().showLayer !== 'function') return;
+		requestedShow.current = true;
 		if (!controlled) setUncontrolled(true);
 		onShow.current?.();
-	}, [isEnabled, controlled, options.placement, clearTimers, hideDelay, closeNow]);
+	}, [isEnabled, controlled, open]);
 
+	const layer = useLayer({ mode: 'context', isOpen: open && isEnabled, dismissOnEscape: true, lightDismiss: true, onHide: closeNow });
+	const id = layer.id;
 	const scheduleShow = useCallback(() => {
 		if (!isEnabled || options.isOpen === false) return;
 		clearTimers();
@@ -139,9 +82,15 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		}, hideDelay);
 	}, [options.isOpen, clearTimers, hideDelay, closeNow]);
 
+	const scheduleCardHide = useCallback(() => {
+		clearTimers();
+		closeTimer.current = setTimeout(closeNow, hideDelay);
+	}, [clearTimers, closeNow, hideDelay]);
+
 	const positionRef = useCallback((el: any) => {
 		positionEl.current = el;
-	}, []);
+		layer.ref(el);
+	}, [layer.ref]);
 
 	const interactionRef = useCallback(
 		(el: any) => {
@@ -174,47 +123,26 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 		[positionRef, interactionRef],
 	);
 
-	// Controlled open drives the popup directly.
 	useEffect(() => {
-		if (options.isOpen === true) {
-			openNow();
-		} else if (options.isOpen === false) {
-			clearTimers();
-			disposePopup();
+		if (open && isEnabled && typeof host().showLayer === 'function') {
+			if (!requestedShow.current) onShow.current?.();
+			requestedShow.current = false;
 		}
-	}, [options.isOpen, openNow, closeNow]);
+	}, [open, isEnabled]);
 
-	useEffect(() => {
-		if (options.isDefaultOpen === true && !controlled) {
-			openNow();
-		}
-		// eslint-disable-next-line -- mount-only
-	}, []);
-
-	useEffect(
-		() => () => {
-			clearTimers();
-			detachHover.current?.();
-			detachCardHover.current?.();
-			popup.current?.close?.();
-			popup.current = null;
-		},
-		[clearTimers],
-	);
-
-	const renderHoverCard = useCallback((children: any, props?: Record<string, any>) => {
-		cardContent.current = children;
-		cardChrome.current = props;
-		// The panel mounts imperatively through the host bridge on open —
-		// nothing lands in the declaring tree.
-		return null;
-	}, []);
+	useEffect(() => { if (options.isOpen === false) clearTimers(); }, [options.isOpen, clearTimers]);
+	useEffect(() => () => { clearTimers(); detachHover.current?.(); }, [clearTimers]);
+	const renderHoverCard = useCallback((children: any, props?: Record<string, any>) => { return layer.render(
+		<HoverCardPanel body={children} enter={clearTimers} exit={scheduleCardHide} />,
+		{ placement: props?.placement ?? options.placement ?? 'above', alignment: props?.alignment ?? options.alignment ?? 'center', offset: 8,
+			className: cx('vx-hovercard', props?.className), style: props?.style, accessibilityLabel: options.label },
+	); }, [layer.render, options.placement, options.alignment, options.label, scheduleCardHide, clearTimers]);
 
 	return {
 		ref,
 		positionRef,
 		interactionRef,
-		anchorId: id,
+		anchorId: layer.anchorId,
 		id,
 		describedBy: id,
 		isOpen: open,

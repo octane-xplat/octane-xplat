@@ -5,6 +5,7 @@ import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { dispatchLayerKey } from './layer-stack'
 vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 import { Popover } from './Popover.macos.tsrx'
+vi.mock('./use-layer', () => import('./use-layer.tsrx'))
 import { useHoverCard } from './use-hover-card.tsrx'
 
 function CardProbe(props: { open: boolean; hide: () => void }) @{
@@ -108,8 +109,8 @@ describe('portable cross-root layer ownership', () => {
 
 	it('controlled AppKit hover-card requests retain the popup until accepted', async () => {
 		const close = vi.fn(), hide = vi.fn(), updated = vi.fn()
-		const show = vi.fn(() => ({ close }))
-		vi.stubGlobal('__xplatAppKit', { showAnchoredPopup: show })
+		const show = vi.fn(() => ({ close, update: vi.fn() }))
+		vi.stubGlobal('__xplatAppKit', { showLayer: show })
 		const root = freshRoot()
 		try {
 			root.render(CardProbe as any, { open: true, hide })

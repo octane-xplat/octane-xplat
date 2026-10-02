@@ -8,32 +8,46 @@ Audited 2026-10-02 against Astryx core 0.6.4 at [ebd939b](https://github.com/fac
 
 The component families are broadly represented, including Chat and NavMenu (families of parts rather than components named Chat or NavMenu), Resizable (a hook and handle), and FileInput (in the files leaf). The remaining differences are mostly composition APIs, provider/hooks, and behavioral contracts. Do not add aliases solely to make this table green: an alias can conceal different state ownership or interaction behavior.
 
-| Priority | Finding                                                                                                                            | Next action                                                                                                                                                                                                                                                                                                                                      |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| P1       | Layer dismissal used independent Escape handlers; the bounded nested-layer task now shares an internal registry and depth provider. | Dialog, Popover-backed menus/cards, useLayer and Tooltip now share Escape ownership. Native popup roots receive explicit depth. This does not export Astryx hook names or migrate every other surface.                                                                                                                                                                                                        |
-| P1       | CommandPalette, Selector/MultiSelector, and Table have missing compositional parts/hooks.                                          | Use the [palette](astryx-parity-commandpalette.md), [selection](astryx-parity-select.md), and [table](astryx-parity-table.md) audits and their follow-up plans. The [date-input audit](astryx-parity-date-inputs.md) also records date-family contract and interaction gaps. Their findings are baseline records, not current pass/fail results. |
-| P1       | macOS useLayer stored new children but did not update its open popup root.                                                         | Fixed in this change by forwarding render content and surface props after commit. The host bridge already supports update(props).                                                                                                                                                                                                                |
-| P2       | ContextMenu/DropdownMenu and Breadcrumbs expose fewer menu parts than Astryx.                                                      | Audit checkbox/radio/submenu state, focus, and dismissal as one family rather than adding names individually.                                                                                                                                                                                                                                    |
-| P2       | SizeContext and InteractiveRoleContext have no public matching providers/hooks.                                                    | Audit actual inherited size and interactive-role behavior before deciding whether public providers are needed.                                                                                                                                                                                                                                   |
-| P2       | Layer contract is portable but not identical to Astryx.                                                                            | Keep platform positioning limits explicit; see below.                                                                                                                                                                                                                                                                                            |
+| Priority | Finding                                                                                                                             | Next action                                                                                                                                                                                                                                                                                                                                      |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| P1       | Layer dismissal used independent Escape handlers; the bounded nested-layer task now shares an internal registry and depth provider. | Dialog, Popover-backed menus/cards, useLayer and Tooltip now share Escape ownership. Native popup roots receive explicit depth. This does not export Astryx hook names or migrate every other surface.                                                                                                                                           |
+| P1       | CommandPalette, Selector/MultiSelector, and Table have missing compositional parts/hooks.                                           | Use the [palette](astryx-parity-commandpalette.md), [selection](astryx-parity-select.md), and [table](astryx-parity-table.md) audits and their follow-up plans. The [date-input audit](astryx-parity-date-inputs.md) also records date-family contract and interaction gaps. Their findings are baseline records, not current pass/fail results. |
+| P1       | macOS useLayer stored new children but did not update its open popup root.                                                          | Fixed in this change by forwarding render content and surface props after commit. The host bridge already supports update(props).                                                                                                                                                                                                                |
+| P2       | ContextMenu/DropdownMenu and Breadcrumbs expose fewer menu parts than Astryx.                                                       | Audit checkbox/radio/submenu state, focus, and dismissal as one family rather than adding names individually.                                                                                                                                                                                                                                    |
+| P2       | SizeContext and InteractiveRoleContext have no public matching providers/hooks.                                                     | Audit actual inherited size and interactive-role behavior before deciding whether public providers are needed.                                                                                                                                                                                                                                   |
+| P2       | Layer contract is portable but not identical to Astryx.                                                                             | Keep platform positioning limits explicit; see below.                                                                                                                                                                                                                                                                                            |
 
 ## Shared anchoring and positioning
 
 Web/mobile useLayer already delegates to Popover, which shares positionPopover geometry. Select, typeahead/tokenizer, date inputs, navigation menus, and PowerSearch generally use Popover directly. Their anchor math is therefore shared already; replacing every call with a stateful hook would require preserving each component's controlled visibility and dismissal semantics.
 
-This change routes web Tooltip through useLayer with its existing top/start placement, 8px clearance, delayed hover, focus, Escape, and scroll behavior. HoverCard still uses Popover directly on web/mobile and its own AppKit bridge on macOS. The default use-layer.tsrx is the AppKit leaf; shared consumers import use-layer so platform suffix resolution selects the web or mobile implementation.
+Web Tooltip and web/mobile/macOS HoverCard now route positioning through useLayer.
+The default use-layer.tsrx is the AppKit leaf; consumers import use-layer so
+platform suffix resolution selects the implementation. HoverCard still owns
+its timers, interaction refs, controlled callbacks, and focus policy. useLayer
+accepts controlled visibility so rejected closes retain content and registry
+ownership. The inherited dismissal registry is unchanged.
 
-| Contract             | Web                                                                 | iOS/Android                                                         | macOS/default                                                                                 |
-| -------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Context placement    | Shared measure/flip/clamp math; logical sides read anchor direction | Shared measure/flip/clamp math; start/end currently mean left/right | NSPopover side selected by host                                                               |
-| Alignment and offset | Forwarded to geometry                                               | Forwarded to geometry                                               | Not forwarded to host; no parity claim                                                        |
-| Fixed coordinates    | Viewport px                                                         | Page dips                                                           | Window points, top-left origin                                                                |
-| Custom positioning   | Consumer style in body portal                                       | Consumer style on overlay root                                      | Currently still uses anchored host presentation; not implemented as a custom-position surface |
-| Content updates      | Declarative                                                         | Separate root receives updated props                                | Separate root receives updated props after this fix                                           |
-| Context boundary     | Octane portal                                                       | Separate root                                                       | Separate root                                                                                 |
-| lazyMount            | Accepted; content always mounts only while open                     | Same                                                                | Same                                                                                          |
+| Contract             | Web                                                         | iOS/Android                                                 | macOS/default                                          |
+| -------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ |
+| Context placement    | Shared measure/flip/clamp geometry                          | Same                                                        | Same via an in-window NSView                           |
+| Logical RTL          | Anchor computed direction; horizontal alignment mirrors     | Effective OS direction, inherited author direction fallback | NSView userInterfaceLayoutDirection                    |
+| Alignment and offset | Browser-resolved CSS lengths in anchor context              | Geometry; numbers or px strings only                        | Geometry; numbers or px strings only                   |
+| Fixed coordinates    | Viewport px                                                 | Page dips                                                   | Window points, top-left origin                         |
+| Custom positioning   | position-anchor wiring, consumer insets, no forced top/left | Consumer left/top on overlay root                           | Numeric left/top window points; invalid values reject  |
+| Anchor ownership     | Adds/removes only its token; other tokens survive           | Ref binding                                                 | Ref binding                                            |
+| Content updates      | Declarative                                                 | Separate root receives updated props                        | Separate root receives content and positioning updates |
+| Context boundary     | Octane portal                                               | Separate root                                               | Separate root                                          |
+| lazyMount            | Accepted; content always mounts only while open             | Same                                                        | Same                                                   |
 
-Astryx's [layer source](https://github.com/facebook/astryx/blob/ebd939b665361a078015377c0dfe50cc3c1d70a4/packages/core/src/Layer/useLayer.tsx) uses browser popovers, CSS anchor positioning, scoped content boundaries, and anchor-name management. Our JS geometry is an intentional platform adaptation. layerOffset currently uses parseFloat: values such as rem, var(), or calc() do not receive real CSS length resolution. Custom web positioning also needs explicit consumer styles; it is not full upstream position-anchor wiring. These remain source-identified limits.
+Astryx's [layer source](https://github.com/facebook/astryx/blob/ebd939b665361a078015377c0dfe50cc3c1d70a4/packages/core/src/Layer/useLayer.tsx)
+uses browser popovers and CSS anchor positioning. Shared JS geometry is the
+portable adaptation and assumes horizontal writing. Custom web anchor() styles
+still require browser CSS anchor support. Native rejects rem/em/var/calc offset
+strings explicitly. AppKit useLayer requires showLayer; the existing
+showAnchoredPopup primitive remains for platform-authentic consumers. The new
+in-window view has no native arrow/animation. Neither object-driver nor geometry
+tests prove physical input, focus traversal, or accessibility parity.
 
 ## Export inventory
 
@@ -258,3 +272,49 @@ Final focused verification for this follow-up:
   spacing/platform/CSS violations). Frozen installation's workspace postinstall
   also failed on ImageCrop's existing removed `bind` usage. These do not count
   as clean repository-wide validation.
+
+## Layer positioning completion
+
+Reconciled on rich-cub base `bbf50a5e91d1fcbbdd760718abd6d90c6454beb7`.
+The live-content fix and shared dismissal registry were already inherited.
+This bounded change retains that registry and routes HoverCard through controlled
+useLayer positioning. Anchor binding owns only its CSS token: replacement and
+unmount preserve consumer tokens. AppKit's new in-window primitive uses shared
+geometry, updates positioning without reopening, and releases observers, mouse
+monitors and roots. Notification flags are shared across overlapping owners and
+restored after the last owner closes. Missing outside-monitor support rejects
+light-dismiss presentation explicitly.
+
+Verification for this completion:
+
+- Web component/geometry suite: **22 tests passed**, including controlled close
+  rejection, inherited nested dismissal/focus behavior, custom insets and
+  anchor-name replacement/unmount ownership.
+- Focused universal object-driver lifecycle suite: **36 tests passed**, including
+  repeated show/hide before effect flush, live content/position updates,
+  unavailable-host behavior and controlled AppKit HoverCard rejection.
+- AppKit primitive and Chromium CSS-length tests: **6 tests passed**. The host
+  tests use mocked AppKit objects; the CSS-length test uses real Chromium. Run
+  `pnpm --filter @octane-xplat/ui test:layer:web` from this repository for the
+  browser regression; it uses the web harness's existing browser tools.
+- Nonvisual isolated probes: Chromium **6 assertions passed** (em/rem/var/calc,
+  live variable changes and custom x); AppKit/JavaScriptCore **7 assertions
+  passed** (start/end alignment, clearance and updates, custom x/y and cleanup).
+  These inspect numeric frames and call layer methods; they do not prove
+  physical pointer input, OS hit-testing or focus traversal. No screenshots or
+  visual analysis were used.
+- UI web/native builds, declaration generation, native-dist import guard,
+  macOS app typecheck, docs production build, recipe links and suffix-resolution
+  checks passed.
+- Unrelated failures: frozen installation's workspace postinstall fails on
+  ImageCrop's removed `bind` usage. Web/mobile app typechecks fail on existing
+  demo SearchSource/Video, motion and table-example types. Repository lint and
+  the legacy no-DOM text sweep fail on existing spacing/platform/CSS issues and
+  text matches. The maintained layer example retains its pre-existing raw
+  RootLayout vocabulary diagnostic; this change only adds explicit alignment.
+
+The affected recipe is shared-overlays, AC2/AC3/AC5 and new AC7. The guide,
+platform limits, maintained layer example and regression references are
+reconciled. Local Silo records coverage separately from target evidence.
+iOS/Android runtime RTL, OS input and focus traversal remain unverified;
+vertical writing modes and native non-px CSS lengths remain explicit boundaries.

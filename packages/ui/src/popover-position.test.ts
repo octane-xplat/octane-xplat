@@ -38,6 +38,31 @@ describe('layerOffset', () => {
 		expect(layerOffset(undefined)).toBe(0)
 		expect(layerOffset(12)).toBe(12)
 		expect(layerOffset('8px')).toBe(8)
-		expect(layerOffset('nonsense')).toBe(0)
+		expect(() => layerOffset('nonsense')).toThrow(TypeError)
+		expect(() => layerOffset('2rem')).toThrow(TypeError)
+	})
+})
+
+describe('layer logical geometry', () => {
+	it('mirrors horizontal alignment without reversing vertical alignment', async () => {
+		const { resolveLayerAlignment, nativeLayerRTL } = await import('./popover-position')
+		expect(resolveLayerAlignment('start', 'bottom', true)).toBe('end')
+		expect(resolveLayerAlignment('end', 'top', true)).toBe('start')
+		expect(resolveLayerAlignment('start', 'right', true)).toBe('start')
+		expect(nativeLayerRTL({ android: { getLayoutDirection: () => 1 } })).toBe(true)
+		expect(nativeLayerRTL({ ios: { effectiveUserInterfaceLayoutDirection: 1 } })).toBe(true)
+		expect(nativeLayerRTL({ parent: { style: { direction: 'rtl' } } })).toBe(true)
+	})
+
+	it('preserves offset when flipping and clamps oversized surfaces', () => {
+		const viewport = { left: 0, top: 0, width: 400, height: 300 }
+		const anchor = { left: 120, top: 250, width: 80, height: 30 }
+		expect(
+			positionPopover(anchor, { width: 60, height: 80 }, viewport, 'bottom', 12, 'end'),
+		).toEqual({ left: 140, top: 158, placement: 'top' })
+
+		expect(positionPopover(anchor, { width: 500, height: 400 }, viewport, 'bottom', 12).left).toBe(
+			0,
+		)
 	})
 })

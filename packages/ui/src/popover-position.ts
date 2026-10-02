@@ -83,7 +83,7 @@ export function positionPopover(
 
 /** Resolve a `useLayer` placement — logical (`above`/`below`/`start`/`end`)
  *  or physical — to a physical side for `positionPopover`. `rtl` mirrors the
- *  logical inline sides; native callers pass false (see LayerPlacement). */
+ *  logical inline sides. */
 export function resolveLayerSide(
 	placement: LayerPlacement | PopoverPlacement | undefined,
 	rtl = false,
@@ -105,12 +105,53 @@ export function resolveLayerSide(
 }
 
 /** Normalize a `useLayer` render-prop offset to a dip clearance. A number is
- *  taken as-is; a CSS length keeps its px value. Defaults to flush (0). */
+ *  taken as-is; native accepts numeric or px strings and rejects other CSS units. Defaults to flush (0). */
 export function layerOffset(offset: number | string | undefined): number {
 	if (offset == null) {
 		return 0
 	}
 
+	if (typeof offset === 'string' && !/^\s*[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:px)?\s*$/.test(offset)) {
+		throw new TypeError('Native layer offset requires a number or px length')
+	}
+
 	const value = typeof offset === 'number' ? offset : parseFloat(offset)
 	return Number.isFinite(value) ? Math.max(0, value) : 0
+}
+
+/** Horizontal cross-axis alignment follows the anchor's inline direction. */
+export function resolveLayerAlignment(
+	alignment: PopoverAlignment = 'center',
+	side: PopoverPlacement,
+	rtl = false,
+): PopoverAlignment {
+	return rtl && (side === 'top' || side === 'bottom') && alignment !== 'center'
+		? alignment === 'start'
+			? 'end'
+			: 'start'
+		: alignment
+}
+
+/** Read the effective OS direction, with inherited author direction as a fallback. */
+export function nativeLayerRTL(view: any): boolean {
+	if (typeof view?.android?.getLayoutDirection === 'function') {
+		return view.android.getLayoutDirection() === 1
+	}
+
+	if (view?.ios?.effectiveUserInterfaceLayoutDirection != null) {
+		return view.ios.effectiveUserInterfaceLayoutDirection === 1
+	}
+
+	if (view?.userInterfaceLayoutDirection != null) {
+		return view.userInterfaceLayoutDirection === 1
+	}
+
+	for (let current = view; current; current = current.parent ?? current.superview) {
+		const direction = current.direction ?? current.style?.direction
+		if (direction === 'rtl' || direction === 'ltr') {
+			return direction === 'rtl'
+		}
+	}
+
+	return false
 }

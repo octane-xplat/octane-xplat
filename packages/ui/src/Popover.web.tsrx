@@ -3,7 +3,8 @@ import { createPortal, useEffect, useRef, useState } from 'octane';
 import { useThemeScheme } from './theme/theme-scheme';
 import type { PopoverProps } from './props';
 import { cx } from './cx';
-import { positionPopover } from './popover-position';
+import { resolveCSSLayerOffset } from './layer-position.web';
+import { positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position';
 
 type Position = { left: number; top: number };
 
@@ -18,6 +19,8 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 		if (!anchor?.getBoundingClientRect) return;
 		const anchorRect = anchor.getBoundingClientRect();
 		const panelRect = panelRef.current?.getBoundingClientRect?.();
+		const rtl = getComputedStyle(anchor).direction === 'rtl';
+		const side = props.layerPosition ? resolveLayerSide(props.layerPosition.placement, rtl) : props.placement ?? 'bottom';
 		const placed = positionPopover(
 			{
 				left: anchorRect.left,
@@ -27,9 +30,9 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 			},
 			{ width: panelRect?.width ?? 0, height: panelRect?.height ?? 0 },
 			{ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight },
-			props.placement ?? 'bottom',
-			props.offset ?? 8,
-			props.alignment ?? 'start',
+			side,
+			resolveCSSLayerOffset(props.offset ?? 8, anchor),
+			props.layerPosition ? resolveLayerAlignment(props.layerPosition.alignment, side, rtl) : props.alignment ?? 'start',
 		);
 
 		setPosition((current) =>
@@ -53,12 +56,19 @@ function PopoverLayer(props: PopoverProps & { anchorElement: any }) @{
 			: new ResizeObserver(update);
 
 		if (observer && panelRef.current) observer.observe(panelRef.current);
+		if (observer) observer.observe(props.anchorElement);
+		const writingContext = typeof MutationObserver === 'undefined' ? null : new MutationObserver(update);
+		for (let element = props.anchorElement; element; element = element.parentElement) {
+			writingContext?.observe(element, { attributes: true, attributeFilter: ['style', 'class', 'dir'] });
+		}
+
 		return () => {
 			window.removeEventListener('resize', update);
 			window.removeEventListener('scroll', update, true);
 			observer?.disconnect();
+			writingContext?.disconnect();
 		};
-	}, [props.open, props.anchorElement, props.placement, props.offset, props.alignment, props.children, position === null]);
+	}, [props.layerPosition, props.open, props.anchorElement, props.placement, props.offset, props.alignment, props.children, position === null]);
 
 	const stopPointer = (event: PointerEvent) => event.stopPropagation();
 	const dismiss = (event: MouseEvent) => {
@@ -106,7 +116,7 @@ export function Popover(props: PopoverProps) @{
 	useEffect(() => {
 		const next = props.anchor?.current ?? null;
 		if (next !== anchorElement) setAnchorElement(next);
-	}, [props.anchor, props.open, anchorElement]);
+	}, [props.anchor, props.anchor?.current, props.open, anchorElement]);
 
 	@if (props.open && anchorElement) {
 		<PopoverLayer {...props} anchorElement={anchorElement} />
