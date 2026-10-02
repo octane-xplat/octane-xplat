@@ -36,7 +36,8 @@ Use `xplatNative` from `@octane-xplat/cli/vite` for app setup. Declare on the na
 registry entry (or wrap `nativeScriptRenderers` in our own config helper):
 
 ```ts
-validation: {
+// Historical renderer-entry fragment, expressed as a complete value.
+const validation = {
   forbiddenGlobals: ['document', 'window', 'localStorage', 'navigator'], // fetch is available on native
   forbiddenImports: ['octane', 'octane/hydration', /^octane\/react/],               // DOM runtime + react compat
   textHosts: ['label', 'button', 'formattedstring', 'span', 'textfield', 'textview'],
@@ -71,6 +72,10 @@ The starter runs `tsrx-tsc --noEmit` against `tsconfig.json` and
 `tsconfig.native.json` via `pnpm typecheck` — shared
 files must pass under both `jsxImportSource`s. This is the single most
 valuable CI signal for "the seams held."
+
+```sh
+pnpm typecheck
+```
 
 ## Component test strategy
 

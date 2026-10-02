@@ -32,6 +32,13 @@ Import `Card` without naming a platform, for example
 tries the most specific version first. “Unsuffixed” means a file without a
 platform name, such as `Card.tsrx`.
 
+```tsx
+import { Card } from './Card'
+
+// Each Card variant exports the same component and props.
+export function Screen() { return <Card /> }
+```
+
 A **DOM frontend** uses browser views, either in a browser or in a WebView
 (a web page inside an app). These use `.web` files. Native frontends use
 their platform's own views. The selection order is:
@@ -93,6 +100,10 @@ The route generator follows the same variants. It writes
 the shared `routes.gen.types.ts`. iOS and Android route files can override a
 `.mobile` route; macOS routes can override the unsuffixed route.
 
+```sh
+pnpm xplat routes
+```
+
 ## TypeScript
 
 TypeScript checks that the selected component accepts the options your screen
@@ -110,6 +121,10 @@ Vite resolver orders the active OS first at build time. The macOS config uses
 `.macos` before the unsuffixed fallback for AppKit. Keep imports extensionless
 so the resolver can select the right file.
 
+```json
+{ "compilerOptions": { "moduleSuffixes": [".web", ""] } }
+```
+
 Plain `tsc` doesn't probe `.tsrx` for extensionless specifiers — the suffix
 probe uses a hardcoded extension table (`.ts`/`.tsx`/`.d.ts`/`.js`/`.jsx`).
 This repo's `@tsrx/typescript-plugin` patch enables Volar's
@@ -124,6 +139,11 @@ Vite resolver selects the `.tsrx` component directly at runtime either way.
 The upstream form of the fix is [tsrx-org/tsrx#971](https://github.com/tsrx-org/tsrx/pull/971),
 still open — the shims stay supported until that or an equivalent lands in a
 released plugin.
+
+```ts
+// Card.mobile.ts — a shim for an unpatched TypeScript lane.
+export { Card } from './Card.mobile.tsrx'
+```
 
 For `ns build`'s type check (`@nativescript/vite` ≥ 8.0.12, NativeScript PR
 #11450): the checker generates its own `moduleSuffixes`, overriding the

@@ -118,6 +118,12 @@ declaration supplies the JS caller's type. Keep them compatible. This package
 defines only a macOS entry; a cross-target package must also provide the other
 platform entries it supports.
 
+```ts
+import { add } from '@example/native-math'
+
+console.log(add(19, 23)) // 42
+```
+
 ## Choose a language and public boundary
 
 | Sources     | Public API used for metadata                              | JS call in the maintained fixture |
@@ -148,6 +154,10 @@ A Zig boundary can be as small as
 `int xplat_zig_value(void);` in its public header. Each selected Zig source is an
 object-file entry point; imported Zig modules can remain unselected support
 files by using an explicit `sources` list.
+
+```zig
+export fn xplat_zig_value() c_int { return 44; }
+```
 
 The JS namespace is process-wide. Prefix C symbols and ObjC class names to avoid
 collisions with other leaves and SDK APIs. Duplicate exports across leaves and
@@ -215,6 +225,12 @@ preserves the running app. Fixing the input triggers recovery. Restarting resets
 process-local JS and native state; dylibs are not hot-swapped while JS retains
 function pointers. The public `runMacOSDev(appRoot?)` export from
 `@octane-xplat/cli/macos` starts the same runner from an existing Node script.
+
+```js
+import { runMacOSDev } from '@octane-xplat/cli/macos'
+
+await runMacOSDev(process.cwd())
+```
 
 `pnpm xplat build --targets macos` compiles or reuses native artifacts, builds JS,
 and copies the libraries into `Contents/Frameworks`. The bootstrap loads them

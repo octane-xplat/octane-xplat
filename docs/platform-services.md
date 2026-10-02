@@ -14,6 +14,17 @@ item; explain when capture is unavailable.” Use the shared `media` service
 for still capture; a live [camera preview](primitives.md#when-a-screen-needs-more) is a
 separate component and setup.
 
+```ts
+import { media } from '@octane-xplat/media'
+
+// Call from an Attach photo button; the caller owns preview and cleanup.
+export async function attachPhoto() {
+	const image = await media.capturePhoto()
+	if (!image) console.log('No photo attached')
+	return image
+}
+```
+
 Check the interaction on each intended target. **iOS/Android** use the OS
 camera flow; **web on a phone** may offer capture; **desktop web** may open a
 file picker instead. After a successful selection, the trip item should show
@@ -26,6 +37,13 @@ macOS and Windows are not implied by an iOS/Android implementation:
 consult the [target guide](spec.md#choose-your-targets) and
 [known limits](known-limits.md). Sharing is available on macOS through the
 AppKit share picker.
+
+```ts
+import { share } from '@octane-xplat/share'
+
+const result = await share.text('Packing list ready')
+console.log(result)
+```
 
 The capability table below describes web and iOS/Android unless stated
 otherwise. Keep native details in a service or platform-specific file so
@@ -54,6 +72,19 @@ that need a NativeScript plugin live in these packages: `@octane-xplat/share` (`
 `@octane-xplat/secure-storage`, and the `haptics` service in
 `@octane-xplat/haptics`. Each leaf owns its plugin as a real dependency —
 apps do not redeclare it.
+
+```ts
+import { share } from '@octane-xplat/share'
+import { media } from '@octane-xplat/media'
+import { files } from '@octane-xplat/files'
+
+export async function pickAndShare() {
+	const image = await media.pickImage()
+	if (!image) return
+	try { return await share.text(`Selected ${image.name}`) }
+	finally { files.release(image) }
+}
+```
 
 ## Announce a status
 
@@ -100,6 +131,15 @@ channel for calls, replies, events, and capability discovery. The protocol
 types are shared between the frontend and the native JavaScript host; they are
 compile-time contracts, with no runtime schema validator.
 
+```ts
+import { desktopHost } from '@octane-xplat/platform/host/web'
+
+const host = desktopHost()
+if (host && await host.supports('clipboard', 'write')) {
+	await host.clipboard.write('Hello from the webview')
+}
+```
+
 Extend the framework service and event maps with app-owned entries:
 
 ```ts
@@ -128,6 +168,27 @@ and events carry JSON messages; keep service results and event payloads
 serializable. Capability discovery describes availability; it does not
 replace handling a failed service call.
 
+```ts
+// Continue with InvoiceServices and InvoiceEvents above.
+import { createHostClient, createHostDispatcher, type HostTransport, type HostReplyPort } from '@octane-xplat/platform/host'
+
+// The webview adapter supplies transport and port; the host supplies services.
+export function frontend(transport: HostTransport) {
+	const client = createHostClient<InvoiceServices, InvoiceEvents>(transport)
+	const off = client.on('invoices.changed', event => console.log(event.id))
+	return {
+		load: (id: string) => client.call('invoices', 'load', id),
+		capabilities: () => client.capabilities(),
+		dispose: () => { off(); client.dispose() },
+	}
+}
+export function host(services: InvoiceServices, port: HostReplyPort) {
+	const dispatcher = createHostDispatcher<InvoiceServices, InvoiceEvents>(services, port)
+	dispatcher.emit('invoices.changed', { id: 'invoice-42' })
+	return dispatcher // adapter forwards incoming JSON to dispatcher.dispatch(message)
+}
+```
+
 `@octane-xplat/platform/host/web` exposes `desktopHost()`, a typed facade for
 framework-owned services. It returns `null` outside a desktop webview:
 
@@ -136,7 +197,7 @@ import { desktopHost } from '@octane-xplat/platform/host/web'
 
 const host = desktopHost()
 if (host && (await host.supports('secureStorage', 'set'))) {
-	await host.secureStorage.set('session-token', token)
+	await host.secureStorage.set('preferred-language', 'es')
 }
 ```
 
@@ -150,6 +211,16 @@ outbound links, sharing, files, notifications, secure storage, and color scheme
 keep their browser fallbacks outside a desktop host. The synchronous `storage`
 API remains `localStorage` on `.web`; apps needing host persistence can call
 `desktopHost().storage` directly.
+
+```ts
+import { storage } from '@octane-xplat/platform'
+import { desktopHost, desktopHostBootstrap } from '@octane-xplat/platform/host/web'
+
+storage.setString('last-screen', 'trips') // browser storage
+const host = desktopHost()
+if (host) await host.storage.set('last-screen', 'trips') // asynchronous host storage
+console.log(desktopHostBootstrap()?.windowSize)
+```
 
 A macOS WKWebView uses NativeScript in the JavaScriptCore host to implement
 native services; Linux keeps its GJS adapter on the same protocol. A standalone
@@ -182,9 +253,35 @@ permission without ever opening a prompt — a state that would require asking
 the user reports `unsupported`, and `denied` stays `denied`; starting
 `CameraView` instead uses `getUserMedia` to request access for the preview.
 
+```ts
+import { media } from '@octane-xplat/media'
+
+// Run capture from a user action even if the browser cannot query permission.
+export async function webCapture() {
+	const status = await media.ensure('camera')
+	if (status === 'denied') return null
+	return media.capturePhoto()
+}
+```
+
+```ts
+import { permissions } from '@octane-xplat/platform'
+import { media } from '@octane-xplat/media'
+
+console.log(await media.ensure('photos'))
+console.log(await permissions.ensure('camera')) // web: reads permission without prompting
+```
+
 `files.writeText(name, text)` writes a file on native. On web, it starts a
 browser download with the requested name and returns a `FileRef` for the
 download's object URL; it does not write to a local filesystem path.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+const file = await files.writeText('packing.txt', 'Passport\nCharger')
+if (file) console.log(file.name) // web: a download, not a persistent file path
+```
 
 ## Share text and URLs
 
@@ -192,7 +289,7 @@ Use the shared `share` service to offer text or a link to the system's sharing
 options:
 
 ```ts
-import { share } from '@octane-xplat/platform'
+import { share } from '@octane-xplat/share'
 
 const textResult = await share.text('A note to share')
 const linkResult = await share.url('https://example.com', 'Example')
@@ -206,12 +303,29 @@ opened or completed by the target, `copied` means the fallback copied the
 content, and `unavailable` means neither option could be offered. The service
 does not report whether a recipient ultimately received the content.
 
+```ts
+import { share } from '@octane-xplat/share'
+
+const result = await share.url('https://example.com/trips/42', 'Summer trip')
+if (result === 'unavailable') console.log('Sharing unavailable')
+else if (result === 'copied') console.log('Link copied')
+else console.log('Share flow opened')
+```
+
 Camera capture is stills-only — no maintained NativeScript video-capture
 plugin exists, so the contract has no `captureVideo`.
 `width`/`height`/`keepAspectRatio`/`saveToGallery` are native-only
 `capturePhoto` options. Apps calling `capturePhoto` must set
 `NSCameraUsageDescription` — plus `NSPhotoLibraryAddUsageDescription` when
 using `saveToGallery` — in their iOS `Info.plist`.
+
+```ts
+import { media } from '@octane-xplat/media'
+
+// iOS Info.plist needs the usage descriptions described above.
+const image = await media.capturePhoto({ width: 800, height: 600, keepAspectRatio: true, saveToGallery: false })
+// The caller owns image until its preview/upload finishes, then files.release(image).
+```
 
 ## Pick and capture images
 
@@ -231,8 +345,9 @@ if (permission === 'granted') {
 	const image = await media.capturePhoto({ saveToGallery: false })
 	if (image) {
 		try {
-			// Use image.uri for a preview and image.dataUrl for an upload.
-			// Keep the reference alive until both consumers finish.
+			// Upload before releasing the temporary reference.
+			const response = await fetch('/api/photos', { method: 'POST', body: image.dataUrl })
+			if (!response.ok) throw new Error('Photo upload failed')
 		} finally {
 			files.release(image)
 		}
@@ -251,6 +366,19 @@ a granted result alone does not prove the OS capture flow will succeed.
 Picker/conversion failures can reject: catch them and retain the prior selection.
 Failed browser reads allocate no preview URL, and a failed native conversion
 removes its generated temporary JPEG before rejecting.
+
+```ts
+import { media } from '@octane-xplat/media'
+import { files } from '@octane-xplat/files'
+
+export async function readSelection() {
+	try {
+		const images = await media.pickImages()
+		try { return images.map(image => image.dataUrl) }
+		finally { for (const image of images) files.release(image) }
+	} catch { console.log('Could not read the selection'); return [] }
+}
+```
 
 On web, `ensure('camera')` only queries browser permission; it does not request
 access. A `prompt` state or unavailable Permissions API reports `unsupported`,
@@ -275,6 +403,9 @@ advanced integration: it needs a backend (your server) that verifies the
 result, plus registered return URLs. A popup returning successfully does not
 by itself prove someone is signed in.
 
+This fragment assumes your backend provides `options` and `signInUrl`;
+credential verification and callback validation remain app responsibilities.
+
 Two services cover sign-in. On web, `webAuthn` runs the
 WebAuthn ceremony in-page: pass the relying party's JSON options
 (better-auth/SimpleWebAuthn shape, base64url fields) to `create()` or `get()`
@@ -283,12 +414,11 @@ unsupported — a raw platform-authenticator ceremony would require the RP to
 host apple-app-site-association/assetlinks.json, so instead `authSession`
 runs the whole flow on the app's real HTTPS origin inside a system browser:
 
-This fragment assumes your backend provides `options` and `signInUrl`;
-credential verification and callback validation remain app responsibilities.
-
 ```ts
+import type { WebAuthnGetOptionsJSON } from '@octane-xplat/platform'
 import { webAuthn, authSession } from '@octane-xplat/platform'
 
+export async function signIn(options: WebAuthnGetOptionsJSON, signInUrl: string) {
 if (webAuthn.supported) {
 	const credential = await webAuthn.impl?.get(options)
 	// post credential to the RP's verify endpoint
@@ -297,6 +427,7 @@ if (webAuthn.supported) {
 	if (result?.type === 'success') {
 		// Validate the callback and finish the app-owned sign-in exchange.
 	}
+}
 }
 ```
 
@@ -307,12 +438,34 @@ is supported, show an unavailable state or your app's alternative sign-in
 method. Closing a native session should exercise the cancel path; target
 runtime verification remains pending.
 
+```ts
+import { authSession } from '@octane-xplat/platform'
+
+export async function hostedSignIn(url: string) {
+	const result = await authSession.impl?.open(url, { callbackScheme: 'sample' })
+	if (!result) return 'unavailable'
+	if (result.type === 'error') { console.log(result.message); return 'retry' }
+	if (result.type === 'cancel') return 'signed-out'
+	return result.url // app backend must validate and redeem this callback
+}
+```
+
 `authSession` needs no iOS/macOS URL-type configuration — the session intercepts
 `callbackScheme` itself. On Android the app must declare the scheme's
 intent-filter on its main activity, the same registration any incoming deep
 link uses; `androidx.browser` (Custom Tabs) arrives transitively with
 `@octane-xplat/platform`, no app-side declaration. `prefersEphemeralSession`
 asks the iOS/macOS browser for a session without shared cookies.
+
+```ts
+import { authSession } from '@octane-xplat/platform'
+
+// Android: register sample://auth/callback in the activity's intent filter.
+const result = await authSession.impl?.open('https://example.com/authorize', {
+	callbackScheme: 'sample',
+	prefersEphemeralSession: true,
+})
+```
 
 ### Register and check a hosted callback
 
@@ -339,6 +492,20 @@ scheme does not authenticate the user. The maintained
 hosts/paths, duplicate code/state parameters, mismatched state, and reused
 attempts. It requires app-owned cryptographic verification and storage adapters.
 Do not place long-lived session tokens in callback URLs or log their contents.
+
+```ts
+import { authSession } from '@octane-xplat/platform'
+
+// App-owned backend methods validate the URL, state, code, and replay.
+export async function exchange(
+	begin: () => Promise<{ url: string; attempt: string }>,
+	redeem: (attempt: string, callbackUrl: string) => Promise<void>,
+) {
+	const { url, attempt } = await begin()
+	const result = await authSession.impl?.open(url, { callbackScheme: 'sample' })
+	if (result?.type === 'success') await redeem(attempt, result.url)
+}
+```
 
 To check the integration on a configured app:
 
@@ -376,19 +543,39 @@ ceremony, not a replacement: use it when the app wants the platform-authentic
 button + credential, not a web session on its own origin.
 
 ```ts
-import { appleAuth, googleAuth, AppleSignInButton, GoogleSignInButton } from '@octane-xplat/auth'
+import { appleAuth, googleAuth } from '@octane-xplat/auth'
 
-googleAuth.configure({ clientId: '…apps.googleusercontent.com' })
+// Supply your registered client ID and a fresh backend-issued nonce.
+export async function providerSignIn(clientId: string, nonce: string) {
+googleAuth.configure({ clientId })
 const result = await appleAuth.signIn({ scopes: ['email', 'name'], nonce })
 if (result.status === 'success') {
 	// result.credential = { idToken, authorizationCode?, user: { id, email?, name? } }
 	// hand it to your backend — verification stays app-side
+}
+return result
 }
 ```
 
 Every `signIn` resolves a `SignInResult` — `success` carries the credential,
 `cancelled` covers a dismissed sheet/popup, `error` reports the message.
 Session storage and token refresh are deliberately out of scope.
+
+```ts
+import { appleAuth } from '@octane-xplat/auth'
+
+const result = await appleAuth.signIn()
+if (result.status === 'error') console.log(result.message)
+else if (result.status === 'cancelled') console.log('Still signed out')
+else {
+	// Pass to your backend verifier; do not log the credential.
+	const response = await fetch('/api/auth/apple', {
+		method: 'POST', headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(result.credential),
+	})
+	if (!response.ok) throw new Error('Sign-in verification failed')
+}
+```
 
 Per-target setup differs because the providers do:
 
@@ -415,6 +602,16 @@ Apple credential is still `authorized` — iOS and macOS, `'unknown'` elsewhere.
 re-prompts. The plugins (`@nativescript/apple-sign-in`,
 `@nativescript/google-signin`) are real dependencies of the leaf — apps don't
 declare them (decision #51).
+
+```ts
+import { appleAuth, googleAuth } from '@octane-xplat/auth'
+
+export async function checkAccount(userId: string) {
+	const state = await appleAuth.getCredentialState(userId)
+	if (state !== 'authorized') console.log('Ask the user to sign in again')
+	await googleAuth.signOut()
+}
+```
 
 ### macOS provider sign-in
 
@@ -536,8 +733,10 @@ const db = await openDatabase('app.db')
 await db.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
 const rows = await db.select<{ id: number; name: string }>('SELECT * FROM items')
 await db.transaction(async (db) => {
-	// a throw here rolls back every write made inside it
+	await db.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+	// A throw here rolls back the insert.
 })
+await db.close()
 ```
 
 Check `db.persistent` after open: on web it reports whether the database
@@ -552,11 +751,36 @@ the same per-statement durability as the mobile plugin. `supported` is
 `false` on Windows for now; `openDatabase` there rejects, so branch on the
 flag first rather than catching.
 
+```ts
+import { openDatabase, supported } from '@octane-xplat/sqlite'
+
+if (supported) {
+	const db = await openDatabase('app.db')
+	try { if (!db.persistent) console.log('Changes will not survive closing this session') }
+	finally { await db.close() }
+}
+```
+
 `getUserVersion`/`setUserVersion` map to `PRAGMA user_version` — the shared
 migration hook. `deleteDatabase(name)` removes the file. On native, calls
 run on the plugin's worker threads (`threading` option, default on); on web
 everything runs inside a spawned Worker, so no query blocks the UI thread
 either way.
+
+```ts
+import { openDatabase } from '@octane-xplat/sqlite'
+
+const db = await openDatabase('app.db', { threading: true })
+try {
+	if (await db.getUserVersion() < 1) {
+		await db.transaction(async tx => {
+			await tx.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
+			await tx.setUserVersion(1)
+		})
+	}
+} finally { await db.close() }
+// deleteDatabase('app.db') is for deliberate app-data removal, not normal cleanup.
+```
 
 For a handful of flags or strings, `storage` is still the right tool —
 open a database when you need queries, joins, or migrations.
@@ -571,6 +795,15 @@ methods directly. Exact signatures live in the owning package: `ConnectivityImpl
 `MediaImpl` in `@octane-xplat/media`. For example,
 `connectivity.getState()` returns `{ online, type }` where `type` is
 `'none' | 'wifi' | 'mobile' | 'ethernet' | 'bluetooth' | 'vpn' | 'unknown'`.
+
+```ts
+import { connectivity } from '@octane-xplat/platform'
+
+console.log(connectivity.getState().online)
+const unsubscribe = connectivity.subscribe(state => console.log(state.online, state.type))
+// Call when the subscribing owner ends:
+unsubscribe()
+```
 
 ## Keep platform code at the edge
 

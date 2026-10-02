@@ -27,9 +27,35 @@ renderer-free half: `@lingui/core` plus the core Babel macros (`t`, `plural`,
 pipeline touches a DOM or a native widget, so the same source string localizes
 the web app and the NativeScript targets identically.
 
+```ts
+import { t, plural, select, selectOrdinal, msg, defineMessage } from '@lingui/core/macro'
+
+export function labels(unread: number, role: string, place: number) {
+	return {
+		title: t`Inbox`,
+		count: plural(unread, { one: '# message', other: '# messages' }),
+		role: select(role, { admin: 'Administrator', other: 'Member' }),
+		place: selectOrdinal(place, { one: '#st', two: '#nd', few: '#rd', other: '#th' }),
+		save: msg`Save`,
+		cancel: defineMessage({ message: 'Cancel' }),
+	}
+}
+```
+
 The JSX side of Lingui (`<Trans>`, `I18nProvider`, `useLingui` from
 `@lingui/react`) is **not** used: components subscribe through
 `useLingui()`/`useLocale()` from `@octane-xplat/lingui` instead.
+
+```tsx
+import { t } from '@lingui/core/macro'
+import { useLingui } from '@octane-xplat/lingui'
+import { Text } from '@octane-xplat/ui'
+
+export function InboxTitle() {
+	useLingui()
+	return <Text>{t`Inbox`}</Text>
+}
+```
 
 ## Setup
 
@@ -49,15 +75,17 @@ Vite config, and widen the Babel include to `.tsrx`:
 ```ts
 import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin'
 import babel from '@rolldown/plugin-babel'
+import { defineConfig } from 'vite'
+import { octane } from '@octanejs/vite-plugin'
 
-plugins: [
+export default defineConfig({ plugins: [
 	...octane(),
 	babel({
 		include: /\.(?:[cm]?[jt]sx?|tsrx)$/,
 		presets: [linguiTransformerBabelPreset()],
 	}),
 	lingui({ failOnCompileError: true }),
-]
+] })
 ```
 
 Without `tsrx` in the Babel include, `.tsrx` modules keep the unexpanded
@@ -101,6 +129,18 @@ Add the scripts:
 imports — then hands the output to Lingui's own babel extractor. It is
 Node-side code; it never enters an app bundle.
 
+```ts
+// Node-side lingui.config.ts; keep this out of application modules.
+import { defineConfig } from '@lingui/conf'
+import { babelExtractor, tsrxExtractor } from '@octane-xplat/lingui/extractor'
+
+export default defineConfig({
+	locales: ['en', 'es'], sourceLocale: 'en',
+	catalogs: [{ path: 'src/locales/{locale}/messages', include: ['src'] }],
+	extractors: [babelExtractor, tsrxExtractor],
+})
+```
+
 ## Authoring messages
 
 Core macros only, in `.ts`, `.tsx`, and `.tsrx` alike:
@@ -108,13 +148,27 @@ Core macros only, in `.ts`, `.tsx`, and `.tsrx` alike:
 ```ts
 import { t, plural, msg } from '@lingui/core/macro'
 
-const title = t`Inbox`
-const count = plural(unread, { one: '# message', other: '# messages' })
-const deferred = msg`Save` // descriptor; translate later with i18n.t(deferred)
+export function inboxMessages(unread: number) {
+	return {
+		title: t`Inbox`,
+		count: plural(unread, { one: '# message', other: '# messages' }),
+		deferred: msg`Save`, // translate later with i18n._(deferred)
+	}
+}
 ```
 
 Keep localizable text inside functions or render paths — macros at module top
 level evaluate before a locale is activated.
+
+```ts
+import { msg } from '@lingui/core/macro'
+import { i18n } from '@octane-xplat/lingui'
+
+export function saveLabel() {
+	const save = msg`Save`
+	return i18n._(save)
+}
+```
 
 ## Starting the runtime
 
@@ -137,11 +191,26 @@ the parent directory of each matched file — it expects the
 `locales/<locale>/<name>` layout above. `import.meta.glob` is a compile-time
 Vite feature, so the same call works in the native bundle — the loaders become
 static dynamic imports rather than a filesystem scan. Alternatively register
-loaders explicitly with `defineCatalogs({ en: () => import('./locales/en/messages'), … })`.
+loaders explicitly with `defineCatalogs` with explicit loaders.
+
+```ts
+import { defineCatalogs, catalogsFromGlob } from '@octane-xplat/lingui'
+
+const catalogs = catalogsFromGlob(import.meta.glob('../locales/*/messages', { query: '?lingui' }))
+defineCatalogs(catalogs)
+// Explicit alternative, with the same catalog files:
+defineCatalogs({ en: () => import('../locales/en/messages'), es: () => import('../locales/es/messages') })
+```
 
 `initLingui` resolves the initial locale in this order — `setup.locale`
 (explicit override) → the `persist` adapter's stored value → the detected
 system locale → `fallback` — and returns the locale it activated.
+
+```ts
+// Continue in the startup file above.
+const active = await initLingui({ catalogs, locale: 'es', fallback: 'en' })
+console.log(active) // es: the explicit choice wins
+```
 
 ## Rendering localized text
 
@@ -152,14 +221,26 @@ in any component whose output must re-render on `setLocale`:
 import { t } from '@lingui/core/macro'
 import { useLingui } from '@octane-xplat/lingui'
 
+import { Text } from '@octane-xplat/ui'
+
 export function Header() @{
 	useLingui()
-	return <h1>{t`Inbox`}</h1>
+	return <Text accessibilityRole="heading">{t`Inbox`}</Text>
 }
 ```
 
 `useLocale()` returns the active locale string when a component needs the
 value itself. Outside components, `getLocale()` reads it non-reactively.
+
+```tsx
+import { useLocale, getLocale } from '@octane-xplat/lingui'
+import { Text } from '@octane-xplat/ui'
+
+export function LocaleLabel() {
+	return <Text>{useLocale()}</Text>
+}
+export function logLocale() { console.log(getLocale()) }
+```
 
 ## Switching and persisting
 
@@ -174,6 +255,9 @@ storage seam (e.g. `secure-storage`, `ApplicationSettings`, or `localStorage`
 on web):
 
 ```ts
+// Continue with catalogs and initLingui from the startup example.
+import { storage } from '@octane-xplat/platform'
+
 await initLingui({
 	catalogs,
 	fallback: 'en',
@@ -191,6 +275,15 @@ exact match, then base-language match (`es-MX` → `es`), then the fallback.
 `detectLocale(candidate)` overrides the system source (a route param or
 server hint); `matchLocale(candidate, supported, fallback)` is the same
 matching step as a standalone pure function.
+
+```ts
+import { detectLocale, matchLocale } from '@octane-xplat/lingui'
+
+// After initLingui has registered en and es:
+console.log(detectLocale())
+console.log(detectLocale('es-MX')) // es
+console.log(matchLocale('es-MX', ['en', 'es'], 'en')) // es
+```
 
 The system source is per target:
 

@@ -17,6 +17,18 @@ notifications are local-only, and there is no shared `Platform.select` API.
 The interface sketches below illustrate the design and are not a substitute
 for the published declarations.
 
+```tsx
+import { storage, useAppState, useSafeAreaInsets } from '@octane-xplat/platform'
+import { Text } from '@octane-xplat/ui'
+
+storage.setString('last-trip', '42')
+export function Status() {
+	const state = useAppState()
+	const insets = useSafeAreaInsets()
+	return <Text style={{ marginTop: insets.top }}>{state}</Text>
+}
+```
+
 ## Capability map
 
 | Capability             | Web impl                                                | Native impl                                                                              | Seam notes                                                                                                                                          |
@@ -64,6 +76,14 @@ the portable set; web keeps the ARIA spelling while native translates the
 exceptions above (for example shared `'heading'` → web `role="heading"` +
 native `accessibilityRole="header"`).
 
+```tsx
+import { Text } from '@octane-xplat/ui'
+
+export function Heading() {
+	return <Text accessibilityRole="heading" accessibilityLabel="Packing list">Packing list</Text>
+}
+```
+
 ```ts
 // Optional capability — never throws for absence
 interface Capability<T> {
@@ -74,18 +94,18 @@ interface Capability<T> {
 
 // App lifecycle — shared event vocabulary
 type AppState = 'active' | 'background' | 'inactive'
-function useAppState(): AppState // visibilitychange/pagehide/pageshow
+declare function useAppState(): AppState // visibilitychange/pagehide/pageshow
 // ↔ Application suspend/resume/exit
 // Hardware back → owned by ui's route layer, which auto-installs
 // activityBackPressed at screen/stack registration and pops the visible
 // stack. This hook is the raw seam (fires after ui's listener — use
 // ui's useBackInterceptor/addBackInterceptor to run before the pop):
-function useBackHandler(fn: () => boolean /* handled? */): void
+declare function useBackHandler(fn: () => boolean /* handled? */): void
 // activityBackPressed; no-op on web (browser back is URL history)
 
 // Theme
-function useColorScheme(): 'light' | 'dark'
-function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void
+declare function useColorScheme(): 'light' | 'dark'
+declare function setColorSchemeOverride(c: 'light' | 'dark' | 'system'): void
 // toggles .ns-dark / .dark root class
 ```
 
@@ -169,6 +189,17 @@ sound/overlap calls ran without exceptions while the player session remained
 active, but emulator audio output is disabled, so audible mixing and route
 preservation still need a physical device.
 
+```ts
+import { createSoundBank } from '@octane-xplat/sounds'
+
+export async function effect(source: string) {
+	const bank = createSoundBank({ maxVoices: 2 })
+	await bank.load('saved', source)
+	await bank.play('saved')
+	return () => bank.dispose() // call when the owning screen is finished
+}
+```
+
 `@octane-xplat/audio` uses a package-owned Media3 session service on Android,
 AVPlayer and remote commands on iOS, and `HTMLAudioElement` plus optional
 Media Session actions on web. Android player state and session metadata were
@@ -176,6 +207,16 @@ exercised on the emulator. Background continuation, notification/headset
 controls, and physical audio remain unverified. The historical iOS duplicate QBImagePicker pod failure is not reproducible in
 fresh preparation on 2026-09-30; this does not prove native player runtime
 behavior. See [current qualification](optional-service-qualification.md).
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+
+export async function queue(source: string) {
+	const player = createAudioPlayer()
+	try { await player.setQueue([{ id: 'sample', source }]); console.log(player.snapshot()) }
+	finally { player.dispose() }
+}
+```
 
 Decision #55 assigns audio session/focus policy to the full audio service.
 Effects remain bounded and must not take focus, interrupt long-form playback,

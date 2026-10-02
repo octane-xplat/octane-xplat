@@ -34,7 +34,7 @@ Two findings from its own tooling
    from live SwiftUI `.continuous`. To "match iOS almost exactly," ship these
    as a first-class curve.
 
-```swift
+```text
 // Rosenfeld constants — per-corner shoulder extent p/R = 1.528665, then
 // three cubics (offsets multiply by R, mirrored per corner). From
 // UIBezierPath reverse-engineering; see Lisse tools/apple-continuous-export.
@@ -68,25 +68,29 @@ clean), typegen passes, `node --test tests/` covers the Rosenfeld constants,
 arc conversion, per-corner mixing, and degenerate inputs (8/8). The native
 mask/outline seams remain lab-unverified — see the queued experiment.
 
-```ts
-// props.ts — identical on every leaf
-interface SmoothCornersProps {
-  corners?: CornerConfig | number | PerCornerConfig; // radius, or per-corner map
-  children?: OctaneNode;
-  className?: string;
-  style?: StyleProp;
-}
-interface CornerConfig {
-  radius: number;
-  curve?: 'continuous' | 'squircle' | 'superellipse' | 'clothoid' | 'arc';
-  smoothing?: number;   // 0–1, squircle/clothoid
-  exponent?: number;    // superellipse only
+```tsx
+import { SmoothCorners } from '@octane-xplat/smooth-corners'
+import { Text } from '@octane-xplat/ui'
+
+export function Card() {
+	return <SmoothCorners corners={24}><Text>Packing list</Text></SmoothCorners>
 }
 ```
 
 Default `curve: 'continuous'` — the package exists for iOS parity; Figma
 hand-off uses `curve: 'squircle', smoothing: 0.6` (`FIGMA_SMOOTHING`), and the
 whole Lisse matrix stays available.
+
+```tsx
+import { SmoothCorners } from '@octane-xplat/smooth-corners'
+import { Text } from '@octane-xplat/ui'
+
+export function FigmaCard() {
+	return <SmoothCorners corners={{ radius: 24, curve: 'squircle', smoothing: 0.6 }}>
+		<Text>Trip details</Text>
+	</SmoothCorners>
+}
+```
 
 `path.ts` emits a `PathCommand[]` (`M/L/C/A/Z`, absolute) — parse `@lisse/core`'s
 `generatePath()` `d` (emitters only produce `M l c a z`, circular arcs only)
@@ -101,6 +105,15 @@ native so DOM-touching modules never bundle.
 Semantics = CSS `clip-path`: the mask clips background **and** children. This
 matches what the web leaf does natively and is the only honest cross-target
 semantic.
+
+```tsx
+import { SmoothCorners } from '@octane-xplat/smooth-corners'
+import { View } from '@octane-xplat/ui'
+
+export function ClippedCard() {
+	return <SmoothCorners corners={24} className="bg-primary"><View className="p-4" /></SmoothCorners>
+}
+```
 
 | Target | Mechanism | Confidence |
 | --- | --- | --- |
@@ -117,6 +130,17 @@ API <33 with concave curves, the escape hatch is a Compose leaf
 (`@nativescript/jetpack-compose` — `clip(GenericShape)` clips arbitrary paths
 in software on all API levels); keep it out of v1 — a compose host per rounded
 element is heavy.
+
+```ts
+// NativeScript Android contributor example: caller supplies the generated native Path.
+export function curveOutline(path: unknown) {
+	const android = (globalThis as any).android
+	const outline = new android.graphics.Outline()
+	if (android.os.Build.VERSION.SDK_INT >= 30) outline.setPath(path)
+	else outline.setConvexPath(path) // the supplied path must be convex on older Android
+	return outline
+}
+```
 
 On iOS, uniform-radius `continuous` corners could instead set
 `layer.cornerCurve = .continuous` — the literal Apple curve, zero path cost.

@@ -86,6 +86,14 @@ subpaths coexist; the shared `BottomSheet` snap points are self-drawn precisely
 because the OS sheets are modal presentations, so an OS detent sheet would
 be a separate subpath widget, not a flag on `BottomSheet`.
 
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+
+export function Refreshable(props: { refreshing: boolean; refresh: () => void }) {
+	return <ScrollableArea refreshing={props.refreshing} onRefresh={props.refresh}><Text>Trips</Text></ScrollableArea>
+}
+```
+
 ## Shared wrappers and component contracts
 
 These rules are for framework contributors adding a shared component.
@@ -110,6 +118,14 @@ For example, a keyboard-avoidance wrapper can remain useful as a shared layout
 boundary on a target without a software keyboard. A `WebView` cannot pass
 through meaningfully when its web content surface is unavailable. Document a
 pass-through as intentional behavior; do not silently drop shared props.
+
+```tsx
+import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
+
+export function Composer() {
+	return <KeyboardAvoiding><TextInput placeholder="Add a note" /></KeyboardAvoiding>
+}
+```
 
 Use these checks when shaping a new primitive:
 
@@ -142,6 +158,19 @@ off-window rows unmount rather than recycle. Native cell recycling remains in
 `UITableView` and `RecyclerView` under the platform subpaths. A shared API
 must name the behavior it actually provides and must not imply native cell
 reuse.
+
+```tsx
+import { ScrollableArea, VirtualList, Text } from '@octane-xplat/ui'
+
+const items = [{ id: 'passport', label: 'Passport' }, { id: 'charger', label: 'Charger' }]
+export function SmallList() {
+	return <ScrollableArea>{items.map(item => <Text key={item.id}>{item.label}</Text>)}</ScrollableArea>
+}
+export function WindowedList() {
+	return <VirtualList items={items} keyExtractor={item => item.id}
+		renderItem={item => <Text>{item.label}</Text>} />
+}
+```
 
 ## Invariants (the rules that keep the seams from tearing)
 
@@ -210,6 +239,14 @@ monorepo shape earns its cost once >1 app or a clean publish boundary exists.
 Two tsconfigs (`tsconfig.web.json` / `tsconfig.native.json`) extend a base;
 they differ in `jsxImportSource` and which leaf files are in scope. Details in
 [module-resolution](module-resolution.md).
+
+```json
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "jsxImportSource": "octane", "moduleSuffixes": [".web", ""] },
+  "include": ["src/**/*"]
+}
+```
 
 ## Entry points
 

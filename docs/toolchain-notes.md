@@ -133,6 +133,11 @@ pass, so there is no real List typing defect to patch. Treat an OXC editor
 lint finding as a lint/configuration issue and use the dual `tsrx-tsc` lane to
 decide whether a reported TypeScript error is real.
 
+```sh
+pnpm exec tsrx-tsc --noEmit -p apps/web/tsconfig.json
+pnpm exec tsrx-tsc --noEmit -p apps/mobile/tsconfig.json
+```
+
 ## Version pinning matrix (hard requirement)
 
 | Pin                                                                    | Constraint                                                                                          |
@@ -151,6 +156,13 @@ workspace yaml references it directly, and `pnpm sync:patches` /
 and create template yaml in sync. Fresh scaffolds fetch that package through
 `configDependencies`; existing apps materialize patches with
 `xplat patches apply` and verify with `xplat patches check` / `xplat doctor`.
+
+```sh
+pnpm sync:patches
+pnpm check:patches
+pnpm exec xplat patches apply
+pnpm exec xplat patches check
+```
 
 When a workspace package's dependency declarations change, resync with
 `pnpm install --lockfile-only`; do not hand-edit the importer. The
@@ -172,6 +184,11 @@ suffix chain resolved at build time, hooks retargeted to
 `exports` still point at `src` for workspace dev; `publishConfig` swaps
 them to `dist` only at publish. Verified via `pnpm pack` extraction.
 
+```sh
+pnpm --filter @octane-xplat/ui build
+pnpm --filter @octane-xplat/ui pack --pack-destination /tmp/octane-pack-check
+```
+
 **Types:** the classic TS 5.9 `tsrx-tsc` path can emit ordinary `.d.ts`
 files from `.tsrx` sources. It preserves explicit `.tsrx` module specifiers,
 however, so raw output is not directly consumable without tsrx-aware module
@@ -179,6 +196,11 @@ resolution. `tsrx-typegen` runs that declaration emit with the package's own
 compiler config and rewrites source extensions to the package's JavaScript
 extensions. Generated declarations live in a dedicated output directory and
 `--check` detects stale output without touching handwritten types.
+
+```sh
+pnpm --filter @octane-xplat/ui typegen
+pnpm --filter @octane-xplat/ui exec tsrx-typegen --check
+```
 
 ### Develop against generated declarations
 
@@ -193,6 +215,10 @@ editors or linked apps resolve them. If installation used `--ignore-scripts`,
 run `pnpm typegen` explicitly before checking or developing a consumer. Use
 the same command after cleaning generated files: pnpm can reuse install
 lifecycle state and skip an unchanged setup hook on subsequent installs.
+
+```sh
+pnpm typegen
+```
 
 The harness web, mobile, macOS, Linux, and Windows development commands start
 a declaration watcher before launching the app. The watcher refreshes the
@@ -223,6 +249,11 @@ run their build from `prepack`, so both `pnpm pack` and publication regenerate
 output. To prepare one package's types without building runtime bundles, run
 `pnpm --filter <package-name> typegen` after workspace setup.
 
+```sh
+pnpm --filter @octane-xplat/ui typegen
+pnpm --filter @octane-xplat/ui exec tsrx-typegen --pack-check
+```
+
 ### Declaration compiler support
 
 `@octane-xplat/ui` now generates declarations for its web, native, Linux, and
@@ -249,6 +280,10 @@ root, runs that gate and exits nonzero on failure. A plain TypeScript consumer
 fixture remains necessary to check inferred props and module-resolution modes;
 the pack gate validates the declaration graph, not every semantic contract.
 
+```sh
+pnpm --filter @octane-xplat/ui exec tsrx-typegen --pack-check
+```
+
 Every publishable package that ships declarations runs `--pack-check` in
 `prepack`. Leaves that emit declarations through plain `tsc`
 (`tsconfig.types.json` + committed or generated `types/` output) or publish
@@ -260,6 +295,8 @@ graph is verifiable without building). Handwritten JSX component declarations
 use the consumer-facing call signature, matching generated declarations:
 
 ```ts
+import type { MaterialDropdownProps } from '@octane-xplat/picker/android'
+
 export declare function MaterialDropdown(props: MaterialDropdownProps): unknown
 ```
 
@@ -291,12 +328,22 @@ consumer, while package export paths and declaration closure remain checked by
 `tests/packed-consumer.mjs` — `pnpm test:packed` runs every package's packed
 consumer and `pnpm check:pack` runs every pack-check.
 
+```sh
+pnpm test:packed
+pnpm check:pack
+```
+
 ## TS configs
 
 `tsconfig.base.json` + `.web` / `.native` variants differing in
 `jsxImportSource`, included globs, and ambient types (`@nativescript/types`
 scoped to native). `tsrx-tsc --noEmit` per target in CI.
 See module-resolution.md for the suffix-typing strategy.
+
+```sh
+pnpm exec tsrx-tsc --noEmit -p apps/web/tsconfig.json
+pnpm exec tsrx-tsc --noEmit -p apps/mobile/tsconfig.json
+```
 
 ## Native app plumbing
 
@@ -388,6 +435,11 @@ leaving dead UI that still has its JS listeners. The root applies it through
 it with `xplat patches apply`. The patch manifest records its scope and drop
 condition.
 
+```sh
+pnpm exec xplat patches apply
+pnpm exec xplat patches check
+```
+
 ## CI shape
 
 `.github/workflows/ci.yml` gates on push and PR. The `checks` job runs, in
@@ -414,6 +466,10 @@ running the consumer's own lint/typecheck/build/doctor. Flags: `--no-build`,
 and `simctl install`/`launch`es the debug `.app`, failing on crash or
 JS-error log output. These produce debug/simulator artifacts — build-check
 and runtime-boot evidence, not signed store distribution.
+
+```sh
+pnpm check:consumer --no-build --smoke web
+```
 
 Slow target jobs run on main pushes only: `native-ios` (macos-latest) and
 `native-android` (ubuntu-latest with Temurin JDK 21) each wrap their run in

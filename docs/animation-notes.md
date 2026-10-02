@@ -22,6 +22,12 @@ It does not import the motion leaf or its dependencies. This matrix separates si
 from physical handset observations; older `useAnimation` results do not
 validate the new leaf.
 
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function Fade() { return <motion.View initial={{ opacity: 0 }} animate={{ opacity: 1 }} /> }
+```
+
 ## Motion v1 validation record — 2026-09-29
 
 The iOS simulator and Android emulator rows exercise NativeScript's platform
@@ -86,9 +92,25 @@ vsync-aligned frames carry the Choreographer nanos / `CADisplayLink.timestamp`
 (both monotonic). Frame timestamps are the natural frame-pacing instrumentation
 points.
 
+```ts
+// NativeScript contributor instrumentation; timestamps are supplied by the host.
+const frame = requestAnimationFrame(timestamp => console.log('frame timestamp', timestamp))
+// Cancel if the owner is disposed before the callback runs.
+cancelAnimationFrame(frame)
+```
+
 **Clock.** NS's own frame base is `System.nanoTime()` on Android and
 `global.__time || Date.now` (`profiling.time`) on iOS — both monotonic.
 `CACurrentMediaTime()` is also directly callable on iOS.
+
+```ts
+// NativeScript injects these OS globals; use one clock consistently per run.
+const platform = globalThis as any
+const milliseconds = platform.android
+	? platform.java.lang.System.nanoTime() / 1e6
+	: platform.CACurrentMediaTime() * 1000
+console.log(milliseconds)
+```
 
 **Reduced motion.** iOS has a posted notification and NS wraps observation:
 `Application.ios.addNotificationObserver(UIAccessibilityReduceMotionStatusDidChangeNotification, cb)`
@@ -96,6 +118,20 @@ points.
 (API 26; app minSdk is 24, so gate it) covers the framework check and the
 `Settings.Global` read stays as the <26/OEM fallback. Polling remains
 Android-only.
+
+```ts
+import { Application } from '@nativescript/core'
+
+export function observeIOSReducedMotion(changed: () => void) {
+	const name = (globalThis as any).UIAccessibilityReduceMotionStatusDidChangeNotification
+	const observer = Application.ios.addNotificationObserver(name, changed)
+	return () => Application.ios.removeNotificationObserver(observer, name)
+}
+const platform = globalThis as any
+if (platform.android?.os.Build.VERSION.SDK_INT >= 26) {
+	console.log(platform.android.animation.ValueAnimator.areAnimatorsEnabled())
+}
+```
 
 **iOS animation internals.** `view.animate` adds `CABasicAnimation`/
 `CAAnimationGroup` to `nativeView.layer` — render-server driven — and uses
@@ -109,6 +145,14 @@ completion. `CASpringAnimation` exposes mass/stiffness/damping/initialVelocity �
 a direct param match to our `Transition`; `CAMediaTimingFunction(controlPoints:)`
 covers cubic-bezier tweens. Interruption reads `layer.presentation()`.
 
+```ts
+import type { View } from '@nativescript/core'
+
+export function presentationLayer(view: View) {
+	return view.nativeViewProtected.layer.presentation()
+}
+```
+
 **Android animation internals.** Platform `view.animate()`
 (`ViewPropertyAnimator`, a method on every `View` — zero new deps) covers
 `translationX/Y`, `scaleX/Y`, `rotation`, `alpha` with `PathInterpolatorCompat`
@@ -119,6 +163,17 @@ activity/transition/viewpager2/exifinterface/documentfile; adding it needs a
 plugin `include.gradle` (precedent: gesturehandler ships one). Decision: keep
 springs on the JS engine (velocity-exact retargets, gesture settle) and
 delegate only tweens.
+
+```ts
+import type { View } from '@nativescript/core'
+
+// Contributor experiment on Android: duration is milliseconds, alpha is 0–1.
+export function nativeFade(view: View) {
+	const animator = view.nativeViewProtected.animate().alpha(0.5).setDuration(200)
+	animator.start()
+	return () => animator.cancel()
+}
+```
 
 **Gestures.** Shared `onPan` uses NS built-ins: real `UIPanGestureRecognizer`
 on iOS (the shared `UIGestureRecognizerDelegate` already supports
@@ -133,6 +188,14 @@ peer. It ports RNGH semantics
 `NativeViewGestureHandler` with `shouldActivateOnStart`/`disallowInterruption`).
 Adopting it for the gesture surface replaces building arbitration on raw NS
 gestures.
+
+```tsx
+import { View } from '@octane-xplat/ui'
+
+export function PanProbe() {
+	return <View onPan={event => console.log(event.state, event.dx, event.dy)} />
+}
+```
 
 **Web.** The pinned `motion-dom` ships the full WAAPI layer
 (`startWaapiAnimation`, `NativeAnimation`, `acceleratedValues`,
@@ -159,6 +222,19 @@ a per-frame sampler tracks presentation values into the channel MotionValues so
 an interrupted delegated run hands off value and velocity exactly. Scale folds
 into scaleX/scaleY for native props; `scale` and `scaleX` both in a target stay
 consistent through the fold.
+
+```ts
+// Contributor example in packages/motion/src: these are internal types.
+import type { HostAdapter, DelegatedRequest } from './host-types'
+
+export async function delegatedSample(adapter: HostAdapter, request: DelegatedRequest) {
+	const run = adapter.delegate?.(request)
+	if (!run) return null // caller uses the JS engine
+	const sample = run.sample()
+	run.cancel()
+	return { sample, result: await run.finished }
+}
+```
 
 - **iOS**: `UIViewPropertyAnimator` + `UICubicTimingParameters` (CSS bezier
   control points) on `view.transform`/`view.alpha` (`src/driver.ts`).
@@ -197,6 +273,17 @@ staggerChildren, and beforeChildren/afterChildren sequencing on animate runs;
 children with their own animate form independent subtrees. Exit and interaction
 labels stay local to each host, preserving Presence's per-host registration.
 
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function Variants() {
+	return <motion.View initial="hidden" animate={['visible', 'selected']} custom={40}
+		variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 }, selected: (x: number) => ({ x }) }}>
+		<motion.View variants={{ visible: { y: 0 }, selected: { scale: 1.1 } }} />
+	</motion.View>
+}
+```
+
 The scheduler strips tree metadata and adds child delay before Controller.animate,
 so the platform delegation gate remains unchanged. Generations cancel queued
 phases after replacement or unmount. Sequencing waits for actual completion
@@ -204,6 +291,17 @@ phases after replacement or unmount. Sequencing waits for actual completion
 therefore holds the corresponding sequencing barrier until interrupted.
 See [the guide](animation-gestures.md#coordinate-variants) and
 [exact compatibility boundaries](../packages/motion/UPSTREAM.md#variants-decision-93).
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function Sequenced() {
+	return <motion.View animate="visible" variants={{ visible: { opacity: 1,
+		transition: { when: 'beforeChildren', staggerChildren: 0.1, delayChildren: 0.2 } } }}>
+		<motion.View variants={{ visible: { x: 20 } }} />
+	</motion.View>
+}
+```
 
 Verification (2026-10-02): 60 standard tests and 5 native object-driver tests
 passed, along with web/native builds, packed export checks and packed consumers
@@ -264,12 +362,28 @@ scalar `dragElastic` (default 0.35), `dragMomentum`, and drag callbacks.
 consumer workflow; [compatibility](../packages/motion/UPSTREAM.md#bounded-declarative-drag)
 lists the covered and excluded upstream semantics.
 
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function Drag() {
+	return <motion.View drag="x" dragConstraints={{ left: -40, right: 40 }} dragElastic={0.35}
+		onDragEnd={(_event, info) => { if (!info.cancelled) console.log(info.velocity.x) }} />
+}
+```
+
 Native uses `@nativescript-community/gesturehandler@2.0.45` as an optional
 motion peer, with explicit app-owned `install()` before Page/Frame creation.
 The mobile app already declared this dependency but had not installed its
 Manager/root hooks. Motion does not call `install(true)` or change `onPan`.
 The probe host also installs the plugin before root creation and keeps plugin
 imports external in case bundles so they resolve to the host's single instance.
+
+```ts
+// Native entry: install before Page/Frame/root construction.
+import { install } from '@nativescript-community/gesturehandler'
+
+install()
+```
 
 The PanGestureHandler configuration uses minDist 8 DIP for both-axis drag;
 horizontal drag activates outside ±8 x and fails outside ±8 y before activation
@@ -285,6 +399,14 @@ Momentum projects velocity 0.2 seconds, clamps the destination, and settles
 with stiffness 200/damping 30. Hard bounds clamp samples before notification;
 elastic bounds permit overflow and spring back. Cancellation drops velocity;
 reduced motion snaps settlement. This is intentionally not upstream inertia.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function BoundedDrag() {
+	return <motion.View drag="x" dragConstraints={{ left: -40, right: 40 }} dragElastic={false} dragMomentum />
+}
+```
 
 Verification (2026-10-02): 51 shared/web tests and 6 native object-driver/handler
 tests pass, along with web/native builds, pack checks, packed consumers, and
@@ -332,14 +454,24 @@ maintained examples for the current binding and lifecycle contract.
 
 ### Shared API shape (Flutter-flavored)
 
-```ts
-const x = useAnimation(0);                    // animated value, ref-backed
-x.to(100, { duration: 250, curve: 'easeOut' });
-x.spring(0, { damping: 14 });
-<View style={{ translateX: x }} />            // binding, not re-render
+```tsx
+// Proposed API only: these declarations model the original sketch.
+import { View } from '@octane-xplat/ui'
+declare function useProposedAnimation(initial: number): {
+	to(target: number, options: { duration: number; curve: string }): void
+	spring(target: number, options: { damping: number }): void
+	value: number
+}
+export function ProposedMotion() {
+	const x = useProposedAnimation(0)
+	return <View style={{ translateX: x.value }} onPan={event => {
+		if (event.state === 'began') x.to(100, { duration: 250, curve: 'easeOut' })
+		if (event.state === 'ended') x.spring(0, { damping: 14 })
+	}} />
+}
 ```
 
-- `useAnimation` returns a value usable inside `style` objects — leaf impl
+- The proposed `useAnimation` would return a value usable inside `style` objects — leaf impl
   subscribes and writes to the underlying view each tick.
 - `interpolate(value, [in], [out])`, `Sequence`/`Stagger` later — keep v1 to
   `to`/`spring`/`interpolate`.
@@ -371,6 +503,20 @@ bodies; they just need stable call order. The value attaches through a `ref`
 prop forwarded by the leaf to its host and writes `view[prop]` per rAF frame — no re-render.
 `to(80,{300ms})` hit exactly 80; JS spring integrator settled to |−1.4|.
 
+```tsx
+import { useEffect } from 'octane'
+import { View, Pressable, Text, useAnimation } from '@octane-xplat/ui'
+
+export function LegacyTween() {
+	const x = useAnimation(0)
+	useEffect(() => () => x.stop(), [])
+	return <>
+		<View bind={x.bind} />
+		<Pressable onPress={() => x.to(80, { duration: 300 })}><Text>Move</Text></Pressable>
+	</>
+}
+```
+
 ## Gesture normalization
 
 | Shared                 | Web                                     | Native                                                                  |
@@ -382,6 +528,14 @@ prop forwarded by the leaf to its host and writes `view[prop]` per rAF frame —
 
 Normalize to: `{ x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled', target }`.
 Velocity is essential for interruptible gestures (drawer, swipe-to-dismiss).
+
+```tsx
+import { View } from '@octane-xplat/ui'
+
+export function GestureStatus() {
+	return <View onPan={event => console.log(event.state, event.dx, event.dy, event.vx, event.vy)} />
+}
+```
 
 **Verified on iOS:** `onPan`/`onSwipe` props on a `<flexboxlayout>` map
 through the driver's generic `onX` → event-name rule and deliver full
@@ -405,6 +559,19 @@ samples; native iOS reads `velocityInView`, and native Android uses
 `VelocityTracker` over the MotionEvents and converts px/sec to dip/sec.
 The demosweep exercises pan programmatically (observer callbacks on iOS
 sim — the Reorder step); real-recognizer delivery stays manual.
+
+```tsx
+import { View, setTranslate } from '@octane-xplat/ui'
+import { useRef } from 'octane'
+
+export function Pan() {
+	const host = useRef<any>(null)
+	return <View bind={view => { host.current = view }} onPan={event => {
+		if (event.state === 'moved') setTranslate(host.current, event.dx, event.dy)
+		if (event.state === 'ended' || event.state === 'cancelled') setTranslate(host.current, 0, 0)
+	}} />
+}
+```
 
 ## Choreography patterns proven in ns-octane
 

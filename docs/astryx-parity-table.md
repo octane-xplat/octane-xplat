@@ -23,6 +23,21 @@ The audited checkout includes `db65625c` (`feat(table): add @octane-xplat/table 
 
 `dataGridFeatures` already enables sorting, column/global filtering, grouping/aggregation, expansion, pagination, row selection, row/column pinning, and column ordering/visibility/sizing, with the row-model factories. These are existing headless capabilities, not proposed engine work. `DataGrid.tsrx` currently supplies sortable Pressable headers with direction indicators, visible-cell rendering, selected-row styling, row activation, custom cell/header templates, and a VirtualList body.
 
+```tsx
+import { createTable, dataGridFeatures, DataGrid } from '@octane-xplat/table'
+
+const rows = [{ id: 'apples', fruit: 'Apples', qty: 3 }]
+const columns = [{ accessorKey: 'fruit', header: 'Fruit' }, { accessorKey: 'qty', header: 'Qty' }]
+const table = createTable({ data: rows, columns, features: dataGridFeatures, getRowId: row => row.id })
+table.setSorting([{ id: 'qty', desc: true }])
+console.log(table.getRowModel().rows.map(row => row.original))
+
+export function FruitGrid() {
+	return <DataGrid data={rows} columns={columns} getRowId={row => row.id}
+		onRowPress={row => console.log(row.original.fruit)} />
+}
+```
+
 The distinction matters: enabled pinning does not create a frozen-column layout; enabled sizing does not create resize handles or apply live size state; grouped/expanded row models do not create section headers, expander controls, or detail panels. Likewise, filtering and pagination models do not supply filter or pager controls. Selection styling does not supply checkbox/select-all controls. V1 work should connect the existing engine to accessible controls and appropriate presentation.
 
 ## What Astryx promises
@@ -30,6 +45,21 @@ The distinction matters: enabled pinning does not create a frozen-column layout;
 [Table.spec.md][spec] owns semantic table anatomy and the common plugin protocol. Its FR1–FR3 promise one horizontal scroll region with overflow-dependent keyboard access/scroll containment, generated header/body sections in data mode, and caller-composed sections in children mode. FR5–FR8 specify sort controls and multi-sort priority, delegated selection checkboxes, row expansion/detail panels, and a replaceable/disableable default empty state.
 
 FR9–FR12 specify named plugin ordering (`columnSettings → sort → tree → selection → pagination`, then other names in insertion order), sequential transforms, exception isolation, header slots (`before`, `content`, `after`, `overlay`, `below`), reverse context wrapping, and reuse of resolved plugin arrays. These are substantive extension guarantees, absent from UI `Table`.
+
+```tsx
+// Historical Astryx API at the audited revision; React, not shared Octane code.
+import { Table, useTableSortable, useTableSortableState } from '@astryxdesign/core/Table'
+
+export function SortedFruit() {
+	const { sortedData, sortConfig } = useTableSortableState({
+		data: [{ id: 'apples', fruit: 'Apples' }],
+		defaultSort: [{ sortKey: 'fruit', direction: 'ascending' }],
+	})
+	const sort = useTableSortable(sortConfig)
+	return <Table data={sortedData} idKey="id" columns={[{ key: 'fruit', sortable: true }]}
+		plugins={{ sort }} />
+}
+```
 
 The spec explicitly leaves pagination, filtering, column management, tree, grouping, and sticky-column anatomy outside the aggregate ownership boundary. Their existence and APIs come from [Table.doc.mjs][table-doc], module doc files, exports, and implementations; “non-goal” here does not mean “not implemented.” The spec also labels several evidence gaps: sort glyph assertions, full phase ordering, known-name ordering, and failure isolation are not all runtime-covered; expansion `colSpan` can become stale when a later plugin changes columns. Do not equate a documented promise with complete upstream verification.
 
@@ -56,7 +86,28 @@ P0 is a prerequisite for credible interactive parity; P1 is the recommended v1 b
 
 Other deferrable Astryx conveniences include row-index/status columns, aggregated header/row context actions, `density`, `dividers`, `isStriped`, `hasHover`, `verticalAlign`, text wrapping/truncation with default-cell hover tooltips, and compositional footer/section members. Their presentation varies by platform; hover and right-click must not be the only way to reach essential content/actions.
 
+```tsx
+// Historical Astryx presentation API; this is not an Xplat Table prop set.
+import { Table } from '@astryxdesign/core/Table'
+
+export function StripedFruit() {
+	return <Table data={[{ id: 'apples', fruit: 'Apples' }]} idKey="id"
+		columns={[{ key: 'fruit' }]} isStriped hasHover />
+}
+```
+
 Astryx separates controls from data transforms: `useTableSortable` does not itself sort the rows (`useTableSortableState` returns `sortedData`); filtering updates/query conversion do not apply predicates to the supplied data; pagination controls do not slice the supplied data (`paginateData` or the server does that). Grouping explicitly returns replacement `data` and `idKey`. Matching only the plugin names would miss these ownership differences.
+
+```tsx
+// Continue inside SortedFruit above: transform rows before handing them to Table.
+const { sortedData, sortConfig } = useTableSortableState({
+	data: [{ id: 'apples', fruit: 'Apples' }],
+	defaultSort: [{ sortKey: 'fruit', direction: 'ascending' }],
+})
+const sort = useTableSortable(sortConfig)
+const view = <Table data={sortedData} idKey="id" columns={[{ key: 'fruit', sortable: true }]}
+	plugins={{ sort }} />
+```
 
 ## API shapes where the components overlap
 
@@ -94,9 +145,35 @@ The existing leaf has a different public shape from UI Table. Its contract is `p
 
 Do not promise an Astryx-compatible adapter from matching names alone. A controlled DataGrid view needs a clear way for user actions to notify the owner and receive updated state; lower-level `useTable`/core subscriptions are currently the escape route. Width, pinning, grouping, and selection also need presentation contracts beyond their state slices.
 
+```tsx
+import { useTable } from '@octane-xplat/table'
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function SortControl() {
+	const { table } = useTable({ data: [{ id: 'apples', qty: 3 }],
+		columns: [{ accessorKey: 'qty', header: 'Qty' }], getRowId: row => row.id })
+	return <Pressable onPress={() => table.setSorting([{ id: 'qty', desc: true }])}>
+		<Text>Sort by quantity</Text>
+	</Pressable>
+}
+```
+
 ## VirtualList boundary and phased recommendation
 
 Xplat's `VirtualListProps<T>` supplies `items`, `keyExtractor`, `getItemType`, `renderItem`, `renderHeader`, `renderFooter`, and `renderEmpty`. It exposes no sticky-header flag or table column-sizing protocol. Wrapping a fully rendered Table in a list does not virtualize its rows. Use the final row model as list items, with stable row IDs and a separately rendered header sharing the same column layout. Existing `DataGrid.tsrx` already follows that structure, with headers outside the scrolling list; this is structurally different from a CSS-sticky header inside one viewport.
+
+```tsx
+import { VirtualList, Text } from '@octane-xplat/ui'
+
+export function FruitList() {
+	return <VirtualList items={[{ id: 'apples', name: 'Apples' }]}
+		keyExtractor={item => item.id} getItemType={() => 'fruit'}
+		renderItem={item => <Text>{item.name}</Text>}
+		renderHeader={() => <Text>Fruit</Text>}
+		renderFooter={() => <Text>End of list</Text>}
+		renderEmpty={() => <Text>No fruit yet</Text>} />
+}
+```
 
 1. **Phase 0 — preserve the two tiers and close the baseline contract (P0).** Keep UI Table bounded. Add future coverage for stable keys, custom cells, empty states, width/alignment, keyboard row activation, and accessible row/header semantics. Define logical alignment, rich headings, overflow ownership, and full-dataset row ordinals before promising interactive parity. Reconcile UI Table's current large-data guidance (platform UITableView/RecyclerView) with the existing shared VirtualList/DataGrid path.
 2. **Phase 1 — usable cross-platform v1 (P1).** Complete the existing leaf's accessible sort controls, filter controls, pager, selection checkboxes/select-all, and bulk-action composition. Reuse its row-model/state machinery instead of adding a second engine to UI Table. Specify controlled state notifications, stable IDs, client vs server transforms, sort reset behavior, filter clearing, empty-results behavior, page reset/clamping, and selection scope. Define filter → sort → page → window ownership so data is never filtered/paginated twice. Use explicit visible controls on touch; do not require Shift, hover, or right-click.

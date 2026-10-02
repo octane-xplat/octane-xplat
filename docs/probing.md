@@ -65,11 +65,27 @@ example. Cleanups run in reverse order.
 Use platform suffixes for platform-specific imports and maintain matching
 exports across variants.
 
+```ts
+// Continue inside run(ctx) from the example above, for a mounted counter case.
+const button = ctx.find('probe-increment')
+ctx.assert('button found', Boolean(button), true)
+await ctx.press('probe-increment')
+await ctx.waitFor(() => ctx.inspect('probe-count').text === '1', { timeout: 2000, interval: 20 })
+ctx.record('count', ctx.inspect('probe-count'))
+ctx.onCleanup(() => console.log('Case finished'))
+```
+
 `inspect` reports text, value, and host geometry when available. Coordinates
 and units belong to the actual host; they are not a cross-platform pixel
 comparison. `press` dispatches the DOM click or native action/gesture handler.
 Results label that mechanism. A passing handler probe does not prove OS input,
 hit-testing, keyboard behavior, or accessibility navigation.
+
+```ts
+// Inside run(ctx), after mounting the maintained counter case:
+await ctx.press('probe-increment')
+ctx.record('host result', ctx.inspect('probe-count'))
+```
 
 On iOS and Android, `scrub` dispatches touch observers with a `down` at the
 first point, a `move` at each later point, and an `up` at the last point.

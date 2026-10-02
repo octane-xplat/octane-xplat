@@ -48,6 +48,11 @@ Web-only entry that doesn't touch the harness: `pnpm -C apps/web exec vite
 dev|build --config vite.democheck.ts` (serves `democheck.html` →
 `src/democheck.tsrx` mounting `Gallery` alone).
 
+```sh
+pnpm -C apps/web exec vite dev --config vite.democheck.ts
+pnpm -C apps/web exec vite build --config vite.democheck.ts
+```
+
 `@xplat/demos` is a declared dep of `apps/web`, `apps/mobile`, and
 `packages/app`. `demo.css` is imported by `apps/mobile/src/app.css` (`@import`)
 and `apps/web/src/main.tsrx`.

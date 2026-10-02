@@ -11,6 +11,16 @@ Keep collection resolution and `iconToSvg` shared. `Icon.macos.tsrx`
 subscribes to the same registry, converts the resolved icon with a concrete
 color, and sends raw markup to UI's macOS `Image`, which encodes it:
 
+```tsx
+// A macOS-rendered .tsrx component using trusted bundled markup.
+import { Image } from '@octane-xplat/ui'
+
+const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#4338ca" d="M4 4h16v16H4z"/></svg>'
+export function Mark() {
+	return <Image src={svg} className="w-6 h-6" alt="Trip marker" />
+}
+```
+
 ```text
 bundled Iconify JSON → shared SVG markup → Image.macos
 → UTF-8/base64 data URI → NSData → NSImage → NSImageView
@@ -40,6 +50,16 @@ is the boundary to use. The observed representation class was
 `_NSSVGImageRep`; that private class must not become a dependency or capability
 check. ImageIO did not advertise SVG decoding on this host, so a
 `CGImageSource` implementation is not interchangeable with this path.
+
+```ts
+// Native macOS host only; NSData is provided by the host's SDK metadata.
+declare const NSImage: any
+declare const NSData: any
+const encoded = svgDataUri('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="24" height="24"/></svg>')
+const data = NSData.alloc().initWithBase64EncodedStringOptions(encoded.split(',')[1], 0)
+const image = NSImage.alloc().initWithData(data)
+if (!image) throw new Error('System SVG decoding unavailable')
+```
 
 ## Evidence and limits
 
@@ -84,6 +104,15 @@ UI's registered `Icon` now sends `svg`/`markup` glyphs through that same path;
 font/name fallbacks retain their existing behavior. No dependency was added to UI.
 The AppKit image host assigns the accessibility label through the property bridge
 and marks empty-label images decorative.
+
+```tsx
+import { Image } from '@octane-xplat/ui'
+
+export function DecorativeMark() {
+	return <Image className="w-6 h-6" alt=""
+		src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%2F%3E%3C%2Fsvg%3E" />
+}
+```
 
 The icons leaf has a macOS export condition, compiled entry, and matching
 public declarations. Its universal renderer import follows the AppKit app's

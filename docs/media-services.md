@@ -30,6 +30,16 @@ notification, and selection feedback; `@octane-xplat/haptics` adds named
 presets, timed patterns, gesture-driven control, cancellation, and capability
 reporting.
 
+```ts
+import { haptics, createHaptics } from '@octane-xplat/haptics'
+
+if (await haptics.ensure() === 'granted') haptics.impl?.selection()
+const advanced = createHaptics()
+try {
+	if (advanced.capabilities().presets) advanced.play('success')
+} finally { advanced.dispose() }
+```
+
 Native Android apps using the Pulsar-backed advanced haptics package must
 compile against Android API 36 or later for Pulsar 1.3.0; the app target SDK
 and minimum supported Android version remain separate settings. The harness
@@ -57,12 +67,48 @@ reduced timing or amplitude support. Web uses `navigator.vibrate` when
 available. It cannot provide continuous realtime haptics, and iOS Safari does
 not expose Web Vibration.
 
+```tsx
+import { useEffect, useState } from 'octane'
+import { createHaptics } from '@octane-xplat/haptics'
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function SaveFeedback() {
+	const [haptics] = useState(() => createHaptics())
+	useEffect(() => () => haptics.dispose(), [])
+	return <Pressable onPress={() => {
+		if (haptics.capabilities().presets) haptics.play('success')
+	}}><Text>Save</Text></Pressable>
+}
+```
+
 Custom pattern points use milliseconds from the start and normalized values
 from 0 to 1. A `HapticSession` returned by `startRealtime()` is scoped to a
 gesture; call `stop()` on release or cancellation and dispose the owning haptics service at teardown (the session has no
 `dispose()` method).
 The native Pulsar bridge and physical tactile output still need device-level
 verification.
+
+```ts
+import { createHaptics } from '@octane-xplat/haptics'
+
+export function patternExample() {
+	const haptics = createHaptics()
+	if (haptics.capabilities().patterns) {
+		haptics.playPattern({ duration: 200, points: [{ at: 0, intensity: 0.5 }, { at: 150, intensity: 1 }] })
+	}
+	return () => { haptics.stop(); haptics.dispose() }
+}
+// A gesture owner calls these callbacks on begin, move, and end OR cancel.
+export function realtimeExample() {
+	const haptics = createHaptics()
+	if (!haptics.capabilities().realtime) { haptics.dispose(); return null }
+	const session = haptics.startRealtime(0.2)
+	return {
+		move: (intensity: number) => session.update(intensity),
+		end: () => { session.stop(); haptics.dispose() },
+	}
+}
+```
 
 ## UI sounds
 
@@ -76,10 +122,37 @@ when full, the oldest active effect is stopped before the next starts. Web
 node per voice; the web backend uses preloaded HTML audio. It is pinned to the
 stable `1.3.3` release, already present in the workspace's NativeScript probe.
 
+```ts
+import { createSoundBank } from '@octane-xplat/sounds'
+
+// Call from a user action; keep the bank until its owner ends.
+export async function prepareSounds(source: string) {
+	const bank = createSoundBank({ maxVoices: 2 })
+	try { await bank.load('saved', source) }
+	catch (error) { bank.dispose(); throw error }
+	return {
+		play: () => bank.play('saved', { volume: 0.5 }),
+		stopSaved: () => bank.stop('saved'),
+		stopAll: () => bank.stop(),
+		dispose: () => bank.dispose(),
+	}
+}
+```
+
 Web browsers can reject preload or play until the user interacts with the
 page. Check `capabilities().userGestureRequired`; a failed `play()` resolves to
 `false`. Effects must stay transient: they do not own media focus or change the
 long-form player's route.
+
+```ts
+import type { SoundBank } from '@octane-xplat/sounds'
+
+export async function playSaved(bank: SoundBank) {
+	const needsGesture = bank.capabilities().userGestureRequired
+	const played = await bank.play('saved') // call from a button when needsGesture
+	if (!played) console.log(needsGesture ? 'Try again from a button' : 'Sound unavailable')
+}
+```
 
 ## Long-form audio
 
@@ -94,6 +167,23 @@ action handlers as well as metadata and the audio source. Always handle a
 rejected `play()` promise: browsers can block autoplay, remote requests can
 fail, and local paths may not be readable by the platform player.
 
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+
+export async function preparePlayer(source: string) {
+	const player = createAudioPlayer()
+	const unsubscribe = player.subscribe(snapshot => console.log(snapshot.state, snapshot.currentTime))
+	try { await player.setQueue([{ id: 'sample', source, title: 'Sample' }]) }
+	catch (error) { unsubscribe(); player.dispose(); throw error }
+	return {
+		play: async () => { try { await player.play() } catch { console.log('Playback unavailable') } },
+		pause: () => player.pause(),
+		seek: () => player.seek(10),
+		dispose: () => { unsubscribe(); player.dispose() },
+	}
+}
+```
+
 The NativeScript implementation uses a package-owned Android Media3
 `MediaSessionService` and iOS `AVPlayer` with Now Playing metadata and remote
 transport commands. It reports background playback, system controls, and
@@ -106,6 +196,15 @@ duplicate-pod failure is superseded at the preparation stage. Complete native
 build and runtime qualification remain separate checks.
 The Web Media Session API can expose browser system controls when present, but
 the package does not claim background playback parity.
+
+```ts
+import { createAudioPlayer } from '@octane-xplat/audio'
+
+const player = createAudioPlayer()
+const features = player.capabilities()
+console.log(features.backgroundPlayback, features.systemControls, features.interruptions)
+player.dispose()
+```
 
 The intended ownership boundary is one long-form audio service per app media
 session. That service owns audio focus/session policy; short effects remain
@@ -129,6 +228,17 @@ retry playback from a user action when the browser blocks it. Test overlaps
 against the configured voice cap. For haptics, inspect `supported`, `patterns`,
 and `realtime` independently and show a fallback for unavailable features.
 
+```ts
+import type { AudioPlayer, AudioSnapshot } from '@octane-xplat/audio'
+
+export function observe(player: AudioPlayer, report: (snapshot: AudioSnapshot) => void) {
+	return player.subscribe(snapshot => {
+		report(snapshot)
+		if (snapshot.state === 'error') console.log(snapshot.error?.message)
+	})
+}
+```
+
 The maintained probe shows `systemControls` beside background playback. On iOS,
 enable the app target’s Background Modes capability and select Audio, AirPlay,
 and Picture in Picture before checking playback after the screen locks ([Apple
@@ -138,6 +248,14 @@ for its current track title and duration. Pause and resume there; after returnin
 confirm the player state and progress match those actions. On Android, check the
 media notification controls in the same way. Only offer system controls when
 `player.capabilities().systemControls` is true.
+
+```ts
+import type { AudioPlayer } from '@octane-xplat/audio'
+
+export function hasSystemControls(player: AudioPlayer) {
+	return player.capabilities().systemControls
+}
+```
 
 While playback is active, trigger a real audio interruption such as an incoming
 call, then confirm playback pauses and resumes only when the system allows it.

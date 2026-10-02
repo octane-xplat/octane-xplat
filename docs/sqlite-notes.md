@@ -33,21 +33,28 @@
 The plugin's mobile API (from `sqlitedatabase.d.ts`):
 
 ```ts
-openOrCreate(path, flags?) → SQLiteDatabase
-db.select(sql, params?) → Promise<Row[]>
-db.selectArray(sql, params?) → Promise<Row[][]>
-db.get(sql, params?) → Promise<Row>
-db.getArray(sql, params?) → Promise<Row[]>
-db.execute(sql, params?) → Promise<void>
-db.transaction(async (cancel) => T) → Promise<T>   // cancel() rolls back
-db.each(sql, params, rowCb, doneCb) → Promise<number>
-db.getVersion()/setVersion(n), isOpen, close()
-deleteDatabase(path)
+import { openOrCreate } from '@nativescript-community/sqlite'
+
+const db = openOrCreate('app.db')
+await db.execute('CREATE TABLE IF NOT EXISTS items(name TEXT)')
+const rows = await db.select('SELECT name FROM items')
+await db.transaction(async () => {
+	await db.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+})
+await db.close()
 ```
 
 `DatabaseOptions.threading` routes calls through a real native worker
 (`src/sqlite/worker.ts` + `WorkersContext.java`) — worth defaulting on so a
 slow query never blocks the JS thread.
+
+```ts
+import { openDatabase } from '@octane-xplat/sqlite'
+
+const db = await openDatabase('app.db', { threading: true })
+try { console.log(await db.select('SELECT 1 AS ready')) }
+finally { await db.close() }
+```
 
 ## Proposed seam
 
@@ -56,10 +63,14 @@ asset — too heavy for `platform`). Async shape nearly 1:1 with the mobile
 plugin so the native leaf is a thin pass-through:
 
 ```ts
+import { openDatabase } from '@octane-xplat/sqlite'
+
 const db = await openDatabase('app.db')
 await db.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
 const rows = await db.select<{ id: number; name: string }>('SELECT * FROM items')
-await db.transaction(async () => { … })          // throw to roll back
+await db.transaction(async (transaction) => {
+	await transaction.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+}) // throw to roll back
 await db.close()
 ```
 

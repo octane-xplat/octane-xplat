@@ -83,14 +83,16 @@ the full ordered list per app:
 
 ```ts
 // apps/mobile/vite.config.ts
-resolve: {
+import { defineConfig } from 'vite'
+
+export default defineConfig({ resolve: {
   extensions: [
     '.ios.tsrx', '.native.tsrx', '.tsrx',
     '.ios.tsx', '.native.tsx', '.tsx',
     '.ios.ts', '.native.ts', '.mjs', '.mts', '.ts',
     '.jsx', '.js', '.json',
   ],
-}
+} })
 ```
 
 (Octane's plugin already appends `.tsrx` to its own default list; verify our
@@ -101,11 +103,30 @@ helper asserts the final array.)
 that maps specifier → suffixed file directly. More control (e.g. context-aware
 resolution), same outcome. Write it only if Option A ordering proves fragile.
 
+```ts
+// Proposed fallback Vite plugin; the filename is resolved from this config file.
+import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+	plugins: [{
+		name: 'platform-module', enforce: 'pre',
+		resolveId(source) {
+			if (source === '#platform') return fileURLToPath(new URL('./src/platform.native.ts', import.meta.url))
+		},
+	}],
+})
+```
+
 **TypeScript side**: `moduleSuffixes` in each tsconfig —
 `[".ios", ".native", ""]` (native) / `[".web", ""]` (web) — resolves `./Foo` to
 `Foo.ios.tsrx` etc. for typing, matching runtime. Verify `tsrx-tsc` honors it
 (`.tsrx` is a patched extension; suffixes should compose — flagged for the
 prototype checklist).
+
+```json
+{ "compilerOptions": { "moduleSuffixes": [".ios", ".native", ""] } }
+```
 
 **NS's own suffixes**: NativeScript tooling already resolves `.ios.`/`.android.`
 for bundled resources — ours is a superset adding `.native`/`.web`. Align by
@@ -138,9 +159,10 @@ For props/values (not JSX vocabulary), avoid file splits:
 
 ```ts
 // platform/index.ts — resolved per-target
-export const OS: 'web' | 'ios' | 'android'
-export const isNative: boolean
-export function select<T>(s: { web?; native?; ios?; android?; default? }): T
+// Proposed declaration contract, not a shipped module.
+export declare const OS: 'web' | 'ios' | 'android'
+export declare const isNative: boolean
+export declare function select<T>(s: { web?: T; native?: T; ios?: T; android?: T; default: T }): T
 ```
 
 `platform.web.ts` / `platform.native.ts` (runtime OS check inside native impl).
@@ -149,6 +171,11 @@ Platform-resolved, so dead branches eliminate at build time.
 Rule: `Platform.select` is fine **inside** a shared file for values, prop
 objects, class names — never for mixing intrinsics (`<div>` vs `<gridlayout>`)
 in one file's JSX. That requires leaf splits.
+
+```ts
+// Proposed usage, with the declarations above in scope.
+const color = select({ web: '#4f46e5', native: '#4338ca', default: '#4f46e5' })
+```
 
 ## TypeScript
 
@@ -195,6 +222,13 @@ Two program configs over a shared base:
 `import.meta.env`-style defines per target: `__PLATFORM__`,
 `__DEV__`/`__PROD__`. Set in each vite config; keep the set tiny and prefer the
 `platform` module for branching so types stay honest.
+
+```ts
+// Proposed Vite define configuration, not a shared runtime API.
+import { defineConfig } from 'vite'
+
+export default defineConfig({ define: { __PLATFORM__: JSON.stringify('ios'), __DEV__: 'true' } })
+```
 
 ## What this buys us
 

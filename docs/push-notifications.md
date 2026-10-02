@@ -15,6 +15,14 @@ foreground messages, and notification tap-through. You own the Firebase
 project and the platform credentials — the leaf never sees them on native
 and only holds the public web config in the browser.
 
+```ts
+import { push } from '@octane-xplat/push'
+
+console.log(push.supported)
+const unsubscribe = push.onMessage(message => console.log(message.title ?? 'New message'))
+// Keep the listener while its owner is active, then unsubscribe().
+```
+
 ## Install and platform setup
 
 Add `@octane-xplat/push` to your app. The NativeScript plugins ship as real
@@ -61,6 +69,15 @@ through its registration query string, so the file itself carries no
 credentials. Serve it elsewhere via `serviceWorkerUrl` if your app root is
 taken.
 
+```ts
+import { push, type PushConfigureOptions } from '@octane-xplat/push'
+
+// options contains the app's public Firebase config and VAPID key.
+export function configureWorker(options: PushConfigureOptions) {
+	return push.configure({ ...options, serviceWorkerUrl: '/push/firebase-messaging-sw.js' })
+}
+```
+
 ## Configure once, early
 
 ```ts
@@ -79,49 +96,98 @@ host called `firebase().initializeApp()` itself. On web, pass `app` instead
 of `firebaseConfig` to reuse an app you initialized for other Firebase
 features.
 
+```ts
+import { push } from '@octane-xplat/push'
+import type { FirebaseApp } from 'firebase/app'
+
+export function reuseFirebase(app: FirebaseApp, vapidKey: string) {
+	return push.configure({ app, vapidKey })
+}
+```
+
 ## Permission, token, events
 
 ```ts
-const status = await push.requestPermission() // 'granted' | 'denied' | 'provisional' | …
-if (status !== 'granted') {
-	/* explain, offer settings */
+// Call from the app's notification opt-in action, after configure().
+import { push } from '@octane-xplat/push'
+
+export async function registerPush(sendTokenToYourServer: (token: string) => Promise<void>) {
+	const status = await push.requestPermission()
+	if (status !== 'granted' && status !== 'provisional' && status !== 'ephemeral') return
+
+	const token = await push.getToken()
+	if (token) await sendTokenToYourServer(token)
+	const offMessage = push.onMessage(message => console.log(message.title ?? 'New message'))
+	const offOpen = push.onNotificationOpen(message => console.log(message.data?.route))
+	const offRefresh = push.onTokenRefresh(next => {
+		void sendTokenToYourServer(next).catch(() => console.log('Token registration failed'))
+	})
+	return () => { offMessage(); offOpen(); offRefresh() }
 }
-
-const token = await push.getToken() // FCM registration token
-await sendTokenToYourServer(token)
-
-push.onMessage((message) => {
-	// foreground: { messageId, title, body, data }
-})
-
-push.onNotificationOpen((message) => {
-	// user tapped a notification, incl. the cold-start tap that launched the app
-})
-
-push.onTokenRefresh((next) => {
-	// rotated token — re-register it server-side
-})
 ```
 
 Each `on*` returns an unsubscribe function. Handlers attach cleanly before
 or after `configure()` — the leaf queues them, and the native plugin queues
 the cold-start tap until a listener exists.
 
+```ts
+import { push } from '@octane-xplat/push'
+
+const offMessage = push.onMessage(message => console.log(message.title))
+const offOpen = push.onNotificationOpen(message => console.log(message.data?.route))
+const offRefresh = push.onTokenRefresh(() => console.log('Token changed'))
+export function stopListeners() { offMessage(); offOpen(); offRefresh() }
+```
+
 ## Behavior by app state
 
-- **Foreground.** iOS/Android deliver to `onMessage` only — the system banner
+**Foreground.** iOS/Android deliver to `onMessage` only — the system banner
   is suppressed unless you opt in with `showNotificationsInForeground` in
   `configure`. Web delivers to `onMessage`.
-- **Background/quit.** The OS shows notification-payload messages; taps reach
+**Background/quit.** The OS shows notification-payload messages; taps reach
   `onNotificationOpen` on resume or cold start. Web background messages go
   through the service worker: `notification` payloads display via the SDK,
   data-only payloads get a minimal notification shown by the shipped worker.
-- **Tap-through on web needs a link.** The FCM worker only reports the click
+**Tap-through on web needs a link.** The FCM worker only reports the click
   when the message carries `fcmOptions.link` or `notification.click_action`
   (same-origin enforced). Set one on every web-targeted message — a bare `/`
   works.
-- **Data payloads** arrive on `message.data` as `Record<string, string>` on
+**Data payloads** arrive on `message.data` as `Record<string, string>` on
   every platform.
+
+```ts
+import { push } from '@octane-xplat/push'
+
+const off = push.onMessage(message => {
+	const tripId = message.data?.tripId
+	if (tripId) console.log('Updated trip', tripId)
+})
+```
+
+```json
+{
+  "message": {
+    "topic": "trip-updates",
+    "notification": { "title": "Trip updated" },
+    "webpush": { "fcm_options": { "link": "https://example.com/" } }
+  }
+}
+```
+
+```ts
+import { push } from '@octane-xplat/push'
+
+const off = push.onNotificationOpen(message => console.log('Opened', message.data?.route))
+// Keep this app-level listener alive to receive the queued cold-start tap.
+```
+
+```ts
+import { push } from '@octane-xplat/push'
+
+await push.configure({ showNotificationsInForeground: true }) // native startup
+const off = push.onMessage(message => console.log(message.title))
+// Call off() when the screen or app listener owner is disposed.
+```
 
 ## Limits and notes
 

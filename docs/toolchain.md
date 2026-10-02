@@ -289,6 +289,20 @@ the [macOS experiment
 notes](https://github.com/aleclarson/octane-xplat/blob/main/apps/macos/README.md)
 for signing, notarization, and icon setup.
 
+```json
+{
+  "xplat": { "targets": { "macos": {
+    "runtime": "appkit-node-api",
+    "package": {
+      "productName": "Example", "bundleIdentifier": "com.example.app",
+      "executableName": "Example", "version": "1.0.0", "minimumSystemVersion": "13.5",
+      "viteConfig": "vite.package.config.mjs", "bundleFile": "dist/package-build/main.cjs",
+      "icon": "assets/AppIcon.icns", "entitlements": "entitlements.plist"
+    }
+  } } }
+}
+```
+
 For AppKit rendering, install `@octane-xplat/macos-renderer` and use
 `xplatMacOS` from `@octane-xplat/cli/macos/vite` to register the compiler,
 platform resolution, and compatibility aliases. The app owns its windows,
@@ -296,12 +310,24 @@ startup, and custom fonts; the renderer defaults to Apple's system font.
 See the [renderer setup](../packages/macos-renderer/README.md) for dependencies,
 Vite and TypeScript configuration, and the root lifecycle.
 
+```js
+// vite.package.config.mjs — AppKit build.
+import { defineConfig } from 'vite'
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+export default defineConfig(env => xplatMacOS(env, { entry: 'src/main.mjs' }))
+```
+
 Leaf packages can also ship `platforms/macos/` sources in C, ObjC, Swift, or
 Zig. The CLI compiles them into separate libraries, extends app metadata, loads
 them before JS, and signs them with the packaged app. Declare
 `xplat.targets.macos.dev` for CLI-owned development with native rebuild/restart;
 see [native macOS leaves](macos-native.md) for the package contract, toolchain,
 language boundaries, and verification limits.
+
+```json
+{ "dev": { "viteConfig": "vite.dev.config.mjs", "bundleFile": "dist/dev/main.cjs" } }
+```
 
 The in-repository app runs the shared `@xplat/app` harness through
 `@octane-xplat/ui`'s `macos` package condition; its Vite config does not alias
@@ -322,12 +348,20 @@ Development serves the frontend from loopback and packages it under
 `Contents/Resources/web`; packaged pages load through the app's `xplat://app`
 scheme. The supported minimum remains macOS 13.5.
 
+```json
+{ "xplat": { "targets": { "macos": { "renderer": "webview" } } } }
+```
+
 Configure `webViteConfig`, `hostViteConfig`, and `hostBundleFile` under both
 `xplat.targets.macos.dev` and `.package`; packaging also requires `webOutDir`.
 All paths are relative to the app root. `xplat doctor` checks this renderer
 configuration. The frontend and host exchange typed calls, replies, events,
 and capabilities through `@octane-xplat/platform/host`; see the
 [WKWebView host guide](macos-webview.md) for configuration and custom services.
+
+```json
+{ "dev": { "webViteConfig": "vite.webview.config.mjs", "hostViteConfig": "vite.webview-host.config.mjs", "hostBundleFile": "dist/webview-host/host.cjs" }, "package": { "webViteConfig": "vite.webview.config.mjs", "hostViteConfig": "vite.webview-host.config.mjs", "hostBundleFile": "dist/webview-host/host.cjs", "webOutDir": "dist/web" } }
+```
 
 ## Experimental Windows target
 
@@ -355,6 +389,10 @@ Declare `xplat.targets.linux.runtime: 'webkitgtk'` and Linux package settings.
 GJS host, relocatable launcher, per-user installer, desktop entry, and tar archive.
 Follow [Package a Linux WebKitGTK app](linux-package.md) for the complete
 configuration, prerequisites, installation, URI handling, and verification flow.
+
+```json
+{ "xplat": { "targets": { "linux": { "runtime": "webkitgtk", "package": { "applicationId": "com.example.MyApp", "productName": "My App", "executableName": "my-app", "viteConfig": "vite.linux.config.mjs" } } } } }
+```
 
 The target renders DOM inside system WebKitGTK, with `.linux` → `.web` → shared
 resolution. It uses the desktop host protocol for OS services. The real host

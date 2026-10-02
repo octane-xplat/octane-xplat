@@ -57,6 +57,10 @@ letters, digits, hyphens, and underscores, starting with a letter or digit.
 version. `viteConfig` defaults to `vite.linux.config.ts` and must stay inside
 the app directory. Invalid settings fail before the build starts.
 
+```json
+{ "productName": "My App", "executableName": "my-app", "version": "1.0.0", "viteConfig": "vite.linux.config.mjs" }
+```
+
 Create `vite.linux.config.mjs`:
 
 ```js
@@ -119,6 +123,16 @@ reported by host calls; `notifications.ensure` returns `unsupported` when no
 notification server is present. Real app secrets use the persistent default
 collection. The bundled automated self-test uses an in-memory collection and
 never writes its test secrets into your persistent keyring.
+
+```ts
+import { desktopHost } from '@octane-xplat/platform/host/web'
+
+const host = desktopHost()
+if (host) {
+	const permission = await host.notifications.ensure()
+	if (permission === 'granted') await host.notifications.notify('Packing list ready')
+}
+```
 
 ## Build and install
 

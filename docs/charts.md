@@ -87,27 +87,30 @@ Two tiers, MUI X / Swift Charts style — a self-contained prop-driven chart
 covers the common cases; composable children are the escape hatch later,
 not v1.
 
-```ts
-interface ChartProps {
-  type: 'line' | 'area' | 'bar' | 'pie' | 'scatter'
-  data: SeriesSpec[]            // {name, color?, values: {x, y}[]}
-  width?: number; height?: number; aspectRatio?: number
-  margin?: {top, right, bottom, left}
-  xAxis?: AxisSpec; yAxis?: AxisSpec   // ticks/format/grid/label visibility
-  legend?: boolean | 'top' | 'bottom'
-  tooltip?: boolean
-  crosshair?: boolean           // scrub cursor: snap-to-nearest-x
-  onPress?: (hit: ChartHit) => void
-  onScrub?: (hit: ChartHit | null) => void
-  accessibilityLabel?: string
-  className?: string; style?: StyleProp
+```tsx
+// Proposed prop-driven usage at the time of this design, not runtime evidence.
+import type { ChartProps } from '@octane-xplat/charts'
+declare function ProposedChart(props: ChartProps): unknown
+
+export function ProposedTripsChart() {
+	return <ProposedChart type="bar" height={200} accessibilityLabel="Items packed per trip"
+		data={[{ name: 'Packed', values: [{ x: 'Summer', y: 5 }, { x: 'Autumn', y: 8 }] }]} />
 }
-interface ChartHit { series: number; index: number; x: number; y: number }
 ```
 
 Axis model follows Swift Charts' decomposition — gridline, tick, and label
 are independently toggleable (`AxisMarks` triple) — with `.value()`-style
 semantic labels feeding `accessibilityLabel`.
+
+```tsx
+// Proposed axis usage; continue with ProposedChart declared above.
+export function ProposedAxes() {
+	return <ProposedChart type="line" height={200}
+		data={[{ name: 'Trips', values: [{ x: 1, y: 2 }, { x: 2, y: 4 }] }]}
+		xAxis={{ grid: true, ticks: false, labels: true }}
+		yAxis={{ format: value => String(value), tickCount: 4 }} />
+}
+```
 
 ## Explicit scope cuts (v1)
 

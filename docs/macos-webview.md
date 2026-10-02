@@ -16,6 +16,10 @@ default when the setting is absent. The frontend resolves `.web` files, while
 the host continues to call macOS APIs through NativeScript. This uses the
 system WebKit engine and does not bundle Chromium.
 
+```json
+{ "xplat": { "targets": { "macos": { "renderer": "webview" } } } }
+```
+
 ## Configure the renderer
 
 Keep the existing macOS runtime and package identity, and give the frontend
@@ -65,6 +69,13 @@ the `xplat://app` scheme. The page is served from a trusted local origin in
 development. `xplat doctor` validates the selected renderer and its configured
 paths. The current host requires macOS 13.5 or later.
 
+```sh
+pnpm xplat doctor
+pnpm xplat dev --targets macos
+# After stopping development:
+pnpm xplat build --targets macos
+```
+
 ## Share typed host services
 
 The host bridge lives at `@octane-xplat/platform/host`. Frontend service
@@ -98,6 +109,26 @@ time contracts only: messages are JSON, and there is no runtime schema
 validation. Keep method results and event payloads serializable and handle
 rejected calls.
 
+```ts
+// Continue with AppServices and AppEvents above.
+import { createHostClient, createHostDispatcher, type HostTransport, type HostReplyPort } from '@octane-xplat/platform/host'
+
+export function frontend(transport: HostTransport) {
+	const client = createHostClient<AppServices, AppEvents>(transport)
+	const off = client.on('account.changed', event => console.log(event.id))
+	return {
+		load: (id: string) => client.call('account', 'load', id),
+		capabilities: () => client.capabilities(),
+		dispose: () => { off(); client.dispose() },
+	}
+}
+export function host(services: AppServices, port: HostReplyPort) {
+	const dispatcher = createHostDispatcher<AppServices, AppEvents>(services, port)
+	dispatcher.emit('account.changed', { id: '42' })
+	return dispatcher
+}
+```
+
 The platform's `.web` adapters use the typed desktop host inside WKWebView:
 clipboard, app info, lifecycle, window size, deep links, outbound links, share,
 files, notifications, secure storage, and color scheme. They preserve browser
@@ -110,11 +141,33 @@ adapters use the same protocol. A future CEF backend would replace the frontend
 engine only; it would not standardize the host-side JavaScript runtime
 (Annotation 2).
 
+```ts
+import { storage } from '@octane-xplat/platform'
+import { desktopHost } from '@octane-xplat/platform/host/web'
+
+storage.setString('last-screen', 'trips')
+const host = desktopHost()
+if (host) await host.storage.set('last-screen', 'trips')
+```
+
 `openUrl(url)` keeps its existing synchronous boolean signature. In a
 WKWebView, `true` means the request was sent to the host; the eventual native
 open result is asynchronous and is not returned by this API. Call
 `client.call('system', 'openUrl', url)` directly when app code needs that
 result.
+
+```ts
+import { openUrl } from '@octane-xplat/platform'
+import { desktopHostClient } from '@octane-xplat/platform/host/web'
+
+const url = 'https://example.com'
+const accepted = openUrl(url)
+const client = desktopHostClient()
+if (client) {
+	try { console.log(await client.call('system', 'openUrl', url)) }
+	catch { console.log('Could not open the link') }
+}
+```
 
 ## Verify the boundary
 

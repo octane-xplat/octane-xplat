@@ -12,15 +12,55 @@ Xplat does not supply that server or client. If you're building your first
 app, start with [a list that stays in memory](toolchain.md#build-and-check-your-first-flow),
 then add server data when you need it.
 
+```ts
+// src/api.ts — adapt these paths to your server.
+export type Post = { id: string; title: string }
+export type User = { id: string; name: string }
+async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
+	const response = await fetch(path, { signal })
+	if (!response.ok) throw new Error(`Request failed: ${response.status}`)
+	return response.json() as Promise<T>
+}
+export const api = {
+	posts: { list: ({ mode, signal }: { mode: string; signal: AbortSignal }) =>
+		request<Post[]>(`/api/posts?mode=${encodeURIComponent(mode)}`, signal) },
+	user: { get: ({ id, signal }: { id: string; signal: AbortSignal }) =>
+		request<User>(`/api/users/${encodeURIComponent(id)}`, signal) },
+}
+```
+
 A **query** loads data and tracks whether the request is waiting, ready, or
 failed. Use `query$` from `octane/signals` for this. A **signal** holds a
 changing value that the UI can follow, such as which feed someone selected.
 The `$` at the end of names matters to the compiler; keep it in your names.
 
+```ts
+// src/feed.ts
+import { query$, signal$ } from 'octane/signals'
+import { api } from './api'
+
+export const feedMode$ = signal$<'global' | 'following'>('global')
+export const feed$ = query$(
+	() => feedMode$.get(),
+	(mode, { signal }) => api.posts.list({ mode, signal }),
+)
+```
+
 A query declared in a shared file can be used by several screens in the same
 running app, including dialogs and sheets. A query declared inside a screen
 belongs to that screen. [Query ownership](#module-scope-vs-screen-scope)
 explains when to choose each.
+
+```tsx
+// In each reading component's .tsrx file:
+import 'octane/signals'
+import { Text } from '@octane-xplat/ui'
+import { feed$ } from './feed'
+
+export function FeedCount() {
+	return <Text>{feed$.latest([]).length} posts</Text>
+}
+```
 
 ## The shape
 
@@ -35,7 +75,9 @@ fragments are also supplied by your app; `Text`, `Pressable`, and `Spinner`
 come from `@octane-xplat/ui`. These are building blocks, not a complete screen.
 
 ```ts
-import { query$, signal$, skip } from 'octane/signals'
+// src/feed.ts (same module as above)
+import { query$, signal$ } from 'octane/signals'
+import { api } from './api'
 
 export const feedMode$ = signal$<'global' | 'following'>('global')
 
@@ -45,19 +87,52 @@ export const feed$ = query$(
 )
 ```
 
-- **The selector follows changes.** When a signal it reads changes, it
-  runs again; a different selection starts a new request. Return `skip` for "no request right
-  now" — a missing id, a logged-out session. The selection is compared by
-  encoded value, not identity — a fresh object literal with the same
-  contents is the same request (keep field order stable; encoding is
-  positional).
-- **The loader** receives the selection and a `QueryContext`
-  (`signal: AbortSignal` for cancellation, `previous` for the last
-  delivered value). It may return a value, a promise, or an
-  `AsyncIterable` — pass `{ kind: 'stream' }` in the options for streams.
-- **Previous data stays visible during refresh.** This is called
-  stale-while-revalidate: the app shows the last result while requesting
-  an updated one.
+The selector follows the signals it reads. A changed selection starts a new
+request; return `skip` when there is no request to make. Equivalent encoded
+selections share work within an owner; keep object field order stable on this
+version, whose encoding is positional.
+
+```ts
+import { query$, signal$, skip } from 'octane/signals'
+import { api } from './api'
+
+const userId$ = signal$<string | null>(null)
+const user$ = query$(
+	() => userId$.get() ?? skip,
+	(id, { signal }) => api.user.get({ id, signal }),
+)
+```
+
+The loader receives the selected value, an abort signal, and optional previous
+data. Pass the signal to your request so changing selections can cancel work.
+A loader can return a value or a promise; streaming loaders return an async
+iterable and use `{ kind: 'stream' }`.
+
+```ts
+import { query$ } from 'octane/signals'
+import { api } from './api'
+
+const user$ = query$(() => '42', (id, { signal, previous }) => {
+	console.log('Refreshing a previous result:', previous !== undefined)
+	return api.user.get({ id, signal })
+})
+const updates$ = query$(() => 'welcome', async function* (message) {
+	yield message
+}, { kind: 'stream' })
+```
+
+Previous data stays visible during refresh. This is called
+stale-while-revalidate: show the last result while requesting an updated one.
+
+```tsx
+import 'octane/signals'
+import { Text } from '@octane-xplat/ui'
+import { feed$ } from './feed'
+
+export function RefreshStatus() {
+	return <Text>{feed$.latest([]).length} posts{feed$.snapshot().refreshing ? ' (refreshing)' : ''}</Text>
+}
+```
 
 ## Reading in a screen
 
@@ -66,6 +141,16 @@ part of the UI. `@try` contains the data-dependent content, `@pending` shows
 while it waits, and `@catch` shows if the request fails. These are TSRX
 blocks; use them inside a `.tsrx` component. See the table for other ways
 to read a query without waiting.
+
+```tsx
+// src/Feed.tsrx
+import { Text, View } from '@octane-xplat/ui'
+import type { Post } from './api'
+
+export function Feed(props: { posts: Post[] }) {
+	return <View>{props.posts.map(post => <Text key={post.id}>{post.title}</Text>)}</View>
+}
+```
 
 | Call               | Effect                                                                                              |
 | ------------------ | --------------------------------------------------------------------------------------------------- |
@@ -79,6 +164,12 @@ to read a query without waiting.
 A suspending read belongs under a boundary:
 
 ```tsrx
+import 'octane/signals'
+import { Text, Pressable, Spinner } from '@octane-xplat/ui'
+import { feed$ } from './feed'
+import { Feed } from './Feed'
+
+export function FeedScreen() @{
 @try {
 	const posts = feed$.get()
 	<Feed posts={posts} />
@@ -86,6 +177,7 @@ A suspending read belongs under a boundary:
 	<Spinner />
 } @catch (e) {
 	<Text>Could not load the feed.</Text>
+}
 }
 ```
 
@@ -98,10 +190,33 @@ the request settles. Use `.snapshot()`/`.latest()` for an explicit loading
 indicator that leaves the previous records visible; `snapshot().refreshing`
 distinguishes a background refetch from pending.
 
+```tsx
+import 'octane/signals'
+import { Pressable, Text, View } from '@octane-xplat/ui'
+import { feed$ } from './feed'
+import { Feed } from './Feed'
+
+export function RefreshableFeed() {
+	return <View>
+		<Feed posts={feed$.latest([])} />
+		<Text>{feed$.snapshot().refreshing ? 'Refreshing' : feed$.snapshot().status}</Text>
+		<Pressable onPress={() => feed$.refetch()}><Text>Refresh</Text></Pressable>
+		<Pressable onPress={() => feed$.reset()}><Text>Reset</Text></Pressable>
+		<Pressable onPress={() => feed$.retry({ pending: true })}><Text>Retry</Text></Pressable>
+	</View>
+}
+```
+
 When a failed suspending read reaches `@catch`, retry the request and reset
 the boundary together:
 
 ```tsrx
+import 'octane/signals'
+import { Text, Pressable, Spinner } from '@octane-xplat/ui'
+import { feed$ } from './feed'
+import { Feed } from './Feed'
+
+export function RetryScreen() @{
 @try {
 	<Feed posts={feed$.get()} />
 } @pending {
@@ -112,17 +227,40 @@ the boundary together:
 		resetBoundary()
 	}}><Text>Retry</Text></Pressable>
 }
+}
 ```
 
 `Pressable`, `Text`, and `Spinner` come from `@octane-xplat/ui`;
 `Feed` remains an app-owned component. Resetting the boundary alone does not
 restart the failed request.
 
+```tsx
+// Inside the @catch(error, resetBoundary) arm shown above:
+<Pressable onPress={() => {
+	feed$.retry({ pending: true })
+	resetBoundary()
+}}><Text>Retry</Text></Pressable>
+```
+
 ## Writes
 
 A **mutation** changes data on the server, such as saving a trip. Wait for
 that request to succeed, then call `refetch()` on the query that displays
 it so the screen shows the updated record.
+
+```ts
+import { feed$ } from './feed'
+
+export async function savePost(id: string, title: string) {
+	const response = await fetch(`/api/posts/${encodeURIComponent(id)}`, {
+		method: 'PATCH',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ title }),
+	})
+	if (!response.ok) throw new Error('Could not save the post')
+	feed$.refetch()
+}
+```
 
 An **optimistic update** shows a proposed change before the server confirms
 it. For this advanced pattern, `optimistic$(source$)` wraps a signal so it
@@ -131,6 +269,30 @@ rolls them back on rejection. `isActionUncertain` handles cases where you
 cannot tell whether a request reached the server. See
 [Octane's signals reference](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md)
 for the full behavior before using this pattern.
+
+```ts
+import { signal$, optimistic$, action$, isActionUncertain } from 'octane/signals'
+
+const savedTitle$ = signal$('Packing list')
+const title$ = optimistic$(savedTitle$)
+const saveTitle$ = action$(async (operation, title: string) => {
+	operation.set(title$, title)
+	const response = await fetch('/api/title', {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ title }),
+	})
+	if (!response.ok) { operation.reject(); throw new Error('Save rejected') }
+	operation.adopt(title) // this endpoint confirms the supplied title
+})
+export async function rename(title: string) {
+	try { await saveTitle$(title) }
+	catch (error) {
+		if (isActionUncertain(error)) console.log('Check the server before retrying')
+		else throw error
+	}
+}
+```
 
 To check this flow, use an endpoint you can delay and fail: the first request
 should show pending, success should show records or an explicit empty state,
@@ -158,6 +320,10 @@ whether two open screens share the same query selection:
   can be alive in the navigation stack at once:
 
 ```tsrx
+import { query$ } from 'octane/signals'
+import { Spinner, Text } from '@octane-xplat/ui'
+import { api } from './api'
+
 export function Profile(props: { id: string }) @{
 	const profile$ = query$(
 		() => props.id,
@@ -165,7 +331,7 @@ export function Profile(props: { id: string }) @{
 	)
 	@try {
 		const user = profile$.get()
-		...
+		<Text>{user.name}</Text>
 	} @pending { <Spinner /> }
 }
 ```
@@ -177,10 +343,32 @@ underneath is reading — the covered page silently re-keys to the pushed
 page's params. On web it depends on render order. Reads in render, never
 writes.
 
+```tsx
+import { query$ } from 'octane/signals'
+import { Text } from '@octane-xplat/ui'
+import { api } from './api'
+
+export function ProfileName(props: { id: string }) {
+	const profile$ = query$(() => props.id, (id, { signal }) => api.user.get({ id, signal }))
+	return <Text>{profile$.latest()?.name ?? 'Loading'}</Text>
+}
+```
+
 Two limits of screen-owned queries: they don't dedupe across
 instances (two screens showing the same user fetch twice — there is no
 global keyed cache), and a mutation can't refetch "the" profile query from
 outside — refetch from the owning screen or fan out invalidation yourself.
+
+```tsx
+import { query$ } from 'octane/signals'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { api } from './api'
+
+export function RefreshProfile(props: { id: string }) {
+	const profile$ = query$(() => props.id, (id, { signal }) => api.user.get({ id, signal }))
+	return <Pressable onPress={() => profile$.refetch()}><Text>Refresh this profile</Text></Pressable>
+}
+```
 
 Read the screen-owned query in children or event handlers as needed: it stays
 with the component that declared it, rather than starting another child-owned
@@ -190,6 +378,20 @@ work. Responses from an aborted selection are ignored even if the transport
 does not honor cancellation. Module-level queries remain app-owned after an
 individual reader unmounts.
 
+```tsx
+import { query$ } from 'octane/signals'
+import { Text } from '@octane-xplat/ui'
+import { api } from './api'
+
+function Name(props: { profile$: ReturnType<typeof query$<string, { id: string; name: string }>> }) {
+	return <Text>{props.profile$.latest()?.name ?? 'Loading'}</Text>
+}
+export function ProfileWithChild(props: { id: string }) {
+	const profile$ = query$(() => props.id, (id, { signal }) => api.user.get({ id, signal }))
+	return <Name profile$={profile$} />
+}
+```
+
 A selector reacts to signals it reads. A plain route prop supplies the initial
 selection in the example above; replacing that prop on an already-mounted
 component does not itself invalidate the selector in Octane 0.6.3. For an
@@ -197,6 +399,22 @@ editable selection within a screen, use `useSignal$` from
 `octane/signals/client`, read it in the selector, and update it from an event.
 Mount a new route instance for new immutable route params. Do not copy props
 into a shared signal during render to work around this limitation.
+
+```tsx
+import { query$ } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
+import { Pressable, Text } from '@octane-xplat/ui'
+import { api } from './api'
+
+export function EditableProfile(props: { id: string }) {
+	const id$ = useSignal$(props.id)
+	const profile$ = query$(() => id$.get(), (id, { signal }) => api.user.get({ id, signal }))
+	return <>
+		<Text>{profile$.latest()?.name ?? 'Loading'}</Text>
+		<Pressable onPress={() => id$.set('42')}><Text>Show user 42</Text></Pressable>
+	</>
+}
+```
 
 The maintained [data probe](../packages/app/src/data-probe.tsrx) and
 [trace](../packages/app/src/data-trace.ts) exercise independent queries,
@@ -206,28 +424,93 @@ belongs in [testing notes](testing-notes.md#data-lifecycle-regressions).
 `query$` does not automatically refetch or pause on app background/resume;
 wire an app lifecycle event to the owning query's `refetch()` if needed.
 
+```tsx
+import { useEffect } from 'octane'
+import 'octane/signals'
+import { useAppState } from '@octane-xplat/platform'
+import { feed$ } from './feed'
+
+export function ResumeRefresh() {
+	const state = useAppState()
+	useEffect(() => { if (state === 'active') feed$.refetch() }, [state])
+	return null
+}
+```
+
 ## Rules that bite on native
 
 These rules prevent cases where a value changes but a phone screen does not
 update. “Render” means the code that draws the UI, and “subscribe” means
 following later changes to a value.
 
-- **Name signals with a `$` suffix** (`feed$`, `user$`). The compiler uses
-  the suffix to preserve reactive reads through caches and props.
-- **Every module that touches a signal needs a runtime import** of
-  `octane/signals` (or `octane/signals/client`). A
-  `import 'octane/signals'` side-effect line belongs in a consuming module
-  that otherwise only calls `.get()`.
-- **Reads outside render never subscribe** — module init, event handlers.
-  Write with `.set()`; read imperatively there.
-- **Non-signal module state doesn't subscribe on native.** Plain stores
-  and mutable objects need `useStore(store)` per reading component —
-  the universal renderer retains unchanged-prop children, so bare reads go
-  stale while web keeps working (decision #27). Prefer `signal$`.
-- **Route `loader` exports run on navigation** and deliver `data` or `error`
-  props; they do not provide a reactive query cache or suspense boundary.
-  Keep remote state in a screen-owned `query$` when it must react to inputs
-  or support refresh; see [route loaders](navigation.md#present-a-route-modally).
+**Name signals with a `$` suffix** (`feed$`, `user$`). The compiler uses
+this suffix to preserve reactive reads through caches and props.
+
+```tsx
+import { signal$ } from 'octane/signals'
+import { Text } from '@octane-xplat/ui'
+
+// src/UserName.tsrx
+export const user$ = signal$('Alex')
+export function UserName() { return <Text>{user$.get()}</Text> }
+```
+
+**Every module that touches a signal needs a runtime import** of
+`octane/signals` (or `octane/signals/client`). A side-effect import belongs
+in a consuming module that otherwise only calls `.get()`.
+
+```tsx
+// A second module, consuming user$ from the preceding example.
+import 'octane/signals'
+import { user$ } from './UserName'
+import { Text } from '@octane-xplat/ui'
+
+export function Welcome() { return <Text>{user$.get()}</Text> }
+```
+
+**Reads outside render never subscribe** — this includes module initialization
+and event handlers. Write with `.set()` and read imperatively there.
+
+```tsx
+import { useSignal$ } from 'octane/signals/client'
+import { Pressable, Text } from '@octane-xplat/ui'
+
+export function Count() {
+	const count$ = useSignal$(0)
+	return <Pressable onPress={() => count$.set(count$.get() + 1)}>
+		<Text>{String(count$.get())}</Text>
+	</Pressable>
+}
+```
+
+**Non-signal module state needs a subscription on native.** Plain stores
+need `useStore(store)` per reading component: the universal renderer retains
+unchanged-prop children, so bare reads go stale (decision #27). Prefer `signal$`
+when possible.
+
+```tsx
+import { createStore, useStore, Text } from '@octane-xplat/ui'
+
+const store = createStore({ name: 'Alex' })
+export function StoredName() {
+	const value = useStore(store)
+	return <Text>{value.name}</Text>
+}
+```
+
+**Route `loader` exports run on navigation** and deliver `data` or `error`
+props; they do not provide a reactive query cache or suspense boundary.
+Keep remote state in a screen-owned `query$` when it must react to inputs
+or support refresh; see [route loaders](navigation.md#present-a-route-modally).
+
+```tsx
+import { Text } from '@octane-xplat/ui'
+
+export async function loader() { return { title: 'Packing list' } }
+export default function PackingPage(props: { data?: { title: string }; error?: unknown }) {
+	return <Text>{props.error ? 'Could not load the page' : props.data?.title ?? 'Loading'}</Text>
+}
+```
 
 ## TanStack Query as an opt-in
 
@@ -241,6 +524,17 @@ binds the full `@tanstack/react-query` surface to octane hooks on top of
 cache machinery — infinite queries, the mutation cache, familiar
 invalidation patterns — but it is not the default: `query$` needs no
 provider and keeps previous data during background reloads.
+
+```tsx
+import { QueryClient, useQuery } from '@octanejs/tanstack-query'
+import { Text } from '@octane-xplat/ui'
+
+const client = new QueryClient()
+export function Greeting() {
+	const query = useQuery({ queryKey: ['greeting'], queryFn: () => Promise.resolve('Hello') }, client)
+	return <Text>{query.data ?? 'Loading'}</Text>
+}
+```
 
 On native it needs shims in the app entry (desk-source; not yet verified on
 device):
@@ -267,3 +561,15 @@ environmentManager.setIsServer(() => false)
 Also prefer a module-level `QueryClient` over `QueryClientProvider` —
 context does not cross native modal/overlay/list-cell roots.
 `useSuspenseQuery` under `universalTry` is unverified on native.
+
+
+```tsx
+import { QueryClient, useQuery } from '@octanejs/tanstack-query'
+import { Text } from '@octane-xplat/ui'
+
+const client = new QueryClient()
+export function Greeting() {
+	const query = useQuery({ queryKey: ['greeting'], queryFn: () => Promise.resolve('Hello') }, client)
+	return <Text>{query.data ?? 'Loading'}</Text>
+}
+```

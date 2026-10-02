@@ -118,16 +118,19 @@ Entries: web `createRoot(el)`; native `Application.run({create})` +
 ## Original hello-world sketch (historical)
 
 ```tsx
-// app/index.tsrx — shared screen
+// app/index.tsrx — historical layout, using the current shared names.
+import { useState } from 'octane'
+import { VStack, Text, Pressable } from '@octane-xplat/ui'
+
 export function Home() {
 	const [count, setCount] = useState(0)
 	return (
-		<Column className="flex-1 items-center justify-center gap-4">
-			<Text className="text-xl font-bold">Count: {count as string}</Text>
+		<VStack className="flex-1 items-center justify-center gap-4">
+			<Text className="text-xl font-bold">Count: {count}</Text>
 			<Pressable onPress={() => setCount(count + 1)} className="bg-primary rounded-lg px-4 py-2">
 				<Text className="text-onprimary">Increment</Text>
 			</Pressable>
-		</Column>
+		</VStack>
 	)
 }
 ```
