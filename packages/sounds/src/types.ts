@@ -10,6 +10,7 @@ export type SoundBankOptions = { maxVoices?: number }
 export type PlaySoundOptions = { volume?: number }
 export interface SoundBank {
 	capabilities(): SoundCapabilities
+	/** Prepares a named clip for playback; browsers may defer buffering until `play()`. */
 	load(name: string, source: SoundSource): Promise<void>
 	play(name: string, options?: PlaySoundOptions): Promise<boolean>
 	stop(name?: string): void

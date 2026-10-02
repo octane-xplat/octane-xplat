@@ -17,8 +17,9 @@ await bank.load('confirm', { uri: 'https://example.com/confirm.mp3' })
 await bank.play('confirm', { volume: 0.8 })
 ```
 
-`load(name, source)` decodes up front so `play` is fast; `stop(name?)`
-ends one voice or all. `capabilities()` reports `supported`,
+`load(name, source)` prepares the clip before playback; native decodes it up
+front, while browsers may defer audio data until `play`. `stop(name?)` ends one
+voice or all. `capabilities()` reports `supported`,
 `userGestureRequired` (web autoplay policy can refuse the first `play`,
 which resolves `false`), and `maxVoices` — check it before relying on
 polyphony.

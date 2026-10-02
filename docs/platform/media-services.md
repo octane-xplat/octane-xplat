@@ -166,8 +166,9 @@ export async function prepareSounds(source: string) {
 }
 ```
 
-Web browsers can reject preload or play until the user interacts with the
-page. Check `capabilities().userGestureRequired`; a failed `play()` resolves to
+Web `load()` waits for media metadata; browsers may defer buffering until
+playback. They can reject playback until the user interacts with the page.
+Check `capabilities().userGestureRequired`; a failed `play()` resolves to
 `false`. Effects must stay transient: they do not own media focus or change the
 long-form player's route.
 
@@ -193,6 +194,8 @@ when the media-session owner ends. Web disposal clears its Media Session
 action handlers as well as metadata and the audio source. Always handle a
 rejected `play()` promise: browsers can block autoplay, remote requests can
 fail, and local paths may not be readable by the platform player.
+On Web, `loading` covers a request or buffering wait; state returns to
+`playing` when media resumes.
 
 ```ts
 import { createAudioPlayer } from '@octane-xplat/audio'

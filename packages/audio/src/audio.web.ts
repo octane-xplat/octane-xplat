@@ -92,6 +92,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 		'timeupdate',
 		'durationchange',
 		'play',
+		'playing',
 		'pause',
 		'ended',
 		'waiting',
@@ -99,6 +100,8 @@ export const createAudioPlayer = (): AudioPlayer => {
 	]) {
 		audio.addEventListener(event, () => {
 			if (event === 'play') {
+				state = 'loading'
+			} else if (event === 'playing') {
 				state = 'playing'
 			} else if (event === 'pause' && state !== 'ended') {
 				state = 'paused'

@@ -41,19 +41,33 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
 			audio.load()
 			clips.set(name, audio)
 			await new Promise<void>((resolve, reject) => {
-				if (audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+				if (audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
 					return resolve()
 				}
 
-				audio.addEventListener('canplaythrough', () => resolve(), {
-					once: true,
-				})
+				const cleanup = () => {
+					audio.removeEventListener('loadedmetadata', onLoadedMetadata)
+					audio.removeEventListener('error', onError)
+				}
 
-				audio.addEventListener(
-					'error',
-					() => reject(new Error(`Failed to preload sound '${name}'`)),
-					{ once: true },
-				)
+				const onLoadedMetadata = () => {
+					cleanup()
+					resolve()
+				}
+
+				const onError = () => {
+					cleanup()
+					reject(new Error(`Failed to preload sound '${name}'`))
+				}
+
+				audio.addEventListener('loadedmetadata', onLoadedMetadata, { once: true })
+				audio.addEventListener('error', onError, { once: true })
+
+				// Browsers may defer buffering until playback, so metadata is the
+				// portable readiness boundary; play() reports later media failures.
+				if (audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+					onLoadedMetadata()
+				}
 			})
 		},
 		play: async (name, { volume = 1 } = {}) => {
