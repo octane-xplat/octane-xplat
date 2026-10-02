@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, HStack, Text, Pressable, ScrollableArea, useRoute, pushRoute, useColorScheme } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, ScrollableArea, useRoute, pushRoute, useColorScheme, BottomSheet } from '@octane-xplat/ui';
 import { DOCS, type DocPage } from './docs';
 import { docPath } from './doc-meta';
 import { MdDoc } from './MdDoc.tsrx';
@@ -47,11 +47,17 @@ export function App() @{
 	const [query, setQuery] = useState('');
 	const [active, setActive] = useState(0);
 	const [leaving, setLeaving] = useState(false);
+	const [menuOpen, setMenuOpen] = useState(false);
 	const navigationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const paletteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const menuTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const scheme = useColorScheme();
 	const dark = override ?? scheme === 'dark';
 	const openPalette = () => {
+		if (menuOpen) {
+			closeMenu();
+		}
+
 		if (paletteTimer.current !== null) {
 			clearTimeout(paletteTimer.current);
 			paletteTimer.current = null;
@@ -74,12 +80,65 @@ export function App() @{
 		}, 180);
 	};
 
+	const openMenu = () => {
+		if (menuTimer.current !== null) {
+			clearTimeout(menuTimer.current);
+			menuTimer.current = null;
+
+			// Reopen during the slide-out: the panel is still mounted
+			// holding the close transform — park it back at the detent.
+			const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu');
+			const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop');
+			if (panel) {
+				panel.style.transition = 'transform 200ms ease-out';
+				panel.style.transform = 'translateY(0px)';
+			}
+			if (shade) {
+				shade.style.transition = 'opacity 200ms ease-out';
+				shade.style.opacity = '0.4'; // BASE_SCRIM
+			}
+		}
+
+		setMenuOpen(true);
+	};
+
+	const closeMenu = () => {
+		if (menuTimer.current !== null) {
+			return;
+		}
+
+		const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu');
+		if (!panel) {
+			setMenuOpen(false);
+			return;
+		}
+
+		// open=false unmounts instantly; the detent slide-out only runs on
+		// drag/shade dismiss. Drive the drop here, then unmount.
+		const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop');
+		panel.style.transition = 'transform 200ms ease-in';
+		panel.style.transform = 'translateY(102%)';
+		if (shade) {
+			shade.style.transition = 'opacity 200ms ease-in';
+			shade.style.opacity = '0';
+		}
+
+		menuTimer.current = setTimeout(() => {
+			menuTimer.current = null;
+			setMenuOpen(false);
+		}, 200);
+	};
+
 	const route = useRoute('notes') ?? useRoute('root');
 	const slug = route?.name ?? DOCS[0].slug;
 	const doc = DOCS.find((d) => d.slug === slug) ?? DOCS[0];
 	const nextDoc = DOCS[DOCS.findIndex((d) => d.slug === doc.slug) + 1];
 
 	const open = (s: string, anchor?: string) => {
+		if (menuOpen) {
+			closeMenu();
+		}
+
 		const d = DOCS.find((x) => x.slug === s);
 		// The index doc lives at '/', not /README.
 		pushRoute({ stack: d?.group === 'notes' ? 'notes' : 'root', name: s === DOCS[0].slug ? '' : s, params: {} });
@@ -88,6 +147,11 @@ export function App() @{
 	};
 
 	const selectDoc = (s: string, anchor?: string) => {
+		// Sheet slide-down runs alongside the doc fade, not after it.
+		if (menuOpen) {
+			closeMenu();
+		}
+
 		if (s === doc.slug) {
 			open(s, anchor);
 			return;
@@ -118,6 +182,10 @@ export function App() @{
 
 		if (paletteTimer.current !== null) {
 			clearTimeout(paletteTimer.current);
+		}
+
+		if (menuTimer.current !== null) {
+			clearTimeout(menuTimer.current);
 		}
 	}, []);
 
@@ -228,54 +296,73 @@ export function App() @{
 		</Pressable>
 	);
 
-	<View className={['shell', dark ? 'dark' : 'light']}>
-		<HStack className="body">
-			<View className="side">
-				<View className="side-header">
-					<HStack className="brand-row">
-						<View className="logo-cluster">
-							<img className="logo-mark" src={logoMark} alt="" />
-							<img className="wordmark" src={wordmark} alt="Octane Xplat" />
-						</View>
-						<Pressable className="mode-toggle" onPress={() => setOverride(!dark)}>
-							<View className="mode-icon" />
-						</Pressable>
-					</HStack>
-					<View className="nav">
-						<Pressable className="nav-row" onPress={openPalette}>
-							<View className="nav-icon ic-search" />
-							<Text className="nav-label">Search</Text>
-							<Text className="nav-hint">⌘K</Text>
-						</Pressable>
-						<a
-							className="nav-row"
-							href="https://github.com/aleclarson/octane-xplat"
-							target="_blank"
-							rel="noopener"
-						>
-							<View className="nav-icon ic-github" />
-							<Text className="nav-label">Github</Text>
-						</a>
-						<Pressable className="nav-row" onPress={() => open(DOCS[0].slug)}>
-							<View className="nav-icon ic-start" />
-							<Text className="nav-label">Get Started</Text>
-						</Pressable>
-						<a className="nav-row" href="/llms.txt" target="_blank" rel="noopener">
-							<View className="nav-icon ic-doc" />
-							<Text className="nav-label">llms.txt</Text>
-						</a>
+	// The sidebar and the mobile sheet render the same nav tree.
+	const navTree = () => (
+		<View className="nav-tree">
+			<View className="side-header">
+				<HStack className="brand-row">
+					<View className="logo-cluster">
+						<img className="logo-mark" src={logoMark} alt="" />
+						<img className="wordmark" src={wordmark} alt="Octane Xplat" />
 					</View>
-					<View className="side-divider" />
+					<Pressable className="mode-toggle" onPress={() => setOverride(!dark)} accessibilityLabel="Toggle dark mode">
+						<View className="mode-icon" />
+					</Pressable>
+				</HStack>
+				<View className="nav">
+					<Pressable className="nav-row" onPress={openPalette}>
+						<View className="nav-icon ic-search" />
+						<Text className="nav-label">Search</Text>
+						<Text className="nav-hint">{'⌘K'}</Text>
+					</Pressable>
+					<a
+						className="nav-row"
+						href="https://github.com/aleclarson/octane-xplat"
+						target="_blank"
+						rel="noopener"
+					>
+						<View className="nav-icon ic-github" />
+						<Text className="nav-label">Github</Text>
+					</a>
+					<Pressable className="nav-row" onPress={() => open(DOCS[0].slug)}>
+						<View className="nav-icon ic-start" />
+						<Text className="nav-label">Get Started</Text>
+					</Pressable>
+					<a className="nav-row" href="/llms.txt" target="_blank" rel="noopener">
+						<View className="nav-icon ic-doc" />
+						<Text className="nav-label">llms.txt</Text>
+					</a>
 				</View>
-				<View className="side-scroll">
-					@for (const g of GROUPS; key g.key) {
-						<View className="side-sec">
-							<Text className="sec-head">{g.label}</Text>
-							{DOCS.filter((d) => d.group === g.key).map(renderDoc)}
-						</View>
-					}
-				</View>
+				<View className="side-divider" />
 			</View>
+			<View className="side-scroll">
+				{GROUPS.map((g) => (
+					<View key={g.key} className="side-sec">
+						<Text className="sec-head">{g.label}</Text>
+						{DOCS.filter((d) => d.group === g.key).map(renderDoc)}
+					</View>
+				))}
+			</View>
+		</View>
+	);
+
+	<View className={['shell', dark ? 'dark' : 'light']}>
+		<HStack className="mobile-header">
+			<Pressable className="logo-cluster mh-brand" accessibilityLabel="Go to the introduction" onPress={() => open(DOCS[0].slug)}>
+				<img className="logo-mark" src={logoMark} alt="" />
+				<img className="wordmark" src={wordmark} alt="Octane Xplat" />
+			</Pressable>
+			<HStack className="mh-actions">
+				<Pressable className="icon-btn" accessibilityLabel="Search docs" onPress={openPalette}>
+					<View className="nav-icon ic-search" />
+				</Pressable>
+				<Pressable className="icon-btn" accessibilityLabel="Open menu" onPress={openMenu}>
+					<View className="nav-icon ic-menu" />
+				</Pressable>
+			</HStack>
+		</HStack>
+		<HStack className="body">
+			<View className="side">{navTree()}</View>
 			<View className="card">
 				<div className="constellation" aria-hidden="true" />
 				<ScrollableArea id="doc-content" className="content">
@@ -306,6 +393,17 @@ export function App() @{
 				</ScrollableArea>
 			</View>
 		</HStack>
+		{/* Mobile nav sheet — portals to document.body, so it doesn't
+		    inherit .dark from .shell; pass the scheme via className. */}
+		<BottomSheet
+			isOpen={menuOpen}
+			label="Documentation menu"
+			onOpenChange={(o) => { if (!o) setMenuOpen(false); }}
+			snapPoints={[0.85]}
+			className={dark ? 'docs-menu dark' : 'docs-menu'}
+		>
+			{navTree()}
+		</BottomSheet>
 		{paletteMounted && (
 			<div
 				className={paletteOpen ? 'palette-backdrop' : 'palette-backdrop closing'}

@@ -340,6 +340,15 @@ body {
 	padding: 4px 2px 0 3px;
 }
 
+/* shared wrapper — the sidebar's flex split is preserved when the same
+   tree mounts inside the mobile sheet (block context there). */
+.nav-tree {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+}
+
 .side-header {
 	width: auto;
 	flex-shrink: 0;
@@ -480,6 +489,10 @@ body {
 
 .ic-doc {
 	background-image: url('./assets/icon-doc.svg');
+}
+
+.ic-menu {
+	background-image: url('./assets/icon-menu.svg');
 }
 
 .nav-label {
@@ -700,6 +713,81 @@ body {
 	padding: 20px 14px;
 	font-size: 14px;
 	color: var(--doc-dim);
+}
+
+/* ---------- mobile header + nav sheet ---------- */
+
+/* Shown only at the mobile breakpoint — the doc scrolls inside
+   .content, so a sibling row is already "sticky" without position:
+   sticky or scroll listeners. */
+.mobile-header {
+	display: none;
+}
+
+.icon-btn {
+	width: 44px;
+	height: 44px;
+	align-items: center;
+	justify-content: center;
+	border-radius: 14px;
+	corner-shape: squircle;
+	cursor: pointer;
+}
+
+.icon-btn:hover {
+	background-color: var(--doc-hover);
+}
+
+/* Sheet panel — the framework supplies position/backdrop/grabber via
+   .vx-sheet; .docs-menu reskins it to the docs palette. The .dark
+   class rides on the panel itself (the portal sits outside .shell). */
+.docs-menu {
+	padding: 34px 14px calc(24px + env(safe-area-inset-bottom));
+	background-color: var(--doc-card);
+	border-top: 0.5px solid var(--doc-hairline);
+	border-radius: 28px 28px 0 0;
+	corner-shape: squircle;
+	box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.14);
+	overscroll-behavior: contain;
+	color: var(--doc-ink);
+}
+
+.dark.docs-menu {
+	box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.5);
+}
+
+.docs-menu .vx-sheet-grip {
+	background-color: var(--doc-dim);
+}
+
+.docs-menu .side-header {
+	background-color: transparent;
+}
+
+.docs-menu .brand-row {
+	padding: 0 10px 16px;
+}
+
+.docs-menu .side-scroll {
+	overflow: visible;
+	padding-bottom: 4px;
+}
+
+.docs-menu .nav-row,
+.docs-menu .side-item {
+	padding: 10px 12px;
+	border-radius: 16px;
+}
+
+.docs-menu .nav-label,
+.docs-menu .sec-head,
+.docs-menu .side-text {
+	font-size: 17px;
+}
+
+/* ⌘K hint means nothing without a hardware keyboard. */
+.docs-menu .nav-hint {
+	display: none;
 }
 
 /* ---------- doc card ---------- */
@@ -1645,91 +1733,36 @@ body {
 		padding: 8px;
 	}
 
-	.body {
-		flex-direction: column;
-		gap: 8px;
+	/* The in-flow sidebar goes away; its nav moves into the sheet. */
+	.side {
+		display: none;
 	}
 
-	/* sidebar → compact header + horizontal nav strips above the card */
-	.side {
-		width: 100%;
+	.mobile-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: 54px;
+		margin: -8px -8px 4px;
+		padding: 0 6px 0 14px;
+		border-bottom: 0.5px solid var(--doc-hairline);
+		background-color: var(--doc-bg);
 		flex-shrink: 0;
-		overflow: visible;
-		margin-bottom: 0;
-		padding: 0 4px;
 	}
 
-	.side {
-		overflow: visible;
+	.mh-brand {
+		padding: 4px 6px;
+		border-radius: 12px;
+		corner-shape: squircle;
 	}
 
-	.side-header {
-		width: auto;
-		padding-top: 0;
-	}
-
-	.side-scroll {
-		flex: none;
-		min-height: auto;
-		overflow: visible;
-	}
-
-	.brand-row {
-		padding-bottom: 10px;
-	}
-
-	.nav {
-		flex-direction: row;
-		overflow-x: auto;
+	.mh-actions {
+		align-items: center;
 		gap: 2px;
-		margin-bottom: 8px;
-	}
-
-	.nav-row {
-		flex-shrink: 0;
-		padding: 6px;
-	}
-
-	.nav-label {
-		font-size: 14px;
 	}
 
 	.palette-backdrop {
 		padding-top: 8vh;
-	}
-
-	.side {
-		position: relative;
-	}
-
-	.side-sec {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		overflow-x: auto;
-		padding-top: 8px;
-		margin-top: 8px;
-	}
-
-	.side-sec + .side-sec {
-		padding-top: 8px;
-	}
-
-	.sec-head {
-		font-size: 16px;
-		margin-bottom: 0;
-		padding-right: 8px;
-		flex-shrink: 0;
-	}
-
-	.side-item {
-		flex-shrink: 0;
-		padding: 6px;
-		white-space: nowrap;
-	}
-
-	.side-text {
-		font-size: 14px;
 	}
 
 	.card {
@@ -1784,11 +1817,8 @@ body {
 		margin-top: 36px;
 	}
 
-	.p,
-	.li,
-	.callout-line {
-		font-size: 14px;
-	}
+	/* Body copy keeps the desktop 16px — the old 14px mobile shrink
+	   read too small on phones. */
 
 	.code {
 		padding: 12px 14px;
@@ -1796,12 +1826,12 @@ body {
 
 	.code .mono,
 	.code span {
-		font-size: 12px;
+		font-size: 13px;
 	}
 
 	.td {
 		padding: 8px 10px;
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.table-scroll-hint {
