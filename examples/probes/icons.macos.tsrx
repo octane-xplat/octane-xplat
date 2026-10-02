@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { Column, Image, Icon as GlyphIcon, registerIcons, createStore, useStore } from '@octane-xplat/ui'
 import { Icon, addCollection } from '@octane-xplat/icons'
 import type { ProbeContext } from '../../scripts/probe/context'

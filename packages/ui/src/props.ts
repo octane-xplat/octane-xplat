@@ -5745,6 +5745,7 @@ export type MultiSelectorProps = Omit<
 	onValueChange?: (value: string[]) => void
 	changeAction?: (value: string[]) => void | Promise<void>
 }
+
 /** Props accepted by `Breadcrumbs`. */
 export type BreadcrumbsProps = BreadcrumbProps
 /** Props accepted by `TreeList`. */

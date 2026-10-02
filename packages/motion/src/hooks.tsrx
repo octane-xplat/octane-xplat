@@ -92,6 +92,7 @@ export function useAnimate(): [
 					: scope.current
 						? controllers.get(scope.current)
 						: undefined
+
 			if (!controller) {
 				return Promise.resolve('cancelled' as const)
 			}
@@ -101,5 +102,6 @@ export function useAnimate(): [
 			return controller.animate(destination, spec, reducedRef.current)
 		},
 	).current
+
 	return [scope, animate]
 }

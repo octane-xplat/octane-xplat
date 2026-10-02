@@ -155,7 +155,6 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	function scheduleEstimateRebuild() {
 		if (estimateScheduledRef.current) return
 		estimateScheduledRef.current = true
-<<<<<<< HEAD
 		// Measurements and anchor correction are immediate. Defer estimate-driven
 		// DOM writes until the next frame so they run after ResizeObserver delivery.
 		estimateFrameRef.current = requestAnimationFrame(() => {

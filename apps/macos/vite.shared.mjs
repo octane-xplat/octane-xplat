@@ -30,6 +30,7 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 					? 'src/VirtualListWindowedBench.tsx'
 					: 'src/VirtualListBench.tsx'
 			: 'src/App.tsx'
+
 	return defineConfig(async ({ mode }) => {
 		const config = await xplatMacOS(mode, { root: appRoot, packaged, hmr, rules, entry })
 		return { ...config, define: { ...config.define, ...(packaged ? bundledFontDefines() : {}) } }

@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { Select as Selector } from '../../packages/ui/src/Select.macos.tsrx'
 import { Text } from '../../packages/ui/src/Text.macos.tsrx'
 import { VStack } from '../../packages/ui/src/VStack.macos.tsrx'

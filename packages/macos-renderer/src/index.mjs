@@ -1678,8 +1678,11 @@ function applyStyle(node, style) {
 		}
 
 		if (name === 'pointerEvents') {
-			if (value === 'none') inputTransparentViews.add(node.view)
-			else inputTransparentViews.delete(node.view)
+			if (value === 'none') {
+				inputTransparentViews.add(node.view)
+			} else {
+				inputTransparentViews.delete(node.view)
+			}
 		} else if (name === 'objectFit' && node.type === 'image') {
 			// NSImageScaleProportionallyUpOrDown / NSImageScaleProportionallyDown.
 			node.view.imageScaling = value === 'contain' ? 3 : 0
@@ -3344,10 +3347,15 @@ function showAnchoredPopup(options) {
 		closed: false,
 		closeObserver: null,
 		update(props) {
-			if (popup.closed) return
+			if (popup.closed) {
+				return
+			}
+
 			root.render(options.component, props)
 			const size = popupFittingSize(contentView)
-			if (size) popup.popover.contentSize = size
+			if (size) {
+				popup.popover.contentSize = size
+			}
 		},
 		close(dismissed = false) {
 			if (popup.closed) {
@@ -3360,6 +3368,7 @@ function showAnchoredPopup(options) {
 				try {
 					NSNotificationCenter.defaultCenter.removeObserver(popup.closeObserver)
 				} catch {}
+
 				popup.closeObserver = null
 			}
 
