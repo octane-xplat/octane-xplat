@@ -87,6 +87,19 @@ const HEADER = `# Xplat docs
 Xplat lets one TypeScript app write shared screens from a small component vocabulary. The web build renders them to the DOM; the iOS/Android build renders NativeScript views. Packages: \`@octane-xplat/ui\` (components, styled(), route table, theme), \`@octane-xplat/cli\` (\`xplat\` dev/build/doctor/typecheck/clean), \`@octane-xplat/platform\` (device services), \`create-octane-xplat\` (project starter).
 
 Rules for shared app code: one element vocabulary per file — platform divergence happens at file boundaries using \`.web\` for browser code, \`.mobile\` for shared iOS/Android variants, and OS suffixes such as \`.ios\`/\`.android\`; the unsuffixed module is the native default. Static styles go in \`className\`; values that change at runtime go in \`style\` objects. Shared code never touches DOM globals — device capabilities come from \`@octane-xplat/platform\`. Hook-calling code lives in \`.tsx\`/\`.tsrx\` files. Every app bundles exactly one copy of \`octane\`.
+
+\`\`\`tsx
+import { useState } from 'octane'
+import { View, Text, Pressable } from '@octane-xplat/ui'
+
+export function Counter() {
+  const [count, setCount] = useState(0)
+  return <View className="counter" style={{ opacity: count === 0 ? 0.6 : 1 }}>
+    <Text>{count} items packed</Text>
+    <Pressable onPress={() => setCount(count + 1)}><Text>Pack an item</Text></Pressable>
+  </View>
+}
+\`\`\`
 `
 
 const link = (d) =>
