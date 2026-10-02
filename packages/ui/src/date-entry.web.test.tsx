@@ -80,12 +80,12 @@ describe('Calendar (web)', () => {
 		expect(change).not.toHaveBeenCalled()
 	})
 
-	it('navigates months via bind handle', () => {
+	it('navigates months via ref handle', () => {
 		let handle: any
 		const { el } = mount(
 			<Calendar
 				mode="single"
-				bind={(h: any) => {
+				ref={(h: any) => {
 					handle = h
 				}}
 			/>,

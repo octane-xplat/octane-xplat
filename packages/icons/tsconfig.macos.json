@@ -9,10 +9,7 @@
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"rootDir": "src",
-		"outDir": "types/generated/macos",
-		"paths": {
-			"@xplat/macos/renderer/jsx-runtime": ["../../apps/macos/src/renderer/jsx-runtime.d.ts"]
-		}
+		"outDir": "types/generated/macos"
 	},
 	"files": ["src/index.macos.ts"]
 }

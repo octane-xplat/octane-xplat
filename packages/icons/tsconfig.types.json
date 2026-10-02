@@ -8,10 +8,7 @@
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"rootDir": "src",
-		"outDir": "types/generated",
-		"paths": {
-			"@xplat/macos/renderer/jsx-runtime": ["../../apps/macos/src/renderer/jsx-runtime.d.ts"]
-		}
+		"outDir": "types/generated"
 	},
 	"files": ["src/index.ts", "src/index.web.ts", "src/index.macos.ts"]
 }
