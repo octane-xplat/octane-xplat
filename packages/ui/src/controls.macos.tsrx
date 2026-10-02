@@ -41,6 +41,7 @@ export function Button(props: ButtonProps) @{
 export function Checkbox(inputProps: CheckboxProps) @{
 	const props = useFieldControlProps(inputProps)
 	const checked = props.checked ?? false
+	const marked = checked || props.indeterminate
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const colors = controlColors(useThemeScheme() === 'dark')
 
@@ -54,8 +55,9 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		accessibilityRole="checkbox"
 		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={{ checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
-		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(!checked)}
+		accessibilityValue={props.indeterminate ? 'Partially selected' : undefined}
+		accessibilityState={{ checked: props.indeterminate ? 'mixed' : checked, disabled: props.isDisabled, readonly: props.isReadOnly, busy: props.isLoading, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' }}
+		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(props.indeterminate ? true : !checked)}
 	>
 		<flexboxlayout
 			className="vx-checkbox"
@@ -65,12 +67,12 @@ export function Checkbox(inputProps: CheckboxProps) @{
 				width: 20,
 				height: 20,
 				borderWidth: 1,
-				borderColor: checked ? colors.primary : colors.border,
+				borderColor: marked ? colors.primary : colors.border,
 				borderRadius: 6,
-				...(checked ? { backgroundColor: colors.primary } : {}),
+				...(marked ? { backgroundColor: colors.primary } : {}),
 			}}
 		>
-			{checked ? <Text className="vx-checkbox-check" style={{ fontFamily: 'system-ui', fontSize: 14, lineHeight: '20px', color: colors.onPrimary }}>✓</Text> : null}
+			{marked ? <Text className="vx-checkbox-check" style={{ fontFamily: 'system-ui', fontSize: 14, lineHeight: '20px', color: colors.onPrimary }}>{props.indeterminate ? '−' : '✓'}</Text> : null}
 		</flexboxlayout>
 		{props.label != null ? <Text className="vx-checkbox-label">{props.label}</Text> : null}
 	</flexboxlayout>

@@ -101,6 +101,7 @@ const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
 const absoluteLayoutNodesByView = new WeakMap<object, ElementNode>()
 const accessibilityLabels = new Map<number, string>()
 const accessibilityRoles = new Map<number, string>()
+const stackAccessibilityPropsByView = new WeakMap<object, PropBag>()
 const scrollHandlers = new WeakMap<object, () => void>()
 let nextActionId = 1
 const DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16
@@ -199,6 +200,9 @@ class AccessibleStackView extends NSStackView {
 		accessibilityPerformPress: { params: [], returns: interop.types.bool },
 		accessibilityRole: { params: [], returns: interop.types.id },
 		accessibilityLabel: { params: [], returns: interop.types.id },
+		accessibilityValue: { params: [], returns: interop.types.id },
+		accessibilityHelp: { params: [], returns: interop.types.id },
+		accessibilityIsEnabled: { params: [], returns: interop.types.bool },
 		accessibilityIsIgnored: { params: [], returns: interop.types.bool },
 	}
 
@@ -208,7 +212,11 @@ class AccessibleStackView extends NSStackView {
 
 	accessibilityPerformPress() {
 		const actionId = actionIdsByView.get(this)
-		if (actionId === undefined || !actionHandlers.has(actionId)) {
+		if (
+			actionId === undefined ||
+			typeof actionHandlers.get(actionId) !== 'function' ||
+			!this.accessibilityIsEnabled()
+		) {
 			return false
 		}
 
@@ -217,11 +225,36 @@ class AccessibleStackView extends NSStackView {
 	}
 
 	accessibilityRole() {
-		return accessibilityRoles.get(actionIdsByView.get(this) ?? -1) === 'button' ? 'AXButton' : 'AXGroup'
+		const role = accessibilityRoles.get(actionIdsByView.get(this) ?? -1)
+		return role === 'checkbox' ? 'AXCheckBox' : role === 'button' ? 'AXButton' : 'AXGroup'
 	}
 
 	accessibilityLabel() {
 		return accessibilityLabels.get(actionIdsByView.get(this) ?? -1) ?? ''
+	}
+
+	accessibilityValue() {
+		const props = stackAccessibilityPropsByView.get(this)
+		if (this.accessibilityRole() === 'AXCheckBox') {
+			// AppKit uses 0/1/2 for off/on/mixed checkbox values.
+			return NSNumber.numberWithDouble(
+				props?.accessibilityState?.checked === 'mixed'
+					? 2
+					: props?.accessibilityState?.checked === true
+						? 1
+						: 0,
+			)
+		}
+
+		return props?.accessibilityValue ?? ''
+	}
+
+	accessibilityHelp() {
+		return stackAccessibilityPropsByView.get(this)?.accessibilityHint ?? ''
+	}
+
+	accessibilityIsEnabled() {
+		return !stackAccessibilityPropsByView.get(this)?.accessibilityState?.disabled
 	}
 
 	accessibilityIsIgnored() {
@@ -2185,6 +2218,8 @@ function setControlAction(node: ElementNode, value: any, readValue: () => any) {
 
 function applyAccessibility(node: ElementNode, name: string, value: any) {
 	if (node.type === 'flexboxlayout' && node.actionId !== undefined) {
+		const props = stackAccessibilityPropsByView.get(node.view!) ?? {}
+		stackAccessibilityPropsByView.set(node.view!, { ...props, [name]: value })
 		if (name === 'accessibilityLabel') {
 			accessibilityLabels.set(node.actionId!, String(value ?? ''))
 		}

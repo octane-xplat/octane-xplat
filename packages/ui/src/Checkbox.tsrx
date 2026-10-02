@@ -21,8 +21,9 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		accessibilityRole={nativeAccessibilityRole('checkbox') as any}
 	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 	accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, checked: props.checked ?? false }) as any}
-		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(!(props.checked ?? false))}
+		accessibilityValue={props.indeterminate ? 'Partially selected' : undefined}
+		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled, checked: props.indeterminate ? undefined : props.checked ?? false }) as any}
+		onTap={isBlocked ? undefined : () => props.onCheckedChange?.(props.indeterminate ? true : !(props.checked ?? false))}
 	>
 		<Ind state={indState} size={props.size === 'sm' ? 'sm' : 'md'} isDisabled={props.isDisabled} />
 		{props.label != null ? <label className="vx-checkbox-label" text={props.label} /> : null}

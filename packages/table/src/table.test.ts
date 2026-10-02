@@ -80,3 +80,35 @@ describe('createTable', () => {
 		expect(names(table)).toEqual(['Charlie', 'Bob', 'Alice'])
 	})
 })
+
+describe('stable selection ownership', () => {
+	it('selects only eligible filtered page IDs and keeps missing IDs until the owner clears', () => {
+		const data = [
+			{ id: 'a', name: 'Alice' },
+			{ id: 'b', name: 'Bob' },
+			{ id: 'c', name: 'Charlie' },
+		]
+
+		const table = createTable({
+			data,
+			columns: [{ accessorKey: 'name' }],
+			getRowId: (row) => row.id,
+			enableRowSelection: (row) => row.id !== 'b',
+			initialState: { rowSelection: { absent: true }, pagination: { pageIndex: 0, pageSize: 2 } },
+		})
+
+		table.toggleAllPageRowsSelected(true)
+		expect(table.store.get().rowSelection).toEqual({ absent: true, a: true })
+		table.setGlobalFilter('char')
+		table.toggleAllPageRowsSelected(true)
+		expect(table.store.get().rowSelection).toEqual({ absent: true, a: true, c: true })
+		table.toggleAllPageRowsSelected(false)
+		expect(table.store.get().rowSelection).toEqual({ absent: true, a: true })
+		table.setOptions((prev) => ({ ...prev, data: [{ id: 'a', name: 'Updated Alice' }] }))
+		table.setGlobalFilter('')
+		expect(table.getRowModel().rows[0].getIsSelected()).toBe(true)
+		expect(table.getSelectedRowModel().rows.map((row) => row.id)).toEqual(['a'])
+		table.resetRowSelection(true)
+		expect(table.store.get().rowSelection).toEqual({})
+	})
+})

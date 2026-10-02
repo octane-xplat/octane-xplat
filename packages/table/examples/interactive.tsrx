@@ -1,4 +1,5 @@
-import { DataGrid } from '@octane-xplat/table'
+import { DataGrid, type DataGridFeatures, type TableState } from '@octane-xplat/table'
+import { useState } from 'octane'
 import { View, Text } from '@octane-xplat/ui'
 import { pan } from './gesture'
 import { GridHost } from './host'
@@ -24,6 +25,7 @@ const columns = [
 
 /** Maintained interaction fixture: only the body scrolls; controls stay reachable. */
 export default function InteractiveGrid() {
+	const [rowSelection, setRowSelection] = useState<TableState<DataGridFeatures>['rowSelection']>({})
 	return (
 		<GridHost>
 			<View style={{ height: 650 }}>
@@ -36,11 +38,13 @@ export default function InteractiveGrid() {
 					showColumnFilters
 					showPagination
 					showRowSelection
+					getRowLabel={(row) => row.original.name}
+					state={{ rowSelection }}
 					showColumnSettings
 					resizableColumns
 					reorderableColumns
 					initialState={{ pagination: { pageIndex: 0, pageSize: 2 } }}
-					options={{ enableRowSelection: (row) => row.id !== 'b' }}
+					options={{ enableRowSelection: (row) => row.id !== 'b', onRowSelectionChange: setRowSelection }}
 					renderEmpty={() => <Text id="grid-empty">No matching rows</Text>}
 				/>
 			</View>

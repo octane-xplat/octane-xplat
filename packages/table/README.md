@@ -151,7 +151,33 @@ Selection never activates `onRowPress`; the activation surface is a separate
 sibling of the checkbox. `options.enableRowSelection` can be a predicate to
 block specific rows. Select-all means the **current row-model page**, not every
 record in a server dataset. Clear removes off-page IDs too; the caller decides
-whether to prune IDs when records disappear.
+whether to prune IDs when records disappear. A missing ID remains in the count
+but has no loaded row in `table.getSelectedRowModel()`; use the selection state
+for server-side bulk actions that include unloaded records.
+
+Page selection ignores disabled rows. When some eligible rows are selected, the
+page control shows a dash; activating it selects the remaining eligible rows.
+An empty or entirely disabled page disables that control. Give `getRowLabel` a
+human-readable name, such as `row => row.original.name`, so a checkbox says
+“Select Alice” rather than “Select a”. Web checkboxes support Space and Enter.
+
+### Row accessibility
+
+The web presentation exposes a table with header/row/cell roles. Its row count
+includes header rows plus the **filtered** data total. Body indices follow the
+filtered, sorted order with the page offset, before VirtualList removes
+unmounted rows. For example, page index 2 with page size 10 starts at data row 21
+(`aria-rowindex=22` with one header row). Sorting changes positions, not row IDs.
+Controls stay outside the table's semantic container.
+
+Selection and activation controls carry a “Row 21 of 60” hint on native and web.
+NativeScript has no mixed checkbox-state enum, so mixed selection uses the
+spoken value “Partially selected” without claiming checked or unchecked.
+AppKit exposes `AXCheckBox` with numeric off/on/mixed values (0/1/2) derived from
+semantic state, independently of spoken text. Disabled controls reject actions.
+These are host properties; assistive-technology navigation and speech still need
+OS verification. This presentation does not implement spreadsheet-style arrow
+navigation between cells.
 
 ```tsx
 export function SelectableOrders() {
@@ -294,11 +320,33 @@ export function SortCount() {
 }
 ```
 
+Selection uses the same ownership pattern. The callback receives either a new
+value or a function that updates the previous value; `useState` accepts both:
+
+```tsx
+const [rowSelection, setRowSelection] =
+    useState<TableState<DataGridFeatures>['rowSelection']>({})
+<DataGrid data={rows} columns={columns} getRowId={row => row.id}
+    showRowSelection getRowLabel={row => row.original.name}
+    state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection }} />
+```
+
+Click a checkbox and the selected count should update. Filtering, changing pages,
+and replacing data keep selection by ID. Clear selection also removes IDs for
+records that are currently unloaded. The [interactive example](examples/interactive.tsrx)
+uses this caller-owned selection. A snapshot without an update callback remains
+read-only; DataGrid does not silently take ownership.
+
 For server pages, supply already paged `data`, `state.pagination`, and
 `options={{ manualPagination: true, rowCount, onPaginationChange }}`. The callback
 receives the core updater and must publish the new controlled state plus fetch
 that page. Unknown totals use `pageCount: -1`; next stays enabled, so the caller
-must own terminal/cursor behavior. This is not an automatic server fetcher.
+must own terminal/cursor behavior. Supply `rowCount` for accessible server totals;
+without it, the table reports an unknown row count (`aria-rowcount=-1`) and hints
+say “Row 21” without a total. `pageCount` alone does not determine the exact final
+row count. Filtering and sorting of manual server data are also caller-owned;
+set the corresponding core manual options to avoid transforming it twice.
+This is not an automatic server fetcher.
 
 ```tsx
 import { useState } from 'octane'
@@ -348,7 +396,7 @@ export function ServerPage({
 
 ## Verification and remaining parity gaps
 
-Run `pnpm --filter @octane-xplat/table typecheck`, `test`, `build`, and
+Run `pnpm --filter @octane-xplat/table typecheck`, `test`, `test:native`, `build`, and
 `test:packed`. The source typecheck covers web and the iOS native resolution lane;
 the native build uses the same shared controls for iOS/Android. Run the fixture:
 
@@ -360,8 +408,8 @@ pnpm probe run packages/table/examples/geometry.tsrx --target macos --deps @octa
 
 The geometry fixture isolates bounded row sorting and column resize/reorder from
 filter/pager input. Its AppKit run measures native frames and retained row order.
-The full iOS fixture currently hits an unrelated Markdown regex parse failure
-before assertions; the direct VirtualList iOS geometry case passes. The full
+The iOS and Android selection fixtures currently hit an unrelated Unicode
+property-regex parse failure before assertions; the direct VirtualList iOS geometry case passes. The full
 AppKit fixture has an unresolved filter-input timeout.
 
 Use a real booted simulator ID from `pnpm probe doctor`. Results are handler
@@ -371,7 +419,10 @@ for the actual targets/results and known probe blockers.
 
 Still deferred: grouped section headers/detail/tree controls, frozen-column
 layout, PowerSearch operator/date/multi-select filter UI, richer multi-sort UX,
-column virtualization, cell editing, and full table/virtual-row accessibility
-semantics. The native checkbox primitives do not yet expose the same
-indeterminate accessibility state as web. These limits do not remove the
+column virtualization, cell editing, and OS screen-reader/input verification.
+The maintained [selection fixture](examples/selection.tsrx) checks the real
+VirtualList, caller state, eligible page scope, mixed controls, and a windowed
+row ordinal. Chromium and AppKit pass its handler-dispatch and host-property
+checks; iOS/Android object-driver checks cover shared controls but are not
+on-device accessibility evidence. These limits do not remove the
 underlying headless features.

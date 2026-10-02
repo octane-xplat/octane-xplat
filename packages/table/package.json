@@ -58,6 +58,7 @@
 	"scripts": {
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"test": "vitest run",
+		"test:native": "vitest run --config vitest.native.config.mts",
 		"typegen": "tsc -p tsconfig.types.json",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",

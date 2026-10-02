@@ -12,7 +12,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 	const Ind = useIndicator('checkbox') ?? CheckboxIndicator;
 	const indState = props.indeterminate ? 'indeterminate' : props.checked ? 'checked' : 'unchecked';
 	const toggle = () => {
-		if (!isBlocked) props.onCheckedChange?.(!(props.checked ?? false));
+		if (!isBlocked) props.onCheckedChange?.(props.indeterminate ? true : !(props.checked ?? false));
 	};
 
 	<div
@@ -28,6 +28,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 		aria-label={props.ariaLabel}
 		aria-labelledby={props.ariaLabelledBy}
 		aria-describedby={props.ariaDescribedBy}
+		aria-description={props.accessibilityHint}
 		tabIndex={props.isDisabled ? undefined : 0}
 		className={['vx-checkbox-row', indicatorScope, props.checked ? 'vx-checkbox--on' : undefined, props.isDisabled ? 'vx-checkbox--disabled' : undefined, props.isReadOnly ? 'vx-checkbox--readonly' : undefined, props.isLoading ? 'vx-checkbox--loading' : undefined, props.status ? `vx-checkbox--status-${props.status.type}` : undefined, props.size ? `vx-checkbox--size-${props.size}` : undefined, props.className]}
 		style={props.style}

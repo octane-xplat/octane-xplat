@@ -13,6 +13,7 @@ import { useTable } from './useTable.tsrx'
 import type { DataGridProps, UseTable } from './props'
 import type { DataGridFeatures } from './table'
 import { columnStyle } from './grid-layout'
+import { gridRowPosition } from './grid-accessibility'
 import { ColumnDrag } from './ColumnDrag.tsrx'
 import { GridControls, GridPagination } from './GridControls.tsrx'
 
@@ -81,6 +82,7 @@ function DataGridHeaderCell<TData extends RowData>(props: {
 	return (
 		<View
 			className={cls}
+			web={{ role: 'columnheader' }}
 			style={columnStyle(column, Boolean(props.resize || props.reorder), props.state.columnSizing)}
 		>
 			{canSort ? (
@@ -129,6 +131,7 @@ function DataGridBodyRow<TData extends RowData>(props: {
 	idPrefix?: string
 	/** See DataGridHeaderCell.state — forces re-eval of `getIsSelected`. */
 	state: any
+	position: { ariaIndex: number; label: string }
 	selection?: boolean
 	fixed?: boolean
 	getRowLabel?: (row: any) => string
@@ -142,6 +145,7 @@ function DataGridBodyRow<TData extends RowData>(props: {
 				<View
 					key={cell.id}
 					className="vx-table-cell"
+					web={{ role: 'cell' }}
 					style={columnStyle(cell.column, Boolean(props.fixed), props.state.columnSizing)}
 				>
 					<TemplateContent
@@ -168,6 +172,8 @@ function DataGridBodyRow<TData extends RowData>(props: {
 			id={props.selection ? undefined : id}
 			className="vx-datagrid-row-action"
 			onPress={() => props.onRowPress!(row)}
+			accessibilityLabel={props.getRowLabel?.(row) ?? row.id}
+			accessibilityHint={props.position.label}
 			accessibilityState={{ selected: row.getIsSelected?.() || undefined }}
 		>
 			{inner}
@@ -180,15 +186,18 @@ function DataGridBodyRow<TData extends RowData>(props: {
 		<GridRow
 			id={props.selection || !props.onRowPress ? id : undefined}
 			className={cls}
+			web={{ role: 'row', 'aria-rowindex': props.position.ariaIndex }}
+			accessibilityHint={props.position.label}
 			accessibilityState={{ selected: row.getIsSelected?.() || undefined }}
 		>
 			{props.selection ? (
-				<View className="vx-datagrid-selection">
+				<View className="vx-datagrid-selection" web={{ role: 'cell' }}>
 					<Checkbox
 						id={props.idPrefix ? `${props.idPrefix}-select-${row.id}` : undefined}
 						checked={row.getIsSelected()}
 						isDisabled={!row.getCanSelect()}
 						accessibilityLabel={`Select ${props.getRowLabel?.(row) ?? row.id}`}
+						accessibilityHint={props.position.label}
 						onCheckedChange={(checked) => row.toggleSelected(checked)}
 					/>
 				</View>
@@ -219,6 +228,13 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
 
 	const headerGroups = table.getHeaderGroups()
 	const rows = table.getRowModel().rows
+	// getRowCount uses the filtered pre-pagination model for client data.
+	// An unknown manual total must not masquerade as the loaded page length.
+	const rowCount = props.options?.manualPagination && props.options.rowCount == null
+		? -1
+		: table.getRowCount()
+
+	const ariaRowCount = rowCount < 0 ? -1 : headerGroups.length + rowCount
 	return (
 		<View
 			id={props.id}
@@ -234,6 +250,9 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
 			ios={props.ios}
 			android={props.android}
 			web={props.web}
+			accessible={props.accessible}
+			accessibilityHint={props.accessibilityHint}
+			accessibilityState={props.accessibilityState}
 			accessibilityRole={props.accessibilityRole as any}
 			accessibilityLabel={props.accessibilityLabel}
 		>
@@ -262,60 +281,67 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
 					{props.renderSelectionActions?.(table)}
 				</GridRow>
 			) : null}
-			<View id={props.id ? `${props.id}-header` : undefined} flexShrink={0}>
-				{headerGroups.map((group) => (
-					<GridRow key={group.id} className="vx-table-head">
-						{props.showRowSelection ? (
-							<View className="vx-datagrid-selection">
-								{group.depth === 0 ? (
-									<Checkbox
-										id={props.id ? `${props.id}-select-page` : undefined}
-										checked={table.getIsAllPageRowsSelected()}
-										indeterminate={table.getIsSomePageRowsSelected()}
-										isDisabled={!rows.some((row) => row.getCanSelect())}
-										accessibilityLabel="Select current page"
-										onCheckedChange={(checked) => table.toggleAllPageRowsSelected(checked)}
-									/>
-								) : null}
-							</View>
-						) : null}
-						{group.headers.map((header: Header<DataGridFeatures, TData, any>) => (
-							<DataGridHeaderCell
-								key={header.id}
-								header={header}
-								render={props.renderHeader}
-								id={props.id ? `${props.id}-th-${header.column.id}` : undefined}
-								state={state}
-								table={table}
-								filters={props.showColumnFilters}
-								resize={props.resizableColumns}
-								reorder={props.reorderableColumns}
-								direction={props.direction}
-							/>
-						))}
-					</GridRow>
-				))}
-			</View>
-			<VirtualList
+			<View
+				id={props.id ? `${props.id}-table` : undefined}
 				flexGrow={1}
-				className="vx-datagrid-body"
-				id={props.id ? `${props.id}-body` : undefined}
-				items={rows}
-				keyExtractor={(row: Row<DataGridFeatures, TData>) => row.id}
-				renderItem={(row: Row<DataGridFeatures, TData>) => (
-					<DataGridBodyRow
-						row={row}
-						renderCell={props.renderCell}
-						onRowPress={props.onRowPress}
-						idPrefix={props.id}
-						state={state}
-						selection={props.showRowSelection}
-						getRowLabel={props.getRowLabel}
-						fixed={Boolean(props.resizableColumns || props.reorderableColumns)}
-					/>
-				)}
-				renderEmpty={props.renderEmpty}
-			/>
+				web={{ role: 'table', 'aria-label': props.accessibilityLabel, 'aria-rowcount': ariaRowCount, 'aria-colcount': table.getVisibleLeafColumns().length + (props.showRowSelection ? 1 : 0) }}
+			>
+				<View id={props.id ? `${props.id}-header` : undefined} flexShrink={0}>
+					{headerGroups.map((group) => (
+						<GridRow key={group.id} className="vx-table-head" web={{ role: 'row', 'aria-rowindex': group.depth + 1 }}>
+							{props.showRowSelection ? (
+								<View className="vx-datagrid-selection" web={{ role: 'columnheader' }}>
+									{group.depth === 0 ? (
+										<Checkbox
+											id={props.id ? `${props.id}-select-page` : undefined}
+											checked={table.getIsAllPageRowsSelected()}
+											indeterminate={!table.getIsAllPageRowsSelected() && table.getIsSomePageRowsSelected()}
+											isDisabled={!rows.some((row) => row.getCanSelect())}
+											accessibilityLabel="Select current page"
+											onCheckedChange={(checked) => table.toggleAllPageRowsSelected(checked)}
+										/>
+									) : null}
+								</View>
+							) : null}
+							{group.headers.map((header: Header<DataGridFeatures, TData, any>) => (
+								<DataGridHeaderCell
+									key={header.id}
+									header={header}
+									render={props.renderHeader}
+									id={props.id ? `${props.id}-th-${header.column.id}` : undefined}
+									state={state}
+									table={table}
+									filters={props.showColumnFilters}
+									resize={props.resizableColumns}
+									reorder={props.reorderableColumns}
+									direction={props.direction}
+								/>
+							))}
+						</GridRow>
+					))}
+				</View>
+				<VirtualList
+					flexGrow={1}
+					className="vx-datagrid-body"
+					id={props.id ? `${props.id}-body` : undefined}
+					items={rows}
+					keyExtractor={(row: Row<DataGridFeatures, TData>) => row.id}
+					renderItem={(row: Row<DataGridFeatures, TData>, index: number) => (
+						<DataGridBodyRow
+							row={row}
+							position={gridRowPosition(index, state.pagination, headerGroups.length, rowCount)}
+							renderCell={props.renderCell}
+							onRowPress={props.onRowPress}
+							idPrefix={props.id}
+							state={state}
+							selection={props.showRowSelection}
+							getRowLabel={props.getRowLabel}
+							fixed={Boolean(props.resizableColumns || props.reorderableColumns)}
+						/>
+					)}
+					renderEmpty={props.renderEmpty}
+				/>
+			</View>
 			{props.showPagination ? (
 				<GridPagination id={props.id} table={table} state={state} sizes={props.pageSizeOptions} />
 			) : null}

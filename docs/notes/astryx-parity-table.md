@@ -315,6 +315,65 @@ keyboard semantics. The stock resize buttons offer an accessible alternative
 but do not reproduce Astryx's WAI-ARIA splitter protocol or neighboring
 proportional-column preservation. No cell-editing system is introduced.
 
+### Bounded selection and accessibility follow-through (2026-10-02)
+
+Reconciled this task against rich-cub-derived base
+`9864ee51695435b9bcf3a9a06534546dc87859f8`. The state callback/options adapter,
+page-scoped controls, and integrated VirtualList fixes were already present.
+This change retains TanStack engine ownership, the bounded unvirtualized UI
+Table tier, shared VirtualList, and platform leaves. It introduces no grouped,
+tree, pinned-column, richer-filter, or editing presentation.
+
+- A fully selected eligible page no longer reports mixed merely because it also
+  contains disabled rows. Empty/all-disabled page controls stay disabled.
+  Mixed activation selects eligible rows; row selection remains separate from
+  row activation.
+- NativeScript checkboxes retain the mixed indicator and expose “Partially
+  selected” without an incorrect unchecked state. AppKit draws the dash and
+  exposes `AXCheckBox` with semantic off/on/mixed values (0/1/2). AX values depend
+  on `accessibilityState.checked`, never on spoken/localized value text. Disabled
+  controls reject accessibility press dispatch.
+- The web grid exposes table/header/row/cell semantics with filtered row counts
+  and full row indices before windowing. Header rows count in ARIA indices;
+  data-row hints use the filtered/sorted page offset. Manual pages use caller
+  `rowCount`; unknown totals report `aria-rowcount=-1` and omit the spoken total.
+  Selection and activation controls carry row-position hints on native/web.
+- Regression coverage verifies caller-owned updater callbacks and read-only
+  snapshots, filtering/paging/replacement with stable IDs, disabled rows, mixed
+  and empty pages, keyboard checkbox selection, absent IDs, and clear-all.
+  The maintained interactive example now owns selection in its caller. A new
+  selection fixture checks real VirtualList windowing and platform host values.
+  README and `interactive-data-grid` AC1/AC3/AC6 are reconciled; Silo records
+  documentation coverage separately from target evidence.
+
+Checks actually run:
+
+| Check | Result / evidence boundary |
+| --- | --- |
+| Table web/model suite | 23 tests pass; jsdom controls use a nonwindowed list substitute |
+| Table native component integration | 1 object-driver test passes; real native checkbox/Pressable/stack leaves, list substitute |
+| Native checkbox regression | 1 object-driver test passes for mixed/boolean/disabled transitions |
+| AppKit renderer suite | 9 tests pass, including semantic mixed state independent of translated/arbitrary value text |
+| Source/build/consumer checks | Table web/iOS/Android source typechecks and web/native builds; UI web/native builds; table packed Bundler/NodeNext checks; UI macOS barrel and packed consumers pass |
+| Recipes and changed-file lint | Recipe structure/links pass; changed TSRX files and new TS/MJS files pass focused checks |
+| Chromium interactive fixture | 15 assertions pass; run `b9d23c12-04ca-4de8-87de-951967fd0529` |
+| Chromium selection fixture | 8 assertions pass, including windowed row 51 of 60; run `50cc3cf4-ce93-4f68-949f-8456d35d2b99` |
+| AppKit selection fixture | 8 assertions pass after semantic-state refinement; run `3807b0fb-ea89-43ff-88df-4fc165966997` |
+| Chromium / AppKit geometry fixtures | 8 assertions each pass; runs `cbcb85a2-9b2a-4bb7-a49b-85f6d80f9cb1` / `f44581ce-1926-4cd2-8b04-d617fda9f8a9` |
+| iOS / Android selection fixtures | Both fail before assertions on the unrelated Unicode property-regex parse error; runs `d138d553-9564-4136-af67-933d1ec2495a` / `f8f1373d-940f-4bcb-8327-661ddc9e5c00` |
+
+Pinned submodules were initialized and frozen dependencies installed. Root
+postinstall failed in unrelated image-crop type generation on removed
+`MeasureResult.bind` / `ViewProps.bind`. Repository lint also fails on existing
+unrelated spacing/curly/platform diagnostics and unsupported CSS declarations;
+those failures are not weakened or repaired in this task.
+
+Host-property and handler checks do not establish OS keyboard/pointer input,
+hit-testing, accessibility focus order, VoiceOver/TalkBack navigation or spoken
+output. No screenshots or visual analysis were used. Spreadsheet-style cell
+navigation and the previously deferred richer presentations remain outside
+this bounded task. iOS/Android runtime accessibility remains unverified.
+
 [exports]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/package.json
 [index]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/Table/index.ts
 [spec]: https://github.com/facebook/astryx/blob/06c8fa3165537dedbe67101cfcabbe14f0f82e82/packages/core/src/Table/Table.spec.md

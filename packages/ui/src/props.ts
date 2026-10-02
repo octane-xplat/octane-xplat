@@ -2587,10 +2587,13 @@ export interface CheckboxProps extends FieldControlProps {
 	id?: string
 	checked?: boolean
 	/** Partial-selection state (parent-of-a-tree semantics). Renders the
-	 *  indicator's `indeterminate` mark and `aria-checked="mixed"` on web. */
+	 *  indicator's `indeterminate` mark and `aria-checked="mixed"` on web;
+	 *  NativeScript reports `Partially selected` (no mixed state enum);
+	 *  AppKit exposes the semantic mixed checkbox value. */
 	indeterminate?: boolean
 	onCheckedChange?: (checked: boolean) => void
 	accessibilityLabel?: string
+	accessibilityHint?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any
