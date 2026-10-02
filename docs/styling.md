@@ -179,7 +179,9 @@ block in `style.css`: `--font-sans`/`--font-mono`/custom under
 `--font-sans`. Pass `--token none` to register files without wiring a token.
 Options: `--name` (override the detected family), `--dir` (app root).
 
-Fontsource inputs — `@fontsource/<family>` or `@fontsource-variable/<family>` —
+[Fontsource](https://fontsource.org) publishes free fonts — most of Google
+Fonts and more — as npm packages: `@fontsource/<family>` for static families
+and `@fontsource-variable/<family>` for variable ones. A Fontsource package
 must be installed in the app (`--install` runs `pnpm add` when missing). The
 web side imports the package's own CSS in `fonts.css` (Fontsource already ships
 per-subset `@font-face` with `unicode-range`); the package's font files are
