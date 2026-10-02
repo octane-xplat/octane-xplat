@@ -9,8 +9,8 @@ export function useAnimation(initial = 0, prop = 'translateX'): AnimatedValue {
 	if (!value.current) {
 		value.current = createAnimatedValue(initial, {
 			now: Date.now,
-			request: requestAnimationFrame,
-			cancel: cancelAnimationFrame,
+			request: (callback) => requestAnimationFrame(callback),
+			cancel: (id) => cancelAnimationFrame(id),
 			write: (view, next) => writeTransformProp(view, prop, next),
 		})
 	}
