@@ -1,9 +1,9 @@
+import { MenuData } from './MenuParts.web.tsrx';
+import { MenuSurface } from './MenuSurface.web.tsrx';
 import { useRef, useState } from 'octane';
-import type { DropdownMenuProps, MenuItem } from "./props";
-import { applyEscapeProps } from "./escape-props";
+import type { DropdownMenuProps } from "./props";
 import { Pressable } from './Pressable.web.tsrx';
 import { Popover } from './Popover.web.tsrx';
-import { Icon } from './Icon.web.tsrx';
 import { useButtonGroup } from './button-group-context';
 
 /** Self-drawn dropdown menu — `trigger` plus an anchored item list via
@@ -11,11 +11,12 @@ import { useButtonGroup } from './button-group-context';
  *  #48): bounded, unvirtualized items. */
 export function DropdownMenu(props: DropdownMenuProps) @{
 	const anchor = useRef<any>(null);
+	const initialFocus = useRef<'first' | 'last' | 'container'>('container');
 	const group = useButtonGroup();
-	const disabled = !!(props.disabled || group?.isDisabled);
+	const disabled = !!((props.isDisabled ?? props.disabled) || group?.isDisabled);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const controlled = props.open !== undefined;
-	const open = controlled ? props.open : internal;
+	const controlled = props.isOpen !== undefined || props.open !== undefined;
+	const open = props.isOpen ?? props.open ?? internal;
 
 	const setOpen = (next: boolean) => {
 		if (disabled && next) return;
@@ -23,12 +24,6 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 		props.onOpenChange?.(next);
 	};
 
-
-	const select = (item: MenuItem) => {
-		if (item.disabled) return;
-		setOpen(false);
-		item.onSelect?.();
-	};
 
 	<>
 		<Pressable
@@ -40,6 +35,7 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 			accessibilityLabel={props.accessibilityLabel}
 			onPress={() => setOpen(!open)}
 			accessibilityState={{ disabled }}
+			web={{ onpointerdown: () => { initialFocus.current = 'container' }, 'aria-haspopup': 'menu', 'aria-expanded': String(open), onkeydown: (event: any) => { if (event.isComposing || event.keyCode === 229 || event.defaultPrevented) return; if (event.key === 'Enter' || event.key === ' ') initialFocus.current = 'first'; if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); initialFocus.current = event.key === 'ArrowUp' ? 'last' : 'first'; setOpen(true); } } }}
 		>
 			{props.trigger}
 		</Pressable>
@@ -51,27 +47,9 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 			onDismiss={() => setOpen(false)}
 			className={['vx-menu', props.menuClassName]}
 		>
-			<div role="menu" className="vx-menu-list">
-				{props.items.map((item: MenuItem) => (
-					<div
-						key={item.key}
-						role="menuitem"
-						aria-disabled={item.disabled || undefined}
-						tabIndex={item.disabled ? undefined : 0}
-						className={['vx-menu-item', item.disabled ? 'vx-menu-item--disabled' : undefined]}
-						onClick={item.disabled ? undefined : () => select(item)}
-						onKeyDown={(e: any) => {
-							if (!item.disabled && (e.key === ' ' || e.key === 'Enter')) {
-								e.preventDefault();
-								select(item);
-							}
-						}}
-					>
-						{item.icon ? <Icon name={item.icon} /> : null}
-						{item.label != null ? <span className="vx-menu-item-label">{item.label}</span> : null}
-					</div>
-				))}
-			</div>
+			<MenuSurface initialFocus={initialFocus.current} closeMenu={() => setOpen(false)} label={props.accessibilityLabel}>
+				<MenuData items={props.items} />{props.children}
+			</MenuSurface>
 		</Popover>
 	</>
 }

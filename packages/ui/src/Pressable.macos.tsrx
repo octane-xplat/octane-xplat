@@ -5,7 +5,7 @@ import { layoutChildProps } from './layout-child'
 
 export function Pressable(props: PressableProps) @{
 	<flexboxlayout
-		ref={(view: any) => { if (view) props.bind?.(view) }}
+		ref={props.ref}
 		{...layoutChildProps(props)}
 		id={props.id}
 		flexDirection="column"
@@ -13,6 +13,9 @@ export function Pressable(props: PressableProps) @{
 		style={props.style}
 		onTap={props.disabled ? undefined : props.onPress}
 		accessibilityLabel={props.accessibilityLabel}
+		accessibilityHint={props.accessibilityHint}
+		accessibilityValue={props.accessibilityValue}
+		accessibilityState={props.accessibilityState}
 		accessibilityRole={props.accessibilityRole ?? (props.onPress ? 'button' : undefined)}
 	>
 		{props.children}

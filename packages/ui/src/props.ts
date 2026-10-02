@@ -350,6 +350,11 @@ export type Role =
 	| 'radio'
 	| 'spinbutton'
 	| 'tab'
+	| 'menu'
+	| 'group'
+	| 'menuitem'
+	| 'menuitemcheckbox'
+	| 'menuitemradio'
 
 export interface TextProps extends LayoutChildProps {
 	className?: any
@@ -2642,59 +2647,155 @@ export interface SegmentedControlProps extends FieldControlProps {
 	web?: any
 }
 
-export interface MenuItem {
+/** Fields retained by legacy data-driven menu callers. */
+export interface MenuItemData {
 	key: string
 	label?: string
 	icon?: string
 	disabled?: boolean
+	isDisabled?: boolean
 	onSelect?: () => void
+	hasCloseOnSelect?: boolean
 }
 
-/** DropdownMenu — `trigger` anchored to a self-drawn item list via Popover.
- *  Same anchored listbox on every target (decision #48). */
+export interface MenuActionData extends MenuItemData {
+	type?: 'item'
+	items?: MenuItem[]
+}
+
+export interface MenuDividerData extends MenuItemData {
+	type: 'divider'
+}
+
+export interface MenuCheckboxData extends MenuItemData {
+	type: 'checkbox'
+	value: boolean
+	onValueChange?: (value: boolean) => void
+}
+
+export interface MenuRadioOptionData extends MenuItemData {
+	value?: string
+}
+
+export interface MenuRadioGroupData extends MenuItemData {
+	type: 'radio-group'
+	value?: string
+	onValueChange?: (value: string) => void
+	items: MenuRadioOptionData[]
+}
+
+/** Typed choices and nested rows extend the legacy action-array contract. */
+export type MenuOption = MenuActionData | MenuDividerData | MenuCheckboxData | MenuRadioGroupData
+
+/** Extendable legacy row contract. Prefer MenuOption for typed choice data. */
+export interface MenuItem extends MenuItemData {
+	type?: 'item' | 'divider' | 'checkbox' | 'radio-group'
+	items?: MenuItem[]
+	value?: boolean | string
+	/** Legacy rows can represent either kind of choice. Compound props are strictly typed. */
+	onValueChange?: (value: any) => void
+}
+
+export interface MenuItemProps {
+	id?: string
+	ref?: Octane.Ref<any>
+	className?: any
+	style?: any
+	label: any
+	icon?: string
+	description?: string
+	endContent?: any
+	isDisabled?: boolean
+	onSelect?: () => void
+	hasCloseOnSelect?: boolean
+}
+
+export interface MenuCheckboxItemProps extends MenuItemProps {
+	/** Caller-owned checked state; updates are requested through onValueChange. */
+	value: boolean
+	onValueChange?: (value: boolean) => void
+}
+
+export interface MenuRadioItemProps extends MenuItemProps {
+	value: string
+}
+
+export interface MenuRadioGroupProps {
+	/** Required accessible name for this set of choices. */
+	label: string
+	value?: string
+	defaultValue?: string
+	onValueChange?: (value: string) => void
+	isDisabled?: boolean
+	hasCloseOnSelect?: boolean
+	children?: any
+}
+
+export interface MenuDividerProps {
+	id?: string
+	className?: any
+	style?: any
+}
+
+export interface MenuSubMenuProps extends MenuItemProps {
+	children?: any
+	items?: MenuItem[]
+	isOpen?: boolean
+	defaultOpen?: boolean
+	onOpenChange?: (isOpen: boolean) => void
+}
+
+export interface MenuContextValue {
+	closeMenu(): void
+	menuSize: 'sm' | 'md' | 'lg'
+}
+
+/** Internal surface contract shared by every renderer. */
+export interface MenuSurfaceProps {
+	items?: MenuItem[]
+	children?: any
+	closeMenu(): void
+	closeLevel?: () => void
+	initialFocus?: 'first' | 'last' | 'container'
+	label?: string
+}
+
+/** Both data rows and compound children use the same menu contracts. */
 export interface DropdownMenuProps {
 	className?: any
 	style?: any
 	id?: string
-	/** Anchor content — rendered inside the trigger Pressable. */
+	/** Anchor content rendered inside the trigger Pressable. */
 	trigger?: any
-	/** Accessible name for the trigger when it carries no visible text. */
+	/** Accessible trigger name when there is no visible text. */
 	accessibilityLabel?: string
-	/** Class merged onto the trigger Pressable (e.g. `vx-button` chrome for an
-	 *  icon-only overflow trigger). */
+	/** Additional trigger chrome (for example a button class). */
 	triggerClassName?: any
-	/** Class merged onto the anchored menu panel (the Popover surface). */
+	/** Additional class for the inherited Popover surface. */
 	menuClassName?: any
-	items: MenuItem[]
+	items?: MenuItem[]
+	children?: any
+	/** Caller-owned visibility; onOpenChange requests do not replace this value. */
+	isOpen?: boolean
+	/** Legacy controlled state; prefer isOpen. */
 	open?: boolean
 	defaultOpen?: boolean
-	onOpenChange?: (open: boolean) => void
+	onOpenChange?: (isOpen: boolean) => void
 	placement?: PopoverPlacement
-	/** Panel alignment along the placement axis. @default 'start' */
 	alignment?: PopoverAlignment
+	isDisabled?: boolean
+	/** Legacy disabled state; prefer isDisabled. */
 	disabled?: boolean
-	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any
 	web?: any
 }
 
-/** ContextMenu — same anchored list as DropdownMenu, opened by right-click
- *  on web and long-press on native. */
-export interface ContextMenuProps {
-	className?: any
-	style?: any
-	id?: string
-	items: MenuItem[]
-	open?: boolean
-	defaultOpen?: boolean
-	onOpenChange?: (open: boolean) => void
+/** Long press/right click, with an optional visible trigger for touch access. */
+export interface ContextMenuProps extends Omit<DropdownMenuProps, 'children'> {
 	children?: any
-	disabled?: boolean
-	/** Platform-specific properties are applied after shared props. */
-	ios?: any
-	android?: any
-	web?: any
+	/** Compound menu content (children remain the context target). */
+	menu?: any
 }
 
 /** Badge — inline label chip. Pure composition, unstyled beyond layout. */
@@ -3338,6 +3439,11 @@ export interface BreadcrumbProps {
 	style?: any
 	id?: string
 	items: BreadcrumbItem[]
+	/** Maximum visible trail items, at least two; hidden ancestors use a menu. */
+	maxVisibleItems?: number
+	/** Additional overflow actions use the same compound menu parts. */
+	overflowMenu?: any
+	overflowLabel?: string
 	separator?: string
 	accessibilityLabel?: string
 	ios?: any

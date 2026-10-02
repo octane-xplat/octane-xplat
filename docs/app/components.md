@@ -331,13 +331,13 @@ registerIndicators({ check: SelectionMark })
 | `Toolbar`                                  | Labeled action row with start/center/end slots           | `label`, `orientation`, `dividers`                              |
 | `OverflowList`                             | Responsive list that collapses excess items              | `overflowRenderer`, `maxVisibleItems`, `onOverflowChange`       |
 | `useResizable`, `ResizeHandle`             | Bounded, optionally persistent panel resizing            | `defaultSize`, `minSize`, `maxSize`, `autoSaveId`               |
-| `Breadcrumbs`                              | Ancestor path trail                                      | `items`, `separator`                                            |
+| `Breadcrumbs`                              | Ancestor path trail                                      | `items`, `separator`, `maxVisibleItems`, `overflowMenu`         |
 | `Pagination`                               | Prev/next + windowed page buttons                        | `page`, `pageCount`, `onPageChange`                             |
 | `Stepper`                                  | Multi-step progress/flow control                         | `steps`, `current`, `onStepChange`                              |
 | `NavigationMenu`                           | Simple item-array navigation strip                       | `items`, `horizontal`, `href`                                   |
 | [`CommandPalette`](command-palette.md)     | Searchable commands; mobile search sheet                 | `open`, `items` / `searchSource`, `searchMode`, `onValueChange` |
-| `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items`, `placement`                                 |
-| `ContextMenu`                              | Secondary-press action menu                              | `items`, `open`, `onOpenChange`                                 |
+| `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items` / children, `placement`, `isOpen`            |
+| `ContextMenu`                              | Secondary-press action menu                              | `items` / `menu`, `trigger`, `isOpen`, `onOpenChange`           |
 
 `Tabs` hosts named route stacks from `TabSpec`; `TabList` is the smaller
 navigation or page-tab strip for caller-owned content. Use `TabList` without
@@ -568,3 +568,5 @@ packages so `@octane-xplat/ui` keeps zero required plugin deps:
 | `@octane-xplat/auth`    | `appleAuth`, `googleAuth`, `AppleSignInButton`, `GoogleSignInButton` | Provider sign-in (Apple / Google SDKs)    |
 
 See [search, select, and token entry](search-selection.md) for `SearchSource`, `Typeahead`, `Tokenizer`, `Token`, and `ComplexSelector` workflows and platform limits.
+
+Shared menu parts and their state/keyboard contracts are explained in [Add actions and choices to a menu](menus.md).

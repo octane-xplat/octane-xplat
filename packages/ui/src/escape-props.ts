@@ -69,6 +69,11 @@ const NATIVE_ACCESSIBILITY_ROLES: Record<Role, string> = {
 	// NativeScript has no tab role; a tab is still an actionable button and
 	// its selected state is carried separately by accessibilityState.
 	tab: 'button',
+	menu: 'none',
+	group: 'none',
+	menuitem: 'button',
+	menuitemcheckbox: 'checkbox',
+	menuitemradio: 'radioButton',
 }
 
 /** Translate the shared/ARIA spelling to NativeScript's narrower role enum. */

@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { MenuData } from './MenuParts.macos.tsrx';
+import { MenuSurface } from './MenuSurface.macos.tsrx';
 import { useRef, useState } from 'octane';
-import type { DropdownMenuProps, MenuItem } from "./props";
+import type { DropdownMenuProps } from "./props";
 import { cx } from "./cx";
-import { applyEscapeProps } from "./escape-props";
 import { Pressable } from './Pressable.macos.tsrx';
 import { Popover } from './Popover.macos.tsrx';
-import { Icon } from './Icon.macos.tsrx';
 import { useButtonGroup } from './button-group-context';
 
 /** Self-drawn dropdown menu — `trigger` plus an anchored item list via
@@ -14,21 +14,15 @@ import { useButtonGroup } from './button-group-context';
 export function DropdownMenu(props: DropdownMenuProps) @{
 	const anchor = useRef<any>(null);
 	const group = useButtonGroup();
-	const disabled = !!(props.disabled || group?.isDisabled);
+	const disabled = !!((props.isDisabled ?? props.disabled) || group?.isDisabled);
 	const [internal, setInternal] = useState(props.defaultOpen ?? false);
-	const controlled = props.open !== undefined;
-	const open = controlled ? props.open : internal;
+	const controlled = props.isOpen !== undefined || props.open !== undefined;
+	const open = props.isOpen ?? props.open ?? internal;
 
 	const setOpen = (next: boolean) => {
 		if (disabled && next) return;
 		if (!controlled) setInternal(next);
 		props.onOpenChange?.(next);
-	};
-
-	const select = (item: MenuItem) => {
-		if (item.disabled) return;
-		setOpen(false);
-		item.onSelect?.();
 	};
 
 	<>
@@ -39,6 +33,7 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 			style={props.style}
 			disabled={disabled}
 			accessibilityLabel={props.accessibilityLabel}
+			web={{ 'aria-haspopup': 'menu', 'aria-expanded': open }}
 			onPress={() => setOpen(!open)}
 		>
 			{props.trigger}
@@ -51,18 +46,9 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 			onDismiss={() => setOpen(false)}
 			className={cx('vx-menu', props.menuClassName)}
 		>
-			<flexboxlayout className="vx-menu-list">
-				{props.items.map((item: MenuItem) => (
-					<flexboxlayout
-						key={item.key}
-						className={cx('vx-menu-item', item.disabled && 'vx-menu-item--disabled')}
-						onTap={item.disabled ? undefined : () => select(item)}
-					>
-						{item.icon ? <Icon name={item.icon} /> : null}
-						{item.label != null ? <label className="vx-menu-item-label" text={item.label} /> : null}
-					</flexboxlayout>
-				))}
-			</flexboxlayout>
+			<MenuSurface closeMenu={() => setOpen(false)} label={props.accessibilityLabel}>
+				<MenuData items={props.items} />{props.children}
+			</MenuSurface>
 		</Popover>
 	</>
 }

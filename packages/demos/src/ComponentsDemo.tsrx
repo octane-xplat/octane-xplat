@@ -2,7 +2,8 @@ import { useState } from 'octane';
 import {
 	Accordion, Alert, AppShell, Avatar, AvatarGroup, Badge, Banner, Breadcrumbs, Button,
 	Card, CheckboxInput, CheckboxList, Chip, Collapsible, CommandPalette,
-	ContextMenu, DropdownMenu, EmptyState, FieldGroup, Field, Heading,
+	ContextMenu, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuDivider,
+	DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSubMenu, DropdownMenuItem, EmptyState, FieldGroup, Field, Heading,
 	FormLayout, InputGroup, InputGroupText, MobileNav, NavHeadingMenu,
 	NavHeadingMenuItem, NavIcon, NumberInput, InputRating, Typeahead, Tokenizer,
 	createStaticSource, Kbd, NavigationMenu, OverflowList, Pagination,
@@ -41,6 +42,8 @@ const demoSelectionSource = createStaticSource([
 export function ComponentsDemo() @{
 	const [checked, setChecked] = useState(true);
 	const [radio, setRadio] = useState('a');
+	const [menuArchived, setMenuArchived] = useState(false);
+	const [menuSort, setMenuSort] = useState('newest');
 	const [lastMenu, setLastMenu] = useState('—');
 	const [lastCtx, setLastCtx] = useState('—');
 	const [num, setNum] = useState(2);
@@ -106,10 +109,21 @@ export function ComponentsDemo() @{
 		<View className="controls-section">
 			<Text className="font-bold">Menus</Text>
 			<HStack className="items-center gap-4">
-				<DropdownMenu trigger={<Text className="chip">Menu ▾</Text>} items={menuItems} />
+				<DropdownMenu trigger={<Text className="chip">Menu ▾</Text>} items={menuItems}>
+					<DropdownMenuDivider />
+					<DropdownMenuCheckboxItem label="Show archived" value={menuArchived} onValueChange={setMenuArchived} />
+					<DropdownMenuRadioGroup label="Sort by" value={menuSort} onValueChange={setMenuSort}>
+						<DropdownMenuRadioItem label="Newest first" value="newest" />
+						<DropdownMenuRadioItem label="Oldest first" value="oldest" />
+					</DropdownMenuRadioGroup>
+					<DropdownMenuSubMenu label="Export">
+						<DropdownMenuItem label="Text" onSelect={() => setLastMenu('export-text')} />
+						<DropdownMenuItem label="Table" isDisabled />
+					</DropdownMenuSubMenu>
+				</DropdownMenu>
 				<Text className="text-sm text-muted">{'last: ' + lastMenu}</Text>
 			</HStack>
-			<ContextMenu items={menuItems.map((i) => ({ ...i, onSelect: () => setLastCtx(i.key) }))}>
+			<ContextMenu trigger={<Text className="chip">Context actions</Text>} accessibilityLabel="Open context actions" items={menuItems.map((i) => ({ ...i, onSelect: () => setLastCtx(i.key) }))}>
 				<View className="cell"><Text>Right-click / long-press me ({lastCtx})</Text></View>
 			</ContextMenu>
 		</View>
@@ -166,7 +180,7 @@ export function ComponentsDemo() @{
 
 		<View className="controls-section">
 			<Text className="font-bold">Wayfinding</Text>
-			<Breadcrumbs items={[{ label: 'Home', onSelect: () => setNav('home') }, { label: 'Library', onSelect: () => setNav('lib') }, { label: 'Book' }]} />
+			<Breadcrumbs maxVisibleItems={2} items={[{ label: 'Home', onSelect: () => setNav('home') }, { label: 'Library', onSelect: () => setNav('lib') }, { label: 'Book' }]} />
 			<Pagination page={page} pageCount={12} onPageChange={setPage} />
 			<Stepper
 				steps={[{ key: 'cart', label: 'Cart' }, { key: 'ship', label: 'Ship' }, { key: 'pay', label: 'Pay' }]}

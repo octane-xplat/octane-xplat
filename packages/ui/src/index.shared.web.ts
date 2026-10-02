@@ -904,3 +904,75 @@ export type {
 	TextColor,
 	TextWeight,
 } from './props'
+
+export {
+	DropdownMenuItem,
+	DropdownMenuDivider,
+	DropdownMenuCheckboxItem,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSubMenu,
+} from './MenuParts.web.tsrx'
+
+export {
+	DropdownMenuItem as ContextMenuItem,
+	DropdownMenuDivider as ContextMenuDivider,
+	DropdownMenuCheckboxItem as ContextMenuCheckboxItem,
+	DropdownMenuRadioGroup as ContextMenuRadioGroup,
+	DropdownMenuRadioItem as ContextMenuRadioItem,
+	DropdownMenuSubMenu as ContextMenuSubMenu,
+} from './MenuParts.web.tsrx'
+
+export {
+	DropdownMenuItem as BreadcrumbMenuItem,
+	DropdownMenuDivider as BreadcrumbMenuDivider,
+	DropdownMenuCheckboxItem as BreadcrumbMenuCheckboxItem,
+	DropdownMenuRadioGroup as BreadcrumbMenuRadioGroup,
+	DropdownMenuRadioItem as BreadcrumbMenuRadioItem,
+	DropdownMenuSubMenu as BreadcrumbMenuSubMenu,
+} from './MenuParts.web.tsrx'
+
+export { DropdownMenuContext, useDropdownMenuContext } from './menu-context'
+export type {
+	MenuOption,
+	MenuItemData,
+	MenuActionData,
+	MenuDividerData,
+	MenuCheckboxData,
+	MenuRadioOptionData,
+	MenuRadioGroupData,
+	MenuItemProps,
+	MenuCheckboxItemProps,
+	MenuRadioGroupProps,
+	MenuRadioItemProps,
+	MenuDividerProps,
+	MenuSubMenuProps,
+	MenuContextValue,
+} from './props'
+
+export type {
+	MenuItemProps as DropdownMenuItemProps,
+	MenuDividerProps as DropdownMenuDividerProps,
+	MenuCheckboxItemProps as DropdownMenuCheckboxItemProps,
+	MenuRadioGroupProps as DropdownMenuRadioGroupProps,
+	MenuRadioItemProps as DropdownMenuRadioItemProps,
+	MenuSubMenuProps as DropdownMenuSubMenuProps,
+} from './props'
+
+export type {
+	MenuItemProps as ContextMenuItemProps,
+	MenuDividerProps as ContextMenuDividerProps,
+	MenuCheckboxItemProps as ContextMenuCheckboxItemProps,
+	MenuRadioGroupProps as ContextMenuRadioGroupProps,
+	MenuRadioItemProps as ContextMenuRadioItemProps,
+	MenuSubMenuProps as ContextMenuSubMenuProps,
+} from './props'
+
+export type {
+	MenuItemProps as BreadcrumbMenuItemProps,
+	MenuDividerProps as BreadcrumbMenuDividerProps,
+	MenuCheckboxItemProps as BreadcrumbMenuCheckboxItemProps,
+	MenuRadioGroupProps as BreadcrumbMenuRadioGroupProps,
+	MenuRadioItemProps as BreadcrumbMenuRadioItemProps,
+	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
+} from './props'

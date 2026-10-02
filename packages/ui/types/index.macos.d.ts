@@ -439,3 +439,47 @@ export {
 	syntaxTokenVar,
 	syntaxTokenVarRef,
 } from './generated/code-tokenizer.js'
+
+export { DropdownMenuContext, useDropdownMenuContext } from './generated/menu-context.js'
+export declare const DropdownMenuItem: Component<P.MenuItemProps>
+export declare const DropdownMenuDivider: Component<P.MenuDividerProps>
+export declare const DropdownMenuCheckboxItem: Component<P.MenuCheckboxItemProps>
+export declare const DropdownMenuRadioGroup: Component<P.MenuRadioGroupProps>
+export declare const DropdownMenuRadioItem: Component<P.MenuRadioItemProps>
+export declare const DropdownMenuSubMenu: Component<P.MenuSubMenuProps>
+export type {
+	MenuItemProps as DropdownMenuItemProps,
+	MenuDividerProps as DropdownMenuDividerProps,
+	MenuCheckboxItemProps as DropdownMenuCheckboxItemProps,
+	MenuRadioGroupProps as DropdownMenuRadioGroupProps,
+	MenuRadioItemProps as DropdownMenuRadioItemProps,
+	MenuSubMenuProps as DropdownMenuSubMenuProps,
+} from './generated/props.js'
+export declare const ContextMenuItem: Component<P.MenuItemProps>
+export declare const ContextMenuDivider: Component<P.MenuDividerProps>
+export declare const ContextMenuCheckboxItem: Component<P.MenuCheckboxItemProps>
+export declare const ContextMenuRadioGroup: Component<P.MenuRadioGroupProps>
+export declare const ContextMenuRadioItem: Component<P.MenuRadioItemProps>
+export declare const ContextMenuSubMenu: Component<P.MenuSubMenuProps>
+export type {
+	MenuItemProps as ContextMenuItemProps,
+	MenuDividerProps as ContextMenuDividerProps,
+	MenuCheckboxItemProps as ContextMenuCheckboxItemProps,
+	MenuRadioGroupProps as ContextMenuRadioGroupProps,
+	MenuRadioItemProps as ContextMenuRadioItemProps,
+	MenuSubMenuProps as ContextMenuSubMenuProps,
+} from './generated/props.js'
+export declare const BreadcrumbMenuItem: Component<P.MenuItemProps>
+export declare const BreadcrumbMenuDivider: Component<P.MenuDividerProps>
+export declare const BreadcrumbMenuCheckboxItem: Component<P.MenuCheckboxItemProps>
+export declare const BreadcrumbMenuRadioGroup: Component<P.MenuRadioGroupProps>
+export declare const BreadcrumbMenuRadioItem: Component<P.MenuRadioItemProps>
+export declare const BreadcrumbMenuSubMenu: Component<P.MenuSubMenuProps>
+export type {
+	MenuItemProps as BreadcrumbMenuItemProps,
+	MenuDividerProps as BreadcrumbMenuDividerProps,
+	MenuCheckboxItemProps as BreadcrumbMenuCheckboxItemProps,
+	MenuRadioGroupProps as BreadcrumbMenuRadioGroupProps,
+	MenuRadioItemProps as BreadcrumbMenuRadioItemProps,
+	MenuSubMenuProps as BreadcrumbMenuSubMenuProps,
+} from './generated/props.js'
