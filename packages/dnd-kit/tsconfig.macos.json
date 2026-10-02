@@ -1,0 +1,13 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"customConditions": ["macos"],
+		"moduleSuffixes": [".macos", ""],
+		"rootDir": ".",
+		"paths": {
+			"@octane-xplat/ui": ["../ui/types/index.macos.d.ts"],
+			"@xplat/macos/renderer/jsx-runtime": ["../../apps/macos/src/renderer/jsx-runtime.d.ts"]
+		}
+	},
+	"include": ["src/index.macos.ts", "examples/sortable.macos.tsx"]
+}

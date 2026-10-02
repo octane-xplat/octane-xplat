@@ -1,12 +1,12 @@
 # Reorder and move draggable items
 
 ID: drag-and-drop
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: @octane-xplat/dnd-kit, DndContext, useDraggable, useDroppable, SortableList, useSortable, SortableContext, arrayMove
 
 ## Starting point
 
-An Octane Xplat app with its UI package and web or NativeScript renderer set up.
+An Octane Xplat app with its UI package and web, NativeScript, or AppKit renderer set up.
 The application owns stable item identifiers and collection data.
 
 ## Requirements
@@ -27,5 +27,5 @@ an existing scroll owner without putting browser APIs into shared app code.
 - AC1: [Install and reorder](../packages/dnd-kit/README.md#install-and-reorder), [maintained example](../packages/dnd-kit/examples/sortable.tsx).
 - AC2: [Compose drag and drop](../packages/dnd-kit/README.md#compose-drag-and-drop).
 - AC3: [Compose drag and drop](../packages/dnd-kit/README.md#compose-drag-and-drop), [core tests](../packages/dnd-kit/src/controller.test.ts).
-- AC4: [Auto-scroll](../packages/dnd-kit/README.md#auto-scroll).
+- AC4: [Auto-scroll](../packages/dnd-kit/README.md#auto-scroll), [AppKit scroll example](../packages/dnd-kit/examples/sortable.macos.tsx).
 - AC5: [Limits and verification](../packages/dnd-kit/README.md#limits-and-verification).

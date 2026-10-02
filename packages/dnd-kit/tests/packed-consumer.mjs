@@ -28,7 +28,7 @@ try {
 	const tarball = readdirSync(temporary).find((name) => name.endsWith('.tgz'))
 	run('tar', ['-xzf', join(temporary, tarball), '-C', temporary], root)
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-	for (const target of ['web', 'native']) {
+	for (const target of ['web', 'native', 'macos']) {
 		for (const mode of ['Bundler', 'NodeNext']) {
 			const consumer = join(temporary, `${target}-${mode}`)
 			const modules = join(consumer, 'node_modules')
@@ -99,7 +99,7 @@ void node; void list; void order; void missingOwner; void scroll
 		}
 	}
 
-	console.log('dnd-kit packed consumers pass: web/native, Bundler/NodeNext')
+	console.log('dnd-kit packed consumers pass: web/native/macos, Bundler/NodeNext')
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
 }

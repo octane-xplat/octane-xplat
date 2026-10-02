@@ -165,12 +165,17 @@ class ButtonActionTarget extends NSObject {
 		}
 
 		const translation = sender.translationInView(sender.view)
+		const velocity = sender.velocityInView(sender.view)
+		const flipped = typeof sender.view.isFlipped === 'function' ? sender.view.isFlipped() : sender.view.isFlipped
+		const signY = flipped ? 1 : -1
 		const nativeState = Number(sender.state)
 		const state = nativeState === 1 ? 1 : nativeState === 2 ? 2 : nativeState === 3 ? 3 : 0
 		try {
 			handler({
 				deltaX: Number(translation.x ?? 0),
-				deltaY: Number(translation.y ?? 0),
+				deltaY: Number(translation.y ?? 0) * signY,
+				velocityX: Number(velocity.x ?? 0),
+				velocityY: Number(velocity.y ?? 0) * signY,
 				state,
 				view: sender.view,
 			})
@@ -1831,6 +1836,16 @@ function applyStyle(node, style) {
 
 			if (node.parent?.type === 'absolutelayout') {
 				layoutAbsoluteChildren(node.parent)
+			}
+		} else if ((name === 'translateX' || name === 'translateY' || name === 'zIndex') && node.view) {
+			node.view.wantsLayer = true
+			const layer = node.view.layer
+			if (name === 'zIndex') {
+				layer.zPosition = Number(value) || 0
+			} else {
+				// Core Animation layers use y-up coordinates; public drag deltas use y-down.
+				layer.setValueForKeyPath((Number(value) || 0) * (name === 'translateY' ? -1 : 1),
+					name === 'translateY' ? 'transform.translation.y' : 'transform.translation.x')
 			}
 		} else if (name === 'opacity' && node.view) {
 			node.view.alphaValue = Number(value)
@@ -4299,6 +4314,12 @@ export function createMacOSRoot(hostView) {
 						)
 						.map((node) => accessibilityLabels.get(node.actionId)),
 				}
+			},
+			/** Dispatch through the same event scope as the AppKit pan recognizer. */
+			panView(view, event) {
+				const handler = panHandlersByView.get(view)
+				if (!handler) {throw new Error('No AppKit pan handler attached')}
+				handler({ ...event, view })
 			},
 			pressId(id) {
 				const node = [...container.nodes.values()].find((candidate) => candidate.props.id === id)

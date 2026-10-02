@@ -53,6 +53,8 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 						{ include: '**/packages/gif/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/pager/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/motion/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/dnd-kit/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/node_modules/@octane-xplat/dnd-kit/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/platform/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/video/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{

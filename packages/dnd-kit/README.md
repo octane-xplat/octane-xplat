@@ -1,6 +1,6 @@
 # @octane-xplat/dnd-kit
 
-Use draggable and droppable Xplat Views on web, iOS, and Android. The leaf shares
+Use draggable and droppable Xplat Views on web, iOS, Android, and native macOS (AppKit). The leaf shares
 `@dnd-kit/abstract`'s manager, sensor interface, and drag state machine plus
 `@dnd-kit/collision` algorithms and `@dnd-kit/state` reactivity. It implements
 input and geometry through Xplat primitives; it does not load `@dnd-kit/dom`
@@ -15,9 +15,13 @@ In an Octane Xplat app with `@octane-xplat/ui` and its renderer configured:
 pnpm add @octane-xplat/dnd-kit
 ```
 
-Import from the root package; web/native export conditions select the platform
+Import from the root package; web/native/macos export conditions select the platform
 implementation. The app keeps one Octane runtime. Native apps also need the
 existing `@nativescript-community/octane` and `@nativescript/core` setup.
+The AppKit entry ships source, like other macOS leaves; include its `src/**/*.tsx`
+and `src/**/*.tsrx` in the macOS renderer transform. The workspace config already
+includes these paths. Its entry supplies AbortController/AbortSignal when absent
+in JavaScriptCore. macOS WebView apps select the web entry instead.
 No leaf CSS build is required; drag feedback uses style objects.
 
 ```tsx
@@ -135,7 +139,11 @@ stands for the owner's existing scroll method. Read current offsets into the
 ref on ordinary scroll events, following VirtualList's scrollOffsetRef pattern.
 On native, use a View's `getLocationOnScreen` and `getActualSize` or `useMeasure`
 for viewport bounds; on web use the corresponding measured viewport bounds.
-Keep bounds and offsets in the same coordinate units: native DIPs, web CSS pixels.
+Keep bounds and offsets in the same coordinate units: native DIPs, web CSS pixels,
+and AppKit points. AppKit geometry uses top-left window-content coordinates.
+The [macOS example](examples/sortable.macos.tsx) owns an NSScrollView, measures its
+clip view, and converts its document offset into top-down points. It initializes
+at the document top and handles flipped and unflipped document views.
 
 The adapter must clamp and update the ref synchronously to the applied offset.
 The drag loop scrolls every 16ms while the drag center remains inside the viewport
@@ -160,14 +168,19 @@ Run `pnpm --filter @octane-xplat/dnd-kit typecheck`, `test`, `build`, and
 they do not establish OS input delivery. The repository probe doctor reports
 available runtime targets. Do not infer Android runtime support from a native
 library build.
+The maintained AppKit regression runs with
+`pnpm probe run packages/dnd-kit/tests/appkit-scroll.tsrx --target macos`; it uses
+action dispatch and checks layer feedback, layout, auto-scroll, and cleanup.
 
 Before the first automated release, the package still needs the one-time npm
 stub and trusted publisher setup described in [releases](../../.agents/docs/releases.md).
 This change does not publish or configure npm.
 
-Verification for this change: web and native source typechecks, both library
-builds, eight core tests, and packed consumers in Bundler/NodeNext passed.
+Verification: web/native/macOS source typechecks, web/native library builds,
+ten core/geometry tests, and packed consumers in Bundler/NodeNext passed.
 Chromium pointer-event dispatch and iOS pan-observer dispatch probes passed
-for SortableList reorder and cancellation; hook subscription probes passed on
-both targets. These are renderer runtime checks, not OS input or hit-testing
-evidence. Android runtime was not run (no connected device).
+for reorder and cancellation. AppKit/JavaScriptCore pan-handler dispatch passed
+reorder/cancel plus NSScrollView auto-scroll, translation through layout, and
+cancellation cleanup. These establish renderer runtime behavior, not OS gesture
+delivery, hit-testing, or scroll gesture arbitration. Android runtime and macOS
+WebView drag behavior were not run.

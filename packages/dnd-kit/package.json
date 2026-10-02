@@ -19,6 +19,10 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"macos": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"web": {
 				"default": "./src/index.web.ts",
 				"types": "./types/generated/index.d.ts"
@@ -34,6 +38,10 @@
 	"publishConfig": {
 		"exports": {
 			".": {
+				"macos": {
+					"types": "./types/generated/index.d.ts",
+					"default": "./src/index.macos.ts"
+				},
 				"web": {
 					"types": "./types/generated/index.d.ts",
 					"default": "./dist/web/index.js"
@@ -51,7 +59,7 @@
 	"scripts": {
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --project tsconfig.json",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p tsconfig.native.json && tsrx-tsc --noEmit -p tsconfig.example.json",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p tsconfig.native.json && tsrx-tsc --noEmit -p tsconfig.example.json && tsrx-tsc --noEmit -p tsconfig.macos.json",
 		"test": "vitest run",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
@@ -62,7 +70,8 @@
 		"@dnd-kit/collision": "0.5.0",
 		"@dnd-kit/geometry": "0.5.0",
 		"@dnd-kit/state": "0.5.0",
-		"@octane-xplat/ui": "workspace:*"
+		"@octane-xplat/ui": "workspace:*",
+		"abort-controller": "3.0.0"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
