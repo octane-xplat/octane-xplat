@@ -67,7 +67,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'rich-text', title: 'Rich text', kind: 'proof' },
 	{ id: 'tiptap-probe', title: 'Tiptap imports', kind: 'proof' },
 	{ id: 'lexical-probe', title: 'Lexical imports', kind: 'proof' },
-	{ id: 'richtext-editor', title: 'Aztec editor', kind: 'proof' },
+	{ id: 'richtext-editor', title: 'Rich text editor', kind: 'proof' },
 	{ id: 'tiptap-editor', title: 'Tiptap facade', kind: 'proof' },
 	{ id: 'lexical-editor', title: 'Lexical facade', kind: 'proof' },
 	{ id: 'chat', title: 'Chat', kind: 'app' },

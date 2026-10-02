@@ -2,7 +2,7 @@
 
 The unified rich-text facade: one `TiptapEditor` component across web and
 native. Web renders a real tiptap `Editor` through `@octanejs/tiptap`'s
-`EditorContent`; native renders the `@octane-xplat/richtext` leaf (WordPress
+`EditorContent`; Android renders the `@octane-xplat/richtext` leaf (WordPress
 Aztec on Android, iOS stub) and layers tiptap document JSON on top through
 the DOM-free ProseMirror slices (`@tiptap/pm`, `@tiptap/static-renderer`)
 with a `zeed-dom` parse shim. No DOM-bound tiptap code (`EditorView`) ever
@@ -69,3 +69,11 @@ extension `^` ranges float ahead of core and break (`getPreviousBlockSibling`),
 so consumers should keep the workspace override. See
 [`docs/app/rich-text.md`](../../docs/app/rich-text.md) for the shared contract,
 format vocabulary, and known limits.
+
+## macOS AppKit
+
+The macOS export mounts a bundled local editor document in WKWebView.
+RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
+Wait for `onReady`; synchronous getters return the latest received snapshot
+and commands cross WebKit asynchronously. The `native` handle is the Swift
+host transport. See [AppKit setup and engine limits](../../docs/rich-text.md#macos-appkit-editing).

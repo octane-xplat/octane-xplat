@@ -5,8 +5,8 @@ import type { RichTextEditorHandle } from '@octane-xplat/richtext';
 
 const INITIAL_HTML =
 	'<h2>Rich text</h2>' +
-	'<p>A <strong>WordPress Aztec</strong> surface — real <em>Spannable</em> ' +
-	'editing, not a WebView.</p>' +
+	'<p>Rich text editing with <strong>Aztec on Android</strong> or ' +
+	'<em>StarterKit in AppKit WebKit</em>.</p>' +
 	'<ul><li>first item</li><li>second item</li></ul>';
 
 const TOOLBAR: { label: string; format?: any; call?: string }[] = [
@@ -25,7 +25,7 @@ const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 	{ label: '↻', call: 'redo' },
 ];
 
-/** Aztec-backed editor demo — toolbar calls go through the `ref` handle;
+/** Native editor demo — toolbar calls go through the `ref` handle;
  *  selection changes show the active-format set. */
 export function RichTextEditorDemo() @{
 	const editor = useRef<RichTextEditorHandle | null>(null);
@@ -50,7 +50,7 @@ export function RichTextEditorDemo() @{
 	<View className="gap-4">
 		<Heading level={2}>Rich text editor</Heading>
 		<Text className="text-sm text-muted">
-			WordPress Aztec (Android). iOS is stubbed until the Swift facade lands.
+			Aztec on Android · StarterKit in AppKit WebKit · iOS is stubbed.
 		</Text>
 		<RichTextEditor
 			id="richtext-editor"

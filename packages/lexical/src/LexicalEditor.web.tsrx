@@ -249,6 +249,8 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	const editorRef = useRef<any>(null)
 	const lastEmitted = useRef<string | undefined>(undefined)
 	const lastJSON = useRef<string | undefined>(undefined)
+	const lastHTMLInput = useRef(JSON.stringify([props.json !== undefined, props.value]))
+	const lastJSONInput = useRef(JSON.stringify(props.json))
 	const bound = useRef<LexicalEditorHandle | undefined>(undefined)
 	const [exposedHandle, setHandle] = useState<LexicalEditorHandle | null>(null)
 	useImperativeHandle<LexicalEditorHandle | null>(props.ref, () => exposedHandle, [exposedHandle])
@@ -322,21 +324,27 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	// (the update already owns the doc).
 	useEffect(() => {
 		const e = editorRef.current
-		if (!e || props.value === undefined || props.value === lastEmitted.current) return
+		if (!e) return
+		const stamp = JSON.stringify([props.json !== undefined, props.value])
+		if (stamp === lastHTMLInput.current) return
+		lastHTMLInput.current = stamp
+		if (props.json !== undefined || props.value === undefined || props.value === lastEmitted.current) return
 		bound.current?.setHTML(props.value)
-	}, [props.value])
+	}, [exposedHandle, props.value, props.json])
 
 	useEffect(() => {
 		const e = editorRef.current
-		if (!e || props.json === undefined) return
+		if (!e) return
 		const stamp = JSON.stringify(props.json)
-		if (stamp === lastJSON.current) return
+		if (stamp === lastJSONInput.current) return
+		lastJSONInput.current = stamp
+		if (props.json === undefined || stamp === lastJSON.current) return
 		bound.current?.setJSON(props.json)
-	}, [props.json])
+	}, [exposedHandle, props.json])
 
 	useEffect(() => {
 		editorRef.current?.setEditable(props.editable !== false)
-	}, [props.editable])
+	}, [exposedHandle, props.editable])
 
 	const emitChange = (state: any, editor: any) => {
 		const html = state.read(() => $generateHtmlFromNodes(editor))

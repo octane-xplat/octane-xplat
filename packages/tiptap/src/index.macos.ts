@@ -1,19 +1,8 @@
-import type { TiptapEditorProps } from './types'
-
-export const supported = false
-
-/** AppKit host has no rich-text surface yet. */
-export function TiptapEditor(_props: TiptapEditorProps): null {
-	return null
-}
-
+export { TiptapEditor } from './Editor.macos'
+/** The AppKit/WKWebView backend is implemented. */
+export const supported = true
 export type * from './types'
 
-/** No editor, no bridge. */
-export function ensureJSONBridge(): Promise<boolean> {
-	return Promise.resolve(false)
-}
-
-export function jsonBridgeReady(): boolean {
-	return false
-}
+/** The local bundle includes its JSON model; wait for onReady before reading a document. */
+export async function ensureJSONBridge(): Promise<boolean> { return true }
+export function jsonBridgeReady(): boolean { return true }

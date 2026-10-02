@@ -23,7 +23,7 @@ const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 const INITIAL_HTML =
 	'<h2>Unified facade</h2>' +
 	'<p>One <strong>lexical-shaped API</strong> — @octanejs/lexical on web, ' +
-	'Aztec + the lexical doc model on native.</p>';
+	'Aztec on Android, live Lexical in AppKit WebKit.</p>';
 
 /** Facade demo — the same <LexicalEditor> runs a LexicalComposer on web and
  *  Aztec + lexical serialized-state interchange on Android. */
@@ -57,7 +57,7 @@ export function LexicalEditorDemo() @{
 	<View className="gap-4">
 		<Heading level={2}>Lexical facade</Heading>
 		<Text className="text-sm text-muted">
-			@octanejs/lexical on web · Aztec + lexical doc model on Android
+			@octanejs/lexical on web/AppKit · Aztec + lexical doc model on Android
 		</Text>
 		<LexicalEditor
 			id="lexical-editor"

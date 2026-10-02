@@ -411,13 +411,13 @@ blockers.
 
 `@octane-xplat/richtext` (the `RichTextEditor` component) edits real rich text
 through WordPress Aztec's `AztecText` on Android — a `Spannable`-backed
-`EditText`, not a WebView. The iOS leaf is a stub rendering an unsupported
-placeholder until the Aztec-iOS Swift facade lands; web, macOS, and Windows
-return `supported: false` and render nothing (the tiptap facade below covers
-web). Content in/out is HTML via Aztec `fromHtml`/`toPlainHtml`; Kotlin
-default parameters are not bridged, so the leaf passes explicit arguments.
-Desk-verified against Aztec v2.1.7 sources; on-device asserts run through
-the Android demo-sweep leaf probes.
+`EditText` — and a bundled local WKWebView on macOS. The iOS leaf is a stub
+rendering an unsupported placeholder; web and Windows return `supported:
+false` and render nothing (the tiptap facade below covers web). Android
+content in/out is HTML via Aztec `fromHtml`/`toPlainHtml`; Kotlin default
+parameters are not bridged, so the leaf passes explicit arguments. AppKit
+uses StarterKit and asynchronous snapshots. Real OS keyboard input, selection,
+and hit-testing remain unverified; see [AppKit editing](../app/rich-text.md#macos-appkit-editing).
 
 ```tsx
 import { RichTextEditor } from '@octane-xplat/richtext'
@@ -431,7 +431,8 @@ export function Notes() {
 
 `@octane-xplat/tiptap` (the `TiptapEditor` component) is the unified facade:
 web renders `@octanejs/tiptap`'s `EditorContent` over a real tiptap `Editor`,
-native renders `RichTextEditor` and adds tiptap document JSON interchange
+macOS runs the bundled live Tiptap engine in WKWebView, and Android renders
+`RichTextEditor` and adds tiptap document JSON interchange
 through DOM-free ProseMirror slices (`@tiptap/pm` model/state,
 `@tiptap/static-renderer`) with a `zeed-dom` `DOMParser` shim for
 `generateJSON`. The bridge loads lazily; `onJSONReady(false)` or a null
@@ -439,7 +440,8 @@ through DOM-free ProseMirror slices (`@tiptap/pm` model/state,
 Aztec's flat span list is not ProseMirror's tree, so `getJSON` output is a
 best-effort mapping and HTML is the reliable interchange. Formatting parity
 is bounded to the shared `TiptapFormat` vocabulary; `taskList`, `highlight`,
-`subscript`/`superscript`, and `align*` no-op on web (StarterKit lacks them).
+`subscript`/`superscript`, and `align*` no-op on web and AppKit (StarterKit
+lacks them).
 iOS facade renders the same unsupported stub.
 
 ```tsx
@@ -453,10 +455,10 @@ export function Notes() {
 ```
 
 `@octane-xplat/lexical` (the `LexicalEditor` component) is the same facade
-over lexical: web runs a fixed-plugin `LexicalComposer` via
-`@octanejs/lexical@0.2.0`; native delegates editing to `RichTextEditor` and
+over lexical: web and macOS run a fixed-plugin `LexicalComposer` via
+`@octanejs/lexical@0.2.0`; Android delegates editing to `RichTextEditor` and
 round-trips serialized editor state through a headless `createEditor` +
-`@lexical/html` over `zeed-dom`. No live `LexicalEditor` exists on native —
+`@lexical/html` over `zeed-dom`. No live `LexicalEditor` exists on Android —
 `dispatchCommand`, node transforms, and arbitrary plugins are web-only
 (apps needing them import `@octanejs/lexical` directly). `@lexical/link`
 carries an ICU patch (its URL-matcher literal is a parse error without
@@ -473,3 +475,12 @@ export function Notes() {
 	return <LexicalEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```
+
+### AppKit editor boundary
+
+All three editor facades now mount an independently owned local WKWebView
+host on macOS. Tiptap and Lexical run their live web engines; RichText uses
+StarterKit. See [AppKit editing](../app/rich-text.md#macos-appkit-editing) for the
+async snapshot contract, engine-specific format and placeholder gaps, blocked
+link navigation, and verification limits. Real OS keyboard input, selection,
+and hit-testing remain unverified; command dispatch is not evidence for them.

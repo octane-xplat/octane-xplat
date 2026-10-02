@@ -1,12 +1,12 @@
 # Add rich text editing
 
 ID: rich-text-editing
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: @octane-xplat/tiptap, @octane-xplat/lexical, @octane-xplat/richtext, TiptapEditor, LexicalEditor, RichTextEditor, ensureJSONBridge
 
 ## Starting point
 
-A scaffolded Octane xplat app with web and Android targets (iOS stubbed until
+A scaffolded Octane xplat app with web, Android, or experimental AppKit targets (iOS stubbed until
 the Aztec-iOS Swift facade lands). The reader can add a leaf package and use
 the platform file-suffix boundary for divergent imports.
 
@@ -16,7 +16,8 @@ the platform file-suffix boundary for divergent imports.
   (WordPress Aztec `AztecText`) through one shared component.
 - Exchange content as HTML on both platforms and as tiptap document JSON on
   platforms whose runtime can host the DOM-free ProseMirror slices.
-- Keep DOM-bound tiptap code (`EditorView`) out of native bundles; platform
+- Keep DOM-bound tiptap code (`EditorView`) out of Android native execution;
+  AppKit hosts its engine inside a local WKWebView document. Platform
   divergence happens at the package's file suffixes, not in app code.
 - Surface unsupported platforms through `supported` and an explicit stub
   rather than a runtime crash.
@@ -24,12 +25,13 @@ the platform file-suffix boundary for divergent imports.
 ## Acceptance criteria
 
 - AC1: An app installs `@octane-xplat/tiptap` and renders `TiptapEditor` with
-  `value`/`onChange`/`ref` on web and Android without platform branching.
+  `value`/`onChange`/`ref` on web, Android, and AppKit without platform branching.
 - AC2: Toolbar-style integrations drive formatting through
   `handle.apply(format)`/`linkTo`/`undo`/`redo` and read active state through
-  `isActive`/`onSelectionChange` on both backends.
+  `isActive`/`onSelectionChange` on the supported backends, with their documented engine limits.
 - AC3: Docs state which tiptap formats are shared, which no-op on web, and
-  that HTML — not JSON — is the canonical native interchange format.
+  that HTML is the canonical Android interchange format and AppKit keeps
+  each engine’s live JSON model.
 - AC4: `getJSON`/`setJSON` work on Android once `onJSONReady(true)` fires and
   degrade to `null` cleanly where the JSON bridge cannot load.
 - AC5: iOS renders the unsupported stub and returns `supported === false`
@@ -41,6 +43,12 @@ the platform file-suffix boundary for divergent imports.
   exchanges lexical serialized editor state — the two facades' JSON shapes
   are not interchangeable, and docs say so. Its fixed plugin set is
   intentional; custom extensions import `@octanejs/lexical` directly on web.
+
+- AC8: On AppKit, all three facades load bundled editor documents without a
+  server, report readiness, exchange HTML (and the facade’s own JSON), accept
+  external controlled updates without replaying an unchanged input, and
+  dispose their views on unmount. Docs explain asynchronous commands and
+  snapshot getters, frame styling, engine gaps, and runtime evidence limits.
 
 ## Documentation
 
@@ -60,3 +68,7 @@ the platform file-suffix boundary for divergent imports.
 - AC7: [Lexical variant](../docs/app/rich-text.md#lexical-variant) and
   [`LexicalEditorDemo`](../packages/demos/src/LexicalEditorDemo.tsrx); the
   `lexical-probe` demo verifies the native conversion path on-device.
+
+- AC8: [macOS AppKit editing](../docs/rich-text.md#macos-appkit-editing),
+  [isolated WebKit fixture](../packages/richtext/test/verify-wk.mjs), and
+  [packed AppKit consumer](../packages/richtext/test/packed-consumer.mjs).

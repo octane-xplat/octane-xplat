@@ -2,7 +2,7 @@
 
 The native rich-text editing leaf: WordPress Aztec's `AztecText` on Android —
 a `Spannable`-backed `EditText`, not a WebView. iOS mounts an unsupported
-placeholder until the Aztec-iOS Swift facade lands; web, macOS, and Windows
+placeholder until the Aztec-iOS Swift facade lands; web and Windows
 return `supported: false` (the `@octane-xplat/tiptap` facade covers web).
 
 ```tsx
@@ -105,3 +105,11 @@ the leaf's `platforms/android/include.gradle` — no app-level gradle work.
 See the framework guide for the full contract and the demo:
 [`docs/app/rich-text.md`](../../docs/app/rich-text.md) and
 [`packages/demos/src/RichTextEditorDemo.tsrx`](../demos/src/RichTextEditorDemo.tsrx).
+
+## macOS AppKit
+
+The macOS export mounts a bundled local editor document in WKWebView.
+RichText uses StarterKit; Tiptap and Lexical use their existing web facades.
+Wait for `onReady`; synchronous getters return the latest received snapshot
+and commands cross WebKit asynchronously. The `native` handle is the Swift
+host transport. See [AppKit setup and engine limits](../../docs/rich-text.md#macos-appkit-editing).

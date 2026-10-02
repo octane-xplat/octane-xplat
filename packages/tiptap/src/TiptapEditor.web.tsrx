@@ -27,19 +27,6 @@ const COMMAND: Record<WebFormat, (chain: any) => any> = {
 	heading6: (c) => c.toggleHeading({ level: 6 }),
 }
 
-const IS_ACTIVE: Partial<Record<TiptapFormat, (editor: any) => boolean>> = {
-	bold: (e) => e.isActive('bold'),
-	italic: (e) => e.isActive('italic'),
-	underline: (e) => e.isActive('underline'),
-	strikethrough: (e) => e.isActive('strike'),
-	code: (e) => e.isActive('code'),
-	blockquote: (e) => e.isActive('blockquote'),
-	bulletList: (e) => e.isActive('bulletList'),
-	orderedList: (e) => e.isActive('orderedList'),
-	codeBlock: (e) => e.isActive('codeBlock'),
-	link: (e) => e.isActive('link'),
-}
-
 const ACTIVE_OF: [TiptapFormat, string, any?][] = [
 	['bold', 'bold'],
 	['italic', 'italic'],
@@ -74,11 +61,13 @@ function activeFormats(editor: any): TiptapFormat[] {
 export function TiptapEditor(props: TiptapEditorProps) @{
 	const lastEmitted = useRef<string | undefined>(undefined)
 	const lastJSON = useRef<string | undefined>(undefined)
+	const lastHTMLInput = useRef(JSON.stringify([props.json !== undefined, props.value]))
+	const lastJSONInput = useRef(JSON.stringify(props.json))
 	const bound = useRef<TiptapEditorHandle | undefined>(undefined)
 
 	const editor = useEditor({
 		extensions: [StarterKit],
-		content: (props.value ?? props.json ?? '') as any,
+		content: (props.json ?? props.value ?? '') as any,
 		editable: props.editable !== false,
 		autofocus: props.autofocus ?? false,
 		onCreate: () => props.onReady?.(),
@@ -103,14 +92,21 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 	// External `value` changes push setContent; editor-emitted HTML is skipped
 	// (the transaction already owns the doc).
 	useEffect(() => {
-		if (!editor || props.value === undefined) return
+		if (!editor) return
+		const stamp = JSON.stringify([props.json !== undefined, props.value])
+		if (stamp === lastHTMLInput.current) return
+		lastHTMLInput.current = stamp
+		if (props.value === undefined || props.json !== undefined) return
 		if (props.value === lastEmitted.current) return
 		editor.commands.setContent(props.value)
-	}, [editor, props.value])
+	}, [editor, props.value, props.json])
 
 	useEffect(() => {
-		if (!editor || props.json === undefined) return
-		if (JSON.stringify(props.json) === lastJSON.current) return
+		if (!editor) return
+		const stamp = JSON.stringify(props.json)
+		if (stamp === lastJSONInput.current) return
+		lastJSONInput.current = stamp
+		if (props.json === undefined || stamp === lastJSON.current) return
 		editor.commands.setContent(props.json as any)
 	}, [editor, props.json])
 
@@ -141,7 +137,7 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 				}
 			},
 			removeLink: () => e.chain().focus().unsetLink().run(),
-			isActive: (format) => IS_ACTIVE[format]?.(e) ?? false,
+			isActive: (format) => activeFormats(e).includes(format),
 			undo: () => e.commands.undo(),
 			redo: () => e.commands.redo(),
 			focus: () => e.commands.focus(),

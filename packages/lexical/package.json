@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/lexical",
 	"version": "0.0.0",
-	"description": "Unified rich-text editor facade for Octane xplat — @octanejs/lexical on web, @octane-xplat/richtext (Aztec) + lexical doc model on native",
+	"description": "Unified rich-text editor facade for Octane xplat \u2014 live lexical on web/AppKit, Aztec + lexical document model on Android",
 	"keywords": [
 		"octane",
 		"xplat",
@@ -15,7 +15,7 @@
 	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/lexical",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
 		"directory": "packages/lexical"
 	},
 	"files": [
@@ -28,6 +28,7 @@
 	"exports": {
 		".": {
 			"macos": {
+				"types": "./types/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
@@ -44,7 +45,7 @@
 		"exports": {
 			".": {
 				"macos": {
-					"types": "./types/index.d.ts",
+					"types": "./types/index.macos.d.ts",
 					"default": "./src/index.macos.ts"
 				},
 				"web": {
@@ -61,7 +62,7 @@
 		}
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs && node ../richtext/build-browser.mjs",
 		"prepublishOnly": "pnpm build"
 	},
 	"dependencies": {
@@ -81,6 +82,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"octane": "0.6.3",
 		"typescript": "5.9.3",

@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/richtext",
 	"version": "0.9.0",
-	"description": "Native rich-text editing leaf for Octane xplat — WordPress Aztec on Android (iOS stubbed, deferred)",
+	"description": "Native rich-text editing leaf for Octane xplat \u2014 Android Aztec and AppKit WKWebView StarterKit",
 	"keywords": [
 		"android",
 		"aztec",
@@ -29,6 +29,7 @@
 	"exports": {
 		".": {
 			"macos": {
+				"types": "./types/index.macos.d.ts",
 				"default": "./src/index.macos.ts"
 			},
 			"web": {
@@ -38,13 +39,21 @@
 				"default": "./src/index.ts"
 			},
 			"default": "./src/index.ts"
+		},
+		"./macos-host": {
+			"types": "./types/macos-host.d.ts",
+			"default": "./src/NativeEditor.macos.tsx"
+		},
+		"./browser-transport": {
+			"types": "./types/browser-transport.d.ts",
+			"default": "./src/browser-transport.web.ts"
 		}
 	},
 	"publishConfig": {
 		"exports": {
 			".": {
 				"macos": {
-					"types": "./types/index.d.ts",
+					"types": "./types/index.macos.d.ts",
 					"default": "./src/index.macos.ts"
 				},
 				"web": {
@@ -57,18 +66,32 @@
 				},
 				"types": "./types/index.d.ts",
 				"default": "./dist/native/index.js"
+			},
+			"./macos-host": {
+				"types": "./types/macos-host.d.ts",
+				"default": "./src/NativeEditor.macos.tsx"
+			},
+			"./browser-transport": {
+				"types": "./types/browser-transport.d.ts",
+				"default": "./src/browser-transport.web.ts"
 			}
 		},
 		"access": "public"
 	},
 	"scripts": {
-		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs",
-		"prepublishOnly": "pnpm build"
+		"build": "vite build && vite build --mode native && tsc -p tsconfig.types.json && node ../../scripts/check-native-dist.mjs && node build-browser.mjs",
+		"prepublishOnly": "pnpm build",
+		"test": "node --test test/*.test.mjs",
+		"test:macos": "node test/verify-wk.mjs",
+		"test:packed": "node test/packed-consumer.mjs"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
+		"@tiptap/core": "3.28.0",
+		"@tiptap/starter-kit": "3.28.0",
 		"octane": "0.6.3",
 		"typescript": "5.9.3",
 		"vite": "8.3.0"
@@ -93,6 +116,13 @@
 		"platforms": {
 			"android": "9.1.0",
 			"ios": "9.1.0"
+		}
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"WebKit"
+			]
 		}
 	}
 }

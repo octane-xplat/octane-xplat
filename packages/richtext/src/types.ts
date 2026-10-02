@@ -1,8 +1,7 @@
 import type { Octane } from 'octane/jsx-runtime'
 
-/** Supported on Android today (WordPress Aztec); iOS is stubbed until the
- *  Swift-facade bring-up. Web/macOS/Windows route through the tiptap facade
- *  instead of this leaf. */
+/** Android uses WordPress Aztec; AppKit uses StarterKit in WKWebView.
+ * iOS is stubbed. Web/Windows use the tiptap facade instead of this leaf. */
 export type RichTextFormat =
 	| 'bold'
 	| 'italic'
@@ -33,8 +32,9 @@ export type RichTextFormat =
 export interface RichTextEditorHandle {
 	/** Serialized document HTML (Aztec's "plain" HTML — no contenteditable
 	 *  markup). */
+	/** AppKit: returns the latest WebKit snapshot; commands are asynchronous. */
 	getHTML(): string
-	/** Replace the document; resets Aztec's undo history. */
+	/** Replace the document. Android resets Aztec history; AppKit uses engine history. */
 	setHTML(html: string): void
 	/** Toggle a format at the current selection. `link` needs
 	 *  `linkTo(url, anchor)` instead. */
@@ -52,6 +52,7 @@ export interface RichTextEditorHandle {
 	blur(): void
 	isFocused(): boolean
 	/** The platform surface — `AztecText` on Android. */
+	/** AppKit: the XplatEditorHost transport, not the browser engine instance. */
 	native: any
 }
 

@@ -36,12 +36,14 @@ export type TiptapFormat =
 export type TiptapJSON = { type: string; content?: unknown[] } & Record<string, unknown>
 
 export interface TiptapEditorHandle {
+	/** AppKit: returns the latest WebKit snapshot; commands are asynchronous. */
 	getHTML(): string
 	/** Web: `commands.setContent` (undo-aware). Native: Aztec `fromHtml` —
 	 *  resets undo history. */
 	setHTML(html: string): void
 	/** Doc JSON, or null while the native schema modules are still loading /
 	 *  on a runtime that can't host them (`json` flag). Web is always ready. */
+	/** AppKit: latest live engine JSON snapshot; null before onReady. */
 	getJSON(): TiptapJSON | null
 	setJSON(doc: TiptapJSON): void
 	apply(format: TiptapFormat): void
@@ -55,6 +57,7 @@ export interface TiptapEditorHandle {
 	isFocused(): boolean
 	/** The platform surface — a tiptap `Editor` on web, `AztecText` on
 	 *  Android. */
+	/** AppKit: the XplatEditorHost transport, not the browser engine instance. */
 	native: any
 }
 
@@ -75,6 +78,7 @@ export interface TiptapEditorProps {
 	/** Fires once when the native JSON bridge settles — `true` if the
 	 *  DOM-free tiptap modules loaded, `false` on runtimes that can't host
 	 *  them (JSON calls then no-op / return null). Never fires on web. */
+	/** AppKit: fires true with mounted engine readiness; no headless conversion bridge. */
 	onJSONReady?: (ready: boolean) => void
 	onChange?: (html: string) => void
 	onJSONChange?: (doc: TiptapJSON) => void

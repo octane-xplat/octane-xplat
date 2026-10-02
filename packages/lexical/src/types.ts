@@ -38,6 +38,7 @@ export type LexicalFormat =
 export type LexicalJSON = { root: Record<string, unknown> } & Record<string, unknown>
 
 export interface LexicalEditorHandle {
+	/** AppKit: returns the latest WebKit snapshot; commands are asynchronous. */
 	getHTML(): string
 	/** Web: `setEditorState` inside an update (undo-aware). Native: Aztec
 	 *  `fromHtml` — resets undo history. */
@@ -45,6 +46,7 @@ export interface LexicalEditorHandle {
 	/** Serialized editor state, or null while the native doc-model modules
 	 *  are still loading / on a runtime that can't host them (`onJSONReady`
 	 *  reports the outcome). Web is always ready. */
+	/** AppKit: latest live engine JSON snapshot; null before onReady. */
 	getJSON(): LexicalJSON | null
 	setJSON(doc: LexicalJSON): void
 	apply(format: LexicalFormat): void
@@ -58,6 +60,7 @@ export interface LexicalEditorHandle {
 	isFocused(): boolean
 	/** The platform surface — the lexical `LexicalEditor` on web,
 	 *  `AztecText` on Android. */
+	/** AppKit: the XplatEditorHost transport, not the browser engine instance. */
 	native: any
 }
 
@@ -78,6 +81,7 @@ export interface LexicalEditorProps {
 	/** Fires once when the native lexical bridge settles — `true` if the
 	 *  DOM-free lexical modules loaded, `false` on runtimes that can't host
 	 *  them (JSON calls then no-op / return null). Never fires on web. */
+	/** AppKit: fires true with mounted engine readiness; no headless conversion bridge. */
 	onJSONReady?: (ready: boolean) => void
 	onChange?: (html: string) => void
 	onJSONChange?: (doc: LexicalJSON) => void
