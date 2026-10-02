@@ -1,11 +1,12 @@
 /**
  * Shared contract for the cross-platform intersection observer. Mirrors the
  * DOM IntersectionObserver API where native allows; `root`/targets are
- * `unknown` because the bound object is an Element on web and a
- * NativeScript View on iOS/Android.
+ * `unknown` because the bound object is an Element on web, a NativeScript
+ * View on iOS/Android, or an AppKit NSView on macOS.
  */
 
-/** Axis-aligned rectangle measured in CSS pixels on web or dips on native. */
+/** Axis-aligned rectangle measured in CSS pixels on web, dips on iOS/Android,
+ * or points on macOS. */
 export interface IntersectionRect {
 	x: number
 	y: number
@@ -18,7 +19,7 @@ export interface IntersectionRect {
 }
 
 export interface IntersectionObserverEntry {
-	/** The observed target (Element on web, NativeScript View on native). */
+	/** The observed target (Element, NativeScript View, or AppKit NSView). */
 	readonly target: unknown
 	readonly time: number
 	readonly isIntersecting: boolean
@@ -34,21 +35,22 @@ export type IntersectionObserverCallback = (
 	observer: IntersectionObserverShape,
 ) => void
 
-/** Options shared by the DOM and NativeScript observer implementations. */
+/** Options shared by the web and native observer implementations. */
 export interface IntersectionObserverInit {
-	/** Element (web) or View (native) whose bounds bound the intersection.
-	 *  Null/undefined = the viewport (screen on native). Native callers should
-	 *  pass the scrolling container so its bounds clip the result; the
-	 *  observer also clips by ScrollView/ListView ancestors automatically. */
+	/** Element (web), View (iOS/Android), or NSView (macOS) root.
+	 *  Null/undefined = the platform viewport. On iOS/Android, pass a scroller
+	 *  when its bounds should clip the result; ScrollView/ListView ancestors
+	 *  are clipped automatically. macOS clips enclosing NSClipViews. */
 	root?: unknown
-	/** CSS margin shorthand, px (dips on native) or % of the root width. */
+	/** CSS margin shorthand, px (dips on iOS/Android, points on macOS) or %
+	 *  of the root width. */
 	rootMargin?: string
 	threshold?: number | number[]
 }
 
 /** Methods and properties shared by all platform observer implementations. */
 export interface IntersectionObserverShape {
-	/** The configured root, or `null` when using the viewport/screen. */
+	/** The configured root, or `null` when using the platform viewport. */
 	readonly root: unknown | null
 	/** The root bounds expansion or contraction used for intersection checks. */
 	readonly rootMargin: string

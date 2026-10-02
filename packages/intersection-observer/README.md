@@ -12,6 +12,9 @@ Cross-platform visibility tracking for Octane xplat, mirroring the DOM
   [`@nativescript-use/nativescript-intersection-observer`](https://github.com/NativeScript-Use/NativeScript-Use)
   applies to a single ScrollView, generalized to every ancestor plus
   `threshold`/`rootMargin` support.
+- **macOS** — an AppKit implementation measures NSView geometry in top-left
+  window-content coordinates, clips against enclosing `NSClipView`s and the
+  optional root, and re-evaluates on scroll bounds and view frame notifications.
 
 ## API
 
@@ -34,16 +37,18 @@ const observer = new IntersectionObserver(
 	},
 	{ root, rootMargin: '0px', threshold: [0, 0.5, 1] },
 )
-observer.observe(target) // Element on web, View on native
+observer.observe(target)   // Element on web, NativeScript View, or AppKit NSView
 observer.unobserve(target)
 observer.disconnect()
 observer.takeRecords()
 ```
 
-`root` is an `Element` on web or a NativeScript `View` on native;
-`null`/`undefined` means the viewport (the screen on native).
-`rootMargin` accepts CSS-style `px` (dips on native) or `%` values. Percentages
-resolve against the root width on every side, matching the web contract.
+`root` is an `Element` on web, a NativeScript `View` on iOS/Android, or an
+AppKit `NSView` on macOS. `null`/`undefined` means the viewport (the screen on
+iOS/Android and the window content area on macOS).
+`rootMargin` accepts CSS-style `px` (dips on iOS/Android, points on macOS) or
+`%` values. Percentages resolve against the root width on every side, matching
+the web contract.
 
 ### Hook
 
@@ -68,8 +73,8 @@ mirrors `entry.isIntersecting`.
 
 ### Platform support
 
-`supported` is `true` in browsers with the DOM API and on iOS/Android. On
-macOS and non-DOM web hosts it is `false`; the exported observer is inert and
+`supported` is `true` in browsers with the DOM API and on iOS, Android, and
+macOS. On non-DOM web hosts it is `false`; the exported observer is inert and
 does not deliver entries.
 
 ## Native behavior notes
@@ -79,6 +84,9 @@ does not deliver entries.
 - Ancestors that clip on both platforms (`ScrollView`, `ListView`) clip the
   measured rect automatically. Other scrollable plugin containers are not
   enumerable; pass the scroller as `root` so its bounds bound the result.
+- macOS uses top-left window-content coordinates (points), observes scroll
+  changes on enclosing `NSClipView`s, and uses the window content area as the
+  viewport when no root is supplied.
 - A target that never lays out produces no initial entry until geometry
   exists (DOM parity: no notification before layout).
 - `entry.time` is `Date.now()`, not a `DOMHighResTimeStamp`.

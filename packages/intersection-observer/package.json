@@ -1,12 +1,13 @@
 {
 	"name": "@octane-xplat/intersection-observer",
 	"version": "0.0.0",
-	"description": "Visibility tracking for Octane xplat — DOM IntersectionObserver on web, scroll/geometry observer on NativeScript iOS/Android",
+	"description": "Visibility tracking for Octane xplat — DOM IntersectionObserver on web, scroll/geometry observers on iOS, Android, and macOS",
 	"keywords": [
 		"android",
 		"cross-platform",
 		"intersection-observer",
 		"ios",
+		"macos",
 		"nativescript",
 		"octane",
 		"scroll",

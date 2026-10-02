@@ -358,10 +358,7 @@ export class IntersectionObserver implements IntersectionObserverShape {
 		}
 
 		const index = entry.isIntersecting
-			? Math.max(
-					1,
-					this.thresholds.reduce((n, t) => n + (entry.intersectionRatio >= t ? 1 : 0), 0),
-				)
+			? 1 + this.thresholds.reduce((n, t) => n + (entry.intersectionRatio >= t ? 1 : 0), 0)
 			: 0
 
 		if (index !== tracked.last) {
