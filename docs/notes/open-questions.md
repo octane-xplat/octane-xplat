@@ -364,3 +364,13 @@ view.style, v)` — camelCase `Style` keys, **dip units**. Shared `style`
     condition.** — `test:packed` verifies web + native under Bundler and
     NodeNext; the `macos` condition (`index.macos.ts` + handwritten `.d.ts`)
     is only exercised by building apps/macos itself.
+43. 🔬 **Should macOS run a no-ICU V8 parity engine?** — The macOS host
+    embeds system JavaScriptCore via Holepunch `libjsc` (a `js.h`/`napi`
+    adapter over `JavaScriptCore.framework`), while iOS/Android run embedded
+    V8 built without Unicode tables — so engine-level failures like `\p{…}`
+    regex literals throwing at parse time (linkifyjs/@lexical/link patches;
+    markdown `WORD_CHAR`, `d9340ed4`) cannot reproduce in a macOS probe.
+    `libjs` is ABI-pluggable (libv8 exists), so a same-config V8 build is
+    tractable — but only worth it if drift keeps biting; `check-native-dist`'s
+    `\p{` tripwire plus the iOS sim smoke cover the known class today.
+    Revisit after a second incident of this class.
