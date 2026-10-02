@@ -2,7 +2,7 @@
 
 ID: linux-package
 Targets: linux
-Related APIs: xplat build, xplat doctor, xplat.targets.linux.runtime, xplat.targets.linux.package, xplat.targets.linux.host.scheme, @octane-xplat/cli/linux, @octane-xplat/platform/bridge.linux.ts
+Related APIs: xplat build, xplat doctor, xplat.targets.linux.runtime, xplat.targets.linux.package, xplat.targets.linux.host.scheme, @octane-xplat/cli/linux, @octane-xplat/platform/host/web, desktopHost, @octane-xplat/platform/bridge.linux.ts
 
 ## Starting point
 

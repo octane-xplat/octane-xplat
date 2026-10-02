@@ -5,8 +5,9 @@
 
 Most tables below cover **web, iOS, and Android**, not every target named in
 the product direction. macOS has a bounded experimental implementation;
-Windows has a scaffold with bundle generation verified, but runtime behavior
-has not been tested on Windows. Start with the
+Windows has a NativeScript/WinUI scaffold and a source-reviewed standalone
+WebView2 bridge host, but Windows runtime behavior has not been tested on
+Windows. Start with the
 [target guide](spec.md#choose-your-targets), then check the feature you need.
 Ask your agent to preserve these boundaries when proposing an implementation.
 

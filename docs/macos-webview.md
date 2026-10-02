@@ -89,13 +89,17 @@ time contracts only: messages are JSON, and there is no runtime schema
 validation. Keep method results and event payloads serializable and handle
 rejected calls.
 
-The platform's `.web` clipboard, app-info, deep-link, outbound-link, and share
-adapters use host services inside WKWebView and preserve browser behavior
-outside a desktop host. Other web APIs remain browser implementations until a host
-service is deliberately added. The macOS mediator is NativeScript in the
-JavaScriptCore host; the Linux GJS adapter uses the same protocol. A future CEF
-backend would replace the frontend engine only; it would not standardize the
-host-side JavaScript runtime (Annotation 2).
+The platform's `.web` adapters use the typed desktop host inside WKWebView:
+clipboard, app info, lifecycle, window size, deep links, outbound links, share,
+files, notifications, secure storage, and color scheme. They preserve browser
+fallbacks outside a desktop host. The synchronous `storage` API remains
+`localStorage`; the async `desktopHost().storage` service is available when a
+frontend explicitly needs host persistence. Other web APIs remain browser
+implementations until a host service is deliberately added. The macOS mediator
+is NativeScript in the JavaScriptCore host; the Linux GJS and Windows WebView2
+adapters use the same protocol. A future CEF backend would replace the frontend
+engine only; it would not standardize the host-side JavaScript runtime
+(Annotation 2).
 
 `openUrl(url)` keeps its existing synchronous boolean signature. In a
 WKWebView, `true` means the request was sent to the host; the eventual native
@@ -106,8 +110,12 @@ result.
 ## Verify the boundary
 
 The [macOS WKWebView proof](../apps/macos/webview-proof/ProofScreen.web.ts)
-checks typed capabilities, framework clipboard and app-info services, an
-app-defined call and event, and deep-link delivery in a real WKWebView. Run it
-with `pnpm --filter @xplat/macos webview:proof`. The full shared frontend used
+runs in a real WKWebView. It verifies capability discovery for all 24 framework
+methods and four proof-owned methods, and directly invokes the framework calls
+that can run without user interaction: bootstrap state, clipboard, app state,
+window size, file reads, secure storage, host storage, appearance, app-defined
+calls/events, deep links, and a secondary webview window's close event. Run it
+with `pnpm --filter @xplat/macos webview:proof`; the verifier reports
+`[webview-proof] verified 28 typed host methods`. The full shared frontend used
 by the configured macOS renderer starts from
 [`apps/web/src/main.tsrx`](../apps/web/src/main.tsrx).

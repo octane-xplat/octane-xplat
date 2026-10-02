@@ -86,15 +86,35 @@ and events carry JSON messages; keep service results and event payloads
 serializable. Capability discovery describes availability; it does not
 replace handling a failed service call.
 
-`@octane-xplat/platform` exposes the framework client to `.web` leaves.
-Clipboard, app info, deep links, outbound links, and sharing can use host
-services when embedded in a desktop host; outside a desktop host they retain
-browser behavior. A macOS
-WKWebView uses NativeScript in the JavaScriptCore host to implement native
-services; Linux keeps its GJS adapter on the same protocol. This shares the
-service contract without requiring the mediator runtimes to match. A future
-CEF frontend would standardize the web engine, not the host-side JavaScript
-runtime (Annotation 2).
+`@octane-xplat/platform/host/web` exposes `desktopHost()`, a typed facade for
+framework-owned services. It returns `null` outside a desktop webview:
+
+```ts
+import { desktopHost } from '@octane-xplat/platform/host/web'
+
+const host = desktopHost()
+if (host && (await host.supports('secureStorage', 'set'))) {
+	await host.secureStorage.set('session-token', token)
+}
+```
+
+The framework map covers `app`, `clipboard`, `files`, `notifications`,
+`secureStorage`, `appearance`, `windows`, `system`, and `storage`; events cover
+app state, window resize, incoming links, appearance, and window closure. The
+host injects bootstrap app info, app state, window size, initial URL, and color
+scheme before application code runs. Public platform leaves use this facade or
+the typed client. Clipboard, app info, lifecycle, window size, deep links,
+outbound links, sharing, files, notifications, secure storage, and color scheme
+keep their browser fallbacks outside a desktop host. The synchronous `storage`
+API remains `localStorage` on `.web`; apps needing host persistence can call
+`desktopHost().storage` directly.
+
+A macOS WKWebView uses NativeScript in the JavaScriptCore host to implement
+native services; Linux keeps its GJS adapter on the same protocol. A standalone
+Windows WebView2 host maps the same service names through WebMessage. This
+shares the service contract without requiring the mediator runtimes to match. A
+future CEF frontend would standardize the web engine, not the host-side
+JavaScript runtime (Annotation 2).
 
 ## Capability map
 
