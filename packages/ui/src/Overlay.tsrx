@@ -6,8 +6,8 @@ import type { UniversalComponent } from 'octane/universal';
 import type { OverlayProps } from './props';
 import { cx } from './cx';
 import { applyThemeClasses } from './theme/theme-scheme';
-import { rootLayoutFor } from './root-layout.mobile';
-import { createOverlayLifetime } from './overlay-lifetime.mobile';
+import { rootLayoutFor } from './root-layout';
+import { createOverlayLifetime } from './overlay-lifetime';
 
 function OverlayBody(props: { children?: any }) @{
 	<>{props.children}</>

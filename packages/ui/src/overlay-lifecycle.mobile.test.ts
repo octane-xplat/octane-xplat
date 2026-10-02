@@ -53,7 +53,7 @@ vi.mock('@nativescript-community/octane', async (original) => ({
 	},
 }))
 
-vi.mock('./root-layout.mobile', () => ({ rootLayoutFor: () => state.owner }))
+vi.mock('./root-layout', () => ({ rootLayoutFor: () => state.owner }))
 vi.mock('./theme/theme-scheme', () => ({
 	useThemeScheme: () => 'light',
 	applyThemeClasses: (host: any, base: string) => {
@@ -69,7 +69,7 @@ vi.mock('./theme/theme-scheme', () => ({
 	},
 }))
 
-vi.mock('./keyboard-inset.mobile', () => ({
+vi.mock('./keyboard-inset', () => ({
 	bindBottomInsetToKeyboard: () => {
 		const off = vi.fn()
 		state.cleanup.push(off)

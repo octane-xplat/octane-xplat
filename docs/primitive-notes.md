@@ -344,7 +344,7 @@ returns a rejecting promise — leaf must `.catch`.
 Root selection (verified on iOS, commit `af5f492`): `getRootLayout()` returns
 the FIRST mounted rootlayout — wrong root after a push (overlay would land on
 the home screen, invisible under the pushed page). `rootLayoutFor(view)` in
-`src/root-layout.mobile.ts` walks `view.parent` to the enclosing `RootLayout`
+`src/root-layout.ts` walks `view.parent` to the enclosing `RootLayout`
 — the Screen shell of the page that declared the overlay. Imperative services
 with no declaring view (toast, app-level sheets) use `topRootLayout()` — the
 most recently mounted shell from a ui-owned registry; `Screen` self-registers

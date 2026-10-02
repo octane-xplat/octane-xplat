@@ -26,7 +26,7 @@ vi.mock('@nativescript-community/octane', async (importOriginal) => ({
 	createNativeScriptRoot: () => ({ render() {}, unmount() {} }),
 }))
 
-vi.mock('./root-layout.mobile', () => ({
+vi.mock('./root-layout', () => ({
 	rootLayoutFor: () => ({
 		open: async () => {},
 		hasChild: () => false,

@@ -8,8 +8,8 @@ import { applyNativeProps } from './platformProps';
 import { cx } from './cx';
 import { positionPopover, type PopoverPosition } from './popover-position';
 import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
-import { rootLayoutFor } from './root-layout.mobile';
-import { createOverlayLifetime } from './overlay-lifetime.mobile';
+import { rootLayoutFor } from './root-layout';
+import { createOverlayLifetime } from './overlay-lifetime';
 
 function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 	const panelRef = useRef<any>(null);

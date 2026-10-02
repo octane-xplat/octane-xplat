@@ -7,7 +7,7 @@ import type { UniversalComponent } from 'octane/universal';
 import type { ShowToastFn, ToastDismissFn, ToastEntry, ToastOptions, ToastPosition } from './props';
 import { ToastViewportContext } from './toast-context';
 import { dismissToast, pushToast, toastStore, toastTiming } from './toast-store';
-import { topRootLayout } from './root-layout.mobile';
+import { topRootLayout } from './root-layout';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { Popover } from './Popover.tsrx';
 import { Toast } from './Toast.tsrx';

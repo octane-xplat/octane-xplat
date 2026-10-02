@@ -15,11 +15,11 @@ import { createStore } from './store';
 import { useStore } from './use-store.tsrx';
 import { cx } from './cx';
 import { applyThemeClasses } from './theme/theme-scheme';
-import { rootLayoutFor } from './root-layout.mobile';
-import { createOverlayLifetime } from './overlay-lifetime.mobile';
+import { rootLayoutFor } from './root-layout';
+import { createOverlayLifetime } from './overlay-lifetime';
 import { attachSheetDetents, type SheetDetentsController } from './sheet-detents';
 import { normalizeSnapPoints } from './sheet-snap';
-import { bindBottomInsetToKeyboard } from './keyboard-inset.mobile';
+import { bindBottomInsetToKeyboard } from './keyboard-inset';
 import { attachTapToBlur } from './tap-to-blur';
 
 const screenVh = () => Screen.mainScreen.heightDIPs;

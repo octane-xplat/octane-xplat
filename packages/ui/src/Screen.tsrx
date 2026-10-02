@@ -2,7 +2,7 @@
 import type { ScreenProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { registerRootLayout, unregisterRootLayout } from "./root-layout.mobile";
+import { registerRootLayout, unregisterRootLayout } from "./root-layout";
 import { attachTapToBlur } from "./tap-to-blur";
 // The screen shell is a RootLayout so RootLayout.open() can layer overlays
 // over it (decision #22). Self-registers on loaded/unloaded — overlay and

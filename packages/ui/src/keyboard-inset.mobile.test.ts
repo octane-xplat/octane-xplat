@@ -14,7 +14,7 @@ vi.mock('@nativescript/core', () => ({
 	Utils: { layout: { toDeviceIndependentPixels: (px: number) => px / 2 } },
 }))
 
-import { bindBottomInsetToKeyboard } from './keyboard-inset.mobile'
+import { bindBottomInsetToKeyboard } from './keyboard-inset'
 
 describe('Android overlay keyboard inset', () => {
 	it('converts physical IME pixels to NativeScript transform dips', () => {
