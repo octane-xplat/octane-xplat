@@ -1,0 +1,228 @@
+{
+	"baseline": "64960eaf",
+	"driverVersion": "0.2.4",
+	"candidateHashes": {
+		".agents/patches/windows-rich-text/driver-source.patch": "ebd8bd87dd94459216081571209fe6b57784b2ab020d6c1a83818d381f420266",
+		".agents/patches/windows-rich-text/driver-package.patch": "31b1462ba882b6dc3983bd3289d688bc9ec2bd761034c967c983fdd0d87e5800",
+		"emitted/driver.js": "3bacbfc3317a17da2c1895a777c5d0f8f66dfd49762530001db3222dea359e99"
+	},
+	"unit": {
+		"upstream": 61,
+		"maintainedSource": 12,
+		"maintainedPackage": 12,
+		"existingNative": 88
+	},
+	"native": [
+		{
+			"target": "android",
+			"status": "pass",
+			"assertions": [
+				{
+					"name": "mixed nested text",
+					"pass": true,
+					"actual": "First run bold deep tail end",
+					"expected": "First run bold deep tail end"
+				},
+				{
+					"name": "Android native TextView text",
+					"pass": true,
+					"actual": "First run bold deep tail end",
+					"expected": "First run bold deep tail end"
+				},
+				{
+					"name": "Android native bold",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				},
+				{
+					"name": "Android native bold italic",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				},
+				{
+					"name": "bold nested run",
+					"pass": true,
+					"actual": "bold",
+					"expected": "bold"
+				},
+				{
+					"name": "explicit FormattedString",
+					"pass": true,
+					"actual": "First run bold run",
+					"expected": "First run bold run"
+				},
+				{
+					"name": "reactive text",
+					"pass": true,
+					"actual": "First run UPDATED deep tail end",
+					"expected": "First run UPDATED deep tail end"
+				},
+				{
+					"name": "Android native reactive text",
+					"pass": true,
+					"actual": "First run UPDATED deep tail end",
+					"expected": "First run UPDATED deep tail end"
+				},
+				{
+					"name": "removed inline bold reveals normal",
+					"pass": true,
+					"actual": "normal",
+					"expected": "normal"
+				},
+				{
+					"name": "Android native formatting update",
+					"pass": true,
+					"actual": 2,
+					"expected": 2
+				},
+				{
+					"name": "ordered spans",
+					"pass": true,
+					"actual": "B / A",
+					"expected": "B / A"
+				},
+				{
+					"name": "remove rich content",
+					"pass": true,
+					"actual": "First run  end",
+					"expected": "First run  end"
+				},
+				{
+					"name": "plain owner restored",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				}
+			],
+			"measurements": {
+				"Android native style spans": [
+					{
+						"style": 0,
+						"start": 0,
+						"end": 10
+					},
+					{
+						"style": 1,
+						"start": 10,
+						"end": 14
+					},
+					{
+						"style": 3,
+						"start": 14,
+						"end": 19
+					},
+					{
+						"style": 1,
+						"start": 19,
+						"end": 24
+					},
+					{
+						"style": 0,
+						"start": 24,
+						"end": 28
+					}
+				],
+				"run weights": ["normal", "bold", "bold", "bold", "normal"],
+				"native label size": {
+					"width": 280,
+					"height": 19.076923076923077
+				}
+			}
+		},
+		{
+			"target": "ios",
+			"status": "pass",
+			"assertions": [
+				{
+					"name": "mixed nested text",
+					"pass": true,
+					"actual": "First run bold deep tail end",
+					"expected": "First run bold deep tail end"
+				},
+				{
+					"name": "iOS native UILabel text",
+					"pass": true,
+					"actual": "First run bold deep tail end",
+					"expected": "First run bold deep tail end"
+				},
+				{
+					"name": "iOS native bold",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				},
+				{
+					"name": "iOS native bold italic",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				},
+				{
+					"name": "bold nested run",
+					"pass": true,
+					"actual": "bold",
+					"expected": "bold"
+				},
+				{
+					"name": "explicit FormattedString",
+					"pass": true,
+					"actual": "First run bold run",
+					"expected": "First run bold run"
+				},
+				{
+					"name": "reactive text",
+					"pass": true,
+					"actual": "First run UPDATED deep tail end",
+					"expected": "First run UPDATED deep tail end"
+				},
+				{
+					"name": "removed inline bold reveals normal",
+					"pass": true,
+					"actual": "normal",
+					"expected": "normal"
+				},
+				{
+					"name": "iOS native formatting update",
+					"pass": true,
+					"actual": 1,
+					"expected": 1
+				},
+				{
+					"name": "ordered spans",
+					"pass": true,
+					"actual": "B / A",
+					"expected": "B / A"
+				},
+				{
+					"name": "remove rich content",
+					"pass": true,
+					"actual": "First run  end",
+					"expected": "First run  end"
+				},
+				{
+					"name": "plain owner restored",
+					"pass": true,
+					"actual": true,
+					"expected": true
+				}
+			],
+			"measurements": {
+				"iOS native font traits": {
+					"bold": 2147483650,
+					"italic": 2147483651
+				},
+				"run weights": ["normal", "bold", "bold", "bold", "normal"],
+				"native label size": {
+					"width": 280,
+					"height": 21.333333333333332
+				}
+			}
+		}
+	],
+	"windows": {
+		"status": "parked",
+		"reason": "SSH times out before authentication; guest unchanged"
+	}
+}

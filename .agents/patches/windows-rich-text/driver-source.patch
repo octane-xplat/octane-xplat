@@ -1,0 +1,1015 @@
+diff --git a/packages/octane/src/driver.ts b/packages/octane/src/driver.ts
+--- a/packages/octane/src/driver.ts
++++ b/packages/octane/src/driver.ts
+@@ -13,6 +13,7 @@
+   type ViewBase,
+   unsetValue,
+ } from '@nativescript/core';
++import { _getStyleProperties } from '@nativescript/core/ui/core/properties';
+ import {
+   createUniversalRoot,
+   type UniversalEventListenerDescriptor,
+@@ -50,6 +51,12 @@
+   readonly muted: Set<string>;
+   /** Whether this node's `text` has been driven by `#text` children. */
+   textApplied: boolean;
++  /** Native projection only; component/context ownership remains in this host tree. */
++  formatted: FormattedString | null;
++  run: Span | null;
++  stopRich: (() => void) | null;
++  destroyed: boolean;
++  readonly richStyleKeys: Set<string>;
+ }
+ 
+ export interface NativeScriptContainer {
+@@ -96,7 +103,13 @@
+     listeners: new Map(),
+     muted: new Set(),
+     textApplied: false,
++    formatted: null,
++    run: null,
++    stopRich: null,
++    destroyed: false,
++    richStyleKeys: new Set(),
+   };
++  watchRichNode(node);
+   applyProps(node, props);
+   return node;
+ }
+@@ -140,6 +153,7 @@
+ ): void {
+   applyProps(node, next);
+   node.props = { ...node.props, ...next };
++  syncText(node);
+ }
+ 
+ function setProp(
+@@ -159,7 +173,7 @@
+     return;
+   }
+   if (name === 'style') {
+-    applyStyle(view, value);
++    applyStyle(node, view, value);
+     return;
+   }
+   if (name === 'renderItem' && view instanceof ListView) {
+@@ -170,6 +184,10 @@
+     );
+     return;
+   }
++  // `undefined` means "prop not supplied" — skip the write. NativeScript
++  // native setters coerce it (e.g. editable → ios.userInteractionEnabled =
++  // NO) leaving dead UI that still has its JS listeners.
++  if (value === undefined) return;
+   // Core raises `<name>Change` for a script write exactly as for a user
+   // edit; a controlled input must not see its own value come back as one.
+   const echo = `${name}Change`;
+@@ -195,30 +213,315 @@
+   return '';
+ }
+ 
+-function applyStyle(view: ViewBase, value: unknown): void {
++function applyStyle(node: HostNode, view: ViewBase, value: unknown): void {
+   if (value == null || value === unsetValue) return;
+   if (typeof value === 'string') {
+     view.setInlineStyle(value);
+     return;
+   }
+-  if (typeof value === 'object') Object.assign(view.style, value);
+-}
+-
+-/** Recompute a text host's `text` from its `#text` children. */
+-function syncText(parent: HostNode | null): void {
+-  if (parent === null) return;
+-  const view = parent.view;
+-  if (!(view instanceof TextBase)) return;
+-  let text = '';
+-  let found = false;
+-  for (const child of parent.children) {
+-    if (child.view !== null) continue;
+-    text += child.text;
+-    found = true;
+-  }
+-  if (!found && !parent.textApplied) return;
+-  parent.textApplied = found;
+-  view.text = text;
++  if (typeof value === 'object') {
++    if (isRichView(view)) {
++      // A new formatting snapshot can remove a local value and reveal inheritance.
++      for (const name of node.richStyleKeys) {
++        if (!(name in value)) {
++          (view.style as unknown as Record<string, unknown>)[name] = unsetValue;
++        }
++      }
++      node.richStyleKeys.clear();
++      for (const name of Object.keys(value)) {
++        if (RUN_PROPERTIES.has(name)) node.richStyleKeys.add(name);
++      }
++    }
++    Object.assign(view.style, value);
++  }
++}
++
++/** NativeScript supports one flat run collection, while JSX retains nested owners. */
++const RUN_PROPERTIES = new Set([
++  'fontFamily',
++  'fontSize',
++  'fontStyle',
++  'fontWeight',
++  'fontVariationSettings',
++  'textDecoration',
++  'color',
++  'backgroundColor',
++  'iosAccessibilityAdjustsFontSize',
++  'iosAccessibilityMinFontScale',
++  'iosAccessibilityMaxFontScale',
++]);
++const pendingText: Set<HostNode>[] = [];
++const syncingText = new Set<HostNode>();
++const projectedRuns = new WeakSet<Span>();
++function createRun(): Span {
++  const run = new Span();
++  projectedRuns.add(run);
++  return run;
++}
++function clearRuns(formatted: FormattedString): void {
++  for (let i = 0; i < formatted.spans.length; i++) {
++    const run = formatted.spans.getItem(i);
++    if (projectedRuns.has(run)) run.off('linkTap');
++  }
++  formatted.spans.splice(0, formatted.spans.length);
++}
++
++function isRichView(view: ViewBase | null): boolean {
++  return (
++    view instanceof TextBase ||
++    view instanceof FormattedString ||
++    view instanceof Span
++  );
++}
++
++function watchRichNode(node: HostNode): void {
++  const view = node.view;
++  if (!isRichView(view) || view === null) return;
++  // Logical span groups also participate in core's CSS, inheritance and load/unload walk.
++  const eachChild = view.eachChild.bind(view);
++  view.eachChild = (callback) => {
++    const seen = new Set<ViewBase>();
++    const visit = (child: ViewBase) => {
++      seen.add(child);
++      return callback(child);
++    };
++    eachChild(visit);
++    for (const child of node.children) {
++      if (child.view?.parent === view && !seen.has(child.view)) {
++        if (!visit(child.view)) break;
++      }
++    }
++  };
++  const changed = () => {
++    const owner = textOwner(node);
++    if (owner !== null && !syncingText.has(owner)) syncText(node);
++  };
++  view.on('propertyChange', changed);
++  for (const name of RUN_PROPERTIES) view.style.on(`${name}Change`, changed);
++  node.stopRich = () => {
++    view.off('propertyChange', changed);
++    for (const name of RUN_PROPERTIES) view.style.off(`${name}Change`, changed);
++    view.eachChild = eachChild;
++  };
++}
++
++function textOwner(node: HostNode | null): HostNode | null {
++  let owner: HostNode | null = null;
++  for (
++    ;
++    node !== null && !node.destroyed && isRichView(node.view);
++    node = node.parent
++  ) {
++    owner = node;
++    if (node.view instanceof TextBase) break;
++  }
++  return owner;
++}
++
++function syncText(node: HostNode | null): void {
++  const owner = textOwner(node);
++  if (owner === null) return;
++  const pending = pendingText[pendingText.length - 1];
++  if (pending !== undefined) pending.add(owner);
++  else syncRichText(owner);
++}
++
++/** Replace collections in two steps: core adds before removing within one splice. */
++function replaceRuns(formatted: FormattedString, runs: Span[]): void {
++  const current = formatted.spans;
++  if (
++    current.length === runs.length &&
++    runs.every((run, i) => current.getItem(i) === run)
++  )
++    return;
++  clearRuns(formatted);
++  current.push(...runs);
++}
++
++function syncRichText(owner: HostNode): void {
++  const view = owner.view;
++  if (!isRichView(view) || view === null || syncingText.has(owner)) return;
++  syncingText.add(owner);
++  try {
++    // An unattached span still exposes its own immediate text to refs.
++    if (view instanceof Span) {
++      const plain = owner.children.filter((child) => child.view === null);
++      if (plain.length || owner.textApplied) {
++        view.text = plain.map((child) => child.text).join('');
++        owner.textApplied = plain.length > 0;
++      }
++      return;
++    }
++    const explicit =
++      owner.children.length === 1 &&
++      owner.children[0].view instanceof FormattedString
++        ? owner.children[0]
++        : null;
++    const rich =
++      view instanceof FormattedString ||
++      owner.children.some((child) => child.view !== null);
++    if (!rich) {
++      if (owner.formatted !== null) {
++        replaceRuns(owner.formatted, []);
++        if (view instanceof TextBase && view.formattedText === owner.formatted)
++          view.formattedText = CLEARED;
++        owner.formatted = null;
++      }
++      const plain = owner.children.filter((child) => child.view === null);
++      if (plain.length || owner.textApplied) {
++        (view as TextBase).text = plain.map((child) => child.text).join('');
++        owner.textApplied = plain.length > 0;
++      }
++      return;
++    }
++    const formatted =
++      view instanceof FormattedString
++        ? view
++        : explicit !== null
++          ? (explicit.view as FormattedString)
++          : (owner.formatted ?? new FormattedString());
++    if (owner.formatted !== null && owner.formatted !== formatted)
++      replaceRuns(owner.formatted, []);
++    owner.formatted = formatted;
++    const leaves: {
++      node: HostNode;
++      source: HostNode | null;
++      run: Span;
++      text: string;
++    }[] = [];
++    const groups: HostNode[] = [];
++    const walk = (node: HostNode, source: HostNode | null) => {
++      if (node.view === null) {
++        node.run ??= createRun();
++        leaves.push({ node, source, run: node.run, text: node.text });
++      } else if (node.view instanceof Span) {
++        const nested = node.children.some((child) => child.view !== null);
++        const plain = node.children.filter((child) => child.view === null);
++        if (plain.length || node.textApplied) {
++          node.view.text = plain.map((child) => child.text).join('');
++          node.textApplied = plain.length > 0;
++        }
++        // Preserve explicit flat FormattedString/Span public instances.
++        if (node.parent?.view === formatted && !nested) {
++          leaves.push({
++            node,
++            source: null,
++            run: node.view,
++            text: node.view.text,
++          });
++        } else {
++          groups.push(node);
++          if (node.children.length)
++            for (const child of node.children) walk(child, node);
++          else {
++            node.run ??= createRun();
++            leaves.push({
++              node,
++              source: node,
++              run: node.run,
++              text: node.view.text,
++            });
++          }
++        }
++      } else if (node.view instanceof FormattedString) {
++        if (node.view !== formatted) groups.push(node);
++        for (const child of node.children) walk(child, node);
++      }
++    };
++    for (const child of owner.children) walk(child, null);
++    const runs = leaves.map((leaf) => leaf.run);
++    // Remove old native ownership before assigning logical parents or moving runs.
++    if (
++      formatted.spans.length !== runs.length ||
++      runs.some((run, i) => formatted.spans.getItem(i) !== run)
++    ) {
++      clearRuns(formatted);
++    }
++    for (const group of groups) {
++      if (group.view instanceof FormattedString) clearRuns(group.view);
++    }
++    if (view instanceof TextBase && view.formattedText !== formatted)
++      view.formattedText = formatted;
++    for (const group of groups) {
++      const source = group.view!;
++      const parent = group.parent?.view;
++      if (parent !== null && parent !== undefined && source.parent !== parent) {
++        if (source.parent) source.parent._removeView(source);
++        parent._addView(source);
++      }
++    }
++    const properties = _getStyleProperties().filter((property) =>
++      RUN_PROPERTIES.has(property.name),
++    );
++    for (const leaf of leaves) {
++      if (leaf.run !== leaf.node.view) {
++        for (const property of properties) {
++          let value: unknown = unsetValue;
++          for (
++            let source: HostNode | null = leaf.source;
++            source !== null && isRichView(source.view);
++            source = source.parent
++          ) {
++            if (source.view !== null && property.isSet(source.view.style)) {
++              value = (source.view.style as unknown as Record<string, unknown>)[
++                property.name
++              ];
++              break;
++            }
++          }
++          (leaf.run.style as unknown as Record<string, unknown>)[
++            property.name
++          ] = value;
++        }
++        leaf.run.off('linkTap');
++        const targets: Span[] = [];
++        for (
++          let source: HostNode | null = leaf.source;
++          source !== null && isRichView(source.view);
++          source = source.parent
++        ) {
++          if (source.view instanceof Span && source.view.tappable)
++            targets.push(source.view);
++        }
++        if (targets.length)
++          leaf.run.on('linkTap', (data) => {
++            for (const target of targets)
++              target.notify({ ...data, object: target });
++          });
++      }
++      leaf.run.text = leaf.text;
++    }
++    replaceRuns(formatted, runs);
++    owner.textApplied = true;
++  } finally {
++    syncingText.delete(owner);
++  }
++}
++
++function disposeRichNode(node: HostNode): void {
++  node.stopRich?.();
++  node.stopRich = null;
++  node.run?.off('linkTap');
++  node.run = null;
++  if (node.formatted !== null) {
++    replaceRuns(node.formatted, []);
++    if (
++      node.view instanceof TextBase &&
++      node.view.formattedText === node.formatted
++    )
++      node.view.formattedText = CLEARED;
++    node.formatted = null;
++  }
++}
++
++function richChild(parent: HostNode | null, child: HostNode): boolean {
++  return (
++    parent !== null &&
++    isRichView(parent.view) &&
++    (child.view === null ||
++      child.view instanceof Span ||
++      child.view instanceof FormattedString)
++  );
+ }
+ 
+ function addViewChild(
+@@ -364,7 +667,22 @@
+   const siblings = childrenOf(container, parent);
+   const index = siblings.indexOf(node);
+   if (index !== -1) siblings.splice(index, 1);
+-  if (node.view === null) syncText(parent);
++  if (richChild(parent, node)) {
++    if (
++      parent?.view instanceof TextBase &&
++      parent.view.formattedText === node.view
++    ) {
++      parent.view.formattedText = CLEARED;
++    } else if (
++      node.view !== null &&
++      parent?.view instanceof FormattedString &&
++      parent.view.spans.indexOf(node.view as Span) !== -1
++    ) {
++      removeViewChild(parent.view, node.view);
++    } else if (node.view?.parent === parent?.view)
++      parent!.view!._removeView(node.view!);
++    syncText(parent);
++  } else if (node.view === null) syncText(parent);
+   else removeViewChild(hostViewOf(container, parent), node.view);
+   if (node.view instanceof TabViewItem) markTabView(parent);
+   node.parent = null;
+@@ -372,7 +690,7 @@
+ 
+ function attach(container: NativeScriptContainer, node: HostNode): void {
+   const parent = node.parent;
+-  if (node.view === null) {
++  if (richChild(parent, node) || node.view === null) {
+     syncText(parent);
+     return;
+   }
+@@ -429,7 +747,10 @@
+     view.off(type, previous);
+     node.listeners.delete(type);
+   }
+-  if (listener === null) return;
++  if (listener === null) {
++    syncText(node);
++    return;
++  }
+   const handler = (data: EventData) => {
+     if (node.muted.has(type)) return;
+     const root = container.root;
+@@ -448,6 +769,7 @@
+   };
+   node.listeners.set(type, handler);
+   view.on(type, handler);
++  syncText(node);
+ }
+ 
+ function disposeListeners(node: HostNode): void {
+@@ -457,6 +779,7 @@
+     if (view instanceof ListView) releaseListView(view);
+   }
+   node.listeners.clear();
++  disposeRichNode(node);
+ }
+ 
+ /**
+@@ -467,22 +790,30 @@
+   const previous = node.view;
+   if (previous === null) return;
+   const parentView = hostViewOf(container, node.parent);
++  disposeRichNode(node);
+   for (const child of node.children) {
+-    if (child.view !== null) removeViewChild(previous, child.view);
+-  }
+-  if (parentView !== null) removeViewChild(parentView, previous);
++    if (child.view?.parent === previous) previous._removeView(child.view);
++  }
++  if (richChild(node.parent, node)) {
++    if (parentView instanceof TextBase && parentView.formattedText === previous)
++      parentView.formattedText = CLEARED;
++    else if (
++      parentView instanceof FormattedString &&
++      parentView.spans.indexOf(previous as Span) !== -1
++    )
++      removeViewChild(parentView, previous);
++    else if (previous.parent === parentView) parentView!._removeView(previous);
++  } else if (parentView !== null) removeViewChild(parentView, previous);
+   for (const [type, handler] of node.listeners) previous.off(type, handler);
+   if (previous instanceof ListView) releaseListView(previous);
+ 
+   const view = instantiate(node.type);
+   node.view = view;
+   node.textApplied = false;
++  watchRichNode(node);
+   applyProps(node, node.props);
+   for (const [type, handler] of node.listeners) view.on(type, handler);
+-  let index = 0;
+-  for (const child of node.children) {
+-    if (child.view !== null) addViewChild(view, child.view, index++);
+-  }
++  for (const child of node.children) attach(container, child);
+   syncText(node);
+   markTabView(node);
+   attach(container, node);
+@@ -524,7 +855,9 @@
+       const siblings = childrenOf(container, parent);
+       const index = siblings.indexOf(previous);
+       detach(container, previous);
++      for (const child of [...previous.children]) detach(container, child);
+       disposeListeners(previous);
++      previous.destroyed = true;
+       const node = createNode(command.id, command.type, command.props);
+       container.nodes.set(command.id, node);
+       if (index === -1) return;
+@@ -554,7 +887,10 @@
+     case 'destroy': {
+       const node = container.nodes.get(command.id);
+       if (node === undefined) return;
++      detach(container, node);
++      for (const child of [...node.children]) detach(container, child);
+       disposeListeners(node);
++      node.destroyed = true;
+       container.nodes.delete(command.id);
+       return;
+     }
+@@ -587,7 +923,7 @@
+   ViewBase | null
+ > = {
+   id: NATIVESCRIPT_RENDERER_ID,
+-  capabilities: { text: 'host' },
++  capabilities: { text: 'host', visibility: true },
+   events: {
+     classify(name) {
+       if (!EVENT_PROP.test(name)) return null;
+@@ -604,12 +940,23 @@
+       apply() {
+         applyingDepth++;
+         pendingTabViews.push(new Set());
++        pendingText.push(new Set());
+         try {
+           for (const command of batch.commands)
+             applyCommand(container, command);
+         } finally {
+           try {
+-            flushTabViews(pendingTabViews.pop());
++            const text = pendingText.pop();
++            const tabs = pendingTabViews.pop();
++            try {
++              for (const node of text ?? []) {
++                if (node.destroyed) continue;
++                const owner = textOwner(node);
++                if (owner !== null) syncRichText(owner);
++              }
++            } finally {
++              flushTabViews(tabs);
++            }
+           } finally {
+             applyingDepth--;
+           }
+diff --git a/packages/octane/src/driver.spec.ts b/packages/octane/src/driver.spec.ts
+--- a/packages/octane/src/driver.spec.ts
++++ b/packages/octane/src/driver.spec.ts
+@@ -1,3 +1,4 @@
++vi.mock('@nativescript/core/ui/core/properties', async () => {const mock = await import('../tests/core-mock.js'); return {_getStyleProperties: () => mock.styleProperties}});
+ import { afterEach, describe, expect, it, vi } from 'vitest';
+ import type {
+   UniversalHostBatch,
+@@ -8,6 +9,8 @@
+ vi.mock('@nativescript/core', async () =>
+   (await import('../tests/core-mock.js')).createCoreMock(),
+ );
++
++
+ 
+ import * as core from '@nativescript/core';
+ import {
+@@ -400,6 +403,15 @@
+     expect(slotHost.mainContent).toBeNull();
+   });
+ 
++  it('owns mixed plain and styled nested text', () => {
++    const { apply, view } = mount(new MockLayoutBase());
++    apply(create(1, 'label'), create(2, '#text', {value: 'plain '}),
++      create(3, 'span', {fontWeight: 'bold'}), create(4, '#text', {value: 'bold'}),
++      insert(1), insert(2, 1), insert(3, 1), insert(4, 3));
++    const formatted = view<MockTextBase>(1).formattedText as MockFormattedString;
++    expect(formatted.spans.map(s => s.text)).toEqual(['plain ', 'bold']);
++  });
++
+   it('nests formatted strings and spans', () => {
+     const { apply, view } = mount(new MockLayoutBase());
+     apply(
+@@ -413,10 +425,10 @@
+     const label = view<MockTextBase>(1);
+     const formatted = view<MockFormattedString>(2);
+     expect(label.formattedText).toBe(formatted);
+-    expect(formatted.spans).toEqual([view(3)]);
++    expect([...formatted.spans]).toEqual([view(3)]);
+ 
+     apply(remove(3, 2), remove(2, 1));
+-    expect(formatted.spans).toEqual([]);
++    expect([...formatted.spans]).toEqual([]);
+     expect(label.formattedText).toBeNull();
+   });
+ 
+diff --git a/packages/octane/src/list-view.spec.ts b/packages/octane/src/list-view.spec.ts
+--- a/packages/octane/src/list-view.spec.ts
++++ b/packages/octane/src/list-view.spec.ts
+@@ -1,3 +1,4 @@
++vi.mock('@nativescript/core/ui/core/properties', async () => {const mock = await import('../tests/core-mock.js'); return {_getStyleProperties: () => mock.styleProperties}});
+ import { afterEach, describe, expect, it, vi } from 'vitest';
+ import { universalPlan, universalValue } from 'octane/universal/native';
+ 
+diff --git a/packages/octane/src/rich-text.spec.ts b/packages/octane/src/rich-text.spec.ts
+new file mode 100644
+--- /dev/null
++++ b/packages/octane/src/rich-text.spec.ts
+@@ -0,0 +1,239 @@
++import { afterEach, describe, expect, it, vi } from 'vitest';
++vi.mock('@nativescript/core', async () =>
++  (await import('../tests/core-mock.js')).createCoreMock(),
++);
++vi.mock('@nativescript/core/ui/core/properties', async () => {
++  const mock = await import('../tests/core-mock.js');
++  return { _getStyleProperties: () => mock.styleProperties };
++});
++import {
++  MockFormattedString,
++  MockLayoutBase,
++  MockSpan,
++  MockTextBase,
++  unsetValue,
++} from '../tests/core-mock.js';
++import {
++  create,
++  destroy,
++  insert,
++  listener,
++  event,
++  mount,
++  releaseMounted,
++  remove,
++  update,
++} from '../tests/mount.js';
++import { registerElement } from './elements.js';
++afterEach(releaseMounted);
++const move = (id: number, parent: number, before: number | null = null) => ({
++  op: 'move' as const,
++  id,
++  parent,
++  before,
++});
++const runs = (view: MockTextBase | MockFormattedString) => [
++  ...(view instanceof MockTextBase ? view.formattedText!.spans : view.spans),
++];
++const text = (view: MockTextBase) =>
++  view.formattedText
++    ? runs(view)
++        .map((s) => s.text)
++        .join('')
++    : view.text;
++function mixed() {
++  const m = mount(new MockLayoutBase());
++  m.apply(
++    create(1, 'label'),
++    create(2, '#text', { value: 'a' }),
++    create(3, 'span', { style: { fontWeight: 'bold', color: 'red' } }),
++    create(4, '#text', { value: 'b' }),
++    create(5, '#text', { value: 'c' }),
++    insert(1),
++    insert(2, 1),
++    insert(3, 1),
++    insert(4, 3),
++    insert(5, 1),
++  );
++  return { ...m, label: m.view<MockTextBase>(1) };
++}
++describe('rich text ownership', () => {
++  it('orders mixed leaves and updates text and properties without replacing runs', () => {
++    const { apply, view, label } = mixed();
++    const initial = runs(label);
++    expect(text(label)).toBe('abc');
++    expect(initial.map((s) => s.style.fontWeight)).toEqual([
++      undefined,
++      'bold',
++      undefined,
++    ]);
++    apply(
++      update(4, { value: 'B' }),
++      update(3, { style: { fontWeight: 'normal', color: 'blue' } }),
++    );
++    expect(text(label)).toBe('aBc');
++    expect(runs(label)).toEqual(initial);
++    expect(initial[1].style.color).toBe('blue');
++    view<MockSpan>(3).style.fontSize = 25;
++    expect(initial[1].style.fontSize).toBe(25);
++    apply(update(3, { style: { fontWeight: unsetValue, color: unsetValue } }));
++    expect(initial[1].style.color).toBeUndefined();
++  });
++  it('inherits through multiple nested spans, including plain text on either side', () => {
++    const { apply, view, label } = mixed();
++    apply(
++      create(6, 'span', { style: { fontStyle: 'italic' } }),
++      create(7, '#text', { value: 'deep' }),
++      create(8, '#text', { value: 'tail' }),
++      insert(6, 3),
++      insert(7, 6),
++      insert(8, 3),
++    );
++    expect(text(label)).toBe('abdeeptailc');
++    const deep = runs(label)[2];
++    expect(deep.style.fontWeight).toBe('bold');
++    expect(deep.style.fontStyle).toBe('italic');
++    view<MockSpan>(3).style.fontWeight = 'normal';
++    expect(deep.style.fontWeight).toBe('normal');
++    apply(update(6, { style: { fontWeight: 'bold' } }));
++    expect(deep.style.fontWeight).toBe('bold');
++    expect(view<MockSpan>(6).parent).toBe(view(3));
++  });
++  it('moves rich groups between labels and clears the old owner', () => {
++    const { apply, view, label } = mixed();
++    const old = label.formattedText!;
++    apply(create(6, 'label'), insert(6), move(3, 6));
++    expect(label.formattedText).toBeNull();
++    expect(label.text).toBe('ac');
++    expect(old.spans.length).toBe(0);
++    expect(text(view(6))).toBe('b');
++    expect(view<MockSpan>(3).parent).toBe(view(6));
++    apply(move(3, 1, 2));
++    expect(text(label)).toBe('bac');
++    expect(view<MockTextBase>(6).formattedText).toBeNull();
++  });
++  it('reorders plain leaves and rich groups using logical before positions', () => {
++    const { apply, label } = mixed();
++    apply(move(5, 1, 3));
++    expect(text(label)).toBe('acb');
++    apply(move(3, 1, 2));
++    expect(text(label)).toBe('bac');
++    apply(move(2, 3, 4));
++    expect(text(label)).toBe('abc');
++    expect(runs(label).map((s) => s.style.fontWeight)).toEqual([
++      'bold',
++      'bold',
++      undefined,
++    ]);
++    apply(move(2, 1, 3));
++    expect(text(label)).toBe('abc');
++    expect(runs(label)[0].style.fontWeight).toBeUndefined();
++  });
++  it('preserves explicit FormattedString and Span identities and rejects unsafe parent reuse', () => {
++    const { apply, view } = mount(new MockLayoutBase());
++    apply(
++      create(1, 'label'),
++      create(2, 'formattedstring'),
++      create(3, 'span', { text: 'first' }),
++      create(4, 'span', { text: 'second' }),
++      insert(1),
++      insert(2, 1),
++      insert(3, 2),
++      insert(4, 2),
++    );
++    const formatted = view<MockFormattedString>(2);
++    expect(view<MockTextBase>(1).formattedText).toBe(formatted);
++    expect(runs(formatted)).toEqual([view(3), view(4)]);
++    apply(move(4, 2, 3));
++    expect(runs(formatted)).toEqual([view(4), view(3)]);
++    apply(remove(3, 2));
++    expect(view<MockSpan>(3).parent).toBeNull();
++    apply(remove(2, 1));
++    expect(view<MockTextBase>(1).formattedText).toBeNull();
++    expect(formatted.parent).toBeNull();
++  });
++  it('routes native link events to the source span and removes projected listeners', () => {
++    const { apply, view, label, dispatched } = mixed();
++    apply(event(3, 'linkTap', listener(9)));
++    const run = runs(label)[1];
++    run.notify({ eventName: 'linkTap', object: run });
++    expect(dispatched).toHaveLength(1);
++    expect((dispatched[0].data as any).object).toBe(view(3));
++    apply(event(3, 'linkTap', null));
++    run.notify({ eventName: 'linkTap', object: run });
++    expect(dispatched).toHaveLength(1);
++    apply(remove(3, 1), destroy(3), destroy(4));
++    expect(run.handlers.get('linkTap')?.size ?? 0).toBe(0);
++  });
++  it('cleans native and logical ownership when a whole text subtree is destroyed', () => {
++    const { apply, view, label, container } = mixed();
++    const group = view<MockSpan>(3);
++    const formatted = label.formattedText!;
++    apply(
++      remove(1),
++      destroy(1),
++      destroy(2),
++      destroy(3),
++      destroy(4),
++      destroy(5),
++    );
++    expect(container.nodes.size).toBe(0);
++    expect(formatted.spans.length).toBe(0);
++    expect(group.parent).toBeNull();
++    expect(label.formattedText).toBeNull();
++  });
++  it('recreates rich source views on element replacement without losing children', () => {
++    const { view, label } = mixed();
++    const source = view<MockSpan>(3);
++    class Replacement extends MockSpan {}
++    registerElement('span', Replacement as never);
++    expect(text(label)).toBe('abc');
++    expect(source.parent).toBeNull();
++    expect(view(3)).toBeInstanceOf(Replacement);
++    registerElement('span', MockSpan as never);
++  });
++  it('flattens nested explicit groups without duplicate native parents', () => {
++    const { apply, view } = mount(new MockLayoutBase());
++    apply(
++      create(1, 'label'),
++      create(2, 'span', { style: { color: 'red' } }),
++      create(3, 'formattedstring', { style: { fontStyle: 'italic' } }),
++      create(4, '#text', { value: 'inside' }),
++      create(5, 'span', { text: 'leaf', fontWeight: 'bold' }),
++      insert(1),
++      insert(2, 1),
++      insert(3, 2),
++      insert(4, 3),
++      insert(5, 3),
++    );
++    const label = view<MockTextBase>(1);
++    expect(text(label)).toBe('insideleaf');
++    expect(runs(label)[0].style.color).toBe('red');
++    expect(runs(label)[0].style.fontStyle).toBe('italic');
++    expect(runs(label)[1].style.fontWeight).toBe('bold');
++    apply(remove(3, 2), destroy(3), destroy(4), destroy(5));
++    expect(view<MockSpan>(2).parent).toBe(label);
++    expect(text(label)).toBe('');
++  });
++  it('keeps independent roots current when a style observer writes another root', () => {
++    const first = mixed();
++    const second = mixed();
++    first.view<MockSpan>(3).style.on('fontWeightChange', () => {
++      second.view<MockSpan>(3).style.color = 'green';
++    });
++    first.apply(update(3, { style: { fontWeight: 'normal' } }));
++    expect(runs(first.label)[1].style.fontWeight).toBe('normal');
++    expect(runs(second.label)[1].style.color).toBe('green');
++    expect(first.label.formattedText).not.toBe(second.label.formattedText);
++  });
++  it('removes omitted inline formatting keys and reveals the text owner style', () => {
++    const { apply, view, label } = mixed();
++    apply(update(1, { style: { fontWeight: 'normal', color: 'blue' } }));
++    expect(runs(label)[1].style.fontWeight).toBe('bold');
++    apply(update(3, { style: { fontSize: 22 } }));
++    expect(runs(label)[1].style.fontWeight).toBe('normal');
++    expect(runs(label)[1].style.color).toBe('blue');
++    expect(runs(label)[1].style.fontSize).toBe(22);
++    expect(view<MockSpan>(3).style.fontWeight).toBe('normal');
++  });
++});
+diff --git a/packages/octane/tests/core-mock.ts b/packages/octane/tests/core-mock.ts
+--- a/packages/octane/tests/core-mock.ts
++++ b/packages/octane/tests/core-mock.ts
+@@ -4,12 +4,57 @@
+  * platform code behind it. Every class the element registry imports must
+  * exist here, or the registry module fails to evaluate.
+  */
+-type Handler = (data: unknown) => void;
++type Handler = (data: any) => void;
++export const unsetValue = Symbol('unsetValue');
++export const runPropertyNames = [
++  'fontFamily',
++  'fontSize',
++  'fontWeight',
++  'fontStyle',
++  'fontVariationSettings',
++  'color',
++  'backgroundColor',
++  'textDecoration',
++];
++export const styleProperties = runPropertyNames.map((name) => ({
++  name,
++  isSet: (style: object) => Object.hasOwn(style, name),
++}));
+ 
+ export class MockViewBase {
+   parent: MockViewBase | null = null;
+   className: unknown = undefined;
+-  style: Record<string, unknown> = {};
++  private styleEvents = new Map<string, Set<Handler>>();
++  style: any = new Proxy({} as Record<string, unknown>, {
++    get: (target, name: string) => {
++      if (name === 'on')
++        return (type: string, fn: Handler) => {
++          const handlers = this.styleEvents.get(type) ?? new Set();
++          handlers.add(fn);
++          this.styleEvents.set(type, handlers);
++        };
++      if (name === 'off')
++        return (type: string, fn: Handler) =>
++          this.styleEvents.get(type)?.delete(fn);
++      return target[name] ?? this.parent?.style[name];
++    },
++    set: (target, name: string, value) => {
++      if (value === unsetValue) delete target[name];
++      else target[name] = value;
++      for (const fn of [...(this.styleEvents.get(`${name}Change`) ?? [])])
++        fn({ eventName: `${name}Change` });
++      return true;
++    },
++  });
++  eachChild(_callback: (child: MockViewBase) => boolean): void {}
++  _addView(child: MockViewBase): void {
++    if (child.parent) throw new Error('View already has a parent');
++    child.parent = this;
++  }
++  _removeView(child: MockViewBase): void {
++    if (child.parent !== this) throw new Error('View not added');
++    child.parent = null;
++  }
+   inlineStyle: string | null = null;
+   hostSlot?: string;
+   readonly handlers = new Map<string, Set<Handler>>();
+@@ -27,8 +72,9 @@
+     handlers.add(handler);
+   }
+ 
+-  off(type: string, handler: Handler): void {
+-    this.handlers.get(type)?.delete(handler);
++  off(type: string, handler?: Handler): void {
++    if (handler) this.handlers.get(type)?.delete(handler);
++    else this.handlers.delete(type);
+   }
+ 
+   notify(data: {
+@@ -90,7 +136,15 @@
+ 
+ export class MockTextBase extends MockView {
+   #text = '';
+-  formattedText: unknown = null;
++  private formatted: MockFormattedString | null = null;
++  get formattedText() {
++    return this.formatted;
++  }
++  set formattedText(value: MockFormattedString | null) {
++    if (this.formatted) this._removeView(this.formatted);
++    this.formatted = value;
++    if (value) this._addView(value);
++  }
+ 
+   get text(): string {
+     return this.#text;
+@@ -111,12 +165,54 @@
+   }
+ }
+ 
+-export class MockSpan {
+-  text = '';
+-}
+-
+-export class MockFormattedString {
+-  readonly spans: MockSpan[] = [];
++export class MockSpan extends MockViewBase {
++  get tappable() {
++    return !!this.handlers.get('linkTap')?.size;
++  }
++  private value = '';
++  get text() {
++    return this.value;
++  }
++  set text(value: string) {
++    this.value = value;
++    this.notify({ eventName: 'propertyChange', propertyName: 'text' });
++  }
++  constructor() {
++    super();
++    for (const name of runPropertyNames)
++      Object.defineProperty(this, name, {
++        get: () => this.style[name],
++        set: (value) => {
++          this.style[name] = value;
++        },
++      });
++  }
++}
++
++class Runs extends Array<MockSpan> {
++  constructor(private owner: MockFormattedString) {
++    super();
++  }
++  static get [Symbol.species]() {
++    return Array;
++  }
++  getItem(index: number) {
++    return this[index];
++  }
++  splice(start: number, count: number, ...added: MockSpan[]): MockSpan[] {
++    // Core really adds before removing; catch a driver's unsafe replace/move.
++    for (const span of added) this.owner._addView(span);
++    const removed = super.splice(start, count, ...added);
++    for (const span of removed) this.owner._removeView(span);
++    return removed;
++  }
++  push(...added: MockSpan[]): number {
++    for (const span of added) this.owner._addView(span);
++    return super.push(...added);
++  }
++}
++export class MockFormattedString extends MockViewBase {
++  readonly spans = new Runs(this);
+ }
+ 
+ export class MockActionBar extends MockView {
+@@ -280,7 +376,7 @@
+     ListView: MockListView,
+     TabView: MockTabView,
+     TabViewItem: MockTabViewItem,
+-    unsetValue: Symbol('unsetValue'),
++    unsetValue,
+   };
+   const derive = (names: readonly string[], Base: new () => object): void => {
+     for (const name of names)
