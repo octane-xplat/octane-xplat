@@ -20,6 +20,7 @@ working agreements and detail moved out of this entry point.
 | Change public behavior, setup, or a supported workflow  | [Documentation coverage](.agents/docs/documentation.md)                                                              |
 | Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
 | Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
+| Add or publish a package                               | [Releases](.agents/docs/releases.md)                                                                                 |
 | Prepare a release, packaging change, or docs deployment | [Releases](.agents/docs/releases.md)                                                                                 |
 
 ## Critical rules
@@ -27,6 +28,12 @@ working agreements and detail moved out of this entry point.
 - Use **pnpm**, not npm. Declare every imported dependency; workspace dependencies
   use `"workspace:*"`. `packages/ui` takes **no new dependencies or peers**;
   plugin-backed features belong in leaf packages.
+- Every non-private `packages/*/package.json` is included in the automated
+  lockstep release. Mark fixtures/private workspaces `"private": true`. For a
+  publishable package, set `repository.url` exactly to
+  `https://github.com/octane-xplat/octane-xplat` and `repository.directory` to
+  its `packages/<dir>` path. Follow the release reference for the one-time npm
+  stub and trusted-publisher setup.
 - Put platform divergence at file boundaries. Keep one element vocabulary per
   file, no DOM globals or web-only runtime APIs in shared code, and identical
   exports/public types across platform variants. Keep shared props in `props.ts`.
