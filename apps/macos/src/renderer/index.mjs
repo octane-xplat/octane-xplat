@@ -3444,21 +3444,27 @@ function showAnchoredPopup(options) {
 		popover: null,
 		contentView,
 		closed: false,
-		close() {
+		closeObserver: null,
+		update(props) {
+			if (popup.closed) return
+			root.render(options.component, props)
+			const size = popupFittingSize(contentView)
+			if (size) popup.popover.contentSize = size
+		},
+		close(dismissed = false) {
 			if (popup.closed) {
 				return
 			}
 
 			popup.closed = true
-			if (closeObserver) {
+			openPopups.delete(popup)
+			if (popup.closeObserver) {
 				try {
-					NSNotificationCenter.defaultCenter.removeObserver(closeObserver)
+					NSNotificationCenter.defaultCenter.removeObserver(popup.closeObserver)
 				} catch {}
-
-				closeObserver = null
+				popup.closeObserver = null
 			}
 
-			openPopups.delete(popup)
 			try {
 				popup.popover?.close()
 			} catch (error) {
@@ -3469,6 +3475,14 @@ function showAnchoredPopup(options) {
 				root.unmount()
 			} catch (error) {
 				console.error('[macos-popup] popup root unmount failed', error)
+			}
+
+			if (dismissed) {
+				try {
+					options.onClose?.()
+				} catch (error) {
+					console.error('[macos-popup] onClose callback failed', error)
+				}
 			}
 		},
 	}
@@ -3503,33 +3517,17 @@ function showAnchoredPopup(options) {
 			? (behaviors.ApplicationDefined ?? 2)
 			: (behaviors.Transient ?? 1)
 
-	popover.animates = true
+	popover.animates = options.animates ?? true
 	popup.popover = popover
 	openPopups.add(popup)
-
-	let closeObserver = null
-	if (
-		typeof options?.onClose === 'function' &&
-		typeof NSPopoverDidCloseNotification !== 'undefined'
-	) {
-		closeObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			NSPopoverDidCloseNotification,
-			popover,
-			null,
-			() => {
-				if (popup.closed) {
-					return
-				}
-
-				popup.close()
-				try {
-					options.onClose()
-				} catch (error) {
-					console.error('[macos-popup] onClose callback failed', error)
-				}
-			},
-		)
-	}
+	popup.closeObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+		typeof NSPopoverDidCloseNotification === 'undefined'
+			? 'NSPopoverDidCloseNotification'
+			: NSPopoverDidCloseNotification,
+		popover,
+		null,
+		() => popup.close(true),
+	)
 
 	try {
 		popover.showRelativeToRectOfViewPreferredEdge(

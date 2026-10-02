@@ -6,7 +6,7 @@ import {
 	FormLayout, InputGroup, InputGroupText, MobileNav, NavHeadingMenu,
 	NavHeadingMenuItem, NavIcon, NumberInput, InputRating, Typeahead, Tokenizer,
 	createStaticSource, Kbd, NavigationMenu, OverflowList, Pagination,
-	PinInput, ProgressGroup, RadioList, HStack, Selector, Divider, Skeleton,
+	PinInput, ProgressGroup, RadioList, HStack, Selector, MultiSelector, Divider, Skeleton,
 	SideNav, SideNavHeading, SideNavItem, SideNavSection, Stepper, Tab, TabList,
 	TabMenu, Table, Text, TextInput, Timeline, Toolbar, TopNav, TopNavHeading,
 	TopNavItem, TreeList, User, View, registerIcons,
@@ -30,6 +30,7 @@ export function ComponentsDemo() @{
 	const [lastCtx, setLastCtx] = useState('—');
 	const [num, setNum] = useState(2);
 	const [pin, setPin] = useState('');
+	const [fruits, setFruits] = useState<string[]>(['apple']);
 	const [fruit, setFruit] = useState<string | string[] | null>('apple');
 	const [assignee, setAssignee] = useState<{ id: string; label: string } | null>({ id: 'apple', label: 'Apple' });
 	const [tags, setTags] = useState<Array<{ id: string; label: string }>>([{ id: 'one', label: 'One' }]);
@@ -136,6 +137,7 @@ export function ComponentsDemo() @{
 				placeholder="Pick a fruit"
 				searchable={true}
 			/>
+			<MultiSelector label="Fruits" options={[{ value: 'apple', label: 'Apple', group: 'Fruit', description: 'Crisp and sweet' }, { value: 'banana', label: 'Banana', group: 'Fruit' }, { value: 'cherry', label: 'Cherry', isDisabled: true }]} value={fruits} onValueChange={setFruits} searchable hasSelectAll triggerDisplay="count" hasClear />
 			<Typeahead label="Fruit" searchSource={demoSelectionSource} value={assignee} onChange={setAssignee} placeholder="Pick a fruit" />
 			<InputRating value={rating} onValueChange={setRating} />
 			<CheckboxList

@@ -135,6 +135,7 @@ describe('Select field props (web leaf)', () => {
 			addEventListener: vi.fn(),
 			removeEventListener: vi.fn(),
 		})));
+
 		const el = document.createElement('div');
 		document.body.appendChild(el);
 		const root = createRoot(el);
@@ -149,9 +150,10 @@ describe('Select field props (web leaf)', () => {
 			/>,
 		));
 
-		expect(el.querySelector('.vx-select-trigger')?.getAttribute('aria-busy')).toBe('');
+		expect(el.querySelector('.vx-select-trigger')?.getAttribute('aria-busy')).toBe('true');
 		const australia = Array.from(document.querySelectorAll('.vx-select-option'))
 			.find((option) => option.textContent?.includes('Australia')) as HTMLElement;
+
 		act(() => australia.click());
 		expect(onValueChange).toHaveBeenCalledWith('au');
 		root.unmount();
@@ -213,6 +215,7 @@ describe('Field anatomy (web leaf)', () => {
 			'Security code, digit 3',
 			'Security code, digit 4',
 		]);
+
 		expect(cells.every((cell) => !cell.id)).toBe(true);
 		root.unmount();
 		el.remove();

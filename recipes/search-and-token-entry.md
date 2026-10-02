@@ -2,7 +2,7 @@
 
 ID: search-and-token-entry
 Targets: web, ios, android, macos
-Related APIs: @octane-xplat/ui, SearchableItem, SearchSource, createStaticSource, BaseTypeahead, Typeahead, TypeaheadItem, Token, Tokenizer, ComplexSelector, hasEntriesOnFocus, minQueryLength, maxMenuItems, hasCreate, tokenOverflowBehavior, htmlName, bind
+Related APIs: @octane-xplat/ui, Select, Selector, MultiSelector, SelectOption, hasSelectAll, triggerDisplay, changeAction, SearchableItem, SearchSource, createStaticSource, BaseTypeahead, Typeahead, TypeaheadItem, Token, Tokenizer, ComplexSelector, hasEntriesOnFocus, minQueryLength, maxMenuItems, hasCreate, tokenOverflowBehavior, htmlName, bind
 
 ## Starting point
 
@@ -20,6 +20,8 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC4: A reader can use `ComplexSelector` to render custom content, commit values, close the surface, and reflect/revert an asynchronous action.
 - AC5: A reader can account for web-only key events and form inputs, the native remove-button fallback, portable `bind`, and experimental macOS support.
 
+- AC6: A reader can use a finite-list Selector or MultiSelector with local grouped filtering, filtered enabled-item bulk selection, pending/rejected commits, form submission, and explicit native keyboard limits.
+
 ## Documentation
 
 - AC1: [Build a search source](../docs/search-selection.md#supply-search-results) and [the maintained demo](../packages/demos/src/ComponentsDemo.tsrx).
@@ -27,3 +29,5 @@ Provide local or remote searchable values with a stable identity, present useful
 - AC3: [Choose many or create values](../docs/search-selection.md#choose-many-or-create-values) and [the parity fixture](../packages/app/src/parity/fixtures.tsrx).
 - AC4: [Build a custom picker](../docs/search-selection.md#build-a-custom-picker).
 - AC5: [Platform boundaries](../docs/search-selection.md#platform-boundaries) and [known limits](../docs/known-limits.md).
+
+- AC6: [Choose from a finite list](../docs/search-selection.md#choose-from-a-finite-list), [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx), and [the Select probe](../examples/probes/select.tsrx).

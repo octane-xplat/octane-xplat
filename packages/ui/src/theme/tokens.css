@@ -3785,3 +3785,36 @@ a.vx-topnav-item:hover:not([aria-disabled="true"]) {
 	flex-direction: column;
 }
 }
+
+/* Select family: bounded finite lists and search feedback. */
+.vx-select-search-row,
+.vx-select-all {
+	flex-direction: row;
+	align-items: center;
+}
+.vx-select-search-row {
+	padding: 4px;
+}
+.vx-select-search {
+	flex-grow: 1;
+}
+.vx-select-group,
+.vx-select-empty,
+.vx-select-feedback {
+	padding: 6px 10px;
+}
+.vx-select-description {
+	font-size: 12px;
+}
+/* xplat-web-only:start */
+.vx-select-list {
+	overflow-y: auto;
+}
+.vx-select-search-row,
+.vx-select-all {
+	display: flex;
+}
+.vx-select-description {
+	display: block;
+}
+/* xplat-web-only:end */

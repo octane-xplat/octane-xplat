@@ -1,5 +1,9 @@
 # Select audit against Astryx’s selector family
 
+Follow-up: [implementation plan](select-implementation-plan.md) and
+[finite-list usage](search-selection.md#choose-from-a-finite-list) document the
+subsequent foundations. Findings below describe the audited baseline.
+
 **Recommendation:** harden Select’s existing finite-list behavior first, give
 MultiSelector a distinct typed contract, and keep async entity search, token
 creation, custom selection surfaces, and structured filters in their existing

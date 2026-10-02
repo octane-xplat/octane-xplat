@@ -2807,6 +2807,10 @@ export interface SelectOption {
 	value: string
 	label?: string
 	isDisabled?: boolean
+	/** Group heading. Options in the same group retain their input order. */
+	group?: string
+	/** Supporting text; matching still uses label/value. */
+	description?: string
 }
 
 /** Select — anchored self-drawn listbox on every target (decision #48).
@@ -2821,6 +2825,25 @@ export interface SelectProps extends FieldControlProps {
 	defaultValue?: string | string[] | null
 	multiple?: boolean
 	searchable?: boolean
+	/** Called when the local filter changes, including reset on close. */
+	onChangeQuery?: (query: string) => void
+	searchPlaceholder?: string
+	emptyText?: string
+	emptySearchText?: string
+	/** Show bulk selection of the visible enabled options in multiple mode. */
+	hasSelectAll?: boolean
+	selectAllLabel?: string
+	/** Multi-value trigger summary. @default 'labels' */
+	triggerDisplay?: 'labels' | 'count'
+	formatValue?: (items: { value: string; label: string }[]) => string
+	/** Async commit after onValueChange. Blocks edits until settled. */
+	changeAction?: (value: string | string[] | null) => void | Promise<void>
+	/** Called after rejected commits have reconciled the selection. */
+	onChangeError?: (error: unknown) => void
+	/** Web form name; native keeps selection in application state. */
+	htmlName?: string
+	/** Maximum list height, in px/dip. @default 280 */
+	maxMenuHeight?: number
 	placeholder?: string
 	open?: boolean
 	defaultOpen?: boolean
@@ -5586,7 +5609,15 @@ export type NumberInputProps = InputNumberProps
 /** Props accepted by `Selector`. */
 export type SelectorProps = SelectProps
 /** Props accepted by `MultiSelector`. */
-export type MultiSelectorProps = SelectProps
+export type MultiSelectorProps = Omit<
+	SelectProps,
+	'multiple' | 'value' | 'defaultValue' | 'onValueChange' | 'changeAction'
+> & {
+	value?: string[]
+	defaultValue?: string[]
+	onValueChange?: (value: string[]) => void
+	changeAction?: (value: string[]) => void | Promise<void>
+}
 /** Props accepted by `Breadcrumbs`. */
 export type BreadcrumbsProps = BreadcrumbProps
 /** Props accepted by `TreeList`. */

@@ -1,122 +1,56 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useRef, useState } from 'octane';
-import type { SelectProps, SelectOption } from "./props";
-import { cx } from "./cx";
-import { Pressable } from './Pressable.tsrx';
-import { Popover } from './Popover.tsrx';
-import { TextInput } from './TextInput.tsrx';
-import { FieldProvider, useFieldControlProps } from './field-context';
-import { useIndicator, CheckIndicator } from './indicators';
+import { useEffect, useRef } from 'octane'
+import type { SelectProps } from './props'
+import { cx } from './cx'
+import { Pressable } from './Pressable.tsrx'
+import { Popover } from './Popover.tsrx'
+import { TextInput } from './TextInput.tsrx'
+import { FieldProvider, useFieldControlProps } from './field-context'
+import { useIndicator, CheckIndicator, CheckboxIndicator } from './indicators'
+import { nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
+import { useSelect } from './useSelect'
 
-/** Select — anchored self-drawn listbox on every target (decision #48).
- *  `multiple` toggles options without closing and reports string[];
- *  `searchable` filters the list through a normalized TextInput — that
- *  combination is what Nuxt calls Combobox/InputMenu/SelectMenu. */
+/** Finite-list selection with local search; Typeahead owns async result sources. */
 export function Select(inputProps: SelectProps) @{
-	const CheckInd = useIndicator('check') ?? CheckIndicator;
-	const props = useFieldControlProps(inputProps);
-	const anchor = useRef<any>(null);
-	const [internalOpen, setInternalOpen] = useState(props.defaultOpen ?? false);
-	const openControlled = props.open !== undefined;
-	const open = openControlled ? props.open : internalOpen;
-
-	const norm = (v: string | string[] | null | undefined) =>
-		v == null ? [] : Array.isArray(v) ? v : [v];
-
-	const [internalValue, setInternalValue] = useState<string[]>(norm(props.defaultValue));
-	const valueControlled = props.value !== undefined;
-	const selected = valueControlled ? norm(props.value) : internalValue;
-	const isBlocked = props.isDisabled || props.isReadOnly;
-
-	const [query, setQuery] = useState('');
-
-	const setOpen = (next: boolean) => {
-		if (isBlocked && next) return;
-		if (!openControlled) setInternalOpen(next);
-		if (!next) setQuery('');
-		props.onOpenChange?.(next);
-	};
-
-	const report = (keys: string[], cleared = false) => {
-		if (!valueControlled) setInternalValue(keys);
-		props.onValueChange?.(props.multiple ? keys : keys[0] ?? null);
-		if (cleared) props.onClear?.();
-	};
-
-	const clear = () => {
-		if (!props.hasClear || isBlocked) return;
-		report([], true);
-		setOpen(false);
-	};
-
-	const pick = (opt: SelectOption) => {
-		if (isBlocked || opt.isDisabled) return;
-		if (props.multiple) {
-			report(selected.includes(opt.value)
-				? selected.filter((v) => v !== opt.value)
-				: [...selected, opt.value]);
-		} else {
-			report([opt.value]);
-			setOpen(false);
-		}
-	};
-
-	const labelFor = (v: string) =>
-		props.options.find((o) => o.value === v)?.label ?? v;
-
-	const triggerText = selected.length
-		? selected.map(labelFor).join(', ')
-		: props.placeholder ?? '';
-
-	const shown = props.searchable && query
-		? props.options.filter((o) => (o.label ?? o.value).toLowerCase().includes(query.toLowerCase()))
-		: props.options;
+	const props = useFieldControlProps(inputProps)
+	const state = useSelect(props)
+	const anchor = useRef<any>(null)
+	const search = useRef<any>(null)
+	const didFocus = useRef(false)
+	const CheckInd = useIndicator('check') ?? CheckIndicator
+	const MultiInd = useIndicator('checkbox') ?? CheckboxIndicator
+	useEffect(() => { if (!state.open) didFocus.current = false }, [state.open])
 
 	<>
-		<Pressable
-			bind={(v: any) => { anchor.current = v; }}
-			id={props.id}
-		className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', props.isLoading && 'vx-select--loading', props.status && `vx-select--status-${props.status.type}`, props.size && `vx-select--size-${props.size}`, props.className)}
-		style={props.style}
-		disabled={props.isDisabled}
-		onPress={() => { if (!isBlocked) setOpen(!open); }}
-	accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-	accessibilityHint={props.accessibilityHint}
-		accessibilityState={{ disabled: props.isDisabled }}
-	>
-			<label className={cx('vx-select-value', !selected.length && 'vx-select-placeholder')} text={triggerText} />
-			{props.hasClear && selected.length && !isBlocked ? <Pressable className="vx-select-clear" accessibilityLabel="Clear selection" onPress={clear}><label text="×" /></Pressable> : null}
-			{props.isLoading ? <label className="vx-select-loading" text="Loading…" /> : null}
-			<label className="vx-select-caret" text="▾" />
+		<Pressable bind={(view: any) => { anchor.current = view }} id={props.id} className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', state.busy && 'vx-select--loading', props.className)} style={props.style} disabled={props.isDisabled} onPress={() => state.setOpen(!state.open)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled }} accessibilityValue={state.triggerText}>
+			<label className={cx('vx-select-value', !state.selected.length && 'vx-select-placeholder')} text={state.triggerText} />
+			{props.hasClear && state.selected.length && !state.blocked ? <Pressable className="vx-select-clear" disabled={state.pending} accessibilityLabel="Clear selection" onPress={state.clear}><label text="×" /></Pressable> : null}
+			{state.busy ? <label className="vx-select-loading" text="Loading…" accessibilityLiveRegion={'polite' as any} /> : null}
+			{!props.isReadOnly ? <label className="vx-select-caret" text="▾" /> : null}
 		</Pressable>
-		<Popover
-			anchor={anchor}
-			open={open}
-			placement={props.placement ?? 'bottom'}
-			onDismiss={() => setOpen(false)}
-			className="vx-menu"
-		>
-			{props.searchable
-				? <FieldProvider value={null}><TextInput
-					className="vx-select-search"
-					accessibilityLabel="Search options"
-					placeholder="Search…"
-					value={query}
-					onChange={setQuery}
-				/></FieldProvider>
-				: null}
-			<flexboxlayout className="vx-menu-list vx-select-list">
-				{props.isLoading ? <label className="vx-select-loading" text="Loading…" /> : null}
-				@for (const opt of shown; key opt.value) {
-					<flexboxlayout
-						className={cx('vx-menu-item', 'vx-select-option', selected.includes(opt.value) && 'vx-select-option--on', opt.isDisabled && 'vx-menu-item--disabled')}
-						onTap={opt.isDisabled ? undefined : () => pick(opt)}
-					>
-						<flexboxlayout className="vx-select-check"><CheckInd state={selected.includes(opt.value) ? 'checked' : 'unchecked'} isDisabled={opt.isDisabled} /></flexboxlayout>
-						<label className="vx-menu-item-label" text={opt.label ?? opt.value} />
-					</flexboxlayout>
-				}
-			</flexboxlayout>
+		<Popover anchor={anchor} open={state.open} placement={props.placement ?? 'bottom'} onDismiss={() => state.setOpen(false)} className="vx-menu">
+			{props.searchable ? <flexboxlayout className="vx-select-search-row" flexDirection="row">
+				<FieldProvider value={null}><TextInput id={props.id ? `${props.id}-search` : undefined} className="vx-select-search" value={state.query} placeholder={props.searchPlaceholder ?? 'Search…'} accessibilityLabel="Search options" bind={(handle: any) => { search.current = handle; if (!didFocus.current) { didFocus.current = true; handle.focus() } }} onChange={state.setQuery} /></FieldProvider>
+				{state.query ? <Pressable className="vx-select-search-clear" accessibilityLabel="Clear search" onPress={() => { state.setQuery(''); search.current?.focus?.() }}><label text="×" /></Pressable> : null}
+			</flexboxlayout> : null}
+			{props.multiple && props.hasSelectAll ? <Pressable id={props.id ? `${props.id}-select-all` : undefined} className="vx-select-all" disabled={state.pending || !state.enabled.length} accessibilityLabel={`${props.selectAllLabel ?? 'Select all'}, ${state.selectAllState}`} onPress={state.selectAll}><MultiInd state={state.selectAllState} /><label text={props.selectAllLabel ?? 'Select all'} /></Pressable> : null}
+			<label className="vx-select-feedback" text={state.announcement} accessibilityLiveRegion={'polite' as any} />
+			<scrollview height={Math.min(props.maxMenuHeight ?? 280, Math.max(40, state.shown.length * 56 + state.groups.length * 24))}>
+				<flexboxlayout className="vx-menu-list vx-select-list" flexDirection="column">
+					{!state.shown.length && !state.busy ? <label className="vx-select-empty" text={state.emptyText} /> : null}
+					@for (const group of state.groups; index gi; key gi) {
+						<flexboxlayout flexDirection="column">
+							{group.heading != null ? <label className="vx-select-group" text={group.heading} /> : null}
+							@for (const option of group.options; key option.value) {
+								<flexboxlayout id={props.id ? `${props.id}-option-${option.value}` : undefined} className={cx('vx-menu-item', 'vx-select-option', state.selected.includes(option.value) && 'vx-select-option--on', option.isDisabled && 'vx-menu-item--disabled')} flexDirection="row" onTap={() => state.pick(option)} accessibilityRole={nativeAccessibilityRole('button') as any} accessibilityLabel={`${option.label ?? option.value}${option.description ? ', ' + option.description : ''}${state.selected.includes(option.value) ? ', Selected' : ''}${option.isDisabled ? ', Disabled' : ''}`} accessibilityState={nativeAccessibilityState({ selected: state.selected.includes(option.value), disabled: option.isDisabled || state.pending }) as any}>
+									<flexboxlayout className="vx-select-check">{props.multiple ? <MultiInd state={state.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} /> : <CheckInd state={state.selected.includes(option.value) ? 'checked' : 'unchecked'} isDisabled={option.isDisabled} />}</flexboxlayout>
+									<flexboxlayout flexDirection="column"><label className="vx-menu-item-label" text={option.label ?? option.value} />{option.description ? <label className="vx-select-description" text={option.description} /> : null}</flexboxlayout>
+								</flexboxlayout>
+							}
+						</flexboxlayout>
+					}
+				</flexboxlayout>
+			</scrollview>
 		</Popover>
 	</>
 }

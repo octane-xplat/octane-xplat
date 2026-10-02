@@ -4,6 +4,57 @@ Use `Typeahead` for one selected result, `Tokenizer` for a set of results, and
 `ComplexSelector` when the popup needs custom content. These controls share a
 `SearchSource`; they do not take `Selector`'s `{ value, label }` options.
 
+## Choose from a finite list
+
+Use `Selector` (`Select`) for one key, or `MultiSelector` for an array of keys.
+These controls filter the supplied list locally; remote query scheduling and
+free-text creation belong in `Typeahead` and `Tokenizer`.
+
+```tsx
+<MultiSelector
+	options={[
+		{ value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' },
+		{ value: 'nyc', label: 'New York', group: 'East' },
+	]}
+	value={regions}
+	onValueChange={setRegions}
+	searchable
+	hasSelectAll
+	triggerDisplay="count"
+	changeAction={saveRegions}
+	onChangeError={showError}
+	htmlName="regions"
+/>
+```
+
+`SelectOption.group` adds headings, and `description` adds supporting text.
+Filtering matches labels (or the key when no label exists), case-insensitively.
+`onChangeQuery`, `searchPlaceholder`, `emptyText`, and `emptySearchText` customize
+query feedback. Select-all toggles only currently filtered, enabled options;
+hidden and disabled selections remain intact. `formatValue` receives selected
+`{ value, label }` items and overrides the labels/count summary.
+
+`onValueChange` fires immediately. `changeAction` displays the submitted value
+optimistically and blocks edits while pending. A rejection restores the previous
+value and calls `onChangeError`; a newer externally controlled value is preserved.
+Caller-supplied `isLoading` shows progress while retaining selectable existing
+options. `isReadOnly` and `isDisabled` prevent disclosure and edits, including
+externally requested open state. `htmlName` creates one hidden browser input per
+selected key; disabled controls are excluded from submission.
+
+On web, arrows navigate enabled rows; Home/End and PageUp/PageDown navigate the
+list. Enter commits, Escape closes and restores trigger focus, and Tab leaves
+the surface. Printable keys match options or start a searchable query.
+Ctrl/Cmd+A toggles filtered select-all when enabled. IME composition is ignored.
+The search clear button has its own keyboard stop. Native controls expose tap,
+search, clear, and bulk actions; hardware-keyboard navigation is not implemented.
+`maxMenuHeight` bounds the scrolling list (default 280).
+
+Adaptive mobile sheets, badge summaries, standalone labeled Field chrome,
+selected-row overlay alignment, and browser top-layer hosting remain follow-ons.
+Use `Field` for consistent labels/errors and the platform picker/date-picker
+leaves when an OS-native picker is the desired interaction.
+
 ## Supply search results
 
 A searchable item has a stable `id` and display `label`. The optional
@@ -93,9 +144,10 @@ a close callback, and `{ isOpen, isBusy, triggerId, contentId }`:
 `changeAction` marks the surface busy, applies the next value optimistically,
 and restores the previous value if the action rejects. `placement` chooses a
 side and `alignment` (`start`, `center`, or `end`) aligns the surface to its
-anchor on web, iOS, and Android. The experimental macOS leaf currently renders
-the open content inline for both typeahead results and the complex selector; it
-does not position an anchored AppKit popover. Use `bind` for the portable
+anchor on web, iOS, and Android. The experimental macOS Popover uses the
+AppKit anchored popup bridge; typeahead result hosting remains a separate
+contract. Hardware keyboard and assistive-technology behavior require native
+verification. Use `bind` for the portable
 imperative handle (`open`, `close`, `toggle`, `isOpen`).
 
 ## Platform boundaries

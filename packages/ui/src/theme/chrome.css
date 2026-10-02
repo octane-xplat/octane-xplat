@@ -2003,3 +2003,13 @@ textarea::placeholder {
 .vx-power-search-editor-actions { display: flex; gap: 8px; }
 /* xplat-web-only:end */
 }
+
+.vx-select-option--highlighted {
+	background-color: var(--color-border);
+}
+.vx-select-group {
+	font-weight: 600;
+}
+.vx-select-description {
+	color: var(--color-muted);
+}

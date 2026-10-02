@@ -51,3 +51,34 @@ Adaptive modal sheets, complete standalone Field chrome, selectable badge/token
 summaries, selected-row overlay alignment, browser top-layer hosting, and native
 hardware-keyboard navigation remain separate follow-on contracts. Their absence
 must stay explicit in the guide/audit; this plan does not claim full Astryx parity.
+
+## Implemented foundations and evidence
+
+The finite-list model and public props above are implemented in `useSelect.tsx`,
+`select-options.ts`, the three Select leaves, and the array-typed MultiSelector
+adapter. AppKit Popover now uses the existing popup bridge; Pressable forwards
+its bound anchor. AppKit Popover presentation is non-animated so native close
+notifications reconcile state before the separate root is disposed. The demo, guide, and search-and-token-entry recipe include the
+finite-list workflow. This completes the bounded implementation above, with the
+follow-on contracts explicitly deferred.
+
+| Check | Result and limit |
+| --- | --- |
+| Focused web/model tests | 20/20 pass: keyboard/IME, filtering, bulk retention, read-only, forms, pending/rollback and newer controlled values |
+| UI package build | Web/native bundles, 499 generated declarations, native import check pass |
+| AppKit application typecheck | Pass |
+| Web/application typecheck | Fails on existing VideoDemo implicit-any handlers; no Select diagnostics |
+| Mobile/application typecheck | Fails on existing table generic/export errors; no Select diagnostics |
+| Web maintained probe | 6/6 assertions pass via DOM handler dispatch |
+| AppKit maintained probe | 5/5 assertions pass via AppKit action dispatch, including anchored popup open/close and native close reconciliation |
+| iOS simulator probe | 6/6 assertions pass via gesture-observer dispatch: open/close, commit, filtering and disabled-value retention |
+| Android probe | Doctor reports no authorized device; not run |
+| Recipe, CSS, suffix checks | Pass; CSS reports zero unsupported properties |
+| Repository lint/no-DOM | Existing repository violations remain; changed Select files have no reported violations |
+
+The AppKit probe uses direct platform imports because the full UI barrel reaches
+`svg.mobile.ts` through Meter and fails the existing platform-boundary guard.
+Handler dispatch proves component/layer lifecycle, not OS hit-testing, real
+keyboard input, VoiceOver, TalkBack, or pixel fidelity. The web keyboard tests
+use synthesized events. iOS filtering and bulk UI have handler evidence; async UI, real input and
+Android runtime behavior still need platform verification.

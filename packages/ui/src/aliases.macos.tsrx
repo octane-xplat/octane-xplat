@@ -1,8 +1,13 @@
 /** @jsxImportSource @xplat/macos/renderer */
 import { Select } from './Select.macos.tsrx'
-import type { SelectProps } from './props'
+import type { MultiSelectorProps } from './props'
 
 /** SelectMenu — multi-select anchored listbox (Select with `multiple`). */
-export function SelectMenu(props: SelectProps) @{
-	return <Select {...props} multiple={true} />
+export function SelectMenu(props: MultiSelectorProps) @{
+	return <Select
+		{...props}
+		multiple={true}
+		onValueChange={(value) => props.onValueChange?.(Array.isArray(value) ? value : [])}
+		changeAction={props.changeAction ? (value) => props.changeAction?.(Array.isArray(value) ? value : []) : undefined}
+	/>
 }

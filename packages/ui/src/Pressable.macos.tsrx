@@ -5,6 +5,7 @@ import { layoutChildProps } from './layout-child'
 
 export function Pressable(props: PressableProps) @{
 	<flexboxlayout
+		ref={(view: any) => { if (view) props.bind?.(view) }}
 		{...layoutChildProps(props)}
 		id={props.id}
 		flexDirection="column"
