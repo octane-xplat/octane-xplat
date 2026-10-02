@@ -31,6 +31,32 @@ terms. Experienced readers can follow links to deeper material.
   happen? Technical reference and historical design notes can retain necessary
   detail, but label their purpose and keep them out of the beginner path.
 
+## Progressive disclosure
+
+Give readers the information they need for their current step. Introduce more
+detail as their app and questions grow, rather than asking them to understand
+the whole framework before they can start.
+
+- Lead with one small, working path. Show alternatives when readers have a
+  reason to choose between them.
+- Explain a term at the step that uses it. Avoid front-loading a glossary,
+  package inventory, or architecture overview.
+- Link to optional features, platform setup, and deeper reference with labels
+  that say when readers need them. Keep the first-app path focused on getting
+  an app running and making one visible change.
+- Keep required prerequisites, meaningful support limits, and warnings before
+  the actions they affect. Progressive disclosure must not hide information
+  readers need to succeed or make a decision.
+- Review each section with: “Does the reader need this now, or can it wait
+  until the step that uses it?” Move detail to its task guide or reference
+  when it can wait. Shorter sentences alone do not reduce the number of ideas
+  a reader has to learn at once.
+
+For example, a first browser app needs Node.js, pnpm, the create command, and
+a way to recognize success. Phone development tools belong at the point
+where the reader chooses to run on a phone; signing belongs with release
+instructions.
+
 ## Workflow coverage
 
 [Recipes](../../recipes/README.md) define the non-trivial developer workflows that

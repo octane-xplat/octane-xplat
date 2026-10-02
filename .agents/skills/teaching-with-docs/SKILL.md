@@ -14,6 +14,9 @@ app-building guides must welcome junior engineers and
 people using coding agents with no prior programming experience. Explain terms
 and prerequisites as they become useful, lead with a small visible result,
 and keep corporate language and advanced internals out of the beginner path.
+Use [progressive disclosure](../../docs/documentation.md#progressive-disclosure):
+give readers what they need for the current step and link to optional detail
+when they have a reason to use it.
 
 ## Establish the Reader's Job
 

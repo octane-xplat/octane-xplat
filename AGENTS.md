@@ -55,7 +55,8 @@ working agreements and detail moved out of this entry point.
 - Write app-building docs for junior engineers and people using coding agents
   with no prior programming experience. Explain terms and steps, lead with a
   small visible result, and use a friendly, concrete voice. Follow the
-  [documentation guidance](.agents/docs/documentation.md).
+  [documentation guidance](.agents/docs/documentation.md). Use progressive
+  disclosure: teach what the current step needs and link to optional detail.
 - Public workflow changes must reconcile recipes, docs, and maintained examples;
   record coverage separately from verification in Silo and run
   `pnpm check:recipes`. Never weaken criteria to conceal a limitation. Report

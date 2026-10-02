@@ -70,10 +70,6 @@ If setup stops with “Install didn't finish,” enter `my-app` and run
 can give the error to your agent for help. If the browser cannot connect,
 check that the server is still running and open the address it printed.
 
-To create the files without installing packages or starting the server,
-add `--no-install` to the create command. You will still need to run
-`pnpm install` and `pnpm dev` from the new folder before you can use the app.
-
 ## Build and check your first flow
 
 Try a packing checklist as your first change. It's small enough to check by
@@ -112,6 +108,16 @@ Then add one feature, such as saving the list or opening a second screen.
 Repeat the checks after the change. The [checking guide](testing.md)
 explains `lint`, `typecheck`, and `build`; they catch code mistakes but do
 not replace trying the app.
+
+You now have a first feature you can use in the browser. Choose what you
+want to do next:
+
+- Keep building screens with the [screen guide](primitives.md).
+- Try the app on a phone with [iOS and Android setup](#run-on-ios-and-android).
+- Prepare the app to run outside development with [build and check](#build-and-check).
+
+The remaining sections cover those tasks and optional setup. You can return
+to them when you need them.
 
 ## Run on iOS and Android
 
@@ -234,6 +240,19 @@ service that uses an optional plugin, declare it in the app's `package.json`
 according to that service's setup guide. `pnpm xplat doctor` warns about
 missing direct declarations. Plugins owned by add-on packages travel with
 those packages instead; see [device features](platform-services.md).
+
+## Create files without starting the app
+
+If you need to prepare the project files before installing packages or
+starting a server, run:
+
+```sh
+pnpm create octane-xplat my-app --no-install
+```
+
+You will still need to run `pnpm install` and `pnpm dev` from the new folder
+before you can use the app. For the usual first-app setup, use the
+[create and run steps](#create-and-run).
 
 ## When a target is unavailable
 

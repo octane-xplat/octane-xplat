@@ -106,7 +106,7 @@ every guide. Packages include `@octane-xplat/ui`, `@octane-xplat/platform`,
 use [`@octane-xplat/icons`](packages/icons/README.md).
 
 Working on the framework itself? Start with [AGENTS.md](AGENTS.md) and the
-[design notes](docs/README.md#notes).
+[design notes](docs/architecture-notes.md).
 
 ## Framework workspace commands
 
