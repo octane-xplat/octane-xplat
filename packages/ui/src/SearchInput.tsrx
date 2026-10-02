@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useRef, useState } from 'octane';
+import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import type { SearchInputProps } from './props';
 import { Icon } from './Icon.tsrx';
 import { cx } from './cx';
@@ -31,6 +31,8 @@ export function SearchInput(props: SearchInputProps) @{
 		props.onClear?.();
 	};
 
+	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
+
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
@@ -45,7 +47,6 @@ export function SearchInput(props: SearchInputProps) @{
 			ref={(v: any) => {
 				el.current = v;
 				if (!v) return;
-				props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v });
 			}}
 			className="vx-search-field"
 			hint={props.placeholder}

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useMemo } from 'octane'
 import type { AbsoluteProps, GridProps, SpacerProps, StackItemProps, StackProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props'
@@ -26,10 +27,12 @@ export function Stack(props: StackProps) @{
 		...(layout.paddingInlineEnd !== undefined ? { paddingRight: layout.paddingInlineEnd } : {}),
 	}
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	@if (layout.scrollable) {
 		<scrollview
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			className={cx('vx-stack', 'vx-stack--scroll', props.className)}
 			style={{ ...sizingStyle, ...props.style }}
 			orientation={layout.flexDirection === 'row' ? 'horizontal' : 'vertical'}
@@ -54,7 +57,7 @@ export function Stack(props: StackProps) @{
 	} @else {
 		<flexboxlayout
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			flexDirection={layout.flexDirection}
 			justifyContent={layout.justifyContent}
 			alignItems={layout.alignItems}
@@ -78,10 +81,12 @@ export function Stack(props: StackProps) @{
 export function StackItem(props: StackItemProps) @{
 	const itemStyle = stackItemStyle(props)
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	@if (props.isScrollable) {
 		<scrollview
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
 			style={{ ...itemStyle, ...props.style }}
 			orientation="vertical"
@@ -98,7 +103,7 @@ export function StackItem(props: StackItemProps) @{
 	} @else {
 		<flexboxlayout
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
 			style={{ ...itemStyle, ...props.style }}
 			accessible={props.accessible}

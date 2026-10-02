@@ -1,3 +1,5 @@
+import type { Octane } from 'octane/jsx-runtime'
+
 export type CameraAccessibilityRole =
 	| 'button'
 	| 'link'
@@ -54,7 +56,7 @@ export interface CameraViewProps {
 	onReady?: () => void
 	onError?: (error: { message?: string }) => void
 	/** Native preview surface for platform-specific controls. */
-	bind?: (handle: CameraViewHandle) => void
+	ref?: Octane.Ref<CameraViewHandle>
 	/** Platform-specific properties applied to the preview surface. */
 	ios?: Record<string, any>
 	android?: Record<string, any>

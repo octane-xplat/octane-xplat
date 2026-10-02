@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useMemo } from 'octane'
 import type { StackItemProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -12,10 +13,12 @@ export function StackItem(props: StackItemProps) @{
 	const itemStyle = stackItemStyle(props);
 	const onPan = usePan(props.onPan);
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	@if (props.isScrollable) {
 		<scrollview
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
 			style={{ ...itemStyle, ...props.style }}
 			orientation="vertical"
@@ -34,7 +37,7 @@ export function StackItem(props: StackItemProps) @{
 	} @else {
 		<flexboxlayout
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			className={cx('vx-stackitem', props.className)}
 			style={{ ...itemStyle, ...props.style }}
 			accessible={props.accessible}

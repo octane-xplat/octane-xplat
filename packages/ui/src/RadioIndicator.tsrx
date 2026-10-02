@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useMemo } from 'octane'
 import type { IndicatorProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
@@ -14,9 +15,11 @@ export function RadioIndicator(props: IndicatorProps<'singleSelection'>) @{
 			? <flexboxlayout className={cx('vx-radio-dot', 'vx-ind-radio-dot', `vx-ind-radio-dot--${size}`)} />
 			: null;
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<flexboxlayout
 		id={props.id}
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		ref={forwardedRef}
 		className={cx(
 			'vx-radio', 'vx-ind-radio', `vx-ind-radio--${size}`,
 			props.state === 'checked' && 'vx-ind-radio--checked',

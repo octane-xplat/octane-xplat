@@ -13,7 +13,7 @@ or reachable file/URL). The reader can build web and native apps.
 
 - Install the leaf package and mount a bounded animation on each target.
 - Control playback declaratively (`playing`, `progress`, `loop`, `speed`)
-  and imperatively (`bind` handle).
+  and imperatively (`ref` handle).
 - Understand the normalized units (progress 0..1, durations ms) and which
   npm `ui-lottie` 6.0.0 gaps the leaf works around pending upstream fixes.
 

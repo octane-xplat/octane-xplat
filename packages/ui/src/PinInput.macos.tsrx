@@ -55,7 +55,7 @@ export function PinInput(props: PinInputProps) @{
 				isLoading={props.isLoading}
 				value={cellValue(i)}
 				onChange={(text: string) => enter(i, text)}
-				bind={(h: TextInputHandle) => { handles.current[i] = h; }}
+				ref={(h: TextInputHandle | null) => { handles.current[i] = h; }}
 			/>
 		}
 	</flexboxlayout>

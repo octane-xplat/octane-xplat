@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useMemo } from 'octane'
 import type { ListItemProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -22,20 +23,24 @@ export function ListItem(props: ListItemProps) @{
 			target.focus?.()
 			return
 		}
+
 		if (props.href != null) { pushDeepLink(props.href) }
 	}
 
 	const labelNode = typeof props.label === 'string'
 		? <label className="vx-listitem-label" text={props.label} />
 		: props.label
+
 	const descriptionNode = props.description == null ? null
 		: typeof props.description === 'string'
 			? <label className="vx-listitem-desc" text={props.description} />
 			: props.description
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<flexboxlayout
 		id={props.id}
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		ref={forwardedRef}
 		flexDirection="row"
 		alignItems="center"
 		className={cx(

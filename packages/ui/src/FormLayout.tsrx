@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useRef } from 'octane';
+import { useMemo, useEffect, useRef } from 'octane';
 import type { FormLayoutProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -26,11 +26,14 @@ export function FormLayout(props: FormLayoutProps) @{
 		}
 	}, [props.children, direction]);
 
+	const forwardedRef = useMemo(() => [(v: any) => { host.current = v; if (v) { applyEscapeProps(v, props);  } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+	const forwardedRef2 = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<FormLayoutProvider value={value}>
 		{direction === 'horizontal' ? (
 			<gridlayout
 				id={props.id}
-				ref={(v: any) => { host.current = v; if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+				ref={forwardedRef}
 				className={cx('vx-formlayout', 'vx-formlayout--horizontal', props.className)}
 				style={props.style}
 				accessible={props.accessible}
@@ -46,7 +49,7 @@ export function FormLayout(props: FormLayoutProps) @{
 		) : (
 			<flexboxlayout
 				id={props.id}
-				ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+				ref={forwardedRef2}
 				flexDirection="column"
 				gap={16}
 				className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)}

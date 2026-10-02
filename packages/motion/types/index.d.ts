@@ -13,7 +13,7 @@ import type {
 import type { MotionValue, MotionValueEvents } from './value.js'
 import type { AnimationControls, AnimationResult } from './engine.js'
 /** Bounded motion hosts for shared xplat UI primitives; `motion.create` wraps
- *  any component that accepts `bind`/`style`/`children`. All hosts support
+ *  any component that accepts `ref`/`style`/`children`. All hosts support
  *  numeric variants and root-local initial/animate label inheritance. */
 export declare const motion: {
 	View: UniversalComponent<MotionViewProps>
@@ -62,7 +62,7 @@ export declare function useSpring(
 ): MotionValue
 
 /** Scoped imperative animation: `const [scope, animate] = useAnimate()` then
- *  `bind={scope}` on a motion host. */
+ *  `ref={scope}` on a motion host. */
 export declare function useAnimate(): [
 	{ current: any },
 	(

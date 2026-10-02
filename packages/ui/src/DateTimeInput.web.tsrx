@@ -1,4 +1,4 @@
-import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.web.tsrx'
@@ -100,7 +100,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		[minParts.date, maxParts.date, props.dateConstraints],
 	)
 
-	// The day-bound min/max only bind the time segment when the picked day IS
+	// The day-bound min/max only ref the time segment when the picked day IS
 	// the bound's day.
 	const timeMin = minParts.date && minParts.time && valueParts.date === minParts.date ? minParts.time : undefined
 	const timeMax = maxParts.date && maxParts.time && valueParts.date === maxParts.date ? maxParts.time : undefined
@@ -309,7 +309,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				<>
 					<span className="vx-datetimeinput-segment vx-datetimeinput-nativeslot">
 						<input
-							ref={(el: any) => { dateInput.current = el; if (!el) return; props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el }) }}
+							ref={(el: any) => { dateInput.current = el; }}
 							id={dateId}
 							type="date"
 							className="vx-datetimeinput-input vx-datetimeinput-nativeinput"
@@ -370,7 +370,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 							<Icon name="xplat-calendar" size={14} />
 						</button>
 						<input
-							ref={(el: any) => { dateInput.current = el; if (!el) return; props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el }) }}
+							ref={(el: any) => { dateInput.current = el; }}
 							id={dateId}
 							type="text"
 							className={cx('vx-datetimeinput-input', 'vx-datetimeinput-dateinput', !isDateValid && 'vx-datetimeinput-input--invalid')}
@@ -422,6 +422,8 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 			{statusType ? <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>{STATUS_GLYPHS[statusType]}</span> : null}
 		</div>
 	)
+
+	useImperativeHandle(props.ref, () => ({ focus: () => dateInput.current?.focus(), blur: () => dateInput.current?.blur(), native: dateInput.current }), undefined);
 
 	<>
 		{showsDisabledReason ? <Tooltip trigger={shellNode} content={props.disabledMessage!} /> : shellNode}

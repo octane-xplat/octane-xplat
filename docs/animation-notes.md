@@ -361,13 +361,12 @@ on Android but leaves the promise **pending forever on iOS** — never `await`
 a cancellable animation; `iterations: 0` diverges (iOS=none, Android
 degenerate) — facade exposes `iterations: 'infinite'` explicitly.
 
-**Verified on iOS:** `useAnimation()` → `{ value, to, spring, stop, bind }`
+**Animation driver verified on iOS:** `useAnimation()` → `{ value, to, spring, stop, ref }`
 works as a plain exported function in a `.tsrx` file — hooks called inside an
 active component render resolve via implicit slots
 (`implicit:${owner.implicitSlot++}`), so custom hooks don't need `@{ }`
-bodies; they just need stable call order. The value attaches through a `bind`
-prop on the leaf (→ intrinsic `ref`; `ref` itself is runtime-reserved on
-component elements) and writes `view[prop]` per rAF frame — no re-render.
+bodies; they just need stable call order. The value attaches through a `ref`
+prop forwarded by the leaf to its host and writes `view[prop]` per rAF frame — no re-render.
 `to(80,{300ms})` hit exactly 80; JS spring integrator settled to |−1.4|.
 
 ## Gesture normalization
@@ -394,10 +393,10 @@ which is a real event). Programmatic probing must call
 
 **Verified:** payload normalization landed in the shared pan plumbing
 (`pan`/`pan.web`) — View, HStack, and Pressable all take
-`onPan`/`onSwipe`/`bind`. NS `{deltaX,deltaY,state:int}` →
+`onPan`/`onSwipe`/`ref`. NS `{deltaX,deltaY,state:int}` →
 `{x,y,dx,dy,vx,vy,state:'began'|...'}`; enum map is
 `cancelled=0,began=1,changed→moved=2,ended=3`. Web leaves attach raw
-pointer listeners via the `bind` ref — **`pointermove` is not in octane's
+pointer listeners via the `ref` ref — **`pointermove` is not in octane's
 delegated-event set**, so declarative `onPointerMove` props can't drive a
 drag; the leaf owns the listeners. Velocity is computed from web pointer
 samples; native iOS reads `velocityInView`, and native Android uses

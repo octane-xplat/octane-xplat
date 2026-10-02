@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.tsrx'
@@ -133,7 +133,7 @@ function DateInputControl(inputProps: CoreProps) @{
 			</Pressable>
 			{surface === 'popover' ? (
 				<textfield
-					ref={(v: any) => { input.current = v; if (!v) return; props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v }) }}
+					ref={(v: any) => { input.current = v; }}
 					id={inputId}
 					className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
 					hint={props.placeholder ?? 'Select a date'}
@@ -170,6 +170,8 @@ function DateInputControl(inputProps: CoreProps) @{
 				: null}
 		</>
 	)
+
+	useImperativeHandle(props.ref, () => ({ focus: () => input.current.focus(), blur: () => blurText(input.current), native: input.current }), undefined);
 
 	<>
 		<flexboxlayout

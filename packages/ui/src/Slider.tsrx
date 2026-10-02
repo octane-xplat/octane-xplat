@@ -27,7 +27,7 @@ export function Slider(props: SliderProps) @{
 	const host = useRef<any>(null);
 	const bindHost = useCallback((el: any) => {
 		host.current = el;
-		measure.bind(el);
+		measure.ref(el);
 	}, []);
 
 	const trackHeight = 4;

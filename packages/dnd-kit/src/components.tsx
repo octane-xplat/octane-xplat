@@ -93,17 +93,17 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
 		}
 	}, [controller, options.id, options.data, options.disabled])
 
-	const bind = useCallback(
+	const ref = useCallback(
 		(element: any) => {
 			node.current = element
-			measurement.bind(element)
+			measurement.ref(element)
 			if (element) {
 				controller.draggableNodes.set(options.id, element)
 			} else {
 				controller.draggableNodes.delete(options.id)
 			}
 		},
-		[controller, options.id, measurement.bind],
+		[controller, options.id, measurement.ref],
 	)
 
 	const onPan = useCallback(
@@ -113,7 +113,7 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
 
 	const isDragging = snapshot.isDragging && snapshot.active?.id === options.id
 	const transform = isDragging ? snapshot.transform : { x: 0, y: 0 }
-	return { bind, onPan, isDragging, transform, style: dragStyle(transform.x, transform.y) }
+	return { ref, onPan, isDragging, transform, style: dragStyle(transform.x, transform.y) }
 }
 
 export function useDroppable(options: DroppableOptions): DroppableResult {
@@ -161,20 +161,20 @@ export function useDroppable(options: DroppableOptions): DroppableResult {
 		measurement.bounds,
 	])
 
-	const bind = useCallback(
+	const ref = useCallback(
 		(element: any) => {
 			node.current = element
-			measurement.bind(element)
+			measurement.ref(element)
 			if (element) {
 				controller.droppableNodes.set(options.id, element)
 			} else {
 				controller.droppableNodes.delete(options.id)
 			}
 		},
-		[controller, options.id, measurement.bind],
+		[controller, options.id, measurement.ref],
 	)
 
-	return { bind, isOver: snapshot.isDragging && snapshot.over?.id === options.id }
+	return { ref, isOver: snapshot.isDragging && snapshot.over?.id === options.id }
 }
 
 /** Declares list membership for useSortable; it does not own item order. */
@@ -195,21 +195,21 @@ export function useSortable(options: DraggableOptions): SortableResult {
 
 	const drag = useDraggable(options)
 	const drop = useDroppable(options)
-	const bind = useCallback(
+	const ref = useCallback(
 		(element: any) => {
-			drag.bind(element)
-			drop.bind(element)
+			drag.ref(element)
+			drop.ref(element)
 		},
-		[drag.bind, drop.bind],
+		[drag.ref, drop.ref],
 	)
 
-	return { ...drag, bind, isOver: drop.isOver }
+	return { ...drag, ref, isOver: drop.isOver }
 }
 
 function SortableRow<T extends DndId>(props: { id: T; index: number; list: SortableListProps<T> }) {
 	const sortable = useSortable({ id: props.id, disabled: props.list.disabled })
 	return (
-		<View bind={sortable.bind} onPan={sortable.onPan} style={sortable.style}>
+		<View ref={sortable.ref} onPan={sortable.onPan} style={sortable.style}>
 			{props.list.renderItem(props.id, props.index)}
 		</View>
 	)

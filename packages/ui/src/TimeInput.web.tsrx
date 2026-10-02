@@ -1,4 +1,4 @@
-import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.web.tsrx'
@@ -214,7 +214,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 			{surface === 'native' ? (
 				<span className="vx-timeinput-nativeslot">
 					<input
-						ref={(el: any) => { input.current = el; if (!el) return; props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el }) }}
+						ref={(el: any) => { input.current = el; }}
 						id={inputId}
 						type="time"
 						className={cx('vx-timeinput-nativeinput', 'vx-timeinput-input')}
@@ -256,7 +256,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 				</button>
 			) : (
 				<input
-					ref={(el: any) => { input.current = el; if (!el) return; props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el }) }}
+					ref={(el: any) => { input.current = el; }}
 					id={inputId}
 					type="text"
 					className={cx('vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid')}
@@ -283,6 +283,8 @@ function TimeInputControl(inputProps: CoreProps) @{
 			<TimeStatusGlyph status={props.status} variant={props.statusVariant} />
 		</div>
 	)
+
+	useImperativeHandle(props.ref, () => ({ focus: () => input.current?.focus(), blur: () => input.current?.blur(), native: input.current }), undefined);
 
 	<>
 		{showsDisabledReason ? <Tooltip trigger={shellNode} content={props.disabledMessage!} /> : shellNode}

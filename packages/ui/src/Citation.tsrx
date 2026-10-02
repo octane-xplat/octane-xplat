@@ -65,7 +65,7 @@ export function Citation(props: CitationProps) @{
 
 	return isLink ? (
 		<Pressable
-			bind={(v: any) => applyEscapeProps(v, props)}
+			ref={(v: any) => applyEscapeProps(v, props)}
 			id={props.id}
 			className={cls}
 			style={{ flexDirection: 'row', alignItems: 'center', gap: 4, ...props.style }}

@@ -121,7 +121,7 @@ export function Tab(props: TabProps) @{
 
 	<Pressable
 		id={props.id}
-		bind={(v: any) => { if (v) (ctx as any)._tabViews?.set(props.value, v); else (ctx as any)._tabViews?.delete(props.value); }}
+		ref={(v: any) => { if (v) (ctx as any)._tabViews?.set(props.value, v); else (ctx as any)._tabViews?.delete(props.value); }}
 		className={cx('vx-tab', isSelected && 'vx-tab--selected', ctx.layout === 'fill' && 'vx-tab--fill', props.className)}
 		style={{ height: SIZE_HEIGHT[ctx.size], ...props.style }}
 		disabled={isDisabled}
@@ -161,7 +161,7 @@ export function TabMenu(props: TabMenuProps) @{
 
 	<>
 		<Pressable
-			bind={(v: any) => { anchor.current = v; }}
+			ref={(v: any) => { anchor.current = v; }}
 			id={props.id}
 			className={cx('vx-tab vx-tabmenu-trigger', selected && 'vx-tab--selected', props.className)}
 			style={{ height: SIZE_HEIGHT[ctx.size], ...props.style }}

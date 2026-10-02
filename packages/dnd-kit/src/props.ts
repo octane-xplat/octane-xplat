@@ -51,16 +51,16 @@ export interface DroppableOptions extends DraggableOptions {
 }
 
 export interface DraggableResult {
-	bind(element: any): void
+	ref(element: any): void
 	onPan(event: PanEvent): void
 	isDragging: boolean
 	transform: { x: number; y: number }
-	/** Spread into View with bind and onPan. */
+	/** Spread into View with ref and onPan. */
 	style: NonNullable<ViewProps['style']>
 }
 
 export interface DroppableResult {
-	bind(element: any): void
+	ref(element: any): void
 	isOver: boolean
 }
 

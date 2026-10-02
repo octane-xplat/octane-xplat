@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { isAndroid, isIOS } from '@nativescript/core';
-import { useEffect, useRef } from 'octane';
+import { useImperativeHandle, useEffect, useRef } from 'octane';
 import type { WebViewProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
@@ -60,18 +60,19 @@ export function WebView(props: WebViewProps) @{
 		if (props.matchContents && loaded.current) reportContentLayout(v, props);
 	}, [props.scrollEnabled, props.matchContents]);
 
+	useImperativeHandle(props.ref, () => ({
+				reload: () => el.current.reload(),
+				goBack: () => el.current.goBack(),
+				goForward: () => el.current.goForward(),
+				stopLoading: () => el.current.stopLoading(),
+				native: el.current,
+			}), []);
+
 	<webview
 		ref={(v: any) => {
-			el.current = v;
+				el.current = v;
 			if (!v) return;
 			applyEscapeProps(v, props);
-			props.bind?.({
-				reload: () => v.reload(),
-				goBack: () => v.goBack(),
-				goForward: () => v.goForward(),
-				stopLoading: () => v.stopLoading(),
-				native: v,
-			});
 		}}
 		id={props.id}
 		{...layoutChildProps(props)}

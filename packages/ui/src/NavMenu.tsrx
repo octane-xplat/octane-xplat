@@ -59,7 +59,7 @@ export function NavHeadingMenuItem(props: NavHeadingMenuItemProps) @{
 	};
 
 	<Pressable
-		bind={(v: any) => applyEscapeProps(v, props)}
+		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-navmenu-item', 'vx-navmenu-item--' + (ctx?.size ?? 'md'), isDisabled && 'vx-navmenu-item--disabled', props.className)}
 		style={props.style}

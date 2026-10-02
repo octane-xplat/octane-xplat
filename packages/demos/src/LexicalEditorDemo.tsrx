@@ -74,9 +74,7 @@ export function LexicalEditorDemo() @{
 				console.log('[probe] lexical facade json bridge: ' + ok);
 			}}
 			onSelectionChange={(e) => setActive(e.active.join(',') || '—')}
-			bind={(h) => {
-				editor.current = h;
-			}}
+			ref={editor}
 		/>
 		<HStack className="flex-wrap gap-2">
 			{TOOLBAR.map((item) => (

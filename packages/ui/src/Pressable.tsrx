@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useMemo } from 'octane'
 import type { PressableProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
@@ -9,8 +10,10 @@ import { usePan } from './pan.tsrx';
  *  silently dropped. Column flex matches View's shape (and the web div);
  *  tap/longPress are gesture events, they attach to any view. */
 export function Pressable(props: PressableProps) @{
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<flexboxlayout
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		ref={forwardedRef}
 		id={props.id}
 		{...layoutChildProps(props)}
 		className={cx('vx-pressable', props.className)}

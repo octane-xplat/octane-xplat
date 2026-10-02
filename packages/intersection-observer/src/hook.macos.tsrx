@@ -47,15 +47,15 @@ export function useIntersectionObserver(
 		return () => observer.disconnect()
 	}, [target, root, options.rootMargin, threshold])
 
-	const bind = useCallback(
+	const ref = useCallback(
 		(view: any) => setTarget((current: any) => (current === view ? current : view)),
 		[],
 	)
 
-	const bindRoot = useCallback(
+	const rootRef = useCallback(
 		(view: any) => setBoundRoot((current: any) => (current === view ? current : view)),
 		[],
 	)
 
-	return { bind, bindRoot, entry, isIntersecting: entry?.isIntersecting ?? false }
+	return { ref, rootRef, entry, isIntersecting: entry?.isIntersecting ?? false }
 }

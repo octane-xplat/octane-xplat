@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'octane';
+import { useImperativeHandle, useEffect, useId, useRef, useState } from 'octane';
 import type { ComplexSelectorHandle, ComplexSelectorProps } from './props';
 import { cx } from './cx';
 import { Popover } from './Popover.web.tsrx';
@@ -20,11 +20,13 @@ export function ComplexSelector<Value,>(props: ComplexSelectorProps<Value>) @{
 		props.onOpenChange?.(next);
 		if (!next) anchor.current?.focus?.();
 	};
+
 	const handle: ComplexSelectorHandle = {
 		open: () => setOpen(true), close: () => setOpen(false),
 		toggle: () => setOpen(!isOpen), isOpen: () => isOpen,
 	};
-	useEffect(() => { props.bind?.(handle); }, [props.bind, isOpen]);
+
+	useImperativeHandle(props.ref, () => handle, [props.ref, isOpen]);
 
 	const commit = async (next: Value) => {
 		const previous = optimisticValue;
@@ -36,6 +38,7 @@ export function ComplexSelector<Value,>(props: ComplexSelectorProps<Value>) @{
 		catch { setOptimisticValue(previous); props.onChange?.(previous); }
 		finally { setIsBusy(false); }
 	};
+
 	const trigger = <button
 		ref={(el: any) => { anchor.current = el; }}
 		type="button"
@@ -54,13 +57,16 @@ export function ComplexSelector<Value,>(props: ComplexSelectorProps<Value>) @{
 		</span>
 		{props.isLoading || isBusy ? <span className="vx-complex-selector-spinner" role="status" aria-label="Loading" /> : null}
 	</button>;
+
 	const content = <div id={contentId} role="dialog">{props.children(optimisticValue, commit, () => setOpen(false), { isOpen, isBusy: isBusy || Boolean(props.isLoading), triggerId, contentId })}</div>;
 	const label = props.label != null && !props.isLabelHidden
 		? <label className="vx-field-label" htmlFor={triggerId}>{props.isRequired && !props.isOptional ? `${props.label} *` : props.isOptional ? `${props.label} (Optional)` : props.label}</label>
 		: null;
+
 	const labelWithTooltip = props.labelTooltip && label
 		? <Tooltip trigger={<div className="vx-field-label-row">{label}<button type="button" className="vx-field-info" aria-label={`More about ${props.label}`} onClick={(event: any) => event.preventDefault()}>i</button></div>} content={props.labelTooltip} placement="top" />
 		: label;
+
 	const popup = <Popover anchor={anchor} open={isOpen} placement={props.placement ?? 'bottom'} alignment={props.alignment ?? 'start'} onDismiss={() => setOpen(false)} className={props.contentClassName} style={props.contentXstyle}>{content}</Popover>;
 	if (props.variant === 'ghost') return <>{trigger}{popup}</>;
 

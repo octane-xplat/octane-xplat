@@ -222,7 +222,7 @@ function ScopedCase() @{
 		scopedApi.value = value
 	}, [])
 
-	<motion.View id="scoped" bind={scope} />
+	<motion.View id="scoped" ref={scope} />
 }
 
 function DragBox(props: any) @{

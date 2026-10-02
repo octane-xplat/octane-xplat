@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useContext, useEffect, useId, useRef, useState } from 'octane'
+import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.tsrx'
@@ -98,6 +98,8 @@ function TimeInputControl(inputProps: CoreProps) @{
 		}
 	}, [displayText])
 
+	useImperativeHandle(props.ref, () => ({ focus: () => input.current.focus(), blur: () => blurText(input.current), native: input.current }), undefined);
+
 	<>
 		<flexboxlayout
 			flexDirection="row"
@@ -124,7 +126,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 			</Pressable>
 			{surface === 'typed' ? (
 				<textfield
-					ref={(v: any) => { input.current = v; if (!v) return; props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v }) }}
+					ref={(v: any) => { input.current = v; }}
 					id={inputId}
 					className={cx('vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid')}
 					hint={props.placeholder ?? 'Select a time'}

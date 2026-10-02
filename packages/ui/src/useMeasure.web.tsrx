@@ -11,7 +11,7 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 	const [element, setElement] = useState<HTMLElement | null>(null);
 	const [bounds, setBounds] = useState<MeasureBounds | null>(null);
 	const observe = options.observe ?? true;
-	const bind = useCallback((next: any) => {
+	const ref = useCallback((next: any) => {
 		setElement((current) => current === next ? current : next);
 	}, []);
 
@@ -35,5 +35,5 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 		};
 	}, [element, observe]);
 
-	return { bind, bounds };
+	return { ref, bounds };
 }

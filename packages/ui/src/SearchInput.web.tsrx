@@ -1,4 +1,4 @@
-import { useState } from 'octane';
+import { useRef, useImperativeHandle, useState } from 'octane';
 import type { SearchInputProps } from './props';
 import { Icon } from './Icon.web.tsrx';
 import { applyWebProps } from './platformProps.web';
@@ -9,6 +9,7 @@ import { normStyle } from './layout-child.web';
  *  own ::-webkit-search-cancel-button is hidden — same pixels as native).
  *  `value`/`onChange` for controlled, `defaultValue` for uncontrolled. */
 export function SearchInput(props: SearchInputProps) @{
+	const hostRef = useRef<any>(null);
 	const [internal, setInternal] = useState(props.defaultValue ?? '');
 	const value = props.value ?? internal;
 	const isBlocked = props.isDisabled || props.isReadOnly;
@@ -25,6 +26,8 @@ export function SearchInput(props: SearchInputProps) @{
 		props.onClear?.();
 	};
 
+	useImperativeHandle(props.ref, () => ({ focus: () => hostRef.current.focus(), blur: () => hostRef.current.blur(), native: hostRef.current }), []);
+
 	<div
 		ref={(el: any) => applyWebProps(el, props.web)}
 		id={props.id}
@@ -35,7 +38,7 @@ export function SearchInput(props: SearchInputProps) @{
 		{props.icon !== false ? <Icon name={props.icon ?? 'xplat-search'} size={16} className="vx-search-icon" /> : null}
 		<input
 			ref={(el: any) => {
-				if (el) props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el });
+				hostRef.current = el;
 			}}
 			type="search"
 			className="vx-search-field"

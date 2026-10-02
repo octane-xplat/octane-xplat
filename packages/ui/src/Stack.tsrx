@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useMemo } from 'octane'
 import type { StackProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -25,10 +26,12 @@ export function Stack(props: StackProps) @{
 		...(layout.paddingInlineEnd !== undefined ? { paddingRight: layout.paddingInlineEnd } : {}),
 	};
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	@if (layout.scrollable) {
 		<scrollview
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			className={cx('vx-stack', 'vx-stack--scroll', props.className)}
 			style={{ ...sizingStyle, ...props.style }}
 			orientation={layout.flexDirection === 'row' ? 'horizontal' : 'vertical'}
@@ -55,7 +58,7 @@ export function Stack(props: StackProps) @{
 	} @else {
 		<flexboxlayout
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			flexDirection={layout.flexDirection}
 			justifyContent={layout.justifyContent as any}
 			alignItems={layout.alignItems as any}

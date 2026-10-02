@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useMemo } from 'octane'
 import type { CenterProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
@@ -9,9 +10,12 @@ import { spacingPx } from './stack-layout';
  *  `isInline` is web-only (native containers are always block-level). */
 export function Center(props: CenterProps) @{
 	const axis = props.axis ?? 'both';
+
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<flexboxlayout
 		id={props.id}
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		ref={forwardedRef}
 		flexDirection="row"
 		justifyContent={(axis !== 'vertical' ? 'center' : undefined) as any}
 		alignItems={(axis !== 'horizontal' ? 'center' : undefined) as any}

@@ -28,7 +28,7 @@ function createAnimated(initial: number, prop: string): AnimatedValue {
 
 	return {
 		get value() { return current; },
-		bind(e) { el = e as HTMLElement; if (el) writeTransformProp(el, prop, current); },
+		ref(e) { el = e as HTMLElement; if (el) writeTransformProp(el, prop, current); },
 		to(target, opts) {
 			const dur = opts?.duration ?? 300;
 			const from = current;

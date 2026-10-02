@@ -8,8 +8,13 @@ import { DateTimeInput } from './DateTimeInput.web.tsrx'
 import { DateRangeInput } from './DateRangeInput.web.tsrx'
 
 vi.stubGlobal('matchMedia', (query: string) => ({
-	matches: false, media: query, onchange: null,
-	addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {},
+	matches: false,
+	media: query,
+	onchange: null,
+	addEventListener() {},
+	removeEventListener() {},
+	addListener() {},
+	removeListener() {},
 	dispatchEvent: () => false,
 }))
 
@@ -23,13 +28,17 @@ function mount(jsx: any) {
 	return { el, root, render: (next: any) => act(() => root.render(next)) }
 }
 
-afterEach(() => { for (const root of roots.splice(0)) act(() => root.unmount()); document.body.innerHTML = '' })
+afterEach(() => {
+	for (const root of roots.splice(0)) act(() => root.unmount())
+	document.body.innerHTML = ''
+})
 
 const fireInput = (el: HTMLElement, value: string) => {
-	(el as any).value = value
+	;(el as any).value = value
 	act(() => el.dispatchEvent(new Event('input', { bubbles: true })))
 }
-const click = (el: Element) => act(() => el.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+const click = (el: Element) =>
+	act(() => el.dispatchEvent(new MouseEvent('click', { bubbles: true })))
 
 describe('Calendar (web)', () => {
 	it('single mode emits ISO + Date', () => {
@@ -48,15 +57,30 @@ describe('Calendar (web)', () => {
 	})
 	it('blocks days outside min/max', () => {
 		const change = vi.fn()
-		const { el } = mount(<Calendar mode="single" onChange={change} min="2026-03-10" max="2026-03-20" focusDate="2026-03-01" />)
+		const { el } = mount(
+			<Calendar
+				mode="single"
+				onChange={change}
+				min="2026-03-10"
+				max="2026-03-20"
+				focusDate="2026-03-01"
+			/>,
+		)
 		const blocked = el.querySelector('[data-date="2026-03-05"]') as HTMLButtonElement
 		expect(blocked.disabled).toBe(true)
 		click(blocked)
 		expect(change).not.toHaveBeenCalled()
 	})
-	it('navigates months via bind handle', () => {
+	it('navigates months via ref handle', () => {
 		let handle: any
-		const { el } = mount(<Calendar mode="single" bind={(h: any) => { handle = h }} />)
+		const { el } = mount(
+			<Calendar
+				mode="single"
+				ref={(h: any) => {
+					handle = h
+				}}
+			/>,
+		)
 		const initial = el.querySelector('.vx-calendar-title')!.textContent
 		act(() => handle.navigateTo('2026-06-15'))
 		expect(el.querySelector('.vx-calendar-title')!.textContent).toContain('June')
@@ -85,7 +109,9 @@ describe('DateInput (web)', () => {
 	})
 	it('clears via the clear affordance', () => {
 		const change = vi.fn()
-		const { el } = mount(<DateInput value="2026-03-25" onChange={change} presentation="popover" hasClear={true} />)
+		const { el } = mount(
+			<DateInput value="2026-03-25" onChange={change} presentation="popover" hasClear={true} />,
+		)
 		click(el.querySelector('.vx-dateinput-clear')!)
 		expect(change).toHaveBeenCalledWith(undefined)
 	})
@@ -103,9 +129,13 @@ describe('TimeInput (web)', () => {
 	})
 	it('steps by increment on arrow keys', () => {
 		const change = vi.fn()
-		const { el } = mount(<TimeInput value="10:00" onChange={change} increment={15} presentation="text-input" />)
+		const { el } = mount(
+			<TimeInput value="10:00" onChange={change} increment={15} presentation="text-input" />,
+		)
 		const input = el.querySelector('input.vx-timeinput-input')! as HTMLInputElement
-		act(() => input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })))
+		act(() =>
+			input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })),
+		)
 		expect(change).toHaveBeenCalledWith('09:45')
 	})
 })
@@ -113,7 +143,14 @@ describe('TimeInput (web)', () => {
 describe('DateTimeInput (web)', () => {
 	it('clears a combined ISO local date-time value', () => {
 		const change = vi.fn()
-		const { el } = mount(<DateTimeInput value="2026-03-25T14:30" onChange={change} presentation="popover" hasClear={true} />)
+		const { el } = mount(
+			<DateTimeInput
+				value="2026-03-25T14:30"
+				onChange={change}
+				presentation="popover"
+				hasClear={true}
+			/>,
+		)
 		click(el.querySelector('.vx-datetimeinput-clear')!)
 		expect(change).toHaveBeenCalledWith(undefined)
 	})
@@ -124,15 +161,25 @@ describe('DateRangeInput (web)', () => {
 		const change = vi.fn()
 		const { el } = mount(<DateRangeInput value={null} onChange={change} />)
 		click(el.querySelector('.vx-daterangeinput-trigger')!)
-		const days = Array.from(document.querySelectorAll('button[data-date]')).filter((d) => !(d as HTMLButtonElement).disabled)
+		const days = Array.from(document.querySelectorAll('button[data-date]')).filter(
+			(d) => !(d as HTMLButtonElement).disabled,
+		)
 		expect(days.length).toBeGreaterThan(0)
 		click(days[10])
 		click(days[3])
-		expect(change).toHaveBeenLastCalledWith(expect.objectContaining({ start: expect.any(String), end: expect.any(String) }))
+		expect(change).toHaveBeenLastCalledWith(
+			expect.objectContaining({ start: expect.any(String), end: expect.any(String) }),
+		)
 	})
 	it('commits presets', () => {
 		const change = vi.fn()
-		mount(<DateRangeInput value={null} onChange={change} presets={[{ label: 'Fixed', getRange: () => ({ start: '2026-01-01', end: '2026-01-31' }) }]} />)
+		mount(
+			<DateRangeInput
+				value={null}
+				onChange={change}
+				presets={[{ label: 'Fixed', getRange: () => ({ start: '2026-01-01', end: '2026-01-31' }) }]}
+			/>,
+		)
 		click(document.querySelector('.vx-daterangeinput-trigger')!)
 		click(document.querySelector('.vx-daterangeinput-preset')!)
 		expect(change).toHaveBeenCalledWith({ start: '2026-01-01', end: '2026-01-31' })

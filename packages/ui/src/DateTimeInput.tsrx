@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.tsrx'
@@ -196,6 +196,8 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const timeLabelText = props.timeLabel ?? `${props.fieldLabel ?? props.label ?? 'Date and time'} time`
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
+	useImperativeHandle(props.ref, () => ({ focus: () => dateInput.current.focus(), blur: () => blurText(dateInput.current), native: dateInput.current }), undefined);
+
 	<>
 		<flexboxlayout
 			ref={(v: any) => { anchor.current = v }}
@@ -245,7 +247,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						<Icon name="xplat-calendar" size={14} />
 					</Pressable>
 					<textfield
-						ref={(v: any) => { dateInput.current = v; if (!v) return; props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v }) }}
+						ref={(v: any) => { dateInput.current = v; }}
 						id={dateId}
 						className={cx('vx-datetimeinput-input', 'vx-datetimeinput-dateinput', !isDateValid && 'vx-datetimeinput-input--invalid')}
 						hint={props.placeholder ?? 'Select a date'}

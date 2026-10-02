@@ -64,7 +64,7 @@ export function ResizeHandle(props: ResizeHandleProps) @{
 			: props.pillPlacement;
 
 	<Pressable
-		bind={(v: any) => applyEscapeProps(v, props)}
+		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx(
 			'vx-resize-handle',

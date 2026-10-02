@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
+import { useImperativeHandle, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
 import { cx } from "./cx";
 import { FormField } from './FormField.tsrx';
@@ -16,6 +16,7 @@ const CREATABLE_ID_PREFIX = '__xds_create__';
 function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any; laneRef?: (v: any) => void }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.endContent == null && props.clear == null) return null;
+
 	<flexboxlayout className="vx-tokenizer-endlane" flexDirection="row" alignItems="center" ref={props.laneRef}>
 		{isBusy ? <flexboxlayout className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></flexboxlayout> : null}
 		{props.endContent}
@@ -57,7 +58,8 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		},
 		native: wrapperRef.current,
 	};
-	useEffect(() => { props.bind?.({ ...handle, native: wrapperRef.current }); }, [props.bind]);
+
+	useImperativeHandle(props.ref, () => ({ ...handle, native: wrapperRef.current }), [props.ref]);
 
 	const selectedIds = useMemo(
 		() => new Set(props.value.map((item) => item.id)),
@@ -86,6 +88,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		const alreadyExists =
 			selectedIds.has(trimmed) ||
 			results.some((item) => item.label.toLowerCase() === trimmed.toLowerCase());
+
 		if (alreadyExists) return [];
 		return [{
 			id: `${CREATABLE_ID_PREFIX}${trimmed}`,
@@ -103,6 +106,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			props.onChange([...props.value, realItem], { item: realItem, type: 'create' });
 			return;
 		}
+
 		if (selectedIds.has(item.id)) return;
 		props.onChange([...props.value, item], { item, type: 'add' });
 	};
@@ -129,6 +133,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			props.onBlur?.();
 		}, 50);
 	};
+
 	const focusEntered = () => {
 		if (blurTimer.current) { clearTimeout(blurTimer.current); blurTimer.current = null; }
 		setIsFocusedWithin(true);
@@ -137,7 +142,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 	};
 
 	useEffect(() => () => { if (blurTimer.current) clearTimeout(blurTimer.current); }, []);
-	useEffect(() => { props.bind?.({ focus: () => inputHandle.current?.focus(), blur: () => inputHandle.current?.blur(), native: wrapperRef.current }); }, [props.bind]);
+	useImperativeHandle(props.ref, () => ({ focus: () => inputHandle.current?.focus(), blur: () => inputHandle.current?.blur(), native: wrapperRef.current }), [props.ref]);
 
 	// Count tokens clipped by the single-line truncation — measured off the
 	// real layout: a token is hidden when its right edge passes the wrapper's
@@ -149,16 +154,19 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			if (overflowCount !== 0) setOverflowCount(0);
 			return;
 		}
+
 		const hostWidth = host.getActualSize?.().width ?? 0;
 		const reserve =
 			(laneRef.current?.getActualSize?.().width ?? 0) +
 			(overflowRef.current?.getActualSize?.().width ?? 0) + 16;
+
 		let hidden = 0;
 		for (const v of tokenEls.current.values()) {
 			const loc = v.getLocationRelativeTo?.(host);
 			const w = v.getActualSize?.().width ?? 0;
 			if (loc && loc.x + w > hostWidth - reserve) hidden++;
 		}
+
 		if (hidden !== overflowCount) setOverflowCount(hidden);
 	};
 
@@ -185,6 +193,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				onRemove={props.isDisabled ? undefined : onRemoveItem}
 				isDisabled={props.isDisabled}
 			/>;
+
 		return <flexboxlayout
 			key={item.id}
 			className="vx-tokenizer-token"
@@ -227,7 +236,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				inputClassName={isAtMax || isTruncated ? 'vx-tokenizer-input--atmax' : props.value.length > 0 ? 'vx-tokenizer-input--compact' : undefined}
 				onFocus={focusEntered}
 				onBlur={collapseSoon}
-				bind={(h: TypeaheadInputHandle) => { inputHandle.current = h; }}
+				ref={(h: TypeaheadInputHandle) => { inputHandle.current = h; }}
 			/>
 		</BusyLaneProvider>
 	);

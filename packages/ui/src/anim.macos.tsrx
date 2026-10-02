@@ -13,7 +13,7 @@ export function useAnimation(initial = 0, property = 'opacity'): AnimatedValue {
 
 	return {
 		get value() { return value },
-		bind(el: any) { view = el; write(value) },
+		ref(el: any) { view = el; write(value) },
 		to(target: number) { write(target) },
 		spring(target: number) { write(target) },
 		stop() {},

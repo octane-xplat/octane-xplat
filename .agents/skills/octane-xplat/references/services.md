@@ -28,10 +28,10 @@ storage.getString('k')
 
 ## Animation — `useAnimation(initial, prop)`
 
-Returns `AnimatedValue`: `{ value, bind(el), to(target,{duration}),
+Returns `AnimatedValue`: `{ value, ref(el), to(target,{duration}),
 spring(target,{damping,stiffness}), stop() }`.
 
-- `bind` is a leaf `bind` prop target — forwards to the intrinsic's `ref`,
+- `ref` is a leaf `ref` prop target — forwards to the intrinsic's `ref`,
   the tween writes the view directly (no re-render per frame).
 - Web: rAF tween writes `el.style`. Native: writes the NS view property.
 - Verified: `anim settled` assert on both (native timing is looser — probe
@@ -40,7 +40,7 @@ spring(target,{damping,stiffness}), stop() }`.
 ## Gestures
 
 Normalized payloads (primitives.md). Pan on web uses raw pointer listeners
-(`pointermove` isn't delegated — that's why `bind` exists); native uses the
+(`pointermove` isn't delegated); native uses the
 NS `pan` recognizer. Both map to `{x,y,dx,dy,vx,vy,state,target}`. Native
 velocity comes from iOS `velocityInView` or Android `VelocityTracker`, in
 dips per second.

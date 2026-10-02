@@ -22,12 +22,14 @@ import { Video } from '@octane-xplat/video'
 	playing={isPlaying} // controlled — pair with onPlayingChange, or omit
 	onReady={(e) => console.log(e.duration)}
 	onEnded={() => console.log('done')}
-	bind={(h) => (handle = h)} // play/pause/seekTo(ms)/currentTime/duration + .native
+	ref={(h) => {
+		handle = h
+	}} // play/pause/seekTo(ms)/currentTime/duration + .native
 />
 ```
 
 All times are milliseconds on every platform. `onError` is web-only — the
-plugin players surface no error event on native. `bind.native` is the
+plugin players surface no error event on native. `handle.native` is the
 platform surface for anything the shared props don't cover, and the
 `ios`/`android`/`web` escape props apply after the shared props.
 

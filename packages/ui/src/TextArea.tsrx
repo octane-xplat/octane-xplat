@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useRef } from 'octane';
+import { useImperativeHandle, useEffect, useRef } from 'octane';
 import { Utils } from '@nativescript/core';
 import type { TextAreaProps } from "./props";
 import { cx } from "./cx";
@@ -43,13 +43,14 @@ export function TextArea(inputProps: TextAreaProps) @{
 	// Imperative controlled write — Android setText resets selection to 0.
 	useEffect(() => writeText(el.current, props.value), [props.value]);
 
+	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
+
 	<textview
 		id={props.id}
 		ref={(v: any) => {
-			el.current = v;
+				el.current = v;
 			if (!v) return;
 			applyEscapeProps(v, props);
-			props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v });
 		}}
 		className={cx('vx-textarea', props.isDisabled && 'vx-textarea--disabled', props.isReadOnly && 'vx-textarea--readonly', props.isLoading && 'vx-textarea--loading', props.status && `vx-textarea--status-${props.status.type}`, props.size && `vx-textarea--size-${props.size}`, props.className)}
 		style={{ ...props.style, ...(props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {}) }}

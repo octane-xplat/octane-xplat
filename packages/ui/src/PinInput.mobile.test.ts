@@ -6,7 +6,12 @@ import {
 	flushUniversalSync,
 } from 'octane/universal/native'
 
-vi.mock('./escape-props', () => ({ applyEscapeProps() {}, nativeAccessibilityState: (state: any) => state?.disabled ? 'disabled' : state?.checked ? 'checked' : undefined }))
+vi.mock('./escape-props', () => ({
+	applyEscapeProps() {},
+	nativeAccessibilityState: (state: any) =>
+		state?.disabled ? 'disabled' : state?.checked ? 'checked' : undefined,
+}))
+
 vi.mock('./TextInput.tsrx', async () => {
 	const { defineUniversalComponent, universalPlan, universalValue, useRef } =
 		await import('octane/universal/native')
@@ -24,7 +29,7 @@ vi.mock('./TextInput.tsrx', async () => {
 	return {
 		TextInput: defineUniversalComponent('nativescript', (props: any) => {
 			const handle = useRef({ focus: vi.fn(), blur: vi.fn(), native: {} })
-			props.bind?.(handle.current)
+			props.ref?.(handle.current)
 			return universalValue(plan, [
 				props.value,
 				!props.isDisabled && !props.isReadOnly,

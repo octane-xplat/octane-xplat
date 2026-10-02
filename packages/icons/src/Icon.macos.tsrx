@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useMemo } from 'octane';
 import { Image, useStore } from '@octane-xplat/ui';
 import type { IconProps } from './props';

@@ -5,8 +5,8 @@
 			"specifier": "octane@0.6.3",
 			"file": "octane@0.6.3.patch",
 			"scope": "runtime",
-			"why": "Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep already ship upstream. Routes uncaught universal event-handler errors to onUncaughtError when configured. Pins instance signal/query declarations to their declaring owner so child reads and event handlers share one request. Also allows async and generator helpers that are not components in universal compiler modules, while preserving errors when those functions are used as components (octanejs/octane#1469).",
-			"dropWhen": "An octane release ships universal signal reads and the workspace upgrades to that release and forwards uncaught event-handler errors to the root callback and preserves instance declaration ownership across child readers and the compiler allows async/generator non-component helpers while continuing to reject async/generator components (octanejs/octane#1350)"
+			"why": "Published octane 0.6.3 lacks live signal reads under universal renderers. Adds signal ownership, read tracking, and local signal hooks; JSX prop lowering and __methodDep already ship upstream. Routes uncaught universal event-handler errors to onUncaughtError when configured. Pins instance signal/query declarations to their declaring owner so child reads and event handlers share one request. Makes universal useImperativeHandle honor optional refs, ref replacement, nested ref arrays, and callback cleanup. Also allows async and generator helpers that are not components in universal compiler modules, while preserving errors when those functions are used as components (octanejs/octane#1469).",
+			"dropWhen": "An octane release ships universal signal reads and the workspace upgrades to that release and forwards uncaught event-handler errors to the root callback and preserves instance declaration ownership across child readers and universal useImperativeHandle has the DOM ref lifecycle and the compiler allows async/generator non-component helpers while continuing to reject async/generator components (octanejs/octane#1350)"
 		},
 		{
 			"specifier": "@nativescript/core@9.1.2",
@@ -40,8 +40,8 @@
 			"specifier": "@nativescript-community/octane@0.2.4",
 			"file": "@nativescript-community__octane@0.2.4.patch",
 			"scope": "runtime",
-			"why": "Driver setProp skips `undefined` writes \u2014 NativeScript native setters coerce it (e.g. editable \u2192 ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners. Advertises the implemented visibility capability so committed suspense bodies can be retained while pending.",
-			"dropWhen": "@nativescript-community/octane ships the undefined-skip and visibility capability"
+			"why": "Driver setProp skips `undefined` writes \u2014 NativeScript native setters coerce it (e.g. editable \u2192 ios.userInteractionEnabled = NO), leaving dead UI that still has its JS listeners. Aligns intrinsic ref types with Octane callback cleanup and nested arrays with optional entries. Advertises the implemented visibility capability so committed suspense bodies can be retained while pending.",
+			"dropWhen": "@nativescript-community/octane ships the undefined-skip, visibility capability, and Octane-compatible intrinsic ref types"
 		},
 		{
 			"specifier": "@nativescript-community/vite-octane@0.2.1",

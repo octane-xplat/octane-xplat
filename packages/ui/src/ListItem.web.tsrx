@@ -1,3 +1,4 @@
+import { useMemo } from 'octane'
 import type { ListItemProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -35,6 +36,7 @@ export function ListItem(props: ListItemProps) @{
 	const labelNode = typeof props.label === 'string'
 		? <span className="vx-listitem-label">{props.label}</span>
 		: props.label;
+
 	const descriptionNode = props.description == null ? null
 		: typeof props.description === 'string'
 			? <span className="vx-listitem-desc">{props.description}</span>
@@ -48,9 +50,11 @@ export function ListItem(props: ListItemProps) @{
 				? <button type="button" className="vx-listitem-hit" onClick={props.onPress} disabled={props.isDisabled || undefined} aria-label={hitLabel} tabIndex={props.isDisabled ? -1 : undefined} />
 				: null;
 
+	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<li
 		id={props.id}
-		ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+		ref={forwardedRef}
 		className={[
 			'vx-listitem',
 			`vx-listitem--density-${ctx.density}`,

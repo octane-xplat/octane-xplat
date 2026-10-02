@@ -1,3 +1,4 @@
+import { useMemo } from 'octane'
 import type { SearchableItem, TypeaheadItemProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Icon } from './Icon.web.tsrx';
@@ -16,8 +17,10 @@ export function TypeaheadItem<T extends SearchableItem,>(props: TypeaheadItemPro
 			? <Icon name={props.icon} size={16} />
 			: props.icon;
 
+	const forwardedRef = useMemo(() => [(el: any) => { if (el) { applyEscapeProps(el, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<div
-		ref={(el: any) => { if (el) { applyEscapeProps(el, props); props.bind?.(el); } }}
+		ref={forwardedRef}
 		id={props.id}
 		className={['vx-typeahead-item', props.isDisabled ? 'vx-typeahead-item--disabled' : undefined, props.className]}
 		style={props.style}

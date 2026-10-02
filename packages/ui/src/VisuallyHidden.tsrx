@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useMemo } from 'octane'
 import type { VisuallyHiddenProps } from './props';
 import { applyEscapeProps } from './escape-props';
 
@@ -7,9 +8,11 @@ import { applyEscapeProps } from './escape-props';
  *  to TalkBack/VoiceOver, unlike visibility=hidden which drops them on
  *  iOS). For screen-reader labels and live-region announcements. */
 export function VisuallyHidden(props: VisuallyHiddenProps) @{
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<flexboxlayout
 		id={props.id}
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		ref={forwardedRef}
 		className="vx-visually-hidden"
 		accessible={props.accessible}
 		accessibilityLabel={props.accessibilityLabel}

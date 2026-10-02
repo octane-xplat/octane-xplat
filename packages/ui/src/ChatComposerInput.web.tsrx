@@ -1,10 +1,11 @@
-import {
+import { useImperativeHandle,
 	createPortal,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
 } from 'octane';
+
 import type {
 	ChatComposerFile,
 	ChatComposerInputHandle,
@@ -13,6 +14,7 @@ import type {
 	ChatComposerToken,
 	ChatComposerTokenElementProps,
 } from './props';
+
 import {
 	ensureCaretInside,
 	getSelectionRangeInside,
@@ -22,6 +24,7 @@ import {
 	placeCaretAtEnd,
 	restoreSelectionRange,
 } from './chatComposerSelection.web';
+
 import { useChatComposerTokens, isCustomToken, TOKEN_ATTR, TOKEN_VALUE_ATTR } from './useChatComposerTokens.web.tsrx';
 import { useTriggerMenu } from './useTriggerMenu.web.tsrx';
 import { useChatPasteAsToken } from './useChatPasteAsToken.web.tsrx';
@@ -49,6 +52,7 @@ function serialize(node: Node): string {
 			}
 		}
 	}
+
 	return result;
 }
 
@@ -96,6 +100,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 				props.onChange?.(next);
 				return;
 			}
+
 			composerOnChange?.(next);
 			if (props.onChange !== composerOnChange) {
 				props.onChange?.(next);
@@ -123,6 +128,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		const text = serialize(editableRef.current);
 		const hasTokens =
 			editableRef.current.querySelector(`[${TOKEN_ATTR}], [data-vx-chat-dictation-interim]`) != null;
+
 		const trimmedEmpty = text.trim().length === 0 && !hasTokens;
 		const nextValue = trimmedEmpty ? '' : text;
 		pendingEchoValueRef.current = nextValue;
@@ -169,6 +175,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 			restoreSelectionRange(existing);
 			return;
 		}
+
 		placeCaretAtEnd(editable);
 	}, []);
 
@@ -186,11 +193,10 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		focus: focusEditable,
 		getValue: () => serialize(editableRef.current ?? document.createElement('div')),
 	};
+
 	selfRef.current = handle;
 
-	useEffect(() => {
-		props.bind?.(handle);
-	}, [props.bind]);
+	useImperativeHandle(props.ref, () => handle, [props.ref]);
 
 	// Register focus control with the composer shell (body click-to-focus).
 	const inputControlRef = composerCtx?.inputControlRef;
@@ -210,6 +216,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 			pendingEchoValueRef.current = undefined;
 			return;
 		}
+
 		const editable = editableRef.current;
 		if (serialize(editable) !== value) {
 			pendingEchoValueRef.current = undefined;
@@ -225,6 +232,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 					selection.addRange(range);
 				}
 			}
+
 			setIsEmpty(value.length === 0);
 		} else {
 			pendingEchoValueRef.current = undefined;
@@ -260,6 +268,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 				preventDefault: () => e.preventDefault(),
 				native: e,
 			};
+
 			props.onKeyDown?.(keyEvent);
 			if (e.defaultPrevented) return;
 
@@ -290,6 +299,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 							parent.removeChild(startContainer);
 							parent.removeChild(tokenSpan);
 						}
+
 						emitChange();
 						return;
 					}
@@ -339,8 +349,10 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 					if (historyIndexRef.current === -1) {
 						currentDraftRef.current = text;
 					}
+
 					const nextIndex =
 						historyIndexRef.current === -1 ? history.length - 1 : Math.max(0, historyIndexRef.current - 1);
+
 					historyIndexRef.current = nextIndex;
 					editable.textContent = history[nextIndex];
 					selectAll(editable);
@@ -357,6 +369,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 						editable.textContent = history[nextIndex];
 						selectAll(editable);
 					}
+
 					emitChange();
 					e.preventDefault();
 				}

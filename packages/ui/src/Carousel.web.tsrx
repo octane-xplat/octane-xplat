@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'octane';
+import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane';
 import type { CarouselHandle, CarouselProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { toChildArray } from './child-array';
@@ -12,7 +12,7 @@ const EPS = 1;
 /** Horizontal slide strip (Astryx `Carousel`), web leaf — a scrollable
  *  labelled region (`aria-roledescription="carousel"`) whose children are
  *  wrapped in slide groups, with optional snap, edge fades, and prev/next
- *  buttons. `bind` hands back the imperative CarouselHandle. */
+ *  buttons. `ref` hands back the imperative CarouselHandle. */
 export function Carousel(props: CarouselProps) @{
 	const items = toChildArray(props.children);
 	const count = items.length;
@@ -23,8 +23,6 @@ export function Carousel(props: CarouselProps) @{
 	const [canNext, setCanNext] = useState(false);
 	const [atStart, setAtStart] = useState(true);
 	const [atEnd, setAtEnd] = useState(false);
-	const bindRef = useRef(props.bind);
-	bindRef.current = props.bind;
 	const loop = props.hasLoop === true;
 
 	const measure = useCallback(() => {
@@ -123,8 +121,9 @@ export function Carousel(props: CarouselProps) @{
 		},
 	};
 
+	useImperativeHandle(props.ref, () => handle, undefined);
+
 	useEffect(() => {
-		bindRef.current?.(handle);
 		measure();
 		const el = scroller.current;
 		if (!el) return;

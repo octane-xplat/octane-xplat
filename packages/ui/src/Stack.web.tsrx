@@ -1,4 +1,4 @@
-import { useRef } from 'octane';
+import { useMemo, useRef } from 'octane';
 import type { StackProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -14,9 +14,11 @@ export function Stack(props: StackProps) @{
 	const el = useRef<HTMLElement | null>(null);
 	usePan(el, props.onPan);
 
+	const forwardedRef = useMemo(() => [(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web);  } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<Tag
 		id={props.id}
-		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+		ref={forwardedRef}
 		className={['vx-stack', props.isScrollable ? 'vx-stack--scroll' : undefined, props.className]}
 		style={{
 			flexDirection: layout.flexDirection,

@@ -7,7 +7,7 @@ import type { OutlineFromDOMOptions, OutlineItem } from './props'
 import { outlineItemsFromViewTree } from './outline-view-tree'
 
 /** `useOutlineFromDOM` — native form. The DOM API name is kept for API
- *  parity; the argument is a `bind`/`ref`-style object holding the scroll
+ *  parity; the argument is a `ref`/`ref`-style object holding the scroll
  *  container's (or page's) root view. There is no mutation observation on
  *  the NS view tree, so the outline is collected once after mount and again
  *  whenever `containerRef.current` changes — use `useOutlineFromMarkdown`

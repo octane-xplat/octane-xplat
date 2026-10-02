@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'octane'
+import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { WebViewHandle, WebViewProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { layoutChildProps } from './layout-child.web';
@@ -73,12 +73,13 @@ export function WebView(props: WebViewProps) @{
 		};
 	}, [props.matchContents, props.onLayoutContent]);
 
+	useImperativeHandle(props.ref, () => handle(frame.current), []);
+
 	<iframe
 		ref={(el: any) => {
-			if (!el) return;
 			frame.current = el;
+			if (!el) return;
 			applyEscapeProps(el, props);
-			props.bind?.(handle(el));
 		}}
 		id={props.id}
 		className={['vx-webview', props.className]}

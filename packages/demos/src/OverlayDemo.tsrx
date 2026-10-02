@@ -14,7 +14,7 @@ export function OverlayDemo() @{
 				<Pressable className="btn btn-secondary" onPress={() => setOverlayOpen(true)}>
 					<Text>Open shade overlay</Text>
 				</Pressable>
-				<View className="overlay-demo-anchor" bind={(view) => { anchor.current = view; }}>
+				<View className="overlay-demo-anchor" ref={anchor}>
 					<Pressable className="btn btn-secondary" onPress={() => setPopoverOpen(!popoverOpen)}>
 						<Text>Toggle anchored popover</Text>
 					</Pressable>
@@ -44,7 +44,7 @@ export function OverlayDemo() @{
 		</View>
 		<View className="sink-section">
 			<Text className="section-label">Measure</Text>
-			<View bind={measured.bind} id="measure-box" className="overlay-demo-anchor">
+			<View ref={measured.ref} id="measure-box" className="overlay-demo-anchor">
 				<Text>Measured box</Text>
 			</View>
 			<Text id="measure-echo" className="text-sm text-muted">

@@ -125,16 +125,14 @@ export interface MotionProps {
 	onAnimationComplete?: () => void
 	/** Per-frame snapshot while any channel animates. */
 	onUpdate?: (latest: Target) => void
-	/** Host node reference: callback or ref object (`useAnimate` scope). */
-	bind?: ((host: any) => void) | { current: any }
 }
 
 /** View layout and accessibility props with motion controls. */
-export type MotionViewProps = Omit<ViewProps, 'style' | 'bind'> & MotionProps
+export type MotionViewProps = Omit<ViewProps, 'style'> & MotionProps
 /** Row layout and accessibility props with motion controls. */
-export type MotionRowProps = Omit<HStackProps, 'style' | 'bind'> & MotionProps
+export type MotionRowProps = Omit<HStackProps, 'style'> & MotionProps
 /** Pressable interaction props with motion controls. */
-export type MotionPressableProps = Omit<PressableProps, 'style' | 'bind'> & MotionProps
+export type MotionPressableProps = Omit<PressableProps, 'style'> & MotionProps
 /** Inherited defaults; `user` observes the live system preference. */
 export interface MotionConfigProps {
 	transition?: TransitionInput

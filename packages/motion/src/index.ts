@@ -1,6 +1,6 @@
 import { MotionView, MotionRow, MotionPressable, createMotion } from './components.tsrx'
 /** Bounded motion hosts for shared xplat UI primitives; `motion.create` wraps
- *  any component that accepts `bind`/`style`/`children`. */
+ *  any component that accepts `ref`/`style`/`children`. */
 export const motion = {
 	View: MotionView,
 	Row: MotionRow,

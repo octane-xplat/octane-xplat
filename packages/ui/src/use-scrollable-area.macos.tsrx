@@ -11,7 +11,7 @@ const AT_EDGES = { isScrollable: false, atStart: true, atEnd: true };
 const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
 
 /** Headless scroll-viewport state, macOS leaf — the AppKit `<scrollview>`
- *  reports `onScroll` with offsets and viewport/content heights; bind it
+ *  reports `onScroll` with offsets and viewport/content heights; forwards it
  *  through `getViewportProps`. There is no native horizontal scroll event
  *  contract yet, so `axis: 'inline'` reports unscrolled (documented). */
 export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseScrollableAreaResult {

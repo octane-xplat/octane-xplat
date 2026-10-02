@@ -50,8 +50,8 @@ onto a disabled target leave the order unchanged. The maintained
 
 ## Compose drag and drop
 
-Use `DndContext` around cooperating children. A draggable spreads `bind`,
-`onPan`, and `style` onto **one View**; a droppable supplies its `bind`. `bind`
+Use `DndContext` around cooperating children. A draggable spreads `ref`,
+`onPan`, and `style` onto **one View**; a droppable supplies its `ref`. `ref`
 is the Xplat View binding callback, not a DOM ref prop. `useMeasure` observes
 layout; live geometry is read again during drag and auto-scroll.
 
@@ -62,7 +62,7 @@ import { DndContext, useDraggable, useDroppable } from '@octane-xplat/dnd-kit'
 function Card() {
 	const drag = useDraggable({ id: 'card', data: { container: 'inbox' } })
 	return (
-		<View bind={drag.bind} onPan={drag.onPan} style={drag.style}>
+		<View ref={drag.ref} onPan={drag.onPan} style={drag.style}>
 			<Text>Move me</Text>
 		</View>
 	)
@@ -70,7 +70,7 @@ function Card() {
 function Target() {
 	const drop = useDroppable({ id: 'done' })
 	return (
-		<View bind={drop.bind} style={{ height: 100 }}>
+		<View ref={drop.ref} style={{ height: 100 }}>
 			<Text>{drop.isOver ? 'Release here' : 'Done'}</Text>
 		</View>
 	)

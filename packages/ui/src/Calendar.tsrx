@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.tsrx'
@@ -32,7 +32,7 @@ import {
 
 /** Self-drawn month calendar — `single` or `range` selection, ISO values.
  *  Touch target: cells are Pressable rows; the visible month announces via
- *  `accessibilityLiveRegion`. `bind` exposes `{navigateTo}`. */
+ *  `accessibilityLiveRegion`. `ref` exposes `{navigateTo}`. */
 export function Calendar(props: CalendarProps) @{
 	const mode = props.mode ?? 'single'
 	const numberOfMonths = props.numberOfMonths === 2 ? 2 : 1
@@ -105,9 +105,7 @@ export function Calendar(props: CalendarProps) @{
 		},
 	}
 
-	useEffect(() => {
-		props.bind?.({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) })
-	}, [])
+	useImperativeHandle(props.ref, () => ({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) }), [])
 
 	const pick = (iso: ISODateString) => {
 		const pd = plainDateFromISO(iso)

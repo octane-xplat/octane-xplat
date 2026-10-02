@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'octane'
+import { useState, useImperativeHandle, useEffect, useRef } from 'octane'
 import {
 	AutoFocusPlugin,
 	ContentEditable,
@@ -250,6 +250,8 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 	const lastEmitted = useRef<string | undefined>(undefined)
 	const lastJSON = useRef<string | undefined>(undefined)
 	const bound = useRef<LexicalEditorHandle | undefined>(undefined)
+	const [exposedHandle, setHandle] = useState<LexicalEditorHandle | null>(null)
+	useImperativeHandle<LexicalEditorHandle | null>(props.ref, () => exposedHandle, [exposedHandle])
 
 	const initialConfig = {
 		namespace: 'octane-xplat/lexical',
@@ -312,7 +314,7 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 			native: editor,
 		}
 
-		props.bind?.(bound.current)
+		setHandle(bound.current!)
 		props.onReady?.()
 	}
 

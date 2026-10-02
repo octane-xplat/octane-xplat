@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'octane';
+import { useImperativeHandle, useEffect, useRef, useState } from 'octane';
 import type { VideoHandle, VideoProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { layoutChildProps } from './layout-child.web';
@@ -71,6 +71,8 @@ export function Video(props: VideoProps) @{
 		native: v,
 	});
 
+	useImperativeHandle(props.ref, () => handle(el.current), []);
+
 	<div
 		id={props.id}
 		className={['vx-layers', 'vx-video', props.className]}
@@ -91,7 +93,6 @@ export function Video(props: VideoProps) @{
 				if (!v) return;
 				v.muted = muted;
 				applyEscapeProps(v, props);
-				props.bind?.(handle(v));
 			}}
 			className="vx-video-surface"
 			src={props.src}

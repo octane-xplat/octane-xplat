@@ -1,3 +1,4 @@
+import { useMemo } from 'octane'
 import type { VisuallyHiddenProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -9,9 +10,11 @@ import { applyWebProps } from './platformProps.web';
 export function VisuallyHidden(props: VisuallyHiddenProps) @{
 	const Tag: any = props.as ?? 'span';
 
+	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<Tag
 		id={props.id}
-		ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+		ref={forwardedRef}
 		className="vx-visually-hidden"
 		role={props.accessibilityRole}
 		aria-label={props.accessibilityLabel}

@@ -24,7 +24,7 @@ export default function LayerProbe() {
 			<Text id="probe-anchored-open">{String(anchored.isOpen)}</Text>
 			<Text id="probe-fixed-open">{String(fixed.isOpen)}</Text>
 			<View style={{ height: 1600 }} />
-			<View bind={anchored.ref}>
+			<View ref={anchored.ref}>
 				<Pressable id="probe-anchor" onPress={() => anchored.show()}>
 					<Text>Layer anchor</Text>
 				</Pressable>

@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
+import { useImperativeHandle, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { FormField } from './FormField.web.tsrx';
@@ -18,6 +18,7 @@ const CREATABLE_ID_PREFIX = '__xds_create__';
 function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any; laneRef?: (el: HTMLElement | null) => void }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.endContent == null && props.clear == null) return null;
+
 	<div className="vx-tokenizer-endlane" ref={props.laneRef}>
 		{isBusy ? <span className="vx-typeahead-spinner" role="status" aria-label="Loading"><ActivityIndicator busy={true} /></span> : null}
 		{props.endContent}
@@ -52,7 +53,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 	const isAtMax = props.maxEntries != null && props.value.length >= props.maxEntries;
 
 
-	useEffect(() => { props.bind?.({ focus: () => inputHandle.current?.focus(), blur: () => inputHandle.current?.blur(), native: wrapperRef.current }); }, [props.bind]);
+	useImperativeHandle(props.ref, () => ({ focus: () => inputHandle.current?.focus(), blur: () => inputHandle.current?.blur(), native: wrapperRef.current }), [props.ref]);
 
 	const selectedIds = useMemo(
 		() => new Set(props.value.map((item) => item.id)),
@@ -84,6 +85,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 		const alreadyExists =
 			selectedIds.has(trimmed) ||
 			results.some((item) => item.label.toLowerCase() === trimmed.toLowerCase());
+
 		if (alreadyExists) return [];
 		return [{
 			id: `${CREATABLE_ID_PREFIX}${trimmed}`,
@@ -102,6 +104,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			setAnnouncement(`${createdValue} added`);
 			return;
 		}
+
 		if (selectedIds.has(item.id)) return;
 		props.onChange([...props.value, item], { item, type: 'add' });
 		setAnnouncement(`${item.label} added`);
@@ -169,6 +172,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				}
 			}
 		});
+
 		el.addEventListener('focusout', collapse);
 	};
 
@@ -179,6 +183,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			if (!isFocusInTokenizer(e.relatedTarget as Node | null)) props.onFocus?.();
 			setIsFocusedWithin(true);
 		});
+
 		el.addEventListener('focusout', collapse);
 	};
 
@@ -190,11 +195,13 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 			if (overflowCount !== 0) setOverflowCount(0);
 			return;
 		}
+
 		const limit = host.clientWidth - (overflowRef.current?.offsetWidth ?? 0) - 8;
 		let hidden = 0;
 		for (const el of tokenEls.current.values()) {
 			if (el.offsetLeft + el.offsetWidth > limit) hidden++;
 		}
+
 		setOverflowCount(hidden);
 	};
 
@@ -223,6 +230,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				onRemove={props.isDisabled ? undefined : onRemoveItem}
 				isDisabled={props.isDisabled}
 			/>;
+
 		return <span
 			key={item.id}
 			className="vx-tokenizer-token"
@@ -268,7 +276,7 @@ export function Tokenizer<T extends SearchableItem,>(props: TokenizerProps<T>) @
 				size={size}
 				isReadOnly={props.isReadOnly}
 				inputClassName={isAtMax || isTruncated ? 'vx-tokenizer-input--atmax' : props.value.length > 0 ? 'vx-tokenizer-input--compact' : undefined}
-				bind={(h: TypeaheadInputHandle) => { inputHandle.current = h; }}
+				ref={(h: TypeaheadInputHandle) => { inputHandle.current = h; }}
 			/>
 		</BusyLaneProvider>
 	);

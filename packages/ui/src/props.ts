@@ -1,8 +1,10 @@
+import type { Octane } from 'octane/jsx-runtime'
+
 /** Shared prop/type contract — the single source of truth for the public
  *  API surface. Platform leaves import these types so prop shapes cannot
  *  drift across .web/native-default, and `tsrx-typegen` emits the package's
- *  declarations from its public entrypoints and component leaves. No imports
- *  here: the shared contracts stay dependency-free and platform-agnostic. */
+ *  declarations from its public entrypoints and component leaves. The Octane
+ *  import is type-only; shared contracts stay platform-agnostic. */
 
 // ---------- gestures ----------
 
@@ -22,7 +24,7 @@ export interface SwipeEvent {
 }
 
 /** Public shape of `setTranslate` — the imperative translate write on a
- *  bound view (a leaf's `bind` target). Web composes into the element's
+ *  bound view (a leaf's `ref` target). Web composes into the element's
  *  `transform`; native sets the view's translateX/translateY props.
  *  Both axes default to 0, so `setTranslate(el)` resets. */
 export type SetTranslate = (el: any, x?: number, y?: number) => void
@@ -172,9 +174,8 @@ export interface StackProps extends StackPaddingProps, StackSizeProps, Accessibi
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	/** `ref` is runtime-reserved on component elements — leaves expose
-	 *  `bind` to reach the native/DOM node. */
-	bind?: (el: any) => void
+	/** Receives the underlying host through a standard Octane ref. */
+	ref?: Octane.Ref<any>
 	/** @default 'vertical' */
 	direction?: StackDirection
 	hAlign?: StackAlignment
@@ -204,7 +205,7 @@ export interface StackItemProps extends AccessibilityProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	/** Cross-axis self alignment, overriding the stack's cross alignment. */
 	crossAlignSelf?: StackItemCrossAlignSelf
 	/** @default 'static' */
@@ -306,9 +307,8 @@ export interface ViewProps extends LayoutChildProps, FlexContainerProps, Accessi
 	style?: any
 	children?: any
 	id?: string
-	/** `ref` is runtime-reserved on component elements — leaves expose
-	 *  `bind` to reach the native/DOM node. */
-	bind?: (el: any) => void
+	/** Receives the underlying host through a standard Octane ref. */
+	ref?: Octane.Ref<any>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
@@ -322,9 +322,8 @@ export interface RowProps extends LayoutChildProps, FlexContainerProps, Accessib
 	style?: any
 	children?: any
 	id?: string
-	/** `ref` is runtime-reserved on component elements — leaves expose
-	 *  `bind` to reach the native/DOM node. */
-	bind?: (el: any) => void
+	/** Receives the underlying host through a standard Octane ref. */
+	ref?: Octane.Ref<any>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	/** Platform-specific properties are applied after shared props. */
@@ -412,9 +411,8 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps {
 	children?: any
 	id?: string
 	disabled?: boolean
-	/** `ref` is runtime-reserved on component elements — leaves expose
-	 *  `bind` to reach the native/DOM node. */
-	bind?: (el: any) => void
+	/** Receives the underlying host through a standard Octane ref. */
+	ref?: Octane.Ref<any>
 	onPan?: (e: PanEvent) => void
 	onSwipe?: (e: SwipeEvent) => void
 	onPress?: () => void
@@ -505,7 +503,7 @@ export interface TextInputProps extends FieldControlProps {
 	onChange?: (value: string) => void
 	/** Optional explicit accessible name override for the input. */
 	accessibilityLabel?: string
-	bind?: (h: TextInputHandle) => void
+	ref?: Octane.Ref<TextInputHandle>
 	secure?: boolean
 	keyboardType?: 'default' | 'email' | 'number' | 'decimal' | 'phone' | 'url'
 	returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send'
@@ -567,7 +565,7 @@ export interface SearchInputProps extends FieldControlProps {
 	/** Leading glyph — a registered icon name. Defaults to the built-in
 	 *  `'xplat-search'` glyph; `false` renders no glyph. */
 	icon?: string | false
-	bind?: (h: TextInputHandle) => void
+	ref?: Octane.Ref<TextInputHandle>
 	accessibilityLabel?: string
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
@@ -581,7 +579,8 @@ export interface SearchInputProps extends FieldControlProps {
  *  ISO strings — never `Date` — so values serialize losslessly and ignore
  *  zones. `Date` appears only in `dateConstraints` callbacks and Calendar's
  *  single-mode `onChange` second argument. */
-export type ISODateString = `${number}${number}${number}${number}-${number}${number}-${number}${number}`
+export type ISODateString =
+	`${number}${number}${number}${number}-${number}${number}-${number}${number}`
 
 /** ISO wall-clock time `HH:MM` or `HH:MM:SS`. */
 export type ISOTimeString =
@@ -640,7 +639,7 @@ export type DateTimeInputPresentation = PickerPresentation
  *  wins when both are set. */
 export type NativePickerPolicy = 'touch' | 'always' | 'never'
 
-/** Imperative calendar navigation — obtained via `bind`. */
+/** Imperative calendar navigation — obtained via `ref`. */
 export interface CalendarHandle {
 	navigateTo(date: ISODateString): void
 }
@@ -650,7 +649,7 @@ interface CalendarBaseProps {
 	style?: any
 	id?: string
 	/** Receives `{ navigateTo }` for imperative month navigation. */
-	bind?: (h: CalendarHandle) => void
+	ref?: Octane.Ref<CalendarHandle>
 	/** Month panes shown side by side. @default 1 */
 	numberOfMonths?: 1 | 2
 	min?: ISODateString
@@ -753,7 +752,7 @@ export interface DateInputProps extends FieldControlProps {
 	/** @deprecated Use `presentation`; `presentation` wins when both set. */
 	nativePicker?: DateInputNativePicker
 	placeholder?: string
-	bind?: (h: TextInputHandle) => void
+	ref?: Octane.Ref<TextInputHandle>
 	/** Calendar popover pane count. Ignored by the `native` surface.
 	 *  @default 1 */
 	numberOfMonths?: 1 | 2
@@ -788,7 +787,7 @@ export interface TimeInputProps extends FieldControlProps {
 	 *  `never` maps to `text-input`. */
 	nativePicker?: TimeInputNativePicker
 	placeholder?: string
-	bind?: (h: TextInputHandle) => void
+	ref?: Octane.Ref<TextInputHandle>
 	ios?: any
 	android?: any
 	web?: any
@@ -830,7 +829,7 @@ export interface DateTimeInputProps extends FieldControlProps {
 	presentation?: DateTimeInputPresentation
 	/** @deprecated Use `presentation`; `presentation` wins when both set. */
 	nativePicker?: DateTimeInputNativePicker
-	bind?: (h: TextInputHandle) => void
+	ref?: Octane.Ref<TextInputHandle>
 	/** Calendar pane count on the popover/sheet surface. @default 1 */
 	numberOfMonths?: 1 | 2
 	weekStartsOn?: DayOfWeek | DayOfWeekName
@@ -863,7 +862,7 @@ export interface DateRangeInputProps extends FieldControlProps {
 	/** @default 2 */
 	numberOfMonths?: 1 | 2
 	weekStartsOn?: DayOfWeek | DayOfWeekName
-	bind?: (h: TextInputHandle) => void
+	ref?: Octane.Ref<TextInputHandle>
 	ios?: any
 	android?: any
 	web?: any
@@ -955,10 +954,10 @@ export interface UseScrollableAreaOptions {
 }
 
 export interface UseScrollableAreaResult {
-	/** Merges behavior-owned props (bind/role/tabIndex/overflow/data attrs)
+	/** Merges behavior-owned props (ref/role/tabIndex/overflow/data attrs)
 	 *  into caller props for the viewport element or native scroll view. */
 	getViewportProps(props?: Record<string, any>): Record<string, any>
-	/** Merges the observed-content marker + bind into the content box props. */
+	/** Merges the observed-content marker + ref into the content box props. */
 	getContentProps(props?: Record<string, any>): Record<string, any>
 	/** Live per-axis overflow/edge state. */
 	state: ScrollableAreaState
@@ -1000,7 +999,7 @@ export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProp
 	 *  edges via negative margins. Inert on native. @default false */
 	isFullBleed?: boolean
 	/** Receives the scroll viewport element/view. */
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	children?: any
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
@@ -1100,7 +1099,7 @@ export interface WebViewProps extends LayoutChildProps, AccessibilityProps {
 	sandbox?: string | false
 	/** Imperative handle — reload/back/forward/stop plus `native` for
 	 *  anything the shared props don't cover. */
-	bind?: (h: WebViewHandle) => void
+	ref?: Octane.Ref<WebViewHandle>
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
 	android?: any
@@ -1284,7 +1283,7 @@ export interface PopoverAnchorRef {
 }
 
 export interface PopoverProps {
-	/** Ref to a native view or web element, commonly populated by `bind`. */
+	/** Ref to a native view or web element, commonly populated by `ref`. */
 	anchor: PopoverAnchorRef
 	open?: boolean
 	placement?: PopoverPlacement
@@ -1485,7 +1484,7 @@ export interface HoverCardOptions {
  *  element; `positionRef`/`interactionRef` split them. `renderHoverCard`
  *  returns the anchored card node (render in the tree). */
 export interface HoverCardReturn {
-	/** Combined bind callback — position anchor + hover/focus listeners. */
+	/** Combined ref callback — position anchor + hover/focus listeners. */
 	ref: (el: any) => void
 	/** Bind callback for the positioning anchor only. */
 	positionRef: (el: any) => void
@@ -1677,8 +1676,8 @@ export interface UseMeasureOptions {
 }
 
 export interface MeasureResult {
-	/** Pass to a View's `bind` prop. */
-	bind: (element: any) => void
+	/** Pass to a View's `ref` prop. */
+	ref: (element: any) => void
 	bounds: MeasureBounds | null
 }
 
@@ -1955,7 +1954,7 @@ export interface ImperativeAlertDialogReturn {
 // ---------- carousel ----------
 
 /** Imperative carousel controls (Astryx `CarouselHandle`). Returned through
- *  the component's `bind` callback — the framework's `ref` equivalent. */
+ *  the component's standard Octane `ref`. */
 export interface CarouselHandle {
 	scrollNext(): void
 	scrollPrev(): void
@@ -1992,7 +1991,7 @@ export interface CarouselProps extends AccessibilityProps {
 	 *  reports scroll end). @default false */
 	hasSnap?: boolean
 	/** Receives the imperative handle. */
-	bind?: (handle: CarouselHandle) => void
+	ref?: Octane.Ref<CarouselHandle>
 	className?: any
 	style?: any
 	id?: string
@@ -2412,7 +2411,7 @@ export interface OpenWindowOptions {
  */
 export interface AnimatedValue {
 	readonly value: number
-	bind(el: any): void
+	ref(el: any): void
 	to(target: number, opts?: { duration?: number }): void
 	spring(target: number, opts?: { damping?: number; stiffness?: number }): void
 	stop(): void
@@ -2887,7 +2886,7 @@ export interface CreateStaticSourceOptions<T extends SearchableItem = Searchable
 }
 
 /** Imperative handle for the text input inside the Typeahead family,
- *  delivered through `bind`. `setQuery` rewrites the field's query text —
+ *  delivered through `ref`. `setQuery` rewrites the field's query text —
  *  it backs Typeahead's click-to-edit. */
 export interface TypeaheadInputHandle {
 	focus(): void
@@ -2907,7 +2906,9 @@ export type TypeaheadKeyDownHandler = (event: any) => void
  *  Tokenizer: bare input + search/bootstrap + keyboard navigation + an
  *  anchored result listbox. It renders no field chrome; callers supply the
  *  visible wrapper and pass `anchor` for dropdown positioning. */
-export interface BaseTypeaheadProps<T extends SearchableItem = SearchableItem> extends FieldControlProps {
+export interface BaseTypeaheadProps<
+	T extends SearchableItem = SearchableItem,
+> extends FieldControlProps {
 	className?: any
 	style?: any
 	/** Element id applied to the input itself. */
@@ -2953,7 +2954,7 @@ export interface BaseTypeaheadProps<T extends SearchableItem = SearchableItem> e
 	onKeyDown?: TypeaheadKeyDownHandler
 	onFocus?: () => void
 	onBlur?: () => void
-	bind?: (handle: TypeaheadInputHandle) => void
+	ref?: Octane.Ref<TypeaheadInputHandle>
 	/** Class/style applied to the input element only. */
 	inputClassName?: any
 	inputStyle?: any
@@ -2970,7 +2971,9 @@ export interface BaseTypeaheadProps<T extends SearchableItem = SearchableItem> e
  *  chrome (label/description/status), the input wrapper, and the selected
  *  value as a Token over the input; click the token to edit (blur or Escape
  *  restores it). */
-export interface TypeaheadProps<T extends SearchableItem = SearchableItem> extends FieldControlProps {
+export interface TypeaheadProps<
+	T extends SearchableItem = SearchableItem,
+> extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -2999,7 +3002,7 @@ export interface TypeaheadProps<T extends SearchableItem = SearchableItem> exten
 	startIcon?: any
 	/** Field width; numbers are px/dip, strings pass through. */
 	width?: number | string
-	bind?: (handle: TypeaheadInputHandle) => void
+	ref?: Octane.Ref<TypeaheadInputHandle>
 	ios?: any
 	android?: any
 	web?: any
@@ -3019,7 +3022,7 @@ export interface TypeaheadItemProps<T extends SearchableItem = SearchableItem> {
 	/** Group label; presentational only — grouping itself is driven by
 	 *  `item.auxiliaryData.group`. */
 	group?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	ios?: any
 	android?: any
 	web?: any
@@ -3069,7 +3072,7 @@ export interface TokenProps {
 	endContent?: any
 	/** Hide the label visually; it stays the accessible name. */
 	isLabelHidden?: boolean
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	ios?: any
 	android?: any
 	web?: any
@@ -3090,7 +3093,7 @@ export type TokenizerSize = FieldControlSize
  *  in an anchored overlay instead of reflowing the field. */
 export type TokenizerOverflowBehavior = 'none' | 'unfocusedInline' | 'unfocusedLayer'
 
-/** Imperative handle delivered through Tokenizer's `bind`. */
+/** Imperative handle delivered through Tokenizer's `ref`. */
 export interface TokenizerHandle {
 	focus(): void
 	blur(): void
@@ -3102,7 +3105,9 @@ export interface TokenizerHandle {
  *  Selecting adds a token and clears the query; Backspace on an empty input
  *  removes the last token (pointer platforms — native fields emit no key
  *  events); `hasCreate` offers a "Create \"…\"" entry for free text. */
-export interface TokenizerProps<T extends SearchableItem = SearchableItem> extends FieldControlProps {
+export interface TokenizerProps<
+	T extends SearchableItem = SearchableItem,
+> extends FieldControlProps {
 	className?: any
 	style?: any
 	id?: string
@@ -3145,7 +3150,7 @@ export interface TokenizerProps<T extends SearchableItem = SearchableItem> exten
 	startIcon?: any
 	width?: number | string
 	labelTooltip?: string
-	bind?: (handle: TokenizerHandle) => void
+	ref?: Octane.Ref<TokenizerHandle>
 	ios?: any
 	android?: any
 	web?: any
@@ -3162,7 +3167,7 @@ export interface ComplexSelectorRenderState {
 	contentId: string
 }
 
-/** Imperative handle delivered through ComplexSelector's `bind`. Drives the
+/** Imperative handle delivered through ComplexSelector's `ref`. Drives the
  *  same popover machinery as the trigger — prefer it over mirroring open
  *  state in the parent. */
 export interface ComplexSelectorHandle {
@@ -3207,7 +3212,7 @@ export interface ComplexSelectorProps<Value> extends FieldControlProps {
 	labelTooltip?: string
 	placement?: PopoverPlacement
 	alignment?: 'start' | 'center' | 'end'
-	bind?: (handle: ComplexSelectorHandle) => void
+	ref?: Octane.Ref<ComplexSelectorHandle>
 	onOpenChange?: (open: boolean) => void
 	contentClassName?: any
 	contentXstyle?: any
@@ -3215,7 +3220,6 @@ export interface ComplexSelectorProps<Value> extends FieldControlProps {
 	android?: any
 	web?: any
 }
-
 
 /** InputRating — row of tappable glyphs reporting a 1..max score. */
 export interface InputRatingProps extends FieldControlProps {
@@ -3809,7 +3813,7 @@ export interface ChatComposerTrigger {
 }
 
 /** Imperative surface the composer shell and app code invoke on the input.
- *  Delivered through the input's `bind` prop. */
+ *  Delivered through the input's `ref` prop. */
 export interface ChatComposerInputHandle {
 	/** Insert a token chip at the current caret position; returns its id. */
 	insertToken(token: ChatComposerToken): string | undefined
@@ -3849,9 +3853,8 @@ export interface ChatComposerInputProps {
 	className?: any
 	style?: any
 	id?: string
-	/** Delivers the imperative handle (this repo's `bind` convention; the
-	 *  upstream `handleRef` equivalent). */
-	bind?: (h: ChatComposerInputHandle) => void
+	/** Exposes the imperative handle through a standard Octane ref. */
+	ref?: Octane.Ref<ChatComposerInputHandle>
 	value?: string
 	onChange?: (value: string) => void
 	placeholder?: string
@@ -4066,7 +4069,7 @@ export interface UseChatNewMessagesReturn {
 }
 
 /** Converts long pastes into token chips. `inputRef` carries the input
- *  handle (the object `bind` delivered). */
+ *  handle (the object `ref` delivered). */
 export interface UseChatPasteAsTokenOptions {
 	inputRef: { current: ChatComposerInputHandle | null }
 	/** Character threshold — pastes longer than this become tokens (200). */
@@ -4179,7 +4182,7 @@ export interface ChatLayoutContextValue {
 // ---------- Astryx navigation family (parity port) ----------
 //
 // Prop names and semantics track @astryxdesign/core. `ReactNode` positions are
-// `any`; DOM `ref` positions are the leaf's `bind`; React `onClick` item
+// `any`; DOM `ref` positions are the leaf's `ref`; React `onClick` item
 // callbacks fire on press/tap on native. Anchor-only attributes (`target`,
 // `rel`, `download`, `referrerPolicy`) apply on web; native `href` activates
 // through the route table (deep link) and falls back to the platform opener
@@ -4905,9 +4908,7 @@ export interface ResizableRegionSizing {
 	shrinkOrder?: number
 }
 
-export type ResizableRegionConfig = ResizableRegionSizing &
-	ResizableMinConfig &
-	ResizableMaxConfig
+export type ResizableRegionConfig = ResizableRegionSizing & ResizableMinConfig & ResizableMaxConfig
 
 /** Simplified resize config accepted by a component's `resizable` prop
  *  (e.g. `SideNav`). */
@@ -4936,8 +4937,7 @@ export interface UseResizableSingleOptions {
 	onCollapseChange?: (isCollapsed: boolean) => void
 }
 
-export type UseResizableSingleConfig = ResizableRegionConfig &
-	UseResizableSingleOptions
+export type UseResizableSingleConfig = ResizableRegionConfig & UseResizableSingleOptions
 
 export interface UseResizableMultiConfig {
 	direction?: ResizableDirection
@@ -5016,7 +5016,10 @@ export interface ResizeHandleProps {
 /** Icon-only button — `label` is the accessible name and doubles as the
  *  hover/focus tooltip on pointer targets. `icon` is required: a node or a
  *  registered icon name. */
-export interface IconButtonProps extends Omit<ButtonProps, 'children' | 'endContent' | 'isIconOnly' | 'label'> {
+export interface IconButtonProps extends Omit<
+	ButtonProps,
+	'children' | 'endContent' | 'isIconOnly' | 'label'
+> {
 	icon: any
 	label: string
 }
@@ -5157,7 +5160,15 @@ export interface SelectableCardProps {
 	web?: any
 }
 
-export type MoreMenuPlacement = 'above' | 'below' | 'start' | 'end' | 'left' | 'right' | PopoverPlacement
+export type MoreMenuPlacement =
+	| 'above'
+	| 'below'
+	| 'start'
+	| 'end'
+	| 'left'
+	| 'right'
+	| PopoverPlacement
+
 export type MoreMenuAlignment = PopoverAlignment
 /** 'popover' anchors the menu to the trigger; 'bottom-sheet' docks it in the
  *  bottom sheet; 'adaptive' resolves to bottom-sheet on coarse-pointer/touch
@@ -5198,7 +5209,10 @@ export interface MoreMenuProps {
 // Reuse the shared SearchableItem and SearchSource contracts from Typeahead.
 
 // Operator value kinds — what editor a filter value uses.
-export interface EmptyOperatorValue { readonly type: 'empty' }
+export interface EmptyOperatorValue {
+	readonly type: 'empty'
+}
+
 export interface StringOperatorValue {
 	readonly type: 'string'
 	readonly searchSource?: SearchSource
@@ -5284,7 +5298,9 @@ export interface CustomOperatorValue {
 	readonly getString: (value: string) => string
 }
 
-export interface NestedOperatorValue { readonly type: 'nested' }
+export interface NestedOperatorValue {
+	readonly type: 'nested'
+}
 
 export type OperatorValue =
 	| EmptyOperatorValue
@@ -5303,26 +5319,80 @@ export type OperatorValue =
 	| NestedOperatorValue
 
 // Stored filter values.
-export interface FilterValueEmpty { readonly type: 'empty' }
-export interface FilterValueString { readonly type: 'string'; readonly value: string }
-export interface FilterValueStringList { readonly type: 'string_list'; readonly value: ReadonlyArray<string> }
-export interface FilterValueInteger { readonly type: 'integer'; readonly value: number }
-export interface FilterValueFloat { readonly type: 'float'; readonly value: number }
-export interface FilterValueTime { readonly type: 'time'; readonly value: string }
-export interface FilterValueDateAbsolute { readonly type: 'date_absolute'; readonly unixSeconds: number }
-export interface FilterValueDateRelative { readonly type: 'date_relative'; readonly value: string }
-export interface FilterValueDateRange { readonly type: 'date_range'; readonly value: DateTimeRange }
-export interface FilterValueEnum { readonly type: 'enum'; readonly value: string }
-export interface FilterValueEnumList { readonly type: 'enum_list'; readonly value: ReadonlyArray<string> }
+export interface FilterValueEmpty {
+	readonly type: 'empty'
+}
+
+export interface FilterValueString {
+	readonly type: 'string'
+	readonly value: string
+}
+
+export interface FilterValueStringList {
+	readonly type: 'string_list'
+	readonly value: ReadonlyArray<string>
+}
+
+export interface FilterValueInteger {
+	readonly type: 'integer'
+	readonly value: number
+}
+
+export interface FilterValueFloat {
+	readonly type: 'float'
+	readonly value: number
+}
+
+export interface FilterValueTime {
+	readonly type: 'time'
+	readonly value: string
+}
+
+export interface FilterValueDateAbsolute {
+	readonly type: 'date_absolute'
+	readonly unixSeconds: number
+}
+
+export interface FilterValueDateRelative {
+	readonly type: 'date_relative'
+	readonly value: string
+}
+
+export interface FilterValueDateRange {
+	readonly type: 'date_range'
+	readonly value: DateTimeRange
+}
+
+export interface FilterValueEnum {
+	readonly type: 'enum'
+	readonly value: string
+}
+
+export interface FilterValueEnumList {
+	readonly type: 'enum_list'
+	readonly value: ReadonlyArray<string>
+}
+
 export interface PowerSearchEntity {
 	readonly id: string
 	readonly label: string
 	readonly photo?: string
 }
 
-export interface FilterValueEntityList { readonly type: 'entity_list'; readonly value: ReadonlyArray<PowerSearchEntity> }
-export interface FilterValueCustom { readonly type: 'custom'; readonly value: string }
-export interface FilterValueNested { readonly type: 'nested'; readonly value: ReadonlyArray<PowerSearchFilter> }
+export interface FilterValueEntityList {
+	readonly type: 'entity_list'
+	readonly value: ReadonlyArray<PowerSearchEntity>
+}
+
+export interface FilterValueCustom {
+	readonly type: 'custom'
+	readonly value: string
+}
+
+export interface FilterValueNested {
+	readonly type: 'nested'
+	readonly value: ReadonlyArray<PowerSearchFilter>
+}
 
 export type FilterValue =
 	| FilterValueEmpty
@@ -5355,7 +5425,7 @@ export type DateTimeRangePart =
 			readonly backValue: number
 			readonly unit: 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
 			readonly anchorKey?: string
-		}
+	  }
 
 export interface DateTimeRange {
 	readonly start: DateTimeRangePart
@@ -5483,7 +5553,9 @@ export interface PowerSearchComponentOverride {
 	readonly Editor?: any
 }
 
-export type PowerSearchComponents = Partial<Record<OperatorValue['type'], PowerSearchComponentOverride>>
+export type PowerSearchComponents = Partial<
+	Record<OperatorValue['type'], PowerSearchComponentOverride>
+>
 
 /** Structured filter bar — pick a field, then operator and value in the
  *  editor popover; committed filters render as removable, editable tokens. */
@@ -5657,13 +5729,7 @@ export type TextSize =
 	| '4xl'
 
 /** Semantic text colors shared by Timestamp/Timer (Astryx `color` axis). */
-export type TextColor =
-	| 'primary'
-	| 'secondary'
-	| 'disabled'
-	| 'placeholder'
-	| 'accent'
-	| 'inherit'
+export type TextColor = 'primary' | 'secondary' | 'disabled' | 'placeholder' | 'accent' | 'inherit'
 
 /** Font weight axis shared by Timestamp/Timer. */
 export type TextWeight = 'normal' | 'medium' | 'semibold' | 'bold'
@@ -5837,8 +5903,8 @@ export interface ProgressBarProps {
 	marks?: readonly ProgressBarMark[]
 	/** Visually disabled (canceled/inactive operations). @default false */
 	isDisabled?: boolean
-	/** `bind` receives the host element (web) / native view. */
-	bind?: (el: any) => void
+	/** `ref` receives the host element (web) / native view. */
+	ref?: Octane.Ref<any>
 	accessible?: boolean
 	accessibilityLabel?: string
 	accessibilityHint?: string
@@ -6139,7 +6205,7 @@ export interface OutlineProps {
 	/** Height of a fixed header overlaying the scroll root: shifts both the
 	 *  activation line and the scroll landing. @default 0 */
 	offset?: number
-	/** Scroll container ref (`bind`/`ref` object). Default: the nearest
+	/** Scroll container ref (callback or ref object). Default: the nearest
 	 *  scrollable ancestor on web / the nearest enclosing ScrollView on
 	 *  native, else the viewport/screen. */
 	scrollContainerRef?: { current?: any }
@@ -6168,7 +6234,7 @@ export interface CenterProps extends StackPaddingProps, StackSizeProps, Accessib
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	/** @default 'both' */
 	axis?: CenterAxis
 	isInline?: boolean
@@ -6187,7 +6253,7 @@ export interface SectionProps extends StackPaddingProps, StackSizeProps, Accessi
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	/** @default 'section' */
 	variant?: SectionVariant
 	/** 'start'/'end' are logical edges — on native they map to left/right. */
@@ -6203,7 +6269,7 @@ export interface SectionProps extends StackPaddingProps, StackSizeProps, Accessi
 export interface VisuallyHiddenProps extends AccessibilityProps {
 	children?: any
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
@@ -6229,7 +6295,7 @@ export interface AspectRatioProps extends AccessibilityProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	/** width / height — e.g. 16/9 ≈ 1.777. Required. */
 	ratio: number
 	/** @default 'rectangle' */
@@ -6262,7 +6328,7 @@ export interface FormLayoutProps extends AccessibilityProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	/** @default 'vertical' */
 	direction?: FormLayoutDirection
 	defaultOptionality?: FormOptionality
@@ -6282,7 +6348,7 @@ export interface InputGroupProps extends FieldControlProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	/** Group label — required for accessibility. */
 	label: string
 	/** Tooltip text shown via an info affordance at the end of the label. */
@@ -6300,7 +6366,7 @@ export interface InputGroupTextProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 }
 
 // ---------- Astryx parity: content lists ----------
@@ -6323,7 +6389,7 @@ export interface ListProps extends AccessibilityProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	/** @default 'balanced' */
 	density?: ListDensity
 	hasDividers?: boolean
@@ -6355,7 +6421,7 @@ export interface ListItemProps extends AccessibilityProps {
 	android?: Record<string, any>
 	web?: Record<string, any>
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	/** Primary text (string truncates to one line) or rich content. */
 	label: any
 	description?: any
@@ -6397,7 +6463,7 @@ export interface IndicatorProps<F extends IndicatorFamily = IndicatorFamily> {
 	className?: any
 	style?: any
 	id?: string
-	bind?: (el: any) => void
+	ref?: Octane.Ref<any>
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>

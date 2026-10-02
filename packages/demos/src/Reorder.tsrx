@@ -23,7 +23,7 @@ const rowHeight = (el: any) =>
 
 /** drag-to-reorder — the pan/imperative-write seam (docs/animation-gestures.md).
  *  Proves: onPan payload parity (began/moved/ended/cancelled, cumulative dy),
- *  per-frame setTranslate writes through `bind` without re-rendering, z-index
+ *  per-frame setTranslate writes through `ref` without re-rendering, z-index
  *  lift on native, and one declarative commit at drop. Drag activates on
  *  first move so plain taps never lift a row. */
 export function Reorder() @{
@@ -87,7 +87,7 @@ export function Reorder() @{
 				<HStack
 					id={'reorder-' + t.id}
 					className={['reorder-row', lifted === t.id ? 'reorder-lifted' : '']}
-					bind={(el: any) => el && views.current.set(t.id, el)}
+					ref={(el: any) => el && views.current.set(t.id, el)}
 					onPan={(e) => pan(t, e)}
 				>
 					<Text className="reorder-grip">{'≡'}</Text>

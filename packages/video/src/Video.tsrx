@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useRef, useState } from 'octane';
+import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane';
 import { registerElement } from '@nativescript-community/octane';
 import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import { Video as NSVideo, VideoFill } from '@nstudio/nativescript-exoplayer';
@@ -47,6 +47,8 @@ export function Video(props: VideoProps) @{
 
 	// Stable identity — an inline closure re-fires ref(null)/ref(v) per
 	// render, which would bounce host.current around the effects below.
+	useImperativeHandle(props.ref, () => handle(host.current!), []);
+
 	const bindHost = useCallback((v: any) => {
 		host.current = v;
 	}, []);
@@ -64,7 +66,6 @@ export function Video(props: VideoProps) @{
 		const v = host.current;
 		if (!v) return;
 		applyEscapeProps(v, props);
-		props.bind?.(handle(v));
 	}, []);
 
 	useEffect(() => {

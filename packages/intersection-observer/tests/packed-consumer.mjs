@@ -62,8 +62,8 @@ observer.unobserve(null)
 observer.disconnect()
 const records = observer.takeRecords()
 const result = useIntersectionObserver({ threshold: 0.5 })
-result.bind(null)
-result.bindRoot(null)
+result.ref(null)
+result.rootRef(null)
 const on: boolean = result.isIntersecting
 const yes: boolean = supported
 void records
@@ -84,8 +84,8 @@ observer.unobserve(null)
 observer.disconnect()
 const records = observer.takeRecords()
 const result = useIntersectionObserver({ threshold: 0.5 })
-result.bind(null)
-result.bindRoot(null)
+result.ref(null)
+result.rootRef(null)
 const on: boolean = result.isIntersecting
 const yes: boolean = supported
 void records

@@ -1,4 +1,4 @@
-import { useRef } from 'octane';
+import { useMemo, useRef } from 'octane';
 import type { TokenProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { Icon } from './Icon.web.tsrx';
@@ -37,6 +37,7 @@ export function Token(props: TokenProps) @{
 		props.isDisabled ? 'vx-token--disabled' : undefined,
 		props.className,
 	];
+
 	const sharedProps = {
 		'aria-label': props.isLabelHidden ? props.label : undefined,
 		'aria-description': props.description,
@@ -55,10 +56,12 @@ export function Token(props: TokenProps) @{
 		}
 	};
 
+	const forwardedRef = useMemo(() => [(el: any) => { if (el) { applyEscapeProps(el, props); } rootRef.current = el; }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	if (props.href != null) {
 		if (props.onRemove == null) {
 			return <a
-				ref={(el: any) => { if (el) { applyEscapeProps(el, props); props.bind?.(el); } rootRef.current = el; }}
+				ref={forwardedRef}
 				id={props.id}
 				href={props.isDisabled ? undefined : props.href}
 				className={classes}
@@ -74,7 +77,7 @@ export function Token(props: TokenProps) @{
 		}
 
 		return <span
-			ref={(el: any) => { if (el) { applyEscapeProps(el, props); props.bind?.(el); } rootRef.current = el; }}
+			ref={forwardedRef}
 			id={props.id}
 			className={classes}
 			style={props.style}
@@ -103,8 +106,9 @@ export function Token(props: TokenProps) @{
 			if (target.closest('button, a')) return;
 			props.onClick?.();
 		};
+
 		return <span
-			ref={(el: any) => { if (el) { applyEscapeProps(el, props); props.bind?.(el); } rootRef.current = el; }}
+			ref={forwardedRef}
 			id={props.id}
 			className={classes}
 			style={props.style}
@@ -126,7 +130,7 @@ export function Token(props: TokenProps) @{
 	}
 
 	return <span
-		ref={(el: any) => { if (el) { applyEscapeProps(el, props); props.bind?.(el); } rootRef.current = el; }}
+		ref={forwardedRef}
 		id={props.id}
 		className={classes}
 		style={props.style}

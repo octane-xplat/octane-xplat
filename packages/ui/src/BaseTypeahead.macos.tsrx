@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useContext, useEffect, useRef, useState } from 'octane';
+import { useImperativeHandle, useContext, useEffect, useRef, useState } from 'octane';
 import type { BaseTypeaheadProps, SearchableItem } from "./props";
 import { cx } from "./cx";
 import { useFieldControlProps } from './field-context';
@@ -91,13 +91,16 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 				setResults([]);
 				setLoading(false);
 			}
+
 			return;
 		}
+
 		if (Array.isArray(bootstrapResult)) {
 			setLoading(false);
 			applyBootstrapResults(bootstrapResult, gen);
 			return;
 		}
+
 		setLoading(true);
 		try {
 			applyBootstrapResults(await bootstrapResult, gen);
@@ -156,6 +159,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 				void performBootstrap();
 			}
 		};
+
 		if (debounceMs <= 0) triggerSearch();
 		else searchTimeoutRef.current = setTimeout(triggerSearch, debounceMs);
 	};
@@ -166,6 +170,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 			clearTimeout(searchTimeoutRef.current);
 			searchTimeoutRef.current = null;
 		}
+
 		searchSource.cancel?.();
 		props.onChange(item);
 		setQuery('');
@@ -183,17 +188,18 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 	const groups = groupTypeaheadItems(results, { ungroupedFirst: true });
 	const selectedId = props.value?.id;
 
+	useImperativeHandle(props.ref, () => ({
+		focus: () => inputRef.current.window?.makeFirstResponder?.(inputRef.current),
+		blur: () => inputRef.current.window?.makeFirstResponder?.(null),
+		setQuery: (q: string) => handleQueryChange(q),
+		native: inputRef.current,
+	}), undefined);
+
 	<flexboxlayout flexDirection="column" className={cx('vx-typeahead', props.className)} style={props.style}>
 		<textfield
 			ref={(v: any) => {
 				inputRef.current = v;
 				if (!v) return;
-				props.bind?.({
-					focus: () => v.window?.makeFirstResponder?.(v),
-					blur: () => v.window?.makeFirstResponder?.(null),
-					setQuery: (q: string) => handleQueryChange(q),
-					native: v,
-				});
 			}}
 			id={props.inputId ?? props.id}
 			className={cx('vx-typeahead-input', `vx-typeahead-input--size-${size}`, props.isDisabled && 'vx-typeahead-input--disabled', props.inputClassName)}
@@ -222,6 +228,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 					{group.heading != null
 						? <label className="vx-typeahead-group" text={group.heading} />
 						: null}
+
 					@for (const item of group.items; index gi; key item.id + '-' + gi) {
 						const index = results.indexOf(item);
 						const isSelected = item.id === selectedId && selectedId != null;

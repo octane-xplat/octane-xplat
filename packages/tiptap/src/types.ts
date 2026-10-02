@@ -1,3 +1,5 @@
+import type { Octane } from 'octane/jsx-runtime'
+
 /** Format vocabulary shared by the web (tiptap StarterKit) and native
  *  (Aztec) backends. On web, starter-kit covers everything except
  *  taskList/highlight/subscript/superscript/align* — those no-op there and
@@ -79,7 +81,7 @@ export interface TiptapEditorProps {
 	onSelectionChange?: (event: { start: number; end: number; active: TiptapFormat[] }) => void
 	onFocus?: () => void
 	onBlur?: () => void
-	bind?: (handle: TiptapEditorHandle) => void
+	ref?: Octane.Ref<TiptapEditorHandle>
 	android?: Record<string, any>
 	ios?: Record<string, any>
 	row?: number | string

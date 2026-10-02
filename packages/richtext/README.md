@@ -10,7 +10,7 @@ import { RichTextEditor, supported } from '@octane-xplat/richtext'
 ```
 
 Content in/out is document HTML via Aztec `fromHtml`/`toPlainHtml`. The
-`bind` callback returns an imperative handle (`getHTML`/`setHTML`,
+`ref` callback returns an imperative handle (`getHTML`/`setHTML`,
 `apply(format)`, `linkTo`/`removeLink`, `isActive`, `undo`/`redo`,
 `focus`/`blur`, `native`) once the editor exists, and `onSelectionChange`
 reports the active `RichTextFormat` set at the caret.

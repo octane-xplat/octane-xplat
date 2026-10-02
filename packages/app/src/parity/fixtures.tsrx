@@ -244,7 +244,7 @@ function GridLayoutFixture() @{
 
 // Overlap migrated to Absolute: the public Stack is now the Astryx flow
 // container (same-cell layering belongs to Absolute). Element ids stay so
-// the stack-overlay-layout parity assertions still bind.
+// the stack-overlay-layout parity assertions still ref.
 function StackLayoutFixture() @{
 	<Absolute className="parity-stack-root" style={{ width: 96, height: 48 }}>
 		<View className="parity-stack-base" style={{ width: 48, height: 32 }} />
@@ -326,7 +326,7 @@ function PopoverLayoutFixture(props: { marker: string }) @{
 	<>
 		<View
 			className="parity-popover-anchor"
-			bind={(view: any) => { anchor.current = view; }}
+			ref={(view: any) => { anchor.current = view; }}
 			style={{ width: 24, height: 20 }}
 		/>
 		<Popover

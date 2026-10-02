@@ -178,7 +178,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 	>
 		{headerIsTrigger ? (
 			<Pressable
-				bind={(v: any) => { anchor.current = v; }}
+				ref={(v: any) => { anchor.current = v; }}
 				className="vx-topnav-heading-trigger"
 				onPress={() => setMenuOpen(!menuOpen)}
 				accessibilityLabel={props.heading ?? props.logoLabel}
@@ -197,7 +197,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 		)}
 		{hasMenu && !headerIsTrigger ? (
 			<Pressable
-				bind={(v: any) => { anchor.current = v; }}
+				ref={(v: any) => { anchor.current = v; }}
 				className="vx-topnav-heading-menubtn"
 				onPress={() => setMenuOpen(!menuOpen)}
 				accessibilityLabel="Open heading menu"
@@ -229,7 +229,7 @@ export function TopNavItem(props: TopNavItemProps) @{
 	};
 
 	<Pressable
-		bind={(v: any) => applyEscapeProps(v, props)}
+		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-topnav-item', 'vx-topnav-item--' + size, isDrawer && 'vx-topnav-item--drawer', props.isSelected && 'vx-topnav-item--selected', props.isIconOnly && 'vx-topnav-item--icon', isDisabled && 'vx-topnav-item--disabled', props.className)}
 		style={props.style}
@@ -260,7 +260,7 @@ export function TopNavMenu(props: TopNavMenuProps) @{
 
 	<>
 		<Pressable
-			bind={(v: any) => { anchor.current = v; applyEscapeProps(v, props); }}
+			ref={(v: any) => { anchor.current = v; applyEscapeProps(v, props); }}
 			id={props.id}
 			className={cx('vx-topnav-item', 'vx-topnavmenu-trigger', props.className)}
 			style={props.style}
@@ -302,7 +302,7 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
 
 	<>
 		<Pressable
-			bind={(v: any) => { anchor.current = v; applyEscapeProps(v, props); }}
+			ref={(v: any) => { anchor.current = v; applyEscapeProps(v, props); }}
 			id={props.id}
 			className={cx('vx-topnav-item', 'vx-topnavmegamenu-trigger', props.className)}
 			style={props.style}
@@ -330,7 +330,7 @@ export function TopNavMegaMenuItem(props: TopNavMegaMenuItemProps) @{
 	};
 
 	<Pressable
-		bind={(v: any) => applyEscapeProps(v, props)}
+		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}
 		className={cx('vx-topnavmegamenu-item', props.className)}
 		style={props.style}

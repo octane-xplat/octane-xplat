@@ -96,7 +96,7 @@ export function Tooltip(props: TooltipProps) @{
 		popup.current = null
 	}, [])
 
-	<View id={props.id} className={props.className} style={props.style} bind={bindAnchor}>
+	<View id={props.id} className={props.className} style={props.style} ref={bindAnchor}>
 		{props.trigger}
 	</View>
 }

@@ -33,7 +33,7 @@ export function DropdownMenu(props: DropdownMenuProps) @{
 
 	<>
 		<Pressable
-			bind={(v: any) => { anchor.current = v; }}
+			ref={(v: any) => { anchor.current = v; }}
 			id={props.id}
 			className={cx('vx-menu-trigger', props.triggerClassName, group && `vx-button--group-${group.position}`, group?.size && `vx-button--size-${group.size}`, props.className)}
 			style={props.style}

@@ -41,7 +41,7 @@ export function InputProbe() @{
 			<label text={'Changes: ' + changes} />
 			<TextInput
 				id="ready-input" value={value} onChange={change}
-				bind={(handle: any) => { input.current = handle; setTimeout(() => dump('bound'), 0); }}
+				ref={(handle: any) => { input.current = handle; setTimeout(() => dump('bound'), 0); }}
 				onFocus={() => dump('focus')} onBlur={() => dump('blur')}
 				ios={{ accessibilityLabel: 'Probe text' }} android={{ accessibilityLabel: 'Probe text' }}
 			/>

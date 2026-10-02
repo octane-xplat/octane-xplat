@@ -54,20 +54,20 @@ the web contract.
 
 ```tsx
 function Row() {
-	const { bind, bindRoot, entry, isIntersecting } = useIntersectionObserver({
+	const { ref, rootRef, entry, isIntersecting } = useIntersectionObserver({
 		threshold: 0.5,
 		onChange: (entry) => console.log(entry.isIntersecting),
 	})
 	return (
-		<ScrollView bind={bindRoot}>
-			<View bind={bind} style={{ height: 80 }} />
+		<ScrollView ref={rootRef}>
+			<View ref={ref} style={{ height: 80 }} />
 		</ScrollView>
 	)
 }
 ```
 
-`bind`/`bindRoot` attach to a component's `bind` prop. `options.root` takes
-precedence over a `bindRoot`-bound container. `entry` is the latest
+`ref`/`rootRef` attach to a component's `ref` prop. `options.root` takes
+precedence over a `rootRef`-bound container. `entry` is the latest
 delivered entry (`null` before the first notification); `isIntersecting`
 mirrors `entry.isIntersecting`.
 

@@ -1,3 +1,5 @@
+import type { Octane } from 'octane/jsx-runtime'
+
 export interface LayoutChildProps {
 	row?: number
 	col?: number
@@ -120,7 +122,7 @@ export interface LottieProps extends LayoutChildProps, AccessibilityProps {
 	onError?: (e: LottieEvent) => void
 	/** Imperative handle — play/pause/seek plus `native` for anything the
 	 *  shared props don't cover. */
-	bind?: (h: LottieHandle) => void
+	ref?: Octane.Ref<LottieHandle>
 	/** Platform escape hatches, applied after the shared props. */
 	ios?: Record<string, any>
 	android?: Record<string, any>

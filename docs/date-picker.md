@@ -30,7 +30,7 @@ edits it. Keep that value in app state and send it with the rest of your form
 when submitting. `onChange` gives you the value itself rather than a browser
 event object; these controls do not submit an HTML form automatically.
 
-Use `bind` for the supported handles: `Calendar.navigateTo()`, input focus
+Use `ref` for the supported handles: `Calendar.navigateTo()`, input focus
 and blur, or `FileInput.open()`. A handle lets your code call those actions.
 If you are adapting React examples, these are not DOM refs or
 `SyntheticEvent` callbacks.

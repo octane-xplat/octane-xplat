@@ -28,7 +28,7 @@ export function HoverCard(props: HoverCardProps) @{
 	<>
 		<View
 			id={props.id}
-			bind={card.ref}
+			ref={card.ref}
 			className={cx('vx-hovercard-trigger', props.className)}
 			style={props.style}
 			ios={props.ios}

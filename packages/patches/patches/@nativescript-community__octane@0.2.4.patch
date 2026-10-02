@@ -23,3 +23,28 @@ index c88828e30337ee566bc1a919940e58b4b0227aba..52cde3f8f8acffcc05a1db8e0fcd9051
      events: {
          classify(name) {
              if (!EVENT_PROP.test(name))
+diff --git a/dist/intrinsics.d.ts b/dist/intrinsics.d.ts
+index 45a47cbbce199df9635852ca4cdb2849e9bbc83d..d555b50c08276e925132b2be9bb62302fe0a4228 100644
+--- a/dist/intrinsics.d.ts
++++ b/dist/intrinsics.d.ts
+@@ -24,9 +24,9 @@
+  */
+ import type * as NS from '@nativescript/core';
+ export type NativeScriptNode = unknown;
+-type Ref<TInstance> = ((instance: TInstance | null) => void) | {
++type Ref<TInstance> = ((instance: TInstance | null) => void | (() => void)) | {
+     current: TInstance | null;
+-} | null;
++} | readonly Ref<TInstance>[] | null | undefined;
+ /**
+  * The driver assigns every non-event prop onto the view instance, so a JSX
+  * attribute is a NativeScript view property rather than a DOM attribute.
+@@ -117,7 +117,7 @@ export interface ListViewAttributes {
+ }
+ export interface OctaneAttributes<TInstance> {
+     key?: string | number;
+-    ref?: Ref<TInstance> | readonly Ref<TInstance>[];
++    ref?: Ref<TInstance>;
+     children?: NativeScriptNode;
+ }
+ type Overridden = keyof CommonAttributes | keyof OctaneAttributes<unknown> | keyof CommonEvents<unknown>;

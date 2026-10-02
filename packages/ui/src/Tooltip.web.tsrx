@@ -139,7 +139,7 @@ export function Tooltip(props: TooltipProps) @{
 		};
 	}, [open]);
 
-	<View id={props.id} className={props.className} style={props.style} bind={bindAnchor} web={props.web}>
+	<View id={props.id} className={props.className} style={props.style} ref={bindAnchor} web={props.web}>
 		{props.trigger}
 		<Popover
 			open={open}

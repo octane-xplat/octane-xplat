@@ -1,4 +1,4 @@
-import { useContext, useEffect, useId, useRef, useState } from 'octane';
+import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane';
 import type { BaseTypeaheadProps, SearchableItem } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { useFieldControlProps } from './field-context';
@@ -113,13 +113,16 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 				setResults([]);
 				setLoading(false);
 			}
+
 			return;
 		}
+
 		if (Array.isArray(bootstrapResult)) {
 			setLoading(false);
 			applyBootstrapResults(bootstrapResult, gen);
 			return;
 		}
+
 		setLoading(true);
 		try {
 			applyBootstrapResults(await bootstrapResult, gen);
@@ -189,6 +192,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 				void performBootstrap();
 			}
 		};
+
 		if (debounceMs <= 0) triggerSearch();
 		else searchTimeoutRef.current = setTimeout(triggerSearch, debounceMs);
 	};
@@ -199,6 +203,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 			clearTimeout(searchTimeoutRef.current);
 			searchTimeoutRef.current = null;
 		}
+
 		searchSource.cancel?.();
 		props.onChange(item);
 		setQuery('');
@@ -221,6 +226,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 		) {
 			showLayer();
 		}
+
 		props.onFocus?.();
 	};
 
@@ -236,6 +242,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 			const panel = document.getElementById(panelId);
 			if (anchor?.contains(next) || panel?.contains(next)) return;
 		}
+
 		hideLayer();
 	};
 
@@ -255,6 +262,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 					void performBootstrap();
 				}
 			}
+
 			return;
 		}
 
@@ -310,6 +318,13 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 	const groups = groupTypeaheadItems(results, { ungroupedFirst: true });
 	const selectedId = props.value?.id;
 
+	useImperativeHandle(props.ref, () => ({
+		focus: () => inputRef.current?.focus(),
+		blur: () => inputRef.current?.blur(),
+		setQuery: (q: string) => handleQueryChange(q),
+		native: inputRef.current,
+	}), undefined);
+
 	<>
 		<input
 			ref={(el: any) => {
@@ -317,12 +332,6 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 				fallbackAnchor.current = el;
 				if (!el) return;
 				applyEscapeProps(el, props);
-				props.bind?.({
-					focus: () => el.focus(),
-					blur: () => el.blur(),
-					setQuery: (q: string) => handleQueryChange(q),
-					native: el,
-				});
 			}}
 			id={inputId}
 			tabIndex={props.inputTabIndex}
@@ -390,6 +399,7 @@ export function BaseTypeahead<T extends SearchableItem,>(inProps: BaseTypeaheadP
 								</div>
 							);
 						});
+
 						if (group.heading == null) return options;
 						return (
 							<div key={`group-${group.heading ?? gi}`} role="group" aria-label={group.heading}>

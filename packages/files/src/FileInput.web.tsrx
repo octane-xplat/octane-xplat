@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from 'octane'
+import { useImperativeHandle, useId, useRef, useState } from 'octane'
 import { Field as FormField, Icon, Spinner as ActivityIndicator, Tooltip, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
 import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
@@ -66,6 +66,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 			Promise.resolve(props.pick({ accept: props.accept, multiple: props.isMultiple }))
 				.then((r) => acceptRefs(normalizePicked(r)))
 				.catch((error) => setValidationErrors([String(error?.message ?? error)]))
+
 			return
 		}
 
@@ -168,7 +169,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 				? <span className={cx('vx-field-status', `vx-field-status--${statusType}`)} role={statusType === 'error' ? 'alert' : 'status'}>{statusMessage}</span>
 				: null}
 			<input
-				ref={(el: any) => { fileInput.current = el; if (!el) return; props.bind?.({ open: pick, native: el }) }}
+				ref={(el: any) => { fileInput.current = el; }}
 				type="file"
 				className="vx-fileinput-nativeinput"
 				accept={props.accept}
@@ -180,6 +181,8 @@ function FileInputControl(inputProps: FileInputProps) @{
 			/>
 		</>
 	)
+
+	useImperativeHandle(props.ref, () => ({ open: pick, native: fileInput.current }), undefined);
 
 	<div
 		className={cx(

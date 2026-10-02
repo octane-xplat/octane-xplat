@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'octane';
+import { useMemo, useEffect, useRef } from 'octane';
 import type { ScrollableAreaProps } from './props';
 import type { RefreshConfig, RefreshController } from './refresh.web';
 import { applyEscapeProps } from './escape-props';
@@ -85,8 +85,14 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 		ctl.current?.sync();
 	}, [props.refreshing]);
 
-	const { bind: _viewportBind, ...viewport } = area.getViewportProps();
-	const { bind: _contentBind, ...content } = area.getContentProps();
+	const { ref: viewportRef, ...viewport } = area.getViewportProps();
+	const { ref: contentRef, ...content } = area.getContentProps();
+
+	const forwardedRef = useMemo(() => [(el: any) => {
+				scroller.current = el;
+
+				applyEscapeProps(el, props);
+			}, viewportRef, props.ref], [props.ref, props.ios, props.android, props.web, viewportRef]);
 
 	<div {...layoutChildProps(props, { ...props.style })} className={['vx-refresh-wrap', props.className]}>
 		<div
@@ -101,12 +107,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 		</div>
 		<div
 			{...viewport}
-			ref={(el: any) => {
-				scroller.current = el;
-				viewport.ref?.(el);
-				applyEscapeProps(el, props);
-				props.bind?.(el);
-			}}
+			ref={forwardedRef}
 			id={props.id}
 			className={['vx-scrollable', viewport.className]}
 			style={{
@@ -117,7 +118,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
 				minHeight: size(props.minHeight),
 			}}
 		>
-			<div {...content} className={['vx-scrollable-content', content.className]} style={{ ...content.style, ...contentPadding(props) }}>
+			<div {...content} ref={contentRef} className={['vx-scrollable-content', content.className]} style={{ ...content.style, ...contentPadding(props) }}>
 				{props.children}
 			</div>
 		</div>
@@ -148,17 +149,15 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 		keyboardAccess: { owner: 'viewport', label: props.label ?? '', role: props.role },
 	});
 
-	const { bind: _viewportBind, ...viewport } = area.getViewportProps();
-	const { bind: _contentBind, ...content } = area.getContentProps();
+	const { ref: viewportRef, ...viewport } = area.getViewportProps();
+	const { ref: contentRef, ...content } = area.getContentProps();
 	const outer = layoutChildProps(props, { ...props.style });
+
+	const forwardedRef = useMemo(() => [(el: any) => applyEscapeProps(el, props), viewportRef, props.ref], [props.ref, props.ios, props.android, props.web, viewportRef]);
 
 	<div
 		{...viewport}
-		ref={(el: any) => {
-			viewport.ref?.(el);
-			applyEscapeProps(el, props);
-			props.bind?.(el);
-		}}
+		ref={forwardedRef}
 		id={props.id}
 		className={['vx-scrollable', props.className]}
 		style={{
@@ -173,6 +172,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 	>
 		<div
 			{...content}
+			ref={contentRef}
 			className={['vx-scrollable-content', content.className]}
 			style={{ ...content.style, ...contentPadding(props) }}
 		>

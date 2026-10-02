@@ -298,8 +298,8 @@ keep essential information out of `content`, or compose
 `Pressable` + `Popover`/`BottomSheet` for an explicit tap-to-reveal hint.
 
 Use `useMeasure()` when a screen needs live element bounds:
-`const { bind, bounds } = useMeasure()`, then pass `bind` to a primitive's
-`bind` prop. Bounds are observed by default and are `null` before the element
+`const { ref, bounds } = useMeasure()`, then pass `ref` to a primitive's
+`ref` prop. Bounds are observed by default and are `null` before the element
 has a usable layout. Web coordinates are viewport-relative; native coordinates
 are screen-relative device-independent pixels. Set `{ observe: false }` for a
 single read after binding.
@@ -312,7 +312,7 @@ to the nearest viewport or the fallback viewport. Anchored toasts follow
 ### WebView content sizing
 
 `WebView` embeds a web document — `src` for a URL, `html` for an inline
-document — with `onLoad`/`onError`, `scrollEnabled`, and a `bind` handle for
+document — with `onLoad`/`onError`, `scrollEnabled`, and a `ref` handle for
 `reload`/`goBack`/`goForward`. `matchContents` sizes the frame height to its
 document and `onLayoutContent` reports measured content dimensions. Browser
 measurement works only when the iframe document is same-origin; cross-origin
@@ -331,7 +331,7 @@ use the `ios:`/`android:`/`web:` escape bags for that.
 
 `Video` plays a clip — `src`, `poster`, `playing`/`onPlayingChange` (or
 `autoPlay` for uncontrolled start), `muted`, `loop`, `fit`
-(`contain`/`cover`/`fill`), and a `bind` handle for `play`/`pause`/
+(`contain`/`cover`/`fill`), and a `ref` handle for `play`/`pause`/
 `seekTo`/`currentTime`/`duration`. All transport chrome is self-drawn —
 tap the frame to show/hide it — so the controls are identical on every
 target while the video pixels stay in each platform's player engine.
@@ -351,7 +351,7 @@ see [video limits](known-limits.md#primitives) before designing error UI.
 bundle paths, absolute files, `res://` names, `.lottie` containers, and raw
 `{`-JSON) or `data` (inline animation object), `autoPlay`, `loop`,
 `playing`, `progress` (normalized 0..1), `speed`, `fit`
-(`contain`/`cover`/`fill`), `onLoaded`/`onEnded`/`onError`, and a `bind`
+(`contain`/`cover`/`fill`), `onLoaded`/`onEnded`/`onError`, and a `ref`
 handle (`play`/`pause`/`stop`/`seekTo`/`setSpeed`/`progress`/`duration`/
 `isPlaying`). It ships as the `@octane-xplat/lottie` leaf — `pnpm add
 @octane-xplat/lottie`. `lottie-web` is a real dependency; the NativeScript
@@ -367,7 +367,7 @@ events, sync-src, remote URLs, `declare` fields for modern bundlers); see
 ### Camera preview
 
 `CameraView` is a live camera preview — `facing` (`'back'`/`'front'`),
-`active` to start/stop, `onReady`/`onError`, and a `bind` handle for the
+`active` to start/stop, `onReady`/`onError`, and a `ref` handle for the
 platform view. Add `@octane-xplat/camera` to the app with
 `pnpm add @octane-xplat/camera` and import `CameraView` from that package. The
 leaf requests permission when the preview starts and includes the iOS camera
@@ -383,6 +383,61 @@ not that a frame has appeared; see [camera limits](known-limits.md#primitives).
 If a component needs different markup on web and native, keep its public props
 shared and split only its leaves. The [primitive notes](primitive-notes.md)
 cover the less common components, accessibility details, and renderer limits.
+
+## Refs
+
+Use Octane's ordinary `ref` prop. Layout and interaction primitives such as
+`View` and `Pressable` forward it to their host. Controls such as `TextInput`,
+`Calendar`, and `WebView` expose their documented imperative handle instead.
+The handle's `native` field, where provided, is platform-specific; keep direct
+host API calls in a platform file.
+
+```tsx
+import { useMemo, useRef } from 'octane'
+import { Pressable, Text, TextInput, View, useMeasure } from '@octane-xplat/ui'
+import type { TextInputHandle } from '@octane-xplat/ui'
+
+export function FocusField() {
+	const input = useRef<TextInputHandle | null>(null)
+	const host = useRef<any>(null)
+	const measurement = useMeasure()
+	const refs = useMemo(() => [host, measurement.ref], [host, measurement.ref])
+	return (
+		<View ref={refs}>
+			<TextInput label="Name" ref={input} />
+			<Pressable onPress={() => input.current?.focus()}>
+				<Text>Focus name</Text>
+			</Pressable>
+		</View>
+	)
+}
+```
+
+A ref can be an object with `current`, a callback, or an array of refs
+(including nested arrays). Objects are set to `null` when detached. Callback
+refs receive `null` when detached, or can return a cleanup function that runs
+instead. Replacing a ref detaches the previous owner before attaching the new
+one. Read handles from events or effects after mount, and handle `null` during
+cleanup.
+
+Hooks that attach to a host use the same prop: `useMeasure().ref`,
+`useAnimation().ref`, intersection observation's `ref` and `rootRef`, and drag
+and drop's `ref`. Combine them with an array when they need the same host. Keep
+composed refs stable with `useMemo` when their callbacks update state, so a
+render does not detach and attach them again. Forward a ref through your own
+component as a normal prop, or use Octane's `useImperativeHandle` to expose a
+custom handle.
+
+### Migrate from bind
+
+Upgrade the framework packages and their [managed patches](toolchain.md#agent-context-and-versions)
+together before migrating; native handle refs need the matching Octane patch.
+
+Change `bind={...}` to `ref={...}`, hook results `.bind` to `.ref`, and
+intersection observation's `.bindRoot` to `.rootRef`. Assignment callbacks can
+become object refs: `bind={(handle) => { input.current = handle }}` becomes
+`ref={input}`. Callbacks that perform work must accept `null` or return cleanup.
+The old `bind` names are removed.
 
 ## Hold a press
 
@@ -457,7 +512,7 @@ export function Example() {
 	const layer = useLayer({ mode: 'context', lightDismiss: true })
 	return (
 		<>
-			<View bind={layer.ref}>
+			<View ref={layer.ref}>
 				<Pressable onPress={() => layer.show()}>
 					<Text>Help</Text>
 				</Pressable>

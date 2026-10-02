@@ -1,4 +1,4 @@
-import { useRef } from 'octane';
+import { useImperativeHandle, useRef } from 'octane';
 import { normStyle } from './layout-child.web';
 import type { TextInputProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
@@ -18,13 +18,14 @@ export function TextInput(props: TextInputProps) @{
 		input.current.focus({ preventScroll: true });
 	};
 
+	useImperativeHandle(fieldProps.ref, () => ({ focus: () => input.current.focus(), blur: () => input.current.blur(), native: input.current }), []);
+
 	<div className={['vx-input-shell', fieldProps.inInputGroup ? 'vx-input-shell--ingroup' : undefined]}>
 		<input
 			ref={(el: any) => {
 				input.current = el;
 				if (!el) return;
 				applyEscapeProps(el, fieldProps);
-				fieldProps.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el });
 			}}
 			id={fieldProps.id}
 			className={['vx-input', fieldProps.isDisabled ? 'vx-input--disabled' : undefined, fieldProps.isReadOnly ? 'vx-input--readonly' : undefined, fieldProps.isLoading ? 'vx-input--loading' : undefined, fieldProps.status ? `vx-input--status-${fieldProps.status.type}` : undefined, fieldProps.size ? `vx-input--size-${fieldProps.size}` : undefined, fieldProps.inInputGroup ? 'vx-input--ingroup' : undefined, fieldProps.className]}

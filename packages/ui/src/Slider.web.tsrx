@@ -49,7 +49,7 @@ export function Slider(props: SliderProps) @{
 		style={props.style}
 		ref={(el: any) => {
 			host.current = el;
-			measure.bind(el);
+			measure.ref(el);
 			applyWebProps(el, props.web);
 		}}
 	>

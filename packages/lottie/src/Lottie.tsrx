@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useRef } from 'octane';
+import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane';
 import { registerElement } from '@nativescript-community/octane';
 import { isAndroid } from '@nativescript/core';
 import { LottieView } from './vendor/ui-lottie/src/lottie';
@@ -52,6 +52,8 @@ export function Lottie(props: LottieProps) @{
 	const appliedSrc = useRef<string | undefined>(undefined);
 	const loadedRef = useRef(false);
 
+	useImperativeHandle(props.ref, () => handle(host.current!), []);
+
 	const bindHost = useCallback((v: LottieView) => {
 		host.current = v;
 	}, []);
@@ -89,7 +91,6 @@ export function Lottie(props: LottieProps) @{
 			if (finished) props.onEnded?.();
 		};
 
-		props.bind?.(handle(v));
 	}, []);
 
 	// src — applied imperatively after the listeners exist.

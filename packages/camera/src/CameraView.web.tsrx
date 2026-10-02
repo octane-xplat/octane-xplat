@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'octane'
+import { useImperativeHandle, useEffect, useRef } from 'octane'
 import type { CameraViewProps } from './props'
 import { applyEscapeProps, layoutChildProps } from './layout-child.web'
 
 /** Live web preview backed by getUserMedia. */
 export function CameraView(props: CameraViewProps) @{
+	const hostRef = useRef<any>(null);
 	const video = useRef<HTMLVideoElement | null>(null)
 	const facing = props.facing ?? 'back'
 	const active = props.active !== false
@@ -52,6 +53,8 @@ export function CameraView(props: CameraViewProps) @{
 		}
 	}, [active, facing])
 
+	useImperativeHandle(props.ref, () => ({ native: hostRef.current }), undefined);
+
 	<div
 		id={props.id}
 		className={['vx-layers', 'vx-cameraview', props.className]}
@@ -74,10 +77,10 @@ export function CameraView(props: CameraViewProps) @{
 		@if (active) {
 			<video
 				ref={(element: HTMLVideoElement | null) => {
+				hostRef.current = element;
 					video.current = element
 					if (!element) return
 					applyEscapeProps(element, props)
-					props.bind?.({ native: element })
 				}}
 				muted={true}
 				autoplay={true}

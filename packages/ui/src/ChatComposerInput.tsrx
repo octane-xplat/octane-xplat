@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useRef, useState } from 'octane';
+import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane';
 import { Utils } from '@nativescript/core';
 import type {
 	ChatComposerInputHandle,
@@ -7,6 +7,7 @@ import type {
 	ChatComposerToken,
 	ChatComposerTokenElementProps,
 } from './props';
+
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
 import { isWritingText, writeText } from './text-write';
@@ -50,9 +51,11 @@ function serializeWithTokens(text: string, tokens: TokenRecord[]): string {
 			out += t.token.value;
 			continue;
 		}
+
 		out += text.slice(pos, at) + t.token.value;
 		pos = at;
 	}
+
 	out += text.slice(pos);
 	return out;
 }
@@ -82,6 +85,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 				props.onChange?.(next);
 				return;
 			}
+
 			composerOnChange?.(next);
 			if (props.onChange !== composerOnChange) {
 				props.onChange?.(next);
@@ -168,6 +172,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		expandTokenToText,
 		hasToken,
 	} as ChatTriggerHost;
+
 	hostRef.current = host;
 
 	const tokens2 = useChatComposerTokens({ editableRef: hostRef, onEmitChange: emitChange });
@@ -179,11 +184,10 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		focus: focusField,
 		getValue: () => serializeNow(),
 	};
+
 	selfRef.current = handle;
 
-	useEffect(() => {
-		props.bind?.(handle);
-	}, [props.bind]);
+	useImperativeHandle(props.ref, () => handle, [props.ref]);
 
 	const inputControlRef = composerCtx?.inputControlRef;
 	useEffect(() => {
@@ -218,6 +222,7 @@ export function ChatComposerInput(props: ChatComposerInputProps) @{
 		if (px > 0) return Utils.layout.toDeviceIndependentPixels(px);
 		return 22;
 	};
+
 	const fit = (v: any) => {
 		if (!v) return;
 		v.style.maxHeight = maxRows * lineDip(v);

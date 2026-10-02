@@ -253,7 +253,7 @@ existing scroll surface.
 | `ChatSendButton`, `ChatDictationButton`                                                                                                 | Send/stop action and speech input control                             | `isStopShown`, `isDisabled`, `onSend`, `onStop`               |
 | `useChatStreamScroll`, `useChatNewMessages`, `useChatPasteAsToken`, `useChatComposerTokens`, `useSpeechRecognition`, `useChatDictation` | Hooks for streaming, new messages, tokens, and dictation              | See each hook's TSDoc                                         |
 
-`ChatComposerInput.bind` delivers a portable imperative handle because React
+`ChatComposerInput.ref` delivers a portable imperative handle because React
 refs do not cross this renderer boundary. Key and paste callbacks expose
 portable event records; their `native` member carries a browser event only on
 web. `ChatComposerFile` exposes name, MIME type, size, and the original browser
@@ -281,7 +281,7 @@ its Chat runtime has not been exercised separately.
 | `Dialog`                  | Modal surface with optional header                | `isOpen`, `onOpenChange`, `purpose`, `position`                   |
 | `AlertDialog`             | Required-action confirmation dialog               | `title`, `description`, `actionLabel`, `onAction`                 |
 | `BottomSheet`             | Declarative in-window bottom sheet                | `isOpen`, `snapPoints`, `onOpenChange`                            |
-| `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `bind`                |
+| `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`                  |
 | `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                       |
 | `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`                 |
 | `Drawer`                  | Edge drawer                                       | `main`, `drawer`, `open`, `onDismiss`                             |

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useMemo } from 'octane'
 import type { IndicatorProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -12,11 +13,14 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
 		: props.state === 'checked'
 			? <label className={cx('vx-checkbox-check', `vx-ind-check--${size}`)} text="✓" />
 			: null
+
 	const content = props.children != null ? props.children : mark
+
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
 
 	<flexboxlayout
 		id={props.id}
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		ref={forwardedRef}
 		className={cx('vx-checkbox', 'vx-ind-checkbox', `vx-ind-checkbox--${size}`, props.state !== 'unchecked' && `vx-ind-checkbox--${props.state}`, props.isDisabled && 'vx-ind-checkbox--disabled', props.className)}
 		style={props.style}
 		alignItems="center"

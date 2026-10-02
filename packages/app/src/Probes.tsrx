@@ -73,11 +73,11 @@ export function Probes() @{
 			</HStack>
 		</View>
 
-		{/* useMeasure seam: bind reports live bounds (ResizeObserver on web,
+		{/* useMeasure seam: ref reports live bounds (ResizeObserver on web,
 		    layout listener on native). */}
 		<View className="sink-section">
 			<Text className="section-label">Measure</Text>
-			<View bind={bounds.bind} className="panbox" style={{ padding: 12 }}>
+			<View ref={bounds.ref} className="panbox" style={{ padding: 12 }}>
 				<Text className="text-sm text-muted">
 					{bounds.bounds ? Math.round(bounds.bounds.width) + '×' + Math.round(bounds.bounds.height) : 'unmeasured'}
 				</Text>

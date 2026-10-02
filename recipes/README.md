@@ -15,6 +15,8 @@ Pure refactors ordinarily need no recipe change.
 
 Workflows:
 
+- [Access and compose component refs](component-refs.md)
+
 - [Probe one platform case](probe-platform-case.md)
 
 - [Animate shared components](component-motion.md)

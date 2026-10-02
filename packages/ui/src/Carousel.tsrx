@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useRef, useState } from 'octane';
+import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane';
 import type { CarouselHandle, CarouselProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { toChildArray } from './child-array';
@@ -26,8 +26,6 @@ export function Carousel(props: CarouselProps) @{
 	const [canNext, setCanNext] = useState(false);
 	const [atStart, setAtStart] = useState(true);
 	const [atEnd, setAtEnd] = useState(false);
-	const bindRef = useRef(props.bind);
-	bindRef.current = props.bind;
 	const loop = props.hasLoop === true;
 	const snapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -113,8 +111,9 @@ export function Carousel(props: CarouselProps) @{
 		},
 	};
 
+	useImperativeHandle(props.ref, () => handle, undefined);
+
 	useEffect(() => {
-		bindRef.current?.(handle);
 		const el = scroller.current;
 		if (!el?.on) return;
 		const onScroll = () => {

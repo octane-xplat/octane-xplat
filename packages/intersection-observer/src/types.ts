@@ -83,11 +83,11 @@ export interface UseIntersectionObserverOptions extends IntersectionObserverInit
 
 /** Bind callbacks and the latest entry returned by `useIntersectionObserver`. */
 export interface UseIntersectionObserverResult {
-	/** Pass to a target element's `bind` prop. */
-	bind: (target: any) => void
-	/** Pass to the scrolling container's `bind` prop to set `root`
+	/** Pass to a target element's `ref` prop. */
+	ref: (target: any) => void
+	/** Pass to the scrolling container's `ref` prop to set `root`
 	 *  declaratively. `options.root` takes precedence when both are set. */
-	bindRoot: (root: any) => void
+	rootRef: (root: any) => void
 	/** Latest delivered entry, or null before the first notification. */
 	entry: IntersectionObserverEntry | null
 	isIntersecting: boolean

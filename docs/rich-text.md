@@ -58,7 +58,7 @@ See the maintained examples
 
 Both components take `value` (document HTML), `placeholder`, `editable`,
 `autofocus`, and the callbacks `onReady`, `onChange(html)`,
-`onSelectionChange({start, end, active})`, `onFocus`, and `onBlur`. `bind`
+`onSelectionChange({start, end, active})`, `onFocus`, and `onBlur`. `ref`
 hands back an imperative handle once the native surface exists:
 
 | Method                                 | Web (tiptap)                    | Android (Aztec)                                                                                                     |

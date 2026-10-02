@@ -58,7 +58,7 @@ function Card() {
  const sorted = useSortable({ id: 'a' })
  const state = useDndContext()
  void drop; void sorted; void state
- return <View bind={drag.bind} onPan={drag.onPan} style={drag.style} />
+ return <View ref={drag.ref} onPan={drag.onPan} style={drag.style} />
 }
 const node = <DndContext collisionDetection={closestCenter}><SortableContext items={['a']}><Card /></SortableContext></DndContext>
 const list = <SortableList items={['a']} renderItem={() => null} onReorder={(items, event: DragEvent) => { void items; void event }} />

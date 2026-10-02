@@ -182,7 +182,7 @@ export function Home() @{
 					<HStack className="gap-4 items-center">
 						{/* Animation seam (Exp 13): imperative controller writes the view's
 						    translateX per rAF frame — no re-render, no worklets. */}
-						<View id="anim-box" bind={x.bind} className="anim-box" />
+						<View id="anim-box" ref={x.ref} className="anim-box" />
 						{/* Image seam: <image> native / <img> web; data: URI decodes
 						    synchronously via ImageSource.fromBase64Sync. */}
 						<Image id="img" src={PIXEL} alt="pixel" style={{ width: 24, height: 24 }} />

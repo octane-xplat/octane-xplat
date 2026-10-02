@@ -16,6 +16,7 @@ import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } fro
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.clear == null) return null;
+
 	<flexboxlayout className="vx-typeahead-endlane" flexDirection="row" alignItems="center">
 		{isBusy ? <flexboxlayout className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></flexboxlayout> : null}
 		{props.clear}
@@ -72,6 +73,10 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 		: typeof props.startIcon === 'string'
 			? <Icon name={props.startIcon} size={16} />
 			: props.startIcon;
+
+	const forwardedRef = useMemo(() => [(h: TypeaheadInputHandle | null) => {
+							inputHandle.current = h;
+						}, props.ref], [props.ref, props.ios, props.android, props.web]);
 
 	<FormField
 		id={props.id}
@@ -133,10 +138,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 						onBlur={handleInputBlur}
 						size={size}
 						isReadOnly={props.isReadOnly}
-						bind={(h: TypeaheadInputHandle) => {
-							inputHandle.current = h;
-							props.bind?.(h);
-						}}
+						ref={forwardedRef}
 					/>
 				</BusyLaneProvider>
 				{showToken && props.value
@@ -146,7 +148,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 						onClick={enterEditMode}
 						isDisabled={props.isDisabled}
 						className="vx-typeahead-token"
-						bind={(v: any) => { tokenRef.current = v; }}
+						ref={(v: any) => { tokenRef.current = v; }}
 					/>
 					: null}
 			</gridlayout>

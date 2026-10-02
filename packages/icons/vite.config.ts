@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => {
 						registry: {
 							[macos ? 'macos' : 'nativescript']: macos
 								? {
-										module: '@xplat/macos/renderer',
+										module: '@octane-xplat/macos-renderer',
 										target: 'universal',
 										server: 'unsupported',
 										text: 'host',
@@ -77,7 +77,7 @@ export default defineConfig(({ mode }) => {
 						? (id) =>
 								id === 'octane'
 									? 'octane/universal/native'
-									: id === '@xplat/macos/renderer'
+									: id === '@octane-xplat/macos-renderer'
 										? '@nativescript-community/octane'
 										: id
 						: undefined,

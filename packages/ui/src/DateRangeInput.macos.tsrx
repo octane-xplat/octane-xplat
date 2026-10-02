@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useContext, useId, useRef, useState } from 'octane'
+import { useImperativeHandle, useContext, useId, useRef, useState } from 'octane'
 import type { DateRange, DateRangeInputProps } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.macos.tsrx'
@@ -13,6 +13,7 @@ import { formatDateValue, resolveLocale } from './datetime'
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function RangeControl(inputProps: DateRangeInputProps) @{
+	const hostRef = useRef<any>(null);
 	const props = useFieldControlProps(inputProps)
 	const locale = resolveLocale()
 	const generatedId = useId()
@@ -42,6 +43,8 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 	const isSelectedPreset = (p: { getRange: () => DateRange }) => { const r = p.getRange(); return shown?.start === r.start && shown?.end === r.end }
 	const statusText = props.status ? STATUS_TEXT[props.status.type] : null
 
+	useImperativeHandle(props.ref, () => ({ focus: () => {}, blur: () => {}, native: hostRef.current }), undefined);
+
 	<>
 		<flexboxlayout
 			ref={(v: any) => { anchor.current = v }}
@@ -65,7 +68,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
 				accessibilityHint={props.accessibilityHint}
 				accessibilityState={{ disabled: isDisabled, busy: isBusy } as any}
-				ref={(v: any) => { if (!v) return; props.bind?.({ focus: () => {}, blur: () => {}, native: v }) }}
+				ref={(v: any) => { hostRef.current = v; }}
 				onPress={() => { if (!isDisabled && !isBusy) setOpen(!open) }}
 			>
 				<flexboxlayout flexDirection="row" alignItems="center">

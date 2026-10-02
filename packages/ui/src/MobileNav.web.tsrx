@@ -149,7 +149,7 @@ export function MobileNavToggle(props: MobileNavToggleProps) @{
 		null
 	} @else {
 		<Button
-			bind={(v: any) => applyEscapeProps(v, props)}
+			ref={(v: any) => applyEscapeProps(v, props)}
 			id={props.id}
 			className={['vx-mobilenav-toggle', props.className]}
 			style={props.style}

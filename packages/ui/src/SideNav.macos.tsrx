@@ -193,7 +193,7 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 	>
 		{headerIsTrigger ? (
 			<Pressable
-				bind={(v: any) => { anchor.current = v; }}
+				ref={(v: any) => { anchor.current = v; }}
 				className="vx-sidenav-heading-trigger"
 				onPress={() => setMenuOpen(!menuOpen)}
 				accessibilityLabel={props.heading}
@@ -229,7 +229,7 @@ export function SideNavHeading(props: SideNavHeadingProps) @{
 		)}
 		{hasMenu && !headerIsTrigger ? (
 			<Pressable
-				bind={(v: any) => { anchor.current = v; }}
+				ref={(v: any) => { anchor.current = v; }}
 				className="vx-sidenav-heading-menubtn"
 				onPress={() => setMenuOpen(!menuOpen)}
 				accessibilityLabel="Open heading menu"

@@ -12,7 +12,7 @@ const callbackIntersections: boolean[] = []
 const SPACER = Array.from({ length: 40 }, (_, i) => `spacer row ${i}`)
 
 export default function IntersectionProbe() {
-	const { bind, bindRoot, entry, isIntersecting } = useIntersectionObserver({
+	const { ref, rootRef, entry, isIntersecting } = useIntersectionObserver({
 		threshold: 0.5,
 		onChange: (e) => {
 			hookHits += 1
@@ -26,10 +26,10 @@ export default function IntersectionProbe() {
 	return <Column>
 		<Text id="probe-visible">{String(isIntersecting)}</Text>
 		<Text id="probe-ratio">{String(entry?.intersectionRatio ?? -1)}</Text>
-		<ScrollView id="probe-scroll" bind={bindRoot} style={{ height: 200 }}>
+		<ScrollView id="probe-scroll" ref={rootRef} style={{ height: 200 }}>
 			<Column>
 				{SPACER.map((label) => <Text key={label}>{label}</Text>)}
-				<View id="probe-target" bind={(el: any) => { boundEl = el; bind(el) }} style={{ height: 80, backgroundColor: '#4a6fa5' }} />
+				<View id="probe-target" ref={(el: any) => { boundEl = el; ref(el) }} style={{ height: 80, backgroundColor: '#4a6fa5' }} />
 				{SPACER.map((label) => <Text key={`after-${label}`}>{label}</Text>)}
 			</Column>
 		</ScrollView>
@@ -102,7 +102,7 @@ export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('probe-scroll'))
 	ctx.record('supported', supported)
 	ctx.assert('observer supported', supported, true)
-	ctx.assert('bind delivered element', !!boundEl, true)
+	ctx.assert('ref delivered element', !!boundEl, true)
 	// Wait for an actual observer entry, not just the hook's null default.
 	await ctx.waitFor(() => ctx.inspect('probe-ratio').text !== '-1')
 	ctx.assert('initially clipped', ctx.inspect('probe-visible').text, 'false')

@@ -55,7 +55,7 @@ export function WebViewDemo() @{
 		<Text className="text-sm text-muted">{'status: ' + status + ' · content: ' + contentSize}</Text>
 		<SafeArea className="flex-1" ignoreSafeArea={ignoreSafeArea}>
 			<WebView
-				bind={(h) => { handle.current = h; }}
+				ref={handle}
 				className={'webview-demo-frame' + (matchContents ? '' : ' flex-1')}
 				html={remote ? undefined : INLINE_HTML}
 				src={remote ? 'https://example.com' : undefined}

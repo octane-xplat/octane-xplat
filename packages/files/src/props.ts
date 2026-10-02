@@ -1,3 +1,5 @@
+import type { Octane } from 'octane/jsx-runtime'
+
 import type { FieldControlProps, FieldStatus, FieldStatusType } from '@octane-xplat/ui'
 import type { FileRef } from './types'
 
@@ -43,7 +45,7 @@ export interface FileInputProps extends FieldControlProps {
 	placeholder?: string
 	/** Optional per-instance picker override for cloud or app-specific sources. */
 	pick?: FileInputPick
-	bind?: (h: FileInputHandle) => void
+	ref?: Octane.Ref<FileInputHandle>
 	ios?: any
 	android?: any
 	web?: any

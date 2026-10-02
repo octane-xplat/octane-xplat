@@ -15,7 +15,7 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
  * Headless scroll-viewport behavior (Astryx `useScrollableArea`), native
  * leaf. NS ScrollView reports `scrollableWidth/Height` + offsets through
  * its `scroll` event; `layoutChanged` on the viewport covers content
- * resize. The getters merge `bind` (element hook) and `accessibilityLabel`
+ * resize. The getters merge `ref` (element hook) and `accessibilityLabel`
  * — there is no tab stop, role, overscroll-chaining, or sticky
  * containment to own on native, so `keyboardAccess`, `overscroll`, and
  * `stickyContainment` are accepted but inert.
@@ -93,7 +93,7 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 	const getViewportProps = useCallback(
 		(props: Record<string, any> = {}): Record<string, any> => ({
 			...props,
-			bind: bindViewport,
+			ref: [bindViewport, props.ref],
 		}),
 		[bindViewport],
 	);
@@ -101,7 +101,7 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 	const getContentProps = useCallback(
 		(props: Record<string, any> = {}): Record<string, any> => ({
 			...props,
-			bind: bindContent,
+			ref: [bindContent, props.ref],
 		}),
 		[bindContent],
 	);

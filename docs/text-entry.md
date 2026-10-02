@@ -33,9 +33,7 @@ export function NameForm() {
 				<TextInput
 					value={name}
 					onChange={setName}
-					bind={(handle) => {
-						input.current = handle
-					}}
+					ref={input}
 				/>
 			</Field>
 			<Pressable onPress={() => setName('')}>
@@ -85,7 +83,7 @@ reset; type in the middle of a selection as well as at the end of a field.
 
 ## Release and restore focus
 
-Keep the `bind` handle for `focus()` and `blur()`. `blur()` dismisses the
+Keep the `ref` handle for `focus()` and `blur()`. `blur()` dismisses the
 native keyboard; on Android it also clears EditText focus. After closing a
 native overlay, explicitly focus the field or action that should resume
 editing. Automatic native overlay focus restoration and isolation remain

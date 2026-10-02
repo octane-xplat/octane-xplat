@@ -74,9 +74,7 @@ export function TiptapEditorDemo() @{
 				console.log('[probe] facade json bridge: ' + ok);
 			}}
 			onSelectionChange={(e) => setActive(e.active.join(',') || '—')}
-			bind={(h) => {
-				editor.current = h;
-			}}
+			ref={editor}
 		/>
 		<HStack className="flex-wrap gap-2">
 			{TOOLBAR.map((item) => (

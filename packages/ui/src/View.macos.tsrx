@@ -7,7 +7,7 @@ import { usePan } from './pan.macos.tsrx'
 export function View(props: ViewProps) @{
 	<flexboxlayout
 		id={props.id}
-		ref={(view: any) => { if (view) { props.bind?.(view) } }}
+		ref={props.ref}
 		{...layoutChildProps(props)}
 		flexDirection="column"
 		alignItems={props.alignItems}

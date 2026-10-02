@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.web.tsrx'
@@ -35,7 +35,7 @@ const EMPTY_VALUE: ISODateString | DateRange | undefined = undefined
 /** Self-drawn month calendar — `single` or `range` selection, ISO values.
  *  Keyboard: arrows move the day (crossing months pages the grid), PageUp/
  *  PageDown move a month, Home/End move to the row edges, Enter/Space picks,
- *  Escape cancels an in-progress range. `bind` exposes `{navigateTo}`. */
+ *  Escape cancels an in-progress range. `ref` exposes `{navigateTo}`. */
 export function Calendar(props: CalendarProps) @{
 	const mode = props.mode ?? 'single'
 	const numberOfMonths = props.numberOfMonths === 2 ? 2 : 1
@@ -116,7 +116,7 @@ export function Calendar(props: CalendarProps) @{
 		setPendingFocus(null)
 	}, [pendingFocus, months])
 
-	// bind → {navigateTo}
+	// ref → {navigateTo}
 	const navApi = useRef({ navigateTo: (_: ISODateString) => {} })
 	navApi.current = {
 		navigateTo: (iso: ISODateString) => {
@@ -125,9 +125,7 @@ export function Calendar(props: CalendarProps) @{
 		},
 	}
 
-	useEffect(() => {
-		props.bind?.({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) })
-	}, [])
+	useImperativeHandle(props.ref, () => ({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) }), [])
 
 	const pick = (iso: ISODateString) => {
 		const pd = plainDateFromISO(iso)

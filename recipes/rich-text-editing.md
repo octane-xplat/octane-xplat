@@ -24,7 +24,7 @@ the platform file-suffix boundary for divergent imports.
 ## Acceptance criteria
 
 - AC1: An app installs `@octane-xplat/tiptap` and renders `TiptapEditor` with
-  `value`/`onChange`/`bind` on web and Android without platform branching.
+  `value`/`onChange`/`ref` on web and Android without platform branching.
 - AC2: Toolbar-style integrations drive formatting through
   `handle.apply(format)`/`linkTo`/`undo`/`redo` and read active state through
   `isActive`/`onSelectionChange` on both backends.

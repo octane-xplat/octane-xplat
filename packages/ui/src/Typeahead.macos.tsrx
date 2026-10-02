@@ -15,6 +15,7 @@ import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } fro
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
 	const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy);
 	if (!isBusy && props.clear == null) return null;
+
 	<flexboxlayout className="vx-typeahead-endlane" flexDirection="row" alignItems="center">
 		{isBusy ? <flexboxlayout className="vx-typeahead-spinner"><ActivityIndicator busy={true} /></flexboxlayout> : null}
 		{props.clear}
@@ -68,6 +69,10 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 			? <Icon name={props.startIcon} size={16} />
 			: props.startIcon;
 
+	const forwardedRef = useMemo(() => [(h: TypeaheadInputHandle | null) => {
+						inputHandle.current = h;
+					}, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	const wrapper = <flexboxlayout
 		ref={(v: any) => { wrapperAnchor.current = v; }}
 		className={cx(
@@ -102,10 +107,7 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 					debounceMs={props.debounceMs}
 					size={size}
 					isReadOnly={props.isReadOnly}
-					bind={(h: TypeaheadInputHandle) => {
-						inputHandle.current = h;
-						props.bind?.(h);
-					}}
+					ref={forwardedRef}
 				/>
 			</BusyLaneProvider>
 			{showToken && props.value

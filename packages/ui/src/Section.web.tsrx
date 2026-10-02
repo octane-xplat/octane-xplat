@@ -1,3 +1,4 @@
+import { useMemo } from 'octane'
 import type { SectionProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -19,9 +20,11 @@ export function Section(props: SectionProps) @{
 	const pBlockStart = spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding;
 	const pBlockEnd = spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding;
 
+	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<div
 		id={props.id}
-		ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+		ref={forwardedRef}
 		className={['vx-section', `vx-section--${variant}`, props.className]}
 		style={{
 			marginInlineStart: 'calc(-1 * var(--vx-container-padding-inline-start, 0px))',

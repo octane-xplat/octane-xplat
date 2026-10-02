@@ -8,7 +8,7 @@ const POSTER = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sampl
 
 /** Shared `Video` demo — the surface-hosted player: OS engine surface +
  *  the self-drawn transport (tap the frame to show/hide). Buttons exercise
- *  the controlled `playing` prop and the `bind` handle's seek. */
+ *  the controlled `playing` prop and the `ref` handle's seek. */
 export function VideoDemo() @{
 	const [playing, setPlaying] = useState(false);
 	const [muted, setMuted] = useState(false);
@@ -28,9 +28,7 @@ export function VideoDemo() @{
 			onReady={(e) => setStatus(`ready ${(e.duration ?? 0) / 1000}s`)}
 			onEnded={() => setStatus('ended')}
 			onError={(e) => setStatus(`error ${e.message ?? ''}`)}
-			bind={(h) => {
-				handle.current = h;
-			}}
+			ref={handle}
 		/>
 		<HStack className="gap-2">
 			<Button className="btn btn-secondary" onPress={() => setPlaying(!playing)}>

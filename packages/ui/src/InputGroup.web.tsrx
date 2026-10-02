@@ -1,4 +1,4 @@
-import { useId } from 'octane';
+import { useMemo, useId } from 'octane';
 import type { InputGroupProps, InputGroupTextProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -15,6 +15,8 @@ export function InputGroup(props: InputGroupProps) @{
 	const descriptionId = props.description != null ? `${groupId}-description` : undefined;
 	const statusId = props.status?.message != null ? `${groupId}-status` : undefined;
 	const group = { isDisabled: props.isDisabled, size: props.size };
+
+	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
 
 	<FormField
 		label={props.label}
@@ -37,7 +39,7 @@ export function InputGroup(props: InputGroupProps) @{
 	>
 		<InputGroupProvider value={group}>
 			<div
-				ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+				ref={forwardedRef}
 				className={['vx-inputgroup', props.isDisabled ? 'vx-inputgroup--disabled' : undefined, props.status ? `vx-inputgroup--status-${props.status.type}` : undefined, props.size ? `vx-inputgroup--size-${props.size}` : undefined]}
 				role="group"
 				aria-labelledby={labelId}
@@ -55,9 +57,11 @@ export function InputGroup(props: InputGroupProps) @{
  *  an InputGroup. Non-interactive chrome; keeps the group's shared surface
  *  but only draws its own edge borders. */
 export function InputGroupText(props: InputGroupTextProps) @{
+	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<span
 		id={props.id}
-		ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+		ref={forwardedRef}
 		className={['vx-inputgroup-text', props.className]}
 		style={props.style}
 	>

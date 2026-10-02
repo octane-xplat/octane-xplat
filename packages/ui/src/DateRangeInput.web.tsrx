@@ -1,4 +1,4 @@
-import { useContext, useId, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useContext, useId, useMemo, useRef, useState } from 'octane'
 import type { DateRange, DateRangeInputProps, ISODateString } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.web.tsrx'
@@ -13,6 +13,7 @@ import { formatDateValue, resolveLocale } from './datetime'
 const STATUS_GLYPHS = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function RangeControl(inputProps: DateRangeInputProps) @{
+	const hostRef = useRef<any>(null);
 	const props = useFieldControlProps(inputProps)
 	const locale = resolveLocale()
 	const generatedId = useId()
@@ -60,7 +61,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 			style={props.style}
 		>
 			<button
-				ref={(el: any) => { if (!el) return; props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el }) }}
+				ref={(el: any) => { hostRef.current = el; }}
 				id={inputId}
 				type="button"
 				className={cx('vx-daterangeinput-trigger', !shown && 'vx-daterangeinput-trigger--placeholder')}
@@ -88,6 +89,8 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 			) : null}
 		</div>
 	)
+
+	useImperativeHandle(props.ref, () => ({ focus: () => hostRef.current.focus(), blur: () => hostRef.current.blur(), native: hostRef.current }), undefined);
 
 	<>
 		{showsDisabledReason ? <Tooltip trigger={shellNode} content={props.disabledMessage!} /> : shellNode}

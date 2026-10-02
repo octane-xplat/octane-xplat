@@ -1,3 +1,5 @@
+import type { Octane } from 'octane/jsx-runtime'
+
 /** Supported on Android today (WordPress Aztec); iOS is stubbed until the
  *  Swift-facade bring-up. Web/macOS/Windows route through the tiptap facade
  *  instead of this leaf. */
@@ -77,7 +79,7 @@ export interface RichTextEditorProps {
 	onFocus?: () => void
 	onBlur?: () => void
 	/** Imperative handle — fires once when the native editor exists. */
-	bind?: (handle: RichTextEditorHandle) => void
+	ref?: Octane.Ref<RichTextEditorHandle>
 	/** Per-platform escape bag — properties are assigned onto the native
 	 *  `AztecText` after the leaf's own props. */
 	android?: Record<string, any>

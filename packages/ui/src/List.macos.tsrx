@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useMemo } from 'octane'
 import type { ListProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -22,10 +23,12 @@ export function List(props: ListProps) @{
 					? <flexboxlayout className={cx('vx-list-marker', 'vx-list-marker--circle')}><flexboxlayout className="vx-list-marker-circle" /></flexboxlayout>
 					: null
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<ListProvider value={contextValue}>
 		<flexboxlayout
 			id={props.id}
-			ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+			ref={forwardedRef}
 			flexDirection="column"
 			className={cx('vx-list', `vx-list--density-${density}`, props.hasDividers && 'vx-list--dividers', props.className)}
 			style={props.style}

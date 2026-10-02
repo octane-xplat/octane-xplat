@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { View } from '@octane-xplat/ui'
 
 export function GridHost(props: { children?: any }) {

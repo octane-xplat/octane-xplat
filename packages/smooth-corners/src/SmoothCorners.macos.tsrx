@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useRef } from 'octane';
 import { flipCommandsY, generateCommands } from './path';
 import type { PathCommand } from './path';

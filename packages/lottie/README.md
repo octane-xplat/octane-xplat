@@ -19,13 +19,15 @@ import { Lottie } from '@octane-xplat/lottie'
 	fit="contain" // 'contain' | 'cover' | 'fill'
 	onLoaded={(e) => console.log(e.duration)}
 	onEnded={() => console.log('done')}
-	bind={(h) => (handle = h)} // play/pause/stop/seekTo(0..1)/setSpeed + .native
+	ref={(h) => {
+		handle = h
+	}} // play/pause/stop/seekTo(0..1)/setSpeed + .native
 />
 ```
 
 `data` (an inline animation object) wins over `src` when both are given.
 Controlled `playing`/`progress`/`speed` props are optional — unset, the
-animation is uncontrolled and the `bind` handle still drives it. Progress
+animation is uncontrolled and the `ref` handle still drives it. Progress
 is always normalized 0..1 and durations are milliseconds on every target
 (the iOS plugin natively reports seconds; the leaf normalizes).
 

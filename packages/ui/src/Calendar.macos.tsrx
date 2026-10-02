@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
-import { useEffect, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.macos.tsrx'
@@ -31,7 +31,7 @@ import {
 } from './calendar-core'
 
 /** Self-drawn month calendar — `single` or `range` selection, ISO values.
- *  macOS leaf: same tap-driven grid as native; `bind` exposes
+ *  macOS leaf: same tap-driven grid as native; `ref` exposes
  *  `{navigateTo}`. */
 export function Calendar(props: CalendarProps) @{
 	const mode = props.mode ?? 'single'
@@ -105,9 +105,7 @@ export function Calendar(props: CalendarProps) @{
 		},
 	}
 
-	useEffect(() => {
-		props.bind?.({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) })
-	}, [])
+	useImperativeHandle(props.ref, () => ({ navigateTo: (iso: ISODateString) => navApi.current.navigateTo(iso) }), [])
 
 	const pick = (iso: ISODateString) => {
 		const pd = plainDateFromISO(iso)

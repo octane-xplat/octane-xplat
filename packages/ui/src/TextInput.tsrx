@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useEffect, useRef } from 'octane';
+import { useImperativeHandle, useEffect, useRef } from 'octane';
 import type { TextInputProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
@@ -27,13 +27,14 @@ export function TextInput(inputProps: TextInputProps) @{
 		el.current?.focus();
 	};
 
+	useImperativeHandle(props.ref, () => ({ focus: () => el.current.focus(), blur: () => blurText(el.current), native: el.current }), []);
+
 	<flexboxlayout className={cx('vx-input-shell', props.inInputGroup && 'vx-input-shell--ingroup')} flexDirection="row" alignItems="center">
 		<textfield
 			ref={(v: any) => {
 				el.current = v;
 				if (!v) return;
 				applyEscapeProps(v, props);
-				props.bind?.({ focus: () => v.focus(), blur: () => blurText(v), native: v });
 			}}
 			id={props.id}
 			className={cx('vx-input', props.isDisabled && 'vx-input--disabled', props.isReadOnly && 'vx-input--readonly', props.isLoading && 'vx-input--loading', props.status && `vx-input--status-${props.status.type}`, props.size && `vx-input--size-${props.size}`, props.inInputGroup && 'vx-input--ingroup', props.className)}

@@ -68,6 +68,7 @@ export function Token(props: TokenProps) @{
 		props.isDisabled && 'vx-token--disabled',
 		props.className,
 	);
+
 	const tokenStyle = {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -89,7 +90,7 @@ export function Token(props: TokenProps) @{
 			accessibilityLabel={props.label}
 			accessibilityHint={props.description}
 			accessibilityRole={props.href != null ? 'link' : 'button'}
-			bind={props.bind}
+			ref={props.ref}
 		>
 			{content}
 		</Pressable>

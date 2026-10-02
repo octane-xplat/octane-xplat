@@ -173,7 +173,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 	>
 		{headerIsTrigger ? (
 			<Pressable
-				bind={(v: any) => { anchor.current = v; }}
+				ref={(v: any) => { anchor.current = v; }}
 				className="vx-topnav-heading-trigger"
 				onPress={() => setMenuOpen(!menuOpen)}
 				accessibilityLabel={props.heading ?? props.logoLabel}
@@ -192,7 +192,7 @@ export function TopNavHeading(props: TopNavHeadingProps) @{
 		)}
 		{hasMenu && !headerIsTrigger ? (
 			<Pressable
-				bind={(v: any) => { anchor.current = v; }}
+				ref={(v: any) => { anchor.current = v; }}
 				className="vx-topnav-heading-menubtn"
 				onPress={() => setMenuOpen(!menuOpen)}
 				accessibilityLabel="Open heading menu"
@@ -255,7 +255,7 @@ export function TopNavMenu(props: TopNavMenuProps) @{
 
 	<>
 		<Pressable
-			bind={(v: any) => { anchor.current = v; }}
+			ref={(v: any) => { anchor.current = v; }}
 			id={props.id}
 			className={cx('vx-topnav-item', 'vx-topnavmenu-trigger', props.className)}
 			style={props.style}
@@ -297,7 +297,7 @@ export function TopNavMegaMenu(props: TopNavMegaMenuProps) @{
 
 	<>
 		<Pressable
-			bind={(v: any) => { anchor.current = v; }}
+			ref={(v: any) => { anchor.current = v; }}
 			id={props.id}
 			className={cx('vx-topnav-item', 'vx-topnavmegamenu-trigger', props.className)}
 			style={props.style}

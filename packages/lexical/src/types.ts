@@ -1,3 +1,5 @@
+import type { Octane } from 'octane/jsx-runtime'
+
 /** Format vocabulary shared by the web (lexical core + registered nodes)
  *  and native (Aztec) backends. On web, `taskList`/`highlight`/`subscript`/
  *  `superscript` are only active when their nodes are registered — the
@@ -79,14 +81,10 @@ export interface LexicalEditorProps {
 	onJSONReady?: (ready: boolean) => void
 	onChange?: (html: string) => void
 	onJSONChange?: (doc: LexicalJSON) => void
-	onSelectionChange?: (event: {
-		start: number
-		end: number
-		active: LexicalFormat[]
-	}) => void
+	onSelectionChange?: (event: { start: number; end: number; active: LexicalFormat[] }) => void
 	onFocus?: () => void
 	onBlur?: () => void
-	bind?: (handle: LexicalEditorHandle) => void
+	ref?: Octane.Ref<LexicalEditorHandle>
 	android?: Record<string, any>
 	ios?: Record<string, any>
 	row?: number | string

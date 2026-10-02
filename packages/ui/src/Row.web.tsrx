@@ -1,4 +1,4 @@
-import { useRef } from 'octane';
+import { useMemo, useRef } from 'octane';
 import type { RowProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { layoutChildProps } from './layout-child.web';
@@ -7,9 +7,11 @@ export function Row(props: RowProps) @{
 	const el = useRef<HTMLElement | null>(null);
 	usePan(el, props.onPan);
 
+	const forwardedRef = useMemo(() => [(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props);  } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<div
 		id={props.id}
-		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); props.bind?.(e); } }}
+		ref={forwardedRef}
 		className={['vx-row', props.className]}
 		{...layoutChildProps(props, props.style)}
 		role={props.accessibilityRole}

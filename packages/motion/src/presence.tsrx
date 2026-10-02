@@ -11,13 +11,13 @@ export function Presence(props: PresenceProps) @{
 	const [retained, setRetained] = useState(props.present)
 	const latest = useRef(props)
 	latest.current = props
-	const ref = useRef<PresenceState | null>(null)
-	if (!ref.current) ref.current = new PresenceState(props.present, () => {
+	const stateRef = useRef<PresenceState | null>(null)
+	if (!stateRef.current) stateRef.current = new PresenceState(props.present, () => {
 		setRetained(false)
 		latest.current.onExitComplete?.()
 	})
 
-	const state = ref.current
+	const state = stateRef.current
 	const host = useRef<any>(null)
 	const restoreInput = useRef<(() => void) | null>(null)
 	const syncInput = () => {
@@ -38,14 +38,13 @@ export function Presence(props: PresenceProps) @{
 		host.current = null
 	}, [])
 
-	const { present, onExitComplete, children, bind, ...viewProps } = props
+	const { present, onExitComplete, children, ref, ...viewProps } = props
 
 	@if (props.present || retained) {
-		<View {...viewProps} bind={(node: any) => {
+		<View {...viewProps} ref={[(node: any) => {
 			if (host.current !== node) { restoreInput.current?.(); restoreInput.current = null; host.current = node }
 			syncInput()
-			bind?.(node)
-		}}>
+		}, ref]}>
 			<PresenceContext value={state}>{children}</PresenceContext>
 		</View>
 	}

@@ -9,7 +9,7 @@ import type {
 } from './types'
 
 /** Tracks a bound view's visibility against `root` (or the screen).
- *  `bind`/`bindRoot` attach to `bind` props; the observer is rebuilt when
+ *  `ref`/`rootRef` attach to `ref` props; the observer is rebuilt when
  *  the bound targets or options change. */
 export function useIntersectionObserver(
 	options: UseIntersectionObserverOptions = {},
@@ -49,15 +49,15 @@ export function useIntersectionObserver(
 		return () => observer.disconnect()
 	}, [target, root, options.rootMargin, threshold])
 
-	const bind = useCallback(
+	const ref = useCallback(
 		(el: any) => setTarget((current: any) => (current === el ? current : el)),
 		[],
 	)
 
-	const bindRoot = useCallback(
+	const rootRef = useCallback(
 		(el: any) => setBoundRoot((current: any) => (current === el ? current : el)),
 		[],
 	)
 
-	return { bind, bindRoot, entry, isIntersecting: entry?.isIntersecting ?? false }
+	return { ref, rootRef, entry, isIntersecting: entry?.isIntersecting ?? false }
 }

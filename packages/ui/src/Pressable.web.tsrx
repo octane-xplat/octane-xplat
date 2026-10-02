@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'octane';
+import { useMemo, useEffect, useRef } from 'octane';
 import type { PressableProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
 import { layoutChildProps } from './layout-child.web';
@@ -29,8 +29,10 @@ export function Pressable(props: PressableProps) @{
 		}, 500);
 	};
 
+	const forwardedRef = useMemo(() => [(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props);  } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<div
-		ref={(e: any) => { el.current = e; if (e) { applyEscapeProps(e, props); props.bind?.(e); } }}
+		ref={forwardedRef}
 		id={props.id}
 		className={['vx-pressable', props.className]}
 		{...layoutChildProps(props, { ...props.style, ...(props.hitSlop ? { margin: -props.hitSlop, padding: props.hitSlop } : {}) })}

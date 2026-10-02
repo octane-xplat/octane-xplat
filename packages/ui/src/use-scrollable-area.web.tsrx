@@ -15,8 +15,8 @@ const INITIAL: ScrollableAreaState = { inline: AT_EDGES, block: AT_EDGES };
  * Observes the bound viewport + content with ResizeObserver and `scroll`
  * and reports per-axis overflow/edge state; the getters merge the owned
  * semantics (overflow, overscroll, tab stop, role/label, data attributes)
- * into caller props. `ref`/`bind` keys are both returned so the merged
- * props land on a host element or a leaf component that takes `bind`.
+ * into caller props. The getters compose their internal ref with the caller's `ref`, for either
+ * a host element or a shared primitive.
  */
 export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseScrollableAreaResult {
 	const axis = options.axis ?? 'block';
@@ -124,8 +124,7 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 
 			return {
 				...props,
-				ref: bindViewport,
-				bind: bindViewport,
+				ref: [bindViewport, props.ref],
 				role: props.role ?? (viewportTabbed ? (role ?? 'group') : role),
 				'aria-label': props['aria-label'] ?? (viewportTabbed ? label : undefined),
 				tabIndex: props.tabIndex ?? (viewportTabbed ? 0 : undefined),
@@ -158,8 +157,7 @@ export function useScrollableArea(options: UseScrollableAreaOptions = {}): UseSc
 
 			return {
 				...props,
-				ref: bindContent,
-				bind: bindContent,
+				ref: [bindContent, props.ref],
 				role: props.role ?? (contentTabbed ? 'group' : undefined),
 				'aria-label':
 					props['aria-label'] ??

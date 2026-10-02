@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useRef } from 'octane'
+import { useState, useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { RichTextEditor, supported as leafSupported } from '@octane-xplat/richtext'
 import type { RichTextEditorHandle } from '@octane-xplat/richtext'
 import type { LexicalEditorHandle, LexicalEditorProps } from './types'
@@ -14,13 +14,15 @@ export const supported = leafSupported
  *  dispatchCommand, node transforms, or plugin behavior on native. */
 export function LexicalEditor(props: LexicalEditorProps) @{
 	const inner = useRef<RichTextEditorHandle | null>(null)
+	const [exposedHandle, setHandle] = useState<LexicalEditorHandle | null>(null)
+	useImperativeHandle<LexicalEditorHandle | null>(props.ref, () => exposedHandle, [exposedHandle])
 	const jsonReady = useRef(false)
 	const lastJSON = useRef<string | undefined>(undefined)
 
-	const bindHost = useCallback((h: RichTextEditorHandle) => {
+	const bindHost = useCallback((h: RichTextEditorHandle | null) => {
 		inner.current = h
 
-		props.bind?.({
+		setHandle((previous) => previous?.native === h?.native ? previous : h ? ({
 			getHTML: () => h.getHTML(),
 			setHTML: (html: string) => h.setHTML(html),
 			getJSON: () => (jsonBridgeReady() ? htmlToJSON(h.getHTML()) : null),
@@ -41,7 +43,7 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 			blur: () => h.blur(),
 			isFocused: () => h.isFocused(),
 			native: h.native,
-		} satisfies LexicalEditorHandle)
+		} satisfies LexicalEditorHandle) : null)
 	}, [])
 
 	// The bridge loads once per process — dynamic imports of the DOM-free
@@ -91,7 +93,7 @@ export function LexicalEditor(props: LexicalEditorProps) @{
 		onSelectionChange={props.onSelectionChange}
 		onFocus={props.onFocus}
 		onBlur={props.onBlur}
-		bind={bindHost}
+		ref={bindHost}
 		android={props.android}
 		ios={props.ios}
 		row={props.row}

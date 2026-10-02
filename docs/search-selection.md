@@ -164,12 +164,12 @@ side and `alignment` (`start`, `center`, or `end`) aligns the surface to its
 anchor on web, iOS, and Android. The experimental macOS Popover uses the
 AppKit anchored popup bridge; typeahead result hosting remains a separate
 contract. Hardware keyboard and assistive-technology behavior require native
-verification. Use `bind` for the portable
+verification. Use `ref` for the portable
 imperative handle (`open`, `close`, `toggle`, `isOpen`).
 
 ## Platform boundaries
 
-`bind` replaces React refs: web receives an `HTMLElement`, NativeScript
+`ref` is Octane's standard ref prop: web receives an `HTMLElement`, NativeScript
 receives its native view, and macOS receives the AppKit-host element. The
 `onKeyDown` escape event is a DOM `KeyboardEvent` on web only; native text
 fields do not emit it. `htmlName` is web-only. Native and macOS links open via

@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useRef } from 'octane'
+import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { Application, View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
@@ -28,6 +28,8 @@ export function CameraView(props: CameraViewProps) @{
 	const host = useRef<any>(null)
 	const active = props.active !== false
 	const facing = props.facing ?? 'back'
+	useImperativeHandle(props.ref, () => ({ native: host.current.android }), []);
+
 	const bindHost = useCallback((view: any) => {
 		host.current = view
 	}, [])
@@ -102,8 +104,7 @@ export function CameraView(props: CameraViewProps) @{
 		const view = host.current
 		if (!view) return
 		applyEscapeProps(view.android, props)
-		props.bind?.({ native: view.android })
-	}, [props.bind, props.android])
+	}, [props.ref, props.android])
 
 	<gridlayout
 		id={props.id}

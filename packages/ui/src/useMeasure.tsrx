@@ -14,7 +14,7 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 	const [bounds, setBounds] = useState<MeasureBounds | null>(null);
 	const detach = useRef<(() => void) | null>(null);
 	const observe = options.observe ?? true;
-	const bind = useCallback((view: any) => {
+	const ref = useCallback((view: any) => {
 		detach.current?.();
 		detach.current = null;
 		if (!view) {
@@ -61,5 +61,5 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 
 	useEffect(() => () => detach.current?.(), []);
 
-	return { bind, bounds };
+	return { ref, bounds };
 }

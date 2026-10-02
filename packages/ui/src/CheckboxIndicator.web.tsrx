@@ -1,3 +1,4 @@
+import { useMemo } from 'octane'
 import type { IndicatorProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -12,11 +13,14 @@ export function CheckboxIndicator(props: IndicatorProps<'multiSelection'>) @{
 		: props.state === 'checked'
 			? <span className={['vx-checkbox-check', `vx-ind-check--${size}`]}>{'✓'}</span>
 			: null;
+
 	const content = props.children != null ? props.children : mark;
+
+	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
 
 	<span
 		id={props.id}
-		ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+		ref={forwardedRef}
 		className={[
 			'vx-checkbox', 'vx-ind-checkbox', `vx-ind-checkbox--${size}`,
 			props.state !== 'unchecked' ? `vx-ind-checkbox--${props.state}` : undefined,

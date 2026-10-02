@@ -1,3 +1,4 @@
+import { useMemo } from 'octane'
 import type { CenterProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -14,9 +15,11 @@ export function Center(props: CenterProps) @{
 	const pBlockStart = pad(spacingPx(props.paddingBlockStart ?? props.paddingBlock ?? props.padding));
 	const pBlockEnd = pad(spacingPx(props.paddingBlockEnd ?? props.paddingBlock ?? props.padding));
 
+	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<div
 		id={props.id}
-		ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+		ref={forwardedRef}
 		className={['vx-center', props.isInline ? 'vx-center--inline' : undefined, props.className]}
 		style={{
 			display: props.isInline ? 'inline-flex' : 'flex',

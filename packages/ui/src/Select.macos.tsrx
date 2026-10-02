@@ -20,7 +20,7 @@ export function Select(inputProps: SelectProps) @{
 	const MultiInd = useIndicator('checkbox') ?? CheckboxIndicator
 
 	<>
-		<Pressable bind={(view: any) => { anchor.current = view }} id={props.id} className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', state.busy && 'vx-select--loading', props.className)} style={props.style} disabled={props.isDisabled} onPress={() => state.setOpen(!state.open)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled }} accessibilityValue={state.triggerText}>
+		<Pressable ref={(view: any) => { anchor.current = view }} id={props.id} className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', state.busy && 'vx-select--loading', props.className)} style={props.style} disabled={props.isDisabled} onPress={() => state.setOpen(!state.open)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled }} accessibilityValue={state.triggerText}>
 			<label className={cx('vx-select-value', !state.selected.length && 'vx-select-placeholder')} text={state.triggerText} />
 			{props.hasClear && state.selected.length && !state.blocked ? <Pressable className="vx-select-clear" disabled={state.pending} accessibilityLabel="Clear selection" onPress={state.clear}><label text="×" /></Pressable> : null}
 			{state.busy ? <label className="vx-select-loading" text="Loading…" accessibilityLiveRegion={'polite' as any} /> : null}

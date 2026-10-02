@@ -59,7 +59,7 @@ export function useSpring(source: number | MotionValue, options: Omit<Transition
 }
 
 /** Scoped imperative animation: `const [scope, animate] = useAnimate()` then
- *  `bind={scope}` on a motion host. `animate(target, transition)` drives that
+ *  `ref={scope}` on a motion host. `animate(target, transition)` drives that
  *  host; `animate(value, to, transition)` drives a MotionValue directly. */
 export function useAnimate(): [
 	{ current: any },

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'octane'
+import { useImperativeHandle, useEffect, useRef } from 'octane'
 import { EditorContent, useEditor } from '@octanejs/tiptap'
 import StarterKit from '@tiptap/starter-kit'
 import type { TiptapEditorHandle, TiptapEditorProps, TiptapFormat } from './types'
@@ -121,8 +121,8 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 
 	// The handle rebinds whenever the editor instance appears — stable
 	// afterward (useEditor keeps the instance identity).
-	useEffect(() => {
-		if (!editor || bound.current?.native === editor) return
+	useImperativeHandle<TiptapEditorHandle | null>(props.ref, () => {
+		if (!editor) return null
 		const e: any = editor
 		bound.current = {
 			getHTML: () => e.getHTML(),
@@ -150,7 +150,7 @@ export function TiptapEditor(props: TiptapEditorProps) @{
 			native: e,
 		}
 
-		props.bind?.(bound.current)
+		return bound.current
 	}, [editor])
 
 	<div className={['vx-richtext', props.className]} style={props.style}>

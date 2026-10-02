@@ -1,4 +1,4 @@
-/** @jsxImportSource @xplat/macos/renderer */
+/** @jsxImportSource @octane-xplat/macos-renderer */
 import { useCallback, useRef, useState } from 'octane'
 import { Text, View, useMeasure } from '@octane-xplat/ui'
 import { SortableList } from '../src/index'
@@ -13,16 +13,19 @@ export default function SortableExample() {
 	const bindScroll = useCallback(
 		(view: any) => {
 			scrollRef.current = view
-			measure.bind(view?.contentView ?? null)
+			measure.ref(view?.contentView ?? null)
 		},
-		[measure.bind],
+		[measure.ref],
 	)
 
 	const top = () => {
 		const scroll = scrollRef.current
 		const clip = scroll?.contentView
 		const content = scroll?.documentView
-		if (!clip || !content) {return 0}
+		if (!clip || !content) {
+			return 0
+		}
+
 		const flipped =
 			typeof content.isFlipped === 'function' ? content.isFlipped() : content.isFlipped
 
@@ -52,8 +55,9 @@ export default function SortableExample() {
 							initialized.current ||
 							!scroll?.window ||
 							scroll.documentView.frame.size.height <= scroll.contentView.bounds.size.height
-						)
-							{return}
+						) {
+							return
+						}
 
 						initialized.current = true
 						const content = scroll.documentView
@@ -68,7 +72,7 @@ export default function SortableExample() {
 						})
 
 						scroll.reflectScrolledClipView(scroll.contentView)
-						measure.bind(scroll.contentView)
+						measure.ref(scroll.contentView)
 						offsetRef.current = top()
 					}}
 				>

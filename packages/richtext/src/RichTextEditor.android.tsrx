@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useCallback, useEffect, useRef } from 'octane'
+import { useImperativeHandle, useCallback, useEffect, useRef } from 'octane'
 import { View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
 import type { Attributes } from '@nativescript-community/octane/intrinsics'
@@ -96,6 +96,8 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 
 	// Stable identity — an inline closure re-fires ref(null)/ref(v) per
 	// render, which would bounce host.current around the effects below.
+	useImperativeHandle(props.ref, () => handle(editor()), []);
+
 	const bindHost = useCallback((v: any) => {
 		host.current = v
 	}, [])
@@ -233,7 +235,6 @@ export function RichTextEditor(props: RichTextEditorProps) @{
 		}
 
 		if (props.android) Object.assign(e, props.android)
-		props.bind?.(handle(e))
 		props.onReady?.()
 	}, [])
 

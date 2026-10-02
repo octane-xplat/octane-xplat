@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useMemo } from 'octane'
 import type { SearchableItem, TypeaheadItemProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
@@ -17,8 +18,10 @@ export function TypeaheadItem<T extends SearchableItem,>(props: TypeaheadItemPro
 			? <Icon name={props.icon} size={16} />
 			: props.icon;
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	<flexboxlayout
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		ref={forwardedRef}
 		id={props.id}
 		className={cx('vx-typeahead-item', props.isDisabled && 'vx-typeahead-item--disabled', props.className)}
 		style={props.style}

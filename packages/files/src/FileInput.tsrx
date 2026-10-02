@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useId, useState } from 'octane'
+import { useRef, useImperativeHandle, useId, useState } from 'octane'
 import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
 import { files as fileService } from './files'
@@ -8,6 +8,7 @@ import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function FileInputControl(inputProps: FileInputProps) @{
+	const hostRef = useRef<any>(null);
 	const { props } = useFieldControl(inputProps)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
@@ -65,6 +66,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 			: props.isMultiple
 				? fileService.pickMultiple(props.accept)
 				: fileService.pick(props.accept)
+
 		Promise.resolve(picked)
 			.then((result) => acceptRefs(normalizePicked(result)))
 			.catch((error) => setValidationErrors([String(error?.message ?? error)]))
@@ -72,6 +74,8 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	const dropzone = props.mode === 'dropzone'
 	const statusText = statusType ? STATUS_TEXT[statusType] : null
+
+	useImperativeHandle(props.ref, () => ({ open: pick, native: hostRef.current }), undefined);
 
 	<flexboxlayout
 		flexDirection="column"
@@ -101,7 +105,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 			</flexboxlayout>
 		) : null}
 		<Pressable
-			bind={(v: any) => { if (!v) return; props.bind?.({ open: pick, native: v }) }}
+			ref={(v: any) => { hostRef.current = v; }}
 			id={inputId}
 			className="vx-fileinput-trigger"
 			disabled={isDisabled || isBusy}

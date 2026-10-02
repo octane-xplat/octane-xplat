@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useMemo } from 'octane'
 import type { AspectRatioProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
@@ -8,14 +9,16 @@ import { useMeasure } from './useMeasure.macos.tsrx'
  *  NativeScript leaf. `contain`/`center` center the child; media-level
  *  letterboxing belongs to the child's own sizing. */
 export function AspectRatio(props: AspectRatioProps) @{
-	const { bind, bounds } = useMeasure()
+	const { ref, bounds } = useMeasure()
 	const fit = props.fit ?? 'cover'
 	const ellipse = props.shape === 'ellipse'
 	const derivedHeight = bounds != null && bounds.width > 0 ? bounds.width / props.ratio : undefined
 
+	const hostRef = useMemo(() => [(view: any) => applyEscapeProps(view, props), ref, props.ref], [ref, props.ref, props.ios, props.android, props.web])
+
 	<flexboxlayout
 		id={props.id}
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); bind(v); props.bind?.(v); } }}
+		ref={hostRef}
 		className={cx('vx-aspectratio', `vx-aspectratio-fit-${fit}`, ellipse && 'vx-aspectratio--ellipse', props.className)}
 		style={{
 			width: '100%',

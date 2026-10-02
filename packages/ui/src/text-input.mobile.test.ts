@@ -12,7 +12,11 @@ vi.mock('@nativescript/core', () => ({
 	Utils: { layout: { toDeviceIndependentPixels: (value: number) => value } },
 }))
 
-vi.mock('./escape-props', () => ({ applyEscapeProps: () => {}, nativeAccessibilityState: (state: any) => state?.disabled ? 'disabled' : undefined }))
+vi.mock('./escape-props', () => ({
+	applyEscapeProps: () => {},
+	nativeAccessibilityState: (state: any) => (state?.disabled ? 'disabled' : undefined),
+}))
+
 vi.mock('./Icon.tsrx', async () => {
 	const { defineUniversalComponent } = await import('octane/universal/native')
 	return { Icon: defineUniversalComponent('nativescript', () => null) }
@@ -39,8 +43,12 @@ describe('native controlled input writes', () => {
 			let inputHandle: any
 			let text = ''
 			let selection = [2, 4]
-			const bind = (handle: any) => {
+			const ref = (handle: any) => {
 				inputHandle = handle
+				if (!handle) {
+					return
+				}
+
 				node = handle.native
 				node.style = {}
 				node.android = {
@@ -61,11 +69,11 @@ describe('native controlled input writes', () => {
 				})
 			}
 
-			root.render(Component as any, { value: 'hello', onChange: change, bind, icon: false })
+			root.render(Component as any, { value: 'hello', onChange: change, ref, icon: false })
 			await vi.waitFor(() => expect(text).toBe('hello'))
 			expect(change).not.toHaveBeenCalled()
 			expect(selection).toEqual([2, 4])
-			root.render(Component as any, { value: 'x', onChange: change, bind, icon: false })
+			root.render(Component as any, { value: 'x', onChange: change, ref, icon: false })
 			await vi.waitFor(() => expect(text).toBe('x'))
 			expect(change).not.toHaveBeenCalled()
 			expect(selection).toEqual([1, 1])

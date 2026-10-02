@@ -3,8 +3,8 @@ import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/
 
 /**
  * Imperative animation value (decision #10 — no worklets; JS runs on the UI
- * thread on NS so a rAF tween writes the view directly). `bind` is a leaf
- * `bind` prop target: the leaf forwards it to the intrinsic's `ref`, and the
+ * thread on NS so a rAF tween writes the view directly). `ref` is a leaf
+ * `ref` prop target: the leaf forwards it to the intrinsic's `ref`, and the
  * runtime hands us the NS view.
  */
 export type { AnimatedValue } from './props';
@@ -34,7 +34,7 @@ function createAnimated(initial: number, prop: string): AnimatedValue {
 
 	return {
 		get value() { return current; },
-		bind(v) { view = v; if (view) view[prop] = current; },
+		ref(v) { view = v; if (view) view[prop] = current; },
 		to(target, opts) {
 			const dur = opts?.duration ?? 300;
 			const from = current;

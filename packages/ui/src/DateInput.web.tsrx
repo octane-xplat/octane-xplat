@@ -1,4 +1,4 @@
-import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
+import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.web.tsrx'
@@ -248,7 +248,7 @@ function DateInputControl(inputProps: CoreProps) @{
 			{surface === 'native' ? (
 				<span className="vx-dateinput-nativeslot">
 					<input
-						ref={(el: any) => { input.current = el; if (!el) return; props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el }) }}
+						ref={(el: any) => { input.current = el; }}
 						id={inputId}
 						type="date"
 						className={cx('vx-dateinput-nativeinput', 'vx-dateinput-input')}
@@ -291,7 +291,7 @@ function DateInputControl(inputProps: CoreProps) @{
 				</button>
 			) : (
 				<input
-					ref={(el: any) => { input.current = el; if (!el) return; props.bind?.({ focus: () => el.focus(), blur: () => el.blur(), native: el }) }}
+					ref={(el: any) => { input.current = el; }}
 					id={inputId}
 					type="text"
 					role="combobox"
@@ -352,6 +352,8 @@ function DateInputControl(inputProps: CoreProps) @{
 		: null
 
 	const live = <div className="vx-sr-only" aria-live="assertive" role="alert">{!isPendingValid || rejected !== null ? 'Enter a valid date' : ''}</div>
+
+	useImperativeHandle(props.ref, () => ({ focus: () => input.current?.focus(), blur: () => input.current?.blur(), native: input.current }), undefined);
 
 	return showsDisabledReason
 		? <><Tooltip trigger={shellNode} content={props.disabledMessage!} />{popover}{live}</>

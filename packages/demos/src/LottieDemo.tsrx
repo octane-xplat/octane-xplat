@@ -6,7 +6,7 @@ import animation from './pinjump-anim';
 
 /** Shared `Lottie` demo — same animation data, same props, on lottie-web
  *  (web) and vendored ui-lottie (native). Buttons drive the
- *  controlled `playing` prop and the `bind` handle; status surfaces the
+ *  controlled `playing` prop and the `ref` handle; status surfaces the
  *  normalized events (duration is ms on both platforms). */
 export function LottieDemo() @{
 	const [playing, setPlaying] = useState(false);
@@ -28,9 +28,7 @@ export function LottieDemo() @{
 			onLoaded={(e) => setStatus(`loaded ${e.duration}ms`)}
 			onEnded={() => setStatus('ended')}
 			onError={(e) => setStatus(`error ${e.message ?? ''}`)}
-			bind={(h) => {
-				handle.current = h;
-			}}
+			ref={handle}
 		/>
 		<Text className="lottie-demo-status">{status}</Text>
 		<HStack className="gap-2">

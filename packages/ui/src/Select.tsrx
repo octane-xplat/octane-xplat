@@ -22,7 +22,7 @@ export function Select(inputProps: SelectProps) @{
 	useEffect(() => { if (!state.open) didFocus.current = false }, [state.open])
 
 	<>
-		<Pressable bind={(view: any) => { anchor.current = view }} id={props.id} className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', state.busy && 'vx-select--loading', props.className)} style={props.style} disabled={props.isDisabled} onPress={() => state.setOpen(!state.open)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled }} accessibilityValue={state.triggerText}>
+		<Pressable ref={(view: any) => { anchor.current = view }} id={props.id} className={cx('vx-select-trigger', props.isDisabled && 'vx-select--disabled', props.isReadOnly && 'vx-select--readonly', state.busy && 'vx-select--loading', props.className)} style={props.style} disabled={props.isDisabled} onPress={() => state.setOpen(!state.open)} accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label} accessibilityHint={props.accessibilityHint} accessibilityState={{ disabled: props.isDisabled }} accessibilityValue={state.triggerText}>
 			<label className={cx('vx-select-value', !state.selected.length && 'vx-select-placeholder')} text={state.triggerText} />
 			{props.hasClear && state.selected.length && !state.blocked ? <Pressable className="vx-select-clear" disabled={state.pending} accessibilityLabel="Clear selection" onPress={state.clear}><label text="×" /></Pressable> : null}
 			{state.busy ? <label className="vx-select-loading" text="Loading…" accessibilityLiveRegion={'polite' as any} /> : null}
@@ -30,7 +30,7 @@ export function Select(inputProps: SelectProps) @{
 		</Pressable>
 		<Popover anchor={anchor} open={state.open} placement={props.placement ?? 'bottom'} onDismiss={() => state.setOpen(false)} className="vx-menu">
 			{props.searchable ? <flexboxlayout className="vx-select-search-row" flexDirection="row">
-				<FieldProvider value={null}><TextInput id={props.id ? `${props.id}-search` : undefined} className="vx-select-search" value={state.query} placeholder={props.searchPlaceholder ?? 'Search…'} accessibilityLabel="Search options" bind={(handle: any) => { search.current = handle; if (!didFocus.current) { didFocus.current = true; handle.focus() } }} onChange={state.setQuery} /></FieldProvider>
+				<FieldProvider value={null}><TextInput id={props.id ? `${props.id}-search` : undefined} className="vx-select-search" value={state.query} placeholder={props.searchPlaceholder ?? 'Search…'} accessibilityLabel="Search options" ref={(handle: any) => { search.current = handle; if (!handle || didFocus.current) return; didFocus.current = true; handle.focus() }} onChange={state.setQuery} /></FieldProvider>
 				{state.query ? <Pressable className="vx-select-search-clear" accessibilityLabel="Clear search" onPress={() => { state.setQuery(''); search.current?.focus?.() }}><label text="×" /></Pressable> : null}
 			</flexboxlayout> : null}
 			{props.multiple && props.hasSelectAll ? <Pressable id={props.id ? `${props.id}-select-all` : undefined} className="vx-select-all" disabled={state.pending || !state.enabled.length} accessibilityLabel={`${props.selectAllLabel ?? 'Select all'}, ${state.selectAllState}`} onPress={state.selectAll}><MultiInd state={state.selectAllState} /><label text={props.selectAllLabel ?? 'Select all'} /></Pressable> : null}

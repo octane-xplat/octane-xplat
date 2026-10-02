@@ -1,3 +1,5 @@
+import type { Octane } from 'octane/jsx-runtime'
+
 export interface LayoutChildProps {
 	row?: number
 	col?: number
@@ -93,7 +95,7 @@ export interface VideoProps extends LayoutChildProps, AccessibilityProps {
 	/** Frame shown until playback starts. */
 	poster?: string
 	/** Controlled playback — pair with `onPlayingChange`. Leave unset for
-	 *  uncontrolled playback (the transport and `bind` handle still work). */
+	 *  uncontrolled playback (the transport and `ref` handle still work). */
 	playing?: boolean
 	/** Uncontrolled start-playing shorthand. Browsers block unmuted
 	 *  autoplay — pair with `muted` when `autoPlay` matters on web. */
@@ -117,7 +119,7 @@ export interface VideoProps extends LayoutChildProps, AccessibilityProps {
 	onError?: (e: VideoEvent) => void
 	/** Imperative handle — play/pause/seek/time plus `native` for anything
 	 *  the shared props don't cover. */
-	bind?: (h: VideoHandle) => void
+	ref?: Octane.Ref<VideoHandle>
 	/** Platform escape hatches, applied after the shared props. */
 	ios?: Record<string, any>
 	android?: Record<string, any>

@@ -1,3 +1,4 @@
+import { useMemo } from 'octane'
 import type { IndicatorProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { applyWebProps } from './platformProps.web';
@@ -8,10 +9,12 @@ import { applyWebProps } from './platformProps.web';
 export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 	const size = props.size ?? 'md';
 
+	const forwardedRef = useMemo(() => [(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	@if (props.children != null) {
 		<span
 			id={props.id}
-			ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+			ref={forwardedRef}
 			className={['vx-ind-check-slot', `vx-ind-check-slot--${size}`, props.className]}
 			style={props.style}
 			aria-hidden="true"
@@ -21,7 +24,7 @@ export function CheckIndicator(props: IndicatorProps<'singleSelection'>) @{
 	} @else if (props.state === 'checked') {
 		<span
 			id={props.id}
-			ref={(e: any) => { if (e) { applyEscapeProps(e, props); applyWebProps(e, props.web); props.bind?.(e); } }}
+			ref={forwardedRef}
 			className={['vx-ind-check', `vx-ind-check--${size}`, props.isDisabled ? 'vx-ind-check--disabled' : undefined, props.className]}
 			style={props.style}
 			aria-hidden="true"

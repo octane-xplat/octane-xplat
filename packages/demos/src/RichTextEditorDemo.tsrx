@@ -25,7 +25,7 @@ const TOOLBAR: { label: string; format?: any; call?: string }[] = [
 	{ label: '↻', call: 'redo' },
 ];
 
-/** Aztec-backed editor demo — toolbar calls go through the `bind` handle;
+/** Aztec-backed editor demo — toolbar calls go through the `ref` handle;
  *  selection changes show the active-format set. */
 export function RichTextEditorDemo() @{
 	const editor = useRef<RichTextEditorHandle | null>(null);
@@ -69,9 +69,7 @@ export function RichTextEditorDemo() @{
 			}}
 			onFocus={() => console.log('[probe] richtext focus')}
 			onBlur={() => console.log('[probe] richtext blur')}
-			bind={(h) => {
-				editor.current = h;
-			}}
+			ref={editor}
 		/>
 		<HStack className="flex-wrap gap-2">
 			{TOOLBAR.map((item) => (

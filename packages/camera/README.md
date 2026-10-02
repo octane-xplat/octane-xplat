@@ -15,14 +15,16 @@ import { CameraView } from '@octane-xplat/camera'
 	active={streaming} // default true — false releases the session
 	onReady={() => console.log('preview running')}
 	onError={(e) => console.log(e.message)}
-	bind={(h) => (handle = h)} // h.native is the preview surface
+	ref={(h) => {
+		handle = h
+	}} // h.native is the preview surface
 />
 ```
 
 This is the preview surface only — for one-shot still capture and library
 picking use [`@octane-xplat/media`](../media/README.md). Permissions are
 requested when the session starts; `onError` is how a denial shows up.
-`bind` hands you the platform surface (`HTMLVideoElement` on web) for
+`ref` hands you the platform surface (`HTMLVideoElement` on web) for
 controls the shared props don't cover, and the `ios`/`android`/`web`
 escape props apply after the shared props.
 

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'octane';
+import { useImperativeHandle, useLayoutEffect, useRef } from 'octane';
 import { normStyle } from './layout-child.web';
 import type { TextAreaProps } from "./props";
 import { applyEscapeProps } from "./escape-props";
@@ -41,12 +41,13 @@ export function TextArea(inputProps: TextAreaProps) @{
 
 	useLayoutEffect(fit, [props.value, props.rows, props.autoGrow, props.maxRows, props.className, props.style]);
 
+	useImperativeHandle(props.ref, () => ({ focus: () => el.current?.focus(), blur: () => el.current?.blur(), native: el.current }), []);
+
 	<textarea
 		ref={(node: any) => {
-			el.current = node;
+				el.current = node;
 			if (!node) return;
 			applyEscapeProps(node, props);
-			props.bind?.({ focus: () => node.focus(), blur: () => node.blur(), native: node });
 		}}
 		id={props.id}
 		className={['vx-textarea', props.isDisabled ? 'vx-textarea--disabled' : undefined, props.isReadOnly ? 'vx-textarea--readonly' : undefined, props.isLoading ? 'vx-textarea--loading' : undefined, props.status ? `vx-textarea--status-${props.status.type}` : undefined, props.size ? `vx-textarea--size-${props.size}` : undefined, props.className]}

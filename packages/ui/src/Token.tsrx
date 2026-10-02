@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { useMemo } from 'octane'
 import { Utils } from '@nativescript/core';
 import type { TokenProps } from "./props";
 import { cx } from "./cx";
@@ -23,6 +24,7 @@ export function Token(props: TokenProps) @{
 			props.onClick?.();
 		}
 	};
+
 	const interactive = !props.isDisabled && (props.onClick != null || props.href != null);
 
 	const content = <>
@@ -49,6 +51,7 @@ export function Token(props: TokenProps) @{
 		props.isDisabled && 'vx-token--disabled',
 		props.className,
 	);
+
 	const a11yState = nativeAccessibilityState({ disabled: props.isDisabled }) as any;
 
 	if (interactive) {
@@ -63,14 +66,16 @@ export function Token(props: TokenProps) @{
 			accessibilityRole={props.href != null ? 'link' : 'button'}
 			ios={props.ios}
 			android={props.android}
-			bind={props.bind}
+			ref={props.ref}
 		>
 			{content}
 		</Pressable>
 	}
 
+	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
+
 	return <flexboxlayout
-		ref={(v: any) => { if (v) { applyEscapeProps(v, props); props.bind?.(v); } }}
+		ref={forwardedRef}
 		id={props.id}
 		className={classes}
 		style={props.style}

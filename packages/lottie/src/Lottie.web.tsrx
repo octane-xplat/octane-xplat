@@ -1,5 +1,5 @@
 import lottie, { type AnimationItem } from 'lottie-web';
-import { useEffect, useRef } from 'octane';
+import { useState, useImperativeHandle, useEffect, useRef } from 'octane';
 import type { LottieHandle, LottieProps } from './props';
 import { applyEscapeProps } from './escape-props.web';
 import { layoutChildProps } from './layout-child.web';
@@ -18,6 +18,7 @@ const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
  *  (lottie-web speaks frames); durations arrive in seconds and are
  *  surfaced as ms. */
 export function Lottie(props: LottieProps) @{
+	const [animation, setAnimation] = useState<AnimationItem | null>(null);
 	const el = useRef<HTMLDivElement | null>(null);
 	const anim = useRef<AnimationItem | null>(null);
 	const ready = useRef(false);
@@ -27,6 +28,7 @@ export function Lottie(props: LottieProps) @{
 	const build = (host: HTMLDivElement) => {
 		anim.current?.destroy();
 		anim.current = null;
+		setAnimation(null);
 		ready.current = false;
 
 		const animationData = props.data ?? (props.src?.startsWith('{') ? JSON.parse(props.src) : undefined);
@@ -44,6 +46,7 @@ export function Lottie(props: LottieProps) @{
 		});
 
 		anim.current = a;
+		setAnimation(a);
 
 		a.addEventListener('DOMLoaded', () => {
 			ready.current = true;
@@ -112,12 +115,13 @@ export function Lottie(props: LottieProps) @{
 		native: a,
 	});
 
+	useImperativeHandle<LottieHandle | null>(props.ref, () => animation ? handle(animation) : null, [animation]);
+
 	<div
 		ref={(v: HTMLDivElement | null) => {
 			el.current = v;
 			if (!v) return;
 			applyEscapeProps(v, props);
-			if (anim.current) props.bind?.(handle(anim.current));
 		}}
 		id={props.id}
 		className={props.className}
