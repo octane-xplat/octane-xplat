@@ -831,3 +831,20 @@ keyboard, focus, disabled/read-only behavior, and lifecycle. This stock-widget
 comparison does not prove shared pixel normalization or justify changing the
 public Switch contract. Switch and the other affected custom controls remain
 parked.
+
+### Investigation completion checks
+
+The priority investigation has runtime cases and recorded owners/remediation
+gates for activation, essential form contracts, layout, content, modal/control
+semantics, and locale formatting. Failed hypotheses remain failed in Silo;
+validated diagnostic remedies do not represent shipped fixes.
+
+The guest's gesture dependency matches the backed-up original by SHA256 after
+restoration. The stable public-root smoke screen was prepared successfully and
+is running in interactive session1: root label renders, native SVG source is
+loaded at24×24 with pending=false, and Code has measured height20. The temporary
+probes remain ignored. Only internal lab notes and the component evidence
+register changed; public docs, recipes, examples, and UI implementation are
+unchanged. No recipe criteria or support claims were relaxed. The169-entry
+inventory validates with the same28 bounded implementations and141 parked
+entries; local Git diff checks pass.
