@@ -14,6 +14,9 @@ allowBuilds:
   '@parcel/watcher': true
   nativescript: true
   '@nativescript/core': false
+# The patch set covers optional leaf deps (tiptap, linkifyjs, …) the starter
+# doesn't install — tolerate entries that apply to nothing.
+allowUnusedPatches: true
 # Framework patches are supplied by the @octane-xplat/patches config dependency and
 # applied via pnpm patchedDependencies. Managed upstream by @octane-xplat/cli (`xplat
 # patches apply` refreshes, `xplat patches check` verifies); do not edit by hand.
