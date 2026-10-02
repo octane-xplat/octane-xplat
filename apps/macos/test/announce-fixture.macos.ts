@@ -6,7 +6,7 @@ declare const NSWindow: any
 declare const NSAccessibilityPriorityLevel: any
 
 const check = (value: boolean, message: string) => {
-	if (!value) throw new Error(message)
+	if (!value) {throw new Error(message)}
 }
 
 setTimeout(() => {
@@ -17,6 +17,7 @@ setTimeout(() => {
 			typeof (globalThis as any).__xplatAppKit?.announce === 'function',
 			'Host did not install announce',
 		)
+
 		check(!app.keyWindow && !app.mainWindow, 'Fixture must begin without an active window')
 		check(announce('Before any window') === undefined, 'announce must return void')
 		announce('')
@@ -30,6 +31,7 @@ setTimeout(() => {
 			2,
 			false,
 		)
+
 		window.releasedWhenClosed = false
 		announce('Window allocated')
 		window.close()
@@ -40,6 +42,7 @@ setTimeout(() => {
 			shared.platformServices.appStateListeners.size === 0,
 			'announce installed a state listener',
 		)
+
 		// Exercise the same termination transition used by AppDelegate.
 		shared.running = false
 		announce('After host termination')
