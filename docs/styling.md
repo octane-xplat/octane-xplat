@@ -1,38 +1,54 @@
 # Styling screens
 
-> Put reusable appearance in CSS classes and tokens; use inline style values
-> only when the value changes while the app runs.
+> Change colors, spacing, fonts, and layout with styles that work on the web
+> and phones.
 
-Give your agent the outcome, not the CSS: “Keep this screen readable at phone
-widths and use the app's colors and spacing.” Start with shared classes and
-tokens, then use [platform variants](module-resolution.md) for a layout that
-needs to differ. The CSS guidance here covers web and NativeScript mobile;
-the [experimental AppKit renderer](../apps/macos/README.md) supports a curated
-set of tokens rather than loading CSS stylesheets.
+**CSS** is how you describe appearance: colors, spacing, borders, and text
+sizes. A **class** groups those choices under a name such as `card` so you
+can reuse them. The starter's `src/style.css` is a place to put app styles.
+
+If you're using an agent, describe the result: “Keep this screen readable
+on a phone, with space between the buttons and a larger title.” The same
+shared styles can serve web, iOS, and Android. Use
+[platform files](module-resolution.md) when a layout needs to differ.
+The experimental macOS AppKit renderer supports a smaller set of named
+styles; see its [current limits](../apps/macos/README.md).
 
 ## The everyday rule
 
-The component fragment below uses `View` and `Text` from `@octane-xplat/ui`.
-Its `card` and `card-title` classes belong to the app stylesheet.
+Use `className` to apply CSS classes to a component. Use `style` for a
+value calculated while the app runs, such as dimming a disabled card.
+The following component can go in a `.tsrx` file. Its `title` and `disabled`
+props are options supplied by the screen using it.
 
 ```tsx
-function Card(props: { title: string; disabled?: boolean }) {
+import { View, Text } from '@octane-xplat/ui'
+
+export function Card(props: { title: string; disabled?: boolean }) {
 	return (
-		<View className="card">
+		<View className="card" style={{ opacity: props.disabled ? 0.5 : 1 }}>
 			<Text className="card-title">{props.title}</Text>
-			<View style={{ opacity: props.disabled ? 0.5 : 1 }} />
 		</View>
 	)
 }
 ```
 
-- `className` is for layout, colors, typography, borders, and other stable
+Add `.card { padding: 16px; }` and `.card-title { font-size: 20px; }` to
+`src/style.css`, then use `<Card title="Packing list" />` inside your screen.
+The title should be larger than ordinary text, with space around it.
+`disabled={true}` dims the whole card.
+
+- `className` is for layout, colors, fonts, borders, and other stable
   choices.
 - `style` is for runtime values such as an animated position or a measured
   size.
 - Shared styles must use properties supported by both targets.
 
 ## Required structure and optional chrome
+
+Xplat has two stylesheets. `tokens.css` provides layout rules the components
+need; `chrome.css` adds optional default colors, borders, and fonts. “Chrome”
+means that visible decoration. The starter already imports `tokens.css`.
 
 Import `@octane-xplat/ui/theme/tokens.css` in every web and native app. It
 provides shared layout classes and browser normalization inside the low-priority
@@ -60,9 +76,13 @@ web-only stripping.
 
 ## Define app tokens
 
-Keep colors, spacing, and type sizes in tokens instead of repeating raw values
-through every component. A theme can then change the whole app without
-rewriting screens.
+A **token** is a named style value. For example, `--color-surface` can name
+the background color you use on cards. Changing it updates every style that
+uses that name, so you don't have to find and replace the color in each card.
+
+Add these rules to your app stylesheet. `:root` selects the browser root;
+`.ns-root` selects the NativeScript root. Using both lets the variables apply
+on web and phones.
 
 ```css
 :root,
@@ -81,12 +101,16 @@ rewriting screens.
 
 If the app omits `chrome.css`, define any color or type variables its own
 stylesheet uses. Use the starter's [web entry](../packages/create/template/src/main.web.tsrx)
-and [native entry](../packages/create/template/src/index.ts) as the baseline
+and [native entry](../packages/create/template/src/main.ts) as the baseline
 setup. Change `--color-surface` and check the card background on both targets;
 a native card that stays unchanged suggests a missing entry import or root
 selector.
 
 ## Use Bamboo CSS utilities
+
+This is optional; you can keep writing ordinary CSS. **Utilities** are small
+classes for individual choices such as padding or text color. Bamboo generates
+those classes from your code.
 
 [`@octane-xplat/bamboo`](../packages/bamboo/) provides a restricted Bamboo
 preset for shared web/iOS/Android styles. It disables browser preflight, puts
@@ -166,7 +190,7 @@ Geist assets and license, registers weighted descriptors, and explicitly sets
 the owning root's default family. Custom assets must also be included in a
 packaged app; the harness embeds its font bytes and license in the host bundle.
 
-## Keep layouts honest
+## Check layouts at different sizes
 
 Flex layouts are the safest common starting point. Prefer `HStack`, `View`, and
 spacing classes over target-specific positioning. Check a screen at a narrow

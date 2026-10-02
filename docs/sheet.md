@@ -1,19 +1,22 @@
 # Platform modal bottom sheets
 
-> Present an octane subtree inside a platform-specific modal bottom sheet
-> through an explicit package entry point.
+> Open a panel above the current screen using the platform's own presentation.
 
-`@octane-xplat/sheet` is the fourth Expo UI port and exercises the hardest
-bridge seam: a detached octane root hosted inside a _modal presentation in
-a separate window_ — a SwiftUI `.sheet` on iOS, a `ModalBottomSheet`
-dialog on Android, a fixed DOM panel on web. Native implementations are
-adapted from `@expo/ui` sdk-57 (`ios/BottomSheetView.swift`,
-`android/.../ui/ModalBottomSheetView.kt`; MIT — attribution headers on the
-ported files).
+A **bottom sheet** is a panel that opens from the bottom of a screen, often
+for extra actions or a short form. Start with the shared `BottomSheet`
+from `@octane-xplat/ui` for a common appearance; see
+[temporary panels](primitives.md#own-temporary-surfaces).
+
+Use the optional `@octane-xplat/sheet` package when you want the platform's
+own presentation. The iOS and Android panels use their native UI systems;
+macOS uses a window sheet, and web uses a fixed panel. Each has its own name
+and options, so keep it in a matching [platform file](module-resolution.md).
+The example is a screen fragment with an `open` state value and `setOpen`
+callback supplied by your app.
 
 ## Install and import
 
-Add `@octane-xplat/sheet` to the app that renders a control. Import the
+Run `pnpm add @octane-xplat/sheet` from your app folder. Import the
 platform-specific component from the matching target entry:
 
 - `SwiftUIBottomSheet` from `@octane-xplat/sheet/ios` in `.ios.ts` or `.ios.tsrx`.
@@ -39,9 +42,12 @@ platform-specific component from the matching target entry:
 
 ## Content is a render fn
 
-`content` produces an octane subtree that mounts into a detached
-`createNativeScriptRoot` host — the same mechanism as the context-menu
-trigger:
+Supply `content` as a function that returns the components to show in the
+panel. “Render fn” means that content-producing function. Buttons inside
+it can call your callbacks, such as `setOpen(false)` to close the panel.
+
+On native, the content is drawn in a separate Octane root: its own UI
+container inside the sheet. These details explain the implementation:
 
 - iOS resolves the registered view through `NativeScriptViewFactory` and
   places it inside `.sheet` content.
@@ -52,6 +58,10 @@ The hosted subtree keeps its own event handling — `onPress` inside the
 sheet content reaches JS normally and can drive `open` back to `false`.
 
 ## Open state is controlled
+
+Your app decides whether the panel is open by supplying `open`. Update that
+value when opening it or when `onDismissed` reports that someone closed it.
+This is a **controlled** component.
 
 - `open` controls presentation on all entries.
 - `onDismissed` fires when the platform dismisses — swipe-down or
@@ -83,6 +93,11 @@ sheet content reaches JS normally and can drive `open` back to `false`.
   its own octane root inside the sheet window via `createMacOSRoot`.
 
 ## Port notes — what carried over
+
+These sections are implementation notes for contributors. Native code is
+adapted from `@expo/ui` sdk-57 (`ios/BottomSheetView.swift` and
+`android/.../ui/ModalBottomSheetView.kt`), under the MIT license.
+Attribution headers are retained in the source files.
 
 - iOS: `isPresented` + `onIsPresentedChange`/`onDismiss` event pair, the
   `fitToContents` PreferenceKey size-reader and `.presentationDetents`

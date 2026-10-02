@@ -1,5 +1,14 @@
 # Run a macOS app in WKWebView
 
+> Display your web screens inside an experimental macOS desktop app.
+
+This guide assumes you already have the experimental
+[macOS app setup](toolchain.md#experimental-appkit-target). For a first app,
+start with [the browser guide](toolchain.md#create-and-run).
+**WKWebView** is macOS's built-in view for web content. A **frontend** is
+the screen code it displays; the **host** is the native program around it
+that provides device features.
+
 The macOS target can render its DOM frontend in the system WKWebView and keep
 native services in the existing JavaScriptCore + NativeScript host. Select it
 per app with `xplat.targets.macos.renderer: "webview"`; AppKit remains the

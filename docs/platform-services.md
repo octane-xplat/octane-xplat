@@ -1,7 +1,11 @@
 # Using device features
 
-> Save the user's work, attach a photo, share content, or open a link. Check
-> capability and permission results so the app stays useful on each platform.
+> Save a setting, attach a photo, share a link, or use another device feature.
+
+A **service** lets your code use a feature without drawing a screen itself.
+For example, a storage service remembers a setting and a sharing service
+opens the device's share options. Some features need permission or are not
+available on every platform. Check those results and explain them in the app.
 
 ## Choose a useful feature
 
@@ -30,8 +34,9 @@ shared screens can keep using the same interface.
 ## The shared service shape
 
 Services have the same name on every platform. For example, a screen can use
-storage without knowing whether the value lives in browser storage or a native
-database:
+storage without choosing browser or native storage itself. This example
+saves a setting and reads it back; it can go in a setup function or event
+handler in your app:
 
 ```ts
 import { storage } from '@octane-xplat/platform'
@@ -42,8 +47,8 @@ const seen = storage.getString('has-seen-welcome') // "true"
 
 Other services cover permissions, clipboard, haptics, files, media
 picking, notifications, safe-area insets, screen size, and app lifecycle.
-Services that need a NativeScript plugin ship as leaf packages instead of
-living in `platform` (#72): `@octane-xplat/share` (`share.text`, `share.url`),
+A **leaf package** is an add-on installed separately for a feature. Features
+that need a NativeScript plugin live in these packages: `@octane-xplat/share` (`share.text`, `share.url`),
 `@octane-xplat/files`, `@octane-xplat/media`, `@octane-xplat/biometrics`,
 `@octane-xplat/geolocation`, `@octane-xplat/notifications`,
 `@octane-xplat/secure-storage`, and the `haptics` service in
@@ -227,7 +232,13 @@ failures; they do not qualify camera hardware or native permission dialogs.
 
 ## Passkeys and auth ceremonies
 
-Two services cover sign-in (decision #66). On web, `webAuthn` runs the
+A **passkey** lets someone sign in using their device instead of a password.
+An **auth ceremony** is the exchange that verifies that sign-in. This is an
+advanced integration: it needs a backend (your server) that verifies the
+result, plus registered return URLs. A popup returning successfully does not
+by itself prove someone is signed in.
+
+Two services cover sign-in. On web, `webAuthn` runs the
 WebAuthn ceremony in-page: pass the relying party's JSON options
 (better-auth/SimpleWebAuthn shape, base64url fields) to `create()` or `get()`
 and post the returned JSON credential back. On native, `webAuthn` is
@@ -393,8 +404,15 @@ the user declines it.
 
 ## Local database
 
-Structured persistence lives in its own leaf rather than the platform
-package — `@octane-xplat/sqlite` is the same async API on web and native:
+For a few settings, use `storage`. For structured records you need to search,
+such as saved trips and their packing items, use a **database**. SQLite stores
+those records in tables, and SQL is the language used to read and change them.
+This section assumes you know basic SQL or are working with an agent that
+can help create the tables and queries.
+
+Install `@octane-xplat/sqlite` separately. It provides the same asynchronous
+API on web and native: calls use `await` because they can take time to finish.
+The following fragment creates a table and reads its rows:
 
 ```ts
 import { openDatabase, supported } from '@octane-xplat/sqlite'

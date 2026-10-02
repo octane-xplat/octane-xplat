@@ -1,26 +1,30 @@
-# Media Services
+# Audio and haptics
 
-> Add advanced haptics, short UI sounds, or long-form playback as separate
-> optional packages; check each target's capability report before relying on
-> platform behavior.
+> Play a sound, add vibration feedback, or play a queue of audio tracks.
 
-Choose the outcome first: a short sound after saving, tactile feedback for an
-action, or playback that continues through a queue. Ask your agent to handle
-unsupported features visibly and check the platform table for that package.
+**Haptics** are physical feedback from a device, such as a short vibration
+after an action. UI sounds are short effects; long-form audio covers music,
+podcasts, or other tracks with playback controls.
+
+These are optional features installed as separate packages. Decide what the
+app should do when a device can't provide one. For example, a successful save
+should still show a message even when vibration is unavailable. If you're
+using an agent, include that in your request.
 For [still capture](platform-services.md) or a
 [live camera preview](primitives.md#when-a-screen-needs-more), use their separate guides.
-The media support described here does not imply five-target parity.
+Check the support table for each feature and platform you use.
 
-Install only the service packages the app uses:
+From your app folder, install the package for the feature you need:
 
-```sh
-pnpm add @octane-xplat/haptics @octane-xplat/sounds @octane-xplat/audio
-```
+| Feature                            | Command                          |
+| ---------------------------------- | -------------------------------- |
+| Advanced vibration patterns        | `pnpm add @octane-xplat/haptics` |
+| Short sound effects                | `pnpm add @octane-xplat/sounds`  |
+| Audio tracks and playback controls | `pnpm add @octane-xplat/audio`   |
 
-The packages own their npm and Android plugin dependencies; NativeScript iOS
-still needs app-level Pulsar Swift package and source configuration. No new
-dependency is added to `@octane-xplat/ui`, and the existing
-`@octane-xplat/platform` basic haptics API does not change. The two
+The packages include their JavaScript and Android plugin dependencies.
+Advanced haptics on iOS also needs the Pulsar Swift package and source
+configuration described below. Pulsar supplies its native vibration features. The two
 haptics APIs serve different needs: `platform.haptics` keeps impact,
 notification, and selection feedback; `@octane-xplat/haptics` adds named
 presets, timed patterns, gesture-driven control, cancellation, and capability

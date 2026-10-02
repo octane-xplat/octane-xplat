@@ -2,7 +2,12 @@
 
 > Components exported by `@octane-xplat/ui`, grouped by job.
 
-Guides for the mechanics live elsewhere: [primitives](primitives.md) for
+This is a lookup page; you don't need to learn the whole list. A component
+is a reusable screen piece, and **props** are the options you give it.
+Start with [building a small screen](primitives.md#a-practical-example) if
+you haven't used components yet.
+
+Guides with examples live elsewhere: [primitives](primitives.md) for
 layout/composition, [navigation](navigation.md) for routes and stacks,
 [navigation shells and workspace controls](navigation-ui.md) for responsive
 navigation, tab strips, overflow, and resizing,
@@ -19,8 +24,8 @@ Most components accept `className`/`style`/`id` plus the platform escape props
 intentionally omits styling props so hidden content cannot be accidentally
 made visible through component styling.
 
-Component names follow the Astryx catalog where the concepts overlap. Prop
-contracts continue to be documented here as cross-platform parity work lands.
+Some names follow the Astryx component library. Options and platform support
+can change as Xplat develops; check the guide for a component you rely on.
 The content-display family and its platform limits are covered in
 [Content display](content-display.md).
 
@@ -37,22 +42,22 @@ insets from container tokens on web only.
 
 ## Layout
 
-| Component          | What it is                                 | Key props                                  |
-| ------------------ | ------------------------------------------ | ------------------------------------------ |
-| `View`             | Base container                             |                                            |
-| `Stack`            | Flow flex container; vertical by default   | `direction`, `hAlign`, `vAlign`, `gap`, `padding`, `wrap`, `isScrollable` |
-| `HStack`            | Horizontal `Stack`                         | `hAlign`, `vAlign`, `gap`                  |
-| `VStack`            | Vertical `Stack`                           | `hAlign`, `vAlign`, `gap`                  |
-| `StackItem`        | Child sizing/alignment override in `Stack` | `size`, `crossAlignSelf`, `isScrollable`   |
-| `Grid`             | Grid container                             |                                            |
-| `Absolute`         | Absolutely-positioned layer                |                                            |
-| `Center`           | Centers children on one or both axes       | `axis`, `isInline`                         |
-| `Section`          | Banded content with padding and dividers   | `variant`, `dividers`, `padding`           |
-| `AspectRatio`      | Constrains child box to a width/height ratio | `ratio`, `shape`, `fit`                  |
-| `VisuallyHidden`   | Keeps content available to assistive technology | `as` (web tag)                         |
-| `Spacer`           | Flexible gap filler                        |                                            |
-| `SafeArea`         | Insets-aware container                     |                                            |
-| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere | |
+| Component          | What it is                                                                                 | Key props                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `View`             | Base container                                                                             |                                                                           |
+| `Stack`            | Flow flex container; vertical by default                                                   | `direction`, `hAlign`, `vAlign`, `gap`, `padding`, `wrap`, `isScrollable` |
+| `HStack`           | Horizontal `Stack`                                                                         | `hAlign`, `vAlign`, `gap`                                                 |
+| `VStack`           | Vertical `Stack`                                                                           | `hAlign`, `vAlign`, `gap`                                                 |
+| `StackItem`        | Child sizing/alignment override in `Stack`                                                 | `size`, `crossAlignSelf`, `isScrollable`                                  |
+| `Grid`             | Grid container                                                                             |                                                                           |
+| `Absolute`         | Absolutely-positioned layer                                                                |                                                                           |
+| `Center`           | Centers children on one or both axes                                                       | `axis`, `isInline`                                                        |
+| `Section`          | Banded content with padding and dividers                                                   | `variant`, `dividers`, `padding`                                          |
+| `AspectRatio`      | Constrains child box to a width/height ratio                                               | `ratio`, `shape`, `fit`                                                   |
+| `VisuallyHidden`   | Keeps content available to assistive technology                                            | `as` (web tag)                                                            |
+| `Spacer`           | Flexible gap filler                                                                        |                                                                           |
+| `SafeArea`         | Insets-aware container                                                                     |                                                                           |
+| `KeyboardAvoiding` | Shifts content above the keyboard on iOS/Android; keeps a neutral column wrapper elsewhere |                                                                           |
 
 ## Text
 
@@ -84,44 +89,44 @@ Its `size` and disabled state flow to member controls. On web, the group uses
 `role="group"` and its label; NativeScript renders a grouped row without a
 matching accessibility group role.
 
-| Component                            | What it is                                       | Key props                                                   |
-| ------------------------------------ | ------------------------------------------------ | ----------------------------------------------------------- |
-| `TextInput`, `TextArea`              | One- and multi-line text entry                   | `value`, `onChange`, `label`, `description`                 |
-| `SearchInput`                        | Search field with clear button                   | `value`, `onSubmit`, `hasClear`, `onClear`                  |
-| `FormLayout`                         | Arranges labeled fields                          | `direction`, `defaultOptionality`                           |
-| `InputGroup`, `InputGroupText`       | Joins a labeled control with prefix/suffix text  | `label`, `size`                                              |
-| `PowerSearch`                        | Structured field/operator/value filters          | `config`, `filters`, `onChange`, `components`               |
-| `Button`                             | Labeled action                                    | `label`, `variant`, `size`, `isDisabled`, `isLoading`, `clickAction`, `href` |
-| `IconButton`                         | Icon-only named action                           | `icon`, `label`, `variant`, `size`                          |
-| `ButtonGroup`                        | Connected action row                              | `label`, `orientation`, `size`, `isDisabled`                |
-| `ToggleButton`, `ToggleButtonGroup`   | Pressed action and toggle group                   | `isPressed`, `value`, `onChange`, `type`                    |
-| `ClickableCard`, `SelectableCard`   | Action/navigation card or controlled selection  | `label`, `href`, `isSelected`, `onChange`                  |
-| `MoreMenu`                           | Icon-only overflow menu                            | `items`, `label`, `placement`, `alignment`                 |
-| `DateInput`, `TimeInput`             | ISO date or wall-clock time fields with adaptive picker surfaces | `value`, `onChange`, `min`, `max`, `presentation` |
-| `DateTimeInput`                      | Combined ISO local date-time field                | `value`, `onChange`, `min`, `max`, `presentation` |
-| `Calendar`                           | Single-date or inclusive range calendar           | `mode`, `value`, `numberOfMonths`, `dateConstraints` |
-| `DateRangeInput`                     | Labeled range trigger with calendar and presets  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan` |
-| `FileInput`                           | `@octane-xplat/files` picker with input and dropzone modes | `value`, `onChange`, `accept`, `isMultiple`, `maxSize` |
-| `Switch`                             | On/off toggle (self-drawn)                       | `checked`, `onCheckedChange`, `isDisabled`                  |
-| `CheckboxInput`                     | Self-drawn checkbox                              | `checked`, `onCheckedChange`, `isDisabled`                  |
-| `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks | `state`, `size`, `isDisabled` |
-| `CheckboxList`                      | Self-drawn multi-select list                     | `options`, `onValueChange`, `isDisabled`                    |
-| `RadioList`                         | Self-drawn radio options                         | `options`, `value`, `onValueChange`, `isDisabled`           |
-| `SegmentedControl`                  | Inline option segments                           | `options`, `value`, `onValueChange`, `isDisabled`           |
-| `Slider`                             | Value scrubber (self-drawn)                      | `value`, `minValue`, `maxValue`, `onValueChange`            |
-| `Selector`                | Single-option picker                       | `options`, `value`, `searchable`, `isDisabled`              |
-| `MultiSelector`       | Multiple-option picker                     | `options`, `value`, `searchable`, `isDisabled`              |
-| `Typeahead`                          | Searchable single selection field                  | `searchSource`, `value`, `onChange`, `hasEntriesOnFocus`    |
-| `Tokenizer`                          | Searchable multi-selection token field             | `searchSource`, `value`, `onChange`, `hasCreate`            |
-| `Token`                              | Removable or interactive entity chip               | `label`, `color`, `onRemove`, `onClick`, `href`             |
-| `ComplexSelector`                    | Field trigger with a custom anchored picker surface| `value`, `children`, `changeAction`, `variant`               |
-| `NumberInput`        | Numeric entry with bounds                        | `value`, `min`, `max`, `step`, `onValueChange`              |
-| `PinInput`                           | Fixed-length code/PIN entry                      | `length`, `onValueChange`, `onComplete`, `secure`           |
+| Component                                               | What it is                                                       | Key props                                                                    |
+| ------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `TextInput`, `TextArea`                                 | One- and multi-line text entry                                   | `value`, `onChange`, `label`, `description`                                  |
+| `SearchInput`                                           | Search field with clear button                                   | `value`, `onSubmit`, `hasClear`, `onClear`                                   |
+| `FormLayout`                                            | Arranges labeled fields                                          | `direction`, `defaultOptionality`                                            |
+| `InputGroup`, `InputGroupText`                          | Joins a labeled control with prefix/suffix text                  | `label`, `size`                                                              |
+| `PowerSearch`                                           | Structured field/operator/value filters                          | `config`, `filters`, `onChange`, `components`                                |
+| `Button`                                                | Labeled action                                                   | `label`, `variant`, `size`, `isDisabled`, `isLoading`, `clickAction`, `href` |
+| `IconButton`                                            | Icon-only named action                                           | `icon`, `label`, `variant`, `size`                                           |
+| `ButtonGroup`                                           | Connected action row                                             | `label`, `orientation`, `size`, `isDisabled`                                 |
+| `ToggleButton`, `ToggleButtonGroup`                     | Pressed action and toggle group                                  | `isPressed`, `value`, `onChange`, `type`                                     |
+| `ClickableCard`, `SelectableCard`                       | Action/navigation card or controlled selection                   | `label`, `href`, `isSelected`, `onChange`                                    |
+| `MoreMenu`                                              | Icon-only overflow menu                                          | `items`, `label`, `placement`, `alignment`                                   |
+| `DateInput`, `TimeInput`                                | ISO date or wall-clock time fields with adaptive picker surfaces | `value`, `onChange`, `min`, `max`, `presentation`                            |
+| `DateTimeInput`                                         | Combined ISO local date-time field                               | `value`, `onChange`, `min`, `max`, `presentation`                            |
+| `Calendar`                                              | Single-date or inclusive range calendar                          | `mode`, `value`, `numberOfMonths`, `dateConstraints`                         |
+| `DateRangeInput`                                        | Labeled range trigger with calendar and presets                  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan`               |
+| `FileInput`                                             | `@octane-xplat/files` picker with input and dropzone modes       | `value`, `onChange`, `accept`, `isMultiple`, `maxSize`                       |
+| `Switch`                                                | On/off toggle (self-drawn)                                       | `checked`, `onCheckedChange`, `isDisabled`                                   |
+| `CheckboxInput`                                         | Self-drawn checkbox                                              | `checked`, `onCheckedChange`, `isDisabled`                                   |
+| `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks                                       | `state`, `size`, `isDisabled`                                                |
+| `CheckboxList`                                          | Self-drawn multi-select list                                     | `options`, `onValueChange`, `isDisabled`                                     |
+| `RadioList`                                             | Self-drawn radio options                                         | `options`, `value`, `onValueChange`, `isDisabled`                            |
+| `SegmentedControl`                                      | Inline option segments                                           | `options`, `value`, `onValueChange`, `isDisabled`                            |
+| `Slider`                                                | Value scrubber (self-drawn)                                      | `value`, `minValue`, `maxValue`, `onValueChange`                             |
+| `Selector`                                              | Single-option picker                                             | `options`, `value`, `searchable`, `isDisabled`                               |
+| `MultiSelector`                                         | Multiple-option picker                                           | `options`, `value`, `searchable`, `isDisabled`                               |
+| `Typeahead`                                             | Searchable single selection field                                | `searchSource`, `value`, `onChange`, `hasEntriesOnFocus`                     |
+| `Tokenizer`                                             | Searchable multi-selection token field                           | `searchSource`, `value`, `onChange`, `hasCreate`                             |
+| `Token`                                                 | Removable or interactive entity chip                             | `label`, `color`, `onRemove`, `onClick`, `href`                              |
+| `ComplexSelector`                                       | Field trigger with a custom anchored picker surface              | `value`, `children`, `changeAction`, `variant`                               |
+| `NumberInput`                                           | Numeric entry with bounds                                        | `value`, `min`, `max`, `step`, `onValueChange`                               |
+| `PinInput`                                              | Fixed-length code/PIN entry                                      | `length`, `onValueChange`, `onComplete`, `secure`                            |
 
-| `InputRating`                        | Tappable 1..max rating row                       | `value`, `max`, `icon`, `onValueChange`                     |
-| `Chip`                               | Selectable/removable chip                        | `selected`, `onSelect`, `onRemove`                          |
-| `Field`, `FieldGroup`  | Labeled field wrapper / labeled field group      | `label`, `description`, `inputID`, `isRequired`, `isOptional`, `status` |
-| `Item`                  | Settings-style row                               | `title`, `supportingText`, `leading`, `trailing`, `onPress` |
+| `InputRating` | Tappable 1..max rating row | `value`, `max`, `icon`, `onValueChange` |
+| `Chip` | Selectable/removable chip | `selected`, `onSelect`, `onRemove` |
+| `Field`, `FieldGroup` | Labeled field wrapper / labeled field group | `label`, `description`, `inputID`, `isRequired`, `isOptional`, `status` |
+| `Item` | Settings-style row | `title`, `supportingText`, `leading`, `trailing`, `onPress` |
 
 Date controls use portable ISO strings: `YYYY-MM-DD`, `HH:MM[:SS]`, and
 `YYYY-MM-DDTHH:MM[:SS]`. Date-time strings have no timezone suffix; they
@@ -144,27 +149,27 @@ for platform details and AppKit file-access limits.
 
 ## Content
 
-| Component        | What it is                                  | Key props                                  |
-| ---------------- | ------------------------------------------- | ------------------------------------------ |
-| `Card`           | Container with header/footer slots          | `header`, `footer`                         |
-| `ClickableCard`  | Named action or link surface                 | `label`, `onPress`, `href`, `isDisabled`   |
-| `SelectableCard` | Controlled checked card                     | `label`, `isSelected`, `onChange`          |
-| `Alert`          | Inline callout                              | `tone`, `icon`, `title`                    |
-| `Banner`         | Notice strip with optional dismiss          | `icon`, `onDismiss`                        |
-| `EmptyState` | Empty-state block (icon + title + actions) | `icon`, `title`, `description`       |
-| `Badge`          | Inline label chip                           |                                            |
-| `Avatar`         | Circular image with text fallback           | `src`, `fallback`, `size`                  |
-| `AvatarGroup`    | Overlapping avatar row with `+N` overflow   | `max`, `size`                              |
-| `User`           | Avatar + name/description row               | `name`, `description`, `src`, `onSelect`   |
-| `Icon`           | Registered icon glyph                       | `name`, `size`, `color`                    |
-| `Image`          | Image                                       | `src`, `alt`                               |
-| `Thumbnail`      | Square image preview with optional remove action | `src`, `alt`, `isLoading`, `onPress`, `onRemove` |
-| `Blockquote`     | Quoted content with optional attribution    | `cite`                                     |
-| `Code`           | Inline monospace text                       | `color`, `size`                            |
+| Component        | What it is                                         | Key props                                              |
+| ---------------- | -------------------------------------------------- | ------------------------------------------------------ |
+| `Card`           | Container with header/footer slots                 | `header`, `footer`                                     |
+| `ClickableCard`  | Named action or link surface                       | `label`, `onPress`, `href`, `isDisabled`               |
+| `SelectableCard` | Controlled checked card                            | `label`, `isSelected`, `onChange`                      |
+| `Alert`          | Inline callout                                     | `tone`, `icon`, `title`                                |
+| `Banner`         | Notice strip with optional dismiss                 | `icon`, `onDismiss`                                    |
+| `EmptyState`     | Empty-state block (icon + title + actions)         | `icon`, `title`, `description`                         |
+| `Badge`          | Inline label chip                                  |                                                        |
+| `Avatar`         | Circular image with text fallback                  | `src`, `fallback`, `size`                              |
+| `AvatarGroup`    | Overlapping avatar row with `+N` overflow          | `max`, `size`                                          |
+| `User`           | Avatar + name/description row                      | `name`, `description`, `src`, `onSelect`               |
+| `Icon`           | Registered icon glyph                              | `name`, `size`, `color`                                |
+| `Image`          | Image                                              | `src`, `alt`                                           |
+| `Thumbnail`      | Square image preview with optional remove action   | `src`, `alt`, `isLoading`, `onPress`, `onRemove`       |
+| `Blockquote`     | Quoted content with optional attribution           | `cite`                                                 |
+| `Code`           | Inline monospace text                              | `color`, `size`                                        |
 | `CodeBlock`      | Syntax-colored code with copy and collapse actions | `code`, `language`, `hasLineNumbers`, `highlightLines` |
-| `Citation`       | Source label or numbered source link        | `source`, `number`, `variant`              |
-| `Skeleton`       | Loading placeholder block                   | `width`, `height`                          |
-| `Divider` | Hairline rule                         | `orientation`                              |
+| `Citation`       | Source label or numbered source link               | `source`, `number`, `variant`                          |
+| `Skeleton`       | Loading placeholder block                          | `width`, `height`                                      |
+| `Divider`        | Hairline rule                                      | `orientation`                                          |
 
 Indicators draw the selection mark; the owning control keeps focus,
 interaction, and accessibility semantics. `registerIndicator` and
@@ -173,28 +178,28 @@ target.
 
 ## Disclosure & navigation
 
-| Component         | What it is                                     | Key props                                  |
-| ----------------- | ---------------------------------------------- | ------------------------------------------ |
-| `Collapsible`     | Show/hide a region                             | `trigger`, `open`, `onOpenChange`          |
-| `Accordion`       | List of expanding items                        | `items`, `multiple`, `open`, `onOpenChange` |
-| `Tabs`            | Route-stack switcher with tab panes             | `tabs`, `selectedIndex`, `onSelectedIndexChanged` |
-| `TabList`, `Tab`, `TabMenu` | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled` |
-| `AppShell`        | Top, side, and mobile navigation frame         | `topNav`, `sideNav`, `banner`, `mobileNav` |
-| `TopNav`, `TopNavHeading`, `TopNavItem` | Top navigation bar and items | `heading`, `startContent`, `endContent`, `href` |
-| `SideNav`, `SideNavSection`, `SideNavItem` | Collapsible side rail with grouped items | `collapsible`, `resizable`, `isSelected` |
-| `MobileNav`, `MobileNavToggle` | Mobile navigation drawer and toggle | `isOpen`, `onOpenChange`, `side`, `width` |
-| `NavIcon`         | Circular icon container for navigation         | `icon`                                     |
-| `NavHeadingMenu`, `NavHeadingMenuItem` | Keyboard-operable heading menu | `label`, `description`, `href`, `isDisabled` |
-| `Toolbar`         | Labeled action row with start/center/end slots | `label`, `orientation`, `dividers`         |
-| `OverflowList`    | Responsive list that collapses excess items    | `overflowRenderer`, `maxVisibleItems`, `onOverflowChange` |
-| `useResizable`, `ResizeHandle` | Bounded, optionally persistent panel resizing | `defaultSize`, `minSize`, `maxSize`, `autoSaveId` |
-| `Breadcrumbs` | Ancestor path trail                    | `items`, `separator`                       |
-| `Pagination`      | Prev/next + windowed page buttons              | `page`, `pageCount`, `onPageChange`        |
-| `Stepper`         | Multi-step progress/flow control               | `steps`, `current`, `onStepChange`         |
-| `NavigationMenu`  | Simple item-array navigation strip             | `items`, `horizontal`, `href`              |
-| `CommandPalette`  | Searchable action palette                      | `open`, `items`, `placeholder`             |
-| `DropdownMenu`    | Anchored action menu                           | `trigger`, `items`, `placement`            |
-| `ContextMenu`     | Secondary-press action menu                    | `items`, `open`, `onOpenChange`            |
+| Component                                  | What it is                                               | Key props                                                 |
+| ------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------- |
+| `Collapsible`                              | Show/hide a region                                       | `trigger`, `open`, `onOpenChange`                         |
+| `Accordion`                                | List of expanding items                                  | `items`, `multiple`, `open`, `onOpenChange`               |
+| `Tabs`                                     | Route-stack switcher with tab panes                      | `tabs`, `selectedIndex`, `onSelectedIndexChanged`         |
+| `TabList`, `Tab`, `TabMenu`                | Navigation strip or controlled tab strip + overflow menu | `value`, `onChange`, `role`, `href`, `isDisabled`         |
+| `AppShell`                                 | Top, side, and mobile navigation frame                   | `topNav`, `sideNav`, `banner`, `mobileNav`                |
+| `TopNav`, `TopNavHeading`, `TopNavItem`    | Top navigation bar and items                             | `heading`, `startContent`, `endContent`, `href`           |
+| `SideNav`, `SideNavSection`, `SideNavItem` | Collapsible side rail with grouped items                 | `collapsible`, `resizable`, `isSelected`                  |
+| `MobileNav`, `MobileNavToggle`             | Mobile navigation drawer and toggle                      | `isOpen`, `onOpenChange`, `side`, `width`                 |
+| `NavIcon`                                  | Circular icon container for navigation                   | `icon`                                                    |
+| `NavHeadingMenu`, `NavHeadingMenuItem`     | Keyboard-operable heading menu                           | `label`, `description`, `href`, `isDisabled`              |
+| `Toolbar`                                  | Labeled action row with start/center/end slots           | `label`, `orientation`, `dividers`                        |
+| `OverflowList`                             | Responsive list that collapses excess items              | `overflowRenderer`, `maxVisibleItems`, `onOverflowChange` |
+| `useResizable`, `ResizeHandle`             | Bounded, optionally persistent panel resizing            | `defaultSize`, `minSize`, `maxSize`, `autoSaveId`         |
+| `Breadcrumbs`                              | Ancestor path trail                                      | `items`, `separator`                                      |
+| `Pagination`                               | Prev/next + windowed page buttons                        | `page`, `pageCount`, `onPageChange`                       |
+| `Stepper`                                  | Multi-step progress/flow control                         | `steps`, `current`, `onStepChange`                        |
+| `NavigationMenu`                           | Simple item-array navigation strip                       | `items`, `horizontal`, `href`                             |
+| `CommandPalette`                           | Searchable action palette                                | `open`, `items`, `placeholder`                            |
+| `DropdownMenu`                             | Anchored action menu                                     | `trigger`, `items`, `placement`                           |
+| `ContextMenu`                              | Secondary-press action menu                              | `items`, `open`, `onOpenChange`                           |
 
 `Tabs` hosts named route stacks from `TabSpec`; `TabList` is the smaller
 navigation or page-tab strip for caller-owned content. Use `TabList` without
@@ -206,29 +211,29 @@ boundaries, overflow, and resizing.
 
 ## Data display
 
-| Component       | What it is                              | Key props                                       |
-| --------------- | --------------------------------------- | ----------------------------------------------- |
-| `List`          | Non-virtual content list                | `listStyle`, `density`, `hasDividers`, `start`  |
-| `ListItem`      | Labeled row inside `List`               | `label`, `description`, `startContent`, `endContent`, `onPress`, `href` |
-| `Table`         | Columnar rows                           | `columns`, `rows`, `renderCell`, `onRowPress`   |
-| `TreeList` | Expandable node hierarchy            | `nodes`, `defaultExpanded`, `onToggle`, `onSelect` |
-| `Timeline`      | Vertical event list (dot + connector)   | `items`                                         |
-| `ProgressGroup` | Stacked labeled `Meter` rows            | `items`                                         |
-| `Meter`         | Gauge/dash ring                         | `value`, `max`, `strokeWidth`                   |
-| `ProgressBar`   | Linear determinate or indeterminate progress | `value`, `max`, `label`, `marks`             |
-| `MetadataList`, `MetadataListItem` | Aligned label/value details | `columns`, `labelPosition`, `label`, `children` |
-| `StatusDot`     | Accessible colored status signal          | `variant`, `label`, `isPulsing`, `tooltip`       |
-| `Timestamp`     | Localized relative or absolute instant     | `value`, `format`, `isLive`, `hasTooltip`        |
-| `Timer`         | Live elapsed duration                     | `startTime`, `format`, `type`, `size`            |
-| `Outline`       | Navigable heading outline                 | `items`, `activeId`, `hasScrollOnClick`          |
-| `Spinner` | Self-drawn loading indicator     |                                                 |
+| Component                          | What it is                                   | Key props                                                               |
+| ---------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
+| `List`                             | Non-virtual content list                     | `listStyle`, `density`, `hasDividers`, `start`                          |
+| `ListItem`                         | Labeled row inside `List`                    | `label`, `description`, `startContent`, `endContent`, `onPress`, `href` |
+| `Table`                            | Columnar rows                                | `columns`, `rows`, `renderCell`, `onRowPress`                           |
+| `TreeList`                         | Expandable node hierarchy                    | `nodes`, `defaultExpanded`, `onToggle`, `onSelect`                      |
+| `Timeline`                         | Vertical event list (dot + connector)        | `items`                                                                 |
+| `ProgressGroup`                    | Stacked labeled `Meter` rows                 | `items`                                                                 |
+| `Meter`                            | Gauge/dash ring                              | `value`, `max`, `strokeWidth`                                           |
+| `ProgressBar`                      | Linear determinate or indeterminate progress | `value`, `max`, `label`, `marks`                                        |
+| `MetadataList`, `MetadataListItem` | Aligned label/value details                  | `columns`, `labelPosition`, `label`, `children`                         |
+| `StatusDot`                        | Accessible colored status signal             | `variant`, `label`, `isPulsing`, `tooltip`                              |
+| `Timestamp`                        | Localized relative or absolute instant       | `value`, `format`, `isLive`, `hasTooltip`                               |
+| `Timer`                            | Live elapsed duration                        | `startTime`, `format`, `type`, `size`                                   |
+| `Outline`                          | Navigable heading outline                    | `items`, `activeId`, `hasScrollOnClick`                                 |
+| `Spinner`                          | Self-drawn loading indicator                 |                                                                         |
 
 ## Scrolling
 
-| Component     | What it is                     | Key props                        |
-| ------------- | ------------------------------ | -------------------------------- |
-| `ScrollableArea` | Scrollable region with optional pull-to-refresh | `axis`, `refreshing`, `onRefresh` |
-| [`VirtualList`](virtual-list.md) | Windowed long list             | `items`, `keyExtractor`, `renderItem` |
+| Component                        | What it is                                      | Key props                             |
+| -------------------------------- | ----------------------------------------------- | ------------------------------------- |
+| `ScrollableArea`                 | Scrollable region with optional pull-to-refresh | `axis`, `refreshing`, `onRefresh`     |
+| [`VirtualList`](virtual-list.md) | Windowed long list                              | `items`, `keyExtractor`, `renderItem` |
 
 ## Chat
 
@@ -237,16 +242,16 @@ with [`ChatLayout`](../recipes/chat-conversation.md) for a complete conversation
 or combine `ChatMessageList`, `ChatMessage`, and `ChatMessageBubble` inside an
 existing scroll surface.
 
-| Component | What it is | Key props |
-| --- | --- | --- |
-| `ChatLayout`, `ChatLayoutScrollButton` | Scrollable conversation, docked composer, and return-to-bottom action | `composer`, `emptyState`, `scrollRef`, `density` |
-| `ChatMessageList` | Density-aware message column with empty state and load-older callback | `density`, `gap`, `align`, `scrollToTopAction`, `isStreaming` |
-| `ChatMessage`, `ChatMessageBubble` | Sender alignment/context and filled or ghost bubble | `sender`, `name`, `avatar`, `variant`, `group`, `metadata` |
-| `ChatMessageMetadata`, `ChatSystemMessage` | Timestamp/status row and centered conversation notices | `timestamp`, `status`, `variant`, `icon` |
-| `ChatToolCalls`, `ChatTokenizedText` | Expandable tool-call summary and token-aware message text | `calls`, `isExpanded`, `tokens` |
-| `ChatComposer`, `ChatComposerInput`, `ChatComposerDrawer` | Composer shell, rich input, and collapsible context/attachment region | `onSubmit`, `value`, `triggers`, `onFiles`, `count` |
-| `ChatSendButton`, `ChatDictationButton` | Send/stop action and speech input control | `isStopShown`, `isDisabled`, `onSend`, `onStop` |
-| `useChatStreamScroll`, `useChatNewMessages`, `useChatPasteAsToken`, `useChatComposerTokens`, `useSpeechRecognition`, `useChatDictation` | Hooks for streaming, new messages, tokens, and dictation | See each hook's TSDoc |
+| Component                                                                                                                               | What it is                                                            | Key props                                                     |
+| --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `ChatLayout`, `ChatLayoutScrollButton`                                                                                                  | Scrollable conversation, docked composer, and return-to-bottom action | `composer`, `emptyState`, `scrollRef`, `density`              |
+| `ChatMessageList`                                                                                                                       | Density-aware message column with empty state and load-older callback | `density`, `gap`, `align`, `scrollToTopAction`, `isStreaming` |
+| `ChatMessage`, `ChatMessageBubble`                                                                                                      | Sender alignment/context and filled or ghost bubble                   | `sender`, `name`, `avatar`, `variant`, `group`, `metadata`    |
+| `ChatMessageMetadata`, `ChatSystemMessage`                                                                                              | Timestamp/status row and centered conversation notices                | `timestamp`, `status`, `variant`, `icon`                      |
+| `ChatToolCalls`, `ChatTokenizedText`                                                                                                    | Expandable tool-call summary and token-aware message text             | `calls`, `isExpanded`, `tokens`                               |
+| `ChatComposer`, `ChatComposerInput`, `ChatComposerDrawer`                                                                               | Composer shell, rich input, and collapsible context/attachment region | `onSubmit`, `value`, `triggers`, `onFiles`, `count`           |
+| `ChatSendButton`, `ChatDictationButton`                                                                                                 | Send/stop action and speech input control                             | `isStopShown`, `isDisabled`, `onSend`, `onStop`               |
+| `useChatStreamScroll`, `useChatNewMessages`, `useChatPasteAsToken`, `useChatComposerTokens`, `useSpeechRecognition`, `useChatDictation` | Hooks for streaming, new messages, tokens, and dictation              | See each hook's TSDoc                                         |
 
 `ChatComposerInput.bind` delivers a portable imperative handle because React
 refs do not cross this renderer boundary. Key and paste callbacks expose
@@ -266,20 +271,20 @@ its Chat runtime has not been exercised separately.
 
 ## Overlays
 
-| Component   | What it is                                | Key props                                  |
-| ----------- | ----------------------------------------- | ------------------------------------------ |
-| `Overlay`   | Content above the screen                  |                                            |
-| `Popover`   | Anchored floating content                 | `anchor`, `open`, `placement`, `alignment`, `offset`, `onDismiss` |
-| `useLayer`  | Anchored/fixed overlay primitive (hook)   | `mode`, `ref`, `show`, `hide`, `isOpen`, `render` |
-| `Tooltip`   | Pointer hover hint                        | `trigger`, `content`, `openDelay`          |
-| `HoverCard` | Hover or touch-triggered card around its children | `content`, `placement`, `delay`, `touchTrigger` |
-| `Dialog` | Modal surface with optional header | `isOpen`, `onOpenChange`, `purpose`, `position` |
-| `AlertDialog` | Required-action confirmation dialog | `title`, `description`, `actionLabel`, `onAction` |
-| `BottomSheet` | Declarative in-window bottom sheet | `isOpen`, `snapPoints`, `onOpenChange` |
-| `Carousel` | Horizontally scrolling child slides | `children`, `gap`, `hasButtons`, `hasSnap`, `bind` |
-| `Lightbox` | Fullscreen image or video gallery | `media`, `isOpen`, `index`, `onIndexChange` |
-| `Toast` / `ToastViewport` | Transient notification card and stack | `showToast`, `useToast`, `position`, `maxVisible` |
-| `Drawer`    | Edge drawer                               | `main`, `drawer`, `open`, `onDismiss`      |
+| Component                 | What it is                                        | Key props                                                         |
+| ------------------------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| `Overlay`                 | Content above the screen                          |                                                                   |
+| `Popover`                 | Anchored floating content                         | `anchor`, `open`, `placement`, `alignment`, `offset`, `onDismiss` |
+| `useLayer`                | Anchored/fixed overlay primitive (hook)           | `mode`, `ref`, `show`, `hide`, `isOpen`, `render`                 |
+| `Tooltip`                 | Pointer hover hint                                | `trigger`, `content`, `openDelay`                                 |
+| `HoverCard`               | Hover or touch-triggered card around its children | `content`, `placement`, `delay`, `touchTrigger`                   |
+| `Dialog`                  | Modal surface with optional header                | `isOpen`, `onOpenChange`, `purpose`, `position`                   |
+| `AlertDialog`             | Required-action confirmation dialog               | `title`, `description`, `actionLabel`, `onAction`                 |
+| `BottomSheet`             | Declarative in-window bottom sheet                | `isOpen`, `snapPoints`, `onOpenChange`                            |
+| `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `bind`                |
+| `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                       |
+| `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`                 |
+| `Drawer`                  | Edge drawer                                       | `main`, `drawer`, `open`, `onDismiss`                             |
 
 Use `Dialog` for optional or informational modal content and `AlertDialog` when
 the user must choose an action. `BottomSheet` is the shared in-window surface;

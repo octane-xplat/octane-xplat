@@ -1,7 +1,15 @@
 # Content display
 
-Use the content-display components to compose article metadata, readable code,
-status, timestamps, and a heading outline from one shared tree.
+> Show formatted text, code, progress, dates, or a table of contents.
+
+For plain words, use `Text`. The components here add formatting and supporting
+information: `CodeBlock` displays code, `ProgressBar` shows how far an action
+has progressed, and `Outline` lists a document's headings.
+
+The example combines several of these pieces into an article summary. Place
+the component in a `.tsrx` file and render it in your screen. The bars,
+labels, and outline all use sample data so you can try them before connecting
+real records.
 
 ```tsx
 import {

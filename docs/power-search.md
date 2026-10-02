@@ -1,26 +1,37 @@
 # Structured search
 
-`PowerSearch` is controlled by `filters`. It searches configured fields, opens
-an editor for a selected field/operator/value suggestion, and reports each
-change as `add`, `edit`, or `remove` with the affected index.
+> Add filters such as “Title contains travel” or “Year is greater than 2020.”
+
+A structured search lets someone choose a **field** (such as Year), an
+**operator** (such as greater than), and a **value** (such as 2020).
+Use `PowerSearch` when your app needs those filters. For a simple text search
+or choice list, start with [search and selection](search-selection.md).
+
+Your app holds the current `filters` and updates them through `onChange`.
+`PowerSearch` offers field/operator/value suggestions and an editor, then
+reports changes as `add`, `edit`, or `remove` with the affected index.
+The following component fragment assumes you supply `books` and a `BookList`
+component to display the filtered records.
 
 ```tsx
 import { PowerSearch, createPowerSearchConfig } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 const { config, applyFilters } = createPowerSearchConfig([
-  { key: 'title', type: 'string', label: 'Title' },
-  { key: 'year', type: 'number', label: 'Year' },
+	{ key: 'title', type: 'string', label: 'Title' },
+	{ key: 'year', type: 'number', label: 'Year' },
 ] as const)
 
 function SearchBooks({ books }) {
-  const [filters, setFilters] = useState([])
-  const visibleBooks = applyFilters(filters, books)
+	const [filters, setFilters] = useState([])
+	const visibleBooks = applyFilters(filters, books)
 
-  return <>
-    <PowerSearch config={config} filters={filters} onChange={setFilters} />
-    <BookList books={visibleBooks} />
-  </>
+	return (
+		<>
+			<PowerSearch config={config} filters={filters} onChange={setFilters} />
+			<BookList books={visibleBooks} />
+		</>
+	)
 }
 ```
 

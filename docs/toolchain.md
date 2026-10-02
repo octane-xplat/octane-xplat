@@ -1,185 +1,238 @@
-# Get a working app and iterate
+# Create your first app
 
-> Start in the browser, give your agent one useful task, and check each
-> platform you intend to ship.
+> Open a starter app in your browser, then make a small change and try it.
 
 ## Create and run
 
-Use Node.js 22.22.2 or later and install pnpm before running the creator.
-The framework workspace’s Octane package requires that Node version; meeting
-Vite’s lower minimum alone is not a sufficient toolchain check:
+You need two tools on your computer:
 
-```sh
-pnpm create octane-xplat my-app
-```
+- **Node.js** runs the tools that prepare your app. Install version 22.22.2
+  or later from the [Node.js download page](https://nodejs.org/en/download).
+- **pnpm** downloads the packages your app uses and runs its project commands.
+  Follow the [pnpm installation guide](https://pnpm.io/installation). This
+  checkout's starter uses pnpm 11.24.0.
 
-The creator copies the starter, installs dependencies, and starts the web dev
-server. Pass `--no-install` to scaffold only — the directory is created and
-the command exits after printing the manual next steps (used by the packed
-starter verification and offline scaffolding). Open the local URL printed in
-the terminal. The checked-in starter shows an `octane-xplat` screen with a
-small counter and a theme toggle that remembers your light/dark choice in
-local app storage — placeholder UI your first task will replace.
-Leave that process running while you work. To restart after stopping it
-with Ctrl+C:
+A **package** is a bundle of code your app uses, such as Xplat's buttons and
+text fields. You don't need phone development tools to start in the browser.
+
+1. Open a terminal: Terminal on macOS, PowerShell on Windows, or your Linux
+   terminal app. This is where you type commands. Your code editor may also
+   have a terminal panel.
+2. Check that both tools are available. Run each line separately:
+
+   ```sh
+   node --version
+   pnpm --version
+   ```
+
+   Each should print a version number. If you see “command not found” or
+   “not recognized,” finish installing that tool and reopen the terminal.
+
+3. Open the folder where you want to keep your project in your editor's
+   terminal, or use `cd` to move there. For example, `cd Desktop` moves into
+   a Desktop folder inside your current folder. Create the app:
+
+   ```sh
+   pnpm create octane-xplat my-app
+   ```
+
+   `my-app` is the new folder's name; you can choose another name. Use a
+   folder that doesn't already contain files. The command copies a starter
+   project, installs its packages, and starts a **development server**: a
+   local process that serves your app to the browser and watches for edits.
+
+4. Open the local address printed in the terminal. The checked-in starter
+   contains a counter and a light/dark theme button. Try the counter buttons.
+   Leave the terminal running while you edit the app.
+
+Press Ctrl+C in that terminal when you want to stop the server. To start it
+again, move into your app's folder and run:
 
 ```sh
 cd my-app
 pnpm dev
 ```
 
-If installation stops with “Install didn't finish,” enter `my-app`, run
-`pnpm install`, and resolve the reported error before running `pnpm dev`.
-If the browser cannot connect, check that the dev process is still running
-and use its printed URL rather than assuming a port.
+`cd my-app` means “change into the my-app folder.” If your terminal is already
+there, run only `pnpm dev`.
+
+If setup stops with “Install didn't finish,” enter `my-app` and run
+`pnpm install`. Resolve its reported error before running `pnpm dev`; you
+can give the error to your agent for help. If the browser cannot connect,
+check that the server is still running and open the address it printed.
+
+To create the files without installing packages or starting the server,
+add `--no-install` to the create command. You will still need to run
+`pnpm install` and `pnpm dev` from the new folder before you can use the app.
 
 ## Build and check your first flow
 
-Treat this task as calibration, not product work: it proves that scaffold →
-agent edit → checks → verified result works end-to-end before you trust the
-loop with real features. A packing checklist is a good brief because every
-step is observable in the browser; if your app already has a small
-self-contained flow, use that instead.
+Try a packing checklist as your first change. It's small enough to check by
+using the app, and it teaches adding, changing, and removing information.
+You can adapt it to a small feature from your own app idea.
 
-Open `my-app` in your coding agent and give it the bounded task:
+Open the `my-app` folder in your editor. If you're using a coding agent,
+give it this prompt:
 
 > Read AGENTS.md and .agents/skills/xplat/SKILL.md. Replace the starter screen
-> with a trip packing checklist: add items, mark them packed, remove them,
-> and show the number still to pack. Use in-memory state and shared Xplat
-> components. Run pnpm lint, pnpm typecheck, and pnpm build. Report failures
-> and which targets you actually ran.
+> with a trip packing checklist. Let me add items, mark them packed, remove
+> them, and see how many are still to pack. Keep the list only while the app
+> is open; it should reset on reload. Use shared Xplat components so it can
+> also run on iOS and Android. Run pnpm lint, pnpm typecheck, and pnpm build.
+> Explain what changed, report any failures, and say where you ran the app.
 
-Check the running result before adding another feature:
+You can make the same change yourself in `src/App.tsrx`. A `.tsrx` file
+contains TypeScript and screen markup. [Building screens](primitives.md)
+introduces the components you can use.
+
+Once the change appears in the browser:
 
 1. Add “Passport” and “Charger.” Both should appear, with two items remaining.
 2. Mark Passport packed. It should stay visible, with one item remaining.
-3. Remove both items. Check that the empty state offers a way to add an item.
-4. Add “Passport” again, then reload. The list should reset because this
-   first task uses in-memory state.
+3. Remove both items. The empty list should offer a way to add an item.
+4. Add Passport again, then reload. The list should reset because this first
+   version does not save it between sessions.
 
-If a check fails, give the agent the action, expected result, and actual result:
-“After packing Passport, the remaining count still says two; it should say one.”
-This gives it a specific behavior to fix. The skill supplies coding guidance;
-access to your browser or device depends on the tools available to your agent.
+If something doesn't work, describe what you did and what happened:
+“After packing Passport, the remaining count still says two; it should say
+one.” Your agent can use that to fix the problem. Its ability to use your
+browser or device depends on the tools available to it; you can always try
+these actions yourself.
 
-Once this works, move on to a real slice of your app — persistence, a device
-feature, a second screen. Run the lint, typecheck, and build checks again
-after each change; those checks complement the interaction you just tried.
+Then add one feature, such as saving the list or opening a second screen.
+Repeat the checks after the change. The [checking guide](testing.md)
+explains `lint`, `typecheck`, and `build`; they catch code mistakes but do
+not replace trying the app.
 
 ## Run on iOS and Android
 
-Install the [NativeScript environment prerequisites](https://docs.nativescript.org/setup/)
-for the target first. iOS development needs macOS and Xcode; Android needs the
-Android SDK, a compatible JDK, and an emulator or connected device. This
-repository's Android harness uses JDK 21, matching [NativeScript's macOS
-recommendation](https://docs.nativescript.org/setup/macos); the Android build
-passes with the pinned Gradle 8.14.3. JDK 25 fails with
-`Unsupported class file major version 69`, so set `JAVA_HOME` to JDK 21 when
-building Android.
-For iOS, check that the Ruby on PATH can load `xcodeproj`:
-`ruby -e 'require "xcodeproj"'`. If it cannot, install the user gem with
-`gem install --user-install xcodeproj`.
+You can stay in the browser while building the first screens. When you're
+ready to try a phone app, install the
+[NativeScript development tools](https://docs.nativescript.org/setup/)
+for that platform. NativeScript connects your TypeScript code to phone views
+and device features.
 
-From the app directory, run `pnpm exec ns doctor` for the NativeScript
-environment and `pnpm xplat doctor` for Xplat configuration and patch checks.
-Then use a separate terminal while the web server stays running:
+| Platform | What you need                                                                                        |
+| -------- | ---------------------------------------------------------------------------------------------------- |
+| iOS      | A Mac, Xcode, and an iOS simulator or connected device.                                              |
+| Android  | The Android SDK (development tools), JDK 21 (Java build tools), and an emulator or connected device. |
+
+The Android setup in this repository works with JDK 21 and Gradle 8.14.3.
+JDK 25 fails with `Unsupported class file major version 69`. If you have
+multiple Java versions installed, configure `JAVA_HOME` to point to JDK 21
+for Android builds; your agent can help with your machine's setup.
+
+For iOS, check that Ruby, a tool used by the build, can load its `xcodeproj`
+package. Run `ruby -e 'require "xcodeproj"'`. Success prints nothing. If it
+reports that the package is missing, run
+`gem install --user-install xcodeproj`, then repeat the check.
+
+Open a second terminal in the app folder so the browser server can keep
+running. Check the setup with:
 
 ```sh
-pnpm dev:ios       # iOS simulator or connected device
-pnpm dev:android   # Android emulator or connected device
+pnpm exec ns doctor
+pnpm xplat doctor
 ```
 
-Alternatively, stop the existing dev processes and let the CLI launch selected
-targets together:
+The first checks NativeScript's development tools; the second checks your
+Xplat configuration and required patches. Patches are fixes supplied with
+the framework for the versions it uses. Read any reported problems before
+continuing.
+
+Run the command for the phone platform you set up:
 
 ```sh
-pnpm xplat dev               # pick available targets
-pnpm xplat dev -t web,ios    # web plus an available iOS target
+pnpm dev:ios
 ```
+
+Or, for Android:
+
+```sh
+pnpm dev:android
+```
+
+These start the app on a simulator, emulator, or connected device. Once it
+opens, try the same checklist actions you tried in the browser.
+
+To launch multiple platforms together instead, stop the existing development
+commands with Ctrl+C and run `pnpm xplat dev`. It offers a choice of available
+targets. `pnpm xplat dev -t web,ios` selects web and an available iOS target.
 
 ## See a shared edit in running targets
 
-With web and a native development session running, ask the agent to change
-the empty-state text to “Ready for your next trip?” in the shared screen.
-Save the file and empty the list on each target. Both should show the new text
-without manually restarting the apps. Check each app separately: their
-in-memory packing lists are separate too.
+With the browser and a phone development session running, change the empty-list
+text to “Ready for your next trip?” in the shared screen, or ask your agent
+to do it. Save the file and empty the list in each app. Both should show the
+new text without you restarting them.
 
-Web and iOS/Android development sessions watch the same source.
-The Xplat development loop has been verified with a shared `.tsrx` edit reaching
-web and an iOS simulator; verify your own running targets after each change.
-This updates code in local development sessions, not data between devices or
-installed production apps.
+Each running app has its own packing list. Live updates change the code
+while you're developing; they do not sync data between devices or update
+apps you have already released. A shared `.tsrx` edit has been checked in
+the browser and an iOS simulator; check your own platforms too.
 
-Start mobile sessions through the starter's `ns run` scripts so the update
-connection attaches. A manual app launch may load a bundled app without live
-updates. Native configuration or dependency changes can require a rebuild.
-If an edit does not appear, use the
-[dev-loop troubleshooting table](toolchain-notes.md#dev-loop-troubleshooting).
-macOS uses a separate experimental update path described below. The Windows
-scaffold has a CLI dev target, but its launch and live updates have not yet
-been verified on Windows.
+Start phone development through `pnpm dev:ios` or `pnpm dev:android` so the
+live-update connection attaches. Opening an installed app by hand can load
+its bundled code without that connection. Changing native configuration
+or packages can require a rebuild. If an edit does not appear, see
+[live-update troubleshooting](toolchain-notes.md#dev-loop-troubleshooting).
+Desktop development has separate experimental setup, described below.
 
 ## Agent context and versions
 
-The starter's `AGENTS.md` points to `.agents/skills/xplat/SKILL.md`. Keep that
-project context available to the agent; it covers shared components, platform
-files, styling, state, and verification. The
-[docs index](https://octane-xplat.goddardai.org/llms.txt) and
-[full guides](https://octane-xplat.goddardai.org/llms-full.txt) provide more detail.
+The starter's `AGENTS.md` points your agent to `.agents/skills/xplat/SKILL.md`.
+These files explain Xplat's components, platform files, styling, state, and
+checks. Keep them in the project. Agents can also read the
+[docs list](https://octane-xplat.goddardai.org/llms.txt) or
+[full guides](https://octane-xplat.goddardai.org/llms-full.txt).
 
-NativeScript also publishes [official agent skills](https://github.com/NativeScript/skills)
-for native APIs, platform behavior, and tooling. They are optional, installed
-separately, and do not replace Xplat's component and file conventions. Choose
-skills relevant to the task and check their API/version assumptions against
-your app before applying examples from another frontend.
+NativeScript's [official agent skills](https://github.com/NativeScript/skills)
+are optional instructions for native features and tooling. They are installed
+separately. Ask your agent to use examples that match your app's package
+versions; examples for another framework may need changes.
 
-The checked-in [starter manifest](../packages/create/template/package.json)
-pins NativeScript core 9.1.2, CLI 9.1.1, Vite integration 8.0.17, Octane 0.6.3,
-and the Octane NativeScript integrations at 0.2.4. It also carries framework
-patches. The framework workspace can use newer versions; the published
-creator can differ from this checkout. Use the created app's manifest and
-lockfile as the authority, retain its patches, and follow
-[patch management](../packages/cli/README.md) when upgrading. Do not infer
-compatibility from the latest upstream skill or release alone.
+The starter's `package.json` lists its packages and commands. Its lockfile
+records the versions installed. Keep both, along with the supplied patches.
+The [checked-in package list](../packages/create/template/package.json) uses
+NativeScript core 9.1.2, CLI 9.1.1, Vite integration 8.0.17, Octane 0.6.3,
+and the Octane NativeScript integrations at 0.2.4. The published creator and
+framework workspace can use different versions. Follow your created app's
+files and [patch management instructions](../packages/cli/README.md) when upgrading.
 
 ## Build and check
 
-```sh
-pnpm build
-pnpm build:ios
-pnpm build:android
-pnpm typecheck
-```
+A **build** prepares your code to run outside the development server. Run
+these from the app folder for the platforms you have set up:
 
-The web build checks the browser bundle. The iOS and Android builds catch
-problems in the native bundle and platform configuration. A typecheck should
-pass for both target configurations before you publish an app.
+| Command              | Result                                                    |
+| -------------------- | --------------------------------------------------------- |
+| `pnpm build`         | Prepares the browser app.                                 |
+| `pnpm build:ios`     | Builds the iOS app; requires the iOS tools.               |
+| `pnpm build:android` | Builds the Android app; requires the Android tools.       |
+| `pnpm typecheck`     | Checks the app's web and phone TypeScript configurations. |
 
-For a shipping build, `pnpm xplat build --release` runs `ns build <platform>
---release` (signed where your NativeScript configuration provides signing)
-alongside the web bundle. Signing credentials and store upload stay app
-responsibilities. Release builds take a different pipeline than the dev
-server — build one before you ship, and check
-[known limits](known-limits.md#same-edge-on-every-target) for current
-release-mode issues.
+Before release, run `pnpm xplat build --release` and try the resulting app.
+Phone signing must be configured for signed builds. Signing identifies your
+app's publisher; app-store uploads and signing credentials stay with your
+project. [Known limits](known-limits.md#same-edge-on-every-target) lists
+current release-build issues.
 
-Native plugin declarations belong to the app. If its source imports
-`@octane-xplat/ui`, declare the UI plugins used by the native entry in that
-app's `package.json`; platform service imports have the same rule. Run
-`pnpm xplat doctor` from the app root to get warning-only checks for missing
-direct declarations. The starter includes the common UI plugins; platform
-service plugins remain opt-in to the services an app imports.
+Some native features require a **plugin**, a package that connects to device
+code. The starter includes common UI plugins. If your app imports a platform
+service that uses an optional plugin, declare it in the app's `package.json`
+according to that service's setup guide. `pnpm xplat doctor` warns about
+missing direct declarations. Plugins owned by add-on packages travel with
+those packages instead; see [device features](platform-services.md).
 
 ## When a target is unavailable
 
-You can build and test shared logic without a connected device. Device builds
-still need the platform SDK and signing setup, and iOS release builds require
-macOS. Treat those tools as release prerequisites, not as requirements for
-writing a shared screen.
+You can write screens and test shared calculations without a connected phone.
+Phone builds still need the platform's development tools; iOS release builds
+need a Mac. Add those tools when you're ready to work on that platform.
 
-For the two bundler pipelines, version pins, package publishing, native
-plumbing, and compiler-specific details, see the [toolchain notes](toolchain-notes.md).
+The [toolchain notes](toolchain-notes.md) cover framework build internals,
+version pins, and package publishing. The sections below are for experimental
+desktop setup and are separate from creating your first browser or phone app.
 
 ## Experimental AppKit target
 
@@ -248,10 +301,11 @@ and capabilities through `@octane-xplat/platform/host`; see the
 
 ## Experimental Windows target
 
-The repository includes a WinUI 3 scaffold in `apps/windows`, separate from
-the creator. Its Windows-targeted bundle builds on macOS; launch, interactions,
-and live updates still need verification on a Windows host. This is an
-experimental path, not a verified Windows release workflow.
+The repository includes an experimental WinUI 3 app in `apps/windows`,
+separate from the starter. The native host can launch on Windows, but UI
+support remains incomplete. See [Windows setup](windows-setup.md) and
+[Windows limits](windows-notes.md) before using it for an app; a successful
+bundle build does not establish that its controls work.
 
 It requires Windows 10 1809+, .NET 10 SDK, Developer Mode, Node.js, and pnpm.
 The scaffold pins `@nativescript/windows` to `0.1.0-alpha.144`, NativeScript

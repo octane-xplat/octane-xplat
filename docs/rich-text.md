@@ -1,9 +1,19 @@
 # Rich text editing
 
-> Editable rich text on web, Android, and (later) iOS through the native
-> leaf `@octane-xplat/richtext` plus a choice of unified facades:
-> `@octane-xplat/tiptap` (tiptap document JSON) or `@octane-xplat/lexical`
-> (lexical serialized editor state).
+> Let someone edit formatted text, such as paragraphs with bold words or links.
+
+For plain text, start with `TextArea` in the [text-entry guide](text-entry.md).
+**Rich text** stores formatting along with the words. Xplat offers optional
+editor packages: `@octane-xplat/tiptap` and `@octane-xplat/lexical` provide
+shared interfaces, while `@octane-xplat/richtext` supplies the Android editor.
+iOS editing is not implemented yet.
+
+These editors need more setup than a text field. The sections below explain
+their packages, stored document formats, and platform limits. A **facade**
+is a common interface over different implementations; a **backend** here
+is the editor implementation underneath it.
+
+### Editor implementations
 
 Web and native rich text are deliberately different backends behind one
 tiptap-shaped facade. Web runs a real tiptap `Editor` via

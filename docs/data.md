@@ -1,23 +1,38 @@
 # Fetching data
 
-> Load the records your app needs and give users clear loading, empty, and
-> error states.
+> Load information from a server and show what's happening while you wait.
 
-Ask your agent for a complete flow: “Load the saved trips, show progress while
-waiting, and let me retry a failed request.” Keep the request tied to the
-screen or shared state that owns it; the patterns below explain that choice.
+For example, a trips screen can show “Loading trips…” while waiting,
+a list when the request succeeds, and a Retry button when it fails. If
+you're using an agent, ask for all three outcomes together.
 
-`query$` from `octane/signals` is the default for remote data. It is the
-same reactive engine that backs `signal$` shared state, with shared APIs
-for web and native, and a module-level query needs no provider — so it is
-reachable from every root, including modals, sheets, and list cells, where
-context cannot cross.
+This guide assumes you have a server or another source to request data from.
+Its examples use an app-specific `api` client: code that sends those requests.
+Xplat does not supply that server or client. If you're building your first
+app, start with [a list that stays in memory](toolchain.md#build-and-check-your-first-flow),
+then add server data when you need it.
+
+A **query** loads data and tracks whether the request is waiting, ready, or
+failed. Use `query$` from `octane/signals` for this. A **signal** holds a
+changing value that the UI can follow, such as which feed someone selected.
+The `$` at the end of names matters to the compiler; keep it in your names.
+
+A query declared in a shared file can be used by several screens in the same
+running app, including dialogs and sheets. A query declared inside a screen
+belongs to that screen. [Query ownership](#module-scope-vs-screen-scope)
+explains when to choose each.
 
 ## The shape
 
-A query is a selector plus a loader. The fragment below assumes an app-owned
-`api.posts.list({ mode, signal })` client; replace it with your HTTP client.
-`Feed`, `Spinner`, and `api.user.get` in later fragments are app-owned too.
+A query has two functions:
+
+- The **selector** chooses what to request, such as the “global” or “following” feed.
+- The **loader** makes that request and returns the data.
+
+This fragment uses `api.posts.list({ mode, signal })` from your app. Replace
+it with your own request function. `Feed` and `api.user.get` in later
+fragments are also supplied by your app; `Text`, `Pressable`, and `Spinner`
+come from `@octane-xplat/ui`. These are building blocks, not a complete screen.
 
 ```ts
 import { query$, signal$, skip } from 'octane/signals'
@@ -30,8 +45,8 @@ export const feed$ = query$(
 )
 ```
 
-- **The selector is reactive.** It re-runs when the signals it reads
-  change; a new selection refetches. Return `skip` for "no request right
+- **The selector follows changes.** When a signal it reads changes, it
+  runs again; a different selection starts a new request. Return `skip` for "no request right
   now" — a missing id, a logged-out session. The selection is compared by
   encoded value, not identity — a fresh object literal with the same
   contents is the same request (keep field order stable; encoding is
@@ -40,13 +55,17 @@ export const feed$ = query$(
   (`signal: AbortSignal` for cancellation, `previous` for the last
   delivered value). It may return a value, a promise, or an
   `AsyncIterable` — pass `{ kind: 'stream' }` in the options for streams.
-- **Reads are stale-while-revalidate.** A selection change keeps the
-  previous data visible while the new request runs.
-
-For a typed HTTP layer behind the loader, see Rouzer in the companion
-libraries section of `AGENTS.md`.
+- **Previous data stays visible during refresh.** This is called
+  stale-while-revalidate: the app shows the last result while requesting
+  an updated one.
 
 ## Reading in a screen
+
+A read that **suspends** asks the screen to wait for data before showing that
+part of the UI. `@try` contains the data-dependent content, `@pending` shows
+while it waits, and `@catch` shows if the request fails. These are TSRX
+blocks; use them inside a `.tsrx` component. See the table for other ways
+to read a query without waiting.
 
 | Call               | Effect                                                                                              |
 | ------------------ | --------------------------------------------------------------------------------------------------- |
@@ -101,12 +120,17 @@ restart the failed request.
 
 ## Writes
 
-The common path is imperative: run the mutation, then `refetch()` the
-queries it touched. For optimistic updates, `optimistic$(source$)` wraps a
-signal in a writable projection, and `action$` wraps a handler so writes
-inside it are confirmed on success and rolled back on rejection —
-`isActionUncertain` covers transports that can't tell whether the request
-landed. See the octane signals docs for the full action semantics.
+A **mutation** changes data on the server, such as saving a trip. Wait for
+that request to succeed, then call `refetch()` on the query that displays
+it so the screen shows the updated record.
+
+An **optimistic update** shows a proposed change before the server confirms
+it. For this advanced pattern, `optimistic$(source$)` wraps a signal so it
+can show tentative values, and `action$` confirms writes on success or
+rolls them back on rejection. `isActionUncertain` handles cases where you
+cannot tell whether a request reached the server. See
+[Octane's signals reference](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md)
+for the full behavior before using this pattern.
 
 To check this flow, use an endpoint you can delay and fail: the first request
 should show pending, success should show records or an explicit empty state,
@@ -118,7 +142,9 @@ composition, not a complete fetch-demo screen.
 
 ## Module scope vs screen scope
 
-Where a `query$` is declared decides who shares its selection:
+“Module scope” means code declared in a file, outside a component.
+“Screen scope” means code inside that screen's component. This decides
+whether two open screens share the same query selection:
 
 - **Module level** (`export const feed$ = query$(...)`) gets document
   scope: one selection for the whole app. On native the module is shared by
@@ -144,14 +170,14 @@ export function Profile(props: { id: string }) @{
 }
 ```
 
-The anti-pattern this replaces: copying route params into a shared selector
+Avoid this mistake: copying route params into a shared selector
 signal during render (`openUserId$.set(props.id)` at the top of a screen).
 On native, pushing a second profile page rewrites the selection the page
 underneath is reading — the covered page silently re-keys to the pushed
 page's params. On web it depends on render order. Reads in render, never
 writes.
 
-Two honest costs of screen-owned queries: they don't dedupe across
+Two limits of screen-owned queries: they don't dedupe across
 instances (two screens showing the same user fetch twice — there is no
 global keyed cache), and a mutation can't refetch "the" profile query from
 outside — refetch from the owning screen or fan out invalidation yourself.
@@ -182,6 +208,10 @@ wire an app lifecycle event to the owning query's `refetch()` if needed.
 
 ## Rules that bite on native
 
+These rules prevent cases where a value changes but a phone screen does not
+update. “Render” means the code that draws the UI, and “subscribe” means
+following later changes to a value.
+
 - **Name signals with a `$` suffix** (`feed$`, `user$`). The compiler uses
   the suffix to preserve reactive reads through caches and props.
 - **Every module that touches a signal needs a runtime import** of
@@ -200,6 +230,10 @@ wire an app lifecycle event to the owning query's `refetch()` if needed.
   or support refresh; see [route loaders](navigation.md#present-a-route-modally).
 
 ## TanStack Query as an opt-in
+
+This is an optional integration for apps that need TanStack's data cache.
+You can skip it when `query$` covers your requests. The native setup below
+has been checked in source code but has not been verified on a device.
 
 [`@octanejs/tanstack-query`](https://github.com/octanejs/octane/tree/main/packages/tanstack-query)
 binds the full `@tanstack/react-query` surface to octane hooks on top of

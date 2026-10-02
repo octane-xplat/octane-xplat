@@ -1,10 +1,15 @@
 # Build a navigation shell and resizable workspace
 
-> Compose the navigation frame from shared slots, then add tab strips, overflow, and resize behavior where the page needs them.
+> Add a top bar, sidebar, mobile menu, or resizable panel around your screens.
 
-This guide covers the navigation and workspace components exported by
-`@octane-xplat/ui`. It does not replace the route and stack guide in
-[navigation](navigation.md).
+A **navigation shell** is the layout around a screen: the top bar, side menu,
+and space for page content. `AppShell` combines those pieces. A **slot** is
+an option that accepts content, such as the `topNav` option for your top bar.
+
+Start with [moving between screens](navigation.md) to connect destinations.
+This guide adds the surrounding layout with components from `@octane-xplat/ui`.
+The examples below show parts to place inside your screen component; they
+assume the linked destinations and your page content already exist.
 
 ## Compose the application frame
 
@@ -13,36 +18,45 @@ also be used independently when an existing layout owns the frame.
 
 ```tsx
 import {
-  AppShell, TopNav, TopNavHeading, TopNavItem,
-  SideNav, SideNavHeading, SideNavSection, SideNavItem, NavIcon,
-  Toolbar, Text, View,
-} from '@octane-xplat/ui';
+	AppShell,
+	TopNav,
+	TopNavHeading,
+	TopNavItem,
+	SideNav,
+	SideNavHeading,
+	SideNavSection,
+	SideNavItem,
+	NavIcon,
+	Toolbar,
+	Text,
+	View,
+} from '@octane-xplat/ui'
 
-<AppShell
-  variant="section"
-  height="fill"
-  banner={<Text>System status</Text>}
-  topNav={
-    <TopNav
-      heading={<TopNavHeading heading="Workspace" logo={<NavIcon icon="grid" />} />}
-      startContent={<TopNavItem label="Projects" href="/projects" isSelected />}
-      endContent={<TopNavItem label="Help" href="/help" />}
-    />
-  }
-  sideNav={
-    <SideNav
-      header={<SideNavHeading heading="Workspace" />}
-      collapsible={{ defaultIsCollapsed: false, hasButton: true }}
-    >
-      <SideNavSection title="Projects">
-        <SideNavItem label="Overview" icon="home" href="/projects" isSelected />
-        <SideNavItem label="Activity" icon="clock" href="/activity" />
-      </SideNavSection>
-    </SideNav>
-  }
+;<AppShell
+	variant="section"
+	height="fill"
+	banner={<Text>System status</Text>}
+	topNav={
+		<TopNav
+			heading={<TopNavHeading heading="Workspace" logo={<NavIcon icon="grid" />} />}
+			startContent={<TopNavItem label="Projects" href="/projects" isSelected />}
+			endContent={<TopNavItem label="Help" href="/help" />}
+		/>
+	}
+	sideNav={
+		<SideNav
+			header={<SideNavHeading heading="Workspace" />}
+			collapsible={{ defaultIsCollapsed: false, hasButton: true }}
+		>
+			<SideNavSection title="Projects">
+				<SideNavItem label="Overview" icon="home" href="/projects" isSelected />
+				<SideNavItem label="Activity" icon="clock" href="/activity" />
+			</SideNavSection>
+		</SideNav>
+	}
 >
-  <Toolbar label="Page actions" startContent={<Text>Overview</Text>} />
-  <Text>Page content</Text>
+	<Toolbar label="Page actions" startContent={<Text>Overview</Text>} />
+	<Text>Page content</Text>
 </AppShell>
 ```
 
@@ -108,14 +122,20 @@ order changes and again with an empty list when overflow clears.
 
 ```tsx
 <OverflowList
-  gap={2}
-  minVisibleItems={1}
-  collapseFrom="end"
-  overflowRenderer={(items) => <Text>More ({items.length})</Text>}
+	gap={2}
+	minVisibleItems={1}
+	collapseFrom="end"
+	overflowRenderer={(items) => <Text>More ({items.length})</Text>}
 >
-  <Button><Text>Save</Text></Button>
-  <Button><Text>Share</Text></Button>
-  <Button><Text>Archive</Text></Button>
+	<Button>
+		<Text>Save</Text>
+	</Button>
+	<Button>
+		<Text>Share</Text>
+	</Button>
+	<Button>
+		<Text>Archive</Text>
+	</Button>
 </OverflowList>
 ```
 
@@ -128,20 +148,20 @@ Sizes are px/dip numbers or exact `Npx`/`N%` strings. `pixel()` and
 ceiling.
 
 ```tsx
-const containerRef = useRef(null);
+const containerRef = useRef(null)
 const sidebar = useResizable({
-  containerRef,
-  direction: 'horizontal',
-  defaultSize: 280,
-  minSize: 180,
-  maxSize: 480,
-  autoSaveId: 'workspace-sidebar',
-});
+	containerRef,
+	direction: 'horizontal',
+	defaultSize: 280,
+	minSize: 180,
+	maxSize: 480,
+	autoSaveId: 'workspace-sidebar',
+})
 
-<View ref={containerRef} className="workspace">
-  <SideNav style={{ width: sidebar.size }} />
-  <ResizeHandle direction="horizontal" resizable={sidebar.props} />
-  <main>Workspace content</main>
+;<View ref={containerRef} className="workspace">
+	<SideNav style={{ width: sidebar.size }} />
+	<ResizeHandle direction="horizontal" resizable={sidebar.props} />
+	<main>Workspace content</main>
 </View>
 ```
 

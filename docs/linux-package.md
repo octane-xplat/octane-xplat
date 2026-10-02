@@ -1,7 +1,12 @@
 # Package a Linux WebKitGTK app
 
-> Build a Linux desktop app from an Octane DOM frontend, distribute its archive,
-> and verify the installed host against real Linux services.
+> Package your web screens as an experimental Linux desktop app.
+
+This is an advanced setup guide for an existing app. Start with
+[the browser app](toolchain.md#create-and-run) first. A **frontend** is the
+part someone sees and interacts with; a **WebView** displays that web content
+inside a desktop window. The **host** is the native program around it that
+provides device features.
 
 The experimental Linux target renders your frontend in the system WebKitGTK
 WebView inside a GTK4/libadwaita window. It resolves `.linux` implementations,

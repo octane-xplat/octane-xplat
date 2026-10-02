@@ -1,15 +1,23 @@
 # Enter and submit text
 
-> Keep controlled text, focus, keyboard actions, and field names consistent
-> while treating real IME and screen-reader checks as separate verification.
+> Add a text field, keep what someone types, and choose how they submit it.
+
+Start with [a working app](toolchain.md#create-and-run) and the
+[component example](primitives.md#a-practical-example) if you're new to
+state and callbacks.
 
 ## Control a field
 
-Keep the latest edit in state and pass it back as `value`. Updating `value`
-from another action must not call `onChange`; the callback reports edits,
-not the field's controlled write-back. `TextInput`, `TextArea`, and
-`SearchInput` use this contract. `SearchInput` also supports uncontrolled
-`defaultValue`.
+A **controlled field** gets its current text from your app. `value` tells
+it what to display; `onChange` gives your app the new text when someone
+edits it. Store that text in state and pass it back as `value`.
+`TextInput` is for one line, `TextArea` for several lines, and
+`SearchInput` for searching.
+
+In the example, `name` holds the text and `setName` changes it. Clear sets
+it to an empty string. Done calls `blur()`, which removes focus from the
+field and dismisses a phone's keyboard. A handle lets your code call those
+field actions; `useRef` keeps the handle available to the button.
 
 ```tsx
 import { useRef, useState } from 'octane'
@@ -25,15 +33,27 @@ export function NameForm() {
 				<TextInput
 					value={name}
 					onChange={setName}
-					bind={(handle) => { input.current = handle }}
+					bind={(handle) => {
+						input.current = handle
+					}}
 				/>
 			</Field>
-			<Pressable onPress={() => setName('')}><Text>Clear</Text></Pressable>
-			<Pressable onPress={() => input.current?.blur()}><Text>Done</Text></Pressable>
+			<Pressable onPress={() => setName('')}>
+				<Text>Clear</Text>
+			</Pressable>
+			<Pressable onPress={() => input.current?.blur()}>
+				<Text>Done</Text>
+			</Pressable>
 		</KeyboardAvoiding>
 	)
 }
 ```
+
+Type a name, press Clear, and check that the field is empty. On a phone,
+press Done and check that the keyboard closes. Programmatically setting
+`value` does not call `onChange`; that callback reports user edits.
+`SearchInput` can also keep its own value when you supply `defaultValue`
+instead of controlling `value`.
 
 `TextInput`, `TextArea`, and `SearchInput` accept the shared field props:
 `label`, `description`, `isLabelHidden`, `isDisabled`, `isReadOnly`,
@@ -46,6 +66,10 @@ work and does not disable editing. Avoid replacing the native view through the
 handle: use `value` to change its text.
 
 ## Preserve editing and submit deliberately
+
+An **IME** is a keyboard input method that can compose a character over
+several keystrokes, such as for Japanese text. Let the user finish that
+composition before formatting or replacing the field's text.
 
 Matching controlled values skip native text writes. Android selection is
 restored and clamped when a changed value must be written. This regression

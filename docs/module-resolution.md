@@ -1,14 +1,18 @@
 # Sharing files across platforms
 
-> Use the unsuffixed module as the native default. Add `.web` for DOM frontends
-> (browser or webview), `.mobile` for behavior shared by iOS and Android, and
-> an OS suffix when a native platform needs its own implementation.
+> Give a component different files when it needs to work differently in
+> a browser or on a phone, while keeping one name in the rest of your app.
 
-Share the feature's actions and data, then tailor only the part that needs a
-platform difference. Ask your agent for a focused implementation:
-“Use `UISwitch` for this toggle in an `.ios` file, keep the shared props,
-and preserve the browser and Android behavior.” A suffix selects code; it does not establish
-that a target is ready to ship. See [target support](spec.md#choose-your-targets).
+Most screen code can stay shared. When a component needs browser or phone
+APIs, put that part in a **platform variant**: another file with a platform
+name added before the extension. For example, `Card.web.tsrx` is the browser
+version of `Card.tsrx`. The build picks the file for the platform you run.
+
+If you're using an agent, you can ask: “Use the iOS switch for this toggle
+in an `.ios` file, but keep the same options and leave the browser and
+Android actions working.” This guide explains the file rules behind that
+request. Check [target support](spec.md#choose-your-targets) too; selecting
+a file does not make an experimental platform ready for release.
 
 ## File variants
 
@@ -23,8 +27,14 @@ Card.windows.tsrx  Windows-specific implementation
 Card.linux.tsrx    legacy Linux WebKitGTK override
 ```
 
-Import `Card` without naming a platform. The resolver selects the most specific
-file for the target, then falls back to the unsuffixed module:
+Import `Card` without naming a platform, for example
+`import { Card } from './Card'`. The **resolver**, the tool that selects files,
+tries the most specific version first. “Unsuffixed” means a file without a
+platform name, such as `Card.tsrx`.
+
+A **DOM frontend** uses browser views, either in a browser or in a WebView
+(a web page inside an app). These use `.web` files. Native frontends use
+their platform's own views. The selection order is:
 
 | Target                            | Resolution order                    |
 | --------------------------------- | ----------------------------------- |
@@ -84,6 +94,14 @@ the shared `routes.gen.types.ts`. iOS and Android route files can override a
 `.mobile` route; macOS routes can override the unsuffixed route.
 
 ## TypeScript
+
+TypeScript checks that the selected component accepts the options your screen
+gives it. In a created app, run `pnpm typecheck` from the app folder to check
+both the web and phone configurations. If you're using an agent, ask it to
+fix any errors and run the check again.
+
+The remaining details are for troubleshooting file resolution or maintaining
+the build configuration; you can skip them when that check passes.
 
 The browser and WebView configs resolve `.web` before the unsuffixed fallback.
 The mobile config includes

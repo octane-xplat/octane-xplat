@@ -1,15 +1,19 @@
 # Platform pickers
 
-> Use a platform-specific selection control through an explicit package entry point.
+> Choose an option with an iOS picker, Android dropdown, or browser select.
 
-`@octane-xplat/picker` groups related controls for distribution. It does not
-provide one cross-platform picker component: SwiftUI `Picker`, a Compose
-Material 3 dropdown, and browser `<select>` have different names and contracts.
-This keeps platform behavior visible at the import and call site.
+For a shared selection field, start with [Selector](search-selection.md#choose-from-a-finite-list).
+Use `@octane-xplat/picker` when you want a platform's own control. Each version
+has its own name and options, so keep it in a matching
+[platform file](module-resolution.md).
+
+On iOS the package uses SwiftUI's picker; on Android it uses a Material 3
+dropdown; on web it uses the browser's `<select>`. There is no single shared
+component in this package.
 
 ## Install and import
 
-Add `@octane-xplat/picker` to the app that renders a control. Import the
+Run `pnpm add @octane-xplat/picker` from your app folder. Import the
 platform-specific component from the matching target entry:
 
 - `SwiftUIPicker` from `@octane-xplat/picker/ios` in `.ios.ts` or `.ios.tsrx`.

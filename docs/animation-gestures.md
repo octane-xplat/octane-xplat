@@ -1,14 +1,30 @@
 # Motion and gestures
 
-> Animate shared UI destinations and gesture values without platform animation code.
+> Move, fade, or resize a screen element, and respond to dragging.
+
+An **animation** changes a value over time, such as fading a card from
+invisible to visible. A **gesture** is an interaction such as dragging that
+card. Start with [a working screen](primitives.md) before adding movement.
 
 ## Animate a component
 
-Install `@octane-xplat/motion` alongside `@octane-xplat/ui` with pnpm. Import
+From your app folder, install the optional motion package:
+
+```sh
+pnpm add @octane-xplat/motion
+```
+
+It works alongside `@octane-xplat/ui`. Import
 `motion` and wrap content in `motion.View`, `motion.Row`, or `motion.Pressable`.
 They preserve the corresponding UI primitive's layout, accessibility, and input
 props. Supply `initial` and `animate` numeric targets and a `transition`.
 `initial={false}` starts at the destination without an entry animation.
+
+A **channel** is one value you can animate. `opacity` controls visibility,
+`x` and `y` move an element, `scale` changes its size, and `rotate` turns it.
+`initial` is where it starts, `animate` is where it should end up, and
+`transition` describes how it gets there. A **tween** moves over a chosen
+duration; a **spring** moves toward its destination with spring-like motion.
 
 Supported channels are `opacity`, `x`, `y`, `scale`, `scaleX`, `scaleY`, and
 `rotate`. Translation uses DIP on native and CSS pixels on web; rotation uses
@@ -155,6 +171,10 @@ arbitration or full upstream drag behavior.
 
 ## Reduced motion and lifecycle
 
+Some people set their device to reduce animation. Choose how your app should
+respect that preference, especially for movement that is not essential.
+“Lifecycle” refers to when a component appears, updates, and is removed.
+
 `MotionConfig` supplies inherited transition defaults and a `reducedMotion`
 policy: `never` (default), `always`, or `user`. Reduced motion settles transforms
 immediately while allowing opacity fades. `useReducedMotion` observes the system
@@ -167,6 +187,10 @@ upstream API, defaults, and platform evidence. Physical-device gesture behavior
 and frame pacing are pending; native compilation is not a performance claim.
 
 ## Retain content through exit
+
+To animate a panel closing, keep it on screen until the exit animation
+finishes. `Presence` manages that wait. Removing the panel immediately would
+leave nothing to animate.
 
 Keep `Presence` mounted and change its `present` prop. Render children
 unconditionally inside it; putting the conditional around the child removes it

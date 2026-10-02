@@ -86,6 +86,63 @@ subpaths coexist; the shared `BottomSheet` snap points are self-drawn precisely
 because the OS sheets are modal presentations, so an OS detent sheet would
 be a separate subpath widget, not a flag on `BottomSheet`.
 
+## Shared wrappers and component contracts
+
+These rules are for framework contributors adding a shared component.
+The [app architecture guide](architecture.md) introduces the same boundaries
+for people building apps.
+
+A shared wrapper may omit a platform-specific enhancement when passing its
+children through is still useful and the omission is predictable. Check:
+
+- **Frequency:** a common pattern used throughout an app is a stronger reason
+  to share than a rare, one-off wrapper. Frequency is a factor, not a cutoff.
+- **Children:** wrapping caller-provided JSX can remove platform branches from
+  shared screens. Having children alone is not enough.
+- **Residual value:** after the enhancement is absent, the wrapper must still
+  provide useful structure or layout. If its main purpose disappears, keep it
+  platform-specific.
+- **Predictability:** developers should expect the omitted enhancement on that
+  target, and the pass-through should preserve the wrapper's shared contract,
+  including children and applicable layout or styling props.
+
+For example, a keyboard-avoidance wrapper can remain useful as a shared layout
+boundary on a target without a software keyboard. A `WebView` cannot pass
+through meaningfully when its web content surface is unavailable. Document a
+pass-through as intentional behavior; do not silently drop shared props.
+
+Use these checks when shaping a new primitive:
+
+1. Define the common task and its smallest useful props, events, and state
+   before choosing a host widget. Commonness is a reason to look for an
+   intersection, not permission to promise behavior some targets lack.
+2. Separate that baseline from richer platform capabilities. A shared API
+   must not silently ignore a prop or substitute a different gesture or
+   presentation on one target. Keep platform extensions available under
+   explicit subpaths.
+3. Put unavoidable translation in platform leaves. Keep platform conditionals
+   and native names out of shared component logic; make the import path or
+   file suffix show where a developer crosses the boundary.
+4. Size the escape hatch to the divergence: a small platform detail can use
+   an explicit prop bag, implementation differences belong in separate
+   leaves, and a genuinely different widget belongs in a platform subpath.
+   Avoid inert shared props and whole-file forks for a one-prop difference.
+5. Give silent-failure cases a mechanical guard, such as a lint rule, named
+   error, or structural check.
+6. Verify the claim on each target. For visuals, compare bounds and selected
+   resolved styles in a controlled stage; for behavior, assert the same
+   events and state transitions. Record whether evidence is source-read or
+   device-verified.
+
+Lists show why the shared contract and host widget must be considered
+separately. A small, unvirtualized list is a common shared job: `ScrollableArea`
+plus `items.map(...)` gives it ordered rows and ordinary scrolling. The shared
+`VirtualList` adds bounded vertical windowing and measured-height anchoring;
+off-window rows unmount rather than recycle. Native cell recycling remains in
+`UITableView` and `RecyclerView` under the platform subpaths. A shared API
+must name the behavior it actually provides and must not imply native cell
+reuse.
+
 ## Invariants (the rules that keep the seams from tearing)
 
 > [!IMPORTANT]

@@ -1,17 +1,26 @@
 # Moving between screens
 
-> Give every destination a name and let the same screen map to a browser URL
-> or a native navigation stack.
+> Open another screen and let someone return with Back.
 
-Start with the journey: open a record, inspect its detail, and return
-without losing your place. Ask your agent to verify the browser URL and the
-native back action for that flow. Shared destinations can use different
-platform shells; check [navigation limits](known-limits.md#navigation) for the
-targets you need.
+A packing-list app might have a list screen, an item detail screen, and a
+settings screen. **Navigation** connects those screens. In the browser,
+each destination can have a URL. On phones, opening a screen adds it to a
+**stack**, the history that Back moves through.
+
+If you're working with an agent, describe the action: “Tap an item to open
+its details, then go back without losing the list.” Try both the browser
+Back button and the phone's back action. Check
+[navigation limits](known-limits.md#navigation) for the platforms you use.
+
+This guide assumes you have [a working app](toolchain.md#create-and-run).
+The early sections cover destinations and links; later sections cover
+optional setup for data, sign-in rules, and links from outside the app.
 
 ## A route is a destination
 
-Routes have three pieces:
+A **route** describes a destination by name and the information it needs.
+This is a fragment for a button's press handler; import `pushRoute` from
+`@octane-xplat/ui` and register a `settings` screen before using it:
 
 ```ts
 pushRoute({
@@ -29,9 +38,42 @@ On the web, the route becomes a real URL, so refresh, back, bookmarks, and
 shared links keep working. On native, the same route pushes a screen into the
 matching navigation stack.
 
+## Keep browser links real
+
+Use `NavLink` for an in-app destination the user might copy or open in a new
+tab — on web it renders a real `<a href>` whose plain click drives
+`pushRoute` while modified clicks keep native browser behavior; on native it
+navigates the same route. Use `Link` for an outbound URL — a real anchor on
+web, the OS opener on native. Use `pushRoute` for an in-app action that is
+not naturally a link.
+
+This example assumes a registered `settings` route. Place the component in
+your app and render `<Footer />` in a screen. Select Settings and check that
+it opens that destination; on web, its link can also open in a new tab.
+
+```tsx
+import { HStack, Link, NavLink } from '@octane-xplat/ui'
+
+export function Footer() {
+	return (
+		<HStack>
+			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>Settings</NavLink>
+			<Link href="https://example.com">Website</Link>
+		</HStack>
+	)
+}
+```
+
+For a component that must observe the current destination, use `useRoute` on
+the stack it owns. A tab can therefore keep its own history without taking
+over the whole app.
+
 ## Let the route dir name your routes
 
-Files under `app/` become routes automatically — the file path is the name:
+A **route directory** is a folder containing your screen files. When your
+app is configured for generated routes, files under `app/` become
+destinations, and their file paths supply the names. For example,
+`app/detail.tsrx` names the `detail` route:
 
 ```
 app/detail.tsrx        → 'detail'
@@ -47,6 +89,13 @@ Route params land as screen props. Feed them to a
 [screen-owned query](data.md#module-scope-vs-screen-scope) when stacked
 screens must keep independent requests.
 
+### What the route generator writes
+
+The rest of this section explains generated files for setup and debugging.
+A **manifest** is a list of available routes. A **glob** is a file pattern
+used to collect the route files, and **codegen** means generating code from
+that list. You don't edit the generated route files by hand.
+
 `deriveRouteManifest` turns the glob into the table and `registerRoutes`
 registers it once at boot — there is no per-screen wiring to maintain.
 `xplat routes` (run automatically by `xplat dev`, `xplat build`, and
@@ -60,6 +109,9 @@ describe every route name and its param shape, so a typed wrapper around
 `pushRoute`/`Link` can name-check destinations.
 
 ## Register routes from data
+
+You can skip this if your destinations come from screen files. Use it when
+a list of data records determines the routes, such as one help page per guide.
 
 The file tree can't express routes derived from runtime data — a docs app
 that maps a content directory, or a host framework generating its route
@@ -120,6 +172,9 @@ typed surface — navigate those with the low-level `Route` shape
 screens through `screenFor(name)`, which reads the merged registry.
 
 ## Present a route modally
+
+A **modal** appears over the current screen, such as a form you can close
+without leaving the list underneath.
 
 Suffix the file with `+modal`, or pass `presentation: 'modal'` on the push.
 Native shows it as its own modal root over the current page; web overlays it
@@ -198,6 +253,11 @@ aborted, so loaders must still manage their own side effects.
 
 ## Guard and document a route
 
+A **guard** checks a condition before opening a screen, such as whether
+someone is signed in. A **redirect** sends them to another destination,
+such as a login screen. These checks do not replace server-side access
+controls for private data.
+
 Route files can export behavior alongside their screen. This fragment assumes
 the app supplies `context.user` and registers a `login` destination; Xplat
 does not populate authentication context automatically:
@@ -271,6 +331,10 @@ or array is passed directly, web JSON-encodes it with a warning and decodes it
 again on matching. Prefer the generated scalar API for shareable routes.
 
 ## Handle incoming links
+
+A **deep link** opens a particular screen from outside the app, such as a
+shared link to a trip. This needs route registration and phone configuration;
+follow this section when you are ready to add incoming links.
 
 `pushDeepLink(url)` turns an incoming URL — `https://…` or an app scheme like
 `textcoral://post/5` — into the same route a link would have navigated to.
@@ -369,32 +433,6 @@ browser bootstrap or history traversal.
 The [release navigation checks](navigation-checks.md) exercise these commands
 without images. Coverage in this guide and actual per-target results are
 recorded separately; scheme registration alone is not runtime verification.
-
-## Keep browser links real
-
-Use `NavLink` for an in-app destination the user might copy or open in a new
-tab — on web it renders a real `<a href>` whose plain click drives
-`pushRoute` while modified clicks keep native browser behavior; on native it
-navigates the same route. Use `Link` for an outbound URL — a real anchor on
-web, the OS opener on native. Use `pushRoute` for an in-app action that is
-not naturally a link.
-
-```tsx
-import { HStack, Link, NavLink } from '@octane-xplat/ui'
-
-export function Footer() {
-	return (
-		<HStack>
-			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>Settings</NavLink>
-			<Link href="https://example.com">Website</Link>
-		</HStack>
-	)
-}
-```
-
-For a component that must observe the current destination, use `useRoute` on
-the stack it owns. A tab can therefore keep its own history without taking
-over the whole app.
 
 ## Choose a stack
 

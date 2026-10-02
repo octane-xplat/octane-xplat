@@ -1,9 +1,13 @@
 # Push notifications
 
-> Receive remote push messages on web, iOS, and Android through one API, via
-> Firebase Cloud Messaging.
+> Receive messages sent to your app with Firebase Cloud Messaging.
 
-`@octane-xplat/push` is a leaf package: it wraps
+A **push notification** is sent from a server, such as an alert that a shared
+trip was updated. It needs setup outside your app: a Firebase project and
+platform credentials. Build [a working app](toolchain.md#create-and-run)
+first, then follow this guide when you're ready to connect those services.
+
+`@octane-xplat/push` is an optional add-on package: it wraps
 `@nativescript/firebase-core` + `@nativescript/firebase-messaging` on
 iOS/Android and the Firebase JS SDK (`firebase/app` + `firebase/messaging`) on
 web. It owns registration, permission, token acquisition and refresh,

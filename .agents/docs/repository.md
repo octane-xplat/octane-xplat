@@ -11,14 +11,16 @@ the universal-runtime driver over `@nativescript/core`).
 The framework exists and is published: `packages/ui` ships as
 `@octane-xplat/ui` on npm, `packages/cli` as `@octane-xplat/cli` (dev/build/
 doctor/typecheck). `packages/app` + `apps/web` + `apps/mobile` are the probe
-harness; `packages/demos` the seam-by-seam demo screens. `docs/` remains the
-design record.
+harness; `packages/demos` the seam-by-seam demo screens. `docs/` contains
+app-building guides alongside the contributor design record. Follow the
+[documentation audience guidance](documentation.md#audience-and-voice) when
+writing or reviewing the guides.
 
 ## Layout
 
 | Path                                                                     | What it is                                                                                                                                                                                        |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `docs/`                                                                  | Our plan + status. `docs/README.md` is the index; `docs/status.md` the dashboard — seven owned problems, each with a status header (Owns / Status / Blocks on / Decisions / Validated by).        |
+| `docs/`                                                                  | App-building guides for beginners and agent-assisted builders, plus technical notes. `docs/README.md` is the introduction; `docs/status.md` tracks framework work in progress.                    |
 | `packages/macos-renderer`                                                | Experimental `@octane-xplat/macos-renderer`: AppKit driver, JSX types, and compatibility shims. `apps/macos` owns its host and consumes this package.                                             |
 | `packages/ui`                                                            | The framework — `@octane-xplat/ui` on npm. Primitives, styled(), stacks, routes, theme. Prop types in `src/props.ts`.                                                                             |
 | `packages/cli`                                                           | `@octane-xplat/cli` — `xplat` dev/build/doctor/typecheck/clean commands.                                                                                                                          |

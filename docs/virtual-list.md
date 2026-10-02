@@ -1,12 +1,20 @@
 # VirtualList
 
-> Render a long vertical collection with bounded row mounts, and decide whether
-> its measured behavior fits your app.
+> Show a long scrolling list while creating only the rows near the screen.
 
-Use `VirtualList` from `@octane-xplat/ui` for vertical, measured-height rows.
-Give the list a bounded viewport and each item a stable, unique key. Small
-collections can use `ScrollableArea` and `@for`. Platform-authentic recycling is
-available separately through `UITableView` and `RecyclerView`.
+For a short packing list, start with `ScrollableArea` and render every item.
+Use `VirtualList` from `@octane-xplat/ui` when a longer list needs to limit
+how many rows exist at once. This is called **virtualization**.
+
+Give the list a fixed or otherwise limited visible area (its **viewport**),
+and give each item a stable, unique **key**, such as its saved ID. Keys let
+the list recognize an item after others are added, removed, or reordered.
+The example below is a fragment for a screen that already has an `items`
+array and a container with a limited height.
+
+For the OS's own scrolling lists, see `UITableView` and `RecyclerView` in
+[platform controls](primitives.md#implementation-map). Those use a different
+implementation that recycles native cells.
 
 ## Keep identity and state stable
 
@@ -26,7 +34,9 @@ for reorderable data. Keys must be unique strings or finite numbers; duplicate
 keys throw. `getItemType` optionally distinguishes templates: changing an
 item's type remounts that row.
 
-Off-window rows unmount. A row that remains mounted retains its keyed local
+When a row moves far enough outside the visible area, its component is
+removed (**unmounted**). When it comes back, a new row component is created.
+A row that remains mounted retains its keyed local
 state across prepend; a row that leaves the window loses component-local state.
 Keep drafts, selection, and other durable row state in an external store keyed
 by item ID. On web, iOS, and Android, type-compatible outer cell hosts are

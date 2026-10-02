@@ -1,6 +1,14 @@
 # Action controls and interactive cards
 
+> Add buttons, action menus, and cards someone can select or open.
+
 ## Action controls and interactive cards
+
+An **action** changes something, such as saving a document. A callback is the
+function your app provides to perform it. The example below is a screen
+fragment: your app supplies `saveDocument`, `shareDocument`, `duplicate`,
+and the current `pinned` value with its `setPinned` callback. Icon names also
+need to be registered in your app.
 
 Use `Button` for labeled actions and `IconButton` when the whole control is an
 icon. `ButtonGroup` shares size and disabled state across adjacent actions. On web,

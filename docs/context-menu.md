@@ -1,19 +1,20 @@
 # Platform context menus
 
-> Attach a platform-specific context menu to an octane subtree through an
-> explicit package entry point.
+> Show actions for an item when someone holds or right-clicks it.
 
-`@octane-xplat/context-menu` is the third Expo UI port and the first that
-embeds an octane subtree _inside_ the native control: the menu trigger is a
-detached octane root hosted by the platform view system, while the menu
-content travels as serialized data. The native implementations are adapted
-from `@expo/ui` sdk-57 (`ios/ContextMenu/ContextMenu.swift`,
-`android/.../ui/menu/DropdownMenu*.kt`; MIT — attribution headers sit on the
-ported files).
+A **context menu** puts actions such as Rename or Delete next to the item
+they affect. `@octane-xplat/context-menu` uses each platform's own menu
+appearance. Its components have different names and options, so put them
+in matching [platform files](module-resolution.md).
+
+This is an optional package. For a shared overflow button with actions,
+start with `MoreMenu` in [action controls](interactive-actions.md).
+The example here assumes your app supplies `items`, an `act(id)` callback,
+and styles for the trigger.
 
 ## Install and import
 
-Add `@octane-xplat/context-menu` to the app that renders a control. Import
+Run `pnpm add @octane-xplat/context-menu` from your app folder. Import
 the platform-specific component from the matching target entry:
 
 - `SwiftUIContextMenu` from `@octane-xplat/context-menu/ios` in `.ios.ts` or `.ios.tsrx`.
@@ -23,9 +24,13 @@ the platform-specific component from the matching target entry:
 
 ## The trigger is a render fn
 
-Each entry takes `trigger` — a render fn whose output mounts into a
-detached octane root. The leaf registers the host's native view and the
-native side embeds it:
+The **trigger** is the content someone holds or right-clicks to open the
+menu. Supply it as a function that returns your components. The function
+in the example returns a card with a text label.
+
+On native, that content is drawn in a separate Octane root: its own UI
+container inside the platform control. The following details explain how
+that connection works; you can skip them when using the component:
 
 - iOS resolves the registered view through `NativeScriptViewFactory`
   (the same lookup the swift-ui plugin's `NativeScriptView` performs) and
@@ -75,6 +80,11 @@ in spirit (their slot children become item records here).
   the only AppKit convention.
 
 ## Port notes — what carried over
+
+The remaining sections are implementation notes for contributors. Native
+code is adapted from `@expo/ui` sdk-57 (`ios/ContextMenu/ContextMenu.swift`
+and `android/.../ui/menu/DropdownMenu*.kt`), under the MIT license.
+Attribution headers are retained in the source files.
 
 - iOS: the trigger/preview branch (`ContextMenuWithPreview` vs the plain
   long-press variant) maps directly; children slot views became the

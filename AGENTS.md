@@ -17,7 +17,7 @@ working agreements and detail moved out of this entry point.
 | Implement components or platform variants               | [Implementation invariants](.agents/docs/architecture.md)                                                            |
 | Build, install dependencies, patch upstream, or lint    | [Toolchain](.agents/docs/toolchain.md)                                                                               |
 | Investigate one case or add lasting test coverage       | [Probes and tests](.agents/docs/testing.md)                                                                          |
-| Change public behavior, setup, or a supported workflow  | [Documentation coverage](.agents/docs/documentation.md)                                                              |
+| Write or review docs; change public behavior or setup   | [Documentation audience and coverage](.agents/docs/documentation.md)                                                 |
 | Explore a seam, record evidence, or update decisions    | [Exploration and Silo](.agents/docs/exploration.md)                                                                  |
 | Work with Octane signals                                | Read the [upstream signals guide](https://raw.githubusercontent.com/octanejs/octane/refs/heads/main/docs/signals.md) |
 | Add or publish a package                                | [Releases](.agents/docs/releases.md)                                                                                 |
@@ -52,6 +52,10 @@ working agreements and detail moved out of this entry point.
   excluded from this runner.
 - Report the targets actually run and distinguish source/build evidence from
   runtime evidence. Handler dispatch does not prove OS input or hit-testing.
+- Write app-building docs for junior engineers and people using coding agents
+  with no prior programming experience. Explain terms and steps, lead with a
+  small visible result, and use a friendly, concrete voice. Follow the
+  [documentation guidance](.agents/docs/documentation.md).
 - Public workflow changes must reconcile recipes, docs, and maintained examples;
   record coverage separately from verification in Silo and run
   `pnpm check:recipes`. Never weaken criteria to conceal a limitation. Report

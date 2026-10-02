@@ -1,8 +1,16 @@
 # Search, select, and enter tokens
 
-Use `Typeahead` for one selected result, `Tokenizer` for a set of results, and
-`ComplexSelector` when the popup needs custom content. These controls share a
-`SearchSource`; they do not take `Selector`'s `{ value, label }` options.
+> Let someone choose from a list or find options by typing.
+
+For a list you already have, use `Selector` for one choice or `MultiSelector`
+for several. For results that come from a search, use `Typeahead` for one
+choice or `Tokenizer` for several. A **token** is a small labeled item, such
+as a selected person or tag. `ComplexSelector` lets you customize the popup.
+
+The search controls use a `SearchSource`, code that supplies search results.
+They do not take `Selector`'s simple `{ value, label }` option list.
+The [text-entry guide](text-entry.md#control-a-field) explains the value and
+change-callback pattern used here.
 
 ## Choose from a finite list
 
@@ -63,10 +71,13 @@ provides case-insensitive substring matching over labels and optional
 keywords:
 
 ```ts
-const source = createStaticSource([
-  { id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
-  { id: 'nyc', label: 'New York', auxiliaryData: { group: 'East' } },
-], { keywords: (item) => [item.id] })
+const source = createStaticSource(
+	[
+		{ id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
+		{ id: 'nyc', label: 'New York', auxiliaryData: { group: 'East' } },
+	],
+	{ keywords: (item) => [item.id] },
+)
 ```
 
 For remote data, implement `search(query)` and `bootstrap()`. `search` receives
@@ -80,12 +91,12 @@ list.
 
 ```tsx
 <Typeahead
-  label="Assignee"
-  searchSource={source}
-  value={assignee}
-  onChange={setAssignee}
-  hasEntriesOnFocus
-  hasClear
+	label="Assignee"
+	searchSource={source}
+	value={assignee}
+	onChange={setAssignee}
+	hasEntriesOnFocus
+	hasClear
 />
 ```
 
@@ -99,13 +110,13 @@ a disabled input discoverable on pointer platforms.
 
 ```tsx
 <Tokenizer
-  label="Regions"
-  searchSource={source}
-  value={regions}
-  onChange={(next, change) => setRegions(next)}
-  hasCreate
-  maxEntries={5}
-  htmlName="regions"
+	label="Regions"
+	searchSource={source}
+	value={regions}
+	onChange={(next, change) => setRegions(next)}
+	hasCreate
+	maxEntries={5}
+	htmlName="regions"
 />
 ```
 
@@ -129,15 +140,21 @@ a close callback, and `{ isOpen, isBusy, triggerId, contentId }`:
 
 ```tsx
 <ComplexSelector
-  label="Color"
-  value={color}
-  onChange={setColor}
-  changeAction={(next) => saveColor(next)}
-  triggerLabel={color.name}
+	label="Color"
+	value={color}
+	onChange={setColor}
+	changeAction={(next) => saveColor(next)}
+	triggerLabel={color.name}
 >
-  {(value, commit, close, state) => (
-    <ColorGrid value={value} onSelect={(next) => { commit(next); close() }} />
-  )}
+	{(value, commit, close, state) => (
+		<ColorGrid
+			value={value}
+			onSelect={(next) => {
+				commit(next)
+				close()
+			}}
+		/>
+	)}
 </ComplexSelector>
 ```
 

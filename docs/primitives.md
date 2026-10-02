@@ -1,106 +1,109 @@
 # Building screens
 
-> Build the screens your app needs with shared components, then choose
-> platform widgets where the OS experience matters.
+> Combine text, buttons, fields, and containers to make a screen.
 
-When you brief your agent on a screen, describe its actions, its empty state,
-and its failure states — “list saved orders, explain an empty list, offer
-retry when loading fails” gets further than naming components. Start with the
-components below; [run the starter](toolchain.md)
-if you do not yet have a working app.
+A **component** is a reusable piece of a screen. `Text` displays words,
+`Pressable` responds to a tap or click, and `View` groups content. You give
+components **props**: options such as the text to show or what to do when
+someone presses a button.
+
+If you're working with an agent, describe the screen in terms of what someone
+can do: “Show saved orders. If there are none, explain how to add one. If
+loading fails, offer Retry.” You can also write the components yourself.
+[Create an app](toolchain.md#create-and-run) first if you haven't yet.
 
 ## The components you reach for first
 
-| Need                                   | Component                        |
-| -------------------------------------- | -------------------------------- |
-| Group content                          | `View`                           |
-| Put items in a row or column           | `HStack`, `VStack`, `Stack`       |
-| Render a short content list            | `List` + `ListItem`               |
-| Show text                              | `Text`                           |
-| Compose styled or tappable inline text | `RichText` + `RichTextSpan`      |
-| Respond to a tap                       | `Pressable`                      |
-| Render repeated items                  | `ScrollableArea` + `items.map(...)` |
-| Show a settings or preference row      | `Item`                       |
-| Accept one or more lines               | `TextInput`, `TextArea`          |
-| Scroll content                         | `ScrollableArea`                 |
-| Show a web page or inline HTML         | `WebView`                        |
-| Play video                             | `Video`                          |
-| Play a Lottie animation                | `Lottie`                         |
-| Show a live camera preview             | `CameraView`                     |
-| Swipe through full pages               | `Pager`                          |
-| Pick one of a few options inline       | `SegmentedControl`               |
-| Search or filter                       | `SearchInput`                    |
-| Pull to refresh a scroller or list     | `refreshing` + `onRefresh` props |
-| Show temporary content above a screen  | `Dialog`, `BottomSheet`, `Overlay` |
+| I need to…                           | Use                       |
+| ------------------------------------ | ------------------------- |
+| Group content                        | `View`                    |
+| Put items beside each other          | `HStack`                  |
+| Put items above and below each other | `VStack` or `Stack`       |
+| Show words                           | `Text`                    |
+| Respond to a tap or click            | `Pressable`               |
+| Accept typed text                    | `TextInput` or `TextArea` |
+| Scroll content                       | `ScrollableArea`          |
+| Show a short list                    | `List` with `ListItem`    |
+| Show a dialog above a screen         | `Dialog`                  |
 
-Start with these components. They are deliberately smaller than the browser
-DOM or the full NativeScript view catalog, which makes a shared screen easier
-to keep portable — and they are self-drawn, chrome-reset, or hosted (see the
-normalization classes in [architecture](architecture.md#normalization-classes)),
-which defines which visuals the framework owns. Hosted content keeps its
-platform or engine appearance. These contracts describe the supported
-web/iOS/Android implementations; the [experimental desktop targets](spec.md#choose-your-targets)
-have narrower coverage.
-
-`Stack` is a flow container: it lays children out in a row or column. Its
-`gap` and padding props use spacing steps, with one step equal to 4 dips (and
-4 CSS pixels on web). `HStack` and `VStack` fix the direction. Use `Absolute`
-when children need to occupy the same layer area; `Stack` no longer overlaps
-its children. Native `Stack as="section"` cannot create an HTML semantic tag,
-and native `isScrollable` wraps the layout in a `ScrollView`.
-Use `StackItem size="fill"` to grow a child into remaining space, or
-`crossAlignSelf` to override the parent's cross-axis alignment.
-
-Platform-authentic widgets (real OS chrome, no parity promised) live behind
-`@octane-xplat/ui/ios`, `@octane-xplat/ui/android`, and `@octane-xplat/ui/web`
-under their OS names — `UITableView`, `RecyclerView`, `UIModal`,
-`MaterialDialog`, `UITabBar`, `BottomNavigationView`, `SideDrawer`,
-`DrawerLayout`, `UISwitch`, `MaterialSwitch`, `UISlider`, `SeekBar`,
-`UIActivityIndicatorView`, `CircularProgressIndicator`, and `LiquidGlass` +
-`LiquidGlassContainer` (iOS-only). Import them only from
-`.ios.*`/`.android.*`/`.web.*` files — a shared `.tsrx` importing a
-platform subpath fails the other platform's build, which is the point.
+The [component index](components.md) lists more options. Begin with shared
+components from `@octane-xplat/ui`. The supported web, iOS, and Android
+implementations aim for consistent appearance and actions;
+[experimental desktop targets](spec.md#choose-your-targets) have narrower coverage.
 
 ## A practical example
 
-This component logs `create message` when pressed. Define `empty-state` and
-`button` in your shared stylesheet; they are app-owned classes.
+For a small experiment in the starter, replace `src/App.tsrx` with this
+component. It starts at zero; pressing “Add one” increases the count.
 
 ```tsx
+import { useState } from 'octane'
 import { View, Text, Pressable } from '@octane-xplat/ui'
 
-export function EmptyState() {
+export function App() {
+	const [count, setCount] = useState(0)
 	return (
-		<View className="empty-state">
-			<Text>No messages yet.</Text>
-			<Pressable onPress={() => console.log('create message')} className="button">
-				<Text>Write a message</Text>
+		<View>
+			<Text>Count: {count}</Text>
+			<Pressable onPress={() => setCount(count + 1)}>
+				<Text>Add one</Text>
 			</Pressable>
 		</View>
 	)
 }
 ```
 
-Use `className` for reusable visual styles, `style` for values that change at
-runtime, and shared event names such as `onPress` and `onChange`.
+`useState(0)` gives the component a changing value, starting at zero.
+`count` is that value and `setCount` changes it. `onPress` is a callback: a
+function the component calls when someone presses it. The `{count}` part
+shows the current value in the text.
 
-`TextArea` keeps Return as a newline. On web, `onSubmit` fires for
-Cmd/Ctrl+Enter. On native, `onSubmit` is enabled only when
-`returnKeyType="done"` or `returnKeyType="send"`; other return keys insert
-a newline instead.
+Save the file with the development server running. Press Add one twice and
+check that the text says “Count: 2.” Reloading starts at zero again.
+[Styling](styling.md) explains how to add spacing and button decoration.
 
-On web, Enter used to confirm an IME composition does not call `onSubmit`
-on `TextInput`, `TextArea`, or `SearchInput`. Keep the controlled `value`
-in sync with `onChange`; defer formatting or validation that rewrites text
-until editing finishes. Real marked-text composition on iOS and Android
-still needs keyboard validation; synthetic events do not establish that pass.
+### Layout and platform controls
 
-Actionable `Pressable` elements participate in browser Tab navigation. Enter
-activates on keydown and Space on keyup, once per press; `disabled` removes
-keyboard activation and the Tab stop. Give actions an `accessibilityLabel`
-when their visible content does not name them. Native accessibility mappings
-and assistive behavior have separate evidence in
-[platform notes](platform-notes.md#a11y-prop-map-shared-prop--leaf-attrs).
+`Stack` arranges its contents in a row or column. `HStack` fixes the direction
+to horizontal; `VStack` fixes it to vertical. `gap` and padding use spacing
+steps: one step is 4 device-independent pixels (dips) on native and 4 CSS
+pixels on web. A dip is a size unit that accounts for a phone's pixel density.
+Use `Absolute` when children need to overlap. `StackItem size="fill"` grows
+into remaining space, and `crossAlignSelf` changes an item's alignment across
+the row or column.
+
+On web, `Stack as="section"` selects an HTML tag. Native cannot create that
+tag. Native `isScrollable` puts the layout inside a `ScrollView`.
+
+Xplat also offers the OS's own controls through platform imports such as
+`@octane-xplat/ui/ios` and `@octane-xplat/ui/android`. They keep their platform's
+appearance and do not promise matching visuals. Examples include `UITableView`
+and `UISwitch` on iOS, or `RecyclerView` and `MaterialSwitch` on Android.
+Keep those imports in matching `.ios` or `.android` files; importing them into
+a shared screen will fail the other platform's build.
+[Platform files](module-resolution.md) explains the naming rules.
+The [implementation map](#implementation-map) lists more controls and their
+underlying views for readers who need that detail.
+
+### Text and keyboard actions
+
+`TextArea` keeps Return as a newline. On web, Cmd/Ctrl+Enter submits it.
+On iOS and Android, submission is enabled only with
+`returnKeyType="done"` or `returnKeyType="send"`; other Return keys insert
+a newline. Keep `value` updated from `onChange`; the
+[text-entry guide](text-entry.md) explains how.
+
+Some keyboards compose a character over several keystrokes, such as when
+entering Japanese text. This is called **IME composition**. Web inputs do
+not submit when Enter confirms a composed character. Avoid rewriting text
+while composition is in progress, and check the actual iOS and Android
+keyboards your app needs.
+
+In the browser, Tab can focus a `Pressable`, and Enter or Space activates it.
+`disabled` prevents activation and removes it from Tab navigation. Give an
+action an `accessibilityLabel` when its visible content does not name it,
+so a screen reader can describe it. Native accessibility behavior has
+[separate checks](platform-notes.md#a11y-prop-map-shared-prop--leaf-attrs).
 
 ### Reusable rows
 
@@ -177,7 +180,7 @@ import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
 
 | Component                   | Web element                  | iOS NativeScript view                         | Android NativeScript view              | Normalization class   |
 | --------------------------- | ---------------------------- | --------------------------------------------- | -------------------------------------- | --------------------- |
-| `Item`                  | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable`        | `FlexboxLayout` via shared `Pressable` | `self-drawn`          |
+| `Item`                      | `div` via shared `Pressable` | `FlexboxLayout` via shared `Pressable`        | `FlexboxLayout` via shared `Pressable` | `self-drawn`          |
 | `SafeArea`                  | `div`                        | `FlexboxLayout`                               | `FlexboxLayout`                        | shared layout wrapper |
 | `WebView`                   | sandboxed `iframe`           | `webview` → WKWebView                         | `webview` → android.webkit.WebView     | `hosted`              |
 | `UITableView`               | unavailable                  | `listview` → UITableView                      | unavailable                            | `platform-authentic`  |

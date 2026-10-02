@@ -1,8 +1,12 @@
 # Date and file entry
 
-> Use the shared date, time, range, and file controls for application forms.
-> Use the date-picker leaf only when the product specifically needs an
-> OS-authentic picker surface.
+> Let someone choose a date, time, date range, or file in a form.
+
+Start with the shared controls for a form that works across platforms.
+Use the optional platform date-picker package when you specifically want
+the OS's own picker. A **picker** is a control for choosing a value or file.
+The [text-entry guide](text-entry.md#control-a-field) explains how your app
+keeps a field's value and handles changes.
 
 `@octane-xplat/ui` exports `Calendar`, `DateInput`, `TimeInput`,
 `DateTimeInput`, and `DateRangeInput`. `@octane-xplat/files` exports
@@ -13,19 +17,23 @@ Linux. Labels can be supplied directly or by composing a control inside
 
 ## Portable values
 
-Date fields use `YYYY-MM-DD`; time fields use `HH:MM` or `HH:MM:SS`; combined
-date-time values use `YYYY-MM-DDTHH:MM[:SS]` without a timezone suffix. These
+Date fields use strings such as `2026-10-02` (`YYYY-MM-DD`). Time fields use
+`14:30` (`HH:MM`) or `14:30:00` (`HH:MM:SS`). A combined value looks like
+`2026-10-02T14:30`, with optional seconds and no timezone suffix. These
 are calendar and wall-clock values, not JavaScript timestamps. Date constraints
 receive local-midnight `Date` values. `Calendar` supports single selection or
 inclusive `{ start, end }` ranges. `DateRangeInput` commits the same range
 shape and uses `null` to clear.
 
-These are controlled components with value callbacks, not React/DOM adapters:
-`onChange` receives the new portable value directly, and there is no
-`SyntheticEvent`, forwarded DOM `ref`, or HTML `name`/form-submission prop.
-Use `bind` for the supported handles (`Calendar.navigateTo()`, input focus and
-blur, or `FileInput.open()`), hold values in app state, and serialize them in
-the app's form or request layer.
+Your app supplies `value`, and `onChange` receives the new value when someone
+edits it. Keep that value in app state and send it with the rest of your form
+when submitting. `onChange` gives you the value itself rather than a browser
+event object; these controls do not submit an HTML form automatically.
+
+Use `bind` for the supported handles: `Calendar.navigateTo()`, input focus
+and blur, or `FileInput.open()`. A handle lets your code call those actions.
+If you are adapting React examples, these are not DOM refs or
+`SyntheticEvent` callbacks.
 
 `DateInput` and `DateTimeInput` open an adaptive calendar surface by default.
 `TimeInput` supports a typed field, popover, bottom sheet, or platform picker.

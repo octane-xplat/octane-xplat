@@ -159,8 +159,8 @@ const highlights = [...root.querySelectorAll('.doc mark.highlight')]
 assert(
 	'Xplat page renders both highlights',
 	highlights.length === 2 &&
-		highlights[0].textContent === 'one TypeScript codebase' &&
-		highlights[1].textContent === 'Prove the loop first',
+		highlights[0].textContent === 'one project' &&
+		highlights[1].textContent === 'Create your first app',
 )
 
 assert(

@@ -9,6 +9,12 @@ Help readers reach a useful result and understand enough to adapt it. Ground
 explanations in the subject's actual behavior, organize around reader needs,
 and make important claims observable.
 
+For Octane Xplat, follow the [documentation audience and voice](../../docs/documentation.md#audience-and-voice):
+app-building guides must welcome junior engineers and
+people using coding agents with no prior programming experience. Explain terms
+and prerequisites as they become useful, lead with a small visible result,
+and keep corporate language and advanced internals out of the beginner path.
+
 ## Establish the Reader's Job
 
 Before drafting, identify what readers are trying to accomplish, what they

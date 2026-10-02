@@ -1,7 +1,24 @@
-# Localization
+# Localizing an app
 
-> One catalog set, every target — Lingui core macros in shared code, with
-> `@octane-xplat/lingui` owning catalog loading, locale state, and detection.
+> Show your app's text in another language with Lingui.
+
+**Localization** adapts an app for someone's language or region. A **locale**
+is a language and, sometimes, a region, such as English (`en`) or Spanish
+(`es`). A **catalog** is a file of translated messages.
+
+For example, you can mark “Packing list” as a translatable message, add its
+Spanish translation to a catalog, and switch the app to Spanish. The same
+messages can serve web, iOS, and Android. This guide assumes you already
+have [a working app](toolchain.md#create-and-run).
+
+The setup below changes build configuration. If you're using an agent, ask
+it to add Lingui for your chosen languages, run the checks, and show you
+how to switch between them. A **macro** marks text in code and is replaced
+by the build with a translation lookup.
+
+### How the integration works
+
+These details explain which Lingui packages the setup uses.
 
 The framework's localization contract is [Lingui](https://lingui.dev)'s
 renderer-free half: `@lingui/core` plus the core Babel macros (`t`, `plural`,

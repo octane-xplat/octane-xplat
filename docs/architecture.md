@@ -1,188 +1,136 @@
 # How an Xplat app fits together
 
-> Keep product code shared, and put platform-specific work at the edges.
+> Your screens use shared building blocks. Platform files handle the parts
+> that need to work differently in a browser or on a phone.
 
 ## Keep the app coherent
 
-Share the app's data, actions, and ordinary screens. Tailor a layout or control
-when it improves the experience on a particular platform. For example, a trip
-packing flow can stay shared while a platform-specific component supplies an
-OS control. [File variants](module-resolution.md) keep that choice behind one
-import. Check [target support](spec.md#choose-your-targets) before assuming a
-shared component is implemented everywhere.
+Think of a packing-list app. Its screens decide what to show; its data
+records which items are packed; a share action lets someone send the list.
+Most of that code can work on web, iOS, and Android. The part that opens the
+share picker may need different code on each platform.
 
-Octane provides React-style components and compiles their UI. NativeScript
-supplies native views and API access on iOS/Android. You usually work through
-Xplat components and services; the layers below explain where a new feature
-belongs when your agent needs to go beyond them.
+Xplat gives those parts a common name so your screen can ask to share
+without choosing a browser or phone implementation itself.
+[Platform files](module-resolution.md) explain how that selection works.
+Check [target support](spec.md#choose-your-targets) when adding a platform:
+shared names do not mean every feature is available everywhere.
 
 ## The three layers
 
-An app normally has these layers:
+You will usually work with these pieces:
 
-```text
-screens and features
-        ↓
-shared UI components and services
-        ↓
-web or native platform leaves
-```
+| Piece                          | Its job                                            | Packing-list example                                           |
+| ------------------------------ | -------------------------------------------------- | -------------------------------------------------------------- |
+| Screens and features           | Decide what the app shows and does.                | Show the items and the number left to pack.                    |
+| Shared components and services | Provide reusable screen pieces and device actions. | `Text` shows the count; a share service sends the list.        |
+| Platform implementations       | Connect those pieces to the browser or phone.      | Use the browser's sharing options or the phone's share picker. |
 
-Your screens should talk to `@octane-xplat/ui` and
-`@octane-xplat/platform`. They should not talk directly to a DOM element or a
-NativeScript view.
+A **component** is a reusable piece of a screen. A **service** provides an
+action or data without drawing a screen, such as saving a setting.
+You import common components from `@octane-xplat/ui`; device services come
+from `@octane-xplat/platform` or the [package for that feature](platform-services.md).
 
-The UI package's common root exports live in `index.shared.ts`. Platform
-entries select implementations while preserving the same public names and
-types. `KeyboardAvoiding` is exported from every root entry: iOS and Android
-adjust around the software keyboard, while web, Linux, macOS, and Windows keep
-a neutral column wrapper.
+Octane turns components into UI. NativeScript connects them to native views
+and APIs on iOS and Android. Most app screens can use Xplat's components
+without calling those underlying tools directly.
 
 ## Shared code and platform code
 
-Start from the job an app needs, not the name of an OS widget. A common
-concept can have a useful shared intersection even when the platform widgets
-that implement its richer forms are different. Keep the shared contract only
-as broad as every target can honor: same props and actions must mean the same
-observable behavior, and each class must meet its stated pixel-parity claim.
-A shared baseline and platform-authentic variants can coexist.
-
-Choose how to deliver the shared contract, or keep the richer widget
-platform-authentic:
-
-| Approach           | Use it when                                                                                                                            | Examples                                                  |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Self-drawn         | The framework can own the visuals and behavior on every target.                                                                        | `Switch`, `Slider`, `Spinner`, `Tabs`, `Drawer` |
-| Chrome-reset       | A host control supplies behavior that would be costly to replace, and its chrome can be removed.                                       | `TextInput`, `TextArea`                                   |
-| Hosted             | An OS or engine supplies interior content while the framework owns the frame or draws shared chrome.                                   | `WebView`, `Video`, `CameraView`                          |
-| Platform-authentic | The OS surface or behavior is the point, so normalizing it would change the contract. Keep it in a platform subpath under its OS name. | `UITableView`, `RecyclerView`, `UIModal`, `LiquidGlass`   |
-
-### When a wrapper may pass through
-
-A shared wrapper may omit a platform-specific enhancement when passing its
-children through is still useful and the omission is predictable. Check:
-
-- **Frequency:** a common pattern used throughout an app is a stronger reason
-  to share than a rare, one-off wrapper. Frequency is a factor, not a cutoff.
-- **Children:** wrapping caller-provided JSX can remove platform branches from
-  shared screens. Having children alone is not enough.
-- **Residual value:** after the enhancement is absent, the wrapper must still
-  provide useful structure or layout. If its main purpose disappears, keep it
-  platform-specific.
-- **Predictability:** developers should expect the omitted enhancement on that
-  target, and the pass-through should preserve the wrapper's shared contract,
-  including children and applicable layout or styling props.
-
-For example, a keyboard-avoidance wrapper can remain useful as a shared layout
-boundary on a target without a software keyboard. A `WebView` cannot pass
-through meaningfully when its web content surface is unavailable. Document a
-pass-through as intentional behavior; do not silently drop shared props.
-
-Use these checks when shaping a new primitive:
-
-1. Define the common task and its smallest useful props, events, and state
-   before choosing a host widget. Commonness is a reason to look for an
-   intersection, not permission to promise behavior some targets lack.
-2. Separate that baseline from richer platform capabilities. A shared API
-   must not silently ignore a prop or substitute a different gesture or
-   presentation on one target. Keep platform extensions available under
-   explicit subpaths.
-3. Put unavoidable translation in platform leaves. Keep platform conditionals
-   and native names out of shared component logic; make the import path or
-   file suffix show where a developer crosses the boundary.
-4. Size the escape hatch to the divergence: a small platform detail can use
-   an explicit prop bag, implementation differences belong in separate
-   leaves, and a genuinely different widget belongs in a platform subpath.
-   Avoid inert shared props and whole-file forks for a one-prop difference.
-5. Give silent-failure cases a mechanical guard, such as a lint rule, named
-   error, or structural check.
-6. Verify the claim on each target. For visuals, compare bounds and selected
-   resolved styles in a controlled stage; for behavior, assert the same
-   events and state transitions. Record whether evidence is source-read or
-   device-verified.
-
-Lists show why the shared contract and host widget must be considered
-separately. A small, unvirtualized list is a common shared job: `ScrollableArea`
-plus `items.map(...)` gives it ordered rows and ordinary scrolling. The shared
-`VirtualList` adds bounded vertical windowing and measured-height anchoring;
-off-window rows unmount rather than recycle. Native cell recycling remains in
-`UITableView` and `RecyclerView` under the platform subpaths. A shared API
-must name the behavior it actually provides and must not imply native cell
-reuse.
-
-### Normalization classes
-
-Components are classified by the visuals they own; platform-authentic
-components live in platform subpaths rather than the shared contract. The class says what the
-parity claim covers — divergence inside a claim is a bug, divergence outside
-it is the design:
-
-| Class                | Interior                 | Chrome        | Parity claim                        | Examples                                              |
-| -------------------- | ------------------------ | ------------- | ----------------------------------- | ----------------------------------------------------- |
-| `self-drawn`         | us                       | all ours      | every pixel                         | `Switch`, `Tabs`, `SegmentedControl`, `Item`      |
-| `chrome-reset`       | the OS widget's behavior | stripped      | every pixel                         | `TextInput`, `TextArea`, `SearchInput`                |
-| `hosted`             | an OS/engine surface     | ours, or none | the frame + whatever chrome we draw | `Video`, `CameraView` (chrome ours); `WebView` (none) |
-| `platform-authentic` | the OS                   | the OS        | none — OS chrome is the point       | `UISwitch`, `MaterialDialog`, the subpath catalogs    |
-
-The class matters when you read [known limits](known-limits.md): a
-`different` row against a `hosted` component's interior pixels is expected,
-not a bug. How a component earns its class — and how the same idiom can ship
-twice as two separate components — is framework-authoring policy in the
-[architecture notes](architecture-notes.md#normalization-classes-how-a-shared-component-gets-classified).
-
-Split a component when the platform needs a different implementation:
+Start with shared code. Split out a platform file when a feature needs
+browser or native APIs, or when you want a different layout or OS control.
+For example:
 
 ```text
 ShareButton.tsrx          native default
 ShareButton.web.tsrx      browser implementation
-ShareButton.mobile.tsrx   shared iOS and Android implementation
+ShareButton.mobile.tsrx   implementation shared by iOS and Android
 ```
 
-The filename tells the build which implementation to use. The screen that
-imports `ShareButton` does not need an `if (ios)` branch.
+The screen keeps one import:
+
+```ts
+import { ShareButton } from './ShareButton'
+```
+
+The build selects the right file. Each version should accept the same
+options and report the same actions so the rest of your app can keep using
+it. The [file guide](module-resolution.md) lists the selection order.
+
+### When a wrapper may pass through
+
+A wrapper is a component that surrounds other screen content. Sometimes
+its extra behavior is needed only on phones. `KeyboardAvoiding`, for
+example, makes room for the software keyboard on iOS and Android. On web
+and desktop it keeps the same column layout without that adjustment.
+
+That works because the content is still useful without the adjustment.
+A missing camera preview cannot work the same way: removing the camera
+removes the feature. Check a wrapper's documented behavior rather than
+assuming it adds the same enhancement on every platform.
+
+### Normalization classes
+
+Some components have an appearance drawn by Xplat; others keep part or all
+of the platform's own appearance. The docs call these **normalization
+classes**. You mainly need these labels when reading
+[known limits](known-limits.md).
+
+**Chrome** means a control's visible decoration, such as borders and
+buttons. **Parity** means matching across platforms. The table describes
+the matching contract on supported targets. A difference inside that contract
+is a bug; known limits record current gaps.
+
+| Label                | Matching contract                                                                               | Examples                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `self-drawn`         | The whole appearance (every pixel) and behavior.                                                | `Switch`, `Tabs`, `SegmentedControl`, `Item` |
+| `chrome-reset`       | The whole appearance (every pixel), while the OS control supplies editing behavior.             | `TextInput`, `TextArea`, `SearchInput`       |
+| `hosted`             | The outer frame and any controls Xplat draws, while an OS or engine supplies the content.       | `Video`, `CameraView`, `WebView`             |
+| `platform-authentic` | The OS's own control, with its own look and behavior. Matching other platforms is not the goal. | `UISwitch`, `MaterialDialog`                 |
+
+For example, `WebView` frames a web page but does not make two browser
+engines draw that page identically. An iOS `UISwitch` is available through
+`@octane-xplat/ui/ios` and belongs in an iOS file, while the shared `Switch`
+comes from `@octane-xplat/ui`.
+
+If you are adding components to the framework, the
+[architecture notes](architecture-notes.md#normalization-classes-how-a-shared-component-gets-classified)
+explain how these labels are assigned and checked.
 
 ## What belongs in a screen
 
-Screens own product decisions: what to show, what to save, and where to go
-next. They can use shared state, UI components, and platform service
-interfaces.
+A screen decides what to show, what to save, and where to go next. It can
+use shared components, state, and services.
 
-They should not contain:
-
-- DOM globals such as `window` or `document`.
-- Native view names such as `gridlayout` or `page`.
-- Two copies of the same platform decision.
-
-If a screen needs one of those things, put the platform detail behind a shared
-component or service instead.
+Keep browser-specific objects such as `document`, NativeScript view names
+such as `gridlayout`, and direct OS calls in platform files. That lets a
+shared screen run without needing those objects on every platform.
+[Building screens](primitives.md) shows the everyday components.
 
 ## Shared state
 
-Keep shared state in a `.ts` module using Octane signals
-(`octane/signals`). [Fetching data](data.md) is the full guide; the summary:
+**State** is information that can change while someone uses the app: the
+packing items, the current filter, or whether a dialog is open. Keep state
+inside a component when only that component needs it. Use shared state when
+several screens need the same information.
 
-For example, a module-level `packedCount$ = signal$(0)` can be read by a
-header and a sheet. Both read the same value; neither needs a context provider.
+Octane's **signals** hold changing values and let the UI follow their
+updates. For example, a `packedCount$` signal in a shared `.ts` file can be
+read by both a header and a bottom sheet. Both see the same count in that
+running app. This does not sync separate devices.
 
-A component that reads `packedCount$.get()` in render subscribes automatically —
-on web _and_ on native. There is no platform leaf, no subscription hook, and
-no compiler flag. Name shared signals with a `$` suffix so the compiler
-preserves the reads through caches and props, and make sure the module imports
-`octane/signals` at runtime. Use `import 'octane/signals'` in a consuming
-module that otherwise only calls `.get()`.
+For native reads to update the UI, keep signal names ending in `$` and
+include a runtime import from `octane/signals` in every file that reads
+them. If that file only receives a signal from elsewhere, add
+`import 'octane/signals'`. Use `.get()` to read and `.set()` to write.
+Reads while drawing a component subscribe to updates; reads in event
+handlers or at file startup do not.
 
-Reads of async queries suspend: render them under `@try`/`@pending`/`@catch`.
-On native, a committed `@try` boundary must not suspend again — queries are
-stale-while-revalidate, so only suspend before first data.
+Plain mutable objects do not subscribe automatically on native. Code using
+an existing store needs `useStore(store)` in each reading component. Prefer
+signals for new shared state.
 
-Two exceptions:
-
-- **Non-signal module state** (plain stores, mutable objects) does not
-  subscribe on native. Wrap those reads in `useStore(store)` per reading
-  component — the universal renderer retains unchanged-prop children, so a
-  bare read in a child goes stale. (Decision #27.)
-- **Reads outside render** (module init, event handlers) never subscribe —
-  same as web. Write with `.set()` and read imperatively there.
-
-For the compiler boundaries, file rules, and the full layer map, see the
-[architecture notes](architecture-notes.md).
+For server data, use a query and show loading and error content while it
+runs. [Fetching data](data.md) covers queries, sharing, cancellation, and
+retry. The [architecture notes](architecture-notes.md) cover compiler and
+renderer details for framework contributors.

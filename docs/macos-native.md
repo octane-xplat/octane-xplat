@@ -1,7 +1,13 @@
 # Ship native code in a macOS leaf
 
-> Compile leaf-owned C, ObjC, Swift, or Zig sources and call their public APIs
-> from JavaScript in the AppKit target.
+> Add a macOS feature written in C, Objective-C, Swift, or Zig and call it
+> from your app's JavaScript code.
+
+This is an advanced guide for authors of add-on packages, also called
+**leaves**. It assumes you already have the experimental
+[macOS AppKit app setup](toolchain.md#experimental-appkit-target) and know
+the native language your feature uses. Most app screens can use shared
+components and [device services](platform-services.md) instead.
 
 macOS leaves can publish `platforms/macos/` alongside their platform-suffixed JS
 sources. The CLI discovers native code through installed runtime dependencies,

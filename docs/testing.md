@@ -1,70 +1,76 @@
 # Checking an Xplat app
 
-For repository investigation, use [single-case probing](probing.md): `pnpm probe doctor`
-and `pnpm probe run examples/probes/counter.tsrx --target web --watch`.
-Keep harness edits and catalog sweeps for broader regression coverage.
+> Try the actions your app supports, then use code checks to catch problems
+> you might miss while using it.
 
-For repository investigation, use [single-case probing](probing.md): `pnpm probe doctor`
-and `pnpm probe run examples/probes/counter.tsrx --target web --watch`.
-Keep harness edits and catalog sweeps for broader regression coverage.
+After a change, open the app and try it. For a packing list, add an item,
+mark it packed, and remove it. Check that the remaining count changes and
+that the empty list still offers a way to add another item.
 
-> Treat your agent's report as a claim to verify: catch shared-code mistakes
-> quickly, then prove the behavior on the targets you ship.
-
-An agent will call a task done on the strength of a typecheck and a passing
-browser. For an app you intend to ship, require the evidence below — and
-repeat the important flows yourself, because the agent's environment is not
-your user's.
+A coding agent can help run checks and fix failures. Ask it to tell you
+which commands passed and where it ran the app. A successful browser check
+is useful; you still need to try a phone feature on a phone or simulator.
 
 ## The short feedback loop
 
-1. Ask the agent to run `pnpm lint` and `pnpm typecheck` in the app.
-2. Run the app’s configured logic and component tests without a device.
-   The starter does not include a test runner or `test` script; configure one
-   before treating this step as automated coverage.
-3. Run `pnpm build` and check the interaction in the browser.
-4. Run a native smoke test on a simulator, emulator, or device before release.
+From your app's folder, run these commands one at a time, or ask your agent
+to run them:
 
-The first two steps are fast and should run on every change. Native builds
-take longer, so run them before merging platform work and in release checks.
+| Command          | What it checks                                              |
+| ---------------- | ----------------------------------------------------------- |
+| `pnpm lint`      | Looks for code patterns that can cause mistakes.            |
+| `pnpm typecheck` | Checks that values and options match what the code expects. |
+| `pnpm build`     | Checks that the browser app can be prepared for release.    |
+
+Each command should finish without errors. If one fails, copy the error
+into your agent and ask it to fix the cause, then run the check again.
+These commands don't click buttons or fill in forms, so try those actions
+in the running app too.
+
+As your app grows, add **automated tests**: code that performs checks for
+you, such as verifying that packing one of two items leaves one remaining.
+The starter does not include a test runner or `test` command. Ask your agent
+to help configure one when you need to repeat those checks automatically.
 
 ## Test behavior, not renderer markup
 
-The browser and native targets intentionally produce different view trees.
-Assert what the user can do: a press changes state, a route opens, a modal
-closes, and an unavailable capability shows its fallback.
+The browser and phones use different underlying views to display a screen.
+A test should check what someone can do with it: pressing a button updates
+the list, opening a link shows the right screen, and closing a dialog
+returns to the previous screen.
 
-Add an item, mark it done, and check that the remaining count decreases.
-Remove it and verify the empty state. The test helper can differ between
-your web and native harness; the expected product behavior stays the same.
+For example, a packing-list test can add “Passport,” mark it packed, and
+check that the remaining count decreases. It can then remove the item and
+check the empty-list message. The code that drives the test can differ
+between web and phone; the expected result stays the same.
 
-Ask the agent to report which commands passed and which targets it actually
-ran — the gap between "the build passed" and "I ran it on a device" is where
-cross-platform bugs live.
+When reporting a problem to an agent, include the action and what happened:
+“After packing Passport, the remaining count still says two; it should say
+one.” That gives it a specific result to work toward.
 
 ## Verify before you ship
 
-A clean typecheck and a browser build say nothing about a device. Before a
-release — or before you promise a capability — exercise the flows your app
-depends on where they actually run:
+Before releasing an app for other people to use:
 
-- **On each target.** The same flow on web, iOS, and Android, not only the
-  one that was convenient to test.
-- **Through the failure paths.** Denied permissions, unavailable
-  capabilities, cancelled pickers, failed requests. The capability and
-  permission results in [platform services](platform-services.md) exist so
-  your app can respond — check that it does.
-- **As a release build.** `pnpm xplat build --release` produces
-  signed-where-configured builds through a different pipeline than the dev
-  server; current release-mode issues are tracked in
-  [known limits](known-limits.md#same-edge-on-every-target).
-- **Past the desk-read seams.** [Known limits](known-limits.md) marks rows
-  `desk` when a claim was verified against source only. Re-verify on a real
-  device anything your app depends on that carries that mark.
+1. Try the important actions on each platform you plan to release for. A
+   simulator or emulator helps during development; device features also need
+   checks on a real device.
+2. Try what happens when something goes wrong: decline camera access,
+   cancel a file picker, or load data without a network connection. The app
+   should explain the problem and offer a useful next action.
+3. Build the release version with `pnpm xplat build --release` from the app
+   folder. This prepares the web app and uses NativeScript release builds
+   for configured phone targets. Phone signing must already be set up;
+   uploading to an app store is a separate step.
+4. Try that release build too. It is prepared differently from the app you
+   run while editing. [Known limits](known-limits.md#same-edge-on-every-target)
+   lists current release issues. Rows marked `desk` describe behavior checked
+   by reading source code; try any of those features your app depends on.
 
-Keep pure calculations in hook-free modules so they can run in a normal unit
-test. Add a device check when the behavior depends on native measurement,
-focus, gestures, or OS permissions.
+For code-level tests, keep calculations such as “how many items remain”
+separate from screen code so a test can call them directly. Use device
+checks for focus, gestures, element size, and permission dialogs.
 
-The [testing notes](testing-notes.md) contain the enforcement rules, mock-host
-strategy, CI order, and known native-test limits.
+If you are working on the framework itself, [single-case probing](probing.md)
+explains how to run one small investigation. The [testing notes](testing-notes.md)
+cover the framework's test tools and automation.
