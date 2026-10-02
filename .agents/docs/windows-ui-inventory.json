@@ -11,9 +11,9 @@
         "View.tsrx",
         "View.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Foundation runtime case prepared; desktop session required for launch and OS-input checks."
     },
     {
       "name": "VStack",
@@ -23,9 +23,9 @@
         "VStack.macos.tsrx",
         "VStack.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Foundation runtime case prepared; desktop session required for launch and OS-input checks."
     },
     {
       "name": "HStack",
@@ -35,9 +35,9 @@
         "HStack.macos.tsrx",
         "HStack.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Foundation runtime case prepared; desktop session required for launch and OS-input checks."
     },
     {
       "name": "Grid",
@@ -47,9 +47,9 @@
         "Grid.tsrx",
         "Grid.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Foundation runtime case prepared; desktop session required for launch and OS-input checks."
     },
     {
       "name": "Stack",
@@ -59,9 +59,9 @@
         "Stack.tsrx",
         "Stack.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Foundation runtime case prepared; desktop session required for launch and OS-input checks."
     },
     {
       "name": "StackItem",
@@ -160,9 +160,9 @@
         "Text.tsrx",
         "Text.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Foundation runtime case prepared; desktop session required for launch and OS-input checks."
     },
     {
       "name": "Markdown",
@@ -219,9 +219,9 @@
         "Pressable.tsrx",
         "Pressable.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Foundation runtime case prepared; desktop session required for launch and OS-input checks."
     },
     {
       "name": "Button",

@@ -24,9 +24,10 @@ Source inspection and compilation do not establish runtime or OS-input parity.
 
 ## Current verification
 
-The new minimal native-label case has not booted yet. Installation, native
-bundle compilation, interactive app launch, and the component sweep remain
-in progress. No component is marked implemented based on setup alone.
+Normal installation and the minimal native-label bundle/WinUI build passed.
+The app has not booted yet: the guest has no signed-in desktop session after
+automatic updates. Interactive launch and the component sweep remain pending.
+No component is marked implemented based on setup alone.
 
 ## Documentation coverage
 
@@ -96,3 +97,17 @@ Grid, and Pressable. It records native child structure, loaded state, layout
 sizes/positions, grid placement, and a press callback marker. It bypasses the
 root barrel only to isolate these components from known unrelated mobile
 imports. Handler invocation alone will not count as an OS-input pass.
+
+## Desktop-session gate
+
+A separate diagnostic build with `WindowsAppSdkBootstrapInitialize=true`
+compiled successfully, but launch from the SSH service session exited with
+`0x8000401A` (`CO_E_RUNAS_LOGON_FAILURE`). An unpackaged-property attempt
+also failed configuration validation because the template declares an Appx
+manifest; it is not a supported replacement for the packaged launch.
+
+`query user` reports no signed-in users. The interactive launch task stays
+ready without running (result 267011). Desktop sign-in was requested; once
+`octane` is signed in, launch the registered package and inspect native logs
+before building/running the prepared foundation case. No screenshot analysis
+is authorized or needed for these first structural/input checks.
