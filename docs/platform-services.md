@@ -50,7 +50,7 @@ picking, notifications, safe-area insets, screen size, and app lifecycle.
 A **leaf package** is an add-on installed separately for a feature. Features
 that need a NativeScript plugin live in these packages: `@octane-xplat/share` (`share.text`, `share.url`),
 `@octane-xplat/files`, `@octane-xplat/media`, `@octane-xplat/biometrics`,
-`@octane-xplat/geolocation`, `@octane-xplat/notifications`,
+`@octane-xplat/geolocation`, [`@octane-xplat/notifications`](local-notifications.md),
 `@octane-xplat/secure-storage`, and the `haptics` service in
 `@octane-xplat/haptics`. Each leaf owns its plugin as a real dependency —
 apps do not redeclare it.

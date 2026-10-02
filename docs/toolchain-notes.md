@@ -269,13 +269,17 @@ Check handwritten component types with the package's `test:packed` fixture.
 
 Source-published leaves
 (`@octane-xplat/files`, `media`, `biometrics`, `geolocation`,
-`notifications`, `secure-storage`, `sqlite`) ship no declarations at all —
+`secure-storage`, `sqlite`) ship no declarations at all —
 their `exports` resolve `.ts` sources, which a plain bundler-mode
 packed-consumer typecheck covers instead of `--pack-check` (the extensionless
 specifiers inside shipped sources cannot satisfy NodeNext, and `pack-check`
 has no declaration files to verify). `@octane-xplat/platform` is the same
 source-published shape plus `.tsrx` entries under its `./*` wildcard, which
 pack-check cannot model as declarations.
+
+`@octane-xplat/notifications` now ships a macOS declaration entry and generated
+shared types, checked in both Bundler and NodeNext modes; its web/mobile entries
+remain source-published.
 
 `@octane-xplat/gif` is the first leaf package using this flow. Its web and
 NativeScript declarations are generated and checked from a packed consumer in

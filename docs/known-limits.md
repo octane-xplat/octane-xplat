@@ -173,6 +173,9 @@ report; a direct diagnostic launch was denied by `SBMainWorkspace`
 
 The table above lists web, iOS, and Android. On macOS, `share.text()` and
 `share.url()` open the AppKit share picker; file sharing is not supported.
+The native AppKit notifications leaf uses UserNotifications for immediate local
+requests; see [setup and verification limits](local-notifications.md). Push
+registration, delayed scheduling, and cancellation are outside its public API.
 
 ## Same edge on every target
 

@@ -34,6 +34,7 @@ Workflows:
 - [Open a screen from an incoming link](incoming-links.md)
 - [Sign in with a passkey or hosted auth ceremony](passkey-sign-in.md)
 - [Sign in with Apple or Google provider SDKs](provider-sign-in.md)
+- [Send a local notification](local-notifications.md)
 - [Receive push notifications](push-notifications.md)
 - [Register routes from runtime data](programmatic-routes.md)
 - [Bake route data into the bundle](baked-routes.md)
