@@ -1,6 +1,6 @@
 export {}
 
-// Keep import() references self-contained in generated augmentation declarations.
+// Renderer element typing is internal; it must not enter the public declaration graph.
 
 declare module '@nativescript-community/octane/intrinsics' {
 	interface NativeScriptElements {

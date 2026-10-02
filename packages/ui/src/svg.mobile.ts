@@ -1,7 +1,6 @@
 import { registerElement } from '@nativescript-community/octane'
 import { SVGView } from './vendor/ui-svg/src'
 
-import './svg-element'
 export { glyphSvgMarkup, isSvgSrc, svgSource } from './svg-source'
 
 // Vendored ui-svg SVGView (Icon + Image + Meter route SVG sources here

@@ -1,6 +1,5 @@
 import { CSSType, Property, Utils, View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
-import './svg-element'
 export { glyphSvgMarkup, isSvgSrc, svgSource } from './svg-source'
 
 const sourceProperty = new Property<SVGView, string | Promise<string>>({

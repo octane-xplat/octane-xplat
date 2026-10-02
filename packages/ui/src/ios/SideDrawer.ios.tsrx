@@ -1,17 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { registerElement } from '@nativescript-community/octane';
-import type { Attributes } from '@nativescript-community/octane/intrinsics';
 import { Drawer as NSDrawer, install } from '@nativescript-community/ui-drawer';
 import { useEffect, useRef } from 'octane';
 import type { DrawerProps, PlatformWidgetProps } from '../props';
 import { cx } from '../cx';
 import { applyEscapeProps } from '../escape-props';
-
-declare module '@nativescript-community/octane/intrinsics' {
-	interface NativeScriptElements {
-		drawer: Attributes<typeof NSDrawer>;
-	}
-}
 
 // Optional peer: this leaf resolves only when the app ships the plugin
 // (isolated linker resolves it under the app root). install() registers the

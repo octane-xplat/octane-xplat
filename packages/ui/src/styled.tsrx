@@ -18,7 +18,7 @@ import { defineUniversalComponent, universalComponent } from 'octane/universal/n
 export function styled<P extends { className?: any }, V extends Record<string, any>>(
 	Base: (props: P) => any,
 	def: { base?: any; variants?: V },
-) {
+): (props: P & { [K in keyof V]?: boolean }, context: any) => any {
 	function Styled(props: P & { [K in keyof V]?: boolean }) {
 		const cls: any[] = [def.base];
 		const rest: any = { ...props };
