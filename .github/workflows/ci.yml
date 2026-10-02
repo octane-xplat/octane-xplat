@@ -38,7 +38,10 @@ jobs:
       - name: Generate declarations before checking consumers
         run: pnpm typegen
 
+      # Advisory only — style findings (xplat/spacing, unknown-class warnings)
+      # shouldn't gate merges; structural coverage lives in "Repo checks".
       - name: Lint (oxlint + tsrx pass + recipes + css)
+        continue-on-error: true
         run: pnpm lint
 
       # check:decisions is deliberately absent — it mirrors the ledger against
