@@ -41,7 +41,8 @@ export function attachHost(node: HTMLElement): HostAdapter {
 			if (kind === 'press') {
 				const down = (event: PointerEvent) => {
 					try {
-						node.setPointerCapture?.(event.pointerId)
+						// Preserve descendant click targets when this host wraps controls.
+						(event.target as Element | null)?.setPointerCapture?.(event.pointerId)
 					} catch (error) {
 						// Synthetic pointer dispatch has no active browser pointer.
 						if (event.isTrusted || (error as Error).name !== 'NotFoundError') {
