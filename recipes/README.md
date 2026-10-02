@@ -26,6 +26,7 @@ Workflows:
 - [Add UI sound effects](ui-sounds.md)
 - [Add long-form audio playback](audio-playback.md)
 
+- [Select an image crop inline](inline-image-crop.md)
 - [Pick and capture images](pick-and-capture-images.md)
 - [Build a chat conversation](chat-conversation.md)
 - [Show a live camera preview](camera-preview.md)

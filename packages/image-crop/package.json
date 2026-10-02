@@ -1,0 +1,90 @@
+{
+	"name": "@octane-xplat/image-crop",
+	"version": "0.8.0",
+	"description": "Inline controlled image crop selection for Octane Xplat web, iOS and Android",
+	"keywords": [
+		"crop",
+		"cross-platform",
+		"image",
+		"nativescript",
+		"octane"
+	],
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/image-crop",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/image-crop"
+	},
+	"files": [
+		"dist",
+		"types",
+		"src",
+		"README.md"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"types": "./types/generated/index.d.ts",
+				"web": "./dist/web/index.js",
+				"native": "./dist/native/index.js",
+				"default": "./dist/native/index.js"
+			}
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"typegen": "tsrx-typegen --target crop",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p tsconfig.mobile.json",
+		"test": "vitest run tests/geometry.test.ts",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"prepublishOnly": "pnpm build",
+		"pack:check": "tsrx-typegen --pack-check"
+	},
+	"dependencies": {
+		"@octane-xplat/ui": "workspace:*"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/typescript-plugin": "0.4.11",
+		"octane": "0.6.3",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
+		"vite": "8.3.0",
+		"vitest": "5.0.1"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	}
+}
