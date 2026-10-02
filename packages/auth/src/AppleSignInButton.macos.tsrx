@@ -1,36 +1,34 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
+import { useEffect, useRef } from 'octane'
 import { appleAuth } from './apple.macos'
-import type { AppleSignInButtonProps, SignInResult } from './types'
+import { attachAppleButton } from './apple-button.macos'
+import type { AppleSignInButtonProps } from './types'
 
-const LABELS = {
-	default: 'Sign in with Apple',
-	signUp: 'Sign up with Apple',
-	continue: 'Continue with Apple',
-} as const
-
-/** Sign in with Apple button — macOS leaf. The AppKit renderer has no
- *  ASAuthorizationAppleIDButton in its vocabulary, so this is a flexbox row
- *  with a click-gesture tap (the same shape as Pressable/controls.macos)
- *  that runs the AuthenticationServices flow and reports through `onResult`.
- *  onPress on the intrinsic <button> is not used — the universal compile
- *  emits DOM-only delegateEvents for it. */
+/** Official ASAuthorizationAppleIDButton, embedded in the leaf's host view. */
 export function AppleSignInButton(props: AppleSignInButtonProps) @{
+	const anchor = useRef<any>(null)
+	const handle = useRef<ReturnType<typeof attachAppleButton> | null>(null)
+	const current = useRef(props)
+	current.current = props
+
+	useEffect(() => {
+		if (!anchor.current) return
+		handle.current = attachAppleButton(anchor.current, current.current, () => {
+			const latest = current.current
+			if (latest.disabled) return
+			latest.onPress?.()
+			void appleAuth.signIn().then((result) => current.current.onResult?.(result))
+		})
+
+		return () => { handle.current?.detach(); handle.current = null }
+	}, [props.type, props.theme])
+
+	useEffect(() => { handle.current?.update(!!props.disabled) })
+
 	<flexboxlayout
+		ref={(view: any) => { anchor.current = view }}
 		id={props.id}
-		className={['vx-button', props.className]}
-		style={props.style}
-		accessibilityLabel={LABELS[props.type ?? 'default']}
-		onTap={
-			props.disabled === true
-				? undefined
-				: () => {
-						props.onPress?.()
-						if (props.onResult) {
-							void appleAuth.signIn().then((result: SignInResult) => props.onResult?.(result))
-						}
-					}
-		}
-	>
-		<label text={LABELS[props.type ?? 'default']} />
-	</flexboxlayout>
+		className={props.className}
+		style={{ width: 240, height: 44, ...props.style }}
+	/>;
 }

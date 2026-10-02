@@ -13,6 +13,7 @@ export type {
 	AuthUser,
 	GoogleAuth,
 	GoogleAuthConfig,
+	GoogleHostedAuthFlow,
 	GoogleSignInButtonProps,
 	GoogleSignInOptions,
 	SignInResult,

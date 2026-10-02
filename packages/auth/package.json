@@ -73,15 +73,19 @@
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"typegen": "tsrx-typegen --target octane",
-		"pack:check": "tsrx-typegen --pack-check"
+		"pack:check": "tsrx-typegen --pack-check",
+		"test": "node --test tests/*.test.mjs",
+		"typecheck:macos": "tsrx-tsc --noEmit -p tsconfig.macos.json"
 	},
 	"dependencies": {
 		"@nativescript/apple-sign-in": "2.0.0",
-		"@nativescript/google-signin": "2.1.1"
+		"@nativescript/google-signin": "2.1.1",
+		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"octane": "0.6.3",

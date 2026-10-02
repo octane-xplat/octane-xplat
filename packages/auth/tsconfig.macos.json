@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"noEmit": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "esnext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "@octane-xplat/macos-renderer",
+		"customConditions": ["macos"],
+		"moduleSuffixes": [".macos", ""],
+		"skipLibCheck": true
+	},
+	"include": ["src/*.macos.ts", "src/*.macos.tsrx", "src/types.ts"]
+}

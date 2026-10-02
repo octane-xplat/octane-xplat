@@ -152,12 +152,12 @@ export interface WebAuthnImpl {
 export interface AuthSessionOptions {
 	/**
 	 * URL scheme the ceremony redirects back to (e.g. `myapp` →
-	 * `myapp://callback?...`). iOS intercepts it inside the session; on
+	 * `myapp://callback?...`). iOS/macOS intercept it inside the session; on
 	 * Android the app must declare the scheme's intent-filter like any deep
 	 * link (see the incoming-links recipe).
 	 */
 	callbackScheme: string
-	/** iOS only: do not share Safari cookies/state (ASWebAuthenticationSession.prefersEphemeralWebBrowserSession). */
+	/** iOS/macOS: request a browser session without shared cookies/state (ASWebAuthenticationSession.prefersEphemeralWebBrowserSession). */
 	prefersEphemeralSession?: boolean
 }
 
@@ -170,7 +170,7 @@ export type AuthSessionResult =
 
 /**
  * Hosted browser ceremony: opens `url` in a system browser context
- * (ASWebAuthenticationSession on iOS, a Chrome Custom Tab on Android) and
+ * (ASWebAuthenticationSession on iOS/macOS, a Chrome Custom Tab on Android) and
  * resolves when the site redirects to `callbackScheme`. This is how a native
  * app runs WebAuthn/OAuth on its real HTTPS origin without associated-domains
  * setup (decision #66).

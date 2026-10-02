@@ -41,8 +41,8 @@ const SCOPE_MAP: Record<string, () => any> = {
 function isCancel(error: unknown): boolean {
 	// ASAuthorizationError.canceled = 1001 (NSError.code).
 	return (
-		(error as any)?.code === 1001 ||
-		/cancel/i.test(String((error as any)?.localizedDescription ?? error))
+		(error as any)?.domain === 'com.apple.AuthenticationServices.AuthorizationError' &&
+		Number((error as any)?.code) === 1001
 	)
 }
 
@@ -189,15 +189,24 @@ function ensureClasses() {
 
 	AppleAuthDelegate = NSObject.extend(
 		{
-			authorizationControllerDidCompleteWithAuthorization(_controller: any, authorization: any) {
-				const finish = activeFinish
-				activeFinish = null
-				finish?.({ status: 'success', credential: toCredential(authorization.credential) })
+			authorizationControllerDidCompleteWithAuthorization(
+				this: any,
+				_controller: any,
+				authorization: any,
+			) {
+				try {
+					const credential = toCredential(authorization.credential)
+					if (!credential.user.id || !credential.idToken) {
+						throw new Error('Sign in with Apple returned an incomplete credential')
+					}
+
+					this.finish?.({ status: 'success', credential })
+				} catch (error) {
+					this.finish?.({ status: 'error', message: String((error as any)?.message ?? error) })
+				}
 			},
-			authorizationControllerDidCompleteWithError(_controller: any, error: any) {
-				const finish = activeFinish
-				activeFinish = null
-				finish?.(
+			authorizationControllerDidCompleteWithError(this: any, _controller: any, error: any) {
+				this.finish?.(
 					isCancel(error)
 						? { status: 'cancelled' }
 						: { status: 'error', message: String((error as any)?.localizedDescription ?? error) },
@@ -243,7 +252,7 @@ function ensureClasses() {
 let activeController: any = null
 let activeDelegate: any = null
 let activeAnchor: any = null
-let activeFinish: ((result: SignInResult) => void) | null = null
+let active = false
 
 export const appleAuth: AppleAuth = {
 	get supported() {
@@ -257,37 +266,59 @@ export const appleAuth: AppleAuth = {
 			return { status: 'error', message: 'AuthenticationServices is unavailable on this host' }
 		}
 
-		if (activeController) {
+		if (active) {
 			return { status: 'error', message: 'a Sign in with Apple flow is already active' }
 		}
 
+		active = true
 		return new Promise<SignInResult>((resolve) => {
+			let settled = false
 			const finish = (result: SignInResult) => {
+				if (settled) {
+					return
+				}
+
+				settled = true
+				active = false
 				activeController = null
 				activeDelegate = null
 				activeAnchor = null
-				activeFinish = null
 				resolve(result)
 			}
 
-			ensureClasses()
-			activeDelegate = AppleAuthDelegate.new()
-			activeFinish = finish
-			const provider = ASAuthorizationAppleIDProvider.new()
-			const request = provider.createRequest()
-			if (options?.scopes?.length) {
-				request.requestedScopes = options.scopes.map((s) => SCOPE_MAP[s]?.()).filter(Boolean)
-			}
+			try {
+				const app = NSApplication.sharedApplication
+				if (!(app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject)) {
+					throw new Error('Sign in with Apple requires an AppKit presentation window')
+				}
 
-			if (options?.nonce !== undefined) {
-				request.nonce = sha256Hex(options.nonce)
-			}
+				ensureClasses()
+				activeDelegate = AppleAuthDelegate.new()
+				activeDelegate.finish = finish
+				const provider = ASAuthorizationAppleIDProvider.new()
+				const request = provider.createRequest()
+				if (options?.scopes?.length) {
+					request.requestedScopes = options.scopes.map((s) => SCOPE_MAP[s]?.()).filter(Boolean)
+				}
 
-			activeAnchor = AppleAuthAnchor.new()
-			activeController = ASAuthorizationController.alloc().initWithAuthorizationRequests([request])
-			activeController.delegate = activeDelegate
-			activeController.presentationContextProvider = activeAnchor
-			activeController.performRequests()
+				if (options?.nonce !== undefined) {
+					request.nonce = sha256Hex(options.nonce)
+				}
+
+				activeAnchor = AppleAuthAnchor.new()
+				activeController = ASAuthorizationController.alloc().initWithAuthorizationRequests([
+					request,
+				])
+
+				activeController.delegate = activeDelegate
+				activeController.presentationContextProvider = activeAnchor
+				activeController.performRequests()
+			} catch (error) {
+				finish({
+					status: 'error',
+					message: String((error as any)?.localizedDescription ?? (error as any)?.message ?? error),
+				})
+			}
 		})
 	},
 	async getCredentialState(userId: string): Promise<AppleCredentialState> {
@@ -296,25 +327,31 @@ export const appleAuth: AppleAuth = {
 		}
 
 		return new Promise<AppleCredentialState>((resolve) => {
-			ASAuthorizationAppleIDProvider.new().getCredentialStateForUserIDCompletion(
-				userId,
-				(state: number, error: any) => {
-					if (error) {
-						resolve('unknown')
-						return
-					}
+			try {
+				ASAuthorizationAppleIDProvider.new().getCredentialStateForUserIDCompletion(
+					userId,
+					(state: number, error: any) => {
+						if (error) {
+							resolve('unknown')
+							return
+						}
 
-					resolve(
-						state === 1
-							? 'authorized'
-							: state === 0
-								? 'revoked'
-								: state === 3
-									? 'transferred'
-									: 'notFound',
-					)
-				},
-			)
+						resolve(
+							state === 1
+								? 'authorized'
+								: state === 0
+									? 'revoked'
+									: state === 3
+										? 'transferred'
+										: state === 2
+											? 'notFound'
+											: 'unknown',
+						)
+					},
+				)
+			} catch {
+				resolve('unknown')
+			}
 		})
 	},
 }

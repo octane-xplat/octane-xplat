@@ -6,7 +6,6 @@
 import type { AuthSessionImpl, AuthSessionResult, Capability } from './types'
 
 declare const ASWebAuthenticationSession: any
-declare const ASWebAuthenticationSessionErrorCode: any
 declare const ASWebAuthenticationPresentationContextProviding: any
 declare const NSApplication: any
 declare const NSObject: any
@@ -22,7 +21,9 @@ try {
 	// Symbols may already be bound — failures surface via `supported: false`.
 }
 
-let active = false
+// Explicit roots: ASWebAuthenticationSession retains the completion block,
+// but its presentation provider is weak. Keep both wrappers alive until finish.
+let active: { session: any; provider: any } | null = null
 
 let frameworkReady: boolean | null = null
 
@@ -78,71 +79,111 @@ export const authSession: Capability<AuthSessionImpl> = {
 	async ensure() {
 		return frameworkAvailable() ? 'granted' : 'unsupported'
 	},
-	impl: {
-		open(url, options) {
-			if (!frameworkAvailable()) {
-				return Promise.resolve({
-					type: 'error',
-					message: 'authSession.open: AuthenticationServices is unavailable on this host',
-				})
-			}
+	get impl() {
+		return frameworkAvailable() ? implementation : null
+	},
+}
 
-			if (active) {
-				return Promise.resolve({
-					type: 'error',
-					message: 'authSession.open: a session is already active',
-				})
-			}
+const implementation: AuthSessionImpl = {
+	open(url, options): Promise<AuthSessionResult> {
+		if (active) {
+			return Promise.resolve({
+				type: 'error',
+				message: 'authSession.open: a session is already active',
+			})
+		}
 
-			const nsUrl = NSURL.URLWithString(url)
-			if (!nsUrl) {
-				return Promise.resolve({ type: 'error', message: 'authSession.open: invalid URL' })
-			}
-
-			active = true
-			return new Promise((resolve) => {
-				// The session + provider must be retained for the ceremony's
-				// lifetime — no JS-side reference exists after open returns.
-				let session: any
-				let provider: any
-				const finish = (result: AuthSessionResult) => {
-					active = false
-					session = null
-					provider = null
-					resolve(result)
+		const operation = { session: null as any, provider: null as any }
+		active = operation
+		return new Promise((resolve) => {
+			let settled = false
+			const finish = (result: AuthSessionResult) => {
+				if (settled) {
+					return
 				}
 
-				session = ASWebAuthenticationSession.alloc().initWithURLCallbackURLSchemeCompletionHandler(
-					nsUrl,
-					options.callbackScheme,
-					(callbackURL: any, error: any) => {
-						if (error) {
-							finish(
-								error.code === ASWebAuthenticationSessionErrorCode.CanceledLogin
-									? { type: 'cancel' }
-									: { type: 'error', message: String(error.localizedDescription ?? error) },
-							)
+				settled = true
+				if (active === operation) {
+					active = null
+				}
 
-							return
-						}
+				operation.session = null
+				operation.provider = null
+				resolve(result)
+			}
 
-						finish(
-							callbackURL
-								? { type: 'success', url: String(callbackURL.absoluteString) }
-								: { type: 'cancel' },
-						)
-					},
-				)
+			try {
+				if (
+					typeof url !== 'string' ||
+					typeof options.callbackScheme !== 'string' ||
+					!/^https?:\/\//i.test(url) ||
+					!/^[a-z][a-z\d+.-]*$/i.test(options.callbackScheme)
+				) {
+					throw new Error(
+						'authSession.open: expected an HTTP(S) URL and a callback scheme without a colon',
+					)
+				}
 
-				session.prefersEphemeralWebBrowserSession = !!options.prefersEphemeralSession
+				const nsUrl = NSURL.URLWithString(url)
+				if (!nsUrl?.host) {
+					throw new Error('authSession.open: invalid URL')
+				}
+
+				const app = NSApplication.sharedApplication
+				if (!(app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject)) {
+					throw new Error('authSession.open: an AppKit presentation window is required')
+				}
+
 				ensureAnchorClass()
-				provider = AuthSessionAnchor.new()
-				session.presentationContextProvider = provider
+				operation.provider = AuthSessionAnchor.new()
+				operation.session =
+					ASWebAuthenticationSession.alloc().initWithURLCallbackURLSchemeCompletionHandler(
+						nsUrl,
+						options.callbackScheme,
+						(callbackURL: any, error: any) => {
+							try {
+								if (error) {
+									finish(
+										error.domain === 'com.apple.AuthenticationServices.WebAuthenticationSession' &&
+											Number(error.code) === 1
+											? { type: 'cancel' }
+											: { type: 'error', message: String(error.localizedDescription ?? error) },
+									)
+								} else if (callbackURL) {
+									const callback = String(callbackURL.absoluteString)
+									if (
+										callback.split(':')[0].toLowerCase() !== options.callbackScheme.toLowerCase()
+									) {
+										throw new Error('authSession.open: unexpected callback scheme')
+									}
 
-				if (!session.start()) {
+									finish({ type: 'success', url: callback })
+								} else {
+									finish({ type: 'cancel' })
+								}
+							} catch (error) {
+								finish({ type: 'error', message: String((error as any)?.message ?? error) })
+							}
+						},
+					)
+
+				// A bridge may deliver completion synchronously during construction.
+				if (settled) {
+					operation.session = null
+					return
+				}
+
+				operation.session.prefersEphemeralWebBrowserSession = !!options.prefersEphemeralSession
+				operation.session.presentationContextProvider = operation.provider
+				if (!operation.session.start()) {
 					finish({ type: 'error', message: 'authSession.open: session failed to start' })
 				}
-			})
-		},
+			} catch (error) {
+				finish({
+					type: 'error',
+					message: String((error as any)?.localizedDescription ?? (error as any)?.message ?? error),
+				})
+			}
+		})
 	},
 }

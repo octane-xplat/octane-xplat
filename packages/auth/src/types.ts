@@ -87,6 +87,19 @@ export interface AppleAuth {
 	getCredentialState(userId: string): Promise<AppleCredentialState>
 }
 
+/** App-owned Google OAuth ceremony for the macOS system browser. */
+export interface GoogleHostedAuthFlow {
+	/** Issue a fresh backend attempt, binding state, nonce, scopes and callback destination. */
+	createRequest(
+		options: GoogleSignInOptions &
+			Pick<GoogleAuthConfig, 'clientId' | 'serverClientId' | 'scopes' | 'hostedDomain'>,
+	): Promise<{ url: string; callbackScheme: string }>
+	/** Validate/redeem the callback against that attempt on your backend; return its Google credential. */
+	complete(callbackURL: string): Promise<AuthCredential>
+	/** Optional backend logout. macOS requests ephemeral browser sessions. */
+	signOut?(): Promise<void>
+}
+
 export interface GoogleAuthConfig {
 	/**
 	 * OAuth client id — the web client id on web (required there). On iOS it
@@ -99,11 +112,13 @@ export interface GoogleAuthConfig {
 	scopes?: string[]
 	/** Restrict to a Google Workspace domain. */
 	hostedDomain?: string
+	/** macOS only — hosted OAuth adapter; other targets keep using their provider SDK. */
+	hostedFlow?: GoogleHostedAuthFlow
 }
 
 export interface GoogleSignInOptions {
 	/**
-	 * Web only — nonce bound into the id token. Scope requests go through
+	 * Web/macOS — nonce bound into the id token. Scope requests go through
 	 * `GoogleAuthConfig.scopes`; neither provider SDK takes per-call scopes.
 	 */
 	nonce?: string
@@ -111,14 +126,14 @@ export interface GoogleSignInOptions {
 
 export interface GoogleAuth {
 	/**
-	 * Whether the provider SDK can run here — iOS/Android + browsers. False on
-	 * macOS (use a hosted `authSession` flow instead). Android devices without
+	 * Whether the provider can run here — iOS/Android + browsers, or macOS
+	 * AuthenticationServices (requires `configure({ hostedFlow })`). Android devices without
 	 * Play services still report true — the sign-in call surfaces the failure.
 	 */
 	readonly supported: boolean
 	configure(config?: GoogleAuthConfig): Promise<void>
 	signIn(options?: GoogleSignInOptions): Promise<SignInResult>
-	/** Clear the SDK's account selection so the next `signIn` re-prompts. */
+	/** Clear SDK account selection; macOS calls hostedFlow.signOut and requests ephemeral sessions. */
 	signOut(): Promise<void>
 }
 
