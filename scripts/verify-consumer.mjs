@@ -447,9 +447,10 @@ try {
 
 	report()
 } finally {
-	if (!keep) {
+	// GitHub-hosted runners discard the VM; deleting this install is slower than teardown.
+	if (!keep && process.env.GITHUB_ACTIONS !== 'true') {
 		rmSync(work, { recursive: true, force: true })
-	} else {
+	} else if (keep) {
 		console.log(`[verify] work dir kept at ${work}`)
 	}
 }
