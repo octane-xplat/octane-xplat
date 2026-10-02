@@ -75,7 +75,7 @@ function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): D
 		}
 
 		if (target.opacity !== undefined) {
-			view.alpha = Math.min(1, Math.max(0, eff.opacity))
+			view.alpha = Math.min(1, Math.max(0, eff.opacity ?? target.opacity))
 		}
 	})
 
@@ -160,7 +160,7 @@ function androidRun(
 	}
 
 	if (target.opacity !== undefined) {
-		animator.alpha(Math.min(1, Math.max(0, eff.opacity)))
+		animator.alpha(Math.min(1, Math.max(0, eff.opacity ?? target.opacity)))
 	}
 
 	let resolve!: (result: 'finished' | 'cancelled') => void

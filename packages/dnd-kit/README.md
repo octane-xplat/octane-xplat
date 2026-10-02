@@ -291,7 +291,7 @@ library build.
 The Web regression runs with `pnpm --filter @xplat/web test`; it drives pointer
 events through bound Views and checks both successful drop and cancellation.
 The maintained AppKit regression runs with
-`pnpm probe run packages/dnd-kit/tests/appkit-scroll.tsrx --target macos`; it uses
+`pnpm probe run packages/dnd-kit/tests/appkit-scroll.macos.tsrx --target macos`; it uses
 action dispatch and checks layer feedback, layout, auto-scroll, and cleanup.
 
 Before the first automated release, the package still needs the one-time npm

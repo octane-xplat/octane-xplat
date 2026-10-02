@@ -1,4 +1,4 @@
-import type { Header, Row, RowData } from '@tanstack/table-core'
+import type { Cell, Header, Row, RowData } from '@tanstack/table-core'
 import {
 	CheckboxInput as Checkbox,
 	Pressable,
@@ -138,7 +138,7 @@ function DataGridBodyRow<TData extends RowData>(props: {
 	const cells = row.getVisibleCells()
 	const inner = (
 		<>
-			{cells.map((cell) => (
+			{cells.map((cell: Cell<DataGridFeatures, TData, any>) => (
 				<View
 					key={cell.id}
 					className="vx-table-cell"
@@ -204,7 +204,7 @@ function DataGridBodyRow<TData extends RowData>(props: {
  *  the library's `ColumnDef`s plus `TableState` slices. Large-column or
  *  platform-recycler presentations belong to platform subpaths. */
 export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData>) {
-	const { table, state }: UseTable<DataGridFeatures, TData> = useTable<TData>({
+	const { table, state }: UseTable<DataGridFeatures, TData> = useTable<TData, DataGridFeatures>({
 		...props.options,
 		defaultColumn: props.showColumnFilters
 			? { filterFn: 'includesString', ...props.options?.defaultColumn }
@@ -301,8 +301,8 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
 				className="vx-datagrid-body"
 				id={props.id ? `${props.id}-body` : undefined}
 				items={rows}
-				keyExtractor={(row) => row.id}
-				renderItem={(row) => (
+				keyExtractor={(row: Row<DataGridFeatures, TData>) => row.id}
+				renderItem={(row: Row<DataGridFeatures, TData>) => (
 					<DataGridBodyRow
 						row={row}
 						renderCell={props.renderCell}

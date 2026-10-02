@@ -24,8 +24,12 @@ import type {
 	SortableListProps,
 } from './props'
 
+// The universal native context uses this callable as its provider, but the
+// DOM TypeScript signature requires a renderer scope parameter for JSX.
 const Context = createContext<DndController | null>(null)
+const ContextProvider: any = Context
 const SortContext = createContext<readonly (string | number)[] | null>(null)
+const SortContextProvider: any = SortContext
 
 /** Scope registrations to one renderer root. Nested roots need their own DndContext. */
 export function DndContext(props: DndContextProps) {
@@ -37,7 +41,7 @@ export function DndContext(props: DndContextProps) {
 	const controller = ref.current
 	controller.options = props
 	useEffect(() => () => controller.disposeController(), [controller])
-	return <Context value={controller}>{props.children}</Context>
+	return <ContextProvider value={controller}>{props.children}</ContextProvider>
 }
 
 function useController(): DndController {
@@ -183,7 +187,7 @@ export function SortableContext(props: SortableContextProps) {
 		throw new Error('SortableContext requires unique item ids')
 	}
 
-	return <SortContext value={props.items}>{props.children}</SortContext>
+	return <SortContextProvider value={props.items}>{props.children}</SortContextProvider>
 }
 
 /** Bind and spread onPan/style onto one View. Order changes only when the owner commits a drop. */
@@ -206,7 +210,12 @@ export function useSortable(options: DraggableOptions): SortableResult {
 	return { ...drag, ref, isOver: drop.isOver }
 }
 
-function SortableRow<T extends DndId>(props: { id: T; index: number; list: SortableListProps<T> }) {
+function SortableRow<T extends DndId>(props: {
+	key?: T
+	id: T
+	index: number
+	list: SortableListProps<T>
+}) {
 	const sortable = useSortable({ id: props.id, disabled: props.list.disabled })
 	return (
 		<View ref={sortable.ref} onPan={sortable.onPan} style={sortable.style}>
