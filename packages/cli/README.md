@@ -26,6 +26,7 @@ pnpm xplat doctor       # environment + framework patch check
 pnpm xplat typecheck    # web + native tsconfigs
 pnpm xplat patches apply  # install the framework's pnpm patch set into this app
 pnpm xplat patches check  # verify the patch set is registered and unmodified
+pnpm xplat fonts add <file.ttf>  # register a custom font on web, iOS, and Android
 ```
 
 The framework carries a small set of upstream fixes as pnpm

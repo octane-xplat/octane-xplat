@@ -157,7 +157,30 @@ the portable preset and review any warnings before extending it.
 lists; apps that omit it can define those variables themselves. The framework
 cannot derive one family name from a font file: the web face name, the iOS name,
 and the Android name are different identifiers. Apps own the registration and
-override the token at the stylesheet boundary:
+override the token at the stylesheet boundary.
+
+`xplat fonts add` is the turnkey path — run it from the app root with one
+variable file or several static weights of a family:
+
+```sh
+pnpm xplat fonts add path/to/AcmeSans-Variable.ttf           # --font-sans
+pnpm xplat fonts add path/to/JetBrainsMono.ttf --token mono  # --font-mono
+```
+
+It reads the font's own metadata (family, PostScript name, `fvar` weight range),
+copies the file into `src/fonts`, writes the web `@font-face` into `src/fonts.css`
+(imported from `main.web.tsrx`), and upserts a marked token block in `style.css`:
+`--font-sans`/`--font-mono`/custom under `:root, .ns-root`, plus a literal
+`font-family` on `.ns-root` and `body` for `--font-sans`. Pass `--token none` to
+register files without wiring a token. Options: `--name` (override the detected
+family), `--weight` (override the detected face weight), `--dir` (app root).
+
+Variable fonts are supported on every target: web gets the `font-weight: min max`
+range, iOS resolves `font-weight` through `font-variation-settings`, and Android
+maps `font-weight` to the `wght` axis on API 26+ (older APIs load the file's
+default instance).
+
+What the command writes, by hand:
 
 | Target  | Register the font                                                                | Token value                          |
 | ------- | -------------------------------------------------------------------------------- | ------------------------------------ |

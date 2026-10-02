@@ -36,7 +36,11 @@ class on the root, and let tokens switch underneath.
 
 ## Fonts
 
-Family names differ per target (web face name, iOS PostScript name,
-Android filename). Ship the font file in the app, register per platform,
-and set the `--font-*` tokens in `style.css`. See the styling guide at
-https://octane-xplat.goddardai.org/styling for the per-target table.
+`pnpm xplat fonts add <file.ttf>` registers a font everywhere: copies it
+into `src/fonts` (iOS/Android pick it up from there), writes the web
+`@font-face` into `src/fonts.css`, and wires `--font-sans` (or another token
+via `--token mono|none|<name>`) in `style.css`. Variable fonts carry their
+weight range — `font-weight` on `Text` selects the matching instance. Family
+names differ per target; the command reads them from the file itself. See the
+styling guide at https://octane-xplat.goddardai.org/styling for the per-target
+table.
