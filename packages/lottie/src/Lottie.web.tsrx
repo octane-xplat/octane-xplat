@@ -96,10 +96,6 @@ export function Lottie(props: LottieProps) @{
 	}, [props.src, props.data, props.fit]);
 
 	useEffect(() => {
-		if (anim.current) props.bind?.(handle(anim.current));
-	}, [props.bind, props.src, props.data, props.fit]);
-
-	useEffect(() => {
 		if (props.loop !== undefined && anim.current) {
 			anim.current.loop = props.loop;
 		}

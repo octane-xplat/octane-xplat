@@ -11,7 +11,7 @@ export function NativeSheetDemo() @{
 		<Heading>Web bottom sheet</Heading>
 		<Pressable
 			id="native-sheet-open"
-			bind={(element) => { trigger.current = element }}
+			ref={trigger}
 			className="rounded-lg border border-slate-300 p-4"
 			onPress={() => setOpen(true)}
 		>

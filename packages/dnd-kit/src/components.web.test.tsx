@@ -43,12 +43,12 @@ async function flush() {
 
 function DragSource() {
 	const drag = useDraggable({ id: 'source' })
-	return <View id="drag-source" bind={drag.bind} onPan={drag.onPan} style={drag.style} />
+	return <View id="drag-source" ref={drag.ref} onPan={drag.onPan} style={drag.style} />
 }
 
 function DropTarget() {
 	const drop = useDroppable({ id: 'target' })
-	return <View id="drop-target" bind={drop.bind} style={{ height: 40 }} />
+	return <View id="drop-target" ref={drop.ref} style={{ height: 40 }} />
 }
 
 	afterEach(() => {
@@ -60,7 +60,7 @@ function DropTarget() {
 })
 
 describe('@octane-xplat/dnd-kit (web)', () => {
-	it('starts and completes a drop from pointer events on bound Views', async () => {
+	it('starts and completes a drop from pointer events on ref-attached Views', async () => {
 		const onDragStart = vi.fn()
 		const onDragEnd = vi.fn()
 		const { element } = mount(

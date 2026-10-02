@@ -48,17 +48,16 @@ it('reports synchronous lottie-web construction failures through onError', () =>
 	expect(onError).toHaveBeenCalledWith({ message: 'invalid animation data' })
 })
 
-it('binds the created animation handle on initial mount', () => {
+it('exposes the created animation handle through a ref on initial mount', () => {
 	const animation = {
 		addEventListener: vi.fn(),
 		destroy: vi.fn(),
 	} as any
 
 	loadAnimation.mockReturnValue(animation)
-	const bind = vi.fn()
+	const ref = { current: null as any }
 
-	mount({ data: { v: '5.0', layers: [] }, bind })
+	mount({ data: { v: '5.0', layers: [] }, ref })
 
-	expect(bind).toHaveBeenCalledTimes(1)
-	expect(bind.mock.calls[0][0].native).toBe(animation)
+	expect(ref.current.native).toBe(animation)
 })
