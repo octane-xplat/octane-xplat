@@ -173,4 +173,4 @@ patchedDependencies:
   # parse time and poisons the whole bundle (any bundled app importing @lexical/link dies on
   # boot). Same fix as linkifyjs: try/catch new RegExp with an ASCII-range fallback — the
   # matcher only feeds autolink, which native doesn't use.
-  '@lexical/link@0.51.0': packages/cli/patches/@lexical__link@0.51.0.patch
+  "@lexical/link@0.51.0": packages/cli/patches/@lexical__link@0.51.0.patch
