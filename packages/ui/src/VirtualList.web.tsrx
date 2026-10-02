@@ -56,6 +56,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const nodesBySlotRef = useRef(new Map<string, Element>())
 	const metaByNodeRef = useRef(new WeakMap<Element, NodeMeta>())
 	const rangeRef = useRef({ start: -1, end: -1, top: -1, bottom: -1 })
+	const geometryDirtyRef = useRef(false)
 	const handlersRef = useRef<(meta: NodeMeta, entry: ResizeObserverEntry) => void>(() => {})
 	const hasSeparator = Boolean(props.renderSeparator)
 	const hasSeparatorRef = useRef(hasSeparator)
@@ -112,12 +113,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		const next = currentRange()
 		const previous = rangeRef.current
 		if (
+			geometryDirtyRef.current ||
 			next.start !== previous.start ||
 			next.end !== previous.end ||
 			!sameSize(next.top, previous.top) ||
 			!sameSize(next.bottom, previous.bottom)
 		) {
 			rangeRef.current = next
+			geometryDirtyRef.current = false
 			setWindowVersion((version) => version + 1)
 		}
 	}
@@ -181,6 +184,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		const anchor = captureAnchor()
 		const delta = sizeIndexRef.current.set(index, height)
 		if (Math.abs(delta) >= 0.5) {
+			geometryDirtyRef.current = true
 			if (anchor && index < anchor.index) restoreAnchor(anchor)
 			refreshWindow()
 		}

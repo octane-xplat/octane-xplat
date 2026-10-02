@@ -2612,10 +2612,10 @@ function detach(container: RootContainer, node: ElementNode) {
 	if (node.view) {
 		const parentView = previousParent?.childHost ?? previousParent?.view
 		if (parentView?.removeArrangedSubview) {
-			parentView.removeArrangedSubview(node.view)
+			parentView.removeArrangedSubview(arrangedView(node))
 		}
 
-		node.view.removeFromSuperview()
+		arrangedView(node).removeFromSuperview()
 	}
 
 	if (previousParent?.type === 'gridlayout') {
@@ -2680,7 +2680,14 @@ function insert(container: RootContainer, parentId: number | null, node: Element
 					makeMarginHost(node)
 				}
 
-				parentView.addViewInGravity(arrangedView(node), stackGravity(parent, node))
+				// AppKit insertion indices are local to a gravity area. Honor the
+				// renderer's before edge instead of appending moved keyed rows.
+				const gravity = stackGravity(parent, node)
+				const arrangedIndex = siblings
+					.slice(0, index)
+					.filter((child) => child.view && stackGravity(parent, child) === gravity).length
+
+				parentView.insertViewAtIndexInGravity(arrangedView(node), arrangedIndex, gravity)
 				applySizeConstraints(node)
 				setStackChildPriorities(parent, node)
 				updateCrossAxisConstraints(parent)

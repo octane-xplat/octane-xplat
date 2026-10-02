@@ -31,5 +31,5 @@ non-drag controls, and keep state ownership and platform verification explicit.
 - AC2: [Control behavior](../packages/table/README.md#enable-interaction-controls), [server pages](../packages/table/README.md#controlled-state).
 - AC3: [Selection scope](../packages/table/README.md#enable-interaction-controls), [example](../packages/table/examples/interactive.tsrx).
 - AC4: [Column settings](../packages/table/README.md#enable-interaction-controls), [example](../packages/table/examples/interactive.tsrx).
-- AC5: [Width and gesture contract](../packages/table/README.md#enable-interaction-controls), [example probe](../packages/table/examples/interactive.tsrx).
+- AC5: [Width and gesture contract](../packages/table/README.md#enable-interaction-controls), [example probe](../packages/table/examples/interactive.tsrx), [isolated geometry probe](../packages/table/examples/geometry.tsrx).
 - AC6: [Controlled state](../packages/table/README.md#controlled-state), [verification and limits](../packages/table/README.md#verification-and-remaining-parity-gaps).

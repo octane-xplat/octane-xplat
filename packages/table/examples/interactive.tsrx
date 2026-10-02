@@ -56,6 +56,9 @@ function textOf(view: any): string {
 		return Array.from(view.children).map(textOf).join('')
 
 	if (typeof view.textContent === 'string') return view.textContent
+	const nativeText = view.stringValue ?? view.title
+	if (typeof nativeText === 'string' && nativeText) return nativeText
+	if (view.subviews) return Array.from(view.subviews).map(textOf).join('')
 	if (typeof view.text === 'string' && view.text) return view.text
 	let result = ''
 	view.eachChildView?.((child: any) => {

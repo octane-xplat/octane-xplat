@@ -229,6 +229,22 @@ and unhandled resize errors with `pnpm --filter @xplat/linux smoke` on a Linux
 host with GTK/WebKit and Xvfb. This smoke does not establish Linux anchor
 accuracy, frame pacing, or the full benchmark contract below.
 
+### Bounded measurement and reorder regression checks
+
+The maintained `packages/ui/tests/virtual-list.*.tsrx` cases check settled host
+sizes and row positions without images. NativeScript measurements wait for valid
+layout and listen to its exact `layoutChanged` event. Measured row heights update
+positioned cells even when the same rows stay visible. AppKit keeps retained
+keyed views in native stack order when items are sorted or reordered.
+
+Run a case with `pnpm probe run packages/ui/tests/virtual-list.web.tsrx --target web`.
+For iOS, use `virtual-list.mobile.tsrx`, `--target ios`, and `--device` with a
+booted simulator ID. For AppKit, use `virtual-list.macos.tsrx --target macos`.
+The current focused checks cover Chromium, iOS, and AppKit; they do not establish
+Android geometry, OS input, or frame pacing. Browser resize errors remain test
+failures. See the [table follow-through](astryx-parity-table.md#virtuallist-measurement-and-reorder-follow-through-2026-10-02)
+for the results and remaining DataGrid verification blockers.
+
 ## Run the nonvisual gates
 
 From the repo root, install with `pnpm install --frozen-lockfile`, then:

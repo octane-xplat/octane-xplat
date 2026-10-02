@@ -259,6 +259,54 @@ are **failed**, not clean runtime passes. Final run IDs: web
 `122851f4-dfb0-437e-a36a-442c771c6aab`; iOS
 `b3dfcaac-356c-4ffb-bc31-9162f7be3af4`.
 
+### VirtualList measurement and reorder follow-through (2026-10-02)
+
+Rechecked the implementation above from rich-cub base `43be0022` before changing
+code. The existing Chromium interactive fixture already passed all 15 assertions
+with no ResizeObserver delivery error. A maintained list fixture also exercises
+width/row-height changes above a scrolled anchor and leaves browser errors fatal;
+no global error filter or suppression was added.
+
+NativeScript's `layoutChanged` event was missed by lowercased universal JSX event
+bindings. VirtualList now subscribes by the exact native event name, waits for a
+valid viewport layout, re-reads queued row sizes after layout, and removes those
+listeners on disposal. Both native and web positioned lists now update row
+positions and total body height when measured sizes change without changing the
+visible row range. Pooling, keyed row ownership, platform leaves, and public
+props stay intact.
+
+AppKit's renderer recorded keyed insertion order but appended native stack views.
+It now inserts at the requested position within the correct stack gravity area.
+Retained row views survive descending/ascending reorder; no list remount workaround
+is used.
+
+Nonvisual runtime evidence:
+
+- iOS direct VirtualList fixture: 8 assertions passed; viewport `280×160`, header
+  height `24`, three row heights `32`, and first-to-third row distance `64`.
+  Invalid initial `402×874` descendant frames are no longer used as settled rows.
+- AppKit direct list: 4 assertions passed, including retained view identity and
+  ascending/descending native positions. Bounded DataGrid geometry fixture:
+  8 assertions passed; grid height `300`, header height `42`, body height `258`,
+  and initial name-column width `140`; resize/clamping/cancellation and column
+  reorder passed through handler dispatch.
+- Chromium: full interactive DataGrid 15 assertions and list resize fixture
+  5 assertions passed without unhandled resize errors. The resize fixture
+  returned to scroll offset `344` after four height/width changes.
+
+The maintained cases live in `packages/ui/tests/virtual-list.*.tsrx` and
+`packages/table/examples/geometry.tsrx`. Focused unit coverage includes native
+layout-event spelling, invalid initial frames, disposal, same-range measurement
+updates, and AppKit native insertion order. Table tests/typechecks and web/native
+builds pass. These checks establish host geometry and synthetic handler behavior,
+not OS input, hit-testing, assistive technology, or frame pacing.
+
+The full iOS DataGrid rerun remains blocked before assertions by the unrelated
+Markdown Unicode-regex parse failure in the UI barrel on the available simulator.
+The full AppKit interaction fixture reaches runtime but times out at text-filter
+input; its independent sort/resize/reorder fixture passes. Android runtime was
+not run in this task. The original failed runs above remain historical evidence.
+
 Remaining work follows the original priorities: complete native indeterminate
 selection/accessibility semantics and virtual row ordinals; then grouped/tree/
 detail presentations, richer filter types and multi-sort controls, horizontal

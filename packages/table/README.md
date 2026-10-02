@@ -355,7 +355,14 @@ the native build uses the same shared controls for iOS/Android. Run the fixture:
 ```sh
 pnpm probe run packages/table/examples/interactive.tsrx --target web --deps @octane-xplat/table
 pnpm probe run packages/table/examples/interactive.tsrx --target ios --device YOUR_BOOTED_SIMULATOR_UDID --deps @octane-xplat/table
+pnpm probe run packages/table/examples/geometry.tsrx --target macos --deps @octane-xplat/table
 ```
+
+The geometry fixture isolates bounded row sorting and column resize/reorder from
+filter/pager input. Its AppKit run measures native frames and retained row order.
+The full iOS fixture currently hits an unrelated Markdown regex parse failure
+before assertions; the direct VirtualList iOS geometry case passes. The full
+AppKit fixture has an unresolved filter-input timeout.
 
 Use a real booted simulator ID from `pnpm probe doctor`. Results are handler
 or pointer dispatch, not proof of OS input, hit-testing, or screen-reader

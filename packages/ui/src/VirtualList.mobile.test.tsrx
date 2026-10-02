@@ -32,7 +32,26 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem) {
 	const prepare = driver.prepareBatch
 	driver.prepareBatch = (...args) => {
 		commits.push(args[1])
-		return prepare(...args)
+		const batch = prepare(...args)
+		const apply = batch.apply
+		batch.apply = () => {
+			apply()
+			for (const node of collect(container.children)) {
+				if (node.on) continue
+				const listeners = new Map<string, Set<(event: any) => void>>()
+				node.on = (name: string, listener: (event: any) => void) => {
+					const set = listeners.get(name) ?? new Set()
+					set.add(listener)
+					listeners.set(name, set)
+				}
+
+				node.off = (name: string, listener: (event: any) => void) => listeners.get(name)?.delete(listener)
+				node.notify = (event: any) => { for (const listener of listeners.get(event.eventName) ?? []) listener(event) }
+				node.layoutListeners = listeners
+			}
+		}
+
+		return batch
 	}
 
 	const root = createUniversalRoot(container, driver)
@@ -45,7 +64,7 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem) {
 	container.dispatchEvent(scroll, 'loaded', { object: scroll })
 	const content = scroll.children[0]
 	content.getActualSize = () => ({ width: 100, height: 500 * 48 })
-	container.dispatchEvent(content, 'layoutchanged', { object: content })
+	content.notify({ eventName: 'layoutChanged', object: content })
 	await vi.advanceTimersByTimeAsync(32)
 	scroll.scrollToVerticalOffset.mockClear()
 	commits.length = 0
@@ -61,10 +80,10 @@ async function mount(viewportWidth = 100, itemRenderer = renderItem) {
 
 		if (!row) throw new Error('Missing row ' + id)
 		row.getActualSize = () => ({ width: 100, height })
-		if (emit) container.dispatchEvent(row, 'layoutchanged', { object: row })
+		if (emit) row.notify({ eventName: 'layoutChanged', object: row })
 	}
 
-	return { container, root, scroll, commits, move, measure }
+	return { container, root, scroll, commits, move, measure, content }
 }
 
 afterEach(() => {
@@ -75,6 +94,51 @@ afterEach(() => {
 })
 
 describe('native VirtualList scroll and measurement scheduling', () => {
+	it('ignores initial host-sized viewport geometry until real layout settles and detaches listeners', async () => {
+		const { root, container, scroll } = await mount()
+		scroll.isLayoutValid = false
+		scroll.getActualSize = () => ({ width: 402, height: 874 })
+		scroll.notify({ eventName: 'layoutChanged', object: scroll })
+		await vi.advanceTimersByTimeAsync(32)
+		const rows = () => collect(container.children).filter(node => node.props.id?.startsWith('row-'))
+		expect(rows().length).toBeLessThan(20)
+		scroll.isLayoutValid = true
+		scroll.getActualSize = () => ({ width: 100, height: 96 })
+		scroll.notify({ eventName: 'layoutChanged', object: scroll })
+		await vi.advanceTimersByTimeAsync(32)
+		expect(rows().length).toBeLessThan(10)
+		const nodes = collect(container.children)
+		root.unmount()
+		await vi.advanceTimersByTimeAsync(0)
+		for (const node of nodes) expect(node.layoutListeners?.get('layoutChanged')?.size ?? 0).toBe(0)
+	})
+
+	it('updates positioned rows and body height when all rows remain in the same visible range', async () => {
+		const { root, container, measure } = await mount()
+		root.render(VirtualList as any, { items: items.slice(0, 3), keyExtractor, renderItem })
+		for (let index = 0; index < 3; index++) measure('row-r' + index, 32)
+		await vi.advanceTimersByTimeAsync(32)
+		const nodes = collect(container.children)
+		const body = nodes.find(node => node.props.className === 'vx-virtual-list-body')
+		expect(body.props.style.height).toBe(96)
+		const cells = nodes.filter(node => String(node.props.className).split(' ').includes('vx-virtual-list-row'))
+		expect(cells.map(node => node.props.top)).toEqual([0, 32, 64])
+	})
+
+	it('re-reads row geometry after an invalid screen-sized layout event', async () => {
+		const { container, measure } = await mount()
+		measure('row-r0', 874, false)
+		const cell = collect(container.children).find(node => String(node.props.className).split(' ').includes('vx-virtual-list-row'))
+		cell.isLayoutValid = false
+		cell.notify({ eventName: 'layoutChanged', object: cell })
+		await vi.advanceTimersByTimeAsync(32)
+		cell.isLayoutValid = true
+		measure('row-r0', 32, false)
+		await vi.advanceTimersByTimeAsync(32)
+		const second = collect(container.children).find(node => node.props.top === 32)
+		expect(second).toBeDefined()
+	})
+
 	it('does not restore an obsolete anchor after the user advances during measurement', async () => {
 		const { scroll, move, measure } = await mount()
 		move(480)

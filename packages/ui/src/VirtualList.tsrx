@@ -71,6 +71,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const sizeIndexRef = useRef(new VirtualListSizeIndex())
 	const cellsRef = useRef(new VirtualListCellPool<T>())
 	const cellNodesRef = useRef(new Map<number, any>())
+	const layoutListenersRef = useRef(new Map<string, () => void>())
 	const cellCallbacksRef = useRef(new Map<number, (view: any) => void>())
 	const measuredAssignmentsRef = useRef(new Map<number, number>())
 	const sizeCacheRef = useRef(new Map<string, VirtualListSizeRecord>())
@@ -87,6 +88,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	const headerHeightRef = useRef(0)
 	const estimateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const frameCancelRef = useRef<(() => void) | null>(null)
+	const viewportFrameCancelRef = useRef<(() => void) | null>(null)
 	const disposedRef = useRef(false)
 	const pendingOffsetDeltaRef = useRef(0)
 	const measurementsRef = useRef(
@@ -94,6 +96,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	)
 
 	const rangeRef = useRef({ start: -1, end: -1, top: -1, bottom: -1 })
+	const geometryDirtyRef = useRef(false)
 	const pendingAnchorRef = useRef<VirtualListAnchor | null>(null)
 	const pendingAnchorRowsRef = useRef(new Set<string>())
 	const anchorRestoreScheduledRef = useRef(false)
@@ -189,12 +192,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		const next = currentRange()
 		const previous = rangeRef.current
 		if (
+			geometryDirtyRef.current ||
 			next.start !== previous.start ||
 			next.end !== previous.end ||
 			!sameSize(next.top, previous.top) ||
 			!sameSize(next.bottom, previous.bottom)
 		) {
 			rangeRef.current = next
+			geometryDirtyRef.current = false
 			setWindowVersion((version) => version + 1)
 		}
 	}
@@ -332,6 +337,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 
 		const delta = sizeIndexRef.current.set(index, height)
 		if (Math.abs(delta) >= 0.5) {
+			geometryDirtyRef.current = true
 			const anchorIndex = anchor ? indexByRowKeyRef.current.get(anchor.rowKey) : undefined
 			if (anchor && anchorIndex !== undefined && index < anchorIndex) restoreAnchor(anchor)
 		}
@@ -356,7 +362,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	}
 
 	function syncViewport(view = scrollRef.current) {
-		if (!view) return
+		if (!view || view.isLoaded === false || view.isLayoutValid === false) return
 		const size = view.getActualSize?.()
 		if (!size) return
 
@@ -373,6 +379,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		// Populate the first viewport before its initial native layout finishes.
 		if (initialViewport) commitWindow()
 		else refreshWindow()
+	}
+
+	function scheduleViewport() {
+		if (disposedRef.current || viewportFrameCancelRef.current) return
+		viewportFrameCancelRef.current = scheduleListFrame(() => {
+			viewportFrameCancelRef.current = null
+			if (!disposedRef.current) syncViewport()
+		})
 	}
 
 	function onScroll(event: any) {
@@ -411,15 +425,31 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		refreshWindow()
 	}
 
+	function observeLayout(slot: string, view: any, listener: (event: any) => void) {
+		layoutListenersRef.current.get(slot)?.()
+		layoutListenersRef.current.delete(slot)
+		if (!view) return
+		// NativeScript emits camel-case layoutChanged. The universal event
+		// binding lowercases JSX onLayoutChanged, so subscribe by exact name.
+		view.on?.('layoutChanged', listener)
+		layoutListenersRef.current.set(slot, () => view.off?.('layoutChanged', listener))
+	}
+
 	function cellCallback(id: number) {
 		let callback = cellCallbacksRef.current.get(id)
 		if (!callback) {
 			callback = (view: any) => {
 				if (view) {
+					observeLayout('cell:' + id, view, (event) => {
+						const cell = cellsRef.current.get(id)
+						if (cell) onRowLayout(cell, event)
+					})
+
 					// Preserve native widgets when the renderer moves a keyed host.
 					view.reusable = true
 					cellNodesRef.current.set(id, view)
 				} else {
+					observeLayout('cell:' + id, null, () => {})
 					cellNodesRef.current.get(id)?.destroyNode?.(true)
 					cellNodesRef.current.delete(id)
 					cellCallbacksRef.current.delete(id)
@@ -436,7 +466,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		const entry = cell.entry
 		const size = event.object?.getActualSize?.()
 		if (!entry || !size || disposedRef.current) return
-		measurementsRef.current.set(entry.rowKey, { entry, width: size.width, height: size.height, cellId: cell.id, generation: cell.generation })
+		measurementsRef.current.set(entry.rowKey, { entry, width: size.width, height: size.height, cellId: cell.id, generation: cell.generation, view: event.object })
 		refreshWindow()
 	}
 
@@ -445,10 +475,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		return () => {
 			disposedRef.current = true
 			frameCancelRef.current?.()
+			viewportFrameCancelRef.current?.()
+			viewportFrameCancelRef.current = null
 			if (estimateTimerRef.current != null) clearTimeout(estimateTimerRef.current)
 			frameCancelRef.current = null
 			estimateTimerRef.current = null
 			measurementsRef.current.clear()
+			for (const detach of layoutListenersRef.current.values()) detach()
+			layoutListenersRef.current.clear()
 			cellsRef.current.clear()
 			cellNodesRef.current.clear()
 			cellCallbacksRef.current.clear()
@@ -488,6 +522,8 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 	<scrollview
 		ref={(view: any) => {
 			scrollRef.current = view
+			observeLayout('viewport', view, scheduleViewport)
+			if (view) scheduleViewport()
 			if (view) applyEscapeProps(view, props)
 		}}
 		id={props.id}
@@ -502,17 +538,16 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 		accessibilityValue={props.accessibilityValue}
 		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
 		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-		onLoaded={(event: any) => syncViewport(event.object)}
-		onLayoutChanged={(event: any) => syncViewport(event.object)}
+		onLoaded={scheduleViewport}
 		onScroll={onScroll}
 	>
-		<flexboxlayout flexDirection="column" className={cx('vx-virtual-list-content')} onLayoutChanged={onContentLayout}>
+		<flexboxlayout flexDirection="column" className={cx('vx-virtual-list-content')} ref={(view: any) => observeLayout('content', view, onContentLayout)}>
 			{props.renderHeader ? (
 				<flexboxlayout
 					flexDirection="column"
 					className="vx-virtual-list-header"
 					flexShrink={0}
-					onLayoutChanged={onHeaderLayout}
+					ref={(view: any) => observeLayout('header', view, onHeaderLayout)}
 				>
 					{props.renderHeader()}
 				</flexboxlayout>
@@ -534,7 +569,6 @@ export function VirtualList<T = any>(props: VirtualListProps<T>) @{
 							left={0}
 							top={cell.top}
 							width={contentWidthRef.current || viewportWidthRef.current || '100%'}
-							onLayoutChanged={(event: any) => onRowLayout(cell, event)}
 						>
 							@for (const entry of cell.rows; key entry.rowKey) {
 								<>

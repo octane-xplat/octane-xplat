@@ -78,3 +78,36 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
 	flushFrame()
 	expect(reset).toHaveBeenCalledTimes(rebuilds)
 })
+
+it('repositions measured cells even when every row remains visible', () => {
+	let deliver: ResizeObserverCallback
+	vi.stubGlobal('ResizeObserver', class {
+		constructor(callback: ResizeObserverCallback) { deliver = callback }
+		observe() {}
+		unobserve() {}
+		disconnect() {}
+	})
+
+	const frames: FrameRequestCallback[] = []
+	vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { frames.push(callback); return frames.length })
+	vi.stubGlobal('cancelAnimationFrame', () => {})
+	vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
+		x: 0, y: 0, width: 100, height: 32, top: 0, bottom: 32, left: 0, right: 100, toJSON() {},
+	}))
+
+	const host = document.createElement('div')
+	document.body.append(host)
+	const root = createRoot(host)
+	roots.push(root)
+	act(() => root.render(<VirtualList items={[0, 1, 2]} keyExtractor={i => i} renderItem={i => <div>{i}</div>} />))
+	const viewport = host.firstElementChild as HTMLElement
+	Object.defineProperties(viewport, { clientWidth: { value: 100 }, clientHeight: { value: 200 } })
+	act(() => deliver!([{ target: viewport, contentRect: { width: 100, height: 200 } } as ResizeObserverEntry], {} as ResizeObserver))
+	for (let i = 0; i < 4; i++) act(() => {
+		for (const callback of frames.splice(0)) callback(0)
+	})
+
+	const body = host.querySelector('.vx-virtual-list-body') as HTMLElement
+	expect(body.style.height).toBe('96px')
+	expect([...host.querySelectorAll<HTMLElement>('.vx-virtual-list-row')].map(node => node.style.top)).toEqual(['0px', '32px', '64px'])
+})
