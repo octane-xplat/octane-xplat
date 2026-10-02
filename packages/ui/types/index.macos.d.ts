@@ -8,6 +8,50 @@ type Component<Props = Record<string, unknown>> = (props: Props & { children?: a
 
 export type * from './generated/props.js'
 export type { MdDoc, MdNode, MdInline } from './generated/Markdown.js'
+export {
+	Blockquote,
+	Calendar,
+	Citation,
+	Code,
+	CodeBlock,
+	DateInput,
+	DateRangeInput,
+	DateTimeInput,
+	MetadataList,
+	MetadataListItem,
+	Outline,
+	ProgressBar,
+	SYNC_TOKENIZE_THRESHOLD,
+	StatusDot,
+	TOKEN_TYPES,
+	Thumbnail,
+	TimeInput,
+	Timer,
+	Timestamp,
+	flatTokensToLines,
+	getWeekNumber,
+	inlineMarkdownText,
+	isDateInRange,
+	isSameDay,
+	markdownHeadings,
+	outlineFromDoc,
+	parseOutlineFromMarkdown,
+	slugify,
+	syntaxTokenVar,
+	syntaxTokenVarRef,
+	tokenize,
+	tokenizeAsync,
+	tokenizeStreaming,
+	uniqueSlug,
+	useCalendarDays,
+	useCalendarConstraints,
+	useCalendarNavigation,
+	useFieldControl,
+	useLayer,
+	useOutlineFromDOM,
+	useOutlineFromDoc,
+	useOutlineFromMarkdown,
+} from './generated/index.shared.js'
 
 export {
 	ChatComposer,
@@ -268,15 +312,18 @@ export declare function useScrollableArea(
 export declare const defaultIndicators: {
 	[N in P.IndicatorName]: P.IndicatorComponent<P.IndicatorMap[N]>
 }
+
 export declare const indicatorScope: string
 export declare function registerIndicator<N extends P.IndicatorName>(
 	name: N,
 	component: P.IndicatorComponent<P.IndicatorMap[N]>,
 ): void
+
 export declare function registerIndicators(registry: P.IndicatorRegistry): void
 export declare function getIndicator<N extends P.IndicatorName>(
 	name: N,
 ): P.IndicatorComponent<P.IndicatorMap[N]> | undefined
+
 export declare function useIndicator<N extends P.IndicatorName>(
 	name: N,
 ): P.IndicatorComponent<P.IndicatorMap[N]> | undefined

@@ -288,6 +288,8 @@ Run `pnpm --filter @octane-xplat/dnd-kit typecheck`, `test`, `build`, and
 they do not establish OS input delivery. The repository probe doctor reports
 available runtime targets. Do not infer Android runtime support from a native
 library build.
+The Web regression runs with `pnpm --filter @xplat/web test`; it drives pointer
+events through bound Views and checks both successful drop and cancellation.
 The maintained AppKit regression runs with
 `pnpm probe run packages/dnd-kit/tests/appkit-scroll.tsrx --target macos`; it uses
 action dispatch and checks layer feedback, layout, auto-scroll, and cleanup.

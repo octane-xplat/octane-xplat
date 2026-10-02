@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { View, HStack, Text, Pressable, ScrollView, useColorScheme } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, ScrollableArea, useColorScheme } from '@octane-xplat/ui';
 import { storage } from '@octane-xplat/platform';
 
 const FEATURES = [
@@ -33,9 +33,9 @@ export function App() @{
 			<Pressable className="btn" onPress={() => setCount(count + 1)}><Text>+</Text></Pressable>
 		</HStack>
 
-		<ScrollView>
+		<ScrollableArea>
 			{FEATURES.map((f) => <Text className="chip">{f}</Text>)}
-		</ScrollView>
+		</ScrollableArea>
 
 		<Pressable className="link" onPress={() => {
 			const next = !dark;

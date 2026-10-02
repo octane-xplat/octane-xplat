@@ -26,6 +26,6 @@ an existing scroll owner without putting browser APIs into shared app code.
 
 - AC1: [Install and reorder](../packages/dnd-kit/README.md#install-and-reorder), [maintained example](../packages/dnd-kit/examples/sortable.tsx).
 - AC2: [Compose drag and drop](../packages/dnd-kit/README.md#compose-drag-and-drop).
-- AC3: [Compose drag and drop](../packages/dnd-kit/README.md#compose-drag-and-drop), [core tests](../packages/dnd-kit/src/controller.test.ts).
+- AC3: [Compose drag and drop](../packages/dnd-kit/README.md#compose-drag-and-drop), [native core tests](../packages/dnd-kit/src/controller.mobile.test.ts), [Web pointer regression](../packages/dnd-kit/src/components.web.test.tsx).
 - AC4: [Auto-scroll](../packages/dnd-kit/README.md#auto-scroll), [AppKit scroll example](../packages/dnd-kit/examples/sortable.macos.tsx).
 - AC5: [Limits and verification](../packages/dnd-kit/README.md#limits-and-verification).

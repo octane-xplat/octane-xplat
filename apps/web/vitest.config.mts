@@ -26,11 +26,17 @@ export default defineConfig({
 		// symlinks (packages/app/node_modules/@xplat/*) and double-run.
 		root: '../..',
 		include: ['packages/*/src/**/*.test.{ts,tsx,tsrx}', 'apps/web/test/**/*.test.ts'],
-		// *.mobile.test.* runs under packages/ui/vitest.native.config.mts —
-		// it needs the nativescript renderer + the octane→universal/native
-		// alias; here it would bind DOM hooks inside universal components.
+		// Platform-specific tests run from their owning package, where native
+		// resolution and renderer setup are available. In particular, mobile
+		// tests need the NativeScript renderer and native aliases.
 		// packages/motion runs its own vitest configs (jsdom + native); running
 		// its web tests here under the node environment crashes on `history`.
-		exclude: ['**/*.mobile.test.*', '**/packages/motion/**'],
+		exclude: [
+			'**/*.mobile.test.*',
+			'**/*.ios.test.*',
+			'**/*.android.test.*',
+			'**/*.macos.test.*',
+			'**/packages/motion/**',
+		],
 	},
 })

@@ -173,5 +173,5 @@ test('iOS resumes only when interruption options allow it and deactivates the se
 	assert.equal(nativePlayer.paused, false)
 
 	player.dispose()
-	assert.deepEqual(sessionCalls.at(-1), ['active', false, 1, undefined])
+	assert.deepEqual(sessionCalls.at(-1), ['active', false, 1, null])
 })

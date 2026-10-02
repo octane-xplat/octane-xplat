@@ -14,8 +14,10 @@ export function ChatTokenChip(props: { token: ChatComposerToken; className?: any
 	if (isCustomToken(token)) {
 		return token.render();
 	}
+
 	const variant = token.variant ?? 'neutral';
-	<span className={['vx-chattoken', `vx-chattoken--${variant}`, props.className]}>
+
+	<span className={['vx-chat-token', `vx-chattoken--${variant}`, props.className]}>
 		{token.icon ? <Icon name={token.icon} size={12} /> : null}
 		{typeof token.label === 'string'
 			? <span className="vx-chattoken-label">{token.label}</span>

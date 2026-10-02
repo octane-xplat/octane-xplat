@@ -48,6 +48,14 @@ Xplat is at version `0.x`, so names and options can change between releases.
 [Known limits](../verify/known-limits.md) records feature differences and which ones
 have been checked in running apps.
 
+Web CI typechecks and tests the DOM renderer, builds the production bundle,
+then smoke-tests that bundle and a packed starter with Playwright-managed
+Chromium, Firefox, and WebKit. This does not set a minimum browser-version
+floor or qualify iOS Safari and screen readers; apps must define those targets
+for their own releases. Browser APIs and device services remain feature-specific
+boundaries in [known limits](known-limits.md) and
+[optional-service qualification](optional-service-qualification.md).
+
 ## Get a result, then improve it
 
 [Create and run the starter](toolchain.md#create-and-run), make a small
