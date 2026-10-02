@@ -669,7 +669,7 @@ has not been adopted. `exports-md` again failed to compile the cached universal
 source, so implementation inspection supplied this evidence.
 
 Bare Kbd text produces a zero-height Flexbox with no label; wrapping the text in
-Text produces a native label and a16-DIP-high container. This is a separate leaf
+Text produces a native label and a 16-DIP-high container. This is a separate leaf
 text-slot issue: the NativeScript driver's `syncText` applies text children only
 to TextBase, while Kbd's host is a layout. A text-slot fix must preserve supported
 rich children rather than flattening every child to a string.
@@ -683,3 +683,28 @@ Span under FormattedString and FormattedString under TextBase, but has no
 Span-under-TextBase branch; Text's nested implementation emits exactly that
 unsupported relationship. The explicit FormattedString control mounts with
 its concatenated text mirror, but native run styling has not yet been inspected.
+
+### Popover dismissal: zero-sized percentage backdrop
+
+A stable Popover reproduces outside clicks leaving the popup open. Its panel is
+120×30 DIP, but its backdrop stays0×0 despite width/height100%. The native
+backdrop already has a brush; replacing it with an explicit transparent brush
+does not fix dismissal. That hypothesis was rejected.
+
+An OS-clicked diagnostic Button first assigns explicit584×354 root dimensions.
+The backdrop then measures584×354, a subsequent real outside click calls
+`onDismiss`, and the next tree snapshot contains neither backdrop nor panel.
+The parent layer was already full-size, so the backdrop is the immediate gap.
+A narrower rerun changes no model dimensions: it calls the backdrop's existing
+core `_applyPercentSizing()` after the parent is laid out. Before that call,
+child size is0×0, parent size584×354, and width/height remain `{unit:'%',value:1}`.
+The next outside click again calls dismissal. Both interactive tasks complete
+with result0.
+
+Pinned core watches the child's own native SizeChanged event. A zero-sized
+Canvas child may never get a new size event when its parent becomes bounded,
+so the deferred percent-sizing path is not retriggered. The production remedy
+must initialize percentages after parent layout and refresh them on parent
+resize, reparent/load/unload, and percent/numeric property changes without
+replacing another size handler or mutating during a XAML layout pass. A manual
+one-time refresh is diagnostic only; no production fix or resize pass is claimed.

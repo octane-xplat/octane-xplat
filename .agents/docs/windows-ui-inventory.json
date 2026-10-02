@@ -1866,9 +1866,10 @@
       "status": "parked",
       "evidence": [
         "WinUI coordinate adapter places120\u00d730 panel at x242,y58 and controlled close removes its host.",
-        "Separate real OS outside click leaves Popover panel mounted; no dismiss callback observed in this case."
+        "Separate real OS outside click leaves Popover panel mounted; no dismiss callback observed in this case.",
+        "2026-10-02 stable OS-click probe: percent-sized backdrop0x0, parent584x354, brush already present. Explicit dimensions or a post-layout call to core _applyPercentSizing restores outside-click onDismiss and host removal; both interactive tasks result0. No shipped sizing/lifecycle/resize fix."
       ],
-      "reason": "Positioning/lifecycle seam is implemented, but default outside-tap dismissal needs Windows event/hit-testing follow-up. Reopen with user dismissal, anchor scroll/resize tracking, and cleanup checks."
+      "reason": "Positioning and controlled lifecycle work. Outside dismissal is blocked by Windows percentage sizing leaving the backdrop0x0; a diagnostic post-parent-layout refresh restores OS dismissal. Reopen after upstream sizing initialization/parent-resize/lifecycle fixes, then verify anchor tracking, focus/keyboard behavior, dismissal, and cleanup."
     },
     {
       "name": "Dialog",
