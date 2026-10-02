@@ -1,14 +1,14 @@
 // Outbound links — web leaf. Settings are an app-level concept and are
 // explicitly unsupported in a browser.
 import type { Capability, OpenSettingsImpl } from './types'
-import { desktopHostClient } from './host-runtime.web'
+import { desktopHost } from './host-runtime.web'
 
 export function openUrl(url: string): boolean {
-	const host = desktopHostClient()
+	const host = desktopHost()
 	if (host) {
 		// This synchronous API can report that the host request was dispatched,
 		// not the eventual result returned by the asynchronous bridge call.
-		void host.call('system', 'openUrl', url).catch((error) => {
+		void host.system.openUrl(url).catch((error) => {
 			console.warn('[xplat] desktop host could not open URL', error)
 		})
 

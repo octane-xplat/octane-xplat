@@ -1,12 +1,12 @@
 // Share — web leaf. navigator.share where present (mobile Safari/Chrome);
 // desktop degrades to clipboard copy so the call still does something useful.
-import { desktopHostClient, desktopHostSupports } from '@octane-xplat/platform/host/web'
+import { desktopHost, desktopHostSupports } from '@octane-xplat/platform/host/web'
 
 export const share = {
 	async text(text: string, subject?: string): Promise<'shared' | 'copied' | 'unavailable'> {
-		const host = desktopHostClient()
+		const host = desktopHost()
 		if (host && (await desktopHostSupports('system', 'shareContent'))) {
-			return host.call('system', 'shareContent', { text, title: subject })
+			return host.system.shareContent({ text, title: subject })
 		}
 
 		const nav = navigator as any
@@ -23,9 +23,9 @@ export const share = {
 		return 'unavailable'
 	},
 	async url(url: string, title?: string): Promise<'shared' | 'copied' | 'unavailable'> {
-		const host = desktopHostClient()
+		const host = desktopHost()
 		if (host && (await desktopHostSupports('system', 'shareContent'))) {
-			return host.call('system', 'shareContent', { url, title })
+			return host.system.shareContent({ url, title })
 		}
 
 		const nav = navigator as any

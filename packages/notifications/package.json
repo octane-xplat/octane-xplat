@@ -38,7 +38,8 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
-		"@nativescript/local-notifications": "7.0.0"
+		"@nativescript/local-notifications": "7.0.0",
+		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

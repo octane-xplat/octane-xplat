@@ -39,7 +39,8 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
-		"@nativescript/secure-storage": "4.0.2"
+		"@nativescript/secure-storage": "4.0.2",
+		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

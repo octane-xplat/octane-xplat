@@ -39,7 +39,8 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
-		"@nativescript-community/ui-document-picker": "1.1.29"
+		"@nativescript-community/ui-document-picker": "1.1.29",
+		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",

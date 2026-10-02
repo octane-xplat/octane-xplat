@@ -8,7 +8,9 @@ export type HostServiceMap = Record<string, Record<string, HostServiceMethod>>
 export type HostEventMap = Record<string, unknown>
 
 /** Methods available from the current native host. */
-export type HostCapabilities = Record<string, string[]>
+export type HostCapabilities<Services extends object = HostServiceMap> = {
+	[Service in keyof Services & string]?: (keyof Services[Service] & string)[]
+} & Record<string, string[] | undefined>
 
 export type HostCallRequest = {
 	type: 'call'
@@ -37,6 +39,15 @@ export interface HostTransport {
 type ArgumentsOf<Method> = Method extends (...args: infer Args) => unknown ? Args : never
 type ResultOf<Method> = Method extends (...args: any[]) => infer Result ? Awaited<Result> : never
 
+/** Service-shaped frontend API whose bridge calls preserve the host's types. */
+export type HostServiceClient<Services extends object> = {
+	[Service in keyof Services & string]: {
+		[Method in keyof Services[Service] & string]: (
+			...args: ArgumentsOf<Services[Service][Method]>
+		) => Promise<ResultOf<Services[Service][Method]>>
+	}
+}
+
 /**
  * Type-safe client for services and events implemented by a desktop host.
  * The method signatures are shared with the host through the caller's generic
@@ -51,7 +62,7 @@ export interface HostClient<
 		method: Method,
 		...args: ArgumentsOf<Services[Service][Method]>
 	): Promise<ResultOf<Services[Service][Method]>>
-	capabilities(): Promise<HostCapabilities>
+	capabilities(): Promise<HostCapabilities<Services>>
 	on<Event extends keyof Events & string>(
 		name: Event,
 		listener: (payload: Events[Event]) => void,
@@ -125,7 +136,7 @@ export function createHostClient<Services extends object, Events extends object 
 			Events
 		>['call'],
 		capabilities() {
-			return request({ type: 'capabilities' }) as Promise<HostCapabilities>
+			return request({ type: 'capabilities' }) as Promise<HostCapabilities<Services>>
 		},
 		on(name, listener) {
 			const eventListeners = listeners.get(name) ?? new Set()
@@ -170,7 +181,7 @@ export function createHostDispatcher<Services extends object, Events extends obj
 			if (request.type === 'capabilities') {
 				const capabilities = Object.fromEntries(
 					Object.entries(services).map(([name, methods]) => [name, Object.keys(methods)]),
-				) as HostCapabilities
+				) as HostCapabilities<Services>
 
 				port.reply(JSON.stringify({ type: 'reply', id: request.id, ok: true, value: capabilities }))
 				return

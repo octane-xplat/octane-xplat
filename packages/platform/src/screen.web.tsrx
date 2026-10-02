@@ -1,7 +1,8 @@
-// Window size + orientation — web leaf.
+// Window size + orientation — desktop webviews follow the owning native window;
+// browsers use window geometry and DOM resize events.
 import { useEffect, useState } from 'octane';
 import type { WindowSize } from './types';
-
+import { desktopHostBootstrap, desktopHostClient } from './host-runtime.web';
 
 function read(): WindowSize {
 	return {
@@ -12,8 +13,14 @@ function read(): WindowSize {
 }
 
 export function useWindowSize(): WindowSize {
-	const [size, setSize] = useState<WindowSize>(read);
+	const bootstrap = desktopHostBootstrap();
+	const [size, setSize] = useState<WindowSize>(bootstrap?.windowSize ?? read);
 	useEffect(() => {
+		const host = desktopHostClient();
+		if (host) {
+			return host.on('window.resize', setSize);
+		}
+
 		const update = () => setSize(read());
 		window.addEventListener('resize', update);
 		window.addEventListener('orientationchange', update);

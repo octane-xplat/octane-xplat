@@ -1,11 +1,18 @@
-// App lifecycle — web leaf. visibilitychange ↔ 'active'/'background';
-// pagehide maps to 'inactive' (the unload-approaching state).
+// App lifecycle — desktop webviews follow host window state; browsers keep
+// visibility/page-lifecycle events.
 import { useEffect, useState } from 'octane';
 import type { AppState } from './types';
+import { desktopHostBootstrap, desktopHostClient } from './host-runtime.web';
 
 export function useAppState(): AppState {
-	const [state, setState] = useState<AppState>('active');
+	const bootstrap = desktopHostBootstrap();
+	const [state, setState] = useState<AppState>(bootstrap?.appState ?? 'active');
 	useEffect(() => {
+		const host = desktopHostClient();
+		if (host) {
+			return host.on('app.state.change', setState);
+		}
+
 		const onVis = () => setState(document.visibilityState === 'visible' ? 'active' : 'background');
 		const onHide = () => setState('inactive');
 		document.addEventListener('visibilitychange', onVis);
