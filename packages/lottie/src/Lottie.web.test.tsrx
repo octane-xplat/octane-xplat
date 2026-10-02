@@ -23,6 +23,7 @@ afterEach(() => {
 		act(() => root.unmount())
 		host.remove()
 	}
+
 	loadAnimation.mockReset()
 })
 
@@ -45,4 +46,19 @@ it('reports synchronous lottie-web construction failures through onError', () =>
 	mount({ data: { v: '5.0', layers: [] }, onError })
 
 	expect(onError).toHaveBeenCalledWith({ message: 'invalid animation data' })
+})
+
+it('binds the created animation handle on initial mount', () => {
+	const animation = {
+		addEventListener: vi.fn(),
+		destroy: vi.fn(),
+	} as any
+
+	loadAnimation.mockReturnValue(animation)
+	const bind = vi.fn()
+
+	mount({ data: { v: '5.0', layers: [] }, bind })
+
+	expect(bind).toHaveBeenCalledTimes(1)
+	expect(bind.mock.calls[0][0].native).toBe(animation)
 })

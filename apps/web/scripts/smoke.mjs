@@ -138,7 +138,7 @@ try {
 
 	// Multi-child Pressable (native regression parity) — lives on the
 	// Probes tab: label + sibling views inside the pressable element.
-	await page.click('button:text("Test")')
+	await page.getByRole('tab', { name: 'Test' }).click()
 	await page.waitForSelector('#multi-pressable', { timeout: 3000 })
 	const mp = page.locator('#multi-pressable')
 	ok('pressable multi-child label', (await mp.locator('text=Multi').count()) === 1)
@@ -344,7 +344,7 @@ try {
 
 	// Tab switch: web Tabs leaf renders a button row.
 	await page.goto(BASE, { waitUntil: 'networkidle' })
-	await page.click('button:text("Apps")')
+	await page.getByRole('tab', { name: 'Apps' }).click()
 	await page.waitForSelector('text=Last opened:', { timeout: 3000 })
 	ok('tab switch → demos catalog mounts', true)
 	const chipCount = await page.locator('[role="button"]:has-text("Counter")').count()
@@ -369,6 +369,34 @@ try {
 	// same-root swap on web vs cross-root write on native.
 	await page.waitForSelector('text=Last opened: counter', { timeout: 3000 })
 	ok('cross-route store write (lastDemo)', true)
+
+	// Lottie is a shipped Web leaf; exercise lottie-web's real SVG renderer,
+	// load event, and playback completion in each browser smoke engine.
+	await page.goto(BASE + '/test/demo/lottie', { waitUntil: 'networkidle' })
+	await page.waitForFunction(
+		() => document.querySelector('.lottie-demo-status')?.textContent?.startsWith('loaded '),
+		null,
+		{ timeout: 10000 },
+	)
+
+	const lottieStatus = await page.locator('.lottie-demo-status').innerText()
+	ok(
+		'Lottie Web loads the shared animation into SVG',
+		(await page.locator('.lottie-demo-anim svg').count()) === 1 &&
+			Number(lottieStatus.match(/loaded ([\d.]+)ms/)?.[1]) > 0,
+		lottieStatus,
+	)
+
+	await page.getByRole('button', { name: 'Play' }).click()
+	await page.waitForFunction(
+		() => document.querySelector('.lottie-demo-status')?.textContent === 'ended',
+		null,
+		{ timeout: 12000 },
+	)
+
+	ok('Lottie Web playback reaches the completion event', true)
+	await page.goto(BASE, { waitUntil: 'networkidle' })
+	await page.getByRole('tab', { name: 'Apps' }).click()
 
 	// VirtualList: a 500-row data set must keep a bounded DOM window, preserve
 	// a visible anchor when a measured row above it grows, and retain keyed row
@@ -526,7 +554,7 @@ try {
 	await page.waitForFunction(() => location.pathname === '/', null, { timeout: 3000 })
 
 	// Root push (Detail →) covers the whole shell.
-	await page.click('button:text("Home")')
+	await page.getByRole('tab', { name: 'Home' }).click()
 	const detailLink = page.getByRole('link', { name: 'Detail →' })
 	const detailHref = await detailLink.getAttribute('href')
 	const timeOrigin = await page.evaluate(() => performance.timeOrigin)
@@ -563,7 +591,7 @@ try {
 	// Settings tab: sheet seam mounts a real portal layer; backdrop dismisses.
 	const logs = []
 	page.on('console', (m) => logs.push(m.text()))
-	await page.click('button:text("Test")')
+	await page.getByRole('tab', { name: 'Test' }).click()
 	await page.click('text=Open sheet')
 	await page.waitForSelector('.vx-sheet-layer .sheet-panel', { timeout: 3000 })
 	ok(
@@ -575,7 +603,7 @@ try {
 	ok('sheet backdrop dismisses', (await page.locator('.vx-sheet-layer').count()) === 0)
 
 	// Services tab: platform services catalog mounts with live read-outs.
-	await page.click('button:text("Test")')
+	await page.getByRole('tab', { name: 'Test' }).click()
 	await page.waitForSelector('text=Platform services', { timeout: 3000 })
 	ok('services catalog renders', (await page.locator('text=/web · browser/').count()) === 1)
 
@@ -642,7 +670,7 @@ try {
 	ok('toast anchored renders', true)
 
 	// Home tab: imperative overlay seam mounts a portal layer under body.
-	await page.click('button:text("Home")')
+	await page.getByRole('tab', { name: 'Home' }).click()
 	await page.click('#overlay-btn')
 	await page.waitForSelector('.vx-overlay .overlay-panel', { timeout: 3000 })
 	await page.click('.vx-overlay-shade')
