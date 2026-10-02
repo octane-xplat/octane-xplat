@@ -7,7 +7,6 @@ export function bindCommandPaletteKeys(
 ): () => void {
 	const native = globalThis as any
 	const owner = input.window
-	const previous = owner?.firstResponder
 	if (autoFocus) {
 		owner?.makeFirstResponder?.(input)
 	}
@@ -18,7 +17,6 @@ export function bindCommandPaletteKeys(
 	const keys: Record<number, string> = {
 		36: 'Enter',
 		76: 'Enter',
-		53: 'Escape',
 		125: 'ArrowDown',
 		126: 'ArrowUp',
 		116: 'PageUp',
@@ -74,8 +72,5 @@ export function bindCommandPaletteKeys(
 			notifications.removeObserver(observer)
 		}
 
-		if (owner?.firstResponder === editorOf()) {
-			owner?.makeFirstResponder?.(previous ?? null)
-		}
 	}
 }

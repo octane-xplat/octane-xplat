@@ -1,7 +1,7 @@
 # Search commands across targets
 
-> Use one command search contract with a keyboard palette on web and a
-> touch-first search sheet on iOS and Android.
+> Use one command search contract with a keyboard palette on web and macOS
+> and a touch-first search sheet on iOS and Android.
 
 `CommandPalette` accepts either static `items` or a `searchSource`. Existing
 `MenuItem` arrays still work. Supply stable, unique keys/IDs and keep `open`
@@ -99,7 +99,7 @@ Desktop Enter activates the highlighted enabled result. Without a highlight it
 executes nothing. Arrows clamp at the list boundaries; PageUp/PageDown jump to
 first/last enabled results. Home/End retain normal text-caret behavior, Space
 remains input, and IME composition does not activate commands. Hover highlights
-without scrolling; web keyboard navigation scrolls the highlighted row into view.
+without scrolling; web and macOS keyboard navigation scrolls the highlighted row into view.
 Escape or Cancel closes. Web retains modal focus isolation, Tab containment, and
 focus return through Overlay.
 
@@ -124,7 +124,7 @@ space still needs device verification for your chosen height/content.
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Web / desktop webviews | Body-portal modal panel, named combobox/listbox, polite loading/result status, keyboard and pointer selection                                                 | Component and Chromium probes cover dispatched events; browser/AT and real OS input remain separate checks                |
 | iOS / Android          | Existing bottom-sheet surface with keyboard lift, bounded scrollable results, visible Clear/Cancel, row names/disabled states and native status announcements | Search/Return submits the query; tapping a row activates it. No hardware-key highlight adapter is installed on mobile yet |
-| Native macOS           | Experimental inline panel, live field search observer, window/editor-scoped key monitor, tap selection and Cancel                                             | No shade/modal isolation. Hardware-key/VoiceOver and offscreen-highlight scrolling need native verification               |
+| Native macOS           | AppKit window-modal sheet, bounded results, live field search observer, window/editor-scoped navigation, tap selection and Cancel                           | Shared registry owns Escape and focus return. Physical keyboard/IME/VoiceOver remain separate from adapter dispatch               |
 
 Native and web exports share `CommandPaletteProps`, `CommandPaletteItem`, and
 `CommandPaletteMenuItem`. Platform-specific implementation remains behind file
@@ -137,3 +137,15 @@ query `fail` for its error/Retry path, select an enabled row, cancel, and reopen
 Test your own remote source with out-of-order responses and close during loading.
 See the [implementation plan](../notes/command-palette-plan.md) for the audit follow-up
 and the [original source audit](../notes/astryx-parity-commandpalette.md) for baseline gaps.
+
+On macOS, the palette opens as a sheet attached to the calling window. Cancel,
+selection, or Escape closes it and returns focus to the calling window. The
+shared layer registry handles Escape, so a nested layer receives dismissal first.
+PageDown reveals the last enabled result; PageUp returns to the first. Use
+`maxHeight={120}` with a long grouped list to check scrolling in your app.
+
+For a repeatable nonvisual macOS check, run the
+[maintained host case](../../packages/ui/tests/command-palette-host.macos.tsrx)
+with the command in the [implementation plan](../notes/command-palette-plan.md#remaining-work).
+It checks modal attachment, native field focus, scrolling, text notifications,
+dismissal, callback counts, and reopen without capturing images.

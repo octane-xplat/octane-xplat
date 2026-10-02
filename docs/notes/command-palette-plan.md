@@ -58,9 +58,30 @@ Verification on this worktree:
 
 ## Remaining work
 
-Native macOS still needs a real modal/layer surface and scrolling the keyboard
-highlight into view. Its local key monitor and input observer have mocked unit
-coverage, but actual keyboard/IME/VoiceOver behavior needs host verification.
+Native macOS now uses the shared AppKit sheet presenter and layer dismissal
+registry, with focus return and keyboard-highlight scrolling. A maintained
+nonvisual host case imports the normal UI barrel and checks modal attachment,
+field focus, grouped scrolling, selection, text notifications, and close/reopen.
+Run it with:
+
+```sh
+pnpm probe run packages/ui/tests/command-palette-host.macos.tsrx --target macos --deps @octane-xplat/ui --timeout 20000
+```
+
+The AppKit host case passes 16 assertions (run
+`1197cba2-791e-41ad-85c4-3584673a3137`). Focused controller/web/adapter tests
+pass 18 assertions. The UI web/native build, native-dist guard, macOS typecheck,
+normal UI barrel build, renderer tests (14), docs build, and recipe checks pass.
+Frozen install reaches dependency setup but its workspace postinstall fails on
+unrelated stale `bind` references in `packages/image-crop/src/ImageCrop.tsrx`.
+The full TSRX lint pass reports existing violations in untouched files; the
+changed palette, Pressable, and maintained host case have no diagnostics.
+
+The host case dispatches the installed navigation/dismissal monitor callbacks
+and posts native text-change notifications. It does not prove physical keyboard
+input, actual IME composition, mouse hit testing, or VoiceOver. Mocked adapter
+tests preserve the marked-text guard. AppKit's document coordinates run upward;
+PageDown can decrease the clip origin when revealing the last grouped result.
 Mobile hardware-key navigation remains deferred; software Search reruns the query
 and taps execute commands. The sheet's keyboard lift, touch hit testing, native
 status announcements, and assistive-technology behavior need device verification

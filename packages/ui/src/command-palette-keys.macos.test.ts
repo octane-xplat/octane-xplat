@@ -64,6 +64,7 @@ describe('AppKit palette input adapter', () => {
 		expect(env.key(125)).toBeNull()
 		expect(env.key(36)).toBeNull()
 		expect(keys).toEqual(['ArrowDown', 'Enter'])
+		expect(env.key(53)).not.toBeNull() // Shared registry owns Escape.
 		env.editor.hasMarkedText = true
 		expect(env.key(36)).not.toBeNull()
 		env.editor.hasMarkedText = false

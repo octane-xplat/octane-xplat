@@ -22,7 +22,7 @@ Provide local or remote searchable values with a stable identity, present useful
 
 - AC6: A reader can use a finite-list Selector or MultiSelector with local grouped filtering, filtered enabled-item bulk selection, pending/rejected commits, form submission, and explicit native keyboard limits.
 
-- AC7: A reader can build a static or remote CommandPalette with groups, disabled entries, loading/empty/error states, cancellation and close/reopen cleanup, and understands desktop highlight versus mobile tap/submit behavior.
+- AC7: A reader can build a static or remote CommandPalette with groups, disabled entries, loading/empty/error states, cancellation and close/reopen cleanup, and understands desktop highlight versus mobile tap/submit behavior, macOS modal dismissal and focus return, and keyboard-highlight scrolling.
 
 ## Documentation
 
@@ -34,4 +34,4 @@ Provide local or remote searchable values with a stable identity, present useful
 
 - AC6: [Choose from a finite list](../docs/app/search-selection.md#choose-from-a-finite-list), [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx), and [the Select probe](../examples/probes/select.tsrx).
 
-- AC7: [Search commands across targets](../docs/app/command-palette.md), [maintained demo](../packages/demos/src/ComponentsDemo.tsrx), and [platform boundaries](../docs/app/command-palette.md#platform-boundaries-and-verification).
+- AC7: [Search commands across targets](../docs/app/command-palette.md), [maintained demo](../packages/demos/src/ComponentsDemo.tsrx), and [platform boundaries](../docs/app/command-palette.md#platform-boundaries-and-verification), and [the nonvisual AppKit host case](../packages/ui/tests/command-palette-host.macos.tsrx).

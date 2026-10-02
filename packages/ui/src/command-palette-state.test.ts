@@ -215,4 +215,29 @@ describe('CommandPalette search and selection', () => {
 		controller.search('fail')
 		expect(controller.store.get().status).toBe('ready')
 	})
+
+	it('closes once whether the parent accepts or ignores the request, and reopens after false', () => {
+		for (const accept of [false, true]) {
+			let calls = 0
+			const { props, controller } = setup({ items: [{ key: 'one', label: 'One' }] })
+			props.onOpenChange = (open) => {
+				calls++
+				if (accept) { props.open = open }
+			}
+
+			controller.configure()
+			controller.search('one')
+			controller.close()
+			controller.close() // Native dismissal completion must not request another close.
+			controller.configure()
+			expect(calls).toBe(1)
+			expect(controller.store.get().open).toBe(false)
+			props.open = false
+			controller.configure()
+			props.open = true
+			controller.configure()
+			expect(controller.store.get()).toMatchObject({ open: true, query: '', highlighted: null })
+		}
+	})
+
 })

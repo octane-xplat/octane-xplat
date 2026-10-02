@@ -3892,8 +3892,8 @@ function finishSheetDismissal(sheetWindow: any) {
  *  Returns { close, update }. */
 function presentSheet(view: NSView, options: PropBag) {
 	if (
-		typeof NSWindow !== 'function' ||
-		typeof NSViewController !== 'function' ||
+		typeof globalThis.NSWindow?.alloc !== 'function' ||
+		typeof globalThis.NSViewController?.alloc !== 'function' ||
 		typeof options?.component !== 'function'
 	) {
 		return null
