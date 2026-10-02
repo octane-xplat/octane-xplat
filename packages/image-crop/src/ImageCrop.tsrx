@@ -40,7 +40,7 @@ export function ImageCrop(props: ImageCropProps) @{
 
 	const left = frame.x + crop.x, top = frame.y + crop.y
 
-	<View id={props.id} bind={measure.bind} style={{ width: props.width, height: props.height }}>
+	<View id={props.id} ref={measure.ref} style={{ width: props.width, height: props.height }}>
 		<Absolute style={viewport}>
 			<Source src={props.src} alt={props.alt} width={viewport.width} height={viewport.height} />
 			<Gesture id={props.id ? props.id + '-move' : undefined} left={left} top={top}
