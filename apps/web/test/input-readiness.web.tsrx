@@ -1,5 +1,5 @@
 import { createRoot, useState } from 'octane';
-import { Overlay, Pressable, Sheet, TextArea, TextInput } from '@octane-xplat/ui';
+import { BottomSheet, Overlay, Pressable, TextArea, TextInput } from '@octane-xplat/ui';
 import { motion, Presence } from '../../../packages/motion/src/index.web';
 
 function InputReadiness() @{
@@ -21,9 +21,9 @@ function InputReadiness() @{
 		<button id="write" onClick={() => setValue('replacement')}>Write controlled value</button>
 		<button id="open-sheet" onClick={() => setSheet(true)}>Open sheet</button>
 		<button id="open-overlay" onClick={() => setOverlay(true)}>Open overlay</button>
-		<Sheet open={sheet} onDismiss={() => setSheet(false)} web={{ 'aria-label': 'Input sheet' }}>
+		<BottomSheet isOpen={sheet} onOpenChange={(open) => setSheet(open)} label="Input sheet">
 			<button id="sheet-first">First</button><button id="sheet-nested" onClick={() => setOverlay(true)}>Nested overlay</button><button id="sheet-last" onClick={() => setSheet(false)}>Close</button>
-		</Sheet>
+		</BottomSheet>
 		<Overlay open={overlay} shadeCover onDismiss={() => setOverlay(false)}>
 			<button id="overlay-first">First</button><button id="overlay-last" onClick={() => setOverlay(false)}>Close</button>
 		</Overlay>

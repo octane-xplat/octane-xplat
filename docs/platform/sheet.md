@@ -45,6 +45,12 @@ and options, so keep it in a matching [platform file](module-resolution.md).
 The Android example below owns its `open` state and provides opening and
 closing actions.
 
+Import the sheet's stylesheet once from the web app entry:
+
+```ts
+import '@octane-xplat/sheet/web/styles.css'
+```
+
 ```tsx
 /** @jsxImportSource @nativescript-community/octane */
 // Actions.android.tsrx
@@ -180,7 +186,8 @@ export function Actions() {
 - `open` controls presentation on all entries.
 - `onDismissed` fires when the platform dismisses — swipe-down or
   scrim/outside tap on Android (via `ModalBottomSheet.onDismissRequest`),
-  sheet dismiss on iOS (via `onDismiss`), scrim click on web.
+  sheet dismiss on iOS (via `onDismiss`), and enabled Escape, scrim click, or
+  drag-handle swipe on web.
 - `onPresentedChange` (iOS) reports platform-side presentation state with
   Expo's echo suppression.
 
@@ -198,7 +205,14 @@ export function Actions() {
   key events are forwarded while the sheet is open (ported from Expo).
   `sheetGesturesEnabled`/`shouldDismissOnClickOutside` are accepted but
   ignored — the resolved material3 predates those parameters.
-- **Web** — a scrim + fixed bottom panel, scrim-click dismiss.
+- **Web** — a native modal `<dialog>` in the browser top layer. `label` names
+  the dialog; focus enters the first usable control, Tab stays in the sheet,
+  and focus returns to `finalFocusRef` on close. Escape maps to
+  `shouldDismissOnBackPress`, scrim click maps to
+  `shouldDismissOnClickOutside`, and dragging the handle maps to
+  `sheetGesturesEnabled`. The web leaf applies `id`, `className`, `style`, and
+  the container/content/scrim colors. Its height budget is 60vh by default and
+  90vh when `skipPartiallyExpanded` is true.
 - **macOS** — a real AppKit window sheet (`beginSheet` on the leaf's
   window), falling back to a floating window without a parent. There are
   no detents or drag handles on macOS — the window sizes to the
@@ -245,37 +259,36 @@ skipPartiallyExpanded)`, `properties.shouldDismissOnBackPress`,
 
 ## Focus qualification
 
-Provide a named opening action and a visible close action inside the content.
-The leaf's web `BottomSheet` has not been qualified for keyboard focus
-containment or trigger restoration. Native modal VoiceOver/TalkBack navigation
-and return focus also remain unverified. The shared `@octane-xplat/ui` BottomSheet
-uses a different implementation; its browser focus results do not cover this
-leaf. See [text-entry guidance](../app/text-entry.md#release-and-restore-focus) and
-[input readiness evidence](../notes/input-readiness-notes.md).
+Provide a named opening action, a meaningful `label`, and a visible close
+action inside the content. The leaf's Web focus, keyboard containment,
+dismissal, styling, and trigger restoration pass the maintained Playwright
+runtime check in Chromium, Firefox, and WebKit. Keep a ref to the opener and
+pass it as `finalFocusRef` so focus returns reliably after pointer input:
 
 ```tsx
-// Actions.web.tsrx
+import { useRef, useState } from 'octane'
 import { BottomSheet } from '@octane-xplat/sheet/web'
-import { Pressable, Text } from '@octane-xplat/ui'
-import { useState } from 'octane'
 
-export function Actions() {
+function AccountActions() @{
 	const [open, setOpen] = useState(false)
-	return (
-		<>
-			<Pressable onPress={() => setOpen(true)}>
-				<Text>Open actions</Text>
-			</Pressable>
-			<BottomSheet
-				open={open}
-				onDismissed={() => setOpen(false)}
-				content={() => (
-					<Pressable onPress={() => setOpen(false)}>
-						<Text>Close actions</Text>
-					</Pressable>
-				)}
-			/>
-		</>
-	)
+	const trigger = useRef<HTMLButtonElement | null>(null)
+
+	<>
+		<button ref={trigger} onClick={() => setOpen(true)}>Open actions</button>
+		<BottomSheet
+			open={open}
+			label="Account actions"
+			finalFocusRef={trigger}
+			onDismissed={() => setOpen(false)}
+			content={() => <button onClick={() => setOpen(false)}>Close</button>}
+		/>
+	</>
 }
 ```
+
+When the opener is the shared `Pressable`, use its `ref` prop to retain the
+web element in the same ref. This does not qualify iOS Safari or actual
+screen-reader navigation. Native modal VoiceOver/TalkBack navigation and
+return focus also remain unverified. See
+[text-entry guidance](../app/text-entry.md#release-and-restore-focus) and
+[input readiness evidence](../notes/input-readiness-notes.md).

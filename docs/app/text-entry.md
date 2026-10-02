@@ -203,9 +203,14 @@ On web, shared `BottomSheet` with its default shade, and
 dismiss on Escape, and restore a connected trigger when closed. Nested modals
 isolate the top panel. Background portals become inert too. A nonmodal surface
 without a shade does not take over focus. Give a BottomSheet a name through
-`web={{ 'aria-label': 'Edit name' }}` and provide a visible close action.
-The separate `@octane-xplat/sheet` leaf's `BottomSheet` still needs its own
-keyboard-focus qualification; shared BottomSheet results do not cover it.
+`label="Edit name"` and provide a visible close action. Pass
+`finalFocusRef={triggerRef}` when pointer input may open the sheet and the
+browser does not focus the trigger automatically.
+
+The separate `@octane-xplat/sheet/web` leaf has its own Playwright keyboard,
+focus-return, dismissal, and drag check across Chromium, Firefox, and WebKit;
+the shared BottomSheet results do not cover that implementation. Neither check
+qualifies actual screen-reader speech or iOS Safari.
 
 ```tsx
 import { Screen, BottomSheet, Pressable, Text } from '@octane-xplat/ui'

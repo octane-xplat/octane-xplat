@@ -1,15 +1,17 @@
-import { useState } from 'octane'
+import { useRef, useState } from 'octane'
 import { Heading, Pressable, Text, View } from '@octane-xplat/ui'
 import { BottomSheet } from '@octane-xplat/sheet/web'
 
 /** Demonstrates the web bottom-sheet contract. */
 export function NativeSheetDemo() @{
 	const [open, setOpen] = useState(false)
+	const trigger = useRef<HTMLElement | null>(null)
 
 	<View className="controls-demo gap-4">
 		<Heading>Web bottom sheet</Heading>
 		<Pressable
 			id="native-sheet-open"
+			bind={(element) => { trigger.current = element }}
 			className="rounded-lg border border-slate-300 p-4"
 			onPress={() => setOpen(true)}
 		>
@@ -18,6 +20,8 @@ export function NativeSheetDemo() @{
 		<Text>{`Sheet: ${open ? 'open' : 'closed'}`}</Text>
 		<BottomSheet
 			id="native-sheet"
+			label="More actions"
+			finalFocusRef={trigger}
 			open={open}
 			onDismissed={() => setOpen(false)}
 			content={() => (

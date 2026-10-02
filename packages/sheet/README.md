@@ -2,7 +2,7 @@
 
 An install boundary for platform-specific modal bottom sheets: a SwiftUI
 `.sheet` presentation on iOS, a Material 3 `ModalBottomSheet` on Android,
-a fixed-position DOM panel on web, and a real `NSWindow` sheet
+a native modal `<dialog>` on web, and a real `NSWindow` sheet
 (`beginSheet`) on macOS.
 Install the package in the app that renders a control. Import
 `SwiftUIBottomSheet` from `@octane-xplat/sheet/ios`,
@@ -101,6 +101,12 @@ export function Details() {
 }
 ```
 
+Web apps must also import the sheet stylesheet from their app entry:
+
+```ts
+import '@octane-xplat/sheet/web/styles.css'
+```
+
 Sheet content is a render fn whose octane output mounts into a detached
 root — the same embedding mechanism as `@octane-xplat/context-menu`'s
 trigger. On iOS the registered view resolves through
@@ -129,7 +135,11 @@ export function HostedContent({ open }: { open: boolean }) {
   `shouldDismissOnClickOutside`, and `containerColor`/`contentColor`/
   `scrimColor` hex strings. Activity-owned key events are forwarded while
   the sheet's dialog is open (ported from Expo).
-- Web: scrim + bottom panel, scrim-click dismiss.
+- Web: native modal `<dialog>` with a named panel, focus entry/Tab
+  containment, trigger restoration (`finalFocusRef`), Escape and scrim
+  dismissal controls, and drag-handle dismissal. `label` supplies the dialog
+  name; pass `finalFocusRef` when pointer-opening so focus returns to the
+  invoking control across browsers.
 
 The native implementations are adapted from `@expo/ui` (MIT,
 `packages/expo-ui` sdk-57): `ios/BottomSheetView.swift` and

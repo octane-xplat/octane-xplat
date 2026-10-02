@@ -1,0 +1,57 @@
+/* xplat-web-only:start */
+.xplat-web-sheet {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	max-height: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	overflow: visible;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+.xplat-web-sheet::backdrop {
+	background: var(--xplat-sheet-scrim, rgb(0 0 0 / 0.4));
+}
+
+.xplat-web-sheet-panel {
+	box-sizing: border-box;
+	width: 100%;
+	max-height: var(--xplat-sheet-max-height, 60vh);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	background: var(--xplat-sheet-container, var(--sheet-bg, Canvas));
+	color: var(--xplat-sheet-content, var(--sheet-fg, CanvasText));
+	border-radius: 16px 16px 0 0;
+	box-shadow: 0 -4px 24px rgb(0 0 0 / 0.2);
+	transform: translateY(var(--xplat-sheet-drag-offset, 0px));
+	transition: transform 180ms ease-out;
+}
+
+.xplat-web-sheet-handle {
+	display: flex;
+	justify-content: center;
+	padding: 8px 0;
+	cursor: grab;
+	touch-action: none;
+}
+
+.xplat-web-sheet-handle-mark {
+	width: 36px;
+	height: 4px;
+	border-radius: 2px;
+	background: color-mix(in srgb, CanvasText 30%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.xplat-web-sheet-panel {
+		transition: none;
+	}
+}
+/* xplat-web-only:end */

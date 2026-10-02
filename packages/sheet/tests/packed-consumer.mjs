@@ -54,7 +54,8 @@ const dependencies = [
 
 const consumers = {
 	web: `import { BottomSheet, type BottomSheetProps } from '@octane-xplat/sheet/web'
-const props: BottomSheetProps = { open: true }
+const focusRef = { current: null as HTMLElement | null }
+const props: BottomSheetProps = { open: true, label: 'Account actions', finalFocusRef: focusRef }
 const sheet = <BottomSheet {...props} />
 void sheet
 `,
@@ -196,6 +197,15 @@ try {
 				(candidate) => JSON.stringify(candidate) === JSON.stringify(exportsMap),
 			) === index,
 	)
+
+	for (const [index, exportsMap] of uniqueExportMaps.entries()) {
+		const stylesheet = exportsMap['./web/styles.css']
+		assert.equal(typeof stylesheet, 'string', `export map ${index} exposes the web stylesheet`)
+		assert(
+			existsSync(join(packedRoot, stylesheet.replace(/^\.\//, ''))),
+			`export map ${index} stylesheet is present in the packed package`,
+		)
+	}
 
 	for (const [index, exportsMap] of uniqueExportMaps.entries()) {
 		const consumerPackage = join(temporary, `package-${index}`)

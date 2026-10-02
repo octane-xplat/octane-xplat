@@ -71,6 +71,22 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --dir apps/web exec playwright install --with-deps chromium firefox webkit
 
+      - name: Web keyboard, focus, and accessibility-tree readiness
+        run: pnpm --filter @xplat/web exec node scripts/input-readiness.mjs
+
+      - name: Platform sheet smoke (Chromium)
+        run: pnpm --filter @xplat/web exec node scripts/sheet-readiness.mjs
+
+      - name: Platform sheet smoke (Firefox)
+        run: pnpm --filter @xplat/web exec node scripts/sheet-readiness.mjs
+        env:
+          XPLAT_WEB_BROWSER: firefox
+
+      - name: Platform sheet smoke (WebKit)
+        run: pnpm --filter @xplat/web exec node scripts/sheet-readiness.mjs
+        env:
+          XPLAT_WEB_BROWSER: webkit
+
       - name: Check optional service adapters and Web runtime
         run: pnpm check:optional-services
 

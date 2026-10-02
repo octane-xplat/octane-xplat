@@ -1,5 +1,16 @@
+/** Minimal element shape used by the Web focus-restoration ref. */
+export type WebFocusTarget = {
+	focus(options?: { preventScroll?: boolean }): void
+	isConnected: boolean
+	closest(selector: string): object | null
+}
+
 export interface BottomSheetProps {
 	id?: string
+	/** Accessible name for the modal dialog. */
+	label?: string
+	/** Element that should regain focus when the sheet closes. */
+	finalFocusRef?: { current: WebFocusTarget | null }
 	className?: any
 	style?: any
 	open?: boolean

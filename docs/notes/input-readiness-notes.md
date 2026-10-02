@@ -1,7 +1,8 @@
 # Input and focus readiness evidence
 
-This is the 2026-09-30 qualification pass based on main
-`4b43f82d6c6c6963d081040eb44591c9b9560a67`. Q4's 2026-09-25 iOS ASCII
+This report combines the 2026-09-30 qualification pass based on main
+`4b43f82d6c6c6963d081040eb44591c9b9560a67` with Web rechecks on 2026-10-02.
+Native entries retain their recorded session scope. Q4's 2026-09-25 iOS ASCII
 runtime pass is historical evidence. Q15's property mappings are distinct
 from actual assistive navigation. Recipe coverage and runtime evidence are
 recorded separately in Silo.
@@ -35,6 +36,11 @@ or real-IME tests.
   trigger restoration, nested overlays, and Chromium AX-tree background
   exclusion passed. Exiting Presence blocks focus/input and reversal restores
   interaction. No OS IME or screen reader was exercised.
+- The `@octane-xplat/sheet/web` leaf passes its maintained Playwright runtime
+  check in Chromium, Firefox, and WebKit: accessible dialog name, focus entry,
+  Tab wrapping, `finalFocusRef` restoration, Escape/scrim/drag dismissal,
+  disabled dismissal paths, style props, and programmatic close semantics.
+  Playwright WebKit does not qualify iOS Safari or screen-reader speech.
 - Android emulator runtime (`emulator-5566`): OS key injection into the real
   EditText inserts `abc` at cursor 0: `hello` becomes `abchello` in three
   callbacks with cursor [3,3]. Replacing [2,4]
@@ -44,11 +50,13 @@ or real-IME tests.
   [0,0]. The probe uses the current canonical patches and a separate bundle ID.
   TalkBack was disabled. This is real widget/key-event evidence, not marked-text
   IME composition or physical software-keyboard typing.
-- `pnpm typecheck:web`, UI web/native distribution builds and native-dist
-  invariant check passed. The docs build passed.
-- Changed TypeScript/runner files pass targeted oxlint. Whole-repo lint has
-  errors outside this change; mobile typecheck has platform metadata and
-  platform-leaf errors outside the changed input components.
+- `pnpm test`, `pnpm typecheck:web`, `pnpm build:web`, the sheet leaf builds and
+  packed-consumer check, repository-wide lint, and the docs build passed.
+- The broad `pnpm typecheck:mobile` reports errors in the unchanged audio,
+  dnd-kit, motion, and table packages. The same failure reproduces on `main`
+  (`f51e8716`), so it is a pre-existing CI gate outside this Web change. Keep
+  typechecking explicit because NativeScript bundling can continue despite
+  type errors.
 - The full iOS simulator harness build passed. Full Android harness build
   stopped at the push plugin's missing `google-services.json`; no credentials
   were fabricated or optional service support removed from the app.
@@ -86,9 +94,8 @@ pinned the serial, passed, and restored the previous foreground app.
 - Native keyboard avoidance must be exercised with the last field, a sheet
   opened while the keyboard is already visible, dismissal and restoration.
   The density conversion test does not establish the visible viewport.
-- The separate `@octane-xplat/sheet` web BottomSheet still lacks focus
-  qualification; shared Sheet results do not cover it. Native shared and
-  platform-sheet isolation also need their own runtime checks.
+- Native shared and platform-sheet isolation still need runtime checks. The Web
+  browser checks do not qualify VoiceOver, TalkBack, or iOS Safari.
 - Current Motion evidence includes the 2026-09-30 iOS simulator rerun. This
   pass makes no motion-engine changes and does not replace that evidence.
 

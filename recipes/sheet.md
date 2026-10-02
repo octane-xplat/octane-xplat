@@ -12,7 +12,7 @@ behind the established file suffixes.
 
 ## Requirements
 
-- Present a modal bottom sheet through a SwiftUI `.sheet` on iOS, a Compose Material 3 `ModalBottomSheet` on Android, and a DOM scrim + panel on web.
+- Present a modal bottom sheet through a SwiftUI `.sheet` on iOS, a Compose Material 3 `ModalBottomSheet` on Android, and a native modal `<dialog>` on web.
 - Host the sheet's content as an octane subtree rendered via a `content` render fn (detached root embedded across the modal's window boundary).
 - Keep `open` controlled with `onDismissed` reporting platform-side dismissal; keep detent/drag-handle styling in each platform's own terms.
 - Keep SwiftUI and Compose bridge dependencies in an optional leaf package rather than `@octane-xplat/ui`.
@@ -33,4 +33,4 @@ behind the established file suffixes.
 - AC3: [Install and import](../docs/platform/sheet.md#install-and-import) and [Bridge notes](../docs/platform/sheet.md#bridge-notes--what-this-leaf-proved).
 - AC4: [iOS example](../packages/demos/src/NativeSheetDemo.ios.tsrx), [Android example](../packages/demos/src/NativeSheetDemo.android.tsrx), [web example](../packages/demos/src/NativeSheetDemo.web.tsrx), and [macOS example](../packages/demos/src/NativeSheetDemo.macos.tsrx).
 
-- AC5: [Focus qualification](../docs/platform/sheet.md#focus-qualification) and [input readiness evidence](../docs/notes/input-readiness-notes.md).
+- AC5: [Focus qualification](../docs/platform/sheet.md#focus-qualification), the maintained [web sheet runtime check](../apps/web/scripts/sheet-readiness.mjs), and [input readiness evidence](../docs/notes/input-readiness-notes.md). Native VoiceOver/TalkBack qualification remains an explicit native follow-up.

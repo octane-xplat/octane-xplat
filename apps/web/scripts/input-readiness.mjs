@@ -128,7 +128,13 @@ try {
 	console.log(
 		'Input readiness: Chromium keyboard, selection, controlled writes, modal focus/AX isolation, and Presence reversal passed. IME and screen readers were not exercised.',
 	)
+} catch (error) {
+	console.error('Input readiness failed', error)
+	process.exitCode = 1
 } finally {
-	await browser?.close()
-	await server.close()
+	try {
+		await browser?.close()
+	} finally {
+		await server.close()
+	}
 }

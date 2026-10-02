@@ -27,6 +27,7 @@
 			"types": "./types/web/index.d.ts",
 			"web": "./src/web/index.ts"
 		},
+		"./web/styles.css": "./src/web/styles.css",
 		"./macos": {
 			"types": "./types/macos/index.d.ts",
 			"macos": "./src/macos/index.ts"
@@ -45,7 +46,8 @@
 			"./web": {
 				"types": "./types/web/index.d.ts",
 				"web": "./dist/web/web/index.js"
-			}
+			},
+			"./web/styles.css": "./dist/web/sheet.css"
 		},
 		"access": "public"
 	},
