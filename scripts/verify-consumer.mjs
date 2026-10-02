@@ -137,6 +137,7 @@ async function gate(name, timeoutMs, fn) {
 			new Promise((r) => process.stdout.write('', r)),
 			new Promise((r) => process.stderr.write('', r)),
 		])
+
 		process.exit(1)
 	}
 }
