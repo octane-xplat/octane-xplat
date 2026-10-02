@@ -1,0 +1,876 @@
+From 49cd5d8cec6d8bc98ecaa016e20f8455f66eec3e Mon Sep 17 00:00:00 2001
+From: Alec Larson <1925840+aleclarson@users.noreply.github.com>
+Date: Fri, 2 Oct 2026 12:22:34 -0400
+Subject: [PATCH 1/3] fix(windows): share pointer listeners and preserve
+ gesture ownership
+
+---
+ packages/core/ui/gestures/index.windows.ts    | 354 +++++++-----------
+ .../ui/gestures/pointer-events.windows.ts     |  52 +++
+ packages/core/ui/gestures/tests/README.md     |  14 +
+ .../gestures/tests/observers.windows.test.mjs |  67 ++++
+ .../tests/pointer-events.windows.test.mjs     |  44 +++
+ 5 files changed, 310 insertions(+), 221 deletions(-)
+ create mode 100644 packages/core/ui/gestures/pointer-events.windows.ts
+ create mode 100644 packages/core/ui/gestures/tests/README.md
+ create mode 100644 packages/core/ui/gestures/tests/observers.windows.test.mjs
+ create mode 100644 packages/core/ui/gestures/tests/pointer-events.windows.test.mjs
+
+diff --git a/packages/core/ui/gestures/index.windows.ts b/packages/core/ui/gestures/index.windows.ts
+index 28928b497..0ec251669 100644
+--- a/packages/core/ui/gestures/index.windows.ts
++++ b/packages/core/ui/gestures/index.windows.ts
+@@ -5,11 +5,12 @@ export * from './touch-manager';
+ import { GesturesObserverBase, GestureTypes, GestureEvents, GestureStateTypes, toString } from './gestures-common';
+ import type { View } from '../core/view';
+ import * as timer from '../../timer';
++import { subscribeNativeEvent } from './pointer-events.windows';
+ 
+ // Per-view hover tracking to enable CSS :hover pseudo-class.
+ const _hoverViews = new WeakSet<View>();
+ 
+-type RoutedEvents = { pressed: any; moved: any; released: any; rightTapped: any; entered: any; exited: any };
++type RoutedEvents = { pressed: any; moved: any; released: any; rightTapped: any; entered: any; exited: any; canceled: any; captureLost: any };
+ let _routedEvents: RoutedEvents | null | undefined;
+ 
+ // The routed events are class statics, read once so adding and removing a handler pass the same ones.
+@@ -25,8 +26,10 @@ function routedEvents(): RoutedEvents | null {
+ 				rightTapped: UIElement.RightTappedEvent,
+ 				entered: UIElement.PointerEnteredEvent,
+ 				exited: UIElement.PointerExitedEvent,
++				canceled: UIElement.PointerCanceledEvent,
++				captureLost: UIElement.PointerCaptureLostEvent,
+ 			};
+-			_routedEvents = Object.values(events).every(Boolean) ? events : null;
++			_routedEvents = events;
+ 		} catch (_e) {
+ 			_routedEvents = null;
+ 		}
+@@ -34,67 +37,53 @@ function routedEvents(): RoutedEvents | null {
+ 	return _routedEvents;
+ }
+ 
+-function _attachHoverHandlers(view: View): void {
+-	const native = (view as any).nativeViewProtected as any;
+-	if (!native || native.__ns_hover_attached) return;
+-
+-	const onEnter = () => {
+-		if (_hoverViews.has(view)) return;
+-		_hoverViews.add(view);
+-		try { (view as any)._addVisualState?.('hover'); } catch (_e) { }
+-		try { (view as any).notify?.({ eventName: 'mouseEnter', object: view }); } catch (_e) { }
+-	};
+-	const onLeave = () => {
+-		if (!_hoverViews.has(view)) return;
+-		_hoverViews.delete(view);
+-		try { (view as any)._removeVisualState?.('hover'); } catch (_e) { }
+-		try { (view as any).notify?.({ eventName: 'mouseLeave', object: view }); } catch (_e) { }
+-	};
+-
+-	const enterDelegate = _wrapPointerHandler(onEnter);
+-	const leaveDelegate = _wrapPointerHandler(onLeave);
+-
+-	let usingAddHandler = false;
+-	try {
+-		const events = routedEvents();
+-		if (!events) throw new Error('RoutedEvent statics unavailable');
+-		native.AddHandler(events.entered, enterDelegate, true);
+-		native.AddHandler(events.exited, leaveDelegate, true);
+-		usingAddHandler = true;
+-	} catch (_e) {
+-		try {
+-			_assignPointerHandler(native, 'PointerEntered', enterDelegate);
+-			_assignPointerHandler(native, 'PointerExited', leaveDelegate);
+-		} catch (_e2) { }
++// Hover belongs to the view, not whichever observer happened to attach last.
++const hoverOwners = new WeakMap<View, { count: number; native: any; dispose: () => void }>();
++function _attachHoverHandlers(view: View, native: any): () => void {
++	let owner = hoverOwners.get(view);
++	if (owner && owner.native !== native) {
++		owner.dispose();
++		hoverOwners.delete(view);
++		owner = undefined;
+ 	}
+-
+-	native.__ns_hover_attached = true;
+-	native.__ns_hover_using_add_handler = usingAddHandler;
+-	native.__ns_hover_enter_fn = onEnter;
+-	native.__ns_hover_leave_fn = onLeave;
+-	native.__ns_hover_enter_delegate = enterDelegate;
+-	native.__ns_hover_leave_delegate = leaveDelegate;
+-}
+-
+-function _detachHoverHandlers(view: View): void {
+-	const native = (view as any).nativeViewProtected as any;
+-	if (!native || !native.__ns_hover_attached) return;
+-
+-	const events = routedEvents();
+-	if (native.__ns_hover_using_add_handler && events) {
++	if (!owner) {
++		const onEnter = () => {
++			if (_hoverViews.has(view) || view.isEnabled === false) return;
++			_hoverViews.add(view);
++			(view as any)._addVisualState?.('hover');
++			view.notify({ eventName: 'mouseEnter', object: view });
++		};
++		const onLeave = () => {
++			if (!_hoverViews.has(view)) return;
++			_hoverViews.delete(view);
++			(view as any)._removeVisualState?.('hover');
++			view.notify({ eventName: 'mouseLeave', object: view });
++		};
++		const entered = subscribeNativeEvent(native, 'PointerEntered', onEnter, routedEvents()?.entered, _wrapPointerHandler);
++		let exited: () => void;
+ 		try {
+-			if (native.__ns_hover_enter_delegate) native.RemoveHandler(events.entered, native.__ns_hover_enter_delegate);
+-			if (native.__ns_hover_leave_delegate) native.RemoveHandler(events.exited, native.__ns_hover_leave_delegate);
+-		} catch (_e) { }
++			exited = subscribeNativeEvent(native, 'PointerExited', onLeave, routedEvents()?.exited, _wrapPointerHandler);
++		} catch (error) {
++			entered();
++			throw error;
++		}
++		owner = { count: 0, native, dispose: () => {
++			try { entered(); } finally { exited(); }
++			onLeave();
++		} };
++		hoverOwners.set(view, owner);
+ 	}
+-
+-	native.__ns_hover_attached = false;
+-	native.__ns_hover_using_add_handler = false;
+-	native.__ns_hover_enter_fn = null;
+-	native.__ns_hover_leave_fn = null;
+-	native.__ns_hover_enter_delegate = null;
+-	native.__ns_hover_leave_delegate = null;
+-	_hoverViews.delete(view);
++	owner.count++;
++	const retained = owner;
++	let disposed = false;
++	return () => {
++		if (disposed) return;
++		disposed = true;
++		if (--retained.count === 0 && hoverOwners.get(view) === retained) {
++			hoverOwners.delete(view);
++			retained.dispose();
++		}
++	};
+ }
+ 
+ /** Returns true if the view is currently in a hover state (mouse over). */
+@@ -114,14 +103,6 @@ function _wrapRightTappedHandler(fn: (s: any, e: any) => void): any {
+ 	return NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.RightTappedEventHandler', fn);
+ }
+ 
+-function _assignPointerHandler(native: any, prop: string, del: any): void {
+-	native[prop] = del as never;
+-}
+-
+-function _assignRightTappedHandler(native: any, del: any): void {
+-	native.RightTapped = del as never;
+-}
+-
+ function _executeCallback(observer: GesturesObserver, args: any) {
+ 	if (observer && observer.callback) {
+ 		observer.callback.call(observer.context, args);
+@@ -179,23 +160,13 @@ export class GesturesObserver extends GesturesObserverBase {
+ 	private _onTargetLoaded: (() => void) | null = null;
+ 	private _onTargetUnloaded: (() => void) | null = null;
+ 
+-	private _pointerPressedHandler: any;
+-	private _pointerMovedHandler: any;
+-	private _pointerReleasedHandler: any;
+-	private _rightTappedHandler: any;
+-
+-	private _pointerPressedDelegate: any;
+-	private _pointerMovedDelegate: any;
+-	private _pointerReleasedDelegate: any;
+-	private _rightTappedDelegate: any;
+-	private _usingAddHandler = false;
+-
++	private _disposers: Array<() => void> = [];
+ 	private _pointerDownMap: Map<number, { x: number; y: number; t: number; nativeTs: number | null }> = new Map();
+ 	private _lastUpTime = 0;
+ 	private _tapTimeoutId: any;
+ 	private _longPressTimeouts: Map<number, any> = new Map();
+ 
+-	public observe(type: GestureTypes) {
++	public observe(type: GestureTypes): void {
+ 		this.type = type;
+ 
+ 		if (!this.target) {
+@@ -213,16 +184,8 @@ export class GesturesObserver extends GesturesObserverBase {
+ 		}
+ 	}
+ 
+-	public disconnect() {
++	public disconnect(): void {
+ 		this._detach();
+-		this._pointerPressedHandler = null;
+-		this._pointerMovedHandler = null;
+-		this._pointerReleasedHandler = null;
+-		this._rightTappedHandler = null;
+-		this._pointerPressedDelegate = null;
+-		this._pointerMovedDelegate = null;
+-		this._pointerReleasedDelegate = null;
+-		this._rightTappedDelegate = null;
+ 
+ 		if (this.target) {
+ 			if (this._onTargetLoaded) {
+@@ -240,35 +203,14 @@ export class GesturesObserver extends GesturesObserverBase {
+ 	}
+ 
+ 	private _detach() {
+-		try {
+-			const native = (this.target && (this.target as any).nativeViewProtected) as any;
+-			if (native) {
+-				const events = routedEvents();
+-				if (this._usingAddHandler && events) {
+-					try {
+-						if (this._pointerPressedDelegate) native.RemoveHandler(events.pressed, this._pointerPressedDelegate);
+-						if (this._pointerMovedDelegate) native.RemoveHandler(events.moved, this._pointerMovedDelegate);
+-						if (this._pointerReleasedDelegate) native.RemoveHandler(events.released, this._pointerReleasedDelegate);
+-						if (this._rightTappedDelegate) native.RemoveHandler(events.rightTapped, this._rightTappedDelegate);
+-					} catch (_e) { }
+-				} else {
+-					native.PointerPressed = null as never;
+-					native.PointerMoved = null as never;
+-					native.PointerReleased = null as never;
+-					native.RightTapped = null as never;
+-				}
+-			}
+-		} catch (_e) { }
+-
+-		if (this.target) {
+-			_detachHoverHandlers(this.target);
++		for (const dispose of this._disposers.splice(0).reverse()) {
++			try { dispose(); } catch (_) { }
+ 		}
+-
+-		this._usingAddHandler = false;
+ 		this._pointerDownMap.clear();
++		this._lastUpTime = 0;
+ 		this._longPressTimeouts.forEach((id) => timer.clearTimeout(id));
+ 		this._longPressTimeouts.clear();
+-		if (this._tapTimeoutId) {
++		if (this._tapTimeoutId != null) {
+ 			timer.clearTimeout(this._tapTimeoutId);
+ 			this._tapTimeoutId = null;
+ 		}
+@@ -276,73 +218,52 @@ export class GesturesObserver extends GesturesObserverBase {
+ 
+ 	private _attach(target: View, type: GestureTypes) {
+ 		this._detach();
+-
+-		const native = (target as any).nativeViewProtected as any;
+-		if (!native) {
+-			return;
+-		}
+-
+-		// Kept across load/unload: a view re-attaches each time it is shown again.
+-		if (!this._pointerPressedDelegate) {
+-			this._pointerPressedHandler = (s: any, e: any) => this._onPointerPressed(e || s);
+-			this._pointerReleasedHandler = (s: any, e: any) => this._onPointerReleased(e || s);
+-			this._pointerPressedDelegate = _wrapPointerHandler(this._pointerPressedHandler);
+-			this._pointerReleasedDelegate = _wrapPointerHandler(this._pointerReleasedHandler);
+-		}
+-		// Only touch observers report moves; for the others every mouse move would still call into JS.
+-		const wantsMoves = type === GestureTypes.touch;
+-		if (wantsMoves && !this._pointerMovedDelegate) {
+-			this._pointerMovedHandler = (s: any, e: any) => this._onPointerMoved(e || s);
+-			this._pointerMovedDelegate = _wrapPointerHandler(this._pointerMovedHandler);
+-		}
+-
+-		// Use AddHandler with handledEventsToo=true so events fire even when Button (and other
+-		// controls) mark pointer events as handled internally.
+-		this._usingAddHandler = false;
++		const native = (target as any).nativeViewProtected;
++		if (!native) return;
++		const events = routedEvents();
++		const subscribe = (name: string, event: any, callback: (args: any) => void, wrap = _wrapPointerHandler) => {
++			this._disposers.push(subscribeNativeEvent(native, name, (sender, args) => callback(args || sender), event, wrap));
++		};
+ 		try {
+-			const events = routedEvents();
+-			if (!events) throw new Error('RoutedEvent statics unavailable');
+-			native.AddHandler(events.pressed, this._pointerPressedDelegate, true);
+-			if (wantsMoves) native.AddHandler(events.moved, this._pointerMovedDelegate, true);
+-			native.AddHandler(events.released, this._pointerReleasedDelegate, true);
+-			this._usingAddHandler = true;
+-		} catch (_e) {
+-			// Fallback: plain property assignment (only one handler per event, can be overwritten).
+-			_assignPointerHandler(native, 'PointerPressed', this._pointerPressedDelegate);
+-			if (wantsMoves) _assignPointerHandler(native, 'PointerMoved', this._pointerMovedDelegate);
+-			_assignPointerHandler(native, 'PointerReleased', this._pointerReleasedDelegate);
+-		}
+-
+-		// RightTapped (mouse right-click) fires longPress for mouse/touchpad users.
+-		if (type === GestureTypes.longPress) {
+-			if (!this._rightTappedDelegate) {
+-				this._rightTappedHandler = (s: any, e: any) => this._onRightTapped(e || s);
+-				this._rightTappedDelegate = _wrapRightTappedHandler(this._rightTappedHandler);
++			subscribe('PointerPressed', events?.pressed, (args) => this._onPointerPressed(args));
++			subscribe('PointerMoved', events?.moved, (args) => this._onPointerMoved(args));
++			subscribe('PointerReleased', events?.released, (args) => this._onPointerReleased(args));
++			subscribe('PointerCanceled', events?.canceled, (args) => this._onPointerCanceled(args));
++			subscribe('PointerCaptureLost', events?.captureLost, (args) => this._onPointerCanceled(args));
++			if (type === GestureTypes.longPress) {
++				subscribe('RightTapped', events?.rightTapped, (args) => this._onRightTapped(args), _wrapRightTappedHandler);
+ 			}
+-			try {
+-				if (this._usingAddHandler) {
+-					native.AddHandler(routedEvents().rightTapped, this._rightTappedDelegate, true);
+-				} else {
+-					_assignRightTappedHandler(native, this._rightTappedDelegate);
+-				}
+-			} catch (_e) { }
++			this._disposers.push(_attachHoverHandlers(target, native));
++		} catch (error) {
++			this._detach();
++			throw error;
+ 		}
++		target.notify({ eventName: GestureEvents.gestureAttached, object: target, type, view: target, windows: native });
++	}
+ 
+-		// Always attach hover handlers for CSS :hover and mouseEnter/mouseLeave events.
+-		_attachHoverHandlers(target);
+-
+-		target.notify({
+-			eventName: GestureEvents.gestureAttached,
+-			object: target,
+-			type: type,
+-			view: target,
+-			windows: native,
+-		});
++	private _onPointerCanceled(e: any) {
++		const id = extractPointerId(e);
++		if (!this._pointerDownMap.delete(id)) return;
++		const timeout = this._longPressTimeouts.get(id);
++		if (timeout != null) timer.clearTimeout(timeout);
++		this._longPressTimeouts.delete(id);
++		this._lastUpTime = 0;
++		if (this.type === GestureTypes.touch) {
++			const relativeTo = (this.target as any)?.nativeViewProtected;
++			const point = extractPoint(e, relativeTo);
++			_executeCallback(this, {
++				type: GestureTypes.touch, view: this.target, object: this.target, windows: e,
++				eventName: toString(GestureTypes.touch), action: 'cancel',
++				getPointerCount: () => 1, getActivePointers: () => [new WindowsPointer(id, e, relativeTo)],
++				getAllPointers: () => [new WindowsPointer(id, e, relativeTo)], getX: () => point.x, getY: () => point.y,
++			});
++		}
+ 	}
+ 
+ 	public androidOnTouchEvent(_motionEvent: any): void { }
+ 
+ 	private _onPointerPressed(e: any) {
++		if (this.target?.isEnabled === false) return;
+ 		try {
+ 			const relativeTo = (this.target as any)?.nativeViewProtected ?? null;
+ 			const id = extractPointerId(e);
+@@ -355,6 +276,8 @@ export class GesturesObserver extends GesturesObserverBase {
+ 
+ 			if (this.type === GestureTypes.longPress) {
+ 				const timeoutId = timer.setTimeout(() => {
++					this._longPressTimeouts.delete(id);
++					if (this.target?.isEnabled === false || !this._pointerDownMap.has(id)) return;
+ 					const args = {
+ 						type: GestureTypes.longPress,
+ 						view: this.target,
+@@ -372,6 +295,7 @@ export class GesturesObserver extends GesturesObserverBase {
+ 				const args: any = {
+ 					type: GestureTypes.touch,
+ 					view: this.target,
++					windows: e,
+ 					ios: undefined,
+ 					android: undefined,
+ 					object: this.target,
+@@ -394,10 +318,18 @@ export class GesturesObserver extends GesturesObserverBase {
+ 			const relativeTo = (this.target as any)?.nativeViewProtected ?? null;
+ 			const id = extractPointerId(e);
+ 			const pt = extractPoint(e, relativeTo);
++			const start = this._pointerDownMap.get(id);
++			if (!start) return;
++			if (Math.hypot(pt.x - start.x, pt.y - start.y) >= TAP_SLOP) {
++				const timeout = this._longPressTimeouts.get(id);
++				if (timeout != null) timer.clearTimeout(timeout);
++				this._longPressTimeouts.delete(id);
++			}
+ 			if (this.type === GestureTypes.touch) {
+ 				const args: any = {
+ 					type: GestureTypes.touch,
+ 					view: this.target,
++					windows: e,
+ 					ios: undefined,
+ 					android: undefined,
+ 					object: this.target,
+@@ -421,6 +353,8 @@ export class GesturesObserver extends GesturesObserverBase {
+ 			const id = extractPointerId(e);
+ 			const pt = extractPoint(e, relativeTo);
+ 			const start = this._pointerDownMap.get(id);
++			if (!start) return;
++			if (this.target?.isEnabled === false) { this._onPointerCanceled(e); return; }
+ 			const now = Date.now();
+ 			// Use WinRT hardware timestamps when available so the tap-duration check reflects the actual
+ 			// gesture time, not V8 scheduling latency. When JS is busy (e.g. processing a navigation),
+@@ -455,57 +389,34 @@ export class GesturesObserver extends GesturesObserverBase {
+ 				_executeCallback(this, args);
+ 			}
+ 
+-			if (start) {
+-				const dx = pt.x - start.x;
+-				const dy = pt.y - start.y;
+-				const dist = Math.sqrt(dx * dx + dy * dy);
+-
+-				if (dt < DOUBLE_TAP_TIMEOUT && dist < TAP_SLOP) {
+-						if (this.target.getGestureObservers && this.target.getGestureObservers(GestureTypes.doubleTap) && this.target.getGestureObservers(GestureTypes.doubleTap).length) {
+-							this._tapTimeoutId = timer.setTimeout(() => {
+-							const args = {
+-								type: GestureTypes.tap,
+-								view: this.target,
+-								windows: e,
+-								object: this.target,
+-								eventName: toString(GestureTypes.tap),
+-								getPointerCount: () => 1,
+-								getX: () => pt.x ?? 0,
+-								getY: () => pt.y ?? 0,
+-							};
+-							_executeCallback(this, args);
+-						}, DOUBLE_TAP_TIMEOUT);
+-					} else {
+-						const args = {
+-							type: GestureTypes.tap,
+-							view: this.target,
+-							ios: undefined,
+-							android: undefined,
+-							object: this.target,
+-							eventName: toString(GestureTypes.tap),
+-							getPointerCount: () => 1,
+-							getX: () => pt.x ?? 0,
+-							getY: () => pt.y ?? 0,
+-						};
++			const distance = Math.hypot(pt.x - start.x, pt.y - start.y);
++			if (dt < DOUBLE_TAP_TIMEOUT && distance < TAP_SLOP) {
++				const args = {
++					type: this.type, view: this.target, windows: e, object: this.target,
++					eventName: toString(this.type), getPointerCount: () => 1,
++					getX: () => pt.x, getY: () => pt.y,
++				};
++				if (this.type === GestureTypes.tap) {
++					const doubleTap = this.target.getGestureObservers?.(GestureTypes.doubleTap)?.length;
++					if (!doubleTap) {
+ 						_executeCallback(this, args);
++					} else if (this._lastUpTime && now - this._lastUpTime <= DOUBLE_TAP_TIMEOUT) {
++						timer.clearTimeout(this._tapTimeoutId);
++						this._tapTimeoutId = null;
++						this._lastUpTime = 0;
++					} else {
++						this._lastUpTime = now;
++						this._tapTimeoutId = timer.setTimeout(() => {
++							this._tapTimeoutId = null;
++							if (this.target?.isEnabled !== false) _executeCallback(this, args);
++						}, DOUBLE_TAP_TIMEOUT);
+ 					}
+-
+-						if (this.target.getGestureObservers && this.target.getGestureObservers(GestureTypes.doubleTap) && this.target.getGestureObservers(GestureTypes.doubleTap).length) {
+-						const nowUp = Date.now();
+-						if (this._lastUpTime && nowUp - this._lastUpTime <= DOUBLE_TAP_TIMEOUT) {
+-								const args = {
+-								type: GestureTypes.doubleTap,
+-								view: this.target,
+-								windows: e,
+-								object: this.target,
+-								eventName: toString(GestureTypes.doubleTap),
+-								getPointerCount: () => 1,
+-								getX: () => pt.x ?? 0,
+-								getY: () => pt.y ?? 0,
+-							};
+-							_executeCallback(this, args);
+-						}
+-						this._lastUpTime = nowUp;
++				} else if (this.type === GestureTypes.doubleTap) {
++					if (this._lastUpTime && now - this._lastUpTime <= DOUBLE_TAP_TIMEOUT) {
++						this._lastUpTime = 0;
++						_executeCallback(this, args);
++					} else {
++						this._lastUpTime = now;
+ 					}
+ 				}
+ 			}
+@@ -515,6 +426,7 @@ export class GesturesObserver extends GesturesObserverBase {
+ 	}
+ 
+ 	private _onRightTapped(e: any) {
++		if (this.target?.isEnabled === false) return;
+ 		try {
+ 			const relativeTo = (this.target as any)?.nativeViewProtected ?? null;
+ 			const pt = extractPoint(e, relativeTo);
+diff --git a/packages/core/ui/gestures/pointer-events.windows.ts b/packages/core/ui/gestures/pointer-events.windows.ts
+new file mode 100644
+index 000000000..4f6e96c0a
+--- /dev/null
++++ b/packages/core/ui/gestures/pointer-events.windows.ts
+@@ -0,0 +1,52 @@
++type Handler = (sender: any, args: any) => void;
++type Subscription = { callback: Handler };
++type EventEntry = { subscribers: Set<Subscription>; detach: () => void };
++const nativeEvents = new WeakMap<object, Map<string, EventEntry>>();
++
++/** Share the bridge's replacement-only event property between independent owners. */
++export function subscribeNativeEvent(native: any, name: string, callback: Handler, routedEvent: any, wrap: (handler: Handler) => any): () => void {
++	let events = nativeEvents.get(native);
++	if (!events) {
++		events = new Map();
++		nativeEvents.set(native, events);
++	}
++	let entry = events.get(name);
++	if (!entry) {
++		const subscribers = new Set<Subscription>();
++		const delegate = wrap((sender, args) => {
++			// Removal during dispatch takes effect immediately; new subscribers wait for the next event.
++			for (const subscription of Array.from(subscribers)) {
++				if (subscribers.has(subscription)) subscription.callback(sender, args);
++			}
++		});
++		let detach: () => void;
++		try {
++			if (!routedEvent) throw new Error('RoutedEvent unavailable');
++			native.AddHandler(routedEvent, delegate, true);
++			detach = () => native.RemoveHandler(routedEvent, delegate);
++		} catch (error) {
++			// A bridge can fail after attaching. Remove that exact delegate before falling back.
++			if (routedEvent) {
++				try { native.RemoveHandler(routedEvent, delegate); } catch (_) { }
++			}
++			native[name] = delegate;
++			detach = () => { native[name] = null; };
++		}
++		entry = { subscribers, detach };
++		events.set(name, entry);
++	}
++	const subscription = { callback };
++	entry.subscribers.add(subscription);
++	let disposed = false;
++	return () => {
++		if (disposed) return;
++		disposed = true;
++		entry.subscribers.delete(subscription);
++		if (!entry.subscribers.size) {
++			try { entry.detach(); } finally {
++				events.delete(name);
++				if (!events.size) nativeEvents.delete(native);
++			}
++		}
++	};
++}
+diff --git a/packages/core/ui/gestures/tests/README.md b/packages/core/ui/gestures/tests/README.md
+new file mode 100644
+index 000000000..7e6e68218
+--- /dev/null
++++ b/packages/core/ui/gestures/tests/README.md
+@@ -0,0 +1,14 @@
++# Windows pointer observer regression tests
++
++Run from the NativeScript source checkout with Node 22.13+ (TypeScript stripping):
++
++```sh
++node --test packages/core/ui/gestures/tests/*.windows.test.mjs
++```
++
++The tests execute the actual Windows observer TypeScript with a mocked native
++bridge and controlled timers. They also execute the pinned original source from
++Git to reproduce the replacement collision and spurious touch callback.
++They establish registration ownership and gesture state logic, not native hit
++testing, capture ordering, or WinRT projection correctness. OS verification is
++recorded separately in the octane-xplat Windows lab notes.
+diff --git a/packages/core/ui/gestures/tests/observers.windows.test.mjs b/packages/core/ui/gestures/tests/observers.windows.test.mjs
+new file mode 100644
+index 000000000..496750dc0
+--- /dev/null
++++ b/packages/core/ui/gestures/tests/observers.windows.test.mjs
+@@ -0,0 +1,67 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import vm from 'node:vm';
++import { readFileSync } from 'node:fs';
++import { execFileSync } from 'node:child_process';
++import { stripTypeScriptTypes } from 'node:module';
++import { subscribeNativeEvent } from '../pointer-events.windows.ts';
++const types = { tap: 1, doubleTap: 2, longPress: 64, touch: 128 };
++function setup(original = false) {
++ const timers = new Map(); let nextTimer = 0;
++ class Base { constructor(target, callback, context) { Object.assign(this, {target,callback,context}); } disconnect() { this.callback = null; this.target = null; } }
++ const native = { AddHandler() { throw new Error('E_NOINTERFACE'); }, RemoveHandler() { throw new Error('E_NOINTERFACE'); } };
++ const events = new Map(); const notified = []; const observers = [];
++ const target = {nativeViewProtected:native,isLoaded:true,isEnabled:true,
++  on(name, callback) { const list = events.get(name) || []; list.push(callback); events.set(name,list); },
++  off(name, callback) { events.set(name,(events.get(name)||[]).filter(c=>c!==callback)); },
++  notify(args) { notified.push(args.eventName); }, getGestureObservers(type) { return observers.filter(o=>o.type===type); },
++  _addVisualState() {}, _removeVisualState() {},
++ };
++ const source = original ? execFileSync('git', ['show', '7d0adcec9fa05e34668a7abacf3a79dab55325e6:packages/core/ui/gestures/index.windows.ts'], {cwd:new URL('..',import.meta.url),encoding:'utf8'}) : readFileSync(new URL('../index.windows.ts', import.meta.url),'utf8');
++ const code = stripTypeScriptTypes(source).replace(/^export \*.*$/mg,'').replace(/^import .*$/mg,'').replace(/export /g,'');
++ const context = vm.createContext({GesturesObserverBase:Base,GestureTypes:types,GestureEvents:{gestureAttached:'attached'},GestureStateTypes:{began:1,ended:3},toString:t=>String(t),
++  timer:{setTimeout(fn){const id=++nextTimer;timers.set(id,()=>{timers.delete(id);fn();});return id;},clearTimeout(id){timers.delete(id);}},
++  Microsoft:{UI:{Xaml:{UIElement:{}}}},NSWinRT:{asDelegate:(name,fn)=>fn},subscribeNativeEvent,Date,console});
++ vm.runInContext(code+'\nglobalThis.Observer=GesturesObserver;globalThis.hovered=isHovered;',context);
++ const add=(type,callback)=>{const observer=new context.Observer(target,callback);observers.push(observer);observer.observe(type);return observer;};
++ const emit=(name,x=0)=>{native[name]?.(native,{Pointer:{PointerId:1},Timestamp: name==='PointerReleased'?110000:100000,GetCurrentPoint:()=>({Position:{X:x,Y:0}})});};
++ const lifecycle=name=>(events.get(name)||[]).slice().forEach(fn=>fn());
++ return {native,target,timers,notified,add,emit,lifecycle,hovered:()=>context.hovered(target)};
++}
++test('original bridge fallback loses the earlier tap observer', () => {
++ const s=setup(true);const calls=[];s.add(types.tap,()=>calls.push('tap'));s.add(types.touch,args=>calls.push(args.action));s.emit('PointerPressed');s.emit('PointerReleased');assert.deepEqual(calls,['down','up',undefined]);
++});
++test('tap and touch coexist; disconnect and reload retain independent ownership', () => {
++ const s=setup();const calls=[];const tap=s.add(types.tap,()=>calls.push('tap'));const touch=s.add(types.touch,args=>calls.push(args.action));
++ s.emit('PointerPressed');s.emit('PointerReleased');assert.deepEqual(calls,['down','tap','up']);
++ touch.disconnect();calls.length=0;s.emit('PointerPressed');s.emit('PointerReleased');assert.deepEqual(calls,['tap']);
++ s.lifecycle('unloaded');assert.equal(s.native.PointerPressed,null);s.lifecycle('loaded');calls.length=0;s.emit('PointerPressed');s.emit('PointerReleased');assert.deepEqual(calls,['tap']);tap.disconnect();
++});
++test('hover persists while one observer remains and clears on final unload', () => {
++ const s=setup();const tap=s.add(types.tap,()=>{});const touch=s.add(types.touch,()=>{});s.emit('PointerEntered');assert.equal(s.hovered(),true);
++ tap.disconnect();assert.equal(s.hovered(),true);s.emit('PointerExited');assert.equal(s.hovered(),false);s.emit('PointerEntered');touch.disconnect();assert.equal(s.hovered(),false);assert.equal(s.native.PointerEntered,null);
++ assert.deepEqual(s.notified.filter(n=>n.startsWith('mouse')),['mouseEnter','mouseLeave','mouseEnter','mouseLeave']);
++});
++test('cancel and capture loss prevent a tap and cancel pending long press', () => {
++ for (const event of ['PointerCanceled','PointerCaptureLost']) {
++ const s=setup();const calls=[];s.add(types.tap,()=>calls.push('tap'));s.add(types.longPress,()=>calls.push('long'));s.add(types.touch,args=>calls.push(args.action));
++ s.emit('PointerPressed');assert.equal(s.timers.size,1);s.emit(event);assert.equal(s.timers.size,0);s.emit('PointerReleased');assert.deepEqual(calls,['down','cancel']);
++ }
++});
++test('moving beyond slop cancels long press and disabled views do not activate', () => {
++ const s=setup();const calls=[];s.add(types.tap,()=>calls.push('tap'));s.add(types.longPress,()=>calls.push('long'));s.emit('PointerPressed');s.emit('PointerMoved',50);assert.equal(s.timers.size,0);s.emit('PointerReleased',50);assert.deepEqual(calls,[]);
++ s.target.isEnabled=false;s.emit('PointerPressed');s.emit('PointerReleased');s.emit('RightTapped');assert.deepEqual(calls,[]);
++});
++test('long press fires only its own callback and unload cancels timers', () => {
++ const s=setup();const calls=[];s.add(types.tap,()=>calls.push('tap'));s.add(types.longPress,()=>calls.push('long'));s.emit('PointerPressed');s.timers.values().next().value();assert.deepEqual(calls,['long']);
++ s.lifecycle('unloaded');assert.equal(s.timers.size,0);assert.equal(s.native.RightTapped,null);
++});
++test('double tap delivers only double callback and suppresses delayed single tap', () => {
++ const s=setup();const calls=[];s.add(types.tap,()=>calls.push('tap'));s.add(types.doubleTap,()=>calls.push('double'));s.add(types.touch,args=>calls.push(args.action));
++ s.emit('PointerPressed');s.emit('PointerReleased');s.emit('PointerPressed');s.emit('PointerReleased');assert.equal(s.timers.size,0);assert.deepEqual(calls,['down','up','down','double','up']);
++});
++
++test('disable before a delayed tap suppresses activation; unload removes the pending timer', () => {
++ const s=setup();const calls=[];s.add(types.tap,()=>calls.push('tap'));s.add(types.doubleTap,()=>{});s.emit('PointerPressed');s.emit('PointerReleased');s.target.isEnabled=false;s.timers.values().next().value();assert.deepEqual(calls,[]);
++ s.target.isEnabled=true;s.lifecycle('unloaded');s.lifecycle('loaded');s.emit('PointerPressed');s.emit('PointerReleased');assert.equal(s.timers.size,1);s.lifecycle('unloaded');assert.equal(s.timers.size,0);
++});
+diff --git a/packages/core/ui/gestures/tests/pointer-events.windows.test.mjs b/packages/core/ui/gestures/tests/pointer-events.windows.test.mjs
+new file mode 100644
+index 000000000..4764b7f84
+--- /dev/null
++++ b/packages/core/ui/gestures/tests/pointer-events.windows.test.mjs
+@@ -0,0 +1,44 @@
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import { subscribeNativeEvent } from '../pointer-events.windows.ts';
++const wrap = fn => fn;
++const subscribe = (native, callback, event = null) => subscribeNativeEvent(native, 'PointerPressed', callback, event, wrap);
++test('independent subscriptions survive removal, reattachment and idempotent disposal', () => {
++ const native = {}; const calls = []; const callback = () => calls.push('same');
++ const first = subscribe(native, callback); const second = subscribe(native, callback);
++ native.PointerPressed(); assert.equal(calls.length, 2); first(); first();
++ native.PointerPressed(); assert.equal(calls.length, 3); second(); assert.equal(native.PointerPressed, null);
++ const third = subscribe(native, callback); native.PointerPressed(); assert.equal(calls.length, 4); third();
++});
++test('dispatch respects removal and defers subscriptions added during delivery', () => {
++ const native = {}; const calls = []; let added; let removeSecond;
++ const removeFirst = subscribe(native, () => { calls.push('first'); removeSecond(); added ||= subscribe(native, () => calls.push('new')); });
++ removeSecond = subscribe(native, () => calls.push('removed'));
++ native.PointerPressed(); assert.deepEqual(calls, ['first']); native.PointerPressed(); assert.deepEqual(calls, ['first', 'first', 'new']);
++ removeFirst(); added();
++});
++test('routed registrations are shared and removed using the same event/delegate', () => {
++ const event = {}; const calls = []; const native = { AddHandler: (...args) => calls.push(['add', ...args]), RemoveHandler: (...args) => calls.push(['remove', ...args]) };
++ const one = subscribe(native, () => {}, event); const two = subscribe(native, () => {}, event);
++ assert.equal(calls.length, 1); assert.equal(calls[0][3], true); one(); assert.equal(calls.length, 1); two();
++ assert.equal(calls[1][1], event); assert.equal(calls[1][2], calls[0][2]);
++});
++test('partial routed registration rolls back before fallback and siblings stay additive', () => {
++ let routed; const order = []; const native = {
++  AddHandler(event, delegate) { routed = delegate; order.push('add'); throw new Error('projection failed after registration'); },
++  RemoveHandler(event, delegate) { assert.equal(delegate, routed); routed = null; order.push('rollback'); },
++  set PointerPressed(value) { this.handler = value; order.push(value ? 'fallback' : 'clear'); },
++ };
++ const calls = []; const one = subscribe(native, () => calls.push(1), {}); const two = subscribe(native, () => calls.push(2), {});
++ assert.deepEqual(order, ['add', 'rollback', 'fallback']); native.handler(); assert.deepEqual(calls, [1, 2]);
++ one(); native.handler(); assert.deepEqual(calls, [1, 2, 2]); two(); assert.equal(native.handler, null);
++});
++test('failed fallback registration can be retried without a poisoned registry', () => {
++ let reject = true; const native = { set PointerPressed(value) { if (reject) throw new Error('bad property'); this.handler = value; } };
++ assert.throws(() => subscribe(native, () => {})); reject = false; const dispose = subscribe(native, () => {}); assert.equal(typeof native.handler, 'function'); dispose();
++});
++test('native objects and event names are independent', () => {
++ const a = {}; const b = {}; const calls = []; const removeA = subscribe(a, () => calls.push('a'));
++ const removeB = subscribe(b, () => calls.push('b')); const removeUp = subscribeNativeEvent(a, 'PointerReleased', () => calls.push('up'), null, wrap);
++ removeA(); b.PointerPressed(); a.PointerReleased(); assert.deepEqual(calls, ['b', 'up']); removeB(); removeUp();
++});
+-- 
+2.56.0
+
+
+From 720e6bae70b763d6658dece9332badbf78128ce8 Mon Sep 17 00:00:00 2001
+From: Alec Larson <1925840+aleclarson@users.noreply.github.com>
+Date: Fri, 2 Oct 2026 12:28:32 -0400
+Subject: [PATCH 2/3] fix(windows): reject fallback when routed rollback is
+ uncertain
+
+---
+ packages/core/ui/gestures/index.windows.ts       |  4 +++-
+ .../core/ui/gestures/pointer-events.windows.ts   | 16 ++++++++++++----
+ .../ui/gestures/tests/observers.windows.test.mjs |  4 ++++
+ .../tests/pointer-events.windows.test.mjs        |  9 +++++++++
+ 4 files changed, 28 insertions(+), 5 deletions(-)
+
+diff --git a/packages/core/ui/gestures/index.windows.ts b/packages/core/ui/gestures/index.windows.ts
+index 0ec251669..572e1a007 100644
+--- a/packages/core/ui/gestures/index.windows.ts
++++ b/packages/core/ui/gestures/index.windows.ts
+@@ -242,7 +242,8 @@ export class GesturesObserver extends GesturesObserverBase {
+ 	}
+ 
+ 	private _onPointerCanceled(e: any) {
+-		const id = extractPointerId(e);
++		try {
++			const id = extractPointerId(e);
+ 		if (!this._pointerDownMap.delete(id)) return;
+ 		const timeout = this._longPressTimeouts.get(id);
+ 		if (timeout != null) timer.clearTimeout(timeout);
+@@ -258,6 +259,7 @@ export class GesturesObserver extends GesturesObserverBase {
+ 				getAllPointers: () => [new WindowsPointer(id, e, relativeTo)], getX: () => point.x, getY: () => point.y,
+ 			});
+ 		}
++		} catch (_e) { }
+ 	}
+ 
+ 	public androidOnTouchEvent(_motionEvent: any): void { }
+diff --git a/packages/core/ui/gestures/pointer-events.windows.ts b/packages/core/ui/gestures/pointer-events.windows.ts
+index 4f6e96c0a..b30107464 100644
+--- a/packages/core/ui/gestures/pointer-events.windows.ts
++++ b/packages/core/ui/gestures/pointer-events.windows.ts
+@@ -21,13 +21,21 @@ export function subscribeNativeEvent(native: any, name: string, callback: Handle
+ 		});
+ 		let detach: () => void;
+ 		try {
+-			if (!routedEvent) throw new Error('RoutedEvent unavailable');
++			if (!routedEvent || typeof native.AddHandler !== 'function') throw new Error('RoutedEvent unavailable');
+ 			native.AddHandler(routedEvent, delegate, true);
+ 			detach = () => native.RemoveHandler(routedEvent, delegate);
+-		} catch (error) {
++		} catch (error: any) {
+ 			// A bridge can fail after attaching. Remove that exact delegate before falling back.
+-			if (routedEvent) {
+-				try { native.RemoveHandler(routedEvent, delegate); } catch (_) { }
++			if (routedEvent && typeof native.AddHandler === 'function') {
++				try {
++					native.RemoveHandler(routedEvent, delegate);
++				} catch (_) {
++					// E_NOINTERFACE rejects the delegate projection before registration. For an
++					// ambiguous failure, do not add a second listener if rollback also failed.
++					const code = error?.hresult ?? error?.HResult ?? error?.code;
++					const unsupported = (typeof code === 'number' && (code >>> 0) === 0x80004002) || /E_NOINTERFACE|80004002/i.test(String(error));
++					if (!unsupported) throw error;
++				}
+ 			}
+ 			native[name] = delegate;
+ 			detach = () => { native[name] = null; };
+diff --git a/packages/core/ui/gestures/tests/observers.windows.test.mjs b/packages/core/ui/gestures/tests/observers.windows.test.mjs
+index 496750dc0..001aa706c 100644
+--- a/packages/core/ui/gestures/tests/observers.windows.test.mjs
++++ b/packages/core/ui/gestures/tests/observers.windows.test.mjs
+@@ -65,3 +65,7 @@ test('disable before a delayed tap suppresses activation; unload removes the pen
+  const s=setup();const calls=[];s.add(types.tap,()=>calls.push('tap'));s.add(types.doubleTap,()=>{});s.emit('PointerPressed');s.emit('PointerReleased');s.target.isEnabled=false;s.timers.values().next().value();assert.deepEqual(calls,[]);
+  s.target.isEnabled=true;s.lifecycle('unloaded');s.lifecycle('loaded');s.emit('PointerPressed');s.emit('PointerReleased');assert.equal(s.timers.size,1);s.lifecycle('unloaded');assert.equal(s.timers.size,0);
+ });
++
++test('a throwing cancellation callback does not prevent sibling cancellation', () => {
++ const s=setup();const calls=[];s.add(types.touch,args=>{if(args.action==='cancel')throw new Error('callback failed');});s.add(types.touch,args=>calls.push(args.action));s.emit('PointerPressed');s.emit('PointerCanceled');assert.deepEqual(calls,['down','cancel']);
++});
+diff --git a/packages/core/ui/gestures/tests/pointer-events.windows.test.mjs b/packages/core/ui/gestures/tests/pointer-events.windows.test.mjs
+index 4764b7f84..b8d58369f 100644
+--- a/packages/core/ui/gestures/tests/pointer-events.windows.test.mjs
++++ b/packages/core/ui/gestures/tests/pointer-events.windows.test.mjs
+@@ -42,3 +42,12 @@ test('native objects and event names are independent', () => {
+  const removeB = subscribe(b, () => calls.push('b')); const removeUp = subscribeNativeEvent(a, 'PointerReleased', () => calls.push('up'), null, wrap);
+  removeA(); b.PointerPressed(); a.PointerReleased(); assert.deepEqual(calls, ['b', 'up']); removeB(); removeUp();
+ });
++
++test('ambiguous routed failure with failed rollback must not install a second listener', () => {
++ const native = {AddHandler(){throw new Error('ambiguous');},RemoveHandler(){throw new Error('cannot roll back');}};
++ assert.throws(()=>subscribe(native,()=>{},{}),/ambiguous/);assert.equal(native.PointerPressed,undefined);
++});
++test('known E_NOINTERFACE rejection safely uses fallback even when RemoveHandler is unsupported', () => {
++ const native = {AddHandler(){throw new Error('HRESULT 0x80004002');},RemoveHandler(){throw new Error('unsupported');}};
++ const calls=[];const dispose=subscribe(native,()=>calls.push(1),{});native.PointerPressed();assert.deepEqual(calls,[1]);dispose();
++});
+-- 
+2.56.0
+
+
+From f82cbeba9dc4a92bc2792e812bb849232fbbde33 Mon Sep 17 00:00:00 2001
+From: Alec Larson <1925840+aleclarson@users.noreply.github.com>
+Date: Fri, 2 Oct 2026 12:30:08 -0400
+Subject: [PATCH 3/3] test(windows): cover pointer native replacement on reload
+
+---
+ packages/core/ui/gestures/index.windows.ts    | 30 +++++++++----------
+ .../gestures/tests/observers.windows.test.mjs |  4 +++
+ 2 files changed, 19 insertions(+), 15 deletions(-)
+
+diff --git a/packages/core/ui/gestures/index.windows.ts b/packages/core/ui/gestures/index.windows.ts
+index 572e1a007..62b478e91 100644
+--- a/packages/core/ui/gestures/index.windows.ts
++++ b/packages/core/ui/gestures/index.windows.ts
+@@ -244,21 +244,21 @@ export class GesturesObserver extends GesturesObserverBase {
+ 	private _onPointerCanceled(e: any) {
+ 		try {
+ 			const id = extractPointerId(e);
+-		if (!this._pointerDownMap.delete(id)) return;
+-		const timeout = this._longPressTimeouts.get(id);
+-		if (timeout != null) timer.clearTimeout(timeout);
+-		this._longPressTimeouts.delete(id);
+-		this._lastUpTime = 0;
+-		if (this.type === GestureTypes.touch) {
+-			const relativeTo = (this.target as any)?.nativeViewProtected;
+-			const point = extractPoint(e, relativeTo);
+-			_executeCallback(this, {
+-				type: GestureTypes.touch, view: this.target, object: this.target, windows: e,
+-				eventName: toString(GestureTypes.touch), action: 'cancel',
+-				getPointerCount: () => 1, getActivePointers: () => [new WindowsPointer(id, e, relativeTo)],
+-				getAllPointers: () => [new WindowsPointer(id, e, relativeTo)], getX: () => point.x, getY: () => point.y,
+-			});
+-		}
++			if (!this._pointerDownMap.delete(id)) return;
++			const timeout = this._longPressTimeouts.get(id);
++			if (timeout != null) timer.clearTimeout(timeout);
++			this._longPressTimeouts.delete(id);
++			this._lastUpTime = 0;
++			if (this.type === GestureTypes.touch) {
++				const relativeTo = (this.target as any)?.nativeViewProtected;
++				const point = extractPoint(e, relativeTo);
++				_executeCallback(this, {
++					type: GestureTypes.touch, view: this.target, object: this.target, windows: e,
++					eventName: toString(GestureTypes.touch), action: 'cancel',
++					getPointerCount: () => 1, getActivePointers: () => [new WindowsPointer(id, e, relativeTo)],
++					getAllPointers: () => [new WindowsPointer(id, e, relativeTo)], getX: () => point.x, getY: () => point.y,
++				});
++			}
+ 		} catch (_e) { }
+ 	}
+ 
+diff --git a/packages/core/ui/gestures/tests/observers.windows.test.mjs b/packages/core/ui/gestures/tests/observers.windows.test.mjs
+index 001aa706c..9c1b32d15 100644
+--- a/packages/core/ui/gestures/tests/observers.windows.test.mjs
++++ b/packages/core/ui/gestures/tests/observers.windows.test.mjs
+@@ -69,3 +69,7 @@ test('disable before a delayed tap suppresses activation; unload removes the pen
+ test('a throwing cancellation callback does not prevent sibling cancellation', () => {
+  const s=setup();const calls=[];s.add(types.touch,args=>{if(args.action==='cancel')throw new Error('callback failed');});s.add(types.touch,args=>calls.push(args.action));s.emit('PointerPressed');s.emit('PointerCanceled');assert.deepEqual(calls,['down','cancel']);
+ });
++
++test('reload after native identity replacement removes old delegates and binds only the new native', () => {
++ const s=setup();const calls=[];s.add(types.tap,()=>calls.push('tap'));s.add(types.touch,args=>calls.push(args.action));s.lifecycle('unloaded');const replacement={};s.target.nativeViewProtected=replacement;s.lifecycle('loaded');assert.equal(s.native.PointerPressed,null);assert.equal(typeof replacement.PointerPressed,'function');s.lifecycle('unloaded');assert.equal(replacement.PointerPressed,null);assert.deepEqual(calls,[]);
++});
+-- 
+2.56.0
+
