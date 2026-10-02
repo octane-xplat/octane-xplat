@@ -1,4 +1,5 @@
 import type { DelegatedRequest, DelegatedRun } from './host-types'
+import { isBezierEase } from './engine'
 import type { Target } from './types'
 
 const platform = globalThis as any
@@ -248,7 +249,13 @@ export function delegatedRun(
 	write: (t: Target) => void,
 ): DelegatedRun | null {
 	// Dispatch on platform-object presence — no @nativescript/core import, so
-	// this module stays loadable in the object-driver test environment.
+	// this module stays loadable in the object-driver test environment. Eases
+	// that are not cubic-bezier-expressible stay on the JS engine.
+	if (!isBezierEase(req.transition.ease)) {
+		stats().fallback++
+		return null
+	}
+
 	const run =
 		node.ios && platform.UIViewPropertyAnimator
 			? iosRun(node, req, write)

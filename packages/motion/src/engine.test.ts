@@ -137,3 +137,89 @@ describe('portable playback', () => {
 		controller.destroy()
 	})
 })
+
+describe('upstream-shaped transitions', () => {
+	it('repeats a tween for the given number of additional legs', async () => {
+		const time = fakeClock()
+		const seen: number[] = []
+		const controls = runAnimation(
+			time.clock,
+			0,
+			100,
+			{ duration: 0.1, ease: 'linear', repeat: 1 },
+			(value) => seen.push(value),
+		)
+
+		time.advance(120)
+		expect(seen.at(-1)).toBe(100)
+		time.advance(50)
+		expect(seen.at(-1)).toBe(50)
+		time.advance(120)
+		expect(seen.at(-1)).toBe(100)
+		expect(await controls.finished).toBe('finished')
+	})
+
+	it('reverses each repeated leg under repeatType reverse', async () => {
+		const time = fakeClock()
+		const seen: number[] = []
+		const controls = runAnimation(
+			time.clock,
+			0,
+			100,
+			{ duration: 0.1, ease: 'linear', repeat: 1, repeatType: 'reverse' },
+			(value) => seen.push(value),
+		)
+
+		time.advance(120)
+		time.advance(50)
+		expect(seen.at(-1)).toBe(50)
+		time.advance(120)
+		expect(seen.at(-1)).toBe(0)
+		expect(await controls.finished).toBe('finished')
+	})
+
+	it('accepts a duration/bounce spring spec', async () => {
+		const time = fakeClock()
+		let value = 0
+		const controls = runAnimation(
+			time.clock,
+			0,
+			100,
+			{ type: 'spring', duration: 0.4, bounce: 0.2 },
+			(next) => {
+				value = next
+			},
+		)
+
+		for (let i = 0; i < 100; i++) {
+			time.advance(16)
+		}
+
+		expect(await controls.finished).toBe('finished')
+		expect(value).toBe(100)
+	})
+
+	it('accepts the full named-ease set on the JS engine', async () => {
+		for (const ease of ['circIn', 'backOut', 'anticipate', 'circInOut', 'backInOut'] as const) {
+			const time = fakeClock()
+			let value = 0
+			const controls = runAnimation(time.clock, 0, 50, { duration: 0.1, ease }, (next) => {
+				value = next
+			})
+
+			for (let i = 0; i < 20; i++) {
+				time.advance(16)
+			}
+
+			expect(await controls.finished).toBe('finished')
+			expect(value).toBe(50)
+		}
+	})
+
+	it('rejects fractional repeats', () => {
+		const time = fakeClock()
+		expect(() => runAnimation(time.clock, 0, 1, { duration: 1, repeat: 1.5 }, () => {})).toThrow(
+			'repeat',
+		)
+	})
+})

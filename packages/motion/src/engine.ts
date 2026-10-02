@@ -1,6 +1,6 @@
 import { keyframes, spring } from 'motion-dom'
 import type { Clock } from './clock-types.js'
-import type { Transition } from './types.js'
+import type { Transition, TransitionInput, MotionKey, RepeatType } from './types.js'
 
 /** Terminal status; cancellation never masquerades as completion. */
 export type AnimationResult = 'finished' | 'cancelled' | 'replaced'
@@ -10,9 +10,31 @@ export interface AnimationControls {
 	stop(reason?: Exclude<AnimationResult, 'finished'>): void
 }
 
+const MOTION_KEYS: MotionKey[] = ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate']
+
+/** Platform animators take one timing curve per run — cubic-bezier only. */
+const BEZIER_EASES = new Set(['linear', 'easeIn', 'easeOut', 'easeInOut'])
+export function isBezierEase(ease: Transition['ease']): boolean {
+	return ease === undefined || Array.isArray(ease) || BEZIER_EASES.has(ease)
+}
+
+export function isOrchestrated(
+	t: TransitionInput | undefined,
+): t is Exclude<TransitionInput, Transition> {
+	if (!t || typeof t !== 'object') {
+		return false
+	}
+
+	return 'default' in t || MOTION_KEYS.some((key) => key in t)
+}
+
+export function resolveTransition(t: TransitionInput, key: MotionKey): Transition {
+	return isOrchestrated(t) ? { ...t.default, ...t[key] } : t
+}
+
 export function validateTransition(t: Transition): void {
-	if (t.type === 'spring' && (t.duration !== undefined || t.ease !== undefined)) {
-		throw new Error('motion: physical springs do not accept duration or ease')
+	if (t.type === 'spring' && t.ease !== undefined) {
+		throw new Error('motion: physical springs do not accept ease')
 	}
 
 	const allowed = [
@@ -20,6 +42,10 @@ export function validateTransition(t: Transition): void {
 		'duration',
 		'delay',
 		'ease',
+		'repeat',
+		'repeatType',
+		'repeatDelay',
+		'bounce',
 		'stiffness',
 		'damping',
 		'mass',
@@ -41,6 +67,8 @@ export function validateTransition(t: Transition): void {
 	for (const key of [
 		'duration',
 		'delay',
+		'repeatDelay',
+		'bounce',
 		'stiffness',
 		'damping',
 		'mass',
@@ -52,6 +80,17 @@ export function validateTransition(t: Transition): void {
 		if (value !== undefined && (!Number.isFinite(value) || (key !== 'velocity' && value < 0))) {
 			throw new Error(`motion: invalid ${key}`)
 		}
+	}
+
+	if (
+		t.repeat !== undefined &&
+		(t.repeat < 0 || (!Number.isInteger(t.repeat) && t.repeat !== Infinity))
+	) {
+		throw new Error('motion: repeat must be a non-negative integer or Infinity')
+	}
+
+	if (t.repeatType !== undefined && !['loop', 'reverse', 'mirror'].includes(t.repeatType)) {
+		throw new Error('motion: unsupported repeatType')
 	}
 
 	for (const key of ['mass', 'stiffness', 'damping', 'restSpeed', 'restDelta'] as const) {
@@ -72,9 +111,35 @@ export function validateTransition(t: Transition): void {
 			) {
 				throw new Error('motion: invalid cubic Bezier')
 			}
-		} else if (!['linear', 'easeIn', 'easeOut', 'easeInOut'].includes(t.ease)) {
+		} else if (
+			![
+				'linear',
+				'easeIn',
+				'easeOut',
+				'easeInOut',
+				'circIn',
+				'circOut',
+				'circInOut',
+				'backIn',
+				'backOut',
+				'backInOut',
+				'anticipate',
+			].includes(t.ease)
+		) {
 			throw new Error('motion: unsupported easing')
 		}
+	}
+}
+
+export function validateTransitionInput(t: TransitionInput): void {
+	if (isOrchestrated(t)) {
+		for (const value of Object.values(t)) {
+			if (value) {
+				validateTransition(value)
+			}
+		}
+	} else {
+		validateTransition(t)
 	}
 }
 
@@ -110,37 +175,63 @@ export function runAnimation(
 	}
 
 	const duration = transition.duration ?? 0.3
-	const generator =
+	const repeat = transition.repeat ?? 0
+	const repeatType: RepeatType = transition.repeatType ?? 'loop'
+	const repeatDelay = (transition.repeatDelay ?? 0) * 1000
+
+	const makeGenerator = (legFrom: number, legTo: number) =>
 		transition.type === 'spring'
 			? spring({
-					keyframes: [from, to],
+					keyframes: [legFrom, legTo],
 					stiffness: transition.stiffness ?? 100,
 					damping: transition.damping ?? 10,
 					mass: transition.mass ?? 1,
 					velocity: transition.velocity ?? 0,
 					restSpeed: transition.restSpeed,
 					restDelta: transition.restDelta,
+					// Visual-duration spring spec — duration/bounce instead of
+					// stiffness/damping; motion-dom takes milliseconds.
+					duration: transition.duration !== undefined ? duration * 1000 : undefined,
+					bounce: transition.bounce,
 				})
 			: keyframes({
-					keyframes: [from, to],
+					keyframes: [legFrom, legTo],
 					duration: duration * 1000,
 					ease: transition.ease ?? 'easeInOut',
 				})
 
-	const start = clock.now() + (transition.delay ?? 0) * 1000
+	let leg = 0
+	let generator = makeGenerator(from, to)
+	let legStart = clock.now() + (transition.delay ?? 0) * 1000
 	const tick = () => {
 		if (settled) {
 			return
 		}
 
-		const elapsed = Math.max(0, clock.now() - start)
-		if (clock.now() >= start) {
-			const state = generator.next(elapsed)
-			update(state.done ? to : state.value)
-			if (state.done) {
-				settle('finished')
+		const now = clock.now()
+		if (now < legStart) {
+			frame = clock.request(tick)
+			return
+		}
+
+		const elapsed = Math.max(0, now - legStart)
+		const state = generator.next(elapsed)
+		const legEnd = repeatType === 'loop' || leg % 2 === 0 ? to : from
+		update(state.done ? legEnd : state.value)
+		if (state.done) {
+			if (leg < repeat) {
+				leg++
+				// 'loop' replays the same direction; 'reverse'/'mirror' alternate
+				// legs (identical for two keyframes, which is all we generate).
+				const [legFrom, legTo] = repeatType === 'loop' || leg % 2 === 0 ? [from, to] : [to, from]
+				generator = makeGenerator(legFrom, legTo)
+				legStart = now + repeatDelay
+				frame = clock.request(tick)
 				return
 			}
+
+			settle('finished')
+			return
 		}
 
 		if (!settled) {
@@ -148,7 +239,7 @@ export function runAnimation(
 		}
 	}
 
-	if (transition.type !== 'spring' && duration === 0 && !transition.delay) {
+	if (transition.type !== 'spring' && duration === 0 && !transition.delay && repeat === 0) {
 		update(to)
 		settle('finished')
 	} else {

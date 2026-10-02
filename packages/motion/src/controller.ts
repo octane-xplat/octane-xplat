@@ -1,8 +1,8 @@
 import { MotionValue } from './value'
 import type { Clock } from './clock-types'
 import type { HostAdapter, DelegatedRun } from './host-types'
-import type { Target, MotionKey, Transition } from './types'
-import type { AnimationResult } from './engine'
+import type { Target, MotionKey, TransitionInput } from './types'
+import { isBezierEase, isOrchestrated, resolveTransition, type AnimationResult } from './engine'
 
 export const keys: MotionKey[] = ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate']
 export const defaults: Required<Target> = {
@@ -25,6 +25,8 @@ export function validateTarget(target?: Target) {
 
 export class Controller {
 	readonly values = new Map<MotionKey, MotionValue>()
+	/** Per-write snapshot callback (rAF-rate during delegated and JS runs). */
+	onUpdate?: (snapshot: Target) => void
 	private adapter?: HostAdapter
 	private delegated?: { run: DelegatedRun; frame: number; trackSample: () => void }
 	private generation = 0
@@ -57,9 +59,9 @@ export class Controller {
 		return Object.fromEntries([...this.values].map(([key, value]) => [key, value.get()]))
 	}
 	flush() {
-		this.adapter?.write(
-			Object.fromEntries([...this.values].map(([key, value]) => [key, value.get()])),
-		)
+		const snapshot = Object.fromEntries([...this.values].map(([key, value]) => [key, value.get()]))
+		this.adapter?.write(snapshot)
+		this.onUpdate?.(snapshot)
 	}
 	set(key: MotionKey, next: number) {
 		this.value(key).jump(next)
@@ -72,7 +74,7 @@ export class Controller {
 	}
 	async animate(
 		target: Target,
-		transition: Transition,
+		transition: TransitionInput,
 		reduced: boolean,
 	): Promise<AnimationResult> {
 		validateTarget(target)
@@ -85,8 +87,11 @@ export class Controller {
 
 		if (
 			!reduced &&
+			!isOrchestrated(transition) &&
 			transition.type !== 'spring' &&
 			(transition.duration ?? 0.3) > 0 &&
+			(transition.repeat ?? 0) === 0 &&
+			isBezierEase(transition.ease) &&
 			this.adapter?.delegate
 		) {
 			const dest: Target = { ...this.snapshot(), ...target }
@@ -127,6 +132,8 @@ export class Controller {
 							this.value(key).track(next)
 						}
 					}
+
+					this.onUpdate?.(this.snapshot())
 				}
 
 				const entry = { run, frame: 0, trackSample }
@@ -169,7 +176,12 @@ export class Controller {
 
 		const jobs = Object.entries(target).map(([key, to]) => {
 			const value = this.value(key as MotionKey)
-			return value.animate(to, reduced && key !== 'opacity' ? { duration: 0 } : transition).finished
+			return value.animate(
+				to,
+				reduced && key !== 'opacity'
+					? { duration: 0 }
+					: resolveTransition(transition, key as MotionKey),
+			).finished
 		})
 
 		const results = await Promise.all(jobs)

@@ -212,4 +212,58 @@ describe('delegated runs', () => {
 		expect(run.cancelCalls).toBe(1)
 		expect(await done).toBe('replaced')
 	})
+
+	it.each([
+		['per-key transitions', { default: { duration: 0.5 }, x: { duration: 1 } }],
+		['a non-bezier ease', { duration: 0.5, ease: 'backOut' as const }],
+		['a repeating run', { duration: 0.5, repeat: 2 }],
+	])('stays on the JS engine for %s', async (_label, transition) => {
+		const time = fakeClock()
+		const controller = new Controller(time.clock)
+		let delegated = false
+		const { adapter } = stubHost(() => {
+			delegated = true
+			return null
+		})
+
+		controller.attach(adapter)
+		controller.seed({ x: 0 })
+
+		const done = controller.animate({ x: 100 }, transition as any, false)
+		expect(delegated).toBe(false)
+		for (let i = 0; i < 500; i++) {
+			time.advance(16)
+		}
+
+		expect(await done).toBe('finished')
+		expect(controller.values.get('x')?.get()).toBe(100)
+	})
+
+	it('applies per-key overrides to each channel independently', async () => {
+		const time = fakeClock()
+		const controller = new Controller(time.clock)
+		const { adapter } = stubHost()
+		controller.attach(adapter)
+		controller.seed({ x: 0, y: 0 })
+
+		const done = controller.animate(
+			{ x: 100, y: 100 },
+			{ default: { duration: 0.1, ease: 'linear' }, x: { duration: 0.3 } },
+			false,
+		)
+
+		for (let i = 0; i < 8; i++) {
+			time.advance(16)
+		}
+
+		// y finished at 100ms; x still travelling on its 300ms override.
+		expect(controller.values.get('y')?.get()).toBe(100)
+		expect(controller.values.get('x')?.get()).toBeLessThan(100)
+		for (let i = 0; i < 30; i++) {
+			time.advance(16)
+		}
+
+		expect(await done).toBe('finished')
+		expect(controller.values.get('x')?.get()).toBe(100)
+	})
 })
