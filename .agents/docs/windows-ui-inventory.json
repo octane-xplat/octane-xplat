@@ -2528,5 +2528,14 @@
   "dispositionMeaning": {
     "implemented": "A Windows-specific seam or reused native default passes the recorded bounded native cases. This is not full API, accessibility, pixel, or production certification. Unverified limits remain explicit.",
     "parked": "A concrete missing or failing required path is recorded, with source/runtime evidence and reopening criteria. Source-dependent entries are not individual runtime passes."
-  }
+  },
+  "integrationBaseline": "f51e8716",
+  "adjacentCapabilities": [
+    {
+      "name": "useLayer",
+      "status": "parked",
+      "evidence": "Added on main during the sweep; native default uses __xplatAppKit.showAnchoredPopup, absent on Windows. Mobile variant uses shared RootLayout but is deliberately outside Windows suffix selection.",
+      "reason": "Windows needs context/fixed layer implementation, native coordinate placement and light-dismiss semantics. Hook is outside the169 component census."
+    }
+  ]
 }

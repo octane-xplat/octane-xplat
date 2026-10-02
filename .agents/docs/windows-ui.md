@@ -503,3 +503,24 @@ their existing supported targets. No Windows recipe verification is mislabeled
 as iOS/Android/macOS: the Silo recipe target enum excludes Windows. Local recipe
 structure/link checks pass; broad demo parity, pixel inspection, real media
 sources, and production deployment were not established by this lab.
+
+### Integration on current main
+
+Rebased the23 Windows commits onto main `f51e8716`. The root component names
+remain the same169; main adds the separate `useLayer` hook. Its native default
+is AppKit-only and remains parked for Windows as an adjacent capability. The
+new mobile leaf still imported the old mobile-only root/lifetime filenames:
+no-emit checking and its maintained tests reproduced missing-module failures.
+Those imports and the test mock now reference the shared native helpers.
+
+The SVG conflict preserves main's new `svg-glyph` helper: shared source decoding
+re-exports it rather than restoring duplicate glyph construction. Recipe docs
+retain main's useLayer guidance together with the Windows support limit.
+
+Final integration validation passes: UI declaration no-emit check;29 maintained
+native layer/popover/overlay/keyboard tests;31 route and popover-position tests;
+recipe structure/links; clean diff and resolved-marker scan. The rebased guest
+public-root bundle prepares successfully and runs: native text appears, Icon's
+SVG source completes at24×24, Code reports FontSize13/Consolas/height20, and
+indeterminate indicator geometry is24×24 with12×2 dash. The full demo harness
+and production build are still outside this bounded verification.
