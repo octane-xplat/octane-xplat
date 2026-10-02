@@ -2,12 +2,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import { act, createRoot } from 'octane';
 vi.mock('./theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }));
-import { Sheet } from './Sheet.web.tsrx';
+import { BottomSheet } from './BottomSheet.web.tsrx';
 import { Overlay } from './Overlay.web.tsrx';
 import { isolateModalFocus } from './modal-focus.web';
 
 describe('modal focus isolation', () => {
-	for (const [name, Component] of [['Sheet', Sheet], ['Overlay', Overlay]] as const) {
+	const BottomSheetCompat = (p: any) => (
+	<BottomSheet isOpen={p.open} label="Bottom sheet" hasScrim={p.shadeCover}>{p.children}</BottomSheet>
+);
+
+	for (const [name, Component] of [['BottomSheet', BottomSheetCompat], ['Overlay', Overlay]] as const) {
 		it(`${name} isolates background focus and restores its trigger on close`, () => {
 			const host = document.createElement('div');
 			document.body.appendChild(host);

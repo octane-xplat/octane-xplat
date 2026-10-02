@@ -1759,6 +1759,142 @@ textarea::placeholder {
 .vx-topnavmegamenu-card-link {
 	color: var(--color-text);
 }
+/* ---------- dialog / alert dialog ---------- */
+
+.vx-dialog {
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-lg);
+	corner-shape: squircle;
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.24);
+}
+
+.vx-dialog--fullscreen {
+	border-radius: 0;
+	border-width: 0;
+}
+
+.vx-dialog-header {
+	font-weight: 600;
+}
+
+.vx-dialog-subtitle {
+	color: var(--color-text-secondary);
+	font-size: 13px;
+}
+
+.vx-dialog-divider {
+	background-color: var(--color-border);
+}
+
+.vx-alertdialog-heading {
+	font-size: 17px;
+	font-weight: 600;
+}
+
+.vx-alertdialog-desc {
+	color: var(--color-text-secondary);
+	font-size: 14px;
+}
+
+/* ---------- hover card ---------- */
+
+.vx-hovercard {
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: var(--radius-lg);
+	corner-shape: squircle;
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+	padding: 12px;
+	font-size: 14px;
+	line-height: 20px;
+}
+
+/* xplat-web-only:start — the indication only exists on the web leaf's
+   text-trigger span. */
+.vx-hovercard-indication {
+	text-decoration-color: var(--color-text-secondary);
+}
+/* xplat-web-only:end */
+
+/* ---------- toast ---------- */
+
+/* Astryx's inverted surface: the toast paints in the theme's text color
+   and reads in the surface color. A dark surface in light mode, light in
+   dark — error paints danger. */
+.vx-toast {
+	background-color: var(--color-text);
+	color: var(--color-surface);
+	border-radius: var(--radius-md);
+	corner-shape: squircle;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+	padding: 16px;
+	font-size: 14px;
+	line-height: 20px;
+}
+
+.vx-toast--error {
+	background-color: var(--color-danger);
+	color: var(--color-onprimary);
+}
+
+/* ---------- carousel ---------- */
+
+.vx-carousel-btn {
+	background-color: var(--color-surface);
+	color: var(--color-text);
+	border-width: 1px;
+	border-color: var(--color-border);
+	border-radius: 999px;
+	width: 32px;
+	height: 32px;
+	justify-content: center;
+	align-items: center;
+}
+
+.vx-carousel-fade-start {
+	background: linear-gradient(to right, var(--color-surface), transparent);
+}
+
+.vx-carousel-fade-end {
+	background: linear-gradient(to left, var(--color-surface), transparent);
+}
+
+/* ---------- lightbox ---------- */
+
+.vx-lightbox-layer {
+	background-color: rgba(0, 0, 0, 0.9);
+}
+
+.vx-lightbox {
+	background-color: #000000;
+	color: #fafafa;
+}
+
+.vx-lightbox-counter,
+.vx-lightbox-caption {
+	color: #fafafa;
+	font-size: 13px;
+}
+
+.vx-lightbox-nav,
+.vx-lightbox-close {
+	background-color: rgba(255, 255, 255, 0.12);
+	color: #fafafa;
+	border-radius: 999px;
+	width: 40px;
+	height: 40px;
+	justify-content: center;
+	align-items: center;
+}
+
+/* ---------- scrollable area ---------- */
+
+/* Intentionally bare — scrollbars stay platform-native. */
 }
 
 @layer xplat-chrome {

@@ -5,7 +5,7 @@
 
 Use `VirtualList` from `@octane-xplat/ui` for vertical, measured-height rows.
 Give the list a bounded viewport and each item a stable, unique key. Small
-collections can use `ScrollView` and `@for`. Platform-authentic recycling is
+collections can use `ScrollableArea` and `@for`. Platform-authentic recycling is
 available separately through `UITableView` and `RecyclerView`.
 
 ## Keep identity and state stable

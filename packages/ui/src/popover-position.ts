@@ -20,7 +20,10 @@ const opposite: Record<PopoverPlacement, PopoverPlacement> = {
 	right: 'left',
 }
 
-/** Place beside the anchor, flip once when the requested side overflows, then clamp. */
+/** Place beside the anchor, flip once when the requested side overflows,
+ *  then clamp. `alignment` positions along the cross axis — 'start' keeps
+ *  the panel's start edge flush with the anchor's (the historical
+ *  behavior), 'center' centers, 'end' aligns the end edges. */
 export function positionPopover(
 	anchor: PopoverRect,
 	panel: Pick<PopoverRect, 'width' | 'height'>,

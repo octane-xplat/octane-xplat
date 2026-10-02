@@ -173,8 +173,7 @@ export declare const TextInput: Component<P.TextInputProps>
 export declare const TextArea: Component<P.TextAreaProps>
 export declare const SearchInput: Component<P.SearchInputProps>
 export declare const SegmentedControl: Component<P.SegmentedControlProps>
-export declare const ScrollBox: Component<P.ScrollViewProps>
-export declare const ScrollView: Component<P.ScrollViewProps>
+export declare const ScrollableArea: Component<P.ScrollableAreaProps>
 /** AppKit fallback with keyed rows and one nonvirtualized scroll view. */
 export declare function VirtualList<T = any>(
 	props: P.VirtualListProps<T> & { children?: any },
@@ -189,10 +188,18 @@ export declare const WebView: Component<P.WebViewProps>
 export declare const CameraView: Component
 export declare const Overlay: Component<P.OverlayProps>
 export declare const Popover: Component<P.PopoverProps>
-export declare const Hoverable: Component<P.HoverableProps>
+export declare const Dialog: Component<P.DialogProps>
+export declare const DialogHeader: Component<P.DialogHeaderProps>
+export declare const AlertDialog: Component<P.AlertDialogProps>
+export declare const BottomSheet: Component<P.BottomSheetProps>
+export declare const BottomSheetSwitcher: Component<P.BottomSheetSwitcherProps>
+export declare const HoverCard: Component<P.HoverCardProps>
+export declare const Carousel: Component<P.CarouselProps>
+export declare const Lightbox: Component<P.LightboxProps>
+export declare const Toast: Component<P.ToastProps>
+export declare const ToastViewport: Component<P.ToastViewportProps>
 export declare const Tooltip: Component<P.TooltipProps>
 export { Markdown, MarkdownScreen } from './generated/Markdown.js'
-export declare const Sheet: Component<P.SheetProps>
 export declare const Tabs: Component<P.TabsProps>
 export declare const Screen: Component<P.ScreenProps>
 export declare const Switch: Component<P.SwitchProps>
@@ -223,7 +230,13 @@ export declare function useSafeAreaInsets(): SafeAreaInsets
 export declare function useMeasure(options?: P.UseMeasureOptions): P.MeasureResult
 export declare function registerIcon(name: string, glyph: P.IconGlyph): void
 export declare function registerIcons(record: Record<string, P.IconGlyph>): void
-export declare function showToast(content: P.ToastContent, options?: P.ToastOptions): void
+export declare const showToast: P.ShowToastFn
+export declare function useToast(): P.ShowToastFn
+export declare function useImperativeDialog(): P.ImperativeDialogReturn
+export declare function useImperativeAlertDialog(): P.ImperativeAlertDialogReturn
+export declare function useHoverCard(options?: P.HoverCardOptions): P.HoverCardReturn
+export declare function useLightbox(options: P.UseLightboxOptions): P.UseLightboxReturn
+export declare function useScrollableArea(options?: P.UseScrollableAreaOptions): P.UseScrollableAreaResult
 export declare const defaultIndicators: {
 	[N in P.IndicatorName]: P.IndicatorComponent<P.IndicatorMap[N]>
 }
@@ -278,6 +291,6 @@ export declare function defineRoutes(
 export declare function mergeRouteManifests(...manifests: P.RouteManifest[]): P.RouteManifest
 export declare function createStore<T>(initial: T): P.Store<T>
 export declare function useStore<T>(store: P.ReadableStore<T>): T
-export declare const openSheet: P.OpenSheet
-export declare function closeSheet(result?: P.ModalOpenResult): void
-export declare function sheetHost(): null
+export declare const openBottomSheet: P.OpenBottomSheet
+export declare function closeBottomSheet(result?: P.ModalOpenResult): void
+export declare function bottomSheetHost(): null

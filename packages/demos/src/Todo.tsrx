@@ -1,11 +1,11 @@
 import { useState, useRef } from 'octane';
-import { View, HStack, Text, Pressable, TextInput, ScrollView } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, TextInput, ScrollableArea } from '@octane-xplat/ui';
 
 type Todo = { id: string; text: string; done: boolean };
 
 /** todo-jsx — the canonical keyed-mutation stress.
  *  Proves: mapped-row reconciliation under insert/remove/toggle in a
- *  ScrollView (the shared surface has no recycled List — platform lists
+ *  ScrollableArea (the shared surface has no recycled List — platform lists
  *  live in ui/ios + ui/android), controlled TextInput round-trip,
  *  @if empty-state. */
 export function Todo() @{
@@ -53,8 +53,8 @@ export function Todo() @{
 		@if (todos.length === 0) {
 			<Text className="cell">Nothing yet — add one.</Text>
 		}
-		<ScrollView id="todo-list" className="list flex-1">
+		<ScrollableArea id="todo-list" className="list flex-1">
 			{todos.map(renderTodo)}
-		</ScrollView>
+		</ScrollableArea>
 	</View>
 }

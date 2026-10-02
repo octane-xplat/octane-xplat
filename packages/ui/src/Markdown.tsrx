@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { Screen } from './Screen';
-import { ScrollView } from './ScrollView';
+import { ScrollableArea } from './ScrollableArea';
 import { Text } from './Text';
 import { View } from './View';
 
@@ -114,8 +114,8 @@ export function Markdown(props: { data?: MdDoc }) @{
  *  Receives baked data like any route (`props.data`). */
 export function MarkdownScreen(props: { data?: MdDoc; error?: unknown }) @{
 	<Screen className="vx-app">
-		<ScrollView style={{ padding: 16 }}>
+		<ScrollableArea padding={4}>
 			<Markdown data={props.data} />
-		</ScrollView>
+		</ScrollableArea>
 	</Screen>
 }

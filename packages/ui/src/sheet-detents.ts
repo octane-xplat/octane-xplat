@@ -1,5 +1,5 @@
 import { FlexboxLayout, Screen, type View } from '@nativescript/core'
-import { detentOffset, normalizeDetents, snapDetentIndex } from './sheet-snap'
+import { DETENT_FLICK_VELOCITY, detentOffset, normalizeDetents, snapDetentIndex } from './sheet-snap'
 
 const SNAP_MS = 200
 
@@ -18,7 +18,7 @@ export interface SheetDetentsController {
  *  sized to the largest detent and parked at the offset for the current
  *  one. `closeNow` fires after the dismiss slide-out — the caller decides
  *  what closing means (declarative `onDismiss` via RootLayout 'closed',
- *  or the `openSheet` resolution).
+ *  or the `openBottomSheet` resolution).
  *
  *  In-window on native: the OS detent presentations
  *  (UISheetPresentationController / BottomSheetBehavior via
@@ -26,20 +26,38 @@ export interface SheetDetentsController {
  *  window — a different surface contract than the RootLayout child this
  *  sheet is (UIModal/MaterialDialog own the modal path), so the snap
  *  mechanics are self-drawn and identical to the web leaf. */
+export interface SheetDetentsOptions {
+	/** False blocks the swipe-to-dismiss outcome (Astryx 'required' sheets) —
+	 *  a release below the smallest stop snaps back instead of closing. */
+	dismissible?: boolean
+	/** Live translateY updates for scrim-opacity modulation on web. */
+	onOffset?: (offset: number, vh: number) => void
+	/** No snap points: the panel keeps its content height and the grabber
+	 *  only owns swipe-to-dismiss (release below ~40% of the panel or a
+	 *  downward fling). */
+	swipeOnly?: boolean
+}
+
 export function attachSheetDetents(
 	host: any,
 	detents: readonly number[],
 	closeNow: () => void,
+	options: SheetDetentsOptions = {},
 ): SheetDetentsController {
 	const sorted = normalizeDetents(detents)
-	if (!sorted.length) {
+	const swipeOnly = options.swipeOnly === true || !sorted.length
+	if (!sorted.length && !options.swipeOnly) {
 		return { detach: () => {}, enter: () => {} }
 	}
 
 	// Parentless at attach (before RootLayout.open) — fall back to screen
 	// dips; every gesture-time read uses the real parent height.
-	const vh = () => host.parent?.getActualSize?.().height || Screen.mainScreen.heightDIPs
-	const max = sorted[sorted.length - 1]
+	const vh = () => (host.parent?.getActualSize?.().height || Screen.mainScreen.heightDIPs)
+	const max = sorted[sorted.length - 1] ?? 0
+	/** Content-sized panels dismiss once the drag covers ~40% of their
+	 *  height (or on a downward fling). */
+	const panelHeight = () => host.getActualSize?.().height || host.height || 0
+	const dismissible = () => options.dismissible !== false
 	let cur = 0
 
 	host.verticalAlignment = 'bottom'
@@ -81,9 +99,26 @@ export function attachSheetDetents(
 		}
 
 		dragging = false
-		const next = snapDetentIndex(host.translateY, vy, sorted, vh())
+		const ty = host.translateY
+		if (swipeOnly) {
+			// Content-sized sheet: dismiss past ~40% of the panel height or on
+			// a downward fling; otherwise settle back to the open position.
+			if (dismissible() && (vy > DETENT_FLICK_VELOCITY || ty > panelHeight() * 0.4)) {
+				animateTo(vh(), closeNow)
+			} else {
+				animateTo(0)
+			}
+
+			return
+		}
+
+		const next = snapDetentIndex(ty, vy, sorted, vh())
 		if (next < 0) {
-			animateTo(vh(), closeNow)
+			if (dismissible()) {
+				animateTo(vh(), closeNow)
+			} else {
+				animateTo(detentOffset(sorted, cur, vh()))
+			}
 		} else {
 			cur = next
 			animateTo(detentOffset(sorted, cur, vh()))
@@ -121,13 +156,21 @@ export function attachSheetDetents(
 
 		lastDy = e.deltaY
 		lastT = now
-		host.translateY = Math.min(Math.max(ty0 + (e.deltaY - dy0), 0), vh())
+		const next = Math.min(Math.max(ty0 + (e.deltaY - dy0), 0), vh())
+		host.translateY = next
+		options.onOffset?.(next, vh())
 	}
 
 	grabber.on('pan', onPan)
 
 	return {
 		enter: () => {
+			if (swipeOnly) {
+				host.translateY = vh()
+				animateTo(0)
+				return
+			}
+
 			// Size the panel now that the host has a parent — grabber row
 			// heights and detent fractions resolve against the RootLayout.
 			host.height = max * vh()

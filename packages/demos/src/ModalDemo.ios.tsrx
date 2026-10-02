@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
-import { openSheet, Pressable, HStack, Screen, Sheet, Text, View } from '@octane-xplat/ui';
+import { openBottomSheet, Pressable, HStack, Screen, BottomSheet, Text, View } from '@octane-xplat/ui';
 import { UIModal, openModal } from '@octane-xplat/ui/ios';
 
 function Picker(props: { params: { choices: string[] }; close: (value?: string) => void }) @{
@@ -15,7 +15,7 @@ function Picker(props: { params: { choices: string[] }; close: (value?: string) 
 }
 
 /** iOS platform modal — `showModal` presentation (fullscreen=false → form
- *  sheet). The shared `ui` surface has no Modal; `Sheet`/`Overlay` are the
+ *  sheet). The shared `ui` surface has no Modal; `BottomSheet`/`Overlay` are the
  *  self-drawn in-window versions. Web resolves the shared `ModalDemo.tsrx`. */
 export function ModalDemo() @{
 	const [declarativeOpen, setDeclarativeOpen] = useState(false);
@@ -30,8 +30,8 @@ export function ModalDemo() @{
 	};
 
 	const pickDetent = async () => {
-		const result = await openSheet(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
-			detents: [0.25, 0.5, 0.9],
+		const result = await openBottomSheet(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
+			snapPoints: [0.25, 0.5, 0.9],
 		});
 
 		setDetentPicked(result as string | undefined);
@@ -89,7 +89,7 @@ export function ModalDemo() @{
 				</Pressable>
 			</View>
 		</UIModal>
-		<Sheet open={detentOpen} detents={[0.25, 0.5, 0.9]} onDismiss={() => setDetentOpen(false)}>
+		<BottomSheet isOpen={detentOpen} label="Detent picker" snapPoints={[0.25, 0.5, 0.9]} onOpenChange={(o) => setDetentOpen(o)}>
 			<View className="demo-modal-card gap-4">
 				<Text className="font-bold">Detent sheet</Text>
 				<Text className="text-sm text-muted">
@@ -100,6 +100,6 @@ export function ModalDemo() @{
 					<Text className="text-onprimary">Close</Text>
 				</Pressable>
 			</View>
-		</Sheet>
+		</BottomSheet>
 	</Screen>
 }

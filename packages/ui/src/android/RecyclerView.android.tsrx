@@ -15,7 +15,7 @@ function rejectNestedScrollView(event: any) {
 	let parent = event.object?.parent;
 	while (parent) {
 		if (parent instanceof ScrollView) {
-			throw new Error('[RecyclerView] cannot be nested inside native ScrollView. Use ScrollBox so the list owns scrolling.');
+			throw new Error('[RecyclerView] cannot be nested inside native ScrollView. Use ScrollableArea axis="both" so the list owns scrolling.');
 		}
 
 		parent = parent.parent;
@@ -113,7 +113,7 @@ const MemoListView = memo(RecyclerViewInner, (a, b) =>
  *  `refreshing`/`onRefresh`/`refreshThreshold` enable pull-to-refresh:
  *  the indicator is self-drawn (vx-spinner) and the list is translated
  *  inside a clipped wrapper while the drag accumulates — no
- *  SwipeRefreshLayout, so the pixels match the shared ScrollView path. */
+ *  SwipeRefreshLayout, so the pixels match the shared ScrollableArea path. */
 export function RecyclerView(props: PlatformWidgetProps<PlatformListProps>) @{
 	const refreshCapable = props.onRefresh != null || props.refreshing != null;
 	const cfg = useRef<RefreshConfig>({});

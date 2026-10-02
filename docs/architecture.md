@@ -102,7 +102,7 @@ Use these checks when shaping a new primitive:
    device-verified.
 
 Lists show why the shared contract and host widget must be considered
-separately. A small, unvirtualized list is a common shared job: `ScrollView`
+separately. A small, unvirtualized list is a common shared job: `ScrollableArea`
 plus `items.map(...)` gives it ordered rows and ordinary scrolling. The shared
 `VirtualList` adds bounded vertical windowing and measured-height anchoring;
 off-window rows unmount rather than recycle. Native cell recycling remains in

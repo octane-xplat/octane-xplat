@@ -3,4 +3,4 @@
 
 export { rootLayoutFor, topRootLayout, findInRootLayouts } from '../root-layout.mobile'
 export { layoutsForRoute } from '../route'
-export { sheetHost } from '../sheet-service'
+export { bottomSheetHost } from '../bottom-sheet-service'

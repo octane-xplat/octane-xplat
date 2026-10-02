@@ -24,7 +24,7 @@ type Binding = {
  * and scroll (capture, so nested scrollers count) dismiss.
  *
  * Web-only (the `ui/web` subpath) — hover/focus intent has no touch-platform
- * semantic and a long-press stand-in would repeat the Hoverable trap
+ * semantic and a long-press stand-in would repeat the old hover-wrapper trap
  * (decision #47).
  */
 export function Tooltip(props: TooltipProps) @{

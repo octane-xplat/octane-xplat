@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { ScrollView, Text, View } from '@octane-xplat/ui';
+import { ScrollableArea, Text, View } from '@octane-xplat/ui';
 
 type Row_ = { id: string; label: string };
 
@@ -10,7 +10,7 @@ const ITEMS: Row_[] = Array.from({ length: 24 }, (_, index) => ({
 
 const renderRow = (item: Row_) => <Text className="cell">{item.label}</Text>;
 
-/** Shared pull-to-refresh — `refreshing`/`onRefresh` on ScrollView drive
+/** Shared pull-to-refresh — `refreshing`/`onRefresh` on ScrollableArea drive
  *  the self-drawn indicator strip on every target. Platform siblings demo
  *  the same props on UITableView/RecyclerView. */
 export function PullRefreshDemo() @{
@@ -26,7 +26,7 @@ export function PullRefreshDemo() @{
 
 	<View className="vx-app flex-1 gap-4">
 		<Text>{'Last refresh: ' + stamp}</Text>
-		<ScrollView
+		<ScrollableArea
 			id="pull-refresh-demo"
 			className="flex-1"
 			refreshing={refreshing}
@@ -35,6 +35,6 @@ export function PullRefreshDemo() @{
 			<View className="gap-2">
 				{ITEMS.map(renderRow)}
 			</View>
-		</ScrollView>
+		</ScrollableArea>
 	</View>
 }

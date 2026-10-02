@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'octane';
-import { View, HStack, Text, Pressable, NavLink, TextInput, TextArea, ScrollView, Image, Sheet, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
+import { View, HStack, Text, Pressable, NavLink, TextInput, TextArea, ScrollableArea, Image, BottomSheet, useAnimation, useColorScheme, setThemePreference } from '@octane-xplat/ui';
 import { Link } from './Link';
 import { openOverlay } from './platform/overlay';
 import { SELF_DRIVE } from './platform/selfdrive';
@@ -100,7 +100,7 @@ export function Home() @{
 		{/* The five control sections outgrow a phone pane — keep them in
 		    their own scroller (the flex-1 region) so intrinsic controls
 		    never squash and the Items list keeps real estate below. */}
-		<ScrollView className="flex-1 min-h-0">
+		<ScrollableArea className="flex-1 min-h-0">
 			<View className="gap-6">
 				<View id="bamboo-card" className={['sink-section', 'vx-row', bambooCardClass]}>
 					<Text className="section-label">Reactivity</Text>
@@ -146,17 +146,17 @@ export function Home() @{
 					</HStack>
 				</View>
 
-				{/* Sheet seam (the shared in-window modal surface — the platform
+				{/* BottomSheet seam (the shared in-window modal surface — the platform
 				    showModal widgets moved to ui/ios + ui/android): declarative
 				    open → shade + panel on this same root. */}
-				<Sheet open={modal} onDismiss={() => setModal(false)}>
+				<BottomSheet isOpen={modal} label="Modal sheet" onOpenChange={(o) => setModal(o)}>
 					<View className="modal-panel">
 						<Text>Modal content</Text>
 						<Pressable id="modal-close" onPress={() => setModal(false)} className="btn btn-secondary">
 							<Text>Close modal</Text>
 						</Pressable>
 					</View>
-				</Sheet>
+				</BottomSheet>
 
 				<View className="sink-section">
 					<Text className="section-label">Gestures and animation</Text>
@@ -223,15 +223,15 @@ export function Home() @{
 							<Text>{items.length ? 'Clear' : 'Restore'}</Text>
 						</Pressable>
 					</HStack>
-					{/* ScrollView seam: NS <scrollview> hosts one child — the leaf wraps
+					{/* ScrollableArea seam: NS <scrollview> hosts one child — the leaf wraps
 					    children in a column layout. Probe reads verticalOffset back.
 					    Universal @for keys default to position when omitted (upstream
 					    branch universal-for-optional-key); `key n` kept for clarity. */}
-					<ScrollView id="scroll-box" className="scrollbox" style={{ height: 96 }}>
+					<ScrollableArea id="scroll-box" className="scrollbox" style={{ height: 96 }}>
 						@for (const n of ROWS; key n) {
 							<Text className="scrollrow">{'HStack ' + n}</Text>
 						}
-					</ScrollView>
+					</ScrollableArea>
 				</View>
 
 				<View className="sink-section">
@@ -265,15 +265,15 @@ export function Home() @{
 					<View id="layer-unlayered-probe" className="xplat-layer-unlayered" style={{ width: 8, height: 8 }} />
 				</View>
 			</View>
-		</ScrollView>
+		</ScrollableArea>
 
 		<View className="sink-section flex-1">
 			<Text className="section-label">Items</Text>
-			{/* Shared surface has no List — compose ScrollView + map here;
+			{/* Shared surface has no List — compose ScrollableArea + map here;
 			    the recycling platform widgets live in ui/ios + ui/android. */}
-			<ScrollView id="main-list" className="list flex-1">
+			<ScrollableArea id="main-list" className="list flex-1">
 				{items.length > 0 ? items.map(renderItem) : renderEmpty()}
-			</ScrollView>
+			</ScrollableArea>
 		</View>
 	</View>
 }

@@ -15,7 +15,7 @@ function rejectNestedScrollView(event: any) {
 	let parent = event.object?.parent;
 	while (parent) {
 		if (parent instanceof ScrollView) {
-			throw new Error('[UITableView] cannot be nested inside native ScrollView. Use ScrollBox so the list owns scrolling.');
+			throw new Error('[UITableView] cannot be nested inside native ScrollView. Use ScrollableArea axis="both" so the list owns scrolling.');
 		}
 
 		parent = parent.parent;

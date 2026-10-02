@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { FieldGroup, Item, List, ListItem, Pressable, HStack, ScrollView, Text, View } from '@octane-xplat/ui';
+import { FieldGroup, Item, List, ListItem, Pressable, HStack, ScrollableArea, Text, View } from '@octane-xplat/ui';
 
 type DemoRow = {
 	id: string;
@@ -39,9 +39,8 @@ const renderDemoRow = (item: DemoRow) => @{
 	}
 };
 
-/** Shared fallback — the shared surface has no recycled List (UITableView /
- *  RecyclerView live in the ios + android subpaths). The honest shared
- *  composition is ScrollView + mapped children. */
+/** Shared content list — rows render in the tree; native recycling lives in
+ *  the UITableView / RecyclerView platform components. */
 export function ListDemo() @{
 	const [items, setItems] = useState<DemoRow[]>(INITIAL_ROWS);
 	const [updates, setUpdates] = useState(true);
@@ -83,8 +82,8 @@ export function ListDemo() @{
 			<Item id="list-demo-updates" title="Email updates" supportingText="Weekly event highlights" accessibilityLabel="Toggle email updates" onPress={() => setUpdates(!updates)} trailing={<Text>{updates ? 'On' : 'Off'}</Text>} />
 			<Item id="list-demo-disabled" title="Managed setting" accessibilityLabel="Managed setting" disabled onPress={() => setUpdates(!updates)} supportingText="Changes disabled" />
 		</FieldGroup>
-		<ScrollView id="list-demo-list" className="list flex-1">
+		<ScrollableArea id="list-demo-list" className="list flex-1">
 			{items.map(renderDemoRow)}
-		</ScrollView>
+		</ScrollableArea>
 	</View>
 }

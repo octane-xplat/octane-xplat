@@ -107,12 +107,24 @@ if (!icons.has('xplat-upload')) {
 	})
 }
 
+// Dialog/sheet affordances — close, and directional chevrons for Carousel
+// and Lightbox navigation.
+if (!icons.has('xplat-close')) {
+	icons.set('xplat-close', {
+		svg: 'M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+	})
+}
+
 if (!icons.has('xplat-chevron-left')) {
-	icons.set('xplat-chevron-left', { svg: 'M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z' })
+	icons.set('xplat-chevron-left', {
+		svg: 'M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',
+	})
 }
 
 if (!icons.has('xplat-chevron-right')) {
-	icons.set('xplat-chevron-right', { svg: 'M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z' })
+	icons.set('xplat-chevron-right', {
+		svg: 'M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',
+	})
 }
 
 if (!icons.has('xplat-volume-off')) {

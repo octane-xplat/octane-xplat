@@ -180,20 +180,32 @@ export { User } from './User.macos.tsrx'
 export { ProgressGroup } from './ProgressGroup.macos.tsrx'
 export { Drawer } from './Drawer.macos.tsrx'
 
-export { Hoverable } from './Hoverable.tsrx'
+export { HoverCard } from './HoverCard.tsrx'
+export { useHoverCard } from './use-hover-card.tsrx'
 export { Tooltip } from './Tooltip.tsrx'
 export { Markdown, MarkdownScreen } from './Markdown.tsrx'
 export { Link } from './Link.macos.tsrx'
 export { NavLink } from './NavLink.macos.tsrx'
 export { TextInput, TextArea } from './text-controls.macos.tsrx'
-export { ScrollView, ScrollBox } from './ScrollView.macos.tsrx'
+export { ScrollableArea } from './ScrollableArea.macos.tsrx'
+export { useScrollableArea } from './use-scrollable-area.macos.tsrx'
 export { VirtualList } from './VirtualList.macos.tsrx'
 export { Image } from './Image.macos.tsrx'
 export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './PowerSearch.macos.tsrx'
 export { createPowerSearchConfig, usePowerSearchConfig, resolveOperatorLabel } from './power-search-config'
 export { WebView, CameraView } from './hosted-unsupported.macos.tsrx'
-export { Overlay, Popover, Sheet } from './surfaces.macos.tsrx'
-export { showToast } from './toast-anchor.macos.tsrx'
+export { Overlay, Popover } from './surfaces.macos.tsrx'
+export { Dialog, DialogHeader } from './Dialog.macos.tsrx'
+export { AlertDialog } from './AlertDialog.macos.tsrx'
+export { BottomSheet, BottomSheetSwitcher } from './BottomSheet.macos.tsrx'
+export { Carousel } from './Carousel.macos.tsrx'
+export { Lightbox } from './Lightbox.macos.tsrx'
+export { useLightbox } from './use-lightbox.macos.tsrx'
+export { Toast } from './Toast.macos.tsrx'
+export { ToastViewport } from './toast-viewport.macos.tsrx'
+export { showToast, useToast } from './toast-service.macos.tsrx'
+export { useImperativeDialog } from './use-imperative-dialog.macos.tsrx'
+export { useImperativeAlertDialog } from './use-imperative-alert-dialog.macos.tsrx'
 export { useAnimation } from './anim.macos.tsrx'
 export {
 	useThemeScheme,
@@ -247,7 +259,7 @@ export { deriveRouteManifest, defineRoutes, mergeRouteManifests } from './route-
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './useStore.macos.tsrx'
-export { openSheet, closeSheet, sheetHost } from './sheet-service.macos'
+export { openBottomSheet, closeBottomSheet, bottomSheetHost } from './bottom-sheet-service.macos'
 
 export { Blockquote } from './Blockquote.macos.tsrx'
 export { Code } from './Code.macos.tsrx'
@@ -274,7 +286,6 @@ export {
 	syntaxTokenVar,
 	syntaxTokenVarRef,
 } from './code-tokenizer'
-
 export type * from './props'
 
 // Chat shares the same portable contracts on AppKit; browser editing

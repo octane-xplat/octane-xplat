@@ -933,7 +933,7 @@ export interface FileInputProps extends FieldControlProps {
 	web?: any
 }
 
-/** Pull-to-refresh contract — shared by `ScrollView` and the platform
+/** Pull-to-refresh contract — shared by `ScrollableArea` and the platform
  *  lists (`UITableView`/`RecyclerView`). The indicator is self-drawn (the
  *  `vx-spinner` ring), not the OS spinner, so the affordance is the same
  *  pixels on every target. The pull gesture is enabled by `onRefresh`;
@@ -971,11 +971,100 @@ export interface PlatformListProps extends RefreshProps {
 	web?: Record<string, any>
 }
 
-export interface ScrollViewProps extends LayoutChildProps, AccessibilityProps, RefreshProps {
+/** Logical scroll axis (Astryx `ScrollableArea`): 'inline' follows the
+ *  writing direction's inline axis (horizontal in LTR/RTL), 'block' the
+ *  block axis (vertical in horizontal writing modes), 'both' scrolls both.
+ *  Native maps inline→horizontal and block→vertical. */
+export type ScrollAxis = 'inline' | 'block' | 'both'
+
+/** Whether effective axes continue scrolling an ancestor at their edge.
+ *  Web maps to `overscroll-behavior`; NativeScript scroll views never chain
+ *  to a non-scrolling parent, so 'contain' is already the native semantic
+ *  and 'allow' only differs on web. */
+export type ScrollOverscroll = 'allow' | 'contain'
+
+/** Whether a fitting (non-overflowing) viewport stays the sticky boundary
+ *  for descendants. Web CSS semantics only; native has no position:sticky
+ *  equivalent and ignores this. */
+export type ScrollStickyContainment = 'whenScrollable' | 'always'
+
+/** Which element carries the keyboard-scrollable tab stop and accessible
+ *  name. Web semantics — native scroll views scroll without a tab stop. */
+export type ScrollKeyboardAccess =
+	| { owner: 'content' }
+	| { owner: 'viewport'; label: string; role?: 'group' | 'region' }
+	| { owner: 'contentOrViewport'; label: string; role?: 'group' | 'region' }
+
+export interface ScrollAxisState {
+	/** The axis currently overflows its viewport on an allowed axis. */
+	isScrollable: boolean
+	/** The viewport is at the axis's start edge (or the axis is not scrollable). */
+	atStart: boolean
+	/** The viewport is at the axis's end edge (or the axis is not scrollable). */
+	atEnd: boolean
+}
+
+export interface ScrollableAreaState {
+	inline: ScrollAxisState
+	block: ScrollAxisState
+}
+
+export interface UseScrollableAreaOptions {
+	/** Logical axis or axes where scrolling is allowed. @default 'block' */
+	axis?: ScrollAxis
+	/** Keyboard/tab-stop ownership. Web only. */
+	keyboardAccess?: ScrollKeyboardAccess
+	overscroll?: ScrollOverscroll
+	stickyContainment?: ScrollStickyContainment
+}
+
+export interface UseScrollableAreaResult {
+	/** Merges behavior-owned props (bind/role/tabIndex/overflow/data attrs)
+	 *  into caller props for the viewport element or native scroll view. */
+	getViewportProps(props?: Record<string, any>): Record<string, any>
+	/** Merges the observed-content marker + bind into the content box props. */
+	getContentProps(props?: Record<string, any>): Record<string, any>
+	/** Live per-axis overflow/edge state. */
+	state: ScrollableAreaState
+}
+
+/** A native scroll viewport with axis-aware accessibility (Astryx
+ *  `ScrollableArea`). The root is the scroll container; children render
+ *  inside a content box. Pull-to-refresh props (`refreshing`, `onRefresh`,
+ *  `refreshThreshold`) are an xplat extension with no upstream equivalent —
+ *  they only apply on the block axis. */
+export interface ScrollableAreaProps extends LayoutChildProps, AccessibilityProps, RefreshProps {
 	className?: any
 	style?: any
 	id?: string
-	horizontal?: boolean
+	/** Logical axis or axes where scrolling is allowed. @default 'block' */
+	axis?: ScrollAxis
+	/** Accessible name for the viewport; used as the scroll region's label
+	 *  (web `aria-label`, native `accessibilityLabel`). */
+	label?: string
+	/** Semantics for the named scroll viewport. Web emits ARIA `role`;
+	 *  native has no group/region role and ignores this. @default 'group' */
+	role?: 'group' | 'region'
+	overscroll?: ScrollOverscroll
+	/** Viewport sizing; numbers are px on web / dips on native. */
+	width?: number | string
+	height?: number | string
+	maxWidth?: number | string
+	minHeight?: number | string
+	stickyContainment?: ScrollStickyContainment
+	/** Content padding on every edge, in spacing steps (1 step = 4px/dip). */
+	padding?: number
+	paddingInline?: number
+	paddingInlineStart?: number
+	paddingInlineEnd?: number
+	paddingBlock?: number
+	paddingBlockStart?: number
+	paddingBlockEnd?: number
+	/** Web only: escape inherited container padding on the viewport's block
+	 *  edges via negative margins. Inert on native. @default false */
+	isFullBleed?: boolean
+	/** Receives the scroll viewport element/view. */
+	bind?: (el: any) => void
 	children?: any
 	/** Platform-specific properties are applied after shared props. */
 	ios?: any
@@ -1002,20 +1091,6 @@ export interface VirtualListProps<T = any> extends LayoutChildProps, Accessibili
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
-}
-
-/** Scrollable ordinary content on web. Native is an inline flex container so
- * a child ListView can own the scrolling without nesting recycling views in a
- * native ScrollView. */
-export interface ScrollBoxProps extends LayoutChildProps, AccessibilityProps {
-	className?: any
-	style?: any
-	id?: string
-	children?: any
-	/** Platform-specific properties are applied after the shared props. */
-	ios?: any
-	android?: any
-	web?: any
 }
 
 export interface WebViewHandle {
@@ -1263,9 +1338,8 @@ export interface OverlayProps {
 }
 
 export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right'
-
-/** Along-axis alignment of the panel against the anchor. 'start' aligns the
- *  panel start with the anchor start (the previous fixed behavior). */
+/** Cross-axis alignment for anchored layers — 'start' (the historical
+ *  default) keeps the panel flush with the anchor's start edge. */
 export type PopoverAlignment = 'start' | 'center' | 'end'
 
 /** A platform-neutral ref to the host view or element that owns a popover. */
@@ -1278,7 +1352,7 @@ export interface PopoverProps {
 	anchor: PopoverAnchorRef
 	open?: boolean
 	placement?: PopoverPlacement
-	/** Align the panel along the placement axis. @default 'start' */
+	/** Cross-axis alignment within the placement. @default 'start' */
 	alignment?: PopoverAlignment
 	dismissOnOutsideTap?: boolean
 	onDismiss?: () => void
@@ -1290,25 +1364,100 @@ export interface PopoverProps {
 	web?: Record<string, any>
 }
 
-export interface HoverableProps {
+/** Hover/focus-triggered floating card (Astryx `HoverCard`). The trigger is
+ *  `children`; `content` is the card body. Pointer hover opens after
+ *  `delay`, focus opens per `focusTrigger`, and on touch platforms a tap on
+ *  a non-action trigger opens the card per `touchTrigger`. */
+export interface HoverCardProps {
 	id?: string
-	/** Content shown after the pointer rests over the children on pointer
-	 *  platforms (web, macOS). Touch targets never mount the card — keep
-	 *  essential information out of it. */
-	card: any
-	/** Styling for the card's wrapper view inside the popover — e.g. a
-	 *  pointer bridge covering the anchor↔card gap or a positional offset. */
-	cardClassName?: any
-	cardStyle?: any
+	/** Trigger content. */
 	children?: any
-	openDelay?: number
-	closeDelay?: number
-	placement?: PopoverPlacement
+	/** Card body shown while open. Required for the card to appear. */
+	content?: any
+	/** Side of the trigger the card opens on. 'above'/'below' map to
+	 *  top/bottom; 'start'/'end' are logical and mirror under RTL on web.
+	 *  @default 'above' */
+	placement?: HoverCardPlacement
+	/** Alignment along the placement axis. @default 'center' */
+	alignment?: HoverCardAlignment
+	/** Show delay in ms. @default 300 */
+	delay?: number
+	/** Hide delay after pointer/focus leave in ms. @default 200 */
+	hideDelay?: number
+	/** When focus opens the card: 'auto' only when the trigger is naturally
+	 *  focusable (web: tag/tabIndex sniff; native: never). @default 'auto' */
+	focusTrigger?: HoverCardFocusTrigger
+	/** Tap behavior where there is no hover: 'auto' opens on tap unless the
+	 *  trigger performs its own action (web detects button/link/controls;
+	 *  native cannot, so 'auto' behaves as 'tap'), 'tap' always opens,
+	 *  'none' never opens on touch. @default 'auto' */
+	touchTrigger?: HoverCardTouchTrigger
+	/** Enables hover/focus triggers. @default true */
+	isEnabled?: boolean
+	/** Accessible name for the popup. With a label the web card is a named
+	 *  `role="dialog"`; without one it is `role="group"`. */
+	label?: string
+	/** Called with true/false when the card shows or hides. */
+	onOpenChange?: (isOpen: boolean) => void
+	/** Dashed-underline affordance on the trigger. 'auto' shows it for
+	 *  text-only triggers. @default 'auto' */
+	hasHoverIndication?: 'auto' | boolean
+	/** Controlled open state — true force-shows, false force-hides,
+	 *  undefined leaves hover/focus in charge. */
+	isOpen?: boolean
+	/** Show on mount (still dismissible). */
+	isDefaultOpen?: boolean
 	className?: any
 	style?: any
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
+}
+
+export type HoverCardPlacement = 'above' | 'below' | 'start' | 'end'
+export type HoverCardAlignment = 'start' | 'center' | 'end'
+export type HoverCardFocusTrigger = 'auto' | 'always' | 'never'
+export type HoverCardTouchTrigger = 'auto' | 'tap' | 'none'
+
+export interface HoverCardOptions {
+	placement?: HoverCardPlacement
+	alignment?: HoverCardAlignment
+	delay?: number
+	hideDelay?: number
+	focusTrigger?: HoverCardFocusTrigger
+	touchTrigger?: HoverCardTouchTrigger
+	isEnabled?: boolean
+	label?: string
+	isOpen?: boolean
+	isDefaultOpen?: boolean
+	onShow?: () => void
+	onHide?: () => void
+}
+
+/** Headless hover-card behavior. `ref` binds position AND interaction on one
+ *  element; `positionRef`/`interactionRef` split them. `renderHoverCard`
+ *  returns the anchored card node (render in the tree). */
+export interface HoverCardReturn {
+	/** Combined bind callback — position anchor + hover/focus listeners. */
+	ref: (el: any) => void
+	/** Bind callback for the positioning anchor only. */
+	positionRef: (el: any) => void
+	/** Bind callback for the interaction (hover/focus/tap) element only. */
+	interactionRef: (el: any) => void
+	/** Stable id identifying the open card (web: element id for
+	 *  aria-controls/aria-describedby composition). */
+	id: string
+	/** Alias of `id` — the card's accessible-description id. */
+	describedBy: string
+	/** Web: the anchor element's positioning id (kept for upstream parity —
+	 *  equals `id` in this implementation). */
+	anchorId: string
+	isOpen: boolean
+	/** Render the card content into the anchored layer. */
+	renderHoverCard: (children: any, props?: Record<string, any>) => any
+	/** Imperatively show/hide, bypassing the delays. */
+	show: () => void
+	hide: () => void
 }
 
 /** Tooltip — `trigger` is the anchor content, `content` the hint body.
@@ -1334,22 +1483,133 @@ export interface TooltipProps {
 	web?: Record<string, any>
 }
 
-export type ToastContent = string | (() => any)
-export type ToastPosition =
-	| 'top'
-	| 'top-start'
-	| 'top-end'
-	| 'bottom'
-	| 'bottom-start'
-	| 'bottom-end'
+/** Toast status type — controls the surface tone and live-region urgency
+ *  (web: `role="status"`/polite for info, `role="alert"`/assertive for
+ *  error; error toasts default to not auto-hiding). */
+export type ToastType = 'info' | 'error'
+
+/** Edge the toast stack anchors to (Astryx `ToastViewport` positions). */
+export type ToastPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd'
+
+export type ToastDismissReason = 'auto' | 'manual'
+export type ToastCollisionBehavior = 'overwrite' | 'ignore'
 
 export interface ToastOptions {
-	duration?: number
+	/** Toast body — text or rendered nodes. */
+	body?: any
+	/** @default 'info' */
+	type?: ToastType
+	/** Auto-dismiss after `autoHideDuration`. Defaults true for 'info',
+	 *  false for 'error'. */
+	isAutoHide?: boolean
+	/** Auto-dismiss delay in ms. @default 5000 */
+	autoHideDuration?: number
+	/** Optional interactive content at the toast's end edge. */
+	endContent?: any
+	/** Replaces the default surface layout; receives the toast's resolved
+	 *  settings and dismiss function (Astryx `renderContent`). */
+	renderContent?: ToastContentRenderFn
+	/** Identity key: a second toast with the same uniqueID either replaces
+	 *  the existing one in place ('overwrite', the default) or is suppressed
+	 *  ('ignore'). */
+	uniqueID?: string
+	/** @default 'overwrite' */
+	collisionBehavior?: ToastCollisionBehavior
+	/** Called when the toast finishes hiding. `reason` is 'auto' for the
+	 *  timer or 'manual' for explicit dismissal. */
+	onHide?: (reason: ToastDismissReason) => void
+	/** xplat extension: per-toast stack edge override. Defaults to the
+	 *  viewport's `position` (or 'bottomEnd' when toasts fall back to the
+	 *  auto-mounted viewport). */
 	position?: ToastPosition
-	/** When set, the toast is positioned by Popover relative to this view. */
+	/** xplat extension: when set, the toast is positioned by Popover
+	 *  relative to this view instead of joining the edge stack. */
 	anchor?: PopoverAnchorRef
-	/** Placement used with `anchor`; `position` supplies the top/bottom default. */
+	/** Placement used with `anchor`; `position` supplies the
+	 *  above/below default. */
 	placement?: PopoverPlacement
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** Programmatic toast dismissal (Astryx `ToastDismissFn`). */
+export type ToastDismissFn = () => void
+
+/** Values passed to a custom toast content renderer — see
+ *  `ToastOptions.renderContent`. */
+export interface ToastContentRenderProps {
+	/** Primary message content, as passed to the toast call. */
+	body: any
+	/** Trailing content, as passed to the toast call. Place it in your layout. */
+	endContent?: any
+	/** Resolved toast type — `'error'` also makes the live region assertive. */
+	type: ToastType
+	/** Whether this toast will dismiss itself. */
+	isAutoHide: boolean
+	/** Milliseconds until auto-dismiss, when `isAutoHide`. */
+	autoHideDuration: number
+	/** Dismisses this toast with reason `'manual'`. */
+	dismiss: ToastDismissFn
+}
+
+/** Renders the content of one toast inside the toast surface. */
+export type ToastContentRenderFn = (toast: ToastContentRenderProps) => any
+
+/** The function `useToast()`/`showToast` returns — shows a toast, returns
+ *  a dismiss callback. The dismiss callback is idempotent and reports
+ *  reason 'manual' to `onHide`. */
+export type ShowToastFn = (options: ToastOptions) => ToastDismissFn
+
+/** One queued/active toast inside a viewport. `viewportId`/`exiting` are
+ *  managed by the toast stack — callers never set them. */
+export interface ToastEntry {
+	id: string
+	options: ToastOptions
+	/** Owning ToastViewport; absent entries render on the fallback stack. */
+	viewportId?: string
+	/** Set while the exit presentation runs before removal. */
+	exiting?: boolean
+}
+
+/** The toast stack container. Render once at the app root — it hosts every
+ *  toast pushed through `useToast()`/`showToast`. */
+export interface ToastViewportProps {
+	/** Edge the stack grows from. @default 'bottomEnd' */
+	position?: ToastPosition
+	/** Maximum number of visible toasts; older entries evict. @default 5 */
+	maxVisible?: number
+	/** Extra inset from the safe-area-aware edge gutter. */
+	inset?: { top?: number; bottom?: number; start?: number; end?: number }
+	/** Web only: promote the viewport into the CSS top layer (above modal
+	 *  dialogs). Set false when rendering inside a dialog. @default true */
+	isTopLayer?: boolean
+	children?: any
+	className?: any
+	style?: any
+	id?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** Inline toast card — the same surface ToastViewport renders. Useful for
+ *  pinned/inline notifications outside the stack. */
+export interface ToastProps {
+	/** @default 'info' */
+	type?: ToastType
+	body?: any
+	endContent?: any
+	isAutoHide?: boolean
+	autoHideDuration?: number
+	/** Exiting presentation (collapsed/sliding). Managed by the viewport. */
+	isExiting?: boolean
+	/** Called with the reason when the toast requests dismissal. */
+	onDismiss?: (reason: ToastDismissReason) => void
+	renderContent?: ToastContentRenderFn
+	className?: any
+	style?: any
+	id?: string
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
@@ -1410,52 +1670,362 @@ export type OpenModal = (
 	options?: ModalOpenOptions,
 ) => Promise<ModalOpenResult>
 
-// ---------- sheet (in-window bottom panel) ----------
+// ---------- bottom sheet (in-window bottom panel) ----------
 
-/** Declarative in-window sheet: bottom-anchored panel on the enclosing
- *  screen's RootLayout (native) or a document-body portal layer (web).
- *  Unlike `Modal presentation='sheet'` (system modal), content stays
- *  inside the app window — same window region as the declaring page. */
-export interface SheetProps {
-	open?: boolean
-	/** Called when the shade is tapped or the sheet is dismissed by the
-	 *  platform — not on programmatic `open`→`false` transitions. */
-	onDismiss?: () => void
-	/** Dim backdrop + tap-to-dismiss (default true). */
-	shadeCover?: boolean
-	/** Snap heights as viewport-height fractions, e.g. `[0.25, 0.5, 1]` —
-	 *  sorted ascending; the sheet opens at the smallest and drags between
-	 *  detents via the grabber strip, releasing below half of the smallest
-	 *  dismisses (same dismissal as a shade tap — `onDismiss` / resolve).
-	 *  Absent → the panel keeps its content-sized height. In-window on
-	 *  every target; OS sheet presentations stay in the platform
-	 *  subpaths. */
-	detents?: number[]
+/** A snap stop for `BottomSheet`: a number in (0, 1] is a window-height
+ *  fraction (`0.5` = 50%), a larger number is px/dips; a string is a
+ *  percentage (`'50%'`) or pixel size (`'320px'`). The sheet's own height
+ *  is the largest stop. */
+export type BottomSheetSnapPoint = number | string
+
+/** Declarative in-window bottom sheet (Astryx `BottomSheet`): a
+ *  bottom-anchored panel on the enclosing screen's RootLayout (native) or a
+ *  document-body layer (web). Unlike a routed modal, content stays inside
+ *  the app window. When nested inside `BottomSheetSwitcher`, `sheetId`
+ *  registers the panel under the switcher's shared host instead of opening
+ *  its own overlay. */
+export interface BottomSheetProps {
+	/** Standalone visibility. Required unless the sheet is a
+	 *  `BottomSheetSwitcher` child, where `activeSheet` owns visibility. */
+	isOpen?: boolean
+	/** Required accessible name for the panel (web `aria-label`, native
+	 *  `accessibilityLabel`). */
+	label: string
+	/** Called when the sheet is dismissed by the user/platform — scrim tap,
+	 *  Escape, swipe-down, or hardware back — not on programmatic
+	 *  `isOpen`→false transitions. */
+	onOpenChange?: (isOpen: boolean) => void
+	children?: any
+	/** Height budget: 'hug' sizes to content (≤92% of the window), 'capped'
+	 *  at 62%, 'tall' at 92%; a number is px/dips and a string is a CSS/web
+	 *  size or percent (percent resolves against the window). @default
+	 *  'capped' */
+	height?: 'hug' | 'capped' | 'tall' | number | string
+	/** Ordered snap stops (see `BottomSheetSnapPoint`). Larger than the
+	 *  sheet's height clamps; stops under 25% of the sheet are "peek" —
+	 *  the drag cover shows and the scrim thins toward them. */
+	snapPoints?: BottomSheetSnapPoint[]
+	/** Dimmed scrim + modal dismissal semantics. false keeps the page
+	 *  interactive under the panel (non-modal). @default true */
+	hasScrim?: boolean
+	/** Dismissal discipline (shared with Dialog): 'info' allows every
+	 *  dismissal path, 'form' skips the scrim tap, 'required' also blocks
+	 *  Escape. @default 'info' */
+	purpose?: DialogPurpose
+	/** Identifies this sheet to its enclosing `BottomSheetSwitcher`. */
+	sheetId?: string
+	/** Element to focus when the sheet closes (web focus semantics —
+	 *  `{current}`-style object; native ignores). */
+	finalFocusRef?: { current: any }
 	className?: any
 	style?: any
-	children?: any
+	id?: string
 	ios?: Record<string, any>
 	android?: Record<string, any>
 	web?: Record<string, any>
 }
 
-/** Options for the imperative `openSheet` service. */
-export interface SheetOpenOptions {
-	shadeCover?: boolean
-	/** Same contract as `SheetProps.detents`. */
-	detents?: number[]
+/** Shared host for a group of `BottomSheet` panels — exactly one child
+ *  sheet (by `sheetId`) is visible under `activeSheet`, and sheet changes
+ *  animate between panels in the same host instead of closing and
+ *  reopening. A null `activeSheet` closes the host. */
+export interface BottomSheetSwitcherProps {
+	/** The `sheetId` currently shown, or null for closed. */
+	activeSheet: string | null
+	/** Called when the user changes/dismisses sheets (drag dismiss, scrim
+	 *  tap, Escape). */
+	onActiveSheetChange?: (sheetId: string | null) => void
+	/** Scrim behavior for the whole switcher. @default true */
+	hasScrim?: boolean
+	/** The `BottomSheet` children, each with a `sheetId`. */
+	children?: any
+	className?: any
+	style?: any
+	id?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** Options for the imperative `openBottomSheet` service. */
+export interface BottomSheetOpenOptions {
+	hasScrim?: boolean
+	/** Same contract as `BottomSheetProps.snapPoints`. */
+	snapPoints?: BottomSheetSnapPoint[]
+	/** Accessible name for the panel. */
+	label?: string
 }
 
 /** Imperative sheet: mounts `component` on a dedicated root in a bottom
  *  sheet and resolves with the value passed to `close(result)`. The
  *  component receives `{ params, close }`. */
-export type OpenSheet = (
+export type OpenBottomSheet = (
 	component: any,
 	params?: any,
-	options?: SheetOpenOptions,
+	options?: BottomSheetOpenOptions,
 ) => Promise<ModalOpenResult>
 
-// ---------- tabs / navigation shells ----------
+// ---------- dialog / alert dialog ----------
+
+/** How a Dialog is presented. 'fullscreen' covers the viewport; 'standard'
+ *  is a centered (or `position`-placed) panel. @default 'standard' */
+export type DialogVariant = 'standard' | 'fullscreen'
+
+/** Dismissal discipline shared by Dialog and BottomSheet:
+ *  - 'required': no Escape, no backdrop/scrim tap, no nav click-through
+ *  - 'form': Escape allowed, backdrop/scrim tap blocked (guards
+ *    partially-entered data)
+ *  - 'info': every dismissal path is allowed
+ *  @default 'info' */
+export type DialogPurpose = 'required' | 'form' | 'info'
+
+/** Dialog anchoring — top/bottom pull the panel off the center on the
+ *  block axis; start/end are logical inline offsets (mirror under RTL on
+ *  web; native maps start→left, end→right). */
+export interface DialogPosition {
+	top?: number | string
+	bottom?: number | string
+	start?: number | string
+	end?: number | string
+}
+
+/** Modal panel on the enclosing RootLayout (native) or a document-body
+ *  `<dialog>` layer (web). The trigger is NOT part of the component —
+ *  callers own `isOpen` and restore focus to `finalFocusRef` or the
+ *  previously-focused element. */
+export interface DialogProps extends AccessibilityProps {
+	isOpen: boolean
+	/** Called with false on every user dismissal path (backdrop, Escape,
+	 *  purpose permitting) — and with true only from `DialogHeader`'s
+	 *  close affordance contract. */
+	onOpenChange: (isOpen: boolean) => void
+	children?: any
+	/** Panel width (px on web, dips on native). @default 400 */
+	width?: number | string
+	/** Panel max height. @default '75dvh' on web / 75% of the screen on
+	 *  native */
+	maxHeight?: number | string
+	/** Non-centered anchoring. */
+	position?: DialogPosition
+	variant?: DialogVariant
+	purpose?: DialogPurpose
+	/** Internal padding, spacing steps (1 step = 4px/dip). @default 5 */
+	padding?: number
+	/** Render as ordinary inline content — no overlay, backdrop, focus
+	 *  management, or dismissal wiring. For docs and previews. */
+	isInline?: boolean
+	/** Element to focus on close; defaults to the element focused when the
+	 *  dialog opened. `{current}`-style ref. Web focus semantics. */
+	finalFocusRef?: { current: any }
+	className?: any
+	style?: any
+	id?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** The Dialog/AlertDialog title row. Renders a close affordance when
+ *  `onOpenChange` is supplied. In modal mode the web leaf puts
+ *  `data-autofocus` on the title so it lands initial focus when no
+ *  in-dialog control is marked; `aria-labelledby` points at it when no
+ *  explicit accessible name is given. */
+export interface DialogHeaderProps {
+	title?: any
+	subtitle?: any
+	/** Supplies the close affordance; called `onOpenChange(false)`. */
+	onOpenChange?: (isOpen: boolean) => void
+	/** Content before the title. */
+	startContent?: any
+	/** Content at the end edge (before the close button). */
+	endContent?: any
+	/** Pull the end content into the panel's padding so icon buttons align
+	 *  flush. `inline` shifts both. Web-style cosmetic. */
+	endContentEdgeCompensation?: 'inline' | 'block' | 'all'
+	/** Hairline under the header. @default true */
+	hasDivider?: boolean
+	className?: any
+	style?: any
+	id?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** Options accepted by `useImperativeDialog().show()`. */
+export type DialogOptions = Omit<DialogProps, 'isOpen' | 'onOpenChange' | 'children'>
+
+export interface ImperativeDialogReturn {
+	/** Opens the dialog with arbitrary content. */
+	show: (children: any, options?: DialogOptions) => void
+	hide: () => void
+	isOpen: boolean
+	/** Rendered anywhere in the tree — the dialog itself. */
+	element: any
+}
+
+/** Confirmation dialog (Astryx `AlertDialog`) — a dialog whose action is
+ *  potentially destructive. Renders title/description plus Cancel and a
+ *  single action button. Web maps to `role="alertdialog"`. */
+export interface AlertDialogProps {
+	isOpen: boolean
+	onOpenChange: (isOpen: boolean) => void
+	title: any
+	description?: any
+	actionLabel: any
+	/** Called when the action button is pressed; the caller closes the
+	 *  dialog or marks `isActionLoading`. */
+	onAction: () => void
+	/** @default 'Cancel' */
+	cancelLabel?: any
+	/** @default 'destructive' */
+	actionVariant?: 'primary' | 'secondary' | 'ghost' | 'destructive'
+	/** Shows a spinner on the action button and blocks presses. */
+	isActionLoading?: boolean
+	/** @default 400 */
+	width?: number | string
+	/** Same as Dialog.isInline — render without overlay/modal behavior. */
+	isInline?: boolean
+	/** Element to focus on close. `{current}`-style ref; web semantics. */
+	finalFocusRef?: { current: any }
+	className?: any
+	style?: any
+	id?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+export interface ImperativeAlertDialogReturn {
+	/** Opens the dialog with the given confirmation content. */
+	show: (options: Omit<AlertDialogProps, 'isOpen' | 'onOpenChange'>) => void
+	hide: () => void
+	isOpen: boolean
+	/** Rendered anywhere in the tree — the dialog itself. */
+	element: any
+}
+
+// ---------- carousel ----------
+
+/** Imperative carousel controls (Astryx `CarouselHandle`). Returned through
+ *  the component's `bind` callback — the framework's `ref` equivalent. */
+export interface CarouselHandle {
+	scrollNext(): void
+	scrollPrev(): void
+	scrollTo(index: number): void
+	canScrollNext(): boolean
+	canScrollPrev(): boolean
+}
+
+/** One labelled slide group inside a `Carousel` — plain children are
+ *  wrapped automatically, so `items` is not needed; `Carousel` wraps each
+ *  top-level child in an `aria-roledescription="slide"` group (web) /
+ *  labelled container (native). */
+export interface CarouselProps extends AccessibilityProps {
+	/** Accessible name for the region (web `aria-label` on
+	 *  `aria-roledescription="carousel"`; native `accessibilityLabel`). */
+	label?: string
+	children?: any
+	/** Space between slides, spacing steps (1 step = 4px/dip). @default 2 */
+	gap?: number
+	/** Slide-size variant. 'dynamic' sizes each slide to its content;
+	 *  'proportional' gives every slide an equal share. @default
+	 *  'dynamic' */
+	variant?: 'dynamic' | 'proportional'
+	/** Previous/next overlay buttons. @default false */
+	hasButtons?: boolean
+	/** Fade the scrolling edges to signal overflow (web mask/gradient;
+	 *  native gradient overlays). @default false */
+	hasEdgeFade?: boolean
+	/** Scroll past the ends wraps around (native repositions to the
+	 *  matching offset). @default false */
+	hasLoop?: boolean
+	/** Snap each slide edge-aligned when scrolling settles (web scroll-snap;
+	 *  native settles via animated scroll on release where the platform
+	 *  reports scroll end). @default false */
+	hasSnap?: boolean
+	/** Receives the imperative handle. */
+	bind?: (handle: CarouselHandle) => void
+	className?: any
+	style?: any
+	id?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+// ---------- lightbox ----------
+
+export type LightboxMediaType = 'image' | 'video'
+
+export interface LightboxMedia {
+	src: string
+	/** Accessible description of the media (web `alt`). */
+	alt: string
+	caption?: any
+	/** @default 'image' */
+	type?: LightboxMediaType
+}
+
+/** Full-screen media viewer (Astryx `Lightbox`). Navigates a `media` array
+ *  with prev/next controls, arrow keys (web), and swipe (native);
+ *  pinch/double-click zoom applies to images only. `type: 'video'` renders
+ *  a real player only on web — native reports it unsupported. */
+export interface LightboxProps {
+	isOpen: boolean
+	onOpenChange: (isOpen: boolean) => void
+	media: LightboxMedia[]
+	/** Controlled index. */
+	index?: number
+	/** Uncontrolled initial index. */
+	defaultIndex?: number
+	onIndexChange?: (index: number) => void
+	/** Pinch/click zoom on images. @default true */
+	hasZoom?: boolean
+	/** Auto-play videos when they are shown. Web only. @default false */
+	hasAutoPlay?: boolean
+	/** Element to focus on close; defaults to the element focused when the
+	 *  lightbox opened. `{current}`-style ref; web semantics. */
+	finalFocusRef?: { current: any }
+	className?: any
+	style?: any
+	id?: string
+	ios?: Record<string, any>
+	android?: Record<string, any>
+	web?: Record<string, any>
+}
+
+/** Props spread onto a media element that should open the lightbox on
+ *  press/click. */
+export interface LightboxTriggerProps {
+	onPress?: () => void
+	/** Web cursor hint + native accessibility hint. */
+	web?: Record<string, any>
+}
+
+export interface UseLightboxOptions {
+	media: LightboxMedia[]
+	index?: number
+	defaultIndex?: number
+	onIndexChange?: (index: number) => void
+	hasZoom?: boolean
+	hasAutoPlay?: boolean
+	finalFocusRef?: { current: any }
+}
+
+export interface UseLightboxReturn {
+	/** Open at `index` (default 0). */
+	open: (index?: number) => void
+	close: () => void
+	isOpen: boolean
+	index: number
+	/** The lightbox node — render it once in the tree. */
+	element: any
+	/** Props for a plain trigger element that opens index 0. */
+	triggerProps: LightboxTriggerProps
+	/** Props for a trigger bound to a specific media index. */
+	getTriggerProps: (index: number) => LightboxTriggerProps
+}
 
 export interface TabSpec {
 	title: string

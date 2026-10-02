@@ -494,8 +494,10 @@ export { TextInput } from './TextInput'
 export { TextArea } from './TextArea'
 export { SearchInput } from './SearchInput'
 export { SegmentedControl } from './SegmentedControl'
-export { ScrollBox } from './ScrollBox'
-export { ScrollView } from './ScrollView'
+/** Scrollable region with axis-aware accessibility — Astryx
+ *  `ScrollableArea`. */
+export { ScrollableArea } from './ScrollableArea'
+export { useScrollableArea } from './use-scrollable-area'
 export { VirtualList } from './VirtualList'
 export type { VirtualListProps } from './props'
 export { Image } from './Image'
@@ -503,19 +505,68 @@ export { WebView } from './WebView'
 export type { WebViewContentSize, WebViewHandle, WebViewLoadEvent, WebViewProps } from './props'
 export { Overlay } from './Overlay'
 export { Popover } from './Popover'
-export { Hoverable } from './Hoverable'
+export { Dialog, DialogHeader } from './Dialog'
+export { useImperativeDialog } from './use-imperative-dialog'
+export { AlertDialog } from './AlertDialog'
+export { useImperativeAlertDialog } from './use-imperative-alert-dialog'
+export { HoverCard } from './HoverCard'
+export { useHoverCard } from './use-hover-card'
 export { Tooltip } from './Tooltip'
-export { showToast } from './toast-anchor'
+export { Carousel } from './Carousel'
+export { Lightbox } from './Lightbox'
+export { useLightbox } from './use-lightbox'
+export { Toast } from './Toast'
+export { ToastViewport } from './toast-viewport'
+export { showToast, useToast } from './toast-service'
 export type {
-	HoverableProps,
+	AlertDialogProps,
+	DialogHeaderProps,
+	DialogOptions,
+	DialogPosition,
+	DialogProps,
+	DialogPurpose,
+	DialogVariant,
+	ImperativeAlertDialogReturn,
+	ImperativeDialogReturn,
+	HoverCardAlignment,
+	HoverCardFocusTrigger,
+	HoverCardOptions,
+	HoverCardPlacement,
+	HoverCardProps,
+	HoverCardReturn,
+	HoverCardTouchTrigger,
+	CarouselHandle,
+	CarouselProps,
+	LightboxMedia,
+	LightboxMediaType,
+	LightboxProps,
+	LightboxTriggerProps,
+	UseLightboxOptions,
+	UseLightboxReturn,
 	OverlayProps,
 	PopoverAnchorRef,
 	PopoverProps,
 	PopoverPlacement,
 	PopoverAlignment,
 	ToastContent,
+	ScrollAxis,
+	ScrollAxisState,
+	ScrollKeyboardAccess,
+	ScrollOverscroll,
+	ScrollStickyContainment,
+	ScrollableAreaProps,
+	ScrollableAreaState,
+	UseScrollableAreaOptions,
+	UseScrollableAreaResult,
+	ShowToastFn,
+	ToastCollisionBehavior,
+	ToastDismissReason,
+	ToastEntry,
 	ToastOptions,
 	ToastPosition,
+	ToastProps,
+	ToastType,
+	ToastViewportProps,
 	TooltipProps,
 } from './props'
 
@@ -630,13 +681,19 @@ export type {
 	OpenWindowOptions,
 } from './props'
 
-// Stores, sheets, and shared prop types
+// Stores, bottom sheets, and shared prop types
 export { createStore } from './store'
 export type { Store, ReadableStore } from './store'
 export { useStore } from './use-store'
-export { Sheet } from './Sheet'
-export { openSheet, closeSheet } from './sheet-service'
-export type { SheetProps, SheetOpenOptions, OpenSheet } from './props'
+export { BottomSheet, BottomSheetSwitcher } from './BottomSheet'
+export { openBottomSheet, closeBottomSheet } from './bottom-sheet-service'
+export type {
+	BottomSheetOpenOptions,
+	BottomSheetProps,
+	BottomSheetSnapPoint,
+	BottomSheetSwitcherProps,
+	OpenBottomSheet,
+} from './props'
 
 // Indicators — decorative state visuals (checkbox box, radio circle,
 // selection mark) and the registry that replaces them by name.
@@ -716,8 +773,6 @@ export type {
 	RowProps,
 	ScreenProps,
 	SafeAreaProps,
-	ScrollBoxProps,
-	ScrollViewProps,
 	SpacerProps,
 	StackProps,
 	SwitchProps,

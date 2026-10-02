@@ -94,7 +94,7 @@ vi.mock('./sheet-detents', () => ({
 }))
 
 import { Overlay } from './Overlay.tsrx'
-import { Sheet } from './Sheet.tsrx'
+import { BottomSheet } from './BottomSheet.tsrx'
 import { Popover } from './Popover.tsrx'
 const mounted: any[] = []
 const settle = async () => {
@@ -103,7 +103,7 @@ const settle = async () => {
 	flushUniversalSync(() => {})
 }
 
-function mount(Component: any, props: any = {}) {
+function mount(Component: any, props: any = {}, mapProps: (p: any) => any = (p) => p) {
 	const root = createUniversalRoot(
 		createObjectContainer('nativescript'),
 		createObjectDriver('nativescript'),
@@ -111,13 +111,16 @@ function mount(Component: any, props: any = {}) {
 
 	mounted.push(root)
 	const render = (extra: any = {}) => {
-		root.render(Component, {
-			open: true,
-			children: 'content',
-			anchor: { current: {} },
-			...props,
-			...extra,
-		})
+		root.render(
+			Component,
+			mapProps({
+				open: true,
+				children: 'content',
+				anchor: { current: {} },
+				...props,
+				...extra,
+			}),
+		)
 
 		flushUniversalSync(() => {})
 	}
@@ -164,14 +167,24 @@ afterEach(async () => {
 	await settle()
 })
 
+const sheetProps = (p: any) => ({
+	isOpen: p.open,
+	label: 'Sheet',
+	snapPoints: p.detents,
+	onOpenChange: (open: boolean) => {
+		if (!open) {p.onDismiss?.()}
+	},
+	children: p.children,
+})
+
 describe.each([
-	['Overlay', Overlay],
-	['Sheet', Sheet],
-	['Popover', Popover],
-] as const)('%s native lifetime', (_, Component) => {
+	['Overlay', Overlay, (p: any) => p],
+	['BottomSheet', BottomSheet, sheetProps],
+	['Popover', Popover, (p: any) => p],
+] as const)('%s native lifetime', (_, Component, mapProps) => {
 	it('releases its host, root and subscriptions when its owner unmounts', async () => {
 		const dismiss = vi.fn()
-		const { root } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] })
+		const { root } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] }, mapProps)
 		await settle()
 		root.unmount()
 		await settle()
@@ -186,7 +199,7 @@ describe.each([
 
 	it('releases everything on programmatic close without reporting dismissal', async () => {
 		const dismiss = vi.fn()
-		const { render } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] })
+		const { render } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] }, mapProps)
 		await settle()
 		render({ open: false })
 		await settle()
@@ -202,7 +215,7 @@ describe.each([
 			finish = r
 		})
 
-		const { root } = mount(Component, { detents: [0.5, 1] })
+		const { root } = mount(Component, { detents: [0.5, 1] }, mapProps)
 		await settle()
 		root.unmount()
 		await settle()
@@ -220,7 +233,7 @@ describe.each([
 		})
 
 		const error = vi.spyOn(console, 'error').mockImplementation(() => {})
-		mount(Component, { detents: [0.5, 1] })
+		mount(Component, { detents: [0.5, 1] }, mapProps)
 		await settle()
 		fail(new Error('open failed'))
 		await settle()
@@ -235,7 +248,7 @@ describe.each([
 	})
 
 	it('does not remove a host already closing through RootLayout', async () => {
-		const { root } = mount(Component)
+		const { root } = mount(Component, {}, mapProps)
 		await settle()
 		const host = state.hosts[0]
 		state.owner.popups.delete(host)
@@ -250,7 +263,7 @@ describe.each([
 
 	it('detaches a host when its close animation rejects', async () => {
 		const error = vi.spyOn(console, 'error').mockImplementation(() => {})
-		const { root } = mount(Component)
+		const { root } = mount(Component, {}, mapProps)
 		await settle()
 		state.owner.close.mockImplementation(async (host: any) => {
 			state.owner.popups.delete(host)
@@ -271,7 +284,7 @@ describe.each([
 		})
 
 		const error = vi.spyOn(console, 'error').mockImplementation(() => {})
-		const { render } = mount(Component)
+		const { render } = mount(Component, {}, mapProps)
 		await settle()
 		render({ open: false })
 		await settle()
@@ -290,7 +303,7 @@ describe.each([
 		const old = vi.fn(),
 			current = vi.fn()
 
-		const { render } = mount(Component, { onDismiss: old })
+		const { render } = mount(Component, { onDismiss: old }, mapProps)
 		await settle()
 		render({ onDismiss: current, children: 'updated' })
 		await settle()

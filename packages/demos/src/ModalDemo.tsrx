@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { openSheet, Pressable, HStack, Screen, Sheet, Text, View } from '@octane-xplat/ui';
+import { openBottomSheet, Pressable, HStack, Screen, BottomSheet, Text, View } from '@octane-xplat/ui';
 
 function Picker(props: { params: { choices: string[] }; close: (value?: string) => void }) @{
 	<Screen className="demo-modal-card gap-4">
@@ -15,7 +15,7 @@ function Picker(props: { params: { choices: string[] }; close: (value?: string) 
 /** Shared fallback — the platform modal moved out of `ui` (UIModal /
  *  MaterialDialog in the ios + android subpaths; this file's `.ios.tsrx`
  *  and `.android.tsrx` siblings render it there). The honest shared
- *  surfaces are the self-drawn in-window `Sheet` and `Overlay`. */
+ *  surfaces are the self-drawn in-window `BottomSheet` and `Overlay`. */
 export function ModalDemo() @{
 	const [declarativeOpen, setDeclarativeOpen] = useState(false);
 	const [detentOpen, setDetentOpen] = useState(false);
@@ -23,25 +23,25 @@ export function ModalDemo() @{
 	const [detentPicked, setDetentPicked] = useState<string | undefined>();
 
 	const pick = async () => {
-		const result = await openSheet(Picker, { choices: ['Red', 'Green', 'Blue'] });
+		const result = await openBottomSheet(Picker, { choices: ['Red', 'Green', 'Blue'] });
 		setPicked(result as string | undefined);
 	};
 
 	const pickDetent = async () => {
-		const result = await openSheet(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
-			detents: [0.25, 0.5, 0.9],
+		const result = await openBottomSheet(Picker, { choices: ['Peek', 'Half', 'Full'] }, {
+			snapPoints: [0.25, 0.5, 0.9],
 		});
 
 		setDetentPicked(result as string | undefined);
 	};
 
 	<Screen className="vx-app flex-1 gap-6">
-		<Text className="text-xl font-semibold">Modal → Sheet</Text>
+		<Text className="text-xl font-semibold">Modal → BottomSheet</Text>
 		<View className="sink-section">
 			<Text className="text-sm text-muted">
 				The shared surface has no Modal — OS presentation chrome lives in
 				ui/ios (UIModal) and ui/android (MaterialDialog). This demo uses the
-				self-drawn Sheet instead.
+				self-drawn BottomSheet instead.
 			</Text>
 			<Pressable onPress={() => setDeclarativeOpen(true)} className="btn btn-secondary">
 				<Text>Open sheet</Text>
@@ -68,15 +68,15 @@ export function ModalDemo() @{
 			</Pressable>
 			<Text className="text-sm text-muted">{'Picked: ' + (detentPicked ?? '—')}</Text>
 		</View>
-		<Sheet open={declarativeOpen} onDismiss={() => setDeclarativeOpen(false)}>
+		<BottomSheet isOpen={declarativeOpen} label="Picker sheet" onOpenChange={(o) => setDeclarativeOpen(o)}>
 			<View className="demo-modal-card gap-4">
 				<Text className="font-bold">Declarative children</Text>
 				<Pressable onPress={() => setDeclarativeOpen(false)} className="btn bg-primary">
 					<Text className="text-onprimary">Close</Text>
 				</Pressable>
 			</View>
-		</Sheet>
-		<Sheet open={detentOpen} detents={[0.25, 0.5, 0.9]} onDismiss={() => setDetentOpen(false)}>
+		</BottomSheet>
+		<BottomSheet isOpen={detentOpen} label="Detent picker" snapPoints={[0.25, 0.5, 0.9]} onOpenChange={(o) => setDetentOpen(o)}>
 			<View className="demo-modal-card gap-4">
 				<Text className="font-bold">Detent sheet</Text>
 				<Text className="text-sm text-muted">
@@ -87,6 +87,6 @@ export function ModalDemo() @{
 					<Text className="text-onprimary">Close</Text>
 				</Pressable>
 			</View>
-		</Sheet>
+		</BottomSheet>
 	</Screen>
 }

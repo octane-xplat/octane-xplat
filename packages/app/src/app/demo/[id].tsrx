@@ -2,7 +2,7 @@ import { useEffect } from 'octane';
 import { Screen, View, HStack, Text, Pressable } from '@octane-xplat/ui';
 import { DEMOS, RENDER, setLastDemo } from '@xplat/demos';
 import { goBack } from '../../platform/nav';
-import { openSheet } from '../../platform/sheet';
+import { openBottomSheet } from '../../platform/sheet';
 import { VirtualListBenchmark } from '../../VirtualListBenchmark.tsrx';
 
 const renderVirtualListBenchmark = () => <VirtualListBenchmark />;
@@ -31,7 +31,7 @@ export function DemoDetail(props: { id?: string; _stack?: string }) @{
 			<Text className="text-xl font-semibold flex-1">{title}</Text>
 			<Pressable
 				id="demo-sheet"
-				onPress={() => { openSheet(renderDemo); console.log('[probe] sheet demo=' + id); }}
+				onPress={() => { openBottomSheet(renderDemo); console.log('[probe] bottom-sheet demo=' + id); }}
 				className="btn btn-secondary"
 			>
 				<Text>In sheet</Text>

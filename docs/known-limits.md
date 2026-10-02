@@ -32,21 +32,22 @@ meaningful relative to its class's claim: `hosted` components (`WebView`,
 ## Where the real OS widgets live
 
 The shared UI surface aims for consistent behavior on its supported targets — self-drawn
-controls (`Switch`, `Slider`, `Spinner`, `Tabs`, `Drawer`,
-`Sheet`), chrome-reset OS controls (`TextInput`, `TextArea`,
+controls (`Switch`, `Slider`, `Spinner`, `Tabs`, `Drawer`, `BottomSheet`,
+`Dialog`, `AlertDialog`), chrome-reset OS controls (`TextInput`, `TextArea`,
 `SearchInput`), and hosted surfaces (`WebView`, `Video`, `CameraView`)
 whose parity claim stops at the frame plus self-drawn chrome. The
 platform-authentic widgets are opt-in subpath imports, and a shared `.tsrx`
 importing them fails the other platform's build on purpose:
 
-| Need                                   | Web                                                                  | iOS                                                              | Android                                                                             |
-| -------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Recycled list                          | `ScrollView` + `@for`                                                | `UITableView` (`ui/ios`)                                         | `RecyclerView` (`ui/android`)                                                       |
-| Modal dialog                           | `Sheet` / `openSheet`                                                | `UIModal` / `openModal` (`ui/ios`)                               | `MaterialDialog` / `openModal` (`ui/android`)                                       |
-| Edge-swipe drawer                      | `Drawer` (self-drawn, no edge swipe)                                 | `SideDrawer` (`ui/ios`)                                          | `DrawerLayout` (`ui/android`)                                                       |
-| OS switch / slider / spinner / tab bar | shared self-drawn set                                                | `UISwitch` / `UISlider` / `UIActivityIndicatorView` / `UITabBar` | `MaterialSwitch` / `SeekBar` / `CircularProgressIndicator` / `BottomNavigationView` |
-| Hover interactions                     | `Hoverable`, `Tooltip` (shared; macOS = `NSPopover` via host bridge) | passthrough — trigger/children render, hint never mounts         | passthrough — trigger/children render, hint never mounts                            |
-| Liquid glass                           | —                                                                    | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)                | —                                                                                   |
+| Need                              | Web                                            | iOS                                                             | Android                                                                     |
+| --------------------------------- | ---------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Recycled list                     | `ScrollableArea` + `@for`                      | `UITableView` (`ui/ios`)                                        | `RecyclerView` (`ui/android`)                                               |
+| Shared modal surface              | `Dialog`, `AlertDialog`, `BottomSheet`         | shared self-drawn surfaces                                     | shared self-drawn surfaces                                                  |
+| Platform modal dialog             | —                                              | `UIModal` / `openModal` (`ui/ios`)                              | `MaterialDialog` / `openModal` (`ui/android`)                               |
+| Edge-swipe drawer                 | `Drawer` (self-drawn, no edge swipe)           | `SideDrawer` (`ui/ios`)                                         | `DrawerLayout` (`ui/android`)                                               |
+| OS switch / slider / spinner / tab bar | shared self-drawn set                      | `UISwitch` / `UISlider` / `UIActivityIndicatorView` / `UITabBar` | `MaterialSwitch` / `SeekBar` / `CircularProgressIndicator` / `BottomNavigationView` |
+| Hover interactions                | `HoverCard`, `Tooltip` (shared; macOS = `NSPopover` via host bridge) | `HoverCard` opens on tap; `Tooltip` passes through | `HoverCard` opens on tap; `Tooltip` passes through |
+| Liquid glass                      | —                                              | `LiquidGlass` / `LiquidGlassContainer` (`ui/ios`)               | —                                                                           |
 
 `ui/ios` and `ui/android` resolve only in native builds; `ui/web` only in
 web builds. `ui/native` is plumbing (root-layout helpers), not components.
@@ -64,7 +65,7 @@ and [readiness evidence](primitive-notes.md#virtuallist-readiness-recheck-q30-20
 
 | Seam                     | Web                                              | iOS                                                          | Android             | Kind       | Verified    |
 | ------------------------ | ------------------------------------------------ | ------------------------------------------------------------ | ------------------- | ---------- | ----------- |
-| `ScrollBox`              | scrolls (aliases `ScrollView`)                   | plain inline container — use `ScrollView` to scroll          | same as iOS         | `different` | 0.5.0      |
+| `ScrollableArea`         | scrolling, axis-aware; `axis="both"` supports nested native lists | block/inline scrolling with pull-to-refresh; `axis="both"` renders a non-scrolling shell | same as iOS | `different` | post-0.7.0·desk |
 | `Pager`                  | scroll-snap row; `onPageChange` fires ~90ms after the scroll goes idle  | UICollectionView paging via `@nativescript-community/ui-pager` (real dependency of the `@octane-xplat/pager` leaf — merges transitively, no app declaration); per-page Octane roots; unverified on device | ViewPager2 via the same plugin; unverified on device | `different` | post-0.5.0·desk |
 | `SearchInput`            | `<input type=search>`; webkit's own ✕ hidden so the drawn one matches   | TextField, `returnKeyType=search`; glyph tint via `svgview` `currentColor` unverified              | same as iOS         | `different` | post-0.5.0·desk |
 | `SegmentedControl`       | equal-width segments (`width:0`+`flex-grow` — `flex-basis` is dead on NS) | identical classes/geometry; tap only (no arrow-key nav) — Space/Enter on web | same as iOS      | `different` | post-0.5.0·desk |
@@ -91,7 +92,7 @@ and [readiness evidence](primitive-notes.md#virtuallist-readiness-recheck-q30-20
 | `WebView` `sandbox`      | typed prop, default token list applied           | unsupported — no-op (WKWebView is already isolated)          | same as iOS         | `unsupported` | 0.5.0·desk |
 | `WebView` JS bridge      | unsupported — no `injectedJavaScript`/`postMessage`; use the `web:` bag | unsupported — use the `ios:` bag | unsupported — use the `android:` bag | `unsupported` | 0.5.0·desk |
 | Pull-to-refresh          | pointer/touch drag translates scroller in clipped wrapper | UIScrollView bounce + `contentInset` dock; pan observer rides alongside scroll pan | damped drag translates scroller; edge glow off | `different` | 0.5.0·desk |
-| Sheet `detents`          | drag-to-snap via grabber strip; px offsets, no OS sheet   | same in-window path — RootLayout host + translateY offsets (UISheetPresentationController can't host in-window panels) | same — no BottomSheetBehavior (needs dialog window/CoordinatorLayout) | `different` | 0.5.0·desk |
+| BottomSheet `snapPoints` | drag-to-snap via grabber strip; fractions of viewport height | same in-window path — RootLayout host + translateY offsets | same in-window path — no BottomSheetBehavior dependency | `different` | post-0.7.0·desk |
 | `Video` surface pixels  | `<video>` (engine-owned) — `controls=false`; transport is self-drawn and identical  | `xplatvideo` via `@nstudio/nativescript-exoplayer` (real dependency of the `@octane-xplat/video` leaf — merges transitively; pulls the `ASBPlayerSubtitling` pod) — AVPlayerViewController | ExoPlayer2 (`com.google.android.exoplayer:exoplayer:2.17.1` gradle dep) via the same plugin | `different` | post-0.5.0·desk |
 | `Video` `onError`       | maps `MEDIA_ERR_*` codes                            | unsupported — the plugin logs player errors, emits no event | same as iOS  | `unsupported` | post-0.5.0·desk |
 | `Video` `onEnded`       | suppressed under `loop` (`ended` never fires)       | suppressed under `loop` to match — the plugin still emits `finished` | same as iOS | `different` | post-0.5.0·desk |
@@ -102,7 +103,7 @@ and [readiness evidence](primitive-notes.md#virtuallist-readiness-recheck-q30-20
 | `Lottie` `duration`/`progress` units | ms and 0..1 everywhere | plugin reports `duration` in seconds — leaf ×1000; progress already 0..1 | plugin reports ms; progress 0..1 | `different` | post-0.6.0 |
 | `Lottie` vendored plugin | — | fixes unreleased upstream ship in the leaf — dead sync-src, missing `compositionLoaded`/`loadFailed` on iOS, URL src, `.lottie` zip, async autoPlay, completion dedupe, `declare` fields (modern-bundler compat); staged as PR branches on `octane-xplat/ui-lottie` (fixes on `xplat-fixes`; `xplat-vendored` adds only vendoring-compat markers) | same as iOS | `different` | post-0.6.0 |
 
-Overlay roots (`Sheet`/`openSheet`, `UIModal`, `MaterialDialog`) mount a
+Overlay roots (`Dialog`, `BottomSheet`, `UIModal`, `MaterialDialog`) mount a
 separate Octane root on every platform — `useContext` does not cross into
 them. Theme classes are forwarded; pass values as props or use module-level
 signals. Reading context inside the new root does not recover a provider

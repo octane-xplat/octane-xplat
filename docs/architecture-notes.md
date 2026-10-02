@@ -80,11 +80,11 @@ Classify a new component with an ordered test — first match wins:
    system menus? → `platform-authentic`: subpath or don't ship.
 
 An idiom may ship in two classes at once — as two components, never as a
-mode prop. The shared `refreshing`/`onRefresh` on `ScrollView` (self-drawn
+mode prop. The shared `refreshing`/`onRefresh` on `ScrollableArea` (self-drawn
 indicator) and a future `UIRefreshControl`/`SwipeRefreshLayout` in the
-subpaths coexist; the shared `Sheet` detents are self-drawn precisely
+subpaths coexist; the shared `BottomSheet` snap points are self-drawn precisely
 because the OS sheets are modal presentations, so an OS detent sheet would
-be a separate subpath widget, not a flag on `Sheet`.
+be a separate subpath widget, not a flag on `BottomSheet`.
 
 ## Invariants (the rules that keep the seams from tearing)
 

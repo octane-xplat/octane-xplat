@@ -1,5 +1,5 @@
 import { setTranslate } from './translate.web'
-import { detentOffset, normalizeDetents, snapDetentIndex } from './sheet-snap'
+import { DETENT_FLICK_VELOCITY, detentOffset, normalizeDetents, snapDetentIndex } from './sheet-snap'
 
 const SNAP_MS = 200
 
@@ -7,12 +7,23 @@ export interface SheetDetentsController {
 	detach: () => void
 }
 
+export interface SheetDetentsOptions {
+	/** False blocks the swipe-to-dismiss outcome — a release below the
+	 *  smallest stop snaps back instead of closing. */
+	dismissible?: boolean
+	/** Live translateY updates for scrim-opacity modulation. */
+	onOffset?: (offset: number, vh: number) => void
+	/** No snap points: the panel keeps its content height and the grabber
+	 *  only owns swipe-to-dismiss. */
+	swipeOnly?: boolean
+}
+
 /** Drag-to-snap detents on a `.vx-sheet` panel: a self-drawn grabber strip
  *  (the only drag target — it never fights inner scrolling) drives the
  *  panel's translateY; the panel is sized to the largest detent and parked
  *  at the offset for the current one. `closeNow` fires after the dismiss
  *  slide-out — the caller decides what closing means (declarative
- *  `onDismiss` or the `openSheet` resolution). In-window on every target —
+ *  `onOpenChange` or the `openBottomSheet` resolution). In-window on every target —
  *  the OS detent presentations (UISheetPresentationController /
  *  BottomSheetDialog) host a modal VC/dialog window, not a RootLayout
  *  child, so the snap mechanics stay self-drawn for pixel parity. */
@@ -20,18 +31,27 @@ export function attachSheetDetents(
 	panel: HTMLElement,
 	detents: readonly number[],
 	closeNow: () => void,
+	options: SheetDetentsOptions = {},
 ): SheetDetentsController {
 	const sorted = normalizeDetents(detents)
-	if (!sorted.length) {
+	const swipeOnly = options.swipeOnly === true || !sorted.length
+	if (!sorted.length && !options.swipeOnly) {
 		return { detach: () => {} }
 	}
 
 	const vh = () => panel.parentElement?.clientHeight || window.innerHeight || 1
-	const max = sorted[sorted.length - 1]
+	const max = sorted[sorted.length - 1] ?? 0
+	/** Content-sized panels dismiss once the drag covers ~40% of their
+	 *  height (or on a downward fling). */
+	const panelHeight = () => panel.getBoundingClientRect().height
+	const dismissible = () => options.dismissible !== false
 
 	panel.classList.add('vx-sheet-detents')
 	// Panel is sized to the largest detent; translateY parks it per detent.
-	panel.style.height = `${max * 100}%`
+	// swipeOnly keeps the content-sized height.
+	if (!swipeOnly) {
+		panel.style.height = `${max * 100}%`
+	}
 
 	const grabber = document.createElement('div')
 	grabber.className = 'vx-sheet-grabber'
@@ -52,6 +72,7 @@ export function attachSheetDetents(
 	const applyTy = (value: number) => {
 		ty = value
 		setTranslate(panel, 0, value)
+		options.onOffset?.(value, vh())
 	}
 
 	const animateTo = (value: number, then?: () => void) => {
@@ -103,9 +124,23 @@ export function attachSheetDetents(
 		}
 
 		dragging = false
+		if (swipeOnly) {
+			if (dismissible() && (vy > DETENT_FLICK_VELOCITY || ty > panelHeight() * 0.4)) {
+				animateTo(vh(), closeNow)
+			} else {
+				animateTo(0)
+			}
+
+			return
+		}
+
 		const next = snapDetentIndex(ty, vy, sorted, vh())
 		if (next < 0) {
-			animateTo(vh(), closeNow)
+			if (dismissible()) {
+				animateTo(vh(), closeNow)
+			} else {
+				animateTo(detentOffset(sorted, cur, vh()))
+			}
 		} else {
 			cur = next
 			animateTo(detentOffset(sorted, cur, vh()))
@@ -126,9 +161,9 @@ export function attachSheetDetents(
 	grabber.addEventListener('pointercancel', up)
 
 	// Slide in from below the screen edge, matching the native leaf's
-	// translateY = vh → detent enter animation.
+	// translateY = vh → resting enter animation.
 	applyTy(vh())
-	const raf = requestAnimationFrame(() => animateTo(detentOffset(sorted, cur, vh())))
+	const raf = requestAnimationFrame(() => animateTo(swipeOnly ? 0 : detentOffset(sorted, cur, vh())))
 
 	return {
 		detach: () => {
@@ -140,7 +175,10 @@ export function attachSheetDetents(
 			grabber.removeEventListener('pointercancel', up)
 			grabber.remove()
 			panel.classList.remove('vx-sheet-detents')
-			panel.style.height = ''
+			if (!swipeOnly) {
+				panel.style.height = ''
+			}
+
 			panel.style.transition = ''
 		},
 	}

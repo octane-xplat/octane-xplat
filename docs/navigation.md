@@ -175,7 +175,7 @@ screens. A `[param].md` warns and is skipped (use the `.loader.ts` table
 pattern for param'd content); a `.md` file colliding with a same-name
 component file keeps the component with a warn.
 
-`MarkdownScreen` handles the `Screen`/`ScrollView` shell; `Markdown`
+`MarkdownScreen` handles the `Screen`/`ScrollableArea` shell; `Markdown`
 renders a document tree anywhere if you embed a baked doc inside a custom
 screen.
 

@@ -119,7 +119,7 @@ skipPartiallyExpanded)`, `properties.shouldDismissOnBackPress`,
 Provide a named opening action and a visible close action inside the content.
 The leaf's web `BottomSheet` has not been qualified for keyboard focus
 containment or trigger restoration. Native modal VoiceOver/TalkBack navigation
-and return focus also remain unverified. The shared `@octane-xplat/ui` Sheet
+and return focus also remain unverified. The shared `@octane-xplat/ui` BottomSheet
 uses a different implementation; its browser focus results do not cover this
 leaf. See [text-entry guidance](text-entry.md#release-and-restore-focus) and
 [input readiness evidence](input-readiness-notes.md).

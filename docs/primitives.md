@@ -19,10 +19,10 @@ if you do not yet have a working app.
 | Show text                              | `Text`                           |
 | Compose styled or tappable inline text | `RichText` + `RichTextSpan`      |
 | Respond to a tap                       | `Pressable`                      |
-| Render repeated items                  | `ScrollView` + `items.map(...)`  |
+| Render repeated items                  | `ScrollableArea` + `items.map(...)` |
 | Show a settings or preference row      | `Item`                       |
 | Accept one or more lines               | `TextInput`, `TextArea`          |
-| Scroll content                         | `ScrollView`, `ScrollBox`        |
+| Scroll content                         | `ScrollableArea`                 |
 | Show a web page or inline HTML         | `WebView`                        |
 | Play video                             | `Video`                          |
 | Play a Lottie animation                | `Lottie`                         |
@@ -31,7 +31,7 @@ if you do not yet have a working app.
 | Pick one of a few options inline       | `SegmentedControl`               |
 | Search or filter                       | `SearchInput`                    |
 | Pull to refresh a scroller or list     | `refreshing` + `onRefresh` props |
-| Show temporary content above a screen  | `Sheet`, `Overlay`               |
+| Show temporary content above a screen  | `Dialog`, `BottomSheet`, `Overlay` |
 
 Start with these components. They are deliberately smaller than the browser
 DOM or the full NativeScript view catalog, which makes a shared screen easier
@@ -200,7 +200,7 @@ native modifiers and glyph names stay behind platform subpaths; they do not
 change the shared components' parity class.
 
 `Pressable`, `Text`, and the containers (`View`/`HStack`/`Stack`/`Absolute`/
-`Grid`/`ScrollView`/`ScrollBox`) share the accessibility props in the
+`Grid`/`ScrollableArea`) share the accessibility props in the
 platform map, including `accessible`, label, hint, value, role, state, and
 live region — a container can carry `accessibilityRole`/live-region for
 grouped announcements without reaching for the `web` escape bag. Role
@@ -214,7 +214,7 @@ spans and uses the span's `text` prop for driver compatibility.
 
 ## When a screen needs more
 
-For a small or bounded list, render `items.map(...)` inside a `ScrollView`.
+For a small or bounded list, render `items.map(...)` inside a `ScrollableArea`.
 For a short content list with labels, descriptions, markers, and optional row
 actions, use `List` + `ListItem`; it is not virtualized.
 For larger vertical data sets that need bounded rendering across targets, use
@@ -227,11 +227,11 @@ long-session budgets remain open.
 
 Use `UITableView` (`ui/ios`) or `RecyclerView` (`ui/android`) when their
 platform-authentic list behavior is what the app needs. A native platform list
-must not sit inside a `ScrollView` — NativeScript measures a vertical
-`ScrollView` child without a bounded height, which makes the nested list
+must not sit inside a vertically scrolling `ScrollableArea` — NativeScript
+measures a vertical `ScrollView` child without a bounded height, which makes the nested list
 prepare cells through an unsupported path; the list leaf throws a named error
-on that nesting. Wrap the list in `ScrollBox` (a real `ScrollView` on web, an
-inline `View` on native) so the list owns scrolling.
+on that nesting. Wrap the list in `ScrollableArea axis="both"` (a scrolling
+viewport on web and an inline shell on native) so the list owns scrolling.
 _VirtualList anchor correction and slots verified on web, iOS simulator, and
 Android emulator; native nested-list guard verified on iOS._
 
@@ -263,36 +263,36 @@ TextInput; `defaultValue` makes it uncontrolled. The leading glyph is an
 `Icon` — `icon` names a registered glyph (default `'xplat-search'`, a
 framework-provided one any app can override by registering the same name).
 
-Use `Sheet` for a focused interruption, `Overlay` for floating content,
-or `Popover` for anchored content. Control these components with `open`;
-`openSheet` and `showToast` provide imperative alternatives. Pass the data
-the content needs as props. `detents` (viewport-height
-fractions like `[0.25, 0.5, 1]`) turns the sheet into a snap-point panel —
-it opens at the smallest detent and drags between them via a self-drawn
-grabber. The platform's own modal presentation is `UIModal`/`MaterialDialog`
+Use `Dialog` for modal content, `AlertDialog` when the user must choose an
+action, `BottomSheet` for bottom-anchored content, `Overlay` for floating
+content, or `Popover` for anchored content. Dialog and BottomSheet visibility
+uses `isOpen`/`onOpenChange`; `showToast({ body })` or `useToast()` presents a
+transient notification. Pass the data the content needs as props. BottomSheet
+`snapPoints` (viewport-height fractions like `[0.25, 0.5, 1]`) turns the panel
+into a snap-point surface — it opens at the smallest stop and drags between
+them via a self-drawn grabber. The platform's own modal presentation is `UIModal`/`MaterialDialog`
 
 - `openModal` in the subpaths — there is no shared `Modal`.
 
-`ScrollView` and the platform lists (`UITableView`, `RecyclerView`) accept
+`ScrollableArea` and the platform lists (`UITableView`, `RecyclerView`) accept
 `refreshing`, `onRefresh`, and `refreshThreshold` for pull-to-refresh.
 `onRefresh` enables the gesture; `refreshing` is controlled — set it while
 reloading and the self-drawn `Spinner` strip stays docked above
 the content. There is no OS spinner anywhere in the path.
 
-`Hoverable` (delayed hover card) is a shared export that shows its `card`
-only on pointer platforms — web and the macOS desktop target. On touch
-targets it renders the children and never mounts the card (decision #69);
-the old native long-press stand-in was fake parity and is gone. Keep
-essential information out of `card`.
+`HoverCard` (delayed hover card) shows `content` on pointer platforms — web
+and macOS. Its touch behavior is controlled by `touchTrigger`; keep essential
+information available in the trigger. `Tooltip` remains a hint-only
+enhancement.
 
-`Tooltip` follows the same contract (decision #69). It takes `trigger` +
+`Tooltip` remains a hint-only enhancement. It takes `trigger` +
 `content` slots and, on web, opens on hover after `openDelay` and
 immediately on keyboard focus, wires `aria-describedby` onto the focusable
 trigger, and dismisses on Escape, blur, or scroll. Positioning rides the
 shared `Popover` machinery (`placement`, default `top`). On macOS the hint
 is an anchored `NSPopover`. On touch targets only the `trigger` renders —
 keep essential information out of `content`, or compose
-`Pressable` + `Popover`/`Sheet` for an explicit tap-to-reveal hint.
+`Pressable` + `Popover`/`BottomSheet` for an explicit tap-to-reveal hint.
 
 Use `useMeasure()` when a screen needs live element bounds:
 `const { bind, bounds } = useMeasure()`, then pass `bind` to a primitive's
@@ -301,9 +301,10 @@ has a usable layout. Web coordinates are viewport-relative; native coordinates
 are screen-relative device-independent pixels. Set `{ observe: false }` for a
 single read after binding.
 
-`showToast()` keeps top/bottom viewport placement and adds start/end alignment.
-Pass `anchor` plus an optional `placement` to position a toast from a view;
-that anchored form follows `Popover`'s platform-specific overlay behavior.
+`ToastViewport` owns toast position and visibility limits. `showToast({ body,
+position, anchor, placement })` returns a dismiss function; `useToast()` routes
+to the nearest viewport or the fallback viewport. Anchored toasts follow
+`Popover`'s platform-specific overlay behavior.
 
 ### WebView content sizing
 
@@ -389,22 +390,22 @@ or removing it cancels a pending web hold. Rerendering keeps the pending
 interaction and invokes the latest callback if the hold completes.
 
 ```tsx
-<Pressable onLongPress={() => showToast('Held')}>
+<Pressable onLongPress={() => showToast({ body: 'Held' })}>
 	<Text>Hold to show a toast</Text>
 </Pressable>
 ```
 
 ## Own temporary surfaces
 
-Render `Sheet`, `Overlay`, or `Popover` inside a `Screen` on native so the
-component can find its owning `RootLayout`. Keep `open` in app state and
-set it to false from `onDismiss` when the user taps the shade or dismisses
-the sheet by dragging. Setting `open={false}` or removing the declaring
-component closes its surface without calling `onDismiss`.
+Render `BottomSheet`, `Dialog`, `Overlay`, or `Popover` inside a `Screen` on
+native so the component can find its owning `RootLayout`. Keep `isOpen` in app
+state and set it to false from `onOpenChange` when the user dismisses the
+surface. Setting `isOpen={false}` or removing the declaring component closes
+the surface without reporting user dismissal.
 
 ```tsx
 import { useState } from 'octane'
-import { Screen, Sheet, Pressable, Text } from '@octane-xplat/ui'
+import { Screen, BottomSheet, Pressable, Text } from '@octane-xplat/ui'
 
 export function Example() {
 	const [open, setOpen] = useState(false)
@@ -414,21 +415,21 @@ export function Example() {
 				<Text>Open sheet</Text>
 			</Pressable>
 			{open && (
-				<Sheet open shadeCover onDismiss={() => setOpen(false)}>
+				<BottomSheet isOpen={open} onOpenChange={setOpen}>
 					<Text>Temporary content</Text>
 					<Pressable onPress={() => setOpen(false)}>
 						<Text>Close sheet</Text>
 					</Pressable>
-				</Sheet>
+				</BottomSheet>
 			)}
 		</Screen>
 	)
 }
 ```
 
-Pressing Close removes the declaring `Sheet` and releases its native root,
+Pressing Close removes the declaring `BottomSheet` and releases its native root,
 keyboard/gesture bindings, and theme subscription. User dismissal also
-releases those resources and reports through the latest `onDismiss` callback.
+releases those resources and reports through the latest `onOpenChange` callback.
 An open animation finishing after removal cannot revive the surface.
 The maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx) uses the
 same conditional ownership pattern.

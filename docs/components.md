@@ -224,11 +224,10 @@ boundaries, overflow, and resizing.
 
 ## Scrolling
 
-| Component                        | What it is         | Key props                             |
-| -------------------------------- | ------------------ | ------------------------------------- |
-| `ScrollView`                     | Scrollable region  | `refreshing`, `onRefresh`             |
-| `ScrollBox`                      | Scroll container   |                                       |
-| [`VirtualList`](virtual-list.md) | Windowed long list | `items`, `keyExtractor`, `renderItem` |
+| Component     | What it is                     | Key props                        |
+| ------------- | ------------------------------ | -------------------------------- |
+| `ScrollableArea` | Scrollable region with optional pull-to-refresh | `axis`, `refreshing`, `onRefresh` |
+| [`VirtualList`](virtual-list.md) | Windowed long list             | `items`, `keyExtractor`, `renderItem` |
 
 ## Chat
 
@@ -271,13 +270,32 @@ its Chat runtime has not been exercised separately.
 | `Overlay`   | Content above the screen                  |                                            |
 | `Popover`   | Anchored floating content                 | `anchor`, `open`, `placement`, `alignment`, `onDismiss` |
 | `Tooltip`   | Pointer hover hint                        | `trigger`, `content`, `openDelay`          |
-| `Hoverable` | Hover-reveal card around its children     | `card`, `openDelay`                        |
-| `Sheet`     | Bottom sheet                              | `open`, `detents`, `shadeCover`, `onDismiss` |
+| `HoverCard` | Hover or touch-triggered card around its children | `content`, `placement`, `delay`, `touchTrigger` |
+| `Dialog` | Modal surface with optional header | `isOpen`, `onOpenChange`, `purpose`, `position` |
+| `AlertDialog` | Required-action confirmation dialog | `title`, `description`, `actionLabel`, `onAction` |
+| `BottomSheet` | Declarative in-window bottom sheet | `isOpen`, `snapPoints`, `onOpenChange` |
+| `Carousel` | Horizontally scrolling child slides | `children`, `gap`, `hasButtons`, `hasSnap`, `bind` |
+| `Lightbox` | Fullscreen image or video gallery | `media`, `isOpen`, `index`, `onIndexChange` |
+| `Toast` / `ToastViewport` | Transient notification card and stack | `showToast`, `useToast`, `position`, `maxVisible` |
 | `Drawer`    | Edge drawer                               | `main`, `drawer`, `open`, `onDismiss`      |
 
-`showToast` presents a transient toast; `openWindow` opens a host window where
-supported. Modal/sheet routing shares the navigation layer — see
-[navigation](navigation.md).
+Use `Dialog` for optional or informational modal content and `AlertDialog` when
+the user must choose an action. `BottomSheet` is the shared in-window surface;
+the platform-native `@octane-xplat/sheet` package remains a separate API.
+`showToast(options)` presents a transient toast, while `useToast()` targets the
+nearest `ToastViewport` or the fallback viewport. Modal content can render on a
+separate native root, so pass its data as props instead of depending on
+presenter context. `openWindow` opens a host window where supported; modal
+routing shares the navigation layer — see [navigation](navigation.md).
+
+On macOS, `Dialog`, `AlertDialog`, `BottomSheet`, and `Lightbox` render inline
+because the AppKit host has no shared in-window layer service. `ToastViewport`
+provides context but does not mount a macOS toast stack; the standalone
+`Toast` card is available. `Lightbox` shows alt text for video because the
+player is provided by the separate `@octane-xplat/video` package. macOS
+`Carousel` is a basic horizontal scroller without navigation buttons, looping,
+edge fades, or a `CarouselHandle`; `ScrollableArea` ignores pull-to-refresh and
+uses block scrolling for `axis="both"`.
 
 ## Leaf packages
 

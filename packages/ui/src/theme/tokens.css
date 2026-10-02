@@ -1857,6 +1857,344 @@ input.vx-search-field::-webkit-search-cancel-button {
 /* xplat-web-only:start — DOM positioning and clipping for browser overlays. */
 .vx-chatlayout { position: relative; overflow: hidden; }
 .vx-chatpaste-preview { overflow: hidden; }
+/* ---------- dialog / alert dialog ---------- */
+
+/* The panel: column flex on both renderers; web uses a real <dialog> in
+   the top layer (margin:auto centers it), fullscreen drops the radius and
+   fills the viewport. */
+.vx-dialog {
+	display: flex;
+	flex-direction: column;
+}
+
+/* xplat-web-only:start — the layer is the fixed portal wrapper; the
+   <dialog> element supplies backdrop, focus trap and centering. Anchored
+   dialogs switch to explicit position + zero UA margin. */
+.vx-dialog-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 1100;
+	pointer-events: none;
+}
+
+.vx-dialog-layer .vx-dialog {
+	pointer-events: auto;
+	overflow: auto;
+}
+
+dialog.vx-dialog {
+	margin: auto;
+	border-width: 0;
+	outline: none;
+}
+
+.vx-dialog--fullscreen {
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	max-height: none;
+	border-radius: 0;
+}
+/* xplat-web-only:end */
+
+.vx-dialog-header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.vx-dialog-header-text {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.vx-dialog-header-end {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.vx-dialog-divider {
+	height: 1px;
+}
+
+.vx-alertdialog-title {
+	margin-bottom: 4px;
+}
+
+.vx-alertdialog-desc {
+	margin-bottom: 16px;
+}
+
+.vx-alertdialog-actions {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+/* ---------- hover card ---------- */
+
+/* xplat-web-only:start — the dashed-underline affordance applies only to
+   text-only triggers, which the web leaf renders as a <span>. */
+.vx-hovercard-indication {
+	text-decoration: underline dashed;
+	text-underline-offset: 3px;
+}
+/* xplat-web-only:end */
+
+.vx-hovercard-content {
+	display: flex;
+	flex-direction: column;
+}
+
+/* ---------- toast stack ---------- */
+
+/* xplat-web-only:start — the viewport is a fixed, click-through top-layer
+   frame; corner buckets hold the per-position stacks. popover="manual"
+   resets: the UA forces inset/width/margin on popovers. */
+.vx-toast-viewport {
+	position: fixed;
+	inset: 0;
+	z-index: 1200;
+	pointer-events: none;
+	width: auto;
+	margin: 0;
+	border-width: 0;
+	background: transparent;
+	overflow: visible;
+	padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
+	padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+}
+
+.vx-toast-stack {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	width: min(400px, 100%);
+}
+
+.vx-toast-stack--top {
+	top: max(16px, env(safe-area-inset-top, 0px));
+	flex-direction: column-reverse;
+}
+
+.vx-toast-stack--bottom {
+	bottom: max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+.vx-toast-stack--start {
+	inset-inline-start: max(16px, env(safe-area-inset-left, 0px));
+	align-items: flex-start;
+}
+
+.vx-toast-stack--end {
+	inset-inline-end: max(16px, env(safe-area-inset-right, 0px));
+	align-items: flex-end;
+}
+
+.vx-toast-row {
+	pointer-events: auto;
+	width: 100%;
+	max-width: 400px;
+	display: grid;
+	grid-template-rows: 1fr;
+	transition-property: grid-template-rows, opacity, transform;
+	transition-duration: 200ms;
+}
+
+/* Entry: rows fold open from collapsed (supported engines only — others
+   mount open, which is correct anyway). */
+@starting-style {
+	.vx-toast-row {
+		grid-template-rows: 0fr;
+		opacity: 0;
+	}
+}
+
+.vx-toast-row--exiting {
+	grid-template-rows: 0fr;
+	opacity: 0;
+}
+
+.vx-toast-row > * {
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* The card re-enables pointer events and stays swipeable horizontally
+   (vertical drags belong to the dismiss gesture). */
+.vx-toast {
+	pointer-events: auto;
+	touch-action: pan-x;
+	width: 100%;
+}
+
+.vx-toast-content {
+	flex: 1;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+/* Persistent live-region pair — screen readers announce mutations to
+   these, unlike the born-with-content per-toast roles. */
+.vx-toast-live {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+/* xplat-web-only:end */
+
+.vx-toast-inner {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	flex-wrap: nowrap;
+	gap: 12px;
+	width: 100%;
+}
+
+.vx-toast-end {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+	gap: 8px;
+}
+
+/* ---------- scrollable area ---------- */
+
+/* xplat-web-only:start — the content box carries padding; overflow +
+   overscroll/keyboard semantics are set inline by useScrollableArea. */
+.vx-scrollable-content {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+	min-width: 100%;
+}
+/* xplat-web-only:end */
+
+/* ---------- carousel ---------- */
+
+.vx-carousel {
+	width: 100%;
+}
+
+.vx-carousel-track {
+	display: flex;
+	flex-direction: row;
+}
+
+.vx-carousel-slide {
+	flex: 0 0 auto;
+	min-width: 0;
+}
+
+.vx-carousel-slide--prop {
+	flex: 1 0 100%;
+}
+
+/* xplat-web-only:start — overlay controls; native aligns them inside the
+   grid host instead. */
+.vx-carousel {
+	position: relative;
+}
+
+.vx-carousel-viewport {
+	position: relative;
+}
+
+.vx-carousel-btn {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+}
+
+.vx-carousel-prev {
+	left: 8px;
+}
+
+.vx-carousel-next {
+	right: 8px;
+}
+/* xplat-web-only:end */
+
+/* ---------- lightbox ---------- */
+
+/* xplat-web-only:start — full-viewport layer + centered stage; native
+   docks the same chrome on the RootLayout host. */
+.vx-lightbox-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 1150;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.vx-lightbox-stage {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	outline: none;
+}
+
+.vx-lightbox-media {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	user-select: none;
+	touch-action: none;
+}
+
+.vx-lightbox-nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+}
+
+.vx-lightbox-prev {
+	left: 16px;
+}
+
+.vx-lightbox-next {
+	right: 16px;
+}
+
+.vx-lightbox-close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	z-index: 2;
+}
+
+.vx-lightbox-counter {
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	z-index: 2;
+}
+
+.vx-lightbox-caption {
+	position: absolute;
+	bottom: 24px;
+	left: 0;
+	right: 0;
+	text-align: center;
+	z-index: 2;
+}
 /* xplat-web-only:end */
 
 	/* ---- content display (Astryx parity) — structure only; chrome.css owns

@@ -1,5 +1,5 @@
 import { View, Text, Pressable } from '@octane-xplat/ui';
-import { closeSheet } from './platform/sheet';
+import { closeBottomSheet } from './platform/sheet';
 
 /** Bottom-sheet content — hosted in a ContentView by RootLayout.open. */
 export function SheetPanel() @{
@@ -7,7 +7,7 @@ export function SheetPanel() @{
 
 	<View className="sheet-panel">
 		<Text className="text-xl font-semibold">Sheet content</Text>
-		<Pressable onPress={closeSheet} className="btn btn-secondary">
+		<Pressable onPress={() => closeBottomSheet()} className="btn btn-secondary">
 			<Text>Dismiss</Text>
 		</Pressable>
 	</View>

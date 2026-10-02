@@ -17,6 +17,51 @@ export function normalizeDetents(input?: readonly number[]): number[] {
 	return [...new Set(input.filter((d) => d > 0 && d <= 1))].sort((a, b) => a - b)
 }
 
+/** One snap point → viewport-height fraction. A number ≤ 1 is already a
+ *  fraction; a larger number is px/dips. Strings accept 'NN%' and 'NNpx'
+ *  (bare numeric strings are px). Returns null when unresolvable. */
+export function snapPointFraction(point: number | string, vh: number): number | null {
+	if (typeof point === 'number') {
+		if (point <= 0) {
+			return null
+		}
+
+		return point <= 1 ? point : point / vh
+	}
+
+	const trimmed = point.trim()
+	const percent = trimmed.match(/^([\d.]+)%$/)
+	if (percent) {
+		return parseFloat(percent[1]) / 100
+	}
+
+	const px = trimmed.match(/^([\d.]+)(?:px)?$/)
+	if (px) {
+		return parseFloat(px[1]) / vh
+	}
+
+	return null
+}
+
+/** Astryx `snapPoints` → sorted detent fractions (the existing controller
+ *  shape). `vh` is the viewport height in px/dips. Stops larger than the
+ *  window clamp to 1. Empty → detents off. */
+export function normalizeSnapPoints(
+	input: readonly (number | string)[] | undefined,
+	vh: number,
+): number[] {
+	if (!input?.length || !(vh > 0)) {
+		return []
+	}
+
+	const fractions = input
+		.map((point) => snapPointFraction(point, vh))
+		.filter((f): f is number => f != null && f > 0)
+		.map((f) => Math.min(f, 1))
+
+	return normalizeDetents(fractions)
+}
+
 /** Resting translateY for a detent: the panel is `max * vh` tall, so the
  *  portion below the screen edge is `(max - detent) * vh`. */
 export function detentOffset(detents: readonly number[], index: number, vh: number): number {

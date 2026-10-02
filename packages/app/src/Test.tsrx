@@ -1,12 +1,12 @@
 import { useState } from 'octane';
-import { Screen, ScrollView, View, HStack, Text, Pressable, Switch } from '@octane-xplat/ui';
+import { Screen, ScrollableArea, View, HStack, Text, Pressable, Switch } from '@octane-xplat/ui';
 import { DEMOS } from '@xplat/demos';
 // './probes-host' is extensionless on purpose: moduleSuffixes resolves the
 // .web.ts/.mobile.ts twin — the suffix-resolution seam itself is the probe,
 // both leaves now re-export the same shared Probes.
 import { Probes } from './probes-host';
 import { Services } from './Services.tsrx';
-import { openSheet } from './platform/sheet';
+import { openBottomSheet } from './platform/sheet';
 import { navigate } from './platform/nav';
 import { MediaServices } from './media-services';
 
@@ -19,7 +19,7 @@ export function Test() @{
 	const proofs = DEMOS.filter((d) => d.kind === 'proof');
 
 	<Screen className="vx-app flex-1 gap-6">
-		<ScrollView id="test-scroll" className="flex-1">
+		<ScrollableArea id="test-scroll" className="flex-1">
 		<Text className="text-2xl font-semibold">Test</Text>
 
 		<View className="sink-section">
@@ -95,12 +95,12 @@ export function Test() @{
 					onCheckedChange={(v) => { console.log('[probe] switch analytics -> ' + v); setAnalytics(v); }}
 				/>
 			</HStack>
-			{/* onPress passes the tap event — wrap; openSheet's first arg is the
+			{/* onPress passes the tap event — wrap; openBottomSheet's first arg is the
 			    content component, not the event. */}
-			<Pressable id="sheet-btn" onPress={() => openSheet()} className="btn bg-primary">
+			<Pressable id="sheet-btn" onPress={() => openBottomSheet()} className="btn bg-primary">
 				<Text className="text-onprimary">Open sheet</Text>
 			</Pressable>
 		</View>
-		</ScrollView>
+		</ScrollableArea>
 	</Screen>
 }

@@ -74,14 +74,14 @@ the last field with the software keyboard open, including a sheet opened
 while the keyboard is already visible. Observer/property tests alone do not
 verify viewport behavior on a device.
 
-On web, shared `Sheet` and `openSheet` with their default shade, and
+On web, shared `BottomSheet` with its default shade, and
 `Overlay` with `shadeCover`, move focus into the panel, cycle Tab inside it,
 dismiss on Escape, and restore a connected trigger when closed. Nested modals
 isolate the top panel. Background portals become inert too. A nonmodal surface
-without a shade does not take over focus. Give a Sheet a name through
+without a shade does not take over focus. Give a BottomSheet a name through
 `web={{ 'aria-label': 'Edit name' }}` and provide a visible close action.
 The separate `@octane-xplat/sheet` leaf's `BottomSheet` still needs its own
-keyboard-focus qualification; shared Sheet results do not cover it.
+keyboard-focus qualification; shared BottomSheet results do not cover it.
 
 ## Verification boundaries
 

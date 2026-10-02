@@ -68,7 +68,7 @@ is absent.
 
 ## Share the product, tailor the experience
 
-Shared screens use components such as `Text`, `Pressable`, and `ScrollView`.
+Shared screens use components such as `Text`, `Pressable`, and `ScrollableArea`.
 Keep common behavior together, then use [platform variants](module-resolution.md)
 for an OS control or a different screen layout. A shared import can resolve
 to an iOS implementation without putting iOS branches throughout your app.

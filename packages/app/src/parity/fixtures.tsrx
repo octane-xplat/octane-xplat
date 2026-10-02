@@ -18,11 +18,10 @@ import {
 	Spacer,
 	VStack,
 	HStack,
-	ScrollView,
-	ScrollBox,
+	ScrollableArea,
 	Overlay,
 	Popover,
-	Sheet,
+	BottomSheet,
 	Drawer,
 	Field,
 	FieldGroup,
@@ -47,7 +46,7 @@ import {
 	Spinner,
 	RichText,
 	RichTextSpan,
-	Hoverable,
+	HoverCard,
 	Tooltip,
 	Badge,
 	Avatar,
@@ -124,13 +123,13 @@ function ListItemStandardFixture() @{
 
 // Popup contents only mount after pointer/focus intent; compare each default anchor state here.
 function HoverableFixture() @{
-	<Hoverable
+	<HoverCard
 		className="parity-hoverable-anchor"
 		style={{ width: 180, height: 48, backgroundColor: '#f5f5f5' }}
-		card={<Text>Delayed hover card</Text>}
+		content={<Text>Delayed hover card</Text>}
 	>
 		<View className="parity-hoverable-child" style={{ width: 72, height: 24, backgroundColor: '#0a0a0a' }} />
-	</Hoverable>
+	</HoverCard>
 }
 
 function TooltipFixture() @{
@@ -276,12 +275,12 @@ function SpacerLayoutFixture() @{
 }
 
 function ScrollViewLayoutFixture() @{
-	<ScrollView className="parity-scroll-root" style={{ width: 96, height: 32 }}>
+	<ScrollableArea className="parity-scroll-root" style={{ width: 96, height: 32 }}>
 		<VStack className="parity-scroll-content" style={{ width: 96, height: 64 }} gap={1}>
 			<View className="parity-scroll-first" style={{ width: 24, height: 12 }} />
 			<View className="parity-scroll-second" style={{ width: 24, height: 12 }} />
 		</VStack>
-	</ScrollView>
+	</ScrollableArea>
 }
 
 function AbsoluteLayoutFixture() @{
@@ -292,12 +291,12 @@ function AbsoluteLayoutFixture() @{
 }
 
 function ScrollBoxLayoutFixture() @{
-	<ScrollBox className="parity-scrollbox-root" style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}>
+	<ScrollableArea axis="both" className="parity-scrollbox-root" style={{ width: 96, height: 48, backgroundColor: '#f5f5f5' }}>
 		<VStack className="parity-scrollbox-content" style={{ width: 96, height: 64 }} gap={1}>
 			<View className="parity-scrollbox-first" style={{ width: 24, height: 12 }} />
 			<View className="parity-scrollbox-second" style={{ width: 24, height: 12 }} />
 		</VStack>
-	</ScrollBox>
+	</ScrollableArea>
 }
 
 function DrawerLayoutFixture() @{
@@ -343,14 +342,15 @@ function PopoverLayoutFixture(props: { marker: string }) @{
 }
 
 function SheetLayoutFixture(props: { marker: string }) @{
-	<Sheet
-		open
-		shadeCover={false}
+	<BottomSheet
+		isOpen
+		label="Parity sheet"
+		hasScrim={false}
 		className={props.marker}
 		style={{ width: 96, height: 80, backgroundColor: '#f5f5f5' }}
 	>
 		<View style={{ width: 96, height: 48 }} />
-	</Sheet>
+	</BottomSheet>
 }
 
 function FormFieldFixture() @{
@@ -994,12 +994,12 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'column-layout', component: 'VStack', renderer: ColumnLayoutFixture, props: {} },
 	{ name: 'row-layout', component: 'HStack', renderer: RowLayoutFixture, props: {} },
 	{ name: 'spacer-layout', component: 'Spacer', renderer: SpacerLayoutFixture, props: {} },
-	{ name: 'scroll-view-layout', component: 'ScrollView', renderer: ScrollViewLayoutFixture, props: {} },
+	{ name: 'scroll-view-layout', component: 'ScrollableArea', renderer: ScrollViewLayoutFixture, props: {} },
 	{ name: 'absolute-layout', component: 'Absolute', renderer: AbsoluteLayoutFixture, props: {} },
-	{ name: 'scroll-box-layout', component: 'ScrollBox', renderer: ScrollBoxLayoutFixture, props: {} },
+	{ name: 'scroll-box-layout', component: 'ScrollableArea', renderer: ScrollBoxLayoutFixture, props: {} },
 	{ name: 'drawer-open-frame', component: 'Drawer', renderer: DrawerLayoutFixture, props: {} },
 	{ name: 'overlay-fixed-frame', component: 'Overlay', renderer: OverlayLayoutFixture, props: { marker: 'parity-portal--overlay-fixed-frame' } },
-	{ name: 'sheet-fixed-frame', component: 'Sheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' }, height: 112 },
+	{ name: 'sheet-fixed-frame', component: 'BottomSheet', renderer: SheetLayoutFixture, props: { marker: 'parity-portal--sheet-fixed-frame' }, height: 112 },
 	{ name: 'form-field-basic', component: 'Field', renderer: FormFieldFixture, props: {} },
 	{ name: 'field-group-basic', component: 'FieldGroup', renderer: FieldGroupFixture, props: {} },
 	{ name: 'input-number-value', component: 'NumberInput', renderer: InputNumberFixture, props: {} },
@@ -1029,7 +1029,7 @@ export const FIXTURES: ParityFixture[] = [
 	{ name: 'user-row', component: 'User', renderer: UserFixture, props: {} },
 	{ name: 'list-item-row', component: 'Item', renderer: ListItemFixture, props: {} },
 	{ name: 'list-item-standard', component: 'Item', renderer: ListItemStandardFixture, props: {} },
-	{ name: 'hoverable-anchor', component: 'Hoverable', renderer: HoverableFixture, props: {} },
+	{ name: 'hoverable-anchor', component: 'HoverCard', renderer: HoverableFixture, props: {} },
 	{ name: 'tooltip-trigger', component: 'Tooltip', renderer: TooltipFixture, props: {} },
 	{ name: 'kbd-shortcut', component: 'Kbd', renderer: KbdFixture, props: {} },
 	{ name: 'link-fixed-target', component: 'Link', renderer: LinkFixture, props: {} },

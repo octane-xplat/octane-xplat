@@ -5,7 +5,7 @@ import { findInRootLayouts } from '@octane-xplat/ui/native'
 
 import { DEMOS } from '@xplat/demos'
 import { goBack, navigate } from './nav'
-import { closeSheet, sheetHost } from './sheet'
+import { closeBottomSheet, bottomSheetHost } from './sheet'
 import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 // The catalog sweep stays gated on Android — its step chain asserts native
@@ -44,16 +44,6 @@ function fireTap(view: any) {
 
 	for (const o of observers) {
 		o.callback.call(o.context, { eventName: 'tap', object: view })
-	}
-
-	return observers.length
-}
-
-// GestureTypes.longPress = 64 — the native Hoverable trigger.
-function fireLongPress(view: any) {
-	const observers = view?.getGestureObservers?.(64) ?? []
-	for (const o of observers) {
-		o.callback.call(o.context, { eventName: 'longPress', object: view, state: 3 })
 	}
 
 	return observers.length
@@ -101,7 +91,7 @@ const demosPage = () =>
 // keep the same Page — the route store is the honest signal for both.
 const pushedRoute = () => routeFor(stepStack)
 
-// Captured across checks — sheetHost() empties the moment closeSheet's
+// Captured across checks — bottomSheetHost() empties the moment closeBottomSheet's
 // finish() runs, so the detach assert needs the pre-close reference.
 let lastSheetHost: any = null
 
@@ -153,20 +143,6 @@ function tapTargetForText(view: any, text: string, path: any[] = []): any {
 	})
 
 	return found
-}
-
-// Same climb as tapTargetForText but matches a specific gesture type —
-// e.g. Hoverable's long-press observer sits on an outer Pressable while
-// the tap observer is on a nested child.
-function gestureTargetForText(view: any, text: string, type: number): any {
-	const all = collect(view)
-	const hit = all.find((v) => v?.text === text)
-	let cur = hit
-	while (cur && !(cur.getGestureObservers?.(type)?.length ?? 0)) {
-		cur = cur.parent
-	}
-
-	return cur ?? null
 }
 
 function runNavLinkProbe() {
@@ -767,7 +743,7 @@ const STEPS: Step[] = [
 				run: () => {
 					// The host ref survives even when its owning rootlayout
 					// unloads (tab-pane shells churn) — assert on it directly.
-					lastSheetHost = sheetHost() ?? findOnRoot('sheet-host')
+					lastSheetHost = bottomSheetHost() ?? findOnRoot('sheet-host')
 					const ok = collect(lastSheetHost).some(
 						(v) => typeof v?.text === 'string' && v.text.includes('Demo count'),
 					)
@@ -783,7 +759,7 @@ const STEPS: Step[] = [
 					// issued from inside it double-removes and throws 'View not
 					// added to this instance'. Programmatic close is the safe
 					// path — the detach assert below catches leftovers.
-					closeSheet()
+					closeBottomSheet()
 				},
 			},
 			{
@@ -906,7 +882,7 @@ const STEPS: Step[] = [
 	{
 		id: 'scrollbox',
 		checks: [
-			{ at: 500, run: () => assertHas('scrollbox inline content', 'ScrollBox row 1') },
+			{ at: 500, run: () => assertHas('scrollable area inline content', 'ScrollableArea row 1') },
 			{
 				at: 650,
 				run: () => {
@@ -919,9 +895,9 @@ const STEPS: Step[] = [
 					}
 
 					console.log(
-						'[assert] ScrollBox keeps List out of ScrollView: ' +
-							(!nested && list ? 'OK' : 'FAIL') +
-							' (list=' +
+						'[assert] ScrollableArea keeps List out of the shared scroller: ' +
+						(!nested && list ? 'OK' : 'FAIL') +
+						' (list=' +
 							(list?.constructor?.name ?? 'none') +
 							' nested=' +
 							nested +
@@ -1064,14 +1040,16 @@ const STEPS: Step[] = [
 			{ at: 1100, run: () => fireTap(tapTargetForText(demosPage(), 'Show toast')) },
 			{ at: 1200, run: () => fireTap(tapTargetForText(demosPage(), 'Toast top')) },
 			{ at: 1300, run: () => fireTap(tapTargetForText(demosPage(), 'Toast anchored')) },
-			// Hoverable's touch contract is passthrough — the trigger renders
-			// but long-press mounts nothing (pointer platforms own the card).
+			// HoverCard's touch contract is tap-to-open (touchTrigger 'auto'
+			// behaves as 'tap' on native — no action detection).
 			{
 				at: 1400,
 				run: () => {
-					const t = gestureTargetForText(demosPage(), 'Hoverable trigger', 64)
-					const n = t ? fireLongPress(t) : 0
-					console.log('[probe] hoverable longPress observers=' + n)
+					const t = tapTargetForText(demosPage(), 'HoverCard trigger')
+					console.log('[probe] hovercard tap target=' + (t ? 'found' : 'missing'))
+					if (t) {
+						fireTap(t)
+					}
 				},
 			},
 			{
@@ -1084,12 +1062,11 @@ const STEPS: Step[] = [
 			{
 				at: 2200,
 				run: () => {
-					// Hoverable passes through on touch — the shared OverlayDemo
-					// renders the trigger but never mounts a card. Presence is
-					// informational — absence is expected, not a failure.
+					// HoverCard tap mounts the card (touchTrigger 'auto' → 'tap'
+					// on native — the trigger is plain text here).
 					const ok = viewTexts(demosPage()).includes('Hint card text')
 					console.log(
-						'[assert] hoverable card on long-press: ' + (ok ? 'OK' : 'INFO (passthrough on touch)'),
+						'[assert] hovercard card on tap: ' + (ok ? 'OK' : 'FAIL'),
 					)
 				},
 			},

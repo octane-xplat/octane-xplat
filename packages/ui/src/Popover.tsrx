@@ -165,7 +165,7 @@ export function Popover(props: PopoverProps) @{
 		shown.current = { host, root, lifetime };
 		root.render(PopoverLayer as unknown as UniversalComponent, { ...props, anchorView: anchor });
 		lifetime.open();
-	}, [props.open, props.children, props.placement, props.className, props.style, props.dismissOnOutsideTap]);
+	}, [props.open, props.children, props.placement, props.alignment, props.className, props.style, props.dismissOnOutsideTap]);
 
 	useEffect(() => () => shown.current?.lifetime.close(), []);
 

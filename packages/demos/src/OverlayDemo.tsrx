@@ -1,5 +1,5 @@
 import { useRef, useState } from 'octane';
-import { Hoverable, Overlay, Popover, Pressable, HStack, Screen, Text, Tooltip, View, showToast, useMeasure } from '@octane-xplat/ui';
+import { HoverCard, Overlay, Popover, Pressable, HStack, Screen, Text, Tooltip, View, showToast, useMeasure } from '@octane-xplat/ui';
 
 export function OverlayDemo() @{
 	const [overlayOpen, setOverlayOpen] = useState(false);
@@ -19,11 +19,11 @@ export function OverlayDemo() @{
 						<Text>Toggle anchored popover</Text>
 					</Pressable>
 				</View>
-				<Hoverable id="hoverable-demo" card={<Text>Hint card text</Text>}>
+				<HoverCard id="hoverable-demo" content={<Text>Hint card text</Text>}>
 					<Pressable className="btn btn-secondary" onPress={() => {}}>
-						<Text>Hoverable trigger</Text>
+						<Text>HoverCard trigger</Text>
 					</Pressable>
-				</Hoverable>
+				</HoverCard>
 				<Tooltip
 					id="tooltip-demo"
 					content={<Text>Saved automatically</Text>}
@@ -31,13 +31,13 @@ export function OverlayDemo() @{
 						<Text>Tooltip trigger</Text>
 					</Pressable>}
 				/>
-				<Pressable className="btn btn-secondary" onPress={() => showToast('A toast from the demo', { duration: 2500, position: 'bottom' })}>
+				<Pressable className="btn btn-secondary" onPress={() => showToast({ body: 'A toast from the demo', autoHideDuration: 2500, position: 'bottomEnd' })}>
 					<Text>Show toast</Text>
 				</Pressable>
-				<Pressable className="btn btn-secondary" onPress={() => showToast('Top toast', { duration: 1200, position: 'top' })}>
+				<Pressable className="btn btn-secondary" onPress={() => showToast({ body: 'Top toast', autoHideDuration: 1200, position: 'topEnd' })}>
 					<Text>Toast top</Text>
 				</Pressable>
-				<Pressable className="btn btn-secondary" onPress={() => showToast('Anchored toast', { duration: 1200, anchor })}>
+				<Pressable className="btn btn-secondary" onPress={() => showToast({ body: 'Anchored toast', autoHideDuration: 1200, anchor })}>
 					<Text>Toast anchored</Text>
 				</Pressable>
 			</HStack>

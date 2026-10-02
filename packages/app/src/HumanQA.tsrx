@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Pressable, HStack, Screen, ScrollView, Text, View } from '@octane-xplat/ui';
+import { Pressable, HStack, Screen, ScrollableArea, Text, View } from '@octane-xplat/ui';
 import { clipboard, device } from '@octane-xplat/platform';
 import { HUMAN_CHECKS, QA_TRIGGERS } from './human-checks';
 import { releaseQaTrigger, runQaTrigger } from './qa-media';
@@ -56,7 +56,7 @@ export function HumanQA(props: { _stack?: string }) @{
 				{decided + '/' + checks.length + (failed > 0 ? ' · ' + failed + ' failed' : '')}
 			</Text>
 		</HStack>
-		<ScrollView id="qa-scroll" className="flex-1" style={{ padding: 16 }}>
+		<ScrollableArea id="qa-scroll" className="flex-1" style={{ padding: 16 }}>
 			<Text className="text-sm text-muted">
 				{'Checks a probe cannot perform — sensory output, real input, OS chrome, physical hardware. Steps run on this device (' + os + '); "physical" cards need real hardware, not a simulator. Verdicts log [review] lines.'}
 			</Text>
@@ -134,6 +134,6 @@ export function HumanQA(props: { _stack?: string }) @{
 					<Text>Reset</Text>
 				</Pressable>
 			</HStack>
-		</ScrollView>
+		</ScrollableArea>
 	</Screen>
 }

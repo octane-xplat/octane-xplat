@@ -1,5 +1,5 @@
 import { useState } from 'octane';
-import { Screen, View, HStack, Text, Pressable, ScrollView } from '@octane-xplat/ui';
+import { Screen, View, HStack, Text, Pressable, ScrollableArea } from '@octane-xplat/ui';
 import { Counter } from './Counter.tsrx';
 import { Stopwatch } from './Stopwatch.tsrx';
 import { Todo } from './Todo.tsrx';
@@ -56,7 +56,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'list-demo', title: 'Feed', kind: 'app' },
 	{ id: 'anim', title: 'Keyframes', kind: 'proof' },
 	{ id: 'probe', title: 'Reactivity', kind: 'proof' },
-	{ id: 'scrollbox', title: 'ScrollBox + List', kind: 'proof' },
+	{ id: 'scrollbox', title: 'ScrollableArea + List', kind: 'proof' },
 	{ id: 'pull-refresh', title: 'Pull to refresh', kind: 'proof' },
 	{ id: 'device', title: 'Device', kind: 'proof' },
 	{ id: 'modal', title: 'Modal', kind: 'proof' },
@@ -225,7 +225,7 @@ export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | '
 			<Text className="text-2xl font-semibold">{props.title ?? 'Demos'}</Text>
 			<Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
 		</HStack>
-		<ScrollView className="flex-1">
+		<ScrollableArea className="flex-1">
 			<HStack className="demo-menu" style={{ minHeight: 1200 }}>
 				@for (const d of shown; key d.id) {
 					<Pressable
@@ -237,7 +237,7 @@ export function Gallery(props: { onOpen?: (id: string) => void; kind?: 'app' | '
 					</Pressable>
 				}
 			</HStack>
-		</ScrollView>
+		</ScrollableArea>
 		@if (!props.onOpen) {
 			<View className="flex-1 min-h-0">
 				{RENDER[demo]()}

@@ -165,7 +165,7 @@ export const HUMAN_CHECKS: HumanCheck[] = [
 	},
 	{
 		id: 'sheet-drag',
-		title: 'Sheet drag + detents',
+		title: 'BottomSheet drag + snap points',
 		sense: 'hands',
 		steps: [
 			'Open a sheet (Overlays demo, or Test tab → Open sheet).',
