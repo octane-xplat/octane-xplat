@@ -1,33 +1,83 @@
 # Navigation
 
-One route table serves both targets. Declare named screens and stacks;
-navigate with `<Link>`/`<NavLink>` in JSX or `pushRoute`/`popRoute`/
-`useRoute`/`useCanGoBack` imperatively. Web maps routes to URLs and
-history; native maps them to Frame pages and the back stack — the same
-call sites drive both.
+Register screens once during app startup. A route names a screen and a stack;
+web turns it into a URL, while native presents the screen in the app's navigation.
+Put components in `.tsrx` files.
 
-## Rules
+```tsrx
+import { defineRoutes, registerRoutes, Text } from '@octane-xplat/ui'
 
-- **Params are scalar.** They serialize as query strings on web — pass
-  strings and numbers. Objects survive on native and are silently dropped
-  on web.
-- **Tabs and named stacks** (`Tabs` + `TabSpec`, `registerStack`) exist on
-  both targets. Use a named stack for overlay-style flows (sheets,
-  sidebars) that shouldn't replace the root page.
-- **Deep links:** web is the URL itself; native parses incoming URLs into
-  the same route names — keep names stable and shareable.
-- **Back** — browser back, hardware back (Android), and swipe-back (iOS)
-  all map to `popRoute` on the current stack.
+function Home() { return <Text>Home</Text> }
+function Settings() { return <Text>Settings</Text> }
 
-## Named stacks
+registerRoutes(defineRoutes([
+  { path: '/', screen: Home },
+  { path: '/settings', screen: Settings },
+]))
+```
 
-Pushing into a named stack (`{ into: 'stackName' }`) works on all three
-targets: web pushes into the nested outlet, iOS navigates a real `Frame`
-when the platform `UITabBar` registered one (and uses the route store
-under the shared `Tabs`), and Android always uses the router-owned
-swap-pane — pushed screens render inside the active tab pane.
-`popRoute(stack)`/`useRoute(stack)` behave the same either way, so app
-code never sees which mechanism ran.
+After registering `settings`, use `NavLink` for a screen link or `pushRoute`
+in an event handler. `Link` accepts a URL, including an external website.
 
-For loaders, route config, and generated route types, see the navigation
-guide: https://octane-xplat.goddardai.org/navigation
+```tsrx
+import { HStack, Link, NavLink, Pressable, Text, pushRoute } from '@octane-xplat/ui'
+
+export function SettingsLinks() {
+  const settings = { stack: 'root', name: 'settings', params: {} }
+  return <HStack>
+    <NavLink route={settings}><Text>Settings</Text></NavLink>
+    <Pressable onPress={() => pushRoute(settings)}><Text>Open settings</Text></Pressable>
+    <Link href="https://octane-xplat.goddardai.org"><Text>Documentation</Text></Link>
+  </HStack>
+}
+```
+
+Use `useRoute` to read the current screen and `useCanGoBack` to decide whether
+to offer a back button. Pass the same stack name to `popRoute`.
+
+```tsrx
+import { Pressable, Text, useRoute, useCanGoBack, popRoute } from '@octane-xplat/ui'
+
+export function NavigationStatus() {
+  const route = useRoute('root')
+  const canGoBack = useCanGoBack('root')
+  return <>
+    <Text>{route?.name ?? 'Home'}</Text>
+    <Pressable disabled={!canGoBack} onPress={() => popRoute('root')}>
+      <Text>Back</Text>
+    </Pressable>
+  </>
+}
+```
+
+Prefer string IDs in route params: generated route helpers use string params,
+and IDs make URLs shareable. The low-level router JSON-encodes object params
+on web with a warning; do not rely on it to carry application state. With a
+registered `/projects/:id` screen, navigate using the project ID:
+
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+
+pushRoute({ stack: 'root', name: 'projects/:id', params: { id: '42' } })
+```
+
+Named tab stacks keep each tab's navigation separate. `Tabs` renders the tab's
+initial content; pushing a route into that stack opens it inside the tab pane.
+The screen below assumes `settings` is already registered.
+
+```tsrx
+import { Tabs, Text, Pressable, pushRoute } from '@octane-xplat/ui'
+
+export function AppTabs() {
+  return <Tabs tabs={[
+    { title: 'Home', stack: 'home', render: () => <Text>Home</Text> },
+    { title: 'Account', stack: 'account', render: () =>
+      <Pressable onPress={() => pushRoute({ stack: 'account', name: 'settings', params: {} })}>
+        <Text>Settings</Text>
+      </Pressable> },
+  ]} />
+}
+```
+
+For loaders, deep links, route config, and generated route types, see the
+[navigation guide](https://octane-xplat.goddardai.org/navigation).

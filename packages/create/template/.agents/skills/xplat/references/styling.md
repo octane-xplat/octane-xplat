@@ -1,40 +1,80 @@
 # Styling
 
-Two channels, chosen by _when the value is known_:
+Use classes for static styling and inline style objects for values that change
+while the app runs. Put the CSS in `src/style.css` and the component in a
+`.tsrx` file.
 
-- `className` → CSS classes and design tokens. Use for anything static.
-- `style={{ ... }}` → inline object for runtime values: animated offsets,
-  measured sizes, state-driven opacity. Don't put static styles here.
+```css
+.trip-card {
+	padding: 16px;
+	border-radius: 12px;
+}
+```
 
-## The portable subset
+```tsrx
+import { View, Text } from '@octane-xplat/ui'
 
-Shared CSS compiles for both targets. The native build rewrites `px` →
-`dip` and warns on declarations it can't honor — `position: fixed`/`sticky`,
-`margin-*: auto`, `float`, `box-shadow`, `white-space: pre-wrap`. A warning
-means the property does nothing on native: restructure (flex alignment,
-`Absolute`, transforms) instead of suppressing it.
+export function TripCard(props: { opacity: number }) {
+  return <View className="trip-card" style={{ opacity: props.opacity }}>
+    <Text>Your next adventure</Text>
+  </View>
+}
+```
 
-NativeScript limits worth knowing before you design around them:
+## Shared CSS
 
-- A scroll container can't clip children to a parent's rounded corners —
-  inset separators/padding instead.
-- CSS transforms reach native views only through the `transform:`
-  shorthand — `transform: translateX(16) scaleX(0.95)`. For motion, prefer
-  `useAnimation`, which composes this per platform.
+Shared CSS compiles for web and native. Prefer flex layouts, padding, and
+supported transforms. The native build warns when it drops declarations such
+as `position: fixed`, `margin: auto`, or `box-shadow`; resolve the warning
+before depending on that style.
+
+```css
+.trip-card {
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+}
+.trip-actions {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+```
 
 ## Tokens and dark mode
 
-`import '@octane-xplat/ui/theme/tokens.css'` (already in `main.web.tsrx`)
-provides color/spacing tokens and `--font-sans`/`--font-mono` fallbacks.
-The shipped utility classes (`flex-1`, `items-center`, `gap-*`, `rounded`,
-`text-*`, …) mirror Tailwind v4 names and scales — write them as you would
-Tailwind utilities.
+The starter imports the framework's tokens. They provide shared layout rules; the starter
+defines its app palette in `src/style.css`. Use the palette tokens in your CSS.
 
-Dark mode: `useColorScheme()` reads the system; the app's override pattern
-is in `src/App.tsrx` — hold `boolean | null` state, apply a `dark`/`light`
-class on the root, and let tokens switch underneath.
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+```
+
+```css
+.trip-card {
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+```
+
+Use `useColorScheme()` to follow the system theme. Apply the matching class to
+the root so the token colors follow the theme; a user preference can override
+this in the starter's `src/App.tsrx`.
+
+```tsrx
+import { View, Text, useColorScheme } from '@octane-xplat/ui'
+
+export function ThemePreview() {
+  const scheme = useColorScheme()
+  return <View className={scheme === 'dark' ? 'dark' : 'light'}>
+    <Text>Ready for your next trip</Text>
+  </View>
+}
+```
 
 ## Fonts
+
+System fonts are the default. Add a custom font when your app needs one.
 
 `pnpm xplat fonts add <file>` registers a font everywhere: stages a `.ttf`
 into `src/fonts` (iOS/Android pick it up from there; `.woff`/`.woff2` inputs
@@ -48,3 +88,8 @@ fonts carry their weight range — `font-weight` on `Text` selects the matching
 instance. Family names differ per target; the command reads them from the
 file itself. See the styling guide at
 https://octane-xplat.goddardai.org/styling for the per-target table.
+
+```sh
+pnpm xplat fonts add ./Inter.ttf
+pnpm xplat fonts add @fontsource-variable/inter --install
+```
