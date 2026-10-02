@@ -40,6 +40,11 @@ or real-IME tests.
   production Web build and recipe validation passed at the same revision.
   The fresh packed-consumer run passed all 11 gates, including install, lint,
   typing, build and starter rendering in Chromium, Firefox and WebKit.
+- Focused input, SQLite worker and platform-sheet browser runners passed in
+  Chromium, Firefox and WebKit at `5d46ceb68fd2656ba3e7420d33d067ba206fbfad`.
+  SQLite reload persistence passed in Chromium/Firefox; WebKit exercised the
+  documented transient fallback because persistence was unavailable. These
+  runs do not qualify real IME, screen readers or Safari devices.
 - Native object-driver suite: 12 tests across six files passed.
 - Playwright 1.63.0 input readiness passed on Chromium 153.0.8010.12, Firefox
   155.0, and WebKit 26.6: keyboard input and selection replacement, controlled

@@ -14,6 +14,11 @@ haptics.
 `authSession` uses platform APIs and a package-owned Android Custom Tabs Gradle
 dependency. Installing an unrelated optional package is not a core-release gate.
 
+The optional-service checker was rerun at
+`5d46ceb68fd2656ba3e7420d33d067ba206fbfad`: focused adapter typechecks,
+15 Node tests and all three browser probes passed. The runtime boundaries in
+the table remain unchanged.
+
 ## Fresh results and boundaries
 
 | Capability           | Web                                                                                                                                                                                                                                                                                                   | iOS                                                                                                                                                                 | Android                                                                                                                                                                                                  |
