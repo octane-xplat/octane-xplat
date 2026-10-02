@@ -3,6 +3,10 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import test from 'node:test'
+
+// Dep values must track the template, not a pinned snapshot — releases bump
+// template/package.json in lockstep.
+const TPL = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'package.json'), 'utf8'))
 import {
 	composeTargets,
 	applyTarget,
@@ -75,8 +79,8 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 	assert.equal(manifest.scripts.typecheck, 'tsrx-tsc --noEmit')
 	assert.ok(!('dependencies' in manifest && '@nativescript/core' in manifest.dependencies))
 	assert.equal(manifest.devDependencies['@nativescript/ios'], undefined)
-	assert.equal(manifest.devDependencies['@octanejs/vite-plugin'], '0.1.61')
-	assert.equal(manifest.dependencies['@octane-xplat/ui'], '^0.7.3')
+	assert.equal(manifest.devDependencies['@octanejs/vite-plugin'], TPL.devDependencies['@octanejs/vite-plugin'])
+	assert.equal(manifest.dependencies['@octane-xplat/ui'], TPL.dependencies['@octane-xplat/ui'])
 })
 
 test('ios-only scaffold carries shared native machinery but not android', (t) => {
@@ -95,7 +99,7 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
 		'tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json',
 	)
 
-	assert.equal(manifest.devDependencies['@nativescript/ios'], '9.1.0')
+	assert.equal(manifest.devDependencies['@nativescript/ios'], TPL.devDependencies['@nativescript/ios'])
 	assert.equal(manifest.devDependencies['@nativescript/android'], undefined)
 })
 
@@ -131,8 +135,8 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
 		'tsrx-tsc --noEmit && tsrx-tsc --noEmit -p tsconfig.native.json',
 	)
 
-	assert.equal(manifest.devDependencies['@nativescript/ios'], '9.1.0')
-	assert.equal(manifest.dependencies['@nativescript/core'], '9.1.2')
+	assert.equal(manifest.devDependencies['@nativescript/ios'], TPL.devDependencies['@nativescript/ios'])
+	assert.equal(manifest.dependencies['@nativescript/core'], TPL.dependencies['@nativescript/core'])
 
 	// The web-only scaffold's yaml lacked native patch entries — add restores
 	// them so the next `pnpm install` doesn't miss the framework patches.
