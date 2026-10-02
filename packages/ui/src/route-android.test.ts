@@ -74,7 +74,7 @@ vi.mock('@nativescript-community/octane', () => ({
 	},
 }))
 
-vi.mock('./route-host.mobile', () => ({ RouteHost: () => null }))
+vi.mock('./route-host', () => ({ RouteHost: () => null }))
 vi.mock('./stacks', async () => import('./stacks.ts'))
 let router: typeof import('./route')
 let stacks: typeof import('./stacks')

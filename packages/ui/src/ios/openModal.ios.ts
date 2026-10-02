@@ -3,7 +3,7 @@ import { createNativeScriptRoot } from '@nativescript-community/octane'
 import type { UniversalComponent } from 'octane/universal'
 import type { ModalOpenOptions, ModalOpenResult, OpenModal } from '../props'
 import { applyThemeClasses } from '../theme/theme-scheme'
-import { modalPresenter } from '../modal-presenter.mobile'
+import { modalPresenter } from '../modal-presenter'
 
 /** Open a component in its own NativeScript modal root and resolve on close. */
 export const openModal: OpenModal = (Component, params, options = {}) =>

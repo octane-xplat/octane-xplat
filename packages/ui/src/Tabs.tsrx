@@ -3,7 +3,7 @@ import { useState } from 'octane';
 import { cx } from './cx';
 import { TabList, Tab } from './TabList.tsrx';
 import { layoutsForRoute, screenFor, useRoute } from './route';
-import { RouteHost, screenParamsFor } from './route-host.mobile';
+import { RouteHost, screenParamsFor } from './route-host';
 import type { TabSpec, TabsProps } from './props';
 
 export type { TabSpec } from './props';

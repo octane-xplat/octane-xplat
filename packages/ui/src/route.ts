@@ -31,8 +31,8 @@ import {
 	RouteRedirect,
 } from './route-table'
 
-import { RouteHost } from './route-host.mobile'
-import { modalPresenter } from './modal-presenter.mobile'
+import { RouteHost } from './route-host'
+import { modalPresenter } from './modal-presenter'
 import type { Route, RouteManifest, RouteMeta, ScreenTable } from './props'
 
 export type { Route } from './props'

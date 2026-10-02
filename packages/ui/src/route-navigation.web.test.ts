@@ -25,7 +25,7 @@ vi.mock('./stacks', () => ({
 	stackEntries: () => new Map().entries(),
 }))
 
-vi.mock('./route-host.mobile', () => ({ RouteHost: () => null }))
+vi.mock('./route-host', () => ({ RouteHost: () => null }))
 
 function deferred<T>() {
 	let resolve!: (value: T) => void
