@@ -83,5 +83,5 @@ entries stamped older than the releasing version.
 `CHANGELOG.md` is generated — **do not edit it as part of feature/fix work.**
 Write commit messages for app developers; they are the changelog source.
 Bump/changelog inference only counts commits touching `packages/**`
-(excluding `app`, `demos`, `typegen-fixture`, `tsrx-typegen`), and skips
+(excluding `app`, `demos`, `media-probe`, `typegen-fixture`, `tsrx-typegen`), and skips
 `docs:`/`test:`/`chore:`/`ci:`/`build:`/`style:` types.

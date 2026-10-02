@@ -34,6 +34,7 @@ env:
     --include-path 'packages/**'
     --exclude-path 'packages/app/**'
     --exclude-path 'packages/demos/**'
+    --exclude-path 'packages/media-probe/**'
     --exclude-path 'packages/typegen-fixture/**'
     --exclude-path 'packages/tsrx-typegen/**'
 
