@@ -1,0 +1,138 @@
+diff --git a/apps/automated/src/ui/layouts/flexbox-layout-tests.ts b/apps/automated/src/ui/layouts/flexbox-layout-tests.ts
+index d4465ec5..6dcd95c7 100644
+--- a/apps/automated/src/ui/layouts/flexbox-layout-tests.ts
++++ b/apps/automated/src/ui/layouts/flexbox-layout-tests.ts
+@@ -1834,3 +1834,31 @@ export const testLiquidGlassViews_do_not_crash_when_updating_iosGlassEffect = is
+ 			TKUnit.assertTrue(root.isLoaded, 'Liquid glass view tree should remain loaded after glass effect updates.');
+ 		})
+ 	: undefined;
++
++const asymmetricPaddingActivity = (heightAttribute: string, child: string) =>
++	getViews(`<StackLayout><FlexboxLayout id="flexbox" iosOverflowSafeArea="false" width="200" ${heightAttribute}
++		flexDirection="column" paddingLeft="17" paddingTop="7" paddingRight="13" paddingBottom="11">
++		${child}
++	</FlexboxLayout></StackLayout>`);
++
++export const test_asymmetricPadding_fixedContentBox = test(
++	() => asymmetricPaddingActivity('height="60"', '<Label id="text1" text="child" height="10" />'),
++	noop,
++	({ flexbox, text1 }) => {
++		closeEnough(width(text1), dipToDp(170));
++		closeEnough(left(text1) - left(flexbox), dipToDp(17));
++		closeEnough(top(text1) - top(flexbox), dipToDp(7));
++	},
++);
++
++export const test_asymmetricPadding_autoHeight = test(
++	() => asymmetricPaddingActivity('', '<Label id="text1" text="child" height="10" />'),
++	noop,
++	({ flexbox }) => closeEnough(height(flexbox), dipToDp(28)),
++);
++
++export const test_asymmetricPadding_emptyAutoHeight = test(
++	() => asymmetricPaddingActivity('', ''),
++	noop,
++	({ flexbox }) => closeEnough(height(flexbox), dipToDp(18)),
++);
+diff --git a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp
+index 7da081f4..2eb93b4f 100644
+--- a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp
++++ b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.cpp
+@@ -113,17 +113,21 @@ namespace winrt::NativeScript::Widgets::implementation
+     // MeasureOverride
+     Size FlexboxLayout::MeasureOverride(Size const& avail)
+     {
++        const double horizontal = m_padding.Left + m_padding.Right;
++        const double vertical = m_padding.Top + m_padding.Bottom;
++        const Size content{ static_cast<float>((std::max)(0.0, static_cast<double>(avail.Width) - horizontal)),
++                            static_cast<float>((std::max)(0.0, static_cast<double>(avail.Height) - vertical)) };
+         m_lines.clear();
+         auto children = Children();
+         if (children.Size() == 0)
+         {
+-            return Size{ 0, 0 };
++            return Size{ static_cast<float>(horizontal), static_cast<float>(vertical) };
+         }
+ 
+         const bool isRow = IsRow();
+         const bool doWrap = (m_flexWrap != WRAP_NO);
+-        const double mainAv = MainOf(avail, isRow);
+-        const double crossAv = CrossOf(avail, isRow);
++        const double mainAv = MainOf(content, isRow);
++        const double crossAv = CrossOf(content, isRow);
+         const bool mainInf = std::isinf(mainAv);
+         const bool crossInf = std::isinf(crossAv);
+ 
+@@ -273,7 +277,8 @@ namespace winrt::NativeScript::Widgets::implementation
+             totalMain = mainAv;
+         }
+ 
+-        return AsSize(totalMain, totalCross, isRow);
++        auto desired = AsSize(totalMain, totalCross, isRow);
++        return Size{ desired.Width + static_cast<float>(horizontal), desired.Height + static_cast<float>(vertical) };
+     }
+ 
+     // ArrangeOverride
+@@ -287,8 +292,10 @@ namespace winrt::NativeScript::Widgets::implementation
+         const bool isRow = IsRow();
+         const bool revMain = (m_flexDirection == DIR_ROW_REV || m_flexDirection == DIR_COL_REV);
+         const bool revWrap = (m_flexWrap == WRAP_REV);
+-        const double mainFn = MainOf(final, isRow);
+-        const double crossFn = CrossOf(final, isRow);
++        const Size content{ static_cast<float>((std::max)(0.0, static_cast<double>(final.Width) - m_padding.Left - m_padding.Right)),
++                            static_cast<float>((std::max)(0.0, static_cast<double>(final.Height) - m_padding.Top - m_padding.Bottom)) };
++        const double mainFn = MainOf(content, isRow);
++        const double crossFn = CrossOf(content, isRow);
+ 
+         // Gaps: main-axis between items, cross-axis between lines.
+         const double mainGap  = isRow ? m_columnGap : m_rowGap;
+@@ -390,7 +397,10 @@ namespace winrt::NativeScript::Widgets::implementation
+                     break;
+                 }
+ 
+-                item.Element.Arrange(AsRect(m_scratchMainPos[vj], crossPos, item.MainSize, itemCross, isRow));
++                auto rect = AsRect(m_scratchMainPos[vj], crossPos, item.MainSize, itemCross, isRow);
++                rect.X += static_cast<float>(m_padding.Left);
++                rect.Y += static_cast<float>(m_padding.Top);
++                item.Element.Arrange(rect);
+             }
+         }
+ 
+diff --git a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.h b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.h
+index 3933c7f9..4c5cc2fc 100644
+--- a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.h
++++ b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.h
+@@ -30,6 +30,12 @@ namespace winrt::NativeScript::Widgets::implementation
+         double RowGap() const noexcept { return m_rowGap; }
+         void RowGap(double v) { if (m_rowGap != v) { m_rowGap = v; InvalidateMeasure(); } }
+ 
++        winrt::Microsoft::UI::Xaml::Thickness Padding() const noexcept { return m_padding; }
++        void Padding(winrt::Microsoft::UI::Xaml::Thickness const& value)
++        {
++            if (m_padding.Left != value.Left || m_padding.Top != value.Top || m_padding.Right != value.Right || m_padding.Bottom != value.Bottom) { m_padding = value; InvalidateMeasure(); }
++        }
++
+         // Layout
+         winrt::Windows::Foundation::Size MeasureOverride(winrt::Windows::Foundation::Size const& availableSize);
+         winrt::Windows::Foundation::Size ArrangeOverride(winrt::Windows::Foundation::Size const& finalSize);
+@@ -70,6 +76,8 @@ namespace winrt::NativeScript::Widgets::implementation
+         double  m_columnGap{ 0.0 };    // gap between items along the main axis (CSS column-gap)
+         double  m_rowGap{ 0.0 };       // gap between flex lines along the cross axis (CSS row-gap)
+ 
++        winrt::Microsoft::UI::Xaml::Thickness m_padding{ 0, 0, 0, 0 };
++
+         bool IsRow() const noexcept { return m_flexDirection == 0 || m_flexDirection == 1; }
+ 
+         struct FlexItem
+diff --git a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.idl b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.idl
+index 7484f060..7c218a10 100644
+--- a/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.idl
++++ b/packages/ui-mobile-base/windows/widgets-cpp/FlexboxLayout.idl
+@@ -23,6 +23,7 @@ namespace NativeScript.Widgets
+         Int32 AlignContent;
+         Double ColumnGap;
+         Double RowGap;
++        Microsoft.UI.Xaml.Thickness Padding;
+ 
+         // Per-child attached properties (set by JS via these static accessors).
+         static Int32 GetOrder(Microsoft.UI.Xaml.UIElement element);

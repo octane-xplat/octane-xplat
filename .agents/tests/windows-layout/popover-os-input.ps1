@@ -1,0 +1,9 @@
+$ErrorActionPreference='Stop'
+Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes
+Add-Type @'
+using System;using System.Runtime.InteropServices;
+public static class LabResize {[DllImport("user32.dll")] public static extern bool SetCursorPos(int x,int y);[DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32.dll")] public static extern void mouse_event(uint flags,uint dx,uint dy,uint data,UIntPtr extra);[DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr h,IntPtr after,int x,int y,int w,int hgt,uint flags);}
+'@
+$windows=[System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children,[System.Windows.Automation.Condition]::TrueCondition)
+foreach($window in $windows){$p=Get-Process -Id $window.Current.ProcessId -ErrorAction SilentlyContinue;if($p.ProcessName -ne 'windows'){continue};$before=$window.Current.BoundingRectangle.ToString();$ok=[LabResize]::SetWindowPos([IntPtr]$window.Current.NativeWindowHandle,[IntPtr]::Zero,0,0,800,650,6);Start-Sleep -Seconds 3;@{before=$before;after=$window.Current.BoundingRectangle.ToString();resized=$ok}|ConvertTo-Json|Set-Content C:\Users\octane\dev\layout-popover-resize.json;break}
+foreach($window in $windows){$p=Get-Process -Id $window.Current.ProcessId -ErrorAction SilentlyContinue;if($p.ProcessName -ne 'windows'){continue};[LabResize]::SetForegroundWindow([IntPtr]$window.Current.NativeWindowHandle)|Out-Null;Start-Sleep -Milliseconds 400;for($i=0;$i -lt 2;$i++){ $bounds=$window.Current.BoundingRectangle;[LabResize]::SetCursorPos([int]($bounds.Right-40),[int]($bounds.Bottom-40))|Out-Null;[LabResize]::mouse_event(2,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 100;[LabResize]::mouse_event(4,0,0,0,[UIntPtr]::Zero);Start-Sleep -Milliseconds 700};break}

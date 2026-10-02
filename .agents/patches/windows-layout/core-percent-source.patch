@@ -1,0 +1,162 @@
+diff --git a/packages/core/ui/core/view/index.windows.ts b/packages/core/ui/core/view/index.windows.ts
+index eb540f25..c79dce79 100644
+--- a/packages/core/ui/core/view/index.windows.ts
++++ b/packages/core/ui/core/view/index.windows.ts
+@@ -637,6 +637,10 @@ export class View extends ViewCommon {
+ 
+ 	private _percentWidth: number | null = null; // null = not set
+ 	private _percentHeight: number | null = null;
++	private _percentParent: View | null = null;
++	private _percentSizingGeneration = 0;
++	private _percentSizingPending = false;
++	private _percentParentChanged = () => this._schedulePercentSizing();
+ 	// Held SizeChanged delegate (prevents GC; see _ensureSizeWatch).
+ 	private _sizeChangedDelegate: any = null;
+ 	private _sizeWatchWired = false;
+@@ -1137,6 +1141,58 @@ export class View extends ViewCommon {
+ 		}
+ 	}
+ 
++	onLoaded(): void {
++		super.onLoaded();
++		this._syncPercentParent();
++	}
++
++	onUnloaded(): void {
++		this._clearPercentParent();
++		super.onUnloaded();
++	}
++
++	_parentChanged(oldParent: any): void {
++		super._parentChanged(oldParent);
++		this._syncPercentParent();
++	}
++
++	private _clearPercentParent(): void {
++		this._percentSizingGeneration++;
++		this._percentSizingPending = false;
++		this._percentParent?.off(ViewCommon.layoutChangedEvent, this._percentParentChanged);
++		for (const eventName of ['paddingLeftChange', 'paddingRightChange', 'paddingTopChange', 'paddingBottomChange']) {
++			this._percentParent?.style.off(eventName, this._percentParentChanged);
++		}
++		this._percentParent = null;
++	}
++
++	private _syncPercentParent(): void {
++		const parent = this.isLoaded && (this._percentWidth != null || this._percentHeight != null) && this.parent instanceof View ? this.parent : null;
++		if (parent !== this._percentParent) {
++			this._clearPercentParent();
++			this._percentParent = parent;
++			// Core Observable multiplexes listeners over the parent's existing deferred size watch.
++			parent?.on(ViewCommon.layoutChangedEvent, this._percentParentChanged);
++			for (const eventName of ['paddingLeftChange', 'paddingRightChange', 'paddingTopChange', 'paddingBottomChange']) {
++				parent?.style.on(eventName, this._percentParentChanged);
++			}
++		}
++		if (parent) this._schedulePercentSizing();
++	}
++
++	private _schedulePercentSizing(): void {
++		if (this._percentSizingPending) return;
++		this._percentSizingPending = true;
++		const generation = this._percentSizingGeneration;
++		const ref = new WeakRef(this);
++		setTimeout(() => {
++			const owner = ref.deref();
++			if (!owner || generation !== owner._percentSizingGeneration) return;
++			owner._percentSizingPending = false;
++			if (owner.isLoaded && owner._percentParent === owner.parent) owner._applyPercentSizing();
++		}, 0);
++	}
++
+ 	// XAML lays views out natively, so core's own layout pass (and the bounds it records) never runs:
+ 	// read the bounds off the element. In device pixels relative to the parent, as on Android.
+ 	_getCurrentLayoutBounds(): { left: number; top: number; right: number; bottom: number } {
+@@ -1410,6 +1466,7 @@ export class View extends ViewCommon {
+ 	}
+ 
+ 	disposeNativeView(): void {
++		this._clearPercentParent();
+ 		const nativeView = this.nativeViewProtected as any;
+ 		if (nativeView && this._sizeWatchWired) {
+ 			nativeView.SizeChanged = null;
+@@ -1417,6 +1474,8 @@ export class View extends ViewCommon {
+ 		// Reset so a recycled view re-wires on the next size-dependent property set.
+ 		this._sizeWatchWired = false;
+ 		this._sizeChangedDelegate = null;
++		this._lastLayoutW = NaN;
++		this._lastLayoutH = NaN;
+ 		// Its shadow and border overlays are siblings in the old parent.
+ 		this._viewCompositionHandler?.Free();
+ 		this._viewCompositionHandler = null;
+@@ -1493,20 +1552,22 @@ export class View extends ViewCommon {
+ 
+ 		try {
+ 			const parentNative = (this.parent as any)?.nativeViewProtected as any;
+-			const parentWidth = parentNative?.ActualWidth || 0;
+-			const parentHeight = parentNative?.ActualHeight || 0;
++			const parentStyle = (this.parent as View)?.style;
++			// Percentages refer to the content box, including when the parent owns native padding.
++			const parentWidth = Math.max(0, (parentNative?.ActualWidth || 0) - (toXamlLength(parentStyle?.paddingLeft) || 0) - (toXamlLength(parentStyle?.paddingRight) || 0));
++			const parentHeight = Math.max(0, (parentNative?.ActualHeight || 0) - (toXamlLength(parentStyle?.paddingTop) || 0) - (toXamlLength(parentStyle?.paddingBottom) || 0));
+ 
+ 			// Only apply when parent has a real layout size. Using Window.Bounds as fallback when
+ 			// parent is 0 causes nested height="100%" views to overflow the container and cover
+ 			// sibling rows; LayoutUpdated fires again once the parent is properly sized.
+-			if (this._percentWidth != null && parentWidth > 0) {
++			if (this._percentWidth != null && parentNative?.ActualWidth > 0) {
+ 				const w = parentWidth * (this._percentWidth);
+-				nativeView.Width = isFinite(w) ? w : NaN;
++				if (Math.abs(nativeView.Width - w) >= 0.01 || !isFinite(nativeView.Width)) nativeView.Width = isFinite(w) ? w : NaN;
+ 			}
+ 
+-			if (this._percentHeight != null && parentHeight > 0) {
++			if (this._percentHeight != null && parentNative?.ActualHeight > 0) {
+ 				const h = parentHeight * (this._percentHeight);
+-				nativeView.Height = isFinite(h) ? h : NaN;
++				if (Math.abs(nativeView.Height - h) >= 0.01 || !isFinite(nativeView.Height)) nativeView.Height = isFinite(h) ? h : NaN;
+ 			}
+ 		} catch (_e) { }
+ 	}
+@@ -1532,10 +1593,12 @@ export class View extends ViewCommon {
+ 			const pct = (value as any).value;
+ 			if (this.parent instanceof View && this.parent._setChildPercentSize(this, true, pct)) {
+ 				this._percentWidth = null;
++				this._syncPercentParent();
+ 				this.nativeViewProtected.Width = NaN;
+ 				return;
+ 			}
+ 			this._percentWidth = pct;
++			this._syncPercentParent();
+ 			this._ensureSizeWatch(); // re-apply percent when the parent resizes
+ 			this.nativeViewProtected.Width = NaN;
+ 			if (pct >= 1) {
+@@ -1557,6 +1620,7 @@ export class View extends ViewCommon {
+ 		}
+ 
+ 		this._percentWidth = null;
++		this._syncPercentParent();
+ 		if (this.parent instanceof View) this.parent._setChildPercentSize(this, true, null);
+ 		// Clear any previously set flex-basis so the C++ widget falls back to DesiredSize.
+ 		try {
+@@ -1577,10 +1641,12 @@ export class View extends ViewCommon {
+ 			const pct = (value as any).value;
+ 			if (this.parent instanceof View && this.parent._setChildPercentSize(this, false, pct)) {
+ 				this._percentHeight = null;
++				this._syncPercentParent();
+ 				this.nativeViewProtected.Height = NaN;
+ 				return;
+ 			}
+ 			this._percentHeight = pct;
++			this._syncPercentParent();
+ 			this._ensureSizeWatch(); // re-apply percent when the parent resizes
+ 			this.nativeViewProtected.Height = NaN;
+ 			if (pct >= 1) {
+@@ -1597,6 +1663,7 @@ export class View extends ViewCommon {
+ 		}
+ 
+ 		this._percentHeight = null;
++		this._syncPercentParent();
+ 		if (this.parent instanceof View) this.parent._setChildPercentSize(this, false, null);
+ 		this.nativeViewProtected.Height = toXamlLength(value);
+ 	}
