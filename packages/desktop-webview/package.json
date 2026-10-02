@@ -1,5 +1,10 @@
 {
 	"name": "@octane-xplat/desktop-webview",
+	"repository": {
+		"type": "git",
+		"directory": "packages/desktop-webview",
+		"url": "https://github.com/octane-xplat/octane-xplat"
+	},
 	"version": "0.8.0",
 	"description": "System WebView host adapters for desktop Octane applications",
 	"license": "MIT",

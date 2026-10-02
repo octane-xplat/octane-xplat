@@ -4,7 +4,7 @@
 	"description": "Cross-target SQLite persistence — sqlite-wasm worker on web, @nativescript-community/sqlite on iOS/Android",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/octane-xplat/octane-xplat.git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
 		"directory": "packages/sqlite"
 	},
 	"files": [
