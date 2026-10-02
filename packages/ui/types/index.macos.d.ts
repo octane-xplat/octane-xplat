@@ -263,7 +263,6 @@ export declare const Lightbox: Component<P.LightboxProps>
 export declare const Toast: Component<P.ToastProps>
 export declare const ToastViewport: Component<P.ToastViewportProps>
 export declare const Tooltip: Component<P.TooltipProps>
-export { Markdown, MarkdownScreen } from './generated/Markdown.js'
 export { parseMdDoc, parseMdNodes, mdInlineText } from './generated/markdown-parse.js'
 export {
 	createMarkdownIncrementalState,
@@ -377,3 +376,66 @@ export declare function useStore<T>(store: P.ReadableStore<T>): T
 export declare const openBottomSheet: P.OpenBottomSheet
 export declare function closeBottomSheet(result?: P.ModalOpenResult): void
 export declare function bottomSheetHost(): null
+
+/** Anchored or fixed AppKit popup; content lives in a separate renderer root. */
+export declare function useLayer<O extends P.LayerOptions>(
+	options: O,
+): O extends P.FixedLayerOptions ? P.FixedLayerReturn : P.ContextLayerReturn
+
+export declare const Calendar: Component<P.CalendarProps>
+export declare const DateInput: Component<P.DateInputProps>
+export declare const DateRangeInput: Component<P.DateRangeInputProps>
+export declare const DateTimeInput: Component<P.DateTimeInputProps>
+export declare const TimeInput: Component<P.TimeInputProps>
+export {
+	useCalendarDays,
+	useCalendarConstraints,
+	useCalendarNavigation,
+} from './generated/calendar-hooks.js'
+export { isSameDay, isDateInRange, getWeekNumber } from './generated/calendar-core.js'
+export type { CalendarDay, CalendarMonthGrid } from './generated/calendar-core.js'
+export type {
+	UseCalendarDaysOptions,
+	UseCalendarDaysReturn,
+	UseCalendarConstraintsOptions,
+	UseCalendarConstraintsReturn,
+	UseCalendarNavigationOptions,
+	UseCalendarNavigationReturn,
+} from './generated/calendar-hooks.js'
+export { useFieldControl } from './generated/field-context.js'
+
+export declare const Blockquote: Component<P.BlockquoteProps>
+export declare const Code: Component<P.CodeProps>
+export declare const CodeBlock: Component<P.CodeBlockProps>
+export declare const MetadataList: Component<P.MetadataListProps>
+export declare const MetadataListItem: Component<P.MetadataListItemProps>
+export declare const Thumbnail: Component<P.ThumbnailProps>
+export declare const ProgressBar: Component<P.ProgressBarProps>
+export declare const StatusDot: Component<P.StatusDotProps>
+export declare const Timestamp: Component<P.TimestampProps>
+export declare const Timer: Component<P.TimerProps>
+export declare const Citation: Component<P.CitationProps>
+export declare const Outline: Component<P.OutlineProps>
+export { useOutlineFromMarkdown, useOutlineFromDoc } from './generated/outline-hooks.js'
+export declare function useOutlineFromDOM(
+	containerRef?: unknown,
+	options?: P.OutlineFromDOMOptions,
+): P.OutlineItem[]
+export {
+	parseOutlineFromMarkdown,
+	outlineFromDoc,
+	markdownHeadings,
+	inlineMarkdownText,
+	slugify,
+	uniqueSlug,
+} from './generated/outline-utils.js'
+export {
+	tokenize,
+	tokenizeAsync,
+	tokenizeStreaming,
+	flatTokensToLines,
+	SYNC_TOKENIZE_THRESHOLD,
+	TOKEN_TYPES,
+	syntaxTokenVar,
+	syntaxTokenVarRef,
+} from './generated/code-tokenizer.js'

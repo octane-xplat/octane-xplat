@@ -163,3 +163,40 @@ Checks run for this change:
 - Repository lint and web/mobile app type checks: **failed** with diagnostics outside the changed files. Lint includes existing spacing/platform-boundary issues; type checks include demo SearchSource/Video types and mobile motion/example issues. These failures prevent a repository-wide clean validation claim.
 
 Rebased onto local `main` at `dc6d29bc` before final checks. The chart MeasureResult error disappeared; the remaining repository lint and web/mobile type failures persisted. Both focused test suites passed again after the rebase. Changed files have no diagnostics in the repository lint output.
+
+## AppKit barrel and declaration follow-up
+
+Rechecked on rich-cub base `8b6f50cd` without changing the layer implementation.
+The live-content update fix above is already present, and its host bridge test
+still passes. A fixture exporting the normal `@octane-xplat/ui` barrel builds
+with the production AppKit resolver and platform boundary guard; the earlier
+`svg.mobile.ts` blocker does not reproduce in that fixture.
+
+The handwritten macOS declaration entry omitted `useLayer` and 42 other
+runtime exports. It now declares those existing values, keeps AppKit component
+signatures, and removes a duplicate Markdown re-export. The maintained packed
+consumer compares every emitted barrel value with the tarball declarations and
+checks context/fixed `useLayer` return types in Bundler and NodeNext modes for
+both development and publication export maps. All four macOS consumer checks
+pass without installing mobile peers; the handwritten entry also passes a
+declaration semantic check with `skipLibCheck` disabled.
+
+Run `pnpm --filter @octane-xplat/ui test:macos` for the normal-barrel and isolated
+macOS packed gate. It builds UI first, then packs with lifecycle scripts disabled
+to isolate the macOS contract from unrelated mobile declaration closure issues.
+`pnpm --filter @octane-xplat/ui test:packed` retains the all-platform prepack gate.
+Neither gate establishes native rendering, input, focus, or positioning parity.
+
+The shared-overlays recipe's AC1 and AC5 apply: its public imports and platform
+limits remain unchanged. Existing overlay examples still use the normal public
+barrel. The packed consumer is the maintained regression example for layer types;
+coverage and actual check evidence are recorded separately in local Silo.
+
+Follow-up validation: UI web/native builds, declaration generation, native-dist
+import checks, the AppKit app typecheck, three existing object-driver layer tests,
+the docs production build, recipe/link checks, focused test-script lint, and
+whitespace checks pass. The full AppKit harness build fails on the Lottie import
+above. The all-platform packed gate fails on `Meter.d.ts`'s unresolved `./svg`
+and undeclared mobile drawer/renderer references; it no longer reports missing
+macOS value exports. Frozen installation's repository-wide postinstall also
+fails in unrelated image-crop declaration generation (`bind`/`MeasureResult`).

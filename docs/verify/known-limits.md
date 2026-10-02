@@ -56,8 +56,12 @@ export function Help() {
 system fonts, rendering updates, and the CLI's AppKit packaging contract. This
 coverage does not establish OS input delivery or general UI-package parity.
 
-The full `apps/macos` harness currently fails its build's platform boundary
-check because `packages/ui/src/svg.mobile.ts` is reachable in the macOS graph.
+The normal `@octane-xplat/ui` AppKit barrel now builds without reaching
+`svg.mobile.ts`. `pnpm --filter @octane-xplat/ui test:macos` checks that barrel
+and its packed runtime/declaration exports. This is build and type evidence;
+it does not establish AppKit rendering or OS input. The full `apps/macos`
+harness still fails resolving `./vendor/ui-lottie/src/lottie` in the Lottie
+leaf, even with the pinned submodule initialized.
 A packaged raw button `performClick` check also throws an unrecognized
 `buttonPressed` selector: the action string does not match the exposed
 one-argument method. Direct debug handler dispatch bypasses that native action

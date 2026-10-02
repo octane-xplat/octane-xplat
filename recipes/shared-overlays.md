@@ -137,7 +137,7 @@ export function TripPreview() {
 
 ## Documentation
 
-- AC1: [Surface selection](../docs/app/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../docs/app/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
+- AC1: The [AppKit normal-barrel fixture](../packages/ui/tests/macos-barrel.mjs) and [packed consumer](../packages/ui/tests/packed-consumer.mjs) check public import and declaration boundaries; they do not establish OS rendering or input. [Surface selection](../docs/app/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../docs/app/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
 - AC2: [Visibility and dismissal](../docs/app/primitives.md#own-temporary-surfaces) and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
 - AC3: [Ownership and cleanup](../docs/app/primitives.md#own-temporary-surfaces); renderer lifecycle examples in `packages/ui/src/overlay-lifecycle.mobile.test.ts` cover pending opens, closes, failures, and theme subscriptions. The [AppKit layer content test](../packages/ui/src/use-layer-host.mobile.test.tsrx) checks updated content and cleanup through the host bridge with an object driver; it does not establish OS input or rendering.
 - AC4: [Root boundaries](../docs/app/primitives.md#own-temporary-surfaces).

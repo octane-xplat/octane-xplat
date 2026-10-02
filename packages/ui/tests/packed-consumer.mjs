@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import ts from 'typescript'
+import { buildMacOSBarrel } from './macos-barrel.mjs'
 import { spawnSync } from 'node:child_process'
 import {
 	cpSync,
@@ -16,6 +18,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+const macosOnly = process.argv.includes('--macos-only')
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-ui-consumer-'))
@@ -43,7 +46,7 @@ function run(command, args, cwd) {
 	}
 }
 
-function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all') {
+async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all') {
 	console.log(`checking ${target} exports from map ${exportMapIndex} in ${mode.name} mode`)
 	const consumerRoot = join(
 		temporary,
@@ -58,15 +61,17 @@ function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all') {
 	// Web consumers only install the required peer — the optional
 	// NativeScript peers must stay out of the web type graph.
 	const dependencies =
-		peers === 'required'
-			? ['octane']
-			: [
-					'octane',
-					'@nativescript-community/octane',
-					'@nativescript-community/ui-drawer',
-					'@nativescript/core',
-					'@nativescript/types',
-				]
+		target === 'macos'
+			? ['octane', '@octanejs/vite-plugin']
+			: peers === 'required'
+				? ['octane']
+				: [
+						'octane',
+						'@nativescript-community/octane',
+						'@nativescript-community/ui-drawer',
+						'@nativescript/core',
+						'@nativescript/types',
+					]
 
 	for (const dependency of dependencies) {
 		const source = join(packageRoot, 'node_modules', dependency)
@@ -77,6 +82,53 @@ function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all') {
 		const targetPath = join(modules, dependency)
 		mkdirSync(dirname(targetPath), { recursive: true })
 		symlinkSync(source, targetPath, 'dir')
+	}
+
+	if (target === 'macos') {
+		for (const dependency of ['@octane-xplat/macos-renderer', '@nativescript/macos-node-api']) {
+			const targetPath = join(modules, dependency)
+			mkdirSync(dirname(targetPath), { recursive: true })
+			symlinkSync(join(repoRoot, 'apps/macos/node_modules', dependency), targetPath, 'dir')
+		}
+
+		// Compare the actual normal-barrel bundle with declarations in the tarball.
+		const runtimeValues = await buildMacOSBarrel(consumerRoot)
+		const declaration = join(packageLink, 'types/index.macos.d.ts')
+		const program = ts.createProgram([declaration], {
+			moduleResolution: ts.ModuleResolutionKind.Bundler,
+			module: ts.ModuleKind.ESNext,
+			target: ts.ScriptTarget.ESNext,
+			skipLibCheck: false,
+		})
+
+		const diagnostics = program.getSemanticDiagnostics(program.getSourceFile(declaration))
+		assert.equal(
+			diagnostics.length,
+			0,
+			ts.formatDiagnostics(diagnostics, {
+				getCanonicalFileName: (file) => file,
+				getCurrentDirectory: () => consumerRoot,
+				getNewLine: () => '\n',
+			}),
+		)
+
+		const checker = program.getTypeChecker()
+		const module = checker.getSymbolAtLocation(program.getSourceFile(declaration))
+		const declaredValues = checker
+			.getExportsOfModule(module)
+			.filter((symbol) => {
+				const resolved =
+					symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
+
+				return resolved.flags & ts.SymbolFlags.Value
+			})
+			.map((symbol) => symbol.name)
+
+		assert.deepEqual(
+			runtimeValues.sort(),
+			declaredValues.sort(),
+			'packed macOS runtime/declaration value exports match',
+		)
 	}
 
 	let source
@@ -104,7 +156,7 @@ void tooltip
 void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
-		source = `import { Button, KeyboardAvoiding, View, useAnimation, WebView, SafeArea } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, useOutlineFromDOM } from '@octane-xplat/ui'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue, WebViewProps, WebViewHandle, WebViewContentSize, WebViewLoadEvent } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
@@ -116,6 +168,21 @@ animation.spring(0, { damping: 14, stiffness: 120 })
 animation.stop()
 // @ts-expect-error duration is numeric milliseconds
 animation.to(1, { duration: 'fast' })
+const context = useLayer({ mode: 'context' })
+context.ref({})
+context.render('Context', { placement: 'below' })
+const fixed = useLayer({ mode: 'fixed' })
+fixed.render('Fixed', { x: 10, y: 20 })
+// @ts-expect-error fixed layers have no callable anchor ref
+fixed.ref({})
+// @ts-expect-error fixed coordinates must be numbers
+fixed.render('Invalid', { x: '10' })
+const calendar = <Calendar value="2026-10-02" />
+const code = <CodeBlock code="const count = 1" />
+const outline = useOutlineFromDOM()
+void calendar
+void code
+void outline
 const viewProps: ViewProps = { id: 'macos-root', gap: 4 }
 const keyboardProps: KeyboardAvoidingProps = { id: 'macos-form', children: 'Form' }
 const button = <Button {...buttonProps} />
@@ -244,7 +311,23 @@ void keyboard
 }
 
 try {
-	run('pnpm', ['pack', '--pack-destination', packOutput], packageRoot)
+	// The isolated macOS gate builds first, then packs without running the
+	// all-platform prepack checker. The default gate still runs that checker.
+	if (macosOnly) {
+		run('pnpm', ['build'], packageRoot)
+	}
+
+	run(
+		'pnpm',
+		[
+			'pack',
+			...(macosOnly ? ['--config.ignore-scripts=true'] : []),
+			'--pack-destination',
+			packOutput,
+		],
+		packageRoot,
+	)
+
 	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
 	assert.equal(tarballs.length, 1, 'pnpm pack produces one tarball')
 	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
@@ -277,21 +360,21 @@ try {
 		consumerManifest.exports = exportsMap
 		writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 
-		for (const target of ['web', 'native', 'macos']) {
+		for (const target of macosOnly ? ['macos'] : ['web', 'native', 'macos']) {
 			for (const mode of [
 				{ name: 'bundler', module: 'esnext', moduleResolution: 'bundler' },
 				{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
 			]) {
-				typecheck(consumerPackage, target, mode, index)
+				await typecheck(consumerPackage, target, mode, index)
 				if (target === 'web') {
-					typecheck(consumerPackage, target, mode, index, 'required')
+					await typecheck(consumerPackage, target, mode, index, 'required')
 				}
 			}
 		}
 	}
 
 	console.log(
-		'ui packed consumer: web/native/macos exports and platform subpaths typecheck in Bundler and NodeNext modes',
+		`ui packed consumer: ${macosOnly ? 'macos' : 'web/native/macos'} runtime/declaration exports and consumers pass in Bundler and NodeNext modes`,
 	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })
