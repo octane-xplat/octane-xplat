@@ -78,5 +78,6 @@ by [framework](framework-notes.md), [architecture](architecture-notes.md),
 resolution](module-resolution-notes.md), [animation](animation-notes.md),
 [testing](testing-notes.md), [CSS support](css-support-notes.md),
 [SQLite persistence](sqlite-notes.md), [smooth corners](smooth-corners.md),
-the experimental [Windows target](windows-notes.md), [Windows
-setup](windows-setup.md), and [native AppKit SVG rendering](icon-svg-notes.md).
+[charts](charts.md), the experimental [Windows target](windows-notes.md),
+[Windows setup](windows-setup.md), and [native AppKit SVG
+rendering](icon-svg-notes.md).
