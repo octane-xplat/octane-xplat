@@ -106,9 +106,19 @@ export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => text('grid-row-a') === 'Alice1')
 	ctx.assert('reset columns', text('grid-row-a'), 'Alice1')
 	await ctx.press('grid-settings')
+	// NativeScript's initial screen-sized frame is positive even before layout.
+	await ctx.waitFor(() => {
+		const header = ctx.find('grid-th-name') as any
+		const grid = ctx.find('grid') as any
+		return (
+			header && grid &&
+			header.isLoaded !== false && grid.isLoaded !== false &&
+			header.isLayoutValid !== false && grid.isLayoutValid !== false &&
+			(ctx.inspect('grid-th-name').frame?.width ?? 0) > 0
+		)
+	})
 	ctx.record('before-width-header', ctx.inspect('grid-th-name'))
 	ctx.record('before-width-grid', ctx.inspect('grid'))
-	await ctx.waitFor(() => (ctx.inspect('grid-th-name').frame?.width ?? 0) > 0)
 	const before = ctx.inspect('grid-th-name').frame!.width
 	await ctx.press('grid-th-name-widen')
 	await ctx.waitFor(() => Math.abs(ctx.inspect('grid-th-name').frame!.width - before - 10) < 1)
