@@ -733,3 +733,11 @@ keyboard/focus manager. The remedy needs shared desktop modal lifetime rules
 with a Windows focus/key adapter, purpose-aware Escape behavior, background
 inertness, nested-modal ownership, and focus restoration/cleanup. The working
 shade/lifetime path does not supply those semantics. Dialog remains parked.
+
+The corrected rich-text inspection reads `nativeTextViewProtected` (the inner
+TextBlock), rather than Label's Border wrapper. The explicit FormattedString
+control has two native Inlines: `First run ` at FontWeight400 and `bold run` at
+FontWeight700. Native TextBlock.Text is `First run bold run`; height19 DIP. This
+proves the Windows rich-run bridge path for this case and narrows the nested
+Text failure to driver ownership/insertion. Earlier `runs:null` from inspecting
+the Border was not a native rich-text failure. No screenshot/pixel claim is made.
