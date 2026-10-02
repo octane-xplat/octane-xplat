@@ -31,6 +31,7 @@ async function pack(root) {
 
 const renderer = await pack(packageRoot)
 const cli = await pack(join(repo, 'packages/cli'))
+const create = await pack(join(repo, 'packages/create'))
 const fixture = join(packageRoot, 'test/fixtures')
 for (const file of ['App.macos.tsx', 'main.mjs', 'dev-shell.mjs', 'types.ts']) {
 	await cp(join(fixture, file), join(app, 'src', file))
@@ -88,7 +89,7 @@ await writeFile(
 
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	'packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\n',
+	`packages: []\nnodeLinker: isolated\nallowUnusedPatches: true\noverrides:\n  create-octane-xplat: ${JSON.stringify(create)}\n`,
 )
 
 await writeFile(
