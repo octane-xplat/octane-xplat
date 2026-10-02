@@ -11,6 +11,27 @@ Native default implementations may be reused when their Windows behavior is
 verified. Platform-authentic iOS/Android subpaths require a separate assessment.
 Source inspection and compilation do not establish runtime or OS-input parity.
 
+## Priority blocker findings
+
+The priority investigation covers essential activation, forms, layout, content,
+modals, and locale formatting. Findings below are verified on the Windows VM
+unless identified as a source lead. Prototypes remain diagnostic; none has been
+shipped, and component dispositions are unchanged.
+
+| Priority | Owner and blocker | Evidence / next fix |
+| --- | --- | --- |
+| 1 | Windows runtime: locale formatting | UTC dates still crash the process; number formatting throws an ICU error. ICU initialization/data is a source lead requiring native-binary verification. |
+| 2 | NativeScript core: pointer observers | A subscriber dispatcher restores real Pressable clicks and observer removal/reattachment. Harden lifecycle, cancellation, and routed-event fallback before shipping. |
+| 3 | NativeScript core: essential input contracts | Native focus, focus-event forwarding, disabled state and explicit names work in probes. Their core wiring is missing; secure read-only and literal reset-keyword values also fail. |
+| 4 | Native widget/core: layout | Flexbox ignores padding while Grid/Stack honor it. Popover backdrop percentages stay at zero; a post-parent-layout refresh restores OS dismissal. Implement native padding and percentage initialization/resize ownership. |
+| 5 | Octane / driver / UI leaves: content | Explicit child arrays restore collection boundaries; native styled runs work. Add supported child normalization, Span ownership, and correct leaf text-slot hosting. |
+| 6 | Desktop UI/native semantics | Dialog lacks initial focus, Tab containment, Escape and focus restoration. Shared Switch lacks focus/TogglePattern; a native WinUI control supports both. Add modal focus/key lifetime and semantic-control/AutomationPeer adapters. |
+
+The first source fixes should address shared seams, with independent component
+checks afterward. A passing diagnostic does not unpark every dependent control.
+The detailed cases and remaining validation gates appear in
+[the priority investigation](#priority-blocker-investigation--2026-10-02).
+
 ## Setup evidence
 
 - SSH access to the Windows VM works. Testing uses an isolated checkout;
