@@ -1,0 +1,82 @@
+diff --git a/runtime/Cargo.toml b/runtime/Cargo.toml
+index 6e9de04..9c65930 100644
+--- a/runtime/Cargo.toml
++++ b/runtime/Cargo.toml
+@@ -13,6 +13,7 @@ anyhow = "1.0"
+ libffi = "5.1.0"
+ # The classic engine (`classic` feature). The napi engines build without it and never link V8.
+ v8 = { version = "147", optional = true }
++deno_core_icudata = { version = "=0.77.0", optional = true }
+ # Node-API over the classic engine's V8, for loading native addons (`runtime::native_addons`).
+ napi-v8-shim = { path = "../napi-v8-shim", optional = true }
+ chrono = "0.4"
+@@ -75,7 +76,7 @@ features = [
+ default = ["classic"]
+ # The classic engine: WinRT interop written against rusty_v8, which `nativescript.dll` is built on.
+ # The napi engine packages turn default features off, so they don't compile or link V8.
+-classic = ["dep:v8", "dep:napi-v8-shim"]
++classic = ["dep:v8", "dep:napi-v8-shim", "dep:deno_core_icudata"]
+ devtools = ["classic", "runtime-devtools"]
+ napi_engine = ["dep:napi"]
+ # ES modules for napi engines without a native module loader (QuickJS, Hermes, JSC): modules are
+diff --git a/runtime/src/intl_test.rs b/runtime/src/intl_test.rs
+new file mode 100644
+index 0000000..2f3316e
+--- /dev/null
++++ b/runtime/src/intl_test.rs
+@@ -0,0 +1,33 @@
++use crate::Runtime;
++
++#[test]
++fn intl_currency_and_dates_have_icu_data() {
++    let mut runtime = Runtime::new(".");
++    runtime.run_script(
++        r#"
++        const locales = ['en-US', 'de-DE', 'ja-JP', 'ar-EG'];
++        if (Intl.DateTimeFormat.supportedLocalesOf(locales).length !== locales.length) throw new Error('Missing locale data');
++        if (!new Intl.DateTimeFormat('en-US').format(new Date('2024-01-02T03:04:05Z'))) throw new Error('Missing default-zone date');
++        for (const locale of locales) {
++            const number = new Intl.NumberFormat(locale, {style: 'currency', currency: 'USD'}).format(1234.5);
++            if (!number || !/[0-9\u0660-\u0669]/.test(number)) throw new Error('Missing currency: ' + locale);
++            for (const timeZone of ['UTC', 'America/New_York', 'Asia/Tokyo']) {
++                const formatter = new Intl.DateTimeFormat(locale, {timeZone, year: 'numeric', month: 'long', day: 'numeric'});
++                const formatted = formatter.format(new Date('2024-01-02T03:04:05Z'));
++                if (!formatted || formatter.resolvedOptions().timeZone !== timeZone) throw new Error('Missing date: ' + locale + '/' + timeZone);
++            }
++        }
++        for (const [timeZone, day, hour] of [['UTC', '2', '03'], ['America/New_York', '1', '22'], ['Asia/Tokyo', '2', '12']]) {
++            const parts = new Intl.DateTimeFormat('en-US', {timeZone, day: 'numeric', hour: '2-digit', hourCycle: 'h23'}).formatToParts(new Date('2024-01-02T03:04:05Z'));
++            const part = type => parts.find(p => p.type === type)?.value;
++            if (part('day') !== day || part('hour') !== hour) throw new Error('Wrong zoned date: ' + timeZone);
++        }
++        if (new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(1234.5) !== '$1,234.50') throw new Error('Unexpected USD');
++        if (new Intl.DateTimeFormat('en-US', {timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric'}).format(new Date('2024-01-02T03:04:05Z')) !== 'January 2, 2024') throw new Error('Unexpected UTC date');
++        "#,
++        "intl_icu_test.js",
++    );
++    if let Some(error) = crate::get_last_js_error() {
++        panic!("Intl formatting failed: {}", error);
++    }
++}
+diff --git a/runtime/src/lib.rs b/runtime/src/lib.rs
+index 671479c..42d13e7 100644
+--- a/runtime/src/lib.rs
++++ b/runtime/src/lib.rs
+@@ -8550,6 +8550,10 @@ impl Runtime {
+         crate::source_protect::init_from_app_root(app_root);
+ 
+         INIT.call_once(|| {
++            // rusty_v8 does not embed ICU common data. Register its matching,
++            // statically owned 16-byte-aligned data before any V8/Intl use.
++            v8::icu::set_common_data_77(deno_core_icudata::ICU_DATA)
++                .expect("Failed to register ICU 77 common data");
+             // --expose-gc makes gc() available as a global JS function so callers
+             // can trigger a full GC sweep (useful for debugging and test harnesses).
+             v8::V8::set_flags_from_string("--expose-gc");
+@@ -9355,3 +9359,6 @@ mod js_delegate_tests {
+         }
+     }
+ }
++
++#[cfg(all(test, feature = "classic"))]
++mod intl_test;
