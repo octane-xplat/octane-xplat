@@ -21,6 +21,6 @@ playback safely when replacing it or removing the screen.
 
 ## Documentation
 
-- AC1: [Imperative animation](../docs/animation-gestures.md#existing-imperative-animation) and [maintained example](../packages/ui/examples/AnimationDemo.tsrx).
-- AC2: [Controller lifecycle](../docs/animation-gestures.md#existing-imperative-animation) and [AppKit fixture](../apps/macos/test/animation-fixture.macos.tsx).
-- AC3: [AppKit behavior](../docs/animation-gestures.md#existing-imperative-animation) and [verification limits](../docs/animation-notes.md#appkit-imperative-animation).
+- AC1: [Imperative animation](../docs/app/animation-gestures.md#existing-imperative-animation) and [maintained example](../packages/ui/examples/AnimationDemo.tsrx).
+- AC2: [Controller lifecycle](../docs/app/animation-gestures.md#existing-imperative-animation) and [AppKit fixture](../apps/macos/test/animation-fixture.macos.tsx).
+- AC3: [AppKit behavior](../docs/app/animation-gestures.md#existing-imperative-animation) and [verification limits](../docs/notes/animation-notes.md#appkit-imperative-animation).

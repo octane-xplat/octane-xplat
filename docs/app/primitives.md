@@ -596,7 +596,7 @@ export function Example() {
 	return (
 		<Screen>
 			<View
-				bind={(view) => {
+				ref={(view) => {
 					anchor.current = view
 				}}
 			>
@@ -712,9 +712,9 @@ single read after binding.
 import { View, Text, useMeasure } from '@octane-xplat/ui'
 
 export function Example() {
-	const { bind, bounds } = useMeasure({ observe: false })
+	const { ref, bounds } = useMeasure({ observe: false })
 	return (
-		<View bind={bind}>
+		<View ref={ref}>
 			<Text>Width: {bounds?.width ?? 0}</Text>
 		</View>
 	)
@@ -774,7 +774,7 @@ export function Example() {
 				onLoad={() => console.log('Loaded')}
 				onError={(error) => console.log(error)}
 				onLayoutContent={(size) => console.log(size)}
-				bind={(handle) => {
+				ref={(handle) => {
 					browser.current = handle
 				}}
 			/>
@@ -937,7 +937,7 @@ custom handle.
 
 ### Migrate from bind
 
-Upgrade the framework packages and their [managed patches](toolchain.md#agent-context-and-versions)
+Upgrade the framework packages and their [managed patches](../start/toolchain.md#agent-context-and-versions)
 together before migrating; native handle refs need the matching Octane patch.
 
 Change `bind={...}` to `ref={...}`, hook results `.bind` to `.ref`, and
@@ -1078,7 +1078,7 @@ export function Example() {
 	const layer = useLayer({ mode: 'context', lightDismiss: true })
 	return (
 		<>
-			<View bind={layer.ref}>
+			<View ref={layer.ref}>
 				<Pressable onPress={layer.show}>
 					<Text>Help</Text>
 				</Pressable>

@@ -142,7 +142,7 @@ export function Example() {
 	return (
 		<>
 			<View
-				bind={(view) => {
+				ref={(view) => {
 					root.current = view
 				}}
 			>

@@ -45,7 +45,7 @@ app-level APIs rather than additional methods on this leaf.
 
 ## Native macOS setup and behavior
 
-Use the [AppKit app setup](toolchain.md#experimental-appkit-target) on an Apple
+Use the [AppKit app setup](../start/toolchain.md#experimental-appkit-target) on an Apple
 Silicon Mac with Xcode selected. Keep this leaf in the app's runtime
 `dependencies`, then run these commands from the app directory:
 
@@ -77,11 +77,11 @@ Check Notification Center as well as banner behavior when testing your app.
 
 ## Verification boundary
 
-The maintained [AppKit fixture](../packages/notifications/tests/verify-macos.mjs)
+The maintained [AppKit fixture](../../packages/notifications/tests/verify-macos.mjs)
 compiles and loads the native leaf, checks metadata selectors, constructs a real
 immediate request, and tests permission/error/thread and submission behavior
 with an intercepted notification center. The
-[small runnable handler](../packages/notifications/tests/send-reminder.ts)
+[small runnable handler](../../packages/notifications/tests/send-reminder.ts)
 shows the example used above. Packed consumer checks cover macOS Bundler and
 NodeNext declaration resolution, plus the existing web/mobile typing lanes.
 

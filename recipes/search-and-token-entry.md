@@ -34,4 +34,4 @@ Provide local or remote searchable values with a stable identity, present useful
 
 - AC6: [Choose from a finite list](../docs/app/search-selection.md#choose-from-a-finite-list), [ComponentsDemo](../packages/demos/src/ComponentsDemo.tsrx), and [the Select probe](../examples/probes/select.tsrx).
 
-- AC7: [Search commands across targets](../docs/command-palette.md), [maintained demo](../packages/demos/src/ComponentsDemo.tsrx), and [platform boundaries](../docs/command-palette.md#platform-boundaries-and-verification).
+- AC7: [Search commands across targets](../docs/app/command-palette.md), [maintained demo](../packages/demos/src/ComponentsDemo.tsrx), and [platform boundaries](../docs/app/command-palette.md#platform-boundaries-and-verification).

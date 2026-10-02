@@ -44,11 +44,11 @@ default; custom faces are opt-in.
 
 ## Documentation
 
-- AC1: [Styling screens — Font-family tokens](../docs/styling.md#font-family-tokens).
-- AC2: [Styling screens — Font-family tokens](../docs/styling.md#font-family-tokens).
-- AC3: [Styling screens — Font-family tokens](../docs/styling.md#font-family-tokens).
-- AC4: [Styling screens — Font-family tokens](../docs/styling.md#font-family-tokens);
+- AC1: [Styling screens — Font-family tokens](../docs/app/styling.md#font-family-tokens).
+- AC2: [Styling screens — Font-family tokens](../docs/app/styling.md#font-family-tokens).
+- AC3: [Styling screens — Font-family tokens](../docs/app/styling.md#font-family-tokens).
+- AC4: [Styling screens — Font-family tokens](../docs/app/styling.md#font-family-tokens);
   merge and idempotency behavior is covered by `packages/cli/test/fonts.test.mjs`.
-- AC5: [Styling screens — Font-family tokens](../docs/styling.md#font-family-tokens);
+- AC5: [Styling screens — Font-family tokens](../docs/app/styling.md#font-family-tokens);
   conversion preserves name metadata per `packages/cli/test/fonts.test.mjs`
   (`woff2ToSfnt`, real `@fontsource-variable/inter` fixture).

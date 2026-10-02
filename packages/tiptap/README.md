@@ -44,7 +44,7 @@ export function DocumentCopy() {
 			<TiptapEditor
 				value={html}
 				onChange={setHtml}
-				bind={(handle) => {
+				ref={(handle) => {
 					editor.current = handle
 				}}
 				onReady={() => setJsonReady(editor.current?.getJSON() != null)}

@@ -36,7 +36,7 @@ export function Formatting() {
 	return (
 		<>
 			<RichTextEditor
-				bind={(handle) => {
+				ref={(handle) => {
 					editor.current = handle
 				}}
 				onSelectionChange={({ active }) => console.log(active)}
@@ -73,7 +73,7 @@ export function Formatting() {
 	return (
 		<>
 			<RichTextEditor
-				bind={(handle) => {
+				ref={(handle) => {
 					editor.current = handle
 				}}
 				onSelectionChange={({ active }) => console.log(active)}

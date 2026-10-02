@@ -25,7 +25,7 @@ to a button press. This workflow sends immediate device-local messages only.
 
 ## Documentation
 
-- AC1: [Install and send](../docs/local-notifications.md#install-and-send) and [maintained handler](../packages/notifications/tests/send-reminder.ts).
-- AC2: [Install and send](../docs/local-notifications.md#install-and-send).
-- AC3: [Native macOS setup and behavior](../docs/local-notifications.md#native-macos-setup-and-behavior).
-- AC4: [Native macOS behavior](../docs/local-notifications.md#native-macos-setup-and-behavior) and [verification boundary](../docs/local-notifications.md#verification-boundary).
+- AC1: [Install and send](../docs/platform/local-notifications.md#install-and-send) and [maintained handler](../packages/notifications/tests/send-reminder.ts).
+- AC2: [Install and send](../docs/platform/local-notifications.md#install-and-send).
+- AC3: [Native macOS setup and behavior](../docs/platform/local-notifications.md#native-macos-setup-and-behavior).
+- AC4: [Native macOS behavior](../docs/platform/local-notifications.md#native-macos-setup-and-behavior) and [verification boundary](../docs/platform/local-notifications.md#verification-boundary).

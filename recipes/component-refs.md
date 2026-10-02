@@ -22,6 +22,6 @@ hooks, and release ref ownership correctly. Migrate existing Xplat bind usage.
 
 ## Documentation
 
-- AC1: [Refs](../docs/primitives.md#refs), [focus handles](../docs/text-entry.md#release-and-restore-focus), and maintained [web ref fixture](../packages/ui/src/refs.web.test.tsrx).
-- AC2: [Ref lifecycle](../docs/primitives.md#refs), maintained [web ref tests](../packages/ui/src/refs.web.test.tsrx), and [universal ref tests](../packages/ui/src/refs.mobile.test.tsrx).
-- AC3: [Refs](../docs/primitives.md#refs), [migration](../docs/primitives.md#migrate-from-bind), [intersection example](../examples/probes/intersection-observer.tsrx), and [drag and drop composition](../packages/dnd-kit/README.md#compose-drag-and-drop).
+- AC1: [Refs](../docs/app/primitives.md#refs), [focus handles](../docs/app/text-entry.md#release-and-restore-focus), and maintained [web ref fixture](../packages/ui/src/refs.web.test.tsrx).
+- AC2: [Ref lifecycle](../docs/app/primitives.md#refs), maintained [web ref tests](../packages/ui/src/refs.web.test.tsrx), and [universal ref tests](../packages/ui/src/refs.mobile.test.tsrx).
+- AC3: [Refs](../docs/app/primitives.md#refs), [migration](../docs/app/primitives.md#migrate-from-bind), [intersection example](../examples/probes/intersection-observer.tsrx), and [drag and drop composition](../packages/dnd-kit/README.md#compose-drag-and-drop).

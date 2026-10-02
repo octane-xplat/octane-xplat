@@ -262,7 +262,7 @@ export function Workspace() {
 
 	return (
 		<View
-			bind={(view) => {
+			ref={(view) => {
 				containerRef.current = view
 			}}
 			className="workspace"

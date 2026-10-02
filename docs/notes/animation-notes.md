@@ -553,7 +553,7 @@ export function LegacyTween() {
 	useEffect(() => () => x.stop(), [])
 	return (
 		<>
-			<View bind={x.bind} />
+			<View ref={x.ref} />
 			<Pressable onPress={() => x.to(80, { duration: 300 })}>
 				<Text>Move</Text>
 			</Pressable>
@@ -615,7 +615,7 @@ export function Pan() {
 	const host = useRef<any>(null)
 	return (
 		<View
-			bind={(view) => {
+			ref={(view) => {
 				host.current = view
 			}}
 			onPan={(event) => {

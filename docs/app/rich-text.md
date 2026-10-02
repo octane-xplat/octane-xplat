@@ -135,7 +135,7 @@ export function Notes() {
 			<TiptapEditor
 				value={html}
 				onChange={setHTML}
-				bind={(handle) => {
+				ref={(handle) => {
 					editor.current = handle
 				}}
 				onReady={() => console.log('Ready')}
@@ -177,7 +177,7 @@ export function Formatting() {
 	return (
 		<>
 			<TiptapEditor
-				bind={(handle) => {
+				ref={(handle) => {
 					editor.current = handle
 				}}
 			/>

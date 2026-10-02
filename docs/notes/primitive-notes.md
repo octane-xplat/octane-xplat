@@ -936,7 +936,7 @@ Use the standard Octane `ref` prop; component refs are ordinary props.
 Host primitives forward refs to their underlying element, and controls use
 `useImperativeHandle` for their documented handles. Object refs, callbacks,
 and nested ref arrays follow Octane’s attachment and cleanup lifecycle.
-Keep raw host operations in platform leaves. See [using refs](primitives.md#refs)
+Keep raw host operations in platform leaves. See [using refs](../app/primitives.md#refs)
 for examples and migration from `bind`.
 
 ```tsx

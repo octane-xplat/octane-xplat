@@ -31,3 +31,8 @@ Start here when you need to understand a framework decision or investigate its i
 - [Testing notes](testing-notes.md)
 - [Toolchain notes](toolchain-notes.md)
 - [Windows target notes](windows-notes.md)
+
+## Recent component work
+
+- [Command palette audit](astryx-parity-commandpalette.md) and [implementation plan](command-palette-plan.md).
+- [Date-input parity audit](astryx-parity-date-inputs.md).

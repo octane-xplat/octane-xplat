@@ -162,7 +162,7 @@ export function Example() {
 				label="Name"
 				value={name}
 				onChange={setName}
-				bind={(handle) => {
+				ref={(handle) => {
 					input.current = handle
 				}}
 			/>

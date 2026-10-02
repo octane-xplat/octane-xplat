@@ -274,8 +274,16 @@ framework's code styles. Pick a weight with the `font-*` utility classes or a
 style value, which is also how a variable font selects its instance:
 
 ```tsx
-<Text className="font-semibold">Semi-bold</Text>
-<Text style={{ fontWeight: 600 }}>Semi-bold</Text>
+import { Text } from '@octane-xplat/ui'
+
+export function FontWeightPreview() {
+	return (
+		<>
+			<Text className="font-semibold">Semi-bold</Text>
+			<Text style={{ fontWeight: 600 }}>Semi-bold</Text>
+		</>
+	)
+}
 ```
 
 A custom token (`--token display`) declares only the CSS variable — reference

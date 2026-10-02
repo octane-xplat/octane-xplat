@@ -103,7 +103,7 @@ announce('Settings saved')
 
 Pass a short message translated into the user's language. `announce` returns
 nothing; it does not confirm that anyone heard or read the message. The
-[maintained example](../examples/accessibility/announce-status.ts) updates the
+[maintained example](../../examples/accessibility/announce-status.ts) updates the
 visible message before requesting the announcement.
 
 Web uses a polite live region; iOS posts an accessibility announcement; Android
@@ -651,7 +651,7 @@ For Apple, enable Sign in with Apple on the app's identifier in your Apple
 Developer account. Package using that identifier, a signing identity, and a
 matching provisioning profile that grants `com.apple.developer.applesignin`.
 Put the entitlement in the app's entitlements file and configure that file as
-`xplat.targets.macos.package.entitlements`; see [macOS packaging](toolchain.md#experimental-appkit-target).
+`xplat.targets.macos.package.entitlements`; see [macOS packaging](../start/toolchain.md#experimental-appkit-target).
 The CLI does not currently embed a provisioning profile. Use your Apple signing
 workflow to embed the matching profile at `YourApp.app/Contents/embedded.provisionprofile`
 and sign the final app bundle; adding it after signing requires signing again.
@@ -681,7 +681,7 @@ await googleAuth.configure({
 const result = await googleAuth.signIn({ nonce: serverIssuedNonce })
 ```
 
-Copy [google-hosted.macos.ts](../examples/auth/google-hosted.macos.ts) into
+Copy [google-hosted.macos.ts](../../examples/auth/google-hosted.macos.ts) into
 `auth/` beside your startup directory, and implement its `GoogleHostedBackend`:
 `begin(options)` returns `{ attemptId, url, callbackScheme }` for a fresh stored
 attempt; `complete({ attemptId, callbackURL })` returns the server-verified Google
@@ -691,7 +691,7 @@ must bind them to the attempt, check the exact callback host/path and state,
 redeem the code once, and verify Google's signature, issuer, audience, expiry,
 nonce, and hosted domain when restricted. Expire cancelled/unused attempts.
 A callback URL by itself does not authenticate a user. The existing
-[server boundary example](../examples/auth/README.md) explains these checks;
+[server boundary example](../../examples/auth/README.md) explains these checks;
 its session response must be adapted to your credential-returning endpoint.
 
 `googleAuth.signOut()` calls the optional hosted adapter's `signOut` method.

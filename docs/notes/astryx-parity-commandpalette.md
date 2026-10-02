@@ -32,7 +32,7 @@ need their own recipe/documentation reconciliation.
 
 ## Current Xplat contract
 
-[`CommandPaletteProps`](../packages/ui/src/props.ts) accepts `items: MenuItem[]`,
+[`CommandPaletteProps`](../../packages/ui/src/props.ts) accepts `items: MenuItem[]`,
 optional `open`, `onOpenChange`, `placeholder`, `className`, `style`, `id`, and
 `ios`/`android`/`web` escape props. `MenuItem` contains `key`, optional `label`,
 `icon`, `disabled`, and `onSelect(): void`.
@@ -46,9 +46,9 @@ There is no internal open-state fallback when `onOpenChange` is omitted.
 
 | Target / file | Behavior established by source | Important boundary |
 | --- | --- | --- |
-| [Native default](../packages/ui/src/CommandPalette.tsrx) (iOS/Android) | RootLayout `Overlay`, shade dismissal, text input, tap rows, submit first result if enabled; panel `marginTop={80}` and screen-derived max width | Plain flex layouts, no result scroll container, highlight state, or palette hardware-key handler |
-| [Web](../packages/ui/src/CommandPalette.web.tsrx) | Body-portal overlay, Escape listener, listbox/options, click rows, submit first result if enabled | `Overlay.web.tsrx` delegates modal focus isolation, initial focus, Tab containment and focus return to `modal-focus.web.ts`; these are existing capabilities |
-| [macOS](../packages/ui/src/CommandPalette.macos.tsrx) | Filtered label/icon rows and tap selection; top offset 80 | Imported `surfaces.macos.tsrx` `Overlay` only conditionally renders a flex layout: it ignores `shadeCover`/`onDismiss`. Imported `text-controls.macos.tsrx` `TextInput` ignores `onSubmit`. Shade/Enter promises are therefore unsupported by this composition |
+| [Native default](../../packages/ui/src/CommandPalette.tsrx) (iOS/Android) | RootLayout `Overlay`, shade dismissal, text input, tap rows, submit first result if enabled; panel `marginTop={80}` and screen-derived max width | Plain flex layouts, no result scroll container, highlight state, or palette hardware-key handler |
+| [Web](../../packages/ui/src/CommandPalette.web.tsrx) | Body-portal overlay, Escape listener, listbox/options, click rows, submit first result if enabled | `Overlay.web.tsrx` delegates modal focus isolation, initial focus, Tab containment and focus return to `modal-focus.web.ts`; these are existing capabilities |
+| [macOS](../../packages/ui/src/CommandPalette.macos.tsrx) | Filtered label/icon rows and tap selection; top offset 80 | Imported `surfaces.macos.tsrx` `Overlay` only conditionally renders a flex layout: it ignores `shadeCover`/`onDismiss`. Imported `text-controls.macos.tsrx` `TextInput` ignores `onSubmit`. Shade/Enter promises are therefore unsupported by this composition |
 
 The shared props comment promises Enter selects a **highlighted** match; the
 leaves have no highlight model and request `shown[0]` instead. A disabled first
@@ -198,10 +198,10 @@ importance below is a recommendation, not upstream native behavior evidence.
 | Escapes / style | `className`, `style`, declared unused platform escapes | `BaseProps<HTMLDialogElement>` plus StyleX/DOM props | Do not copy DOM/React/StyleX types into shared props; implement or remove misleading escape promises |
 
 Xplat already has `SearchableItem`, `SearchSource`, and
-`CreateStaticSourceOptions` in [`props.ts`](../packages/ui/src/props.ts), plus
-[`createStaticSource` and `groupTypeaheadItems`](../packages/ui/src/typeahead-source.ts).
+`CreateStaticSourceOptions` in [`props.ts`](../../packages/ui/src/props.ts), plus
+[`createStaticSource` and `groupTypeaheadItems`](../../packages/ui/src/typeahead-source.ts).
 They match the relevant source shape and grouping order (default ungrouped-last).
-[`typeahead-source.test.ts`](../packages/ui/src/typeahead-source.test.ts) asserts
+[`typeahead-source.test.ts`](../../packages/ui/src/typeahead-source.test.ts) asserts
 trimmed keyword/label matching and stable grouping, but CommandPalette currently
 uses none of them. This reuse reduces API/dependency cost; it does not establish
 palette lifecycle or keyboard correctness. `packages/ui` must gain no new
@@ -240,13 +240,13 @@ prove iOS/Android native search-sheet behavior.
 
 ## Demos, tests, and verification gaps
 
-- [`ComponentsDemo.tsrx`](../packages/demos/src/ComponentsDemo.tsrx) opens the
+- [`ComponentsDemo.tsrx`](../../packages/demos/src/ComponentsDemo.tsrx) opens the
   palette from a button and reuses Edit/Duplicate/disabled Delete menu items.
   It has no shortcut opener, grouping, async source, history, empty state, or
   picker example. Selection updates the shared `lastMenu` state.
-- [`CommandPaletteFixture`](../packages/app/src/parity/fixtures.tsrx) mounts one
+- [`CommandPaletteFixture`](../../packages/app/src/parity/fixtures.tsrx) mounts one
   static item in an always-open 200×96 panel. The `command-palette-open` check in
-  [`parity-checks.mjs`](../scripts/parity-checks.mjs) checks frame/background and
+  [`parity-checks.mjs`](../../scripts/parity-checks.mjs) checks frame/background and
   list width for web/iOS/Android/macOS, not search, keyboard, selection, or
   dismissal. Those definitions are not proof that each target passed now.
 - An exhaustive repository text search found no dedicated maintained
@@ -313,7 +313,7 @@ first-class navigation semantics exceed the audited Astryx built-in contract.
   returned HTTP 200. Git whitespace checks passed.
 - `pnpm build:docs` was attempted but blocked before compilation by missing
   `vite` dependencies in this worktree. `pnpm exec oxfmt
-  docs/astryx-parity-commandpalette.md` was unavailable (`oxfmt` not found).
+  docs/notes/astryx-parity-commandpalette.md` was unavailable (`oxfmt` not found).
   Formatting was reviewed manually; site rendering remains unverified.
 - The highlighted-Enter documentation mismatch and macOS submit/dismiss wrapper
   mismatch were logged locally in Silo `feedback_observations`. No external

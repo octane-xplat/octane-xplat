@@ -69,5 +69,5 @@ backend, returning `AuthCredential`. A client ID alone is insufficient on
 AppKit. The adapter receives the configured client IDs, scopes, hosted domain,
 and per-attempt nonce; the backend must apply and verify them.
 
-See [macOS provider setup](../../docs/platform-services.md#macos-provider-sign-in)
+See [macOS provider setup](../../docs/platform/platform-services.md#macos-provider-sign-in)
 and the [maintained hosted adapter](../../examples/auth/google-hosted.macos.ts).

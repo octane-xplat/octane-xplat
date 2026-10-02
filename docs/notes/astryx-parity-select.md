@@ -201,7 +201,7 @@ export function Example() {
 	return (
 		<Screen>
 			<View
-				bind={(view) => {
+				ref={(view) => {
 					anchor.current = view
 				}}
 			>

@@ -22,6 +22,6 @@ and understand target differences and the limits of delivery evidence.
 
 ## Documentation
 
-- AC1: [Announce a status](../docs/platform-services.md#announce-a-status), [maintained example](../examples/accessibility/announce-status.ts).
-- AC2: [Announce a status](../docs/platform-services.md#announce-a-status).
-- AC3: [Announce a status](../docs/platform-services.md#announce-a-status).
+- AC1: [Announce a status](../docs/platform/platform-services.md#announce-a-status), [maintained example](../examples/accessibility/announce-status.ts).
+- AC2: [Announce a status](../docs/platform/platform-services.md#announce-a-status).
+- AC3: [Announce a status](../docs/platform/platform-services.md#announce-a-status).

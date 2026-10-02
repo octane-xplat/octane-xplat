@@ -45,7 +45,7 @@ export function DocumentCopy() {
 			<LexicalEditor
 				value={html}
 				onChange={setHtml}
-				bind={(handle) => {
+				ref={(handle) => {
 					editor.current = handle
 				}}
 				onReady={() => setJsonReady(editor.current?.getJSON() != null)}

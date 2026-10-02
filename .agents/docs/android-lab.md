@@ -1,6 +1,6 @@
 # Android emulator lab log
 
-Internal host setup and verification record. Use [single-case probing](../../docs/probing.md)
+Internal host setup and verification record. Use [single-case probing](../../docs/verify/probing.md)
 for the runner contract; this note supplies the local Android setup it expects.
 
 ## Host inventory (2026-10-02)

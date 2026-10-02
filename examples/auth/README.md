@@ -96,4 +96,4 @@ app-owned `begin`, `complete`, and `signOut` transport functions into
 `AuthCredential` after binding the callback to the stored attempt; the handlers
 above issue app sessions, so adapt their response for this contract. This adapter
 supplies neither hosted endpoints nor cryptographic verification. Full setup and
-checks: [macOS provider sign-in](../../docs/platform-services.md#macos-provider-sign-in).
+checks: [macOS provider sign-in](../../docs/platform/platform-services.md#macos-provider-sign-in).

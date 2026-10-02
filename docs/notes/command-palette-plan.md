@@ -33,7 +33,7 @@ The four phases above are implemented: a shared source/controller and opt-in
 static fuzzy matcher; grouped desktop navigation and named modal/combobox status;
 a mobile search sheet; and AppKit text-change/key adapters. Loading, distinct
 empty states, error/Retry, custom rows/footer, selected ID, and close/reopen cleanup
-share the public contract. Demos, the [usage guide](command-palette.md), and recipe
+share the public contract. Demos, the [usage guide](../app/command-palette.md), and recipe
 `search-and-token-entry` AC7 document that contract.
 
 Verification on this worktree:

@@ -627,6 +627,6 @@ playback; opacity may still fade. This hook has no MotionConfig, Presence,
 variant, or completion-promise contract. Use the motion leaf for those
 capabilities on its documented targets. `setTranslate` also remains available.
 
-The [maintained example](../packages/ui/examples/AnimationDemo.tsrx) demonstrates
-replacement and stop. [Animation notes](animation-notes.md#appkit-imperative-animation)
+The [maintained example](../../packages/ui/examples/AnimationDemo.tsrx) demonstrates
+replacement and stop. [Animation notes](../notes/animation-notes.md#appkit-imperative-animation)
 record AppKit verification and scheduling limits.

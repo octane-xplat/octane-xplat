@@ -464,7 +464,7 @@ export function Example() {
 			<ChatComposerInput
 				value={message}
 				onChange={setMessage}
-				bind={(handle) => {
+				ref={(handle) => {
 					composer.current = handle
 				}}
 				onKeyDown={(event) => console.log(event.key)}
