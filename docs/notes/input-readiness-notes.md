@@ -52,9 +52,9 @@ or real-IME tests.
   IME composition or physical software-keyboard typing.
 - `pnpm test`, `pnpm typecheck:web`, `pnpm build:web`, the sheet leaf builds and
   packed-consumer check, repository-wide lint, and the docs build passed.
-- The broad `pnpm typecheck:mobile` reports errors in the unchanged audio,
-  dnd-kit, motion, and table packages. The same failure reproduces on `main`
-  (`f51e8716`), so it is a pre-existing CI gate outside this Web change. Keep
+- The baseline `main` checkout (`f51e8716`) reproduced mobile typecheck errors
+  in audio, dnd-kit, motion, and table. The current branch fixes those
+  diagnostics; `pnpm typegen` and `pnpm typecheck:mobile` now pass. Keep
   typechecking explicit because NativeScript bundling can continue despite
   type errors.
 - The full iOS simulator harness build passed. Full Android harness build
