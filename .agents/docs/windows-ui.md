@@ -136,3 +136,39 @@ Windows: Vite bundle compilation and WinUI compilation passed, with zero .NET
 errors/warnings. Its type project includes the case and imported component
 graph, rather than unrelated demo roots. This is build evidence only. The raw
 label source and bundled app were preserved for boot-failure isolation.
+
+## First interactive runtime evidence
+
+On 2026-10-02, the guest's `octane` console session was confirmed active and
+registered package activation started the app in session 1. A Windows UI
+Automation tree observed the foundation case's expected labels and native
+bounds. HStack labels share a y-coordinate; VStack labels advance vertically;
+Grid placed A/B on the same row and C on the next. This establishes real
+native rendering/layout, without screenshot analysis. It does not yet prove
+Pressable input, full styling, accessibility-role mapping, or gesture parity.
+
+Native console output is available in the registered package's LocalState;
+the initial empty file was temporary. An async diagnostic write to the guest's
+checkout directory failed with `WinRT async operation failed`; native console
+logs provide the layout tree instead. No debugger port was observed.
+
+### Foundation input and padding issues
+
+OS mouse down/up on a raw native Button logs its tap callback. The same input
+on a raw Label and on Pressable leaves their counters at zero. The automation
+records matching foreground/window handles and live element bounds. This is
+real OS input evidence for the Button, and a reproducible failure for the other
+two controls; it does not establish that all Windows input fails.
+
+Runtime inspection shows the Label tap observer and both Pressable tap/touch
+observers use `_usingAddHandler: false`. NativeScript falls back to assigning
+PointerPressed/PointerReleased properties when routed-event registration fails.
+Pressable adds two observers, so that fallback also risks overwriting handlers.
+The registration failure is being isolated before selecting a fix.
+
+View's computed paddingTop/paddingLeft are both 16, but children start at its
+edge and retain its full 584 DIP width. The pinned core's C++ FlexboxLayout IDL
+has no Padding property; MeasureOverride and ArrangeOverride use the full panel
+space. This is a runtime-confirmed upstream layout gap, not a TSRX style
+assignment failure. Stack gap and Grid auto-placement work in this case.
+
