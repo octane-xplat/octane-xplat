@@ -1731,7 +1731,8 @@
       "status": "parked",
       "evidence": [
         "OS keyboard abc updates controlled text; ordinary Windows initial text renders. Exact initial/inherit/unset/revert are interpreted as core Property reset values.",
-        "2026-10-02 priority form case: ordinary OS editing updates native/model value and onChange; Enter calls onSubmit. Plain read-only rejects editing. Secure read-only accepts an OS edit and emits onChange. Disabled plain field rejects edits through IsReadOnly but native IsEnabled=true and accepts keyboard focus. Explicit accessibilityLabel differs from UIA Name, which is the placeholder. Literal initial renders empty before editing."
+        "2026-10-02 priority form case: ordinary OS editing updates native/model value and onChange; Enter calls onSubmit. Plain read-only rejects editing. Secure read-only accepts an OS edit and emits onChange. Disabled plain field rejects edits through IsReadOnly but native IsEnabled=true and accepts keyboard focus. Explicit accessibilityLabel differs from UIA Name, which is the placeholder. Literal initial renders empty before editing.",
+        "2026-10-02 OS public-focus probe task0: public handle leaves its Button focused; direct WinUI Focus returns true and focuses Edit. GotFocus/LostFocus notify forwarding restores public callbacks. Core guarded super.focus returns undefined; no Windows View override. Public blur not isolated."
       ],
       "reason": "Requires lossless literal text values, secure read-only enforcement, native disabled/focus mapping, explicit accessible names, and verified focus/blur contracts. Ordinary controlled editing and Enter submission are bounded passes, not full TextInput support."
     },
@@ -2358,7 +2359,10 @@
         "Timestamp.web.tsrx"
       ],
       "status": "parked",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+      "evidence": [
+        ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
+        "2026-10-02 separate explicit-UTC DateTimeFormat constructor still kills Windows process; fresh Application1000 nativescript.DLL/80000003. NumberFormat constructs but currency format throws Internal error. Icu error. ICU data initialization is a source-backed lead, not a verified fix."
+      ],
       "reason": "Native Windows runtime terminates inside an isolated Intl.DateTimeFormat constructor (nativescript.DLL 0x80000003). Timestamp always computes a full absolute accessibility label using that constructor. Reopen after the runtime locale constructor works and date/relative/live cases pass."
     },
     {
