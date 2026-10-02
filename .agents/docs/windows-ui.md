@@ -65,3 +65,34 @@ The baseline build is now being retried after that successful install.
 
 The minimal native TSRX label bundle compiled with Vite (39.51 kB app bundle,
 2,091.21 kB vendor bundle). Native .NET compilation is still running.
+
+## Native launch prerequisites
+
+The baseline `ns build windows` returned exit 0. WinUI app compilation had zero
+errors/warnings; the separately published bridge emitted nine warnings. The
+bridge files are present in the final bin directory despite the prepare warning.
+
+A noninteractive launch exited before JS boot with COMException `0x80040154`
+(`Class not registered`) at `Microsoft.UI.Xaml.Application.Start`. The generated
+app targets .NET 10 (installed), while its manifest requires
+`Microsoft.WindowsAppRuntime.1.6`. The guest had 1.7/1.8/2 framework packages and
+CBS.1.6, but no matching 1.6 framework package. Installing the matching Microsoft
+runtime and registering the app is the next check. Official installer mapping:
+[Microsoft released artifacts](https://github.com/microsoft/WindowsAppSDK/wiki/WinAppSDK-Released-Artifacts).
+
+No desktop user was signed in after the update restarts. Interactive testing
+requires signing into the guest; session-0 launch diagnostics cannot establish
+visible rendering or OS input behavior.
+
+The Microsoft-signed runtime installer returned exit 0 and installed framework
+1.6 version `6000.519.329.0`; app registration also succeeded. Direct session-0
+launch still raises the same COM exception, so missing framework registration
+alone does not explain it. Upstream's test script launches the package through
+`explorer shell:AppsFolder`; an interactive scheduled task now uses that method.
+Native runtime logs are expected under the package's `AC/Temp/console.log`.
+
+A temporary foundation case is ready for View, Text, Stack, HStack, VStack,
+Grid, and Pressable. It records native child structure, loaded state, layout
+sizes/positions, grid placement, and a press callback marker. It bypasses the
+root barrel only to isolate these components from known unrelated mobile
+imports. Handler invocation alone will not count as an OS-input pass.
