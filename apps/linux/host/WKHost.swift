@@ -25,15 +25,17 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 	private var currentSender: WKWebView? // replies land on the window that asked
 	private var currentProtocol = false
 	let secrets = UserDefaults(suiteName: "xplat-host")! // stand-in for Secret Service
+	let settings = UserDefaults(suiteName: "xplat-settings")! // non-secret app storage
 	private let hostCapabilities: [String: [String]] = [
+		"app": ["getInfo", "getState", "getWindowSize", "consumeInitialUrl"],
 		"notifications": ["ensure", "notify"],
 		"clipboard": ["read", "write"],
 		"secureStorage": ["get", "set", "remove"],
 		"appearance": ["get"],
 		"files": ["readText", "pick", "writeText"],
 		"windows": ["open", "close", "setTitle"],
-		"system": ["openUrl"],
-		"deepLinks": ["initialUrl"],
+		"system": ["openUrl", "openPath"],
+		"storage": ["get", "set", "remove"],
 	]
 
 	static func currentScheme() -> String {
@@ -66,6 +68,25 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 		let args = req["args"] as? [Any] ?? []
 
 		switch (service, method) {
+		case ("app", "getInfo"):
+			let info = Bundle.main.infoDictionary ?? [:]
+			respond(id, [
+				"supported": true,
+				"version": info["CFBundleShortVersionString"] as Any,
+				"build": info["CFBundleVersion"] as Any,
+				"bundleId": Bundle.main.bundleIdentifier as Any,
+			])
+		case ("app", "getState"):
+			respond(id, NSApplication.shared.isActive ? "active" : "inactive")
+		case ("app", "getWindowSize"):
+			let size = sender?.window?.frame.size ?? NSSize(width: 0, height: 0)
+			respond(id, [
+				"width": Double(size.width),
+				"height": Double(size.height),
+				"orientation": size.width >= size.height ? "landscape" : "portrait",
+			])
+		case ("app", "consumeInitialUrl"):
+			respond(id, NSNull())
 		case ("notifications", "ensure"):
 			// UNUserNotificationCenter needs a bundled app — the harness grants
 			// and logs instead. The real host maps to org.freedesktop.Notifications.
@@ -89,6 +110,16 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 		case ("system", "openUrl"):
 			let ok = (args.first as? String).flatMap(URL.init).map { NSWorkspace.shared.open($0) } ?? false
 			respond(id, ok)
+		case ("system", "openPath"):
+			respond(id, NSWorkspace.shared.open(URL(fileURLWithPath: args.first as? String ?? "")))
+		case ("storage", "get"):
+			respond(id, settings.string(forKey: args.first as? String ?? "") as Any)
+		case ("storage", "set"):
+			settings.set(args.dropFirst().first as? String ?? "", forKey: args.first as? String ?? "")
+			respond(id, NSNull())
+		case ("storage", "remove"):
+			settings.removeObject(forKey: args.first as? String ?? "")
+			respond(id, NSNull())
 		case ("appearance", "get"):
 			respond(id, Self.currentScheme())
 		case ("files", "readText"):
@@ -99,6 +130,11 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 		case ("files", "pick"):
 			let panel = NSOpenPanel()
 			panel.allowsMultipleSelection = false
+			if let options = args.dropFirst().first as? [String: Any],
+				let startingFolder = options["startingFolder"] as? String
+			{
+				panel.directoryURL = URL(fileURLWithPath: startingFolder)
+			}
 			respond(id, panel.runModal() == .OK && panel.url != nil
 				? ["name": panel.url!.lastPathComponent, "uri": panel.url!.absoluteString]
 				: NSNull())
@@ -123,8 +159,6 @@ final class Bridge: NSObject, WKScriptMessageHandler {
 				windows[wid]?.window.title = args.dropFirst().first as? String ?? ""
 			}
 			respond(id, true)
-		case ("deepLinks", "initialUrl"):
-			respond(id, NSNull())
 		default:
 			rejectRequest(id, "host has no \(service).\(method)")
 		}
@@ -266,10 +300,12 @@ func makeWebView(extraInjected: String = "") -> WKWebView {
 			});
 		})();
 		"""
+	let snapshotScript = "window.__xplatHostSnapshot = { initialUrl: null, colorScheme: "
+		+ (Bridge.currentScheme() == "dark" ? "\"dark\"" : "\"light\"")
+		+ " }; window.__xplatInitialUrl = null; window.__xplatColorScheme = window.__xplatHostSnapshot.colorScheme;"
 	ucc.addUserScript(
 		WKUserScript(
-			source: transportScript + "window.__xplatInitialUrl = null; window.__xplatColorScheme = "
-				+ (Bridge.currentScheme() == "dark" ? "\"dark\"" : "\"light\"") + ";" + extraInjected,
+			source: transportScript + snapshotScript + extraInjected,
 			injectionTime: .atDocumentStart, forMainFrameOnly: true))
 	let config = WKWebViewConfiguration()
 	config.userContentController = ucc

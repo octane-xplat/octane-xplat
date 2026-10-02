@@ -4,10 +4,14 @@ import {
 	createHostClient,
 	type HostCapabilities,
 	type HostClient,
-	type HostEventMap,
-	type HostServiceMap,
 	type HostTransport,
 } from './host-protocol'
+
+import type {
+	FrameworkHostEvents,
+	FrameworkHostServices,
+	HostBootstrapState,
+} from './host-services'
 
 type Listener = (payload: unknown) => void
 
@@ -33,6 +37,7 @@ declare global {
 			capabilities(): Promise<HostCapabilities>
 		}
 		__xplatInitialUrl?: string | null
+		__xplatHostSnapshot?: HostBootstrapState
 	}
 }
 
@@ -56,14 +61,17 @@ const createTransport = (): HostTransport | null => {
 	}
 }
 
-let client: HostClient<HostServiceMap, HostEventMap> | null | undefined
+let client: HostClient<FrameworkHostServices, FrameworkHostEvents> | null | undefined
 const hostClient = () => {
 	if (client !== undefined) {
 		return client
 	}
 
 	const transport = createTransport()
-	client = transport ? createHostClient<HostServiceMap, HostEventMap>(transport) : null
+	client = transport
+		? createHostClient<FrameworkHostServices, FrameworkHostEvents>(transport)
+		: null
+
 	return client
 }
 
@@ -74,21 +82,39 @@ const eventName = (service: string, event: string) =>
 		? 'app.deep-link'
 		: `${service}.${event}`
 
-export function call<T>(service: string, method: string, ...args: unknown[]): Promise<T> {
+export const call: HostClient<FrameworkHostServices, FrameworkHostEvents>['call'] = (
+	service,
+	method,
+	...args
+) => {
 	const host = hostClient()
 	if (!host) {
 		return Promise.reject(new Error(`xplat host bridge is unavailable (${service}.${method})`))
 	}
 
-	return host.call(service, method, ...args) as Promise<T>
+	return host.call(service, method, ...args)
+}
+
+export function onHostEvent<Event extends keyof FrameworkHostEvents & string>(
+	name: Event,
+	listener: (payload: FrameworkHostEvents[Event]) => void,
+): () => void {
+	const host = hostClient()
+	return host ? host.on(name, listener) : () => {}
+}
+
+export function bootstrap(): HostBootstrapState | null {
+	return typeof window === 'undefined' ? null : (window.__xplatHostSnapshot ?? null)
 }
 
 export function on(service: string, event: string, listener: Listener): () => void {
 	const host = hostClient()
-	return host ? host.on(eventName(service, event), listener) : () => {}
+	return host
+		? host.on(eventName(service, event) as keyof FrameworkHostEvents & string, listener)
+		: () => {}
 }
 
-export function capabilities(): Promise<HostCapabilities> {
+export function capabilities(): Promise<HostCapabilities<FrameworkHostServices>> {
 	return hostClient()?.capabilities() ?? Promise.resolve({})
 }
 
@@ -102,7 +128,20 @@ if (typeof window !== 'undefined' && !window.__xplatBridge) {
 		emit(service, event, payload) {
 			window.dispatchEvent(new CustomEvent(`xplat:${service}.${event}`, { detail: payload }))
 		},
-		call: (service, method, args) => call(service, method, ...(args ?? [])),
+		call: (service, method, args) => {
+			const host = hostClient()
+			if (!host) {
+				return Promise.reject(new Error(`xplat host bridge is unavailable (${service}.${method})`))
+			}
+
+			const legacyCall = host.call as (
+				service: string,
+				method: string,
+				...args: unknown[]
+			) => Promise<unknown>
+
+			return legacyCall(service, method, ...(args ?? []))
+		},
 		on,
 		capabilities,
 	}

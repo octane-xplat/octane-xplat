@@ -17,6 +17,7 @@
 		"octane": "0.6.3"
 	},
 	"devDependencies": {
+		"@octane-xplat/bamboo": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"typescript": "5.9.3",

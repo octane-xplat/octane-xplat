@@ -21,6 +21,7 @@ let appSettings = {
 	productName: 'Octane xplat',
 	scheme: 'xplat',
 }
+
 const settingsFile = GLib.build_filenamev([hostDir, '..', 'app.json'])
 if (GLib.file_test(settingsFile, GLib.FileTest.EXISTS)) {
 	const [, bytes] = GLib.file_get_contents(settingsFile)
@@ -130,7 +131,9 @@ const app = new Adw.Application({
 let win = null
 let webView = null // main window's view — global events default here
 let loadedOnce = false
+let pendingInitialUrl = null
 const linkQueue = []
+const initialUrls = new Map()
 let colorScheme = 'light'
 let secretSchema = null
 // wid → { win, wv, opener } — secondary windows opened via windows.open.
@@ -221,17 +224,70 @@ function subscribeAppearance() {
 	}
 }
 
-// Same dispatch table as WKHost.swift — native access here is Gio/D-Bus-shaped.
+// Canonical framework service table — packages/platform/src/host-services.ts is
+// the type source; this JS host is covered by bridge conformance checks.
 // wv is the sender's webview: replies must land on the window that asked.
 const hostCapabilities = {
+	app: ['getInfo', 'getState', 'getWindowSize', 'consumeInitialUrl'],
 	notifications: ['ensure', 'notify'],
 	clipboard: ['read', 'write'],
 	secureStorage: ['get', 'set', 'remove'],
 	appearance: ['get'],
 	files: ['readText', 'pick', 'writeText'],
 	windows: ['open', 'close', 'setTitle'],
-	system: ['openUrl'],
-	deepLinks: ['initialUrl'],
+	system: ['openUrl', 'openPath'],
+	storage: ['get', 'set', 'remove'],
+}
+
+const appInfo = () => ({
+	supported: true,
+	version: appSettings.version ?? null,
+	build: appSettings.build ?? appSettings.version ?? null,
+	bundleId: appSettings.applicationId,
+})
+
+const windowSizeFor = (targetWindow) => {
+	let width = 0
+	let height = 0
+	try {
+		width = targetWindow?.get_width?.() ?? 0
+		height = targetWindow?.get_height?.() ?? 0
+	} catch {}
+
+	if (!width || !height) {
+		try {
+			const [defaultWidth, defaultHeight] = targetWindow?.get_default_size?.() ?? [0, 0]
+			width ||= defaultWidth
+			height ||= defaultHeight
+		} catch {}
+	}
+
+	return {
+		width,
+		height,
+		orientation: width >= height ? 'landscape' : 'portrait',
+	}
+}
+
+const appStateFor = (targetWindow) =>
+	targetWindow?.is_active === true || targetWindow?.isActive === true ? 'active' : 'inactive'
+
+const storagePath = () =>
+	GLib.build_filenamev([GLib.get_user_config_dir(), appSettings.applicationId, 'storage.json'])
+
+const readStorage = () => {
+	try {
+		const [ok, bytes] = GLib.file_get_contents(storagePath())
+		return ok ? JSON.parse(imports.byteArray.toString(bytes)) : {}
+	} catch {
+		return {}
+	}
+}
+
+const writeStorage = (values) => {
+	const file = storagePath()
+	GLib.mkdir_with_parents(GLib.path_get_dirname(file), 0o700)
+	GLib.file_set_contents(file, JSON.stringify(values))
 }
 
 function receiveProtocol(wv, packet) {
@@ -338,6 +394,55 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 			return
 		}
 
+		if (service === 'app') {
+			if (method === 'getInfo') {
+				reply(appInfo())
+			} else if (method === 'getState') {
+				reply(appStateFor(winFor(wv)))
+			} else if (method === 'getWindowSize') {
+				reply(windowSizeFor(winFor(wv)))
+			} else if (method === 'consumeInitialUrl') {
+				reply(initialUrls.get(wv) ?? null)
+				initialUrls.delete(wv)
+			}
+
+			return
+		}
+
+		if (service === 'storage') {
+			if (selfTest) {
+				globalThis.__xplatSelftestStorage ??= new Map()
+				const values = globalThis.__xplatSelftestStorage
+				if (method === 'get') {
+					reply(values.get(String(args[0])) ?? null)
+				} else if (method === 'set') {
+					values.set(String(args[0]), String(args[1] ?? ''))
+					reply(null)
+				} else if (method === 'remove') {
+					values.delete(String(args[0]))
+					reply(null)
+				}
+
+				return
+			}
+
+			const key = String(args[0])
+			const values = readStorage()
+			if (method === 'get') {
+				reply(Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : null)
+			} else if (method === 'set') {
+				values[key] = String(args[1] ?? '')
+				writeStorage(values)
+				reply(null)
+			} else if (method === 'remove') {
+				delete values[key]
+				writeStorage(values)
+				reply(null)
+			}
+
+			return
+		}
+
 		if (service === 'secureStorage') {
 			if (!secretSchema) {
 				fail('Secret.Schema unavailable')
@@ -419,8 +524,9 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 			}
 
 			if (method === 'pick') {
-				if (args[1]) {
-					dialog.set_initial_folder(Gio.File.new_for_path(String(args[1])))
+				const options = args[1] && typeof args[1] === 'object' ? args[1] : {}
+				if (options.startingFolder) {
+					dialog.set_initial_folder(Gio.File.new_for_path(String(options.startingFolder)))
 				}
 
 				dialog.open(parent, null, finish)
@@ -443,8 +549,9 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 				entry?.win.close()
 				reply(!!entry)
 			} else if (method === 'setTitle') {
-				windows.get(String(args[0]))?.win.set_title(String(args[1] ?? ''))
-				reply(true)
+				const entry = windows.get(String(args[0]))
+				entry?.win.set_title(String(args[1] ?? ''))
+				reply(!!entry)
 			}
 
 			return
@@ -455,8 +562,9 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 			return
 		}
 
-		if (service === 'deepLinks' && method === 'initialUrl') {
-			reply(null)
+		if (service === 'system' && method === 'openPath') {
+			const target = Gio.File.new_for_path(String(args[0]))
+			reply(Gio.AppInfo.launch_default_for_uri(target.get_uri(), null))
 			return
 		}
 
@@ -494,7 +602,7 @@ function readSelftest() {
 
 // Every webview gets its own UCM — per-window message wiring and its own
 // document-start injection (initial url / color scheme / window data).
-function wireWebView(wv, extraInjected) {
+function wireWebView(wv, extraInjected = '', hostWindow = win, consumeInitial = true) {
 	const ucm = wv.get_user_content_manager()
 	ucm.register_script_message_handler('xplat', null)
 	ucm.register_script_message_handler('xplatLog', null)
@@ -527,6 +635,23 @@ function wireWebView(wv, extraInjected) {
 		}
 	})
 
+	const initialUrl = consumeInitial ? (linkQueue.shift() ?? pendingInitialUrl) : null
+	if (consumeInitial) {
+		pendingInitialUrl = null
+	}
+
+	if (initialUrl) {
+		initialUrls.set(wv, initialUrl)
+	}
+
+	const snapshot = JSON.stringify({
+		appInfo: appInfo(),
+		appState: appStateFor(hostWindow),
+		windowSize: windowSizeFor(hostWindow),
+		initialUrl,
+		colorScheme,
+	})
+
 	const transportScript = `(() => {
 		const listeners = new Set();
 		Object.defineProperty(window, '__xplatHostTransport', {
@@ -544,8 +669,9 @@ function wireWebView(wv, extraInjected) {
 	ucm.add_script(
 		WebKit.UserScript.new(
 			transportScript +
-				`window.__xplatInitialUrl = ${JSON.stringify(linkQueue.shift() ?? null)};` +
-				`window.__xplatColorScheme = ${JSON.stringify(colorScheme)};` +
+				`window.__xplatHostSnapshot = ${snapshot};` +
+				'window.__xplatInitialUrl = window.__xplatHostSnapshot.initialUrl;' +
+				'window.__xplatColorScheme = window.__xplatHostSnapshot.colorScheme;' +
 				(extraInjected ?? ''),
 			WebKit.UserContentInjectedFrames.TOP_FRAME,
 			WebKit.UserScriptInjectionTime.START,
@@ -588,6 +714,8 @@ function openSecondaryWindow(opener, wid, opts) {
 		wv,
 		`window.__xplatWindowId = ${JSON.stringify(wid)};` +
 			`window.__xplatWindowData = ${JSON.stringify(opts.data ?? null)};`,
+		w,
+		false,
 	)
 
 	if (opts.kind === 'dialog') {
@@ -633,7 +761,7 @@ function ensureWindow() {
 	}
 
 	serveBundle(webView.get_context())
-	wireWebView(webView, '')
+	wireWebView(webView, '', win, true)
 
 	if (selfTest) {
 		const js = readSelftest()
@@ -642,7 +770,7 @@ function ensureWindow() {
 			imports.system.exit(1)
 		}
 
-		GLib.timeout_add(GLib.PRIORITY_DEFAULT, 30000, () => {
+		GLib.timeout_add(GLib.PRIORITY_DEFAULT, 90000, () => {
 			printerr('[host] self-test timed out')
 			app.quit()
 			return GLib.SOURCE_REMOVE
@@ -704,6 +832,18 @@ function ensureWindow() {
 	webView.load_uri(url)
 	win.present()
 
+	win.connect('notify::is-active', () => {
+		emitAll('app.state', 'change', appStateFor(win))
+	})
+
+	win.connect('notify::default-width', () => {
+		emitAll('window', 'resize', windowSizeFor(win))
+	})
+
+	win.connect('notify::default-height', () => {
+		emitAll('window', 'resize', windowSizeFor(win))
+	})
+
 	emitTo(webView, 'host', 'ready', { url })
 }
 
@@ -721,6 +861,7 @@ app.connect('open', (_a, files) => {
 			continue
 		}
 
+		pendingInitialUrl ??= u
 		if (loadedOnce) {
 			emitTo(webView, 'deep-links', 'open', u)
 		} else {

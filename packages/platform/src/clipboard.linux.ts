@@ -8,7 +8,7 @@ const canDom =
 
 async function writeText(text: string): Promise<boolean> {
 	if (bridged()) {
-		return call<boolean>('clipboard', 'write', text)
+		return call('clipboard', 'write', text)
 	}
 
 	try {
@@ -21,7 +21,7 @@ async function writeText(text: string): Promise<boolean> {
 
 async function readText(): Promise<string | null> {
 	if (bridged()) {
-		return call<string | null>('clipboard', 'read')
+		return call('clipboard', 'read')
 	}
 
 	try {

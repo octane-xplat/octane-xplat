@@ -1,9 +1,8 @@
 // Deep links — Linux leaf. The host owns the app scheme registration and
-// pushes 'deep-links.open' events through the bridge; the cold-start URL
-// arrives synchronously as window.__xplatInitialUrl (injected by a
-// document-start user script — the contract is sync, so it can't afford a
-// round-trip). Browser dev keeps the popstate fallback.
-import { bridged, on } from './bridge'
+// pushes 'app.deep-link' events through the bridge; the cold-start URL
+// arrives synchronously in __xplatHostSnapshot (with __xplatInitialUrl kept
+// for older hosts) because the consume contract is synchronous. Browser dev keeps the popstate fallback.
+import { bootstrap, bridged, onHostEvent } from './bridge'
 
 type LinkHandler = (url: string) => void
 const handlers = new Set<LinkHandler>()
@@ -24,7 +23,7 @@ function wire() {
 
 export function onDeepLink(cb: LinkHandler): () => void {
 	if (bridged()) {
-		return on('deep-links', 'open', (url) => cb(String(url)))
+		return onHostEvent('app.deep-link', (url) => cb(String(url)))
 	}
 
 	wire()
@@ -34,7 +33,11 @@ export function onDeepLink(cb: LinkHandler): () => void {
 
 export function consumeInitialUrl(): string | null {
 	if (bridged()) {
-		const url = window.__xplatInitialUrl ?? null
+		const url = bootstrap()?.initialUrl ?? window.__xplatInitialUrl ?? null
+		if (window.__xplatHostSnapshot) {
+			window.__xplatHostSnapshot.initialUrl = null
+		}
+
 		window.__xplatInitialUrl = null
 		return url
 	}

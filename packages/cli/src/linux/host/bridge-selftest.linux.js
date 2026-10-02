@@ -51,6 +51,7 @@
 			) {
 				throw new Error('unexpected result: ' + JSON.stringify(value))
 			}
+
 			const result = name + '=' + JSON.stringify(value)
 			out.push(result)
 			log('SELFTEST_STEP ' + result)
@@ -65,7 +66,21 @@
 	log('SELFTEST_STARTED')
 	await run('capabilities', async () => {
 		const caps = await window.__xplatBridge.capabilities()
-		return caps.clipboard?.includes('read') && caps.clipboard?.includes('write')
+		const expected = {
+			app: ['getInfo', 'getState', 'getWindowSize', 'consumeInitialUrl'],
+			clipboard: ['read', 'write'],
+			files: ['pick', 'readText', 'writeText'],
+			notifications: ['ensure', 'notify'],
+			secureStorage: ['get', 'set', 'remove'],
+			appearance: ['get'],
+			windows: ['open', 'close', 'setTitle'],
+			system: ['openUrl', 'openPath'],
+			storage: ['get', 'set', 'remove'],
+		}
+
+		return Object.entries(expected).every(([service, methods]) =>
+			methods.every((method) => caps[service]?.includes(method)),
+		)
 	})
 
 	await run('deepLinks.open', async () => {
@@ -74,8 +89,34 @@
 	})
 
 	await run('legacy.clipboard.write', () => legacyCall('clipboard', 'write', ['legacy-ok']))
+	await run('app.getInfo', async () => (await call('app', 'getInfo', [])).supported)
+	await run('app.getState', async () =>
+		['active', 'inactive', 'background'].includes(await call('app', 'getState', [])),
+	)
+
+	await run('app.getWindowSize', async () => {
+		const size = await call('app', 'getWindowSize', [])
+		return size.width > 0 && size.height > 0
+	})
+
+	await run(
+		'app.consumeInitialUrl',
+		async () => (await call('app', 'consumeInitialUrl', [])) ?? 'none',
+	)
+
 	await run('clipboard.write', () => call('clipboard', 'write', ['harness-ok']))
 	await run('clipboard.read', () => call('clipboard', 'read', []), 'harness-ok')
+	await run('storage.set', async () => {
+		await call('storage', 'set', ['k', 'storage-value'])
+		return true
+	})
+
+	await run('storage.get', () => call('storage', 'get', ['k']), 'storage-value')
+	await run('storage.remove', async () => {
+		await call('storage', 'remove', ['k'])
+		return true
+	})
+
 	await run('secureStorage.set', () => call('secureStorage', 'set', ['k', 'v']))
 	await run('secureStorage.get', () => call('secureStorage', 'get', ['k']), 'v')
 	await run('notifications.ensure', () => call('notifications', 'ensure', []))
@@ -110,7 +151,7 @@
 		}
 	})
 
-	await run('deepLinks.initialUrl', () => window.__xplatInitialUrl ?? 'none')
+	await run('bootstrap.initialUrl', () => window.__xplatHostSnapshot?.initialUrl ?? 'none')
 	await run('missing.method', async () => {
 		try {
 			await call('nope', 'nope', [])

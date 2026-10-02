@@ -25,8 +25,10 @@ writeFileSync(
 	join(app, 'pnpm-workspace.yaml'),
 	'packages: [.]\noverrides:\n  esbuild: 0.27.7\nallowBuilds:\n  esbuild: true\n',
 )
+
 const run = (cmd, args, options = {}) =>
 	execFileSync(cmd, args, { cwd: app, stdio: 'inherit', ...options })
+
 run('pnpm', ['install'])
 run('pnpm', ['exec', 'xplat', 'build', '--targets', 'linux'])
 const relocated = join(root, 'relocated app')
@@ -86,11 +88,11 @@ try {
  await new Promise(r => setTimeout(r, 500))
  execFileSync('pnpm', ['exec', 'xplat', 'doctor'], {cwd:${JSON.stringify(app)},stdio:'inherit'})
  const selftest = launch(${JSON.stringify(installed)}, ['--self-test', 'linux-proof://cold-start/deep-link'])
- await wait(selftest, 'SELFTEST_RESULT {"checks":17,"failed":[]}')
+ await wait(selftest, 'SELFTEST_RESULT {"checks":24,"failed":[]}')
  await new Promise(r => selftest.child.exitCode === null ? selftest.child.once('exit', r) : r())
  assert.equal(selftest.child.exitCode, 0)
  assert.ok(selftest.output().includes('LINUX_CONSUMER_MOUNTED'))
- assert.ok(selftest.output().includes('deepLinks.initialUrl="linux-proof://cold-start/deep-link"'))
+ assert.ok(selftest.output().includes('bootstrap.initialUrl="linux-proof://cold-start/deep-link"'))
  logs.push(selftest.output())
  const writer = launch(${JSON.stringify(installed)}, ['linux-proof://probe/write'])
  await wait(writer, 'LINUX_SECRET_WRITTEN')
@@ -107,7 +109,7 @@ try {
  await stop(reader)
  notifications.kill()
  writeFileSync(${JSON.stringify(join(root, 'runtime.log'))}, logs.join('\\n'))
- console.log('LINUX_CONSUMER_PASS: packed CLI, Octane mount, relocation, installer, desktop entry and URI association, doctor, 17 bridge checks, persistent isolated storage, second-instance link')
+ console.log('LINUX_CONSUMER_PASS: packed CLI, Octane mount, relocation, installer, desktop entry and URI association, doctor, 24 bridge checks, persistent isolated storage, second-instance link')
 } finally {
  for (const child of children) { try { process.kill(-child.pid, 'SIGTERM') } catch {} }
 }
