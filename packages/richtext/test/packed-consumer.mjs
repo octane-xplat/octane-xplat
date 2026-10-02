@@ -24,7 +24,7 @@ const dependencies = {
 	'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
 }
 
-for (const name of ['richtext', 'tiptap', 'lexical', 'macos-renderer', 'cli']) {
+for (const name of ['richtext', 'tiptap', 'lexical', 'macos-renderer', 'cli', 'create']) {
 	const dir = join(repo, 'packages', name)
 	const manifest = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'))
 	run('pnpm', ['pack', '--pack-destination', packs], dir)
@@ -60,7 +60,7 @@ await writeFile(
 
 await writeFile(
 	join(app, 'pnpm-workspace.yaml'),
-	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
+	`packages: []\nnodeLinker: isolated\nminimumReleaseAge: 0\noverrides:\n  create-octane-xplat: ${JSON.stringify(dependencies['create-octane-xplat'])}\n  '@octane-xplat/richtext': ${JSON.stringify(dependencies['@octane-xplat/richtext'])}\n  '@tiptap/core': 3.28.0\n  '@tiptap/pm': 3.28.0\n  '@tiptap/starter-kit': 3.28.0\n`,
 )
 
 await writeFile(
