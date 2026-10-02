@@ -90,6 +90,33 @@ a way to recognize success. Phone development tools belong at the point
 where the reader chooses to run on a phone; signing belongs with release
 instructions.
 
+## Show every API capability in code
+
+Every paragraph that explains an API capability must have an accompanying
+fenced code snippet showing how to use that capability. Place the snippet
+directly before or after the explanation. This applies to functions, hooks,
+components, props, options, and events across new docs and reviews of existing
+docs. A link to another example does not replace the paragraph's snippet.
+
+- Show the capability the paragraph describes with the smallest useful
+  example. Keep each explanation focused so readers can connect the prose
+  to the code without absorbing unrelated features.
+- Make every snippet syntactically valid in its stated language and context.
+  Include needed imports and definitions, or clearly connect it to setup
+  already shown on the page. Explain where the code belongs. Keep placeholders
+  valid; avoid pseudocode or omitted code that makes the snippet invalid.
+- Use actual supported APIs and idiomatic project patterns. Follow the
+  relevant platform, renderer, styling, and state conventions. Prefer code
+  readers should use in their own app over shortcuts that only illustrate
+  a name or signature.
+- Validate new or changed snippets with the appropriate parser, compiler,
+  or typecheck in their intended context. Check the claimed behavior when
+  it requires execution, and report the targets actually verified. Syntax
+  highlighting alone is not validation.
+
+Review API explanations paragraph by paragraph: is the usage shown, is the
+code valid, and is this how we recommend writing it?
+
 ## Workflow coverage
 
 [Recipes](../../recipes/README.md) define the non-trivial developer workflows that

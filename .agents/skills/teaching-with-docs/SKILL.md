@@ -63,6 +63,11 @@ readers predict a section's contents.
 
 ## Teach Through Examples
 
+For Xplat, [show every API capability in code](../../docs/documentation.md#show-every-api-capability-in-code):
+every paragraph explaining an API capability needs an adjacent fenced usage
+snippet. Validate its syntax in the intended context and use idiomatic project
+patterns; a reference link or syntax highlighting does not satisfy the rule.
+
 Give unfamiliar mechanisms and consequential choices a nearby concrete
 example. Choose the smallest realistic example that demonstrates the point,
 with enough context to explain:
@@ -135,6 +140,8 @@ explanations that may drift.
 For Xplat, also check whether the page preserves interest and makes the next
 step feel achievable, with costs and limitations placed where they become
 useful to the reader.
+Check each paragraph explaining an API capability for its accompanying usage
+snippet, syntactic validity, and idiomatic use.
 
 Validate relevant commands, examples, links, anchors, and formatting using
 existing project checks. For published-site changes, build the docs when a

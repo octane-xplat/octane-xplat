@@ -59,6 +59,8 @@ working agreements and detail moved out of this entry point.
   disclosure: teach what the current step needs and link to optional detail.
   Earn readers' interest and preserve their excitement: show what they can
   build, then explain costs and limits when they affect the next step.
+  Every paragraph explaining an API capability needs an adjacent code snippet
+  showing its use; snippets must be syntactically valid and idiomatic.
 - Public workflow changes must reconcile recipes, docs, and maintained examples;
   record coverage separately from verification in Silo and run
   `pnpm check:recipes`. Never weaken criteria to conceal a limitation. Report
