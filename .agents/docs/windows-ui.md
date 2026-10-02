@@ -34,3 +34,34 @@ The setup fix preserves the existing typed-component-library recipe AC1/AC7;
 its requirements and examples do not change. That recipe currently lists web,
 iOS, and Android, and Silo recipe audits do not accept Windows. Windows evidence
 is recorded here rather than mislabeled as another target's verification.
+
+## VM interruptions
+
+Windows event 1074 recorded automatic planned update restarts at 00:38 and
+00:49 on 2026-10-02. These interrupted SSH-bound install/build commands;
+UI declaration generation had succeeded before the second restart, but the
+whole installation had not yet returned a successful exit code. Restarting
+commands is necessary; a stale SSH process is not evidence of an active build.
+
+The complete normal guest install subsequently returned exit 0 in 1m33s.
+All package generators and app styling codegen completed. UI emitted 496 files.
+The baseline build is now being retried after that successful install.
+
+## Source findings awaiting runtime probes
+
+- The Windows suffix chain deliberately excludes `.mobile`. Root UI exports
+  still select `index.mobile.ts` through the `native` condition. Explicit
+  mobile imports in native defaults also prevent Windows boundary validation.
+- A temporary dependency scan found SVG mobile glue reachable from 75 root
+  components, root-layout glue from 49, and navigation glue from 21. These
+  groups overlap; the scan is prioritization evidence, not runtime evidence.
+- Pinned Windows core provides native FlexboxLayout and TextBlock-backed Label.
+  Its image implementation demonstrates WinRT DataWriter/stream marshalling.
+  Built-in WinUI SvgImageSource is a candidate for a dependency-free SVG seam;
+  it has not been verified through the runtime bridge.
+- Pinned core gesture source handles tap, doubleTap, longPress, and touch, but
+  contains no pan/swipe implementation. Shared Slider currently depends on
+  pan; its Windows interaction needs an explicit implementation or parking.
+
+The minimal native TSRX label bundle compiled with Vite (39.51 kB app bundle,
+2,091.21 kB vendor bundle). Native .NET compilation is still running.

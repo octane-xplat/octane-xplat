@@ -2162,5 +2162,119 @@
       "evidence": null,
       "reason": null
     }
+  ],
+  "platformAuthentic": [
+    {
+      "name": "UISwitch",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "UISlider",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "UIActivityIndicatorView",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "UITableView",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "UITabBar",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "UIModal",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "SideDrawer",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "LiquidGlass",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "LiquidGlassContainer",
+      "platform": "ios",
+      "status": "parked",
+      "evidence": "packages/ui/src/ios/index.ts",
+      "reason": "This subpath promises ios-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "MaterialSwitch",
+      "platform": "android",
+      "status": "parked",
+      "evidence": "packages/ui/src/android/index.ts",
+      "reason": "This subpath promises android-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "SeekBar",
+      "platform": "android",
+      "status": "parked",
+      "evidence": "packages/ui/src/android/index.ts",
+      "reason": "This subpath promises android-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "CircularProgressIndicator",
+      "platform": "android",
+      "status": "parked",
+      "evidence": "packages/ui/src/android/index.ts",
+      "reason": "This subpath promises android-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "RecyclerView",
+      "platform": "android",
+      "status": "parked",
+      "evidence": "packages/ui/src/android/index.ts",
+      "reason": "This subpath promises android-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "BottomNavigationView",
+      "platform": "android",
+      "status": "parked",
+      "evidence": "packages/ui/src/android/index.ts",
+      "reason": "This subpath promises android-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "MaterialDialog",
+      "platform": "android",
+      "status": "parked",
+      "evidence": "packages/ui/src/android/index.ts",
+      "reason": "This subpath promises android-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    },
+    {
+      "name": "DrawerLayout",
+      "platform": "android",
+      "status": "parked",
+      "evidence": "packages/ui/src/android/index.ts",
+      "reason": "This subpath promises android-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
+    }
   ]
 }
