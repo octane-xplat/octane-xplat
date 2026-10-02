@@ -10,6 +10,7 @@ import { positionPopover, type PopoverPosition } from './popover-position';
 import { applyThemeClasses, useThemeScheme } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
+import { relativePosition } from './relative-position';
 
 function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 	const panelRef = useRef<any>(null);
@@ -18,8 +19,8 @@ function PopoverLayer(props: PopoverProps & { anchorView: any }) @{
 	const update = () => {
 		const anchor = props.anchorView;
 		const coordinateRoot = anchor?.page?.content;
-		if (!anchor?.getLocationRelativeTo || !coordinateRoot?.getActualSize) return;
-		const point = anchor.getLocationRelativeTo(coordinateRoot);
+		if (!anchor || !coordinateRoot?.getActualSize) return;
+		const point = relativePosition(anchor, coordinateRoot);
 		const anchorSize = anchor.getActualSize();
 		const panelSize = panelRef.current?.getActualSize?.();
 		if (!point || !anchorSize) return;

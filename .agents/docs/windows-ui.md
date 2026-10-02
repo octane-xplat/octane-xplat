@@ -353,3 +353,18 @@ height 20. A direct finite core opacity animation completes after 765ms with
 both model/native opacity approximately 0.4, so animation is not generally
 unavailable. Spinner/pulse/indeterminate loops need native-property sampling
 rather than conclusions drawn from their unchanged model values.
+
+### Windows popover coordinates
+
+Pinned core inherits no-op `getLocationRelativeTo`/`getLocationOnScreen` methods
+from ViewCommon. A native WinUI probe returns the anchor's real root-relative
+DIP position through `TransformToVisual(...).TransformPoint(...)`: x=242,y=30,
+width=100,height=20. Popover now calls an internal relative-position adapter:
+mobile retains its core method, and Windows uses that WinUI transform.
+
+The actual controlled Popover case places a visible 120×30 panel at x=242,y=58
+(the anchor bottom plus the configured 8 DIP gap), then removes the host on
+close. The existing native popover lifecycle test passes, and UI declaration
+no-emit typechecking passes. Outside-click dismissal, resize/scroll tracking,
+focus and keyboard semantics still need their own runtime cases. This does not
+supply screen coordinates for useMeasure or unpark Slider/AspectRatio.
