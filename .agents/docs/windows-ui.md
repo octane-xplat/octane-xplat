@@ -572,3 +572,47 @@ NativeScript core, following the fork-first dependency policy. No workaround
 was added to shared Pressable. Temporary probes and the prototype live under
 ignored `research/windows-ui/`; the guest's original gesture implementation is
 backed up alongside the dependency file as `index.windows.js.priority-original`.
+
+### Essential form contracts: narrower successes and new blockers
+
+A six-field isolated case tests ordinary, read-only, secure read-only, disabled,
+multiline, and literal-keyword fields on the unchanged gesture dependency.
+The interactive OS keyboard task returns 0. Runtime/native-model diagnostics
+confirm ordinary editing and multiline editing call `onChange`; Enter on the
+ordinary field calls `onSubmit`. A follow-up periodic diagnostic confirms model
+and native values agree. The first non-periodic observation did not capture
+change callbacks; it is not evidence that the callbacks permanently fail, and
+callback timing has not been measured.
+
+- Plain `isReadOnly` keeps its original value, reports native/ValuePattern
+  read-only, and rejects the test key.
+- `secure` + `isReadOnly` creates a PasswordBox whose ValuePattern reports
+  read-only false. Real typing increases the synthetic password's length by one
+  and emits `onChange`. No password value is needed in the evidence. Pinned
+  TextField's editable setter only assigns `IsReadOnly` when that member exists;
+  PasswordBox does not have it.
+- `isDisabled` leaves the plain TextBox's native/UIA `IsEnabled` true and accepts
+  keyboard focus. It rejects typing only because editable=false sets
+  `IsReadOnly`. The pinned Windows View has no `isEnabledProperty.setNative`
+  implementation. This is a disabled-state/focus defect, not proof that the
+  disabled field's value changes.
+- An explicit `accessibilityLabel="Ordinary accessible name"` instead exposes
+  UIA Name `Ordinary placeholder`. The Windows accessibility update callback is
+  empty. A matching placeholder/name in earlier cases did not prove mapping.
+- Literal `value="initial"` is again empty before editing, consistent with the
+  previously reproduced generic-property reset-keyword issue.
+
+TextInput and TextArea remain parked. Their inventory entries now retain these
+bounded successes and specific remaining requirements. Focus/blur callbacks,
+selection, return behavior in multiline inputs, and live property changes still
+need dedicated checks. Public recipes and support claims are unchanged.
+
+A subsequent diagnostic index directly calls
+`AutomationProperties.SetName(nativeView, explicitName)` and assigns
+`nativeView.IsEnabled=false` for the disabled field. Repeating the interactive
+keyboard task returns 0: UIA reports the explicit name, and the disabled field
+reports `IsEnabled=false`, `IsKeyboardFocusable=false`; `SetFocus` rejects it.
+This verifies both WinUI property paths through the bridge. It does not install
+ongoing framework property forwarding or fix secure read-only. The prototype
+is confined to the ignored probe index; the core gesture dependency was restored
+to its backup before these form cases.

@@ -1730,9 +1730,10 @@
       ],
       "status": "parked",
       "evidence": [
-        "OS keyboard abc updates controlled text; ordinary Windows initial text renders. Exact initial/inherit/unset/revert are interpreted as core Property reset values."
+        "OS keyboard abc updates controlled text; ordinary Windows initial text renders. Exact initial/inherit/unset/revert are interpreted as core Property reset values.",
+        "2026-10-02 priority form case: ordinary OS editing updates native/model value and onChange; Enter calls onSubmit. Plain read-only rejects editing. Secure read-only accepts an OS edit and emits onChange. Disabled plain field rejects edits through IsReadOnly but native IsEnabled=true and accepts keyboard focus. Explicit accessibilityLabel differs from UIA Name, which is the placeholder. Literal initial renders empty before editing."
       ],
-      "reason": "Needs upstream literal text-property keyword fix and verified Windows label/readonly/secure/focus contracts; ordinary editing works but API values are not lossless."
+      "reason": "Requires lossless literal text values, secure read-only enforcement, native disabled/focus mapping, explicit accessible names, and verified focus/blur contracts. Ordinary controlled editing and Enter submission are bounded passes, not full TextInput support."
     },
     {
       "name": "TextArea",
@@ -1744,7 +1745,8 @@
       ],
       "status": "parked",
       "evidence": [
-        "UIA Edit ValuePattern exposes two initial lines; uses same NativeScript text Property reset interpretation as TextInput."
+        "UIA Edit ValuePattern exposes two initial lines; uses same NativeScript text Property reset interpretation as TextInput.",
+        "2026-10-02 priority form case: real OS editing updates both native and model multiline content and emits onChange; UIA uses carriage-return line separators. Other TextArea contracts remain unverified."
       ],
       "reason": "Needs lossless literal text keyword handling and verified multiline editing/readonly/name behavior; initial multiline rendering works."
     },
