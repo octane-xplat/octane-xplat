@@ -2688,6 +2688,14 @@ dialog.vx-dialog {
 		}
 	}
 	/* xplat-web-only:end */
+/* Native containers need these rules too; DOM-only clipping stays above.
+   Opacity preserves the accessibility subtree while suppressing paint. */
+.vx-visually-hidden {
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+}
+
 /* ----- Astryx navigation family (task 05) ----- */
 
 /* NavIcon — circular accent container. */
