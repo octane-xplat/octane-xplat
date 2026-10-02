@@ -15,6 +15,9 @@ export function loadImage(source) {
 		return NSImage.alloc().initWithContentsOfFile(src)
 	}
 
-	if (src) console.warn('[macos-image] Unsupported source; use a base64 data URI or local file')
+	if (src) {
+		console.warn('[macos-image] Unsupported source; use a base64 data URI or local file')
+	}
+
 	return null
 }

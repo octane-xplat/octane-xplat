@@ -1,12 +1,12 @@
 # Select an image crop inline
 
 ID: inline-image-crop
-Targets: web, ios, android
+Targets: web, ios, android, macos
 Related APIs: @octane-xplat/image-crop, ImageCrop, Crop, toNaturalCrop, containFrame
 
 ## Starting point
 
-An Octane Xplat app with web and NativeScript renderer configuration and an
+An Octane Xplat app with web, NativeScript, or AppKit renderer configuration and an
 image source with known decoded, oriented natural dimensions.
 
 ## Requirements
@@ -17,7 +17,7 @@ image source with known decoded, oriented natural dimensions.
 
 ## Acceptance criteria
 
-- AC1: A reader can install the leaf and update controlled selection through its pixel/percentage callback pair on all three targets.
+- AC1: A reader can install the leaf and update controlled selection through its pixel/percentage callback pair on all four targets, including AppKit source/renderer constraints.
 - AC2: A reader can configure aspect, minimum/maximum dimensions, disabled interaction, and thirds guides, and understand letterbox coordinates and completion/cancellation.
 - AC3: A reader can convert displayed selection to natural pixels and identify the separate pixel-production responsibility.
 - AC4: A maintained example demonstrates selection, and instructions distinguish geometry checks and mounted probes from OS input and pixel parity evidence.

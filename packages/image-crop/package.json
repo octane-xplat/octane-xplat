@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/image-crop",
 	"version": "0.8.0",
-	"description": "Inline controlled image crop selection for Octane Xplat web, iOS and Android",
+	"description": "Inline controlled image crop selection for Octane Xplat web, iOS, Android and macOS",
 	"keywords": [
 		"crop",
 		"cross-platform",
@@ -25,6 +25,10 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"macos": {
+				"types": "./types/generated/index.d.ts",
+				"default": "./src/index.macos.ts"
+			},
 			"types": "./types/generated/index.d.ts",
 			"web": "./src/index.web.ts",
 			"native": "./src/index.ts",
@@ -34,6 +38,10 @@
 	"publishConfig": {
 		"exports": {
 			".": {
+				"macos": {
+					"types": "./types/generated/index.d.ts",
+					"default": "./src/index.macos.ts"
+				},
 				"types": "./types/generated/index.d.ts",
 				"web": "./dist/web/index.js",
 				"native": "./dist/native/index.js",
@@ -45,7 +53,7 @@
 	"scripts": {
 		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
 		"typegen": "tsrx-typegen --target crop",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p tsconfig.mobile.json",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p tsconfig.mobile.json && tsrx-tsc --noEmit -p tsconfig.macos.json",
 		"test": "vitest run tests/geometry.test.ts",
 		"prepack": "pnpm build && tsrx-typegen --pack-check",
 		"prepublishOnly": "pnpm build",
@@ -57,6 +65,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
+		"@octane-xplat/macos-renderer": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"@tsrx/typescript-plugin": "0.4.11",
 		"octane": "0.6.3",
@@ -68,6 +77,7 @@
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
+		"@octane-xplat/macos-renderer": ">=0.8.0 <1",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {
@@ -75,6 +85,9 @@
 			"optional": true
 		},
 		"@nativescript/core": {
+			"optional": true
+		},
+		"@octane-xplat/macos-renderer": {
 			"optional": true
 		},
 		"octane": {

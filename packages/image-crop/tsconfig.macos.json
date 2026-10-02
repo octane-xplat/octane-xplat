@@ -1,0 +1,25 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"jsxImportSource": "@octane-xplat/macos-renderer",
+		"customConditions": [
+			"macos"
+		],
+		"moduleSuffixes": [
+			".macos",
+			""
+		],
+		"paths": {
+			"@octane-xplat/ui": [
+				"../ui/types/index.macos.d.ts"
+			]
+		}
+	},
+	"include": [
+		"src/index.macos.ts",
+		"src/**/*.macos.tsrx",
+		"src/ImageCrop.tsrx",
+		"tests/*.macos.tsrx"
+	],
+	"exclude": []
+}

@@ -9,9 +9,8 @@ Your application owns startup, windows, menus, host services, and custom font
 assets. The renderer owns views, layout, events, accessibility, and its hosted
 popups and sheets. It does not load web stylesheets or implement every
 NativeScript widget. See the [macOS harness](../../apps/macos/README.md) for
-the current component and service limits. The full harness currently fails its
-platform boundary check on `packages/ui/src/svg.mobile.ts`; the independent
-renderer fixture does not import that UI barrel. A raw AppKit button
+the current component and service limits. The image-crop integration test compiles and mounts the public UI barrel.
+The full application harness has not been reverified by that test. A raw AppKit button
 `performClick` check also exposes an existing action-selector mismatch. Native
 click delivery needs separate repair and verification; the maintained consumer
 checks direct handler dispatch.
@@ -94,6 +93,19 @@ Use [the packaging guide](../../docs/toolchain.md#experimental-appkit-target)
 for `xplat.targets.macos` metadata, signing, and CLI commands. The
 [independent fixture](test/fixtures/main.mjs) demonstrates a complete host
 entry, including startup and shutdown, without importing the harness.
+
+## Render local images and overlays
+
+Image sources can be base64 data URIs, local file paths, or `file://` URLs.
+An empty or unsupported source clears the old image. Remote URLs require a
+separate download; image loading does not perform synchronous network work.
+For centered contain-fit, pass `style={{ objectFit: 'contain' }}` to `Image`.
+This scales smaller images up while preserving their aspect ratio.
+
+`style={{ pointerEvents: 'none' }}` makes `Image` and `View` (the flexbox host)
+pass hit-testing through to siblings below them. Use it for decorative crop
+source/guide layers; keep gesture controls interactive. The AppKit crop test
+checks those native hit-test boundaries separately from pan handler dispatch.
 
 ## Choose fonts
 

@@ -9,11 +9,22 @@
 		"allowImportingTsExtensions": true,
 		"skipLibCheck": true,
 		"noEmit": true,
-		"customConditions": ["native"],
+		"customConditions": [
+			"native"
+		],
 		"paths": {
-			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
+			"@octane-xplat/ui": [
+				"../ui/types/generated/index.d.ts"
+			]
 		}
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsrx", "examples/**/*.tsrx"],
-	"exclude": ["src/**/*.test.*"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsrx",
+		"examples/**/*.tsrx"
+	],
+	"exclude": [
+		"src/**/*.test.*",
+		"src/**/*.macos.*"
+	]
 }

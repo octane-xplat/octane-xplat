@@ -12,7 +12,9 @@ const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const
 /** Inline controlled selection. View.onPan delegates to the UI usePan leaves. */
 export function ImageCrop(props: ImageCropProps) @{
 	const measure = useMeasure()
-	const frame = containFrame(measure.bounds ?? props, { width: props.imageWidth, height: props.imageHeight })
+	// Root hosts may offer more space than the explicitly sized image viewport.
+	const viewport = { width: Math.min(props.width, measure.bounds?.width ?? props.width), height: Math.min(props.height, measure.bounds?.height ?? props.height) }
+	const frame = containFrame(viewport, { width: props.imageWidth, height: props.imageHeight })
 	const crop = constrainCrop(props.crop, frame, props)
 	const gesture = useRef<{ handle: CropHandle; start: PixelCrop; size: Size; dx: number; dy: number; src: string } | null>(null)
 	const pan = (handle: CropHandle, event: PanEvent) => {
@@ -39,8 +41,8 @@ export function ImageCrop(props: ImageCropProps) @{
 	const left = frame.x + crop.x, top = frame.y + crop.y
 
 	<View id={props.id} bind={measure.bind} style={{ width: props.width, height: props.height }}>
-		<Absolute style={{ width: props.width, height: props.height }}>
-			<Source src={props.src} alt={props.alt} width={props.width} height={props.height} />
+		<Absolute style={viewport}>
+			<Source src={props.src} alt={props.alt} width={viewport.width} height={viewport.height} />
 			<Gesture id={props.id ? props.id + '-move' : undefined} left={left} top={top}
 				style={{ width: crop.width, height: crop.height, borderWidth: 1, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.13)' }}
 				onPan={props.disabled ? undefined : (e: PanEvent) => pan('move', e)} />

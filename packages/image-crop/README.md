@@ -1,6 +1,6 @@
 # Inline image crop selection
 
-`@octane-xplat/image-crop` selects a rectangle inline on web, iOS, and Android.
+`@octane-xplat/image-crop` selects a rectangle inline on web, iOS, Android, and macOS (AppKit).
 It uses Octane Xplat primitives and shared geometry. It returns selection
 coordinates; it does not produce a cropped image file or open a modal.
 
@@ -12,7 +12,13 @@ pnpm add @octane-xplat/image-crop
 
 Use the existing Octane Xplat renderer setup; no extra NativeScript plugin or
 CSS pipeline is required. Supply the source's decoded, oriented natural size
-and a viewport in CSS pixels (web) or DIPs (native).
+and a viewport in CSS pixels (web), DIPs (iOS/Android), or points (AppKit).
+
+For AppKit, use the existing `xplatMacOS` compiler setup; the `macos` package
+condition supplies source for that renderer. macOS image sources support base64
+data URIs and local paths/file URLs. Remote URLs are not loaded by the AppKit
+renderer; download them separately and supply a local source. Desktop WebView
+apps use the web implementation.
 
 ```tsx
 import { useState } from 'octane'
@@ -87,8 +93,14 @@ pnpm --filter @octane-xplat/image-crop typecheck
 pnpm --filter @octane-xplat/image-crop build
 pnpm probe doctor
 pnpm probe run packages/image-crop/examples/selection.tsrx --target web --deps @octane-xplat/image-crop
+pnpm probe run packages/image-crop/tests/selection.macos.tsrx --target macos --deps @octane-xplat/image-crop
 ```
 
 The mounted probe checks handles and records geometry. It does not establish
 OS touch hit-testing or visual pixel parity. Geometry tests cover conversion,
 letterboxing, movement, aspect resizing, and constraints.
+
+The maintained AppKit integration test checks all eight resize handles, interior
+movement, aspect and min/max bounds, cancellation, disabled callbacks, source
+scaling, input-transparent guides, and window resizing. It uses renderer pan
+dispatch and AppKit hit-testing; OS mouse input remains separately unverified.
