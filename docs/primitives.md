@@ -138,6 +138,7 @@ The [implementation map](#implementation-map) lists more controls and their
 underlying views for readers who need that detail.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Settings.ios.tsrx: keep this import in the iOS file.
 import { UISwitch } from '@octane-xplat/ui/ios'
 import { useState } from 'octane'
@@ -324,6 +325,7 @@ These selectors and modifiers are escape hatches for platform-authentic
 widgets, not shared styling props.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 import { Icon, UITabBar, modifier } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
 
@@ -466,6 +468,7 @@ _VirtualList anchor correction and slots verified on web, iOS simulator, and
 Android emulator; native nested-list guard verified on iOS._
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Items.ios.tsrx
 import { UITableView } from '@octane-xplat/ui/ios'
 import { ScrollableArea, Text } from '@octane-xplat/ui'

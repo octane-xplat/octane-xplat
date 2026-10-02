@@ -66,6 +66,7 @@ platform-authentic widgets are opt-in subpath imports, and a shared `.tsrx`
 importing them fails the other platform's build on purpose:
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // PackedToggle.ios.tsrx: an explicit OS widget choice.
 import { UISwitch } from '@octane-xplat/ui/ios'
 
@@ -100,8 +101,13 @@ and [readiness evidence](primitive-notes.md#virtuallist-readiness-recheck-q30-20
 import { VirtualList, Text } from '@octane-xplat/ui'
 
 export function PackingList(props: { items: { id: string; label: string }[] }) {
-	return <VirtualList items={props.items} keyExtractor={item => item.id}
-		renderItem={item => <Text>{item.label}</Text>} />
+	return (
+		<VirtualList
+			items={props.items}
+			keyExtractor={(item) => item.id}
+			renderItem={(item) => <Text>{item.label}</Text>}
+		/>
+	)
 }
 ```
 
@@ -156,10 +162,16 @@ from the presenting screen.
 ```tsx
 import { Dialog, Text } from '@octane-xplat/ui'
 
-export function Preview(props: { open: boolean; title: string; onOpenChange: (open: boolean) => void }) {
-	return <Dialog isOpen={props.open} onOpenChange={props.onOpenChange}>
-		<Text>{props.title}</Text>
-	</Dialog>
+export function Preview(props: {
+	open: boolean
+	title: string
+	onOpenChange: (open: boolean) => void
+}) {
+	return (
+		<Dialog isOpen={props.open} onOpenChange={props.onOpenChange}>
+			<Text>{props.title}</Text>
+		</Dialog>
+	)
 }
 ```
 
@@ -297,16 +309,38 @@ import { View, Pressable, Text } from '@octane-xplat/ui'
 const MotionCard = motion.create(View)
 export function Card() {
 	const [scope, animate] = useAnimate()
-	return <>
-		<MotionCard bind={scope} initial="hidden" animate={['visible', 'selected']} custom={20}
-			variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 }, selected: (x: number) => ({ x }) }}
-			whileTap={{ scale: 0.95 }} whileFocus={{ scale: 1.05 }}
-			transition={{ default: { duration: 0.2 }, x: { type: 'spring', duration: 0.5, bounce: 0.2 } }}
-			onAnimationStart={() => console.log('Started')} onAnimationComplete={() => console.log('Finished')}>
-			<motion.View animate={{ opacity: 1 }} transition={{ repeat: 1, repeatType: 'reverse' }} />
-		</MotionCard>
-		<Pressable onPress={() => { void animate({ x: 40 }, { duration: 0.2 }) }}><Text>Move</Text></Pressable>
-	</>
+	return (
+		<>
+			<MotionCard
+				bind={scope}
+				initial="hidden"
+				animate={['visible', 'selected']}
+				custom={20}
+				variants={{
+					hidden: { opacity: 0 },
+					visible: { opacity: 1 },
+					selected: (x: number) => ({ x }),
+				}}
+				whileTap={{ scale: 0.95 }}
+				whileFocus={{ scale: 1.05 }}
+				transition={{
+					default: { duration: 0.2 },
+					x: { type: 'spring', duration: 0.5, bounce: 0.2 },
+				}}
+				onAnimationStart={() => console.log('Started')}
+				onAnimationComplete={() => console.log('Finished')}
+			>
+				<motion.View animate={{ opacity: 1 }} transition={{ repeat: 1, repeatType: 'reverse' }} />
+			</MotionCard>
+			<Pressable
+				onPress={() => {
+					void animate({ x: 40 }, { duration: 0.2 })
+				}}
+			>
+				<Text>Move</Text>
+			</Pressable>
+		</>
+	)
 }
 ```
 
@@ -345,9 +379,13 @@ import { Presence, motion } from '@octane-xplat/motion'
 import { TextInput } from '@octane-xplat/ui'
 
 export function Panel(props: { open: boolean }) {
-	return <Presence present={props.open}>
-		<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}><TextInput placeholder="Note" /></motion.View>
-	</Presence>
+	return (
+		<Presence present={props.open}>
+			<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+				<TextInput placeholder="Note" />
+			</motion.View>
+		</Presence>
+	)
 }
 ```
 
@@ -378,7 +416,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
 	const html$ = useSignal$('<p>Packing list</p>')
-	return <RichTextEditor value={html$.get()} onChange={html => html$.set(html)} />
+	return <RichTextEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```
 
@@ -401,7 +439,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
 	const html$ = useSignal$('<p>Packing list</p>')
-	return <TiptapEditor value={html$.get()} onChange={html => html$.set(html)} />
+	return <TiptapEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```
 
@@ -417,13 +455,12 @@ ICU); `lexical` core's `new RegExp('\p{Emoji}')` already degrades safely.
 `@lexical/*` pins to `0.51.0`; `@octanejs/lexical` pins to `0.2.0` for the
 `octane ^0.6.0` peer.
 
-
 ```tsx
 import { LexicalEditor } from '@octane-xplat/lexical'
 import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
 	const html$ = useSignal$('<p>Packing list</p>')
-	return <LexicalEditor value={html$.get()} onChange={html => html$.set(html)} />
+	return <LexicalEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```

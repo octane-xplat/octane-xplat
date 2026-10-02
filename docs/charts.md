@@ -67,13 +67,13 @@ valve if src-swap redraws can't sustain live/animated charts
 
 ## Rendering contract
 
-| Concern | Web (`Chart.web.tsrx`) | Native (`Chart.tsrx`) |
-| --- | --- | --- |
-| Marks | `<svg viewBox>` + `innerHTML = markup` (Icon.web precedent — shares the serializer byte-for-byte) | `<svgview src={markup} stretch="aspectFit">` |
-| Sizing | `useMeasure` on wrapper → width/height feed the core | same hook, native leaf |
-| Axis labels, legend, tooltip, crosshair | absolutely-positioned elements in an overlay `View` — **never** `<text>` in markup (androidsvg/SVGKit text is degraded; element labels also pick up theme typography) | same overlay via `Absolute` + `Text` |
-| Interaction | `onPan`/pointer handlers on overlay → `hit.ts` → cursor state → crosshair/tooltip elements | `View.onPan` (`PanEvent` carries `x/y`/`state`) + `onTap` → same `hit.ts` |
-| a11y | `role="img"` + `accessibilityLabel` on the chart root; per-point labels on overlay hits | `accessibilityLabel` on root |
+| Concern                                 | Web (`Chart.web.tsrx`)                                                                                                                                                | Native (`Chart.tsrx`)                                                     |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Marks                                   | `<svg viewBox>` + `innerHTML = markup` (Icon.web precedent — shares the serializer byte-for-byte)                                                                     | `<svgview src={markup} stretch="aspectFit">`                              |
+| Sizing                                  | `useMeasure` on wrapper → width/height feed the core                                                                                                                  | same hook, native leaf                                                    |
+| Axis labels, legend, tooltip, crosshair | absolutely-positioned elements in an overlay `View` — **never** `<text>` in markup (androidsvg/SVGKit text is degraded; element labels also pick up theme typography) | same overlay via `Absolute` + `Text`                                      |
+| Interaction                             | `onPan`/pointer handlers on overlay → `hit.ts` → cursor state → crosshair/tooltip elements                                                                            | `View.onPan` (`PanEvent` carries `x/y`/`state`) + `onTap` → same `hit.ts` |
+| a11y                                    | `role="img"` + `accessibilityLabel` on the chart root; per-point labels on overlay hits                                                                               | `accessibilityLabel` on root                                              |
 
 `svgview` registration reaches the leaf for free — the `ui` native entry
 transitively imports `svg.mobile` via `Icon`/`Meter`. Verify the `svgview`
@@ -93,8 +93,22 @@ import type { ChartProps } from '@octane-xplat/charts'
 declare function ProposedChart(props: ChartProps): unknown
 
 export function ProposedTripsChart() {
-	return <ProposedChart type="bar" height={200} accessibilityLabel="Items packed per trip"
-		data={[{ name: 'Packed', values: [{ x: 'Summer', y: 5 }, { x: 'Autumn', y: 8 }] }]} />
+	return (
+		<ProposedChart
+			type="bar"
+			height={200}
+			accessibilityLabel="Items packed per trip"
+			data={[
+				{
+					name: 'Packed',
+					values: [
+						{ x: 'Summer', y: 5 },
+						{ x: 'Autumn', y: 8 },
+					],
+				},
+			]}
+		/>
+	)
 }
 ```
 
@@ -105,10 +119,23 @@ semantic labels feeding `accessibilityLabel`.
 ```tsx
 // Proposed axis usage; continue with ProposedChart declared above.
 export function ProposedAxes() {
-	return <ProposedChart type="line" height={200}
-		data={[{ name: 'Trips', values: [{ x: 1, y: 2 }, { x: 2, y: 4 }] }]}
-		xAxis={{ grid: true, ticks: false, labels: true }}
-		yAxis={{ format: value => String(value), tickCount: 4 }} />
+	return (
+		<ProposedChart
+			type="line"
+			height={200}
+			data={[
+				{
+					name: 'Trips',
+					values: [
+						{ x: 1, y: 2 },
+						{ x: 2, y: 4 },
+					],
+				},
+			]}
+			xAxis={{ grid: true, ticks: false, labels: true }}
+			yAxis={{ format: (value) => String(value), tickCount: 4 }}
+		/>
+	)
 }
 ```
 
@@ -172,7 +199,7 @@ runtime rendering were not exercised for this change.
 ## Risks / verification gates
 
 1. **JSC-safety of d3 deps** — same check as `@lisse/core`/`@tanstack/
-   table-core`: DOM-free ESM dist, exact pins. Gate at scaffold.
+table-core`: DOM-free ESM dist, exact pins. Gate at scaffold.
 2. **`svgview` intrinsic typing in a leaf** — augmentation should arrive via
    ui's native types; verify before writing markup paths, stub locally if
    not.

@@ -238,6 +238,7 @@ bounds, `displayedComponents` (`'date'` and/or `'hourAndMinute'`), a
 `disabled`.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // TravelDate.ios.tsrx
 import { SwiftUIDatePicker } from '@octane-xplat/date-picker/ios'
 
@@ -269,6 +270,7 @@ derives the calendar's `yearRange`. `color` tints a subset of elements;
 strings.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // TravelDate.android.tsrx
 import { MaterialDatePicker } from '@octane-xplat/date-picker/android'
 
@@ -322,6 +324,7 @@ map to `minDate`/`maxDate`, `disabled` to `enabled`. The host element
 needs an explicit size — the picker is pinned to its edges.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // TravelDate.macos.tsrx
 import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
 

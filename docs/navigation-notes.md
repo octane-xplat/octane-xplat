@@ -254,18 +254,18 @@ const proposed = proposedOpenWindow({ data: { listId: 'trip' }, kind: 'dialog' }
 proposed.setTitle('Packing list')
 ```
 
-   This richer shape is not yet the `@octane-xplat/ui` API. The package does
-   export a basic `openWindow`: its `OpenWindowOptions` contains only `data`
-   and web-only `url`; native forwards to `Application.openWindow()` and
-   returns `void`, while web returns `Window | null`. The emitted package
-   declarations now reflect those target-specific results; the generic
-   fallback exposes only `close()` on a returned handle. NativeScript's
-   app-installed resolver receives the resulting window and its data later.
-   Multi-window availability also varies by device and configuration: iPadOS
-   supports scenes, iPhone exposes one window, and Android window opening is
-   experimental and depends on `launchMode`. The richer shared contract still
-   needs typed readiness, request correlation, and creation-error behavior
-   (Q31).
+This richer shape is not yet the `@octane-xplat/ui` API. The package does
+export a basic `openWindow`: its `OpenWindowOptions` contains only `data`
+and web-only `url`; native forwards to `Application.openWindow()` and
+returns `void`, while web returns `Window | null`. The emitted package
+declarations now reflect those target-specific results; the generic
+fallback exposes only `close()` on a returned handle. NativeScript's
+app-installed resolver receives the resulting window and its data later.
+Multi-window availability also varies by device and configuration: iPadOS
+supports scenes, iPhone exposes one window, and Android window opening is
+experimental and depends on `launchMode`. The richer shared contract still
+needs typed readiness, request correlation, and creation-error behavior
+(Q31).
 
 ```ts
 import { openWindow } from '@octane-xplat/ui'
@@ -274,12 +274,12 @@ import { openWindow } from '@octane-xplat/ui'
 openWindow({ data: { listId: 'trip' } })
 ```
 
-   The app-local AppKit prototype has its own resolver and returns a
-   synchronous controller; its `dialog` path has been lab-verified, while
-   `regular` and `popup` remain untested. Each prototype window renders in a
-   separate Octane root. The framework does not own app roots, and context
-   does not cross windows — shared state goes through module-scope stores.
-   Overlay-to-window promotion for `Sheet`/`Popover` on desktop remains open.
+The app-local AppKit prototype has its own resolver and returns a
+synchronous controller; its `dialog` path has been lab-verified, while
+`regular` and `popup` remain untested. Each prototype window renders in a
+separate Octane root. The framework does not own app roots, and context
+does not cross windows — shared state goes through module-scope stores.
+Overlay-to-window promotion for `Sheet`/`Popover` on desktop remains open.
 
 ## What we are NOT doing
 

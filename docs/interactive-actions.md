@@ -102,7 +102,6 @@ states merge (either disabled/loading state wins); `children` takes precedence
 over `label`. A pending `clickAction` shows a loading indicator and prevents
 repeat presses unless `isInterruptible` is true.
 
-
 ```tsx
 import { Button, Text } from '@octane-xplat/ui'
 

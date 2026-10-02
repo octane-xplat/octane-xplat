@@ -111,15 +111,23 @@ rejected calls.
 
 ```ts
 // Continue with AppServices and AppEvents above.
-import { createHostClient, createHostDispatcher, type HostTransport, type HostReplyPort } from '@octane-xplat/platform/host'
+import {
+	createHostClient,
+	createHostDispatcher,
+	type HostTransport,
+	type HostReplyPort,
+} from '@octane-xplat/platform/host'
 
 export function frontend(transport: HostTransport) {
 	const client = createHostClient<AppServices, AppEvents>(transport)
-	const off = client.on('account.changed', event => console.log(event.id))
+	const off = client.on('account.changed', (event) => console.log(event.id))
 	return {
 		load: (id: string) => client.call('account', 'load', id),
 		capabilities: () => client.capabilities(),
-		dispose: () => { off(); client.dispose() },
+		dispose: () => {
+			off()
+			client.dispose()
+		},
 	}
 }
 export function host(services: AppServices, port: HostReplyPort) {
@@ -164,8 +172,11 @@ const url = 'https://example.com'
 const accepted = openUrl(url)
 const client = desktopHostClient()
 if (client) {
-	try { console.log(await client.call('system', 'openUrl', url)) }
-	catch { console.log('Could not open the link') }
+	try {
+		console.log(await client.call('system', 'openUrl', url))
+	} catch {
+		console.log('Could not open the link')
+	}
 }
 ```
 

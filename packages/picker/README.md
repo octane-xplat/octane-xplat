@@ -10,6 +10,7 @@ the matching platform-suffixed file. Each entry exports its own component and
 types; there is no shared picker API at the package root.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // SwiftUIPickerExample.ios.tsx
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
 
@@ -26,6 +27,7 @@ export function Picker() {
 ```
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // MaterialDropdownExample.android.tsx
 import { MaterialDropdown } from '@octane-xplat/picker/android'
 
@@ -64,6 +66,7 @@ framework guide for details and maintained examples:
 [`docs/native-picker.md`](../../docs/native-picker.md).
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // BagPicker.ios.tsx
 import { useState } from 'octane'
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'

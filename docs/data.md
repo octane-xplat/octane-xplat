@@ -22,10 +22,14 @@ async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
 	return response.json() as Promise<T>
 }
 export const api = {
-	posts: { list: ({ mode, signal }: { mode: string; signal: AbortSignal }) =>
-		request<Post[]>(`/api/posts?mode=${encodeURIComponent(mode)}`, signal) },
-	user: { get: ({ id, signal }: { id: string; signal: AbortSignal }) =>
-		request<User>(`/api/users/${encodeURIComponent(id)}`, signal) },
+	posts: {
+		list: ({ mode, signal }: { mode: string; signal: AbortSignal }) =>
+			request<Post[]>(`/api/posts?mode=${encodeURIComponent(mode)}`, signal),
+	},
+	user: {
+		get: ({ id, signal }: { id: string; signal: AbortSignal }) =>
+			request<User>(`/api/users/${encodeURIComponent(id)}`, signal),
+	},
 }
 ```
 
@@ -112,13 +116,20 @@ iterable and use `{ kind: 'stream' }`.
 import { query$ } from 'octane/signals'
 import { api } from './api'
 
-const user$ = query$(() => '42', (id, { signal, previous }) => {
-	console.log('Refreshing a previous result:', previous !== undefined)
-	return api.user.get({ id, signal })
-})
-const updates$ = query$(() => 'welcome', async function* (message) {
-	yield message
-}, { kind: 'stream' })
+const user$ = query$(
+	() => '42',
+	(id, { signal, previous }) => {
+		console.log('Refreshing a previous result:', previous !== undefined)
+		return api.user.get({ id, signal })
+	},
+)
+const updates$ = query$(
+	() => 'welcome',
+	async function* (message) {
+		yield message
+	},
+	{ kind: 'stream' },
+)
 ```
 
 Previous data stays visible during refresh. This is called
@@ -130,7 +141,11 @@ import { Text } from '@octane-xplat/ui'
 import { feed$ } from './feed'
 
 export function RefreshStatus() {
-	return <Text>{feed$.latest([]).length} posts{feed$.snapshot().refreshing ? ' (refreshing)' : ''}</Text>
+	return (
+		<Text>
+			{feed$.latest([]).length} posts{feed$.snapshot().refreshing ? ' (refreshing)' : ''}
+		</Text>
+	)
 }
 ```
 
@@ -148,7 +163,13 @@ import { Text, View } from '@octane-xplat/ui'
 import type { Post } from './api'
 
 export function Feed(props: { posts: Post[] }) {
-	return <View>{props.posts.map(post => <Text key={post.id}>{post.title}</Text>)}</View>
+	return (
+		<View>
+			{props.posts.map((post) => (
+				<Text>{post.title}</Text>
+			))}
+		</View>
+	)
 }
 ```
 
@@ -197,13 +218,21 @@ import { feed$ } from './feed'
 import { Feed } from './Feed'
 
 export function RefreshableFeed() {
-	return <View>
-		<Feed posts={feed$.latest([])} />
-		<Text>{feed$.snapshot().refreshing ? 'Refreshing' : feed$.snapshot().status}</Text>
-		<Pressable onPress={() => feed$.refetch()}><Text>Refresh</Text></Pressable>
-		<Pressable onPress={() => feed$.reset()}><Text>Reset</Text></Pressable>
-		<Pressable onPress={() => feed$.retry({ pending: true })}><Text>Retry</Text></Pressable>
-	</View>
+	return (
+		<View>
+			<Feed posts={feed$.latest([])} />
+			<Text>{feed$.snapshot().refreshing ? 'Refreshing' : feed$.snapshot().status}</Text>
+			<Pressable onPress={() => feed$.refetch()}>
+				<Text>Refresh</Text>
+			</Pressable>
+			<Pressable onPress={() => feed$.reset()}>
+				<Text>Reset</Text>
+			</Pressable>
+			<Pressable onPress={() => feed$.retry({ pending: true })}>
+				<Text>Retry</Text>
+			</Pressable>
+		</View>
+	)
 }
 ```
 
@@ -236,10 +265,14 @@ restart the failed request.
 
 ```tsx
 // Inside the @catch(error, resetBoundary) arm shown above:
-<Pressable onPress={() => {
-	feed$.retry({ pending: true })
-	resetBoundary()
-}}><Text>Retry</Text></Pressable>
+<Pressable
+	onPress={() => {
+		feed$.retry({ pending: true })
+		resetBoundary()
+	}}
+>
+	<Text>Retry</Text>
+</Pressable>
 ```
 
 ## Writes
@@ -282,12 +315,16 @@ const saveTitle$ = action$(async (operation, title: string) => {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ title }),
 	})
-	if (!response.ok) { operation.reject(); throw new Error('Save rejected') }
+	if (!response.ok) {
+		operation.reject()
+		throw new Error('Save rejected')
+	}
 	operation.adopt(title) // this endpoint confirms the supplied title
 })
 export async function rename(title: string) {
-	try { await saveTitle$(title) }
-	catch (error) {
+	try {
+		await saveTitle$(title)
+	} catch (error) {
 		if (isActionUncertain(error)) console.log('Check the server before retrying')
 		else throw error
 	}
@@ -349,7 +386,10 @@ import { Text } from '@octane-xplat/ui'
 import { api } from './api'
 
 export function ProfileName(props: { id: string }) {
-	const profile$ = query$(() => props.id, (id, { signal }) => api.user.get({ id, signal }))
+	const profile$ = query$(
+		() => props.id,
+		(id, { signal }) => api.user.get({ id, signal }),
+	)
 	return <Text>{profile$.latest()?.name ?? 'Loading'}</Text>
 }
 ```
@@ -365,8 +405,15 @@ import { Pressable, Text } from '@octane-xplat/ui'
 import { api } from './api'
 
 export function RefreshProfile(props: { id: string }) {
-	const profile$ = query$(() => props.id, (id, { signal }) => api.user.get({ id, signal }))
-	return <Pressable onPress={() => profile$.refetch()}><Text>Refresh this profile</Text></Pressable>
+	const profile$ = query$(
+		() => props.id,
+		(id, { signal }) => api.user.get({ id, signal }),
+	)
+	return (
+		<Pressable onPress={() => profile$.refetch()}>
+			<Text>Refresh this profile</Text>
+		</Pressable>
+	)
 }
 ```
 
@@ -383,11 +430,16 @@ import { query$ } from 'octane/signals'
 import { Text } from '@octane-xplat/ui'
 import { api } from './api'
 
-function Name(props: { profile$: ReturnType<typeof query$<string, { id: string; name: string }>> }) {
+function Name(props: {
+	profile$: ReturnType<typeof query$<string, { id: string; name: string }>>
+}) {
 	return <Text>{props.profile$.latest()?.name ?? 'Loading'}</Text>
 }
 export function ProfileWithChild(props: { id: string }) {
-	const profile$ = query$(() => props.id, (id, { signal }) => api.user.get({ id, signal }))
+	const profile$ = query$(
+		() => props.id,
+		(id, { signal }) => api.user.get({ id, signal }),
+	)
 	return <Name profile$={profile$} />
 }
 ```
@@ -408,11 +460,18 @@ import { api } from './api'
 
 export function EditableProfile(props: { id: string }) {
 	const id$ = useSignal$(props.id)
-	const profile$ = query$(() => id$.get(), (id, { signal }) => api.user.get({ id, signal }))
-	return <>
-		<Text>{profile$.latest()?.name ?? 'Loading'}</Text>
-		<Pressable onPress={() => id$.set('42')}><Text>Show user 42</Text></Pressable>
-	</>
+	const profile$ = query$(
+		() => id$.get(),
+		(id, { signal }) => api.user.get({ id, signal }),
+	)
+	return (
+		<>
+			<Text>{profile$.latest()?.name ?? 'Loading'}</Text>
+			<Pressable onPress={() => id$.set('42')}>
+				<Text>Show user 42</Text>
+			</Pressable>
+		</>
+	)
 }
 ```
 
@@ -432,7 +491,9 @@ import { feed$ } from './feed'
 
 export function ResumeRefresh() {
 	const state = useAppState()
-	useEffect(() => { if (state === 'active') feed$.refetch() }, [state])
+	useEffect(() => {
+		if (state === 'active') feed$.refetch()
+	}, [state])
 	return null
 }
 ```
@@ -452,7 +513,9 @@ import { Text } from '@octane-xplat/ui'
 
 // src/UserName.tsrx
 export const user$ = signal$('Alex')
-export function UserName() { return <Text>{user$.get()}</Text> }
+export function UserName() {
+	return <Text>{user$.get()}</Text>
+}
 ```
 
 **Every module that touches a signal needs a runtime import** of
@@ -465,7 +528,9 @@ import 'octane/signals'
 import { user$ } from './UserName'
 import { Text } from '@octane-xplat/ui'
 
-export function Welcome() { return <Text>{user$.get()}</Text> }
+export function Welcome() {
+	return <Text>{user$.get()}</Text>
+}
 ```
 
 **Reads outside render never subscribe** — this includes module initialization
@@ -477,9 +542,11 @@ import { Pressable, Text } from '@octane-xplat/ui'
 
 export function Count() {
 	const count$ = useSignal$(0)
-	return <Pressable onPress={() => count$.set(count$.get() + 1)}>
-		<Text>{String(count$.get())}</Text>
-	</Pressable>
+	return (
+		<Pressable onPress={() => count$.set(count$.get() + 1)}>
+			<Text>{String(count$.get())}</Text>
+		</Pressable>
+	)
 }
 ```
 
@@ -506,9 +573,11 @@ or support refresh; see [route loaders](navigation.md#present-a-route-modally).
 ```tsx
 import { Text } from '@octane-xplat/ui'
 
-export async function loader() { return { title: 'Packing list' } }
+export async function loader() {
+	return { title: 'Packing list' }
+}
 export default function PackingPage(props: { data?: { title: string }; error?: unknown }) {
-	return <Text>{props.error ? 'Could not load the page' : props.data?.title ?? 'Loading'}</Text>
+	return <Text>{props.error ? 'Could not load the page' : (props.data?.title ?? 'Loading')}</Text>
 }
 ```
 
@@ -531,7 +600,10 @@ import { Text } from '@octane-xplat/ui'
 
 const client = new QueryClient()
 export function Greeting() {
-	const query = useQuery({ queryKey: ['greeting'], queryFn: () => Promise.resolve('Hello') }, client)
+	const query = useQuery(
+		{ queryKey: ['greeting'], queryFn: () => Promise.resolve('Hello') },
+		client,
+	)
 	return <Text>{query.data ?? 'Loading'}</Text>
 }
 ```
@@ -562,14 +634,16 @@ Also prefer a module-level `QueryClient` over `QueryClientProvider` —
 context does not cross native modal/overlay/list-cell roots.
 `useSuspenseQuery` under `universalTry` is unverified on native.
 
-
 ```tsx
 import { QueryClient, useQuery } from '@octanejs/tanstack-query'
 import { Text } from '@octane-xplat/ui'
 
 const client = new QueryClient()
 export function Greeting() {
-	const query = useQuery({ queryKey: ['greeting'], queryFn: () => Promise.resolve('Hello') }, client)
+	const query = useQuery(
+		{ queryKey: ['greeting'], queryFn: () => Promise.resolve('Hello') },
+		client,
+	)
 	return <Text>{query.data ?? 'Loading'}</Text>
 }
 ```

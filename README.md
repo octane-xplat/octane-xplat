@@ -69,6 +69,7 @@ file when a phone needs an OS control or a desktop needs a different layout.
 shared import; [platform widgets](docs/primitives.md) provide opt-in OS controls.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // PackingSwitch.ios.tsx
 import { UISwitch } from '@octane-xplat/ui/ios'
 

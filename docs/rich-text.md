@@ -75,6 +75,7 @@ For the native editor directly (Android only today), add
 `@octane-xplat/richtext`:
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Notes.android.tsrx
 import { RichTextEditor, supported } from '@octane-xplat/richtext'
 import { Text } from '@octane-xplat/ui'
@@ -95,6 +96,7 @@ macOS, and Windows; the iOS component mounts a placeholder label instead of
 an editor.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Notes.android.tsrx
 import { RichTextEditor, supported } from '@octane-xplat/richtext'
 import { Text } from '@octane-xplat/ui'
@@ -149,16 +151,16 @@ export function Notes() {
 }
 ```
 
-| Method                                 | Web (tiptap)                    | Android (Aztec)                                                                                                     |
-| -------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `getHTML()` / `setHTML(html)`          | editor `getHTML` / `setContent` | `toPlainHtml` / `fromHtml` — `setHTML` resets undo history                                                          |
-| `getJSON()` / `setJSON(doc)` (Tiptap facade only)           | tiptap `getJSON` / `setContent` | JSON bridge → HTML → Aztec; `null` until `onJSONReady(true)`                                                        |
-| `apply(format)`                        | `chain().focus()` commands      | `toggleFormatting(AztecTextFormat…)`                                                                                |
-| `linkTo(url, anchor)` / `removeLink()` | link mark commands              | `AztecText.link` / `removeLink`                                                                                     |
-| `isActive(format)`                     | `editor.isActive`               | `getAppliedStyles` at the selection                                                                                 |
-| `undo()` / `redo()`                    | history commands                | Aztec history batches keyboard input only — format toggles and programmatic edits (setHTML, insert) do not register |
-| `focus()` / `blur()` / `isFocused()`   | editor focus                    | focus + soft keyboard                                                                                               |
-| `native`                               | the tiptap `Editor`             | the `AztecText` view                                                                                                |
+| Method                                            | Web (tiptap)                    | Android (Aztec)                                                                                                     |
+| ------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `getHTML()` / `setHTML(html)`                     | editor `getHTML` / `setContent` | `toPlainHtml` / `fromHtml` — `setHTML` resets undo history                                                          |
+| `getJSON()` / `setJSON(doc)` (Tiptap facade only) | tiptap `getJSON` / `setContent` | JSON bridge → HTML → Aztec; `null` until `onJSONReady(true)`                                                        |
+| `apply(format)`                                   | `chain().focus()` commands      | `toggleFormatting(AztecTextFormat…)`                                                                                |
+| `linkTo(url, anchor)` / `removeLink()`            | link mark commands              | `AztecText.link` / `removeLink`                                                                                     |
+| `isActive(format)`                                | `editor.isActive`               | `getAppliedStyles` at the selection                                                                                 |
+| `undo()` / `redo()`                               | history commands                | Aztec history batches keyboard input only — format toggles and programmatic edits (setHTML, insert) do not register |
+| `focus()` / `blur()` / `isFocused()`              | editor focus                    | focus + soft keyboard                                                                                               |
+| `native`                                          | the tiptap `Editor`             | the `AztecText` view                                                                                                |
 
 The shared `TiptapFormat` vocabulary is the union both backends accept.
 StarterKit lacks `taskList`, `highlight`, `subscript`/`superscript`, and the

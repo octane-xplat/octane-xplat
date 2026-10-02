@@ -81,8 +81,11 @@ import { files } from '@octane-xplat/files'
 export async function pickAndShare() {
 	const image = await media.pickImage()
 	if (!image) return
-	try { return await share.text(`Selected ${image.name}`) }
-	finally { files.release(image) }
+	try {
+		return await share.text(`Selected ${image.name}`)
+	} finally {
+		files.release(image)
+	}
 }
 ```
 
@@ -135,7 +138,7 @@ compile-time contracts, with no runtime schema validator.
 import { desktopHost } from '@octane-xplat/platform/host/web'
 
 const host = desktopHost()
-if (host && await host.supports('clipboard', 'write')) {
+if (host && (await host.supports('clipboard', 'write'))) {
 	await host.clipboard.write('Hello from the webview')
 }
 ```
@@ -170,16 +173,24 @@ replace handling a failed service call.
 
 ```ts
 // Continue with InvoiceServices and InvoiceEvents above.
-import { createHostClient, createHostDispatcher, type HostTransport, type HostReplyPort } from '@octane-xplat/platform/host'
+import {
+	createHostClient,
+	createHostDispatcher,
+	type HostTransport,
+	type HostReplyPort,
+} from '@octane-xplat/platform/host'
 
 // The webview adapter supplies transport and port; the host supplies services.
 export function frontend(transport: HostTransport) {
 	const client = createHostClient<InvoiceServices, InvoiceEvents>(transport)
-	const off = client.on('invoices.changed', event => console.log(event.id))
+	const off = client.on('invoices.changed', (event) => console.log(event.id))
 	return {
 		load: (id: string) => client.call('invoices', 'load', id),
 		capabilities: () => client.capabilities(),
-		dispose: () => { off(); client.dispose() },
+		dispose: () => {
+			off()
+			client.dispose()
+		},
 	}
 }
 export function host(services: InvoiceServices, port: HostReplyPort) {
@@ -323,7 +334,12 @@ using `saveToGallery` — in their iOS `Info.plist`.
 import { media } from '@octane-xplat/media'
 
 // iOS Info.plist needs the usage descriptions described above.
-const image = await media.capturePhoto({ width: 800, height: 600, keepAspectRatio: true, saveToGallery: false })
+const image = await media.capturePhoto({
+	width: 800,
+	height: 600,
+	keepAspectRatio: true,
+	saveToGallery: false,
+})
 // The caller owns image until its preview/upload finishes, then files.release(image).
 ```
 
@@ -374,9 +390,15 @@ import { files } from '@octane-xplat/files'
 export async function readSelection() {
 	try {
 		const images = await media.pickImages()
-		try { return images.map(image => image.dataUrl) }
-		finally { for (const image of images) files.release(image) }
-	} catch { console.log('Could not read the selection'); return [] }
+		try {
+			return images.map((image) => image.dataUrl)
+		} finally {
+			for (const image of images) files.release(image)
+		}
+	} catch {
+		console.log('Could not read the selection')
+		return []
+	}
 }
 ```
 
@@ -419,15 +441,15 @@ import type { WebAuthnGetOptionsJSON } from '@octane-xplat/platform'
 import { webAuthn, authSession } from '@octane-xplat/platform'
 
 export async function signIn(options: WebAuthnGetOptionsJSON, signInUrl: string) {
-if (webAuthn.supported) {
-	const credential = await webAuthn.impl?.get(options)
-	// post credential to the RP's verify endpoint
-} else if (authSession.supported) {
-	const result = await authSession.impl?.open(signInUrl, { callbackScheme: 'myapp' })
-	if (result?.type === 'success') {
-		// Validate the callback and finish the app-owned sign-in exchange.
+	if (webAuthn.supported) {
+		const credential = await webAuthn.impl?.get(options)
+		// post credential to the RP's verify endpoint
+	} else if (authSession.supported) {
+		const result = await authSession.impl?.open(signInUrl, { callbackScheme: 'myapp' })
+		if (result?.type === 'success') {
+			// Validate the callback and finish the app-owned sign-in exchange.
+		}
 	}
-}
 }
 ```
 
@@ -444,7 +466,10 @@ import { authSession } from '@octane-xplat/platform'
 export async function hostedSignIn(url: string) {
 	const result = await authSession.impl?.open(url, { callbackScheme: 'sample' })
 	if (!result) return 'unavailable'
-	if (result.type === 'error') { console.log(result.message); return 'retry' }
+	if (result.type === 'error') {
+		console.log(result.message)
+		return 'retry'
+	}
 	if (result.type === 'cancel') return 'signed-out'
 	return result.url // app backend must validate and redeem this callback
 }
@@ -547,13 +572,13 @@ import { appleAuth, googleAuth } from '@octane-xplat/auth'
 
 // Supply your registered client ID and a fresh backend-issued nonce.
 export async function providerSignIn(clientId: string, nonce: string) {
-googleAuth.configure({ clientId })
-const result = await appleAuth.signIn({ scopes: ['email', 'name'], nonce })
-if (result.status === 'success') {
-	// result.credential = { idToken, authorizationCode?, user: { id, email?, name? } }
-	// hand it to your backend — verification stays app-side
-}
-return result
+	googleAuth.configure({ clientId })
+	const result = await appleAuth.signIn({ scopes: ['email', 'name'], nonce })
+	if (result.status === 'success') {
+		// result.credential = { idToken, authorizationCode?, user: { id, email?, name? } }
+		// hand it to your backend — verification stays app-side
+	}
+	return result
 }
 ```
 
@@ -570,7 +595,8 @@ else if (result.status === 'cancelled') console.log('Still signed out')
 else {
 	// Pass to your backend verifier; do not log the credential.
 	const response = await fetch('/api/auth/apple', {
-		method: 'POST', headers: { 'Content-Type': 'application/json' },
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify(result.credential),
 	})
 	if (!response.ok) throw new Error('Sign-in verification failed')
@@ -756,8 +782,11 @@ import { openDatabase, supported } from '@octane-xplat/sqlite'
 
 if (supported) {
 	const db = await openDatabase('app.db')
-	try { if (!db.persistent) console.log('Changes will not survive closing this session') }
-	finally { await db.close() }
+	try {
+		if (!db.persistent) console.log('Changes will not survive closing this session')
+	} finally {
+		await db.close()
+	}
 }
 ```
 
@@ -772,13 +801,15 @@ import { openDatabase } from '@octane-xplat/sqlite'
 
 const db = await openDatabase('app.db', { threading: true })
 try {
-	if (await db.getUserVersion() < 1) {
-		await db.transaction(async tx => {
+	if ((await db.getUserVersion()) < 1) {
+		await db.transaction(async (tx) => {
 			await tx.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
 			await tx.setUserVersion(1)
 		})
 	}
-} finally { await db.close() }
+} finally {
+	await db.close()
+}
 // deleteDatabase('app.db') is for deliberate app-data removal, not normal cleanup.
 ```
 
@@ -800,7 +831,7 @@ methods directly. Exact signatures live in the owning package: `ConnectivityImpl
 import { connectivity } from '@octane-xplat/platform'
 
 console.log(connectivity.getState().online)
-const unsubscribe = connectivity.subscribe(state => console.log(state.online, state.type))
+const unsubscribe = connectivity.subscribe((state) => console.log(state.online, state.type))
 // Call when the subscribing owner ends:
 unsubscribe()
 ```

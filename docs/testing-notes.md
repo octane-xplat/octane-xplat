@@ -38,11 +38,11 @@ registry entry (or wrap `nativeScriptRenderers` in our own config helper):
 ```ts
 // Historical renderer-entry fragment, expressed as a complete value.
 const validation = {
-  forbiddenGlobals: ['document', 'window', 'localStorage', 'navigator'], // fetch is available on native
-  forbiddenImports: ['octane', 'octane/hydration', /^octane\/react/],               // DOM runtime + react compat
-  textHosts: ['label', 'button', 'formattedstring', 'span', 'textfield', 'textview'],
-  textParents: [/* same set — text only inside text hosts */],
-  hostProps: { /* allowlist per tag, if we want tighter than class-derived props */ },
+	forbiddenGlobals: ['document', 'window', 'localStorage', 'navigator'], // fetch is available on native
+	forbiddenImports: ['octane', 'octane/hydration', /^octane\/react/], // DOM runtime + react compat
+	textHosts: ['label', 'button', 'formattedstring', 'span', 'textfield', 'textview'],
+	textParents: [/* same set — text only inside text hosts */],
+	hostProps: {/* allowlist per tag, if we want tighter than class-derived props */},
 }
 ```
 

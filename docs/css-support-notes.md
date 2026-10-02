@@ -25,14 +25,14 @@
 
 ## Box/paint
 
-| Property                              | NS     | Web | Notes                                                                                                                                                                                                                               |
-| ------------------------------------- | ------ | --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `margin`/`padding` (+ sides)          | ✅     | ✅  | px → dip rewritten by the preset's css transform (see below)                                                                                                                                                                        |
-| `border-*` (width/color/radius/style) | ✅     | ✅  |                                                                                                                                                                                                                                     |
+| Property                              | NS     | Web | Notes                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------- | ------ | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `margin`/`padding` (+ sides)          | ✅     | ✅  | px → dip rewritten by the preset's css transform (see below)                                                                                                                                                                                                                                                                                                             |
+| `border-*` (width/color/radius/style) | ✅     | ✅  |                                                                                                                                                                                                                                                                                                                                                                          |
 | `corner-shape: squircle`              | ⚠️ iOS | ⚠️  | Default corner treatment on the `--radius-*` scale (decision #38). iOS: uniform radii → `cornerCurve` (9.1 ships it), non-uniform → patched superellipse paths. Android ignores; web = Chrome ≥139, other browsers degrade to round. Exact cross-target match + caller-controlled smoothing → `@octane-xplat/smooth-corners` (decision #88, [design](smooth-corners.md)) |
-| `background-color`/image/gradient     | ✅     | ✅  |                                                                                                                                                                                                                                     |
-| `box-shadow`                          | ⚠️     | ✅  | iOS shadow props / Android `elevation` — `shadow-{n}` utility                                                                                                                                                                       |
-| `opacity`                             | ✅     | ✅  | animatable                                                                                                                                                                                                                          |
+| `background-color`/image/gradient     | ✅     | ✅  |                                                                                                                                                                                                                                                                                                                                                                          |
+| `box-shadow`                          | ⚠️     | ✅  | iOS shadow props / Android `elevation` — `shadow-{n}` utility                                                                                                                                                                                                                                                                                                            |
+| `opacity`                             | ✅     | ✅  | animatable                                                                                                                                                                                                                                                                                                                                                               |
 
 ## Typography
 
@@ -140,7 +140,6 @@ doesn't read (`position`, `overflow`, `cursor`...) half-applies a rule with
 zero diagnostics. What it can't catch: registered props with divergent
 _semantics_ (`transform` percents parse as dips, stretch clobbering width) —
 that's what the measured parity lane is for.
-
 
 ```css
 /* Prefer a layout primitive over unsupported position CSS. */

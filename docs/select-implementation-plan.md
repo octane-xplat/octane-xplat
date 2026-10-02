@@ -83,19 +83,19 @@ notifications reconcile state before the separate root is disposed. The demo, gu
 finite-list workflow. This completes the bounded implementation above, with the
 follow-on contracts explicitly deferred.
 
-| Check | Result and limit |
-| --- | --- |
-| Focused web/model tests | 20/20 pass: keyboard/IME, filtering, bulk retention, read-only, forms, pending/rollback and newer controlled values |
-| UI package build | Web/native bundles, 499 generated declarations, native import check pass |
-| AppKit application typecheck | Pass |
-| Web/application typecheck | Fails on existing VideoDemo implicit-any handlers; no Select diagnostics |
-| Mobile/application typecheck | Fails on existing table generic/export errors; no Select diagnostics |
-| Web maintained probe | 6/6 assertions pass via DOM handler dispatch |
-| AppKit maintained probe | 5/5 assertions pass via AppKit action dispatch, including anchored popup open/close and native close reconciliation |
-| iOS simulator probe | 6/6 assertions pass via gesture-observer dispatch: open/close, commit, filtering and disabled-value retention |
-| Android probe | Doctor reports no authorized device; not run |
-| Recipe, CSS, suffix checks | Pass; CSS reports zero unsupported properties |
-| Repository lint/no-DOM | Existing repository violations remain; changed Select files have no reported violations |
+| Check                        | Result and limit                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Focused web/model tests      | 20/20 pass: keyboard/IME, filtering, bulk retention, read-only, forms, pending/rollback and newer controlled values |
+| UI package build             | Web/native bundles, 499 generated declarations, native import check pass                                            |
+| AppKit application typecheck | Pass                                                                                                                |
+| Web/application typecheck    | Fails on existing VideoDemo implicit-any handlers; no Select diagnostics                                            |
+| Mobile/application typecheck | Fails on existing table generic/export errors; no Select diagnostics                                                |
+| Web maintained probe         | 6/6 assertions pass via DOM handler dispatch                                                                        |
+| AppKit maintained probe      | 5/5 assertions pass via AppKit action dispatch, including anchored popup open/close and native close reconciliation |
+| iOS simulator probe          | 6/6 assertions pass via gesture-observer dispatch: open/close, commit, filtering and disabled-value retention       |
+| Android probe                | Doctor reports no authorized device; not run                                                                        |
+| Recipe, CSS, suffix checks   | Pass; CSS reports zero unsupported properties                                                                       |
+| Repository lint/no-DOM       | Existing repository violations remain; changed Select files have no reported violations                             |
 
 The AppKit probe uses direct platform imports because the full UI barrel reaches
 `svg.mobile.ts` through Meter and fails the existing platform-boundary guard.

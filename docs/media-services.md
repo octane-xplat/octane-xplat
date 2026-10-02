@@ -33,11 +33,13 @@ reporting.
 ```ts
 import { haptics, createHaptics } from '@octane-xplat/haptics'
 
-if (await haptics.ensure() === 'granted') haptics.impl?.selection()
+if ((await haptics.ensure()) === 'granted') haptics.impl?.selection()
 const advanced = createHaptics()
 try {
 	if (advanced.capabilities().presets) advanced.play('success')
-} finally { advanced.dispose() }
+} finally {
+	advanced.dispose()
+}
 ```
 
 Native Android apps using the Pulsar-backed advanced haptics package must
@@ -75,9 +77,15 @@ import { Pressable, Text } from '@octane-xplat/ui'
 export function SaveFeedback() {
 	const [haptics] = useState(() => createHaptics())
 	useEffect(() => () => haptics.dispose(), [])
-	return <Pressable onPress={() => {
-		if (haptics.capabilities().presets) haptics.play('success')
-	}}><Text>Save</Text></Pressable>
+	return (
+		<Pressable
+			onPress={() => {
+				if (haptics.capabilities().presets) haptics.play('success')
+			}}
+		>
+			<Text>Save</Text>
+		</Pressable>
+	)
 }
 ```
 
@@ -94,18 +102,33 @@ import { createHaptics } from '@octane-xplat/haptics'
 export function patternExample() {
 	const haptics = createHaptics()
 	if (haptics.capabilities().patterns) {
-		haptics.playPattern({ duration: 200, points: [{ at: 0, intensity: 0.5 }, { at: 150, intensity: 1 }] })
+		haptics.playPattern({
+			duration: 200,
+			points: [
+				{ at: 0, intensity: 0.5 },
+				{ at: 150, intensity: 1 },
+			],
+		})
 	}
-	return () => { haptics.stop(); haptics.dispose() }
+	return () => {
+		haptics.stop()
+		haptics.dispose()
+	}
 }
 // A gesture owner calls these callbacks on begin, move, and end OR cancel.
 export function realtimeExample() {
 	const haptics = createHaptics()
-	if (!haptics.capabilities().realtime) { haptics.dispose(); return null }
+	if (!haptics.capabilities().realtime) {
+		haptics.dispose()
+		return null
+	}
 	const session = haptics.startRealtime(0.2)
 	return {
 		move: (intensity: number) => session.update(intensity),
-		end: () => { session.stop(); haptics.dispose() },
+		end: () => {
+			session.stop()
+			haptics.dispose()
+		},
 	}
 }
 ```
@@ -128,8 +151,12 @@ import { createSoundBank } from '@octane-xplat/sounds'
 // Call from a user action; keep the bank until its owner ends.
 export async function prepareSounds(source: string) {
 	const bank = createSoundBank({ maxVoices: 2 })
-	try { await bank.load('saved', source) }
-	catch (error) { bank.dispose(); throw error }
+	try {
+		await bank.load('saved', source)
+	} catch (error) {
+		bank.dispose()
+		throw error
+	}
 	return {
 		play: () => bank.play('saved', { volume: 0.5 }),
 		stopSaved: () => bank.stop('saved'),
@@ -172,14 +199,30 @@ import { createAudioPlayer } from '@octane-xplat/audio'
 
 export async function preparePlayer(source: string) {
 	const player = createAudioPlayer()
-	const unsubscribe = player.subscribe(snapshot => console.log(snapshot.state, snapshot.currentTime))
-	try { await player.setQueue([{ id: 'sample', source, title: 'Sample' }]) }
-	catch (error) { unsubscribe(); player.dispose(); throw error }
+	const unsubscribe = player.subscribe((snapshot) =>
+		console.log(snapshot.state, snapshot.currentTime),
+	)
+	try {
+		await player.setQueue([{ id: 'sample', source, title: 'Sample' }])
+	} catch (error) {
+		unsubscribe()
+		player.dispose()
+		throw error
+	}
 	return {
-		play: async () => { try { await player.play() } catch { console.log('Playback unavailable') } },
+		play: async () => {
+			try {
+				await player.play()
+			} catch {
+				console.log('Playback unavailable')
+			}
+		},
 		pause: () => player.pause(),
 		seek: () => player.seek(10),
-		dispose: () => { unsubscribe(); player.dispose() },
+		dispose: () => {
+			unsubscribe()
+			player.dispose()
+		},
 	}
 }
 ```
@@ -232,7 +275,7 @@ and `realtime` independently and show a fallback for unavailable features.
 import type { AudioPlayer, AudioSnapshot } from '@octane-xplat/audio'
 
 export function observe(player: AudioPlayer, report: (snapshot: AudioSnapshot) => void) {
-	return player.subscribe(snapshot => {
+	return player.subscribe((snapshot) => {
 		report(snapshot)
 		if (snapshot.state === 'error') console.log(snapshot.error?.message)
 	})

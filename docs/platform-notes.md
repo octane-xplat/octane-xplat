@@ -80,7 +80,11 @@ native `accessibilityRole="header"`).
 import { Text } from '@octane-xplat/ui'
 
 export function Heading() {
-	return <Text accessibilityRole="heading" accessibilityLabel="Packing list">Packing list</Text>
+	return (
+		<Text accessibilityRole="heading" accessibilityLabel="Packing list">
+			Packing list
+		</Text>
+	)
 }
 ```
 
@@ -213,8 +217,12 @@ import { createAudioPlayer } from '@octane-xplat/audio'
 
 export async function queue(source: string) {
 	const player = createAudioPlayer()
-	try { await player.setQueue([{ id: 'sample', source }]); console.log(player.snapshot()) }
-	finally { player.dispose() }
+	try {
+		await player.setQueue([{ id: 'sample', source }])
+		console.log(player.snapshot())
+	} finally {
+		player.dispose()
+	}
 }
 ```
 

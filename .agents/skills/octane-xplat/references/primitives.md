@@ -98,6 +98,7 @@ deliberate exits from the same-pixels shared contract; use a matching
 `.ios`/`.android`/`.web` file or an explicit platform branch.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // PackingToggle.ios.tsx
 import { UISwitch } from '@octane-xplat/ui/ios'
 

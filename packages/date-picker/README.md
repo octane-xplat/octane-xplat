@@ -25,6 +25,7 @@ The old `@octane-xplat/date-picker/web` `DateInput` subpath was removed because
 its browser-only string contract conflicted with the shared `DateInput` API.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // SwiftUIDatePickerExample.ios.tsx
 import { SwiftUIDatePicker } from '@octane-xplat/date-picker/ios'
 
@@ -41,6 +42,7 @@ export function Picker() {
 ```
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // MaterialDatePickerExample.android.tsx
 import { MaterialDatePicker } from '@octane-xplat/date-picker/android'
 
@@ -108,6 +110,7 @@ See the framework guide for details and maintained examples:
 [`docs/date-picker.md`](../../docs/date-picker.md).
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Departure.android.tsx — reuse these objects while the picker is mounted.
 import { MaterialDatePicker } from '@octane-xplat/date-picker/android'
 

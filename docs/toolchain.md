@@ -291,15 +291,24 @@ for signing, notarization, and icon setup.
 
 ```json
 {
-  "xplat": { "targets": { "macos": {
-    "runtime": "appkit-node-api",
-    "package": {
-      "productName": "Example", "bundleIdentifier": "com.example.app",
-      "executableName": "Example", "version": "1.0.0", "minimumSystemVersion": "13.5",
-      "viteConfig": "vite.package.config.mjs", "bundleFile": "dist/package-build/main.cjs",
-      "icon": "assets/AppIcon.icns", "entitlements": "entitlements.plist"
-    }
-  } } }
+	"xplat": {
+		"targets": {
+			"macos": {
+				"runtime": "appkit-node-api",
+				"package": {
+					"productName": "Example",
+					"bundleIdentifier": "com.example.app",
+					"executableName": "Example",
+					"version": "1.0.0",
+					"minimumSystemVersion": "13.5",
+					"viteConfig": "vite.package.config.mjs",
+					"bundleFile": "dist/package-build/main.cjs",
+					"icon": "assets/AppIcon.icns",
+					"entitlements": "entitlements.plist"
+				}
+			}
+		}
+	}
 }
 ```
 
@@ -315,7 +324,7 @@ Vite and TypeScript configuration, and the root lifecycle.
 import { defineConfig } from 'vite'
 import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 
-export default defineConfig(env => xplatMacOS(env, { entry: 'src/main.mjs' }))
+export default defineConfig((env) => xplatMacOS(env, { entry: 'src/main.mjs' }))
 ```
 
 Leaf packages can also ship `platforms/macos/` sources in C, ObjC, Swift, or
@@ -360,7 +369,19 @@ and capabilities through `@octane-xplat/platform/host`; see the
 [WKWebView host guide](macos-webview.md) for configuration and custom services.
 
 ```json
-{ "dev": { "webViteConfig": "vite.webview.config.mjs", "hostViteConfig": "vite.webview-host.config.mjs", "hostBundleFile": "dist/webview-host/host.cjs" }, "package": { "webViteConfig": "vite.webview.config.mjs", "hostViteConfig": "vite.webview-host.config.mjs", "hostBundleFile": "dist/webview-host/host.cjs", "webOutDir": "dist/web" } }
+{
+	"dev": {
+		"webViteConfig": "vite.webview.config.mjs",
+		"hostViteConfig": "vite.webview-host.config.mjs",
+		"hostBundleFile": "dist/webview-host/host.cjs"
+	},
+	"package": {
+		"webViteConfig": "vite.webview.config.mjs",
+		"hostViteConfig": "vite.webview-host.config.mjs",
+		"hostBundleFile": "dist/webview-host/host.cjs",
+		"webOutDir": "dist/web"
+	}
+}
 ```
 
 ## Experimental Windows target
@@ -391,7 +412,21 @@ Follow [Package a Linux WebKitGTK app](linux-package.md) for the complete
 configuration, prerequisites, installation, URI handling, and verification flow.
 
 ```json
-{ "xplat": { "targets": { "linux": { "runtime": "webkitgtk", "package": { "applicationId": "com.example.MyApp", "productName": "My App", "executableName": "my-app", "viteConfig": "vite.linux.config.mjs" } } } } }
+{
+	"xplat": {
+		"targets": {
+			"linux": {
+				"runtime": "webkitgtk",
+				"package": {
+					"applicationId": "com.example.MyApp",
+					"productName": "My App",
+					"executableName": "my-app",
+					"viteConfig": "vite.linux.config.mjs"
+				}
+			}
+		}
+	}
+}
 ```
 
 The target renders DOM inside system WebKitGTK, with `.linux` → `.web` → shared

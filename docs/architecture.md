@@ -78,6 +78,7 @@ ShareButton.mobile.tsrx   implementation shared by iOS and Android
 The screen keeps one import:
 
 ```ts
+
 ```
 
 The build selects the right file. Each version should accept the same

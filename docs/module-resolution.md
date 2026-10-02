@@ -36,7 +36,9 @@ platform name, such as `Card.tsrx`.
 import { Card } from './Card'
 
 // Each Card variant exports the same component and props.
-export function Screen() { return <Card /> }
+export function Screen() {
+	return <Card />
+}
 ```
 
 A **DOM frontend** uses browser views, either in a browser or in a WebView

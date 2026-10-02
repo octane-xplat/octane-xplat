@@ -12,6 +12,7 @@ from `@octane-xplat/sheet/web`, or `AppKitSheet` from
 There is no shared sheet API at the package root.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // SwiftUIBottomSheetExample.ios.tsx
 import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 import { useState } from 'octane'
@@ -35,6 +36,7 @@ export function Details() {
 ```
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // MaterialBottomSheetExample.android.tsx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { useState } from 'octane'
@@ -106,6 +108,7 @@ trigger. On iOS the registered view resolves through
 `XplatViewRegistry` + `AndroidView` inside the sheet's dialog window.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // HostedContent.android.tsx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Text } from '@octane-xplat/ui'

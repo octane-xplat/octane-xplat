@@ -27,6 +27,7 @@ classes do not cross from the presenter (see styling/root-boundaries.md).
 For a shared in-window surface, compose `BottomSheet`, `Overlay`, or `Popover`.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Details.ios.tsx
 import { UIModal } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'

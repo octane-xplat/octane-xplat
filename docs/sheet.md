@@ -28,8 +28,6 @@ export function Actions() {
 }
 ```
 
-
-
 ## Install and import
 
 Run `pnpm add @octane-xplat/sheet` from your app folder. Import the
@@ -48,6 +46,7 @@ The Android example below owns its `open` state and provides opening and
 closing actions.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Pressable, Text } from '@octane-xplat/ui'
@@ -81,6 +80,7 @@ panel. “Render fn” means that content-producing function. Buttons inside
 it can call your callbacks, such as `setOpen(false)` to close the panel.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Text, Pressable, View } from '@octane-xplat/ui'
@@ -118,6 +118,7 @@ The hosted subtree keeps its own event handling — `onPress` inside the
 sheet content reaches JS normally and can drive `open` back to `false`.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Text, Pressable, View } from '@octane-xplat/ui'
@@ -150,6 +151,7 @@ value when opening it or when `onDismissed` reports that someone closed it.
 This is a **controlled** component.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Actions.android.tsrx
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { Text, Pressable, View } from '@octane-xplat/ui'

@@ -303,6 +303,7 @@ whichever root renders them — so `<Modal open>{children}</Modal>` works; the
 Readback: `presenter.modal` exposes the modal view for assertions.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // iOS platform file: system-modal component, not shared Modal.
 import { UIModal } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
@@ -402,6 +403,7 @@ platform subpaths). The shared root `List` is now a separate, child-based
 content list; use `VirtualList` for portable windowed collections.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Items.ios.tsrx: the current platform list API.
 import { UITableView } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
@@ -452,6 +454,7 @@ the shared `ScrollBox` + `List` shape; native device verification remains lab
 work, so this conclusion is marked desk-source rather than lab-verified.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Current replacement for the historical ScrollBox + List shape, iOS file.
 import { UITableView } from '@octane-xplat/ui/ios'
 import { ScrollableArea, Text } from '@octane-xplat/ui'
@@ -505,6 +508,7 @@ as `<List items={msgs} renderItem={(m) => <MsgRow msg={m}/>}/>`; the function
 body compiles normally.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Items.ios.tsrx
 import { UITableView } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
@@ -679,6 +683,7 @@ and web approximation were subsequently removed; today only
 `LiquidGlass`/`LiquidGlassContainer` from `@octane-xplat/ui/ios` are public.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Glass.ios.tsrx
 import { LiquidGlass } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
@@ -697,6 +702,7 @@ export function Glass() {
 degrades to inert layouts on Android and iOS < 26:
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Glass.ios.tsrx; fallback remains an inert layout on older iOS.
 import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
@@ -712,10 +718,10 @@ export function Glass() {
 }
 ```
 
-| Surface                    | Wraps                         | Behavior                                                                                                                                                                                                         |
-| -------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LiquidGlass`              | `liquidglass` layout          | Element root IS the glass — interactive, touch-tracking `UIGlassEffect`. Props `variant` (`'regular'`/`'clear'`, default `'regular'`), `interactive` (default `true`), `tint`, `animateChangeDuration`           |
-| `LiquidGlassContainer`     | `liquidglasscontainer` layout | `UIGlassContainerEffect` region — sibling glass views morph together across `spacing` (default 8). AbsoluteLayout host: children position via `left`/`top`, or nest layout primitives inside                     |
+| Surface                    | Wraps                         | Behavior                                                                                                                                                                                                            |
+| -------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LiquidGlass`              | `liquidglass` layout          | Element root IS the glass — interactive, touch-tracking `UIGlassEffect`. Props `variant` (`'regular'`/`'clear'`, default `'regular'`), `interactive` (default `true`), `tint`, `animateChangeDuration`              |
+| `LiquidGlassContainer`     | `liquidglasscontainer` layout | `UIGlassContainerEffect` region — sibling glass views morph together across `spacing` (default 8). AbsoluteLayout host: children position via `left`/`top`, or nest layout primitives inside                        |
 | `glass` prop on containers | `iosGlassEffect` View prop    | `View`/`Stack`/`Grid`/`HStack`/`Absolute`/`Pressable`/`ScrollView` take `glass={true \| 'regular' \| 'clear' \| GlassConfig}` — background glass inserted behind the view's content. **Never interactive upstream** |
 
 Caveats found reading the 9.1.2 implementation:
@@ -994,6 +1000,7 @@ Keep `UITableView`/`RecyclerView` in the platform subpaths for apps that
 want their platform-authentic list behavior.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Current iOS platform API; this does not change the historical gate result.
 import { UITableView } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'

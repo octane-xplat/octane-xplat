@@ -24,7 +24,9 @@ props. Supply `initial` and `animate` numeric targets and a `transition`.
 import { motion } from '@octane-xplat/motion'
 
 export function Example() {
-	return (<motion.View initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} />)
+	return (
+		<motion.View initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} />
+	)
 }
 ```
 
@@ -38,7 +40,13 @@ duration; a **spring** moves toward its destination with spring-like motion.
 import { motion } from '@octane-xplat/motion'
 
 export function Example() {
-	return (<motion.View initial={{ x: 0, scale: 0.9 }} animate={{ x: 40, scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 30 }} />)
+	return (
+		<motion.View
+			initial={{ x: 0, scale: 0.9 }}
+			animate={{ x: 40, scale: 1 }}
+			transition={{ type: 'spring', stiffness: 200, damping: 30 }}
+		/>
+	)
 }
 ```
 
@@ -53,7 +61,12 @@ and rest thresholds. Springs preserve velocity on retarget. The default is a
 import { motion } from '@octane-xplat/motion'
 
 export function Example() {
-	return (<motion.View animate={{ opacity: 1, x: 20, y: 10, scale: 1, scaleX: 1, scaleY: 1, rotate: 15 }} transition={{ duration: 0.3, delay: 0.1, ease: 'easeInOut' }} />)
+	return (
+		<motion.View
+			animate={{ opacity: 1, x: 20, y: 10, scale: 1, scaleX: 1, scaleY: 1, rotate: 15 }}
+			transition={{ duration: 0.3, delay: 0.1, ease: 'easeInOut' }}
+		/>
+	)
 }
 ```
 
@@ -72,10 +85,14 @@ import { Pressable, Text } from '@octane-xplat/ui'
 
 export function Destination() {
 	const moved$ = useSignal$(false)
-	return <>
-		<Pressable onPress={() => moved$.set(!moved$.get())}><Text>Toggle motion</Text></Pressable>
-		<motion.View animate={{ x: moved$.get() ? 80 : 0 }} />
-	</>
+	return (
+		<>
+			<Pressable onPress={() => moved$.set(!moved$.get())}>
+				<Text>Toggle motion</Text>
+			</Pressable>
+			<motion.View animate={{ x: moved$.get() ? 80 : 0 }} />
+		</>
+	)
 }
 ```
 
@@ -89,7 +106,11 @@ import { View } from '@octane-xplat/ui'
 import { motion } from '@octane-xplat/motion'
 
 export function RotatedCard() {
-	return <View className="rotated-card"><motion.View animate={{ x: 40 }} /></View>
+	return (
+		<View className="rotated-card">
+			<motion.View animate={{ x: 40 }} />
+		</View>
+	)
 }
 ```
 
@@ -103,20 +124,22 @@ against their own maps. Each child keeps its own transition and numeric target.
 import { motion } from '@octane-xplat/motion'
 
 export function Example() {
-	return (<motion.View
-	initial="hidden"
-	animate="visible"
-	variants={{
-		hidden: { opacity: 0 },
-		visible: {
-			opacity: 1,
-			transition: { duration: 0.2, when: 'beforeChildren', staggerChildren: 0.1 },
-		},
-	}}
->
-	<motion.View variants={{ hidden: { y: 20 }, visible: { y: 0 } }} />
-	<motion.View variants={{ hidden: { y: 20 }, visible: { y: 0 } }} />
-</motion.View>)
+	return (
+		<motion.View
+			initial="hidden"
+			animate="visible"
+			variants={{
+				hidden: { opacity: 0 },
+				visible: {
+					opacity: 1,
+					transition: { duration: 0.2, when: 'beforeChildren', staggerChildren: 0.1 },
+				},
+			}}
+		>
+			<motion.View variants={{ hidden: { y: 20 }, visible: { y: 0 } }} />
+			<motion.View variants={{ hidden: { y: 20 }, visible: { y: 0 } }} />
+		</motion.View>
+	)
 }
 ```
 
@@ -130,7 +153,20 @@ immediately. An explicit child `animate` creates an independent subtree.
 import { motion } from '@octane-xplat/motion'
 
 export function Example() {
-	return (<motion.View animate="visible" variants={{ visible: { opacity: 1, transition: { when: 'afterChildren', delayChildren: 0.1, staggerChildren: 0.1 } } }}><motion.View variants={{ visible: { y: 0 } }} /><motion.View animate={{ x: 20 }} /></motion.View>)
+	return (
+		<motion.View
+			animate="visible"
+			variants={{
+				visible: {
+					opacity: 1,
+					transition: { when: 'afterChildren', delayChildren: 0.1, staggerChildren: 0.1 },
+				},
+			}}
+		>
+			<motion.View variants={{ visible: { y: 0 } }} />
+			<motion.View animate={{ x: 20 }} />
+		</motion.View>
+	)
 }
 ```
 
@@ -145,7 +181,17 @@ host-specific target. Resolvers must return supported numeric channels.
 import { motion } from '@octane-xplat/motion'
 
 export function Example() {
-	return (<motion.View initial={false} animate={['visible', 'selected']} custom={40} variants={{ visible: { opacity: 1 }, selected: (custom: number) => ({ x: custom, transition: { duration: 0.2 } }) }} />)
+	return (
+		<motion.View
+			initial={false}
+			animate={['visible', 'selected']}
+			custom={40}
+			variants={{
+				visible: { opacity: 1 },
+				selected: (custom: number) => ({ x: custom, transition: { duration: 0.2 } }),
+			}}
+		/>
+	)
 }
 ```
 
@@ -160,10 +206,22 @@ records dynamic membership, ordering, and unsupported upstream options.
 import { motion, Presence } from '@octane-xplat/motion'
 
 export function Panel(props: { open: boolean }) {
-	return <Presence present={props.open}>
-		<motion.Pressable animate="visible" exit="hidden" whileTap="pressed" whileFocus="focused"
-			variants={{ visible: { opacity: 1 }, hidden: { opacity: 0 }, pressed: { scale: 0.95 }, focused: { scale: 1.05 } }} />
-	</Presence>
+	return (
+		<Presence present={props.open}>
+			<motion.Pressable
+				animate="visible"
+				exit="hidden"
+				whileTap="pressed"
+				whileFocus="focused"
+				variants={{
+					visible: { opacity: 1 },
+					hidden: { opacity: 0 },
+					pressed: { scale: 0.95 },
+					focused: { scale: 1.05 },
+				}}
+			/>
+		</Presence>
+	)
 }
 ```
 
@@ -182,16 +240,28 @@ import { Pressable, Text } from '@octane-xplat/ui'
 
 export function ValueControls() {
 	const x = useMotionValue(0)
-	return <>
-		<motion.View style={{ x }} />
-		<Pressable onPress={() => x.set(20)}><Text>Set</Text></Pressable>
-		<Pressable onPress={() => x.jump(0)}><Text>Reset</Text></Pressable>
-		<Pressable onPress={() => x.stop()}><Text>Stop</Text></Pressable>
-		<Pressable onPress={() => {
-			const job = x.animate(80, { duration: 0.2 })
-			void job.finished.then(result => console.log(result))
-		}}><Text>Animate</Text></Pressable>
-	</>
+	return (
+		<>
+			<motion.View style={{ x }} />
+			<Pressable onPress={() => x.set(20)}>
+				<Text>Set</Text>
+			</Pressable>
+			<Pressable onPress={() => x.jump(0)}>
+				<Text>Reset</Text>
+			</Pressable>
+			<Pressable onPress={() => x.stop()}>
+				<Text>Stop</Text>
+			</Pressable>
+			<Pressable
+				onPress={() => {
+					const job = x.animate(80, { duration: 0.2 })
+					void job.finished.then((result) => console.log(result))
+				}}
+			>
+				<Text>Animate</Text>
+			</Pressable>
+		</>
+	)
 }
 ```
 
@@ -201,19 +271,31 @@ animates and `jump` snaps. `useMotionValueEvent` subscribes without a render.
 MotionValue get reads are imperative, not Octane signal subscriptions.
 
 ```tsx
-import { motion, useMotionValue, useTransform, useSpring, useMotionValueEvent } from '@octane-xplat/motion'
+import {
+	motion,
+	useMotionValue,
+	useTransform,
+	useSpring,
+	useMotionValueEvent,
+} from '@octane-xplat/motion'
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function DerivedValue() {
 	const x = useMotionValue(0)
 	const opacity = useTransform(x, [0, 100], [1, 0])
 	const smoothX = useSpring(x, { stiffness: 200, damping: 30 })
-	useMotionValueEvent(x, 'change', value => console.log(value))
-	return <>
-		<motion.View style={{ x: smoothX, opacity }} />
-		<Pressable onPress={() => x.set(100)}><Text>Move</Text></Pressable>
-		<Pressable onPress={() => smoothX.jump(0)}><Text>Snap</Text></Pressable>
-	</>
+	useMotionValueEvent(x, 'change', (value) => console.log(value))
+	return (
+		<>
+			<motion.View style={{ x: smoothX, opacity }} />
+			<Pressable onPress={() => x.set(100)}>
+				<Text>Move</Text>
+			</Pressable>
+			<Pressable onPress={() => smoothX.jump(0)}>
+				<Text>Snap</Text>
+			</Pressable>
+		</>
+	)
 }
 ```
 
@@ -230,12 +312,17 @@ import { motion, useMotionValue } from '@octane-xplat/motion'
 
 export function PanCard() {
 	const x = useMotionValue(0)
-	return <motion.View style={{ x }} onPan={event => {
-		if (event.state === 'began') x.stop()
-		if (event.state === 'moved') x.set(event.dx)
-		if (event.state === 'ended') x.animate(0, { type: 'spring', velocity: event.vx })
-		if (event.state === 'cancelled') x.animate(0, { type: 'spring', velocity: 0 })
-	}} />
+	return (
+		<motion.View
+			style={{ x }}
+			onPan={(event) => {
+				if (event.state === 'began') x.stop()
+				if (event.state === 'moved') x.set(event.dx)
+				if (event.state === 'ended') x.animate(0, { type: 'spring', velocity: event.vx })
+				if (event.state === 'cancelled') x.animate(0, { type: 'spring', velocity: 0 })
+			}}
+		/>
+	)
 }
 ```
 
@@ -247,14 +334,16 @@ Use `drag="x"` to move horizontally while allowing vertical scrolling:
 import { motion } from '@octane-xplat/motion'
 
 export function DragCard() {
-	return <motion.View
-	drag="x"
-	dragConstraints={{ left: -100, right: 100 }}
-	dragElastic={false}
-	onDragEnd={(_event, info) => {
-		if (!info.cancelled) console.log(info.velocity.x)
-	}}
-/>
+	return (
+		<motion.View
+			drag="x"
+			dragConstraints={{ left: -100, right: 100 }}
+			dragElastic={false}
+			onDragEnd={(_event, info) => {
+				if (!info.cancelled) console.log(info.velocity.x)
+			}}
+		/>
+	)
 }
 ```
 
@@ -295,7 +384,14 @@ Reduced-motion policy snaps the release settlement.
 import { motion } from '@octane-xplat/motion'
 
 export function Example() {
-	return (<motion.View drag={true} dragConstraints={{ left: -100, right: 100, top: -50, bottom: 50 }} dragElastic={false} dragMomentum={false} />)
+	return (
+		<motion.View
+			drag={true}
+			dragConstraints={{ left: -100, right: 100, top: -50, bottom: 50 }}
+			dragElastic={false}
+			dragMomentum={false}
+		/>
+	)
 }
 ```
 
@@ -312,9 +408,15 @@ import { motion, useMotionValue } from '@octane-xplat/motion'
 
 export function DragValue() {
 	const x = useMotionValue(0)
-	return <motion.View drag="x" style={{ x }} onDragEnd={(_event, info) => {
-		if (!info.cancelled) console.log(info.offset.x, x.get())
-	}} />
+	return (
+		<motion.View
+			drag="x"
+			style={{ x }}
+			onDragEnd={(_event, info) => {
+				if (!info.cancelled) console.log(info.offset.x, x.get())
+			}}
+		/>
+	)
 }
 ```
 
@@ -345,16 +447,25 @@ import { MotionConfig, motion, useReducedMotion, useMotionValue } from '@octane-
 function Card() {
 	const reduced = useReducedMotion()
 	const x = useMotionValue(0)
-	return <motion.View style={{ x }} onPan={event => {
-		if (event.state === 'moved') x.set(event.dx)
-		if (event.state === 'ended' || event.state === 'cancelled') {
-			if (reduced) x.jump(0)
-			else x.animate(0, { type: 'spring' })
-		}
-	}} />
+	return (
+		<motion.View
+			style={{ x }}
+			onPan={(event) => {
+				if (event.state === 'moved') x.set(event.dx)
+				if (event.state === 'ended' || event.state === 'cancelled') {
+					if (reduced) x.jump(0)
+					else x.animate(0, { type: 'spring' })
+				}
+			}}
+		/>
+	)
 }
 export function App() {
-	return <MotionConfig reducedMotion="user" transition={{ duration: 0.2 }}><Card /></MotionConfig>
+	return (
+		<MotionConfig reducedMotion="user" transition={{ duration: 0.2 }}>
+			<Card />
+		</MotionConfig>
+	)
 }
 ```
 
@@ -373,9 +484,13 @@ import { Presence, motion } from '@octane-xplat/motion'
 import { Text } from '@octane-xplat/ui'
 
 export function Panel(props: { open: boolean }) {
-	return <Presence present={props.open}>
-		<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Text>Trip details</Text></motion.View>
-	</Presence>
+	return (
+		<Presence present={props.open}>
+			<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+				<Text>Trip details</Text>
+			</motion.View>
+		</Presence>
+	)
 }
 ```
 
@@ -390,9 +505,13 @@ import { Presence, motion } from '@octane-xplat/motion'
 import { Text } from '@octane-xplat/ui'
 
 export function Panel(props: { open: boolean }) {
-	return <Presence present={props.open}>
-		<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Text>Trip details</Text></motion.View>
-	</Presence>
+	return (
+		<Presence present={props.open}>
+			<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+				<Text>Trip details</Text>
+			</motion.View>
+		</Presence>
+	)
 }
 ```
 
@@ -407,9 +526,13 @@ import { Presence, motion } from '@octane-xplat/motion'
 import { Text } from '@octane-xplat/ui'
 
 export function Panel(props: { open: boolean }) {
-	return <Presence present={props.open} className="flex-1">
-		<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}><Text>Trip details</Text></motion.View>
-	</Presence>
+	return (
+		<Presence present={props.open} className="flex-1">
+			<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+				<Text>Trip details</Text>
+			</motion.View>
+		</Presence>
+	)
 }
 ```
 
@@ -424,9 +547,17 @@ import { Presence, motion } from '@octane-xplat/motion'
 import { Text } from '@octane-xplat/ui'
 
 export function Panel(props: { open: boolean }) {
-	return <Presence present={props.open} onExitComplete={() => console.log('Removed')}>
-		<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }} onAnimationComplete={() => console.log('Arrived')}><Text>Trip details</Text></motion.View>
-	</Presence>
+	return (
+		<Presence present={props.open} onExitComplete={() => console.log('Removed')}>
+			<motion.View
+				animate={{ opacity: 1 }}
+				exit={{ opacity: 0 }}
+				onAnimationComplete={() => console.log('Arrived')}
+			>
+				<Text>Trip details</Text>
+			</motion.View>
+		</Presence>
+	)
 }
 ```
 
@@ -439,11 +570,15 @@ An `exit` prop outside Presence is an error.
 import { Presence, motion } from '@octane-xplat/motion'
 
 export function Nested(props: { outer: boolean; inner: boolean }) {
-	return <Presence present={props.outer}>
-		<motion.View exit={{ opacity: 0 }}>
-			<Presence present={props.inner}><motion.View exit={{ x: -20 }} /></Presence>
-		</motion.View>
-	</Presence>
+	return (
+		<Presence present={props.outer}>
+			<motion.View exit={{ opacity: 0 }}>
+				<Presence present={props.inner}>
+					<motion.View exit={{ x: -20 }} />
+				</Presence>
+			</motion.View>
+		</Presence>
+	)
 }
 ```
 

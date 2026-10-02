@@ -30,7 +30,7 @@ Two findings from its own tooling
    cubic-bezier construction per corner radius.
 2. Figma squircle at `smoothing ≈ 0.65` (`APPLE_SMOOTHING`) approximates it to
    ~0.5 px at R=100/400×400 — close, not exact. The Rosenfeld constants below
-   are the *actual* `UIBezierPath(roundedRect:cornerRadius:)` shape, ≲0.25 px
+   are the _actual_ `UIBezierPath(roundedRect:cornerRadius:)` shape, ≲0.25 px
    from live SwiftUI `.continuous`. To "match iOS almost exactly," ship these
    as a first-class curve.
 
@@ -73,7 +73,11 @@ import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Text } from '@octane-xplat/ui'
 
 export function Card() {
-	return <SmoothCorners corners={24}><Text>Packing list</Text></SmoothCorners>
+	return (
+		<SmoothCorners corners={24}>
+			<Text>Packing list</Text>
+		</SmoothCorners>
+	)
 }
 ```
 
@@ -86,9 +90,11 @@ import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Text } from '@octane-xplat/ui'
 
 export function FigmaCard() {
-	return <SmoothCorners corners={{ radius: 24, curve: 'squircle', smoothing: 0.6 }}>
-		<Text>Trip details</Text>
-	</SmoothCorners>
+	return (
+		<SmoothCorners corners={{ radius: 24, curve: 'squircle', smoothing: 0.6 }}>
+			<Text>Trip details</Text>
+		</SmoothCorners>
+	)
 }
 ```
 
@@ -111,18 +117,22 @@ import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { View } from '@octane-xplat/ui'
 
 export function ClippedCard() {
-	return <SmoothCorners corners={24} className="bg-primary"><View className="p-4" /></SmoothCorners>
+	return (
+		<SmoothCorners corners={24} className="bg-primary">
+			<View className="p-4" />
+		</SmoothCorners>
+	)
 }
 ```
 
-| Target | Mechanism | Confidence |
-| --- | --- | --- |
-| Web | `clip-path: path(d)` + `ResizeObserver`; `d` used verbatim | Chrome/FF/Safari all support `path()` clip-path; high |
-| iOS | `CAShapeLayer` (from generated `CGMutablePath`) as `view.ios.layer.mask`, re-applied on `layoutChanged`; stroke layer added for `border`; shadow via sibling shape layer (mask clips `layer.shadow*`) | NS core already runs `CGPathCreateMutable`/`CGPathAddCurveToPoint` in the squircle patch — interop proven. High |
-| Android | `Drawable` subclass (JS `extend`) paints fill/stroke into `android.graphics.Path`, set via `view.android.setBackground`; children clip via `ViewOutlineProvider`: `Outline.setPath` API 33+, `Outline.setConvexPath` API 21–32 (squircle/continuous are convex — covers the main curves), concave curves fall back unclipped below 33 | desk-source; `Drawable.extend`/`setClipToOutline` are standard NS. Medium |
-| macOS (AppKit) | `NSBezierPath` (ObjC — the renderer already drives `view.layer.*` but never CoreGraphics C fns) → `.CGPath` → `CAShapeLayer` mask on `view.layer`. If `CAShapeLayer` isn't in the runtime metadata, ship a ~30-line ObjC leaf via `platforms/macos/` (macos-native.md seam) | experimental target; medium |
-| Linux / Windows webview | web leaf runs inside GTK WebKit / WebView2 — inherits web row | medium-high |
-| Windows native (WinUI) | parked with Q32–Q34 — host unproven | n/a |
+| Target                  | Mechanism                                                                                                                                                                                                                                                                                                                             | Confidence                                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Web                     | `clip-path: path(d)` + `ResizeObserver`; `d` used verbatim                                                                                                                                                                                                                                                                            | Chrome/FF/Safari all support `path()` clip-path; high                                                           |
+| iOS                     | `CAShapeLayer` (from generated `CGMutablePath`) as `view.ios.layer.mask`, re-applied on `layoutChanged`; stroke layer added for `border`; shadow via sibling shape layer (mask clips `layer.shadow*`)                                                                                                                                 | NS core already runs `CGPathCreateMutable`/`CGPathAddCurveToPoint` in the squircle patch — interop proven. High |
+| Android                 | `Drawable` subclass (JS `extend`) paints fill/stroke into `android.graphics.Path`, set via `view.android.setBackground`; children clip via `ViewOutlineProvider`: `Outline.setPath` API 33+, `Outline.setConvexPath` API 21–32 (squircle/continuous are convex — covers the main curves), concave curves fall back unclipped below 33 | desk-source; `Drawable.extend`/`setClipToOutline` are standard NS. Medium                                       |
+| macOS (AppKit)          | `NSBezierPath` (ObjC — the renderer already drives `view.layer.*` but never CoreGraphics C fns) → `.CGPath` → `CAShapeLayer` mask on `view.layer`. If `CAShapeLayer` isn't in the runtime metadata, ship a ~30-line ObjC leaf via `platforms/macos/` (macos-native.md seam)                                                           | experimental target; medium                                                                                     |
+| Linux / Windows webview | web leaf runs inside GTK WebKit / WebView2 — inherits web row                                                                                                                                                                                                                                                                         | medium-high                                                                                                     |
+| Windows native (WinUI)  | parked with Q32–Q34 — host unproven                                                                                                                                                                                                                                                                                                   | n/a                                                                                                             |
 
 Android gets a bonus: `Outline.setPath`/`setConvexPath` makes `elevation`
 shadows follow the curve for free. If an app needs exact child-clipping on

@@ -52,8 +52,11 @@ slow query never blocks the JS thread.
 import { openDatabase } from '@octane-xplat/sqlite'
 
 const db = await openDatabase('app.db', { threading: true })
-try { console.log(await db.select('SELECT 1 AS ready')) }
-finally { await db.close() }
+try {
+	console.log(await db.select('SELECT 1 AS ready'))
+} finally {
+	await db.close()
+}
 ```
 
 ## Proposed seam

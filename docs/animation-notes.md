@@ -25,7 +25,9 @@ validate the new leaf.
 ```tsx
 import { motion } from '@octane-xplat/motion'
 
-export function Fade() { return <motion.View initial={{ opacity: 0 }} animate={{ opacity: 1 }} /> }
+export function Fade() {
+	return <motion.View initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
+}
 ```
 
 ## Motion v1 validation record — 2026-09-29
@@ -94,7 +96,7 @@ points.
 
 ```ts
 // NativeScript contributor instrumentation; timestamps are supplied by the host.
-const frame = requestAnimationFrame(timestamp => console.log('frame timestamp', timestamp))
+const frame = requestAnimationFrame((timestamp) => console.log('frame timestamp', timestamp))
 // Cancel if the owner is disposed before the callback runs.
 cancelAnimationFrame(frame)
 ```
@@ -193,7 +195,7 @@ gestures.
 import { View } from '@octane-xplat/ui'
 
 export function PanProbe() {
-	return <View onPan={event => console.log(event.state, event.dx, event.dy)} />
+	return <View onPan={(event) => console.log(event.state, event.dx, event.dy)} />
 }
 ```
 
@@ -277,10 +279,20 @@ labels stay local to each host, preserving Presence's per-host registration.
 import { motion } from '@octane-xplat/motion'
 
 export function Variants() {
-	return <motion.View initial="hidden" animate={['visible', 'selected']} custom={40}
-		variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 }, selected: (x: number) => ({ x }) }}>
-		<motion.View variants={{ visible: { y: 0 }, selected: { scale: 1.1 } }} />
-	</motion.View>
+	return (
+		<motion.View
+			initial="hidden"
+			animate={['visible', 'selected']}
+			custom={40}
+			variants={{
+				hidden: { opacity: 0 },
+				visible: { opacity: 1 },
+				selected: (x: number) => ({ x }),
+			}}
+		>
+			<motion.View variants={{ visible: { y: 0 }, selected: { scale: 1.1 } }} />
+		</motion.View>
+	)
 }
 ```
 
@@ -296,10 +308,19 @@ See [the guide](animation-gestures.md#coordinate-variants) and
 import { motion } from '@octane-xplat/motion'
 
 export function Sequenced() {
-	return <motion.View animate="visible" variants={{ visible: { opacity: 1,
-		transition: { when: 'beforeChildren', staggerChildren: 0.1, delayChildren: 0.2 } } }}>
-		<motion.View variants={{ visible: { x: 20 } }} />
-	</motion.View>
+	return (
+		<motion.View
+			animate="visible"
+			variants={{
+				visible: {
+					opacity: 1,
+					transition: { when: 'beforeChildren', staggerChildren: 0.1, delayChildren: 0.2 },
+				},
+			}}
+		>
+			<motion.View variants={{ visible: { x: 20 } }} />
+		</motion.View>
+	)
 }
 ```
 
@@ -366,8 +387,16 @@ lists the covered and excluded upstream semantics.
 import { motion } from '@octane-xplat/motion'
 
 export function Drag() {
-	return <motion.View drag="x" dragConstraints={{ left: -40, right: 40 }} dragElastic={0.35}
-		onDragEnd={(_event, info) => { if (!info.cancelled) console.log(info.velocity.x) }} />
+	return (
+		<motion.View
+			drag="x"
+			dragConstraints={{ left: -40, right: 40 }}
+			dragElastic={0.35}
+			onDragEnd={(_event, info) => {
+				if (!info.cancelled) console.log(info.velocity.x)
+			}}
+		/>
+	)
 }
 ```
 
@@ -404,7 +433,14 @@ reduced motion snaps settlement. This is intentionally not upstream inertia.
 import { motion } from '@octane-xplat/motion'
 
 export function BoundedDrag() {
-	return <motion.View drag="x" dragConstraints={{ left: -40, right: 40 }} dragElastic={false} dragMomentum />
+	return (
+		<motion.View
+			drag="x"
+			dragConstraints={{ left: -40, right: 40 }}
+			dragElastic={false}
+			dragMomentum
+		/>
+	)
 }
 ```
 
@@ -464,10 +500,15 @@ declare function useProposedAnimation(initial: number): {
 }
 export function ProposedMotion() {
 	const x = useProposedAnimation(0)
-	return <View style={{ translateX: x.value }} onPan={event => {
-		if (event.state === 'began') x.to(100, { duration: 250, curve: 'easeOut' })
-		if (event.state === 'ended') x.spring(0, { damping: 14 })
-	}} />
+	return (
+		<View
+			style={{ translateX: x.value }}
+			onPan={(event) => {
+				if (event.state === 'began') x.to(100, { duration: 250, curve: 'easeOut' })
+				if (event.state === 'ended') x.spring(0, { damping: 14 })
+			}}
+		/>
+	)
 }
 ```
 
@@ -510,10 +551,14 @@ import { View, Pressable, Text, useAnimation } from '@octane-xplat/ui'
 export function LegacyTween() {
 	const x = useAnimation(0)
 	useEffect(() => () => x.stop(), [])
-	return <>
-		<View bind={x.bind} />
-		<Pressable onPress={() => x.to(80, { duration: 300 })}><Text>Move</Text></Pressable>
-	</>
+	return (
+		<>
+			<View bind={x.bind} />
+			<Pressable onPress={() => x.to(80, { duration: 300 })}>
+				<Text>Move</Text>
+			</Pressable>
+		</>
+	)
 }
 ```
 
@@ -533,7 +578,9 @@ Velocity is essential for interruptible gestures (drawer, swipe-to-dismiss).
 import { View } from '@octane-xplat/ui'
 
 export function GestureStatus() {
-	return <View onPan={event => console.log(event.state, event.dx, event.dy, event.vx, event.vy)} />
+	return (
+		<View onPan={(event) => console.log(event.state, event.dx, event.dy, event.vx, event.vy)} />
+	)
 }
 ```
 
@@ -566,10 +613,17 @@ import { useRef } from 'octane'
 
 export function Pan() {
 	const host = useRef<any>(null)
-	return <View bind={view => { host.current = view }} onPan={event => {
-		if (event.state === 'moved') setTranslate(host.current, event.dx, event.dy)
-		if (event.state === 'ended' || event.state === 'cancelled') setTranslate(host.current, 0, 0)
-	}} />
+	return (
+		<View
+			bind={(view) => {
+				host.current = view
+			}}
+			onPan={(event) => {
+				if (event.state === 'moved') setTranslate(host.current, event.dx, event.dy)
+				if (event.state === 'ended' || event.state === 'cancelled') setTranslate(host.current, 0, 0)
+			}}
+		/>
+	)
 }
 ```
 

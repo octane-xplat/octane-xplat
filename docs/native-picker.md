@@ -21,10 +21,6 @@ export function Example() {
 }
 ```
 
-On iOS the package uses SwiftUI's picker; on Android it uses a Material 3
-dropdown; on web it uses the browser's `<select>`. There is no single shared
-component in this package.
-
 ## Install and import
 
 Run `pnpm add @octane-xplat/picker` from your app folder. Import the
@@ -38,17 +34,24 @@ Each entry exports its own component and prop types. The package has no shared
 runtime entry or shared `types` subpath. See the maintained target-specific
 examples in [`packages/demos/src/`](../packages/demos/src/).
 
-The platform entries install their framework adapters automatically. On iOS,
-the adapter hosts a SwiftUI `Picker` using menu style. On Android, the adapter
-hosts a Jetpack Compose Material 3 dropdown; it is a Compose Material control,
-not an Android framework widget. NativeScript builds plugin Kotlin sources in
-a separate AAR project, so Android apps must make the Compose compiler plugin
-available in `App_Resources/Android/buildscript.gradle` and apply it to the
-generated `picker` project from `before-plugins.gradle`. The demo harness
-has this setup in [`buildscript.gradle`](../apps/mobile/App_Resources/Android/buildscript.gradle)
-and [`before-plugins.gradle`](../apps/mobile/App_Resources/Android/before-plugins.gradle).
-Match the compiler plugin version to the Kotlin Gradle plugin used by the
-NativeScript plugin build. The web entry renders an HTML `<select>`.
+The platform imports install their framework adapters automatically. Use the
+matching entry in each platform file:
+
+```ts
+// Picker.ios.ts
+import { SwiftUIPicker } from '@octane-xplat/picker/ios'
+```
+
+```ts
+// Picker.android.ts
+import { MaterialDropdown } from '@octane-xplat/picker/android'
+```
+
+Android apps also need the Compose compiler plugin configured for the generated
+`picker` project. Follow the maintained harness setup in
+[`buildscript.gradle`](../apps/mobile/App_Resources/Android/buildscript.gradle)
+and [`before-plugins.gradle`](../apps/mobile/App_Resources/Android/before-plugins.gradle),
+matching the compiler plugin version to NativeScript's Kotlin Gradle plugin.
 
 ## Platform APIs
 
@@ -58,6 +61,7 @@ selected ID is controlled with `selection` and `onSelectionChange`, or seeded
 with `defaultSelection`.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Region.ios.tsrx
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
 
@@ -79,6 +83,7 @@ selected key is controlled with `selectedKey` and `onSelectedKeyChange`, or
 seeded with `defaultSelectedKey`. The whole control uses `enabled`.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Region.android.tsrx
 import { MaterialDropdown } from '@octane-xplat/picker/android'
 

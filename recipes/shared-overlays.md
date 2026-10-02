@@ -12,22 +12,33 @@ Use `Dialog` for modal content, `AlertDialog` for required decisions, and
 `BottomSheet` for bottom-anchored content.
 
 ```tsx
-import { Dialog, AlertDialog, BottomSheet, Text } from '@octane-xplat/ui'
+import { useState } from 'octane'
+import { Dialog, AlertDialog, BottomSheet, Button, Text } from '@octane-xplat/ui'
 
 export function Surfaces() {
+	const [surface, setSurface] = useState<'dialog' | 'alert' | 'sheet' | null>(null)
+	const onOpenChange = (open: boolean) => {
+		if (!open) setSurface(null)
+	}
 	return (
 		<>
-			<Dialog isOpen={false} onOpenChange={console.log}>
+			<Button onPress={() => setSurface('dialog')}>Trip details</Button>
+			<Button onPress={() => setSurface('alert')}>Remove trip</Button>
+			<Button onPress={() => setSurface('sheet')}>Bag details</Button>
+			<Dialog isOpen={surface === 'dialog'} onOpenChange={onOpenChange}>
 				<Text>Trip details</Text>
 			</Dialog>
 			<AlertDialog
-				isOpen={false}
+				isOpen={surface === 'alert'}
 				title="Remove trip?"
 				actionLabel="Remove"
-				onOpenChange={console.log}
-				onAction={() => console.log('Confirmed')}
+				onOpenChange={onOpenChange}
+				onAction={() => {
+					console.log('Confirmed')
+					setSurface(null)
+				}}
 			/>
-			<BottomSheet label="Bag details" isOpen={false}>
+			<BottomSheet label="Bag details" isOpen={surface === 'sheet'} onOpenChange={onOpenChange}>
 				<Text>Carry-on</Text>
 			</BottomSheet>
 		</>
@@ -39,20 +50,29 @@ export function Surfaces() {
 notifications to a mounted viewport or the fallback viewport.
 
 ```tsx
-import { Button, ToastViewport, useToast } from '@octane-xplat/ui'
+import { Button, ToastViewport, useToast, showToast } from '@octane-xplat/ui'
+
+function SaveButton() {
+	const toast = useToast()
+	return <Button onPress={() => toast({ body: 'Trip saved' })}>Save</Button>
+}
 
 export function SaveNotice() {
-	const toast = useToast()
 	return (
-		<ToastViewport>
-			<Button onPress={() => toast({ body: 'Trip saved' })}>Save</Button>
-		</ToastViewport>
+		<>
+			<ToastViewport>
+				<SaveButton />
+			</ToastViewport>
+			<Button onPress={() => showToast({ body: 'Background save complete' })}>
+				Show background notice
+			</Button>
+		</>
 	)
 }
 ```
 
-`HoverCard`, `Lightbox`, and `Carousel` provide pointer/touch content patterns,
-while `ScrollableArea` replaces the older `ScrollView` and `ScrollBox` names.
+`ScrollableArea` provides scrolling for bounded content and replaces the older
+`ScrollView` and `ScrollBox` names.
 
 ```tsx
 import { ScrollableArea, Text } from '@octane-xplat/ui'
@@ -62,6 +82,33 @@ export function Details() {
 		<ScrollableArea label="Trip details">
 			<Text>Two bags packed</Text>
 		</ScrollableArea>
+	)
+}
+```
+
+`HoverCard` reveals supplementary content around a trigger. `Carousel` arranges
+scrollable slides, and `Lightbox` opens an image collection for closer viewing.
+Keep the image descriptions meaningful for people using assistive technology.
+Replace the sample image URL with an image in your app.
+
+```tsx
+import { useState } from 'octane'
+import { HoverCard, Carousel, Lightbox, Button, Text } from '@octane-xplat/ui'
+
+const media = [{ src: 'https://example.com/trip.jpg', alt: 'A mountain lake on our trip' }]
+
+export function TripPreview() {
+	const [open, setOpen] = useState(false)
+	return (
+		<>
+			<HoverCard content={<Text>Saved yesterday</Text>}>
+				<Text>Autumn trip</Text>
+			</HoverCard>
+			<Carousel label="Trip previews" hasButtons>
+				<Button onPress={() => setOpen(true)}>View trip photo</Button>
+			</Carousel>
+			<Lightbox isOpen={open} onOpenChange={setOpen} media={media} />
+		</>
 	)
 }
 ```

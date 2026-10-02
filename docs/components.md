@@ -381,7 +381,7 @@ export function Example() {
 | `ProgressGroup`                    | Stacked labeled `Meter` rows                 | `items`                                                                 |
 | `Meter`                            | Gauge/dash ring                              | `value`, `max`, `strokeWidth`                                           |
 | `ProgressBar`                      | Linear determinate or indeterminate progress | `value`, `max`, `label`, `marks`                                        |
-| `MetadataList`, `MetadataListItem` | Aligned label/value details                  | `columns`, `label`, `children`                         |
+| `MetadataList`, `MetadataListItem` | Aligned label/value details                  | `columns`, `label`, `children`                                          |
 | `StatusDot`                        | Accessible colored status signal             | `variant`, `label`, `isPulsing`, `tooltip`                              |
 | `Timestamp`                        | Localized relative or absolute instant       | `value`, `format`, `isLive`, `hasTooltip`                               |
 | `Timer`                            | Live elapsed duration                        | `startTime`, `format`, `type`, `size`                                   |

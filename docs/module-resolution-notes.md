@@ -85,14 +85,26 @@ the full ordered list per app:
 // apps/mobile/vite.config.ts
 import { defineConfig } from 'vite'
 
-export default defineConfig({ resolve: {
-  extensions: [
-    '.ios.tsrx', '.native.tsrx', '.tsrx',
-    '.ios.tsx', '.native.tsx', '.tsx',
-    '.ios.ts', '.native.ts', '.mjs', '.mts', '.ts',
-    '.jsx', '.js', '.json',
-  ],
-} })
+export default defineConfig({
+	resolve: {
+		extensions: [
+			'.ios.tsrx',
+			'.native.tsrx',
+			'.tsrx',
+			'.ios.tsx',
+			'.native.tsx',
+			'.tsx',
+			'.ios.ts',
+			'.native.ts',
+			'.mjs',
+			'.mts',
+			'.ts',
+			'.jsx',
+			'.js',
+			'.json',
+		],
+	},
+})
 ```
 
 (Octane's plugin already appends `.tsrx` to its own default list; verify our
@@ -109,12 +121,16 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-	plugins: [{
-		name: 'platform-module', enforce: 'pre',
-		resolveId(source) {
-			if (source === '#platform') return fileURLToPath(new URL('./src/platform.native.ts', import.meta.url))
+	plugins: [
+		{
+			name: 'platform-module',
+			enforce: 'pre',
+			resolveId(source) {
+				if (source === '#platform')
+					return fileURLToPath(new URL('./src/platform.native.ts', import.meta.url))
+			},
 		},
-	}],
+	],
 })
 ```
 

@@ -18,39 +18,15 @@ optional setup for data, sign-in rules, and links from outside the app.
 
 ## A route is a destination
 
-A **route** describes a destination by name and the information it needs.
-This is a fragment for a button's press handler; import `pushRoute` from
-`@octane-xplat/ui` and register a `settings` screen before using it:
+A **route** describes a destination: `name` identifies the screen, `params`
+carries the information it needs, and `stack` selects its navigation history.
+Use `root` for the main flow. On web, opening the route updates the URL; on
+native, it opens the screen in that stack. With a registered `settings` screen,
+call `pushRoute` from a button's press handler:
 
 ```ts
 import { pushRoute } from '@octane-xplat/ui'
 
-pushRoute({
-	stack: 'root',
-	name: 'settings',
-	params: {},
-})
-```
-
-The `name` identifies the screen. `params` carries the small amount of data
-needed to open it. `stack` is `root` for the main flow or a named stack such
-as a tab's inner navigation.
-
-```ts
-import { pushRoute } from '@octane-xplat/ui'
-
-// In a press handler; settings is registered in the app route table.
-pushRoute({ stack: 'root', name: 'settings', params: {} })
-```
-
-On the web, the route becomes a real URL, so refresh, back, bookmarks, and
-shared links keep working. On native, the same route pushes a screen into the
-matching navigation stack.
-
-```ts
-import { pushRoute } from '@octane-xplat/ui'
-
-// In a press handler; settings is registered in the app route table.
 pushRoute({ stack: 'root', name: 'settings', params: {} })
 ```
 
@@ -129,24 +105,38 @@ A **manifest** is a list of available routes. A **glob** is a file pattern
 used to collect the route files, and **codegen** means generating code from
 that list. You don't edit the generated route files by hand.
 
-`deriveRouteManifest` turns the glob into the table and `registerRoutes`
-registers it once at boot — there is no per-screen wiring to maintain.
-`xplat routes` (run automatically by `xplat dev`, `xplat build`, and
-`xplat typecheck`) emits `routes.gen.types.ts`, `routes.gen.data.ts`,
-`routes.gen.manifest.json`, and one platform twin per target
-(`routes.gen.web.ts`, `.mobile.ts`, `.macos.ts`, `.windows.ts`) — the
-typed names, baked loader results, the normalized host schema, and the
-platform globs + registration all live in generated code; `routes.ts`
-just re-exports. The generated `RouteName` and `RouteParams` types
-describe every route name and its param shape, so a typed wrapper around
-`pushRoute`/`Link` can name-check destinations.
+`deriveRouteManifest` turns a set of screen modules into a route table, and
+`registerRoutes` registers it once at startup. The generated web entry uses a
+Vite glob to collect the modules:
 
 ```ts
 import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
 
-// Generated web route entry: Vite supplies this glob.
+// Generated web entry: Vite supplies import.meta.glob.
 const files = import.meta.glob('./app/**/*.tsrx', { eager: true })
 registerRoutes(deriveRouteManifest(files, ['web']))
+```
+
+`xplat routes` generates the route types, baked loader results, manifest JSON,
+and a registration entry for each platform. It runs automatically during
+`xplat dev`, `xplat build`, and `xplat typecheck`; run it directly after changing
+your route files if you need to refresh generated code:
+
+```sh
+pnpm exec xplat routes
+```
+
+The generated `RouteName` and `RouteParams` types let your own navigation
+helper check destination names and params. This helper belongs beside the
+app's generated `routes.gen.types.ts`:
+
+```ts
+import { pushRoute } from '@octane-xplat/ui'
+import type { RouteName, RouteParams } from './routes.gen.types'
+
+export function openScreen<Name extends RouteName>(name: Name, params: RouteParams[Name]) {
+	pushRoute({ stack: 'root', name, params })
+}
 ```
 
 ## Register routes from data
@@ -391,6 +381,7 @@ component file keeps the component with a warn.
 
 ```md
 <!-- app/help.md: route generation bakes this document. -->
+
 # Packing help
 
 Keep heavy items at the bottom of your bag.

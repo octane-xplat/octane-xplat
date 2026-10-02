@@ -13,6 +13,7 @@ platform-suffixed file. There is no shared context-menu API at the package
 root.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // SwiftUIContextMenuExample.ios.tsx
 import { SwiftUIContextMenu } from '@octane-xplat/context-menu/ios'
 import { Text } from '@octane-xplat/ui'
@@ -29,6 +30,7 @@ export function Menu() {
 ```
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // MaterialContextMenuExample.android.tsx
 import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
 import { Text } from '@octane-xplat/ui'
@@ -88,6 +90,7 @@ serialized data (`{id, title, destructive, disabled, divider}`), reported
 back through `onItemSelected(id)`.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Actions.ios.tsx
 import { SwiftUIContextMenu } from '@octane-xplat/context-menu/ios'
 import { Text } from '@octane-xplat/ui'

@@ -13,6 +13,7 @@ There is no root export — import the platform entry in the matching
 platform-suffixed file:
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // effect.ios.tsrx
 import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { Text } from '@octane-xplat/ui'
@@ -31,6 +32,7 @@ distortion shader may displace. On both targets the subtree renders
 normally into a detached host, so the shader sees real framework pixels.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // effect.ios.tsx
 import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { Text } from '@octane-xplat/ui'

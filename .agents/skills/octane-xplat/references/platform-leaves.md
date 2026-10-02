@@ -48,6 +48,7 @@ Android. The package's `/native` subpath is NativeScript integration plumbing,
 not a filename suffix; `/web` resolves only under web/Linux conditions.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // PackedToggle.ios.tsx
 import { UISwitch } from '@octane-xplat/ui/ios'
 

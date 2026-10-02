@@ -78,14 +78,16 @@ import babel from '@rolldown/plugin-babel'
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
 
-export default defineConfig({ plugins: [
-	...octane(),
-	babel({
-		include: /\.(?:[cm]?[jt]sx?|tsrx)$/,
-		presets: [linguiTransformerBabelPreset()],
-	}),
-	lingui({ failOnCompileError: true }),
-] })
+export default defineConfig({
+	plugins: [
+		...octane(),
+		babel({
+			include: /\.(?:[cm]?[jt]sx?|tsrx)$/,
+			presets: [linguiTransformerBabelPreset()],
+		}),
+		lingui({ failOnCompileError: true }),
+	],
+})
 ```
 
 Without `tsrx` in the Babel include, `.tsrx` modules keep the unexpanded
@@ -135,7 +137,8 @@ import { defineConfig } from '@lingui/conf'
 import { babelExtractor, tsrxExtractor } from '@octane-xplat/lingui/extractor'
 
 export default defineConfig({
-	locales: ['en', 'es'], sourceLocale: 'en',
+	locales: ['en', 'es'],
+	sourceLocale: 'en',
 	catalogs: [{ path: 'src/locales/{locale}/messages', include: ['src'] }],
 	extractors: [babelExtractor, tsrxExtractor],
 })
@@ -199,7 +202,10 @@ import { defineCatalogs, catalogsFromGlob } from '@octane-xplat/lingui'
 const catalogs = catalogsFromGlob(import.meta.glob('../locales/*/messages', { query: '?lingui' }))
 defineCatalogs(catalogs)
 // Explicit alternative, with the same catalog files:
-defineCatalogs({ en: () => import('../locales/en/messages'), es: () => import('../locales/es/messages') })
+defineCatalogs({
+	en: () => import('../locales/en/messages'),
+	es: () => import('../locales/es/messages'),
+})
 ```
 
 `initLingui` resolves the initial locale in this order — `setup.locale`
@@ -239,7 +245,9 @@ import { Text } from '@octane-xplat/ui'
 export function LocaleLabel() {
 	return <Text>{useLocale()}</Text>
 }
-export function logLocale() { console.log(getLocale()) }
+export function logLocale() {
+	console.log(getLocale())
+}
 ```
 
 ## Switching and persisting

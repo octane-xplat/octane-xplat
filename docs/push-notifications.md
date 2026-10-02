@@ -19,7 +19,7 @@ and only holds the public web config in the browser.
 import { push } from '@octane-xplat/push'
 
 console.log(push.supported)
-const unsubscribe = push.onMessage(message => console.log(message.title ?? 'New message'))
+const unsubscribe = push.onMessage((message) => console.log(message.title ?? 'New message'))
 // Keep the listener while its owner is active, then unsubscribe().
 ```
 
@@ -117,12 +117,16 @@ export async function registerPush(sendTokenToYourServer: (token: string) => Pro
 
 	const token = await push.getToken()
 	if (token) await sendTokenToYourServer(token)
-	const offMessage = push.onMessage(message => console.log(message.title ?? 'New message'))
-	const offOpen = push.onNotificationOpen(message => console.log(message.data?.route))
-	const offRefresh = push.onTokenRefresh(next => {
+	const offMessage = push.onMessage((message) => console.log(message.title ?? 'New message'))
+	const offOpen = push.onNotificationOpen((message) => console.log(message.data?.route))
+	const offRefresh = push.onTokenRefresh((next) => {
 		void sendTokenToYourServer(next).catch(() => console.log('Token registration failed'))
 	})
-	return () => { offMessage(); offOpen(); offRefresh() }
+	return () => {
+		offMessage()
+		offOpen()
+		offRefresh()
+	}
 }
 ```
 
@@ -133,32 +137,36 @@ the cold-start tap until a listener exists.
 ```ts
 import { push } from '@octane-xplat/push'
 
-const offMessage = push.onMessage(message => console.log(message.title))
-const offOpen = push.onNotificationOpen(message => console.log(message.data?.route))
+const offMessage = push.onMessage((message) => console.log(message.title))
+const offOpen = push.onNotificationOpen((message) => console.log(message.data?.route))
 const offRefresh = push.onTokenRefresh(() => console.log('Token changed'))
-export function stopListeners() { offMessage(); offOpen(); offRefresh() }
+export function stopListeners() {
+	offMessage()
+	offOpen()
+	offRefresh()
+}
 ```
 
 ## Behavior by app state
 
 **Foreground.** iOS/Android deliver to `onMessage` only — the system banner
-  is suppressed unless you opt in with `showNotificationsInForeground` in
-  `configure`. Web delivers to `onMessage`.
+is suppressed unless you opt in with `showNotificationsInForeground` in
+`configure`. Web delivers to `onMessage`.
 **Background/quit.** The OS shows notification-payload messages; taps reach
-  `onNotificationOpen` on resume or cold start. Web background messages go
-  through the service worker: `notification` payloads display via the SDK,
-  data-only payloads get a minimal notification shown by the shipped worker.
+`onNotificationOpen` on resume or cold start. Web background messages go
+through the service worker: `notification` payloads display via the SDK,
+data-only payloads get a minimal notification shown by the shipped worker.
 **Tap-through on web needs a link.** The FCM worker only reports the click
-  when the message carries `fcmOptions.link` or `notification.click_action`
-  (same-origin enforced). Set one on every web-targeted message — a bare `/`
-  works.
+when the message carries `fcmOptions.link` or `notification.click_action`
+(same-origin enforced). Set one on every web-targeted message — a bare `/`
+works.
 **Data payloads** arrive on `message.data` as `Record<string, string>` on
-  every platform.
+every platform.
 
 ```ts
 import { push } from '@octane-xplat/push'
 
-const off = push.onMessage(message => {
+const off = push.onMessage((message) => {
 	const tripId = message.data?.tripId
 	if (tripId) console.log('Updated trip', tripId)
 })
@@ -166,18 +174,18 @@ const off = push.onMessage(message => {
 
 ```json
 {
-  "message": {
-    "topic": "trip-updates",
-    "notification": { "title": "Trip updated" },
-    "webpush": { "fcm_options": { "link": "https://example.com/" } }
-  }
+	"message": {
+		"topic": "trip-updates",
+		"notification": { "title": "Trip updated" },
+		"webpush": { "fcm_options": { "link": "https://example.com/" } }
+	}
 }
 ```
 
 ```ts
 import { push } from '@octane-xplat/push'
 
-const off = push.onNotificationOpen(message => console.log('Opened', message.data?.route))
+const off = push.onNotificationOpen((message) => console.log('Opened', message.data?.route))
 // Keep this app-level listener alive to receive the queued cold-start tap.
 ```
 
@@ -185,7 +193,7 @@ const off = push.onNotificationOpen(message => console.log('Opened', message.dat
 import { push } from '@octane-xplat/push'
 
 await push.configure({ showNotificationsInForeground: true }) // native startup
-const off = push.onMessage(message => console.log(message.title))
+const off = push.onMessage((message) => console.log(message.title))
 // Call off() when the screen or app listener owner is disposed.
 ```
 

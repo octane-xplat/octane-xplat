@@ -47,6 +47,7 @@ menu. Supply it as a function that returns your components. The function
 in the example returns a card with a text label.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Actions.android.tsrx
 import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
 import { Text, View } from '@octane-xplat/ui'
@@ -82,6 +83,7 @@ that connection works; you can skip them when using the component:
   backing `NSView`'s `menu` property, so no detached root is needed.
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Actions.android.tsrx
 import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
 import { Text, View } from '@octane-xplat/ui'
@@ -112,6 +114,7 @@ the bridge payload serializable and matches Expo's data-driven menu model
 in spirit (their slot children become item records here).
 
 ```tsx
+/** @jsxImportSource @nativescript-community/octane */
 // Actions.android.tsrx
 import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
 import { Text } from '@octane-xplat/ui'

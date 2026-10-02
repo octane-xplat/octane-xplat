@@ -58,7 +58,12 @@ version. `viteConfig` defaults to `vite.linux.config.ts` and must stay inside
 the app directory. Invalid settings fail before the build starts.
 
 ```json
-{ "productName": "My App", "executableName": "my-app", "version": "1.0.0", "viteConfig": "vite.linux.config.mjs" }
+{
+	"productName": "My App",
+	"executableName": "my-app",
+	"version": "1.0.0",
+	"viteConfig": "vite.linux.config.mjs"
+}
 ```
 
 Create `vite.linux.config.mjs`:

@@ -139,7 +139,6 @@ the shared input rather than a separate tokenizer. `statusVariant` controls
 attached or detached status styling. AppKit displays its popover content inline
 rather than in a positioned floating layer.
 
-
 ```tsx
 import { useState, useRef } from 'octane'
 import { PowerSearch, createPowerSearchConfig, Pressable, Text } from '@octane-xplat/ui'

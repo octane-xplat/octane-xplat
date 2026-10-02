@@ -15,7 +15,8 @@ color, and sends raw markup to UI's macOS `Image`, which encodes it:
 // A macOS-rendered .tsrx component using trusted bundled markup.
 import { Image } from '@octane-xplat/ui'
 
-const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#4338ca" d="M4 4h16v16H4z"/></svg>'
+const svg =
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#4338ca" d="M4 4h16v16H4z"/></svg>'
 export function Mark() {
 	return <Image src={svg} className="w-6 h-6" alt="Trip marker" />
 }
@@ -55,7 +56,9 @@ check. ImageIO did not advertise SVG decoding on this host, so a
 // Native macOS host only; NSData is provided by the host's SDK metadata.
 declare const NSImage: any
 declare const NSData: any
-const encoded = svgDataUri('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="24" height="24"/></svg>')
+const encoded = svgDataUri(
+	'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="24" height="24"/></svg>',
+)
 const data = NSData.alloc().initWithBase64EncodedStringOptions(encoded.split(',')[1], 0)
 const image = NSImage.alloc().initWithData(data)
 if (!image) throw new Error('System SVG decoding unavailable')
@@ -109,8 +112,13 @@ and marks empty-label images decorative.
 import { Image } from '@octane-xplat/ui'
 
 export function DecorativeMark() {
-	return <Image className="w-6 h-6" alt=""
-		src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%2F%3E%3C%2Fsvg%3E" />
+	return (
+		<Image
+			className="w-6 h-6"
+			alt=""
+			src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%2F%3E%3C%2Fsvg%3E"
+		/>
+	)
 }
 ```
 

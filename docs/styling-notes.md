@@ -303,7 +303,6 @@ shared files — shared code composes primitives; leaf impls pick the right
 layout class per platform. `gap` is supported on FlexboxLayout (NS 9: gap/
 rowGap/columnGap — the `.gap-*` utilities work); GridLayout has no gap.
 
-
 ```tsx
 import { HStack, VStack, Text } from '@octane-xplat/ui'
 
