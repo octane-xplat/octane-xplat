@@ -348,7 +348,48 @@ textarea::placeholder {
 	opacity: 0.5;
 }
 
-/* SegmentedControl — equal-width segments in a rounded track; `--on`
+/* Decorative selection indicators own their geometry independently of the
+   checkbox/radio controls. Empty native flex boxes otherwise measure to zero. */
+	.vx-ind-checkbox--sm,
+	.vx-ind-radio--sm {
+		width: 20px;
+		height: 20px;
+	}
+	.vx-ind-checkbox--md,
+	.vx-ind-radio--md {
+		width: 24px;
+		height: 24px;
+	}
+	.vx-ind-dash {
+		width: 12px;
+		height: 2px;
+		background-color: var(--color-onprimary);
+	}
+	.vx-ind-dash--sm {
+		width: 10px;
+	}
+	.vx-ind-radio-dot {
+		width: 12px;
+		height: 12px;
+	}
+	.vx-ind-radio-dot--sm {
+		width: 10px;
+		height: 10px;
+	}
+	.vx-ind-checkbox--checked,
+	.vx-ind-checkbox--indeterminate {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+	}
+	.vx-ind-radio--checked {
+		border-color: var(--color-primary);
+	}
+	.vx-ind-checkbox--disabled,
+	.vx-ind-radio--disabled {
+		opacity: 0.5;
+	}
+
+	/* SegmentedControl — equal-width segments in a rounded track; `--on`
    raises the selected one. flex-basis is dead on NS (the shorthand parser
    drops it and the standalone property isn't registered), so width:0 +
    flex-grow:1 is what distributes segments equally on both engines. */
