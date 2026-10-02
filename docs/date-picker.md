@@ -43,6 +43,8 @@ iOS and Android apps can register a picker with
 the `pick` prop. `files.pick` selects one file; apps that need
 `isMultiple={true}` must supply a provider that returns an array. The UI
 package has no dependency on a file service.
+The AppKit `@octane-xplat/files` leaf provides the picker but its read/write
+methods are not implemented yet.
 
 ## OS-authentic pickers
 
