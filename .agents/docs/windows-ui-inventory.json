@@ -11,9 +11,12 @@
         "View.tsrx",
         "View.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#current-verification",
-      "reason": "Foundation app renders in the Windows desktop session. Layout structure confirmed; Flexbox padding and Label/Pressable OS gesture delivery fail. SafeArea runtime case pending."
+      "status": "parked",
+      "evidence": [
+        "Native foundation/layout probes mount children and verify gaps, but computed Flexbox padding16 leaves children at parent edge; pinned FlexboxLayout has no Padding property.",
+        "Source: View.tsrx forwards spacing/padding or native Flexbox style."
+      ],
+      "reason": "Basic layout works; shared padding normalization does not. Reopen after Windows Flexbox padding support and verify asymmetric insets, sizing, and alignment. View gestures also require Windows pan/swipe support."
     },
     {
       "name": "VStack",
@@ -23,9 +26,12 @@
         "VStack.macos.tsrx",
         "VStack.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#current-verification",
-      "reason": "Foundation app renders in the Windows desktop session. Layout structure confirmed; Flexbox padding and Label/Pressable OS gesture delivery fail. SafeArea runtime case pending."
+      "status": "parked",
+      "evidence": [
+        "Native foundation/layout probes mount children and verify gaps, but computed Flexbox padding16 leaves children at parent edge; pinned FlexboxLayout has no Padding property.",
+        "Source: VStack.tsrx forwards spacing/padding or native Flexbox style."
+      ],
+      "reason": "Basic layout works; shared padding normalization does not. Reopen after Windows Flexbox padding support and verify asymmetric insets, sizing, and alignment. View gestures also require Windows pan/swipe support."
     },
     {
       "name": "HStack",
@@ -35,9 +41,12 @@
         "HStack.macos.tsrx",
         "HStack.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#current-verification",
-      "reason": "Foundation app renders in the Windows desktop session. Layout structure confirmed; Flexbox padding and Label/Pressable OS gesture delivery fail. SafeArea runtime case pending."
+      "status": "parked",
+      "evidence": [
+        "Native foundation/layout probes mount children and verify gaps, but computed Flexbox padding16 leaves children at parent edge; pinned FlexboxLayout has no Padding property.",
+        "Source: HStack.tsrx forwards spacing/padding or native Flexbox style."
+      ],
+      "reason": "Basic layout works; shared padding normalization does not. Reopen after Windows Flexbox padding support and verify asymmetric insets, sizing, and alignment. View gestures also require Windows pan/swipe support."
     },
     {
       "name": "Grid",
@@ -59,9 +68,12 @@
         "Stack.tsrx",
         "Stack.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#current-verification",
-      "reason": "Foundation app renders in the Windows desktop session. Layout structure confirmed; Flexbox padding and Label/Pressable OS gesture delivery fail. SafeArea runtime case pending."
+      "status": "parked",
+      "evidence": [
+        "Native foundation/layout probes mount children and verify gaps, but computed Flexbox padding16 leaves children at parent edge; pinned FlexboxLayout has no Padding property.",
+        "Source: Stack.tsrx forwards spacing/padding or native Flexbox style."
+      ],
+      "reason": "Basic layout works; shared padding normalization does not. Reopen after Windows Flexbox padding support and verify asymmetric insets, sizing, and alignment. View gestures also require Windows pan/swipe support."
     },
     {
       "name": "StackItem",
@@ -84,9 +96,12 @@
         "Center.tsrx",
         "Center.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "parked",
+      "evidence": [
+        "Native foundation/layout probes mount children and verify gaps, but computed Flexbox padding16 leaves children at parent edge; pinned FlexboxLayout has no Padding property.",
+        "Source: Center.tsrx forwards spacing/padding or native Flexbox style."
+      ],
+      "reason": "Basic layout works; shared padding normalization does not. Reopen after Windows Flexbox padding support and verify asymmetric insets, sizing, and alignment. View gestures also require Windows pan/swipe support."
     },
     {
       "name": "Section",
@@ -97,9 +112,12 @@
         "Section.tsrx",
         "Section.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "parked",
+      "evidence": [
+        "Native foundation/layout probes mount children and verify gaps, but computed Flexbox padding16 leaves children at parent edge; pinned FlexboxLayout has no Padding property.",
+        "Source: Section.tsrx forwards spacing/padding or native Flexbox style."
+      ],
+      "reason": "Basic layout works; shared padding normalization does not. Reopen after Windows Flexbox padding support and verify asymmetric insets, sizing, and alignment. View gestures also require Windows pan/swipe support."
     },
     {
       "name": "AspectRatio",
@@ -123,9 +141,11 @@
         "VisuallyHidden.tsrx",
         "VisuallyHidden.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "implemented",
+      "evidence": [
+        "Native final-layout wrapper1\u00d71, native opacity0; UIA still exposes Windows hidden accessible text as Text."
+      ],
+      "reason": "Shared CSS fix provides hidden geometry and retains discoverable child text in this case; no pixel inspection claim."
     },
     {
       "name": "Absolute",
@@ -135,9 +155,11 @@
         "Absolute.tsrx",
         "Absolute.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "implemented",
+      "evidence": [
+        "Windows final-layout case:200\u00d760 host places positioned Label at local x20,y10."
+      ],
+      "reason": "Reuses native AbsoluteLayout positioning; bounded dip-coordinate case verified."
     },
     {
       "name": "Spacer",
@@ -160,9 +182,12 @@
         "Text.tsrx",
         "Text.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#current-verification",
-      "reason": "Foundation app renders in the Windows desktop session. Layout structure confirmed; Flexbox padding and Label/Pressable OS gesture delivery fail. SafeArea runtime case pending."
+      "status": "parked",
+      "evidence": [
+        "Bare Text labels and explicit RichTextSpan text props render; baked Markdown nested Text outputs no native text.",
+        "Text.tsrx nested spans put deferred children under Span; RichText.tsrx runText only recognizes primitive JS children or explicit text."
+      ],
+      "reason": "Plain text is usable through explicit native paths, but nested/deferred string span content is incomplete. Reopen after renderer child/text ownership is fixed and verify span formatting and link input."
     },
     {
       "name": "Markdown",
@@ -171,9 +196,11 @@
       "variants": [
         "Markdown.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition baked AST case: heading and nested bold paragraph create no native label text. Text nested span path and renderer text ownership require follow-up."
+      ],
+      "reason": "Support nested inline text, spans, and baked AST output on Windows before claiming Markdown rendering."
     },
     {
       "name": "MarkdownScreen",
@@ -182,9 +209,11 @@
       "variants": [
         "Markdown.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Same baked AST produces no text inside MarkdownScreen; Screen/ScrollableArea source imports the failing Markdown renderer."
+      ],
+      "reason": "Inherits reproduced Markdown text failure; verify route data, scrolling, and screen lifecycle after renderer fix."
     },
     {
       "name": "RichText",
@@ -194,9 +223,12 @@
         "RichText.tsrx",
         "RichText.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "parked",
+      "evidence": [
+        "Bare Text labels and explicit RichTextSpan text props render; baked Markdown nested Text outputs no native text.",
+        "Text.tsrx nested spans put deferred children under Span; RichText.tsrx runText only recognizes primitive JS children or explicit text."
+      ],
+      "reason": "Plain text is usable through explicit native paths, but nested/deferred string span content is incomplete. Reopen after renderer child/text ownership is fixed and verify span formatting and link input."
     },
     {
       "name": "RichTextSpan",
@@ -206,9 +238,12 @@
         "RichText.tsrx",
         "RichText.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "parked",
+      "evidence": [
+        "Bare Text labels and explicit RichTextSpan text props render; baked Markdown nested Text outputs no native text.",
+        "Text.tsrx nested spans put deferred children under Span; RichText.tsrx runText only recognizes primitive JS children or explicit text."
+      ],
+      "reason": "Plain text is usable through explicit native paths, but nested/deferred string span content is incomplete. Reopen after renderer child/text ownership is fixed and verify span formatting and link input."
     },
     {
       "name": "Pressable",
@@ -257,9 +292,11 @@
         "ButtonGroup.tsrx",
         "ButtonGroup.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Composition case: Left/Right children mount in native row and provider supplies orientation/disabled/size context."
+      ],
+      "reason": "Reuses native default grouping container; action children remain parked independently."
     },
     {
       "name": "ToggleButton",
@@ -447,9 +484,11 @@
         "ContextMenu.tsrx",
         "ContextMenu.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "ContextMenu.tsrx opens only via onLongPress; it has no Windows right-click/keyboard context-menu trigger, menu/item roles, or arrow focus handling."
+      ],
+      "reason": "Needs Windows secondary-pointer and keyboard intent plus menu semantics; core long-press availability alone is insufficient desktop context-menu support."
     },
     {
       "name": "Badge",
@@ -460,9 +499,11 @@
         "Badge.tsrx",
         "Badge.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
-      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
+      "status": "parked",
+      "evidence": [
+        "Presentation native tree mounts content, but the computed padding does not inset children (offset0); same failure reproduced in foundation Flexbox."
+      ],
+      "reason": "Requires functioning Windows Flexbox padding to match shared container chrome; retest content insets and sizes after core fix."
     },
     {
       "name": "Divider",
@@ -499,9 +540,11 @@
         "Avatar.tsrx",
         "Avatar.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
-      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
+      "status": "parked",
+      "evidence": [
+        "Fallback AW box40\u00d740 centers initials; native Avatar src/alt path uses image accessibility props; Windows core accessibility update is empty."
+      ],
+      "reason": "Needs named-image/alt semantics and source failure fallback coverage; decorative initials alone do not verify image-avatar contract."
     },
     {
       "name": "AvatarGroup",
@@ -525,9 +568,11 @@
         "FormField.tsrx",
         "FormField.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "FormField.tsrx includes labelTooltip via AppKit-only Tooltip and Pressable info action; composition basic label/description/control renders."
+      ],
+      "reason": "Optional help interaction requires Windows tooltip/focus support and associated field naming; basic labels alone are insufficient."
     },
     {
       "name": "FieldGroup",
@@ -538,9 +583,11 @@
         "FieldGroup.tsrx",
         "FieldGroup.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Composition case: Group and Grouped control render in300\u00d747 native host."
+      ],
+      "reason": "Reuses native default label/content layout; interactive descendants and application accessibility remain separate."
     },
     {
       "name": "FormLayout",
@@ -551,9 +598,11 @@
         "FormLayout.tsrx",
         "FormLayout.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Composition case: horizontal grid contains A/B with assigned columns0/1 in300\u00d719 host; foundation Grid validates column placement."
+      ],
+      "reason": "Reuses native default grid/context composition; bounded horizontal and source-defined vertical gap paths, without full pixel certification."
     },
     {
       "name": "InputGroup",
@@ -564,9 +613,12 @@
         "InputGroup.tsrx",
         "InputGroup.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case renders Amount and123, but its InputGroupText $ prefix is absent and prefix width0.",
+        "InputGroup.tsrx composes FormField and Flexbox group skin."
+      ],
+      "reason": "Joined input surface inherits primitive prefix normalization and label/chrome obligations; verify complete prefix/control/suffix layout after fix."
     },
     {
       "name": "InputGroupText",
@@ -577,9 +629,11 @@
         "InputGroup.tsrx",
         "InputGroup.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case: bare $ prefix is absent; prefix box width0. typeof props.children string check misses deferred JSX children."
+      ],
+      "reason": "Resolve native primitive children into a label without materializing or duplicating component children."
     },
     {
       "name": "Item",
@@ -606,9 +660,11 @@
         "List.tsrx",
         "List.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case: decimal start=3 with First/Second yields only one 3. marker and a single 19-DIP row. List.tsrx calls toChildArray on deferred JSX children."
+      ],
+      "reason": "Child normalization must preserve separate items before numbering, dividers, and density can be supported."
     },
     {
       "name": "ListItem",
@@ -619,9 +675,11 @@
         "ListItem.tsrx",
         "ListItem.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition ListItem labels mount; ListItem.tsrx interactive rows use onTap and accessibilityRole/state. Windows accessibility updater is empty."
+      ],
+      "reason": "Needs semantic button/link selection and keyboard activation; static rows may render independently of the parent List count bug."
     },
     {
       "name": "NumberInput",
@@ -648,9 +706,11 @@
         "PinInput.tsrx",
         "PinInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Isolated live PIN case with real OS keyboard 1/2/3/4 and700ms pauses logs controlled values1,2,2,2; first Edit reads342 rather than advancing to four cells; onComplete1234 never fires."
+      ],
+      "reason": "Auto-advance and controlled writes fail; isolate native focus/text callback ordering and verify per-cell editing, completion, readonly, and secure state after fix."
     },
     {
       "name": "Selector",
@@ -687,9 +747,11 @@
         "BaseTypeahead.tsrx",
         "BaseTypeahead.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "BaseTypeahead.tsrx explicitly omits arrow/Escape key handling on native; result rows use raw tap and accessibilityState, with no Windows combo/listbox/selection mapping."
+      ],
+      "reason": "Needs desktop combobox keyboard, selection, dismissal, and accessible state implementation. Combined input process crash remains unattributed and is not used as the component blocker."
     },
     {
       "name": "Typeahead",
@@ -716,9 +778,11 @@
         "TypeaheadItem.tsrx",
         "TypeaheadItem.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Composition/final-layout cases render Result/Windows result via explicit native Label. Source supports description prop and arbitrary item.element slot."
+      ],
+      "reason": "Reuses native option-content renderer; owning combobox semantics/input are separately parked."
     },
     {
       "name": "Token",
@@ -777,9 +841,11 @@
         "InputRating.tsrx",
         "InputRating.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Initial input tree mounts five stars; source uses Flexbox tap cells and native accessibility state but has no keyboard score navigation."
+      ],
+      "reason": "Needs Windows score/value semantics and keyboard interaction; mouse glyphs alone do not establish rating control support."
     },
     {
       "name": "CheckboxList",
@@ -871,9 +937,11 @@
         "AppShell.tsrx",
         "AppShell.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "AppShell.tsrx automatic narrow-window navigation uses MobileNavToggle/Button/Pressable; content padding uses Windows Flexbox."
+      ],
+      "reason": "Responsive shell depends on blocked navigation input and content padding. Reopen with narrow/wide resize and drawer checks."
     },
     {
       "name": "TopNav",
@@ -884,9 +952,11 @@
         "TopNav.tsrx",
         "TopNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "TopNav.tsrx default slots mount in composition probe; mobile-bar/drawer modes use MobileNavToggle and MobileNav."
+      ],
+      "reason": "Full responsive navigation modes inherit Pressable/focus blockers; verify slot layout and all render modes after fixes."
     },
     {
       "name": "TopNavHeading",
@@ -939,9 +1009,11 @@
         "TopNav.tsrx",
         "TopNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "TopNav.tsrx lines294\u2013322: its trigger is Pressable onPress; foundation Windows OS input reproduces the tap/touch observer collision."
+      ],
+      "reason": "Required menu-opening action is blocked; reopen after gesture fix and verify anchor, dismissal, and keyboard access."
     },
     {
       "name": "TopNavMegaMenuItem",
@@ -978,9 +1050,11 @@
         "SideNav.tsrx",
         "SideNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition mounts Navigation/Section/Section content; SideNav.tsrx collapse/drawer paths use Pressable and MobileNav."
+      ],
+      "reason": "Collapse and responsive navigation remain blocked; static source composition is not complete navigation support."
     },
     {
       "name": "SideNavSection",
@@ -991,9 +1065,11 @@
         "SideNav.tsrx",
         "SideNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Composition SideNav case mounts Section and Section content under section header."
+      ],
+      "reason": "Reuses native default section composition; heading/action dependencies are separately assessed."
     },
     {
       "name": "SideNavHeading",
@@ -1004,9 +1080,11 @@
         "SideNav.tsrx",
         "SideNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "SideNavHeading in SideNav.tsrx wraps linked heading/menu actions in Pressable; noninteractive heading renders in composition probe."
+      ],
+      "reason": "Heading navigation/menu activation inherits the reproduced Pressable collision; verify linked and plain forms after fix."
     },
     {
       "name": "SideNavItem",
@@ -1043,9 +1121,11 @@
         "MobileNav.tsrx",
         "MobileNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Modal sweep mounts Mobile navigation/Navigation content; source has backdrop tap but no Windows Escape/focus containment/restoration."
+      ],
+      "reason": "Needs desktop drawer keyboard/focus and dismissal semantics; mount alone does not prove full-area hit testing."
     },
     {
       "name": "MobileNavToggle",
@@ -1082,9 +1162,11 @@
         "NavMenu.tsrx",
         "NavMenu.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Native NavMenu.tsrx intentionally omits arrow/typeahead navigation; composition Menu content mounts."
+      ],
+      "reason": "Windows pointer/keyboard menu behavior needs roving focus, arrow/typeahead, and semantic menu/item support."
     },
     {
       "name": "NavHeadingMenuItem",
@@ -1147,9 +1229,11 @@
         "Toolbar.tsrx",
         "Toolbar.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition native case mounts Start/Center/End in300\u00d732 host. Toolbar.tsrx explicitly omits keyboard roving on native."
+      ],
+      "reason": "Desktop composite toolbar needs keyboard navigation and named semantic region; child pointer behavior is separately blocked."
     },
     {
       "name": "OverflowList",
@@ -1160,9 +1244,11 @@
         "OverflowList.tsrx",
         "OverflowList.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case: maxVisibleItems=1 with three labels retains One/Two/Three in visible row; internal flattener treats deferred JSX group as one item."
+      ],
+      "reason": "Normalize renderer children before fitting and reporting overflow; retest hidden measurement ownership and collapse direction."
     },
     {
       "name": "Breadcrumbs",
@@ -1173,9 +1259,11 @@
         "Breadcrumb.tsrx",
         "Breadcrumb.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Initial native tree mounts Home / Here; native Breadcrumb source uses Label onTap without link keyboard/semantic mapping."
+      ],
+      "reason": "Needs Windows link semantics and keyboard activation for actionable ancestors; noninteractive text alone is not full support."
     },
     {
       "name": "Pagination",
@@ -1186,9 +1274,11 @@
         "Pagination.tsrx",
         "Pagination.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Initial native input tree mounts prev/pages/ellipsis/next; source uses only onTap Flexbox cells without desktop button semantics."
+      ],
+      "reason": "Needs keyboard-focusable page actions and current/disabled semantics; verify page changes and boundaries after implementation."
     },
     {
       "name": "Stepper",
@@ -1199,9 +1289,11 @@
         "Stepper.tsrx",
         "Stepper.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Initial native tree mounts Start/Finish and number glyphs; source uses only onTap cells, without desktop keyboard/current-step semantics."
+      ],
+      "reason": "Needs keyboard activation and semantic current/completed/disabled state before navigation support."
     },
     {
       "name": "NavigationMenu",
@@ -1238,9 +1330,12 @@
         "Table.tsrx",
         "Table.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case renders headers Name/Value and rows A/1,B/2 in300\u00d757 host; Table cells use padded Flexbox chrome.",
+        "Final native tree: cell Label starts at local x0,y0 despite CSS padding8px12px; row column starts differ152 versus151 with independent flex sizing."
+      ],
+      "reason": "Windows Flexbox padding failure breaks normalized cell insets; table/header/row semantics and row keyboard activation also need implementation."
     },
     {
       "name": "Timeline",
@@ -1251,9 +1346,12 @@
         "Timeline.tsrx",
         "Timeline.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition native case renders09:00 Started First event and10:00 Finished in300\u00d789 host; decorative rail/body use shared Flexbox chrome.",
+        "Final native tree: connector Flexbox measures1\u00d70 despite54-DIP first rail; body starts at local x0 despite CSS padding-left10/padding-bottom16."
+      ],
+      "reason": "Needs working normalized rail/body insets and meaningful event-list accessibility; reopen with connector/last-item geometry after padding fix."
     },
     {
       "name": "TreeList",
@@ -1264,9 +1362,11 @@
         "Tree.tsrx",
         "Tree.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Initial native tree mounts Root/caret. TreeRow depth indent is Flexbox paddingLeft, ignored by Windows core; native source lacks keyboard tree navigation."
+      ],
+      "reason": "Requires real nesting indentation plus tree/selection/expanded semantics and keyboard navigation."
     },
     {
       "name": "Alert",
@@ -1277,9 +1377,11 @@
         "Alert.tsrx",
         "Alert.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
-      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
+      "status": "parked",
+      "evidence": [
+        "Presentation case mounts title/body/icon; native Alert lacks Windows alert/status live semantics and uses padded Flexbox chrome."
+      ],
+      "reason": "Requires working status announcement and normalized inset layout; mounting alone is partial."
     },
     {
       "name": "Card",
@@ -1290,9 +1392,11 @@
         "Card.tsrx",
         "Card.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
-      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
+      "status": "parked",
+      "evidence": [
+        "Presentation native tree mounts content, but the computed padding does not inset children (offset0); same failure reproduced in foundation Flexbox."
+      ],
+      "reason": "Requires functioning Windows Flexbox padding to match shared container chrome; retest content insets and sizes after core fix."
     },
     {
       "name": "Chip",
@@ -1332,9 +1436,11 @@
         "Empty.tsrx",
         "Empty.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
-      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
+      "status": "parked",
+      "evidence": [
+        "Display case mounts icon/title/description, but shared empty-state chrome depends on Flexbox padding which Windows ignores."
+      ],
+      "reason": "Reopen after native padding fix and verify icon/content/actions geometry; descendant actions keep separate blockers."
     },
     {
       "name": "Banner",
@@ -1345,9 +1451,11 @@
         "Banner.tsrx",
         "Banner.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
-      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
+      "status": "parked",
+      "evidence": [
+        "Display case mounts explicit notice Label; native Banner dismissal is a Label onTap with no keyboard button semantics."
+      ],
+      "reason": "Needs keyboard and semantic dismiss action plus working shared notice padding; non-dismissible content is only a partial path."
     },
     {
       "name": "User",
@@ -1358,9 +1466,11 @@
         "User.tsrx",
         "User.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
-      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
+      "status": "parked",
+      "evidence": [
+        "Display case mounts initials/name/description in300\u00d735 row; User.tsrx optional action uses raw tap with no desktop button/keyboard path."
+      ],
+      "reason": "Needs accessible avatar naming and keyboard/semantic selection for actionable rows."
     },
     {
       "name": "ProgressGroup",
@@ -1371,9 +1481,12 @@
         "ProgressGroup.tsrx",
         "ProgressGroup.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
-      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
+      "status": "parked",
+      "evidence": [
+        "Native sweep renders ring/track/label geometry; ProgressBar25/100 has50-DIP fill in200-DIP track.",
+        "Sources assign progress/image accessibility role/value/label; pinned application.windows.ts updateAccessibilityProperties is empty."
+      ],
+      "reason": "Visual geometry mounts, but progress values or status names lack Windows semantic accessibility mapping. Reopen with native UIA value/name verification and dynamic announcements; animation variants need separate checks."
     },
     {
       "name": "ChatLayout",
@@ -1385,10 +1498,9 @@
       ],
       "status": "parked",
       "evidence": [
-        "Source dependency: ChatLayout.tsrx \u2192 ChatLayoutScrollButton.tsrx \u2192 Pressable.tsrx",
-        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+        "ChatLayout.tsrx computes composer clearance with Flexbox content paddingBottom; Windows Flexbox ignores padding in repeated native probes. Default scroll button also uses blocked Pressable."
       ],
-      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
+      "reason": "Requires working composer inset and scroll action before streaming/chat layout support."
     },
     {
       "name": "ChatLayoutScrollButton",
@@ -1410,9 +1522,11 @@
         "ChatMessageList.tsrx",
         "ChatMessageList.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case mounts message list and density context; source assigns accessibilityLiveRegion polite; Windows core updater is empty."
+      ],
+      "reason": "Needs live message announcements and busy/empty/loading semantics; scroll-to-top loading integration requires dedicated verification."
     },
     {
       "name": "ChatMessage",
@@ -1422,9 +1536,11 @@
         "ChatMessage.tsrx",
         "ChatMessage.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case renders Assistant/Hello Windows/metadata; source accepts name/avatar/metadata slots as arbitrary nodes in Flexbox containers."
+      ],
+      "reason": "Plain string slots inherit reproduced primitive-child loss; verify literal and element slots plus sender alignment/naming after normalization."
     },
     {
       "name": "ChatMessageBubble",
@@ -1434,9 +1550,11 @@
         "ChatMessageBubble.tsrx",
         "ChatMessageBubble.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case bubble with Hello Windows measures93\u00d719 with no internal inset; native Flexbox padding is ignored in Card/Badge/foundation reproductions."
+      ],
+      "reason": "Shared bubble padding/normalization needs Windows layout support; mounted text alone does not establish bubble parity."
     },
     {
       "name": "ChatMessageMetadata",
@@ -1446,9 +1564,11 @@
         "ChatMessageMetadata.tsrx",
         "ChatMessageMetadata.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition renders explicit timestamp, separator, Sent label and status icon; source nests arbitrary timestamp/footer in Flexbox slots."
+      ],
+      "reason": "Plain string slots and accessible delivery status require Windows child normalization and semantic naming."
     },
     {
       "name": "ChatSystemMessage",
@@ -1458,9 +1578,11 @@
         "ChatSystemMessage.tsrx",
         "ChatSystemMessage.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition renders explicit Conversation started Label; source puts arbitrary children under Flexbox and uses shared status/message chrome."
+      ],
+      "reason": "Plain string children inherit Kbd/InputGroupText primitive loss; verify literal and element content after renderer fix."
     },
     {
       "name": "ChatToolCalls",
@@ -1470,9 +1592,11 @@
         "ChatToolCalls.tsrx",
         "ChatToolCalls.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "ChatToolCalls.tsrx expandable row/group uses raw onTap and expanded accessibility state; core Windows updater is empty."
+      ],
+      "reason": "Needs keyboard-expandable semantic controls and status announcement; verify group and detail toggles after native mapping."
     },
     {
       "name": "ChatTokenizedText",
@@ -1482,9 +1606,11 @@
         "ChatTokenizedText.tsrx",
         "ChatTokenizedText.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case: Hello @alec with a matching token yields a 300\u00d70 native box with no text, while ChatComposerTokenElement renders Alec."
+      ],
+      "reason": "Deferred string children must be resolved before tokenization; verify literal runs, tokens, and wrapped order."
     },
     {
       "name": "ChatComposer",
@@ -1524,9 +1650,11 @@
         "ChatComposerInput.tsrx",
         "ChatComposerInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Composition case: badge token {value:@alec,label:Alec} renders Alec in native300\u00d719 host."
+      ],
+      "reason": "Reuses native default decorative token container; composer editing and tokenized text remain parked separately."
     },
     {
       "name": "ChatComposerDrawer",
@@ -1536,9 +1664,11 @@
         "ChatComposerDrawer.tsrx",
         "ChatComposerDrawer.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition mounts Attachment content; source toggle assigns expanded role/state and raw onTap; core accessibility updater is empty."
+      ],
+      "reason": "Needs keyboard and semantic collapse/expand support; confirm controlled/uncontrolled drawer state and focus."
     },
     {
       "name": "ChatSendButton",
@@ -1598,9 +1728,11 @@
         "TextInput.tsrx",
         "TextInput.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "parked",
+      "evidence": [
+        "OS keyboard abc updates controlled text; ordinary Windows initial text renders. Exact initial/inherit/unset/revert are interpreted as core Property reset values."
+      ],
+      "reason": "Needs upstream literal text-property keyword fix and verified Windows label/readonly/secure/focus contracts; ordinary editing works but API values are not lossless."
     },
     {
       "name": "TextArea",
@@ -1610,9 +1742,11 @@
         "TextArea.tsrx",
         "TextArea.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "parked",
+      "evidence": [
+        "UIA Edit ValuePattern exposes two initial lines; uses same NativeScript text Property reset interpretation as TextInput."
+      ],
+      "reason": "Needs lossless literal text keyword handling and verified multiline editing/readonly/name behavior; initial multiline rendering works."
     },
     {
       "name": "SearchInput",
@@ -1622,9 +1756,11 @@
         "SearchInput.tsrx",
         "SearchInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Extra input native tree mounts search TextField; source wrapper owns accessibilityLabel while editable child only receives hint. Clear action is un-focusable Flexbox tap."
+      ],
+      "reason": "Needs named editable search field, keyboard-accessible clear, and lossless text values; verify real query/submit/clear after adapter."
     },
     {
       "name": "SegmentedControl",
@@ -1647,9 +1783,12 @@
         "ScrollableArea.tsrx",
         "ScrollableArea.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Real OS wheel input scrolls300\u00d7160 viewport from0 to360 with extent3040.",
+        "ScrollableArea.tsrx applies content padding on Flexbox and createPullToRefresh; Windows Flexbox padding is ignored."
+      ],
+      "reason": "Basic vertical scrolling works. Content padding normalization and refresh behavior need Windows verification/implementation before full contract support."
     },
     {
       "name": "VirtualList",
@@ -1660,9 +1799,11 @@
         "VirtualList.tsrx",
         "VirtualList.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Real OS wheel moves300\u00d7160 list viewport to360;100 fixed32-DIP rows yield extent3040 and only16 rows6\u201321 mounted."
+      ],
+      "reason": "Reuses native virtualized list; bounded fixed-height scroll/windowing verified. Variable-height momentum, mutation anchors, and platform-specific accessibility remain unverified."
     },
     {
       "name": "Image",
@@ -1673,9 +1814,12 @@
         "Image.tsrx",
         "Image.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "parked",
+      "evidence": [
+        "Native SVG inline/data/file cases complete at requested48-DIP boxes; production source generation/recovery/clear/disposal checks pass.",
+        "Image native leaf applies image accessibilityLabel; Windows accessibility updater is empty."
+      ],
+      "reason": "SVG seam is implemented, but complete image support still needs named-image accessibility and raster/source/error coverage. Remote/resource paths remain explicitly unverified."
     },
     {
       "name": "WebView",
@@ -1686,9 +1830,11 @@
         "WebView.tsrx",
         "WebView.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "WebView.tsrx reportContentLayout and applyNativeScrollEnabled contain only iOS/Android branches; Windows emits no content-size callback and ignores matchContents/scrollEnabled."
+      ],
+      "reason": "Needs Windows content measurement and scroll-control adapter plus real document/load/error/history verification."
     },
     {
       "name": "Overlay",
@@ -1699,9 +1845,12 @@
         "Overlay.tsrx",
         "Overlay.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "implemented",
+      "evidence": [
+        "Live Screen/Overlay case mounts/unmounts dedicated host on controlled open/close.",
+        "Separate shaded Overlay case: real OS click outside panel removes Overlay panel and logs dismissal."
+      ],
+      "reason": "Reuses neutral root/lifetime helpers and Windows RootLayout shade path; controlled cleanup and real user dismissal verified in bounded cases."
     },
     {
       "name": "Popover",
@@ -1712,9 +1861,12 @@
         "Popover.tsrx",
         "Popover.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "WinUI coordinate adapter places120\u00d730 panel at x242,y58 and controlled close removes its host.",
+        "Separate real OS outside click leaves Popover panel mounted; no dismiss callback observed in this case."
+      ],
+      "reason": "Positioning/lifecycle seam is implemented, but default outside-tap dismissal needs Windows event/hit-testing follow-up. Reopen with user dismissal, anchor scroll/resize tracking, and cleanup checks."
     },
     {
       "name": "Dialog",
@@ -1725,9 +1877,12 @@
         "Dialog.tsrx",
         "Dialog.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Live modal sweep mounts Windows dialog and Dialog body; host disappears on case unmount.",
+        "DialogPanel uses Flexbox padding20; Dialog native source accepts/ignores finalFocusRef and has no desktop Escape/focus-trap implementation."
+      ],
+      "reason": "Overlay lifecycle works, but panel normalization, Windows focus containment/restoration, Escape and shade dismissal need explicit support."
     },
     {
       "name": "DialogHeader",
@@ -1738,9 +1893,11 @@
         "Dialog.tsrx",
         "Dialog.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Composition case renders title/subtitle; DialogHeader close affordance is Pressable, affected by reproduced Windows tap/touch collision."
+      ],
+      "reason": "Close action remains blocked; reopen after Pressable fix with keyboard-accessible close and title association."
     },
     {
       "name": "AlertDialog",
@@ -1751,9 +1908,11 @@
         "AlertDialog.tsrx",
         "AlertDialog.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "AlertDialog.tsrx composes Dialog and action Buttons; Dialog mounts but lacks desktop focus/keyboard semantics, and Button inherits reproduced Pressable collision."
+      ],
+      "reason": "Required confirm/cancel and alert-modal semantics are incomplete; reopen after both dependencies and verify purpose-specific dismissal."
     },
     {
       "name": "HoverCard",
@@ -1816,9 +1975,11 @@
         "Toast.tsrx",
         "Toast.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Toast.tsrx attaches pan for swipe dismissal; pinned Windows gesture observer has no pan branch. application.windows.ts accessibility updater is empty."
+      ],
+      "reason": "Needs Windows drag dismissal and live announcement semantics; auto-hide alone does not satisfy the toast contract."
     },
     {
       "name": "ToastViewport",
@@ -1829,9 +1990,11 @@
         "toast-viewport.tsrx",
         "toast-viewport.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "toast-viewport.tsrx registers native toast-service which renders Toast with its swipe/live-region contract."
+      ],
+      "reason": "Inherits Toast gesture/announcement blockers; reopen with service placement, capacity, disposal, and queue runtime checks."
     },
     {
       "name": "Screen",
@@ -1842,9 +2005,11 @@
         "Screen.tsrx",
         "Screen.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "implemented",
+      "evidence": [
+        "Live Screen/KeyboardAvoiding/Overlay and Dialog cases mount RootLayout and render normal content; opened hosts are removed on controlled close/unmount."
+      ],
+      "reason": "Reuses native default root composition after neutral helper extraction; dependent modal/input contracts retain separate dispositions."
     },
     {
       "name": "Tabs",
@@ -1910,9 +2075,11 @@
         "Drawer.tsrx",
         "Drawer.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Live300\u00d7200 drawer: OS mouse click in backdrop outside280-DIP panel removes Drawer panel and leaves main content; onDismiss callback recorded."
+      ],
+      "reason": "Reuses native grid overlay/backdrop path. This primitive supplies panel/main slots; application focus/modal semantics remain separate."
     },
     {
       "name": "Spinner",
@@ -1922,9 +2089,11 @@
         "ActivityIndicator.tsrx",
         "ActivityIndicator.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
-      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
+      "status": "implemented",
+      "evidence": [
+        "Sixteen native samples at317ms intervals show rotate Angle changing, including23.46\u2192175.19\u2192312.01\u219296.28 in24\u00d724 box."
+      ],
+      "reason": "Reuses native infinite rotation implementation; native animation property verified across multiple cycles."
     },
     {
       "name": "Meter",
@@ -1935,9 +2104,12 @@
         "Meter.tsrx",
         "Meter.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
-      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
+      "status": "parked",
+      "evidence": [
+        "Native sweep renders ring/track/label geometry; ProgressBar25/100 has50-DIP fill in200-DIP track.",
+        "Sources assign progress/image accessibility role/value/label; pinned application.windows.ts updateAccessibilityProperties is empty."
+      ],
+      "reason": "Visual geometry mounts, but progress values or status names lack Windows semantic accessibility mapping. Reopen with native UIA value/name verification and dynamic announcements; animation variants need separate checks."
     },
     {
       "name": "Slider",
@@ -1973,9 +2145,11 @@
         "Heading.tsrx",
         "Heading.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "implemented",
+      "evidence": [
+        "Layout case mounts heading label at native fontSize32 with larger text height."
+      ],
+      "reason": "Reuses native default heading typography; semantic heading navigation remains part of broader platform accessibility gaps."
     },
     {
       "name": "BottomSheet",
@@ -2099,9 +2273,12 @@
         "MetadataList.tsrx",
         "MetadataList.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
-      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
+      "status": "parked",
+      "evidence": [
+        "Native presentation rows align at x0/x50 and y0/y27. MetadataList.tsrx uses toChildArray for maxNumOfItems and Pressable for show-more.",
+        "AvatarGroup/List reproduce deferred child groups counted as one; Pressable has reproduced input collision."
+      ],
+      "reason": "Basic label/value grid works; truncation and show-more inherit child normalization and pointer blockers. Verify count limits and expansion after both fixes."
     },
     {
       "name": "MetadataListItem",
@@ -2112,9 +2289,12 @@
         "MetadataListItem.tsrx",
         "MetadataListItem.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
-      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
+      "status": "parked",
+      "evidence": [
+        "Explicit Label value children render in aligned native grid. childContent in MetadataListItem.tsrx tests typeof primitive before falling back to Flexbox.",
+        "Kbd/InputGroupText reproduce loss of deferred primitive children through the same native container path."
+      ],
+      "reason": "Plain value children require renderer-aware normalization; reopen with primitive/element values in start/top layouts."
     },
     {
       "name": "Thumbnail",
@@ -2141,9 +2321,12 @@
         "ProgressBar.tsrx",
         "ProgressBar.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
-      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
+      "status": "parked",
+      "evidence": [
+        "Native sweep renders ring/track/label geometry; ProgressBar25/100 has50-DIP fill in200-DIP track.",
+        "Sources assign progress/image accessibility role/value/label; pinned application.windows.ts updateAccessibilityProperties is empty."
+      ],
+      "reason": "Visual geometry mounts, but progress values or status names lack Windows semantic accessibility mapping. Reopen with native UIA value/name verification and dynamic announcements; animation variants need separate checks."
     },
     {
       "name": "StatusDot",
@@ -2154,9 +2337,12 @@
         "StatusDot.tsrx",
         "StatusDot.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#presentation-sweep-and-locale-crash",
-      "reason": "Presentation sweep executed through StatusDot. Padding, animation, accessibility and later-case isolation remain under investigation; no complete contract pass claimed."
+      "status": "parked",
+      "evidence": [
+        "Native sweep renders ring/track/label geometry; ProgressBar25/100 has50-DIP fill in200-DIP track.",
+        "Sources assign progress/image accessibility role/value/label; pinned application.windows.ts updateAccessibilityProperties is empty."
+      ],
+      "reason": "Visual geometry mounts, but progress values or status names lack Windows semantic accessibility mapping. Reopen with native UIA value/name verification and dynamic announcements; animation variants need separate checks."
     },
     {
       "name": "Timestamp",
@@ -2206,9 +2392,11 @@
         "Outline.tsrx",
         "Outline.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Outline.tsrx scroll spy and activate call core getLocationRelativeTo; pinned Windows inherits no-op ViewCommon method. Native coordinate probe supplies a separate adapter used only by Popover."
+      ],
+      "reason": "Use the proven relative-position adapter and verify heading navigation and scroll spy, including nested scroll offsets."
     },
     {
       "name": "ResizeHandle",
@@ -2336,5 +2524,9 @@
       "evidence": "packages/ui/src/android/index.ts",
       "reason": "This subpath promises android-authentic OS chrome. Windows equivalents belong in a Windows subpath; the shared root contract is assessed separately."
     }
-  ]
+  ],
+  "dispositionMeaning": {
+    "implemented": "A Windows-specific seam or reused native default passes the recorded bounded native cases. This is not full API, accessibility, pixel, or production certification. Unverified limits remain explicit.",
+    "parked": "A concrete missing or failing required path is recorded, with source/runtime evidence and reopening criteria. Source-dependent entries are not individual runtime passes."
+  }
 }

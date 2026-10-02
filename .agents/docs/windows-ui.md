@@ -3,8 +3,10 @@
 Baseline: `7c47480b` (rebased onto main on 2026-10-02).
 Component register: [windows-ui-inventory.json](windows-ui-inventory.json).
 
-The register covers 169 root-exported UI components. Each component starts
-queued and must end implemented or parked, with evidence and a specific reason.
+The register covers 169 root-exported UI components. All 169 components have a disposition: 28 implemented/reused in bounded native
+cases and 141 parked with evidence, a specific blocker, and reopening criteria.
+Implemented is not full API, accessibility, pixel, or production certification;
+source-dependent parked entries are not individual runtime passes.
 Native default implementations may be reused when their Windows behavior is
 verified. Platform-authentic iOS/Android subpaths require a separate assessment.
 Source inspection and compilation do not establish runtime or OS-input parity.
@@ -26,7 +28,7 @@ Source inspection and compilation do not establish runtime or OS-input parity.
 
 Normal installation and the minimal native-label bundle/WinUI build passed.
 The registered package boots in the signed-in Windows desktop session. Native
-component sweeps and real OS input checks are in progress. The chronological
+component sweeps and real OS input checks have completed the component register. The chronological
 setup entries below preserve earlier failures; they are not the current status.
 No component is marked implemented based on setup alone.
 
@@ -435,3 +437,69 @@ existed for indeterminate dash or selected radio indicator dimensions. Commit
 and 20×20 sm boxes, 12×2/10×2 dashes, and 12×12/10×10 radio dots. Checked and
 unchecked marks also mount/remove as expected. These indicators are decorative;
 their success does not resolve the owning controls’ accessibility blockers.
+
+### Composition and modal sweep
+
+The public-root composition batch renders Field label/description/control,
+FieldGroup content, horizontal FormLayout cells, Toolbar's three slots, Table
+headers/rows, Timeline events, TopNav slots, SideNav heading/section, NavHeadingMenu
+content, DialogHeader title/subtitle, chat message/body/metadata/system text,
+and a token chip. Runtime mounting is recorded independently of styling or
+interaction certification.
+
+Numbered List with two children emits only one `3.` marker and puts both items
+in one row. OverflowList with maxVisibleItems=1 leaves all three labels visible.
+InputGroupText's plain `$` child is absent. ChatTokenizedText's plain child and
+baked Markdown heading/paragraph text are absent. These correlate with deferred
+renderer children and native text ownership; they are not classified as ordinary
+Windows font or Unicode failures. The initial mega-menu probe supplied an invalid
+children slot instead of required label/items; its absent content is discarded as
+probe evidence. Source confirms its actual trigger uses the blocked Pressable.
+
+A separate Screen batch mounts Dialog content, then removes its host when the
+case unmounts. Drawer and MobileNav mount their explicit content. Toast logs its
+auto-hide callback. WinUI WebView reports successful inline-document load. These
+checks do not establish modal focus containment/restoration, Escape dismissal,
+full-window drawer hit-testing, toast swipe/live announcements, or WebView content
+measurement/scroll control. Their missing contracts remain in the register.
+
+### Final geometry, input, and dismissal checks
+
+Absolute places a child at native local x=20,y=10 inside a 200×60 host.
+VisuallyHidden remains 1×1 with native opacity=0, and UIA still exposes its child
+text. Spinner native rotation samples change across multiple cycles (317ms
+sampling), confirming real native animation rather than a model-property guess.
+Table labels remain at local0,0 despite padding8px12px; independently sized rows
+also start the second column at152 versus151. Timeline's connector measures1×0,
+and body text has no requested10-DIP inset or16-DIP bottom padding.
+
+The combined extra-input case mounted all rows but exited during real typing
+with nativescript.DLL access violation0xc0000005. No individual control is blamed
+for that combined crash. An isolated PIN case with700ms pauses logs1,2,2,2,
+does not advance through cells, and never completes1234; its first Edit reports
+342. PIN auto-advance/control ordering is parked on that reproduction.
+
+Real OS backdrop input dismisses a bounded300×200 Drawer outside its280-DIP
+panel. Popover's first outside click leaves its panel mounted, despite correct
+native coordinates and controlled cleanup. The combined transition sweep's
+third click still targeted an old Popover during a case transition; that result
+is discarded as Overlay evidence. A separate stable shaded Overlay case then
+confirms real outside input removes its panel and reports dismissal.
+
+### Coverage and follow-up order
+
+The register is complete for the baseline root component set. Reused defaults
+avoid gratuitous `.windows.tsrx` copies; actual divergence lives in Windows SVG
+and coordinate seams. The strongest reusable next investigations are Windows
+pointer-handler multiplexing, Flexbox padding, renderer child/text ownership,
+and desktop keyboard/UIA mappings. Pan/swipe and the locale constructor crash
+remain separate upstream blockers. Fixing one seam does not automatically turn
+its dependent parked controls into runtime passes.
+
+Public setup/status pages now state that the host boots and UI support remains
+experimental. Chat and shared-overlay recipe criteria are unchanged; their
+Windows limits are linked explicitly, and maintained demos remain examples for
+their existing supported targets. No Windows recipe verification is mislabeled
+as iOS/Android/macOS: the Silo recipe target enum excludes Windows. Local recipe
+structure/link checks pass; broad demo parity, pixel inspection, real media
+sources, and production deployment were not established by this lab.
