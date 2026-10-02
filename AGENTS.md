@@ -57,6 +57,8 @@ working agreements and detail moved out of this entry point.
   small visible result, and use a friendly, concrete voice. Follow the
   [documentation guidance](.agents/docs/documentation.md). Use progressive
   disclosure: teach what the current step needs and link to optional detail.
+  Earn readers' interest and preserve their excitement: show what they can
+  build, then explain costs and limits when they affect the next step.
 - Public workflow changes must reconcile recipes, docs, and maintained examples;
   record coverage separately from verification in Silo and run
   `pnpm check:recipes`. Never weaken criteria to conceal a limitation. Report

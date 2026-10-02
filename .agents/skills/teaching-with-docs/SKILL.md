@@ -17,6 +17,10 @@ and keep corporate language and advanced internals out of the beginner path.
 Use [progressive disclosure](../../docs/documentation.md#progressive-disclosure):
 give readers what they need for the current step and link to optional detail
 when they have a reason to use it.
+Follow [earn interest and keep momentum](../../docs/documentation.md#earn-interest-and-keep-momentum)
+across new docs and reviews: help people picture what they want to build and
+feel capable of starting. Introduce costs and limitations when they affect
+the next decision, and serve each page's job for human readers and agents.
 
 ## Establish the Reader's Job
 
@@ -128,6 +132,9 @@ that they can find their task, understand each prerequisite, follow the
 example, recognize the result, and choose their next action without guessing.
 Look for unexplained terms, hidden steps, unsupported claims, and duplicated
 explanations that may drift.
+For Xplat, also check whether the page preserves interest and makes the next
+step feel achievable, with costs and limitations placed where they become
+useful to the reader.
 
 Validate relevant commands, examples, links, anchors, and formatting using
 existing project checks. For published-site changes, build the docs when a

@@ -3,6 +3,39 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
+## Earn interest and keep momentum
+
+Give people room to fall in love with the framework. Help them picture
+something they want to build, see how Xplat makes it possible, and feel
+confident taking the first step. Earning interest and sustaining excitement
+are part of the docs' job and support the framework's growth. Apply this
+mindset when writing new documentation and reviewing existing pages.
+
+- Hook readers with an appealing possibility and a concrete, achievable
+  result. Let them see the value before asking them to absorb optional
+  complexity, setup costs, or an inventory of caveats.
+- Be honest about costs and limitations when they affect the reader's next
+  decision or action. Explain what they need for that next step and how to
+  proceed. For example, introduce phone development tools when readers are
+  ready to try their working browser app on a phone, and signing requirements
+  when they are preparing to release it.
+- Keep excitement grounded in real capabilities and useful examples. A
+  reader's first success, growing understanding, and trust should reinforce
+  their interest in the framework.
+- Serve the page's job. Introductions inspire and orient; tutorials deliver
+  a first success; task guides help readers build features; concept guides
+  help them adapt; reference gives exact answers; troubleshooting helps them
+  recover; maintenance and release guides help them keep and ship working
+  apps; contributor notes explain how to extend the framework.
+- Support humans and agents together. Humans need motivation, understanding,
+  and confidence. Agents need precise APIs, constraints, supported patterns,
+  and checks. Keep current instructions, known limitations, and historical
+  experiments distinguishable so both can act with confidence.
+
+When reviewing a page, ask whether it helps readers want to continue and
+makes their next step feel achievable. Place detail according to the job
+they came to complete, using progressive disclosure to preserve momentum.
+
 ## Audience and voice
 
 Write the app-building docs for junior engineers and people building with a
