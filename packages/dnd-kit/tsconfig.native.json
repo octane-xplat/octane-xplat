@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"jsxImportSource": "octane",
+		"customConditions": ["native"],
+		"moduleSuffixes": [".ios", ".android", ".mobile", ""]
+	},
+	"include": ["src/index.ts"]
+}

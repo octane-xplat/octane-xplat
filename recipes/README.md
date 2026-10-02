@@ -67,6 +67,7 @@ Workflows:
 - [Add rich text editing](rich-text-editing.md)
 - [Render SVG images on AppKit](appkit-svg-images.md)
 - [Render bundled icons across web, mobile, and AppKit](bundled-icons.md)
+- [Reorder and move draggable items](drag-and-drop.md)
 
 ## Authoring contract
 

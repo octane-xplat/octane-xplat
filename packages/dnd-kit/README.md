@@ -1,0 +1,173 @@
+# @octane-xplat/dnd-kit
+
+Use draggable and droppable Xplat Views on web, iOS, and Android. The leaf shares
+`@dnd-kit/abstract`'s manager, sensor interface, and drag state machine plus
+`@dnd-kit/collision` algorithms and `@dnd-kit/state` reactivity. It implements
+input and geometry through Xplat primitives; it does not load `@dnd-kit/dom`
+on native or use a collection widget's reorder mechanism. This is an Xplat
+facade, not a drop-in replacement for the upstream hook signatures.
+
+## Install and reorder
+
+In an Octane Xplat app with `@octane-xplat/ui` and its renderer configured:
+
+```sh
+pnpm add @octane-xplat/dnd-kit
+```
+
+Import from the root package; web/native export conditions select the platform
+implementation. The app keeps one Octane runtime. Native apps also need the
+existing `@nativescript-community/octane` and `@nativescript/core` setup.
+No leaf CSS build is required; drag feedback uses style objects.
+
+```tsx
+import { useState } from 'octane'
+import { Text } from '@octane-xplat/ui'
+import { SortableList } from '@octane-xplat/dnd-kit'
+
+export function Tasks() {
+	const [items, setItems] = useState(['alpha', 'beta', 'gamma'])
+	return (
+		<SortableList
+			items={items}
+			onReorder={setItems}
+			renderItem={(id) => <Text>{String(id)}</Text>}
+		/>
+	)
+}
+```
+
+Use `.tsx`/`.tsrx` files inside the app's renderer include globs. IDs must be
+stable and unique within a context. `SortableList` creates its own DndContext
+and commits a new array only on a successful drop over a different list item.
+The caller saves that array. Cancellation, release outside a target, and drops
+onto a disabled target leave the order unchanged. The maintained
+[example](examples/sortable.tsx) displays the committed order above the rows.
+
+## Compose drag and drop
+
+Use `DndContext` around cooperating children. A draggable spreads `bind`,
+`onPan`, and `style` onto **one View**; a droppable supplies its `bind`. `bind`
+is the Xplat View binding callback, not a DOM ref prop. `useMeasure` observes
+layout; live geometry is read again during drag and auto-scroll.
+
+```tsx
+import { View, Text } from '@octane-xplat/ui'
+import { DndContext, useDraggable, useDroppable } from '@octane-xplat/dnd-kit'
+
+function Card() {
+	const drag = useDraggable({ id: 'card', data: { container: 'inbox' } })
+	return (
+		<View bind={drag.bind} onPan={drag.onPan} style={drag.style}>
+			<Text>Move me</Text>
+		</View>
+	)
+}
+function Target() {
+	const drop = useDroppable({ id: 'done' })
+	return (
+		<View bind={drop.bind} style={{ height: 100 }}>
+			<Text>{drop.isOver ? 'Release here' : 'Done'}</Text>
+		</View>
+	)
+}
+export function Board() {
+	return (
+		<DndContext
+			onDragEnd={({ active, over }) => {
+				if (active && over) console.log(active.id, over.id)
+			}}
+		>
+			<Card />
+			<Target />
+		</DndContext>
+	)
+}
+```
+
+`useDndContext()` subscribes each reader and returns `active`, `over`,
+`transform`, and `isDragging`. Event callbacks are `onDragStart`, `onDragMove`,
+`onDragOver`, `onDragEnd`, and `onDragCancel`; events add `canceled`.
+`onDragEnd` fires only for a completed gesture; check `over` before accepting it.
+Set `disabled` on either hook to exclude it. Droppable `accept(source)` can
+filter by source data. Unmounting or disabling an active draggable cancels it;
+unmounting a target removes it from collision detection. Context disposal
+cleans registrations, subscriptions, queued input, and auto-scroll timers.
+
+The default detector prefers pointer intersection then shape overlap. Supply
+`collisionDetection={closestCenter}` to choose another exported algorithm.
+The pan facade uses the dragged View's center as its detection position; it
+does not preserve the finger's grab offset. A draggable's own ID is excluded
+from drop targets. `SortableContext` declares
+item membership for `useSortable`, which combines both hooks; use `arrayMove`
+in `onDragEnd` to save an order. Items do not shift to preview their destination
+before release; the dragged View translates over the stationary rows.
+
+Cross-container drops work within one DndContext: `active.data` and `over.data`
+can identify containers. The caller moves data between its arrays at drop time.
+Separate `SortableList` instances each own a context; use the hooks and
+`SortableContext` for a board with cooperating lists. Automatic transfer,
+placeholder layout, and empty-container insertion are not built in.
+
+## Auto-scroll
+
+Pass `autoScroll` to DndContext, or `dnd={{ autoScroll }}` to SortableList.
+The adapter makes the existing scroll owner explicit:
+
+```ts
+const autoScroll = {
+	bounds: () => viewportBounds,
+	offsetRef,
+	maxOffset: () => Math.max(0, contentHeight - viewportHeight),
+	scrollTo: (offset: number) => {
+		offsetRef.current = offset
+		scrollHandle.scrollTo(offset)
+	},
+	axis: 'y' as const,
+	threshold: 40,
+	speed: 12,
+}
+```
+
+`viewportBounds` is the current measured `{ x, y, width, height }` or null;
+`offsetRef` is the scroll owner's `{ current: number }`. `scrollHandle.scrollTo`
+stands for the owner's existing scroll method. Read current offsets into the
+ref on ordinary scroll events, following VirtualList's scrollOffsetRef pattern.
+On native, use a View's `getLocationOnScreen` and `getActualSize` or `useMeasure`
+for viewport bounds; on web use the corresponding measured viewport bounds.
+Keep bounds and offsets in the same coordinate units: native DIPs, web CSS pixels.
+
+The adapter must clamp and update the ref synchronously to the applied offset.
+The drag loop scrolls every 16ms while the drag center remains inside the viewport
+and near an edge. `threshold` is the edge distance; `speed` is the maximum units
+per tick. It remeasures drop targets and compensates the dragged View's visual
+translation for scrolling. Scrolling stops on drop, cancel, and disposal.
+Only one explicit scroll viewport is supported; do not attach another gesture
+handler to the same drag View.
+
+## Limits and verification
+
+V1 uses pan input immediately on native gesture begin or web pointer-down.
+There is no activation distance, separate handle, keyboard sensor, screen-reader
+announcement layer, drag overlay, nested-scroll arbitration, or virtualized
+offscreen target discovery. Native pans may compete with ScrollView gestures;
+OS gesture arbitration and hit-testing require device verification. Only mounted,
+measurable targets participate. Use a separate DndContext in each native renderer
+root (pages and sheets do not share context).
+
+Run `pnpm --filter @octane-xplat/dnd-kit typecheck`, `test`, `build`, and
+`pack:check`. Core tests use native-shaped geometry and the real abstract core;
+they do not establish OS input delivery. The repository probe doctor reports
+available runtime targets. Do not infer Android runtime support from a native
+library build.
+
+Before the first automated release, the package still needs the one-time npm
+stub and trusted publisher setup described in [releases](../../.agents/docs/releases.md).
+This change does not publish or configure npm.
+
+Verification for this change: web and native source typechecks, both library
+builds, eight core tests, and packed consumers in Bundler/NodeNext passed.
+Chromium pointer-event dispatch and iOS pan-observer dispatch probes passed
+for SortableList reorder and cancellation; hook subscription probes passed on
+both targets. These are renderer runtime checks, not OS input or hit-testing
+evidence. Android runtime was not run (no connected device).

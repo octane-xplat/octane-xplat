@@ -1,0 +1,16 @@
+{
+	"targets": {
+		"web": {
+			"renderer": "octane",
+			"project": "tsconfig.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": ["./dist/web/index.js", "./dist/native/index.js"],
+					"types": "./types/generated/index.d.ts"
+				}
+			}
+		}
+	}
+}

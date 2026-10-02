@@ -1,0 +1,100 @@
+{
+	"name": "@octane-xplat/dnd-kit",
+	"version": "0.8.0",
+	"description": "Drag and drop and sortable lists for Octane web and NativeScript",
+	"homepage": "https://github.com/octane-xplat/octane-xplat/tree/main/packages/dnd-kit",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/dnd-kit"
+	},
+	"files": [
+		"dist",
+		"types",
+		"src",
+		"README.md",
+		"examples"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"web": {
+				"default": "./src/index.web.ts",
+				"types": "./types/generated/index.d.ts"
+			},
+			"native": {
+				"default": "./src/index.ts",
+				"types": "./types/generated/index.d.ts"
+			},
+			"default": "./src/index.ts",
+			"types": "./types/generated/index.d.ts"
+		}
+	},
+	"publishConfig": {
+		"exports": {
+			".": {
+				"web": {
+					"types": "./types/generated/index.d.ts",
+					"default": "./dist/web/index.js"
+				},
+				"native": {
+					"types": "./types/generated/index.d.ts",
+					"default": "./dist/native/index.js"
+				},
+				"types": "./types/generated/index.d.ts",
+				"default": "./dist/native/index.js"
+			}
+		},
+		"access": "public"
+	},
+	"scripts": {
+		"build": "vite build && vite build --mode native && pnpm typegen && node ../../scripts/check-native-dist.mjs",
+		"typegen": "tsrx-typegen --project tsconfig.json",
+		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p tsconfig.native.json && tsrx-tsc --noEmit -p tsconfig.example.json",
+		"test": "vitest run",
+		"prepack": "pnpm build && tsrx-typegen --pack-check",
+		"pack:check": "tsrx-typegen --pack-check",
+		"test:packed": "pnpm build && node tests/packed-consumer.mjs"
+	},
+	"dependencies": {
+		"@dnd-kit/abstract": "0.5.0",
+		"@dnd-kit/collision": "0.5.0",
+		"@dnd-kit/geometry": "0.5.0",
+		"@dnd-kit/state": "0.5.0",
+		"@octane-xplat/ui": "workspace:*"
+	},
+	"devDependencies": {
+		"@nativescript-community/octane": "0.2.4",
+		"@nativescript/core": "9.1.2",
+		"@octanejs/vite-plugin": "0.1.61",
+		"@tsrx/typescript-plugin": "0.4.11",
+		"octane": "0.6.3",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "5.9.3",
+		"vite": "8.3.0",
+		"vitest": "5.0.1"
+	},
+	"peerDependencies": {
+		"@nativescript-community/octane": ">=0.2.1 <1",
+		"@nativescript/core": ">=9.1.0 <10",
+		"octane": ">=0.6.3 <1"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript-community/octane": {
+			"optional": true
+		},
+		"@nativescript/core": {
+			"optional": true
+		},
+		"octane": {
+			"optional": true
+		}
+	},
+	"nativescript": {
+		"platforms": {
+			"android": "9.1.0",
+			"ios": "9.1.0"
+		}
+	}
+}

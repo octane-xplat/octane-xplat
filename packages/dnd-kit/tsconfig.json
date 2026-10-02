@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"jsx": "react-jsx",
+		"jsxImportSource": "octane",
+		"customConditions": ["web"],
+		"moduleSuffixes": [".web", ""],
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"rootDir": "src",
+		"outDir": "types/generated",
+		"paths": {
+			"@octane-xplat/ui": ["../ui/types/generated/index.d.ts"]
+		}
+	},
+	"include": ["src/index.ts"],
+	"exclude": ["**/*.test.*"]
+}
