@@ -269,7 +269,8 @@ its Chat runtime has not been exercised separately.
 | Component   | What it is                                | Key props                                  |
 | ----------- | ----------------------------------------- | ------------------------------------------ |
 | `Overlay`   | Content above the screen                  |                                            |
-| `Popover`   | Anchored floating content                 | `anchor`, `open`, `placement`, `alignment`, `onDismiss` |
+| `Popover`   | Anchored floating content                 | `anchor`, `open`, `placement`, `alignment`, `offset`, `onDismiss` |
+| `useLayer`  | Anchored/fixed overlay primitive (hook)   | `mode`, `ref`, `show`, `hide`, `isOpen`, `render` |
 | `Tooltip`   | Pointer hover hint                        | `trigger`, `content`, `openDelay`          |
 | `HoverCard` | Hover or touch-triggered card around its children | `content`, `placement`, `delay`, `touchTrigger` |
 | `Dialog` | Modal surface with optional header | `isOpen`, `onOpenChange`, `purpose`, `position` |

@@ -440,6 +440,60 @@ each consuming component. The framework keeps the separate host's theme
 current; content updates do not create additional permanent subscriptions.
 Web portals retain the declaring root's context.
 
+## Anchor a layer to an element
+
+`useLayer` is the public anchored-overlay primitive — the same shape Meta
+Astryx's `useLayer` exposes. Reach for it when `Popover`'s declarative props
+are not enough: you get the anchor ref, open state, and a `render` function to
+place inside your component tree.
+
+```tsx
+import { Pressable, Text, View, useLayer } from '@octane-xplat/ui'
+
+export function Example() {
+	const layer = useLayer({ mode: 'context', lightDismiss: true })
+	return (
+		<>
+			<View bind={layer.ref}>
+				<Pressable onPress={() => layer.show()}>
+					<Text>Help</Text>
+				</Pressable>
+			</View>
+			{layer.render(
+				<View>
+					<Text>Anchored content</Text>
+				</View>,
+				{ placement: 'below', alignment: 'start', offset: 4 },
+			)}
+		</>
+	)
+}
+```
+
+`mode: 'context'` binds `layer.ref` to the element the layer anchors to and
+positions `render`'s children beside it: `placement` accepts `above`, `below`,
+`start`, `end` (`start`/`end` mirror under RTL), plus physical
+`top`/`bottom`/`left`/`right`; `alignment` is `start`/`center`/`end` on the
+cross axis; `offset` is the gap. The layer flips to the opposite side when the
+preferred side does not fit and clamps into the viewport. Web portals to
+`document.body` and measures with `getBoundingClientRect`; native mounts on the
+owning `RootLayout` and measures the anchor's native bounds. On macOS the layer
+is a real `NSPopover` presented by the AppKit host bridge. Pass
+`positioning: 'custom'` (context mode only) to skip anchor measurement and
+mount the layer in the overlay shell unpositioned.
+
+`mode: 'fixed'` drops the anchor entirely: `render` positions at the `x`/`y`
+given in its props — viewport pixels on web, page dips on native, and the
+containing window's top-left point on macOS. `lightDismiss` closes on outside
+interaction; `onShow`/`onHide` track state, `isOpen` reads it, `show`/`hide`
+toggle it.
+
+On native, layer content is a separate root: it does not see the declaring
+component's context, and on macOS the content is snapshotted when the popup
+opens. Pass data through props or subscribe to shared state inside the layer
+tree. `Popover`, `Tooltip`, and `HoverCard` do not yet sit on `useLayer` —
+converging them is follow-up work.
+
 ## Edit a PIN
 
 `PinInput` uses a contiguous string: provide `value` and update it from

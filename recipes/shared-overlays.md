@@ -2,7 +2,7 @@
 
 ID: shared-overlays
 Targets: web, ios, android, macos
-Related APIs: Dialog, AlertDialog, BottomSheet, HoverCard, Lightbox, Carousel, ScrollableArea, Toast, ToastViewport, useToast, Overlay, Popover
+Related APIs: Dialog, AlertDialog, BottomSheet, HoverCard, Lightbox, Carousel, ScrollableArea, Toast, ToastViewport, useToast, Overlay, Popover, useLayer
 
 ## Starting point
 
@@ -18,7 +18,8 @@ pointer/touch content patterns, while `ScrollableArea` replaces the older
 ## Requirements
 
 - Choose Dialog, AlertDialog, BottomSheet, Overlay, or Popover for modal,
-  bottom, floating, or anchored content.
+  bottom, floating, or anchored content; use `useLayer` when the anchored
+  layer's mount, anchor, or dismiss behavior needs direct control.
 - Control visibility and distinguish user dismissal from programmatic removal.
 - Own temporary content and its bindings through the declaring component.
 - Pass data across native root boundaries and retain the app's theme.
@@ -37,8 +38,8 @@ pointer/touch content patterns, while `ScrollableArea` replaces the older
 
 ## Documentation
 
-- AC1: [Surface selection](../docs/primitives.md#when-a-screen-needs-more), [conditional BottomSheet example](../docs/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
+- AC1: [Surface selection](../docs/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../docs/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../docs/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
 - AC2: [Visibility and dismissal](../docs/primitives.md#own-temporary-surfaces) and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
 - AC3: [Ownership and cleanup](../docs/primitives.md#own-temporary-surfaces); renderer lifecycle examples in `packages/ui/src/overlay-lifecycle.mobile.test.ts` cover pending opens, closes, failures, and theme subscriptions.
 - AC4: [Root boundaries](../docs/primitives.md#own-temporary-surfaces).
-- AC5: [Shared component catalog](../docs/components.md#overlays) and maintained examples in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), [ModalDemo](../packages/demos/src/ModalDemo.tsrx), and [ScrollBoxDemo](../packages/demos/src/ScrollBoxDemo.tsrx).
+- AC5: [Shared component catalog](../docs/components.md#overlays), [useLayer anchored layers](../docs/primitives.md#anchor-a-layer-to-an-element), and maintained examples in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), [ModalDemo](../packages/demos/src/ModalDemo.tsrx), and [ScrollBoxDemo](../packages/demos/src/ScrollBoxDemo.tsrx).
