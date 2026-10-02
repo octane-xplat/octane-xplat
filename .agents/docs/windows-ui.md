@@ -25,8 +25,9 @@ Source inspection and compilation do not establish runtime or OS-input parity.
 ## Current verification
 
 Normal installation and the minimal native-label bundle/WinUI build passed.
-The app has not booted yet: the guest has no signed-in desktop session after
-automatic updates. Interactive launch and the component sweep remain pending.
+The registered package boots in the signed-in Windows desktop session. Native
+component sweeps and real OS input checks are in progress. The chronological
+setup entries below preserve earlier failures; they are not the current status.
 No component is marked implemented based on setup alone.
 
 ## Documentation coverage
@@ -368,3 +369,69 @@ close. The existing native popover lifecycle test passes, and UI declaration
 no-emit typechecking passes. Outside-click dismissal, resize/scroll tracking,
 focus and keyboard semantics still need their own runtime cases. This does not
 supply screen coordinates for useMeasure or unpark Slider/AspectRatio.
+
+### Display components and child normalization
+
+Avatar's fallback box is 40×40, with initials centered at x=9,y=11. User renders
+initials, name, and description in a 300×35 row. EmptyState renders SVG icon,
+title, and description; Banner's explicit Label slot renders. Meter mounts a
+24×24 ring, ProgressGroup mounts a ring plus its Download label, and the
+selection indicators mount their checked/unchecked/indeterminate forms. Native
+SVG source completion, accessible names, and loop behavior are assessed
+separately from these mounting cases.
+
+AvatarGroup with `max=2` and three Avatar children still renders AA/BB/CC, with
+no +1 overflow. Its `toChildArray` normalization treats the deferred JSX children
+group as one node. Kbd's bare `Ctrl` child produces a zero-height empty container;
+an explicit Label produces Ctrl. These are specific native child-normalization
+failures, not evidence that every component slot fails.
+
+NavIcon mounts at 32×32 and Icon at 24×24. After the native font-family correction,
+Code reports native FontSize=13 and FontFamily.Source=Consolas, with height=20.
+Code, CodeBlock, and Markdown's native code runs now request the supported
+`monospace` family rather than the unmapped CSS `ui-monospace` family. The latter
+was passed through as an unrecognized Windows system font name. macOS-specific
+renderer variants retain their own font handling.
+
+### Windows pointer and sheet gaps
+
+Tooltip's native-default implementation reads `__xplatAppKit.observeHover` and
+`showAnchoredPopup`; Windows has neither, so only its trigger renders. HoverCard
+uses the same AppKit-only bridge in use-hover-card. They need real Windows
+pointer/focus intent and anchored content, rather than treating their inert
+fallback as implementation success.
+
+ResizeHandle's primary resize path uses Pressable onPan. BottomSheet and
+BottomSheetSwitcher share attachSheetDetents, which observes pan for snapping
+and swipe dismissal. Pinned Windows GesturesObserver dispatches touch moves but
+has no pan branch. These gesture contracts are parked against source evidence,
+with per-component reopening criteria in the inventory. This does not mean
+RootLayout mounting or every core animation is unavailable.
+
+### Corrected Switch hit test and expanded UIA checks
+
+The earlier Switch click targeted the left edge of the full-width status label,
+not the centered 48×28 switch. Clicking x=326,y=309 inside the actual switch
+changes false → true. This corrects the input diagnosis; Switch remains parked
+for semantic accessibility and keyboard support. The expanded UIA sweep checks
+SelectionPattern, SelectionItemPattern, TogglePattern, RangeValuePattern, and
+keyboard focusability: the custom checkbox/radio/segment labels have none of
+these control patterns and are not keyboard-focusable. TextInput/TextArea remain
+focusable Edit controls with ValuePattern. These checks use the current production
+components, including the ordinary initial text value.
+
+### Scrolling and indicator geometry
+
+Real OS wheel events move ScrollableArea and VirtualList from offset 0 to 360
+inside 300×160 viewports, each reporting 3040 DIP of scrollable extent. The
+100-item VirtualList replaces its initial rows with rows 6–21 (16 mounted),
+while ScrollableArea retains all 100 rows. This is fixed-height vertical scroll
+and virtualization evidence; variable rows, insertion anchors, refresh, and
+other axes still need separate disposition.
+
+The indicator follow-up exposes a real geometry omission: no shared CSS rules
+existed for indeterminate dash or selected radio indicator dimensions. Commit
+`f0711d6f` adds the sm/md box and mark sizes. Native layout confirms 24×24 md
+and 20×20 sm boxes, 12×2/10×2 dashes, and 12×12/10×10 radio dots. Checked and
+unchecked marks also mount/remove as expected. These indicators are decorative;
+their success does not resolve the owning controls’ accessibility blockers.

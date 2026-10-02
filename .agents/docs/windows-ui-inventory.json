@@ -335,9 +335,12 @@
         "PowerSearch.tsrx",
         "PowerSearch.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: PowerSearch.tsrx \u2192 Button.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "PowerSearchToken",
@@ -348,9 +351,12 @@
         "PowerSearch.tsrx",
         "PowerSearch.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: PowerSearch.tsrx \u2192 Button.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "PowerSearchFilterEditor",
@@ -361,9 +367,12 @@
         "PowerSearch.tsrx",
         "PowerSearch.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: PowerSearch.tsrx \u2192 Button.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "Collapsible",
@@ -490,9 +499,9 @@
         "Avatar.tsrx",
         "Avatar.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
     },
     {
       "name": "AvatarGroup",
@@ -503,9 +512,9 @@
         "AvatarGroup.tsrx",
         "AvatarGroup.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Windows case max=2 with three Avatar children renders all AA/BB/CC and no +1 overflow. toChildArray sees a deferred JSX children group as one node rather than three. Reopen after native child normalization enforces max and verifies overflow/overlap."
     },
     {
       "name": "Field",
@@ -581,9 +590,12 @@
         "Item.tsrx",
         "Item.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: Item.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "List",
@@ -620,9 +632,12 @@
         "InputNumber.tsrx",
         "InputNumber.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: InputNumber.tsrx \u2192 TextInput.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "PinInput",
@@ -685,9 +700,12 @@
         "Typeahead.tsrx",
         "Typeahead.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: Typeahead.tsrx \u2192 FormField.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "TypeaheadItem",
@@ -711,9 +729,12 @@
         "Token.tsrx",
         "Token.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: Token.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "Tokenizer",
@@ -724,9 +745,12 @@
         "Tokenizer.tsrx",
         "Tokenizer.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: Tokenizer.tsrx \u2192 FormField.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "ComplexSelector",
@@ -737,9 +761,12 @@
         "ComplexSelector.tsrx",
         "ComplexSelector.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: ComplexSelector.tsrx \u2192 FormField.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "InputRating",
@@ -763,9 +790,12 @@
         "CheckboxGroup.tsrx",
         "CheckboxGroup.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "CheckboxGroup.tsrx composes Checkbox for every option.",
+        "Real Windows Checkbox input toggles; UIA exposes only non-focusable Text without TogglePattern."
+      ],
+      "reason": "Inherits the reproduced checkbox semantic accessibility and keyboard gap; reopen after Windows checkbox semantics are implemented and verify group selection."
     },
     {
       "name": "Calendar",
@@ -867,9 +897,12 @@
         "TopNav.tsrx",
         "TopNav.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: TopNav.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "TopNavItem",
@@ -1036,9 +1069,9 @@
         "NavIcon.tsrx",
         "NavIcon.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Existing native decorative icon container mounts at 32\u00d732 DIP with the Windows SVG icon backend. Runtime verified; no interaction contract."
     },
     {
       "name": "NavHeadingMenu",
@@ -1270,9 +1303,12 @@
         "Chip.tsrx",
         "Chip.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: Chip.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "Kbd",
@@ -1283,9 +1319,9 @@
         "Kbd.tsrx",
         "Kbd.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Bare Ctrl string yields a zero-height native Flexbox with no text; explicit Label child yields visible Ctrl. Native primitive-child normalization must support the public key-label child contract before reopening."
     },
     {
       "name": "EmptyState",
@@ -1296,9 +1332,9 @@
         "Empty.tsrx",
         "Empty.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
     },
     {
       "name": "Banner",
@@ -1309,9 +1345,9 @@
         "Banner.tsrx",
         "Banner.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
     },
     {
       "name": "User",
@@ -1322,9 +1358,9 @@
         "User.tsrx",
         "User.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
     },
     {
       "name": "ProgressGroup",
@@ -1335,9 +1371,9 @@
         "ProgressGroup.tsrx",
         "ProgressGroup.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
     },
     {
       "name": "ChatLayout",
@@ -1347,9 +1383,12 @@
         "ChatLayout.tsrx",
         "ChatLayout.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: ChatLayout.tsrx \u2192 ChatLayoutScrollButton.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "ChatLayoutScrollButton",
@@ -1455,9 +1494,12 @@
         "ChatComposer.tsrx",
         "ChatComposer.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: ChatComposer.tsrx \u2192 ChatComposerInput.tsrx \u2192 useTriggerMenu.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "ChatComposerInput",
@@ -1467,9 +1509,12 @@
         "ChatComposerInput.tsrx",
         "ChatComposerInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: ChatComposerInput.tsrx \u2192 useTriggerMenu.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "ChatComposerTokenElement",
@@ -1719,9 +1764,9 @@
         "HoverCard.tsrx",
         "HoverCard.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#windows-pointer-and-sheet-gaps",
+      "reason": "Native-default use-hover-card requires the AppKit hover/anchored-popup bridge. On Windows the trigger remains but the card cannot open. Reopen with a Windows pointer/focus intent adapter and verify controlled open/close and content lifetime."
     },
     {
       "name": "Tooltip",
@@ -1732,9 +1777,9 @@
         "Tooltip.tsrx",
         "Tooltip.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#windows-pointer-and-sheet-gaps",
+      "reason": "The selected native-default leaf requires __xplatAppKit.observeHover/showAnchoredPopup. Windows has neither and renders only the trigger; tooltip content cannot open. Reopen with a Windows hover/focus and anchored-popup implementation."
     },
     {
       "name": "Carousel",
@@ -1822,9 +1867,12 @@
         "Switch.tsrx",
         "Switch.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "parked",
+      "evidence": [
+        "Windows input sweep: OS mouse down/up at actual centered control bounds changes false to true.",
+        "Windows UIA sweep: no TogglePattern, no keyboard-focusable switch control; pinned application.windows.ts has an empty accessibility update method."
+      ],
+      "reason": "Pointer input works, but semantic switch state and keyboard access need a Windows accessibility implementation before this control is supported."
     },
     {
       "name": "SafeArea",
@@ -1887,9 +1935,9 @@
         "Meter.tsrx",
         "Meter.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Windows native display case mounted; SVG, geometry, child normalization, and accessibility scope are being assessed."
     },
     {
       "name": "Slider",
@@ -1912,9 +1960,9 @@
         "Icon.tsrx",
         "Icon.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md",
-      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Windows SVG backend decodes inline glyph markup and mounts the requested 24 DIP native SVGView with source set and completion listeners released. File/data URI source cases also pass. Pixel parity and accessible naming remain unverified."
     },
     {
       "name": "Heading",
@@ -1938,9 +1986,9 @@
         "BottomSheet.tsrx",
         "BottomSheet.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#windows-pointer-and-sheet-gaps",
+      "reason": "The native sheet host uses attachSheetDetents, which observes pan for snap/swipe mechanics. Pinned Windows core never dispatches pan. Reopen after drag, snapping, dismissal and keyboard/focus behavior have Windows runtime evidence."
     },
     {
       "name": "BottomSheetSwitcher",
@@ -1951,9 +1999,9 @@
         "BottomSheet.tsrx",
         "BottomSheet.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#windows-pointer-and-sheet-gaps",
+      "reason": "Registered sheets share BottomSheet/attachSheetDetents. Windows core has no pan dispatch for sheet detents/swipe. Reopen together with the sheet backend, then verify switching and cleanup for each registered sheet."
     },
     {
       "name": "CheckboxIndicator",
@@ -1964,9 +2012,11 @@
         "CheckboxIndicator.tsrx",
         "CheckboxIndicator.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Windows native indicator sweep after f0711d6f: md boxes 24\u00d724; sm boxes 20\u00d720; dash 12\u00d72/10\u00d72; checked radio dot 12\u00d712/10\u00d710; checked glyph mounts."
+      ],
+      "reason": "Shared CSS now supplies missing decorative geometry; owning controls retain separate input/accessibility obligations."
     },
     {
       "name": "CheckIndicator",
@@ -1977,9 +2027,11 @@
         "CheckIndicator.tsrx",
         "CheckIndicator.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Native indicator case renders checked \u2713; unchecked returns no native mark; explicit-child slot mounts."
+      ],
+      "reason": "Reuses the native default as a decorative mark. Owning controls retain separate input/accessibility obligations."
     },
     {
       "name": "RadioIndicator",
@@ -1990,9 +2042,11 @@
         "RadioIndicator.tsrx",
         "RadioIndicator.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": [
+        "Windows native indicator sweep after f0711d6f: md boxes 24\u00d724; sm boxes 20\u00d720; dash 12\u00d72/10\u00d72; checked radio dot 12\u00d712/10\u00d710; checked glyph mounts."
+      ],
+      "reason": "Shared CSS now supplies missing decorative geometry; owning controls retain separate input/accessibility obligations."
     },
     {
       "name": "Blockquote",
@@ -2016,9 +2070,9 @@
         "Code.tsrx",
         "Code.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#display-components-and-child-normalization",
+      "reason": "Native stylesheet now uses 13 DIP instead of misparsed 0.9em; native default font uses the supported monospace family. Windows runtime confirms native FontSize=13, FontFamily.Source=Consolas, readable 20 DIP label height."
     },
     {
       "name": "CodeBlock",
@@ -2029,9 +2083,12 @@
         "CodeBlock.tsrx",
         "CodeBlock.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: CodeBlock.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "MetadataList",
@@ -2068,9 +2125,12 @@
         "Thumbnail.tsrx",
         "Thumbnail.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": [
+        "Source dependency: Thumbnail.tsrx \u2192 Pressable.tsrx",
+        "Foundation OS-input reproduction: Pressable tap/touch observers overwrite fallback pointer handlers; onPress remains zero while raw tap works."
+      ],
+      "reason": "Required selection, navigation, removal, copy, collapse, or composer action uses the blocked Pressable. Static rendering may work; reopen after the Windows gesture collision is fixed and verify this component\u2019s own actions, disabled state, keyboard access, and accessibility."
     },
     {
       "name": "ProgressBar",
@@ -2158,9 +2218,9 @@
         "ResizeHandle.tsrx",
         "ResizeHandle.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#windows-pointer-and-sheet-gaps",
+      "reason": "Primary resizing uses Pressable onPan. Pinned Windows GesturesObserver has no pan dispatch, and its tap/touch fallbacks collide. Reopen after native drag/cancel dispatch and accessible adjustable keyboard semantics are implemented."
     }
   ],
   "platformAuthentic": [
