@@ -3,7 +3,7 @@ import { useState } from 'octane';
 import type { InputRatingProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 import { useFieldControlProps } from './field-context';
 
 /** InputRating — row of tappable glyphs reporting a 1..max score. `icon`

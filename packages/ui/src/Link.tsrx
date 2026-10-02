@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { Utils } from '@nativescript/core';
 import type { LinkProps } from './props';
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 
 export function Link(props: LinkProps) @{
 	<Pressable className={props.className} onPress={() => { Utils.openUrl(props.href); }}>

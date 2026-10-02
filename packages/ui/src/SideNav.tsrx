@@ -11,13 +11,13 @@ import type {
 
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { Icon } from './Icon.tsrx';
-import { Text } from './Text.tsrx';
-import { Pressable } from './Pressable.tsrx';
-import { Popover } from './Popover.tsrx';
-import { MobileNav } from './MobileNav.tsrx';
-import { ResizeHandle } from './ResizeHandle.tsrx';
-import { useResizable } from './useResizable.tsrx';
+import { Icon } from './Icon';
+import { Text } from './Text';
+import { Pressable } from './Pressable';
+import { Popover } from './Popover';
+import { MobileNav } from './MobileNav';
+import { ResizeHandle } from './ResizeHandle';
+import { useResizable } from './useResizable';
 import { followHref } from './nav-href';
 import { regionConfigFrom } from './resize-state';
 import {

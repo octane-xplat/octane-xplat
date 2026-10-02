@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ItemComponent, ItemProps, ItemSlotProps } from './props'
-import { Pressable } from './Pressable.tsrx'
-import { Text } from './Text.tsrx'
+import { Pressable } from './Pressable'
+import { Text } from './Text'
 import { cx } from './cx'
 
 function Leading(props: ItemSlotProps) @{

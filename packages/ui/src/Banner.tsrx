@@ -2,7 +2,7 @@
 import type { BannerProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 
 /** Banner — inline notice strip with optional dismiss affordance. */
 export function Banner(props: BannerProps) @{

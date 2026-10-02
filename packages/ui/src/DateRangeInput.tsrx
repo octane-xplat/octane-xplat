@@ -2,12 +2,12 @@
 import { useRef, useImperativeHandle, useContext, useId, useState } from 'octane'
 import type { DateRange, DateRangeInputProps } from './props'
 import { cx } from './cx'
-import { Icon } from './Icon.tsrx'
-import { Pressable } from './Pressable.tsrx'
-import { FormField } from './FormField.tsrx'
-import { BottomSheet } from './BottomSheet.tsrx'
+import { Icon } from './Icon'
+import { Pressable } from './Pressable'
+import { FormField } from './FormField'
+import { BottomSheet } from './BottomSheet'
 import { FieldContext, useFieldControlProps } from './field-context'
-import { Calendar } from './Calendar.tsrx'
+import { Calendar } from './Calendar'
 import { formatDateValue, resolveLocale } from './datetime'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const

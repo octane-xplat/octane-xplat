@@ -3,9 +3,9 @@ import { useState } from 'octane';
 import { Screen } from '@nativescript/core';
 import type { CommandPaletteProps, MenuItem } from "./props";
 import { cx } from "./cx";
-import { Overlay } from './Overlay.tsrx';
+import { Overlay } from './Overlay';
 import { TextInput } from './TextInput.tsrx';
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 
 /** CommandPalette — in-window overlay: search field + filtered action
  *  list. Shade dismisses; Enter selects the first match. */

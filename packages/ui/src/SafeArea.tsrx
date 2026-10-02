@@ -2,7 +2,7 @@
 import type { SafeAreaProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { useSafeAreaInsets } from './safeAreaInsets.tsrx';
+import { useSafeAreaInsets } from './safeAreaInsets';
 
 export function SafeArea(props: SafeAreaProps) @{
 	const measuredInsets = useSafeAreaInsets();

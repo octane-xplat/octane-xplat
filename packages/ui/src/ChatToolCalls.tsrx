@@ -2,8 +2,8 @@
 import { useState } from 'octane';
 import type { ChatToolCallItem, ChatToolCallStatus, ChatToolCallsProps } from './props';
 import { cx } from './cx';
-import { Icon } from './Icon.tsrx';
-import { Badge } from './Badge.tsrx';
+import { Icon } from './Icon';
+import { Badge } from './Badge';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
 import { nativeAccessibilityRole } from './escape-props';
 

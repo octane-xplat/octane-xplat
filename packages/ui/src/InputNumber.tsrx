@@ -4,7 +4,7 @@ import type { InputNumberProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { TextInput } from './TextInput.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 
 /** InputNumber — normalized number field with −/+ steppers. Controlled via
  *  `value`/`onValueChange`, uncontrolled via `defaultValue`. Steppers clamp

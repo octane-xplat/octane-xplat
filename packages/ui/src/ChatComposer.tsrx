@@ -5,7 +5,7 @@ import { cx } from './cx';
 import { ChatComposerProvider } from './chat-context';
 import { ChatComposerInput } from './ChatComposerInput.tsrx';
 import { ChatSendButton } from './ChatSendButton.tsrx';
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 
 /** Composer layout shell — slots for drawer, header actions/context, input,
  *  footer actions, send actions/button, and a status strip. Owns the

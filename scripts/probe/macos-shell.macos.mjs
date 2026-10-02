@@ -48,6 +48,7 @@ function adapter() {
 			root.__macosDebug.setText(id, value)
 		},
 		inspect(id) {
+			appKit.contentView.layoutSubtreeIfNeeded()
 			const view = required(id)
 			const frame = view.frame
 			return {

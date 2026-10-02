@@ -3,7 +3,7 @@ import { useMemo, useId } from 'octane';
 import type { InputGroupProps, InputGroupTextProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { FormField } from './FormField.tsrx';
+import { FormField } from './FormField';
 import { InputGroupProvider } from './input-group-context';
 
 /** InputGroup — a labeled, visually joined input surface: the `Field`

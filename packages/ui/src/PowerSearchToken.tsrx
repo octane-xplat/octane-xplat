@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { PowerSearchTokenProps } from './props'
 import { resolveOperatorLabel, formatFilterValue, createInternalConfig } from './power-search-config'
-import { Pressable } from './Pressable.tsrx'
+import { Pressable } from './Pressable'
 import { cx } from './cx'
 
 type InternalTokenProps = PowerSearchTokenProps & { timezoneID?: string }

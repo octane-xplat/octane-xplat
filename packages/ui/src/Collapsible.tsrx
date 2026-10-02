@@ -3,7 +3,7 @@ import { useState } from 'octane';
 import type { CollapsibleProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 
 /** Self-drawn collapsible — `trigger` toggles `children` between shown and
  *  hidden (unmounted). Controlled via `open`/`onOpenChange`, uncontrolled

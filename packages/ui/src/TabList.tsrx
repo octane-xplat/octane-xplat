@@ -3,10 +3,10 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'octane';
 import type { TabListProps, TabProps, TabMenuProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
-import { Icon } from './Icon.tsrx';
-import { Text } from './Text.tsrx';
-import { Popover } from './Popover.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Text } from './Text';
+import { Popover } from './Popover';
+import { Pressable } from './Pressable';
 import { followHref } from './nav-href';
 import { TabListContext,
 	TabListProvider,

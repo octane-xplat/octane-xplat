@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'octane'
 import type { ISOTimeString } from './props'
 import { cx } from './cx'
-import { Pressable } from './Pressable.tsrx'
+import { Pressable } from './Pressable'
 import { formatISOTime, isTimeInRange, parseISOTime } from './datetime'
 
 interface TimeWheelProps {

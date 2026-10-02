@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { SelectableCardProps } from './props'
-import { Pressable } from './Pressable.tsrx'
+import { Pressable } from './Pressable'
 import { cx } from './cx'
 
 export function SelectableCard(props: SelectableCardProps) @{

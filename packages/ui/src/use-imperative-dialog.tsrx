@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useState } from 'octane';
 import type { DialogOptions, ImperativeDialogReturn } from './props';
-import { Dialog } from './Dialog.tsrx';
+import { Dialog } from './Dialog';
 
 /** Imperative dialog control (Astryx `useImperativeDialog`). `show()`
  *  mounts the dialog with arbitrary content; `element` renders it — keep

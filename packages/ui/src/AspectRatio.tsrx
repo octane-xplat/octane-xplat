@@ -3,7 +3,7 @@ import { useMemo } from 'octane'
 import type { AspectRatioProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
-import { useMeasure } from './useMeasure.tsrx';
+import { useMeasure } from './useMeasure';
 
 /** AspectRatio — native has no aspect-ratio layout property, so the box
  *  measures its laid-out width and derives `height = width / ratio`

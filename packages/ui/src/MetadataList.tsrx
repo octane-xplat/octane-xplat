@@ -5,7 +5,7 @@ import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
 import { MetadataListProvider } from './metadata-list-context';
 import { Grid } from './Grid.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 import { toChildArray } from './child-array';
 
 /** Repeat an 'auto,*' label/value track pair (or a '*' cell for stacked

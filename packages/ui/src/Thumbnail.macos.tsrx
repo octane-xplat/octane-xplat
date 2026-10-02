@@ -4,7 +4,7 @@ import { cx } from './cx';
 import { Icon } from './Icon.macos.tsrx';
 import { ActivityIndicator } from './controls.macos.tsrx';
 import { Skeleton } from './Skeleton.macos.tsrx';
-import { Tooltip } from './Tooltip.macos.tsrx';
+import { Tooltip } from './Tooltip';
 import { isRenderable } from './is-renderable';
 
 const SIZE = 40;

@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useState } from 'octane';
 import type { AlertDialogProps, ImperativeAlertDialogReturn } from './props';
-import { AlertDialog } from './AlertDialog.tsrx';
+import { AlertDialog } from './AlertDialog';
 
 /** Imperative AlertDialog control (Astryx `useImperativeAlertDialog`).
  *  `show(options)` mounts the confirmation dialog; `element` renders it —

@@ -14,9 +14,9 @@ import {
 
 import { cx } from './cx';
 import { textRoleClasses } from './text-role';
-import { Hoverable } from './Hoverable.tsrx';
+import { HoverCard } from './HoverCard';
 
-/** Timestamp — macOS leaf. The AppKit host's Hoverable carries the tooltip
+/** Timestamp — macOS leaf. The AppKit host's HoverCard carries the tooltip
  *  card (labels + copyable values as plain rows; the copy affordance is
  *  pointer-web only). */
 export function Timestamp(props: TimestampProps) @{
@@ -92,8 +92,8 @@ export function Timestamp(props: TimestampProps) @{
 	);
 
 	return lines.length > 0 ? (
-		<Hoverable
-			card={
+		<HoverCard
+			content={
 				<flexboxlayout flexDirection="column" style={{ padding: 8, gap: 4 }}>
 					{lines.map((line, i) => (
 						<flexboxlayout key={i} flexDirection="row" style={{ gap: 8 }}>
@@ -108,7 +108,7 @@ export function Timestamp(props: TimestampProps) @{
 			placement="top"
 		>
 			{labelNode}
-		</Hoverable>
+		</HoverCard>
 	) : (
 		labelNode
 	);

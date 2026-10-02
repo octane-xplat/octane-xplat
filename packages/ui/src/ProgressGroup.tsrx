@@ -2,7 +2,7 @@
 import type { ProgressGroupProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Meter } from './Meter.tsrx';
+import { Meter } from './Meter';
 
 /** ProgressGroup — stacked labeled Meter rows. */
 export function ProgressGroup(props: ProgressGroupProps) @{

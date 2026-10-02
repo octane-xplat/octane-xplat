@@ -3,7 +3,7 @@ import { useMemo } from 'octane'
 import type { SearchableItem, TypeaheadItemProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 
 /** Default option content for typeahead dropdowns — label with an optional
  *  leading icon and supporting description. `item.element` wins when set. */

@@ -151,3 +151,5 @@ export function Typeahead<T extends SearchableItem,>(props: TypeaheadProps<T>) @
 			: wrapper}
 	</FormField>
 }
+
+export { BaseTypeahead } from './BaseTypeahead.macos.tsrx';

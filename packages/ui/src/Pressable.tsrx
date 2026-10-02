@@ -4,7 +4,7 @@ import type { PressableProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child';
-import { usePan } from './pan.tsrx';
+import { usePan } from './pan';
 /** flexboxlayout, not contentview — ContentView is single-child: the driver
  *  assigns each child to `.content`, so every sibling but the last was
  *  silently dropped. Column flex matches View's shape (and the web div);

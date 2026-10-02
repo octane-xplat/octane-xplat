@@ -2,8 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { PanEvent, SliderProps } from './props';
 import { cx } from './cx';
-import { useMeasure } from './useMeasure.tsrx';
-import { usePan } from './pan.tsrx';
+import { useMeasure } from './useMeasure';
+import { usePan } from './pan';
 import { applyNativeProps } from './platformProps';
 import { nativeAccessibilityRole } from './escape-props';
 

@@ -8,7 +8,7 @@ import { accentColor, mutedColor, textColor } from './scheme-colors';
 import { nativeColor } from './native-color';
 import { sanitizeUrl } from './safe-url';
 import { isRenderable } from './is-renderable';
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 
 let warnedBlockedUrl = false;
 

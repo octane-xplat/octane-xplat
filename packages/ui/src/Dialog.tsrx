@@ -12,8 +12,8 @@ import { bindBottomInsetToKeyboard } from './keyboard-inset';
 import { attachTapToBlur } from './tap-to-blur';
 import { DialogContext, DialogProvider } from './dialog-context';
 import { spacingStep } from './spacing';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
 
 /** The modal body rendered inside the dedicated overlay root — a centered
  *  (or `position`-anchored) panel on the page's RootLayout. `purpose`

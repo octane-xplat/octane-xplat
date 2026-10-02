@@ -2,7 +2,7 @@
 import type { AlertProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 
 /** Alert — status callout. `tone` picks a class modifier. */
 export function Alert(props: AlertProps) @{

@@ -6,7 +6,7 @@ import { applyEscapeProps } from "./escape-props";
 import { FieldProvider } from './field-context'
 import { FormLayoutContext } from './form-layout-context'
 import { Tooltip } from './Tooltip.tsrx'
-import { Pressable } from './Pressable.tsrx'
+import { Pressable } from './Pressable'
 
 /** Shared field wrapper for labels, descriptions, and validation status.
  *  Under `FormLayout direction="horizontal-labels"` it renders a row; the

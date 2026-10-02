@@ -2,7 +2,7 @@
 import { useColorScheme } from './theme/colorScheme';
 import type { CodeProps } from './props';
 import { cx } from './cx';
-import { Text } from './Text.tsrx';
+import { Text } from './Text';
 import { mutedColor } from './scheme-colors';
 import { nativeColor } from './native-color';
 

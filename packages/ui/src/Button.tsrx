@@ -3,9 +3,9 @@ import { useState } from 'octane';
 import { Utils } from '@nativescript/core';
 import type { ButtonProps } from "./props";
 import { cx } from "./cx";
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 import { useButtonGroup } from './button-group-context';
 import { sanitizeUrl } from './safe-url';
 

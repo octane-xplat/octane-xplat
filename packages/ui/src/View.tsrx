@@ -4,7 +4,7 @@ import type { ViewProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { layoutChildProps } from './layout-child';
-import { usePan } from './pan.tsrx';
+import { usePan } from './pan';
 /** Neutral flex-column container — flexboxlayout on native.
  *  Gesture props map 1:1 to NS gesture events (onPan → 'pan', etc.) —
  *  the driver's onX → eventName rule covers them generically. Payloads

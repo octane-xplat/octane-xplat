@@ -2,7 +2,7 @@
 import { useState } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'
-import { VirtualList } from './VirtualList.tsrx'
+import { VirtualList } from './VirtualList'
 import { VirtualListSizeIndex } from './virtual-list-layout'
 
 vi.mock('@nativescript/core', () => ({ isAndroid: true, isIOS: false }))

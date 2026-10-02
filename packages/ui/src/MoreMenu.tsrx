@@ -1,10 +1,10 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane'
 import type { MoreMenuProps, MoreMenuPlacement } from './props'
-import { DropdownMenu } from './DropdownMenu.tsrx'
-import { Pressable } from './Pressable.tsrx'
-import { BottomSheet } from './BottomSheet.tsrx'
-import { Icon } from './Icon.tsrx'
+import { DropdownMenu } from './DropdownMenu'
+import { Pressable } from './Pressable'
+import { BottomSheet } from './BottomSheet'
+import { Icon } from './Icon'
 import { cx } from './cx'
 
 function popoverPlacement(placement?: MoreMenuPlacement): any {

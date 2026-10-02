@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { TooltipProps } from './props';
 import { cx } from './cx';
-import { View } from './View.tsrx';
+import { View } from './View';
 
 /** Touch-target leaf: renders the trigger unchanged and never mounts the
  *  hint layer — hover/focus intent has no touch semantic (decision #47,

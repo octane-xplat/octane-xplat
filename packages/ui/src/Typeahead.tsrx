@@ -3,12 +3,12 @@ import { useMemo, useRef, useState, useSyncExternalStore, useId } from 'octane';
 import type { SearchableItem, TypeaheadInputHandle, TypeaheadProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
-import { FormField } from './FormField.tsrx';
-import { BaseTypeahead } from './BaseTypeahead.tsrx';
-import { Token } from './Token.tsrx';
+import { FormField } from './FormField';
+import { BaseTypeahead } from './BaseTypeahead';
+import { Token } from './Token';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
 import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from './busy-lane';
 
 /** The field's inline-end lane: busy Spinner, then the clear button. A leaf

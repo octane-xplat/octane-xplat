@@ -5,8 +5,8 @@ import { applyEscapeProps } from './escape-props';
 import { toChildArray } from './child-array';
 import { spacingStep } from './spacing';
 import { cx } from './cx';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
 
 const EPS = 1;
 const SNAP_DEBOUNCE_MS = 140;

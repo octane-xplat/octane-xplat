@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatComposerToken, ChatComposerTokenCustom } from './props';
 import { cx } from './cx';
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 
 /** Is this token the custom-render form? Shared by the input and the
  *  tokenized-text renderer. */

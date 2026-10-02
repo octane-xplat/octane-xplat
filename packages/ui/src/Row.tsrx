@@ -4,7 +4,7 @@ import type { RowProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from "./escape-props";
 import { layoutChildProps } from './layout-child';
-import { usePan } from './pan.tsrx';
+import { usePan } from './pan';
 export function Row(props: RowProps) @{
 	const forwardedRef = useMemo(() => [(v: any) => { if (v) { applyEscapeProps(v, props); } }, props.ref], [props.ref, props.ios, props.android, props.web]);
 

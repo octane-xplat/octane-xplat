@@ -3,9 +3,9 @@ import { useContext, useMemo } from 'octane';
 import type { NavHeadingMenuProps, NavHeadingMenuItemProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { Icon } from './Icon.tsrx';
-import { Text } from './Text.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Text } from './Text';
+import { Pressable } from './Pressable';
 import { followHref } from './nav-href';
 import { NavHeadingCloseContext, NavHeadingMenuContext, useNavHeadingCloseContext, useNavHeadingMenuContext,
 	NavHeadingMenuProvider,

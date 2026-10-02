@@ -242,3 +242,5 @@ export function addBackInterceptor(_handler: () => boolean): () => void {
 export function useRouteHead(_route: Route | null): RouteHead | undefined {
 	return undefined
 }
+
+export { layoutsFor as layoutsForRoute }

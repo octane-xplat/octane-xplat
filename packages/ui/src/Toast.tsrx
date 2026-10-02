@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'octane';
 import type { ToastProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { Text } from './Text.tsrx';
+import { Text } from './Text';
 
 const SWIPE_DISMISS_DIP = 44;
 

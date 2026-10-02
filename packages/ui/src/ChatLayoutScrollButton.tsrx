@@ -1,8 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatLayoutScrollButtonProps } from './props';
 import { cx } from './cx';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
 
 /** Floating scroll-to-bottom pill for ChatLayout. Native keeps the same
  *  anatomy (centered pill above the composer, optional expanding label);

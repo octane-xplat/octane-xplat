@@ -4,7 +4,7 @@ import type { StackItemProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { stackItemStyle } from './stack-layout';
-import { usePan } from './pan.tsrx';
+import { usePan } from './pan';
 
 /** StackItem — per-child size (`fill` grows into remaining space) and
  *  cross-axis alignment inside a `Stack`. `isScrollable` hosts the content

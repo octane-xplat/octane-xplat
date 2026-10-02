@@ -3,7 +3,7 @@ import { useState } from 'octane';
 import type { MetadataListProps } from './props';
 import { cx } from './cx';
 import { MetadataListProvider } from './metadata-list-context';
-import { Grid } from './Grid.macos.tsrx';
+import { Grid } from './layout.macos';
 import { Pressable } from './Pressable.macos.tsrx';
 import { toChildArray } from './child-array';
 

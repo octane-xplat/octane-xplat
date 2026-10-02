@@ -1,5 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { Select } from './Select.tsrx'
+import { Select } from './Select'
 import type { MultiSelectorProps } from './props'
 
 /** SelectMenu — multi-select anchored listbox (Select with `multiple`). */

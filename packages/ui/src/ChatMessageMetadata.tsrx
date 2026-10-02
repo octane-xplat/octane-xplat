@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatMessageMetadataProps, ChatMessageStatus } from './props';
 import { cx } from './cx';
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 import { useChatMessageContext } from './chat-context';
 
 const STATUS_ICON: Record<ChatMessageStatus, string> = {

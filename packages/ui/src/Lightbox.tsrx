@@ -8,9 +8,9 @@ import { cx } from './cx';
 import { applyThemeClasses } from './theme/theme-scheme';
 import { rootLayoutFor } from './root-layout';
 import { createOverlayLifetime } from './overlay-lifetime';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
-import { Text } from './Text.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
+import { Text } from './Text';
 
 const clampIndex = (i: number, count: number) =>
 	count <= 0 ? 0 : Math.min(Math.max(i, 0), count - 1);

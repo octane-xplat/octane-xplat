@@ -4,7 +4,7 @@ import type { StackProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
 import { resolveStackLayout } from './stack-layout';
-import { usePan } from './pan.tsrx';
+import { usePan } from './pan';
 
 /** Astryx flow Stack — flexboxlayout in `direction`, `hAlign`/`vAlign`
  *  mapped to main/cross axes, spacing-step gap/padding (steps × 4 dips).

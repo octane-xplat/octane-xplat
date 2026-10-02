@@ -12,12 +12,12 @@ import type {
 
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { Icon } from './Icon.tsrx';
-import { Text } from './Text.tsrx';
-import { Image } from './Image.tsrx';
-import { Pressable } from './Pressable.tsrx';
-import { Popover } from './Popover.tsrx';
-import { MobileNav, MobileNavToggle } from './MobileNav.tsrx';
+import { Icon } from './Icon';
+import { Text } from './Text';
+import { Image } from './Image';
+import { Pressable } from './Pressable';
+import { Popover } from './Popover';
+import { MobileNav, MobileNavToggle } from './MobileNav';
 import { followHref } from './nav-href';
 import {
 	NavHeadingCloseContext,

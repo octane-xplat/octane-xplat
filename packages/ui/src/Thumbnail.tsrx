@@ -3,10 +3,10 @@ import { useEffect, useRef, useState } from 'octane';
 import type { ThumbnailProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from './escape-props';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
-import { Skeleton } from './Skeleton.tsrx';
+import { Skeleton } from './Skeleton';
 import { Tooltip } from './Tooltip';
 import { isRenderable } from './is-renderable';
 

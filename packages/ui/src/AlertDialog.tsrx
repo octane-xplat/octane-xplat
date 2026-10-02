@@ -1,8 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { AlertDialogProps } from './props';
-import { Dialog } from './Dialog.tsrx';
+import { Dialog } from './Dialog';
 import { Button } from './Button.tsrx';
-import { Text } from './Text.tsrx';
+import { Text } from './Text';
 import { cx } from './cx';
 
 const ACTION_VARIANT_CLASS: Record<string, string> = {

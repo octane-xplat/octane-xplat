@@ -2,8 +2,8 @@
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from './cx'
-import { Icon } from './Icon.tsrx'
-import { Pressable } from './Pressable.tsrx'
+import { Icon } from './Icon'
+import { Pressable } from './Pressable'
 import {
 	DATE_FORMAT_WITH_WEEKDAY,
 	normalizeDayOfWeek,

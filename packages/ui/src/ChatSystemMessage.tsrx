@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatSystemMessageProps } from './props';
 import { cx } from './cx';
-import { Separator } from './Separator.tsrx';
+import { Separator } from './Separator';
 
 /** Centered system message — "conversation started", date separators, status
  *  changes. `divider` renders hairlines flanking the content. */

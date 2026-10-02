@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'octane'
 import type { TooltipProps } from './props'
 import { cx } from './cx'
-import { View } from './View.tsrx'
+import { View } from './View'
 
 const host = () => (globalThis as any).__xplatAppKit ?? {}
 

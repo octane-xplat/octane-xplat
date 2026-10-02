@@ -1,8 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useEffect, useId, useRef, useState } from 'octane';
 import type { ChatComposerTrigger, ChatComposerTriggerItem } from './props';
-import { Popover } from './Popover.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Popover } from './Popover';
+import { Pressable } from './Pressable';
 import { groupChatItems } from './chat-group-items';
 
 export interface TriggerMenuState {

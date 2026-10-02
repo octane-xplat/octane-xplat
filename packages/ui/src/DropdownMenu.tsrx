@@ -3,9 +3,9 @@ import { useRef, useState } from 'octane';
 import type { DropdownMenuProps, MenuItem } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Pressable } from './Pressable.tsrx';
-import { Popover } from './Popover.tsrx';
-import { Icon } from './Icon.tsrx';
+import { Pressable } from './Pressable';
+import { Popover } from './Popover';
+import { Icon } from './Icon';
 import { useButtonGroup } from './button-group-context';
 
 /** Self-drawn dropdown menu — `trigger` plus an anchored item list via

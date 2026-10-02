@@ -9,8 +9,8 @@ import { ToastViewportContext } from './toast-context';
 import { dismissToast, pushToast, toastStore, toastTiming } from './toast-store';
 import { topRootLayout } from './root-layout';
 import { applyThemeClasses } from './theme/theme-scheme';
-import { Popover } from './Popover.tsrx';
-import { Toast } from './Toast.tsrx';
+import { Popover } from './Popover';
+import { Toast } from './Toast';
 
 /** Edge gap + inter-toast gap in dips. */
 const EDGE_GAP = 16;

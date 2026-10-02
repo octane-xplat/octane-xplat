@@ -2,16 +2,16 @@
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from './cx'
-import { Icon } from './Icon.tsrx'
-import { Pressable } from './Pressable.tsrx'
-import { FormField } from './FormField.tsrx'
-import { Popover } from './Popover.tsrx'
-import { BottomSheet } from './BottomSheet.tsrx'
+import { Icon } from './Icon'
+import { Pressable } from './Pressable'
+import { FormField } from './FormField'
+import { Popover } from './Popover'
+import { BottomSheet } from './BottomSheet'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { nativeAccessibilityState } from './escape-props'
 import { isWritingText, writeText } from './text-write'
 import { blurText } from './text-focus'
-import { Calendar } from './Calendar.tsrx'
+import { Calendar } from './Calendar'
 import {
 	effectivePresentation,
 	formatDateValue,

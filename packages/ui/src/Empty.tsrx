@@ -2,7 +2,7 @@
 import type { EmptyProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 
 /** Empty — empty-state block: icon + title + description + actions. */
 export function Empty(props: EmptyProps) @{

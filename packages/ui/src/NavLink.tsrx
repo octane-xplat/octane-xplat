@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { NavLinkProps } from './props';
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 import { pushRoute, useRoute } from './route';
 import { cx } from './cx';
 

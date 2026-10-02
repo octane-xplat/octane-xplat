@@ -4,9 +4,9 @@ import type { MobileNavProps, MobileNavToggleProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
 import { Button } from './Button.tsrx';
-import { Icon } from './Icon.tsrx';
-import { Text } from './Text.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Text } from './Text';
+import { Pressable } from './Pressable';
 import { AppShellMobileContext, useAppShellMobile } from './nav-contexts';
 
 export { AppShellMobileContext, useAppShellMobile };

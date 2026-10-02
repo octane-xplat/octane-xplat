@@ -6,7 +6,7 @@ import type {
 	UseLightboxReturn,
 } from './props';
 
-import { Lightbox } from './Lightbox.tsrx';
+import { Lightbox } from './Lightbox';
 
 /** Imperative lightbox control (Astryx `useLightbox`), native leaf. */
 export function useLightbox(options: UseLightboxOptions): UseLightboxReturn @{

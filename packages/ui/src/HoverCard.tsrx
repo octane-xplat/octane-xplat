@@ -2,7 +2,7 @@
 import type { HoverCardProps } from './props';
 import { useHoverCard } from './use-hover-card.tsrx';
 import { cx } from './cx';
-import { View } from './View.tsrx';
+import { View } from './View';
 
 /** Default (macOS) leaf — pointer intent comes from the AppKit host
  *  bridge (tracking areas + anchored NSPopover); iOS/Android resolve the

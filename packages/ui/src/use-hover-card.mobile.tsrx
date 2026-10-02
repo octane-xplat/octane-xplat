@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useCallback, useId, useRef, useState } from 'octane';
 import type { HoverCardOptions, HoverCardReturn, PopoverPlacement } from './props';
-import { Popover } from './Popover.tsrx';
+import { Popover } from './Popover';
 import { cx } from './cx';
 
 const PLACEMENT: Record<string, PopoverPlacement> = {

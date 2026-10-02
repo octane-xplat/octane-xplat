@@ -2,7 +2,7 @@
 import type { AvatarProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Image } from './Image.tsrx';
+import { Image } from './Image';
 
 /** Avatar — circular image with a text fallback when `src` is absent.
  *  `size` sets the square + border-radius inline so the circle is identical

@@ -2,7 +2,7 @@
 import { useState } from 'octane';
 import type { ChatComposerDrawerProps } from './props';
 import { cx } from './cx';
-import { Badge } from './Badge.tsrx';
+import { Badge } from './Badge';
 import { nativeAccessibilityRole } from './escape-props';
 
 /** Collapsible drawer panel for a chat composer — attachments, context

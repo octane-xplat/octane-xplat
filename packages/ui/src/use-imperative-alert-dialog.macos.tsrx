@@ -5,7 +5,7 @@ import { AlertDialog } from './AlertDialog.macos.tsrx';
 
 /** Imperative AlertDialog control (Astryx `useImperativeAlertDialog`).
  *  macOS renders the inline leaf — no overlay service on that target yet. */
-export function useImperativeAlertDialog(): ImperativeAlertDialogReturn {
+export function useImperativeAlertDialog(): ImperativeAlertDialogReturn @{
 	const [isOpen, setIsOpen] = useState(false);
 	const [options, setOptions] = useState<Omit<AlertDialogProps, 'isOpen' | 'onOpenChange'>>({
 		title: '',

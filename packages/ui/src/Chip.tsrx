@@ -1,7 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChipProps } from "./props";
 import { cx } from "./cx";
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 
 /** Chip — small action/filter element with a selected state and an
  *  optional ✕ remove affordance. */

@@ -3,7 +3,7 @@ import type { AvatarGroupProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
 import { toChildArray } from './child-array';
-import { Avatar } from './Avatar.tsrx';
+import { Avatar } from './Avatar';
 
 /** AvatarGroup — row of overlapping avatars. `max` collapses the rest into
  *  a `+N` avatar. Overlap is one-third of `size`, applied per-item so it

@@ -3,7 +3,7 @@ import { useEffect, useId, useMemo, useRef } from 'octane';
 import type { ToastViewportProps } from './props';
 import { ToastViewportProvider, type ToastViewportContextValue } from './toast-context';
 import { registerToastViewport } from './toast-store';
-import { registerNativeToastViewport } from './toast-service.tsrx';
+import { registerNativeToastViewport } from './toast-service';
 import { rootLayoutFor } from './root-layout';
 
 /** Toast stack container (Astryx `ToastViewport`), native leaf. Toasts

@@ -1,8 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatDictationButtonProps } from './props';
 import { cx } from './cx';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
 
 const BAR_COUNT = 5;
 

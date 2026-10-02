@@ -2,10 +2,10 @@
 import { useImperativeHandle, useEffect, useId, useRef, useState } from 'octane';
 import type { ComplexSelectorHandle, ComplexSelectorProps } from './props';
 import { cx } from './cx';
-import { FormField } from './FormField.tsrx';
-import { Popover } from './Popover.tsrx';
-import { Pressable } from './Pressable.tsrx';
-import { Icon } from './Icon.tsrx';
+import { FormField } from './FormField';
+import { Popover } from './Popover';
+import { Pressable } from './Pressable';
+import { Icon } from './Icon';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
 
 /** Field trigger and anchored render-function surface for custom pickers. */

@@ -1,6 +1,6 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ClickableCardProps } from './props'
-import { Pressable } from './Pressable.tsrx'
+import { Pressable } from './Pressable'
 import { cx } from './cx'
 import { sanitizeUrl } from './safe-url'
 import { Utils } from '@nativescript/core'

@@ -10,7 +10,7 @@ import { Lightbox } from './Lightbox.macos.tsrx';
 
 /** Imperative lightbox control (Astryx `useLightbox`), macOS leaf — the
  *  inline panel mounts while `open`. */
-export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
+export function useLightbox(options: UseLightboxOptions): UseLightboxReturn @{
 	const [isOpen, setIsOpen] = useState(false);
 	const [internal, setInternal] = useState(options.defaultIndex ?? 0);
 	const index = options.index ?? internal;

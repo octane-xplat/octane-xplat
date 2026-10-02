@@ -1,8 +1,8 @@
 /** @jsxImportSource @nativescript-community/octane */
 import type { ChatSendButtonProps } from './props';
 import { cx } from './cx';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
 import { useChatComposerContext } from './chat-context';
 
 /** Circular send/stop toggle for the chat composer. Reads

@@ -3,7 +3,7 @@ import { useRef } from 'octane';
 import type { ResizeHandleProps, PanEvent } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 
 /** ResizeHandle — draggable separator bound to a useResizable region.
  *  Native leaf: pan gestures drive the same _onResize{Start,Move,End,

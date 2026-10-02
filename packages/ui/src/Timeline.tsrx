@@ -2,7 +2,7 @@
 import type { TimelineProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Icon } from './Icon.tsrx';
+import { Icon } from './Icon';
 
 /** Timeline — vertical event list: dot + connector + content per item. */
 export function Timeline(props: TimelineProps) @{

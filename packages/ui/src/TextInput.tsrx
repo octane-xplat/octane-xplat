@@ -5,7 +5,7 @@ import { cx } from "./cx";
 import { applyEscapeProps, nativeAccessibilityState } from "./escape-props";
 import { isWritingText, writeText } from './text-write';
 import { blurText } from './text-focus';
-import { Pressable } from './Pressable.tsrx';
+import { Pressable } from './Pressable';
 import { useFieldControlProps } from './field-context';
 
 /** Controlled single-line input. Imperative writes suppress their synchronous

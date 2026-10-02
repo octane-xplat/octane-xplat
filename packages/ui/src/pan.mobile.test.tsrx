@@ -11,7 +11,7 @@ import {
 	createUniversalRoot,
 } from 'octane/universal/native'
 
-import { usePan } from './pan.tsrx'
+import { usePan } from './pan'
 import type { PanEvent } from './props'
 
 const events: PanEvent[] = []

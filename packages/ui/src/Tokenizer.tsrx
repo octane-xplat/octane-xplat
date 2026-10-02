@@ -2,13 +2,13 @@
 import { useImperativeHandle, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'octane';
 import type { SearchableItem, SearchSource, TokenizerProps, TypeaheadInputHandle } from "./props";
 import { cx } from "./cx";
-import { FormField } from './FormField.tsrx';
-import { BaseTypeahead } from './BaseTypeahead.tsrx';
-import { Token } from './Token.tsrx';
+import { FormField } from './FormField';
+import { BaseTypeahead } from './BaseTypeahead';
+import { Token } from './Token';
 import { ActivityIndicator } from './ActivityIndicator.tsrx';
-import { Icon } from './Icon.tsrx';
-import { Pressable } from './Pressable.tsrx';
-import { Popover } from './Popover.tsrx';
+import { Icon } from './Icon';
+import { Pressable } from './Pressable';
+import { Popover } from './Popover';
 import { BusyLaneProvider, createBusyIndicatorLane, type BusyIndicatorLane } from './busy-lane';
 
 const CREATABLE_ID_PREFIX = '__xds_create__';

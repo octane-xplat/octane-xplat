@@ -2,7 +2,7 @@
 import type { UserProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Avatar } from './Avatar.tsrx';
+import { Avatar } from './Avatar';
 
 /** User — avatar + name/description row. `onSelect` makes the row
  *  tappable. */

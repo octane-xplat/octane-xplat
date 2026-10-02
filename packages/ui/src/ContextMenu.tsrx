@@ -3,8 +3,8 @@ import { useRef, useState } from 'octane';
 import type { ContextMenuProps, MenuItem } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { Popover } from './Popover.tsrx';
-import { Icon } from './Icon.tsrx';
+import { Popover } from './Popover';
+import { Icon } from './Icon';
 
 /** Self-drawn context menu — long-press opens the same anchored list as
  *  DropdownMenu, positioned over the children. There is no right-click on

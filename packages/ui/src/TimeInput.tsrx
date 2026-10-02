@@ -2,10 +2,10 @@
 import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from './cx'
-import { Icon } from './Icon.tsrx'
-import { Pressable } from './Pressable.tsrx'
-import { FormField } from './FormField.tsrx'
-import { BottomSheet } from './BottomSheet.tsrx'
+import { Icon } from './Icon'
+import { Pressable } from './Pressable'
+import { FormField } from './FormField'
+import { BottomSheet } from './BottomSheet'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { nativeAccessibilityState } from './escape-props'
 import { isWritingText, writeText } from './text-write'
@@ -19,7 +19,7 @@ import {
 	resolveInputSurface,
 } from './datetime'
 
-import { TimeWheelPanel } from './TimeWheelPanel.tsrx'
+import { TimeWheelPanel } from './TimeWheelPanel'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
