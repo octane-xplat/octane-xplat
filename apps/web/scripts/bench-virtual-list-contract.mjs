@@ -30,7 +30,7 @@ try {
 	const errors = []
 	page.on('pageerror', (error) => errors.push(error.message))
 	await page.goto('http://localhost:5218', { waitUntil: 'networkidle' })
-	await page.locator('button:text("Apps")').click()
+	await page.getByRole('tab', { name: 'Apps', exact: true }).click()
 	await page.locator('#menu-vlist').click()
 	const list = page.locator('#vlist')
 	await list.waitFor()
