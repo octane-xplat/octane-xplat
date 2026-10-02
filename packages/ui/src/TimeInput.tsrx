@@ -5,7 +5,7 @@ import { cx } from './cx'
 import { Icon } from './Icon.tsrx'
 import { Pressable } from './Pressable.tsrx'
 import { FormField } from './FormField.tsrx'
-import { Sheet } from './Sheet.tsrx'
+import { BottomSheet } from './BottomSheet.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { nativeAccessibilityState } from './escape-props'
 import { isWritingText, writeText } from './text-write'
@@ -158,7 +158,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 				: null}
 		</flexboxlayout>
 		{surface === 'sheet' ? (
-			<Sheet open={open} onDismiss={() => setOpen(false)} className="vx-timeinput-sheet">
+			<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a time'} height="hug" className="vx-timeinput-sheet">
 				<TimeWheelPanel
 					value={shown}
 					hasSeconds={hasSeconds}
@@ -168,7 +168,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 					onCommit={(t) => { fireChange(t); setOpen(false) }}
 					onDismiss={() => setOpen(false)}
 				/>
-			</Sheet>
+			</BottomSheet>
 		) : null}
 	</>
 }

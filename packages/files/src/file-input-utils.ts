@@ -1,24 +1,11 @@
 /**
- * FileInput's portable file-reference core + the native picker seam.
- *
- * Values are `FileInputFile` — `{name, uri, size?, mimeType?}` — compatible
- * with `@octane-xplat/files` `FileRef`. The ui package cannot depend on the
- * files leaf (ui keeps zero dependencies), so platform defaults and optional
- * app overrides provide native picking. macOS calls AppKit's NSOpenPanel;
- * other native targets can register a picker or pass one per instance. Web
- * uses the browser file dialog.
+ * Shared formatting and validation helpers for this package's FileInput.
  */
 
-import type { FileInputFile, FileInputPick } from './props'
+import type { FileInputFile } from './props'
 
-let registeredPicker: FileInputPick | null = null
-
-export function registerFilePicker(pick: FileInputPick): void {
-	registeredPicker = pick
-}
-
-export function getFilePicker(): FileInputPick | null {
-	return registeredPicker
+export function cx(...values: Array<string | false | null | undefined>): string {
+	return values.filter(Boolean).join(' ')
 }
 
 export function normalizePicked(result: FileInputFile[] | FileInputFile | null): FileInputFile[] {

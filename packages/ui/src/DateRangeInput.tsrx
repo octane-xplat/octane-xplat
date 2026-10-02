@@ -5,7 +5,7 @@ import { cx } from './cx'
 import { Icon } from './Icon.tsrx'
 import { Pressable } from './Pressable.tsrx'
 import { FormField } from './FormField.tsrx'
-import { Sheet } from './Sheet.tsrx'
+import { BottomSheet } from './BottomSheet.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { Calendar } from './Calendar.tsrx'
 import { formatDateValue, resolveLocale } from './datetime'
@@ -78,7 +78,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				? <label className={cx('vx-field-icon', `vx-field-icon--${props.status!.type}`)} text={statusText} accessibilityLabel={props.statusVariant === 'tooltip' ? props.status?.message : undefined} />
 				: null}
 		</flexboxlayout>
-		<Sheet open={open} onDismiss={() => setOpen(false)} className="vx-daterangeinput-sheet">
+		<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date range'} height="hug" className="vx-daterangeinput-sheet">
 			<flexboxlayout flexDirection="column" className="vx-daterangeinput-dialog">
 				{props.presets?.length ? (
 					<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
@@ -110,7 +110,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 					weekStartsOn={props.weekStartsOn}
 				/>
 			</flexboxlayout>
-		</Sheet>
+		</BottomSheet>
 	</>
 }
 

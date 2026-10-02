@@ -46,6 +46,7 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 					rules: rules ?? [
 						{ include: 'src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/ui/src/**/*.{tsx,tsrx}', renderer: rendererId },
+						{ include: '**/packages/files/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/app/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/demos/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{ include: '**/packages/auth/src/**/*.{tsx,tsrx}', renderer: rendererId },
@@ -56,6 +57,10 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules } = {})
 						{ include: '**/packages/video/src/**/*.{tsx,tsrx}', renderer: rendererId },
 						{
 							include: '**/node_modules/@octane-xplat/ui/src/**/*.{tsx,tsrx}',
+							renderer: rendererId,
+						},
+						{
+							include: '**/node_modules/@octane-xplat/files/src/**/*.{tsx,tsrx}',
 							renderer: rendererId,
 						},
 						{

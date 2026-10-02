@@ -6,7 +6,7 @@ import { Icon } from './Icon.tsrx'
 import { Pressable } from './Pressable.tsrx'
 import { FormField } from './FormField.tsrx'
 import { Popover } from './Popover.tsrx'
-import { Sheet } from './Sheet.tsrx'
+import { BottomSheet } from './BottomSheet.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { nativeAccessibilityState } from './escape-props'
 import { isWritingText, writeText } from './text-write'
@@ -325,7 +325,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 			</Popover>
 		) : null}
 		{surface === 'sheet' ? (
-			<Sheet open={open === 'sheet'} onDismiss={() => setOpen(null)} className="vx-datetimeinput-sheet">
+			<BottomSheet isOpen={open === 'sheet'} onOpenChange={(isOpen) => setOpen(isOpen ? 'sheet' : null)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date and time'} height="hug" className="vx-datetimeinput-sheet">
 				<flexboxlayout flexDirection="column" className="vx-datetimeinput-sheetbody">
 					<Calendar
 						mode="single"
@@ -347,7 +347,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						onDismiss={() => setOpen(null)}
 					/>
 				</flexboxlayout>
-			</Sheet>
+			</BottomSheet>
 		) : null}
 	</>
 }

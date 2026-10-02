@@ -788,6 +788,9 @@ importers:
       '@octane-xplat/effects':
         specifier: workspace:*
         version: link:../effects
+      '@octane-xplat/files':
+        specifier: workspace:*
+        version: link:../files
       '@octane-xplat/gif':
         specifier: workspace:*
         version: link:../gif
@@ -905,6 +908,10 @@ importers:
       octane:
         specifier: 0.6.3
         version: 0.6.3(patch_hash=758abfef5ede246746cf6184dae17ca963f99c5bb4762fe47f76b8b8f2ebefd6)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)(vite@8.3.0(esbuild@0.27.7)(jiti@2.7.0)(sass@1.104.1)(yaml@2.9.1))
+
+      '@octane-xplat/ui':
+        specifier: workspace:*
+        version: link:../ui
 
   packages/geolocation:
     dependencies:

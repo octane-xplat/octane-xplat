@@ -3,25 +3,36 @@
 import { desktopHost } from '@octane-xplat/platform/host/web'
 import type { FileRef } from './types'
 
+function chooseFiles(accept: string, multiple: boolean): Promise<FileRef[]> {
+	return new Promise((resolve) => {
+		const input = document.createElement('input')
+		input.type = 'file'
+		input.accept = accept
+		input.multiple = multiple
+		input.onchange = () => {
+			const refs: FileRef[] = []
+			for (const file of Array.from(input.files ?? [])) {
+				refs.push({ name: file.name, uri: URL.createObjectURL(file) })
+			}
+			resolve(refs)
+		}
+
+		input.oncancel = () => resolve([])
+		input.click()
+	})
+}
+
 export const files = {
+	async pickMultiple(accept = '*/*', _opts?: { startingFolder?: string }): Promise<FileRef[]> {
+		return chooseFiles(accept, true)
+	},
 	async pick(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef | null> {
 		const host = desktopHost()
 		if (host && (await host.supports('files', 'pick'))) {
 			return host.files.pick(accept, { startingFolder: opts?.startingFolder })
 		}
 
-		return new Promise((resolve) => {
-			const input = document.createElement('input')
-			input.type = 'file'
-			input.accept = accept
-			input.onchange = () => {
-				const f = input.files?.[0]
-				resolve(f ? { name: f.name, uri: URL.createObjectURL(f) } : null)
-			}
-
-			input.oncancel = () => resolve(null)
-			input.click()
-		})
+		return (await chooseFiles(accept, false))[0] ?? null
 	},
 	async readText(ref: FileRef): Promise<string> {
 		const host = desktopHost()

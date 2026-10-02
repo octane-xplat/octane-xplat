@@ -39,6 +39,7 @@ export { Avatar } from './Avatar.macos.tsrx'
 export { AvatarGroup } from './AvatarGroup.macos.tsrx'
 /** Labeled control wrapper, exported under Astryx's component name. */
 export { FormField as Field } from './FormField.macos.tsrx'
+export { useFieldControl } from './field-context'
 export { FieldGroup } from './FieldGroup.macos.tsrx'
 /** Reusable labeled row, exported under Astryx's component name. */
 export { Item } from './Item.macos.tsrx'
@@ -58,6 +59,9 @@ export {
 	indicatorScope,
 } from './indicators'
 export type {
+	FieldControlProps,
+	FieldStatus,
+	FieldStatusType,
 	AbsoluteProps,
 	AspectRatioFit,
 	AspectRatioProps,
@@ -124,9 +128,6 @@ export { DateInput } from './DateInput.macos.tsrx'
 export { TimeInput } from './TimeInput.macos.tsrx'
 export { DateTimeInput } from './DateTimeInput.macos.tsrx'
 export { DateRangeInput } from './DateRangeInput.macos.tsrx'
-/** Opens AppKit's native NSOpenPanel by default. */
-export { FileInput } from './FileInput.macos.tsrx'
-export { registerFilePicker } from './file-picker'
 export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './calendar-hooks'
 export { isSameDay, isDateInRange, getWeekNumber } from './calendar-core'
 export type { CalendarDay, CalendarMonthGrid } from './calendar-core'

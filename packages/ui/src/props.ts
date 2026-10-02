@@ -726,9 +726,6 @@ export type DateTimeInputStatus = FieldStatus
 export type DateTimeInputStatusType = FieldStatusType
 export type DateRangeInputStatus = FieldStatus
 export type DateRangeInputStatusType = FieldStatusType
-export type FileInputStatus = FieldStatus
-export type FileInputStatusType = FieldStatusType
-
 /** Typed date entry + calendar. The default `presentation` is
  *  `adaptive-native`: fine pointers get the typed field + calendar popover,
  *  coarse pointers the platform picker (web) or the self-drawn sheet
@@ -867,67 +864,6 @@ export interface DateRangeInputProps extends FieldControlProps {
 	numberOfMonths?: 1 | 2
 	weekStartsOn?: DayOfWeek | DayOfWeekName
 	bind?: (h: TextInputHandle) => void
-	ios?: any
-	android?: any
-	web?: any
-}
-
-/** A picked file, portable shape. `uri` is an opaque reference — a
- *  blob/object URL on web, a filesystem path or `content://` URI on native
- *  (`@octane-xplat/files` `FileRef`-compatible: `{name, uri}` is assignable
- *  to it). Browser `File` objects don't exist on native targets, so the
- *  shared contract carries this reference instead; on web `file` also holds
- *  the picked `File` for FormData/upload use. Read via `fetch(uri)` on web
- *  or the platform file service on native. */
-export interface FileInputFile {
-	name: string
-	uri: string
-	/** Bytes when known (native pickers may not report one). */
-	size?: number
-	/** MIME type when known (native pickers may not report one). */
-	mimeType?: string
-	/** Web only: the browser `File` behind `uri`. */
-	file?: any
-}
-
-/** Optional native picker override: `FileInput` calls the per-instance `pick`
- *  or registered picker before its platform default. macOS uses AppKit's
- *  NSOpenPanel by default; web uses the browser dialog. Other native targets
- *  can adapt `@octane-xplat/files` with `registerFilePicker(({ accept }) =>
- *  files.pick(accept))`; multi-file apps provide a picker returning arrays. */
-export type FileInputPick = (options: {
-	accept?: string
-	multiple?: boolean
-}) => Promise<FileInputFile[] | FileInputFile | null>
-
-export interface FileInputHandle {
-	open(): void
-	native: any
-}
-
-export interface FileInputProps extends FieldControlProps {
-	className?: any
-	style?: any
-	id?: string
-	accessibilityLabel?: string
-	accessibilityHint?: string
-	/** `input` is a compact field row; `dropzone` a larger target that
-	 *  accepts drag/drop on pointer platforms. @default 'input' */
-	mode?: 'input' | 'dropzone'
-	value: FileInputFile | FileInputFile[] | null
-	onChange: (value: FileInputFile | FileInputFile[] | null) => void
-	changeAction?: (value: FileInputFile | FileInputFile[] | null) => void | Promise<void>
-	/** `accept`-style filter: `.ext`, `type/subtype`, wildcard subtype, any. */
-	accept?: string
-	/** When true, `value` and `onChange` use file arrays. */
-	isMultiple?: boolean
-	/** Max bytes per file; skipped for refs without a `size`. */
-	maxSize?: number
-	maxFiles?: number
-	placeholder?: string
-	/** Per-instance override of the registered native picker. */
-	pick?: FileInputPick
-	bind?: (h: FileInputHandle) => void
 	ios?: any
 	android?: any
 	web?: any

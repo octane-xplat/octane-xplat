@@ -1,32 +1,34 @@
 # `@octane-xplat/files`
 
-File pick, read, and write for Octane xplat apps. iOS/Android run
-`@nativescript-community/ui-document-picker` plus `@nativescript/core`
-filesystem APIs (including `content://` URIs); web uses an `<input
-type="file">` pick and downloads for writes; Linux goes through the desktop
-host bridge (`Gtk.FileDialog`) and falls back to the web flow in a plain
-browser; the macOS AppKit dev host is not wired and throws `unsupported`.
+Cross-platform file selection and file entry for Octane apps.
 
-```sh
-pnpm add @octane-xplat/files
-```
+Install `@octane-xplat/files` and `@octane-xplat/ui`. `FileInput` uses the
+platform picker by default: the browser file input on web, the NativeScript
+document picker on iOS/Android, and AppKit `NSOpenPanel` on macOS. No
+app-registered picker is needed. The optional `pick` prop can replace the
+default for a custom source such as cloud storage.
 
-```ts
-import { files } from '@octane-xplat/files'
+```tsx
+import { useState } from 'octane'
+import { FileInput } from '@octane-xplat/files'
+import type { FileInputFile } from '@octane-xplat/files'
 
-const ref = await files.pick('image/*')
-if (ref) {
-	const text = await files.readText(ref)
-	files.release(ref)
+export function Attachments() @{
+	const [files, setFiles] = useState<FileInputFile[] | null>([])
+
+	<FileInput
+		label="Attachments"
+		isMultiple
+		value={files}
+		onChange={(next) => setFiles(Array.isArray(next) ? next : next ? [next] : [])}
+	/>
 }
-
-// web: triggers a download; native: writes into the app documents folder
-const out = await files.writeText('packing-list.txt', text)
 ```
 
-`FileRef.uri` is opaque — a blob/object URL on web, a filesystem path or
-`content://` URI on native. Pass it back to `files.readText`; do not parse
-it. `release(ref)` cleans up native temp picks and is a no-op elsewhere.
-
-Guide: [Using device features](../../docs/platform-services.md);
-per-target availability: [platform notes](../../docs/platform-notes.md).
+The portable value is `{ name, uri, size?, mimeType? }`. On web, the selected
+browser `File` is also available as `file`; its `uri` is a temporary object
+URL. Native platforms return a local path or content URI, which apps should
+retain as an opaque reference and pass to `files.readText` where supported.
+AppKit provides native picking, but its current `readText` and `writeText`
+methods are unsupported. Web file references should be released with
+`files.release` when no longer needed.

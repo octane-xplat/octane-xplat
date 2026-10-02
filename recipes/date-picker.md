@@ -2,26 +2,26 @@
 
 ID: date-picker
 Targets: web, ios, android, macos, linux
-Related APIs: Calendar, DateInput, TimeInput, DateTimeInput, DateRangeInput, FileInput, registerFilePicker, @octane-xplat/date-picker
+Related APIs: Calendar, DateInput, TimeInput, DateTimeInput, DateRangeInput, FileInput, @octane-xplat/files, @octane-xplat/date-picker
 
 ## Starting point
 
-An Octane xplat app with `@octane-xplat/ui` installed. Add the optional
+An Octane xplat app with `@octane-xplat/ui` and `@octane-xplat/files` installed. Add the optional
 `@octane-xplat/date-picker` leaf only when the product needs SwiftUI, Material
 3, or AppKit picker chrome instead of the shared picker surfaces.
 
 ## Requirements
 
 Choose from a single date, time, combined date-time, date range, calendar, or
-file workflow. Keep date values portable ISO strings and keep native file
-picking behind an app-owned provider.
+file workflow. Keep date values as portable ISO strings and use the file
+picker bundled with `@octane-xplat/files`.
 
 ## Acceptance criteria
 
-- AC1: `Calendar`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, and `FileInput` are exported from the shared UI entry with the same public prop names and types on every target.
+- AC1: Date controls are exported from `@octane-xplat/ui` and `FileInput` from `@octane-xplat/files`, with the same public prop names and types on every target.
 - AC2: Date, time, date-time, and inclusive range values follow documented zone-free ISO contracts; date bounds and constraints apply on web and native surfaces.
 - AC3: `FileInput` supports `accept`, `isMultiple`, `maxSize`, `maxFiles`, clear/remove, and dropzone behavior where pointer drag/drop exists; its portable file reference and web `File` adaptation are documented.
-- AC4: Native apps can register a file picker without adding a UI dependency; unsupported hosts are explicitly documented.
+- AC4: `FileInput` opens the browser, NativeScript, or AppKit picker by default; iOS and Android multi-file selection needs no app-owned adapter.
 - AC5: Apps that need OS-authentic controls can use the iOS, Android, or macOS leaf entry. The obsolete `@octane-xplat/date-picker/web` `DateInput` contract is removed in favor of `@octane-xplat/ui`.
 - AC6: Maintained examples and focused tests/typechecks cover the shared API and native leaf boundary without visual inspection or device launch.
 
@@ -29,7 +29,7 @@ picking behind an app-owned provider.
 
 - AC1: [Portable component list](../docs/components.md#inputs) and [shared platform contract](../docs/date-picker.md#portable-values).
 - AC2: [ISO values and picker surfaces](../docs/date-picker.md#portable-values).
-- AC3: [File reference and validation behavior](../docs/date-picker.md#portable-values), the [web interaction tests](../packages/ui/src/date-entry.test.tsx), and the [file validation tests](../packages/ui/src/datetime.test.ts).
-- AC4: [Native picker registration and host coverage](../docs/date-picker.md#portable-values).
+- AC3: [File reference and validation behavior](../docs/date-picker.md#portable-values), the [maintained gallery example](../packages/demos/src/FileInputDemo.tsrx), the [web interaction tests](../packages/files/src/FileInput.web.test.tsx), and the [file validation tests](../packages/files/src/file-input-utils.ts).
+- AC4: [Built-in picker defaults and host coverage](../docs/date-picker.md#portable-values).
 - AC5: [OS-authentic picker entries](../docs/date-picker.md#os-authentic-pickers) and [platform APIs](../docs/date-picker.md#platform-apis).
 - AC6: [web shared-control example](../packages/demos/src/NativeDatePickerDemo.web.tsrx), [iOS example](../packages/demos/src/NativeDatePickerDemo.ios.tsrx), [Android example](../packages/demos/src/NativeDatePickerDemo.android.tsrx), [macOS host note](../packages/demos/src/NativeDatePickerDemo.macos.tsrx), and targeted typegen/tests.

@@ -4,7 +4,7 @@ import { cx } from './cx'
 import { Icon } from './Icon.web.tsrx'
 import { FormField } from './FormField.web.tsrx'
 import { Popover } from './Popover.web.tsrx'
-import { Sheet } from './Sheet.web.tsrx'
+import { BottomSheet } from './BottomSheet.web.tsrx'
 import { Tooltip } from './Tooltip.web.tsrx'
 import { ActivityIndicator } from './ActivityIndicator.web.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
@@ -337,7 +337,7 @@ function DateInputControl(inputProps: CoreProps) @{
 					weekStartsOn={props.weekStartsOn}
 				/>
 			</Popover>
-			: <Sheet open={open} onDismiss={() => setOpen(false)} className="vx-dateinput-sheet">
+			: <BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date'} height="hug" className="vx-dateinput-sheet">
 				<Calendar
 					mode="single"
 					value={typeof shown === 'string' ? shown : undefined}
@@ -348,7 +348,7 @@ function DateInputControl(inputProps: CoreProps) @{
 					numberOfMonths={1}
 					weekStartsOn={props.weekStartsOn}
 				/>
-			</Sheet>
+			</BottomSheet>
 		: null
 
 	const live = <div className="vx-sr-only" aria-live="assertive" role="alert">{!isPendingValid || rejected !== null ? 'Enter a valid date' : ''}</div>

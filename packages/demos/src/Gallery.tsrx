@@ -9,7 +9,7 @@ import { Dialer } from './Dialer.tsrx';
 // './variant-demos' is extensionless on purpose: moduleSuffixes +
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
-import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo, NativePickerDemo, NativeDatePickerDemo, NativeContextMenuDemo, NativeSheetDemo } from './variant-demos';
+import { VirtualList, ListDemo, ScrollBoxDemo, PullRefreshDemo, DeviceDemo, ModalDemo, GlassDemo, OverlayDemo, WebViewDemo, EffectsDemo, NativePickerDemo, NativeDatePickerDemo, NativeContextMenuDemo, NativeSheetDemo, FileInputDemo } from './variant-demos';
 import { Weather } from './Weather.tsrx';
 import { AnimShowcase } from './AnimShowcase.tsrx';
 import { ReactiveProbe } from './ReactiveProbe.tsrx';
@@ -81,6 +81,7 @@ export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
 	{ id: 'segmented', title: 'Segmented control', kind: 'proof' },
 	{ id: 'native-picker', title: 'Native picker', kind: 'app' },
 	{ id: 'native-date-picker', title: 'Native date picker', kind: 'app' },
+	{ id: 'file-input', title: 'File input', kind: 'app' },
 	{ id: 'native-context-menu', title: 'Native context menu', kind: 'app' },
 	{ id: 'native-sheet', title: 'Native sheet', kind: 'app' },
 	{ id: 'search', title: 'Search input', kind: 'proof' },
@@ -139,6 +140,7 @@ const renderPager = () => <PagerDemo />;
 const renderSegmented = () => <SegmentedDemo />;
 const renderNativePicker = () => <NativePickerDemo />;
 const renderNativeDatePicker = () => <NativeDatePickerDemo />;
+const renderFileInput = () => <FileInputDemo />;
 const renderNativeContextMenu = () => <NativeContextMenuDemo />;
 const renderNativeSheet = () => <NativeSheetDemo />;
 const renderSearch = () => <SearchDemo />;
@@ -190,6 +192,7 @@ export const RENDER: Record<string, () => any> = {
 	segmented: renderSegmented,
 	'native-picker': renderNativePicker,
 	'native-date-picker': renderNativeDatePicker,
+	'file-input': renderFileInput,
 	'native-context-menu': renderNativeContextMenu,
 	'native-sheet': renderNativeSheet,
 	search: renderSearch,

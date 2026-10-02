@@ -68,3 +68,12 @@ export function useFieldControlProps<T extends FieldControlProps & { id?: string
 		accessibilityHint: hint,
 	} as T & ResolvedFieldControlProps
 }
+
+/** Resolve field-control props and report whether a surrounding Field owns
+ *  the label, so third-party controls can compose with Field without nesting. */
+export function useFieldControl<T extends FieldControlProps & { id?: string; accessibilityLabel?: string; accessibilityHint?: string; web?: Record<string, any> }>(
+	props: T,
+): { props: T & ResolvedFieldControlProps; inField: boolean } {
+	const inField = useContext(FieldContext) != null
+	return { props: useFieldControlProps(props), inField }
+}

@@ -6,7 +6,7 @@ import { Icon } from './Icon.tsrx'
 import { Pressable } from './Pressable.tsrx'
 import { FormField } from './FormField.tsrx'
 import { Popover } from './Popover.tsrx'
-import { Sheet } from './Sheet.tsrx'
+import { BottomSheet } from './BottomSheet.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { nativeAccessibilityState } from './escape-props'
 import { isWritingText, writeText } from './text-write'
@@ -204,7 +204,7 @@ function DateInputControl(inputProps: CoreProps) @{
 				/>
 			</Popover>
 		) : (
-			<Sheet open={open} onDismiss={() => setOpen(false)} className="vx-dateinput-sheet">
+			<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date'} height="hug" className="vx-dateinput-sheet">
 				<Calendar
 					mode="single"
 					value={typeof shown === 'string' ? shown : undefined}
@@ -215,7 +215,7 @@ function DateInputControl(inputProps: CoreProps) @{
 					numberOfMonths={1}
 					weekStartsOn={props.weekStartsOn}
 				/>
-			</Sheet>
+			</BottomSheet>
 		)}
 	</>
 }

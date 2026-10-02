@@ -6,7 +6,6 @@ import { DateInput } from './DateInput.web.tsrx'
 import { TimeInput } from './TimeInput.web.tsrx'
 import { DateTimeInput } from './DateTimeInput.web.tsrx'
 import { DateRangeInput } from './DateRangeInput.web.tsrx'
-import { FileInput } from './FileInput.web.tsrx'
 
 vi.stubGlobal('matchMedia', (query: string) => ({
 	matches: false, media: query, onchange: null,
@@ -137,37 +136,5 @@ describe('DateRangeInput (web)', () => {
 		click(document.querySelector('.vx-daterangeinput-trigger')!)
 		click(document.querySelector('.vx-daterangeinput-preset')!)
 		expect(change).toHaveBeenCalledWith({ start: '2026-01-01', end: '2026-01-31' })
-	})
-})
-
-describe('FileInput (web)', () => {
-	it('validates and emits FileInputFile refs', async () => {
-		const change = vi.fn()
-		mount(<FileInput value={null} onChange={change} isMultiple={true} accept=".txt" pick={() => Promise.resolve([
-			{ name: 'ok.txt', uri: 'blob:1', size: 10 },
-			{ name: 'no.exe', uri: 'blob:2', size: 10 },
-		])} />)
-		await act(async () => {
-			document.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-		})
-		expect(change).toHaveBeenCalledWith([{ name: 'ok.txt', uri: 'blob:1', size: 10 }])
-		expect(document.querySelector('.vx-field-status')?.textContent).toContain('no.exe')
-	})
-	it('replaces a single value even when the list length stays one', async () => {
-		const change = vi.fn()
-		mount(<FileInput value={{ name: 'old.txt', uri: 'blob:old' }} onChange={change} pick={() => Promise.resolve({ name: 'new.txt', uri: 'blob:new' })} />)
-		await act(async () => {
-			document.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-		})
-		expect(change).toHaveBeenCalledWith({ name: 'new.txt', uri: 'blob:new' })
-	})
-	it('retains the current file when a replacement fails validation', async () => {
-		const change = vi.fn()
-		mount(<FileInput value={{ name: 'old.txt', uri: 'blob:old' }} onChange={change} accept=".txt" pick={() => Promise.resolve({ name: 'new.exe', uri: 'blob:new' })} />)
-		await act(async () => {
-			document.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-		})
-		expect(change).not.toHaveBeenCalled()
-		expect(document.querySelector('.vx-field-status')?.textContent).toContain('new.exe')
 	})
 })

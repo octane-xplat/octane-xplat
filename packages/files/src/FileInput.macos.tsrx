@@ -1,18 +1,14 @@
 /** @jsxImportSource @xplat/macos/renderer */
-import { useContext, useId, useState } from 'octane'
+import { useId, useState } from 'octane'
+import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
-import { cx } from './cx'
-import { Icon } from './Icon.macos.tsrx'
-import { Pressable } from './Pressable.macos.tsrx'
-import { FormField } from './FormField.macos.tsrx'
-import { FieldContext, useFieldControlProps } from './field-context'
-import { formatFileSize, getFilePicker, normalizePicked, validateFiles } from './file-picker'
-import { pickMacOSFiles } from './file-picker.macos'
+import { files as fileService } from './files'
+import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function FileInputControl(inputProps: FileInputProps) @{
-	const props = useFieldControlProps(inputProps)
+	const { props } = useFieldControl(inputProps)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 
@@ -63,9 +59,15 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	const pick = () => {
 		if (isDisabled || isBusy) return
-		const provider = props.pick ?? getFilePicker() ?? pickMacOSFiles
-
-		Promise.resolve(provider({ accept: props.accept, multiple: props.isMultiple })).then((r) => acceptRefs(normalizePicked(r)))
+		const options = { accept: props.accept, multiple: props.isMultiple }
+		const picked = props.pick
+			? props.pick(options)
+			: props.isMultiple
+				? fileService.pickMultiple(props.accept)
+				: fileService.pick(props.accept)
+		Promise.resolve(picked)
+			.then((result) => acceptRefs(normalizePicked(result)))
+			.catch((error) => setValidationErrors([String(error?.message ?? error)]))
 	}
 
 	const dropzone = props.mode === 'dropzone'
@@ -126,13 +128,12 @@ function FileInputControl(inputProps: FileInputProps) @{
 }
 
 /**
- * File entry — opens AppKit's native NSOpenPanel by default. Apps can still
- * override it with `pick`/`registerFilePicker` when they need a custom source.
- * Values are `FileInputFile` `{name, uri, size?, mimeType?}` — the portable
- * `@octane-xplat/files` shape. Drag/drop is not implemented on this leaf.
+ * File entry — delegates selection to this package's AppKit files service.
+ * Values are portable `{name, uri, size?, mimeType?}` refs. Drag/drop is not
+ * implemented on this leaf.
  */
 export function FileInput(props: FileInputProps) @{
-	const inField = useContext(FieldContext) != null
+	const { inField } = useFieldControl(props)
 	const cid = useId()
 	const control = <FileInputControl {...props} />
 

@@ -86,26 +86,30 @@ async function readContentUri(uri: string): Promise<string> {
 	}
 }
 
+async function pickFiles(accept: string, multiple: boolean, opts?: { startingFolder?: string }): Promise<FileRef[]> {
+	const { extensions, mimeTypes } = pickerTypes(accept)
+	const result = await openFilePicker({
+		extensions,
+		mimeTypes,
+		multipleSelection: multiple,
+		permissions: { read: true, persistable: true },
+		startingFolder: opts?.startingFolder,
+	})
+
+	return (result.files ?? []).map((uri, index) => ({
+		name: androidDisplayName(uri, index === 0 ? result.android : undefined) ?? fallbackName(uri),
+		uri,
+	}))
+}
+
 export const files = {
-	/** Opens the platform document picker and returns its opaque native URI. */
+	/** Opens the platform document picker and returns selected opaque URIs. */
+	async pickMultiple(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef[]> {
+		return pickFiles(accept, true, opts)
+	},
+	/** Opens the platform document picker and returns its first opaque URI. */
 	async pick(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef | null> {
-		const { extensions, mimeTypes } = pickerTypes(accept)
-		const result = await openFilePicker({
-			extensions,
-			mimeTypes,
-			multipleSelection: false,
-			permissions: { read: true, persistable: true },
-			startingFolder: opts?.startingFolder,
-		})
-
-		const uri = result.files?.[0]
-
-		if (!uri) {
-			return null
-		}
-
-		const name = androidDisplayName(uri, result.android) ?? fallbackName(uri)
-		return { name, uri }
+		return (await pickFiles(accept, false, opts))[0] ?? null
 	},
 	async readText(ref: FileRef): Promise<string> {
 		if (ref.uri.startsWith('content://')) {

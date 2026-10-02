@@ -46,14 +46,20 @@ function run(command, args, cwd) {
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	'@nativescript-community/ui-document-picker',
-	'@nativescript/core',
-	'@nativescript/types',
-	'@octane-xplat/platform',
+	"@nativescript-community/ui-document-picker",
+	"@nativescript/core",
+	"@nativescript/types",
+	"@octane-xplat/platform",
+	"@octane-xplat/ui",
+	"octane"
 ]
 
 const consumers = {
-	web: `import { files } from '@octane-xplat/files'
+	"web": `import { FileInput, files } from '@octane-xplat/files'
+import type { FileInputProps } from '@octane-xplat/files'
+const inputProps: FileInputProps = { value: null, onChange: () => {} }
+void FileInput
+void inputProps
 const picked = files.pick('image/*')
 const ref = picked.then((file) => file?.uri)
 // @ts-expect-error readText needs a FileRef
@@ -62,7 +68,11 @@ void picked
 void ref
 void bad
 `,
-	native: `import { files } from '@octane-xplat/files'
+	"native": `import { FileInput, files } from '@octane-xplat/files'
+import type { FileInputProps } from '@octane-xplat/files'
+const inputProps: FileInputProps = { value: null, onChange: () => {} }
+void FileInput
+void inputProps
 const picked = files.pick('image/*')
 const ref = picked.then((file) => file?.uri)
 // @ts-expect-error readText needs a FileRef
@@ -71,7 +81,11 @@ void picked
 void ref
 void bad
 `,
-	macos: `import { files } from '@octane-xplat/files'
+	"macos": `import { FileInput, files } from '@octane-xplat/files'
+import type { FileInputProps } from '@octane-xplat/files'
+const inputProps: FileInputProps = { value: null, onChange: () => {} }
+void FileInput
+void inputProps
 const picked = files.pick()
 void picked
 `,

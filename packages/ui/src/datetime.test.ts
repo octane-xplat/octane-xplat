@@ -27,7 +27,6 @@ import {
 	monthStart,
 	navigationBounds,
 } from './calendar-core'
-import { fileAccepts, validateFiles } from './file-picker'
 
 describe('PlainDate math', () => {
 	it('round-trips ISO parsing', () => {
@@ -106,24 +105,6 @@ describe('date constraints', () => {
 		const weekend = createDateDisabledCheck({ dateConstraints: [(d: Date) => d.getDay() !== 0 && d.getDay() !== 6] })
 		expect(weekend(plainDateFromISO('2026-10-03')!)).toBe(true) // Saturday
 		expect(weekend(plainDateFromISO('2026-10-05')!)).toBe(false)
-	})
-})
-
-describe('file validation', () => {
-	it('matches accept tokens', () => {
-		expect(fileAccepts({ name: 'a.png', uri: 'x' }, '.png')).toBe(true)
-		expect(fileAccepts({ name: 'a.jpg', uri: 'x' }, '.png')).toBe(false)
-		expect(fileAccepts({ name: 'a.png', uri: 'x', mimeType: 'image/png' }, 'image/*')).toBe(true)
-	})
-	it('enforces maxSize and maxFiles', () => {
-		const files = [
-			{ name: 'a', uri: 'a', size: 10 },
-			{ name: 'b', uri: 'b', size: 99999 },
-			{ name: 'c', uri: 'c' },
-		]
-		const r = validateFiles(files, { maxSize: 100, maxFiles: 1 })
-		expect(r.valid.map((f) => f.name)).toEqual(['a'])
-		expect(r.errors).toHaveLength(2)
 	})
 })
 

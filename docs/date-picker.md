@@ -5,10 +5,11 @@
 > OS-authentic picker surface.
 
 `@octane-xplat/ui` exports `Calendar`, `DateInput`, `TimeInput`,
-`DateTimeInput`, `DateRangeInput`, and `FileInput` from its shared entry.
-These components keep the same names and portable values on web, iOS,
-Android, macOS, and Linux. Labels can be supplied directly or by composing a
-control inside `Field`.
+`DateTimeInput`, and `DateRangeInput`. `@octane-xplat/files` exports
+`FileInput` alongside the native file service it uses. The entry points keep
+the same component names and portable values on web, iOS, Android, macOS, and
+Linux. Labels can be supplied directly or by composing a control inside
+`Field`.
 
 ## Portable values
 
@@ -35,16 +36,16 @@ shared API does not change into a platform-specific component.
 `FileInput` accepts `isMultiple`, `accept`, `maxSize`, and `maxFiles`. Its
 portable values are `{ name, uri, size?, mimeType? }` references. A browser
 `File` object cannot be shared with native code, so web additionally supplies
-the selected object as `file`; native apps receive an opaque URI/path and
-consume it through their file service. Web always provides a chooser and
-dropzone drag-and-drop. macOS opens AppKit's native `NSOpenPanel` by default.
-iOS and Android apps can register a picker with
-`registerFilePicker(({ accept }) => files.pick(accept))` or pass one through
-the `pick` prop. `files.pick` selects one file; apps that need
-`isMultiple={true}` must supply a provider that returns an array. The UI
-package has no dependency on a file service.
-The AppKit `@octane-xplat/files` leaf provides the picker but its read/write
-methods are not implemented yet.
+the selected object as `file`; native apps receive an opaque URI/path.
+Selection is built in: the browser chooser is used on web and Linux, the
+NativeScript document picker on iOS and Android, and AppKit's `NSOpenPanel`
+on macOS. Multi-file selection is supported on each of those paths. An
+optional `pick` prop can override the default for app-specific sources. The
+AppKit files leaf provides picking; its `readText` and `writeText` methods
+remain unsupported.
+
+`@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the
+field presentation. Install both packages when using `FileInput`.
 
 ## OS-authentic pickers
 

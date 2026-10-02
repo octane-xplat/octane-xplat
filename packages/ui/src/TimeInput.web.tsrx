@@ -3,7 +3,7 @@ import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from './cx'
 import { Icon } from './Icon.web.tsrx'
 import { FormField } from './FormField.web.tsrx'
-import { Sheet } from './Sheet.web.tsrx'
+import { BottomSheet } from './BottomSheet.web.tsrx'
 import { Tooltip } from './Tooltip.web.tsrx'
 import { ActivityIndicator } from './ActivityIndicator.web.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
@@ -287,7 +287,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	<>
 		{showsDisabledReason ? <Tooltip trigger={shellNode} content={props.disabledMessage!} /> : shellNode}
 		{surface === 'sheet' ? (
-			<Sheet open={open} onDismiss={() => setOpen(false)} className="vx-timeinput-sheet">
+			<BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a time'} height="hug" className="vx-timeinput-sheet">
 				<TimeWheelPanel
 					value={shown}
 					hasSeconds={hasSeconds}
@@ -297,7 +297,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 					onCommit={(t) => { fireChange(t); setOpen(false) }}
 					onDismiss={() => setOpen(false)}
 				/>
-			</Sheet>
+			</BottomSheet>
 		) : null}
 		<div className="vx-sr-only" aria-live="polite" role="status">{announcement}</div>
 		<div className="vx-sr-only" aria-live="assertive" role="alert">{!isPendingValid ? 'Enter a valid time' : ''}</div>

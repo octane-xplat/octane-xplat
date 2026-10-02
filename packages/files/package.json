@@ -22,18 +22,34 @@
 		"directory": "packages/files"
 	},
 	"files": [
-		"src"
+		"src",
+		"types"
 	],
 	"type": "module",
 	"exports": {
 		".": {
-			"macos": "./src/index.macos.ts",
+			"macos": {
+				"types": "./types/index.macos.d.ts",
+				"default": "./src/index.macos.ts"
+			},
+			"types": "./types/index.d.ts",
 			"default": "./src/index.ts"
 		},
 		"./*": "./src/*"
 	},
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"exports": {
+			".": {
+				"macos": {
+					"types": "./types/index.macos.d.ts",
+					"default": "./src/index.macos.ts"
+				},
+				"types": "./types/index.d.ts",
+				"default": "./src/index.ts"
+			},
+			"./*": "./src/*"
+		}
 	},
 	"scripts": {
 		"test:packed": "node tests/packed-consumer.mjs"
@@ -46,11 +62,13 @@
 		"@nativescript-community/octane": "0.2.4",
 		"@nativescript/core": "9.1.2",
 		"@nativescript/types": "9.0.0",
+		"@octane-xplat/ui": "workspace:*",
 		"octane": "0.6.3"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
 		"@nativescript/core": ">=9.1.0 <10",
+		"@octane-xplat/ui": ">=0.6.0 <1",
 		"octane": ">=0.6.3 <1"
 	},
 	"peerDependenciesMeta": {

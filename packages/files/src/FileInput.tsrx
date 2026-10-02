@@ -1,17 +1,14 @@
 /** @jsxImportSource @nativescript-community/octane */
-import { useContext, useId, useState } from 'octane'
+import { useId, useState } from 'octane'
+import { Field as FormField, Icon, Pressable, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
-import { cx } from './cx'
-import { Icon } from './Icon.tsrx'
-import { Pressable } from './Pressable.tsrx'
-import { FormField } from './FormField.tsrx'
-import { FieldContext, useFieldControlProps } from './field-context'
-import { formatFileSize, getFilePicker, normalizePicked, validateFiles } from './file-picker'
+import { files as fileService } from './files'
+import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function FileInputControl(inputProps: FileInputProps) @{
-	const props = useFieldControlProps(inputProps)
+	const { props } = useFieldControl(inputProps)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 
@@ -62,16 +59,15 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	const pick = () => {
 		if (isDisabled || isBusy) return
-		const provider = props.pick ?? getFilePicker()
-		if (!provider) {
-			setValidationErrors([
-				'No file picker is registered — register an adapter for the app file service; multi-file selection needs a provider that returns arrays.',
-			])
-
-			return
-		}
-
-		Promise.resolve(provider({ accept: props.accept, multiple: props.isMultiple })).then((r) => acceptRefs(normalizePicked(r)))
+		const options = { accept: props.accept, multiple: props.isMultiple }
+		const picked = props.pick
+			? props.pick(options)
+			: props.isMultiple
+				? fileService.pickMultiple(props.accept)
+				: fileService.pick(props.accept)
+		Promise.resolve(picked)
+			.then((result) => acceptRefs(normalizePicked(result)))
+			.catch((error) => setValidationErrors([String(error?.message ?? error)]))
 	}
 
 	const dropzone = props.mode === 'dropzone'
@@ -134,12 +130,11 @@ function FileInputControl(inputProps: FileInputProps) @{
 /**
  * File entry — `compact`/`dropzone` modes render the same tappable surface
  * on iOS/Android (drag/drop has no touch equivalent). Values are
- * `FileInputFile` `{name, uri, size?, mimeType?}` — the portable
- * `@octane-xplat/files` shape. Picking needs a provider: the `pick` prop,
- * or register an adapter for the app's native file service once per app.
+ * `FileInputFile` `{name, uri, size?, mimeType?}`; native picking uses the
+ * platform file service exported by this package.
  */
 export function FileInput(props: FileInputProps) @{
-	const inField = useContext(FieldContext) != null
+	const { inField } = useFieldControl(props)
 	const cid = useId()
 	const control = <FileInputControl {...props} />
 

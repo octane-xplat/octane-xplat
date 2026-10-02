@@ -145,6 +145,7 @@ export type {
 // Forms and data entry
 /** Labeled control wrapper, exported under Astryx's component name. */
 export { FormField as Field } from './FormField'
+export { useFieldControl } from './field-context'
 export { FieldGroup } from './FieldGroup'
 /** Form-field arrangement container (Astryx FormLayout). */
 export { FormLayout } from './FormLayout'
@@ -176,10 +177,6 @@ export { DateInput } from './DateInput'
 export { TimeInput } from './TimeInput'
 export { DateTimeInput } from './DateTimeInput'
 export { DateRangeInput } from './DateRangeInput'
-export { FileInput } from './FileInput'
-/** Override native file picking with an app-level provider. macOS has an
- *  AppKit default and web always uses the browser chooser. */
-export { registerFilePicker } from './file-picker'
 export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './calendar-hooks'
 export { isSameDay, isDateInRange, getWeekNumber } from './calendar-core'
 export type { CalendarDay, CalendarMonthGrid } from './calendar-core'
@@ -252,16 +249,10 @@ export type {
 	DateTimeInputTimeOptionInterval,
 	DateTimeInputStatus,
 	DateTimeInputStatusType,
-	FileInputStatus,
-	FileInputStatusType,
 	DayOfWeek,
 	DayOfWeekName,
 	DateRange,
 	FieldStatusVariant,
-	FileInputFile,
-	FileInputHandle,
-	FileInputPick,
-	FileInputProps,
 	InputPresentation,
 	ISODateString,
 	ISODateTimeString,

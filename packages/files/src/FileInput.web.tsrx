@@ -1,17 +1,12 @@
-import { useContext, useId, useRef, useState } from 'octane'
+import { useId, useRef, useState } from 'octane'
+import { Field as FormField, Icon, Spinner as ActivityIndicator, Tooltip, useFieldControl } from '@octane-xplat/ui'
 import type { FileInputFile, FileInputProps } from './props'
-import { cx } from './cx'
-import { Icon } from './Icon.web.tsrx'
-import { FormField } from './FormField.web.tsrx'
-import { Tooltip } from './Tooltip.web.tsrx'
-import { ActivityIndicator } from './ActivityIndicator.web.tsrx'
-import { FieldContext, useFieldControlProps } from './field-context'
-import { formatFileSize, normalizePicked, validateFiles } from './file-picker'
+import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input-utils'
 
 const STATUS_GLYPHS = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function FileInputControl(inputProps: FileInputProps) @{
-	const props = useFieldControlProps(inputProps)
+	const { props } = useFieldControl(inputProps)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 	const fileInput = useRef<HTMLInputElement | null>(null)
@@ -66,10 +61,11 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 	const pick = () => {
 		if (isDisabled || isBusy) return
-		// A registered app-level provider (registerFilePicker)
-		// wins over the browser dialog — same seam native always takes.
+		// An optional custom picker can provide cloud or app-specific sources.
 		if (props.pick) {
-			Promise.resolve(props.pick({ accept: props.accept, multiple: props.isMultiple })).then((r) => acceptRefs(normalizePicked(r)))
+			Promise.resolve(props.pick({ accept: props.accept, multiple: props.isMultiple }))
+				.then((r) => acceptRefs(normalizePicked(r)))
+				.catch((error) => setValidationErrors([String(error?.message ?? error)]))
 			return
 		}
 
@@ -208,13 +204,12 @@ function FileInputControl(inputProps: FileInputProps) @{
 
 /**
  * File entry — `compact` (button + list) or `dropzone` mode. Values are
- * `FileInputFile` `{name, uri, size?, mimeType?}` — the portable
- * `@octane-xplat/files` shape, not browser `File`. On web the hidden
- * `<input type=file>` is the default provider; `pick`/`registerFilePicker`
- * can override. Drag/drop targets the control wrapper in both modes.
+ * `{name, uri, size?, mimeType?}` portable refs. On web the hidden browser
+ * input returns the `File` alongside its object URL. Drag/drop targets the
+ * control wrapper in both modes.
  */
 export function FileInput(props: FileInputProps) @{
-	const inField = useContext(FieldContext) != null
+	const { inField } = useFieldControl(props)
 	const cid = useId()
 	const control = <FileInputControl {...props} />
 	if (inField) return control

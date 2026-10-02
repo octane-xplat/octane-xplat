@@ -101,7 +101,7 @@ matching accessibility group role.
 | `DateTimeInput`                      | Combined ISO local date-time field                | `value`, `onChange`, `min`, `max`, `presentation` |
 | `Calendar`                           | Single-date or inclusive range calendar           | `mode`, `value`, `numberOfMonths`, `dateConstraints` |
 | `DateRangeInput`                     | Labeled range trigger with calendar and presets  | `value`, `onChange`, `presets`, `minRangeSpan`, `maxRangeSpan` |
-| `FileInput`                           | File picker with input and dropzone modes         | `value`, `onChange`, `accept`, `isMultiple`, `maxSize` |
+| `FileInput`                           | `@octane-xplat/files` picker with input and dropzone modes | `value`, `onChange`, `accept`, `isMultiple`, `maxSize` |
 | `Switch`                             | On/off toggle (self-drawn)                       | `checked`, `onCheckedChange`, `isDisabled`                  |
 | `CheckboxInput`                     | Self-drawn checkbox                              | `checked`, `onCheckedChange`, `isDisabled`                  |
 | `CheckboxIndicator`, `CheckIndicator`, `RadioIndicator` | Decorative selection marks | `state`, `size`, `isDisabled` |
@@ -132,13 +132,15 @@ stay consistent across targets. `DateRangeInput` uses `{start, end}` ISO dates
 or `null`. See the [date and file entry guide](date-picker.md) for full
 contracts and the native picker package boundary.
 
-`FileInput` uses a portable `{name, uri, size?, mimeType?}` reference because
-browser `File` objects do not exist on native targets. On web the optional
-`file` property retains the browser object for upload APIs. macOS opens the
-native AppKit `NSOpenPanel` by default. iOS and Android apps register a picker
-such as `registerFilePicker(({ accept }) => files.pick(accept))`; multi-file
-support needs a provider that returns arrays. Web uses the browser chooser
-and supports drag and drop in `mode="dropzone"`.
+`FileInput` is exported by `@octane-xplat/files`, which depends on
+`@octane-xplat/ui` for its field presentation. It uses portable
+`{name, uri, size?, mimeType?}` references because browser `File` objects do
+not exist on native targets. On web the optional `file` property retains the
+browser object for upload APIs. The package opens the platform picker by
+default, including multi-file selection on iOS and Android; no app-level
+picker registration is needed. Web uses the browser chooser and supports drag
+and drop in `mode="dropzone"`. See the [date and file entry guide](date-picker.md)
+for platform details and AppKit file-access limits.
 
 ## Content
 
