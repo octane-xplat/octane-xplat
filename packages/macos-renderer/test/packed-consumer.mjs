@@ -120,7 +120,9 @@ await writeFile(
 console.log('[packed renderer] installing independent tarball consumer')
 run('pnpm', ['install', '--ignore-scripts'])
 run('pnpm', ['exec', 'xplat', 'patches', 'apply'])
-run('pnpm', ['install', '--ignore-scripts'])
+// patches apply registers patchedDependencies, so this install must update
+// the lockfile — frozen installs (CI default) would reject the config change.
+run('pnpm', ['install', '--ignore-scripts', '--no-frozen-lockfile'])
 run('pnpm', ['exec', 'tsc', '--noEmit'])
 run('pnpm', ['exec', 'vite', 'build'])
 const bundled = await readFile(join(app, 'dist/package-build/main.cjs'), 'utf8')

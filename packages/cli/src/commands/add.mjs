@@ -113,7 +113,12 @@ export const add = command({
 			return
 		}
 
-		const install = spawnSync('pnpm', ['install'], { cwd, stdio: 'inherit' })
+		// add rewrites deps and patchedDependencies — the lockfile must update,
+		// so frozen installs (the default under CI) have to be opted out of.
+		const install = spawnSync('pnpm', ['install', '--no-frozen-lockfile'], {
+			cwd,
+			stdio: 'inherit',
+		})
 		if (install.status !== 0) {
 			p.log.error('pnpm install failed — run it manually to finish enabling the target')
 			process.exit(install.status ?? 1)

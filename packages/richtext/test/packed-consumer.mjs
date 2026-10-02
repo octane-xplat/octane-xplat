@@ -150,7 +150,9 @@ export default async ({mode}) => { const config = await xplatMacOS(mode, {root: 
 console.log('[packed editors] installing tarball consumer')
 run('pnpm', ['install', '--ignore-scripts'])
 run('pnpm', ['exec', 'xplat', 'patches', 'apply'])
-run('pnpm', ['install', '--ignore-scripts'])
+// patches apply registers patchedDependencies, so this install must update
+// the lockfile — frozen installs (CI default) would reject the config change.
+run('pnpm', ['install', '--ignore-scripts', '--no-frozen-lockfile'])
 run('pnpm', ['exec', 'tsc', '--noEmit'])
 console.log('[packed editors] macos declarations pass including negative JSON cases')
 run('pnpm', ['exec', 'xplat', 'build', '--targets', 'macos'])
