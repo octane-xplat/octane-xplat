@@ -3,6 +3,7 @@ export function selectionState(view: any): string {
 	if (view.accessibilityRole() !== 'AXCheckBox') {
 		throw new Error('Expected AXCheckBox')
 	}
+
 	return value === 2 ? 'mixed' : value === 1 ? 'checked' : 'unchecked'
 }
 
