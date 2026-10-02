@@ -51,6 +51,16 @@ code. Availability, permissions, and responses differ by platform: photo
 capture uses the OS camera on iOS/Android, while the web flow may offer a
 file picker. Handle unavailable features explicitly.
 
+```ts
+import { media } from '@octane-xplat/media'
+
+// Call from your Attach photo action.
+async function attachPhoto() {
+	if ((await media.ensure('camera')) !== 'granted') return null
+	return await media.capturePhoto() // null means the user cancelled.
+}
+```
+
 ## Make it feel right on each platform
 
 Share product behavior and the basic screen layout. Use a platform-specific
@@ -58,9 +68,27 @@ file when a phone needs an OS control or a desktop needs a different layout.
 [Platform variants](docs/module-resolution.md) keep those choices behind a
 shared import; [platform widgets](docs/primitives.md) provide opt-in OS controls.
 
+```tsx
+// PackingSwitch.ios.tsx
+import { UISwitch } from '@octane-xplat/ui/ios'
+
+export function PackingSwitch(props: { value: boolean; onChange: (value: boolean) => void }) {
+	return <UISwitch value={props.value} onValueChange={props.onChange} />
+}
+```
+
 For example, keep a packing row's props and action shared, but put its
 `UISwitch` implementation in an `.ios` file. The browser and Android keep
 their own implementations; the calling screen keeps one import.
+
+```tsx
+// A shared screen imports the module without an OS suffix.
+import { PackingSwitch } from './PackingSwitch'
+
+export function PackingRow(props: { packed: boolean; setPacked: (value: boolean) => void }) {
+	return <PackingSwitch value={props.packed} onChange={props.setPacked} />
+}
+```
 
 ## What you can verify
 

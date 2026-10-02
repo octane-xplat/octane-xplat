@@ -29,10 +29,12 @@ compares `repository.url` with the GitHub Actions source, so keep this URL exact
 and retain the package's directory:
 
 ```json
-"repository": {
-  "type": "git",
-  "url": "https://github.com/octane-xplat/octane-xplat",
-  "directory": "packages/<dir>"
+{
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/<dir>"
+	}
 }
 ```
 

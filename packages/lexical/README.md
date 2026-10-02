@@ -9,8 +9,19 @@ Aztec-shaped node packages) with a `zeed-dom` parse shim. No DOM-bound
 lexical code ever enters a native bundle — divergence lives at the
 file-suffix boundary.
 
-```ts
+```tsx
+import { useState } from 'octane'
 import { LexicalEditor, supported } from '@octane-xplat/lexical'
+import { Text } from '@octane-xplat/ui'
+
+export function Notes() {
+	const [html, setHtml] = useState('<p>Trip notes</p>')
+	return supported ? (
+		<LexicalEditor value={html} onChange={setHtml} />
+	) : (
+		<Text>Editing is unavailable on this target</Text>
+	)
+}
 ```
 
 `value`/`onChange` exchange document HTML. `getJSON`/`setJSON` exchange
@@ -19,6 +30,40 @@ web, bridged on native after `onJSONReady(true)` — the lazy bridge reports
 `false` (and `getJSON()` returns `null`) on runtimes that cannot host the
 document-model modules. On native, HTML is the canonical interchange
 format; serialized state is a best-effort mapping.
+
+```tsx
+import { useRef, useState } from 'octane'
+import { LexicalEditor, type LexicalEditorHandle } from '@octane-xplat/lexical'
+import { Button } from '@octane-xplat/ui'
+
+export function DocumentCopy() {
+	const editor = useRef<LexicalEditorHandle | null>(null)
+	const [html, setHtml] = useState('<p>Trip notes</p>')
+	const [jsonReady, setJsonReady] = useState(false)
+	return (
+		<>
+			<LexicalEditor
+				value={html}
+				onChange={setHtml}
+				bind={(handle) => {
+					editor.current = handle
+				}}
+				onReady={() => setJsonReady(editor.current?.getJSON() != null)}
+				onJSONReady={setJsonReady}
+			/>
+			<Button
+				isDisabled={!jsonReady}
+				onPress={() => {
+					const document = editor.current?.getJSON()
+					if (document) editor.current?.setJSON(document)
+				}}
+			>
+				Round-trip document
+			</Button>
+		</>
+	)
+}
+```
 
 The facade's plugin set is fixed on purpose. Apps needing custom nodes,
 plugins, or transforms import `@octanejs/lexical` directly on web — the

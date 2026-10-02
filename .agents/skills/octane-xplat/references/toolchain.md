@@ -13,8 +13,8 @@ cd apps/mobile && pnpm exec ns build ios --release     # Release-iphonesimulator
 # Android — debug / signed release
 cd apps/mobile && pnpm exec ns build android
 cd apps/mobile && pnpm exec ns build android --release \
-  --key-store-path <keystore> --key-store-password <pw> \
-  --key-store-alias <alias> --key-store-alias-password <pw>
+  --key-store-path "$KEYSTORE_PATH" --key-store-password "$KEYSTORE_PASSWORD" \
+  --key-store-alias "$KEYSTORE_ALIAS" --key-store-alias-password "$KEYSTORE_PASSWORD"
 ```
 
 The web production build is covered by the smoke script (59 assertions at

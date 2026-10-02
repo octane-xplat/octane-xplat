@@ -6,6 +6,19 @@ conditional `@octane-xplat/ui/ios`, `/android`, or `/web` subpaths. Those
 subpaths resolve only for their target, so keep imports in a matching
 platform-suffixed file (or a native file guarded by the matching OS branch).
 
+```tsx
+import { HStack, Text } from '@octane-xplat/ui'
+
+export function PackingRow() {
+	return (
+		<HStack>
+			<Text>Passport</Text>
+			<Text>Packed</Text>
+		</HStack>
+	)
+}
+```
+
 **Prop types live in `packages/ui/src/props.ts`** — the source for shared
 component leaves and published declarations. Platform subpath widgets also
 use these shared prop contracts where applicable.
@@ -14,25 +27,57 @@ use these shared prop contracts where applicable.
 
 These names are exported from the root package on web and native, including
 `KeyboardAvoiding` (native leaves own OS keyboard events; web
-observes `visualViewport`, macOS is an inert column). This inventory follows the current
+keeps the wrapper layout without keyboard avoidance, macOS is an inert column). This inventory follows the current
 `index.web.ts` and unsuffixed native-default `index.ts` barrels.
 
-| Area                 | Shared exports                                                                                                  |
-| -------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Layout               | `View`, `VStack`, `HStack`, `Grid`, `Stack`, `StackItem`, `Absolute`, `Spacer`, `Screen`                        |
-| Text and media       | `Text`, `RichText`, `RichTextSpan`, `Heading`, `Image`, `Icon`, `Meter`, `ActivityIndicator`                    |
-| Interaction          | `Pressable`, `Link`, `NavLink`, `Switch`, `Slider`, `Tabs`, `Drawer`                                            |
-| Inputs and scrolling | `TextInput`, `TextArea`, `ScrollView`, `ScrollBox`, `SafeArea`; `KeyboardAvoiding` (web = visualViewport inset) |
-| Overlays             | `Overlay`, `Popover`, `Sheet`, `openSheet`, `closeSheet`, `showToast`                                           |
-| Styling and state    | `styled`, `useAnimation`, `useStore`, theme and color-scheme APIs                                               |
+```tsx
+import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
-`Switch`, `Slider`, `ActivityIndicator`, `Tabs`, and `Drawer` are
+export function Notes() {
+	return (
+		<KeyboardAvoiding>
+			<TextInput label="Packing notes" />
+		</KeyboardAvoiding>
+	)
+}
+```
+
+| Area                 | Shared exports                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------ |
+| Layout               | `View`, `VStack`, `HStack`, `Grid`, `Stack`, `Absolute`, `Spacer`, `Screen`                      |
+| Text and media       | `Text`, `RichText`, `RichTextSpan`, `Heading`, `Image`, `Icon`, `Meter`, `Spinner`               |
+| Interaction          | `Pressable`, `Link`, `NavLink`, `Switch`, `Slider`, `Tabs`, `Drawer`                             |
+| Inputs and scrolling | `TextInput`, `TextArea`, `ScrollableArea`, `SafeArea`; `KeyboardAvoiding` (web = layout wrapper) |
+| Overlays             | `Overlay`, `Popover`, `BottomSheet`, `openBottomSheet`, `closeBottomSheet`, `showToast`          |
+| Styling and state    | `styled`, `useAnimation`, `useStore`, theme and color-scheme APIs                                |
+
+`Switch`, `Slider`, `Spinner`, `Tabs`, and `Drawer` are
 self-drawn shared components: their shared props produce the same component
 design across targets, rather than exposing OS chrome. `Slider` follows pan
 deltas and does not jump to a tapped track position. `Drawer` has no edge-swipe
 gesture on web; provide a visible toggle. `TextInput`, `TextArea`, and
-`ScrollView` remain OS-backed with normalized chrome because text editing and
+`ScrollableArea` remain OS-backed with normalized chrome because text editing and
 scroll behavior belong to the platform.
+
+```tsx
+import { useState } from 'octane'
+import { Drawer, Switch, Slider, Spinner, TextInput } from '@octane-xplat/ui'
+
+export function Controls() {
+	const [packed, setPacked] = useState(false)
+	return (
+		<>
+			<Switch checked={packed} onCheckedChange={setPacked} />
+			<Slider value={50} onValueChange={console.log} />
+			<Spinner />
+			<TextInput label="Bag name" />
+			<Drawer open={false}>
+				<TextInput label="Packing notes" />
+			</Drawer>
+		</>
+	)
+}
+```
 
 ## Platform-authentic subpaths
 
@@ -43,7 +88,7 @@ from the shared root barrel.
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@octane-xplat/ui/ios`     | `UISwitch`, `UISlider`, `UIActivityIndicatorView`, `UITableView`, `UITabBar`, `UIModal`, `openModal`, `SideDrawer`, `LiquidGlass`, `LiquidGlassContainer` |
 | `@octane-xplat/ui/android` | `MaterialSwitch`, `SeekBar`, `CircularProgressIndicator`, `RecyclerView`, `BottomNavigationView`, `MaterialDialog`, `openModal`, `DrawerLayout`           |
-| `@octane-xplat/ui/web`     | `Hoverable`, `Tooltip` (compat re-export — the shared root barrel carries them too)                                                                       |
+| `@octane-xplat/ui/web`     | `HoverCard`, `Tooltip` (compat re-export — the shared root barrel carries them too)                                                                       |
 
 These conditional exports include the platform-authentic names
 `UISwitch`/`MaterialSwitch`, `UITableView`/`RecyclerView`,
@@ -52,18 +97,25 @@ These conditional exports include the platform-authentic names
 deliberate exits from the same-pixels shared contract; use a matching
 `.ios`/`.android`/`.web` file or an explicit platform branch.
 
+```tsx
+// PackingToggle.ios.tsx
+import { UISwitch } from '@octane-xplat/ui/ios'
+
+export function PackingToggle() {
+	return <UISwitch value={false} onValueChange={console.log} />
+}
+```
+
 ## Removed from the shared surface
 
-- `List` and `Modal` have no shared root export. Use `ScrollView` with mapped
-  children for a shared list, or `UITableView`/`RecyclerView` for native
-  virtualization. Use shared `Sheet`/`Overlay` for in-window overlays, or
-  `UIModal`/`MaterialDialog` for platform-authentic modal UI.
+- `Modal` has no shared root export. `List`/`ListItem` now provide a bounded
+  content list; use `VirtualList` for long windowed collections. Shared
+  `Dialog`/`BottomSheet`/`Overlay` own temporary surfaces, while
+  `UIModal`/`MaterialDialog` provide platform-authentic modal UI.
 - `openModal`, `PlatformBadge`, and the shared `glass` container prop are not
-  root exports. `openModal` is available only from the iOS and Android
-  subpaths. `Hoverable` and `Tooltip` ARE shared root exports (decision #69):
-  pointer platforms (web, macOS) mount the hint layer on hover; touch leaves
-  render only the trigger/children — keep essential information out of
-  `content`/`card`.
+  root exports. `openModal` is available only from iOS and Android subpaths.
+  `HoverCard` and `Tooltip` are shared root exports; qualify pointer/touch
+  behavior per target and keep essential information in visible content.
 
 ## Conventions
 

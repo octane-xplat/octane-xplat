@@ -1,12 +1,12 @@
 # `@octane-xplat/gif`
 
-Animated images (GIF, animated WebP) for Octane xplat apps: a plain
-`<img>` on web and `@nativescript-community/ui-image`
-(Fresco on Android / SDWebImage on iOS) on native, with a macOS entry.
-
 ```sh
 pnpm add @octane-xplat/gif
 ```
+
+Animated images (GIF, animated WebP) for Octane xplat apps: a plain
+`<img>` on web and `@nativescript-community/ui-image`
+(Fresco on Android / SDWebImage on iOS) on native, with a macOS entry.
 
 ```tsx
 import { AnimatedImage } from '@octane-xplat/gif'

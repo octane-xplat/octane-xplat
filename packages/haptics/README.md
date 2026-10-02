@@ -7,6 +7,25 @@ engine: named presets, timed `playPattern` envelopes (`{duration, points:
 [{at, intensity, sharpness}]}`), gesture-driven realtime sessions
 (`startRealtime()` → `{update, stop}`), and cancellation.
 
+```ts
+import { createHaptics, haptics } from '@octane-xplat/haptics'
+
+if ((await haptics.ensure()) === 'granted') {
+	haptics.impl!.impact('medium')
+	haptics.impl!.notification('success')
+	haptics.impl!.selection()
+}
+const feedback = createHaptics()
+if (feedback.capabilities().presets) feedback.play('success')
+if (feedback.capabilities().realtime) {
+	const session = feedback.startRealtime(0.2)
+	session.update(0.8, 0.5)
+	session.stop() // Also stop on gesture cancellation.
+}
+feedback.stop()
+feedback.dispose()
+```
+
 ```sh
 pnpm add @octane-xplat/haptics
 ```
@@ -30,6 +49,14 @@ Pulsar Swift package to `ios.SPMPackages` and this package's
 `platforms/ios/src/**/*.swift` to `ios.NativeSource` in the app's
 NativeScript config. Web maps onto the Vibration API, which many desktop
 browsers expose but ignore.
+
+```ts
+const capabilities = engine.capabilities()
+if (capabilities.patterns) {
+	engine.playPattern({ duration: 100, points: [{ at: 0, intensity: 0.5 }] })
+}
+engine.dispose()
+```
 
 Guide: [Media services](../../docs/media-services.md); per-target
 availability: [platform notes](../../docs/platform-notes.md).

@@ -48,6 +48,14 @@ The caller saves that array. Cancellation, release outside a target, and drops
 onto a disabled target leave the order unchanged. The maintained
 [example](examples/sortable.tsx) displays the committed order above the rows.
 
+```tsx
+// Tasks above owns items; successful drops publish a replacement array.
+export function EmptyTasks() {
+	const [items, setItems] = useState<string[]>([])
+	return <SortableList items={items} onReorder={setItems} renderItem={(id) => <Text>{id}</Text>} />
+}
+```
+
 ## Compose drag and drop
 
 Use `DndContext` around cooperating children. A draggable spreads `ref`,
@@ -70,7 +78,7 @@ function Card() {
 function Target() {
 	const drop = useDroppable({ id: 'done' })
 	return (
-		<View ref={drop.ref} style={{ height: 100 }}>
+		<View ref={drop.ref} className="drop-target">
 			<Text>{drop.isOver ? 'Release here' : 'Done'}</Text>
 		</View>
 	)
@@ -89,6 +97,12 @@ export function Board() {
 }
 ```
 
+```css
+.drop-target {
+	min-height: 100px;
+}
+```
+
 `useDndContext()` subscribes each reader and returns `active`, `over`,
 `transform`, and `isDragging`. Event callbacks are `onDragStart`, `onDragMove`,
 `onDragOver`, `onDragEnd`, and `onDragCancel`; events add `canceled`.
@@ -97,6 +111,26 @@ Set `disabled` on either hook to exclude it. Droppable `accept(source)` can
 filter by source data. Unmounting or disabling an active draggable cancels it;
 unmounting a target removes it from collision detection. Context disposal
 cleans registrations, subscriptions, queued input, and auto-scroll timers.
+
+```tsx
+import { Text, View } from '@octane-xplat/ui'
+import { useDndContext, useDroppable } from '@octane-xplat/dnd-kit'
+
+// Render inside the Board's DndContext above.
+export function Inbox() {
+	const context = useDndContext()
+	const drop = useDroppable({
+		id: 'inbox',
+		disabled: false,
+		accept: (source) => source.data.container === 'inbox',
+	})
+	return (
+		<View ref={drop.ref} className="drop-target">
+			<Text>{context.isDragging ? 'Dragging' : 'Ready'}</Text>
+		</View>
+	)
+}
+```
 
 The default detector prefers pointer intersection then shape overlap. Supply
 `collisionDetection={closestCenter}` to choose another exported algorithm.
@@ -107,11 +141,61 @@ item membership for `useSortable`, which combines both hooks; use `arrayMove`
 in `onDragEnd` to save an order. Items do not shift to preview their destination
 before release; the dragged View translates over the stationary rows.
 
+```tsx
+import { useState } from 'octane'
+import { Text, View } from '@octane-xplat/ui'
+import {
+	DndContext,
+	SortableContext,
+	useSortable,
+	closestCenter,
+	arrayMove,
+} from '@octane-xplat/dnd-kit'
+
+function SortableRow({ id }: { id: string }) {
+	const drag = useSortable({ id })
+	return (
+		<View ref={drag.ref} onPan={drag.onPan} style={drag.style}>
+			<Text>{id}</Text>
+		</View>
+	)
+}
+export function OrderedTasks() {
+	const [items, setItems] = useState(['alpha', 'beta'])
+	return (
+		<DndContext
+			collisionDetection={closestCenter}
+			onDragEnd={({ active, over }) => {
+				if (!active || !over) return
+				const from = items.indexOf(String(active.id))
+				const to = items.indexOf(String(over.id))
+				if (from >= 0 && to >= 0) setItems(arrayMove(items, from, to))
+			}}
+		>
+			<SortableContext items={items}>
+				{items.map((id) => (
+					<SortableRow id={id} />
+				))}
+			</SortableContext>
+		</DndContext>
+	)
+}
+```
+
 Cross-container drops work within one DndContext: `active.data` and `over.data`
 can identify containers. The caller moves data between its arrays at drop time.
 Separate `SortableList` instances each own a context; use the hooks and
 `SortableContext` for a board with cooperating lists. Automatic transfer,
 placeholder layout, and empty-container insertion are not built in.
+
+```ts
+// Add to a cooperating Board's DndContext; app arrays own the transfer.
+function recordTransfer(event: import('@octane-xplat/dnd-kit').DragEvent) {
+	if (event.active && event.over) {
+		console.log(event.active.data.container, event.over.data.container)
+	}
+}
+```
 
 ## Auto-scroll
 
@@ -119,22 +203,33 @@ Pass `autoScroll` to DndContext, or `dnd={{ autoScroll }}` to SortableList.
 The adapter makes the existing scroll owner explicit:
 
 ```ts
-const autoScroll = {
-	bounds: () => viewportBounds,
-	offsetRef,
-	maxOffset: () => Math.max(0, contentHeight - viewportHeight),
-	scrollTo: (offset: number) => {
-		offsetRef.current = offset
-		scrollHandle.scrollTo(offset)
-	},
-	axis: 'y' as const,
-	threshold: 40,
-	speed: 12,
+import type { AutoScroll } from '@octane-xplat/dnd-kit'
+
+// Supply these live callbacks from the scroll owner in your app.
+export function scrollAdapter(owner: {
+	bounds: AutoScroll['bounds']
+	offsetRef: { current: number }
+	maxOffset: () => number
+	scrollTo: (offset: number) => void
+}): AutoScroll {
+	return {
+		bounds: owner.bounds,
+		offsetRef: owner.offsetRef,
+		maxOffset: owner.maxOffset,
+		scrollTo: (offset) => {
+			const applied = Math.max(0, Math.min(owner.maxOffset(), offset))
+			owner.offsetRef.current = applied
+			owner.scrollTo(applied)
+		},
+		axis: 'y',
+		threshold: 40,
+		speed: 12,
+	}
 }
 ```
 
-`viewportBounds` is the current measured `{ x, y, width, height }` or null;
-`offsetRef` is the scroll owner's `{ current: number }`. `scrollHandle.scrollTo`
+`owner.bounds()` returns the current measured `{ x, y, width, height }` or null;
+`offsetRef` is the scroll owner's `{ current: number }`. `owner.scrollTo`
 stands for the owner's existing scroll method. Read current offsets into the
 ref on ordinary scroll events, following VirtualList's scrollOffsetRef pattern.
 On native, use a View's `getLocationOnScreen` and `getActualSize` or `useMeasure`
@@ -145,6 +240,13 @@ The [macOS example](examples/sortable.macos.tsx) owns an NSScrollView, measures 
 clip view, and converts its document offset into top-down points. It initializes
 at the document top and handles flipped and unflipped document views.
 
+```ts
+// Keep the scroll owner's offset ref in sync with ordinary scrolling too.
+function recordScroll(offsetRef: { current: number }, offset: number) {
+	offsetRef.current = offset
+}
+```
+
 The adapter must clamp and update the ref synchronously to the applied offset.
 The drag loop scrolls every 16ms while the drag center remains inside the viewport
 and near an edge. `threshold` is the edge distance; `speed` is the maximum units
@@ -152,6 +254,24 @@ per tick. It remeasures drop targets and compensates the dragged View's visual
 translation for scrolling. Scrolling stops on drop, cancel, and disposal.
 Only one explicit scroll viewport is supported; do not attach another gesture
 handler to the same drag View.
+
+```tsx
+// Continue with scrollAdapter above and your app's existing scroll owner.
+import { SortableList, type AutoScroll } from '@octane-xplat/dnd-kit'
+import { Text } from '@octane-xplat/ui'
+
+export function ScrollingTasks({ autoScroll }: { autoScroll: AutoScroll }) {
+	const [items, setItems] = useState(['alpha', 'beta'])
+	return (
+		<SortableList
+			items={items}
+			onReorder={setItems}
+			dnd={{ autoScroll }}
+			renderItem={(id) => <Text>{id}</Text>}
+		/>
+	)
+}
+```
 
 ## Limits and verification
 

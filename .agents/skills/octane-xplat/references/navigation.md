@@ -7,10 +7,13 @@ shared `Tabs` is a self-drawn row and one swapped pane. Platform-authentic
 `UITabBar`/`BottomNavigationView` components live in the native subpaths.
 
 ```ts
-import { pushRoute, popRoute, useRoute, registerScreens } from '@octane-xplat/ui';
-// app-level seam (packages/app platform/nav) adds typed names:
-navigate(name, params?, { into?: 'demos' });
-goBack({ into?: 'demos' });
+import { pushRoute, popRoute, registerScreens } from '@octane-xplat/ui'
+import { navigate, goBack } from '@xplat/app'
+
+navigate('demo/:id', { id: 'counter' }, { into: 'demos' })
+goBack({ into: 'demos' })
+pushRoute({ stack: 'root', name: 'demo/:id', params: { id: 'counter' } })
+popRoute('root')
 ```
 
 - `pushRoute({ stack, name, params })` — `'root'` is a full-screen push
@@ -31,6 +34,19 @@ goBack({ into?: 'demos' });
   pushes — call `popRoute(props._stack)` / `goBack({ into: props._stack })`
   to pop the stack that pushed you. Web route params are URL-backed.
 
+```tsx
+import { useRoute, Text, Pressable } from '@octane-xplat/ui'
+
+export function PushedScreen({ _stack = 'root' }: { _stack?: string }) {
+	const route = useRoute(_stack)
+	return (
+		<Pressable onPress={() => popRoute(_stack)}>
+			<Text>{route?.name ?? 'Back'}</Text>
+		</Pressable>
+	)
+}
+```
+
 ## What must be registered
 
 1. **Screens** — `registerScreens({ name: Component })` once, from the
@@ -48,6 +64,15 @@ goBack({ into?: 'demos' });
    (`Tabs` or `BottomNavigationView`) renders the top entry through
    `RouteHost`.
 
+```tsx
+import { registerScreens, Text } from '@octane-xplat/ui'
+
+function Help() {
+	return <Text>Pack essentials first.</Text>
+}
+registerScreens({ help: Help })
+```
+
 Invalid targets warn loudly (once per key, dev and release): unregistered
 root stack, unknown screen name, or non-Frame root.
 
@@ -64,6 +89,10 @@ root stack, unknown screen name, or non-Frame root.
 
 Keep params to scalars for parity — the web leaf serializes into the URL.
 
+```ts
+pushRoute({ stack: 'root', name: 'demo/:id', params: { id: 'counter', from: 'home' } })
+```
+
 ## Screen registry — the `app/` route dir
 
 `packages/app/src/app/` — every `.tsrx`/`.tsx` file is a route, derived by
@@ -72,6 +101,15 @@ mobile/OS-specific files; `routes.gen.mobile.ts` excludes web/macOS files and
 prefers `.ios` or `.android` before `.mobile` via `Device.os`).
 `deriveRouteManifest(files, prefer)` → `{screens, routes, layouts}`;
 `registerRoutes(manifest)` in `routes.ts` registers both.
+
+```ts
+import { deriveRouteManifest, registerRoutes } from '@octane-xplat/ui'
+
+// routes.web.ts — the glob belongs in a Vite app module.
+const files = import.meta.glob('./app/**/*.tsrx', { eager: true })
+const manifest = deriveRouteManifest(files)
+registerRoutes(manifest)
+```
 
 - `app/demo/[id].tsrx` → route `demo/:id` — `navigate('demo/:id', {id})`;
   `[param]` → `:param`. `app/foo/index.tsrx` → `foo`.
@@ -84,6 +122,15 @@ prefers `.ios` or `.android` before `.mobile` via `Device.os`).
     codegen.
 
 Adding a route = adding a file; no table edits.
+
+```tsx
+// app/help.tsrx — code generation derives the help route from this file.
+import { Text } from '@octane-xplat/ui'
+
+export default function Help() {
+	return <Text>Pack essentials first.</Text>
+}
+```
 
 ## Native model
 
@@ -105,9 +152,27 @@ Adding a route = adding a file; no table edits.
   history).
 - Frame lifecycle traps + the nested-stack bug: `navigation/native-frames.md`.
 
+```tsx
+// EditScreen.mobile.tsx — the hook is called unconditionally in a component.
+import { useBackInterceptor, Text } from '@octane-xplat/ui'
+
+export function EditScreen({ hasUnsavedChanges }: { hasUnsavedChanges: boolean }) {
+	useBackInterceptor(() => hasUnsavedChanges)
+	return <Text>Save edits before leaving</Text>
+}
+```
+
 ## Web model
 
 `route.web.ts` — module-scope route store over real history:
+
+```ts
+import { pushRoute, popRoute, currentRoute } from '@octane-xplat/ui'
+
+pushRoute({ stack: 'root', name: 'help', params: {} })
+console.log(currentRoute())
+popRoute()
+```
 
 - `pushRoute` → `pushState` — manifest routes write real paths with
   `:param` substitution (`/demos/demo/counter`); params not in the path
@@ -127,13 +192,40 @@ Adding a route = adding a file; no table edits.
 `props.tabs[active]?.stack ?? ''` rather than conditionally (conditional
 hook calls break the compiler's slotting).
 
+```tsx
+import { useRoute, Text } from '@octane-xplat/ui'
+
+export function Destination({ stack }: { stack?: string }) {
+	const route = useRoute(stack ?? '')
+	return <Text>{route?.name ?? 'Base screen'}</Text>
+}
+```
+
 ## Modal routes and modal primitives
 
 Route files may use `+modal` or `pushRoute({ presentation: 'modal', ... })`.
 Native presents a separate root and web overlays the previous history entry.
 These routes pass data as props because context does not cross roots.
 
-The shared `Sheet`, `Overlay`, `Popover`, and `openSheet(Component, props)`
+```ts
+pushRoute({ stack: 'root', name: 'help', presentation: 'modal', params: { topic: 'packing' } })
+```
+
+The shared `BottomSheet`, `Overlay`, `Popover`, and `openBottomSheet(Component, props)`
 APIs remain separate from route navigation; use them for transient UI without
 a shareable destination. For OS-authentic modal widgets, import
 `UIModal`/`MaterialDialog` from the matching UI subpath. See `overlays.md`.
+
+```tsx
+import { useState } from 'octane'
+import { BottomSheet, Text } from '@octane-xplat/ui'
+
+export function TemporaryDetails() {
+	const [isOpen, setOpen] = useState(false)
+	return (
+		<BottomSheet label="Bag details" isOpen={isOpen} onOpenChange={setOpen}>
+			<Text>Bag details</Text>
+		</BottomSheet>
+	)
+}
+```

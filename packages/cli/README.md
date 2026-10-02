@@ -41,9 +41,20 @@ dependency-free `@octane-xplat/patches` package through pnpm
 `configDependencies`; their patch paths point into
 `node_modules/.pnpm-config/`.
 
+```sh
+pnpm xplat patches apply
+pnpm xplat patches check
+```
+
 The scaffolded app's `pnpm dev` / `pnpm build` / `pnpm dev:ios` scripts drive
 the supported targets directly; `xplat` is the multi-target front end. The
 experimental macOS target is configured by the app and packaged by `xplat`.
+
+```sh
+pnpm dev
+pnpm build
+pnpm dev:ios
+```
 
 Linux packaging and its required manifest settings are documented in
 [Package a Linux app](../../docs/linux-package.md). The CLI ships the GJS host;
@@ -77,3 +88,9 @@ export default defineConfig(({ mode }) => xplatMacOS(mode))
 It resolves the app's `@octane-xplat/macos-renderer` package and installed
 Octane compiler. See [AppKit renderer setup](../macos-renderer/README.md) for
 application dependencies, root ownership, fonts, and development bundles.
+
+```js
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+export default await xplatMacOS('production', { entry: 'src/main.mjs' })
+```

@@ -29,7 +29,7 @@ Give each trigger a synchronous or asynchronous search source. Selection can
 insert a token object whose `value` is the stable serialized text saved by the
 app. Reuse that token value when displaying a submitted message:
 
-```tsx
+```tsrx
 import { useState } from 'octane'
 import { ChatComposer, ChatComposerInput, ChatTokenizedText, View } from '@octane-xplat/ui'
 
@@ -66,6 +66,21 @@ growth while the reader stays at the bottom, then offers a return button when
 the reader scrolls away. Put `scrollToTopAction` on `ChatMessageList` to load
 older messages; the list shows pending state and waits for the returned promise
 before accepting another top-load request.
+
+```tsx
+import { ChatLayout, ChatMessageList, ChatComposer, Text } from '@octane-xplat/ui'
+
+// loadOlder belongs to your app and updates its message collection.
+export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) {
+	return (
+		<ChatLayout composer={<ChatComposer onSubmit={(text) => console.log(text)} />}>
+			<ChatMessageList scrollToTopAction={loadOlder}>
+				<Text>Welcome to your trip chat.</Text>
+			</ChatMessageList>
+		</ChatLayout>
+	)
+}
+```
 
 ## Acceptance criteria
 

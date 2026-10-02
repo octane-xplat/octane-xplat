@@ -1,14 +1,14 @@
 # `@octane-xplat/biometrics`
 
+```sh
+pnpm add @octane-xplat/biometrics
+```
+
 Local biometric verification — Face ID / Touch ID / fingerprint or device
 credential — behind one capability object. iOS and Android run
 `@nativescript/biometrics`; web and the macOS AppKit host report
 `supported: false` (WebAuthn is an authentication ceremony, not a
 local-presence check, and the dev host has no LocalAuthentication bridge).
-
-```sh
-pnpm add @octane-xplat/biometrics
-```
 
 ```ts
 import { biometrics } from '@octane-xplat/biometrics'
@@ -23,6 +23,14 @@ implementation exists on this target — branch on it rather than catching —
 `ensure()` resolves `'granted' | 'denied' | 'unsupported'`, and `impl` is
 the service once usable. `verify(reason)` resolves `false` for a declined
 or failed prompt rather than throwing.
+
+```ts
+import { biometrics } from '@octane-xplat/biometrics'
+
+if ((await biometrics.ensure()) === 'granted') {
+	const ok = await biometrics.impl!.verify('Unlock your saved trips')
+}
+```
 
 Guide: [Using device features](../../docs/platform-services.md);
 per-target availability: [platform notes](../../docs/platform-notes.md).

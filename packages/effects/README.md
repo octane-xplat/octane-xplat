@@ -15,6 +15,7 @@ platform-suffixed file:
 ```tsx
 // effect.ios.tsrx
 import { ShaderEffect } from '@octane-xplat/effects/ios'
+import { Text } from '@octane-xplat/ui'
 
 ;<ShaderEffect effect="heatHaze" args={{ strength: 1 }}>
 	<Text>Distorted content</Text>
@@ -28,6 +29,25 @@ and `size` per frame. `animate` (default true) drives `time` at display
 rate — pass `false` for static effects. `maxSampleOffset` bounds how far a
 distortion shader may displace. On both targets the subtree renders
 normally into a detached host, so the shader sees real framework pixels.
+
+```tsx
+// effect.ios.tsx
+import { ShaderEffect } from '@octane-xplat/effects/ios'
+import { Text } from '@octane-xplat/ui'
+
+export function StaticEffect() {
+	return (
+		<ShaderEffect
+			effect="heatHaze"
+			args={{ strength: 1 }}
+			animate={false}
+			maxSampleOffset={{ width: 10, height: 10 }}
+		>
+			<Text>Trip title</Text>
+		</ShaderEffect>
+	)
+}
+```
 
 No web implementation — guard usage behind a platform file boundary or a
 `supported` check in app code. Exercised by `EffectsDemo`

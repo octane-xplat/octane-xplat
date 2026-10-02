@@ -6,12 +6,11 @@ Needed when a leaf misbehaves, not for normal component use.
 ## Leaf shape
 
 ```tsrx
-/** @jsxImportSource @nativescript-community/octane */   // line 1, native only
-import { useCallback } from 'octane';                     // universal hooks — compiler retargets
-import type { ViewProps } from './props';
+/** @jsxImportSource @nativescript-community/octane */
+import type { ViewProps } from '@octane-xplat/ui'
 
-export function View(props: ViewProps) @{
-	<flexboxlayout id={props.id} ...>{props.children}</flexboxlayout>
+export function Leaf(props: ViewProps) @{
+  <flexboxlayout id={props.id}>{props.children}</flexboxlayout>
 }
 ```
 
@@ -36,6 +35,17 @@ export function View(props: ViewProps) @{
 - `component X` declarations type as `() => Element` in .ts files — cast
   to `UniversalComponent` when passing to `createNativeScriptRoot`.
 
+```tsrx
+/** @jsxImportSource @nativescript-community/octane */
+// In packages/ui/src: cx is the leaf-local class normalizer.
+import { cx } from './cx'
+import type { ViewProps } from './props'
+
+export function ClassifiedLeaf(props: ViewProps) @{
+  <flexboxlayout className={cx('vx-view', props.className)}>{props.children}</flexboxlayout>
+}
+```
+
 ## Driver-owned machinery (upstream, since ns-octane 0.2.1)
 
 - `renderItem` on `<listview>` → real recycling cells used by the
@@ -53,8 +63,36 @@ export function View(props: ViewProps) @{
 `createNativeScriptRoot(hostView).render(Component, props)` — each pushed
 Page, modal, sheet host, tab-stack page, and native platform-list cell gets
 its own root.
+
+```tsx
+/** @jsxImportSource @nativescript-community/octane */
+// Host.mobile.tsx — the app supplies hostView after creating its native host.
+import { createNativeScriptRoot } from '@nativescript-community/octane'
+import { GridLayout } from '@nativescript/core'
+
+function Content() {
+	return <label text="Trip details" />
+}
+export function mountContent(hostView: GridLayout) {
+	const root = createNativeScriptRoot(hostView)
+	root.render(Content, {})
+	return () => root.unmount()
+}
+```
+
 Roots share NOTHING (no context, no store) — cross-root state goes through
 module-scope stores, and each root applies its own theme class.
+
+```tsx
+import { createStore, useStore, Text } from '@octane-xplat/ui'
+
+const packedCount = createStore(0)
+export function Count() {
+	const count = useStore(packedCount)
+	return <Text>{count} packed</Text>
+}
+packedCount.set(1) // Every mounted Count subscribes independently.
+```
 
 ## Child retention — the scheduler divergence to know
 
@@ -72,6 +110,17 @@ that reads shared state subscribes** — `useStore(store)` /
 `useSyncExternalStore`; a subscriber is marked dirty and always re-runs).
 `createStore(initial)` makes a minimal `{get,set,subscribe}` store.
 Pinned by `packages/ui/src/store.mobile.test.ts` + `store.web.test.tsrx`.
+
+```tsx
+import { createStore, useStore, Text } from '@octane-xplat/ui'
+
+const trip = createStore({ packed: 0 })
+export function PackedCount() {
+	const packed = useStore(trip, (state) => state.packed)
+	return <Text>{packed}</Text>
+}
+trip.set((state) => ({ ...state, packed: state.packed + 1 }))
+```
 
 ## Frame/page containers
 

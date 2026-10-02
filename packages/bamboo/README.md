@@ -14,18 +14,28 @@ pnpm add -D @octane-xplat/bamboo
 Two entry points:
 
 ```ts
-// bamboo.config.ts — ./ or ./config
-import { xplatBambooConfig, xplatPortablePreset } from '@octane-xplat/bamboo'
+// bamboo.config.ts
+import { defineConfig } from '@bamboocss/dev'
+import { xplatBambooConfig } from '@octane-xplat/bamboo'
 
-// vite.config.ts — ./vite
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
-
-plugins: [xplatBamboo()] // { native: true } for the native build
+export default defineConfig({
+	...xplatBambooConfig,
+	include: ['src/**/*.ts'],
+	outdir: 'src/styled',
+})
 ```
 
 Preflight is off by default and tokens land on `:root, .ns-root`. The
 xplat NativeScript CSS transform unwraps the emitted `@layer` blocks for
 native builds (the NS parser drops unknown at-rules); browsers keep the
 layers, which is what lets app CSS stay unlayered on top.
+
+```ts
+// Add this plugin alongside your app's existing renderer plugins.
+import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+
+const webPlugins = xplatBamboo()
+const nativePlugins = xplatBamboo({ native: true })
+```
 
 Guide: [Styling screens](../../docs/styling.md).

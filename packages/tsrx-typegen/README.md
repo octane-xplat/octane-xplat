@@ -5,6 +5,10 @@ command uses the consuming package's TypeScript and tsrx compiler, then maps
 source-extension imports in the emitted declarations to JavaScript module
 specifiers.
 
+```sh
+pnpm exec tsrx-typegen --target octane
+```
+
 Install `tsrx-typegen` as a development tool alongside `typescript` and
 `@tsrx/typescript-plugin`. Each target in `tsrx-typegen.json` names its
 renderer, project config, declaration output directory, and public subpaths.
@@ -27,6 +31,10 @@ without declaration targets. It refuses to overwrite an unmanaged declaration
 and removes stale files only when the manifest says it owns them. Same-name
 sources such as `Button.ts` and `Button.tsrx` need separate target configs or an
 explicit declaration override.
+
+```sh
+pnpm exec tsrx-typegen --target octane --check
+```
 
 Treat the output directory, including its ownership manifest, as generated
 build artifacts: ignore it in Git, formatting, and linting. Keep handwritten
@@ -76,9 +84,21 @@ manifest; check mode detects edits to either the source mapping or generated
 copy. Override declarations must use publishable module specifiers and may not
 reference `.tsrx` files.
 
+```sh
+pnpm exec tsrx-typegen --target octane --check
+```
+
 Relative imports between generated declarations receive runtime extensions
 from the source map, including extensionless imports. This supports NodeNext
 consumers as well as bundler resolution without requiring `allowArbitraryExtensions`.
+
+```ts
+// Plain TypeScript consumer of the package whose exports are configured above.
+import { Button } from 'my-component-library'
+
+// Button is a component exported by your library's src/index.ts.
+export { Button }
+```
 
 Use separate target records and project configs when public signatures differ.
 Each config must select the same source variants as its runtime build.
@@ -88,6 +108,12 @@ remain package-owned. The default source-extension mapping is `.tsrx`, `.tsx`,
 and `.ts` to `.js`, with `.mts` to `.mjs` and `.cts` to `.cjs`. Packages with
 another runtime layout can override these mappings in `sourceExtensions` at
 the target or root level.
+
+```json
+{
+	"sourceExtensions": { ".tsrx": ".js", ".mts": ".mjs", ".cts": ".cjs" }
+}
+```
 
 ## Publish checks
 
@@ -101,6 +127,11 @@ bare package imports are declared dependencies or peers. The command needs
 TypeScript consumer test for the module-resolution modes and public prop
 contracts your package supports.
 
+```sh
+pnpm exec tsrx-typegen --pack-check
+pnpm exec tsrx-typegen --pack-check --target octane
+```
+
 A target with `"emit": false` exists only to drive packed-package
 verification. Packages whose declarations are handwritten or produced by
 another tool declare one so `--pack-check` skips generation and freshness
@@ -108,6 +139,26 @@ checks for it and only validates the packed package. Such targets cannot be
 selected for generation; a plain `--target` run against them fails. Every code
 export path still needs a `types` condition — pointing at a `.d.ts` file or,
 for source-published packages, the `.ts` source itself.
+
+```json
+{
+	"targets": {
+		"manual": {
+			"emit": false,
+			"renderer": "octane",
+			"project": "tsconfig.types.json",
+			"outDir": "types/generated",
+			"entrypoints": {
+				".": {
+					"source": "src/index.ts",
+					"runtime": "./dist/index.js",
+					"types": "./types/index.d.ts"
+				}
+			}
+		}
+	}
+}
+```
 
 Run the same gate from `prepack` so `pnpm pack` and publication share it:
 
@@ -125,6 +176,10 @@ When run from a package root that has `tsrx-typegen.json`, `xplat doctor`
 delegates to `tsrx-typegen --pack-check` and returns a failing exit status if
 that declaration gate fails.
 
+```sh
+pnpm exec xplat doctor
+```
+
 The first supported backend is the classic `tsrx-tsc` path with TypeScript
 5.9.x. TypeScript 7 content-mapper output needs upstream declaration naming and
 specifier support before it can replace this backend. Generation rejects
@@ -137,3 +192,10 @@ packed package with a plain TypeScript consumer; generated declarations may
 still express a different contract even when their paths and exports are
 valid. Use explicit overrides for exceptional signatures and keep those
 overrides outside the generated output directory.
+
+```ts
+// Source of your component package; use an explicit return type for helpers.
+export function formatCount(count: number): string {
+	return `${count} packed`
+}
+```

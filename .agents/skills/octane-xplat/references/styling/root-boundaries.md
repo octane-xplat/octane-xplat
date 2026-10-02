@@ -9,6 +9,15 @@ token VALUES always do.**
   (`#4f46e5`) in every root — vars live at app stylesheet scope, not class
   scope.
 
+```ts
+// ThemeProbe.mobile.ts: call with the actual native view for this root.
+import type { View } from '@nativescript/core'
+
+export function primaryColor(view: View) {
+	return view.getCssVariable('--color-primary')
+}
+```
+
 ## Consequence for ThemeProvider
 
 A theme class on one root can never reach another. The design that works:
@@ -26,6 +35,20 @@ On web this is free (pushed routes render in the same DOM tree — the root
 class inherits); the rule only bites on native, but write it uniformly:
 each screen/root component takes `className` including the theme class
 rather than relying on ancestor inheritance.
+
+```tsx
+import { useThemeScheme, themeSchemeClasses, View, Text } from '@octane-xplat/ui'
+
+// Apply at the top of each screen, pushed page, and sheet content root.
+export function RootContent() {
+	const scheme = useThemeScheme()
+	return (
+		<View className={themeSchemeClasses()}>
+			<Text>Trip notes</Text>
+		</View>
+	)
+}
+```
 
 ## What NOT to do
 

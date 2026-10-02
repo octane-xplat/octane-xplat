@@ -10,3 +10,15 @@ Add `"@octane-xplat/lint/oxlint-plugin"` to Oxlint's `jsPlugins`, enable the
 `xplat/*` rules you want in `.oxlintrc.json`, and run `xplat-lint` to lint both
 regular source files and TSRX files. `xplat-lint --fix` also applies supported
 fixes.
+
+```json
+{
+	"jsPlugins": ["@octane-xplat/lint/oxlint-plugin"],
+	"rules": { "xplat/no-dom-globals": "error" }
+}
+```
+
+```sh
+pnpm exec xplat-lint
+pnpm exec xplat-lint --fix
+```

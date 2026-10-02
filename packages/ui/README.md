@@ -35,13 +35,46 @@ import { HStack, Text, Pressable } from '@octane-xplat/ui'
 </HStack>
 ```
 
-The package also ships `styled()`, layout stacks, routing (`Link`, `NavLink`,
-route tables), sheet/overlay/toast services, and shared stylesheets. The
-structural stylesheet is required; default component chrome is optional:
+The structural stylesheet is required; default component chrome is optional:
 
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css' // optional defaults
+```
+
+`styled()` composes class names from boolean variant props.
+
+```tsx
+import { styled, Pressable, Text } from '@octane-xplat/ui'
+
+const DangerAction = styled(Pressable, { variants: { danger: 'bg-danger' } })
+export function RemoveAction() {
+	return (
+		<DangerAction danger onPress={() => console.log('Remove item')}>
+			<Text>Remove</Text>
+		</DangerAction>
+	)
+}
+```
+
+Links navigate to URLs or registered routes; Overlay owns a temporary surface,
+and showToast sends a notification to a mounted viewport or its fallback.
+
+```tsx
+import { Link, NavLink, Overlay, Text, showToast } from '@octane-xplat/ui'
+
+export function Actions() {
+	return (
+		<>
+			<Link href="https://example.com">Trip website</Link>
+			<NavLink route={{ name: 'home', stack: 'root', params: {} }}>Home</NavLink>
+			<Overlay open={false}>
+				<Text>Saved</Text>
+			</Overlay>
+		</>
+	)
+}
+showToast({ body: 'Trip saved' })
 ```
 
 Docs:

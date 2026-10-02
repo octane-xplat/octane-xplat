@@ -9,11 +9,62 @@ Related APIs: Dialog, AlertDialog, BottomSheet, HoverCard, Lightbox, Carousel, S
 A working app with a Screen and state for showing temporary content. Shared
 in-window surfaces are distinct from the optional platform-native sheet leaf.
 Use `Dialog` for modal content, `AlertDialog` for required decisions, and
-`BottomSheet` for bottom-anchored content. `ToastViewport` owns toast routing;
-`showToast(options)` and `useToast()` send notifications to a mounted viewport
-or the fallback viewport. `HoverCard`, `Lightbox`, and `Carousel` provide
-pointer/touch content patterns, while `ScrollableArea` replaces the older
-`ScrollView` and `ScrollBox` names.
+`BottomSheet` for bottom-anchored content.
+
+```tsx
+import { Dialog, AlertDialog, BottomSheet, Text } from '@octane-xplat/ui'
+
+export function Surfaces() {
+	return (
+		<>
+			<Dialog isOpen={false} onOpenChange={console.log}>
+				<Text>Trip details</Text>
+			</Dialog>
+			<AlertDialog
+				isOpen={false}
+				title="Remove trip?"
+				actionLabel="Remove"
+				onOpenChange={console.log}
+				onAction={() => console.log('Confirmed')}
+			/>
+			<BottomSheet label="Bag details" isOpen={false}>
+				<Text>Carry-on</Text>
+			</BottomSheet>
+		</>
+	)
+}
+```
+
+`ToastViewport` owns toast routing; `showToast(options)` and `useToast()` send
+notifications to a mounted viewport or the fallback viewport.
+
+```tsx
+import { Button, ToastViewport, useToast } from '@octane-xplat/ui'
+
+export function SaveNotice() {
+	const toast = useToast()
+	return (
+		<ToastViewport>
+			<Button onPress={() => toast({ body: 'Trip saved' })}>Save</Button>
+		</ToastViewport>
+	)
+}
+```
+
+`HoverCard`, `Lightbox`, and `Carousel` provide pointer/touch content patterns,
+while `ScrollableArea` replaces the older `ScrollView` and `ScrollBox` names.
+
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+
+export function Details() {
+	return (
+		<ScrollableArea label="Trip details">
+			<Text>Two bags packed</Text>
+		</ScrollableArea>
+	)
+}
+```
 
 ## Requirements
 

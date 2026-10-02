@@ -67,6 +67,14 @@ Measured-ref constraints are rejected explicitly. `dragElastic` is a scalar
 0–1 (default 0.35; false = 0, true = 0.35), with linear resistance outside
 bounds. Per-edge elasticity objects are excluded.
 
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function DraggableCard() {
+	return <motion.View drag="x" dragConstraints={{ left: 0, right: 120 }} dragElastic={0.2} />
+}
+```
+
 `onDragStart`, `onDrag`, and `onDragEnd` receive `(event, info)`, where info has
 `point`, `delta`, `offset`, `velocity` (units/second), and `cancelled`. Point is
 viewport/screen coordinates. Offset and delta describe pointer movement before
@@ -75,12 +83,39 @@ on pointer-down; unsuccessful pre-activation gestures emit no drag callbacks.
 Cancellation emits one end callback and suppresses momentum. Disposal removes
 input handlers and stops settlement without emitting an end callback.
 
+```tsx
+// motion is imported above; callbacks report gesture movement before constraints.
+export function DragEvents() {
+	return (
+		<motion.View
+			drag
+			onDragStart={(_event, info) => console.log(info.point)}
+			onDrag={(_event, info) => console.log(info.delta, info.offset)}
+			onDragEnd={(_event, info) => console.log(info.velocity, info.cancelled)}
+		/>
+	)
+}
+```
+
 Release projects `current + velocity * 0.2`, clamps the destination, and uses a
 JS spring (stiffness 200, damping 30). `dragMomentum={false}` keeps the current
 position if in bounds, or springs back from elastic overflow. This is a bounded
 spring settle, **not upstream's inertia/decay algorithm**. Hard constraints
 (`dragElastic={false}`) clamp every spring sample before host/value notification.
 Reduced motion snaps release settlement; pointer tracking remains live.
+
+```tsx
+export function BoundedCard() {
+	return (
+		<motion.View
+			drag="x"
+			dragConstraints={{ left: 0, right: 120 }}
+			dragElastic={false}
+			dragMomentum={false}
+		/>
+	)
+}
+```
 
 A plain or spring-backed `style.x`/`style.y` MotionValue can receive drag writes;
 live writes use `jump` so passive spring following cannot lag the pointer.
@@ -89,6 +124,15 @@ Drag axes reject competing `animate`, `whileTap`, or `whileFocus` targets;
 No ref measurement, dragControls, dragListener, direction lock, propagation,
 snap-to-origin, dragTransition, onDragTransitionEnd, or layout projection is
 implemented. `drag` axis selection is not `dragDirectionLock`.
+
+```tsx
+import { motion, useMotionValue } from '@octane-xplat/motion'
+
+export function LivePosition() {
+	const x = useMotionValue(0)
+	return <motion.View drag="x" style={{ x }} initial={{ x: 0 }} exit={{ x: -100 }} />
+}
+```
 
 Web uses host PointerEvents/capture and `touch-action: pan-y` for horizontal
 drag, `pan-x` for vertical drag, or `none` for both. Native imports the optional
@@ -103,6 +147,13 @@ setters need explicit DIP→pixel conversion while payloads already return DIP.
 On Android single-axis handlers disable the default radial slop trigger so
 only the selected axis can activate. The plugin's Manager owns view-init/dispose attachment; motion removes its
 state/touch listeners and detaches on cleanup.
+
+```ts
+// Native bootstrap .mobile.ts, before creating Page/Frame/root hosts.
+import { install } from '@nativescript-community/gesturehandler'
+
+install() // Preserve existing NativeScript gesture observers.
+```
 
 NativeViewGestureHandler is not needed for the bounded surface: motion attaches
 PanGestureHandler directly to its host, with no simultaneous/waitFor graph.
@@ -121,12 +172,43 @@ ignored. The last defined variant transition replaces the host/config transition
 for that run; otherwise the normal default applies. Per-key transitions remain
 supported. Resolvers should be pure; they may be evaluated during validation.
 
+```tsx
+export function LabelledMotion() {
+	return (
+		<motion.View
+			custom={80}
+			initial="hidden"
+			animate={['shown', 'offset']}
+			variants={{
+				hidden: { opacity: 0 },
+				shown: { opacity: 1 },
+				offset: (custom: number) => ({ x: custom, transition: { duration: 0.2 } }),
+			}}
+		/>
+	)
+}
+```
+
 Initial labels (including `initial={false}`) inherit through a root-local
 context. Animate labels propagate to descendant motion hosts without their own
 `animate`; each host resolves its own map and `custom`. Ordinary UI wrappers do
 not break propagation. An explicit `animate` makes that host an independent
 animation subtree. Direct target objects are not inherited. Both shared motion
 hosts and `motion.create` provide the context.
+
+```tsx
+import { View } from '@octane-xplat/ui'
+import { motion } from '@octane-xplat/motion'
+
+const CustomMotionView = motion.create(View)
+export function InheritedMotion() {
+	return (
+		<CustomMotionView initial="hidden" animate="shown">
+			<motion.View variants={{ hidden: { opacity: 0 }, shown: { opacity: 1 } }} />
+		</CustomMotionView>
+	)
+}
+```
 
 On label-driven **animate** runs, the parent's resolved transition supports
 numeric non-negative `delayChildren` and `staggerChildren` in seconds, applied
@@ -139,6 +221,25 @@ once that run completes, with fresh child delay; it does not extend that run's
 completion barrier. Changing a retained child's resolved target/custom starts
 its own inherited run. Registration order does not track keyed visual reorders.
 
+```tsx
+export function StaggeredCards() {
+	return (
+		<motion.View
+			animate="shown"
+			variants={{
+				shown: {
+					opacity: 1,
+					transition: { delayChildren: 0.1, staggerChildren: 0.05, when: 'beforeChildren' },
+				},
+			}}
+		>
+			<motion.View variants={{ shown: { x: 40 } }} />
+			<motion.View variants={{ shown: { x: 80 } }} />
+		</motion.View>
+	)
+}
+```
+
 Exit and interaction labels resolve locally: they do not propagate activation
 or child timing. Presence continues waiting for each registered host's explicit
 exit; specify `exit` on children that need one. Callback completion remains
@@ -148,6 +249,22 @@ semantics include `inherit={false}`, dynamic delay functions, `staggerDirection`
 and inheritance across separate renderer roots. Resolved targets and ordinary
 transitions enter Controller unchanged, retaining existing delegation gates.
 
+```tsx
+import { Presence, motion } from '@octane-xplat/motion'
+
+export function ExitingCards({ present }: { present: boolean }) {
+	return (
+		<Presence present={present}>
+			<motion.View
+				exit="hidden"
+				variants={{ hidden: { opacity: 0 } }}
+				onAnimationComplete={() => console.log('This host completed')}
+			/>
+		</Presence>
+	)
+}
+```
+
 ## Presence divergence
 
 `Presence present={...}` retains actual components and their state/subscriptions
@@ -156,6 +273,26 @@ and exiting DOM hosts clone themselves during cleanup. We deliberately do not
 reuse that path or claim its cleanup timing. Presence renders an explicit View
 wrapper, blocks interaction during exit, and restores interaction on reversal.
 An ancestor unmount always disposes immediately. Nested boundaries are independent.
+
+```tsx
+import { useState } from 'octane'
+import { Presence, motion } from '@octane-xplat/motion'
+import { Button, Text } from '@octane-xplat/ui'
+
+export function RetainedCard() {
+	const [present, setPresent] = useState(true)
+	return (
+		<>
+			<Button onPress={() => setPresent(!present)}>Toggle card</Button>
+			<Presence present={present}>
+				<motion.View exit={{ opacity: 0 }}>
+					<Text>Trip card</Text>
+				</motion.View>
+			</Presence>
+		</>
+	)
+}
+```
 
 ## Verification limits
 

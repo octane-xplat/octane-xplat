@@ -44,6 +44,12 @@ NativeScript compatibility imports, and externalizes only the native runtime
 and `node:` host imports. Unsupported host imports still fail CLI packaging.
 No repository paths or harness fonts are needed.
 
+```js
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+export default await xplatMacOS('production', { entry: 'src/main.mjs' })
+```
+
 Set these TypeScript options:
 
 ```json
@@ -68,6 +74,14 @@ Set these TypeScript options:
 JSX runtime subpaths contain compiler typing declarations; use the Octane Vite
 compiler to produce runnable code. The preset compiles reachable TSX/TSRX
 source by default. `rules` can override that selection.
+
+```js
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+export default await xplatMacOS('production', {
+	rules: [{ include: '**/*.tsx', renderer: 'macos' }],
+})
+```
 
 ## Mount and dispose a root
 
@@ -114,9 +128,23 @@ map to weighted AppKit fonts. `system-ui`, `-apple-system`, and `sans-serif`
 select the system font; unavailable families fall through the family stack,
 then fall back to the system font.
 
+```tsx
+// Text.macos.tsx — the AppKit renderer is configured above.
+export function Title() {
+	return <label text="Trip notes" style={{ fontFamily: 'system-ui', fontWeight: 'bold' }} />
+}
+```
+
 For an installed family, set `style.fontFamily` on text or choose a root
 default with `createMacOSRoot(contentView, { fontFamily: 'Helvetica Neue' })`.
 Renderer-hosted popups and sheets inherit that root default.
+
+```js
+// contentView is your existing window's NSView, as in the host example above.
+import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+
+const root = createMacOSRoot(contentView, { fontFamily: 'Helvetica Neue' })
+```
 
 For bundled fonts, the application loads its assets and license and creates
 native descriptors. Register those descriptors before mounting:
@@ -139,6 +167,11 @@ rejected. The renderer does not read assets, register Geist automatically, or
 write a font cache. The [harness font setup](../../apps/macos/src/fonts.mjs)
 demonstrates app-owned descriptors and packaged font bytes.
 
+```js
+// regularFace is an NSFontDescriptor created by the app from its loaded font.
+registerFontFamily('Acme Sans', [{ weight: 400, descriptor: regularFace }])
+```
+
 ## Development bundles
 
 Call `xplatMacOS(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`
@@ -148,12 +181,39 @@ shell with `packaged: true`, and populate `__xplatDevModules` with the renderer
 and Octane modules. The [independent development shell](test/fixtures/dev-shell.mjs)
 shows the module mapping and retained-root HMR lifecycle.
 
+```js
+// vite.component.config.mjs
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+export default await xplatMacOS('development', {
+	packaged: false,
+	hmr: true,
+	entry: 'src/App.macos.tsx',
+})
+```
+
 Other preset options are `root` (defaults to cwd), `entry`, `outDir`, and
 `rules`. Packaged output defaults to CommonJS; component output defaults to
 ES modules. Component builds preserve the output directory so they do not
 delete a shell sharing it; shell configurations should also preserve that
 directory when used for development. Applications may override the component format to CommonJS for
 the CLI watcher, as the maintained fixture does.
+
+```js
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+const config = await xplatMacOS('development', {
+	root: process.cwd(),
+	entry: 'src/App.macos.tsx',
+	outDir: 'dist/dev',
+	packaged: false,
+})
+config.build = {
+	...config.build,
+	lib: { entry: 'src/App.macos.tsx', formats: ['cjs'], fileName: 'app' },
+}
+export default config
+```
 
 ## Verify the package
 

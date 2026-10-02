@@ -31,6 +31,18 @@ iOS/Android differences, OS-specific suffixes, and the unsuffixed native default
    when browser code imports a native-only module; use `.mobile.ts` for a
    shared iOS/Android override and `.ios.ts`/`.android.ts` for OS-only code.
 
+```tsx
+import { useSyncExternalStore } from 'octane'
+import { createStore, Text } from '@octane-xplat/ui'
+
+const packedCount = createStore(0)
+export function PackingStatus() {
+	const count = useSyncExternalStore(packedCount.subscribe, packedCount.get, packedCount.get)
+	return <Text>{count} packed</Text>
+}
+// Call packedCount.set(nextCount) from an app action to publish a change.
+```
+
 ## References — read what the task touches
 
 | Task                                    | Read                                                                                |
@@ -70,6 +82,18 @@ Use the observation shape from `xplat feedback`: `goal`, `expected`,
 `workaround` are optional.
 Targets are `web`, `ios`, `android`, `macos`, `linux`, `windows`, or
 `unknown`; impacts are `blocked`, `rework`, `investigation`, or `surprise`.
+
+```json
+{
+	"goal": "Render a saved packing count",
+	"expected": "A shared-state update appears in each screen",
+	"expectation_basis": "The store subscription guide",
+	"actual": "The second screen retained its earlier count",
+	"target": "ios",
+	"impact": "investigation"
+}
+```
+
 Use that observation shape when the task or project instructions provide a
 feedback destination. Follow those instructions for local Silo routing; a
 consumer app's Silo may not be shared with the framework repository. Do not

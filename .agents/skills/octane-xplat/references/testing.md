@@ -2,6 +2,12 @@
 
 For repository investigation, use [single-case probing](../../../../docs/probing.md): `pnpm probe doctor`
 and `pnpm probe run examples/probes/counter.tsrx --target web --watch`.
+
+```sh
+pnpm probe doctor
+pnpm probe run examples/probes/counter.tsrx --target web --watch
+```
+
 Keep harness edits and catalog sweeps for broader regression coverage.
 
 ## Layers
@@ -26,6 +32,26 @@ Timer-scheduled probes fire synthesized gestures/notifications at views:
   events (tab switch, switch toggle, `textChange` on inputs).
 - `find(id)` → `thePage.getViewById(id)`; `collect`/`texts` walk view trees.
 - Content asserts: `[assert] name: OK|FAIL` — the pass count is the signal.
+
+```ts
+// In apps/mobile/src/index.ts: fireGesture is the local probe helper above.
+import type { Page, View } from '@nativescript/core'
+
+function probeTap(page: Page) {
+	const target = page.getViewById<View>('add-item')
+	if (target) fireGesture(target, 1, 'tap', {})
+}
+```
+
+```ts
+// Property-event dispatch on an already mounted native input.
+import type { TextField } from '@nativescript/core'
+
+function probeTextChange(input: TextField) {
+	input.text = 'Carry-on'
+	input.notify({ eventName: 'textChange', object: input })
+}
+```
 
 **Probes race lifecycle constantly** — the failure mode is always "view
 exists but native attach/settle hasn't landed". Fixes are polling, not
@@ -54,6 +80,11 @@ dismisses it.
 **Selectors:** `Pressable` renders `div[role="button"]` — use
 `[role="button"]:has-text("X")`, not `button`.
 
+```js
+// In a Playwright test with an established page fixture.
+await page.getByRole('button', { name: 'Add', exact: true }).click()
+```
+
 ## Release-build verification
 
 Debug-only signals vanish in release (console.log doesn't reach NSLog on
@@ -73,6 +104,19 @@ raw `octane` plugin from `octane/compiler/vite` with `ssr: false` — vitest
 transforms through the SSR pipeline and the renderer is
 `server:'unsupported'`; the app-level plugin wrapper doesn't forward `ssr`.
 Scheduler/retention semantics get pinned there (see `store.mobile.test.ts`).
+
+```ts
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+} from 'octane/universal/native'
+
+const container = createObjectContainer()
+const root = createUniversalRoot(container, createObjectDriver())
+// Render a compiled component through root.render(Component, props) in a test.
+root.unmount()
+```
 
 ## Adding a probe
 

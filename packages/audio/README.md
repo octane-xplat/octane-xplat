@@ -1,14 +1,14 @@
 # `@octane-xplat/audio`
 
+```sh
+pnpm add @octane-xplat/audio
+```
+
 Long-form audio playback for Octane xplat apps — a queue player, not a
 sound-effect bank. iOS drives `AVPlayer`/`AVAudioSession` (interruption
 handling included) and Android `MediaPlayer`, both directly on
 `@nativescript/core` with no plugin dependency; web drives an
 `HTMLAudioElement` plus the Media Session API for system controls.
-
-```sh
-pnpm add @octane-xplat/audio
-```
 
 ```ts
 import { createAudioPlayer } from '@octane-xplat/audio'
@@ -28,6 +28,14 @@ The `capabilities()` report is the honest part: `supported`,
 promising behavior like lock-screen controls. The native entry requires
 iOS or Android — other targets get the web implementation or a thrown
 error, never a silent no-op.
+
+```ts
+// Continue with the player created above.
+const capabilities = player.capabilities()
+console.log(capabilities.backgroundPlayback, capabilities.systemControls)
+off()
+player.dispose()
+```
 
 For short UI sounds use [`@octane-xplat/sounds`](../sounds/README.md).
 

@@ -8,6 +8,14 @@ The host exposes a `terminateAfterLastWindowClosed` option. The dev and
 packaged app set it to `true`; `createAppKitWindow` defaults to AppKit's
 keep-running behavior.
 
+```js
+// In apps/macos/src/main.mjs, using this harness's host helper.
+import { createAppKitWindow } from './appkit.mjs'
+
+const host = createAppKitWindow({ terminateAfterLastWindowClosed: true })
+// host.contentView is the NSView passed to createMacOSRoot below.
+```
+
 ## Fonts
 
 `@octane-xplat/macos-renderer` owns the AppKit driver and JSX declarations.
@@ -20,6 +28,14 @@ Geist and selects it on each root to keep its demo typography consistent.
 host embeds the font bytes and license. See [AppKit fonts](../../docs/styling.md#appkit-fonts)
 for application font ownership and fallback behavior.
 
+```js
+// In the harness entry; fonts.mjs registers the app-owned Geist descriptors.
+import { harnessFontOptions } from './fonts.mjs'
+import { createMacOSRoot } from '@octane-xplat/macos-renderer'
+
+const root = createMacOSRoot(host.contentView, harnessFontOptions)
+```
+
 ## System WebView backend
 
 The macOS target can also run the full shared app through the system WKWebView.
@@ -29,6 +45,16 @@ in this app points to `vite.webview-app.config.mjs` and
 `vite.webview-app-host.config.mjs`. See the [WKWebView host guide](../../docs/macos-webview.md)
 for configuration and the typed service protocol. AppKit remains the fallback
 when no renderer is selected.
+
+```json
+{
+	"xplat": {
+		"targets": {
+			"macos": { "runtime": "appkit-node-api", "renderer": "webview" }
+		}
+	}
+}
+```
 
 The independent protocol proof runs with
 `pnpm --filter @xplat/macos webview:proof`; it verifies framework services,
@@ -60,11 +86,28 @@ mounts every row at once. The `List ×500` sweep checks that all 500 row
 components mount and that dropping one removes a row; it does not prove
 virtualization or large-list performance.
 
+```ts
+// Shared service calls; the configured AppKit host supplies their implementation.
+import { clipboard, openUrl, storage } from '@octane-xplat/platform'
+
+await clipboard.writeText('Trip notes')
+storage.setString('bag', 'Carry-on')
+openUrl('https://example.com/trips')
+```
+
 The AppKit Vite config compiles the UI package's macOS leaves with its renderer
 through `@octane-xplat/cli/macos/vite`. The preset resolves NativeScript
 compatibility shims from `@octane-xplat/macos-renderer`. The UI package includes the leaf sources and local helpers needed by
 the bounded root surface. `tsconfig.json` sets the `macos` custom condition so
 TypeScript selects the matching declarations.
+
+```js
+// vite.config.mjs
+import { defineConfig } from 'vite'
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+
+export default defineConfig(({ mode }) => xplatMacOS(mode))
+```
 
 In development, Node runs Vite's bundle watcher and launches the same
 JavaScriptCore host used for packaging. A stable CommonJS shell owns the AppKit
@@ -90,6 +133,13 @@ metadata, declared runtime dependency, and packaging tools without requiring
 the NativeScript CLI, iOS simulator, or Android SDK. This target is experimental
 and Apple Silicon only. Packaging uses a pinned, statically linked Mach-O host
 and system JavaScriptCore; it does not download or bundle Node.
+
+```sh
+# Run from apps/macos.
+pnpm xplat doctor
+pnpm xplat dev --targets macos
+pnpm xplat build --targets macos
+```
 
 With `OCTANE_MACOS_AUTOMATION=1`, the dev host runs the adapted macOS harness
 sweep through the AppKit renderer's debug interface. It reports route and
@@ -235,6 +285,17 @@ the shim also throws `Unsupported macOS host API` for unsupported runtime
 access. Use the AppKit ObjC bridge for native UI and services; general Node
 modules are outside this host contract.
 
+```js
+// This synchronous host subset is available in the packaged JavaScriptCore app.
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
+import { homedir } from 'node:os'
+import { join } from 'node:path'
+
+const bytes = readFileSync(join(homedir(), 'trip-notes.txt'))
+console.log(createHash('sha256').update(bytes).digest('hex'))
+```
+
 Bridge notes for delegate/protocol work: import the Objective-C framework
 first (`objc.import('AuthenticationServices')` etc.) so protocol constants
 resolve, then register classes with `NSObject.extend(members, { protocols,
@@ -247,6 +308,25 @@ the main queue (verified via `enumerateObjectsUsingBlock` and
 `ASAuthorizationAppleIDProvider.getCredentialStateForUserID` — go unanswered
 from this unsigned dev binary; a completed ceremony needs the packaged app
 signed with the matching entitlement.
+
+```js
+// The JavaScriptCore host supplies the ObjC bridge after runtime initialization.
+objc.import('AuthenticationServices')
+
+const CredentialObserver = NSObject.extend(
+	{
+		credentialRevoked() {
+			console.log('Credential revoked')
+		},
+	},
+	{
+		exposedMethods: {
+			credentialRevoked: { returns: interop.types.void, params: [] },
+		},
+	},
+)
+const observer = CredentialObserver.new()
+```
 
 The native inputs and source revisions are recorded in
 `packages/cli/src/macos/jsc-host/prebuilt/manifest.json`. The adjacent
@@ -265,6 +345,16 @@ under gitignored `research/` for inspection.
 Set the optional `icon` package field to an app-root-relative `.icns` file to
 include a custom app icon. The CLI validates the path, copies it to
 `Contents/Resources/AppIcon.icns`, and sets `CFBundleIconFile` in `Info.plist`.
+
+```json
+{
+	"xplat": {
+		"targets": {
+			"macos": { "package": { "icon": "assets/AppIcon.icns" } }
+		}
+	}
+}
+```
 
 Without signing configuration, the app is ad-hoc signed for local use. Set
 `MACOS_SIGNING_IDENTITY` to a Developer ID Application identity to sign the app

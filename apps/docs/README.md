@@ -11,9 +11,26 @@ an action to open the prompt in ChatGPT. The prompt points to the existing
 agent-readable guides; it does not introduce a separate setup workflow.
 The card uses the docs' font families, surface colors, and squircle corners.
 
+```tsx
+// A docs-app .web.tsx component.
+import { AgentPrompt } from './src/AgentPrompt.web.tsrx'
+
+export function SetupPrompt() {
+	return <AgentPrompt prompt="Read AGENTS.md, then add a packing checklist." />
+}
+```
+
 Reuse `AgentPrompt` from `src/AgentPrompt.web.tsrx` with a `prompt` string.
 For a Markdown page, pass `agentPrompt` to `MdDoc` to insert it after the
 opening H1 callout. Copy failures expand the text for manual selection.
+
+```tsx
+import { MdDoc } from './src/MdDoc.tsrx'
+
+export function GuidePrompt() {
+	return <MdDoc md="# Pack for your trip" agentPrompt="Add a packing checklist." />
+}
+```
 
 ## Highlight a phrase
 

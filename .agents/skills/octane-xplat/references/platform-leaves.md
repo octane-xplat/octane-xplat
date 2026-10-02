@@ -40,12 +40,21 @@ suffixes.
 ## Platform-authentic package subpaths
 
 `@octane-xplat/ui/ios` and `/android` expose OS-widget-backed components;
-`/web` is a web-conditioned compat surface (`Hoverable`/`Tooltip` moved to
+`/web` is a web-conditioned compat surface (`HoverCard`/`Tooltip` moved to
 the root barrel — decision #69). Keep an OS-only import
 in its matching `.ios` or `.android` file. A `.mobile` file may import a
 cross-platform native API only when that import loads safely on both iOS and
 Android. The package's `/native` subpath is NativeScript integration plumbing,
 not a filename suffix; `/web` resolves only under web/Linux conditions.
+
+```tsx
+// PackedToggle.ios.tsx
+import { UISwitch } from '@octane-xplat/ui/ios'
+
+export function PackedToggle() {
+	return <UISwitch value={false} onValueChange={console.log} />
+}
+```
 
 ## The barrel rule
 
@@ -54,6 +63,12 @@ import like `@octane-xplat/ui/theme/tokens.css` works (exact file), but
 `@xplat/app/platform/nav` may fail at the bundler. **Import platform services
 through the package barrel** (`import { navigate } from '@xplat/app'`), which
 re-exports the target implementation.
+
+```ts
+import { navigate } from '@xplat/app'
+
+navigate('demo/:id', { id: 'counter' })
+```
 
 ## tsconfigs
 
@@ -72,3 +87,11 @@ boundary rule — but a leaf-resolved flag is fine: `@octane-xplat/ui` exports
 `isNative` (`true` on iOS/Android, `false` on web) for render-time conditional
 JSX/props; OS-level divergence belongs in `.ios`/`.android` files, not
 `isAndroid` branches in shared code.
+
+```tsx
+import { isNative, Text } from '@octane-xplat/ui'
+
+export function HostLabel() {
+	return <Text>{isNative ? 'Native host' : 'Browser host'}</Text>
+}
+```

@@ -7,25 +7,78 @@ These traps concern native `Frame` stacks inside `TabViewItem`s, such as the
 iOS-authentic `UITabBar` path. The shared `Tabs` component is self-drawn and
 uses a swapped pane rather than a `TabView`.
 
+```tsx
+import { Tabs, Text } from '@octane-xplat/ui'
+
+export function Sections() {
+	return <Tabs tabs={[{ title: 'Packing', render: () => <Text>Passport</Text> }]} />
+}
+```
+
 ## Lifecycle ordering (iOS — solved, still load-bearing)
 
 - A `frame.navigate()` issued **before the frame is `loaded`** leaves
   `_executingContext` stuck — every later push queues forever and
   `currentPage` stays undefined. Mount the default page in
   `frame.once('loaded', ...)`, never eagerly.
+
+  ```ts
+  // Host.mobile.ts — mount this Frame in the native host after configuring it.
+  import { Frame, Page } from '@nativescript/core'
+
+  const frame = new Frame()
+  frame.once('loaded', () => frame.navigate({ create: () => new Page() }))
+  ```
+
 - `TabViewItem`-hosted frames report `isLoaded=false` after tab-selection
   lifecycle churn. Re-arm before each push:
   `if (!frame.isLoaded) frame.callLoaded?.()` (idempotent).
+
+  ```ts
+  // In the framework's existing native Frame owner, after tab lifecycle churn.
+  import type { Frame } from '@nativescript/core'
+
+  function rearm(frame: Frame) {
+    if (!frame.isLoaded) frame.callLoaded?.()
+  }
+  ```
+
 - `setCurrent` runs on `viewDidAppear` — page commit lands ~seconds after
   the `NAVIGATE CORE` trace for a frame's first navigation. Anything that
   reads `currentPage`/`backStack` immediately after a push races it —
   poll (`navigatedTo` event, or view-mount checks), never fixed timers.
+
+  ```ts
+  // Attach before navigation so the target page reports its committed entry.
+  import { Page } from '@nativescript/core'
+
+  const targetPage = new Page()
+  targetPage.once('navigatedTo', () => console.log('Target page is current'))
+  ```
+
 - `Frame.topmost()` returns the **innermost** frame once nested stacks
   exist — root reads via `getStack('root')`.
 
+  ```ts
+  import { getStack } from '@octane-xplat/ui'
+
+  const rootFrame = getStack('root')
+  console.log(rootFrame?.currentPage)
+  ```
+
 ## Android — nested stacks (upstream #11444, framework-owned)
 
-A `Frame` inside a `TabViewItem` on Android:
+A `Frame` inside a `TabViewItem` on Android had the following failures.
+This is the historical failing containment shape, not a recommended app setup:
+
+```ts
+import { Frame, TabViewItem } from '@nativescript/core'
+
+const tab = new TabViewItem()
+tab.view = new Frame()
+```
+
+Observed before the core patch:
 
 - accepts pushes — `NAVIGATE CORE` commits, the pushed page mounts, JS
   state writes happen;
@@ -62,3 +115,12 @@ objects; its swap-pane VirtualList check already runs.
 code reading `currentPage` between commit and setCurrent sees the OLD page.
 The native sweep waits for `demosPage() != null && find('menu-counter')`
 before stepping — that's why.
+
+```ts
+// Existing native Frame owner: inspect the committed page, not a fixed delay.
+import type { Frame } from '@nativescript/core'
+
+function inspectCommittedPage(frame: Frame) {
+	console.log(frame.currentPage, frame.backStack.length)
+}
+```

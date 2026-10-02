@@ -5,6 +5,14 @@ CSS vars + utility classes → NativeScript's CSS engine applies the subset it
 supports, DOM gets the whole thing. The `vx-*` class namespace is the
 component layer; design tokens are CSS custom properties.
 
+```css
+/* App stylesheet: one static class can reference shared tokens. */
+.trip-card {
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+```
+
 ## Rules
 
 1. **Static styling = `className` only.** No `<style>` blocks (web-only),
@@ -35,6 +43,11 @@ imported once by the app entry. Values resolve at **app stylesheet scope**:
 `getCssVariable('--color-primary')` returns the same value inside every
 native root. See `styling/tokens.md` for the inventory.
 
+```ts
+// Import once in the app entry.
+import '@octane-xplat/ui/theme/tokens.css'
+```
+
 ## Dark mode
 
 System-driven by default (`prefers-color-scheme` / NS system appearance
@@ -42,14 +55,46 @@ via `useColorScheme()`), class-override on top (`dark ns-dark` on the app
 root view). **Critical:** the class does not cross native root boundaries —
 see `styling/root-boundaries.md` before building a theme toggle.
 
+```tsx
+import { useColorScheme, View, Text } from '@octane-xplat/ui'
+
+export function ThemedScreen() {
+	const scheme = useColorScheme()
+	return (
+		<View className={scheme === 'dark' ? 'dark ns-dark' : 'ns-light'}>
+			<Text>Trip notes</Text>
+		</View>
+	)
+}
+```
+
 ## `:pressed` pseudo
 
 `.vx-pressable:pressed` is a NativeScript pseudo — lightningcss warns it's
 unrecognized on web builds; the rule is dead weight on web and real on
 native. Both sides' dead rules are expected.
 
+```css
+.vx-pressable:pressed {
+	opacity: 0.7;
+}
+```
+
 ## styled()
 
 `styled(Base, { base?, variants? })` → component taking Base's props plus
 each variant name as a boolean flag → composes `className`. Verified: the
 variant prop composes `bg-danger` + `extra` classes on native.
+
+```tsx
+import { styled, Pressable, Text } from '@octane-xplat/ui'
+
+const DangerButton = styled(Pressable, { base: 'trip-button', variants: { danger: 'bg-danger' } })
+export function Remove() {
+	return (
+		<DangerButton danger className="extra">
+			<Text>Remove</Text>
+		</DangerButton>
+	)
+}
+```

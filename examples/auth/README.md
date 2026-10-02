@@ -5,6 +5,18 @@ Use `providerVerification` or `hostedVerification` from
 The exported functions return a Fetch request handler. They are transport and
 validation examples, not an identity provider or a working auth server.
 
+```js
+import { providerVerification, hostedVerification } from './server-verification.mjs'
+
+// adapters must implement the checks described in the table below.
+export function signInEndpoints(adapters, callbackBase) {
+	return {
+		provider: providerVerification(adapters),
+		hosted: hostedVerification({ ...adapters, callbackBase }),
+	}
+}
+```
+
 Supply these adapters before exposing an endpoint:
 
 | Adapter                                                 | Required behavior                                                                                                                                                                                                                                                               |
@@ -26,6 +38,28 @@ code-exchange flow; this example deliberately rejects it. After hosted-session
 success, POST `attemptId` and `callbackURL` to the hosted endpoint; a `success`
 result from `authSession` means URL receipt, not server authentication.
 
+```ts
+// Client .ts module; inputs come from the server attempt and successful SDK result.
+export async function exchangeProviderCredential(
+	attemptId: string,
+	provider: 'apple' | 'google',
+	idToken: string,
+) {
+	return fetch('/auth/provider', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ attemptId, provider, idToken }),
+	})
+}
+export async function exchangeHostedCallback(attemptId: string, callbackURL: string) {
+	return fetch('/auth/hosted', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ attemptId, callbackURL }),
+	})
+}
+```
+
 Run the boundary tests from the repo root:
 
 ```sh
@@ -40,6 +74,22 @@ verify its stored challenge, origin, RP ID, signature and credential counter
 using its WebAuthn server implementation. That RP implementation is not supplied
 here and remains a recipe coverage gap.
 
+```ts
+import { webAuthn } from '@octane-xplat/platform'
+
+// options are the RP's JSON request options, fetched for this attempt.
+export async function submitPasskey(
+	options: import('@octane-xplat/platform').WebAuthnGetOptionsJSON,
+) {
+	if ((await webAuthn.ensure()) !== 'granted') return
+	const credential = await webAuthn.impl!.get(options)
+	return fetch('/auth/passkey/verify', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(credential),
+	})
+}
+```
 For Google on AppKit, [google-hosted.macos.ts](google-hosted.macos.ts) wires
 app-owned `begin`, `complete`, and `signOut` transport functions into
 `googleAuth.configure({ hostedFlow })`. `complete` must return a verified Google

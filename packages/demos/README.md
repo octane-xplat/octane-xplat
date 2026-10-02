@@ -24,5 +24,14 @@ Two groups:
 standard suffixes (`DeviceDemo.mobile.tsrx`, `EffectsDemo.ios/.android/
 .macos.tsrx`, `index.macos.ts`).
 
+```tsx
+import { DEMOS, RENDER } from '@xplat/demos'
+
+const counter = DEMOS.find((demo) => demo.id === 'counter')
+export function CounterPreview() {
+	return counter ? RENDER[counter.id]() : null
+}
+```
+
 When a demo shows a behavior the framework must keep, promote it into a
 maintained test — see [`docs/testing.md`](../../docs/testing.md).

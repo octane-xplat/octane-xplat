@@ -3,6 +3,20 @@
 Cross-platform visibility tracking for Octane xplat, mirroring the DOM
 `IntersectionObserver` contract as closely as each target allows.
 
+```tsx
+import { useIntersectionObserver } from '@octane-xplat/intersection-observer'
+import { View, Text } from '@octane-xplat/ui'
+
+export function VisibilityStatus() {
+	const observer = useIntersectionObserver()
+	return (
+		<View ref={observer.ref}>
+			<Text>{observer.isIntersecting ? 'Visible' : 'Not visible'}</Text>
+		</View>
+	)
+}
+```
+
 - **web** — the DOM `IntersectionObserver`, re-exported under the shared
   types. Behavior is exactly the browser's.
 - **iOS / Android** — one shared NativeScript implementation. There is no
@@ -29,18 +43,23 @@ import {
 ### Imperative
 
 ```ts
-const observer = new IntersectionObserver(
-	(entries, self) => {
-		for (const entry of entries) {
-			console.log(entry.isIntersecting, entry.intersectionRatio)
-		}
-	},
-	{ root, rootMargin: '0px', threshold: [0, 0.5, 1] },
-)
-observer.observe(target) // Element on web, NativeScript View, or AppKit NSView
-observer.unobserve(target)
-observer.disconnect()
-observer.takeRecords()
+import { IntersectionObserver } from '@octane-xplat/intersection-observer'
+
+// Call with the actual host view/element supplied by your component binding.
+export function watchTarget(target: unknown, root: unknown = null) {
+	const observer = new IntersectionObserver(
+		(entries) => {
+			for (const entry of entries) console.log(entry.isIntersecting, entry.intersectionRatio)
+		},
+		{ root, rootMargin: '10% 0px', threshold: [0, 0.5, 1] },
+	)
+	observer.observe(target)
+	return () => {
+		observer.takeRecords()
+		observer.unobserve(target)
+		observer.disconnect()
+	}
+}
 ```
 
 `root` is an `Element` on web, a NativeScript `View` on iOS/Android, or an
@@ -53,15 +72,21 @@ the web contract.
 ### Hook
 
 ```tsx
-function Row() {
+import { ScrollableArea, View, Text } from '@octane-xplat/ui'
+import { useIntersectionObserver } from '@octane-xplat/intersection-observer'
+
+export function VisibleRow() {
 	const { ref, rootRef, entry, isIntersecting } = useIntersectionObserver({
 		threshold: 0.5,
 		onChange: (entry) => console.log(entry.isIntersecting),
 	})
 	return (
-		<ScrollView ref={rootRef}>
-			<View ref={ref} style={{ height: 80 }} />
-		</ScrollView>
+		<ScrollableArea ref={rootRef}>
+			<View ref={ref}>
+				<Text>{isIntersecting ? 'Visible' : 'Outside viewport'}</Text>
+			</View>
+			<Text>{entry?.intersectionRatio ?? 0}</Text>
+		</ScrollableArea>
 	)
 }
 ```
@@ -76,6 +101,12 @@ mirrors `entry.isIntersecting`.
 `supported` is `true` in browsers with the DOM API and on iOS, Android, and
 macOS. On non-DOM web hosts it is `false`; the exported observer is inert and
 does not deliver entries.
+
+```ts
+import { supported } from '@octane-xplat/intersection-observer'
+
+if (!supported) console.log('Visibility tracking is unavailable on this host')
+```
 
 ## Native behavior notes
 

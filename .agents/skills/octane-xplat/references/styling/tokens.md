@@ -4,6 +4,10 @@
 by each app entry (`import '@octane-xplat/ui/theme/tokens.css'`). Published
 consumers import the same path (export is exact-file, survives packaging).
 
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+```
+
 ## Inventory
 
 Core set (extend as needed, keep both themes):
@@ -18,6 +22,17 @@ Core set (extend as needed, keep both themes):
 
 Dark theme = the same tokens redefined under `.ns-dark`/`.dark` — that's why
 the theme class matters per-root on native (see root-boundaries.md).
+
+```css
+/* App stylesheet: a class override changes the same token names. */
+.dark,
+.ns-dark {
+	--trip-surface: #111827;
+}
+.trip-panel {
+	background-color: var(--trip-surface, var(--color-surface));
+}
+```
 
 ## The pipeline
 

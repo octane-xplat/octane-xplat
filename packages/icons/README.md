@@ -29,6 +29,12 @@ It is an example, not a default. Register any number of `@iconify-json/*`
 collections the same way. A collection's `prefix` determines its namespace;
 there is no automatic package discovery, fetching, or fallback set.
 
+```ts
+// heroicons and addCollection are imported above.
+addCollection(heroicons)
+console.log(heroicons.prefix) // The prefix is used before the colon in name.
+```
+
 Importing a whole collection bundles that collection. To keep a small bundle,
 provide equivalent Iconify JSON containing only the icons you use:
 
@@ -58,10 +64,28 @@ instances. This component subscribes to registration changes and makes SVG IDs
 unique for each instance. Re-registering a prefix replaces its whole collection
 and updates mounted icons, including a previously missing icon.
 
+```tsx
+import { addCollection, Icon } from '@octane-xplat/icons'
+
+addCollection({ prefix: 'trip', icons: { next: { body: '<path d="M0 0h16v16H0z" />' } } })
+export function TripIcon() {
+	return <Icon name="trip:next" />
+}
+// Replacing this collection notifies already-mounted TripIcon components.
+addCollection({ prefix: 'trip', icons: { next: { body: '<circle cx="8" cy="8" r="8" />' } } })
+```
+
 `resolveIcon('prefix:name')` returns normalized Iconify data, including collection
 dimensions and alias transforms, or `undefined` for a missing/invalid name.
 `Icon` renders nothing in that case. Alias cycles and missing parents also resolve
 to nothing. No network request is made.
+
+```ts
+import { resolveIcon } from '@octane-xplat/icons'
+
+const icon = resolveIcon('heroicons:arrow-right')
+if (!icon) console.log('Register this icon collection before rendering')
+```
 
 | Prop              | Behavior                                                                                         |
 | ----------------- | ------------------------------------------------------------------------------------------------ |
@@ -81,6 +105,13 @@ beyond UI's setup. All leaves have the same props and exports. The package uses
 style objects and ships no CSS pipeline. Native compatibility follows those SVG
 engines; browser-only SVG features such as filters/animation are not guaranteed.
 
+```tsx
+// Icon is imported from this package above.
+export function Direction() {
+	return <Icon name="heroicons:arrow-right" color="#2563eb" rotate={1} hFlip label="Continue" />
+}
+```
+
 AppKit uses UI's macOS `Image` to encode inline SVG with Foundation and load it
 into `NSImageView` through public `NSImage` APIs. This path was runtime-tested
 on macOS 27.0.1; SVG decoding on the app deployment minimum macOS 13.5 remains
@@ -90,10 +121,29 @@ not apply class-based styling. Labels map to the native accessibility label;
 unlabeled images are marked decorative. Pixel fidelity and OS accessibility
 traversal remain unverified. See [AppKit SVG notes](../../docs/icon-svg-notes.md).
 
+```tsx
+// Direction.macos.tsx
+import { Icon } from '@octane-xplat/icons'
+
+export function Direction() {
+	return <Icon id="next" name="heroicons:arrow-right" size={24} label="Next" />
+}
+```
+
 `iconToSvg(icon, options?)` exposes the shared DOM-free conversion. It returns
 `body`, `viewBox`, numeric `width`/`height`, and complete `markup`. It resolves
 transforms and rewrites definition references. For native markup, supply a
 concrete `color`; the helper otherwise retains `currentColor`.
+
+```ts
+import { iconToSvg, resolveIcon } from '@octane-xplat/icons'
+
+const icon = resolveIcon('heroicons:arrow-right')
+if (icon) {
+	const svg = iconToSvg(icon, { color: '#2563eb' })
+	console.log(svg.viewBox, svg.width, svg.height, svg.markup)
+}
+```
 
 ## Licenses
 

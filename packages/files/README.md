@@ -8,7 +8,7 @@ document picker on iOS/Android, and AppKit `NSOpenPanel` on macOS. No
 app-registered picker is needed. The optional `pick` prop can replace the
 default for a custom source such as cloud storage.
 
-```tsx
+```tsrx
 import { useState } from 'octane'
 import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
@@ -32,3 +32,17 @@ retain as an opaque reference and pass to `files.readText` where supported.
 AppKit provides native picking, but its current `readText` and `writeText`
 methods are unsupported. Web file references should be released with
 `files.release` when no longer needed.
+
+```ts
+import { files } from '@octane-xplat/files'
+
+// Run in a .web.ts file: AppKit currently does not support readText.
+const file = await files.pick('text/plain')
+if (file) {
+	try {
+		console.log(await files.readText(file))
+	} finally {
+		files.release(file)
+	}
+}
+```

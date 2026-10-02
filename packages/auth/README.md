@@ -1,5 +1,9 @@
 # `@octane-xplat/auth`
 
+```sh
+pnpm add @octane-xplat/auth
+```
+
 Sign in with Apple and Google Sign-In for Octane xplat apps — the native
 SDKs (`@nativescript/apple-sign-in`, `@nativescript/google-signin`) on
 iOS/Android, the providers' web SDKs (Apple JS / Google Identity Services)
@@ -7,18 +11,16 @@ in the browser, and AuthenticationServices through the ObjC bridge plus a
 app-configured hosted Google flow on the macOS AppKit host. One `AuthUser`/`AuthCredential`
 contract everywhere.
 
-```sh
-pnpm add @octane-xplat/auth
-```
+```ts
+import { appleAuth } from '@octane-xplat/auth'
 
-```tsx
-import { appleAuth, googleAuth, AppleSignInButton } from '@octane-xplat/auth'
-
-appleAuth.configure({ clientId: 'com.example.app.web' }) // web-only fields
-
-const result = await appleAuth.signIn({ scopes: ['email', 'name'] })
-if (result.status === 'success') {
-	const { idToken, user } = result.credential // hand idToken to your backend
+appleAuth.configure({ clientId: 'com.example.app.web' })
+if (appleAuth.supported) {
+	const result = await appleAuth.signIn({ scopes: ['email', 'name'] })
+	if (result.status === 'success') {
+		// Send this credential to your backend for verification.
+		const { idToken, user } = result.credential
+	}
 }
 ```
 
@@ -30,6 +32,26 @@ distinguishes `success` / `cancelled` / `error`; a dismissed sheet is
 uses a text trigger for the hosted flow there. The other sign-in buttons are
 platform-authentic components, so render them from platform-suffixed files or accept each
 target's native styling.
+
+The following component belongs in an `.ios.tsx` file.
+
+```tsx
+import { AppleSignInButton, appleAuth, googleAuth } from '@octane-xplat/auth'
+
+export function SignIn() {
+	return (
+		<AppleSignInButton
+			onResult={(result) => {
+				if (result.status === 'success') {
+					void appleAuth.getCredentialState(result.credential.user.id)
+				}
+			}}
+		/>
+	)
+}
+// When ending a Google session:
+await googleAuth.signOut()
+```
 
 Web needs registered client IDs; iOS needs the `applesignin` entitlement
 and Google's `GoogleService-Info.plist`/reversed-client-id URL scheme;
