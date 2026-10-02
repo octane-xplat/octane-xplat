@@ -2,28 +2,34 @@
 import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
+import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
 import { Pressable } from './Pressable.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
 import { FieldContext, useFieldControlProps } from './field-context'
 import {
 	formatDisplayTime12h,
+	formatLocalizedTime,
 	formatDisplayTime24h,
 	isTimeInRange,
 	parseTimeInput,
+	resolveLocale,
 } from './datetime'
 
 const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 /** Time entry field — `HH:MM[:SS]` typed input. On macOS all presentations
  *  resolve to the typed field (fine pointer; the OS time control is the
- *  `@octane-xplat/date-picker` AppKit leaf). Arrow stepping is AppKit-host
- *  scope — the field still parses `2:30 PM`/`14:30`/`1430`. */
+ *  `@octane-xplat/date-picker` AppKit leaf). Hardware-key stepping is not
+ *  bound by this leaf; the field still parses `2:30 PM`/`14:30`/`1430`. */
 export function TimeInput(inputProps: TimeInputProps) @{
 	const props = useFieldControlProps(inputProps)
+	const messages = dateMessages(props.messages)
 	const inField = useContext(FieldContext) != null
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
+	const input = useRef<any>(null)
 
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [busy, setBusy] = useState(false)
@@ -34,7 +40,9 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const hasSeconds = !!props.hasSeconds
-	const formatDisplay = props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h
+	const formatDisplay = (time: ISOTimeString, seconds: boolean) => props.locale
+		? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
+		: (props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h)(time, seconds)
 
 	// Preserve typing on an echoed edit; external values replace the draft.
 	useEffect(() => {
@@ -70,6 +78,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	}
 
 	const commitPending = () => {
+		if (hasDateComposition(input.current)) return
 		if (pendingInput == null) return
 		if (!pendingInput.trim()) {
 			if (shown != null) fireChange(undefined)
@@ -83,6 +92,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 	const handleTextChange = (text: string) => {
 		if (isDisabled) return
 		setPendingInput(text)
+		if (hasDateComposition(input.current)) return
 		commitParsed(parseTimeInput(text, hasSeconds))
 	}
 
@@ -106,6 +116,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 			style={props.style}
 		>
 			<textfield
+				ref={(v: any) => { input.current = v }}
 				id={inputId}
 				className={cx('vx-timeinput-input', !isPendingValid && 'vx-timeinput-input--invalid')}
 				value={displayText}
@@ -115,7 +126,7 @@ export function TimeInput(inputProps: TimeInputProps) @{
 				onTextChange={handleTextChange}
 				onBlur={commitPending}
 				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-				accessibilityHint={props.accessibilityHint}
+				accessibilityHint={!isPendingValid ? messages.invalidTime : props.accessibilityHint}
 				accessibilityState={{ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid }}
 			/>
 			{props.hasClear && shown != null && !isDisabled && !isBusy

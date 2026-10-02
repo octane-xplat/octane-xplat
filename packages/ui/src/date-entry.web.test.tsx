@@ -449,3 +449,321 @@ describe('date action settlement', () => {
 		},
 	)
 })
+
+const key = (el: Element, value: string, init: KeyboardEventInit = {}) => {
+	const event = new KeyboardEvent('keydown', {
+		bubbles: true,
+		cancelable: true,
+		key: value,
+		...init,
+	})
+
+	act(() => el.dispatchEvent(event))
+	return event
+}
+
+const focus = (el: HTMLElement) => act(() => el.focus())
+const focusedDate = () => (document.activeElement as HTMLElement)?.dataset.date
+
+describe('date-family keyboard and locale parity', () => {
+	it('moves actual focus through row edges, RTL, and weekly disabled cells', () => {
+		const { el } = mount(
+			<Calendar
+				focusDate="2026-03-01"
+				direction="rtl"
+				weekStartsOn={1}
+				dateConstraints={[(date) => ![12, 19].includes(date.getDate())]}
+			/>,
+		)
+
+		focus(el.querySelector('button[data-date="2026-03-05"]')!)
+		key(document.activeElement!, 'ArrowDown')
+		expect(focusedDate()).toBe('2026-03-26')
+		key(document.activeElement!, 'ArrowUp')
+		expect(focusedDate()).toBe('2026-03-05')
+		key(document.activeElement!, 'ArrowLeft')
+		expect(focusedDate()).toBe('2026-03-06')
+		key(document.activeElement!, 'Home')
+		expect(focusedDate()).toBe('2026-03-02')
+		key(document.activeElement!, 'End')
+		expect(focusedDate()).toBe('2026-03-08')
+	})
+
+	it('keeps one enabled tab stop across two months and uses grid/button semantics', () => {
+		const { el, render } = mount(
+			<Calendar focusDate="2026-03-01" numberOfMonths={2} value="2026-04-15" />,
+		)
+
+		expect(el.querySelectorAll('button[data-date][tabindex="0"]')).toHaveLength(1)
+		const selected = el.querySelector('button[data-date="2026-04-15"]')!
+		expect(selected.getAttribute('role')).toBeNull()
+		expect(selected.parentElement?.getAttribute('aria-selected')).toBe('true')
+		expect(el.querySelectorAll('[role="grid"]')).toHaveLength(2)
+		focus(selected as HTMLElement)
+		key(selected, 'Home', { ctrlKey: true })
+		expect(focusedDate()).toBe('2026-03-01')
+		key(document.activeElement!, 'End', { ctrlKey: true })
+		expect(focusedDate()).toBe('2026-04-30')
+		render(<Calendar focusDate="2026-03-01" numberOfMonths={2} min="2026-04-01" max="2026-04-20" />)
+		expect(el.querySelectorAll('button[data-date][tabindex="0"]')).toHaveLength(1)
+		expect(
+			(el.querySelector('button[data-date][tabindex="0"]') as HTMLButtonElement).disabled,
+		).toBe(false)
+	})
+
+	it('pages actual focus across months and never focuses duplicate outside-day labels', () => {
+		const { el } = mount(
+			<Calendar
+				defaultValue="2026-03-31"
+				numberOfMonths={1}
+				dateConstraints={[(date) => date.getDate() !== 30]}
+			/>,
+		)
+
+		focus(el.querySelector('button[data-date="2026-03-31"]')!)
+		key(document.activeElement!, 'ArrowRight')
+		expect(focusedDate()).toBe('2026-04-01')
+		key(document.activeElement!, 'PageUp')
+		expect(focusedDate()).toBe('2026-03-01')
+		key(document.activeElement!, 'PageUp')
+		expect(focusedDate()).toBe('2026-02-01')
+	})
+
+	it('ignores navigation from header buttons and IME events', () => {
+		const { el } = mount(<Calendar focusDate="2026-03-01" />)
+		focus(el.querySelector('button[data-date="2026-03-05"]')!)
+		expect(key(document.activeElement!, 'ArrowDown', { isComposing: true }).defaultPrevented).toBe(
+			false,
+		)
+
+		expect(focusedDate()).toBe('2026-03-05')
+		const nav = el.querySelector('.vx-calendar-nav') as HTMLElement
+		focus(nav)
+		expect(key(nav, 'ArrowDown').defaultPrevented).toBe(false)
+		expect(document.activeElement).toBe(nav)
+	})
+
+	it('keeps range Escape local and announces translated range and selection state', () => {
+		const change = vi.fn()
+		const { el } = mount(
+			<Calendar
+				mode="range"
+				focusDate="2026-03-01"
+				locale="fr-FR"
+				messages={{
+					rangeStart: (date) => `Début : ${date}`,
+					rangeCleared: 'Annulée',
+					rangeSelected: (start, end) => `Du ${start} au ${end}`,
+				}}
+				onChange={change}
+			/>,
+		)
+
+		const day = el.querySelector('button[data-date="2026-03-05"]') as HTMLElement
+		click(day)
+		focus(day)
+		expect(day.getAttribute('aria-label')).toContain('Début')
+		expect(el.querySelector('[role="status"]')?.textContent).toContain('mars')
+		key(day, 'Escape')
+		expect(el.querySelector('[role="status"]')?.textContent).toBe('Annulée')
+		expect(change).not.toHaveBeenCalled()
+		click(day)
+		click(el.querySelector('button[data-date="2026-03-09"]')!)
+		expect(el.querySelector('[role="status"]')?.textContent).toContain('Du ')
+	})
+
+	it('uses explicit app locale for entry, errors and calendar labels after a locale change', () => {
+		const change = vi.fn()
+		const { el, render } = mount(
+			<DateInput
+				presentation="popover"
+				locale="fr-FR"
+				onChange={change}
+				messages={{ invalidDate: 'Date invalide' }}
+			/>,
+		)
+
+		const input = el.querySelector('input')!
+		fireInput(input, '04/05/2026')
+		expect(change).toHaveBeenLastCalledWith('2026-05-04')
+		fireInput(input, '31/02/2026')
+		expect(el.querySelector('[role="alert"]')?.textContent).toBe('Date invalide')
+		expect(input.getAttribute('aria-invalid')).toBe('true')
+		render(
+			<DateInput
+				presentation="popover"
+				locale="en-US"
+				value="2026-03-05"
+				onChange={change}
+				messages={{ openCalendar: 'Show dates' }}
+			/>,
+		)
+
+		expect((input as HTMLInputElement).value).toContain('March')
+		expect(el.querySelector('.vx-dateinput-toggle')?.getAttribute('aria-label')).toBe('Show dates')
+	})
+
+	it.each(['date', 'time', 'datetime-date', 'datetime-time'])(
+		'defers valid %s text and Enter until IME composition ends',
+		(kind) => {
+			const change = vi.fn()
+			const { el } = mount(
+				kind === 'date' ? (
+					<DateInput presentation="popover" onChange={change} />
+				) : kind === 'time' ? (
+					<TimeInput presentation="text-input" onChange={change} />
+				) : (
+					<DateTimeInput presentation="popover" value="2026-03-01T10:00" onChange={change} />
+				),
+			)
+
+			const input = el.querySelector(
+				kind === 'datetime-time' ? '.vx-datetimeinput-timeinput' : 'input',
+			) as HTMLInputElement
+
+			act(() => input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true })))
+			fireInput(input, kind === 'date' || kind === 'datetime-date' ? '2026-03-05' : '14:30')
+			expect(change).not.toHaveBeenCalled()
+			expect(key(input, 'Enter', { isComposing: true }).defaultPrevented).toBe(false)
+			expect(key(input, 'ArrowDown', { keyCode: 229 }).defaultPrevented).toBe(false)
+			act(() => input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true })))
+			expect(change).toHaveBeenCalledTimes(1)
+		},
+	)
+
+	it('navigates time options with focus retained in the input, then commits and closes', () => {
+		const change = vi.fn()
+		const { el } = mount(
+			<DateTimeInput
+				presentation="popover"
+				value="2026-03-05T10:00"
+				min="2026-03-05T10:00"
+				max="2026-03-05T11:00"
+				timeOptionInterval={15}
+				onChange={change}
+			/>,
+		)
+
+		const input = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
+		focus(input)
+		expect(document.querySelectorAll('[role="option"]')).toHaveLength(5)
+		key(input, 'ArrowDown')
+		const active = document.getElementById(input.getAttribute('aria-activedescendant')!)!
+		expect(active.textContent).toBe('10:15 AM')
+		expect(document.activeElement).toBe(input)
+		key(input, 'End')
+		key(input, 'ArrowDown')
+		key(input, 'Enter')
+		expect(change).toHaveBeenLastCalledWith('2026-03-05T11:00')
+		expect(input.getAttribute('aria-expanded')).toBe('false')
+		expect(input.hasAttribute('aria-activedescendant')).toBe(false)
+		expect(document.activeElement).toBe(input)
+	})
+
+	it('preserves typed times between options and closed-list stepping', () => {
+		const change = vi.fn()
+		const { el } = mount(
+			<DateTimeInput
+				presentation="popover"
+				value="2026-03-05T10:00"
+				timeIncrement={5}
+				timeOptionInterval={15}
+				onChange={change}
+			/>,
+		)
+
+		const input = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
+		focus(input)
+		fireInput(input, '10:07')
+		key(input, 'Enter')
+		expect(change).toHaveBeenLastCalledWith('2026-03-05T10:07')
+		key(input, 'ArrowUp')
+		expect(change).toHaveBeenLastCalledWith('2026-03-05T10:05')
+		key(input, 'ArrowDown', { altKey: true })
+		expect(input.getAttribute('aria-expanded')).toBe('true')
+		key(input, 'Escape')
+		expect(input.getAttribute('aria-expanded')).toBe('false')
+	})
+
+	it('never commits disabled typed date or time or invalid option text', () => {
+		const change = vi.fn()
+		const { el } = mount(
+			<DateTimeInput
+				presentation="popover"
+				value="2026-03-05T10:00"
+				min="2026-03-05T10:00"
+				max="2026-03-05T11:00"
+				timeOptionInterval={15}
+				onChange={change}
+			/>,
+		)
+
+		const date = el.querySelector('.vx-datetimeinput-dateinput')!
+		fireInput(date as HTMLElement, '2026-03-04')
+		key(date, 'Enter')
+		expect(change).not.toHaveBeenCalled()
+		const time = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
+		focus(time)
+		fireInput(time, '25:90')
+		key(time, 'Enter')
+		expect(change).not.toHaveBeenCalled()
+	})
+})
+
+it('keeps translated selection and clear announcements after the calendar closes', () => {
+	const { el } = mount(<DateInput value="2026-03-05" onChange={() => {}} presentation="popover" locale="fr-FR" hasClear messages={{ selected: (date) => `Choisi : ${date}`, cleared: 'Effacé' }} />)
+	click(el.querySelector('.vx-dateinput-toggle')!)
+	click(document.querySelector('button[data-date="2026-03-09"]')!)
+	expect(document.querySelector('.vx-dateinput-popover')).toBeNull()
+	expect(el.querySelector('[role="status"]')?.textContent).toContain('Choisi :')
+	expect(el.querySelector('[role="status"]')?.textContent).toContain('mars')
+	click(el.querySelector('.vx-dateinput-clear')!)
+	expect(el.querySelector('[role="status"]')?.textContent).toBe('Effacé')
+})
+
+it('repairs highlighted time options when bounds and display locale change', () => {
+	const change = vi.fn()
+	const { el, render } = mount(<DateTimeInput presentation="popover" value="2026-03-05T10:00" timeOptionInterval={15} onChange={change} />)
+	const input = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
+	focus(input)
+	key(input, 'End')
+	render(<DateTimeInput presentation="popover" locale="fr-FR" hourFormat="24h" value="2026-03-05T10:00" min="2026-03-05T10:00" max="2026-03-05T11:00" timeOptionInterval={15} onChange={change} />)
+	const active = document.getElementById(input.getAttribute('aria-activedescendant')!)!
+	expect(active.textContent).toBe('10:00')
+	key(input, 'End')
+	key(input, 'Enter')
+	expect(change).toHaveBeenLastCalledWith('2026-03-05T11:00')
+})
+
+it('has no day tab stop or focus movement when every day is disabled', () => {
+	const { el } = mount(<Calendar focusDate="2026-03-01" dateConstraints={[() => false]} />)
+	expect(el.querySelector('button[data-date][tabindex="0"]')).toBeNull()
+	const nav = el.querySelector('.vx-calendar-nav') as HTMLElement
+	focus(nav)
+	key(nav, 'End')
+	expect(document.activeElement).toBe(nav)
+})
+
+it('waits for the parent to accept a controlled month before moving focus', () => {
+	const changeMonth = vi.fn()
+	const { el, render } = mount(<Calendar focusDate="2026-03-01" onFocusDateChange={changeMonth} />)
+	focus(el.querySelector('button[data-date="2026-03-31"]')!)
+	key(document.activeElement!, 'ArrowRight')
+	expect(changeMonth).toHaveBeenCalledWith('2026-04-01')
+	expect(focusedDate()).toBe('2026-03-31')
+	render(<Calendar focusDate="2026-04-01" onFocusDateChange={changeMonth} />)
+	expect(focusedDate()).toBe('2026-04-01')
+})
+
+it('announces a rejected date after Enter and clears the error on external correction', () => {
+	const change = vi.fn()
+	const { el, render } = mount(<DateInput presentation="popover" value="2026-03-05" min="2026-03-05" locale="fr-FR" messages={{ invalidDate: 'Date refusée' }} onChange={change} />)
+	const input = el.querySelector('input') as HTMLInputElement
+	fireInput(input, '2026-03-04')
+	key(input, 'Enter')
+	expect(change).not.toHaveBeenCalled()
+	expect(el.querySelector('[role="alert"]')?.textContent).toBe('Date refusée')
+	expect(input.getAttribute('aria-invalid')).toBe('true')
+	render(<DateInput presentation="popover" value="2026-03-06" min="2026-03-05" onChange={change} />)
+	expect(input.hasAttribute('aria-invalid')).toBe(false)
+})

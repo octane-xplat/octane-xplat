@@ -2,6 +2,8 @@
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
+import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon'
 import { Pressable } from './Pressable'
@@ -20,6 +22,7 @@ import {
 	effectivePresentation,
 	formatDateValue,
 	formatDisplayTime12h,
+	formatLocalizedTime,
 	formatDisplayTime24h,
 	formatISOTime,
 	isTimeInRange,
@@ -44,7 +47,8 @@ interface CoreProps extends DateTimeInputProps {
 function DateTimeInputControl(inputProps: CoreProps) @{
 	const props = useFieldControlProps(inputProps)
 	const surface = inputProps.surface
-	const locale = resolveLocale()
+	const locale = resolveLocale(props.locale)
+	const messages = dateMessages(props.messages)
 	const generatedId = useId()
 	const dateId = props.id ?? generatedId
 	const anchor = useRef<any>(null)
@@ -63,7 +67,9 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const hasSeconds = !!props.hasSeconds
-	const formatDisplay = props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h
+	const formatDisplay = (time: ISOTimeString, seconds: boolean) => props.locale
+		? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
+		: (props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h)(time, seconds)
 
 	const minParts = useMemo(() => splitDateTime(props.min), [props.min])
 	const maxParts = useMemo(() => splitDateTime(props.max), [props.max])
@@ -130,11 +136,13 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		if (isDisabled || isWritingText(e.object)) return
 		const text = e.value as string
 		setDatePending(text)
+		if (hasDateComposition(dateInput.current, e)) return
 		const parsed = parseDateInput(text, locale)
 		if (parsed && !isDateDisabled(parsed)) commitDate(plainDateToISO(parsed), false)
 	}
 
 	const commitDatePending = () => {
+		if (hasDateComposition(dateInput.current)) return
 		if (datePending == null) return
 		if (!datePending.trim()) {
 			if (shown != null) fireChange(undefined)
@@ -158,11 +166,13 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		if (isDisabled || isWritingText(e.object)) return
 		const text = e.value as string
 		setTimePending(text)
+		if (hasDateComposition(timeInput.current, e)) return
 		const parsed = parseTimeInput(text, hasSeconds)
 		if (parsed && isTimeInRange(parsed, timeMin, timeMax)) commitTime(parsed)
 	}
 
 	const commitTimePending = () => {
+		if (hasDateComposition(timeInput.current)) return
 		if (timePending == null) return
 		if (!timePending.trim()) {
 			if (valueParts.time) commitTime(undefined)
@@ -185,7 +195,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		}
 
 		return list
-	}, [props.timeOptionInterval, hasSeconds, timeMin, timeMax])
+	}, [props.timeOptionInterval, hasSeconds, timeMin, timeMax, props.hourFormat, props.locale])
 
 	// Imperative display writes for both textfields.
 	useEffect(() => {
@@ -241,6 +251,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 					<Pressable
 						className={cx('vx-datetimeinput-segment', 'vx-datetimeinput-time', !(timeDraft ?? valueParts.time) && 'vx-datetimeinput-segment--placeholder')}
 						disabled={isDisabled || isBusy}
+						accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 						accessibilityLabel={timeLabelText}
 						accessibilityState={{ disabled: isDisabled }}
 						onPress={() => { if (!isDisabled && !isBusy) setOpen('sheet') }}
@@ -252,7 +263,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 				<>
 					<Pressable
 						className="vx-datetimeinput-calendartoggle"
-						accessibilityLabel={open === 'calendar' ? 'Close calendar' : 'Open calendar'}
+						accessibilityLabel={open === 'calendar' ? messages.closeCalendar : messages.openCalendar}
 						disabled={isDisabled || isBusy}
 						onPress={() => { if (!isDisabled && !isBusy) setOpen(open === 'calendar' ? null : 'calendar') }}
 					>
@@ -266,7 +277,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						isEnabled={!isDisabled && !isBusy}
 						editable={!isDisabled && !isBusy}
 						accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-						accessibilityHint={props.accessibilityHint}
+						accessibilityHint={!isDateValid ? messages.invalidDate : props.accessibilityHint}
 						accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isDateValid } as any) as any}
 						onTextChange={handleDateChange}
 						onBlur={commitDatePending}
@@ -279,6 +290,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 						hint={props.timePlaceholder ?? 'Select a time'}
 						isEnabled={!isDisabled && !isBusy}
 						editable={!isDisabled && !isBusy}
+						accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 						accessibilityLabel={timeLabelText}
 						accessibilityState={nativeAccessibilityState({ disabled: isDisabled, invalid: !isTimeValid } as any) as any}
 						onTextChange={handleTimeChange}
@@ -308,6 +320,9 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		{surface === 'popover' ? (
 			<Popover anchor={anchor} open={open === 'calendar'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-popover">
 				<Calendar
+					locale={props.locale}
+					direction={props.direction}
+					messages={props.messages}
 					mode="single"
 					value={valueParts.date}
 					onChange={(iso: ISODateString) => commitDate(iso, true)}
@@ -321,7 +336,8 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 		) : null}
 		{surface === 'popover' && timeOptions.length ? (
 			<Popover anchor={anchor} open={open === 'times'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-times">
-				<scrollview className="vx-datetimeinput-timelist" accessibilityLabel={timeLabelText}>
+				<scrollview className="vx-datetimeinput-timelist" accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
+				accessibilityLabel={timeLabelText}>
 					<stacklayout>
 						{timeOptions.map((opt) => (
 							<flexboxlayout
@@ -342,6 +358,9 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 			<BottomSheet isOpen={open === 'sheet'} onOpenChange={(isOpen) => setOpen(isOpen ? 'sheet' : null)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date and time'} height="hug" className="vx-datetimeinput-sheet">
 				<flexboxlayout flexDirection="column" className="vx-datetimeinput-sheetbody">
 					<Calendar
+						locale={props.locale}
+						direction={props.direction}
+						messages={props.messages}
 						mode="single"
 						value={valueParts.date}
 						onChange={(iso: ISODateString) => commitDate(iso, true)}

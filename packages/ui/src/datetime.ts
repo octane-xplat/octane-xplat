@@ -26,8 +26,12 @@ import type {
 // ---------------------------------------------------------------------------
 
 /** The runtime's best-effort display locale — device locale on native,
- *  document locale on web; falls back to 'en' when Intl is reduced. */
-export function resolveLocale(): string {
+ *  runtime locale on web; falls back to 'en' when Intl is reduced. */
+export function resolveLocale(locale?: string): string {
+	if (locale) {
+		try { return new Intl.DateTimeFormat(locale).resolvedOptions().locale } catch {}
+	}
+
 	try {
 		return new Intl.DateTimeFormat().resolvedOptions().locale || 'en'
 	} catch {
@@ -823,4 +827,17 @@ export function resolveInputSurface(
 		case 'adaptive-native':
 			return isCoarsePointer ? 'native' : 'popover'
 	}
+}
+
+/** Localized wall-clock display; ISO time remains zone-free and parsing bounded. */
+export function formatLocalizedTime(time: ISOTimeString, hasSeconds: boolean, hourFormat: '12h' | '24h', locale: string): string {
+	const parsed = parseISOTime(time)
+	if (!parsed) {
+		return time
+	}
+
+	return new Intl.DateTimeFormat(locale, {
+		hour: 'numeric', minute: '2-digit', ...(hasSeconds ? { second: '2-digit' as const } : {}),
+		hourCycle: hourFormat === '24h' ? 'h23' : 'h12', timeZone: 'UTC',
+	}).format(new Date(Date.UTC(2000, 0, 1, parsed.hour, parsed.minute, parsed.second ?? 0)))
 }

@@ -1,6 +1,8 @@
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
+import { calendarKeyTarget, isDateComposing } from './date-keyboard'
 import { Icon } from './Icon.web.tsrx'
 import {
 	DATE_FORMAT_WITH_WEEKDAY,
@@ -30,8 +32,6 @@ import {
 	type CalendarMonthGrid,
 } from './calendar-core'
 
-const EMPTY_VALUE: ISODateString | DateRange | undefined = undefined
-
 /** Self-drawn month calendar — `single` or `range` selection, ISO values.
  *  Keyboard: arrows move the day (crossing months pages the grid), PageUp/
  *  PageDown move a month, Home/End move to the row edges, Enter/Space picks,
@@ -40,7 +40,8 @@ export function Calendar(props: CalendarProps) @{
 	const mode = props.mode ?? 'single'
 	const numberOfMonths = props.numberOfMonths === 2 ? 2 : 1
 	const weekStartsOn = normalizeDayOfWeek(props.weekStartsOn)
-	const locale = resolveLocale()
+	const locale = resolveLocale(props.locale)
+	const messages = dateMessages(props.messages)
 
 	const controlled = props.value !== undefined
 	const [internalValue, setInternalValue] = useState<ISODateString | DateRange | undefined>(props.defaultValue as ISODateString | DateRange | undefined)
@@ -110,8 +111,9 @@ export function Calendar(props: CalendarProps) @{
 	const root = useRef<HTMLDivElement | null>(null)
 	useEffect(() => {
 		if (!pendingFocus || !root.current) return
-		const el = root.current.querySelector(`[data-date="${pendingFocus}"]`) as HTMLElement | null
-		el?.focus?.()
+		const el = root.current.querySelector(`button[data-date="${pendingFocus}"]:not([disabled])`) as HTMLElement | null
+		if (!el) return
+		el.focus()
 		setFocusIso(pendingFocus)
 		setPendingFocus(null)
 	}, [pendingFocus, months])
@@ -131,6 +133,7 @@ export function Calendar(props: CalendarProps) @{
 		const pd = plainDateFromISO(iso)
 		if (!pd || isDateDisabled(pd)) return
 		if (mode === 'single') {
+			setAnnouncement(messages.selected(plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)))
 			if (!controlled) setInternalValue(iso)
 
 			;(props.onChange as ((value: ISODateString, date: Date) => void) | undefined)?.(iso, plainDateToDate(pd))
@@ -139,14 +142,14 @@ export function Calendar(props: CalendarProps) @{
 
 		if (rangeAnchor === null) {
 			setRangeAnchor(iso)
-			setAnnouncement(`Range start: ${plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)}`)
+			setAnnouncement(messages.rangeStart(plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)))
 			return
 		}
 
 		const result = applyRangePick(rangeAnchor, iso, props.minRangeSpan)
 		if (result.kind === 'cancel') {
 			setRangeAnchor(null)
-			setAnnouncement(`Range cleared: ${plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)}`)
+			setAnnouncement(messages.rangeCleared)
 			return
 		}
 
@@ -155,102 +158,53 @@ export function Calendar(props: CalendarProps) @{
 			if (!controlled) setInternalValue(result.range)
 
 			;(props.onChange as ((value: DateRange) => void) | undefined)?.(result.range)
-			setAnnouncement(`Date range: ${plainDateFormat(plainDateFromISO(result.range.start)!, DATE_FORMAT_WITH_WEEKDAY, locale)} – ${plainDateFormat(plainDateFromISO(result.range.end)!, DATE_FORMAT_WITH_WEEKDAY, locale)}`)
+			setAnnouncement(messages.rangeSelected(plainDateFormat(plainDateFromISO(result.range.start)!, DATE_FORMAT_WITH_WEEKDAY, locale), plainDateFormat(plainDateFromISO(result.range.end)!, DATE_FORMAT_WITH_WEEKDAY, locale)))
 		}
 	}
 
-	// Which day cell is tabbable: focused > selected > today > first enabled.
-	const seedTabbable = (grid: CalendarMonthGrid): ISODateString | null => {
-		if (focusIso) {
-			for (const week of grid.weeks) for (const day of week) {
-				if (day.iso === focusIso && !day.isOutsideMonth && !isDateDisabled(day.date)) return focusIso
-			}
+	// One tab stop across both panes, repaired when constraints change.
+	const enabledCells = months.flatMap((grid) => grid.weeks.flat()).filter((day) => !day.isOutsideMonth && !isDateDisabled(day.date))
+	const selectedIso = typeof currentValue === 'string' ? currentValue : currentValue?.start
+	const tabbable = enabledCells.find((day) => day.iso === focusIso)?.iso
+		?? enabledCells.find((day) => day.iso === selectedIso)?.iso
+		?? enabledCells.find((day) => day.isToday)?.iso
+		?? enabledCells[0]?.iso
+
+	useEffect(() => {
+		const active = root.current?.querySelector('button[data-date]:focus') as HTMLButtonElement | null
+		if (active?.disabled && tabbable) {
+			;(root.current?.querySelector(`button[data-date="${tabbable}"]`) as HTMLElement | null)?.focus()
+		}
+	}, [tabbable, isDateDisabled])
+
+	const handleKeyDown = (e: any) => {
+		if (e.defaultPrevented || isDateComposing(e)) return
+		// Header controls must retain their own keyboard behavior.
+		const active = e.target?.closest?.('button[data-date]')
+		if (!active || !root.current?.contains(active)) return
+		if (mode === 'range' && rangeAnchor !== null && e.key === 'Escape') {
+			setRangeAnchor(null)
+			setAnnouncement(messages.rangeCleared)
+			e.preventDefault()
+			e.stopPropagation()
+			return
 		}
 
-		if (mode === 'single' && typeof currentValue === 'string') {
-			for (const week of grid.weeks) for (const day of week) {
-				if (day.iso === currentValue && !day.isOutsideMonth && !isDateDisabled(day.date)) return day.iso
-			}
-		}
-
-		for (const week of grid.weeks) for (const day of week) {
-			if (day.isToday && !day.isOutsideMonth && !isDateDisabled(day.date)) return day.iso
-		}
-
-		for (const week of grid.weeks) for (const day of week) {
-			if (!day.isOutsideMonth && !isDateDisabled(day.date)) return day.iso
-		}
-
-		return null
-	}
-
-	const tabbable = months.map(seedTabbable)
-
-	// All enabled in-month days across panes, for arrow navigation.
-	const enabledDays = useMemo(() => {
-		const all: ISODateString[] = []
-		for (const grid of months) for (const week of grid.weeks) for (const day of week) {
-			if (!day.isOutsideMonth && !isDateDisabled(day.date)) all.push(day.iso)
-		}
-
-		return all
-	}, [months, isDateDisabled])
-
-	const stepFocus = (deltaDays: number) => {
-		if (!focusIso) return
-		const pd = plainDateFromISO(focusIso)
-		if (!pd) return
-		let target = plainDateAddDays(pd, deltaDays)
-		const dir = deltaDays >= 0 ? 1 : -1
-		let guard = 0
-		while (isDateDisabled(target) && guard++ < 370) target = plainDateAddDays(target, dir)
-		if (guard >= 370) return
-		const iso = plainDateToISO(target)
-		setFocusIso(iso)
+		if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) return
+		const direction = props.direction ?? getComputedStyle(root.current!).direction
+		const iso = calendarKeyTarget({ iso: active.dataset.date, event: e, months, isDisabled: isDateDisabled, rtl: direction === 'rtl', min: props.min, max: props.max })
+		e.preventDefault()
+		if (!iso) return
+		const target = plainDateFromISO(iso)!
 		const pane = monthStart(target)
 		if (plainDateIsBefore(pane, baseMonth) || plainDateIsBefore(monthStart(plainDateAddMonths(baseMonth, numberOfMonths - 1)), pane)) {
 			setBaseMonth(pane, { focusIso: iso })
 			return
 		}
 
-		(root.current?.querySelector(`[data-date="${iso}"]`) as HTMLElement | null)?.focus()
-	}
+		setFocusIso(iso)
 
-	const handleKeyDown = (e: any) => {
-		if (mode === 'range' && rangeAnchor !== null && e.key === 'Escape') {
-			setRangeAnchor(null)
-			e.preventDefault()
-			e.stopPropagation()
-			return
-		}
-
-		if (!focusIso) return
-		switch (e.key) {
-			case 'ArrowLeft': e.preventDefault(); stepFocus(-1); break
-			case 'ArrowRight': e.preventDefault(); stepFocus(1); break
-			case 'ArrowUp': e.preventDefault(); stepFocus(-7); break
-			case 'ArrowDown': e.preventDefault(); stepFocus(7); break
-			case 'PageUp': {
-				e.preventDefault()
-				const pd = plainDateFromISO(focusIso)
-				if (pd && bounds.canNavigatePrevious) {
-					const target = plainDateAddMonths(pd, -1)
-					setBaseMonth(monthStart(target), { focusIso: plainDateToISO(target) })
-				}
-
-				break
-			}
-			case 'PageDown': {
-				e.preventDefault()
-				const pd = plainDateFromISO(focusIso)
-				if (pd && bounds.canNavigateNext) {
-					const target = plainDateAddMonths(pd, 1)
-					setBaseMonth(monthStart(target), { focusIso: plainDateToISO(target) })
-				}
-
-				break
-			}
-		}
+		;(root.current?.querySelector(`button[data-date="${iso}"]`) as HTMLElement | null)?.focus()
 	}
 
 	// Preview band: anchor → hovered day while a range pick is in flight.
@@ -291,51 +245,58 @@ export function Calendar(props: CalendarProps) @{
 
 		if (day.isOutsideMonth) {
 			return props.hasOutsideDays ?? true
-				? <span key={day.iso} className="vx-calendar-day vx-calendar-day--outside" data-date={day.iso}>{day.dayOfMonth}</span>
-				: <span key={day.iso} className="vx-calendar-day vx-calendar-day--empty" />
+				? <span key={day.iso} role="gridcell" className="vx-calendar-day vx-calendar-day--outside" data-date={day.iso}>{day.dayOfMonth}</span>
+				: <span key={day.iso} role="gridcell" className="vx-calendar-day vx-calendar-day--empty" />
 		}
 
-		const isTabbable = tabbable.some((t) => t === day.iso)
-		const fullLabel = plainDateFormat(day.date, DATE_FORMAT_WITH_WEEKDAY, locale)
+		const isTabbable = tabbable === day.iso
+		const dateLabel = plainDateFormat(day.date, DATE_FORMAT_WITH_WEEKDAY, locale)
+		const fullLabel = state.isPendingStart || state.isRangeStart ? messages.rangeStart(dateLabel)
+			: state.isRangeEnd ? messages.rangeEnd(dateLabel)
+				: state.isInRange ? messages.inRange(dateLabel)
+					: state.isSelected ? messages.selected(dateLabel) : dateLabel
+
 		return (
-			<button
-				key={day.iso}
-				type="button"
-				data-date={day.iso}
-				role="gridcell"
-				className={cx(
-					'vx-calendar-day',
-					state.isSelected && 'vx-calendar-day--selected',
-					state.isRangeStart && 'vx-calendar-day--range-start',
-					state.isRangeEnd && 'vx-calendar-day--range-end',
-					state.isInRange && 'vx-calendar-day--in-range',
-					state.isPendingStart && 'vx-calendar-day--pending',
-					state.isDisabled && 'vx-calendar-day--disabled',
-					day.isToday && 'vx-calendar-day--today',
-					day.isWeekend && 'vx-calendar-day--weekend',
-					day.isSunday && 'vx-calendar-day--sunday',
-					day.isFirstWeekOfMonth && 'vx-calendar-day--first-week',
-					day.isLastWeekOfMonth && 'vx-calendar-day--last-week',
-					rounding === 'both' && 'vx-calendar-day--round-both',
-					rounding === 'start' && 'vx-calendar-day--round-start',
-					rounding === 'end' && 'vx-calendar-day--round-end',
-				)}
-				tabIndex={isTabbable ? 0 : -1}
-				disabled={state.isDisabled || undefined}
-				aria-label={fullLabel}
-				aria-pressed={dayCarriesBand(state) || state.isSelected ? true : undefined}
-				onClick={() => pick(day.iso)}
-				onFocus={() => setFocusIso(day.iso)}
-				onMouseEnter={() => mode === 'range' && rangeAnchor && setHoveredIso(day.iso)}
-				onMouseLeave={() => setHoveredIso(null)}
-			>
-				{day.dayOfMonth}
-			</button>
+			<div key={day.iso} className="vx-calendar-cell" role="gridcell" aria-selected={dayCarriesBand(state) || state.isSelected}>
+				<button
+					type="button"
+					data-date={day.iso}
+					className={cx(
+						'vx-calendar-day',
+						state.isSelected && 'vx-calendar-day--selected',
+						state.isRangeStart && 'vx-calendar-day--range-start',
+						state.isRangeEnd && 'vx-calendar-day--range-end',
+						state.isInRange && 'vx-calendar-day--in-range',
+						state.isPendingStart && 'vx-calendar-day--pending',
+						state.isDisabled && 'vx-calendar-day--disabled',
+						day.isToday && 'vx-calendar-day--today',
+						day.isWeekend && 'vx-calendar-day--weekend',
+						day.isSunday && 'vx-calendar-day--sunday',
+						day.isFirstWeekOfMonth && 'vx-calendar-day--first-week',
+						day.isLastWeekOfMonth && 'vx-calendar-day--last-week',
+						rounding === 'both' && 'vx-calendar-day--round-both',
+						rounding === 'start' && 'vx-calendar-day--round-start',
+						rounding === 'end' && 'vx-calendar-day--round-end',
+					)}
+					tabIndex={isTabbable ? 0 : -1}
+					disabled={state.isDisabled || undefined}
+					aria-label={fullLabel}
+					aria-current={day.isToday ? 'date' : undefined}
+					onClick={() => pick(day.iso)}
+					onFocus={() => setFocusIso(day.iso)}
+					onMouseEnter={() => mode === 'range' && rangeAnchor && setHoveredIso(day.iso)}
+					onMouseLeave={() => setHoveredIso(null)}
+				>
+					{day.dayOfMonth}
+				</button>
+			</div>
 		)
 	}
 
 	<div
 		ref={(el: any) => { root.current = el }}
+		dir={props.direction}
+		lang={locale}
 		id={props.id}
 		className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)}
 		style={props.style}
@@ -346,7 +307,7 @@ export function Calendar(props: CalendarProps) @{
 			<button
 				type="button"
 				className="vx-calendar-nav vx-calendar-nav--prev"
-				aria-label="Previous month"
+				aria-label={messages.previousMonth}
 				disabled={!bounds.canNavigatePrevious || undefined}
 				onClick={() => bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))}
 			>
@@ -356,7 +317,7 @@ export function Calendar(props: CalendarProps) @{
 			<button
 				type="button"
 				className="vx-calendar-nav vx-calendar-nav--next"
-				aria-label="Next month"
+				aria-label={messages.nextMonth}
 				disabled={!bounds.canNavigateNext || undefined}
 				onClick={() => bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))}
 			>
@@ -365,7 +326,7 @@ export function Calendar(props: CalendarProps) @{
 		</div>
 		<div className="vx-calendar-months">
 			{months.map((grid) => (
-				<div key={`${grid.year}-${grid.month}`} className="vx-calendar-month">
+				<div key={`${grid.year}-${grid.month}`} className="vx-calendar-month" role="grid" aria-label={monthLabel(grid.year, grid.month, locale)}>
 					<div className="vx-calendar-weeknames" role="row">
 						{props.hasWeekNumbers ? <span className="vx-calendar-weeknumber vx-calendar-weeknumber--head" /> : null}
 						{grid.dayNames.map((name, i) => <span key={i} className="vx-calendar-weekname" role="columnheader">{name}</span>)}

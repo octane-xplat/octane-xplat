@@ -17,7 +17,7 @@ const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 function RangeControl(inputProps: DateRangeInputProps) @{
 	const hostRef = useRef<any>(null);
 	const props = useFieldControlProps(inputProps)
-	const locale = resolveLocale()
+	const locale = resolveLocale(props.locale)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 
@@ -114,6 +114,9 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 					</scrollview>
 				) : null}
 				<Calendar
+					locale={props.locale}
+					direction={props.direction}
+					messages={props.messages}
 					mode="range"
 					value={shown}
 					onChange={selectRange}

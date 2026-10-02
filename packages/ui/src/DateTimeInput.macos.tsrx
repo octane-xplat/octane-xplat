@@ -2,6 +2,8 @@
 import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateTimeInputProps, ISODateString, ISODateTimeString, ISOTimeString } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
+import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'
@@ -14,6 +16,7 @@ import {
 	currentISOTime,
 	formatDateValue,
 	formatDisplayTime12h,
+	formatLocalizedTime,
 	formatDisplayTime24h,
 	formatISOTime,
 	isTimeInRange,
@@ -31,9 +34,12 @@ const MINUTES_PER_DAY = 24 * 60
 
 function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const props = useFieldControlProps(inputProps)
-	const locale = resolveLocale()
+	const locale = resolveLocale(props.locale)
+	const messages = dateMessages(props.messages)
 	const generatedId = useId()
 	const dateId = props.id ?? generatedId
+	const dateInput = useRef<any>(null)
+	const timeInput = useRef<any>(null)
 	const anchor = useRef<any>(null)
 
 	const [open, setOpen] = useState<'calendar' | 'times' | null>(null)
@@ -48,7 +54,9 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const hasSeconds = !!props.hasSeconds
-	const formatDisplay = props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h
+	const formatDisplay = (time: ISOTimeString, seconds: boolean) => props.locale
+		? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
+		: (props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h)(time, seconds)
 
 	const minParts = useMemo(() => splitDateTime(props.min), [props.min])
 	const maxParts = useMemo(() => splitDateTime(props.max), [props.max])
@@ -113,11 +121,13 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const handleDateChange = (text: string) => {
 		if (isDisabled) return
 		setDatePending(text)
+		if (hasDateComposition(dateInput.current)) return
 		const parsed = parseDateInput(text, locale)
 		if (parsed && !isDateDisabled(parsed)) commitDate(plainDateToISO(parsed), false)
 	}
 
 	const commitDatePending = () => {
+		if (hasDateComposition(dateInput.current)) return
 		if (datePending == null) return
 		if (!datePending.trim()) {
 			if (shown != null) fireChange(undefined)
@@ -139,11 +149,13 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 	const handleTimeChange = (text: string) => {
 		if (isDisabled) return
 		setTimePending(text)
+		if (hasDateComposition(timeInput.current)) return
 		const parsed = parseTimeInput(text, hasSeconds)
 		if (parsed && isTimeInRange(parsed, timeMin, timeMax)) commitTime(parsed)
 	}
 
 	const commitTimePending = () => {
+		if (hasDateComposition(timeInput.current)) return
 		if (timePending == null) return
 		if (!timePending.trim()) {
 			if (valueParts.time) commitTime(undefined)
@@ -165,7 +177,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		}
 
 		return list
-	}, [props.timeOptionInterval, hasSeconds, timeMin, timeMax])
+	}, [props.timeOptionInterval, hasSeconds, timeMin, timeMax, props.hourFormat, props.locale])
 
 	const clear = () => {
 		setDatePending(null)
@@ -196,13 +208,14 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		>
 			<Pressable
 				className="vx-datetimeinput-calendartoggle"
-				accessibilityLabel={open === 'calendar' ? 'Close calendar' : 'Open calendar'}
+				accessibilityLabel={open === 'calendar' ? messages.closeCalendar : messages.openCalendar}
 				disabled={isDisabled || isBusy}
 				onPress={() => { if (!isDisabled && !isBusy) setOpen(open === 'calendar' ? null : 'calendar') }}
 			>
 				<Icon name="xplat-calendar" size={14} />
 			</Pressable>
 			<textfield
+				ref={(v: any) => { dateInput.current = v }}
 				id={dateId}
 				className={cx('vx-datetimeinput-input', 'vx-datetimeinput-dateinput', !isDateValid && 'vx-datetimeinput-input--invalid')}
 				value={dateDisplay}
@@ -212,10 +225,11 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				onTextChange={handleDateChange}
 				onBlur={commitDatePending}
 				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-				accessibilityHint={props.accessibilityHint}
+				accessibilityHint={!isDateValid ? messages.invalidDate : props.accessibilityHint}
 				accessibilityState={{ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isDateValid }}
 			/>
 			<textfield
+				ref={(v: any) => { timeInput.current = v }}
 				className={cx('vx-datetimeinput-input', 'vx-datetimeinput-timeinput', !isTimeValid && 'vx-datetimeinput-input--invalid')}
 				value={timeDisplay}
 				placeholder={props.timePlaceholder ?? 'Select a time'}
@@ -223,6 +237,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 				editable={!isDisabled && !isBusy}
 				onTextChange={handleTimeChange}
 				onBlur={commitTimePending}
+				accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
 				accessibilityLabel={timeLabelText}
 				accessibilityState={{ disabled: isDisabled, invalid: !isTimeValid }}
 			/>
@@ -245,6 +260,9 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		</flexboxlayout>
 		<Popover anchor={anchor} open={open === 'calendar'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-popover">
 			<Calendar
+				locale={props.locale}
+				direction={props.direction}
+				messages={props.messages}
 				mode="single"
 				value={valueParts.date}
 				onChange={(iso: ISODateString) => commitDate(iso, true)}
@@ -257,7 +275,8 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 		</Popover>
 		{timeOptions.length ? (
 			<Popover anchor={anchor} open={open === 'times'} onDismiss={() => setOpen(null)} placement="bottom" className="vx-datetimeinput-times">
-				<scrollview className="vx-datetimeinput-timelist" accessibilityLabel={timeLabelText}>
+				<scrollview className="vx-datetimeinput-timelist" accessibilityHint={!isTimeValid ? messages.invalidTime : undefined}
+				accessibilityLabel={timeLabelText}>
 					<stacklayout>
 						{timeOptions.map((opt) => (
 							<flexboxlayout

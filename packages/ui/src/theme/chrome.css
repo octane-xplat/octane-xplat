@@ -825,6 +825,7 @@
 	.vx-daterangeinput-popover {
 		background-color: var(--color-surface, #fff);
 	}
+	.vx-datetimeinput-timeoption--highlighted,
 	.vx-datetimeinput-timeoption--selected {
 		background-color: var(--color-surface-secondary);
 	}

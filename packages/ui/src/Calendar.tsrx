@@ -2,6 +2,7 @@
 import { useImperativeHandle, useEffect, useMemo, useRef, useState } from 'octane'
 import type { CalendarProps, DateRange, ISODateString } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
 import { Icon } from './Icon'
 import { Pressable } from './Pressable'
 import {
@@ -37,7 +38,8 @@ export function Calendar(props: CalendarProps) @{
 	const mode = props.mode ?? 'single'
 	const numberOfMonths = props.numberOfMonths === 2 ? 2 : 1
 	const weekStartsOn = normalizeDayOfWeek(props.weekStartsOn)
-	const locale = resolveLocale()
+	const locale = resolveLocale(props.locale)
+	const messages = dateMessages(props.messages)
 
 	const controlled = props.value !== undefined
 	const [internalValue, setInternalValue] = useState<ISODateString | DateRange | undefined>(props.defaultValue as ISODateString | DateRange | undefined)
@@ -111,6 +113,7 @@ export function Calendar(props: CalendarProps) @{
 		const pd = plainDateFromISO(iso)
 		if (!pd || isDateDisabled(pd)) return
 		if (mode === 'single') {
+			setAnnouncement(messages.selected(plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)))
 			if (!controlled) setInternalValue(iso)
 
 			;(props.onChange as ((value: ISODateString, date: Date) => void) | undefined)?.(iso, plainDateToDate(pd))
@@ -119,14 +122,14 @@ export function Calendar(props: CalendarProps) @{
 
 		if (rangeAnchor === null) {
 			setRangeAnchor(iso)
-			setAnnouncement(`Range start: ${plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)}`)
+			setAnnouncement(messages.rangeStart(plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)))
 			return
 		}
 
 		const result = applyRangePick(rangeAnchor, iso, props.minRangeSpan)
 		if (result.kind === 'cancel') {
 			setRangeAnchor(null)
-			setAnnouncement(`Range cleared: ${plainDateFormat(pd, DATE_FORMAT_WITH_WEEKDAY, locale)}`)
+			setAnnouncement(messages.rangeCleared)
 			return
 		}
 
@@ -135,7 +138,7 @@ export function Calendar(props: CalendarProps) @{
 			if (!controlled) setInternalValue(result.range)
 
 			;(props.onChange as ((value: DateRange) => void) | undefined)?.(result.range)
-			setAnnouncement(`Date range: ${plainDateFormat(plainDateFromISO(result.range.start)!, DATE_FORMAT_WITH_WEEKDAY, locale)} – ${plainDateFormat(plainDateFromISO(result.range.end)!, DATE_FORMAT_WITH_WEEKDAY, locale)}`)
+			setAnnouncement(messages.rangeSelected(plainDateFormat(plainDateFromISO(result.range.start)!, DATE_FORMAT_WITH_WEEKDAY, locale), plainDateFormat(plainDateFromISO(result.range.end)!, DATE_FORMAT_WITH_WEEKDAY, locale)))
 		}
 	}
 
@@ -153,7 +156,12 @@ export function Calendar(props: CalendarProps) @{
 				: <label key={day.iso} className="vx-calendar-day vx-calendar-day--empty" />
 		}
 
-		const fullLabel = plainDateFormat(day.date, DATE_FORMAT_WITH_WEEKDAY, locale)
+		const dateLabel = plainDateFormat(day.date, DATE_FORMAT_WITH_WEEKDAY, locale)
+		const fullLabel = state.isPendingStart || state.isRangeStart ? messages.rangeStart(dateLabel)
+			: state.isRangeEnd ? messages.rangeEnd(dateLabel)
+				: state.isInRange ? messages.inRange(dateLabel)
+					: state.isSelected ? messages.selected(dateLabel) : dateLabel
+
 		return (
 			<flexboxlayout
 				key={day.iso}
@@ -184,10 +192,10 @@ export function Calendar(props: CalendarProps) @{
 		className={cx('vx-calendar', mode === 'range' && 'vx-calendar--range', numberOfMonths === 2 && 'vx-calendar--two-months', props.className)}
 		style={props.style}
 	>
-		<flexboxlayout flexDirection="row" alignItems="center" className="vx-calendar-header">
+		<flexboxlayout flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} alignItems="center" className="vx-calendar-header">
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--prev"
-				accessibilityLabel="Previous month"
+				accessibilityLabel={messages.previousMonth}
 				accessibilityState={{ disabled: !bounds.canNavigatePrevious } as any}
 				disabled={!bounds.canNavigatePrevious}
 				onPress={() => bounds.canNavigatePrevious && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, -1)))}
@@ -197,7 +205,7 @@ export function Calendar(props: CalendarProps) @{
 			<label className="vx-calendar-title" text={monthYearLabel} flexGrow={1} textAlignment="center" />
 			<Pressable
 				className="vx-calendar-nav vx-calendar-nav--next"
-				accessibilityLabel="Next month"
+				accessibilityLabel={messages.nextMonth}
 				accessibilityState={{ disabled: !bounds.canNavigateNext } as any}
 				disabled={!bounds.canNavigateNext}
 				onPress={() => bounds.canNavigateNext && setBaseMonth(monthStart(plainDateAddMonths(baseMonth, 1)))}
@@ -208,12 +216,12 @@ export function Calendar(props: CalendarProps) @{
 		<flexboxlayout flexDirection="column" className="vx-calendar-months">
 			{months.map((grid) => (
 				<flexboxlayout key={`${grid.year}-${grid.month}`} flexDirection="column" className="vx-calendar-month">
-					<flexboxlayout flexDirection="row" className="vx-calendar-weeknames">
+					<flexboxlayout flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} className="vx-calendar-weeknames">
 						{props.hasWeekNumbers ? <label className="vx-calendar-weeknumber vx-calendar-weeknumber--head" /> : null}
 						{grid.dayNames.map((name, i) => <label key={i} className="vx-calendar-weekname" text={name} />)}
 					</flexboxlayout>
 					{grid.weeks.map((week, w) => (
-						<flexboxlayout key={w} flexDirection="row" className="vx-calendar-week">
+						<flexboxlayout key={w} flexDirection={props.direction === 'rtl' ? 'row-reverse' : 'row'} className="vx-calendar-week">
 							{props.hasWeekNumbers
 								? <label className="vx-calendar-weeknumber" text={String(plainDateGetWeekNumber(week[0].date))} />
 								: null}

@@ -644,7 +644,40 @@ export interface CalendarHandle {
 	navigateTo(date: ISODateString): void
 }
 
-interface CalendarBaseProps {
+/** App-owned translations for date-family chrome and state announcements.
+ * Dates passed to message functions are already formatted in `locale`. */
+export interface DateInputMessages {
+	previousMonth: string
+	nextMonth: string
+	openCalendar: string
+	closeCalendar: string
+	openTimePicker: string
+	closeTimePicker: string
+	invalidDate: string
+	invalidTime: string
+	invalidDateTime: string
+	selected: (date: string) => string
+	rangeStart: (date: string) => string
+	rangeEnd: (date: string) => string
+	inRange: (date: string) => string
+	rangeSelected: (start: string, end: string) => string
+	rangeCleared: string
+	cleared: string
+}
+
+/** Pass your app locale and translated messages from any i18n library.
+ * No provider or translation dependency is required by the shared controls. */
+export interface DateLocaleProps {
+	/** BCP 47 locale for Gregorian date parsing/formatting; runtime locale by default. */
+	locale?: string
+	/** Calendar layout and horizontal key direction. Web inherits CSS direction
+	 * when omitted; native defaults to ltr. */
+	direction?: 'ltr' | 'rtl'
+	/** Partial overrides; omitted messages retain the English defaults. */
+	messages?: Partial<DateInputMessages>
+}
+
+interface CalendarBaseProps extends DateLocaleProps {
 	className?: any
 	style?: any
 	id?: string
@@ -697,7 +730,7 @@ export interface CalendarRangeProps extends CalendarBaseProps {
 }
 
 /** A self-drawn month calendar — same value model on every target. Keyboard
- *  grid navigation is web/macOS; native cells announce through
+ *  grid navigation is web; native hardware-key delivery is not implemented. Native cells announce through
  *  `accessibility*` props rather than ARIA. */
 export type CalendarProps = CalendarSingleProps | CalendarRangeProps
 
@@ -729,7 +762,7 @@ export type DateRangeInputStatusType = FieldStatusType
  *  `adaptive-native`: fine pointers get the typed field + calendar popover,
  *  coarse pointers the platform picker (web) or the self-drawn sheet
  *  (native). */
-export interface DateInputProps extends FieldControlProps {
+export interface DateInputProps extends FieldControlProps, DateLocaleProps {
 	className?: any
 	style?: any
 	id?: string
@@ -764,7 +797,7 @@ export interface DateInputProps extends FieldControlProps {
 	web?: any
 }
 
-export interface TimeInputProps extends FieldControlProps {
+export interface TimeInputProps extends FieldControlProps, DateLocaleProps {
 	className?: any
 	style?: any
 	id?: string
@@ -799,7 +832,7 @@ export interface TimeInputProps extends FieldControlProps {
 
 /** Date and time under one label — a date segment and a time segment whose
  *  commits combine into the ISODateTimeString value. */
-export interface DateTimeInputProps extends FieldControlProps {
+export interface DateTimeInputProps extends FieldControlProps, DateLocaleProps {
 	className?: any
 	style?: any
 	id?: string
@@ -846,7 +879,7 @@ export interface DateTimeInputProps extends FieldControlProps {
 
 /** Trigger + range calendar. Always controlled: `value` is the committed
  *  range or null, `onChange` reports commits and clears. */
-export interface DateRangeInputProps extends FieldControlProps {
+export interface DateRangeInputProps extends FieldControlProps, DateLocaleProps {
 	className?: any
 	style?: any
 	id?: string

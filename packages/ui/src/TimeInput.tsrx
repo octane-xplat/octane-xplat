@@ -2,6 +2,8 @@
 import { useImperativeHandle, useContext, useEffect, useId, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
+import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon'
 import { Pressable } from './Pressable'
@@ -15,9 +17,11 @@ import { blurText } from './text-focus'
 import {
 	effectivePresentation,
 	formatDisplayTime12h,
+	formatLocalizedTime,
 	formatDisplayTime24h,
 	isTimeInRange,
 	parseTimeInput,
+	resolveLocale,
 	resolveInputSurface,
 } from './datetime'
 
@@ -31,6 +35,7 @@ interface CoreProps extends TimeInputProps {
 
 function TimeInputControl(inputProps: CoreProps) @{
 	const props = useFieldControlProps(inputProps)
+	const messages = dateMessages(props.messages)
 	const surface = inputProps.surface
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
@@ -46,7 +51,9 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const isDisabled = !!props.isDisabled || !!props.isReadOnly
 	const isBusy = !!props.isLoading || busy
 	const hasSeconds = !!props.hasSeconds
-	const formatDisplay = props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h
+	const formatDisplay = (time: ISOTimeString, seconds: boolean) => props.locale
+		? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
+		: (props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h)(time, seconds)
 
 	// Preserve typing on an echoed edit; external values replace the draft.
 	useEffect(() => {
@@ -82,6 +89,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	}
 
 	const commitPending = () => {
+		if (hasDateComposition(input.current)) return
 		if (pendingInput == null) return
 		if (!pendingInput.trim()) {
 			if (shown != null) fireChange(undefined)
@@ -97,6 +105,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 		if (isDisabled || isWritingText(e.object)) return
 		const text = e.value as string
 		setPendingInput(text)
+		if (hasDateComposition(input.current, e)) return
 		commitParsed(parseTimeInput(text, hasSeconds))
 	}
 
@@ -130,7 +139,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 		>
 			<Pressable
 				className="vx-timeinput-toggle"
-				accessibilityLabel="Open time picker"
+				accessibilityLabel={messages.openTimePicker}
 				disabled={isDisabled || isBusy}
 				onPress={() => { if (!isDisabled && !isBusy && surface === 'sheet') setOpen(true) }}
 			>
@@ -145,7 +154,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 					isEnabled={!isDisabled && !isBusy}
 					editable={!isDisabled && !isBusy}
 					accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-					accessibilityHint={props.accessibilityHint}
+					accessibilityHint={!isPendingValid ? messages.invalidTime : props.accessibilityHint}
 					accessibilityState={nativeAccessibilityState({ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid } as any) as any}
 					onTextChange={handleTextChange}
 					onBlur={commitPending}
@@ -157,7 +166,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 					className={cx('vx-timeinput-input', 'vx-timeinput-segment', !shown && 'vx-timeinput-segment--placeholder')}
 					disabled={isDisabled || isBusy}
 					accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-					accessibilityHint={props.accessibilityHint}
+					accessibilityHint={!isPendingValid ? messages.invalidTime : props.accessibilityHint}
 					accessibilityState={{ disabled: isDisabled }}
 					onPress={() => { if (!isDisabled && !isBusy) setOpen(true) }}
 				>

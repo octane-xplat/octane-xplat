@@ -243,6 +243,8 @@ export type {
 	TypeaheadKeyDownHandler,
 	TypeaheadProps,
 	CalendarProps,
+	DateLocaleProps,
+	DateInputMessages,
 	CalendarSingleProps,
 	CalendarRangeProps,
 	CalendarHandle,

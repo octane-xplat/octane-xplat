@@ -185,6 +185,77 @@ export function Attachments() {
 `@octane-xplat/files` has a peer dependency on `@octane-xplat/ui` for the
 field presentation. Install both packages when using `FileInput`.
 
+## Keyboard and app language
+
+On the shared web calendar, Tab enters one enabled day across one or two month
+panes. Arrow keys move focus without selecting a date. Up/Down stay in the same
+weekday column when skipping disabled days. Home/End move to the first/last
+enabled day in the row; Ctrl (or Command) + Home/End reach the grid edges.
+PageUp/PageDown move by a month and skip disabled destinations within that
+month. Enter or Space selects the focused button. Escape cancels a pending
+range before dismissing the picker. Horizontal arrows follow the calendar's
+text direction, including right-to-left layouts. Searches through an unbounded
+custom predicate stop after one year when no enabled destination is found.
+
+For typed web fields, Enter commits the text and blur finishes editing.
+Composition with an input method editor (IME), such as a Japanese candidate
+window, keeps intermediate text private and leaves its Enter/arrows untouched.
+The native text adapters check iOS marked text, Android composing spans, and
+AppKit's field editor before committing. Their unit checks do not establish
+actual OS input delivery.
+
+With `DateTimeInput timeOptionInterval={15}`, focusing the web time field opens
+quarter-hour choices. Up/Down and Home/End highlight a choice; Enter accepts it,
+Escape closes the list, and Tab leaves the field. Focus stays in the input so
+assistive software can follow its active option. Typed times between choices,
+such as `10:07`, remain exact when Enter commits them. With the list closed,
+arrows step by `timeIncrement`; Alt+Down opens the list. Date/time bounds filter
+the choices and still apply to typed values.
+
+Pass your app's language to `locale` on any date-family control. This uses the
+same language for Gregorian date display and numeric date ordering. `direction`
+sets calendar layout and horizontal keys; when omitted, web inherits CSS
+direction and native uses left-to-right. `messages` supplies translated labels
+and announcements. A partial map keeps English defaults for omitted messages;
+setting `locale` alone does not translate those words.
+
+```tsx
+<DateInput
+	value={date}
+	onChange={setDate}
+	locale="fr-FR"
+	presentation="popover"
+	messages={{
+		openCalendar: 'Ouvrir le calendrier',
+		closeCalendar: 'Fermer le calendrier',
+		previousMonth: 'Mois précédent',
+		nextMonth: 'Mois suivant',
+		invalidDate: 'Saisissez une date valide',
+		selected: (formattedDate) => `Sélection : ${formattedDate}`,
+	}}
+/>
+```
+
+Here `04/05/2026` means 4 May, and the committed date uses French month names.
+Messages such as `selected` receive a date already formatted in the supplied
+locale. Range controls also accept `rangeStart`, `rangeEnd`, `inRange`,
+`rangeSelected`, and `rangeCleared`. Use `cleared` for individual date/time
+clears. Connect these props to your existing i18n
+library's locale and translated strings; no translation package is required
+by `@octane-xplat/ui`. An explicit locale also localizes time display while
+`hourFormat` continues to choose 12 or 24 hours. Parsing remains bounded to
+ASCII digits and English month names/AM-PM; displaying localized digits does
+not imply those digits can be typed back into the parser.
+
+Web selection and month changes use live regions and selected grid cells.
+Native calendars supply localized accessible names/state and the existing live
+label; native validation uses accessible hints. NativeScript/AppKit shared
+calendars and time lists do not yet bind hardware-key navigation, and AppKit
+live-region delivery is not implemented. OS key events, focus/hit-testing, and
+VoiceOver/TalkBack announcements have not been verified by these handler and
+unit tests. Use the distinct OS-authentic leaves below when their native
+interaction is required.
+
 ## OS-authentic pickers
 
 `@octane-xplat/date-picker` remains a native-only leaf for applications that

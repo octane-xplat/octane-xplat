@@ -313,3 +313,78 @@ and AC6 (maintained example and focused checks). Coverage and per-target
 verification are recorded separately in local Silo after the implementation
 commit. Keyboard, locale, and touch phases remain planned; native range runtime
 coverage and AppKit input/accessibility are explicit verification gaps.
+
+### Bounded keyboard and locale implementation
+
+The next batch starts at `ec80d9dc93b591597f971275fecf3b7bf0f8c98d`,
+which already contains phase 1. Re-reading the current leaves confirmed the
+controlled-value, async settlement, and preset validators; they remain intact.
+The comparison still uses pinned Astryx
+`06c8fa3165537dedbe67101cfcabbe14f0f82e82`, particularly `useGridFocus.ts`
+and `DateTimeInput.tsx`. Its disabled-cell traversal retains grid geometry,
+and its time-list Enter path preserves typed values between preset options.
+
+The shared web calendar now has one enabled day tab stop across both panes,
+Home/End and Ctrl/Command edges, month paging with enabled destinations,
+weekday-preserving disabled-day skipping, and RTL horizontal navigation.
+Paging waits for a controlled visible month to be accepted before applying
+focus. Outside-day labels cannot steal focus from an in-month button. Grid
+cells expose `aria-selected` and retain real button children; localized names
+include selected/range state. Escape cancels a pending range locally.
+
+Web date/time fields defer composition input and composing keys. Date and time
+Enter commit their drafts. The date-time option list retains input focus,
+exposes its active option, handles arrows/Home/End/Enter/Escape/Tab, repairs
+highlights after bounds change, and preserves unrounded typed times. Closed
+lists retain time stepping; Alt+Down opens them. Selection/clear announcements
+remain in the field after a picker closes.
+
+`DateLocaleProps` supplies `locale`, `direction`, and partial `messages` through
+all five component contracts and all platform leaves. It connects to an app's
+existing i18n package without adding a UI dependency or provider. Explicit
+locale controls numeric date ordering, Gregorian date display, and wall-clock
+time display. Missing messages remain English; the parser remains bounded to
+ASCII digits and English month names/AM-PM. Native validation supplies localized
+accessible hints, and calendar labels/state use the same messages.
+
+Native text adapters inspect iOS marked text, Android composing spans, and
+AppKit field-editor composition before publishing edits. NativeScript/AppKit
+shared calendars and time lists still lack a hardware-key event binding. These
+changes do not implement AppKit live-region delivery or prove native editing
+lifecycle behavior. SwiftUI, Material, and AppKit authentic picker leaves remain
+distinct and unchanged. Touch scrollers/snapping wheels are outside this batch.
+
+Verification for this batch is automated handler/source/build evidence; no
+screenshots, OS input, or assistive-technology sessions were used. The guide's
+[language and keyboard section](date-picker.md#keyboard-and-app-language),
+`date-picker` recipe AC7, and maintained web demo cover the portable contract
+and its native limitations. Coverage and actual per-target evidence are recorded
+separately in local Silo after committing.
+
+Checks actually run:
+
+- Focused web/date suite: **61 tests passed**, including DOM focus transitions,
+  controlled month acceptance, rejected/disabled values, IME, locale changes,
+  option bounds/highlight repair, and announcements after picker dismissal.
+- Native suite: **99 universal-renderer tests plus one iOS tap-to-blur unit test
+  passed**. Two tests exercise native composition adapters with marked-text/
+  composing-span doubles; these are not OS editing or screen-reader sessions.
+- UI web/native bundles, declaration generation, and native-dist guard pass.
+  The maintained web app and docs-site builds pass.
+- Scoped web date roots plus the maintained demo, and scoped mobile date roots,
+  typecheck. The current macOS app check passes, but scoped AppKit date roots
+  still hit existing intrinsic typings (`key`, label layout fields, and
+  activity indicators). This app check is not full AppKit component coverage.
+- Full web/mobile checks report unrelated ComponentsDemo source typing,
+  VideoDemo callbacks, mobile motion/table/image-crop examples, and missing
+  styled-system/fixture declarations. No unrelated diagnostics were changed.
+- Recipe structure/links, focused helper/DOM-test lint, changed TSRX
+  rule/spacing checks, and `git diff --check` pass. Repository-wide TSRX lint
+  and `check:no-dom` still report unrelated existing files/comment matches.
+  Linux, native OS keys, focus/hit-testing, and assistive software were not run.
+
+Affected recipe assessments: AC1 (shared locale/message props), AC2 (preserved
+committed-value/range validation paths), AC6 (maintained example/checks), and
+new AC7 (bounded keyboard/locale behavior). There is no documentation gap for
+this bounded contract; native hardware-key and accessibility delivery remain
+implementation/verification limits, not implied passes.

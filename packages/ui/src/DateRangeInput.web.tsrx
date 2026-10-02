@@ -1,6 +1,7 @@
 import { useImperativeHandle, useContext, useId, useMemo, useRef, useState } from 'octane'
 import type { DateRange, DateRangeInputProps, ISODateString } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.web.tsrx'
 import { FormField } from './FormField.web.tsrx'
@@ -17,12 +18,14 @@ const STATUS_GLYPHS = { error: '⚠', warning: '⚠', success: '✓' } as const
 function RangeControl(inputProps: DateRangeInputProps) @{
 	const hostRef = useRef<any>(null);
 	const props = useFieldControlProps(inputProps)
-	const locale = resolveLocale()
+	const locale = resolveLocale(props.locale)
+	const messages = dateMessages(props.messages)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 	const anchor = useRef<any>(null)
 
 	const [open, setOpen] = useState(false)
+	const [announcement, setAnnouncement] = useState('')
 	const [busy, setBusy] = useState(false)
 
 	const value = props.value
@@ -34,6 +37,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
 	const fireChange = (next: DateRange | null) => {
 		if (isDisabled || isBusy || next !== null && !isDateRangeAllowed(next, props)) return
+		setAnnouncement(next ? messages.rangeSelected(formatDateValue(next.start, 'date_long', locale), formatDateValue(next.end, 'date_long', locale)) : messages.rangeCleared)
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
@@ -123,6 +127,9 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 					</div>
 				) : null}
 				<Calendar
+					locale={props.locale}
+					direction={props.direction}
+					messages={props.messages}
 					mode="range"
 					value={shown}
 					onChange={selectRange}
@@ -136,6 +143,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 				/>
 			</div>
 		</Popover>
+		<div className="vx-sr-only" aria-live="polite" role="status">{announcement}</div>
 	</>
 }
 

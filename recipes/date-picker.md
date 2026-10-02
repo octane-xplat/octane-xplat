@@ -25,6 +25,8 @@ picker bundled with `@octane-xplat/files`.
 - AC5: Apps that need OS-authentic controls can use the iOS, Android, or macOS leaf entry. The obsolete `@octane-xplat/date-picker/web` `DateInput` contract is removed in favor of `@octane-xplat/ui`.
 - AC6: Maintained examples and focused tests/typechecks cover the shared API and native leaf boundary without visual inspection or device launch.
 
+- AC7: Shared web date controls support enabled-cell keyboard focus, RTL calendar navigation, IME-safe text commits, and bounded time-option navigation. Apps can supply locale and translated state messages on all targets; unsupported native key/accessibility delivery is explicit.
+
 ## Documentation
 
 - AC1: [Portable component list](../docs/app/components.md#inputs) and [shared platform contract](../docs/platform/date-picker.md#portable-values).
@@ -33,3 +35,5 @@ picker bundled with `@octane-xplat/files`.
 - AC4: [Built-in picker defaults and host coverage](../docs/platform/date-picker.md#portable-values).
 - AC5: [OS-authentic picker entries](../docs/platform/date-picker.md#os-authentic-pickers) and [platform APIs](../docs/platform/date-picker.md#platform-apis).
 - AC6: [web shared-control example](../packages/demos/src/NativeDatePickerDemo.web.tsrx), [iOS example](../packages/demos/src/NativeDatePickerDemo.ios.tsrx), [Android example](../packages/demos/src/NativeDatePickerDemo.android.tsrx), [macOS host note](../packages/demos/src/NativeDatePickerDemo.macos.tsrx), and targeted typegen/tests.
+
+- AC7: [Keyboard and app language](../docs/date-picker.md#keyboard-and-app-language), the [web demo](../packages/demos/src/NativeDatePickerDemo.web.tsrx), and [keyboard regressions](../packages/ui/src/date-entry.web.test.tsx).

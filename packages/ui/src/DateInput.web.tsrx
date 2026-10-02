@@ -1,6 +1,8 @@
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
+import { isDateComposing } from './date-keyboard'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.web.tsrx'
 import { FormField } from './FormField.web.tsrx'
@@ -72,7 +74,8 @@ interface CoreProps extends DateInputProps {
 function DateInputControl(inputProps: CoreProps) @{
 	const props = useFieldControlProps(inputProps)
 	const surface = inputProps.surface
-	const locale = resolveLocale()
+	const locale = resolveLocale(props.locale)
+	const messages = dateMessages(props.messages)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
 	const anchor = useRef<any>(null)
@@ -83,6 +86,9 @@ function DateInputControl(inputProps: CoreProps) @{
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [isFocused, setIsFocused] = useState(false)
 	const [busy, setBusy] = useState(false)
+	const composing = useRef(false)
+	const [isComposing, setIsComposing] = useState(false)
+	const [announcement, setAnnouncement] = useState('')
 	const [rejected, setRejected] = useState<string | null>(null)
 
 	const lastEmitted = useRef<ISODateString | undefined>(undefined)
@@ -106,6 +112,7 @@ function DateInputControl(inputProps: CoreProps) @{
 	useEffect(() => {
 		if (value !== lastEmitted.current) {
 			setPendingInput(null)
+			setRejected(null)
 		}
 
 		lastEmitted.current = undefined
@@ -114,6 +121,7 @@ function DateInputControl(inputProps: CoreProps) @{
 	const fireChange = (next: ISODateString | undefined) => {
 		if (isDisabled || isBusy) return
 		lastEmitted.current = next
+		setAnnouncement(next ? messages.selected(formatValue(next)) : messages.cleared)
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
@@ -122,7 +130,7 @@ function DateInputControl(inputProps: CoreProps) @{
 	}
 
 	const parsedPending = pendingInput != null && pendingInput.trim() ? parseDateInput(pendingInput, locale) : null
-	const isPendingValid = pendingInput == null || !pendingInput.trim() ? true : parsedPending !== null && !isDateDisabled(parsedPending)
+	const isPendingValid = isComposing || pendingInput == null || !pendingInput.trim() ? true : parsedPending !== null && !isDateDisabled(parsedPending)
 
 	const commitParsed = (pd: PlainDate | null) => {
 		if (pd && !isDateDisabled(pd)) {
@@ -138,11 +146,14 @@ function DateInputControl(inputProps: CoreProps) @{
 		if (isDisabled) return
 		const text = e.target.value as string
 		setPendingInput(text)
+		setRejected(null)
+		if (composing.current || isDateComposing(e)) return
 		const parsed = parseDateInput(text, locale)
 		if (parsed) commitParsed(parsed)
 	}
 
 	const handleBlur = () => {
+		if (composing.current) return
 		setIsFocused(false)
 		if (pendingInput == null) return
 		if (!pendingInput.trim()) {
@@ -151,12 +162,13 @@ function DateInputControl(inputProps: CoreProps) @{
 			commitParsed(parseDateInput(pendingInput, locale))
 		}
 
+		setRejected(isPendingValid ? null : pendingInput)
 		setPendingInput(null)
-		setRejected(null)
 	}
 
 	const handleKeyDown = (e: any) => {
-		if (e.isComposing || e.keyCode === 229) return
+		if (composing.current || isDateComposing(e)) return
+		if (isDisabled || isBusy) return
 		if (e.key === 'ArrowDown' && surface === 'popover' && !isDisabled) {
 			e.preventDefault()
 			setOpen(true)
@@ -164,9 +176,14 @@ function DateInputControl(inputProps: CoreProps) @{
 			e.preventDefault()
 			setOpen(false)
 		} else if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault()
 			if (pendingInput != null) {
-				if (pendingInput.trim()) commitParsed(parseDateInput(pendingInput, locale))
-				else fireChange(undefined)
+				if (pendingInput.trim()) {
+					setRejected(commitParsed(parseDateInput(pendingInput, locale)) ? null : pendingInput)
+				} else {
+					setRejected(null)
+					fireChange(undefined)
+				}
 
 				setPendingInput(null)
 			}
@@ -218,7 +235,7 @@ function DateInputControl(inputProps: CoreProps) @{
 		<button
 			type="button"
 			className="vx-dateinput-toggle"
-			aria-label={open ? 'Close calendar' : 'Open calendar'}
+			aria-label={open ? messages.closeCalendar : messages.openCalendar}
 			aria-expanded={surface !== 'native' ? open : undefined}
 			disabled={isDisabled || isBusy || undefined}
 			tabIndex={-1}
@@ -310,11 +327,13 @@ function DateInputControl(inputProps: CoreProps) @{
 					aria-labelledby={props.ariaLabelledBy}
 					aria-describedby={props.ariaDescribedBy}
 					aria-required={props.isRequired && !props.isOptional || undefined}
-					aria-invalid={props.status?.type === 'error' || !isPendingValid || undefined}
+					aria-invalid={props.status?.type === 'error' || rejected !== null || !isPendingValid || undefined}
 					aria-busy={isBusy || undefined}
 					aria-expanded={surface === 'popover' ? open : undefined}
 					aria-haspopup={surface === 'popover' ? 'dialog' : undefined}
 					onInput={handleType}
+					onCompositionStart={() => { composing.current = true; setIsComposing(true) }}
+					onCompositionEnd={(e: any) => { composing.current = false; setIsComposing(false); handleType(e) }}
 					onMouseDown={() => { if (surface === 'popover' && !isDisabled && !open) setOpen(true) }}
 					onFocus={() => { if (!isDisabled) setIsFocused(true) }}
 					onBlur={handleBlur}
@@ -331,6 +350,9 @@ function DateInputControl(inputProps: CoreProps) @{
 		? surface === 'popover'
 			? <Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom" className="vx-dateinput-popover">
 				<Calendar
+					locale={props.locale}
+					direction={props.direction}
+					messages={props.messages}
 					mode="single"
 					value={typeof shown === 'string' ? shown : undefined}
 					onChange={pickFromCalendar}
@@ -343,6 +365,9 @@ function DateInputControl(inputProps: CoreProps) @{
 			</Popover>
 			: <BottomSheet isOpen={open} onOpenChange={(isOpen) => setOpen(isOpen)} label={props.label ?? props.accessibilityLabel ?? 'Choose a date'} height="hug" className="vx-dateinput-sheet">
 				<Calendar
+					locale={props.locale}
+					direction={props.direction}
+					messages={props.messages}
 					mode="single"
 					value={typeof shown === 'string' ? shown : undefined}
 					onChange={pickFromCalendar}
@@ -355,7 +380,7 @@ function DateInputControl(inputProps: CoreProps) @{
 			</BottomSheet>
 		: null
 
-	const live = <div className="vx-sr-only" aria-live="assertive" role="alert">{!isPendingValid || rejected !== null ? 'Enter a valid date' : ''}</div>
+	const live = <><div className="vx-sr-only" aria-live="polite" role="status">{announcement}</div><div className="vx-sr-only" aria-live="assertive" role="alert">{!isPendingValid || rejected !== null ? messages.invalidDate : ''}</div></>
 
 	useImperativeHandle(props.ref, () => ({ focus: () => input.current?.focus(), blur: () => input.current?.blur(), native: input.current }), undefined);
 

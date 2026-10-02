@@ -970,6 +970,11 @@
 	}
 	.vx-calendar-weekname,
 	.vx-calendar-weeknumber,
+	.vx-calendar-cell {
+		width: 36px;
+		height: 32px;
+		flex-shrink: 0;
+	}
 	.vx-calendar-day {
 		width: 36px;
 		height: 32px;

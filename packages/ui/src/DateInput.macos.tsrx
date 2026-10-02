@@ -2,6 +2,8 @@
 import { useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { DateInputProps, ISODateString } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
+import { hasDateComposition } from './date-composition'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.macos.tsrx'
 import { Pressable } from './Pressable.macos.tsrx'
@@ -22,9 +24,11 @@ const STATUS_TEXT = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function DateInputControl(inputProps: DateInputProps) @{
 	const props = useFieldControlProps(inputProps)
-	const locale = resolveLocale()
+	const locale = resolveLocale(props.locale)
+	const messages = dateMessages(props.messages)
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
+	const input = useRef<any>(null)
 	const anchor = useRef<any>(null)
 
 	const [open, setOpen] = useState(false)
@@ -77,6 +81,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 	}
 
 	const commitPending = () => {
+		if (hasDateComposition(input.current)) return
 		if (pendingInput == null) return
 		if (!pendingInput.trim()) {
 			if (shown != null) fireChange(undefined)
@@ -90,6 +95,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 	const handleTextChange = (text: string) => {
 		if (isDisabled) return
 		setPendingInput(text)
+		if (hasDateComposition(input.current)) return
 		commitParsed(parseDateInput(text, locale))
 	}
 
@@ -121,13 +127,14 @@ function DateInputControl(inputProps: DateInputProps) @{
 		>
 			<Pressable
 				className="vx-dateinput-toggle"
-				accessibilityLabel={open ? 'Close calendar' : 'Open calendar'}
+				accessibilityLabel={open ? messages.closeCalendar : messages.openCalendar}
 				disabled={isDisabled || isBusy}
 				onPress={() => { if (!isDisabled && !isBusy) setOpen(!open) }}
 			>
 				<Icon name="xplat-calendar" size={16} />
 			</Pressable>
 			<textfield
+				ref={(v: any) => { input.current = v }}
 				id={inputId}
 				className={cx('vx-dateinput-input', !isPendingValid && 'vx-dateinput-input--invalid')}
 				value={displayText}
@@ -137,7 +144,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 				onTextChange={handleTextChange}
 				onBlur={commitPending}
 				accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
-				accessibilityHint={props.accessibilityHint}
+				accessibilityHint={!isPendingValid ? messages.invalidDate : props.accessibilityHint}
 				accessibilityState={{ disabled: isDisabled, busy: isBusy, required: props.isRequired && !props.isOptional, invalid: props.status?.type === 'error' || !isPendingValid }}
 			/>
 			{props.hasClear && shown != null && !isDisabled && !isBusy
@@ -149,6 +156,9 @@ function DateInputControl(inputProps: DateInputProps) @{
 		</flexboxlayout>
 		<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)} placement="bottom" className="vx-dateinput-popover">
 			<Calendar
+				locale={props.locale}
+				direction={props.direction}
+				messages={props.messages}
 				mode="single"
 				value={typeof shown === 'string' ? shown : undefined}
 				onChange={pickFromCalendar}

@@ -1,6 +1,8 @@
 import { useImperativeHandle, useContext, useEffect, useId, useMemo, useRef, useState } from 'octane'
 import type { ISOTimeString, TimeInputProps } from './props'
 import { cx } from './cx'
+import { dateMessages } from './date-messages'
+import { isDateComposing } from './date-keyboard'
 import { runDateChangeAction } from './date-field-action'
 import { Icon } from './Icon.web.tsrx'
 import { FormField } from './FormField.web.tsrx'
@@ -13,11 +15,13 @@ import {
 	currentISOTime,
 	effectivePresentation,
 	formatDisplayTime12h,
+	formatLocalizedTime,
 	formatDisplayTime24h,
 	formatISOTime,
 	isTimeInRange,
 	parseISOTime,
 	parseTimeInput,
+	resolveLocale,
 	resolveInputSurface,
 } from './datetime'
 
@@ -67,6 +71,7 @@ interface CoreProps extends TimeInputProps {
 
 function TimeInputControl(inputProps: CoreProps) @{
 	const props = useFieldControlProps(inputProps)
+	const messages = dateMessages(props.messages)
 	const surface = inputProps.surface === 'native' && inputProps.nativeFallback ? 'typed' : inputProps.surface
 	const generatedId = useId()
 	const inputId = props.id ?? generatedId
@@ -77,6 +82,8 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const [pendingInput, setPendingInput] = useState<string | null>(null)
 	const [isFocused, setIsFocused] = useState(false)
 	const [busy, setBusy] = useState(false)
+	const composing = useRef(false)
+	const [isComposing, setIsComposing] = useState(false)
 	const [announcement, setAnnouncement] = useState('')
 
 	const lastEmitted = useRef<ISOTimeString | undefined>(undefined)
@@ -88,7 +95,9 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const showsDisabledReason = isDisabled && !!props.disabledMessage
 	const hasSeconds = !!props.hasSeconds
 	const increment = props.increment ?? 1
-	const formatDisplay = props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h
+	const formatDisplay = (time: ISOTimeString, seconds: boolean) => props.locale
+		? formatLocalizedTime(time, seconds, props.hourFormat ?? '12h', resolveLocale(props.locale))
+		: (props.hourFormat === '24h' ? formatDisplayTime24h : formatDisplayTime12h)(time, seconds)
 
 	// Preserve typing on an echoed edit; external values replace the draft.
 	useEffect(() => {
@@ -102,6 +111,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	const fireChange = (next: ISOTimeString | undefined) => {
 		if (isDisabled || isBusy) return
 		lastEmitted.current = next
+		setAnnouncement(next ? messages.selected(formatDisplay(next, hasSeconds)) : messages.cleared)
 		props.onChange?.(next)
 		if (props.changeAction) {
 			setBusy(true)
@@ -110,7 +120,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 	}
 
 	const parsedPending = pendingInput != null && pendingInput.trim() ? parseTimeInput(pendingInput, hasSeconds) : null
-	const isPendingValid = pendingInput == null || !pendingInput.trim()
+	const isPendingValid = isComposing || pendingInput == null || !pendingInput.trim()
 		? true
 		: parsedPending !== null && isTimeInRange(parsedPending, props.min, props.max)
 
@@ -127,12 +137,15 @@ function TimeInputControl(inputProps: CoreProps) @{
 		if (isDisabled) return
 		const text = e.target.value as string
 		setPendingInput(text)
+		if (composing.current || isDateComposing(e)) return
 		commitParsed(parseTimeInput(text, hasSeconds))
 	}
 
 	const handleBlur = () => {
+		if (composing.current) return
 		setIsFocused(false)
 		if (pendingInput == null) return
+		if (!isPendingValid) setAnnouncement(messages.invalidTime)
 		if (!pendingInput.trim()) {
 			if (shown != null) fireChange(undefined)
 		} else {
@@ -143,7 +156,8 @@ function TimeInputControl(inputProps: CoreProps) @{
 	}
 
 	const handleKeyDown = (e: any) => {
-		if (isDisabled || e.isComposing || e.keyCode === 229) return
+		if (isDisabled || isBusy || composing.current || isDateComposing(e)) return
+		if (e.key === 'Enter') { e.preventDefault(); handleBlur(); return }
 		if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
 			e.preventDefault()
 			const base = shown ?? currentISOTime(hasSeconds)
@@ -189,7 +203,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 		<button
 			type="button"
 			className="vx-timeinput-toggle"
-			aria-label={surface === 'native' ? 'Open time picker' : open ? 'Close time picker' : 'Open time picker'}
+			aria-label={surface === 'native' ? 'Open time picker' : open ? messages.closeTimePicker : messages.openTimePicker}
 			aria-expanded={surface === 'sheet' ? open : undefined}
 			disabled={isDisabled || isBusy || undefined}
 			tabIndex={-1}
@@ -280,6 +294,8 @@ function TimeInputControl(inputProps: CoreProps) @{
 					aria-invalid={props.status?.type === 'error' || !isPendingValid || undefined}
 					aria-busy={isBusy || undefined}
 					onInput={handleType}
+					onCompositionStart={() => { composing.current = true; setIsComposing(true) }}
+					onCompositionEnd={(e: any) => { composing.current = false; setIsComposing(false); handleType(e) }}
 					onFocus={() => { if (!isDisabled) setIsFocused(true) }}
 					onBlur={handleBlur}
 					onKeyDown={handleKeyDown}
@@ -309,7 +325,7 @@ function TimeInputControl(inputProps: CoreProps) @{
 			</BottomSheet>
 		) : null}
 		<div className="vx-sr-only" aria-live="polite" role="status">{announcement}</div>
-		<div className="vx-sr-only" aria-live="assertive" role="alert">{!isPendingValid ? 'Enter a valid time' : ''}</div>
+		<div className="vx-sr-only" aria-live="assertive" role="alert">{!isPendingValid ? messages.invalidTime : ''}</div>
 	</>
 }
 
