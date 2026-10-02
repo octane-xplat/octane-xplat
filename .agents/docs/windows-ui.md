@@ -682,7 +682,16 @@ remaining case mounts and produces the comparison above. The driver supports
 Span under FormattedString and FormattedString under TextBase, but has no
 Span-under-TextBase branch; Text's nested implementation emits exactly that
 unsupported relationship. The explicit FormattedString control mounts with
-its concatenated text mirror, but native run styling has not yet been inspected.
+its concatenated text mirror, but its first inspection did not read the inner native TextBlock. The corrected
+inspection below verifies native run styling.
+
+The corrected rich-text inspection reads `nativeTextViewProtected` (the inner
+TextBlock), rather than Label's Border wrapper. The explicit FormattedString
+control has two native Inlines: `First run ` at FontWeight400 and `bold run` at
+FontWeight700. Native TextBlock.Text is `First run bold run`; height19 DIP. This
+proves the Windows rich-run bridge path for this case and narrows the nested
+Text failure to driver ownership/insertion. Earlier `runs:null` from inspecting
+the Border was not a native rich-text failure. No screenshot/pixel claim is made.
 
 ### Popover dismissal: zero-sized percentage backdrop
 
@@ -734,10 +743,27 @@ with a Windows focus/key adapter, purpose-aware Escape behavior, background
 inertness, nested-modal ownership, and focus restoration/cleanup. The working
 shade/lifetime path does not supply those semantics. Dialog remains parked.
 
-The corrected rich-text inspection reads `nativeTextViewProtected` (the inner
-TextBlock), rather than Label's Border wrapper. The explicit FormattedString
-control has two native Inlines: `First run ` at FontWeight400 and `bold run` at
-FontWeight700. Native TextBlock.Text is `First run bold run`; height19 DIP. This
-proves the Windows rich-run bridge path for this case and narrows the nested
-Text failure to driver ownership/insertion. Earlier `runs:null` from inspecting
-the Border was not a native rich-text failure. No screenshot/pixel claim is made.
+### Locale formatting: broader than Timestamp or local time zones
+
+Two isolated cases on the unchanged Windows runtime narrow the existing crash:
+
+- `Intl.NumberFormat('en-US', {style:'currency', currency:'USD'})` constructs,
+  but `format(1234.5)` throws a catchable
+  `TypeError: Internal error. Icu error.` The process stays alive.
+- `Intl.DateTimeFormat('en-US', {timeZone:'UTC', year:'numeric', month:'long',
+  day:'numeric'})` still terminates before the constructor returns. No catch
+  log appears. The process is absent and a fresh Application1000 event records
+  `nativescript.DLL`, exception80000003.
+
+An explicit UTC time zone therefore does not avoid the date crash, and number
+formatting is also affected. This deserves runtime priority beyond the
+Timestamp component; replacing one component's formatter would leave other
+standard Intl consumers exposed.
+
+Pinned classic runtime startup calls `initialize_platform` and `V8::initialize`
+without explicit ICU common-data registration. Its rusty_v8 dependency's test
+startup first calls `v8::icu::set_common_data_77` with aligned ICU data. That is
+a source-backed initialization/data lead, not a proven root cause or fix.
+Verify ICU data initialization against the actual shipped binary, rebuild the
+runtime with matching data if needed, and rerun date/number formatting before
+unparking consumers. No modified native runtime has been built in this VM.
