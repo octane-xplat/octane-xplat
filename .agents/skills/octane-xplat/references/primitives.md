@@ -19,7 +19,7 @@ observes `visualViewport`, macOS is an inert column). This inventory follows the
 
 | Area                 | Shared exports                                                                                                  |
 | -------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Layout               | `View` (`Column` alias), `Row`, `Grid`, `Stack`, `Absolute`, `Spacer`, `Screen`                                 |
+| Layout               | `View`, `VStack`, `HStack`, `Grid`, `Stack`, `StackItem`, `Absolute`, `Spacer`, `Screen`                        |
 | Text and media       | `Text`, `RichText`, `RichTextSpan`, `Heading`, `Image`, `Icon`, `Meter`, `ActivityIndicator`                    |
 | Interaction          | `Pressable`, `Link`, `NavLink`, `Switch`, `Slider`, `Tabs`, `Drawer`                                            |
 | Inputs and scrolling | `TextInput`, `TextArea`, `ScrollView`, `ScrollBox`, `SafeArea`; `KeyboardAvoiding` (web = visualViewport inset) |

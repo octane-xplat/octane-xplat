@@ -34,12 +34,11 @@ cd apps/mobile && pnpm exec ns build ios        # debug build
 xcrun simctl install <UDID> platforms/ios/build/Debug-iphonesimulator/native.app
 xcrun simctl launch <UDID> org.nativescript.xplat
 
-# native (Android — emulator + ANDROID_HOME + JDK 21)
-cd apps/mobile
-jdk21_home=$(/usr/libexec/java_home -v 21)
-JAVA_HOME="$jdk21_home" PATH="$jdk21_home/bin:$PATH" pnpm exec ns build android
-adb -s emulator-5554 install -r platforms/android/app/build/outputs/apk/debug/app-debug.apk
-adb -s emulator-5554 shell am start -n org.nativescript.xplat/com.tns.NativeScriptActivity
+# native (Android — isolated maintained probe; boot your emulator first)
+# Local SDK, AVD creation, and port setup: .agents/docs/android-lab.md
+cd ../..                                        # return from apps/mobile to the repository root
+pnpm probe doctor
+pnpm probe run examples/probes/counter.tsrx --target android --device emulator-5556
 ```
 
 ## Environment gotchas (all real, all hit)
@@ -53,12 +52,14 @@ adb -s emulator-5554 shell am start -n org.nativescript.xplat/com.tns.NativeScri
   against the existing `.app` instead.
 - JDK 21 works with the harness's Gradle 8.14.3 build. JDK 25 fails with
   `Unsupported class file major version 69`.
-- Android AVD `xplat` (API 35, Google APIs arm64) is the expected emulator.
+- Android has no required AVD name. Use a distinct emulator and an explicit
+  `--device` serial; see the [Android lab log](../../../docs/android-lab.md)
+  for the installed API 35 Google APIs arm64 image and local setup.
 
 ## Reading logs
 
 - iOS: `xcrun simctl spawn <UDID> log show --last 110s --predicate 'process == "native"' --style compact | grep -oE 'CONSOLE (LOG|WARN|ERROR)[^$]*'`
-- Android: `adb -s emulator-5554 logcat -d | grep "I JS"`
+- Android: `adb -s emulator-5556 logcat -d | grep "I JS"`
 - Harness output prefixes: `[harness]` boot, `[probe]` probe step,
   `[assert]` pass/fail, `[sweep]` the demo-catalog navigation sweep,
   `[diag]` one-off diagnostics.

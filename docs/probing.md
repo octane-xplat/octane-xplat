@@ -20,8 +20,10 @@ The doctor reports prerequisites and device IDs. Web needs Playwright Chromium
 (`pnpm --dir apps/web exec playwright install chromium`). iOS needs Xcode, a
 booted simulator, and Ruby's `xcodeproj` gem. Android needs an authorized device,
 the SDK, and a compatible JDK (the runner selects JDK 21 on macOS). Mobile builds
-need the NativeScript CLI on PATH. macOS uses the repository's Apple Silicon
-AppKit/JavaScriptCore host. Linux requires an actual Linux host with GJS,
+need the NativeScript CLI on PATH. For the local macOS emulator setup, see the
+[Android lab log](../.agents/docs/android-lab.md), including SDK PATH, a distinct
+AVD, and explicit adb server/device selection. macOS uses the repository's
+Apple Silicon AppKit/JavaScriptCore host. Linux requires an actual Linux host with GJS,
 GTK 4, WebKit 6, libadwaita, libsecret, and a graphical session. This command
 does not provision machines or substitute macOS WebKit for Linux.
 

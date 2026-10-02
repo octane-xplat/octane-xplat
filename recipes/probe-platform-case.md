@@ -25,7 +25,8 @@ platform evidence without changing the kitchen-sink harness.
 
 ## Documentation
 
-- AC1: [Run a maintained case](../docs/probing.md#run-a-maintained-case).
+- AC1: [Run a maintained case](../docs/probing.md#run-a-maintained-case) and
+  [Android host recipe](../.agents/docs/android-lab.md#working-recipe).
 - AC2: [Write a case](../docs/probing.md#write-a-case), [script](../examples/probes/signals.ts), and [counter](../examples/probes/counter.tsrx).
 - AC3: [Iterate without harness edits](../docs/probing.md#iterate-without-harness-edits).
 - AC4: [Iterate without harness edits](../docs/probing.md#iterate-without-harness-edits).
