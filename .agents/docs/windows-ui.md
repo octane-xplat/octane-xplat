@@ -648,3 +648,38 @@ interfaces. Validation must include empty/auto-size boxes, row/column/reverse
 and wrapping, percentages/flex growth, asymmetric and changing insets, and
 insets larger than the available size. The guest currently has no Visual Studio
 C++ toolchain, so no modified native-widget binary was built or verified.
+
+### Content ownership: separate normalization, text slots, and rich text
+
+An isolated counterfactual case confirms the collection failures depend on the
+shape of `children`, rather than the max/numbering arithmetic:
+
+| Component | Normal JSX children | Explicit `children={[...]}` diagnostic |
+| --- | --- | --- |
+| AvatarGroup, max2, three avatars | AA/BB/CC, no overflow avatar | AA/BB/+1 |
+| Decimal List, two Text children | One `1.` marker; both texts share its row | Separate `1.` and `2.` rows |
+
+This diagnostic is not a proposed public API workaround. Compiler-generated
+children arrive as `UniversalChildrenValue`; its public `render` function returns
+a plan-backed universal value, not an array of immediate child items. The
+framework `toChildArray` only understands JS arrays. A renderer-supported child
+normalization seam must preserve keys, context, reactive evaluation, ownership,
+and cleanup; manually evaluating or unpacking compiler plans in UI components
+has not been adopted. `exports-md` again failed to compile the cached universal
+source, so implementation inspection supplied this evidence.
+
+Bare Kbd text produces a zero-height Flexbox with no label; wrapping the text in
+Text produces a native label and a16-DIP-high container. This is a separate leaf
+text-slot issue: the NativeScript driver's `syncText` applies text children only
+to TextBase, while Kbd's host is a layout. A text-slot fix must preserve supported
+rich children rather than flattening every child to a string.
+
+Nested Text hits a third seam. Adding it to the initial mixed case aborts root
+commit with `NativeScript driver: <Label> cannot host a <Span> child.`; the TSRX
+boundary in that case did not catch the host insertion error. The mixed case
+provides no successful sibling verification. After removing nested Text, the
+remaining case mounts and produces the comparison above. The driver supports
+Span under FormattedString and FormattedString under TextBase, but has no
+Span-under-TextBase branch; Text's nested implementation emits exactly that
+unsupported relationship. The explicit FormattedString control mounts with
+its concatenated text mirror, but native run styling has not yet been inspected.
