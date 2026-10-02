@@ -15,7 +15,7 @@
 // loose list, which merges at the seam), so those blocks parse once and are
 // shared by reference across calls. Only the tail reparses per chunk.
 
-import { parseMdNodesMarked, mdInlineLen } from './markdown-parse'
+import { parseMdNodesMarked, mdInlineLen, WORD_CHAR } from './markdown-parse'
 import type { MdNode } from './props'
 
 /** Mutable cache for `parseMarkdownIncremental`. Create per logical doc
@@ -153,7 +153,7 @@ export function trimStreamingArtifacts(input: string): string {
 			}
 
 			// Underscore markers adjacent to letters are intraword — literal.
-			if (ch === '_' && idx > 0 && /[\p{L}\p{N}]/u.test(tail[idx - 1])) {
+			if (ch === '_' && idx > 0 && WORD_CHAR.test(tail[idx - 1])) {
 				continue
 			}
 

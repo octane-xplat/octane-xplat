@@ -15,14 +15,23 @@ const distDir = join(process.cwd(), 'dist', 'native')
 // is the DOM-rendered composer port and `@lexical/headless` pulls happy-dom —
 // both are web-side package boundaries, never valid inside a native bundle.
 const FORBIDDEN = [
-	{ re: /(?:\bfrom|\bimport|\bexport)\s*\(?\s*['"]octane['"]/g, label: 'octane' },
+	{ re: /(?:\bfrom|\bimport|\bexport)\s*\(?\s*['"]octane['"]/g, label: '"octane" specifier' },
 	{
 		re: /(?:\bfrom|\bimport|\bexport)\s*\(?\s*['"]@octanejs\/lexical['"]/g,
-		label: '@octanejs/lexical',
+		label: '"@octanejs/lexical" specifier',
 	},
 	{
 		re: /(?:\bfrom|\bimport|\bexport)\s*\(?\s*['"]@lexical\/headless['"]/g,
-		label: '@lexical/headless',
+		label: '"@lexical/headless" specifier',
+	},
+	{
+		// Single-backslash `\p{` only occurs in regex literals — the
+		// string-built form reads `\\p{`. NativeScript's embedded V8 ships
+		// without Unicode tables, so a `\p{…}` literal throws SyntaxError at
+		// parse time and poisons the whole bundle. Build the pattern with
+		// `new RegExp` + fallback instead.
+		re: /(?<!\\)\\p\{/g,
+		label: '\\p{…} regex literal (build via new RegExp with fallback — no ICU on native)',
 	},
 ]
 
@@ -61,16 +70,14 @@ for (const file of jsFiles(distDir)) {
 		for (const hit of text.matchAll(re)) {
 			failures++
 			const line = lines.findIndex((l) => l.includes(hit[0]))
-			console.error(
-				`${relative('.', file)}:${line + 1}: forbidden "${label}" specifier — ${hit[0].trim()}`,
-			)
+			console.error(`${relative('.', file)}:${line + 1}: forbidden ${label} — ${hit[0].trim()}`)
 		}
 	}
 }
 
 if (failures) {
 	console.error(
-		`check-native-dist: ${failures} forbidden specifier(s) — bare "octane" must rewrite to octane/universal/native (see packages/ui/vite.config.ts); @octanejs/lexical and @lexical/headless are DOM-bound and web-only`,
+		`check-native-dist: ${failures} forbidden pattern(s) — bare "octane" must rewrite to octane/universal/native (see packages/ui/vite.config.ts); @octanejs/lexical and @lexical/headless are DOM-bound and web-only; \\p{…} regex literals crash NS V8 (no Unicode tables)`,
 	)
 
 	process.exit(1)

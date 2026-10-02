@@ -263,6 +263,21 @@ export function mdInlineLen(nodes: MdInline[]): number {
 
 const ESCAPABLE = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/
 
+/** Unicode letter-or-number test for the intraword `_` rule. `\p{…}` property
+ *  escapes need Unicode tables — a `\p{…}` literal on an engine without them
+ *  throws SyntaxError at parse time and poisons the whole bundle (this is how
+ *  NativeScript's embedded V8 ships). Build the pattern dynamically instead:
+ *  general categories where full Unicode exists, the spec-required minimal
+ *  property set otherwise, ASCII as a last resort. */
+export const WORD_CHAR: RegExp = (() => {
+	for (const pattern of ['[\\p{L}\\p{N}]', '[\\p{ID_Start}\\p{ID_Continue}]']) {
+		try {
+			return new RegExp(pattern, 'u')
+		} catch {}
+	}
+	return /[A-Za-z0-9]/
+})()
+
 /** Scan a run of `ch` starting at `i`. */
 function runLen(text: string, i: number, ch: string): number {
 	let n = 0
@@ -320,7 +335,7 @@ export function parseMdInline(text: string): MdInline[] {
 			const n = runLen(text, i, ch)
 			const marker = ch.repeat(n)
 			// Underscore cannot open emphasis intraword (a_b_c stays literal).
-			const wordBefore = i > 0 && /[\p{L}\p{N}]/u.test(text[i - 1])
+			const wordBefore = i > 0 && WORD_CHAR.test(text[i - 1])
 			if (ch === '_' && wordBefore) {
 				buf += marker
 				i += n
