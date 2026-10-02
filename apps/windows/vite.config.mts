@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) =>
 				// This app runs the PR-preview core (9.1.3-next.2) while workspace
 				// packages' devDeps carry 9.1.2 — importers inside packages/* would
 				// otherwise resolve a second core copy and split view identity.
-				dedupe: ['@nativescript/core'],
+				// Peer contexts can also duplicate the renderer's element registry.
+				dedupe: ['@nativescript/core', '@nativescript-community/octane'],
 			},
 		},
 	}),
