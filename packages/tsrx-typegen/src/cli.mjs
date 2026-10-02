@@ -743,7 +743,9 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
 			}
 
 			const source = resolve(projectRoot, entry.source)
-			if (![...sourceOutputs.values()].includes(source)) {
+			// TypeScript emits forward-slash paths even on Windows; resolve both
+			// sides before comparing them with the platform-native entry path.
+			if (![...sourceOutputs.values()].some((included) => resolve(included) === source)) {
 				failures.push(
 					`${subpath} source is not included by its TypeScript project: ${entry.source}`,
 				)
