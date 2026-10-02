@@ -522,12 +522,14 @@ export function Example() {
 }
 ```
 
-On macOS, `Dialog`, `AlertDialog`, `BottomSheet`, and `Lightbox` render inline
-because the AppKit host has no shared in-window layer service. `ToastViewport`
-provides context but does not mount a macOS toast stack; the standalone
-`Toast` card is available. `Lightbox` shows alt text for video because the
-player is provided by the separate `@octane-xplat/video` package. macOS
-`Carousel` is a basic horizontal scroller without navigation buttons, looping,
+On macOS, `Dialog` and `AlertDialog` present centered AppKit layers in the
+owning window, `BottomSheet` docks to its bottom edge, and `Lightbox` covers
+its content area. `ToastViewport` mounts timed edge stacks, and `showToast`
+uses a fallback stack when needed. Anchored notifications keep the existing
+`NSPopover` path. See [macOS presentation and verification](primitives.md#macos-shared-presentations).
+Lightbox video playback is unavailable; use the separate `@octane-xplat/video`
+package when your screen needs a player. macOS `Overlay` retains its
+experimental inline implementation. `Carousel` is a basic horizontal scroller without navigation buttons, looping,
 edge fades, or a `CarouselHandle`; `ScrollableArea` ignores pull-to-refresh and
 uses block scrolling for `axis="both"`.
 
@@ -538,7 +540,7 @@ export function Example() {
 	return (
 		<>
 			<Dialog isOpen onOpenChange={() => {}}>
-				<Text>Inline details on AppKit</Text>
+				<Text>Presented details on AppKit</Text>
 			</Dialog>
 			<Toast body="Saved" />
 			<ScrollableArea axis="both">

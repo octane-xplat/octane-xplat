@@ -1116,7 +1116,166 @@ iOS/Android retain RootLayout's platform back behavior; there is no shared
 hardware Escape listener on those targets. A platform back close may remove
 the native host before the controlled callback is accepted. Focus return there
 uses an explicit `finalFocusRef` when available; it is not a keyboard focus trap.
-AppKit Dialog remains an inline panel, without browser-style modal isolation.
+On AppKit, shared modal surfaces manage native focus and nested Escape
+dismissal; physical OS keyboard delivery remains unverified.
+
+### macOS shared presentations
+
+Use the same shared imports on AppKit macOS. `Dialog` and `AlertDialog` float
+above the current screen, `BottomSheet` docks to the bottom of its window,
+and `Lightbox` fills the window's content area. `Dialog isInline` deliberately
+keeps ordinary inline content for previews. The generic `Overlay` still renders
+inline on macOS; choose `Dialog` or `BottomSheet` for presented content. These
+shared layers are separate from the platform-authentic `AppKitSheet` window in
+`@octane-xplat/sheet/macos`.
+
+Keep `isOpen` and `onOpenChange` together. For a dialog or sheet, `purpose="info"`
+allows outside-click and Escape dismissal; `"form"` blocks outside clicks;
+`"required"` blocks both. Alert dialogs use `"required"`: Cancel calls
+`onOpenChange(false)`, while Confirm calls your `onAction`. Your action owns
+closing the alert after it succeeds. `hasScrim={false}` on a sheet keeps the
+page interactive and does not move focus into the sheet. Drag the sheet's
+handle to resize between `snapPoints` (fractions, dip counts, or percentage
+strings); a downward drag past the smallest stop requests dismissal when
+purpose permits. Switching a `BottomSheetSwitcher`'s `activeSheet` updates its
+existing host. Set it to `null` to close the group.
+
+Modal presentations focus their first enabled control and keep Tab traversal
+inside the panel. Self-drawn buttons accept Return and Space. On close, focus
+returns to `finalFocusRef.current` (a native view or a handle with `focus()`),
+or to the control that opened the surface. Removing the declaration releases
+its content, event monitors, timers, and window observers. Closing the owning
+window also releases its presentations. Programmatic removal does not call
+`onOpenChange`; user dismissal does.
+
+Set a final focus target when the opener may disappear while the dialog is
+open:
+
+```tsx
+import { useRef } from 'octane'
+import { Screen, Dialog, Text, TextInput } from '@octane-xplat/ui'
+
+export function EditName(props: { open: boolean; setOpen: (open: boolean) => void }) {
+	const returnFocus = useRef<any>(null)
+	return (
+		<Screen>
+			<TextInput ref={returnFocus} placeholder="Name" />
+			<Dialog isOpen={props.open} onOpenChange={props.setOpen} finalFocusRef={returnFocus}>
+				<Text>Saved details</Text>
+			</Dialog>
+		</Screen>
+	)
+}
+```
+
+For imperative dialog control, keep the returned `element` mounted:
+
+```tsx
+import { useImperativeDialog, Button, Text } from '@octane-xplat/ui'
+
+export function SaveButton() {
+	const dialog = useImperativeDialog()
+	return (
+		<>
+			<Button onPress={() => dialog.show(<Text>Saved changes</Text>)}>
+				Save
+			</Button>
+			{dialog.element}
+		</>
+	)
+}
+```
+
+`useImperativeAlertDialog()` and `useLightbox()` return mounted elements and
+show/dismiss methods with the same owner cleanup. Use `closeBottomSheet(result)`
+to close the most recently opened imperative sheet. A sheet's component receives
+`{ params, close }`; `close(result)` resolves its promise with that result, while
+user dismissal or owner-window closure resolves with `'closed'`. Call
+`openBottomSheet` after a window mounts; missing host/window support rejects
+its promise.
+
+```tsx
+import { useImperativeAlertDialog, useLightbox, Button } from '@octane-xplat/ui'
+
+const media = [{ src: '/trip.jpg', alt: 'A lake beside the campsite' }]
+
+export function GalleryActions() {
+	const alert = useImperativeAlertDialog()
+	const lightbox = useLightbox({ media })
+	return (
+		<>
+			<Button onPress={() => alert.show({ title: 'Remove photo?', actionLabel: 'Remove', onAction: alert.hide })}>
+				Remove
+			</Button>
+			<Button onPress={() => lightbox.open()}>View photo</Button>
+			{alert.element}
+			{lightbox.element}
+		</>
+	)
+}
+```
+
+`openBottomSheet(Component, params, options)` mounts its own root in the key
+window, and the returned promise resolves with the value passed to `close`.
+
+```tsx
+import { Button, openBottomSheet } from '@octane-xplat/ui'
+
+function Details(props: { params: { title: string }; close: (result?: unknown) => void }) {
+	return <Button onPress={() => props.close(props.params.title)}>Done</Button>
+}
+
+export function OpenDetails() {
+	return (
+		<Button onPress={() => {
+			void openBottomSheet(Details, { title: 'Packing list' }, { label: 'Details' })
+				.then((result) => console.log(result))
+		}}>Open details</Button>
+	)
+}
+```
+
+`ToastViewport` routes `useToast()` to its own stack, while `showToast()` uses
+a fallback stack in the key window. Info toasts auto-hide after 5000ms by
+default; error toasts wait for manual dismissal. Override `isAutoHide` and
+`autoHideDuration` as needed. Hover and keyboard focus pause the countdown.
+The returned dismiss function and `onHide(reason)` keep the shared contract.
+`uniqueID`, `collisionBehavior`, `maxVisible`, `renderContent`, edge positions,
+and insets are supported. A toast whose viewport unmounts moves to the
+fallback stack. Toast stacks leave page input and focus available. Anchored
+notifications continue to use `NSPopover`.
+
+```tsx
+import { ToastViewport, Button, useToast } from '@octane-xplat/ui'
+
+function SaveNotice() {
+	const toast = useToast()
+	return <Button onPress={() => toast({ body: 'Saved' })}>Save</Button>
+}
+
+export function ScreenNotice() {
+	return (
+		<ToastViewport>
+			<SaveNotice />
+		</ToastViewport>
+	)
+}
+```
+
+Lightbox Previous/Next buttons and Left/Right keys change the media index.
+Image magnification uses AppKit's scroll view (pinch zoom, 1×–4×, controlled
+by `hasZoom`); double-click zoom and touch swipe navigation are not implemented
+on macOS. Shared lightbox video playback remains unavailable and shows an
+explicit message with the media description; `hasAutoPlay` remains web-only.
+
+Try the maintained [shared presentation example](../examples/probes/shared-presentations.tsrx).
+Supply your own image source before using its lightbox buttons. The
+[isolated AppKit fixture](../apps/macos/test/verify-overlays.mjs) runs with
+`pnpm --filter @xplat/macos test:overlays` and checks native
+views, geometry, updates, focus, imperative results, timers, and teardown
+without screenshots. These are native-state and handler/API checks, not proof
+of physical mouse hit-testing, OS keyboard delivery, or VoiceOver navigation.
+The focused bridge tests cover dismissal and drag dispatch separately.
 
 ## Anchor a layer to an element
 

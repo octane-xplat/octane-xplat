@@ -2,7 +2,7 @@
 
 ID: shared-overlays
 Targets: web, ios, android, macos
-Related APIs: Dialog, AlertDialog, BottomSheet, HoverCard, Lightbox, Carousel, ScrollableArea, Toast, ToastViewport, useToast, Overlay, Popover, useLayer
+Related APIs: Dialog, AlertDialog, BottomSheet, BottomSheetSwitcher, HoverCard, Lightbox, Carousel, ScrollableArea, Toast, ToastViewport, useToast, showToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, Overlay, Popover, useLayer
 
 ## Starting point
 
@@ -123,8 +123,9 @@ export function TripPreview() {
 - Pass data across native root boundaries and retain the app's theme.
 - Use HoverCard for revealed content, Lightbox or Carousel for media, and
   ToastViewport for transient notifications; use ScrollableArea for scrolling.
-- On macOS, account for inline-only Dialog/BottomSheet/Lightbox surfaces and
-  the absence of a timed ToastViewport stack.
+- On macOS, use the owning window’s AppKit presentation layers, keep modal
+  focus inside the surface, and distinguish native-state checks from OS input
+  and accessibility verification.
 
 ## Acceptance criteria
 
@@ -137,6 +138,8 @@ export function TripPreview() {
 
 - AC7: Anchored layers honor placement, cross-axis alignment and clearance; logical sides mirror RTL. Custom and fixed coordinate systems, CSS-length support, anchor ownership and platform boundaries are documented.
 
+- AC8: On macOS, declarative and imperative dialogs, alert dialogs, sheets, lightboxes, and toast stacks present above their owning screen; imperative sheet results, focus restoration, timed/manual toast dismissal, and owner-window cleanup follow the shared contracts.
+
 ## Documentation
 
 - AC1: The [AppKit normal-barrel fixture](../packages/ui/tests/macos-barrel.mjs) and [packed consumer](../packages/ui/tests/packed-consumer.mjs) check public import and declaration boundaries; they do not establish OS rendering or input. [Surface selection](../docs/app/primitives.md#when-a-screen-needs-more), [anchored useLayer layers](../docs/app/primitives.md#anchor-a-layer-to-an-element), [conditional BottomSheet example](../docs/app/primitives.md#own-temporary-surfaces), and maintained [Overlay demo](../packages/demos/src/OverlayDemo.tsrx).
@@ -147,6 +150,8 @@ export function TripPreview() {
 - AC6: [Temporary surfaces](../docs/app/primitives.md#own-temporary-surfaces), [input readiness evidence](../docs/notes/input-readiness-notes.md), and the maintained [cross-browser input fixture](../apps/web/scripts/input-readiness.mjs).
 
   [Nested dismissal](../docs/app/primitives.md#close-nested-layers-one-at-a-time), the nested dialog/menu/card in [OverlayDemo](../packages/demos/src/OverlayDemo.tsrx), and maintained [web regressions](../packages/ui/src/layer-dismissal.web.test.tsrx) and [cross-root object-driver tests](../packages/ui/src/layer-dismissal.mobile.test.tsrx). Object-driver evidence does not establish OS keyboard input or native focus traversal.
+
+- AC8: [macOS shared presentations](../docs/app/primitives.md#macos-shared-presentations), [maintained example](../examples/probes/shared-presentations.tsrx), [isolated AppKit verification](../apps/macos/test/verify-overlays.mjs), and [bridge lifecycle tests](../packages/macos-renderer/test/presentation.test.mjs).
 
 Windows remains experimental: native mounting and cleanup have bounded runtime
 evidence, while gesture, dismissal, focus, and accessibility gaps remain. See

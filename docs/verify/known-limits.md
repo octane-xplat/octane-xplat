@@ -68,17 +68,28 @@ export function Help() {
 system fonts, rendering updates, and the CLI's AppKit packaging contract. This
 coverage does not establish OS input delivery or general UI-package parity.
 
-The normal `@octane-xplat/ui` AppKit barrel now builds without reaching
-`svg.mobile.ts`. `pnpm --filter @octane-xplat/ui test:macos` checks that barrel
-and its packed runtime/declaration exports. This is build and type evidence;
-it does not establish AppKit rendering or OS input. The full `apps/macos`
-harness still fails resolving `./vendor/ui-lottie/src/lottie` in the Lottie
-leaf, even with the pinned submodule initialized.
-A packaged raw button `performClick` check also throws an unrecognized
-`buttonPressed` selector: the action string does not match the exposed
-one-argument method. Direct debug handler dispatch bypasses that native action
-path. These are separate follow-ups to the renderer extraction; see the
+Shared AppKit dialogs, alert dialogs, bottom sheets, lightboxes, and toast
+stacks have dedicated presentation and cleanup. The renderer's 29 native-state
+tests pass, and the bounded packed overlay consumer typechecks JSX and
+imperative declarations in Bundler and NodeNext modes. Those checks cover
+source, handler dispatch, and declarations; they do not establish physical OS
+input or VoiceOver behavior. Lightbox video playback, double-click zoom, and
+touch swipe navigation remain unavailable on macOS; see
+[shared presentations](../app/primitives.md#macos-shared-presentations).
+
+The normal UI AppKit packed check is currently blocked while bundling
+`query-storage.ts`: `ApplicationSettings` is imported from the macOS native
+core shim but is not exported there. The isolated AppKit overlay fixture also
+stops before overlay assertions because `NSApplication` does not report its
+window as key or main after activation and `makeKeyAndOrderFront`. This is a
+native runtime limitation of the current probe environment, not a successful
+overlay runtime check. See the
 [renderer setup and verification boundary](../../packages/macos-renderer/README.md).
+
+The broader `@octane-xplat/ui` native suite runs unrelated mobile tests and
+currently has ten failures where `Children.toArray` is undefined in the
+children, list, and text-slot paths. Focused imperative-sheet service tests
+pass independently. These failures do not exercise AppKit presentations.
 
 ## Where the real OS widgets live
 
