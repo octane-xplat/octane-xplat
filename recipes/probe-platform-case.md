@@ -28,6 +28,8 @@ platform evidence without changing the kitchen-sink harness.
 - AC1: [Run a maintained case](../docs/verify/probing.md#run-a-maintained-case) and
   [Android host recipe](../.agents/docs/android-lab.md#working-recipe).
 - AC2: [Write a case](../docs/verify/probing.md#write-a-case), [script](../examples/probes/signals.ts), [counter](../examples/probes/counter.tsrx), and [native touch sequence](../examples/probes/touch.mobile.tsrx).
+  The [AppKit Lottie case](../examples/probes/lottie.macos.tsrx) checks explicit
+  unsupported behavior without loading a mobile animation vendor.
 - AC3: [Iterate without harness edits](../docs/verify/probing.md#iterate-without-harness-edits).
 - AC4: [Iterate without harness edits](../docs/verify/probing.md#iterate-without-harness-edits).
 - AC5: [Iterate without harness edits](../docs/verify/probing.md#iterate-without-harness-edits).

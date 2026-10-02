@@ -13,6 +13,8 @@
 		"platforms",
 		"src/index.ts",
 		"src/index.web.ts",
+		"src/index.macos.ts",
+		"src/Lottie.macos.tsrx",
 		"src/Lottie.tsrx",
 		"src/Lottie.web.tsrx",
 		"src/props.ts",
@@ -34,6 +36,9 @@
 	"type": "module",
 	"exports": {
 		".": {
+			"macos": {
+				"default": "./src/index.macos.ts"
+			},
 			"web": {
 				"types": "./types/generated/index.web.d.ts",
 				"default": "./src/index.web.ts"
@@ -49,6 +54,9 @@
 	"publishConfig": {
 		"exports": {
 			".": {
+				"macos": {
+					"default": "./src/index.macos.ts"
+				},
 				"web": {
 					"types": "./types/generated/index.web.d.ts",
 					"default": "./dist/web/index.js"

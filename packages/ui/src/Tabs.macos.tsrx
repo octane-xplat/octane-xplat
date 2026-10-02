@@ -44,7 +44,7 @@ export function Tabs(props: TabsProps) @{
 			onChange={(v) => { const i = Number(v); setInternal(i); props.onSelectedIndexChanged?.(i); }}
 		>
 			@for (const item of props.tabs; index i; key item.title) {
-				<Tab value={String(i)} label={item.title} icon={item.icon} />
+				<Tab id={'tab-' + i} value={String(i)} label={item.title} icon={item.icon} />
 			}
 		</TabList>
 		<flexboxlayout flexDirection="column" className="vx-tabpane flex-1">

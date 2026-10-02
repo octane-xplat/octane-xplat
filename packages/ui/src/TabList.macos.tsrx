@@ -89,7 +89,7 @@ export function TabList(props: TabListProps) @{
 					{row}
 				</scrollview>
 			} @else {
-				row
+				<>{row}</>
 			}
 		</flexboxlayout>
 	</TabListProvider>

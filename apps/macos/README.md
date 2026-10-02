@@ -81,10 +81,10 @@ dialog-kind window), and `openWindow` multi-window support.
 The renderer maps a curated set of `className` tokens to
 AppKit views; it does not load CSS stylesheets or promise general NativeScript
 or web style parity. In particular, this harness does not validate every
-exported component or every service. AppKit's shared `VirtualList` fallback
-mounts every row at once. The `List ×500` sweep checks that all 500 row
-components mount and that dropping one removes a row; it does not prove
-virtualization or large-list performance.
+exported component or every service. The current `List ×500` sweep checks
+that a bounded row window mounts (more than zero and fewer than 500 rows)
+and that dropping one updates the collection to 499 rows. This does not
+establish large-list performance or sustained OS scrolling behavior.
 
 ```ts
 // Shared service calls; the configured AppKit host supplies their implementation.
@@ -151,6 +151,45 @@ measurements to `parity-report/macos.json`. From the workspace root,
 shared fixtures. The sweep compares geometry and selected style values.
 For a focused HMR check, run `node apps/macos/scripts/verify-hmr.mjs` from the
 repository root.
+
+### Non-visual smoke checks
+
+From the repository root on an Apple Silicon Mac, initialize the vendor
+submodules and install before checking the harness:
+
+```sh
+git submodule update --init
+pnpm install --frozen-lockfile
+pnpm typecheck:macos
+pnpm --filter @xplat/macos build
+pnpm smoke:macos
+```
+
+`smoke:macos` requires all 30 assertions in the existing shared harness sweep,
+then runs the isolated AppKit UI ref-animation fixture and the maintained
+signals, counter, and unsupported-Lottie probes. A missing assertion, failure,
+host exit, or timeout fails the command. These checks inspect native view state
+and dispatch AppKit actions; they do not prove OS mouse input, hit-testing,
+visual parity, or animation playback in Lottie.
+
+Lottie has an explicit macOS leaf: it displays an unsupported label, calls
+`onError` on mount, and supplies no playback handle or loaded/ended events.
+The motion-package probe route also reports unsupported on AppKit; its mobile
+gesture and reduced-motion imports are excluded by the generated macOS route
+manifest. UI ref animation is checked independently and does not establish
+support for `@octane-xplat/motion`. Home retains its existing AppKit styling
+without the Bamboo-generated utility class, because AppKit does not load CSS.
+
+After adding or changing a platform route, run
+`pnpm --filter @xplat/app exec xplat routes` so the eager manifest excludes
+overridden files before bundling them. Install runs declaration generation;
+checking while postinstall is still running can report stale route types.
+Published declaration verification is a separate boundary from these source
+and harness checks.
+
+The AppKit packaging recipe's AC7 still describes the earlier all-rows list
+fallback. That criterion remains unchanged and is not satisfied by the current
+windowed-list check; its reconciliation belongs to the VirtualList workflow.
 
 Screenshot-led comparison also exists: `node apps/web/scripts/parity-shots.mjs`
 captures the web parity stage in Playwright (640x420 viewport at 2x, ~300pt

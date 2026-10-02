@@ -50,6 +50,8 @@ export async function xplatMacOS(env, options = {}) {
 			},
 			rollupOptions: {
 				external: packaged ? [runtime, /^node:/] : [runtime, renderer, /^octane\//],
+				// The JavaScriptCore host evaluates one bundle; it cannot require chunks.
+				output: { codeSplitting: false },
 			},
 		},
 		resolve: {

@@ -13,6 +13,7 @@ const files = import.meta.glob(
 		'!./app/**/*.mobile.{tsrx,tsx}',
 		'!./app/**/*.windows.{tsrx,tsx}',
 		'!./app/**/*.linux.{tsrx,tsx}',
+		'!./app/motion-probe.tsrx',
 		'!./app/parity.tsrx'
 	],
 	{ eager: true },

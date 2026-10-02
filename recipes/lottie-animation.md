@@ -9,6 +9,9 @@ Related APIs: @octane-xplat/lottie (Lottie, LottieHandle, LottieProps), lottie-w
 A working scaffolded app and a Lottie JSON or `.lottie` asset (inline object
 or reachable file/URL). The reader can build web and native apps.
 
+Native macOS AppKit is outside this playback recipe's targets; see the
+[explicit unsupported behavior](../docs/app/primitives.md#lottie-animations).
+
 ## Requirements
 
 - Install the leaf package and mount a bounded animation on each target.

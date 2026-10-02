@@ -78,6 +78,8 @@ production Vite config that emits one CommonJS host bundle.
   [experimental AppKit target](../docs/start/toolchain.md#experimental-appkit-target).
 - AC6: [macOS packaging proof](../apps/macos/README.md#packaging-proof).
 - AC7: [macOS package-root boundary](../apps/macos/README.md#macos-experiment).
+  Maintained [non-visual smoke checks](../apps/macos/README.md#non-visual-smoke-checks)
+  require the complete shared sweep and document unsupported leaf boundaries.
 - AC8: [Packaged host API](../apps/macos/README.md#packaging-proof) and the
   [independent fixture check](../packages/cli/test/verify-macos-jsc.mjs).
 
@@ -89,3 +91,12 @@ production Vite config that emits one CommonJS host bundle.
 
 - AC11: [Renderer setup](../packages/macos-renderer/README.md) and the
   [packed renderer consumer](../packages/macos-renderer/test/packed-consumer.mjs).
+
+## Verification gaps
+
+AC7 retains its all-rows fallback criterion. The current maintained sweep
+instead checks bounded mounting for the 500-row collection and its update to
+499 rows. That is runtime evidence for the current implementation, not a pass
+for the all-rows criterion or proof of large-list performance. Reconcile this
+with the VirtualList workflow separately; restoring the harness does not
+change the criterion.

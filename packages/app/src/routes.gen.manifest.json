@@ -89,7 +89,7 @@
 			"layouts": [
 				""
 			],
-			"source": "src/app/motion-probe.tsrx",
+			"source": "src/app/motion-probe.macos.tsrx",
 			"loader": false,
 			"guard": false,
 			"head": false

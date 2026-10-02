@@ -26,14 +26,22 @@ async function waitFor(predicate: () => boolean, timeout = 6000): Promise<boolea
 	return predicate()
 }
 
+let assertions = 0
+let failures = 0
+
 function assert(name: string, result: boolean): void {
+	assertions++
+	if (!result) {
+		failures++
+	}
+
 	console.log(`[assert] macOS ${name}: ${result ? 'OK' : 'FAIL'}`)
 }
 
 async function run(): Promise<void> {
 	const debug = globalThis.__xplatMacOSDebug
 	if (!debug) {
-		return
+		throw new Error('AppKit debug interface is unavailable')
 	}
 
 	const has = (text: string) => debug.snapshot().labels.some((label) => label.includes(text))
@@ -167,6 +175,13 @@ async function run(): Promise<void> {
 
 if (!(globalThis as any).__xplatMacOSParityOnly) {
 	setTimeout(() => {
-		void run().catch((error) => console.error('[sweep] macOS failed', error))
+		void run()
+			.catch((error) => {
+				failures++
+				console.error('[sweep] macOS failed', error)
+			})
+			.finally(() => {
+				console.log('[macos-smoke] ' + JSON.stringify({ assertions, failures }))
+			})
 	}, 1500)
 }
