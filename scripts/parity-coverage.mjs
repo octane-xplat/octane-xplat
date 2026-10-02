@@ -39,8 +39,8 @@ const DEFERRED_GROUPS = [
 const DEFERRED_FACETS = [
 	{
 		reason:
-			'Hoverable and Tooltip fixtures compare only the default anchor/trigger. They do not open or measure the hint layer on pointer targets (web/macOS); iOS and Android intentionally omit that layer.',
-		components: ['Hoverable', 'Tooltip'],
+			'HoverCard and Tooltip fixtures compare only the default anchor/trigger. They do not open or measure the hint layer; HoverCard opens on touch, while Tooltip intentionally renders only its trigger there.',
+		components: ['HoverCard', 'Tooltip'],
 	},
 ]
 

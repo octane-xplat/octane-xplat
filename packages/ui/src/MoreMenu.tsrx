@@ -3,7 +3,7 @@ import { useState } from 'octane'
 import type { MoreMenuProps, MoreMenuPlacement } from './props'
 import { DropdownMenu } from './DropdownMenu.tsrx'
 import { Pressable } from './Pressable.tsrx'
-import { Sheet } from './Sheet.tsrx'
+import { BottomSheet } from './BottomSheet.tsrx'
 import { Icon } from './Icon.tsrx'
 import { cx } from './cx'
 
@@ -27,7 +27,7 @@ export function MoreMenu(props: MoreMenuProps) @{
 	@if (presentation === 'bottom-sheet' || presentation === 'adaptive') {
 		<>
 			<Pressable id={props.id} className={triggerClass} style={props.style} disabled={props.isDisabled} onPress={()=>setOpen(!open)} accessibilityRole="button" accessibilityLabel={props.label??'More options'} accessibilityState={{disabled:props.isDisabled}}>{icon}</Pressable>
-			<Sheet open={open} onDismiss={()=>setOpen(false)} detents={[0.5,1]} className="vx-more-menu-sheet"><flexboxlayout className="vx-more-menu-sheet-list">{props.items.map(item=><MenuItemView key={item.key} className={cx('vx-menu-item',item.disabled&&'vx-menu-item--disabled')} disabled={item.disabled} onPress={()=>{if(item.disabled)return;setOpen(false);item.onSelect?.()}}>{item.icon?<Icon name={item.icon}/>:null}<label text={item.label??''}/></MenuItemView>)}</flexboxlayout></Sheet>
+			<BottomSheet isOpen={open} onOpenChange={setOpen} label={props.label??'More options'} snapPoints={[0.5,1]} className="vx-more-menu-sheet"><flexboxlayout className="vx-more-menu-sheet-list">{props.items.map(item=><MenuItemView key={item.key} className={cx('vx-menu-item',item.disabled&&'vx-menu-item--disabled')} disabled={item.disabled} onPress={()=>{if(item.disabled)return;setOpen(false);item.onSelect?.()}}>{item.icon?<Icon name={item.icon}/>:null}<label text={item.label??''}/></MenuItemView>)}</flexboxlayout></BottomSheet>
 		</>
 	} @else {
 		<DropdownMenu id={props.id} className={props.className} style={props.style} items={props.items} disabled={props.isDisabled} open={open} onOpenChange={setOpen} placement={popoverPlacement(props.placement)} alignment={props.alignment} accessibilityLabel={props.label??'More options'} triggerClassName={triggerClass} trigger={icon}/>

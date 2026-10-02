@@ -15,7 +15,7 @@ import {
 
 import type { TimestampFormat } from './props';
 import { applyEscapeProps } from './escape-props';
-import { Hoverable } from './Hoverable.web.tsrx';
+import { HoverCard } from './HoverCard.web.tsrx';
 import { Icon } from './Icon.web.tsrx';
 import { copyText } from './clipboard-write';
 import { textRoleClasses } from './text-role';
@@ -77,7 +77,7 @@ function TimestampCard(props: { lines: readonly TimestampTooltipLine[] }) @{
  *  instant; relative formats announce the absolute `full` form via
  *  aria-label. 'auto' is relative below `autoThreshold` seconds, else
  *  `date_time`. `isLive` re-renders on the relative cadence. `hasTooltip`
- *  opens the Hoverable card with one row per tooltip entry. */
+ *  opens the HoverCard with one row per tooltip entry. */
 export function Timestamp(props: TimestampProps) @{
 	const format = props.format ?? 'auto';
 	const autoThreshold = props.autoThreshold ?? DEFAULT_AUTO_THRESHOLD;
@@ -154,9 +154,9 @@ export function Timestamp(props: TimestampProps) @{
 	);
 
 	return hasTooltip && lines.length > 0 ? (
-		<Hoverable card={<TimestampCard lines={lines} />} placement="top">
+		<HoverCard content={<TimestampCard lines={lines} />} placement="above" label={absoluteLabel}>
 			{time}
-		</Hoverable>
+		</HoverCard>
 	) : (
 		time
 	);

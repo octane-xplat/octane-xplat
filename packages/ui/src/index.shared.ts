@@ -548,7 +548,6 @@ export type {
 	PopoverProps,
 	PopoverPlacement,
 	PopoverAlignment,
-	ToastContent,
 	ScrollAxis,
 	ScrollAxisState,
 	ScrollKeyboardAccess,

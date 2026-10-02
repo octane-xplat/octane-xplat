@@ -2,7 +2,7 @@ import { useEffect, useState } from 'octane'
 import type { MoreMenuProps, MoreMenuPlacement } from './props'
 import { DropdownMenu } from './DropdownMenu.web.tsrx'
 import { Pressable } from './Pressable.web.tsrx'
-import { Sheet } from './Sheet.web.tsrx'
+import { BottomSheet } from './BottomSheet.web.tsrx'
 import { Icon } from './Icon.web.tsrx'
 
 function popoverPlacement(placement?:MoreMenuPlacement):any {
@@ -31,7 +31,7 @@ export function MoreMenu(props: MoreMenuProps) @{
 	@if (useSheet) {
 		<>
 			<Pressable id={props.id} className={triggerClass} style={props.style} disabled={props.isDisabled} onPress={()=>setOpen(!open)} accessibilityRole="button" accessibilityLabel={props.label??'More options'} accessibilityState={{disabled:props.isDisabled}}>{icon}</Pressable>
-			<Sheet open={open} onDismiss={()=>setOpen(false)} detents={[0.5,1]} className="vx-more-menu-sheet"><div className="vx-more-menu-sheet-list">{props.items.map(item=><MenuItemView key={item.key} className={['vx-menu-item',item.disabled?'vx-menu-item--disabled':undefined]} disabled={item.disabled} onPress={()=>{if(item.disabled)return;setOpen(false);item.onSelect?.()}}>{item.icon?<Icon name={item.icon}/>:null}{item.label}</MenuItemView>)}</div></Sheet>
+			<BottomSheet isOpen={open} onOpenChange={setOpen} label={props.label??'More options'} snapPoints={[0.5,1]} className="vx-more-menu-sheet"><div className="vx-more-menu-sheet-list">{props.items.map(item=><MenuItemView key={item.key} className={['vx-menu-item',item.disabled?'vx-menu-item--disabled':undefined]} disabled={item.disabled} onPress={()=>{if(item.disabled)return;setOpen(false);item.onSelect?.()}}>{item.icon?<Icon name={item.icon}/>:null}{item.label}</MenuItemView>)}</div></BottomSheet>
 		</>
 	} @else {
 		<DropdownMenu id={props.id} className={props.className} style={props.style} items={props.items} disabled={props.isDisabled} open={open} onOpenChange={setOpen} placement={popoverPlacement(props.placement)} alignment={props.alignment} accessibilityLabel={props.label??'More options'} triggerClassName={triggerClass} trigger={icon}/>

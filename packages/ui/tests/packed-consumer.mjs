@@ -81,8 +81,8 @@ function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all') {
 
 	let source
 	if (target === 'web') {
-		source = `import { Button, KeyboardAvoiding, View, Hoverable, Tooltip } from '@octane-xplat/ui'
-import { Hoverable as WebHoverable, Tooltip as WebTooltip } from '@octane-xplat/ui/web'
+		source = `import { Button, KeyboardAvoiding, View, HoverCard, Tooltip } from '@octane-xplat/ui'
+import { HoverCard as WebHoverCard, Tooltip as WebTooltip } from '@octane-xplat/ui/web'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
@@ -93,13 +93,13 @@ const keyboardProps: KeyboardAvoidingProps = { id: 'web-form', children: 'Form' 
 const button = <Button {...buttonProps} />
 const keyboard = <KeyboardAvoiding {...keyboardProps} />
 const root = <View {...viewProps} />
-const hoverable: typeof WebHoverable = Hoverable
+const hoverCard: typeof WebHoverCard = HoverCard
 const tooltip: typeof WebTooltip = Tooltip
 void invalidButtonProps
 void keyboard
 void button
 void root
-void hoverable
+void hoverCard
 void tooltip
 void KeyboardAvoiding
 `
