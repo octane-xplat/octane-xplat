@@ -4,7 +4,7 @@ import { refList } from './ref-list'
 import type { ListProps } from './props'
 import { cx } from './cx'
 import { applyEscapeProps } from './escape-props'
-import { toChildArray } from './child-array'
+import { toChildArray, mapChildren } from './child-array'
 import { ListProvider } from './list-context'
 
 /** List — column of rows; markers/dividers are drawn on the per-child
@@ -36,7 +36,7 @@ export function List(props: ListProps) @{
 			accessibilityLabel={props.accessibilityLabel}
 		>
 			{props.header != null ? <flexboxlayout className="vx-list-header">{props.header}</flexboxlayout> : null}
-			{items.map((child: any, index: number) => (
+			{mapChildren(items, (child: any, index: number) => (
 				<flexboxlayout
 					className={cx('vx-list-row', props.hasDividers && index < items.length - 1 && 'vx-list-row--divider')}
 					flexDirection="row"

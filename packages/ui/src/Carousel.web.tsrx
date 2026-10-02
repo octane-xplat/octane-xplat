@@ -1,7 +1,8 @@
+import { descriptorChildren } from 'octane';
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane';
 import type { CarouselHandle, CarouselProps } from './props';
 import { applyEscapeProps } from './escape-props';
-import { toChildArray } from './child-array';
+import { toChildArray, mapChildren } from './child-array';
 import { spacingStep } from './spacing';
 import { cx } from './cx';
 import { Icon } from './Icon.web.tsrx';
@@ -13,7 +14,7 @@ const EPS = 1;
  *  labelled region (`aria-roledescription="carousel"`) whose children are
  *  wrapped in slide groups, with optional snap, edge fades, and prev/next
  *  buttons. `ref` hands back the imperative CarouselHandle. */
-export function Carousel(props: CarouselProps) @{
+function CarouselImpl(props: CarouselProps) @{
 	const items = toChildArray(props.children);
 	const count = items.length;
 	const gapPx = spacingStep(props.gap ?? 2) ?? 8;
@@ -182,9 +183,8 @@ export function Carousel(props: CarouselProps) @{
 					className="vx-carousel-track"
 					style={{ display: 'flex', gap: `${gapPx}px` }}
 				>
-					{items.map((child: any, i: number) => (
+					{mapChildren(items, (child: any, i: number) => (
 						<div
-							key={i}
 							className={cx(
 								'vx-carousel-slide',
 								props.variant === 'proportional' && 'vx-carousel-slide--prop',
@@ -225,3 +225,6 @@ export function Carousel(props: CarouselProps) @{
 		</div>
 	);
 }
+
+/** Ask Octane to preserve inspectable child descriptors for collection operations. */
+export const Carousel = descriptorChildren(CarouselImpl);

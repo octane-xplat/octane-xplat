@@ -2,7 +2,7 @@
 import type { AvatarGroupProps } from "./props";
 import { cx } from "./cx";
 import { applyEscapeProps } from "./escape-props";
-import { toChildArray } from './child-array';
+import { toChildArray, mapChildren } from './child-array';
 import { Avatar } from './Avatar.macos.tsrx';
 
 /** AvatarGroup — row of overlapping avatars. `max` collapses the rest into
@@ -22,8 +22,8 @@ export function AvatarGroup(props: AvatarGroupProps) @{
 		className={cx('vx-avatar-group', props.className)}
 		style={props.style}
 	>
-		{shown.map((child: any, i: number) => (
-			<flexboxlayout key={i} className="vx-avatar-group-item" style={itemStyle(i)}>{child}</flexboxlayout>
+		{mapChildren(shown, (child: any, i: number) => (
+			<flexboxlayout className="vx-avatar-group-item" style={itemStyle(i)}>{child}</flexboxlayout>
 		))}
 		{overflow > 0
 			? <flexboxlayout className="vx-avatar-group-item" style={itemStyle(shown.length)}><Avatar fallback={`+${overflow}`} size={size} /></flexboxlayout>

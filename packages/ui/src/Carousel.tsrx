@@ -2,7 +2,7 @@
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane';
 import type { CarouselHandle, CarouselProps } from './props';
 import { applyEscapeProps } from './escape-props';
-import { toChildArray } from './child-array';
+import { toChildArray, mapChildren } from './child-array';
 import { spacingStep } from './spacing';
 import { cx } from './cx';
 import { Icon } from './Icon';
@@ -170,9 +170,8 @@ export function Carousel(props: CarouselProps) @{
 				className="vx-carousel-track"
 				style={{ columnGap: gap }}
 			>
-				{items.map((child: any, i: number) => (
+				{mapChildren(items, (child: any, i: number) => (
 					<flexboxlayout
-						key={i}
 						className={cx(
 							'vx-carousel-slide',
 							props.variant === 'proportional' && 'vx-carousel-slide--prop',

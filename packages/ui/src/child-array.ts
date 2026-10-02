@@ -1,21 +1,11 @@
-/** Normalize a JSX children value to a flat array — children may be a
- *  single node, an array, or nested arrays from `.map` calls. */
+import { Children } from 'octane'
+
+/** Normalize supported JSX children through their owning renderer. */
 export function toChildArray(children: any): any[] {
-	const out: any[] = []
-	const walk = (node: any) => {
-		if (node == null || node === false) {
-			return
-		}
+	return Children.toArray(children)
+}
 
-		if (Array.isArray(node)) {
-			for (const child of node) {
-				walk(child)
-			}
-		} else {
-			out.push(node)
-		}
-	}
-
-	walk(children)
-	return out
+/** Preserve each child's key when placing it inside a wrapper host. */
+export function mapChildren(children: any, render: (child: any, index: number) => any): any {
+	return Children.map(children, render)
 }

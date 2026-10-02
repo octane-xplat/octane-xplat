@@ -1,3 +1,4 @@
+import { descriptorChildren } from 'octane';
 import { useId, useState } from 'octane';
 import type { MetadataListProps } from './props';
 import { applyEscapeProps } from './escape-props';
@@ -9,7 +10,7 @@ import { toChildArray } from './child-array';
  *  one auto-sized track; 'top' labels stack per item. 'multi' auto-fills
  *  minmax(280px,1fr) columns; a numeric `columns` gives fixed tracks.
  *  Horizontal orientation ignores `columns`, `label`, and `maxNumOfItems`. */
-export function MetadataList(props: MetadataListProps) @{
+function MetadataListImpl(props: MetadataListProps) @{
 	const columns = props.columns ?? 'single';
 	const orientation = props.orientation ?? 'vertical';
 	const isHorizontal = orientation === 'horizontal';
@@ -87,3 +88,6 @@ export function MetadataList(props: MetadataListProps) @{
 		</div>
 	</MetadataListProvider>
 }
+
+/** Ask Octane to preserve inspectable child descriptors for collection operations. */
+export const MetadataList = descriptorChildren(MetadataListImpl);

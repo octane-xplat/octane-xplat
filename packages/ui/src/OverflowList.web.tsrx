@@ -1,30 +1,16 @@
+import { descriptorChildren } from 'octane';
 import { useCallback, useEffect, useRef, useState } from 'octane';
 import type { OverflowItem, OverflowListProps } from './props';
 import { applyEscapeProps } from './escape-props';
 import { computeOverflow } from './overflow-math';
 
-/** Flatten `children` into an array — TSRX children arrive as arrays or
- *  single nodes; keyed lists keep their `key` for identity reporting. */
-function toChildArray(children: any): any[] {
-	const out: any[] = [];
-	const walk = (c: any) => {
-		if (c == null || c === false || c === true) return;
-		if (Array.isArray(c)) {
-			for (const n of c) walk(n);
-		} else {
-			out.push(c);
-		}
-	};
-
-	walk(children);
-	return out;
-}
+import { toChildArray } from './child-array';
 
 /** OverflowList — renders the subset of children that fits the row (or a
  *  configured count/row cap) and hands the remainder to
  *  `overflowRenderer`. Measures a hidden inert copy + the indicator
  *  rendered at maximum width. */
-export function OverflowList(props: OverflowListProps) @{
+function OverflowListImpl(props: OverflowListProps) @{
 	const gap = (props.gap ?? 2) * 4;
 	const minVisibleItems = props.minVisibleItems ?? 0;
 	const collapseFrom = props.collapseFrom ?? 'end';
@@ -146,3 +132,6 @@ export function OverflowList(props: OverflowListProps) @{
 		</div>
 	</>
 }
+
+/** Ask Octane to preserve inspectable child descriptors for collection operations. */
+export const OverflowList = descriptorChildren(OverflowListImpl);

@@ -1,4 +1,5 @@
 /** @jsxImportSource @nativescript-community/octane */
+import { TextSlot } from './text-slot';
 import type { BlockquoteProps } from './props';
 import { cx } from './cx';
 import { applyEscapeProps } from './escape-props';
@@ -14,9 +15,7 @@ export function Blockquote(props: BlockquoteProps) @{
 		style={props.style}
 		flexDirection="column"
 	>
-		{typeof props.children === 'string' || typeof props.children === 'number'
-			? <label className="vx-blockquote-text" whiteSpace="normal">{props.children}</label>
-			: props.children}
+		<TextSlot className="vx-blockquote-text">{props.children}</TextSlot>
 		{props.cite != null && props.cite !== false
 			? typeof props.cite === 'string' || typeof props.cite === 'number'
 				? <label className="vx-blockquote-cite" whiteSpace="normal">{props.cite}</label>

@@ -5,21 +5,7 @@ import { cx } from './cx';
 
 import { computeOverflow } from './overflow-math';
 
-/** Flatten `children` into an array (same helper the web leaf uses). */
-function toChildArray(children: any): any[] {
-	const out: any[] = [];
-	const walk = (c: any) => {
-		if (c == null || c === false || c === true) return;
-		if (Array.isArray(c)) {
-			for (const n of c) walk(n);
-		} else {
-			out.push(c);
-		}
-	};
-
-	walk(children);
-	return out;
-}
+import { toChildArray } from './child-array';
 
 /** OverflowList — renders the subset of children that fits the row and
  *  hands the rest to `overflowRenderer`. Native leaf: a hidden inert copy

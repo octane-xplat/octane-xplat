@@ -592,7 +592,7 @@ index 0000000000000000000000000000000000000000..ff5eb43e8f0ddcadbcf8e861f42788b3
 +  universalSignalDocument
 +};
 diff --git a/dist/node/universal-core.js b/dist/node/universal-core.js
-index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f15a640a11 100644
+index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0bde99062 100644
 --- a/dist/node/universal-core.js
 +++ b/dist/node/universal-core.js
 @@ -17,6 +17,14 @@ import {
@@ -610,7 +610,141 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
  import { __methodDep } from "./method-dep.js";
  const UNIVERSAL_PLAN = /* @__PURE__ */ Symbol.for("octane.universal.plan");
  const UNIVERSAL_VALUE = /* @__PURE__ */ Symbol.for("octane.universal.value");
-@@ -842,6 +850,7 @@ function draftOwner(record, parent, replayPath) {
+@@ -474,6 +482,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
+     hasKey: key !== NO_KEY || normalized.hasKey
+   };
+ }
++const NORMALIZED_CHILD_KEYS = new WeakMap();
++/** Normalize deferred JSX without mounting components or consuming their context.
++ * Structural owners (blocks, providers, boundaries and loops) remain renderables;
++ * only transparent child groups, plan ranges, slots and JS arrays are flattened.
++ */
++function universalChildEntries(children) {
++    const out = [];
++    const collectionKey = (child) => {
++        const key = renderableKey(child);
++        if (key !== null)
++            return key;
++        if (child?.$$kind !== UNIVERSAL_VALUE)
++            return null;
++        const { plan, values } = child;
++        let node = plan.root;
++        while (node.kind === 'range' && node.children.length === 1)
++            node = node.children[0];
++        if (node.kind === 'slot')
++            return collectionKey(values[node.slot]);
++        if (node.kind !== 'host' && node.kind !== 'component')
++            return null;
++        if (node.kind === 'component' && node.keySlot !== undefined)
++            return normalizeUniversalKey(values[node.keySlot]);
++        return normalizeUniversalKey(node.propsSlot === undefined ? node.kind === 'host' ? node.props?.key : null : normalizePropsValue(values[node.propsSlot]).key);
++    };
++    const visit = (child, path) => {
++        if (child == null || typeof child === 'boolean')
++            return;
++        if (typeof child === 'object') {
++            const normalizedKey = NORMALIZED_CHILD_KEYS.get(child);
++            if (normalizedKey !== undefined) {
++                out.push({ child, key: normalizedKey });
++                return;
++            }
++        }
++        if (Array.isArray(child)) {
++            child.forEach((item, index) => {
++                const key = collectionKey(item);
++                visit(item, [...path, key === null ? 'index' : 'key', key ?? index]);
++            });
++            return;
++        }
++        if (child?.$$kind === UNIVERSAL_CHILDREN) {
++            const children = child;
++            if (CURRENT_OWNER !== null && children.renderer !== currentAttempt().root.renderer) {
++                throw new Error('Universal renderer mismatch while normalizing children.');
++            }
++            visit(children.render(), path);
++            return;
++        }
++        if (child?.$$kind === UNIVERSAL_LIST) {
++            const list = child;
++            visit(list.values.length === 0 ? list.empty : list.values, path);
++            return;
++        }
++        if (child?.$$kind === UNIVERSAL_VALUE) {
++            const value = child;
++            if (CURRENT_OWNER !== null && value.plan.renderer !== currentAttempt().root.renderer) {
++                throw new Error('Universal renderer mismatch while normalizing children.');
++            }
++            if (value.key !== null) {
++                out.push({ child, key: JSON.stringify([...path, 'key', value.key]) });
++                return;
++            }
++            const visitNode = (node, nodePath) => {
++                if (node.kind === 'range') {
++                    node.children.forEach((item, index) => visitNode(item, [...nodePath, index]));
++                }
++                else if (node.kind === 'slot') {
++                    visit(value.values[node.slot], nodePath);
++                }
++                else if (node.kind === 'text') {
++                    visit((node.slot === undefined ? node.value : value.values[node.slot]), nodePath);
++                }
++                else {
++                    const key = node.kind === 'component'
++                        ? node.keySlot === undefined
++                            ? node.propsSlot === undefined ? null : normalizePropsValue(value.values[node.propsSlot]).key
++                            : value.values[node.keySlot]
++                        : node.kind === 'host'
++                            ? node.propsSlot === undefined ? node.props?.key ?? null : normalizePropsValue(value.values[node.propsSlot]).key
++                            : null;
++                    const item = universalValue(universalPlan(value.plan.renderer, node), value.values);
++                    out.push({ child: item, key: JSON.stringify(key == null ? nodePath : [...(node === value.plan.root ? path : nodePath.slice(0, -1)), 'key', key]) });
++                }
++            };
++            visitNode(value.plan.root, path);
++            return;
++        }
++        const key = renderableKey(child);
++        out.push({ child, key: JSON.stringify(key === null ? path : [...path, 'key', key]) });
++    };
++    visit(children, []);
++    return out;
++}
++/** Renderer-supported child collection operations. They never render a component
++ * to discover its output. Returned entries retain their keys when mapped into
++ * wrapper hosts, and are materialized normally at their eventual placement.
++ */
++function normalizedChild(key, child) {
++    const value = universalKey(key, child);
++    NORMALIZED_CHILD_KEYS.set(value, key);
++    return value;
++}
++const Children = {
++    toArray(children) {
++        return universalChildEntries(children).map(({ child, key }) => typeof child === 'object' ? normalizedChild(key, child) : child);
++    },
++    map(children, fn) {
++        const out = [];
++        universalChildEntries(children).forEach(({ child, key }, index) => {
++            const mapped = fn(child, index);
++            if (mapped == null || typeof mapped === 'boolean')
++                return;
++            if (Array.isArray(mapped)) {
++                for (const entry of universalChildEntries(mapped)) {
++                    out.push(normalizedChild(JSON.stringify([key, entry.key]), entry.child));
++                }
++            }
++            else {
++                out.push(normalizedChild(key, mapped));
++            }
++        });
++        return out;
++    },
++};
++
+ function universalChildren(renderer, render) {
+   assertRendererId(renderer, "universalChildren renderer");
+   if (typeof render !== "function") throw new TypeError("universalChildren expected a function.");
+@@ -842,6 +977,7 @@ function draftOwner(record, parent, replayPath) {
      boundaryThenable: record.boundaryThenable,
      isBoundary: record.isBoundary,
      canHandleSuspense: record.canHandleSuspense,
@@ -618,7 +752,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      visibility: parent?.visibility ?? record.visibility,
      contextStable: null
    };
-@@ -1012,6 +1021,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1012,6 +1148,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      owner.contextStable = null;
      owner.needsRender = false;
      owner.implicitSlot = 0;
@@ -626,7 +760,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      const previousOwner = CURRENT_OWNER;
      const previousAttemptOwner = attempt.owner;
      CURRENT_OWNER = owner;
-@@ -1023,13 +1033,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1023,13 +1160,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      const profileFrame = typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__ && component !== null ? __profileBeginRender(owner.record, component, owner.record.mounted) : null;
      let didThrow = false;
      let thrown;
@@ -648,7 +782,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
        if (typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__) {
          __profileEndRender(profileFrame, didThrow, thrown);
        }
-@@ -1196,6 +1211,8 @@ function disposeUncommittedDraft(owner) {
+@@ -1196,6 +1338,8 @@ function disposeUncommittedDraft(owner) {
      owner.record.componentProps = null;
      owner.record.range = null;
      owner.record.updates.clear();
@@ -657,7 +791,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      for (const hook of owner.hooks.values()) {
        if (hook.kind === "effect-event") hook.cell.active = false;
      }
-@@ -3142,6 +3159,85 @@ function scheduleOwner(owner, slot) {
+@@ -3142,6 +3286,85 @@ function scheduleOwner(owner, slot) {
    }
    owner.root.scheduleOwned(owner);
  }
@@ -743,7 +877,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
  function currentDraftOwner() {
    currentAttempt();
    const owner = activateLazyLeafOwner();
-@@ -4142,15 +4238,35 @@ function use(usable) {
+@@ -4142,15 +4365,35 @@ function use(usable) {
  function useImperativeHandle(ref, create, deps, slot) {
    useLayoutEffect(
      () => {
@@ -786,7 +920,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      slot
    );
  }
-@@ -5520,9 +5636,9 @@ class UniversalRootImpl {
+@@ -5520,9 +5763,9 @@ class UniversalRootImpl {
      }
      let result;
      try {
@@ -798,7 +932,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      }
      return result;
    }
-@@ -6096,6 +6212,8 @@ class UniversalRootImpl {
+@@ -6096,6 +6339,8 @@ class UniversalRootImpl {
        draft.record.componentProps = null;
        draft.record.range = null;
        draft.record.updates.clear();
@@ -807,7 +941,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
        for (const hook of draft.hooks.values()) {
          if (hook.kind === "effect-event") hook.cell.active = false;
        }
-@@ -6776,6 +6894,7 @@ class UniversalRootImpl {
+@@ -6776,6 +7021,7 @@ class UniversalRootImpl {
          owner.componentProps = draftOwner2.componentProps;
          owner.componentRevision = draftOwner2.componentRevision;
          owner.hooks = draftOwner2.hooks;
@@ -815,7 +949,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
          for (const [slot, applied] of draftOwner2.appliedUpdates) {
            const queue = owner.updates.get(slot);
            if (queue !== applied.queue || applied.lane) continue;
-@@ -6809,6 +6928,7 @@ class UniversalRootImpl {
+@@ -6809,6 +7055,7 @@ class UniversalRootImpl {
        record.componentRevision = draft.componentRevision;
        record.parent = draft.parent?.record ?? null;
        record.hooks = draft.hooks;
@@ -823,7 +957,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
        record.effectOrder = [...draft.seenEffects];
        for (let index = 0; index < draft.seenEffects.length; index++) {
          draft.seenEffects[index].previous = null;
-@@ -8455,6 +8575,8 @@ class UniversalRootImpl {
+@@ -8455,6 +8702,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -832,7 +966,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
          }
          for (const draft of draftOwnersParentFirst) {
            const record = draft.record;
-@@ -8464,6 +8586,7 @@ class UniversalRootImpl {
+@@ -8464,6 +8713,7 @@ class UniversalRootImpl {
              record.parent = draft.parent?.record ?? null;
            }
            record.hooks = draft.hooks;
@@ -840,7 +974,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
            record.effectOrder = [...draft.seenEffects];
            for (let index = 0; index < draft.seenEffects.length; index++) {
              draft.seenEffects[index].previous = null;
-@@ -8985,6 +9108,8 @@ class UniversalRootImpl {
+@@ -8985,6 +9235,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -849,6 +983,14 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
          }
          const deactivatedRegionCells = /* @__PURE__ */ new Set();
          for (const bridge of regionBridges) {
+@@ -9937,6 +10189,7 @@ function createObjectDriver(renderer = "object") {
+   };
+ }
+ export {
++  Children,
+   Activity,
+   UNIVERSAL_HMR,
+   UNIVERSAL_TRANSPORT_PROTOCOL_VERSION,
 diff --git a/dist/node/universal-native.js b/dist/node/universal-native.js
 index 55ac9b640dc8bbfd977bb2cbe0b7993c8ddb425a..3ff9a5750fb59cd91b63299aec3a3e0c030b4579 100644
 --- a/dist/node/universal-native.js
@@ -1104,7 +1246,7 @@ index 0000000000000000000000000000000000000000..ff5eb43e8f0ddcadbcf8e861f42788b3
 +  universalSignalDocument
 +};
 diff --git a/dist/universal-core.d.ts b/dist/universal-core.d.ts
-index 7e60feece0d3ded5f088bf4e4044516bef588663..8895aad0c0ca390feea588115417f0104449edd7 100644
+index 7e60feece0d3ded5f088bf4e4044516bef588663..3e4cfc19341496009be773b80562476ffd04f2d2 100644
 --- a/dist/universal-core.d.ts
 +++ b/dist/universal-core.d.ts
 @@ -764,9 +764,8 @@ export declare function lazy<C extends UniversalComponent<any>>(load: () => Prom
@@ -1119,8 +1261,14 @@ index 7e60feece0d3ded5f088bf4e4044516bef588663..8895aad0c0ca390feea588115417f010
  export declare function useEffectEvent<T extends (...args: any[]) => any>(fn: T, slot?: unknown): T;
  export declare function useDebugValue(): void;
  export declare function startTransition(fn: () => void | Promise<unknown>): void;
+@@ -817,3 +816,5 @@ export interface ObjectHostContainer {
+ }
+ export declare function createObjectContainer(renderer?: string): ObjectHostContainer;
+ export declare function createObjectDriver(renderer?: string): UniversalHostDriver<ObjectHostContainer, ObjectHostInstance>;
++
++export declare const Children: { toArray(children: UniversalRenderable): UniversalRenderable[]; map(children: UniversalRenderable, fn: (child: UniversalRenderable, index: number) => UniversalRenderable): UniversalRenderable[]; };
 diff --git a/dist/universal-core.js b/dist/universal-core.js
-index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f15a640a11 100644
+index 4dbe2f938d039d415b44821bcb3be520172bcada..735a017364cd23bdb8972a04401385f0bde99062 100644
 --- a/dist/universal-core.js
 +++ b/dist/universal-core.js
 @@ -17,6 +17,14 @@ import {
@@ -1138,7 +1286,141 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
  import { __methodDep } from "./method-dep.js";
  const UNIVERSAL_PLAN = /* @__PURE__ */ Symbol.for("octane.universal.plan");
  const UNIVERSAL_VALUE = /* @__PURE__ */ Symbol.for("octane.universal.value");
-@@ -842,6 +850,7 @@ function draftOwner(record, parent, replayPath) {
+@@ -474,6 +482,133 @@ function universalComponent(renderer, component, props = null, key = NO_KEY) {
+     hasKey: key !== NO_KEY || normalized.hasKey
+   };
+ }
++const NORMALIZED_CHILD_KEYS = new WeakMap();
++/** Normalize deferred JSX without mounting components or consuming their context.
++ * Structural owners (blocks, providers, boundaries and loops) remain renderables;
++ * only transparent child groups, plan ranges, slots and JS arrays are flattened.
++ */
++function universalChildEntries(children) {
++    const out = [];
++    const collectionKey = (child) => {
++        const key = renderableKey(child);
++        if (key !== null)
++            return key;
++        if (child?.$$kind !== UNIVERSAL_VALUE)
++            return null;
++        const { plan, values } = child;
++        let node = plan.root;
++        while (node.kind === 'range' && node.children.length === 1)
++            node = node.children[0];
++        if (node.kind === 'slot')
++            return collectionKey(values[node.slot]);
++        if (node.kind !== 'host' && node.kind !== 'component')
++            return null;
++        if (node.kind === 'component' && node.keySlot !== undefined)
++            return normalizeUniversalKey(values[node.keySlot]);
++        return normalizeUniversalKey(node.propsSlot === undefined ? node.kind === 'host' ? node.props?.key : null : normalizePropsValue(values[node.propsSlot]).key);
++    };
++    const visit = (child, path) => {
++        if (child == null || typeof child === 'boolean')
++            return;
++        if (typeof child === 'object') {
++            const normalizedKey = NORMALIZED_CHILD_KEYS.get(child);
++            if (normalizedKey !== undefined) {
++                out.push({ child, key: normalizedKey });
++                return;
++            }
++        }
++        if (Array.isArray(child)) {
++            child.forEach((item, index) => {
++                const key = collectionKey(item);
++                visit(item, [...path, key === null ? 'index' : 'key', key ?? index]);
++            });
++            return;
++        }
++        if (child?.$$kind === UNIVERSAL_CHILDREN) {
++            const children = child;
++            if (CURRENT_OWNER !== null && children.renderer !== currentAttempt().root.renderer) {
++                throw new Error('Universal renderer mismatch while normalizing children.');
++            }
++            visit(children.render(), path);
++            return;
++        }
++        if (child?.$$kind === UNIVERSAL_LIST) {
++            const list = child;
++            visit(list.values.length === 0 ? list.empty : list.values, path);
++            return;
++        }
++        if (child?.$$kind === UNIVERSAL_VALUE) {
++            const value = child;
++            if (CURRENT_OWNER !== null && value.plan.renderer !== currentAttempt().root.renderer) {
++                throw new Error('Universal renderer mismatch while normalizing children.');
++            }
++            if (value.key !== null) {
++                out.push({ child, key: JSON.stringify([...path, 'key', value.key]) });
++                return;
++            }
++            const visitNode = (node, nodePath) => {
++                if (node.kind === 'range') {
++                    node.children.forEach((item, index) => visitNode(item, [...nodePath, index]));
++                }
++                else if (node.kind === 'slot') {
++                    visit(value.values[node.slot], nodePath);
++                }
++                else if (node.kind === 'text') {
++                    visit((node.slot === undefined ? node.value : value.values[node.slot]), nodePath);
++                }
++                else {
++                    const key = node.kind === 'component'
++                        ? node.keySlot === undefined
++                            ? node.propsSlot === undefined ? null : normalizePropsValue(value.values[node.propsSlot]).key
++                            : value.values[node.keySlot]
++                        : node.kind === 'host'
++                            ? node.propsSlot === undefined ? node.props?.key ?? null : normalizePropsValue(value.values[node.propsSlot]).key
++                            : null;
++                    const item = universalValue(universalPlan(value.plan.renderer, node), value.values);
++                    out.push({ child: item, key: JSON.stringify(key == null ? nodePath : [...(node === value.plan.root ? path : nodePath.slice(0, -1)), 'key', key]) });
++                }
++            };
++            visitNode(value.plan.root, path);
++            return;
++        }
++        const key = renderableKey(child);
++        out.push({ child, key: JSON.stringify(key === null ? path : [...path, 'key', key]) });
++    };
++    visit(children, []);
++    return out;
++}
++/** Renderer-supported child collection operations. They never render a component
++ * to discover its output. Returned entries retain their keys when mapped into
++ * wrapper hosts, and are materialized normally at their eventual placement.
++ */
++function normalizedChild(key, child) {
++    const value = universalKey(key, child);
++    NORMALIZED_CHILD_KEYS.set(value, key);
++    return value;
++}
++const Children = {
++    toArray(children) {
++        return universalChildEntries(children).map(({ child, key }) => typeof child === 'object' ? normalizedChild(key, child) : child);
++    },
++    map(children, fn) {
++        const out = [];
++        universalChildEntries(children).forEach(({ child, key }, index) => {
++            const mapped = fn(child, index);
++            if (mapped == null || typeof mapped === 'boolean')
++                return;
++            if (Array.isArray(mapped)) {
++                for (const entry of universalChildEntries(mapped)) {
++                    out.push(normalizedChild(JSON.stringify([key, entry.key]), entry.child));
++                }
++            }
++            else {
++                out.push(normalizedChild(key, mapped));
++            }
++        });
++        return out;
++    },
++};
++
+ function universalChildren(renderer, render) {
+   assertRendererId(renderer, "universalChildren renderer");
+   if (typeof render !== "function") throw new TypeError("universalChildren expected a function.");
+@@ -842,6 +977,7 @@ function draftOwner(record, parent, replayPath) {
      boundaryThenable: record.boundaryThenable,
      isBoundary: record.isBoundary,
      canHandleSuspense: record.canHandleSuspense,
@@ -1146,7 +1428,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      visibility: parent?.visibility ?? record.visibility,
      contextStable: null
    };
-@@ -1012,6 +1021,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1012,6 +1148,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      owner.contextStable = null;
      owner.needsRender = false;
      owner.implicitSlot = 0;
@@ -1154,7 +1436,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      const previousOwner = CURRENT_OWNER;
      const previousAttemptOwner = attempt.owner;
      CURRENT_OWNER = owner;
-@@ -1023,13 +1033,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1023,13 +1160,18 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      const profileFrame = typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__ && component !== null ? __profileBeginRender(owner.record, component, owner.record.mounted) : null;
      let didThrow = false;
      let thrown;
@@ -1176,7 +1458,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
        if (typeof __OCTANE_PROFILE_ENABLED__ !== "undefined" && __OCTANE_PROFILE_ENABLED__) {
          __profileEndRender(profileFrame, didThrow, thrown);
        }
-@@ -1196,6 +1211,8 @@ function disposeUncommittedDraft(owner) {
+@@ -1196,6 +1338,8 @@ function disposeUncommittedDraft(owner) {
      owner.record.componentProps = null;
      owner.record.range = null;
      owner.record.updates.clear();
@@ -1185,7 +1467,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      for (const hook of owner.hooks.values()) {
        if (hook.kind === "effect-event") hook.cell.active = false;
      }
-@@ -3142,6 +3159,85 @@ function scheduleOwner(owner, slot) {
+@@ -3142,6 +3286,85 @@ function scheduleOwner(owner, slot) {
    }
    owner.root.scheduleOwned(owner);
  }
@@ -1271,7 +1553,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
  function currentDraftOwner() {
    currentAttempt();
    const owner = activateLazyLeafOwner();
-@@ -4142,15 +4238,35 @@ function use(usable) {
+@@ -4142,15 +4365,35 @@ function use(usable) {
  function useImperativeHandle(ref, create, deps, slot) {
    useLayoutEffect(
      () => {
@@ -1314,7 +1596,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      slot
    );
  }
-@@ -5520,9 +5636,9 @@ class UniversalRootImpl {
+@@ -5520,9 +5763,9 @@ class UniversalRootImpl {
      }
      let result;
      try {
@@ -1326,7 +1608,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
      }
      return result;
    }
-@@ -6096,6 +6212,8 @@ class UniversalRootImpl {
+@@ -6096,6 +6339,8 @@ class UniversalRootImpl {
        draft.record.componentProps = null;
        draft.record.range = null;
        draft.record.updates.clear();
@@ -1335,7 +1617,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
        for (const hook of draft.hooks.values()) {
          if (hook.kind === "effect-event") hook.cell.active = false;
        }
-@@ -6776,6 +6894,7 @@ class UniversalRootImpl {
+@@ -6776,6 +7021,7 @@ class UniversalRootImpl {
          owner.componentProps = draftOwner2.componentProps;
          owner.componentRevision = draftOwner2.componentRevision;
          owner.hooks = draftOwner2.hooks;
@@ -1343,7 +1625,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
          for (const [slot, applied] of draftOwner2.appliedUpdates) {
            const queue = owner.updates.get(slot);
            if (queue !== applied.queue || applied.lane) continue;
-@@ -6809,6 +6928,7 @@ class UniversalRootImpl {
+@@ -6809,6 +7055,7 @@ class UniversalRootImpl {
        record.componentRevision = draft.componentRevision;
        record.parent = draft.parent?.record ?? null;
        record.hooks = draft.hooks;
@@ -1351,7 +1633,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
        record.effectOrder = [...draft.seenEffects];
        for (let index = 0; index < draft.seenEffects.length; index++) {
          draft.seenEffects[index].previous = null;
-@@ -8455,6 +8575,8 @@ class UniversalRootImpl {
+@@ -8455,6 +8702,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -1360,7 +1642,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
          }
          for (const draft of draftOwnersParentFirst) {
            const record = draft.record;
-@@ -8464,6 +8586,7 @@ class UniversalRootImpl {
+@@ -8464,6 +8713,7 @@ class UniversalRootImpl {
              record.parent = draft.parent?.record ?? null;
            }
            record.hooks = draft.hooks;
@@ -1368,7 +1650,7 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
            record.effectOrder = [...draft.seenEffects];
            for (let index = 0; index < draft.seenEffects.length; index++) {
              draft.seenEffects[index].previous = null;
-@@ -8985,6 +9108,8 @@ class UniversalRootImpl {
+@@ -8985,6 +9235,8 @@ class UniversalRootImpl {
            owner.componentProps = null;
            owner.range = null;
            owner.updates.clear();
@@ -1377,6 +1659,14 @@ index 4dbe2f938d039d415b44821bcb3be520172bcada..50eaae6af5cf821bde6914cc382269f1
          }
          const deactivatedRegionCells = /* @__PURE__ */ new Set();
          for (const bridge of regionBridges) {
+@@ -9937,6 +10189,7 @@ function createObjectDriver(renderer = "object") {
+   };
+ }
+ export {
++  Children,
+   Activity,
+   UNIVERSAL_HMR,
+   UNIVERSAL_TRANSPORT_PROTOCOL_VERSION,
 diff --git a/dist/universal-native.js b/dist/universal-native.js
 index 55ac9b640dc8bbfd977bb2cbe0b7993c8ddb425a..3ff9a5750fb59cd91b63299aec3a3e0c030b4579 100644
 --- a/dist/universal-native.js

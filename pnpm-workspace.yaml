@@ -93,7 +93,9 @@ patchedDependencies:
   # honor optional refs, ref replacement, nested ref arrays, and callback cleanup. Also
   # allows async and generator helpers that are not components in universal compiler
   # modules, while preserving errors when those functions are used as components
-  # (octanejs/octane#1469).
+  # (octanejs/octane#1469). Adds renderer-owned Children.toArray/map for transparent
+  # deferred JSX groups, plan ranges/slots and arrays, preserving keyed wrapper identity
+  # while leaving scoped owners intact.
   octane@0.6.3: packages/cli/patches/octane@0.6.3.patch
   # FlexboxLayout getChildMeasureSpec subtracts the child's own padding where AOSP subtracts
   # parent padding + child margins — a column-stretched row re-measurement clamps padded

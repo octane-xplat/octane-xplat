@@ -1,6 +1,7 @@
 /** @jsxImportSource @nativescript-community/octane */
 import { useState } from 'octane';
 import { Utils } from '@nativescript/core';
+import { TextSlot } from './text-slot';
 import type { ButtonProps } from "./props";
 import { cx } from "./cx";
 import { Pressable } from './Pressable';
@@ -24,12 +25,13 @@ export function Button(props: ButtonProps) @{
 	const loading = !!(props.loading || props.isLoading || actionPending);
 	const size = props.size ?? group?.size ?? 'md';
 	const icon = typeof props.icon === 'string' ? <Icon name={props.icon} /> : props.icon;
+	const children = props.children == null ? null : <TextSlot className="vx-button-label">{props.children}</TextSlot>;
 	const labelEl = props.label != null ? <label className="vx-button-label" text={props.label} /> : null;
 	const content = loading
 		? <ActivityIndicator />
 		: props.isIconOnly
-			? icon ?? props.children ?? labelEl
-			: <>{icon ?? props.leading}{props.children ?? labelEl}{props.endContent ?? props.trailing}</>;
+			? icon ?? children ?? labelEl
+			: <>{icon ?? props.leading}{children ?? labelEl}{props.endContent ?? props.trailing}</>;
 
 	const runPress = () => {
 		if (disabled || (actionPending && !props.isInterruptible)) { return; }

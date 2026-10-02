@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/macos-renderer */
 import type { CarouselProps } from './props'
-import { toChildArray } from './child-array'
+import { toChildArray, mapChildren } from './child-array'
 import { spacingStep } from './spacing'
 import { cx } from './cx'
 
@@ -20,9 +20,8 @@ export function Carousel(props: CarouselProps) @{
 		accessibilityLabel={props.accessibilityLabel ?? props.label}
 	>
 		<flexboxlayout flexDirection="row" className="vx-carousel-track" style={{ columnGap: gap }}>
-			{items.map((child: any, i: number) => (
+			{mapChildren(items, (child: any, i: number) => (
 				<flexboxlayout
-					key={i}
 					className="vx-carousel-slide"
 					accessibilityLabel={`Slide ${i + 1} of ${count}`}
 				>

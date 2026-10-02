@@ -9,6 +9,7 @@ vi.mock('@nativescript/core', () => {
 		visibility = 'visible'
 		parent: View | null = null
 		text = ''
+		style = {}
 		listeners = new Map<string, Set<(data: unknown) => void>>()
 		on(type: string, fn: (data: unknown) => void) {
 			if (!this.listeners.has(type)) {
@@ -62,10 +63,15 @@ vi.mock('@nativescript/core', () => {
 
 	return {
 		...named,
+		Application: {},
+		isIOS: false,
+		isAndroid: false,
 		View,
 		LayoutBase,
 		ContentView,
 		TextBase,
+		StackLayout: LayoutBase,
+		FlexboxLayout: LayoutBase,
 		Button: TextBase,
 		Label: TextBase,
 		unsetValue: Symbol('unset'),
@@ -117,4 +123,32 @@ it('NativeScript driver permits retained suspense and delivers native taps and u
 		releaseNativeScriptContainer(container)
 		warning.mockRestore()
 	}
+})
+
+it('native leaf text slots create Label views, update text and release their hosts', async () => {
+	const { NativeTextSlots } = await import('../tests/text-slot.fixture.mobile.tsrx')
+	const { nativeScriptDriver, createNativeScriptContainer, releaseNativeScriptContainer } =
+		await import('../node_modules/@nativescript-community/octane/dist/driver.js')
+
+	const { LayoutBase, TextBase } = await import('@nativescript/core')
+	const host: any = new LayoutBase()
+	const container = createNativeScriptContainer(host)
+	const root = createUniversalRoot(container, nativeScriptDriver)
+	container.root = root
+	root.render(NativeTextSlots, { text: 'A' })
+	const [bare, updating, wrapped, quote] = host.children[0].children
+	expect(bare.children[0]).toBeInstanceOf(TextBase)
+	expect(bare.children[0].text).toBe('Ctrl')
+	expect(updating.children).toHaveLength(1)
+	expect(updating.children[0].text).toBe('Ctrl A')
+	expect(wrapped.children[0].text).toBe('wrapped')
+	expect(quote.children[0].text).toBe('Quote')
+	const label = updating.children[0]
+	root.render(NativeTextSlots, { text: 'B' })
+	expect(updating.children[0]).toBe(label)
+	expect(label.text).toBe('Ctrl B')
+	root.unmount()
+	expect(host.children).toEqual([])
+	expect(container.nodes.size).toBe(0)
+	releaseNativeScriptContainer(container)
 })

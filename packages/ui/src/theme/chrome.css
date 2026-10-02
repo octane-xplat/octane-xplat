@@ -853,6 +853,18 @@
 		color: var(--color-primary);
 	}
 
+	.vx-kbd-text {
+		font-size: 12px;
+	}
+
+	/* Empty — centered placeholder. */
+	.vx-empty-title {
+		font-weight: 600;
+	}
+	.vx-empty-desc {
+		color: var(--color-text-secondary);
+	}
+
 	.vx-fileinput--dropzone {
 		border-width: 1px;
 		border-color: var(--color-border);
