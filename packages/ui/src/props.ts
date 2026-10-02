@@ -3534,6 +3534,8 @@ export interface ChatLayoutContextValue {
 	scrollContainerRef: { current?: any }
 	/** Message-list content element for size observation. */
 	contentRef(el: any): void
+}
+
 // ---------- Astryx navigation family (parity port) ----------
 //
 // Prop names and semantics track @astryxdesign/core. `ReactNode` positions are
