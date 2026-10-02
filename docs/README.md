@@ -2,6 +2,12 @@
 
 > Build apps for the web, iOS, and Android from ==one project==.
 
+With Octane Xplat you build the app once and ship it everywhere: ==one
+TypeScript codebase== becomes apps for web, iOS, and Android — the same
+product behavior on each, with OS-native controls where a platform calls for
+them. NativeScript drives real platform widgets on iOS and Android — no
+webview. macOS, Windows, and Linux hosts are experimental.
+
 Octane Xplat gives you the pieces to build an app: screens, buttons, text
 fields, navigation, and access to device features such as the camera. You can
 share most of your code between a browser and a phone, and customize parts
@@ -26,6 +32,17 @@ You can write the code yourself, work with a coding agent, or mix the two.
 If you're new to programming, start with a small app you can open in your
 browser. You don't need to know React or set up a phone simulator to take
 that first step.
+
+What you get is an incredibly efficient way to build for all of your users, no
+matter where they are. You get elite performance thanks to native rendering,
+and the ability to add the platform-specific details that matter (e.g. Liquid
+Glass). It's what we've been dreaming of for a long time and we've finally
+cracked the code thanks to AI, Octane.js, and NativeScript.
+
+==Save tokens/usage.== Write once. Deploy everywhere. Be part of the future and
+help contribute on Github.
+
+Grab the agent prompt and send it to your coding agent to easily get started.
 
 ## Start here
 
