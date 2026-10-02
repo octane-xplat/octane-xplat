@@ -307,12 +307,12 @@ is supported, show an unavailable state or your app's alternative sign-in
 method. Closing a native session should exercise the cancel path; target
 runtime verification remains pending.
 
-`authSession` needs no iOS configuration — the session intercepts
+`authSession` needs no iOS/macOS URL-type configuration — the session intercepts
 `callbackScheme` itself. On Android the app must declare the scheme's
 intent-filter on its main activity, the same registration any incoming deep
 link uses; `androidx.browser` (Custom Tabs) arrives transitively with
 `@octane-xplat/platform`, no app-side declaration. `prefersEphemeralSession`
-keeps the iOS session from sharing Safari cookies.
+asks the iOS/macOS browser for a session without shared cookies.
 
 ### Register and check a hosted callback
 
@@ -350,7 +350,7 @@ To check the integration on a configured app:
    success. A new callback delivered by `onNewIntent` is scoped to the active
    session; the backend still checks state and replay.
 3. Attempt a second `open` while the first is active. Expect `error`; finishing
-   the first must allow a retry. Browser launch failure and iOS native session
+   the first must allow a retry. Browser launch failure and iOS/macOS native session
    construction/start failure also return `error`, releasing the active slot.
 4. On web, expect `authSession.supported === false` and `impl === null`; use
    `webAuthn` or ordinary navigation. Catch web credential rejection and handle
@@ -406,8 +406,8 @@ Per-target setup differs because the providers do:
 - **macOS** — `appleAuth` runs the same AuthenticationServices flow natively
   on the AppKit host (the packaged app needs
   `com.apple.developer.applesignin` in `entitlements.plist`).
-  `googleAuth` reports `supported: false` — run the hosted `authSession`
-  ceremony (itself implemented on macOS over ASWebAuthenticationSession).
+  Google uses `configure({ hostedFlow })` through ASWebAuthenticationSession.
+  Both providers require an AppKit window. See the setup below.
 
 `appleAuth.getCredentialState(userId)` answers whether a previously-granted
 Apple credential is still `authorized` — iOS and macOS, `'unknown'` elsewhere.
@@ -415,6 +415,84 @@ Apple credential is still `authorized` — iOS and macOS, `'unknown'` elsewhere.
 re-prompts. The plugins (`@nativescript/apple-sign-in`,
 `@nativescript/google-signin`) are real dependencies of the leaf — apps don't
 declare them (decision #51).
+
+### macOS provider sign-in
+
+Start with a screen containing `AppleSignInButton` or `GoogleSignInButton` and
+an `onResult` callback that displays `result.status`. AppKit uses Apple's
+official [ASAuthorizationAppleIDButton](https://developer.apple.com/documentation/authenticationservices/asauthorizationappleidbutton), including its `type`, `theme`, and
+disabled state. Google uses a text trigger for your hosted flow; its `theme`
+and `variant` are not applied on AppKit.
+
+For Apple, enable Sign in with Apple on the app's identifier in your Apple
+Developer account. Package using that identifier, a signing identity, and a
+matching provisioning profile that grants `com.apple.developer.applesignin`.
+Put the entitlement in the app's entitlements file and configure that file as
+`xplat.targets.macos.package.entitlements`; see [macOS packaging](toolchain.md#experimental-appkit-target).
+The CLI does not currently embed a provisioning profile. Use your Apple signing
+workflow to embed the matching profile at `YourApp.app/Contents/embedded.provisionprofile`
+and sign the final app bundle; adding it after signing requires signing again.
+An unsigned fixture or an entitlement file alone cannot qualify a real sign-in.
+`appleAuth.configure` has no native client-ID setup: `clientId` and `redirectURI`
+are browser-only fields. `supported` checks framework availability, not signing.
+Apple's name and email may only arrive on the first authorization. Store them
+on your backend when provided; repeat sign-ins may only return the subject ID.
+
+For Google, your backend must own the OAuth client registration, HTTPS Google
+return endpoint, token exchange, and verification. Follow [Google's web server OAuth setup](https://developers.google.com/identity/protocols/oauth2/web-server) to register that HTTPS return
+URL; after verification, the backend redirects the system browser
+to your app's custom scheme with a short-lived, single-use exchange code.
+Keep Google client secrets on the backend. A web `clientId` alone does not
+configure the AppKit hosted flow. The app adapter connects two backend calls:
+
+```ts
+// In your app's .macos.ts startup file. backend is your authenticated HTTPS
+// transport; this maintained adapter is an example to copy into your app.
+import { googleAuth } from '@octane-xplat/auth'
+import { createGoogleHostedFlow } from '../auth/google-hosted.macos'
+
+await googleAuth.configure({
+	scopes: ['openid', 'email', 'profile'],
+	hostedFlow: createGoogleHostedFlow(backend),
+})
+const result = await googleAuth.signIn({ nonce: serverIssuedNonce })
+```
+
+Copy [google-hosted.macos.ts](../examples/auth/google-hosted.macos.ts) into
+`auth/` beside your startup directory, and implement its `GoogleHostedBackend`:
+`begin(options)` returns `{ attemptId, url, callbackScheme }` for a fresh stored
+attempt; `complete({ attemptId, callbackURL })` returns the server-verified Google
+`AuthCredential`; `signOut()` ends your app session. The adapter passes configured
+client IDs, scopes, hosted domain, and the per-call nonce to `begin`. Your backend
+must bind them to the attempt, check the exact callback host/path and state,
+redeem the code once, and verify Google's signature, issuer, audience, expiry,
+nonce, and hosted domain when restricted. Expire cancelled/unused attempts.
+A callback URL by itself does not authenticate a user. The existing
+[server boundary example](../examples/auth/README.md) explains these checks;
+its session response must be adapted to your credential-returning endpoint.
+
+`googleAuth.signOut()` calls the optional hosted adapter's `signOut` method.
+AppKit requests an ephemeral browser session for every Google attempt and caches
+no selected account; this does not sign the user out of Google in other browsers
+or revoke Google tokens. Other targets ignore `hostedFlow` and use their SDKs.
+
+On a configured app, complete one sign-in, dismiss a second, and retry after an
+error. Expect `success`, `cancelled`, and `error` respectively. While either flow
+is active, another call to that same API returns `error`; old delegate callbacks
+cannot complete a newer attempt. Provider errors stay errors, even when their
+text mentions cancellation. `authSession` uses `type: 'cancel'` for a dismissed
+browser session. It validates the initial HTTP(S) URL and callback scheme and
+releases its active slot after native construction/start failures. Schemes are
+passed without a colon, such as `myapp`; no macOS URL-type registration is needed
+for the session to intercept them. For Google, `createRequest` must return HTTPS.
+
+Local validation covers adapter regressions, packed declarations, and an isolated
+AppKit fixture: official control mounting/update/cleanup, action dispatch, native
+Apple delegate cancellation/error dispatch, and credential conversion. These are
+not proof of OS pointer input, a user dismissing a real sheet, successful provider
+authentication, or a backend exchange. Real Apple success/cancel/state checks and
+Google/system-browser completion/cancellation remain pending configured signing,
+provider registration, and hosted endpoints.
 
 Declare the optional NativeScript plugin peers used by platform services
 in the app’s dependencies. This differs from leaf-owned implementation

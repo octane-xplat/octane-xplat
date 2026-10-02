@@ -15,20 +15,20 @@ session storage and refresh stay app-owned.
 ## Requirements
 
 - Render the provider's sign-in button and/or trigger the flow headlessly from one shared screen.
-- Acquire a credential (`idToken`, optional `authorizationCode`, user identity) on iOS, Android, and web.
+- Acquire a credential (`idToken`, optional `authorizationCode`, user identity) on iOS, Android, web, and macOS where the provider is available.
 - Register the provider-specific prerequisites on each target (Apple entitlement / Services ID + return URL, Google client id / google-services).
 - Handle user cancellation, errors, and targets where a provider cannot run.
 
 ## Acceptance criteria
 
 - AC1: The reader can place `AppleSignInButton`/`GoogleSignInButton` (or call `appleAuth.signIn()`/`googleAuth.signIn()`) and observe a `SignInResult` — `success` with `credential`, `cancelled`, or `error` — on each intended target.
-- AC2: The reader can complete per-target registration: the `com.apple.developer.applesignin` entitlement on iOS, Services ID + return URL via `appleAuth.configure` on web, `GIDClientID`/`googleAuth.configure({ clientId })` for Google, and can state which steps no target needs.
+- AC2: The reader can complete per-target registration: the `com.apple.developer.applesignin` entitlement and matching signing/profile on iOS/macOS, Services ID + return URL via `appleAuth.configure` on web, `GIDClientID`/`googleAuth.configure({ clientId })` for Google, Google hosted backend/adapters on macOS, and can state which steps no target needs.
 - AC3: The reader can interpret the credential shape (`provider`, `idToken`, `authorizationCode`, `accessToken`, `scopes`, `user`) and knows verification happens server-side.
-- AC4: The reader can reproduce a user cancel and an unsupported target (`supported: false` — Apple on Android, Google on macOS) and choose `authSession` as the hosted-ceremony alternative.
+- AC4: The reader can reproduce a user cancel and an unsupported target (`supported: false` — Apple on Android; an unconfigured Google hosted adapter on macOS returns `error`) and choose `authSession` as the hosted-ceremony alternative.
 
 ## Documentation
 
-- AC1: [Provider SDK sign-in](../docs/platform-services.md#provider-sdk-sign-in-apple--google) and the `AuthDemo` screen in `@xplat/demos`. Gap: the demo cannot complete a real sign-in without app-registered client IDs — it exercises the error path only.
-- AC2: [Provider SDK sign-in](../docs/platform-services.md#provider-sdk-sign-in-apple--google). Gap: per-provider portal steps (Services ID creation, Google Cloud client setup) are summarized, not walked through.
+- AC1: [Provider SDK sign-in](../docs/platform-services.md#provider-sdk-sign-in-apple--google), [macOS provider setup](../docs/platform-services.md#macos-provider-sign-in), and the `AuthDemo` screen in `@xplat/demos`. Gap: the demo cannot complete a real sign-in without provider registration, Apple signing/profile, and configured Google hosted endpoints — it exercises the error path only.
+- AC2: [Provider SDK sign-in](../docs/platform-services.md#provider-sdk-sign-in-apple--google) and [macOS setup/hosted adapter](../docs/platform-services.md#macos-provider-sign-in). Gap: per-provider portal steps (Services ID creation, Google Cloud client setup) are summarized, not walked through.
 - AC3: [Provider SDK sign-in](../docs/platform-services.md#provider-sdk-sign-in-apple--google) and `@octane-xplat/auth` type declarations (`AuthCredential`, `SignInResult`). [Server exchange boundary](../examples/auth/README.md). Gap: the example requires a configured cryptographic verifier, attempt store, and session issuer; no real provider verification has run.
-- AC4: [Provider SDK sign-in](../docs/platform-services.md#provider-sdk-sign-in-apple--google) covers `cancelled`/`error`/`supported` and links the hosted `authSession` alternative in [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies). Runtime verification: on-device cancel reproduction remains unverified, separately from documentation coverage.
+- AC4: [Provider SDK sign-in](../docs/platform-services.md#provider-sdk-sign-in-apple--google) covers `cancelled`/`error`/`supported` and links the hosted `authSession` alternative in [Passkeys and auth ceremonies](../docs/platform-services.md#passkeys-and-auth-ceremonies). Runtime verification: configured OS-sheet/browser cancel reproduction remains unverified; isolated AppKit action/delegate dispatch and mocked lifecycle regressions are narrower evidence, separately from documentation coverage.

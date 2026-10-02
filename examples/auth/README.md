@@ -39,3 +39,11 @@ returned by `webAuthn.get`/`create` to your RP's verification endpoint; the RP m
 verify its stored challenge, origin, RP ID, signature and credential counter
 using its WebAuthn server implementation. That RP implementation is not supplied
 here and remains a recipe coverage gap.
+
+For Google on AppKit, [google-hosted.macos.ts](google-hosted.macos.ts) wires
+app-owned `begin`, `complete`, and `signOut` transport functions into
+`googleAuth.configure({ hostedFlow })`. `complete` must return a verified Google
+`AuthCredential` after binding the callback to the stored attempt; the handlers
+above issue app sessions, so adapt their response for this contract. This adapter
+supplies neither hosted endpoints nor cryptographic verification. Full setup and
+checks: [macOS provider sign-in](../../docs/platform-services.md#macos-provider-sign-in).
