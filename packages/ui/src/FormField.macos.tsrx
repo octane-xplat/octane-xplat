@@ -31,6 +31,7 @@ export function FormField(props: FormFieldProps) @{
 		descriptionId,
 		statusId,
 	}
+
 	const labelNode = props.label == null || props.isLabelHidden ? null
 		: <flexboxlayout className="vx-field-label-row" flexDirection="row" alignItems="center">
 			<label id={labelId} className="vx-field-label" text={labelText} />
@@ -38,12 +39,15 @@ export function FormField(props: FormFieldProps) @{
 				? <Tooltip trigger={<Pressable className="vx-field-info" accessibilityLabel={'More about ' + props.label} accessibilityHint={props.labelTooltip}><label text="i" /></Pressable>} content={props.labelTooltip} placement="top" />
 				: null}
 		</flexboxlayout>
+
 	const descriptionNode = props.description != null && !props.isLabelHidden
 		? <label id={descriptionId} className="vx-field-description" text={props.description} />
 		: null
+
 	const statusNode = status?.message != null
 		? <label id={statusId} className={cx('vx-field-status', `vx-field-status--${status.type}`, `vx-field-status--${statusVariant}`)} text={status.message} />
 		: null
+
 	const rootClass = cx('vx-field', status && `vx-field--${status.type}`, `vx-field--status-${statusVariant}`, props.isDisabled && 'vx-field--disabled', props.isReadOnly && 'vx-field--readonly', props.isLoading && 'vx-field--loading', props.size && `vx-field--size-${props.size}`, props.className)
 	const fieldStyle = { ...(props.width != null ? { width: props.width } : {}), ...props.style }
 

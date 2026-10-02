@@ -81,6 +81,7 @@ function CallRow(props: { call: ChatToolCallItem; hasClippedFocusRing?: boolean 
 	if (!hasDetail) {
 		return row;
 	}
+
 	return (
 		<div>
 			{row}

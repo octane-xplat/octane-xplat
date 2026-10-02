@@ -96,17 +96,17 @@ export function stackWebStyle(
 	props: StackSizeLike,
 ): Record<string, any> {
 	const style: Record<string, any> = {}
-	if (layout.gap !== undefined) style.gap = layout.gap
-	if (layout.flexWrap !== undefined) style.flexWrap = layout.flexWrap
-	if (layout.paddingInlineStart !== undefined) style.paddingInlineStart = layout.paddingInlineStart
-	if (layout.paddingInlineEnd !== undefined) style.paddingInlineEnd = layout.paddingInlineEnd
-	if (layout.paddingBlockStart !== undefined) style.paddingBlockStart = layout.paddingBlockStart
-	if (layout.paddingBlockEnd !== undefined) style.paddingBlockEnd = layout.paddingBlockEnd
-	if (layout.scrollable) style.overflow = 'auto'
-	if (props.width != null) style.width = props.width
-	if (props.height != null) style.height = props.height
-	if (props.maxWidth != null) style.maxWidth = props.maxWidth
-	if (props.minHeight != null) style.minHeight = props.minHeight
+	if (layout.gap !== undefined) {style.gap = layout.gap}
+	if (layout.flexWrap !== undefined) {style.flexWrap = layout.flexWrap}
+	if (layout.paddingInlineStart !== undefined) {style.paddingInlineStart = layout.paddingInlineStart}
+	if (layout.paddingInlineEnd !== undefined) {style.paddingInlineEnd = layout.paddingInlineEnd}
+	if (layout.paddingBlockStart !== undefined) {style.paddingBlockStart = layout.paddingBlockStart}
+	if (layout.paddingBlockEnd !== undefined) {style.paddingBlockEnd = layout.paddingBlockEnd}
+	if (layout.scrollable) {style.overflow = 'auto'}
+	if (props.width != null) {style.width = props.width}
+	if (props.height != null) {style.height = props.height}
+	if (props.maxWidth != null) {style.maxWidth = props.maxWidth}
+	if (props.minHeight != null) {style.minHeight = props.minHeight}
 	return style
 }
 
@@ -129,9 +129,11 @@ export function stackItemStyle(props: StackItemProps): Record<string, any> {
 		style.flexGrow = 0
 		style.flexShrink = 0
 	}
+
 	if (props.crossAlignSelf != null) {
 		style.alignSelf = ALIGN_SELF[props.crossAlignSelf] ?? props.crossAlignSelf
 	}
-	if (props.isScrollable) style.overflow = 'auto'
+
+	if (props.isScrollable) {style.overflow = 'auto'}
 	return style
 }

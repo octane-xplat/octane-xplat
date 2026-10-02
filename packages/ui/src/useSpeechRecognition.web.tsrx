@@ -77,9 +77,11 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
 				for (let i = start; i < end; i++) {
 					sum += clean ? getCleanBin(i) : dataArray[i] / 255;
 				}
+
 				bands.push(sum / (end - start));
 				start = end;
 			}
+
 			return bands;
 		};
 
@@ -110,9 +112,11 @@ function getDefaultAudioContext(): any {
 	if (!_sharedAudioCtx || _sharedAudioCtx.state === 'closed') {
 		_sharedAudioCtx = new AudioContext();
 	}
+
 	if (_sharedAudioCtx.state === 'suspended') {
 		void _sharedAudioCtx.resume();
 	}
+
 	return _sharedAudioCtx;
 }
 
@@ -176,8 +180,10 @@ export function useSpeechRecognition(
 				setBands(a.getBands(5));
 				setRawBands(a.getRawBands(5));
 			}
+
 			rafRef.current = requestAnimationFrame(poll);
 		};
+
 		rafRef.current = requestAnimationFrame(poll);
 	}, []);
 
@@ -229,6 +235,7 @@ export function useSpeechRecognition(
 				if (callbacksRef.current.transformTranscript) {
 					transcript = callbacksRef.current.transformTranscript(transcript);
 				}
+
 				if (result.isFinal) {
 					callbacksRef.current.onResult?.(transcript);
 					callbacksRef.current.onTranscript?.(transcript, true);
@@ -237,6 +244,7 @@ export function useSpeechRecognition(
 					interim += transcript;
 				}
 			}
+
 			if (interim) {
 				setInterimTranscript(interim);
 				callbacksRef.current.onTranscript?.(interim, false);

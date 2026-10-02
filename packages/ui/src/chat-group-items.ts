@@ -13,9 +13,11 @@ export function groupChatItems<T extends ChatComposerTriggerItem>(items: T[]): C
 		const g = aux?.group
 		return typeof g === 'string' && g.length > 0 ? g : null
 	}
+
 	if (!items.some((item) => getGroup(item) != null)) {
 		return [{ heading: null, items }]
 	}
+
 	const order: string[] = []
 	const groups = new Map<string, T[]>()
 	const ungrouped: T[] = []
@@ -26,11 +28,13 @@ export function groupChatItems<T extends ChatComposerTriggerItem>(items: T[]): C
 				order.push(group)
 				groups.set(group, [])
 			}
+
 			groups.get(group)!.push(item)
 		} else {
 			ungrouped.push(item)
 		}
 	}
+
 	const named = order.map((heading) => ({ heading, items: groups.get(heading)! }))
 	return ungrouped.length > 0 ? [...named, { heading: null, items: ungrouped }] : named
 }

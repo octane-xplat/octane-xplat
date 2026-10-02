@@ -51,6 +51,7 @@ test('per-corner mixing keeps each curve per corner', () => {
 		topRight: { radius: R, curve: 'arc' },
 		bottomRight: { radius: 20, curve: 'squircle', smoothing: 0.8 },
 	});
+
 	assert.equal(cmds.at(-1).c, 'Z');
 	assert.ok(cmds.length > 5);
 });
@@ -63,6 +64,7 @@ test('degenerate inputs stay sane', () => {
 		{ c: 'L', x: 0, y: 0 },
 		{ c: 'Z' },
 	]);
+
 	const zero = generateCommands(W, H, { radius: 0, curve: 'squircle' });
 	assert.ok(!zero.some((c) => c.c === 'C' || c.c === 'A'));
 });
@@ -81,7 +83,7 @@ test('flipCommandsY mirrors for y-up (macOS) layer space', () => {
 	const flipped = flipCommandsY(cmds, H);
 	assert.equal(flipped[0].y, H); // top edge → bottom in y-up
 	for (const c of flipped) {
-		if (c.c === 'A') assert.ok(c.sweepDeg < 0 || c.sweepDeg === 0);
+		if (c.c === 'A') {assert.ok(c.sweepDeg < 0 || c.sweepDeg === 0);}
 	}
 });
 

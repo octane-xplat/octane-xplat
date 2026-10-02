@@ -9,5 +9,6 @@ export type {
 	FileInputStatus,
 	FileInputStatusType,
 } from '../src/props.js'
+
 export { files } from '../src/files.macos.js'
 export type { FileRef } from '../src/types.js'

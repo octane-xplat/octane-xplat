@@ -96,6 +96,7 @@ export function useChatStreamScroll({
 			jumpToBottom();
 			return;
 		}
+
 		el.scrollToVerticalOffset(bottomOffset(), true);
 	}, [enabled, scrollRef, jumpToBottom, bottomOffset]);
 
@@ -114,6 +115,7 @@ export function useChatStreamScroll({
 			if (isScrollingUp && dist > 1 && lockedRef.current) {
 				setLocked(false);
 			}
+
 			if (dist <= lockThreshold) {
 				setLocked(true);
 			}

@@ -1,3 +1,5 @@
+/** @jsxImportSource @nativescript-community/octane */
+
 import { describe, expect, it, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({

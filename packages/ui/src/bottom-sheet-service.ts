@@ -121,6 +121,7 @@ export const openBottomSheet: OpenBottomSheet = (Component, params, options = {}
 		const openOptions = options.hasScrim ?? true
 			? { shadeCover: { opacity: 0.4, tapToClose: true } }
 			: undefined
+
 		rl.open(host, openOptions)
 			.then(() => detents.enter())
 			.catch((error: unknown) => {

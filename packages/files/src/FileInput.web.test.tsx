@@ -22,7 +22,7 @@ function mount(jsx: any) {
 }
 
 afterEach(() => {
-	for (const root of roots.splice(0)) act(() => root.unmount())
+	for (const root of roots.splice(0)) {act(() => root.unmount())}
 	document.body.innerHTML = ''
 })
 
@@ -41,9 +41,11 @@ describe('FileInput (web)', () => {
 				])}
 			/>,
 		)
+
 		await act(async () => {
 			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 		})
+
 		expect(change).toHaveBeenCalledWith([{ name: 'ok.txt', uri: 'blob:1', size: 10 }])
 		expect(el.querySelector('.vx-field-status')?.textContent).toContain('no.exe')
 	})
@@ -57,9 +59,11 @@ describe('FileInput (web)', () => {
 				pick={() => Promise.resolve({ name: 'new.txt', uri: 'blob:new' })}
 			/>,
 		)
+
 		await act(async () => {
 			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 		})
+
 		expect(change).toHaveBeenCalledWith({ name: 'new.txt', uri: 'blob:new' })
 	})
 
@@ -73,9 +77,11 @@ describe('FileInput (web)', () => {
 				pick={() => Promise.resolve({ name: 'new.exe', uri: 'blob:new' })}
 			/>,
 		)
+
 		await act(async () => {
 			el.querySelector('.vx-fileinput-trigger')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 		})
+
 		expect(change).not.toHaveBeenCalled()
 		expect(el.querySelector('.vx-field-status')?.textContent).toContain('new.exe')
 	})

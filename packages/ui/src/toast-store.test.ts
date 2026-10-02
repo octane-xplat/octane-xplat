@@ -31,6 +31,7 @@ describe('toast store', () => {
 			{ body: 'ignored', uniqueID: 'save', collisionBehavior: 'ignore' },
 			'screen',
 		)
+
 		expect(ignored).toBe('')
 		expect(toastStore.get()[0].options.body).toBe('second')
 	})

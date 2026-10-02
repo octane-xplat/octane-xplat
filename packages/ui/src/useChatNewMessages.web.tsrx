@@ -32,6 +32,7 @@ export function useChatNewMessages({
 				}
 			}
 		});
+
 		observer.observe(el);
 		cleanupRef.current = () => observer.disconnect();
 	}, []);

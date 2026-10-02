@@ -21,6 +21,7 @@ export function ChatSendButton(props: ChatSendButtonProps) @{
 			if (props.onSend) props.onSend();
 			else ctx?.onSubmit(ctx.value);
 		}
+
 		props.onPress?.();
 	};
 

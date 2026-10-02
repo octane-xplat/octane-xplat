@@ -39,6 +39,7 @@ function toCGPath(cmds: PathCommand[]): any {
 				break;
 		}
 	}
+
 	return p;
 }
 
@@ -54,7 +55,7 @@ function sizeOf(view: any): { w: number; h: number } | null {
 export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 	const v = view?.ios;
 	const size = v && sizeOf(view);
-	if (!v || !size) return;
+	if (!v || !size) {return;}
 	const path = toCGPath(generateCommands(size.w, size.h, props.corners));
 
 	let mask = v[MASK_KEY] as any;
@@ -62,6 +63,7 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 		mask = CAShapeLayer.new();
 		v[MASK_KEY] = mask;
 	}
+
 	mask.path = path;
 	v.layer.mask = mask;
 
@@ -73,6 +75,7 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 			v[BORDER_KEY] = borderLayer;
 			v.layer.addSublayer(borderLayer);
 		}
+
 		borderLayer.frame = v.layer.bounds;
 		borderLayer.path = path;
 		borderLayer.fillColor = null;
@@ -88,15 +91,16 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 /** Drop shadow on the outer view (a masked layer can't show its own). */
 export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
 	const layer = view?.ios?.layer;
-	if (!layer) return;
+	if (!layer) {return;}
 	const shadow = props.shadow;
 	if (!shadow) {
 		layer.shadowPath = null;
 		layer.shadowOpacity = 0;
 		return;
 	}
+
 	const size = sizeOf(view);
-	if (!size) return;
+	if (!size) {return;}
 	// Spread grows the outline — regenerate larger, recenter via the offset.
 	const spread = shadow.spread ?? 0;
 	const w = size.w + spread * 2;
@@ -106,6 +110,7 @@ export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
 		width: (shadow.offsetX ?? 0) - spread,
 		height: (shadow.offsetY ?? 0) - spread,
 	};
+
 	layer.shadowColor = new Color(shadow.color ?? '#000000').ios.CGColor;
 	layer.shadowOpacity = shadow.opacity ?? 0.35;
 	layer.shadowRadius = shadow.blur ?? 0;

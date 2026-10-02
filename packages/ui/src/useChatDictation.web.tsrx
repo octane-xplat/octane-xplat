@@ -54,9 +54,11 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
 				for (let i = start; i < end; i++) {
 					sum += clean ? getCleanBin(i) : dataArray[i] / 255;
 				}
+
 				bands.push(sum / (end - start));
 				start = end;
 			}
+
 			return bands;
 		};
 
@@ -87,9 +89,11 @@ function getDefaultAudioContext(): any {
 	if (!_sharedAudioCtx || _sharedAudioCtx.state === 'closed') {
 		_sharedAudioCtx = new AudioContext();
 	}
+
 	if (_sharedAudioCtx.state === 'suspended') {
 		void _sharedAudioCtx.resume();
 	}
+
 	return _sharedAudioCtx;
 }
 
@@ -183,8 +187,10 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 				setBands(analyser.getBands(5));
 				setRawBands(analyser.getRawBands(5));
 			}
+
 			rafRef.current = requestAnimationFrame(poll);
 		};
+
 		rafRef.current = requestAnimationFrame(poll);
 	}, []);
 
@@ -203,6 +209,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 		if (active?.getAttribute('contenteditable') === 'true') {
 			return active as HTMLDivElement;
 		}
+
 		return document.querySelector<HTMLDivElement>(
 			'.vx-chatinput [contenteditable="true"], [role="textbox"][contenteditable="true"]',
 		);
@@ -229,6 +236,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 				/* already removed */
 			}
 		}
+
 		interimSpanRef.current = null;
 	}, []);
 
@@ -268,6 +276,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 						handle.focus();
 						handle.insertText(transcript + ' ');
 					}
+
 					callbacksRef.current.onResultProp?.(transcript);
 					insertInterimSpan();
 				} else {
@@ -280,6 +289,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 					}
 				}
 			}
+
 			callbacksRef.current.onTranscriptProp?.(transcript, isFinal);
 		},
 		onResult: inputRef ? undefined : onResultProp,
@@ -292,6 +302,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 					startVolumePolling();
 				}
 			});
+
 			if (inputRef) insertInterimSpan();
 			callbacksRef.current.onStartProp?.();
 		},
@@ -302,6 +313,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 				removeInterimSpan();
 				getEditable()?.dispatchEvent(new Event('input', { bubbles: true }));
 			}
+
 			callbacksRef.current.onEndProp?.();
 		},
 	});

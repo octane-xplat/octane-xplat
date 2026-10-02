@@ -75,6 +75,7 @@ function CallRow(props: { call: ChatToolCallItem }) @{
 	if (!hasDetail) {
 		return row;
 	}
+
 	return (
 		<flexboxlayout flexDirection="column">
 			{row}

@@ -26,6 +26,7 @@ const mention = {
 		variant: 'info' as const,
 	}),
 };
+
 const messageTokens = [{ value: '@Ada Lovelace:u1', label: 'Ada Lovelace', variant: 'info' as const }];
 
 /** Small shared conversation demo: append a message and see it stay in the
@@ -34,6 +35,7 @@ export function ChatDemo() @{
 	const [messages, setMessages] = useState<DemoMessage[]>([
 		{ id: 'welcome', sender: 'assistant', text: 'Ask a question to try the composer.' },
 	]);
+
 	const send = (text: string) => {
 		setMessages((current) => [
 			...current,

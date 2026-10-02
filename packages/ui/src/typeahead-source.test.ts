@@ -7,6 +7,7 @@ describe('Typeahead search source', () => {
 			{ id: 'nyc', label: 'New York' },
 			{ id: 'sfo', label: 'San Francisco' },
 		]
+
 		const source = createStaticSource(items, { keywords: (item) => [item.id] })
 
 		expect(source.search('  YORK ')).toEqual([items[0]])

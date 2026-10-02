@@ -40,6 +40,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 			},
 			{ root: layoutContext?.scrollContainerRef?.current ?? null, threshold: 0 },
 		);
+
 		observer.observe(sentinel);
 		return () => observer.disconnect();
 	}, [props.scrollToTopAction != null, layoutContext]);

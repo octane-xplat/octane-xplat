@@ -11,6 +11,7 @@ import { useFieldControlProps } from './field-context';
 export function Switch(inputProps: SwitchProps) @{
 	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
+
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

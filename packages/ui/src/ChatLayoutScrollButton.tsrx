@@ -12,6 +12,7 @@ export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps) @{
 	if (!props.isVisible) {
 		return null;
 	}
+
 	<flexboxlayout
 		id={props.id}
 		className={cx('vx-chatscroll-wrap', props.className)}

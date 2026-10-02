@@ -56,10 +56,12 @@ export function ChatComposer(props: ChatComposerProps) @{
 		if (target.closest?.('button, a, [role="button"], [contenteditable="true"], [data-vx-chat-token]')) {
 			return;
 		}
+
 		if (inputControlRef.current) {
 			inputControlRef.current.focus();
 			return;
 		}
+
 		const editable = bodyRef.current?.querySelector<HTMLElement>('[contenteditable="true"], textarea');
 		editable?.focus();
 	}, []);

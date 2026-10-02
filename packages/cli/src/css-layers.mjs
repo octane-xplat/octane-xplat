@@ -63,10 +63,12 @@ export function unwrapCssLayers(css) {
 			i = skipComment(css, i) - 1
 			continue
 		}
+
 		if (css[i] === '"' || css[i] === "'") {
 			i = skipString(css, i) - 1
 			continue
 		}
+
 		if (!css.startsWith('@layer', i) || /[\w-]/.test(css[i + 6] ?? '')) {
 			continue
 		}
@@ -87,6 +89,7 @@ export function unwrapCssLayers(css) {
 		if (close < 0) {
 			throw new Error('Unclosed @layer block in NativeScript stylesheet')
 		}
+
 		output += unwrapCssLayers(css.slice(delimiter.index + 1, close))
 		i = close
 		copiedThrough = close + 1

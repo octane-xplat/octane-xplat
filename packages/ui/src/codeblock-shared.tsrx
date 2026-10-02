@@ -9,6 +9,7 @@ import {
 	tokenizeAsync,
 	type TokenLine,
 } from './code-tokenizer'
+
 import { copyText } from './clipboard-write'
 
 /** The mode each leaf resolves once at mount — 'ranges' needs the CSS Custom
@@ -24,9 +25,11 @@ export function useTokenLines(
 		if (tokenizer) {
 			return flatTokensToLines(tokenizer(code, language), code)
 		}
+
 		if (code.length <= SYNC_TOKENIZE_THRESHOLD) {
 			return tokenize(code, language)
 		}
+
 		return []
 	}, [code, language, tokenizer])
 
@@ -37,12 +40,14 @@ export function useTokenLines(
 			setAsyncLines(null)
 			return
 		}
+
 		let cancelled = false
 		void tokenizeAsync(code, language).then((lines) => {
 			if (!cancelled) {
 				setAsyncLines(lines)
 			}
 		})
+
 		return () => {
 			cancelled = true
 		}
@@ -70,11 +75,13 @@ export function useCodeCopy(code: string, onCopy: (() => void) | undefined) {
 			if (!ok) {
 				return
 			}
+
 			setCopied(true)
 			onCopy?.()
 			if (timer.current !== undefined) {
 				clearTimeout(timer.current)
 			}
+
 			timer.current = setTimeout(() => setCopied(false), 1500)
 		})
 	}

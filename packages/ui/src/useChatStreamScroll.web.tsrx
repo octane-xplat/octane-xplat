@@ -20,6 +20,7 @@ function ensureFollowingStyle(): void {
 	) {
 		return;
 	}
+
 	const style = document.createElement('style');
 	style.setAttribute(FOLLOWING_STYLE_ATTR, '');
 	style.textContent = `[${FOLLOWING_ATTR}]{overflow-anchor:none !important}`;
@@ -75,6 +76,7 @@ export function useChatStreamScroll({
 			velocityRef.current = 0;
 			return;
 		}
+
 		if (el.scrollHeight <= el.clientHeight) {
 			animatingRef.current = false;
 			lastTickRef.current = undefined;
@@ -119,6 +121,7 @@ export function useChatStreamScroll({
 			jumpToBottom();
 			return;
 		}
+
 		if (!animatingRef.current) {
 			animatingRef.current = true;
 			lastTickRef.current = undefined;
@@ -135,6 +138,7 @@ export function useChatStreamScroll({
 				jumpToBottom();
 				return;
 			}
+
 			startAnimation();
 		},
 		[setLocked, startAnimation, jumpToBottom],
@@ -181,6 +185,7 @@ export function useChatStreamScroll({
 			jumpToBottom();
 			return;
 		}
+
 		startAnimation();
 	}, [enabled, startAnimation, jumpToBottom, scrollRef]);
 

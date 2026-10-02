@@ -18,6 +18,7 @@ import {
 	plainDateToISO,
 	splitDateTime,
 } from './datetime'
+
 import {
 	applyRangePick,
 	buildMonthGrid,
@@ -34,10 +35,12 @@ describe('PlainDate math', () => {
 		expect(plainDateFromISO('2026-02-31')).toBeNull()
 		expect(plainDateFromISO('nope')).toBeNull()
 	})
+
 	it('adds days/months across boundaries', () => {
 		expect(plainDateToISO(plainDateAddDays(plainDateFromISO('2026-01-31')!, 1))).toBe('2026-02-01')
 		expect(plainDateToISO(plainDateAddMonths(plainDateFromISO('2026-01-31')!, 1))).toBe('2026-02-28')
 	})
+
 	it('reports ISO week numbers', () => {
 		expect(plainDateGetWeekNumber(plainDateFromISO('2026-01-01')!)).toBe(1)
 		expect(plainDateGetWeekNumber(plainDateFromISO('2025-12-29')!)).toBe(1)
@@ -51,14 +54,17 @@ describe('time values', () => {
 		expect(parseTimeInput('14:30:05', true)).toBe('14:30:05')
 		expect(parseTimeInput('25:00')).toBeNull()
 	})
+
 	it('steps times and clamps to the minute', () => {
 		expect(adjustTime('23:55', 10)).toBe('00:05')
 		expect(adjustTime('00:05', -10)).toBe('23:55')
 	})
+
 	it('checks ranges', () => {
 		expect(isTimeInRange('12:00', '09:00', '17:00')).toBe(true)
 		expect(isTimeInRange('20:00', '09:00', '17:00')).toBe(false)
 	})
+
 	it('splits and combines datetimes', () => {
 		expect(splitDateTime('2026-03-25T14:30')).toEqual({ date: '2026-03-25', time: '14:30' })
 		expect(combineDateTime('2026-03-25', '14:30')).toBe('2026-03-25T14:30')
@@ -81,6 +87,7 @@ describe('calendar month grid', () => {
 		expect(grid.weeks[0][0].iso).toBe('2026-09-27')
 		expect(grid.dayNames).toHaveLength(7)
 	})
+
 	it('trims rows with hasVariableRowCount', () => {
 		const grid = buildMonthGrid(2026, 2, 0, true, 'en-US')
 		expect(grid.weeks.length).toBeLessThanOrEqual(6)
@@ -91,6 +98,7 @@ describe('range picking', () => {
 	it('anchors then commits in order', () => {
 		expect(applyRangePick('2026-03-20', '2026-03-10')).toEqual({ kind: 'commit', range: { start: '2026-03-10', end: '2026-03-20' } })
 	})
+
 	it('re-clicking the anchor commits a one-day range or cancels', () => {
 		expect(applyRangePick('2026-03-10', '2026-03-10')).toEqual({ kind: 'commit', range: { start: '2026-03-10', end: '2026-03-10' } })
 		expect(applyRangePick('2026-03-10', '2026-03-10', 2)).toEqual({ kind: 'cancel' })
@@ -113,6 +121,7 @@ describe('date display formats', () => {
 		expect(formatDateValue('2026-03-25', 'date', 'en-US')).toContain('Mar')
 		expect(formatDateValue('2026-03-25', 'date_long', 'en-US')).toContain('25')
 	})
+
 	it('formats 12h/24h time', () => {
 		expect(formatDisplayTime12h('14:30')).toBe('2:30 PM')
 		expect(formatDisplayTime12h('00:05')).toBe('12:05 AM')

@@ -9,6 +9,7 @@ import { useFieldControlProps } from './field-context';
 export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
+
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

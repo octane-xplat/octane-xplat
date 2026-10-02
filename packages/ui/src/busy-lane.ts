@@ -17,9 +17,9 @@ export function createBusyIndicatorLane(): BusyIndicatorLane {
 	const listeners = new Set<() => void>()
 	return {
 		onBusyChange(next: boolean) {
-			if (isBusy === next) return
+			if (isBusy === next) {return}
 			isBusy = next
-			for (const listener of listeners) listener()
+			for (const listener of listeners) {listener()}
 		},
 		subscribe(onStoreChange: () => void) {
 			listeners.add(onStoreChange)

@@ -4,6 +4,7 @@ import type {
 	IndicatorName,
 	IndicatorRegistry,
 } from './props'
+
 import { CheckboxIndicator } from './CheckboxIndicator'
 import { CheckIndicator } from './CheckIndicator'
 import { RadioIndicator } from './RadioIndicator'

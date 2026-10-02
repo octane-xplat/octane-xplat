@@ -18,6 +18,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps) @{
 
 	const toggle = (v: string, on: boolean) =>
 		setSelected(on ? [...selected, v] : selected.filter((x) => x !== v));
+
 	const isReadOnly = props.isReadOnly;
 
 	<div

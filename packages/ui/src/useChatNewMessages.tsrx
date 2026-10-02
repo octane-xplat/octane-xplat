@@ -34,6 +34,7 @@ export function useChatNewMessages({
 				}
 			}
 		};
+
 		el.on('layoutChanged', onLayout);
 		cleanupRef.current = () => el.off('layoutChanged', onLayout);
 	}, []);

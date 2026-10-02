@@ -58,6 +58,7 @@ export {
 	useIndicator,
 	indicatorScope,
 } from './indicators'
+
 export type {
 	FieldControlProps,
 	FieldStatus,
@@ -139,6 +140,7 @@ export type {
 	UseCalendarNavigationOptions,
 	UseCalendarNavigationReturn,
 } from './calendar-hooks'
+
 export { InputRating } from './InputRating.macos.tsrx'
 /** Multi-choice checkbox list, exported under Astryx's component name. */
 export { CheckboxGroup as CheckboxList } from './CheckboxGroup.macos.tsrx'
@@ -253,6 +255,7 @@ export {
 	onThemeSchemeChange,
 	applyThemeClasses,
 } from './theme/theme-scheme'
+
 export { useColorScheme, getColorScheme } from './colorScheme.macos'
 export { styled } from './styled.macos.tsrx'
 export { openWindow } from './windows.macos'
@@ -330,6 +333,7 @@ export {
 	syntaxTokenVar,
 	syntaxTokenVarRef,
 } from './code-tokenizer'
+
 export type * from './props'
 
 // Chat shares the same portable contracts on AppKit; browser editing

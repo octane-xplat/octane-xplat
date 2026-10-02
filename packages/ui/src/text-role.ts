@@ -15,6 +15,7 @@ const VALID_TYPES = new Set([
 	'display-3',
 	'inherit',
 ])
+
 const VALID_SIZES = new Set([
 	'4xs',
 	'3xs',
@@ -28,6 +29,7 @@ const VALID_SIZES = new Set([
 	'3xl',
 	'4xl',
 ])
+
 const VALID_COLORS = new Set(['primary', 'secondary', 'disabled', 'placeholder', 'accent', 'inherit'])
 const VALID_WEIGHTS = new Set(['normal', 'medium', 'semibold', 'bold'])
 
@@ -42,14 +44,18 @@ export function textRoleClasses(props: {
 	if (props.type && VALID_TYPES.has(props.type)) {
 		out.push(`vx-type-${props.type}`)
 	}
+
 	if (props.size && VALID_SIZES.has(props.size)) {
 		out.push(`vx-size-${props.size}`)
 	}
+
 	if (props.color && VALID_COLORS.has(props.color)) {
 		out.push(`vx-color-${props.color}`)
 	}
+
 	if (props.weight && VALID_WEIGHTS.has(props.weight)) {
 		out.push(`vx-weight-${props.weight}`)
 	}
+
 	return out
 }

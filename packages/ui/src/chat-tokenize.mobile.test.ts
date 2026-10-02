@@ -19,6 +19,7 @@ describe('Chat text helpers', () => {
 			{ id: 'b', label: 'B', auxiliaryData: { group: 'People' } },
 			{ id: 'c', label: 'C', auxiliaryData: { group: 'Commands' } },
 		];
+
 		expect(groupChatItems(items)).toEqual([
 			{ heading: 'People', items: [items[0], items[2]] },
 			{ heading: 'Commands', items: [items[3]] },

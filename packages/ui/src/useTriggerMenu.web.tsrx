@@ -30,6 +30,7 @@ function getTextBeforeCursor(editable: HTMLDivElement): string | null {
 	if (node.nodeType === Node.TEXT_NODE) {
 		return (node.textContent ?? '').slice(0, range.startOffset);
 	}
+
 	return null;
 }
 
@@ -49,6 +50,7 @@ function findActiveTrigger(
 			}
 		}
 	}
+
 	return null;
 }
 
@@ -102,6 +104,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			anchorSpanRef.current.remove();
 			anchorSpanRef.current = null;
 		}
+
 		anchorRef.current.current = null;
 	}, []);
 
@@ -110,6 +113,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			clearTimeout(searchTimeoutRef.current);
 			searchTimeoutRef.current = null;
 		}
+
 		state.activeTrigger?.searchSource.cancel?.();
 		removeAnchorSpan();
 		triggerStartRef.current = -1;
@@ -169,6 +173,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 				clearTimeout(searchTimeoutRef.current);
 				searchTimeoutRef.current = null;
 			}
+
 			const doSearch = () => {
 				trigger.searchSource.cancel?.();
 				setState((prev) => ({ ...prev, isLoading: true }));
@@ -214,6 +219,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			} else {
 				onInsertToken(result);
 			}
+
 			onEmitChange();
 			reset();
 		},
@@ -255,6 +261,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 						...prev,
 						highlightedIndex: prev.highlightedIndex < prev.items.length - 1 ? prev.highlightedIndex + 1 : 0,
 					}));
+
 					return true;
 				case 'ArrowUp':
 					e.preventDefault();
@@ -262,6 +269,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 						...prev,
 						highlightedIndex: prev.highlightedIndex > 0 ? prev.highlightedIndex - 1 : prev.items.length - 1,
 					}));
+
 					return true;
 				case 'Enter':
 				case 'Tab':
@@ -270,6 +278,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 						selectItem(state.items[state.highlightedIndex]);
 						return true;
 					}
+
 					return false;
 				case 'Escape':
 					e.preventDefault();
@@ -335,6 +344,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 					</div>,
 				);
 			}
+
 			out.push(
 				group.heading ? (
 					<div key={`group-${group.heading}`} role="group" aria-label={group.heading}>
@@ -346,6 +356,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 				),
 			);
 		}
+
 		return out;
 	};
 

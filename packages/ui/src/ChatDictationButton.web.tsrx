@@ -26,12 +26,14 @@ export function ChatDictationButton(props: ChatDictationButtonProps) @{
 	const { isListening, bands, volume: rawVolume } = dictation;
 	const accessibleLabel =
 		props.label ?? (isListening ? 'Stop dictation' : 'Start dictation');
+
 	const boosted = bands.map((b) => Math.min(Math.pow(b / 0.2, 0.5), 1));
 	const isClipping = rawVolume >= 0.2;
 	const clippingStrength = Math.min((rawVolume - 0.2) / 0.1, 1) * 100;
 	const barColor = isClipping
 		? `color-mix(in srgb, var(--color-primary), var(--color-danger) ${clippingStrength}%)`
 		: 'var(--color-primary)';
+
 	const cfg = SIZE_CONFIG[size];
 
 	<span

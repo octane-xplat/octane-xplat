@@ -43,6 +43,7 @@ export function ChatMessageList(props: ChatMessageListProps) @{
 				setIsLoadingTop(false);
 			});
 		};
+
 		scroller.on('scroll', onScroll);
 		return () => scroller.off('scroll', onScroll);
 	}, [layoutContext, props.scrollToTopAction]);

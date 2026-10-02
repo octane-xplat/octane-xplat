@@ -214,6 +214,7 @@ describe('indicators (web)', () => {
 		expect(el.querySelector('.vx-ind-check')?.textContent).toBe('✓');
 		root.unmount();
 	});
+
 	it('RadioIndicator draws the circle; dot only when checked', () => {
 		const { el, root } = mount(<RadioIndicator state="unchecked" />);
 		expect(el.querySelector('.vx-ind-radio')).not.toBeNull();
@@ -222,6 +223,7 @@ describe('indicators (web)', () => {
 		expect(el.querySelector('.vx-ind-radio-dot')).not.toBeNull();
 		root.unmount();
 	});
+
 	it('registry overrides reach useIndicator/getIndicator', () => {
 		const Custom = (p: any) => <span className="vx-ind-custom" />;
 		registerIndicator('checkbox', Custom as any);
@@ -230,6 +232,7 @@ describe('indicators (web)', () => {
 		// restore default for other assertions
 		registerIndicator('checkbox', CheckboxIndicator);
 	});
+
 	it('Checkbox renders through the indicator registry', () => {
 		const { el, root } = mount(<Checkbox checked />);
 		expect(el.querySelector('.vx-ind-checkbox--checked')).not.toBeNull();
@@ -246,6 +249,7 @@ describe('List/ListItem (web)', () => {
 				<ListItem label="Two" description="desc" />
 			</List>
 		);
+
 		const list = el.querySelector('ul.vx-list');
 		expect(list).not.toBeNull();
 		expect(list?.getAttribute('role')).toBe('list');
@@ -263,6 +267,7 @@ describe('List/ListItem (web)', () => {
 				<ListItem label="b" />
 			</List>
 		);
+
 		const list = el.querySelector('ol.vx-list--decimal') as HTMLElement;
 		expect(list).not.toBeNull();
 		expect(list.getAttribute('start')).toBe('3');
@@ -278,6 +283,7 @@ describe('List/ListItem (web)', () => {
 				<ListItem label="Act" onPress={() => {}} />
 			</List>
 		);
+
 		expect(el.querySelector('a.vx-listitem-hit')?.getAttribute('href')).toBe('/x');
 		expect(el.querySelector('button.vx-listitem-hit')).not.toBeNull();
 		root.unmount();
@@ -291,6 +297,7 @@ describe('List/ListItem (web)', () => {
 				<ListItem label="Disabled link" href="/x" isDisabled />
 			</List>
 		);
+
 		const button = el.querySelector('button.vx-listitem-hit') as HTMLButtonElement;
 		const anchor = el.querySelector('a.vx-listitem-hit') as HTMLAnchorElement;
 		expect(button.disabled).toBe(true);

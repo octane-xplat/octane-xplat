@@ -11,6 +11,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const Ind = useIndicator('radio') ?? RadioIndicator;
+
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

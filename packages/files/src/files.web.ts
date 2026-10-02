@@ -14,6 +14,7 @@ function chooseFiles(accept: string, multiple: boolean): Promise<FileRef[]> {
 			for (const file of Array.from(input.files ?? [])) {
 				refs.push({ name: file.name, uri: URL.createObjectURL(file) })
 			}
+
 			resolve(refs)
 		}
 

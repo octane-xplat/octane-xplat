@@ -10,6 +10,7 @@ vi.mock('@nativescript/core', () => ({
 	isAndroid: true,
 	Utils: { openUrl: vi.fn() },
 }))
+
 vi.mock('./pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('./route', () => ({ pushDeepLink: () => false }))
 
@@ -36,13 +37,14 @@ function mount(component: any, props: any = {}) {
 }
 
 function findByClass(node: any, cls: string): any {
-	if (!node) return undefined
+	if (!node) {return undefined}
 	const classes = String(node.props?.className ?? '').split(' ')
-	if (classes.includes(cls)) return node
+	if (classes.includes(cls)) {return node}
 	for (const child of node.children ?? []) {
 		const hit = findByClass(child, cls)
-		if (hit) return hit
+		if (hit) {return hit}
 	}
+
 	return undefined
 }
 
@@ -55,6 +57,7 @@ describe('native flow Stack', () => {
 			vAlign: 'center',
 			gap: 2,
 		})
+
 		const view = container.children[0]
 		expect(view.type).toBe('flexboxlayout')
 		expect(view.props.flexDirection).toBe('row')
@@ -105,6 +108,7 @@ describe('native layout leaves', () => {
 			dividers: ['top'],
 			padding: 2,
 		})
+
 		const view = container.children[0]
 		expect(String(view.props.className)).toContain('vx-section--muted')
 		expect(String(view.props.className)).toContain('vx-section--divider-top')
@@ -135,6 +139,7 @@ describe('native FormLayout + InputGroup', () => {
 			defaultOptionality: 'required',
 			children: [],
 		})
+
 		expect(container.children[0].props.className).toContain('vx-formlayout')
 		root.unmount()
 	})
@@ -144,6 +149,7 @@ describe('native FormLayout + InputGroup', () => {
 			label: 'URL',
 			children: [InputGroupText, TextInput].map(() => null),
 		})
+
 		// group host is inside the Field wrapper
 		expect(findByClass(container.children[0], 'vx-inputgroup')).not.toBeNull()
 		root.unmount()
@@ -180,6 +186,7 @@ describe('native indicators + list', () => {
 			start: 4,
 			children: null,
 		})
+
 		const list = container.children[0]
 		expect(list.type).toBe('flexboxlayout')
 		root.unmount()
@@ -199,6 +206,7 @@ describe('native indicators + list', () => {
 			isDisabled: true,
 			onPress: () => calls++,
 		})
+
 		const disabledView = findByClass(disabled.container.children[0], 'vx-listitem')
 		expect(() => disabled.container.dispatchEvent(disabledView, 'tap', { object: disabledView })).toThrow('no "tap" listener')
 		expect(calls).toBe(0)
@@ -208,6 +216,7 @@ describe('native indicators + list', () => {
 			label: 'Enabled',
 			onPress: () => calls++,
 		})
+
 		const enabledView = findByClass(enabled.container.children[0], 'vx-listitem')
 		enabled.container.dispatchEvent(enabledView, 'tap', { object: enabledView })
 		expect(calls).toBe(1)

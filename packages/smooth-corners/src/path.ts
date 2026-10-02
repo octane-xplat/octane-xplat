@@ -16,6 +16,7 @@ import {
 	DEFAULT_PRESERVE_SMOOTHING,
 	DEFAULT_SMOOTHING,
 } from '@lisse/core/path';
+
 import type { CurveBuilder, CurveBuilderInput } from '@lisse/core/path';
 import type {
 	CornerConfig,
@@ -75,10 +76,12 @@ function resolveOptions(options: CornerOptions): Corners {
 		const c = resolveOne(options);
 		return { topLeft: c, topRight: c, bottomRight: c, bottomLeft: c };
 	}
+
 	if ('radius' in options) {
 		const c = resolveOne(options);
 		return { topLeft: c, topRight: c, bottomRight: c, bottomLeft: c };
 	}
+
 	const p = options as PerCornerConfig;
 	return {
 		topLeft: resolveOne(p.topLeft),
@@ -109,6 +112,7 @@ const CONT_CURVE: ReadonlyArray<readonly [number, number]> = [
 	[0.0, 1.08849296],
 	[0.0, 1.52866498],
 ];
+
 const CONT_CURVE_YX: ReadonlyArray<readonly [number, number]> =
 	CONT_CURVE.map(([x, y]) => [y, x] as const);
 
@@ -125,7 +129,7 @@ function continuousCorner(
 	// (mirrors how UIBezierPath scales when adjacent corners compete).
 	const r = Math.min(radius, budget / CONT_P);
 	const p = CONT_P * r;
-	if (r <= 0) return { p: 0, cmds: [] };
+	if (r <= 0) {return { p: 0, cmds: [] };}
 
 	// Corner frame: (fx, fy) maps the (x,y) coefficient table to canvas
 	// coordinates; `seq` selects traversal direction.
@@ -166,6 +170,7 @@ function continuousCorner(
 			y: fy(e[0], e[1]),
 		});
 	}
+
 	return { p, cmds };
 }
 
@@ -199,20 +204,22 @@ function arcToCenter(
 	x1: number,
 	y1: number,
 ): Extract<PathCommand, { c: 'A' }> | null {
-	if (x0 === x1 && y0 === y1) return null;
+	if (x0 === x1 && y0 === y1) {return null;}
 	if (rx <= 0 || ry <= 0) {
 		return null;
 	}
+
 	if (rx !== ry || rot !== 0) {
 		throw new Error(`smooth-corners: only circular unrotated arcs are supported (got a ${rx} ${ry} ${rot})`);
 	}
+
 	const dx = (x0 - x1) / 2;
 	const dy = (y0 - y1) / 2;
 	const d2 = dx * dx + dy * dy;
 	let r = rx;
 	// Expand r when the endpoints don't fit (spec F.6.4 step 2).
 	const lambda = d2 / (r * r);
-	if (lambda > 1) r *= Math.sqrt(lambda);
+	if (lambda > 1) {r *= Math.sqrt(lambda);}
 
 	// Center offset perpendicular to the chord; sign per fa/fs
 	// (spec F.6.5: cx' = coef·y1', cy' = −coef·x1' for φ=0).
@@ -225,8 +232,8 @@ function arcToCenter(
 	const start = deg(Math.atan2(y0 - cy, x0 - cx));
 	const end = deg(Math.atan2(y1 - cy, x1 - cx));
 	let sweepDeg = end - start;
-	if (sweep && sweepDeg <= 0) sweepDeg += 360;
-	if (!sweep && sweepDeg >= 0) sweepDeg -= 360;
+	if (sweep && sweepDeg <= 0) {sweepDeg += 360;}
+	if (!sweep && sweepDeg >= 0) {sweepDeg -= 360;}
 	return { c: 'A', cx, cy, r, startDeg: start, sweepDeg, x: x1, y: y1 };
 }
 
@@ -246,7 +253,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
 	const num = (): number => {
 		const t = tokens[i++];
 		const n = Number(t);
-		if (!Number.isFinite(n)) throw new Error(`smooth-corners: bad path token '${t}' in '${d}'`);
+		if (!Number.isFinite(n)) {throw new Error(`smooth-corners: bad path token '${t}' in '${d}'`);}
 		return n;
 	};
 
@@ -262,11 +269,12 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
 				continue;
 			}
 		}
-		if (!cmd) throw new Error(`smooth-corners: path data missing command: '${d}'`);
+
+		if (!cmd) {throw new Error(`smooth-corners: path data missing command: '${d}'`);}
 		const rel = cmd === cmd.toLowerCase();
 		const upper = cmd.toUpperCase();
 		const arity = ARITY[upper];
-		if (arity === undefined) throw new Error(`smooth-corners: unsupported path command '${cmd}'`);
+		if (arity === undefined) {throw new Error(`smooth-corners: unsupported path command '${cmd}'`);}
 		if (upper === 'S' || upper === 'Q' || upper === 'T') {
 			throw new Error(`smooth-corners: '${upper}' commands are not supported`);
 		}
@@ -322,14 +330,16 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
 				const x = num() + (rel ? px : 0);
 				const y = num() + (rel ? py : 0);
 				const arc = arcToCenter(px, py, rx, ry, rot, fa, fs, x, y);
-				if (arc) out.push(arc);
-				else out.push({ c: 'L', x, y });
+				if (arc) {out.push(arc);}
+				else {out.push({ c: 'L', x, y });}
+
 				px = x;
 				py = y;
 				break;
 			}
 		}
 	}
+
 	return out;
 }
 
@@ -350,6 +360,7 @@ function lisseCornerSeg(
 		preserveSmoothing: corner.preserveSmoothing,
 		roundingAndSmoothingBudget: budget,
 	};
+
 	const out = builder(input);
 	return { p: out.p, cmds: segmentCommands(out.pathSegment(orient as never), pen) };
 }
@@ -365,6 +376,7 @@ function cornerCmds(
 	if (corner.curve === 'continuous') {
 		return continuousCorner(w, h, normalized.radius, normalized.roundingAndSmoothingBudget, orient);
 	}
+
 	return lisseCornerSeg(corner, normalized.radius, normalized.roundingAndSmoothingBudget, orient, pen);
 }
 
@@ -385,7 +397,7 @@ export function generateCommands(
 	height: number,
 	options: CornerOptions,
 ): PathCommand[] {
-	if (width <= 0 || height <= 0) return RECT;
+	if (width <= 0 || height <= 0) {return RECT;}
 	const corners = resolveOptions(options);
 	const anyContinuous =
 		corners.topLeft.curve === 'continuous' ||
@@ -463,6 +475,7 @@ function lisseOptions(corners: Corners): Parameters<typeof lisseGeneratePath>[2]
 		a.preserveSmoothing === b.preserveSmoothing &&
 		a.preserveSmoothing === c.preserveSmoothing &&
 		a.preserveSmoothing === d.preserveSmoothing;
+
 	if (same) {
 		return {
 			radius: a.radius,
@@ -472,6 +485,7 @@ function lisseOptions(corners: Corners): Parameters<typeof lisseGeneratePath>[2]
 			preserveSmoothing: a.preserveSmoothing,
 		};
 	}
+
 	const per = (c: Resolved) => ({
 		radius: c.radius,
 		curve: c.curve as never,
@@ -479,6 +493,7 @@ function lisseOptions(corners: Corners): Parameters<typeof lisseGeneratePath>[2]
 		exponent: c.exponent,
 		preserveSmoothing: c.preserveSmoothing,
 	});
+
 	return { topLeft: per(a), topRight: per(b), bottomRight: per(c), bottomLeft: per(d) };
 }
 
@@ -505,12 +520,14 @@ export function commandsToD(cmds: PathCommand[]): string {
 				parts.push(
 					`A ${f(c.r)} ${f(c.r)} 0 ${Math.abs(c.sweepDeg) > 180 ? 1 : 0} ${c.sweepDeg >= 0 ? 1 : 0} ${f(c.x)} ${f(c.y)}`,
 				);
+
 				break;
 			case 'Z':
 				parts.push('Z');
 				break;
 		}
 	}
+
 	return parts.join(' ');
 }
 
@@ -524,9 +541,11 @@ export function smoothPathD(width: number, height: number, options: CornerOption
 		corners.topRight.curve === 'continuous' ||
 		corners.bottomRight.curve === 'continuous' ||
 		corners.bottomLeft.curve === 'continuous';
+
 	if (!anyContinuous && width > 0 && height > 0) {
 		return lisseGeneratePath(width, height, lisseOptions(corners));
 	}
+
 	return commandsToD(generateCommands(width, height, options));
 }
 

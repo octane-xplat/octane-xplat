@@ -16,9 +16,11 @@ export function ChatTokenChip(props: { token: ChatComposerToken; className?: any
 	if (isCustomToken(token)) {
 		return token.render();
 	}
+
 	const variant = token.variant ?? 'neutral';
+
 	<flexboxlayout
-		className={cx('vx-chattoken', `vx-chattoken--${variant}`, props.className)}
+		className={cx('vx-chat-token', `vx-chattoken--${variant}`, props.className)}
 		flexDirection="row"
 		alignItems="center"
 	>

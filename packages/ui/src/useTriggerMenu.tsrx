@@ -45,6 +45,7 @@ interface TriggerMenuOverlayProps extends TriggerMenuItemsProps {
 
 function TriggerMenuItems(props: TriggerMenuItemsProps) @{
 	let flatIndex = 0;
+
 	@for (const group of groupChatItems(props.state.items); index groupIndex; key groupIndex) {
 		<flexboxlayout flexDirection="column">
 			{group.heading ? <label className="vx-chattrig-heading" text={group.heading} /> : null}
@@ -100,6 +101,7 @@ function findActiveTrigger(
 			}
 		}
 	}
+
 	return null;
 }
 
@@ -137,6 +139,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			clearTimeout(searchTimeoutRef.current);
 			searchTimeoutRef.current = null;
 		}
+
 		state.activeTrigger?.searchSource.cancel?.();
 		triggerStartRef.current = -1;
 		setState({
@@ -155,6 +158,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 				clearTimeout(searchTimeoutRef.current);
 				searchTimeoutRef.current = null;
 			}
+
 			const doSearch = () => {
 				trigger.searchSource.cancel?.();
 				setState((prev) => ({ ...prev, isLoading: true }));
@@ -200,6 +204,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 			} else {
 				onInsertToken(result);
 			}
+
 			onEmitChange();
 			reset();
 		},
@@ -241,6 +246,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 						...prev,
 						highlightedIndex: prev.highlightedIndex < prev.items.length - 1 ? prev.highlightedIndex + 1 : 0,
 					}));
+
 					return true;
 				case 'ArrowUp':
 					e.preventDefault?.();
@@ -248,6 +254,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 						...prev,
 						highlightedIndex: prev.highlightedIndex > 0 ? prev.highlightedIndex - 1 : prev.items.length - 1,
 					}));
+
 					return true;
 				case 'Enter':
 				case 'Tab':
@@ -256,6 +263,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions) {
 						selectItem(state.items[state.highlightedIndex]);
 						return true;
 					}
+
 					return false;
 				case 'Escape':
 					reset();

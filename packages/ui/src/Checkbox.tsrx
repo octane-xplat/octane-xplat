@@ -12,6 +12,7 @@ export function Checkbox(inputProps: CheckboxProps) @{
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const Ind = useIndicator('checkbox') ?? CheckboxIndicator;
 	const indState = props.indeterminate ? 'indeterminate' : props.checked ? 'checked' : 'unchecked';
+
 	<flexboxlayout
 		ref={(v: any) => applyEscapeProps(v, props)}
 		id={props.id}

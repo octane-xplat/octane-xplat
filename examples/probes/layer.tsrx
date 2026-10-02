@@ -1,17 +1,9 @@
 import { Pressable, Text, VStack, View, useLayer } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../scripts/probe/context'
+import { LayerHost } from './LayerHost'
 
 let anchoredLayer: ReturnType<typeof useLayer> | null = null
 let fixedLayer: ReturnType<typeof useLayer> | null = null
-
-// The NativeScript overlay machinery (Popover/RootLayout) needs a RootLayout
-// in the view tree; the bare-Page probe host has none, so the native case
-// supplies its own — a rootlayout registers itself on load. Web portals to
-// document.body and the AppKit leaf presents through the host bridge, so
-// neither needs the wrapper.
-const isNativeScript =
-	typeof (globalThis as any).document === 'undefined' &&
-	!(globalThis as any).__xplatAppKit
 
 export default function LayerProbe() {
 	const anchored = useLayer({ mode: 'context', lightDismiss: true })
@@ -59,11 +51,7 @@ export default function LayerProbe() {
 		</VStack>
 	)
 
-	if (isNativeScript) {
-		return <rootlayout>{content}</rootlayout>
-	}
-
-	return content
+	return <LayerHost>{content}</LayerHost>
 }
 
 export async function run(ctx: ProbeContext) {

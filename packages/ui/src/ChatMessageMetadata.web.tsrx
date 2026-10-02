@@ -32,6 +32,7 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps) @{
 	if (!hasTimestamp && !hasFooter && !hasStatus) {
 		return null;
 	}
+
 	const status = props.status!;
 
 	<div

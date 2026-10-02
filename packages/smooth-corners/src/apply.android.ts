@@ -36,6 +36,7 @@ function toAndroidPath(cmds: PathCommand[]): any {
 				break;
 		}
 	}
+
 	return p;
 }
 
@@ -43,7 +44,7 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
 	return (android.graphics.drawable.Drawable as any).extend({
 		draw(canvas: any) {
 			const path = state.path;
-			if (!path) return;
+			if (!path) {return;}
 			const bg = state.view?.backgroundColor ?? state.view?.style?.backgroundColor;
 			const border = state.props.border;
 			if (bg) {
@@ -52,6 +53,7 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
 				paint.setColor(new Color(bg).android);
 				canvas.drawPath(path, paint);
 			}
+
 			if (border && border.width > 0 && border.color) {
 				const paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
 				paint.setStyle(android.graphics.Paint.Style.STROKE);
@@ -75,7 +77,7 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 	s.props = props;
 	const v = view?.android as any;
 	const size = view?.getActualSize?.();
-	if (!v || !size || size.width <= 0 || size.height <= 0) return;
+	if (!v || !size || size.width <= 0 || size.height <= 0) {return;}
 
 	s.path = toAndroidPath(
 		generateCommands(
@@ -89,7 +91,7 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 	v.setOutlineProvider(
 		new ((android.view.ViewOutlineProvider as any).extend({
 			getOutline(target: any, outline: any) {
-				if (!path) return;
+				if (!path) {return;}
 				if (android.os.Build.VERSION.SDK_INT >= 30) {
 					outline.setPath(path);
 				} else {
@@ -104,12 +106,14 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
 			},
 		}))(),
 	);
+
 	v.setClipToOutline(true);
 
 	if (!s.drawable) {
 		s.drawable = makeDrawable(s);
 		v.setBackground(s.drawable);
 	}
+
 	s.drawable.setBounds(0, 0, v.getWidth(), v.getHeight());
 	v.invalidate();
 

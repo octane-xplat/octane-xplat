@@ -9,6 +9,7 @@ export function RadioGroup(inputProps: RadioGroupProps) @{
 	const props = useFieldControlProps(inputProps);
 	const isBlocked = props.isDisabled || props.isReadOnly;
 	const Ind = useIndicator('radio') ?? RadioIndicator;
+
 	<div
 		ref={(e: any) => applyEscapeProps(e, props)}
 		id={props.id}

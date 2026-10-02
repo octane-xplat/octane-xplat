@@ -15,8 +15,10 @@ function isInsideToken(node: Node): HTMLElement | null {
 		if (current instanceof HTMLElement && current.hasAttribute(TOKEN_ATTR)) {
 			return current;
 		}
+
 		current = current.parentNode;
 	}
+
 	return null;
 }
 
@@ -101,6 +103,7 @@ export function useChatComposerTokens({
 					parent.removeChild(startContainer);
 					parent.removeChild(tokenSpan);
 				}
+
 				onEmitChange();
 				return true;
 			}
@@ -131,6 +134,7 @@ export function useChatComposerTokens({
 				} else {
 					newRange.setStartAfter(tokenEl);
 				}
+
 				newRange.collapse(true);
 				selection.removeAllRanges();
 				selection.addRange(newRange);
@@ -138,6 +142,7 @@ export function useChatComposerTokens({
 				onEmitChange();
 				return true;
 			}
+
 			return false;
 		},
 		[editableRef, onEmitChange],
@@ -158,6 +163,7 @@ export function useChatComposerTokens({
 			if (next?.nodeType === Node.TEXT_NODE && next.textContent === '\u00A0') {
 				next.remove();
 			}
+
 			span.replaceWith(textNode);
 
 			const selection = window.getSelection();
