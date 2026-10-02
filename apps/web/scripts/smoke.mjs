@@ -713,6 +713,12 @@ try {
 	// No leaked platform failures.
 	ok('zero pageerrors/console.error', errors.length === 0, errors[0] ?? '')
 
+} catch (error) {
+	if (errors.length) {
+		console.error('[smoke] browser errors before failure:\n' + errors.join('\n'))
+	}
+
+	throw error
 } finally {
 	try {
 		await browser?.close()
