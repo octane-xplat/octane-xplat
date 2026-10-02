@@ -1,4 +1,4 @@
-# Table parity audit: Octane Xplat and Astryx
+# Table parity audit: Xplat Table + DataGrid and Astryx
 
 Recommend keeping `@octane-xplat/ui`'s `Table` as the small, bounded display tier and completing interactive parity in the existing `@octane-xplat/table` leaf. V1 should cover accessible sorting, filtering, pagination, selection, stable identity, and row virtualization. Column management, grouping, and advanced desktop gestures can follow. This is a recommendation, not an implementation commitment.
 
@@ -16,6 +16,14 @@ Local evidence:
 - [ComponentsDemo.tsrx](../packages/demos/src/ComponentsDemo.tsrx): two columns and three fruit rows, demonstrating `label`, `width: 50`, and `align: 'right'`. It does not exercise interaction, empty states, identity changes, or large data.
 - No dedicated UI `Table` test was found in `packages/ui` source/tests. `route-table.test.ts` tests routing, not this component. Virtual-list tests and the [VirtualList demo](../packages/demos/src/VirtualList.tsrx) exercise the separate list primitive.
 - [table.ts](../packages/table/src/table.ts), [DataGrid.tsrx](../packages/table/src/DataGrid.tsrx), [props.ts](../packages/table/src/props.ts), and [table.test.ts](../packages/table/src/table.test.ts) establish a separate existing data-grid tier. Its tests cover row models, sorting, global filtering, pagination, store notifications, option updates, and controlled sorting. They do not establish rendered controls or platform runtime parity.
+
+## Current Xplat coverage: engine versus presentation
+
+The audited checkout includes `db65625c` (`feat(table): add @octane-xplat/table leaf package`). After fetching `origin/main`, rebasing reported the checkout already up to date: the fetched remote main is an ancestor of this audited revision. The comparison therefore includes the landed leaf, rather than treating every UI Table limitation as a missing framework capability.
+
+`dataGridFeatures` already enables sorting, column/global filtering, grouping/aggregation, expansion, pagination, row selection, row/column pinning, and column ordering/visibility/sizing, with the row-model factories. These are existing headless capabilities, not proposed engine work. `DataGrid.tsrx` currently supplies sortable Pressable headers with direction indicators, visible-cell rendering, selected-row styling, row activation, custom cell/header templates, and a VirtualList body.
+
+The distinction matters: enabled pinning does not create a frozen-column layout; enabled sizing does not create resize handles or apply live size state; grouped/expanded row models do not create section headers, expander controls, or detail panels. Likewise, filtering and pagination models do not supply filter or pager controls. Selection styling does not supply checkbox/select-all controls. V1 work should connect the existing engine to accessible controls and appropriate presentation.
 
 ## What Astryx promises
 
@@ -69,6 +77,22 @@ Astryx types below come from [types.ts][types] and [Table.tsx][table-source]. Xp
 | Row activation               | `onRowPress(row,rowIndex)`                                | No equivalent Table-level `onRowPress` in audited public contract; row HTML props or plugin transforms compose handlers | Preserve Xplat's useful normalized event rather than inventing a matching Astryx prop.                                                                          |
 
 For example, a current `{key:'qty', label:'Qty', width:50, align:'right'}` column maps approximately to Astryx `{key:'qty', header:'Qty', width:pixel(50), align:'end'}` **only in LTR**. Moving Xplat's top-level renderer to a column closes over that column explicitly. These are API adaptations, not evidence of behavioral parity.
+
+### DataGrid API compared with Astryx
+
+The existing leaf has a different public shape from UI Table. Its contract is `packages/table/src/props.ts`; its state adapter is `useTable.tsrx`.
+
+| Concern                             | Existing Xplat DataGrid / adapter                                                                                                                                                                         | Astryx Table / plugins                                                                                      |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Data and column schema              | `data: TData[]`, TanStack `ColumnDef` with `accessorKey`/accessor functions, `header`, `cell`, `size`                                                                                                     | `data?: T[]`, `TableColumn.key`, `header`, `renderCell`, `pixel`/`proportional` widths                      |
+| State ownership                     | `state`, `initialState`, `features`; `createTable` for headless use and `useTable` returning `{table,state}`                                                                                              | Named `plugins`; feature-specific configs and controlled callbacks; separate state helpers                  |
+| Sorting / pagination representation | Sorting entries `{id,desc}`; pagination `{pageIndex,pageSize}`                                                                                                                                            | Sorting entries `{sortKey,direction}`; pagination `page`, `pageSize`, `onPageChange`, optional `hasMore`    |
+| Identity                            | `getRowId(row,index): string`                                                                                                                                                                             | `idKey` field name or function returning string/number                                                      |
+| Rendering overrides                 | `renderCell(cell)`, `renderHeader(header)`; TanStack contexts expose values and row/column methods                                                                                                        | Per-column `renderCell(item)`; plugins transform header/body render props                                   |
+| Empty / activation                  | `renderEmpty(): any`, `onRowPress(row: Row)`                                                                                                                                                              | `emptyState` node/false; no matching top-level row-activation prop                                          |
+| Controlled updates                  | `useTable` subscribes to `table.store`; its options contract accepts core options, including external atoms. DataGrid forwards `state` but exposes no general per-slice update callbacks or `atoms` prop. | Explicit callbacks such as `onSortChange`, `onFilterChange`, `onPageChange`, and `onChangeActiveColumnKeys` |
+
+Do not promise an Astryx-compatible adapter from matching names alone. A controlled DataGrid view needs a clear way for user actions to notify the owner and receive updated state; lower-level `useTable`/core subscriptions are currently the escape route. Width, pinning, grouping, and selection also need presentation contracts beyond their state slices.
 
 ## VirtualList boundary and phased recommendation
 
