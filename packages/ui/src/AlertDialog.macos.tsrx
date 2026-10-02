@@ -11,14 +11,15 @@ const ACTION_VARIANT_CLASS: Record<string, string> = {
 	destructive: 'bg-danger text-onprimary',
 }
 
-/** macOS leaf — inline coverage only (the AppKit target has no in-window
- *  modal layer service yet). */
+/** Required decisions share Dialog presentation and block passive dismissal. */
 export function AlertDialog(props: AlertDialogProps) @{
 	return (
 		<Dialog
 			isOpen={props.isOpen}
 			onOpenChange={props.onOpenChange}
 			purpose="required"
+			accessibilityLabel={typeof props.title === 'string' ? props.title : 'Required decision'}
+			finalFocusRef={props.finalFocusRef}
 			width={props.width ?? 400}
 			isInline={props.isInline}
 			className={cx('vx-alertdialog', props.className)}
@@ -31,7 +32,7 @@ export function AlertDialog(props: AlertDialogProps) @{
 			{props.description != null && (
 				<flexboxlayout className="vx-alertdialog-desc">
 					{typeof props.description === 'string' ? (
-						<label textWrap={true}>{props.description}</label>
+						<label whiteSpace="normal">{props.description}</label>
 					) : (
 						props.description
 					)}

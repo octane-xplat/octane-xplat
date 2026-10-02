@@ -10,6 +10,8 @@ export namespace JSX {
 		className?: string
 		style?: Record<string, unknown>
 		children?: unknown
+		accessibilityLabel?: string
+		accessibilityRole?: string
 	}
 
 	export interface IntrinsicElements {
@@ -20,6 +22,9 @@ export namespace JSX {
 		label: HostProps & {
 			text?: string | number
 			fontSize?: number
+			whiteSpace?: string
+			maxLines?: number
+			textOverflow?: string
 		}
 		button: HostProps & {
 			title?: string

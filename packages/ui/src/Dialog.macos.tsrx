@@ -2,22 +2,46 @@
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import type { DialogHeaderProps, DialogProps } from './props'
 import { cx } from './cx'
+import { usePresentation } from './presentation.macos.tsrx'
+import { Button } from './controls.macos.tsrx'
 
-/** macOS coverage is the inline panel rendering — the AppKit target has no
- *  shared in-window layer service yet (documented gap; Sheet's own macOS
- *  leaf renders the same way). `isOpen` gates mounting. */
-export function Dialog(props: DialogProps) @{
-	const dismissal = useLayerDismissal({ get active() { return !!props.isOpen && !props.isInline }, dismiss: () => props.onOpenChange?.(false), get behavior() { return props.purpose === 'required' ? 'block' : 'close' } })
-
-	@if (props.isOpen) {
-		<flexboxlayout
-			flexDirection="column"
-			className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.className)}
-			style={props.style}
-		>
-			<LayerDepthProvider value={props.isInline ? dismissal.depth - 1 : dismissal.depth}>{props.children}</LayerDepthProvider>
+function DialogPanel(props: DialogProps & { dark?: boolean; layerDepth: number }) @{
+	<LayerDepthProvider value={props.layerDepth}>
+		<flexboxlayout flexDirection="column" id={props.id}
+			className={cx('vx-dialog', props.variant === 'fullscreen' && 'vx-dialog--fullscreen', props.dark && 'ns-dark', props.className)}
+			style={{ padding: (props.padding ?? 5) * 4, ...props.style }}>
+			{props.children}
 		</flexboxlayout>
-	}
+	</LayerDepthProvider>
+}
+
+function ScrollingDialogPanel(props: DialogProps & { dark?: boolean; layerDepth: number }) @{
+	<scrollview><DialogPanel {...props} /></scrollview>
+}
+
+export function Dialog(props: DialogProps) @{
+	const dismissal = useLayerDismissal({
+		get active() { return !!props.isOpen && !props.isInline },
+		dismiss: () => props.onOpenChange?.(false),
+		get behavior() { return props.purpose === 'required' ? 'block' : 'close' },
+		getFocusTarget: () => props.finalFocusRef?.current,
+		restoreFocus: false,
+	})
+
+	const panelProps = { ...props, layerDepth: dismissal.depth }
+	const owner = usePresentation(props.isOpen && !props.isInline, ScrollingDialogPanel, panelProps, {
+		kind: 'dialog', modal: true, purpose: props.purpose, width: props.width,
+		maxHeight: props.maxHeight, position: props.position,
+		fullscreen: props.variant === 'fullscreen', label: props.accessibilityLabel,
+		finalFocusRef: props.finalFocusRef,
+		canDismiss: () => dismissal.shouldClose(),
+		onDismiss: () => props.onOpenChange(false),
+	})
+
+	<>
+		@if (props.isInline && props.isOpen) { <DialogPanel {...panelProps} layerDepth={dismissal.depth - 1} /> }
+		@if (!props.isInline) { <flexboxlayout ref={owner} style={{ width: 0, height: 0 }} /> }
+	</>
 }
 
 export function DialogHeader(props: DialogHeaderProps) @{
@@ -29,6 +53,7 @@ export function DialogHeader(props: DialogHeaderProps) @{
 				{props.subtitle != null && <label className="vx-dialog-subtitle">{props.subtitle}</label>}
 			</flexboxlayout>
 			{props.endContent}
+			{props.onOpenChange != null && <Button accessibilityLabel="Close dialog" onPress={() => props.onOpenChange?.(false)}>×</Button>}
 		</flexboxlayout>
 	</flexboxlayout>
 }

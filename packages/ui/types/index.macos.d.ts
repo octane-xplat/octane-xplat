@@ -306,12 +306,12 @@ export declare function useSafeAreaInsets(): SafeAreaInsets
 export declare function useMeasure(options?: P.UseMeasureOptions): P.MeasureResult
 export declare function registerIcon(name: string, glyph: P.IconGlyph): void
 export declare function registerIcons(record: Record<string, P.IconGlyph>): void
-export declare const showToast: P.ShowToastFn
-export declare function useToast(): P.ShowToastFn
-export declare function useImperativeDialog(): P.ImperativeDialogReturn
-export declare function useImperativeAlertDialog(): P.ImperativeAlertDialogReturn
+// Keep macOS imperative signatures aligned with the canonical declarations.
+export { showToast, useToast } from './generated/toast-service.js'
+export { useImperativeDialog } from './generated/use-imperative-dialog.js'
+export { useImperativeAlertDialog } from './generated/use-imperative-alert-dialog.js'
 export declare function useHoverCard(options?: P.HoverCardOptions): P.HoverCardReturn
-export declare function useLightbox(options: P.UseLightboxOptions): P.UseLightboxReturn
+export { useLightbox } from './generated/use-lightbox.js'
 export declare function useScrollableArea(
 	options?: P.UseScrollableAreaOptions,
 ): P.UseScrollableAreaResult

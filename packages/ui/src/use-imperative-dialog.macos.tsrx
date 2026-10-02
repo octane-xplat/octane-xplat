@@ -3,8 +3,6 @@ import { useCallback, useState } from 'octane';
 import type { DialogOptions, ImperativeDialogReturn } from './props';
 import { Dialog } from './Dialog.macos.tsrx';
 
-/** Imperative dialog control (Astryx `useImperativeDialog`). macOS renders
- *  the inline leaf — no overlay service on that target yet. */
 export function useImperativeDialog(): ImperativeDialogReturn @{
 	const [isOpen, setIsOpen] = useState(false);
 	const [content, setContent] = useState<any>(null);

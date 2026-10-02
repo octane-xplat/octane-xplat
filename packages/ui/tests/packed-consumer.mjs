@@ -19,6 +19,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const macosOnly = process.argv.includes('--macos-only')
+const overlaysOnly = process.argv.includes('--macos-overlays')
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-ui-consumer-'))
@@ -91,44 +92,47 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 			symlinkSync(join(repoRoot, 'apps/macos/node_modules', dependency), targetPath, 'dir')
 		}
 
-		// Compare the actual normal-barrel bundle with declarations in the tarball.
-		const runtimeValues = await buildMacOSBarrel(consumerRoot)
-		const declaration = join(packageLink, 'types/index.macos.d.ts')
-		const program = ts.createProgram([declaration], {
-			moduleResolution: ts.ModuleResolutionKind.Bundler,
-			module: ts.ModuleKind.ESNext,
-			target: ts.ScriptTarget.ESNext,
-			skipLibCheck: false,
-		})
-
-		const diagnostics = program.getSemanticDiagnostics(program.getSourceFile(declaration))
-		assert.equal(
-			diagnostics.length,
-			0,
-			ts.formatDiagnostics(diagnostics, {
-				getCanonicalFileName: (file) => file,
-				getCurrentDirectory: () => consumerRoot,
-				getNewLine: () => '\n',
-			}),
-		)
-
-		const checker = program.getTypeChecker()
-		const module = checker.getSymbolAtLocation(program.getSourceFile(declaration))
-		const declaredValues = checker
-			.getExportsOfModule(module)
-			.filter((symbol) => {
-				const resolved =
-					symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
-
-				return resolved.flags & ts.SymbolFlags.Value
+		// The overlay-only consumer stays independent from the full macOS barrel
+		// build; --macos-only retains runtime/declaration export parity.
+		if (!overlaysOnly) {
+			const runtimeValues = await buildMacOSBarrel(consumerRoot)
+			const declaration = join(packageLink, 'types/index.macos.d.ts')
+			const program = ts.createProgram([declaration], {
+				moduleResolution: ts.ModuleResolutionKind.Bundler,
+				module: ts.ModuleKind.ESNext,
+				target: ts.ScriptTarget.ESNext,
+				skipLibCheck: false,
 			})
-			.map((symbol) => symbol.name)
 
-		assert.deepEqual(
-			runtimeValues.sort(),
-			declaredValues.sort(),
-			'packed macOS runtime/declaration value exports match',
-		)
+			const diagnostics = program.getSemanticDiagnostics(program.getSourceFile(declaration))
+			assert.equal(
+				diagnostics.length,
+				0,
+				ts.formatDiagnostics(diagnostics, {
+					getCanonicalFileName: (file) => file,
+					getCurrentDirectory: () => consumerRoot,
+					getNewLine: () => '\n',
+				}),
+			)
+
+			const checker = program.getTypeChecker()
+			const module = checker.getSymbolAtLocation(program.getSourceFile(declaration))
+			const declaredValues = checker
+				.getExportsOfModule(module)
+				.filter((symbol) => {
+					const resolved =
+						symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
+
+					return resolved.flags & ts.SymbolFlags.Value
+				})
+				.map((symbol) => symbol.name)
+
+			assert.deepEqual(
+				runtimeValues.sort(),
+				declaredValues.sort(),
+				'packed macOS runtime/declaration value exports match',
+			)
+		}
 	}
 
 	let source
@@ -156,7 +160,7 @@ void tooltip
 void KeyboardAvoiding
 `
 	} else if (target === 'macos') {
-		source = `import { Button, KeyboardAvoiding, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, useOutlineFromDOM } from '@octane-xplat/ui'
+		source = `import { Button, KeyboardAvoiding, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, useOutlineFromDOM, Dialog, DialogHeader, AlertDialog, BottomSheet, BottomSheetSwitcher, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, bottomSheetHost } from '@octane-xplat/ui'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue, WebViewProps, WebViewHandle, WebViewContentSize, WebViewLoadEvent } from '@octane-xplat/ui'
 
 const buttonProps: ButtonProps = { children: 'Save', loading: true }
@@ -212,6 +216,34 @@ void button
 void keyboard
 void invalidButtonProps
 void view
+const dialog = <Dialog isOpen onOpenChange={() => {}} purpose="form" width={420}><DialogHeader title="Edit" onOpenChange={() => {}} /></Dialog>
+const alert = <AlertDialog isOpen onOpenChange={() => {}} title="Delete?" actionLabel="Delete" onAction={() => {}} />
+const sheet = <BottomSheet isOpen label="Options" snapPoints={[0.25, '50%', 400]} />
+const switcher = <BottomSheetSwitcher activeSheet="options">{sheet}</BottomSheetSwitcher>
+const lightbox = <Lightbox isOpen onOpenChange={() => {}} media={[{ src: 'image.png', alt: 'Image' }]} />
+const toast = <Toast body="Saved" renderContent={props => props.body} onDismiss={reason => { const typed: 'auto' | 'manual' = reason; void typed }} />
+const viewport = <ToastViewport position="topStart" maxVisible={3}>{toast}</ToastViewport>
+const dismiss: () => void = showToast({ body: 'Saved', onHide: reason => { const typed: 'auto' | 'manual' = reason; void typed } })
+const dialogControl = useImperativeDialog()
+dialogControl.show('Edit', { purpose: 'required', width: 400 })
+const alertControl = useImperativeAlertDialog()
+alertControl.show({ title: 'Delete?', actionLabel: 'Delete', onAction() {} })
+const mediaControl = useLightbox({ media: [{ src: 'image.png', alt: 'Image' }] })
+mediaControl.open(0)
+const toastControl = useToast()
+toastControl({ body: 'Done', isAutoHide: false })
+const promise: Promise<unknown> = openBottomSheet(() => null, { id: 1 }, { label: 'Choose', snapPoints: ['25%', 300], hasScrim: false })
+closeBottomSheet('selected')
+const host: null = bottomSheetHost()
+// @ts-expect-error dialog dismissal must be controlled
+const invalidDialog = <Dialog isOpen />
+// @ts-expect-error shared sheets require an accessible label
+const invalidSheet = <BottomSheet isOpen />
+// @ts-expect-error invalid toast position must not silently become any
+showToast({ body: 'Saved', position: 'middle' })
+// @ts-expect-error imperative dialogs use the shared purpose contract
+dialogControl.show('Edit', { purpose: 'anything' })
+void [dialog, alert, switcher, lightbox, viewport, dismiss, promise, host, invalidDialog, invalidSheet]
 `
 	} else {
 		source = `import { Button, KeyboardAvoiding, List, ListItem, View, createStore, defineRoutes, useStore } from '@octane-xplat/ui'
@@ -290,7 +322,12 @@ void keyboard
 					moduleResolution: mode.moduleResolution,
 					target: 'esnext',
 					jsx: 'react-jsx',
-					jsxImportSource: target === 'native' ? '@nativescript-community/octane' : 'octane',
+					jsxImportSource:
+						target === 'native'
+							? '@nativescript-community/octane'
+							: target === 'macos'
+								? '@octane-xplat/macos-renderer'
+								: 'octane',
 					moduleSuffixes: suffixes,
 					customConditions: [target],
 					types: target === 'native' ? ['@nativescript/types'] : [],
@@ -321,7 +358,7 @@ try {
 		'pnpm',
 		[
 			'pack',
-			...(macosOnly ? ['--config.ignore-scripts=true'] : []),
+			...(macosOnly || overlaysOnly ? ['--config.ignore-scripts=true'] : []),
 			'--pack-destination',
 			packOutput,
 		],
@@ -360,7 +397,7 @@ try {
 		consumerManifest.exports = exportsMap
 		writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 
-		for (const target of macosOnly ? ['macos'] : ['web', 'native', 'macos']) {
+		for (const target of macosOnly || overlaysOnly ? ['macos'] : ['web', 'native', 'macos']) {
 			for (const mode of [
 				{ name: 'bundler', module: 'esnext', moduleResolution: 'bundler' },
 				{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
@@ -374,7 +411,9 @@ try {
 	}
 
 	console.log(
-		`ui packed consumer: ${macosOnly ? 'macos' : 'web/native/macos'} runtime/declaration exports and consumers pass in Bundler and NodeNext modes`,
+		overlaysOnly
+			? 'ui packed macOS overlay consumer: JSX and imperative declaration contracts pass in Bundler and NodeNext; full runtime parity remains in --macos-only'
+			: `ui packed consumer: ${macosOnly ? 'macos' : 'web/native/macos'} runtime/declaration exports and consumers pass in Bundler and NodeNext modes`,
 	)
 } finally {
 	rmSync(temporary, { recursive: true, force: true })

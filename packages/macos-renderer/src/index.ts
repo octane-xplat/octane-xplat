@@ -1,6 +1,7 @@
 import { showWindowLayer } from './layer.mjs'
 import '@nativescript/macos-node-api'
 import { loadImage } from './image'
+import { installPresentationBridge } from './presentation.mjs'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
@@ -192,6 +193,24 @@ class ContentAlignedTextField extends NSTextField {
 const inputTransparentViews = new WeakSet<object>()
 
 class AccessibleStackView extends NSStackView {
+	// Self-drawn AppKit buttons need a responder so modal decisions can use
+	// the keyboard as well as accessibility actions.
+	acceptsFirstResponder() {
+		return typeof actionHandlers.get(actionIdsByView.get(this) ?? -1) === 'function'
+	}
+
+	keyDown(event: any) {
+		if (
+			(Number(event.keyCode) === 36 || Number(event.keyCode) === 49) &&
+			this.acceptsFirstResponder()
+		) {
+			invokeAction(actionIdsByView.get(this)!)
+			return
+		}
+
+		super.keyDown(event)
+	}
+
 	hitTest(point: any) {
 		return inputTransparentViews.has(this) ? null : super.hitTest(point)
 	}
@@ -1929,6 +1948,12 @@ function applyClassName(node: ElementNode, value: any) {
 		.filter(Boolean)
 
 	if (node.type === 'label') {
+		if (classes.includes('vx-sheet-grabber')) {
+			node.classLineHeight = 24
+			setSizeConstraint(node, 'height', 24)
+			node.view!.alignment = NSTextAlignment.Center
+		}
+
 		const sizes: Record<string, number> = {
 			'text-xs': 12,
 			'text-sm': 13,
@@ -2026,6 +2051,14 @@ function applyClassName(node: ElementNode, value: any) {
 
 			if (name === 'items-center' || name === 'items-start' || name === 'items-end') {
 				node.view!.alignment = stackAlignmentAttribute(node.view, stackAlignItems(node))
+			}
+
+			if (name === 'vx-toast' && node.type === 'flexboxlayout') {
+				;(node.view as NSStackView).edgeInsets = { top: 12, left: 12, bottom: 12, right: 12 }
+			}
+
+			if (name === 'vx-toast-viewport') {
+				;(node.view as NSStackView).spacing = 8
 			}
 
 			if (name === 'vx-button') {
@@ -4065,6 +4098,7 @@ appKitBridge.showLayer = (options: PropBag) =>
 appKitBridge.attachContextMenu = attachContextMenu
 appKitBridge.attachDatePicker = attachDatePicker
 appKitBridge.presentSheet = presentSheet
+installPresentationBridge(appKitBridge, createMacOSRoot, fontFamilyForView)
 
 const rootFontFamilies = new WeakMap<object, string | undefined>()
 
