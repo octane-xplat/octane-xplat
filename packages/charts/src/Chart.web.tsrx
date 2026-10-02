@@ -154,7 +154,7 @@ export function Chart(props: ChartProps) @{
 			id={props.id ? props.id + '-overlay' : undefined}
 			ref={(el: HTMLElement | null) => {
 				hostRef.current = el;
-				measure.bind(el);
+				measure.ref(el);
 			}}
 			style={{
 				position: 'relative',

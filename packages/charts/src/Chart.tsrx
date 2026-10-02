@@ -113,7 +113,7 @@ export function Chart(props: ChartProps) @{
 			</flexboxlayout>
 		}
 		<gridlayout
-			ref={measure.bind}
+			ref={measure.ref}
 			style={{
 				width: props.width,
 				height: props.height ?? (props.aspectRatio && w > 0 ? w / props.aspectRatio : undefined),
