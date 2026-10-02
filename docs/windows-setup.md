@@ -1,7 +1,7 @@
 # Set up a Windows test host
 
 Windows is an experimental target. These steps prepare a Windows host for the
-workspace; they do not mean the harness app is ready to launch. See
+workspace. The native host can launch, but UI support remains incomplete. See
 [Windows target notes](windows-notes.md) for the current support status.
 
 ## Prepare Windows
@@ -54,8 +54,11 @@ experimental target.
 
 ## Current status
 
-The Windows-specific NativeScript doctor checks and the generated WinUI
-project build have passed on a Windows host. The app bundle still fails before
-launch, so `ns run windows`, app rendering, and the UI sweep are unverified.
+The Windows-specific NativeScript doctor checks, generated WinUI build, and
+registered-package launch have passed. Native component and OS-input checks
+have found substantial parity gaps; the full demo harness is not a supported
+Windows application yet. Direct launch from a noninteractive SSH session does
+not establish desktop rendering; activate the registered app from a signed-in
+Windows desktop session.
 See [Windows target notes](windows-notes.md) for the current implementation
 blockers.

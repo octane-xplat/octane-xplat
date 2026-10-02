@@ -2,13 +2,27 @@
 
 > How `octane-xplat` could gain a Windows desktop target via
 > [NativeScript/windows](../prior-art/nativescript-windows.md). This records
-> the design and implementation status through 2026-10-01.
+> the design and implementation status through 2026-10-02.
 >
 > **Owns:** Windows target seam (new platform, not one of the seven owned
-> problems) · **Status:** Path A scaffolded; WinUI project builds on Windows,
-> but the app bundle fails before launch · **Blocks on:** Q32–Q35 ·
-> **Decisions:** #65 · **Validated by:** source research and Windows host
-> toolchain checks; see [setup guide](windows-setup.md).
+> problems) · **Status:** Path A boots and renders native components; UI parity remains incomplete · **Blocks on:** Q32–Q35 ·
+> **Decisions:** #65 · **Validated by:** source research, native runtime checks, and real Windows mouse/keyboard input; see [setup guide](windows-setup.md).
+
+## Current support boundary
+
+The Windows host boots with the pinned `@nativescript/windows` runtime. The
+public UI root import renders native components, and basic layout, SVG source
+loading, animation, scrolling, and fixed-height virtualization have runtime
+evidence. Windows-specific seams use WinUI APIs for SVG images and
+anchor-relative coordinates; native defaults remain reusable where they work.
+
+Windows is still experimental. Required interaction and normalization gaps
+include conflicting tap/touch handlers in Pressable, ignored Flexbox padding,
+missing pan/swipe support, incomplete keyboard/accessibility semantics, and
+renderer child/text handling. Locale formatting also has a reproduced native
+runtime crash. Components that depend on these paths remain parked rather than
+being advertised as supported. A successful bundle or visible label does not
+establish full component parity.
 
 ## The fork in the road
 
