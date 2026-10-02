@@ -228,6 +228,51 @@ these from the app folder for the platforms you have set up:
 | `pnpm build:android` | Builds the Android app; requires the Android tools.       |
 | `pnpm typecheck`     | Checks the app's web and phone TypeScript configurations. |
 
+### Preview and publish Web
+
+Start by trying the built app locally. From the app folder, run:
+
+```sh
+pnpm lint
+pnpm typecheck
+pnpm build
+pnpm exec vite preview --host 127.0.0.1
+```
+
+Open the local address printed in the terminal. This preview serves the files
+in `dist`, so it checks the build rather than the development server. Try your
+main actions, open a link directly to a screen, and reload that screen.
+
+A **static host** serves your built HTML, JavaScript, CSS and other files.
+To publish the app at your site's root:
+
+1. Configure the host's build command as `pnpm build` and output folder as
+   `dist`, or upload the contents of `dist` after building locally.
+2. Enable HTTPS. Device permissions, passkeys and other browser services can
+   require a secure connection.
+3. Configure app screen URLs to serve `index.html`. This lets a direct link or
+   reload reach the app's router. Existing assets must still be served as files;
+   a missing JavaScript, CSS or worker file must return an error rather than HTML.
+4. Publish HTML so browsers check for a new version. If you cache files with
+   content hashes in their names, keep those files available to already-open
+   tabs during an update. Use the host's atomic deployment feature when available.
+5. On the published HTTPS address, repeat your main actions, direct-link/reload,
+   browser Back/Forward, keyboard navigation and installed service checks.
+   Check the browser console and network panel for errors.
+
+`vite preview` is a local check, not a production server. The host owns TLS,
+rewrites, caching and deployment updates. Local browser and packed-starter
+checks do not verify those settings on your published site.
+
+Choose the browser versions and devices your app supports, then test them.
+Framework CI covers managed Chromium, Firefox and WebKit engines; it does not
+qualify actual iOS Safari or screen-reader interaction. See the
+[Web support boundary](spec.md#choose-your-targets) and the
+[optional service qualification](../notes/optional-service-qualification.md)
+for feature-specific release checks.
+
+### Prepare phone releases
+
 Before release, run `pnpm xplat build --release` and try the resulting app.
 Phone signing must be configured for signed builds. Signing identifies your
 app's publisher; app-store uploads and signing credentials stay with your

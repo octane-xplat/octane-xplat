@@ -21,16 +21,25 @@ recorded separately in Silo.
 | Shaded web overlays leave background keyboard/AX content reachable | Compiled Sheet/Overlay focus tests failed before isolation; Chromium, Firefox, and WebKit now verify focus containment and background exclusion | Own nested modal focus, inert background portals, Escape dismissal, and connected-trigger restoration                 |
 | Pointer-opened WebKit modal returns focus to the page body           | A trusted click opened a sheet, but Escape left focus on `body` instead of its connected opener                                                | Capture the recent focusable click target and restore focus after pointer activation                                    |
 | Shaded Web `Overlay` exposes an unnamed dialog                       | The generated `role="dialog"` had no accessible name                                                                                           | Require `accessibilityLabel` for shaded overlays and apply it to the dialog panel                                       |
+| Web animation cleanup throws `Illegal invocation` | Production Chromium smoke failed during Home → Test navigation, with errors in frame cancellation | Call browser frame APIs through closures so their receiver stays correct |
+| UI wrappers discard composed array refs | Motion hosts mounted without a transform; ref composition regressions reproduce the dropped callbacks | Flatten refs recursively and preserve every callback/object ref through wrappers |
+| A Motion parent steals its descendant button's click | Trusted Chromium click targeted the card instead of Increment; keyboard activation worked | Capture the pointer on its original event target, preserving descendant click routing |
 
 Tests are maintained in `packages/ui/src/input-readiness.web.test.tsrx`,
 `modal-focus.web.test.tsrx`, `text-input.mobile.test.ts`,
-`pressable-accessibility.mobile.test.ts`, and `keyboard-inset.mobile.test.ts`.
+`pressable-accessibility.mobile.test.ts`, `keyboard-inset.mobile.test.ts`,
+`ref-list.web.test.ts`, and the production browser runner
+`apps/web/scripts/smoke.mjs`.
 Native models reproduce the component/driver seam; they are not OS runtime
 or real-IME tests.
 
 ## Completed checks
 
-- Web component regression suite: 256 tests across 42 files passed on 2026-10-02.
+- Web component regression suite: 330 tests across 53 files passed on 2026-10-02
+  at `ba2c19252c30b6854904d04b7300bd1469e74524`. Web/mobile typechecks, the
+  production Web build and recipe validation passed at the same revision.
+  The fresh packed-consumer run passed all 11 gates, including install, lint,
+  typing, build and starter rendering in Chromium, Firefox and WebKit.
 - Native object-driver suite: 12 tests across six files passed.
 - Playwright 1.63.0 input readiness passed on Chromium 153.0.8010.12, Firefox
   155.0, and WebKit 26.6: keyboard input and selection replacement, controlled
