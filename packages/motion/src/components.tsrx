@@ -249,7 +249,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 	return { hostProps: { ...rest, style, ref: [hostRef, props.ref] }, node }
 }
 
-function MotionLeaf(props: MotionProps & { component?: any }) @{
+function MotionLeaf(props: MotionProps & { component?: any; children?: any }) @{
 	const Component = props.component
 	const { hostProps, node } = useMotion(props)
 
