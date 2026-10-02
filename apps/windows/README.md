@@ -31,6 +31,33 @@ Pins, all deliberate:
   tsconfig `paths`; workspace packages' devDeps would otherwise resolve
   `9.1.2` from inside `packages/*`.
 
+## Standalone WebView2 bridge host
+
+`webview-host/` is a separate WinForms/WebView2 experiment for `.web` desktop
+frontends. It does not replace the NativeScript/WinUI scaffold below. The host
+speaks the shared typed bridge protocol (`__xplatHostTransport` plus the
+`__xplatBridge` compatibility surface), injects bootstrap state, and implements
+the core desktop services: app metadata/state/window size, clipboard, file
+pickers and file access, notifications, `PasswordVault` secure storage,
+appearance, storage, URL/path opening, clipboard-copy sharing, secondary
+windows, and named-pipe forwarding for second-instance deep links.
+
+On Windows with the .NET 10 SDK and the WebView2 Runtime:
+
+```powershell
+cd apps/windows/webview-host
+dotnet run -- --url http://localhost:5200
+dotnet run -- --bundle <frontend-dist>
+dotnet run -- --bundle <frontend-dist> --self-test
+```
+
+A URI argument becomes the cold-start `initialUrl`; later invocations forward
+through the named pipe as `app.deep-link`. `--self-test` runs
+`bridge-selftest.linux.js` from `packages/cli/src/linux/host` because the
+protocol contract is intentionally shared across hosts. This source has been
+compile-checked against Windows reference assemblies on macOS, but it has not
+been launched on Windows yet; treat WebView2 runtime behavior as unverified.
+
 ## Running
 
 Requires Windows 10 1809+ (the runtime ships arm64 DLLs; this harness has not
