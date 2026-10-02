@@ -47,9 +47,9 @@
         "Grid.tsrx",
         "Grid.web.tsrx"
       ],
-      "status": "exploring",
+      "status": "implemented",
       "evidence": ".agents/docs/windows-ui.md#current-verification",
-      "reason": "Foundation app renders in the Windows desktop session. Layout structure confirmed; Flexbox padding and Label/Pressable OS gesture delivery fail. SafeArea runtime case pending."
+      "reason": "Existing native implementation mounts a two-column grid with correct row/column placement; Windows runtime verified. Full styling/accessibility parity remains unverified."
     },
     {
       "name": "Stack",
@@ -71,9 +71,9 @@
         "StackItem.tsrx",
         "StackItem.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Existing native implementation allocates fixed 40 DIP and fill 160 DIP in a 200 DIP row; Windows runtime verified."
     },
     {
       "name": "Center",
@@ -110,9 +110,9 @@
         "AspectRatio.tsrx",
         "AspectRatio.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Runtime ratio=2 with width=200 yields height=19 instead of 100. useMeasure requires getLocationOnScreen, absent from the pinned Windows View. Reopen after a Windows measurement seam is implemented and resize behavior verified."
     },
     {
       "name": "VisuallyHidden",
@@ -147,9 +147,9 @@
         "Spacer.tsrx",
         "Spacer.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#layout-and-text-sweep",
-      "reason": "CSS-enabled Windows batch renders this component; native tree and follow-up contract checks are in progress."
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Existing native implementation fills 120 DIP between two 40 DIP children in a 200 DIP row; Windows runtime verified."
     },
     {
       "name": "Text",
@@ -219,9 +219,9 @@
         "Pressable.tsrx",
         "Pressable.web.tsrx"
       ],
-      "status": "exploring",
+      "status": "parked",
       "evidence": ".agents/docs/windows-ui.md#current-verification",
-      "reason": "Foundation app renders in the Windows desktop session. Layout structure confirmed; Flexbox padding and Label/Pressable OS gesture delivery fail. SafeArea runtime case pending."
+      "reason": "Real mouse input reaches touch observers but not onPress when both are attached: WinRT AddHandler throws E_NOINTERFACE and fallback pointer handlers overwrite each other. Reopen after core gesture multiplexing is repaired and OS click/cancel behavior retested."
     },
     {
       "name": "Button",
@@ -231,9 +231,9 @@
         "Button.tsrx",
         "Button.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "IconButton",
@@ -399,9 +399,9 @@
         "Checkbox.tsrx",
         "Checkbox.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "RadioList",
@@ -412,9 +412,9 @@
         "RadioGroup.tsrx",
         "RadioGroup.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "DropdownMenu",
@@ -1553,9 +1553,9 @@
         "TextInput.tsrx",
         "TextInput.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "TextArea",
@@ -1565,9 +1565,9 @@
         "TextArea.tsrx",
         "TextArea.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "SearchInput",
@@ -1589,9 +1589,9 @@
         "SegmentedControl.tsrx",
         "SegmentedControl.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "ScrollableArea",
@@ -1628,9 +1628,9 @@
         "Image.tsrx",
         "Image.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "WebView",
@@ -1654,9 +1654,9 @@
         "Overlay.tsrx",
         "Overlay.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "Popover",
@@ -1797,9 +1797,9 @@
         "Screen.tsrx",
         "Screen.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "Tabs",
@@ -1822,9 +1822,9 @@
         "Switch.tsrx",
         "Switch.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "SafeArea",
@@ -1835,9 +1835,9 @@
         "SafeArea.tsrx",
         "SafeArea.web.tsrx"
       ],
-      "status": "exploring",
-      "evidence": ".agents/docs/windows-ui.md#safearea-escape-prop-correction",
-      "reason": "Updated guest source renders with id safe despite Android escape id override; Windows insets are zero. Fixed source runtime checked; remaining layout/style integration checks in progress."
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Native implementation now excludes Android escape props on Windows. Runtime verifies preserved Windows id and neutral zero insets."
     },
     {
       "name": "KeyboardAvoiding",
@@ -1849,9 +1849,9 @@
         "KeyboardAvoiding.tsrx",
         "KeyboardAvoiding.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "implemented",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Shared native implementation remains neutral on Windows; Screen/overlay runtime case mounts and closes successfully. No Windows touch-keyboard avoidance is promised."
     },
     {
       "name": "Drawer",
@@ -1899,9 +1899,9 @@
         "Slider.tsrx",
         "Slider.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "parked",
+      "evidence": ".agents/docs/windows-ui.md#current-verification",
+      "reason": "Windows runtime leaves track/fill width zero because useMeasure cannot get screen position. Pinned core additionally lacks pan gestures. Reopen after measurement and native drag dispatch work; test real pointer input and accessible range semantics."
     },
     {
       "name": "Icon",
@@ -1912,9 +1912,9 @@
         "Icon.tsrx",
         "Icon.web.tsrx"
       ],
-      "status": "queued",
-      "evidence": null,
-      "reason": null
+      "status": "exploring",
+      "evidence": ".agents/docs/windows-ui.md",
+      "reason": "Windows native runtime case executed; input, accessibility, lifecycle, and contract gaps are being assessed separately."
     },
     {
       "name": "Heading",

@@ -227,3 +227,60 @@ state updates pass. Native tree evidence so far:
   declaring typography usable.
 
 These are bounded runtime cases, not full normalization or accessibility passes.
+
+### SVG component integration and renderer identity
+
+The Windows SVG implementation now supports inline markup, decoded data URIs,
+and packaged `~/` files through WinUI. Icon and three Image cases mount native
+SVGView boxes at the requested 24/48 DIP sizes, with native Image Source set,
+completion listeners released, and no load errors. A separate prototype
+verified source updates, invalid-markup failure, and recovery. Remote URLs,
+resource names, file URIs, and disposal races are still under investigation.
+Button's icon mounts, but its bare string child is absent and Pressable input
+has the previously recorded handler conflict; Button is not verified complete.
+
+The first integration build included two renderer element registries because
+pnpm's core peer contexts duplicated `@nativescript-community/octane`. SVGView
+registered in one, while the app rendered through the other. The app raised
+`<svgview> is not a registered element`. Adding the renderer to the Windows
+harness's resolve.dedupe list reduced the bundle to one registry and restored
+rendering. This harness fix is committed separately.
+
+### Reusable native overlay helpers
+
+RootLayout registration/lookup and overlay lifetime helpers use NativeScript's
+shared APIs. Their mobile-only filenames and explicit imports prevented Windows
+from selecting them. They now use unsuffixed native-default modules; guarded
+keyboard handling remains active on mobile and neutral on Windows. Screen's
+mobile tap-to-blur overrides remain selected on mobile, with a neutral default
+for desktop hosts.
+
+A real Windows Screen/KeyboardAvoiding/Overlay case renders its base content,
+opens a second native GridLayout host, and removes that host after controlled
+close. This proves mounting and cleanup for the unshaded overlay case, not shade
+click dismissal, focus management, animation fidelity, or all dependent menus.
+The existing keyboard, popover, and overlay lifecycle tests pass: 27 tests in
+three files. The UI no-emit typecheck and recipe structure check pass.
+
+### Input control runtime and accessibility
+
+Real mouse input changes CheckboxInput false → true, RadioList a → b, and
+SegmentedControl a → b. The bounded Switch click case does not change its value;
+its inferred pointer location still needs a hit-testing check. Slider mounts
+but its track/fill have zero width: the same missing screen-position API that
+breaks AspectRatio prevents the measurement hook from publishing bounds.
+Pinned core also lacks a Windows pan recognizer, so Slider needs both measurement
+and native drag support before it can be unparked.
+
+Real OS keyboard input writes `abc` into TextInput and updates its controlled
+state. The initial `initial` value, however, is absent from the native TextBox.
+A delayed imperative write also fails, while direct assignment succeeds; this
+is still under investigation. TextArea exposes both initial lines through UI
+Automation (Windows normalizes their separator to carriage return).
+
+UI Automation exposes TextInput/TextArea as Edit controls with ValuePattern.
+CheckboxInput and RadioList expose their visible labels as Text controls, with
+no toggle/selection semantics. SegmentedControl likewise exposes Text labels;
+Switch and Slider have no corresponding semantic control in this case. Mouse
+callback success therefore does not establish keyboard or assistive-technology
+support.
